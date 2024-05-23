@@ -380,7 +380,10 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
               <InvoiceSummaryPanel 
                 invoiceId={invoiceId}
                 invoiceDiscountableTotal={invoiceDiscountableTotal}
-                invoiceNonDiscountableTotal={invoiceNonDiscountableTotal}
+                invoiceNonDiscountableTotal={
+                  isNaN(invoiceNonDiscountableTotal) ? 0 : invoiceNonDiscountableTotal
+                }
+                isEditInvoice
               />
             </ModalSection>
             <StyledDivider />

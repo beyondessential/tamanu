@@ -59,6 +59,7 @@ const DescriptionText = styled.span`
 export const InvoiceSummaryPanel = ({
   invoiceId,
   invoiceStatus,
+  isEditInvoice,
   invoiceDiscountableTotal,
   invoiceNonDiscountableTotal,
 }) => {
@@ -162,7 +163,9 @@ export const InvoiceSummaryPanel = ({
             <span>{discountInfo.description}</span>
           </ThemedTooltip>
         </DescriptionText>
-        {invoiceStatus === INVOICE_STATUSES.IN_PROGRESS && !!discountInfo.percentageChange &&
+        {invoiceStatus === INVOICE_STATUSES.IN_PROGRESS &&
+          !!discountInfo.percentageChange &&
+          isEditInvoice &&
           <IconButton onClick={() => setIsOpenManualDiscountModal(true)}>
             <PencilIcon />
           </IconButton>}
