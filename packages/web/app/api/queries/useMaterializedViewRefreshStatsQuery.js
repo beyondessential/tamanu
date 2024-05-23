@@ -5,6 +5,8 @@ import { useSocket } from '../../utils/useSocket';
 import { useApi } from '../useApi';
 import { formatDistanceToNow, parseISO } from 'date-fns';
 
+import { WS_EVENT_NAMESPACES } from '@tamanu/constants';
+
 /**
  * Gets the latest refresh stats (last refreshed time and parsed cron schedule)
  * and provides a trigger to refresh the associated table.
@@ -47,13 +49,14 @@ export const useMaterializedViewRefreshStatsQuery = viewName => {
 
   // Listen for refresh event from scheduled task via websocket
   useEffect(() => {
-    const handleDataChangeEvent = msg => {
+    const handleDataUpdatedEvent = msg => {
       if (msg !== viewName) return;
       handleFreshData();
     };
     if (!socket) return;
-    socket.on(`data-change:${viewName}`, handleDataChangeEvent);
-    return () => socket.off(`data-change:${viewName}`, handleDataChangeEvent);
+    const eventKey = `${WS_EVENT_NAMESPACES.DATA_UPDATED}:${viewName}`;
+    socket.on(eventKey, handleDataUpdatedEvent);
+    return () => socket.off(eventKey, handleDataUpdatedEvent);
   }, [socket, handleFreshData, viewName]);
 
   return {

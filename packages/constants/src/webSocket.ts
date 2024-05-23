@@ -1,7 +1,7 @@
 export const WS_EVENT_NAMESPACES = {
   TELEGRAM: 'telegram',
   PATIENT_CONTACT: 'patient-contact',
-  DATA_CHANGE: 'data-Change',
+  DATA_UPDATED: 'data-updated',
 };
 
 const { TELEGRAM, PATIENT_CONTACT } = WS_EVENT_NAMESPACES;
