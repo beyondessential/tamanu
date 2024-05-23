@@ -3,6 +3,7 @@ import config from 'config';
 import asyncHandler from 'express-async-handler';
 
 import { NotFoundError } from '@tamanu/shared/errors';
+import { MATERIALIZED_VIEW_LAST_REFRESHED_AT_KEY_NAMESPACE } from '@tamanu/constants';
 
 import { getTranslatedCronParser } from '../../utils/getTranslatedCronParser';
 
@@ -23,7 +24,7 @@ materializedView.get(
     const parseCronExpression = await getTranslatedCronParser(models, language);
     return res.send({
       lastRefreshed: await req.models.LocalSystemFact.get(
-        `materializedViewLastRefreshedAt:${tableName}`,
+        `${MATERIALIZED_VIEW_LAST_REFRESHED_AT_KEY_NAMESPACE}:${tableName}`,
       ),
       schedule: parseCronExpression(schedule),
     });
