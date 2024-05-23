@@ -37,28 +37,17 @@ export async function startScheduledTasks(context) {
     FhirMissingResources,
     PatientTelegramCommunicationProcessor,
     VaccinationReminderProcessor,
+    AutomaticLabTestResultPublisher,
+    CovidClearanceCertificatePublisher,
+    StaleSyncSessionCleaner,
+    PlannedMoveTimeout,
   ];
 
-  // Add tasks requiring explicit enabled flag
-  if (config.schedules.automaticLabTestResultPublisher.enabled) {
-    taskClasses.push(AutomaticLabTestResultPublisher);
-  }
-  if (config.schedules.covidClearanceCertificatePublisher.enabled) {
-    taskClasses.push(CovidClearanceCertificatePublisher);
-  }
-  if (config.schedules.staleSyncSessionCleaner.enabled) {
-    taskClasses.push(StaleSyncSessionCleaner);
-  }
-
-  // Add tasks requiring integration enabled flag
   if (config.integrations.fijiVrs.enabled) {
     taskClasses.push(VRSActionRetrier);
   }
   if (config.integrations.signer.enabled) {
     taskClasses.push(SignerWorkingPeriodChecker, SignerRenewalChecker, SignerRenewalSender);
-  }
-  if (config.schedules.plannedMoveTimeout.enabled) {
-    taskClasses.push(PlannedMoveTimeout);
   }
 
   const reportSchedulers = await getReportSchedulers(context);
