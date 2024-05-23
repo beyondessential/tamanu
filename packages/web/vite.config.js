@@ -4,6 +4,21 @@ import react from '@vitejs/plugin-react-swc';
 import { json5Plugin } from 'vite-plugin-json5';
 import { nodePolyfills } from 'vite-plugin-node-polyfills';
 
+function noCacheOnIndex() {
+  return {
+    name: 'manual-cache',
+    configureServer(server) {
+      server.middlewares.use((req, res, next) => {
+        if (req.url?.endsWith('/')) {
+          res.setHeader('Cache-Control', 'no-cache');
+          res.setHeader('Expires', '0');
+        }
+        next();
+      });
+    },
+  }
+}
+
 // https://vitejs.dev/config/
 export default async ({ mode }) => {
   Object.assign(process.env, loadEnv(mode, process.cwd(), 'TAMANU_'));
@@ -20,6 +35,7 @@ export default async ({ mode }) => {
           Buffer: true,
         },
       }),
+      noCacheOnIndex(),
     ],
 
     define: {
