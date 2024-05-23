@@ -37,6 +37,7 @@ export async function startScheduledTasks(context) {
     VaccinationReminderProcessor,
   ];
 
+  // Add tasks requiring explicit enabled flag
   if (config.schedules.automaticLabTestResultPublisher.enabled) {
     taskClasses.push(AutomaticLabTestResultPublisher);
   }
@@ -45,6 +46,11 @@ export async function startScheduledTasks(context) {
     taskClasses.push(CovidClearanceCertificatePublisher);
   }
 
+  if (config.schedules.staleSyncSessionCleaner.enabled) {
+    taskClasses.push(StaleSyncSessionCleaner);
+  }
+
+  // Add tasks requiring integration enabled flag
   if (config.integrations.fijiVrs.enabled) {
     taskClasses.push(VRSActionRetrier);
   }
@@ -55,10 +61,6 @@ export async function startScheduledTasks(context) {
 
   if (config.schedules.plannedMoveTimeout.enabled) {
     taskClasses.push(PlannedMoveTimeout);
-  }
-
-  if (config.schedules.staleSyncSessionCleaner.enabled) {
-    taskClasses.push(StaleSyncSessionCleaner);
   }
 
   const reportSchedulers = await getReportSchedulers(context);
@@ -73,7 +75,14 @@ export async function startScheduledTasks(context) {
       }
     }),
     ...reportSchedulers,
-  ].filter(x => x);
+  ].filter(task => {
+    if (!task) return false;
+    const isTaskEnabled = config.schedules[task.name]?.enabled !== false;
+    if (!isTaskEnabled) {
+      log.info(`Skipping initialisation of task ${task.name} as it is disabled in config`);
+    }
+    return isTaskEnabled;
+  });
   tasks.forEach(t => t.beginPolling());
   return () => tasks.forEach(t => t.cancelPolling());
 }
