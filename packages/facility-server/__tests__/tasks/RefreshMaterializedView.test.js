@@ -40,6 +40,8 @@ describe('RefreshMaterializedView', () => {
     });
   });
 
+  afterAll(() => context.close());
+
   it('should refresh materialized view', async () => {
     const originalMaterialisedResult = await context.sequelize.query(
       'SELECT * FROM materialized_upcoming_vaccinations',
@@ -48,7 +50,7 @@ describe('RefreshMaterializedView', () => {
       },
     );
     // Check that the materialized view is empty as we haven't run the task yet
-    expect(originalMaterialisedResult).toHaveLength(0);
+    expect(originalMaterialisedResult).toEqual([]);
     await task.run();
     const refreshedMaterializedResult = await context.sequelize.query(
       'SELECT * FROM upcoming_vaccinations',
