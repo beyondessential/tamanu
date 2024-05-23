@@ -45,7 +45,7 @@ export const useMaterializedViewRefreshStatsQuery = viewName => {
     return () => clearInterval(interval);
   }, [refreshStats, handleRefreshLastUpdated]);
 
-  // Listen for refresh event from scheduled task
+  // Listen for refresh event from scheduled task via websocket
   useEffect(() => {
     const handleRefreshEvent = msg => {
       if (msg !== viewName) return;
