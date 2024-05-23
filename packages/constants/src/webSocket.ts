@@ -1,10 +1,17 @@
+export const WS_EVENT_NAMESPACES = {
+  TELEGRAM: 'telegram',
+  PATIENT_CONTACT: 'patient-contact',
+  DATA_CHANGE: 'data-Change',
+};
+
+const { TELEGRAM, PATIENT_CONTACT } = WS_EVENT_NAMESPACES;
+
 export const WS_EVENTS = {
-  TELEGRAM_SUBSCRIBE: 'telegram:subscribe',
-  TELEGRAM_SUBSCRIBE_SUCCESS: 'telegram:subscribe:success',
-  TELEGRAM_GET_BOT_INFO: 'telegram:get-bot-info',
-  TELEGRAM_BOT_INFO: 'telegram:bot-info',
-  PATIENT_CONTACT_INSERT: 'patient-contact:insert',
-  TELEGRAM_UNSUBSCRIBE: 'telegram:unsubscribe',
-  TELEGRAM_UNSUBSCRIBE_SUCCESS: 'telegram:unsubscribe:success',
-  UPCOMING_VACCINATIONS_CHANGE: 'upcoming-vaccinations:change',
+  TELEGRAM_SUBSCRIBE: `${TELEGRAM}:subscribe`,
+  TELEGRAM_SUBSCRIBE_SUCCESS: `${TELEGRAM}:subscribe:success`,
+  TELEGRAM_GET_BOT_INFO: `${TELEGRAM}:get-bot-info`,
+  TELEGRAM_BOT_INFO: `${TELEGRAM}:bot-info`,
+  PATIENT_CONTACT_INSERT: `${PATIENT_CONTACT}:insert`,
+  TELEGRAM_UNSUBSCRIBE: `${TELEGRAM}:unsubscribe`,
+  TELEGRAM_UNSUBSCRIBE_SUCCESS: `${TELEGRAM}:unsubscribe:success`,
 };
