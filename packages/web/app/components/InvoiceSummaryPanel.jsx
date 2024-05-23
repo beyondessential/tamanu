@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { Divider } from '@material-ui/core';
 import { Colors } from '../constants';
 import { TranslatedText } from './Translation';
-import { useApi } from '../api';
+import { useApi, useSuggester } from '../api';
 import { PencilIcon } from '../assets/icons/PencilIcon';
 import { InvoiceManualDiscountModal } from './InvoiceManualDiscountModal';
 import { ThemedTooltip } from './Tooltip';
@@ -59,28 +59,53 @@ export const InvoiceSummaryPanel = ({
   invoiceNonDiscountableTotal,
 }) => {
   const api = useApi();
-  const [percentageChange, setPercentageChange] = useState(0);
-  const [description, setDescription] = useState('');
   const [isOpenManualDiscountModal, setIsOpenManualDiscountModal] = useState(false);
   const [priceChangeId, setPriceChangeId] = useState();
+  const [discountInfo, setDiscountInfo] = useState({
+    percentageChange: 0,
+    description: "",
+    orderedById: "",
+    date: "",
+    orderedByName: "",
+  });
+
+  const practitionerSuggester = useSuggester('practitioner');
+
+  useEffect(() => {
+    (async () => {
+      if (!discountInfo.orderedById) return;
+      const { label } = await practitionerSuggester.fetchCurrentOption(discountInfo.orderedById);
+      setDiscountInfo(prevDiscountInfo => ({
+        ...prevDiscountInfo,
+        orderedByName: label,
+      }));
+    })();
+  }, [discountInfo.orderedById]);
+
   const invoiceTotal = invoiceDiscountableTotal + invoiceNonDiscountableTotal;
-  const discountedPrice = invoiceDiscountableTotal * percentageChange;
+  const discountedPrice = invoiceDiscountableTotal * discountInfo.percentageChange;
   const patientTotal = invoiceTotal + discountedPrice;
 
   useEffect(() => {
     (async () => {
       const { data } = await api.get(`invoices/${invoiceId}/priceChangeItems`);
       if (!data.length) return;
-      setPercentageChange(data[0].percentageChange);
-      setDescription(data[0].description);
+      setDiscountInfo(prevDiscountInfo => ({
+        ...prevDiscountInfo,
+        percentageChange: data[0].percentageChange,
+        description: data[0].description,
+        orderedById: data[0].orderedById,
+        date: data[0].date,
+      }));
       setPriceChangeId(data[0].id);
     })();
   }, [api]);
 
-  const updatePercentageChangeAndReason = useCallback(
-    ({ percentageChange, reason }) => {
-      setPercentageChange(percentageChange);
-      setDescription(reason);
+  const updateDiscountInfo = useCallback(
+    (updatedDiscountInfo) => {
+      setDiscountInfo(prevDiscountInfo => (
+        { ...prevDiscountInfo, ...updatedDiscountInfo }
+      ));
     }, []);
 
   return (
@@ -112,7 +137,7 @@ export const InvoiceSummaryPanel = ({
           fallback='Discount'
         />
         <DiscountedPrice>
-          <span>{(Math.abs(percentageChange) * 100).toFixed(2)}%</span>
+          <span>{(Math.abs(discountInfo.percentageChange) * 100).toFixed(2)}%</span>
           <DiscountedText>
             {(discountedPrice).toFixed(2)}
           </DiscountedText>
@@ -120,8 +145,8 @@ export const InvoiceSummaryPanel = ({
       </CardItem>
       <CardItem $marginBottom={-6} $color={Colors.midText} $justifyContent='flex-start'>
         <DescriptionText>
-          <ThemedTooltip title={description}>
-            <span>{description}</span>
+          <ThemedTooltip title={`${discountInfo.orderedByName} ${discountInfo.date}`}>
+            <span>{discountInfo.description}</span>
           </ThemedTooltip>
         </DescriptionText>
         <IconButton onClick={() => setIsOpenManualDiscountModal(true)}>
@@ -132,9 +157,9 @@ export const InvoiceSummaryPanel = ({
           onClose={() => setIsOpenManualDiscountModal(false)}
           invoiceId={invoiceId}
           priceChangeId={priceChangeId}
-          onUpdatePercentageChangeAndReason={updatePercentageChangeAndReason}
-          description={description}
-          percentageChange={percentageChange}
+          onUpdateDiscountInfo={updateDiscountInfo}
+          description={discountInfo.description}
+          percentageChange={discountInfo.percentageChange}
         />
       </CardItem>
       <CardItem $marginBottom={-6} $color={Colors.midText}>

@@ -1,5 +1,6 @@
 import React, { useCallback } from 'react';
 import * as yup from 'yup';
+import { toDateString } from '@tamanu/shared/utils/dateTime';
 import { Modal } from './Modal';
 import { FormGrid } from './FormGrid';
 import { Field, Form, NumberField, TextField } from './Field';
@@ -7,10 +8,21 @@ import { TranslatedText } from './Translation';
 import { FormSubmitCancelRow } from './ButtonRow';
 import { BodyText, Heading3 } from './Typography';
 import { useApi } from '../api';
+import { useAuth } from '../contexts/Auth';
 
 export const InvoiceManualDiscountModal = React.memo(
-  ({ open, onClose, invoiceId, priceChangeId, onUpdatePercentageChangeAndReason, description, percentageChange }) => {
+  ({
+    open,
+    onClose,
+    invoiceId,
+    priceChangeId,
+    onUpdateDiscountInfo,
+    description,
+    percentageChange
+  }) => {
     const api = useApi();
+    const { currentUser } = useAuth();
+
     const preventInvalid = value => {
       if (!value.target.validity.valid) {
         value.target.value = 0;
@@ -20,11 +32,14 @@ export const InvoiceManualDiscountModal = React.memo(
     const handleSubmit = useCallback(
       async data => {
         const percentageChange = -Math.abs(data.percentageChange / 100);
-        await api.put(`invoices/${invoiceId}/priceChangeItems/${priceChangeId}`, {
+        const payload = {
           description: data.reason,
-          percentageChange: percentageChange,
-        });
-        onUpdatePercentageChangeAndReason({ percentageChange, reason: data.reason });
+          percentageChange,
+          orderedById: currentUser.id,
+          date: toDateString(new Date()),
+        };
+        await api.put(`invoices/${invoiceId}/priceChangeItems/${priceChangeId}`, payload);
+        onUpdateDiscountInfo(payload);
         onClose();
       },
       [api, invoiceId, priceChangeId, onClose],
@@ -38,14 +53,14 @@ export const InvoiceManualDiscountModal = React.memo(
         onClose={onClose}
       >
         <Heading3 mb="8px">
-          <TranslatedText 
-            stringId="invoice.modal.manualDiscount.subtitle" 
-            fallback="Manual patient discount" 
+          <TranslatedText
+            stringId="invoice.modal.manualDiscount.subtitle"
+            fallback="Manual patient discount"
           />
         </Heading3>
         <BodyText mb="20px" color="textTertiary">
           <TranslatedText
-            stringId="invoice.modal.manualDiscount.description" 
+            stringId="invoice.modal.manualDiscount.description"
             fallback="Please set the patient discount below. This discount will be applied to all eligible items on the invoice."
           />
         </BodyText>
@@ -80,7 +95,7 @@ export const InvoiceManualDiscountModal = React.memo(
             </FormGrid>
           )}
           initialValues={{
-            percentageChange: Math.abs(percentageChange)*100,
+            percentageChange: Math.abs(percentageChange) * 100,
             reason: description
           }}
           validationSchema={yup.object().shape({
@@ -89,9 +104,9 @@ export const InvoiceManualDiscountModal = React.memo(
               .number()
               .required()
               .translatedLabel(
-                <TranslatedText 
-                  stringId="invoice.modal.manualDiscount.discount.label" 
-                  fallback="Discount (%)" 
+                <TranslatedText
+                  stringId="invoice.modal.manualDiscount.discount.label"
+                  fallback="Discount (%)"
                 />,
               ),
           })}
