@@ -22,6 +22,7 @@ import { ErrorScreen } from '/components/ErrorScreen';
 import { useBackendEffect } from '~/ui/hooks';
 import { SETTING_KEYS } from '../../../../constants';
 import { useLocalisation } from '~/ui/contexts/LocalisationContext';
+import { ScheduledVaccine } from '~/models/ScheduledVaccine';
 
 const getFormType = (status: VaccineStatus): { Form: FC<any> } => {
   switch (status) {
@@ -46,6 +47,7 @@ export type VaccineFormValues = {
   recorderId?: string;
   status: string | VaccineStatus;
   consent: boolean;
+  scheduledVaccine?: ScheduledVaccine;
 };
 
 interface VaccineFormProps {

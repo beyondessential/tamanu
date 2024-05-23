@@ -31,14 +31,8 @@ export const DischargeModal = React.memo(({ open, onClose }) => {
       case PATIENT_STATUS.EMERGENCY:
         // This is an emergency encounter
         if (
-          dischargeDisposition?.code?.startsWith(
-            DISCHARGE_DISPOSITION_FOR_INPATIENTS_ONLY,
-          )
-          ||
-          dischargeDisposition?.code?.startsWith(
-            DISCHARGE_DISPOSITION_FOR_OUTPATIENTS_ONLY,
-          )
-
+          dischargeDisposition?.code?.startsWith(DISCHARGE_DISPOSITION_FOR_INPATIENTS_ONLY) ||
+          dischargeDisposition?.code?.startsWith(DISCHARGE_DISPOSITION_FOR_OUTPATIENTS_ONLY)
         ) {
           return false; // Do not show discharge dispositions that are only for inpatient or outpatient encounters
         }
@@ -47,32 +41,25 @@ export const DischargeModal = React.memo(({ open, onClose }) => {
       case PATIENT_STATUS.OUTPATIENT:
         // This is an outpatient encounter
         if (
-          dischargeDisposition?.code?.startsWith(
-            DISCHARGE_DISPOSITION_FOR_EMERGENCY_ONLY,
-          ) ||
-          dischargeDisposition?.code?.startsWith(
-            DISCHARGE_DISPOSITION_FOR_INPATIENTS_ONLY,
-          )
+          dischargeDisposition?.code?.startsWith(DISCHARGE_DISPOSITION_FOR_EMERGENCY_ONLY) ||
+          dischargeDisposition?.code?.startsWith(DISCHARGE_DISPOSITION_FOR_INPATIENTS_ONLY)
         ) {
-          return false; // Do not show discharge dispositions that are only for emergency
+          return false; // Do not show discharge dispositions that are only for emergency and inpatient encounters
         }
         // Otherwise show everything
         return true;
       case PATIENT_STATUS.INPATIENT:
         // This is an inpatient encounter
         if (
-          dischargeDisposition?.code?.startsWith(
-            DISCHARGE_DISPOSITION_FOR_EMERGENCY_ONLY,
-          )
-          ||
-          dischargeDisposition?.code?.startsWith(
-            DISCHARGE_DISPOSITION_FOR_OUTPATIENTS_ONLY,
-          )
+          dischargeDisposition?.code?.startsWith(DISCHARGE_DISPOSITION_FOR_EMERGENCY_ONLY) ||
+          dischargeDisposition?.code?.startsWith(DISCHARGE_DISPOSITION_FOR_OUTPATIENTS_ONLY)
         ) {
-          return false; // Do not show discharge dispositions that are only for emergency encounters
+          return false; // Do not show discharge dispositions that are only for emergency and outpatient encounters
         }
         // Otherwise show everything
         return true;
+      default:
+        throw new Error('Unsupported encounter type for discharge disposition');
     }
   };
 
