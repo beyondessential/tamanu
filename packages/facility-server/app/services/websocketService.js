@@ -1,13 +1,15 @@
 import { Server } from 'socket.io';
 
+import { NOTIFY_CHANNELS } from '@tamanu/constants/database';
+
 const setupDatabaseNotificationForwarding = (pg, socket) => {
   pg.on('notification', msg => {
     const { channel, payload } = msg;
-    if (channel === 'refreshed_materialized_view') {
-      socket.emit(`data-change:${payload}`);
+    if (channel === NOTIFY_CHANNELS.DATA_UPDATED) {
+      socket.emit(`data-updated:${payload}`);
     }
   });
-  pg.query('LISTEN refreshed_materialized_view');
+  pg.query(`LISTEN ${NOTIFY_CHANNELS.DATA_UPDATED}`);
 };
 
 /**
