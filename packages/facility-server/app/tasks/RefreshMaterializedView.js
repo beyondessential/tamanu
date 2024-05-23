@@ -2,20 +2,20 @@ import config from 'config';
 import { pascal, snake } from 'case';
 
 import { ScheduledTask } from '@tamanu/shared/tasks';
-import { MATERIALIZED_TABLES } from '@tamanu/constants';
+import { MATERIALIZED_VIEWS } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 
-const RefreshMaterializedViewTask = tableName =>
+const RefreshMaterializedViewTask = viewName =>
   class RefreshMaterializedView extends ScheduledTask {
-    tableName = tableName;
+    viewName = viewName;
 
     getName() {
-      return `Refresh${pascal(this.tableName)}`;
+      return `Refresh${pascal(this.viewName)}`;
     }
 
     constructor(context) {
-      const { schedule, jitterTime } = config.schedules.refreshMaterializedView[tableName];
+      const { schedule, jitterTime } = config.schedules.refreshMaterializedView[viewName];
       super(schedule, log, jitterTime);
       this.websocketService = context.websocketService;
       this.sequelize = context.sequelize;
@@ -25,16 +25,16 @@ const RefreshMaterializedViewTask = tableName =>
 
     async run() {
       await this.sequelize.query(
-        `REFRESH MATERIALIZED VIEW CONCURRENTLY materialized_${snake(this.tableName)}`,
+        `REFRESH MATERIALIZED VIEW CONCURRENTLY materialized_${snake(this.viewName)}`,
       );
-      await this.sequelize.query(`NOTIFY refreshed_materialized_view, '${this.tableName}'`);
+      await this.sequelize.query(`NOTIFY refreshed_materialized_view, '${this.viewName}'`);
       await this.models.LocalSystemFact.set(
-        `materializedViewLastRefreshedAt:${this.tableName}`,
+        `materializedViewLastRefreshedAt:${this.viewName}`,
         getCurrentDateTimeString(),
       );
     }
   };
 
 export const RefreshUpcomingVaccinations = RefreshMaterializedViewTask(
-  MATERIALIZED_TABLES.UPCOMING_VACCINATIONS,
+  MATERIALIZED_VIEWS.UPCOMING_VACCINATIONS,
 );
