@@ -2,7 +2,7 @@
 	root * /app
 	encode zstd gzip
 	log {
-		output stdout
+		output stderr
 	}
 
 	file_server {
