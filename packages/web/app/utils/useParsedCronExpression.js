@@ -9,19 +9,19 @@ import { useEffect } from 'react';
  * If we expect the parsing of other cron expressions, we need to add more methods here
  */
 class CustomTranslatedLocale extends EnglishLocale {
-  constructor(tt) {
+  constructor(getTranslation) {
     super();
-    this.tt = tt;
+    this.getTranslation = getTranslation;
   }
 
   everyX0Seconds() {
-    return this.tt('schedule.everyNSeconds', 'every %s seconds');
+    return this.getTranslation('schedule.everyNSeconds', 'every %s seconds');
   }
   everyX0Minutes() {
-    return this.tt('schedule.everyNMinutes', 'every %s minutes');
+    return this.getTranslation('schedule.everyNMinutes', 'every %s minutes');
   }
   everyX0Hours() {
-    return this.tt('schedule.everyNHours', 'every %s hours');
+    return this.getTranslation('schedule.everyNHours', 'every %s hours');
   }
 }
 
