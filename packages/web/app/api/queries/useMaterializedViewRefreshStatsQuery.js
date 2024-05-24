@@ -1,12 +1,9 @@
 import { useCallback, useEffect, useState } from 'react';
 import { formatDistanceToNow, parseISO } from 'date-fns';
 
-import { WS_EVENT_NAMESPACES } from '@tamanu/constants';
-
-import { useOutdatingQuery } from './useOutdatingQuery';
+import { useAutoUpdatingQuery } from './useAutoUpdatingQuery';
 import { useParsedCronExpression } from '../../utils/useParsedCronExpression';
 import { useTranslation } from '../../contexts/Translation';
-import { useApi } from '../useApi';
 
 /**
  * Gets the latest refresh stats (last refreshed time and parsed cron schedule)
@@ -22,23 +19,11 @@ export const useMaterializedViewRefreshStatsQuery = (
     endpoint: `${viewName}/refreshStats`,
   },
 ) => {
-  const api = useApi();
   const { getTranslation } = useTranslation();
   const [lastUpdated, setLastUpdated] = useState();
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
-  const queryResult = useOutdatingQuery(
-    ['materialisedViewRefreshStats', viewName],
-    `${WS_EVENT_NAMESPACES.DATA_UPDATED}:${viewName}`,
-    () => api.get(endpoint),
-    {
-      onOutdated: () => {
-        setLastUpdated(null);
-        setRefreshTrigger(count => count + 1);
-      },
-    },
-  );
-  const { data: refreshStats } = queryResult;
+  const { data: refreshStats } = useAutoUpdatingQuery(endpoint);
   const schedule = useParsedCronExpression(refreshStats?.schedule);
 
   const dateAsDistanceToNow = useCallback(
@@ -60,8 +45,14 @@ export const useMaterializedViewRefreshStatsQuery = (
     return () => clearInterval(interval);
   }, [refreshStats, recalculateDistanceFromNowIntervalMs, handleRefreshLastUpdated]);
 
+  // Force a refresh of the table when the refresh stats data is updated
+  useEffect(() => {
+    if (refreshStats) {
+      setRefreshTrigger(prev => prev + 1);
+    }
+  }, [refreshStats]);
+
   return {
-    ...queryResult,
     data: refreshStats && {
       schedule,
       lastUpdated: lastUpdated || dateAsDistanceToNow(refreshStats.lastRefreshed),
