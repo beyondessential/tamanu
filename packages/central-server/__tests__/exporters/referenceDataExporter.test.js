@@ -426,7 +426,7 @@ describe('Reference data exporter', () => {
 
   it('Should export Administered vaccine with encounter data', async () => {
     await createDataForEncounter(models);
-    const vaccine = await createVaccine(models, { label: 'Covid', schedule: 'Dose 1' });
+    const vaccine = await createVaccine(models, { label: 'Covid', doseLabel: 'Dose 1' });
     const { administeredVaccine, encounter } = await createAdministeredVaccineData(models, vaccine);
     const {
       administeredVaccine: administeredVaccine2,

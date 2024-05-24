@@ -42,14 +42,14 @@ describe('Vaccine list report', () => {
       await createScheduledVaccine(models, {
         category: 'Campaign',
         label: 'COVID-19',
-        schedule: 'Dose 1',
+        doseLabel: 'Dose 1',
       }),
     );
     scheduledVaccine2 = await models.ScheduledVaccine.create(
       await createScheduledVaccine(models, {
         category: 'Routine',
         label: 'BCG',
-        schedule: 'Dose 1',
+        doseLabel: 'Dose 1',
       }),
     );
 

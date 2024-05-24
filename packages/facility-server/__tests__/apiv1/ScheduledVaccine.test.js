@@ -18,7 +18,7 @@ describe('Scheduled Vaccine', () => {
       await createScheduledVaccine(models, {
         category: 'Category1',
         label: 'Label1',
-        schedule: 'Schedule1',
+        doseLabel: 'Schedule1',
         visibilityStatus: VISIBILITY_STATUSES.CURRENT,
       }),
     );
