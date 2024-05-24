@@ -17,20 +17,20 @@ import { useApi } from '../useApi';
  */
 export const useMaterializedViewRefreshStatsQuery = (
   viewName,
-  { endpoint, distanceFromNowInterval } = {
-    distanceFromNowInterval: 1000 * 60,
+  { endpoint, recalculateDistanceFromNowIntervalMs } = {
+    recalculateDistanceFromNowIntervalMs: 1000 * 60,
     endpoint: `${viewName}/refreshStats`,
   },
 ) => {
   const api = useApi();
-  const { storedLanguage } = useTranslation();
+  const { getTranslation } = useTranslation();
   const [lastUpdated, setLastUpdated] = useState();
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   const queryResult = useOutdatingQuery(
     ['materialisedViewRefreshStats', viewName],
     `${WS_EVENT_NAMESPACES.DATA_UPDATED}:${viewName}`,
-    () => api.get(endpoint, { language: storedLanguage }),
+    () => api.get(endpoint),
     {
       onOutdated: () => {
         setLastUpdated(null);
@@ -41,18 +41,24 @@ export const useMaterializedViewRefreshStatsQuery = (
   const { data: refreshStats } = queryResult;
   const schedule = useParsedCronExpression(refreshStats?.schedule);
 
-  const dateAsDistanceToNow = date => formatDistanceToNow(parseISO(date), { addSuffix: 'ago' });
+  const dateAsDistanceToNow = useCallback(
+    date =>
+      formatDistanceToNow(parseISO(date), {
+        addSuffix: getTranslation('schedule.distanceFromNow.suffix', 'ago'),
+      }),
+    [getTranslation],
+  );
   const handleRefreshLastUpdated = useCallback(() => {
     const { lastRefreshed } = refreshStats;
     setLastUpdated(dateAsDistanceToNow(lastRefreshed));
-  }, [refreshStats]);
+  }, [dateAsDistanceToNow, refreshStats]);
 
   // Update the distance from now text every minute
   useEffect(() => {
     if (!refreshStats) return;
-    const interval = setInterval(handleRefreshLastUpdated, distanceFromNowInterval);
+    const interval = setInterval(handleRefreshLastUpdated, recalculateDistanceFromNowIntervalMs);
     return () => clearInterval(interval);
-  }, [refreshStats, distanceFromNowInterval, handleRefreshLastUpdated]);
+  }, [refreshStats, recalculateDistanceFromNowIntervalMs, handleRefreshLastUpdated]);
 
   return {
     ...queryResult,
