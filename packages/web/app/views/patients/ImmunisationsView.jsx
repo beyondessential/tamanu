@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useDispatch } from 'react-redux';
 
-import { MATERIALIZED_VIEWS } from '@tamanu/constants';
+import { WS_EVENT_NAMESPACES } from '@tamanu/constants';
 
 import {
   ContentPane,
@@ -23,7 +23,8 @@ import { usePatientNavigation } from '../../utils/usePatientNavigation.js';
 import { PATIENT_TABS } from '../../constants/patientPaths.js';
 import { reloadPatient } from '../../store/index.js';
 import { RefreshStatsDisplay } from '../../components/Table/RefreshStatsDisplay.jsx';
-import { useMaterializedViewRefreshStatsQuery } from '../../api/queries/useMaterializedViewRefreshStatsQuery.js';
+import { useChangeDetectingQuery } from '../../api/queries/useChangeDetectingQuery.js';
+import { useApi } from '../../api/useApi.js';
 
 const StyledSearchTableTitle = styled(SearchTableTitle)`
   display: flex;
@@ -71,9 +72,14 @@ const COLUMNS = [
 
 export const ImmunisationsView = () => {
   const dispatch = useDispatch();
-  const { data: refreshStats, refreshTrigger, error } = useMaterializedViewRefreshStatsQuery(
-    MATERIALIZED_VIEWS.UPCOMING_VACCINATIONS,
+  const api = useApi();
+
+  const { data: refreshStats, error } = useChangeDetectingQuery(
+    ['upcomingVaccinations/refreshStats'],
+    `${WS_EVENT_NAMESPACES.DATA_UPDATED}:upcomingVaccinations`,
+    () => api.get('upcomingVaccinations/refreshStats'),
   );
+
   const [searchParameters, setSearchParameters] = useState({});
   const { navigateToPatient } = usePatientNavigation();
   const onRowClick = async patient => {
@@ -93,7 +99,8 @@ export const ImmunisationsView = () => {
             stringId="immunisation.register.search.title"
             fallback="Patient immunisation search"
           />
-          <RefreshStatsDisplay stats={refreshStats} error={error} />
+
+          {refreshStats && <RefreshStatsDisplay stats={refreshStats} error={error} />}
         </StyledSearchTableTitle>
         <ImmunisationSearchBar onSearch={setSearchParameters} />
         <SearchTable
@@ -101,7 +108,6 @@ export const ImmunisationsView = () => {
           columns={COLUMNS}
           noDataMessage="No patients found"
           onRowClick={onRowClick}
-          refreshCount={refreshTrigger}
           fetchOptions={searchParameters}
         />
       </ContentPane>
