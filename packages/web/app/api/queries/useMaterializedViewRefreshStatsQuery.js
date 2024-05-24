@@ -13,7 +13,13 @@ import { useOutdatingQuery } from './useOutdatingQuery';
  * require expensive queries that prevent real time display of the data.
  * To get around this we use a materialized view that is periodically refreshed by a scheduled task
  */
-export const useMaterializedViewRefreshStatsQuery = (viewName, endpoint) => {
+export const useMaterializedViewRefreshStatsQuery = (
+  viewName,
+  { endpoint, distanceFromNowInterval } = {
+    distanceFromNowInterval: 1000 * 60,
+    endpoint: `${viewName}/refreshStats`,
+  },
+) => {
   const api = useApi();
   const { storedLanguage } = useTranslation();
   const [lastUpdated, setLastUpdated] = useState();
@@ -22,7 +28,7 @@ export const useMaterializedViewRefreshStatsQuery = (viewName, endpoint) => {
   const queryResult = useOutdatingQuery(
     ['materialisedViewRefreshStats', viewName],
     `${WS_EVENT_NAMESPACES.DATA_UPDATED}:${viewName}`,
-    () => api.get(endpoint || `${viewName}/refreshStats`, { language: storedLanguage }),
+    () => api.get(endpoint, { language: storedLanguage }),
     {
       onOutdated: () => {
         setLastUpdated(null);
@@ -42,9 +48,9 @@ export const useMaterializedViewRefreshStatsQuery = (viewName, endpoint) => {
   // Update the distance from now text every minute
   useEffect(() => {
     if (!refreshStats) return;
-    const interval = setInterval(handleRefreshLastUpdated, 1000 * 60);
+    const interval = setInterval(handleRefreshLastUpdated, distanceFromNowInterval);
     return () => clearInterval(interval);
-  }, [refreshStats, handleRefreshLastUpdated]);
+  }, [refreshStats, distanceFromNowInterval, handleRefreshLastUpdated]);
 
   return {
     ...queryResult,
