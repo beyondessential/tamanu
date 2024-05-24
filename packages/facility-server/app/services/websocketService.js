@@ -2,12 +2,12 @@ import { Server } from 'socket.io';
 
 import { NOTIFY_CHANNELS, WS_EVENT_NAMESPACES } from '@tamanu/constants';
 
-const setupDatabaseNotificationForwarding = (pg, socket) => {
+const setupDatabaseNotificationForwarding = (pg, socketServer) => {
   pg.on('notification', message => {
     const { channel, payload } = message;
     if (channel === NOTIFY_CHANNELS.DATA_UPDATED) {
       const viewName = payload;
-      socket.emit(`${WS_EVENT_NAMESPACES.DATA_UPDATED}:${viewName}`);
+      socketServer.emit(`${WS_EVENT_NAMESPACES.DATA_UPDATED}:${viewName}`);
     }
   });
   pg.query(`LISTEN ${NOTIFY_CHANNELS.DATA_UPDATED}`);
@@ -19,7 +19,7 @@ const setupDatabaseNotificationForwarding = (pg, socket) => {
  * @returns
  */
 export const defineWebsocketService = injector => {
-  const server = new Server(injector.httpServer, {
+  const socketServer = new Server(injector.httpServer, {
     connectionStateRecovery: { skipMiddlewares: true, maxDisconnectionDuration: 120000 },
     cors: {
       origin: '*',
@@ -27,9 +27,9 @@ export const defineWebsocketService = injector => {
     },
   });
 
-  const getServer = () => server;
+  const getSocketServer = () => socketServer;
 
-  setupDatabaseNotificationForwarding(injector.pg, server);
+  setupDatabaseNotificationForwarding(injector.pg, socketServer);
 
   /**
    *
@@ -37,9 +37,9 @@ export const defineWebsocketService = injector => {
    * @param  {...unknown} args
    * @returns
    */
-  const emit = (eventName, ...args) => server.emit(eventName, ...args);
+  const emit = (eventName, ...args) => socketServer.emit(eventName, ...args);
   return {
-    getServer,
+    getSocketServer,
     emit,
   };
 };
