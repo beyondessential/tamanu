@@ -3,10 +3,11 @@ import { Server } from 'socket.io';
 import { NOTIFY_CHANNELS, WS_EVENT_NAMESPACES } from '@tamanu/constants';
 
 const setupDatabaseNotificationForwarding = (pg, socket) => {
-  pg.on('notification', msg => {
-    const { channel, payload } = msg;
+  pg.on('notification', message => {
+    const { channel } = message;
     if (channel === NOTIFY_CHANNELS.DATA_UPDATED) {
-      socket.emit(`${WS_EVENT_NAMESPACES.DATA_UPDATED}:${payload}`);
+      const { payload: viewName } = message;
+      socket.emit(`${WS_EVENT_NAMESPACES.DATA_UPDATED}:${viewName}`);
     }
   });
   pg.query(`LISTEN ${NOTIFY_CHANNELS.DATA_UPDATED}`);
