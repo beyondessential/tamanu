@@ -13,7 +13,7 @@ import { useOutdatingQuery } from './useOutdatingQuery';
  * require expensive queries that prevent real time display of the data.
  * To get around this we use a materialized view that is periodically refreshed by a scheduled task
  */
-export const useMaterializedViewRefreshStatsQuery = viewName => {
+export const useMaterializedViewRefreshStatsQuery = (viewName, endpoint) => {
   const api = useApi();
   const { storedLanguage } = useTranslation();
   const [lastUpdated, setLastUpdated] = useState();
@@ -22,7 +22,7 @@ export const useMaterializedViewRefreshStatsQuery = viewName => {
   const queryResult = useOutdatingQuery(
     ['materialisedViewRefreshStats', viewName],
     `${WS_EVENT_NAMESPACES.DATA_UPDATED}:${viewName}`,
-    () => api.get(`materializedView/refreshStats/${viewName}`, { language: storedLanguage }),
+    () => api.get(endpoint, { language: storedLanguage }),
     {
       onOutdated: () => {
         setLastUpdated(null);
