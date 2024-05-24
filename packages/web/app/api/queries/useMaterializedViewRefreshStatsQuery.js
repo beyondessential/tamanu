@@ -37,7 +37,6 @@ export const useMaterializedViewRefreshStatsQuery = (
       },
     },
   );
-
   const { data: refreshStats } = queryResult;
 
   const dateAsDistanceToNow = date => formatDistanceToNow(parseISO(date), { addSuffix: 'ago' });

@@ -77,11 +77,16 @@ upcomingVaccinations.get(
         filterParams,
       );
 
+    // If the refreshMaterializedView task is disabled, use the upcoming_vaccinations view
+    const { enabled } = config.schedules.refreshMaterializedView.upcomingVaccinations;
+    const tableName =
+      enabled === false ? 'upcoming_vaccinations' : 'materialized_upcoming_vaccinations';
+
     const withRowNumber = `
       WITH upcoming_vaccinations_with_row_number AS (
         SELECT *,
         ROW_NUMBER() OVER(PARTITION BY patient_id ORDER BY due_date ASC) AS row_number
-        FROM materialized_upcoming_vaccinations uv
+        FROM ${tableName} uv
         WHERE uv.status <> '${VACCINE_STATUS.MISSED}'
       )
     `;
@@ -150,7 +155,12 @@ upcomingVaccinations.get(
     req.checkPermission('read', 'PatientVaccine');
     const { models, query } = req;
     const { language } = query;
-    const { schedule } = config.schedules.refreshMaterializedView.upcomingVaccinations;
+    const { schedule, enabled } = config.schedules.refreshMaterializedView.upcomingVaccinations;
+
+    if (enabled === false) {
+      // If the task is disabled, stats are not needed
+      return res.send({});
+    }
     const parseCronExpression = await getTranslatedCronParser(models, language);
     return res.send({
       lastRefreshed: await req.models.LocalSystemFact.get(
