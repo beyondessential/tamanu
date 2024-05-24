@@ -212,10 +212,10 @@ export const SurveyScreenComponent = Base.shape({
 export const ScheduledVaccine = Base.shape({
   category: yup.string().required(),
   label: yup.string().required(),
-  schedule: yup.string().required(),
+  doseLabel: yup.string().required(),
   weeksFromBirthDue: yup.number().when(['schedule', 'index'], {
-    is: (schedule, index) => {
-      if (!schedule.startsWith('Dose')) return false;
+    is: (doseLabel, index) => {
+      if (!doseLabel.startsWith('Dose')) return false;
       return index > 1;
     },
     then: yup
@@ -225,9 +225,9 @@ export const ScheduledVaccine = Base.shape({
       }),
     otherwise: yup.number(),
   }),
-  weeksFromLastVaccinationDue: yup.number().when(['schedule', 'index'], {
-    is: (schedule, index) => {
-      if (!schedule.startsWith('Dose')) return false;
+  weeksFromLastVaccinationDue: yup.number().when(['doseLabel', 'index'], {
+    is: (doseLabel, index) => {
+      if (!doseLabel.startsWith('Dose')) return false;
       return index === 1;
     },
     then: yup
