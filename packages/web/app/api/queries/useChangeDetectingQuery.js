@@ -6,7 +6,7 @@ import { useSocket } from '../../utils/useSocket';
  * An extension of useQuery hook that adds a listener for a given event on the socket
  * and invalidates the query when the event is received
  */
-export const useOutdatingQuery = (
+export const useChangeDetectingQuery = (
   queryKey,
   eventName,
   queryFunc,

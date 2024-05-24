@@ -12,4 +12,4 @@ export * from './useTranslations';
 export * from './useTranslationLanguages';
 export * from './useTelegramBotInfoQuery';
 export * from './useMaterializedViewRefreshStatsQuery';
-export * from './useOutdatingQuery';
+export * from './useChangeDetectingQuery';

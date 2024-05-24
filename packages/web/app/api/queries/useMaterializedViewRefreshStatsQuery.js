@@ -3,7 +3,7 @@ import { formatDistanceToNow, parseISO } from 'date-fns';
 
 import { WS_EVENT_NAMESPACES } from '@tamanu/constants';
 
-import { useOutdatingQuery } from './useOutdatingQuery';
+import { useChangeDetectingQuery } from './useChangeDetectingQuery';
 import { useParsedCronExpression } from '../../utils/useParsedCronExpression';
 import { useTranslation } from '../../contexts/Translation';
 import { useApi } from '../useApi';
@@ -17,18 +17,15 @@ import { useApi } from '../useApi';
  */
 export const useMaterializedViewRefreshStatsQuery = (
   viewName,
-  { endpoint, recalculateDistanceFromNowIntervalMs } = {
-    recalculateDistanceFromNowIntervalMs: 1000 * 60,
-    endpoint: `${viewName}/refreshStats`,
-  },
+  { endpoint = `${viewName}/refreshStats`, recalculateDistanceFromNowIntervalMs = 1000 * 60 } = {},
 ) => {
   const api = useApi();
   const { getTranslation } = useTranslation();
   const [lastUpdated, setLastUpdated] = useState();
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
-  const queryResult = useOutdatingQuery(
-    ['materialisedViewRefreshStats', viewName],
+  const queryResult = useChangeDetectingQuery(
+    [endpoint],
     `${WS_EVENT_NAMESPACES.DATA_UPDATED}:${viewName}`,
     () => api.get(endpoint),
     {
