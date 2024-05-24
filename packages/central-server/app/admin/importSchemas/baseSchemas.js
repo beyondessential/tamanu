@@ -213,7 +213,7 @@ export const ScheduledVaccine = Base.shape({
   category: yup.string().required(),
   label: yup.string().required(),
   doseLabel: yup.string().required(),
-  weeksFromBirthDue: yup.number().when(['schedule', 'index'], {
+  weeksFromBirthDue: yup.number().when(['doseLabel', 'index'], {
     is: (doseLabel, index) => {
       if (!doseLabel.startsWith('Dose')) return false;
       return index > 1;
