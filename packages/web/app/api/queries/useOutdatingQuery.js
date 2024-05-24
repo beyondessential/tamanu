@@ -8,7 +8,7 @@ export const useOutdatingQuery = (
   queryFunc,
   { onOutdated, ...queryConfig },
 ) => {
-  const socket = useSocket();
+  const { socket } = useSocket();
   const queryClient = useQueryClient();
 
   // Listen for outdated event via websocket
