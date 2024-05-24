@@ -31,10 +31,11 @@ export const RefreshStatsDisplay = ({
   error,
   recalculateDistanceFromNowIntervalMs = 1000 * 60,
 }) => {
-  const { getTranslation } = useTranslation();
-  const { schedule, lastRefreshed } = stats;
-  const parsedSchedule = useParsedCronExpression(schedule);
   const [lastUpdated, setLastUpdated] = useState();
+  const { getTranslation } = useTranslation();
+  const parsedSchedule = useParsedCronExpression(schedule);
+
+  const { schedule, lastRefreshed } = stats;
 
   const dateAsDistanceToNow = useCallback(
     date =>
