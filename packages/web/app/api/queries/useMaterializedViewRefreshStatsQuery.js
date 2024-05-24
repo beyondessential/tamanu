@@ -34,7 +34,6 @@ export const useMaterializedViewRefreshStatsQuery = viewName => {
   const { data: refreshStats } = queryResult;
 
   const dateAsDistanceToNow = date => formatDistanceToNow(parseISO(date), { addSuffix: 'ago' });
-
   const handleRefreshLastUpdated = useCallback(() => {
     const { lastRefreshed } = refreshStats;
     setLastUpdated(dateAsDistanceToNow(lastRefreshed));
