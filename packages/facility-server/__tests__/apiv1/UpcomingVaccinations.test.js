@@ -195,7 +195,7 @@ describe('Upcoming vaccinations', () => {
       expect(res).toHaveStatus(200);
       expect(res.body).toEqual({
         lastRefreshed: '2021-01-01 00:00:00',
-        schedule: 'Every 50 minutes',
+        schedule: '*/50 * * * * ',
       });
     });
   });

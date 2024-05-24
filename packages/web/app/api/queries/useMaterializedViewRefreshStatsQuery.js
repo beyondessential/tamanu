@@ -4,6 +4,7 @@ import { formatDistanceToNow, parseISO } from 'date-fns';
 import { WS_EVENT_NAMESPACES } from '@tamanu/constants';
 
 import { useOutdatingQuery } from './useOutdatingQuery';
+import { useParsedCronExpression } from '../../utils/useParsedCronExpression';
 import { useTranslation } from '../../contexts/Translation';
 import { useApi } from '../useApi';
 
@@ -38,6 +39,7 @@ export const useMaterializedViewRefreshStatsQuery = (
     },
   );
   const { data: refreshStats } = queryResult;
+  const schedule = useParsedCronExpression(refreshStats?.schedule);
 
   const dateAsDistanceToNow = date => formatDistanceToNow(parseISO(date), { addSuffix: 'ago' });
   const handleRefreshLastUpdated = useCallback(() => {
@@ -55,7 +57,7 @@ export const useMaterializedViewRefreshStatsQuery = (
   return {
     ...queryResult,
     data: refreshStats && {
-      schedule: refreshStats.schedule,
+      schedule,
       lastUpdated: lastUpdated || dateAsDistanceToNow(refreshStats.lastRefreshed),
     },
     refreshTrigger,

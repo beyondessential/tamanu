@@ -50,7 +50,6 @@
     "config": "^3.3.9",
     "connect-flash": "^0.1.1",
     "core-js": "^3.23.1",
-    "cronstrue": "^2.50.0",
     "date-fns": "^2.19.0",
     "express": "^4.16.2",
     "express-async-handler": "^1.1.4",

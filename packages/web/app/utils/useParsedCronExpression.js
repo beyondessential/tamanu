@@ -1,5 +1,7 @@
 import cronstrue from 'cronstrue';
 import { en as EnglishLocale } from 'cronstrue/locales/en';
+import { useTranslation } from '../contexts/Translation';
+import { useEffect } from 'react';
 
 /**
  * Connect translated strings to cron parser for custom translations
@@ -23,14 +25,15 @@ class CustomTranslatedLocale extends EnglishLocale {
   }
 }
 
-const registerCustomLocale = async (models, language) => {
-  const tt = await models.TranslatedString.getTranslationFunction(language);
-  cronstrue.locales.custom = new CustomTranslatedLocale(tt);
-};
+export const useParsedCronExpression = expression => {
+  const { getTranslation } = useTranslation();
 
-export const getTranslatedCronParser = async (models, language) => {
-  if (!cronstrue.locales.custom) {
-    await registerCustomLocale(models, language);
-  }
-  return schedule => cronstrue.toString(schedule, { locale: 'custom' });
+  useEffect(() => {
+    if (cronstrue.locales.custom || !getTranslation) return;
+    cronstrue.locales.custom = new CustomTranslatedLocale(getTranslation);
+  }, [getTranslation]);
+
+  if (!expression) return '';
+
+  return cronstrue.toString(expression, { locale: 'custom' });
 };
