@@ -2,8 +2,6 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useDispatch } from 'react-redux';
 
-import { WS_EVENT_NAMESPACES } from '@tamanu/constants';
-
 import {
   ContentPane,
   ImmunisationSearchBar,
@@ -23,8 +21,7 @@ import { usePatientNavigation } from '../../utils/usePatientNavigation.js';
 import { PATIENT_TABS } from '../../constants/patientPaths.js';
 import { reloadPatient } from '../../store/index.js';
 import { UpdateStatsDisplay } from '../../components/Table/UpdateStatsDisplay.jsx';
-import { useChangeDetectingQuery } from '../../api/queries/useChangeDetectingQuery.js';
-import { useApi } from '../../api/useApi.js';
+import { useAutoUpdatingQuery } from '../../api/queries/useAutoUpdatingQuery.js';
 
 const StyledSearchTableTitle = styled(SearchTableTitle)`
   display: flex;
@@ -72,13 +69,8 @@ const COLUMNS = [
 
 export const ImmunisationsView = () => {
   const dispatch = useDispatch();
-  const api = useApi();
 
-  const { data: updateStats, error } = useChangeDetectingQuery(
-    ['upcomingVaccinations/updateStats'],
-    `${WS_EVENT_NAMESPACES.DATA_UPDATED}:upcomingVaccinations`,
-    () => api.get('upcomingVaccinations/updateStats'),
-  );
+  const { data: updateStats, error } = useAutoUpdatingQuery('upcomingVaccinations/updateStats');
 
   const [searchParameters, setSearchParameters] = useState({});
   const { navigateToPatient } = usePatientNavigation();
