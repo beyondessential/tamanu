@@ -54,12 +54,12 @@ describe('PatientVaccine', () => {
     );
   };
 
-  const createNewScheduledVaccine = async (category, label, schedule) => {
+  const createNewScheduledVaccine = async (category, label, doseLabel) => {
     return models.ScheduledVaccine.create(
       await createScheduledVaccine(models, {
         category,
         label,
-        schedule,
+        doseLabel,
         vaccineId: drug.id,
       }),
     );
@@ -201,8 +201,8 @@ describe('PatientVaccine', () => {
       expect(result).toHaveSucceeded();
       expect(result.body).toHaveLength(1);
       expect(result.body[0].schedules).toEqual([
-        { administered: false, schedule: 'Dose 1', scheduledVaccineId: scheduled1.id },
-        { administered: true, schedule: 'Dose 2', scheduledVaccineId: scheduled2.id },
+        { administered: false, doseLabel: 'Dose 1', scheduledVaccineId: scheduled1.id },
+        { administered: true, doseLabel: 'Dose 2', scheduledVaccineId: scheduled2.id },
       ]);
     });
 
@@ -215,8 +215,8 @@ describe('PatientVaccine', () => {
       expect(result).toHaveSucceeded();
       expect(result.body).toHaveLength(1);
       expect(result.body[0].schedules).toEqual([
-        { administered: false, schedule: 'Dose 1', scheduledVaccineId: scheduled1.id },
-        { administered: false, schedule: 'Dose 2', scheduledVaccineId: scheduled2.id },
+        { administered: false, doseLabel: 'Dose 1', scheduledVaccineId: scheduled1.id },
+        { administered: false, doseLabel: 'Dose 2', scheduledVaccineId: scheduled2.id },
       ]);
     });
 
@@ -228,7 +228,7 @@ describe('PatientVaccine', () => {
       expect(result).toHaveSucceeded();
       expect(result.body).toHaveLength(1);
       expect(result.body[0].schedules).toEqual([
-        { administered: false, schedule: 'Dose 1', scheduledVaccineId: scheduled6.id },
+        { administered: false, doseLabel: 'Dose 1', scheduledVaccineId: scheduled6.id },
       ]);
     });
   });
