@@ -1,8 +1,14 @@
 import express from 'express';
+import config from 'config';
 import asyncHandler from 'express-async-handler';
 import { QueryTypes } from 'sequelize';
 import { VACCINE_STATUS } from '@tamanu/constants/vaccines';
 import { makeFilter } from '../../utils/query';
+import { getTranslatedCronParser } from '../../../dist/utils/getTranslatedCronParser';
+import {
+  MATERIALIZED_VIEWS,
+  MATERIALIZED_VIEW_LAST_REFRESHED_AT_KEY_NAMESPACE,
+} from '@tamanu/constants';
 
 export const upcomingVaccinations = express.Router();
 
@@ -134,6 +140,23 @@ upcomingVaccinations.get(
     return res.send({
       data: results,
       count: parseInt(countResult[0].count, 10),
+    });
+  }),
+);
+
+upcomingVaccinations.get(
+  '/refreshStats',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('read', 'PatientVaccine');
+    const { models, query } = req;
+    const { language } = query;
+    const { schedule } = config.schedules.refreshMaterializedView.upcomingVaccinations;
+    const parseCronExpression = await getTranslatedCronParser(models, language);
+    return res.send({
+      lastRefreshed: await req.models.LocalSystemFact.get(
+        `${MATERIALIZED_VIEW_LAST_REFRESHED_AT_KEY_NAMESPACE}:${MATERIALIZED_VIEWS.UPCOMING_VACCINATIONS}`,
+      ),
+      schedule: parseCronExpression(schedule),
     });
   }),
 );
