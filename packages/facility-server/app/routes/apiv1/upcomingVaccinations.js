@@ -149,7 +149,7 @@ upcomingVaccinations.get(
 );
 
 upcomingVaccinations.get(
-  '/refreshStats',
+  '/updateStats',
   asyncHandler(async (req, res) => {
     const { models } = req;
     const { LocalSystemFact } = models;

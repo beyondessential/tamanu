@@ -26,7 +26,7 @@ const StatsError = () => (
   </ErrorText>
 );
 
-export const RefreshStatsDisplay = ({
+export const UpdateStatsDisplay = ({
   stats,
   error,
   recalculateDistanceFromNowIntervalMs = 1000 * 60,

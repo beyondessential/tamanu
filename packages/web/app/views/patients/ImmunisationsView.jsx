@@ -22,7 +22,7 @@ import {
 import { usePatientNavigation } from '../../utils/usePatientNavigation.js';
 import { PATIENT_TABS } from '../../constants/patientPaths.js';
 import { reloadPatient } from '../../store/index.js';
-import { RefreshStatsDisplay } from '../../components/Table/RefreshStatsDisplay.jsx';
+import { UpdateStatsDisplay } from '../../components/Table/UpdateStatsDisplay.jsx';
 import { useChangeDetectingQuery } from '../../api/queries/useChangeDetectingQuery.js';
 import { useApi } from '../../api/useApi.js';
 
@@ -74,10 +74,10 @@ export const ImmunisationsView = () => {
   const dispatch = useDispatch();
   const api = useApi();
 
-  const { data: refreshStats, error } = useChangeDetectingQuery(
-    ['upcomingVaccinations/refreshStats'],
+  const { data: updateStats, error } = useChangeDetectingQuery(
+    ['upcomingVaccinations/updateStats'],
     `${WS_EVENT_NAMESPACES.DATA_UPDATED}:upcomingVaccinations`,
-    () => api.get('upcomingVaccinations/refreshStats'),
+    () => api.get('upcomingVaccinations/updateStats'),
   );
 
   const [searchParameters, setSearchParameters] = useState({});
@@ -100,7 +100,7 @@ export const ImmunisationsView = () => {
             fallback="Patient immunisation search"
           />
 
-          {refreshStats && <RefreshStatsDisplay stats={refreshStats} error={error} />}
+          {updateStats && <UpdateStatsDisplay stats={updateStats} error={error} />}
         </StyledSearchTableTitle>
         <ImmunisationSearchBar onSearch={setSearchParameters} />
         <SearchTable

@@ -186,10 +186,10 @@ describe('Upcoming vaccinations', () => {
   });
 
   describe('Refresh stats', () => {
-    it('returns the last refreshed time and cron schedule for a upcoming vaccinations materialized view', async () => {
+    it('returns the last updated time and cron schedule for a upcoming vaccinations materialized view', async () => {
       const task = new RefreshUpcomingVaccinations(ctx);
       await task.run();
-      const res = await app.get('/api/upcomingVaccinations/refreshStats');
+      const res = await app.get('/api/upcomingVaccinations/updateStats');
       expect(res).toHaveStatus(200);
       expect(res.body).toEqual({
         lastRefreshed: '2021-01-01 00:00:00',
