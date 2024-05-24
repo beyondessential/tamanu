@@ -76,7 +76,7 @@ upcomingVaccinations.get(
         filterParams,
       );
 
-    // If the refreshMaterializedView task is disabled, use the upcoming_vaccinations view
+    // Use the materialized version of the view if the regular refresh task is enabled, otherwise use the regular live view (not recommended for performance reasons)
     const { enabled } = config.schedules.refreshMaterializedView.upcomingVaccinations;
     const tableName =
       enabled === false ? 'upcoming_vaccinations' : 'materialized_upcoming_vaccinations';
