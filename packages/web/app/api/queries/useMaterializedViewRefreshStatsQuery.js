@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useState } from 'react';
-import { useTranslation } from '../../contexts/Translation';
-import { useApi } from '../useApi';
 import { formatDistanceToNow, parseISO } from 'date-fns';
 
 import { WS_EVENT_NAMESPACES } from '@tamanu/constants';
+
 import { useOutdatingQuery } from './useOutdatingQuery';
+import { useTranslation } from '../../contexts/Translation';
+import { useApi } from '../useApi';
 
 /**
  * Gets the latest refresh stats (last refreshed time and parsed cron schedule)
