@@ -29,7 +29,6 @@ describe('RefreshMaterializedView', () => {
     });
     await models.ScheduledVaccine.create({
       ...fake(models.ScheduledVaccine),
-      // vaccineId: drug2.id,
       weeksFromBirthDue: 2,
       weeksFromLastVaccinationDue: null,
     });
