@@ -8,7 +8,6 @@ function noCacheOnIndex() {
   return {
     name: 'manual-cache',
     configureServer(server) {
-      console.log('uhhhhhhh what');
       server.middlewares.use((req, res, next) => {
         if (req.url?.endsWith('/')) {
           res.setHeader('Cache-Control', 'no-cache');
