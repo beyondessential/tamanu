@@ -73,7 +73,6 @@ export const ImmunisationsView = () => {
   const dispatch = useDispatch();
   const { data: refreshStats, refreshTrigger, error } = useMaterializedViewRefreshStatsQuery(
     MATERIALIZED_VIEWS.UPCOMING_VACCINATIONS,
-    'upcomingVaccinations/refreshStats',
   );
   const [searchParameters, setSearchParameters] = useState({});
   const { navigateToPatient } = usePatientNavigation();

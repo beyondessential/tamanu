@@ -22,7 +22,7 @@ export const useMaterializedViewRefreshStatsQuery = (viewName, endpoint) => {
   const queryResult = useOutdatingQuery(
     ['materialisedViewRefreshStats', viewName],
     `${WS_EVENT_NAMESPACES.DATA_UPDATED}:${viewName}`,
-    () => api.get(endpoint, { language: storedLanguage }),
+    () => api.get(endpoint || `${viewName}/refreshStats`, { language: storedLanguage }),
     {
       onOutdated: () => {
         setLastUpdated(null);
