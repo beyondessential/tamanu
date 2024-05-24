@@ -2,16 +2,19 @@ import { useEffect } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useSocket } from '../../utils/useSocket';
 
+/**
+ * An extension of useQuery hook that adds a listener for a given event on the socket
+ * and invalidates the query when the event is received
+ */
 export const useOutdatingQuery = (
   queryKey,
   eventName,
   queryFunc,
-  { onOutdated, ...queryConfig },
+  { onOutdated, ...queryConfig } = {},
 ) => {
   const { socket } = useSocket();
   const queryClient = useQueryClient();
 
-  // Listen for outdated event via websocket
   useEffect(() => {
     const handleDataUpdatedEvent = msg => {
       queryClient.invalidateQueries(queryKey);
