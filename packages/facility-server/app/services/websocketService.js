@@ -4,9 +4,9 @@ import { NOTIFY_CHANNELS, WS_EVENT_NAMESPACES } from '@tamanu/constants';
 
 const setupDatabaseNotificationForwarding = (pg, socket) => {
   pg.on('notification', message => {
-    const { channel } = message;
+    const { channel, payload } = message;
     if (channel === NOTIFY_CHANNELS.DATA_UPDATED) {
-      const { payload: viewName } = message;
+      const viewName = payload;
       socket.emit(`${WS_EVENT_NAMESPACES.DATA_UPDATED}:${viewName}`);
     }
   });
