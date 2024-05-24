@@ -17,6 +17,7 @@
     }
   },
   "log": {
+    "consoleLevel": null,
     "enableAuditLog": true
   },
   "survey": {
