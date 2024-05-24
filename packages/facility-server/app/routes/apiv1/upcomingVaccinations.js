@@ -151,17 +151,19 @@ upcomingVaccinations.get(
 upcomingVaccinations.get(
   '/refreshStats',
   asyncHandler(async (req, res) => {
+    const { models } = req;
+    const { LocalSystemFact } = models;
     req.checkPermission('read', 'PatientVaccine');
     const { schedule, enabled } = config.schedules.refreshMaterializedView.upcomingVaccinations;
-
     if (enabled === false) {
       // If the task is disabled, stats are not needed
       return res.send({});
     }
+    const lastRefreshed = await LocalSystemFact.get(
+      `${MATERIALIZED_VIEW_LAST_REFRESHED_AT_KEY_NAMESPACE}:${MATERIALIZED_VIEWS.UPCOMING_VACCINATIONS}`,
+    );
     return res.send({
-      lastRefreshed: await req.models.LocalSystemFact.get(
-        `${MATERIALIZED_VIEW_LAST_REFRESHED_AT_KEY_NAMESPACE}:${MATERIALIZED_VIEWS.UPCOMING_VACCINATIONS}`,
-      ),
+      lastRefreshed,
       schedule,
     });
   }),
