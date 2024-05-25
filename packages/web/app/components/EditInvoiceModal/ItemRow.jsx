@@ -86,6 +86,9 @@ export const ItemHeader = () => {
 export const ItemRow = ({
   index,
   onDelete,
+  onAddDiscountLineItem,
+  onAddMarkupLineItem,
+  onRemovePercentageChangeLineItem,
   rowData,
   isDeleteDisabled,
   updateRowData,
@@ -172,6 +175,9 @@ export const ItemRow = ({
           <KebabMenu
             isDeleteDisabled={isDeleteDisabled}
             onDelete={onDelete}
+            onAddDiscountLineItem={onAddDiscountLineItem}
+            onAddMarkupLineItem={onAddMarkupLineItem}
+            onRemovePercentageChangeLineItem={onRemovePercentageChangeLineItem}
             rowData={rowData}
           />
         </PriceCell>

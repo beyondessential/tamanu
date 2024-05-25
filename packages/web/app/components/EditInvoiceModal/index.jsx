@@ -59,22 +59,22 @@ const PotentialLineItemsPane = styled.div`
     width: 5px;
     height: 5px;
   }
-  
+
   /* Track */
   ::-webkit-scrollbar-track {
     background: white;
   }
-  
+
   /* Handle */
   ::-webkit-scrollbar-thumb {
     background: ${Colors.softText};
     border-radius: 5px;
   }
-  
+
   /* Handle on hover */
   ::-webkit-scrollbar-thumb:hover {
     background: ${Colors.softText};
-  } 
+  }
 `;
 
 const PaneTitle = styled.div`
@@ -236,6 +236,36 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
     setRowList(newRowList);
   };
 
+  const onAddDiscountLineItem = (id, discount) => {
+    const newRowList = rowList.map(row => {
+      if (row.id === id && Number(discount)) {
+        row.percentageChange = String(-(discount / 100));
+      }
+      return row;
+    });
+    setRowList(newRowList);
+  };
+
+  const onAddMarkupLineItem = (id, markup) => {
+    const newRowList = rowList.map(row => {
+      if (row.id === id && Number(markup)) {
+        row.percentageChange = String(markup / 100);
+      }
+      return row;
+    });
+    setRowList(newRowList);
+  };
+
+  const onRemovePercentageChangeLineItem = (id) => {
+    const newRowList = rowList.map(row => {
+      if (row.id === id) {
+        row.percentageChange = null;
+      }
+      return row;
+    });
+    setRowList(newRowList);
+  };
+
   const handleSubmit = async (submitData) => {
     if (isSaving) return;
     setIsSaving(true);
@@ -245,6 +275,7 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
       invoiceLineTypeId: submitData[`invoiceLineTypeId_${index}`],
       date: submitData[`date_${index}`],
       orderedById: submitData[`orderedById_${index}`],
+      percentageChange: row.percentageChange
     }));
 
     await api.put(`invoices/${invoiceId}/lineItems`, { invoiceLineItemsData });
@@ -311,6 +342,9 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
                   index={index}
                   rowData={row}
                   onDelete={() => onDeleteLineItem(row?.id)}
+                  onAddDiscountLineItem={(discount) => onAddDiscountLineItem(row?.id, discount)}
+                  onAddMarkupLineItem={(markup) => onAddMarkupLineItem(row?.id, markup)}
+                  onRemovePercentageChangeLineItem={() => onRemovePercentageChangeLineItem(row?.id)}
                   isDeleteDisabled={rowList.length === 1}
                   updateRowData={updateRowData}
                 />

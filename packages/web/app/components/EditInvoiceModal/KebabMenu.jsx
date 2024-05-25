@@ -33,7 +33,16 @@ const StyledIconButton = styled(IconButton)`
   margin-left: auto;
 `;
 
-export const KebabMenu = ({ isDeleteDisabled, rowData, onDelete, modalsEnabled, invoiceId }) => {
+export const KebabMenu = ({
+  isDeleteDisabled,
+  rowData,
+  onDelete,
+  onAddDiscountLineItem,
+  onAddMarkupLineItem,
+  onRemovePercentageChangeLineItem,
+  modalsEnabled,
+  invoiceId,
+}) => {
   const [actionModal, setActionModal] = useState('');
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
@@ -51,7 +60,12 @@ export const KebabMenu = ({ isDeleteDisabled, rowData, onDelete, modalsEnabled, 
     setActionModal(value);
   };
 
-  const handleAction = action => {
+  const handleRemovePercentageChangeLineItem = () => {
+    handleCloseKebabMenu();
+    onRemovePercentageChangeLineItem();
+  };
+
+  const handleAction = (data, action) => {
     switch (action) {
       case INVOICE_ACTION_MODALS.DELETE: {
         onDelete();
@@ -59,10 +73,12 @@ export const KebabMenu = ({ isDeleteDisabled, rowData, onDelete, modalsEnabled, 
         break;
       }
       case INVOICE_ACTION_MODALS.ADD_DISCOUNT: {
+        onAddDiscountLineItem(data?.discount);
         handleActionModal('');
         break;
       }
       case INVOICE_ACTION_MODALS.ADD_MARKUP: {
+        onAddMarkupLineItem(data?.markup);
         handleActionModal('');
         break;
       }
@@ -88,7 +104,24 @@ export const KebabMenu = ({ isDeleteDisabled, rowData, onDelete, modalsEnabled, 
           horizontal: 'right',
         }}
       >
-        {modalsEnabled.includes(INVOICE_ACTION_MODALS.ADD_DISCOUNT) && (
+        {rowData?.percentageChange &&
+          modalsEnabled.includes(INVOICE_ACTION_MODALS.DELETE) &&
+          (Number(rowData.percentageChange) > 0 ? (
+            <KebabMenuItem onClick={handleRemovePercentageChangeLineItem}>
+              <TranslatedText
+                stringId="invoice.modal.editInvoice.removeMarkup"
+                fallback="Remove markup"
+              />
+            </KebabMenuItem>
+          ) : (
+            <KebabMenuItem onClick={handleRemovePercentageChangeLineItem}>
+              <TranslatedText
+                stringId="invoice.modal.editInvoice.removeDiscount"
+                fallback="Remove discount"
+              />
+            </KebabMenuItem>
+          ))}
+        {!rowData?.percentageChange && modalsEnabled.includes(INVOICE_ACTION_MODALS.ADD_DISCOUNT) && (
           <KebabMenuItem onClick={() => handleActionModal(INVOICE_ACTION_MODALS.ADD_DISCOUNT)}>
             <TranslatedText
               stringId="invoice.modal.editInvoice.addDiscount"
@@ -96,7 +129,7 @@ export const KebabMenu = ({ isDeleteDisabled, rowData, onDelete, modalsEnabled, 
             />
           </KebabMenuItem>
         )}
-        {modalsEnabled.includes(INVOICE_ACTION_MODALS.ADD_MARKUP) && (
+        {!rowData?.percentageChange && modalsEnabled.includes(INVOICE_ACTION_MODALS.ADD_MARKUP) && (
           <KebabMenuItem onClick={() => handleActionModal(INVOICE_ACTION_MODALS.ADD_MARKUP)}>
             <TranslatedText stringId="invoice.modal.editInvoice.addMarkup" fallback="Add markup" />
           </KebabMenuItem>
@@ -122,7 +155,7 @@ export const KebabMenu = ({ isDeleteDisabled, rowData, onDelete, modalsEnabled, 
           open
           action={actionModal}
           onClose={() => handleActionModal('')}
-          onAction={() => handleAction(actionModal)}
+          onAction={data => handleAction(data, actionModal)}
           lineItems={rowData}
         />
       )}

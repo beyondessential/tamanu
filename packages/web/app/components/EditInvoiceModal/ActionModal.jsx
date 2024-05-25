@@ -5,7 +5,7 @@ import { Modal } from '../Modal';
 import { TranslatedText } from '../Translation';
 import { InvoiceItemDetailsCard } from '../InvoiceItemDetailsCard';
 import { INVOICE_ACTION_MODALS } from '../../constants';
-import { Field, Form, TextField } from '../Field';
+import { Field, Form, NumberField, TextField } from '../Field';
 import { FormGrid } from '../FormGrid';
 import { useTranslation } from '../../contexts/Translation';
 import { ConfirmCancelRowField } from '../VaccineCommonFields';
@@ -21,8 +21,8 @@ const DiscountForm = () => {
   return (
     <FormGrid columns={3}>
       <Field
-        component={TextField}
-        type="number"
+        component={NumberField}
+        min={0}
         label={
           <TranslatedText
             stringId="invoice.modal.addDiscountInvoiceItem.discount.label"
@@ -58,8 +58,8 @@ const MarkupForm = () => {
   return (
     <FormGrid columns={3}>
       <Field
-        component={TextField}
-        type="number"
+        component={NumberField}
+        min={0}
         label={
           <TranslatedText
             stringId="invoice.modal.addMarkupInvoiceItem.markup.label"
@@ -89,38 +89,33 @@ const MarkupForm = () => {
   );
 };
 
+const discountValidationSchema = yup.object({
+  discount: yup
+    .number()
+    .required()
+    .min(0)
+    .translatedLabel(
+      <TranslatedText
+        stringId="invoice.modal.addDiscountInvoiceItem.discount.label"
+        fallback="Discount (%)"
+      />,
+    ),
+});
+
+const markupValidationSchema = yup.object({
+  markup: yup
+    .number()
+    .required()
+    .min(0)
+    .translatedLabel(
+      <TranslatedText
+        stringId="invoice.modal.addMarkupInvoiceItem.markup.label"
+        fallback="Markup (%)"
+      />,
+    ),
+});
+
 export const ActionModal = React.memo(({ open, onClose, onAction, lineItems, action }) => {
-  const { getTranslation } = useTranslation();
-
-  const discountValidationSchema = yup.object({
-    discount: yup
-      .number()
-      .required()
-      .translatedLabel(
-        <TranslatedText
-          stringId="invoice.modal.addDiscountInvoiceItem.discount.label"
-          fallback="Discount (%)"
-        />,
-      )
-      .min(
-        0,
-        getTranslation('validation.rule.positiveDiscount', 'Discount must be greater than 0'),
-      ),
-  });
-
-  const markupValidationSchema = yup.object({
-    markup: yup
-      .number()
-      .required()
-      .translatedLabel(
-        <TranslatedText
-          stringId="invoice.modal.addMarkupInvoiceItem.markup.label"
-          fallback="Markup (%)"
-        />,
-      )
-    .min(0, getTranslation('validation.rule.positiveMarkup', 'Markup must be greater than 0')),
-  });
-
   const getModalTitle = () => {
     switch (action) {
       case INVOICE_ACTION_MODALS.DELETE:

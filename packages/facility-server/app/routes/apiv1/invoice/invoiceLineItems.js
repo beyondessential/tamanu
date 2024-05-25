@@ -84,7 +84,8 @@ invoiceLineItemsRoute.put(
           if (
             existingItem.invoiceLineTypeId !== item.invoiceLineTypeId ||
             existingItem.dateGenerated !== item.date ||
-            existingItem.orderedById !== item.orderedById
+            existingItem.orderedById !== item.orderedById ||
+            existingItem.percentageChange !== item.percentageChange
           ) {
             itemsToUpdate.push(item);
           }
@@ -104,7 +105,8 @@ invoiceLineItemsRoute.put(
           {
             invoiceLineTypeId: item.invoiceLineTypeId,
             dateGenerated: item.date,
-            orderedById: item.orderedById
+            orderedById: item.orderedById,
+            percentageChange: item.percentageChange
           },
           { where: { id: item.id } }
         );
