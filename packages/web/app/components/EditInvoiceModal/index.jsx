@@ -236,20 +236,22 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
     setRowList(newRowList);
   };
 
-  const onAddDiscountLineItem = (id, discount) => {
+  const onAddDiscountLineItem = (id, data) => {
     const newRowList = rowList.map(row => {
-      if (row.id === id && Number(discount)) {
-        row.percentageChange = -(discount / 100);
+      if (row.id === id && Number(data.percentageChange)) {
+        row.percentageChange = -(data.percentageChange / 100);
+        row.discountMarkupReason = data.discountMarkupReason
       }
       return row;
     });
     setRowList(newRowList);
   };
 
-  const onAddMarkupLineItem = (id, markup) => {
+  const onAddMarkupLineItem = (id, data) => {
     const newRowList = rowList.map(row => {
-      if (row.id === id && Number(markup)) {
-        row.percentageChange = markup / 100;
+      if (row.id === id && Number(data.percentageChange)) {
+        row.percentageChange = data.percentageChange / 100;
+        row.discountMarkupReason = data.discountMarkupReason
       }
       return row;
     });
@@ -260,6 +262,7 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
     const newRowList = rowList.map(row => {
       if (row.id === id) {
         row.percentageChange = null;
+        row.discountMarkupReason = '';
       }
       return row;
     });
@@ -275,7 +278,8 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
       invoiceLineTypeId: submitData[`invoiceLineTypeId_${index}`],
       date: submitData[`date_${index}`],
       orderedById: submitData[`orderedById_${index}`],
-      percentageChange: row.percentageChange
+      percentageChange: row.percentageChange,
+      discountMarkupReason: row.discountMarkupReason,
     }));
 
     await api.put(`invoices/${invoiceId}/lineItems`, { invoiceLineItemsData });

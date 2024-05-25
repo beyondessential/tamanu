@@ -33,12 +33,12 @@ const DiscountForm = () => {
           'invoice.modal.addDiscountInvoiceItem.discount.placeholder',
           'e.g 10',
         )}
-        name="discount"
+        name="percentageChange"
         required
         style={{ gridColumn: '1 / 1' }}
       />
       <Field
-        name="reason"
+        name="discountMarkupReason"
         label={
           <TranslatedText
             stringId="invoice.modal.addDiscountInvoiceItem.discountReason.label"
@@ -70,12 +70,12 @@ const MarkupForm = () => {
           'invoice.modal.addMarkupInvoiceItem.markup.placeholder',
           'e.g 10',
         )}
-        name="markup"
+        name="percentageChange"
         required
         style={{ gridColumn: '1 / 1' }}
       />
       <Field
-        name="reason"
+        name="discountMarkupReason"
         label={
           <TranslatedText
             stringId="invoice.modal.addMarkupInvoiceItem.discountReason.label"
@@ -90,7 +90,7 @@ const MarkupForm = () => {
 };
 
 const discountValidationSchema = yup.object({
-  discount: yup
+  percentageChange: yup
     .number()
     .required()
     .min(0)
@@ -103,7 +103,7 @@ const discountValidationSchema = yup.object({
 });
 
 const markupValidationSchema = yup.object({
-  markup: yup
+  percentageChange: yup
     .number()
     .required()
     .min(0)

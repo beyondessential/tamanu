@@ -73,12 +73,12 @@ export const KebabMenu = ({
         break;
       }
       case INVOICE_ACTION_MODALS.ADD_DISCOUNT: {
-        onAddDiscountLineItem(data?.discount);
+        onAddDiscountLineItem(data);
         handleActionModal('');
         break;
       }
       case INVOICE_ACTION_MODALS.ADD_MARKUP: {
-        onAddMarkupLineItem(data?.markup);
+        onAddMarkupLineItem(data);
         handleActionModal('');
         break;
       }

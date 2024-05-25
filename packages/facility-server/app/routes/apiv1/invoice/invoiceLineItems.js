@@ -85,7 +85,8 @@ invoiceLineItemsRoute.put(
             existingItem.invoiceLineTypeId !== item.invoiceLineTypeId ||
             existingItem.dateGenerated !== item.date ||
             existingItem.orderedById !== item.orderedById ||
-            existingItem.percentageChange !== item.percentageChange
+            existingItem.percentageChange !== item.percentageChange ||
+            existingItem.discountMarkupReason !== item.discountMarkupReason
           ) {
             itemsToUpdate.push(item);
           }
@@ -106,7 +107,8 @@ invoiceLineItemsRoute.put(
             invoiceLineTypeId: item.invoiceLineTypeId,
             dateGenerated: item.date,
             orderedById: item.orderedById,
-            percentageChange: item.percentageChange
+            percentageChange: item.percentageChange,
+            discountMarkupReason: item.discountMarkupReason
           },
           { where: { id: item.id } }
         );
