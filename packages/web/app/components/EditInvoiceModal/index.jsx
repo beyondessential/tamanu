@@ -239,7 +239,7 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
   const onAddDiscountLineItem = (id, discount) => {
     const newRowList = rowList.map(row => {
       if (row.id === id && Number(discount)) {
-        row.percentageChange = String(-(discount / 100));
+        row.percentageChange = -(discount / 100);
       }
       return row;
     });
@@ -249,7 +249,7 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
   const onAddMarkupLineItem = (id, markup) => {
     const newRowList = rowList.map(row => {
       if (row.id === id && Number(markup)) {
-        row.percentageChange = String(markup / 100);
+        row.percentageChange = markup / 100;
       }
       return row;
     });
