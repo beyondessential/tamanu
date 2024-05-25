@@ -3,5 +3,6 @@ export { reportCommand } from './report';
 export { syncCommand } from './sync';
 export { startAllCommand } from './startAll';
 export { startApiCommand } from './startApi';
+export { startSyncCommand } from './startSync';
 export { startTasksCommand } from './startTasks';
 export * from './migrateAppointmentsToLocationGroups';

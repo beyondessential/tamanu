@@ -44,7 +44,9 @@ export class FacilitySyncManager {
 
   centralServer = null;
 
-  syncPromise = null;
+  currentSyncPromise = null;
+
+  triggerNextSyncPromise = null;
 
   reason = null;
 
@@ -61,7 +63,12 @@ export class FacilitySyncManager {
   }
 
   isSyncRunning() {
-    return !!this.syncPromise;
+    return !!this.currentSyncPromise;
+  }
+
+  async waitForCurrentSyncAndTriggerNextSync() {
+    await this.currentSyncPromise;
+    this.triggerSync();
   }
 
   async triggerSync(reason) {
@@ -70,29 +77,39 @@ export class FacilitySyncManager {
       return { enabled: false };
     }
 
-    // if there's an existing sync, just wait for that sync run
-    if (this.syncPromise) {
-      const result = await this.syncPromise;
+    if (this.triggerNextSyncPromise) {
+      const result = await this.triggerNextSyncPromise;
       return { enabled: true, ...result };
     }
 
+    // if there's an existing sync, just wait for that sync run and trigger the next one right after
+    if (this.currentSyncPromise) {
+      this.triggerNextSyncPromise = this.waitForCurrentSyncAndTriggerNextSync();
+      const result = await this.triggerNextSyncPromise;
+      return { enabled: true, ...result };
+    }
+
+    this.currentSyncPromise = null;
+    this.triggerNextSyncPromise = null;
+
     // set up a common sync promise to avoid double sync
     this.reason = reason;
-    this.syncPromise = this.runSync();
+    this.currentSyncPromise = this.runSync();
 
     // make sure sync promise gets cleared when finished, even if there's an error
     try {
-      const result = await this.syncPromise;
+      const result = await this.currentSyncPromise;
       return { enabled: true, ...result };
     } finally {
-      this.syncPromise = null;
+      this.currentSyncPromise = null;
+      this.triggerNextSyncPromise = null;
       this.reason = '';
       this.currentStartTime = 0;
     }
   }
 
   async runSync() {
-    if (this.syncPromise) {
+    if (this.currentSyncPromise) {
       throw new Error(
         'It should not be possible to call "runSync" while an existing run is active',
       );

@@ -1,75 +1,51 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
+import config from 'config';
 
-import {
-  LAST_SUCCESSFUL_SYNC_PULL_KEY,
-  LAST_SUCCESSFUL_SYNC_PUSH_KEY,
-} from '@tamanu/shared/sync/constants';
+import { fetchWithTimeout } from '@tamanu/shared/utils/fetchWithTimeout';
+import { getResponseJsonSafely } from '@tamanu/shared/utils';
 
 export const sync = express.Router();
 
-function resultToMessage({ enabled, queued, ran, timedOut }) {
-  if (timedOut) return 'Sync is taking a while, continuing in the background...';
-  if (!enabled) return "Sync was disabled and didn't run";
-  if (ran) return 'Sync completed';
-  if (queued) return 'Sync queued and will run later';
-  throw new Error('Unknown sync status');
-}
+const SYNC_SERVER_URL = `${config.sync.server}:${config.sync.port}`;
 
 sync.post(
   '/run',
   asyncHandler(async (req, res) => {
-    const { syncManager, user } = req;
+    const { user } = req;
 
-    req.flagPermissionChecked(); // no particular permission check for triggering a sync
+    req.flagPermissionChecked(); // no particular permission check for checking sync status
 
-    const completeSync = () =>
-      syncManager.triggerSync({
-        urgent: true,
-        type: 'userRequested',
-        userId: user.id,
-        userEmail: user.email,
-      });
+    const syncServerEndpoint = `${SYNC_SERVER_URL}/sync/run`;
+    const response = await fetchWithTimeout(syncServerEndpoint, {
+      method: 'POST',
+      body: {
+        syncData: {
+          urgent: true,
+          type: 'userRequested',
+          userId: user.id,
+          userEmail: user.email,
+        },
+      },
+    });
 
-    const timeoutAfter = seconds =>
-      new Promise(resolve => {
-        setTimeout(() => resolve({ timedOut: true }), seconds * 1000);
-      });
+    const responseBody = await getResponseJsonSafely(response);
 
-    const result = await Promise.race([completeSync(), timeoutAfter(10)]);
-    const message = resultToMessage(result);
-
-    res.send({ message });
+    res.send(responseBody);
   }),
 );
 
 sync.get(
   '/status',
   asyncHandler(async (req, res) => {
-    const { syncManager, models } = req;
-
     req.flagPermissionChecked(); // no particular permission check for checking sync status
 
-    const [lastCompletedPull, lastCompletedPush] = (
-      await Promise.all(
-        [LAST_SUCCESSFUL_SYNC_PULL_KEY, LAST_SUCCESSFUL_SYNC_PUSH_KEY].map(key =>
-          models.LocalSystemFact.get(key),
-        ),
-      )
-    ).map(num => parseInt(num));
-    const lastCompletedDurationMs = syncManager.lastDurationMs;
-    const { lastCompletedAt } = syncManager;
-
-    const isSyncRunning = syncManager.isSyncRunning();
-    const currentDuration = isSyncRunning ? new Date().getTime() - syncManager.currentStartTime : 0;
-
-    res.send({
-      lastCompletedPull,
-      lastCompletedPush,
-      lastCompletedAt,
-      lastCompletedDurationMs,
-      currentDuration,
-      isSyncRunning,
+    const response = await fetchWithTimeout(`${SYNC_SERVER_URL}/sync/status`, {
+      method: 'GET',
     });
+
+    const responseBody = await getResponseJsonSafely(response);
+
+    res.send(responseBody);
   }),
 );

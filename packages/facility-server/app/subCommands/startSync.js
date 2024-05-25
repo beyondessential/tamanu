@@ -8,15 +8,13 @@ import { checkConfig } from '../checkConfig';
 import { initDeviceId } from '../sync/initDeviceId';
 import { performDatabaseIntegrityChecks } from '../database';
 import { CentralServerConnection, FacilitySyncManager } from '../sync';
-import { createApp } from '../createApp';
-import { startScheduledTasks } from '../tasks';
+import { createApp } from '../createSyncApp';
 
 import { version } from '../serverInfo';
 import { ApplicationContext } from '../ApplicationContext';
-import { createSyncApp } from '../createSyncApp';
 
-async function startAll({ skipMigrationCheck }) {
-  log.info(`Starting facility server version ${version}`, {
+async function startSync({ skipMigrationCheck }) {
+  log.info(`Starting facility SYNC server version ${version}`, {
     serverFacilityId: config.serverFacilityId,
   });
 
@@ -24,7 +22,7 @@ async function startAll({ skipMigrationCheck }) {
     execArgs: process.execArgs || '<empty>',
   });
 
-  const context = await new ApplicationContext().init({ appType: 'api' });
+  const context = await new ApplicationContext().init({ appType: 'sync' });
 
   if (config.db.migrateOnStartup) {
     await context.sequelize.migrate('up');
@@ -47,29 +45,17 @@ async function startAll({ skipMigrationCheck }) {
 
   const { server } = await createApp(context);
 
-  const { port } = config;
+  const { port } = config.sync;
   server.listen(port, () => {
-    log.info(`Server is running on port ${port}!`);
+    log.info(`Sync server is running on port ${port}!`);
   });
-
-  const { server: syncServer } = await createSyncApp(context);
-
-  const { port: syncPort } = config.sync;
-  syncServer.listen(syncPort, () => {
-    log.info(`Sync server is running on port ${syncPort}!`);
-  });
-
-  const cancelTasks = startScheduledTasks(context);
-
   process.once('SIGTERM', () => {
     log.info('Received SIGTERM, closing HTTP server');
-    cancelTasks();
     server.close();
-    syncServer.close();
   });
 }
 
-export const startAllCommand = new Command('startAll')
-  .description('Start both the Tamanu Facility API server and tasks runner')
+export const startSyncCommand = new Command('startApi')
+  .description('Start the Tamanu Facility SYNC server')
   .option('--skipMigrationCheck', 'skip the migration check on startup')
-  .action(startAll);
+  .action(startSync);

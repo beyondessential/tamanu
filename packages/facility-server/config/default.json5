@@ -28,6 +28,8 @@
     "email": "",
     "password": "",
     "timeout": 10000,
+    "port": 4001,
+    "server": "http://localhost",
     "persistedCacheBatchSize": 10000,
     "pauseBetweenPersistedCacheBatchesInMilliseconds": 50,
     "pauseBetweenCacheBatchInMilliseconds": 50,
