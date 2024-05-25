@@ -50,6 +50,12 @@ const InvoiceDetailExpandRow = styled.div`
   }
 `;
 
+const InvoiceDetailTableContainer = styled.div`
+  padding: 8px 16px;
+  background: white;
+  border-radius: 5px;
+`; 
+
 const PrintableInvoiceDetailModal = ({ open, onClose, invoice }) => (
   <Modal
     width="md"
@@ -256,11 +262,13 @@ export const InvoiceDetailForm = ({
         )}
       </InvoiceDetailExpandRow>
       <Collapse in={detailExpanded}>
-        <InvoiceDetailTable
-          invoice={invoice}
-          overrideColumns={['date', 'code', 'category', 'orderedBy', 'price']}
-          allowExport={false}
-        />
+        <InvoiceDetailTableContainer>
+          <InvoiceDetailTable
+            invoice={invoice}
+            overrideColumns={['date', 'code', 'category', 'orderedBy', 'price']}
+            allowExport={false}
+          />
+        </InvoiceDetailTableContainer>
       </Collapse>
     </>
   );

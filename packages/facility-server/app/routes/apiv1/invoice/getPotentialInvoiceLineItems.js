@@ -18,6 +18,7 @@ export const getPotentialInvoiceLineItems = async (db, models, encounterId, imag
   const procedures = await db.query(
     `
         SELECT
+        procedures.id AS "id",
         reference_data.name AS "name",
         reference_data.code AS "code",
         procedures.date AS "date",
@@ -51,6 +52,7 @@ export const getPotentialInvoiceLineItems = async (db, models, encounterId, imag
   const imagingRequests = await db.query(
     `
         SELECT
+        imaging_requests.id AS "id",
         imaging_type.label AS "name",
         imaging_type.code AS "code",
         imaging_requests.requested_date AS "date",
@@ -86,6 +88,7 @@ export const getPotentialInvoiceLineItems = async (db, models, encounterId, imag
   const labTests = await db.query(
     `
         SELECT
+        lab_tests.id AS "id",
         lab_test_types.name AS "name",
         lab_test_types.code AS "code",
         lab_tests.date AS "date",

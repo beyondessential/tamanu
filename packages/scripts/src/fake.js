@@ -1,8 +1,4 @@
-const {
-  REPORT_STATUSES,
-  NOTE_RECORD_TYPES,
-  REPORT_DB_SCHEMAS
-} = require('@tamanu/constants');
+const { REPORT_STATUSES, NOTE_RECORD_TYPES, REPORT_DB_SCHEMAS } = require('@tamanu/constants');
 const { fake } = require('@tamanu/shared/test-helpers/fake');
 const { initDatabase } = require('@tamanu/shared/services/database');
 const config = require('config');
@@ -19,6 +15,7 @@ async function generateData(models) {
     User,
     Note,
     PatientBirthData,
+    Survey,
     SurveyScreenComponent,
     ReferenceData,
     ReferenceDataRelation,
@@ -35,7 +32,9 @@ async function generateData(models) {
     PatientProgramRegistration,
     PatientProgramRegistrationCondition,
     PatientAllergy,
-    PatientCommunication
+    PatientCommunication,
+    PatientAdditionalData,
+    PatientDeathData,
   } = models;
 
   const examiner = await User.create(fake(User));
@@ -81,8 +80,10 @@ async function generateData(models) {
       facilityId: facility.id,
     }),
   );
+  const survey = await Survey.create(fake(Survey));
   await SurveyScreenComponent.create(
     fake(SurveyScreenComponent, {
+      surveyId: survey.id,
       option: '{"foo":"bar"}',
       config: '{"source": "ReferenceData", "where": {"type": "facility"}}',
     }),
@@ -118,9 +119,7 @@ async function generateData(models) {
       userId: examiner.id,
     }),
   );
-  await ProgramDataElement.create(
-    fake(ProgramDataElement),
-  );
+  await ProgramDataElement.create(fake(ProgramDataElement));
   const program = await Program.create(fake(Program));
   const programRegistry = await ProgramRegistry.create(
     fake(ProgramRegistry, {
@@ -154,14 +153,28 @@ async function generateData(models) {
   await PatientAllergy.create(
     fake(PatientAllergy, {
       patientId: patient.id,
+    }),
+  );
+
+  await PatientAdditionalData.create(
+    fake(PatientAdditionalData, {
+      patientId: patient.id,
     })
   );
+
+  await PatientDeathData.create(
+    fake(PatientDeathData, {
+      patientId: patient.id,
+      clinicianId: examiner.id,
+    }),
+  );
+
   await ReferenceData.create(fake(ReferenceData));
   await ReferenceDataRelation.create(fake(ReferenceDataRelation));
   await PatientCommunication.create(
     fake(PatientCommunication, {
       patientId: patient.id,
-    })
+    }),
   );
 }
 

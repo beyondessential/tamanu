@@ -3,13 +3,13 @@ import { QueryTypes, Sequelize } from 'sequelize';
 
 import { getPatientAdditionalData } from '@tamanu/shared/utils';
 import { HIDDEN_VISIBILITY_STATUSES } from '@tamanu/constants/importable';
-
 import { renameObjectKeys } from '@tamanu/shared/utils/renameObjectKeys';
 import {
   permissionCheckingRouter,
   runPaginatedQuery,
   simpleGetList,
 } from '@tamanu/shared/utils/crudHelpers';
+
 import { patientSecondaryIdRoutes } from './patientSecondaryId';
 import { patientDeath } from './patientDeath';
 import { patientProfilePicture } from './patientProfilePicture';

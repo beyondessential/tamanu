@@ -237,7 +237,7 @@ export const ImagingRequestForm = React.memo(
                   component={TextField}
                   multiline
                   style={{ gridColumn: '1 / -1' }}
-                  rows={3}
+                  minRows={3}
                 />
               )}
               <Field
@@ -246,7 +246,7 @@ export const ImagingRequestForm = React.memo(
                 component={TextField}
                 multiline
                 style={{ gridColumn: '1 / -1' }}
-                rows={3}
+                minRows={3}
               />
               <ButtonRow>
                 <FormCancelButton onClick={onCancel}>

@@ -17,7 +17,7 @@ concurrency:
   cancel-in-progress: false
 
 permissions:
-  contents: read # to checkout the repo
+  contents: write # to checkout the repo
   pull-requests: write # to parse PRs for config and update them
   issues: write # to parse special deploy issues and update them
 
