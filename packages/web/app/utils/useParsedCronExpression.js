@@ -33,7 +33,7 @@ export const useParsedCronExpression = expression => {
     cronstrue.locales.custom = new CustomTranslatedLocale(getTranslation);
   }, [getTranslation]);
 
-  if (!expression) return '';
+  if (!expression || !cronstrue.locales.custom) return '';
 
   return cronstrue.toString(expression, { locale: 'custom' });
 };
