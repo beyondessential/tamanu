@@ -7,6 +7,13 @@ import { getResponseJsonSafely } from '@tamanu/shared/utils';
 
 export const sync = express.Router();
 
+
+/**
+ * The sync triggering api is non-authed, and generally protected by making it 
+ * only accessible on localhost via the reverse proxy. This is ok because it doesn't 
+ * so anything sensitive or dangerous, but please keep it that way - only add new routes 
+ * or functionality with healthy caution, or after implementing auth
+ */
 const SYNC_SERVER_URL = `${config.sync.server}:${config.sync.port}`;
 
 sync.post(
@@ -17,6 +24,7 @@ sync.post(
     req.flagPermissionChecked(); // no particular permission check for checking sync status
 
     const syncServerEndpoint = `${SYNC_SERVER_URL}/sync/run`;
+    
     const response = await fetchWithTimeout(syncServerEndpoint, {
       method: 'POST',
       body: {
