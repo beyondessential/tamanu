@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useDispatch } from 'react-redux';
 
@@ -22,6 +22,7 @@ import { PATIENT_TABS } from '../../constants/patientPaths.js';
 import { reloadPatient } from '../../store/index.js';
 import { UpdateStatsDisplay } from '../../components/Table/UpdateStatsDisplay.jsx';
 import { useAutoUpdatingQuery } from '../../api/queries/useAutoUpdatingQuery.js';
+import { setRef } from '@material-ui/core';
 
 const StyledSearchTableTitle = styled(SearchTableTitle)`
   display: flex;
@@ -71,15 +72,7 @@ export const ImmunisationsView = () => {
   const [refreshCount, setRefreshCount] = useState(0);
   const dispatch = useDispatch();
 
-  const { data: updateStats, error } = useAutoUpdatingQuery(
-    'upcomingVaccinations/updateStats',
-    {},
-    {
-      onUpdate: () => {
-        setRefreshCount(count => count + 1);
-      },
-    },
-  );
+  const { data: updateStats, error } = useAutoUpdatingQuery('upcomingVaccinations/updateStats');
 
   const [searchParameters, setSearchParameters] = useState({});
   const { navigateToPatient } = usePatientNavigation();
@@ -87,6 +80,12 @@ export const ImmunisationsView = () => {
     await dispatch(reloadPatient(patient.id));
     navigateToPatient(patient.id, { tab: PATIENT_TABS.VACCINES });
   };
+
+  useEffect(() => {
+    if (!updateStats) return;
+    setRefreshCount(count => count + 1);
+  }, [updateStats]);
+
   return (
     <PageContainer>
       <TopBar
