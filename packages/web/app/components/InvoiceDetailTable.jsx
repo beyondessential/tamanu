@@ -36,12 +36,11 @@ const getPrice = (row) => {
   const originalPrice = parseFloat(row?.invoiceLineType?.price).toFixed(2);
   const percentageChange = row.percentageChange ? parseFloat(row.percentageChange).toFixed(2) : 0;
   const priceChange = (originalPrice * percentageChange).toFixed(2);
-  const finalPrice = +originalPrice + (+priceChange);
 
   return (
     <PriceCell>
       <PriceText isCrossedOut={!!percentageChange}>{originalPrice}</PriceText>
-      {!!percentageChange && <span>{finalPrice}</span>}
+      {!!percentageChange && <span>{priceChange}</span>}
     </PriceCell>
   );
 };
