@@ -29,4 +29,6 @@ export const createMarkedForSyncPatientsTable = async (
       type: sequelize.QueryTypes.SELECT,
     },
   );
+
+  return tableName;
 };

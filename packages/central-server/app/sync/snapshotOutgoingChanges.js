@@ -1,7 +1,6 @@
 import { snake } from 'case';
 import {
   COLUMNS_EXCLUDED_FROM_SYNC,
-  getMarkedForSyncPatientsTableName,
   getSnapshotTableName,
   SYNC_SESSION_DIRECTION,
 } from '@tamanu/shared/sync';
@@ -13,7 +12,7 @@ const snapshotChangesForModel = async (
   model,
   since,
   patientCount,
-  isFullSync,
+  markedForSyncPatientsTable,
   sessionId,
   facilityId,
   sessionConfig,
@@ -26,7 +25,6 @@ const snapshotChangesForModel = async (
   });
 
   const CHUNK_SIZE = config.sync.maxRecordsPerPullSnapshotChunk;
-  const markedForSyncPatientsTable = getMarkedForSyncPatientsTableName(sessionId, isFullSync);
   const modelHasPatientSyncFilter = !!model.buildPatientSyncFilter;
   const patientSyncFilter = modelHasPatientSyncFilter
     ? model.buildPatientSyncFilter(patientCount, markedForSyncPatientsTable, sessionConfig)
@@ -134,7 +132,7 @@ export const snapshotOutgoingChanges = withConfig(
     outgoingModels,
     since,
     patientCount,
-    isFullSync,
+    markedForSyncPatientsTable,
     sessionId,
     facilityId,
     sessionConfig,
@@ -163,7 +161,7 @@ export const snapshotOutgoingChanges = withConfig(
           model,
           since,
           patientCount,
-          isFullSync,
+          markedForSyncPatientsTable,
           sessionId,
           facilityId,
           sessionConfig,

@@ -266,11 +266,21 @@ export class CentralSyncManager {
         newlyMarkedPatientCount: newPatientFacilitiesCount,
       });
 
-      // for full sync patients
-      await createMarkedForSyncPatientsTable(sequelize, sessionId, true, facilityId, since);
+      const fullSyncPatientsTable = await createMarkedForSyncPatientsTable(
+        sequelize,
+        sessionId,
+        true,
+        facilityId,
+        since,
+      );
 
-      // for regular sync patients
-      await createMarkedForSyncPatientsTable(sequelize, sessionId, false, facilityId, since);
+      const incrementalSyncPatientsTable = await createMarkedForSyncPatientsTable(
+        sequelize,
+        sessionId,
+        false,
+        facilityId,
+        since,
+      );
 
       const syncAllLabRequests = await models.Setting.get('syncAllLabRequests', facilityId);
       const syncTheseProgramRegistries = await models.Setting.get(
@@ -301,7 +311,7 @@ export class CentralSyncManager {
             getPatientLinkedModels(modelsToInclude),
             -1, // for all time, i.e. 0 onwards
             newPatientFacilitiesCount,
-            true, // this is a full sync, not a regular sync
+            fullSyncPatientsTable,
             sessionId,
             facilityId,
             {}, // sending empty session config because this snapshot attempt is only for syncing new marked for sync patients
@@ -318,7 +328,7 @@ export class CentralSyncManager {
             getModelsForDirection(modelsToInclude, SYNC_DIRECTIONS.PULL_FROM_CENTRAL),
             since,
             patientFacilitiesCount,
-            false, // this is a regular sync
+            incrementalSyncPatientsTable,
             sessionId,
             facilityId,
             sessionConfig,
@@ -332,7 +342,7 @@ export class CentralSyncManager {
               getModelsForDirection(modelsForFullResync, SYNC_DIRECTIONS.PULL_FROM_CENTRAL),
               -1,
               patientFacilitiesCount,
-              false, // this is a regular sync
+              incrementalSyncPatientsTable,
               sessionId,
               facilityId,
               sessionConfig,
