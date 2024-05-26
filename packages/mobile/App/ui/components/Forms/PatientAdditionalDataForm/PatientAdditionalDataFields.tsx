@@ -21,33 +21,8 @@ import {
 import { getConfiguredPatientAdditionalDataFields } from '~/ui/helpers/patient';
 import { ActivityIndicator } from 'react-native';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
-import { TranslatedText } from '../../Translations/TranslatedText';
-import { ReferenceDataType } from '~/types';
 import { HierarchyFields } from '../../HierarchyFields';
-
-// TODO: where should this go
-const CAMBODIA_LOCATION_HIERARCHY_FIELDS = [
-  {
-    name: 'divisionId',
-    referenceType: ReferenceDataType.Division,
-    label: <TranslatedText stringId="cambodiaPatientDetails.province.label" fallback="Province" />,
-  },
-  {
-    name: 'subdivisionId',
-    referenceType: ReferenceDataType.SubDivision,
-    label: <TranslatedText stringId="cambodiaPatientDetails.district.label" fallback="District" />,
-  },
-  {
-    name: 'settlementId',
-    referenceType: ReferenceDataType.Settlement,
-    label: <TranslatedText stringId="cambodiaPatientDetails.commune.label" fallback="Commune" />,
-  },
-  {
-    name: 'villageId',
-    referenceType: ReferenceDataType.Village,
-    label: <TranslatedText stringId="general.localisedField.villageId.label" fallback="Village" />,
-  },
-];
+import { CAMBODIA_LOCATION_HIERARCHY_FIELDS } from '~/ui/navigation/screens/home/PatientDetails/layouts/cambodia/fields';
 
 
 const PlainField = ({ fieldName, required }): ReactElement => (
@@ -126,8 +101,8 @@ function getComponentForField(
   if (customFieldIds.includes(fieldName)) {
     return CustomField;
   }
-  if (fieldName.startsWith('hierarchy')) {
-    return HierarchyFields
+  if (fieldName === 'addressHierarchy') {
+    return HierarchyFields;
   }
   // Shouldn't happen
   throw new Error(`Unexpected field ${fieldName} for patient additional data.`);

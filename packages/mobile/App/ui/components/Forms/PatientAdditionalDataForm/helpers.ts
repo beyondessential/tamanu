@@ -183,6 +183,11 @@ export const getInitialAdditionalValues = (data, fields): {} => {
   // Copy values from data only in the specified fields
   const values = {};
   fields.forEach(fieldName => {
+    if (fieldName === "addressHierarchy") {
+      values.settlementId = data.settlementId
+      values.divisionId = data.divisionId
+      values.subdivisionId = data.subdivisionId
+    }
     if (data[fieldName]) values[fieldName] = data[fieldName];
   });
   return values;
