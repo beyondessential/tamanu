@@ -86,29 +86,28 @@ const INVOICE_LINE_COLUMNS = [
 
 export const InvoiceDetailTable = React.memo(({ invoice }) => {
   return (
-    <>
-      <DataFetchingTable
-        endpoint={`invoices/${invoice.id}/lineItems`}
-        columns={[
-          ...INVOICE_LINE_COLUMNS,
-        ]}
-        noDataMessage={
-          <TranslatedText
-            stringId="invoice.line.table.noData"
-            fallback="No invoice line items found"
-          />
-        }
-        allowExport={false}
-        elevated={false}
-        headerColor='white'
-        page={null}
-        rowStyle={() => 'height: 40px;'}
-        headerTextColor={Colors.midText}
-        containerStyle={denseTableStyle.container}
-        cellStyle={denseTableStyle.cell}
-        headStyle={denseTableStyle.head}
-        statusCellStyle={denseTableStyle.statusCell}
-      />
-    </>
+    <DataFetchingTable
+      endpoint={`invoices/${invoice.id}/lineItems`}
+      columns={[
+        ...INVOICE_LINE_COLUMNS,
+      ]}
+      noDataMessage={
+        <TranslatedText
+          stringId="invoice.line.table.noData"
+          fallback="No invoice line items found"
+        />
+      }
+      allowExport={false}
+      elevated={false}
+      headerColor='white'
+      page={null}
+      rowStyle={() => 'height: 40px;'}
+      headerTextColor={Colors.midText}
+      containerStyle={denseTableStyle.container}
+      cellStyle={denseTableStyle.cell}
+      headStyle={denseTableStyle.head}
+      statusCellStyle={denseTableStyle.statusCell}
+      disablePagination
+    />
   );
 });
