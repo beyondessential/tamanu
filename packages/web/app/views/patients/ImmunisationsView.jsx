@@ -68,9 +68,18 @@ const COLUMNS = [
 ];
 
 export const ImmunisationsView = () => {
+  const [refreshCount, setRefreshCount] = useState(0);
   const dispatch = useDispatch();
 
-  const { data: updateStats, error } = useAutoUpdatingQuery('upcomingVaccinations/updateStats');
+  const { data: updateStats, error } = useAutoUpdatingQuery(
+    'upcomingVaccinations/updateStats',
+    {},
+    {
+      onUpdate: () => {
+        setRefreshCount(count => count + 1);
+      },
+    },
+  );
 
   const [searchParameters, setSearchParameters] = useState({});
   const { navigateToPatient } = usePatientNavigation();
@@ -98,6 +107,7 @@ export const ImmunisationsView = () => {
         <SearchTable
           endpoint="upcomingVaccinations"
           columns={COLUMNS}
+          refreshCount={refreshCount}
           noDataMessage="No patients found"
           onRowClick={onRowClick}
           fetchOptions={searchParameters}
