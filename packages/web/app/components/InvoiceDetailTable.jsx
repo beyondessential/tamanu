@@ -13,15 +13,12 @@ import { Colors } from '../constants';
 import { calculateInvoiceLinesDiscountableTotal, calculateInvoiceLinesNonDiscountableTotal, calculateInvoiceLinesTotal, calculateInvoiceTotal, isInvoiceEditable } from '../utils';
 
 import { DataFetchingTable } from './Table';
-import { DeleteButton } from './Button';
-import { InvoiceLineItemModal } from './InvoiceLineItemModal';
-import { InvoicePriceChangeItemModal } from './InvoicePriceChangeItemModal';
-import { ConfirmModal } from './ConfirmModal';
-import { DropdownButton } from './DropdownButton';
 import { DateDisplay } from './DateDisplay';
-import { TranslatedEnum, TranslatedText } from './Translation';
+import { TranslatedText } from './Translation';
 import { getInvoiceLineCode } from '../utils/invoiceDetails';
 import { InvoiceSummaryPanel } from './InvoiceSummaryPanel';
+import { denseTableStyle } from '../constants';
+import { Box } from '@material-ui/core';
 
 const InvoiceLineDetail = styled.p`
   font-size: 15px;
@@ -150,177 +147,79 @@ const InvoicePriceChangeActionDropdown = React.memo(({ row }) => {
 });
 
 const getDisplayName = ({ orderedBy }) => orderedBy?.displayName ?? '';
-const getPercentageChange = ({ percentageChange }) => {
-  const percentageChangeNumber =
-    percentageChange !== undefined ? parseFloat(percentageChange) * 100 : null;
 
-  if (percentageChangeNumber === null) {
-    return '';
-  }
-
-  return percentageChangeNumber > 0 ? `+${percentageChangeNumber}%` : `${percentageChangeNumber}%`;
-};
-
-const getInvoicePriceChangeCode = row => {
-  if (!row.invoicePriceChangeType) {
-    return '';
-  }
-  const { itemType } = row.invoicePriceChangeType;
-  switch (itemType) {
-    case INVOICE_PRICE_CHANGE_TYPES.PATIENT_BILLING_TYPE:
-      return row.invoicePriceChangeType?.patientBillingType?.code;
-    default:
-      return '';
-  }
-};
 const getInvoiceLineCategory = row => {
   const { name } = row.invoiceLineType;
-  const { itemType } = row.invoiceLineType;
   return (
-    <>
-      <p>
-        <TranslatedEnum
-          prefix="invoice.line.property.type"
-          value={itemType}
-          enumValues={INVOICE_LINE_TYPE_LABELS}
-        />
-      </p>
-      <InvoiceLineDetail title={name}>{name}</InvoiceLineDetail>
-    </>
+    <span>{name}</span>
   );
 };
-const getInvoicePriceChangeCategory = row => {
-  let name = null;
-  let category = null;
-  if (row.invoicePriceChangeType) {
-    name = row.invoicePriceChangeType.name;
-    const { itemType } = row.invoicePriceChangeType;
-    category = (
-      <TranslatedEnum
-        prefix="invoice.priceChange.property.type"
-        value={itemType}
-        enumValues={INVOICE_PRICE_CHANGE_TYPE_LABELS}
-      />
-    );
-  } else {
-    name = row.description;
-    category = 'Additional';
-  }
+
+const StyledTitleCell = ({ value }) => (
+  <Box sx={{ color: Colors.midText, fontWeight: 400 }}>
+    {value}
+  </Box>
+);
+
+const PriceCell = styled.div`
+  display: flex;
+  gap: 10px;
+`;
+
+const PriceText = styled.span`
+  text-decoration: ${props => props.isCrossedOut ? 'line-through' : 'none'};
+`;
+
+const getPrice = (row) => {
+  const originalPrice = parseFloat(row?.invoiceLineType?.price).toFixed(2);
+  const percentageChange = row.percentageChange ? parseFloat(row.percentageChange).toFixed(2) : 0;
+  const priceChange = (originalPrice * percentageChange).toFixed(2);
 
   return (
-    <>
-      <p>{category}</p>
-      <InvoiceLineDetail>{name}</InvoiceLineDetail>
-    </>
+    <PriceCell>
+      <PriceText isCrossedOut={!!percentageChange}>{originalPrice}</PriceText>
+      {!!percentageChange && <span>{priceChange}</span>}
+    </PriceCell>
   );
 };
-const getInvoiceInlinePrice = row => {
-  const originalPrice = parseFloat(row.invoiceLineType.price);
-  const percentageChange = row.percentageChange ? parseFloat(row.percentageChange) : 0;
-  const priceChange = originalPrice * percentageChange;
-  return `$${originalPrice + priceChange}`;
-};
-const INVOICE_LINE_ACTION_COLUMN = {
-  key: 'actions',
-  title: <TranslatedText stringId="general.table.column.actions" fallback="Actions" />,
-  sortable: false,
-  accessor: row => <InvoiceLineActionDropdown row={row} />,
-  dontCallRowInput: true,
-};
+
 const INVOICE_LINE_COLUMNS = [
   {
     key: 'dateGenerated',
     title: <TranslatedText stringId="general.date.label" fallback="Date" />,
     sortable: false,
     accessor: ({ dateGenerated }) => <DateDisplay date={dateGenerated} />,
+    TitleCellComponent: StyledTitleCell,
+  },
+  {
+    key: 'category',
+    title: <TranslatedText stringId="invoice.table.column.details" fallback="Details" />,
+    sortable: false,
+    accessor: getInvoiceLineCategory,
+    TitleCellComponent: StyledTitleCell,
   },
   {
     key: 'code',
     title: <TranslatedText stringId="invoice.table.column.code" fallback="Code" />,
     sortable: false,
     accessor: getInvoiceLineCode,
-  },
-  {
-    key: 'category',
-    title: <TranslatedText stringId="invoice.table.column.category" fallback="Category/ Details" />,
-    sortable: false,
-    accessor: getInvoiceLineCategory,
+    TitleCellComponent: StyledTitleCell,
   },
   {
     key: 'orderedBy',
     title: <TranslatedText stringId="invoice.table.column.orderedBy" fallback="Ordered by" />,
     sortable: false,
     accessor: getDisplayName,
-  },
-  {
-    key: 'originalPrice',
-    title: <TranslatedText stringId="invoice.table.column.unitPrice" fallback="Unit price" />,
-    sortable: false,
-    accessor: row => `$${row.invoiceLineType.price}`,
-  },
-  {
-    key: 'percentageChange',
-    title: <TranslatedText stringId="invoice.table.column.percentChange" fallback="% (-/+)" />,
-    sortable: false,
-    accessor: getPercentageChange,
+    TitleCellComponent: StyledTitleCell,
   },
   {
     key: 'price',
-    title: <TranslatedText stringId="invoice.table.column.totalPrice" fallback="Total" />,
+    title: <TranslatedText stringId="invoice.table.column.price" fallback="Price" />,
     sortable: false,
-    accessor: getInvoiceInlinePrice,
+    accessor: getPrice,
+    TitleCellComponent: StyledTitleCell,
   },
 ];
-
-const INVOICE_PRICE_CHANGE_ACTION_COLUMN = {
-  key: 'actions',
-  title: <TranslatedText stringId="general.table.column.actions" fallback="Actions" />,
-  sortable: false,
-  accessor: row => <InvoicePriceChangeActionDropdown row={row} />,
-  dontCallRowInput: true,
-};
-const INVOICE_PRICE_CHANGE_COLUMNS = [
-  {
-    key: 'date',
-    title: <TranslatedText stringId="general.date.label" fallback="Date" />,
-    sortable: false,
-    accessor: ({ date }) => (date ? <DateDisplay date={date} /> : ''),
-  },
-  {
-    key: 'code',
-    title: <TranslatedText stringId="invoice.table.column.code" fallback="Code" />,
-    sortable: false,
-    accessor: getInvoicePriceChangeCode,
-  },
-  {
-    key: 'category',
-    title: <TranslatedText stringId="invoice.table.column.category" fallback="Category/ Details" />,
-    sortable: false,
-    accessor: getInvoicePriceChangeCategory,
-  },
-  {
-    key: 'orderedBy',
-    title: <TranslatedText stringId="invoice.table.column.orderedBy" fallback="Ordered by" />,
-    sortable: false,
-    accessor: getDisplayName,
-  },
-  {
-    key: 'originalPrice',
-    title: <TranslatedText stringId="invoice.table.column.originalPrice" fallback="Unit price" />,
-    sortable: false,
-    accessor: () => '',
-  },
-  {
-    key: 'percentageChange',
-    title: <TranslatedText stringId="invoice.table.column.percentageChange" fallback="% (-/+)" />,
-    sortable: false,
-    accessor: getPercentageChange,
-  },
-];
-
-const DiscountHeading = styled.h4`
-  margin: 1rem;
-`;
 
 export const InvoiceDetailTable = React.memo(({ invoice }) => {
   const [invoiceLineItems, setInvoiceLineItems] = useState([]);
@@ -355,7 +254,6 @@ export const InvoiceDetailTable = React.memo(({ invoice }) => {
         endpoint={`invoices/${invoice.id}/lineItems`}
         columns={[
           ...INVOICE_LINE_COLUMNS,
-          ...(isInvoiceEditable(invoice) ? [INVOICE_LINE_ACTION_COLUMN] : []),
         ]}
         noDataMessage={
           <TranslatedText
@@ -364,49 +262,16 @@ export const InvoiceDetailTable = React.memo(({ invoice }) => {
           />
         }
         allowExport={false}
-        onDataFetched={updateLineItems}
+        elevated={false}
+        headerColor='white'
+        page={null}
+        rowStyle={() => 'height: 40px;'}
+        headerTextColor={Colors.midText}
+        containerStyle={denseTableStyle.container}
+        cellStyle={denseTableStyle.cell}
+        headStyle={denseTableStyle.head}
+        statusCellStyle={denseTableStyle.statusCell}
       />
-      <InvoiceTotal>
-        <TranslatedText stringId="invoice.table.footer.subTotal.label" fallback="Sub-Total" />: $
-        {invoiceLinesTotal}
-      </InvoiceTotal>
-      <DiscountHeading>
-        <TranslatedText
-          stringId="invoice.table.discounts.heading"
-          fallback="Discounts / Mark-ups"
-        />
-      </DiscountHeading>
-      <DataFetchingTable
-        endpoint={`invoices/${invoice.id}/priceChangeItems`}
-        columns={[
-          ...INVOICE_PRICE_CHANGE_COLUMNS,
-          {
-            key: 'price',
-            title: <TranslatedText stringId="invoice.table.column.price" fallback="Total" />,
-            sortable: false,
-            accessor: ({ percentageChange }) => {
-              const priceChange = (percentageChange || 0) * invoiceLinesTotal;
-              if (priceChange === 0) {
-                return '$0';
-              }
-              return priceChange > 0 ? `+$${priceChange}` : `-$${-priceChange}`;
-            },
-          },
-          ...(isInvoiceEditable(invoice) ? [INVOICE_PRICE_CHANGE_ACTION_COLUMN] : []),
-        ]}
-        noDataMessage={
-          <TranslatedText
-            stringId="invoice.discounts.table.noData"
-            fallback="No additional price change found"
-          />
-        }
-        allowExport={false}
-        onDataFetched={updatePriceChangeItems}
-      />
-      <InvoiceTotal>
-        <TranslatedText stringId="invoice.table.footer.total.label" fallback="Total" />: $
-        {invoiceTotal}
-      </InvoiceTotal>
       <InvoiceSummaryPanel
         invoiceId={invoice.id}
         invoiceDiscountableTotal={invoiceDiscountableTotal}
