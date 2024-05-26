@@ -29,7 +29,7 @@ module.exports = {
       name: 'tamanu-sync-server',
       cwd: '.', // IMPORTANT: Leave this as-is, for production build
       script: './dist/index.js',
-      args: 'startAll',
+      args: 'startSync',
       interpreter_args: `--max_old_space_size=${memory}`,
       instances: 1,
       exec_mode: 1,
