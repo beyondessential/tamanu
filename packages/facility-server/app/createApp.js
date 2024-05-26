@@ -11,7 +11,7 @@ import { versionCompatibility } from './middleware/versionCompatibility';
 import { createServer } from 'http';
 import { defineWebsocketService } from './services/websocketService';
 import { defineWebsocketClientService } from './services/websocketClientService';
-import { addExpressMiddleware } from './addExpressMiddleware';
+import { addFacilityMiddlewares } from './addFacilityMiddlewares';
 
 export async function createApp({ sequelize, reportSchemaStores, models, syncManager, deviceId }) {
   const express = defineExpress();
@@ -20,7 +20,7 @@ export async function createApp({ sequelize, reportSchemaStores, models, syncMan
   const websocketService = defineWebsocketService({ httpServer: server });
   const websocketClientService = defineWebsocketClientService({ config, websocketService, models });
 
-  const { errorMiddleware } = addExpressMiddleware(express);
+  const { errorMiddleware } = addFacilityMiddlewares(express);
 
   express.use((req, res, next) => {
     req.models = models;

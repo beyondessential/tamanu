@@ -3,13 +3,13 @@ import defineExpress from 'express';
 import errorHandler from './middleware/errorHandler';
 import { createServer } from 'http';
 import syncRoutes from './routes/sync';
-import { addExpressMiddleware } from './addExpressMiddleware';
+import { addFacilityMiddlewares } from './addFacilityMiddlewares';
 
 export async function createSyncApp({ sequelize, reportSchemaStores, syncManager, models, deviceId }) {
   const express = defineExpress();
   const server = createServer(express);
 
-  const { errorMiddleware } = addExpressMiddleware(express);
+  const { errorMiddleware } = addFacilityMiddlewares(express);
 
   express.use((req, res, next) => {
     req.models = models;
