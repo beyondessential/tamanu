@@ -1,19 +1,18 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { Typography } from '@material-ui/core';
-import { useEncounter } from '../../../contexts/Encounter';
 import { isErrorUnknownAllow404s, useApi } from '../../../api';
-import { isInvoiceEditable } from '../../../utils';
-import { InvoiceLineItemModal } from '../../../components/InvoiceLineItemModal';
-import { InvoicePriceChangeItemModal } from '../../../components/InvoicePriceChangeItemModal';
-import { PotentialInvoiceLineItemsModal } from '../../../components/PotentialInvoiceLineItemsModal';
+import { calculateInvoiceLinesDiscountableTotal, calculateInvoiceLinesNonDiscountableTotal, isInvoiceEditable } from '../../../utils';
 import { InvoiceDetailTable } from '../../../components/InvoiceDetailTable';
-import { Button, OutlinedButton } from '../../../components/Button';
+import { Button } from '../../../components/Button';
 import { ContentPane } from '../../../components/ContentPane';
-import { Colors } from '../../../constants';
+import { Colors, INVOICE_ACTION_MODALS } from '../../../constants';
 import { TabPane } from '../components';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { EditInvoiceModal } from '../../../components/EditInvoiceModal';
+import { KebabMenu } from '../../../components/EditInvoiceModal/KebabMenu';
+import { StatusDisplay } from '../../../utils/invoiceStatus';
+import { InvoiceSummaryPanel } from '../../../components/InvoiceSummaryPanel';
 
 const EmptyPane = styled(ContentPane)`
   text-align: center;
@@ -23,34 +22,49 @@ const ActionsPane = styled.div`
   display: flex;
   flex-direction: row-reverse;
   align-items: center;
-
-  > button {
-    margin-left: 16px;
-  }
 `;
 
 const InvoiceHeading = styled(Typography)`
-  color: ${Colors.primary};
+  display: flex;
+  gap: 20px;
+`;
+
+const InvoiceTitle = styled(Typography)`
+  color: ${Colors.darkestText};
   font-weight: 500;
-  font-size: 14px;
-  margin-left: 5px;
+  font-size: 18px;
 `;
 
 const InvoiceTopBar = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid ${Colors.outline};
+`;
+
+const InvoiceContainer = styled.div`
+  padding: 8px 16px;
+  margin-bottom: 5px;
+  border: 1px solid ${Colors.outline};
 `;
 
 export const InvoicingPane = React.memo(({ encounter }) => {
-  const [invoiceLineModalOpen, setInvoiceLineModalOpen] = useState(false);
   const [editInvoiceModalOpen, setEditInvoiceModalOpen] = useState(false);
-  const [potentialLineItemsModalOpen, setPotentialLineItemsModalOpen] = useState(false);
-  const [invoicePriceChangeModalOpen, setInvoicePriceChangeModalOpen] = useState(false);
   const [invoice, setInvoice] = useState(null);
   const [error, setError] = useState(null);
-  const { loadEncounter } = useEncounter();
+  const [invoiceLineItems, setInvoiceLineItems] = useState([]);
+
+  const updateLineItems = useCallback(({ data }) => setInvoiceLineItems(data), []);
+
+  const invoiceDiscountableTotal = useMemo(() => {
+    return calculateInvoiceLinesDiscountableTotal(invoiceLineItems);
+  }, [invoiceLineItems]);
+
+  const invoiceNonDiscountableTotal = useMemo(() => {
+    return calculateInvoiceLinesNonDiscountableTotal(invoiceLineItems);
+  }, [invoiceLineItems]);
+
   const api = useApi();
 
   const getInvoice = useCallback(async () => {
@@ -107,79 +121,46 @@ export const InvoicingPane = React.memo(({ encounter }) => {
 
   return (
     <TabPane>
-      <InvoiceTopBar>
-        <InvoiceHeading>
-          <TranslatedText stringId="invoice.invoiceNumber" fallback="Invoice number" />
-          {`: ${invoice.displayId}`}
-        </InvoiceHeading>
-        {isInvoiceEditable(invoice) ? (
-          <ActionsPane>
-            <Button onClick={() => setEditInvoiceModalOpen(true)}>
-              <TranslatedText stringId="invoice.action.editItem" fallback="Edit invoice" />
-            </Button>
-            {editInvoiceModalOpen && <EditInvoiceModal
-              open={editInvoiceModalOpen}
-              onClose={() => setEditInvoiceModalOpen(false)}
-              invoiceId={invoice.id}
-              displayId={invoice.displayId}
-              encounterId={encounter.id}
-              invoiceStatus={invoice.status}
-            />}
-            <Button onClick={() => setInvoiceLineModalOpen(true)}>
-              <TranslatedText stringId="invoice.action.addItem" fallback="Add item" />
-            </Button>
-            <InvoiceLineItemModal
-              title={<TranslatedText stringId="invoice.action.addItem" fallback="Add item" />}
-              actionText={<TranslatedText stringId="general.action.add" fallback="Add" />}
-              open={invoiceLineModalOpen}
-              invoiceId={invoice.id}
-              onClose={() => setInvoiceLineModalOpen(false)}
-              onSaved={() => {
-                setInvoiceLineModalOpen(false);
-                loadEncounter(encounter.id);
-              }}
-            />
-            <OutlinedButton onClick={() => setInvoicePriceChangeModalOpen(true)}>
-              <TranslatedText
-                stringId="invoice.action.addPriceChange"
-                fallback="Add price change"
+      <InvoiceContainer>
+        <InvoiceTopBar>
+          <InvoiceHeading>
+            <InvoiceTitle>
+              <TranslatedText stringId="invoice.invoiceNumber" fallback="Invoice number" />
+              {`: ${invoice.displayId}`}
+            </InvoiceTitle>
+            <StatusDisplay status={invoice.status} />
+          </InvoiceHeading>
+          {isInvoiceEditable(invoice) ? (
+            <ActionsPane>
+              <KebabMenu
+                modalsEnabled={[INVOICE_ACTION_MODALS.CANCEL_INVOICE]}
+                invoiceId={invoice.id}
               />
-            </OutlinedButton>
-            <InvoicePriceChangeItemModal
-              title={
-                <TranslatedText
-                  stringId="invoice.action.addPriceChange"
-                  fallback="Add price change"
-                />
-              }
-              actionText={<TranslatedText stringId="general.action.create" fallback="Create" />}
-              open={invoicePriceChangeModalOpen}
-              invoiceId={invoice.id}
-              onClose={() => setInvoicePriceChangeModalOpen(false)}
-              onSaved={async () => {
-                setInvoicePriceChangeModalOpen(false);
-                await loadEncounter(encounter.id);
-              }}
-            />
-            <OutlinedButton onClick={() => setPotentialLineItemsModalOpen(true)}>
-              <TranslatedText
-                stringId="invoice.action.populateInvoice"
-                fallback="Populate invoice"
-              />
-            </OutlinedButton>
-            <PotentialInvoiceLineItemsModal
-              open={potentialLineItemsModalOpen}
-              invoiceId={invoice.id}
-              onClose={() => setPotentialLineItemsModalOpen(false)}
-              onSaved={() => {
-                setPotentialLineItemsModalOpen(false);
-                loadEncounter(encounter.id);
-              }}
-            />
-          </ActionsPane>
-        ) : null}
-      </InvoiceTopBar>
-      <InvoiceDetailTable invoice={invoice} />
+              <Button onClick={() => setEditInvoiceModalOpen(true)}>
+                <TranslatedText stringId="invoice.action.editItem" fallback="Edit invoice" />
+              </Button>
+              {editInvoiceModalOpen && <EditInvoiceModal
+                open={editInvoiceModalOpen}
+                onClose={() => setEditInvoiceModalOpen(false)}
+                invoiceId={invoice.id}
+                displayId={invoice.displayId}
+                encounterId={encounter.id}
+                invoiceStatus={invoice.status}
+              />}
+            </ActionsPane>
+          ) : null}
+        </InvoiceTopBar>
+        <InvoiceDetailTable
+          invoice={invoice}
+          invoiceLineItems={invoiceLineItems}
+          updateLineItems={updateLineItems}
+        />
+      </InvoiceContainer>
+      <InvoiceSummaryPanel
+        invoiceId={invoice.id}
+        invoiceDiscountableTotal={invoiceDiscountableTotal}
+        invoiceNonDiscountableTotal={invoiceNonDiscountableTotal}
+      />
     </TabPane>
   );
 });

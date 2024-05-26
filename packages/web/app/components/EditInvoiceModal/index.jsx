@@ -8,7 +8,7 @@ import { Modal } from '../Modal';
 import { TranslatedEnum, TranslatedText } from '../Translation';
 import { Form } from '../Field';
 import { useApi } from '../../api';
-import { Colors } from '../../constants';
+import { Colors, denseTableStyle } from '../../constants';
 import { FormSubmitCancelRow } from '../ButtonRow';
 import { DataFetchingTable } from '../Table';
 import { DateDisplay } from '../DateDisplay';
@@ -18,6 +18,7 @@ import { useEncounter } from '../../contexts/Encounter';
 import { getInvoiceLineCode } from '../../utils/invoiceDetails';
 import { InvoiceSummaryPanel } from '../InvoiceSummaryPanel';
 import { calculateInvoiceLinesDiscountableTotal, calculateInvoiceLinesNonDiscountableTotal } from '../../utils';
+import { StatusDisplay } from '../../utils/invoiceStatus';
 
 const LinkText = styled.div`
   font-weight: 500;
@@ -101,7 +102,12 @@ const ModalSection = styled.div`
   align-items: flex-start;
 `;
 
-export const EditInvoiceModal = ({ open, onClose, invoiceId, invoiceStatus, displayId, encounterId }) => {
+const StatusContainer = styled.span`
+  margin-left: 20px;
+  font-weight: 400;
+`;
+
+export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounterId, invoiceStatus }) => {
   const [rowList, setRowList] = useState([{ id: uuidv4() }]);
   const [potentialLineItems, setPotentialLineItems] = useState([]);
   const [isSaving, setIsSaving] = useState(false);
@@ -290,11 +296,17 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, invoiceStatus, disp
     <Modal
       width="lg"
       title={
-        <TranslatedText
-          stringId="invoice.modal.view.title"
-          fallback="Invoice number: :invoiceNumber"
-          replacements={{ invoiceNumber: displayId }}
-        />
+        <>
+          <TranslatedText
+            stringId="invoice.modal.view.title"
+            fallback="Invoice number: :invoiceNumber"
+            replacements={{ invoiceNumber: displayId }}
+          />
+          <StatusContainer>
+            <StatusDisplay status={invoiceStatus} />
+          </StatusContainer>
+
+        </>
       }
       open={open}
       onClose={onClose}
@@ -350,31 +362,10 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, invoiceStatus, disp
                   page={null}
                   elevated={false}
                   isEmpty={isEmpty}
-                  containerStyle='border: 0px solid white; overflow: visible;'
-                  cellStyle='
-                  &.MuiTableCell-body {
-                    padding: 4px 30px 4px 0px;
-                  }
-                  &:first-child {
-                    padding-left: 0px;
-                  }
-                  &:last-child {
-                    padding-right: 5px;
-                  }
-                '
-                headStyle='
-                  .MuiTableCell-head {
-                    padding: 8px 30px 8px 0px;
-                    &:last-child {
-                      padding-right: 5px;
-                    }
-                  }
-                '
-                statusCellStyle='
-                  &.MuiTableCell-body {
-                    padding: 10px 0px; text-align: left;
-                  }
-                '
+                  containerStyle={denseTableStyle.container}
+                  cellStyle={denseTableStyle.cell}
+                  headStyle={denseTableStyle.head}
+                  statusCellStyle={denseTableStyle.statusCell}
                 />
               </PotentialLineItemsPane>
               <InvoiceSummaryPanel 
