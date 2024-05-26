@@ -33,9 +33,12 @@ describe('RefreshMaterializedView', () => {
       weeksFromLastVaccinationDue: null,
     });
     // Up to date results from the view
-    upcomingVaccinations = await context.sequelize.query('SELECT * FROM upcoming_vaccinations', {
-      type: QueryTypes.SELECT,
-    });
+    upcomingVaccinations = await context.sequelize.query(
+      'SELECT * FROM upcoming_vaccinations order by vaccine_id',
+      {
+        type: QueryTypes.SELECT,
+      },
+    );
   });
 
   afterAll(() => context.close());
@@ -51,7 +54,7 @@ describe('RefreshMaterializedView', () => {
     expect(originalMaterializedResult).toEqual([]);
     await task.run();
     const refreshedMaterializedResult = await context.sequelize.query(
-      'SELECT * FROM materialized_upcoming_vaccinations',
+      'SELECT * FROM materialized_upcoming_vaccinations order by vaccine_id',
       {
         type: QueryTypes.SELECT,
       },
