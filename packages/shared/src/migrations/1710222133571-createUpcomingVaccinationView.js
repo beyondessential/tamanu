@@ -55,7 +55,7 @@ export async function up(query) {
     join scheduled_vaccines sv on sv.id = av.scheduled_vaccine_id
 	  join encounters e on e.id = av.encounter_id
 	  where av.deleted_at is null and av.status = 'GIVEN'
-	  and e.deleted_at is null and e.encounter_type = 'vaccination'
+	  and e.deleted_at is null
   ),
   patient_vaccine_fixed_schedule as (
   select

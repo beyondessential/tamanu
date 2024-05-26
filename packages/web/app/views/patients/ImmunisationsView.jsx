@@ -1,4 +1,7 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import styled from 'styled-components';
+import { useDispatch } from 'react-redux';
+
 import {
   ContentPane,
   ImmunisationSearchBar,
@@ -17,7 +20,15 @@ import {
 import { usePatientNavigation } from '../../utils/usePatientNavigation.js';
 import { PATIENT_TABS } from '../../constants/patientPaths.js';
 import { reloadPatient } from '../../store/index.js';
-import { useDispatch } from 'react-redux';
+import { UpdateStatsDisplay } from '../../components/Table/UpdateStatsDisplay.jsx';
+import { useAutoUpdatingQuery } from '../../api/queries/useAutoUpdatingQuery.js';
+import { setRef } from '@material-ui/core';
+
+const StyledSearchTableTitle = styled(SearchTableTitle)`
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+`;
 
 const getSchedule = record =>
   record?.scheduleName || (
@@ -58,13 +69,22 @@ const COLUMNS = [
 ];
 
 export const ImmunisationsView = () => {
+  const [refreshCount, setRefreshCount] = useState(0);
   const dispatch = useDispatch();
+
+  const { data: updateStats, error } = useAutoUpdatingQuery('upcomingVaccinations/updateStats');
+
   const [searchParameters, setSearchParameters] = useState({});
   const { navigateToPatient } = usePatientNavigation();
   const onRowClick = async patient => {
     await dispatch(reloadPatient(patient.id));
     navigateToPatient(patient.id, { tab: PATIENT_TABS.VACCINES });
   };
+
+  useEffect(() => {
+    if (!updateStats) return;
+    setRefreshCount(count => count + 1);
+  }, [updateStats]);
 
   return (
     <PageContainer>
@@ -74,16 +94,19 @@ export const ImmunisationsView = () => {
         }
       />
       <ContentPane>
-        <SearchTableTitle>
+        <StyledSearchTableTitle>
           <TranslatedText
             stringId="immunisation.register.search.title"
             fallback="Patient immunisation search"
           />
-        </SearchTableTitle>
+
+          {updateStats && <UpdateStatsDisplay stats={updateStats} error={error} />}
+        </StyledSearchTableTitle>
         <ImmunisationSearchBar onSearch={setSearchParameters} />
         <SearchTable
           endpoint="upcomingVaccinations"
           columns={COLUMNS}
+          refreshCount={refreshCount}
           noDataMessage="No patients found"
           onRowClick={onRowClick}
           fetchOptions={searchParameters}

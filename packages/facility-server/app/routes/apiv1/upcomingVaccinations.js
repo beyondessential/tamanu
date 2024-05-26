@@ -1,8 +1,13 @@
 import express from 'express';
+import config from 'config';
 import asyncHandler from 'express-async-handler';
 import { QueryTypes } from 'sequelize';
-import { VACCINE_STATUS, UPCOMING_VACCINATIONS_REFRESHED_AT_KEY } from '@tamanu/constants/vaccines';
+import { VACCINE_STATUS } from '@tamanu/constants/vaccines';
 import { makeFilter } from '../../utils/query';
+import {
+  MATERIALIZED_VIEWS,
+  MATERIALIZED_VIEW_LAST_REFRESHED_AT_KEY_NAMESPACE,
+} from '@tamanu/constants';
 
 export const upcomingVaccinations = express.Router();
 
@@ -71,11 +76,16 @@ upcomingVaccinations.get(
         filterParams,
       );
 
+    // Use the materialized version of the view if the regular refresh task is enabled, otherwise use the regular live view (not recommended for performance reasons)
+    const { enabled } = config.schedules.refreshMaterializedView.upcomingVaccinations;
+    const tableName =
+      enabled === false ? 'upcoming_vaccinations' : 'materialized_upcoming_vaccinations';
+
     const withRowNumber = `
       WITH upcoming_vaccinations_with_row_number AS (
         SELECT *,
         ROW_NUMBER() OVER(PARTITION BY patient_id ORDER BY due_date ASC) AS row_number
-        FROM materialized_upcoming_vaccinations uv
+        FROM ${tableName} uv
         WHERE uv.status <> '${VACCINE_STATUS.MISSED}'
       )
     `;
@@ -131,10 +141,30 @@ upcomingVaccinations.get(
       },
     );
 
-    const lastRefreshed = await req.models.LocalSystemFact.get(
-      UPCOMING_VACCINATIONS_REFRESHED_AT_KEY,
-    );
+    return res.send({
+      data: results,
+      count: parseInt(countResult[0].count, 10),
+    });
+  }),
+);
 
-    return res.send({ data: results, count: parseInt(countResult[0].count, 10), lastRefreshed });
+upcomingVaccinations.get(
+  '/updateStats',
+  asyncHandler(async (req, res) => {
+    const { models } = req;
+    const { LocalSystemFact } = models;
+    req.checkPermission('read', 'PatientVaccine');
+    const { schedule, enabled } = config.schedules.refreshMaterializedView.upcomingVaccinations;
+    if (enabled === false) {
+      // If the task is disabled, stats are not needed
+      return res.send({});
+    }
+    const lastRefreshed = await LocalSystemFact.get(
+      `${MATERIALIZED_VIEW_LAST_REFRESHED_AT_KEY_NAMESPACE}:${MATERIALIZED_VIEWS.UPCOMING_VACCINATIONS}`,
+    );
+    return res.send({
+      lastRefreshed,
+      schedule,
+    });
   }),
 );
