@@ -9,6 +9,11 @@
 		precompressed zstd br gzip
 	}
 
+	reverse_proxy {
+    to localhost:5173
+    copy *
+  }
+
 	handle_errors {
 		@custom_err file /resources/errors/{err.status_code}.html
 		handle @custom_err {
