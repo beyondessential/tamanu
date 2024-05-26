@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { Colors } from '../constants';
 import { FullWidthRow, MODAL_PADDING_LEFT_AND_RIGHT } from './BaseModal';
-import { ButtonRow, ConfirmCancelRow, FormSubmitCancelRow, ConfirmCancelBackRow } from './ButtonRow';
+import { ButtonRow, ConfirmCancelRow, FormSubmitCancelRow } from './ButtonRow';
 
 // TODO this is a little weird - might be better to refactor ConfirmCancelRow to allow replacing
 // the ButtonRow component it uses with a differently styled one

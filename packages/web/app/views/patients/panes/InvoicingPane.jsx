@@ -10,7 +10,6 @@ import { Colors, INVOICE_ACTION_MODALS } from '../../../constants';
 import { TabPane } from '../components';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { EditInvoiceModal } from '../../../components/EditInvoiceModal';
-import { CreateInvoiceModal } from '../../../components/CreateInvoiceModal';
 import { KebabMenu } from '../../../components/EditInvoiceModal/KebabMenu';
 import { StatusDisplay } from '../../../utils/invoiceStatus';
 
@@ -48,16 +47,10 @@ const InvoiceContainer = styled.div`
   border: 1px solid ${Colors.outline};
 `;
 
-const INVOICE_ACTIVE_MODALS = {
-  EDIT_INVOICE: "editInvoice",
-  CREATE_INVOICE: "createInvoice",
-};
-
 export const InvoicingPane = React.memo(({ encounter }) => {
   const [editInvoiceModalOpen, setEditInvoiceModalOpen] = useState(false);
   const [potentialLineItemsModalOpen, setPotentialLineItemsModalOpen] = useState(false);
   const [invoicePriceChangeModalOpen, setInvoicePriceChangeModalOpen] = useState(false);
-  const [activeModal, setActiveModal] = useState('');
   const [invoice, setInvoice] = useState(null);
   const [error, setError] = useState(null);
 
@@ -108,13 +101,9 @@ export const InvoicingPane = React.memo(({ encounter }) => {
   if (!invoice) {
     return (
       <EmptyPane>
-        <Button onClick={() => setActiveModal(INVOICE_ACTIVE_MODALS.CREATE_INVOICE)}>
+        <Button onClick={createInvoice}>
           <TranslatedText stringId="invoice.action.create" fallback="Create invoice" />
         </Button>
-        <CreateInvoiceModal 
-          open={activeModal === INVOICE_ACTIVE_MODALS.CREATE_INVOICE}
-          onClose={() => setActiveModal("")}
-        />
       </EmptyPane>
     );
   }
