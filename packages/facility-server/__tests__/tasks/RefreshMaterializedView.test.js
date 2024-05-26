@@ -4,6 +4,7 @@ import { fake } from '@tamanu/shared/test-helpers/fake';
 import { toDateString } from '@tamanu/shared/utils/dateTime';
 import { QueryTypes } from 'sequelize';
 import { subDays } from 'date-fns';
+import { REFERENCE_TYPES } from '@tamanu/constants';
 
 describe('RefreshMaterializedView', () => {
   let context;
@@ -22,13 +23,26 @@ describe('RefreshMaterializedView', () => {
       dateOfBirth: toDateString(subDays(new Date(), 3)),
     });
 
+    const drug1 = await models.ReferenceData.create({
+      ...fake(models.ReferenceData),
+      id: 'drug-1',
+      type: REFERENCE_TYPES.DRUG,
+    });
+    const drug2 = await models.ReferenceData.create({
+      ...fake(models.ReferenceData),
+      id: 'drug-2',
+      type: REFERENCE_TYPES.DRUG,
+    });
+
     await models.ScheduledVaccine.create({
       ...fake(models.ScheduledVaccine),
+      vaccineId: drug1.id,
       weeksFromBirthDue: 1,
       weeksFromLastVaccinationDue: null,
     });
     await models.ScheduledVaccine.create({
       ...fake(models.ScheduledVaccine),
+      vaccineId: drug2.id,
       weeksFromBirthDue: 2,
       weeksFromLastVaccinationDue: null,
     });
