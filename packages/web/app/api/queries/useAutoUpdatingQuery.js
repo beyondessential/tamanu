@@ -9,7 +9,7 @@ import { useApi } from '../useApi';
  * when the data has updated, and invalidates the query when the event is received
  */
 export const useAutoUpdatingQuery = (endpoint, queryParams) => {
-  const { api } = useApi();
+  const api = useApi();
   const { socket } = useSocket();
   const queryClient = useQueryClient();
   const queryKey = useMemo(() => [endpoint, queryParams], [endpoint, queryParams]);

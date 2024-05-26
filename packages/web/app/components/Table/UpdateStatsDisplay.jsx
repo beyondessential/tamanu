@@ -27,15 +27,13 @@ const StatsError = () => (
 );
 
 export const UpdateStatsDisplay = ({
-  stats,
+  stats: { schedule, lastRefreshed },
   error,
   recalculateDistanceFromNowIntervalMs = 1000 * 60,
 }) => {
+  const parsedSchedule = useParsedCronExpression(schedule);
   const [lastUpdated, setLastUpdated] = useState();
   const { getTranslation } = useTranslation();
-  const parsedSchedule = useParsedCronExpression(schedule);
-
-  const { schedule, lastRefreshed } = stats;
 
   const dateAsDistanceToNow = useCallback(
     date =>
