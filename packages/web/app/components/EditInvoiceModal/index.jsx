@@ -246,7 +246,9 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
       date: submitData[`date_${index}`],
       orderedById: submitData[`orderedById_${index}`],
     }));
+    const existingIds = rowList.map(row => row.id);
 
+    await api.delete(`invoices/${invoiceId}/lineItems`, { existingIds });
     await api.put(`invoices/${invoiceId}/lineItems`, { invoiceLineItemsData });
     await loadEncounter(encounterId);
     setIsSaving(false);

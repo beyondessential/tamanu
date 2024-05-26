@@ -54,81 +54,52 @@ invoiceLineItemsRoute.put(
 
     const { invoiceLineItemsData } = req.body;
 
-    let updatedLineItems;
-    await models.InvoiceLineItem.sequelize.transaction(async () => {
-      // Fetch existing line items for the given invoiceId
-      const existingItems = await models.InvoiceLineItem.findAll({ where: { invoiceId } });
-
-      // Prepare arrays for creating and updating
-      const itemsToCreate = [];
-      const itemsToUpdate = [];
-      const receivedItemIds = invoiceLineItemsData.map(item => item.id);
-
-      // Mark items as deleted if they are not in the received data
-      await models.InvoiceLineItem.update(
-        { status: INVOICE_LINE_ITEM_STATUSES.DELETED },
-        {
-          where: {
-            invoiceId,
-            id: {
-              [Op.notIn]: receivedItemIds
-            }
-          }
-        }
-      );
-
-      invoiceLineItemsData.forEach(item => {
-        const existingItem = existingItems.find(existing => existing.id === item.id);
-        if (existingItem) {
-          // Compare the properties of the existing item with the received item
-          if (
-            existingItem.invoiceLineTypeId !== item.invoiceLineTypeId ||
-            existingItem.dateGenerated !== item.date ||
-            existingItem.orderedById !== item.orderedById
-          ) {
-            itemsToUpdate.push(item);
-          }
-        } else {
-          itemsToCreate.push({
-            invoiceId,
-            invoiceLineTypeId: item.invoiceLineTypeId,
-            dateGenerated: item.date,
-            orderedById: item.orderedById
-          });
-        }
-      });
-
-      // Update existing items
-      for (const item of itemsToUpdate) {
-        await models.InvoiceLineItem.update(
-          {
-            invoiceLineTypeId: item.invoiceLineTypeId,
-            dateGenerated: item.date,
-            orderedById: item.orderedById
-          },
-          { where: { id: item.id } }
-        );
-      }
-
-      // Assign unique createdAt timestamps to avoid random order
-      let currentTime = Date.now();
-      itemsToCreate.forEach(item => {
-        item.createdAt = new Date(currentTime);
-        currentTime += 1;
-      });
-
-      // Create new items
-      await models.InvoiceLineItem.bulkCreate(itemsToCreate);
-
+    let currentTime = Date.now();
+    const itemsToUpdate = invoiceLineItemsData.map(item => {
+      const newItem = {
+        id: item.id,
+        invoiceLineTypeId: item.invoiceLineTypeId,
+        dateGenerated: item.date,
+        orderedById: item.orderedById,
+        invoiceId,
+        // Assign unique createdAt timestamps to avoid random order
+        createdAt: currentTime
+      };
+      currentTime += 1;
+      return newItem;
     });
 
-    updatedLineItems = await models.InvoiceLineItem.findAll({ where: { invoiceId } });
+    const updatedLineItems = await models.InvoiceLineItem.bulkCreate(itemsToUpdate, {
+      updateOnDuplicate: ["invoiceLineTypeId", "dateGenerated", "orderedById"] 
+    });
 
     res.send({
       count: updatedLineItems.length,
       data: updatedLineItems
     });
   })
+);
+
+invoiceLineItemsRoute.delete(
+  '/:invoiceId/lineItems',
+  asyncHandler(async (req, res) => {
+    const { models, params: { invoiceId }, query: { existingIds } } = req;
+    req.checkPermission('write', 'InvoiceLineItem');
+
+    await models.InvoiceLineItem.update(
+      { status: INVOICE_LINE_ITEM_STATUSES.DELETED },
+      {
+        where: {
+          invoiceId,
+          id: {
+            [Op.notIn]: existingIds
+          }
+        }
+      }
+    );
+
+    res.send({ message: 'Line items deleted successfully' });
+  }),
 );
 
 invoiceLineItemsRoute.get('/:invoiceId/lineItems/:id', simpleGet('InvoiceLineItem'));
