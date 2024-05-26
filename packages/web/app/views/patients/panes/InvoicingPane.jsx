@@ -14,6 +14,7 @@ import { Colors } from '../../../constants';
 import { TabPane } from '../components';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { EditInvoiceModal } from '../../../components/EditInvoiceModal';
+import { CreateInvoiceModal } from '../../../components/CreateInvoiceModal';
 
 const EmptyPane = styled(ContentPane)`
   text-align: center;
@@ -43,11 +44,17 @@ const InvoiceTopBar = styled.div`
   margin-bottom: 20px;
 `;
 
+const INVOICE_ACTIVE_MODALS = {
+  EDIT_INVOICE: "editInvoice",
+  CREATE_INVOICE: "createInvoice",
+};
+
 export const InvoicingPane = React.memo(({ encounter }) => {
   const [invoiceLineModalOpen, setInvoiceLineModalOpen] = useState(false);
   const [editInvoiceModalOpen, setEditInvoiceModalOpen] = useState(false);
   const [potentialLineItemsModalOpen, setPotentialLineItemsModalOpen] = useState(false);
   const [invoicePriceChangeModalOpen, setInvoicePriceChangeModalOpen] = useState(false);
+  const [activeModal, setActiveModal] = useState('');
   const [invoice, setInvoice] = useState(null);
   const [error, setError] = useState(null);
   const { loadEncounter } = useEncounter();
@@ -98,9 +105,13 @@ export const InvoicingPane = React.memo(({ encounter }) => {
   if (!invoice) {
     return (
       <EmptyPane>
-        <Button onClick={createInvoice}>
+        <Button onClick={() => setActiveModal(INVOICE_ACTIVE_MODALS.CREATE_INVOICE)}>
           <TranslatedText stringId="invoice.action.create" fallback="Create invoice" />
         </Button>
+        <CreateInvoiceModal 
+          open={activeModal === INVOICE_ACTIVE_MODALS.CREATE_INVOICE}
+          onClose={() => setActiveModal("")}
+        />
       </EmptyPane>
     );
   }
@@ -114,12 +125,12 @@ export const InvoicingPane = React.memo(({ encounter }) => {
         </InvoiceHeading>
         {isInvoiceEditable(invoice) ? (
           <ActionsPane>
-            <Button onClick={() => setEditInvoiceModalOpen(true)}>
+            <Button onClick={() => setActiveModal(INVOICE_ACTIVE_MODALS.EDIT_INVOICE)}>
               <TranslatedText stringId="invoice.action.editItem" fallback="Edit invoice" />
             </Button>
-            {editInvoiceModalOpen && <EditInvoiceModal
-              open={editInvoiceModalOpen}
-              onClose={() => setEditInvoiceModalOpen(false)}
+            {activeModal === INVOICE_ACTIVE_MODALS.EDIT_INVOICE && <EditInvoiceModal
+              open={activeModal === INVOICE_ACTIVE_MODALS.EDIT_INVOICE}
+              onClose={() => setActiveModal('')}
               invoiceId={invoice.id}
               displayId={invoice.displayId}
               encounterId={encounter.id}
