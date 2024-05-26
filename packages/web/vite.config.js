@@ -6,7 +6,7 @@ import { nodePolyfills } from 'vite-plugin-node-polyfills';
 
 function noCacheOnIndex() {
   return {
-    name: 'manual-cache',
+    name: 'no-cache-on-index',
     configureServer(server) {
       server.middlewares.use((req, res, next) => {
         if (req.url?.endsWith('/')) {
