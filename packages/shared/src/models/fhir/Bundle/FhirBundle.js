@@ -60,7 +60,6 @@ export class FhirDiagnosticReport extends FhirResource {
           contentType: yup.string().required(),
         }),
       ),
-      results: yup.array().of(FhirReference.asYup()),
     });
   }
 

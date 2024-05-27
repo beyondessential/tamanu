@@ -9,6 +9,7 @@ import { log } from '@tamanu/shared/services/logging';
 import { requireClientHeaders as requireClientHeadersMiddleware } from '../../middleware/requireClientHeaders';
 
 import { patientSummaryHandler } from './patientSummary';
+import { bundleHandler } from './bundleReceiver';
 import { readHandler } from './read';
 import { searchHandler } from './search';
 import { createHandler } from './create';
@@ -37,6 +38,9 @@ export function fhirRoutes(ctx, { requireClientHeaders } = {}) {
   }
 
   routes.get(`/Patient/:id/([$])summary`, patientSummaryHandler());
+
+  // handles Bundle to POSTed to the API root
+  routes.post('/', bundleHandler());
 
   const { models } = ctx.store;
   for (const Resource of resourcesThatCanDo(models, FHIR_INTERACTIONS.INSTANCE.READ)) {
