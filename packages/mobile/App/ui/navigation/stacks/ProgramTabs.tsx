@@ -33,7 +33,7 @@ const TabNavigator = ({ navigation, selectedPatient }: NewProgramEntryTabsProps)
           }}
           options={{
             title: () => (
-              <TranslatedText stringId="program.heading.viewHistory" fallback="View history" />
+              <TranslatedText stringId="program.action.viewHistory" fallback="View history" />
             ),
           }}
           name={Routes.HomeStack.ProgramStack.ProgramTabs.SurveyTabs.ViewHistory}
@@ -44,9 +44,7 @@ const TabNavigator = ({ navigation, selectedPatient }: NewProgramEntryTabsProps)
             selectedPatient,
           }}
           options={{
-            title: () => (
-              <TranslatedText stringId="program.heading.newForm" fallback="New form" />
-            ),
+            title: () => <TranslatedText stringId="program.action.newForm" fallback="New form" />,
           }}
           name={Routes.HomeStack.ProgramStack.ProgramTabs.SurveyTabs.AddDetails}
           component={ProgramListScreen}
