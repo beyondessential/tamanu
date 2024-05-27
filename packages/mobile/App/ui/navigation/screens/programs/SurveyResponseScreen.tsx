@@ -23,6 +23,7 @@ import { theme } from '~/ui/styled/theme';
 import { Button } from '~/ui/components/Button';
 import { useCurrentScreen } from '~/ui/hooks/useCurrentScreen';
 import { useAuth } from '~/ui/contexts/AuthContext';
+import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 
 const buttonSharedStyles = {
   width: screenPercentageToDP('25', Orientation.Width),
@@ -204,7 +205,7 @@ export const SurveyResponseScreen = ({ route }: SurveyResponseScreenProps): Reac
                 marginBottom: 10,
               }}
             >
-              Exit form?
+              <TranslatedText stringId="program.survey.exit.heading" fallback="Exit form?" />
             </Text>
             <Text
               style={{
@@ -213,20 +214,28 @@ export const SurveyResponseScreen = ({ route }: SurveyResponseScreenProps): Reac
                 color: theme.colors.BLACK,
               }}
             >
-              Are you sure you want to exit the form? You will lose any information currently
-              entered.
+              <TranslatedText
+                stringId="program.survey.exit.text"
+                fallback="Are you sure you want to exit the form? You will lose any information currently
+              entered."
+              />
             </Text>
             <RowView flexDirection="row" justifyContent="space-between" width="95%" marginTop={10}>
               <Button
                 outline
                 borderColor={theme.colors.MAIN_SUPER_DARK}
                 borderWidth={0.1}
-                buttonText="Stay on page"
+                buttonText={
+                  <TranslatedText
+                    stringId="program.survey.action.stayOnPage"
+                    fallback="Stay on page"
+                  />
+                }
                 onPress={closeModalCallback}
                 {...buttonSharedStyles}
               />
               <Button
-                buttonText="Exit"
+                buttonText={<TranslatedText stringId="general.action.exit" fallback="Exit" />}
                 onPress={onExit}
                 {...buttonSharedStyles}
                 backgroundColor={theme.colors.PRIMARY_MAIN}
