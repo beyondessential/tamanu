@@ -18,9 +18,10 @@ export class SyncTask extends ScheduledTask {
   }
 
   async run() {
-    return this.context.syncManager.triggerSync({
-      type: 'scheduled',
-      urgent: false,
+    // trigger a sync to immediately start pulling data for this patient
+    return this.context.syncConnection.runSync({
+      type: 'subcommand',
+      urgent: true,
     });
   }
 }
