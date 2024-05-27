@@ -32,12 +32,12 @@ export const Fields = ({ isEdit }): ReactElement => {
         component={RadioButtonGroup}
         required
       />
-      <PatientAdditionalDataFields fields={['fieldDefinition-fathersFirstName']} />
       <LocalisedField
         name="culturalName"
         component={TextField}
         required={getBool('fields.culturalName.requiredPatientData')}
       />
+      <PatientAdditionalDataFields fields={['fieldDefinition-fathersFirstName']} />
       {!isEdit && <PatientAdditionalDataFields fields={Object.values(CAMBODIA_ADDITIONAL_DATA_FIELDS).flat()} />}
     </>
   );
