@@ -23,7 +23,7 @@ export const CambodiaLocationFields = ({ filterByMandatory }) => {
       component: TextField,
       label: (
         <TranslatedText
-          stringId="cambodiaPatientDetails.streetNoAndName.label"
+          stringId="general.localisedField.streetVillage.label"
           fallback="Street No. & Name"
         />
       ),
@@ -34,18 +34,18 @@ export const CambodiaLocationFields = ({ filterByMandatory }) => {
     divisionId: {
       referenceType: REFERENCE_TYPES.DIVISION,
       label: (
-        <TranslatedText stringId="cambodiaPatientDetails.province.label" fallback="Province" />
+        <TranslatedText stringId="general.localisedField.divisionId.label" fallback="Province" />
       ),
     },
     subdivisionId: {
       referenceType: REFERENCE_TYPES.SUBDIVISION,
       label: (
-        <TranslatedText stringId="cambodiaPatientDetails.district.label" fallback="District" />
+        <TranslatedText stringId="general.localisedField.subdivisionId.label" fallback="District" />
       ),
     },
     settlementId: {
       referenceType: REFERENCE_TYPES.SETTLEMENT,
-      label: <TranslatedText stringId="cambodiaPatientDetails.commune.label" fallback="Commune" />,
+      label: <TranslatedText stringId="general.localisedField.settlementId.label" fallback="Commune" />,
     },
     villageId: {
       component: HealthCenterLinkedVillageField,

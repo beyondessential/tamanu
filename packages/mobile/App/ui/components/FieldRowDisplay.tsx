@@ -29,7 +29,7 @@ export const FieldRowDisplay = ({
     if (localisedFields.includes(name)) {
       if (getBool(`fields.${name}.hidden`)) return null;
       return getTranslation(
-        `general.localisedField.${name}`,
+        `general.localisedField.${name}.label`,
         getLocalisation(`fields.${name}.longLabel`), // TODO: Temporary until getLocalisation label logic completely replaced
       );
     }

@@ -39,8 +39,8 @@ export const CAMBODIA_ADDITIONAL_DATA_FIELDS = {
   ],
   IDENTIFICATION: [
     ADDITIONAL_DATA_FIELDS.BIRTH_CERTIFICATE,
-    CAMBODIA_CUSTOM_FIELDS.NATIONAL_ID,
     ADDITIONAL_DATA_FIELDS.PASSPORT,
+    CAMBODIA_CUSTOM_FIELDS.NATIONAL_ID,
     CAMBODIA_CUSTOM_FIELDS.ID_POOR_CARD_NUMBER,
     CAMBODIA_CUSTOM_FIELDS.PMRS_NUMBER,
   ],
@@ -83,28 +83,5 @@ export const CAMBODIA_ADDITIONAL_DATA_SECTIONS = [
       />
     ),
     fields: CAMBODIA_ADDITIONAL_DATA_FIELDS.PERSONAL,
-  },
-];
-
-export const CAMBODIA_LOCATION_HIERARCHY_FIELDS = [
-  {
-    name: 'divisionId',
-    referenceType: ReferenceDataType.Division,
-    label: <TranslatedText stringId="cambodiaPatientDetails.province.label" fallback="Province" />,
-  },
-  {
-    name: 'subdivisionId',
-    referenceType: ReferenceDataType.SubDivision,
-    label: <TranslatedText stringId="cambodiaPatientDetails.district.label" fallback="District" />,
-  },
-  {
-    name: 'settlementId',
-    referenceType: ReferenceDataType.Settlement,
-    label: <TranslatedText stringId="cambodiaPatientDetails.commune.label" fallback="Commune" />,
-  },
-  {
-    name: 'villageId',
-    referenceType: ReferenceDataType.Village,
-    label: <TranslatedText stringId="general.localisedField.villageId.label" fallback="Village" />,
   },
 ];
