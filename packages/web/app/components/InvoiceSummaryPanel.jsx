@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { Box, Divider } from '@material-ui/core';
 import { Colors } from '../constants';
 import { TranslatedText } from './Translation';
-import { useApi, useSuggester } from '../api';
+import { useSuggester } from '../api';
 import { PencilIcon } from '../assets/icons/PencilIcon';
 import { InvoiceManualDiscountModal } from './InvoiceManualDiscountModal';
 import { ThemedTooltip } from './Tooltip';
