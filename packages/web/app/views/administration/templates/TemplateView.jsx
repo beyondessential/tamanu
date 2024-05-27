@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 
-import { VISIBILITY_STATUSES } from '@tamanu/constants';
+import { TEMPLATE_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
 
 import { ContentPane, PageContainer, TopBar } from '../../../components';
 import { Colors } from '../../../constants';
@@ -69,11 +69,16 @@ export const TemplateView = () => {
         onSubmit={onEditTemplate}
         onClose={() => setEditingTemplate(null)}
         onDelete={onDeleteTemplate}
+        allowInputTitleType={[TEMPLATE_TYPES.PATIENT_LETTER]}
       />
       <TopBar title="Templates" />
       <ContentPane>
         <ContentContainer>
-          <NewTemplateForm onSubmit={createTemplate} refreshTable={updateRefreshCount} />
+          <NewTemplateForm
+            allowInputTitleType={[TEMPLATE_TYPES.PATIENT_LETTER]}
+            onSubmit={createTemplate}
+            refreshTable={updateRefreshCount}
+          />
         </ContentContainer>
         <TemplateList refreshCount={refreshCount} onRowClick={setEditingTemplate} />
       </ContentPane>

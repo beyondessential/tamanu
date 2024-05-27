@@ -45,6 +45,7 @@ import { addVisibilityStatusForSurvey1713696066000 } from './1713696066000-addVi
 import { addScopeToSettingsTable1691115215000 } from './1691115215000-addScopeToSettingsTable';
 import { addHealthCenterIdToPatientAdditionalData1712277225000 } from './1712277225000-addHealthCenterIdToPatientAdditionalData';
 import { addDietIdForEncounter1713722796000 } from './1713722796000-addDietIdForEncounter';
+import { addReferenceDataRelationTable1714605577000 } from './1714605577000-addReferenceDataRelationTable';
 
 export const migrationList = [
   databaseSetup1661160427226,
@@ -93,4 +94,5 @@ export const migrationList = [
   addVisibilityStatusForSurvey1713696066000,
   addHealthCenterIdToPatientAdditionalData1712277225000,
   addDietIdForEncounter1713722796000,
+  addReferenceDataRelationTable1714605577000,
 ];
