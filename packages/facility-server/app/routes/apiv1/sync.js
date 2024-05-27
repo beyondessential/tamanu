@@ -10,7 +10,6 @@ sync.post(
 
     req.flagPermissionChecked(); // no particular permission check for checking sync status
 
-    // trigger a sync to immediately start pulling data for this patient
     const syncResult = await syncConnection.runSync({
       urgent: true,
       type: 'userRequested',
