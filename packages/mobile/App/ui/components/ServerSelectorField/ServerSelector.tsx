@@ -84,9 +84,7 @@ export const ServerSelector = ({ onChange, label, value, error }): ReactElement 
   }
 
   return (
-    <StyledView
-      style={{ zIndex: 9999 }}
-    >
+    <StyledView style={{ zIndex: 9999 }}>
       <Dropdown
         value={value}
         options={options}

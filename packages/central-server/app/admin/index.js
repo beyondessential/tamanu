@@ -17,7 +17,7 @@ import { mergePatientHandler } from './patientMerge';
 import { syncLastCompleted } from './sync';
 import { fhirJobStats } from './fhirJobStats';
 import { reportsRouter } from './reports/reportRoutes';
-import { patientLetterTemplateRoutes } from './patientLetterTemplate';
+import { templateRoutes } from './template';
 import { assetRoutes } from './asset';
 import { translationRouter } from './translation';
 
@@ -85,7 +85,7 @@ adminRoutes.get('/sync/lastCompleted', syncLastCompleted);
 
 adminRoutes.get('/fhir/jobStats', fhirJobStats);
 
-adminRoutes.use('/patientLetterTemplate', patientLetterTemplateRoutes);
+adminRoutes.use('/template', templateRoutes);
 
 adminRoutes.use('/asset', assetRoutes);
 

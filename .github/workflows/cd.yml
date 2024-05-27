@@ -336,7 +336,6 @@ jobs:
       ref: ${{ needs.config.outputs.ref }}
       branding: ${{ fromJson(matrix.options).branding }}
     secrets:
-      ANDROID_STORE: ${{ secrets.ANDROID_STORE }}
       ANDROID_SIGNING_KEY_PASSWORD: ${{ secrets.ANDROID_SIGNING_KEY_PASSWORD }}
       ANDROID_SIGNING_STORE_PASSWORD: ${{ secrets.ANDROID_SIGNING_STORE_PASSWORD }}
 
@@ -360,7 +359,6 @@ jobs:
     name: Package release Android ${{ github.ref_name }}
     uses: ./.github/workflows/cd-package-android.yml
     secrets:
-      ANDROID_STORE: ${{ secrets.ANDROID_STORE }}
       ANDROID_SIGNING_KEY_PASSWORD: ${{ secrets.ANDROID_SIGNING_KEY_PASSWORD }}
       ANDROID_SIGNING_STORE_PASSWORD: ${{ secrets.ANDROID_SIGNING_STORE_PASSWORD }}
 
@@ -374,6 +372,7 @@ jobs:
     steps:
       - uses: softprops/action-gh-release@v2
         with:
+          tag: ${{ github.ref_name }}
           append_body: true
           body: |
             ## Container images 🚢

@@ -65,6 +65,10 @@ patientDeath.get(
           as: 'antecedentCause2Condition',
         },
         {
+          model: ReferenceData,
+          as: 'antecedentCause3Condition',
+        },
+        {
           model: ContributingDeathCause,
           as: 'contributingCauses',
           include: ['condition'],
@@ -101,6 +105,12 @@ patientDeath.get(
           ? exportCause({
               condition: deathData?.antecedentCause2Condition,
               timeAfterOnset: deathData?.antecedentCause2TimeAfterOnset,
+            })
+          : null,
+        antecedent3: deathData?.antecedentCause3Condition
+          ? exportCause({
+              condition: deathData?.antecedentCause3Condition,
+              timeAfterOnset: deathData?.antecedentCause3TimeAfterOnset,
             })
           : null,
         contributing: deathData?.contributingCauses.map(exportCause),
@@ -185,6 +195,8 @@ patientDeath.post(
         antecedentCause1TimeAfterOnset: body.antecedentCause1Interval,
         antecedentCause2ConditionId: body.antecedentCause2,
         antecedentCause2TimeAfterOnset: body.antecedentCause2Interval,
+        antecedentCause3ConditionId: body.antecedentCause3,
+        antecedentCause3TimeAfterOnset: body.antecedentCause3Interval,
         birthWeight: body.birthWeight,
         carrierAge: body.ageOfMother,
         carrierExistingConditionId: body.motherExistingCondition,
