@@ -7,14 +7,25 @@ import { performTimeZoneChecks } from '@tamanu/shared/utils/timeZoneCheck';
 import { checkConfig } from '../checkConfig';
 import { initDeviceId } from '../sync/initDeviceId';
 import { performDatabaseIntegrityChecks } from '../database';
-import { CentralServerConnection, FacilitySyncManager } from '../sync';
-import { createApp } from '../createSyncApp';
+import {
+  FacilitySyncServerConnection,
+  CentralServerConnection,
+  FacilitySyncManager,
+} from '../sync';
+
+import { createApiApp } from '../createApiApp';
 
 import { version } from '../serverInfo';
 import { ApplicationContext } from '../ApplicationContext';
+import { createSyncApp } from '../createSyncApp';
 
-async function startSync({ skipMigrationCheck }) {
-  log.info(`Starting facility SYNC server version ${version}`, {
+const APP_TYPES = {
+  API: 'api',
+  SYNC: 'sync',
+};
+
+const startApp = appType => async ({ skipMigrationCheck }) => {
+  log.info(`Starting facility ${appType} server version ${version}`, {
     serverFacilityId: config.serverFacilityId,
   });
 
@@ -22,7 +33,7 @@ async function startSync({ skipMigrationCheck }) {
     execArgs: process.execArgs || '<empty>',
   });
 
-  const context = await new ApplicationContext().init({ appType: 'sync' });
+  const context = await new ApplicationContext().init({ appType });
 
   if (config.db.migrateOnStartup) {
     await context.sequelize.migrate('up');
@@ -34,8 +45,12 @@ async function startSync({ skipMigrationCheck }) {
   await checkConfig(config, context);
   await performDatabaseIntegrityChecks(context);
 
-  context.centralServer = new CentralServerConnection(context);
-  context.syncManager = new FacilitySyncManager(context);
+  if (appType === APP_TYPES.API) {
+    context.syncConnection = new FacilitySyncServerConnection();
+  } else {
+    context.centralServer = new CentralServerConnection(context);
+    context.syncManager = new FacilitySyncManager(context);
+  }
 
   await performTimeZoneChecks({
     remote: context.centralServer,
@@ -43,19 +58,25 @@ async function startSync({ skipMigrationCheck }) {
     config,
   });
 
-  const { server } = await createApp(context);
+  const { server } =
+    appType === APP_TYPES.SYNC ? await createSyncApp(context) : await createApiApp(context);
 
-  const { port } = config.sync;
+  const { port } = config;
   server.listen(port, () => {
-    log.info(`Sync server is running on port ${port}!`);
+    log.info(`Server is running on port ${port}!`);
   });
   process.once('SIGTERM', () => {
     log.info('Received SIGTERM, closing HTTP server');
     server.close();
   });
-}
+};
 
-export const startSyncCommand = new Command('startApi')
+export const startApiCommand = new Command('startApi')
+  .description('Start the Tamanu Facility API server')
+  .option('--skipMigrationCheck', 'skip the migration check on startup')
+  .action(startApp(APP_TYPES.API));
+
+export const startSyncCommand = new Command('startSync')
   .description('Start the Tamanu Facility SYNC server')
   .option('--skipMigrationCheck', 'skip the migration check on startup')
-  .action(startSync);
+  .action(startApp(APP_TYPES.SYNC));

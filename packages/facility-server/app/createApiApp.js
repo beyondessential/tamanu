@@ -13,7 +13,7 @@ import { defineWebsocketService } from './services/websocketService';
 import { defineWebsocketClientService } from './services/websocketClientService';
 import { addFacilityMiddlewares } from './addFacilityMiddlewares';
 
-export async function createApp({ sequelize, reportSchemaStores, models, syncManager, deviceId }) {
+export async function createApiApp({ sequelize, reportSchemaStores, models, syncConnection, deviceId }) {
   const express = defineExpress();
   const server = createServer(express);
 
@@ -26,7 +26,7 @@ export async function createApp({ sequelize, reportSchemaStores, models, syncMan
     req.models = models;
     req.db = sequelize;
     req.reportSchemaStores = reportSchemaStores;
-    req.syncManager = syncManager;
+    req.syncConnection = syncConnection;
     req.deviceId = deviceId;
     req.websocketService = websocketService;
     req.websocketClientService = websocketClientService;

@@ -28,6 +28,7 @@ export async function createSyncApp({ sequelize, reportSchemaStores, syncManager
     });
   });
 
+  // Only contain sync routes in this app
   express.use('/', syncRoutes);
 
   // Dis-allow all other routes

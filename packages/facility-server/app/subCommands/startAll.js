@@ -8,7 +8,7 @@ import { checkConfig } from '../checkConfig';
 import { initDeviceId } from '../sync/initDeviceId';
 import { performDatabaseIntegrityChecks } from '../database';
 import { CentralServerConnection, FacilitySyncManager, FacilitySyncServerConnection } from '../sync';
-import { createApp } from '../createApp';
+import { createApiApp } from '../createApiApp';
 import { startScheduledTasks } from '../tasks';
 
 import { version } from '../serverInfo';
@@ -46,18 +46,18 @@ async function startAll({ skipMigrationCheck }) {
     config,
   });
 
-  const { server } = await createApp(context);
+  const { server } = await createApiApp(context);
 
   const { port } = config;
   server.listen(port, () => {
-    log.info(`Server is running on port ${port}!`);
+    log.info(`API Server is running on port ${port}!`);
   });
 
   const { server: syncServer } = await createSyncApp(context);
 
-  const { port: syncPort } = config.sync;
+  const { port: syncPort } = config.sync.syncApiConnection;
   syncServer.listen(syncPort, () => {
-    log.info(`Sync server is running on port ${syncPort}!`);
+    log.info(`SYNC server is running on port ${syncPort}!`);
   });
 
   const cancelTasks = startScheduledTasks(context);
