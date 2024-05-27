@@ -124,7 +124,10 @@ export const ItemRow = ({
           saveDateAsString
           size="small"
           value={rowData.date}
-          onChange={event => updateRowData(rowData.id, { date: event.target.value })}
+          onChange={event => updateRowData(rowData.id, { 
+            date: event.target.value,
+            toBeUpdated: true
+          })}
         />
       </Grid>
       <Grid item xs={4}>
@@ -140,6 +143,7 @@ export const ItemRow = ({
             invoiceLineTypeId: event.target.value,
             code: "",
             price: "",
+            toBeUpdated: true
           })}
         />
       </Grid>
@@ -159,7 +163,8 @@ export const ItemRow = ({
           value={rowData.orderedById}
           onChange={event => updateRowData(rowData.id, {
             orderedById: event.target.value,
-            orderedBy: ""
+            orderedBy: "",
+            toBeUpdated: true
           })}
         />
       </Grid>

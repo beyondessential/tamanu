@@ -100,9 +100,10 @@ const StatusContainer = styled.span`
 `;
 
 export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounterId, invoiceStatus }) => {
-  const [rowList, setRowList] = useState([{ id: uuidv4() }]);
+  const [rowList, setRowList] = useState([{ id: uuidv4(), toBeUpdated: true }]);
   const [potentialLineItems, setPotentialLineItems] = useState([]);
   const [isSaving, setIsSaving] = useState(false);
+  const [IdsToDelete, setIdsToDelete] = useState([]);
   const api = useApi();
 
   useEffect(() => {
@@ -150,11 +151,12 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
             invoiceLineTypeId: newItem?.invoiceLineTypeId,
             orderedById: newItem?.orderedById,
             code: newItem?.code,
+            toBeUpdated: true,
           });
         }
       });
     } else {
-      newRowList.push({ id: uuidv4() });
+      newRowList.push({ id: uuidv4(), toBeUpdated: true, });
     }
 
     setRowList(newRowList);
@@ -232,6 +234,7 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
   }), {});
 
   const onDeleteLineItem = (id) => {
+    setIdsToDelete(previousIds => [ ...previousIds, id ]);
     const newRowList = rowList.filter(row => row.id !== id);
     setRowList(newRowList);
   };
@@ -240,15 +243,16 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
     if (isSaving) return;
     setIsSaving(true);
 
-    const invoiceLineItemsData = rowList.map((row, index) => ({
-      id: row.id,
-      invoiceLineTypeId: submitData[`invoiceLineTypeId_${index}`],
-      date: submitData[`date_${index}`],
-      orderedById: submitData[`orderedById_${index}`],
-    }));
-    const existingIds = rowList.map(row => row.id);
+    const invoiceLineItemsData = rowList
+      .filter(row => row.toBeUpdated)
+      .map((row, index) => ({
+        id: row.id,
+        invoiceLineTypeId: submitData[`invoiceLineTypeId_${index}`],
+        date: submitData[`date_${index}`],
+        orderedById: submitData[`orderedById_${index}`],
+      }));
 
-    await api.delete(`invoices/${invoiceId}/lineItems`, { existingIds });
+    await api.delete(`invoices/${invoiceId}/lineItems`, { IdsToDelete });
     await api.put(`invoices/${invoiceId}/lineItems`, { invoiceLineItemsData });
     await loadEncounter(encounterId);
     setIsSaving(false);

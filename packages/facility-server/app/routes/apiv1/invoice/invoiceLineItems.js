@@ -83,7 +83,7 @@ invoiceLineItemsRoute.put(
 invoiceLineItemsRoute.delete(
   '/:invoiceId/lineItems',
   asyncHandler(async (req, res) => {
-    const { models, params: { invoiceId }, query: { existingIds } } = req;
+    const { models, params: { invoiceId }, query: { IdsToDelete } } = req;
     req.checkPermission('write', 'InvoiceLineItem');
 
     await models.InvoiceLineItem.update(
@@ -92,7 +92,7 @@ invoiceLineItemsRoute.delete(
         where: {
           invoiceId,
           id: {
-            [Op.notIn]: existingIds
+            [Op.in]: IdsToDelete
           }
         }
       }
