@@ -13,11 +13,11 @@ const Container = styled(FormGrid)`
   padding-bottom: 1.2rem;
 `;
 
-export const HierarchyFields = ({ fields, baseLevel, relationType }) => {
+export const HierarchyFields = ({ fields, leafNodeType, relationType }) => {
   const { values } = useFormikContext();
-  const { data = [] } = useHierarchyTypesQuery({ baseLevel, relationType });
+  const { data = [] } = useHierarchyTypesQuery({ leafNodeType, relationType });
   const configuredFields = data.filter(type => fields.find(f => f.referenceType === type));
-  const hierarchyToShow = configuredFields.length > 0 ? configuredFields : [baseLevel];
+  const hierarchyToShow = configuredFields.length > 0 ? configuredFields : [leafNodeType];
 
   return (
     <Container>

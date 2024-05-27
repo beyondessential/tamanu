@@ -29,7 +29,7 @@ export const NoteForm = ({
     setNoteContent,
   ]);
 
-  const renderForm = ({ submitForm }) => {
+  const renderForm = ({ submitForm, values, setValues }) => {
     if (noteFormMode === NOTE_FORM_MODES.EDIT_NOTE) {
       const props = {
         note,
@@ -63,6 +63,8 @@ export const NoteForm = ({
         onSubmit={submitForm}
         onCancel={onCancel}
         noteTypeCountByType={noteTypeCountByType}
+        values={values}
+        setValues={setValues}
       />
     );
   };
