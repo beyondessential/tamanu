@@ -99,7 +99,7 @@ const DiscontinuedLabel = ({ medication }) => {
       <TranslatedText
         stringId="medication.detail.discontinued.discontinuedAt"
         fallback="Discontinued at: :date"
-        replacements={{ date: getDateDisplay(discontinuedDate, {}) }}
+        replacements={{ date: getDateDisplay(discontinuedDate) }}
       />
       <br />
       <TranslatedText
