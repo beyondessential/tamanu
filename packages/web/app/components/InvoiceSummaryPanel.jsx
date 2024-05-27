@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { Box, Divider } from '@material-ui/core';
 import { Colors } from '../constants';
@@ -55,52 +55,27 @@ export const InvoiceSummaryPanel = ({
   nonDiscountableTotal,
 }) => {
   const [isOpenManualDiscountModal, setIsOpenManualDiscountModal] = useState(false);
-  const [priceChangeId, setPriceChangeId] = useState();
-  const [discountInfo, setDiscountInfo] = useState({
+  const [orderedByName, setOrderedByName] = useState('');
+  const practitionerSuggester = useSuggester('practitioner');
+  const { data: priceChangeItemsResponse } = usePriceChangeItemsQuery(invoiceId);
+
+  const discountInfo = priceChangeItemsResponse?.data[0] || {
     percentageChange: 0,
     description: "",
     orderedById: "",
-    date: "",
-    orderedByName: "",
-  });
+  };
 
-  const practitionerSuggester = useSuggester('practitioner');
+  const invoiceTotal = discountableTotal + nonDiscountableTotal;
+  const discountedPrice = discountableTotal * discountInfo.percentageChange;
+  const patientTotal = invoiceTotal + discountedPrice;
 
   useEffect(() => {
     (async () => {
       if (!discountInfo.orderedById) return;
       const { label } = await practitionerSuggester.fetchCurrentOption(discountInfo.orderedById);
-      setDiscountInfo(prevDiscountInfo => ({
-        ...prevDiscountInfo,
-        orderedByName: label,
-      }));
+      setOrderedByName(label);
     })();
-  }, [discountInfo.orderedById]);
-
-  const invoiceTotal = discountableTotal + nonDiscountableTotal;
-  const discountedPrice = discountableTotal * discountInfo.percentageChange;
-  const patientTotal = invoiceTotal + discountedPrice;
-  const { data: priceChangeItemsResponse } = usePriceChangeItemsQuery(invoiceId);
-
-  useEffect(() => {
-    const { data } = priceChangeItemsResponse;
-    if (!data[0]) return;
-    setDiscountInfo(prevDiscountInfo => ({
-      ...prevDiscountInfo,
-      percentageChange: data[0].percentageChange,
-      description: data[0].description,
-      orderedById: data[0].orderedById,
-      date: data[0].date,
-    }));
-    setPriceChangeId(data[0].id);
-  }, [priceChangeItemsResponse]);
-
-  const updateDiscountInfo = useCallback(
-    (updatedDiscountInfo) => {
-      setDiscountInfo(prevDiscountInfo => (
-        { ...prevDiscountInfo, ...updatedDiscountInfo }
-      ));
-    }, []);
+  }, [discountInfo]);
 
   return (
     <Container>
@@ -145,7 +120,7 @@ export const InvoiceSummaryPanel = ({
         }}
       >
         <DescriptionText>
-          <ThemedTooltip title={`${discountInfo.orderedByName} ${discountInfo.date}`}>
+          <ThemedTooltip title={`${orderedByName} ${discountInfo.date}`}>
             <span>{discountInfo.description}</span>
           </ThemedTooltip>
         </DescriptionText>
@@ -156,8 +131,7 @@ export const InvoiceSummaryPanel = ({
           open={isOpenManualDiscountModal}
           onClose={() => setIsOpenManualDiscountModal(false)}
           invoiceId={invoiceId}
-          priceChangeId={priceChangeId}
-          onUpdateDiscountInfo={updateDiscountInfo}
+          priceChangeId={discountInfo.id}
           description={discountInfo.description}
           percentageChange={discountInfo.percentageChange}
         />
