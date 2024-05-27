@@ -362,12 +362,10 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
                   statusCellStyle={denseTableStyle.statusCell}
                 />
               </PotentialLineItemsPane>
-              <InvoiceSummaryPanel 
+              <InvoiceSummaryPanel
                 invoiceId={invoiceId}
                 discountableTotal={discountableTotal}
-                nonDiscountableTotal={
-                  isNaN(nonDiscountableTotal) ? 0 : nonDiscountableTotal
-                }
+                nonDiscountableTotal={nonDiscountableTotal}
                 isEditInvoice
               />
             </ModalSection>

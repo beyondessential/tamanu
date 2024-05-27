@@ -29,7 +29,7 @@ export const calculateInvoiceLinesTotal = invoiceLines => {
 export const calculateInvoiceLinesDiscountableTotal = invoiceLines => {
   let total = 0;
   invoiceLines.forEach(invoiceLine => {
-    const price = invoiceLine.invoiceLineType?.price || invoiceLine.price;
+    const price = invoiceLine.invoiceLineType?.price || invoiceLine.price || 0;
     const priceFloat = parseFloat(price);
     const priceChange = (invoiceLine.percentageChange || 0) * priceFloat;
     if (priceChange) total += priceFloat + priceChange;
@@ -41,7 +41,7 @@ export const calculateInvoiceLinesDiscountableTotal = invoiceLines => {
 export const calculateInvoiceLinesNonDiscountableTotal = invoiceLines => {
   let total = 0;
   invoiceLines.forEach(invoiceLine => {
-    const price = invoiceLine.invoiceLineType?.price || invoiceLine.price;
+    const price = invoiceLine.invoiceLineType?.price || invoiceLine.price || 0;
     const priceFloat = parseFloat(price);
     const priceChange = (invoiceLine.percentageChange || 0) * priceFloat;
     if (!priceChange) total += priceFloat + priceChange;
