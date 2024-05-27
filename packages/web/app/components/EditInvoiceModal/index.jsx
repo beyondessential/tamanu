@@ -17,8 +17,8 @@ import { ItemHeader, ItemRow } from './ItemRow';
 import { useEncounter } from '../../contexts/Encounter';
 import { getInvoiceLineCode } from '../../utils/invoiceDetails';
 import { InvoiceSummaryPanel } from '../InvoiceSummaryPanel';
-import { calculateInvoiceLinesDiscountableTotal, calculateInvoiceLinesNonDiscountableTotal } from '../../utils';
 import { StatusDisplay } from '../../utils/invoiceStatus';
+import { useInvoiceLineTotals } from '../../hooks/useInvoiceLineTotals';
 
 const LinkText = styled.div`
   font-weight: 500;
@@ -142,6 +142,8 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
       return newRowList;
     });
   }, []);
+
+  const { discountableTotal, nonDiscountableTotal } = useInvoiceLineTotals(rowList);
 
   const handleAddRow = (rowData) => {
     const newRowList = [...rowList];
@@ -284,14 +286,6 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
     }), {})
   );
 
-  const invoiceDiscountableTotal = useMemo(() => {
-    return calculateInvoiceLinesDiscountableTotal(rowList);
-  }, [rowList]);
-
-  const invoiceNonDiscountableTotal = useMemo(() => {
-    return calculateInvoiceLinesNonDiscountableTotal(rowList);
-  }, [rowList]);
-
   return (
     <Modal
       width="lg"
@@ -370,10 +364,10 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
               </PotentialLineItemsPane>
               <InvoiceSummaryPanel 
                 invoiceId={invoiceId}
-                invoiceStatus={invoiceStatus}
-                invoiceDiscountableTotal={invoiceDiscountableTotal}
-                invoiceNonDiscountableTotal={
-                  isNaN(invoiceNonDiscountableTotal) ? 0 : invoiceNonDiscountableTotal
+                invoiceStatus={invoiceStatus}                
+                discountableTotal={discountableTotal}
+                nonDiscountableTotal={
+                  isNaN(nonDiscountableTotal) ? 0 : nonDiscountableTotal
                 }
                 isEditInvoice
               />
