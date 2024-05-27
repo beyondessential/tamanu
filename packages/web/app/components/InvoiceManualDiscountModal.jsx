@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 import * as yup from 'yup';
-import { toDateString } from '@tamanu/shared/utils/dateTime';
+import { getCurrentDateString } from '@tamanu/shared/utils/dateTime';
 import { Modal } from './Modal';
 import { FormGrid } from './FormGrid';
 import { Field, Form, NumberField, TextField } from './Field';
@@ -9,6 +9,7 @@ import { FormSubmitCancelRow } from './ButtonRow';
 import { BodyText, Heading3 } from './Typography';
 import { useApi } from '../api';
 import { useAuth } from '../contexts/Auth';
+import { FORM_TYPES } from '../constants';
 
 export const InvoiceManualDiscountModal = React.memo(
   ({
@@ -36,7 +37,7 @@ export const InvoiceManualDiscountModal = React.memo(
           description: data.reason,
           percentageChange,
           orderedById: currentUser.id,
-          date: toDateString(new Date()),
+          date: getCurrentDateString(),
         };
         if (priceChangeId) {
           await api.put(`invoices/${invoiceId}/priceChangeItems/${priceChangeId}`, payload);
@@ -114,6 +115,7 @@ export const InvoiceManualDiscountModal = React.memo(
                 />,
               ),
           })}
+          formType={priceChangeId ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
         />
       </Modal>
     );

@@ -87,9 +87,7 @@ export const InvoiceDetailTable = React.memo(({ invoice, updateLineItems }) => {
   return (
     <DataFetchingTable
       endpoint={`invoices/${invoice.id}/lineItems`}
-      columns={[
-        ...INVOICE_LINE_COLUMNS,
-      ]}
+      columns={INVOICE_LINE_COLUMNS}
       noDataMessage={
         <TranslatedText
           stringId="invoice.line.table.noData"

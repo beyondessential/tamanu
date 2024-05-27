@@ -1,22 +1,21 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { Divider } from '@material-ui/core';
+import { Box, Divider } from '@material-ui/core';
 import { Colors } from '../constants';
 import { TranslatedText } from './Translation';
 import { useApi, useSuggester } from '../api';
 import { PencilIcon } from '../assets/icons/PencilIcon';
 import { InvoiceManualDiscountModal } from './InvoiceManualDiscountModal';
 import { ThemedTooltip } from './Tooltip';
+import { BodyText, Heading3 } from './Typography';
+import { usePriceChangeItemsQuery } from '../api/queries/usePriceChangeItemsQuery';
 
-const CardItem = styled.div`
+const CardItem = styled(Box)`
   display: flex;
   align-items: center;
   gap: 8px;
-  justify-content: ${p => p.$justifyContent ? p.$justifyContent : 'space-between'};
-  ${p => p.$marginBottom ? `margin-bottom: ${p.$marginBottom}px;` : ''}
-  ${p => p.$fontWeight ? `font-weight: ${p.$fontWeight};` : ''}
-  ${p => p.$color ? `color: ${p.$color};` : ''}
-  ${p => p.$fontSize ? `font-size: ${p.$fontSize};` : ''}
+  font-size: 14px;
+  justify-content: space-between;
 `
 
 const Container = styled.div`
@@ -37,10 +36,6 @@ const DiscountedPrice = styled.div`
   width: 100px;
 `;
 
-const DiscountedText = styled.span`
-  font-weight: 400;
-`;
-
 const IconButton = styled.span`
   cursor: pointer;
   position: relative;
@@ -50,16 +45,15 @@ const IconButton = styled.span`
 const DescriptionText = styled.span`
   overflow: hidden;
   text-overflow: ellipsis;
-}
+  white-space: nowrap;
 `;
 
 export const InvoiceSummaryPanel = ({
   invoiceId,
   isEditInvoice,
-  invoiceDiscountableTotal,
-  invoiceNonDiscountableTotal,
+  discountableTotal,
+  nonDiscountableTotal,
 }) => {
-  const api = useApi();
   const [isOpenManualDiscountModal, setIsOpenManualDiscountModal] = useState(false);
   const [priceChangeId, setPriceChangeId] = useState();
   const [discountInfo, setDiscountInfo] = useState({
@@ -83,24 +77,23 @@ export const InvoiceSummaryPanel = ({
     })();
   }, [discountInfo.orderedById]);
 
-  const invoiceTotal = invoiceDiscountableTotal + invoiceNonDiscountableTotal;
-  const discountedPrice = invoiceDiscountableTotal * discountInfo.percentageChange;
+  const invoiceTotal = discountableTotal + nonDiscountableTotal;
+  const discountedPrice = discountableTotal * discountInfo.percentageChange;
   const patientTotal = invoiceTotal + discountedPrice;
+  const { data: priceChangeItemsResponse, isLoading } = usePriceChangeItemsQuery(invoiceId);
 
   useEffect(() => {
-    (async () => {
-      const { data } = await api.get(`invoices/${invoiceId}/priceChangeItems`);
-      if (!data.length) return;
-      setDiscountInfo(prevDiscountInfo => ({
-        ...prevDiscountInfo,
-        percentageChange: data[0].percentageChange,
-        description: data[0].description,
-        orderedById: data[0].orderedById,
-        date: data[0].date,
-      }));
-      setPriceChangeId(data[0].id);
-    })();
-  }, [api]);
+    if (isLoading) return;
+    const { data } = priceChangeItemsResponse;
+    setDiscountInfo(prevDiscountInfo => ({
+      ...prevDiscountInfo,
+      percentageChange: data[0].percentageChange,
+      description: data[0].description,
+      orderedById: data[0].orderedById,
+      date: data[0].date,
+    }));
+    setPriceChangeId(data[0].id);
+  }, [isLoading]);
 
   const updateDiscountInfo = useCallback(
     (updatedDiscountInfo) => {
@@ -116,35 +109,41 @@ export const InvoiceSummaryPanel = ({
           stringId='invoice.summary.subtotal.discountable'
           fallback='Discountable items subtotal'
         />
-        <span>{invoiceDiscountableTotal}</span>
+        <span>{discountableTotal}</span>
       </CardItem>
       <CardItem>
         <TranslatedText
           stringId='invoice.summary.subtotal.nondiscountable'
           fallback='Non-discountable items subtotal'
         />
-        <span>{invoiceNonDiscountableTotal}</span>
+        <span>{nonDiscountableTotal}</span>
       </CardItem>
       <Divider />
-      <CardItem $fontWeight={500}>
+      <CardItem sx={{ fontWeight: 500 }}>
         <TranslatedText stringId="invoice.summary.total.label" fallback="Total" />
         <span>{invoiceTotal}</span>
       </CardItem>
       {/* TODO: Add insurer contribution */}
       <Divider />
-      <CardItem $marginBottom={-6} $fontWeight={500}>
+      <CardItem sx={{ marginBottom: '-6px', fontWeight: 500 }}>
         <TranslatedText
           stringId='invoice.summary.discount.label'
           fallback='Discount'
         />
         <DiscountedPrice>
           <span>{(Math.abs(discountInfo.percentageChange) * 100).toFixed(2)}%</span>
-          <DiscountedText>
+          <BodyText sx={{ fontWeight: 400 }} color={Colors.darkestText}>
             {(discountedPrice).toFixed(2)}
-          </DiscountedText>
+          </BodyText>
         </DiscountedPrice>
       </CardItem>
-      <CardItem $marginBottom={-6} $color={Colors.midText} $justifyContent='flex-start'>
+      <CardItem
+        sx={{
+          marginBottom: '-6px',
+          color: Colors.midText,
+          "&&": { justifyContent: "flex-start" }
+        }}
+      >
         <DescriptionText>
           <ThemedTooltip title={`${discountInfo.orderedByName} ${discountInfo.date}`}>
             <span>{discountInfo.description}</span>
@@ -163,22 +162,24 @@ export const InvoiceSummaryPanel = ({
           percentageChange={discountInfo.percentageChange}
         />
       </CardItem>
-      <CardItem $marginBottom={-6} $color={Colors.midText}>
+      <CardItem sx={{ marginBottom: '-6px', color: Colors.midText }}>
         <TranslatedText
           stringId='invoice.summary.appliedDiscountable'
           fallback='Applied to discountable balance'
         />
         <DiscountedPrice>
-          {invoiceDiscountableTotal}
+          {discountableTotal}
         </DiscountedPrice>
       </CardItem>
       <Divider />
-      <CardItem $fontWeight={500} $fontSize='18px'>
-        <TranslatedText
-          stringId='invoice.summary.patientTotal'
-          fallback='Patient total'
-        />
-        <span>{patientTotal.toFixed(2)}</span>
+      <CardItem>
+        <Heading3 sx={{ margin: 0 }}>
+          <TranslatedText
+            stringId='invoice.summary.patientTotal'
+            fallback='Patient total'
+          />
+        </Heading3>
+        <Heading3 sx={{ margin: 0 }}>{patientTotal.toFixed(2)}</Heading3>
       </CardItem>
     </Container>
   );
