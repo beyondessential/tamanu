@@ -149,16 +149,22 @@ export const patientAdditionalDataValidationSchema = Yup.object().shape({
   passport: Yup.string().nullable(),
   patientBillingTypeId: Yup.string().nullable(),
   placeOfBirth: Yup.string().nullable(),
-  primaryContactNumber: Yup.number().transform(yupAttemptTransformToNumber).nullable(),
+  primaryContactNumber: Yup.number()
+    .transform(yupAttemptTransformToNumber)
+    .nullable(),
   religionId: Yup.string().nullable(),
-  secondaryContactNumber: Yup.number().transform(yupAttemptTransformToNumber).nullable(),
+  secondaryContactNumber: Yup.number()
+    .transform(yupAttemptTransformToNumber)
+    .nullable(),
   settlementId: Yup.string().nullable(),
   socialMedia: Yup.string().nullable(),
   streetVillage: Yup.string().nullable(),
   subdivisionId: Yup.string().nullable(),
   title: Yup.string().nullable(),
   emergencyContactName: Yup.string().nullable(),
-  emergencyContactNumber: Yup.number().transform(yupAttemptTransformToNumber).nullable(),
+  emergencyContactNumber: Yup.number()
+    .transform(yupAttemptTransformToNumber)
+    .nullable(),
 });
 
 // Strip off unwanted fields from additional data and only keep specified ones
@@ -180,15 +186,10 @@ export const getInitialAdditionalValues = (data, fields): {} => {
     return {};
   }
   // TODO: prepopulate the hierarchy fields
-  // Copy values from data only in the specified fields
   const values = {};
-  fields.forEach(fieldName => {
-    if (fieldName === "addressHierarchy") {
-      values.settlementId = data.settlementId
-      values.divisionId = data.divisionId
-      values.subdivisionId = data.subdivisionId
-    }
-    if (data[fieldName]) values[fieldName] = data[fieldName];
+  fields.forEach(field => {
+    if (data[field]) values[field] = data[field];
+    if (typeof field === 'object') values[field.name] = data[field.name];
   });
   return values;
 };

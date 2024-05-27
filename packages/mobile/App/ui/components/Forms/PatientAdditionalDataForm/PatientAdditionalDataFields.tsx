@@ -101,9 +101,6 @@ function getComponentForField(
   if (customFieldIds.includes(fieldName)) {
     return CustomField;
   }
-  if (fieldName === 'addressHierarchy') {
-    return HierarchyFields;
-  }
   // Shouldn't happen
   throw new Error(`Unexpected field ${fieldName} for patient additional data.`);
 }
@@ -124,9 +121,14 @@ export const PatientAdditionalDataFields = ({ fields, showMandatory = true }): R
 
   if (loading) return [];
 
+  // TODO: hack to get working
+  if (typeof padFields[0] === 'object') {
+    return <HierarchyFields fields={CAMBODIA_LOCATION_HIERARCHY_FIELDS} />
+  }
+
   return padFields.map(fieldName => {
     const Component = getComponentForField(fieldName, customFieldIds);
     const isRequired = getLocalisation(`fields.${fieldName}.requiredPatientData`);
-    return <Component fieldName={fieldName} key={fieldName} required={isRequired} fields={CAMBODIA_LOCATION_HIERARCHY_FIELDS} />;
+    return <Component fieldName={fieldName} key={fieldName} required={isRequired} />;
   });
 };

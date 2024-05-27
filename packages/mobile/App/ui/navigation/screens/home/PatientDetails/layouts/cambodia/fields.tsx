@@ -11,7 +11,24 @@ const CAMBODIA_CUSTOM_FIELDS = {
 
 // Cambodia data layout
 export const CAMBODIA_ADDITIONAL_DATA_FIELDS = {
-  ADDRESS: ['addressHierarchy'],
+  ADDRESS: [
+    {
+      name: 'divisionId',
+      referenceType: ReferenceDataType.Division,
+    },
+    {
+      name: 'subdivisionId',
+      referenceType: ReferenceDataType.SubDivision,
+    },
+    {
+      name: 'settlementId',
+      referenceType: ReferenceDataType.Settlement,
+    },
+    {
+      name: 'villageId',
+      referenceType: ReferenceDataType.Village,
+    },
+  ],
   CONTACT: [
     ADDITIONAL_DATA_FIELDS.PRIMARY_CONTACT_NUMBER,
     ADDITIONAL_DATA_FIELDS.SECONDARY_CONTACT_NUMBER,
@@ -68,7 +85,6 @@ export const CAMBODIA_ADDITIONAL_DATA_SECTIONS = [
     fields: CAMBODIA_ADDITIONAL_DATA_FIELDS.PERSONAL,
   },
 ];
-
 
 export const CAMBODIA_LOCATION_HIERARCHY_FIELDS = [
   {

@@ -63,13 +63,16 @@ export const AdditionalInfo = ({
     const onEditCallback = (): void =>
       onEdit(patientAdditionalData, title, customPatientFieldValues);
 
-    const fieldsWithData = fields.map(fieldName => {
-      let data = null;
-      if (fieldName === 'villageId') data = patient.village?.name;
-      else if (Object.keys(customDataById).includes(fieldName)) data = customDataById[fieldName];
-      else data = getPadFieldData(patientAdditionalData, fieldName);
-
-      return [fieldName, data];
+    const fieldsWithData = fields.map(field => {
+      if (field === 'villageId' || field.name === 'villageId')
+        return [field.name, patient.village?.name];
+      else if (typeof field === 'object') {
+        return [field.name, getPadFieldData(patientAdditionalData, field.name)];
+      } else if (Object.keys(customDataById).includes(field)) {
+        return [field, customDataById[field]];
+      } else {
+        return [field, getPadFieldData(patientAdditionalData, field)];
+      }
     });
 
     return { title, fields: fieldsWithData, onEditCallback };
