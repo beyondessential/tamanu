@@ -80,11 +80,11 @@ export const InvoiceSummaryPanel = ({
   const invoiceTotal = discountableTotal + nonDiscountableTotal;
   const discountedPrice = discountableTotal * discountInfo.percentageChange;
   const patientTotal = invoiceTotal + discountedPrice;
-  const { data: priceChangeItemsResponse, isLoading } = usePriceChangeItemsQuery(invoiceId);
+  const { data: priceChangeItemsResponse } = usePriceChangeItemsQuery(invoiceId);
 
   useEffect(() => {
-    if (isLoading) return;
     const { data } = priceChangeItemsResponse;
+    if (!data[0]) return;
     setDiscountInfo(prevDiscountInfo => ({
       ...prevDiscountInfo,
       percentageChange: data[0].percentageChange,
@@ -93,7 +93,7 @@ export const InvoiceSummaryPanel = ({
       date: data[0].date,
     }));
     setPriceChangeId(data[0].id);
-  }, [isLoading]);
+  }, [priceChangeItemsResponse]);
 
   const updateDiscountInfo = useCallback(
     (updatedDiscountInfo) => {
