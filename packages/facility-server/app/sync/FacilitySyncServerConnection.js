@@ -12,8 +12,6 @@ import { fetchWithTimeout } from '@tamanu/shared/utils/fetchWithTimeout';
  * or functionality with healthy caution, or after implementing auth
  */
 export class FacilitySyncServerConnection {
-  connectionPromise = null;
-
   constructor() {
     this.host = `${config.sync.syncApiConnection.host.trim().replace(/\/*$/, '')}:${
       config.sync.syncApiConnection.port
