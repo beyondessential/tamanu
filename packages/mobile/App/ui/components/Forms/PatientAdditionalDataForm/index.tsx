@@ -36,7 +36,7 @@ export const PatientAdditionalDataForm = ({
           // category: { name: 'DESC' },
           name: 'DESC',
         },
-      })
+      });
 
       await Patient.updateValues(patient.id, values);
 
@@ -68,9 +68,9 @@ export const PatientAdditionalDataForm = ({
   return (
     <Form
       initialValues={{
-        ...patient,
         ...getInitialAdditionalValues(additionalData, fields),
         ...getInitialCustomValues(customPatientFieldValues, fields),
+        ...patient
       }}
       validationSchema={patientAdditionalDataValidationSchema}
       onSubmit={onCreateOrEditAdditionalData}

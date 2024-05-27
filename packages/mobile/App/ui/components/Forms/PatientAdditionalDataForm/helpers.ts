@@ -185,7 +185,6 @@ export const getInitialAdditionalValues = (data, fields): {} => {
   if (!data) {
     return {};
   }
-  // TODO: prepopulate the hierarchy fields
   const values = {};
   fields.forEach(field => {
     if (data[field]) values[field] = data[field];
