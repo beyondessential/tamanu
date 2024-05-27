@@ -24,9 +24,9 @@ export const InvoiceManualDiscountModal = React.memo(
     const api = useApi();
     const { currentUser } = useAuth();
 
-    const preventInvalid = value => {
-      if (!value.target.validity.valid) {
-        value.target.value = 0;
+    const preventInvalid = event => {
+      if (!event.target.validity.valid) {
+        event.target.value = 0;
       }
     };
 
