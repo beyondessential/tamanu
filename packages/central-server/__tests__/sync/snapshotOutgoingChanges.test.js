@@ -44,13 +44,19 @@ describe('snapshotOutgoingChanges', () => {
       const sessionId = fakeUUID();
       await createSnapshotTable(ctx.store.sequelize, sessionId);
 
-      await createMarkedForSyncPatientsTable(ctx.store.sequelize, sessionId, true, '', tock - 1);
+      const fullSyncPatientsTable = await createMarkedForSyncPatientsTable(
+        ctx.store.sequelize,
+        sessionId,
+        true,
+        '',
+        tock - 1,
+      );
 
       const result = await snapshotOutgoingChanges(
         outgoingModels,
         tock - 1,
         0,
-        true,
+        fullSyncPatientsTable,
         sessionId,
         '',
         simplestSessionConfig,
@@ -73,7 +79,7 @@ describe('snapshotOutgoingChanges', () => {
 
       await createSnapshotTable(ctx.store.sequelize, syncSession.id);
 
-      await createMarkedForSyncPatientsTable(
+      const fullSyncPatientsTable = await createMarkedForSyncPatientsTable(
         ctx.store.sequelize,
         syncSession.id,
         true,
@@ -85,7 +91,7 @@ describe('snapshotOutgoingChanges', () => {
         outgoingModels,
         tock - 1,
         0,
-        true,
+        fullSyncPatientsTable,
         syncSession.id,
         '',
         simplestSessionConfig,
@@ -120,7 +126,7 @@ describe('snapshotOutgoingChanges', () => {
       const tock = await LocalSystemFact.increment('currentSyncTick', 2);
       await ReferenceData.create(fakeReferenceData());
 
-      await createMarkedForSyncPatientsTable(
+      const fullSyncPatientsTable = await createMarkedForSyncPatientsTable(
         ctx.store.sequelize,
         syncSession.id,
         true,
@@ -132,7 +138,7 @@ describe('snapshotOutgoingChanges', () => {
         outgoingModels,
         tock - 1,
         0,
-        true,
+        fullSyncPatientsTable,
         syncSession.id,
         '',
         simplestSessionConfig,
@@ -158,7 +164,7 @@ describe('snapshotOutgoingChanges', () => {
       await ReferenceData.create(fakeReferenceData());
 
       // for regular sync patients
-      await createMarkedForSyncPatientsTable(
+      const fullSyncPatientsTable = await createMarkedForSyncPatientsTable(
         ctx.store.sequelize,
         syncSession.id,
         true,
@@ -170,7 +176,7 @@ describe('snapshotOutgoingChanges', () => {
         outgoingModels,
         firstTock - 1,
         0,
-        true,
+        fullSyncPatientsTable,
         syncSession.id,
         '',
         simplestSessionConfig,
@@ -356,6 +362,7 @@ describe('snapshotOutgoingChanges', () => {
         LocalSystemFact,
         Location,
         Patient,
+        PatientFacility,
         ReferenceData,
         SyncSession,
         User,
@@ -381,6 +388,8 @@ describe('snapshotOutgoingChanges', () => {
         locationId: location.id,
         departmentId: department.id,
       });
+      await PatientFacility.create({ patientId: patient2.id, facilityId: facility.id });
+
       const secondTock = await LocalSystemFact.increment('currentSyncTick', 2);
 
       const labTestCategory = await ReferenceData.create({
@@ -453,7 +462,7 @@ describe('snapshotOutgoingChanges', () => {
       const facilityId = fakeUUID();
 
       // for regular sync patients
-      await createMarkedForSyncPatientsTable(
+      const incrementalSyncPatientsTable = await createMarkedForSyncPatientsTable(
         ctx.store.sequelize,
         syncSession.id,
         true,
@@ -465,7 +474,7 @@ describe('snapshotOutgoingChanges', () => {
         { Encounter, LabRequest, LabTest },
         firstTock - 1,
         1,
-        true,
+        incrementalSyncPatientsTable,
         syncSession.id,
         facilityId,
         { ...simplestSessionConfig, syncAllLabRequests: true },
@@ -496,19 +505,12 @@ describe('snapshotOutgoingChanges', () => {
         labTest2,
         labRequest1,
         labRequest2,
-        patient2,
         secondTock,
         syncSession,
         facility,
       } = await setupTestData();
 
-      await models.PatientFacility.create({
-        patientId: patient2.id,
-        facilityId: facility.id,
-      });
-
-      // for regular sync patients
-      await createMarkedForSyncPatientsTable(
+      const incrementalSyncPatientsTable = await createMarkedForSyncPatientsTable(
         ctx.store.sequelize,
         syncSession.id,
         false,
@@ -520,7 +522,7 @@ describe('snapshotOutgoingChanges', () => {
         { Encounter, LabRequest, LabTest },
         secondTock - 1,
         1,
-        false,
+        incrementalSyncPatientsTable,
         syncSession.id,
         facility.id,
         { ...simplestSessionConfig, syncAllLabRequests: true },
