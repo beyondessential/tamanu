@@ -24,7 +24,6 @@ import { useTranslation } from '~/ui/contexts/TranslationContext';
 import { HierarchyFields } from '../../HierarchyFields';
 import { CAMBODIA_LOCATION_HIERARCHY_FIELDS } from '~/ui/navigation/screens/home/PatientDetails/layouts/cambodia/fields';
 
-
 const PlainField = ({ fieldName, required }): ReactElement => (
   // Outter styled view to momentarily add distance between fields
   <StyledView key={fieldName} paddingTop={15}>
@@ -121,12 +120,13 @@ export const PatientAdditionalDataFields = ({ fields, showMandatory = true }): R
 
   if (loading) return [];
 
-  // TODO: hack to get working
-  if (typeof padFields[0] === 'object') {
-    return <HierarchyFields fields={CAMBODIA_LOCATION_HIERARCHY_FIELDS} />
-  }
-
-  return padFields.map(fieldName => {
+  return padFields.map((fieldName, i) => {
+    // TODO: hack to get working
+    if (typeof fieldName === 'object') {
+      return typeof padFields[i + 1] !== 'object' ? (
+        <HierarchyFields fields={CAMBODIA_LOCATION_HIERARCHY_FIELDS} />
+      ) : null;
+    }
     const Component = getComponentForField(fieldName, customFieldIds);
     const isRequired = getLocalisation(`fields.${fieldName}.requiredPatientData`);
     return <Component fieldName={fieldName} key={fieldName} required={isRequired} />;
