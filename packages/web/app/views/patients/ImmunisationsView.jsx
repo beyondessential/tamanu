@@ -22,7 +22,6 @@ import { PATIENT_TABS } from '../../constants/patientPaths.js';
 import { reloadPatient } from '../../store/index.js';
 import { UpdateStatsDisplay } from '../../components/Table/UpdateStatsDisplay.jsx';
 import { useAutoUpdatingQuery } from '../../api/queries/useAutoUpdatingQuery.js';
-import { setRef } from '@material-ui/core';
 
 const StyledSearchTableTitle = styled(SearchTableTitle)`
   display: flex;
