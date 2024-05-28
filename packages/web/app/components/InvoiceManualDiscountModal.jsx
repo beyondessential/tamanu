@@ -1,16 +1,10 @@
 import React from 'react';
-import * as yup from 'yup';
 import { useQueryClient } from '@tanstack/react-query';
 import { getCurrentDateString } from '@tamanu/shared/utils/dateTime';
 import { Modal } from './Modal';
-import { FormGrid } from './FormGrid';
-import { Field, Form, NumberField, TextField } from './Field';
 import { TranslatedText } from './Translation';
-import { FormSubmitCancelRow } from './ButtonRow';
-import { BodyText, Heading3 } from './Typography';
 import { useApi } from '../api';
 import { useAuth } from '../contexts/Auth';
-import { FORM_TYPES } from '../constants';
 import { InvoiceManualDiscountForm } from './CreateInvoiceModal/InvoiceManualDiscountForm';
 
 export const InvoiceManualDiscountModal = React.memo(
