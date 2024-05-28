@@ -7,7 +7,7 @@ import FormControl from '@material-ui/core/FormControl';
 import FormHelperText from '@material-ui/core/FormHelperText';
 import { Colors } from '../../constants';
 
-/* 
+/*
   Note that the Checkbox value prop only controls what gets sent,
   not the checkbox state. It's also worth noting that usually forms
   will send the state value, not the prop value.
@@ -66,7 +66,7 @@ export const CheckField = React.memo(({ field, ...props }) => (
 CheckInput.propTypes = {
   name: PropTypes.string,
   value: PropTypes.bool,
-  label: PropTypes.string,
+  label: PropTypes.node,
   onChange: PropTypes.func,
 };
 

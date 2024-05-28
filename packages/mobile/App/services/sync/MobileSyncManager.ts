@@ -129,7 +129,7 @@ export class MobileSyncManager {
     }
 
     const urgentSyncIntervalInSecondsStr =
-      (await this.models.Setting.get(SETTING_KEYS.SYNC_URGENT_INTERVAL_IN_SECONDS)) || 10; // default 10 seconds interval
+      (await this.models.Setting.getByKey(SETTING_KEYS.SYNC_URGENT_INTERVAL_IN_SECONDS)) || 10; // default 10 seconds interval
 
     const urgentSyncIntervalInSeconds = parseInt(urgentSyncIntervalInSecondsStr, 10);
 

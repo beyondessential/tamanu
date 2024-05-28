@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 
 // a custom hook that will run the effect only after the first render
-export function useDidUpdateEffect(fn, inputs) {
+export function useDidUpdateEffect(fn: () => void, inputs: ReadonlyArray<any>) {
   // Use useRef over useState as useState would result in unnecessary component update
   const isMountingRef = useRef(false);
 

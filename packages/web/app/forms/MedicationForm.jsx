@@ -21,8 +21,14 @@ import {
   SelectField,
   TextField,
 } from '../components';
-import { FORM_TYPES } from '../constants';
+import { MAX_AGE_TO_RECORD_WEIGHT, FORM_TYPES } from '../constants';
 import { TranslatedText } from '../components/Translation/TranslatedText';
+import { useLocalisation } from '../contexts/Localisation';
+import { useTranslation } from '../contexts/Translation';
+import { getAgeDurationFromDate } from '../../../shared/src/utils/date';
+import { useQuery } from '@tanstack/react-query';
+import { useApi } from '../api';
+import { useSelector } from 'react-redux';
 
 const drugRouteOptions = [
   { label: 'Dermal', value: 'dermal' },
@@ -128,11 +134,29 @@ export const MedicationForm = React.memo(
     onDiscontinue,
     readOnly,
   }) => {
+    const api = useApi();
+
+    const { getTranslation } = useTranslation();
+    const { getLocalisation } = useLocalisation();
+    const weightUnit = getLocalisation('fields.weightUnit.longLabel');
+
+    const patient = useSelector(state => state.patient);
+    const age = getAgeDurationFromDate(patient.dateOfBirth).years;
+    const showPatientWeight = age < MAX_AGE_TO_RECORD_WEIGHT;
+
     const shouldShowDiscontinuationButton = readOnly && !medication?.discontinued;
     const shouldShowSubmitButton = !readOnly || shouldDiscontinue;
 
     const [printModalOpen, setPrintModalOpen] = useState();
     const [awaitingPrint, setAwaitingPrint] = useState(false);
+    const [patientWeight, setPatientWeight] = useState('');
+
+    const { data: allergies, isLoading: isLoadingAllergies } = useQuery(
+      [`allergies`, patient?.id],
+      () => api.get(`patient/${patient?.id}/allergies`),
+      { enabled: !!patient?.id },
+    );
+    const allergiesList = allergies?.data?.map(it => it?.allergy.name).join(', ');
 
     // Transition to print page as soon as we have the generated id
     useEffect(() => {
@@ -176,6 +200,18 @@ export const MedicationForm = React.memo(
           validationSchema={validationSchema(readOnly)}
           render={({ submitForm }) => (
             <FormGrid>
+              <div style={{ gridColumn: '1 / -1' }}>
+                <TranslatedText stringId="medication.allergies.title" fallback="Allergies" />:{' '}
+                <span style={{ fontWeight: 500 }}>
+                  {!isLoadingAllergies &&
+                    (allergiesList || (
+                      <TranslatedText
+                        stringId="medication.allergies.noRecord"
+                        fallback="None recorded"
+                      />
+                    ))}
+                </span>
+              </div>
               <div style={{ gridColumn: '1 / -1' }}>
                 <Field
                   name="medicationId"
@@ -239,6 +275,22 @@ export const MedicationForm = React.memo(
                 required={!readOnly}
                 disabled={readOnly}
               />
+              {showPatientWeight && (
+                <Field
+                  name="patientWeight"
+                  label={
+                    <TranslatedText
+                      stringId="medication.patientWeight.label"
+                      fallback="Patient weight :unit"
+                      replacements={{ unit: `(${weightUnit})` }}
+                    />
+                  }
+                  onChange={e => setPatientWeight(e.target.value)}
+                  component={TextField}
+                  placeholder={getTranslation('medication.patientWeight.placeholder', 'e.g 2.4')}
+                  type="number"
+                />
+              )}
               <Field
                 name="note"
                 label={<TranslatedText stringId="general.notes.label" fallback="Notes" />}
@@ -425,6 +477,7 @@ export const MedicationForm = React.memo(
         {(submittedMedication || medication) && (
           <PrintPrescriptionModal
             medication={submittedMedication || medication}
+            patientWeight={showPatientWeight ? patientWeight : undefined}
             open={printModalOpen}
             onClose={() => {
               if (awaitingPrint) {
