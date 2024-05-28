@@ -115,12 +115,12 @@ export const InvoicingPane = React.memo(({ encounter }) => {
         <Button onClick={() => handleActiveModal(INVOICE_ACTIVE_MODALS.CREATE_INVOICE)}>
           <TranslatedText stringId="invoice.action.create" fallback="Create invoice" />
         </Button>
-        <CreateInvoiceModal
-          open={activeModal === INVOICE_ACTIVE_MODALS.CREATE_INVOICE}
+        {activeModal === INVOICE_ACTIVE_MODALS.CREATE_INVOICE && <CreateInvoiceModal
+          open={true}
           onClose={() => handleActiveModal("")}
           handleActiveModal={handleActiveModal}
           createInvoice={createInvoice}
-        />
+        />}
       </EmptyPane>
     );
   }

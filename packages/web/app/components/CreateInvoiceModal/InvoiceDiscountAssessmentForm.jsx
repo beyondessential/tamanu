@@ -1,12 +1,12 @@
 import React, { useMemo, useState } from 'react';
 import * as yup from 'yup';
+import styled from 'styled-components';
+import { Divider } from '@material-ui/core';
 import { TranslatedText } from '../Translation';
 import { BodyText, Heading3 } from '../Typography';
 import { ConfirmCancelBackRow } from '../ButtonRow';
 import { Field, Form, SelectField } from '../Field';
 import { FormGrid } from '../FormGrid';
-import styled from 'styled-components';
-import { Divider } from '@material-ui/core';
 
 const StyledDivider = styled(Divider)`
   margin: 36px -32px 20px -32px;
@@ -28,21 +28,23 @@ const discountTable = {
 };
 
 export const InvoiceDiscountAssessmentForm = ({ handleSubmit, onClose, handleBack }) => {
+  const [familySize, setFamilySize] = useState();
+  const [percentageChange, setPercentageChange] = useState();
+
   const familySizesOptions = Array.from({ length: 12 }, (_, i) => ({
     label: (i + 1).toString(),
     value: i + 1,
   }));
 
-  const [familySize, setFamilySize] = useState();
-  const [percentageChange, setPercentageChange] = useState();
-
   const annualIncomeOptions = useMemo(() => {
     const incomeArray = discountTable[familySize] || [];
     let incomeOptions = [];
     let range;
-    for (let i = 0; i < incomeArray.length; i++) {
+    for (let i = 0; i <= incomeArray.length; i++) {
       if (i === 0) {
         range = `0 - ${incomeArray[i]}`;
+      } else if (i === incomeArray.length) {
+        range = `> ${incomeArray[i - 1]}`
       } else {
         range = `${incomeArray[i - 1]} - ${incomeArray[i]}`;
       }
