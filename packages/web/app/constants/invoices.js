@@ -50,3 +50,8 @@ export const INVOICE_ACTION_MODALS = {
   DELETE: 'delete',
   CANCEL_INVOICE: 'cancelInvoice',
 };
+
+export const INVOICE_ACTIVE_MODALS = {
+  EDIT_INVOICE: "editInvoice",
+  CREATE_INVOICE: "createInvoice",
+};

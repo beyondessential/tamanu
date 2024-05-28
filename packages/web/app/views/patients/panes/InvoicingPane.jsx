@@ -6,7 +6,7 @@ import { isInvoiceEditable } from '../../../utils';
 import { InvoiceDetailTable } from '../../../components/InvoiceDetailTable';
 import { Button } from '../../../components/Button';
 import { ContentPane } from '../../../components/ContentPane';
-import { Colors, INVOICE_ACTION_MODALS } from '../../../constants';
+import { Colors, INVOICE_ACTION_MODALS, INVOICE_ACTIVE_MODALS } from '../../../constants';
 import { TabPane } from '../components';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { EditInvoiceModal } from '../../../components/EditInvoiceModal';
@@ -14,6 +14,7 @@ import { KebabMenu } from '../../../components/EditInvoiceModal/KebabMenu';
 import { StatusDisplay } from '../../../utils/invoiceStatus';
 import { InvoiceSummaryPanel } from '../../../components/InvoiceSummaryPanel';
 import { useInvoiceLineTotals } from '../../../hooks/useInvoiceLineTotals';
+import { CreateInvoiceModal } from '../../../components/CreateInvoiceModal';
 
 const EmptyPane = styled(ContentPane)`
   text-align: center;
@@ -51,13 +52,17 @@ const InvoiceContainer = styled.div`
 `;
 
 export const InvoicingPane = React.memo(({ encounter }) => {
-  const [editInvoiceModalOpen, setEditInvoiceModalOpen] = useState(false);
   const [invoice, setInvoice] = useState(null);
   const [error, setError] = useState(null);
   const [invoiceLineItems, setInvoiceLineItems] = useState([]);
+  const [activeModal, setActiveModal] = useState('');
 
   const updateLineItems = useCallback(({ data }) => setInvoiceLineItems(data), []);
   const { discountableTotal, nonDiscountableTotal } = useInvoiceLineTotals(invoiceLineItems);
+
+  const handleActiveModal = useCallback(modal => {
+    setActiveModal(modal);
+  }, []);
 
   const api = useApi();
 
@@ -80,6 +85,7 @@ export const InvoicingPane = React.memo(({ encounter }) => {
         encounterId: encounter.id,
       });
       setInvoice(createInvoiceResponse);
+      return createInvoiceResponse;
     } catch (e) {
       // eslint-disable-next-line no-console
       console.error(e);
@@ -106,9 +112,15 @@ export const InvoicingPane = React.memo(({ encounter }) => {
   if (!invoice) {
     return (
       <EmptyPane>
-        <Button onClick={createInvoice}>
+        <Button onClick={() => handleActiveModal(INVOICE_ACTIVE_MODALS.CREATE_INVOICE)}>
           <TranslatedText stringId="invoice.action.create" fallback="Create invoice" />
         </Button>
+        <CreateInvoiceModal
+          open={activeModal === INVOICE_ACTIVE_MODALS.CREATE_INVOICE}
+          onClose={() => handleActiveModal("")}
+          handleActiveModal={handleActiveModal}
+          createInvoice={createInvoice}
+        />
       </EmptyPane>
     );
   }
@@ -130,12 +142,12 @@ export const InvoicingPane = React.memo(({ encounter }) => {
                 modalsEnabled={[INVOICE_ACTION_MODALS.CANCEL_INVOICE]}
                 invoiceId={invoice.id}
               />
-              <Button onClick={() => setEditInvoiceModalOpen(true)}>
+              <Button onClick={() => setActiveModal(INVOICE_ACTIVE_MODALS.EDIT_INVOICE)}>
                 <TranslatedText stringId="invoice.action.editItem" fallback="Edit invoice" />
               </Button>
-              {editInvoiceModalOpen && <EditInvoiceModal
-                open={editInvoiceModalOpen}
-                onClose={() => setEditInvoiceModalOpen(false)}
+              {activeModal === INVOICE_ACTIVE_MODALS.EDIT_INVOICE && <EditInvoiceModal
+                open={activeModal === INVOICE_ACTIVE_MODALS.EDIT_INVOICE}
+                onClose={() => setActiveModal('')}
                 invoiceId={invoice.id}
                 displayId={invoice.displayId}
                 encounterId={encounter.id}

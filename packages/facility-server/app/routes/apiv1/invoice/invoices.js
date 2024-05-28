@@ -51,7 +51,7 @@ invoiceRoute.post(
 
     const invoicePriceChangeType = await models.InvoicePriceChangeType.findOne({
       where: {
-        itemId: encounterPatientBillingTypeId || patientAdditionalData?.patientBillingTypeId,
+        itemId: encounterPatientBillingTypeId || patientAdditionalData?.patientBillingTypeId || null,
       },
     });
 
