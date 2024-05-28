@@ -28,7 +28,7 @@ const ExportForm = ({ dataTypes, dataTypesSelectable }) => (
   </FormGrid>
 );
 
-export const ExporterView = memo(({ title, endpoint, dataTypes = [], dataTypesSelectable }) => {
+export const ExporterView = memo(({ title, endpoint, dataTypes, dataTypesSelectable }) => {
   const api = useApi();
 
   const onSubmit = useCallback(

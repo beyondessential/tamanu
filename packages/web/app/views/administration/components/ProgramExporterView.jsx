@@ -10,12 +10,13 @@ import { FormSubmitButton } from '../../../components/Button';
 import { saveFile } from '../../../utils/fileSystemAccess';
 import { FORM_TYPES } from '../../../constants';
 import { useQuery } from '@tanstack/react-query';
+import { TranslatedText } from '../../../components/Translation';
 
 const ExportForm = ({ options = [] }) => (
   <FormGrid columns={1}>
     <Field
       name="programId"
-      label="Select program to export"
+      label={<TranslatedText stringId="admin.program.export.program.label" fallback="Select program to export" />}
       component={SelectField}
       options={options}
       required
@@ -26,7 +27,7 @@ const ExportForm = ({ options = [] }) => (
   </FormGrid>
 );
 
-export const ProgramExporterView = memo(({ title, setIsLoading }) => {
+export const ProgramExporterView = memo(({ setIsLoading }) => {
   const api = useApi();
 
   const { data: programs } = useQuery(['programs'], () => api.get('admin/programs'));
@@ -47,7 +48,7 @@ export const ProgramExporterView = memo(({ title, setIsLoading }) => {
         const programName = programOptions.find(option => option.value === programId).label;
         const blob = await api.download(`admin/export/program/${programId}`);
         await saveFile({
-          defaultFileName: `Program-${programName}-export ${getCurrentDateTimeString()}`,
+          defaultFileName: `Program-${programName}-export-${getCurrentDateTimeString()}`,
           data: blob,
           extension: 'xlsx',
         });
@@ -55,7 +56,7 @@ export const ProgramExporterView = memo(({ title, setIsLoading }) => {
         setIsLoading(false);
       }
     },
-    [api, title, programOptions],
+    [api, programOptions],
   );
 
   const renderForm = useCallback(props => <ExportForm options={programOptions} {...props} />, [

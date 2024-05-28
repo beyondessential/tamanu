@@ -125,7 +125,7 @@ export async function exportProgram(context, programId) {
     plain: true,
   });
 
-  let registrySheet = {
+  const registrySheet = {
     name: 'Registry',
     data: [
       ['registryName', programRegistry?.name],
@@ -153,7 +153,7 @@ export async function exportProgram(context, programId) {
   }
   sheets.push(registrySheet);
 
-  let registryConditionsSheet = {
+  const registryConditionsSheet = {
     name: 'Registry Conditions',
     data: [['code', 'name', 'visibilityStatus']],
   };

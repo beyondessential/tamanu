@@ -4,14 +4,16 @@ import { TabDisplay } from '../../components/TabDisplay';
 import { ImporterView } from './components/ImporterView';
 import { AdminViewContainer } from './components/AdminViewContainer';
 import { ProgramExporterView } from './components/ProgramExporterView';
+import { Colors } from '../../constants';
+import { TranslatedText } from '../../components/Translation';
 
 const StyledTabDisplay = styled(TabDisplay)`
   margin-top: 20px;
-  border-top: 1px solid #dededede;
+  border-top: 1px solid ${Colors.outline};
 
   .MuiTabs-root {
     padding: 0px 20px;
-    border-bottom: 1px solid #dededede;
+    border-bottom: 1px solid ${Colors.outline};
   }
 `;
 
@@ -20,8 +22,6 @@ const TabContainer = styled.div`
 `;
 
 export const ProgramsAdminView = () => {
-  const title = 'Programs (aka forms)';
-  const endpoint = 'program';
   const [currentTab, setCurrentTab] = useState('import');
   const [isLoading, setIsLoading] = useState(false);
 
@@ -33,7 +33,7 @@ export const ProgramsAdminView = () => {
         icon: 'fa fa-file-import',
         render: () => (
           <TabContainer>
-            <ImporterView endpoint={endpoint} setIsLoading={setIsLoading} />
+            <ImporterView endpoint="program" setIsLoading={setIsLoading} />
           </TabContainer>
         ),
       },
@@ -43,19 +43,19 @@ export const ProgramsAdminView = () => {
         icon: 'fa fa-file-export',
         render: () => (
           <TabContainer>
-            <ProgramExporterView
-              title={title}
-              setIsLoading={setIsLoading}
-            />
+            <ProgramExporterView setIsLoading={setIsLoading} />
           </TabContainer>
         ),
       },
     ],
-    [title, endpoint],
+    [],
   );
 
   return (
-    <AdminViewContainer title={title} showLoadingIndicator={isLoading}>
+    <AdminViewContainer
+      title={<TranslatedText stringId="admin.program.title" fallback="Programs (aka forms)" />}
+      showLoadingIndicator={isLoading}
+    >
       <StyledTabDisplay
         tabs={tabs}
         currentTab={currentTab}
