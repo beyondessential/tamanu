@@ -127,23 +127,31 @@ jobs:
             const params = {
               issue_number: context.issue.number,
               owner: context.repo.owner,
-              repo: context.repo.repo
+              repo: context.repo.repo,
             };
-            const headerContent = '**Android builds 📱**';
-            const comments = await github.rest.issues.listComments(params)
-            const existingComment = comments.data.find(comment => comment.body.includes('Android build'));
-            console.log('existing comment found', existingComment)
+            const headerContent = "**Android builds 📱**";
+            const comments = await github.rest.issues.listComments(params);
+            const existingComment = comments.data.find((comment) =>
+              comment.body.includes("Android build")
+            );
 
-            const comment = await github.rest.issues.createComment({...params, body})
+            console.log('existing comment', existingComment)
 
             if (existingComment) {
-              const body = existingComment.body + `\n- **${BUILD_NUMBER}:** [Download Android APK](${ARTIFACT_URL})`
-              await github.rest.issues.updateComment({...params, comment_id: existingComment.id, body})
+              await github.rest.issues.updateComment({
+                ...params,
+                comment_id: existingComment.id,
+                body:
+                  existingComment.body +
+                  `\n- **${BUILD_NUMBER}:** [Download Android APK](${ARTIFACT_URL})`,
+              });
             } else {
-              const body = `${headerContent}
+              await github.rest.issues.createComment({
+                ...params,
+                body: `${headerContent}
               - **${BUILD_NUMBER}:** [Download Android APK](${ARTIFACT_URL})
-              `
-              await github.rest.issues.createComment(params)
+              `,
+              });
             }
 
       - name: Set S3 destination
