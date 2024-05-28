@@ -56,8 +56,6 @@ export const VaccinesTable = ({
   const cells: { [doseLabel: string]: VaccineTableCellData[] } = {};
   const nonHistoricalOrAdministeredScheduledVaccines = scheduledVaccines.filter(
     scheduledVaccine => {
-      console.log(scheduledVaccine.sort);
-
       const administeredVaccine = patientAdministeredVaccines.find(v => {
         if (typeof v.scheduledVaccine === 'string') {
           throw new Error('VaccinesTable: administeredVaccine did not embed scheduledVaccine');
@@ -95,7 +93,7 @@ export const VaccinesTable = ({
 
   uniqueByVaccine.sort(
     (a, b) =>
-      a.sort - b.sort ||
+      a.sortIndex - b.sortIndex ||
       a.weeksFromBirthDue - b.weeksFromBirthDue ||
       a.label.localeCompare(b.label),
   );

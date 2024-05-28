@@ -2,7 +2,7 @@ import { MigrationInterface, QueryRunner, TableColumn } from 'typeorm';
 import { getTable } from './utils/queryRunner';
 
 const TABLE_NAME = 'scheduled_vaccine';
-const COLUMN_NAME = 'sort';
+const COLUMN_NAME = 'sortIndex';
 
 export class addSortColumnToScheduledVaccines1715658297000 implements MigrationInterface {
   async up(queryRunner: QueryRunner): Promise<void> {

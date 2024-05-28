@@ -150,7 +150,7 @@ export const fakeScheduledVaccine = (): IScheduledVaccine => {
     weeksFromLastVaccinationDue: null,
     category: `scheduled-vaccine-category-${uuid}`,
     visibilityStatus: VisibilityStatus.Current,
-    sort: 0,
+    sortIndex: 0,
   };
 };
 

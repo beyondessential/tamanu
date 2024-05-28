@@ -14,5 +14,5 @@ export interface IScheduledVaccine {
   vaccineId: string;
   hideFromCertificate: boolean;
   visibilityStatus: VisibilityStatus;
-  sort: number;
+  sortIndex: number;
 }

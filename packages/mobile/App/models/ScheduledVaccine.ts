@@ -46,5 +46,5 @@ export class ScheduledVaccine extends BaseModel implements IScheduledVaccine {
   visibilityStatus: string;
 
   @Column({ default: 0 })
-  sort: number;
+  sortIndex: number;
 }
