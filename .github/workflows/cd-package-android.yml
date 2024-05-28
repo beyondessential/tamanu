@@ -145,14 +145,13 @@ jobs:
                   .replace(latestText, "")
                   .replace(
                     headerContent,
-                    `${headerContent}\n- **${BUILD_NUMBER}:** [Download Android APK](${ARTIFACT_URL})${latestText}'`
+                    `${headerContent}\n- **${BUILD_NUMBER}:** [Download Android APK](${ARTIFACT_URL})${latestText}`
                   ),
               });
             } else {
               await github.rest.issues.createComment({
                 ...params,
-                body: `${headerContent}
-              - **${BUILD_NUMBER}:** [Download Android APK](${ARTIFACT_URL})${latestText}'
+                body: `${headerContent}\n- **${BUILD_NUMBER}:** [Download Android APK](${ARTIFACT_URL})${latestText}'
               `,
               });
             }
