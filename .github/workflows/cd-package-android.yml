@@ -151,8 +151,7 @@ jobs:
             } else {
               await github.rest.issues.createComment({
                 ...params,
-                body: `${headerContent}\n- **${BUILD_NUMBER}:** [Download Android APK](${ARTIFACT_URL})${latestText}'
-              `,
+                body: `${headerContent}\n- **${BUILD_NUMBER}:** [Download Android APK](${ARTIFACT_URL})${latestText}`,
               });
             }
 
