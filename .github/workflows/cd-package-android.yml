@@ -129,24 +129,21 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo
             };
-            const body = `
-            **Android build ${BUILD_NUMBER} is ready for testing📱**
-            [Download Android APK](${ARTIFACT_URL})
-            `;
+            const headerContent = '**Android builds 📱**';
             const comments = await github.rest.issues.listComments(params)
-            const existingComments = comments.data.filter(comment => comment.body.includes('Android build'));
+            const existingComment = comments.data.find(comment => comment.body.includes('Android build'));
+            console.log('existing comment found', existingComment)
 
             const comment = await github.rest.issues.createComment({...params, body})
 
-            for (const existingComment of existingComments) {
-              github.rest.issues.updateComment({
-                ...params,
-                comment_id: existingComment.id,
-                body: `
-                *Outdated* see ${comment.html_url} for latest build
-                ${body}
-                `
-              })
+            if (existingComment) {
+              const body = existingComment.body + `\n- **${BUILD_NUMBER}:** [Download Android APK](${ARTIFACT_URL})`
+              await github.rest.issues.updateComment({...params, comment_id: existingComment.id, body})
+            } else {
+              const body = `${headerContent}
+              - **${BUILD_NUMBER}:** [Download Android APK](${ARTIFACT_URL})
+              `
+              await github.rest.issues.createComment(params)
             }
 
       - name: Set S3 destination
