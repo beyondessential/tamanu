@@ -2,12 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { PropTypes } from 'prop-types';
 import * as yup from 'yup';
 
-import {
-  REFERENCE_DATA_TRANSLATION_PREFIX,
-  SETTING_KEYS,
-  VACCINE_CATEGORIES,
-  VACCINE_RECORDING_TYPES,
-} from '@tamanu/constants';
+import { SETTING_KEYS, VACCINE_CATEGORIES, VACCINE_RECORDING_TYPES } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 
 import { FORM_TYPES, REQUIRED_INLINE_ERROR_MESSAGE } from '../constants';
