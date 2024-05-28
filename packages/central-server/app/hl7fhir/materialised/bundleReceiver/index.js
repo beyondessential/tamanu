@@ -4,7 +4,6 @@ import asyncHandler from 'express-async-handler';
 import { OperationOutcome } from '@tamanu/shared/utils/fhir';
 import { FHIR_INTERACTIONS, JOB_TOPICS } from '@tamanu/constants';
 import * as Handlers from './handlers';
-import { LimsResult, Handler } from './handlers';
 
 
 async function mapErr(promise, fn) {
@@ -22,13 +21,16 @@ export function bundleHandler() {
     //   err => OperationOutcome.fromYupError(err),
     // );
 
-    let useHandler, isValid;
+    let useHandler = null;
     for (const CurrentHandler of Object.values(Handlers)) {
       if (await CurrentHandler.isValid(req.body)) {
         console.log(`body is valid of type ${CurrentHandler.HANDLER_NAME}`);
         useHandler = new CurrentHandler(req.body);
         break;
       }
+    }
+    if (!useHandler) {
+      throw new OperationOutcome('Bundle does not match any supported formats');
     }
 
 
