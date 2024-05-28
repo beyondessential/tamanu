@@ -44,7 +44,7 @@ const CellContent = ({
     >
       {cellStatus ? (
         <CenterView flex={1}>
-          <Icon size={screenPercentageToDP(4.13, Orientation.Height)} />
+          <Icon size={screenPercentageToDP(4.13, Orientation.Height)} fill={cellData.color} />
         </CenterView>
       ) : (
         <StyledImage source={require('../../assets/NullValueCell.png')} />
