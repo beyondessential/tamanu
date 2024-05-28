@@ -17,7 +17,7 @@ test_facility_offline_setup_postgres() {
 
 # Build both the facility and central servers.
 test_facility_offline_build() {
-    yarn
+    npm install
     yarn build-shared
     yarn workspace @tamanu/central-server build
     yarn workspace @tamanu/facility-server build

@@ -14,10 +14,10 @@
     "start": "node dist",
     "test": "NODE_ENV=test jest",
     "setup-dev": "node dist setup",
-    "shell": "yarn build && node dist shell",
+    "shell": "npm run build && node dist shell",
     "start-watch": "sleep 1 && nodemon --delay 1 \"dist/**/*.js\"",
-    "test-watch": "yarn test --watch",
-    "build-watch": "yarn run build --watch",
+    "test-watch": "npm run test --watch",
+    "build-watch": "npm run build --watch",
     "start-dev": "concurrently npm:build-watch npm:start-watch"
   },
   "devDependencies": {

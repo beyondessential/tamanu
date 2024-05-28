@@ -17,15 +17,15 @@
   },
   "scripts": {
     "build": "swc --delete-dir-on-start --out-dir dist --copy-files --source-maps true app",
-    "build-watch": "yarn run build --watch",
+    "build-watch": "npm run build --watch",
     "setup-dev": "node dist setup",
-    "shell": "yarn build && node dist shell",
+    "shell": "npm run build && node dist shell",
     "start-dev": "concurrently npm:build-watch npm:start-watch",
     "start-watch": "sleep 1 && nodemon --delay 1 \"dist/**/*.js\"",
     "start": "node dist",
-    "test": "yarn test-build && NODE_ENV=test jest",
+    "test": "npm run test-build && NODE_ENV=test jest",
     "test-build": "swc --delete-dir-on-start --out-dir __disttests__ --copy-files --source-maps true __tests__",
-    "test-watch": "yarn test --watch"
+    "test-watch": "npm run test --watch"
   },
   "devDependencies": {
     "@swc/jest": "^0.2.26",
