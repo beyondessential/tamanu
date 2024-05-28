@@ -49,6 +49,7 @@ export const InvoiceManualDiscountModal = React.memo(
           description={description}
           percentageChange={percentageChange}
           priceChangeId={priceChangeId}
+          onClose={onClose}
         />
       </Modal>
     );
