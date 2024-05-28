@@ -136,7 +136,7 @@ export const VaccineStatusCells: VaccineStatusCellsType = {
   },
   [VaccineStatus.SCHEDULED]: {
     Icon: Icons.EmptyCircleIcon,
-    background: theme.colors.BACKGROUND_GREY,
+    background: theme.colors.INDIGO,
     color: theme.colors.TEXT_SOFT,
     text: 'Scheduled',
   },
@@ -148,19 +148,19 @@ export const VaccineStatusCells: VaccineStatusCellsType = {
   },
   [VaccineStatus.DUE]: {
     Icon: Icons.EmptyCircleIcon,
-    background: theme.colors.PRIMARY_MAIN,
+    background: theme.colors.GREEN,
     color: theme.colors.TEXT_SOFT,
     text: 'Due now',
   },
   [VaccineStatus.OVERDUE]: {
     Icon: Icons.EmptyCircleIcon,
-    background: theme.colors.SECONDARY_MAIN,
+    background: theme.colors.ORANGE,
     color: theme.colors.TEXT_SOFT,
     text: 'Overdue',
   },
   [VaccineStatus.UPCOMING]: {
     Icon: Icons.EmptyCircleIcon,
-    background: ColorHelper.halfTransparency(theme.colors.PRIMARY_MAIN),
+    background: theme.colors.BLUE,
     color: theme.colors.TEXT_SOFT,
     text: 'Upcoming',
   },
