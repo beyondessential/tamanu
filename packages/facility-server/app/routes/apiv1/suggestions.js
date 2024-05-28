@@ -406,6 +406,8 @@ createSuggester(
             encounters ON encounters.id = lab_requests.encounter_id
           WHERE lab_requests.status = :lab_request_status
             AND encounters.patient_id = :patient_id
+            AND encounters.deleted_at is null
+            AND lab_requests.deleted_at is null
         )`,
         ),
       },
@@ -447,6 +449,8 @@ createSuggester(
             encounters ON encounters.id = lab_requests.encounter_id
           WHERE lab_requests.status = :lab_request_status
             AND encounters.patient_id = :patient_id
+            AND encounters.deleted_at is null
+            AND lab_requests.deleted_at is null
         )`,
         ),
       },

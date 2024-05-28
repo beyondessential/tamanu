@@ -28,6 +28,11 @@ export class SurveyResponseAnswer extends Model {
       foreignKey: 'responseId',
       as: 'surveyResponse',
     });
+
+    this.hasMany(models.VitalLog, {
+      foreignKey: 'answerId',
+      as: 'vitalLog',
+    });
   }
 
   static buildPatientSyncFilter(patientIds, sessionConfig) {
@@ -46,21 +51,16 @@ export class SurveyResponseAnswer extends Model {
       return `
         ${joins}
         JOIN surveys ON survey_responses.survey_id = surveys.id
-        WHERE
-          encounters.patient_id in (:patientIds)
-        AND
-          surveys.is_sensitive = FALSE
-        AND
-          ${this.tableName}.updated_at_sync_tick > :since
+        WHERE encounters.patient_id in (:patientIds)
+        AND surveys.is_sensitive = FALSE
+        AND ${this.tableName}.updated_at_sync_tick > :since
       `;
     }
 
     return `
       ${joins}
-      WHERE
-        encounters.patient_id in (:patientIds)
-      AND
-        ${this.tableName}.updated_at_sync_tick > :since
+      WHERE encounters.patient_id in (:patientIds)
+      AND ${this.tableName}.updated_at_sync_tick > :since
     `;
   }
 

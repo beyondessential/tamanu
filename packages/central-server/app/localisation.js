@@ -89,6 +89,7 @@ const UNHIDEABLE_FIELDS = [
   'circumstanceIds',
   'reminderContactName',
   'reminderContactRelationship',
+  'weightUnit',
 ];
 
 const HIDEABLE_FIELDS = [
