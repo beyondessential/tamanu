@@ -45,7 +45,7 @@
   "engines": {
     "node": "^20.9.0"
   },
-  "packageManager": "yarn@1.19.1",
+  "packageManager": "npm@10.8.0",
   "private": true,
   "workspaces": {
     "packages": [
@@ -80,8 +80,7 @@
     "eslint-plugin-react-hooks": "^4.6.0",
     "globals": "^13.24.0",
     "prettier": "^1.17.1",
-    "yaml": "^2.2.1",
-    "yarn": "^1.22.18"
+    "yaml": "^2.2.1"
   },
   "dependencies": {
     "concurrently": "^8.2.2",
