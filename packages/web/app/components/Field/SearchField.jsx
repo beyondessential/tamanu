@@ -51,8 +51,8 @@ export const SearchField = props => {
     if (setFieldValue) {
       setFieldValue(name, '');
     }
-  };
-
+  }
+  
   return (
     <StyledTextField
       InputProps={{
