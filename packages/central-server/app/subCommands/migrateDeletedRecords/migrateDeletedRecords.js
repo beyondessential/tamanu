@@ -28,7 +28,7 @@ const fromSurveyScreenComponent = async () => {
 };
 
 const TABLE_TO_MIGRATION_MAPPING = {
-  SurveyScreenComponent: fromSurveyScreenComponent,
+  survey_screen_components: fromSurveyScreenComponent,
 };
 
 export const runMigrate = async (migration, Resource) => {
@@ -38,7 +38,7 @@ export const runMigrate = async (migration, Resource) => {
   }
 
   log.info(`Starting Deleted records migration for ${Resource}...`);
-  await migration();
+  await migration(Resource);
   log.info(`Deleted records migration is done`);
 };
 

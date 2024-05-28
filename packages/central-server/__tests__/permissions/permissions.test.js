@@ -21,6 +21,12 @@ describe('Permissions', () => {
       makeRoleWithPermissions(ctx.store.models, 'reader', [
         { verb: 'read', noun: 'Patient' },
         { verb: 'run', noun: 'Report', objectId: 'report-allowed' },
+        {
+          verb: 'run',
+          noun: 'Report',
+          objectId: 'report-allowed-but-revoked',
+          deletedAt: new Date(),
+        },
       ]),
       makeRoleWithPermissions(ctx.store.models, 'writer', [{ verb: 'write', noun: 'Patient' }]),
     ]);
@@ -61,6 +67,7 @@ describe('Permissions', () => {
       expect(ability.cannot('write', { type: 'Patient' }));
       expect(ability.can('run', { type: 'Report', id: 'report-allowed' }));
       expect(ability.cannot('run', { type: 'Report', id: 'report-forbidden' }));
+      expect(ability.cannot('run', { type: 'Report', id: 'report-allowed-but-revoked' }));
     });
 
     it('should read a permission definition object across multiple roles', async () => {
@@ -69,6 +76,7 @@ describe('Permissions', () => {
       expect(ability.can('write', { type: 'Patient' }));
       expect(ability.can('run', { type: 'Report', id: 'report-allowed' }));
       expect(ability.cannot('run', { type: 'Report', id: 'report-forbidden' }));
+      expect(ability.cannot('run', { type: 'Report', id: 'report-allowed-but-revoked' }));
     });
   });
 
