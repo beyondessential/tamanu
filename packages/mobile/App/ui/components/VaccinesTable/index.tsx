@@ -75,7 +75,6 @@ export const VaccinesTable = ({
           ...(cells[scheduledVaccine.doseLabel] || []),
           {
             scheduledVaccine: scheduledVaccine as IScheduledVaccine,
-            // TODO: why doesn't ScheduledVaccine fulfill IScheduledVaccine?
             vaccineStatus,
             administeredVaccine,
             patientAdministeredVaccines,
