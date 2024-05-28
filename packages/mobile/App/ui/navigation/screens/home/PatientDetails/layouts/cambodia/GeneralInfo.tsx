@@ -35,8 +35,8 @@ export const GeneralInfo = ({ onEdit, patient }: GeneralInfoProps): ReactElement
     ['firstName', patient.firstName],
     ['dateOfBirth', formatStringDate(patient.dateOfBirth, DateFormats.DDMMYY)],
     ['sex', getGender(patient.sex)],
-    ['fieldDefinition-fathersFirstName', customDataById['fieldDefinition-fathersFirstName']],
     ['culturalName', patient.culturalName],
+    ['fieldDefinition-fathersFirstName', customDataById['fieldDefinition-fathersFirstName']],
   ];
 
   return (
