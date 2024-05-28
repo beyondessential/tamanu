@@ -124,37 +124,39 @@ jobs:
         with:
           script: |
             const { ARTIFACT_URL, BUILD_NUMBER } = process.env;
-            const { repo, owner } = context.repo
-            const { number: issue_number } = context.issue
+            const { repo, owner } = context.repo;
+            const { number: issue_number } = context.issue;
             const params = {
               issue_number,
               owner,
-              repo
+              repo,
             };
             const headerContent = "**Android builds 📱**";
+            const latestText = " **Latest**";
             const comments = await github.rest.issues.listComments(params);
             const existingComment = comments.data.find((comment) =>
               comment.body.includes("Android build")
             );
-
-            console.log('existing comment')
-
             if (existingComment) {
               await github.rest.issues.updateComment({
                 ...params,
                 comment_id: existingComment.id,
-                body:
-                  existingComment.body +
-                  `\n- **${BUILD_NUMBER}:** [Download Android APK](${ARTIFACT_URL})`,
+                body: existingComment.body
+                  .replace(latestText, "")
+                  .replace(
+                    headerContent,
+                    `${headerContent}\n- **${BUILD_NUMBER}:** [Download Android APK](${ARTIFACT_URL})${latestText}'`
+                  ),
               });
             } else {
               await github.rest.issues.createComment({
                 ...params,
                 body: `${headerContent}
-              - **${BUILD_NUMBER}:** [Download Android APK](${ARTIFACT_URL})
+              - **${BUILD_NUMBER}:** [Download Android APK](${ARTIFACT_URL})${latestText}'
               `,
               });
             }
+
 
       - name: Set S3 destination
         id: destination
