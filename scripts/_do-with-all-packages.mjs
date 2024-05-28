@@ -12,34 +12,36 @@ function cleanupLeadingGarbage(jsonStr) {
 }
 
 export function doWithAllPackages(fn) {
-  const workspaceTree = JSON.parse(
-    cleanupLeadingGarbage(execFileSync('yarn', ['-s', 'workspaces', 'info'], { encoding: 'utf8' })),
-  );
-  const workspaces = new Set(Object.keys(workspaceTree));
-  const processed = new Set();
+  //TODO: Need to fix this
+  // const workspaceTree = JSON.parse(
+  //   cleanupLeadingGarbage(execFileSync('npm', ['list', '--workspaces', '--json'], { encoding: 'utf8' })),
+  // );
 
-  const packagesThatAreDependedOn = new Set(
-    Object.values(workspaceTree).flatMap(({ workspaceDependencies }) => workspaceDependencies),
-  );
+  // const workspaces = new Set(Object.keys(workspaceTree.dependencies));
+  // const processed = new Set();
 
-  while (processed.size < workspaces.size) {
-    for (const workspace of workspaces) {
-      if (processed.has(workspace)) continue;
-      const { location, workspaceDependencies } = workspaceTree[workspace];
-      if (workspaceDependencies.every(dep => processed.has(dep))) {
-        processed.add(workspace);
+  // const packagesThatAreDependedOn = new Set(
+  //   Object.values(workspaceTree).flatMap(({ workspaceDependencies }) => workspaceDependencies),
+  // );
 
-        const pkgPath = `./${location}/package.json`;
-        let pkg;
-        try {
-          pkg = JSON.parse(readFileSync(pkgPath));
-        } catch (err) {
-          console.log(`Skipping ${workspace} as we can't read its package.json...`);
-          continue;
-        }
+  // while (processed.size < workspaces.size) {
+  //   for (const workspace of workspaces) {
+  //     if (processed.has(workspace)) continue;
+  //     const { location, workspaceDependencies } = workspaceTree[workspace];
+  //     if (workspaceDependencies.every(dep => processed.has(dep))) {
+  //       processed.add(workspace);
 
-        fn(workspace, pkg, pkgPath, packagesThatAreDependedOn.has(workspace));
-      }
-    }
-  }
+  //       const pkgPath = `./${location}/package.json`;
+  //       let pkg;
+  //       try {
+  //         pkg = JSON.parse(readFileSync(pkgPath));
+  //       } catch (err) {
+  //         console.log(`Skipping ${workspace} as we can't read its package.json...`);
+  //         continue;
+  //       }
+
+  //       fn(workspace, pkg, pkgPath, packagesThatAreDependedOn.has(workspace));
+  //     }
+  //   }
+  // }
 }
