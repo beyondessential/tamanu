@@ -36,6 +36,7 @@ const ENDPOINT_TO_DATA_TYPE = {
   ['facilityLocationGroup']: 'locationGroup',
   ['patientLabTestCategories']: 'labTestCategory',
   ['patientLabTestPanelTypes']: 'labTestPanelType',
+  ['invoiceLineTypes']: 'invoiceLineType',
 };
 const getDataType = endpoint => ENDPOINT_TO_DATA_TYPE[endpoint] || endpoint;
 
