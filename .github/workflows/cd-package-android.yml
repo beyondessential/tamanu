@@ -124,10 +124,12 @@ jobs:
         with:
           script: |
             const { ARTIFACT_URL, BUILD_NUMBER } = process.env;
+            const { repo, owner } = context.repo
+            const { number: issue_number } = context.issue
             const params = {
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
+              issue_number,
+              owner,
+              repo
             };
             const headerContent = "**Android builds 📱**";
             const comments = await github.rest.issues.listComments(params);
@@ -135,7 +137,7 @@ jobs:
               comment.body.includes("Android build")
             );
 
-            console.log('existing comment', existingComment)
+            console.log('existing comment')
 
             if (existingComment) {
               await github.rest.issues.updateComment({
