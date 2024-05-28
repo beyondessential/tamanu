@@ -1,4 +1,3 @@
-import { Sequelize } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { dateTimeType } from './dateTimeTypes';
 import { getCurrentDateTimeString } from '../utils/dateTime';
@@ -13,10 +12,6 @@ export class PatientProgramRegistrationCondition extends Model {
           allowNull: false,
           defaultValue: getCurrentDateTimeString,
         }),
-        deletionStatus: {
-          type: Sequelize.TEXT,
-          defaultValue: null,
-        },
         deletionDate: dateTimeType('deletionDate', {
           defaultValue: null,
         }),

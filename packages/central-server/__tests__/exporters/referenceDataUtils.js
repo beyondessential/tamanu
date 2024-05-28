@@ -94,12 +94,21 @@ export async function createAllergy(models) {
   });
 }
 
-export async function createPermission(models, { verb, noun, objectId, roleId }) {
+export async function createPermission(
+  models,
+  { verb, noun, objectId, roleId },
+) {
   await models.Permission.create({
     verb,
     noun,
     objectId,
     roleId,
+  });
+}
+
+export async function destroyPermission(models, where) {
+  await models.Permission.destroy({
+    where,
   });
 }
 
