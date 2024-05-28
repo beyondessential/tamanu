@@ -134,15 +134,19 @@ jobs:
             [Download Android APK](${ARTIFACT_URL})
             `;
             const comments = await github.rest.issues.listComments(params)
-            const existingComment = comments.data.find(comment => comment.body.includes('Android build'));
-            if (existingComment) {
+            const existingComments = comments.data.filter(comment => comment.body.includes('Android build'));
+
+            const comment = await github.rest.issues.createComment({...params, body})
+
+            for (const existingComment of existingComments) {
               github.rest.issues.updateComment({
                 ...params,
                 comment_id: existingComment.id,
-                body
+                body: `
+                *Outdated* see ${comment.html_url} for latest build
+                ${body}
+                `
               })
-            } else {
-              github.rest.issues.createComment({...params, body})
             }
 
       - name: Set S3 destination
