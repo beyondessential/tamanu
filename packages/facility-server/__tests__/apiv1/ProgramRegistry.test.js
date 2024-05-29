@@ -345,7 +345,6 @@ describe('ProgramRegistry', () => {
           patientId: patient1.id,
           programRegistryId,
           programRegistryConditionId: decoyCondition.id,
-          deletionStatus: null
         }),
       );
       await models.PatientProgramRegistrationCondition.create(
@@ -353,7 +352,6 @@ describe('ProgramRegistry', () => {
           patientId: patient1.id,
           programRegistryId,
           programRegistryConditionId: relevantCondition.id,
-          deletionStatus: null
         }),
       );
 
@@ -371,7 +369,6 @@ describe('ProgramRegistry', () => {
           patientId: patient2.id,
           programRegistryId,
           programRegistryConditionId: decoyCondition.id,
-          deletionStatus: null
         }),
       );
 

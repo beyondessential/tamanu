@@ -66,12 +66,11 @@ function getVaccineStatusForWeeksFromBirthDue(weeksUntilDue): VaccineStatusMessa
 function getVaccineStatusForWeeksFromLastVaccinationDue(
   weeksUntilGapPeriodPassed,
   previouslyAdministeredVaccine,
-  index,
 ): VaccineStatusMessage {
   if (!previouslyAdministeredVaccine) {
     return {
       status: VaccineStatus.SCHEDULED,
-      warningMessage: `This patient has not received dose ${index - 1} of this vaccine.`,
+      warningMessage: `This patient has not received the previous dose of this vaccine.`,
     };
   }
   if (weeksUntilGapPeriodPassed > 0) {
