@@ -124,7 +124,7 @@ By default, the Central server will not run migrations automatically. To enable 
 
 ```bash
 npm install
-npm run -w central-server setup-dev # If it doesn't work, go for 'Pull data from remote'
+npm run --workspace central-server setup-dev # If it doesn't work, go for 'Pull data from remote'
 npm run central-start-dev
 ```
 
