@@ -16,7 +16,7 @@ import { Button } from '../Button';
 import { ItemHeader, ItemRow } from './ItemRow';
 import { useEncounter } from '../../contexts/Encounter';
 import { getInvoiceLineCode } from '../../utils/invoiceDetails';
-import { StatusDisplay } from '../../utils/invoiceStatus';
+import { InvoiceStatus } from '../InvoiceStatus';
 
 const LinkText = styled.div`
   font-weight: 500;
@@ -59,22 +59,22 @@ const PotentialLineItemsPane = styled.div`
     width: 5px;
     height: 5px;
   }
-  
+
   /* Track */
   ::-webkit-scrollbar-track {
     background: white;
   }
-  
+
   /* Handle */
   ::-webkit-scrollbar-thumb {
     background: ${Colors.softText};
     border-radius: 5px;
   }
-  
+
   /* Handle on hover */
   ::-webkit-scrollbar-thumb:hover {
     background: ${Colors.softText};
-  } 
+  }
 `;
 
 const PaneTitle = styled.div`
@@ -287,7 +287,7 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
             replacements={{ invoiceNumber: displayId }}
           />
           <StatusContainer>
-            <StatusDisplay status={invoiceStatus} />
+            <InvoiceStatus status={invoiceStatus} />
           </StatusContainer>
 
         </>

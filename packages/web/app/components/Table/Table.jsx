@@ -215,19 +215,20 @@ const StatusTableCell = styled(StyledTableCell)`
 `;
 
 const Row = React.memo(
-  ({ rowIndex, columns, data, onClick, cellOnChange, lazyLoading, rowStyle, refreshTable, cellStyle }) => {
+  ({ rowIndex, columns, data, onClick, cellOnChange, lazyLoading, rowStyle, refreshTable, cellStyle, onClickRow }) => {
     const cells = columns.map(
       ({ key, accessor, CellComponent, numeric, maxWidth, cellColor, dontCallRowInput }) => {
         const onChange = cellOnChange ? event => cellOnChange(event, key, rowIndex, data) : null;
+        const passingData = { refreshTable, onChange, ...data, rowIndex };
         const value = accessor
-          ? React.createElement(accessor, { refreshTable, onChange, ...data, rowIndex })
+          ? React.createElement(accessor, passingData)
           : get(data, key);
         const displayValue = value === 0 ? '0' : value;
         const backgroundColor = typeof cellColor === 'function' ? cellColor(data) : cellColor;
         return (
           <StyledTableCell
             key={key}
-            onClick={dontCallRowInput ? preventInputCallback : undefined}
+            onClick={dontCallRowInput ? preventInputCallback : (e) => onClickRow(e, passingData)}
             background={backgroundColor}
             $cellStyle={cellStyle}
             align={numeric ? 'right' : 'left'}
@@ -370,6 +371,7 @@ class TableComponent extends React.Component {
       isLoadingMore,
       cellStyle,
       statusCellStyle,
+      onClickRow
     } = this.props;
 
     const status = this.getStatusMessage();
@@ -398,6 +400,7 @@ class TableComponent extends React.Component {
               rowStyle={rowStyle}
               lazyLoading={lazyLoading}
               cellStyle={cellStyle}
+              onClickRow={onClickRow}
             />
           );
         })}
@@ -471,6 +474,7 @@ class TableComponent extends React.Component {
       containerStyle,
       isBodyScrollable,
       headStyle,
+      inlineTitle
     } = this.props;
 
     return (
@@ -485,6 +489,7 @@ class TableComponent extends React.Component {
             : Colors.outline
         }
       >
+        {inlineTitle}
         {optionRow && <OptionRow>{optionRow}</OptionRow>}
         <StyledTable
           $backgroundColor={data?.length || isLoading ? Colors.white : noDataBackgroundColor}

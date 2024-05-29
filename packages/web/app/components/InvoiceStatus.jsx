@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { TranslatedEnum } from '../components/Translation';
+import { TranslatedEnum } from './Translation';
 import { INVOICE_STATUS_COLORS, INVOICE_STATUS_LABELS } from '../constants';
 
 const StatusLabel = styled.div`
@@ -10,9 +10,11 @@ const StatusLabel = styled.div`
   line-height: 15px;
   padding: 6px 11px;
   background: ${p => `${p.$color}1A`};
+  width: fit-content;
+  white-space: pre;
 `;
 
-export const StatusDisplay = ({ status }) => {
+export const InvoiceStatus = ({ status }) => {
   return (
     <StatusLabel $color={INVOICE_STATUS_COLORS[status]}>
       <TranslatedEnum
