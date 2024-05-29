@@ -2,6 +2,6 @@
 set -euxo pipefail
 
 server="${1:?Missing package}"
-yarn workspace @tamanu/$server run build
-yarn workspace @tamanu/$server run start migrate up
-yarn workspace @tamanu/$server run start migrate downToLastReversibleMigration
+npm run --workspace @tamanu/$server build
+npm run --workspace @tamanu/$server start migrate up
+npm run --workspace @tamanu/$server start migrate downToLastReversibleMigration

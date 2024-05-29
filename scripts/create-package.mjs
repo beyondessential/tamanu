@@ -25,7 +25,7 @@ async function createPackage(name) {
   pkg.workspaces.packages.push(`packages/${name}`);
   await writeFile(PKG_PATH, JSON.stringify(pkg, null, 2) + '\n');
 
-  console.log("All done! Don't forget to run yarn and yarn build-shared.");
+  console.log("All done! Don't forget to run npm install and npm run build-shared.");
   process.exit(0);
 }
 
