@@ -4,14 +4,19 @@ export class Handler {
   static init(schema) {
   }
 
-  static HANDLER_NAME = 'parent handler';
+  static HANDLER_NAME = 'Handler';
   static schema = bundlesCommon;
 
   // fetch upstream and necessary includes, diff and update
-  static async isValid(body) {
+  static async matchBundle() {
     console.log(`checking is valid ${this.HANDLER_NAME}`);
-    // console.log({ schema: this.schema });
     return false;
-    throw new Error('must be overridden');
+  }
+
+  // fetch upstream and necessary includes, diff and update
+
+  static async validate() {
+    console.log(`checking is valid ${this.HANDLER_NAME}`);
+    return false;
   }
 }
