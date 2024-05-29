@@ -1,6 +1,9 @@
 import { createDummyEncounter, createDummyPatient } from '@tamanu/shared/demoData/patients';
 import { PATIENT_FIELD_DEFINITION_TYPES } from '@tamanu/constants/patientFields';
-import { createAdministeredVaccine, createScheduledVaccine } from '@tamanu/shared/demoData/vaccines';
+import {
+  createAdministeredVaccine,
+  createScheduledVaccine,
+} from '@tamanu/shared/demoData/vaccines';
 import { VACCINE_CATEGORIES } from '@tamanu/constants';
 
 export async function createDiagnosis(models) {
@@ -91,12 +94,21 @@ export async function createAllergy(models) {
   });
 }
 
-export async function createPermission(models, { verb, noun, objectId, roleId }) {
+export async function createPermission(
+  models,
+  { verb, noun, objectId, roleId },
+) {
   await models.Permission.create({
     verb,
     noun,
     objectId,
     roleId,
+  });
+}
+
+export async function destroyPermission(models, where) {
+  await models.Permission.destroy({
+    where,
   });
 }
 

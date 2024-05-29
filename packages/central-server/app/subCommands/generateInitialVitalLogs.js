@@ -15,6 +15,7 @@ async function generateVitalLogsInBatch(store, vitalsSurveyId, batchSize, offset
           SELECT id, end_time, start_time, user_id
           FROM survey_responses
           WHERE survey_id = :vitalsSurveyId
+          AND deleted_at is null
           ORDER BY created_at ASC, id ASC
           LIMIT :limit
           OFFSET :offset
