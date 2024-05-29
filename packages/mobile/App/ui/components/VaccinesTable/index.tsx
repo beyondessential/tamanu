@@ -14,6 +14,8 @@ import { IScheduledVaccine } from '~/types';
 import { ScrollView } from 'react-native-gesture-handler';
 import { StyledView } from '~/ui/styled/common';
 import { VisibilityStatus } from '~/visibilityStatuses';
+import { SETTING_KEYS } from '~/constants';
+
 interface VaccinesTableProps {
   selectedPatient: any;
   categoryName: string;
@@ -44,6 +46,12 @@ export const VaccinesTable = ({
       }),
     [],
   );
+
+  const [thresholds, thresholdError, isLoading] = useBackendEffect(({ models }) =>
+    models.Setting.get(SETTING_KEYS.UPCOMING_VACCINATION_THRESHOLDS),
+  );
+
+  console.log(thresholds, thresholdError, isLoading);
 
   const [patientAdministeredVaccines, administeredError] = useBackendEffect(
     ({ models }) => models.AdministeredVaccine.getForPatient(selectedPatient.id),
