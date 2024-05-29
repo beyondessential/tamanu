@@ -152,7 +152,31 @@ describe('saveChangesForModel', () => {
   });
 
   describe('saveRestore', () => {
-    it('should restore records,then update record in saveRestore()', async () => {
+    it('should restore records in facility server and also update them', async () => {
+      // setup test data
+      const existingRecord = await models.SurveyScreenComponent.create({
+        id: 'existing_record_id',
+        text: 'historical',
+      });
+      await existingRecord.destroy();
+      const newRecord = { id: existingRecord.id, text: 'current' };
+      const changes = [{ data: newRecord, isDeleted: false }];
+      // act
+      await saveChangesForModel(models.SurveyScreenComponent, changes, false);
+      // assertions
+      expect(saveChangeModules.saveCreates).toBeCalledTimes(0);
+      expect(saveChangeModules.saveUpdates).toBeCalledTimes(1);
+      expect(saveChangeModules.saveDeletes).toBeCalledTimes(0);
+      expect(saveChangeModules.saveRestores).toBeCalledTimes(1);
+      expect(saveChangeModules.saveRestores).toBeCalledWith(models.SurveyScreenComponent, [
+        newRecord,
+      ]);
+      const updatedRecordInDb = await models.SurveyScreenComponent.findByPk(existingRecord.id);
+      expect(updatedRecordInDb).toBeDefined();
+      expect(updatedRecordInDb.text).toEqual(newRecord.text);
+    });
+
+    it('should NOT restore records in central server, however they should still be updated', async () => {
       // setup test data
       const existingRecord = await models.SurveyScreenComponent.create({
         id: 'existing_record_id',
@@ -167,11 +191,10 @@ describe('saveChangesForModel', () => {
       expect(saveChangeModules.saveCreates).toBeCalledTimes(0);
       expect(saveChangeModules.saveUpdates).toBeCalledTimes(1);
       expect(saveChangeModules.saveDeletes).toBeCalledTimes(0);
-      expect(saveChangeModules.saveRestores).toBeCalledTimes(1);
-      expect(saveChangeModules.saveRestores).toBeCalledWith(models.SurveyScreenComponent, [
-        newRecord,
-      ]);
-      const updatedRecordInDb = await models.SurveyScreenComponent.findByPk(existingRecord.id);
+      expect(saveChangeModules.saveRestores).toBeCalledTimes(0);
+      const updatedRecordInDb = await models.SurveyScreenComponent.findByPk(
+        existingRecord.id, { paranoid: false },
+      );
       expect(updatedRecordInDb).toBeDefined();
       expect(updatedRecordInDb.text).toEqual(newRecord.text);
     });
