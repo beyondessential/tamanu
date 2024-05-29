@@ -92,13 +92,13 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20.x
-          cache: yarn
+          cache: npm
 
-      - name: Run Yarn Install
+      - name: Run npm install
         working-directory: packages/mobile
         run: |
           npm i -g corepack
-          yarn install
+          npm install
 
       - name: Build release
         working-directory: packages/mobile/android

@@ -28,15 +28,15 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20.x
-          cache: yarn
+          cache: npm
       - uses: actions/cache/restore@v3
         with:
-          key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
+          key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
-      - run: yarn
+      - run: npm install
       - uses: actions/cache/save@v3
         with:
-          key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
+          key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
 
   test:
@@ -66,15 +66,15 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20.x
-          cache: yarn
+          cache: npm
       - uses: actions/cache/restore@v3
         with:
-          key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
+          key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
 
-      - run: yarn
-      - run: yarn build-shared
-      - run: yarn workspace ${{ matrix.package }} run build
+      - run: npm install
+      - run: npm run build-shared
+      - run: npm run --workspace ${{ matrix.package }} build
 
       - name: Install and start postgres if needed
         if: matrix.postgres
@@ -88,7 +88,7 @@ jobs:
           shard: ${{ matrix.shard }}
         run: |
           [[ -z "$shard" ]] || shard="--shard $shard"
-          yarn workspace "$package" run test $shard
+          npm run --workspace "$package" test $shard
 
   build-all:
     needs: node_modules_cache
@@ -99,14 +99,14 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20.x
-          cache: yarn
+          cache: npm
       - uses: actions/cache/restore@v3
         with:
-          key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
+          key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
 
-      - run: yarn
-      - run: yarn build
+      - run: npm install
+      - run: npm run build
 
   lint:
     needs: node_modules_cache
@@ -117,18 +117,18 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20.x
-          cache: yarn
+          cache: npm
       - uses: actions/cache/restore@v3
         with:
-          key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
+          key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
-      - run: yarn
+      - run: npm install
 
       - name: Lint errors
-        run: yarn lint-all --quiet
+        run: npm run lint-all --quiet
 
       - name: Lint warnings
-        run: yarn lint-all
+        run: npm run lint-all
 
   storybook:
     needs: node_modules_cache
@@ -143,15 +143,15 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20.x
-          cache: yarn
+          cache: npm
       - uses: actions/cache/restore@v3
         with:
-          key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
+          key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
 
-      - run: yarn
-      - run: yarn build-shared
-      - run: yarn workspace @tamanu/web-frontend run test-storybook
+      - run: npm
+      - run: npm run build-shared
+      - run: npm run --workspace @tamanu/web-frontend test-storybook
 
   migrations:
     needs: node_modules_cache
@@ -174,14 +174,14 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20.x
-          cache: yarn
+          cache: npm
       - uses: actions/cache/restore@v3
         with:
-          key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
+          key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
 
-      - run: yarn
-      - run: yarn build-shared
+      - run: npm install
+      - run: npm run build-shared
 
       - name: Install and start postgres ${{ matrix.postgres }}
         run: |
@@ -198,19 +198,19 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20.x
-          cache: yarn
+          cache: npm
       - uses: actions/cache/restore@v3
         with:
-          key: ${{ runner.os }}-yarnmobile-${{ hashFiles('mobile/yarn.lock') }}
+          key: ${{ runner.os }}-npmmobile-${{ hashFiles('mobile/package-lock.json') }}
           path: mobile/node_modules
-      - run: yarn
+      - run: npm install
         working-directory: packages/mobile
       - uses: actions/cache/save@v3
         with:
-          key: ${{ runner.os }}-yarnmobile-${{ hashFiles('mobile/yarn.lock') }}
+          key: ${{ runner.os }}-npmmobile-${{ hashFiles('mobile/package-lock.json') }}
           path: mobile/node_modules
 
-      - run: yarn test
+      - run: npm run test
         working-directory: packages/mobile
 
   test-facility-offline:
@@ -222,12 +222,12 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20.x
-          cache: yarn
+          cache: npm
       - uses: actions/cache/restore@v3
         with:
-          key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
+          key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
-      - run: yarn
+      - run: npm install
 
       - name: Install and start postgres
         run: |
@@ -244,22 +244,22 @@ jobs:
       - name: Start a facility server again without a central one
         run: .github/scripts/test-facility-offline.sh facility-start-again
 
-  test-yarn-lock:
+  test-package-lock:
     strategy:
       fail-fast: false
       matrix:
         workdir:
           - .
           - packages/mobile
-    name: Check ${{ matrix.workdir }}/yarn.lock is up to date
+    name: Check ${{ matrix.workdir }}/package-lock.json is up to date
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 20.x
-          cache: yarn
-      - run: yarn
+          cache: npm
+      - run: npm install
         working-directory: ${{ matrix.workdir }}
       - run: git diff --exit-code
 
@@ -274,7 +274,7 @@ jobs:
       - migrations
       - test-mobile
       - test-facility-offline
-      - test-yarn-lock
+      - test-package-lock
     runs-on: ubuntu-latest
     steps:
       - uses: re-actors/alls-green@release/v1
