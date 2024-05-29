@@ -22,6 +22,7 @@ import { useLocalisation } from '../contexts/Localisation';
 import { useSettings } from '../contexts/Settings';
 import { usePatientData } from '../api/queries/usePatientData';
 import { isBefore, parse } from 'date-fns';
+import { TranslatedReferenceData } from '../components/Translation';
 
 const validateGivenElsewhereRequiredField = (status, givenElsewhere) =>
   (status === VACCINE_RECORDING_TYPES.GIVEN && !givenElsewhere) ||
@@ -127,7 +128,13 @@ export const VaccineForm = ({
         const availableScheduledVaccines = await getScheduledVaccines({ category });
         setVaccineOptions(
           availableScheduledVaccines.map(vaccine => ({
-            label: vaccine.label,
+            label: (
+              <TranslatedReferenceData
+                fallback={vaccine.label}
+                value={vaccine.id}
+                category="scheduledVaccine"
+              />
+            ),
             value: vaccine.label,
             schedules: vaccine.schedules,
           })),
