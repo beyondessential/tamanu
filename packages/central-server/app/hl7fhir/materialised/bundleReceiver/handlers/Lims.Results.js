@@ -46,12 +46,20 @@ export class LimsResult extends Handler {
   async processBundle(req) {
     const { FhirDiagnosticReport, FhirObservation } = req.store.models;
     const { resource: diagnosticReportEntry } = this.bundle?.entry.find(item => item?.resource.resourceType === 'DiagnosticReport');
-    console.log({ diagnosticReportEntry: JSON.stringify(diagnosticReportEntry) });
+    // console.log({ diagnosticReportEntry: JSON.stringify(diagnosticReportEntry) });
     const diagnosticReport = new FhirDiagnosticReport(diagnosticReportEntry);
-    const upstream = await diagnosticReport.pushUpstream({
+    const upstreamedDiagnosticReport = await diagnosticReport.pushUpstream({
       requesterId: req.user?.id,
     });
-    console.log({ upstream });
+    console.log({ diagnosticReport });
+    const passedObservations = this
+      .bundle?.entry.filter(item => item?.resource.resourceType === 'Observation');
+    for (const passedObservation of passedObservations) {
+      const observation = new FhirObservation(passedObservations);
+      observation.setBasedOn(diagnosticReport.basedOn);
+      await observation.pushUpstream(passedObservation);
+      console.log({ observation });
+    }
   }
 }
 

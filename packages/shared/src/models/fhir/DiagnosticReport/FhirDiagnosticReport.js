@@ -12,7 +12,7 @@ import {
 import { InvalidOperationError } from '@tamanu/shared/errors';
 import { FhirCodeableConcept, FhirReference } from '../../../services/fhirTypes';
 import { FhirResource } from '../Resource';
-import { Invalid } from '../../../utils/fhir';
+import { Invalid, parseBasedOn } from '../../../utils/fhir';
 
 export class FhirDiagnosticReport extends FhirResource {
   static init(options, models) {
@@ -76,15 +76,7 @@ export class FhirDiagnosticReport extends FhirResource {
         code: FHIR_ISSUE_TYPE.INVALID.VALUE,
       });
     }
-    const { type, reference } = this.basedOn[0];
-
-    const ref = reference.split('/');
-    if (type !== 'ServiceRequest' || ref.length < 2 || ref[0] !== 'ServiceRequest') {
-      throw new Invalid(`DiagnosticReport requires must be results for ServiceRequest'`, {
-        code: FHIR_ISSUE_TYPE.INVALID.VALUE,
-      });
-    }
-    const serviceRequestFhirId = ref[1];
+    const serviceRequestFhirId = parseBasedOn(this.basedOn[0], ['ServiceRequest']);
 
     const serviceRequest = await FhirServiceRequest.findOne({ where: { id: serviceRequestFhirId } });
 
