@@ -23,16 +23,19 @@ export function bundleHandler() {
 
     let useHandler = null;
     for (const CurrentHandler of Object.values(Handlers)) {
-      if (await CurrentHandler.isValid(req.body)) {
-        console.log(`body is valid of type ${CurrentHandler.HANDLER_NAME}`);
+      // console.log(`CurrentHandler: ${CurrentHandler.HANDLER_NAME}`)
+      const isMatch = await CurrentHandler.matchBundle(req.body);
+      if (isMatch) {
+        //  console.log(`body is valid of type ${CurrentHandler.HANDLER_NAME}`);
         useHandler = new CurrentHandler(req.body);
+        await useHandler.initialize();
         break;
       }
     }
-    if (!useHandler) {
-      throw new OperationOutcome('Bundle does not match any supported formats');
-    }
-
+    // if (!useHandler || !await CurrentHandler.isBundleValid(req.body)) {
+    //   throw new OperationOutcome('Bundle does not match any supported formats');
+    // }
+    const responseBody = await useHandler.processBundle(req);
 
     // const resource = new FhirResource(validated);
     // const upstream = await resource.pushUpstream({
@@ -47,6 +50,6 @@ export function bundleHandler() {
 
     // in spec, we should Location: to the resource, but we don't have it yet
     // TODO: generate ID here, and return it (if resource can be materialised)
-    res.status(201).send(useHandler);
+    res.status(201).send(responseBody);
   });
 }

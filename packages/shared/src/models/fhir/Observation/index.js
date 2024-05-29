@@ -1,0 +1,1 @@
+export { FhirObservation } from './FhirObservation';
