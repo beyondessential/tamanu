@@ -54,21 +54,16 @@ invoiceLineItemsRoute.put(
 
     const { invoiceLineItemsData } = req.body;
 
-    let currentTime = Date.now();
     const itemsToUpdate = invoiceLineItemsData.map(item => {
       const newItem = {
-        id: item.id,
+        ...(!!item.id && {id: item.id}),
         invoiceLineTypeId: item.invoiceLineTypeId,
         dateGenerated: item.date,
         orderedById: item.orderedById,
         invoiceId,
-        // Assign unique createdAt timestamps to avoid random order
-        createdAt: currentTime
       };
-      currentTime += 1;
       return newItem;
     });
-
     const updatedLineItems = await models.InvoiceLineItem.bulkCreate(itemsToUpdate, {
       updateOnDuplicate: ["invoiceLineTypeId", "dateGenerated", "orderedById"] 
     });
@@ -83,7 +78,7 @@ invoiceLineItemsRoute.put(
 invoiceLineItemsRoute.delete(
   '/:invoiceId/lineItems',
   asyncHandler(async (req, res) => {
-    const { models, params: { invoiceId }, query: { IdsToDelete } } = req;
+    const { models, params: { invoiceId }, query: { idsToDelete } } = req;
     req.checkPermission('write', 'InvoiceLineItem');
 
     await models.InvoiceLineItem.update(
@@ -92,7 +87,7 @@ invoiceLineItemsRoute.delete(
         where: {
           invoiceId,
           id: {
-            [Op.in]: IdsToDelete
+            [Op.in]: idsToDelete || []
           }
         }
       }

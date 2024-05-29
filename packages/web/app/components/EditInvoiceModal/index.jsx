@@ -100,10 +100,11 @@ const StatusContainer = styled.span`
 `;
 
 export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounterId, invoiceStatus }) => {
-  const [rowList, setRowList] = useState([{ id: uuidv4(), toBeUpdated: true }]);
+  const defaultRow = { id: uuidv4(), toBeUpdated: true };
+  const [rowList, setRowList] = useState([defaultRow]);
   const [potentialLineItems, setPotentialLineItems] = useState([]);
   const [isSaving, setIsSaving] = useState(false);
-  const [IdsToDelete, setIdsToDelete] = useState([]);
+  const [idsToDelete, setIdsToDelete] = useState([]);
   const api = useApi();
 
   useEffect(() => {
@@ -152,11 +153,12 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
             orderedById: newItem?.orderedById,
             code: newItem?.code,
             toBeUpdated: true,
+            toBeCreated: !!newItem.toBeCreated
           });
         }
       });
     } else {
-      newRowList.push({ id: uuidv4(), toBeUpdated: true, });
+      newRowList.push(defaultRow);
     }
 
     setRowList(newRowList);
@@ -204,7 +206,7 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
     {
       sortable: false,
       accessor: (row) => (
-        <SingleAddButton variant="outlined" onClick={() => handleAddRow([row])}>
+        <SingleAddButton variant="outlined" onClick={() => handleAddRow([{ ...row, toBeCreated: true }])}>
           <TranslatedText stringId="general.action.add" fallback="Add" />
         </SingleAddButton>
       ),
@@ -217,7 +219,11 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
   }, [rowList, potentialLineItems]);
 
   const onDataFetched = useCallback(({ data }) => {
-    setPotentialLineItems(data);
+    const newData = data.map(item => ({
+      ...item,
+      toBeCreated: true
+    }))
+    setPotentialLineItems(newData);
   }, []);
 
   const rowStyle = ({ id }) => {
@@ -234,7 +240,7 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
   }), {});
 
   const onDeleteLineItem = (id) => {
-    setIdsToDelete(previousIds => [ ...previousIds, id ]);
+    setIdsToDelete(previousIds => [...previousIds, id]);
     const newRowList = rowList.filter(row => row.id !== id);
     setRowList(newRowList);
   };
@@ -244,15 +250,16 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
     setIsSaving(true);
 
     const invoiceLineItemsData = rowList
-      .filter(row => row.toBeUpdated)
       .map((row, index) => ({
-        id: row.id,
+        ...(!row.toBeCreated && { id: row.id }),
         invoiceLineTypeId: submitData[`invoiceLineTypeId_${index}`],
         date: submitData[`date_${index}`],
         orderedById: submitData[`orderedById_${index}`],
-      }));
+        toBeUpdated: !!row.toBeUpdated,
+      }))
+      .filter(row => row.toBeUpdated);
 
-    await api.delete(`invoices/${invoiceId}/lineItems`, { IdsToDelete });
+    await api.delete(`invoices/${invoiceId}/lineItems`, { idsToDelete });
     await api.put(`invoices/${invoiceId}/lineItems`, { invoiceLineItemsData });
     await loadEncounter(encounterId);
     setIsSaving(false);
