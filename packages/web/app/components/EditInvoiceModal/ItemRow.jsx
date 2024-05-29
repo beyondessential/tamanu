@@ -6,6 +6,7 @@ import { AutocompleteField, DateField, Field } from '../Field';
 import { useSuggester } from '../../api';
 import { Colors } from '../../constants';
 import { KebabMenu } from './KebabMenu';
+import { ThemedTooltip } from '../Tooltip';
 
 const PriceText = styled.span`
   margin-right: 16px;
@@ -171,7 +172,9 @@ export const ItemRow = ({
           <PriceText $isCrossedOut={!!rowData.percentageChange}>
             {rowData.price}
           </PriceText>
-          <span>{finalPrice}</span>
+          <ThemedTooltip title={rowData.discountMarkupReason} open={rowData.discountMarkupReason ? undefined : false}>
+            <span>{finalPrice}</span>
+          </ThemedTooltip>
           <KebabMenu
             isDeleteDisabled={isDeleteDisabled}
             onDelete={onDelete}
