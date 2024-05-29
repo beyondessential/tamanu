@@ -89,6 +89,7 @@ export const ItemRow = ({
   rowData,
   isDeleteDisabled,
   updateRowData,
+  showKebabMenu,
 }) => {
   const invoiceLineTypeSuggester = useSuggester('invoiceLineTypes');
   const practitionerSuggester = useSuggester('practitioner');
@@ -174,11 +175,11 @@ export const ItemRow = ({
             {rowData.price}
           </PriceText>
           <span>{finalPrice}</span>
-          <KebabMenu
+          {showKebabMenu && <KebabMenu
             isDeleteDisabled={isDeleteDisabled}
             onDelete={onDelete}
             rowData={rowData}
-          />
+          />}
         </PriceCell>
       </Grid>
     </StyledItemRow>

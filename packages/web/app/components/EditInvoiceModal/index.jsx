@@ -104,6 +104,7 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
   const [rowList, setRowList] = useState([defaultRow]);
   const [potentialLineItems, setPotentialLineItems] = useState([]);
   const [isSaving, setIsSaving] = useState(false);
+  const [isSaveDisabled, setIsSaveDisabled] = useState(false);
   const [idsToDelete, setIdsToDelete] = useState([]);
   const api = useApi();
 
@@ -124,6 +125,11 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
       })));
     })();
   }, [api]);
+
+  useEffect(() => {
+    const isSaveDisabled = !rowList.some(row => !!row.invoiceLineTypeId);
+    setIsSaveDisabled(isSaveDisabled);
+  }, [rowList])
 
   const { loadEncounter } = useEncounter();
 
@@ -187,10 +193,6 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
           enumValues={INVOICE_LINE_TYPE_LABELS}
         />
       ),
-    },
-    {
-      key: 'orderedBy',
-      title: <TranslatedText stringId="invoice.table.column.orderedBy" fallback="Ordered by" />
     },
     {
       key: 'price',
@@ -326,11 +328,12 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
                   onDelete={() => onDeleteLineItem(row?.id)}
                   isDeleteDisabled={rowList.length === 1}
                   updateRowData={updateRowData}
+                  showKebabMenu={!isSaveDisabled || rowList.length > 1}
                 />
               ))}
             </div>
             <LinkText onClick={() => handleAddRow()}>
-              {"+ "}<TranslatedText stringId="invoice.modal.editInvoice.action.newRow" fallback="New row" />
+              {"+ "}<TranslatedText stringId="invoice.modal.editInvoice.action.newRow" fallback="Add new row" />
             </LinkText>
             <PotentialLineItemsPane>
               <PaneTitle>
@@ -338,9 +341,9 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
                   stringId="invoice.modal.potentialItems.title"
                   fallback="Patient items to be added"
                 />
-                <BulkAddButton onClick={() => handleAddRow(potentialLineItems)}>
+                {!isEmpty && <BulkAddButton onClick={() => handleAddRow(potentialLineItems)}>
                   <TranslatedText stringId="general.action.addAll" fallback="Add all" />
-                </BulkAddButton>
+                </BulkAddButton>}
               </PaneTitle>
               <StyledDataFetchingTable
                 endpoint={`invoices/${invoiceId}/potentialLineItems`}
@@ -348,7 +351,7 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
                 noDataMessage={
                   <TranslatedText
                     stringId="invoice.modal.potentialInvoices.table.noData"
-                    fallback="No potential invoice line items found"
+                    fallback="No patient items to be added"
                   />
                 }
                 allowExport={false}
@@ -373,6 +376,14 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
               }
               onConfirm={submitForm}
               onCancel={onClose}
+              confirmDisabled={isSaveDisabled}
+              confirmStyle={`
+                &.Mui-disabled {
+                  color: ${Colors.white};
+                  background-color: ${Colors.primary};
+                  opacity: 0.3;
+                }
+              `}
             />
           </FormContainer>)}
       />
