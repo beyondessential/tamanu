@@ -62,7 +62,6 @@ export const CambodiaLocationFields = ({ filterByMandatory, secondary }) => {
       label: (
         <TranslatedText stringId="cambodiaPatientDetails.province.label" fallback="Province" />
       ),
-      dontSave: true,
     },
     permanentSubdivisionId: {
       referenceType: REFERENCE_TYPES.SUBDIVISION,
@@ -74,7 +73,7 @@ export const CambodiaLocationFields = ({ filterByMandatory, secondary }) => {
       referenceType: REFERENCE_TYPES.SETTLEMENT,
       label: <TranslatedText stringId="cambodiaPatientDetails.commune.label" fallback="Commune" />,
     },
-    permanentAddress: {
+    secondaryVillageId: {
       referenceType: REFERENCE_TYPES.VILLAGE,
       label: (
         <TranslatedText stringId="general.localisedField.villageId.label" fallback="Village" />

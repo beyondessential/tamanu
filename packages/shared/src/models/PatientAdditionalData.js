@@ -42,6 +42,7 @@ export class PatientAdditionalData extends Model {
         motherId: DataTypes.STRING,
         fatherId: DataTypes.STRING,
         healthCenterId: DataTypes.STRING,
+        secondaryVillageId: DataTypes.STRING,
         updatedAtByField: DataTypes.JSON,
       },
       {
@@ -78,6 +79,7 @@ export class PatientAdditionalData extends Model {
       as: 'healthCenter',
     });
 
+
     const referenceRelation = name =>
       this.belongsTo(models.ReferenceData, {
         foreignKey: `${name}Id`,
@@ -96,6 +98,7 @@ export class PatientAdditionalData extends Model {
     referenceRelation('religion');
     referenceRelation('patientBillingType');
     referenceRelation('countryOfBirth');
+    referenceRelation('village')
   }
 
   static getFullReferenceAssociations() {
