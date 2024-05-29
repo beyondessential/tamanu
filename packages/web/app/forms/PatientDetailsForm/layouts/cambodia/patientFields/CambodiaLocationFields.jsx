@@ -17,7 +17,7 @@ const HealthCenterLinkedVillageField = props => (
   />
 );
 
-export const CambodiaLocationFields = ({ filterByMandatory }) => {
+export const CambodiaLocationFields = ({ filterByMandatory, secondary }) => {
   const LOCATION_FIELDS = {
     streetVillage: {
       component: TextField,
@@ -30,7 +30,7 @@ export const CambodiaLocationFields = ({ filterByMandatory }) => {
     },
   };
 
-  const LOCATION_HIERARCHY_FIELDS = {
+  const CURRENT_LOCATION_HIERARCHY_FIELDS = {
     divisionId: {
       referenceType: REFERENCE_TYPES.DIVISION,
       label: (
@@ -56,8 +56,34 @@ export const CambodiaLocationFields = ({ filterByMandatory }) => {
     },
   };
 
+  const PERMANENT_LOCATION_HIERARCHY_FIELDS = {
+    permanentDivisionId: {
+      referenceType: REFERENCE_TYPES.DIVISION,
+      label: (
+        <TranslatedText stringId="cambodiaPatientDetails.province.label" fallback="Province" />
+      ),
+      dontSave: true,
+    },
+    permanentSubdivisionId: {
+      referenceType: REFERENCE_TYPES.SUBDIVISION,
+      label: (
+        <TranslatedText stringId="cambodiaPatientDetails.district.label" fallback="District" />
+      ),
+    },
+    permanentSettlementId: {
+      referenceType: REFERENCE_TYPES.SETTLEMENT,
+      label: <TranslatedText stringId="cambodiaPatientDetails.commune.label" fallback="Commune" />,
+    },
+    permanentAddress: {
+      referenceType: REFERENCE_TYPES.VILLAGE,
+      label: (
+        <TranslatedText stringId="general.localisedField.villageId.label" fallback="Village" />
+      ),
+    },
+  };
+
   const { fieldsToShow: locationHierarchyFieldsToShow } = useFilterPatientFields({
-    fields: LOCATION_HIERARCHY_FIELDS,
+    fields: secondary ? PERMANENT_LOCATION_HIERARCHY_FIELDS : CURRENT_LOCATION_HIERARCHY_FIELDS,
     filterByMandatory,
   });
 
