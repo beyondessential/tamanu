@@ -1,4 +1,5 @@
 import React from 'react';
+import * as yup from 'yup';
 import { Divider } from '@material-ui/core';
 import styled from 'styled-components';
 import { Modal } from '../Modal';
@@ -9,7 +10,6 @@ import { Field, Form, NumberField, TextField } from '../Field';
 import { FormGrid } from '../FormGrid';
 import { useTranslation } from '../../contexts/Translation';
 import { ConfirmCancelRowField } from '../VaccineCommonFields';
-import * as yup from 'yup';
 
 const StyledDivider = styled(Divider)`
   margin: 26px -32px 32px -32px;
