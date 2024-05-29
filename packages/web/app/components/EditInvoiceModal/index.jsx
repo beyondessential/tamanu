@@ -110,15 +110,13 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
       const { data } = await api.get(`invoices/${encodeURIComponent(invoiceId)}/lineItems`);
       if (!data.length) return;
       setRowList(data.map(item => ({
-        id: item.id,
+        ...item,
         details: item.invoiceLineType?.name,
         date: item.dateGenerated,
         orderedBy: item.orderedBy?.displayName,
         price: item.invoiceLineType?.price,
         invoiceLineTypeId: item.invoiceLineTypeId,
-        orderedById: item.orderedById,
         code: getInvoiceLineCode(item),
-        percentageChange: item.percentageChange
       })));
     })();
   }, [api]);
@@ -274,12 +272,11 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
     setIsSaving(true);
 
     const invoiceLineItemsData = rowList.map((row, index) => ({
+      ...row,
       id: row.id,
       invoiceLineTypeId: submitData[`invoiceLineTypeId_${index}`],
       date: submitData[`date_${index}`],
       orderedById: submitData[`orderedById_${index}`],
-      percentageChange: row.percentageChange,
-      discountMarkupReason: row.discountMarkupReason,
     }));
 
     await api.put(`invoices/${invoiceId}/lineItems`, { invoiceLineItemsData });
