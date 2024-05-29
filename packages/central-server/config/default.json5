@@ -775,6 +775,10 @@
           "shortLabel": "Relationship",
           "longLabel": "Relationship"
         },
+        "weightUnit": {
+          "shortLabel": "kg",
+          "longLabel": "kg"
+        }
       },
       "features": {
         "enableVaccineConsent": true,
