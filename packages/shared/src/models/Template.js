@@ -1,10 +1,10 @@
 import { Sequelize } from 'sequelize';
-import { SYNC_DIRECTIONS, VISIBILITY_STATUSES } from '@tamanu/constants';
+import { SYNC_DIRECTIONS, TEMPLATE_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { Model } from './Model';
 import { dateType } from './dateTimeTypes';
 import { getCurrentDateString } from '../utils/dateTime';
 
-export class PatientLetterTemplate extends Model {
+export class Template extends Model {
   static init({ primaryKey, ...options }) {
     super.init(
       {
@@ -21,6 +21,10 @@ export class PatientLetterTemplate extends Model {
         },
         body: {
           type: Sequelize.TEXT,
+        },
+        type: {
+          type: Sequelize.ENUM(Object.values(TEMPLATE_TYPES)),
+          allowNull: false,
         },
         visibilityStatus: {
           type: Sequelize.TEXT,

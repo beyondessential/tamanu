@@ -50,6 +50,7 @@ export const practitioner = [
   { verb: 'list', noun: 'Encounter' },
   { verb: 'create', noun: 'Encounter' },
   { verb: 'write', noun: 'Encounter' },
+  { verb: 'delete', noun: 'Encounter' },
 
   { verb: 'read', noun: 'Procedure' },
   { verb: 'list', noun: 'Procedure' },
@@ -96,11 +97,13 @@ export const practitioner = [
   { verb: 'list', noun: 'SurveyResponse' },
   { verb: 'read', noun: 'SurveyResponse' },
   { verb: 'write', noun: 'SurveyResponse' },
+  { verb: 'delete', noun: 'SurveyResponse' },
 
   { verb: 'list', noun: 'Referral' },
   { verb: 'read', noun: 'Referral' },
   { verb: 'write', noun: 'Referral' },
   { verb: 'create', noun: 'Referral' },
+  { verb: 'delete', noun: 'Referral' },
 
   { verb: 'list', noun: 'PatientIssue' },
   { verb: 'read', noun: 'PatientIssue' },
@@ -179,6 +182,7 @@ export const practitioner = [
   { verb: 'read', noun: 'DocumentMetadata' },
   { verb: 'write', noun: 'DocumentMetadata' },
   { verb: 'create', noun: 'DocumentMetadata' },
+  { verb: 'delete', noun: 'DocumentMetadata' },
 
   { verb: 'list', noun: 'Appointment' },
   { verb: 'read', noun: 'Appointment' },
@@ -231,7 +235,7 @@ export const practitioner = [
   { verb: 'write', noun: 'EncounterNote' },
 
   { verb: 'write', noun: 'Translation' },
-  
+
   { verb: 'read', noun: 'ProgramRegistry' },
   { verb: 'list', noun: 'ProgramRegistry' },
 
@@ -250,6 +254,12 @@ export const practitioner = [
   { verb: 'list', noun: 'PatientProgramRegistrationCondition' },
   { verb: 'create', noun: 'PatientProgramRegistrationCondition' },
   { verb: 'write', noun: 'PatientProgramRegistrationCondition' },
+  { verb: 'delete', noun: 'PatientProgramRegistrationCondition' },
+
+  { verb: 'read', noun: 'Template' },
+  { verb: 'list', noun: 'Template' },
+  { verb: 'create', noun: 'Template' },
+  { verb: 'write', noun: 'Template' },
 ];
 
 // "Manage all" is a special case in CASL for the admin to grant everything
