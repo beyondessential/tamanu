@@ -4,15 +4,11 @@ import * as yup from 'yup';
 import {
   FHIR_DIAGNOSTIC_REPORT_STATUS,
   FHIR_INTERACTIONS,
-  FHIR_ISSUE_TYPE,
-  LAB_REQUEST_STATUSES,
-  SUPPORTED_CONTENT_TYPES,
-  MAX_ATTACHMENT_SIZE_BYTES,
 } from '@tamanu/constants';
 import { InvalidOperationError } from '@tamanu/shared/errors';
 import { FhirCodeableConcept, FhirReference } from '../../../services/fhirTypes';
 import { FhirResource } from '../Resource';
-import { Invalid } from '../../../utils/fhir';
+import { Invalid, parseBasedOn } from '../../../utils/fhir';
 
 export class FhirObservation extends FhirResource {
   static init(options, models) {
@@ -30,7 +26,16 @@ export class FhirObservation extends FhirResource {
           type: DataTypes.JSONB,
           allowNull: false,
         },
-        presentedForm: {
+        subject: {
+          type: DataTypes.JSONB,
+        },
+        valueQuantity: {
+          type: DataTypes.JSONB,
+        },
+        referenceRange: {
+          type: DataTypes.JSONB,
+        },
+        note: {
           type: DataTypes.JSONB,
         }
       },
@@ -52,6 +57,7 @@ export class FhirObservation extends FhirResource {
     return yup.object({
       status: yup.string().required(),
       id: yup.string().required(),
+      basedOn: yup.array().of(FhirReference.asYup()),
       code: FhirCodeableConcept.asYup().required(),
       subject: FhirReference.asYup(),
       valueQuantity: valueShape,
@@ -69,17 +75,12 @@ export class FhirObservation extends FhirResource {
     });
   }
 
+  setBasedOn(basedOn) {
+    this.basedOn = basedOn;
+  }
 
-
-
-  // This is beginning very modestly - can extend to handle full 
-  // results soon.
   async pushUpstream({ requesterId }) {
-  }
-
-  getLabRequestStatus() {
-  }
-
-  async saveAttachment(labRequest) {
+    const serviceRequestFhirId = parseBasedOn(this.basedOn[0], ['ServiceRequest']);
+    console.log({ serviceRequestFhirId });
   }
 }
