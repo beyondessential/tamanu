@@ -53,7 +53,8 @@ invoiceLineItemsRoute.put(
     req.checkPermission('create', 'InvoiceLineItem');
 
     const { invoiceLineItemsData } = req.body;
-
+    let currentTime = Date.now();
+    
     const itemsToUpdate = invoiceLineItemsData.map(item => {
       const newItem = {
         ...(!!item.id && {id: item.id}),
@@ -61,7 +62,10 @@ invoiceLineItemsRoute.put(
         dateGenerated: item.date,
         orderedById: item.orderedById,
         invoiceId,
+        // Assign unique createdAt timestamps to avoid random order
+        createdAt: currentTime
       };
+      currentTime += 1;
       return newItem;
     });
     const updatedLineItems = await models.InvoiceLineItem.bulkCreate(itemsToUpdate, {
