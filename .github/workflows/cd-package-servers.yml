@@ -22,6 +22,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Login to ghcr.io
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $ --password-stdin
+
       - name: Pull image
         run: docker pull ghcr.io/beyondessential/tamanu-${{ matrix.package }}:sha-${{ github.sha }}.amd64
 

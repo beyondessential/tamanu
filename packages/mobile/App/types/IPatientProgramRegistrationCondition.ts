@@ -7,10 +7,7 @@ import { IProgramRegistryCondition } from './IProgramRegistryCondition';
 export interface IPatientProgramRegistrationCondition {
   id: ID;
   date: DateTimeString;
-  // TODO: emum
-  deletionStatus?: string;
   deletionDate?: DateTimeString;
-
 
   programRegistryId: ID;
   programRegistry: IProgramRegistry;
