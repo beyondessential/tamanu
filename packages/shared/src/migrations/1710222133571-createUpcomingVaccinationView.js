@@ -12,7 +12,7 @@ export async function up(query) {
     select s.value as thresholds, 1 as priority
     from settings s
     where s.deleted_at is null
-    and s.key = 'vaccine.thresholds'::text
+    and s.key = 'upcomingVaccinations.thresholds'::text
     union
     select :thresholdsDefault, 0
     order by priority desc limit 1
@@ -27,7 +27,7 @@ export async function up(query) {
     select s.value as age_limit, 1 as priority
     from settings s
     where s.deleted_at is null
-    and s.key = 'vaccine.ageLimit'::text
+    and s.key = 'upcomingVaccinations.ageLimit'::text
     union
     select :ageLimitDefault, 0
     order by priority desc limit 1
