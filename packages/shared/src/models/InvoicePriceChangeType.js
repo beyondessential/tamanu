@@ -2,6 +2,10 @@ import { Sequelize } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
 
+/**
+ * @deprecated use discountMarkupPercentage and discountMarkupReason on Invoice instead
+ * https://linear.app/bes/issue/EPI-837/simplify-db-schema-for-invoice-discounts
+ */
 export class InvoicePriceChangeType extends Model {
   static init({ primaryKey, ...options }) {
     super.init(
