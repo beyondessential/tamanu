@@ -1,6 +1,6 @@
 import * as yup from 'yup';
-import { Handler } from './Handler';
-import { limsResultShallow, limsResultDeep } from '../schemas';
+import { Handler } from '../Handler';
+import { limsResultShallow, limsResultDeep } from './schema';
 
 
 export class LimsResult extends Handler {

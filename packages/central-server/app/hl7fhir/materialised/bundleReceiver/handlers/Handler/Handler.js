@@ -1,4 +1,4 @@
-import { bundlesCommon } from '../schemas';
+import { bundlesCommon } from './schema';
 
 export class Handler {
   static init(schema) {
