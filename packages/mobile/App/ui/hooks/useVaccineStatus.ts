@@ -54,8 +54,9 @@ export const useVaccineStatus = (data: any = {}) => {
     getSetting<UnparsedThresholds>(SETTING_KEYS.UPCOMING_VACCINATION_THRESHOLDS),
   );
   const weeksUntilDue = getWeeksUntilDue(data);
+  const status = getStatus(weeksUntilDue, thresholds);
+  const warningMessage = getWarningMessage(data, status);
   return {
-    status: getStatus(weeksUntilDue, thresholds),
-    warningMessage: getWarningMessage(data, status),
-  };
+    status,
+    warningMessage
 };
