@@ -25,6 +25,7 @@ import { deleteAllTestIds } from './setupUtilities';
 import { FacilitySyncManager } from '../dist/sync/FacilitySyncManager';
 import { CentralServerConnection } from '../dist/sync/CentralServerConnection';
 import { ApplicationContext } from '../dist/ApplicationContext';
+import { FacilitySyncConnection } from '../dist/sync/FacilitySyncConnection';
 
 jest.mock('../dist/sync/CentralServerConnection');
 jest.mock('../dist/utils/uploadAttachment');
@@ -149,6 +150,7 @@ export async function createTestContext({ enableReportInstances } = {}) {
   await models.LocalSystemFact.set('facilityId', facility.id);
 
   context.syncManager = new FacilitySyncManager(context);
+  context.syncConnection = new FacilitySyncConnection();
 
   const { express: expressApp, server: appServer } = await createApiApp(context);
   const baseApp = supertest(appServer);
