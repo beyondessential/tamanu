@@ -6,8 +6,8 @@ import {
   ContentPane,
   ImmunisationSearchBar,
   PageContainer,
-  SearchTable,
   SearchTableTitle,
+  SearchTableWithPermissionCheck,
   TopBar,
   TranslatedText,
 } from '../../components';
@@ -22,7 +22,6 @@ import { PATIENT_TABS } from '../../constants/patientPaths.js';
 import { reloadPatient } from '../../store/index.js';
 import { UpdateStatsDisplay } from '../../components/Table/UpdateStatsDisplay.jsx';
 import { useAutoUpdatingQuery } from '../../api/queries/useAutoUpdatingQuery.js';
-import { setRef } from '@material-ui/core';
 
 const StyledSearchTableTitle = styled(SearchTableTitle)`
   display: flex;
@@ -103,11 +102,13 @@ export const ImmunisationsView = () => {
           {updateStats && <UpdateStatsDisplay stats={updateStats} error={error} />}
         </StyledSearchTableTitle>
         <ImmunisationSearchBar onSearch={setSearchParameters} />
-        <SearchTable
+        <SearchTableWithPermissionCheck
           endpoint="upcomingVaccinations"
+          verb="list"
+          noun="PatientVaccines"
           columns={COLUMNS}
           refreshCount={refreshCount}
-          noDataMessage="No patients found"
+          noDataMessage="No upcoming vaccinations found"
           onRowClick={onRowClick}
           fetchOptions={searchParameters}
         />

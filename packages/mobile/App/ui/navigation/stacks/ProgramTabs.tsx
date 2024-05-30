@@ -6,10 +6,11 @@ import { ProgramViewHistoryScreen } from '../screens/programs/ProgramViewHistory
 import { StackHeader } from '/components/StackHeader';
 import { createTopTabNavigator } from '/components/TopTabNavigator';
 import { withPatient } from '/containers/Patient';
-import { IPatient, } from '~/types';
+import { IPatient } from '~/types';
 import { joinNames } from '/helpers/user';
 import { FullView } from '/styled/common';
 import { ProgramListScreen } from '../screens/programs/ProgramListScreen';
+import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 
 const Tabs = createTopTabNavigator();
 
@@ -18,10 +19,7 @@ type NewProgramEntryTabsProps = {
   selectedPatient: IPatient;
 };
 
-const TabNavigator = ({
-  navigation,
-  selectedPatient,
-}: NewProgramEntryTabsProps): ReactElement => {
+const TabNavigator = ({ navigation, selectedPatient }: NewProgramEntryTabsProps): ReactElement => {
   const goBack = useCallback(() => {
     navigation.goBack();
   }, []);
@@ -34,7 +32,9 @@ const TabNavigator = ({
             selectedPatient,
           }}
           options={{
-            title: 'View history',
+            title: () => (
+              <TranslatedText stringId="program.action.viewHistory" fallback="View history" />
+            ),
           }}
           name={Routes.HomeStack.ProgramStack.ProgramTabs.SurveyTabs.ViewHistory}
           component={ProgramViewHistoryScreen}
@@ -44,7 +44,7 @@ const TabNavigator = ({
             selectedPatient,
           }}
           options={{
-            title: 'New form',
+            title: () => <TranslatedText stringId="program.action.newForm" fallback="New form" />,
           }}
           name={Routes.HomeStack.ProgramStack.ProgramTabs.SurveyTabs.AddDetails}
           component={ProgramListScreen}

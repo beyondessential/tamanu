@@ -49,3 +49,6 @@ export const getLocationName = ({ location }) =>
   location.locationGroup ? `${location.locationGroup.name}, ${location.name}` : location.name;
 
 export const getVillageName = ({ village }) => village?.name;
+
+export const getPatientWeight = ({ patientWeight }, getLocalisation) =>
+  patientWeight ? `${patientWeight}${getLocalisation('fields.weightUnit.longLabel')}` : '';
