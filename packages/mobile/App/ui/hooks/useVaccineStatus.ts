@@ -8,15 +8,6 @@ type UpcomingVaccinationThresholds = { threshold: number; status: VaccineStatus 
 export const diffDaysDue = (date: string, weeksFromDue: number): number =>
   weeksFromDue * 7 - differenceInDays(new Date(), parseISO(date));
 
-const getStatus = (weeksUntilDue: number, thresholds: UpcomingVaccinationThresholds) => {
-  if (weeksUntilDue === null || !thresholds) {
-    return VaccineStatus.UNKNOWN;
-  }
-  const status = thresholds.find(({ threshold }) => weeksUntilDue > threshold)?.status;
-
-  return status || VaccineStatus.UNKNOWN;
-};
-
 const getWeeksUntilDue = ({
   scheduledVaccine,
   patient,
@@ -47,10 +38,6 @@ export const useVaccineStatus = (data: any = {}) => {
     .sort((a, b) => b.threshold - a.threshold) as UpcomingVaccinationThresholds;
 
   const weeksUntilDue = getWeeksUntilDue(data);
-  console.log(
-    data.scheduledVaccine.label,
-    getStatus(weeksUntilDue, parsedThresholds),
-    weeksUntilDue,
-  );
-  return getStatus(weeksUntilDue, parsedThresholds);
+  const status = parsedThresholds.find(({ threshold }) => weeksUntilDue > threshold)?.status;
+  return status || VaccineStatus.UNKNOWN;
 };
