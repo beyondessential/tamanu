@@ -64,7 +64,7 @@ const RadioLabel = ({ type }) => (
         />
       </SmallBodyText>
     </>}
-    {type === "manual" && <>
+    {type === ACTIVE_VIEW.MANUAL && <>
       <Heading5 mb="7px" mt={0}>
         <TranslatedText
           stringId="invoice.modal.selectDiscount.manual.label"
