@@ -135,7 +135,7 @@ jobs:
             const latestText = " **Latest**";
             const comments = await github.rest.issues.listComments(params);
             const existingComment = comments.data.find((comment) =>
-              comment.body.includes("Android build")
+              comment.body.includes(headerContent)
             );
             if (existingComment) {
               await github.rest.issues.updateComment({
