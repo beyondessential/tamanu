@@ -22,6 +22,7 @@ export const REFERENCE_TYPES = {
   ETHNICITY: 'ethnicity',
   NATIONALITY: 'nationality',
   COUNTRY: 'country',
+  CONTACT_RELATIONSHIP: 'contactRelationship',
   DIVISION: 'division',
   SUBDIVISION: 'subdivision',
   MEDICAL_AREA: 'medicalArea',
