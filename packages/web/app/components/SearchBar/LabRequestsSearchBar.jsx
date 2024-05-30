@@ -128,7 +128,7 @@ export const LabRequestsSearchBar = ({ status = '' }) => {
           }
           component={SearchField}
         />
-        <Field name="requestId" label="Test ID" component={SearchField} />
+        <Field name="requestId" label={<TranslatedText stringId="lab.requestId.label" fallback="Test ID" />} component={SearchField} />
         <Field
           name="category"
           label="Test category"

@@ -183,6 +183,11 @@ export class Encounter extends Model {
       as: 'documents',
     });
 
+    this.hasMany(models.EncounterHistory, {
+      foreignKey: 'encounterId',
+      as: 'encounterHistories',
+    });
+
     this.belongsTo(models.ReferenceData, {
       foreignKey: 'patientBillingTypeId',
       as: 'patientBillingType',
@@ -233,8 +238,7 @@ export class Encounter extends Model {
           SELECT e.id, max(lr.updated_at_sync_tick) as lr_updated_at_sync_tick
           FROM encounters e
           INNER JOIN lab_requests lr ON lr.encounter_id = e.id
-          WHERE e.updated_at_sync_tick > :since
-          OR lr.updated_at_sync_tick > :since
+          WHERE (e.updated_at_sync_tick > :since OR lr.updated_at_sync_tick > :since)
           ${
             patientIds.length > 0
               ? 'AND e.patient_id NOT IN (:patientIds) -- no need to sync if it would be synced anyway'
