@@ -261,6 +261,8 @@ jobs:
           cache: npm
       - run: npm install
         working-directory: ${{ matrix.workdir }}
+      - run: cat a/package-lock.json
+      - run: cat b/package-lock.json
       - run: git diff --exit-code
 
   # Dummy job to have a stable name for PR requirements
