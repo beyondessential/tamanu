@@ -56,9 +56,6 @@ export const CellContent = ({
 
 export const VaccineTableCell = ({ data, onPress }: VaccineTableCellProps): JSX.Element => {
   const status = useVaccineStatus(data);
-  if (status !== 'UNKNOWN') {
-    console.log('status', status);
-  }
   if (!data) return <CellContent status={VaccineStatus.UNKNOWN} />;
   const {
     scheduledVaccine,
