@@ -5,16 +5,17 @@ import { differenceInWeeks, parseISO } from 'date-fns';
 
 type UpcomingVaccinationThresholds = { threshold: number; status: VaccineStatus }[];
 
+export const diffWeeksDue = (date: string, weeksFromDue: number): number =>
+  weeksFromDue - differenceInWeeks(new Date(), parseISO(date));
+
 const getStatus = (weeksUntilDue: number, thresholds: UpcomingVaccinationThresholds) => {
-  if (weeksUntilDue === null) return VaccineStatus.UNKNOWN;
+  if (weeksUntilDue === null) {
+    return VaccineStatus.UNKNOWN;
+  }
   return (
     thresholds.find(({ threshold }) => weeksUntilDue <= threshold)?.status || VaccineStatus.UNKNOWN
   );
 };
-
-export function diffWeeksDue(date: string, weeksFromDue: number): number {
-  return weeksFromDue - differenceInWeeks(new Date(), parseISO(date));
-}
 
 const getWeeksUntilDue = ({
   scheduledVaccine,
@@ -40,5 +41,6 @@ export const useVaccineStatus = (data: any = {}) => {
   const thresholds = getSetting<UpcomingVaccinationThresholds>(
     SETTING_KEYS.UPCOMING_VACCINATION_THRESHOLDS,
   );
-  return getStatus(getWeeksUntilDue(data), thresholds);
+  const weeksUntilDue = getWeeksUntilDue(data);
+  return getStatus(weeksUntilDue, thresholds);
 };
