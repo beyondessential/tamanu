@@ -7,7 +7,6 @@ import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { IAdministeredVaccine, IPatient, IScheduledVaccine } from '~/types';
 import { getVaccineStatus, VaccineStatus } from '~/ui/helpers/patient';
 import { BypassWarningIcon } from './BypassWarningIcon';
-import { UpcomingVaccinationThresholds } from '~/types/Settings';
 
 export interface VaccineTableCellData {
   administeredVaccine: IAdministeredVaccine;
@@ -21,7 +20,6 @@ export interface VaccineTableCellData {
 interface VaccineTableCellProps {
   data: VaccineTableCellData;
   onPress?: (item: any) => void;
-  thresholds: UpcomingVaccinationThresholds;
 }
 
 const CellContent = ({
@@ -55,11 +53,7 @@ const CellContent = ({
   );
 };
 
-export const VaccineTableCell = ({
-  data,
-  onPress,
-  thresholds,
-}: VaccineTableCellProps): JSX.Element => {
+export const VaccineTableCell = ({ data, onPress }: VaccineTableCellProps): JSX.Element => {
   if (!data) return <CellContent status={VaccineStatus.UNKNOWN} />;
   const {
     scheduledVaccine,

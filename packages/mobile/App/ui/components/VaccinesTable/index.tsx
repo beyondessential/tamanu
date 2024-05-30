@@ -14,9 +14,6 @@ import { IScheduledVaccine } from '~/types';
 import { ScrollView } from 'react-native-gesture-handler';
 import { StyledView } from '~/ui/styled/common';
 import { VisibilityStatus } from '~/visibilityStatuses';
-import { SETTING_KEYS } from '~/constants';
-import { useSettings } from '~/ui/contexts/SettingsContext';
-import { UpcomingVaccinationThresholds } from '~/types/Settings';
 
 interface VaccinesTableProps {
   selectedPatient: any;
@@ -29,7 +26,6 @@ export const VaccinesTable = ({
   categoryName,
   selectedPatient,
 }: VaccinesTableProps): JSX.Element => {
-  const { getSetting } = useSettings();
   const scrollViewRef = useRef(null);
 
   // This manages the horizontal scroll of the header. This handler is passed down
@@ -49,12 +45,6 @@ export const VaccinesTable = ({
       }),
     [],
   );
-
-  const thresholds = getSetting<UpcomingVaccinationThresholds>(
-    SETTING_KEYS.UPCOMING_VACCINATION_THRESHOLDS,
-  );
-
-  console.log(thresholds, 'THRESHHOLDS');
 
   const [patientAdministeredVaccines, administeredError] = useBackendEffect(
     ({ models }) => models.AdministeredVaccine.getForPatient(selectedPatient.id),
@@ -120,7 +110,7 @@ export const VaccinesTable = ({
       />
     ),
     cell: (cellData: VaccineTableCellData) => (
-      <VaccineTableCell onPress={onPressItem} data={cellData} thresholds={thresholds} />
+      <VaccineTableCell onPress={onPressItem} data={cellData} />
     ),
   }));
 
