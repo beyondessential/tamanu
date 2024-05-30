@@ -58,8 +58,6 @@ export const VaccineTableCell = ({ data, onPress }: VaccineTableCellProps): JSX.
   const {
     scheduledVaccine,
     administeredVaccine,
-    patient,
-    patientAdministeredVaccines,
     vaccineStatus,
   } = data;
   const { vaccine, id } = scheduledVaccine;

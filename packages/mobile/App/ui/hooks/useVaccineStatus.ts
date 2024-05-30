@@ -8,6 +8,11 @@ type Thresholds<T> = { threshold: T; status: VaccineStatus }[];
 type ParsedThresholds = Thresholds<number>;
 type UnparsedThresholds = Thresholds<number | '-Infinity'>;
 
+type VaccineStatusMessage = {
+  status: VaccineStatus;
+  warningMessage?: string;
+};
+
 const parseThresholdsSetting = (thresholds: UnparsedThresholds): ParsedThresholds =>
   thresholds
     ?.map(({ threshold, status }: any) => ({
@@ -48,7 +53,7 @@ const getWeeksUntilDue = ({
   return weeksFromDue * 7 - differenceInDays(new Date(), parseISO(date));
 };
 
-export const useVaccineStatus = (data: any = {}) => {
+export const useVaccineStatus = (data: any = {}): VaccineStatusMessage => {
   const { getSetting } = useSettings();
   const thresholds = parseThresholdsSetting(
     getSetting<UnparsedThresholds>(SETTING_KEYS.UPCOMING_VACCINATION_THRESHOLDS),
