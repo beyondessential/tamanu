@@ -149,7 +149,7 @@ jobs:
           key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
 
-      - run: npm
+      - run: npm install
       - run: npm run build-shared
       - run: npm run --workspace @tamanu/web-frontend test-storybook
 
