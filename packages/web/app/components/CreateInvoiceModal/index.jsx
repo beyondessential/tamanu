@@ -159,22 +159,12 @@ export const CreateInvoiceModal = React.memo(
       async data => {
         let payload;
         const invoiceResponse = await createInvoice();
-        if (activeView === ACTIVE_VIEW.MANUAL_DISCOUNT) {
-          const percentageChange = -Math.abs(data.percentageChange / 100);
-          payload = {
-            description: data.reason,
-            percentageChange,
-            date: getCurrentDateString(),
-          };
-        }
-        else if (activeView === ACTIVE_VIEW.DISCOUNT_ASSESSMENT) {
-          const percentageChange = -Math.abs(data.percentageChange);
-          payload = {
-            description: "Patient discount applied",
-            percentageChange,
-            date: getCurrentDateString(),
-          };
-        }
+        const percentageChange = -Math.abs(data.percentageChange / (activeView === ACTIVE_VIEW.MANUAL_DISCOUNT ? 100 : 1));
+      const payload = {
+        description: activeView === ACTIVE_VIEW.MANUAL_DISCOUNT ? data.reason : "Patient discount applied",
+        percentageChange,
+        date: getCurrentDateString(),
+      };
         
         await api.post(`invoices/${invoiceResponse.id}/priceChangeItems`, payload);
         handleActiveModal(INVOICE_ACTIVE_MODALS.EDIT_INVOICE);
