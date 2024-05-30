@@ -9,14 +9,14 @@ export class Handler {
 
   // fetch upstream and necessary includes, diff and update
   static async matchBundle() {
-    console.log(`checking is valid ${this.HANDLER_NAME}`);
+    // console.log(`checking is valid ${this.HANDLER_NAME}`);
     return false;
   }
 
   // fetch upstream and necessary includes, diff and update
 
   static async validate() {
-    console.log(`checking is valid ${this.HANDLER_NAME}`);
+    // console.log(`checking is valid ${this.HANDLER_NAME}`);
     return false;
   }
 }

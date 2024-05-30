@@ -81,6 +81,5 @@ export class FhirObservation extends FhirResource {
 
   async pushUpstream({ requesterId }) {
     const serviceRequestFhirId = parseBasedOn(this.basedOn[0], ['ServiceRequest']);
-    console.log({ serviceRequestFhirId });
   }
 }
