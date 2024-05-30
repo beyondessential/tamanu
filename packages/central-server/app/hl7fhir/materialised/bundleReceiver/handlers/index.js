@@ -1,2 +1,2 @@
 export * from './Handler';
-export * from './Lims.Results';
+export * from './LimsResults';
