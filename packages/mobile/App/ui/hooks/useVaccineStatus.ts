@@ -5,8 +5,13 @@ import { differenceInDays, parseISO } from 'date-fns';
 
 type UpcomingVaccinationThresholds = { threshold: number; status: VaccineStatus }[];
 
-export const diffDaysDue = (date: string, weeksFromDue: number): number =>
-  weeksFromDue * 7 - differenceInDays(new Date(), parseISO(date));
+const parseThresholdsSetting = (thresholds: any): UpcomingVaccinationThresholds =>
+  thresholds
+    .map(({ threshold, status }: any) => ({
+      threshold: threshold === '-Infinity' ? -Infinity : threshold,
+      status,
+    }))
+    .sort((a, b) => b.threshold - a.threshold);
 
 const getWeeksUntilDue = ({
   scheduledVaccine,
@@ -15,29 +20,24 @@ const getWeeksUntilDue = ({
 }: any = {}) => {
   const { weeksFromBirthDue, weeksFromLastVaccinationDue, vaccine, index } = scheduledVaccine;
   const { dateOfBirth } = patient;
-  if (weeksFromBirthDue) {
-    return diffDaysDue(dateOfBirth, weeksFromBirthDue);
-  }
-  if (weeksFromLastVaccinationDue) {
-    const lastDose = patientAdministeredVaccines?.find(
+  // Should return early if both defined or none defined
+  const weeksFromDue = weeksFromBirthDue || weeksFromLastVaccinationDue;
+  const lastDose =
+    weeksFromLastVaccinationDue &&
+    patientAdministeredVaccines?.find(
       ({ scheduledVaccine }: any) =>
         scheduledVaccine.index === index - 1 && scheduledVaccine.vaccine.id === vaccine.id,
     );
-    return diffDaysDue(lastDose?.date, weeksFromLastVaccinationDue);
-  }
+  const date = weeksFromBirthDue ? dateOfBirth : lastDose?.date;
+  return weeksFromDue * 7 - differenceInDays(new Date(), parseISO(date));
 };
 
 export const useVaccineStatus = (data: any = {}) => {
   const { getSetting } = useSettings();
-  const thresholds = getSetting<any[]>(SETTING_KEYS.UPCOMING_VACCINATION_THRESHOLDS);
-  const parsedThresholds = thresholds
-    .map(({ threshold, status }) => ({
-      threshold: threshold === '-Infinity' ? -Infinity : threshold,
-      status,
-    }))
-    .sort((a, b) => b.threshold - a.threshold) as UpcomingVaccinationThresholds;
-
+  const thresholds = parseThresholdsSetting(
+    getSetting<any[]>(SETTING_KEYS.UPCOMING_VACCINATION_THRESHOLDS),
+  );
   const weeksUntilDue = getWeeksUntilDue(data);
-  const status = parsedThresholds.find(({ threshold }) => weeksUntilDue > threshold)?.status;
+  const status = thresholds.find(({ threshold }) => weeksUntilDue > threshold)?.status;
   return status || VaccineStatus.UNKNOWN;
 };
