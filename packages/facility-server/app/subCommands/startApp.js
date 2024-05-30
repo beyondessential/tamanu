@@ -8,7 +8,7 @@ import { checkConfig } from '../checkConfig';
 import { initDeviceId } from '../sync/initDeviceId';
 import { performDatabaseIntegrityChecks } from '../database';
 import {
-  FacilitySyncServerConnection,
+  FacilitySyncConnection,
   CentralServerConnection,
   FacilitySyncManager,
 } from '../sync';
@@ -46,7 +46,7 @@ const startApp = appType => async ({ skipMigrationCheck }) => {
   await performDatabaseIntegrityChecks(context);
 
   if (appType === APP_TYPES.API) {
-    context.syncConnection = new FacilitySyncServerConnection();
+    context.syncConnection = new FacilitySyncConnection();
   } else {
     context.centralServer = new CentralServerConnection(context);
     context.syncManager = new FacilitySyncManager(context);

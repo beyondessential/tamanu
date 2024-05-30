@@ -12,10 +12,13 @@ export default function errorHandler(error, req, res, _) {
     log.info(`Error ${code}: `, error);
   }
 
-  // we're past the point of permission checking; this just
-  // makes sure the error send doesn't get intercepted by the
-  // permissions middleware
-  req.flagPermissionChecked();
+  // If the server has permission checking, flag that
+  if (req.flagPermissionChecked) {
+    // we're past the point of permission checking; this just
+    // makes sure the error send doesn't get intercepted by the
+    // permissions middleware
+    req.flagPermissionChecked();
+  }
 
   res.status(code).send({
     error: {

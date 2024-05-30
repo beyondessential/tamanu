@@ -8,34 +8,17 @@ import {
 
 export const sync = express.Router();
 
-function resultToMessage({ enabled, queued, ran, timedOut }) {
-  if (timedOut) return 'Sync is taking a while, continuing in the background...';
-  if (!enabled) return "Sync was disabled and didn't run";
-  if (ran) return 'Sync completed';
-  if (queued) return 'Sync queued and will run later';
-  throw new Error('Unknown sync status');
-}
-
 sync.post(
   '/run',
   asyncHandler(async (req, res) => {
     const { syncManager } = req;
     const { syncData } = req.body;
 
-    const completeSync = () =>
-      syncManager.triggerSync({
-        ...syncData,
-      });
+    const result = await syncManager.triggerSync({
+      ...syncData,
+    });
 
-    const timeoutAfter = seconds =>
-      new Promise(resolve => {
-        setTimeout(() => resolve({ timedOut: true }), seconds * 1000);
-      });
-
-    const result = await Promise.race([completeSync(), timeoutAfter(10)]);
-    const message = resultToMessage(result);
-
-    res.send({ message });
+    res.send(result);
   }),
 );
 

@@ -1,3 +1,3 @@
 export * from './FacilitySyncManager';
-export * from './FacilitySyncServerConnection';
+export * from './FacilitySyncConnection';
 export * from './CentralServerConnection';
