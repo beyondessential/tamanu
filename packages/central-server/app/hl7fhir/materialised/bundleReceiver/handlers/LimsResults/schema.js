@@ -8,7 +8,7 @@ const basicResource = yup.object({
 });
 
 // Shallow match is finding a match at the higher structure
-export const limsResultShallow = {
+export const limsShallow = {
   entry: yup
     .array()
     .of(
@@ -26,7 +26,7 @@ export const limsResultShallow = {
     ),
 };
 
-export const limsResultDeep = {
+export const limsDeep = {
   entry: yup
     .array()
     .of(

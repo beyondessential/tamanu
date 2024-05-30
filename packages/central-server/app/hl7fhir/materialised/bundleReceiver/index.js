@@ -1,7 +1,8 @@
 
 import asyncHandler from 'express-async-handler';
-import * as Handlers from './handlers';
+import { Invalid } from '@tamanu/shared/utils/fhir';
 
+import * as Handlers from './handlers';
 
 async function mapErr(promise, fn) {
   try {
@@ -29,15 +30,12 @@ export function bundleHandler() {
         break;
       }
     }
-    // if (!useHandler || !await CurrentHandler.isBundleValid(req.body)) {
-    //   throw new OperationOutcome('Bundle does not match any supported formats');
-    // }
+
+    if (!useHandler) {
+      throw new Invalid(`Bundle unsupported. Supported Bundles: ${Object.values(Handlers).map(handler => handler.HANDLER_NAME).join(',')}`);
+    }
     const responseBody = await useHandler.processBundle(req);
 
-    // const resource = new FhirResource(validated);
-    // const upstream = await resource.pushUpstream({
-    //   requesterId: req.user?.id,
-    // });
     // if (FhirResource.CAN_DO.has(FHIR_INTERACTIONS.INTERNAL.MATERIALISE)) {
     //   FhirJob.submit(JOB_TOPICS.FHIR.REFRESH.FROM_UPSTREAM, {
     //     resource: FhirResource.fhirName,

@@ -1,45 +1,50 @@
 import * as yup from 'yup';
 import { Handler } from '../Handler';
-import { limsResultShallow, limsResultDeep } from './schema';
+import { limsShallow, limsDeep } from './schema';
 
 
 export class LimsResult extends Handler {
   constructor(body) {
     super(body);
+    console.log('constrcutign')
     this.body = body;
     this.isValid = false;
     this.bundle = null;
   }
 
   async initialize() {
+    console.log(this.body);
     this.bundle = await this.validate();
   }
-  static HANDLER_NAME = 'lims handler';
+  static HANDLER_NAME = 'lab results';
   static shallowMatch = {
     ...super.schema,
-    ...limsResultShallow,
+    ...limsShallow,
   };
 
   static deepMatch = {
     ...super.schema,
-    ...limsResultDeep,
+    ...limsDeep,
   };
 
   static async matchBundle(body) {
     console.log(`checking match for ${this.HANDLER_NAME}`);
-    // console.log({ schema: this.deepMatch });
-    const isValid = await yup.object(this.shallowMatch).isValid(body);
-    console.log({ isValid });
-    return isValid;
+    return await yup.object(this.shallowMatch).isValid(body);
   }
 
   async validate() {
-    console.log(`validating ${this.HANDLER_NAME}`);
-    console.log({ body: this.body });
+    console.log(`validating ${LimsResult.HANDLER_NAME}`);
+    console.log({ 
+      isValid:  await yup
+      .object(LimsResult.deepMatch)
+      .isValid(this.body)
+    })
     const validated = await yup
-      .object(this.deepMatch)
+      .object(LimsResult.deepMatch)
       .validate(this.body);
-    console.log({ validated });
+    console.log({
+      body: this.body
+    });
     return validated;
   }
 
@@ -51,14 +56,14 @@ export class LimsResult extends Handler {
     const upstreamedDiagnosticReport = await diagnosticReport.pushUpstream({
       requesterId: req.user?.id,
     });
-    console.log({ diagnosticReport });
+    // console.log({ diagnosticReport });
     const passedObservations = this
       .bundle?.entry.filter(item => item?.resource.resourceType === 'Observation');
     for (const passedObservation of passedObservations) {
       const observation = new FhirObservation(passedObservations);
       observation.setBasedOn(diagnosticReport.basedOn);
       await observation.pushUpstream(passedObservation);
-      console.log({ observation });
+      // console.log({ observation });
     }
   }
 }

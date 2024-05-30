@@ -7,9 +7,8 @@ import {
 } from '@tamanu/constants';
 import { createTestContext } from '../../utilities';
 
-describe(`Testing the Bundle Handlers`, () => {
-  describe('success', () => {
-    let ctx;
+describe(`Testing Incoming Bundle Handlers`, () => {
+  let ctx;
     let app;
     let resources;
     beforeAll(async () => {
@@ -30,10 +29,13 @@ describe(`Testing the Bundle Handlers`, () => {
       await LabTestPanelRequest.destroy({ where: {} });
     });
     afterAll(() => ctx.close());
+  describe('success', () => {
+    
 
-    it('handles a bundle', async () => {
-      const { FhirServiceRequest } = ctx.store.models;
+    it('handles a lims bundle', async () => {
       // arrange
+      const { FhirServiceRequest } = ctx.store.models;
+
       const { labRequest } = await fakeResourcesOfFhirServiceRequestWithLabRequest(
         ctx.store.models,
         resources,
@@ -137,35 +139,63 @@ describe(`Testing the Bundle Handlers`, () => {
   });
 
 
-  // describe('failure', () => {
-  //   it('returns a 422 error when passed the wrong query params', async () => {
-  //     // arrange
-  //     const { Patient, PatientAdditionalData } = ctx.store.models;
-  //     const patient = await Patient.create(fake(Patient));
-  //     await PatientAdditionalData.create({
-  //       ...fake(PatientAdditionalData),
-  //       patientId: patient.id,
-  //     });
-  //     const id = encodeURIComponent(`not-the-right-identifier|${patient.displayId}`);
-  //     const path = `/api/integration/${integrationName}/Patient?_sort=id&_page=z&_count=x&subject%3Aidentifier=${id}`;
+  describe('failure', () => {
+    it('returns error if cannot match with any handlers', async () => {
+      // arrange
+      const { FhirServiceRequest } = ctx.store.models;
 
-  //     // act
-  //     const response = await app.get(path).set(requestHeaders);
+      const { labRequest } = await fakeResourcesOfFhirServiceRequestWithLabRequest(
+        ctx.store.models,
+        resources,
+        {
+          isWithPanels: true,
+        },
+        {
+          status: LAB_REQUEST_STATUSES.TO_BE_VERIFIED
+        }
+      );
+      const mat = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
+      const serviceRequestId = mat.id;
 
-  //     // assert
-  //     expect(response).toHaveRequestError(422);
-  //     expect(response.body).toMatchObject({
-  //       error: {
-  //         errors: [
-  //           'subject:identifier must be in the format "<namespace>|<id>"',
-  //           '_count must be a `number` type, but the final value was: `NaN` (cast from the value `"x"`).',
-  //           '_page must be a `number` type, but the final value was: `NaN` (cast from the value `"z"`).',
-  //           'Unsupported or unknown parameters in _sort',
-  //         ],
-  //       },
-  //     });
-  //   });
+      const validBundle = {
+        resourceType: 'Bundle',
+        id: 'bundle-id',
+        type: 'transaction',
+        entry: [
+          {
+            resource: {
+              resourceType: 'FakeResource',
+              id: '9b3e1c8b-0adb-48c5-81e9-528b2ba40977',
+              status: 'final',
+              basedOn: [
+                {
+                  reference: `ServiceRequest/${serviceRequestId}` // this needs to be overwritten to work
+                }
+              ],
+            }
+          },
+        ]
+      };
 
-  // });
+      const INTEGRATION_ROUTE = 'fhir/mat';
+      const endpoint = `/v1/integration/${INTEGRATION_ROUTE}`;
+      // act
+      const response = await app.post(endpoint).send(validBundle);
+      console.log({ response });
+      // assert
+      expect(response).toHaveRequestError(422);
+      expect(response.body).toMatchObject({
+        error: {
+          errors: [
+            'subject:identifier must be in the format "<namespace>|<id>"',
+            '_count must be a `number` type, but the final value was: `NaN` (cast from the value `"x"`).',
+            '_page must be a `number` type, but the final value was: `NaN` (cast from the value `"z"`).',
+            'Unsupported or unknown parameters in _sort',
+          ],
+        },
+      });
+    });
+
+  });
 });
 
