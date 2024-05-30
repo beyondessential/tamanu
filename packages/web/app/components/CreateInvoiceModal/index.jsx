@@ -26,17 +26,17 @@ const StyledFormControlLabel = styled(FormControlLabel)`
   }
 `;
 
-const CustomFormControlLabel = ({value, updateDiscountType}) => {
+const CustomFormControlLabel = ({ value, updateDiscountType, ...props }) => {
   const radioGroup = useRadioGroup();
 
   let checked = false;
 
   if (radioGroup) {
-    checked = radioGroup.value === props.value;
-    props.updateDiscountType(radioGroup.value);
+    checked = radioGroup.value === value;
+    updateDiscountType(radioGroup.value);
   }
 
-  return <StyledFormControlLabel checked={checked} {...props} />
+  return <StyledFormControlLabel checked={checked} value={value} {...props} />
 };
 
 const StyledRadioGroup = styled(RadioGroup)`
@@ -50,7 +50,7 @@ const StyledDivider = styled(Divider)`
 
 const RadioLabel = ({ type }) => (
   <>
-    {type === ACTIVE_VIEW.ASSESSMENT && <>
+    {type === ACTIVE_VIEW.DISCOUNT_ASSESSMENT && <>
       <Heading5 mb="7px" mt={0}>
         <TranslatedText
           stringId="invoice.modal.selectDiscount.assessment.label"
@@ -64,7 +64,7 @@ const RadioLabel = ({ type }) => (
         />
       </SmallBodyText>
     </>}
-    {type === ACTIVE_VIEW.MANUAL && <>
+    {type === ACTIVE_VIEW.MANUAL_DISCOUNT && <>
       <Heading5 mb="7px" mt={0}>
         <TranslatedText
           stringId="invoice.modal.selectDiscount.manual.label"
@@ -157,15 +157,14 @@ export const CreateInvoiceModal = React.memo(
 
     const handleSubmitDiscount = useCallback(
       async data => {
-        let payload;
         const invoiceResponse = await createInvoice();
         const percentageChange = -Math.abs(data.percentageChange / (activeView === ACTIVE_VIEW.MANUAL_DISCOUNT ? 100 : 1));
-      const payload = {
-        description: activeView === ACTIVE_VIEW.MANUAL_DISCOUNT ? data.reason : "Patient discount applied",
-        percentageChange,
-        date: getCurrentDateString(),
-      };
-        
+        const payload = {
+          description: activeView === ACTIVE_VIEW.MANUAL_DISCOUNT ? data.reason : "Patient discount applied",
+          percentageChange,
+          date: getCurrentDateString(),
+        };
+
         await api.post(`invoices/${invoiceResponse.id}/priceChangeItems`, payload);
         handleActiveModal(INVOICE_ACTIVE_MODALS.EDIT_INVOICE);
       },
@@ -177,6 +176,38 @@ export const CreateInvoiceModal = React.memo(
       handleActiveModal(INVOICE_ACTIVE_MODALS.EDIT_INVOICE);
     }, []);
 
+    const renderActiveView = () => {
+      switch (activeView) {
+        case ACTIVE_VIEW.DISCOUNT_TYPE:
+          return (
+            <InvoiceDiscountTypeSelector
+              updateDiscountType={onChangeDiscountType}
+              handleNext={() => discountType && handleActiveView(discountType)}
+              onClose={onClose}
+              handleSkip={handleSkip}
+            />
+          );
+        case ACTIVE_VIEW.DISCOUNT_ASSESSMENT:
+          return (
+            <InvoiceDiscountAssessmentForm
+              handleSubmit={handleSubmitDiscount}
+              onClose={onClose}
+              handleBack={() => handleActiveView(ACTIVE_VIEW.DISCOUNT_TYPE)}
+            />
+          );
+        case ACTIVE_VIEW.MANUAL_DISCOUNT:
+          return (
+            <InvoiceManualDiscountForm
+              handleSubmit={handleSubmitDiscount}
+              onClose={onClose}
+              handleBack={() => handleActiveView(ACTIVE_VIEW.DISCOUNT_TYPE)}
+            />
+          );
+        default:
+          return null;
+      }
+    };
+
     return (
       <Modal
         width="sm"
@@ -184,28 +215,7 @@ export const CreateInvoiceModal = React.memo(
         open={open}
         onClose={onClose}
       >
-        {activeView === ACTIVE_VIEW.DISCOUNT_TYPE && (
-          <InvoiceDiscountTypeSelector
-            updateDiscountType={onChangeDiscountType}
-            handleNext={() => discountType && handleActiveView(discountType)}
-            onClose={onClose}
-            handleSkip={handleSkip}
-          />
-        )}
-        {activeView === ACTIVE_VIEW.DISCOUNT_ASSESSMENT && (
-          <InvoiceDiscountAssessmentForm 
-            handleSubmit={handleSubmitDiscount} 
-            onClose={onClose}
-            handleBack={() => handleActiveView(ACTIVE_VIEW.DISCOUNT_TYPE)}
-          />
-        )}
-        {activeView === ACTIVE_VIEW.MANUAL_DISCOUNT && (
-          <InvoiceManualDiscountForm 
-            handleSubmit={handleSubmitDiscount}
-            onClose={onClose}
-            handleBack={() => handleActiveView(ACTIVE_VIEW.DISCOUNT_TYPE)}
-          />
-        )}
+        {renderActiveView()}
       </Modal>
     );
   },
