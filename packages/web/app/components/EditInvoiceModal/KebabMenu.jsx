@@ -104,23 +104,21 @@ export const KebabMenu = ({
           horizontal: 'right',
         }}
       >
-        {rowData?.percentageChange &&
-          modalsEnabled.includes(INVOICE_ACTION_MODALS.DELETE) &&
-          (Number(rowData.percentageChange) > 0 ? (
-            <KebabMenuItem onClick={handleRemovePercentageChangeLineItem}>
+        {rowData?.percentageChange && modalsEnabled.includes(INVOICE_ACTION_MODALS.DELETE) && (
+          <KebabMenuItem onClick={handleRemovePercentageChangeLineItem}>
+            {Number(rowData.percentageChange) > 0 ? (
               <TranslatedText
                 stringId="invoice.modal.editInvoice.removeMarkup"
                 fallback="Remove markup"
               />
-            </KebabMenuItem>
-          ) : (
-            <KebabMenuItem onClick={handleRemovePercentageChangeLineItem}>
+            ) : (
               <TranslatedText
                 stringId="invoice.modal.editInvoice.removeDiscount"
                 fallback="Remove discount"
               />
-            </KebabMenuItem>
-          ))}
+            )}
+          </KebabMenuItem>
+        )}
         {!rowData?.percentageChange && modalsEnabled.includes(INVOICE_ACTION_MODALS.ADD_DISCOUNT) && (
           <KebabMenuItem onClick={() => handleActionModal(INVOICE_ACTION_MODALS.ADD_DISCOUNT)}>
             <TranslatedText
