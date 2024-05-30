@@ -113,7 +113,10 @@ export class Location extends Model {
     }
 
     const plannedEncounters = await Encounter.count({
-      where: { plannedLocationId: this.id, endDate: null },
+      where: {
+        plannedLocationId: this.id,
+        endDate: null,
+      },
     });
     if (plannedEncounters > 0) {
       return LOCATION_AVAILABILITY_STATUS.RESERVED;
