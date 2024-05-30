@@ -1,12 +1,12 @@
 import { SETTING_KEYS } from '~/constants';
 import { useSettings } from '../contexts/SettingsContext';
 import { VaccineStatus } from '../helpers/patient';
-import { differenceInWeeks, parseISO } from 'date-fns';
+import { differenceInDays, parseISO } from 'date-fns';
 
 type UpcomingVaccinationThresholds = { threshold: number; status: VaccineStatus }[];
 
 export const diffWeeksDue = (date: string, weeksFromDue: number): number =>
-  weeksFromDue - differenceInWeeks(new Date(), parseISO(date));
+  weeksFromDue * 7 - differenceInDays(new Date(), parseISO(date));
 
 const getStatus = (weeksUntilDue: number, thresholds: UpcomingVaccinationThresholds) => {
   if (weeksUntilDue === null || !thresholds) {
