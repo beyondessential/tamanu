@@ -58,5 +58,6 @@ export const useVaccineStatus = (data: any = {}) => {
   const warningMessage = getWarningMessage(data, status);
   return {
     status,
-    warningMessage
+    warningMessage,
+  };
 };
