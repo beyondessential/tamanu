@@ -5,7 +5,7 @@ import { differenceInDays, parseISO } from 'date-fns';
 
 type UpcomingVaccinationThresholds = { threshold: number; status: VaccineStatus }[];
 
-export const diffWeeksDue = (date: string, weeksFromDue: number): number =>
+export const diffDaysDue = (date: string, weeksFromDue: number): number =>
   weeksFromDue * 7 - differenceInDays(new Date(), parseISO(date));
 
 const getStatus = (weeksUntilDue: number, thresholds: UpcomingVaccinationThresholds) => {
@@ -25,23 +25,26 @@ const getWeeksUntilDue = ({
   const { weeksFromBirthDue, weeksFromLastVaccinationDue, vaccine, index } = scheduledVaccine;
   const { dateOfBirth } = patient;
   if (weeksFromBirthDue) {
-    return diffWeeksDue(dateOfBirth, weeksFromBirthDue);
+    return diffDaysDue(dateOfBirth, weeksFromBirthDue);
   }
   if (weeksFromLastVaccinationDue) {
     const lastDose = patientAdministeredVaccines?.find(
       ({ scheduledVaccine }: any) =>
         scheduledVaccine.index === index - 1 && scheduledVaccine.vaccine.id === vaccine.id,
     );
-    return diffWeeksDue(lastDose?.date, weeksFromLastVaccinationDue);
+    return diffDaysDue(lastDose?.date, weeksFromLastVaccinationDue);
   }
 };
 
 export const useVaccineStatus = (data: any = {}) => {
   const { getSetting } = useSettings();
   const thresholds = getSetting<any[]>(SETTING_KEYS.UPCOMING_VACCINATION_THRESHOLDS);
-  const parsedThresholds = thresholds.sort(
-    (a, b) => b.threshold - a.threshold,
-  ) as UpcomingVaccinationThresholds;
+  const parsedThresholds = thresholds
+    .map(({ threshold, status }) => ({
+      threshold: threshold === '-Infinity' ? -Infinity : threshold,
+      status,
+    }))
+    .sort((a, b) => b.threshold - a.threshold) as UpcomingVaccinationThresholds;
 
   const weeksUntilDue = getWeeksUntilDue(data);
   console.log(
