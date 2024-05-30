@@ -49,11 +49,16 @@ invoiceRoute.post(
       console.warn(`No PatientAdditionalData found for patient with ID: ${patientId}`);
     }
 
-    const invoicePriceChangeType = await models.InvoicePriceChangeType.findOne({
-      where: {
-        itemId: encounterPatientBillingTypeId || patientAdditionalData?.patientBillingTypeId || null,
-      },
-    });
+    let invoicePriceChangeType;
+    const itemId = encounterPatientBillingTypeId || patientAdditionalData?.patientBillingTypeId;
+    
+    if (itemId) {
+      invoicePriceChangeType = await models.InvoicePriceChangeType.findOne({
+        where: {
+          itemId
+        },
+      });
+    }
 
     // automatically apply price change (discount) based on patientBillingType
     if (invoicePriceChangeType) {

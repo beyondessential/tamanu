@@ -2,55 +2,43 @@ import React, { useMemo, useState } from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
 import { Divider } from '@material-ui/core';
+import { SETTING_KEYS } from '@tamanu/constants';
 import { TranslatedText } from '../Translation';
 import { BodyText, Heading3 } from '../Typography';
 import { ConfirmCancelBackRow } from '../ButtonRow';
 import { Field, Form, SelectField } from '../Field';
 import { FormGrid } from '../FormGrid';
+import { useSettings } from '../../contexts/Settings';
+import { slidingFeeScaleTable as defaultSlidingFeeScale } from '../../constants';
 
 const StyledDivider = styled(Divider)`
   margin: 36px -32px 20px -32px;
 `;
 
-const discountTable = {
-  1: [5700, 10050, 12600, 14100, 17500],
-  2: [6600, 13500, 16300, 19000, 21800],
-  3: [7400, 17000, 20500, 23900, 27500],
-  4: [8500, 20600, 24800, 28900, 32500],
-  5: [9700, 24200, 29000, 33800, 38700],
-  6: [10700, 27700, 33200, 37500, 43000],
-  7: [11500, 31200, 37400, 43700, 46000],
-  8: [12600, 34700, 41600, 48600, 55600],
-  9: [14800, 38300, 45900, 53600, 65000],
-  10: [16600, 41800, 50200, 58500, 70000],
-  11: [18900, 45300, 54400, 63400, 75000],
-  12: [23500, 48800, 58600, 68400, 85000]
-};
-
 export const InvoiceDiscountAssessmentForm = ({ handleSubmit, onClose, handleBack }) => {
   const [familySize, setFamilySize] = useState();
   const [percentageChange, setPercentageChange] = useState();
+  const { getSetting } = useSettings();
+
+  const slidingFeeScale = getSetting(SETTING_KEYS.SLIDING_FEE_SCALE) ?? defaultSlidingFeeScale;
 
   const familySizesOptions = Array.from({ length: 12 }, (_, i) => ({
     label: (i + 1).toString(),
-    value: i + 1,
+    value: i,
   }));
 
   const annualIncomeOptions = useMemo(() => {
-    const incomeArray = discountTable[familySize] || [];
-    let incomeOptions = [];
-    let range;
-return incomeArray.map((income, index) => {
-    let range;
-    if (index === 0) {
-      range = `0 - ${income}`;
-    } else if (index === incomeArray.length - 1) {
-      range = `> ${incomeArray[index - 1]}`;
-    } else {
-      range = `${incomeArray[index - 1]} - ${income}`;
-    }
-    return { value: range, label: range, percentageChange: (index + 2) / 10 };
-  });
+    const incomeArray = slidingFeeScale[familySize] || [];
+
+    return incomeArray.map((income, index) => {
+      let range;
+      if (index === incomeArray.length - 1) {
+        range = `> ${income}`;
+      } else {
+        range = `${income} - ${incomeArray[index + 1]}`;
+      }
+      return { value: range, label: range, percentageChange: (index + 2) / 10 };
+    });
   }, [familySize]);
 
   const handleAnnualIncomeChange = (e) => {
@@ -101,7 +89,7 @@ return incomeArray.map((income, index) => {
                 }
                 component={SelectField}
                 options={annualIncomeOptions}
-                disabled={!familySize}
+                disabled={!familySize && familySize !== 0}
                 onChange={handleAnnualIncomeChange}
               />
             </FormGrid>
