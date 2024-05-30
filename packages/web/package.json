@@ -14,7 +14,7 @@
     "start-dev": "vite",
     "test": "NODE_ENV=test vitest run",
     "test-watch": "NODE_ENV=test vitest watch",
-    "test-storybook": "npm run build-storybook --test",
+    "test-storybook": "npm run build-storybook -- --test",
     "build-storybook": "NODE_ENV=development STORYBOOK=true storybook build"
   },
   "devDependencies": {

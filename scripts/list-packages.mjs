@@ -5,7 +5,7 @@ import { doWithAllPackages } from './_do-with-all-packages.mjs';
 const packages = [];
 doWithAllPackages((name, _pkg, pkgPath, isShared) => {
   console.error(`Checking ${name}...`);
-  if (process.argv.includes('shared-only') && !isShared) {
+  if (process.argv.includes('--shared-only') && !isShared) {
     console.error(`Skipping ${name} as it's not a shared package...`);
     return;
   }

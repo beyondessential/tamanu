@@ -16,8 +16,8 @@
     "setup-dev": "node dist setup",
     "shell": "npm run build && node dist shell",
     "start-watch": "sleep 1 && nodemon --delay 1 \"dist/**/*.js\"",
-    "test-watch": "npm run test --watch",
-    "build-watch": "npm run build --watch",
+    "test-watch": "npm run test -- --watch",
+    "build-watch": "npm run build -- --watch",
     "start-dev": "concurrently npm:build-watch npm:start-watch"
   },
   "devDependencies": {

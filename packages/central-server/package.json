@@ -17,7 +17,7 @@
   },
   "scripts": {
     "build": "swc --delete-dir-on-start --out-dir dist --copy-files --source-maps true app",
-    "build-watch": "npm run build --watch",
+    "build-watch": "npm run build -- --watch",
     "setup-dev": "node dist setup",
     "shell": "npm run build && node dist shell",
     "start-dev": "concurrently npm:build-watch npm:start-watch",
@@ -25,7 +25,7 @@
     "start": "node dist",
     "test": "npm run test-build && NODE_ENV=test jest",
     "test-build": "swc --delete-dir-on-start --out-dir __disttests__ --copy-files --source-maps true __tests__",
-    "test-watch": "npm run test --watch"
+    "test-watch": "npm run test -- --watch"
   },
   "devDependencies": {
     "@swc/jest": "^0.2.26",
