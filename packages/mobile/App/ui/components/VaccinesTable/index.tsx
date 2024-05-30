@@ -16,14 +16,13 @@ import { StyledView } from '~/ui/styled/common';
 import { VisibilityStatus } from '~/visibilityStatuses';
 import { SETTING_KEYS } from '~/constants';
 import { useSettings } from '~/ui/contexts/SettingsContext';
+import { UpcomingVaccinationThresholds } from '~/types/Settings';
 
 interface VaccinesTableProps {
   selectedPatient: any;
   categoryName: string;
   onPressItem: (item: any) => void;
 }
-
-type UpcomingVaccinationThresholds = { threshold: number; status: VaccineStatus }[];
 
 export const VaccinesTable = ({
   onPressItem,
@@ -121,7 +120,7 @@ export const VaccinesTable = ({
       />
     ),
     cell: (cellData: VaccineTableCellData) => (
-      <VaccineTableCell onPress={onPressItem} data={cellData} />
+      <VaccineTableCell onPress={onPressItem} data={cellData} thresholds={thresholds} />
     ),
   }));
 
