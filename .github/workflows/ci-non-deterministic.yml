@@ -67,7 +67,7 @@ jobs:
 
       - run: aws s3 cp s3://bes-tamanu-test-data-snapshots/${{ steps.commit-finder.outputs.commit }}/fake-pg${{ matrix.postgres }}.dump ./ --no-progress
 
-      - run: npm run --workspace scripts test-determinism --dump-path $(realpath fake-pg${{ matrix.postgres }}.dump)
+      - run: npm run --workspace scripts test-determinism -- --dump-path $(realpath fake-pg${{ matrix.postgres }}.dump)
 
   # Dummy job to have a stable name for PR requirements
   tests-pass:
