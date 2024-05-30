@@ -7,6 +7,7 @@ import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { IAdministeredVaccine, IPatient, IScheduledVaccine } from '~/types';
 import { getVaccineStatus, VaccineStatus } from '~/ui/helpers/patient';
 import { BypassWarningIcon } from './BypassWarningIcon';
+import { useVaccineStatus } from '~/ui/hooks/useVaccineStatus';
 
 export interface VaccineTableCellData {
   administeredVaccine: IAdministeredVaccine;
@@ -22,7 +23,7 @@ interface VaccineTableCellProps {
   onPress?: (item: any) => void;
 }
 
-const CellContent = ({
+export const CellContent = ({
   cellStatus,
   status,
 }: {
@@ -54,6 +55,7 @@ const CellContent = ({
 };
 
 export const VaccineTableCell = ({ data, onPress }: VaccineTableCellProps): JSX.Element => {
+  const status = useVaccineStatus(data);
   if (!data) return <CellContent status={VaccineStatus.UNKNOWN} />;
   const {
     scheduledVaccine,

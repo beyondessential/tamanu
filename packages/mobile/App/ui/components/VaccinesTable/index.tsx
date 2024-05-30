@@ -9,7 +9,7 @@ import { vaccineTableHeader } from './VaccineTableHeader';
 import { ErrorScreen } from '../ErrorScreen';
 import { LoadingScreen } from '../LoadingScreen';
 import { VaccineStatus } from '~/ui/helpers/patient';
-import { VaccineTableCell, VaccineTableCellData } from './VaccinesTableCell';
+import { CellContent, VaccineTableCell, VaccineTableCellData } from './VaccinesTableCell';
 import { IScheduledVaccine } from '~/types';
 import { ScrollView } from 'react-native-gesture-handler';
 import { StyledView } from '~/ui/styled/common';
@@ -109,9 +109,12 @@ export const VaccinesTable = ({
         subtitle={scheduledVaccine.vaccine && scheduledVaccine.vaccine.name}
       />
     ),
-    cell: (cellData: VaccineTableCellData) => (
-      <VaccineTableCell onPress={onPressItem} data={cellData} />
-    ),
+    cell: (cellData: VaccineTableCellData) =>
+      cellData ? (
+        <VaccineTableCell onPress={onPressItem} data={cellData} />
+      ) : (
+        <CellContent status={VaccineStatus.UNKNOWN} />
+      ),
   }));
 
   const uniqueBySchedule = uniqBy(nonHistoricalOrAdministeredScheduledVaccines, 'doseLabel');
