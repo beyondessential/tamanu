@@ -50,7 +50,7 @@ const StyledDivider = styled(Divider)`
 
 const RadioLabel = ({ type }) => (
   <>
-    {type === "assessment" && <>
+    {type === ACTIVE_VIEW.ASSESSMENT && <>
       <Heading5 mb="7px" mt={0}>
         <TranslatedText
           stringId="invoice.modal.selectDiscount.assessment.label"
