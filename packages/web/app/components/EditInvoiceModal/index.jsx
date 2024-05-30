@@ -115,7 +115,6 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
         date: item.dateGenerated,
         orderedBy: item.orderedBy?.displayName,
         price: item.invoiceLineType?.price,
-        invoiceLineTypeId: item.invoiceLineTypeId,
         code: getInvoiceLineCode(item),
       })));
     })();
