@@ -272,7 +272,6 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
 
     const invoiceLineItemsData = rowList.map((row, index) => ({
       ...row,
-      id: row.id,
       invoiceLineTypeId: submitData[`invoiceLineTypeId_${index}`],
       date: submitData[`date_${index}`],
       orderedById: submitData[`orderedById_${index}`],
