@@ -89,6 +89,7 @@ const UNHIDEABLE_FIELDS = [
   'circumstanceIds',
   'reminderContactName',
   'reminderContactRelationship',
+  'weightUnit',
 ];
 
 const HIDEABLE_FIELDS = [
@@ -511,6 +512,7 @@ const rootLocalisationSchema = yup
             .required()
             .max(31),
           label: yup.string().required(),
+          hidden: yup.boolean(),
         }),
       )
       .test({
