@@ -15,6 +15,11 @@ const parseThresholdsSetting = (thresholds: UnparsedThresholds): ParsedThreshold
     }))
     .sort((a, b) => b.threshold - a.threshold);
 
+const getStatus = (weeksUntilDue: number, thresholds: ParsedThresholds) => {
+  const status = thresholds.find(({ threshold }) => weeksUntilDue > threshold)?.status;
+  return status || VaccineStatus.UNKNOWN;
+};
+
 const getWeeksUntilDue = ({
   scheduledVaccine,
   patient,
@@ -40,6 +45,5 @@ export const useVaccineStatus = (data: any = {}) => {
     getSetting<UnparsedThresholds>(SETTING_KEYS.UPCOMING_VACCINATION_THRESHOLDS),
   );
   const weeksUntilDue = getWeeksUntilDue(data);
-  const status = thresholds.find(({ threshold }) => weeksUntilDue > threshold)?.status;
-  return status || VaccineStatus.UNKNOWN;
+  return { status: getStatus(weeksUntilDue, thresholds) };
 };
