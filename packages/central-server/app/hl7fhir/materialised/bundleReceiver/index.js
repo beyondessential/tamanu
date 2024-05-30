@@ -1,8 +1,5 @@
 
 import asyncHandler from 'express-async-handler';
-
-import { OperationOutcome } from '@tamanu/shared/utils/fhir';
-import { FHIR_INTERACTIONS, JOB_TOPICS } from '@tamanu/constants';
 import * as Handlers from './handlers';
 
 
@@ -23,7 +20,7 @@ export function bundleHandler() {
 
     let useHandler = null;
     for (const CurrentHandler of Object.values(Handlers)) {
-      // console.log(`CurrentHandler: ${CurrentHandler.HANDLER_NAME}`)
+      console.log(`CurrentHandler: ${CurrentHandler.HANDLER_NAME}`)
       const isMatch = await CurrentHandler.matchBundle(req.body);
       if (isMatch) {
         //  console.log(`body is valid of type ${CurrentHandler.HANDLER_NAME}`);
