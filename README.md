@@ -49,7 +49,7 @@ Install dependencies with npm:
 
 ```bash
 $ cd tamanu
-$ npm install
+$ npm install --legacy-peer-deps
 ```
 
 Build all packages:
@@ -123,7 +123,7 @@ By default, the Central server will not run migrations automatically. To enable 
 #### Run
 
 ```bash
-npm install
+npm install --legacy-peer-deps
 npm run --workspace central-server setup-dev # If it doesn't work, go for 'Pull data from remote'
 npm run central-start-dev
 ```

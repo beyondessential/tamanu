@@ -94,11 +94,11 @@ jobs:
           node-version: 20.x
           cache: npm
 
-      - name: Run npm install
+      - name: Run npm install --legacy-peer-deps
         working-directory: packages/mobile
         run: |
           npm i -g corepack
-          npm install
+          npm install --legacy-peer-deps
 
       - name: Build release
         working-directory: packages/mobile/android
