@@ -2,6 +2,7 @@ import { SETTING_KEYS } from '~/constants';
 import { useSettings } from '../contexts/SettingsContext';
 import { VaccineStatus } from '../helpers/patient';
 import { differenceInDays, parseISO } from 'date-fns';
+import { IScheduledVaccine } from '~/types';
 
 type Thresholds<T> = { threshold: T; status: VaccineStatus }[];
 type ParsedThresholds = Thresholds<number>;
@@ -18,6 +19,14 @@ const parseThresholdsSetting = (thresholds: UnparsedThresholds): ParsedThreshold
 const getStatus = (weeksUntilDue: number, thresholds: ParsedThresholds) => {
   const status = thresholds.find(({ threshold }) => weeksUntilDue > threshold)?.status;
   return status || VaccineStatus.UNKNOWN;
+};
+
+const getWarningMessage = (
+  { weeksFromBirthDue, weeksFromLastVaccinationDue }: IScheduledVaccine,
+  status: VaccineStatus,
+) => {
+  // TODO
+  return 'Warning message oh no';
 };
 
 const getWeeksUntilDue = ({
@@ -45,5 +54,8 @@ export const useVaccineStatus = (data: any = {}) => {
     getSetting<UnparsedThresholds>(SETTING_KEYS.UPCOMING_VACCINATION_THRESHOLDS),
   );
   const weeksUntilDue = getWeeksUntilDue(data);
-  return { status: getStatus(weeksUntilDue, thresholds) };
+  return {
+    status: getStatus(weeksUntilDue, thresholds),
+    warningMessage: getWarningMessage(data, status),
+  };
 };

@@ -55,8 +55,6 @@ export const CellContent = ({
 };
 
 export const VaccineTableCell = ({ data, onPress }: VaccineTableCellProps): JSX.Element => {
-  const status = useVaccineStatus(data);
-  if (!data) return <CellContent status={VaccineStatus.UNKNOWN} />;
   const {
     scheduledVaccine,
     administeredVaccine,
@@ -65,6 +63,7 @@ export const VaccineTableCell = ({ data, onPress }: VaccineTableCellProps): JSX.
     vaccineStatus,
   } = data;
   const { vaccine, id } = scheduledVaccine;
+  const status = useVaccineStatus(data); // new way
   const dueStatus = getVaccineStatus(scheduledVaccine, patient, patientAdministeredVaccines);
 
   let cellStatus = vaccineStatus || dueStatus.status || VaccineStatus.UNKNOWN;
