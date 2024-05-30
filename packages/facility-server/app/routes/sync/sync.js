@@ -14,9 +14,7 @@ sync.post(
     const { syncManager } = req;
     const { syncData } = req.body;
 
-    const result = await syncManager.triggerSync({
-      ...syncData,
-    });
+    const result = await syncManager.triggerSync(syncData);
 
     res.send(result);
   }),

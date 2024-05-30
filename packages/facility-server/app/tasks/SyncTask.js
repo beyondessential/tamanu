@@ -19,8 +19,8 @@ export class SyncTask extends ScheduledTask {
 
   async run() {
     return this.context.syncConnection.runSync({
-      type: 'subcommand',
-      urgent: true,
+      type: 'scheduled',
+      urgent: false,
     });
   }
 }
