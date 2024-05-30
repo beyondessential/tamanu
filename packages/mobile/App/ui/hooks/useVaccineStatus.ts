@@ -3,9 +3,11 @@ import { useSettings } from '../contexts/SettingsContext';
 import { VaccineStatus } from '../helpers/patient';
 import { differenceInDays, parseISO } from 'date-fns';
 
-type UpcomingVaccinationThresholds = { threshold: number; status: VaccineStatus }[];
+type Thresholds<T> = { threshold: T; status: VaccineStatus }[];
+type ParsedThresholds = Thresholds<number>;
+type UnparsedThresholds = Thresholds<number | '-Infinity'>;
 
-const parseThresholdsSetting = (thresholds: any): UpcomingVaccinationThresholds =>
+const parseThresholdsSetting = (thresholds: UnparsedThresholds): ParsedThresholds =>
   thresholds
     .map(({ threshold, status }: any) => ({
       threshold: threshold === '-Infinity' ? -Infinity : threshold,
@@ -35,7 +37,7 @@ const getWeeksUntilDue = ({
 export const useVaccineStatus = (data: any = {}) => {
   const { getSetting } = useSettings();
   const thresholds = parseThresholdsSetting(
-    getSetting<any[]>(SETTING_KEYS.UPCOMING_VACCINATION_THRESHOLDS),
+    getSetting<UnparsedThresholds>(SETTING_KEYS.UPCOMING_VACCINATION_THRESHOLDS),
   );
   const weeksUntilDue = getWeeksUntilDue(data);
   const status = thresholds.find(({ threshold }) => weeksUntilDue > threshold)?.status;
