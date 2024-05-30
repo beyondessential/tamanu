@@ -9,7 +9,6 @@ if (target) {
 
 doWithAllPackages((name, pkg, _pkgPath, isShared) => {
   console.log(`Checking ${name}...`);
-  console.log('argsssss', args);
   if (args.includes('shared-only') && !isShared) {
     console.log(`Skipping ${name} as it's not a shared package...`);
     return;
