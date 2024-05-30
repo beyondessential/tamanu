@@ -107,7 +107,7 @@ export const ItemRow = ({
 
     return isNaN(percentageChangeFloat)
       ? ''
-      : priceFloat + (priceFloat * percentageChangeFloat);
+      : (priceFloat + (priceFloat * percentageChangeFloat)).toFixed(2);
   }, [rowData.price, rowData.percentageChange]);
 
   return (
