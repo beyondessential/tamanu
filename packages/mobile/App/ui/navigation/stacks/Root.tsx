@@ -11,6 +11,7 @@ import { LocalisationProvider } from '../../contexts/LocalisationContext';
 import { TranslationProvider } from '../../contexts/TranslationContext';
 import { Core } from './Core';
 import { DetectIdleLayer } from './DetectIdleLayer';
+import { SettingsProvider } from '~/ui/contexts/SettingsContext';
 
 export const RootStack = (): ReactElement => {
   const navigationRef = React.useRef<NavigationContainerRef>(null);
@@ -23,11 +24,13 @@ export const RootStack = (): ReactElement => {
               <LocalisationProvider>
                 <TranslationProvider>
                   <AuthProvider navRef={navigationRef}>
-                    <FacilityProvider>
-                      <DetectIdleLayer>
-                        <Core />
-                      </DetectIdleLayer>
-                    </FacilityProvider>
+                    <SettingsProvider>
+                      <FacilityProvider>
+                        <DetectIdleLayer>
+                          <Core />
+                        </DetectIdleLayer>
+                      </FacilityProvider>
+                    </SettingsProvider>
                   </AuthProvider>
                 </TranslationProvider>
               </LocalisationProvider>
