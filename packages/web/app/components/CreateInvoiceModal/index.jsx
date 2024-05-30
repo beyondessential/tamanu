@@ -26,7 +26,7 @@ const StyledFormControlLabel = styled(FormControlLabel)`
   }
 `;
 
-const CustomFormControlLabel = (props) => {
+const CustomFormControlLabel = ({value, updateDiscountType}) => {
   const radioGroup = useRadioGroup();
 
   let checked = false;
