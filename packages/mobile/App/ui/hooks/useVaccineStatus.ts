@@ -10,7 +10,7 @@ type UnparsedThresholds = Thresholds<number | '-Infinity'>;
 
 const parseThresholdsSetting = (thresholds: UnparsedThresholds): ParsedThresholds =>
   thresholds
-    .map(({ threshold, status }: any) => ({
+    ?.map(({ threshold, status }: any) => ({
       threshold: threshold === '-Infinity' ? -Infinity : threshold,
       status,
     }))
@@ -26,7 +26,7 @@ const getWarningMessage = (
   status: VaccineStatus,
 ) => {
   // TODO
-  return 'Warning message oh no';
+  return null;
 };
 
 const getWeeksUntilDue = ({

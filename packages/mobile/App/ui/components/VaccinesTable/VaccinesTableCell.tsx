@@ -63,8 +63,8 @@ export const VaccineTableCell = ({ data, onPress }: VaccineTableCellProps): JSX.
     vaccineStatus,
   } = data;
   const { vaccine, id } = scheduledVaccine;
-  const status = useVaccineStatus(data); // new way
-  const dueStatus = getVaccineStatus(scheduledVaccine, patient, patientAdministeredVaccines);
+  const dueStatus = useVaccineStatus(data); // new way
+  // const dueStatus = getVaccineStatus(scheduledVaccine, patient, patientAdministeredVaccines);
 
   let cellStatus = vaccineStatus || dueStatus.status || VaccineStatus.UNKNOWN;
   if (vaccineStatus === VaccineStatus.SCHEDULED) cellStatus = dueStatus.status;
