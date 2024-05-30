@@ -15,6 +15,7 @@ import { ScrollView } from 'react-native-gesture-handler';
 import { StyledView } from '~/ui/styled/common';
 import { VisibilityStatus } from '~/visibilityStatuses';
 import { SETTING_KEYS } from '~/constants';
+import { useSettings } from '~/ui/contexts/SettingsContext';
 
 interface VaccinesTableProps {
   selectedPatient: any;
@@ -27,6 +28,7 @@ export const VaccinesTable = ({
   categoryName,
   selectedPatient,
 }: VaccinesTableProps): JSX.Element => {
+  const { getSetting } = useSettings();
   const scrollViewRef = useRef(null);
 
   // This manages the horizontal scroll of the header. This handler is passed down
@@ -47,11 +49,9 @@ export const VaccinesTable = ({
     [],
   );
 
-  const [thresholds, thresholdError, isLoading] = useBackendEffect(({ models }) =>
-    models.Setting.get(SETTING_KEYS.UPCOMING_VACCINATION_THRESHOLDS),
+  const thresholds = getSetting<{ threshold: number; status: VaccineStatus }[]>(
+    SETTING_KEYS.UPCOMING_VACCINATION_THRESHOLDS,
   );
-
-  console.log(thresholds, thresholdError, isLoading);
 
   const [patientAdministeredVaccines, administeredError] = useBackendEffect(
     ({ models }) => models.AdministeredVaccine.getForPatient(selectedPatient.id),
