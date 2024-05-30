@@ -5,8 +5,8 @@ import {
   ContentPane,
   DateDisplay,
   PageContainer,
-  SearchTable,
   SearchTableTitle,
+  SearchTableWithPermissionCheck,
   TopBar,
 } from '../../components';
 import { NewAppointmentButton } from '../../components/Appointments/NewAppointmentButton';
@@ -84,7 +84,9 @@ export const AppointmentListingView = () => {
           />
         </SearchTableTitle>
         <AppointmentsSearchBar onSearch={setSearchParams} />
-        <SearchTable
+        <SearchTableWithPermissionCheck
+          verb="list"
+          noun="Appointment"
           endpoint="appointments"
           columns={COLUMNS}
           noDataMessage={

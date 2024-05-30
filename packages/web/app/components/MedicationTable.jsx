@@ -10,6 +10,7 @@ import { ENCOUNTER_TAB_NAMES } from '../constants/encounterTabNames';
 import { Colors } from '../constants';
 import { getFullLocationName } from '../utils/location';
 import { TranslatedText, TranslatedReferenceData } from './Translation';
+import { DataFetchingTableWithPermissionCheck } from './Table/DataFetchingTable';
 
 const getMedicationName = ({ medication }) => (
   <TranslatedReferenceData
@@ -142,7 +143,9 @@ export const DataFetchingMedicationTable = () => {
   );
 
   return (
-    <DataFetchingTable
+    <DataFetchingTableWithPermissionCheck
+      verb="list"
+      noun="Medication"
       endpoint="medication"
       columns={FULL_LISTING_COLUMNS}
       noDataMessage={

@@ -3,7 +3,6 @@ import { useDispatch } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import { push } from 'connected-react-router';
 import { useEncounter } from '../contexts/Encounter';
-import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 import { LocationCell, LocationGroupCell } from './LocationCell';
 import { TriageWaitTimeCell } from './TriageWaitTimeCell';
@@ -11,6 +10,7 @@ import { useLocalisation } from '../contexts/Localisation';
 import { reloadPatient } from '../store';
 import { TranslatedText } from './Translation/TranslatedText';
 import { TranslatedReferenceData } from './Translation';
+import { DataFetchingTableWithPermissionCheck } from './Table/DataFetchingTable';
 
 const ADMITTED_PRIORITY_COLOR = '#bdbdbd';
 
@@ -102,7 +102,9 @@ export const TriageTable = React.memo(() => {
   };
 
   return (
-    <DataFetchingTable
+    <DataFetchingTableWithPermissionCheck
+      verb="list"
+      noun="Triage"
       endpoint="triage"
       columns={columns}
       noDataMessage={

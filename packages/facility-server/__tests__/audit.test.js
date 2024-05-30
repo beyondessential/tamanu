@@ -60,7 +60,7 @@ describe('Audit log', () => {
       objectId: undefined,
     });
     expect(log.annotations).toMatchObject({
-      forbiddenReason: 'Cannot perform action "create" on PatientAllergy.',
+      forbiddenReason: 'No permission to perform action "create" on "PatientAllergy"',
     });
   });
 
@@ -76,7 +76,7 @@ describe('Audit log', () => {
     expect(log.permissionChecks[0]).toMatchObject({
       verb: 'read',
       noun: 'Patient',
-      objectId: undefined,  // intentional; happens before looking up a particular patient
+      objectId: undefined, // intentional; happens before looking up a particular patient
     });
     expect(log.permissionChecks[1]).toMatchObject({
       verb: 'write',
