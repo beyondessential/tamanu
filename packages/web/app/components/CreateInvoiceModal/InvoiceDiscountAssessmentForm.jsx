@@ -40,17 +40,17 @@ export const InvoiceDiscountAssessmentForm = ({ handleSubmit, onClose, handleBac
     const incomeArray = discountTable[familySize] || [];
     let incomeOptions = [];
     let range;
-    for (let i = 0; i <= incomeArray.length; i++) {
-      if (i === 0) {
-        range = `0 - ${incomeArray[i]}`;
-      } else if (i === incomeArray.length) {
-        range = `> ${incomeArray[i - 1]}`
-      } else {
-        range = `${incomeArray[i - 1]} - ${incomeArray[i]}`;
-      }
-      incomeOptions.push({ value: range, label: range, percentageChange: (i + 2) / 10 });
+return incomeArray.map((income, index) => {
+    let range;
+    if (index === 0) {
+      range = `0 - ${income}`;
+    } else if (index === incomeArray.length - 1) {
+      range = `> ${incomeArray[index - 1]}`;
+    } else {
+      range = `${incomeArray[index - 1]} - ${income}`;
     }
-    return incomeOptions;
+    return { value: range, label: range, percentageChange: (index + 2) / 10 };
+  });
   }, [familySize]);
 
   const handleAnnualIncomeChange = (e) => {
