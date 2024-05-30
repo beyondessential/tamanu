@@ -23,6 +23,8 @@ interface VaccinesTableProps {
   onPressItem: (item: any) => void;
 }
 
+type UpcomingVaccinationThresholds = { threshold: number; status: VaccineStatus }[];
+
 export const VaccinesTable = ({
   onPressItem,
   categoryName,
@@ -49,9 +51,11 @@ export const VaccinesTable = ({
     [],
   );
 
-  const thresholds = getSetting<{ threshold: number; status: VaccineStatus }[]>(
+  const thresholds = getSetting<UpcomingVaccinationThresholds>(
     SETTING_KEYS.UPCOMING_VACCINATION_THRESHOLDS,
   );
+
+  console.log(thresholds, 'THRESHHOLDS');
 
   const [patientAdministeredVaccines, administeredError] = useBackendEffect(
     ({ models }) => models.AdministeredVaccine.getForPatient(selectedPatient.id),
