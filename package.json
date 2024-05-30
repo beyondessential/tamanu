@@ -13,7 +13,7 @@
     "create-package": "node scripts/create-package.mjs",
     "create-migration": "node scripts/create-server-migration.mjs",
     "build": "node scripts/build-all.mjs",
-    "build-shared": "npm run build --shared-only",
+    "build-shared": "npm run build -- shared-only",
     "test": "npm run build-shared && node scripts/test-all.mjs",
     "test-coverage": "npm run test --coverage",
     "lint-all": "eslint .",
