@@ -37,6 +37,7 @@ jobs:
         version=$(jq -r .version package.json)
         git commit --allow-empty -am "release: v$version"
         echo "current_version=$version" | tee -a $GITHUB_OUTPUT
+        echo "current_version_ref=$(git show-ref -s HEAD)" | tee -a $GITHUB_OUTPUT
         git tag -a "v$version" -m "release: v$version"
         git push --follow-tags
 
@@ -65,7 +66,8 @@ jobs:
 
         git cliff --topo-order --strip all --latest \
           --tag-pattern "$pattern" --tag "v$version" \
-        | tee RELEASE_NOTES.md
+          --output RELEASE_NOTES.md
+        cat RELEASE_NOTES.md
 
     - name: Determine the true latest version
       id: latest
@@ -85,6 +87,6 @@ jobs:
       with:
         name: v${{ steps.tagged.outputs.current_version }}
         tag_name: v${{ steps.tagged.outputs.current_version }}
-        target_commitish: v${{ steps.tagged.outputs.current_version }}
+        target_commitish: ${{ steps.tagged.outputs.current_version_ref }}
         body_path: RELEASE_NOTES.md
         make_latest: ${{ steps.latest.outputs.latest_version == steps.tagged.outputs.current_version }}

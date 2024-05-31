@@ -1,5 +1,7 @@
 import React from 'react';
-import { CustomisableSearchBar } from './CustomisableSearchBar';
+import {
+  CustomisableSearchBarWithPermissionCheck,
+} from './CustomisableSearchBar';
 import { AutocompleteField, LocalisedField, SearchField } from '../Field';
 import { useSuggester } from '../../api';
 import { useAdvancedFields } from './useAdvancedFields';
@@ -24,7 +26,9 @@ export const PatientSearchBar = React.memo(
     const practitionerSuggester = useSuggester('practitioner');
     const dietSuggester = useSuggester('diet');
     return (
-      <CustomisableSearchBar
+      <CustomisableSearchBarWithPermissionCheck
+        verb="list"
+        noun="Patient"
         showExpandButton
         title="Search for Patients"
         onSearch={onSearch}
@@ -111,7 +115,7 @@ export const PatientSearchBar = React.memo(
           size="small"
           suggester={locationGroupSuggester}
         />
-      </CustomisableSearchBar>
+      </CustomisableSearchBarWithPermissionCheck>
     );
   },
 );

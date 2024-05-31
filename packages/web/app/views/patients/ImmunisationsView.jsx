@@ -3,8 +3,8 @@ import {
   ContentPane,
   PageContainer,
   PatientSearchBar,
-  SearchTable,
   SearchTableTitle,
+  SearchTableWithPermissionCheck,
   TopBar,
 } from '../../components';
 import { culturalName, dateOfBirth, displayId, firstName, lastName, sex, village } from './columns';
@@ -44,7 +44,9 @@ export const ImmunisationsView = () => {
           />
         </SearchTableTitle>
         <PatientSearchBar onSearch={setSearchParameters} suggestByFacility={false} />
-        <SearchTable
+        <SearchTableWithPermissionCheck
+          verb="list"
+          noun="Patient"
           endpoint="patient"
           columns={COLUMNS}
           noDataMessage="No patients found"

@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
-import { Button, ContentPane, TableButtonRow } from '../../../components';
+import { Button, ButtonWithPermissionCheck, ContentPane, TableButtonRow } from '../../../components';
 import { ViewAdministeredVaccineModal } from '../../../components/ViewAdministeredVaccineModal';
 import { EditAdministeredVaccineModal } from '../../../components/EditAdministeredVaccineModal';
 import { DeleteAdministeredVaccineModal } from '../../../components/DeleteAdministeredVaccineModal';
@@ -101,9 +101,9 @@ export const VaccinesPane = React.memo(({ patient, readonly }) => {
               />
             </Button>
           )}
-          <Button onClick={() => setIsAdministerModalOpen(true)} disabled={readonly}>
+          <ButtonWithPermissionCheck verb="create" noun="PatientVaccine" onClick={() => setIsAdministerModalOpen(true)} disabled={readonly}>
             <TranslatedText stringId="vaccine.action.recordVaccine" fallback="Record vaccine" />
-          </Button>
+          </ButtonWithPermissionCheck>
         </TableButtonRow>
         <ImmunisationsTable
           patient={patient}

@@ -3,7 +3,7 @@ import asyncHandler from 'express-async-handler';
 import { isAfter } from 'date-fns';
 import { subject } from '@casl/ability';
 import { NotFoundError, ValidationError } from '@tamanu/shared/errors';
-import { DELETION_STATUSES, REGISTRATION_STATUSES } from '@tamanu/constants';
+import { REGISTRATION_STATUSES } from '@tamanu/constants';
 
 export const patientProgramRegistration = express.Router();
 
@@ -245,7 +245,6 @@ patientProgramRegistration.post(
         programRegistryId,
         patientId,
         programRegistryConditionId: body.programRegistryConditionId,
-        deletionStatus: null,
       },
     });
     if (conditionExists) {
@@ -277,7 +276,6 @@ patientProgramRegistration.get(
       where: {
         patientId,
         programRegistryId,
-        deletionStatus: null,
       },
       include: PatientProgramRegistrationCondition.getFullReferenceAssociations(),
       order: [['date', 'DESC']],
@@ -303,7 +301,7 @@ patientProgramRegistration.delete(
     const programRegistry = await models.ProgramRegistry.findByPk(programRegistryId);
     if (!programRegistry) throw new NotFoundError();
 
-    req.checkPermission('write', 'PatientProgramRegistrationCondition');
+    req.checkPermission('delete', 'PatientProgramRegistrationCondition');
     const existingCondition = await models.PatientProgramRegistrationCondition.findOne({
       where: {
         id: conditionId,
@@ -311,10 +309,10 @@ patientProgramRegistration.delete(
     });
     if (!existingCondition) throw new NotFoundError();
     const condition = await existingCondition.update({
-      deletionStatus: DELETION_STATUSES.DELETED,
       deletionClinicianId: req.user.id,
       deletionDate: body.deletionDate,
     });
+    await condition.destroy();
     res.send(condition);
   }),
 );

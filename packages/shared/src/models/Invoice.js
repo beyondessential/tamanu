@@ -15,6 +15,8 @@ export class Invoice extends Model {
         paymentStatus: Sequelize.STRING,
         receiptNumber: Sequelize.STRING,
         date: dateType('date'),
+        discountMarkupPercentage: Sequelize.DECIMAL,
+        discountMarkupReason: Sequelize.STRING,
       },
       { syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL, ...options },
     );
