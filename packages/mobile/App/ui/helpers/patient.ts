@@ -1,4 +1,3 @@
-import { differenceInWeeks, parseISO } from 'date-fns';
 import { IPatientAdditionalData } from '~/types';
 
 export enum VaccineStatus {
@@ -20,15 +19,6 @@ export enum VaccineCategory {
   ROUTINE = 'Routine',
   OTHER = 'Other',
 }
-
-export function getWeeksFromDate(date: string): number {
-  return differenceInWeeks(new Date(), parseISO(date));
-}
-
-type VaccineStatusMessage = {
-  status: VaccineStatus;
-  warningMessage?: string;
-};
 
 // function getVaccineStatusForWeeksFromBirthDue(weeksUntilDue): VaccineStatusMessage {
 //   if (weeksUntilDue === null) {

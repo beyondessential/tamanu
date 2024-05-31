@@ -124,7 +124,6 @@ export const login = ({ secret, refreshSecret }) =>
       getPermissionsForRoles(models, user.role),
       models.Role.findByPk(user.role),
     ]);
-    console.log(await getSettingsForFrontEnd());
     // Send some additional data with login to tell the user about
     // the context they've just logged in to.
     res.send({

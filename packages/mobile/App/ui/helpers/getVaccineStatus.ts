@@ -1,15 +1,12 @@
-import { SETTING_KEYS } from '~/constants';
-import { useSettings } from '../contexts/SettingsContext';
-import { VaccineStatus } from '../helpers/patient';
+import { VaccineStatus } from './patient';
 import { differenceInDays, parseISO } from 'date-fns';
 import { IScheduledVaccine } from '~/types';
-import { useMemo } from 'react';
 
 type Thresholds<T> = { threshold: T; status: VaccineStatus }[];
 type ParsedThresholds = Thresholds<number>;
 type UnparsedThresholds = Thresholds<number | '-Infinity'>;
 
-type VaccineStatusMessage = {
+export type VaccineStatusMessage = {
   status: VaccineStatus;
   warningMessage?: string;
 };
