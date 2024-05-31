@@ -6,6 +6,7 @@ import { Database } from '~/infra/db';
 import { VitalsDataElements } from '/helpers/constants';
 import { ISurvey, ISurveyScreenComponent, IVitalsSurvey, SurveyTypes } from '~/types';
 import { SYNC_DIRECTIONS } from './types';
+import { VisibilityStatus } from '~/visibilityStatuses';
 
 @Entity('survey')
 export class Survey extends BaseModel implements ISurvey {
@@ -32,6 +33,9 @@ export class Survey extends BaseModel implements ISurvey {
 
   @Column({ nullable: false, default: false })
   isSensitive: boolean;
+
+  @Column({ nullable: false, default: VisibilityStatus.Current })
+  visibilityStatus: string;
 
   getComponents(options: { includeAllVitals?: boolean } = {}): Promise<ISurveyScreenComponent[]> {
     const where = {

@@ -320,6 +320,8 @@ createSuggester(
             encounters ON encounters.id = lab_requests.encounter_id
           WHERE lab_requests.status = :lab_request_status
             AND encounters.patient_id = :patient_id
+            AND encounters.deleted_at is null
+            AND lab_requests.deleted_at is null
         )`,
         ),
       },
@@ -361,6 +363,8 @@ createSuggester(
             encounters ON encounters.id = lab_requests.encounter_id
           WHERE lab_requests.status = :lab_request_status
             AND encounters.patient_id = :patient_id
+            AND encounters.deleted_at is null
+            AND lab_requests.deleted_at is null
         )`,
         ),
       },
@@ -427,6 +431,15 @@ createNameSuggester(
   }),
 );
 
+createNameSuggester(
+  'programRegistryCondition',
+  'ProgramRegistryCondition',
+  (search, { programRegistryId }) => ({
+    ...DEFAULT_WHERE_BUILDER(search),
+    ...(programRegistryId ? { programRegistryId } : {}),
+  }),
+);
+
 createNameSuggester('programRegistry', 'ProgramRegistry', (search, query) => {
   const baseWhere = DEFAULT_WHERE_BUILDER(search);
   if (!query.patientId) {
@@ -456,7 +469,19 @@ createNameSuggester('programRegistry', 'ProgramRegistry', (search, query) => {
 // TODO: Use generic LabTest permissions for this suggester
 createNameSuggester('labTestPanel', 'LabTestPanel');
 
-createNameSuggester('patientLetterTemplate', 'PatientLetterTemplate');
+createNameSuggester('template', 'Template', (search, query) => {
+  const baseWhere = DEFAULT_WHERE_BUILDER(search);
+  const { type } = query;
+
+  if (!type) {
+    return baseWhere;
+  }
+
+  return {
+    ...baseWhere,
+    type,
+  };
+});
 
 const routerEndpoints = suggestions.stack.map(layer => {
   const path = layer.route.path.replace('/', '').replaceAll('$', '');

@@ -48,7 +48,8 @@ export function isErrorUnknownDefault(error) {
   if (!error || typeof error.status !== 'number') {
     return true;
   }
-  return error.status >= 400;
+  // we don't want to show toast for 403 (no permission) errors
+  return error.status >= 400 && error.status != 403;
 }
 
 export function isErrorUnknownAllow404s(error) {
