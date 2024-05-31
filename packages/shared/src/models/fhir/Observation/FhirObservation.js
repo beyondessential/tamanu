@@ -60,7 +60,6 @@ export class FhirObservation extends FhirResource {
       id: yup.string().required(),
       basedOn: yup.array().of(FhirReference.asYup()),
       code: FhirCodeableConcept.asYup().required(),
-      subject: FhirReference.asYup(),
       valueQuantity: valueShape,
       referenceRange: yup
         .array()
@@ -96,29 +95,31 @@ export class FhirObservation extends FhirResource {
     const labTestCodingInternal = this.code.coding.find(coding => (
       coding.system === internalCodingSystem
     ))?.code;
-    const labTestCodingExternal = this.code.coding.find(coding => (
-      coding.system === externalCodingSystem
-    ))?.code;
+    const labTestCodingExternal = this.code.coding.find(coding => {
+      console.log({ externalCodingSystem, system: coding.system})
+      return coding.system === externalCodingSystem;
+    })?.code;
 
     const testCode = labTestCodingExternal || labTestCodingInternal;
     const { LabTestType } = this.sequelize.models;
-    const currentTestType = await LabTestType.findOne({ where: {
-      externalCode: testCode,
-      labTestCategoryId: labRequest.labTestCategoryId,
-    }});
+    const currentTestType = await LabTestType.findOne({
+      where: {
+        externalCode: testCode,
+        labTestCategoryId: labRequest.labTestCategoryId,
+      }
+    });
+
     if (!currentTestType) {
-      throw new Invalid(`No lab test type within category '${!!labTestCodingExternal ? externalCodingSystem: internalCodingSystem}' coding system with code '${testCode}'`);
+      throw new Invalid(`No lab test in system '${!!labTestCodingExternal ? externalCodingSystem : internalCodingSystem}' coding system with code '${testCode}'`);
     }
 
     const matchedTest = tests.find(test => currentTestType.id === test.labTestTypeId);
 
-    console.log({ matchedTest });
-    
-    if(!matchedTest) {
+    if (!matchedTest) {
       console.debug(`Adding results for lab test id: ${currentTestType.id} not in original request`)
-    } 
+    }
     await this.sequelize.transaction(async () => {
-    
+
       if (labRequest.status) {
         // labRequest.set({ status: newStatus });
         // await labRequest.save();
