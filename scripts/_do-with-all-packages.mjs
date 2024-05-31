@@ -10,8 +10,9 @@ function cleanupLeadingGarbage(jsonStr) {
   return jsonStr.slice(firstOpenBrace);
 }
 
-function extractdependencyTree(workspaceTree, workspaces) {
+function extractDependencyTree(workspaceTree, workspaces) {
   const dependencyTree = {};
+  console.log('workspaceTreeee', workspaceTree);
 
   Object.entries(workspaceTree.dependencies).forEach(([workspace, info]) => {
     dependencyTree[workspace] = Object.keys(info.dependencies).filter(
@@ -35,7 +36,7 @@ export function doWithAllPackages(fn) {
   const workspaces = new Set(Object.keys(workspaceTree.dependencies));
   const processed = new Set();
 
-  const dependencyTree = extractdependencyTree(workspaceTree, workspaces);
+  const dependencyTree = extractDependencyTree(workspaceTree, workspaces);
   const packagesThatAreDependedOn = new Set(Object.values(dependencyTree).flat());
 
   while (processed.size < workspaces.size) {
