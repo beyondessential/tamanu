@@ -16,9 +16,6 @@ const seedForScope = async (models, settings, serverFacilityIds, scopeOverride) 
     const combined = defaultsDeep(existing, settings);
     return Setting.set('', combined, scope, facilityId);
   };
-  if (serverFacilityIds) {
-    return Promise.all(serverFacilityIds.map(combineSettings));
-  }
   return combineSettings();
 };
 
