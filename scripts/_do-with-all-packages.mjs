@@ -12,7 +12,6 @@ function cleanupLeadingGarbage(jsonStr) {
 
 function extractDependencyTree(workspaceTree, workspaces) {
   const dependencyTree = {};
-  console.log('workspaceTreeee', workspaceTree);
 
   Object.entries(workspaceTree.dependencies).forEach(([workspace, info]) => {
     dependencyTree[workspace] = Object.keys(info.dependencies).filter(
