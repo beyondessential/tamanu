@@ -13,12 +13,12 @@ function cleanupLeadingGarbage(jsonStr) {
 function extractDependencyTree(workspaceTree, workspaces) {
   const dependencyTree = {};
 
-  console.log(JSON.stringify(workspaceTree.dependencies));
-
   Object.entries(workspaceTree.dependencies).forEach(([workspace, info]) => {
-    dependencyTree[workspace] = Object.keys(info.dependencies).filter(dependency =>
-      workspaces.has(dependency),
-    );
+    if (info.dependencies) {
+      dependencyTree[workspace] = Object.keys(info.dependencies).filter(dependency =>
+        workspaces.has(dependency),
+      );
+    }
   });
 
   return dependencyTree;
