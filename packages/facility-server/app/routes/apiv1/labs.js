@@ -177,7 +177,7 @@ labRequest.get(
 
     const { whereClauses, filterReplacements } = getWhereClausesAndReplacementsFromFilters(
       filters,
-      {},
+      filterParams,
     );
 
     const from = `
