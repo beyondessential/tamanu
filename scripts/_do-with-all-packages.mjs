@@ -13,9 +13,11 @@ function cleanupLeadingGarbage(jsonStr) {
 function extractDependencyTree(workspaceTree, workspaces) {
   const dependencyTree = {};
 
+  console.log(JSON.stringify(workspaceTree.dependencies));
+
   Object.entries(workspaceTree.dependencies).forEach(([workspace, info]) => {
-    dependencyTree[workspace] = Object.keys(info.dependencies).filter(
-      dependency => workspaces.has(dependency),
+    dependencyTree[workspace] = Object.keys(info.dependencies).filter(dependency =>
+      workspaces.has(dependency),
     );
   });
 
@@ -29,7 +31,9 @@ function extractLocation(resolvedPath) {
 
 export function doWithAllPackages(fn) {
   const workspaceTree = JSON.parse(
-    cleanupLeadingGarbage(execFileSync('npm', ['ls', '--workspaces', '--json'], { encoding: 'utf8' })),
+    cleanupLeadingGarbage(
+      execFileSync('npm', ['ls', '--workspaces', '--json'], { encoding: 'utf8' }),
+    ),
   );
 
   const workspaces = new Set(Object.keys(workspaceTree.dependencies));
