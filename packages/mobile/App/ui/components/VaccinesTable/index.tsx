@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import { useIsFocused } from '@react-navigation/native';
 import { uniqBy } from 'lodash';
 import { useBackendEffect } from '~/ui/hooks';
@@ -14,6 +14,9 @@ import { IScheduledVaccine } from '~/types';
 import { ScrollView } from 'react-native-gesture-handler';
 import { StyledView } from '~/ui/styled/common';
 import { VisibilityStatus } from '~/visibilityStatuses';
+import { useSettings } from '~/ui/contexts/SettingsContext';
+import { getVaccineStatus, parseThresholdsSetting } from '~/ui/hooks/useVaccineStatus';
+import { SETTING_KEYS } from '~/constants';
 
 interface VaccinesTableProps {
   selectedPatient: any;
@@ -26,6 +29,11 @@ export const VaccinesTable = ({
   categoryName,
   selectedPatient,
 }: VaccinesTableProps): JSX.Element => {
+  const { getSetting } = useSettings();
+  const thresholds = useMemo(
+    () => parseThresholdsSetting(getSetting<any>(SETTING_KEYS.UPCOMING_VACCINATION_THRESHOLDS)),
+    [getSetting],
+  );
   const scrollViewRef = useRef(null);
 
   // This manages the horizontal scroll of the header. This handler is passed down
@@ -51,13 +59,12 @@ export const VaccinesTable = ({
     [isFocused],
   );
 
-  if (error || administeredError) return <ErrorScreen error={error || administeredError} />;
-  if (!scheduledVaccines || !patientAdministeredVaccines) return <LoadingScreen />;
+  const [cells, setCells] = useState<{ [doseLabel: string]: VaccineTableCellData[] }>({});
 
-  const cells: { [doseLabel: string]: VaccineTableCellData[] } = {};
-  const nonHistoricalOrAdministeredScheduledVaccines = scheduledVaccines.filter(
-    scheduledVaccine => {
-      const administeredVaccine = patientAdministeredVaccines.find(v => {
+  const nonHistoricalOrAdministeredScheduledVaccines = useMemo(() => {
+    if (!scheduledVaccines || !patientAdministeredVaccines || !isFocused) return null;
+    return scheduledVaccines?.filter(scheduledVaccine => {
+      const administeredVaccine = patientAdministeredVaccines?.find(v => {
         if (typeof v.scheduledVaccine === 'string') {
           throw new Error('VaccinesTable: administeredVaccine did not embed scheduledVaccine');
         }
@@ -72,23 +79,38 @@ export const VaccinesTable = ({
           ? administeredVaccine.status
           : VaccineStatus.SCHEDULED;
 
-        cells[scheduledVaccine.doseLabel] = [
-          ...(cells[scheduledVaccine.doseLabel] || []),
-          {
-            scheduledVaccine: scheduledVaccine as IScheduledVaccine,
-            // TODO: why doesn't ScheduledVaccine fulfill IScheduledVaccine?
-            vaccineStatus,
-            administeredVaccine,
-            patientAdministeredVaccines,
-            patient: selectedPatient,
-            label: scheduledVaccine.label,
-          },
-        ];
+        const dueStatus = getVaccineStatus(
+          { scheduledVaccine, patient: selectedPatient, patientAdministeredVaccines },
+          thresholds,
+        );
+
+        setCells(cells => ({
+          ...cells,
+          [scheduledVaccine.doseLabel]: [
+            ...(cells[scheduledVaccine.doseLabel] || []),
+            {
+              scheduledVaccine: scheduledVaccine as IScheduledVaccine,
+              vaccineStatus,
+              administeredVaccine,
+              patientAdministeredVaccines,
+              patient: selectedPatient,
+              dueStatus,
+              label: scheduledVaccine.label,
+            },
+          ],
+        }));
       }
 
       return shouldDisplayVaccine;
-    },
-  );
+    });
+  }, [patientAdministeredVaccines]);
+  if (error || administeredError) return <ErrorScreen error={error || administeredError} />;
+  if (
+    !scheduledVaccines ||
+    !patientAdministeredVaccines ||
+    !nonHistoricalOrAdministeredScheduledVaccines
+  )
+    return <LoadingScreen />;
 
   const uniqueByVaccine = uniqBy(nonHistoricalOrAdministeredScheduledVaccines, 'label');
 
@@ -109,12 +131,9 @@ export const VaccinesTable = ({
         subtitle={scheduledVaccine.vaccine && scheduledVaccine.vaccine.name}
       />
     ),
-    cell: (cellData: VaccineTableCellData) =>
-      cellData ? (
-        <VaccineTableCell onPress={onPressItem} data={cellData} />
-      ) : (
-        <CellContent status={VaccineStatus.UNKNOWN} />
-      ),
+    cell: (cellData: VaccineTableCellData) => {
+      return <VaccineTableCell onPress={onPressItem} data={cellData} />;
+    },
   }));
 
   const uniqueBySchedule = uniqBy(nonHistoricalOrAdministeredScheduledVaccines, 'doseLabel');

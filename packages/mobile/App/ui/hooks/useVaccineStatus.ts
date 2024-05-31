@@ -3,6 +3,7 @@ import { useSettings } from '../contexts/SettingsContext';
 import { VaccineStatus } from '../helpers/patient';
 import { differenceInDays, parseISO } from 'date-fns';
 import { IScheduledVaccine } from '~/types';
+import { useMemo } from 'react';
 
 type Thresholds<T> = { threshold: T; status: VaccineStatus }[];
 type ParsedThresholds = Thresholds<number>;
@@ -13,7 +14,7 @@ type VaccineStatusMessage = {
   warningMessage?: string;
 };
 
-const parseThresholdsSetting = (thresholds: UnparsedThresholds): ParsedThresholds =>
+export const parseThresholdsSetting = (thresholds: UnparsedThresholds): ParsedThresholds =>
   thresholds
     ?.map(({ threshold, status }: any) => ({
       threshold: threshold === '-Infinity' ? -Infinity : threshold,
@@ -22,14 +23,21 @@ const parseThresholdsSetting = (thresholds: UnparsedThresholds): ParsedThreshold
     .sort((a, b) => b.threshold - a.threshold);
 
 const getStatus = (weeksUntilDue: number, thresholds: ParsedThresholds) => {
-  const status = thresholds.find(({ threshold }) => weeksUntilDue > threshold)?.status;
+  const status = thresholds?.find(({ threshold }) => weeksUntilDue > threshold)?.status;
   return status || VaccineStatus.UNKNOWN;
 };
 
 const getWarningMessage = (
   { weeksFromBirthDue, weeksFromLastVaccinationDue }: IScheduledVaccine,
+  weeksUntilDue: number,
   status: VaccineStatus,
 ) => {
+  if (status === VaccineStatus.MISSED) {
+    return `Patient has missed this vaccine by ${Math.abs(
+      Math.round(weeksUntilDue / 7),
+    )} weeks, please refer to the catchup schedule.`;
+  }
+  // if (weeksFromLastVaccinationDue && [VaccineStatus.UPCOMING])
   // TODO
   return null;
 };
@@ -53,14 +61,10 @@ const getWeeksUntilDue = ({
   return weeksFromDue * 7 - differenceInDays(new Date(), parseISO(date));
 };
 
-export const useVaccineStatus = (data: any = {}): VaccineStatusMessage => {
-  const { getSetting } = useSettings();
-  const thresholds = parseThresholdsSetting(
-    getSetting<UnparsedThresholds>(SETTING_KEYS.UPCOMING_VACCINATION_THRESHOLDS),
-  );
+export const getVaccineStatus = (data: any = {}, thresholds): VaccineStatusMessage => {
   const weeksUntilDue = getWeeksUntilDue(data);
   const status = getStatus(weeksUntilDue, thresholds);
-  const warningMessage = getWarningMessage(data, status);
+  const warningMessage = getWarningMessage(data, weeksUntilDue, status);
   return {
     status,
     warningMessage,
