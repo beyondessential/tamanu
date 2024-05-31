@@ -1,14 +1,15 @@
 import { DataTypes, Sequelize } from 'sequelize';
 import * as yup from 'yup';
+import config from 'config';
 
 import {
-  FHIR_DIAGNOSTIC_REPORT_STATUS,
   FHIR_INTERACTIONS,
+  FHIR_OBSERVATION_STATUS,
 } from '@tamanu/constants';
 import { InvalidOperationError } from '@tamanu/shared/errors';
 import { FhirCodeableConcept, FhirReference } from '../../../services/fhirTypes';
 import { FhirResource } from '../Resource';
-import { Invalid, parseBasedOn } from '../../../utils/fhir';
+import { Invalid, getLabRequestFromBasedOn } from '../../../utils/fhir';
 
 export class FhirObservation extends FhirResource {
   static init(options, models) {
@@ -80,6 +81,60 @@ export class FhirObservation extends FhirResource {
   }
 
   async pushUpstream({ requesterId }) {
-    const serviceRequestFhirId = parseBasedOn(this.basedOn[0], ['ServiceRequest']);
+    if (this.status !== FHIR_OBSERVATION_STATUS.FINAL) {
+      throw new Invalid(`Observation with status '${this.status}', only 'final' allowed`);
+    }
+    const labRequest = await getLabRequestFromBasedOn(this.basedOn, this.sequelize.models, ['ServiceRequest']);
+    if (!labRequest) {
+      throw new Invalid(`No LabRequest with id: '${serviceRequest.upstreamId}', might be ImagingRequest id`);
+    }
+
+    const tests = await labRequest.getTests();
+    const internalCodingSystem = config.hl7.dataDictionaries.serviceRequestLabTestCodeSystem;
+    const externalCodingSystem = config.hl7.dataDictionaries.serviceRequestLabTestExternalCodeSystem;
+
+    const labTestCodingInternal = this.code.coding.find(coding => (
+      coding.system === internalCodingSystem
+    ))?.code;
+    const labTestCodingExternal = this.code.coding.find(coding => (
+      coding.system === externalCodingSystem
+    ))?.code;
+
+    const testCode = labTestCodingExternal || labTestCodingInternal;
+    const { LabTestType } = this.sequelize.models;
+    const currentTestType = await LabTestType.findOne({ where: {
+      externalCode: testCode,
+      labTestCategoryId: labRequest.labTestCategoryId,
+    }});
+    if (!currentTestType) {
+      throw new Invalid(`No lab test type within category '${!!labTestCodingExternal ? externalCodingSystem: internalCodingSystem}' coding system with code '${testCode}'`);
+    }
+
+    const matchedTest = tests.find(test => currentTestType.id === test.labTestTypeId);
+
+    console.log({ matchedTest });
+    
+    if(!matchedTest) {
+      console.debug(`Adding results for lab test id: ${currentTestType.id} not in original request`)
+    } 
+    await this.sequelize.transaction(async () => {
+    
+      if (labRequest.status) {
+        // labRequest.set({ status: newStatus });
+        // await labRequest.save();
+
+        if (!requesterId) throw new InvalidOperationError('No user found for LabRequest status change.');
+        // await this.sequelize.models.LabRequestLog.create({
+        //   status: newStatus,
+        //   labRequestId: labRequest.id,
+        //   updatedById: requesterId,
+        // });
+      }
+    });
+
+    return labRequest;
+
+
+
   }
 }

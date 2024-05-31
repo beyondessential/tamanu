@@ -12,7 +12,7 @@ import {
 import { InvalidOperationError } from '@tamanu/shared/errors';
 import { FhirCodeableConcept, FhirReference } from '../../../services/fhirTypes';
 import { FhirResource } from '../Resource';
-import { Invalid, parseBasedOn } from '../../../utils/fhir';
+import { Invalid, getLabRequestFromBasedOn } from '../../../utils/fhir';
 
 export class FhirDiagnosticReport extends FhirResource {
   static init(options, models) {
@@ -70,31 +70,17 @@ export class FhirDiagnosticReport extends FhirResource {
   // This is beginning very modestly - can extend to handle full 
   // results soon.
   async pushUpstream({ requesterId }) {
-    const { FhirServiceRequest, LabRequest } = this.sequelize.models;
-    if (!this.basedOn || !Array.isArray(this.basedOn)) {
-      throw new Invalid('DiagnosticReport requires basedOn to report results for ServiceRequest', {
-        code: FHIR_ISSUE_TYPE.INVALID.VALUE,
-      });
+    const labRequest = await getLabRequestFromBasedOn(this.basedOn, this.sequelize.models, ['ServiceRequest'])
+    if (!labRequest) {
+      throw new Invalid(`No LabRequest with id: '${serviceRequest.upstreamId}', might be ImagingRequest id`);
     }
-    const serviceRequestFhirId = parseBasedOn(this.basedOn[0], ['ServiceRequest']);
 
-    const serviceRequest = await FhirServiceRequest.findOne({ where: { id: serviceRequestFhirId } });
-
-    if (!serviceRequest) {
-      throw new Invalid(`ServiceRequest '${serviceRequestFhirId}' does not exist in Tamanu`, {
-        code: FHIR_ISSUE_TYPE.INVALID.VALUE,
-      });
-    }
     if (!this.getLabRequestStatus()) {
       throw new Invalid(`LabRequest status invalid`, {
         code: FHIR_ISSUE_TYPE.INVALID.VALUE,
       });
     }
 
-    const labRequest = await LabRequest.findByPk(serviceRequest.upstreamId);
-    if (!labRequest) {
-      throw new Invalid(`No LabRequest with id: '${serviceRequest.upstreamId}', might be ImagingRequest id`);
-    }
     await this.sequelize.transaction(async () => {
       const newStatus = this.getLabRequestStatus();
       if (labRequest.status && labRequest.status !== newStatus) {

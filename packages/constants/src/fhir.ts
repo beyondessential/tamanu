@@ -233,6 +233,20 @@ export const FHIR_DIAGNOSTIC_REPORT_STATUS = {
   UNKNOWN: 'unknown',
 };
 
+export const FHIR_OBSERVATION_STATUS = {
+  REGISTERED: 'registered',
+  PRELIMINARY: 'preliminary',
+  MODIFIED: 'modified',
+  FINAL: 'final',
+  AMENDED: {
+    _: 'amended',
+    CORRECTED: 'corrected',
+  },
+  CANCELLED: 'cancelled',
+  ENTERED_IN_ERROR: 'entered-in-error',
+  UNKNOWN: 'unknown',
+};
+
 export const FHIR_IMAGING_STUDY_STATUS = {
   REGISTERED: 'registered',
   AVAILABLE: 'available',
@@ -241,6 +255,8 @@ export const FHIR_IMAGING_STUDY_STATUS = {
   ENTERED_IN_ERROR: 'entered-in-error',
   UNKNOWN: 'unknown',
 };
+
+
 
 export const FHIR_ENCOUNTER_CLASS_DISPLAY = {
   IMP: 'inpatient encounter',
