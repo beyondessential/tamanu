@@ -100,6 +100,7 @@ export const fakeResourcesOfFhirServiceRequestWithLabRequest = async (
     requestedById: resources.practitioner.id,
     patientId: resources.patient.id,
     encounterId: resources.encounter.id,
+    labTestCategoryId: category.id,
     status: LAB_REQUEST_STATUSES.PUBLISHED,
     labTestPriorityId: validFhirPriority.id,
     requestedDate: '2022-07-27 16:30:00',
