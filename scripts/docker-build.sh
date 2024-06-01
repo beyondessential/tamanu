@@ -21,7 +21,6 @@ common() {
 remove_irrelevant_packages() {
   # remove from npm workspace list all packages that aren't the ones we're building
   cp package.json{,.working}
-  npm ls --workspaces --json
   scripts/list-packages.mjs -- --no-shared -- --paths \
     | jq \
       --arg wanted "$1" \
