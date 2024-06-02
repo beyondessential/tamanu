@@ -84,19 +84,19 @@ export const InvoiceSummaryPanel = ({
           stringId='invoice.summary.subtotal.discountable'
           fallback='Discountable items subtotal'
         />
-        <span>{discountableTotal}</span>
+        <span>{discountableTotal || '-'}</span>
       </CardItem>
       <CardItem>
         <TranslatedText
           stringId='invoice.summary.subtotal.nondiscountable'
           fallback='Non-discountable items subtotal'
         />
-        <span>{nonDiscountableTotal}</span>
+        <span>{nonDiscountableTotal || '-'}</span>
       </CardItem>
       <Divider />
       <CardItem sx={{ fontWeight: 500 }}>
         <TranslatedText stringId="invoice.summary.total.label" fallback="Total" />
-        <span>{invoiceTotal}</span>
+        <span>{invoiceTotal || '-'}</span>
       </CardItem>
       {/* TODO: Add insurer contribution */}
       <Divider />
@@ -153,7 +153,9 @@ export const InvoiceSummaryPanel = ({
             fallback='Patient total'
           />
         </Heading3>
-        <Heading3 sx={{ margin: 0 }}>{patientTotal.toFixed(2)}</Heading3>
+        <Heading3 sx={{ margin: 0 }}>
+          {patientTotal ? patientTotal.toFixed(2) : '-'}
+        </Heading3>
       </CardItem>
     </Container>
   );
