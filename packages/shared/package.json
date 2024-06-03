@@ -97,7 +97,7 @@
     "sinon": "^11.1.2"
   },
   "dependencies": {
-    "@casl/ability": "^4.1.0",
+    "@casl/ability": "^6.7.1",
     "@honeycombio/opentelemetry-node": "^0.3.2",
     "@opentelemetry/api": "^1.4.0",
     "@opentelemetry/auto-instrumentations-node": "^0.36.0",
