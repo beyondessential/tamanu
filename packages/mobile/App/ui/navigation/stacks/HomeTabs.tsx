@@ -57,7 +57,24 @@ const TabScreenIcon = (Icon: FC<SvgProps>) => (props: {
 
 const tabLabelFontSize = screenPercentageToDP(1.47, Orientation.Height);
 
+function getActiveRouteName(navigationState) {
+  if (!navigationState) {
+    return null;
+  }
+  const route = navigationState.routes[navigationState.index];
+  // Nested navigators
+  if (route.state) {
+    return getActiveRouteName(route.state);
+  }
+  return route;
+}
+
 function MyTabBar({ state, descriptors, navigation }: BottomTabBarProps): ReactElement {
+  const currentRoute = getActiveRouteName(state);
+  const isHideTabBar = !!currentRoute?.params?.hideTabBar;
+
+  if (isHideTabBar) return null;
+
   return (
     <StyledSafeAreaView background={theme.colors.PRIMARY_MAIN}>
       <RowView
@@ -95,6 +112,8 @@ function MyTabBar({ state, descriptors, navigation }: BottomTabBarProps): ReactE
               target: route.key,
             });
           };
+
+          if (options.tabBarVisible === false) return null;
 
           return (
             <StyledView key={route.key} flex={1} paddingTop={13} paddingBottom={13}>
@@ -146,6 +165,7 @@ const TabNavigator = ({ selectedPatient }: BaseAppProps): ReactElement => {
     tabBarIcon: TabScreenIcon(PatientIcon),
     tabBarLabel: getTranslation('general.patient', 'Patient'),
     tabBarTestID: 'PATIENT',
+    tabBarVisible: false,
   };
   const SyncDataScreenOptions: BottomTabNavigationOptions = {
     tabBarIcon: TabScreenIcon(SyncCloudIcon),

@@ -49,6 +49,7 @@ export const SearchPatientStack = ({ navigation, route }): ReactElement => {
               component={PatientFilterScreen}
               initialParams={{
                 onChangeFilters: handleSubmit,
+                hideTabBar: true,
               }}
             />
           </Stack.Navigator>

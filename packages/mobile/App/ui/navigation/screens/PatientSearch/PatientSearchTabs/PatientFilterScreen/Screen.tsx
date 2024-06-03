@@ -27,7 +27,7 @@ interface ScreenProps {
 }
 
 export const Screen = ({ onSubmit, onClear, onCancel }: ScreenProps): ReactElement => (
-  <FullView>
+  <FullView background={theme.colors.WHITE}>
     <StyledSafeAreaView>
       <RowView
         background={theme.colors.PRIMARY_MAIN}
@@ -67,14 +67,12 @@ export const Screen = ({ onSubmit, onClear, onCancel }: ScreenProps): ReactEleme
       </RowView>
     </StyledSafeAreaView>
     <StyledScrollView keyboardShouldPersistTaps="never">
-      <FullView background={theme.colors.WHITE}>
         <NameSection />
         <DateSection />
         <VillageSection />
         <SexSection />
         <ProgramRegistrySection />
         <SubmitSection onSubmit={onSubmit} />
-      </FullView>
     </StyledScrollView>
   </FullView>
 );
