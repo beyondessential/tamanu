@@ -31,9 +31,16 @@ export class VaccinationReminderProcessor extends ScheduledTask {
   }
 
   async run() {
-    await this.context.store.sequelize.query(
-      `
-    with 
+    await this.context.store.sequelize.transaction(async () => {
+      const [timezoneBefore] = await this.context.store.sequelize.query('SHOW TIMEZONE;');
+
+      await this.context.store.sequelize.query('SET TIMEZONE TO :timezone', {
+        replacements: { timezone: config.countryTimeZone },
+      });
+
+      await this.context.store.sequelize.query(
+        `
+    with
     dayToRemind as (
       select jsonb_array_elements(value)::int "day" from settings where key = 'vaccinationReminder.due'
     ),
@@ -49,15 +56,15 @@ export class VaccinationReminderProcessor extends ScheduledTask {
         'vaccineName', rd.name,
         'dueDate', uv.due_date
       ) vars
-      FROM upcoming_vaccinations uv 
-      join patient_contacts pc on pc.patient_id = uv.patient_id and pc.method = :communicationChannel
+      FROM upcoming_vaccinations uv
+      join patient_contacts pc on pc.patient_id = uv.patient_id and pc.method = :communicationChannel and pc.connection_details->>'chatId' is not null
       join scheduled_vaccines sv on sv.id = uv.scheduled_vaccine_id
       join reference_data rd on rd.id = sv.vaccine_id and rd."type" = 'drug'
-      join patients p on p.id = uv.patient_id 
+      join patients p on p.id = uv.patient_id
       where uv.days_till_due in (select "day" from dayToRemind)
     )
-    insert into patient_communications (id, created_at, updated_at, channel,  patient_id, destination, hash, status, "type", subject, "content")
-    select 
+    insert into patient_communications (id, created_at, updated_at, channel,  patient_id, destination, hash, status, type, subject, content)
+    select
       uuid_generate_v4() id,
       NOW() created_at,
       NOW() updated_at,
@@ -65,26 +72,31 @@ export class VaccinationReminderProcessor extends ScheduledTask {
       r.patient_id,
       r.destination,
       r.hash,
-      ':communicationStatus'::enum_patient_communications_status status,
-      ':communicationType' type,
-      string_translate(':language',':subjectStringId',':subjectFallback', vars) subject,
-      string_translate(':language',':contentStringId',':contentFallback', vars) content
+      :communicationStatus::enum_patient_communications_status status,
+      :communicationType type,
+      string_translate(:language, :subjectStringId, :subjectFallback, vars) subject,
+      string_translate(:language, :contentStringId, :contentFallback, vars) content
       from reminders r
     where r.hash not in (select hash from patient_communications where hash is not null)
     `,
-      {
-        bind: {
-          communicationChannel: PATIENT_COMMUNICATION_CHANNELS.TELEGRAM,
-          communicationStatus: COMMUNICATION_STATUSES.QUEUED,
-          communicationType: PATIENT_COMMUNICATION_TYPES.VACCINATION_REMINDER,
-          language: config.language,
-          subjectStringId: 'vaccinationReminder.message.subject',
-          subjectFallback: 'Vaccination Reminder for :patientName',
-          contentStringId: 'vaccinationReminder.message.content',
-          contentFallback: 'Your :vaccineName vaccine is scheduled for :dueDate',
+        {
+          replacements: {
+            communicationChannel: PATIENT_COMMUNICATION_CHANNELS.TELEGRAM,
+            communicationStatus: COMMUNICATION_STATUSES.QUEUED,
+            communicationType: PATIENT_COMMUNICATION_TYPES.VACCINATION_REMINDER,
+            language: config.language,
+            subjectStringId: 'vaccinationReminder.message.subject',
+            subjectFallback: 'Vaccination Reminder for :patientName',
+            contentStringId: 'vaccinationReminder.message.content',
+            contentFallback: 'Your :vaccineName vaccine is scheduled for :dueDate',
+          },
+          type: QueryTypes.INSERT,
         },
-        type: QueryTypes.SELECT,
-      },
-    );
+      );
+
+      await this.context.store.sequelize.query('SET TIMEZONE TO :timezone', {
+        replacements: { timezone: timezoneBefore },
+      });
+    });
   }
 }
