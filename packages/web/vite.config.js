@@ -23,11 +23,7 @@ export default async ({ mode }) => {
     ],
 
     define: {
-      __VERSION__: JSON.stringify(
-        await readFile('package.json')
-          .then(JSON.parse)
-          .then(({ version }) => version),
-      ),
+      __VERSION__: '2.10.0',
       NODE_ENV: JSON.stringify(process.env.NODE_ENV),
       process: JSON.stringify({
         env: {
