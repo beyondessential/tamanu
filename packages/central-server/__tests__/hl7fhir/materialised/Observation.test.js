@@ -9,6 +9,7 @@ import {
   fakeResourcesOfFhirServiceRequest,
   fakeResourcesOfFhirServiceRequestWithLabRequest,
 } from '../../fake/fhir';
+import { fake } from '@tamanu/shared/test-helpers';
 
 describe('Parse Observation Results', () => {
   const chance = new Chance();
@@ -21,7 +22,7 @@ describe('Parse Observation Results', () => {
   };
   const INTEGRATION_ROUTE = 'fhir/mat';
   const endpoint = `/v1/integration/${INTEGRATION_ROUTE}/Observation`;
-  const postBody = (serviceRequestId, testCode) => ({
+  const postBody = (serviceRequestId, value, testCode) => ({
     resourceType: 'Observation',
     status: 'final',
     id: 'activated-partial-thromboplastin-time',
@@ -41,18 +42,18 @@ describe('Parse Observation Results', () => {
       text: 'Activated Partial Thromboplastin Time'
     },
     valueQuantity: {
-      value: 30,
-      unit: 'Seconds'
+      value: value,
+      unit: 'units'
     },
     referenceRange: [
       {
         low: {
           value: 25,
-          unit: 'Seconds'
+          unit: 'units'
         },
         high: {
           value: 35,
-          unit: 'Seconds'
+          unit: 'units'
         }
       }
     ],
@@ -118,7 +119,12 @@ describe('Parse Observation Results', () => {
       const serviceRequestId = mat.id;
       await FhirServiceRequest.resolveUpstreams();
 
-      const body = postBody(serviceRequestId, randomTestInPanel.externalCode);
+      const value = chance.integer({
+        min: 0,
+        max: 10000,
+      });
+
+      const body = postBody(serviceRequestId, value, randomTestInPanel.externalCode);
 
       // act
       const response = await app.post(endpoint).send(body);
@@ -130,12 +136,51 @@ describe('Parse Observation Results', () => {
           labTestTypeId: randomTestInPanel.id,
         }
       })
-      expect(labTest.result).toBe('30');
+      expect(labTest.result).toBe(value.toString());
       expect(response).toHaveSucceeded();
     });
 
-    test.todo('Receive Observation for test in Service Request using internal coding')
-    test.todo('Receive Observation for new test in Service Request')
+    test.todo('Receive Observation for test in Service Request using internal coding');
+
+    it('Receive Observation for new test not in original Service Request', async () => {
+      // arrange
+      const { FhirServiceRequest, LabTest, LabTestType } = ctx.store.models;
+      const { labRequest } = await fakeResourcesOfFhirServiceRequestWithLabRequest(
+        ctx.store.models,
+        resources,
+        {
+          isWithPanels: true,
+        },
+        {
+          status: LAB_REQUEST_STATUSES.TO_BE_VERIFIED
+        }
+      );
+      const newLabTestType = await LabTestType.create({
+        ...fake(LabTestType),
+        labTestCategoryId: labRequest.labTestCategoryId,
+      });
+      const mat = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
+      const serviceRequestId = mat.id;
+      await FhirServiceRequest.resolveUpstreams();
+      const value = chance.integer({
+        min: 0,
+        max: 10000,
+      });
+      const body = postBody(serviceRequestId, value, newLabTestType.externalCode);
+
+      // act
+      const response = await app.post(endpoint).send(body);
+
+      // assert
+      const labTest = await LabTest.findOne({
+        where: {
+          labRequestId: labRequest.id,
+          labTestTypeId: newLabTestType.id,
+        }
+      })
+      expect(labTest.result).toBe(value.toString());
+      expect(response).toHaveSucceeded();
+    });
     test.todo('Receive Observation for string valued result')
     test.todo('Receive Observation for boolean valued result')
     test.todo('Receive Observation for number valued result')
