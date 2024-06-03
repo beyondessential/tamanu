@@ -31,11 +31,15 @@ export class VaccinationReminderProcessor extends ScheduledTask {
   }
 
   async run() {
-    await this.context.store.sequelize.transaction(async () => {
-      const [timezoneBefore] = await this.context.store.sequelize.query('SHOW TIMEZONE;');
+    const transaction = await this.context.store.sequelize.transaction();
+    try {
+      const [timezoneBefore] = await this.context.store.sequelize.query('SHOW TIMEZONE;', {
+        transaction,
+      });
 
       await this.context.store.sequelize.query('SET TIMEZONE TO :timezone', {
         replacements: { timezone: config.countryTimeZone },
+        transaction,
       });
 
       await this.context.store.sequelize.query(
@@ -91,12 +95,19 @@ export class VaccinationReminderProcessor extends ScheduledTask {
             contentFallback: 'Your :vaccineName vaccine is scheduled for :dueDate',
           },
           type: QueryTypes.INSERT,
+          transaction,
         },
       );
 
       await this.context.store.sequelize.query('SET TIMEZONE TO :timezone', {
         replacements: { timezone: timezoneBefore },
+        transaction,
       });
-    });
+
+      await transaction.commit();
+    } catch (error) {
+      await transaction.rollback();
+      throw error;
+    }
   }
 }
