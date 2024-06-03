@@ -31,8 +31,15 @@ export class VaccinationReminderProcessor extends ScheduledTask {
   }
 
   async run() {
-    await this.context.store.sequelize.query(
-      `
+    await this.context.store.sequelize.transaction(async () => {
+      const [timezoneBefore] = await this.context.store.sequelize.query('SHOW TIMEZONE;');
+
+      await this.context.store.sequelize.query('SET TIMEZONE TO :timezone', {
+        replacements: { timezone: config.countryTimeZone },
+      });
+
+      await this.context.store.sequelize.query(
+        `
     with
     dayToRemind as (
       select jsonb_array_elements(value)::int "day" from settings where key = 'vaccinationReminder.due'
@@ -72,19 +79,24 @@ export class VaccinationReminderProcessor extends ScheduledTask {
       from reminders r
     where r.hash not in (select hash from patient_communications where hash is not null)
     `,
-      {
-        replacements: {
-          communicationChannel: PATIENT_COMMUNICATION_CHANNELS.TELEGRAM,
-          communicationStatus: COMMUNICATION_STATUSES.QUEUED,
-          communicationType: PATIENT_COMMUNICATION_TYPES.VACCINATION_REMINDER,
-          language: config.language,
-          subjectStringId: 'vaccinationReminder.message.subject',
-          subjectFallback: 'Vaccination Reminder for :patientName',
-          contentStringId: 'vaccinationReminder.message.content',
-          contentFallback: 'Your :vaccineName vaccine is scheduled for :dueDate',
+        {
+          replacements: {
+            communicationChannel: PATIENT_COMMUNICATION_CHANNELS.TELEGRAM,
+            communicationStatus: COMMUNICATION_STATUSES.QUEUED,
+            communicationType: PATIENT_COMMUNICATION_TYPES.VACCINATION_REMINDER,
+            language: config.language,
+            subjectStringId: 'vaccinationReminder.message.subject',
+            subjectFallback: 'Vaccination Reminder for :patientName',
+            contentStringId: 'vaccinationReminder.message.content',
+            contentFallback: 'Your :vaccineName vaccine is scheduled for :dueDate',
+          },
+          type: QueryTypes.INSERT,
         },
-        type: QueryTypes.INSERT,
-      },
-    ).catch(e => log.error(e));
+      );
+
+      await this.context.store.sequelize.query('SET TIMEZONE TO :timezone', {
+        replacements: { timezone: timezoneBefore },
+      });
+    });
   }
 }
