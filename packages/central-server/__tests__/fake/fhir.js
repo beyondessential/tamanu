@@ -114,6 +114,7 @@ export const fakeResourcesOfFhirServiceRequestWithLabRequest = async (
       categoryId: category.id,
     });
     const testTypes = await fakeTestTypes(10, LabTestType, category.id);
+    requestValues.labTestTypeIds = testTypes.map(testType => testType.id);
     await Promise.all(testTypes.map(testType => LabTestPanelLabTestTypes
       .create({
         labTestPanelId: labTestPanel.id,
@@ -127,7 +128,7 @@ export const fakeResourcesOfFhirServiceRequestWithLabRequest = async (
     requestValues.labTestPanelRequestId = labTestPanelRequest.id; // make one of them part of a panel
 
     labRequestData = await randomLabRequest(models, requestValues);
-    labRequest = await LabRequest.create(labRequestData);
+    labRequest = await LabRequest.createWithTests(labRequestData);
 
     return {
       category,
@@ -142,14 +143,16 @@ export const fakeResourcesOfFhirServiceRequestWithLabRequest = async (
       },
     };
   }
-  labRequestData = await randomLabRequest(models, requestValues);
-  labRequest = await LabRequest.create(labRequestData);
   const testTypes = await fakeTestTypes(10, LabTestType, category.id);
   await Promise.all(testTypes.map(testType => LabTest
     .create({
       labRequestId: labRequest.id,
       labTestTypeId: testType.id,
     })));
+
+  requestValues.labTestTypeIds = testTypes.map(testType => testType.id);
+  labRequestData = await randomLabRequest(models, requestValues);
+  labRequest = await LabRequest.createWithTests(labRequestData);
 
   return {
     category,
