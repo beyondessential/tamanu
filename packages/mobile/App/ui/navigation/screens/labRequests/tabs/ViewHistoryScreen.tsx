@@ -26,9 +26,9 @@ const SyncStatusIndicator = ({ synced }): JSX.Element => (
     </Svg>
     <StyledText color={theme.colors.TEXT_DARK} fontSize={13}>
       {synced ? (
-        <TranslatedText stringId="general.synced.text" fallback="Synced" />
+        <TranslatedText stringId="general.synced.label" fallback="Synced" />
       ) : (
-        <TranslatedText stringId="general.syncing.text" fallback="Syncing" />
+        <TranslatedText stringId="general.syncing.label" fallback="Syncing" />
       )}
     </StyledText>
   </StyledView>
