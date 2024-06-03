@@ -5,6 +5,8 @@ import { Notification } from '../../components/Notification';
 import { Button } from '../../components/Button';
 import { AppointmentForm } from '../../components/Appointments/AppointmentForm';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
+import { useAuth } from '../../contexts/Auth';
+import { ErrorMessage } from '../../components/ErrorMessage';
 
 const ButtonRow = styled.div`
   display: flex;
@@ -34,6 +36,10 @@ const SubmissionSuccess = ({ onReset }) => (
 
 export const NewAppointmentView = () => {
   const [success, setSuccess] = useState(false);
+  const { ability } = useAuth();
+
+  const hasPermission = ability.can('write', 'Appointment');
+
   return (
     <PageContainer>
       <TopBar
@@ -42,7 +48,19 @@ export const NewAppointmentView = () => {
         }
       />
       <ContentPane>
-        {success ? (
+        {!hasPermission ? (
+          <ErrorMessage
+            title={
+              <TranslatedText stringId="general.error.noPermission" fallback="No permission" />
+            }
+            errorMessage={
+              <TranslatedText
+                stringId="scheduling.newAppointment.error.noPermission"
+                fallback="You do not have permission to create a new appointment. If you require access, please contact your administrator."
+              />
+            }
+          />
+        ) : success ? (
           <SubmissionSuccess onReset={() => setSuccess(false)} />
         ) : (
           <AppointmentForm

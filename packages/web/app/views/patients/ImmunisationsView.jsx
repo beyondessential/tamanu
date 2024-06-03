@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import {
   ContentPane,
-  ImmunisationSearchBar,
   PageContainer,
-  SearchTable,
+  PatientSearchBar,
   SearchTableTitle,
+  SearchTableWithPermissionCheck,
   TopBar,
   TranslatedText,
 } from '../../components';
@@ -80,9 +80,11 @@ export const ImmunisationsView = () => {
             fallback="Patient immunisation search"
           />
         </SearchTableTitle>
-        <ImmunisationSearchBar onSearch={setSearchParameters} />
-        <SearchTable
-          endpoint="upcomingVaccinations"
+        <PatientSearchBar onSearch={setSearchParameters} suggestByFacility={false} />
+        <SearchTableWithPermissionCheck
+          verb="list"
+          noun="Patient"
+          endpoint="patient"
           columns={COLUMNS}
           noDataMessage="No patients found"
           onRowClick={onRowClick}
