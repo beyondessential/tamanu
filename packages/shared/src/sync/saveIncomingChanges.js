@@ -38,12 +38,16 @@ export const saveChangesForModel = async (model, changes, isCentralServer) => {
     const incoming = idToIncomingRecord[existing.id];
     idsForUpdate.add(existing.id);
 
-    // don't do anything if incoming record is deleted and existing record is already deleted
-    if (existing.deletedAt && !incoming.isDeleted) {
+    // Restores only originate from central server
+    if (isCentralServer === false && existing.deletedAt && !incoming.isDeleted) {
       idsForRestore.add(existing.id);
     }
     if (!existing.deletedAt && incoming.isDeleted) {
       idsForDelete.add(existing.id);
+    }
+    if (existing.deletedAt && incoming.isDeleted) {
+      // don't do anything related to deletion if incoming record
+      // is deleted and existing record is already deleted
     }
   });
   const recordsForCreate = changes
