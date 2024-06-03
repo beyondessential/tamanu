@@ -49,7 +49,7 @@ export async function up(query) {
 	  select
       e.patient_id,
       av.scheduled_vaccine_id,
-      av."date"::date administered_date,
+      av."date"::date administered_date
     from administered_vaccines av
     join scheduled_vaccines sv on sv.id = av.scheduled_vaccine_id
 	  join encounters e on e.id = av.encounter_id
