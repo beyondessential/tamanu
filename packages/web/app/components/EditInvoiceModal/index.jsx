@@ -18,7 +18,7 @@ import { useEncounter } from '../../contexts/Encounter';
 import { getInvoiceLineCode } from '../../utils/invoiceDetails';
 import { InvoiceSummaryPanel } from '../InvoiceSummaryPanel';
 import { StatusDisplay } from '../../utils/invoiceStatus';
-import { useInvoiceLineTotals } from '../../hooks/useInvoiceLineTotals';
+import { calculateInvoiceLinesTotal } from '../../utils';
 
 const LinkText = styled.div`
   font-weight: 500;
@@ -151,7 +151,10 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
     });
   }, []);
 
-  const { discountableTotal, nonDiscountableTotal } = useInvoiceLineTotals(rowList);
+  const invoiceTotal = useMemo(() => {
+    return calculateInvoiceLinesTotal(rowList);
+  }, [rowList]);
+
 
   const handleAddRow = (rowData) => {
     const newRowList = [...rowList];
@@ -380,8 +383,7 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
               </PotentialLineItemsPane>
               <InvoiceSummaryPanel
                 invoiceId={invoiceId}
-                discountableTotal={discountableTotal}
-                nonDiscountableTotal={nonDiscountableTotal}
+                invoiceTotal={invoiceTotal}
                 isEditInvoice
               />
             </ModalSection>
