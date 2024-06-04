@@ -14,6 +14,19 @@ export const GenericIdentificationFields = ({ isEdit, patientRegistryType, filte
   const canEditDisplayId = isEdit && getLocalisation('features.editPatientDisplayId');
 
   const IDENTIFICATION_FIELDS = {
+    displayId: {
+      component: DisplayIdField,
+      condition: () => !!canEditDisplayId,
+    },
+    birthCertificate: {
+      component: TextField,
+      label: (
+        <TranslatedText
+          stringId="general.localisedField.birthCertificate.label"
+          fallback="Birth certificate number"
+        />
+      ),
+    },
     insurerId: {
       component: AutocompleteField,
       suggester: insurerSuggester,
@@ -34,19 +47,6 @@ export const GenericIdentificationFields = ({ isEdit, patientRegistryType, filte
         />
       ),
       condition: () => !!isEdit,
-    },
-    displayId: {
-      component: DisplayIdField,
-      condition: () => !!canEditDisplayId,
-    },
-    birthCertificate: {
-      component: TextField,
-      label: (
-        <TranslatedText
-          stringId="general.localisedField.birthCertificate.label"
-          fallback="Birth certificate number"
-        />
-      ),
     },
     drivingLicense: {
       component: TextField,

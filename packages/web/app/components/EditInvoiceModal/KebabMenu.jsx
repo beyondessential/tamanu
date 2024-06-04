@@ -142,7 +142,10 @@ export const KebabMenu = ({
         )}
         {modalsEnabled.includes(INVOICE_ACTION_MODALS.CANCEL_INVOICE) && (
           <KebabMenuItem onClick={() => handleActionModal(INVOICE_ACTION_MODALS.CANCEL_INVOICE)}>
-            <TranslatedText stringId="invoice.modal.editInvoice.delete" fallback="Cancel invoice" />
+            <TranslatedText
+              stringId="invoice.modal.editInvoice.cancelInvoice"
+              fallback="Cancel invoice"
+            />
           </KebabMenuItem>
         )}
       </StyledMenu>
