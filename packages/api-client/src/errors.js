@@ -14,8 +14,8 @@ export function getVersionIncompatibleMessage(error, response) {
     const maxAppVersion = response.headers
       .get('X-Max-Client-Version')
       .split('.', 3)
-      ?.slice(0, 2)
-      ?.join('.') || 'DEBUG LOG';
+      .slice(0, 2)
+      .join('.');
     return `The Tamanu Facility Server only supports up to v${maxAppVersion}, and needs to be upgraded. Please contact your system administrator.`;
   }
 

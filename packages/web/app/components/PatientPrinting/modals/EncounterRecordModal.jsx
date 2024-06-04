@@ -283,11 +283,7 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
     : [];
 
   const getVitalsColumn = startIndex => {
-    const a = [...recordedDates].reverse();
-    const b = a?.slice(startIndex, startIndex + 12);
-    if (b === undefined) console.log('7');
-    const dateArray = b || [];
-
+    const dateArray = [...recordedDates].reverse().slice(startIndex, startIndex + 12);
     return [
       {
         key: 'measure',

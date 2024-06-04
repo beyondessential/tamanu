@@ -56,11 +56,8 @@ export const PatientCarePlanDetails = React.memo(({ item }) => {
 
         if (notes.length > 1) {
           // display the latest note first
-          const a = notes?.slice(1);
-          if (a ===  undefined) console.log('6');
-          const test = [];
           setSubsequentNotes(
-            test.sort((a, b) => (isBefore(new Date(a.date), new Date(b.date)) ? 1 : -1)),
+            notes.slice(1).sort((a, b) => (isBefore(new Date(a.date), new Date(b.date)) ? 1 : -1)),
           );
         } else {
           setSubsequentNotes([]);

@@ -9,14 +9,10 @@ import { ProcedureForm } from '../forms/ProcedureForm';
 import { TranslatedText } from './Translation/TranslatedText';
 import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
 
-function test(a) {
-  console.log(a);
-  return 'TEST LOG';
-}
 // Both date and startTime only keep track of either date or time, accordingly.
 // This grabs both relevant parts for the table.
 const getActualDateTime = (date, time) => {
-  return `${date?.slice(0, 10) || test('1')} ${time?.slice(-8) || test('2')}`;
+  return `${date.slice(0, 10)} ${time.slice(-8)}`;
 };
 
 // endTime has the same caveat as startTime, this will fix it and
@@ -24,8 +20,8 @@ const getActualDateTime = (date, time) => {
 const getEndDateTime = ({ date, startTime, endTime }) => {
   if (!endTime) return undefined;
   const actualEndDateTime = getActualDateTime(date, endTime);
-  const startTimeString = startTime?.slice(-8) || test('3');
-  const endTimeString = endTime?.slice(-8) || test('4');
+  const startTimeString = startTime.slice(-8);
+  const endTimeString = endTime.slice(-8);
   const isEndTimeEarlier = endTimeString < startTimeString;
 
   if (isEndTimeEarlier === false) return actualEndDateTime;

@@ -137,17 +137,11 @@ const StyledMetadataBox = styled(Box)`
   margin-bottom: 5px;
 `;
 
-function test(str) {
-  const a = str
-  .match(/\b(\w)/g)
-  ?.slice(0, 2)
-  ?.join('');
-
-  if (a === undefined) console.log('8');
-  return a;
-}
-
-const getInitials = string => test(string);
+const getInitials = string =>
+  string
+    .match(/\b(\w)/g)
+    .slice(0, 2)
+    .join('');
 
 const permissionCheck = (...items) => {
   const ability = { ...items.map(item => item.ability) };
