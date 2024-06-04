@@ -92,6 +92,7 @@ export const ItemRow = ({
   rowData,
   isDeleteDisabled,
   updateRowData,
+  showKebabMenu,
 }) => {
   const invoiceLineTypeSuggester = useSuggester('invoiceLineTypes');
   const practitionerSuggester = useSuggester('practitioner');
@@ -110,7 +111,7 @@ export const ItemRow = ({
 
     return isNaN(percentageChangeFloat)
       ? ''
-      : priceFloat + (priceFloat * percentageChangeFloat);
+      : (priceFloat + (priceFloat * percentageChangeFloat)).toFixed(2);
   }, [rowData.price, rowData.percentageChange]);
 
   return (
@@ -127,7 +128,10 @@ export const ItemRow = ({
           saveDateAsString
           size="small"
           value={rowData.date}
-          onChange={event => updateRowData(rowData.id, { date: event.target.value })}
+          onChange={event => updateRowData(rowData.id, { 
+            date: event.target.value,
+            toBeUpdated: true
+          })}
         />
       </Grid>
       <Grid item xs={4}>
@@ -143,6 +147,7 @@ export const ItemRow = ({
             invoiceLineTypeId: event.target.value,
             code: "",
             price: "",
+            toBeUpdated: true
           })}
         />
       </Grid>
@@ -162,7 +167,8 @@ export const ItemRow = ({
           value={rowData.orderedById}
           onChange={event => updateRowData(rowData.id, {
             orderedById: event.target.value,
-            orderedBy: ""
+            orderedBy: "",
+            toBeUpdated: true
           })}
         />
       </Grid>
@@ -172,14 +178,14 @@ export const ItemRow = ({
             {rowData.price}
           </PriceText>
           <span>{finalPrice}</span>
-          <KebabMenu
+          {showKebabMenu && <KebabMenu
             isDeleteDisabled={isDeleteDisabled}
             onDelete={onDelete}
             onAddDiscountLineItem={onAddDiscountLineItem}
             onAddMarkupLineItem={onAddMarkupLineItem}
             onRemovePercentageChangeLineItem={onRemovePercentageChangeLineItem}
             rowData={rowData}
-          />
+          />}
         </PriceCell>
       </Grid>
     </StyledItemRow>

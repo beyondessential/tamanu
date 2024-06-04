@@ -168,7 +168,6 @@ export const ActionModal = React.memo(({ open, onClose, onAction, lineItems, act
     <Modal width="sm" title={getModalTitle()} open={open} onClose={onClose}>
       <InvoiceItemDetailsCard lineItems={lineItems} />
       <Form
-        initialValues={{}}
         validationSchema={formData[action]?.schema}
         onSubmit={handleSubmit}
         render={renderForm}

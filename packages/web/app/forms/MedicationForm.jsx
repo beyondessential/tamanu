@@ -10,7 +10,6 @@ import {
   AutocompleteField,
   Button,
   ButtonRow,
-  DateDisplay,
   DateField,
   Field,
   Form,
@@ -20,6 +19,7 @@ import {
   NumberField,
   SelectField,
   TextField,
+  getDateDisplay
 } from '../components';
 import { MAX_AGE_TO_RECORD_WEIGHT, FORM_TYPES } from '../constants';
 import { TranslatedText } from '../components/Translation/TranslatedText';
@@ -102,7 +102,7 @@ const DiscontinuedLabel = ({ medication }) => {
       <TranslatedText
         stringId="medication.detail.discontinued.discontinuedAt"
         fallback="Discontinued at: :date"
-        replacements={{ date: <DateDisplay date={discontinuedDate} /> }}
+        replacements={{ date: getDateDisplay(discontinuedDate) }}
       />
       <br />
       <TranslatedText
