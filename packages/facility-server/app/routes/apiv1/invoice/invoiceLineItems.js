@@ -71,7 +71,13 @@ invoiceLineItemsRoute.put(
       return newItem;
     });
     const updatedLineItems = await models.InvoiceLineItem.bulkCreate(itemsToUpdate, {
-      updateOnDuplicate: ['invoiceLineTypeId', 'dateGenerated', 'orderedById', 'percentageChange'],
+      updateOnDuplicate: [
+        'invoiceLineTypeId',
+        'dateGenerated',
+        'orderedById',
+        'percentageChange',
+        'discountMarkupReason',
+      ],
     });
 
     res.send({
