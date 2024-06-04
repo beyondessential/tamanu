@@ -101,6 +101,9 @@ export const ItemRow = ({
       ? ''
       : (priceFloat + priceFloat * percentageChangeFloat).toFixed(2);
   }, [rowData.price, rowData.percentageChange]);
+  if (rowData.id === 'a43a787c-6c7d-4d74-9809-5ae62107ea66') {
+    console.log(rowData)
+  }
 
   return (
     <StyledItemRow container alignItems="center" spacing={1}>
@@ -164,6 +167,7 @@ export const ItemRow = ({
         <PriceCell>
           <PriceText $isCrossedOut={!!rowData.percentageChange}>{rowData.price}</PriceText>
           <ThemedTooltip
+            key={rowData.discountMarkupReason}
             title={rowData.discountMarkupReason}
             open={rowData.discountMarkupReason ? undefined : false}
           >

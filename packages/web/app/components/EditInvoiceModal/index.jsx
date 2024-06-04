@@ -248,7 +248,8 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
     const newRowList = rowList.map(row => {
       if (row.id === id && Number(data.percentageChange)) {
         row.percentageChange = -(data.percentageChange / 100);
-        row.discountMarkupReason = data.discountMarkupReason
+        row.discountMarkupReason = data.discountMarkupReason;
+        row.toBeUpdated = true;
       }
       return row;
     });
@@ -259,7 +260,8 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
     const newRowList = rowList.map(row => {
       if (row.id === id && Number(data.percentageChange)) {
         row.percentageChange = data.percentageChange / 100;
-        row.discountMarkupReason = data.discountMarkupReason
+        row.discountMarkupReason = data.discountMarkupReason;
+        row.toBeUpdated = true;
       }
       return row;
     });
@@ -271,6 +273,7 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
       if (row.id === id) {
         row.percentageChange = null;
         row.discountMarkupReason = '';
+        row.toBeUpdated = true;
       }
       return row;
     });
