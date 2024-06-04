@@ -35,7 +35,9 @@ export const replaceStringVariables = (
       // Even indexes are the unchanged parts of the string
       if (index % 2 === 0) return part;
       // Return the replacement if exists
-      let replacement = replacements[part.slice(1)] ?? part;
+      const a = part?.slice(1);
+      if (a === undefined) console.log('9');
+      let replacement = replacements[a] ?? part;
       if (typeof replacement !== 'object') return replacement;
 
       const translation = translations?.[replacement.props.stringId] || replacement.props.fallback;

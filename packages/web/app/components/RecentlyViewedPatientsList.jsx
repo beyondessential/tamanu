@@ -184,6 +184,11 @@ export const RecentlyViewedPatientsList = ({ encounterType }) => {
     return null;
   }
 
+  const a = recentlyViewedPatients
+  ?.slice(pageIndex * PATIENTS_PER_PAGE, (pageIndex + 1) * PATIENTS_PER_PAGE);
+  if (a === undefined) console.log('5');
+  const test = a || [];
+
   return (
     <Container>
       <ContainerTitle onClick={() => setIsExpanded(!isExpanded)}>
@@ -202,11 +207,9 @@ export const RecentlyViewedPatientsList = ({ encounterType }) => {
             <MarginDiv />
           )}
           <CardList>
-            {recentlyViewedPatients
-              .slice(pageIndex * PATIENTS_PER_PAGE, (pageIndex + 1) * PATIENTS_PER_PAGE)
-              .map(patient => (
-                <Card key={patient.id} patient={patient} handleClick={cardOnClick} />
-              ))}
+            {test.map(patient => (
+              <Card key={patient.id} patient={patient} handleClick={cardOnClick} />
+            ))}
           </CardList>
           {pageIndex < pageCount - 1 ? (
             <RightArrowButton onClick={() => changePage(1)}>

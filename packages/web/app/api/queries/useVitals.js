@@ -83,7 +83,14 @@ export const useVitals = encounterId => {
   };
 };
 
+function test(a) {
+  console.log(a);
+  return 'TEST LOG';
+}
+
 function getSortedLogsByDate(logs) {
   if (!logs) return [];
-  return logs.slice().sort((a, b) => b.date.localeCompare(a.date));
+  const a = logs?.slice() || test('0');
+  if (a === 'TEST LOG') return [];
+  return a.sort((a, b) => b.date.localeCompare(a.date));
 }
