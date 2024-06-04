@@ -5,6 +5,7 @@ import { TabDisplay } from '../../../components/TabDisplay';
 import { AdminViewContainer } from './AdminViewContainer';
 import { ImporterView } from './ImporterView';
 import { ExporterView } from './ExporterView';
+import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
 const StyledTabDisplay = styled(TabDisplay)`
   margin-top: 20px;
@@ -28,7 +29,7 @@ export const ImportExportView = memo(
     const tabs = useMemo(
       () => [
         {
-          label: 'Import',
+          label: <TranslatedText stringId="admin.import.title" fallback="Import" />,
           key: 'import',
           icon: 'fa fa-file-import',
           render: () => (
@@ -43,7 +44,7 @@ export const ImportExportView = memo(
           ),
         },
         !disableExport && {
-          label: 'Export',
+          label: <TranslatedText stringId="admin.export.title" fallback="Export" />,
           key: 'export',
           icon: 'fa fa-file-export',
           render: () => (

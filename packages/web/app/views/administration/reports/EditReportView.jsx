@@ -12,6 +12,7 @@ import { Colors } from '../../../constants';
 import { VersionInfo } from './components/VersionInfo';
 import { ReportEditor } from './ReportEditor';
 import { LoadingIndicator } from '../../../components/LoadingIndicator';
+import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
 const Container = styled.div`
   padding: 20px;
@@ -85,7 +86,9 @@ export const EditReportView = () => {
 
   return (
     <Container>
-      <StyledButton onClick={handleBack}>Back</StyledButton>
+      <StyledButton onClick={handleBack}>
+        <TranslatedText stringId="general.action.back" fallback="Back" />
+      </StyledButton>
       {isLoading ? (
         <Box mt={2}>
           <LoadingIndicator height="400px" />

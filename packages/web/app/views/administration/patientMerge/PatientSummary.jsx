@@ -5,6 +5,7 @@ import { SEX_VALUE_INDEX } from '@tamanu/constants';
 
 import { theme } from '../../../theme';
 import { DateDisplay } from '../../../components/DateDisplay';
+import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
 const Label = styled.span`
   color: ${theme.palette.text.tertiary};
@@ -12,7 +13,10 @@ const Label = styled.span`
 
 const LabelledValue = ({ label, value }) => (
   <div>
-    <Label>{`${label}: `}</Label>
+    <Label>
+      {label}
+      {': '}
+    </Label>
     <span>{value}</span>
   </div>
 );
@@ -71,14 +75,51 @@ export const PatientSummary = ({
     </Header>
     <Columns>
       <div>
-        <LabelledValue label="First name" value={patient.firstName} />
-        <LabelledValue label="Last name" value={patient.lastName} />
-        <LabelledValue label="Cultural name" value={patient.culturalName} />
+        <LabelledValue
+          label={
+            <TranslatedText
+              stringId="general.localisedField.firstName.label"
+              fallback="First name"
+            />
+          }
+          value={patient.firstName}
+        />
+        <LabelledValue
+          label={
+            <TranslatedText stringId="general.localisedField.lastName.label" fallback="Last name" />
+          }
+          value={patient.lastName}
+        />
+        <LabelledValue
+          label={
+            <TranslatedText
+              stringId="general.localisedField.culturalName.label"
+              fallback="Cultural name"
+            />
+          }
+          value={patient.culturalName}
+        />
       </div>
       <div>
-        <LabelledValue label="Village" value={patient.village?.name} />
-        <LabelledValue label="Sex" value={SEX_VALUE_INDEX[patient.sex]?.label} />
-        <LabelledValue label="Date of birth" value={<DateDisplay date={patient.dateOfBirth} />} />
+        <LabelledValue
+          label={
+            <TranslatedText stringId="general.localisedField.village.label" fallback="Village" />
+          }
+          value={patient.village?.name}
+        />
+        <LabelledValue
+          label={<TranslatedText stringId="general.localisedField.sex.label" fallback="Sex" />}
+          value={SEX_VALUE_INDEX[patient.sex]?.label}
+        />
+        <LabelledValue
+          label={
+            <TranslatedText
+              stringId="general.localisedField.dateOfBirth.label"
+              fallback="Date of birth"
+            />
+          }
+          value={<DateDisplay date={patient.dateOfBirth} />}
+        />
       </div>
     </Columns>
   </SummaryFrame>
