@@ -98,16 +98,22 @@ export class FhirObservation extends FhirResource {
     }
 
     const tests = await labRequest.getTests();
-    const testCode = this.getTestCode();
-
+    const externalTestCode = this.getExternalTestCode();
+    const internalTestCode = this.getInternalTestCode();
+    const codeClause = !!externalTestCode ?
+      ({
+        externalCode: externalTestCode,
+      }) :
+      ({
+        code: internalTestCode,
+      });
     const { LabTestType } = this.sequelize.models;
     const currentTestType = await LabTestType.findOne({
       where: {
-        externalCode: testCode,
+        ...codeClause,
         labTestCategoryId: labRequest.labTestCategoryId,
       }
     });
-
     if (!currentTestType) {
       throw new Invalid(`No lab test in system '${!!labTestCodingExternal ? externalCodingSystem : internalCodingSystem}' coding system with code '${testCode}'`);
     }
@@ -145,35 +151,35 @@ export class FhirObservation extends FhirResource {
     });
   }
 
-  getTestCode() {
+  getInternalTestCode() {
     const internalCodingSystem = config.hl7.dataDictionaries.serviceRequestLabTestCodeSystem;
+    return this.code.coding.find(coding => coding.system === internalCodingSystem)?.code;
+  }
+  getExternalTestCode() {
     const externalCodingSystem = config.hl7.dataDictionaries.serviceRequestLabTestExternalCodeSystem;
-
-    const labTestCodingInternal = this.code.coding.find(coding => coding.system === internalCodingSystem)?.code;
-    const labTestCodingExternal = this.code.coding.find(coding => coding.system === externalCodingSystem)?.code;
-
-    return labTestCodingExternal || labTestCodingInternal;
+    return this.code.coding.find(coding => coding.system === externalCodingSystem)?.code;
   }
 
   parseValue(currentTestType) {
+    const printableTestCode = this.getExternalTestCode() || this.getInternalTestCode();
     switch (currentTestType.resultType) {
       case LAB_TEST_RESULT_TYPES.NUMBER:
         if (!this.valueQuantity) {
-          throw new Invalid(`Observation ${this.getTestCode()} is results for a ${LAB_TEST_RESULT_TYPES.NUMBER}, it requires a valueQuantity value`);
+          throw new Invalid(`Observation with code '${printableTestCode}' is results for a ${LAB_TEST_RESULT_TYPES.NUMBER}, it requires a valueQuantity value`);
         }
         return this.valueQuantity.value;
       case LAB_TEST_RESULT_TYPES.FREE_TEXT:
         if (!this.valueString) {
-          throw new Invalid(`Observation ${this.getTestCode()} is results for a ${LAB_TEST_RESULT_TYPES.FREE_TEXT}, it requires a valueString value`);
+          throw new Invalid(`Observation with code '${printableTestCode}' is results for a ${LAB_TEST_RESULT_TYPES.FREE_TEXT}, it requires a valueString value`);
         }
         return this.valueString.value;
       case LAB_TEST_RESULT_TYPES.SELECT:
         if (!this.valueString) {
-          throw new Invalid(`Observation ${this.getTestCode()} is results for a ${LAB_TEST_RESULT_TYPES.SELECT}, it requires a valueString value`);
+          throw new Invalid(`Observation with code '${printableTestCode}' is results for a ${LAB_TEST_RESULT_TYPES.SELECT}, it requires a valueString value`);
         }
         // some options are delimited by ', ' sometimes by just ','
         if (!currentTestType.options.replace(', ', ',').split(',').includes(this.valueString.value)) {
-          throw new Invalid(`Observation ${this.getTestCode()} needs valueString.value to be one of: ${currentTestType.options}`);
+          throw new Invalid(`Observation with code '${printableTestCode}' needs valueString.value to be one of: ${currentTestType.options}`);
         }
         return this.valueString.value;
       default:
