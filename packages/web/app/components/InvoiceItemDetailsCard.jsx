@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { Box } from '@material-ui/core';
 import { Colors } from '../constants';
 import { TranslatedText } from './Translation/TranslatedText';
+import { getDateDisplay } from './DateDisplay';
 
 const Card = styled(Box)`
   background: white;
@@ -51,7 +52,7 @@ const CardItem = ({ label, value, ...props }) => (
 );
 
 export const InvoiceItemDetailsCard = ({ lineItems }) => (
-  <Card mb={4}>
+  <Card mb={3}>
     <Column>
       <CardItem
         label={
@@ -60,7 +61,7 @@ export const InvoiceItemDetailsCard = ({ lineItems }) => (
             fallback="Date"
           />
         }
-        value={lineItems?.date}
+        value={lineItems?.date ? getDateDisplay(lineItems?.date, 'dd/MM/yyyy') : ''}
       />
       <CardItem
         label={
