@@ -12,7 +12,9 @@ import {
   SelectField,
   SuggesterSelectField,
 } from '../Field';
-import { CustomisableSearchBar } from './CustomisableSearchBar';
+import {
+  CustomisableSearchBarWithPermissionCheck,
+} from './CustomisableSearchBar';
 import { LabRequestSearchParamKeys, useLabRequest } from '../../contexts/LabRequest';
 import { useSuggester } from '../../api';
 import { useAdvancedFields } from './useAdvancedFields';
@@ -47,7 +49,9 @@ export const LabRequestsSearchBar = ({ status = '' }) => {
   });
 
   return (
-    <CustomisableSearchBar
+    <CustomisableSearchBarWithPermissionCheck
+      verb="list"
+      noun="LabRequest"
       initialValues={searchParameters}
       onSearch={setSearchParameters}
       isExpanded={showAdvancedFields}
@@ -128,7 +132,7 @@ export const LabRequestsSearchBar = ({ status = '' }) => {
           }
           component={SearchField}
         />
-        <Field name="requestId" label="Test ID" component={SearchField} />
+        <Field name="requestId" label={<TranslatedText stringId="lab.requestId.label" fallback="Test ID" />} component={SearchField} />
         <Field
           name="category"
           label="Test category"
@@ -189,6 +193,6 @@ export const LabRequestsSearchBar = ({ status = '' }) => {
           />
         )}
       </>
-    </CustomisableSearchBar>
+    </CustomisableSearchBarWithPermissionCheck>
   );
 };

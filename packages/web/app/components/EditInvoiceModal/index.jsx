@@ -100,9 +100,12 @@ const StatusContainer = styled.span`
 `;
 
 export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounterId, invoiceStatus }) => {
-  const [rowList, setRowList] = useState([{ id: uuidv4() }]);
+  const defaultRow = { id: uuidv4(), toBeUpdated: true };
+  const [rowList, setRowList] = useState([defaultRow]);
   const [potentialLineItems, setPotentialLineItems] = useState([]);
   const [isSaving, setIsSaving] = useState(false);
+  const [isSaveDisabled, setIsSaveDisabled] = useState(false);
+  const [idsToDelete, setIdsToDelete] = useState([]);
   const api = useApi();
 
   useEffect(() => {
@@ -115,11 +118,15 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
         date: item.dateGenerated,
         orderedBy: item.orderedBy?.displayName,
         price: item.invoiceLineType?.price,
-        invoiceLineTypeId: item.invoiceLineTypeId,
         code: getInvoiceLineCode(item),
       })));
     })();
   }, [api]);
+
+  useEffect(() => {
+    const isSaveDisabled = !rowList.some(row => !!row.invoiceLineTypeId);
+    setIsSaveDisabled(isSaveDisabled);
+  }, [rowList])
 
   const { loadEncounter } = useEncounter();
 
@@ -148,11 +155,13 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
             invoiceLineTypeId: newItem?.invoiceLineTypeId,
             orderedById: newItem?.orderedById,
             code: newItem?.code,
+            toBeUpdated: true,
+            toBeCreated: !!newItem.toBeCreated
           });
         }
       });
     } else {
-      newRowList.push({ id: uuidv4() });
+      newRowList.push(defaultRow);
     }
 
     setRowList(newRowList);
@@ -183,10 +192,6 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
       ),
     },
     {
-      key: 'orderedBy',
-      title: <TranslatedText stringId="invoice.table.column.orderedBy" fallback="Ordered by" />
-    },
-    {
       key: 'price',
       title: <TranslatedText stringId="invoice.table.column.price" fallback="Price" />,
       accessor: ({ price }) => (
@@ -200,7 +205,7 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
     {
       sortable: false,
       accessor: (row) => (
-        <SingleAddButton variant="outlined" onClick={() => handleAddRow([row])}>
+        <SingleAddButton variant="outlined" onClick={() => handleAddRow([{ ...row, toBeCreated: true }])}>
           <TranslatedText stringId="general.action.add" fallback="Add" />
         </SingleAddButton>
       ),
@@ -213,7 +218,11 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
   }, [rowList, potentialLineItems]);
 
   const onDataFetched = useCallback(({ data }) => {
-    setPotentialLineItems(data);
+    const newData = data.map(item => ({
+      ...item,
+      toBeCreated: true
+    }))
+    setPotentialLineItems(newData);
   }, []);
 
   const rowStyle = ({ id }) => {
@@ -230,6 +239,7 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
   }), {});
 
   const onDeleteLineItem = (id) => {
+    setIdsToDelete(previousIds => [...previousIds, id]);
     const newRowList = rowList.filter(row => row.id !== id);
     setRowList(newRowList);
   };
@@ -271,14 +281,19 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
     if (isSaving) return;
     setIsSaving(true);
 
-    const invoiceLineItemsData = rowList.map((row, index) => ({
-      ...row,
-      id: row.id,
-      invoiceLineTypeId: submitData[`invoiceLineTypeId_${index}`],
-      date: submitData[`date_${index}`],
-      orderedById: submitData[`orderedById_${index}`],
-    }));
+    const invoiceLineItemsData = rowList
+      .map((row, index) => ({
+        ...(!row.toBeCreated && { id: row.id }),
+        invoiceLineTypeId: submitData[`invoiceLineTypeId_${index}`],
+        date: submitData[`date_${index}`],
+        orderedById: submitData[`orderedById_${index}`],
+        percentageChange: row.percentageChange,
+        discountMarkupReason: row.discountMarkupReason,
+        toBeUpdated: !!row.toBeUpdated,
+      }))
+      .filter(row => row.toBeUpdated);
 
+    await api.delete(`invoices/${invoiceId}/lineItems`, { idsToDelete });
     await api.put(`invoices/${invoiceId}/lineItems`, { invoiceLineItemsData });
     await loadEncounter(encounterId);
     setIsSaving(false);
@@ -348,11 +363,12 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
                   onRemovePercentageChangeLineItem={() => onRemovePercentageChangeLineItem(row?.id)}
                   isDeleteDisabled={rowList.length === 1}
                   updateRowData={updateRowData}
+                  showKebabMenu={!isSaveDisabled || rowList.length > 1}
                 />
               ))}
             </div>
             <LinkText onClick={() => handleAddRow()}>
-              {"+ "}<TranslatedText stringId="invoice.modal.editInvoice.action.newRow" fallback="New row" />
+              {"+ "}<TranslatedText stringId="invoice.modal.editInvoice.action.newRow" fallback="Add new row" />
             </LinkText>
             <PotentialLineItemsPane>
               <PaneTitle>
@@ -360,9 +376,9 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
                   stringId="invoice.modal.potentialItems.title"
                   fallback="Patient items to be added"
                 />
-                <BulkAddButton onClick={() => handleAddRow(potentialLineItems)}>
+                {!isEmpty && <BulkAddButton onClick={() => handleAddRow(potentialLineItems)}>
                   <TranslatedText stringId="general.action.addAll" fallback="Add all" />
-                </BulkAddButton>
+                </BulkAddButton>}
               </PaneTitle>
               <StyledDataFetchingTable
                 endpoint={`invoices/${invoiceId}/potentialLineItems`}
@@ -370,7 +386,7 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
                 noDataMessage={
                   <TranslatedText
                     stringId="invoice.modal.potentialInvoices.table.noData"
-                    fallback="No potential invoice line items found"
+                    fallback="No patient items to be added"
                   />
                 }
                 allowExport={false}
@@ -395,6 +411,14 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
               }
               onConfirm={submitForm}
               onCancel={onClose}
+              confirmDisabled={isSaveDisabled}
+              confirmStyle={`
+                &.Mui-disabled {
+                  color: ${Colors.white};
+                  background-color: ${Colors.primary};
+                  opacity: 0.3;
+                }
+              `}
             />
           </FormContainer>)}
       />

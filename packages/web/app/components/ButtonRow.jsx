@@ -43,11 +43,12 @@ export const FormSubmitCancelRow = React.memo(
     confirmColor = 'primary',
     cancelText = <TranslatedText stringId="general.action.cancel" fallback="Cancel" />,
     confirmDisabled,
+    confirmStyle,
     ...props
   }) => (
     <ButtonRow {...props}>
       {onCancel && <FormCancelButton onClick={onCancel}>{cancelText}</FormCancelButton>}
-      <FormSubmitButton color={confirmColor} onSubmit={onConfirm} disabled={confirmDisabled}>
+      <FormSubmitButton color={confirmColor} onSubmit={onConfirm} disabled={confirmDisabled} confirmStyle={confirmStyle}>
         {confirmText}
       </FormSubmitButton>
     </ButtonRow>
