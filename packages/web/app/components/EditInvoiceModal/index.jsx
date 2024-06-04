@@ -144,8 +144,16 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
   }, []);
 
   const handleAddRow = (rowData) => {
-    const newRowList = [...rowList];
+    let newRowList = [...rowList];
     if (Array.isArray(rowData) && rowData.length) {
+      if (
+        rowList.length === 1 &&
+        !rowList[0].invoiceLineTypeId &&
+        !rowList[0].orderedById &&
+        !rowList[0].dateGenerated
+      ) {
+        newRowList = []; 
+      }
       rowData.forEach(newItem => {
         const idExists = newRowList.some(item => item && item.id === newItem.id);
         if (!idExists) {
