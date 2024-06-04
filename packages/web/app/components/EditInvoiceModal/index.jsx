@@ -113,15 +113,12 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
       const { data } = await api.get(`invoices/${encodeURIComponent(invoiceId)}/lineItems`);
       if (!data.length) return;
       setRowList(data.map(item => ({
-        id: item.id,
+        ...item,
         details: item.invoiceLineType?.name,
         date: item.dateGenerated,
         orderedBy: item.orderedBy?.displayName,
         price: item.invoiceLineType?.price,
-        invoiceLineTypeId: item.invoiceLineTypeId,
-        orderedById: item.orderedById,
         code: getInvoiceLineCode(item),
-        percentageChange: item.percentageChange
       })));
     })();
   }, [api]);
@@ -247,20 +244,24 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
     setRowList(newRowList);
   };
 
-  const onAddDiscountLineItem = (id, discount) => {
+  const onAddDiscountLineItem = (id, data) => {
     const newRowList = rowList.map(row => {
-      if (row.id === id && Number(discount)) {
-        row.percentageChange = -(discount / 100);
+      if (row.id === id && Number(data.percentageChange)) {
+        row.percentageChange = -(data.percentageChange / 100);
+        row.discountMarkupReason = data.discountMarkupReason;
+        row.toBeUpdated = true;
       }
       return row;
     });
     setRowList(newRowList);
   };
 
-  const onAddMarkupLineItem = (id, markup) => {
+  const onAddMarkupLineItem = (id, data) => {
     const newRowList = rowList.map(row => {
-      if (row.id === id && Number(markup)) {
-        row.percentageChange = markup / 100;
+      if (row.id === id && Number(data.percentageChange)) {
+        row.percentageChange = data.percentageChange / 100;
+        row.discountMarkupReason = data.discountMarkupReason;
+        row.toBeUpdated = true;
       }
       return row;
     });
@@ -271,6 +272,8 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
     const newRowList = rowList.map(row => {
       if (row.id === id) {
         row.percentageChange = null;
+        row.discountMarkupReason = '';
+        row.toBeUpdated = true;
       }
       return row;
     });
@@ -288,6 +291,7 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
         date: submitData[`date_${index}`],
         orderedById: submitData[`orderedById_${index}`],
         percentageChange: row.percentageChange,
+        discountMarkupReason: row.discountMarkupReason,
         toBeUpdated: !!row.toBeUpdated,
       }))
       .filter(row => row.toBeUpdated);

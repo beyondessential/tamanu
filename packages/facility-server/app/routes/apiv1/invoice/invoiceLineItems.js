@@ -63,6 +63,7 @@ invoiceLineItemsRoute.put(
         orderedById: item.orderedById,
         invoiceId,
         percentageChange: item.percentageChange,
+        discountMarkupReason: item.discountMarkupReason,
         // Assign unique createdAt timestamps to avoid random order
         createdAt: currentTime,
       };
@@ -70,7 +71,13 @@ invoiceLineItemsRoute.put(
       return newItem;
     });
     const updatedLineItems = await models.InvoiceLineItem.bulkCreate(itemsToUpdate, {
-      updateOnDuplicate: ['invoiceLineTypeId', 'dateGenerated', 'orderedById', 'percentageChange'],
+      updateOnDuplicate: [
+        'invoiceLineTypeId',
+        'dateGenerated',
+        'orderedById',
+        'percentageChange',
+        'discountMarkupReason',
+      ],
     });
 
     res.send({
