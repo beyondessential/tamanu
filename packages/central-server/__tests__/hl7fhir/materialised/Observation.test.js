@@ -10,6 +10,7 @@ import {
   fakeResourcesOfFhirServiceRequestWithLabRequest,
 } from '../../fake/fhir';
 import { fake } from '@tamanu/shared/test-helpers';
+import config from 'config';
 
 describe('Parse Observation Results', () => {
   const chance = new Chance();
@@ -22,7 +23,7 @@ describe('Parse Observation Results', () => {
   };
   const INTEGRATION_ROUTE = 'fhir/mat';
   const endpoint = `/v1/integration/${INTEGRATION_ROUTE}/Observation`;
-  const postBody = (serviceRequestId, value, testCode) => ({
+  const postBody = (serviceRequestId, value, testCode, testCodeSystem = 'http://loinc.org') => ({
     resourceType: 'Observation',
     status: 'final',
     id: 'activated-partial-thromboplastin-time',
@@ -34,7 +35,7 @@ describe('Parse Observation Results', () => {
     code: {
       coding: [
         {
-          system: 'http://loinc.org',
+          system: testCodeSystem,
           code: testCode,
           display: 'Activated Partial Thromboplastin Time'
         }
@@ -81,14 +82,20 @@ describe('Parse Observation Results', () => {
       const {
         FhirServiceRequest,
         LabRequest,
+        LabTest,
+        LabTestType,
         LabTestPanel,
+        LabTestPanelLabTestTypes,
         LabTestPanelRequest,
         FhirEncounter,
       } = ctx.store.models;
       await FhirEncounter.destroy({ where: {} });
       await FhirServiceRequest.destroy({ where: {} });
       await LabRequest.destroy({ where: {} });
+      await LabTest.destroy({ where: {} });
+      await LabTestType.destroy({ where: {} });
       await LabTestPanel.destroy({ where: {} });
+      await LabTestPanelLabTestTypes.destroy({ where: {} });
       await LabTestPanelRequest.destroy({ where: {} });
       const fhirEncounter = await FhirEncounter.materialiseFromUpstream(resources.encounter.id);
       fhirResources.fhirEncounter = fhirEncounter;
@@ -140,7 +147,55 @@ describe('Parse Observation Results', () => {
       expect(response).toHaveSucceeded();
     });
 
-    test.todo('Receive Observation for test in Service Request using internal coding');
+    it('Receive Observation for test in Service Request using internal coding', async () => {
+      // arrange
+      const { FhirServiceRequest, LabTest } = ctx.store.models;
+      const { labRequest, panelTestTypes } = await fakeResourcesOfFhirServiceRequestWithLabRequest(
+        ctx.store.models,
+        resources,
+        {
+          isWithPanels: true,
+        },
+        {
+          status: LAB_REQUEST_STATUSES.TO_BE_VERIFIED
+        }
+      );
+
+      // We can't use external codes that don't exist unfortuantely
+      const randomTestInPanel =
+        panelTestTypes[chance.integer({
+          min: 0,
+          max: panelTestTypes.length - 1,
+        })];
+      const mat = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
+      const serviceRequestId = mat.id;
+      await FhirServiceRequest.resolveUpstreams();
+
+      const value = chance.integer({
+        min: 0,
+        max: 10000,
+      });
+
+      const body = postBody(
+        serviceRequestId,
+        value,
+        randomTestInPanel.code,
+        config.hl7.dataDictionaries.serviceRequestLabTestCodeSystem, // use internal
+      );
+
+      // act
+      const response = await app.post(endpoint).send(body);
+
+      // assert
+      const labTest = await LabTest.findOne({
+        where: {
+          labRequestId: labRequest.id,
+          labTestTypeId: randomTestInPanel.id,
+        }
+      })
+      expect(labTest.result).toBe(value.toString());
+      expect(response).toHaveSucceeded();
+    });
 
     it('Receive Observation for new test not in original Service Request', async () => {
       // arrange
@@ -158,6 +213,7 @@ describe('Parse Observation Results', () => {
       const newLabTestType = await LabTestType.create({
         ...fake(LabTestType),
         labTestCategoryId: labRequest.labTestCategoryId,
+        externalCode: 'zoomRightToTheMoon',
       });
       const mat = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
       const serviceRequestId = mat.id;
@@ -177,10 +233,13 @@ describe('Parse Observation Results', () => {
           labRequestId: labRequest.id,
           labTestTypeId: newLabTestType.id,
         }
-      })
+      });
       expect(labTest.result).toBe(value.toString());
       expect(response).toHaveSucceeded();
     });
+
+
+
     test.todo('Receive Observation for string valued result')
     test.todo('Receive Observation for boolean valued result')
     test.todo('Receive Observation for number valued result')
