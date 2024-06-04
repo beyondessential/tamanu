@@ -177,8 +177,9 @@ export class FhirObservation extends FhirResource {
         if (!this.valueString) {
           throw new Invalid(`Observation with code '${printableTestCode}' is results for a ${LAB_TEST_RESULT_TYPES.SELECT}, it requires a valueString value`);
         }
+        
         // some options are delimited by ', ' sometimes by just ','
-        if (!currentTestType.options.replace(', ', ',').split(',').includes(this.valueString.value)) {
+        if (!currentTestType.options.replaceAll(', ', ',').split(',').includes(this.valueString.value)) {
           throw new Invalid(`Observation with code '${printableTestCode}' needs valueString.value to be one of: ${currentTestType.options}`);
         }
         return this.valueString.value;
