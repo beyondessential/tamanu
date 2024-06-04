@@ -4,6 +4,10 @@ import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter
 import { Model } from './Model';
 import { dateType } from './dateTimeTypes';
 
+/**
+ * @deprecated use discountMarkupPercentage and discountMarkupReason on Invoice instead
+ * https://linear.app/bes/issue/EPI-837/simplify-db-schema-for-invoice-discounts
+ */
 export class InvoicePriceChangeItem extends Model {
   static init({ primaryKey, ...options }) {
     super.init(
