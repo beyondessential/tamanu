@@ -49,6 +49,10 @@ export const denseTableStyle = {
         padding-right: 5px;
       }
     }
+    .MuiTableSortLabel-root.MuiTableSortLabel-active {
+      color: ${Colors.midText};
+      font-weight: 400;
+    }
   `,
   statusCell: `
     &.MuiTableCell-body {

@@ -92,9 +92,3 @@ export const PATIENT_MERGE_DELETION_ACTIONS = {
   DESTROY: 'DESTROY',
   NONE: 'NONE',
 };
-
-// TODO: This will be merged with the statuses created as part of
-// https://linear.app/bes/issue/EPI-565/data-deletion-tasks-clinical-features
-export const DELETION_STATUSES = {
-  DELETED: 'deleted',
-};

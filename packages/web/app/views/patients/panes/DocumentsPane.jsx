@@ -6,7 +6,7 @@ import { DocumentModal } from '../../../components/DocumentModal';
 import { PatientLetterModal } from '../../../components/PatientLetterModal';
 import { DocumentsSearchBar } from '../../../components/DocumentsSearchBar';
 import { TabPane } from '../components';
-import { Button, ContentPane, OutlinedButton, TableButtonRow } from '../../../components';
+import { ButtonWithPermissionCheck, ContentPane, OutlinedButton, TableButtonRow } from '../../../components';
 import { useRefreshCount } from '../../../hooks/useRefreshCount';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { useDocumentActions } from '../../../hooks/useDocumentActions';
@@ -52,14 +52,15 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
               fallback="Patient letter"
             />
           </OutlinedButton>
-          <Button onClick={() => setModalStatus(MODAL_STATES.DOCUMENT_OPEN)}>
+          <ButtonWithPermissionCheck verb="create" noun="DocumentMetadata" onClick={() => setModalStatus(MODAL_STATES.DOCUMENT_OPEN)}>
             <TranslatedText stringId="document.action.addDocument" fallback="Add document" />
-          </Button>
+          </ButtonWithPermissionCheck>
         </TableButtonRow>
         <DocumentsTable
           endpoint={documentMetadataEndpoint}
           searchParameters={searchParameters}
           refreshCount={refreshCount}
+          refreshTable={updateRefreshCount}
           onDownload={onDownload}
           openDocumentPreview={openDocumentPreview}
         />
