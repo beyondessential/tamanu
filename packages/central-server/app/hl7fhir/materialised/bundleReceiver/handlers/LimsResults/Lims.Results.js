@@ -34,10 +34,10 @@ export class LimsResult extends Handler {
 
   async validate() {
     console.log(`validating ${LimsResult.HANDLER_NAME}`);
-    console.log({ 
-      isValid:  await yup
-      .object(LimsResult.deepMatch)
-      .isValid(this.body)
+    console.log({
+      isValid: await yup
+        .object(LimsResult.deepMatch)
+        .isValid(this.body, { stripUnknown: true })
     })
     const validated = await yup
       .object(LimsResult.deepMatch)
@@ -49,9 +49,12 @@ export class LimsResult extends Handler {
   }
 
   async processBundle(req) {
+    if (!this.body) {
+      throw Error('INVLUADSDA');
+    }
     const { FhirDiagnosticReport, FhirObservation } = req.store.models;
     const { resource: diagnosticReportEntry } = this.bundle?.entry.find(item => item?.resource.resourceType === 'DiagnosticReport');
-    // console.log({ diagnosticReportEntry: JSON.stringify(diagnosticReportEntry) });
+    console.log({ diagnosticReportEntry: JSON.stringify(diagnosticReportEntry) });
     const diagnosticReport = new FhirDiagnosticReport(diagnosticReportEntry);
     const upstreamedDiagnosticReport = await diagnosticReport.pushUpstream({
       requesterId: req.user?.id,

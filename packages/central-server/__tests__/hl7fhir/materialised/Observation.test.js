@@ -1,6 +1,7 @@
 /* eslint-disable no-unused-expressions */
 import {
   LAB_REQUEST_STATUSES,
+  LAB_TEST_RESULT_TYPES,
 } from '@tamanu/constants';
 import Chance from 'chance';
 
@@ -26,7 +27,7 @@ describe('Parse Observation Results', () => {
   const postBody = (serviceRequestId, value, testCode, testCodeSystem = 'http://loinc.org') => ({
     resourceType: 'Observation',
     status: 'final',
-    id: 'activated-partial-thromboplastin-time',
+    id: 'id',
     basedOn: [
       {
         reference: `ServiceRequest/${serviceRequestId}`
@@ -161,7 +162,6 @@ describe('Parse Observation Results', () => {
         }
       );
 
-      // We can't use external codes that don't exist unfortuantely
       const randomTestInPanel =
         panelTestTypes[chance.integer({
           min: 0,
@@ -239,10 +239,150 @@ describe('Parse Observation Results', () => {
     });
 
 
+    it('Receive Observation for string valued result', async () => {
+      // arrange
+      const { FhirServiceRequest, LabTest } = ctx.store.models;
+      resources.labTestType = {
+        resultType: LAB_TEST_RESULT_TYPES.FREE_TEXT,
+      };
+      const { labRequest, panelTestTypes } = await fakeResourcesOfFhirServiceRequestWithLabRequest(
+        ctx.store.models,
+        resources,
+        {
+          isWithPanels: true,
+        },
+        {
+          status: LAB_REQUEST_STATUSES.TO_BE_VERIFIED
+        }
+      );
 
-    test.todo('Receive Observation for string valued result')
-    test.todo('Receive Observation for boolean valued result')
-    test.todo('Receive Observation for number valued result')
+      const value = chance.string();
+
+      const filteredTests = panelTestTypes.filter(x => x.externalCode !== null);
+      const randomTestInPanel =
+        filteredTests[chance.integer({
+          min: 0,
+          max: filteredTests.length - 1,
+        })];
+      const mat = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
+      const serviceRequestId = mat.id;
+      await FhirServiceRequest.resolveUpstreams();
+      const body = {
+        resourceType: 'Observation',
+        status: 'final',
+        id: 'id-string-valued-observation',
+        basedOn: [
+          {
+            reference: `ServiceRequest/${serviceRequestId}`
+          }
+        ],
+        code: {
+          coding: [
+            {
+              system: 'http://loinc.org',
+              code: randomTestInPanel.externalCode,
+              display: 'Random Test'
+            }
+          ],
+          text: 'Random Test in Panel'
+        },
+        valueString: {
+          value,
+          unit: 'units'
+        },
+        note: [
+          {
+            text: 'Notification'
+          }
+        ]
+      };
+
+      // act
+      const response = await app.post(endpoint).send(body);
+
+      // assert
+      const labTest = await LabTest.findOne({
+        where: {
+          labRequestId: labRequest.id,
+          labTestTypeId: randomTestInPanel.id,
+        }
+      })
+      expect(labTest.result).toBe(value.toString());
+      expect(response).toHaveSucceeded();
+    });
+
+    it('Receive Observation for select valued result in correct format', async () => {
+      // arrange
+      const { FhirServiceRequest, LabTest } = ctx.store.models;
+      resources.labTestType = {
+        resultType: LAB_TEST_RESULT_TYPES.SELECT,
+        options: 'Positive, Negatory, Invalidictorian',
+      };
+      const { labRequest, panelTestTypes } = await fakeResourcesOfFhirServiceRequestWithLabRequest(
+        ctx.store.models,
+        resources,
+        {
+          isWithPanels: true,
+        },
+        {
+          status: LAB_REQUEST_STATUSES.TO_BE_VERIFIED
+        }
+      );
+
+      const value = 'Invalidictorian';
+
+      const filteredTests = panelTestTypes.filter(x => x.externalCode !== null);
+      const randomTestInPanel =
+        filteredTests[chance.integer({
+          min: 0,
+          max: filteredTests.length - 1,
+        })];
+      const mat = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
+      const serviceRequestId = mat.id;
+      await FhirServiceRequest.resolveUpstreams();
+      const body = {
+        resourceType: 'Observation',
+        status: 'final',
+        id: 'id-string-valued-observation',
+        basedOn: [
+          {
+            reference: `ServiceRequest/${serviceRequestId}`
+          }
+        ],
+        code: {
+          coding: [
+            {
+              system: 'http://loinc.org',
+              code: randomTestInPanel.externalCode,
+              display: 'Random Test'
+            }
+          ],
+          text: 'Random Test in Panel'
+        },
+        valueString: {
+          value,
+          unit: 'units'
+        },
+        note: [
+          {
+            text: 'Notification'
+          }
+        ]
+      };
+
+      // act
+      const response = await app.post(endpoint).send(body);
+      // assert
+      const labTest = await LabTest.findOne({
+        where: {
+          labRequestId: labRequest.id,
+          labTestTypeId: randomTestInPanel.id,
+        }
+      })
+      expect(labTest.result).toBe(value.toString());
+      expect(response).toHaveSucceeded();
+    });
+
 
     describe('errors', () => {
       test.todo('Receive Observation for with multiple results of different types')

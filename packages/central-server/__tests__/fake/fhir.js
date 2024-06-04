@@ -4,6 +4,7 @@ import {
   IMAGING_REQUEST_STATUS_TYPES,
   LAB_REQUEST_STATUSES,
   FHIR_REQUEST_PRIORITY,
+  LAB_TEST_RESULT_TYPES
 } from '@tamanu/constants';
 
 export const fakeResourcesOfFhirServiceRequest = async models => {
@@ -113,7 +114,7 @@ export const fakeResourcesOfFhirServiceRequestWithLabRequest = async (
       ...fake(LabTestPanel),
       categoryId: category.id,
     });
-    const testTypes = await fakeTestTypes(10, LabTestType, category.id);
+    const testTypes = await fakeTestTypes(10, LabTestType, category.id, resources.labTestType);
     requestValues.labTestTypeIds = testTypes.map(testType => testType.id);
     await Promise.all(testTypes.map(testType => LabTestPanelLabTestTypes
       .create({
@@ -143,7 +144,7 @@ export const fakeResourcesOfFhirServiceRequestWithLabRequest = async (
       },
     };
   }
-  const testTypes = await fakeTestTypes(10, LabTestType, category.id);
+  const testTypes = await fakeTestTypes(10, LabTestType, category.id, resources.labTestType);
   await Promise.all(testTypes.map(testType => LabTest
     .create({
       labRequestId: labRequest.id,
@@ -161,12 +162,13 @@ export const fakeResourcesOfFhirServiceRequestWithLabRequest = async (
   };
 };
 
-export const fakeTestTypes = async function (numberOfTests, LabTestType, categoryId) {
+export const fakeTestTypes = async function (numberOfTests, LabTestType, categoryId,  overrides = {}) {
   const testTypes = [];
   for (let testTypeIndex = 0; testTypeIndex < numberOfTests; testTypeIndex++) {
     const currentLabTest = await LabTestType.create({
       ...fake(LabTestType),
       labTestCategoryId: categoryId,
+      ...overrides,
     });
     testTypes.push(currentLabTest);
   }
