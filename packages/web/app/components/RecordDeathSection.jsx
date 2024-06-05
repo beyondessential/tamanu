@@ -33,17 +33,12 @@ const Content = styled.p`
   line-height: 18px;
 `;
 
-const ComponentDivider = styled(Divider)`
-  margin: 0 -${MODAL_PADDING_LEFT_AND_RIGHT}px 30px -${MODAL_PADDING_LEFT_AND_RIGHT}px;
-`;
-
 const customContent = (
   <div>
     <Content>
       Are you sure you want to revert the patient death record? This will not reopen any previously
       closed encounters.
     </Content>
-    <ComponentDivider />
   </div>
 );
 
