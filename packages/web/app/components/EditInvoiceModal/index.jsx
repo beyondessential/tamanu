@@ -16,7 +16,9 @@ import { Button } from '../Button';
 import { ItemHeader, ItemRow } from './ItemRow';
 import { useEncounter } from '../../contexts/Encounter';
 import { getInvoiceLineCode } from '../../utils/invoiceDetails';
+import { InvoiceSummaryPanel } from '../InvoiceSummaryPanel';
 import { StatusDisplay } from '../../utils/invoiceStatus';
+import { calculateInvoiceLinesTotal } from '../../utils';
 
 const LinkText = styled.div`
   font-weight: 500;
@@ -45,8 +47,8 @@ const StyledDataFetchingTable = styled(DataFetchingTable)`
 `;
 
 const PotentialLineItemsPane = styled.div`
+  width: 70%;
   display: grid;
-  max-width: 60%;
   margin-left: -4px;
   overflow: auto;
   padding-left: 15px;
@@ -94,6 +96,12 @@ const StyledDivider = styled(Divider)`
   margin: 26px -40px 32px -40px;
 `;
 
+const ModalSection = styled.div`
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+`;
+
 const StatusContainer = styled.span`
   margin-left: 20px;
   font-weight: 400;
@@ -139,6 +147,11 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
       return newRowList;
     });
   }, []);
+
+  const invoiceTotal = useMemo(() => {
+    return calculateInvoiceLinesTotal(rowList);
+  }, [rowList]);
+
 
   const handleAddRow = (rowData) => {
     const newRowList = [...rowList];
@@ -373,38 +386,45 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
             <LinkText onClick={() => handleAddRow()}>
               {"+ "}<TranslatedText stringId="invoice.modal.editInvoice.action.newRow" fallback="Add new row" />
             </LinkText>
-            <PotentialLineItemsPane>
-              <PaneTitle>
-                <TranslatedText
-                  stringId="invoice.modal.potentialItems.title"
-                  fallback="Patient items to be added"
-                />
-                {!isEmpty && <BulkAddButton onClick={() => handleAddRow(potentialLineItems)}>
+            <ModalSection>
+              <PotentialLineItemsPane>
+                <PaneTitle>
+                  <TranslatedText
+                    stringId="invoice.modal.potentialItems.title"
+                    fallback="Patient items to be added"
+                  />
+                  {!isEmpty && <BulkAddButton onClick={() => handleAddRow(potentialLineItems)}>
                   <TranslatedText stringId="general.action.addAll" fallback="Add all" />
                 </BulkAddButton>}
-              </PaneTitle>
-              <StyledDataFetchingTable
-                endpoint={`invoices/${invoiceId}/potentialLineItems`}
-                columns={COLUMNS}
-                noDataMessage={
-                  <TranslatedText
-                    stringId="invoice.modal.potentialInvoices.table.noData"
-                    fallback="No patient items to be added"
-                  />
-                }
-                allowExport={false}
-                rowStyle={rowStyle}
-                onDataFetched={onDataFetched}
-                headerColor={Colors.white}
-                page={null}
-                elevated={false}
-                isEmpty={isEmpty}
-                containerStyle={denseTableStyle.container}
-                cellStyle={denseTableStyle.cell}
-                headStyle={denseTableStyle.head}
-                statusCellStyle={denseTableStyle.statusCell}
+                </PaneTitle>
+                <StyledDataFetchingTable
+                  endpoint={`invoices/${invoiceId}/potentialLineItems`}
+                  columns={COLUMNS}
+                  noDataMessage={
+                    <TranslatedText
+                      stringId="invoice.modal.potentialInvoices.table.noData"
+                      fallback="No patient items to be added"
+                    />
+                  }
+                  allowExport={false}
+                  rowStyle={rowStyle}
+                  onDataFetched={onDataFetched}
+                  headerColor={Colors.white}
+                  page={null}
+                  elevated={false}
+                  isEmpty={isEmpty}
+                  containerStyle={denseTableStyle.container}
+                  cellStyle={denseTableStyle.cell}
+                  headStyle={denseTableStyle.head}
+                  statusCellStyle={denseTableStyle.statusCell}
+                />
+              </PotentialLineItemsPane>
+              <InvoiceSummaryPanel
+                invoiceId={invoiceId}
+                invoiceTotal={invoiceTotal}
+                isEditInvoice
               />
-            </PotentialLineItemsPane>
+            </ModalSection>
             <StyledDivider />
             <FormSubmitCancelRow
               confirmText={
