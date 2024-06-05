@@ -32,11 +32,6 @@ export class Invoice extends Model {
       foreignKey: 'invoiceId',
       as: 'invoiceLineItems',
     });
-
-    this.hasMany(models.InvoicePriceChangeItem, {
-      foreignKey: 'invoiceId',
-      as: 'invoicePriceChangeItems',
-    });
   }
 
   static buildPatientSyncFilter(patientIds) {

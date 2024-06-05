@@ -6,7 +6,6 @@ import { INVOICE_PAYMENT_STATUSES, INVOICE_STATUSES } from '@tamanu/constants';
 import { simplePut } from '@tamanu/shared/utils/crudHelpers';
 
 import { invoiceLineItemsRoute } from './invoiceLineItems';
-import { invoicePriceChangeItemsRoute } from './invoicePriceChangeItems';
 
 const invoiceRoute = express.Router();
 export { invoiceRoute as invoices };
@@ -27,7 +26,7 @@ invoiceRoute.post(
     }
     req.checkPermission('write', 'Invoice');
 
-    const { patientId, id, patientBillingTypeId: encounterPatientBillingTypeId } = encounter;
+    const { id } = encounter;
 
     const displayId =
       customAlphabet('0123456789', 8)() + customAlphabet('ABCDEFGHIJKLMNOPQRSTUVWXYZ', 2)();
@@ -39,31 +38,6 @@ invoiceRoute.post(
       paymentStatus: INVOICE_PAYMENT_STATUSES.UNPAID,
     });
 
-    const patientAdditionalData = await models.PatientAdditionalData.findOne({
-      where: { patientId },
-    });
-
-    // We expect to always have a patient additional data corresponding to a patient
-    if (!patientAdditionalData) {
-      // eslint-disable-next-line no-console
-      console.warn(`No PatientAdditionalData found for patient with ID: ${patientId}`);
-    }
-
-    const invoicePriceChangeType = await models.InvoicePriceChangeType.findOne({
-      where: {
-        itemId: encounterPatientBillingTypeId || patientAdditionalData?.patientBillingTypeId,
-      },
-    });
-
-    // automatically apply price change (discount) based on patientBillingType
-    if (invoicePriceChangeType) {
-      await models.InvoicePriceChangeItem.create({
-        description: invoicePriceChangeType.name,
-        percentageChange: invoicePriceChangeType.percentageChange,
-        invoicePriceChangeTypeId: invoicePriceChangeType.id,
-        invoiceId: invoice.id,
-      });
-    }
     res.send(invoice);
   }),
 );
@@ -93,4 +67,3 @@ invoiceRoute.get(
 invoiceRoute.put('/:id', simplePut('Invoice'));
 
 invoiceRoute.use(invoiceLineItemsRoute);
-invoiceRoute.use(invoicePriceChangeItemsRoute);
