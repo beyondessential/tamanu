@@ -18,7 +18,8 @@ const CardItem = styled(Box)`
   gap: 8px;
   font-size: 14px;
   justify-content: space-between;
-`
+  align-items: flex-start;
+`;
 
 const Container = styled.div`
   display: flex;
