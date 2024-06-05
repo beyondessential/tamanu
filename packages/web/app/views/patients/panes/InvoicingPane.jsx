@@ -14,6 +14,7 @@ import { KebabMenu } from '../../../components/EditInvoiceModal/KebabMenu';
 import { StatusDisplay } from '../../../utils/invoiceStatus';
 import { InvoiceSummaryPanel } from '../../../components/InvoiceSummaryPanel';
 import { CreateInvoiceModal } from '../../../components/CreateInvoiceModal';
+import { useInvoiceModal } from '../../../contexts/InvoiceModal';
 
 const EmptyPane = styled(ContentPane)`
   text-align: center;
@@ -54,17 +55,14 @@ export const InvoicingPane = React.memo(({ encounter }) => {
   const [invoice, setInvoice] = useState(null);
   const [error, setError] = useState(null);
   const [invoiceLineItems, setInvoiceLineItems] = useState([]);
-  const [activeModal, setActiveModal] = useState('');
   const updateLineItems = useCallback(({ data }) => setInvoiceLineItems(data), []);
 
   const invoiceTotal = useMemo(() => {
     return calculateInvoiceLinesTotal(invoiceLineItems);
   }, [invoiceLineItems]);
 
-  const handleActiveModal = useCallback(modal => {
-    setActiveModal(modal);
-  }, []);
-
+  const { activeModal, handleActiveModal } = useInvoiceModal();
+  
   const api = useApi();
 
   const getInvoice = useCallback(async () => {
@@ -110,63 +108,60 @@ export const InvoicingPane = React.memo(({ encounter }) => {
       </EmptyPane>
     );
   }
-  if (!invoice) {
-    return (
-      <EmptyPane>
-        <Button onClick={() => handleActiveModal(INVOICE_ACTIVE_MODALS.CREATE_INVOICE)}>
-          <TranslatedText stringId="invoice.action.create" fallback="Create invoice" />
-        </Button>
-        {activeModal === INVOICE_ACTIVE_MODALS.CREATE_INVOICE && <CreateInvoiceModal
-          open={true}
-          onClose={() => handleActiveModal("")}
-          handleActiveModal={handleActiveModal}
-          createInvoice={createInvoice}
-        />}
-      </EmptyPane>
-    );
-  }
 
   return (
-    <TabPane>
-      <InvoiceContainer>
-        <InvoiceTopBar>
-          <InvoiceHeading>
-            <InvoiceTitle>
-              <TranslatedText stringId="invoice.invoiceNumber" fallback="Invoice number" />
-              {`: ${invoice.displayId}`}
-            </InvoiceTitle>
-            <StatusDisplay status={invoice.status} />
-          </InvoiceHeading>
-          {isInvoiceEditable(invoice) ? (
-            <ActionsPane>
-              <KebabMenu
-                modalsEnabled={[INVOICE_ACTION_MODALS.CANCEL_INVOICE]}
-                invoiceId={invoice.id}
-              />
-              <Button onClick={() => setActiveModal(INVOICE_ACTIVE_MODALS.EDIT_INVOICE)}>
-                <TranslatedText stringId="invoice.action.editItem" fallback="Edit invoice" />
-              </Button>
-              {activeModal === INVOICE_ACTIVE_MODALS.EDIT_INVOICE && <EditInvoiceModal
-                open={activeModal === INVOICE_ACTIVE_MODALS.EDIT_INVOICE}
-                onClose={() => setActiveModal('')}
-                invoiceId={invoice.id}
-                displayId={invoice.displayId}
-                encounterId={encounter.id}
-                invoiceStatus={invoice.status}
-              />}
-            </ActionsPane>
-          ) : null}
-        </InvoiceTopBar>
-        <InvoiceDetailTable
-          invoice={invoice}
-          invoiceLineItems={invoiceLineItems}
-          updateLineItems={updateLineItems}
-        />
-      </InvoiceContainer>
-      <InvoiceSummaryPanel
-        invoiceId={invoice.id}
-        invoiceTotal={invoiceTotal}
-      />
-    </TabPane>
+    <>
+      {activeModal === INVOICE_ACTIVE_MODALS.CREATE_INVOICE && <CreateInvoiceModal
+        open={true}
+        createInvoice={createInvoice}
+        invoiceId={invoice?.id}
+      />}
+      {!invoice
+        ? <EmptyPane>
+          <Button onClick={() => handleActiveModal(INVOICE_ACTIVE_MODALS.CREATE_INVOICE)}>
+            <TranslatedText stringId="invoice.action.create" fallback="Create invoice" />
+          </Button>
+        </EmptyPane>
+        : <TabPane>
+          <InvoiceContainer>
+            <InvoiceTopBar>
+              <InvoiceHeading>
+                <InvoiceTitle>
+                  <TranslatedText stringId="invoice.invoiceNumber" fallback="Invoice number" />
+                  {`: ${invoice.displayId}`}
+                </InvoiceTitle>
+                <StatusDisplay status={invoice.status} />
+              </InvoiceHeading>
+              {isInvoiceEditable(invoice) ? (
+                <ActionsPane>
+                  <KebabMenu
+                    modalsEnabled={[INVOICE_ACTION_MODALS.CANCEL_INVOICE]}
+                    invoiceId={invoice.id}
+                  />
+                  <Button onClick={() => handleActiveModal(INVOICE_ACTIVE_MODALS.EDIT_INVOICE)}>
+                    <TranslatedText stringId="invoice.action.editItem" fallback="Edit invoice" />
+                  </Button>
+                  {activeModal === INVOICE_ACTIVE_MODALS.EDIT_INVOICE && <EditInvoiceModal
+                    open={true}
+                    invoiceId={invoice.id}
+                    displayId={invoice.displayId}
+                    encounterId={encounter.id}
+                    invoiceStatus={invoice.status}
+                  />}
+                </ActionsPane>
+              ) : null}
+            </InvoiceTopBar>
+            <InvoiceDetailTable
+              invoice={invoice}
+              invoiceLineItems={invoiceLineItems}
+              updateLineItems={updateLineItems}
+            />
+          </InvoiceContainer>
+          <InvoiceSummaryPanel
+            invoiceId={invoice.id}
+            invoiceTotal={invoiceTotal}
+          />
+        </TabPane>}
+    </>
   );
 });

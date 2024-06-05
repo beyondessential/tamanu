@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { Box, Divider } from '@material-ui/core';
 import { INVOICE_STATUSES } from '@tamanu/constants';
-import { Colors } from '../constants';
+import { Colors, INVOICE_ACTIVE_MODALS, INVOICE_ACTIVE_VIEW } from '../constants';
 import { TranslatedText } from './Translation';
 import { useSuggester } from '../api';
 import { PencilIcon } from '../assets/icons/PencilIcon';
@@ -11,6 +11,7 @@ import { ThemedTooltip } from './Tooltip';
 import { BodyText, Heading3 } from './Typography';
 import { usePriceChangeItemsQuery } from '../api/queries/usePriceChangeItemsQuery';
 import { Button } from './Button';
+import { useInvoiceModal } from '../contexts/InvoiceModal';
 
 const CardItem = styled(Box)`
   display: flex;
@@ -55,12 +56,14 @@ export const InvoiceSummaryPanel = ({
   invoiceId,
   invoiceStatus,
   isEditInvoice,
-  invoiceTotal
+  invoiceTotal,
+  isManualInvoice
 }) => {
-  const [isOpenManualDiscountModal, setIsOpenManualDiscountModal] = useState(false);
   const [orderedByName, setOrderedByName] = useState('');
   const practitionerSuggester = useSuggester('practitioner');
   const { data: priceChangeItemsResponse } = usePriceChangeItemsQuery(invoiceId);
+
+  const { handleActiveModal, handleActiveView } = useInvoiceModal();
 
   const discountInfo = priceChangeItemsResponse?.data[0] || {
     percentageChange: 0,
@@ -81,6 +84,17 @@ export const InvoiceSummaryPanel = ({
 
   const showEditButton = invoiceStatus === INVOICE_STATUSES.IN_PROGRESS &&
     !!discountInfo.percentageChange && isEditInvoice;
+
+  const handleEditDiscount = () => {
+    const activeView = isManualInvoice ? INVOICE_ACTIVE_VIEW.MANUAL_DISCOUNT : INVOICE_ACTIVE_VIEW.DISCOUNT_ASSESSMENT;
+    handleActiveModal(INVOICE_ACTIVE_MODALS.CREATE_INVOICE);
+    handleActiveView(activeView);
+  };
+
+  const handleAddDiscount = () => {
+    handleActiveModal(INVOICE_ACTIVE_MODALS.CREATE_INVOICE);
+    handleActiveView(INVOICE_ACTIVE_VIEW.DISCOUNT_TYPE);
+  };
 
   return (
     <Container>
@@ -112,7 +126,7 @@ export const InvoiceSummaryPanel = ({
           fallback='Discount'
         />
         {invoiceStatus === INVOICE_STATUSES.IN_PROGRESS && !discountInfo.percentageChange && (
-          <Button onClick={() => setIsOpenManualDiscountModal(true)}>
+          <Button onClick={handleAddDiscount}>
             <TranslatedText
               stringId='invoice.summary.action.addDiscount'
               fallback='Add discount'
@@ -141,18 +155,10 @@ export const InvoiceSummaryPanel = ({
           </ThemedTooltip>
         </DescriptionText>
         {showEditButton && (
-          <IconButton onClick={() => setIsOpenManualDiscountModal(true)}>
+          <IconButton onClick={handleEditDiscount}>
             <PencilIcon />
           </IconButton>
         )}
-        <InvoiceManualDiscountModal
-          open={isOpenManualDiscountModal}
-          onClose={() => setIsOpenManualDiscountModal(false)}
-          invoiceId={invoiceId}
-          priceChangeId={discountInfo.id}
-          description={discountInfo.description}
-          percentageChange={discountInfo.percentageChange}
-        />
       </CardItem>
       {!!discountInfo.percentageChange && (
         <CardItem sx={{ marginBottom: '-6px', color: Colors.midText }}>

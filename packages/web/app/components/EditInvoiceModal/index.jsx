@@ -19,6 +19,7 @@ import { getInvoiceLineCode } from '../../utils/invoiceDetails';
 import { InvoiceSummaryPanel } from '../InvoiceSummaryPanel';
 import { StatusDisplay } from '../../utils/invoiceStatus';
 import { calculateInvoiceLinesTotal } from '../../utils';
+import { useInvoiceModal } from '../../contexts/InvoiceModal';
 
 const LinkText = styled.div`
   font-weight: 500;
@@ -107,7 +108,14 @@ const StatusContainer = styled.span`
   font-weight: 400;
 `;
 
-export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounterId, invoiceStatus }) => {
+export const EditInvoiceModal = ({ 
+  open,
+  invoiceId,
+  displayId,
+  encounterId,
+  invoiceStatus,
+  isManualInvoice,
+}) => {
   const defaultRow = { id: uuidv4(), toBeUpdated: true };
   const [rowList, setRowList] = useState([defaultRow]);
   const [potentialLineItems, setPotentialLineItems] = useState([]);
@@ -115,6 +123,7 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
   const [isSaveDisabled, setIsSaveDisabled] = useState(false);
   const [idsToDelete, setIdsToDelete] = useState([]);
   const api = useApi();
+  const { handleActiveModal } = useInvoiceModal();
 
   useEffect(() => {
     (async () => {
@@ -293,6 +302,8 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
     setRowList(newRowList);
   };
 
+  const onClose = () => handleActiveModal('');
+
   const handleSubmit = async (submitData) => {
     if (isSaving) return;
     setIsSaving(true);
@@ -311,6 +322,7 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
 
     await api.delete(`invoices/${invoiceId}/lineItems`, { idsToDelete });
     await api.put(`invoices/${invoiceId}/lineItems`, { invoiceLineItemsData });
+    onClose();
     await loadEncounter(encounterId);
     setIsSaving(false);
   };
@@ -424,6 +436,7 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
                 invoiceTotal={invoiceTotal}
                 invoiceStatus={invoiceStatus}
                 isEditInvoice
+                isManualInvoice={isManualInvoice}
               />
             </ModalSection>
             <StyledDivider />
