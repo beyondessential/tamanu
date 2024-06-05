@@ -1,5 +1,6 @@
-import React, { useCallback } from 'react';
+import React from 'react';
 import * as yup from 'yup';
+import { useQueryClient } from '@tanstack/react-query';
 import { getCurrentDateString } from '@tamanu/shared/utils/dateTime';
 import { Modal } from './Modal';
 import { FormGrid } from './FormGrid';
@@ -17,12 +18,12 @@ export const InvoiceManualDiscountModal = React.memo(
     onClose,
     invoiceId,
     priceChangeId,
-    onUpdateDiscountInfo,
     description,
     percentageChange
   }) => {
     const api = useApi();
     const { currentUser } = useAuth();
+    const queryClient = useQueryClient();
 
     const preventInvalid = event => {
       if (!event.target.validity.valid) {
@@ -30,26 +31,23 @@ export const InvoiceManualDiscountModal = React.memo(
       }
     };
 
-    const handleSubmit = useCallback(
-      async data => {
-        const percentageChange = -Math.abs(data.percentageChange / 100);
-        const payload = {
-          description: data.reason,
-          percentageChange,
-          orderedById: currentUser.id,
-          date: getCurrentDateString(),
-        };
-        if (priceChangeId) {
-          await api.put(`invoices/${invoiceId}/priceChangeItems/${priceChangeId}`, payload);
-        } else {
-          await api.post(`invoices/${invoiceId}/priceChangeItems/`, payload);
-        }
-        onUpdateDiscountInfo(payload);
-        onClose();
-      },
-      [api, invoiceId, priceChangeId, onClose],
-    );
-
+    const handleSubmit = async data => {
+      const percentageChange = -Math.abs(data.percentageChange / 100);
+      const payload = {
+        description: data.reason,
+        percentageChange,
+        orderedById: currentUser.id,
+        date: getCurrentDateString(),
+      };
+      if (priceChangeId) {
+        await api.put(`invoices/${invoiceId}/priceChangeItems/${priceChangeId}`, payload);
+      } else {
+        await api.post(`invoices/${invoiceId}/priceChangeItems/`, payload);
+      }
+      queryClient.invalidateQueries({ queryKey: ['priceChangeItems', invoiceId] })
+      onClose();
+    };
+    
     return (
       <Modal
         width="sm"

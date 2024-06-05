@@ -36,11 +36,12 @@ const getPrice = (row) => {
   const originalPrice = parseFloat(row?.invoiceLineType?.price).toFixed(2);
   const percentageChange = row.percentageChange ? parseFloat(row.percentageChange).toFixed(2) : 0;
   const priceChange = (originalPrice * percentageChange).toFixed(2);
+  const finalPrice = (+originalPrice + (+priceChange)).toFixed(2);
 
   return (
     <PriceCell>
       <PriceText isCrossedOut={!!percentageChange}>{originalPrice}</PriceText>
-      {!!percentageChange && <span>{priceChange}</span>}
+      {!!percentageChange && <span>{finalPrice}</span>}
     </PriceCell>
   );
 };
@@ -105,6 +106,7 @@ export const InvoiceDetailTable = React.memo(({ invoice, updateLineItems }) => {
       cellStyle={denseTableStyle.cell}
       headStyle={denseTableStyle.head}
       statusCellStyle={denseTableStyle.statusCell}
+      disablePagination
     />
   );
 });

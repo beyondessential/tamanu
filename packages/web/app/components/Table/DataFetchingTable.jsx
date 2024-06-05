@@ -7,6 +7,8 @@ import { useLocalisation } from '../../contexts/Localisation';
 import { Table } from './Table';
 import { TableNotification } from './TableNotification';
 import { TableRefreshButton } from './TableRefreshButton';
+import { TranslatedText } from '../Translation/TranslatedText';
+import { withPermissionCheck } from '../withPermissionCheck';
 
 const ROWS_PER_PAGE_OPTIONS = [10, 25, 50];
 const DEFAULT_SORT = { order: 'asc', orderBy: undefined };
@@ -32,6 +34,7 @@ export const DataFetchingTable = memo(
     autoRefresh,
     lazyLoading = false,
     overrideLocalisationForStorybook = false,
+    hasPermission = true,
     ...props
   }) => {
     const [page, setPage] = useState(0);
@@ -209,6 +212,8 @@ export const DataFetchingTable = memo(
     };
 
     useEffect(() => {
+      if (!hasPermission) return;
+
       const shouldLoadMoreData = fetchState.data?.length > 0 && lazyLoading;
       if (shouldLoadMoreData) setIsLoadingMoreData(true);
       const loadingDelay = !shouldLoadMoreData && loadingIndicatorDelay();
@@ -258,6 +263,7 @@ export const DataFetchingTable = memo(
       transformRow,
       onDataFetched,
       disablePagination,
+      hasPermission,
     ]);
 
     useEffect(() => {
@@ -271,6 +277,21 @@ export const DataFetchingTable = memo(
     const notificationMessage = `${newRowCount} new record${
       newRowCount > 1 ? 's' : ''
     } available to view`;
+
+    if (!hasPermission) {
+      return (
+        <Table
+          columns={[]}
+          errorMessage={
+            <TranslatedText
+              stringId="general.table.error.noPermission"
+              fallback="You do not have permission to view this table. If you require access, please contact your administrator."
+            />
+          }
+        />
+      );
+    }
+
     return (
       <>
         {!isNotificationMuted && showNotification && (
@@ -303,9 +324,9 @@ export const DataFetchingTable = memo(
           refreshTable={refreshTable}
           rowStyle={row => {
             const rowStyle = [];
-            if (row.highlighted) rowStyle.push("background-color: #F0FFF0;");
-            if (props.isRowsDisabled) rowStyle.push("cursor: not-allowed;");
-            return rowStyle.join("");
+            if (row.highlighted) rowStyle.push('background-color: #F0FFF0;');
+            if (props.isRowsDisabled) rowStyle.push('cursor: not-allowed;');
+            return rowStyle.join('');
           }}
           lazyLoading={lazyLoading}
           ref={tableRef}
@@ -315,3 +336,5 @@ export const DataFetchingTable = memo(
     );
   },
 );
+
+export const DataFetchingTableWithPermissionCheck = withPermissionCheck(DataFetchingTable);

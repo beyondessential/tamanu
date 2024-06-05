@@ -18,7 +18,7 @@ import { useEncounter } from '../../contexts/Encounter';
 import { getInvoiceLineCode } from '../../utils/invoiceDetails';
 import { InvoiceSummaryPanel } from '../InvoiceSummaryPanel';
 import { StatusDisplay } from '../../utils/invoiceStatus';
-import { useInvoiceLineTotals } from '../../hooks/useInvoiceLineTotals';
+import { calculateInvoiceLinesTotal } from '../../utils';
 
 const LinkText = styled.div`
   font-weight: 500;
@@ -61,22 +61,22 @@ const PotentialLineItemsPane = styled.div`
     width: 5px;
     height: 5px;
   }
-  
+
   /* Track */
   ::-webkit-scrollbar-track {
     background: white;
   }
-  
+
   /* Handle */
   ::-webkit-scrollbar-thumb {
     background: ${Colors.softText};
     border-radius: 5px;
   }
-  
+
   /* Handle on hover */
   ::-webkit-scrollbar-thumb:hover {
     background: ${Colors.softText};
-  } 
+  }
 `;
 
 const PaneTitle = styled.div`
@@ -108,9 +108,12 @@ const StatusContainer = styled.span`
 `;
 
 export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounterId, invoiceStatus }) => {
-  const [rowList, setRowList] = useState([{ id: uuidv4() }]);
+  const defaultRow = { id: uuidv4(), toBeUpdated: true };
+  const [rowList, setRowList] = useState([defaultRow]);
   const [potentialLineItems, setPotentialLineItems] = useState([]);
   const [isSaving, setIsSaving] = useState(false);
+  const [isSaveDisabled, setIsSaveDisabled] = useState(false);
+  const [idsToDelete, setIdsToDelete] = useState([]);
   const api = useApi();
 
   useEffect(() => {
@@ -118,18 +121,20 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
       const { data } = await api.get(`invoices/${encodeURIComponent(invoiceId)}/lineItems`);
       if (!data.length) return;
       setRowList(data.map(item => ({
-        id: item.id,
+        ...item,
         details: item.invoiceLineType?.name,
         date: item.dateGenerated,
         orderedBy: item.orderedBy?.displayName,
         price: item.invoiceLineType?.price,
-        invoiceLineTypeId: item.invoiceLineTypeId,
-        orderedById: item.orderedById,
         code: getInvoiceLineCode(item),
-        percentageChange: item.percentageChange
       })));
     })();
   }, [api]);
+
+  useEffect(() => {
+    const isSaveDisabled = !rowList.some(row => !!row.invoiceLineTypeId);
+    setIsSaveDisabled(isSaveDisabled);
+  }, [rowList])
 
   const { loadEncounter } = useEncounter();
 
@@ -143,7 +148,10 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
     });
   }, []);
 
-  const { discountableTotal, nonDiscountableTotal } = useInvoiceLineTotals(rowList);
+  const invoiceTotal = useMemo(() => {
+    return calculateInvoiceLinesTotal(rowList);
+  }, [rowList]);
+
 
   const handleAddRow = (rowData) => {
     const newRowList = [...rowList];
@@ -160,11 +168,13 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
             invoiceLineTypeId: newItem?.invoiceLineTypeId,
             orderedById: newItem?.orderedById,
             code: newItem?.code,
+            toBeUpdated: true,
+            toBeCreated: !!newItem.toBeCreated
           });
         }
       });
     } else {
-      newRowList.push({ id: uuidv4() });
+      newRowList.push(defaultRow);
     }
 
     setRowList(newRowList);
@@ -195,10 +205,6 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
       ),
     },
     {
-      key: 'orderedBy',
-      title: <TranslatedText stringId="invoice.table.column.orderedBy" fallback="Ordered by" />
-    },
-    {
       key: 'price',
       title: <TranslatedText stringId="invoice.table.column.price" fallback="Price" />,
       accessor: ({ price }) => (
@@ -212,7 +218,7 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
     {
       sortable: false,
       accessor: (row) => (
-        <SingleAddButton variant="outlined" onClick={() => handleAddRow([row])}>
+        <SingleAddButton variant="outlined" onClick={() => handleAddRow([{ ...row, toBeCreated: true }])}>
           <TranslatedText stringId="general.action.add" fallback="Add" />
         </SingleAddButton>
       ),
@@ -225,7 +231,11 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
   }, [rowList, potentialLineItems]);
 
   const onDataFetched = useCallback(({ data }) => {
-    setPotentialLineItems(data);
+    const newData = data.map(item => ({
+      ...item,
+      toBeCreated: true
+    }))
+    setPotentialLineItems(newData);
   }, []);
 
   const rowStyle = ({ id }) => {
@@ -242,7 +252,44 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
   }), {});
 
   const onDeleteLineItem = (id) => {
+    setIdsToDelete(previousIds => [...previousIds, id]);
     const newRowList = rowList.filter(row => row.id !== id);
+    setRowList(newRowList);
+  };
+
+  const onAddDiscountLineItem = (id, data) => {
+    const newRowList = rowList.map(row => {
+      if (row.id === id && Number(data.percentageChange)) {
+        row.percentageChange = -(data.percentageChange / 100);
+        row.discountMarkupReason = data.discountMarkupReason;
+        row.toBeUpdated = true;
+      }
+      return row;
+    });
+    setRowList(newRowList);
+  };
+
+  const onAddMarkupLineItem = (id, data) => {
+    const newRowList = rowList.map(row => {
+      if (row.id === id && Number(data.percentageChange)) {
+        row.percentageChange = data.percentageChange / 100;
+        row.discountMarkupReason = data.discountMarkupReason;
+        row.toBeUpdated = true;
+      }
+      return row;
+    });
+    setRowList(newRowList);
+  };
+
+  const onRemovePercentageChangeLineItem = (id) => {
+    const newRowList = rowList.map(row => {
+      if (row.id === id) {
+        row.percentageChange = null;
+        row.discountMarkupReason = '';
+        row.toBeUpdated = true;
+      }
+      return row;
+    });
     setRowList(newRowList);
   };
 
@@ -250,13 +297,19 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
     if (isSaving) return;
     setIsSaving(true);
 
-    const invoiceLineItemsData = rowList.map((row, index) => ({
-      id: row.id,
-      invoiceLineTypeId: submitData[`invoiceLineTypeId_${index}`],
-      date: submitData[`date_${index}`],
-      orderedById: submitData[`orderedById_${index}`],
-    }));
+    const invoiceLineItemsData = rowList
+      .map((row, index) => ({
+        ...(!row.toBeCreated && { id: row.id }),
+        invoiceLineTypeId: submitData[`invoiceLineTypeId_${index}`],
+        date: submitData[`date_${index}`],
+        orderedById: submitData[`orderedById_${index}`],
+        percentageChange: row.percentageChange,
+        discountMarkupReason: row.discountMarkupReason,
+        toBeUpdated: !!row.toBeUpdated,
+      }))
+      .filter(row => row.toBeUpdated);
 
+    await api.delete(`invoices/${invoiceId}/lineItems`, { idsToDelete });
     await api.put(`invoices/${invoiceId}/lineItems`, { invoiceLineItemsData });
     await loadEncounter(encounterId);
     setIsSaving(false);
@@ -321,13 +374,17 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
                   index={index}
                   rowData={row}
                   onDelete={() => onDeleteLineItem(row?.id)}
+                  onAddDiscountLineItem={(discount) => onAddDiscountLineItem(row?.id, discount)}
+                  onAddMarkupLineItem={(markup) => onAddMarkupLineItem(row?.id, markup)}
+                  onRemovePercentageChangeLineItem={() => onRemovePercentageChangeLineItem(row?.id)}
                   isDeleteDisabled={rowList.length === 1}
                   updateRowData={updateRowData}
+                  showKebabMenu={!isSaveDisabled || rowList.length > 1}
                 />
               ))}
             </div>
             <LinkText onClick={() => handleAddRow()}>
-              {"+ "}<TranslatedText stringId="invoice.modal.editInvoice.action.newRow" fallback="New row" />
+              {"+ "}<TranslatedText stringId="invoice.modal.editInvoice.action.newRow" fallback="Add new row" />
             </LinkText>
             <ModalSection>
               <PotentialLineItemsPane>
@@ -336,9 +393,9 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
                     stringId="invoice.modal.potentialItems.title"
                     fallback="Patient items to be added"
                   />
-                  <BulkAddButton onClick={() => handleAddRow(potentialLineItems)}>
-                    <TranslatedText stringId="general.action.addAll" fallback="Add all" />
-                  </BulkAddButton>
+                  {!isEmpty && <BulkAddButton onClick={() => handleAddRow(potentialLineItems)}>
+                  <TranslatedText stringId="general.action.addAll" fallback="Add all" />
+                </BulkAddButton>}
                 </PaneTitle>
                 <StyledDataFetchingTable
                   endpoint={`invoices/${invoiceId}/potentialLineItems`}
@@ -346,7 +403,7 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
                   noDataMessage={
                     <TranslatedText
                       stringId="invoice.modal.potentialInvoices.table.noData"
-                      fallback="No potential invoice line items found"
+                      fallback="No patient items to be added"
                     />
                   }
                   allowExport={false}
@@ -362,13 +419,10 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
                   statusCellStyle={denseTableStyle.statusCell}
                 />
               </PotentialLineItemsPane>
-              <InvoiceSummaryPanel 
+              <InvoiceSummaryPanel
                 invoiceId={invoiceId}
-                invoiceStatus={invoiceStatus}                
-                discountableTotal={discountableTotal}
-                nonDiscountableTotal={
-                  isNaN(nonDiscountableTotal) ? 0 : nonDiscountableTotal
-                }
+                invoiceTotal={invoiceTotal}
+                invoiceStatus={invoiceStatus}
                 isEditInvoice
               />
             </ModalSection>
@@ -381,6 +435,14 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
               }
               onConfirm={submitForm}
               onCancel={onClose}
+              confirmDisabled={isSaveDisabled}
+              confirmStyle={`
+                &.Mui-disabled {
+                  color: ${Colors.white};
+                  background-color: ${Colors.primary};
+                  opacity: 0.3;
+                }
+              `}
             />
           </FormContainer>)}
       />

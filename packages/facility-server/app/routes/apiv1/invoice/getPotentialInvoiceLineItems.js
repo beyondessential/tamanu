@@ -7,6 +7,8 @@ const getInvoiceLineNotExistYetClause = `invoice_line_types.id NOT IN (SELECT in
           ON invoice_line_items.invoice_id = invoices.id
           WHERE invoices.encounter_id = :encounterId
           AND invoice_line_items.status != :invoiceLineItemDeletedStatus
+          AND invoice_line_items.deleted_at IS NULL
+          AND invoices.deleted_at IS NULL
           )`;
 
 /**
@@ -36,6 +38,7 @@ export const getPotentialInvoiceLineItems = async (db, models, encounterId, imag
         INNER JOIN users
         ON users.id = procedures.physician_id
         WHERE procedures.encounter_id = :encounterId
+        AND procedures.deleted_at IS NULL
         AND ${getInvoiceLineNotExistYetClause};
     `,
     {
@@ -71,6 +74,7 @@ export const getPotentialInvoiceLineItems = async (db, models, encounterId, imag
         INNER JOIN users
         ON users.id = imaging_requests.requested_by_id
         WHERE imaging_requests.encounter_id = :encounterId
+        AND imaging_requests.deleted_at IS NULL
         AND ${getInvoiceLineNotExistYetClause};
     `,
     {
@@ -108,6 +112,7 @@ export const getPotentialInvoiceLineItems = async (db, models, encounterId, imag
         INNER JOIN users
         ON users.id = lab_requests.requested_by_id
         WHERE lab_requests.encounter_id = :encounterId
+        AND lab_requests.deleted_at IS NULL
         AND ${getInvoiceLineNotExistYetClause};
     `,
     {

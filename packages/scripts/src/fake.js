@@ -10,6 +10,7 @@ async function generateData(models) {
     Encounter,
     Facility,
     Location,
+    LocationGroup,
     EncounterHistory,
     Patient,
     User,
@@ -45,10 +46,16 @@ async function generateData(models) {
       facilityId: facility.id,
     }),
   );
+  const locationGroup = await LocationGroup.create(
+      fake(LocationGroup, {
+          facilityId: facility.id,
+      }),
+  );
   const location = await Location.create(
-    fake(Location, {
-      facilityId: facility.id,
-    }),
+      fake(Location, {
+          facilityId: facility.id,
+          locationGroupId: locationGroup.id,
+      }),
   );
   const encounter = await Encounter.create(
     fake(Encounter, {

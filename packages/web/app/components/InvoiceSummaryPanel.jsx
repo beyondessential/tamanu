@@ -54,20 +54,20 @@ export const InvoiceSummaryPanel = ({
   invoiceId,
   invoiceStatus,
   isEditInvoice,
-  discountableTotal,
-  nonDiscountableTotal,
+  invoiceTotal
 }) => {
   const [isOpenManualDiscountModal, setIsOpenManualDiscountModal] = useState(false);
-  const [priceChangeId, setPriceChangeId] = useState();
-  const [discountInfo, setDiscountInfo] = useState({
+  const practitionerSuggester = useSuggester('practitioner');
+  const { data: priceChangeItemsResponse } = usePriceChangeItemsQuery(invoiceId);
+
+  const discountInfo = priceChangeItemsResponse?.data[0] || {
     percentageChange: 0,
     description: "",
     orderedById: "",
-    date: "",
-    orderedByName: "",
-  });
+  };
 
-  const practitionerSuggester = useSuggester('practitioner');
+  const discountedPrice = invoiceTotal * Math.abs(discountInfo.percentageChange);
+  const patientTotal = invoiceTotal - discountedPrice;
 
   useEffect(() => {
     (async () => {
@@ -80,31 +80,6 @@ export const InvoiceSummaryPanel = ({
     })();
   }, [discountInfo.orderedById]);
 
-  const invoiceTotal = discountableTotal + nonDiscountableTotal;
-  const discountedPrice = discountableTotal * discountInfo.percentageChange;
-  const patientTotal = invoiceTotal + discountedPrice;
-  const { data: priceChangeItemsResponse } = usePriceChangeItemsQuery(invoiceId);
-
-  useEffect(() => {
-    const { data } = priceChangeItemsResponse;
-    if (!data[0]) return;
-    setDiscountInfo(prevDiscountInfo => ({
-      ...prevDiscountInfo,
-      percentageChange: data[0].percentageChange,
-      description: data[0].description,
-      orderedById: data[0].orderedById,
-      date: data[0].date,
-    }));
-    setPriceChangeId(data[0].id);
-  }, [priceChangeItemsResponse]);
-
-  const updateDiscountInfo = useCallback(
-    (updatedDiscountInfo) => {
-      setDiscountInfo(prevDiscountInfo => (
-        { ...prevDiscountInfo, ...updatedDiscountInfo }
-      ));
-    }, []);
-
   return (
     <Container>
       <CardItem>
@@ -112,19 +87,20 @@ export const InvoiceSummaryPanel = ({
           stringId='invoice.summary.subtotal.discountable'
           fallback='Discountable items subtotal'
         />
-        <span>{discountableTotal}</span>
+        <span>{invoiceTotal || '-'}</span>
       </CardItem>
       <CardItem>
         <TranslatedText
           stringId='invoice.summary.subtotal.nondiscountable'
           fallback='Non-discountable items subtotal'
         />
-        <span>{nonDiscountableTotal}</span>
+        {/* TODO: Include non-discountable items total */}
+        <span>{'-'}</span>
       </CardItem>
       <Divider />
       <CardItem sx={{ fontWeight: 500 }}>
         <TranslatedText stringId="invoice.summary.total.label" fallback="Total" />
-        <span>{invoiceTotal}</span>
+        <span>{invoiceTotal || '-'}</span>
       </CardItem>
       {/* TODO: Add insurer contribution */}
       <Divider />
@@ -173,8 +149,7 @@ export const InvoiceSummaryPanel = ({
           open={isOpenManualDiscountModal}
           onClose={() => setIsOpenManualDiscountModal(false)}
           invoiceId={invoiceId}
-          priceChangeId={priceChangeId}
-          onUpdateDiscountInfo={updateDiscountInfo}
+          priceChangeId={discountInfo.id}
           description={discountInfo.description}
           percentageChange={discountInfo.percentageChange}
         />
@@ -186,7 +161,7 @@ export const InvoiceSummaryPanel = ({
             fallback='Applied to discountable balance'
           />
           <DiscountedPrice>
-            {discountableTotal}
+            {invoiceTotal}
           </DiscountedPrice>
         </CardItem>
       )}
@@ -198,7 +173,9 @@ export const InvoiceSummaryPanel = ({
             fallback='Patient total'
           />
         </Heading3>
-        <Heading3 sx={{ margin: 0 }}>{patientTotal.toFixed(2)}</Heading3>
+        <Heading3 sx={{ margin: 0 }}>
+          {patientTotal ? patientTotal.toFixed(2) : '-'}
+        </Heading3>
       </CardItem>
     </Container>
   );
