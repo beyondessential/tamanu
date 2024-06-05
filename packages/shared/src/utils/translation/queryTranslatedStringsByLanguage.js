@@ -20,7 +20,7 @@ export const queryTranslatedStringsByLanguage = async ({ sequelize, models }) =>
           string_id as "stringId",
           ${languagesInDb
             .map(
-              ({ language }) => `MAX(text) FILTER(WHERE language = '${language}') AS ${language}`,
+              (_, index) => `MAX(text) FILTER(WHERE language = '$lang${index}') AS $lang${index}`,
             )
             .join(',')}
       FROM
@@ -31,6 +31,11 @@ export const queryTranslatedStringsByLanguage = async ({ sequelize, models }) =>
           string_id
       `,
     {
+      bind: {
+        ...Object.fromEntries(
+          languagesInDb.map(({ language }, index) => [`lang${index}`, language]),
+        ),
+      },
       type: QueryTypes.SELECT,
     },
   );
