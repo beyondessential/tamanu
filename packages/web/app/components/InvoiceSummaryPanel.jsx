@@ -145,7 +145,7 @@ export const InvoiceSummaryPanel = ({
           <DiscountedPrice>
             <span>{(Math.abs(discountInfo.percentageChange) * 100).toFixed(2)}%</span>
             <BodyText sx={{ fontWeight: 400 }} color={Colors.darkestText}>
-              {(discountedPrice).toFixed(2)}
+              {discountedPrice.toFixed(2)}
             </BodyText>
           </DiscountedPrice>
         )}
