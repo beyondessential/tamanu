@@ -5,10 +5,10 @@ import { Op, ValidationError } from 'sequelize';
 import { VISIBILITY_STATUSES } from '@tamanu/constants';
 import { simpleGetList, simplePost, simplePut } from '@tamanu/shared/utils/crudHelpers';
 
-export const patientLetterTemplateRoutes = express.Router();
+export const templateRoutes = express.Router();
 
 const checkUniqueName = asyncHandler(async (req, res, next) => {
-  req.checkPermission('list', 'PatientLetterTemplate');
+  req.checkPermission('list', 'Template');
   const { id: paramId } = req.params;
   const { name, id = paramId } = req.body;
 
@@ -18,7 +18,7 @@ const checkUniqueName = asyncHandler(async (req, res, next) => {
     return;
   }
 
-  const conflictingRecords = await req.models.PatientLetterTemplate.count({
+  const conflictingRecords = await req.models.Template.count({
     where: { name, id: { [Op.ne]: id ?? null } },
   });
 
@@ -29,11 +29,11 @@ const checkUniqueName = asyncHandler(async (req, res, next) => {
   next();
 });
 
-patientLetterTemplateRoutes.get(
+templateRoutes.get(
   '/$',
-  simpleGetList('PatientLetterTemplate', null, {
+  simpleGetList('Template', null, {
     additionalFilters: { visibilityStatus: VISIBILITY_STATUSES.CURRENT },
   }),
 );
-patientLetterTemplateRoutes.post('/$', checkUniqueName, simplePost('PatientLetterTemplate'));
-patientLetterTemplateRoutes.put('/:id', checkUniqueName, simplePut('PatientLetterTemplate'));
+templateRoutes.post('/$', checkUniqueName, simplePost('Template'));
+templateRoutes.put('/:id', checkUniqueName, simplePut('Template'));

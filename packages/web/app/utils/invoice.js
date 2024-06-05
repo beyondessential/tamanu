@@ -18,7 +18,8 @@ export const calculateInvoiceTotal = (invoiceLines, invoicePriceChanges) => {
 export const calculateInvoiceLinesTotal = invoiceLines => {
   let total = 0;
   invoiceLines.forEach(invoiceLine => {
-    const price = parseFloat(invoiceLine.invoiceLineType.price);
+    let price = invoiceLine.invoiceLineType?.price || invoiceLine.price || 0;
+    price = parseFloat(price);
     const priceChange = (invoiceLine.percentageChange || 0) * price;
     total += price + priceChange;
   });

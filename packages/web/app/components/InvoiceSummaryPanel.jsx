@@ -51,8 +51,7 @@ const DescriptionText = styled.span`
 export const InvoiceSummaryPanel = ({
   invoiceId,
   isEditInvoice,
-  discountableTotal,
-  nonDiscountableTotal,
+  invoiceTotal
 }) => {
   const [isOpenManualDiscountModal, setIsOpenManualDiscountModal] = useState(false);
   const [orderedByName, setOrderedByName] = useState('');
@@ -65,9 +64,8 @@ export const InvoiceSummaryPanel = ({
     orderedById: "",
   };
 
-  const invoiceTotal = discountableTotal + nonDiscountableTotal;
-  const discountedPrice = discountableTotal * discountInfo.percentageChange;
-  const patientTotal = invoiceTotal + discountedPrice;
+  const discountedPrice = invoiceTotal * Math.abs(discountInfo.percentageChange);
+  const patientTotal = invoiceTotal - discountedPrice;
 
   useEffect(() => {
     (async () => {
@@ -84,19 +82,20 @@ export const InvoiceSummaryPanel = ({
           stringId='invoice.summary.subtotal.discountable'
           fallback='Discountable items subtotal'
         />
-        <span>{discountableTotal}</span>
+        <span>{invoiceTotal || '-'}</span>
       </CardItem>
       <CardItem>
         <TranslatedText
           stringId='invoice.summary.subtotal.nondiscountable'
           fallback='Non-discountable items subtotal'
         />
-        <span>{nonDiscountableTotal}</span>
+        {/* TODO: Include non-discountable items total */}
+        <span>{'-'}</span>
       </CardItem>
       <Divider />
       <CardItem sx={{ fontWeight: 500 }}>
         <TranslatedText stringId="invoice.summary.total.label" fallback="Total" />
-        <span>{invoiceTotal}</span>
+        <span>{invoiceTotal || '-'}</span>
       </CardItem>
       {/* TODO: Add insurer contribution */}
       <Divider />
@@ -142,7 +141,7 @@ export const InvoiceSummaryPanel = ({
           fallback='Applied to discountable balance'
         />
         <DiscountedPrice>
-          {discountableTotal}
+          {invoiceTotal}
         </DiscountedPrice>
       </CardItem>
       <Divider />
@@ -153,7 +152,9 @@ export const InvoiceSummaryPanel = ({
             fallback='Patient total'
           />
         </Heading3>
-        <Heading3 sx={{ margin: 0 }}>{patientTotal.toFixed(2)}</Heading3>
+        <Heading3 sx={{ margin: 0 }}>
+          {patientTotal ? patientTotal.toFixed(2) : '-'}
+        </Heading3>
       </CardItem>
     </Container>
   );

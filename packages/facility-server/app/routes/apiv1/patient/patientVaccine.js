@@ -237,6 +237,7 @@ patientVaccineRoutes.post(
             AND administered_vaccines.status = :status
             AND administered_vaccines.scheduled_vaccine_id = :scheduledVaccineId
             AND encounters.patient_id = :patientId
+            AND encounters.deleted_at is null
         `,
           {
             replacements: {

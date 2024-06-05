@@ -1,8 +1,8 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { Typography } from '@material-ui/core';
 import { isErrorUnknownAllow404s, useApi } from '../../../api';
-import { isInvoiceEditable } from '../../../utils';
+import { calculateInvoiceLinesTotal, isInvoiceEditable } from '../../../utils';
 import { InvoiceDetailTable } from '../../../components/InvoiceDetailTable';
 import { Button } from '../../../components/Button';
 import { ContentPane } from '../../../components/ContentPane';
@@ -13,7 +13,6 @@ import { EditInvoiceModal } from '../../../components/EditInvoiceModal';
 import { KebabMenu } from '../../../components/EditInvoiceModal/KebabMenu';
 import { StatusDisplay } from '../../../utils/invoiceStatus';
 import { InvoiceSummaryPanel } from '../../../components/InvoiceSummaryPanel';
-import { useInvoiceLineTotals } from '../../../hooks/useInvoiceLineTotals';
 import { CreateInvoiceModal } from '../../../components/CreateInvoiceModal';
 
 const EmptyPane = styled(ContentPane)`
@@ -56,9 +55,11 @@ export const InvoicingPane = React.memo(({ encounter }) => {
   const [error, setError] = useState(null);
   const [invoiceLineItems, setInvoiceLineItems] = useState([]);
   const [activeModal, setActiveModal] = useState('');
-
   const updateLineItems = useCallback(({ data }) => setInvoiceLineItems(data), []);
-  const { discountableTotal, nonDiscountableTotal } = useInvoiceLineTotals(invoiceLineItems);
+
+  const invoiceTotal = useMemo(() => {
+    return calculateInvoiceLinesTotal(invoiceLineItems);
+  }, [invoiceLineItems]);
 
   const handleActiveModal = useCallback(modal => {
     setActiveModal(modal);
@@ -164,8 +165,7 @@ export const InvoicingPane = React.memo(({ encounter }) => {
       </InvoiceContainer>
       <InvoiceSummaryPanel
         invoiceId={invoice.id}
-        discountableTotal={discountableTotal}
-        nonDiscountableTotal={nonDiscountableTotal}
+        invoiceTotal={invoiceTotal}
       />
     </TabPane>
   );

@@ -81,7 +81,7 @@ const TABS = [
     label: <TranslatedText stringId="encounter.tabs.invoicing" fallback="Invoicing" />,
     key: ENCOUNTER_TAB_NAMES.INVOICING,
     render: props => <InvoicingPane {...props} />,
-    condition: getLocalisation => getLocalisation('features.enableInvoicing'),
+    //condition: getLocalisation => getLocalisation('features.enableInvoicing'),
   },
 ];
 
