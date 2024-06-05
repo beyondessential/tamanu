@@ -422,6 +422,7 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
               <InvoiceSummaryPanel
                 invoiceId={invoiceId}
                 invoiceTotal={invoiceTotal}
+                invoiceStatus={invoiceStatus}
                 isEditInvoice
               />
             </ModalSection>
