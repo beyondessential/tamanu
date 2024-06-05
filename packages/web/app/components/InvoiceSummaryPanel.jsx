@@ -58,6 +58,7 @@ export const InvoiceSummaryPanel = ({
   invoiceTotal
 }) => {
   const [isOpenManualDiscountModal, setIsOpenManualDiscountModal] = useState(false);
+  const [orderedByName, setOrderedByName] = useState('');
   const practitionerSuggester = useSuggester('practitioner');
   const { data: priceChangeItemsResponse } = usePriceChangeItemsQuery(invoiceId);
 
@@ -74,12 +75,12 @@ export const InvoiceSummaryPanel = ({
     (async () => {
       if (!discountInfo.orderedById) return;
       const { label } = await practitionerSuggester.fetchCurrentOption(discountInfo.orderedById);
-      setDiscountInfo(prevDiscountInfo => ({
-        ...prevDiscountInfo,
-        orderedByName: label,
-      }));
+      setOrderedByName(label);
     })();
-  }, [discountInfo.orderedById]);
+  }, [discountInfo]);
+
+  const showEditButton = invoiceStatus === INVOICE_STATUSES.IN_PROGRESS &&
+    !!discountInfo.percentageChange && isEditInvoice;
 
   return (
     <Container>
@@ -135,13 +136,11 @@ export const InvoiceSummaryPanel = ({
         }}
       >
         <DescriptionText>
-          <ThemedTooltip title={`${discountInfo.orderedByName} ${discountInfo.date}`}>
+          <ThemedTooltip title={`${orderedByName} ${discountInfo.date}`}>
             <span>{discountInfo.description}</span>
           </ThemedTooltip>
         </DescriptionText>
-        {invoiceStatus === INVOICE_STATUSES.IN_PROGRESS &&
-          !!discountInfo.percentageChange &&
-          isEditInvoice && (
+        {showEditButton && (
           <IconButton onClick={() => setIsOpenManualDiscountModal(true)}>
             <PencilIcon />
           </IconButton>

@@ -27,30 +27,6 @@ export const calculateInvoiceLinesTotal = invoiceLines => {
   return Math.round(total * 100) / 100;
 };
 
-export const calculateInvoiceLinesDiscountableTotal = invoiceLines => {
-  let total = 0;
-  invoiceLines.forEach(invoiceLine => {
-    const price = invoiceLine.invoiceLineType?.price || invoiceLine.price;
-    const priceFloat = parseFloat(price);
-    const priceChange = (invoiceLine.percentageChange || 0) * priceFloat;
-    if (priceChange) total += priceFloat + priceChange;
-  });
-
-  return Math.round(total * 100) / 100;
-};
-
-export const calculateInvoiceLinesNonDiscountableTotal = invoiceLines => {
-  let total = 0;
-  invoiceLines.forEach(invoiceLine => {
-    const price = invoiceLine.invoiceLineType?.price || invoiceLine.price;
-    const priceFloat = parseFloat(price);
-    const priceChange = (invoiceLine.percentageChange || 0) * priceFloat;
-    if (!priceChange) total += priceFloat + priceChange;
-  });
-
-  return Math.round(total * 100) / 100;
-};
-
 export const getInvoiceTotal = async (api, invoiceId) => {
   const { data: invoiceLineItems } = await api.get(`invoices/${invoiceId}/lineItems`);
   const { data: invoicePriceChangeItems } = await api.get(`invoices/${invoiceId}/priceChangeItems`);
