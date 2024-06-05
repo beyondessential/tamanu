@@ -97,7 +97,7 @@ export const InvoiceDetailTable = React.memo(({ invoice, updateLineItems }) => {
       }
       allowExport={false}
       elevated={false}
-      headerColor='white'
+      headerColor={Colors.white}
       page={null}
       onDataFetched={updateLineItems}
       rowStyle={() => 'height: 40px;'}

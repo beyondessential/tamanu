@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { Box, Divider } from '@material-ui/core';
+import { INVOICE_STATUSES } from '@tamanu/constants';
 import { Colors } from '../constants';
 import { TranslatedText } from './Translation';
 import { useSuggester } from '../api';
@@ -9,6 +10,7 @@ import { InvoiceManualDiscountModal } from './InvoiceManualDiscountModal';
 import { ThemedTooltip } from './Tooltip';
 import { BodyText, Heading3 } from './Typography';
 import { usePriceChangeItemsQuery } from '../api/queries/usePriceChangeItemsQuery';
+import { Button } from './Button';
 
 const CardItem = styled(Box)`
   display: flex;
@@ -16,7 +18,8 @@ const CardItem = styled(Box)`
   gap: 8px;
   font-size: 14px;
   justify-content: space-between;
-`
+  align-items: flex-start;
+`;
 
 const Container = styled.div`
   display: flex;
@@ -50,6 +53,7 @@ const DescriptionText = styled.span`
 
 export const InvoiceSummaryPanel = ({
   invoiceId,
+  invoiceStatus,
   isEditInvoice,
   invoiceTotal
 }) => {
@@ -74,6 +78,9 @@ export const InvoiceSummaryPanel = ({
       setOrderedByName(label);
     })();
   }, [discountInfo]);
+
+  const showEditButton = invoiceStatus === INVOICE_STATUSES.IN_PROGRESS &&
+    !!discountInfo.percentageChange && isEditInvoice;
 
   return (
     <Container>
@@ -104,12 +111,22 @@ export const InvoiceSummaryPanel = ({
           stringId='invoice.summary.discount.label'
           fallback='Discount'
         />
-        <DiscountedPrice>
-          <span>{(Math.abs(discountInfo.percentageChange) * 100).toFixed(2)}%</span>
-          <BodyText sx={{ fontWeight: 400 }} color={Colors.darkestText}>
-            {(discountedPrice).toFixed(2)}
-          </BodyText>
-        </DiscountedPrice>
+        {invoiceStatus === INVOICE_STATUSES.IN_PROGRESS && !discountInfo.percentageChange && (
+          <Button onClick={() => setIsOpenManualDiscountModal(true)}>
+            <TranslatedText
+              stringId='invoice.summary.action.addDiscount'
+              fallback='Add discount'
+            />
+          </Button>
+        )}
+        {!!discountInfo.percentageChange && (
+          <DiscountedPrice>
+            <span>{(Math.abs(discountInfo.percentageChange) * 100).toFixed(2)}%</span>
+            <BodyText sx={{ fontWeight: 400 }} color={Colors.darkestText}>
+              {discountedPrice.toFixed(2)}
+            </BodyText>
+          </DiscountedPrice>
+        )}
       </CardItem>
       <CardItem
         sx={{
@@ -123,9 +140,11 @@ export const InvoiceSummaryPanel = ({
             <span>{discountInfo.description}</span>
           </ThemedTooltip>
         </DescriptionText>
-        {isEditInvoice && <IconButton onClick={() => setIsOpenManualDiscountModal(true)}>
-          <PencilIcon />
-        </IconButton>}
+        {showEditButton && (
+          <IconButton onClick={() => setIsOpenManualDiscountModal(true)}>
+            <PencilIcon />
+          </IconButton>
+        )}
         <InvoiceManualDiscountModal
           open={isOpenManualDiscountModal}
           onClose={() => setIsOpenManualDiscountModal(false)}
@@ -135,15 +154,17 @@ export const InvoiceSummaryPanel = ({
           percentageChange={discountInfo.percentageChange}
         />
       </CardItem>
-      <CardItem sx={{ marginBottom: '-6px', color: Colors.midText }}>
-        <TranslatedText
-          stringId='invoice.summary.appliedDiscountable'
-          fallback='Applied to discountable balance'
-        />
-        <DiscountedPrice>
-          {invoiceTotal}
-        </DiscountedPrice>
-      </CardItem>
+      {!!discountInfo.percentageChange && (
+        <CardItem sx={{ marginBottom: '-6px', color: Colors.midText }}>
+          <TranslatedText
+            stringId='invoice.summary.appliedDiscountable'
+            fallback='Applied to discountable balance'
+          />
+          <DiscountedPrice>
+            {invoiceTotal}
+          </DiscountedPrice>
+        </CardItem>
+      )}
       <Divider />
       <CardItem>
         <Heading3 sx={{ margin: 0 }}>
