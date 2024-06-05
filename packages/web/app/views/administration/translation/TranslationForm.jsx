@@ -6,7 +6,7 @@ import styled from 'styled-components';
 import { Box, IconButton, Tooltip } from '@material-ui/core';
 import { Add as AddIcon, Delete as DeleteIcon } from '@material-ui/icons';
 import shortid from 'shortid';
-import { Alert, AlertTitle } from '@material-ui/lab';
+import { Alert } from '@material-ui/lab';
 import { toast } from 'react-toastify';
 import HelpIcon from '@material-ui/icons/HelpOutlined';
 import { useApi } from '../../../api';
@@ -22,6 +22,7 @@ import { AccessorField } from '../../patients/components/AccessorField';
 import { LoadingIndicator } from '../../../components/LoadingIndicator';
 import { Colors } from '../../../constants';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
+import { ErrorMessage } from '../../../components/ErrorMessage';
 
 const StyledTableFormFields = styled(TableFormFields)`
   thead tr th {
@@ -91,17 +92,6 @@ const useTranslationMutation = () => {
       toast.error(`Error saving translations: ${err.message}`);
     },
   });
-};
-
-const ErrorMessage = ({ error }) => {
-  return (
-    <Box p={5}>
-      <Alert severity="error">
-        <AlertTitle>Error: Could not load translations:</AlertTitle>
-        {error}
-      </Alert>
-    </Box>
-  );
 };
 
 const TranslationField = ({ placeholderId, stringId, code }) => (
