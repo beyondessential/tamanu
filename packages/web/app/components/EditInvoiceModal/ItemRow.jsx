@@ -6,10 +6,11 @@ import { AutocompleteField, DateField, Field } from '../Field';
 import { useSuggester } from '../../api';
 import { Colors } from '../../constants';
 import { KebabMenu } from './KebabMenu';
+import { ThemedTooltip } from '../Tooltip';
 
 const PriceText = styled.span`
   margin-right: 16px;
-  text-decoration: ${props => props.$isCrossedOut ? 'line-through' : 'none'};
+  text-decoration: ${props => (props.$isCrossedOut ? 'line-through' : 'none')};
 `;
 
 const StyledItemRow = styled(Grid)`
@@ -45,47 +46,37 @@ const ItemCodeText = styled.div`
 `;
 
 export const ItemHeader = () => {
-  return <StyledItemHeader container alignItems='center' spacing={1}>
-    <Grid item xs={2}>
-      <TranslatedText
-        stringId="general.date.label"
-        fallback="Date"
-      />
-    </Grid>
-    <Grid item xs={4}>
-      <TranslatedText
-        stringId="invoice.modal.addInvoice.details.label"
-        fallback="Details"
-      />
-    </Grid>
-    <Grid item xs={1}>
-      <ItemCodeText>
-        <TranslatedText
-          stringId="invoice.table.column.code"
-          fallback="Code"
-        />
-      </ItemCodeText>
-    </Grid>
-    <Grid item xs={3}>
-      <TranslatedText
-        stringId="invoice.modal.addInvoice.orderedBy.label"
-        fallback="Ordered by"
-      />
-    </Grid>
-    <Grid item xs={2}>
-      <PriceCell>
-        <TranslatedText
-          stringId="invoice.modal.addInvoice.price.label"
-          fallback="Price"
-        />
-      </PriceCell>
-    </Grid>
-  </StyledItemHeader>
+  return (
+    <StyledItemHeader container alignItems="center" spacing={1}>
+      <Grid item xs={2}>
+        <TranslatedText stringId="general.date.label" fallback="Date" />
+      </Grid>
+      <Grid item xs={4}>
+        <TranslatedText stringId="invoice.modal.addInvoice.details.label" fallback="Details" />
+      </Grid>
+      <Grid item xs={1}>
+        <ItemCodeText>
+          <TranslatedText stringId="invoice.table.column.code" fallback="Code" />
+        </ItemCodeText>
+      </Grid>
+      <Grid item xs={3}>
+        <TranslatedText stringId="invoice.modal.addInvoice.orderedBy.label" fallback="Ordered by" />
+      </Grid>
+      <Grid item xs={2}>
+        <PriceCell>
+          <TranslatedText stringId="invoice.modal.addInvoice.price.label" fallback="Price" />
+        </PriceCell>
+      </Grid>
+    </StyledItemHeader>
+  );
 };
 
 export const ItemRow = ({
   index,
   onDelete,
+  onAddDiscountLineItem,
+  onAddMarkupLineItem,
+  onRemovePercentageChangeLineItem,
   rowData,
   isDeleteDisabled,
   updateRowData,
@@ -108,78 +99,90 @@ export const ItemRow = ({
 
     return isNaN(percentageChangeFloat)
       ? ''
-      : (priceFloat + (priceFloat * percentageChangeFloat)).toFixed(2);
+      : (priceFloat + priceFloat * percentageChangeFloat).toFixed(2);
   }, [rowData.price, rowData.percentageChange]);
+  if (rowData.id === 'a43a787c-6c7d-4d74-9809-5ae62107ea66') {
+    console.log(rowData)
+  }
 
   return (
-    <StyledItemRow
-      container
-      alignItems='center'
-      spacing={1}
-    >
+    <StyledItemRow container alignItems="center" spacing={1}>
       <Grid item xs={2}>
         <Field
-          name={"date_" + index}
+          name={'date_' + index}
           required
           component={DateField}
           saveDateAsString
           size="small"
           value={rowData.date}
-          onChange={event => updateRowData(rowData.id, { 
-            date: event.target.value,
-            toBeUpdated: true
-          })}
+          onChange={event =>
+            updateRowData(rowData.id, {
+              date: event.target.value,
+              toBeUpdated: true,
+            })
+          }
         />
       </Grid>
       <Grid item xs={4}>
         <Field
-          name={"invoiceLineTypeId_" + index}
+          name={'invoiceLineTypeId_' + index}
           required
           component={AutocompleteField}
           suggester={invoiceLineTypeSuggester}
           onFetchCurrentOption={data => onUpdateInvoiceLineTypeId(data)}
           size="small"
           value={rowData.invoiceLineTypeId}
-          onChange={event => updateRowData(rowData.id, {
-            invoiceLineTypeId: event.target.value,
-            code: "",
-            price: "",
-            toBeUpdated: true
-          })}
+          onChange={event =>
+            updateRowData(rowData.id, {
+              invoiceLineTypeId: event.target.value,
+              code: '',
+              price: '',
+              toBeUpdated: true,
+            })
+          }
         />
       </Grid>
-      <Grid item justifyContent='center' xs={1}>
-        <ItemCodeText>
-          {rowData.code}
-        </ItemCodeText>
+      <Grid item justifyContent="center" xs={1}>
+        <ItemCodeText>{rowData.code}</ItemCodeText>
       </Grid>
       <Grid item xs={3}>
         <Field
-          name={"orderedById_" + index}
+          name={'orderedById_' + index}
           required
           component={AutocompleteField}
           suggester={practitionerSuggester}
           onFetchCurrentOption={data => onUpdateOrderedById(data)}
           size="small"
           value={rowData.orderedById}
-          onChange={event => updateRowData(rowData.id, {
-            orderedById: event.target.value,
-            orderedBy: "",
-            toBeUpdated: true
-          })}
+          onChange={event =>
+            updateRowData(rowData.id, {
+              orderedById: event.target.value,
+              orderedBy: '',
+              toBeUpdated: true,
+            })
+          }
         />
       </Grid>
       <Grid item xs={2}>
         <PriceCell>
-          <PriceText $isCrossedOut={!!rowData.percentageChange}>
-            {rowData.price}
-          </PriceText>
-          <span>{finalPrice}</span>
-          {showKebabMenu && <KebabMenu
-            isDeleteDisabled={isDeleteDisabled}
-            onDelete={onDelete}
-            rowData={rowData}
-          />}
+          <PriceText $isCrossedOut={!!rowData.percentageChange}>{rowData.price}</PriceText>
+          <ThemedTooltip
+            key={rowData.discountMarkupReason}
+            title={rowData.discountMarkupReason}
+            open={rowData.discountMarkupReason ? undefined : false}
+          >
+            <span>{finalPrice}</span>
+          </ThemedTooltip>
+          {showKebabMenu && (
+            <KebabMenu
+              isDeleteDisabled={isDeleteDisabled}
+              onDelete={onDelete}
+              onAddDiscountLineItem={onAddDiscountLineItem}
+              onAddMarkupLineItem={onAddMarkupLineItem}
+              onRemovePercentageChangeLineItem={onRemovePercentageChangeLineItem}
+              rowData={rowData}
+            />
+          )}
         </PriceCell>
       </Grid>
     </StyledItemRow>

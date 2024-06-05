@@ -54,35 +54,47 @@ invoiceLineItemsRoute.put(
 
     const { invoiceLineItemsData } = req.body;
     let currentTime = Date.now();
-    
+
     const itemsToUpdate = invoiceLineItemsData.map(item => {
       const newItem = {
-        ...(!!item.id && {id: item.id}),
+        ...(!!item.id && { id: item.id }),
         invoiceLineTypeId: item.invoiceLineTypeId,
         dateGenerated: item.date,
         orderedById: item.orderedById,
         invoiceId,
+        percentageChange: item.percentageChange,
+        discountMarkupReason: item.discountMarkupReason,
         // Assign unique createdAt timestamps to avoid random order
-        createdAt: currentTime
+        createdAt: currentTime,
       };
       currentTime += 1;
       return newItem;
     });
     const updatedLineItems = await models.InvoiceLineItem.bulkCreate(itemsToUpdate, {
-      updateOnDuplicate: ["invoiceLineTypeId", "dateGenerated", "orderedById"] 
+      updateOnDuplicate: [
+        'invoiceLineTypeId',
+        'dateGenerated',
+        'orderedById',
+        'percentageChange',
+        'discountMarkupReason',
+      ],
     });
 
     res.send({
       count: updatedLineItems.length,
-      data: updatedLineItems
+      data: updatedLineItems,
     });
-  })
+  }),
 );
 
 invoiceLineItemsRoute.delete(
   '/:invoiceId/lineItems',
   asyncHandler(async (req, res) => {
-    const { models, params: { invoiceId }, query: { idsToDelete } } = req;
+    const {
+      models,
+      params: { invoiceId },
+      query: { idsToDelete },
+    } = req;
     req.checkPermission('write', 'InvoiceLineItem');
 
     await models.InvoiceLineItem.update(
@@ -91,10 +103,10 @@ invoiceLineItemsRoute.delete(
         where: {
           invoiceId,
           id: {
-            [Op.in]: idsToDelete || []
-          }
-        }
-      }
+            [Op.in]: idsToDelete || [],
+          },
+        },
+      },
     );
 
     res.send({ message: 'Line items deleted successfully' });

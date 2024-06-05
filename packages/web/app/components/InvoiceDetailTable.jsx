@@ -1,12 +1,12 @@
 import React from 'react';
+import styled from 'styled-components';
+import { Box } from '@material-ui/core';
 
+import { Colors, denseTableStyle } from '../constants';
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 import { TranslatedText } from './Translation';
 import { getInvoiceLineCode } from '../utils/invoiceDetails';
-import { Colors, denseTableStyle } from '../constants';
-import { Box } from '@material-ui/core';
-import styled from 'styled-components';
 
 const getDisplayName = ({ orderedBy }) => orderedBy?.displayName ?? '';
 
@@ -84,13 +84,11 @@ const INVOICE_LINE_COLUMNS = [
   },
 ];
 
-export const InvoiceDetailTable = React.memo(({ invoice }) => {
+export const InvoiceDetailTable = React.memo(({ invoice, updateLineItems }) => {
   return (
     <DataFetchingTable
       endpoint={`invoices/${invoice.id}/lineItems`}
-      columns={[
-        ...INVOICE_LINE_COLUMNS,
-      ]}
+      columns={INVOICE_LINE_COLUMNS}
       noDataMessage={
         <TranslatedText
           stringId="invoice.line.table.noData"
@@ -99,8 +97,9 @@ export const InvoiceDetailTable = React.memo(({ invoice }) => {
       }
       allowExport={false}
       elevated={false}
-      headerColor='white'
+      headerColor={Colors.white}
       page={null}
+      onDataFetched={updateLineItems}
       rowStyle={() => 'height: 40px;'}
       headerTextColor={Colors.midText}
       containerStyle={denseTableStyle.container}

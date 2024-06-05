@@ -1,8 +1,8 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { Typography } from '@material-ui/core';
 import { isErrorUnknownAllow404s, useApi } from '../../../api';
-import { isInvoiceEditable } from '../../../utils';
+import { calculateInvoiceLinesTotal, isInvoiceEditable } from '../../../utils';
 import { InvoiceDetailTable } from '../../../components/InvoiceDetailTable';
 import { Button } from '../../../components/Button';
 import { ContentPane } from '../../../components/ContentPane';
@@ -12,6 +12,7 @@ import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { EditInvoiceModal } from '../../../components/EditInvoiceModal';
 import { KebabMenu } from '../../../components/EditInvoiceModal/KebabMenu';
 import { InvoiceStatus } from '../../../components/InvoiceStatus';
+import { InvoiceSummaryPanel } from '../../../components/InvoiceSummaryPanel';
 
 const EmptyPane = styled(ContentPane)`
   text-align: center;
@@ -44,6 +45,7 @@ const InvoiceTopBar = styled.div`
 
 const InvoiceContainer = styled.div`
   padding: 8px 16px;
+  margin-bottom: 5px;
   border: 1px solid ${Colors.outline};
 `;
 
@@ -51,6 +53,13 @@ export const InvoicingPane = React.memo(({ encounter }) => {
   const [editInvoiceModalOpen, setEditInvoiceModalOpen] = useState(false);
   const [invoice, setInvoice] = useState(null);
   const [error, setError] = useState(null);
+  const [invoiceLineItems, setInvoiceLineItems] = useState([]);
+
+  const updateLineItems = useCallback(({ data }) => setInvoiceLineItems(data), []);
+
+  const invoiceTotal = useMemo(() => {
+    return calculateInvoiceLinesTotal(invoiceLineItems);
+  }, [invoiceLineItems]);
 
   const api = useApi();
 
@@ -137,8 +146,16 @@ export const InvoicingPane = React.memo(({ encounter }) => {
             </ActionsPane>
           ) : null}
         </InvoiceTopBar>
-        <InvoiceDetailTable invoice={invoice} />
+        <InvoiceDetailTable
+          invoice={invoice}
+          invoiceLineItems={invoiceLineItems}
+          updateLineItems={updateLineItems}
+        />
       </InvoiceContainer>
+      <InvoiceSummaryPanel
+        invoiceId={invoice.id}
+        invoiceTotal={invoiceTotal}
+      />
     </TabPane>
   );
 });

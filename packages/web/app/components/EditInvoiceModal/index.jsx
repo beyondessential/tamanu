@@ -17,6 +17,8 @@ import { ItemHeader, ItemRow } from './ItemRow';
 import { useEncounter } from '../../contexts/Encounter';
 import { getInvoiceLineCode } from '../../utils/invoiceDetails';
 import { InvoiceStatus } from '../InvoiceStatus';
+import { InvoiceSummaryPanel } from '../InvoiceSummaryPanel';
+import { calculateInvoiceLinesTotal } from '../../utils';
 
 const LinkText = styled.div`
   font-weight: 500;
@@ -45,8 +47,8 @@ const StyledDataFetchingTable = styled(DataFetchingTable)`
 `;
 
 const PotentialLineItemsPane = styled.div`
+  width: 70%;
   display: grid;
-  max-width: 60%;
   margin-left: -4px;
   overflow: auto;
   padding-left: 15px;
@@ -94,6 +96,12 @@ const StyledDivider = styled(Divider)`
   margin: 26px -40px 32px -40px;
 `;
 
+const ModalSection = styled.div`
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+`;
+
 const StatusContainer = styled.span`
   margin-left: 20px;
   font-weight: 400;
@@ -113,15 +121,12 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
       const { data } = await api.get(`invoices/${encodeURIComponent(invoiceId)}/lineItems`);
       if (!data.length) return;
       setRowList(data.map(item => ({
-        id: item.id,
+        ...item,
         details: item.invoiceLineType?.name,
         date: item.dateGenerated,
         orderedBy: item.orderedBy?.displayName,
         price: item.invoiceLineType?.price,
-        invoiceLineTypeId: item.invoiceLineTypeId,
-        orderedById: item.orderedById,
         code: getInvoiceLineCode(item),
-        percentageChange: item.percentageChange
       })));
     })();
   }, [api]);
@@ -142,6 +147,11 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
       return newRowList;
     });
   }, []);
+
+  const invoiceTotal = useMemo(() => {
+    return calculateInvoiceLinesTotal(rowList);
+  }, [rowList]);
+
 
   const handleAddRow = (rowData) => {
     const newRowList = [...rowList];
@@ -247,6 +257,42 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
     setRowList(newRowList);
   };
 
+  const onAddDiscountLineItem = (id, data) => {
+    const newRowList = rowList.map(row => {
+      if (row.id === id && Number(data.percentageChange)) {
+        row.percentageChange = -(data.percentageChange / 100);
+        row.discountMarkupReason = data.discountMarkupReason;
+        row.toBeUpdated = true;
+      }
+      return row;
+    });
+    setRowList(newRowList);
+  };
+
+  const onAddMarkupLineItem = (id, data) => {
+    const newRowList = rowList.map(row => {
+      if (row.id === id && Number(data.percentageChange)) {
+        row.percentageChange = data.percentageChange / 100;
+        row.discountMarkupReason = data.discountMarkupReason;
+        row.toBeUpdated = true;
+      }
+      return row;
+    });
+    setRowList(newRowList);
+  };
+
+  const onRemovePercentageChangeLineItem = (id) => {
+    const newRowList = rowList.map(row => {
+      if (row.id === id) {
+        row.percentageChange = null;
+        row.discountMarkupReason = '';
+        row.toBeUpdated = true;
+      }
+      return row;
+    });
+    setRowList(newRowList);
+  };
+
   const handleSubmit = async (submitData) => {
     if (isSaving) return;
     setIsSaving(true);
@@ -257,6 +303,8 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
         invoiceLineTypeId: submitData[`invoiceLineTypeId_${index}`],
         date: submitData[`date_${index}`],
         orderedById: submitData[`orderedById_${index}`],
+        percentageChange: row.percentageChange,
+        discountMarkupReason: row.discountMarkupReason,
         toBeUpdated: !!row.toBeUpdated,
       }))
       .filter(row => row.toBeUpdated);
@@ -326,6 +374,9 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
                   index={index}
                   rowData={row}
                   onDelete={() => onDeleteLineItem(row?.id)}
+                  onAddDiscountLineItem={(discount) => onAddDiscountLineItem(row?.id, discount)}
+                  onAddMarkupLineItem={(markup) => onAddMarkupLineItem(row?.id, markup)}
+                  onRemovePercentageChangeLineItem={() => onRemovePercentageChangeLineItem(row?.id)}
                   isDeleteDisabled={rowList.length === 1}
                   updateRowData={updateRowData}
                   showKebabMenu={!isSaveDisabled || rowList.length > 1}
@@ -335,38 +386,46 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
             <LinkText onClick={() => handleAddRow()}>
               {"+ "}<TranslatedText stringId="invoice.modal.editInvoice.action.newRow" fallback="Add new row" />
             </LinkText>
-            <PotentialLineItemsPane>
-              <PaneTitle>
-                <TranslatedText
-                  stringId="invoice.modal.potentialItems.title"
-                  fallback="Patient items to be added"
-                />
-                {!isEmpty && <BulkAddButton onClick={() => handleAddRow(potentialLineItems)}>
+            <ModalSection>
+              <PotentialLineItemsPane>
+                <PaneTitle>
+                  <TranslatedText
+                    stringId="invoice.modal.potentialItems.title"
+                    fallback="Patient items to be added"
+                  />
+                  {!isEmpty && <BulkAddButton onClick={() => handleAddRow(potentialLineItems)}>
                   <TranslatedText stringId="general.action.addAll" fallback="Add all" />
                 </BulkAddButton>}
-              </PaneTitle>
-              <StyledDataFetchingTable
-                endpoint={`invoices/${invoiceId}/potentialLineItems`}
-                columns={COLUMNS}
-                noDataMessage={
-                  <TranslatedText
-                    stringId="invoice.modal.potentialInvoices.table.noData"
-                    fallback="No patient items to be added"
-                  />
-                }
-                allowExport={false}
-                rowStyle={rowStyle}
-                onDataFetched={onDataFetched}
-                headerColor={Colors.white}
-                page={null}
-                elevated={false}
-                isEmpty={isEmpty}
-                containerStyle={denseTableStyle.container}
-                cellStyle={denseTableStyle.cell}
-                headStyle={denseTableStyle.head}
-                statusCellStyle={denseTableStyle.statusCell}
+                </PaneTitle>
+                <StyledDataFetchingTable
+                  endpoint={`invoices/${invoiceId}/potentialLineItems`}
+                  columns={COLUMNS}
+                  noDataMessage={
+                    <TranslatedText
+                      stringId="invoice.modal.potentialInvoices.table.noData"
+                      fallback="No patient items to be added"
+                    />
+                  }
+                  allowExport={false}
+                  rowStyle={rowStyle}
+                  onDataFetched={onDataFetched}
+                  headerColor={Colors.white}
+                  page={null}
+                  elevated={false}
+                  isEmpty={isEmpty}
+                  containerStyle={denseTableStyle.container}
+                  cellStyle={denseTableStyle.cell}
+                  headStyle={denseTableStyle.head}
+                  statusCellStyle={denseTableStyle.statusCell}
+                />
+              </PotentialLineItemsPane>
+              <InvoiceSummaryPanel
+                invoiceId={invoiceId}
+                invoiceTotal={invoiceTotal}
+                invoiceStatus={invoiceStatus}
+                isEditInvoice
               />
-            </PotentialLineItemsPane>
+            </ModalSection>
             <StyledDivider />
             <FormSubmitCancelRow
               confirmText={

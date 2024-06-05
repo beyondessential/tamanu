@@ -56,7 +56,7 @@ invoicePriceChangeItemsRoute.put(
     const { models, params } = req;
     req.checkPermission('write', 'InvoicePriceChangeItem');
 
-    const priceChangeItemId = { params };
+    const { priceChangeItemId } = params;
     const invoicePriceChangeItem = await models.InvoicePriceChangeItem.findByPk(priceChangeItemId);
     if (!invoicePriceChangeItem) {
       throw new NotFoundError();
@@ -75,7 +75,7 @@ invoicePriceChangeItemsRoute.delete(
     const { models, params } = req;
     req.checkPermission('write', 'InvoicePriceChangeItem');
 
-    const priceChangeItemId = { params };
+    const { priceChangeItemId } = params;
     const invoicePriceChangeItem = await models.InvoicePriceChangeItem.findByPk(priceChangeItemId);
     if (!invoicePriceChangeItem) {
       throw new NotFoundError();
