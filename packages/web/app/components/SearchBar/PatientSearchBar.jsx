@@ -1,14 +1,16 @@
 import React from 'react';
-import { CustomisableSearchBar } from './CustomisableSearchBar';
+import {
+  CustomisableSearchBarWithPermissionCheck,
+} from './CustomisableSearchBar';
 import { AutocompleteField, LocalisedField, SearchField } from '../Field';
 import { useSuggester } from '../../api';
 import { useAdvancedFields } from './useAdvancedFields';
 import { TranslatedText } from '../Translation/TranslatedText';
 
-const ADVANCED_FIELDS = ['departmentId', 'clinicianId'];
+const ADVANCED_FIELDS = ['departmentId', 'clinicianId', 'dietId'];
 
 export const PatientSearchBar = React.memo(
-  ({ onSearch, searchParameters, suggestByFacility = true }) => {
+  ({ onSearch, searchParameters, suggestByFacility = true, isInpatient = false }) => {
     const locationGroupSuggester = useSuggester('locationGroup', {
       baseQueryParameters: suggestByFacility ? { filterByFacility: true } : {},
     });
@@ -22,8 +24,11 @@ export const PatientSearchBar = React.memo(
     );
 
     const practitionerSuggester = useSuggester('practitioner');
+    const dietSuggester = useSuggester('diet');
     return (
-      <CustomisableSearchBar
+      <CustomisableSearchBarWithPermissionCheck
+        verb="list"
+        noun="Patient"
         showExpandButton
         title="Search for Patients"
         onSearch={onSearch}
@@ -56,6 +61,18 @@ export const PatientSearchBar = React.memo(
               size="small"
               suggester={practitionerSuggester}
             />
+            {isInpatient && <LocalisedField
+              name="dietId"
+              size="small"
+              label={
+                <TranslatedText
+                  stringId="general.localisedField.dietId.label"
+                  fallback="Diet"
+                />
+              }
+              suggester={dietSuggester}
+              component={AutocompleteField}
+            />}
           </>
         }
       >
@@ -68,7 +85,6 @@ export const PatientSearchBar = React.memo(
               fallback="NHN"
             />
           }
-          keepLetterCase
         />
         <LocalisedField
           name="firstName"
@@ -99,7 +115,7 @@ export const PatientSearchBar = React.memo(
           size="small"
           suggester={locationGroupSuggester}
         />
-      </CustomisableSearchBar>
+      </CustomisableSearchBarWithPermissionCheck>
     );
   },
 );

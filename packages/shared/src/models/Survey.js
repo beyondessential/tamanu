@@ -1,5 +1,5 @@
 import { Sequelize } from 'sequelize';
-import { SURVEY_TYPES, SYNC_DIRECTIONS } from '@tamanu/constants';
+import { SURVEY_TYPES, SYNC_DIRECTIONS, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { Model } from './Model';
 
 export class Survey extends Model {
@@ -16,6 +16,11 @@ export class Survey extends Model {
         isSensitive: {
           type: Sequelize.BOOLEAN,
           defaultValue: false,
+          allowNull: false,
+        },
+        visibilityStatus: {
+          type: Sequelize.STRING,
+          defaultValue: VISIBILITY_STATUSES.CURRENT,
           allowNull: false,
         },
       },
