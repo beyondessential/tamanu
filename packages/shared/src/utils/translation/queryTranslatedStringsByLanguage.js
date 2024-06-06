@@ -20,7 +20,7 @@ export const queryTranslatedStringsByLanguage = async ({ sequelize, models }) =>
           string_id as "stringId",
           ${languagesInDb
             .map(
-              (_, index) => `MAX(text) FILTER(WHERE language = '$lang${index}') AS $lang${index}`,
+              (_, index) => `MAX(text) FILTER(WHERE language = '$lang${index}') AS "$lang${index}"`,
             )
             .join(',')}
       FROM
