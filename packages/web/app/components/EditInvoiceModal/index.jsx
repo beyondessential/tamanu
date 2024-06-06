@@ -144,39 +144,42 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
   }, []);
 
   const handleAddRow = (rowData) => {
-    let newRowList = [...rowList];
-    if (Array.isArray(rowData) && rowData.length) {
-      if (
-        rowList.length === 1 &&
-        !rowList[0].invoiceLineTypeId &&
-        !rowList[0].orderedById &&
-        !rowList[0].dateGenerated
-      ) {
-        newRowList = []; 
-      }
-      rowData.forEach(newItem => {
-        const idExists = newRowList.some(item => item && item.id === newItem.id);
-        if (!idExists) {
-          newRowList.push({
-            id: newItem?.id,
-            details: newItem?.name,
-            date: newItem?.date,
-            orderedBy: newItem?.orderedBy,
-            price: newItem?.price,
-            invoiceLineTypeId: newItem?.invoiceLineTypeId,
-            orderedById: newItem?.orderedById,
-            code: newItem?.code,
-            toBeUpdated: true,
-            toBeCreated: !!newItem.toBeCreated
-          });
-        }
-      });
-    } else {
-      newRowList.push(defaultRow);
+    if (!Array.isArray(rowData) || !rowData.length) {
+      setRowList([...rowList, defaultRow]);
+      return;
     }
+  
+    let newRowList = [...rowList];
 
+    if (
+      rowList.length === 1 &&
+      !rowList[0].invoiceLineTypeId &&
+      !rowList[0].orderedById &&
+      !rowList[0].dateGenerated
+    ) {
+      newRowList = [];
+    }
+  
+    rowData.forEach(newItem => {
+      const idExists = newRowList.some(item => item && item.id === newItem.id);
+      if (!idExists) {
+        newRowList.push({
+          id: newItem?.id,
+          details: newItem?.name,
+          date: newItem?.date,
+          orderedBy: newItem?.orderedBy,
+          price: newItem?.price,
+          invoiceLineTypeId: newItem?.invoiceLineTypeId,
+          orderedById: newItem?.orderedById,
+          code: newItem?.code,
+          toBeUpdated: true,
+          toBeCreated: !!newItem.toBeCreated
+        });
+      }
+    });
+  
     setRowList(newRowList);
-  };
+  };  
 
   const COLUMNS = [
     {
