@@ -151,6 +151,7 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
   
     let newRowList = [...rowList];
 
+    //when there is only 1 item and it is empty, delete it before adding potential items array
     if (
       rowList.length === 1 &&
       !rowList[0].invoiceLineTypeId &&
