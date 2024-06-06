@@ -1,5 +1,6 @@
 import * as sequelize from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
+import { genericBeforeDestroy, genericBeforeBulkDestroy } from '../utils/beforeDestroyHooks';
 
 const { Op, Utils, Sequelize } = sequelize;
 
@@ -15,6 +16,7 @@ export class Model extends sequelize.Model {
     const attributes = {
       ...modelAttributes,
     };
+    const usesPublicSchema = schema === undefined || schema === 'public';
     if (syncDirection !== SYNC_DIRECTIONS.DO_NOT_SYNC) {
       attributes.updatedAtSyncTick = Sequelize.BIGINT;
     }
@@ -22,6 +24,13 @@ export class Model extends sequelize.Model {
       timestamps,
       schema,
       ...options,
+      hooks: {
+        ...options.hooks,
+        ...(usesPublicSchema && {
+          beforeDestroy: genericBeforeDestroy,
+          beforeBulkDestroy: genericBeforeBulkDestroy,
+        }),
+      },
     });
     this.defaultIdValue = attributes.id.defaultValue;
     if (!syncDirection) {
@@ -31,7 +40,7 @@ export class Model extends sequelize.Model {
     }
     this.syncDirection = syncDirection;
     this.validateSync(timestamps);
-    this.usesPublicSchema = schema === undefined || schema === 'public';
+    this.usesPublicSchema = usesPublicSchema;
   }
 
   static generateId() {

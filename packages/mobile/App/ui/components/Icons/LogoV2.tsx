@@ -1,8 +1,21 @@
 import React, { memo } from 'react';
 import { SvgXml } from 'react-native-svg';
 import { IconWithSizeProps } from '/interfaces/WithSizeProps';
+import { StyledImage } from '~/ui/styled/common';
+import { Branding, useBranding } from '~/ui/hooks/useBranding';
 
 export const LogoV2Icon = memo((props: IconWithSizeProps) => {
+  const branding = useBranding();
+  if (branding === Branding.Cambodia) {
+    return (
+      <StyledImage
+        source={require('../../assets/cambodia-logo-with-title.png')}
+        width={90}
+        height={45}
+        {...props}
+      />
+    );
+  }
   const xml = `<svg width="100%" height="100%" viewBox="0 0 107 26" fill="none" xmlns="http://www.w3.org/2000/svg">
   <path fillRule="evenodd" clipRule="evenodd" d="M11.9286 4.19364H14.075V6.41735H16.2217V8.64106H14.075V10.8648H11.9286V8.64106H9.78223V6.41735H11.9286V4.19364Z" />
   <path fillRule="evenodd" clipRule="evenodd" d="M7.25029 7.39749C7.25029 8.97455 7.83449 10.5799 8.94677 11.8772C9.94561 13.0423 11.1026 14.1977 12.2595 15.3534L13.0024 16.0963L13.7456 15.3534C14.9022 14.1977 16.0592 13.0423 17.058 11.8772C18.1703 10.5799 18.7545 8.97425 18.7545 7.39749C18.7545 5.90721 18.2246 4.43854 17.1153 3.28924C15.9801 2.11284 14.4911 1.52433 13.0024 1.52433C11.5137 1.52433 10.025 2.11284 8.88946 3.28924C7.78042 4.43854 7.25029 5.90721 7.25029 7.39749ZM13.0024 18.2289C11.2847 16.4488 9.37493 14.6693 7.84919 12.8898C5.1759 9.77221 5.00282 5.16009 7.84919 2.21148C10.6953 -0.737128 15.3095 -0.737128 18.1559 2.21148C21.002 5.16009 20.8289 9.77191 18.1559 12.8898C16.6295 14.6693 14.72 16.4488 13.0024 18.2289Z" fill="#FFCC00" />

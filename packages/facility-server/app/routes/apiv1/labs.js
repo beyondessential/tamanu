@@ -19,8 +19,11 @@ import {
   permissionCheckingRouter,
   simpleGet,
   simpleGetList,
+  findRouteObject,
 } from '@tamanu/shared/utils/crudHelpers';
 import {
+  getWhereClausesAndReplacementsFromFilters,
+  makeDeletedAtIsNullFilter,
   makeFilter,
   makeSimpleTextFilterFactory,
   makeSubstringTextFilterFactory,
@@ -29,7 +32,17 @@ import { notesWithSingleItemListHandler } from '../../routeHandlers';
 
 export const labRequest = express.Router();
 
-labRequest.get('/:id', simpleGet('LabRequest'));
+labRequest.get(
+  '/:id',
+  asyncHandler(async (req, res) => {
+    const labRequestRecord = await findRouteObject(req, 'LabRequest');
+    const latestAttachment = await labRequestRecord.getLatestAttachment();
+    res.send({
+      ...labRequestRecord.forResponse(),
+      latestAttachment,
+    });
+  }),
+);
 
 labRequest.put(
   '/:id',
@@ -107,6 +120,7 @@ labRequest.get(
       makeFilter(true, `lab_requests.status != :cancelled`, () => ({
         cancelled: LAB_REQUEST_STATUSES.CANCELLED,
       })),
+      makeDeletedAtIsNullFilter('lab_requests'),
       makeFilter(true, `lab_requests.status != :enteredInError`, () => ({
         enteredInError: LAB_REQUEST_STATUSES.ENTERED_IN_ERROR,
       })),
@@ -158,9 +172,13 @@ labRequest.get(
           published: LAB_REQUEST_STATUSES.PUBLISHED,
         }),
       ),
+      makeDeletedAtIsNullFilter('encounter'),
     ].filter(f => f);
 
-    const whereClauses = filters.map(f => f.sql).join(' AND ');
+    const { whereClauses, filterReplacements } = getWhereClausesAndReplacementsFromFilters(
+      filters,
+      {},
+    );
 
     const from = `
       FROM lab_requests
@@ -188,16 +206,6 @@ labRequest.get(
           ON (requester.id = lab_requests.requested_by_id)
         ${whereClauses && `WHERE ${whereClauses}`}
     `;
-
-    const filterReplacements = filters
-      .filter(f => f.transform)
-      .reduce(
-        (current, { transform }) => ({
-          ...current,
-          ...transform(current),
-        }),
-        filterParams,
-      );
 
     const countResult = await req.db.query(`SELECT COUNT(1) AS count ${from}`, {
       replacements: filterReplacements,

@@ -10,7 +10,7 @@ import { PDFLoader, printPDF } from '../PDFLoader';
 import { useAuth } from '../../../contexts/Auth';
 import { TranslatedText } from '../../Translation/TranslatedText';
 
-export const PrintPrescriptionModal = ({ medication, open, onClose }) => {
+export const PrintPrescriptionModal = ({ medication, patientWeight, open, onClose }) => {
   const { getLocalisation } = useLocalisation();
   const { data: certificateData, isFetching: isFetchingCertificate } = useCertificate();
   const api = useApi();
@@ -101,7 +101,7 @@ export const PrintPrescriptionModal = ({ medication, open, onClose }) => {
       >
         <PDFLoader isLoading={isLoading} id="prescription-printout">
           <PrescriptionPrintout
-            patientData={{ ...patient, additionalData, village }}
+            patientData={{ ...patient, additionalData, village, patientWeight }}
             prescriptions={[medication]}
             certificateData={certificateData}
             facility={facility}

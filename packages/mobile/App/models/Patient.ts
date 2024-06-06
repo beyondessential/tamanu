@@ -15,6 +15,7 @@ import { PatientFacility } from './PatientFacility';
 import { NullableReferenceDataRelation, ReferenceData } from './ReferenceData';
 import { SYNC_DIRECTIONS } from './types';
 import { DateStringColumn } from './DateColumns';
+import { PatientContact } from './PatientContact';
 
 const TIME_OFFSET = 3;
 
@@ -78,6 +79,12 @@ export class Patient extends BaseModel implements IPatient {
     secondaryId => secondaryId.patient,
   )
   secondaryIds: PatientSecondaryId[];
+
+  @OneToMany(
+    () => PatientContact,
+    contact => contact.patient,
+  )
+  contacts: PatientContact[];
 
   static async markForSync(patientId: string): Promise<void> {
     const facilityId = await readConfig('facilityId', '');
@@ -208,34 +215,29 @@ export class Patient extends BaseModel implements IPatient {
 
   static async getVitals(patientId: string): Promise<any> {
     const repo = this.getRepository();
-    const results = await repo.query(
-      `SELECT
-           answer.id, pde.name, answer.dataElementId, answer.responseId, ssc.config, ssc.validationCriteria, answer.body
-        FROM
-        survey_response_answer answer
-        INNER JOIN
-        survey_response response
-        ON
-        response.id = responseId
-        INNER JOIN
-        survey_screen_component ssc
-        ON
-        ssc.dataElementId = answer.dataElementId
-        INNER JOIN
-        program_data_element pde
-        ON
-        pde.id = answer.dataElementId
-        INNER JOIN
-        encounter
-        ON
-        encounter.id = response.encounterId
-        AND
-        encounter.patientId = $1
-        AND
-        body IS NOT NULL
-        ORDER BY answer.createdAt desc LIMIT $2`,
-      [patientId, 500],
-    );
+    const results = await repo.query(`
+      SELECT
+        answer.id,
+        pde.name,
+        answer.dataElementId,
+        answer.responseId,
+        ssc.config,
+        ssc.validationCriteria,
+        answer.body
+      FROM survey_response_answer answer
+      INNER JOIN survey_response response
+        ON response.id = responseId
+      INNER JOIN survey_screen_component ssc
+        ON ssc.dataElementId = answer.dataElementId
+      INNER JOIN program_data_element pde
+        ON pde.id = answer.dataElementId
+      INNER JOIN encounter
+        ON encounter.id = response.encounterId
+      WHERE encounter.patientId = $1
+        AND answer.body IS NOT NULL
+        AND answer.deletedAt IS NULL
+      ORDER BY answer.createdAt desc LIMIT $2
+    `, [patientId, 500]);
 
     const library = groupBy(results, 'responseId');
 
