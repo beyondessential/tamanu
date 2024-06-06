@@ -1,16 +1,11 @@
 import React from 'react';
-import * as yup from 'yup';
 import { useQueryClient } from '@tanstack/react-query';
 import { getCurrentDateString } from '@tamanu/shared/utils/dateTime';
 import { Modal } from './Modal';
-import { FormGrid } from './FormGrid';
-import { Field, Form, NumberField, TextField } from './Field';
 import { TranslatedText } from './Translation';
-import { FormSubmitCancelRow } from './ButtonRow';
-import { BodyText, Heading3 } from './Typography';
 import { useApi } from '../api';
 import { useAuth } from '../contexts/Auth';
-import { FORM_TYPES } from '../constants';
+import { InvoiceManualDiscountForm } from './CreateInvoiceModal/InvoiceManualDiscountForm';
 
 export const InvoiceManualDiscountModal = React.memo(
   ({
@@ -24,12 +19,6 @@ export const InvoiceManualDiscountModal = React.memo(
     const api = useApi();
     const { currentUser } = useAuth();
     const queryClient = useQueryClient();
-
-    const preventInvalid = event => {
-      if (!event.target.validity.valid) {
-        event.target.value = 0;
-      }
-    };
 
     const handleSubmit = async data => {
       const percentageChange = -Math.abs(data.percentageChange / 100);
@@ -55,65 +44,12 @@ export const InvoiceManualDiscountModal = React.memo(
         open={open}
         onClose={onClose}
       >
-        <Heading3 mb="8px">
-          <TranslatedText
-            stringId="invoice.modal.manualDiscount.subtitle"
-            fallback="Manual patient discount"
-          />
-        </Heading3>
-        <BodyText mb="20px" color="textTertiary">
-          <TranslatedText
-            stringId="invoice.modal.manualDiscount.description"
-            fallback="Please set the patient discount below. This discount will be applied to all eligible items on the invoice."
-          />
-        </BodyText>
-        <Form
-          onSubmit={handleSubmit}
-          render={({ submitForm }) => (
-            <FormGrid columns={4}>
-              <Field
-                name="percentageChange"
-                label={<TranslatedText stringId="invoice.modal.manualDiscount.discount.label" fallback="Discount (%)" />}
-                component={NumberField}
-                min={0}
-                max={100}
-                onInput={preventInvalid}
-                required
-              />
-              <Field
-                name="reason"
-                label={
-                  <TranslatedText
-                    stringId="invoice.modal.addDiscount.reason.label"
-                    fallback="Reason for item discount"
-                  />
-                }
-                component={TextField}
-                style={{ gridColumn: 'span 3' }}
-              />
-              <FormSubmitCancelRow
-                onConfirm={submitForm}
-                onCancel={onClose}
-              />
-            </FormGrid>
-          )}
-          initialValues={{
-            percentageChange: Math.abs(percentageChange) * 100,
-            reason: description
-          }}
-          validationSchema={yup.object().shape({
-            reason: yup.string(),
-            percentageChange: yup
-              .number()
-              .required()
-              .translatedLabel(
-                <TranslatedText
-                  stringId="invoice.modal.manualDiscount.discount.label"
-                  fallback="Discount (%)"
-                />,
-              ),
-          })}
-          formType={priceChangeId ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
+        <InvoiceManualDiscountForm 
+          handleSubmit={handleSubmit}
+          description={description}
+          percentageChange={percentageChange}
+          priceChangeId={priceChangeId}
+          onClose={onClose}
         />
       </Modal>
     );
