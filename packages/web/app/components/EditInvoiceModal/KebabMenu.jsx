@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { IconButton, Menu } from "@material-ui/core";
+import { IconButton, Menu } from '@material-ui/core';
 import { MoreVert } from '@material-ui/icons';
-import { DeleteItemModal } from './DeleteItemModal';
+import { ActionModal } from './ActionModal';
 import { TranslatedText } from '../Translation';
 import { Colors, INVOICE_ACTION_MODALS } from '../../constants';
 import { CancelInvoiceModal } from '../CancelInvoiceModal';
@@ -17,8 +17,7 @@ const KebabMenuItem = styled.div`
   padding: 4px;
   margin-left: 4px;
   margin-right: 4px;
-  ${props => props.$color ? `color: ${props.$color};` : ''}
-  :hover {
+  ${props => (props.$color ? `color: ${props.$color};` : '')} :hover {
     background: ${Colors.veryLightBlue};
   }
 `;
@@ -34,12 +33,21 @@ const StyledIconButton = styled(IconButton)`
   margin-left: auto;
 `;
 
-export const KebabMenu = ({ isDeleteDisabled, rowData, onDelete, modalsEnabled, invoiceId }) => {
+export const KebabMenu = ({
+  isDeleteDisabled,
+  rowData,
+  onDelete,
+  onAddDiscountLineItem,
+  onAddMarkupLineItem,
+  onRemovePercentageChangeLineItem,
+  modalsEnabled,
+  invoiceId,
+}) => {
   const [actionModal, setActionModal] = useState('');
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
 
-  const onOpenKebabMenu = (event) => {
+  const onOpenKebabMenu = event => {
     setAnchorEl(event.currentTarget);
   };
 
@@ -52,16 +60,34 @@ export const KebabMenu = ({ isDeleteDisabled, rowData, onDelete, modalsEnabled, 
     setActionModal(value);
   };
 
-  const handleDeleteItem = () => {
-    onDelete();
-    handleActionModal('')
+  const handleRemovePercentageChangeLineItem = () => {
+    handleCloseKebabMenu();
+    onRemovePercentageChangeLineItem();
+  };
+
+  const handleAction = (data, action) => {
+    switch (action) {
+      case INVOICE_ACTION_MODALS.DELETE: {
+        onDelete();
+        handleActionModal('');
+        break;
+      }
+      case INVOICE_ACTION_MODALS.ADD_DISCOUNT: {
+        onAddDiscountLineItem(data);
+        handleActionModal('');
+        break;
+      }
+      case INVOICE_ACTION_MODALS.ADD_MARKUP: {
+        onAddMarkupLineItem(data);
+        handleActionModal('');
+        break;
+      }
+    }
   };
 
   return (
     <>
-      <StyledIconButton
-        onClick={onOpenKebabMenu}
-      >
+      <StyledIconButton onClick={onOpenKebabMenu}>
         <MoreVert />
       </StyledIconButton>
       <StyledMenu
@@ -78,55 +104,77 @@ export const KebabMenu = ({ isDeleteDisabled, rowData, onDelete, modalsEnabled, 
           horizontal: 'right',
         }}
       >
-        {modalsEnabled.includes(INVOICE_ACTION_MODALS.ADD_DISCOUNT) &&
+        {rowData?.percentageChange && modalsEnabled.includes(INVOICE_ACTION_MODALS.DELETE) && (
+          <KebabMenuItem onClick={handleRemovePercentageChangeLineItem}>
+            {Number(rowData.percentageChange) > 0 ? (
+              <TranslatedText
+                stringId="invoice.modal.editInvoice.removeMarkup"
+                fallback="Remove markup"
+              />
+            ) : (
+              <TranslatedText
+                stringId="invoice.modal.editInvoice.removeDiscount"
+                fallback="Remove discount"
+              />
+            )}
+          </KebabMenuItem>
+        )}
+        {!rowData?.percentageChange && modalsEnabled.includes(INVOICE_ACTION_MODALS.ADD_DISCOUNT) && (
           <KebabMenuItem onClick={() => handleActionModal(INVOICE_ACTION_MODALS.ADD_DISCOUNT)}>
             <TranslatedText
               stringId="invoice.modal.editInvoice.addDiscount"
               fallback="Add discount"
             />
-          </KebabMenuItem>}
-        {modalsEnabled.includes(INVOICE_ACTION_MODALS.ADD_MARKUP) &&
+          </KebabMenuItem>
+        )}
+        {!rowData?.percentageChange && modalsEnabled.includes(INVOICE_ACTION_MODALS.ADD_MARKUP) && (
           <KebabMenuItem onClick={() => handleActionModal(INVOICE_ACTION_MODALS.ADD_MARKUP)}>
-            <TranslatedText
-              stringId="invoice.modal.editInvoice.addMarkup"
-              fallback="Add markup"
-            />
-          </KebabMenuItem>}
-        {modalsEnabled.includes(INVOICE_ACTION_MODALS.DELETE) &&
+            <TranslatedText stringId="invoice.modal.editInvoice.addMarkup" fallback="Add markup" />
+          </KebabMenuItem>
+        )}
+        {modalsEnabled.includes(INVOICE_ACTION_MODALS.DELETE) && (
           <KebabMenuItem
             $color={isDeleteDisabled && Colors.softText}
             onClick={() => !isDeleteDisabled && handleActionModal(INVOICE_ACTION_MODALS.DELETE)}
           >
-            <TranslatedText
-              stringId="invoice.modal.editInvoice.delete"
-              fallback="Delete"
-            />
-          </KebabMenuItem>}
-        {modalsEnabled.includes(INVOICE_ACTION_MODALS.CANCEL_INVOICE) &&
+            <TranslatedText stringId="invoice.modal.editInvoice.delete" fallback="Delete" />
+          </KebabMenuItem>
+        )}
+        {modalsEnabled.includes(INVOICE_ACTION_MODALS.CANCEL_INVOICE) && (
           <KebabMenuItem onClick={() => handleActionModal(INVOICE_ACTION_MODALS.CANCEL_INVOICE)}>
             <TranslatedText
               stringId="invoice.modal.editInvoice.cancelInvoice"
               fallback="Cancel invoice"
             />
-          </KebabMenuItem>}
+          </KebabMenuItem>
+        )}
       </StyledMenu>
-      {actionModal === INVOICE_ACTION_MODALS.DELETE &&
-        <DeleteItemModal
-          open={true}
+      {(actionModal === INVOICE_ACTION_MODALS.DELETE ||
+        actionModal === INVOICE_ACTION_MODALS.ADD_DISCOUNT ||
+        actionModal === INVOICE_ACTION_MODALS.ADD_MARKUP) && (
+        <ActionModal
+          open
+          action={actionModal}
           onClose={() => handleActionModal('')}
-          onDelete={handleDeleteItem}
+          onAction={data => handleAction(data, actionModal)}
           lineItems={rowData}
-        />}
-      {actionModal === INVOICE_ACTION_MODALS.CANCEL_INVOICE &&
+        />
+      )}
+      {actionModal === INVOICE_ACTION_MODALS.CANCEL_INVOICE && (
         <CancelInvoiceModal
           open={true}
           onClose={() => handleActionModal('')}
           invoiceId={invoiceId}
-        />}
+        />
+      )}
     </>
   );
 };
 
 KebabMenu.defaultProps = {
-  modalsEnabled: [INVOICE_ACTION_MODALS.DELETE, INVOICE_ACTION_MODALS.ADD_MARKUP, INVOICE_ACTION_MODALS.ADD_DISCOUNT]
+  modalsEnabled: [
+    INVOICE_ACTION_MODALS.DELETE,
+    INVOICE_ACTION_MODALS.ADD_MARKUP,
+    INVOICE_ACTION_MODALS.ADD_DISCOUNT,
+  ],
 };

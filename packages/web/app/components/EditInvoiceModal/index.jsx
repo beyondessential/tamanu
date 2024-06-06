@@ -61,22 +61,22 @@ const PotentialLineItemsPane = styled.div`
     width: 5px;
     height: 5px;
   }
-  
+
   /* Track */
   ::-webkit-scrollbar-track {
     background: white;
   }
-  
+
   /* Handle */
   ::-webkit-scrollbar-thumb {
     background: ${Colors.softText};
     border-radius: 5px;
   }
-  
+
   /* Handle on hover */
   ::-webkit-scrollbar-thumb:hover {
     background: ${Colors.softText};
-  } 
+  }
 `;
 
 const PaneTitle = styled.div`
@@ -121,15 +121,12 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
       const { data } = await api.get(`invoices/${encodeURIComponent(invoiceId)}/lineItems`);
       if (!data.length) return;
       setRowList(data.map(item => ({
-        id: item.id,
+        ...item,
         details: item.invoiceLineType?.name,
         date: item.dateGenerated,
         orderedBy: item.orderedBy?.displayName,
         price: item.invoiceLineType?.price,
-        invoiceLineTypeId: item.invoiceLineTypeId,
-        orderedById: item.orderedById,
         code: getInvoiceLineCode(item),
-        percentageChange: item.percentageChange
       })));
     })();
   }, [api]);
@@ -257,6 +254,42 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
     setRowList(newRowList);
   };
 
+  const onAddDiscountLineItem = (id, data) => {
+    const newRowList = rowList.map(row => {
+      if (row.id === id && Number(data.percentageChange)) {
+        row.percentageChange = -(data.percentageChange / 100);
+        row.discountMarkupReason = data.discountMarkupReason;
+        row.toBeUpdated = true;
+      }
+      return row;
+    });
+    setRowList(newRowList);
+  };
+
+  const onAddMarkupLineItem = (id, data) => {
+    const newRowList = rowList.map(row => {
+      if (row.id === id && Number(data.percentageChange)) {
+        row.percentageChange = data.percentageChange / 100;
+        row.discountMarkupReason = data.discountMarkupReason;
+        row.toBeUpdated = true;
+      }
+      return row;
+    });
+    setRowList(newRowList);
+  };
+
+  const onRemovePercentageChangeLineItem = (id) => {
+    const newRowList = rowList.map(row => {
+      if (row.id === id) {
+        row.percentageChange = null;
+        row.discountMarkupReason = '';
+        row.toBeUpdated = true;
+      }
+      return row;
+    });
+    setRowList(newRowList);
+  };
+
   const handleSubmit = async (submitData) => {
     if (isSaving) return;
     setIsSaving(true);
@@ -267,6 +300,8 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
         invoiceLineTypeId: submitData[`invoiceLineTypeId_${index}`],
         date: submitData[`date_${index}`],
         orderedById: submitData[`orderedById_${index}`],
+        percentageChange: row.percentageChange,
+        discountMarkupReason: row.discountMarkupReason,
         toBeUpdated: !!row.toBeUpdated,
       }))
       .filter(row => row.toBeUpdated);
@@ -336,6 +371,9 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
                   index={index}
                   rowData={row}
                   onDelete={() => onDeleteLineItem(row?.id)}
+                  onAddDiscountLineItem={(discount) => onAddDiscountLineItem(row?.id, discount)}
+                  onAddMarkupLineItem={(markup) => onAddMarkupLineItem(row?.id, markup)}
+                  onRemovePercentageChangeLineItem={() => onRemovePercentageChangeLineItem(row?.id)}
                   isDeleteDisabled={rowList.length === 1}
                   updateRowData={updateRowData}
                   showKebabMenu={!isSaveDisabled || rowList.length > 1}

@@ -4,6 +4,7 @@ export const SETTING_KEYS = {
   TEMPLATES_LETTERHEAD: 'templates.letterhead',
   FEATURES_REMINDER_CONTACT_ENABLED: 'features.reminderContactModule.enabled',
   FEATURE_MANDATE_SPECIMEN_TYPE: 'features.mandateSpecimenType',
+  SLIDING_FEE_SCALE: 'invoice.slidingFeeScale',
 };
 
 export const SETTINGS_SCOPES = {
