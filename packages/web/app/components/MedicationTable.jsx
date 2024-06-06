@@ -133,7 +133,7 @@ export const DataFetchingMedicationTable = () => {
   return (
     <DataFetchingTableWithPermissionCheck
       verb="list"
-      noun="Medication"
+      noun="EncounterMedication"
       endpoint="medication"
       columns={FULL_LISTING_COLUMNS}
       noDataMessage={
