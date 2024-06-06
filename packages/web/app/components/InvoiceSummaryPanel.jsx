@@ -6,7 +6,6 @@ import { Colors, INVOICE_ACTIVE_MODALS, INVOICE_ACTIVE_VIEW } from '../constants
 import { TranslatedText } from './Translation';
 import { useSuggester } from '../api';
 import { PencilIcon } from '../assets/icons/PencilIcon';
-import { InvoiceManualDiscountModal } from './InvoiceManualDiscountModal';
 import { ThemedTooltip } from './Tooltip';
 import { BodyText, Heading3 } from './Typography';
 import { usePriceChangeItemsQuery } from '../api/queries/usePriceChangeItemsQuery';

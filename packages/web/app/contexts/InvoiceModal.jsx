@@ -1,4 +1,4 @@
-import React, { createContext, useCallback, useContext, useState } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 import { INVOICE_ACTIVE_VIEW } from '../constants';
 
 const InvoiceModalContext = createContext({
