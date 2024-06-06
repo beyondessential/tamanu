@@ -111,7 +111,7 @@ export const VaccineForm = ({
 
   const vaccinationDefaults = getSetting(SETTING_KEYS.VACCINATION_DEFAULTS);
 
-  const selectedVaccine = useMemo(() => vaccineOptions.find(v => v.label === vaccineLabel), [
+  const selectedVaccine = useMemo(() => vaccineOptions.find(v => v.value === vaccineLabel), [
     vaccineLabel,
     vaccineOptions,
   ]);
