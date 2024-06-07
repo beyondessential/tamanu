@@ -41,6 +41,7 @@ import { addPatientProgramRegistrationConditions1706509624000 } from './17065096
 import { addColumnIsMostRecentForTablePatientProgramRegistration1708557002000 } from './1708557002000-addColumnIsMostRecentForTablePatientProgramRegistration';
 import { addHideFromCertificateToScheduledVaccines1705264433000 } from './1705264433000-addHideFromCertificateToScheduledVaccines';
 import { addDeletionStatusToPatientProgramRegistrationConditions1709677995000 } from './1709677995000-addDeletionStatusToPatientProgramRegistrationConditions';
+import { removeDeletionStatusColumn1712707744000 } from './1712707744000-removeDeletionStatusColumn';
 import { addVisibilityStatusForSurvey1713696066000 } from './1713696066000-addVisibilityStatusForSurvey';
 import { addScopeToSettingsTable1691115215000 } from './1691115215000-addScopeToSettingsTable';
 import { addHealthCenterIdToPatientAdditionalData1712277225000 } from './1712277225000-addHealthCenterIdToPatientAdditionalData';
@@ -91,6 +92,7 @@ export const migrationList = [
   addColumnIsMostRecentForTablePatientProgramRegistration1708557002000,
   addHideFromCertificateToScheduledVaccines1705264433000,
   addDeletionStatusToPatientProgramRegistrationConditions1709677995000,
+  removeDeletionStatusColumn1712707744000,
   addVisibilityStatusForSurvey1713696066000,
   addHealthCenterIdToPatientAdditionalData1712277225000,
   addDietIdForEncounter1713722796000,
