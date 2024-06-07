@@ -157,7 +157,6 @@ patientVaccineRoutes.get(
           type: QueryTypes.SELECT,
         },
       );
-      console.log(req.db.options.timezone);
       await req.db.query(`SET TIME ZONE '${req.db.options.timezone}'`); // Revert to sequelize timezone
       data = {
         data: results,
