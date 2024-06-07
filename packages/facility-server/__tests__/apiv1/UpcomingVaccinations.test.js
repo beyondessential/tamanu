@@ -185,7 +185,7 @@ describe('Upcoming vaccinations', () => {
     expect(descData[0].displayId).toBe('frecord');
   });
 
-  it('timezone should be uneffected by endpoint', async () => {
+  it('timezone should be unaffected by endpoint', async () => {
     const [timezoneBefore] = await ctx.sequelize.query('SHOW TIME ZONE');
     await app.get(`/api/upcomingVaccinations`);
     const [timezoneAfter] = await ctx.sequelize.query('SHOW TIME ZONE');
