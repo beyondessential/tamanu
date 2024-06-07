@@ -34,8 +34,16 @@ const getWarningMessage = (
       Math.round(weeksUntilDue / 7),
     )} weeks, please refer to the catchup schedule.`;
   }
-  // if (weeksFromLastVaccinationDue && [VaccineStatus.UPCOMING])
-  // TODO
+
+  if (status === VaccineStatus.SCHEDULED || status === VaccineStatus.UPCOMING) {
+    return `This patient is not due to receive this vaccine for ${weeksUntilDue} weeks.`;
+  }
+
+   // TODO: not sure how to check this
+  // if (weeksFromLastVaccinationDue) {
+  //   return `This patient has not received the previous dose of this vaccine`;
+  // }
+
   return null;
 };
 
