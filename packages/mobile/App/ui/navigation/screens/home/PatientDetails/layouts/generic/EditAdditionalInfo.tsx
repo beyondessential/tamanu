@@ -6,15 +6,14 @@ import { PatientAdditionalDataForm } from '/components/Forms/PatientAdditionalDa
 import { theme } from '/styled/theme';
 import { PatientSectionHeader } from '~/ui/components/Forms/NewPatientForm/PatientSectionHeader';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
+import { GENERIC_ADDITIONAL_DATA_SECTIONS } from './fields';
 
 export const EditPatientAdditionalDataScreen = ({ navigation, route }): ReactElement => {
   const {
-    patientId,
     patientName,
+    patient,
     additionalDataJSON,
     sectionTitle,
-    isCustomFields,
-    customSectionFields,
     customPatientFieldValues,
   } = route.params;
   // additionalDataJSON might be undefined if record doesn't exist,
@@ -40,12 +39,11 @@ export const EditPatientAdditionalDataScreen = ({ navigation, route }): ReactEle
       />
       <PatientSectionHeader name={sectionTitle} />
       <PatientAdditionalDataForm
-        patientId={patientId}
+        patient={patient}
         additionalData={additionalData}
+        additionalDataSections={GENERIC_ADDITIONAL_DATA_SECTIONS}
         navigation={navigation}
         sectionTitle={sectionTitle}
-        isCustomFields={isCustomFields}
-        customSectionFields={customSectionFields}
         customPatientFieldValues={customPatientFieldValues}
       />
     </FullView>
