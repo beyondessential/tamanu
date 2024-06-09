@@ -26,17 +26,20 @@ const getStatus = (weeksUntilDue: number, thresholds: ParsedThresholds) => {
 
 const getWarningMessage = (
   { weeksFromBirthDue, weeksFromLastVaccinationDue }: IScheduledVaccine,
-  weeksUntilDue: number,
+  daysUntilDue: number,
   status: VaccineStatus,
 ) => {
-  if (status === VaccineStatus.MISSED) {
-    return `Patient has missed this vaccine by ${Math.abs(
-      Math.round(weeksUntilDue / 7),
-    )} weeks, please refer to the catchup schedule.`;
+  const weeksUntilDueAbs = Math.abs(daysUntilDue / 7);
+  if (weeksFromBirthDue) {
+    if (status === VaccineStatus.MISSED) {
+      return `Patient has missed this vaccine by ${weeksUntilDueAbs} weeks, please refer to the catchup schedule.`;
+    }
+    if (status === VaccineStatus.SCHEDULED) {
+      return `This patient is not due to receive this vaccine for ${weeksUntilDueAbs} weeks.`;
+    }
+  } else if (weeksFromLastVaccinationDue) {
+    return null; // todo
   }
-  // if (weeksFromLastVaccinationDue && [VaccineStatus.UPCOMING])
-  // TODO
-  return null;
 };
 
 const getWeeksUntilDue = ({
