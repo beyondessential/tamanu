@@ -92,5 +92,5 @@ export const CAMBODIA_ADDITIONAL_DATA_SECTIONS = [
       />
     ),
     fields: CAMBODIA_ADDITIONAL_DATA_FIELDS.PERSONAL,
-  },
+  }
 ];
