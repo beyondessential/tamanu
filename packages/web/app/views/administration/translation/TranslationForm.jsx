@@ -152,7 +152,10 @@ export const FormContents = ({
         key: 'stringId',
         title: (
           <Box display="flex" alignItems="center">
-            Translation ID
+            <TranslatedText
+              stringId="admin.translation.table.column.translationId"
+              fallback="Translation ID"
+            />
             <StyledIconButton onClick={handleAddColumn}>
               <AddIcon />
             </StyledIconButton>
@@ -163,7 +166,14 @@ export const FormContents = ({
             return (
               <Box display="flex" alignItems="center">
                 <ReservedText>{stringId}</ReservedText>
-                <Tooltip title="Language name is a reserved translation ID used for displaying language in selector">
+                <Tooltip
+                  title={
+                    <TranslatedText
+                      stringId="admin.translation.table.languageName.toolTip"
+                      fallback="Language name is a reserved translation ID used for displaying language in selector"
+                    />
+                  }
+                >
                   <HelpIcon style={{ color: Colors.primary }} />
                 </Tooltip>
               </Box>
@@ -223,7 +233,7 @@ export const FormContents = ({
           />
         </Box>
         <OutlinedButton disabled={isSaving || !dirty} onClick={handleSave}>
-          Save
+          <TranslatedText stringId="general.action.save" fallback="Save" />
         </OutlinedButton>
       </Box>
       <StyledTableFormFields columns={columns} data={tableRows} />
