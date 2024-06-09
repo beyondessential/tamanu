@@ -18,7 +18,6 @@ export const InvoiceModalProvider = ({ children }) => {
   const [activeView, setActiveView] = useState(INVOICE_ACTIVE_VIEW.DISCOUNT_TYPE);
 
   const handleActiveModal = modal => {
-    console.log('modal',modal);
     setActiveModal(modal);
   };
 
