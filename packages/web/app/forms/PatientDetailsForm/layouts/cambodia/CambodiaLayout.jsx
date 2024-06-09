@@ -88,7 +88,7 @@ export const CambodiaPrimaryDetailsLayout = ({
           name="culturalName"
           label={
             <TranslatedText
-              stringId="cambodiaPatientDetails.mothersFirstName.label"
+              stringId="general.localisedField.culturalName.label"
               fallback="Mother's first name"
             />
           }
