@@ -1,7 +1,7 @@
 import { IMAGING_AREA_TYPES } from './imaging';
 
 export const GENERAL_IMPORTABLE_DATA_TYPES = [
-  'additionalInvoiceLine',
+  'additionalInvoiceProduct',
   'administeredVaccine',
   'allergy',
   'angiogramImagingArea',
@@ -29,8 +29,7 @@ export const GENERAL_IMPORTABLE_DATA_TYPES = [
   'imagingAreaExternalCode',
   'imagingType',
   'insurer',
-  'invoiceLineType',
-  'invoicePriceChangeType',
+  'invoiceProduct',
   'labTestCategory',
   'labTestLaboratory',
   'labTestMethod',
@@ -119,7 +118,7 @@ export const REFERENCE_TYPES = {
   ARRIVAL_MODE: 'arrivalMode',
   VACCINE_NOT_GIVEN_REASON: 'vaccineNotGivenReason',
   VACCINE_CIRCUMSTANCE: 'vaccineCircumstance',
-  ADDITIONAL_INVOICE_LINE: 'additionalInvoiceLine',
+  ADDITIONAL_INVOICE_PRODUCT: 'additionalInvoiceProduct',
   SPECIMEN_TYPE: 'specimenType',
   CATCHMENT: 'catchment',
   REACTION: 'reaction',

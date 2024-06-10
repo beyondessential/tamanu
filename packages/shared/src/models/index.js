@@ -93,8 +93,11 @@ export * from './Permission';
 export * from './Role';
 
 export * from './Invoice';
-export * from './InvoiceLineType';
-export * from './InvoiceLineItem';
+export * from './InvoiceProduct';
+export * from './InvoiceDiscount';
+export * from './InvoiceInsurer';
+export * from './InvoiceItem';
+export * from './InvoiceItemDiscount';
 
 export * from './Signer';
 

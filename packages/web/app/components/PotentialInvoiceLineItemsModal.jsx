@@ -1,5 +1,4 @@
 import React from 'react';
-import { INVOICE_LINE_TYPE_LABELS } from '@tamanu/constants';
 import { useApi } from '../api';
 import { ConfirmCancelRow } from './ButtonRow';
 import { DateDisplay } from './DateDisplay';
@@ -17,7 +16,7 @@ const COLUMNS = [
       <TranslatedEnum
         prefix="invoice.line.property.type"
         value={type}
-        enumValues={INVOICE_LINE_TYPE_LABELS}
+        enumValues={/*INVOICE_LINE_TYPE_LABELS*/ []}
       />
     ),
   },

@@ -16,7 +16,11 @@ import { version } from './serverInfo';
 import { createServer } from 'http';
 import { defineWebsocketService } from './services/websocketService';
 import { defineWebsocketClientService } from './services/websocketClientService';
-
+/**
+ *
+ * @param {import('./ApplicationContext').ApplicationContext} param0
+ * @returns
+ */
 export async function createApp({ sequelize, reportSchemaStores, models, syncManager, deviceId }) {
   const express = defineExpress();
   const server = createServer(express);
