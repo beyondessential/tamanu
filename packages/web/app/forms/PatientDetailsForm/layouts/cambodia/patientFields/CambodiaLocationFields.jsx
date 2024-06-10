@@ -56,20 +56,20 @@ export const CambodiaLocationFields = ({ filterByMandatory, secondary }) => {
     },
   };
 
-  const PERMANENT_LOCATION_HIERARCHY_FIELDS = {
-    permanentDivisionId: {
+  const SECONDARY_LOCATION_HIERARCHY_FIELDS = {
+    secondaryDivisionId: {
       referenceType: REFERENCE_TYPES.DIVISION,
       label: (
         <TranslatedText stringId="cambodiaPatientDetails.province.label" fallback="Province" />
       ),
     },
-    permanentSubdivisionId: {
+    secondarySubdivisionId: {
       referenceType: REFERENCE_TYPES.SUBDIVISION,
       label: (
         <TranslatedText stringId="cambodiaPatientDetails.district.label" fallback="District" />
       ),
     },
-    permanentSettlementId: {
+    secondarySettlementId: {
       referenceType: REFERENCE_TYPES.SETTLEMENT,
       label: <TranslatedText stringId="cambodiaPatientDetails.commune.label" fallback="Commune" />,
     },
@@ -82,7 +82,7 @@ export const CambodiaLocationFields = ({ filterByMandatory, secondary }) => {
   };
 
   const { fieldsToShow: locationHierarchyFieldsToShow } = useFilterPatientFields({
-    fields: secondary ? PERMANENT_LOCATION_HIERARCHY_FIELDS : CURRENT_LOCATION_HIERARCHY_FIELDS,
+    fields: secondary ? SECONDARY_LOCATION_HIERARCHY_FIELDS : CURRENT_LOCATION_HIERARCHY_FIELDS,
     filterByMandatory,
   });
 
