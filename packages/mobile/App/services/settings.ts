@@ -3,7 +3,7 @@ import { get } from 'lodash';
 
 import { LocalDataService } from './localData';
 
-const TEST_SETTINGS_OVERRIDES = {}; // add values to this to test localisation in development
+const TEST_SETTINGS_OVERRIDES = {}; // add values to this to test settings in development
 
 export class SettingsService extends LocalDataService {
   static CONFIG_KEY = 'settings';
