@@ -11,7 +11,7 @@ import { getTable } from './utils/queryRunner';
 */
 async function testSkipMigration(queryRunner: QueryRunner): Promise<boolean> {
   const columns = await queryRunner.query("PRAGMA table_info('translated_string');");
-  return columns.any(c => c.name === 'deletedAt');
+  return columns.some(c => c.name === 'deletedAt');
 }
 
 export class addMissedDeletedAtToTranslatedStringTable1718045677000 implements MigrationInterface {
