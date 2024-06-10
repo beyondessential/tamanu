@@ -143,18 +143,24 @@ patientVaccineRoutes.get(
           offset: page * rowsPerPage,
         },
         type: QueryTypes.SELECT,
-      },
-    );
+        },
+      );
 
-    const countResult = await req.db.query(
-      `SELECT COUNT(1) AS count ${fromUpcomingVaccinations};`,
-      {
-        replacements: { patientId: req.params.id },
-        type: QueryTypes.SELECT,
-      },
-    );
+      const countResult = await req.db.query(
+        `SELECT COUNT(1) AS count ${fromUpcomingVaccinations};`,
+        {
+          replacements: { patientId: req.params.id },
+          type: QueryTypes.SELECT,
+        },
+      );
+      await req.db.query(`SET TIME ZONE '${req.db.options.timezone}'`); // Revert to sequelize timezone
+      data = {
+        data: results,
+        count: parseInt(countResult[0].count, 10),
+      };
+    });
 
-    return res.send({ data: results, count: parseInt(countResult[0].count, 10) });
+    return res.send(data);
   }),
 );
 

@@ -1,3 +1,4 @@
+import config from 'config';
 import { createTestContext } from '../utilities';
 import { RefreshUpcomingVaccinations } from '../../dist/tasks/RefreshMaterializedView';
 import { fake } from '@tamanu/shared/test-helpers/fake';
@@ -11,6 +12,7 @@ describe('RefreshMaterializedView', () => {
   let models;
   let task;
   let upcomingVaccinations;
+  let sequelizeTimezone;
   beforeAll(async () => {
     context = await createTestContext();
     models = context.models;
@@ -46,11 +48,23 @@ describe('RefreshMaterializedView', () => {
       weeksFromBirthDue: 2,
       weeksFromLastVaccinationDue: null,
     });
-    // Up to date results from the view
+    // Up to date results from the view, per the server timezone
+    sequelizeTimezone = await context.sequelize.query('SHOW TIMEZONE;', {
+      type: QueryTypes.SELECT,
+      plain: true,
+    });
     upcomingVaccinations = await context.sequelize.query(
-      'SELECT * FROM upcoming_vaccinations order by vaccine_id',
+      `
+      SET TIMEZONE TO :serverTimezone;
+      SELECT * FROM upcoming_vaccinations order by vaccine_id;
+      SET TIMEZONE TO :sequelizeTimezone;
+      `,
       {
         type: QueryTypes.SELECT,
+        replacements: {
+          serverTimezone: config.countryTimeZone,
+          sequelizeTimezone: sequelizeTimezone['TimeZone'],
+        },
       },
     );
   });
@@ -59,18 +73,34 @@ describe('RefreshMaterializedView', () => {
 
   it('should refresh materialized view', async () => {
     const originalMaterializedResult = await context.sequelize.query(
-      'SELECT * FROM materialized_upcoming_vaccinations',
+      `
+      SET TIMEZONE TO :serverTimezone;
+      SELECT * FROM materialized_upcoming_vaccinations;
+      SET TIMEZONE TO :sequelizeTimezone;
+      `,
       {
         type: QueryTypes.SELECT,
+        replacements: {
+          serverTimezone: config.countryTimeZone,
+          sequelizeTimezone: sequelizeTimezone['TimeZone'],
+        },
       },
     );
     // Check that the materialized view is empty as we haven't run the task yet
     expect(originalMaterializedResult).toEqual([]);
     await task.run();
     const refreshedMaterializedResult = await context.sequelize.query(
-      'SELECT * FROM materialized_upcoming_vaccinations order by vaccine_id',
+      `
+      SET TIMEZONE TO :serverTimezone;
+      SELECT * FROM materialized_upcoming_vaccinations order by vaccine_id;
+      SET TIMEZONE TO :sequelizeTimezone;
+      `,
       {
         type: QueryTypes.SELECT,
+        replacements: {
+          serverTimezone: config.countryTimeZone,
+          sequelizeTimezone: sequelizeTimezone['TimeZone'],
+        },
       },
     );
     // Check that the materialized view now reflects the upcoming vaccinations view

@@ -46,9 +46,18 @@ export const getFieldData = (data: IPatientAdditionalData, fieldName: string): s
   return data?.[fieldName];
 };
 
-export const getConfiguredPatientAdditionalDataFields = (fields, showMandatory, getBool) => {
+export const getConfiguredPatientAdditionalDataFields = (
+  fields: string[],
+  showMandatory: boolean,
+  getLocalisation,
+) => {
+  const localisedFields = Object.keys(getLocalisation('fields'));
+
   return fields.filter(fieldName => {
-    const requiredPatientData = getBool(`fields.${fieldName}.requiredPatientData`);
-    return !!requiredPatientData === showMandatory;
+    if (localisedFields.includes(fieldName)) {
+      const requiredPatientData = getLocalisation(`fields.${fieldName}.requiredPatientData`);
+      return !!requiredPatientData === showMandatory;
+    }
+    return true;
   });
 };

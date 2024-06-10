@@ -49,8 +49,7 @@ export async function up(query) {
 	  select
       e.patient_id,
       av.scheduled_vaccine_id,
-      av."date"::date administered_date,
-      row_number() over (partition by e.patient_id, sv.label order by sv.index desc) AS rn
+      av."date"::date administered_date
     from administered_vaccines av
     join scheduled_vaccines sv on sv.id = av.scheduled_vaccine_id
 	  join encounters e on e.id = av.encounter_id
@@ -85,7 +84,8 @@ export async function up(query) {
   join filtered_patients fp on fp.patient_id = fav.patient_id
   join filtered_scheduled_vaccines fsv on fsv.scheduled_vaccine_id  = fav.scheduled_vaccine_id
   join filtered_scheduled_vaccines fsv2 on fsv.vaccine_id = fsv2.vaccine_id and fsv.vaccine_category = fsv2.vaccine_category and fsv2.weeks_from_birth_due is null and fsv2.weeks_from_last_vaccination_due is not null and fsv2.index > fsv.index
-  where rn = 1
+  left join filtered_administered_vaccines fav2 on fav2.patient_id = fp.patient_id and fav2.scheduled_vaccine_id = fsv2.scheduled_vaccine_id
+  where fav2.scheduled_vaccine_id is null
   order by fp.patient_id, fsv2.vaccine_category, fsv2.vaccine_id, fsv2.index
   ),
   patient_vaccine_schedule as (

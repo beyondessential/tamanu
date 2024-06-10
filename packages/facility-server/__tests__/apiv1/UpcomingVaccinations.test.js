@@ -185,6 +185,13 @@ describe('Upcoming vaccinations', () => {
     expect(descData[0].displayId).toBe('frecord');
   });
 
+  it('timezone should be unaffected by endpoint', async () => {
+    const [timezoneBefore] = await ctx.sequelize.query('SHOW TIME ZONE');
+    await app.get(`/api/upcomingVaccinations`);
+    const [timezoneAfter] = await ctx.sequelize.query('SHOW TIME ZONE');
+    expect(timezoneAfter).toEqual(timezoneBefore);
+  });
+
   describe('Refresh stats', () => {
     it('returns the last updated time and cron schedule for a upcoming vaccinations materialized view', async () => {
       const task = new RefreshUpcomingVaccinations(ctx);

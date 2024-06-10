@@ -571,20 +571,20 @@ describe('PatientVaccine', () => {
         dateOfBirth: toDateString(subDays(new Date(), 365 * 2)),
       });
 
-      await recordAdministeredVaccine(patient2, scheduledVax2, {
+      await recordAdministeredVaccine(patient2, scheduledVax1, {
         status: VACCINE_STATUS.GIVEN,
         date: toDateString(subDays(new Date(), 1)),
       });
     });
 
-    it('should return 1 upcoming vaccinations of patient 1', async () => {
+    it('should return first dose in schedule for patient 1', async () => {
       const result = await app.get(`/api/patient/${patient1.id}/upcomingVaccination`);
       expect(result).toHaveSucceeded();
       expect(result.body.data).toHaveLength(1);
       expect(result.body.data.at(0)?.scheduledVaccineId).toEqual(scheduledVax1.id);
     });
 
-    it.only('should return 1 upcoming vaccinations of patient 2', async () => {
+    it('should second dose in schedule for patient 2', async () => {
       const result = await app.get(`/api/patient/${patient2.id}/upcomingVaccination`);
       expect(result).toHaveSucceeded();
       expect(result.body.data).toHaveLength(1);
