@@ -31,7 +31,6 @@ const getWarningMessage = (
 ) => {
   const { weeksFromLastVaccinationDue } = scheduledVaccine;
   if (weeksFromLastVaccinationDue && !lastDose) {
-    // TODO:
     return 'This patient has not received previous dose of this vaccine';
   }
   const weeksUntilDueAbs = Math.abs(daysUntilDue / 7);
