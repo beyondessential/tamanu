@@ -1,11 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
-
-import { calculateInvoiceTotal } from '../utils';
 
 import { Colors, ENCOUNTER_OPTIONS_BY_VALUE, INVOICE_PAYMENT_STATUS_LABELS } from '../constants';
 
-import { useApi } from '../api';
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 import { TranslatedEnum, TranslatedText } from './Translation';
@@ -13,7 +10,7 @@ import { Typography } from '@material-ui/core';
 import { ThemedTooltip } from './Tooltip';
 import { upperCase } from 'lodash';
 import { InvoiceStatus } from './InvoiceStatus';
-import { InvoiceDetailModal } from './InvoiceDetailModal';
+import { EditInvoiceModal } from './EditInvoiceModal';
 
 const TableTitle = styled(Typography)`
   font-size: 16px;
@@ -44,22 +41,8 @@ const Table = styled(DataFetchingTable)`
   }
 `;
 
-const InvoiceTotal = ({ row }) => {
-  const [invoiceTotal, setInvoiceTotal] = useState(0);
-  const api = useApi();
-
-  useEffect(() => {
-    (async () => {
-      const { data: invoiceLines } = await api.get(`invoices/${row.id}/lineItems`);
-      const { data: invoicePriceChanges } = await api.get(`invoices/${row.id}/priceChangeItems`);
-      setInvoiceTotal(calculateInvoiceTotal(invoiceLines, invoicePriceChanges));
-    })();
-  }, [api, row.id]);
-
-  if (row.total !== undefined && row.total !== null) {
-    return `$${row.total}`;
-  }
-  return `$${invoiceTotal}`;
+const InvoiceTotal = () => {
+  return `$0`;
 };
 
 const getDate = ({ date }) => <DateDisplay date={date} />;
@@ -129,7 +112,7 @@ const COLUMNS = [
 ];
 
 export const InvoicesTable = React.memo(({ patient }) => {
-  const [invoiceModalOpen, setInvoiceModalOpen] = useState();
+  const [selectedInvoice, setSelectedInvoice] = useState();
 
   return (
     <>
@@ -145,21 +128,14 @@ export const InvoicesTable = React.memo(({ patient }) => {
             <TranslatedText stringId="patient.invoice.table.title" fallback="Patient invoices" />
           </TableTitle>
         }
-        onClickRow={(_, data) => setInvoiceModalOpen(data)}
+        onClickRow={(_, data) => setSelectedInvoice(data)}
       />
-      {!!invoiceModalOpen && (
-        <InvoiceDetailModal
-          title={
-            <TranslatedText
-              stringId="invoice.modal.view.title"
-              fallback="Invoice number: :invoiceNumber"
-              replacements={{ invoiceNumber: invoiceModalOpen.displayId }}
-            />
-          }
+      {!!selectedInvoice && (
+        <EditInvoiceModal
           open
-          invoiceId={invoiceModalOpen.id}
-          onClose={() => setInvoiceModalOpen(undefined)}
-          onUpdated={invoiceModalOpen.refreshTable}
+          onClose={() => setSelectedInvoice(undefined)}
+          invoice={selectedInvoice}
+          afterSaveInvoice={selectedInvoice.refreshTable}
         />
       )}
     </>
