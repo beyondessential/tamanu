@@ -69,7 +69,7 @@ Formik's Field component and provide a special naming scheme to avoid
 namespace collisions.
 */
 export const TableFormFields = React.memo(
-  ({ columns, data, className = '', pagination = false, ...props }) => {
+  ({ columns, data, className = '', pagination = false }) => {
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(ROWS_PER_PAGE_OPTIONS[0]);
     const [pageRows, setPageRows] = useState(pagination ? data.slice(page, rowsPerPage) : data);
