@@ -9,7 +9,7 @@ export async function up(query) {
   await query.dropTable('invoice_price_change_types');
   await query.dropTable('invoice_line_items');
   await query.dropTable('invoice_line_types');
-  await query.dropTable('invoices');
+  await query.dropTable('invoices', { cascade: true });
 
   await query.createTable('invoice_products', {
     id: {
