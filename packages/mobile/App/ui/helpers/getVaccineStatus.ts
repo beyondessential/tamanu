@@ -1,5 +1,6 @@
 import { VaccineStatus } from './patient';
 import { differenceInDays, parseISO } from 'date-fns';
+import { toNumber } from 'lodash';
 import { IAdministeredVaccine, IPatient, IScheduledVaccine } from '~/types';
 
 type Threshold<T> = { threshold: T; status: VaccineStatus };
@@ -20,7 +21,7 @@ export type VaccineStatusMessage = {
 export const parseThresholdsSetting = (thresholds: UnparsedThresholds): ParsedThresholds =>
   thresholds
     ?.map(({ threshold, status }) => ({
-      threshold: threshold === '-Infinity' ? -Infinity : threshold,
+      threshold: toNumber(threshold), // _.toNumber is used specifically to parse '-Infinity' and 'Infinity'
       status,
     }))
     .sort((a, b) => b.threshold - a.threshold);
