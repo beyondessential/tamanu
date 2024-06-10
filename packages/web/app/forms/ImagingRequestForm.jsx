@@ -29,7 +29,7 @@ import { ButtonRow } from '../components/ButtonRow';
 import { DateDisplay } from '../components/DateDisplay';
 import { FormSeparatorLine } from '../components/FormSeparatorLine';
 import { FormSubmitDropdownButton } from '../components/DropdownButton';
-import { TranslatedText } from '../components/Translation/TranslatedText';
+import { TranslatedText, TranslatedReferenceData } from '../components/Translation';
 import { useTranslation } from '../contexts/Translation';
 
 function getEncounterTypeLabel(type) {
@@ -215,7 +215,7 @@ export const ImagingRequestForm = React.memo(
               {imagingAreas.length ? (
                 <Field
                   options={imagingAreas.map(area => ({
-                    label: area.name,
+                    label: <TranslatedReferenceData fallback={area.name} value={area.id} category={area.type} />,
                     value: area.id,
                   }))}
                   name="areas"
