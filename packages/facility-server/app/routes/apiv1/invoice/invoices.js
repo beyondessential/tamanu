@@ -4,8 +4,6 @@ import { customAlphabet } from 'nanoid';
 import { ValidationError, NotFoundError } from '@tamanu/shared/errors';
 import { INVOICE_PAYMENT_STATUSES, INVOICE_STATUSES } from '@tamanu/constants';
 
-import { invoiceLineItemsRoute } from './invoiceLineItems';
-
 import { v4 as uuidv4 } from 'uuid';
 import { z } from 'zod';
 import { Op } from 'sequelize';
@@ -296,5 +294,3 @@ invoiceRoute.put(
     res.json(invoice.dataValues);
   }),
 );
-
-invoiceRoute.use(invoiceLineItemsRoute);
