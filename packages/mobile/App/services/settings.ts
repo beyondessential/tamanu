@@ -13,7 +13,6 @@ export class SettingsService extends LocalDataService {
   settings: object;
 
   extractDataFromPayload(payload: any): object {
-    console.log('SettingsService extractDataFromPayload', payload.settings);
     return payload.settings;
   }
 
