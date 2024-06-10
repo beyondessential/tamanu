@@ -107,7 +107,7 @@ export async function up(query) {
       type: DataTypes.STRING,
       allowNull: true,
     },
-    isManual: {
+    is_manual: {
       type: DataTypes.BOOLEAN,
       allowNull: false,
     },
