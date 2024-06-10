@@ -49,8 +49,6 @@ import { addDietIdForEncounter1713722796000 } from './1713722796000-addDietIdFor
 import { renameScheduledVaccineScheduleColumn1715647528000 } from './1715647528000-renameScheduledVaccineScheduleColumn';
 import { addSortColumnToScheduledVaccines1715658297000 } from './1715658297000-addSortColumnToScheduledVaccines';
 import { addReferenceDataRelationTable1714605577000 } from './1714605577000-addReferenceDataRelationTable';
-import { renameScheduledVaccineScheduleColumn1715647528000 } from './1715647528000-renameScheduledVaccineScheduleColumn';
-import { addSortColumnToScheduledVaccines1715658297000 } from './1715658297000-addSortColumnToScheduledVaccines';
 
 export const migrationList = [
   databaseSetup1661160427226,
