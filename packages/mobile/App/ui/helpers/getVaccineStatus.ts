@@ -7,7 +7,6 @@ type ParsedThresholds = Threshold<number>[];
 type UnparsedThresholds = Threshold<number | '-Infinity'>[];
 
 interface VaccineData {
-  administeredVaccine: IAdministeredVaccine;
   patientAdministeredVaccines: IAdministeredVaccine[];
   scheduledVaccine: IScheduledVaccine;
   patient: IPatient;

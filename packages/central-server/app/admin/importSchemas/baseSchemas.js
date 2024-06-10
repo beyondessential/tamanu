@@ -242,7 +242,7 @@ export const ScheduledVaccine = Base.shape({
   index: yup.number().required(),
   vaccineId: yup.string().required(),
   visibilityStatus,
-  sort: yup.number().required(),
+  sortIndex: yup.number().required(),
 });
 
 const ICD11_REGEX = /^([0-9A-HJ-NP-V]{1,4}(\.[0-9A-HJ-NP-V]{1,4})?|X[0-9A-HJ-NP-Z.]+)$/;

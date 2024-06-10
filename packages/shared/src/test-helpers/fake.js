@@ -54,7 +54,7 @@ export function fakeScheduledVaccine(prefix = 'test-') {
     index: chance.integer({ min: 0, max: 50 }),
     vaccineId: null,
     visibilityStatus: VISIBILITY_STATUSES.CURRENT,
-    sort: 0,
+    sortIndex: 0,
     ...fakeStringFields(`${prefix}scheduledVaccine_${id}_`, [
       'id',
       'category',

@@ -1,5 +1,4 @@
 import React, { useMemo, useRef, useState } from 'react';
-// import { useIsFocused } from '@react-navigation/native';
 import { uniqBy } from 'lodash';
 import { useBackendEffect } from '~/ui/hooks';
 import { Table } from '../Table';
@@ -103,6 +102,7 @@ export const VaccinesTable = ({
 
       return shouldDisplayVaccine;
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [patientAdministeredVaccines, thresholds]);
 
   const uniqueByVaccine = uniqBy(nonHistoricalOrAdministeredScheduledVaccines, 'label');
@@ -117,7 +117,7 @@ export const VaccinesTable = ({
 
   uniqueByVaccine.sort(
     (a, b) =>
-      a.sort - b.sort ||
+      a.sortIndex - b.sortIndex ||
       a.weeksFromBirthDue - b.weeksFromBirthDue ||
       a.label.localeCompare(b.label),
   );
