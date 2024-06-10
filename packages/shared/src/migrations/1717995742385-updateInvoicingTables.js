@@ -311,7 +311,7 @@ export async function down(query) {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    paymen_status: {
+    payment_status: {
       type: DataTypes.STRING,
       allowNull: false,
     },
@@ -321,6 +321,14 @@ export async function down(query) {
     },
     date: {
       type: DataTypes.DATE,
+      allowNull: true,
+    },
+    discount_markup_percentage: {
+      type: DataTypes.DECIMAL,
+      allowNull: true,
+    },
+    discount_markup_reason: {
+      type: DataTypes.STRING,
       allowNull: true,
     },
     created_at: {
