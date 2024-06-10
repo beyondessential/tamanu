@@ -98,3 +98,18 @@ export const FormConfirmCancelBackRow = ({
     <FormSubmitCancelRow {...props} />
   </FlexSpaceBetween>
 );
+
+export const ConfirmCancelBackRow = ({
+  onBack,
+  backButtonText = <TranslatedText stringId="general.action.back" fallback="Back" />,
+  ...props
+}) => (
+  <FlexSpaceBetween>
+    {onBack && (
+      <GoBackButtonContainer>
+        <OutlinedButton onClick={onBack}>{backButtonText}</OutlinedButton>
+      </GoBackButtonContainer>
+    )}
+    <ConfirmCancelRow {...props} />
+  </FlexSpaceBetween>
+);
