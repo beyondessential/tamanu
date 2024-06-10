@@ -32,7 +32,7 @@ export async function exportProgram(context, programId) {
       ['programName', programName],
       ['programCode', programCode],
       ['country', country],
-      ['homeServer', ''],
+      ['homeServer', country ? 'true' : ''],
       [],
       ['code', 'name', 'surveyType', 'isSensitive'],
       ...surveys.map(survey => [
@@ -150,8 +150,8 @@ export async function exportProgram(context, programId) {
         status.visibilityStatus,
       ]),
     );
+    sheets.push(registrySheet);
   }
-  sheets.push(registrySheet);
 
   const registryConditionsSheet = {
     name: 'Registry Conditions',
@@ -169,8 +169,8 @@ export async function exportProgram(context, programId) {
         condition.visibilityStatus,
       ]),
     );
+    sheets.push(registryConditionsSheet);
   }
-  sheets.push(registryConditionsSheet);
 
   const exportedFileName = writeExcelFile(sheets);
 

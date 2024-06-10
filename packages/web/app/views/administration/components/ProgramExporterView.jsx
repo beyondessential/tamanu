@@ -3,7 +3,7 @@ import * as yup from 'yup';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 
 import { useApi } from '../../../api';
-import { Field, Form, SelectField } from '../../../components/Field';
+import { AutocompleteField, Field, Form } from '../../../components/Field';
 import { FormGrid } from '../../../components/FormGrid';
 import { ButtonRow } from '../../../components/ButtonRow';
 import { FormSubmitButton } from '../../../components/Button';
@@ -16,8 +16,8 @@ const ExportForm = ({ options = [] }) => (
   <FormGrid columns={1}>
     <Field
       name="programId"
-      label={<TranslatedText stringId="admin.program.export.program.label" fallback="Select program to export" />}
-      component={SelectField}
+      label={<TranslatedText stringId="admin.program.export.program.selectLabel" fallback="Select program to export" />}
+      component={AutocompleteField}
       options={options}
       required
     />
@@ -68,7 +68,12 @@ export const ProgramExporterView = memo(({ setIsLoading }) => {
       <Form
         onSubmit={onSubmit}
         validationSchema={yup.object().shape({
-          programId: yup.string().required(),
+          programId: yup.string().required().translatedLabel(
+            <TranslatedText
+              stringId="admin.program.export.program.label"
+              fallback="Program"
+            />,
+          ),
         })}
         formType={FORM_TYPES.CREATE_FORM}
         initialValues={{
