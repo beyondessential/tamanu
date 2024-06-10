@@ -22,7 +22,6 @@ import { ProgramRegistryProvider } from './contexts/ProgramRegistry';
 import { TranslationProvider } from './contexts/Translation';
 import { LocalisationProvider } from './contexts/Localisation';
 import { SettingsProvider } from './contexts/Settings';
-import { InvoiceModalProvider } from './contexts/InvoiceModal';
 
 const StateContextProviders = ({ children, store }) => (
   <EncounterProvider store={store}>
@@ -35,9 +34,7 @@ const StateContextProviders = ({ children, store }) => (
                 <SettingsProvider>
                   <SyncStateProvider>
                     <TranslationProvider>
-                      <InvoiceModalProvider>
-                        <LocalisationProvider store={store}>{children}</LocalisationProvider>
-                      </InvoiceModalProvider>
+                      <LocalisationProvider store={store}>{children}</LocalisationProvider>
                     </TranslationProvider>
                   </SyncStateProvider>
                 </SettingsProvider>

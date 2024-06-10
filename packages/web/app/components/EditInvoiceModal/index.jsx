@@ -115,6 +115,7 @@ export const EditInvoiceModal = ({
   encounterId,
   invoiceStatus,
   isManualInvoice,
+  onClose: defaultOnClose
 }) => {
   const defaultRow = { id: uuidv4(), toBeUpdated: true };
   const [rowList, setRowList] = useState([defaultRow]);
@@ -124,6 +125,8 @@ export const EditInvoiceModal = ({
   const [idsToDelete, setIdsToDelete] = useState([]);
   const api = useApi();
   const { handleActiveModal } = useInvoiceModal();
+
+  const onClose = defaultOnClose || (() => handleActiveModal(''));
 
   useEffect(() => {
     (async () => {
@@ -313,8 +316,6 @@ export const EditInvoiceModal = ({
     });
     setRowList(newRowList);
   };
-
-  const onClose = () => handleActiveModal('');
 
   const handleSubmit = async (submitData) => {
     if (isSaving) return;

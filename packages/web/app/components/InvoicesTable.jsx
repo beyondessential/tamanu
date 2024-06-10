@@ -134,7 +134,8 @@ export const InvoicesTable = React.memo(({ patient }) => {
         <EditInvoiceModal
           open
           onClose={() => setSelectedInvoice(undefined)}
-          invoice={selectedInvoice}
+          invoiceId={selectedInvoice.id}
+          displayId={selectedInvoice.displayId}
           afterSaveInvoice={selectedInvoice.refreshTable}
         />
       )}
