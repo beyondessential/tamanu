@@ -46,7 +46,7 @@ export async function up(query) {
       allowNull: false,
       primaryKey: true,
     },
-    displayId: {
+    display_id: {
       type: DataTypes.STRING,
       allowNull: false,
     },
@@ -54,19 +54,15 @@ export async function up(query) {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    paymentStatus: {
+    payment_status: {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    receiptNumber: {
+    receipt_number: {
       type: DataTypes.DECIMAL,
       allowNull: true,
     },
-    paidAmount: {
-      type: DataTypes.DECIMAL,
-      allowNull: false,
-    },
-    encounterId: {
+    encounter_id: {
       type: DataTypes.STRING,
       allowNull: false,
       references: {
@@ -95,7 +91,7 @@ export async function up(query) {
       allowNull: false,
       primaryKey: true,
     },
-    invoiceId: {
+    invoice_id: {
       type: DataTypes.STRING,
       allowNull: false,
       references: {
@@ -115,7 +111,7 @@ export async function up(query) {
       type: DataTypes.BOOLEAN,
       allowNull: false,
     },
-    appliedByUserId: {
+    applied_by_user_id: {
       type: DataTypes.STRING,
       allowNull: false,
       references: {
@@ -123,7 +119,7 @@ export async function up(query) {
         key: 'id',
       },
     },
-    appliedTime: {
+    applied_time: {
       type: DataTypes.DATE,
       allowNull: false,
     },
@@ -148,7 +144,7 @@ export async function up(query) {
       allowNull: false,
       primaryKey: true,
     },
-    invoiceId: {
+    invoice_id: {
       type: DataTypes.STRING,
       allowNull: false,
       references: {
@@ -156,7 +152,7 @@ export async function up(query) {
         key: 'id',
       },
     },
-    insurerId: {
+    insurer_id: {
       type: DataTypes.STRING,
       allowNull: false,
       references: {
@@ -189,7 +185,7 @@ export async function up(query) {
       allowNull: false,
       primaryKey: true,
     },
-    invoiceId: {
+    invoice_id: {
       type: DataTypes.STRING,
       allowNull: false,
       references: {
@@ -197,11 +193,11 @@ export async function up(query) {
         key: 'id',
       },
     },
-    orderDate: {
+    order_date: {
       type: DataTypes.DATE,
       allowNull: false,
     },
-    productId: {
+    product_id: {
       type: DataTypes.STRING,
       allowNull: true,
       references: {
@@ -209,15 +205,15 @@ export async function up(query) {
         key: 'id',
       },
     },
-    productName: {
+    product_name: {
       type: DataTypes.STRING,
       allowNull: true,
     },
-    productPrice: {
+    product_price: {
       type: DataTypes.DECIMAL,
       allowNull: true,
     },
-    orderedByUserId: {
+    ordered_by_user_id: {
       type: DataTypes.STRING,
       allowNull: false,
       references: {
@@ -246,7 +242,7 @@ export async function up(query) {
       allowNull: false,
       primaryKey: true,
     },
-    invoiceItemId: {
+    invoice_item_id: {
       type: DataTypes.STRING,
       allowNull: false,
       references: {
@@ -281,4 +277,252 @@ export async function up(query) {
 /**
  * @param {QueryInterface} query
  */
-export async function down(query) {}
+export async function down(query) {
+  await query.dropTable('invoice_item_discounts', { cascade: true });
+  await query.dropTable('invoice_items', { cascade: true });
+  await query.dropTable('invoice_insurers', { cascade: true });
+  await query.dropTable('invoice_discounts', { cascade: true });
+  await query.dropTable('invoice_products', { cascade: true });
+  await query.dropTable('invoices', { cascade: true });
+
+  await query.createTable('invoices', {
+    id: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      primaryKey: true,
+    },
+    display_id: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    encounter_id: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      references: {
+        model: 'encounters',
+        key: 'id',
+      },
+    },
+    total: {
+      type: DataTypes.DECIMAL,
+      allowNull: true,
+    },
+    status: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    paymen_status: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    receipt_number: {
+      type: DataTypes.DECIMAL,
+      allowNull: true,
+    },
+    date: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
+    created_at: {
+      type: DataTypes.DATE,
+      defaultValue: DataTypes.NOW,
+      allowNull: false,
+    },
+    updated_at: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
+    deleted_at: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
+  });
+
+  await query.createTable('invoice_line_types', {
+    id: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      primaryKey: true,
+    },
+    item_id: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    item_type: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    name: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    price: {
+      type: DataTypes.DECIMAL,
+      allowNull: false,
+    },
+    created_at: {
+      type: DataTypes.DATE,
+      defaultValue: DataTypes.NOW,
+      allowNull: true,
+    },
+    updated_at: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
+    deleted_at: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
+  });
+
+  await query.createTable('invoice_line_items', {
+    id: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      primaryKey: true,
+    },
+    invoice_id: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      references: {
+        model: 'invoices',
+        key: 'id',
+      },
+    },
+    invoice_line_type_id: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      references: {
+        model: 'invoice_line_types',
+        key: 'id',
+      },
+    },
+    date_generated: {
+      type: DataTypes.DATE,
+      allowNull: false,
+    },
+    percentage_change: {
+      type: DataTypes.DECIMAL,
+      allowNull: false,
+    },
+    discount_markup_reason: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    status: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    created_at: {
+      type: DataTypes.DATE,
+      defaultValue: DataTypes.NOW,
+      allowNull: false,
+    },
+    updated_at: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
+    deleted_at: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
+  });
+
+  await query.createTable('invoice_price_change_types', {
+    id: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      primaryKey: true,
+    },
+    item_id: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    item_type: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    name: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    percentage_change: {
+      type: DataTypes.DECIMAL,
+      allowNull: false,
+    },
+    created_at: {
+      type: DataTypes.DATE,
+      defaultValue: DataTypes.NOW,
+      allowNull: false,
+    },
+    updated_at: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
+    deleted_at: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
+  });
+
+  await query.createTable('invoice_price_change_items', {
+    id: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      primaryKey: true,
+    },
+    invoice_id: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      references: {
+        model: 'invoices',
+        key: 'id',
+      },
+    },
+    invoice_price_change_type_id: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      references: {
+        model: 'invoice_price_change_types',
+        key: 'id',
+      },
+    },
+    ordered_by_id: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      references: {
+        model: 'users',
+        key: 'id',
+      },
+    },
+    date: {
+      type: DataTypes.DATE,
+      allowNull: false,
+    },
+    description: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    percentage_change: {
+      type: DataTypes.DECIMAL,
+      allowNull: true,
+    },
+    status: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    created_at: {
+      type: DataTypes.DATE,
+      defaultValue: DataTypes.NOW,
+      allowNull: false,
+    },
+    updated_at: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
+    deleted_at: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
+  });
+}
