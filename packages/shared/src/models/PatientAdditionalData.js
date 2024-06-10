@@ -98,7 +98,6 @@ export class PatientAdditionalData extends Model {
     referenceRelation('religion');
     referenceRelation('patientBillingType');
     referenceRelation('countryOfBirth');
-    referenceRelation('village')
   }
 
   static getFullReferenceAssociations() {
