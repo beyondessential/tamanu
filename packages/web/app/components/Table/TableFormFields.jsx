@@ -86,7 +86,8 @@ export const TableFormFields = React.memo(
     const handleRowsPerPageChange = event => {
       const newRowsPerPage = event.target.value;
       setRowsPerPage(newRowsPerPage);
-      setPageRows(data.slice(newRowsPerPage * page, newRowsPerPage * (page + 1)));
+      setPage(0);
+      setPageRows(data.slice(0, newRowsPerPage));
     };
 
     return (
