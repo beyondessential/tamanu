@@ -122,27 +122,31 @@ patientVaccineRoutes.get(
     WHERE uv.patient_id = :patientId
     AND uv.status <> '${VACCINE_STATUS.MISSED}'`;
 
-    const results = await req.db.query(
-      `SELECT
-      sv.id "scheduledVaccineId",
-      sv.category,
-      sv.label,
-      sv.dose_label,
-      sv.vaccine_id "vaccineId",
-      uv.due_date "dueDate",
-      uv.status
-      ${fromUpcomingVaccinations}
-      ORDER BY ${sortKey} ${sortDirection}, sv.label
-      LIMIT :limit
-      OFFSET :offset;
-    `,
-      {
-        replacements: {
-          patientId: req.params.id,
-          limit: rowsPerPage,
-          offset: page * rowsPerPage,
-        },
-        type: QueryTypes.SELECT,
+    let data;
+    await req.db.transaction(async () => {
+      // Set timezone to country timezone this is because sequelize timezone is defaulted to UTC currently
+      await req.db.query(`SET TIME ZONE '${config.countryTimeZone}'`);
+      const results = await req.db.query(
+        `SELECT
+        sv.id "scheduledVaccineId",
+        sv.category,
+        sv.label,
+        sv.dose_label,
+        sv.vaccine_id "vaccineId",
+        uv.due_date "dueDate",
+        uv.status
+        ${fromUpcomingVaccinations}
+        ORDER BY ${sortKey} ${sortDirection}, sv.label
+        LIMIT :limit
+        OFFSET :offset;
+      `,
+        {
+          replacements: {
+            patientId: req.params.id,
+            limit: rowsPerPage,
+            offset: page * rowsPerPage,
+          },
+          type: QueryTypes.SELECT,
         },
       );
 
