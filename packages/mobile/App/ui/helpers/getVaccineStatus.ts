@@ -1,8 +1,7 @@
-import { ScheduledVaccine } from '~/models/ScheduledVaccine';
 import { VaccineStatus } from './patient';
 import { differenceInDays, parseISO } from 'date-fns';
 import { VaccineTableCellData } from '../components/VaccinesTable/VaccinesTableCell';
-import { AdministeredVaccine } from '~/models/AdministeredVaccine';
+import { IAdministeredVaccine, IScheduledVaccine } from '~/types';
 
 type Threshold<T> = { threshold: T; status: VaccineStatus };
 type ParsedThresholds = Threshold<number>[];
@@ -30,7 +29,7 @@ const getWarningMessage = (
   { scheduledVaccine }: VaccineTableCellData,
   daysUntilDue: number,
   status: VaccineStatus,
-  lastDose: ScheduledVaccine,
+  lastDose: IAdministeredVaccine,
 ) => {
   const { weeksFromLastVaccinationDue } = scheduledVaccine;
   if (weeksFromLastVaccinationDue && !lastDose) {
@@ -47,11 +46,10 @@ const getWarningMessage = (
 
 const getDaysUntilDue = (
   { scheduledVaccine, patient }: VaccineTableCellData,
-  lastDose: AdministeredVaccine,
+  lastDose: IAdministeredVaccine,
 ) => {
   const { weeksFromBirthDue, weeksFromLastVaccinationDue } = scheduledVaccine;
   const { dateOfBirth } = patient;
-  // TODO Should return early if both defined or none defined
   const weeksFromDue = weeksFromBirthDue || weeksFromLastVaccinationDue;
   const date = weeksFromBirthDue ? dateOfBirth : lastDose?.date;
   return weeksFromDue * 7 - differenceInDays(new Date(), parseISO(date));
@@ -65,7 +63,8 @@ export const getLastDose = ({
   if (!weeksFromLastVaccinationDue) return null;
   return patientAdministeredVaccines?.find(
     ({ scheduledVaccine }) =>
-      scheduledVaccine.index === index - 1 && scheduledVaccine.vaccine.id === vaccine.id,
+      (scheduledVaccine as IScheduledVaccine).index === index - 1 &&
+      (scheduledVaccine as IScheduledVaccine).vaccine.id === vaccine.id,
   );
 };
 
