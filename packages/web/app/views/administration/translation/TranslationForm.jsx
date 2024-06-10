@@ -1,9 +1,9 @@
-import { useQueryClient, useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import * as yup from 'yup';
 import { has, omit, sortBy } from 'lodash';
 import React, { useCallback, useMemo, useState } from 'react';
 import styled from 'styled-components';
-import { Box, IconButton, TableFooter, TableRow, Tooltip } from '@material-ui/core';
+import { Box, IconButton, Tooltip } from '@material-ui/core';
 import { Add as AddIcon, Delete as DeleteIcon } from '@material-ui/icons';
 import shortid from 'shortid';
 import { Alert, AlertTitle } from '@material-ui/lab';
@@ -22,7 +22,6 @@ import { AccessorField } from '../../patients/components/AccessorField';
 import { LoadingIndicator } from '../../../components/LoadingIndicator';
 import { Colors } from '../../../constants';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
-import { Paginator } from '../../../components/Table/Paginator.jsx';
 
 const StyledTableFormFields = styled(TableFormFields)`
   thead tr th {

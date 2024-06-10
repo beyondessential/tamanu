@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import MaterialTable from '@material-ui/core/Table';
@@ -9,7 +9,9 @@ import TableRow from '@material-ui/core/TableRow';
 
 import { Colors } from '../../constants';
 import { Paginator } from './Paginator.jsx';
-import { TableFooter, TablePagination } from '@material-ui/core';
+import { TableFooter } from '@material-ui/core';
+
+const ROWS_PER_PAGE_OPTIONS = [10, 25, 50];
 
 const StyledFixedTable = styled(MaterialTable)`
   border: 1px solid ${Colors.outline};
@@ -62,7 +64,22 @@ Formik's Field component and provide a special naming scheme to avoid
 namespace collisions.
 */
 export const TableFormFields = React.memo(
-  ({ columns, data, className = '', pagination = false }) => {
+  ({ columns, data, className = '', pagination = false, ...props }) => {
+    const [page, setPage] = useState(0);
+    const [rowsPerPage, setRowsPerPage] = useState(ROWS_PER_PAGE_OPTIONS[0]);
+    const [pageRows, setPageRows] = useState(pagination ? data.slice(page, rowsPerPage) : data);
+
+    const handlePageChange = (event, newPage) => {
+      setPage(newPage - 1);
+      setPageRows(data.slice(rowsPerPage * (newPage - 1), rowsPerPage * newPage));
+    };
+
+    const handleRowsPerPageChange = event => {
+      const newRowsPerPage = event.target.value;
+      setRowsPerPage(newRowsPerPage);
+      setPageRows(data.slice(newRowsPerPage * page, newRowsPerPage * (page + 1)));
+    };
+
     return (
       <StyledFixedTable className={className} $pagination={pagination}>
         <StyledTableHead>
@@ -75,7 +92,7 @@ export const TableFormFields = React.memo(
           </TableRow>
         </StyledTableHead>
         <TableBody>
-          {data.map((rowData, i) => (
+          {pageRows.map((rowData, i) => (
             <TableRow key={rowData.id || i}>
               {columns.map(({ key, accessor }) => (
                 <StyledTableDataCell key={key}>{accessor(rowData, i)}</StyledTableDataCell>
@@ -86,16 +103,14 @@ export const TableFormFields = React.memo(
         {pagination && (
           <StyledTableFooter>
             <TableRow>
-              {/*<Paginator rowsPerPageOptions={[5, 10, 25]} count={data.length} />*/}
-              {/*<TablePagination count={data.length} page={1} rowsPerPage={5} onPageChange={null} />*/}
               <Paginator
-                rowsPerPageOptions={[5, 10, 25]}
+                rowsPerPageOptions={ROWS_PER_PAGE_OPTIONS}
                 colSpan={columns.length}
-                page={1}
+                page={page}
                 count={data.length}
-                // rowsPerPage={5}
-                // onPageChange={this.handleChangePage}
-                // onRowsPerPageChange={this.handleChangeRowsPerPage}
+                rowsPerPage={rowsPerPage}
+                onPageChange={handlePageChange}
+                onRowsPerPageChange={handleRowsPerPageChange}
               />
             </TableRow>
           </StyledTableFooter>
