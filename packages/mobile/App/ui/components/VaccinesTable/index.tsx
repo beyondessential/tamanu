@@ -60,7 +60,7 @@ export const VaccinesTable = ({
 
   const nonHistoricalOrAdministeredScheduledVaccines = useMemo(() => {
     if (!scheduledVaccines || !patientAdministeredVaccines || !thresholds) return null;
-    return scheduledVaccines?.filter(scheduledVaccine => {
+    return scheduledVaccines.filter(scheduledVaccine => {
       const administeredVaccine = patientAdministeredVaccines?.find(v => {
         if (typeof v.scheduledVaccine === 'string') {
           throw new Error('VaccinesTable: administeredVaccine did not embed scheduledVaccine');
