@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext } from 'react';
 import { useAuth } from './AuthContext';
 import { get } from 'lodash';
 
@@ -12,16 +12,11 @@ export const useSettings = () => useContext(SettingsContext);
 
 export const SettingsProvider = ({ children }) => {
   const { settings: authSettings } = useAuth();
-  const [settings, setSettings] = useState({});
-
-  useEffect(() => {
-    setSettings(authSettings);
-  }, [authSettings]);
 
   return (
     <SettingsContext.Provider
       value={{
-        getSetting: path => get(settings, path),
+        getSetting: path => get(authSettings, path),
       }}
     >
       {children}
