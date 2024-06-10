@@ -103,6 +103,4 @@ export const migrationList = [
   renameScheduledVaccineScheduleColumn1715647528000,
   addSortColumnToScheduledVaccines1715658297000,
   addReferenceDataRelationTable1714605577000,
-  renameScheduledVaccineScheduleColumn1715647528000,
-  addSortColumnToScheduledVaccines1715658297000,
 ];
