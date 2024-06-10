@@ -50,6 +50,11 @@ const StyledTableFooter = styled(TableFooter)`
   }
 `;
 
+const NoDataTableCell = styled(TableCell)`
+  text-align: center;
+  padding: 60px;
+`;
+
 /*
 Component created to display form fields shaped as a table.
 This component borrows heavily from the Table component but
@@ -96,13 +101,19 @@ export const TableFormFields = React.memo(
           </TableRow>
         </StyledTableHead>
         <TableBody>
-          {pageRows.map((rowData, i) => (
-            <TableRow key={rowData.id || i}>
-              {columns.map(({ key, accessor }) => (
-                <StyledTableDataCell key={key}>{accessor(rowData, i)}</StyledTableDataCell>
-              ))}
+          {pageRows && pageRows.length > 0 ? (
+            pageRows.map((rowData, i) => (
+              <TableRow key={rowData.id || i}>
+                {columns.map(({ key, accessor }) => (
+                  <StyledTableDataCell key={key}>{accessor(rowData, i)}</StyledTableDataCell>
+                ))}
+              </TableRow>
+            ))
+          ) : (
+            <TableRow>
+              <NoDataTableCell colSpan={columns.length}>No translations found</NoDataTableCell>
             </TableRow>
-          ))}
+          )}
         </TableBody>
         {pagination && (
           <StyledTableFooter>
