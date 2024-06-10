@@ -1,9 +1,9 @@
 import { VaccineStatus } from './patient';
 import { differenceInDays, parseISO } from 'date-fns';
 
-type Thresholds<T> = { threshold: T; status: VaccineStatus }[];
-type ParsedThresholds = Thresholds<number>;
-type UnparsedThresholds = Thresholds<number | '-Infinity'>;
+type Threshold<T> = { threshold: T; status: VaccineStatus };
+type ParsedThresholds = Threshold<number>[];
+type UnparsedThresholds = Threshold<number | '-Infinity'>[];
 
 export type VaccineStatusMessage = {
   status: VaccineStatus;
@@ -12,7 +12,7 @@ export type VaccineStatusMessage = {
 
 export const parseThresholdsSetting = (thresholds: UnparsedThresholds): ParsedThresholds =>
   thresholds
-    ?.map(({ threshold, status }: any) => ({
+    ?.map(({ threshold, status }) => ({
       threshold: threshold === '-Infinity' ? -Infinity : threshold,
       status,
     }))
@@ -60,7 +60,10 @@ export const getLastDose = (scheduledVaccine, patientAdministeredVaccines) => {
   );
 };
 
-export const getVaccineStatus = (data: any = {}, thresholds): VaccineStatusMessage => {
+export const getVaccineStatus = (
+  data: any = {},
+  thresholds: ParsedThresholds,
+): VaccineStatusMessage => {
   const { scheduledVaccine, patientAdministeredVaccines } = data;
   const lastDose = getLastDose(scheduledVaccine, patientAdministeredVaccines);
   const daysUntilDue = getDaysUntilDue(data, lastDose);
