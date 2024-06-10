@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import MaterialTable from '@material-ui/core/Table';
@@ -68,6 +68,10 @@ export const TableFormFields = React.memo(
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(ROWS_PER_PAGE_OPTIONS[0]);
     const [pageRows, setPageRows] = useState(pagination ? data.slice(page, rowsPerPage) : data);
+
+    useEffect(() => {
+      setPageRows(data.slice(rowsPerPage * page, rowsPerPage * (page + 1)));
+    }, [data]);
 
     const handlePageChange = (event, newPage) => {
       setPage(newPage - 1);
