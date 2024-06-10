@@ -105,7 +105,7 @@ async function queryCovidVaccineListData(models, parameters) {
         patient: { displayId, firstName, lastName, dateOfBirth, village, sex },
       },
       date,
-      scheduledVaccine: { schedule, label },
+      scheduledVaccine: { doseLabel, label },
     } = vaccine;
     if (!acc[patientId]) {
       acc[patientId] = {
@@ -119,11 +119,11 @@ async function queryCovidVaccineListData(models, parameters) {
         sex,
       };
     }
-    if (schedule === 'Dose 1') {
+    if (doseLabel === 'Dose 1') {
       acc[patientId].dose1 = 'Yes';
       acc[patientId].dose1Date = parseISO(date).toLocaleDateString();
     }
-    if (schedule === 'Dose 2') {
+    if (doseLabel === 'Dose 2') {
       acc[patientId].dose2 = 'Yes';
       acc[patientId].dose2Date = parseISO(date).toLocaleDateString();
     }

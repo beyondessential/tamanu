@@ -1,4 +1,4 @@
-import React, {useRef} from 'react';
+import React, { useRef } from 'react';
 import { useIsFocused } from '@react-navigation/native';
 import { uniqBy } from 'lodash';
 import { useBackendEffect } from '~/ui/hooks';
@@ -31,7 +31,7 @@ export const VaccinesTable = ({
   // to the scrollview in the generic table. That gets the horizontal scroll coordinate
   // of the table and feeds this back up to position the header appropriately.
   const handleScroll = (event: any) => {
-    scrollViewRef.current.scrollTo({x: event.nativeEvent.contentOffset.x, animated: false})
+    scrollViewRef.current.scrollTo({ x: event.nativeEvent.contentOffset.x, animated: false });
   };
 
   const isFocused = useIsFocused();
@@ -53,43 +53,50 @@ export const VaccinesTable = ({
   if (error || administeredError) return <ErrorScreen error={error || administeredError} />;
   if (!scheduledVaccines || !patientAdministeredVaccines) return <LoadingScreen />;
 
-  const cells: { [schedule: string]: VaccineTableCellData[] } = {};
-  const nonHistoricalOrAdministeredScheduledVaccines = scheduledVaccines.filter(scheduledVaccine => {
-    const administeredVaccine = patientAdministeredVaccines.find(v => {
-      if (typeof v.scheduledVaccine === 'string') {
-        throw new Error('VaccinesTable: administeredVaccine did not embed scheduledVaccine');
+  const cells: { [doseLabel: string]: VaccineTableCellData[] } = {};
+  const nonHistoricalOrAdministeredScheduledVaccines = scheduledVaccines.filter(
+    scheduledVaccine => {
+      const administeredVaccine = patientAdministeredVaccines.find(v => {
+        if (typeof v.scheduledVaccine === 'string') {
+          throw new Error('VaccinesTable: administeredVaccine did not embed scheduledVaccine');
+        }
+        return v.scheduledVaccine.id === scheduledVaccine.id;
+      });
+
+      const shouldDisplayVaccine =
+        scheduledVaccine.visibilityStatus === VisibilityStatus.Current || administeredVaccine;
+
+      if (shouldDisplayVaccine) {
+        const vaccineStatus = administeredVaccine
+          ? administeredVaccine.status
+          : VaccineStatus.SCHEDULED;
+
+        cells[scheduledVaccine.doseLabel] = [
+          ...(cells[scheduledVaccine.doseLabel] || []),
+          {
+            scheduledVaccine: scheduledVaccine as IScheduledVaccine,
+            vaccineStatus,
+            administeredVaccine,
+            patientAdministeredVaccines,
+            patient: selectedPatient,
+            label: scheduledVaccine.label,
+          },
+        ];
       }
-      return v.scheduledVaccine.id === scheduledVaccine.id;
-    });
 
-    const shouldDisplayVaccine = scheduledVaccine.visibilityStatus === VisibilityStatus.Current || administeredVaccine;
-
-    if (shouldDisplayVaccine) {
-
-      const vaccineStatus = administeredVaccine
-        ? administeredVaccine.status
-        : VaccineStatus.SCHEDULED;
-
-      cells[scheduledVaccine.schedule] = [
-        ...(cells[scheduledVaccine.schedule] || []),
-        {
-          scheduledVaccine: scheduledVaccine as IScheduledVaccine,
-          // TODO: why doesn't ScheduledVaccine fulfill IScheduledVaccine?
-          vaccineStatus,
-          administeredVaccine,
-          patientAdministeredVaccines,
-          patient: selectedPatient,
-          label: scheduledVaccine.label,
-        },
-      ];
-
-    }
-
-    return shouldDisplayVaccine;
-
-  });
+      return shouldDisplayVaccine;
+    },
+  );
 
   const uniqueByVaccine = uniqBy(nonHistoricalOrAdministeredScheduledVaccines, 'label');
+
+  uniqueByVaccine.sort(
+    (a, b) =>
+      a.sortIndex - b.sortIndex ||
+      a.weeksFromBirthDue - b.weeksFromBirthDue ||
+      a.label.localeCompare(b.label),
+  );
+
   const rows = uniqueByVaccine.map(scheduledVaccine => ({
     rowTitle: scheduledVaccine.label,
     rowKey: 'label',
@@ -105,8 +112,8 @@ export const VaccinesTable = ({
     ),
   }));
 
-  const uniqueBySchedule = uniqBy(nonHistoricalOrAdministeredScheduledVaccines, 'schedule');
-  const columns = uniqueBySchedule.map(scheduledVaccine => scheduledVaccine.schedule);
+  const uniqueBySchedule = uniqBy(nonHistoricalOrAdministeredScheduledVaccines, 'doseLabel');
+  const columns = uniqueBySchedule.map(scheduledVaccine => scheduledVaccine.doseLabel);
 
   return (
     <ScrollView bounces={false} stickyHeaderIndices={[0]}>
