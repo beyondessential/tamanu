@@ -19,26 +19,18 @@ export const parseThresholdsSetting = (thresholds: UnparsedThresholds): ParsedTh
     }))
     .sort((a, b) => b.threshold - a.threshold);
 
-const getStatus = (weeksUntilDue: number, thresholds: ParsedThresholds) => {
-  const status = thresholds?.find(({ threshold }) => weeksUntilDue > threshold)?.status;
+const getStatus = (daysUntilDue: number, thresholds: ParsedThresholds) => {
+  const status = thresholds?.find(({ threshold }) => daysUntilDue > threshold)?.status;
   return status || VaccineStatus.UNKNOWN;
 };
 
-const getWarningMessage = (
-  { weeksFromBirthDue, weeksFromLastVaccinationDue }: IScheduledVaccine,
-  daysUntilDue: number,
-  status: VaccineStatus,
-) => {
+const getWarningMessage = (daysUntilDue: number, status: VaccineStatus) => {
   const weeksUntilDueAbs = Math.abs(daysUntilDue / 7);
-  if (weeksFromBirthDue) {
-    if (status === VaccineStatus.MISSED) {
-      return `Patient has missed this vaccine by ${weeksUntilDueAbs} weeks, please refer to the catchup schedule.`;
-    }
-    if ([VaccineStatus.SCHEDULED, VaccineStatus.UPCOMING].includes(status)) {
-      return `This patient is not due to receive this vaccine for ${weeksUntilDueAbs} weeks.`;
-    }
-  } else if (weeksFromLastVaccinationDue) {
-    return null; // todo
+  if (status === VaccineStatus.MISSED) {
+    return `Patient has missed this vaccine by ${weeksUntilDueAbs} weeks, please refer to the catchup schedule.`;
+  }
+  if ([VaccineStatus.SCHEDULED, VaccineStatus.UPCOMING].includes(status)) {
+    return `This patient is not due to receive this vaccine for ${weeksUntilDueAbs} weeks.`;
   }
 };
 
@@ -64,7 +56,7 @@ const getDaysUntilDue = ({
 export const getVaccineStatus = (data: any = {}, thresholds): VaccineStatusMessage => {
   const daysUntilDue = getDaysUntilDue(data);
   const status = getStatus(daysUntilDue, thresholds);
-  const warningMessage = getWarningMessage(data, daysUntilDue, status);
+  const warningMessage = getWarningMessage(daysUntilDue, status);
   return {
     status,
     warningMessage,
