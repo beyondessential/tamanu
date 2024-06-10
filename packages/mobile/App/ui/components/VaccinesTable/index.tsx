@@ -46,11 +46,11 @@ export const VaccinesTable = ({
   // const isFocused = useIsFocused();
 
   const [scheduledVaccines, error] = useBackendEffect(
-    ({ models }) =>
-      models.ScheduledVaccine.find({
+    async ({ models }) =>
+      (await models.ScheduledVaccine.find({
         order: { index: 'ASC' },
         where: { category: categoryName },
-      }),
+      })) as IScheduledVaccine[],
     [],
   );
 

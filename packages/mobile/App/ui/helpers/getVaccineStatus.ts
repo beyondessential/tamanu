@@ -1,11 +1,17 @@
 import { VaccineStatus } from './patient';
 import { differenceInDays, parseISO } from 'date-fns';
-import { VaccineTableCellData } from '../components/VaccinesTable/VaccinesTableCell';
-import { IAdministeredVaccine, IScheduledVaccine } from '~/types';
+import { IAdministeredVaccine, IPatient, IScheduledVaccine } from '~/types';
 
 type Threshold<T> = { threshold: T; status: VaccineStatus };
 type ParsedThresholds = Threshold<number>[];
 type UnparsedThresholds = Threshold<number | '-Infinity'>[];
+
+interface VaccineData {
+  administeredVaccine: IAdministeredVaccine;
+  patientAdministeredVaccines: IAdministeredVaccine[];
+  scheduledVaccine: IScheduledVaccine;
+  patient: IPatient;
+}
 
 export type VaccineStatusMessage = {
   status: VaccineStatus;
@@ -26,7 +32,7 @@ const getStatus = (daysUntilDue: number, thresholds: ParsedThresholds) => {
 };
 
 const getWarningMessage = (
-  { scheduledVaccine }: VaccineTableCellData,
+  { scheduledVaccine }: VaccineData,
   daysUntilDue: number,
   status: VaccineStatus,
   lastDose: IAdministeredVaccine,
@@ -45,7 +51,7 @@ const getWarningMessage = (
 };
 
 const getDaysUntilDue = (
-  { scheduledVaccine, patient }: VaccineTableCellData,
+  { scheduledVaccine, patient }: VaccineData,
   lastDose: IAdministeredVaccine,
 ) => {
   const { weeksFromBirthDue, weeksFromLastVaccinationDue } = scheduledVaccine;
@@ -55,10 +61,7 @@ const getDaysUntilDue = (
   return weeksFromDue * 7 - differenceInDays(new Date(), parseISO(date));
 };
 
-export const getLastDose = ({
-  scheduledVaccine,
-  patientAdministeredVaccines,
-}: VaccineTableCellData) => {
+export const getLastDose = ({ scheduledVaccine, patientAdministeredVaccines }: VaccineData) => {
   const { vaccine, index, weeksFromLastVaccinationDue } = scheduledVaccine;
   if (!weeksFromLastVaccinationDue) return null;
   return patientAdministeredVaccines?.find(administeredVaccine => {
@@ -68,7 +71,7 @@ export const getLastDose = ({
 };
 
 export const getVaccineStatus = (
-  data: VaccineTableCellData,
+  data: VaccineData,
   thresholds: ParsedThresholds,
 ): VaccineStatusMessage => {
   const lastDose = getLastDose(data);
