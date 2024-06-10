@@ -1,5 +1,8 @@
+import { ScheduledVaccine } from '~/models/ScheduledVaccine';
 import { VaccineStatus } from './patient';
 import { differenceInDays, parseISO } from 'date-fns';
+import { VaccineTableCellData } from '../components/VaccinesTable/VaccinesTableCell';
+import { AdministeredVaccine } from '~/models/AdministeredVaccine';
 
 type Threshold<T> = { threshold: T; status: VaccineStatus };
 type ParsedThresholds = Threshold<number>[];
@@ -24,10 +27,10 @@ const getStatus = (daysUntilDue: number, thresholds: ParsedThresholds) => {
 };
 
 const getWarningMessage = (
-  { scheduledVaccine }: any,
+  { scheduledVaccine }: VaccineTableCellData,
   daysUntilDue: number,
   status: VaccineStatus,
-  lastDose: any,
+  lastDose: ScheduledVaccine,
 ) => {
   const { weeksFromLastVaccinationDue } = scheduledVaccine;
   if (weeksFromLastVaccinationDue && !lastDose) {
@@ -42,7 +45,10 @@ const getWarningMessage = (
   }
 };
 
-const getDaysUntilDue = ({ scheduledVaccine, patient }: any = {}, lastDose: any) => {
+const getDaysUntilDue = (
+  { scheduledVaccine, patient }: VaccineTableCellData,
+  lastDose: AdministeredVaccine,
+) => {
   const { weeksFromBirthDue, weeksFromLastVaccinationDue } = scheduledVaccine;
   const { dateOfBirth } = patient;
   // TODO Should return early if both defined or none defined
@@ -51,21 +57,23 @@ const getDaysUntilDue = ({ scheduledVaccine, patient }: any = {}, lastDose: any)
   return weeksFromDue * 7 - differenceInDays(new Date(), parseISO(date));
 };
 
-export const getLastDose = (scheduledVaccine, patientAdministeredVaccines) => {
+export const getLastDose = ({
+  scheduledVaccine,
+  patientAdministeredVaccines,
+}: VaccineTableCellData) => {
   const { vaccine, index, weeksFromLastVaccinationDue } = scheduledVaccine;
   if (!weeksFromLastVaccinationDue) return null;
   return patientAdministeredVaccines?.find(
-    ({ scheduledVaccine }: any) =>
+    ({ scheduledVaccine }) =>
       scheduledVaccine.index === index - 1 && scheduledVaccine.vaccine.id === vaccine.id,
   );
 };
 
 export const getVaccineStatus = (
-  data: any = {},
+  data: VaccineTableCellData,
   thresholds: ParsedThresholds,
 ): VaccineStatusMessage => {
-  const { scheduledVaccine, patientAdministeredVaccines } = data;
-  const lastDose = getLastDose(scheduledVaccine, patientAdministeredVaccines);
+  const lastDose = getLastDose(data);
   const daysUntilDue = getDaysUntilDue(data, lastDose);
   const status = getStatus(daysUntilDue, thresholds);
   const warningMessage = getWarningMessage(data, daysUntilDue, status, lastDose);
