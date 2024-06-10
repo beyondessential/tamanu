@@ -204,16 +204,6 @@ export const practitioner = [
   { verb: 'write', noun: 'InvoiceLineType' },
   { verb: 'create', noun: 'InvoiceLineType' },
 
-  { verb: 'list', noun: 'InvoicePriceChangeItem' },
-  { verb: 'read', noun: 'InvoicePriceChangeItem' },
-  { verb: 'write', noun: 'InvoicePriceChangeItem' },
-  { verb: 'create', noun: 'InvoicePriceChangeItem' },
-
-  { verb: 'list', noun: 'InvoicePriceChangeType' },
-  { verb: 'read', noun: 'InvoicePriceChangeType' },
-  { verb: 'write', noun: 'InvoicePriceChangeType' },
-  { verb: 'create', noun: 'InvoicePriceChangeType' },
-
   { verb: 'create', noun: 'CertificateNotification' },
 
   { verb: 'read', noun: 'PatientDeath' },

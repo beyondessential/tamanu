@@ -95,8 +95,6 @@ export * from './Role';
 export * from './Invoice';
 export * from './InvoiceLineType';
 export * from './InvoiceLineItem';
-export * from './InvoicePriceChangeItem';
-export * from './InvoicePriceChangeType';
 
 export * from './Signer';
 

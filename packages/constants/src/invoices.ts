@@ -7,6 +7,9 @@ export const INVOICE_STATUSES = {
 export const INVOICE_PAYMENT_STATUSES = {
   UNPAID: 'unpaid',
   PAID: 'paid',
+  PARTIAL: 'partial',
+  REJECTED: 'rejected',
+  PAID_REJECTED: 'paid/rejected'
 };
 
 export const INVOICE_LINE_TYPES = {
