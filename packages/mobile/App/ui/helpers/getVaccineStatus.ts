@@ -56,8 +56,8 @@ const getDaysUntilDue = (
   const { weeksFromBirthDue, weeksFromLastVaccinationDue } = scheduledVaccine;
   const { dateOfBirth } = patient;
   const weeksFromDue = weeksFromBirthDue || weeksFromLastVaccinationDue;
-  const date = weeksFromBirthDue ? dateOfBirth : lastDose?.date;
-  return weeksFromDue * 7 - differenceInDays(new Date(), parseISO(date));
+  const baselineDate = weeksFromBirthDue ? dateOfBirth : lastDose?.date;
+  return weeksFromDue * 7 - differenceInDays(new Date(), parseISO(baselineDate));
 };
 
 export const getLastDose = ({ scheduledVaccine, patientAdministeredVaccines }: VaccineData) => {
