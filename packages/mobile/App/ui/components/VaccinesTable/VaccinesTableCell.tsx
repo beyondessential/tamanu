@@ -58,14 +58,8 @@ export const CellContent = ({
 
 export const VaccineTableCell = memo(
   ({ data, onPress }: VaccineTableCellProps): JSX.Element => {
-    if (!data) {
-      return <CellContent status={VaccineStatus.UNKNOWN} />;
-    }
-
-    console.log('rendering');
     const { scheduledVaccine, administeredVaccine, vaccineStatus, dueStatus } = data;
     const { vaccine, id: sid } = scheduledVaccine;
-    // const dueStatus = getVaccineStatus(scheduledVaccine, patient, patientAdministeredVaccines);
 
     let cellStatus = vaccineStatus || dueStatus.status || VaccineStatus.UNKNOWN;
     if (vaccineStatus === VaccineStatus.SCHEDULED) cellStatus = dueStatus.status;
@@ -73,6 +67,7 @@ export const VaccineTableCell = memo(
     const onAdminister = useCallback(() => {
       onPress({ ...vaccine, status: vaccineStatus, id: sid, administeredVaccine });
       Popup.hide();
+      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [data]);
 
     const onPressItem = useCallback(() => {
@@ -93,6 +88,7 @@ export const VaccineTableCell = memo(
       if (vaccineStatus) {
         onAdminister();
       }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [data]);
 
     return (

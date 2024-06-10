@@ -8,7 +8,7 @@ import { vaccineTableHeader } from './VaccineTableHeader';
 import { ErrorScreen } from '../ErrorScreen';
 import { LoadingScreen } from '../LoadingScreen';
 import { VaccineStatus } from '~/ui/helpers/patient';
-import { VaccineTableCell, VaccineTableCellData } from './VaccinesTableCell';
+import { CellContent, VaccineTableCell, VaccineTableCellData } from './VaccinesTableCell';
 import { IScheduledVaccine } from '~/types';
 import { ScrollView } from 'react-native-gesture-handler';
 import { StyledView } from '~/ui/styled/common';
@@ -41,8 +41,6 @@ export const VaccinesTable = ({
   const handleScroll = (event: any) => {
     scrollViewRef.current.scrollTo({ x: event.nativeEvent.contentOffset.x, animated: false });
   };
-
-  // const isFocused = useIsFocused();
 
   const [scheduledVaccines, error] = useBackendEffect(
     async ({ models }) =>
@@ -133,13 +131,15 @@ export const VaccinesTable = ({
       />
     ),
     cell: (cellData: VaccineTableCellData) => {
-      return (
+      return cellData ? (
         <VaccineTableCell
           onPress={onPressItem}
           data={cellData}
           key={cellData?.scheduledVaccine?.id || Math.random()}
           id={cellData?.scheduledVaccine?.id}
         />
+      ) : (
+        <CellContent status={VaccineStatus.UNKNOWN} />
       );
     },
   }));
