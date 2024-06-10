@@ -7,7 +7,7 @@ import { DataTypes } from 'sequelize';
 export async function up(query) {
   const tableExisted = await query.tableExists('invoice_line_items');
   if (tableExisted)
-    await query.renameColumn('invoice_line_items', 'discount_markup_reason', {
+    await query.addColumn('invoice_line_items', 'discount_markup_reason', {
       type: DataTypes.STRING,
     });
 }
