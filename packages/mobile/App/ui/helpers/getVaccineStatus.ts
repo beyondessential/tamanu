@@ -34,7 +34,7 @@ const getWarningMessage = (
     if (status === VaccineStatus.MISSED) {
       return `Patient has missed this vaccine by ${weeksUntilDueAbs} weeks, please refer to the catchup schedule.`;
     }
-    if (status === VaccineStatus.SCHEDULED) {
+    if ([VaccineStatus.SCHEDULED, VaccineStatus.UPCOMING].includes(status)) {
       return `This patient is not due to receive this vaccine for ${weeksUntilDueAbs} weeks.`;
     }
   } else if (weeksFromLastVaccinationDue) {
@@ -42,14 +42,14 @@ const getWarningMessage = (
   }
 };
 
-const getWeeksUntilDue = ({
+const getDaysUntilDue = ({
   scheduledVaccine,
   patient,
   patientAdministeredVaccines = [],
 }: any = {}) => {
   const { weeksFromBirthDue, weeksFromLastVaccinationDue, vaccine, index } = scheduledVaccine;
   const { dateOfBirth } = patient;
-  // Should return early if both defined or none defined
+  // TODO Should return early if both defined or none defined
   const weeksFromDue = weeksFromBirthDue || weeksFromLastVaccinationDue;
   const lastDose =
     weeksFromLastVaccinationDue &&
@@ -62,9 +62,9 @@ const getWeeksUntilDue = ({
 };
 
 export const getVaccineStatus = (data: any = {}, thresholds): VaccineStatusMessage => {
-  const weeksUntilDue = getWeeksUntilDue(data);
-  const status = getStatus(weeksUntilDue, thresholds);
-  const warningMessage = getWarningMessage(data, weeksUntilDue, status);
+  const daysUntilDue = getDaysUntilDue(data);
+  const status = getStatus(daysUntilDue, thresholds);
+  const warningMessage = getWarningMessage(data, daysUntilDue, status);
   return {
     status,
     warningMessage,
