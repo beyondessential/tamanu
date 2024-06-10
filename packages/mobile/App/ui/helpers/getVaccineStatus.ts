@@ -26,7 +26,7 @@ export const parseThresholdsSetting = (thresholds: UnparsedThresholds): ParsedTh
     .sort((a, b) => b.threshold - a.threshold);
 
 const getStatus = (daysUntilDue: number, thresholds: ParsedThresholds) => {
-  const status = thresholds?.find(({ threshold }) => daysUntilDue > threshold)?.status;
+  const status = thresholds.find(({ threshold }) => daysUntilDue > threshold)?.status;
   return status || VaccineStatus.UNKNOWN;
 };
 
