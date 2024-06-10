@@ -8,6 +8,7 @@ export const Colors = {
   secondary: '#ffcc24',
   alert: '#f76853',
   orange: '#f17f16',
+  darkOrange: '#CB6100',
   safe: '#47ca80',
   darkestText: '#444444',
   darkText: '#666666',

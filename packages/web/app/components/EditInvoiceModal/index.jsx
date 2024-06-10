@@ -16,8 +16,8 @@ import { Button } from '../Button';
 import { ItemHeader, ItemRow } from './ItemRow';
 import { useEncounter } from '../../contexts/Encounter';
 import { getInvoiceLineCode } from '../../utils/invoiceDetails';
+import { InvoiceStatus } from '../InvoiceStatus';
 import { InvoiceSummaryPanel } from '../InvoiceSummaryPanel';
-import { StatusDisplay } from '../../utils/invoiceStatus';
 import { calculateInvoiceLinesTotal } from '../../utils';
 
 const LinkText = styled.div`
@@ -362,7 +362,7 @@ export const EditInvoiceModal = ({ open, onClose, invoiceId, displayId, encounte
             replacements={{ invoiceNumber: displayId }}
           />
           <StatusContainer>
-            <StatusDisplay status={invoiceStatus} />
+            <InvoiceStatus status={invoiceStatus} />
           </StatusContainer>
 
         </>

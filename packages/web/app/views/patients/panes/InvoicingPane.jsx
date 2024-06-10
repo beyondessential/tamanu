@@ -11,7 +11,7 @@ import { TabPane } from '../components';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { EditInvoiceModal } from '../../../components/EditInvoiceModal';
 import { KebabMenu } from '../../../components/EditInvoiceModal/KebabMenu';
-import { StatusDisplay } from '../../../utils/invoiceStatus';
+import { InvoiceStatus } from '../../../components/InvoiceStatus';
 import { InvoiceSummaryPanel } from '../../../components/InvoiceSummaryPanel';
 import { CreateInvoiceModal } from '../../../components/CreateInvoiceModal';
 
@@ -135,7 +135,7 @@ export const InvoicingPane = React.memo(({ encounter }) => {
               <TranslatedText stringId="invoice.invoiceNumber" fallback="Invoice number" />
               {`: ${invoice.displayId}`}
             </InvoiceTitle>
-            <StatusDisplay status={invoice.status} />
+            <InvoiceStatus status={invoice.status} />
           </InvoiceHeading>
           {isInvoiceEditable(invoice) ? (
             <ActionsPane>
