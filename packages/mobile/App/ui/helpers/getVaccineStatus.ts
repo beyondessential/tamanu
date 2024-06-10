@@ -1,6 +1,5 @@
 import { VaccineStatus } from './patient';
 import { differenceInDays, parseISO } from 'date-fns';
-import { IScheduledVaccine } from '~/types';
 
 type Thresholds<T> = { threshold: T; status: VaccineStatus }[];
 type ParsedThresholds = Thresholds<number>;
@@ -24,7 +23,17 @@ const getStatus = (daysUntilDue: number, thresholds: ParsedThresholds) => {
   return status || VaccineStatus.UNKNOWN;
 };
 
-const getWarningMessage = (daysUntilDue: number, status: VaccineStatus) => {
+const getWarningMessage = (
+  { scheduledVaccine }: any,
+  daysUntilDue: number,
+  status: VaccineStatus,
+  lastDose: any,
+) => {
+  const { weeksFromLastVaccinationDue } = scheduledVaccine;
+  if (weeksFromLastVaccinationDue && !lastDose) {
+    // TODO:
+    return 'This patient has not received previous dose of this vaccine';
+  }
   const weeksUntilDueAbs = Math.abs(daysUntilDue / 7);
   if (status === VaccineStatus.MISSED) {
     return `Patient has missed this vaccine by ${weeksUntilDueAbs} weeks, please refer to the catchup schedule.`;
@@ -34,29 +43,30 @@ const getWarningMessage = (daysUntilDue: number, status: VaccineStatus) => {
   }
 };
 
-const getDaysUntilDue = ({
-  scheduledVaccine,
-  patient,
-  patientAdministeredVaccines = [],
-}: any = {}) => {
-  const { weeksFromBirthDue, weeksFromLastVaccinationDue, vaccine, index } = scheduledVaccine;
+const getDaysUntilDue = ({ scheduledVaccine, patient }: any = {}, lastDose: any) => {
+  const { weeksFromBirthDue, weeksFromLastVaccinationDue } = scheduledVaccine;
   const { dateOfBirth } = patient;
   // TODO Should return early if both defined or none defined
   const weeksFromDue = weeksFromBirthDue || weeksFromLastVaccinationDue;
-  const lastDose =
-    weeksFromLastVaccinationDue &&
-    patientAdministeredVaccines?.find(
-      ({ scheduledVaccine }: any) =>
-        scheduledVaccine.index === index - 1 && scheduledVaccine.vaccine.id === vaccine.id,
-    );
   const date = weeksFromBirthDue ? dateOfBirth : lastDose?.date;
   return weeksFromDue * 7 - differenceInDays(new Date(), parseISO(date));
 };
 
+export const getLastDose = (scheduledVaccine, patientAdministeredVaccines) => {
+  const { vaccine, index, weeksFromLastVaccinationDue } = scheduledVaccine;
+  if (!weeksFromLastVaccinationDue) return null;
+  return patientAdministeredVaccines?.find(
+    ({ scheduledVaccine }: any) =>
+      scheduledVaccine.index === index - 1 && scheduledVaccine.vaccine.id === vaccine.id,
+  );
+};
+
 export const getVaccineStatus = (data: any = {}, thresholds): VaccineStatusMessage => {
-  const daysUntilDue = getDaysUntilDue(data);
+  const { scheduledVaccine, patientAdministeredVaccines } = data;
+  const lastDose = getLastDose(scheduledVaccine, patientAdministeredVaccines);
+  const daysUntilDue = getDaysUntilDue(data, lastDose);
   const status = getStatus(daysUntilDue, thresholds);
-  const warningMessage = getWarningMessage(daysUntilDue, status);
+  const warningMessage = getWarningMessage(data, daysUntilDue, status, lastDose);
   return {
     status,
     warningMessage,
