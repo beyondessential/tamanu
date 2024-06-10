@@ -320,6 +320,10 @@ export async function down(query) {
       allowNull: true,
     },
     date: {
+      type: 'date_string',
+      allowNull: true,
+    },
+    date_legacy: {
       type: DataTypes.DATE,
       allowNull: true,
     },
@@ -406,8 +410,12 @@ export async function down(query) {
       },
     },
     date_generated: {
-      type: DataTypes.DATE,
+      type: 'date_string',
       allowNull: false,
+    },
+    date_generated_legacy: {
+      type: DataTypes.DATE,
+      allowNull: true,
     },
     percentage_change: {
       type: DataTypes.DECIMAL,
@@ -504,8 +512,12 @@ export async function down(query) {
       },
     },
     date: {
-      type: DataTypes.DATE,
+      type: 'date_string',
       allowNull: false,
+    },
+    date_legacy: {
+      type: DataTypes.DATE,
+      allowNull: true,
     },
     description: {
       type: DataTypes.STRING,
