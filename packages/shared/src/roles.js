@@ -194,15 +194,10 @@ export const practitioner = [
   { verb: 'write', noun: 'Invoice' },
   { verb: 'create', noun: 'Invoice' },
 
-  { verb: 'list', noun: 'InvoiceLineItem' },
-  { verb: 'read', noun: 'InvoiceLineItem' },
-  { verb: 'write', noun: 'InvoiceLineItem' },
-  { verb: 'create', noun: 'InvoiceLineItem' },
-
-  { verb: 'list', noun: 'InvoiceLineType' },
-  { verb: 'read', noun: 'InvoiceLineType' },
-  { verb: 'write', noun: 'InvoiceLineType' },
-  { verb: 'create', noun: 'InvoiceLineType' },
+  { verb: 'list', noun: 'InvoiceProduct' },
+  { verb: 'read', noun: 'InvoiceProduct' },
+  { verb: 'write', noun: 'InvoiceProduct' },
+  { verb: 'create', noun: 'InvoiceProduct' },
 
   { verb: 'create', noun: 'CertificateNotification' },
 

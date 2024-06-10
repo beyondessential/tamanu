@@ -9,21 +9,7 @@ export const INVOICE_PAYMENT_STATUSES = {
   PAID: 'paid',
   PARTIAL: 'partial',
   REJECTED: 'rejected',
-  PAID_REJECTED: 'paid/rejected'
-};
-
-export const INVOICE_LINE_TYPES = {
-  PROCEDURE_TYPE: 'procedureType',
-  IMAGING_TYPE: 'imagingType',
-  LAB_TEST_TYPE: 'labTestType',
-  ADDITIONAL: 'additionalInvoiceLine',
-};
-
-export const INVOICE_LINE_TYPE_LABELS = {
-  [INVOICE_LINE_TYPES.PROCEDURE_TYPE]: 'Procedure',
-  [INVOICE_LINE_TYPES.IMAGING_TYPE]: 'Imaging',
-  [INVOICE_LINE_TYPES.LAB_TEST_TYPE]: 'Lab test',
-  [INVOICE_LINE_TYPES.ADDITIONAL]: 'Additional',
+  PAID_REJECTED: 'paid/rejected',
 };
 
 export const INVOICE_LINE_ITEM_STATUSES = {

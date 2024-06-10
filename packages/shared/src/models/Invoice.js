@@ -2,7 +2,6 @@ import { Sequelize } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
 import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
-import { dateType } from './dateTimeTypes';
 
 export class Invoice extends Model {
   static init({ primaryKey, ...options }) {
@@ -11,26 +10,36 @@ export class Invoice extends Model {
         id: primaryKey,
         displayId: Sequelize.STRING,
         status: Sequelize.STRING,
-        total: Sequelize.DECIMAL,
         paymentStatus: Sequelize.STRING,
         receiptNumber: Sequelize.STRING,
-        date: dateType('date'),
-        discountMarkupPercentage: Sequelize.DECIMAL,
-        discountMarkupReason: Sequelize.STRING,
       },
       { syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL, ...options },
     );
   }
 
+  /**
+   *
+   * @param {import('./')} models
+   */
   static initRelations(models) {
     this.belongsTo(models.Encounter, {
       foreignKey: 'encounterId',
       as: 'encounter',
     });
 
-    this.hasMany(models.InvoiceLineItem, {
+    this.hasOne(models.InvoiceDiscount, {
       foreignKey: 'invoiceId',
-      as: 'invoiceLineItems',
+      as: 'discount',
+    });
+
+    this.hasMany(models.InvoiceInsurer, {
+      foreignKey: 'invoiceId',
+      as: 'insurers',
+    });
+
+    this.hasMany(models.InvoiceItem, {
+      foreignKey: 'invoiceId',
+      as: 'items',
     });
   }
 
