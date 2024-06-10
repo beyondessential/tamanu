@@ -3,7 +3,6 @@ import asyncHandler from 'express-async-handler';
 import { customAlphabet } from 'nanoid';
 import { ValidationError, NotFoundError } from '@tamanu/shared/errors';
 import { INVOICE_PAYMENT_STATUSES, INVOICE_STATUSES } from '@tamanu/constants';
-
 import { v4 as uuidv4 } from 'uuid';
 import { z } from 'zod';
 import { Op } from 'sequelize';
@@ -121,7 +120,7 @@ const updateInvoiceSchema = z
         id: z
           .string()
           .uuid()
-          .default(uuidv4()),
+          .default(uuidv4),
         percentage: z
           .number()
           .min(0)
@@ -136,7 +135,7 @@ const updateInvoiceSchema = z
         id: z
           .string()
           .uuid()
-          .default(uuidv4()),
+          .default(uuidv4),
         percentage: z
           .number()
           .min(0)
@@ -150,7 +149,7 @@ const updateInvoiceSchema = z
         id: z
           .string()
           .uuid()
-          .default(uuidv4()),
+          .default(uuidv4),
         orderDate: z.date(),
         orderedByUserId: z.string().uuid(),
         productId: z.string(),
@@ -159,7 +158,7 @@ const updateInvoiceSchema = z
             id: z
               .string()
               .uuid()
-              .default(uuidv4()),
+              .default(uuidv4),
             percentage: z
               .number()
               .min(0)
