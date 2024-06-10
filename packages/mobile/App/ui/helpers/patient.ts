@@ -20,59 +20,6 @@ export enum VaccineCategory {
   OTHER = 'Other',
 }
 
-// function getVaccineStatusForWeeksFromBirthDue(weeksUntilDue): VaccineStatusMessage {
-//   if (weeksUntilDue === null) {
-//     return { status: VaccineStatus.UNKNOWN };
-//   }
-//   if (weeksUntilDue < -4) {
-//     return {
-//       status: VaccineStatus.MISSED,
-//       warningMessage: `Patient has missed this vaccine by ${Math.abs(
-//         weeksUntilDue,
-//       )} weeks, please refer to the catchup schedule.`,
-//     };
-//   }
-//   if (weeksUntilDue < 0) {
-//     return { status: VaccineStatus.OVERDUE };
-//   }
-//   if (weeksUntilDue <= 2) {
-//     return { status: VaccineStatus.DUE };
-//   }
-//   if (weeksUntilDue > 4) {
-//     return {
-//       status: VaccineStatus.SCHEDULED,
-//       warningMessage: `This patient is not due to receive this vaccine for ${weeksUntilDue} weeks.`,
-//     };
-//   }
-//   if (weeksUntilDue > 2) {
-//     return {
-//       status: VaccineStatus.UPCOMING,
-//     };
-//   }
-
-//   return { status: VaccineStatus.UNKNOWN };
-// }
-
-// function getVaccineStatusForWeeksFromLastVaccinationDue(
-//   weeksUntilGapPeriodPassed,
-//   previouslyAdministeredVaccine,
-// ): VaccineStatusMessage {
-//   if (!previouslyAdministeredVaccine) {
-//     return {
-//       status: VaccineStatus.SCHEDULED,
-//       warningMessage: `This patient has not received the previous dose of this vaccine.`,
-//     };
-//   }
-//   if (weeksUntilGapPeriodPassed > 0) {
-//     return {
-//       status: VaccineStatus.SCHEDULED,
-//       warningMessage: `This patient is not due to receive this vaccine for ${weeksUntilGapPeriodPassed} weeks.`,
-//     };
-//   }
-
-//   return { status: VaccineStatus.UNKNOWN };
-// }
-
 const generators = {
   A: (): string => String.fromCharCode(65 + Math.floor(Math.random() * 26)),
   0: (): string => Math.floor(Math.random() * 10).toFixed(0),

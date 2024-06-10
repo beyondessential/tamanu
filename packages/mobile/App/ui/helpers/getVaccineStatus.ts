@@ -35,7 +35,7 @@ const getWarningMessage = (
   if (weeksFromLastVaccinationDue && !lastDose) {
     return 'This patient has not received previous dose of this vaccine';
   }
-  const weeksUntilDueAbs = Math.abs(daysUntilDue / 7);
+  const weeksUntilDueAbs = Math.round(Math.abs(daysUntilDue / 7));
   if (status === VaccineStatus.MISSED) {
     return `Patient has missed this vaccine by ${weeksUntilDueAbs} weeks, please refer to the catchup schedule.`;
   }
@@ -61,11 +61,10 @@ export const getLastDose = ({
 }: VaccineTableCellData) => {
   const { vaccine, index, weeksFromLastVaccinationDue } = scheduledVaccine;
   if (!weeksFromLastVaccinationDue) return null;
-  return patientAdministeredVaccines?.find(
-    ({ scheduledVaccine }) =>
-      (scheduledVaccine as IScheduledVaccine).index === index - 1 &&
-      (scheduledVaccine as IScheduledVaccine).vaccine.id === vaccine.id,
-  );
+  return patientAdministeredVaccines?.find(administeredVaccine => {
+    const scheduledVaccine = administeredVaccine.scheduledVaccine as IScheduledVaccine;
+    return scheduledVaccine.index === index - 1 && scheduledVaccine.vaccine.id === vaccine.id;
+  });
 };
 
 export const getVaccineStatus = (
