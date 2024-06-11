@@ -1,4 +1,5 @@
 import * as Yup from 'yup';
+import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 import { yupAttemptTransformToNumber } from '~/ui/helpers/numeralTranslation';
 
 const requiredWhenConfiguredMandatory = (getBool, getString, name, baseType) => {
@@ -11,7 +12,11 @@ const requiredWhenConfiguredMandatory = (getBool, getString, name, baseType) => 
 
 export const getPatientDetailsValidation = (getBool, getString) => {
   return Yup.object().shape({
-    firstName: Yup.string().required('First name is a required field'),
+    firstName: Yup.string()
+      .translatedLabel(
+        <TranslatedText stringId="localisedField.firstName.label" fallback="First name" />,
+      )
+      .required(),
     middleName: requiredWhenConfiguredMandatory(getBool, getString, 'middleName', Yup.string()),
     lastName: Yup.string().required('Last name is a required field'),
     culturalName: requiredWhenConfiguredMandatory(getBool, getString, 'culturalName', Yup.string()),
@@ -31,13 +36,17 @@ export const getPatientDetailsValidation = (getBool, getString) => {
       getBool,
       getString,
       'primaryContactNumber',
-      Yup.number().transform(yupAttemptTransformToNumber).nullable(),
+      Yup.number()
+        .transform(yupAttemptTransformToNumber)
+        .nullable(),
     ),
     secondaryContactNumber: requiredWhenConfiguredMandatory(
       getBool,
       getString,
       'secondaryContactNumber',
-      Yup.number().transform(yupAttemptTransformToNumber).nullable(),
+      Yup.number()
+        .transform(yupAttemptTransformToNumber)
+        .nullable(),
     ),
     emergencyContactName: requiredWhenConfiguredMandatory(
       getBool,
@@ -49,7 +58,9 @@ export const getPatientDetailsValidation = (getBool, getString) => {
       getBool,
       getString,
       'emergencyContactNumber',
-      Yup.number().transform(yupAttemptTransformToNumber).nullable(),
+      Yup.number()
+        .transform(yupAttemptTransformToNumber)
+        .nullable(),
     ),
     title: requiredWhenConfiguredMandatory(getBool, getString, 'title', Yup.string()),
     bloodType: requiredWhenConfiguredMandatory(getBool, getString, 'bloodType', Yup.string()),
