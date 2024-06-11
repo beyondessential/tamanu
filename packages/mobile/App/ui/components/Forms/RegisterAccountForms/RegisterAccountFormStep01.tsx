@@ -65,11 +65,15 @@ const Form = ({ onSubmit, formState }: RegisterAccountFormStep01Props): JSX.Elem
         phone: Yup.string()
           .min(
             13,
-            getTranslation('validation.rule.13DigitPhoneNumber', 'Phone number must be 13 digits'),
+            getTranslation('validation.rule.nDigitPhone', 'Phone number must be :digits long', {
+              digits: 13,
+            }),
           )
           .max(
             13,
-            getTranslation('validation.rule.13DigitPhoneNumber', 'Phone number must be 13 digits'),
+            getTranslation('validation.rule.nDigitPhone', 'Phone number must be :digits long', {
+              digits: 13,
+            }),
           ),
         gender: Yup.string()
           .required()
