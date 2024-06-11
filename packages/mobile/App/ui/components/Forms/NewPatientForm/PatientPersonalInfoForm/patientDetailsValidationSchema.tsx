@@ -1,3 +1,4 @@
+import React from 'react';
 import * as Yup from 'yup';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 import { yupAttemptTransformToNumber } from '~/ui/helpers/numeralTranslation';
