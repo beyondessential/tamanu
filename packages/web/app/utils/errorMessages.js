@@ -1,13 +1,6 @@
 import * as yup from 'yup';
-import { capitaliseFirstLetter } from './capitalise';
 import { replaceStringVariables } from '../contexts/Translation';
-
-const camelCaseTest = /(?=[A-Z])/;
-function splitFieldName(name) {
-  const splitField = name.split(camelCaseTest);
-  const fieldNameAsWords = splitField.join(' ');
-  return capitaliseFirstLetter(fieldNameAsWords.toLowerCase());
-}
+import { startCase } from 'lodash';
 
 const registerTranslatedLabelMethod = (translations = {}) => {
   yup.addMethod(yup.mixed, 'translatedLabel', function(translatedTextComponent) {
@@ -33,7 +26,7 @@ export function registerYup(translations = {}) {
   yup.setLocale({
     mixed: {
       required: function({ path }) {
-        return defaultMessage.replace(':path', splitFieldName(path));
+        return defaultMessage.replace(':path', startCase(path));
       },
     },
   });
