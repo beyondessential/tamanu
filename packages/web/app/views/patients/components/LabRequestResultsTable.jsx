@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { DataFetchingTable } from '../../../components';
 
 import { getCompletedDate, getMethod } from '../../../utils/lab';
-import { TranslatedText } from '../../../components/Translation/TranslatedText';
+import { TranslatedText, TranslatedReferenceData } from '../../../components/Translation';
 
 const StyledDataFetchingTable = styled(DataFetchingTable)`
   table tbody tr:last-child td {
@@ -32,7 +32,7 @@ const columns = sex => [
   {
     title: <TranslatedText stringId="lab.results.table.column.testType" fallback="Test type" />,
     key: 'labTestType.name',
-    accessor: row => row.labTestType.name,
+    accessor: row => <TranslatedReferenceData fallback={row.labTestType.name} value={row.labTestType.id} category="labTestType"/>,
   },
   {
     title: <TranslatedText stringId="lab.results.table.column.result" fallback="Result" />,
