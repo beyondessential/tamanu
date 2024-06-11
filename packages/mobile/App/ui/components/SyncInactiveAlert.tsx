@@ -72,7 +72,7 @@ const AuthenticationModal = ({ open, onClose }: AuthenticationModelProps): JSX.E
           marginBottom={screenPercentageToDP(3.2, Orientation.Height)}
           textAlign="center"
         >
-          Reconnect sync
+          <TranslatedText stringId="sync.action.openReconnect" fallback="Reconnect sync" />
         </StyledText>
         <StyledText
           fontSize={screenPercentageToDP(3.6, Orientation.Width)}
@@ -82,7 +82,10 @@ const AuthenticationModal = ({ open, onClose }: AuthenticationModelProps): JSX.E
           paddingRight={screenPercentageToDP(9, Orientation.Width)}
           marginBottom={screenPercentageToDP(3.2, Orientation.Height)}
         >
-          Your sync connection has timed out. Please enter your password to reconnect.
+          <TranslatedText
+            stringId="sync.reconnectText"
+            fallback="Your sync connection has timed out. Please enter your password to reconnect."
+          />
         </StyledText>
         <StyledText
           textAlign="center"
@@ -112,7 +115,7 @@ const AuthenticationModal = ({ open, onClose }: AuthenticationModelProps): JSX.E
                 name="password"
                 autoCapitalize="none"
                 component={TextField}
-                label="Password"
+                label={<TranslatedText stringId="login.password.label" fallback="Password" />}
                 secure
               />
               <StyledView
@@ -196,7 +199,7 @@ export const SyncInactiveAlert = (): JSX.Element => {
           color={theme.colors.PRIMARY_MAIN}
           fontSize={screenPercentageToDP(1.68, Orientation.Height)}
         >
-          Sync inactive.
+          <TranslatedText stringId="sync.inactiveText" fallback="Sync inactive." />
         </StyledText>
         <StyledTouchableOpacity onPress={handleOpenModal}>
           <StyledText
@@ -205,7 +208,7 @@ export const SyncInactiveAlert = (): JSX.Element => {
             textDecorationLine="underline"
             fontSize={screenPercentageToDP(1.68, Orientation.Height)}
           >
-            Click here to reconnnect.
+            <TranslatedText stringId="sync.action.reconnect" fallback="Click here to reconnect." />
           </StyledText>
         </StyledTouchableOpacity>
       </Alert>
