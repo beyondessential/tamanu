@@ -119,13 +119,30 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
               reminderContactRelationship: '',
             }}
             validationSchema={yup.object().shape({
-              reminderContactName: yup.string().required('Contact name is required'),
-              reminderContactRelationship: yup.string().required('Relationship is required'),
+              reminderContactName: yup
+                .string()
+                .required()
+                .translatedLabel(
+                  <TranslatedText
+                    stringId="general.localisedField.reminderContactName.label"
+                    fallback="Contact Name"
+                  />,
+                ),
+              reminderContactRelationship: yup
+                .string()
+                .required()
+                .translatedLabel(
+                  <TranslatedText
+                    stringId="general.localisedField.reminderContactRelationship.label"
+                    fallback="Relationship"
+                  />,
+                ),
             })}
             onSubmit={submit}
           >
             {({ handleSubmit, isSubmitting, values }): ReactElement => {
-              const isPopulated = values.reminderContactName?.trim() && values.reminderContactRelationship
+              const isPopulated =
+                values.reminderContactName?.trim() && values.reminderContactRelationship;
 
               return (
                 <>
