@@ -25,7 +25,10 @@ export const RegisterAccountFormStep01 = (props: RegisterAccountFormStep01Props)
       fontSize={screenPercentageToDP(1.57, Orientation.Height)}
       color={theme.colors.SECONDARY_MAIN}
     >
-      PERSONAL INFORMATION
+      <TranslatedText
+        stringId="registerAccount.personalInformation.title"
+        fallback="PERSONAL INFORMATION"
+      />
     </StyledText>
     <Form {...props} />
   </FullView>
@@ -90,16 +93,36 @@ const Form = ({ onSubmit, formState }: RegisterAccountFormStep01Props): JSX.Elem
         >
           <RowView>
             <StyledView flex={1} marginRight={5}>
-              <Field component={TextField} name="firstName" label="First Name" required />
+              <Field
+                component={TextField}
+                name="firstName"
+                label={
+                  <TranslatedText
+                    stringId="general.localisedField.firstName.label"
+                    fallback="First name"
+                  />
+                }
+                required
+              />
             </StyledView>
             <StyledView flex={1}>
-              <Field component={TextField} name="lastName" label="Last Name" required />
+              <Field
+                component={TextField}
+                name="lastName"
+                label={
+                  <TranslatedText
+                    stringId="general.localisedField.lastName.label"
+                    fallback="Last name"
+                  />
+                }
+                required
+              />
             </StyledView>
           </RowView>
           <Field
             component={TextField}
             name="email"
-            label="Email"
+            label={<TranslatedText stringId="login.email.label" fallback="Email" />}
             keyboardType="email-address"
             autoCapitalize="none"
             required
@@ -108,7 +131,7 @@ const Form = ({ onSubmit, formState }: RegisterAccountFormStep01Props): JSX.Elem
             component={MaskedTextField}
             keyboardType="number-pad"
             name="phone"
-            label="Phone"
+            label={<TranslatedText stringId="registerAccount.phone.label" fallback="Phone" />}
             options={{
               mask: '9999 9999 999',
             }}
@@ -117,7 +140,7 @@ const Form = ({ onSubmit, formState }: RegisterAccountFormStep01Props): JSX.Elem
           />
           <Field
             name="gender"
-            label="Gender"
+            label={<TranslatedText stringId="registerAccount.gender.label" fallback="Gender" />}
             component={RadioButtonGroup}
             options={GenderOptions}
           />
@@ -126,7 +149,7 @@ const Form = ({ onSubmit, formState }: RegisterAccountFormStep01Props): JSX.Elem
             marginTop={10}
             onPress={handleSubmit}
             backgroundColor={theme.colors.SECONDARY_MAIN}
-            buttonText="Next"
+            buttonText={<TranslatedText stringId="general.action.next" fallback="Next" />}
             textColor={theme.colors.TEXT_SUPER_DARK}
           />
         </StyledView>
