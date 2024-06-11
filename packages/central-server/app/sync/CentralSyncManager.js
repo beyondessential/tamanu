@@ -26,6 +26,7 @@ import { getPatientLinkedModels } from './getPatientLinkedModels';
 import { snapshotOutgoingChanges } from './snapshotOutgoingChanges';
 import { filterModelsFromName } from './filterModelsFromName';
 import { startSnapshotWhenCapacityAvailable } from './startSnapshotWhenCapacityAvailable';
+import { createMarkedForSyncPatientsTable } from './createMarkedForSyncPatientsTable';
 
 const errorMessageFromSession = session =>
   `Sync session '${session.id}' encountered an error: ${session.error}`;
@@ -257,14 +258,29 @@ export class CentralSyncManager {
 
       // work out if any patients were newly marked for sync since this device last connected, and
       // include changes from all time for those patients
-      const newPatientFacilities = await models.PatientFacility.findAll({
+      const newPatientFacilitiesCount = await models.PatientFacility.count({
         where: { facilityId, updatedAtSyncTick: { [Op.gt]: since } },
       });
       log.debug('CentralSyncManager.initiatePull', {
         facilityId,
-        newlyMarkedPatientCount: newPatientFacilities.length,
+        newlyMarkedPatientCount: newPatientFacilitiesCount,
       });
-      const patientIdsForFullSync = newPatientFacilities.map(n => n.patientId);
+
+      const fullSyncPatientsTable = await createMarkedForSyncPatientsTable(
+        sequelize,
+        sessionId,
+        true,
+        facilityId,
+        since,
+      );
+
+      const incrementalSyncPatientsTable = await createMarkedForSyncPatientsTable(
+        sequelize,
+        sessionId,
+        false,
+        facilityId,
+        since,
+      );
 
       const syncAllLabRequests = await models.Setting.get('syncAllLabRequests', facilityId);
       const syncTheseProgramRegistries = await models.Setting.get(
@@ -294,7 +310,8 @@ export class CentralSyncManager {
           await snapshotOutgoingChanges(
             getPatientLinkedModels(modelsToInclude),
             -1, // for all time, i.e. 0 onwards
-            patientIdsForFullSync,
+            newPatientFacilitiesCount,
+            fullSyncPatientsTable,
             sessionId,
             facilityId,
             {}, // sending empty session config because this snapshot attempt is only for syncing new marked for sync patients
@@ -302,18 +319,16 @@ export class CentralSyncManager {
 
           // get changes since the last successful sync for all other synced patients and independent
           // record types
-          const patientFacilities = await models.PatientFacility.findAll({
+          const patientFacilitiesCount = await models.PatientFacility.count({
             where: { facilityId },
           });
-          const patientIdsForRegularSync = patientFacilities
-            .map(p => p.patientId)
-            .filter(patientId => !patientIdsForFullSync.includes(patientId));
 
           // regular changes
           await snapshotOutgoingChanges(
             getModelsForDirection(modelsToInclude, SYNC_DIRECTIONS.PULL_FROM_CENTRAL),
             since,
-            patientIdsForRegularSync,
+            patientFacilitiesCount,
+            incrementalSyncPatientsTable,
             sessionId,
             facilityId,
             sessionConfig,
@@ -326,7 +341,8 @@ export class CentralSyncManager {
             await snapshotOutgoingChanges(
               getModelsForDirection(modelsForFullResync, SYNC_DIRECTIONS.PULL_FROM_CENTRAL),
               -1,
-              patientIdsForRegularSync,
+              patientFacilitiesCount,
+              incrementalSyncPatientsTable,
               sessionId,
               facilityId,
               sessionConfig,
