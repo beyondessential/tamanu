@@ -1,12 +1,13 @@
-import React, { useCallback } from 'react';
+import React, { memo, useCallback } from 'react';
 import { Popup } from 'popup-ui';
 import { CenterView, StyledImage, StyledTouchableOpacity, StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
 import { VaccineStatusCells } from '/helpers/constants';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { IAdministeredVaccine, IPatient, IScheduledVaccine } from '~/types';
-import { getVaccineStatus, VaccineStatus } from '~/ui/helpers/patient';
+import { VaccineStatus } from '~/ui/helpers/patient';
 import { BypassWarningIcon } from './BypassWarningIcon';
+import { VaccineStatusMessage } from '~/ui/helpers/getVaccineStatus';
 
 export interface VaccineTableCellData {
   administeredVaccine: IAdministeredVaccine;
@@ -15,14 +16,16 @@ export interface VaccineTableCellData {
   vaccineStatus: VaccineStatus;
   patient: IPatient;
   label: string;
+  dueStatus: VaccineStatusMessage;
 }
 
 interface VaccineTableCellProps {
   data: VaccineTableCellData;
   onPress?: (item: any) => void;
+  id?: string;
 }
 
-const CellContent = ({
+export const CellContent = ({
   cellStatus,
   status,
 }: {
@@ -53,53 +56,48 @@ const CellContent = ({
   );
 };
 
-export const VaccineTableCell = ({ data, onPress }: VaccineTableCellProps): JSX.Element => {
-  if (!data) return <CellContent status={VaccineStatus.UNKNOWN} />;
-  const {
-    scheduledVaccine,
-    administeredVaccine,
-    patient,
-    patientAdministeredVaccines,
-    vaccineStatus,
-  } = data;
-  const { vaccine, id } = scheduledVaccine;
-  const dueStatus = getVaccineStatus(scheduledVaccine, patient, patientAdministeredVaccines);
+export const VaccineTableCell = memo(
+  ({ data, onPress }: VaccineTableCellProps): JSX.Element => {
+    const { scheduledVaccine, administeredVaccine, vaccineStatus, dueStatus } = data;
+    const { vaccine, id: scheduledVaccineId } = scheduledVaccine;
 
-  let cellStatus = vaccineStatus || dueStatus.status || VaccineStatus.UNKNOWN;
-  if (vaccineStatus === VaccineStatus.SCHEDULED) cellStatus = dueStatus.status;
+    let cellStatus = vaccineStatus || dueStatus.status || VaccineStatus.UNKNOWN;
+    if (vaccineStatus === VaccineStatus.SCHEDULED) cellStatus = dueStatus.status;
 
-  const onAdminister = useCallback(() => {
-    onPress({ ...vaccine, status: vaccineStatus, scheduledVaccineId: id, administeredVaccine });
-    Popup.hide();
-  }, [data]);
+    const onAdminister = useCallback(() => {
+      onPress({ ...vaccine, status: vaccineStatus, id: scheduledVaccineId, administeredVaccine });
+      Popup.hide();
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [data]);
 
-  const onPressItem = useCallback(() => {
-    if (cellStatus !== VaccineStatus.GIVEN && dueStatus.warningMessage) {
-      Popup.show({
-        type: 'Warning',
-        title: 'Vaccination Warning',
-        button: true,
-        textBody: dueStatus.warningMessage,
-        buttonText: 'Ok',
-        callback: (): void => Popup.hide(),
-        icon: <BypassWarningIcon onBypassWarning={onAdminister} />,
-      });
+    const onPressItem = useCallback(() => {
+      if (cellStatus !== VaccineStatus.GIVEN && dueStatus.warningMessage) {
+        Popup.show({
+          type: 'Warning',
+          title: 'Vaccination Warning',
+          button: true,
+          textBody: dueStatus.warningMessage,
+          buttonText: 'Ok',
+          callback: (): void => Popup.hide(),
+          icon: <BypassWarningIcon onBypassWarning={onAdminister} />,
+        });
 
-      return;
-    }
+        return;
+      }
 
-    if (vaccineStatus) {
-      onAdminister();
-    }
-  }, [data]);
+      if (vaccineStatus) {
+        onAdminister();
+      }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [data]);
 
-  return (
-    <StyledTouchableOpacity onPress={onPressItem}>
-      <CellContent status={vaccineStatus} cellStatus={cellStatus} />
-    </StyledTouchableOpacity>
-  );
-};
-
-VaccineTableCell.defaultProps = {
-  onPress: (): null => null,
-};
+    return (
+      <StyledTouchableOpacity onPress={onPressItem}>
+        <CellContent status={vaccineStatus} cellStatus={cellStatus} />
+      </StyledTouchableOpacity>
+    );
+  },
+  (prevProps, nextProps) => {
+    return prevProps.id === nextProps.id;
+  },
+);

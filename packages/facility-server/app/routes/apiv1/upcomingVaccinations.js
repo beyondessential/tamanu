@@ -48,7 +48,7 @@ upcomingVaccinations.get(
       sex: 'sex',
       villageName: 'village.name',
       vaccineDisplayName: 'sv.label',
-      schedule: 'sv.schedule',
+      schedule: 'sv.dose_label',
       dueDate: 'due_date',
     };
 
@@ -112,7 +112,7 @@ upcomingVaccinations.get(
       sv.id "scheduledVaccineId",
       sv.category,
       sv.label "vaccineName",
-      sv.schedule "scheduleName",
+      sv.dose_label "scheduleName",
       sv.vaccine_id "vaccineId",
       uv.due_date "dueDate",
       uv.status,
