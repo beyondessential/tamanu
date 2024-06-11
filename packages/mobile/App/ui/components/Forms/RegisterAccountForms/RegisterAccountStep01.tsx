@@ -69,13 +69,13 @@ const Form: FunctionComponent<any> = () => {
         phone: Yup.string()
           .min(
             PhoneMask.mask.length,
-            getTranslation('validation.rule.validPhone', 'Phone number must be :digits long', {
+            getTranslation('validation.rule.nDigitPhone', 'Phone number must be :digits long', {
               digits: PhoneMask.mask.length,
             }),
           )
           .max(
             PhoneMask.mask.length,
-            getTranslation('validation.rule.validPhone', 'Phone number must be :digits long', {
+            getTranslation('validation.rule.nDigitPhone', 'Phone number must be :digits long', {
               digits: PhoneMask.mask.length,
             }),
           )
