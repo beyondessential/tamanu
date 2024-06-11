@@ -1,12 +1,13 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { Grid } from '@material-ui/core';
 import { TranslatedText } from '../Translation';
 import { AutocompleteField, DateField, Field } from '../Field';
 import { useSuggester } from '../../api';
-import { Colors } from '../../constants';
-import { KebabMenu } from './KebabMenu';
+import { Colors, INVOICE_ACTION_MODALS } from '../../constants';
 import { ThemedTooltip } from '../Tooltip';
+import { ThreeDotMenu } from '../ThreedotMenu';
+import { LineItemActionModal } from './LineItemActionModal';
 
 const PriceText = styled.span`
   margin-right: 16px;
@@ -73,15 +74,17 @@ export const ItemHeader = () => {
 
 export const ItemRow = ({
   index,
-  onDelete,
+  onDeleteLineItem,
   onAddDiscountLineItem,
   onAddMarkupLineItem,
   onRemovePercentageChangeLineItem,
   rowData,
   isDeleteDisabled,
   updateRowData,
-  showKebabMenu,
+  showActionMenu,
 }) => {
+  const [actionModal, setActionModal] = useState();
+
   const invoiceLineTypeSuggester = useSuggester('invoiceLineTypes');
   const practitionerSuggester = useSuggester('practitioner');
 
@@ -102,86 +105,156 @@ export const ItemRow = ({
       : (priceFloat + priceFloat * percentageChangeFloat).toFixed(2);
   }, [rowData.price, rowData.percentageChange]);
 
+  const onCloseActionModal = () => {
+    setActionModal(undefined);
+  };
+
+  const handleAction = data => {
+    switch (actionModal) {
+      case INVOICE_ACTION_MODALS.DELETE_LINE_ITEM: {
+        onDeleteLineItem();
+        break;
+      }
+      case INVOICE_ACTION_MODALS.ADD_DISCOUNT_LINE_ITEM: {
+        onAddDiscountLineItem(data);
+        break;
+      }
+      case INVOICE_ACTION_MODALS.ADD_MARKUP_LINE_ITEM: {
+        onAddMarkupLineItem(data);
+        break;
+      }
+    }
+    onCloseActionModal();
+  };
+
+  const menuItems = [
+    ...(rowData?.percentageChange
+      ? [
+          {
+            label:
+              Number(rowData.percentageChange) > 0 ? (
+                <TranslatedText
+                  stringId="invoice.modal.editInvoice.removeMarkup"
+                  fallback="Remove markup"
+                />
+              ) : (
+                <TranslatedText
+                  stringId="invoice.modal.editInvoice.removeDiscount"
+                  fallback="Remove discount"
+                />
+              ),
+            onClick: onRemovePercentageChangeLineItem,
+          },
+        ]
+      : [
+          {
+            label: (
+              <TranslatedText
+                stringId="invoice.modal.editInvoice.addDiscount"
+                fallback="Add discount"
+              />
+            ),
+            onClick: () => setActionModal(INVOICE_ACTION_MODALS.ADD_DISCOUNT_LINE_ITEM),
+          },
+          {
+            label: (
+              <TranslatedText
+                stringId="invoice.modal.editInvoice.addMarkup"
+                fallback="Add markup"
+              />
+            ),
+            onClick: () => setActionModal(INVOICE_ACTION_MODALS.ADD_MARKUP_LINE_ITEM),
+          },
+        ]),
+    {
+      label: <TranslatedText stringId="invoice.modal.editInvoice.delete" fallback="Delete" />,
+      onClick: () => setActionModal(INVOICE_ACTION_MODALS.DELETE_LINE_ITEM),
+      disabled: isDeleteDisabled,
+    },
+  ];
+
   return (
-    <StyledItemRow container alignItems="center" spacing={1}>
-      <Grid item xs={2}>
-        <Field
-          name={'date_' + index}
-          required
-          component={DateField}
-          saveDateAsString
-          size="small"
-          value={rowData.date}
-          onChange={event =>
-            updateRowData(rowData.id, {
-              date: event.target.value,
-              toBeUpdated: true,
-            })
-          }
+    <>
+      <StyledItemRow container alignItems="center" spacing={1}>
+        <Grid item xs={2}>
+          <Field
+            name={'date_' + index}
+            required
+            component={DateField}
+            saveDateAsString
+            size="small"
+            value={rowData.date}
+            onChange={event =>
+              updateRowData(rowData.id, {
+                date: event.target.value,
+                toBeUpdated: true,
+              })
+            }
+          />
+        </Grid>
+        <Grid item xs={4}>
+          <Field
+            name={'invoiceLineTypeId_' + index}
+            required
+            component={AutocompleteField}
+            suggester={invoiceLineTypeSuggester}
+            onFetchCurrentOption={data => onUpdateInvoiceLineTypeId(data)}
+            size="small"
+            value={rowData.invoiceLineTypeId}
+            onChange={event =>
+              updateRowData(rowData.id, {
+                invoiceLineTypeId: event.target.value,
+                code: '',
+                price: '',
+                toBeUpdated: true,
+              })
+            }
+          />
+        </Grid>
+        <Grid item justifyContent="center" xs={1}>
+          <ItemCodeText>{rowData.code}</ItemCodeText>
+        </Grid>
+        <Grid item xs={3}>
+          <Field
+            name={'orderedById_' + index}
+            required
+            component={AutocompleteField}
+            suggester={practitionerSuggester}
+            onFetchCurrentOption={data => onUpdateOrderedById(data)}
+            size="small"
+            value={rowData.orderedById}
+            onChange={event =>
+              updateRowData(rowData.id, {
+                orderedById: event.target.value,
+                orderedBy: '',
+                toBeUpdated: true,
+              })
+            }
+          />
+        </Grid>
+        <Grid item xs={2}>
+          <PriceCell>
+            <PriceText $isCrossedOut={!!rowData.percentageChange}>{rowData.price}</PriceText>
+            <ThemedTooltip
+              key={rowData.discountMarkupReason}
+              title={rowData.discountMarkupReason}
+              open={rowData.discountMarkupReason ? undefined : false}
+            >
+              <span>{finalPrice}</span>
+            </ThemedTooltip>
+            {showActionMenu && <ThreeDotMenu items={menuItems} />}
+          </PriceCell>
+        </Grid>
+      </StyledItemRow>
+      {actionModal && (
+        <LineItemActionModal
+          open
+          action={actionModal}
+          onClose={onCloseActionModal}
+          onAction={data => handleAction(data)}
+          lineItems={rowData}
         />
-      </Grid>
-      <Grid item xs={4}>
-        <Field
-          name={'invoiceLineTypeId_' + index}
-          required
-          component={AutocompleteField}
-          suggester={invoiceLineTypeSuggester}
-          onFetchCurrentOption={data => onUpdateInvoiceLineTypeId(data)}
-          size="small"
-          value={rowData.invoiceLineTypeId}
-          onChange={event =>
-            updateRowData(rowData.id, {
-              invoiceLineTypeId: event.target.value,
-              code: '',
-              price: '',
-              toBeUpdated: true,
-            })
-          }
-        />
-      </Grid>
-      <Grid item justifyContent="center" xs={1}>
-        <ItemCodeText>{rowData.code}</ItemCodeText>
-      </Grid>
-      <Grid item xs={3}>
-        <Field
-          name={'orderedById_' + index}
-          required
-          component={AutocompleteField}
-          suggester={practitionerSuggester}
-          onFetchCurrentOption={data => onUpdateOrderedById(data)}
-          size="small"
-          value={rowData.orderedById}
-          onChange={event =>
-            updateRowData(rowData.id, {
-              orderedById: event.target.value,
-              orderedBy: '',
-              toBeUpdated: true,
-            })
-          }
-        />
-      </Grid>
-      <Grid item xs={2}>
-        <PriceCell>
-          <PriceText $isCrossedOut={!!rowData.percentageChange}>{rowData.price}</PriceText>
-          <ThemedTooltip
-            key={rowData.discountMarkupReason}
-            title={rowData.discountMarkupReason}
-            open={rowData.discountMarkupReason ? undefined : false}
-          >
-            <span>{finalPrice}</span>
-          </ThemedTooltip>
-          {showKebabMenu && (
-            <KebabMenu
-              isDeleteDisabled={isDeleteDisabled}
-              onDelete={onDelete}
-              onAddDiscountLineItem={onAddDiscountLineItem}
-              onAddMarkupLineItem={onAddMarkupLineItem}
-              onRemovePercentageChangeLineItem={onRemovePercentageChangeLineItem}
-              rowData={rowData}
-            />
-          )}
-        </PriceCell>
-      </Grid>
-    </StyledItemRow>
+      )}
+    </>
   );
 };

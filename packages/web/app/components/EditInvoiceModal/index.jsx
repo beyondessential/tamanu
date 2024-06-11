@@ -13,7 +13,6 @@ import { DataFetchingTable } from '../Table';
 import { DateDisplay } from '../DateDisplay';
 import { Button } from '../Button';
 import { ItemHeader, ItemRow } from './ItemRow';
-import { useEncounter } from '../../contexts/Encounter';
 import { getInvoiceLineCode } from '../../utils/invoiceDetails';
 import { InvoiceStatus } from '../InvoiceStatus';
 import { InvoiceSummaryPanel } from '../InvoiceSummaryPanel';
@@ -106,14 +105,8 @@ const StatusContainer = styled.span`
   font-weight: 400;
 `;
 
-export const EditInvoiceModal = ({
-  open,
-  onClose,
-  invoiceId,
-  displayId,
-  encounterId,
-  invoiceStatus,
-}) => {
+export const EditInvoiceModal = ({ open, onClose, invoice, afterSaveInvoice }) => {
+  const invoiceId = invoice.id;
   const defaultRow = { id: uuidv4(), toBeUpdated: true };
   const [rowList, setRowList] = useState([defaultRow]);
   const [potentialLineItems, setPotentialLineItems] = useState([]);
@@ -143,8 +136,6 @@ export const EditInvoiceModal = ({
     const isSaveDisabled = !rowList.some(row => !!row.invoiceLineTypeId);
     setIsSaveDisabled(isSaveDisabled);
   }, [rowList]);
-
-  const { loadEncounter } = useEncounter();
 
   const updateRowData = useCallback((id, updatedRowData) => {
     setRowList(prevRowList => {
@@ -337,8 +328,11 @@ export const EditInvoiceModal = ({
 
     await api.delete(`invoices/${invoiceId}/lineItems`, { idsToDelete });
     await api.put(`invoices/${invoiceId}/lineItems`, { invoiceLineItemsData });
-    await loadEncounter(encounterId);
+    if (afterSaveInvoice) {
+      await afterSaveInvoice();
+    }
     setIsSaving(false);
+    onClose();
   };
 
   const schema = yup.object().shape(
@@ -380,10 +374,10 @@ export const EditInvoiceModal = ({
           <TranslatedText
             stringId="invoice.modal.view.title"
             fallback="Invoice number: :invoiceNumber"
-            replacements={{ invoiceNumber: displayId }}
+            replacements={{ invoiceNumber: invoice.displayId }}
           />
           <StatusContainer>
-            <InvoiceStatus status={invoiceStatus} />
+            <InvoiceStatus status={invoice.status} />
           </StatusContainer>
         </>
       }
@@ -405,13 +399,13 @@ export const EditInvoiceModal = ({
                   key={row?.id}
                   index={index}
                   rowData={row}
-                  onDelete={() => onDeleteLineItem(row?.id)}
+                  onDeleteLineItem={() => onDeleteLineItem(row?.id)}
                   onAddDiscountLineItem={discount => onAddDiscountLineItem(row?.id, discount)}
                   onAddMarkupLineItem={markup => onAddMarkupLineItem(row?.id, markup)}
                   onRemovePercentageChangeLineItem={() => onRemovePercentageChangeLineItem(row?.id)}
                   isDeleteDisabled={rowList.length === 1}
                   updateRowData={updateRowData}
-                  showKebabMenu={!isSaveDisabled || rowList.length > 1}
+                  showActionMenu={!isSaveDisabled || rowList.length > 1}
                 />
               ))}
             </div>
@@ -460,7 +454,7 @@ export const EditInvoiceModal = ({
               <InvoiceSummaryPanel
                 invoiceId={invoiceId}
                 invoiceTotal={invoiceTotal}
-                invoiceStatus={invoiceStatus}
+                invoiceStatus={invoice.status}
                 isEditInvoice
               />
             </ModalSection>

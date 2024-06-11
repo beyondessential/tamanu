@@ -37,15 +37,15 @@ export const INVOICE_PAYMENT_STATUS_LABELS = {
 };
 
 export const INVOICE_ACTION_MODALS = {
-  ADD_DISCOUNT: 'addDiscount',
-  ADD_MARKUP: 'addMarkup',
-  DELETE: 'delete',
-  CANCEL_INVOICE: 'cancelInvoice',
+  ADD_DISCOUNT_LINE_ITEM: 'addDiscountLineItem',
+  ADD_MARKUP_LINE_ITEM: 'addMarkupLineItem',
+  DELETE_LINE_ITEM: 'deleteLineItem',
 };
 
 export const INVOICE_ACTIVE_MODALS = {
   EDIT_INVOICE: "editInvoice",
   CREATE_INVOICE: "createInvoice",
+  CANCEL_INVOICE: "cancelInvoice",
 };
 
 export const slidingFeeScaleTable = [

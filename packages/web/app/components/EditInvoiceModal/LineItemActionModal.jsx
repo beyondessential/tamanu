@@ -115,21 +115,21 @@ const markupValidationSchema = yup.object({
     ),
 });
 
-export const ActionModal = React.memo(({ open, onClose, onAction, lineItems, action }) => {
+export const LineItemActionModal = React.memo(({ open, onClose, onAction, lineItems, action }) => {
   const getModalTitle = () => {
     switch (action) {
-      case INVOICE_ACTION_MODALS.DELETE:
+      case INVOICE_ACTION_MODALS.DELETE_LINE_ITEM:
         return (
           <TranslatedText stringId="invoice.modal.deleteInvoiceItem.title" fallback="Delete item" />
         );
-      case INVOICE_ACTION_MODALS.ADD_DISCOUNT:
+      case INVOICE_ACTION_MODALS.ADD_DISCOUNT_LINE_ITEM:
         return (
           <TranslatedText
             stringId="invoice.modal.addDiscountInvoiceItem.title"
             fallback="Add discount"
           />
         );
-      case INVOICE_ACTION_MODALS.ADD_MARKUP:
+      case INVOICE_ACTION_MODALS.ADD_MARKUP_LINE_ITEM:
         return (
           <TranslatedText
             stringId="invoice.modal.addMarkupInvoiceItem.title"
@@ -142,11 +142,11 @@ export const ActionModal = React.memo(({ open, onClose, onAction, lineItems, act
   };
 
   const formData = {
-    [INVOICE_ACTION_MODALS.ADD_DISCOUNT]: {
+    [INVOICE_ACTION_MODALS.ADD_DISCOUNT_LINE_ITEM]: {
       form: <DiscountForm />,
       schema: discountValidationSchema,
     },
-    [INVOICE_ACTION_MODALS.ADD_MARKUP]: {
+    [INVOICE_ACTION_MODALS.ADD_MARKUP_LINE_ITEM]: {
       form: <MarkupForm />,
       schema: markupValidationSchema,
     },
