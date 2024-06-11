@@ -1,4 +1,4 @@
-import { subDays, startOfDay, subYears, addDays, endOfDay } from 'date-fns';
+import { subDays, startOfDay, subYears, addDays, endOfDay, parseISO } from 'date-fns';
 import { REPORT_DEFAULT_DATE_RANGES } from '@tamanu/constants';
 
 const CATCH_ALL_FROM_DATE = '1970-01-01';
@@ -54,9 +54,7 @@ export const getReportQueryReplacements = async (
     toDate = getEndDate(dateRange, params.fromDate ? new Date(params.fromDate) : new Date());
   }
 
-  const fromDate = params.fromDate
-    ? startOfDay(new Date(params.fromDate))
-    : getStartDate(dateRange, toDate);
+  const fromDate = params.fromDate ? parseISO(params.fromDate) : getStartDate(dateRange, toDate);
   const paramDefaults = paramDefinitions.reduce((obj, { name }) => ({ ...obj, [name]: null }), {});
   return {
     ...paramDefaults,
