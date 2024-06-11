@@ -9,6 +9,7 @@ import React, {
 import { DevSettings } from 'react-native';
 import { useBackend } from '../hooks';
 import { isEmpty } from 'lodash';
+import { registerYup } from '../helpers/yupMethods';
 
 type Replacements = { [key: string]: any };
 export interface TranslatedTextProps {
@@ -41,10 +42,8 @@ export const replaceStringVariables = (
     .map((part, index) => {
       // Even indexes are the unchanged parts of the string
       if (index % 2 === 0) return part;
-
       const replacement = replacements[part.slice(1)] ?? part;
       if (typeof replacement !== 'object') return replacement;
-
       return translations?.[replacement.props.stringId] || replacement.props.fallback;
     })
     .join('');
@@ -83,8 +82,14 @@ export const TranslationProvider = ({ children }: PropsWithChildren<object>): Re
 
   const getTranslation = (stringId: string, fallback?: string, replacements?: Replacements) => {
     const translation = translations?.[stringId] || fallback;
-    return replaceStringVariables(translation, replacements);
+    console.log(translation);
+    return replaceStringVariables(translation, replacements, translations);
   };
+
+  useEffect(() => {
+    if (!translations) return;
+    registerYup(translations);
+  }, [translations]);
 
   useEffect(() => {
     setLanguageState(language);
