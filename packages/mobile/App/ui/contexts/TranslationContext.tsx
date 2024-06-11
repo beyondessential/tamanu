@@ -10,6 +10,7 @@ import { DevSettings } from 'react-native';
 import { useBackend } from '../hooks';
 import { isEmpty } from 'lodash';
 import { registerYup } from '../helpers/yupMethods';
+import { readConfig, writeConfig } from '~/services/config';
 
 type Replacements = { [key: string]: any };
 export interface TranslatedTextProps {
@@ -68,6 +69,8 @@ export const TranslationProvider = ({ children }: PropsWithChildren<object>): Re
   };
 
   const setLanguageState = async (languageCode: string = DEFAULT_LANGUAGE) => {
+    await writeConfig('language', languageCode);
+    console.log('Setting language', languageCode);
     if (!languageOptions) getLanguageOptions();
     const translations = await models.TranslatedString.getForLanguage(languageCode);
     if (isEmpty(translations)) {
@@ -82,8 +85,13 @@ export const TranslationProvider = ({ children }: PropsWithChildren<object>): Re
 
   const getTranslation = (stringId: string, fallback?: string, replacements?: Replacements) => {
     const translation = translations?.[stringId] || fallback;
-    console.log(translation);
     return replaceStringVariables(translation, replacements, translations);
+  };
+
+  const restoreLanguage = async () => {
+    const languageCode = await readConfig('language');
+    console.log('Restoring language', languageCode);
+    setLanguage(languageCode);
   };
 
   useEffect(() => {
@@ -96,6 +104,7 @@ export const TranslationProvider = ({ children }: PropsWithChildren<object>): Re
   }, [language]);
 
   useEffect(() => {
+    restoreLanguage();
     if (!__DEV__) return;
     DevSettings.addMenuItem('Toggle translation highlighting', () => setIsDebugMode(!isDebugMode));
   }, []);
