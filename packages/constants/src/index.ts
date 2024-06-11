@@ -32,3 +32,7 @@ export * from './vaccines.js';
 export * from './settings.js';
 export * from './encounterHistory.js';
 export * from './webSocket.js';
+
+import { SEX_VALUES } from './patientFields';
+
+export const EnumRegister = new Set([SEX_VALUES]);

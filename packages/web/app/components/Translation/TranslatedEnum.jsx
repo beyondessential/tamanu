@@ -1,8 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { EnumRegister } from '@tamanu/constants';
 import { TranslatedText } from './TranslatedText.jsx';
 
 export const TranslatedEnum = ({ prefix, value, enumValues, enumFallback = 'Unknown' }) => {
+  if (!EnumRegister.has(enumValues)) {
+    console.log('its in there');
+  }
   if (!enumValues[value]) {
     return <TranslatedText stringId="general.fallback.unknown" fallback={enumFallback} />;
   }
