@@ -3,10 +3,10 @@ import * as Yup from 'yup';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 import { yupAttemptTransformToNumber } from '~/ui/helpers/numeralTranslation';
 
-const requiredWhenConfiguredMandatory = (getBool, getString, name, baseType) => {
+const requiredWhenConfiguredMandatory = (getBool, name, label, baseType) => {
   return baseType.when([], {
     is: () => !!getBool(`fields.${name}.requiredPatientData`),
-    then: baseType.required(`${getString(`fields.${name}.shortLabel`)} is required `),
+    then: baseType.translatedText(label).required(),
     otherwise: baseType.nullable(),
   });
 };
@@ -18,7 +18,12 @@ export const getPatientDetailsValidation = (getBool, getString) => {
         <TranslatedText stringId="general.localisedField.firstName.label" fallback="First name" />,
       )
       .required(),
-    middleName: requiredWhenConfiguredMandatory(getBool, getString, 'middleName', Yup.string()),
+    middleName: requiredWhenConfiguredMandatory(
+      getBool,
+      'middleName',
+      <TranslatedText stringId="general.localisedField.middleName.label" fallback="Middle name" />,
+      Yup.string(),
+    ),
     lastName: Yup.string()
       .translatedLabel(
         <TranslatedText stringId="general.localisedField.lastName.label" fallback="Last name" />,
