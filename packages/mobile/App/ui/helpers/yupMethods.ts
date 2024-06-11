@@ -10,8 +10,7 @@ const camelCaseTest = /(?=[A-Z])/;
 function splitFieldName(name: string) {
   const splitField = name.split(camelCaseTest);
   const fieldNameAsWords = splitField.join(' ');
-  const joined = capitaliseFirstLetter(fieldNameAsWords.toLowerCase());
-  return joined;
+  return capitaliseFirstLetter(fieldNameAsWords.toLowerCase());
 }
 
 const registerTranslatedLabelMethod = (translations: object = {}) => {
