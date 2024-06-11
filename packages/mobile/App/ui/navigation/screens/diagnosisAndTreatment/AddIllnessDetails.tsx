@@ -27,21 +27,6 @@ import { NOTE_RECORD_TYPES, NOTE_TYPES } from '~/ui/helpers/constants';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 import { Button } from '~/ui/components/Button';
 
-const IllnessFormSchema = Yup.object().shape({
-  diagnosis: Yup.string(),
-  certainty: Yup.mixed()
-    .oneOf(Object.values(Certainty))
-    .when('diagnosis', {
-      is: (diagnosis: string) => Boolean(diagnosis),
-      then: Yup.mixed()
-        .required()
-        .translatedLabel(
-          <TranslatedText stringId="general.form.diagnosis.label" fallback="Diagnosis" />,
-        ),
-    }),
-  clinicalNote: Yup.string(),
-});
-
 const styles = StyleSheet.create({
   KeyboardAvoidingViewStyles: { flex: 1 },
   KeyboardAvoidingViewContainer: {
@@ -100,7 +85,24 @@ export const DumbAddIllnessScreen = ({ selectedPatient, navigation }): ReactElem
 
   return (
     <FullView background={theme.colors.BACKGROUND_GREY}>
-      <Formik onSubmit={onRecordIllness} initialValues={{}} validationSchema={IllnessFormSchema}>
+      <Formik
+        onSubmit={onRecordIllness}
+        initialValues={{}}
+        validationSchema={Yup.object().shape({
+          diagnosis: Yup.string(),
+          certainty: Yup.mixed()
+            .oneOf(Object.values(Certainty))
+            .when('diagnosis', {
+              is: (diagnosis: string) => Boolean(diagnosis),
+              then: Yup.mixed()
+                .required()
+                .translatedLabel(
+                  <TranslatedText stringId="general.form.diagnosis.label" fallback="Diagnosis" />,
+                ),
+            }),
+          clinicalNote: Yup.string(),
+        })}
+      >
         {({ handleSubmit, values }): ReactElement => (
           <FullView
             background={theme.colors.BACKGROUND_GREY}

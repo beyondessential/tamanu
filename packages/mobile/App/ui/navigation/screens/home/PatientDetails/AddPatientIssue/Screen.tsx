@@ -19,12 +19,6 @@ export type AddPatientIssueScreenProps = {
   selectedPatient: IPatient;
 };
 
-const PatientIssueFormSchema = Yup.object().shape({
-  note: Yup.string()
-    .required()
-    .translatedLabel(<TranslatedText stringId="general.form.note.label" fallback="Note" />),
-});
-
 const styles = StyleSheet.create({
   KeyboardAvoidingView: { flex: 1 },
   ScrollView: { flex: 1 },
@@ -51,7 +45,11 @@ export const Screen = ({
       <Formik
         onSubmit={onRecordPatientIssue}
         initialValues={{ note: '' }}
-        validationSchema={PatientIssueFormSchema}
+        validationSchema={Yup.object().shape({
+          note: Yup.string()
+            .required()
+            .translatedLabel(<TranslatedText stringId="general.form.note.label" fallback="Note" />),
+        })}
       >
         {({ handleSubmit }): ReactElement => (
           <KeyboardAvoidingView style={styles.KeyboardAvoidingView} behavior="padding">
