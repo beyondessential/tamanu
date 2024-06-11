@@ -7,6 +7,7 @@ import { useFormikContext } from 'formik';
 import { get } from 'lodash';
 import { FormGrid } from '../FormGrid';
 import { useHierarchyAncestorsQuery } from '../../api/queries/useHierarchyAncestorsQuery';
+import { usePatientDetailsFormContext } from '../../forms/PatientDetailsForm/PatientDetailsForm';
 
 const Container = styled(FormGrid)`
   grid-column: 1 / 3;
@@ -14,8 +15,14 @@ const Container = styled(FormGrid)`
   padding-bottom: 1.2rem;
 `;
 
-export const HierarchyFields = ({ fields, leafNodeType, relationType }) => {
-  const { values, setValues, dirty, setFormikState } = useFormikContext();
+export const HierarchyFields = ({
+  fields,
+  leafNodeType,
+  relationType,
+  assumeParentHierarchyValues,
+}) => {
+  const { values, getFieldHelpers } = useFormikContext();
+  const { setReinitializedValues } = usePatientDetailsFormContext();
   const leafNodeName = fields.find(({ referenceType }) => referenceType === leafNodeType).name;
   // console.log(leafNodeName)
   const leafNodeValue = values[leafNodeName];
@@ -28,15 +35,19 @@ export const HierarchyFields = ({ fields, leafNodeType, relationType }) => {
   const hierarchyToShow = configuredFields.length > 0 ? configuredFields : [leafNodeType];
 
   useEffect(() => {
+    if (!ancestors || !assumeParentHierarchyValues) return;
+
     if (ancestors) {
       const ancestorValuesToFieldName = Object.fromEntries(
         fields.map(({ name, referenceType }) => [name, ancestors[referenceType]]),
       );
-      setValues({ ...values, ...ancestorValuesToFieldName });
+      console.log(ancestorValuesToFieldName);
+      // Reinitialize form with assumed parent hierarchy values
+      setReinitializedValues(ancestorValuesToFieldName);
     }
   }, [ancestors]);
 
-
+  console.log(hierarchyToShow);
   return (
     <Container>
       {hierarchyToShow.map((type, index) => {

@@ -38,6 +38,7 @@ export const HierarchyFieldItem = ({
   // Clear the value of the field when the parent field changes
   useEffect(() => {
     if (!dirty) return;
+    console.log('is this being called');
     setFieldValue(name, '');
   }, [name, parentId]);
 

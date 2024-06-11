@@ -100,6 +100,7 @@ export class AutocompleteInput extends Component {
   async componentDidUpdate(prevProps) {
     const { value } = this.props;
     if (value !== prevProps.value) {
+      console.log('value changed for autocomplete field', value, prevProps.value);
       await this.updateValue();
     }
     if (value === '') {
@@ -109,7 +110,6 @@ export class AutocompleteInput extends Component {
 
   updateValue = async (allowFreeTextForExistingValue = false) => {
     const { value, suggester } = this.props;
-
     if (!suggester || value === undefined) {
       return;
     }
@@ -413,11 +413,13 @@ AutocompleteInput.defaultProps = {
   autofill: false,
 };
 
-export const AutocompleteField = ({ field, ...props }) => (
-  <AutocompleteInput
-    name={field.name}
-    value={field.value || ''}
-    onChange={field.onChange}
-    {...props}
-  />
-);
+export const AutocompleteField = ({ field, ...props }) => {
+  return (
+    <AutocompleteInput
+      name={field.name}
+      value={field.value || ''}
+      onChange={field.onChange}
+      {...props}
+    />
+  );
+};

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext, useState } from 'react';
 import styled from 'styled-components';
 import { isEmpty } from 'lodash';
 import { useQuery } from '@tanstack/react-query';
@@ -18,6 +18,21 @@ import { useTranslation } from '../../contexts/Translation';
 const StyledPatientDetailSecondaryDetailsGroupWrapper = styled.div`
   margin-top: 70px;
 `;
+
+const PatientDetailsFormContext = React.createContext();
+
+export const PatientDetailsFormProvider = ({ children }) => {
+  const [reinitializedValues, setReinitializedValues] = useState({});
+  return (
+    <PatientDetailsFormContext.Provider value={{ reinitializedValues, setReinitializedValues }}>
+      {children}
+    </PatientDetailsFormContext.Provider>
+  );
+};
+
+export const usePatientDetailsFormContext = () => {
+  return useContext(PatientDetailsFormContext);
+};
 
 function sanitiseRecordForValues(data) {
   const values = { ...data };
@@ -67,7 +82,16 @@ function stripPatientData(patient, additionalData, birthData) {
   };
 }
 
-export const PatientDetailsForm = ({ patient, additionalData, birthData, onSubmit }) => {
+export const PatientDetailsForm = props => {
+  return (
+    <PatientDetailsFormProvider>
+      <PatientDetailsFormComponent {...props} />
+    </PatientDetailsFormProvider>
+  );
+};
+
+export const PatientDetailsFormComponent = ({ patient, additionalData, birthData, onSubmit }) => {
+  const { reinitializedValues } = usePatientDetailsFormContext();
   const { getTranslation } = useTranslation();
   const patientRegistryType = !isEmpty(birthData)
     ? PATIENT_REGISTRY_TYPES.BIRTH_REGISTRY
@@ -119,37 +143,41 @@ export const PatientDetailsForm = ({ patient, additionalData, birthData, onSubmi
 
   return (
     <Form
-      render={({ values = {} }) => (
-        <>
-          <PrimaryDetails
-            registeredBirthPlace={values.registeredBirthPlace}
-            patientRegistryType={patientRegistryType}
-            isRequiredPatientData={isRequiredPatientData}
-            sexOptions={sexOptions}
-            isDetailsForm
-          />
-          <StyledPatientDetailSecondaryDetailsGroupWrapper>
-            <SecondaryDetails
+      render={({ values = {} }) => {
+        return (
+          <>
+            <PrimaryDetails
               registeredBirthPlace={values.registeredBirthPlace}
               patientRegistryType={patientRegistryType}
-              isEdit
+              isRequiredPatientData={isRequiredPatientData}
+              sexOptions={sexOptions}
+              isDetailsForm
             />
-          </StyledPatientDetailSecondaryDetailsGroupWrapper>
-          <PatientFields
-            fieldDefinitions={fieldDefinitionsResponse.data}
-            fieldValues={fieldValuesResponse?.data}
-          />
-          <ButtonRow>
-            <FormSubmitButton variant="contained" color="primary" text="Save" />
-          </ButtonRow>
-        </>
-      )}
+            <StyledPatientDetailSecondaryDetailsGroupWrapper>
+              <SecondaryDetails
+                registeredBirthPlace={values.registeredBirthPlace}
+                patientRegistryType={patientRegistryType}
+                isEdit
+              />
+            </StyledPatientDetailSecondaryDetailsGroupWrapper>
+            <PatientFields
+              fieldDefinitions={fieldDefinitionsResponse.data}
+              fieldValues={fieldValuesResponse?.data}
+            />
+            <ButtonRow>
+              <FormSubmitButton variant="contained" color="primary" text="Save" />
+            </ButtonRow>
+          </>
+        );
+      }}
+      enableReinitialize
       initialValues={{
         ...stripPatientData(patient, additionalData, birthData),
         patientFields: addMissingFieldValues(
           fieldDefinitionsResponse.data,
           fieldValuesResponse?.data,
         ),
+        ...reinitializedValues,
       }}
       onSubmit={handleSubmit}
       validationSchema={getPatientDetailsValidation(

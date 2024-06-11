@@ -1,8 +1,13 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { get } from 'lodash';
+import { merge } from 'lodash';
 
-const overrides = {}; // add keys to this object to help with development
+const overrides = {
+  layouts: {
+    patientDetails: 'cambodia',
+  },
+}; // add keys to this object to help with development
 
 const LocalisationContext = React.createContext({
   getLocalisation: () => {},
@@ -14,7 +19,7 @@ export const LocalisationProvider = ({ children }) => {
   const [localisation, setLocalisation] = useState({});
   const reduxLocalisation = useSelector(state => state.auth.localisation);
   useEffect(() => {
-    setLocalisation({ ...reduxLocalisation, ...overrides });
+    setLocalisation(merge(reduxLocalisation, overrides));
   }, [reduxLocalisation]);
 
   return (
