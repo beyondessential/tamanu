@@ -25,7 +25,9 @@ import { FacilitySelectField } from './FacilitySelectField';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 
 const selectFacilitySchema = Yup.object().shape({
-  facilityId: Yup.string().required(),
+  facilityId: Yup.string()
+    .required()
+    .translatedLabel(<TranslatedText stringId="general.facility.label" fallback="Facility" />),
 });
 
 async function fetchFacilityOptions({ centralServer }) {
@@ -77,13 +79,10 @@ export const SelectFacilityForm = ({ onSubmitForm }) => {
             <Field
               name="facilityId"
               component={FacilitySelectField}
-              label="Facility"
+              label={<TranslatedText stringId="general.facility.label" fallback="Facility" />}
               options={facilityOptions || []}
               placeholder={
-                <TranslatedText
-                  stringId="login.facility.placeholder"
-                  fallback="Select facility"
-                />
+                <TranslatedText stringId="login.facility.placeholder" fallback="Select facility" />
               }
             />
           </StyledView>
