@@ -10,6 +10,7 @@ export const DateFormats = {
   DAY_MONTH: 'dd MMM',
   DDMMYY: 'dd/MM/yyyy',
   SHORT_MONTH: 'MMM',
+  DDMMYY_HHMMSS: 'dd/MM/yyyy pp',
   DATE_AND_TIME_HHMMSS: 'dd MMM yyyy pp',
   DATE_AND_TIME_HHMM: 'dd MMM yyyy p',
   TIME_HHMMSS: 'pp',
