@@ -6,7 +6,7 @@ import { yupAttemptTransformToNumber } from '~/ui/helpers/numeralTranslation';
 const requiredWhenConfiguredMandatory = (getBool, name, label, baseType) => {
   return baseType.when([], {
     is: () => !!getBool(`fields.${name}.requiredPatientData`),
-    then: baseType.translatedText(label).required(),
+    then: baseType.required().translatedText(label),
     otherwise: baseType.nullable(),
   });
 };
@@ -14,10 +14,10 @@ const requiredWhenConfiguredMandatory = (getBool, name, label, baseType) => {
 export const getPatientDetailsValidation = (getBool, getString) => {
   return Yup.object().shape({
     firstName: Yup.string()
+      .required()
       .translatedLabel(
         <TranslatedText stringId="general.localisedField.firstName.label" fallback="First name" />,
-      )
-      .required(),
+      ),
     middleName: requiredWhenConfiguredMandatory(
       getBool,
       'middleName',
@@ -25,23 +25,50 @@ export const getPatientDetailsValidation = (getBool, getString) => {
       Yup.string(),
     ),
     lastName: Yup.string()
+      .required()
       .translatedLabel(
         <TranslatedText stringId="general.localisedField.lastName.label" fallback="Last name" />,
-      )
-      .required(),
-    culturalName: requiredWhenConfiguredMandatory(getBool, getString, 'culturalName', Yup.string()),
+      ),
+    culturalName: requiredWhenConfiguredMandatory(
+      getBool,
+      'culturalName',
+      <TranslatedText
+        stringId="general.localisedField.culturalName.label"
+        fallback="Cultural name"
+      />,
+      Yup.string(),
+    ),
     dateOfBirth: Yup.date()
+      .required()
       .translatedLabel(
         <TranslatedText
           stringId="general.localisedField.dateOfBirth.label"
           fallback="Date of birth"
         />,
-      )
-      .required(),
-    email: requiredWhenConfiguredMandatory(getBool, getString, 'email', Yup.string()),
-    sex: Yup.string().required('Sex is a required field'),
-    village: requiredWhenConfiguredMandatory(getBool, getString, 'village', Yup.string()),
-    religionId: requiredWhenConfiguredMandatory(getBool, getString, 'religionId', Yup.string()),
+      ),
+    email: requiredWhenConfiguredMandatory(
+      getBool,
+      'email',
+      <TranslatedText stringId="general.localisedField.email.label" fallback="Email address" />,
+      Yup.string(),
+    ),
+    sex: Yup.string()
+      .required()
+      .translatedLabel(
+        <TranslatedText stringId="general.localisedField.sex.label" fallback="Sex" />,
+      ),
+    village: requiredWhenConfiguredMandatory(
+      getBool,
+      'village',
+      <TranslatedText stringId="general.localisedField.villageId.label" fallback="Village" />,
+      Yup.string(),
+    ),
+    religionId: requiredWhenConfiguredMandatory(
+      getBool,
+      'religionId',
+      <TranslatedText stringId="general.localisedField.religionId.label" fallback="Religion" />,
+      Yup.string(),
+    ),
     birthCertificate: requiredWhenConfiguredMandatory(
       getBool,
       getString,
