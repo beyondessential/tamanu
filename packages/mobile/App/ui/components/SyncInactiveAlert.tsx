@@ -16,6 +16,7 @@ import { Button } from './Button';
 import { useAuth } from '~/ui/contexts/AuthContext';
 import { CentralConnectionStatus } from '~/types';
 import { useBackend } from '../hooks';
+import { TranslatedText } from './Translations/TranslatedText';
 
 interface AuthenticationModelProps {
   open: boolean;
@@ -97,7 +98,11 @@ const AuthenticationModal = ({ open, onClose }: AuthenticationModelProps): JSX.E
             password: '',
           }}
           validationSchema={Yup.object().shape({
-            password: Yup.string().required('Password is required'),
+            password: Yup.string()
+              .required()
+              .translatedLabel(
+                <TranslatedText stringId="login.password.label" fallback="Password" />,
+              ),
           })}
           onSubmit={handleSignIn}
         >
