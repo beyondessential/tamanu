@@ -51,6 +51,7 @@ export const replaceStringVariables = (
       // Even indexes are the unchanged parts of the string
       if (index % 2 === 0) return part;
       const replacement = replacements[part.slice(1)] ?? part;
+      // Replacements might be a string or a translatable string component, handle each case
       if (typeof replacement !== 'object') return replacement;
       return translations?.[replacement.props.stringId] || replacement.props.fallback;
     })
@@ -104,7 +105,6 @@ export const TranslationProvider = ({ children }: PropsWithChildren<object>): Re
   };
 
   useEffect(() => {
-    if (!translations) return;
     registerYup(translations);
   }, [translations]);
 
