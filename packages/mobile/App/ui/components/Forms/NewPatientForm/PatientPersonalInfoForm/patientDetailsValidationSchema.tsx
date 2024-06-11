@@ -3,10 +3,10 @@ import * as Yup from 'yup';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 import { yupAttemptTransformToNumber } from '~/ui/helpers/numeralTranslation';
 
-const requiredWhenConfiguredMandatory = (getBool, name, label, baseType) => {
+const requiredWhenConfiguredMandatory = (getBool, name, baseType) => {
   return baseType.when([], {
     is: () => !!getBool(`fields.${name}.requiredPatientData`),
-    then: baseType.required().translatedText(label),
+    then: baseType.required(),
     otherwise: baseType.nullable(),
   });
 };
@@ -21,8 +21,12 @@ export const getPatientDetailsValidation = (getBool, getString) => {
     middleName: requiredWhenConfiguredMandatory(
       getBool,
       'middleName',
-      <TranslatedText stringId="general.localisedField.middleName.label" fallback="Middle name" />,
-      Yup.string(),
+      Yup.string().translatedLabel(
+        <TranslatedText
+          stringId="general.localisedField.middleName.label"
+          fallback="Middle name"
+        />,
+      ),
     ),
     lastName: Yup.string()
       .required()
@@ -32,11 +36,12 @@ export const getPatientDetailsValidation = (getBool, getString) => {
     culturalName: requiredWhenConfiguredMandatory(
       getBool,
       'culturalName',
-      <TranslatedText
-        stringId="general.localisedField.culturalName.label"
-        fallback="Cultural name"
-      />,
-      Yup.string(),
+      Yup.string().translatedLabel(
+        <TranslatedText
+          stringId="general.localisedField.culturalName.label"
+          fallback="Cultural name"
+        />,
+      ),
     ),
     dateOfBirth: Yup.date()
       .required()
@@ -49,8 +54,10 @@ export const getPatientDetailsValidation = (getBool, getString) => {
     email: requiredWhenConfiguredMandatory(
       getBool,
       'email',
-      <TranslatedText stringId="general.localisedField.email.label" fallback="Email address" />,
-      Yup.string(),
+
+      Yup.string().translatedLabel(
+        <TranslatedText stringId="general.localisedField.email.label" fallback="Email address" />,
+      ),
     ),
     sex: Yup.string()
       .required()
@@ -60,33 +67,49 @@ export const getPatientDetailsValidation = (getBool, getString) => {
     village: requiredWhenConfiguredMandatory(
       getBool,
       'village',
-      <TranslatedText stringId="general.localisedField.villageId.label" fallback="Village" />,
-      Yup.string(),
+      Yup.string().translatedLabel(
+        <TranslatedText stringId="general.localisedField.villageId.label" fallback="Village" />,
+      ),
     ),
     religionId: requiredWhenConfiguredMandatory(
       getBool,
       'religionId',
-      <TranslatedText stringId="general.localisedField.religionId.label" fallback="Religion" />,
-      Yup.string(),
+      Yup.string().translatedLabel(
+        <TranslatedText stringId="general.localisedField.religionId.label" fallback="Religion" />,
+      ),
     ),
     birthCertificate: requiredWhenConfiguredMandatory(
       getBool,
-      getString,
       'birthCertificate',
-      Yup.string(),
+      Yup.string().translatedLabel(
+        <TranslatedText
+          stringId="general.localisedField.birthCertificate.label"
+          fallback="Birth certificate"
+        />,
+      ),
     ),
-    passport: requiredWhenConfiguredMandatory(getBool, getString, 'passport', Yup.string()),
+    passport: requiredWhenConfiguredMandatory(
+      getBool,
+      'passport',
+      Yup.string().translatedLabel(
+        <TranslatedText stringId="general.localisedField.passport.label" fallback="Passport" />,
+      ),
+    ),
     primaryContactNumber: requiredWhenConfiguredMandatory(
       getBool,
-      getString,
       'primaryContactNumber',
       Yup.number()
         .transform(yupAttemptTransformToNumber)
-        .nullable(),
+        .nullable()
+        .translatedLabel(
+          <TranslatedText
+            stringId="general.localisedField.primaryContactNumber.label"
+            fallback="Primary contact number"
+          />,
+        ),
     ),
     secondaryContactNumber: requiredWhenConfiguredMandatory(
       getBool,
-      getString,
       'secondaryContactNumber',
       Yup.number()
         .transform(yupAttemptTransformToNumber)
@@ -94,13 +117,11 @@ export const getPatientDetailsValidation = (getBool, getString) => {
     ),
     emergencyContactName: requiredWhenConfiguredMandatory(
       getBool,
-      getString,
       'emergencyContactName',
       Yup.string(),
     ),
     emergencyContactNumber: requiredWhenConfiguredMandatory(
       getBool,
-      getString,
       'emergencyContactNumber',
       Yup.number()
         .transform(yupAttemptTransformToNumber)
@@ -109,72 +130,26 @@ export const getPatientDetailsValidation = (getBool, getString) => {
     title: requiredWhenConfiguredMandatory(getBool, getString, 'title', Yup.string()),
     bloodType: requiredWhenConfiguredMandatory(getBool, getString, 'bloodType', Yup.string()),
     placeOfBirth: requiredWhenConfiguredMandatory(getBool, getString, 'placeOfBirth', Yup.string()),
-    countryOfBirthId: requiredWhenConfiguredMandatory(
-      getBool,
-      getString,
-      'countryOfBirthId',
-      Yup.string(),
-    ),
-    nationalityId: requiredWhenConfiguredMandatory(
-      getBool,
-      getString,
-      'nationalityId',
-      Yup.string(),
-    ),
+    countryOfBirthId: requiredWhenConfiguredMandatory(getBool, 'countryOfBirthId', Yup.string()),
+    nationalityId: requiredWhenConfiguredMandatory(getBool, 'nationalityId', Yup.string()),
     ethnicityId: requiredWhenConfiguredMandatory(getBool, getString, 'ethnicityId', Yup.string()),
     patientBillingTypeId: requiredWhenConfiguredMandatory(
       getBool,
-      getString,
       'patientBillingTypeId',
       Yup.string(),
     ),
-    subdivisionId: requiredWhenConfiguredMandatory(
-      getBool,
-      getString,
-      'subdivisionId',
-      Yup.string(),
-    ),
+    subdivisionId: requiredWhenConfiguredMandatory(getBool, 'subdivisionId', Yup.string()),
     divisionId: requiredWhenConfiguredMandatory(getBool, getString, 'divisionId', Yup.string()),
     countryId: requiredWhenConfiguredMandatory(getBool, getString, 'countryId', Yup.string()),
     settlementId: requiredWhenConfiguredMandatory(getBool, getString, 'settlementId', Yup.string()),
-    medicalAreaId: requiredWhenConfiguredMandatory(
-      getBool,
-      getString,
-      'medicalAreaId',
-      Yup.string(),
-    ),
-    nursingZoneId: requiredWhenConfiguredMandatory(
-      getBool,
-      getString,
-      'nursingZoneId',
-      Yup.string(),
-    ),
-    streetVillage: requiredWhenConfiguredMandatory(
-      getBool,
-      getString,
-      'streetVillage',
-      Yup.string(),
-    ),
+    medicalAreaId: requiredWhenConfiguredMandatory(getBool, 'medicalAreaId', Yup.string()),
+    nursingZoneId: requiredWhenConfiguredMandatory(getBool, 'nursingZoneId', Yup.string()),
+    streetVillage: requiredWhenConfiguredMandatory(getBool, 'streetVillage', Yup.string()),
     cityTown: requiredWhenConfiguredMandatory(getBool, getString, 'cityTown', Yup.string()),
-    drivingLicense: requiredWhenConfiguredMandatory(
-      getBool,
-      getString,
-      'drivingLicense',
-      Yup.string(),
-    ),
-    maritalStatus: requiredWhenConfiguredMandatory(
-      getBool,
-      getString,
-      'maritalStatus',
-      Yup.string(),
-    ),
+    drivingLicense: requiredWhenConfiguredMandatory(getBool, 'drivingLicense', Yup.string()),
+    maritalStatus: requiredWhenConfiguredMandatory(getBool, 'maritalStatus', Yup.string()),
     occupationId: requiredWhenConfiguredMandatory(getBool, getString, 'occupationId', Yup.string()),
-    educationalLevel: requiredWhenConfiguredMandatory(
-      getBool,
-      getString,
-      'educationalLevel',
-      Yup.string(),
-    ),
+    educationalLevel: requiredWhenConfiguredMandatory(getBool, 'educationalLevel', Yup.string()),
     socialMedia: requiredWhenConfiguredMandatory(getBool, getString, 'socialMedia', Yup.string()),
   });
 };

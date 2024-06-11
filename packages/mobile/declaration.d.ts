@@ -1,4 +1,4 @@
-import { StringSchema, DateSchema } from 'yup';
+import { StringSchema, DateSchema, NumberSchema } from 'yup';
 
 declare module '*.svg' {
   import { SvgProps } from 'react-native-svg';
@@ -12,6 +12,9 @@ declare module 'yup' {
     translatedLabel(label: React.ReactNode): this;
   }
   interface DateSchema {
+    translatedLabel(label: React.ReactNode): this;
+  }
+  interface NumberSchema {
     translatedLabel(label: React.ReactNode): this;
   }
 }
