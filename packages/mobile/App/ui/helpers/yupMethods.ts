@@ -1,20 +1,20 @@
 import * as yup from 'yup';
 import { replaceStringVariables } from '../contexts/TranslationContext';
 
-function capitaliseFirstLetter(text) {
+function capitaliseFirstLetter(text?: string) {
   if (!text) return '';
   return text.slice(0, 1).toUpperCase() + text.slice(1);
 }
 
 const camelCaseTest = /(?=[A-Z])/;
-function splitFieldName(name) {
+function splitFieldName(name: string) {
   const splitField = name.split(camelCaseTest);
   const fieldNameAsWords = splitField.join(' ');
   const joined = capitaliseFirstLetter(fieldNameAsWords.toLowerCase());
   return joined;
 }
 
-const registerTranslatedLabelMethod = (translations = {}) => {
+const registerTranslatedLabelMethod = (translations: object = {}) => {
   yup.addMethod(yup.mixed, 'translatedLabel', function(translatedTextComponent) {
     if (!translations) return this.label(translatedTextComponent.props.fallback);
     const { stringId, fallback } = translatedTextComponent.props;
@@ -32,7 +32,7 @@ const registerTranslatedLabelMethod = (translations = {}) => {
 // translated version, this is required at boot
 registerTranslatedLabelMethod();
 
-export function registerYup(translations = {}) {
+export function registerYup(translations: object = {}) {
   registerTranslatedLabelMethod(translations);
   const defaultMessage = translations['validation.required'] || 'The :path field is required';
   yup.setLocale({
