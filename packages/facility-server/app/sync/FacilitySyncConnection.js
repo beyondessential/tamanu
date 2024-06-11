@@ -7,7 +7,7 @@ import { log } from '@tamanu/shared/services/logging';
 /**
  * The sync triggering api is non-authed, and generally protected by making it
  * only accessible on localhost via the reverse proxy. This is ok because it doesn't
- * so anything sensitive or dangerous, but please keep it that way - only add new routes
+ * do anything sensitive or dangerous, but please keep it that way - only add new routes
  * or functionality with healthy caution, or after implementing auth
  */
 export class FacilitySyncConnection {

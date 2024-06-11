@@ -46,7 +46,7 @@ export class FacilitySyncManager {
 
   currentSyncPromise = null;
 
-  triggerNextSyncPromise = null;
+  nextSyncPromise = null;
 
   reason = null;
 
@@ -68,7 +68,7 @@ export class FacilitySyncManager {
 
   async waitForCurrentSyncAndTriggerNextSync() {
     await this.currentSyncPromise;
-    this.triggerSync();
+    return this.triggerSync();
   }
 
   async triggerSync(reason) {
@@ -77,20 +77,23 @@ export class FacilitySyncManager {
       return { enabled: false };
     }
 
-    if (this.triggerNextSyncPromise) {
-      const result = await this.triggerNextSyncPromise;
+    // if there is a currently running sync, and already another one 
+    // queued up to run after that, just wait for that next sync run 
+    // (which will definitely sync any changes made up until the time this sync was requested)
+    if (this.nextSyncPromise) {
+      const result = await this.nextSyncPromise;
       return { enabled: true, ...result };
     }
 
     // if there's an existing sync, just wait for that sync run and trigger the next one right after
     if (this.currentSyncPromise) {
-      this.triggerNextSyncPromise = this.waitForCurrentSyncAndTriggerNextSync();
-      const result = await this.triggerNextSyncPromise;
+      this.nextSyncPromise = this.waitForCurrentSyncAndTriggerNextSync();
+      const result = await this.nextSyncPromise;
       return { enabled: true, ...result };
     }
 
     this.currentSyncPromise = null;
-    this.triggerNextSyncPromise = null;
+    this.nextSyncPromise = null;
 
     // set up a common sync promise to avoid double sync
     this.reason = reason;
@@ -102,7 +105,7 @@ export class FacilitySyncManager {
       return { enabled: true, ...result };
     } finally {
       this.currentSyncPromise = null;
-      this.triggerNextSyncPromise = null;
+      this.nextSyncPromise = null;
       this.reason = '';
       this.currentStartTime = 0;
     }

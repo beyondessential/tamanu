@@ -8,6 +8,21 @@ import {
 
 export const sync = express.Router();
 
+/**
+ * The sync triggering api is non-authed, and generally protected by making it
+ * only accessible on localhost via the reverse proxy. This is ok because it doesn't
+ * do anything sensitive or dangerous, but please keep it that way - only add new routes
+ * or functionality with healthy caution, or after implementing auth.
+ * This TRUSTED_ENDPOINTS check is to make sure you've read and considered this!
+ */
+const TRUSTED_ENDPOINTS = ['run', 'status'];
+sync.use((req, _res, next) => {
+  if (!TRUSTED_ENDPOINTS.includes(req.path.split('/')[1])) {
+    throw new Error('Attempted to access untrusted endpoint');
+  }
+  next();
+});
+
 sync.post(
   '/run',
   asyncHandler(async (req, res) => {

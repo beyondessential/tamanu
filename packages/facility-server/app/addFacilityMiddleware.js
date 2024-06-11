@@ -7,7 +7,7 @@ import { getLoggingMiddleware } from '@tamanu/shared/services/logging';
 
 import { version } from './serverInfo';
 
-export const addFacilityMiddlewares = async express => {
+export const addFacilityMiddleware = async express => {
   let errorMiddleware = null;
   if (config.errors?.enabled) {
     if (config.errors?.type === 'bugsnag') {

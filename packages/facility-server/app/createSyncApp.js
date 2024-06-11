@@ -2,14 +2,14 @@ import defineExpress from 'express';
 
 import errorHandler from './middleware/errorHandler';
 import { createServer } from 'http';
-import syncRoutes from './routes/sync';
-import { addFacilityMiddlewares } from './addFacilityMiddlewares';
+import { addFacilityMiddleware } from './addFacilityMiddleware';
+import { sync as syncRoutes } from './routes/sync/sync';
 
 export async function createSyncApp({ sequelize, reportSchemaStores, syncManager, models, deviceId }) {
   const express = defineExpress();
   const server = createServer(express);
 
-  const { errorMiddleware } = addFacilityMiddlewares(express);
+  const { errorMiddleware } = addFacilityMiddleware(express);
 
   express.use((req, res, next) => {
     req.models = models;
@@ -29,7 +29,7 @@ export async function createSyncApp({ sequelize, reportSchemaStores, syncManager
   });
 
   // Only contain sync routes in this app
-  express.use('/', syncRoutes);
+  express.use('/sync', syncRoutes);
 
   // Dis-allow all other routes
   express.get('*', (req, res) => {
