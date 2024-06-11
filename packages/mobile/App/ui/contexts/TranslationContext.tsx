@@ -14,7 +14,11 @@ import { readConfig, writeConfig } from '~/services/config';
 
 type Replacements = { [key: string]: any };
 
-export type GetTranslationFunction = (stringId: string, fallback?: string, replacements?: Replacements) => string;
+export type GetTranslationFunction = (
+  stringId: string,
+  fallback?: string,
+  replacements?: Replacements,
+) => string;
 
 export interface TranslatedTextProps {
   stringId: string;
@@ -86,7 +90,7 @@ export const TranslationProvider = ({ children }: PropsWithChildren<object>): Re
   };
 
   const getTranslation = (stringId: string, fallback?: string, replacements?: Replacements) => {
-    const translation = translations?.[stringId] || fallback;
+    const translation = translations[stringId] || fallback;
     return replaceStringVariables(translation, replacements, translations);
   };
 

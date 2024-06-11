@@ -82,7 +82,7 @@ export const SurveyForm = ({
         { encounterType: encounter?.encounterType },
         getTranslation,
       ),
-    [encounter?.encounterType, components, formValues, getTranslation],
+    [encounter?.encounterType, checkVisibilityCriteria, components, formValues, getTranslation],
   );
 
   const submitVisibleValues = useCallback(
