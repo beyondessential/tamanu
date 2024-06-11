@@ -1,4 +1,4 @@
-import { StringSchema } from 'yup';
+import { StringSchema, DateSchema } from 'yup';
 
 declare module '*.svg' {
   import { SvgProps } from 'react-native-svg';
@@ -9,6 +9,9 @@ declare module '*.svg' {
 // extend yup with custom methods
 declare module 'yup' {
   interface StringSchema {
+    translatedLabel(label: React.ReactNode): this;
+  }
+  interface DateSchema {
     translatedLabel(label: React.ReactNode): this;
   }
 }

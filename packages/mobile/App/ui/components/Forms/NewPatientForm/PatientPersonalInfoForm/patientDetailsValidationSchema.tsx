@@ -15,13 +15,24 @@ export const getPatientDetailsValidation = (getBool, getString) => {
   return Yup.object().shape({
     firstName: Yup.string()
       .translatedLabel(
-        <TranslatedText stringId="localisedField.firstName.label" fallback="First name" />,
+        <TranslatedText stringId="general.localisedField.firstName.label" fallback="First name" />,
       )
       .required(),
     middleName: requiredWhenConfiguredMandatory(getBool, getString, 'middleName', Yup.string()),
-    lastName: Yup.string().required('Last name is a required field'),
+    lastName: Yup.string()
+      .translatedLabel(
+        <TranslatedText stringId="general.localisedField.lastName.label" fallback="Last name" />,
+      )
+      .required(),
     culturalName: requiredWhenConfiguredMandatory(getBool, getString, 'culturalName', Yup.string()),
-    dateOfBirth: Yup.date().required('Date of birth is a required field'),
+    dateOfBirth: Yup.date()
+      .translatedLabel(
+        <TranslatedText
+          stringId="general.localisedField.dateOfBirth.label"
+          fallback="Date of birth"
+        />,
+      )
+      .required(),
     email: requiredWhenConfiguredMandatory(getBool, getString, 'email', Yup.string()),
     sex: Yup.string().required('Sex is a required field'),
     village: requiredWhenConfiguredMandatory(getBool, getString, 'village', Yup.string()),
