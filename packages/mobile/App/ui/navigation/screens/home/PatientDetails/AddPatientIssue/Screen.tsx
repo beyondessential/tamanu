@@ -20,7 +20,9 @@ export type AddPatientIssueScreenProps = {
 };
 
 const PatientIssueFormSchema = Yup.object().shape({
-  note: Yup.string().required(),
+  note: Yup.string()
+    .required()
+    .translatedLabel(<TranslatedText stringId="general.form.note.label" fallback="Note" />),
 });
 
 const styles = StyleSheet.create({
