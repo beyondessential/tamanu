@@ -150,6 +150,12 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
                     <LocalisedField
                       name="reminderContactName"
                       component={TextField}
+                      label={
+                        <TranslatedText
+                          stringId="general.localisedField.reminderContactName.label"
+                          fallback="Contact Name"
+                        />
+                      }
                       placeholder={getTranslation(
                         'patient.details.addReminderContact.placeholder.contactName',
                         'Contact Name',
@@ -162,6 +168,12 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
                       name="reminderContactRelationship"
                       component={SuggesterDropdown}
                       referenceDataType="contactRelationship"
+                      label={
+                        <TranslatedText
+                          stringId="general.localisedField.reminderContactRelationship.label"
+                          fallback="Relationship"
+                        />
+                      }
                       selectPlaceholderText={getTranslation(
                         'patient.details.addReminderContact.placeholder.select',
                         'Select',
