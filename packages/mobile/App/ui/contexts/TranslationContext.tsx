@@ -30,14 +30,22 @@ interface TranslationContextData {
 }
 
 // Duplicated from TranslatedText.js on desktop
-const replaceStringVariables = (templateString: string, replacements?: Replacements) => {
+export const replaceStringVariables = (
+  templateString: string,
+  replacements?: Replacements,
+  translations?: object,
+) => {
   if (!replacements) return templateString;
   const result = templateString
     .split(/(:[a-zA-Z]+)/g)
     .map((part, index) => {
       // Even indexes are the unchanged parts of the string
       if (index % 2 === 0) return part;
-      return replacements[part.slice(1)] ?? part;
+
+      const replacement = replacements[part.slice(1)] ?? part;
+      if (typeof replacement !== 'object') return replacement;
+
+      return translations?.[replacement.props.stringId] || replacement.props.fallback;
     })
     .join('');
 
