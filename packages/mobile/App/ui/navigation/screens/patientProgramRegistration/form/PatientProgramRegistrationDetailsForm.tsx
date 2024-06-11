@@ -22,6 +22,7 @@ import { PatientProgramRegistration } from '~/models/PatientProgramRegistration'
 import { useBackendEffect } from '~/ui/hooks/index';
 import { PatientProgramRegistrationCondition } from '~/models/PatientProgramRegistrationCondition';
 import { Routes } from '~/ui/helpers/routes';
+import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 
 export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: BaseAppProps) => {
   const { programRegistry, editedObject, selectedPatient } = route.params;
@@ -101,7 +102,15 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
             clinicalStatusId: yup.string(),
             date: yup.date(),
             registeringFacilityId: yup.string(),
-            clinicianId: yup.string().required('Registered by must be selected'),
+            clinicianId: yup
+              .string()
+              .required()
+              .translatedLabel(
+                <TranslatedText
+                  stringId="patientProgramRegistry.registeredBy.label"
+                  fallback="Registered by"
+                />,
+              ),
             conditions: yup.string(),
           })}
           onSubmit={submitPatientProgramRegistration}
