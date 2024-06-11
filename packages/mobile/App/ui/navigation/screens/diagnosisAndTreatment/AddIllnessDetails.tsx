@@ -33,7 +33,11 @@ const IllnessFormSchema = Yup.object().shape({
     .oneOf(Object.values(Certainty))
     .when('diagnosis', {
       is: (diagnosis: string) => Boolean(diagnosis),
-      then: Yup.mixed().required(),
+      then: Yup.mixed()
+        .required()
+        .translatedLabel(
+          <TranslatedText stringId="general.form.diagnosis.label" fallback="Diagnosis" />,
+        ),
     }),
   clinicalNote: Yup.string(),
 });
