@@ -21,7 +21,9 @@ export const ChangePasswordForm: FunctionComponent<ChangePasswordFormProps> = ({
     <Form
       initialValues={{ ...changePasswordInitialValues, email }}
       validationSchema={Yup.object().shape({
-        email: Yup.string().email(),
+        email: Yup.string().email(
+          getTranslation('validation.rule.validEmail', 'Must be a valid email address'),
+        ),
         token: Yup.string(),
         newPassword: Yup.string().min(
           5,
