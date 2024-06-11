@@ -18,7 +18,7 @@ import { useAuth } from '../../../contexts/Auth';
 import { MAX_AGE_TO_RECORD_WEIGHT, Colors } from '../../../constants';
 
 import { MultiplePrescriptionPrintoutModal } from './MultiplePrescriptionPrintoutModal';
-import { TranslatedText } from '../../Translation/TranslatedText';
+import { TranslatedText, TranslatedReferenceData } from '../../Translation';
 import { useLocalisation } from '../../../contexts/Localisation';
 import { useTranslation } from '../../../contexts/Translation';
 import { useSelector } from 'react-redux';
@@ -51,7 +51,11 @@ const COLUMNS = [
     ),
     sortable: false,
     maxWidth: 300,
-    accessor: ({ medication }) => medication.name,
+    accessor: ({ medication }) => <TranslatedReferenceData
+      fallback={medication.name}
+      value={medication.id}
+      category={medication.type}
+    />,
   },
   {
     key: COLUMN_KEYS.QUANTITY,

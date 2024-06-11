@@ -12,15 +12,11 @@ const getDisplayName = ({ orderedBy }) => orderedBy?.displayName ?? '';
 
 const getInvoiceLineCategory = row => {
   const { name } = row.invoiceLineType;
-  return (
-    <span>{name}</span>
-  );
+  return <span>{name}</span>;
 };
 
 const StyledTitleCell = ({ value }) => (
-  <Box sx={{ color: Colors.midText, fontWeight: 400 }}>
-    {value}
-  </Box>
+  <Box sx={{ color: Colors.midText, fontWeight: 400 }}>{value}</Box>
 );
 
 const PriceCell = styled.div`
@@ -29,14 +25,14 @@ const PriceCell = styled.div`
 `;
 
 const PriceText = styled.span`
-  text-decoration: ${props => props.isCrossedOut ? 'line-through' : 'none'};
+  text-decoration: ${props => (props.isCrossedOut ? 'line-through' : 'none')};
 `;
 
-const getPrice = (row) => {
+const getPrice = row => {
   const originalPrice = parseFloat(row?.invoiceLineType?.price).toFixed(2);
   const percentageChange = row.percentageChange ? parseFloat(row.percentageChange).toFixed(2) : 0;
   const priceChange = (originalPrice * percentageChange).toFixed(2);
-  const finalPrice = (+originalPrice + (+priceChange)).toFixed(2);
+  const finalPrice = (+originalPrice + +priceChange).toFixed(2);
 
   return (
     <PriceCell>

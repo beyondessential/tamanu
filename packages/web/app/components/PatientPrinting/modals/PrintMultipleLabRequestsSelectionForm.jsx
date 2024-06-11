@@ -12,7 +12,7 @@ import { Colors } from '../../../constants';
 import { MultipleLabRequestsPrintoutModal } from './MultipleLabRequestsPrintoutModal';
 import { FormDivider, PrintMultipleSelectionTable } from './PrintMultipleSelectionTable';
 import { getStatus } from '../../../utils/lab';
-import { TranslatedText } from '../../Translation/TranslatedText';
+import { TranslatedText, TranslatedReferenceData } from '../../Translation';
 
 const COLUMN_KEYS = {
   SELECTED: 'selected',
@@ -59,7 +59,12 @@ const COLUMNS = [
     ),
     sortable: false,
     maxWidth: 70,
-    accessor: ({ priority }) => priority?.name || '',
+    accessor: ({ priority }) => priority
+      ? <TranslatedReferenceData
+        fallback={priority.name}
+        value={priority.id}
+        category={priority.type}
+      /> : '',
   },
   {
     key: COLUMN_KEYS.CATEGORY,
@@ -70,7 +75,12 @@ const COLUMNS = [
       />
     ),
     sortable: false,
-    accessor: ({ category }) => category?.name || '',
+    accessor: ({ category }) => category
+      ? <TranslatedReferenceData
+        fallback={category.name}
+        value={category.id}
+        category={category.type}
+      /> : '',
   },
   {
     key: COLUMN_KEYS.STATUS,
