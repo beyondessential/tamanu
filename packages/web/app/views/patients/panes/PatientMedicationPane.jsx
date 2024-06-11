@@ -6,7 +6,7 @@ import { ContentPane } from '../../../components/ContentPane';
 import { DateDisplay } from '../../../components/DateDisplay';
 import { OuterLabelFieldWrapper } from '../../../components/Field/OuterLabelFieldWrapper';
 import { DataFetchingTable, Table } from '../../../components/Table';
-import { TranslatedText } from '../../../components/Translation/TranslatedText';
+import { TranslatedText, TranslatedReferenceData } from '../../../components/Translation';
 
 const StyledDiv = styled.div`
   max-width: 20vw;
@@ -18,7 +18,9 @@ const StyledTextSpan = styled.span`
 
 const getMedicationNameAndPrescription = ({ medication, prescription }) => (
   <StyledDiv>
-    <StyledTextSpan>{medication.name}</StyledTextSpan>
+    <StyledTextSpan>
+      <TranslatedReferenceData fallback={medication.name} value={medication.id} category="drug"/>  
+    </StyledTextSpan>
     <br />
     <StyledTextSpan color={Colors.midText}>{prescription}</StyledTextSpan>
   </StyledDiv>
@@ -52,7 +54,9 @@ const DISCHARGED_MEDICATION_COLUMNS = [
   {
     key: 'location.facility.name',
     title: <TranslatedText stringId="general.localisedField.facility.label" fallback="Facility" />,
-    accessor: data => data?.encounter?.location?.facility?.name ?? '',
+    accessor: data => data?.encounter?.location?.facility?.name
+      ? <TranslatedReferenceData fallback={data?.encounter?.location?.facility.name} value={data?.encounter?.location?.facility.id} category="facility"/> 
+      : '',
     sortable: false,
   },
   {

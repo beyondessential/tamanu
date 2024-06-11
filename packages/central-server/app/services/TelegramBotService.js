@@ -4,10 +4,15 @@ import TelegramBot from 'node-telegram-bot-api';
 
 /**
  *
- * @param {{ config: { telegramBot: { apiToken: string, webhook: { url: string, secret: string} }, language: string, }}} injector
+ * @param {{ config: { telegramBot: { apiToken: string, webhook: { url: string, secret: string} }, language: string, }, models: NonNullable<import('./../ApplicationContext.js').ApplicationContext['store']>['models']}} injector
  */
 export const defineTelegramBotService = async injector => {
-  const bot = injector.config.telegramBot?.apiToken ? new TelegramBot(injector.config.telegramBot.apiToken) : null;
+  //fallback to polling if webhook url is not set
+  const bot = !injector.config.telegramBot?.apiToken
+    ? null
+    : new TelegramBot(injector.config.telegramBot.apiToken, {
+        polling: !injector.config.telegramBot?.webhook?.url,
+      });
 
   /** @type {ReturnType<import('./websocketService.js').defineWebsocketService>|null} */
   let websocketService = null;
@@ -83,15 +88,23 @@ export const defineTelegramBotService = async injector => {
     const contact = await injector.models?.PatientContact?.findByPk(contactId, {
       include: [{ model: injector.models?.Patient, as: 'patient' }],
     });
-    if (!contact) return;
-
-    contact.connectionDetails = { chatId: message.chat.id };
-    await contact.save();
-
     const getTranslation = await injector.models?.TranslatedString?.getTranslationFunction(
       injector.config.language,
       ['telegramRegistration'],
     );
+
+    if (!contact) {
+      const notFoundMessage = getTranslation(
+        'telegramRegistration.contactNotFound',
+        'Contact not found',
+        {},
+      );
+      await sendMessage(message.chat.id, notFoundMessage, { parse_mode: 'HTML' });
+      return;
+    }
+    contact.connectionDetails = { chatId: message.chat.id };
+    await contact.save();
+
     const botInfo = await getBotInfo();
     const contactName = contact.name;
     const patientName = [contact.patient.firstName, contact.patient.lastName].join(' ').trim();
@@ -129,12 +142,12 @@ export const defineTelegramBotService = async injector => {
     };
 
     const handleRemoveContact = async contact => {
-      await contact.destroy();
       const botInfo = await getBotInfo();
 
       const contactName = contact.name;
       const patientName = [contact.patient.firstName, contact.patient.lastName].join(' ').trim();
 
+      await injector.models.PatientContact.destroy({ where: { id: contact.id } });
       const successMessage = getTranslation(
         'telegramDeregistration.successMessage',
         `Dear <strong>:contactName</strong>, you have successfully deregistered from receiving messages for <strong>:patientName</strong> from <strong>:botName</strong>. Thank you.`,

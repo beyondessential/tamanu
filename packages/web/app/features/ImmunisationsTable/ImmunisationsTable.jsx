@@ -1,20 +1,99 @@
 import React, { useMemo, useState } from 'react';
 import styled from 'styled-components';
-import { TranslatedText, CheckInput, DataFetchingTable, Heading4 } from '../../components';
-import { Colors } from '../../constants';
-import { getVaccineName, getDate, getGiver, getFacility, getActionButtons } from './accessors';
 
-const Container = styled.div`
-  padding: 0.9rem 1.2rem 0.8rem;
-  border-bottom: 1px solid ${Colors.outline};
+import { VACCINE_STATUS } from '@tamanu/constants/vaccines';
+import {
+  CheckInput,
+  DataFetchingTable,
+  DateDisplay,
+  MenuButton,
+  OutlinedButton,
+  StatusTag,
+  TranslatedReferenceData,
+  TranslatedText,
+} from '../../components';
+import { Colors } from '../../constants';
+
+const getSchedule = record =>
+  record.scheduledVaccine?.schedule || (
+    <TranslatedText stringId="general.fallback.notApplicable" fallback="N/A" />
+  );
+const getVaccineName = record =>
+  record.vaccineName ||
+  record.scheduledVaccine?.label || (
+    <TranslatedText stringId="general.fallback.unknown" fallback="Unknown" />
+  );
+const getDate = ({ date }) =>
+  date ? (
+    <DateDisplay date={date} />
+  ) : (
+    <TranslatedText stringId="general.fallback.unknown" fallback="Unknown" />
+  );
+const getGiver = record => {
+  if (record.status === VACCINE_STATUS.NOT_GIVEN) {
+    return (
+      <StatusTag $background="#4444441a" $color={Colors.darkestText}>
+        <TranslatedText stringId="vaccine.property.status.notGiven" fallback="Not given" />
+      </StatusTag>
+    );
+  }
+  if (record.givenElsewhere) {
+    return (
+      <TranslatedText
+        stringId="vaccine.property.status.givenElsewhere"
+        fallback="Given elsewhere"
+      />
+    );
+  }
+  return (
+    record.givenBy || <TranslatedText stringId="general.fallback.unknown" fallback="Unknown" />
+  );
+};
+const getFacility = record => {
+  const facility = record.givenElsewhere
+    ? record.givenBy
+    : record.location?.facility && (
+        <TranslatedReferenceData
+          fallback={record.location.facility.name}
+          value={record.location.facility.id}
+          category="facility"
+        />
+      );
+  return facility || '';
+};
+
+const ActionButtonsContainer = styled.div`
   display: flex;
   flex-direction: row;
-  justify-content: space-between;
+  align-items: center;
 `;
 
-const Title = styled(Heading4)`
-  margin: 0;
+const MarginedMenuButton = styled(MenuButton)`
+  margin-left: 15px;
 `;
+
+const getActionButtons = ({ onItemClick, onItemEditClick, onItemDeleteClick }) => record => {
+  return (
+    <ActionButtonsContainer>
+      <OutlinedButton onClick={() => onItemClick(record)}>
+        <TranslatedText stringId="general.action.view" fallback="View" />
+      </OutlinedButton>
+      <MarginedMenuButton
+        iconColor={Colors.primary}
+        actions={[
+          {
+            label: <TranslatedText stringId="general.action.edit" fallback="Edit" />,
+            action: () => onItemEditClick(record),
+          },
+          {
+            label: <TranslatedText stringId="general.action.delete" fallback="Delete" />,
+            action: () => onItemDeleteClick(record),
+          },
+        ]}
+      />
+    </ActionButtonsContainer>
+  );
+};
 
 const TableHeaderCheckbox = styled(CheckInput)`
   color: ${Colors.darkText};
@@ -31,12 +110,11 @@ const TableHeaderCheckbox = styled(CheckInput)`
   }
 `;
 
-const TableHeader = ({ includeNotGiven, setIncludeNotGiven }) => {
-  return (
-    <Container>
-      <Title>
-        <TranslatedText stringId="vaccine.table.recorded.label" fallback="Recorded vaccines" />
-      </Title>
+export const ImmunisationsTable = React.memo(
+  ({ patient, onItemClick, onItemEditClick, onItemDeleteClick, viewOnly, disablePagination }) => {
+    const [includeNotGiven, setIncludeNotGiven] = useState(false);
+
+    const notGivenCheckBox = (
       <TableHeaderCheckbox
         label={
           <TranslatedText
@@ -47,15 +125,7 @@ const TableHeader = ({ includeNotGiven, setIncludeNotGiven }) => {
         value={includeNotGiven}
         onClick={() => setIncludeNotGiven(!includeNotGiven)}
       />
-    </Container>
-  );
-};
-
-const getSchedule = ({ scheduledVaccine }) => scheduledVaccine.schedule;
-
-export const ImmunisationsTable = React.memo(
-  ({ patient, onItemClick, onItemEditClick, onItemDeleteClick, viewOnly, disablePagination }) => {
-    const [includeNotGiven, setIncludeNotGiven] = useState(false);
+    );
 
     const COLUMNS = useMemo(
       () => [
@@ -116,14 +186,7 @@ export const ImmunisationsTable = React.memo(
           <TranslatedText stringId="vaccine.table.noDataMessage" fallback="No vaccinations found" />
         }
         allowExport={!viewOnly}
-        TableHeader={
-          !viewOnly && (
-            <TableHeader
-              includeNotGiven={includeNotGiven}
-              setIncludeNotGiven={setIncludeNotGiven}
-            />
-          )
-        }
+        optionRow={!viewOnly && notGivenCheckBox}
         disablePagination={disablePagination}
       />
     );

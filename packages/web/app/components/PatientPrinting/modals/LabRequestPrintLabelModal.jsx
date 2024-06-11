@@ -7,7 +7,7 @@ import { Modal } from '../../Modal';
 import { LabRequestPrintLabel } from '../printouts/LabRequestPrintLabel';
 import { useLocalisation } from '../../../contexts/Localisation';
 import { getPatientNameAsString } from '../../PatientNameDisplay';
-import { TranslatedText } from '../../Translation/TranslatedText';
+import { TranslatedText, TranslatedReferenceData } from '../../Translation';
 
 const Container = styled.div`
   display: flex;
@@ -51,8 +51,18 @@ export const LabRequestPrintLabelModal = ({ open, onClose, labRequests }) => {
                 patientId: patient.displayId,
                 patientDateOfBirth: patient.dateOfBirth,
                 date: lab.sampleTime,
-                labCategory: lab.category?.name,
-                specimenType: lab.specimenType?.name,
+                labCategory: lab.category
+                  && <TranslatedReferenceData
+                    fallback={lab.category.name}
+                    value={lab.category.id}
+                    category={lab.category.type}
+                  />,
+                specimenType: lab.specimenType
+                  && <TranslatedReferenceData
+                    fallback={lab.specimenType.name}
+                    value={lab.specimenType.id}
+                    category={lab.specimenType.type}
+                  />
               }}
             />
           </Box>
