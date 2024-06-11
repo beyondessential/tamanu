@@ -39,16 +39,46 @@ const Form = ({ onSubmit, formState }: RegisterAccountFormStep01Props): JSX.Elem
         ...formState,
       }}
       validationSchema={Yup.object().shape({
-        firstName: Yup.string().required(),
-        lastName: Yup.string().required(),
+        firstName: Yup.string()
+          .required()
+          .translatedLabel(
+            <TranslatedText
+              stringId="general.localisedField.firstName.label"
+              fallback="First name"
+            />,
+          ),
+        lastName: Yup.string()
+          .required()
+          .translatedLabel(
+            <TranslatedText
+              stringId="general.localisedField.lastName.label"
+              fallback="Last name"
+            />,
+          ),
         email: Yup.string()
           .email(getTranslation('validation.rule.validEmail', 'Must be a valid email address'))
           .required()
           .translatedLabel(<TranslatedText stringId="login.email.label" fallback="Email" />),
         phone: Yup.string()
-          .min(13)
-          .max(13),
-        gender: Yup.string().required(),
+          .min(
+            13,
+            getTranslation(
+              'validation.rule.thirteenDigitPhoneNumber',
+              'Phone number must be 13 digits',
+            ),
+          )
+          .max(
+            13,
+            getTranslation(
+              'validation.rule.thirteenDigitPhoneNumber',
+              'Phone number must be 13 digits',
+            ),
+          ),
+        gender: Yup.string()
+          .required()
+          .translatedLabel(
+            <TranslatedText stringId="registerAccount.gender.label" fallback="Gender" />,
+          ),
       })}
       onSubmit={onSubmit}
     >
