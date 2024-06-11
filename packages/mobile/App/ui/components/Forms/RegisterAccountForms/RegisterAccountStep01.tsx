@@ -14,6 +14,8 @@ import { theme } from '/styled/theme';
 // Helpers
 import { GenderOptions, PhoneMask } from '/helpers/constants';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import { TranslatedText } from '../../Translations/TranslatedText';
+import { useTranslation } from '~/ui/contexts/TranslationContext';
 
 export const RegisterAccountStep01: FunctionComponent<any> = (props: {
   navigation: NavigationProp<any>;
@@ -23,79 +25,132 @@ export const RegisterAccountStep01: FunctionComponent<any> = (props: {
       fontSize={screenPercentageToDP(1.57, Orientation.Height)}
       color={theme.colors.SECONDARY_MAIN}
     >
-      PERSONAL INFORMATION
+      <TranslatedText
+        stringId="registerAccount.personalInformation.title"
+        fallback="PERSONAL INFORMATION"
+      />
     </StyledText>
     <Form {...props} />
   </FullView>
 );
 
-const Form: FunctionComponent<any> = () => (
-  <Formik
-    initialValues={{
-      firstName: '',
-      lastName: '',
-      email: '',
-      phone: '',
-      gender: null,
-    }}
-    validationSchema={Yup.object().shape({
-      firstName: Yup.string().required(),
-      lastName: Yup.string().required(),
-      email: Yup.string()
-        .email()
-        .required(),
-      phone: Yup.string()
-        .min(PhoneMask.mask.length)
-        .max(PhoneMask.mask.length)
-        .required(),
-      gender: Yup.string().required(),
-    })}
-    onSubmit={(values): void => console.log(values)}
-  >
-    {({ handleSubmit }: FormikHandlers): ReactNode => (
-      <StyledView
-        height={screenPercentageToDP(7.29 * 5, Orientation.Height)}
-        width="100%"
-        justifyContent="space-around"
-      >
-        <RowView>
-          <StyledView flex={1} marginRight={5}>
-            <Field component={TextField} name="firstName" label="First Name" />
-          </StyledView>
-          <StyledView flex={1}>
-            <Field component={TextField} name="lastName" label="Last Name" />
-          </StyledView>
-        </RowView>
-        <Field
-          component={TextField}
-          name="email"
-          label="Email"
-          keyboardType="email-address"
-        />
-        <Field
-          component={MaskedTextField}
-          keyboardType="number-pad"
-          name="phone"
-          label="Phone"
-          options={PhoneMask}
-          maskType="custom"
-          returnType="done"
-        />
-        <Field
-          name="gender"
-          title="Gender"
-          component={RadioButtonGroup}
-          options={GenderOptions}
-        />
+const Form: FunctionComponent<any> = () => {
+  const { getTranslation } = useTranslation();
+  return (
+    <Formik
+      initialValues={{
+        firstName: '',
+        lastName: '',
+        email: '',
+        phone: '',
+        gender: null,
+      }}
+      validationSchema={Yup.object().shape({
+        firstName: Yup.string()
+          .required()
+          .translatedLabel(
+            <TranslatedText
+              stringId="general.localisedField.firstName.label"
+              fallback="First name"
+            />,
+          ),
+        lastName: Yup.string()
+          .required()
+          .translatedLabel(
+            <TranslatedText
+              stringId="general.localisedField.lastName.label"
+              fallback="Last name"
+            />,
+          ),
+        email: Yup.string()
+          .email(getTranslation('validation.rule.validEmail', 'Must be a valid email address'))
+          .required()
+          .translatedLabel(<TranslatedText stringId="login.email.label" fallback="Email" />),
+        phone: Yup.string()
+          .min(
+            PhoneMask.mask.length,
+            getTranslation('validation.rule.validPhone', 'Phone number must be :digits long', {
+              digits: PhoneMask.mask.length,
+            }),
+          )
+          .max(
+            PhoneMask.mask.length,
+            getTranslation('validation.rule.validPhone', 'Phone number must be :digits long', {
+              digits: PhoneMask.mask.length,
+            }),
+          )
+          .required(),
+        gender: Yup.string()
+          .required()
+          .translatedLabel(
+            <TranslatedText stringId="registerAccount.gender.label" fallback="Gender" />,
+          ),
+      })}
+      onSubmit={(values): void => console.log(values)}
+    >
+      {({ handleSubmit }: FormikHandlers): ReactNode => (
+        <StyledView
+          height={screenPercentageToDP(7.29 * 5, Orientation.Height)}
+          width="100%"
+          justifyContent="space-around"
+        >
+          <RowView>
+            <StyledView flex={1} marginRight={5}>
+              <Field
+                component={TextField}
+                name="firstName"
+                label={
+                  <TranslatedText
+                    stringId="general.localisedField.firstName.label"
+                    fallback="First name"
+                  />
+                }
+              />
+            </StyledView>
+            <StyledView flex={1}>
+              <Field
+                component={TextField}
+                name="lastName"
+                label={
+                  <TranslatedText
+                    stringId="general.localisedField.lastName.label"
+                    fallback="Last name"
+                  />
+                }
+              />
+            </StyledView>
+          </RowView>
+          <Field
+            component={TextField}
+            name="email"
+            label={<TranslatedText stringId="login.email.label" fallback="Email" />}
+            keyboardType="email-address"
+          />
+          <Field
+            component={MaskedTextField}
+            keyboardType="number-pad"
+            name="phone"
+            label={<TranslatedText stringId="registerAccount.phone.label" fallback="Phone" />}
+            options={PhoneMask}
+            maskType="custom"
+            returnType="done"
+          />
+          <Field
+            name="gender"
+            title={<TranslatedText stringId="registerAccount.gender.label" fallback="Gender" />}
+            component={RadioButtonGroup}
+            options={GenderOptions}
+          />
 
-        <Button
-          marginTop={10}
-          onPress={handleSubmit}
-          backgroundColor={theme.colors.SECONDARY_MAIN}
-          buttonText="Next"
-          textColor={theme.colors.TEXT_SUPER_DARK}
-        />
-      </StyledView>
-    )}
-  </Formik>
-);
+          <Button
+            marginTop={10}
+            onPress={handleSubmit}
+            backgroundColor={theme.colors.SECONDARY_MAIN}
+            buttonText={<TranslatedText stringId="general.action.next" fallback="Next" />}
+            textColor={theme.colors.TEXT_SUPER_DARK}
+          />
+        </StyledView>
+      )}
+    </Formik>
+  );
+};
