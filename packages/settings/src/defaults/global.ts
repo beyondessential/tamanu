@@ -12,7 +12,7 @@ export const globalDefaults = {
       enabled: false,
     },
   },
-  vaccine: {
+  upcomingVaccinations: {
     ageLimit: 15,
     thresholds: [
       {
