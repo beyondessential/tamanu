@@ -65,7 +65,7 @@ export const VaccineTableCell = memo(
     if (vaccineStatus === VaccineStatus.SCHEDULED) cellStatus = dueStatus.status;
 
     const onAdminister = useCallback(() => {
-      onPress({ ...vaccine, status: vaccineStatus, id: scheduledVaccineId, administeredVaccine });
+      onPress({ ...vaccine, status: vaccineStatus, scheduledVaccineId, administeredVaccine });
       Popup.hide();
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [data]);
