@@ -28,6 +28,11 @@ export class SurveyResponseAnswer extends Model {
       foreignKey: 'responseId',
       as: 'surveyResponse',
     });
+
+    this.hasMany(models.VitalLog, {
+      foreignKey: 'answerId',
+      as: 'vitalLog',
+    });
   }
 
   static buildPatientSyncFilter(patientCount, markedForSyncPatientsTable, sessionConfig) {

@@ -128,7 +128,7 @@ const DateTooltip = ({ date, children, timeOnlyTooltip }) => {
 
 export const getDateDisplay = (
   dateValue,
-  { showDate = true, showTime = false, showExplicitDate = false, shortYear = false },
+  { showDate = true, showTime = false, showExplicitDate = false, shortYear = false } = {},
 ) => {
   const dateObj = parseDate(dateValue);
 
