@@ -13,6 +13,9 @@ import { registerYup } from '../helpers/yupMethods';
 import { readConfig, writeConfig } from '~/services/config';
 
 type Replacements = { [key: string]: any };
+
+export type GetTranslationFunction = (stringId: string, fallback?: string, replacements?: Replacements) => string;
+
 export interface TranslatedTextProps {
   stringId: string;
   fallback: string;
@@ -25,7 +28,7 @@ interface TranslationContextData {
   language: string;
   languageOptions: [];
   setLanguageOptions: (languageOptions: []) => void;
-  getTranslation: (stringId: string, fallback?: string, replacements?: Replacements) => string;
+  getTranslation: GetTranslationFunction;
   setLanguage: (language: string) => void;
   host: string;
   setHost: (host: string) => void;

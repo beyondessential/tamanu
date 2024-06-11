@@ -20,6 +20,7 @@ import { useBackendEffect } from '~/ui/hooks';
 import { ErrorScreen } from '../../ErrorScreen';
 import { LoadingScreen } from '../../LoadingScreen';
 import { IPatientProgramRegistration } from '~/types/IPatientProgramRegistration';
+import { useTranslation } from '~/ui/contexts/TranslationContext';
 
 export type SurveyFormProps = {
   onSubmit: (values: any) => Promise<void>;
@@ -49,6 +50,7 @@ export const SurveyForm = ({
   currentScreenIndex,
   onGoBack,
 }: SurveyFormProps): ReactElement => {
+  const { getTranslation } = useTranslation();
   const currentUser = useSelector(authUserSelector);
   const initialValues = useMemo(
     () =>
@@ -78,8 +80,9 @@ export const SurveyForm = ({
       getFormSchema(
         components.filter(c => checkVisibilityCriteria(c, components, formValues)),
         { encounterType: encounter?.encounterType },
+        getTranslation,
       ),
-    [encounter?.encounterType, checkVisibilityCriteria, components, formValues],
+    [encounter?.encounterType, components, formValues, getTranslation],
   );
 
   const submitVisibleValues = useCallback(
