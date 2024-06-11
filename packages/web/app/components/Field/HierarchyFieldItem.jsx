@@ -20,6 +20,7 @@ export const HierarchyFieldItem = ({ isFirstLevel, relationType, parentId, field
   useEffect(() => {
     // Don't clear the value unless the form has been edited
     if (!dirty) return;
+    console.log(`clearing ${fieldData.name} because parent changed to change to ${parentId}`)
     setFieldValue(fieldData.name, undefined);
   }, [fieldData.name, parentId, setFieldValue]);
 

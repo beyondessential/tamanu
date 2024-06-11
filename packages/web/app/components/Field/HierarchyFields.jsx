@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { useHierarchyTypesQuery } from '../../api/queries';
 import { HierarchyFieldItem } from './HierarchyFieldItem';
@@ -6,6 +6,7 @@ import { Colors } from '../../constants';
 import { useFormikContext } from 'formik';
 import { get } from 'lodash';
 import { FormGrid } from '../FormGrid';
+import { useHierarchyAncestorsQuery } from '../../api/queries/useHierarchyAncestorsQuery';
 
 const Container = styled(FormGrid)`
   grid-column: 1 / 3;
@@ -14,10 +15,27 @@ const Container = styled(FormGrid)`
 `;
 
 export const HierarchyFields = ({ fields, leafNodeType, relationType }) => {
-  const { values } = useFormikContext();
-  const { data = [] } = useHierarchyTypesQuery({ leafNodeType, relationType });
-  const configuredFields = data.filter(type => fields.find(f => f.referenceType === type));
+  const { values, setValues, dirty, setFormikState } = useFormikContext();
+  const leafNodeName = fields.find(({ referenceType }) => referenceType === leafNodeType).name;
+  // console.log(leafNodeName)
+  const leafNodeValue = values[leafNodeName];
+  // console.log(leafNodeValue)
+  const { data: hierarchyTypes = [] } = useHierarchyTypesQuery({ leafNodeType, relationType });
+  const { data: ancestors } = useHierarchyAncestorsQuery(leafNodeValue);
+  const configuredFields = hierarchyTypes.filter(type =>
+    fields.find(f => f.referenceType === type),
+  );
   const hierarchyToShow = configuredFields.length > 0 ? configuredFields : [leafNodeType];
+
+  useEffect(() => {
+    if (ancestors) {
+      const ancestorValuesToFieldName = Object.fromEntries(
+        fields.map(({ name, referenceType }) => [name, ancestors[referenceType]]),
+      );
+      setValues({ ...values, ...ancestorValuesToFieldName });
+    }
+  }, [ancestors]);
+
 
   return (
     <Container>

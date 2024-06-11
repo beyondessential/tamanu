@@ -4,8 +4,13 @@ import { ConfiguredMandatoryPatientFields } from '../../../ConfiguredMandatoryPa
 import { TranslatedText } from '../../../../../components/Translation/TranslatedText';
 import { LinkedField } from '../../../../../components/Field/LinkedField';
 import { HierarchyFields } from '../../../../../components/Field/HierarchyFields';
-import { REFERENCE_DATA_RELATION_TYPES, REFERENCE_TYPES } from '@tamanu/constants';
+import {
+  PATIENT_FIELD_DEFINITION_TYPES,
+  REFERENCE_DATA_RELATION_TYPES,
+  REFERENCE_TYPES,
+} from '@tamanu/constants';
 import { useFilterPatientFields } from '../../../useFilterPatientFields';
+import { PatientField } from '../../../PatientFields';
 
 const HealthCenterLinkedVillageField = props => (
   <LinkedField
@@ -45,7 +50,9 @@ export const CambodiaLocationFields = ({ filterByMandatory, secondary }) => {
     },
     settlementId: {
       referenceType: REFERENCE_TYPES.SETTLEMENT,
-      label: <TranslatedText stringId="general.localisedField.settlementId.label" fallback="Commune" />,
+      label: (
+        <TranslatedText stringId="general.localisedField.settlementId.label" fallback="Commune" />
+      ),
     },
     villageId: {
       component: HealthCenterLinkedVillageField,
@@ -93,10 +100,25 @@ export const CambodiaLocationFields = ({ filterByMandatory, secondary }) => {
         leafNodeType={REFERENCE_TYPES.VILLAGE}
         fields={locationHierarchyFieldsToShow}
       />
-      <ConfiguredMandatoryPatientFields
-        fields={LOCATION_FIELDS}
-        filterByMandatory={filterByMandatory}
-      />
+      {secondary ? (
+        <PatientField
+          definition={{
+            name: (
+              <TranslatedText
+                stringId="general.localisedField.streetVillage.label"
+                fallback="Street No. & Name"
+              />
+            ),
+            definitionId: 'fieldDefinition-secondaryAddressStreet',
+            fieldType: PATIENT_FIELD_DEFINITION_TYPES.STRING,
+          }}
+        />
+      ) : (
+        <ConfiguredMandatoryPatientFields
+          fields={LOCATION_FIELDS}
+          filterByMandatory={filterByMandatory}
+        />
+      )}
     </>
   );
 };
