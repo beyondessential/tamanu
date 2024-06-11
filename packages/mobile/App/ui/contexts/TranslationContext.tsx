@@ -69,8 +69,7 @@ export const TranslationProvider = ({ children }: PropsWithChildren<object>): Re
   };
 
   const setLanguageState = async (languageCode: string = DEFAULT_LANGUAGE) => {
-    await writeConfig('language', languageCode);
-    console.log('Setting language', languageCode);
+    await writeLanguage(languageCode);
     if (!languageOptions) getLanguageOptions();
     const translations = await models.TranslatedString.getForLanguage(languageCode);
     if (isEmpty(translations)) {
@@ -88,9 +87,12 @@ export const TranslationProvider = ({ children }: PropsWithChildren<object>): Re
     return replaceStringVariables(translation, replacements, translations);
   };
 
+  const writeLanguage = async (languageCode: string) => {
+    await writeConfig('language', languageCode);
+  };
+
   const restoreLanguage = async () => {
     const languageCode = await readConfig('language');
-    console.log('Restoring language', languageCode);
     setLanguage(languageCode);
   };
 
