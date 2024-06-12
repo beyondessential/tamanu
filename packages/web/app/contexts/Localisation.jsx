@@ -1,13 +1,8 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { get } from 'lodash';
-import { merge } from 'lodash';
+import { get, merge } from 'lodash';
 
-const overrides = {
-  layouts: {
-    patientDetails: 'cambodia',
-  },
-}; // add keys to this object to help with development
+const overrides = {}; // add keys to this object to help with development
 
 const LocalisationContext = React.createContext({
   getLocalisation: () => {},
