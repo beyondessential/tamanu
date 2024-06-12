@@ -4,6 +4,9 @@ import { SECONDARY_LOCATION_HIERARCHY_FIELDS } from './layouts/cambodia/patientF
 import { useHierarchyAncestorsQuery } from '../../api/queries/useHierarchyAncestorsQuery';
 import { useFilterPatientFields } from './useFilterPatientFields';
 
+// Some values for patient fields are not persisted to database and rather are derived from other fields.
+// This hook computes the initial values for these fields.
+// For example, in Cambodia layout, the secondary patient location hierarchy is not stored in the patient record beyond the secondary village ID.
 export const useComputedInitialValues = ({ additionalData }) => {
   const { getLocalisation } = useLocalisation();
   const layout = getLocalisation('layouts.patientDetails') || PATIENT_DETAIL_LAYOUTS.GENERIC;
