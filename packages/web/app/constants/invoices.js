@@ -48,6 +48,12 @@ export const INVOICE_ACTIVE_MODALS = {
   CREATE_INVOICE: "createInvoice",
 };
 
+export const INVOICE_ACTIVE_VIEW = {
+  DISCOUNT_TYPE: "discountType",
+  DISCOUNT_ASSESSMENT: "assessment",
+  MANUAL_DISCOUNT: "manual",
+}
+
 export const slidingFeeScaleTable = [
   [0, 5700, 10050, 12600, 14100, 17500],
   [0, 6600, 13500, 16300, 19000, 21800],
