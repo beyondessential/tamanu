@@ -4,7 +4,9 @@ import { SECONDARY_LOCATION_HIERARCHY_FIELDS } from './layouts/cambodia/patientF
 import { useHierarchyAncestorsQuery } from '../../api/queries/useHierarchyAncestorsQuery';
 import { useFilterPatientFields } from './useFilterPatientFields';
 
-export const useSecondaryLocationFields = ({ layout, additionalData }) => {
+export const useComputedInitialValues = ({ additionalData }) => {
+  const { getLocalisation } = useLocalisation();
+  const layout = getLocalisation('layouts.patientDetails') || PATIENT_DETAIL_LAYOUTS.GENERIC;
   const { data: ancestors, isLoading } = useHierarchyAncestorsQuery(
     additionalData.secondaryVillageId,
     {
@@ -20,20 +22,4 @@ export const useSecondaryLocationFields = ({ layout, additionalData }) => {
     fieldsToShow.map(({ name, referenceType }) => [name, ancestors[referenceType]]),
   );
   return { initialValues, isLoading };
-};
-
-export const useComputedInitialValues = ({ additionalData }) => {
-  const { getLocalisation } = useLocalisation();
-  const layout = getLocalisation('layouts.patientDetails') || PATIENT_DETAIL_LAYOUTS.GENERIC;
-  const {
-    initialValues: secondaryLocationInitialValues,
-    isLoading: isLoadingSecondaryLocationInitialValues,
-  } = useSecondaryLocationFields({ layout, additionalData });
-
-  return {
-    initialValues: {
-      ...secondaryLocationInitialValues,
-    },
-    isLoading: isLoadingSecondaryLocationInitialValues,
-  };
 };

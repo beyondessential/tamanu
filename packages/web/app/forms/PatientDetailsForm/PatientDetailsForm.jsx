@@ -14,9 +14,7 @@ import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { useLayoutComponents } from './useLayoutComponents';
 import { usePatientFieldDefinitionQuery } from '../../api/queries/usePatientFieldDefinitionQuery';
 import { useTranslation } from '../../contexts/Translation';
-import { useHierarchyAncestorsQuery } from '../../api/queries/useHierarchyAncestorsQuery';
-import { SECONDARY_LOCATION_HIERARCHY_FIELDS } from './layouts/cambodia/patientFields/CambodiaLocationFields';
-import { useFilterPatientFields } from './useFilterPatientFields';
+import { useComputedInitialValues } from './useComputedInitialValues';
 
 const StyledPatientDetailSecondaryDetailsGroupWrapper = styled.div`
   margin-top: 70px;
@@ -111,57 +109,48 @@ export const PatientDetailsForm = ({ patient, additionalData, birthData, onSubmi
     enabled: Boolean(patient.id),
   });
 
-  const { data: ancestors, isLoading: isHierarchyLoading } = useHierarchyAncestorsQuery(
-    additionalData.secondaryVillageId,
-  );
-
-  const { fieldsToShow } = useFilterPatientFields({
-    fields: SECONDARY_LOCATION_HIERARCHY_FIELDS,
-    filterByMandatory: true,
-  });
+  const {
+    data: computedInitialValues,
+    isLoading: isLoadingComputedInitialValues,
+  } = useComputedInitialValues({ additionalData });
 
   const errors = [fieldDefError, fieldValError].filter(e => Boolean(e));
   if (errors.length > 0) {
     return <pre>{errors.map(e => e.stack).join('\n')}</pre>;
   }
-  const isLoading = isLoadingFieldDefinitions || isLoadingFieldValues || isHierarchyLoading;
+  const isLoading =
+    isLoadingFieldDefinitions || isLoadingFieldValues || isLoadingComputedInitialValues;
   if (isLoading) {
     return <LoadingIndicator />;
   }
-  const computedInitialValues = Object.fromEntries(
-    fieldsToShow.map(({ name, referenceType }) => [name, ancestors[referenceType]]),
-  );
 
   return (
     <Form
-      render={({ values = {} }) => {
-        console.log(values);
-        return (
-          <>
-            <PrimaryDetails
+      render={({ values = {} }) => (
+        <>
+          <PrimaryDetails
+            registeredBirthPlace={values.registeredBirthPlace}
+            patientRegistryType={patientRegistryType}
+            isRequiredPatientData={isRequiredPatientData}
+            sexOptions={sexOptions}
+            isDetailsForm
+          />
+          <StyledPatientDetailSecondaryDetailsGroupWrapper>
+            <SecondaryDetails
               registeredBirthPlace={values.registeredBirthPlace}
               patientRegistryType={patientRegistryType}
-              isRequiredPatientData={isRequiredPatientData}
-              sexOptions={sexOptions}
-              isDetailsForm
+              isEdit
             />
-            <StyledPatientDetailSecondaryDetailsGroupWrapper>
-              <SecondaryDetails
-                registeredBirthPlace={values.registeredBirthPlace}
-                patientRegistryType={patientRegistryType}
-                isEdit
-              />
-            </StyledPatientDetailSecondaryDetailsGroupWrapper>
-            <PatientFields
-              fieldDefinitions={fieldDefinitionsResponse.data}
-              fieldValues={fieldValuesResponse?.data}
-            />
-            <ButtonRow>
-              <FormSubmitButton variant="contained" color="primary" text="Save" />
-            </ButtonRow>
-          </>
-        );
-      }}
+          </StyledPatientDetailSecondaryDetailsGroupWrapper>
+          <PatientFields
+            fieldDefinitions={fieldDefinitionsResponse.data}
+            fieldValues={fieldValuesResponse?.data}
+          />
+          <ButtonRow>
+            <FormSubmitButton variant="contained" color="primary" text="Save" />
+          </ButtonRow>
+        </>
+      )}
       enableReinitialize
       initialValues={{
         ...stripPatientData(patient, additionalData, birthData),
