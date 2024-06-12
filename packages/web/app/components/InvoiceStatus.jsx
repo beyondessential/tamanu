@@ -1,7 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
-import { TranslatedEnum } from './Translation';
-import { INVOICE_STATUS_COLORS, INVOICE_STATUS_LABELS } from '../constants';
+import { INVOICE_STATUS_LABELS } from '@tamanu/constants';
+import { TranslatedEnum } from '../components/Translation';
+import { INVOICE_STATUS_COLORS } from '../constants';
 
 const StatusLabel = styled.div`
   color: ${p => p.$color};
