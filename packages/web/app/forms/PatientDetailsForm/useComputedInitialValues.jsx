@@ -7,10 +7,11 @@ import { useFilterPatientFields } from './useFilterPatientFields';
 export const useComputedInitialValues = ({ additionalData }) => {
   const { getLocalisation } = useLocalisation();
   const layout = getLocalisation('layouts.patientDetails') || PATIENT_DETAIL_LAYOUTS.GENERIC;
+  const isCambodiaLayout = layout === PATIENT_DETAIL_LAYOUTS.CAMBODIA;
   const { data: ancestors, isLoading } = useHierarchyAncestorsQuery(
     additionalData.secondaryVillageId,
     {
-      enabled: layout === PATIENT_DETAIL_LAYOUTS.CAMBODIA,
+      enabled: isCambodiaLayout,
     },
   );
   const { fieldsToShow } = useFilterPatientFields({
@@ -18,8 +19,10 @@ export const useComputedInitialValues = ({ additionalData }) => {
     filterByMandatory: true,
   });
 
+  if (isLoading) return { isLoading: true };
+
   const initialValues = Object.fromEntries(
     fieldsToShow.map(({ name, referenceType }) => [name, ancestors[referenceType]]),
   );
-  return { initialValues, isLoading };
+  return { data: initialValues };
 };
