@@ -6,10 +6,12 @@ import { Modal } from '../Modal';
 import { TranslatedText } from '../Translation';
 import { BodyText, Heading3, Heading5, SmallBodyText } from '../Typography';
 import { useApi } from '../../api';
-import { Colors, INVOICE_ACTIVE_MODALS } from '../../constants';
+import { Colors, INVOICE_ACTIVE_MODALS, INVOICE_ACTIVE_VIEW } from '../../constants';
 import { ConfirmCancelBackRow } from '../ButtonRow';
 import { InvoiceDiscountAssessmentForm } from './InvoiceDiscountAssessmentForm';
 import { InvoiceManualDiscountForm } from './InvoiceManualDiscountForm';
+import { useInvoiceModal } from '../../contexts/InvoiceModal';
+import { usePriceChangeItemsQuery } from '../../api/queries/usePriceChangeItemsQuery';
 
 const StyledFormControlLabel = styled(FormControlLabel)`
   align-items: flex-start;
@@ -50,7 +52,7 @@ const StyledDivider = styled(Divider)`
 
 const RadioLabel = ({ type }) => (
   <>
-    {type === ACTIVE_VIEW.DISCOUNT_ASSESSMENT && <>
+    {type === INVOICE_ACTIVE_VIEW.DISCOUNT_ASSESSMENT && <>
       <Heading5 mb="7px" mt={0}>
         <TranslatedText
           stringId="invoice.modal.selectDiscount.assessment.label"
@@ -64,7 +66,7 @@ const RadioLabel = ({ type }) => (
         />
       </SmallBodyText>
     </>}
-    {type === ACTIVE_VIEW.MANUAL_DISCOUNT && <>
+    {type === INVOICE_ACTIVE_VIEW.MANUAL_DISCOUNT && <>
       <Heading5 mb="7px" mt={0}>
         <TranslatedText
           stringId="invoice.modal.selectDiscount.manual.label"
@@ -81,7 +83,7 @@ const RadioLabel = ({ type }) => (
   </>
 );
 
-const InvoiceDiscountTypeSelector = ({ updateDiscountType, handleNext, onClose, handleSkip }) => {
+const InvoiceDiscountTypeSelector = ({ updateDiscountType, handleNext, onClose, handleSkip, showSkip }) => {
   return (
     <>
       <Heading3 mb="8px">
@@ -123,49 +125,47 @@ const InvoiceDiscountTypeSelector = ({ updateDiscountType, handleNext, onClose, 
         confirmText={<TranslatedText stringId="general.action.next" fallback="Next" />}
         onConfirm={handleNext}
         onCancel={onClose}
-        onBack={handleSkip}
+        onBack={showSkip && handleSkip}
         backButtonText={<TranslatedText stringId="general.action.skip" fallback="Skip" />}
       />
     </>
   );
 };
 
-const ACTIVE_VIEW = {
-  DISCOUNT_TYPE: "discountType",
-  DISCOUNT_ASSESSMENT: "assessment",
-  MANUAL_DISCOUNT: "manual",
-}
-
 export const CreateInvoiceModal = React.memo(
   ({
     open,
-    onClose,
     createInvoice,
-    handleActiveModal
+    invoiceId
   }) => {
     const [discountType, setDiscountType] = useState('');
-    const [activeView, setActiveView] = useState(ACTIVE_VIEW.DISCOUNT_TYPE);
     const api = useApi();
+    const { activeView, handleActiveView, handleActiveModal } = useInvoiceModal();
+    const { data: priceChangeItems } = usePriceChangeItemsQuery(invoiceId);
 
     const onChangeDiscountType = useCallback(
       (updatedDiscountType) => setDiscountType(updatedDiscountType),
       []);
 
-    const handleActiveView = useCallback((nextActiveView) => {
-      setActiveView(nextActiveView);
-    }, []);
-
     const handleSubmitDiscount = useCallback(
       async data => {
-        const invoiceResponse = await createInvoice();
-        const percentageChange = -Math.abs(data.percentageChange / (activeView === ACTIVE_VIEW.MANUAL_DISCOUNT ? 100 : 1));
+        const percentageChange = -Math.abs(data.percentageChange / (activeView === INVOICE_ACTIVE_VIEW.MANUAL_DISCOUNT ? 100 : 1));
         const payload = {
-          description: activeView === ACTIVE_VIEW.MANUAL_DISCOUNT ? data.reason : "Patient discount applied",
+          description: activeView === INVOICE_ACTIVE_VIEW.MANUAL_DISCOUNT ? data.reason : "Patient discount applied",
           percentageChange,
           date: getCurrentDateString(),
         };
 
-        await api.post(`invoices/${invoiceResponse.id}/priceChangeItems`, payload);
+        if (!invoiceId) {
+          const invoiceResponse = await createInvoice();
+          await api.post(`invoices/${invoiceResponse.id}/priceChangeItems`, payload);
+        } else {
+          await api.put(
+            `invoices/${invoiceId}/priceChangeItems/${priceChangeItems?.data[0]?.id}`,
+            payload
+          );
+        }
+        
         handleActiveModal(INVOICE_ACTIVE_MODALS.EDIT_INVOICE);
       },
       [api, activeView],
@@ -178,34 +178,40 @@ export const CreateInvoiceModal = React.memo(
 
     const renderActiveView = () => {
       switch (activeView) {
-        case ACTIVE_VIEW.DISCOUNT_TYPE:
+        case INVOICE_ACTIVE_VIEW.DISCOUNT_TYPE:
           return (
             <InvoiceDiscountTypeSelector
               updateDiscountType={onChangeDiscountType}
               handleNext={() => discountType && handleActiveView(discountType)}
               onClose={onClose}
               handleSkip={handleSkip}
+              showSkip={!invoiceId}
             />
           );
-        case ACTIVE_VIEW.DISCOUNT_ASSESSMENT:
+        case INVOICE_ACTIVE_VIEW.DISCOUNT_ASSESSMENT:
           return (
             <InvoiceDiscountAssessmentForm
               handleSubmit={handleSubmitDiscount}
               onClose={onClose}
-              handleBack={() => handleActiveView(ACTIVE_VIEW.DISCOUNT_TYPE)}
+              handleBack={() => handleActiveView(INVOICE_ACTIVE_VIEW.DISCOUNT_TYPE)}
             />
           );
-        case ACTIVE_VIEW.MANUAL_DISCOUNT:
+        case INVOICE_ACTIVE_VIEW.MANUAL_DISCOUNT:
           return (
             <InvoiceManualDiscountForm
               handleSubmit={handleSubmitDiscount}
               onClose={onClose}
-              handleBack={() => handleActiveView(ACTIVE_VIEW.DISCOUNT_TYPE)}
+              handleBack={() => handleActiveView(INVOICE_ACTIVE_VIEW.DISCOUNT_TYPE)}
             />
           );
         default:
           return null;
       }
+    };
+
+    const onClose = () => {
+      handleActiveModal('');
+      handleActiveView(INVOICE_ACTIVE_VIEW.DISCOUNT_TYPE);
     };
 
     return (
