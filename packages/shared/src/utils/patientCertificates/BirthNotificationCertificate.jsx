@@ -188,6 +188,8 @@ const ChildSection = ({ data }) => {
 };
 
 const ParentSection = ({ parentType, data = {} }) => {
+  console.log('data', data);
+
   return (
     <Table>
       <Row>
@@ -195,7 +197,11 @@ const ParentSection = ({ parentType, data = {} }) => {
       </Row>
       <Row>
         <LeftCell>Name</LeftCell>
-        <FlexCell>{getFullName(data)}</FlexCell>
+        <Cell style={{ width: 150 }}>{getFullName(data)}</Cell>
+        <Cell style={{ width: 90 }} bold>
+          Nationality
+        </Cell>
+        <FlexCell>{data?.additionalData?.nationality?.name}</FlexCell>
       </Row>
       <Row>
         <LeftCell>Ethnicity</LeftCell>
@@ -227,7 +233,11 @@ const ParentSection = ({ parentType, data = {} }) => {
       </Row>
       <Row>
         <LeftCell>Address</LeftCell>
-        <FlexCell>{data?.additionalData?.streetVillage}</FlexCell>
+        <Cell style={{ width: 150 }}>{data?.additionalData?.streetVillage}</Cell>
+        <Cell style={{ width: 90 }} bold>
+          Phone number
+        </Cell>
+        <FlexCell>{data?.additionalData?.primaryContactNumber}</FlexCell>
       </Row>
       <Row>
         <LeftCell>Mother&apos;s name</LeftCell>
