@@ -151,7 +151,6 @@ export const PatientDetailsForm = ({ patient, additionalData, birthData, onSubmi
           </ButtonRow>
         </>
       )}
-      enableReinitialize
       initialValues={{
         ...stripPatientData(patient, additionalData, birthData),
         patientFields: addMissingFieldValues(
