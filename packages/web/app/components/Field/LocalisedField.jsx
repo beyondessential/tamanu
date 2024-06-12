@@ -27,10 +27,8 @@ export const LocalisedField = ({ name, path = `fields.${name}`, label, ...props 
     if (!shouldPrefillDefaultValue({ initialValue, formType, hidden, defaultValue })) return;
     if (Array.isArray(defaultValue)) {
       setFieldValue(name, JSON.stringify(defaultValue));
-      console.log('setting default value', name, JSON.stringify(defaultValue));
     } else {
       setFieldValue(name, defaultValue);
-      console.log('setting default value', name, defaultValue);
     }
     // only check to prefill default value when initialValue or formType changes
     // eslint-disable-next-line react-hooks/exhaustive-deps
