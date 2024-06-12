@@ -29,7 +29,7 @@ export const HierarchyFields = ({ fields, leafNodeType, relationType }) => {
 
         return (
           <HierarchyFieldItem
-            key={type}
+            key={fieldData.name}
             relationType={relationType}
             isFirstLevel={index === 0}
             parentId={parentId}
