@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect } from 'react';
 import styled from 'styled-components';
 import { useHierarchyTypesQuery } from '../../api/queries';
 import { HierarchyFieldItem } from './HierarchyFieldItem';
@@ -21,7 +21,7 @@ export const HierarchyFields = ({
   relationType,
   assumeParentHierarchyValues,
 }) => {
-  const { values, getFieldHelpers } = useFormikContext();
+  const { values } = useFormikContext();
   const { setReinitializedValues } = usePatientDetailsFormContext();
   const leafNodeName = fields.find(({ referenceType }) => referenceType === leafNodeType).name;
   // console.log(leafNodeName)
@@ -34,20 +34,8 @@ export const HierarchyFields = ({
   );
   const hierarchyToShow = configuredFields.length > 0 ? configuredFields : [leafNodeType];
 
-  useEffect(() => {
-    if (!ancestors || !assumeParentHierarchyValues) return;
 
-    if (ancestors) {
-      const ancestorValuesToFieldName = Object.fromEntries(
-        fields.map(({ name, referenceType }) => [name, ancestors[referenceType]]),
-      );
-      console.log(ancestorValuesToFieldName);
-      // Reinitialize form with assumed parent hierarchy values
-      setReinitializedValues(ancestorValuesToFieldName);
-    }
-  }, [ancestors]);
 
-  console.log(hierarchyToShow);
   return (
     <Container>
       {hierarchyToShow.map((type, index) => {

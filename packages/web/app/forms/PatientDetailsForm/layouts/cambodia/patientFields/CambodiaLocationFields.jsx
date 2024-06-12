@@ -22,6 +22,25 @@ const HealthCenterLinkedVillageField = props => (
   />
 );
 
+export const SECONDARY_LOCATION_HIERARCHY_FIELDS = {
+  secondaryDivisionId: {
+    referenceType: REFERENCE_TYPES.DIVISION,
+    label: <TranslatedText stringId="cambodiaPatientDetails.province.label" fallback="Province" />,
+  },
+  secondarySubdivisionId: {
+    referenceType: REFERENCE_TYPES.SUBDIVISION,
+    label: <TranslatedText stringId="cambodiaPatientDetails.district.label" fallback="District" />,
+  },
+  secondarySettlementId: {
+    referenceType: REFERENCE_TYPES.SETTLEMENT,
+    label: <TranslatedText stringId="cambodiaPatientDetails.commune.label" fallback="Commune" />,
+  },
+  secondaryVillageId: {
+    referenceType: REFERENCE_TYPES.VILLAGE,
+    label: <TranslatedText stringId="general.localisedField.villageId.label" fallback="Village" />,
+  },
+};
+
 export const CambodiaLocationFields = ({ filterByMandatory, secondary }) => {
   const LOCATION_FIELDS = {
     streetVillage: {
@@ -56,31 +75,6 @@ export const CambodiaLocationFields = ({ filterByMandatory, secondary }) => {
     },
     villageId: {
       component: HealthCenterLinkedVillageField,
-      referenceType: REFERENCE_TYPES.VILLAGE,
-      label: (
-        <TranslatedText stringId="general.localisedField.villageId.label" fallback="Village" />
-      ),
-    },
-  };
-
-  const SECONDARY_LOCATION_HIERARCHY_FIELDS = {
-    secondaryDivisionId: {
-      referenceType: REFERENCE_TYPES.DIVISION,
-      label: (
-        <TranslatedText stringId="cambodiaPatientDetails.province.label" fallback="Province" />
-      ),
-    },
-    secondarySubdivisionId: {
-      referenceType: REFERENCE_TYPES.SUBDIVISION,
-      label: (
-        <TranslatedText stringId="cambodiaPatientDetails.district.label" fallback="District" />
-      ),
-    },
-    secondarySettlementId: {
-      referenceType: REFERENCE_TYPES.SETTLEMENT,
-      label: <TranslatedText stringId="cambodiaPatientDetails.commune.label" fallback="Commune" />,
-    },
-    secondaryVillageId: {
       referenceType: REFERENCE_TYPES.VILLAGE,
       label: (
         <TranslatedText stringId="general.localisedField.villageId.label" fallback="Village" />

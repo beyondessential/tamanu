@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import { isEmpty } from 'lodash';
 import { useQuery } from '@tanstack/react-query';
@@ -14,25 +14,13 @@ import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { useLayoutComponents } from './useLayoutComponents';
 import { usePatientFieldDefinitionQuery } from '../../api/queries/usePatientFieldDefinitionQuery';
 import { useTranslation } from '../../contexts/Translation';
+import { useHierarchyAncestorsQuery } from '../../api/queries/useHierarchyAncestorsQuery';
+import { SECONDARY_LOCATION_HIERARCHY_FIELDS } from './layouts/cambodia/patientFields/CambodiaLocationFields';
+import { useFilterPatientFields } from './useFilterPatientFields';
 
 const StyledPatientDetailSecondaryDetailsGroupWrapper = styled.div`
   margin-top: 70px;
 `;
-
-const PatientDetailsFormContext = React.createContext();
-
-export const PatientDetailsFormProvider = ({ children }) => {
-  const [reinitializedValues, setReinitializedValues] = useState({});
-  return (
-    <PatientDetailsFormContext.Provider value={{ reinitializedValues, setReinitializedValues }}>
-      {children}
-    </PatientDetailsFormContext.Provider>
-  );
-};
-
-export const usePatientDetailsFormContext = () => {
-  return useContext(PatientDetailsFormContext);
-};
 
 function sanitiseRecordForValues(data) {
   const values = { ...data };
@@ -82,16 +70,7 @@ function stripPatientData(patient, additionalData, birthData) {
   };
 }
 
-export const PatientDetailsForm = props => {
-  return (
-    <PatientDetailsFormProvider>
-      <PatientDetailsFormComponent {...props} />
-    </PatientDetailsFormProvider>
-  );
-};
-
-export const PatientDetailsFormComponent = ({ patient, additionalData, birthData, onSubmit }) => {
-  const { reinitializedValues } = usePatientDetailsFormContext();
+export const PatientDetailsForm = ({ patient, additionalData, birthData, onSubmit }) => {
   const { getTranslation } = useTranslation();
   const patientRegistryType = !isEmpty(birthData)
     ? PATIENT_REGISTRY_TYPES.BIRTH_REGISTRY
@@ -132,18 +111,31 @@ export const PatientDetailsFormComponent = ({ patient, additionalData, birthData
     enabled: Boolean(patient.id),
   });
 
+  const { data: ancestors, isLoading: isHierarchyLoading } = useHierarchyAncestorsQuery(
+    additionalData.secondaryVillageId,
+  );
+
+  const { fieldsToShow } = useFilterPatientFields({
+    fields: SECONDARY_LOCATION_HIERARCHY_FIELDS,
+    filterByMandatory: true,
+  });
+
   const errors = [fieldDefError, fieldValError].filter(e => Boolean(e));
   if (errors.length > 0) {
     return <pre>{errors.map(e => e.stack).join('\n')}</pre>;
   }
-  const isLoading = isLoadingFieldDefinitions || isLoadingFieldValues;
+  const isLoading = isLoadingFieldDefinitions || isLoadingFieldValues || isHierarchyLoading;
   if (isLoading) {
     return <LoadingIndicator />;
   }
+  const computedInitialValues = Object.fromEntries(
+    fieldsToShow.map(({ name, referenceType }) => [name, ancestors[referenceType]]),
+  );
 
   return (
     <Form
       render={({ values = {} }) => {
+        console.log(values);
         return (
           <>
             <PrimaryDetails
@@ -177,7 +169,7 @@ export const PatientDetailsFormComponent = ({ patient, additionalData, birthData
           fieldDefinitionsResponse.data,
           fieldValuesResponse?.data,
         ),
-        ...reinitializedValues,
+        ...computedInitialValues,
       }}
       onSubmit={handleSubmit}
       validationSchema={getPatientDetailsValidation(
