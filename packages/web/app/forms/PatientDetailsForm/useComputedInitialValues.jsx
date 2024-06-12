@@ -7,6 +7,7 @@ import { useFilterPatientFields } from './useFilterPatientFields';
 // Some values for patient fields are not persisted to database and rather are derived from other fields.
 // This hook computes the initial values for these fields.
 // For example, in Cambodia layout, the secondary patient location hierarchy is not stored in the patient record beyond the secondary village ID.
+// Attempting to prepare the values from within the form state is error-prone as it interacts poorly with form logic.
 export const useComputedInitialValues = ({ additionalData }) => {
   const { getLocalisation } = useLocalisation();
   const layout = getLocalisation('layouts.patientDetails') || PATIENT_DETAIL_LAYOUTS.GENERIC;
