@@ -20,7 +20,6 @@ export const useComputedInitialValues = ({ additionalData }) => {
   );
   const { fieldsToShow } = useFilterPatientFields({
     fields: SECONDARY_LOCATION_HIERARCHY_FIELDS,
-    filterByMandatory: true,
   });
 
   if (isLoading) return { isLoading: true };
