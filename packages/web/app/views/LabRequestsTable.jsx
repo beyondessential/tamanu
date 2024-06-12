@@ -6,6 +6,7 @@ import { SearchTableWithPermissionCheck } from '../components';
 import { reloadPatient } from '../store/patient';
 import {
   getDateWithTimeTooltip,
+  getPanelType,
   getPatientDisplayId,
   getPatientName,
   getPriority,
@@ -40,7 +41,7 @@ export const LabRequestsTable = React.memo(
           sortable: false,
         },
         { key: 'requestId', title: 'Test ID', accessor: getRequestId, sortable: false },
-        { key: 'labTestPanelName', title: 'Panel' },
+        { key: 'labTestPanelName', title: 'Panel', accessor: getPanelType },
         { key: 'testCategory', title: 'Test category', accessor: getRequestType },
         { key: 'requestedDate', title: 'Requested at time', accessor: getDateWithTimeTooltip },
         publishedStatus

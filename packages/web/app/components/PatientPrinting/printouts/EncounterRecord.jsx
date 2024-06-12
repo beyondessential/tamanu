@@ -14,7 +14,7 @@ import { DisplayValue, LocalisedDisplayValue } from './reusable/CertificateLabel
 import { ENCOUNTER_OPTIONS_BY_VALUE } from '../../../constants';
 
 import { ImagingRequestData } from './reusable/ImagingRequestData';
-import { TranslatedText } from '../../Translation/TranslatedText';
+import { TranslatedText, TranslatedReferenceData } from '../../Translation';
 
 // STYLES
 const CompactListTable = styled(ListTable)`
@@ -140,7 +140,16 @@ const COLUMNS = {
     {
       key: 'diagnoses',
       title: 'Diagnoses',
-      accessor: ({ diagnosis }) => `${diagnosis?.name} (${diagnosis?.code})`,
+      accessor: ({ diagnosis }) => diagnosis && <>
+        <span>
+          <TranslatedReferenceData
+            fallback={diagnosis.name}
+            value={diagnosis.id}
+            category="icd10"
+          />
+        </span>
+        <span> {diagnosis.code}</span>
+      </>,
       style: { width: '60%' },
     },
     {
@@ -161,7 +170,16 @@ const COLUMNS = {
     {
       key: 'procedure',
       title: 'Procedure',
-      accessor: ({ procedureType }) => `${procedureType?.name} (${procedureType?.code})`,
+      accessor: ({ procedureType }) => procedureType && <>
+        <span>
+          <TranslatedReferenceData
+            fallback={procedureType.name}
+            value={procedureType.id}
+            category={procedureType.type}
+          />
+        </span>
+        <span> {procedureType.code}</span>
+      </>,
       style: { width: '80%' },
     },
     {
@@ -239,7 +257,8 @@ const COLUMNS = {
     {
       key: 'medication',
       title: 'Medication',
-      accessor: ({ medication }) => medication?.name,
+      accessor: ({ medication }) => medication 
+        && <TranslatedReferenceData fallback={medication.name} value={medication.id} category={medication.type} />,
       style: { width: '20%' },
     },
     {
@@ -322,7 +341,13 @@ export const EncounterRecord = React.memo(
         <Divider />
         <RowContainer>
           <div>
-            <LocalisedDisplayValue name="facility">{location.facility.name}</LocalisedDisplayValue>
+            <LocalisedDisplayValue name="facility">
+              <TranslatedReferenceData 
+                fallback={location.facility.name} 
+                value={location.facility.id}
+                category="facility"
+              />  
+            </LocalisedDisplayValue>
             <DisplayValue
               name={
                 <TranslatedText
@@ -369,7 +394,11 @@ export const EncounterRecord = React.memo(
           </div>
           <div>
             <DisplayValue name="Discharging department" size="10px">
-              {department.name}
+              <TranslatedReferenceData 
+                fallback={department.name}
+                value={department.id}
+                category="department" 
+              />
             </DisplayValue>
             <DisplayValue name="Date of admission" size="10px">
               <DateDisplay date={startDate} showDate={false} showExplicitDate />
