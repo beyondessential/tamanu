@@ -112,6 +112,10 @@ export enum DataElementType {
   UserData = 'UserData',
   PatientData = 'PatientData',
   PatientIssueGenerator = 'PatientIssueGenerator',
+  ComplexChartInstanceName = 'ComplexChartInstanceName',
+  ComplexChartDate = 'ComplexChartDate',
+  ComplexChartType = 'ComplexChartType',
+  ComplexChartSubtype = 'ComplexChartSubtype',
 }
 
 export interface IProgramDataElement {
