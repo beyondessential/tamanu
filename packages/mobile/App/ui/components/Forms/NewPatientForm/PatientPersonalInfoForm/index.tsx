@@ -1,4 +1,4 @@
-import React, { ReactElement, useCallback } from 'react';
+import React, { ReactElement, ReactNode, useCallback } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { compose } from 'redux';
 import { Formik } from 'formik';
@@ -6,22 +6,23 @@ import { KeyboardAvoidingView, StyleSheet } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { FullView } from '/styled/common';
 import { formatISO9075, parseISO } from 'date-fns';
-import { NameSection } from './NameSection';
-import { KeyInformationSection } from './KeyInformationSection';
-import { LocationDetailsSection } from './LocationDetailsSection';
 import { SubmitSection } from './SubmitSection';
 import { generateId, getConfiguredPatientAdditionalDataFields } from '~/ui/helpers/patient';
 import { Patient } from '~/models/Patient';
 import { withPatient } from '~/ui/containers/Patient';
 import { useLocalisation } from '~/ui/contexts/LocalisationContext';
 import { Routes } from '~/ui/helpers/routes';
-import { PatientAdditionalDataFields } from '../../PatientAdditionalDataForm/PatientAdditionalDataFields';
-import { allAdditionalDataFields } from '~/ui/helpers/additionalData';
+import { ALL_ADDITIONAL_DATA_FIELDS } from '~/ui/helpers/additionalData';
 import { getPatientDetailsValidation } from './patientDetailsValidationSchema';
 import { PatientAdditionalData } from '~/models/PatientAdditionalData';
-import { usePatientAdditionalData } from '~/ui/hooks/usePatientAdditionalData';
+import {
+  CustomPatientFieldValues,
+  usePatientAdditionalData,
+} from '~/ui/hooks/usePatientAdditionalData';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
 import { getInitialAdditionalValues } from '../../PatientAdditionalDataForm/helpers';
+import { PatientFieldValue } from '~/models/PatientFieldValue';
+import { PatientFieldDefinition } from '~/models/PatientFieldDefinition';
 
 export type FormSection = {
   scrollToField: (fieldName: string) => () => void;
@@ -33,7 +34,13 @@ const styles = StyleSheet.create({
   ScrollViewContentContainer: { padding: 20 },
 });
 
-const getPatientInitialValues = (isEdit: boolean, patient, patientAdditionalData, getBool): {} => {
+const getPatientInitialValues = (
+  isEdit: boolean,
+  patient: Patient,
+  patientAdditionalData: PatientAdditionalData,
+  customPatientFieldValues: CustomPatientFieldValues,
+  getLocalisation: (key: string) => any,
+): {} => {
   if (!isEdit || !patient) {
     return {};
   }
@@ -51,15 +58,20 @@ const getPatientInitialValues = (isEdit: boolean, patient, patientAdditionalData
   } = patient;
 
   const requiredPADFields = getConfiguredPatientAdditionalDataFields(
-    allAdditionalDataFields,
+    ALL_ADDITIONAL_DATA_FIELDS,
     true,
-    getBool,
+    getLocalisation,
   );
 
   const initialPatientAdditionalDataValues = getInitialAdditionalValues(
     patientAdditionalData,
     requiredPADFields,
   );
+
+  const initialPatientCustomDataValues = {};
+  for (const key in customPatientFieldValues) {
+    initialPatientCustomDataValues[key] = customPatientFieldValues[key][0].value;
+  }
 
   const initialPatientValues = {
     firstName,
@@ -71,6 +83,7 @@ const getPatientInitialValues = (isEdit: boolean, patient, patientAdditionalData
     sex,
     villageId,
     ...initialPatientAdditionalDataValues,
+    ...initialPatientCustomDataValues,
   };
 
   return Object.fromEntries(
@@ -79,33 +92,70 @@ const getPatientInitialValues = (isEdit: boolean, patient, patientAdditionalData
 };
 
 const containsAdditionalData = values =>
-  allAdditionalDataFields.some(fieldName => Object.keys(values).includes(fieldName));
+  ALL_ADDITIONAL_DATA_FIELDS.some(fieldName => Object.keys(values).includes(fieldName));
 
-export const FormComponent = ({ selectedPatient, setSelectedPatient, isEdit }): ReactElement => {
+const FormComponent = ({ selectedPatient, setSelectedPatient, isEdit, children }): ReactElement => {
   const navigation = useNavigation();
-  const { patientAdditionalData, loading } = usePatientAdditionalData(selectedPatient?.id);
-  const onCreateNewPatient = useCallback(async (values, { resetForm }) => {
-    // submit form to server for new patient
-    const { dateOfBirth, ...otherValues } = values;
-    const newPatient = await Patient.createAndSaveOne({
-      ...otherValues,
-      dateOfBirth: formatISO9075(dateOfBirth),
-      displayId: generateId(),
-    });
+  const {
+    customPatientFieldValues,
+    patientAdditionalData,
+    loading,
+  } = usePatientAdditionalData(selectedPatient?.id);
+
+  const createOrUpdateOtherPatientData = useCallback(async (values, patientId) => {
+    const customPatientFieldDefinitions = await PatientFieldDefinition.findVisible({
+      relations: ['category'],
+      order: {
+        // Nested ordering only works with typeorm version > 0.3.0
+        // category: { name: 'DESC' },
+        name: 'DESC',
+      },
+    })
 
     if (containsAdditionalData(values)) {
-      await PatientAdditionalData.updateForPatient(newPatient.id, values);
+      await PatientAdditionalData.updateForPatient(patientId, values);
     }
 
-    await Patient.markForSync(newPatient.id);
+    // Update any custom field definitions contained in this form
+    const customValuesToUpdate = Object.keys(values).filter(key =>
+      customPatientFieldDefinitions.map(({ id }) => id).includes(key),
+    );
 
-    // Reload instance to get the complete village fields
-    // (related fields won't display all info otherwise)
-    const reloadedPatient = await Patient.findOne(newPatient.id);
-    setSelectedPatient(reloadedPatient);
-    resetForm();
-    navigation.navigate(Routes.HomeStack.RegisterPatientStack.NewPatient);
+    await Promise.all(
+      customValuesToUpdate.map(definitionId =>
+        PatientFieldValue.updateOrCreateForPatientAndDefinition(
+          patientId,
+          definitionId,
+          values[definitionId],
+        ),
+      ),
+    );
+
   }, []);
+
+
+  const onCreateNewPatient = useCallback(
+    async (values, { resetForm }) => {
+      // submit form to server for new patient
+      const { dateOfBirth, ...otherValues } = values;
+      const newPatient = await Patient.createAndSaveOne<Patient>({
+        ...otherValues,
+        dateOfBirth: formatISO9075(dateOfBirth),
+        displayId: generateId(),
+      });
+
+      await createOrUpdateOtherPatientData(values, newPatient.id);
+      await Patient.markForSync(newPatient.id);
+
+      // Reload instance to get the complete village fields
+      // (related fields won't display all info otherwise)
+      const reloadedPatient = await Patient.findOne(newPatient.id);
+      setSelectedPatient(reloadedPatient);
+      resetForm();
+      navigation.navigate(Routes.HomeStack.RegisterPatientStack.NewPatient);
+    },
+    [navigation, setSelectedPatient, createOrUpdateOtherPatientData],
+  );
 
   const onEditPatient = useCallback(
     async values => {
@@ -117,10 +167,7 @@ export const FormComponent = ({ selectedPatient, setSelectedPatient, isEdit }): 
         ...otherValues,
       });
 
-      if (containsAdditionalData(values)) {
-        await PatientAdditionalData.updateForPatient(selectedPatient.id, values);
-      }
-
+      await createOrUpdateOtherPatientData(values, selectedPatient.id);
       // Loading the instance is necessary to get all of the fields
       // from the relations that were updated, not just their IDs.
       const editedPatient = await Patient.findOne(selectedPatient.id);
@@ -133,10 +180,10 @@ export const FormComponent = ({ selectedPatient, setSelectedPatient, isEdit }): 
       // Navigate back to patient details
       navigation.navigate(Routes.HomeStack.PatientDetailsStack.Index);
     },
-    [navigation],
+    [navigation, selectedPatient, setSelectedPatient, createOrUpdateOtherPatientData],
   );
 
-  const { getBool, getString } = useLocalisation();
+  const { getBool, getString, getLocalisation } = useLocalisation();
 
   return loading ? (
     <LoadingScreen />
@@ -149,7 +196,8 @@ export const FormComponent = ({ selectedPatient, setSelectedPatient, isEdit }): 
           isEdit,
           selectedPatient,
           patientAdditionalData,
-          getBool,
+          customPatientFieldValues,
+          getLocalisation,
         )}
       >
         {({ handleSubmit }): JSX.Element => (
@@ -158,10 +206,7 @@ export const FormComponent = ({ selectedPatient, setSelectedPatient, isEdit }): 
               style={styles.ScrollView}
               contentContainerStyle={styles.ScrollViewContentContainer}
             >
-              <NameSection />
-              <KeyInformationSection />
-              <LocationDetailsSection />
-              <PatientAdditionalDataFields fields={allAdditionalDataFields} showMandatory />
+              {children}
               <SubmitSection onPress={handleSubmit} isEdit={isEdit} />
             </ScrollView>
           </KeyboardAvoidingView>
@@ -171,6 +216,6 @@ export const FormComponent = ({ selectedPatient, setSelectedPatient, isEdit }): 
   );
 };
 
-export const PatientPersonalInfoForm = compose<React.FC<{ isEdit?: boolean }>>(withPatient)(
-  FormComponent,
-);
+export const PatientPersonalInfoForm = compose<
+  React.FC<{ isEdit?: boolean; children?: ReactNode }>
+>(withPatient)(FormComponent);

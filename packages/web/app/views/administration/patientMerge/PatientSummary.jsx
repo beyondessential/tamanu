@@ -6,6 +6,7 @@ import { SEX_VALUE_INDEX } from '@tamanu/constants';
 import { theme } from '../../../theme';
 import { DateDisplay } from '../../../components/DateDisplay';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
+import { TranslatedReferenceData } from '../../../components/Translation';
 
 const Label = styled.span`
   color: ${theme.palette.text.tertiary};
@@ -105,7 +106,9 @@ export const PatientSummary = ({
           label={
             <TranslatedText stringId="general.localisedField.village.label" fallback="Village" />
           }
-          value={patient.village?.name}
+          value={patient.village
+            && <TranslatedReferenceData fallback={patient.village.name} value={patient.village.id} category="village" />
+          }
         />
         <LabelledValue
           label={<TranslatedText stringId="general.localisedField.sex.label" fallback="Sex" />}

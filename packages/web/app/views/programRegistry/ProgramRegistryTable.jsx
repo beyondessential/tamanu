@@ -14,7 +14,7 @@ import { RegistrationStatusIndicator } from './RegistrationStatusIndicator';
 import { ClinicalStatusDisplay } from './ClinicalStatusDisplay';
 import { useRefreshCount } from '../../hooks/useRefreshCount';
 import { ActivatePatientProgramRegistry } from './ActivatePatientProgramRegistry';
-import { TranslatedText } from '../../components/Translation/TranslatedText';
+import { TranslatedText } from '../../components/Translation';
 
 export const ProgramRegistryTable = ({ searchParameters }) => {
   const params = useParams();

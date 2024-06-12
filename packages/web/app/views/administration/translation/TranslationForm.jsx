@@ -226,11 +226,7 @@ export const FormContents = ({
     <>
       <Box display="flex" alignItems="flex-end" mb={2}>
         <Box mr={2} width="250px">
-          <Field
-            label={<TranslatedText stringId="general.action.search" fallback="Search" />}
-            name="search"
-            component={SearchField}
-          />
+          <Field label={<TranslatedText stringId="general.action.search" fallback="Search" />} name="search" component={SearchField} />
         </Box>
         <OutlinedButton disabled={isSaving || !dirty} onClick={handleSave}>
           <TranslatedText stringId="general.action.save" fallback="Save" />

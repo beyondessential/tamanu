@@ -7,7 +7,7 @@ import { DateDisplay } from '../../components/DateDisplay';
 import { Modal } from '../../components/Modal';
 import { ModalActionRow } from '../../components/ModalActionRow';
 import { BodyText } from '../../components/Typography';
-import { TranslatedText } from '../../components/Translation/TranslatedText';
+import { TranslatedText, TranslatedReferenceData } from '../../components/Translation';
 
 const ModalBody = styled.div`
   display: grid;
@@ -111,7 +111,8 @@ export const LabTestResultModal = React.memo(({ open, onClose, labTestId }) => {
                 fallback="Test Method"
               />
             }
-            value={labTest?.labTestMethod?.name}
+            value={labTest?.labTestMethod?.name 
+              && <TranslatedReferenceData fallback={labTest.labTestMethod.name} value={labTest.labTestMethod.id} category="labTestMethod"/>}
           />
         </div>
       </ModalBody>
