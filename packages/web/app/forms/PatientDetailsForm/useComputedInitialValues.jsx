@@ -22,10 +22,10 @@ export const useComputedInitialValues = ({ additionalData }) => {
     fields: SECONDARY_LOCATION_HIERARCHY_FIELDS,
   });
 
-  if (isLoading) return { isLoading: true };
-
-  const initialValues = Object.fromEntries(
-    fieldsToShow.map(({ name, referenceType }) => [name, ancestors[referenceType]]),
-  );
-  return { data: initialValues };
+  const initialValues =
+    fieldsToShow?.length &&
+    Object.fromEntries(
+      fieldsToShow.map(({ name, referenceType }) => [name, ancestors[referenceType]]),
+    );
+  return { data: initialValues, isLoading };
 };
