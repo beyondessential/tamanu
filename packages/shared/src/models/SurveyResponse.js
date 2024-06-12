@@ -182,11 +182,11 @@ export class SurveyResponse extends Model {
     });
   }
 
-  static buildPatientSyncFilter(patientIds) {
-    if (patientIds.length === 0) {
+  static buildPatientSyncFilter(patientCount, markedForSyncPatientsTable) {
+    if (patientCount === 0) {
       return null;
     }
-    return buildEncounterLinkedSyncFilter([this.tableName, 'encounters']);
+    return buildEncounterLinkedSyncFilter([this.tableName, 'encounters'], markedForSyncPatientsTable);
   }
 
   static async getSurveyEncounter({
