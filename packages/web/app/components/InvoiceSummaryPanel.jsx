@@ -8,7 +8,6 @@ import { useSuggester } from '../api';
 import { PencilIcon } from '../assets/icons/PencilIcon';
 import { ThemedTooltip } from './Tooltip';
 import { BodyText, Heading3 } from './Typography';
-import { usePriceChangeItemsQuery } from '../api/queries/usePriceChangeItemsQuery';
 import { Button } from './Button';
 import { useInvoiceModal } from '../contexts/InvoiceModal';
 
@@ -60,7 +59,8 @@ export const InvoiceSummaryPanel = ({
 }) => {
   const [orderedByName, setOrderedByName] = useState('');
   const practitionerSuggester = useSuggester('practitioner');
-  const { data: priceChangeItemsResponse } = usePriceChangeItemsQuery(invoiceId);
+  
+  let priceChangeItemsResponse = { data: [] }
 
   const { handleActiveModal, handleActiveView } = useInvoiceModal();
 

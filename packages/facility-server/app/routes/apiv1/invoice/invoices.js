@@ -1,7 +1,8 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { customAlphabet } from 'nanoid';
-import { ValidationError, NotFoundError } from '@tamanu/shared/errors';
+import { ValidationError } from 'yup';
+import { NotFoundError } from '@tamanu/shared/errors';
 import { INVOICE_PAYMENT_STATUSES, INVOICE_STATUSES } from '@tamanu/constants';
 import { v4 as uuidv4 } from 'uuid';
 import { z } from 'zod';
@@ -17,11 +18,14 @@ const createInvoiceSchema = z
     discount: z
       .object({
         percentage: z
+          .coerce
           .number()
           .min(0)
           .max(1),
         reason: z.string().optional(),
         isManual: z.boolean(),
+        appliedByUserId: z.string(),
+        appliedTime: z.coerce.date(),
       })
       .strip()
       .optional(),
@@ -122,6 +126,7 @@ const updateInvoiceSchema = z
           .uuid()
           .default(uuidv4),
         percentage: z
+          .coerce
           .number()
           .min(0)
           .max(1),
@@ -137,6 +142,7 @@ const updateInvoiceSchema = z
           .uuid()
           .default(uuidv4),
         percentage: z
+          .coerce
           .number()
           .min(0)
           .max(1),
@@ -150,7 +156,7 @@ const updateInvoiceSchema = z
           .string()
           .uuid()
           .default(uuidv4),
-        orderDate: z.date(),
+        orderDate: z.coerce.date(),
         orderedByUserId: z.string().uuid(),
         productId: z.string(),
         discount: z
@@ -160,6 +166,7 @@ const updateInvoiceSchema = z
               .uuid()
               .default(uuidv4),
             percentage: z
+              .coerce
               .number()
               .min(0)
               .max(1),

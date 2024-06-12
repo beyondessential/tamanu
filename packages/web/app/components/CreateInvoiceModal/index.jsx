@@ -1,7 +1,8 @@
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { Divider, FormControlLabel, Radio, RadioGroup, useRadioGroup } from '@material-ui/core';
-import { getCurrentDateString } from '@tamanu/shared/utils/dateTime';
+import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { useQueryClient } from '@tanstack/react-query';
 import { Modal } from '../Modal';
 import { TranslatedText } from '../Translation';
 import { BodyText, Heading3, Heading5, SmallBodyText } from '../Typography';
@@ -11,7 +12,7 @@ import { ConfirmCancelBackRow } from '../ButtonRow';
 import { InvoiceDiscountAssessmentForm } from './InvoiceDiscountAssessmentForm';
 import { InvoiceManualDiscountForm } from './InvoiceManualDiscountForm';
 import { useInvoiceModal } from '../../contexts/InvoiceModal';
-import { usePriceChangeItemsQuery } from '../../api/queries/usePriceChangeItemsQuery';
+import { useEncounterInvoiceQuery } from '../../api/queries/useEncounterInvoiceQuery';
 
 const StyledFormControlLabel = styled(FormControlLabel)`
   align-items: flex-start;
@@ -135,13 +136,15 @@ const InvoiceDiscountTypeSelector = ({ updateDiscountType, handleNext, onClose, 
 export const CreateInvoiceModal = React.memo(
   ({
     open,
-    createInvoice,
-    invoiceId
+    encounterId,
+    currentUser
   }) => {
     const [discountType, setDiscountType] = useState('');
     const api = useApi();
     const { activeView, handleActiveView, handleActiveModal } = useInvoiceModal();
-    const { data: priceChangeItems } = usePriceChangeItemsQuery(invoiceId);
+    const queryClient = useQueryClient();
+
+    const { data: invoice } = useEncounterInvoiceQuery(encounterId);
 
     const onChangeDiscountType = useCallback(
       (updatedDiscountType) => setDiscountType(updatedDiscountType),
@@ -149,21 +152,26 @@ export const CreateInvoiceModal = React.memo(
 
     const handleSubmitDiscount = useCallback(
       async data => {
-        const percentageChange = -Math.abs(data.percentageChange / (activeView === INVOICE_ACTIVE_VIEW.MANUAL_DISCOUNT ? 100 : 1));
+        const percentage = Math.abs(data.percentageChange / (activeView === INVOICE_ACTIVE_VIEW.MANUAL_DISCOUNT ? 100 : 1));
         const payload = {
-          description: activeView === INVOICE_ACTIVE_VIEW.MANUAL_DISCOUNT ? data.reason : "Patient discount applied",
-          percentageChange,
-          date: getCurrentDateString(),
+          discount: {
+            reason: activeView === INVOICE_ACTIVE_VIEW.MANUAL_DISCOUNT ? data.reason : "Patient discount applied",
+            percentage,
+            isManual: activeView === INVOICE_ACTIVE_VIEW.MANUAL_DISCOUNT,
+            appliedByUserId: currentUser.id,
+            appliedTime: getCurrentDateTimeString()
+          }
         };
 
-        if (!invoiceId) {
-          const invoiceResponse = await createInvoice();
-          await api.post(`invoices/${invoiceResponse.id}/priceChangeItems`, payload);
+        if (!invoice) {
+          await api.post('invoices', {
+            encounterId,
+            ...payload
+          });
+          queryClient.invalidateQueries(['encounterInvoice', encounterId]);
         } else {
           await api.put(
-            `invoices/${invoiceId}/priceChangeItems/${priceChangeItems?.data[0]?.id}`,
-            payload
-          );
+            `invoices/${invoice?.id}`, payload);
         }
         
         handleActiveModal(INVOICE_ACTIVE_MODALS.EDIT_INVOICE);
@@ -185,7 +193,7 @@ export const CreateInvoiceModal = React.memo(
               handleNext={() => discountType && handleActiveView(discountType)}
               onClose={onClose}
               handleSkip={handleSkip}
-              showSkip={!invoiceId}
+              showSkip={!invoice?.id}
             />
           );
         case INVOICE_ACTIVE_VIEW.DISCOUNT_ASSESSMENT:

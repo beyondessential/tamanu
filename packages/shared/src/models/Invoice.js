@@ -43,6 +43,10 @@ export class Invoice extends Model {
     });
   }
 
+  static getFullReferenceAssociations() {
+    return ['discount'];
+  }
+
   static buildPatientSyncFilter(patientIds) {
     if (patientIds.length === 0) {
       return null;

@@ -82,7 +82,7 @@ export const ItemRow = ({
   updateRowData,
   showKebabMenu,
 }) => {
-  const invoiceLineTypeSuggester = useSuggester('invoiceLineTypes');
+  const invoiceLineTypeSuggester = useSuggester('invoiceProducts');
   const practitionerSuggester = useSuggester('practitioner');
 
   const onUpdateInvoiceLineTypeId = ({ name, price }) => {
@@ -109,7 +109,6 @@ export const ItemRow = ({
           name={'date_' + index}
           required
           component={DateField}
-          saveDateAsString
           size="small"
           value={rowData.date}
           onChange={event =>

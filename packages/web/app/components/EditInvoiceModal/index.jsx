@@ -19,6 +19,7 @@ import { InvoiceStatus } from '../InvoiceStatus';
 import { InvoiceSummaryPanel } from '../InvoiceSummaryPanel';
 import { calculateInvoiceLinesTotal } from '../../utils';
 import { useInvoiceModal } from '../../contexts/InvoiceModal';
+import { useEncounterInvoiceQuery } from '../../api/queries/useEncounterInvoiceQuery';
 
 const LinkText = styled.div`
   font-weight: 500;
@@ -109,11 +110,7 @@ const StatusContainer = styled.span`
 
 export const EditInvoiceModal = ({ 
   open,
-  invoiceId,
-  displayId,
   encounterId,
-  invoiceStatus,
-  isManualInvoice,
   onClose: defaultOnClose
 }) => {
   const defaultRow = { id: uuidv4(), toBeUpdated: true };
@@ -125,11 +122,13 @@ export const EditInvoiceModal = ({
   const api = useApi();
   const { handleActiveModal } = useInvoiceModal();
 
+  const { data: invoice } = useEncounterInvoiceQuery(encounterId);
+
   const onClose = defaultOnClose || (() => handleActiveModal(''));
 
   useEffect(() => {
     (async () => {
-      const { data } = await api.get(`invoices/${encodeURIComponent(invoiceId)}/lineItems`);
+      const { data } = await api.get(`invoices/${encodeURIComponent(invoice.id)}/lineItems`);
       if (!data.length) return;
       setRowList(
         data.map(item => ({
@@ -325,23 +324,26 @@ export const EditInvoiceModal = ({
   };
 
   const handleSubmit = async submitData => {
-    if (isSaving) return;
+    //if (isSaving) return;
     setIsSaving(true);
 
     const invoiceLineItemsData = rowList
       .map((row, index) => ({
-        ...(!row.toBeCreated && { id: row.id }),
-        invoiceLineTypeId: submitData[`invoiceLineTypeId_${index}`],
-        date: submitData[`date_${index}`],
-        orderedById: submitData[`orderedById_${index}`],
-        percentageChange: row.percentageChange,
-        discountMarkupReason: row.discountMarkupReason,
+        productId: submitData[`invoiceLineTypeId_${index}`],
+        orderDate: submitData[`date_${index}`],
+        orderedByUserId: submitData[`orderedById_${index}`],
+        discount: {
+          percentage: row.percentageChange || 0,
+          reason: row.discountMarkupReason,
+        },
         toBeUpdated: !!row.toBeUpdated,
       }))
       .filter(row => row.toBeUpdated);
 
-    await api.delete(`invoices/${invoiceId}/lineItems`, { idsToDelete });
-    await api.put(`invoices/${invoiceId}/lineItems`, { invoiceLineItemsData });
+    await api.put(`invoices/${invoice.id}`, { 
+      ...invoice,
+      items: invoiceLineItemsData 
+    });
     onClose();
     await loadEncounter(encounterId);
     setIsSaving(false);
@@ -386,10 +388,10 @@ export const EditInvoiceModal = ({
           <TranslatedText
             stringId="invoice.modal.view.title"
             fallback="Invoice number: :invoiceNumber"
-            replacements={{ invoiceNumber: displayId }}
+            replacements={{ invoiceNumber: invoice.displayId }}
           />
           <StatusContainer>
-            <InvoiceStatus status={invoiceStatus} />
+            <InvoiceStatus status={invoice.status} />
           </StatusContainer>
         </>
       }
@@ -442,7 +444,7 @@ export const EditInvoiceModal = ({
                   )}
                 </PaneTitle>
                 <StyledDataFetchingTable
-                  endpoint={`invoices/${invoiceId}/potentialLineItems`}
+                  endpoint={`invoices/${invoice.id}/potentialLineItems`}
                   columns={COLUMNS}
                   noDataMessage={
                     <TranslatedText
@@ -464,11 +466,11 @@ export const EditInvoiceModal = ({
                 />
               </PotentialLineItemsPane>
               <InvoiceSummaryPanel
-                invoiceId={invoiceId}
+                invoiceId={invoice.id}
                 invoiceTotal={invoiceTotal}
-                invoiceStatus={invoiceStatus}
+                invoiceStatus={invoice.status}
                 isEditInvoice
-                isManualInvoice={isManualInvoice}
+                isManualInvoice={invoice?.discount?.isManual}
               />
             </ModalSection>
             <StyledDivider />
