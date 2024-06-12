@@ -18,7 +18,6 @@ import { getInvoiceLineCode } from '../../utils/invoiceDetails';
 import { InvoiceStatus } from '../InvoiceStatus';
 import { InvoiceSummaryPanel } from '../InvoiceSummaryPanel';
 import { calculateInvoiceLinesTotal } from '../../utils';
-import { useInvoiceModal } from '../../contexts/InvoiceModal';
 
 const LinkText = styled.div`
   font-weight: 500;
@@ -107,14 +106,13 @@ const StatusContainer = styled.span`
   font-weight: 400;
 `;
 
-export const EditInvoiceModal = ({ 
+export const EditInvoiceModal = ({
   open,
+  onClose,
   invoiceId,
   displayId,
   encounterId,
   invoiceStatus,
-  isManualInvoice,
-  onClose: defaultOnClose
 }) => {
   const defaultRow = { id: uuidv4(), toBeUpdated: true };
   const [rowList, setRowList] = useState([defaultRow]);
@@ -123,9 +121,6 @@ export const EditInvoiceModal = ({
   const [isSaveDisabled, setIsSaveDisabled] = useState(false);
   const [idsToDelete, setIdsToDelete] = useState([]);
   const api = useApi();
-  const { handleActiveModal } = useInvoiceModal();
-
-  const onClose = defaultOnClose || (() => handleActiveModal(''));
 
   useEffect(() => {
     (async () => {
@@ -342,7 +337,6 @@ export const EditInvoiceModal = ({
 
     await api.delete(`invoices/${invoiceId}/lineItems`, { idsToDelete });
     await api.put(`invoices/${invoiceId}/lineItems`, { invoiceLineItemsData });
-    onClose();
     await loadEncounter(encounterId);
     setIsSaving(false);
   };
@@ -468,7 +462,6 @@ export const EditInvoiceModal = ({
                 invoiceTotal={invoiceTotal}
                 invoiceStatus={invoiceStatus}
                 isEditInvoice
-                isManualInvoice={isManualInvoice}
               />
             </ModalSection>
             <StyledDivider />

@@ -29,7 +29,6 @@ import { useReferenceData } from '../../api/queries';
 import { useAuth } from '../../contexts/Auth';
 import { VitalChartDataProvider } from '../../contexts/VitalChartData';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
-import { InvoiceModalProvider } from '../../contexts/InvoiceModal';
 
 const getIsTriage = encounter => ENCOUNTER_OPTIONS_BY_VALUE[encounter.encounterType].triageFlowOnly;
 
@@ -81,9 +80,7 @@ const TABS = [
   {
     label: <TranslatedText stringId="encounter.tabs.invoicing" fallback="Invoicing" />,
     key: ENCOUNTER_TAB_NAMES.INVOICING,
-    render: props => <InvoiceModalProvider>
-      <InvoicingPane {...props} />
-    </InvoiceModalProvider>,
+    render: props => <InvoicingPane {...props} />,
     condition: getLocalisation => getLocalisation('features.enableInvoicing'),
   },
 ];
