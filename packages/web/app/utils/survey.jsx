@@ -60,6 +60,10 @@ const QUESTION_COMPONENTS = {
   [PROGRAM_DATA_ELEMENT_TYPES.PHOTO]: UnsupportedPhotoField,
   [PROGRAM_DATA_ELEMENT_TYPES.RESULT]: null,
   [PROGRAM_DATA_ELEMENT_TYPES.PATIENT_ISSUE]: InstructionField,
+  [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_INSTANCE_NAME]: LimitedTextField,
+  [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_DATE]: props => <DateTimeField {...props} saveDateAsString />,
+  [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_TYPE]: BaseSelectField,
+  [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_SUBTYPE]: BaseSelectField,
 };
 
 export function getComponentForQuestionType(type, { source, writeToPatient: { fieldType } = {} }) {
