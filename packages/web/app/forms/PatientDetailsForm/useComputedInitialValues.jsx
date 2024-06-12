@@ -11,7 +11,7 @@ export const useComputedInitialValues = ({ additionalData }) => {
   const { data: ancestors, isLoading } = useHierarchyAncestorsQuery(
     additionalData.secondaryVillageId,
     {
-      enabled: isCambodiaLayout,
+      enabled: isCambodiaLayout && !!additionalData.secondaryVillageId,
     },
   );
   const { fieldsToShow } = useFilterPatientFields({
