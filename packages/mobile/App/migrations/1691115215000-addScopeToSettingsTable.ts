@@ -13,7 +13,7 @@ export class addScopeToSettingsTable1691115215000 implements MigrationInterface 
         name: columnName,
         type: 'varchar',
         isNullable: false,
-        default: 'global',
+        default: "'global'",
       }),
     );
   }
