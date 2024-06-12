@@ -32,4 +32,4 @@ export * from './vaccines.js';
 export * from './settings.js';
 export * from './encounterHistory.js';
 export * from './webSocket.js';
-export * from './enumRegister.js';
+export * from './enumRegistry.js';

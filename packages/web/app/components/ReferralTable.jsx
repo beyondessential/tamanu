@@ -1,8 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 
-import { REFERRAL_STATUSES } from '@tamanu/constants';
-import { REFERRAL_STATUS_LABELS } from '../constants';
+import { REFERRAL_STATUSES, REFERRAL_STATUS_LABELS } from '@tamanu/constants';
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 
@@ -207,7 +206,9 @@ export const ReferralTable = React.memo(({ patientId }) => {
       [MODAL_IDS.CANCEL]: props => (
         <ConfirmModal
           {...props}
-          title={<TranslatedText stringId="referral.modal.cancel.title" fallback="Cancel referral" />}
+          title={
+            <TranslatedText stringId="referral.modal.cancel.title" fallback="Cancel referral" />
+          }
           text={
             <TranslatedText
               stringId="referral.modal.cancel.warningText1"
