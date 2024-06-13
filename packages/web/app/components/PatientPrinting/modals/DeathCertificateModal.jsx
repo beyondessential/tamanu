@@ -6,7 +6,6 @@ import { PDFLoader, printPDF } from '../PDFLoader';
 import { DeathCertificatePrintout } from '@tamanu/shared/utils/patientCertificates';
 import { useLocalisation } from '../../../contexts/Localisation';
 import { useEthnicityQuery, usePatientAdditionalDataQuery } from '../../../api/queries';
-import { useApi } from '../../../api';
 
 export const DeathCertificateModal = ({ patient, deathData }) => {
   const [isOpen, setIsOpen] = useState();

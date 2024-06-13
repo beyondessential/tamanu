@@ -211,20 +211,6 @@ const getDateAndTimeOfDeath = (patientData, getLocalisation) => {
   )}`;
 };
 
-const HEADER_FIELDS = {
-  leftCol: [
-    { key: 'firstName', label: 'First name' },
-    { key: 'dateOfBirth', label: 'DOB', accessor: getDOB },
-    { key: 'nationality', label: 'Nationality', accessor: getNationality },
-    { key: 'address', label: 'Address', accessor: getAddress },
-    { key: 'printedBy', label: 'Printed by' },
-  ],
-  rightCol: [
-    { key: 'lastName', label: 'Last name' },
-    { key: 'sex', label: 'Sex', accessor: getSex },
-  ],
-};
-
 const PATIENT_DETAIL_FIELDS = {
   leftCol: [
     { key: 'firstName', label: 'First name' },
