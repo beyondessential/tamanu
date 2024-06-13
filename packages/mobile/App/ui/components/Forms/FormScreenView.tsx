@@ -62,8 +62,8 @@ export const FormScreenView = ({
   // Check if the screen content is bigger then the ScrollContainer
   useEffect(() => {
     if (contentHeight > 0 && layoutHeight > 0) {
-      const contentBiggerThanScreen = contentHeight - layoutHeight - scrollOffset
-        > beginningEndOfScreenThreshold;
+      const contentBiggerThanScreen =
+        contentHeight - layoutHeight - scrollOffset > beginningEndOfScreenThreshold;
       if (contentBiggerThanScreen) {
         setAnimated(true);
       } else {
@@ -73,20 +73,18 @@ export const FormScreenView = ({
   }, [contentHeight, layoutHeight, scrollOffset]);
 
   const onScroll = useCallback(
-    ({
-      nativeEvent: { contentOffset },
-    }: NativeSyntheticEvent<NativeScrollEvent>) => {
+    ({ nativeEvent: { contentOffset } }: NativeSyntheticEvent<NativeScrollEvent>) => {
       setscrollOffset(contentOffset.y);
     },
     [],
   );
 
-  const clock = new Clock();
-  const base = runTiming(clock, -1, 1);
-  const animatedOpacity = interpolateNode(base, {
-    inputRange: [-1, 1],
-    outputRange: [0, 1],
-  });
+  // const clock = new Clock();
+  // const base = runTiming(clock, -1, 1);
+  // const animatedOpacity = interpolateNode(base, {
+  //   inputRange: [-1, 1],
+  //   outputRange: [0, 1],
+  // });
 
   return (
     <StyledSafeAreaView flex={1} background={theme.colors.BACKGROUND_GREY}>
@@ -106,15 +104,13 @@ export const FormScreenView = ({
           scrollToOverflowEnabled
           overScrollMode="always"
         >
-          <FullView margin={screenPercentageToDP(4.86, Orientation.Width)}>
-            {children}
-          </FullView>
+          <FullView margin={screenPercentageToDP(4.86, Orientation.Width)}>{children}</FullView>
         </ScrollView>
         {animated && (
           <CenterView
             as={Animated.View}
             position="absolute"
-            opacity={animatedOpacity}
+            // opacity={animatedOpacity}
             zIndex={1}
             bottom={0}
             width="100%"
