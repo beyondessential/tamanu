@@ -94,8 +94,8 @@ export const VitalsForm: React.FC<VitalsFormProps> = ({ onAfterSubmit }) => {
 
         if (Object.values(values).every(x => x === '' || x === null)) {
           errors.form = getTranslation(
-            'validation.rule.atLeast1Recording',
-            'At least one recording must be entered.',
+            'validation.rule.atLeastOneRecording',
+            'At least one recording is required',
           );
         }
         return errors;
