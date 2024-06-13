@@ -16,16 +16,14 @@ export function testSingleResourceHandler(integrationName, requestHeaders = {}) 
 
     describe('Patient', () => {
       it('fetches a patient resource', async () => {
-        const { Patient, PatientAdditionalData, ReferenceData } = ctx.store.models;
+        const { Patient, PatientAdditionalData } = ctx.store.models;
         const patient = await Patient.create(
           fake(Patient, { dateOfDeath: getCurrentDateString() }),
         );
 
-        const village = await ReferenceData.create(fake(ReferenceData));
         const additionalData = await PatientAdditionalData.create({
           ...fake(PatientAdditionalData),
           patientId: patient.id,
-          secondaryVillageId: village.id,
         });
 
         await patient.reload();
