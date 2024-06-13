@@ -52,7 +52,7 @@ export const EditAdministeredVaccineModal = ({ open, onClose, patientId, vaccine
         onCancel={onClose}
         patientId={patientId}
         editMode
-        currentVaccineRecordValues={vaccineRecord}
+        existingValues={vaccineRecord}
         vaccineRecordingType={
           notGiven ? VACCINE_RECORDING_TYPES.NOT_GIVEN : VACCINE_RECORDING_TYPES.GIVEN
         }

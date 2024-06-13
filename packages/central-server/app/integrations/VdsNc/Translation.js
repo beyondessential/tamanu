@@ -118,7 +118,7 @@ export const createVdsNcVaccinationData = async (patientId, { models }) => {
       date,
       location,
       scheduledVaccine: {
-        schedule,
+        doseLabel,
         vaccine: { name: label, id: vaccineId },
       },
       encounter: {
@@ -153,7 +153,7 @@ export const createVdsNcVaccinationData = async (patientId, { models }) => {
 
     const event = {
       dvc: formatInTimeZone(date, timeZone, DATE_FORMAT_ISODATE),
-      seq: SCHEDULE_TO_SEQUENCE[schedule],
+      seq: SCHEDULE_TO_SEQUENCE[doseLabel],
       ctr: countryCode,
       lot: batch || 'Unknown', // If batch number was not recorded, we add a indicative string value to complete ICAO validation
       adm: facilityName,

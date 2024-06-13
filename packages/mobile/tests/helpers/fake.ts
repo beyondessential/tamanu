@@ -145,11 +145,12 @@ export const fakeScheduledVaccine = (): IScheduledVaccine => {
     vaccineId: null,
     index: 10,
     label: `scheduled-vaccine-label-${uuid}`,
-    schedule: `scheduled-vaccine-schedule-${uuid}`,
+    doseLabel: `scheduled-vaccine-schedule-${uuid}`,
     weeksFromBirthDue: 5,
     weeksFromLastVaccinationDue: null,
     category: `scheduled-vaccine-category-${uuid}`,
     visibilityStatus: VisibilityStatus.Current,
+    sortIndex: 0,
   };
 };
 

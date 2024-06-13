@@ -15,10 +15,19 @@ export const ChangeReasonForm = ({ onCancel, onSubmit, reasonForEncounter }) => 
     <FormGrid columns={1}>
       <Field
         name="reasonForEncounter"
-        label={<TranslatedText stringId="general.localisedField.reasonForEncounter.label" fallback="Reason for encounter" />}
+        label={
+          <TranslatedText
+            stringId="general.localisedField.reasonForEncounter.label"
+            fallback="Reason for encounter"
+          />
+        }
         component={TextField}
       />
-      <ModalActionRow confirmText="Confirm" onConfirm={submitForm} onCancel={onCancel} />
+      <ModalActionRow
+        confirmText={<TranslatedText stringId="general.action.confirm" fallback="Confirm" />}
+        onConfirm={submitForm}
+        onCancel={onCancel}
+      />
     </FormGrid>
   );
 
@@ -33,14 +42,16 @@ export const ChangeReasonForm = ({ onCancel, onSubmit, reasonForEncounter }) => 
       render={renderForm}
       onSubmit={onSubmit}
       validationSchema={yup.object().shape({
-        reasonForEncounter: yup.string().max(
-          REASON_FOR_ENCOUNTER_MAX_CHARACTERS,
-          getTranslation(
-            "reasonForEncounter.validation.rule.maxNCharacters",
-            "Reason for encounter must not exceed :maxChars characters",
-            { maxChars: REASON_FOR_ENCOUNTER_MAX_CHARACTERS }
-          )
-        )
+        reasonForEncounter: yup
+          .string()
+          .max(
+            REASON_FOR_ENCOUNTER_MAX_CHARACTERS,
+            getTranslation(
+              'reasonForEncounter.validation.rule.maxNCharacters',
+              'Reason for encounter must not exceed :maxChars characters',
+              { maxChars: REASON_FOR_ENCOUNTER_MAX_CHARACTERS },
+            ),
+          ),
       })}
     />
   );
