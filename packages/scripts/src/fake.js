@@ -183,6 +183,7 @@ async function generateData(models) {
       vaccineId: referenceData.id,
     }),
   );
+  // Fake the administered vaccine data
   await models.AdministeredVaccine.create(
     fake(AdministeredVaccine, {
       scheduledVaccineId: scheduledVaccine.id,
