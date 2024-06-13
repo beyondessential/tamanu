@@ -1,9 +1,25 @@
 import React from 'react';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 import { ADDITIONAL_DATA_FIELDS } from '~/ui/helpers/additionalData';
+import { PATIENT_DATA_FIELDS } from '~/ui/helpers/patient';
 import { CAMBODIA_CUSTOM_FIELDS } from '../cambodia/fields';
 
 export const labels = {
+  [PATIENT_DATA_FIELDS.FIRST_NAME]: (
+    <TranslatedText stringId="general.localisedField.firstName.label" fallback="First name" />
+  ),
+  [PATIENT_DATA_FIELDS.LAST_NAME]: (
+    <TranslatedText stringId="general.localisedField.middleName.label" fallback="Middle name" />
+  ),
+  [PATIENT_DATA_FIELDS.DATE_OF_BIRTH]: (
+    <TranslatedText stringId="general.localisedField.dateOfBirth.label" fallback="Date of birth" />
+  ),
+  [PATIENT_DATA_FIELDS.SEX]: (
+    <TranslatedText stringId="general.localisedField.sex.label" fallback="Sex" />
+  ),
+  [PATIENT_DATA_FIELDS.CULTURAL_NAME]: (
+    <TranslatedText stringId="general.localisedField.culturalName.label" fallback="Cultural name" />
+  ),
   [ADDITIONAL_DATA_FIELDS.BIRTH_CERTIFICATE]: (
     <TranslatedText
       stringId="general.localisedField.birthCertificate.label"

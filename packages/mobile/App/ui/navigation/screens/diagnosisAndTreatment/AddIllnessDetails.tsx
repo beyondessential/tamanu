@@ -97,7 +97,7 @@ export const DumbAddIllnessScreen = ({ selectedPatient, navigation }): ReactElem
               then: Yup.mixed()
                 .required()
                 .translatedLabel(
-                  <TranslatedText stringId="general.form.diagnosis.label" fallback="Diagnosis" />,
+                  <TranslatedText stringId="diagnosis.form.certainty.label" fallback="Certainty" />,
                 ),
             }),
           clinicalNote: Yup.string(),

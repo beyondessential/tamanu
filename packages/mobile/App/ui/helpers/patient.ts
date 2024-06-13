@@ -1,5 +1,13 @@
 import { IPatientAdditionalData } from '~/types';
 
+export const PATIENT_DATA_FIELDS = {
+  FIRST_NAME: 'firstName',
+  LAST_NAME: 'lastName',
+  DATE_OF_BIRTH: 'dateOfBirth',
+  SEX: 'sex',
+  CULTURAL_NAME: 'culturalName',
+};
+
 export enum VaccineStatus {
   UNKNOWN = 'UNKNOWN',
   GIVEN = 'GIVEN',
