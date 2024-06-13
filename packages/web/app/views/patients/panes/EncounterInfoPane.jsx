@@ -49,22 +49,18 @@ const InfoCardSecondColumn = styled(InfoCardFirstColumn)`
 `;
 
 const getReferralSource = ({ referralSource }) =>
-  referralSource.id ? (
+  referralSource ? (
     <TranslatedReferenceData
       category="referralSource"
       fallback={referralSource.name}
       value={referralSource.id}
     />
   ) : (
-    referralSource.name | <TranslatedText stringId="general.fallback.unknown" fallback="Unknown" />
+    <TranslatedText stringId="general.fallback.unknown" fallback="Unknown" />
   );
 
 const getDiet = ({ diet }) =>
-  diet.id ? (
-    <TranslatedReferenceData category="diet" fallback={diet.name} value={diet.id} />
-  ) : (
-    diet.name || '-'
-  );
+  diet ? <TranslatedReferenceData category="diet" fallback={diet.name} value={diet.id} /> : '-';
 
 export const getEncounterType = ({ encounterType }) =>
   encounterType ? ENCOUNTER_OPTIONS_BY_VALUE[encounterType]?.label : 'Unknown';
