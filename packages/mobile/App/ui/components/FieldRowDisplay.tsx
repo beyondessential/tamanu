@@ -29,12 +29,10 @@ export const FieldRowDisplay = ({
       if (getBool(`fields.${name}.hidden`)) return null;
       return labels[name];
     }
-
     // Check if this is a custom field and grab the label if so
     if (Object.keys(customFieldsById).includes(name)) {
-      return customFieconsole.logldsById[name]?.name;
+      return customFieldsById[name]?.name;
     }
-
     return name;
   };
 
