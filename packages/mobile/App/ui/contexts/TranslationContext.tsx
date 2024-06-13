@@ -34,6 +34,7 @@ interface TranslationContextData {
   setLanguageOptions: (languageOptions: []) => void;
   getTranslation: GetTranslationFunction;
   setLanguage: (language: string) => void;
+  refreshTranslations: () => void;
   host: string;
   setHost: (host: string) => void;
 }
@@ -95,13 +96,17 @@ export const TranslationProvider = ({ children }: PropsWithChildren<object>): Re
     return replaceStringVariables(translation, replacements, translations);
   };
 
+  const refreshTranslations = async () => {
+    setLanguageState(language);
+  };
+
   const writeLanguage = async (languageCode: string) => {
     await writeConfig('language', languageCode);
   };
 
   const restoreLanguage = async () => {
     const languageCode = await readConfig('language');
-    setLanguage(languageCode);
+    setLanguage(languageCode || DEFAULT_LANGUAGE);
   };
 
   useEffect(() => {
@@ -127,6 +132,7 @@ export const TranslationProvider = ({ children }: PropsWithChildren<object>): Re
         setLanguageOptions,
         getTranslation,
         setLanguage,
+        refreshTranslations,
         host,
         setHost,
       }}
