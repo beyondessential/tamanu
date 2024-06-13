@@ -54,7 +54,6 @@ const getModelFromConfigType = config => {
   return config?.source;
 };
 
-// TBD: Figure out if we need validation for the new chart related types
 const getAnswerValue = async ({
   answerText,
   facilityId,
