@@ -5,7 +5,7 @@ import { Modal } from '../../Modal';
 import { useAuth } from '../../../contexts/Auth';
 import { isErrorUnknownAllow404s, useApi } from '../../../api';
 import { useCertificate } from '../../../utils/useCertificate';
-import { usePatientAdditionalDataQuery } from '../../../api/queries';
+import { useEthnicityQuery, usePatientAdditionalDataQuery } from '../../../api/queries';
 import { useLocalisation } from '../../../contexts/Localisation';
 
 import { BirthNotificationCertificate } from '@tamanu/shared/utils/patientCertificates';
@@ -126,13 +126,9 @@ export const BirthNotificationCertificateModal = React.memo(({ patient }) => {
       ),
   );
 
-  const { data: ethnicity, isLoading: isEthnicityLoading } = useQuery(
-    ['ethnicity', additionalData?.ethnicityId],
-    () =>
-      additionalData?.ethnicityId
-        ? api.get(`referenceData/${encodeURIComponent(additionalData.ethnicityId)}`)
-        : null,
-    { enabled: !isAdditionalDataLoading },
+  const { data: ethnicity, isLoading: isEthnicityLoading } = useEthnicityQuery(
+    additionalData?.ethnicityId,
+    !isAdditionalDataLoading,
   );
 
   const isLoading =

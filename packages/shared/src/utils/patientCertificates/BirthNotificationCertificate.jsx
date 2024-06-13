@@ -188,8 +188,6 @@ const ChildSection = ({ data }) => {
 };
 
 const ParentSection = ({ parentType, data = {} }) => {
-  console.log('data', data);
-
   return (
     <Table>
       <Row>
