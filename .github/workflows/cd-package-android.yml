@@ -40,7 +40,6 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-
       - uses: actions/checkout@v4
         with:
           ref: ${{ inputs.ref || github.ref }}
@@ -111,7 +110,7 @@ jobs:
       - name: Upload final build
         uses: actions/upload-artifact@v4
         with:
-          name: android-release
+          name: android-release-${{github.run_number}}
           path: packages/mobile/android/app/build/outputs/apk/release/app-release.apk
           retention-days: 7
 
@@ -154,5 +153,4 @@ jobs:
           append_body: true
           body: |
             ## Mobile app 📱
-
-            - [Android](https://clients.ops.tamanu.io/${{ steps.destination.outputs.result }}/android/${{inputs.branding}}/${{env.APK_NAME}})
+            - [Android](https://clients.ops.tamanu.io/${{ steps.destination.outputs.result }}/android/${{inputs.branding}}/app-release.apk)
