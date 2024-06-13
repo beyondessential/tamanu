@@ -4,6 +4,7 @@ import { Button, TextInput } from '../../../components';
 import { PatientSummary } from './PatientSummary';
 
 import { useApi } from '../../../api';
+import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
 const Row = styled.div`
   display: flex;
@@ -41,7 +42,7 @@ export const PatientFetcher = ({ onPatientFound, label }) => {
     <div>
       <Row>
         <TextInput label={label} value={searchText} onChange={e => setSearchText(e.target.value)} />
-        <Button onClick={onClick}>Get</Button>
+        <Button onClick={onClick}><TranslatedText stringId='admin.patientMerge.action.get' fallback='Get' /></Button>
       </Row>
       {error && (
         <pre>
@@ -67,14 +68,32 @@ export const PatientMergeSearch = ({ onBeginMerge }) => {
   const [secondPatient, setSecondPatient] = useState();
   return (
     <MergeFrame>
-      <h3>Select patients to merge</h3>
-      <PatientFetcher label="First patient display ID" onPatientFound={setFirstPatient} />
-      <PatientFetcher label="Second patient display ID" onPatientFound={setSecondPatient} />
+      <h3>
+        <TranslatedText stringId="admin.patientMerge.title" fallback="Select patients to merge" />
+      </h3>
+      <PatientFetcher
+        label={
+          <TranslatedText
+            stringId="admin.patientMerge.firstPatient.label"
+            fallback="First patient display ID"
+          />
+        }
+        onPatientFound={setFirstPatient}
+      />
+      <PatientFetcher
+        label={
+          <TranslatedText
+            stringId="admin.patientMerge.secondPatient.label"
+            fallback="Second patient display ID"
+          />
+        }
+        onPatientFound={setSecondPatient}
+      />
       <Button
         disabled={!(firstPatient && secondPatient)}
         onClick={() => onBeginMerge(firstPatient, secondPatient)}
       >
-        Merge
+        <TranslatedText stringId="admin.patientMerge.action.merge" fallback="Merge" />
       </Button>
     </MergeFrame>
   );

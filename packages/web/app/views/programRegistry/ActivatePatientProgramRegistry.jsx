@@ -159,7 +159,7 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
                   />
                   <Field
                     name="clinicalStatusId"
-                    label="Status"
+                    label={<TranslatedText stringId="general.status.label" fallback="Status" />}
                     component={AutocompleteField}
                     suggester={programRegistryStatusSuggester}
                   />
@@ -172,7 +172,12 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
                         : 'No conditions have been configured for this program registry'
                     }
                     name="conditionIds"
-                    label="Related conditions"
+                    label={
+                      <TranslatedText
+                        stringId="patientProgramRegistry.relatedConditions.label"
+                        fallback="Related conditions"
+                      />
+                    }
                     placeholder={getTranslation('general.placeholder.select', 'Select')}
                     component={MultiselectField}
                     options={conditions}
