@@ -155,4 +155,4 @@ jobs:
           body: |
             ## Mobile app 📱
 
-            - [Android](https://clients.ops.tamanu.io/${{ steps.destination.outputs.result }}/android/${{inputs.branding}}/${{env.APK_NAME}})
+            - [Android](https://clients.ops.tamanu.io/${{ steps.destination.outputs.result }}/android/${{inputs.branding}}/app-release.apk)
