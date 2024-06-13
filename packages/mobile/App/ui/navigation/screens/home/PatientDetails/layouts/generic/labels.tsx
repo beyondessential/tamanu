@@ -1,6 +1,7 @@
 import React from 'react';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 import { ADDITIONAL_DATA_FIELDS } from '~/ui/helpers/additionalData';
+import { CAMBODIA_CUSTOM_FIELDS } from '../cambodia/fields';
 
 export const labels = {
   [ADDITIONAL_DATA_FIELDS.BIRTH_CERTIFICATE]: (
@@ -116,5 +117,17 @@ export const labels = {
   ),
   [ADDITIONAL_DATA_FIELDS.NURSING_ZONE_ID]: (
     <TranslatedText stringId="general.localisedField.nursingZoneId.label" fallback="Nursing zone" />
+  ),
+  [CAMBODIA_CUSTOM_FIELDS.NATIONAL_ID]: (
+    <TranslatedText stringId="cambodiaPatientDetails.nationalId" fallback="National ID" />
+  ),
+  [CAMBODIA_CUSTOM_FIELDS.ID_POOR_CARD_NUMBER]: (
+    <TranslatedText
+      stringId="cambodiaPatientDetails.idPoorCardNumber.label"
+      fallback="ID Poor Card Number"
+    />
+  ),
+  [CAMBODIA_CUSTOM_FIELDS.PMRS_NUMBER]: (
+    <TranslatedText stringId="cambodiaPatientDetails.pmrsNumber.label" fallback="PMRS Number" />
   ),
 };

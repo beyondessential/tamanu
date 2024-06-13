@@ -25,7 +25,6 @@ export const TranslatedText = ({
   const { debugMode, getTranslation } = useTranslation();
   const translation = getTranslation(stringId, fallback, replacements);
 
-  console.log(translation);
   const isDebugMode = __DEV__ && debugMode;
 
   return (
