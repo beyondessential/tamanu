@@ -199,28 +199,28 @@ const SectionSpacing = () => <View style={{ paddingBottom: '10px' }} />;
 const COLUMNS = {
   lineItems: [
     {
-      key: 'date',
+      key: 'orderDate',
       title: 'Date',
       style: { width: '15%' },
-      accessor: ({ dateGenerated }) =>
-        dateGenerated ? formatShort(dateGenerated) : '--/--/----',
+      accessor: ({ orderDate }) =>
+        orderDate ? formatShort(orderDate) : '--/--/----',
     },
     {
-      key: 'details',
+      key: 'productName',
       title: 'Details',
       style: { width: '30%' },
-      accessor: ({ invoiceLineType }) => invoiceLineType?.name
+      accessor: ({ productName }) => productName
     },
     {
       key: 'code',
       title: 'Code',
       style: { width: '12%' },
-      accessor: (row) => getInvoiceLineCode(row)
+      accessor: ({ productCode }) => productCode
     },
     {
       key: 'orderedBy',
       title: 'Ordered by',
-      accessor: ({ orderedBy }) => orderedBy?.displayName,
+      accessor: ({ orderedByUserId }) => '',
       style: { width: '27%' },
     },
     {
@@ -366,8 +366,9 @@ const TableSection = ({ title, data, columns, type }) => {
   );
 };
 
-const SummaryPane = ({ invoiceTotal, priceChangeItem }) => {
-  const discountedPrice = invoiceTotal * Math.abs(priceChangeItem.percentageChange);
+const SummaryPane = ({ invoiceTotal, invoice }) => {
+  const discountPercentage = invoice?.discount?.percentage || 0;
+  const discountedPrice = discountPercentage ? invoiceTotal * discountPercentage : 0;
   const patientTotal = invoiceTotal - discountedPrice;
 
   return (
@@ -405,12 +406,12 @@ const SummaryPane = ({ invoiceTotal, priceChangeItem }) => {
       <View style={summaryPaneStyles.item}>
         <P isBold>Discount</P>
         <View style={summaryPaneStyles.subItem}>
-          <P>{Math.round(Math.abs(priceChangeItem.percentageChange)*100)}%</P>
+          <P>{discountPercentage * 100}%</P>
           <P isBold>{discountedPrice.toFixed(2)}</P>
         </View>
       </View>
       <View style={summaryPaneStyles.item}>
-        <P>{priceChangeItem.description}</P>
+        <P>{invoice?.discount?.reason}</P>
       </View>
       <View style={summaryPaneStyles.item}>
         <P>Applied to discountable balance</P>
@@ -435,9 +436,7 @@ export const InvoiceRecordPrintout = ({
   getLocalisation,
   clinicianText,
   invoice,
-  lineItems,
   invoiceTotal,
-  priceChangeItem,
   patientPayments = patientPaymentsMock,
   insurerPayments = insurerPaymentsMock,
 }) => {
@@ -473,12 +472,12 @@ export const InvoiceRecordPrintout = ({
           invoice={invoice}
         />
         <SectionSpacing />
-        {lineItems?.length > 0 && (
-          <TableSection data={lineItems} columns={COLUMNS.lineItems} />
+        {invoice?.items?.length > 0 && (
+          <TableSection data={invoice?.items} columns={COLUMNS.lineItems} />
         )}
         <SummaryPane 
           invoiceTotal={invoiceTotal}
-          priceChangeItem={priceChangeItem}
+          invoice={invoice}
         />
         <SectionSpacing />
         {patientPayments?.length && (
