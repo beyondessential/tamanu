@@ -26,6 +26,14 @@
       "location": "Bed 1"
     }
   },
+  "schedules": {
+    "refreshMaterializedView": {
+      "upcomingVaccinations": {
+        // every 50 mins
+        "schedule": "*/50 * * * *"
+      }
+    }
+  },
   "serverFacilityId": "balwyn",
   "sync": {
     "backoff": {
