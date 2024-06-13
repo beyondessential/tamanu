@@ -1,15 +1,8 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { INVOICE_STATUS_LABELS, INVOICE_PAYMENT_STATUS_LABELS } from '@tamanu/constants';
-import { calculateInvoiceTotal } from '../utils';
 
-import {
-  ENCOUNTER_OPTIONS_BY_VALUE,
-  INVOICE_STATUS_COLORS,
-  Colors
-} from '../constants';
+import { Colors, ENCOUNTER_OPTIONS_BY_VALUE, INVOICE_PAYMENT_STATUS_LABELS } from '../constants';
 
-import { useApi } from '../api';
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 import { TranslatedEnum, TranslatedText } from './Translation';

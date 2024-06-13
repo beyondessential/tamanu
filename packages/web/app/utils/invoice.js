@@ -18,10 +18,10 @@ export const calculateInvoiceTotal = (invoiceLines, invoicePriceChanges) => {
 export const calculateInvoiceLinesTotal = invoiceLines => {
   let total = 0;
   invoiceLines.forEach(invoiceLine => {
-    let price = invoiceLine.invoiceLineType?.price || invoiceLine.price || 0;
+    let price = invoiceLine.productPrice || 0;
     price = parseFloat(price);
-    const priceChange = (invoiceLine.percentageChange || 0) * price;
-    total += price + priceChange;
+    const priceChange = (invoiceLine?.discount?. percentage || 0) * price;
+    total += price - priceChange;
   });
 
   return Math.round(total * 100) / 100;

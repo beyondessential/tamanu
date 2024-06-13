@@ -6,9 +6,7 @@ import {
 } from '@tamanu/constants';
 import { DataSection } from './DataSection';
 import { DataItem } from './DataItem';
-import { getLocationName } from '../../patientAccessors';
 import { Col } from '../Layout';
-import { HorizontalRule } from './HorizontalRule';
 import { formatShort } from '../../dateTime';
 
 export const InvoiceDetails = ({ encounter, invoice }) => {

@@ -9,28 +9,6 @@ import { Footer } from './printComponents/Footer';
 import { formatShort } from '../dateTime';
 import { EncounterDetails } from './printComponents/EncounterDetails';
 import { InvoiceDetails } from './printComponents/InvoiceDetails';
-import { getInvoiceLineCode } from '../invoice';
-
-const patientPaymentsMock = [
-  {
-    date: '02/02/24',
-    method: 'Cash',
-    amount: 1.00,
-    receiptNumber: '87383928',
-    remainingBalance: 0.90
-  }
-];
-
-const insurerPaymentsMock = [
-  {
-    date: '02/02/24',
-    payer: 'NIB',
-    amount: 0.00,
-    receiptNumber: '87383928',
-    remainingBalance: 8.00,
-    status: 'Rejected (reason goes here)'
-  }
-];
 
 const borderStyle = '1 solid black';
 
@@ -173,17 +151,17 @@ const PriceCell = ({ children, style = {} }) => (
 );
 
 const getPrice = (row) => {
-  const originalPrice = parseFloat(row?.invoiceLineType?.price).toFixed(2);
-  const percentageChange = row.percentageChange ? parseFloat(row.percentageChange).toFixed(2) : 0;
-  const priceChange = (originalPrice * percentageChange).toFixed(2);
-  const finalPrice = (+originalPrice + (+priceChange)).toFixed(2);
+  const originalPrice = row?.productPrice ? parseFloat(row.productPrice).toFixed(2) : 0;
+  const discountPercentage = row?.discount?.percentage ? parseFloat(row.discount.percentage).toFixed(2) : 0;
+  const priceChange = (originalPrice * discountPercentage).toFixed(2);
+  const finalPrice = (+originalPrice - (+priceChange)).toFixed(2);
 
   return (
     <>
-      <P style={!!percentageChange ? priceCellStyles.crossOutText : undefined}>
+      <P style={!!discountPercentage ? priceCellStyles.crossOutText : undefined}>
         {originalPrice}
       </P>
-      {!!percentageChange && <P>{finalPrice}</P>}
+      {!!discountPercentage && <P>{finalPrice}</P>}
     </>
   );
 };
@@ -196,6 +174,7 @@ const HeaderCell = ({ children, style }) => (
 
 const SectionSpacing = () => <View style={{ paddingBottom: '10px' }} />;
 
+//TODO: re-map based on data returned from Back-end
 const COLUMNS = {
   lineItems: [
     {
@@ -220,7 +199,7 @@ const COLUMNS = {
     {
       key: 'orderedBy',
       title: 'Ordered by',
-      accessor: ({ orderedByUserId }) => '',
+      accessor: ({ orderedByUserName }) => orderedByUserName,
       style: { width: '27%' },
     },
     {
@@ -267,7 +246,7 @@ const COLUMNS = {
     {
       key: 'date',
       title: 'Date',
-      style: { width: '14%' },
+      style: { width: '16%' },
       accessor: ({ date }) => date
     },
     {
@@ -366,16 +345,16 @@ const TableSection = ({ title, data, columns, type }) => {
   );
 };
 
-const SummaryPane = ({ invoiceTotal, invoice }) => {
+const SummaryPane = ({ discountableTotal, invoice }) => {
   const discountPercentage = invoice?.discount?.percentage || 0;
-  const discountedPrice = discountPercentage ? invoiceTotal * discountPercentage : 0;
-  const patientTotal = invoiceTotal - discountedPrice;
+  const discountedPrice = discountPercentage ? discountableTotal * discountPercentage : 0;
+  const patientTotal = discountableTotal - discountedPrice;
 
   return (
     <View wrap={false} style={summaryPaneStyles.container}>
       <View style={summaryPaneStyles.item}>
         <P>Discountable items subtotal</P>
-        <P>{invoiceTotal || '-'}</P>
+        <P>{discountableTotal || '-'}</P>
       </View>
       <View style={summaryPaneStyles.item}>
         <P>Non-discountable items subtotal</P>
@@ -384,7 +363,7 @@ const SummaryPane = ({ invoiceTotal, invoice }) => {
       <HorizontalRule />
       <View style={summaryPaneStyles.item}>
         <P isBold>Total</P>
-        <P isBold>{invoiceTotal || '-'}</P>
+        <P isBold>{discountableTotal || '-'}</P>
       </View>
       <HorizontalRule />
       <View style={summaryPaneStyles.item}>
@@ -416,7 +395,7 @@ const SummaryPane = ({ invoiceTotal, invoice }) => {
       <View style={summaryPaneStyles.item}>
         <P>Applied to discountable balance</P>
         <View style={summaryPaneStyles.subItem}>
-          <P>{invoiceTotal}</P>
+          <P>{discountableTotal}</P>
         </View>
       </View>
       <HorizontalRule />
@@ -436,9 +415,9 @@ export const InvoiceRecordPrintout = ({
   getLocalisation,
   clinicianText,
   invoice,
-  invoiceTotal,
-  patientPayments = patientPaymentsMock,
-  insurerPayments = insurerPaymentsMock,
+  discountableTotal,
+  patientPayments,
+  insurerPayments,
 }) => {
   const { watermark, logo } = certificateData;
   return (
@@ -476,7 +455,7 @@ export const InvoiceRecordPrintout = ({
           <TableSection data={invoice?.items} columns={COLUMNS.lineItems} />
         )}
         <SummaryPane 
-          invoiceTotal={invoiceTotal}
+          discountableTotal={discountableTotal}
           invoice={invoice}
         />
         <SectionSpacing />

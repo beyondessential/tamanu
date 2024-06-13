@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 
 import { ForbiddenError } from '@tamanu/shared/errors';
 
@@ -15,16 +15,14 @@ import { ForbiddenErrorModalContents } from '../../ForbiddenErrorModal';
 import { PDFLoader, printPDF } from '../PDFLoader';
 import { TranslatedText } from '../../Translation/TranslatedText';
 import { useTranslation } from '../../../contexts/Translation';
-import { usePriceChangeItemsQuery } from '../../../api/queries/usePriceChangeItemsQuery';
-import { useInvoiceLineItemsQuery } from '../../../api/queries/useInvoiceLineItemsQuery';
+import { calculateInvoiceLinesTotal } from '../../../utils';
 
 export const InvoiceRecordModal = ({ 
   encounter, 
   open, 
   onClose, 
   invoice,
-  invoiceTotal,
-  discount
+
 }) => {
   const { getTranslation } = useTranslation();
   const clinicianText = getTranslation(
@@ -32,12 +30,13 @@ export const InvoiceRecordModal = ({
     'Clinician',
   ).toLowerCase();
 
+  const discountableTotal = useMemo(() => {
+    return calculateInvoiceLinesTotal(invoice?.items);
+  }, [invoice]);
+
   const { getLocalisation } = useLocalisation();
   const certificateQuery = useCertificate();
   const { data: certificateData } = certificateQuery;
-
-  const lineItemsQuery = useInvoiceLineItemsQuery(invoice.id);
-  const lineItems = lineItemsQuery.data;
 
   const patientQuery = usePatientData(encounter.patientId);
   const patient = patientQuery.data;
@@ -48,21 +47,11 @@ export const InvoiceRecordModal = ({
   const villageQuery = useReferenceData(patient?.villageId);
   const village = villageQuery.data;
 
-  const priceChangeItemsQuery = usePriceChangeItemsQuery(invoice.id);
-
-  const priceChangeItem = priceChangeItemsQuery.data?.data[0] || {
-    percentageChange: 0,
-    description: "",
-    orderedById: "",
-  };
-
   const allQueries = combineQueries([
-    lineItemsQuery,
     patientQuery,
     certificateQuery,
     villageQuery,
     padDataQuery,
-    priceChangeItemsQuery
   ]);
 
   const modalProps = {
@@ -100,9 +89,7 @@ export const InvoiceRecordModal = ({
           getLocalisation={getLocalisation}
           clinicianText={clinicianText}
           invoice={invoice}
-          lineItems={lineItems}
-          invoiceTotal={invoiceTotal}
-          priceChangeItem={priceChangeItem}
+          discountableTotal={discountableTotal}
         />
       </PDFLoader>
     </Modal>

@@ -12,24 +12,6 @@ export const INVOICE_PAYMENT_STATUSES = {
   PAID_REJECTED: 'paid/rejected',
 };
 
-export const INVOICE_STATUS_LABELS = {
-  [INVOICE_STATUSES.CANCELLED]: 'Cancelled',
-  [INVOICE_STATUSES.IN_PROGRESS]: 'In progress',
-  [INVOICE_STATUSES.FINALISED]: 'Finalised',
-};
-
-export const INVOICE_PAYMENT_STATUS_LABELS = {
-  [INVOICE_PAYMENT_STATUSES.UNPAID]: 'Unpaid',
-  [INVOICE_PAYMENT_STATUSES.PAID]: 'Paid',
-};
-
-export const INVOICE_LINE_TYPES = {
-  PROCEDURE_TYPE: 'procedureType',
-  IMAGING_TYPE: 'imagingType',
-  LAB_TEST_TYPE: 'labTestType',
-  ADDITIONAL: 'additionalInvoiceLine',
-};
-
 export const INVOICE_LINE_ITEM_STATUSES = {
   ACTIVE: 'active',
   DELETED: 'deleted',

@@ -2,7 +2,6 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
 import * as yup from 'yup';
-import { useQueryClient } from '@tanstack/react-query';
 import { CircularProgress, Divider } from '@material-ui/core';
 import { Modal } from '../Modal';
 import { TranslatedEnum, TranslatedText } from '../Translation';
@@ -19,8 +18,6 @@ import { getInvoiceLineCode } from '../../utils/invoiceDetails';
 import { InvoiceStatus } from '../InvoiceStatus';
 import { InvoiceSummaryPanel } from '../InvoiceSummaryPanel';
 import { calculateInvoiceLinesTotal } from '../../utils';
-import { useInvoiceLineTotals } from '../../hooks/useInvoiceLineTotals';
-import { useInvoiceLineItemsQuery } from '../../api/queries/useInvoiceLineItemsQuery';
 
 const LinkText = styled.div`
   font-weight: 500;
@@ -124,24 +121,23 @@ export const EditInvoiceModal = ({
   const [isSaveDisabled, setIsSaveDisabled] = useState(false);
   const [idsToDelete, setIdsToDelete] = useState([]);
   const api = useApi();
-  const queryClient = useQueryClient();
-  const { data: invoiceLineItemsResponse } = useInvoiceLineItemsQuery(invoiceId);
 
   useEffect(() => {
-    if (!invoiceLineItemsResponse?.data.length) return;
-    const data = invoiceLineItemsResponse.data;
-    setRowList(data.map(item => ({
-      id: item.id,
-      details: item.invoiceLineType?.name,
-      date: item.dateGenerated,
-      orderedBy: item.orderedBy?.displayName,
-      price: item.invoiceLineType?.price,
-      invoiceLineTypeId: item.invoiceLineTypeId,
-      orderedById: item.orderedById,
-      code: getInvoiceLineCode(item),
-      percentageChange: item.percentageChange
-    })));
-  }, [invoiceLineItemsResponse]);
+    (async () => {
+      const { data } = await api.get(`invoices/${encodeURIComponent(invoiceId)}/lineItems`);
+      if (!data.length) return;
+      setRowList(
+        data.map(item => ({
+          ...item,
+          details: item.invoiceLineType?.name,
+          date: item.dateGenerated,
+          orderedBy: item.orderedBy?.displayName,
+          price: item.invoiceLineType?.price,
+          code: getInvoiceLineCode(item),
+        })),
+      );
+    })();
+  }, [api]);
 
   useEffect(() => {
     const isSaveDisabled = !rowList.some(row => !!row.invoiceLineTypeId);
@@ -341,7 +337,6 @@ export const EditInvoiceModal = ({
 
     await api.delete(`invoices/${invoiceId}/lineItems`, { idsToDelete });
     await api.put(`invoices/${invoiceId}/lineItems`, { invoiceLineItemsData });
-    queryClient.invalidateQueries(['invoiceLineItems', invoiceId]);
     await loadEncounter(encounterId);
     setIsSaving(false);
   };

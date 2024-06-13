@@ -15,7 +15,6 @@ import { InvoiceStatus } from '../../../components/InvoiceStatus';
 import { InvoiceSummaryPanel } from '../../../components/InvoiceSummaryPanel';
 import { CreateInvoiceModal } from '../../../components/CreateInvoiceModal';
 import { InvoiceRecordModal } from '../../../components/PatientPrinting/modals/InvoiceRecordModal.jsx';
-import { useInvoiceLineItemsQuery } from '../../../api/queries/useInvoiceLineItemsQuery';
 
 const EmptyPane = styled(ContentPane)`
   text-align: center;
@@ -70,7 +69,6 @@ export const InvoicingPane = React.memo(({ encounter }) => {
   }, []);
 
   const api = useApi();
-  const { data: lineItems } = useInvoiceLineItemsQuery(invoice?.id);
 
   const getInvoice = useCallback(async () => {
     try {
@@ -139,8 +137,6 @@ export const InvoicingPane = React.memo(({ encounter }) => {
         onClose={() => setPrintModalOpen(false)}
         encounter={encounter}
         invoice={invoice}
-        lineItems={lineItems?.data || []}
-        invoiceTotal={invoiceTotal}
       />}
       <InvoiceContainer>
         <InvoiceTopBar>
