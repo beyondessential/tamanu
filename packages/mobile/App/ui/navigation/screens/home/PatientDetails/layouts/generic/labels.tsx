@@ -8,6 +8,9 @@ export const labels = {
   [PATIENT_DATA_FIELDS.FIRST_NAME]: (
     <TranslatedText stringId="general.localisedField.firstName.label" fallback="First name" />
   ),
+  [PATIENT_DATA_FIELDS.MIDDLE_NAME]: (
+    <TranslatedText stringId="general.localisedField.middleName.label" fallback="Middle name" />
+  ),
   [PATIENT_DATA_FIELDS.LAST_NAME]: (
     <TranslatedText stringId="general.localisedField.middleName.label" fallback="Middle name" />
   ),
@@ -19,6 +22,12 @@ export const labels = {
   ),
   [PATIENT_DATA_FIELDS.CULTURAL_NAME]: (
     <TranslatedText stringId="general.localisedField.culturalName.label" fallback="Cultural name" />
+  ),
+  [PATIENT_DATA_FIELDS.EMAIL]: (
+    <TranslatedText stringId="general.localisedField.email.label" fallback="Email address" />
+  ),
+  [PATIENT_DATA_FIELDS.VILLAGE_ID]: (
+    <TranslatedText stringId="general.localisedField.villageId.label" fallback="Village" />
   ),
   [ADDITIONAL_DATA_FIELDS.BIRTH_CERTIFICATE]: (
     <TranslatedText
