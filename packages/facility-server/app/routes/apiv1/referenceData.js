@@ -47,7 +47,8 @@ referenceData.get(
 
     const entity = await ReferenceData.findByPk(id);
     const ancestors = await entity.getAncestors(relationType);
-    res.send(mapValues(keyBy(ancestors, 'type'), 'id'));
+    const hierarchyValues = [...ancestors, entity.get({ plain: true })];
+    res.send(mapValues(keyBy(hierarchyValues, 'type'), 'id'));
   }),
 );
 
