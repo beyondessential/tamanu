@@ -12,9 +12,9 @@ import {
   SuggesterSelectField,
   SelectField,
 } from '../../../components';
-import { 
-  FORM_TYPES, 
-  LAB_REQUEST_STATUS_OPTIONS as DEFAULT_LAB_REQUEST_STATUS_OPTIONS 
+import {
+  FORM_TYPES,
+  LAB_REQUEST_STATUS_OPTIONS as DEFAULT_LAB_REQUEST_STATUS_OPTIONS,
 } from '../../../constants';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
@@ -47,10 +47,10 @@ export const LabRequestChangeStatusModal = React.memo(
       onClose();
     };
 
-    const LAB_REQUEST_STATUS_OPTIONS = DEFAULT_LAB_REQUEST_STATUS_OPTIONS.filter(({ value }) => (
+    const LAB_REQUEST_STATUS_OPTIONS = DEFAULT_LAB_REQUEST_STATUS_OPTIONS.filter(
+      ({ value }) =>
         labRequest.status === LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED ||
-        value !== LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED
-      )
+        value !== LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED,
     );
 
     return (
@@ -64,7 +64,7 @@ export const LabRequestChangeStatusModal = React.memo(
           render={({ values, submitForm }) => (
             <FormGrid columns={1}>
               <Field
-                label="Status"
+                label={<TranslatedText stringId="general.status.label" fallback="Status" />}
                 name="status"
                 options={LAB_REQUEST_STATUS_OPTIONS}
                 component={SelectField}

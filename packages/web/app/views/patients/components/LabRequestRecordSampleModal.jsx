@@ -112,14 +112,24 @@ const LabRequestRecordSampleForm = ({ submitForm, values, onClose }) => {
           />
           <StyledField
             name="collectedById"
-            label="Collected by"
+            label={
+              <TranslatedText
+                stringId="lab.sampleDetail.table.column.collectedBy"
+                fallback="Collected by"
+              />
+            }
             suggester={practitionerSuggester}
             disabled={!values.sampleTime}
             component={AutocompleteField}
           />
           <StyledField
             name="specimenTypeId"
-            label="Specimen type"
+            label={
+              <TranslatedText
+                stringId="lab.sampleDetail.table.column.specimenType"
+                fallback="Specimen type"
+              />
+            }
             component={AutocompleteField}
             suggester={specimenTypeSuggester}
             disabled={!values.sampleTime}
@@ -127,14 +137,18 @@ const LabRequestRecordSampleForm = ({ submitForm, values, onClose }) => {
           />
           <StyledField
             name="labSampleSiteId"
-            label="Site"
+            label={<TranslatedText stringId="lab.site.label" fallback="Site" />}
             disabled={!values.sampleTime}
             component={SuggesterSelectField}
             endpoint="labSampleSite"
           />
         </FormGrid>
       </FieldContainer>
-      <ModalFormActionRow onConfirm={submitForm} confirmText="Confirm" onCancel={onClose} />
+      <ModalFormActionRow
+        onConfirm={submitForm}
+        confirmText={<TranslatedText stringId="general.action.confirm" fallback="Confirm" />}
+        onCancel={onClose}
+      />
     </>
   );
 };

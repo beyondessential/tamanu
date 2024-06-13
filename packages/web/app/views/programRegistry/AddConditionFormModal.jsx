@@ -60,7 +60,12 @@ export const AddConditionFormModal = ({
               <StyledFormGrid columns={1}>
                 <Field
                   name="programRegistryConditionId"
-                  label="Related condition"
+                  label={
+                    <TranslatedText
+                      stringId="patientProgramRegistry.relatedCondition.label"
+                      fallback="Related condition"
+                    />
+                  }
                   component={AutocompleteField}
                   options={differenceBy(
                     programRegistryConditions,
