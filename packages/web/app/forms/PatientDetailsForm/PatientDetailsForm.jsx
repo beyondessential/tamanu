@@ -112,7 +112,7 @@ export const PatientDetailsForm = ({ patient, additionalData, birthData, onSubmi
   const {
     data: computedInitialValues,
     isLoading: isLoadingComputedInitialValues,
-  } = useCambodiaSecondaryAddressInitialData({ additionalData });
+  } = useCambodiaSecondaryAddressInitialData(additionalData?.secondaryVillageId);
 
   const errors = [fieldDefError, fieldValError].filter(e => Boolean(e));
   if (errors.length > 0) {
@@ -120,6 +120,7 @@ export const PatientDetailsForm = ({ patient, additionalData, birthData, onSubmi
   }
   const isLoading =
     isLoadingFieldDefinitions || isLoadingFieldValues || isLoadingComputedInitialValues;
+
   if (isLoading) {
     return <LoadingIndicator />;
   }
