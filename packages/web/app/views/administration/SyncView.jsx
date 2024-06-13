@@ -3,6 +3,7 @@ import React from 'react';
 
 import { DataFetchingTable, DateDisplay, PageContainer, TopBar } from '../../components';
 import { SYNC_LAST_COMPLETED_ENDPOINT } from './constants';
+import { TranslatedText } from '../../components/Translation/TranslatedText';
 
 const LastSyncs = React.memo(props => (
   <DataFetchingTable
@@ -10,21 +11,28 @@ const LastSyncs = React.memo(props => (
     columns={[
       {
         key: 'facilityId',
-        title: 'Facility',
+        title: <TranslatedText stringId="general.facility.label" fallback="Facility" />,
         minWidth: 100,
       },
       {
         key: 'completedAt',
-        title: 'Last completed sync',
+        title: (
+          <TranslatedText
+            stringId="admin.syncStatus.table.column.lastCompleted"
+            fallback="Last completed sync"
+          />
+        ),
         accessor: ({ completedAt }) => <DateDisplay date={completedAt} showTime />,
       },
       {
         key: 'duration',
-        title: 'Duration',
+        title: (
+          <TranslatedText stringId="admin.syncStatus.table.column.duration." fallback="Duration" />
+        ),
         accessor: ({ duration }) => ms(duration),
       },
     ]}
-    noDataMessage="No data"
+    noDataMessage={<TranslatedText stringId="general.table.noData" fallback="No data" />}
     {...props}
   />
 ));
@@ -32,8 +40,13 @@ const LastSyncs = React.memo(props => (
 export const SyncView = React.memo(() => {
   return (
     <PageContainer>
-      <TopBar title="Sync status" />
-      <p>{`Times are in the server's timezone.`}</p>
+      <TopBar title={<TranslatedText stringId="admin.syncStatus.title" fallback="Sync status" />} />
+      <p>
+        <TranslatedText
+          stringId="admin.syncStatus.times.message"
+          fallback="Times are in the server's timezone"
+        />
+      </p>
       <LastSyncs />
     </PageContainer>
   );

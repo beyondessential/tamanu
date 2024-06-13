@@ -28,7 +28,7 @@ const columns = [
   {
     key: 'schedule',
     title: 'Schedule',
-    accessor: ({ scheduledVaccine }) => (scheduledVaccine || {}).schedule,
+    accessor: ({ scheduledVaccine }) => (scheduledVaccine || {}).doseLabel,
   },
   {
     key: 'vaccine',

@@ -119,7 +119,7 @@ vaccine_info as (
       json_build_object(
         'name', drug.name,
         'label', sv.label,
-        'schedule', sv.schedule
+        'doseLabel', sv.dose_label
       ) order by date desc
     ) "Vaccinations"
   from administered_vaccines av
