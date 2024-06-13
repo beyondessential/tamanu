@@ -180,7 +180,7 @@ programRegistry.get(
           WHERE n.row_num = 1
         ),
         conditions as (
-          SELECT patient_id, jsonb_agg(prc."name") condition_list  
+          SELECT patient_id, jsonb_agg(prc."name") condition_list 
           FROM patient_program_registration_conditions pprc
             JOIN program_registry_conditions prc
               ON pprc.program_registry_condition_id = prc.id

@@ -9,7 +9,7 @@ import { Colors } from '../constants';
 import { useApi } from '../api';
 import { DateDisplay } from './DateDisplay';
 import { Modal } from './Modal';
-import { TranslatedText, TranslatedEnum } from './Translation';
+import { TranslatedText, TranslatedReferenceData, TranslatedEnum } from './Translation';
 
 const Container = styled.div`
   display: flex;
@@ -149,19 +149,44 @@ export const ViewAdministeredVaccineContent = ({ vaccineRecord, editMode }) => {
     },
     area: {
       label: <TranslatedText stringId="general.area.label" fallback="Area" />,
-      value: location?.locationGroup?.name || '-',
+      value: location?.locationGroup
+        ? <TranslatedReferenceData
+          fallback={location.locationGroup.name}
+          value={location.locationGroup.id}
+          category="locationGroup"
+        /> : '-',
     },
     location: {
       label: <TranslatedText stringId="general.location.label" fallback="Location" />,
-      value: location?.name || '-',
+      value: location
+        ? <TranslatedReferenceData
+          fallback={location.name}
+          value={location.id}
+          category="location"
+        /> : '-',
     },
     department: {
       label: <TranslatedText stringId="general.department.label" fallback="Department" />,
-      value: department?.name || '-',
+      value: department
+        ? <TranslatedReferenceData
+          fallback={department.name}
+          value={department.id}
+          category="department"
+        /> : '-',
     },
     facility: {
       label: <TranslatedText stringId="general.facility.label" fallback="Facility" />,
-      value: location?.facility.name || encounter.location.facility.name || '-',
+      value: (location?.facility.name &&
+        <TranslatedReferenceData
+          fallback={location.facility.name}
+          value={location.facility.id}
+          category="facility"
+        />) || (encounter.location.facility.name &&
+          <TranslatedReferenceData
+            fallback={encounter.location.facility.name}
+            value={encounter.location.facility.id}
+            category="facility"
+          />) || '-',
     },
     givenBy: {
       label: <TranslatedText stringId="vaccine.givenBy.label" fallback="Given by" />,
@@ -225,13 +250,26 @@ export const ViewAdministeredVaccineContent = ({ vaccineRecord, editMode }) => {
           fallback="Reason"
         />
       ),
-      value: notGivenReason?.name || '-',
+      value: notGivenReason
+        ? <TranslatedReferenceData
+          fallback={notGivenReason.name}
+          value={notGivenReason.id}
+          category="vaccineNotGivenReason"
+        /> : '-',
     },
     circumstance: {
       label: <TranslatedText stringId="vaccine.circumstance.label" fallback="Circumstance" />,
       value:
         vaccineCircumstances?.length > 0
-          ? vaccineCircumstances?.map(circumstance => circumstance?.name)?.join(', ')
+          ? vaccineCircumstances?.map(circumstance => circumstance && <span
+            key={circumstance.id}
+          >
+            <TranslatedReferenceData
+              fallback={circumstance.name}
+              value={circumstance.id}
+              category="vaccineCircumstance"
+            />
+          </span>)?.join(', ')
           : '-',
     },
   };
