@@ -1,6 +1,5 @@
 import * as yup from 'yup';
 import { replaceStringVariables } from '../contexts/Translation';
-import { startCase } from 'lodash';
 
 const registerTranslatedLabelMethod = (translations = {}) => {
   yup.addMethod(yup.mixed, 'translatedLabel', function(translatedTextComponent) {
@@ -26,7 +25,7 @@ export function registerYup(translations = {}) {
   yup.setLocale({
     mixed: {
       required: function({ path }) {
-        return defaultMessage.replace(':path', startCase(path));
+        return defaultMessage.replace(':path', path);
       },
     },
   });
