@@ -146,4 +146,10 @@ export const labels = {
   [CAMBODIA_CUSTOM_FIELDS.PMRS_NUMBER]: (
     <TranslatedText stringId="cambodiaPatientDetails.pmrsNumber.label" fallback="PMRS Number" />
   ),
+  [CAMBODIA_CUSTOM_FIELDS.FATHERS_FIRST_NAME]: (
+    <TranslatedText
+      stringId="cambodiaPatientDetails.fathersFirstName.label"
+      fallback="Father's first name"
+    />
+  ),
 };

@@ -24,7 +24,6 @@ import { ReminderContactSection } from '../../../../components/ReminderContact/R
 import { useSettings } from '../../../../contexts/Settings';
 
 const FATHERS_FIRST_NAME_DEFINITION_ID = 'fieldDefinition-fathersFirstName';
-
 const CAMBODIA_CORE_FIELD_CATEGORY_ID = 'fieldCategory-cambodiaCorePatientFields';
 
 export const CambodiaPrimaryDetailsLayout = ({

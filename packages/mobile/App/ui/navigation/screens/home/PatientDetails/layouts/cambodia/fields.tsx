@@ -7,6 +7,7 @@ export const CAMBODIA_CUSTOM_FIELDS = {
   NATIONAL_ID: 'fieldDefinition-nationalId',
   ID_POOR_CARD_NUMBER: 'fieldDefinition-idPoorCardNumber',
   PMRS_NUMBER: 'fieldDefinition-pmrsNumber',
+  FATHERS_FIRST_NAME: 'fieldDefinition-fathersFirstName',
 };
 
 export const CAMBODIA_LOCATION_HIERARCHY_FIELDS = [

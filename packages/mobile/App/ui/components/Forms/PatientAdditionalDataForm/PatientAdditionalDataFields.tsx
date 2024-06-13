@@ -86,7 +86,7 @@ const CustomField = ({ fieldName, required }): ReactElement => {
   return (
     <Field
       name={fieldDefinition.id}
-      label={fieldDefinition.name}
+      label={labels[fieldName] || fieldDefinition.name}
       component={PatientFieldDefinitionComponents[fieldDefinition.fieldType]}
       options={fieldDefinition.options
         ?.split(',')

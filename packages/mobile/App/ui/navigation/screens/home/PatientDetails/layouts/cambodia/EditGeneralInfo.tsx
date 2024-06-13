@@ -12,7 +12,7 @@ import { GenderOptions, Gender } from '~/ui/helpers/constants';
 import { RadioButtonGroup } from '~/ui/components/RadioButtonGroup';
 import { DateField } from '~/ui/components/DateField/DateField';
 import { PatientAdditionalDataFields } from '~/ui/components/Forms/PatientAdditionalDataForm/PatientAdditionalDataFields';
-import { CAMBODIA_ADDITIONAL_DATA_FIELDS } from './fields';
+import { CAMBODIA_ADDITIONAL_DATA_FIELDS, CAMBODIA_CUSTOM_FIELDS } from './fields';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 
 export const Fields = ({ isEdit }): ReactElement => {
@@ -70,7 +70,7 @@ export const Fields = ({ isEdit }): ReactElement => {
         component={TextField}
         required={getBool('fields.culturalName.requiredPatientData')}
       />
-      <PatientAdditionalDataFields fields={['fieldDefinition-fathersFirstName']} />
+      <PatientAdditionalDataFields fields={[CAMBODIA_CUSTOM_FIELDS.FATHERS_FIRST_NAME]} />
       {!isEdit && (
         <PatientAdditionalDataFields
           fields={Object.values(CAMBODIA_ADDITIONAL_DATA_FIELDS).flat()}
