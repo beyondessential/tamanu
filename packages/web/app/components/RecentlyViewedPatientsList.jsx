@@ -136,7 +136,7 @@ const PATIENTS_PER_PAGE = 6;
 const Card = ({ patient, handleClick }) => {
   return (
     <CardComponent onClick={() => handleClick(patient.id)}>
-      <EncounterTypeIndicator encounterType={patient.encounter_type} />
+      <EncounterTypeIndicator $encounterType={patient.encounter_type} />
       <CardComponentContent>
         <ThemedTooltip title={`${patient.firstName || ''} ${patient.lastName || ''}`}>
           <CardTitle $encounterType={patient.encounter_type}>
