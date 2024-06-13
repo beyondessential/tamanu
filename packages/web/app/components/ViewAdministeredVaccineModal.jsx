@@ -9,7 +9,7 @@ import { Colors } from '../constants';
 import { useApi } from '../api';
 import { DateDisplay } from './DateDisplay';
 import { Modal } from './Modal';
-import { TranslatedText, TranslatedReferenceData, TranslatedEnum } from './Translation';
+import { TranslatedEnum, TranslatedReferenceData, TranslatedText } from './Translation';
 
 const Container = styled.div`
   display: flex;
@@ -92,7 +92,7 @@ export const ViewAdministeredVaccineContent = ({ vaccineRecord, editMode }) => {
     id: vaccineRecordId,
     status,
     injectionSite,
-    scheduledVaccine: { label: vaccineLabel, schedule },
+    scheduledVaccine: { label: vaccineLabel, schedule, id: vaccineId },
     encounter: { patientId },
     recorder,
     givenBy,
@@ -125,7 +125,15 @@ export const ViewAdministeredVaccineContent = ({ vaccineRecord, editMode }) => {
   const fieldObjects = {
     vaccine: {
       label: <TranslatedText stringId="vaccine.vaccine.label" fallback="Vaccine" />,
-      value: vaccineLabel || '-',
+      value: vaccineId ? (
+        <TranslatedReferenceData
+          category="scheduledVaccine"
+          fallback={vaccineLabel}
+          value={vaccineId}
+        />
+      ) : (
+        '-'
+      ),
     },
     batch: {
       label: <TranslatedText stringId="vaccine.batch.label" fallback="Batch" />,
@@ -149,44 +157,54 @@ export const ViewAdministeredVaccineContent = ({ vaccineRecord, editMode }) => {
     },
     area: {
       label: <TranslatedText stringId="general.area.label" fallback="Area" />,
-      value: location?.locationGroup
-        ? <TranslatedReferenceData
+      value: location?.locationGroup ? (
+        <TranslatedReferenceData
           fallback={location.locationGroup.name}
           value={location.locationGroup.id}
           category="locationGroup"
-        /> : '-',
+        />
+      ) : (
+        '-'
+      ),
     },
     location: {
       label: <TranslatedText stringId="general.location.label" fallback="Location" />,
-      value: location
-        ? <TranslatedReferenceData
-          fallback={location.name}
-          value={location.id}
-          category="location"
-        /> : '-',
+      value: location ? (
+        <TranslatedReferenceData fallback={location.name} value={location.id} category="location" />
+      ) : (
+        '-'
+      ),
     },
     department: {
       label: <TranslatedText stringId="general.department.label" fallback="Department" />,
-      value: department
-        ? <TranslatedReferenceData
+      value: department ? (
+        <TranslatedReferenceData
           fallback={department.name}
           value={department.id}
           category="department"
-        /> : '-',
+        />
+      ) : (
+        '-'
+      ),
     },
     facility: {
       label: <TranslatedText stringId="general.facility.label" fallback="Facility" />,
-      value: (location?.facility.name &&
-        <TranslatedReferenceData
-          fallback={location.facility.name}
-          value={location.facility.id}
-          category="facility"
-        />) || (encounter.location.facility.name &&
+      value:
+        (location?.facility.name && (
+          <TranslatedReferenceData
+            fallback={location.facility.name}
+            value={location.facility.id}
+            category="facility"
+          />
+        )) ||
+        (encounter.location.facility.name && (
           <TranslatedReferenceData
             fallback={encounter.location.facility.name}
             value={encounter.location.facility.id}
             category="facility"
-          />) || '-',
+          />
+        )) ||
+        '-',
     },
     givenBy: {
       label: <TranslatedText stringId="vaccine.givenBy.label" fallback="Given by" />,
@@ -250,26 +268,34 @@ export const ViewAdministeredVaccineContent = ({ vaccineRecord, editMode }) => {
           fallback="Reason"
         />
       ),
-      value: notGivenReason
-        ? <TranslatedReferenceData
+      value: notGivenReason ? (
+        <TranslatedReferenceData
           fallback={notGivenReason.name}
           value={notGivenReason.id}
           category="vaccineNotGivenReason"
-        /> : '-',
+        />
+      ) : (
+        '-'
+      ),
     },
     circumstance: {
       label: <TranslatedText stringId="vaccine.circumstance.label" fallback="Circumstance" />,
       value:
         vaccineCircumstances?.length > 0
-          ? vaccineCircumstances?.map(circumstance => circumstance && <span
-            key={circumstance.id}
-          >
-            <TranslatedReferenceData
-              fallback={circumstance.name}
-              value={circumstance.id}
-              category="vaccineCircumstance"
-            />
-          </span>)?.join(', ')
+          ? vaccineCircumstances
+              ?.map(
+                circumstance =>
+                  circumstance && (
+                    <span key={circumstance.id}>
+                      <TranslatedReferenceData
+                        fallback={circumstance.name}
+                        value={circumstance.id}
+                        category="vaccineCircumstance"
+                      />
+                    </span>
+                  ),
+              )
+              ?.join(', ')
           : '-',
     },
   };
