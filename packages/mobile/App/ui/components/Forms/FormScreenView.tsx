@@ -79,12 +79,12 @@ export const FormScreenView = ({
     [],
   );
 
-  // const clock = new Clock();
-  // const base = runTiming(clock, -1, 1);
-  // const animatedOpacity = interpolateNode(base, {
-  //   inputRange: [-1, 1],
-  //   outputRange: [0, 1],
-  // });
+  const clock = new Clock();
+  const base = runTiming(clock, -1, 1);
+  const animatedOpacity = interpolateNode(base, {
+    inputRange: [-1, 1],
+    outputRange: [0, 1],
+  });
 
   return (
     <StyledSafeAreaView flex={1} background={theme.colors.BACKGROUND_GREY}>
@@ -110,7 +110,7 @@ export const FormScreenView = ({
           <CenterView
             as={Animated.View}
             position="absolute"
-            // opacity={animatedOpacity}
+            opacity={animatedOpacity}
             zIndex={1}
             bottom={0}
             width="100%"
