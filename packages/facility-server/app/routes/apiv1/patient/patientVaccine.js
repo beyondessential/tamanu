@@ -98,7 +98,73 @@ patientVaccineRoutes.get(
     const availableVaccines = Object.values(vaccines).filter(v =>
       v.schedules.some(s => !s.administered),
     );
-    res.send(availableVaccines);
+    res.send(availableVaccines || []);
+  }),
+);
+
+patientVaccineRoutes.get(
+  '/:id/upcomingVaccination',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('list', 'PatientVaccine');
+
+    const sortKeys = {
+      vaccine: 'label',
+      dueDate: 'due_date',
+      date: 'due_date',
+    };
+
+    const { orderBy = 'dueDate', order = 'ASC', rowsPerPage = 10, page = 0 } = req.query;
+    let sortKey = sortKeys[orderBy];
+    const sortDirection = order.toLowerCase() === 'asc' ? 'ASC' : 'DESC';
+
+    const fromUpcomingVaccinations = `FROM upcoming_vaccinations uv
+    JOIN scheduled_vaccines sv ON sv.id = uv.scheduled_vaccine_id
+    WHERE uv.patient_id = :patientId
+    AND uv.status <> '${VACCINE_STATUS.MISSED}'`;
+
+    let data;
+    await req.db.transaction(async () => {
+      // Set timezone to country timezone this is because sequelize timezone is defaulted to UTC currently
+      await req.db.query(`SET TIME ZONE '${config.countryTimeZone}'`);
+      const results = await req.db.query(
+        `SELECT
+        sv.id "scheduledVaccineId",
+        sv.category,
+        sv.label,
+        sv.dose_label,
+        sv.vaccine_id "vaccineId",
+        uv.due_date "dueDate",
+        uv.status
+        ${fromUpcomingVaccinations}
+        ORDER BY ${sortKey} ${sortDirection}, sv.label
+        LIMIT :limit
+        OFFSET :offset;
+      `,
+        {
+          replacements: {
+            patientId: req.params.id,
+            limit: rowsPerPage,
+            offset: page * rowsPerPage,
+          },
+          type: QueryTypes.SELECT,
+        },
+      );
+
+      const countResult = await req.db.query(
+        `SELECT COUNT(1) AS count ${fromUpcomingVaccinations};`,
+        {
+          replacements: { patientId: req.params.id },
+          type: QueryTypes.SELECT,
+        },
+      );
+      await req.db.query(`SET TIME ZONE '${req.db.options.timezone}'`); // Revert to sequelize timezone
+      data = {
+        data: results,
+        count: parseInt(countResult[0].count, 10),
+      };
+    });
+
+    return res.send(data);
   }),
 );
 

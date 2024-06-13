@@ -21,8 +21,13 @@ export async function createApp({ sequelize, reportSchemaStores, models, syncMan
   const express = defineExpress();
   const server = createServer(express);
 
-  const websocketService = defineWebsocketService({ httpServer: server });
+  const pg = await sequelize.connectionManager.getConnection();
+
+  const websocketService = defineWebsocketService({ httpServer: server, pg });
   const websocketClientService = defineWebsocketClientService({ config, websocketService, models });
+
+  // Release the connection back to the pool when the server is closed
+  server.on('close', () => sequelize.connectionManager.releaseConnection(pg));
 
   let errorMiddleware = null;
   if (config.errors?.enabled) {
