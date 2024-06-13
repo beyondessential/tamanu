@@ -34,7 +34,11 @@ export const ChangeClinicianForm = ({ clinicianSuggester, onCancel, onSubmit }) 
         suggester={clinicianSuggester}
         required
       />
-      <FormSubmitCancelRow onConfirm={submitForm} confirmText="Save" onCancel={onCancel} />
+      <FormSubmitCancelRow
+        onConfirm={submitForm}
+        confirmText={<TranslatedText stringId="general.action.save" fallback="Save" />}
+        onCancel={onCancel}
+      />
     </FormGrid>
   );
 

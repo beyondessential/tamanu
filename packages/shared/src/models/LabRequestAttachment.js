@@ -37,13 +37,16 @@ export class LabRequestAttachment extends Model {
     });
   }
 
-  static buildPatientSyncFilter(patientIds, sessionConfig) {
+  static buildPatientSyncFilter(patientIds, markedForSyncPatientsTable, sessionConfig) {
     if (sessionConfig.syncAllLabRequests) {
       return ''; // include all lab request attachments
     }
     if (patientIds.length === 0) {
       return null;
     }
-    return buildEncounterLinkedSyncFilter([this.tableName, 'lab_requests', 'encounters']);
+    return buildEncounterLinkedSyncFilter(
+      [this.tableName, 'lab_requests', 'encounters'],
+      markedForSyncPatientsTable,
+    );
   }
 }

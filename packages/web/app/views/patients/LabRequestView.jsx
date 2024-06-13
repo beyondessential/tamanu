@@ -36,7 +36,7 @@ import { useUrlSearchParams } from '../../utils/useUrlSearchParams';
 import { LabRequestPrintLabelModal } from '../../components/PatientPrinting/modals/LabRequestPrintLabelModal';
 import { LabRequestSampleDetailsModal } from './components/LabRequestSampleDetailsModal';
 import { Colors } from '../../constants';
-import { TranslatedText } from '../../components/Translation/TranslatedText';
+import { TranslatedText, TranslatedReferenceData } from '../../components/Translation';
 import { LabAttachmentModal } from '../../components/LabAttachmentModal';
 import { ConditionalTooltip } from '../../components/Tooltip';
 
@@ -235,7 +235,17 @@ export const LabRequestView = () => {
                 fallback="Test Category"
               />
             }
-            main={labRequest.category?.name || '-'}
+            main={
+              labRequest.category?.name ? (
+                <TranslatedReferenceData
+                  fallback={labRequest.category.name}
+                  value={labRequest.category.id}
+                  category="labTestCategory"
+                />
+              ) : (
+                '-'
+              )
+            }
           />
           <Tile
             Icon={Timelapse}
@@ -298,7 +308,17 @@ export const LabRequestView = () => {
           <Tile
             Icon={Business}
             text={<TranslatedText stringId="lab.laboratory.label" fallback="Laboratory" />}
-            main={labRequest.laboratory?.name || '-'}
+            main={
+              labRequest.laboratory?.name ? (
+                <TranslatedReferenceData
+                  fallback={labRequest.laboratory.name}
+                  value={labRequest.laboratory.id}
+                  category="labTestLaboratory"
+                />
+              ) : (
+                '-'
+              )
+            }
             isReadOnly={areLabRequestsReadOnly}
             actions={[
               {
@@ -315,7 +335,17 @@ export const LabRequestView = () => {
           <Tile
             Icon={AssignmentLate}
             text={<TranslatedText stringId="lab.view.tile.priority.label" fallback="Priority" />}
-            main={labRequest.priority?.name || '-'}
+            main={
+              labRequest.priority?.name ? (
+                <TranslatedReferenceData
+                  fallback={labRequest.priority.name}
+                  value={labRequest.priority.id}
+                  category="labTestPriority"
+                />
+              ) : (
+                '-'
+              )
+            }
             isReadOnly={areLabRequestsReadOnly}
             actions={[
               {

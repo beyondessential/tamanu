@@ -43,7 +43,9 @@ const createLocalDateTimeStringFromUTC = (
 const fakeAllData = async (models, ctx) => {
   const { id: userId } = await models.User.create(fake(models.User));
   const { id: examinerId } = await models.User.create(fake(models.User));
-  const { id: facilityId } = await models.Facility.create(fake(models.Facility, { name: 'Ba Hospital' }));
+  const { id: facilityId } = await models.Facility.create(
+    fake(models.Facility, { name: 'Ba Hospital' }),
+  );
   const { id: departmentId } = await models.Department.create(
     fake(models.Department, { facilityId, name: 'Emergency dept.' }),
   );
@@ -88,7 +90,7 @@ const fakeAllData = async (models, ctx) => {
     fake(models.ScheduledVaccine, {
       type: REFERENCE_TYPES.VACCINE,
       label: 'Covid Schedule Label',
-      schedule: 'Dose 1',
+      doseLabel: 'Dose 1',
       vaccineId: vaccineDrugId,
     }),
   );
@@ -518,7 +520,7 @@ describe('fijiAspenMediciReport', () => {
           {
             label: 'Covid Schedule Label',
             name: 'Covid AZ',
-            schedule: 'Dose 1',
+            doseLabel: 'Dose 1',
           },
         ],
         procedures: [

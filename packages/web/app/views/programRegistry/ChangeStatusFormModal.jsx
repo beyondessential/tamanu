@@ -17,6 +17,7 @@ import { useApi, useSuggester } from '../../api';
 import { optionalForeignKey } from '../../utils/validation';
 import { PANE_SECTION_IDS } from '../../components/PatientInfoPane/paneSections';
 import { FORM_TYPES } from '../../constants';
+import { TranslatedText } from '../../components/Translation/TranslatedText';
 
 const StyledFormGrid = styled(FormGrid)`
   grid-column: 1 / -1;
@@ -43,7 +44,7 @@ export const ChangeStatusFormModal = ({ patientProgramRegistration, onClose, ope
 
     await api.post(
       `patient/${encodeURIComponent(patientProgramRegistration.patientId)}/programRegistration`,
-      { ...rest, ...changedStatus, date: getCurrentDateTimeString(), },
+      { ...rest, ...changedStatus, date: getCurrentDateTimeString() },
     );
 
     queryClient.invalidateQueries([`infoPaneListItem-${PANE_SECTION_IDS.PROGRAM_REGISTRY}`]);
@@ -62,7 +63,7 @@ export const ChangeStatusFormModal = ({ patientProgramRegistration, onClose, ope
                 <StyledFormGrid columns={1}>
                   <Field
                     name="clinicalStatusId"
-                    label="Status"
+                    label={<TranslatedText stringId="general.status.label" fallback="Status" />}
                     component={AutocompleteField}
                     suggester={programRegistryStatusSuggester}
                   />

@@ -65,7 +65,7 @@ export const VitalsForm: React.FC<VitalsFormProps> = ({ onAfterSubmit }) => {
     );
   }
 
-  const { id, name, components, dateComponent } = vitalsSurvey;
+  const { id, components, dateComponent } = vitalsSurvey;
 
   const onSubmit = async (values: any): Promise<void> => {
     const responseRecord = await models.SurveyResponse.submit(
@@ -75,7 +75,7 @@ export const VitalsForm: React.FC<VitalsFormProps> = ({ onAfterSubmit }) => {
         surveyId: id,
         components,
         surveyType: SurveyTypes.Vitals,
-        encounterReason: `Form response for ${name}`,
+        encounterReason: 'Form response',
       },
       { ...values, [dateComponent.dataElement.code]: getCurrentDateTimeString() },
     );

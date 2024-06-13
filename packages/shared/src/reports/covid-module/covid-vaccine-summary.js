@@ -16,8 +16,8 @@ function parametersToSqlWhere(parameters) {
     .reduce(
       (where, [key, value]) => {
         switch (key) {
-          case 'schedule':
-            where['$scheduledVaccine.schedule$'] = value;
+          case 'doseLabel':
+            where['$scheduledVaccine.doseLabel$'] = value;
             break;
           case 'fromDate':
             if (!where.date) {
@@ -131,11 +131,11 @@ async function generateCovidVaccineSummaryReport({ models }, parameters) {
 }
 
 export async function generateCovidVaccineSummaryDose1Report(context, parameters) {
-  parameters.schedule = 'Dose 1';
+  parameters.doseLabel = 'Dose 1';
   return generateCovidVaccineSummaryReport(context, parameters);
 }
 
 export async function generateCovidVaccineSummaryDose2Report(context, parameters) {
-  parameters.schedule = 'Dose 2';
+  parameters.doseLabel = 'Dose 2';
   return generateCovidVaccineSummaryReport(context, parameters);
 }
