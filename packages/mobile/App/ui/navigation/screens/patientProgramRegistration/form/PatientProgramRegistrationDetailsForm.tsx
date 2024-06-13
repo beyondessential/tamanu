@@ -120,6 +120,12 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
               <>
                 <StyledView marginTop={20} marginLeft={20} marginRight={20}>
                   <LocalisedField
+                    label={
+                      <TranslatedText
+                        stringId="general.localisedField.date.label"
+                        fallback="Date"
+                      />
+                    }
                     localisationPath="fields.date"
                     labelFontSize={14}
                     component={DateField}
@@ -129,6 +135,12 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
                 </StyledView>
                 <StyledView marginLeft={20} marginRight={20}>
                   <LocalisedField
+                    label={
+                      <TranslatedText
+                        stringId="general.localisedField.registeredBy.label"
+                        fallback="Registered by"
+                      />
+                    }
                     localisationPath="fields.registeredBy"
                     labelFontSize={14}
                     component={AutocompleteModalField}

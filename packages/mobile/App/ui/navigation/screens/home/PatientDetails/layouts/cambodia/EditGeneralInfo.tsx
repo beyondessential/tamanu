@@ -13,6 +13,7 @@ import { RadioButtonGroup } from '~/ui/components/RadioButtonGroup';
 import { DateField } from '~/ui/components/DateField/DateField';
 import { PatientAdditionalDataFields } from '~/ui/components/Forms/PatientAdditionalDataForm/PatientAdditionalDataFields';
 import { CAMBODIA_ADDITIONAL_DATA_FIELDS } from './fields';
+import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 
 export const Fields = ({ isEdit }): ReactElement => {
   const { getBool } = useLocalisation();
@@ -23,22 +24,58 @@ export const Fields = ({ isEdit }): ReactElement => {
 
   return (
     <>
-      <LocalisedField name="lastName" component={TextField} required />
-      <LocalisedField name="firstName" component={TextField} required />
-      <LocalisedField name="dateOfBirth" max={new Date()} component={DateField} required />
       <LocalisedField
+        label={
+          <TranslatedText stringId="general.localisedField.lastName.label" fallback="Last name" />
+        }
+        name="lastName"
+        component={TextField}
+        required
+      />
+      <LocalisedField
+        label={
+          <TranslatedText stringId="general.localisedField.firstName.label" fallback="First name" />
+        }
+        name="firstName"
+        component={TextField}
+        required
+      />
+      <LocalisedField
+        label={
+          <TranslatedText
+            stringId="general.localisedField.dateOfBirth.label"
+            fallback="Date of birth"
+          />
+        }
+        name="dateOfBirth"
+        max={new Date()}
+        component={DateField}
+        required
+      />
+      <LocalisedField
+        label={<TranslatedText stringId="general.localisedField.sex.label" fallback="Sex" />}
         name="sex"
         options={filteredGenderOptions}
         component={RadioButtonGroup}
         required
       />
       <LocalisedField
+        label={
+          <TranslatedText
+            stringId="general.localisedField.culturalName.label"
+            fallback="Cultural name"
+          />
+        }
         name="culturalName"
         component={TextField}
         required={getBool('fields.culturalName.requiredPatientData')}
       />
       <PatientAdditionalDataFields fields={['fieldDefinition-fathersFirstName']} />
-      {!isEdit && <PatientAdditionalDataFields fields={Object.values(CAMBODIA_ADDITIONAL_DATA_FIELDS).flat()} />}
+      {!isEdit && (
+        <PatientAdditionalDataFields
+          fields={Object.values(CAMBODIA_ADDITIONAL_DATA_FIELDS).flat()}
+        />
+      )}
     </>
   );
 };
