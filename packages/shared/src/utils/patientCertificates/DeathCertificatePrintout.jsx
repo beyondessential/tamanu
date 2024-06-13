@@ -10,6 +10,7 @@ import {
   getAddress,
   getNationality,
   getEthnicity,
+  getClinician,
 } from '../patientAccessors';
 import { CertificateHeader, Col, Row, styles, SigningImage } from './Layout';
 import { LetterheadSection } from './LetterheadSection';
@@ -27,7 +28,6 @@ const dataColPadding = 10;
 
 const generalStyles = StyleSheet.create({
   container: {
-    // marginHorizontal: 16,
     marginVertical: 8,
   },
   tableContainer: {
@@ -96,7 +96,6 @@ const signStyles = StyleSheet.create({
   container: {
     paddingBottom: 20,
     marginVertical: 30,
-    marginHorizontal: 16,
   },
   text: {
     fontFamily: 'Helvetica-Bold',
@@ -205,6 +204,13 @@ const causeOfDeathAccessor = ({ causes }) => {
 const getDOB = ({ dateOfBirth }, getLocalisation) =>
   dateOfBirth ? getDisplayDate(dateOfBirth, 'd MMM yyyy', getLocalisation) : 'Unknown';
 
+const getDateAndTimeOfDeath = (patientData, getLocalisation) => {
+  return `${getDateOfDeath(patientData, getLocalisation)} ${getTimeOfDeath(
+    patientData,
+    getLocalisation,
+  )}`;
+};
+
 const HEADER_FIELDS = {
   leftCol: [
     { key: 'firstName', label: 'First name' },
@@ -235,13 +241,12 @@ const PATIENT_DETAIL_FIELDS = {
 
 const PATIENT_DEATH_DETAILS = {
   leftCol: [
-    { key: 'deathDate', label: 'Date of death', accessor: getDateOfDeath },
-    { key: 'timeOfDeath', label: 'Time of death', accessor: getTimeOfDeath },
+    { key: 'deathDateAndTime', label: 'Date & time of death', accessor: getDateAndTimeOfDeath },
     { key: 'placeOfDeath', label: 'Place of death', accessor: placeOfDeathAccessor },
   ],
   rightCol: [
     { key: 'causeOfDeath', label: 'Cause of death', accessor: causeOfDeathAccessor },
-    // { key: }
+    { key: 'clinician', label: 'Attending clinician', accessor: getClinician },
   ],
 };
 
@@ -252,12 +257,10 @@ export const DeathCertificatePrintout = React.memo(
     const { logo, deathCertFooterImg } = certificateData;
 
     const { causes } = patientData;
-    console.log(causes);
     const causeOfDeath = getCauseInfo(causes?.primary);
     const antecedentCause1 = getCauseInfo(causes?.antecedent1);
     const antecedentCause2 = getCauseInfo(causes?.antecedent2);
     const antecedentCause3 = getCauseInfo(causes?.antecedent3);
-    console.log(patientData);
     return (
       <Document>
         <Page size="A4" style={{ ...styles.page, paddingBottom: 25 }}>
@@ -274,13 +277,26 @@ export const DeathCertificatePrintout = React.memo(
               certificateTitle="Cause of death certificate"
             />
             <SectionContainer>
-              <DataSection title="Patient details">
+              <DataSection title="Patient details" hideBottomRule>
                 <Col>
                   {renderDataItems(PATIENT_DETAIL_FIELDS.leftCol, patientData, getLocalisation, 12)}
                 </Col>
                 <Col>
                   {renderDataItems(
                     PATIENT_DETAIL_FIELDS.rightCol,
+                    patientData,
+                    getLocalisation,
+                    12,
+                  )}
+                </Col>
+              </DataSection>
+              <DataSection title="">
+                <Col>
+                  {renderDataItems(PATIENT_DEATH_DETAILS.leftCol, patientData, getLocalisation, 12)}
+                </Col>
+                <Col>
+                  {renderDataItems(
+                    PATIENT_DEATH_DETAILS.rightCol,
                     patientData,
                     getLocalisation,
                     12,

@@ -54,3 +54,5 @@ export const getPatientWeight = ({ patientWeight }, getLocalisation) =>
   patientWeight ? `${patientWeight}${getLocalisation('fields.weightUnit.longLabel')}` : '';
 
 export const getEthnicity = ({ ethnicity }) => ethnicity?.name;
+
+export const getClinician = ({ clinician }) => clinician?.displayName;
