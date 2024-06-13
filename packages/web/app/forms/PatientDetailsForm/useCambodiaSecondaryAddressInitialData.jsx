@@ -4,11 +4,10 @@ import { SECONDARY_LOCATION_HIERARCHY_FIELDS } from './layouts/cambodia/patientF
 import { useHierarchyAncestorsQuery } from '../../api/queries/useHierarchyAncestorsQuery';
 import { useFilterPatientFields } from './useFilterPatientFields';
 
-// Some values for patient fields are not persisted to database and rather are derived from other fields.
-// This hook computes the initial values for these fields.
-// For example, in Cambodia layout, the secondary patient location hierarchy is not stored in the patient record beyond the secondary village ID.
+// In Cambodia layout, the secondary patient location hierarchy is not stored in the patient record beyond the secondary village ID.
+// This data needs to be ready at time of first form initialization.
 // Attempting to prepare the values from within the form state is error-prone as interacts poorly with form logic.
-export const useComputedInitialValues = ({ additionalData }) => {
+export const useCambodiaSecondaryAddressInitialData = ({ additionalData }) => {
   const { getLocalisation } = useLocalisation();
   const layout = getLocalisation('layouts.patientDetails') || PATIENT_DETAIL_LAYOUTS.GENERIC;
   const isCambodiaLayout = layout === PATIENT_DETAIL_LAYOUTS.CAMBODIA;
@@ -22,10 +21,10 @@ export const useComputedInitialValues = ({ additionalData }) => {
     fields: SECONDARY_LOCATION_HIERARCHY_FIELDS,
   });
 
-  if (isLoading) return { isLoading: true };
+  if (isLoading) return { data: {}, isLoading: true };
 
   const initialValues = Object.fromEntries(
     fieldsToShow.map(({ name, referenceType }) => [name, ancestors[referenceType]]),
   );
-  return { data: initialValues };
+  return { data: initialValues, isLoading: false };
 };

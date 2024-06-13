@@ -14,7 +14,7 @@ import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { useLayoutComponents } from './useLayoutComponents';
 import { usePatientFieldDefinitionQuery } from '../../api/queries/usePatientFieldDefinitionQuery';
 import { useTranslation } from '../../contexts/Translation';
-import { useComputedInitialValues } from './useComputedInitialValues';
+import { useCambodiaSecondaryAddressInitialData } from './useCambodiaSecondaryAddressInitialData';
 
 const StyledPatientDetailSecondaryDetailsGroupWrapper = styled.div`
   margin-top: 70px;
@@ -112,7 +112,7 @@ export const PatientDetailsForm = ({ patient, additionalData, birthData, onSubmi
   const {
     data: computedInitialValues,
     isLoading: isLoadingComputedInitialValues,
-  } = useComputedInitialValues({ additionalData });
+  } = useCambodiaSecondaryAddressInitialData({ additionalData });
 
   const errors = [fieldDefError, fieldValError].filter(e => Boolean(e));
   if (errors.length > 0) {
