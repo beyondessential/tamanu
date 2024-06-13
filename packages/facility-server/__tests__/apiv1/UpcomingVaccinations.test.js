@@ -1,10 +1,18 @@
+import config from 'config';
+import { subDays } from 'date-fns';
 import { createTestContext } from '../utilities';
+
 import { createScheduledVaccine } from '@tamanu/shared/demoData/vaccines';
 import { toDateString } from '@tamanu/shared/utils/dateTime';
-import { fake } from '@tamanu/shared/test-helpers/fake';
-import config from 'config';
 import { VACCINE_STATUS, REFERENCE_TYPES, VACCINE_CATEGORIES } from '@tamanu/constants';
-import { subDays } from 'date-fns';
+import { fake } from '@tamanu/shared/test-helpers/fake';
+
+import { RefreshUpcomingVaccinations } from '../../dist/tasks/RefreshMaterializedView';
+
+jest.mock('@tamanu/shared/utils/dateTime', () => ({
+  ...jest.requireActual('@tamanu/shared/utils/dateTime'),
+  getCurrentDateTimeString: jest.fn(() => '2021-01-01 00:00:00'),
+}));
 
 const createPatient = async (models, overrides) => {
   return models.Patient.create({
@@ -32,7 +40,7 @@ const setupBaseDate = async models => {
     ...fake(models.Department),
     facilityId: facility.id,
   });
-  await models.Setting.set('vaccine.thresholds', [
+  await models.Setting.set('upcomingVaccinations.thresholds', [
     {
       threshold: 28,
       status: VACCINE_STATUS.SCHEDULED,
@@ -57,7 +65,7 @@ const setupBaseDate = async models => {
   const drug = await models.ReferenceData.create(
     fake(models.ReferenceData, { type: REFERENCE_TYPES.DRUG }),
   );
-  await models.Setting.set('vaccine.ageLimit', 15);
+  await models.Setting.set('upcomingVaccinations.ageLimit', 15);
   return { facility, drug };
 };
 
@@ -130,9 +138,13 @@ describe('Upcoming vaccinations', () => {
     for (const patientData of PATIENTS) {
       await createPatient(models, patientData);
     }
+    await ctx.sequelize.query('REFRESH MATERIALIZED VIEW materialized_upcoming_vaccinations');
   });
 
-  afterAll(() => ctx.close());
+  afterAll(async () => {
+    jest.clearAllMocks();
+    await ctx.close();
+  });
 
   it('should successfully return upcoming patient vaccinations', async () => {
     const result = await app.get(`/api/upcomingVaccinations`);
@@ -171,5 +183,25 @@ describe('Upcoming vaccinations', () => {
     const descResult = await app.get(`/api/upcomingVaccinations?orderBy=displayId&order=desc`);
     const descData = descResult.body.data;
     expect(descData[0].displayId).toBe('frecord');
+  });
+
+  it('timezone should be unaffected by endpoint', async () => {
+    const [timezoneBefore] = await ctx.sequelize.query('SHOW TIME ZONE');
+    await app.get(`/api/upcomingVaccinations`);
+    const [timezoneAfter] = await ctx.sequelize.query('SHOW TIME ZONE');
+    expect(timezoneAfter).toEqual(timezoneBefore);
+  });
+
+  describe('Refresh stats', () => {
+    it('returns the last updated time and cron schedule for a upcoming vaccinations materialized view', async () => {
+      const task = new RefreshUpcomingVaccinations(ctx);
+      await task.run();
+      const res = await app.get('/api/upcomingVaccinations/updateStats');
+      expect(res).toHaveStatus(200);
+      expect(res.body).toEqual({
+        lastRefreshed: '2021-01-01 00:00:00',
+        schedule: '*/50 * * * *',
+      });
+    });
   });
 });

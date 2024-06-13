@@ -55,12 +55,12 @@ describe('PatientVaccine', () => {
     );
   };
 
-  const createNewScheduledVaccine = async (category, label, schedule) => {
+  const createNewScheduledVaccine = async (category, label, doseLabel) => {
     return models.ScheduledVaccine.create(
       await createScheduledVaccine(models, {
         category,
         label,
-        schedule,
+        doseLabel,
         vaccineId: drug.id,
       }),
     );
@@ -202,8 +202,8 @@ describe('PatientVaccine', () => {
       expect(result).toHaveSucceeded();
       expect(result.body).toHaveLength(1);
       expect(result.body[0].schedules).toEqual([
-        { administered: false, schedule: 'Dose 1', scheduledVaccineId: scheduled1.id },
-        { administered: true, schedule: 'Dose 2', scheduledVaccineId: scheduled2.id },
+        { administered: false, doseLabel: 'Dose 1', scheduledVaccineId: scheduled1.id },
+        { administered: true, doseLabel: 'Dose 2', scheduledVaccineId: scheduled2.id },
       ]);
     });
 
@@ -216,8 +216,8 @@ describe('PatientVaccine', () => {
       expect(result).toHaveSucceeded();
       expect(result.body).toHaveLength(1);
       expect(result.body[0].schedules).toEqual([
-        { administered: false, schedule: 'Dose 1', scheduledVaccineId: scheduled1.id },
-        { administered: false, schedule: 'Dose 2', scheduledVaccineId: scheduled2.id },
+        { administered: false, doseLabel: 'Dose 1', scheduledVaccineId: scheduled1.id },
+        { administered: false, doseLabel: 'Dose 2', scheduledVaccineId: scheduled2.id },
       ]);
     });
 
@@ -229,7 +229,7 @@ describe('PatientVaccine', () => {
       expect(result).toHaveSucceeded();
       expect(result.body).toHaveLength(1);
       expect(result.body[0].schedules).toEqual([
-        { administered: false, schedule: 'Dose 1', scheduledVaccineId: scheduled6.id },
+        { administered: false, doseLabel: 'Dose 1', scheduledVaccineId: scheduled6.id },
       ]);
     });
   });
@@ -452,7 +452,7 @@ describe('PatientVaccine', () => {
       const encounter = await vaccine.getEncounter();
       expect(encounter).toHaveProperty('encounterType', ENCOUNTER_TYPES.VACCINATION);
       expect(encounter.reasonForEncounter).toMatch(
-        `Vaccination recorded for ${drug.name} ${scheduled1.schedule}`,
+        `Vaccination recorded for ${drug.name} ${scheduled1.doseLabel}`,
       );
     });
 
@@ -571,20 +571,20 @@ describe('PatientVaccine', () => {
         dateOfBirth: toDateString(subDays(new Date(), 365 * 2)),
       });
 
-      await recordAdministeredVaccine(patient2, scheduledVax2, {
+      await recordAdministeredVaccine(patient2, scheduledVax1, {
         status: VACCINE_STATUS.GIVEN,
         date: toDateString(subDays(new Date(), 1)),
       });
     });
 
-    it('should return 1 upcoming vaccinations of patient 1', async () => {
+    it('should return first dose in schedule for patient 1', async () => {
       const result = await app.get(`/api/patient/${patient1.id}/upcomingVaccination`);
       expect(result).toHaveSucceeded();
       expect(result.body.data).toHaveLength(1);
       expect(result.body.data.at(0)?.scheduledVaccineId).toEqual(scheduledVax1.id);
     });
 
-    it.skip('should return 1 upcoming vaccinations of patient 2', async () => {
+    it('should second dose in schedule for patient 2', async () => {
       const result = await app.get(`/api/patient/${patient2.id}/upcomingVaccination`);
       expect(result).toHaveSucceeded();
       expect(result.body.data).toHaveLength(1);

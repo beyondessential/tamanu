@@ -35,6 +35,8 @@ async function generateData(models) {
     PatientAllergy,
     PatientCommunication,
     PatientDeathData,
+    ScheduledVaccine,
+    AdministeredVaccine,
   } = models;
 
   const examiner = await User.create(fake(User));
@@ -46,15 +48,15 @@ async function generateData(models) {
     }),
   );
   const locationGroup = await LocationGroup.create(
-      fake(LocationGroup, {
-          facilityId: facility.id,
-      }),
+    fake(LocationGroup, {
+      facilityId: facility.id,
+    }),
   );
   const location = await Location.create(
-      fake(Location, {
-          facilityId: facility.id,
-          locationGroupId: locationGroup.id,
-      }),
+    fake(Location, {
+      facilityId: facility.id,
+      locationGroupId: locationGroup.id,
+    }),
   );
   const encounter = await Encounter.create(
     fake(Encounter, {
@@ -169,11 +171,22 @@ async function generateData(models) {
     }),
   );
 
-  await ReferenceData.create(fake(ReferenceData));
+  const referenceData = await ReferenceData.create(fake(ReferenceData));
   await ReferenceDataRelation.create(fake(ReferenceDataRelation));
   await PatientCommunication.create(
     fake(PatientCommunication, {
       patientId: patient.id,
+    }),
+  );
+  const scheduledVaccine = await models.ScheduledVaccine.create(
+    fake(ScheduledVaccine, {
+      vaccineId: referenceData.id,
+    }),
+  );
+  await models.AdministeredVaccine.create(
+    fake(AdministeredVaccine, {
+      scheduledVaccineId: scheduledVaccine.id,
+      encounterId: encounter.id,
     }),
   );
 }

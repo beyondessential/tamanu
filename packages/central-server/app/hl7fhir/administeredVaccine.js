@@ -133,7 +133,7 @@ export function administeredVaccineToHL7Immunization(administeredVaccine) {
       },
     ],
     protocolApplied: {
-      doseNumber: scheduledVaccine.schedule,
+      doseNumber: scheduledVaccine.doseLabel,
     },
   };
 }
