@@ -4,6 +4,7 @@ import { Form } from '../Form';
 import { ResetPasswordFields } from './ResetPasswordFields';
 import { ResetPasswordFormProps } from '/interfaces/forms/ResetPasswordFormProps';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
+import { TranslatedText } from '../../Translations/TranslatedText';
 
 export const resetPasswordInitialValues = {
   email: '',
@@ -18,9 +19,12 @@ export const ResetPasswordForm: FunctionComponent<ResetPasswordFormProps> = ({
     <Form
       initialValues={resetPasswordInitialValues}
       validationSchema={Yup.object().shape({
-        email: Yup.string().email(
-          getTranslation('validation.rule.validEmail', 'Must be a valid email address'),
-        ),
+        email: Yup.string()
+          .email(getTranslation('validation.rule.validEmail', 'Must be a valid email address'))
+          .required()
+          .translatedLabel(
+            <TranslatedText stringId="login.email.label" fallback="Email" />
+          ),
         server: Yup.string(),
       })}
       onSubmit={onSubmitForm}
