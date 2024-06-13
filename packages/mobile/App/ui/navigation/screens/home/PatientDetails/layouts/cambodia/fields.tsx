@@ -3,7 +3,7 @@ import { TranslatedText } from '/components/Translations/TranslatedText';
 import { ADDITIONAL_DATA_FIELDS } from '~/ui/helpers/additionalData';
 import { ReferenceDataType } from '~/types';
 
-const CAMBODIA_CUSTOM_FIELDS = {
+export const CAMBODIA_CUSTOM_FIELDS = {
   NATIONAL_ID: 'fieldDefinition-nationalId',
   ID_POOR_CARD_NUMBER: 'fieldDefinition-idPoorCardNumber',
   PMRS_NUMBER: 'fieldDefinition-pmrsNumber',
@@ -34,10 +34,7 @@ export const CAMBODIA_LOCATION_HIERARCHY_FIELDS = [
 
 // Cambodia data layout
 export const CAMBODIA_ADDITIONAL_DATA_FIELDS = {
-  ADDRESS: [
-    ...CAMBODIA_LOCATION_HIERARCHY_FIELDS,
-    ADDITIONAL_DATA_FIELDS.STREET_VILLAGE
-  ],
+  ADDRESS: [...CAMBODIA_LOCATION_HIERARCHY_FIELDS, ADDITIONAL_DATA_FIELDS.STREET_VILLAGE],
   CONTACT: [
     ADDITIONAL_DATA_FIELDS.PRIMARY_CONTACT_NUMBER,
     ADDITIONAL_DATA_FIELDS.SECONDARY_CONTACT_NUMBER,
