@@ -9,7 +9,13 @@ import { Colors } from '../constants';
 import { useApi } from '../api';
 import { DateDisplay } from './DateDisplay';
 import { Modal } from './Modal';
-import { TranslatedEnum, TranslatedReferenceData, TranslatedText } from './Translation';
+import {
+  getReferenceDataStringId,
+  TranslatedEnum,
+  TranslatedReferenceData,
+  TranslatedText,
+} from './Translation';
+import { useTranslation } from '../contexts/Translation.jsx';
 
 const Container = styled.div`
   display: flex;
@@ -28,6 +34,7 @@ const DisplayField = styled.div`
   padding-bottom: 20px;
   color: ${Colors.darkestText};
   font-weight: 500;
+
   &:nth-child(2n) {
     ${props => (props.$editMode ? `border-left: 1px solid ${Colors.outline};` : '')}
     ${props => (props.$editMode ? `padding-left: 15px;` : '')}
@@ -44,10 +51,12 @@ const FieldGroup = styled.div`
   flex-wrap: wrap;
   width: 90%;
   border-bottom: 1px solid ${Colors.outline};
+
   &:last-of-type {
     border-bottom: none;
     padding-bottom: 20px;
   }
+
   padding-top: 20px;
 `;
 
@@ -119,6 +128,8 @@ export const ViewAdministeredVaccineContent = ({ vaccineRecord, editMode }) => {
     // to avoid unnecessary API calls, these are the conditions that will show circumstance
     enabled: Boolean(!editMode && givenElsewhere && circumstanceIds),
   });
+
+  const { getTranslation } = useTranslation();
 
   if (!vaccineRecord) return null;
 
@@ -285,14 +296,10 @@ export const ViewAdministeredVaccineContent = ({ vaccineRecord, editMode }) => {
           ? vaccineCircumstances
               ?.map(
                 circumstance =>
-                  circumstance && (
-                    <span key={circumstance.id}>
-                      <TranslatedReferenceData
-                        fallback={circumstance.name}
-                        value={circumstance.id}
-                        category="vaccineCircumstance"
-                      />
-                    </span>
+                  circumstance &&
+                  getTranslation(
+                    getReferenceDataStringId(circumstance.id, 'vaccineCircumstance'),
+                    circumstance.name,
                   ),
               )
               ?.join(', ')
