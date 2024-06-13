@@ -24,11 +24,17 @@ import { useTranslation } from '~/ui/contexts/TranslationContext';
 import { HierarchyFields } from '../../HierarchyFields';
 import { CAMBODIA_LOCATION_HIERARCHY_FIELDS } from '~/ui/navigation/screens/home/PatientDetails/layouts/cambodia/fields';
 import { isObject, isString } from 'lodash';
+import { labels } from '~/ui/navigation/screens/home/PatientDetails/layouts/generic/labels';
 
 const PlainField = ({ fieldName, required }): ReactElement => (
   // Outter styled view to momentarily add distance between fields
   <StyledView key={fieldName} paddingTop={15}>
-    <LocalisedField name={fieldName} component={TextField} required={required} />
+    <LocalisedField
+      label={labels[fieldName]}
+      name={fieldName}
+      component={TextField}
+      required={required}
+    />
   </StyledView>
 );
 
@@ -36,6 +42,7 @@ const SelectField = ({ fieldName, required }): ReactElement => (
   <LocalisedField
     key={fieldName}
     name={fieldName}
+    label={labels[fieldName]}
     options={selectFieldsOptions[fieldName]}
     component={Dropdown}
     required={required}
@@ -56,6 +63,7 @@ const RelationField = ({ fieldName, required }): ReactElement => {
   return (
     <LocalisedField
       key={fieldName}
+      label={labels[fieldName]}
       component={AutocompleteModalField}
       placeholder={`Search for ${localisedPlaceholder}`}
       navigation={navigation}
