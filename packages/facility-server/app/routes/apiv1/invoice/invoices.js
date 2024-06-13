@@ -49,6 +49,11 @@ invoiceRoute.post(
     });
     if (!encounter) throw new ValidationError(`encounter ${data.encounterId} not found`);
 
+    const existingInvoice = await req.models.Invoice.findOne({
+      where: { encounterId: data.encounterId, status: { [Op.ne]: INVOICE_STATUSES.CANCELLED } },
+    });
+    if (existingInvoice) throw new ValidationError(`invoice already exists for encounter`);
+
     const insurerId = await req.models.PatientAdditionalData.findOne({
       where: { patientId: encounter.patientId },
       attributes: ['insurerId'],
@@ -64,9 +69,10 @@ invoiceRoute.post(
     // create invoice transaction
     const transaction = await req.db.transaction();
 
+    let invoice;
     try {
       //create invoice
-      await req.models.Invoice.create(data, { transaction });
+      invoice = await req.models.Invoice.create(data, { transaction });
 
       // insert default insurer
       if (defaultInsurer)
@@ -88,27 +94,7 @@ invoiceRoute.post(
       throw error;
     }
 
-    const invoice = await req.models.Invoice.findByPk(data.id, {
-      include: [
-        { model: req.models.Encounter, as: 'encounter' },
-        {
-          model: req.models.InvoiceDiscount,
-          as: 'discount',
-          include: [{ model: req.models.User, as: 'appliedByUser', attributes: ['displayName'] }],
-        },
-        {
-          model: req.models.InvoiceInsurer,
-          as: 'insurers',
-          include: [
-            {
-              model: req.models.ReferenceData,
-              as: 'insurer',
-            },
-          ],
-        },
-      ],
-    });
-    res.json(invoice.dataValues);
+    res.json(invoice);
   }),
 );
 

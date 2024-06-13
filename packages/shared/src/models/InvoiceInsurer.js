@@ -8,7 +8,10 @@ export class InvoiceInsurer extends Model {
     super.init(
       {
         id: primaryKey,
-        percentage: DataTypes.DECIMAL,
+        percentage: {
+          type: DataTypes.DECIMAL,
+          allowNull: false,
+        },
       },
       { syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL, ...options },
     );

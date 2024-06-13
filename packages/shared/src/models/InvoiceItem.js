@@ -8,7 +8,10 @@ export class InvoiceItem extends Model {
     super.init(
       {
         id: primaryKey,
-        orderDate: DataTypes.DATE,
+        orderDate: {
+          type: DataTypes.DATE,
+          allowNull: false,
+        },
         productId: {
           type: DataTypes.STRING,
           allowNull: true,
