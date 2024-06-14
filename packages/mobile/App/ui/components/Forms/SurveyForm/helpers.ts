@@ -13,6 +13,7 @@ import {
   SurveyScreenValidationCriteria,
 } from '~/types';
 import { IPatientProgramRegistration } from '~/types/IPatientProgramRegistration';
+import { GetTranslationFunction } from '~/ui/contexts/TranslationContext';
 
 function getInitialValue(dataElement): string {
   switch (dataElement.type) {
@@ -105,6 +106,7 @@ export function getFormInitialValues(
 function getFieldValidator(
   dataElement,
   validationCriteria: SurveyScreenValidationCriteria,
+  getTranslation: GetTranslationFunction,
 ): null | Yup.BooleanSchema | Yup.DateSchema | Yup.StringSchema | Yup.NumberSchema {
   switch (dataElement.type) {
     case FieldTypes.INSTRUCTION:
@@ -119,10 +121,16 @@ function getFieldValidator(
       const { min, max } = validationCriteria;
       let numberSchema = Yup.number();
       if (typeof min === 'number' && !Number.isNaN(min)) {
-        numberSchema = numberSchema.min(min, 'Outside accepted range');
+        numberSchema = numberSchema.min(
+          min,
+          getTranslation('validation.rule.outsideRange', 'Outside acceptable range'),
+        );
       }
       if (typeof max === 'number' && !Number.isNaN(max)) {
-        numberSchema = numberSchema.max(max, 'Outside accepted range');
+        numberSchema = numberSchema.max(
+          max,
+          getTranslation('validation.rule.outsideRange', 'Outside acceptable range'),
+        );
       }
       return numberSchema;
     }
@@ -137,17 +145,18 @@ function getFieldValidator(
 export function getFormSchema(
   components: ISurveyScreenComponent[],
   valuesToCheckMandatory: { [key: string]: any } = {},
+  getTranslation: GetTranslationFunction,
 ): Yup.ObjectSchema {
   const objectShapeSchema = components.reduce<{ [key: string]: any }>((acc, component) => {
     const { dataElement } = component;
     const propName = dataElement.code;
     const validationCriteria = component.getValidationCriteriaObject();
-    const validator = getFieldValidator(dataElement, validationCriteria);
+    const validator = getFieldValidator(dataElement, validationCriteria, getTranslation);
 
     if (!validator) return acc;
     const mandatory = checkMandatory(validationCriteria.mandatory, valuesToCheckMandatory);
     if (mandatory) {
-      acc[propName] = validator.required('Required');
+      acc[propName] = validator.required(getTranslation('validation.required.inline', '*Required'));
     } else {
       acc[propName] = validator.nullable();
     }
