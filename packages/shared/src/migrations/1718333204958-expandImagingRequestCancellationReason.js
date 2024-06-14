@@ -1,6 +1,4 @@
-/* eslint-disable no-unused-vars */
-// remove the above line
-
+export const NON_DETERMINISTIC = true;
 export async function up(query) {
   await query.sequelize.query(`
     ALTER TABLE imaging_requests
