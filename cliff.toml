@@ -12,22 +12,28 @@ body = """
 ## Release notes 📋
 
 {%- for commit in commits | sort(attribute="group") %}
-	{%- if commit.group -%}
-	{% else -%}
-        - **{{ commit.scope | striptags | trim }}:** \
-			{{ commit.message | upper_first }}\
-      {%- if commit.message is not matching(".*\\s+\\(#\\d+\\)\\s*$") %} ([`{{ commit.id | truncate(length=10, end="") }}`]($REPO/commit/{{ commit.id }})){%- endif -%}
-	{% endif -%}
+  {%- if commit.group -%}
+  {% else -%}
+  - **{{ commit.scope | striptags | trim }}:** \
+    {{ commit.message | upper_first }}\
+    {%- if commit.message is not matching(".*\\s+\\(#\\d+\\)\\s*$") %} ([`{{ commit.id | truncate(length=10, end="") }}`]($REPO/commit/{{ commit.id }})){%- endif -%}
+  {% endif -%}
 {% endfor -%}
 
-{% for group, commits in commits | filter(attribute="scope") | group_by(attribute="group") %}
-    ### {{ group | striptags | trim | upper_first }}
-    {% for commit in commits | sort(attribute="scope") %}
-        - **{{ commit.scope | striptags | trim }}:** \
-            {{ commit.message | upper_first }}\
-            {%- if commit.message is not matching(".*\\s+\\(#\\d+\\)\\s*$") %} ([`{{ commit.id | truncate(length=10, end="") }}`]($REPO/commit/{{ commit.id }})){%- endif -%}
-    {%- endfor -%}
-    {% raw %}\n{% endraw %}\
+{% for group, commits in commits | group_by(attribute="group") %}
+### {{ group | striptags | trim | upper_first }}
+  {%- for commit in commits | filter(attribute="scope") | sort(attribute="scope") %}
+  - **{{ commit.scope | striptags | trim }}:** \
+      {{ commit.message | upper_first }}\
+      {%- if commit.message is not matching(".*\\s+\\(#\\d+\\)\\s*$") %} ([`{{ commit.id | truncate(length=10, end="") }}`]($REPO/commit/{{ commit.id }})){%- endif -%}
+  {%- endfor %}
+  {% for commit in commits %}
+    {%- if commit.scope -%}
+    {% else -%}
+    - {{ commit.message | upper_first }}\
+      {%- if commit.message is not matching(".*\\s+\\(#\\d+\\)\\s*$") %} ([`{{ commit.id | truncate(length=10, end="") }}`]($REPO/commit/{{ commit.id }})){%- endif -%}
+    {% endif -%}
+  {%- endfor -%}
 {% endfor %}\n
 """
 postprocessors = [
