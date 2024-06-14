@@ -11,9 +11,7 @@ import {
   SearchField,
   SelectField,
 } from '../Field';
-import {
-  CustomisableSearchBarWithPermissionCheck,
-} from './CustomisableSearchBar';
+import { CustomisableSearchBarWithPermissionCheck } from './CustomisableSearchBar';
 import { useLocalisation } from '../../contexts/Localisation';
 import { useSuggester } from '../../api';
 import { useImagingRequests } from '../../contexts/ImagingRequests';
@@ -149,6 +147,9 @@ export const ImagingRequestsSearchBar = ({ memoryKey, statuses = [], advancedFie
         }
         component={SearchField}
       />
+      {/*
+        enum registry TODO
+      */}
       {!isCompletedTable && (
         <LocalisedField
           name="status"

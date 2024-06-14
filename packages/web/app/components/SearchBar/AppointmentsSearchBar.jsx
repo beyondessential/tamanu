@@ -10,8 +10,10 @@ import {
   SelectField,
 } from '../Field';
 import { TranslatedText } from '../Translation/TranslatedText';
-import { APPOINTMENT_STATUS_OPTIONS, APPOINTMENT_TYPE_OPTIONS } from '../../constants';
+import { APPOINTMENT_STATUS_OPTIONS } from '../../constants';
 import { useSuggester } from '../../api';
+import { APPOINTMENT_STATUSES, APPOINTMENT_TYPES } from '@tamanu/constants';
+import { TranslatedSelectField } from '../Translation/TranslatedSelect';
 
 export const AppointmentsSearchBar = ({ onSearch }) => {
   const practitionerSuggester = useSuggester('practitioner');
@@ -69,8 +71,8 @@ export const AppointmentsSearchBar = ({ onSearch }) => {
       <Field
         name="type"
         label={<TranslatedText stringId="appointment.type.label" fallback="Appointment type" />}
-        component={SelectField}
-        options={APPOINTMENT_TYPE_OPTIONS}
+        component={TranslatedSelectField}
+        enumValues={APPOINTMENT_TYPES}
         size="small"
         prefix="appointment.property.type"
       />
@@ -82,8 +84,8 @@ export const AppointmentsSearchBar = ({ onSearch }) => {
             fallback="Appointment Status"
           />
         }
-        component={SelectField}
-        options={APPOINTMENT_STATUS_OPTIONS}
+        component={TranslatedSelectField}
+        enumValues={APPOINTMENT_STATUSES}
         size="small"
         prefix="appointment.property.status"
       />
