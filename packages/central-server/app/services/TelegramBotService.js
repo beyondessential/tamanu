@@ -7,9 +7,12 @@ import TelegramBot from 'node-telegram-bot-api';
  * @param {{ config: { telegramBot: { apiToken: string, webhook: { url: string, secret: string} }, language: string, }, models: NonNullable<import('./../ApplicationContext.js').ApplicationContext['store']>['models']}} injector
  */
 export const defineTelegramBotService = async injector => {
-  const bot = injector.config.telegramBot?.apiToken
-    ? new TelegramBot(injector.config.telegramBot.apiToken)
-    : null;
+  //fallback to polling if webhook url is not set
+  const bot = !injector.config.telegramBot?.apiToken
+    ? null
+    : new TelegramBot(injector.config.telegramBot.apiToken, {
+        polling: !injector.config.telegramBot?.webhook?.url,
+      });
 
   /** @type {ReturnType<import('./websocketService.js').defineWebsocketService>|null} */
   let websocketService = null;
@@ -85,15 +88,23 @@ export const defineTelegramBotService = async injector => {
     const contact = await injector.models?.PatientContact?.findByPk(contactId, {
       include: [{ model: injector.models?.Patient, as: 'patient' }],
     });
-    if (!contact) return;
-
-    contact.connectionDetails = { chatId: message.chat.id };
-    await contact.save();
-
     const getTranslation = await injector.models?.TranslatedString?.getTranslationFunction(
       injector.config.language,
       ['telegramRegistration'],
     );
+
+    if (!contact) {
+      const notFoundMessage = getTranslation(
+        'telegramRegistration.contactNotFound',
+        'Contact not found',
+        {},
+      );
+      await sendMessage(message.chat.id, notFoundMessage, { parse_mode: 'HTML' });
+      return;
+    }
+    contact.connectionDetails = { chatId: message.chat.id };
+    await contact.save();
+
     const botInfo = await getBotInfo();
     const contactName = contact.name;
     const patientName = [contact.patient.firstName, contact.patient.lastName].join(' ').trim();

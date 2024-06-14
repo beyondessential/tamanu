@@ -30,9 +30,7 @@ const schema = yup.object().shape({
   versionId: yup
     .string()
     .required()
-    .translatedLabel(
-      <TranslatedText stringId="admin.report.export.version.label" fallback="Version" />,
-    ),
+    .translatedLabel(<TranslatedText stringId="admin.report.version.label" fallback="Version" />),
   format: yup
     .string()
     .oneOf(Object.values(REPORT_VERSION_EXPORT_FORMATS))
