@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useCallback } from 'react';
+import React, { FunctionComponent, ReactElement, useCallback } from 'react';
 import { KeyboardAvoidingView, StatusBar } from 'react-native';
 import {
   StyledView,
@@ -6,22 +6,74 @@ import {
   FullView,
   StyledTouchableOpacity,
   StyledText,
+  RowView,
 } from '/styled/common';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { theme } from '/styled/theme';
 import { Routes } from '/helpers/routes';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
-import { Dropdown } from '~/ui/components/Dropdown';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
+import { ArrowLeftIcon } from '~/ui/components/Icons';
+import { FlatList, TouchableHighlight } from 'react-native-gesture-handler';
+import { Separator } from '~/ui/components/Separator';
+import { FlagIcon } from '~/ui/components/Icons/FlagIcons/FlagIcon';
+
+const StyledSeparator = () => (
+  <Separator
+    paddingLeft={screenPercentageToDP(4.86, Orientation.Width)}
+    paddingRight={screenPercentageToDP(4.86, Orientation.Width)}
+  />
+);
+
+interface LanguageOptionButtonProps {
+  label: string;
+  value: string;
+  onPress: (value: string) => void;
+}
+
+const LanguageOptionButton = ({
+  label,
+  value,
+  onPress,
+}: LanguageOptionButtonProps): React.ReactElement => {
+  const handlePress = () => {
+    onPress(value);
+  };
+
+  return (
+    <TouchableHighlight underlayColor={theme.colors.DEFAULT_OFF} onPress={handlePress}>
+      <RowView
+        width="100%"
+        height={screenPercentageToDP(6.5, Orientation.Height)}
+        paddingLeft={screenPercentageToDP(4.86, Orientation.Width)}
+        alignItems="center"
+      >
+        <StyledView marginRight={screenPercentageToDP(3.4, Orientation.Width)}>
+          <FlagIcon languageCode={value} size={34} />
+        </StyledView>
+        <RowView flex={1}>
+          <StyledText
+            color={theme.colors.TEXT_SUPER_DARK}
+            fontSize={screenPercentageToDP(2, Orientation.Height)}
+          >
+            {label}
+          </StyledText>
+        </RowView>
+      </RowView>
+    </TouchableHighlight>
+  );
+};
+
+export default LanguageOptionButton;
 
 export const LanguageSelectScreen: FunctionComponent<any> = ({ navigation }) => {
-  const { language, languageOptions, setLanguage } = useTranslation();
+  const { languageOptions, setLanguage } = useTranslation();
 
   const onNavigateToSignIn = useCallback(() => {
     navigation.navigate(Routes.SignUpStack.SignIn);
   }, []);
 
-  const handleChangeLanguage = value => {
+  const handleChangeLanguage = (value: string) => {
     setLanguage(value);
     onNavigateToSignIn();
   };
@@ -31,51 +83,49 @@ export const LanguageSelectScreen: FunctionComponent<any> = ({ navigation }) => 
   }
 
   return (
-    <FullView background={theme.colors.PRIMARY_MAIN}>
+    <FullView background={theme.colors.WHITE}>
       <StatusBar barStyle="light-content" />
       <StyledSafeAreaView>
         <KeyboardAvoidingView behavior="position">
           <StyledView
             width="100%"
-            alignItems="center"
-            marginTop={screenPercentageToDP(7.29, Orientation.Height)}
+            alignItems="flex-start"
+            marginTop={screenPercentageToDP(3.39, Orientation.Height)}
             marginBottom={screenPercentageToDP(2, Orientation.Height)}
+            marginLeft={screenPercentageToDP(5.84, Orientation.Width)}
           >
+            <StyledTouchableOpacity onPress={onNavigateToSignIn}>
+              <ArrowLeftIcon
+                fill={theme.colors.PRIMARY_MAIN}
+                size={screenPercentageToDP(7.79, Orientation.Width)}
+              />
+            </StyledTouchableOpacity>
             <StyledText
-              marginTop={screenPercentageToDP(2.43, Orientation.Height)}
+              marginTop={screenPercentageToDP(3.77, Orientation.Height)}
               fontSize={screenPercentageToDP(3.55, Orientation.Height)}
-              color={theme.colors.WHITE}
+              color={theme.colors.TEXT_DARK}
               fontWeight="bold"
             >
               Choose language
             </StyledText>
           </StyledView>
-          <StyledTouchableOpacity onPress={onNavigateToSignIn}>
-            <StyledText
-              width="100%"
-              textAlign="center"
-              marginBottom={screenPercentageToDP(4.86, Orientation.Height)}
-              fontSize={screenPercentageToDP(1.57, Orientation.Height)}
-              color={theme.colors.SECONDARY_MAIN}
-            >
-              Back
-            </StyledText>
-          </StyledTouchableOpacity>
+          <Separator marginBottom={screenPercentageToDP(2.39, Orientation.Height)} />
           <StyledView
             marginLeft={screenPercentageToDP(3, Orientation.Width)}
             marginRight={screenPercentageToDP(3, Orientation.Width)}
             marginBottom={screenPercentageToDP(4, Orientation.Height)}
-            height={screenPercentageToDP(5.46, Orientation.Height)}
+            maxHeight={screenPercentageToDP(70, Orientation.Height)}
           >
-            <Dropdown
-              value={language}
-              options={languageOptions}
-              onChange={handleChangeLanguage}
-              label=""
-              selectPlaceholderText="Select"
-              labelColor="white"
-              clearable={false}
+            <FlatList
+              data={languageOptions}
+              keyExtractor={(item): string => item.value}
+              renderItem={({ item }): ReactElement => (
+                <LanguageOptionButton onPress={handleChangeLanguage} {...item} />
+              )}
+              ItemSeparatorComponent={StyledSeparator}
+              scrollEnabled={true}
             />
+            {languageOptions && <StyledSeparator />}
           </StyledView>
         </KeyboardAvoidingView>
       </StyledSafeAreaView>

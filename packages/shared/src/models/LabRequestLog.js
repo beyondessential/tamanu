@@ -37,10 +37,13 @@ export class LabRequestLog extends Model {
     return ['labRequest', 'updatedBy'];
   }
 
-  static buildPatientSyncFilter(patientIds) {
-    if (patientIds.length === 0) {
+  static buildPatientSyncFilter(patientCount, markedForSyncPatientsTable) {
+    if (patientCount === 0) {
       return null;
     }
-    return buildEncounterLinkedSyncFilter([this.tableName, 'lab_requests', 'encounters']);
+    return buildEncounterLinkedSyncFilter(
+      [this.tableName, 'lab_requests', 'encounters'],
+      markedForSyncPatientsTable,
+    );
   }
 }
