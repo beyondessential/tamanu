@@ -2,7 +2,7 @@ import React from 'react';
 
 import {
   ATTENDANT_OF_BIRTH_OPTIONS,
-  BIRTH_DELIVERY_TYPE_OPTIONS,
+  BIRTH_TYPE_LABELS,
   BIRTH_TYPE_OPTIONS,
   PLACE_OF_BIRTH_OPTIONS,
   PLACE_OF_BIRTH_TYPES,
@@ -11,6 +11,7 @@ import { AutocompleteField, SelectField, TextField, TimeField } from '../../../.
 import { ConfiguredMandatoryPatientFields } from '../../../ConfiguredMandatoryPatientFields';
 import { useSuggester } from '../../../../../api';
 import { TranslatedText } from '../../../../../components/Translation/TranslatedText';
+import { TranslatedSelectField } from '../../../../../components/Translation/TranslatedSelect';
 
 export const GenericBirthFields = ({ filterByMandatory, registeredBirthPlace }) => {
   const facilitySuggester = useSuggester('facility');
@@ -80,8 +81,8 @@ export const GenericBirthFields = ({ filterByMandatory, registeredBirthPlace }) 
       ),
     },
     birthDeliveryType: {
-      component: SelectField,
-      options: BIRTH_DELIVERY_TYPE_OPTIONS,
+      component: TranslatedSelectField,
+      enumValues: BIRTH_TYPE_LABELS,
       label: (
         <TranslatedText
           stringId="general.localisedField.birthDeliveryType.label"
