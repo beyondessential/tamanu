@@ -2,21 +2,17 @@ import React from 'react';
 
 import { VACCINE_CATEGORIES } from '@tamanu/constants';
 
-import { SelectField, Field } from '../../components';
+import { Field } from '../../components';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
-
-const VACCINE_CATEGORY_OPTIONS = Object.values(VACCINE_CATEGORIES).map(category => ({
-  label: category,
-  value: category,
-}));
+import { TranslatedSelectField } from '../../components/Translation/TranslatedSelect';
 
 export const VaccineCategoryField = ({ name = 'category', required }) => (
   <Field
     name={name}
     label={<TranslatedText stringId="vaccine.category.label" fallback="Category" />}
-    component={SelectField}
+    component={TranslatedSelectField}
     required={required}
-    options={VACCINE_CATEGORY_OPTIONS}
+    enumValues={VACCINE_CATEGORIES}
     prefix="vaccine.property.category"
   />
 );
