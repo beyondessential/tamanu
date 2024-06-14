@@ -1,16 +1,8 @@
 import React from 'react';
 import { startOfDay } from 'date-fns';
 import { CustomisableSearchBarWithPermissionCheck } from './CustomisableSearchBar';
-import {
-  AutocompleteField,
-  DateTimeField,
-  Field,
-  LocalisedField,
-  SearchField,
-  SelectField,
-} from '../Field';
+import { AutocompleteField, DateTimeField, Field, LocalisedField, SearchField } from '../Field';
 import { TranslatedText } from '../Translation/TranslatedText';
-import { APPOINTMENT_STATUS_OPTIONS } from '../../constants';
 import { useSuggester } from '../../api';
 import { APPOINTMENT_STATUSES, APPOINTMENT_TYPES } from '@tamanu/constants';
 import { TranslatedSelectField } from '../Translation/TranslatedSelect';

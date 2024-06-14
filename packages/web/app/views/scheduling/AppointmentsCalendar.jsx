@@ -13,11 +13,17 @@ import { NewAppointmentButton } from '../../components/Appointments/NewAppointme
 import { Button } from '../../components/Button';
 import { AutocompleteInput, MultiselectField } from '../../components/Field';
 import { Suggester } from '../../utils/suggester';
-import { APPOINTMENT_TYPE_OPTIONS, Colors } from '../../constants';
+import { Colors } from '../../constants';
 import { useApi, useSuggester } from '../../api';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
 import { useAuth } from '../../contexts/Auth';
 import { ErrorMessage } from '../../components/ErrorMessage';
+import { APPOINTMENT_TYPES } from '@tamanu/constants';
+
+const APPOINTMENT_TYPE_OPTIONS = Object.entries(APPOINTMENT_TYPES).map(([value, label]) => ({
+  value,
+  label,
+}));
 
 const LeftContainer = styled.div`
   min-height: 100%;
