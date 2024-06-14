@@ -76,7 +76,8 @@ export const TableFormFields = React.memo(
 
     // When the data to be displayed is changed (e.g. by search), update the rows and set to page 1
     useEffect(() => {
-      displayFirstPage();
+      setPageRows(data.slice(0, rowsPerPage));
+      setPage(0);
     }, [data]);
 
     // Display the relevant page's rows when the table page is changed
@@ -85,17 +86,12 @@ export const TableFormFields = React.memo(
       setPageRows(data.slice(rowsPerPage * (newPage - 1), rowsPerPage * newPage));
     };
 
-    // Change the amount of rows to display per page and set to page 1
+    // Display the new amount of rows per page and set to page 1
     const handleRowsPerPageChange = event => {
       const newRowsPerPage = event.target.value;
       setRowsPerPage(newRowsPerPage);
-      displayFirstPage();
-    };
-    
-    // Display the first page of the table with the current table conditions
-    const displayFirstPage = () => {
       setPage(0);
-      setPageRows(data.slice(0, rowsPerPage));
+      setPageRows(data.slice(0, newRowsPerPage));
     };
 
     return (
