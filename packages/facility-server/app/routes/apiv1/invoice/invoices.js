@@ -84,7 +84,12 @@ invoiceRoute.post(
       // create invoice discount
       if (data.discount)
         await req.models.InvoiceDiscount.create(
-          { invoiceId: data.id, ...data.discount },
+          {
+            invoiceId: data.id,
+            ...data.discount,
+            appliedByUserId: req.user.id,
+            appliedTime: new Date(),
+          },
           { transaction },
         );
 
@@ -136,7 +141,10 @@ const updateInvoiceSchema = z
           .string()
           .uuid()
           .default(uuidv4),
-        orderDate: z.date(),
+        orderDate: z
+          .string()
+          .datetime()
+          .or(z.string().date()),
         orderedByUserId: z.string().uuid(),
         productId: z.string(),
         discount: z
@@ -182,7 +190,7 @@ invoiceRoute.put(
 
       await req.models.InvoiceDiscount.upsert(
         { ...data.discount, invoiceId },
-        { conflictFields: ['id', 'invoiceId'], transaction },
+        { onConflict: { conflictFields: ['id', 'invoiceId'] }, transaction },
       );
 
       //update invoice insurers
@@ -194,7 +202,7 @@ invoiceRoute.put(
       for (const insurer of data.insurers) {
         await req.models.InvoiceInsurer.upsert(
           { ...insurer, invoiceId },
-          { conflictFields: ['id', 'invoiceId'], transaction },
+          { onConflict: { conflictFields: ['id', 'invoiceId'] }, transaction },
         );
       }
 
@@ -207,7 +215,7 @@ invoiceRoute.put(
       for (const item of data.items) {
         await req.models.InvoiceItem.upsert(
           { ...item, invoiceId },
-          { conflictFields: ['id', 'invoiceId'], transaction },
+          { onConflict: { conflictFields: ['id', 'invoiceId'] }, transaction },
         );
 
         //update invoice item discount
@@ -223,7 +231,7 @@ invoiceRoute.put(
 
         await req.models.InvoiceItemDiscount.upsert(
           { ...item.discount, invoiceItemId: item.id },
-          { conflictFields: ['id', 'invoiceItemId'], transaction },
+          { onConflict: { conflictFields: ['id', 'invoiceItemId'] }, transaction },
         );
       }
       await transaction.commit();
@@ -232,50 +240,7 @@ invoiceRoute.put(
       throw error;
     }
 
-    const invoice = await req.models.Invoice.findByPk(data.id, {
-      include: [
-        { model: req.models.Encounter, as: 'encounter' },
-        {
-          model: req.models.InvoiceDiscount,
-          as: 'discount',
-          include: [{ model: req.models.User, as: 'appliedByUser', attributes: ['displayName'] }],
-        },
-        {
-          model: req.models.InvoiceInsurer,
-          as: 'insurers',
-          include: [
-            {
-              model: req.models.ReferenceData,
-              as: 'insurer',
-            },
-          ],
-        },
-        {
-          model: req.models.InvoiceItem,
-          as: 'items',
-          include: [
-            {
-              model: req.models.InvoiceItemDiscount,
-              as: 'discount',
-            },
-            {
-              model: req.models.InvoiceProduct,
-              as: 'product',
-              include: [
-                {
-                  model: req.models.ReferenceData,
-                  as: 'referenceData',
-                },
-                {
-                  model: req.models.LabTestType,
-                  as: 'labTestType',
-                },
-              ],
-            },
-          ],
-        },
-      ],
-    });
+    const invoice = await req.models.Invoice.findByPk(invoiceId);
     res.json(invoice.dataValues);
   }),
 );

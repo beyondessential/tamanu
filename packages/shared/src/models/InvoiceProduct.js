@@ -40,4 +40,8 @@ export class InvoiceProduct extends Model {
   static buildSyncFilter() {
     return null; // syncs everywhere
   }
+
+  static getFullReferenceAssociations() {
+    return ['referenceData', 'labTestType'];
+  }
 }
