@@ -96,7 +96,7 @@ export const SurveyResponseScreen = ({ route }: SurveyResponseScreenProps): Reac
           surveyId,
           components,
           surveyType,
-          encounterReason: `Form response for ${survey.name}`,
+          encounterReason: 'Form response',
         },
         values,
         setNote,

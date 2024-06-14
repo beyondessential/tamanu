@@ -7,6 +7,7 @@ import { ExportReportView } from './ExportReportView';
 import { ImportReportView } from './ImportReportView';
 import { CreateReportView } from './CreateReportView';
 import { SelectReportView } from './SelectReportView';
+import { TranslatedText } from '../../../components/Translation';
 
 const OuterContainer = styled.div`
   position: relative;
@@ -37,7 +38,7 @@ export const ReportsAdminView = () => {
 
   const tabs = [
     {
-      label: 'Edit',
+      label: <TranslatedText stringId="general.action.edit" fallback="Edit" />,
       key: REPORT_TABS.EDIT,
       icon: 'fa fa-edit',
       render: () => (
@@ -47,7 +48,7 @@ export const ReportsAdminView = () => {
       ),
     },
     {
-      label: 'Create',
+      label: <TranslatedText stringId="general.action.create" fallback="Create" />,
       key: REPORT_TABS.CREATE,
       icon: 'fa fa-plus',
       render: () => (
@@ -57,7 +58,7 @@ export const ReportsAdminView = () => {
       ),
     },
     {
-      label: 'Export',
+      label: <TranslatedText stringId="general.action.export" fallback="Export" />,
       key: REPORT_TABS.EXPORT,
       icon: 'fa fa-file-export',
       render: () => (
@@ -67,7 +68,7 @@ export const ReportsAdminView = () => {
       ),
     },
     {
-      label: 'Import',
+      label: <TranslatedText stringId="general.action.import" fallback="Import" />,
       key: REPORT_TABS.IMPORT,
       icon: 'fa fa-file-import',
       render: () => (
@@ -80,7 +81,7 @@ export const ReportsAdminView = () => {
 
   return (
     <OuterContainer>
-      <TopBar title="Reports" />
+      <TopBar title={<TranslatedText stringId="admin.reports.title" fallback="Reports" />} />
       <StyledTabDisplay
         tabs={tabs}
         currentTab={currentTab}

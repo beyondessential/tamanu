@@ -94,7 +94,7 @@ export const AssetUploaderView = memo(() => {
               <Field
                 component={SelectField}
                 options={nameOptions}
-                label="Select asset"
+                label={<TranslatedText stringId="asset.name.label" fallback="Select asset" />}
                 name="name"
                 required
                 prefix="asset.property.type"
@@ -102,12 +102,14 @@ export const AssetUploaderView = memo(() => {
               <Field
                 component={FileChooserField}
                 filters={[FILTER_IMAGES]}
-                label="Select file"
+                label={<TranslatedText stringId="asset.file.label" fallback="Select file" />}
                 name="file"
                 required
               />
               <ButtonRow>
-                <LargeSubmitButton text="Import" />
+                <LargeSubmitButton
+                  text={<TranslatedText stringId="general.action.import" fallback="Import" />}
+                />
               </ButtonRow>
               <ResultDisplay result={result} />
             </FormGrid>

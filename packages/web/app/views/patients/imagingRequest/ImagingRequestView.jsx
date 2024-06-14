@@ -183,11 +183,15 @@ const ImagingResultRow = ({ result }) => {
   return (
     <BottomAlignFormGrid columns={externalUrl ? 3 : 2}>
       <TextInput
-        label="Completed by"
+        label={<TranslatedText stringId="imaging.completedBy.label" fallback="Completed by" />}
         value={completedBy?.displayName ?? (externalUrl && 'External provider') ?? ''}
         disabled
       />
-      <DateTimeInput label="Completed" value={completedAt} disabled />
+      <DateTimeInput
+        label={<TranslatedText stringId="imaging.completedAt.label" fallback="Completed" />}
+        value={completedAt}
+        disabled
+      />
       {externalUrl && (
         <Button color="secondary" onClick={onOpenUrl}>
           View image (external link)
@@ -195,7 +199,9 @@ const ImagingResultRow = ({ result }) => {
       )}
 
       <TextInput
-        label="Result description"
+        label={
+          <TranslatedText stringId="imaging.description.label" fallback="Result description" />
+        }
         value={description}
         multiline
         disabled

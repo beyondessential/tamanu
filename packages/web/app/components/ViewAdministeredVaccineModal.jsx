@@ -101,7 +101,7 @@ export const ViewAdministeredVaccineContent = ({ vaccineRecord, editMode }) => {
     id: vaccineRecordId,
     status,
     injectionSite,
-    scheduledVaccine: { label: vaccineLabel, schedule, id: vaccineId },
+    scheduledVaccine: { label: vaccineLabel, id: vaccineId, doseLabel },
     encounter: { patientId },
     recorder,
     givenBy,
@@ -152,7 +152,7 @@ export const ViewAdministeredVaccineContent = ({ vaccineRecord, editMode }) => {
     },
     schedule: {
       label: <TranslatedText stringId="vaccine.schedule.label" fallback="Schedule" />,
-      value: schedule || '-',
+      value: doseLabel || '-',
     },
     dateRecorded: {
       label: <TranslatedText stringId="vaccine.dateRecorded.label" fallback="Date recorded" />,

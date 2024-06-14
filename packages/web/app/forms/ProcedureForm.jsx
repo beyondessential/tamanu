@@ -78,14 +78,23 @@ export const ProcedureForm = React.memo(
                 />
                 <Field
                   name="date"
-                  label="Procedure date"
+                  label={
+                    <TranslatedText stringId="procedure.date.label" fallback="Procedure date" />
+                  }
                   saveDateAsString
                   required
                   component={DateField}
                 />
                 <Field
-                  locationGroupLabel="Procedure area"
-                  label="Procedure location"
+                  locationGroupLabel={
+                    <TranslatedText stringId="procedure.area.label" fallback="Procedure area" />
+                  }
+                  label={
+                    <TranslatedText
+                      stringId="procedure.location.label"
+                      fallback="Procedure location"
+                    />
+                  }
                   name="locationId"
                   enableLocationStatus={false}
                   required
@@ -95,22 +104,38 @@ export const ProcedureForm = React.memo(
               <FormGrid style={{ gridColumn: 'span 2' }}>
                 <Field
                   name="startTime"
-                  label="Time started"
+                  label={
+                    <TranslatedText stringId="procedure.startTime.label" fallback="Time started" />
+                  }
                   component={TimeField}
                   saveDateAsString
                 />
-                <Field name="endTime" label="Time ended" component={TimeField} saveDateAsString />
+                <Field
+                  name="endTime"
+                  label={
+                    <TranslatedText stringId="procedure.endTime.label" fallback="Time ended" />
+                  }
+                  component={TimeField}
+                  saveDateAsString
+                />
               </FormGrid>
 
               <Field
                 name="anaesthetistId"
-                label="Anaesthetist"
+                label={
+                  <TranslatedText stringId="procedure.anaesthetist.label" fallback="Anaesthetist" />
+                }
                 component={AutocompleteField}
                 suggester={practitionerSuggester}
               />
               <Field
                 name="anaestheticId"
-                label="Anaesthetic type"
+                label={
+                  <TranslatedText
+                    stringId="procedure.anaesthetic.label"
+                    fallback="Anaesthetic type"
+                  />
+                }
                 component={AutocompleteField}
                 suggester={anaestheticSuggester}
                 minRows={4}
@@ -118,23 +143,37 @@ export const ProcedureForm = React.memo(
               />
               <Field
                 name="assistantId"
-                label="Assistant"
+                label={<TranslatedText stringId="procedure.assistant.label" fallback="Assistant" />}
                 component={AutocompleteField}
                 suggester={practitionerSuggester}
               />
               <Field
                 name="note"
-                label="Notes or additional instructions"
+                label={
+                  <TranslatedText
+                    stringId="procedure.noteOrInstruction.label"
+                    fallback="Notes or additional instructions"
+                  />
+                }
                 component={TextField}
                 multiline
                 minRows={4}
                 style={{ gridColumn: 'span 2' }}
               />
-              <Field name="completed" label="Completed" component={CheckField} />
+              <Field
+                name="completed"
+                label={<TranslatedText stringId="general.completed.label" fallback="Completed" />}
+                component={CheckField}
+              />
               <Collapse in={isCompleted} style={{ gridColumn: 'span 2' }}>
                 <Field
                   name="completedNote"
-                  label="Notes on completed procedure"
+                  label={
+                    <TranslatedText
+                      stringId="procedure.completedNote.label"
+                      fallback="Notes on completed procedure"
+                    />
+                  }
                   component={TextField}
                   multiline
                   minRows={4}

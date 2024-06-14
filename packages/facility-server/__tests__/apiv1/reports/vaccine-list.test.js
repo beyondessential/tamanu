@@ -42,14 +42,14 @@ describe('Vaccine list report', () => {
       await createScheduledVaccine(models, {
         category: 'Campaign',
         label: 'COVID-19',
-        schedule: 'Dose 1',
+        doseLabel: 'Dose 1',
       }),
     );
     scheduledVaccine2 = await models.ScheduledVaccine.create(
       await createScheduledVaccine(models, {
         category: 'Routine',
         label: 'BCG',
-        schedule: 'Dose 1',
+        doseLabel: 'Dose 1',
       }),
     );
 
@@ -93,7 +93,7 @@ describe('Vaccine list report', () => {
       expect(result.body[1][3]).toBe(expectedPatient.sex);
       expect(result.body[1][5]).toBe(scheduledVaccine2.label);
       expect(result.body[1][6]).toBe('Yes');
-      expect(result.body[1][7]).toBe(scheduledVaccine2.schedule);
+      expect(result.body[1][7]).toBe(scheduledVaccine2.doseLabel);
       expect(result.body[1][8]).toBe('15-03-2021');
     });
 
@@ -119,7 +119,7 @@ describe('Vaccine list report', () => {
       expect(result.body[1][3]).toBe(expectedPatient.sex);
       expect(result.body[1][5]).toBe(scheduledVaccine1.label);
       expect(result.body[1][6]).toBe('Yes');
-      expect(result.body[1][7]).toBe(scheduledVaccine1.schedule);
+      expect(result.body[1][7]).toBe(scheduledVaccine1.doseLabel);
       expect(result.body[1][8]).toBe('10-03-2021');
     });
 
