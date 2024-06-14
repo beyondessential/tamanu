@@ -146,6 +146,15 @@ export const CambodiaSecondaryDetailsLayout = ({ values = {}, patientRegistryTyp
         </BorderFormGrid>
         <PatientDetailsHeading>
           <TranslatedText
+            stringId="patient.detail.subheading.permanentAddress"
+            fallback="Permanent address"
+          />
+        </PatientDetailsHeading>
+        <BorderFormGrid>
+          <CambodiaLocationFields secondary />
+        </BorderFormGrid>
+        <PatientDetailsHeading>
+          <TranslatedText
             stringId="patient.detail.subheading.contactInformation"
             fallback="Contact information"
           />
