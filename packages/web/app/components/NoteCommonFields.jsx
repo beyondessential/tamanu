@@ -2,10 +2,10 @@ import React from 'react';
 import styled from 'styled-components';
 import Divider from '@material-ui/core/Divider';
 import Tooltip from '@material-ui/core/Tooltip';
-import { NOTE_TYPES } from '@tamanu/constants';
+import { NOTE_TYPES, NOTE_TYPE_LABELS } from '@tamanu/constants';
 
 import { InfoCard, InfoCardItem } from './InfoCard';
-import { AutocompleteField, DateTimeField, Field, SelectField, TextField } from './Field';
+import { AutocompleteField, DateTimeField, Field, TextField } from './Field';
 import { useLocalisation } from '../contexts/Localisation';
 
 import { useSuggester } from '../api';
@@ -13,6 +13,7 @@ import { DateDisplay } from './DateDisplay';
 import { Colors, noteTypes } from '../constants';
 import { FormGrid } from './FormGrid';
 import { TranslatedText } from './Translation/TranslatedText';
+import { TranslatedSelectField } from './Translation/TranslatedSelect';
 
 export const StyledDivider = styled(Divider)`
   margin-top: 30px;
@@ -174,8 +175,19 @@ export const NoteTypeField = ({ required, noteTypeCountByType, onChange }) => (
     name="noteType"
     label={<TranslatedText stringId="note.type.label" fallback="Type" />}
     required={required}
-    component={SelectField}
-    options={getSelectableNoteTypes(noteTypeCountByType)}
+    component={TranslatedSelectField}
+    enumValues={NOTE_TYPE_LABELS}
+    transformOptions={types =>
+      types
+        .filter(x => !x.hideFromDropdown)
+        .map(x => ({
+          ...x,
+          isDisabled:
+            noteTypeCountByType &&
+            x.value === NOTE_TYPES.TREATMENT_PLAN &&
+            !!noteTypeCountByType[x.value],
+        }))
+    }
     formatOptionLabel={option => renderOptionLabel(option, noteTypeCountByType)}
     prefix="note.property.type"
     onChange={onChange}
