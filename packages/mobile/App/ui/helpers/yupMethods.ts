@@ -1,14 +1,14 @@
 import * as yup from 'yup';
-import { replaceStringVariables } from '../contexts/Translation';
+import { replaceStringVariables } from '../contexts/TranslationContext';
 
-const registerTranslatedLabelMethod = (translations = {}) => {
+const registerTranslatedLabelMethod = (translations: object = {}) => {
   yup.addMethod(yup.mixed, 'translatedLabel', function(translatedTextComponent) {
     if (!translations) return this.label(translatedTextComponent.props.fallback);
     const { stringId, fallback } = translatedTextComponent.props;
     const templateString = translations[stringId] || fallback;
     const replaced = replaceStringVariables(
       templateString,
-      translatedTextComponent.props,
+      translatedTextComponent.props.replacements,
       translations,
     );
     return this.label(replaced);
@@ -19,7 +19,7 @@ const registerTranslatedLabelMethod = (translations = {}) => {
 // translated version, this is required at boot
 registerTranslatedLabelMethod();
 
-export function registerYup(translations = {}) {
+export function registerYup(translations: object = {}) {
   registerTranslatedLabelMethod(translations);
   const defaultMessage = translations['validation.required'] || 'The :path field is required';
   yup.setLocale({
