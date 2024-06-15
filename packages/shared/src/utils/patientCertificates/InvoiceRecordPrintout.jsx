@@ -158,7 +158,7 @@ const getPrice = (row) => {
 
   return (
     <>
-      <P style={!!discountPercentage ? priceCellStyles.crossOutText : undefined}>
+      <P style={discountPercentage ? priceCellStyles.crossOutText : undefined}>
         {originalPrice}
       </P>
       {!!discountPercentage && <P>{finalPrice}</P>}
@@ -174,7 +174,7 @@ const HeaderCell = ({ children, style }) => (
 
 const SectionSpacing = () => <View style={{ paddingBottom: '10px' }} />;
 
-//TODO: re-map based on data returned from Back-end
+//TODO: re-map row data based on data returned from Back-end
 const COLUMNS = {
   lineItems: [
     {
@@ -369,6 +369,7 @@ const SummaryPane = ({ discountableTotal, invoice }) => {
       <View style={summaryPaneStyles.item}>
         <P isBold>Insurer</P>
       </View>
+      {/* TODO: get invoice insurer data from back-end */}
       <View style={summaryPaneStyles.item}>
         <P>NIB</P>
         <View style={summaryPaneStyles.subItem}>
