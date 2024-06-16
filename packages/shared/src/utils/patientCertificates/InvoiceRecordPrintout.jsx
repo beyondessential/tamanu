@@ -335,7 +335,6 @@ const DataTable = ({ data, columns, title }) => (
 );
 
 const TableSection = ({ title, data, columns, type }) => {
-  console.log('data', data);
   return (
     <View>
       <View minPresenceAhead={70} />

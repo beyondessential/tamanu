@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-
-import { Colors, ENCOUNTER_OPTIONS_BY_VALUE, INVOICE_PAYMENT_STATUS_LABELS } from '../constants';
+import { INVOICE_PAYMENT_STATUS_LABELS } from '@tamanu/constants';
+import { Colors, ENCOUNTER_OPTIONS_BY_VALUE } from '../constants';
 
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';

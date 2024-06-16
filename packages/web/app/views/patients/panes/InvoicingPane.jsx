@@ -14,7 +14,6 @@ import { KebabMenu } from '../../../components/EditInvoiceModal/KebabMenu';
 import { InvoiceStatus } from '../../../components/InvoiceStatus';
 import { InvoiceSummaryPanel } from '../../../components/InvoiceSummaryPanel';
 import { CreateInvoiceModal } from '../../../components/CreateInvoiceModal';
-import { InvoiceRecordModal } from '../../../components/PatientPrinting/modals/InvoiceRecordModal.jsx';
 
 const EmptyPane = styled(ContentPane)`
   text-align: center;
@@ -56,7 +55,6 @@ export const InvoicingPane = React.memo(({ encounter }) => {
   const [error, setError] = useState(null);
   const [invoiceLineItems, setInvoiceLineItems] = useState([]);
   const [activeModal, setActiveModal] = useState('');
-  const [printModalOpen, setPrintModalOpen] = useState(false);
 
   const updateLineItems = useCallback(({ data }) => setInvoiceLineItems(data), []);
 
@@ -131,13 +129,6 @@ export const InvoicingPane = React.memo(({ encounter }) => {
 
   return (
     <TabPane>
-      <Button onClick={() => setPrintModalOpen(true)}>Print</Button>
-      {printModalOpen && <InvoiceRecordModal
-        open={true}
-        onClose={() => setPrintModalOpen(false)}
-        encounter={encounter}
-        invoice={invoice}
-      />}
       <InvoiceContainer>
         <InvoiceTopBar>
           <InvoiceHeading>
