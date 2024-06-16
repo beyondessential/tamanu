@@ -5,7 +5,7 @@ import { useCertificate } from '../../../utils/useCertificate';
 import { PDFLoader, printPDF } from '../PDFLoader';
 import { DeathCertificatePrintout } from '@tamanu/shared/utils/patientCertificates';
 import { useLocalisation } from '../../../contexts/Localisation';
-import { useEthnicityQuery, usePatientAdditionalDataQuery } from '../../../api/queries';
+import { usePatientAdditionalDataQuery } from '../../../api/queries';
 
 export const DeathCertificateModal = ({ patient, deathData }) => {
   const [isOpen, setIsOpen] = useState();
@@ -16,16 +16,11 @@ export const DeathCertificateModal = ({ patient, deathData }) => {
     isFetching: isAdditionalDataFetching,
   } = usePatientAdditionalDataQuery(patient.id);
 
-  const { data: ethnicity, isLoading: isEthnicityFetching } = useEthnicityQuery(
-    additionalData?.ethnicityId,
-    !isAdditionalDataFetching,
-  );
-
   const { data: certificateData, isFetching: isCertificateFetching } = useCertificate();
 
-  const patientData = { ...patient, ...deathData, additionalData, ethnicity };
+  const patientData = { ...patient, ...deathData, additionalData };
 
-  const isLoading = isAdditionalDataFetching || isCertificateFetching || isEthnicityFetching;
+  const isLoading = isAdditionalDataFetching || isCertificateFetching;
 
   return (
     <>

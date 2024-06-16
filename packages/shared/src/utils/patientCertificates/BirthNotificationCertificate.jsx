@@ -13,6 +13,7 @@ import {
 } from '@tamanu/constants';
 import { Footer } from './printComponents/Footer';
 import { getDisplayDate } from './getDisplayDate';
+import { getEthnicity } from '../patientAccessors';
 
 const borderStyle = '1 solid black';
 
@@ -169,7 +170,7 @@ const ChildSection = ({ data }) => {
         <LeftCell>Sex</LeftCell>
         <Cell style={{ width: 130 }}>{getLabelFromValue(SEX_OPTIONS, data?.sex)}</Cell>
         <FlexCell bold>Ethnicity</FlexCell>
-        <FlexCell>{data?.ethnicity?.name}</FlexCell>
+        <FlexCell>{getEthnicity(data)}</FlexCell>
       </Row>
       <Row>
         <LeftCell>Attendant at birth</LeftCell>
@@ -203,7 +204,7 @@ const ParentSection = ({ parentType, data = {} }) => {
       </Row>
       <Row>
         <LeftCell>Ethnicity</LeftCell>
-        <Cell style={{ width: 150 }}>{data?.ethnicity?.name}</Cell>
+        <Cell style={{ width: 150 }}>{getEthnicity(data)}</Cell>
         <Cell style={{ width: 90 }} bold>
           Marital status
         </Cell>
