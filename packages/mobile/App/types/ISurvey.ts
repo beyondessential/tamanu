@@ -87,6 +87,10 @@ export enum DataElementType {
   Calculated = 'CalculatedQuestion',
   Checkbox = 'Checkbox',
   CodeGenerator = 'CodeGenerator',
+  ComplexChartInstanceName = 'ComplexChartInstanceName',
+  ComplexChartDate = 'ComplexChartDate',
+  ComplexChartType = 'ComplexChartType',
+  ComplexChartSubtype = 'ComplexChartSubtype',
   Condition = 'Condition',
   ConditionQuestion = 'ConditionQuestion',
   Date = 'Date',
@@ -112,10 +116,6 @@ export enum DataElementType {
   UserData = 'UserData',
   PatientData = 'PatientData',
   PatientIssueGenerator = 'PatientIssueGenerator',
-  ComplexChartInstanceName = 'ComplexChartInstanceName',
-  ComplexChartDate = 'ComplexChartDate',
-  ComplexChartType = 'ComplexChartType',
-  ComplexChartSubtype = 'ComplexChartSubtype',
 }
 
 export interface IProgramDataElement {
