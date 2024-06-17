@@ -15,23 +15,6 @@ import { FORM_TYPES } from '../../../constants';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { TranslatedSelectField } from '../../../components/Translation/TranslatedSelect';
 
-/**
- * export const LAB_REQUEST_STATUS_OPTIONS = Object.values(LAB_REQUEST_STATUSES)
-  .filter(
-    status =>
-      ![
-        LAB_REQUEST_STATUSES.DELETED,
-        LAB_REQUEST_STATUSES.ENTERED_IN_ERROR,
-        LAB_REQUEST_STATUSES.CANCELLED,
-      ].includes(status),
-  )
-  .map(status => ({
-    label: LAB_REQUEST_STATUS_CONFIG[status].label,
-    value: status,
-  }));
-
- */
-
 const validationSchema = yup.object().shape({
   status: yup
     .string()

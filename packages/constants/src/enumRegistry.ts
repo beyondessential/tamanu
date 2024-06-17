@@ -16,6 +16,7 @@ import {
   REPORT_DB_SCHEMA_LABELS,
 } from './reports';
 import { TEMPLATE_TYPE_LABELS } from './templates';
+import { LAB_REQUEST_STATUS_LABELS } from './labs';
 
 // This is a set of all the enums that are registered to be translatable.
 // This allows us to keep track of changes to existing enums or the additional
@@ -29,6 +30,7 @@ export const enumRegistry = new Set([
   INJECTION_SITE_LABELS,
   INVOICE_LINE_TYPE_LABELS,
   INVOICE_PRICE_CHANGE_TYPE_LABELS,
+  LAB_REQUEST_STATUS_LABELS,
   NOTE_TYPE_LABELS,
   REFERRAL_STATUS_LABELS,
   REPORT_DATA_SOURCE_LABELS,
