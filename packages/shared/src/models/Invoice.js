@@ -82,16 +82,7 @@ export class Invoice extends Model {
       {
         model: models.InvoiceItem,
         as: 'items',
-        include: [
-          {
-            model: models.InvoiceProduct,
-            as: 'product',
-            include: {
-              model: models.ReferenceData,
-              as: 'referenceData'
-            }
-          },
-        ],
+        include: models.InvoiceItem.getListReferenceAssociations(models),
       },
     ];
   }

@@ -6,6 +6,7 @@ import { INVOICE_PAYMENT_STATUSES, INVOICE_STATUSES } from '@tamanu/constants';
 import { v4 as uuidv4 } from 'uuid';
 import { z } from 'zod';
 import { Op } from 'sequelize';
+import { invoiceItemsRoute } from './invoiceItems';
 
 const invoiceRoute = express.Router();
 export { invoiceRoute as invoices };
@@ -16,7 +17,7 @@ const createInvoiceSchema = z
     encounterId: z.string().uuid(),
     discount: z
       .object({
-        percentage: z
+        percentage: z.coerce
           .number()
           .min(0)
           .max(1),
@@ -38,7 +39,7 @@ const createInvoiceSchema = z
 invoiceRoute.post(
   '/',
   asyncHandler(async (req, res) => {
-    req.checkPermission('write', 'Invoice');
+    req.checkPermission('create', 'Invoice');
 
     const { data, error } = await createInvoiceSchema.safeParseAsync(req.body);
     if (error) throw new ValidationError(error.message);
@@ -48,11 +49,6 @@ invoiceRoute.post(
       attributes: ['patientId'],
     });
     if (!encounter) throw new ValidationError(`encounter ${data.encounterId} not found`);
-
-    const existingInvoice = await req.models.Invoice.findOne({
-      where: { encounterId: data.encounterId, status: { [Op.ne]: INVOICE_STATUSES.CANCELLED } },
-    });
-    if (existingInvoice) throw new ValidationError(`invoice already exists for encounter`);
 
     const insurerId = await req.models.PatientAdditionalData.findOne({
       where: { patientId: encounter.patientId },
@@ -85,8 +81,8 @@ invoiceRoute.post(
       if (data.discount)
         await req.models.InvoiceDiscount.create(
           {
-            invoiceId: data.id,
             ...data.discount,
+            invoiceId: data.id,
             appliedByUserId: req.user.id,
             appliedTime: new Date(),
           },
@@ -112,7 +108,7 @@ const updateInvoiceSchema = z
           .string()
           .uuid()
           .default(uuidv4),
-        percentage: z
+        percentage: z.coerce
           .number()
           .min(0)
           .max(1),
@@ -127,7 +123,7 @@ const updateInvoiceSchema = z
           .string()
           .uuid()
           .default(uuidv4),
-        percentage: z
+        percentage: z.coerce
           .number()
           .min(0)
           .max(1),
@@ -141,10 +137,10 @@ const updateInvoiceSchema = z
           .string()
           .uuid()
           .default(uuidv4),
-        orderDate: z
-          .string()
-          .datetime()
-          .or(z.string().date()),
+        orderDate: z.preprocess(
+          arg => (typeof arg == 'string' ? new Date(arg) : undefined),
+          z.date(),
+        ),
         orderedByUserId: z.string().uuid(),
         productId: z.string(),
         discount: z
@@ -153,9 +149,9 @@ const updateInvoiceSchema = z
               .string()
               .uuid()
               .default(uuidv4),
-            percentage: z
+            percentage: z.coerce
               .number()
-              .min(0)
+              .min(-1)
               .max(1),
             reason: z.string().optional(),
           })
@@ -184,14 +180,21 @@ invoiceRoute.put(
     try {
       //update invoice discount
       await req.models.InvoiceDiscount.destroy(
-        { where: { invoiceId, id: { [Op.ne]: data.discount?.id ? [data.discount.id] : [] } } },
+        { where: { invoiceId, id: { [Op.notIn]: data.discount?.id ? [data.discount.id] : [] } } },
         { transaction },
       );
 
-      await req.models.InvoiceDiscount.upsert(
-        { ...data.discount, invoiceId },
-        { onConflict: { conflictFields: ['id', 'invoiceId'] }, transaction },
-      );
+      if (data.discount) {
+        await req.models.InvoiceDiscount.upsert(
+          {
+            ...data.discount,
+            invoiceId,
+            appliedByUserId: req.user.id,
+            appliedTime: new Date(),
+          },
+          { onConflict: { conflictFields: ['id', 'invoiceId'] }, transaction },
+        );
+      }
 
       //update invoice insurers
       await req.models.InvoiceInsurer.destroy(
@@ -214,7 +217,7 @@ invoiceRoute.put(
 
       for (const item of data.items) {
         await req.models.InvoiceItem.upsert(
-          { ...item, invoiceId },
+          { ...item, invoiceId, deletedAt: null },
           { onConflict: { conflictFields: ['id', 'invoiceId'] }, transaction },
         );
 
@@ -223,16 +226,18 @@ invoiceRoute.put(
           {
             where: {
               invoiceItemId: item.id,
-              id: { [Op.ne]: item.discount?.id ? [item.discount.id] : [] },
+              id: { [Op.notIn]: item.discount?.id ? [item.discount.id] : [] },
             },
           },
           { transaction },
         );
 
-        await req.models.InvoiceItemDiscount.upsert(
-          { ...item.discount, invoiceItemId: item.id },
-          { onConflict: { conflictFields: ['id', 'invoiceItemId'] }, transaction },
-        );
+        if (item.discount) {
+          await req.models.InvoiceItemDiscount.upsert(
+            { ...item.discount, invoiceItemId: item.id },
+            { onConflict: { conflictFields: ['id', 'invoiceItemId'] }, transaction },
+          );
+        }
       }
       await transaction.commit();
     } catch (error) {
@@ -244,3 +249,19 @@ invoiceRoute.put(
     res.json(invoice.dataValues);
   }),
 );
+
+invoiceRoute.post(
+  '/:id/cancel',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('write', 'Invoice');
+
+    await req.models.Invoice.update(
+      { status: INVOICE_STATUSES.CANCELLED },
+      { where: { id: req.params.id } },
+    );
+
+    res.send({});
+  }),
+);
+
+invoiceRoute.use(invoiceItemsRoute);
