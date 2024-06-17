@@ -9,15 +9,15 @@ import { BIRTH_TYPE_LABELS } from './births';
 // This allows us to keep track of changes to existing enums or the additional
 // of new enum constants when maintaining translations
 export const enumRegistry = new Set([
-  SEX_VALUES,
-  APPOINTMENT_TYPES,
   APPOINTMENT_STATUSES,
+  APPOINTMENT_TYPES,
+  BIRTH_TYPE_LABELS,
+  INJECTION_SITE_LABELS,
   INVOICE_LINE_TYPE_LABELS,
   INVOICE_PRICE_CHANGE_TYPE_LABELS,
   NOTE_TYPE_LABELS,
   REFERRAL_STATUS_LABELS,
-  VACCINE_STATUS_LABELS,
-  INJECTION_SITE_LABELS,
-  BIRTH_TYPE_LABELS,
+  SEX_VALUES,
   VACCINE_CATEGORIES,
+  VACCINE_STATUS_LABELS,
 ]);
