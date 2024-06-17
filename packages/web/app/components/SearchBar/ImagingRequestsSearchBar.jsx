@@ -1,7 +1,10 @@
 import React from 'react';
 import styled from 'styled-components';
-import { IMAGING_REQUEST_STATUS_TYPES, IMAGING_TABLE_VERSIONS } from '@tamanu/constants';
-import { IMAGING_REQUEST_STATUS_OPTIONS } from '../../constants';
+import {
+  IMAGING_REQUEST_STATUS_LABELS,
+  IMAGING_REQUEST_STATUS_TYPES,
+  IMAGING_TABLE_VERSIONS,
+} from '@tamanu/constants';
 import {
   AutocompleteField,
   CheckField,
@@ -17,6 +20,7 @@ import { useSuggester } from '../../api';
 import { useImagingRequests } from '../../contexts/ImagingRequests';
 import { useAdvancedFields } from './useAdvancedFields';
 import { TranslatedText } from '../Translation/TranslatedText';
+import { TranslatedSelectField } from '../Translation/TranslatedSelect';
 
 const FacilityCheckbox = styled.div`
   display: flex;
@@ -156,10 +160,18 @@ export const ImagingRequestsSearchBar = ({ memoryKey, statuses = [], advancedFie
           label={
             <TranslatedText stringId="general.localisedField.status.label" fallback="Status" />
           }
-          component={SelectField}
-          options={IMAGING_REQUEST_STATUS_OPTIONS.filter(
-            ({ value }) => value !== IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
-          )}
+          component={TranslatedSelectField}
+          enumValues={IMAGING_REQUEST_STATUS_LABELS}
+          transformOptions={options =>
+            options.filter(option =>
+              [
+                IMAGING_REQUEST_STATUS_TYPES.DELETED,
+                IMAGING_REQUEST_STATUS_TYPES.ENTERED_IN_ERROR,
+                IMAGING_REQUEST_STATUS_TYPES.CANCELLED,
+                IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
+              ].includes(option.value),
+            )
+          }
           size="small"
           prefix="imaging.property.status"
         />
