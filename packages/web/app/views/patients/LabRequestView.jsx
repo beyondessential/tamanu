@@ -367,7 +367,7 @@ export const LabRequestView = () => {
             </Button>
           )}
           {canEnterResults && (
-            <Button onClick={() => handleChangeModalId(MODAL_IDS.ENTER_RESULTS)} margin="2000px">
+            <Button onClick={() => handleChangeModalId(MODAL_IDS.ENTER_RESULTS)}>
               <TranslatedText stringId="lab.action.enterResults" fallback="Enter results" />
             </Button>
           )}
