@@ -1,7 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
 import { useQuery } from '@tanstack/react-query';
-import { capitalize } from 'lodash';
 import * as yup from 'yup';
 import { Accordion, AccordionDetails, AccordionSummary, Grid } from '@material-ui/core';
 import {
@@ -9,10 +8,13 @@ import {
   REPORT_DATA_SOURCE_LABELS,
   REPORT_DEFAULT_DATE_RANGES_LABELS,
   REPORT_DB_SCHEMAS,
+  REPORT_DB_SCHEMA_LABELS,
+  REPORT_DB_SCHEMA_VALUES,
   REPORT_DEFAULT_DATE_RANGES_VALUES,
   REPORT_STATUSES_VALUES,
+  REPORT_STATUSES_LABELS,
 } from '@tamanu/constants/reports';
-import { Button, ButtonRow, Field, Form, SelectField, TextField } from '../../../components';
+import { Button, ButtonRow, Field, Form, TextField } from '../../../components';
 import { ParameterItem, ParameterList, SQLQueryEditor } from './components/editing';
 import {
   FIELD_TYPES_WITH_PREDEFINED_OPTIONS,
@@ -35,16 +37,6 @@ const StyledField = styled(Field)`
 const StatusField = styled(Field)`
   width: 130px;
 `;
-
-const STATUS_OPTIONS = REPORT_STATUSES_VALUES.map(status => ({
-  label: capitalize(status),
-  value: status,
-}));
-
-const DB_SCHEMA_OPTIONS = Object.values(REPORT_DB_SCHEMAS).map(value => ({
-  label: capitalize(value),
-  value,
-}));
 
 const generateDefaultParameter = () => ({
   id: Math.random(),
@@ -106,8 +98,8 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit, setF
               label={<TranslatedText stringId="admin.report.dbSchema.label" fallback="DB Schema" />}
               name="dbSchema"
               prefix="report.property.canWrite"
-              component={SelectField}
-              options={schemaOptions}
+              component={TranslatedSelectField}
+              enumValues={REPORT_DB_SCHEMA_LABELS}
               disabled={isEdit}
               isClearable={false}
             />
@@ -176,9 +168,9 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit, setF
       <ButtonRow>
         <StatusField
           name="status"
-          component={SelectField}
+          component={TranslatedSelectField}
           isClearable={false}
-          options={STATUS_OPTIONS}
+          enumValues={REPORT_STATUSES_LABELS}
           prefix="report.property.status"
         />
         <Button
@@ -236,7 +228,7 @@ export const ReportEditor = ({ initialValues, onSubmit, isEdit }) => {
         dbSchema: yup
           .string()
           .nullable()
-          .oneOf([...DB_SCHEMA_OPTIONS.map(o => o.value), null]),
+          .oneOf([...REPORT_DB_SCHEMA_VALUES, null]),
         parameters: yup.array().of(
           yup.object().shape({
             name: yup
@@ -298,7 +290,7 @@ export const ReportEditor = ({ initialValues, onSubmit, isEdit }) => {
           .translatedLabel(<TranslatedText stringId="admin.report.query.label" fallback="Query" />),
         status: yup
           .string()
-          .oneOf(STATUS_OPTIONS.map(s => s.value))
+          .oneOf(REPORT_STATUSES_VALUES)
           .required()
           .translatedLabel(<TranslatedText stringId="general.status.label" fallback="Status" />),
       })}

@@ -71,3 +71,10 @@ export const REPORT_DB_SCHEMAS = {
   REPORTING: 'reporting',
   RAW: 'raw',
 };
+
+export const REPORT_DB_SCHEMA_VALUES = Object.values(REPORT_DB_SCHEMAS);
+
+export const REPORT_DB_SCHEMA_LABELS = {
+  [REPORT_DB_SCHEMAS.REPORTING]: 'Reporting',
+  [REPORT_DB_SCHEMAS.RAW]: 'Raw',
+};

@@ -10,7 +10,11 @@ import {
 import { VACCINE_STATUS_LABELS, INJECTION_SITE_LABELS, VACCINE_CATEGORIES } from './vaccines';
 import { BIRTH_TYPE_LABELS } from './births';
 import { IMAGING_TYPES } from './imaging';
-import { REPORT_DATA_SOURCE_LABELS, REPORT_DATE_RANGE_LABELS } from './reports';
+import {
+  REPORT_DATA_SOURCE_LABELS,
+  REPORT_DATE_RANGE_LABELS,
+  REPORT_DB_SCHEMA_LABELS,
+} from './reports';
 
 // This is a set of all the enums that are registered to be translatable.
 // This allows us to keep track of changes to existing enums or the additional
@@ -27,7 +31,8 @@ export const enumRegistry = new Set([
   NOTE_TYPE_LABELS,
   REFERRAL_STATUS_LABELS,
   REPORT_DATA_SOURCE_LABELS,
-  REPORT_DATE_RANGE_LABELS
+  REPORT_DATE_RANGE_LABELS,
+  REPORT_DB_SCHEMA_LABELS,
   SEX_VALUES,
   VACCINE_CATEGORIES,
   VACCINE_STATUS_LABELS,
