@@ -1,7 +1,6 @@
 export * from './bedManagement.js';
 export * from './binary.js';
 export * from './births.js';
-export * from './diagnosis.js';
 export * from './documents.js';
 export * from './encounters.js';
 export * from './forms.js';
