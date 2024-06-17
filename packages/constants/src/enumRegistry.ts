@@ -19,7 +19,7 @@ import { TEMPLATE_TYPE_LABELS } from './templates';
 import { LAB_REQUEST_STATUS_LABELS } from './labs';
 import { ASSET_NAMES } from './importable';
 import { PATIENT_ISSUE_LABELS } from './diagnoses';
-import { DRUG_ROUTES_LABELS } from './medications';
+import { DRUG_ROUTE_LABELS } from './medications';
 
 // This is a set of all the enums that are registered to be translatable.
 // This allows us to keep track of changes to existing enums or the additional
@@ -29,7 +29,7 @@ export const enumRegistry = new Set([
   APPOINTMENT_TYPES,
   ASSET_NAMES,
   BIRTH_TYPE_LABELS,
-  DRUG_ROUTES_LABELS,
+  DRUG_ROUTE_LABELS,
   IMAGING_REQUEST_STATUS_LABELS,
   IMAGING_TYPES,
   INJECTION_SITE_LABELS,

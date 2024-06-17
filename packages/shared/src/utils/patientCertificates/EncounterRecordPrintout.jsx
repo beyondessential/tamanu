@@ -7,7 +7,7 @@ import { startCase } from 'lodash';
 import {
   ENCOUNTER_LABELS,
   NOTE_TYPE_LABELS,
-  DRUG_ROUTES_LABELS,
+  DRUG_ROUTE_LABELS,
   NOTE_TYPES,
 } from '@tamanu/constants';
 import { getDisplayDate } from './getDisplayDate';
@@ -283,7 +283,7 @@ const COLUMNS = {
     {
       key: 'route',
       title: 'Route',
-      accessor: ({ route }) => DRUG_ROUTES_LABELS[route] || '',
+      accessor: ({ route }) => DRUG_ROUTE_LABELS[route] || '',
       style: { width: '12.5%' },
     },
     {

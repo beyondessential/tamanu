@@ -14,9 +14,9 @@ export const DRUG_ROUTES = {
   vaginal: 'vaginal',
 };
 
-export const DRUG_ROUTES_VALUES = Object.values(DRUG_ROUTES);
+export const DRUG_ROUTE_VALUES = Object.values(DRUG_ROUTES);
 
-export const DRUG_ROUTES_LABELS = {
+export const DRUG_ROUTE_LABELS = {
   [DRUG_ROUTES.dermal]: 'Dermal',
   [DRUG_ROUTES.ear]: 'Ear',
   [DRUG_ROUTES.eye]: 'Eye',
@@ -31,4 +31,3 @@ export const DRUG_ROUTES_LABELS = {
   [DRUG_ROUTES.topical]: 'Topical',
   [DRUG_ROUTES.vaginal]: 'Vaginal',
 };
-

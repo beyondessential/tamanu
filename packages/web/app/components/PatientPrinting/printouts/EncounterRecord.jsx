@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { Typography } from '@material-ui/core';
 import { startCase } from 'lodash';
 
-import { NOTE_TYPES, NOTE_TYPE_LABELS, DRUG_ROUTES_LABELS } from '@tamanu/constants';
+import { NOTE_TYPES, NOTE_TYPE_LABELS, DRUG_ROUTE_LABELS } from '@tamanu/constants';
 
 import { PrintLetterhead } from './reusable/PrintLetterhead';
 import { DateDisplay } from '../../DateDisplay';
@@ -282,7 +282,7 @@ const COLUMNS = {
     {
       key: 'route',
       title: 'Route',
-      accessor: ({ route }) => DRUG_ROUTES_LABELS[route] || '',
+      accessor: ({ route }) => DRUG_ROUTE_LABELS[route] || '',
       style: { width: '10%' },
     },
     {

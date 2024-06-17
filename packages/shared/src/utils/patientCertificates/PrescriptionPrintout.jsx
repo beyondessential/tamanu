@@ -1,7 +1,7 @@
 import { Document, Page, StyleSheet, View } from '@react-pdf/renderer';
 import React from 'react';
 
-import { DRUG_ROUTES_LABELS } from '@tamanu/constants';
+import { DRUG_ROUTE_LABELS } from '@tamanu/constants';
 
 import { CertificateContent, CertificateHeader, Col, Signature, styles } from './Layout';
 import { PatientDetailsWithBarcode } from './printComponents/PatientDetailsWithBarcode';
@@ -28,7 +28,7 @@ const columns = [
   {
     key: 'route',
     title: 'Route',
-    accessor: ({ route }) => DRUG_ROUTES_LABELS[route] || '',
+    accessor: ({ route }) => DRUG_ROUTE_LABELS[route] || '',
   },
   {
     key: 'quantity',

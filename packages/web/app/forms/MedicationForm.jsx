@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import * as yup from 'yup';
 import { Box } from '@material-ui/core';
-import { DRUG_ROUTES_LABELS } from '@tamanu/constants';
+import { DRUG_ROUTE_LABELS, DRUG_ROUTE_VALUES } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { foreignKey } from '../utils/validation';
 import { PrintPrescriptionModal } from '../components/PatientPrinting';
@@ -48,7 +48,7 @@ const validationSchema = readOnly =>
           ),
         route: yup
           .string()
-          .oneOf(drugRouteOptions.map(x => x.value))
+          .oneOf(DRUG_ROUTE_VALUES)
           .required()
           .translatedLabel(
             <TranslatedText stringId="medication.validation.route.path" fallback="Route" />,
@@ -227,7 +227,7 @@ export const MedicationForm = React.memo(
                   <TranslatedText stringId="medication.route.label" fallback="Route of admission" />
                 }
                 component={TranslatedSelectField}
-                enumValues={DRUG_ROUTES_LABELS}
+                enumValues={DRUG_ROUTE_LABELS}
                 disabled={readOnly}
                 required={!readOnly}
                 prefix="medication.property.route"
