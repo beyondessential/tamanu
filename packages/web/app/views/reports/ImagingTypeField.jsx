@@ -12,6 +12,8 @@ export const ImagingTypeField = ({ name = 'imagingType', required }) => {
     value: key,
   }));
 
+  // enumRegistry todo: this actully could work - using the ImagingType enum from @tamanu/constants
+  // Then filter and map labels based on config
   return (
     <Field
       name={name}
