@@ -103,7 +103,7 @@ export const BedManagementSearchBar = React.memo(({ onSearch, searchParameters }
           size="small"
           component={TranslatedSelectField}
           transformOptions={options => [{ value: '', label: 'All' }, ...options]}
-          options={LOCATION_AVAILABILITY_STATUS_LABELS}
+          enumValues={LOCATION_AVAILABILITY_STATUS_LABELS}
           prefix="bedManagement.property.status"
         />
       </CustomisableSearchBar>

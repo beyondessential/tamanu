@@ -3,11 +3,7 @@ import styled from 'styled-components';
 import Divider from '@material-ui/core/Divider';
 import { CheckCircleRounded } from '@material-ui/icons';
 
-import {
-  VACCINE_CATEGORIES,
-  INJECTION_SITE_OPTIONS,
-  INJECTION_SITE_LABELS,
-} from '@tamanu/constants';
+import { VACCINE_CATEGORIES, INJECTION_SITE_LABELS } from '@tamanu/constants';
 
 import { OuterLabelFieldWrapper } from './Field/OuterLabelFieldWrapper';
 import {
