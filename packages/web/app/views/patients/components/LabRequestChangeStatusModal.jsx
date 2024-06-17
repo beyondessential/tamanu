@@ -55,7 +55,7 @@ export const LabRequestChangeStatusModal = React.memo(
           render={({ values, submitForm }) => (
             <FormGrid columns={1}>
               <Field
-                label="Status"
+                label={<TranslatedText stringId="general.status.label" fallback="Status" />}
                 name="status"
                 enumValues={LAB_REQUEST_STATUS_LABELS}
                 transformOptions={options =>

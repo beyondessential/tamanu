@@ -5,8 +5,8 @@ import {
   PATIENT_REGISTRY_TYPES,
   SETTING_KEYS,
 } from '@tamanu/constants';
-import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { Colors } from '../../../../constants';
+import { getCurrentDateString } from '@tamanu/shared/utils/dateTime';
 import { LocalisedField, TextField, DateField, RadioField, FormGrid } from '../../../../components';
 import {
   PatientDetailsHeading,
@@ -24,7 +24,6 @@ import { ReminderContactSection } from '../../../../components/ReminderContact/R
 import { useSettings } from '../../../../contexts/Settings';
 
 const FATHERS_FIRST_NAME_DEFINITION_ID = 'fieldDefinition-fathersFirstName';
-
 const CAMBODIA_CORE_FIELD_CATEGORY_ID = 'fieldCategory-cambodiaCorePatientFields';
 
 export const CambodiaPrimaryDetailsLayout = ({
@@ -72,7 +71,7 @@ export const CambodiaPrimaryDetailsLayout = ({
               fallback="Date of birth"
             />
           }
-          max={getCurrentDateTimeString()}
+          max={getCurrentDateString()}
           component={DateField}
           required
           saveDateAsString
@@ -144,6 +143,15 @@ export const CambodiaSecondaryDetailsLayout = ({ values = {}, patientRegistryTyp
         </PatientDetailsHeading>
         <BorderFormGrid>
           <CambodiaLocationFields />
+        </BorderFormGrid>
+        <PatientDetailsHeading>
+          <TranslatedText
+            stringId="patient.detail.subheading.permanentAddress"
+            fallback="Permanent address"
+          />
+        </PatientDetailsHeading>
+        <BorderFormGrid>
+          <CambodiaLocationFields secondary />
         </BorderFormGrid>
         <PatientDetailsHeading>
           <TranslatedText

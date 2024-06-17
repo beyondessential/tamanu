@@ -47,8 +47,6 @@ export const MultiSelectModalField = ({
   const onPress = (selectedItems: OptionType[]): void => {
     onChange(selectedItems);
     setLabel(appendLabel(selectedItems));
-    console.log(selectedItems);
-    console.log(appendLabel(selectedItems));
   };
 
   const openModal = (): void =>

@@ -206,7 +206,7 @@ export const AdministeredVaccineScheduleField = ({ schedules }) => {
     const options =
       schedules?.map(s => ({
         value: s.scheduledVaccineId,
-        label: s.schedule,
+        label: s.doseLabel,
         icon: s.administered ? <CheckCircleRounded style={{ color: Colors.safe }} /> : null,
         disabled: s.administered,
       })) || [];

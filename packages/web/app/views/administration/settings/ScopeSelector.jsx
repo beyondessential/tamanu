@@ -5,6 +5,7 @@ import { SETTINGS_SCOPES } from '@tamanu/constants';
 
 import { useApi } from '../../../api';
 import { SelectInput } from '../../../components';
+import { TranslatedText } from '../../../components/Translation';
 
 const ScopeSelectorInput = styled(SelectInput)`
   width: 300px;
@@ -48,7 +49,7 @@ export const ScopeSelector = React.memo(
           value={selectedScope}
           onChange={onChangeScope}
           options={SCOPE_OPTIONS}
-          label="Scope"
+          label={<TranslatedText stringId="admin.settings.scope.label" fallback="Scope" />}
           isClearable={false}
           error={!!error}
         />
@@ -57,7 +58,7 @@ export const ScopeSelector = React.memo(
             value={selectedFacility}
             onChange={onChangeFacility}
             options={facilityOptions}
-            label="Facility"
+            label={<TranslatedText stringId="general.facility.label" fallback="Facility" />}
             isClearable={false}
             error={!!error}
           />

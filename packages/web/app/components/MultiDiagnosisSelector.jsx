@@ -3,7 +3,9 @@ import styled from 'styled-components';
 
 import { Button } from './Button';
 import { AutocompleteInput } from './Field/AutocompleteField';
+import { TranslatedText } from './Translation/TranslatedText';
 import { TranslatedReferenceData } from './Translation';
+
 
 const AdderContainer = styled.div`
   display: grid;
@@ -95,10 +97,12 @@ export const MultiDiagnosisSelector = React.memo(
             suggester={icd10Suggester}
             value={selectedDiagnosisId}
             onChange={onDiagnosisChange}
-            label="Select diagnosis"
+            label={
+              <TranslatedText stringId="diagnosis.action.select" fallback="Select diagnosis" />
+            }
           />
           <Button variant="contained" onClick={onAdd} disabled={selectedDiagnoses.length >= limit}>
-            Add
+            <TranslatedText stringId="general.action.add" fallback="Add" />
           </Button>
         </AdderContainer>
         <DiagnosisList diagnoses={selectedDiagnoses} onRemove={onRemove} />
