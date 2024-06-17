@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import * as yup from 'yup';
 import { Box } from '@material-ui/core';
+import { DRUG_ROUTES_LABELS } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { foreignKey } from '../utils/validation';
 import { PrintPrescriptionModal } from '../components/PatientPrinting';
@@ -17,9 +18,8 @@ import {
   FormGrid,
   FormSubmitButton,
   NumberField,
-  SelectField,
   TextField,
-  getDateDisplay
+  getDateDisplay,
 } from '../components';
 import { MAX_AGE_TO_RECORD_WEIGHT, FORM_TYPES } from '../constants';
 import { TranslatedText } from '../components/Translation/TranslatedText';
@@ -29,22 +29,7 @@ import { getAgeDurationFromDate } from '../../../shared/src/utils/date';
 import { useQuery } from '@tanstack/react-query';
 import { useApi } from '../api';
 import { useSelector } from 'react-redux';
-
-const drugRouteOptions = [
-  { label: 'Dermal', value: 'dermal' },
-  { label: 'Ear', value: 'ear' },
-  { label: 'Eye', value: 'eye' },
-  { label: 'IM', value: 'intramuscular' },
-  { label: 'IV', value: 'intravenous' },
-  { label: 'Inhaled', value: 'inhaled' },
-  { label: 'Nasal', value: 'nasal' },
-  { label: 'Oral', value: 'oral' },
-  { label: 'Rectal', value: 'rectal' },
-  { label: 'S/C', value: 'subcutaneous' },
-  { label: 'Sublingual', value: 'sublingual' },
-  { label: 'Topical', value: 'topical' },
-  { label: 'Vaginal', value: 'vaginal' },
-];
+import { TranslatedSelectField } from '../components/Translation/TranslatedSelect';
 
 const validationSchema = readOnly =>
   !readOnly
@@ -241,8 +226,8 @@ export const MedicationForm = React.memo(
                 label={
                   <TranslatedText stringId="medication.route.label" fallback="Route of admission" />
                 }
-                component={SelectField}
-                options={drugRouteOptions}
+                component={TranslatedSelectField}
+                enumValues={DRUG_ROUTES_LABELS}
                 disabled={readOnly}
                 required={!readOnly}
                 prefix="medication.property.route"

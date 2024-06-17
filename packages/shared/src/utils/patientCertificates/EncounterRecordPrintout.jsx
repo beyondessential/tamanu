@@ -7,7 +7,7 @@ import { startCase } from 'lodash';
 import {
   ENCOUNTER_LABELS,
   NOTE_TYPE_LABELS,
-  DRUG_ROUTE_VALUE_TO_LABEL,
+  DRUG_ROUTES_LABELS,
   NOTE_TYPES,
 } from '@tamanu/constants';
 import { getDisplayDate } from './getDisplayDate';
@@ -105,7 +105,12 @@ const tableStyles = StyleSheet.create({
 });
 
 const Table = props => <View style={tableStyles.table} {...props} />;
-const Row = props => <View style={[tableStyles.row, props.width && { width: props.width, justifyContent: 'start' }]} {...props} />;
+const Row = props => (
+  <View
+    style={[tableStyles.row, props.width && { width: props.width, justifyContent: 'start' }]}
+    {...props}
+  />
+);
 const P = ({ style = {}, children }) => <Text style={[tableStyles.p, style]}>{children}</Text>;
 
 const Cell = ({ children, style = {} }) => (
@@ -214,15 +219,13 @@ const COLUMNS = {
     {
       key: 'requestDate',
       title: 'Request date',
-      accessor: ({ requestDate }) =>
-        requestDate ? formatShort(requestDate) : '--/--/----',
+      accessor: ({ requestDate }) => (requestDate ? formatShort(requestDate) : '--/--/----'),
       style: { width: '17.5%' },
     },
     {
       key: 'publishedDate',
       title: 'Published date',
-      accessor: ({ publishedDate }) =>
-        publishedDate ? formatShort(publishedDate) : '--/--/----',
+      accessor: ({ publishedDate }) => (publishedDate ? formatShort(publishedDate) : '--/--/----'),
       style: { width: '17.5%' },
     },
   ],
@@ -251,8 +254,7 @@ const COLUMNS = {
     {
       key: 'requestDate',
       title: 'Request date',
-      accessor: ({ requestedDate }) =>
-        requestedDate ? formatShort(requestedDate) : '--/--/----',
+      accessor: ({ requestedDate }) => (requestedDate ? formatShort(requestedDate) : '--/--/----'),
       style: { width: '20%' },
     },
     {
@@ -281,7 +283,7 @@ const COLUMNS = {
     {
       key: 'route',
       title: 'Route',
-      accessor: ({ route }) => DRUG_ROUTE_VALUE_TO_LABEL[route] || '',
+      accessor: ({ route }) => DRUG_ROUTES_LABELS[route] || '',
       style: { width: '12.5%' },
     },
     {
@@ -323,10 +325,14 @@ const DataTableHeading = ({ columns, title, width }) => {
         {columns.map(({ key, title, style }) => {
           if (Array.isArray(title)) {
             return (
-              <View key={key} style={[tableStyles.baseCell, { flexDirection: 'column', padding: 4 }, style]}>
+              <View
+                key={key}
+                style={[tableStyles.baseCell, { flexDirection: 'column', padding: 4 }, style]}
+              >
                 <P style={{ fontFamily: 'Helvetica-Bold' }}>{title[0]}</P>
                 <P>{title[1]}</P>
-              </View>);
+              </View>
+            );
           }
           return (
             <HeaderCell key={key} style={style}>
@@ -341,8 +347,8 @@ const DataTableHeading = ({ columns, title, width }) => {
 
 const DataTable = ({ data, columns, title, type }) => {
   let width = null;
-  if (type === "vitals" && columns.length <= 12) {
-    width = 138 + ((columns.length - 1) * 50) + 'px';
+  if (type === 'vitals' && columns.length <= 12) {
+    width = 138 + (columns.length - 1) * 50 + 'px';
   }
 
   return (
@@ -358,7 +364,7 @@ const DataTable = ({ data, columns, title, type }) => {
         </Row>
       ))}
     </Table>
-  )
+  );
 };
 
 const TableSection = ({ title, data, columns, type }) => {
@@ -460,7 +466,7 @@ export const EncounterRecordPrintout = ({
   clinicianText,
   vitalsData,
   recordedDates,
-  getVitalsColumn
+  getVitalsColumn,
 }) => {
   const { watermark, logo } = certificateData;
 
@@ -527,12 +533,16 @@ export const EncounterRecordPrintout = ({
           {[0, 12, 24, 36, 48].map(start => {
             return recordedDates.length > start ? (
               <Page size="A4" orientation="landscape" style={pageStyles.body}>
-                <TableSection title="Vitals" data={vitalsData} columns={getVitalsColumn(start)} type="vitals" />
+                <TableSection
+                  title="Vitals"
+                  data={vitalsData}
+                  columns={getVitalsColumn(start)}
+                  type="vitals"
+                />
                 <Footer />
               </Page>
-            ) : null
-          }
-          )}
+            ) : null;
+          })}
         </>
       ) : null}
     </Document>
