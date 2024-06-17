@@ -131,8 +131,17 @@ export const Routes = {
     PatientDetailsStack: {
       Index: '',
       AddPatientIssue: '',
-      EditPatient: '',
-      EditPatientAdditionalData: '',
+      ReminderContacts: '',
+      AddReminderContact: '',
+      ReminderContactQR: '',
+      Generic: {
+        EditPatient: '',
+        EditPatientAdditionalData: '',
+      },
+      Cambodia: {
+        EditPatient: '',
+        EditPatientAdditionalData: '',
+      },
     },
     PatientActions: '',
     ExportDataScreen: '',

@@ -100,7 +100,9 @@ triage.get(
           patients.sex as sex,
           patients.display_id as display_id,
           patients.date_of_birth as date_of_birth,
+          location.id AS location_id,
           location.name AS location_name,
+          location_group.id AS location_group_id,
           location_group.name AS location_group_name,
           complaint.name AS chief_complaint,
           planned_location_group.name AS planned_location_group_name,
@@ -124,7 +126,8 @@ triage.get(
           AND encounters.end_date IS NULL
           AND location.facility_id = :facility
           AND encounters.encounter_type IN (:triageEncounterTypes)
-        ORDER BY encounter_type IN (:seenEncounterTypes) ASC, ${sortKey} ${sortDirection} NULLS LAST, Coalesce(arrival_time,triage_time) ASC
+          AND encounters.deleted_at is null
+        ORDER BY encounter_type IN (:seenEncounterTypes) ASC, ${sortKey} ${sortDirection} NULLS LAST, Coalesce(arrival_time,triage_time) ASC 
       `,
       {
         model: Triage,

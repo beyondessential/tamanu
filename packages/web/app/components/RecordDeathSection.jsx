@@ -2,7 +2,7 @@ import React, { memo, useCallback, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useQueryClient } from '@tanstack/react-query';
 import styled from 'styled-components';
-import { Divider, Typography } from '@material-ui/core';
+import { Typography } from '@material-ui/core';
 import { Colors } from '../constants';
 import { useApi } from '../api';
 import { ConfirmModal } from './ConfirmModal';
@@ -33,17 +33,12 @@ const Content = styled.p`
   line-height: 18px;
 `;
 
-const ComponentDivider = styled(Divider)`
-  margin: 0 -${MODAL_PADDING_LEFT_AND_RIGHT}px 30px -${MODAL_PADDING_LEFT_AND_RIGHT}px;
-`;
-
 const customContent = (
   <div>
     <Content>
       Are you sure you want to revert the patient death record? This will not reopen any previously
       closed encounters.
     </Content>
-    <ComponentDivider />
   </div>
 );
 

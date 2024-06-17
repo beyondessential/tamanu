@@ -40,7 +40,14 @@ const fetchServers = async (): Promise<SelectOption[]> => {
 export const ServerSelector = ({ onChange, label, value, error }): ReactElement => {
   const [options, setOptions] = useState([]);
   const netInfo = useNetInfo();
-  const { setLanguageOptions, setLanguage, host, setHost } = useTranslation();
+  const {
+    language,
+    languageOptions,
+    setLanguageOptions,
+    setLanguage,
+    host,
+    setHost,
+  } = useTranslation();
 
   const updateHost = value => {
     onChange(value);
@@ -57,18 +64,22 @@ export const ServerSelector = ({ onChange, label, value, error }): ReactElement 
       const { languageNames, languagesInDb } = await response.json();
       if (languageNames.length > 0) {
         const languageDisplayNames = mapValues(keyBy(languageNames, 'language'), 'text');
-        const languageOptions = languagesInDb.map(({ language }) => {
+        const foundLanguageOptions = languagesInDb.map(({ language }) => {
           return {
             label: languageDisplayNames[language],
             value: language,
           };
         });
-        setLanguage(languageOptions[0].value);
-        setLanguageOptions(languageOptions);
+        // Check if a language is already selected, or the found language options differ
+        // to the currently loaded language options
+        if (!language || JSON.stringify(languageOptions) != JSON.stringify(foundLanguageOptions)) {
+          setLanguage(foundLanguageOptions[0].value);
+          setLanguageOptions(foundLanguageOptions);
+        }
       }
     };
     if (host) getOptions();
-  }, [host, setLanguage, setLanguageOptions]);
+  }, [language, languageOptions, host, setLanguage, setLanguageOptions]);
 
   useEffect(() => {
     (async (): Promise<void> => {
@@ -84,9 +95,7 @@ export const ServerSelector = ({ onChange, label, value, error }): ReactElement 
   }
 
   return (
-    <StyledView
-      style={{ zIndex: 9999 }}
-    >
+    <StyledView style={{ zIndex: 9999 }}>
       <Dropdown
         value={value}
         options={options}

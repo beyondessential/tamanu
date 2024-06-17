@@ -61,7 +61,7 @@ export const FamilyHistoryForm = ({
           label={<TranslatedText stringId="general.notes.label" fallback="Notes" />}
           component={TextField}
           multiline
-          rows={2}
+          minRows={2}
         />
         <FormSubmitCancelRow
           onConfirm={submitForm}
@@ -82,9 +82,16 @@ export const FamilyHistoryForm = ({
     }}
     formType={editedObject ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
     validationSchema={yup.object().shape({
-      diagnosisId: foreignKey('Diagnosis is required'),
+      diagnosisId: foreignKey().translatedLabel(
+        <TranslatedText stringId="general.diagnosis.label" fallback="Diagnosis" />,
+      ),
       practitionerId: optionalForeignKey(),
-      recordedDate: yup.date().required(),
+      recordedDate: yup
+        .date()
+        .required()
+        .translatedLabel(
+          <TranslatedText stringId="general.recordedDate.label" fallback="Date recorded" />,
+        ),
     })}
   />
 );

@@ -35,7 +35,7 @@ const getVaccinationDescription = (vaccineData, scheduledVaccine): string => {
   const vaccineDetails =
     scheduledVaccine.category === VaccineCategory.OTHER
       ? [vaccineData.vaccineName]
-      : [scheduledVaccine?.vaccine?.name, scheduledVaccine?.schedule];
+      : [scheduledVaccine?.vaccine?.name, scheduledVaccine?.doseLabel];
   return [prefixMessage, ...vaccineDetails].filter(Boolean).join(' ');
 };
 
@@ -85,6 +85,7 @@ export const NewVaccineTabComponent = ({
       const scheduledVaccineRecord = await models.ScheduledVaccine.findOne({
         where: { id: scheduledVaccineId },
       });
+
       const vaccineEncounter = await models.Encounter.getOrCreateCurrentEncounter(
         selectedPatient.id,
         user.id,
@@ -93,7 +94,10 @@ export const NewVaccineTabComponent = ({
           location: locationId,
           encounterType: EncounterType.Vaccination,
           endDate: getCurrentDateTimeString(),
-          reasonForEncounter: getVaccinationDescription(vaccineData, scheduledVaccineRecord),
+          reasonForEncounter: getVaccinationDescription(
+            vaccineData,
+            scheduledVaccineRecord ?? scheduledVaccine,
+          ),
         },
       );
 

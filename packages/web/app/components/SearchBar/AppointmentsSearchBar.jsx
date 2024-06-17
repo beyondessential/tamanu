@@ -1,9 +1,10 @@
 import React from 'react';
 import { startOfDay } from 'date-fns';
-import { CustomisableSearchBar } from './CustomisableSearchBar';
+import { CustomisableSearchBarWithPermissionCheck } from './CustomisableSearchBar';
 import {
   AutocompleteField,
   DateTimeField,
+  Field,
   LocalisedField,
   SearchField,
   SelectField,
@@ -17,7 +18,9 @@ export const AppointmentsSearchBar = ({ onSearch }) => {
   const locationGroupSuggester = useSuggester('facilityLocationGroup');
 
   return (
-    <CustomisableSearchBar
+    <CustomisableSearchBarWithPermissionCheck
+      verb="list"
+      noun="Appointment"
       title="Search appointments"
       onSearch={values => {
         const { firstName, lastName, displayId, ...queries } = values;
@@ -63,14 +66,9 @@ export const AppointmentsSearchBar = ({ onSearch }) => {
         component={AutocompleteField}
         suggester={locationGroupSuggester}
       />
-      <LocalisedField
+      <Field
         name="type"
-        label={
-          <TranslatedText
-            stringId="general.localisedField.type.label"
-            fallback="Appointment Type"
-          />
-        }
+        label={<TranslatedText stringId="appointment.type.label" fallback="Appointment type" />}
         component={SelectField}
         options={APPOINTMENT_TYPE_OPTIONS}
         size="small"
@@ -89,28 +87,25 @@ export const AppointmentsSearchBar = ({ onSearch }) => {
         size="small"
         prefix="appointment.property.status"
       />
-      <LocalisedField
+      <Field
         saveDateAsString
         name="after"
-        label={
-          <TranslatedText stringId="general.localisedField.after.label" fallback="Start from" />
-        }
+        label={<TranslatedText stringId="search.startFrom.label" fallback="Start from" />}
         component={DateTimeField}
       />
-      <LocalisedField
+      <Field
         saveDateAsString
         name="before"
-        label={<TranslatedText stringId="general.localisedField.before.label" fallback="Until" />}
+        label={<TranslatedText stringId="search.until.label" fallback="Until" />}
         component={DateTimeField}
       />
-      <LocalisedField
-        keepLetterCase
+      <Field
         label={
           <TranslatedText stringId="general.localisedField.displayId.label.short" fallback="NHN" />
         }
         name="displayId"
         component={SearchField}
       />
-    </CustomisableSearchBar>
+    </CustomisableSearchBarWithPermissionCheck>
   );
 };

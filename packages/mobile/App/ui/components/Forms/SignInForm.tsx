@@ -19,14 +19,13 @@ import { TextField } from '../TextField/TextField';
 import { SubmitButton } from './SubmitButton';
 import { ServerSelector } from '../ServerSelectorField/ServerSelector';
 import { TranslatedText } from '../Translations/TranslatedText';
+import { useTranslation } from '~/ui/contexts/TranslationContext';
 
 interface SignInFormModelValues {
   email: string;
   password: string;
   server: string;
 }
-
-const REQUIRED_VALIDATION_MESSAGE = '*Required';
 
 const ServerInfo = __DEV__
   ? ({ host }): ReactElement => {
@@ -48,6 +47,7 @@ export const SignInForm: FunctionComponent<any> = ({ onError, onSuccess }) => {
   const [existingHost, setExistingHost] = useState('');
   const passwordRef = useRef(null);
   const { signIn } = useAuth();
+  const { getTranslation, refreshTranslations } = useTranslation();
 
   const handleSignIn = useCallback(
     async (values: SignInFormModelValues) => {
@@ -58,6 +58,7 @@ export const SignInForm: FunctionComponent<any> = ({ onError, onSuccess }) => {
           return;
         }
         await signIn(values);
+        refreshTranslations();
 
         onSuccess();
       } catch (error) {
@@ -86,10 +87,12 @@ export const SignInForm: FunctionComponent<any> = ({ onError, onSuccess }) => {
       validateOnBlur={false}
       validationSchema={Yup.object().shape({
         email: Yup.string()
-          .email('Must be a valid email address')
-          .required(REQUIRED_VALIDATION_MESSAGE),
-        password: Yup.string().required(REQUIRED_VALIDATION_MESSAGE),
-        server: existingHost ? Yup.string() : Yup.string().required(REQUIRED_VALIDATION_MESSAGE),
+          .email(getTranslation('validation.rule.validEmail', 'Must be a valid email address'))
+          .required(getTranslation('validation.required.inline', '*Required')),
+        password: Yup.string().required(getTranslation('validation.required.inline', '*Required')),
+        server: existingHost
+          ? Yup.string()
+          : Yup.string().required(getTranslation('validation.required.inline', '*Required')),
       })}
       onSubmit={handleSignIn}
     >

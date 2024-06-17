@@ -3,13 +3,14 @@ import { useDispatch } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import { push } from 'connected-react-router';
 import { useEncounter } from '../contexts/Encounter';
-import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 import { LocationCell, LocationGroupCell } from './LocationCell';
 import { TriageWaitTimeCell } from './TriageWaitTimeCell';
 import { useLocalisation } from '../contexts/Localisation';
 import { reloadPatient } from '../store';
 import { TranslatedText } from './Translation/TranslatedText';
+import { TranslatedReferenceData } from './Translation';
+import { DataFetchingTableWithPermissionCheck } from './Table/DataFetchingTable';
 
 const ADMITTED_PRIORITY_COLOR = '#bdbdbd';
 
@@ -44,6 +45,13 @@ const useColumns = () => {
           fallback="Chief complaint"
         />
       ),
+      accessor: row => (
+        <TranslatedReferenceData
+          value={row.chiefComplaintId}
+          fallback={row.chiefCompaint}
+          category="triageReason"
+        />
+      ),
     },
     {
       key: 'displayId',
@@ -53,9 +61,7 @@ const useColumns = () => {
     },
     {
       key: 'patientName',
-      title: (
-        <TranslatedText stringId="patientList.triage.table.column.patient" fallback="Patient" />
-      ),
+      title: <TranslatedText stringId="general.patient.label" fallback="Patient" />,
       accessor: row => `${row.firstName} ${row.lastName}`,
     },
     {
@@ -77,7 +83,7 @@ const useColumns = () => {
     },
     {
       key: 'locationName',
-      title: <TranslatedText stringId="general.table.column.location" fallback="Location" />,
+      title: <TranslatedText stringId="general.location.label" fallback="Location" />,
       accessor: LocationCell,
     },
   ];
@@ -96,7 +102,9 @@ export const TriageTable = React.memo(() => {
   };
 
   return (
-    <DataFetchingTable
+    <DataFetchingTableWithPermissionCheck
+      verb="list"
+      noun="Triage"
       endpoint="triage"
       columns={columns}
       noDataMessage={

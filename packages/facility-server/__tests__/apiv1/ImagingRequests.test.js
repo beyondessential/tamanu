@@ -5,6 +5,7 @@ import {
   NOTE_RECORD_TYPES,
   NOTE_TYPES,
   REFERENCE_TYPES,
+  SETTINGS_SCOPES,
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
 import { createDummyEncounter, createDummyPatient } from '@tamanu/shared/demoData/patients';
@@ -378,16 +379,20 @@ describe('Imaging requests', () => {
     });
 
     const settings = await models.Setting.get('integrations.imaging');
-    await models.Setting.set('integrations.imaging', {
-      enabled: true,
-      provider: 'test',
-    });
+    await models.Setting.set(
+      'integrations.imaging',
+      {
+        enabled: true,
+        provider: 'test',
+      },
+      SETTINGS_SCOPES.GLOBAL,
+    );
 
     // act
     const result = await app.get(`/api/imagingRequest/${ir.id}`);
 
     // reset settings
-    await models.Setting.set('integrations.imaging', settings);
+    await models.Setting.set('integrations.imaging', settings, SETTINGS_SCOPES.GLOBAL);
 
     // assert
     expect(result).toHaveSucceeded();

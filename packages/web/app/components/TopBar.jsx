@@ -2,35 +2,20 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Toolbar, Typography } from '@material-ui/core';
-import { DateDisplay } from './DateDisplay';
+import { ENCOUNTER_TYPES } from '@tamanu/constants';
 import { Colors } from '../constants';
-import { LowerCase } from './Typography';
-import { TranslatedText } from './Translation/TranslatedText';
 
 // Default height of the top bar
-export const TOP_BAR_HEIGHT = 97;
+export const TOP_BAR_HEIGHT = 66;
 
 const TopBarHeading = styled(Typography)`
-  flex-grow: 1;
-  font-size: 24px;
-  font-weight: 500;
-  line-height: 32px;
+  flex: 1;
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 24px;
   letter-spacing: 0;
   color: ${props => props.theme.palette.text.primary};
   min-width: 250px;
-`;
-
-const SmallTopBarHeading = styled(TopBarHeading)`
-  font-size: 20px;
-  line-height: 28px;
-  margin-bottom: 2px;
-`;
-
-const TopBarSubHeading = styled(Typography)`
-  font-size: 16px;
-  line-height: 21px;
-  font-weight: 400;
-  color: ${props => props.theme.palette.text.secondary};
 `;
 
 const AppBar = styled.div`
@@ -40,37 +25,48 @@ const AppBar = styled.div`
   z-index: 9;
   flex-grow: 1;
   background-color: ${Colors.white};
-  padding: 16px 0;
-  border-bottom: 1px solid ${props => props.theme.palette.grey[400]};
-  border-bottom: 1px solid ${Colors.softOutline};
 `;
 
 const Bar = styled(Toolbar)`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding-left: 30px;
-  padding-right: 30px;
+  padding-left: 25px;
+  padding-right: 25px;
 `;
 
-export const TopBar = React.memo(({ title, subTitle, children, className }) => (
-  <AppBar className={className}>
+const Dot = styled.span`
+  height: 15px;
+  width: 15px;
+  background-color: ${props => props.color};
+  border-radius: 50%;
+  margin-right: 10px;
+  flex-shrink: 0;
+`;
+
+export const TopBar = React.memo(({ title, subTitle, children, className, encounterType }) => {
+  const dotColors = {
+    [ENCOUNTER_TYPES.ADMISSION]: Colors.safe,
+    [ENCOUNTER_TYPES.CLINIC]: '#F9BA5B', 
+    [ENCOUNTER_TYPES.TRIAGE]: Colors.orange,
+    [ENCOUNTER_TYPES.OBSERVATION]: Colors.orange, 
+    [ENCOUNTER_TYPES.EMERGENCY]: Colors.orange,       
+  };
+
+  return <AppBar className={className}>
     <Bar>
-      {subTitle ? (
-        <div>
-          <SmallTopBarHeading variant="h2">{title}</SmallTopBarHeading>
-          <TopBarSubHeading variant="h4">{subTitle}</TopBarSubHeading>
-        </div>
-      ) : (
-        title && <TopBarHeading variant="h1">{title}</TopBarHeading>
-      )}
+      {dotColors[encounterType] && <Dot color={dotColors[encounterType]}/>}
+      {title && <TopBarHeading variant="h3">
+        {title}
+        {subTitle && ` | ${subTitle}`}
+      </TopBarHeading>}
       {children}
     </Bar>
   </AppBar>
-));
+});
 
 TopBar.propTypes = {
-  title: PropTypes.string,
+  title: PropTypes.node,
   subTitle: PropTypes.string,
   className: PropTypes.string,
 };
@@ -105,28 +101,10 @@ const Container = styled.div`
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
-  flex: 1;
-  padding-left: 15px;
-  border-left: 1px solid ${Colors.softOutline};
-`;
-
-const Cell = styled.div`
-  display: flex;
-  align-items: flex-start;
-  padding-top: 4px;
-  padding-bottom: 4px;
-`;
-
-const Label = styled(Typography)`
-  font-size: 16px;
-  line-height: 21px;
-  color: ${props => props.theme.palette.text.tertiary};
-`;
-
-const Value = styled(Label)`
-  font-weight: 500;
-  color: ${props => props.theme.palette.text.secondary};
-  margin-left: 5px;
+  flex: 2;
+  flex-grow: 0;
+  padding-left: 5px;
+  justify-content: end;
 `;
 
 const StaticTopBar = styled(TopBar)`
@@ -134,37 +112,9 @@ const StaticTopBar = styled(TopBar)`
   z-index: 1;
 `;
 
-export const EncounterTopBar = ({ title, subTitle, encounter, children }) => (
-  <StaticTopBar title={title} subTitle={subTitle}>
+export const EncounterTopBar = ({ title, subTitle, children, encounter }) => (
+  <StaticTopBar title={title} subTitle={subTitle} encounterType={encounter.encounterType}>
     <Container>
-      <div>
-        <Cell>
-          <Label><TranslatedText stringId="encounter.arrivalDate.label" fallback="Arrival Date" />:</Label>
-          <Value>
-            <DateDisplay date={encounter.startDate} />
-          </Value>
-        </Cell>
-        <Cell>
-          <Label>
-            <TranslatedText
-              stringId="general.supervisingClinician.label"
-              fallback="Supervising :clinician"
-              replacements={{
-                clinician: (
-                  <LowerCase>
-                    <TranslatedText
-                      stringId="general.localisedField.clinician.label.short"
-                      fallback="Clinician"
-                    />
-                    :
-                  </LowerCase>
-                ),
-              }}
-            />
-          </Label>
-          <Value>{encounter.examiner?.displayName || 'Unknown'}</Value>
-        </Cell>
-      </div>
       {children}
     </Container>
   </StaticTopBar>

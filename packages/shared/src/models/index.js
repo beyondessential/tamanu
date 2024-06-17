@@ -12,6 +12,7 @@ export * from './PatientAdditionalData';
 export * from './PatientVRSData';
 export * from './PatientSecondaryId';
 export * from './PatientFacility';
+export * from './PatientContact';
 
 export * from './PatientFieldDefinitionCategory';
 export * from './PatientFieldDefinition';
@@ -37,6 +38,7 @@ export * from './Procedure';
 export * from './EncounterDiagnosis';
 export * from './EncounterMedication';
 export * from './LabRequest';
+export * from './LabRequestAttachment';
 export * from './LabTest';
 export * from './LabRequestLog';
 export * from './LabTestType';
@@ -83,7 +85,7 @@ export * from './UserLocalisationCache';
 export * from './Asset';
 export * from './Appointment';
 export * from './DocumentMetadata';
-export * from './PatientLetterTemplate';
+export * from './Template';
 
 export * from './OneTimeLogin';
 export * from './RefreshToken';

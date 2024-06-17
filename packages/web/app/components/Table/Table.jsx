@@ -25,6 +25,7 @@ import { ThemedTooltip } from '../Tooltip';
 import { ErrorBoundary } from '../ErrorBoundary';
 import { Paginator } from './Paginator';
 import { TranslatedText } from '../Translation/TranslatedText';
+import { get } from 'lodash';
 
 const preventInputCallback = e => {
   e.stopPropagation();
@@ -56,15 +57,6 @@ const DEFAULT_ROWS_PER_PAGE_OPTIONS = [10, 25, 50];
 const CenteredLoadingIndicatorContainer = styled.div`
   width: fit-content;
   margin: 1rem auto 0.5rem;
-`;
-
-const OptionRow = styled.div`
-  border-bottom: 1px solid ${Colors.outline};
-  display: flex;
-  flex-direction: row;
-  justify-content: flex-end;
-  font-size: 0.85rem;
-  padding: 0.7rem;
 `;
 
 const StyledTableRow = styled(TableRow)`
@@ -159,6 +151,7 @@ const StyledTableHead = styled(TableHead)`
       display: table;
       table-layout: fixed;
       width: 100%;
+      padding-right: 15px;
     `
       : ''}
   ${props =>
@@ -217,7 +210,7 @@ const Row = React.memo(
         const onChange = cellOnChange ? event => cellOnChange(event, key, rowIndex, data) : null;
         const value = accessor
           ? React.createElement(accessor, { refreshTable, onChange, ...data, rowIndex })
-          : data[key];
+          : get(data, key);
         const displayValue = value === 0 ? '0' : value;
         const backgroundColor = typeof cellColor === 'function' ? cellColor(data) : cellColor;
         return (
@@ -455,7 +448,7 @@ class TableComponent extends React.Component {
       hideHeader,
       fixedHeader,
       lazyLoading,
-      optionRow,
+      TableHeader,
       data,
       isLoading,
       noDataBackgroundColor,
@@ -476,7 +469,7 @@ class TableComponent extends React.Component {
             : Colors.outline
         }
       >
-        {optionRow && <OptionRow>{optionRow}</OptionRow>}
+        {TableHeader && TableHeader}
         <StyledTable
           $backgroundColor={data?.length || isLoading ? Colors.white : noDataBackgroundColor}
         >
@@ -516,7 +509,7 @@ TableComponent.propTypes = {
   data: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   errorMessage: PropTypes.string,
   hideHeader: PropTypes.bool,
-  noDataMessage: PropTypes.string,
+  noDataMessage: PropTypes.oneOfType([PropTypes.node, PropTypes.string]),
   isLoading: PropTypes.bool,
   count: PropTypes.number,
   onChangePage: PropTypes.func,

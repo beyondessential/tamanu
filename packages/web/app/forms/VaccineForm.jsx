@@ -16,12 +16,13 @@ import {
 } from './VaccineGivenForm';
 import { VaccineNotGivenForm } from './VaccineNotGivenForm';
 import { usePatientCurrentEncounter } from '../api/queries';
-import { useVaccinationSettings } from '../api/queries/useVaccinationSettings';
 import { useAuth } from '../contexts/Auth';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useLocalisation } from '../contexts/Localisation';
+import { useSettings } from '../contexts/Settings';
 import { usePatientData } from '../api/queries/usePatientData';
 import { isBefore, parse } from 'date-fns';
+import { TranslatedReferenceData } from '../components/Translation';
 
 const validateGivenElsewhereRequiredField = (status, givenElsewhere) =>
   (status === VACCINE_RECORDING_TYPES.GIVEN && !givenElsewhere) ||
@@ -80,35 +81,42 @@ export const NEW_RECORD_VACCINE_SCHEME_VALIDATION = BASE_VACCINE_SCHEME_VALIDATI
   }),
 });
 
+const getInitialCategory = (editMode, existingValues) => {
+  if (editMode)
+    return existingValues?.vaccineName ? VACCINE_CATEGORIES.OTHER : VACCINE_CATEGORIES.ROUTINE;
+  return existingValues?.category;
+};
+
 export const VaccineForm = ({
   onCancel,
   onSubmit,
   editMode = false,
-  currentVaccineRecordValues,
+  existingValues,
   patientId,
   getScheduledVaccines,
   vaccineRecordingType,
 }) => {
   const { getLocalisation } = useLocalisation();
-  const [vaccineOptions, setVaccineOptions] = useState([]);
-  const [category, setCategory] = useState(
-    currentVaccineRecordValues?.vaccineName ? VACCINE_CATEGORIES.OTHER : VACCINE_CATEGORIES.ROUTINE,
-  );
-  const [vaccineLabel, setVaccineLabel] = useState();
+  const { getSetting } = useSettings();
 
-  const { data: patientData } = usePatientData(patientId);
+  const [vaccineLabel, setVaccineLabel] = useState(existingValues?.vaccineLabel);
+  const [category, setCategory] = useState(getInitialCategory(editMode, existingValues));
+  const [vaccineOptions, setVaccineOptions] = useState([]);
+
+  const {
+    data: patientData,
+    isLoading: isLoadingPatientData,
+    error: patientDataError,
+  } = usePatientData(patientId);
   const {
     data: currentEncounter,
     isLoading: isLoadingCurrentEncounter,
     error: currentEncounterError,
   } = usePatientCurrentEncounter(patientId);
-  const {
-    data: vaccinationDefaults = {},
-    isLoading: isLoadingVaccinationDefaults,
-    error: vaccinationDefaultsError,
-  } = useVaccinationSettings(SETTING_KEYS.VACCINATION_DEFAULTS);
 
-  const selectedVaccine = useMemo(() => vaccineOptions.find(v => v.label === vaccineLabel), [
+  const vaccinationDefaults = getSetting(SETTING_KEYS.VACCINATION_DEFAULTS);
+
+  const selectedVaccine = useMemo(() => vaccineOptions.find(v => v.value === vaccineLabel), [
     vaccineLabel,
     vaccineOptions,
   ]);
@@ -125,7 +133,13 @@ export const VaccineForm = ({
         const availableScheduledVaccines = await getScheduledVaccines({ category });
         setVaccineOptions(
           availableScheduledVaccines.map(vaccine => ({
-            label: vaccine.label,
+            label: (
+              <TranslatedReferenceData
+                fallback={vaccine.label}
+                value={vaccine.id}
+                category="scheduledVaccine"
+              />
+            ),
             value: vaccine.label,
             schedules: vaccine.schedules,
           })),
@@ -136,15 +150,15 @@ export const VaccineForm = ({
     }
   }, [category, getScheduledVaccines, editMode]);
 
-  if (isLoadingCurrentEncounter || isLoadingVaccinationDefaults) {
+  if (isLoadingCurrentEncounter || isLoadingPatientData) {
     return <LoadingIndicator />;
   }
 
-  if (currentEncounterError || vaccinationDefaultsError) {
+  if (currentEncounterError || isLoadingPatientData) {
     return (
       <ErrorMessage
         title={<TranslatedText stringId="vaccine.loadError" fallback="Cannot load vaccine form" />}
-        errorMessage={currentEncounterError?.message || vaccinationDefaultsError?.message}
+        errorMessage={currentEncounterError?.message || patientDataError?.message}
       />
     );
   }
@@ -158,16 +172,18 @@ export const VaccineForm = ({
   const initialValues = !editMode
     ? {
         status: vaccineRecordingType,
+        vaccineLabel,
         category,
+        scheduledVaccineId: existingValues?.scheduledVaccineId,
         date: getCurrentDateTimeString(),
         locationGroupId: !currentEncounter
-          ? vaccinationDefaults.data?.locationGroupId
+          ? vaccinationDefaults?.locationGroupId
           : currentEncounter.location?.locationGroup?.id,
         locationId: !currentEncounter
-          ? vaccinationDefaults.data?.locationId
+          ? vaccinationDefaults?.locationId
           : currentEncounter.location?.id,
         departmentId: !currentEncounter
-          ? vaccinationDefaults.data?.departmentId
+          ? vaccinationDefaults?.departmentId
           : currentEncounter.department?.id,
         ...(vaccineRecordingType === VACCINE_RECORDING_TYPES.GIVEN
           ? VACCINE_GIVEN_INITIAL_VALUES
@@ -175,15 +191,16 @@ export const VaccineForm = ({
         patientData,
       }
     : {
-        ...currentVaccineRecordValues,
-        ...(currentVaccineRecordValues.circumstanceIds
-          ? { circumstanceIds: JSON.stringify(currentVaccineRecordValues.circumstanceIds) }
+        ...existingValues,
+        ...(existingValues.circumstanceIds
+          ? { circumstanceIds: JSON.stringify(existingValues.circumstanceIds) }
           : {}),
         patientData,
       };
 
   return (
     <Form
+      enableReinitialize
       onSubmit={async data => onSubmit({ ...data, category })}
       showInlineErrorsOnly
       initialValues={initialValues}
@@ -228,15 +245,19 @@ const VaccineFormComponent = ({
   initialValues,
   ...props
 }) => {
-  const { setCategory, setVaccineLabel, editMode } = props;
+  const [prevVaccineRecordingType, setPrevVaccineRecordingType] = useState(vaccineRecordingType);
+
+  const { setCategory, editMode } = props;
   useEffect(() => {
     // Reset the entire form values when switching between GIVEN and NOT_GIVEN tab
-    resetForm({ values: initialValues });
-    if (!editMode) {
-      setCategory(VACCINE_CATEGORIES.ROUTINE);
+    if (prevVaccineRecordingType !== vaccineRecordingType) {
+      resetForm({ values: initialValues });
+      if (!editMode) {
+        setCategory(VACCINE_CATEGORIES.ROUTINE);
+      } // we strictly only want to reset the form values when vaccineRecordingType is changed
     }
-    setVaccineLabel(null);
-    // we strictly only want to reset the form values when vaccineRecordingType is changed
+    // Keep track of the previous vaccineRecordingType - this avoids the form being reset on initial load
+    setPrevVaccineRecordingType(vaccineRecordingType);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [vaccineRecordingType]);
 
@@ -251,7 +272,7 @@ const VaccineFormComponent = ({
       setValues={setValues}
     />
   ) : (
-    <VaccineNotGivenForm {...props} resetForm={resetForm} submitForm={submitForm} />
+    <VaccineNotGivenForm {...props} resetForm={resetForm} submitForm={submitForm} values={values} />
   );
 };
 

@@ -20,10 +20,12 @@ export function testSingleResourceHandler(integrationName, requestHeaders = {}) 
         const patient = await Patient.create(
           fake(Patient, { dateOfDeath: getCurrentDateString() }),
         );
+
         const additionalData = await PatientAdditionalData.create({
           ...fake(PatientAdditionalData),
           patientId: patient.id,
         });
+
         await patient.reload();
 
         const path = `/api/integration/${integrationName}/Patient/${patient.id}`;

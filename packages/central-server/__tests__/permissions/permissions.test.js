@@ -1,11 +1,8 @@
 import { buildAbilityForTests } from '@tamanu/shared/permissions/buildAbility';
 import {
   getAbilityForUser,
-  getPermissionsForRoles,
   queryPermissionsForRoles,
 } from '@tamanu/shared/permissions/rolesToPermissions';
-import { permissionCache } from '@tamanu/shared/permissions/cache';
-import { fake } from '@tamanu/shared/test-helpers/fake';
 import { createTestContext } from '../utilities';
 import { makeRoleWithPermissions } from '../permissions';
 
@@ -24,6 +21,12 @@ describe('Permissions', () => {
       makeRoleWithPermissions(ctx.store.models, 'reader', [
         { verb: 'read', noun: 'Patient' },
         { verb: 'run', noun: 'Report', objectId: 'report-allowed' },
+        {
+          verb: 'run',
+          noun: 'Report',
+          objectId: 'report-allowed-but-revoked',
+          deletedAt: new Date(),
+        },
       ]),
       makeRoleWithPermissions(ctx.store.models, 'writer', [{ verb: 'write', noun: 'Patient' }]),
     ]);
@@ -64,6 +67,7 @@ describe('Permissions', () => {
       expect(ability.cannot('write', { type: 'Patient' }));
       expect(ability.can('run', { type: 'Report', id: 'report-allowed' }));
       expect(ability.cannot('run', { type: 'Report', id: 'report-forbidden' }));
+      expect(ability.cannot('run', { type: 'Report', id: 'report-allowed-but-revoked' }));
     });
 
     it('should read a permission definition object across multiple roles', async () => {
@@ -72,6 +76,7 @@ describe('Permissions', () => {
       expect(ability.can('write', { type: 'Patient' }));
       expect(ability.can('run', { type: 'Report', id: 'report-allowed' }));
       expect(ability.cannot('run', { type: 'Report', id: 'report-forbidden' }));
+      expect(ability.cannot('run', { type: 'Report', id: 'report-allowed-but-revoked' }));
     });
   });
 
@@ -110,46 +115,6 @@ describe('Permissions', () => {
       const ability = await getAbilityForUser(ctx.store.models, adminApp.user);
       const hasPermission = ability.can('fakeVerb', 'FakeNoun');
       expect(hasPermission).toBe(true);
-    });
-  });
-
-  describe('Updating permissions', () => {
-    const addNewPermission = async (method = p => ctx.store.models.Permission.create(p)) => {
-      const { Patient } = ctx.store.models;
-      const patient = await Patient.create(fake(Patient));
-      await method({
-        roleId: 'writer',
-        noun: 'Patient',
-        verb: 'write',
-        objectId: patient.id,
-      });
-    };
-
-    it('should reset the permission cache on a single update', async () => {
-      // Arrange
-      await addNewPermission();
-      await getPermissionsForRoles(ctx.store.models, 'writer');
-      expect(permissionCache.isEmpty()).toBe(false);
-
-      // Act
-      await addNewPermission();
-
-      // Assert
-      expect(permissionCache.isEmpty()).toBe(true);
-    });
-
-    it('should reset the permission cache on a bulk update', async () => {
-      // Arrange
-      const { Permission } = ctx.store.models;
-      await addNewPermission();
-      await getPermissionsForRoles(ctx.store.models, 'writer');
-      expect(permissionCache.isEmpty()).toBe(false);
-
-      // Act
-      await addNewPermission(p => Permission.bulkCreate([p]));
-
-      // Assert
-      expect(permissionCache.isEmpty()).toBe(true);
     });
   });
 });

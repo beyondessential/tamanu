@@ -2,15 +2,28 @@ import { snake } from 'case';
 
 const SCHEMA = 'sync_snapshots';
 
-// includes a safety check for using in raw sql rather than via sequelize query building
-export const getSnapshotTableName = sessionId => {
+const assertIfSessionIdIsSafe = sessionId => {
   const safeIdRegex = /^[A-Za-z0-9-]+$/;
   if (!safeIdRegex.test(sessionId)) {
     throw new Error(
       `${sessionId} does not match the expected format of a session id - be careful of SQL injection!`,
     );
   }
+};
+
+// includes a safety check for using in raw sql rather than via sequelize query building
+export const getSnapshotTableName = sessionId => {
+  assertIfSessionIdIsSafe(sessionId);
+
   return `"${SCHEMA}"."${sessionId}"`;
+};
+
+export const getMarkedForSyncPatientsTableName = (sessionId, isFullSync) => {
+  assertIfSessionIdIsSafe(sessionId);
+
+  return `"${SCHEMA}"."${sessionId}_${
+    isFullSync ? 'full_sync' : 'regular_sync'
+  }_marked_for_sync_patients"`;
 };
 
 export const createSnapshotTable = async (sequelize, sessionId) => {
@@ -39,6 +52,18 @@ export const dropSnapshotTable = async (sequelize, sessionId) => {
   const tableName = getSnapshotTableName(sessionId);
   await sequelize.query(`
     DROP TABLE IF EXISTS ${tableName};
+  `);
+};
+
+export const dropMarkedForSyncPatientsTable = async (sequelize, sessionId) => {
+  const fullSyncMarkedForSyncPatientsTableName = getMarkedForSyncPatientsTableName(sessionId, true);
+  const regularSyncMarkedForSyncPatientsTableName = getMarkedForSyncPatientsTableName(
+    sessionId,
+    false,
+  );
+  await sequelize.query(`
+    DROP TABLE IF EXISTS ${fullSyncMarkedForSyncPatientsTableName};
+    DROP TABLE IF EXISTS ${regularSyncMarkedForSyncPatientsTableName};
   `);
 };
 

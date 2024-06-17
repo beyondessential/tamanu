@@ -11,7 +11,9 @@ import {
   SearchField,
   SelectField,
 } from '../Field';
-import { CustomisableSearchBar } from './CustomisableSearchBar';
+import {
+  CustomisableSearchBarWithPermissionCheck,
+} from './CustomisableSearchBar';
 import { useLocalisation } from '../../contexts/Localisation';
 import { useSuggester } from '../../api';
 import { useImagingRequests } from '../../contexts/ImagingRequests';
@@ -51,7 +53,9 @@ export const ImagingRequestsSearchBar = ({ memoryKey, statuses = [], advancedFie
   }));
 
   return (
-    <CustomisableSearchBar
+    <CustomisableSearchBarWithPermissionCheck
+      verb="list"
+      noun="ImagingRequest"
       showExpandButton
       isExpanded={showAdvancedFields}
       setIsExpanded={setShowAdvancedFields}
@@ -88,14 +92,9 @@ export const ImagingRequestsSearchBar = ({ memoryKey, statuses = [], advancedFie
             suggester={areaSuggester}
             size="small"
           />
-          <LocalisedField
+          <Field
             name="departmentId"
-            label={
-              <TranslatedText
-                stringId="general.localisedField.departmentId.label"
-                fallback="Department"
-              />
-            }
+            label={<TranslatedText stringId="general.department.label" fallback="Department" />}
             component={AutocompleteField}
             suggester={departmentSuggester}
             size="small"
@@ -122,7 +121,6 @@ export const ImagingRequestsSearchBar = ({ memoryKey, statuses = [], advancedFie
       }
     >
       <LocalisedField
-        keepLetterCase
         name="displayId"
         label={
           <TranslatedText stringId="general.localisedField.displayId.label.short" fallback="NHN" />
@@ -224,6 +222,6 @@ export const ImagingRequestsSearchBar = ({ memoryKey, statuses = [], advancedFie
           size="small"
         />
       )}
-    </CustomisableSearchBar>
+    </CustomisableSearchBarWithPermissionCheck>
   );
 };

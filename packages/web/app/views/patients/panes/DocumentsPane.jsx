@@ -1,18 +1,15 @@
-import React, { useCallback, useState, useEffect } from 'react';
-import { extension } from 'mime-types';
+import React, { useCallback, useState } from 'react';
 
-import { useApi } from '../../../api';
-import { notify, notifyError, notifySuccess } from '../../../utils';
 import { DocumentPreviewModal } from '../../../components/DocumentPreview';
 import { DocumentsTable } from '../../../components/DocumentsTable';
 import { DocumentModal } from '../../../components/DocumentModal';
 import { PatientLetterModal } from '../../../components/PatientLetterModal';
 import { DocumentsSearchBar } from '../../../components/DocumentsSearchBar';
 import { TabPane } from '../components';
-import { Button, ContentPane, OutlinedButton, TableButtonRow } from '../../../components';
+import { ButtonWithPermissionCheck, ContentPane, OutlinedButton, TableButtonRow } from '../../../components';
 import { useRefreshCount } from '../../../hooks/useRefreshCount';
-import { saveFile } from '../../../utils/fileSystemAccess';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
+import { useDocumentActions } from '../../../hooks/useDocumentActions';
 
 const MODAL_STATES = {
   DOCUMENT_OPEN: 'document',
@@ -21,18 +18,12 @@ const MODAL_STATES = {
   CLOSED: 'closed',
 };
 
-const base64ToUint8Array = base64 => {
-  const binString = atob(base64);
-  return Uint8Array.from(binString, m => m.codePointAt(0));
-};
-
 export const DocumentsPane = React.memo(({ encounter, patient }) => {
-  const api = useApi();
-  const [dataUrl, setDataUrl] = useState('');
   const [modalStatus, setModalStatus] = useState(MODAL_STATES.CLOSED);
   const [searchParameters, setSearchParameters] = useState({});
-  const [selectedDocument, setSelectedDocument] = useState(null);
+  const [selectedDocument, setSelectedDocument] = useState(undefined);
   const [refreshCount, updateRefreshCount] = useRefreshCount();
+  const { onDownload } = useDocumentActions();
 
   const isFromEncounter = !!encounter?.id;
 
@@ -40,89 +31,7 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
   const documentMetadataEndpoint = `${baseRoute}/documentMetadata`;
   const createPatientLetterEndpoint = `${baseRoute}/createPatientLetter`;
 
-  // In order to make sure we cleanup any iframes we create from printing, we need to
-  // trigger it in a useEffect with a cleanup function that wil remove the iframe
-  // when unmounted.
-  useEffect(() => {
-    if (!dataUrl) return () => {};
-
-    // create iframe & print when dataurl is loaded
-    const iframe = document.createElement('iframe');
-    iframe.style.display = 'none';
-    iframe.src = dataUrl;
-    document.body.appendChild(iframe);
-
-    iframe.onload = () => {
-      iframe.contentWindow.print();
-    };
-
-    return () => {
-      // cleanup iframe when leaving documents tab
-      document.body.removeChild(iframe);
-    };
-  }, [dataUrl]);
-
-  const onDownload = useCallback(
-    async document => {
-      try {
-        // Give feedback to user that download is starting
-        notify(
-          <TranslatedText
-            stringId='document.notification.downloadStart'
-            fallback='Your download has started, please wait.'
-          />, 
-          { type: 'info' }
-        );
-
-        // Download attachment (*currently the API only supports base64 responses)
-        const { data } = await api.get(`attachment/${document.attachmentId}`, {
-          base64: true,
-        });
-
-        await saveFile({
-          defaultFileName: document.name,
-          data: base64ToUint8Array(data),
-          extension: extension(document.type),
-          mimetype: document.type,
-        });
-
-        notifySuccess(
-          <TranslatedText
-            stringId='document.notification.downloadSuccess'
-            fallback='Successfully downloaded file'
-          />
-        );
-      } catch (error) {
-        notifyError(error.message);
-      }
-    },
-    [api],
-  );
-
-  const onPrintPDF = useCallback(
-    async attachmentId => {
-      try {
-        const { data } = await api.get(`attachment/${attachmentId}`, {
-          base64: true,
-        });
-        const url = URL.createObjectURL(
-          new Blob([Buffer.from(data, 'base64').buffer], { type: 'application/pdf' }),
-        );
-
-        // Setting/changing the dataUrl triggers the useEffect that handles printing logic
-        setDataUrl(url);
-      } catch (error) {
-        notifyError(error.message);
-      }
-    },
-    [api],
-  );
-
   const closeModal = useCallback(() => setModalStatus(MODAL_STATES.CLOSED), [setModalStatus]);
-  const downloadCurrent = useCallback(() => onDownload(selectedDocument), [
-    onDownload,
-    selectedDocument,
-  ]);
   const openDocumentPreview = useCallback(
     document => {
       setSelectedDocument(document);
@@ -143,14 +52,15 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
               fallback="Patient letter"
             />
           </OutlinedButton>
-          <Button onClick={() => setModalStatus(MODAL_STATES.DOCUMENT_OPEN)}>
+          <ButtonWithPermissionCheck verb="create" noun="DocumentMetadata" onClick={() => setModalStatus(MODAL_STATES.DOCUMENT_OPEN)}>
             <TranslatedText stringId="document.action.addDocument" fallback="Add document" />
-          </Button>
+          </ButtonWithPermissionCheck>
         </TableButtonRow>
         <DocumentsTable
           endpoint={documentMetadataEndpoint}
           searchParameters={searchParameters}
           refreshCount={refreshCount}
+          refreshTable={updateRefreshCount}
           onDownload={onDownload}
           openDocumentPreview={openDocumentPreview}
         />
@@ -172,9 +82,7 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
       <DocumentPreviewModal
         open={modalStatus === MODAL_STATES.DOCUMENT_PREVIEW_OPEN}
         onClose={closeModal}
-        document={selectedDocument ?? {}}
-        onDownload={downloadCurrent}
-        onPrintPDF={onPrintPDF}
+        document={selectedDocument}
       />
     </>
   );

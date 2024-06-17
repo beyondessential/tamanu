@@ -10,8 +10,7 @@ import { EmailButton } from '../../Email/EmailButton';
 import { useCertificate } from '../../../utils/useCertificate';
 import { usePatientAdditionalDataQuery } from '../../../api/queries';
 
-import { PDFViewer, printPDF } from '../PDFViewer';
-import { LoadingIndicator } from '../../LoadingIndicator';
+import { PDFLoader, printPDF } from '../PDFLoader';
 import { useCovidLabTestQuery } from '../../../api/queries/useCovidLabTestsQuery';
 
 export const CovidClearanceCertificateModal = React.memo(({ patient }) => {
@@ -53,26 +52,21 @@ export const CovidClearanceCertificateModal = React.memo(({ patient }) => {
       onClose={() => setOpen(false)}
       width="md"
       printable
-      keepMounted
       onPrint={() => printPDF('clearance-certificate')}
       additionalActions={<EmailButton onEmail={createCovidTestCertNotification} />}
     >
-      {isLoading ? (
-        <LoadingIndicator />
-      ) : (
-        <PDFViewer id="clearance-certificate">
-          <CovidLabCertificate
-            patient={patientData}
-            labs={labTestsResponse.data}
-            watermarkSrc={watermark}
-            signingSrc={footerImg}
-            logoSrc={logo}
-            getLocalisation={getLocalisation}
-            printedBy={printedBy}
-            certType={CertificateTypes.clearance}
-          />
-        </PDFViewer>
-      )}
+      <PDFLoader isLoading={isLoading} id="clearance-certificate">
+        <CovidLabCertificate
+          patient={patientData}
+          labs={labTestsResponse?.data}
+          watermarkSrc={watermark}
+          signingSrc={footerImg}
+          logoSrc={logo}
+          getLocalisation={getLocalisation}
+          printedBy={printedBy}
+          certType={CertificateTypes.clearance}
+        />
+      </PDFLoader>
     </Modal>
   );
 });

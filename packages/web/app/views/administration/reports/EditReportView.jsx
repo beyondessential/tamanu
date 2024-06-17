@@ -59,8 +59,6 @@ export const EditReportView = () => {
   };
 
   const handleSave = async ({ query, status, dbSchema, notes, ...queryOptions }) => {
-    delete queryOptions.name;
-
     const { dataSources } = queryOptions;
     const { reportDefinition } = version;
     const payload = {
@@ -98,7 +96,9 @@ export const EditReportView = () => {
 
   return (
     <Container>
-      <StyledButton onClick={handleBack}>Back</StyledButton>
+      <StyledButton onClick={handleBack}>
+        <TranslatedText stringId="general.action.back" fallback="Back" />
+      </StyledButton>
       {isLoading ? (
         <Box mt={2}>
           <LoadingIndicator height="400px" />
