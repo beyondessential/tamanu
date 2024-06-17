@@ -19,8 +19,9 @@ const calculateDiscountableItemsTotal = invoiceItems => {
   if (!invoiceItems?.length) return undefined;
   let total = 0;
   invoiceItems.forEach(item => {
-    if (!item.product?.price) return;
-    total += calculateInvoiceItemDiscountPrice(item.product?.price, item.discount?.percentage);
+    const price = item.product?.price ?? item.price;
+    if (!price) return;
+    total += calculateInvoiceItemDiscountPrice(price, item.discount?.percentage);
   });
 
   return total;
