@@ -8,7 +8,7 @@ import { IconButton } from '@material-ui/core';
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 import { LimitedLinesCell } from './FormattedTableCell';
-import { TranslatedText } from './Translation/TranslatedText';
+import { TranslatedText, TranslatedReferenceData } from './Translation';
 
 import { DeleteDocumentModal } from '../views/patients/components/DeleteDocumentModal';
 import { MenuButton } from './MenuButton';
@@ -41,7 +41,13 @@ const getAttachmentType = ({ type }) => {
 
 const getUploadedDate = ({ documentUploadedAt }) =>
   documentUploadedAt ? <DateDisplay date={documentUploadedAt} /> : '';
-const getDepartmentName = ({ department }) => department?.name || '';
+const getDepartmentName = ({ department }) => department
+  ? <TranslatedReferenceData
+    fallback={department.name}
+    value={department.id}
+    category="department"
+  />
+  : ''
 
 export const DocumentsTable = React.memo(
   ({

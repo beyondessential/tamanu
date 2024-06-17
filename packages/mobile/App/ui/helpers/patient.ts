@@ -1,5 +1,15 @@
-import { differenceInWeeks, parseISO } from 'date-fns';
 import { IPatientAdditionalData } from '~/types';
+
+export const PATIENT_DATA_FIELDS = {
+  FIRST_NAME: 'firstName',
+  LAST_NAME: 'lastName',
+  DATE_OF_BIRTH: 'dateOfBirth',
+  SEX: 'sex',
+  CULTURAL_NAME: 'culturalName',
+  EMAIL: 'email',
+  VILLAGE_ID: 'villageId',
+  MIDDLE_NAME: 'middleName',
+};
 
 export enum VaccineStatus {
   UNKNOWN = 'UNKNOWN',
@@ -19,100 +29,6 @@ export enum VaccineCategory {
   CATCHUP = 'Catchup',
   ROUTINE = 'Routine',
   OTHER = 'Other',
-}
-
-export function getWeeksFromDate(date: string): number {
-  return differenceInWeeks(new Date(), parseISO(date));
-}
-
-type VaccineStatusMessage = {
-  status: VaccineStatus;
-  warningMessage?: string;
-};
-
-function getVaccineStatusForWeeksFromBirthDue(weeksUntilDue): VaccineStatusMessage {
-  if (weeksUntilDue === null) {
-    return { status: VaccineStatus.UNKNOWN };
-  }
-  if (weeksUntilDue < -4) {
-    return {
-      status: VaccineStatus.MISSED,
-      warningMessage: `Patient has missed this vaccine by ${Math.abs(
-        weeksUntilDue,
-      )} weeks, please refer to the catchup schedule.`,
-    };
-  }
-  if (weeksUntilDue < 0) {
-    return { status: VaccineStatus.OVERDUE };
-  }
-  if (weeksUntilDue <= 2) {
-    return { status: VaccineStatus.DUE };
-  }
-  if (weeksUntilDue > 4) {
-    return {
-      status: VaccineStatus.SCHEDULED,
-      warningMessage: `This patient is not due to receive this vaccine for ${weeksUntilDue} weeks.`,
-    };
-  }
-  if (weeksUntilDue > 2) {
-    return {
-      status: VaccineStatus.UPCOMING,
-    };
-  }
-
-  return { status: VaccineStatus.UNKNOWN };
-}
-
-function getVaccineStatusForWeeksFromLastVaccinationDue(
-  weeksUntilGapPeriodPassed,
-  previouslyAdministeredVaccine,
-): VaccineStatusMessage {
-  if (!previouslyAdministeredVaccine) {
-    return {
-      status: VaccineStatus.SCHEDULED,
-      warningMessage: `This patient has not received the previous dose of this vaccine.`,
-    };
-  }
-  if (weeksUntilGapPeriodPassed > 0) {
-    return {
-      status: VaccineStatus.SCHEDULED,
-      warningMessage: `This patient is not due to receive this vaccine for ${weeksUntilGapPeriodPassed} weeks.`,
-    };
-  }
-
-  return { status: VaccineStatus.UNKNOWN };
-}
-
-export function getVaccineStatus(
-  scheduledVaccine,
-  patient,
-  administeredVaccines,
-): VaccineStatusMessage {
-  const { weeksFromBirthDue, weeksFromLastVaccinationDue, index, vaccine: drug } = scheduledVaccine;
-  const previouslyAdministeredVaccine =
-    administeredVaccines &&
-    administeredVaccines.find(vaccine => {
-      const previousVaccine = vaccine.scheduledVaccine.index === index - 1;
-      const matchingDrug = vaccine.scheduledVaccine.vaccine.id === drug.id;
-
-      return previousVaccine && matchingDrug && weeksFromLastVaccinationDue;
-    });
-  const weeksUntilDue = weeksFromBirthDue - getWeeksFromDate(patient.dateOfBirth);
-  // returns NaN if previouslyAdministeredVaccine is null, 0 if weeksFromLastVaccinationDue is null,
-  // or the amount of weeks until the amount of weeks required between vaccines has passed.
-  const weeksUntilGapPeriodPassed =
-    weeksFromLastVaccinationDue - getWeeksFromDate(previouslyAdministeredVaccine?.date);
-
-  if (weeksFromBirthDue) return getVaccineStatusForWeeksFromBirthDue(weeksUntilDue);
-  if (weeksFromLastVaccinationDue) {
-    return getVaccineStatusForWeeksFromLastVaccinationDue(
-      weeksUntilGapPeriodPassed,
-      previouslyAdministeredVaccine,
-      index,
-    );
-  }
-
-  return { status: VaccineStatus.UNKNOWN };
 }
 
 const generators = {
@@ -141,9 +57,18 @@ export const getFieldData = (data: IPatientAdditionalData, fieldName: string): s
   return data?.[fieldName];
 };
 
-export const getConfiguredPatientAdditionalDataFields = (fields, showMandatory, getBool) => {
+export const getConfiguredPatientAdditionalDataFields = (
+  fields: string[],
+  showMandatory: boolean,
+  getLocalisation,
+) => {
+  const localisedFields = Object.keys(getLocalisation('fields'));
+
   return fields.filter(fieldName => {
-    const requiredPatientData = getBool(`fields.${fieldName}.requiredPatientData`);
-    return !!requiredPatientData === showMandatory;
+    if (localisedFields.includes(fieldName)) {
+      const requiredPatientData = getLocalisation(`fields.${fieldName}.requiredPatientData`);
+      return !!requiredPatientData === showMandatory;
+    }
+    return true;
   });
 };

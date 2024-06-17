@@ -15,13 +15,17 @@ export const ChangeDepartmentForm = ({ onCancel, departmentSuggester, onSubmit }
   const renderForm = ({ submitForm }) => (
     <FormGrid columns={1}>
       <Field
-        label="Department"
+        label={<TranslatedText stringId="general.department.label" fallback="Department" />}
         name="departmentId"
         component={AutocompleteField}
         suggester={departmentSuggester}
         required
       />
-      <FormSubmitCancelRow onConfirm={submitForm} confirmText="Save" onCancel={onCancel} />
+      <FormSubmitCancelRow
+        onConfirm={submitForm}
+        confirmText={<TranslatedText stringId="general.action.save" fallback="Save" />}
+        onCancel={onCancel}
+      />
     </FormGrid>
   );
 

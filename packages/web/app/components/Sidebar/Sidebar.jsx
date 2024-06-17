@@ -15,7 +15,7 @@ import { SecondarySidebarItem } from './SecondarySidebarItem';
 import { checkAbility } from '../../utils/ability';
 import { useAuth } from '../../contexts/Auth';
 import { useApi } from '../../api';
-import { TranslatedText } from '../Translation/TranslatedText';
+import { TranslatedText, TranslatedReferenceData } from '../Translation';
 import { KebabMenu } from './KebabMenu';
 
 const Container = styled.div`
@@ -279,7 +279,16 @@ export const Sidebar = React.memo(({ items }) => {
                 <UserName>{currentUser?.displayName}</UserName>
                 <Box display="flex" justifyContent="space-between">
                   <ConnectedTo>
-                    {roleName} <br /> {facility?.name ? facility.name : centralHost}
+                    {roleName} <br />{' '}
+                    {facility?.name ? (
+                      <TranslatedReferenceData
+                        fallback={facility.name}
+                        value={facility.id}
+                        category="facility"
+                      />
+                    ) : (
+                      centralHost
+                    )}
                   </ConnectedTo>
                 </Box>
               </StyledUserInfoContent>

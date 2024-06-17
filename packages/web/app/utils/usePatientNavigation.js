@@ -1,7 +1,7 @@
 import { push } from 'connected-react-router';
 import { useDispatch } from 'react-redux';
 import { generatePath, matchPath, useLocation, useParams } from 'react-router-dom';
-import { PATIENT_PATHS } from '../constants/patientPaths';
+import { PATIENT_CATEGORIES, PATIENT_PATHS } from '../constants/patientPaths';
 
 export const usePatientNavigation = () => {
   const dispatch = useDispatch();
@@ -15,7 +15,7 @@ export const usePatientNavigation = () => {
       path,
       exact: false,
       strict: false,
-    })?.params;
+    })?.params ?? {};
 
   const navigateToCategory = category => {
     navigate(
@@ -26,9 +26,10 @@ export const usePatientNavigation = () => {
   };
 
   const navigateToPatient = (patientId, search) => {
-    const existingParams = getParams(PATIENT_PATHS.CATEGORY);
+    const params = getParams(PATIENT_PATHS.CATEGORY);
+    const { category = PATIENT_CATEGORIES.ALL } = params;
     const patientRoute = generatePath(PATIENT_PATHS.PATIENT, {
-      ...existingParams,
+      category,
       patientId,
     });
     navigate(`${patientRoute}${search ? `?${new URLSearchParams(search)}` : ''}`);

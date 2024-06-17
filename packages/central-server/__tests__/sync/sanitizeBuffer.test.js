@@ -45,7 +45,8 @@ describe('sanitize binary data', () => {
             const result = await snapshotOutgoingChanges(
               { Asset },
               tock - 1,
-              [],
+              0,
+              true,
               syncSession.id,
               '',
               {

@@ -212,10 +212,10 @@ export const SurveyScreenComponent = Base.shape({
 export const ScheduledVaccine = Base.shape({
   category: yup.string().required(),
   label: yup.string().required(),
-  schedule: yup.string().required(),
-  weeksFromBirthDue: yup.number().when(['schedule', 'index'], {
-    is: (schedule, index) => {
-      if (!schedule.startsWith('Dose')) return false;
+  doseLabel: yup.string().required(),
+  weeksFromBirthDue: yup.number().when(['doseLabel', 'index'], {
+    is: (doseLabel, index) => {
+      if (!doseLabel.startsWith('Dose')) return false;
       return index > 1;
     },
     then: yup
@@ -225,9 +225,9 @@ export const ScheduledVaccine = Base.shape({
       }),
     otherwise: yup.number(),
   }),
-  weeksFromLastVaccinationDue: yup.number().when(['schedule', 'index'], {
-    is: (schedule, index) => {
-      if (!schedule.startsWith('Dose')) return false;
+  weeksFromLastVaccinationDue: yup.number().when(['doseLabel', 'index'], {
+    is: (doseLabel, index) => {
+      if (!doseLabel.startsWith('Dose')) return false;
       return index === 1;
     },
     then: yup
@@ -242,6 +242,7 @@ export const ScheduledVaccine = Base.shape({
   index: yup.number().required(),
   vaccineId: yup.string().required(),
   visibilityStatus,
+  sortIndex: yup.number().required(),
 });
 
 const ICD11_REGEX = /^([0-9A-HJ-NP-V]{1,4}(\.[0-9A-HJ-NP-V]{1,4})?|X[0-9A-HJ-NP-Z.]+)$/;
