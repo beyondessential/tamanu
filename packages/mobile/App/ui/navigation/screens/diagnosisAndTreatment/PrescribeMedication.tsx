@@ -69,7 +69,11 @@ export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): 
       <Formik
         onSubmit={onPrescribeMedication}
         validationSchema={Yup.object().shape({
-          quantity: Yup.number().required('Quantity is required'),
+          quantity: Yup.number()
+            .required()
+            .translatedLabel(
+              <TranslatedText stringId="medication.validation.quantity.path" fallback="Quantity" />,
+            ),
         })}
         initialValues={{}}
       >
@@ -152,9 +156,9 @@ export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): 
                 <StyledView marginBottom={screenPercentageToDP(0.605, Orientation.Height)}>
                   <SectionHeader h3>
                     <TranslatedText
-                    stringId="medication.form.notes.label"
-                    fallback="Prescription notes"
-                  />
+                      stringId="medication.form.notes.label"
+                      fallback="Prescription notes"
+                    />
                   </SectionHeader>
                 </StyledView>
                 <Field component={TextField} name="note" multiline />

@@ -17,8 +17,7 @@ const shouldPrefillDefaultValue = ({ initialValue, formType, hidden, defaultValu
 export const LocalisedField = ({ name, path = `fields.${name}`, label, ...props }) => {
   const { getLocalisation } = useLocalisation();
 
-  const { hidden, defaultValue, required = false } =
-    getLocalisation(path) || {};
+  const { hidden, defaultValue, required = false } = getLocalisation(path) || {};
   const { initialValues, status = {}, setFieldValue } = useFormikContext();
 
   const { formType } = status;
