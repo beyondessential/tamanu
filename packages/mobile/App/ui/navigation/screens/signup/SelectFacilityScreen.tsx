@@ -24,10 +24,6 @@ import { useBackend } from '~/ui/hooks';
 import { FacilitySelectField } from './FacilitySelectField';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 
-const selectFacilitySchema = Yup.object().shape({
-  facilityId: Yup.string().required(),
-});
-
 async function fetchFacilityOptions({ centralServer }) {
   // download all facility options from the server
   // (this only shows up on first login so we can't guarantee
@@ -70,20 +66,27 @@ export const SelectFacilityForm = ({ onSubmitForm }) => {
   );
 
   return (
-    <Form initialValues={{}} validationSchema={selectFacilitySchema} onSubmit={onSubmit}>
+    <Form
+      initialValues={{}}
+      validationSchema={Yup.object().shape({
+        facilityId: Yup.string()
+          .required()
+          .translatedLabel(
+            <TranslatedText stringId="general.facility.label" fallback="Facility" />,
+          ),
+      })}
+      onSubmit={onSubmit}
+    >
       {({ handleSubmit, isSubmitting }): ReactElement => (
         <StyledView marginTop={screenPercentageToDP(14.7, Orientation.Height)}>
           <StyledView justifyContent="space-around">
             <Field
               name="facilityId"
               component={FacilitySelectField}
-              label="Facility"
+              label={<TranslatedText stringId="general.facility.label" fallback="Facility" />}
               options={facilityOptions || []}
               placeholder={
-                <TranslatedText
-                  stringId="login.facility.placeholder"
-                  fallback="Select facility"
-                />
+                <TranslatedText stringId="login.facility.placeholder" fallback="Select facility" />
               }
             />
           </StyledView>

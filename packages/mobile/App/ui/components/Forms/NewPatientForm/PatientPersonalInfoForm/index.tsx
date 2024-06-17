@@ -96,11 +96,9 @@ const containsAdditionalData = values =>
 
 const FormComponent = ({ selectedPatient, setSelectedPatient, isEdit, children }): ReactElement => {
   const navigation = useNavigation();
-  const {
-    customPatientFieldValues,
-    patientAdditionalData,
-    loading,
-  } = usePatientAdditionalData(selectedPatient?.id);
+  const { customPatientFieldValues, patientAdditionalData, loading } = usePatientAdditionalData(
+    selectedPatient?.id,
+  );
 
   const createOrUpdateOtherPatientData = useCallback(async (values, patientId) => {
     const customPatientFieldDefinitions = await PatientFieldDefinition.findVisible({
@@ -110,7 +108,7 @@ const FormComponent = ({ selectedPatient, setSelectedPatient, isEdit, children }
         // category: { name: 'DESC' },
         name: 'DESC',
       },
-    })
+    });
 
     if (containsAdditionalData(values)) {
       await PatientAdditionalData.updateForPatient(patientId, values);
@@ -130,9 +128,7 @@ const FormComponent = ({ selectedPatient, setSelectedPatient, isEdit, children }
         ),
       ),
     );
-
   }, []);
-
 
   const onCreateNewPatient = useCallback(
     async (values, { resetForm }) => {
@@ -183,7 +179,7 @@ const FormComponent = ({ selectedPatient, setSelectedPatient, isEdit, children }
     [navigation, selectedPatient, setSelectedPatient, createOrUpdateOtherPatientData],
   );
 
-  const { getBool, getString, getLocalisation } = useLocalisation();
+  const { getBool, getLocalisation } = useLocalisation();
 
   return loading ? (
     <LoadingScreen />
@@ -191,7 +187,7 @@ const FormComponent = ({ selectedPatient, setSelectedPatient, isEdit, children }
     <FullView padding={10}>
       <Formik
         onSubmit={isEdit ? onEditPatient : onCreateNewPatient}
-        validationSchema={getPatientDetailsValidation(getBool, getString)}
+        validationSchema={getPatientDetailsValidation(getBool)}
         initialValues={getPatientInitialValues(
           isEdit,
           selectedPatient,
