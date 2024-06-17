@@ -9,11 +9,6 @@ import { TranslatedSelectField } from '../../components/Translation/TranslatedSe
 export const ImagingTypeField = ({ name = 'imagingType', required }) => {
   const { getLocalisation } = useLocalisation();
   const imagingTypes = getLocalisation('imagingTypes') || {};
-  const imagingTypeOptions = Object.entries(imagingTypes).map(([key, val]) => ({
-    label: val.label,
-    value: key,
-  }));
-
   return (
     <Field
       name={name}
@@ -24,7 +19,6 @@ export const ImagingTypeField = ({ name = 'imagingType', required }) => {
         />
       }
       component={TranslatedSelectField}
-      options={imagingTypeOptions}
       required={required}
       transformOptions={options =>
         options.filter(option =>
