@@ -4,6 +4,7 @@ import { extension } from 'mime-types';
 import { useApi } from '../api';
 import { notify, notifyError, notifySuccess } from '../utils';
 import { saveFile } from '../utils/fileSystemAccess';
+import { TranslatedText } from '../components';
 
 const base64ToUint8Array = base64 => {
   const binString = atob(base64);
@@ -40,7 +41,13 @@ export const useDocumentActions = () => {
     async document => {
       try {
         // Give feedback to user that download is starting
-        notify('Your download has started, please wait.', { type: 'info' });
+        notify(
+          <TranslatedText
+            stringId='document.notification.downloadStart'
+            fallback='Your download has started, please wait.'
+          />, 
+          { type: 'info' }
+        );
 
         // Download attachment (*currently the API only supports base64 responses)
         const { data } = await api.get(`attachment/${document.attachmentId}`, {
@@ -54,7 +61,12 @@ export const useDocumentActions = () => {
           mimetype: document.type,
         });
 
-        notifySuccess('Successfully downloaded file');
+        notifySuccess(
+          <TranslatedText
+            stringId='document.notification.downloadSuccess'
+            fallback='Successfully downloaded file'
+          />
+        );
       } catch (error) {
         notifyError(error.message);
       }
