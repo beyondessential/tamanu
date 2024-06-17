@@ -50,11 +50,7 @@ export const NotesPane = React.memo(({ encounter, readonly }) => {
               label: <TranslatedText stringId="general.select.all" fallback="All" />,
             },
             ...options.filter(
-              option =>
-                ![
-                  NOTE_TYPE_LABELS[NOTE_TYPES.CLINICAL_MOBILE],
-                  NOTE_TYPE_LABELS[NOTE_TYPES.SYSTEM],
-                ].includes(option.value),
+              option => ![NOTE_TYPES.CLINICAL_MOBILE, NOTE_TYPES.SYSTEM].includes(option.value),
             ),
           ]}
           isClearable={false}
