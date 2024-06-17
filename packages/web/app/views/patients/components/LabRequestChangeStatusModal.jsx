@@ -1,5 +1,5 @@
 import React from 'react';
-import { LAB_REQUEST_STATUSES } from '@tamanu/constants/labs';
+import { LAB_REQUEST_STATUSES, LAB_REQUEST_STATUS_LABELS } from '@tamanu/constants/labs';
 import * as yup from 'yup';
 
 import {
@@ -10,13 +10,27 @@ import {
   FormModal,
   FormSubmitCancelRow,
   SuggesterSelectField,
-  SelectField,
 } from '../../../components';
-import { 
-  FORM_TYPES, 
-  LAB_REQUEST_STATUS_OPTIONS as DEFAULT_LAB_REQUEST_STATUS_OPTIONS 
-} from '../../../constants';
+import { FORM_TYPES } from '../../../constants';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
+import { TranslatedSelectField } from '../../../components/Translation/TranslatedSelect';
+
+/**
+ * export const LAB_REQUEST_STATUS_OPTIONS = Object.values(LAB_REQUEST_STATUSES)
+  .filter(
+    status =>
+      ![
+        LAB_REQUEST_STATUSES.DELETED,
+        LAB_REQUEST_STATUSES.ENTERED_IN_ERROR,
+        LAB_REQUEST_STATUSES.CANCELLED,
+      ].includes(status),
+  )
+  .map(status => ({
+    label: LAB_REQUEST_STATUS_CONFIG[status].label,
+    value: status,
+  }));
+
+ */
 
 const validationSchema = yup.object().shape({
   status: yup
@@ -47,12 +61,6 @@ export const LabRequestChangeStatusModal = React.memo(
       onClose();
     };
 
-    const LAB_REQUEST_STATUS_OPTIONS = DEFAULT_LAB_REQUEST_STATUS_OPTIONS.filter(({ value }) => (
-        labRequest.status === LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED ||
-        value !== LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED
-      )
-    );
-
     return (
       <FormModal open={open} onClose={onClose} title="Change lab request status">
         <Form
@@ -66,8 +74,21 @@ export const LabRequestChangeStatusModal = React.memo(
               <Field
                 label="Status"
                 name="status"
-                options={LAB_REQUEST_STATUS_OPTIONS}
-                component={SelectField}
+                enumValues={LAB_REQUEST_STATUS_LABELS}
+                transformOptions={options =>
+                  options.filter(
+                    option =>
+                      (![
+                        LAB_REQUEST_STATUSES.DELETED,
+                        LAB_REQUEST_STATUSES.ENTERED_IN_ERROR,
+                        LAB_REQUEST_STATUSES.CANCELLED,
+                      ].includes(option.value) ||
+                        option.value === values.status) &&
+                      (labRequest.status === LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED ||
+                        option.value !== LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED),
+                  )
+                }
+                component={TranslatedSelectField}
                 required
                 prefix="lab.property.status"
               />
