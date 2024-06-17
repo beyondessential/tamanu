@@ -1,8 +1,10 @@
 import React from 'react';
 
-import { Field, SelectField } from '../../components';
+import { Field } from '../../components';
 import { useLocalisation } from '../../contexts/Localisation';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
+import { IMAGING_TYPES } from '@tamanu/constants';
+import { TranslatedSelectField } from '../../components/Translation/TranslatedSelect';
 
 export const ImagingTypeField = ({ name = 'imagingType', required }) => {
   const { getLocalisation } = useLocalisation();
@@ -12,8 +14,6 @@ export const ImagingTypeField = ({ name = 'imagingType', required }) => {
     value: key,
   }));
 
-  // enumRegistry todo: this actully could work - using the ImagingType enum from @tamanu/constants
-  // Then filter and map labels based on config
   return (
     <Field
       name={name}
@@ -23,9 +23,20 @@ export const ImagingTypeField = ({ name = 'imagingType', required }) => {
           fallback="Imaging type"
         />
       }
-      component={SelectField}
+      component={TranslatedSelectField}
       options={imagingTypeOptions}
       required={required}
+      transformOptions={options =>
+        options.filter(option =>
+          Object.keys(imagingTypes)
+            .includes(option.value)
+            .map(option => ({
+              ...option,
+              label: imagingTypes[option.value].label,
+            })),
+        )
+      }
+      enumValues={IMAGING_TYPES}
       prefix="imaging.property.type"
     />
   );
