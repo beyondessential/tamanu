@@ -5,6 +5,7 @@ import { usePatientNavigation } from '../utils/usePatientNavigation';
 
 import { ChangeDepartmentForm } from '../forms/ChangeDepartmentForm';
 import { FormModal } from './FormModal';
+import { TranslatedText } from './Translation/TranslatedText';
 
 export const ChangeDepartmentModal = React.memo(({ open, onClose }) => {
   const { navigateToEncounter } = usePatientNavigation();
@@ -22,7 +23,16 @@ export const ChangeDepartmentModal = React.memo(({ open, onClose }) => {
   );
 
   return (
-    <FormModal title="Change department" open={open} onClose={onClose}>
+    <FormModal
+      title={
+        <TranslatedText
+          stringId="patient.encounter.action.changeDepartment"
+          fallback="Change department"
+        />
+      }
+      open={open}
+      onClose={onClose}
+    >
       <ChangeDepartmentForm
         onSubmit={onSubmit}
         onCancel={onClose}

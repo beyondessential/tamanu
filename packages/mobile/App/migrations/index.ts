@@ -46,7 +46,11 @@ import { addVisibilityStatusForSurvey1713696066000 } from './1713696066000-addVi
 import { addScopeToSettingsTable1691115215000 } from './1691115215000-addScopeToSettingsTable';
 import { addHealthCenterIdToPatientAdditionalData1712277225000 } from './1712277225000-addHealthCenterIdToPatientAdditionalData';
 import { addDietIdForEncounter1713722796000 } from './1713722796000-addDietIdForEncounter';
+import { renameScheduledVaccineScheduleColumn1715647528000 } from './1715647528000-renameScheduledVaccineScheduleColumn';
+import { addSortColumnToScheduledVaccines1715658297000 } from './1715658297000-addSortColumnToScheduledVaccines';
 import { addReferenceDataRelationTable1714605577000 } from './1714605577000-addReferenceDataRelationTable';
+import { addSecondaryVillageIdToPatientAdditionalData1718236579000 } from './1718236579000-addSecondaryVillageIdToAdditionalPatientData';
+import { addMissedDeletedAtToTranslatedStringTable1718045677000 } from './1718045677000-addMissedDeletedAtToTranslatedStringTable';
 
 export const migrationList = [
   databaseSetup1661160427226,
@@ -96,5 +100,9 @@ export const migrationList = [
   addVisibilityStatusForSurvey1713696066000,
   addHealthCenterIdToPatientAdditionalData1712277225000,
   addDietIdForEncounter1713722796000,
+  renameScheduledVaccineScheduleColumn1715647528000,
+  addSortColumnToScheduledVaccines1715658297000,
   addReferenceDataRelationTable1714605577000,
+  addSecondaryVillageIdToPatientAdditionalData1718236579000,
+  addMissedDeletedAtToTranslatedStringTable1718045677000,
 ];
