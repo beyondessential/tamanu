@@ -6,7 +6,6 @@ export * from './encounters.js';
 export * from './forms.js';
 export * from './imaging.js';
 export * from './invoices.js';
-export * from './labs.js';
 export * from './misc.js';
 export * from './notes.js';
 export * from './patient.js';
