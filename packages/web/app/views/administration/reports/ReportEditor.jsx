@@ -12,7 +12,7 @@ import {
   REPORT_DB_SCHEMA_VALUES,
   REPORT_DEFAULT_DATE_RANGES_VALUES,
   REPORT_STATUSES_VALUES,
-  REPORT_STATUSES_LABELS,
+  REPORT_STATUS_LABELS,
 } from '@tamanu/constants/reports';
 import { Button, ButtonRow, Field, Form, TextField } from '../../../components';
 import { ParameterItem, ParameterList, SQLQueryEditor } from './components/editing';
@@ -170,7 +170,7 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit, setF
           name="status"
           component={TranslatedSelectField}
           isClearable={false}
-          enumValues={REPORT_STATUSES_LABELS}
+          enumValues={REPORT_STATUS_LABELS}
           prefix="report.property.status"
         />
         <Button

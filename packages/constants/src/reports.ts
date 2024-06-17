@@ -31,6 +31,11 @@ export const REPORT_VERSION_EXPORT_FORMATS = {
 
 export const REPORT_STATUSES = { DRAFT: 'draft', PUBLISHED: 'published' };
 
+export const REPORT_STATUS_LABELS = {
+  [REPORT_STATUSES.DRAFT]: 'Draft',
+  [REPORT_STATUSES.PUBLISHED]: 'Published',
+};
+
 export const REPORT_STATUSES_VALUES = Object.values(REPORT_STATUSES);
 
 export const REPORT_DEFAULT_DATE_RANGES = {

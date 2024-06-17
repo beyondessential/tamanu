@@ -3,12 +3,9 @@ import styled from 'styled-components';
 
 import { calculateInvoiceTotal } from '../utils';
 
-import {
-  ENCOUNTER_OPTIONS_BY_VALUE,
-  INVOICE_PAYMENT_STATUS_LABELS,
-  INVOICE_STATUS_COLORS,
-  INVOICE_STATUS_LABELS,
-} from '../constants';
+import { ENCOUNTER_OPTIONS_BY_VALUE, INVOICE_STATUS_COLORS } from '../constants';
+
+import { INVOICE_PAYMENT_STATUS_LABELS, INVOICE_STATUS_LABELS } from '@tamanu/constants';
 
 import { useApi } from '../api';
 import { DataFetchingTable } from './Table';
