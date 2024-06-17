@@ -17,6 +17,7 @@ import {
 } from './reports';
 import { TEMPLATE_TYPE_LABELS } from './templates';
 import { LAB_REQUEST_STATUS_LABELS } from './labs';
+import { ASSET_NAMES } from './importable';
 
 // This is a set of all the enums that are registered to be translatable.
 // This allows us to keep track of changes to existing enums or the additional
@@ -24,6 +25,7 @@ import { LAB_REQUEST_STATUS_LABELS } from './labs';
 export const enumRegistry = new Set([
   APPOINTMENT_STATUSES,
   APPOINTMENT_TYPES,
+  ASSET_NAMES,
   BIRTH_TYPE_LABELS,
   IMAGING_REQUEST_STATUS_LABELS,
   IMAGING_TYPES,
