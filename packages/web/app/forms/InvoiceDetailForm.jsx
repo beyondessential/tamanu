@@ -4,12 +4,7 @@ import * as yup from 'yup';
 import Collapse from '@material-ui/core/Collapse';
 import PrintIcon from '@material-ui/icons/Print';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
-import {
-  Colors,
-  ENCOUNTER_OPTIONS_BY_VALUE,
-  FORM_TYPES,
-  INVOICE_PAYMENT_STATUS_OPTIONS,
-} from '../constants';
+import { Colors, ENCOUNTER_OPTIONS_BY_VALUE, FORM_TYPES } from '../constants';
 import { foreignKey } from '../utils/validation';
 import { isInvoiceEditable } from '../utils';
 
@@ -22,6 +17,7 @@ import { Modal } from '../components/Modal';
 import { InvoiceDetailTable } from '../components/InvoiceDetailTable';
 import { MinusIconButton, PlusIconButton } from '../components';
 import { TranslatedText } from '../components/Translation/TranslatedText';
+import { INVOICE_PAYMENT_STATUSES } from '@tamanu/constants';
 
 const InvoiceDetailExpandRow = styled.div`
   margin-top: 20px;
@@ -159,7 +155,10 @@ export const InvoiceDetailForm = ({
               }
               required
               component={RadioField}
-              options={INVOICE_PAYMENT_STATUS_OPTIONS}
+              options={Object.entries(INVOICE_PAYMENT_STATUSES).map(([key, value]) => ({
+                value: key,
+                label: value,
+              }))}
             />
             <Field
               name="total"
