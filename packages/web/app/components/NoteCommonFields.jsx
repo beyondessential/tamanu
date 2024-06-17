@@ -10,7 +10,7 @@ import { useLocalisation } from '../contexts/Localisation';
 
 import { useSuggester } from '../api';
 import { DateDisplay } from './DateDisplay';
-import { Colors, noteTypes } from '../constants';
+import { Colors } from '../constants';
 import { FormGrid } from './FormGrid';
 import { TranslatedText } from './Translation/TranslatedText';
 import { TranslatedSelectField } from './Translation/TranslatedSelect';
@@ -48,22 +48,6 @@ export const StyledFormGrid = styled(FormGrid)`
   margin-top: 20px;
   margin-bottom: 20px;
 `;
-
-/**
- * If there's already a treatment plan note, don't allow users to add another one
- * @param {*} noteTypeCountByType
- * @returns
- */
-const getSelectableNoteTypes = noteTypeCountByType =>
-  noteTypes
-    .filter(x => !x.hideFromDropdown)
-    .map(x => ({
-      ...x,
-      isDisabled:
-        noteTypeCountByType &&
-        x.value === NOTE_TYPES.TREATMENT_PLAN &&
-        !!noteTypeCountByType[x.value],
-    }));
 
 const renderOptionLabel = ({ value, label }, noteTypeCountByType) => {
   return value === NOTE_TYPES.TREATMENT_PLAN && noteTypeCountByType[NOTE_TYPES.TREATMENT_PLAN] ? (
