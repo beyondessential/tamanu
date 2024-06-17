@@ -208,14 +208,12 @@ export const ImagingRequestForm = React.memo(
                 enumValues={IMAGING_TYPES}
                 component={TranslatedSelectField}
                 transformOptions={options =>
-                  options.filter(option =>
-                    Object.values(imagingTypes)
-                      .includes(option.value)
-                      .map(option => ({
-                        ...option,
-                        label: imagingTypes[option.value],
-                      })),
-                  )
+                  options
+                    .filter(option => Object.values(imagingTypes).includes(option.value))
+                    .map(option => ({
+                      ...option,
+                      label: imagingTypes[option.value],
+                    }))
                 }
                 prefix="imaging.property.type"
               />
