@@ -14,6 +14,11 @@ export const INVOICE_PAYMENT_STATUSES = {
   PAID: 'paid',
 };
 
+export const INVOICE_PAYMENT_STATUS_LABELS = {
+  [INVOICE_PAYMENT_STATUSES.UNPAID]: 'Unpaid',
+  [INVOICE_PAYMENT_STATUSES.PAID]: 'Paid',
+};
+
 export const INVOICE_LINE_TYPES = {
   PROCEDURE_TYPE: 'procedureType',
   IMAGING_TYPE: 'imagingType',

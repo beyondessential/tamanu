@@ -1,8 +1,7 @@
 import React from 'react';
 import { CustomisableSearchBar } from './CustomisableSearchBar';
-import { LocalisedField, SelectField } from '../Field';
-import { INVOICE_PAYMENT_STATUS_OPTIONS } from '../../constants';
-import { INVOICE_STATUS_LABELS } from '@tamanu/constants';
+import { LocalisedField } from '../Field';
+import { INVOICE_PAYMENT_STATUS_LABELS, INVOICE_STATUS_LABELS } from '@tamanu/constants';
 import { TranslatedText } from '../Translation/TranslatedText';
 import { TranslatedSelectField } from '../Translation/TranslatedSelect';
 
@@ -42,8 +41,8 @@ export const InvoicesSearchBar = React.memo(({ onSearch }) => (
           fallback="Payment status"
         />
       }
-      component={SelectField}
-      options={INVOICE_PAYMENT_STATUS_OPTIONS}
+      component={TranslatedSelectField}
+      enumValues={INVOICE_PAYMENT_STATUS_LABELS}
       prefix="invoice.property.paymentStatus"
     />
   </CustomisableSearchBar>
