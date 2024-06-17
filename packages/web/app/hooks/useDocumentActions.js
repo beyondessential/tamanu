@@ -1,10 +1,10 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { extension } from 'mime-types';
 
 import { useApi } from '../api';
 import { notify, notifyError, notifySuccess } from '../utils';
 import { saveFile } from '../utils/fileSystemAccess';
-import { TranslatedText } from '../components';
+import { useTranslation } from '../contexts/Translation'; 
 
 const base64ToUint8Array = base64 => {
   const binString = atob(base64);
@@ -14,6 +14,7 @@ const base64ToUint8Array = base64 => {
 export const useDocumentActions = () => {
   const api = useApi();
   const [dataUrl, setDataUrl] = useState('');
+  const { getTranslation } = useTranslation();
 
   // In order to make sure we cleanup any iframes we create from printing, we need to
   // trigger it in a useEffect with a cleanup function that wil remove the iframe
@@ -42,10 +43,10 @@ export const useDocumentActions = () => {
       try {
         // Give feedback to user that download is starting
         notify(
-          <TranslatedText
-            stringId='document.notification.downloadStart'
-            fallback='Your download has started, please wait.'
-          />, 
+          getTranslation(
+            'document.notification.downloadStart',
+            'Your download has started, please wait.'
+          ), 
           { type: 'info' }
         );
 
@@ -62,10 +63,10 @@ export const useDocumentActions = () => {
         });
 
         notifySuccess(
-          <TranslatedText
-            stringId='document.notification.downloadSuccess'
-            fallback='Successfully downloaded file'
-          />
+          getTranslation(
+            'document.notification.downloadSuccess',
+            'Successfully downloaded file'
+          )
         );
       } catch (error) {
         notifyError(error.message);
