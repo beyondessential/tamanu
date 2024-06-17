@@ -15,6 +15,7 @@ import {
   REPORT_DATE_RANGE_LABELS,
   REPORT_DB_SCHEMA_LABELS,
 } from './reports';
+import { TEMPLATE_TYPE_LABELS } from './templates';
 
 // This is a set of all the enums that are registered to be translatable.
 // This allows us to keep track of changes to existing enums or the additional
@@ -34,6 +35,7 @@ export const enumRegistry = new Set([
   REPORT_DATE_RANGE_LABELS,
   REPORT_DB_SCHEMA_LABELS,
   SEX_VALUES,
+  TEMPLATE_TYPE_LABELS,
   VACCINE_CATEGORIES,
   VACCINE_STATUS_LABELS,
 ]);
