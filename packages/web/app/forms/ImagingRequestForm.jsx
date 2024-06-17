@@ -18,7 +18,6 @@ import {
   Field,
   Form,
   ImagingPriorityField,
-  SelectField,
   TextField,
   TextInput,
   MultiselectField,
@@ -31,6 +30,8 @@ import { FormSeparatorLine } from '../components/FormSeparatorLine';
 import { FormSubmitDropdownButton } from '../components/DropdownButton';
 import { TranslatedText, TranslatedReferenceData } from '../components/Translation';
 import { useTranslation } from '../contexts/Translation';
+import { IMAGING_TYPES } from '@tamanu/constants';
+import { TranslatedSelectField } from '../components/Translation/TranslatedSelect';
 
 function getEncounterTypeLabel(type) {
   return ENCOUNTER_OPTIONS.find(x => x.value === type).label;
@@ -97,10 +98,6 @@ export const ImagingRequestForm = React.memo(
     const { getTranslation } = useTranslation();
     const { getLocalisation } = useLocalisation();
     const imagingTypes = getLocalisation('imagingTypes') || {};
-    const imagingTypeOptions = Object.entries(imagingTypes).map(([key, val]) => ({
-      label: val.label,
-      value: key,
-    }));
 
     const { examiner = {} } = encounter;
     const examinerLabel = examiner.displayName;
@@ -208,8 +205,18 @@ export const ImagingRequestForm = React.memo(
                   />
                 }
                 required
-                component={SelectField}
-                options={imagingTypeOptions}
+                enumValues={IMAGING_TYPES}
+                component={TranslatedSelectField}
+                transformOptions={options =>
+                  options.filter(option =>
+                    Object.values(imagingTypes)
+                      .includes(option.value)
+                      .map(option => ({
+                        ...option,
+                        label: imagingTypes[option.value],
+                      })),
+                  )
+                }
                 prefix="imaging.property.type"
               />
               {imagingAreas.length ? (
@@ -229,7 +236,6 @@ export const ImagingRequestForm = React.memo(
                     <TranslatedText stringId="imaging.areas.label" fallback="Areas to be imaged" />
                   }
                   component={MultiselectField}
-                  // enum registry TODO: Don't think should be here
                   prefix="imaging.property.area"
                 />
               ) : (
