@@ -25,7 +25,12 @@ export const PROGRAM_DATA_ELEMENT_TYPES = {
   PATIENT_DATA: 'PatientData',
   USER_DATA: 'UserData',
   PATIENT_ISSUE: 'PatientIssue',
+  COMPLEX_CHART_INSTANCE_NAME: 'ComplexChartInstanceName',
+  COMPLEX_CHART_DATE: 'ComplexChartDate',
+  COMPLEX_CHART_TYPE: 'ComplexChartType',
+  COMPLEX_CHART_SUBTYPE: 'ComplexChartSubtype',
 };
+
 export const PROGRAM_DATA_ELEMENT_TYPE_VALUES = Object.values(PROGRAM_DATA_ELEMENT_TYPES);
 
 export const NON_ANSWERABLE_DATA_ELEMENT_TYPES = [
