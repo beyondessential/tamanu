@@ -31,3 +31,6 @@ export const DRUG_ROUTE_LABELS = {
   [DRUG_ROUTES.topical]: 'Topical',
   [DRUG_ROUTES.vaginal]: 'Vaginal',
 };
+
+const MAX_REPEATS = 12;
+export const REPEATS_LABELS = Array.from({ length: MAX_REPEATS + 1 }, (_, i) => i);
