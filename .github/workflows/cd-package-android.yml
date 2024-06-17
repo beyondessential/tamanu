@@ -3,6 +3,7 @@ name: CD Package Android
 permissions:
   contents: write # to update the release notes
   id-token: write # OIDC token for AWS
+  pull-requests: write # to post apk link comment
 
 on:
   workflow_call:
@@ -40,7 +41,6 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-
       - uses: actions/checkout@v4
         with:
           ref: ${{ inputs.ref || github.ref }}
@@ -109,11 +109,52 @@ jobs:
         run:  ./gradlew app:assembleRelease
 
       - name: Upload final build
+        id: artifact-upload
         uses: actions/upload-artifact@v4
         with:
-          name: android-release
+          name: android-release-${{github.run_number}}
           path: packages/mobile/android/app/build/outputs/apk/release/app-release.apk
           retention-days: 7
+
+      - name: Post comment with release link
+        uses: actions/github-script@v7
+        env:
+          ARTIFACT_URL: ${{ steps.artifact-upload.outputs.artifact-url }}
+          BUILD_NUMBER: ${{ github.run_number }}
+        with:
+          script: |
+            const { ARTIFACT_URL, BUILD_NUMBER } = process.env;
+            const { repo, owner } = context.repo;
+            const { number: issue_number } = context.issue;
+            const params = {
+              issue_number,
+              owner,
+              repo,
+            };
+            const headerContent = "**Android builds 📱**";
+            const latestText = " **Latest**";
+            const comments = await github.rest.issues.listComments(params);
+            const existingComment = comments.data.find((comment) =>
+              comment.body.includes(headerContent)
+            );
+            if (existingComment) {
+              await github.rest.issues.updateComment({
+                ...params,
+                comment_id: existingComment.id,
+                body: existingComment.body
+                  .replace(latestText, "")
+                  .replace(
+                    headerContent,
+                    `${headerContent}\n- **${BUILD_NUMBER}:** [Download Android APK](${ARTIFACT_URL})${latestText}`
+                  ),
+              });
+            } else {
+              await github.rest.issues.createComment({
+                ...params,
+                body: `${headerContent}\n- **${BUILD_NUMBER}:** [Download Android APK](${ARTIFACT_URL})${latestText}`,
+              });
+            }
+
 
       - name: Set S3 destination
         id: destination
@@ -154,5 +195,4 @@ jobs:
           append_body: true
           body: |
             ## Mobile app 📱
-
-            - [Android](https://clients.ops.tamanu.io/${{ steps.destination.outputs.result }}/android/${{inputs.branding}}/${{env.APK_NAME}})
+            - [Android](https://clients.ops.tamanu.io/${{ steps.destination.outputs.result }}/android/${{inputs.branding}}/app-release.apk)

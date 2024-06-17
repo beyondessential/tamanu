@@ -122,7 +122,7 @@ describe('VDS: Proof of Vaccination', () => {
     const scheduledAz = await ScheduledVaccine.create({
       ...fake(ScheduledVaccine),
       label: 'COVID-19 AZ',
-      schedule: 'Dose 1',
+      doseLabel: 'Dose 1',
       vaccineId: data.azVaxDrug.id,
     });
 
@@ -226,21 +226,21 @@ describe('VDS: Proof of Vaccination', () => {
     const scheduledPf1 = await ScheduledVaccine.create({
       ...fake(ScheduledVaccine),
       label: 'COVID-19 Pfizer',
-      schedule: 'Dose 1',
+      doseLabel: 'Dose 1',
       vaccineId: data.pfVaxDrug.id,
     });
 
     const scheduledPf2 = await ScheduledVaccine.create({
       ...fake(ScheduledVaccine),
       label: 'COVID-19 Pfizer',
-      schedule: 'Dose 2',
+      doseLabel: 'Dose 2',
       vaccineId: data.pfVaxDrug.id,
     });
 
     const scheduledAz3 = await ScheduledVaccine.create({
       ...fake(ScheduledVaccine),
       label: 'COVID-19 AZ',
-      schedule: 'Dose 3',
+      doseLabel: 'Dose 3',
       vaccineId: data.azVaxDrug.id,
     });
 

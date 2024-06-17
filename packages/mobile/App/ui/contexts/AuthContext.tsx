@@ -40,6 +40,7 @@ interface AuthContextData {
   requestResetPassword: (params: ResetPasswordFormModel) => void;
   resetPasswordLastEmailUsed: string;
   changePassword: (params: ChangePasswordFormModel) => void;
+  settings: object;
 }
 
 const AuthContext = createContext<AuthContextData>({} as AuthContextData);
@@ -58,6 +59,7 @@ const Provider = ({
   const backend = useContext(BackendContext);
   const checkFirstSession = (): boolean => props.isFirstTime;
   const [user, setUserData] = useState<User>();
+  const [settings, setSettings] = useState({});
   const [ability, setAbility] = useState(null);
   const [resetPasswordLastEmailUsed, setResetPasswordLastEmailUsed] = useState('');
   const [preventSignOutOnFailure, setPreventSignOutOnFailure] = useState(false);
@@ -102,8 +104,9 @@ const Provider = ({
   };
 
   const remoteSignIn = async (params: SyncConnectionParameters): Promise<void> => {
-    const { user: usr, token, refreshToken } = await backend.auth.remoteSignIn(params);
+    const { user: usr, settings, token, refreshToken } = await backend.auth.remoteSignIn(params);
     setToken(token);
+    setSettings(settings);
     setRefreshToken(refreshToken);
     signInAs(usr);
   };
@@ -141,12 +144,14 @@ const Provider = ({
     if (!signUpRoutes.includes(currentRoute)) {
       navRef.current?.reset({
         index: 0,
-        routes: [{
-          name: Routes.SignUpStack.Index,
-          params: {
-            signedOutFromInactivity,
+        routes: [
+          {
+            name: Routes.SignUpStack.Index,
+            params: {
+              signedOutFromInactivity,
+            },
           },
-        }],
+        ],
       });
     }
   };
@@ -162,7 +167,6 @@ const Provider = ({
 
   // start a session if there's a stored token
   useEffect(() => {
-
     if (props.token && props.user) {
       backend.auth.startSession(props.token, props.refreshToken);
     } else {
@@ -184,7 +188,7 @@ const Provider = ({
       if (preventSignOutOnFailure) {
         // reset flag to prevent sign out being
         // skipped on subsequent failed authentications
-        setPreventSignOutOnFailure(true)
+        setPreventSignOutOnFailure(true);
       } else {
         signOut();
       }
@@ -208,6 +212,7 @@ const Provider = ({
         user,
         signedIn,
         ability,
+        settings,
         requestResetPassword,
         resetPasswordLastEmailUsed,
         changePassword,

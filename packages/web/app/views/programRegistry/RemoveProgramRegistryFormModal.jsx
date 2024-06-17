@@ -6,6 +6,7 @@ import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { ConfirmCancelRow, DateDisplay, FormSeparatorLine, Modal } from '../../components';
 import { Colors } from '../../constants';
 import { useApi } from '../../api';
+import { TranslatedReferenceData } from '../../components/Translation';
 import { PANE_SECTION_IDS } from '../../components/PatientInfoPane/paneSections';
 
 const WarningDiv = styled.div`
@@ -119,7 +120,11 @@ export const RemoveProgramRegistryFormModal = ({ patientProgramRegistration, onC
             <Value>
               {(patientProgramRegistration.registeringFacility
                 ? patientProgramRegistration.registeringFacility?.name
-                : patientProgramRegistration.facility?.name) || '-'}
+                : patientProgramRegistration.facility?.name && <TranslatedReferenceData
+                  fallback={patientProgramRegistration.facility.name}
+                  value={patientProgramRegistration.facility.id}
+                  category="facility"
+                />) || '-'}
             </Value>
           </Info>
         </InfoColumn>

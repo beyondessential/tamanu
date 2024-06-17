@@ -14,7 +14,7 @@ export const CambodiaContactFields = ({ filterByMandatory }) => {
       type: 'tel',
       label: (
         <TranslatedText
-          stringId="cambodiaPatientDetails.mothersContactNumber.label"
+          stringId="general.localisedField.primaryContactNumber.label"
           fallback="Mother's contact number"
         />
       ),
@@ -24,7 +24,7 @@ export const CambodiaContactFields = ({ filterByMandatory }) => {
       type: 'tel',
       label: (
         <TranslatedText
-          stringId="cambodiaPatientDetails.fathersContactNumber.label"
+          stringId="general.localisedField.secondaryContactNumber.label"
           fallback="Father's contact number"
         />
       ),
@@ -33,7 +33,7 @@ export const CambodiaContactFields = ({ filterByMandatory }) => {
       component: TextField,
       label: (
         <TranslatedText
-          stringId="cambodiaPatientDetails.guardiansName.label"
+          stringId="general.localisedField.emergencyContactName.label"
           fallback="Guardian's name"
         />
       ),
@@ -43,7 +43,7 @@ export const CambodiaContactFields = ({ filterByMandatory }) => {
       type: 'tel',
       label: (
         <TranslatedText
-          stringId="cambodiaPatientDetails.guardiansNumber.label"
+          stringId="general.localisedField.emergencyContactNumber.label"
           fallback="Guardian's number"
         />
       ),
@@ -52,7 +52,7 @@ export const CambodiaContactFields = ({ filterByMandatory }) => {
       component: AutocompleteField,
       label: (
         <TranslatedText
-          stringId="cambodiaPatientDetails.operationalDistrict.label"
+          stringId="general.localisedField.medicalAreaId.label"
           fallback="Operational district"
         />
       ),
@@ -62,7 +62,7 @@ export const CambodiaContactFields = ({ filterByMandatory }) => {
       component: AutocompleteField,
       label: (
         <TranslatedText
-          stringId="cambodiaPatientDetails.healthCenter.label"
+          stringId="general.localisedField.nursingZoneId.label"
           fallback="Health center"
         />
       ),

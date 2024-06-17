@@ -9,6 +9,7 @@ import { AutocompleteModalField } from '~/ui/components/AutocompleteModal/Autoco
 import { ReferenceDataType } from '~/types';
 import { Suggester } from '~/ui/helpers/suggester';
 import { useBackend } from '~/ui/hooks';
+import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 
 export const VillageSection = (): ReactElement => {
   const navigation = useNavigation();
@@ -24,6 +25,9 @@ export const VillageSection = (): ReactElement => {
   return (
     <StyledView marginLeft={20} marginRight={20}>
       <LocalisedField
+        label={
+          <TranslatedText stringId="general.localisedField.villageId.label" fallback="Village" />
+        }
         localisationPath="fields.villageId"
         labelFontSize={14}
         component={AutocompleteModalField}

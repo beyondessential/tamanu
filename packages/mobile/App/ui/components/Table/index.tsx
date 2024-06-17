@@ -24,11 +24,11 @@ export type TableCells<T> = {
 };
 
 interface TableProps {
-  Title: React.MemoExoticComponent<() => JSX.Element> | (() => JSX.Element);
+  Title?: React.MemoExoticComponent<() => JSX.Element> | (() => JSX.Element);
   cells: TableCells<any>;
   rows: TableRow[];
   columns: string[];
-  tableHeader: TableHeader;
+  tableHeader?: TableHeader;
   onPressItem?: (item: any) => void;
   scrollHandler?: (event: NativeSyntheticEvent<NativeScrollEvent>) => void;
 }
@@ -47,12 +47,7 @@ export const Table = ({
       {Title && <Title />}
       {rows.map((r, i) => r.rowHeader(i))}
     </StyledView>
-    <ScrollView
-      bounces={false}
-      showsHorizontalScrollIndicator
-      onScroll={scrollHandler}
-      horizontal
-    >
+    <ScrollView bounces={false} showsHorizontalScrollIndicator onScroll={scrollHandler} horizontal>
       <RowView>
         {columns.map((column: any) => (
           <StyledView key={`${column}`}>
