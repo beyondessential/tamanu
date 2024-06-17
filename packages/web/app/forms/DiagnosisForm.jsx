@@ -1,51 +1,20 @@
 import React from 'react';
 import * as yup from 'yup';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
-import { DIAGNOSIS_CERTAINTY, DIAGNOSIS_CERTAINTY_LABELS } from '@tamanu/constants';
+import {
+  DIAGNOSIS_CERTAINTY,
+  DIAGNOSIS_CERTAINTY_VALUES,
+  DIAGNOSIS_CERTAINTY_LABELS,
+} from '@tamanu/constants';
 import { foreignKey } from '../utils/validation';
-import { DIAGNOSIS_CERTAINTY_OPTIONS, FORM_TYPES } from '../constants';
+import { FORM_TYPES } from '../constants';
 
 import { FormSubmitCancelRow } from '../components/ButtonRow';
 import { FormGrid } from '../components/FormGrid';
-import {
-  AutocompleteField,
-  CheckField,
-  DateField,
-  Field,
-  Form,
-  SelectField,
-} from '../components/Field';
+import { AutocompleteField, CheckField, DateField, Field, Form } from '../components/Field';
 import { useSuggester } from '../api';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { TranslatedSelectField } from '../components/Translation/TranslatedSelect';
-
-/**
- * export const DIAGNOSIS_CERTAINTY_OPTIONS = [
-  {
-    value: DIAGNOSIS_CERTAINTY.EMERGENCY,
-    label: DIAGNOSIS_CERTAINTY_LABELS[DIAGNOSIS_CERTAINTY.EMERGENCY],
-    triageOnly: true,
-  },
-  {
-    value: DIAGNOSIS_CERTAINTY.SUSPECTED,
-    label: DIAGNOSIS_CERTAINTY_LABELS[DIAGNOSIS_CERTAINTY.SUSPECTED],
-  },
-  {
-    value: DIAGNOSIS_CERTAINTY.CONFIRMED,
-    label: DIAGNOSIS_CERTAINTY_LABELS[DIAGNOSIS_CERTAINTY.CONFIRMED],
-  },
-  {
-    value: DIAGNOSIS_CERTAINTY.DISPROVEN,
-    label: DIAGNOSIS_CERTAINTY_LABELS[DIAGNOSIS_CERTAINTY.DISPROVEN],
-    editOnly: true,
-  },
-  {
-    value: DIAGNOSIS_CERTAINTY.ERROR,
-    label: DIAGNOSIS_CERTAINTY_LABELS[DIAGNOSIS_CERTAINTY.ERROR],
-    editOnly: true,
-  },
-];
- */
 
 const TRIAGE_ONLY = [DIAGNOSIS_CERTAINTY.EMERGENCY];
 const EDIT_ONLY = [DIAGNOSIS_CERTAINTY.DISPROVEN, DIAGNOSIS_CERTAINTY.ERROR];
@@ -55,10 +24,10 @@ export const DiagnosisForm = React.memo(
     const isEdit = !!diagnosis?.id;
     // don't show the "ED Diagnosis" option if we're just on a regular encounter
     // (unless we're editing a diagnosis with ED certainty already set)
-    const certaintyOptions = DIAGNOSIS_CERTAINTY_OPTIONS.filter(x => {
-      if (x.editOnly && !(diagnosis && diagnosis.id)) return false;
-      if (x.triageOnly && !isTriage) return false;
-      return true;
+    const certaintyOptions = DIAGNOSIS_CERTAINTY_VALUES.filter(x => {
+      if (isTriage && TRIAGE_ONLY.includes(x.value)) return true;
+      if (isEdit && EDIT_ONLY.includes(x.value)) return true;
+      return !EDIT_ONLY.includes(x.value);
     });
     const defaultCertainty = certaintyOptions[0].value;
 
