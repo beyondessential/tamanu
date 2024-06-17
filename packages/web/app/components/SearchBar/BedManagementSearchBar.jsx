@@ -2,13 +2,15 @@ import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { Button } from '@material-ui/core';
 import { useSuggester } from '../../api';
-import { Colors, LOCATION_AVAILABILITY_OPTIONS } from '../../constants';
+import { Colors } from '../../constants';
 import { HandoverNotesIcon } from '../../assets/icons/HandoverNotesIcon';
-import { AutocompleteField, LocalisedField, SelectField } from '../Field';
+import { AutocompleteField, LocalisedField } from '../Field';
 import { HandoverNotesModal } from '../BedManagement/HandoverNotesModal';
 import { CustomisableSearchBar } from './CustomisableSearchBar';
 import { ThemedTooltip } from '../Tooltip';
 import { TranslatedText } from '../Translation/TranslatedText';
+import { LOCATION_AVAILABILITY_STATUS_LABELS } from '@tamanu/constants';
+import { TranslatedSelectField } from '../Translation/TranslatedSelect';
 
 const HandoverNotesButton = styled(Button)`
   font-weight: 500;
@@ -99,8 +101,9 @@ export const BedManagementSearchBar = React.memo(({ onSearch, searchParameters }
             <TranslatedText stringId="general.localisedField.status.label" fallback="Status" />
           }
           size="small"
-          component={SelectField}
-          options={LOCATION_AVAILABILITY_OPTIONS}
+          component={TranslatedSelectField}
+          transformOptions={options => [{ value: '', label: 'All' }, ...options]}
+          options={LOCATION_AVAILABILITY_STATUS_LABELS}
           prefix="bedManagement.property.status"
         />
       </CustomisableSearchBar>

@@ -26,6 +26,7 @@ import { ASSET_NAMES } from './importable';
 import { DIAGNOSIS_CERTAINTY_LABELS, PATIENT_ISSUE_LABELS } from './diagnoses';
 import { DRUG_ROUTE_LABELS, REPEATS_LABELS } from './medications';
 import { PLACE_OF_DEATHS } from './deaths';
+import { LOCATION_AVAILABILITY_STATUS_LABELS } from 'locations';
 
 // This is a set of all the enums that are registered to be translatable.
 // This allows us to keep track of changes to existing enums or the additional
@@ -41,10 +42,11 @@ export const enumRegistry = new Set([
   IMAGING_TYPES,
   INJECTION_SITE_LABELS,
   INVOICE_LINE_TYPE_LABELS,
-  INVOICE_STATUS_LABELS,
   INVOICE_PAYMENT_STATUS_LABELS,
   INVOICE_PRICE_CHANGE_TYPE_LABELS,
+  INVOICE_STATUS_LABELS,
   LAB_REQUEST_STATUS_LABELS,
+  LOCATION_AVAILABILITY_STATUS_LABELS,
   NOTE_TYPE_LABELS,
   PATIENT_ISSUE_LABELS,
   PLACE_OF_DEATHS,
