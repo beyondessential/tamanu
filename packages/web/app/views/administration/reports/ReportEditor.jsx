@@ -7,6 +7,7 @@ import { Accordion, AccordionDetails, AccordionSummary, Grid } from '@material-u
 import {
   REPORT_DATA_SOURCE_VALUES,
   REPORT_DATA_SOURCE_LABELS,
+  REPORT_DEFAULT_DATE_RANGES_LABELS,
   REPORT_DB_SCHEMAS,
   REPORT_DEFAULT_DATE_RANGES_VALUES,
   REPORT_STATUSES_VALUES,
@@ -22,7 +23,10 @@ import { useApi } from '../../../api';
 import { FORM_TYPES } from '../../../constants';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { useTranslation } from '../../../contexts/Translation';
-import { TranslatedMultiSelectField } from '../../../components/Translation/TranslatedSelect';
+import {
+  TranslatedMultiSelectField,
+  TranslatedSelectField,
+} from '../../../components/Translation/TranslatedSelect';
 
 const StyledField = styled(Field)`
   flex-grow: 1;
@@ -35,11 +39,6 @@ const StatusField = styled(Field)`
 const STATUS_OPTIONS = REPORT_STATUSES_VALUES.map(status => ({
   label: capitalize(status),
   value: status,
-}));
-
-const DATE_RANGE_OPTIONS = REPORT_DEFAULT_DATE_RANGES_VALUES.map(value => ({
-  label: value,
-  value,
 }));
 
 const DB_SCHEMA_OPTIONS = Object.values(REPORT_DB_SCHEMAS).map(value => ({
@@ -95,9 +94,9 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit, setF
               />
             }
             name="defaultDateRange"
-            component={SelectField}
+            component={TranslatedSelectField}
             isClearable={false}
-            options={DATE_RANGE_OPTIONS}
+            enumValues={REPORT_DEFAULT_DATE_RANGES_LABELS}
             prefix="report.property.defaultDateRange"
           />
         </Grid>
@@ -232,7 +231,7 @@ export const ReportEditor = ({ initialValues, onSubmit, isEdit }) => {
           .required(),
         defaultDateRange: yup
           .string()
-          .oneOf(DATE_RANGE_OPTIONS.map(o => o.value))
+          .oneOf(REPORT_DEFAULT_DATE_RANGES_VALUES)
           .required(),
         dbSchema: yup
           .string()
