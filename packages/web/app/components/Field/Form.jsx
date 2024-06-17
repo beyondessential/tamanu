@@ -14,18 +14,21 @@ import { IS_DEVELOPMENT } from '../../utils/env';
 import { TranslatedText } from '../Translation/TranslatedText';
 
 const ErrorMessage = ({ error }) => {
-  if (isValidElement(error)) return error
+  if (isValidElement(error)) return error;
   return `${JSON.stringify(error)}`;
 };
 
 const FormErrors = ({ errors }) => {
   const allErrors = flattenObject(errors);
 
-  return Object.entries(allErrors).map(([name, error]) => (
-    <Typography key={name} variant="subtitle2">
-      <ErrorMessage error={error} />
-    </Typography>
-  ));
+  return Object.entries(allErrors).map(
+    ([name, error]) =>
+      error && (
+        <Typography key={name} variant="subtitle2">
+          <ErrorMessage error={error} />
+        </Typography>
+      ),
+  );
 };
 
 const ScrollToError = () => {

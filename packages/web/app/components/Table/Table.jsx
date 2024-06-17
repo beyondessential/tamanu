@@ -142,7 +142,7 @@ const StyledTableCell = styled(TableCell)`
   &:last-child {
     padding-right: 20px;
   }
-  ${props => props.$cellStyle ? props.$cellStyle : ''}
+  ${props => (props.$cellStyle ? props.$cellStyle : '')}
 `;
 
 const StyledTable = styled(MaterialTable)`
@@ -176,7 +176,7 @@ const StyledTableHead = styled(TableHead)`
     background: ${props => (props.$headerColor ? props.$headerColor : Colors.background)};
     ${props => (props.$fixedHeader ? 'top: 0; position: sticky;' : '')}
   }
-  ${props => props.$headStyle ? props.$headStyle : ''}
+  ${props => (props.$headStyle ? props.$headStyle : '')}
 `;
 
 const StyledTableFooter = styled(TableFooter)`
@@ -199,8 +199,13 @@ const HeaderContainer = React.memo(({ children, numeric }) => (
   <StyledTableCell align={numeric ? 'right' : 'left'}>{children}</StyledTableCell>
 ));
 
-const RowContainer = React.memo(({ children, lazyLoading, rowStyle, onClick }) => (
-  <StyledTableRow onClick={onClick} $rowStyle={rowStyle} $lazyLoading={lazyLoading}>
+const RowContainer = React.memo(({ children, lazyLoading, rowStyle, onClick, className }) => (
+  <StyledTableRow
+    className={className}
+    onClick={onClick}
+    $rowStyle={rowStyle}
+    $lazyLoading={lazyLoading}
+  >
     {children}
   </StyledTableRow>
 ));
@@ -211,24 +216,33 @@ const StatusTableCell = styled(StyledTableCell)`
     ${props => (props.$color ? `color: ${props.$color};` : '')}
     border-bottom: none;
   }
-  ${props => props.$statusCellStyle ? props.$statusCellStyle : ''}
+  ${props => (props.$statusCellStyle ? props.$statusCellStyle : '')}
 `;
 
 const Row = React.memo(
-  ({ rowIndex, columns, data, onClick, cellOnChange, lazyLoading, rowStyle, refreshTable, cellStyle, onClickRow }) => {
+  ({
+    rowIndex,
+    columns,
+    data,
+    onClick,
+    cellOnChange,
+    lazyLoading,
+    rowStyle,
+    refreshTable,
+    cellStyle,
+    onClickRow,
+  }) => {
     const cells = columns.map(
       ({ key, accessor, CellComponent, numeric, maxWidth, cellColor, dontCallRowInput }) => {
         const onChange = cellOnChange ? event => cellOnChange(event, key, rowIndex, data) : null;
         const passingData = { refreshTable, onChange, ...data, rowIndex };
-        const value = accessor
-          ? React.createElement(accessor, passingData)
-          : get(data, key);
+        const value = accessor ? React.createElement(accessor, passingData) : get(data, key);
         const displayValue = value === 0 ? '0' : value;
         const backgroundColor = typeof cellColor === 'function' ? cellColor(data) : cellColor;
         return (
           <StyledTableCell
             key={key}
-            onClick={dontCallRowInput ? preventInputCallback : (e) => onClickRow(e, passingData)}
+            onClick={dontCallRowInput ? preventInputCallback : e => onClickRow(e, passingData)}
             background={backgroundColor}
             $cellStyle={cellStyle}
             align={numeric ? 'right' : 'left'}
@@ -272,9 +286,14 @@ const DisplayValue = React.memo(({ maxWidth, displayValue }) => {
   );
 });
 
-const StatusRow = React.memo(({ colSpan, children, textColor, statusCellStyle }) => (
-  <RowContainer>
-    <StatusTableCell $color={textColor} colSpan={colSpan} align="center" $statusCellStyle={statusCellStyle}>
+const StatusRow = React.memo(({ className, colSpan, children, textColor, statusCellStyle }) => (
+  <RowContainer className={className}>
+    <StatusTableCell
+      $color={textColor}
+      colSpan={colSpan}
+      align="center"
+      $statusCellStyle={statusCellStyle}
+    >
       {children}
     </StatusTableCell>
   </RowContainer>
@@ -371,13 +390,13 @@ class TableComponent extends React.Component {
       isLoadingMore,
       cellStyle,
       statusCellStyle,
-      onClickRow
+      onClickRow,
     } = this.props;
 
     const status = this.getStatusMessage();
     if (status) {
       return (
-        <StatusRow colSpan={columns.length} statusCellStyle={statusCellStyle}>
+        <StatusRow className='statusRow' colSpan={columns.length} statusCellStyle={statusCellStyle}>
           {errorMessage ? <ErrorSpan>{status}</ErrorSpan> : status}
         </StatusRow>
       );
@@ -474,7 +493,7 @@ class TableComponent extends React.Component {
       containerStyle,
       isBodyScrollable,
       headStyle,
-      inlineTitle
+      inlineTitle,
     } = this.props;
 
     return (

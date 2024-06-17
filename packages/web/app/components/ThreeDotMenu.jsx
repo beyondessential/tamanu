@@ -27,6 +27,7 @@ const StyledMenu = styled(Menu)`
 
 const StyledIconButton = styled(IconButton)`
   margin-left: auto;
+  padding: 7px;
 `;
 
 export const ThreeDotMenu = ({ items }) => {

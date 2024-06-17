@@ -2,14 +2,14 @@ import React from 'react';
 import * as yup from 'yup';
 import { Divider } from '@material-ui/core';
 import styled from 'styled-components';
-import { Modal } from '../Modal';
-import { TranslatedText } from '../Translation';
-import { InvoiceItemDetailsCard } from '../InvoiceItemDetailsCard';
-import { INVOICE_ACTION_MODALS } from '../../constants';
-import { Field, Form, NumberField, TextField } from '../Field';
-import { FormGrid } from '../FormGrid';
-import { useTranslation } from '../../contexts/Translation';
-import { ConfirmCancelRowField } from '../VaccineCommonFields';
+import { Modal } from '../../Modal';
+import { TranslatedText } from '../../Translation';
+import { InvoiceItemCard } from './InvoiceItemCard';
+import { INVOICE_ITEM_ACTION_MODAL_TYPES } from '../../../constants';
+import { Field, Form, NumberField, TextField } from '../../Field';
+import { FormGrid } from '../../FormGrid';
+import { useTranslation } from '../../../contexts/Translation';
+import { ConfirmCancelRowField } from '../../VaccineCommonFields';
 
 const StyledDivider = styled(Divider)`
   margin: 26px -32px 32px -32px;
@@ -18,11 +18,16 @@ const StyledDivider = styled(Divider)`
 const DiscountForm = () => {
   const { getTranslation } = useTranslation();
 
+  const preventInvalid = event => {
+    if (!event.target.validity.valid) {
+      event.target.value = '';
+    }
+  };
+
   return (
     <FormGrid columns={3}>
       <Field
-        component={NumberField}
-        min={0}
+        name="percentage"
         label={
           <TranslatedText
             stringId="invoice.modal.addDiscountInvoiceItem.discount.label"
@@ -33,12 +38,15 @@ const DiscountForm = () => {
           'invoice.modal.addDiscountInvoiceItem.discount.placeholder',
           'e.g 10',
         )}
-        name="percentageChange"
+        component={NumberField}
         required
+        min={0}
+        max={100}
+        onInput={preventInvalid}
         style={{ gridColumn: '1 / 1' }}
       />
       <Field
-        name="discountMarkupReason"
+        name="reason"
         label={
           <TranslatedText
             stringId="invoice.modal.addDiscountInvoiceItem.discountReason.label"
@@ -55,11 +63,16 @@ const DiscountForm = () => {
 const MarkupForm = () => {
   const { getTranslation } = useTranslation();
 
+  const preventInvalid = event => {
+    if (!event.target.validity.valid) {
+      event.target.value = '';
+    }
+  };
+
   return (
     <FormGrid columns={3}>
       <Field
-        component={NumberField}
-        min={0}
+        name="percentage"
         label={
           <TranslatedText
             stringId="invoice.modal.addMarkupInvoiceItem.markup.label"
@@ -70,12 +83,14 @@ const MarkupForm = () => {
           'invoice.modal.addMarkupInvoiceItem.markup.placeholder',
           'e.g 10',
         )}
-        name="percentageChange"
+        component={NumberField}
         required
+        min={0}
+        onInput={preventInvalid}
         style={{ gridColumn: '1 / 1' }}
       />
       <Field
-        name="discountMarkupReason"
+        name="reason"
         label={
           <TranslatedText
             stringId="invoice.modal.addMarkupInvoiceItem.discountReason.label"
@@ -90,10 +105,11 @@ const MarkupForm = () => {
 };
 
 const discountValidationSchema = yup.object({
-  percentageChange: yup
+  percentage: yup
     .number()
     .required()
-    .min(0)
+    .moreThan(0)
+    .max(100)
     .translatedLabel(
       <TranslatedText
         stringId="invoice.modal.addDiscountInvoiceItem.discount.label"
@@ -103,10 +119,10 @@ const discountValidationSchema = yup.object({
 });
 
 const markupValidationSchema = yup.object({
-  percentageChange: yup
+  percentage: yup
     .number()
     .required()
-    .min(0)
+    .moreThan(0)
     .translatedLabel(
       <TranslatedText
         stringId="invoice.modal.addMarkupInvoiceItem.markup.label"
@@ -115,21 +131,21 @@ const markupValidationSchema = yup.object({
     ),
 });
 
-export const LineItemActionModal = React.memo(({ open, onClose, onAction, lineItems, action }) => {
+export const InvoiceItemActionModal = ({ open, onClose, onAction, item, action }) => {
   const getModalTitle = () => {
     switch (action) {
-      case INVOICE_ACTION_MODALS.DELETE_LINE_ITEM:
+      case INVOICE_ITEM_ACTION_MODAL_TYPES.DELETE:
         return (
           <TranslatedText stringId="invoice.modal.deleteInvoiceItem.title" fallback="Delete item" />
         );
-      case INVOICE_ACTION_MODALS.ADD_DISCOUNT_LINE_ITEM:
+      case INVOICE_ITEM_ACTION_MODAL_TYPES.ADD_DISCOUNT:
         return (
           <TranslatedText
             stringId="invoice.modal.addDiscountInvoiceItem.title"
             fallback="Add discount"
           />
         );
-      case INVOICE_ACTION_MODALS.ADD_MARKUP_LINE_ITEM:
+      case INVOICE_ITEM_ACTION_MODAL_TYPES.ADD_MARKUP:
         return (
           <TranslatedText
             stringId="invoice.modal.addMarkupInvoiceItem.title"
@@ -142,11 +158,11 @@ export const LineItemActionModal = React.memo(({ open, onClose, onAction, lineIt
   };
 
   const formData = {
-    [INVOICE_ACTION_MODALS.ADD_DISCOUNT_LINE_ITEM]: {
+    [INVOICE_ITEM_ACTION_MODAL_TYPES.ADD_DISCOUNT]: {
       form: <DiscountForm />,
       schema: discountValidationSchema,
     },
-    [INVOICE_ACTION_MODALS.ADD_MARKUP_LINE_ITEM]: {
+    [INVOICE_ITEM_ACTION_MODAL_TYPES.ADD_MARKUP]: {
       form: <MarkupForm />,
       schema: markupValidationSchema,
     },
@@ -166,7 +182,7 @@ export const LineItemActionModal = React.memo(({ open, onClose, onAction, lineIt
 
   return (
     <Modal width="sm" title={getModalTitle()} open={open} onClose={onClose}>
-      <InvoiceItemDetailsCard lineItems={lineItems} />
+      <InvoiceItemCard item={item} />
       <Form
         validationSchema={formData[action]?.schema}
         onSubmit={handleSubmit}
@@ -174,4 +190,4 @@ export const LineItemActionModal = React.memo(({ open, onClose, onAction, lineIt
       ></Form>
     </Modal>
   );
-});
+};

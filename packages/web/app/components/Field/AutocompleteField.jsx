@@ -143,7 +143,7 @@ export class AutocompleteInput extends Component {
   handleSuggestionChange = option => {
     const { onChange, name } = this.props;
     const { value, label } = option;
-    onChange({ target: { value, name } });
+    onChange({ target: { ...option, value, name } });
     return label;
   };
 

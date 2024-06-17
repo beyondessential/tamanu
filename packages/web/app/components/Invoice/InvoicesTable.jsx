@@ -1,16 +1,17 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
-import { Colors, ENCOUNTER_OPTIONS_BY_VALUE, INVOICE_PAYMENT_STATUS_LABELS } from '../constants';
+import { Colors, ENCOUNTER_OPTIONS_BY_VALUE, INVOICE_PAYMENT_STATUS_LABELS } from '../../constants';
 
-import { DataFetchingTable } from './Table';
-import { DateDisplay } from './DateDisplay';
-import { TranslatedEnum, TranslatedText } from './Translation';
+import { DataFetchingTable } from '../Table';
+import { DateDisplay } from '../DateDisplay';
+import { TranslatedEnum, TranslatedText } from '../Translation';
 import { Typography } from '@material-ui/core';
-import { ThemedTooltip } from './Tooltip';
+import { ThemedTooltip } from '../Tooltip';
 import { upperCase } from 'lodash';
 import { InvoiceStatus } from './InvoiceStatus';
 import { EditInvoiceModal } from './EditInvoiceModal';
+
 
 const TableTitle = styled(Typography)`
   font-size: 16px;
@@ -33,7 +34,7 @@ const Table = styled(DataFetchingTable)`
     padding-top: 6px !important;
     padding-bottom: 6px !important;
   }
-  .MuiTableBody-root .MuiTableRow-root {
+  .MuiTableBody-root .MuiTableRow-root:not(.statusRow) {
     cursor: pointer;
     &:hover {
       background-color: ${Colors.veryLightBlue};
@@ -41,12 +42,10 @@ const Table = styled(DataFetchingTable)`
   }
 `;
 
-const InvoiceTotal = () => {
-  return `$0`;
-};
+const InvoiceTotal = () => 0;
 
 const getDate = ({ date }) => <DateDisplay date={date} />;
-const getInvoiceTotal = row => <InvoiceTotal row={row} />;
+const getInvoiceTotal = row => <InvoiceTotal invoice={row} />;
 const getPaymentStatus = row => (
   <TranslatedEnum
     prefix="invoice.payment.property.status"
@@ -135,7 +134,6 @@ export const InvoicesTable = React.memo(({ patient }) => {
           open
           onClose={() => setSelectedInvoice(undefined)}
           invoice={selectedInvoice}
-          afterSaveInvoice={selectedInvoice.refreshTable}
         />
       )}
     </>
