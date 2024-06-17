@@ -128,7 +128,7 @@ const ErrorMessage = ({ error }) => {
 
 const TranslationField = ({ placeholderId, stringId, code }) => (
   // This id format is necessary to avoid formik nesting at . delimiters
-  <AccessorField id={`['${placeholderId || stringId}']`} name={code} component={TextField} />
+  <AccessorField id={`['${placeholderId || stringId}']`} name={code} component={TextField} multiline />
 );
 
 export const FormContents = ({
