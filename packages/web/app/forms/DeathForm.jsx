@@ -2,7 +2,7 @@ import React from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
 import MuiBox from '@material-ui/core/Box';
-import { MANNER_OF_DEATH_OPTIONS, MANNER_OF_DEATHS } from '@tamanu/constants';
+import { MANNER_OF_DEATHS, PLACE_OF_DEATHS } from '@tamanu/constants';
 import { ageInMonths, ageInYears, getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import {
   ArrayField,
@@ -17,7 +17,6 @@ import {
   NumberField,
   PaginatedForm,
   RadioField,
-  SelectField,
   TextField,
   TimeWithUnitField,
 } from '../components';
@@ -27,23 +26,11 @@ import { SummaryScreenThree, SummaryScreenTwo } from './DeathFormSummaryScreens'
 import { BINARY_OPTIONS, BINARY_UNKNOWN_OPTIONS, FORM_TYPES } from '../constants';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useTranslation } from '../contexts/Translation';
+import { TranslatedSelectField } from '../components/Translation/TranslatedSelect';
 
 const StyledFormGrid = styled(FormGrid)`
   min-height: 200px;
 `;
-
-const PLACES = [
-  'Home',
-  'Residential institution',
-  'School or other institution or public administrative area',
-  'Sports or athletic area',
-  'Street or highway',
-  'Trade or service area',
-  'Industrial or construction area',
-  'Bush or reserve',
-  'Farm',
-  'Other',
-];
 
 const attendingClinicianLabel = (
   <TranslatedText
@@ -61,13 +48,8 @@ const attendingClinicianLabel = (
   />
 );
 
-const placeOptions = Object.values(PLACES).map(type => ({
-  label: type,
-  value: type,
-}));
-
 const mannerOfDeathVisibilityCriteria = {
-  mannerOfDeath: MANNER_OF_DEATHS.filter(x => x !== 'Disease'),
+  mannerOfDeath: Object.values(MANNER_OF_DEATHS).filter(x => x !== 'Disease'),
 };
 
 export const DeathForm = React.memo(
@@ -322,8 +304,8 @@ export const DeathForm = React.memo(
           <Field
             name="mannerOfDeath"
             label="What was the manner of death?"
-            component={SelectField}
-            options={MANNER_OF_DEATH_OPTIONS}
+            component={TranslatedSelectField}
+            enumValues={MANNER_OF_DEATHS}
             required
             prefix="death.property.mannerOfDeath"
           />
@@ -337,8 +319,8 @@ export const DeathForm = React.memo(
           <Field
             name="mannerOfDeathLocation"
             label="Where did this external cause occur?"
-            component={SelectField}
-            options={placeOptions}
+            component={TranslatedSelectField}
+            enumValues={PLACE_OF_DEATHS}
             visibilityCriteria={mannerOfDeathVisibilityCriteria}
             prefix="death.property.mannerOfDeath.location"
           />
