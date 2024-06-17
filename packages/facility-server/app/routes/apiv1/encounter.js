@@ -6,7 +6,6 @@ import {
   LAB_REQUEST_STATUSES,
   DOCUMENT_SIZE_LIMIT,
   DOCUMENT_SOURCES,
-  INVOICE_STATUSES,
   NOTE_RECORD_TYPES,
   VITALS_DATA_ELEMENT_IDS,
   IMAGING_REQUEST_STATUS_TYPES,
@@ -252,11 +251,7 @@ encounterRelations.get(
 
 encounterRelations.get(
   '/:id/invoice',
-  simpleGetHasOne('Invoice', 'encounterId', {
-    additionalFilters: {
-      status: { [Op.ne]: INVOICE_STATUSES.CANCELLED },
-    },
-  }),
+  simpleGetHasOne('Invoice', 'encounterId'),
 );
 
 const PROGRAM_RESPONSE_SORT_KEYS = {

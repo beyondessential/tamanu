@@ -61,4 +61,28 @@ export class InvoiceItem extends Model {
     }
     return buildEncounterLinkedSyncFilter([this.tableName, 'invoices', 'encounters']);
   }
+
+  static getListReferenceAssociations(models) {
+    return [
+      {
+        model: models.InvoiceProduct,
+        as: 'product',
+        attributes: ['name', 'price'],
+        include: {
+          model: models.ReferenceData,
+          as: 'referenceData',
+          attributes: ['code'],
+        },
+      },
+      {
+        model: models.User,
+        as: 'orderedByUser',
+        attributes: ['displayName'],
+      },
+      {
+        model: models.InvoiceItemDiscount,
+        as: 'discount',
+      },
+    ];
+  }
 }
