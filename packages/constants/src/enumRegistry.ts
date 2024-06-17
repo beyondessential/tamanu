@@ -18,6 +18,7 @@ import {
 import { TEMPLATE_TYPE_LABELS } from './templates';
 import { LAB_REQUEST_STATUS_LABELS } from './labs';
 import { ASSET_NAMES } from './importable';
+import { PATIENT_ISSUE_LABELS } from 'diagnoses';
 
 // This is a set of all the enums that are registered to be translatable.
 // This allows us to keep track of changes to existing enums or the additional
@@ -34,6 +35,7 @@ export const enumRegistry = new Set([
   INVOICE_PRICE_CHANGE_TYPE_LABELS,
   LAB_REQUEST_STATUS_LABELS,
   NOTE_TYPE_LABELS,
+  PATIENT_ISSUE_LABELS,
   REFERRAL_STATUS_LABELS,
   REPORT_DATA_SOURCE_LABELS,
   REPORT_DATE_RANGE_LABELS,
