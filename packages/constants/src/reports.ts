@@ -12,6 +12,11 @@ export const REPORT_DATA_SOURCES = {
   ALL_FACILITIES: 'allFacilities',
 };
 
+export const REPORT_DATA_SOURCE_LABELS = {
+  [REPORT_DATA_SOURCES.THIS_FACILITY]: 'This facility',
+  [REPORT_DATA_SOURCES.ALL_FACILITIES]: 'All facilities',
+};
+
 export const REPORT_DATA_SOURCE_VALUES = Object.values(REPORT_DATA_SOURCES);
 
 export const REPORT_EXPORT_FORMATS = {

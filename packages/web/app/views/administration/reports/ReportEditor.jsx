@@ -6,20 +6,12 @@ import * as yup from 'yup';
 import { Accordion, AccordionDetails, AccordionSummary, Grid } from '@material-ui/core';
 import {
   REPORT_DATA_SOURCE_VALUES,
-  REPORT_DATA_SOURCES,
+  REPORT_DATA_SOURCE_LABELS,
   REPORT_DB_SCHEMAS,
   REPORT_DEFAULT_DATE_RANGES_VALUES,
   REPORT_STATUSES_VALUES,
 } from '@tamanu/constants/reports';
-import {
-  Button,
-  ButtonRow,
-  Field,
-  Form,
-  SelectField,
-  MultiselectField,
-  TextField,
-} from '../../../components';
+import { Button, ButtonRow, Field, Form, SelectField, TextField } from '../../../components';
 import { ParameterItem, ParameterList, SQLQueryEditor } from './components/editing';
 import {
   FIELD_TYPES_WITH_PREDEFINED_OPTIONS,
@@ -30,6 +22,7 @@ import { useApi } from '../../../api';
 import { FORM_TYPES } from '../../../constants';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { useTranslation } from '../../../contexts/Translation';
+import { TranslatedMultiSelectField } from '../../../components/Translation/TranslatedSelect';
 
 const StyledField = styled(Field)`
   flex-grow: 1;
@@ -43,11 +36,6 @@ const STATUS_OPTIONS = REPORT_STATUSES_VALUES.map(status => ({
   label: capitalize(status),
   value: status,
 }));
-
-const DATA_SOURCE_OPTIONS = [
-  { label: 'Facility server', value: REPORT_DATA_SOURCES.THIS_FACILITY },
-  { label: 'Central server', value: REPORT_DATA_SOURCES.ALL_FACILITIES },
-];
 
 const DATE_RANGE_OPTIONS = REPORT_DEFAULT_DATE_RANGES_VALUES.map(value => ({
   label: value,
@@ -133,9 +121,9 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit, setF
                 <TranslatedText stringId="admin.report.canBeRunOn.label" fallback="Can be run on" />
               }
               name="dataSources"
-              component={MultiselectField}
-              options={DATA_SOURCE_OPTIONS}
-              prefix="report.property.canBeRunOn"
+              component={TranslatedMultiSelectField}
+              enumValues={REPORT_DATA_SOURCE_LABELS}
+              prefix="report.property.dataSources"
             />
           </Grid>
         )}
