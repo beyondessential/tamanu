@@ -1,7 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { LAB_REQUEST_STATUSES } from '@tamanu/constants';
-import { LAB_REQUEST_STATUS_OPTIONS } from '../../constants';
+import { LAB_REQUEST_STATUSES, LAB_REQUEST_STATUS_LABELS } from '@tamanu/constants';
 import {
   AutocompleteField,
   CheckField,
@@ -9,16 +8,14 @@ import {
   Field,
   LocalisedField,
   SearchField,
-  SelectField,
   SuggesterSelectField,
 } from '../Field';
-import {
-  CustomisableSearchBarWithPermissionCheck,
-} from './CustomisableSearchBar';
+import { CustomisableSearchBarWithPermissionCheck } from './CustomisableSearchBar';
 import { LabRequestSearchParamKeys, useLabRequest } from '../../contexts/LabRequest';
 import { useSuggester } from '../../api';
 import { useAdvancedFields } from './useAdvancedFields';
 import { TranslatedText } from '../Translation/TranslatedText';
+import { TranslatedSelectField } from '../Translation/TranslatedSelect';
 
 const BASE_ADVANCED_FIELDS = ['locationGroupId', 'departmentId', 'allFacilities'];
 const PUBLISHED_ADVANCED_FIELDS = [...BASE_ADVANCED_FIELDS, 'publishedDate'];
@@ -132,7 +129,11 @@ export const LabRequestsSearchBar = ({ status = '' }) => {
           }
           component={SearchField}
         />
-        <Field name="requestId" label={<TranslatedText stringId="lab.requestId.label" fallback="Test ID" />} component={SearchField} />
+        <Field
+          name="requestId"
+          label={<TranslatedText stringId="lab.requestId.label" fallback="Test ID" />}
+          component={SearchField}
+        />
         <Field
           name="category"
           label="Test category"
@@ -184,10 +185,19 @@ export const LabRequestsSearchBar = ({ status = '' }) => {
             label={
               <TranslatedText stringId="general.localisedField.status.label" fallback="Status" />
             }
-            component={SelectField}
-            options={LAB_REQUEST_STATUS_OPTIONS.filter(
-              option => option.value !== LAB_REQUEST_STATUSES.PUBLISHED,
-            )}
+            component={TranslatedSelectField}
+            transformOptions={options =>
+              options.filter(
+                option =>
+                  ![
+                    LAB_REQUEST_STATUSES.PUBLISHED,
+                    LAB_REQUEST_STATUSES.DELETED,
+                    LAB_REQUEST_STATUSES.ENTERED_IN_ERROR,
+                    LAB_REQUEST_STATUSES.CANCELLED,
+                  ].includes(option.value),
+              )
+            }
+            enumValues={LAB_REQUEST_STATUS_LABELS}
             size="small"
             prefix="labs.property.status"
           />
