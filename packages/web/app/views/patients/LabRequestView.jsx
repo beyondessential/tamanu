@@ -16,6 +16,7 @@ import {
   MenuButton,
   MODAL_TRANSITION_DURATION,
   OutlinedButton,
+  TableButtonRow,
   Tile,
   TileContainer,
   TileTag,
@@ -159,6 +160,8 @@ export const LabRequestView = () => {
   const isHidden = HIDDEN_STATUSES.includes(labRequest.status);
   const areLabRequestsReadOnly = !canWriteLabRequest || isHidden;
   const areLabTestsReadOnly = !canWriteLabTest || isHidden || isPublished;
+  const hasAttachment = Boolean(labRequest.latestAttachment);
+  const canEnterResults = !isPublished && !areLabTestsReadOnly;
 
   // If the value of status is enteredInError or deleted, it should display to the user as Cancelled
   const displayStatus = areLabRequestsReadOnly ? LAB_REQUEST_STATUSES.CANCELLED : labRequest.status;
@@ -166,11 +169,27 @@ export const LabRequestView = () => {
   const ActiveModal = MODALS[modalId] || null;
   const actions =
     labRequest.status === LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED
-      ? { 'Record sample': () => handleChangeModalId(MODAL_IDS.RECORD_SAMPLE) }
-      : {
-          Edit: () => handleChangeModalId(MODAL_IDS.RECORD_SAMPLE),
-          'View Details': () => handleChangeModalId(MODAL_IDS.SAMPLE_DETAILS),
-        };
+      ? [
+        {
+          label: <TranslatedText stringId="lab.action.recordSample" fallback="Record sample" />,
+          action: () => handleChangeModalId(MODAL_IDS.RECORD_SAMPLE),
+        },
+      ]
+      : [
+        {
+          label: <TranslatedText stringId="general.action.edit" fallback="Edit" />,
+          action: () => handleChangeModalId(MODAL_IDS.RECORD_SAMPLE),
+        },
+        {
+          label: <TranslatedText stringId="lab.action.viewDetails" fallback="View details" />,
+          action: () => handleChangeModalId(MODAL_IDS.SAMPLE_DETAILS),
+        },
+      ];
+
+  const handleChangeStatus = () => {
+    if (labRequest.status === LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED) return;
+    handleChangeModalId(MODAL_IDS.CHANGE_STATUS);
+  };
 
   return (
     <Container>
@@ -260,13 +279,18 @@ export const LabRequestView = () => {
         </FixedTileRow>
       </TopContainer>
       <BottomContainer>
-        {!isPublished && !areLabTestsReadOnly && (
-          <Box display="flex" justifyContent="flex-end" marginBottom="20px">
-            <Button onClick={() => handleChangeModalId(MODAL_IDS.ENTER_RESULTS)}>
-              Enter results
+        <TableButtonRow variant="small">
+          {hasAttachment && (
+            <Button onClick={() => handleChangeModalId(MODAL_IDS.VIEW_REPORT)}>
+              <TranslatedText stringId="lab.action.viewReport" fallback="View report" />
             </Button>
-          </Box>
-        )}
+          )}
+          {canEnterResults && (
+            <Button onClick={() => handleChangeModalId(MODAL_IDS.ENTER_RESULTS)} margin="2000px">
+              <TranslatedText stringId="lab.action.enterResults" fallback="Enter results" />
+            </Button>
+          )}
+        </TableButtonRow>
         <LabRequestResultsTable
           labRequest={labRequest}
           patient={patient}
