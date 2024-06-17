@@ -1,6 +1,7 @@
 import React from 'react';
 import * as yup from 'yup';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { DIAGNOSIS_CERTAINTY, DIAGNOSIS_CERTAINTY_LABELS } from '@tamanu/constants';
 import { foreignKey } from '../utils/validation';
 import { DIAGNOSIS_CERTAINTY_OPTIONS, FORM_TYPES } from '../constants';
 
@@ -16,9 +17,42 @@ import {
 } from '../components/Field';
 import { useSuggester } from '../api';
 import { TranslatedText } from '../components/Translation/TranslatedText';
+import { TranslatedSelectField } from '../components/Translation/TranslatedSelect';
+
+/**
+ * export const DIAGNOSIS_CERTAINTY_OPTIONS = [
+  {
+    value: DIAGNOSIS_CERTAINTY.EMERGENCY,
+    label: DIAGNOSIS_CERTAINTY_LABELS[DIAGNOSIS_CERTAINTY.EMERGENCY],
+    triageOnly: true,
+  },
+  {
+    value: DIAGNOSIS_CERTAINTY.SUSPECTED,
+    label: DIAGNOSIS_CERTAINTY_LABELS[DIAGNOSIS_CERTAINTY.SUSPECTED],
+  },
+  {
+    value: DIAGNOSIS_CERTAINTY.CONFIRMED,
+    label: DIAGNOSIS_CERTAINTY_LABELS[DIAGNOSIS_CERTAINTY.CONFIRMED],
+  },
+  {
+    value: DIAGNOSIS_CERTAINTY.DISPROVEN,
+    label: DIAGNOSIS_CERTAINTY_LABELS[DIAGNOSIS_CERTAINTY.DISPROVEN],
+    editOnly: true,
+  },
+  {
+    value: DIAGNOSIS_CERTAINTY.ERROR,
+    label: DIAGNOSIS_CERTAINTY_LABELS[DIAGNOSIS_CERTAINTY.ERROR],
+    editOnly: true,
+  },
+];
+ */
+
+const TRIAGE_ONLY = [DIAGNOSIS_CERTAINTY.EMERGENCY];
+const EDIT_ONLY = [DIAGNOSIS_CERTAINTY.DISPROVEN, DIAGNOSIS_CERTAINTY.ERROR];
 
 export const DiagnosisForm = React.memo(
   ({ isTriage = false, onCancel, onSave, diagnosis, excludeDiagnoses }) => {
+    const isEdit = !!diagnosis?.id;
     // don't show the "ED Diagnosis" option if we're just on a regular encounter
     // (unless we're editing a diagnosis with ED certainty already set)
     const certaintyOptions = DIAGNOSIS_CERTAINTY_OPTIONS.filter(x => {
@@ -41,7 +75,7 @@ export const DiagnosisForm = React.memo(
           certainty: defaultCertainty,
           ...diagnosis,
         }}
-        formType={diagnosis ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
+        formType={isEdit ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
         validationSchema={yup.object().shape({
           diagnosisId: foreignKey().translatedLabel(
             <TranslatedText
@@ -86,8 +120,15 @@ export const DiagnosisForm = React.memo(
             <Field
               name="certainty"
               label={<TranslatedText stringId="diagnosis.certainty.label" fallback="Certainty" />}
-              component={SelectField}
-              options={certaintyOptions}
+              component={TranslatedSelectField}
+              enumValues={DIAGNOSIS_CERTAINTY_LABELS}
+              transformOptions={options => {
+                return options.filter(option => {
+                  if (isTriage && TRIAGE_ONLY.includes(option.value)) return true;
+                  if (isEdit && EDIT_ONLY.includes(option.value)) return true;
+                  return !EDIT_ONLY.includes(option.value);
+                });
+              }}
               required
               prefix="diagnosis.property.certainty"
             />
