@@ -47,6 +47,7 @@
     "date-fns": "^2.7.0",
     "deprecated-react-native-prop-types": "^5.0.0",
     "formik": "^2.1.2",
+    "get-yarn-workspaces": "^1.0.2",
     "jsc-android": "^250231.0.0",
     "khmer-unicode-converter": "^0.0.6",
     "lodash": "^4.17.20",
@@ -102,6 +103,7 @@
     "styled-system": "^5.1.2",
     "typeorm": "^0.2.31",
     "yup": "^0.28.0"
+    
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
