@@ -16,7 +16,6 @@ jest.mock(
   'config',
   () => ({
     ...jest.requireActual('config'),
-    serverFacilityId: 'test-facility-id-for-discontinuer',
     schedules: {
       medicationDiscontinuer: {
         schedule: '',
@@ -48,6 +47,8 @@ describe('Encounter', () => {
     await context.baseApp.asRole('practitioner');
     patient = await models.Patient.create(await createDummyPatient(models));
 
+    await models.LocalSystemFact.set('facilityId', 'test-facility-id-for-discontinuer');
+  
     // Create a facility with an id that matches the one in test.json config
     testFacility = await models.Facility.create({
       id: 'test-facility-id-for-discontinuer',

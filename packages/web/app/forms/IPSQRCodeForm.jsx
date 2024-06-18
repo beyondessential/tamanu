@@ -10,6 +10,7 @@ import { usePatientNavigation } from '../utils/usePatientNavigation';
 import { PATIENT_TABS } from '../constants/patientPaths';
 import { Colors } from '../constants';
 import { useTranslation } from '../contexts/Translation';
+import { TranslatedText } from '../components/Translation/TranslatedText';
 
 const StyledPatientDetailsLink = styled.span`
   cursor: pointer;
@@ -64,10 +65,25 @@ const IPSQRCodeFormComponent = ({ patient, onSubmit, confirmDisabled, onCancel }
       <p>Enter the email address you would like the patient IPS QR code sent to.</p>
 
       <FormGrid columns={1}>
-        <Field name="email" label="Patient email" component={TextField} required />
-        <Field name="confirmEmail" label="Confirm patient email" component={TextField} required />
+        <Field
+          name="email"
+          label={<TranslatedText stringId="patient.email.label" fallback="Patient email" />}
+          component={TextField}
+          required
+        />
+        <Field
+          name="confirmEmail"
+          label={
+            <TranslatedText
+              stringId="patient.confirmEmail.label"
+              fallback="Confirm patient email"
+            />
+          }
+          component={TextField}
+          required
+        />
         <FormSubmitCancelRow
-          confirmText="Send"
+          confirmText={<TranslatedText stringId="general.action.send" fallback="Send" />}
           onConfirm={onSubmit}
           confirmDisabled={confirmDisabled}
           onCancel={onCancel}

@@ -34,7 +34,7 @@ import { SimpleTopBar } from '../../../components';
 
 import { CancelModalButton } from './CancelModalButton';
 import { PrintModalButton } from './PrintModalButton';
-import { TranslatedText } from '../../../components/Translation/TranslatedText';
+import { TranslatedText, TranslatedReferenceData } from '../../../components/Translation';
 import { useTranslation } from '../../../contexts/Translation';
 
 const ImagingRequestSection = ({ currentStatus, imagingRequest }) => {
@@ -104,7 +104,11 @@ const ImagingRequestSection = ({ currentStatus, imagingRequest }) => {
         value={
           // Either use free text area or multi-select areas data
           imagingRequest.areas?.length
-            ? imagingRequest.areas.map(area => area.name).join(', ')
+            ? imagingRequest.areas.map(area => (
+              <span key={area.id}>
+                <TranslatedReferenceData fallback={area.name} value={area.id} category={area.type} />
+              </span>
+            )).join(', ')
             : imagingRequest.areaNote
         }
         label={<TranslatedText stringId="imaging.areas.label" fallback="Areas to be imaged" />}
@@ -177,11 +181,15 @@ const ImagingResultRow = ({ result }) => {
   return (
     <BottomAlignFormGrid columns={externalUrl ? 3 : 2}>
       <TextInput
-        label="Completed by"
+        label={<TranslatedText stringId="imaging.completedBy.label" fallback="Completed by" />}
         value={completedBy?.displayName ?? (externalUrl && 'External provider') ?? ''}
         disabled
       />
-      <DateTimeInput label="Completed" value={completedAt} disabled />
+      <DateTimeInput
+        label={<TranslatedText stringId="imaging.completedAt.label" fallback="Completed" />}
+        value={completedAt}
+        disabled
+      />
       {externalUrl && (
         <Button color="secondary" onClick={onOpenUrl}>
           View image (external link)
@@ -189,7 +197,9 @@ const ImagingResultRow = ({ result }) => {
       )}
 
       <TextInput
-        label="Result description"
+        label={
+          <TranslatedText stringId="imaging.description.label" fallback="Result description" />
+        }
         value={description}
         multiline
         disabled

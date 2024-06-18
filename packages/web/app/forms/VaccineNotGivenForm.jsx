@@ -6,8 +6,8 @@ import { VACCINE_CATEGORIES } from '@tamanu/constants';
 import { TwoTwoGrid } from '../components/TwoTwoGrid';
 import {
   AdministeredVaccineScheduleField,
-  CategoryField,
   ConfirmCancelRowField,
+  CategoryField,
   DepartmentField,
   DiseaseField,
   GivenByField,

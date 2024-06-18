@@ -141,12 +141,12 @@ export async function createDataForEncounter(models) {
   });
 }
 
-export async function createVaccine(models, { label, schedule }) {
+export async function createVaccine(models, { label, doseLabel }) {
   const vaccine = await models.ScheduledVaccine.create(
     await createScheduledVaccine(models, {
       category: VACCINE_CATEGORIES.ROUTINE,
       label,
-      schedule,
+      doseLabel,
     }),
   );
 

@@ -122,7 +122,7 @@ describe('Certificate', () => {
       const scheduledPf1 = await models.ScheduledVaccine.create({
         ...fake(models.ScheduledVaccine),
         label: 'COVID-19 Pfizer',
-        schedule: 'Dose 1',
+        doseLabel: 'Dose 1',
         vaccineId: pfVaxDrug.id,
       });
 
