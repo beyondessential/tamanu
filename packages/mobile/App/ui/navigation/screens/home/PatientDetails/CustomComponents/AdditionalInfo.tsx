@@ -59,15 +59,18 @@ export const AdditionalInfo = ({
   const isEditable = getBool('features.editPatientDetailsOnMobile');
 
   // Add edit callback and map the inner 'fields' array
+  // Todo: Refactor to allow for hierarchy fields
   const sections = dataSections.map(({ title, fields }) => {
     const onEditCallback = (): void =>
       onEdit(patientAdditionalData, title, customPatientFieldValues);
 
     const fieldsWithData = fields.map(field => {
-      if (field === 'villageId' || field.name === 'villageId')
+      if (field === 'villageId' || field.name === 'villageId') {
         return [field.name, patient.village?.name];
-      else if (typeof field === 'object') {
-        return [field.name, getPadFieldData(patientAdditionalData, field.name)];
+      } else if (field === 'cambodiaSecondaryVillageId') {
+        return ['secondaryVillageId', getPadFieldData(patientAdditionalData, 'secondaryVillageId')];
+      } else if (field === 'cambodiaVillageId') {
+        return ['villageId', patient.village?.name];
       } else if (Object.keys(customDataById).includes(field)) {
         return [field, customDataById[field]];
       } else {

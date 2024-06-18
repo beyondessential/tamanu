@@ -12,7 +12,9 @@ const CUSTOM_PATIENT_DETAIL_LAYOUTS = {
 
 export const LocalisedPatientDetailsLayout = ({ patient, navigation }) => {
   const { getLocalisation } = useLocalisation();
-  const layout = getLocalisation('layouts.patientDetails');
+  const layout = 'cambodia';
+  console.log('TESTING', layout);
+
   switch (layout) {
     case CUSTOM_PATIENT_DETAIL_LAYOUTS.CAMBODIA:
       return <CambodiaPatientDetails patient={patient} navigation={navigation} />;
@@ -23,11 +25,12 @@ export const LocalisedPatientDetailsLayout = ({ patient, navigation }) => {
 
 export const LocalisedNewPatientForm = ({ route }) => {
   const { getLocalisation } = useLocalisation();
-  const layout = getLocalisation('layouts.patientDetails');
+  const layout = 'cambodia';
+  console.log('TESTING', layout);
   switch (layout) {
     case CUSTOM_PATIENT_DETAIL_LAYOUTS.CAMBODIA:
       return <CambodiaEditPatientScreen route={route} isEdit={false} />;
     default:
       return <GenericEditPatientScreen route={route} isEdit={false} />;
   }
-}
+};

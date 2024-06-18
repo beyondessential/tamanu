@@ -185,11 +185,16 @@ export const getInitialCustomValues = (data, fields): {} => {
 export const getInitialAdditionalValues = (data, fields): {} => {
   if (!data) {
     return {};
+  } else {
+    return data;
   }
-  const values = {};
-  fields.forEach(field => {
-    if (isString(data[field])) values[field] = data[field];
-    if (isObject(field)) values[field.name] = data[field.name];
-  });
-  return values;
+  // const values = {};
+  // fields.forEach(field => {
+  //   if (isString(data[field])) values[field] = data[field];
+  //   if (isObject(field)) {
+  //     console.log('is object', field);
+  //     values[field.name] = data[field.name];
+  //   }
+  // });
+  // return values;
 };

@@ -1,7 +1,6 @@
 import React from 'react';
 import { TranslatedText } from '/components/Translations/TranslatedText';
 import { ADDITIONAL_DATA_FIELDS } from '~/ui/helpers/additionalData';
-import { ReferenceDataType } from '~/types';
 
 export const CAMBODIA_CUSTOM_FIELDS = {
   NATIONAL_ID: 'fieldDefinition-nationalId',
@@ -10,32 +9,10 @@ export const CAMBODIA_CUSTOM_FIELDS = {
   FATHERS_FIRST_NAME: 'fieldDefinition-fathersFirstName',
 };
 
-export const CAMBODIA_LOCATION_HIERARCHY_FIELDS = [
-  {
-    name: 'divisionId',
-    referenceType: ReferenceDataType.Division,
-    label: <TranslatedText stringId="cambodiaPatientDetails.province.label" fallback="Province" />,
-  },
-  {
-    name: 'subdivisionId',
-    referenceType: ReferenceDataType.SubDivision,
-    label: <TranslatedText stringId="cambodiaPatientDetails.district.label" fallback="District" />,
-  },
-  {
-    name: 'settlementId',
-    referenceType: ReferenceDataType.Settlement,
-    label: <TranslatedText stringId="cambodiaPatientDetails.commune.label" fallback="Commune" />,
-  },
-  {
-    name: 'villageId',
-    referenceType: ReferenceDataType.Village,
-    label: <TranslatedText stringId="general.localisedField.villageId.label" fallback="Village" />,
-  },
-];
-
 // Cambodia data layout
 export const CAMBODIA_ADDITIONAL_DATA_FIELDS = {
-  ADDRESS: [...CAMBODIA_LOCATION_HIERARCHY_FIELDS, ADDITIONAL_DATA_FIELDS.STREET_VILLAGE],
+  ADDRESS: ['cambodiaVillageId', ADDITIONAL_DATA_FIELDS.STREET_VILLAGE],
+  PERMANENT_ADDRESS: ['cambodiaSecondaryVillageId'],
   CONTACT: [
     ADDITIONAL_DATA_FIELDS.PRIMARY_CONTACT_NUMBER,
     ADDITIONAL_DATA_FIELDS.SECONDARY_CONTACT_NUMBER,
@@ -63,6 +40,15 @@ export const CAMBODIA_ADDITIONAL_DATA_SECTIONS = [
       />
     ),
     fields: CAMBODIA_ADDITIONAL_DATA_FIELDS.ADDRESS,
+  },
+  {
+    title: (
+      <TranslatedText
+        stringId="patient.details.subheading.permanentAddress"
+        fallback="Permanent address"
+      />
+    ),
+    fields: CAMBODIA_ADDITIONAL_DATA_FIELDS.PERMANENT_ADDRESS,
   },
   {
     title: (

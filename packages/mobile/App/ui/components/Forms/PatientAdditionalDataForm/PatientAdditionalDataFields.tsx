@@ -9,7 +9,6 @@ import { Field } from '~/ui/components/Forms/FormField';
 import { AutocompleteModalField } from '~/ui/components/AutocompleteModal/AutocompleteModalField';
 import { PatientFieldDefinitionComponents } from '~/ui/helpers/fieldComponents';
 import { useBackend, useBackendEffect } from '~/ui/hooks';
-
 import {
   getSuggester,
   plainFields,
@@ -22,9 +21,9 @@ import { getConfiguredPatientAdditionalDataFields } from '~/ui/helpers/patient';
 import { ActivityIndicator } from 'react-native';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
 import { HierarchyFields } from '../../HierarchyFields';
-import { CAMBODIA_LOCATION_HIERARCHY_FIELDS } from '~/ui/navigation/screens/home/PatientDetails/layouts/cambodia/fields';
-import { isObject, isString } from 'lodash';
 import { labels } from '~/ui/navigation/screens/home/PatientDetails/layouts/generic/labels';
+import { ReferenceDataType } from '~/types';
+import { TranslatedText } from '/components/Translations/TranslatedText';
 
 const PlainField = ({ fieldName, required }): ReactElement => (
   // Outter styled view to momentarily add distance between fields
@@ -96,6 +95,62 @@ const CustomField = ({ fieldName, required }): ReactElement => {
   );
 };
 
+const hierarchyFields = ['cambodiaVillageId', 'cambodiaSecondaryVillageId'];
+
+const CAMBODIA_LOCATION_HIERARCHY_FIELDS = [
+  {
+    name: 'divisionId',
+    referenceType: ReferenceDataType.Division,
+    label: <TranslatedText stringId="cambodiaPatientDetails.province.label" fallback="Province" />,
+  },
+  {
+    name: 'subdivisionId',
+    referenceType: ReferenceDataType.SubDivision,
+    label: <TranslatedText stringId="cambodiaPatientDetails.district.label" fallback="District" />,
+  },
+  {
+    name: 'settlementId',
+    referenceType: ReferenceDataType.Settlement,
+    label: <TranslatedText stringId="cambodiaPatientDetails.commune.label" fallback="Commune" />,
+  },
+  {
+    name: 'villageId',
+    referenceType: ReferenceDataType.Village,
+    label: <TranslatedText stringId="general.localisedField.villageId.label" fallback="Village" />,
+  },
+];
+
+const SECONDARY_LOCATION_HIERARCHY_FIELDS = [
+  {
+    name: 'secondaryDivisionId',
+    referenceType: ReferenceDataType.Division,
+    label: <TranslatedText stringId="cambodiaPatientDetails.province.label" fallback="Province" />,
+  },
+  {
+    name: 'secondarySubdivisionId',
+    referenceType: ReferenceDataType.SubDivision,
+    label: <TranslatedText stringId="cambodiaPatientDetails.district.label" fallback="District" />,
+  },
+  {
+    name: 'secondarySettlementId',
+    referenceType: ReferenceDataType.Settlement,
+    label: <TranslatedText stringId="cambodiaPatientDetails.commune.label" fallback="Commune" />,
+  },
+  {
+    name: 'secondaryVillageId',
+    referenceType: ReferenceDataType.Village,
+    label: <TranslatedText stringId="general.localisedField.villageId.label" fallback="Village" />,
+  },
+];
+
+const HierarchyField = ({ fieldName }): ReactElement => {
+  const fields =
+    fieldName === 'cambodiaVillageId'
+      ? CAMBODIA_LOCATION_HIERARCHY_FIELDS
+      : SECONDARY_LOCATION_HIERARCHY_FIELDS;
+  return <HierarchyFields fields={fields} />;
+};
+
 function getComponentForField(
   fieldName: string,
   customFieldIds: string[],
@@ -112,13 +167,16 @@ function getComponentForField(
   if (customFieldIds.includes(fieldName)) {
     return CustomField;
   }
+  if (hierarchyFields.includes(fieldName)) {
+    return HierarchyField;
+  }
   // Shouldn't happen
   throw new Error(`Unexpected field ${fieldName} for patient additional data.`);
 }
 
 export const PatientAdditionalDataFields = ({ fields, showMandatory = true }): ReactElement => {
   const { getLocalisation } = useLocalisation();
-  const isHardCodedLayout = getLocalisation('layouts.patientDetails') !== 'generic';
+  const isHardCodedLayout = true;
   const [customFieldDefinitions, _, loading] = useBackendEffect(({ models }) =>
     models.PatientFieldDefinition.getRepository().find({
       select: ['id'],
@@ -132,19 +190,11 @@ export const PatientAdditionalDataFields = ({ fields, showMandatory = true }): R
 
   if (loading) return [];
 
-  return padFields.map((field: string | object, i: number) => {
-    if (isString(field)) {
-      const Component = getComponentForField(field, customFieldIds);
-      const isRequired = getLocalisation(`fields.${field}.requiredPatientData`);
-      return <Component fieldName={field} key={field} required={isRequired} />;
-    }
+  console.log('padFields', padFields);
 
-    // TODO: This is a hack to get working with location hierarchy
-    if (isObject(field)) {
-      const nextField = padFields[i + 1];
-      return !isObject(nextField) ? (
-        <HierarchyFields fields={CAMBODIA_LOCATION_HIERARCHY_FIELDS} />
-      ) : null;
-    }
+  return padFields.map((field: string) => {
+    const Component = getComponentForField(field, customFieldIds);
+    const isRequired = getLocalisation(`fields.${field}.requiredPatientData`);
+    return <Component fieldName={field} key={field} required={isRequired} />;
   });
 };
