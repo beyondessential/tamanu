@@ -221,8 +221,11 @@ export const DischargeSummaryPrintout = ({
 
   // change header if facility details are present in discharge
   if (facilityName && facilityAddress && certificateData?.title && certificateData?.subTitle) {
-    certificateData.title = facilityName;
-    certificateData.subTitle = facilityAddress + (facilityTown ? `, ${facilityTown}` : '');
+    certificateData = {
+      ...certificateData,
+      title: facilityName,
+      subTitle: `${facilityAddress}${facilityTown ? `, ${facilityTown}` : ''}`,
+    };
   }
 
   return (
