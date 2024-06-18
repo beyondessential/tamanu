@@ -22,10 +22,6 @@ export const InvoiceModalGroup = ({ encounterId, initialState }) => {
   const handleOpenInvoiceModal = (type, keepPreviousModals = false) =>
     setInvoiceModal(keepPreviousModals ? invoiceModal.concat(type) : [type]);
 
-  const onCreateSuccess = () => {
-    handleOpenInvoiceModal(INVOICE_MODAL_TYPES.EDIT_INVOICE);
-  };
-
   const handleEditDiscount = () => {
     handleOpenInvoiceModal(INVOICE_MODAL_TYPES.CREATE_INVOICE, true);
   };
@@ -42,7 +38,6 @@ export const InvoiceModalGroup = ({ encounterId, initialState }) => {
           onClose={() => handleCloseInvoiceModal(INVOICE_MODAL_TYPES.CREATE_INVOICE)}
           encounterId={encounterId}
           invoice={invoice}
-          onCreateSuccess={onCreateSuccess}
           onUpdate={onUpdateInvoice}
         />
       )}

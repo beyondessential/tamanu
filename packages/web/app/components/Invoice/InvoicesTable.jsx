@@ -47,7 +47,7 @@ const Table = styled(DataFetchingTable)`
   }
 `;
 
-const getDate = ({ orderedDate }) => <DateDisplay date={orderedDate} />;
+const getDate = ({ date }) => <DateDisplay date={date} />;
 const getInvoiceTotal = row => {
   const { patientTotal } = getInvoiceSummary(row);
   return patientTotal === undefined ? '-' : `$${patientTotal}`;

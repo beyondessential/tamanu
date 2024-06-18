@@ -19,7 +19,6 @@ export const UpsertInvoiceModal = ({
   onClose,
   encounterId,
   invoice,
-  onCreateSuccess,
   onUpdate,
 }) => {
   const api = useApi();
@@ -61,7 +60,8 @@ export const UpsertInvoiceModal = ({
 
   const handleUpsertInvoice = payload => {
     if (isCreating) {
-      createInvoice({ encounterId, ...payload }, { onSuccess: onCreateSuccess });
+      createInvoice({ encounterId, ...payload });
+      onClose();
     } else {
       onUpdate(payload);
       onClose();
