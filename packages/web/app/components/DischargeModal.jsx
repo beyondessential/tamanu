@@ -70,12 +70,13 @@ export const DischargeModal = React.memo(({ open, onClose }) => {
 
   const handleDischarge = useCallback(
     async data => {
-      const dischargingFacility = {
-        name: facility.name,
-        address: facility.address,
-        town: facility.town,
+      // add facility details to discharge details
+      data.discharge = {
+        ...data.discharge,
+        facilityName: facility.name,
+        facilityAddress: facility.streetAddress,
+        facilityTown: facility.cityTown,
       };
-      data.discharge = { ...data.discharge, dischargingFacility };
       await writeAndViewEncounter(encounter.id, {
         ...data,
       });
