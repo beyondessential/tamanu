@@ -69,6 +69,7 @@ export async function up(query) {
       allowNull: true,
     },
     encounter_id: {
+      unique: true,
       type: DataTypes.STRING,
       allowNull: false,
       references: {
