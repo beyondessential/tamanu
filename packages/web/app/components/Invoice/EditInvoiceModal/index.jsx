@@ -24,7 +24,7 @@ import { InvoiceItemHeader, InvoiceItemRow } from './InvoiceItem';
 import { InvoiceStatus } from '../InvoiceStatus';
 import { InvoiceSummaryPanel } from '../InvoiceSummaryPanel';
 import { useUpdateInvoice } from '../../../api/mutations/useInvoiceMutation';
-import { ThreeDotMenu } from '../../ThreedotMenu';
+import { ThreeDotMenu } from '../../ThreeDotMenu';
 
 const LinkText = styled.div`
   font-weight: 500;
