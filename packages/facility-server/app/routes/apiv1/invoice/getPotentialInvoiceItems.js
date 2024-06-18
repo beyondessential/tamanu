@@ -1,3 +1,4 @@
+import { REFERENCE_TYPES } from '@tamanu/constants';
 import { NotFoundError } from '@tamanu/shared/errors';
 import { QueryTypes } from 'sequelize';
 
@@ -8,7 +9,7 @@ import { QueryTypes } from 'sequelize';
  * @param {import('sequelize').Sequelize} db
  * @param {string} invoiceId
  */
-export const getPotentialInvoiceItems = async (db, invoiceId) => {
+export const getPotentialInvoiceItems = async (db, invoiceId, imagingTypes) => {
   const encounterId = await db
     .query(`SELECT i."encounterId" from invoices i where i.id = :invoiceId`, {
       replacements: {
@@ -37,20 +38,26 @@ export const getPotentialInvoiceItems = async (db, invoiceId) => {
 ),
 filtered_imagings as (
 	select
-		rd.type as "sourceType",
+		:imagingType as "sourceType",
 		ir.id as "sourceId",
 		ir.imaging_type as "productId",
 		ir."requested_date" as "date",
 		rd.code as "productCode",
 		ir.requested_by_id as "orderedByUserId"
 	from imaging_requests ir
-	join reference_data rd on rd.deleted_at is null and rd.id = ir.imaging_type
+	join (
+		SELECT
+        	key as id,
+			value->>'code' AS code,
+			value->>'label' AS label
+		FROM jsonb_each(:imagingTypes)
+	) as reference_data rd on rd.deleted_at is null and rd.id = ir.imaging_type
 	where ir.deleted_at is null
 	and ir.encounter_id = :encounterId
 ),
 filtered_labtests as (
 	select
-		'labTestType' as "sourceType",
+		:labtestType as "sourceType",
 		lt.id as "sourceId",
 		lt.lab_test_type_id as "productId",
 		lt."date",
@@ -88,6 +95,9 @@ join users u on u.deleted_at is null and coalesce(fpc."orderedByUserId",fi."orde
     {
       replacements: {
         encounterId,
+        imagingType: REFERENCE_TYPES.IMAGING_TYPE,
+        imagingTypes,
+        labtestType: 'labTestType',
       },
       type: QueryTypes.SELECT,
     },

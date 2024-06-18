@@ -10,7 +10,8 @@ invoiceItemsRoute.get(
   '/:id/potentialInvoiceItems',
   asyncHandler(async (req, res) => {
     req.flagPermissionChecked();
-    const data = await getPotentialInvoiceItems(req.db, req.params.id);
+    const { imagingTypes } = await req.getLocalisation();
+    const data = await getPotentialInvoiceItems(req.db, req.params.id, imagingTypes);
     res.json(data);
   }),
 );
