@@ -124,22 +124,22 @@ const SECONDARY_LOCATION_HIERARCHY_FIELDS = [
   {
     name: 'secondaryDivisionId',
     referenceType: ReferenceDataType.Division,
-    label: <TranslatedText stringId="cambodiaPatientDetails.province.label" fallback="Province" />,
+    label: labels.secondaryDivisionId,
   },
   {
     name: 'secondarySubdivisionId',
     referenceType: ReferenceDataType.SubDivision,
-    label: <TranslatedText stringId="cambodiaPatientDetails.district.label" fallback="District" />,
+    label: labels.secondarySubdivisionId,
   },
   {
     name: 'secondarySettlementId',
     referenceType: ReferenceDataType.Settlement,
-    label: <TranslatedText stringId="cambodiaPatientDetails.commune.label" fallback="Commune" />,
+    label: labels.secondarySettlementId,
   },
   {
     name: 'secondaryVillageId',
     referenceType: ReferenceDataType.Village,
-    label: <TranslatedText stringId="general.localisedField.villageId.label" fallback="Village" />,
+    label: labels.secondaryVillageId,
   },
 ];
 
@@ -189,8 +189,6 @@ export const PatientAdditionalDataFields = ({ fields, showMandatory = true }): R
     : getConfiguredPatientAdditionalDataFields(fields, showMandatory, getLocalisation);
 
   if (loading) return [];
-
-  console.log('padFields', padFields);
 
   return padFields.map((field: string) => {
     const Component = getComponentForField(field, customFieldIds);

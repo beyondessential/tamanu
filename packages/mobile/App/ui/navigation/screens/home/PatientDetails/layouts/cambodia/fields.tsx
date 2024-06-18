@@ -31,25 +31,7 @@ export const CAMBODIA_ADDITIONAL_DATA_FIELDS = {
   PERSONAL: [ADDITIONAL_DATA_FIELDS.COUNTRY_OF_BIRTH_ID, ADDITIONAL_DATA_FIELDS.NATIONALITY_ID],
 };
 
-export const CAMBODIA_ADDITIONAL_DATA_SECTIONS = [
-  {
-    title: (
-      <TranslatedText
-        stringId="patient.details.subheading.currentAddress"
-        fallback="Current address"
-      />
-    ),
-    fields: CAMBODIA_ADDITIONAL_DATA_FIELDS.ADDRESS,
-  },
-  {
-    title: (
-      <TranslatedText
-        stringId="patient.details.subheading.permanentAddress"
-        fallback="Permanent address"
-      />
-    ),
-    fields: CAMBODIA_ADDITIONAL_DATA_FIELDS.PERMANENT_ADDRESS,
-  },
+const COMMON = [
   {
     title: (
       <TranslatedText
@@ -77,4 +59,53 @@ export const CAMBODIA_ADDITIONAL_DATA_SECTIONS = [
     ),
     fields: CAMBODIA_ADDITIONAL_DATA_FIELDS.PERSONAL,
   },
+];
+
+export const CAMBODIA_ADDITIONAL_DATA_SECTIONS = [
+  {
+    title: (
+      <TranslatedText
+        stringId="patient.details.subheading.currentAddress"
+        fallback="Current address"
+      />
+    ),
+    fields: CAMBODIA_ADDITIONAL_DATA_FIELDS.ADDRESS,
+  },
+  {
+    title: (
+      <TranslatedText
+        stringId="patient.details.subheading.permanentAddress"
+        fallback="Permanent address"
+      />
+    ),
+    fields: CAMBODIA_ADDITIONAL_DATA_FIELDS.PERMANENT_ADDRESS,
+  },
+  ...COMMON,
+];
+
+export const CAMBODIA_ADDITIONAL_DATA_SECTIONS_FOR_DISPLAY = [
+  {
+    title: (
+      <TranslatedText
+        stringId="patient.details.subheading.currentAddress"
+        fallback="Current address"
+      />
+    ),
+    fields: ['divisionId', 'subdivisionId', 'settlementId', 'villageId'],
+  },
+  {
+    title: (
+      <TranslatedText
+        stringId="patient.details.subheading.permanentAddress"
+        fallback="Permanent address"
+      />
+    ),
+    fields: [
+      'secondaryDivisionId',
+      'secondarySubdivisionId',
+      'secondarySettlementId',
+      'secondaryVillageId',
+    ],
+  },
+  ...COMMON,
 ];
