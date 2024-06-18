@@ -17,6 +17,7 @@ import { upperCase } from 'lodash';
 import { InvoiceStatus } from './InvoiceStatus';
 import { InvoiceModalGroup } from './InvoiceModalGroup';
 import { getInvoiceSummary } from '@tamanu/shared/utils/invoice';
+import { useEncounterInvoice } from '../../api/queries/useInvoiceQuery';
 
 const TableTitle = styled(Typography)`
   font-size: 16px;
@@ -118,6 +119,9 @@ const COLUMNS = [
 
 export const InvoicesTable = ({ patient }) => {
   const [selectedInvoice, setSelectedInvoice] = useState();
+  const [refreshTable, setRefreshTable] = useState(0);
+
+  const { data: invoice } = useEncounterInvoice(selectedInvoice?.encounterId);
 
   return (
     <>
@@ -134,13 +138,16 @@ export const InvoicesTable = ({ patient }) => {
           </TableTitle>
         }
         onClickRow={(_, data) => setSelectedInvoice(data)}
+        refreshCount={refreshTable}
       />
       {!!selectedInvoice && (
         <InvoiceModalGroup
           initialState={{
             type: INVOICE_MODAL_TYPES.EDIT_INVOICE,
-            invoice: selectedInvoice,
+            invoice,
           }}
+          onUpdateSuccess={() => setRefreshTable(prev => prev + 1)}
+          isPatientView
         />
       )}
     </>

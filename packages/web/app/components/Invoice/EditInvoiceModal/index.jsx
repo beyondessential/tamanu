@@ -2,11 +2,16 @@ import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
 import * as yup from 'yup';
-import { CircularProgress, Divider } from '@material-ui/core';
+import { Box, CircularProgress, Divider } from '@material-ui/core';
+import PrintIcon from '@material-ui/icons/Print';
 import { FieldArray } from 'formik';
 import { differenceBy } from 'lodash';
 import { isInvoiceEditable } from '@tamanu/shared/utils/invoice';
-import { INVOICE_ITEMS_CATEGORY_LABELS } from '@tamanu/constants';
+import {
+  INVOICE_ITEMS_CATEGORY_LABELS,
+  INVOICE_PAYMENT_STATUSES,
+  INVOICE_STATUSES,
+} from '@tamanu/constants';
 import { Modal } from '../../Modal';
 import { TranslatedEnum, TranslatedText } from '../../Translation';
 import { Form } from '../../Field';
@@ -19,14 +24,13 @@ import { InvoiceItemHeader, InvoiceItemRow } from './InvoiceItem';
 import { InvoiceStatus } from '../InvoiceStatus';
 import { InvoiceSummaryPanel } from '../InvoiceSummaryPanel';
 import { useUpdateInvoice } from '../../../api/mutations/useInvoiceMutation';
+import { ThreeDotMenu } from '../../ThreedotMenu';
 
 const LinkText = styled.div`
   font-weight: 500;
   font-size: 14px;
   line-height: 18px;
   color: ${Colors.primary};
-  margin-top: 10px;
-  margin-bottom: 10px;
   cursor: pointer;
   width: fit-content;
 `;
@@ -101,6 +105,7 @@ const ModalSection = styled.div`
   display: flex;
   gap: 10px;
   align-items: flex-start;
+  padding-top: 10px;
 `;
 
 const StatusContainer = styled.span`
@@ -110,7 +115,26 @@ const StatusContainer = styled.span`
 
 const getDefaultRow = () => ({ id: uuidv4() });
 
-export const EditInvoiceModal = ({ open, onClose, invoice, handleEditDiscount }) => {
+export const EditInvoiceModal = ({
+  open,
+  onClose,
+  invoice,
+  handleEditDiscount,
+  handleCancelInvoice,
+  handleFinaliseInvoice,
+  onSuccess,
+  isPatientView,
+}) => {
+  const editable = isInvoiceEditable(invoice);
+  const cancelable =
+    invoice.status !== INVOICE_STATUSES.CANCELLED &&
+    invoice.paymentStatus === INVOICE_PAYMENT_STATUSES.UNPAID &&
+    isPatientView;
+  const finalisable =
+    invoice.status === INVOICE_STATUSES.IN_PROGRESS &&
+    !!invoice.encounter?.endDate &&
+    isPatientView;
+
   const [potentialInvoiceItems, setPotentialInvoiceItems] = useState([]);
 
   const { mutate: updateInvoice, isLoading: isUpdatingInvoice } = useUpdateInvoice(invoice);
@@ -123,7 +147,10 @@ export const EditInvoiceModal = ({ open, onClose, invoice, handleEditDiscount })
     updateInvoice(
       { ...invoice, items: data.invoiceItems },
       {
-        onSuccess: onClose,
+        onSuccess: () => {
+          onSuccess();
+          onClose();
+        },
       },
     );
   };
@@ -161,185 +188,247 @@ export const EditInvoiceModal = ({ open, onClose, invoice, handleEditDiscount })
     <Modal
       width="lg"
       title={
-        <>
-          <TranslatedText
-            stringId="invoice.modal.view.title"
-            fallback="Invoice number: :invoiceNumber"
-            replacements={{ invoiceNumber: invoice.displayId }}
-          />
-          <StatusContainer>
-            <InvoiceStatus status={invoice.status} />
-          </StatusContainer>
-        </>
+        <Box display="flex" justifyContent="space-between" alignItems="center" width="100%">
+          <Box display="flex" alignItems="center" flex={1}>
+            <TranslatedText
+              stringId="invoice.modal.view.title"
+              fallback="Invoice number: :invoiceNumber"
+              replacements={{ invoiceNumber: invoice.displayId }}
+            />
+            <StatusContainer>
+              <InvoiceStatus status={invoice.status} />
+            </StatusContainer>
+          </Box>
+          {isPatientView && !editable && (
+            <Button color="primary" variant="outlined" startIcon={<PrintIcon />} size="small">
+              <TranslatedText stringId="general.action.print" fallback="Print" />
+            </Button>
+          )}
+        </Box>
       }
       open={open}
       onClose={onClose}
       overrideContentPadding
     >
-      <Form
-        enableReinitialize
-        onSubmit={handleSubmit}
-        initialValues={{ invoiceItems: invoice.items?.length ? invoice.items : [getDefaultRow()] }}
-        validationSchema={schema}
-        render={({ submitForm, values }) => (
-          <FieldArray name="invoiceItems">
-            {formArrayMethods => {
-              const isEmptyPotentialInvoiceItems = !differenceBy(
-                potentialInvoiceItems,
-                values.invoiceItems,
-                'id',
-              ).length;
-
-              const potentialInvoiceItemRowStyle = ({ id }) => {
-                const idList = values.invoiceItems.map(row => row?.id).filter(Boolean);
-                if (idList.includes(id)) return 'display: none;';
-                return '';
-              };
-
-              const handleAddPotentialInvoiceItems = items => {
-                items.forEach(item => !potentialInvoiceItemRowStyle(item) && formArrayMethods.push(item));
-              };
-
-              const POTENTIAL_INVOICE_ITEMS_TABLE_COLUMNS = [
-                {
-                  key: 'orderDate',
-                  title: <TranslatedText stringId="general.date.label" fallback="Date" />,
-                  accessor: ({ orderDate }) => <DateDisplay date={orderDate} />,
-                },
-                {
-                  key: 'code',
-                  title: <TranslatedText stringId="invoice.table.column.code" fallback="Code" />,
-                  accessor: ({ code }) => code,
-                },
-                {
-                  key: 'type',
-                  title: (
-                    <TranslatedText stringId="invoice.table.column.category" fallback="Category" />
-                  ),
-                  accessor: ({ type }) => (
-                    <TranslatedEnum
-                      prefix="invoice.table.column.type"
-                      value={type}
-                      enumValues={INVOICE_ITEMS_CATEGORY_LABELS}
-                    />
-                  ),
-                },
-                {
-                  key: 'price',
-                  title: <TranslatedText stringId="invoice.table.column.price" fallback="Price" />,
-                  accessor: ({ price }) => (
-                    <TranslatedText
-                      stringId="invoice.table.cell.price"
-                      fallback="$:price"
-                      replacements={{ price }}
-                    />
-                  ),
-                },
-                {
-                  sortable: false,
-                  accessor: row => (
-                    <SingleAddButton
-                      variant="outlined"
-                      onClick={() => handleAddPotentialInvoiceItems([row])}
-                    >
-                      <TranslatedText stringId="general.action.add" fallback="Add" />
-                    </SingleAddButton>
-                  ),
-                },
-              ];
-
-              return (
-                <FormContainer>
-                  <InvoiceItemHeader />
-                  <div>
-                    {values.invoiceItems?.map((item, index) => (
-                      <InvoiceItemRow
-                        key={item.id}
-                        index={index}
-                        item={item}
-                        isDeleteDisabled={values.invoiceItems?.length === 1}
-                        showActionMenu={item.productId || values.invoiceItems.length > 1}
-                        formArrayMethods={formArrayMethods}
-                      />
-                    ))}
-                  </div>
-                  <LinkText onClick={() => formArrayMethods.push(getDefaultRow())}>
-                    {'+ '}
-                    <TranslatedText
-                      stringId="invoice.modal.editInvoice.action.newRow"
-                      fallback="Add new row"
-                    />
-                  </LinkText>
-                  <ModalSection>
-                    <PotentialLineItemsPane>
-                      <PaneTitle>
+      <>
+        {(finalisable || cancelable) && (
+          <>
+            <Box display="flex" justifyContent="space-between" alignItems="center" paddingX="36px">
+              {finalisable && (
+                <Button onClick={handleFinaliseInvoice}>
+                  <TranslatedText
+                    stringId="invoice.modal.finaliseButton.label"
+                    fallback="Finalise invoice"
+                  />
+                </Button>
+              )}
+              {cancelable && (
+                <ThreeDotMenu
+                  items={[
+                    {
+                      label: (
                         <TranslatedText
-                          stringId="invoice.modal.potentialItems.title"
-                          fallback="Patient items to be added"
+                          stringId="invoice.modal.editInvoice.cancelInvoice"
+                          fallback="Cancel invoice"
                         />
-                        {!isEmptyPotentialInvoiceItems && (
-                          <BulkAddButton
-                            onClick={() => handleAddPotentialInvoiceItems(potentialInvoiceItems)}
-                          >
-                            <TranslatedText stringId="general.action.addAll" fallback="Add all" />
-                          </BulkAddButton>
-                        )}
-                      </PaneTitle>
-                      <StyledDataFetchingTable
-                        endpoint={`invoices/${invoice.id}/potentialInvoiceItems`}
-                        columns={POTENTIAL_INVOICE_ITEMS_TABLE_COLUMNS}
-                        noDataMessage={
-                          <TranslatedText
-                            stringId="invoice.modal.potentialInvoices.table.noData"
-                            fallback="No patient items to be added"
-                          />
-                        }
-                        allowExport={false}
-                        rowStyle={potentialInvoiceItemRowStyle}
-                        onDataFetched={onPotentialInvoiceItemsFetched}
-                        headerColor={Colors.white}
-                        fetchOptions={{ page: undefined }}
-                        elevated={false}
-                        isEmpty={isEmptyPotentialInvoiceItems}
-                        containerStyle={denseTableStyle.container}
-                        cellStyle={denseTableStyle.cell}
-                        headStyle={denseTableStyle.head}
-                        statusCellStyle={denseTableStyle.statusCell}
-                        disablePagination
+                      ),
+                      onClick: handleCancelInvoice,
+                    },
+                  ]}
+                />
+              )}
+            </Box>
+            <Divider
+              style={{
+                margin: '15px 36px -15px 36px',
+              }}
+            />
+          </>
+        )}
+        <Form
+          enableReinitialize
+          onSubmit={handleSubmit}
+          initialValues={{
+            invoiceItems: invoice.items?.length ? invoice.items : [getDefaultRow()],
+          }}
+          validationSchema={schema}
+          render={({ submitForm, values }) => (
+            <FieldArray name="invoiceItems">
+              {formArrayMethods => {
+                const isEmptyPotentialInvoiceItems = !differenceBy(
+                  potentialInvoiceItems,
+                  values.invoiceItems,
+                  'id',
+                ).length;
+
+                const potentialInvoiceItemRowStyle = ({ id }) => {
+                  const idList = values.invoiceItems.map(row => row?.id).filter(Boolean);
+                  if (idList.includes(id)) return 'display: none;';
+                  return '';
+                };
+
+                const handleAddPotentialInvoiceItems = items => {
+                  items.forEach(
+                    item => !potentialInvoiceItemRowStyle(item) && formArrayMethods.push(item),
+                  );
+                };
+
+                const POTENTIAL_INVOICE_ITEMS_TABLE_COLUMNS = [
+                  {
+                    key: 'orderDate',
+                    title: <TranslatedText stringId="general.date.label" fallback="Date" />,
+                    accessor: ({ orderDate }) => <DateDisplay date={orderDate} />,
+                  },
+                  {
+                    key: 'code',
+                    title: <TranslatedText stringId="invoice.table.column.code" fallback="Code" />,
+                    accessor: ({ code }) => code,
+                  },
+                  {
+                    key: 'type',
+                    title: (
+                      <TranslatedText
+                        stringId="invoice.table.column.category"
+                        fallback="Category"
                       />
-                    </PotentialLineItemsPane>
-                    <InvoiceSummaryPanel
-                      invoice={{ ...invoice, items: values.invoiceItems }}
-                      editable={isInvoiceEditable(invoice)}
-                      handleEditDiscount={handleEditDiscount}
-                    />
-                  </ModalSection>
-                  <StyledDivider />
-                  <FormSubmitCancelRow
-                    confirmText={
-                      !isUpdatingInvoice ? (
-                        <TranslatedText stringId="general.action.save" fallback="Save" />
-                      ) : (
-                        <CircularProgress size={14} color={Colors.white} />
-                      )
-                    }
-                    onConfirm={submitForm}
-                    onCancel={onClose}
-                    confirmDisabled={isUpdatingInvoice}
-                    confirmStyle={`
+                    ),
+                    accessor: ({ type }) => (
+                      <TranslatedEnum
+                        prefix="invoice.table.column.type"
+                        value={type}
+                        enumValues={INVOICE_ITEMS_CATEGORY_LABELS}
+                      />
+                    ),
+                  },
+                  {
+                    key: 'price',
+                    title: (
+                      <TranslatedText stringId="invoice.table.column.price" fallback="Price" />
+                    ),
+                    accessor: ({ price }) => (
+                      <TranslatedText
+                        stringId="invoice.table.cell.price"
+                        fallback="$:price"
+                        replacements={{ price }}
+                      />
+                    ),
+                  },
+                  {
+                    sortable: false,
+                    accessor: row => (
+                      <SingleAddButton
+                        variant="outlined"
+                        onClick={() => handleAddPotentialInvoiceItems([row])}
+                      >
+                        <TranslatedText stringId="general.action.add" fallback="Add" />
+                      </SingleAddButton>
+                    ),
+                  },
+                ];
+
+                return (
+                  <FormContainer>
+                    <InvoiceItemHeader />
+                    <Box paddingBottom="10px">
+                      {values.invoiceItems?.map((item, index) => (
+                        <InvoiceItemRow
+                          key={item.id}
+                          index={index}
+                          item={item}
+                          isDeleteDisabled={values.invoiceItems?.length === 1}
+                          showActionMenu={item.productId || values.invoiceItems.length > 1}
+                          formArrayMethods={formArrayMethods}
+                          editable={editable}
+                        />
+                      ))}
+                    </Box>
+                    {editable && (
+                      <LinkText onClick={() => formArrayMethods.push(getDefaultRow())}>
+                        {'+ '}
+                        <TranslatedText
+                          stringId="invoice.modal.editInvoice.action.newRow"
+                          fallback="Add new row"
+                        />
+                      </LinkText>
+                    )}
+                    <ModalSection>
+                      {editable && (
+                        <PotentialLineItemsPane>
+                          <PaneTitle>
+                            <TranslatedText
+                              stringId="invoice.modal.potentialItems.title"
+                              fallback="Patient items to be added"
+                            />
+                            {!isEmptyPotentialInvoiceItems && (
+                              <BulkAddButton
+                                onClick={() =>
+                                  handleAddPotentialInvoiceItems(potentialInvoiceItems)
+                                }
+                              >
+                                <TranslatedText
+                                  stringId="general.action.addAll"
+                                  fallback="Add all"
+                                />
+                              </BulkAddButton>
+                            )}
+                          </PaneTitle>
+                          <StyledDataFetchingTable
+                            endpoint={`invoices/${invoice.id}/potentialInvoiceItems`}
+                            columns={POTENTIAL_INVOICE_ITEMS_TABLE_COLUMNS}
+                            noDataMessage={
+                              <TranslatedText
+                                stringId="invoice.modal.potentialInvoices.table.noData"
+                                fallback="No patient items to be added"
+                              />
+                            }
+                            allowExport={false}
+                            rowStyle={potentialInvoiceItemRowStyle}
+                            onDataFetched={onPotentialInvoiceItemsFetched}
+                            headerColor={Colors.white}
+                            fetchOptions={{ page: undefined }}
+                            elevated={false}
+                            isEmpty={isEmptyPotentialInvoiceItems}
+                            containerStyle={denseTableStyle.container}
+                            cellStyle={denseTableStyle.cell}
+                            headStyle={denseTableStyle.head}
+                            statusCellStyle={denseTableStyle.statusCell}
+                            disablePagination
+                          />
+                        </PotentialLineItemsPane>
+                      )}
+                      <InvoiceSummaryPanel
+                        invoice={{ ...invoice, items: values.invoiceItems }}
+                        editable={editable}
+                        handleEditDiscount={handleEditDiscount}
+                      />
+                    </ModalSection>
+                    <StyledDivider />
+                    <FormSubmitCancelRow
+                      confirmText={
+                        !isUpdatingInvoice ? (
+                          <TranslatedText stringId="general.action.save" fallback="Save" />
+                        ) : (
+                          <CircularProgress size={14} color={Colors.white} />
+                        )
+                      }
+                      onConfirm={submitForm}
+                      onCancel={onClose}
+                      confirmDisabled={isUpdatingInvoice}
+                      confirmStyle={`
                       &.Mui-disabled {
                         color: ${Colors.white};
                         background-color: ${Colors.primary};
                         opacity: 0.3;
                       }
                     `}
-                  />
-                </FormContainer>
-              );
-            }}
-          </FieldArray>
-        )}
-      />
+                    />
+                  </FormContainer>
+                );
+              }}
+            </FieldArray>
+          )}
+        />
+      </>
     </Modal>
   );
 };

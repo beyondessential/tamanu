@@ -4,8 +4,14 @@ import { INVOICE_MODAL_TYPES } from '../../constants';
 import { UpsertInvoiceModal } from './UpsertInvoiceModal';
 import { EditInvoiceModal } from './EditInvoiceModal';
 import { CancelInvoiceModal } from './CancelInvoiceModal';
+import { FinaliseInvoiceModal } from './FinaliseInvoiceModal';
 
-export const InvoiceModalGroup = ({ encounterId, initialState }) => {
+export const InvoiceModalGroup = ({
+  encounterId,
+  initialState,
+  onUpdateSuccess = () => null,
+  isPatientView,
+}) => {
   const [invoice, setInvoice] = useState();
   const [invoiceModal, setInvoiceModal] = useState([]);
 
@@ -30,6 +36,14 @@ export const InvoiceModalGroup = ({ encounterId, initialState }) => {
     setInvoice({ ...invoice, ...data });
   };
 
+  const handleCancelInvoice = () => {
+    handleOpenInvoiceModal(INVOICE_MODAL_TYPES.CANCEL_INVOICE, true);
+  };
+
+  const handleFinaliseInvoice = () => {
+    handleOpenInvoiceModal(INVOICE_MODAL_TYPES.FINALISE_INVOICE, true);
+  };
+
   return (
     <>
       {invoiceModal.includes(INVOICE_MODAL_TYPES.CREATE_INVOICE) && (
@@ -46,15 +60,27 @@ export const InvoiceModalGroup = ({ encounterId, initialState }) => {
           open
           onClose={() => handleCloseInvoiceModal()}
           invoice={invoice}
+          onSuccess={onUpdateSuccess}
           handleEditDiscount={handleEditDiscount}
+          handleCancelInvoice={handleCancelInvoice}
+          handleFinaliseInvoice={handleFinaliseInvoice}
+          isPatientView={isPatientView}
         />
       )}
       {invoiceModal.includes(INVOICE_MODAL_TYPES.CANCEL_INVOICE) && invoice && (
         <CancelInvoiceModal
           open
           onClose={() => handleCloseInvoiceModal(INVOICE_MODAL_TYPES.CANCEL_INVOICE)}
-          onCancelSuccess={() => handleCloseInvoiceModal()}
           invoice={invoice}
+          onSuccess={onUpdateSuccess}
+        />
+      )}
+      {invoiceModal.includes(INVOICE_MODAL_TYPES.FINALISE_INVOICE) && invoice && (
+        <FinaliseInvoiceModal
+          open
+          onClose={() => handleCloseInvoiceModal(INVOICE_MODAL_TYPES.FINALISE_INVOICE)}
+          invoice={invoice}
+          onSuccess={onUpdateSuccess}
         />
       )}
     </>

@@ -9,6 +9,7 @@ import { ThemedTooltip } from '../../Tooltip';
 import { ThreeDotMenu } from '../../ThreedotMenu';
 import { InvoiceItemActionModal } from './InvoiceItemActionModal';
 import { getInvoiceItemDiscountPrice } from '@tamanu/shared/utils/invoice';
+import { getDateDisplay } from '../../DateDisplay';
 
 const PriceText = styled.span`
   margin-right: 16px;
@@ -41,14 +42,19 @@ const StyledItemHeader = styled(Grid)`
   border: 1px solid ${Colors.outline};
 `;
 
+const CodeCell = styled(Box)`
+  margin-left: 5%;
+`;
+
 const PriceCell = styled.div`
   margin-left: 10%;
   display: flex;
   align-items: center;
 `;
 
-const ItemCodeText = styled(Box)`
-  margin-left: 5%;
+const ViewOnlyCell = styled(Box)`
+  font-size: 14px;
+  padding: 8px 0;
 `;
 
 export const InvoiceItemHeader = () => {
@@ -61,9 +67,9 @@ export const InvoiceItemHeader = () => {
         <TranslatedText stringId="invoice.modal.addInvoice.details.label" fallback="Details" />
       </Grid>
       <Grid item xs={1}>
-        <ItemCodeText>
+        <CodeCell>
           <TranslatedText stringId="invoice.table.column.code" fallback="Code" />
-        </ItemCodeText>
+        </CodeCell>
       </Grid>
       <Grid item xs={3}>
         <TranslatedText stringId="invoice.modal.addInvoice.orderedBy.label" fallback="Ordered by" />
@@ -83,6 +89,7 @@ export const InvoiceItemRow = ({
   isDeleteDisabled,
   showActionMenu,
   formArrayMethods,
+  editable,
 }) => {
   const invoiceProductsSuggester = useSuggester('invoiceProducts', {
     formatter: ({ name, id, ...others }) => ({ ...others, label: name, value: id }),
@@ -205,53 +212,82 @@ export const InvoiceItemRow = ({
     <>
       <StyledItemRow container alignItems="center" spacing={1}>
         <StyledItemCell item xs={2}>
-          <Field
-            name={`invoiceItems.${index}.orderDate`}
-            required
-            component={DateField}
-            size="small"
-            saveDateAsString
-          />
+          {editable ? (
+            <Field
+              name={`invoiceItems.${index}.orderDate`}
+              required
+              component={DateField}
+              size="small"
+              saveDateAsString
+            />
+          ) : (
+            <ViewOnlyCell>{getDateDisplay(item?.orderDate, 'dd/MM/yyyy')}</ViewOnlyCell>
+          )}
         </StyledItemCell>
         <StyledItemCell item xs={4}>
-          <Field
-            name={`invoiceItems.${index}.productId`}
-            required
-            component={AutocompleteField}
-            suggester={invoiceProductsSuggester}
-            size="small"
-            onChange={handleChangeProduct}
-          />
+          {editable ? (
+            <Field
+              name={`invoiceItems.${index}.productId`}
+              required
+              component={AutocompleteField}
+              suggester={invoiceProductsSuggester}
+              size="small"
+              onChange={handleChangeProduct}
+            />
+          ) : (
+            <ViewOnlyCell>{item?.productName ?? item?.product?.name ?? item?.name}</ViewOnlyCell>
+          )}
         </StyledItemCell>
         <StyledItemCell item justifyContent="center" xs={1}>
-          <ItemCodeText minHeight="39px" display="flex" alignItems="center">
-            {item.product?.referenceData?.code || item?.code}
-          </ItemCodeText>
+          {editable ? (
+            <CodeCell minHeight="39px" display="flex" alignItems="center">
+              {item.product?.referenceData?.code || item?.code}
+            </CodeCell>
+          ) : (
+            <ViewOnlyCell marginLeft="5%">
+              {item.product?.referenceData?.code || item?.code}
+            </ViewOnlyCell>
+          )}
         </StyledItemCell>
         <StyledItemCell item xs={3}>
-          <Field
-            name={`invoiceItems.${index}.orderedByUserId`}
-            required
-            component={AutocompleteField}
-            suggester={practitionerSuggester}
-            size="small"
-            onChange={handleChangeOrderedBy}
-          />
+          {editable ? (
+            <Field
+              name={`invoiceItems.${index}.orderedByUserId`}
+              required
+              component={AutocompleteField}
+              suggester={practitionerSuggester}
+              size="small"
+              onChange={handleChangeOrderedBy}
+            />
+          ) : (
+            <ViewOnlyCell>{item?.orderedByUser?.displayName}</ViewOnlyCell>
+          )}
         </StyledItemCell>
         <StyledItemCell item xs={2}>
-          <PriceCell>
-            <PriceText $isCrossedOut={!!discountPercentage}>{price}</PriceText>
-            {!!discountPercentage && !isNaN(discountedPrice) && (
-              <ThemedTooltip
-                key={item.discount?.reason}
-                title={item.discount?.reason}
-                open={item.discount?.reason ? undefined : false}
-              >
-                <span>{discountedPrice}</span>
-              </ThemedTooltip>
-            )}
-            {showActionMenu && <ThreeDotMenu items={menuItems} />}
-          </PriceCell>
+          {editable ? (
+            <PriceCell>
+              <PriceText $isCrossedOut={!!discountPercentage}>{price}</PriceText>
+              {!!discountPercentage && !isNaN(discountedPrice) && (
+                <ThemedTooltip
+                  key={item.discount?.reason}
+                  title={item.discount?.reason}
+                  open={item.discount?.reason ? undefined : false}
+                >
+                  <span>{discountedPrice}</span>
+                </ThemedTooltip>
+              )}
+              {showActionMenu && <ThreeDotMenu items={menuItems} />}
+            </PriceCell>
+          ) : (
+            <ViewOnlyCell marginLeft="10%">
+              <PriceText $isCrossedOut={!!discountPercentage}>{price}</PriceText>
+              {!!discountPercentage && !isNaN(discountedPrice) && (
+                <ThemedTooltip title={item.discount?.reason}>
+                  <span>{discountedPrice}</span>
+                </ThemedTooltip>
+              )}
+            </ViewOnlyCell>
+          )}
         </StyledItemCell>
       </StyledItemRow>
       {actionModal && (
