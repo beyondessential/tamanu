@@ -84,7 +84,7 @@ export const PatientPaymentsTable = ({
   ], [newPatientPayments]);
 
   const generateReceiptNumber = () => {
-    const receiptNumber = customAlphabet('0123456789', 8)() + customAlphabet('ABCDEFGHIJKLMNOPQRSTUVWXYZ', 2)();
+    const receiptNumber = customAlphabet('123456789', 8)() + customAlphabet('ABCDEFGHJKLMNPQRSTUVWXYZ', 2)();
     setReceiptNumber(receiptNumber);
   };
 
