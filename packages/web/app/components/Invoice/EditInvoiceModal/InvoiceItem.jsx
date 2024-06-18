@@ -210,6 +210,7 @@ export const InvoiceItemRow = ({
             required
             component={DateField}
             size="small"
+            saveDateAsString
           />
         </StyledItemCell>
         <StyledItemCell item xs={4}>

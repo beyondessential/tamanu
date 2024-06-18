@@ -6,7 +6,7 @@ import { CircularProgress, Divider } from '@material-ui/core';
 import { FieldArray } from 'formik';
 import { differenceBy } from 'lodash';
 import { isInvoiceEditable } from '@tamanu/shared/utils/invoice';
-import { POTENTIAL_INVOICE_ITEMS_CATEGORY_LABELS } from '@tamanu/constants';
+import { INVOICE_ITEMS_CATEGORY_LABELS } from '@tamanu/constants';
 import { Modal } from '../../Modal';
 import { TranslatedEnum, TranslatedText } from '../../Translation';
 import { Form } from '../../Field';
@@ -220,7 +220,7 @@ export const EditInvoiceModal = ({ open, onClose, invoice, handleEditDiscount })
                     <TranslatedEnum
                       prefix="invoice.table.column.type"
                       value={type}
-                      enumValues={POTENTIAL_INVOICE_ITEMS_CATEGORY_LABELS}
+                      enumValues={INVOICE_ITEMS_CATEGORY_LABELS}
                     />
                   ),
                 },

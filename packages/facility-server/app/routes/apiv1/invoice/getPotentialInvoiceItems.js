@@ -1,129 +1,105 @@
 import { REFERENCE_TYPES } from '@tamanu/constants';
+import { NotFoundError } from '@tamanu/shared/errors';
 import { QueryTypes } from 'sequelize';
 
 /**
  * Query existing procedures, imaging requests, lab tests in the encounter,
  * compare if there have been corresponding invoice line items created,
  * and return the dummy potential invoice line items for the ones that have not been created yet.
+ * @param {import('sequelize').Sequelize} db
+ * @param {string} invoiceId
  */
-export const getPotentialInvoiceItems = async (db, models, encounterId, imagingTypes) => {
-  const procedures = await db.query(
-    `
-        SELECT
-        procedures.id AS "id",
-        procedures.date AS "orderDate",
-        procedures.physician_id AS "orderedByUserId",
-        reference_data.code AS "code",
-        reference_data.type AS "type",
-        invoice_products.id AS "productId",
-        invoice_products.price AS "price",
-        invoice_products.name AS "name",
-        users.display_name AS "orderedByUser.displayName"
-        FROM procedures
+export const getPotentialInvoiceItems = async (db, invoiceId, imagingTypes) => {
+  const encounterId = await db
+    .query(`SELECT i."encounterId" from invoices i where i.id = :invoiceId`, {
+      replacements: {
+        invoiceId,
+      },
+      type: QueryTypes.SELECT,
+      plain: true,
+    })
+    .then(invoice => invoice?.encounterId);
 
-        INNER JOIN invoice_products
-        ON invoice_products.id = procedures.procedure_type_id
+  if (!encounterId) throw new NotFoundError(`invoice ${invoiceId} not found`);
 
-        INNER JOIN reference_data
-        ON invoice_products.id = reference_data.id
-        AND reference_data.type = :referenceDataType
-
-        INNER JOIN users
-        ON users.id = procedures.physician_id
-
-        WHERE procedures.encounter_id = :encounterId
-        AND procedures.deleted_at IS NULL;
-    `,
+  return await db.query(
+    `with filtered_procedures as (
+	select
+		rd.type as "sourceType",
+		p.id as "sourceId",
+		p.procedure_type_id as "productId",
+		p."date",
+		rd.code as "productCode",
+		p.physician_id as "orderedByUserId"
+	from "procedures" p
+	join reference_data rd on rd.deleted_at is null and rd.id = p.procedure_type_id
+	where p.deleted_at is null
+	and p.encounter_id = :encounterId
+),
+filtered_imagings as (
+	select
+		:imagingType as "sourceType",
+		ir.id as "sourceId",
+		ir.imaging_type as "productId",
+		ir."requested_date" as "date",
+		rd.code as "productCode",
+		ir.requested_by_id as "orderedByUserId"
+	from imaging_requests ir
+	join (
+		SELECT
+        	key as id,
+			value->>'code' AS code,
+			value->>'label' AS label
+		FROM jsonb_each(:imagingTypes)
+	) as reference_data rd on rd.deleted_at is null and rd.id = ir.imaging_type
+	where ir.deleted_at is null
+	and ir.encounter_id = :encounterId
+),
+filtered_labtests as (
+	select
+		:labtestType as "sourceType",
+		lt.id as "sourceId",
+		lt.lab_test_type_id as "productId",
+		lt."date",
+		ltt.code as "productCode",
+		lr.requested_by_id as "orderedByUserId"
+	from lab_tests lt
+	join lab_requests lr on lr.deleted_at is null and lr.id = lt.lab_request_id
+	join lab_test_types ltt on ltt.deleted_at is null and ltt.id = lt.lab_test_type_id
+	where lt.deleted_at is null
+	and lr.encounter_id = :encounterId
+),
+filtered_products as (
+	select
+		ip.id,
+		ip.name,
+		ip.price
+	from invoice_products ip
+	where ip.deleted_at is null
+)
+select
+	fpd.id as "productId",
+	coalesce(fpc."productCode",fi."productCode",fl."productCode") as "productCode",
+	coalesce(fpc."sourceType",fi."sourceType",fl."sourceType") as "productType",
+	fpd.name as "productName",
+	fpd.price as "productPrice",
+	coalesce(fpc."date",fi."date",fl."date") as "date",
+	coalesce(fpc."sourceId",fi."sourceId",fl."sourceId") as "sourceId",
+	coalesce(fpc."orderedByUserId",fi."orderedByUserId",fl."orderedByUserId") as "orderedByUserId",
+	u.display_name as "orderedByUserName"
+from filtered_products fpd
+left join filtered_procedures fpc on fpc."productId" = fpd.id
+left join filtered_imagings fi on fi."productId" = fpd.id
+left join filtered_labtests fl on fl."productId" = fpd.id
+join users u on u.deleted_at is null and coalesce(fpc."orderedByUserId",fi."orderedByUserId",fl."orderedByUserId") = u.id;`,
     {
       replacements: {
         encounterId,
-        referenceDataType: REFERENCE_TYPES.PROCEDURE_TYPE,
+        imagingType: REFERENCE_TYPES.IMAGING_TYPE,
+        imagingTypes,
+        labtestType: 'labTestType',
       },
-      model: models.Procedure,
       type: QueryTypes.SELECT,
-      mapToModel: true,
     },
   );
-
-  const imagingRequests = await db.query(
-    `
-        SELECT
-        imaging_requests.id AS "id",
-        imaging_requests.requested_date AS "orderDate",
-        imaging_requests.requested_by_id AS "orderedByUserId",
-        imaging_type.code AS "code",
-        :referenceDataType AS "type",
-        invoice_products.id AS "productId",
-        invoice_products.price AS "price",
-        invoice_products.name AS "name",
-        users.display_name AS "orderedByUser.displayName"
-        FROM imaging_requests
-
-        INNER JOIN invoice_products
-        ON invoice_products.id = imaging_requests.imaging_type
-
-        INNER JOIN (
-          SELECT
-            key, value->>'code' AS code FROM jsonb_each(:imagingTypes)) AS imaging_type
-        ON invoice_products.id = imaging_type.key
-
-        INNER JOIN users
-        ON users.id = imaging_requests.requested_by_id
-
-        WHERE imaging_requests.encounter_id = :encounterId
-        AND imaging_requests.deleted_at IS NULL;
-    `,
-    {
-      replacements: {
-        encounterId,
-        imagingTypes: JSON.stringify(imagingTypes),
-        referenceDataType: REFERENCE_TYPES.IMAGING_TYPE,
-      },
-      model: models.ImagingRequest,
-      type: QueryTypes.SELECT,
-      mapToModel: true,
-    },
-  );
-
-  const labTests = await db.query(
-    `
-        SELECT
-        lab_tests.id AS "id",
-        lab_test_types.code AS "code",
-        lab_tests.date AS "orderDate",
-        lab_requests.requested_by_id AS "orderedByUserId",
-        :labTestType AS "type",
-        invoice_products.id AS "productId",
-        invoice_products.price AS "price",
-        invoice_products.name AS "name",
-        users.display_name AS "orderedByUser.displayName"
-        FROM lab_tests
-
-        INNER JOIN lab_requests
-        ON lab_tests.lab_request_id = lab_requests.id
-
-        INNER JOIN lab_test_types
-        ON lab_tests.lab_test_type_id = lab_test_types.id
-
-        INNER JOIN invoice_products
-        ON lab_test_types.id = invoice_products.id
-
-        INNER JOIN users
-        ON users.id = lab_requests.requested_by_id
-
-        WHERE lab_requests.encounter_id = :encounterId
-        AND lab_requests.deleted_at IS NULL
-    `,
-    {
-      replacements: {
-        encounterId,
-        labTestType: 'labTestType',
-      },
-      model: models.LabTest,
-      type: QueryTypes.SELECT,
-      mapToModel: true,
-    },
-  );
-
-  return [...procedures, ...imagingRequests, ...labTests];
 };

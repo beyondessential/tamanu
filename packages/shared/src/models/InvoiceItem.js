@@ -9,12 +9,16 @@ export class InvoiceItem extends Model {
       {
         id: primaryKey,
         orderDate: {
-          type: DataTypes.DATE,
+          type: DataTypes.DATESTRING,
           allowNull: false,
         },
         productId: {
           type: DataTypes.STRING,
           allowNull: true,
+        },
+        quantity: {
+          type: DataTypes.INTEGER,
+          allowNull: false,
         },
         productName: {
           type: DataTypes.STRING,
