@@ -11,6 +11,7 @@ import { ThemedTooltip } from './Tooltip';
 import { upperCase } from 'lodash';
 import { InvoiceStatus } from './InvoiceStatus';
 import { EditInvoiceModal } from './EditInvoiceModal';
+import { InvoicePaymentModal } from './InvoicePaymentModal';
 
 const TableTitle = styled(Typography)`
   font-size: 16px;
@@ -116,6 +117,7 @@ export const InvoicesTable = React.memo(({ patient }) => {
 
   return (
     <>
+
       <Table
         endpoint={`patient/${patient.id}/invoices`}
         columns={COLUMNS}
@@ -131,11 +133,16 @@ export const InvoicesTable = React.memo(({ patient }) => {
         onClickRow={(_, data) => setSelectedInvoice(data)}
       />
       {!!selectedInvoice && (
-        <EditInvoiceModal
+        // <EditInvoiceModal
+        //   open
+        //   onClose={() => setSelectedInvoice(undefined)}
+        //   invoice={selectedInvoice}
+        //   afterSaveInvoice={selectedInvoice.refreshTable}
+        // />
+        <InvoicePaymentModal 
           open
           onClose={() => setSelectedInvoice(undefined)}
           invoice={selectedInvoice}
-          afterSaveInvoice={selectedInvoice.refreshTable}
         />
       )}
     </>

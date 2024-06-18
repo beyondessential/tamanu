@@ -45,6 +45,8 @@ export const denseTableStyle = {
   `,
   head: `
     .MuiTableCell-head {
+      color: ${Colors.midText};
+      font-weight: 400;
       padding: 8px 30px 8px 0px;
       &:last-child {
         padding-right: 5px;
