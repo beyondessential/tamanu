@@ -3,13 +3,12 @@ import PropTypes from 'prop-types';
 import { useQuery } from '@tanstack/react-query';
 
 import { Modal } from '../../Modal';
-import { LoadingIndicator } from '../../LoadingIndicator';
 import { useCertificate } from '../../../utils/useCertificate';
 import { useApi } from '../../../api';
 import { Colors } from '../../../constants';
 import { PrescriptionPrintout } from '@tamanu/shared/utils/patientCertificates';
 import { useLocalisation } from '../../../contexts/Localisation';
-import { PDFViewer, printPDF } from '../PDFViewer';
+import { PDFLoader, printPDF } from '../PDFLoader';
 import { useAuth } from '../../../contexts/Auth';
 import { TranslatedText } from '../../Translation/TranslatedText';
 
@@ -19,6 +18,7 @@ export const MultiplePrescriptionPrintoutModal = ({
   prescriptions,
   open,
   onClose,
+  patientWeight
 }) => {
   const { getLocalisation } = useLocalisation();
   const { data: certificateData, isFetching: isCertificateFetching } = useCertificate();
@@ -73,21 +73,17 @@ export const MultiplePrescriptionPrintoutModal = ({
       printable
       onPrint={() => printPDF('prescription-printout')}
     >
-      {isLoading ? (
-        <LoadingIndicator />
-      ) : (
-        <PDFViewer id="prescription-printout">
-          <PrescriptionPrintout
-            certificateData={certificateData}
-            patientData={{ ...patient, additionalData, village }}
-            prescriber={prescriber}
-            prescriptions={prescriptions}
-            encounterData={encounter}
-            facility={facility}
-            getLocalisation={getLocalisation}
-          />
-        </PDFViewer>
-      )}
+      <PDFLoader isLoading={isLoading} id="prescription-printout">
+        <PrescriptionPrintout
+          certificateData={certificateData}
+          patientData={{ ...patient, additionalData, village, patientWeight }}
+          prescriber={prescriber}
+          prescriptions={prescriptions}
+          encounterData={encounter}
+          facility={facility}
+          getLocalisation={getLocalisation}
+        />
+      </PDFLoader>
     </Modal>
   );
 };

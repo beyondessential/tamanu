@@ -12,6 +12,7 @@ import { ButtonRow } from '../../../components/ButtonRow';
 import { Table } from '../../../components/Table';
 import { LargeOutlinedSubmitButton, LargeSubmitButton } from '../../../components/Button';
 import { FORM_TYPES } from '../../../constants';
+import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
 const ColorText = styled.span`
   color: ${props => props.color};
@@ -61,24 +62,31 @@ const ImportForm = ({ submitForm, dataTypes, dataTypesSelectable }) => (
     <Field
       component={FileChooserField}
       filters={[FILTER_EXCEL]}
-      label="Select file"
+      label={<TranslatedText stringId="general.selectFile.label" fallback="Select file" />}
       name="file"
       required
     />
     {dataTypes && dataTypesSelectable && (
       <Field
         name="includedDataTypes"
-        label="Select data types to import"
+        label={
+          <TranslatedText
+            stringId="admin.import.includedDataTypes.label"
+            fallback="Select data types to import"
+          />
+        }
         component={ExpandedMultiSelectField}
         options={dataTypes.map(value => ({ value, label: startCase(value) }))}
       />
     )}
     <ButtonRow>
       <LargeOutlinedSubmitButton
-        text="Test import"
+        text={<TranslatedText stringId="admin.import.action.testImport" fallback="Test import" />}
         onSubmit={event => submitForm(event, { dryRun: true })}
       />
-      <LargeSubmitButton text="Import" />
+      <LargeSubmitButton
+        text={<TranslatedText stringId="general.action.import" fallback="Import" />}
+      />
     </ButtonRow>
   </FormGrid>
 );
@@ -192,7 +200,10 @@ export const ImporterView = memo(({ endpoint, dataTypes, dataTypesSelectable, se
                 .required()
                 .min(1)
             : undefined,
-          file: yup.string().required(),
+          file: yup
+            .string()
+            .required()
+            .translatedLabel(<TranslatedText stringId="general.file.label" fallback="File" />),
         })}
         initialValues={{
           includedDataTypes: initialDataTypes,

@@ -14,7 +14,7 @@ import {
   StyleSheet,
 } from 'react-native';
 import { CenterView, FullView, StyledSafeAreaView } from '/styled/common';
-import Animated, { Clock, interpolate } from 'react-native-reanimated';
+import Animated, { Clock, interpolateNode } from 'react-native-reanimated';
 import { ScrollView } from 'react-native-gesture-handler';
 import { theme } from '/styled/theme';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
@@ -62,8 +62,8 @@ export const FormScreenView = ({
   // Check if the screen content is bigger then the ScrollContainer
   useEffect(() => {
     if (contentHeight > 0 && layoutHeight > 0) {
-      const contentBiggerThanScreen = contentHeight - layoutHeight - scrollOffset
-        > beginningEndOfScreenThreshold;
+      const contentBiggerThanScreen =
+        contentHeight - layoutHeight - scrollOffset > beginningEndOfScreenThreshold;
       if (contentBiggerThanScreen) {
         setAnimated(true);
       } else {
@@ -73,9 +73,7 @@ export const FormScreenView = ({
   }, [contentHeight, layoutHeight, scrollOffset]);
 
   const onScroll = useCallback(
-    ({
-      nativeEvent: { contentOffset },
-    }: NativeSyntheticEvent<NativeScrollEvent>) => {
+    ({ nativeEvent: { contentOffset } }: NativeSyntheticEvent<NativeScrollEvent>) => {
       setscrollOffset(contentOffset.y);
     },
     [],
@@ -83,7 +81,7 @@ export const FormScreenView = ({
 
   const clock = new Clock();
   const base = runTiming(clock, -1, 1);
-  const animatedOpacity = interpolate(base, {
+  const animatedOpacity = interpolateNode(base, {
     inputRange: [-1, 1],
     outputRange: [0, 1],
   });
@@ -106,9 +104,7 @@ export const FormScreenView = ({
           scrollToOverflowEnabled
           overScrollMode="always"
         >
-          <FullView margin={screenPercentageToDP(4.86, Orientation.Width)}>
-            {children}
-          </FullView>
+          <FullView margin={screenPercentageToDP(4.86, Orientation.Width)}>{children}</FullView>
         </ScrollView>
         {animated && (
           <CenterView

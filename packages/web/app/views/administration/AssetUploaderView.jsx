@@ -10,6 +10,7 @@ import { ButtonRow } from '../../components/ButtonRow';
 import { LargeSubmitButton } from '../../components/Button';
 import { AdminViewContainer } from './components/AdminViewContainer';
 import { FORM_TYPES } from '../../constants';
+import { TranslatedText } from '../../components/Translation/TranslatedText';
 
 const ResultDisplay = ({ result }) => {
   if (!result) return null;
@@ -76,8 +77,15 @@ export const AssetUploaderView = memo(() => {
       formType={FORM_TYPES.CREATE_FORM}
       onSubmit={onSubmitUpload}
       validationSchema={yup.object().shape({
-        name: yup.string().required(),
-        file: yup.string().required(),
+        name: yup
+          .string()
+          .required()
+          .translatedLabel(
+            <TranslatedText stringId="asset.validation.name.path" fallback="Asset name" />,
+          ),
+        file: yup
+          .string()
+          .required(<TranslatedText stringId="general.file.label" fallback="File" />),
       })}
       render={({ isSubmitting }) => (
         <AdminViewContainer title="Asset upload" showLoadingIndicator={isSubmitting}>
@@ -86,7 +94,7 @@ export const AssetUploaderView = memo(() => {
               <Field
                 component={SelectField}
                 options={nameOptions}
-                label="Select asset"
+                label={<TranslatedText stringId="asset.name.label" fallback="Select asset" />}
                 name="name"
                 required
                 prefix="asset.property.type"
@@ -94,12 +102,14 @@ export const AssetUploaderView = memo(() => {
               <Field
                 component={FileChooserField}
                 filters={[FILTER_IMAGES]}
-                label="Select file"
+                label={<TranslatedText stringId="asset.file.label" fallback="Select file" />}
                 name="file"
                 required
               />
               <ButtonRow>
-                <LargeSubmitButton text="Import" />
+                <LargeSubmitButton
+                  text={<TranslatedText stringId="general.action.import" fallback="Import" />}
+                />
               </ButtonRow>
               <ResultDisplay result={result} />
             </FormGrid>

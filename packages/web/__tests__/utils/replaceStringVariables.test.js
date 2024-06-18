@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { replaceStringVariables } from '../../app/contexts/Translation';
+import { replaceStringVariables } from '@tamanu/shared/utils/translation/translationFactory';
 
 describe('replaceStringVariables', () => {
   test.each([
@@ -50,6 +50,6 @@ describe('replaceStringVariables', () => {
       result: 'replacements are missing :here but not one',
     },
   ])('$testTitle', ({ inputString, replacements, result }) => {
-    expect(replaceStringVariables(inputString, replacements)).toBe(result);
+    expect(replaceStringVariables(inputString, { replacements })).toBe(result);
   });
 });

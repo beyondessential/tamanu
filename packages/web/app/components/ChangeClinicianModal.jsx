@@ -8,7 +8,6 @@ import { usePatientNavigation } from '../utils/usePatientNavigation';
 import { ChangeClinicianForm } from '../forms/ChangeClinicianForm';
 import { FormModal } from './FormModal';
 import { TranslatedText } from './Translation/TranslatedText';
-import { LowerCase } from './Typography';
 
 export const ChangeClinicianModal = React.memo(({ open, onClose }) => {
   const { navigateToEncounter } = usePatientNavigation();
@@ -30,13 +29,11 @@ export const ChangeClinicianModal = React.memo(({ open, onClose }) => {
           fallback="Change :clinician"
           replacements={{
             clinician: (
-              <LowerCase>
-                {' '}
-                <TranslatedText
-                  stringId="general.localisedField.clinician.label"
-                  fallback="Clinician"
-                />
-              </LowerCase>
+              <TranslatedText
+                stringId="general.localisedField.clinician.label"
+                fallback="Clinician"
+                lowercase
+              />
             ),
           }}
         />

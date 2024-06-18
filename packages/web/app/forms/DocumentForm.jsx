@@ -15,6 +15,7 @@ import { FormGrid } from '../components/FormGrid';
 import { ConfirmCancelRow, FormSubmitCancelRow } from '../components/ButtonRow';
 import { FORM_TYPES } from '../constants';
 import { TranslatedText } from '../components/Translation/TranslatedText';
+import { useTranslation } from '../contexts/Translation';
 
 const MessageContainer = styled.div`
   margin: 0 auto;
@@ -41,13 +42,18 @@ const Message = styled(Typography)`
 const ErrorMessageContents = ({ error, onCancel }) => (
   <div>
     <MessageContainer>
-      <MessageTitle>Unable to upload file</MessageTitle>
+      <MessageTitle>
+        <TranslatedText stringId="document.form.error.upload.title" fallback="Unable to upload file" />
+      </MessageTitle>
       <Message>
-        File cannot be uploaded at this time. This may be due to network problems or insufficient
-        storage space on your server. Please try again in a few minutes or contact your system
-        administrator.
+        <TranslatedText 
+          stringId="document.form.error.upload.content" 
+          fallback="File cannot be uploaded at this time. This may be due to network problems or insufficient
+          storage space on your server. Please try again in a few minutes or contact your system
+          administrator." 
+        />
         <br />
-        Error message details:
+          <TranslatedText stringId="document.form.error.messageDetails" fallback="Error message details:" />
         <br />
         {error}
       </Message>
@@ -83,9 +89,7 @@ const DocumentFormContents = ({ submitForm, departmentSuggester, onCancel }) => 
       />
       <Field
         name="documentOwner"
-        label={
-          <TranslatedText stringId="document.documentOwner.label" fallback="Document owner" />
-        }
+        label={<TranslatedText stringId="document.documentOwner.label" fallback="Document owner" />}
         component={TextField}
       />
       <Field
@@ -111,6 +115,7 @@ const DocumentFormContents = ({ submitForm, departmentSuggester, onCancel }) => 
 
 export const DocumentForm = ({ onStart, onSubmit, onError, onCancel, editedObject, endpoint }) => {
   const api = useApi();
+  const { getTranslation } = useTranslation();
   const [error, setError] = useState(false);
 
   const departmentSuggester = new Suggester(api, 'department', {
@@ -169,8 +174,17 @@ export const DocumentForm = ({ onStart, onSubmit, onError, onCancel, editedObjec
         ...editedObject,
       }}
       validationSchema={yup.object().shape({
-        file: yup.string().required('Please select a file to complete this request'),
-        name: foreignKey('File name is required'),
+        file: yup
+          .string()
+          .required(
+            getTranslation(
+              'validation.required.file',
+              'Please select a file to complete this request',
+            ),
+          ),
+        name: foreignKey().translatedLabel(
+          <TranslatedText stringId="document.validation.fileName.path" fallback="File name" />,
+        ),
       })}
     />
   );

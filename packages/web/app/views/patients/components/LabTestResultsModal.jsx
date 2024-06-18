@@ -15,7 +15,7 @@ import { AccessorField, LabResultAccessorField } from './AccessorField';
 import { ConfirmCancelRow } from '../../../components/ButtonRow';
 import { useApi } from '../../../api';
 import { useAuth } from '../../../contexts/Auth';
-import { TranslatedText } from '../../../components/Translation/TranslatedText';
+import { TranslatedText, TranslatedReferenceData } from '../../../components/Translation';
 
 const TableContainer = styled.div`
   overflow-y: auto;
@@ -71,7 +71,11 @@ const getColumns = (count, onChangeResult, areLabTestResultsReadOnly) => {
       key: 'labTestType',
       title: <TranslatedText stringId="lab.results.table.column.testType" fallback="Test type" />,
       width: '120px',
-      accessor: row => row.labTestType.name,
+      accessor: row => <TranslatedReferenceData
+        fallback={row.labTestType.name}
+        value={row.labTestType.id}
+        category="labTestType"
+      />,
     },
     {
       key: LAB_TEST_PROPERTIES.RESULT,
@@ -253,7 +257,13 @@ export const LabTestResultsModal = ({ labRequest, refreshLabTestTable, onClose, 
     payload => api.put(`labRequest/${labRequest.id}/tests`, payload),
     {
       onSuccess: labTestRes => {
-        toast.success(`Successfully updated ${labTestRes.length} tests for request ${displayId}`);
+        toast.success(
+          <TranslatedText
+            stringId="patient.lab.modal.notification.testsUpdatedSuccess"
+            fallback={`Successfully updated ${labTestRes.length} tests for request ${displayId}`}
+            replacements={{ length: labTestRes.length, displayId }}
+          />
+        );
         // Force refresh of lab test data fetching table
         queryClient.invalidateQueries(['labTestResults', labRequest.id]);
 
@@ -261,7 +271,13 @@ export const LabTestResultsModal = ({ labRequest, refreshLabTestTable, onClose, 
         onClose();
       },
       onError: err => {
-        toast.error(`Failed to update tests for request ${displayId}: ${err.message}`);
+        toast.error(
+          <TranslatedText
+            stringId="patient.lab.modal.notification.testsUpdatedFailed"
+            fallback={`Failed to update tests for request ${displayId}: ${err.message}`}
+            replacements={{ message: err.message, displayId }}
+          />
+          );
       },
     },
   );

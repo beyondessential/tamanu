@@ -27,22 +27,6 @@ export class MedicationDiscontinuer extends ScheduledTask {
     // Get start of day
     const startOfToday = toDateTimeString(startOfDay(new Date()));
 
-    // Get all encounters with the same facility ID as this facility server
-    // (found in the config). Note that the facility ID will be read from
-    // the department associated to each encounter.
-    const encounters = await this.models.Encounter.findAll({
-      include: [
-        {
-          association: 'department',
-          required: true,
-          include: [{ model: this.models.Facility, where: { id: config.serverFacilityId } }],
-        },
-      ],
-    });
-
-    // Get all the encounter IDs
-    const encounterIds = encounters.map(row => row.id);
-
     // Query interface expects database naming scheme
     // (snake case, table column fields)
     // Values to be updated when autodiscontinuing a medication
@@ -61,7 +45,17 @@ export class MedicationDiscontinuer extends ScheduledTask {
         [Op.not]: true,
       },
       encounter_id: {
-        [Op.in]: encounterIds,
+        [Op.in]: Sequelize.literal(
+          `(
+            -- Get all encounters with the same facility ID as this facility server (from local_system_facts).
+            -- Note that the facility ID will be read from the department associated to each encounter.
+            SELECT encounters.id
+            FROM encounters
+            INNER JOIN
+              departments ON encounters.department_id = departments.id
+            WHERE departments.facility_id = (SELECT value FROM local_system_facts where key = 'facilityId')
+          )`,
+        ),
       },
       end_date: {
         [Op.and]: [{ [Op.lt]: startOfToday }, { [Op.not]: null }],

@@ -5,16 +5,25 @@ import { ErrorScreen } from '../../../../../components/ErrorScreen';
 import { LoadingScreen } from '../../../../../components/LoadingScreen';
 import { PatientSection } from './PatientSection';
 import { useLocalisation } from '../../../../../contexts/LocalisationContext';
-import { IPatient, IPatientAdditionalData } from '../../../../../../types';
-import { additionalDataSections } from '../../../../../helpers/additionalData';
-import { usePatientAdditionalData } from '~/ui/hooks/usePatientAdditionalData';
+import {
+  CustomPatientFieldValues,
+  usePatientAdditionalData,
+} from '~/ui/hooks/usePatientAdditionalData';
+import { mapValues } from 'lodash';
+import { PatientAdditionalData } from '~/models/PatientAdditionalData';
+import { Patient } from '~/models/Patient';
 
 interface AdditionalInfoProps {
-  onEdit: (additionalInfo: IPatientAdditionalData, sectionTitle: string) => void;
-  patient: IPatient;
+  onEdit: (
+    additionalInfo: PatientAdditionalData,
+    sectionTitle: Element,
+    customPatientFieldValues: CustomPatientFieldValues,
+  ) => void;
+  patient: Patient;
+  dataSections;
 }
 
-function getFieldData(data: IPatientAdditionalData, fieldName: string): string {
+function getPadFieldData(data: PatientAdditionalData, fieldName: string): string {
   // Field is reference data
   if (fieldName.slice(-2) === 'Id') {
     const actualName = fieldName.slice(0, -2);
@@ -25,56 +34,71 @@ function getFieldData(data: IPatientAdditionalData, fieldName: string): string {
   return data?.[fieldName];
 }
 
-export const AdditionalInfo = ({ patient, onEdit }: AdditionalInfoProps): ReactElement => {
+export const AdditionalInfo = ({
+  patient,
+  onEdit,
+  dataSections,
+}: AdditionalInfoProps): ReactElement => {
+  const { getBool } = useLocalisation();
   const {
-    customPatientSections,
     customPatientFieldValues,
+    customPatientFieldDefinitions,
     patientAdditionalData,
     loading,
-    error
+    error,
   } = usePatientAdditionalData(patient.id);
+
+  const customDataById = mapValues(customPatientFieldValues, nestedObject => nestedObject[0].value);
+
   // Display general error
   if (error) {
     return <ErrorScreen error={error} />;
   }
 
   // Check if patient additional data should be editable
-  const { getBool } = useLocalisation();
   const isEditable = getBool('features.editPatientDetailsOnMobile');
 
   // Add edit callback and map the inner 'fields' array
-  const additionalSections = additionalDataSections.map(({ title, fields }) => {
-    const onEditCallback = (): void => onEdit(patientAdditionalData, title, false);
-    const mappedFields = fields
-      .filter(fieldName => !getBool(`fields.${fieldName}.requiredPatientData`))
-      .map(fieldName => [fieldName, getFieldData(patientAdditionalData, fieldName)]);
-    return { title, fields: mappedFields, onEditCallback };
-  });
+  const sections = dataSections.map(({ title, fields }) => {
+    const onEditCallback = (): void =>
+      onEdit(patientAdditionalData, title, customPatientFieldValues);
 
-  const customSections = customPatientSections.map(([_categoryId, fields]) => {
-    const title = fields[0].category.name;
-    const onEditCallback = (): void => onEdit(null, title, true, fields, customPatientFieldValues);
-    const mappedFields = fields.map(field => ([field.name, customPatientFieldValues[field.id]?.[0]?.value]));
-    return { title, fields: mappedFields, onEditCallback, isCustomFields: true };
-  });
+    const fieldsWithData = fields.map(field => {
+      if (field === 'villageId' || field.name === 'villageId')
+        return [field.name, patient.village?.name];
+      else if (typeof field === 'object') {
+        return [field.name, getPadFieldData(patientAdditionalData, field.name)];
+      } else if (Object.keys(customDataById).includes(field)) {
+        return [field, customDataById[field]];
+      } else {
+        return [field, getPadFieldData(patientAdditionalData, field)];
+      }
+    });
 
-  const sections = [
-    ...(additionalSections || []),
-    ...(customSections || []),
-  ];
+    return { title, fields: fieldsWithData, onEditCallback };
+  });
 
   return (
     <>
-      {sections.map(({ title, fields, onEditCallback, isCustomFields }) => (
-        <PatientSection
-          key={title}
-          title={title}
-          onEdit={isEditable ? onEditCallback : undefined}
-          isClosable
-        >
-          {loading ? <LoadingScreen /> : <FieldRowDisplay fields={fields} isCustomFields={isCustomFields} />}
-        </PatientSection>
-      ))}
+      {sections.map(({ title, fields, onEditCallback }, i) => {
+        return (
+          <PatientSection
+            key={'additional-info-section-' + i}
+            title={title}
+            onEdit={isEditable ? onEditCallback : undefined}
+            isClosable
+          >
+            {loading ? (
+              <LoadingScreen />
+            ) : (
+              <FieldRowDisplay
+                fields={fields}
+                customFieldDefinitions={customPatientFieldDefinitions}
+              />
+            )}
+          </PatientSection>
+        );
+      })}
     </>
   );
 };

@@ -8,19 +8,24 @@ import { FormGrid } from '../components/FormGrid';
 import { FormSubmitCancelRow } from '../components/ButtonRow';
 import { useEncounter } from '../contexts/Encounter';
 import { FORM_TYPES } from '../constants';
+import { TranslatedText } from '../components/Translation/TranslatedText';
 
 export const ChangeDepartmentForm = ({ onCancel, departmentSuggester, onSubmit }) => {
   const { encounter } = useEncounter();
   const renderForm = ({ submitForm }) => (
     <FormGrid columns={1}>
       <Field
-        label="Department"
+        label={<TranslatedText stringId="general.department.label" fallback="Department" />}
         name="departmentId"
         component={AutocompleteField}
         suggester={departmentSuggester}
         required
       />
-      <FormSubmitCancelRow onConfirm={submitForm} confirmText="Save" onCancel={onCancel} />
+      <FormSubmitCancelRow
+        onConfirm={submitForm}
+        confirmText={<TranslatedText stringId="general.action.save" fallback="Save" />}
+        onCancel={onCancel}
+      />
     </FormGrid>
   );
 
@@ -33,7 +38,12 @@ export const ChangeDepartmentForm = ({ onCancel, departmentSuggester, onSubmit }
       }}
       formType={FORM_TYPES.EDIT_FORM}
       validationSchema={yup.object().shape({
-        departmentId: yup.string().required('Department is required'),
+        departmentId: yup
+          .string()
+          .required()
+          .translatedLabel(
+            <TranslatedText stringId="general.department.label" fallback="Department" />,
+          ),
       })}
       render={renderForm}
       onSubmit={onSubmit}

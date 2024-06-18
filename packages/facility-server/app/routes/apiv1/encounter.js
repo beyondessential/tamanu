@@ -1,33 +1,34 @@
-import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { Op, QueryTypes } from 'sequelize';
-import { InvalidParameterError, NotFoundError } from '@tamanu/shared/errors';
+import { NotFoundError, InvalidParameterError, InvalidOperationError } from '@tamanu/shared/errors';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import {
+  LAB_REQUEST_STATUSES,
   DOCUMENT_SIZE_LIMIT,
   DOCUMENT_SOURCES,
-  IMAGING_REQUEST_STATUS_TYPES,
   INVOICE_STATUSES,
-  LAB_REQUEST_STATUSES,
   NOTE_RECORD_TYPES,
   VITALS_DATA_ELEMENT_IDS,
+  IMAGING_REQUEST_STATUS_TYPES,
 } from '@tamanu/constants';
 
 import {
-  paginatedGetList,
-  permissionCheckingRouter,
-  runPaginatedQuery,
   simpleGet,
   simpleGetHasOne,
   simpleGetList,
+  permissionCheckingRouter,
+  runPaginatedQuery,
+  paginatedGetList,
+  softDeletionCheckingRouter,
 } from '@tamanu/shared/utils/crudHelpers';
 import { uploadAttachment } from '../../utils/uploadAttachment';
 import { noteChangelogsHandler, noteListHandler } from '../../routeHandlers';
 import { createPatientLetter } from '../../routeHandlers/createPatientLetter';
 
 import { getLabRequestList } from '../../routeHandlers/labs';
+import { deleteDocumentMetadata, deleteEncounter, deleteSurveyResponse } from '../../routeHandlers/deleteModel';
 
-export const encounter = express.Router();
+export const encounter = softDeletionCheckingRouter('Encounter');
 
 encounter.get('/:id', simpleGet('Encounter'));
 encounter.post(
@@ -80,7 +81,9 @@ encounter.put(
       }
 
       if (referralId) {
-        const referral = await models.Referral.findByPk(referralId);
+        const referral = await models.Referral.findByPk(referralId, { paranoid: false });
+        if (referral && referral.deletedAt)
+          throw new InvalidOperationError('Cannot update a deleted referral.');
         await referral.update({ encounterId: id });
       }
       await encounterObject.update({ ...req.body, systemNote }, user);
@@ -138,6 +141,10 @@ encounter.post(
 
 encounter.post('/:id/createPatientLetter', createPatientLetter('Encounter', 'encounterId'));
 
+encounter.delete('/:id/documentMetadata/:documentMetadataId', deleteDocumentMetadata);
+
+encounter.delete('/:id', deleteEncounter);
+
 const encounterRelations = permissionCheckingRouter('read', 'Encounter');
 encounterRelations.get('/:id/discharge', simpleGetHasOne('Discharge', 'encounterId'));
 encounterRelations.get('/:id/legacyVitals', simpleGetList('Vitals', 'encounterId'));
@@ -155,6 +162,7 @@ encounterRelations.get(
   }),
 );
 encounterRelations.get('/:id/referral', simpleGetList('Referral', 'encounterId'));
+encounterRelations.get('/:id/triages', simpleGetList('Triage', 'encounterId'));
 encounterRelations.get(
   '/:id/documentMetadata',
   paginatedGetList('DocumentMetadata', 'encounterId'),
@@ -245,7 +253,9 @@ encounterRelations.get(
 encounterRelations.get(
   '/:id/invoice',
   simpleGetHasOne('Invoice', 'encounterId', {
-    additionalFilters: { status: { [Op.ne]: INVOICE_STATUSES.CANCELLED } },
+    additionalFilters: {
+      status: { [Op.ne]: INVOICE_STATUSES.CANCELLED },
+    },
   }),
 );
 
@@ -263,6 +273,7 @@ encounterRelations.get(
     const { db, models, params, query } = req;
     req.checkPermission('list', 'SurveyResponse');
     const encounterId = params.id;
+    const surveyType = 'programs';
     const { order = 'asc', orderBy = 'endTime' } = query;
     const sortKey = PROGRAM_RESPONSE_SORT_KEYS[orderBy] || PROGRAM_RESPONSE_SORT_KEYS.endTime;
     const sortDirection = order.toLowerCase() === 'asc' ? 'ASC' : 'DESC';
@@ -280,7 +291,11 @@ encounterRelations.get(
         WHERE
           survey_responses.encounter_id = :encounterId
         AND
-          surveys.survey_type = 'programs'
+          surveys.survey_type = :surveyType
+        AND
+          encounters.deleted_at IS NULL
+        AND
+          survey_responses.deleted_at IS NULL
       `,
       `
         SELECT
@@ -303,10 +318,14 @@ encounterRelations.get(
         WHERE
           survey_responses.encounter_id = :encounterId
         AND
-          surveys.survey_type = 'programs'
+          surveys.survey_type = :surveyType
+        AND
+          survey_responses.deleted_at IS NULL
+        AND
+          encounters.deleted_at is null
         ORDER BY ${sortKey} ${sortDirection}
       `,
-      { encounterId },
+      { encounterId, surveyType },
       query,
     );
 
@@ -316,6 +335,8 @@ encounterRelations.get(
     });
   }),
 );
+
+encounterRelations.delete('/:id/programResponses/:surveyResponseId', deleteSurveyResponse);
 
 encounterRelations.get(
   '/:id/vitals',
@@ -329,18 +350,13 @@ encounterRelations.get(
     const countResult = await db.query(
       `
         SELECT COUNT(1) AS count
-        FROM
-          survey_response_answers
-        INNER JOIN
-          survey_responses response
-        ON
-          response.id = response_id
-        WHERE
-          data_element_id = :dateDataElement
-        AND
-          body IS NOT NULL
-        AND
-          response.encounter_id = :encounterId
+        FROM survey_response_answers
+        INNER JOIN survey_responses response
+        ON response.id = response_id
+        WHERE data_element_id = :dateDataElement
+        AND body IS NOT NULL
+        AND response.encounter_id = :encounterId
+        AND response.deleted_at IS NULL
       `,
       {
         replacements: {
@@ -365,20 +381,14 @@ encounterRelations.get(
       `
         WITH
         date AS (
-          SELECT
-            response_id, body
-          FROM
-            survey_response_answers
-          INNER JOIN
-            survey_responses response
-          ON
-            response.id = response_id
-          WHERE
-            data_element_id = :dateDataElement
-          AND
-            body IS NOT NULL
-          AND
-            response.encounter_id = :encounterId
+          SELECT response_id, body
+          FROM survey_response_answers
+          INNER JOIN survey_responses response
+          ON response.id = response_id
+          WHERE data_element_id = :dateDataElement
+          AND body IS NOT NULL
+          AND response.encounter_id = :encounterId
+          AND response.deleted_at IS NULL
           ORDER BY body ${order} LIMIT :limit OFFSET :offset
         ),
         history AS (
@@ -392,24 +402,13 @@ encounterRelations.get(
                 'userDisplayName', u.display_name
               )
             )) logs
-          FROM
-            survey_response_answers sra
-          INNER JOIN
-            survey_responses sr
-          ON
-            sr.id = sra.response_id
-          LEFT JOIN
-            vital_logs vl
-          ON
-            vl.answer_id = sra.id
-          LEFT JOIN
-            users u
-          ON
-            u.id = vl.recorded_by_id
-          WHERE
-            sr.encounter_id = :encounterId
-          GROUP BY
-            vl.answer_id
+          FROM survey_response_answers sra
+          	INNER JOIN survey_responses sr ON sr.id = sra.response_id
+          	LEFT JOIN vital_logs vl ON vl.answer_id = sra.id
+          	LEFT JOIN users u ON u.id = vl.recorded_by_id
+          WHERE sr.encounter_id = :encounterId
+          	AND sr.deleted_at IS NULL
+          GROUP BY vl.answer_id
         )
 
         SELECT

@@ -28,6 +28,7 @@ import {
 import { ageInMonths, ageInWeeks, ageInYears } from '@tamanu/shared/utils/dateTime';
 import { joinNames } from './user';
 import { notifyError } from './utils';
+import { TranslatedText } from '../components/Translation/TranslatedText';
 
 const isNullOrUndefined = value => isNull(value) || isUndefined(value);
 
@@ -286,7 +287,7 @@ export const getAnswersFromData = (data, survey) =>
     return acc;
   }, {});
 
-export const getValidationSchema = (surveyData, valuesToCheckMandatory = {}) => {
+export const getValidationSchema = (surveyData, getTranslation, valuesToCheckMandatory = {}) => {
   if (!surveyData) return {};
   const { components } = surveyData;
   const schema = components.reduce(
@@ -314,6 +315,7 @@ export const getValidationSchema = (surveyData, valuesToCheckMandatory = {}) => 
         case PROGRAM_DATA_ELEMENT_TYPES.NUMBER: {
           valueSchema = yup.number().nullable();
           if (typeof min === 'number' && !isNaN(min)) {
+            // yup todo: theses ones require whole other logic repeat
             valueSchema = valueSchema.min(min, `${text} must be at least ${min}${unit}`);
           }
           if (typeof max === 'number' && !isNaN(max)) {
@@ -338,7 +340,7 @@ export const getValidationSchema = (surveyData, valuesToCheckMandatory = {}) => 
       return {
         ...acc,
         [dataElementId]: valueSchema[mandatory ? 'required' : 'notRequired'](
-          mandatory ? 'Required' : null,
+          mandatory ? getTranslation('validation.required.inline', '*Required') : null,
         ),
       };
     },
@@ -396,9 +398,12 @@ export const checkMandatory = (mandatory, values) => {
     return checkJSONCriteria(JSON.stringify(mandatory), [], values);
   } catch (error) {
     notifyError(
-      `Failed to use mandatory in validationCriteria: ${JSON.stringify(mandatory)}, error: ${
-        error.message
-      }`,
+      <TranslatedText
+        stringId="general.notification.useMandatoryFailed"
+        fallback={`Failed to use mandatory in validationCriteria: ${JSON.stringify(mandatory)}, error: ${error.message
+          }`}
+        replacements={{ mandatory: JSON.stringify(mandatory), message: error.message }}
+      />
     );
     return false;
   }

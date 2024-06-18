@@ -10,7 +10,6 @@ import {
   DateDisplay,
   FormSeparatorLine,
   Heading3,
-  LowerCase,
   OutlinedButton,
   Table,
   useSelectableColumn,
@@ -18,7 +17,7 @@ import {
 import { LabRequestPrintLabelModal } from '../../../components/PatientPrinting/modals/LabRequestPrintLabelModal';
 import { useLabRequestNotes } from '../../../api/queries';
 import { InfoCard, InfoCardItem } from '../../../components/InfoCard';
-import { TranslatedText } from '../../../components/Translation/TranslatedText';
+import { TranslatedText, TranslatedReferenceData } from '../../../components/Translation';
 
 const Container = styled.div`
   padding-top: 20px;
@@ -75,9 +74,13 @@ const getColumns = type => [
           ),
           sortable: false,
           accessor: ({ labTestPanelRequest }) =>
-            labTestPanelRequest?.labTestPanel?.name || (
-              <TranslatedText stringId="general.fallback.notApplicable" fallback="N/A" />
-            ),
+            (labTestPanelRequest?.labTestPanel?.name && (
+              <TranslatedReferenceData
+                fallback={labTestPanelRequest.labTestPanel.name}
+                value={labTestPanelRequest.labTestPanel.id}
+                category="labTestPanel"
+              />
+            )) || <TranslatedText stringId="general.fallback.notApplicable" fallback="N/A" />,
         },
       ]
     : []),
@@ -87,7 +90,15 @@ const getColumns = type => [
       <TranslatedText stringId="lab.requestSummary.table.column.testCategory" fallback="Category" />
     ),
     sortable: false,
-    accessor: ({ category }) => category?.name || '',
+    accessor: ({ category }) =>
+      (category?.name && (
+        <TranslatedReferenceData
+          fallback={category.name}
+          value={category.id}
+          category={category.type}
+        />
+      )) ||
+      '',
   },
   {
     key: 'sampleDate',
@@ -148,12 +159,11 @@ export const LabRequestSummaryPane = React.memo(
                   fallback="Requesting :clinician"
                   replacements={{
                     clinician: (
-                      <LowerCase>
-                        <TranslatedText
-                          stringId="general.localisedField.clinician.label.short"
-                          fallback="Clinician"
-                        />
-                      </LowerCase>
+                      <TranslatedText
+                        stringId="general.localisedField.clinician.label.short"
+                        fallback="Clinician"
+                        lowercase
+                      />
                     ),
                   }}
                 />
@@ -170,14 +180,30 @@ export const LabRequestSummaryPane = React.memo(
               value={<DateDisplay date={requestedDate} showTime />}
             />
             <InfoCardItem
-              label={
-                <TranslatedText stringId="general.department.label" fallback="Department" />
+              label={<TranslatedText stringId="general.department.label" fallback="Department" />}
+              value={
+                department?.name && (
+                  <TranslatedReferenceData
+                    fallback={department.name}
+                    value={department.id}
+                    category="department"
+                  />
+                )
               }
-              value={department?.name}
             />
             <InfoCardItem
               label={<TranslatedText stringId="lab.priority.label" fallback="Priority" />}
-              value={priority ? priority.name : '-'}
+              value={
+                priority ? (
+                  <TranslatedReferenceData
+                    fallback={priority.name}
+                    value={priority.id}
+                    category={priority.type}
+                  />
+                ) : (
+                  '-'
+                )
+              }
             />
           </StyledInfoCard>
           <CardTable

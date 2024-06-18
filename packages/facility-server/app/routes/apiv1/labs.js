@@ -19,8 +19,11 @@ import {
   permissionCheckingRouter,
   simpleGet,
   simpleGetList,
+  findRouteObject,
 } from '@tamanu/shared/utils/crudHelpers';
 import {
+  getWhereClausesAndReplacementsFromFilters,
+  makeDeletedAtIsNullFilter,
   makeFilter,
   makeSimpleTextFilterFactory,
   makeSubstringTextFilterFactory,
@@ -29,7 +32,17 @@ import { notesWithSingleItemListHandler } from '../../routeHandlers';
 
 export const labRequest = express.Router();
 
-labRequest.get('/:id', simpleGet('LabRequest'));
+labRequest.get(
+  '/:id',
+  asyncHandler(async (req, res) => {
+    const labRequestRecord = await findRouteObject(req, 'LabRequest');
+    const latestAttachment = await labRequestRecord.getLatestAttachment();
+    res.send({
+      ...labRequestRecord.forResponse(),
+      latestAttachment,
+    });
+  }),
+);
 
 labRequest.put(
   '/:id',
@@ -55,6 +68,9 @@ labRequest.put(
         });
       }
 
+      if (labRequestData.specimenTypeId !== undefined) {
+        labRequestData.specimenAttached = !!labRequestData.specimenTypeId;
+      }
       await labRequestRecord.update(labRequestData);
     });
 
@@ -107,6 +123,7 @@ labRequest.get(
       makeFilter(true, `lab_requests.status != :cancelled`, () => ({
         cancelled: LAB_REQUEST_STATUSES.CANCELLED,
       })),
+      makeDeletedAtIsNullFilter('lab_requests'),
       makeFilter(true, `lab_requests.status != :enteredInError`, () => ({
         enteredInError: LAB_REQUEST_STATUSES.ENTERED_IN_ERROR,
       })),
@@ -158,9 +175,13 @@ labRequest.get(
           published: LAB_REQUEST_STATUSES.PUBLISHED,
         }),
       ),
+      makeDeletedAtIsNullFilter('encounter'),
     ].filter(f => f);
 
-    const whereClauses = filters.map(f => f.sql).join(' AND ');
+    const { whereClauses, filterReplacements } = getWhereClausesAndReplacementsFromFilters(
+      filters,
+      filterParams,
+    );
 
     const from = `
       FROM lab_requests
@@ -188,16 +209,6 @@ labRequest.get(
           ON (requester.id = lab_requests.requested_by_id)
         ${whereClauses && `WHERE ${whereClauses}`}
     `;
-
-    const filterReplacements = filters
-      .filter(f => f.transform)
-      .reduce(
-        (current, { transform }) => ({
-          ...current,
-          ...transform(current),
-        }),
-        filterParams,
-      );
 
     const countResult = await req.db.query(`SELECT COUNT(1) AS count ${from}`, {
       replacements: filterReplacements,
@@ -245,6 +256,7 @@ labRequest.get(
           priority.id AS priority_id,
           priority.name AS priority_name,
           lab_test_panel.name as lab_test_panel_name,
+          lab_test_panel.id as lab_test_panel_id,
           laboratory.id AS laboratory_id,
           laboratory.name AS laboratory_name,
           location.facility_id AS facility_id
@@ -498,7 +510,7 @@ async function createLabRequest(
   const labRequestData = {
     ...labRequestBody,
     ...requestSampleDetails,
-    specimenAttached: requestSampleDetails.specimenTypeId ? 'yes' : 'no',
+    specimenAttached: !!requestSampleDetails.specimenTypeId,
     status: requestSampleDetails.sampleTime
       ? LAB_REQUEST_STATUSES.RECEPTION_PENDING
       : LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED,

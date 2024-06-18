@@ -71,12 +71,15 @@ const StyledMenuItem = styled(MenuItem)`
   font-size: 13px;
 `;
 
-const PreviousButton = styled(ChevronIcon)`
+// eslint-disable-next-line no-unused-vars
+const ChevronComponent = React.forwardRef((props, ref) => <ChevronIcon {...props} />);
+
+const PreviousButton = styled(ChevronComponent)`
   padding: 8px;
   transform: rotate(90deg);
 `;
 
-const NextButton = styled(ChevronIcon)`
+const NextButton = styled(ChevronComponent)`
   padding: 8px;
   transform: rotate(-90deg);
 `;
@@ -135,7 +138,7 @@ export const Paginator = React.memo(
             />
           </PageRecordCount>
           <StyledSelectField
-            label="Rows per page"
+            label={<TranslatedText stringId="general.table.rowsPerPage" fallback="Rows per page" />}
             onChange={onRowsPerPageChange}
             value={rowsPerPage || rowsPerPageOptions[0]}
             IconComponent={ChevronIcon}

@@ -11,9 +11,10 @@ import { Field, Form, BaseSelectField } from '../../components/Field';
 import { FormGrid } from '../../components/FormGrid';
 import { foreignKey } from '../../utils/validation';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
-import { ConditionalTooltip, ThemedTooltip } from '../../components/Tooltip';
+import { ConditionalTooltip } from '../../components/Tooltip';
 import { useProgramRegistryContext } from '../../contexts/ProgramRegistry';
 import { useTranslation } from '../../contexts/Translation';
+import { TranslatedText } from '../../components/Translation/TranslatedText';
 
 const DisplayContainer = styled.div`
   display: flex;
@@ -43,11 +44,11 @@ const StyledButton = styled(Button)`
   height: 44px;
   background-color: ${Colors.primary};
   color: ${Colors.white};
+  width: 100%;
   :disabled {
     background-color: ${Colors.primary};
     color: ${Colors.white};
     opacity: 0.4;
-    width: 100%;
   }
 `;
 
@@ -94,16 +95,22 @@ export const PatientProgramRegistrationSelectSurvey = ({ patientProgramRegistrat
               <ConditionalTooltip visible={isRemoved} title="Patient must be active">
                 <Field
                   name="surveyId"
-                  label="Select form"
+                  label={
+                    <TranslatedText
+                      stringId="patientProgramRegistry.selectForm.label"
+                      fallback="Select form"
+                    />
+                  }
                   component={BaseSelectField}
-                  placeholder={getTranslation("general.placeholder.select", "Select")}
+                  placeholder={getTranslation('general.placeholder.select', 'Select')}
                   options={surveys}
                   disabled={isRemoved}
                 />
               </ConditionalTooltip>
 
-              <ThemedTooltip
+              <ConditionalTooltip
                 title={isRemoved ? 'Patient must be active' : 'Select form to proceed'}
+                visible={isRemoved || !values.surveyId}
               >
                 <div>
                   <StyledButton
@@ -112,15 +119,20 @@ export const PatientProgramRegistrationSelectSurvey = ({ patientProgramRegistrat
                     disabled={isRemoved || !values.surveyId}
                     isSubmitting={false}
                   >
-                    Begin form
+                    <TranslatedText
+                      stringId="patientProgramRegistry.action.beginForm"
+                      fallback="Begin form"
+                    />
                   </StyledButton>
                 </div>
-              </ThemedTooltip>
+              </ConditionalTooltip>
             </StyledFormGrid>
           );
         }}
         validationSchema={yup.object().shape({
-          surveyId: foreignKey('A form must be selected'),
+          surveyId: foreignKey(
+            getTranslation('validation.rule.formMustBeSelected', 'A form must be selected'),
+          ),
         })}
       />
     </DisplayContainer>

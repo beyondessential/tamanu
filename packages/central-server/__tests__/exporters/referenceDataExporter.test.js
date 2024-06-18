@@ -13,6 +13,7 @@ import {
   createRole,
   createTestType,
   createVaccine,
+  destroyPermission,
 } from './referenceDataUtils';
 import { createDummyPatient } from '@tamanu/shared/demoData/patients';
 import { createTestContext } from '../utilities';
@@ -88,7 +89,7 @@ describe('Reference data exporter', () => {
         .query(qs.stringify({ includedDataTypes: ['allergy'] }));
 
       expect(result).toBeForbidden();
-      expect(result.body.error.message).toBe('Cannot perform action "list" on ReferenceData.');
+      expect(result.body.error.message).toBe('No permission to perform action "list" on "ReferenceData"');
     });
 
     it('allows export if having sufficient permission for reference data', async () => {
@@ -426,7 +427,7 @@ describe('Reference data exporter', () => {
 
   it('Should export Administered vaccine with encounter data', async () => {
     await createDataForEncounter(models);
-    const vaccine = await createVaccine(models, { label: 'Covid', schedule: 'Dose 1' });
+    const vaccine = await createVaccine(models, { label: 'Covid', doseLabel: 'Dose 1' });
     const { administeredVaccine, encounter } = await createAdministeredVaccineData(models, vaccine);
     const {
       administeredVaccine: administeredVaccine2,
@@ -634,6 +635,14 @@ describe('Permission and Roles exporter', () => {
       objectId: 'new-encounters',
       roleId: 'reception',
     });
+    const testForSoftDeletion = {
+      verb: 'run',
+      noun: 'Report',
+      objectId: 'test-for-soft-deletion',
+      roleId: 'reception',
+    };
+    await createPermission(models, testForSoftDeletion);
+    await destroyPermission(models, testForSoftDeletion);
 
     await exporter(store, { 1: 'permission', 2: 'role' });
     expect(writeExcelFile).toBeCalledWith(
@@ -643,6 +652,7 @@ describe('Permission and Roles exporter', () => {
             ['verb', 'noun', 'objectId', 'reception'],
             ['run', 'Report', 'new-patients', 'y'],
             ['run', 'Report', 'new-encounters', 'y'],
+            ['run', 'Report', 'test-for-soft-deletion', 'n'],
           ],
           name: 'Permission',
         },
@@ -658,7 +668,7 @@ describe('Permission and Roles exporter', () => {
     );
   });
 
-  it('Should export permissions with one aditional column for admin Role', async () => {
+  it('Should export permissions with one additional column for admin Role', async () => {
     await createRole(models, { id: 'admin', name: 'Admin' });
     await createPermission(models, { verb: 'list', noun: 'User', roleId: 'admin' });
     await createPermission(models, { verb: 'list', noun: 'ReferenceData', roleId: 'admin' });
@@ -695,12 +705,22 @@ describe('Permission and Roles exporter', () => {
     );
   });
 
-  it('Should export permissions with two aditional columns for admin/reception Role', async () => {
+  it('Should export permissions with two additional columns for admin/reception Role', async () => {
     await createRole(models, { id: 'admin', name: 'Admin' });
     await createRole(models, { id: 'reception', name: 'Reception' });
     await createPermission(models, { verb: 'list', noun: 'User', roleId: 'reception' });
     await createPermission(models, { verb: 'list', noun: 'ReferenceData', roleId: 'reception' });
 
+    await createPermission(models, {
+      verb: 'read',
+      noun: 'ReferenceData',
+      roleId: 'reception',
+    });
+    await destroyPermission(models, {
+      verb: 'read',
+      noun: 'ReferenceData',
+      roleId: 'reception',
+    });
     await createPermission(models, { verb: 'list', noun: 'User', roleId: 'admin' });
     await createPermission(models, { verb: 'list', noun: 'ReferenceData', roleId: 'admin' });
     await createPermission(models, { verb: 'write', noun: 'User', roleId: 'admin' });
@@ -720,6 +740,7 @@ describe('Permission and Roles exporter', () => {
             ['verb', 'noun', 'objectId', 'reception', 'admin'],
             ['list', 'User', null, 'y', 'y'],
             ['list', 'ReferenceData', null, 'y', 'y'],
+            ['read', 'ReferenceData', null, 'n', ''],
             ['write', 'User', null, '', 'y'],
             ['write', 'ReferenceData', null, '', 'y'],
             ['read', 'Report', 'new-patients', '', 'y'],

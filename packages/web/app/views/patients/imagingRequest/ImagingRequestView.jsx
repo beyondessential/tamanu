@@ -34,7 +34,7 @@ import { SimpleTopBar } from '../../../components';
 
 import { CancelModalButton } from './CancelModalButton';
 import { PrintModalButton } from './PrintModalButton';
-import { TranslatedText } from '../../../components/Translation/TranslatedText';
+import { TranslatedText, TranslatedReferenceData } from '../../../components/Translation';
 import { useTranslation } from '../../../contexts/Translation';
 
 const ImagingRequestSection = ({ currentStatus, imagingRequest }) => {
@@ -66,7 +66,7 @@ const ImagingRequestSection = ({ currentStatus, imagingRequest }) => {
       />
       <TextInput
         value={imagingTypes[imagingRequest.imagingType]?.label || 'Unknown'}
-        label={<TranslatedText stringId="imaging.imagingType.label" fallback="Request type" />}
+        label={<TranslatedText stringId="general.requestType.label" fallback="Request type" />}
         disabled
       />
       <TextInput
@@ -76,7 +76,7 @@ const ImagingRequestSection = ({ currentStatus, imagingRequest }) => {
       />
       <Field
         name="status"
-        label={<TranslatedText stringId="imaging.status.label" fallback="Status" />}
+        label={<TranslatedText stringId="general.status.label" fallback="Status" />}
         component={SelectField}
         options={isCancelled ? cancelledOption : IMAGING_REQUEST_STATUS_OPTIONS}
         disabled={isCancelled}
@@ -104,7 +104,11 @@ const ImagingRequestSection = ({ currentStatus, imagingRequest }) => {
         value={
           // Either use free text area or multi-select areas data
           imagingRequest.areas?.length
-            ? imagingRequest.areas.map(area => area.name).join(', ')
+            ? imagingRequest.areas.map(area => (
+              <span key={area.id}>
+                <TranslatedReferenceData fallback={area.name} value={area.id} category={area.type} />
+              </span>
+            )).join(', ')
             : imagingRequest.areaNote
         }
         label={<TranslatedText stringId="imaging.areas.label" fallback="Areas to be imaged" />}
@@ -139,7 +143,7 @@ const NewResultSection = ({ disabled = false }) => {
       <Field
         label={<TranslatedText stringId="imaging.completedBy.label" fallback="Completed by" />}
         name="newResult.completedById"
-        placeholder={getTranslation("imaging.completedBy.placeholder", "Search")}
+        placeholder={getTranslation('imaging.completedBy.placeholder', 'Search')}
         component={AutocompleteField}
         suggester={practitionerSuggester}
         disabled={disabled}
@@ -156,7 +160,7 @@ const NewResultSection = ({ disabled = false }) => {
           <TranslatedText stringId="imaging.description.label" fallback="Result description" />
         }
         name="newResult.description"
-        placeholder={getTranslation("imaging.description.placeholder", "Result description...")}
+        placeholder={getTranslation('imaging.description.placeholder', 'Result description...')}
         multiline
         component={TextField}
         style={{ gridColumn: '1 / -1', minHeight: '3em' }}
@@ -177,11 +181,15 @@ const ImagingResultRow = ({ result }) => {
   return (
     <BottomAlignFormGrid columns={externalUrl ? 3 : 2}>
       <TextInput
-        label="Completed by"
+        label={<TranslatedText stringId="imaging.completedBy.label" fallback="Completed by" />}
         value={completedBy?.displayName ?? (externalUrl && 'External provider') ?? ''}
         disabled
       />
-      <DateTimeInput label="Completed" value={completedAt} disabled />
+      <DateTimeInput
+        label={<TranslatedText stringId="imaging.completedAt.label" fallback="Completed" />}
+        value={completedAt}
+        disabled
+      />
       {externalUrl && (
         <Button color="secondary" onClick={onOpenUrl}>
           View image (external link)
@@ -189,7 +197,9 @@ const ImagingResultRow = ({ result }) => {
       )}
 
       <TextInput
-        label="Result description"
+        label={
+          <TranslatedText stringId="imaging.description.label" fallback="Result description" />
+        }
         value={description}
         multiline
         disabled
@@ -242,7 +252,10 @@ const ImagingRequestInfoPane = React.memo(({ imagingRequest, onSubmit }) => {
         },
       }}
       validationSchema={yup.object().shape({
-        status: yup.string().required('Status is required'),
+        status: yup
+          .string()
+          .required()
+          .translatedLabel(<TranslatedText stringId="general.status.label" fallback="Status" />),
       })}
       render={({ values }) => {
         const canAddResult = getCanAddResult(values);

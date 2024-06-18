@@ -12,7 +12,7 @@ import {
   SelectField,
   SuggesterSelectField,
 } from '../Field';
-import { CustomisableSearchBar } from './CustomisableSearchBar';
+import { CustomisableSearchBarWithPermissionCheck } from './CustomisableSearchBar';
 import { LabRequestSearchParamKeys, useLabRequest } from '../../contexts/LabRequest';
 import { useSuggester } from '../../api';
 import { useAdvancedFields } from './useAdvancedFields';
@@ -47,7 +47,9 @@ export const LabRequestsSearchBar = ({ status = '' }) => {
   });
 
   return (
-    <CustomisableSearchBar
+    <CustomisableSearchBarWithPermissionCheck
+      verb="list"
+      noun="LabRequest"
       initialValues={searchParameters}
       onSearch={setSearchParameters}
       isExpanded={showAdvancedFields}
@@ -57,30 +59,35 @@ export const LabRequestsSearchBar = ({ status = '' }) => {
         <>
           <Field
             name="locationGroupId"
-            label="Area"
+            label={<TranslatedText stringId="general.area.label" fallback="Area" />}
             component={AutocompleteField}
             suggester={locationGroupSuggester}
             size="small"
           />
           <Field
             name="departmentId"
-            label="Department"
+            label={<TranslatedText stringId="general.department.label" fallback="Department" />}
             component={AutocompleteField}
             suggester={departmentSuggester}
             size="small"
           />
           {publishedStatus ? (
-            <Field name="publishedDate" label="Completed" saveDateAsString component={DateField} />
+            <Field
+              name="publishedDate"
+              label={
+                <TranslatedText
+                  stringId="lab.results.table.column.completedDate"
+                  fallback="Completed"
+                />
+              }
+              saveDateAsString
+              component={DateField}
+            />
           ) : (
             <>
               <LocalisedField
                 name="laboratory"
-                label={
-                  <TranslatedText
-                    stringId="general.localisedField.laboratory.label"
-                    fallback="Laboratory"
-                  />
-                }
+                label={<TranslatedText stringId="lab.laboratory.label" fallback="Laboratory" />}
                 component={SuggesterSelectField}
                 endpoint="labTestLaboratory"
                 size="small"
@@ -100,14 +107,22 @@ export const LabRequestsSearchBar = ({ status = '' }) => {
             </>
           )}
           <FacilityCheckbox>
-            <Field name="allFacilities" label="Include all facilities" component={CheckField} />
+            <Field
+              name="allFacilities"
+              label={
+                <TranslatedText
+                  stringId="lab.allFacilities.label"
+                  fallback="Include all facilities"
+                />
+              }
+              component={CheckField}
+            />
           </FacilityCheckbox>
         </>
       }
     >
       <>
         <LocalisedField
-          keepLetterCase
           name="displayId"
           label={
             <TranslatedText
@@ -134,17 +149,21 @@ export const LabRequestsSearchBar = ({ status = '' }) => {
           }
           component={SearchField}
         />
-        <Field name="requestId" label="Test ID" component={SearchField} />
+        <Field
+          name="requestId"
+          label={<TranslatedText stringId="lab.requestId.label" fallback="Test ID" />}
+          component={SearchField}
+        />
         <Field
           name="category"
-          label="Test category"
+          label={<TranslatedText stringId="lab.testCategory.label" fallback="Test category" />}
           component={SuggesterSelectField}
           endpoint="labTestCategory"
           size="small"
         />
         <Field
           name="labTestPanelId"
-          label="Panel"
+          label={<TranslatedText stringId="lab.panel.label" fallback="Panel" />}
           component={SuggesterSelectField}
           endpoint="labTestPanel"
           size="small"
@@ -175,12 +194,7 @@ export const LabRequestsSearchBar = ({ status = '' }) => {
         {publishedStatus ? (
           <LocalisedField
             name="laboratory"
-            label={
-              <TranslatedText
-                stringId="general.localisedField.laboratory.label"
-                fallback="Laboratory"
-              />
-            }
+            label={<TranslatedText stringId="lab.laboratory.label" fallback="Laboratory" />}
             component={SuggesterSelectField}
             endpoint="labTestLaboratory"
             size="small"
@@ -200,6 +214,6 @@ export const LabRequestsSearchBar = ({ status = '' }) => {
           />
         )}
       </>
-    </CustomisableSearchBar>
+    </CustomisableSearchBarWithPermissionCheck>
   );
 };

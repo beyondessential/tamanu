@@ -33,7 +33,6 @@ export const CovidPatientsSearchBar = React.memo(({ onSearch }) => {
         suggester={villageSuggester}
       />
       <LocalisedField
-        keepLetterCase
         name="displayId"
         label={
           <TranslatedText stringId="general.localisedField.displayId.label.short" fallback="NHN" />
@@ -41,8 +40,22 @@ export const CovidPatientsSearchBar = React.memo(({ onSearch }) => {
         component={SearchField}
       />
       <DOBFields />
-      <Field name="clinicalStatus" label="Clinical status" component={SearchField} />
-      <SearchBarCheckField name="deceased" label="Include deceased patients" />
+      <Field
+        name="clinicalStatus"
+        label={
+          <TranslatedText stringId="general.clinicalStatus.label" fallback="Clinical status" />
+        }
+        component={SearchField}
+      />
+      <SearchBarCheckField
+        name="deceased"
+        label={
+          <TranslatedText
+            stringId="patientList.table.includeDeceasedCheckbox.label"
+            fallback="Include deceased patients"
+          />
+        }
+      />
     </CustomisableSearchBar>
   );
 });

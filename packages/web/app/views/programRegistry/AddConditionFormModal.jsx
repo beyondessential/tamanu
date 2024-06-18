@@ -15,6 +15,7 @@ import {
 import { useApi } from '../../api';
 import { foreignKey } from '../../utils/validation';
 import { FORM_TYPES } from '../../constants';
+import { TranslatedText } from '../../components/Translation/TranslatedText';
 
 const StyledFormGrid = styled(FormGrid)`
   grid-column: 1 / -1;
@@ -59,7 +60,12 @@ export const AddConditionFormModal = ({
               <StyledFormGrid columns={1}>
                 <Field
                   name="programRegistryConditionId"
-                  label="Related condition"
+                  label={
+                    <TranslatedText
+                      stringId="patientProgramRegistry.relatedCondition.label"
+                      fallback="Related condition"
+                    />
+                  }
                   component={AutocompleteField}
                   options={differenceBy(
                     programRegistryConditions,
@@ -74,7 +80,14 @@ export const AddConditionFormModal = ({
           );
         }}
         validationSchema={yup.object().shape({
-          programRegistryConditionId: foreignKey().required('Condition must be selected'),
+          programRegistryConditionId: foreignKey()
+            .required()
+            .translatedLabel(
+              <TranslatedText
+                stringId="conditions.validation.conditionName.path"
+                fallback="Condition"
+              />,
+            ),
         })}
       />
     </Modal>
