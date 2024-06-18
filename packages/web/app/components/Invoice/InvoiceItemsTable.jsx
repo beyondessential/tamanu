@@ -22,9 +22,10 @@ const PriceText = styled.span`
 `;
 
 const getPrice = row => {
-  const originalPrice = parseFloat(row.product?.price).toFixed(2);
+  const price = row?.productPrice ?? row.product?.price;
+  const originalPrice = parseFloat(price).toFixed(2);
   const discountPercentage = row.discount?.percentage;
-  const finalPrice = getInvoiceItemDiscountPrice(row.product?.price, discountPercentage);
+  const finalPrice = getInvoiceItemDiscountPrice(price, discountPercentage);
 
   return (
     <PriceCell>
@@ -46,7 +47,7 @@ const INVOICE_LINE_COLUMNS = [
     key: 'details',
     title: <TranslatedText stringId="invoice.table.column.details" fallback="Details" />,
     sortable: false,
-    accessor: ({ product }) => product.name,
+    accessor: ({ productName, product }) => productName ?? product.name,
     TitleCellComponent: StyledTitleCell,
   },
   {

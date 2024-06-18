@@ -58,8 +58,8 @@ const CardItem = ({ label, value, ...props }) => (
 );
 
 export const InvoiceItemCard = ({ item }) => {
-  const price = item.product?.price ?? item?.price;
-  const discountPercentage = item.discount?.percentage;
+  const price = item?.productPrice ?? item.product?.price ?? item?.price;
+  const discountPercentage = item?.discount?.percentage;
   const discountedPrice = getInvoiceItemDiscountPrice(price, discountPercentage);
 
   return (
@@ -71,7 +71,7 @@ export const InvoiceItemCard = ({ item }) => {
         />
         <CardItem
           label={<TranslatedText stringId="invoice.table.column.code" fallback="Code" />}
-          value={item.product?.referenceData?.code || item?.code}
+          value={item?.product?.referenceData?.code || item?.code}
         />
         <CardItem
           label={
@@ -90,7 +90,7 @@ export const InvoiceItemCard = ({ item }) => {
           label={
             <TranslatedText stringId="invoice.modal.addInvoice.details.label" fallback="Details" />
           }
-          value={item.product?.name || item?.name}
+          value={item?.productName ?? item?.product?.name ?? item?.name}
         />
         <CardItem
           label={

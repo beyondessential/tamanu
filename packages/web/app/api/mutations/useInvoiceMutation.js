@@ -35,7 +35,7 @@ export const useCancelInvoice = invoice => {
 
   return useMutation({
     mutationFn: async () => {
-      await api.post(`invoices/${invoice?.id}/cancel`);
+      await api.put(`invoices/${invoice?.id}/cancel`);
       await queryClient.invalidateQueries([`encounter/${invoice?.encounterId}/invoice`]);
     },
     onError: error => notifyError(error.message),

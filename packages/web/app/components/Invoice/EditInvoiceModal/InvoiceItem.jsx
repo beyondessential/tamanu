@@ -89,7 +89,7 @@ export const InvoiceItemRow = ({
   });
   const practitionerSuggester = useSuggester('practitioner');
 
-  const price = item.product?.price ?? item?.price;
+  const price = item?.productPrice ?? item.product?.price ?? item?.price;
   const discountPercentage = item.discount?.percentage;
   const discountedPrice = getInvoiceItemDiscountPrice(price, discountPercentage);
 
