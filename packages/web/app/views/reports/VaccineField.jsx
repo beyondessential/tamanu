@@ -50,7 +50,6 @@ export const VaccineField = ({ name = 'vaccine', required, parameterValues }) =>
           ),
           value: vaccine.label,
         }))}
-        prefix="vaccine.property.name"
       />
       <Dialog
         headerTitle={<TranslatedText stringId="general.error" fallback="Error" />}
