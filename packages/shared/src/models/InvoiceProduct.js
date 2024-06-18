@@ -1,5 +1,5 @@
 import { DataTypes } from 'sequelize';
-import { SYNC_DIRECTIONS } from '@tamanu/constants';
+import { IMAGING_TYPES_VALUES, REFERENCE_TYPES, SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
 
 export class InvoiceProduct extends Model {
@@ -7,8 +7,28 @@ export class InvoiceProduct extends Model {
     super.init(
       {
         id: primaryKey,
-        name: DataTypes.TEXT,
-        price: DataTypes.DECIMAL,
+        name: {
+          type: DataTypes.TEXT,
+          allowNull: false,
+        },
+        price: {
+          type: DataTypes.DECIMAL,
+          allowNull: false,
+        },
+        type: {
+          type: DataTypes.VIRTUAL,
+          get() {
+            if (IMAGING_TYPES_VALUES.includes(this.id)) return REFERENCE_TYPES.IMAGING_TYPE;
+            return this.referenceData?.type ?? this.labTestType?.id ? 'labTestType' : undefined;
+          },
+        },
+        code: {
+          type: DataTypes.VIRTUAL,
+          get() {
+            if (IMAGING_TYPES_VALUES.includes(this.id)) return this.id;
+            return this.referenceData?.code ?? this.labTestType?.code;
+          },
+        },
       },
       { syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL, ...options },
     );
@@ -33,5 +53,9 @@ export class InvoiceProduct extends Model {
 
   static buildSyncFilter() {
     return null; // syncs everywhere
+  }
+
+  static getFullReferenceAssociations() {
+    return ['referenceData', 'labTestType'];
   }
 }

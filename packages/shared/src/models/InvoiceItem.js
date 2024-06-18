@@ -8,10 +8,17 @@ export class InvoiceItem extends Model {
     super.init(
       {
         id: primaryKey,
-        orderDate: DataTypes.DATE,
+        orderDate: {
+          type: DataTypes.DATESTRING,
+          allowNull: false,
+        },
         productId: {
           type: DataTypes.STRING,
           allowNull: true,
+        },
+        quantity: {
+          type: DataTypes.INTEGER,
+          allowNull: false,
         },
         productName: {
           type: DataTypes.STRING,
@@ -57,5 +64,29 @@ export class InvoiceItem extends Model {
       return null;
     }
     return buildEncounterLinkedSyncFilter([this.tableName, 'invoices', 'encounters']);
+  }
+
+  static getListReferenceAssociations(models) {
+    return [
+      {
+        model: models.InvoiceProduct,
+        as: 'product',
+        attributes: ['name', 'price'],
+        include: {
+          model: models.ReferenceData,
+          as: 'referenceData',
+          attributes: ['code'],
+        },
+      },
+      {
+        model: models.User,
+        as: 'orderedByUser',
+        attributes: ['displayName'],
+      },
+      {
+        model: models.InvoiceItemDiscount,
+        as: 'discount',
+      },
+    ];
   }
 }

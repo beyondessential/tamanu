@@ -1,3 +1,5 @@
+import { REFERENCE_TYPES } from "./importable";
+
 export const INVOICE_STATUSES = {
   CANCELLED: 'cancelled',
   IN_PROGRESS: 'in_progress',
@@ -26,20 +28,9 @@ export const INVOICE_PAYMENT_STATUS_LABELS = {
   [INVOICE_PAYMENT_STATUSES.PAID_REJECTED]: 'Paid/Rejected',
 };
 
-export const INVOICE_LINE_ITEM_STATUSES = {
-  ACTIVE: 'active',
-  DELETED: 'deleted',
-};
-
-export const INVOICE_PRICE_CHANGE_TYPES = {
-  PATIENT_BILLING_TYPE: 'patientBillingType',
-};
-
-export const INVOICE_PRICE_CHANGE_TYPE_LABELS = {
-  [INVOICE_PRICE_CHANGE_TYPES.PATIENT_BILLING_TYPE]: 'Patient Type',
-};
-
-export const INVOICE_PRICE_CHANGE_ITEM_STATUSES = {
-  ACTIVE: 'active',
-  DELETED: 'deleted',
+export const POTENTIAL_INVOICE_ITEMS_CATEGORY_LABELS = {
+  [REFERENCE_TYPES.PROCEDURE_TYPE]: 'Procedure',
+  [REFERENCE_TYPES.IMAGING_TYPE]: 'Imaging',
+  'labTestType': 'Lab test',
+  [REFERENCE_TYPES.ADDITIONAL_INVOICE_PRODUCT]: 'Additional',
 };

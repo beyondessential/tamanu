@@ -1,11 +1,16 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { customAlphabet } from 'nanoid';
-import { ValidationError, NotFoundError } from '@tamanu/shared/errors';
+import { ValidationError, NotFoundError, ForbiddenError } from '@tamanu/shared/errors';
 import { INVOICE_PAYMENT_STATUSES, INVOICE_STATUSES } from '@tamanu/constants';
 import { v4 as uuidv4 } from 'uuid';
 import { z } from 'zod';
 import { Op } from 'sequelize';
+import { invoiceItemsRoute } from './invoiceItems';
+import {
+  getCurrentCountryTimeZoneDateString,
+  getCurrentCountryTimeZoneDateTimeString,
+} from '@tamanu/shared/utils/countryDateTime';
 
 const invoiceRoute = express.Router();
 export { invoiceRoute as invoices };
@@ -16,7 +21,7 @@ const createInvoiceSchema = z
     encounterId: z.string().uuid(),
     discount: z
       .object({
-        percentage: z
+        percentage: z.coerce
           .number()
           .min(0)
           .max(1),
@@ -34,11 +39,12 @@ const createInvoiceSchema = z
       customAlphabet('0123456789', 8)() + customAlphabet('ABCDEFGHIJKLMNOPQRSTUVWXYZ', 2)(),
     status: INVOICE_STATUSES.IN_PROGRESS,
     paymentStatus: INVOICE_PAYMENT_STATUSES.UNPAID,
+    date: getCurrentCountryTimeZoneDateString(),
   }));
 invoiceRoute.post(
   '/',
   asyncHandler(async (req, res) => {
-    req.checkPermission('write', 'Invoice');
+    req.checkPermission('create', 'Invoice');
 
     const { data, error } = await createInvoiceSchema.safeParseAsync(req.body);
     if (error) throw new ValidationError(error.message);
@@ -66,7 +72,7 @@ invoiceRoute.post(
 
     try {
       //create invoice
-      await req.models.Invoice.create(data, { transaction });
+      const invoice = await req.models.Invoice.create(data, { transaction });
 
       // insert default insurer
       if (defaultInsurer)
@@ -78,37 +84,21 @@ invoiceRoute.post(
       // create invoice discount
       if (data.discount)
         await req.models.InvoiceDiscount.create(
-          { invoiceId: data.id, ...data.discount },
+          {
+            ...data.discount,
+            invoiceId: data.id,
+            appliedByUserId: req.user.id,
+            appliedTime: getCurrentCountryTimeZoneDateTimeString(),
+          },
           { transaction },
         );
 
       await transaction.commit();
+      res.json(invoice);
     } catch (error) {
       await transaction.rollback();
       throw error;
     }
-
-    const invoice = await req.models.Invoice.findByPk(data.id, {
-      include: [
-        { model: req.models.Encounter, as: 'encounter' },
-        {
-          model: req.models.InvoiceDiscount,
-          as: 'discount',
-          include: [{ model: req.models.User, as: 'appliedByUser', attributes: ['displayName'] }],
-        },
-        {
-          model: req.models.InvoiceInsurer,
-          as: 'insurers',
-          include: [
-            {
-              model: req.models.ReferenceData,
-              as: 'insurer',
-            },
-          ],
-        },
-      ],
-    });
-    res.json(invoice.dataValues);
   }),
 );
 
@@ -121,7 +111,7 @@ const updateInvoiceSchema = z
           .string()
           .uuid()
           .default(uuidv4),
-        percentage: z
+        percentage: z.coerce
           .number()
           .min(0)
           .max(1),
@@ -136,7 +126,7 @@ const updateInvoiceSchema = z
           .string()
           .uuid()
           .default(uuidv4),
-        percentage: z
+        percentage: z.coerce
           .number()
           .min(0)
           .max(1),
@@ -150,7 +140,7 @@ const updateInvoiceSchema = z
           .string()
           .uuid()
           .default(uuidv4),
-        orderDate: z.date(),
+        orderDate: z.string().date(),
         orderedByUserId: z.string().uuid(),
         productId: z.string(),
         discount: z
@@ -159,9 +149,9 @@ const updateInvoiceSchema = z
               .string()
               .uuid()
               .default(uuidv4),
-            percentage: z
+            percentage: z.coerce
               .number()
-              .min(0)
+              .min(-1)
               .max(1),
             reason: z.string().optional(),
           })
@@ -172,6 +162,7 @@ const updateInvoiceSchema = z
       .array(),
   })
   .strip();
+
 invoiceRoute.put(
   '/:id',
   asyncHandler(async (req, res) => {
@@ -190,14 +181,21 @@ invoiceRoute.put(
     try {
       //update invoice discount
       await req.models.InvoiceDiscount.destroy(
-        { where: { invoiceId, id: { [Op.ne]: data.discount?.id ? [data.discount.id] : [] } } },
+        { where: { invoiceId, id: { [Op.notIn]: data.discount?.id ? [data.discount.id] : [] } } },
         { transaction },
       );
 
-      await req.models.InvoiceDiscount.upsert(
-        { ...data.discount, invoiceId },
-        { conflictFields: ['id', 'invoiceId'], transaction },
-      );
+      if (data.discount) {
+        await req.models.InvoiceDiscount.upsert(
+          {
+            ...data.discount,
+            invoiceId,
+            appliedByUserId: req.user.id,
+            appliedTime: getCurrentCountryTimeZoneDateTimeString(),
+          },
+          { onConflict: { conflictFields: ['id', 'invoiceId'] }, transaction },
+        );
+      }
 
       //update invoice insurers
       await req.models.InvoiceInsurer.destroy(
@@ -208,7 +206,7 @@ invoiceRoute.put(
       for (const insurer of data.insurers) {
         await req.models.InvoiceInsurer.upsert(
           { ...insurer, invoiceId },
-          { conflictFields: ['id', 'invoiceId'], transaction },
+          { onConflict: { conflictFields: ['id', 'invoiceId'] }, transaction },
         );
       }
 
@@ -220,8 +218,8 @@ invoiceRoute.put(
 
       for (const item of data.items) {
         await req.models.InvoiceItem.upsert(
-          { ...item, invoiceId },
-          { conflictFields: ['id', 'invoiceId'], transaction },
+          { ...item, invoiceId, deletedAt: null, orderedByUserId: req.user?.id },
+          { onConflict: { conflictFields: ['id', 'invoiceId'] }, transaction },
         );
 
         //update invoice item discount
@@ -229,16 +227,18 @@ invoiceRoute.put(
           {
             where: {
               invoiceItemId: item.id,
-              id: { [Op.ne]: item.discount?.id ? [item.discount.id] : [] },
+              id: { [Op.notIn]: item.discount?.id ? [item.discount.id] : [] },
             },
           },
           { transaction },
         );
 
-        await req.models.InvoiceItemDiscount.upsert(
-          { ...item.discount, invoiceItemId: item.id },
-          { conflictFields: ['id', 'invoiceItemId'], transaction },
-        );
+        if (item.discount) {
+          await req.models.InvoiceItemDiscount.upsert(
+            { ...item.discount, invoiceItemId: item.id },
+            { onConflict: { conflictFields: ['id', 'invoiceItemId'] }, transaction },
+          );
+        }
       }
       await transaction.commit();
     } catch (error) {
@@ -246,50 +246,73 @@ invoiceRoute.put(
       throw error;
     }
 
-    const invoice = await req.models.Invoice.findByPk(data.id, {
-      include: [
-        { model: req.models.Encounter, as: 'encounter' },
-        {
-          model: req.models.InvoiceDiscount,
-          as: 'discount',
-          include: [{ model: req.models.User, as: 'appliedByUser', attributes: ['displayName'] }],
-        },
-        {
-          model: req.models.InvoiceInsurer,
-          as: 'insurers',
-          include: [
-            {
-              model: req.models.ReferenceData,
-              as: 'insurer',
-            },
-          ],
-        },
-        {
-          model: req.models.InvoiceItem,
-          as: 'items',
-          include: [
-            {
-              model: req.models.InvoiceItemDiscount,
-              as: 'discount',
-            },
-            {
-              model: req.models.InvoiceProduct,
-              as: 'product',
-              include: [
-                {
-                  model: req.models.ReferenceData,
-                  as: 'referenceData',
-                },
-                {
-                  model: req.models.LabTestType,
-                  as: 'labTestType',
-                },
-              ],
-            },
-          ],
-        },
-      ],
-    });
+    const invoice = await req.models.Invoice.findByPk(invoiceId);
     res.json(invoice.dataValues);
   }),
 );
+
+invoiceRoute.put(
+  '/:id/cancel',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('write', 'Invoice');
+
+    await req.models.Invoice.update(
+      { status: INVOICE_STATUSES.CANCELLED },
+      { where: { id: req.params.id, status: INVOICE_STATUSES.IN_PROGRESS } },
+    );
+
+    res.send({});
+  }),
+);
+
+invoiceRoute.put(
+  '/:id/finalize',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('write', 'Invoice');
+
+    //assert invoice status = in progress
+    const isInProgress = req.models.Invoice.findByPk(req.params.id, {
+      attributes: ['status'],
+    }).then(invoice => (!invoice ? false : invoice.status === INVOICE_STATUSES.IN_PROGRESS));
+    if (!isInProgress) throw new ForbiddenError('Invoice not in progress');
+
+    const transaction = await req.db.transaction();
+
+    try {
+      //freeze invoice items data
+      const items = await req.models.InvoiceItem.findAll(
+        {
+          where: { invoiceId: req.params.id },
+          include: {
+            model: req.models.InvoiceProduct,
+            as: 'product',
+            attributes: ['name', 'price'],
+          },
+        },
+        { transaction },
+      );
+
+      await req.models.InvoiceItem.bulkCreate(
+        items.map(item => ({
+          ...item,
+          productName: item.product.name,
+          productPrice: item.product.price,
+        })),
+        { updateOnDuplicate: true, transaction },
+      );
+
+      const invoice = await req.models.Invoice.update(
+        { status: INVOICE_STATUSES.FINALISED },
+        { where: { id: req.params.id, status: INVOICE_STATUSES.IN_PROGRESS } },
+        { transaction },
+      );
+      await transaction.commit();
+      res.json(invoice);
+    } catch (error) {
+      await transaction.rollback();
+      throw error;
+    }
+  }),
+);
+
+invoiceRoute.use(invoiceItemsRoute);
