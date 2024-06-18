@@ -6,7 +6,7 @@ import { AutocompleteField, DateField, Field } from '../../Field';
 import { useSuggester } from '../../../api';
 import { Colors, INVOICE_ITEM_ACTION_MODAL_TYPES } from '../../../constants';
 import { ThemedTooltip } from '../../Tooltip';
-import { ThreeDotMenu } from '../../ThreedotMenu';
+import { ThreeDotMenu } from '../../ThreeDotMenu';
 import { InvoiceItemActionModal } from './InvoiceItemActionModal';
 import { getInvoiceItemDiscountPrice } from '@tamanu/shared/utils/invoice';
 import { getDateDisplay } from '../../DateDisplay';

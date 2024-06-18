@@ -10,7 +10,7 @@ import { TabPane } from '../components';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { InvoiceStatus } from '../../../components/Invoice/InvoiceStatus';
 import { InvoiceSummaryPanel } from '../../../components/Invoice/InvoiceSummaryPanel';
-import { ThreeDotMenu } from '../../../components/ThreedotMenu';
+import { ThreeDotMenu } from '../../../components/ThreeDotMenu';
 import { useEncounterInvoice } from '../../../api/queries/useInvoiceQuery';
 import { InvoiceModalGroup } from '../../../components/Invoice/InvoiceModalGroup';
 
