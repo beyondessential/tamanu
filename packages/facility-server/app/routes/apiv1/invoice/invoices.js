@@ -6,6 +6,7 @@ import { INVOICE_PAYMENT_STATUSES, INVOICE_STATUSES } from '@tamanu/constants';
 import { v4 as uuidv4 } from 'uuid';
 import { z } from 'zod';
 import { Op } from 'sequelize';
+import { getPotentialInvoiceItems } from './getPotentialInvoiceItems';
 
 const invoiceRoute = express.Router();
 export { invoiceRoute as invoices };
@@ -78,7 +79,7 @@ invoiceRoute.post(
       // create invoice discount
       if (data.discount)
         await req.models.InvoiceDiscount.create(
-          { invoiceId: data.id, ...data.discount },
+          { invoiceId: data.id, ...data.discount, appliedByUserId: req.user?.id },
           { transaction },
         );
 
@@ -172,6 +173,7 @@ const updateInvoiceSchema = z
       .array(),
   })
   .strip();
+
 invoiceRoute.put(
   '/:id',
   asyncHandler(async (req, res) => {
@@ -195,7 +197,7 @@ invoiceRoute.put(
       );
 
       await req.models.InvoiceDiscount.upsert(
-        { ...data.discount, invoiceId },
+        { ...data.discount, invoiceId, appliedByUserId: req.user?.id },
         { conflictFields: ['id', 'invoiceId'], transaction },
       );
 
@@ -220,7 +222,7 @@ invoiceRoute.put(
 
       for (const item of data.items) {
         await req.models.InvoiceItem.upsert(
-          { ...item, invoiceId },
+          { ...item, invoiceId, orderedByUserId: req.user?.id },
           { conflictFields: ['id', 'invoiceId'], transaction },
         );
 
@@ -291,5 +293,14 @@ invoiceRoute.put(
       ],
     });
     res.json(invoice.dataValues);
+  }),
+);
+
+invoiceRoute.get(
+  '/:id/potentialInvoiceItems',
+  asyncHandler(async (req, res) => {
+    req.flagPermissionChecked();
+    const data = await getPotentialInvoiceItems(req.db, req.models, req.params.id);
+    res.json(data);
   }),
 );
