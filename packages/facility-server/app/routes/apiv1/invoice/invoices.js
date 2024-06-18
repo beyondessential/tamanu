@@ -7,7 +7,10 @@ import { v4 as uuidv4 } from 'uuid';
 import { z } from 'zod';
 import { Op } from 'sequelize';
 import { invoiceItemsRoute } from './invoiceItems';
-import { getPotentialInvoiceItems } from './getPotentialInvoiceItems';
+import {
+  getCurrentCountryTimeZoneDateString,
+  getCurrentCountryTimeZoneDateTimeString,
+} from '@tamanu/shared/utils/countryDateTime';
 
 const invoiceRoute = express.Router();
 export { invoiceRoute as invoices };
@@ -36,6 +39,7 @@ const createInvoiceSchema = z
       customAlphabet('0123456789', 8)() + customAlphabet('ABCDEFGHIJKLMNOPQRSTUVWXYZ', 2)(),
     status: INVOICE_STATUSES.IN_PROGRESS,
     paymentStatus: INVOICE_PAYMENT_STATUSES.UNPAID,
+    date: getCurrentCountryTimeZoneDateString(),
   }));
 invoiceRoute.post(
   '/',
@@ -66,10 +70,9 @@ invoiceRoute.post(
     // create invoice transaction
     const transaction = await req.db.transaction();
 
-    let invoice;
     try {
       //create invoice
-      invoice = await req.models.Invoice.create(data, { transaction });
+      const invoice = await req.models.Invoice.create(data, { transaction });
 
       // insert default insurer
       if (defaultInsurer)
@@ -85,18 +88,17 @@ invoiceRoute.post(
             ...data.discount,
             invoiceId: data.id,
             appliedByUserId: req.user.id,
-            appliedTime: new Date(),
+            appliedTime: getCurrentCountryTimeZoneDateTimeString(),
           },
           { transaction },
         );
 
       await transaction.commit();
+      res.json(invoice);
     } catch (error) {
       await transaction.rollback();
       throw error;
     }
-
-    res.json(invoice);
   }),
 );
 
@@ -138,10 +140,7 @@ const updateInvoiceSchema = z
           .string()
           .uuid()
           .default(uuidv4),
-        orderDate: z.preprocess(
-          arg => (typeof arg == 'string' ? new Date(arg) : undefined),
-          z.date(),
-        ),
+        orderDate: z.string().date(),
         orderedByUserId: z.string().uuid(),
         productId: z.string(),
         discount: z
@@ -192,7 +191,7 @@ invoiceRoute.put(
             ...data.discount,
             invoiceId,
             appliedByUserId: req.user.id,
-            appliedTime: new Date(),
+            appliedTime: getCurrentCountryTimeZoneDateTimeString(),
           },
           { onConflict: { conflictFields: ['id', 'invoiceId'] }, transaction },
         );
