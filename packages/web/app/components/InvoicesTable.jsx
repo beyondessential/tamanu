@@ -12,7 +12,6 @@ import { upperCase } from 'lodash';
 import { InvoiceStatus } from './InvoiceStatus';
 import { EditInvoiceModal } from './EditInvoiceModal';
 import { InvoicePaymentModal } from './InvoicePaymentModal';
-import { INVOICE_STATUSES } from '@tamanu/constants';
 
 const TableTitle = styled(Typography)`
   font-size: 16px;
