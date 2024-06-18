@@ -1,7 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { customAlphabet } from 'nanoid';
-import { ValidationError, NotFoundError } from '@tamanu/shared/errors';
+import { ValidationError, NotFoundError, ForbiddenError } from '@tamanu/shared/errors';
 import { INVOICE_PAYMENT_STATUSES, INVOICE_STATUSES } from '@tamanu/constants';
 import { v4 as uuidv4 } from 'uuid';
 import { z } from 'zod';
@@ -251,17 +251,67 @@ invoiceRoute.put(
   }),
 );
 
-invoiceRoute.post(
+invoiceRoute.put(
   '/:id/cancel',
   asyncHandler(async (req, res) => {
     req.checkPermission('write', 'Invoice');
 
     await req.models.Invoice.update(
       { status: INVOICE_STATUSES.CANCELLED },
-      { where: { id: req.params.id } },
+      { where: { id: req.params.id, status: INVOICE_STATUSES.IN_PROGRESS } },
     );
 
     res.send({});
+  }),
+);
+
+invoiceRoute.put(
+  '/:id/finalize',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('write', 'Invoice');
+
+    //assert invoice status = in progress
+    const isInProgress = req.models.Invoice.findByPk(req.params.id, {
+      attributes: ['status'],
+    }).then(invoice => (!invoice ? false : invoice.status === INVOICE_STATUSES.IN_PROGRESS));
+    if (!isInProgress) throw new ForbiddenError('Invoice not in progress');
+
+    const transaction = await req.db.transaction();
+
+    try {
+      //freeze invoice items data
+      const items = await req.models.InvoiceItem.findAll(
+        {
+          where: { invoiceId: req.params.id },
+          include: {
+            model: req.models.InvoiceProduct,
+            as: 'product',
+            attributes: ['name', 'price'],
+          },
+        },
+        { transaction },
+      );
+
+      await req.models.InvoiceItem.bulkCreate(
+        items.map(item => ({
+          ...item,
+          productName: item.product.name,
+          productPrice: item.product.price,
+        })),
+        { updateOnDuplicate: true, transaction },
+      );
+
+      const invoice = await req.models.Invoice.update(
+        { status: INVOICE_STATUSES.FINALISED },
+        { where: { id: req.params.id, status: INVOICE_STATUSES.IN_PROGRESS } },
+        { transaction },
+      );
+      await transaction.commit();
+      res.json(invoice);
+    } catch (error) {
+      await transaction.rollback();
+      throw error;
+    }
   }),
 );
 
