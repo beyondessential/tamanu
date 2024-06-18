@@ -43,10 +43,6 @@ export class Invoice extends Model {
     });
   }
 
-  static getFullReferenceAssociations() {
-    return ['items'];
-  }
-
   static buildPatientSyncFilter(patientIds) {
     if (patientIds.length === 0) {
       return null;

@@ -45,7 +45,7 @@ const Title = styled.div`
   border-bottom: 1px solid ${Colors.outline};
 `;
 
-const PATIENT_PAYMENTS_COLUMNS = [
+const COLUMNS = [
   {
     key: 'date',
     title: <TranslatedText stringId="general.date.label" fallback="Date" />,
@@ -101,7 +101,6 @@ export const PatientPaymentsTable = ({
           <TranslatedText stringId="invoice.modal.payment.patientPayments" fallback="Patient payments" />
         </Heading4>
         <Heading4 sx={{ margin: '15px 0 15px 0' }}>
-
           <TranslatedText
             stringId="invoice.modal.payment.remainingBalance"
             fallback="Remaining balance: :remainingBalance"
@@ -110,7 +109,7 @@ export const PatientPaymentsTable = ({
         </Heading4>
       </Title>
       <Table
-        columns={PATIENT_PAYMENTS_COLUMNS}
+        columns={COLUMNS}
         data={patientPaymentsData}
         headerColor={Colors.white}
         page={null}

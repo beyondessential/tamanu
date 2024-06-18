@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import { INVOICE_STATUSES } from '@tamanu/constants';
 
 import { Colors, ENCOUNTER_OPTIONS_BY_VALUE, INVOICE_PAYMENT_STATUS_LABELS } from '../constants';
-
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 import { TranslatedEnum, TranslatedText } from './Translation';
@@ -12,6 +12,7 @@ import { upperCase } from 'lodash';
 import { InvoiceStatus } from './InvoiceStatus';
 import { EditInvoiceModal } from './EditInvoiceModal';
 import { InvoicePaymentModal } from './InvoicePaymentModal';
+import { INVOICE_STATUSES } from '@tamanu/constants';
 
 const TableTitle = styled(Typography)`
   font-size: 16px;
@@ -133,17 +134,18 @@ export const InvoicesTable = React.memo(({ patient }) => {
         onClickRow={(_, data) => setSelectedInvoice(data)}
       />
       {!!selectedInvoice && (
-        // <EditInvoiceModal
-        //   open
-        //   onClose={() => setSelectedInvoice(undefined)}
-        //   invoice={selectedInvoice}
-        //   afterSaveInvoice={selectedInvoice.refreshTable}
-        // />
-        <InvoicePaymentModal 
-          open
-          onClose={() => setSelectedInvoice(undefined)}
-          invoice={selectedInvoice}
-        />
+        selectedInvoice.status !== INVOICE_STATUSES.FINALISED
+          ? <EditInvoiceModal
+            open
+            onClose={() => setSelectedInvoice(undefined)}
+            invoice={selectedInvoice}
+            afterSaveInvoice={selectedInvoice.refreshTable}
+          />
+          : <InvoicePaymentModal
+            open
+            onClose={() => setSelectedInvoice(undefined)}
+            invoice={selectedInvoice}
+          />
       )}
     </>
   );
