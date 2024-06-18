@@ -1,4 +1,4 @@
-import { SEX_LABELS, SEX_VALUES } from './patientFields';
+import { SEX_LABELS } from './patientFields';
 import {
   INVOICE_LINE_TYPE_LABELS,
   INVOICE_PAYMENT_STATUS_LABELS,

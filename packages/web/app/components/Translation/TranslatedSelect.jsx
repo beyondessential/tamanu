@@ -16,7 +16,10 @@ const TranslatedSelectInput = ({
 }) => {
   const InputComponent = component;
   if (IS_DEVELOPMENT && !enumRegistry.has(enumValues)) {
-    throw new Error('Select options are not registered in enumRegistry');
+    throw new Error(
+      `TranslatedSelect enumValues for field ${name ||
+        field?.name} are not registered in enumRegistry`,
+    );
   }
   const translatedOptions = getTranslatedOptions(
     Object.entries(enumValues).map(([value, label]) => ({
