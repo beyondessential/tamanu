@@ -113,6 +113,11 @@ const StatusContainer = styled.span`
   font-weight: 400;
 `;
 
+const PrintButton = styled(Button)`
+  position: absolute;
+  right: 70px;
+`;
+
 const getDefaultRow = () => ({ id: uuidv4() });
 
 export const EditInvoiceModal = ({
@@ -200,9 +205,9 @@ export const EditInvoiceModal = ({
             </StatusContainer>
           </Box>
           {isPatientView && !editable && (
-            <Button color="primary" variant="outlined" startIcon={<PrintIcon />} size="small">
+            <PrintButton color="primary" variant="outlined" startIcon={<PrintIcon />} size="small">
               <TranslatedText stringId="general.action.print" fallback="Print" />
-            </Button>
+            </PrintButton>
           )}
         </Box>
       }
