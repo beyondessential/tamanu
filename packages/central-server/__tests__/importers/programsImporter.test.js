@@ -648,16 +648,117 @@ describe('Programs import', () => {
 
   describe('Charting', () => {
     describe('Simple chart', () => {
-      it.todo('Should import a valid simple chart survey');
-      it.todo('Should be able to import multiple simple chart surveys for the same program');
+      it('Should import a valid simple chart survey', async () => {
+        const { errors, stats, didntSendReason } = await doImport({
+          file: 'charting-simple-valid',
+          dryRun: true,
+        });
+        expect(errors).toBeEmpty();
+        expect(didntSendReason).toEqual('dryRun');
+        expect(stats).toMatchObject({
+          Program: { created: 1, updated: 0, errored: 0 },
+          Survey: { created: 1, updated: 0, errored: 0 },
+          ProgramDataElement: { created: 4, updated: 0, errored: 0 },
+          SurveyScreenComponent: { created: 4, updated: 0, errored: 0 },
+        });
+      });
+      it('Should be able to import multiple simple chart surveys for the same program', async () => {
+        const { errors, stats, didntSendReason } = await doImport({
+          file: 'charting-simple-multiple-valid',
+          dryRun: true,
+        });
+        expect(errors).toBeEmpty();
+        expect(didntSendReason).toEqual('dryRun');
+        expect(stats).toMatchObject({
+          Program: { created: 1, updated: 0, errored: 0 },
+          Survey: { created: 2, updated: 0, errored: 0 },
+          ProgramDataElement: { created: 8, updated: 0, errored: 0 },
+          SurveyScreenComponent: { created: 8, updated: 0, errored: 0 },
+        });
+      });
     });
     describe('Complex chart', () => {
-      it.todo('Should import a valid complex chart survey');
-      it.todo('Should refuse to import without its core info (ComplexChartCore)');
-      it.todo('Should refuse to import without its main info (ComplexChart)');
-      it.todo('Should refuse to import a complex core survey without special question config types');
-      it.todo('Should only be able to hide "type" and "subtype" questions for complex core survey');
-      it.todo('Should only be one complex chart and complex core per program.');
+      it('Should import a valid complex chart survey', async () => {
+        const { errors, stats, didntSendReason } = await doImport({
+          file: 'charting-complex-valid',
+          dryRun: true,
+        });
+        expect(errors).toBeEmpty();
+        expect(didntSendReason).toEqual('dryRun');
+        expect(stats).toMatchObject({
+          Program: { created: 1, updated: 0, errored: 0 },
+          Survey: { created: 2, updated: 0, errored: 0 },
+          ProgramDataElement: { created: 8, updated: 0, errored: 0 },
+          SurveyScreenComponent: { created: 8, updated: 0, errored: 0 },
+        });
+      });
+      it('Should refuse to import without its core info (ComplexChartCore)', async () => {
+        const { errors } = await doImport({
+          file: 'charting-complex-main-only-invalid',
+          dryRun: true,
+        });
+        expect(errors).toContainAnError('metadata', 0, 'Complex charts need a core data set survey');
+      });
+      it('Should refuse to import without its main info (ComplexChart)', async () => {
+        const { errors } = await doImport({
+          file: 'charting-complex-core-only-invalid',
+          dryRun: true,
+        });
+        expect(errors).toContainAnError('metadata', 0, 'Cannot import a complex chart core without the main survey');
+      });
+      it('Should refuse to import a complex core survey without special question config types', async () => {
+        const { errors, stats } = await doImport({
+          file: 'charting-complex-core-question-types-invalid',
+          dryRun: true,
+        });
+
+        const errorMessages = [
+          "sheetName: Core, code: 'chartcodecomplexchartinstancename', invalid question type",
+          "sheetName: Core, code: 'chartcodecomplexchartdate', invalid question type",
+          "sheetName: Core, code: 'chartcodecomplexcharttype', invalid question type",
+          "sheetName: Core, code: 'chartcodecomplexchartsubtype', invalid question type",
+        ];
+
+        errors.forEach((error, i) => {
+          expect(error.message).toEqual(errorMessages[i]);
+        });
+
+        expect(stats).toMatchObject({
+          Program: { created: 1, updated: 0, errored: 0 },
+          Survey: { created: 2, updated: 0, errored: 0 },
+          ProgramDataElement: { created: 8, updated: 0, errored: errorMessages.length },
+          SurveyScreenComponent: { created: 8, updated: 0, errored: 0 },
+        });
+      });
+      it('Should only be able to hide "type" and "subtype" questions for complex core survey', async () => {
+        const { errors, stats } = await doImport({
+          file: 'charting-complex-core-hidden-question-invalid',
+          dryRun: true,
+        });
+
+        const errorMessages = [
+          "sheetName: Core, code: 'chartcodecomplexchartinstancename', ComplexChartInstanceName cannot be hidden",
+          "sheetName: Core, code: 'chartcodecomplexchartdate', ComplexChartDate cannot be hidden",
+        ];
+
+        errors.forEach((error, i) => {
+          expect(error.message).toEqual(errorMessages[i]);
+        });
+
+        expect(stats).toMatchObject({
+          Program: { created: 1, updated: 0, errored: 0 },
+          Survey: { created: 2, updated: 0, errored: 0 },
+          ProgramDataElement: { created: 8, updated: 0, errored: errorMessages.length },
+          SurveyScreenComponent: { created: 8, updated: 0, errored: 0 },
+        });
+      });
+      it('Should only be one complex chart and complex core per program.', async () => {
+        const { errors } = await doImport({
+          file: 'charting-complex-multiple-invalid',
+          dryRun: true,
+        });
+        expect(errors).toContainAnError('metadata', 0, 'Only one complex chart and complex chart core allowed in a program');
+      });
     });
   });
 });
