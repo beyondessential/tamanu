@@ -17,7 +17,7 @@ export const InvoiceModalGroup = ({ encounterId, initialState }) => {
   }, [initialState]);
 
   const handleCloseInvoiceModal = type =>
-    setInvoiceModal(type ? invoiceModal.filter(it => it !== type) : []);
+    setInvoiceModal(type ? invoiceModal.filter(modal => modal !== type) : []);
 
   const handleOpenInvoiceModal = (type, keepPreviousModals = false) =>
     setInvoiceModal(keepPreviousModals ? invoiceModal.concat(type) : [type]);
@@ -50,7 +50,6 @@ export const InvoiceModalGroup = ({ encounterId, initialState }) => {
         <EditInvoiceModal
           open
           onClose={() => handleCloseInvoiceModal()}
-          encounterId={encounterId}
           invoice={invoice}
           handleEditDiscount={handleEditDiscount}
         />
@@ -60,8 +59,7 @@ export const InvoiceModalGroup = ({ encounterId, initialState }) => {
           open
           onClose={() => handleCloseInvoiceModal(INVOICE_MODAL_TYPES.CANCEL_INVOICE)}
           onCancelSuccess={() => handleCloseInvoiceModal()}
-          encounterId={encounterId}
-          invoiceId={invoice.id}
+          invoice={invoice}
         />
       )}
     </>

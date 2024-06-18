@@ -16,27 +16,27 @@ export const useCreateInvoice = () => {
   });
 };
 
-export const useUpdateInvoice = ({ encounterId, invoiceId }) => {
+export const useUpdateInvoice = invoice => {
   const api = useApi();
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async body => {
-      await api.put(`invoices/${invoiceId}`, body);
-      await queryClient.invalidateQueries([`encounter/${encounterId}/invoice`]);
+      await api.put(`invoices/${invoice?.id}`, body);
+      await queryClient.invalidateQueries([`encounter/${invoice?.encounterId}/invoice`]);
     },
     onError: error => notifyError(error.message),
   });
 };
 
-export const useCancelInvoice = ({ encounterId, invoiceId }) => {
+export const useCancelInvoice = invoice => {
   const api = useApi();
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async () => {
-      await api.post(`invoices/${invoiceId}/cancel`);
-      await queryClient.invalidateQueries([`encounter/${encounterId}/invoice`]);
+      await api.post(`invoices/${invoice?.id}/cancel`);
+      await queryClient.invalidateQueries([`encounter/${invoice?.encounterId}/invoice`]);
     },
     onError: error => notifyError(error.message),
   });

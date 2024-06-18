@@ -1,8 +1,8 @@
 import { permissionCheckingRouter, simpleGetList } from '@tamanu/shared/utils/crudHelpers';
 import asyncHandler from 'express-async-handler';
-import { getPotentialInvoiceItems } from './getPotentialInvoiceItems';
 import { renameObjectKeys } from '@tamanu/shared/utils';
 import { transform, set } from 'lodash';
+import { getPotentialInvoiceItems } from './getPotentialInvoiceItems';
 
 export const invoiceItemsRoute = permissionCheckingRouter('read', 'Invoice');
 

@@ -3,6 +3,10 @@ import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
 import * as yup from 'yup';
 import { CircularProgress, Divider } from '@material-ui/core';
+import { FieldArray } from 'formik';
+import { differenceBy } from 'lodash';
+import { isInvoiceEditable } from '@tamanu/shared/utils/invoice';
+import { POTENTIAL_INVOICE_ITEMS_CATEGORY_LABELS } from '@tamanu/constants';
 import { Modal } from '../../Modal';
 import { TranslatedEnum, TranslatedText } from '../../Translation';
 import { Form } from '../../Field';
@@ -14,11 +18,7 @@ import { Button } from '../../Button';
 import { InvoiceItemHeader, InvoiceItemRow } from './InvoiceItem';
 import { InvoiceStatus } from '../InvoiceStatus';
 import { InvoiceSummaryPanel } from '../InvoiceSummaryPanel';
-import { FieldArray } from 'formik';
-import { differenceBy } from 'lodash';
 import { useUpdateInvoice } from '../../../api/mutations/useInvoiceMutation';
-import { isInvoiceEditable } from '@tamanu/shared/utils/invoice';
-import { POTENTIAL_INVOICE_ITEMS_CATEGORY_LABELS } from '@tamanu/constants';
 
 const LinkText = styled.div`
   font-weight: 500;
@@ -110,13 +110,10 @@ const StatusContainer = styled.span`
 
 const getDefaultRow = () => ({ id: uuidv4() });
 
-export const EditInvoiceModal = ({ open, onClose, encounterId, invoice, handleEditDiscount }) => {
+export const EditInvoiceModal = ({ open, onClose, invoice, handleEditDiscount }) => {
   const [potentialInvoiceItems, setPotentialInvoiceItems] = useState([]);
 
-  const { mutate: updateInvoice, isLoading: isUpdatingInvoice } = useUpdateInvoice({
-    encounterId,
-    invoiceId: invoice.id,
-  });
+  const { mutate: updateInvoice, isLoading: isUpdatingInvoice } = useUpdateInvoice(invoice);
 
   const onPotentialInvoiceItemsFetched = useCallback(data => {
     setPotentialInvoiceItems(data?.data || []);
@@ -192,7 +189,7 @@ export const EditInvoiceModal = ({ open, onClose, encounterId, invoice, handleEd
                 values.invoiceItems,
                 'id',
               ).length;
-              console.log(potentialInvoiceItems);
+
               const potentialInvoiceItemRowStyle = ({ id }) => {
                 const idList = values.invoiceItems.map(row => row?.id).filter(Boolean);
                 if (idList.includes(id)) return 'display: none;';
@@ -200,7 +197,7 @@ export const EditInvoiceModal = ({ open, onClose, encounterId, invoice, handleEd
               };
 
               const handleAddPotentialInvoiceItems = items => {
-                items.forEach(it => !potentialInvoiceItemRowStyle(it) && formArrayMethods.push(it));
+                items.forEach(item => !potentialInvoiceItemRowStyle(item) && formArrayMethods.push(item));
               };
 
               const POTENTIAL_INVOICE_ITEMS_TABLE_COLUMNS = [
