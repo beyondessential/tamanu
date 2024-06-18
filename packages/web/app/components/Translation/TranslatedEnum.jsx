@@ -2,9 +2,10 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { enumRegistry } from '@tamanu/constants';
 import { TranslatedText } from './TranslatedText.jsx';
+import { IS_DEVELOPMENT } from '../../utils/env';
 
 export const TranslatedEnum = ({ prefix, value, enumValues, enumFallback = 'Unknown' }) => {
-  if (!enumRegistry.has(enumValues))
+  if (IS_DEVELOPMENT && !enumRegistry.has(enumValues))
     throw new Error(
       'enumValues prop must be a constant registered within enumRegistry in @tamanu/constants',
     );
