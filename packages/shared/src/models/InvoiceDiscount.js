@@ -1,4 +1,4 @@
-import { Sequelize, DataTypes } from 'sequelize';
+import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
 import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
@@ -12,13 +12,13 @@ export class InvoiceDiscount extends Model {
           type: DataTypes.DECIMAL,
           allowNull: false,
         },
-        reason: Sequelize.STRING,
+        reason: DataTypes.STRING,
         isManual: {
-          type: Sequelize.BOOLEAN,
+          type: DataTypes.BOOLEAN,
           allowNull: false,
         },
         appliedTime: {
-          type: Sequelize.DATETIMESTRING,
+          type: DataTypes.DATETIMESTRING,
           allowNull: false,
         },
       },
