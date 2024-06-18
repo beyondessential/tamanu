@@ -1,4 +1,4 @@
-import { Sequelize } from 'sequelize';
+import { Sequelize, DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
 import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
@@ -9,6 +9,7 @@ export class Invoice extends Model {
       {
         id: primaryKey,
         displayId: Sequelize.STRING,
+        date: DataTypes.DATESTRING,
         status: Sequelize.STRING,
         paymentStatus: Sequelize.STRING,
         receiptNumber: Sequelize.STRING,

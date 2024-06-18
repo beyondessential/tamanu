@@ -11,7 +11,7 @@ export class InvoiceDiscount extends Model {
         percentage: DataTypes.DECIMAL,
         reason: Sequelize.STRING,
         isManual: Sequelize.BOOLEAN,
-        appliedTime: Sequelize.DATE,
+        appliedTime: Sequelize.DATETIMESTRING,
       },
       { syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL, ...options },
     );

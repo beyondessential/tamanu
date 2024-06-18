@@ -51,6 +51,10 @@ export async function up(query) {
       type: DataTypes.STRING,
       allowNull: false,
     },
+    date: {
+      type: DataTypes.DATESTRING,
+      allowNull: false,
+    },
     status: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -121,7 +125,7 @@ export async function up(query) {
       },
     },
     applied_time: {
-      type: DataTypes.DATE,
+      type: DataTypes.DATETIMESTRING,
       allowNull: false,
     },
     created_at: {
@@ -197,7 +201,7 @@ export async function up(query) {
       },
     },
     order_date: {
-      type: DataTypes.DATE,
+      type: DataTypes.DATESTRING,
       allowNull: false,
     },
     product_id: {
@@ -207,6 +211,10 @@ export async function up(query) {
         model: 'invoice_products',
         key: 'id',
       },
+    },
+    quantity: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
     },
     product_name: {
       type: DataTypes.STRING,
