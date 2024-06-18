@@ -647,13 +647,17 @@ describe('Programs import', () => {
   });
 
   describe('Charting', () => {
-    it.todo('Should import a valid simple chart survey');
-    it.todo('Should import a valid complex chart survey');
-    it.todo('Should refuse to import complex chart survey without its core info (ComplexChartCore)');
-    it.todo('Should refuse to import complex core survey without its main (ComplexChart)');
-    it.todo('Should refuse to import a complex core survey without special question config types');
-    it.todo('Should only be able to hide "type" and "subtype" questions for complex core survey');
-    it.todo('Should be able to import multiple simple chart surveys for the same program');
-    it.todo('Should only be one complex chart and complex core per program.');
+    describe('Simple chart', () => {
+      it.todo('Should import a valid simple chart survey');
+      it.todo('Should be able to import multiple simple chart surveys for the same program');
+    });
+    describe('Complex chart', () => {
+      it.todo('Should import a valid complex chart survey');
+      it.todo('Should refuse to import without its core info (ComplexChartCore)');
+      it.todo('Should refuse to import without its main info (ComplexChart)');
+      it.todo('Should refuse to import a complex core survey without special question config types');
+      it.todo('Should only be able to hide "type" and "subtype" questions for complex core survey');
+      it.todo('Should only be one complex chart and complex core per program.');
+    });
   });
 });
