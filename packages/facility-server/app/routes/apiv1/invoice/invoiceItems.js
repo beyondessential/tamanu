@@ -10,7 +10,7 @@ invoiceItemsRoute.get(
   '/:id/potentialInvoiceItems',
   asyncHandler(async (req, res) => {
     req.flagPermissionChecked();
-    const data = await getPotentialInvoiceItems(req.db, req.models, req.params.id);
+    const data = await getPotentialInvoiceItems(req.db, req.params.id);
     res.json(data);
   }),
 );
