@@ -9,7 +9,7 @@ export async function up(query) {
   await query.dropTable('invoice_price_change_types');
   await query.dropTable('invoice_line_items');
   await query.dropTable('invoice_line_types');
-  await query.dropTable('invoices', { cascade: true });
+  await query.dropTable('invoices');
 
   await query.createTable('invoice_products', {
     id: {
@@ -33,6 +33,7 @@ export async function up(query) {
     updated_at: {
       type: DataTypes.DATE,
       allowNull: true,
+      defaultValue: DataTypes.NOW,
     },
     deleted_at: {
       type: DataTypes.DATE,
@@ -49,6 +50,10 @@ export async function up(query) {
     },
     display_id: {
       type: DataTypes.STRING,
+      allowNull: false,
+    },
+    date: {
+      type: DataTypes.DATESTRING,
       allowNull: false,
     },
     status: {
@@ -122,7 +127,7 @@ export async function up(query) {
       },
     },
     applied_time: {
-      type: DataTypes.DATE,
+      type: DataTypes.DATETIMESTRING,
       allowNull: false,
     },
     created_at: {
@@ -133,6 +138,7 @@ export async function up(query) {
     updated_at: {
       type: DataTypes.DATE,
       allowNull: true,
+      defaultValue: DataTypes.NOW,
     },
     deleted_at: {
       type: DataTypes.DATE,
@@ -175,6 +181,7 @@ export async function up(query) {
     updated_at: {
       type: DataTypes.DATE,
       allowNull: true,
+      defaultValue: DataTypes.NOW,
     },
     deleted_at: {
       type: DataTypes.DATE,
@@ -198,7 +205,7 @@ export async function up(query) {
       },
     },
     order_date: {
-      type: DataTypes.DATE,
+      type: DataTypes.DATESTRING,
       allowNull: false,
     },
     product_id: {
@@ -208,6 +215,10 @@ export async function up(query) {
         model: 'invoice_products',
         key: 'id',
       },
+    },
+    quantity: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
     },
     product_name: {
       type: DataTypes.STRING,
@@ -225,6 +236,16 @@ export async function up(query) {
         key: 'id',
       },
     },
+
+    sourceId: {
+      type: DataTypes.UUID,
+      allowNull: false,
+    },
+    sourceType: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+
     created_at: {
       type: DataTypes.DATE,
       defaultValue: Sequelize.fn('now'),
@@ -233,6 +254,7 @@ export async function up(query) {
     updated_at: {
       type: DataTypes.DATE,
       allowNull: true,
+      defaultValue: DataTypes.NOW,
     },
     deleted_at: {
       type: DataTypes.DATE,
@@ -271,6 +293,7 @@ export async function up(query) {
     updated_at: {
       type: DataTypes.DATE,
       allowNull: true,
+      defaultValue: DataTypes.NOW,
     },
     deleted_at: {
       type: DataTypes.DATE,
@@ -283,12 +306,12 @@ export async function up(query) {
  * @param {QueryInterface} query
  */
 export async function down(query) {
-  await query.dropTable('invoice_item_discounts', { cascade: true });
-  await query.dropTable('invoice_items', { cascade: true });
-  await query.dropTable('invoice_insurers', { cascade: true });
-  await query.dropTable('invoice_discounts', { cascade: true });
-  await query.dropTable('invoice_products', { cascade: true });
-  await query.dropTable('invoices', { cascade: true });
+  await query.dropTable('invoice_item_discounts');
+  await query.dropTable('invoice_items');
+  await query.dropTable('invoice_insurers');
+  await query.dropTable('invoice_discounts');
+  await query.dropTable('invoice_products');
+  await query.dropTable('invoices');
 
   await query.createTable('invoices', {
     id: {

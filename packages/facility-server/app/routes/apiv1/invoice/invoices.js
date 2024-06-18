@@ -7,6 +7,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { z } from 'zod';
 import { Op } from 'sequelize';
 import { invoiceItemsRoute } from './invoiceItems';
+import { getPotentialInvoiceItems } from './getPotentialInvoiceItems';
 
 const invoiceRoute = express.Router();
 export { invoiceRoute as invoices };
@@ -162,6 +163,7 @@ const updateInvoiceSchema = z
       .array(),
   })
   .strip();
+
 invoiceRoute.put(
   '/:id',
   asyncHandler(async (req, res) => {
@@ -217,7 +219,7 @@ invoiceRoute.put(
 
       for (const item of data.items) {
         await req.models.InvoiceItem.upsert(
-          { ...item, invoiceId, deletedAt: null },
+          { ...item, invoiceId, deletedAt: null, orderedByUserId: req.user?.id },
           { onConflict: { conflictFields: ['id', 'invoiceId'] }, transaction },
         );
 

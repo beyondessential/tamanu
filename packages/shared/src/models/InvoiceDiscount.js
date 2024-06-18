@@ -18,7 +18,7 @@ export class InvoiceDiscount extends Model {
           allowNull: false,
         },
         appliedTime: {
-          type: Sequelize.DATE,
+          type: Sequelize.DATETIMESTRING,
           allowNull: false,
         },
       },
