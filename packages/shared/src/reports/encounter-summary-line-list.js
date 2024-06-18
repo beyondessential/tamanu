@@ -158,7 +158,7 @@ with
         concat(
           drug.name,
           ', Label: ', sv.label,
-          ', Schedule: ', sv.schedule
+          ', Schedule: ', sv.dose_label
         ),
         '; '
       ) "Vaccinations"

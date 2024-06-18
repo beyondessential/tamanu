@@ -32,7 +32,7 @@ const columns = getTranslation => [
   {
     key: 'schedule',
     title: getTranslation('pdf.table.column.schedule', 'Schedule'),
-    accessor: ({ scheduledVaccine }) => (scheduledVaccine || {}).schedule,
+    accessor: ({ scheduledVaccine }) => (scheduledVaccine || {}).doseLabel,
   },
   {
     key: 'vaccine',

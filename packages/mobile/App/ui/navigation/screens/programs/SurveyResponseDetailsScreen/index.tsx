@@ -57,6 +57,8 @@ function getAnswerText(question, answer): string | number {
     case FieldTypes.DATE:
     case FieldTypes.SUBMISSION_DATE:
       return formatStringDate(answer, DateFormats.DDMMYY);
+    case FieldTypes.DATE_TIME:
+      return formatStringDate(answer, DateFormats.DDMMYY_HHMMSS);
     case FieldTypes.PATIENT_ISSUE_GENERATOR:
       return 'PATIENT_ISSUE_GENERATOR';
     case FieldTypes.MULTI_SELECT:

@@ -509,7 +509,10 @@ export const getPatientDetailsValidation = (
       yup
         .string()
         .translatedLabel(
-          <TranslatedText stringId="general.localisedField.ethnicity.label" fallback="Ethnicity" />,
+          <TranslatedText
+            stringId="general.localisedField.ethnicityId.label"
+            fallback="Ethnicity"
+          />,
         ),
       'Ethnicity',
     ),

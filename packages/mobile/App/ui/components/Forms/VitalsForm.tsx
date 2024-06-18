@@ -13,15 +13,7 @@ import { getCurrentDateTimeString } from '/helpers/date';
 import { SurveyForm } from '/components/Forms/SurveyForm';
 import { VitalsDataElements } from '/helpers/constants';
 import { useCurrentScreen } from '~/ui/hooks/useCurrentScreen';
-
-const validate = (values: object): object => {
-  const errors: { form?: string } = {};
-
-  if (Object.values(values).every(x => x === '' || x === null)) {
-    errors.form = 'At least one recording must be entered.';
-  }
-  return errors;
-};
+import { useTranslation } from '~/ui/contexts/TranslationContext';
 
 interface VitalsFormProps {
   onAfterSubmit: () => void;
@@ -29,6 +21,7 @@ interface VitalsFormProps {
 
 export const VitalsForm: React.FC<VitalsFormProps> = ({ onAfterSubmit }) => {
   const { models } = useBackend();
+  const { getTranslation } = useTranslation();
   const user = useSelector(authUserSelector);
   const { currentScreenIndex, setCurrentScreenIndex } = useCurrentScreen();
 
@@ -65,7 +58,7 @@ export const VitalsForm: React.FC<VitalsFormProps> = ({ onAfterSubmit }) => {
     );
   }
 
-  const { id, name, components, dateComponent } = vitalsSurvey;
+  const { id, components, dateComponent } = vitalsSurvey;
 
   const onSubmit = async (values: any): Promise<void> => {
     const responseRecord = await models.SurveyResponse.submit(
@@ -75,7 +68,7 @@ export const VitalsForm: React.FC<VitalsFormProps> = ({ onAfterSubmit }) => {
         surveyId: id,
         components,
         surveyType: SurveyTypes.Vitals,
-        encounterReason: `Form response for ${name}`,
+        encounterReason: 'Form response',
       },
       { ...values, [dateComponent.dataElement.code]: getCurrentDateTimeString() },
     );
@@ -96,7 +89,17 @@ export const VitalsForm: React.FC<VitalsFormProps> = ({ onAfterSubmit }) => {
       patientAdditionalData={patientAdditionalData}
       components={visibleComponents}
       onSubmit={onSubmit}
-      validate={validate}
+      validate={(values: object): object => {
+        const errors: { form?: string } = {};
+
+        if (Object.values(values).every(x => x === '' || x === null)) {
+          errors.form = getTranslation(
+            'validation.rule.atLeastOneRecording',
+            'At least one recording is required',
+          );
+        }
+        return errors;
+      }}
       setCurrentScreenIndex={setCurrentScreenIndex}
       currentScreenIndex={currentScreenIndex}
     />
