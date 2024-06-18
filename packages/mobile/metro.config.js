@@ -1,23 +1,47 @@
+/**
+ * Metro configuration for React Native
+ * https://github.com/facebook/react-native
+ *
+ * @format
+ */
+
+const path = require('path');
+
+const { FileStore } = require('metro-cache');
+
+const getWorkspaces = require('get-yarn-workspaces');
+
+const workspaces = getWorkspaces(__dirname);
+console.log('workspacesssss', workspaces);
 
 module.exports = {
+  projectRoot: path.resolve(__dirname, '.'),
+
+  watchFolders: [path.resolve(__dirname, '../../node_modules'), ...workspaces],
+
+  resolver: {
+    // https://github.com/facebook/metro/issues/1#issuecomment-453450709
+    extraNodeModules: new Proxy(
+      {},
+      {
+        get: (target, name) => path.join(process.cwd(), `node_modules/${name}`),
+      },
+    ),
+  },
+
+  // http://facebook.github.io/react-native/blog/2019/03/12/releasing-react-native-059#faster-app-launches-with-inline-requires
   transformer: {
     getTransformOptions: async () => ({
       transform: {
         experimentalImportSupport: false,
-        // the upgrade to inline requires for RN 0.64 is skipped
-        // turning on inlineRequires will cause the database
-        // connection to fail silently
         inlineRequires: false,
       },
     }),
-    minifierPath: "metro-minify-terser",
-    minifierConfig: {
-      keep_classnames: true,
-      keep_fnames: true,
-      mangle: {
-        keep_classnames: true,
-        keep_fnames: true,
-      },
-    },
   },
+
+  cacheStores: [
+    new FileStore({
+      root: path.join(__dirname, 'metro-cache'),
+    }),
+  ],
 };

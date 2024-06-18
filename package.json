@@ -8,6 +8,7 @@
   "license": "GPL-3.0-and-later AND BUSL-1.1",
   "type": "module",
   "scripts": {
+    "prepare": "patch-package",
     "clean": "rm -rf packages/*/dist packages/*/*.tsbuildinfo",
     "clean:deps": "rm -rf node_modules packages/*/node_modules",
     "create-package": "node scripts/create-package.mjs",
@@ -28,6 +29,7 @@
     "facility-test-watch": "npm run watch-shared-and @tamanu/facility-server test-watch",
     "facility-migrate": "npm run build-shared && TAMANU_ARGS=\"migrate up\" npm run facility-start-dev",
     "facility-migrate-down": "npm run build-shared && TAMANU_ARGS=\"migrate down\" npm run facility-start-dev",
+    "mobile-run-android": "npm run build-shared && npm run --workspace @tamanu/mobile android",
     "shared-test": "npm run build-shared && npm run --workspace @tamanu/shared test",
     "central-test": "npm run build-shared && npm run --workspace @tamanu/central-server test",
     "central-shell": "npm run build-shared && npm run --workspace @tamanu/central-server shell",
@@ -45,7 +47,8 @@
   "engines": {
     "node": "^20.9.0"
   },
-  "packageManager": "npm@10.8.0",
+  "packageManager": "npm@10.6.0",
+  "postinstall": "patch-package",
   "private": true,
   "workspaces": {
     "packages": [
@@ -56,18 +59,15 @@
       "packages/web",
       "packages/facility-server",
       "packages/central-server",
-      "packages/web-frontend",
       "packages/meta-server",
       "packages/shared",
       "packages/constants",
       "packages/settings",
-      "packages/api-client"
+      "packages/api-client",
+      "packages/mobile"
     ],
     "nohoist": [
-      "**/fbjs-scripts",
-      "**/fbjs-scripts/**",
-      "**/config",
-      "**/config/**"
+      "@tamanu/mobile"
     ]
   },
   "devDependencies": {
@@ -84,9 +84,12 @@
     "yaml": "^2.2.1"
   },
   "dependencies": {
+    "@rnx-kit/metro-resolver-symlinks": "^0.1.36",
     "concurrently": "^8.2.2",
     "config": "^3.3.9",
+    "get-yarn-workspaces": "^1.0.2",
     "jsbarcode": "^3.11.6",
+    "patch-package": "^8.0.0",
     "pm2": "^4.5.0"
   }
 }

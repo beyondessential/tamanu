@@ -1,9 +1,9 @@
 {
-  "name": "tamanuapp",
+  "name": "@tamanu/mobile",
   "version": "2.11.0",
   "private": true,
   "scripts": {
-    "android": "npx react-native run-android",
+    "android": "npx react-native start",
     "build:android": "cd android && ./gradlew clean && ./gradlew app:assembleRelease && cd ..",
     "start": "rnstl --silent && react-native start",
     "test": "jest",
@@ -21,6 +21,7 @@
     "mockserver": "cd mockserver/functions && npm run serve",
     "migrate-create": "../../scripts/create_mobile_migration.sh"
   },
+  "postinstall": "cd ../.. && npm run prepare",
   "engines": {
     "node": "^20.9.0"
   },
@@ -39,6 +40,8 @@
     "@sayem314/react-native-keep-awake": "^1.0.4",
     "@storybook/addon-actions": "^5.2.8",
     "@storybook/react-native": "^5.2.8",
+    "@tamanu/shared": "*",
+    "@tamanu/constants": "*",
     "@testing-library/react-native": "^9.0.0",
     "chance": "^1.1.4",
     "date-fns": "^2.7.0",
