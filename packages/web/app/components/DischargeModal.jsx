@@ -25,6 +25,7 @@ export const DischargeModal = React.memo(({ open, onClose }) => {
   const allowFilterDischargeDisposition = getLocalisation('features.filterDischargeDispositions');
   const { encounter, writeAndViewEncounter } = useEncounter();
   const practitionerSuggester = useSuggester('practitioner');
+  const { facility } = encounter.location;
 
   const dischargeDispositionFilterer = dischargeDisposition => {
     switch (getPatientStatus(encounter.encounterType)) {
@@ -69,7 +70,15 @@ export const DischargeModal = React.memo(({ open, onClose }) => {
 
   const handleDischarge = useCallback(
     async data => {
-      await writeAndViewEncounter(encounter.id, data);
+      const dischargingFacility = {
+        name: facility.name,
+        address: facility.address,
+        town: facility.town,
+      };
+      data.discharge = { ...data.discharge, dischargingFacility };
+      await writeAndViewEncounter(encounter.id, {
+        ...data,
+      });
       await dispatch(reloadPatient(patient.id));
       navigateToPatient(patient.id);
       onClose();
