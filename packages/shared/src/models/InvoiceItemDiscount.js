@@ -8,7 +8,10 @@ export class InvoiceItemDiscount extends Model {
     super.init(
       {
         id: primaryKey,
-        percentage: DataTypes.DECIMAL,
+        percentage: {
+          type: DataTypes.DECIMAL,
+          allowNull: false,
+        },
         reason: DataTypes.STRING,
       },
       { syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL, ...options },

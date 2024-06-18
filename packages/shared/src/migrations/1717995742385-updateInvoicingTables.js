@@ -1,5 +1,5 @@
 /** @typedef {import('sequelize').QueryInterface} QueryInterface */
-import { DataTypes } from 'sequelize';
+import { DataTypes, Sequelize } from 'sequelize';
 
 /**
  * @param {QueryInterface} query
@@ -27,7 +27,7 @@ export async function up(query) {
     },
     created_at: {
       type: DataTypes.DATE,
-      defaultValue: DataTypes.NOW,
+      defaultValue: Sequelize.fn('now'),
       allowNull: false,
     },
     updated_at: {
@@ -46,6 +46,7 @@ export async function up(query) {
       type: DataTypes.UUID,
       allowNull: false,
       primaryKey: true,
+      defaultValue: Sequelize.fn('uuid_generate_v4'),
     },
     display_id: {
       type: DataTypes.STRING,
@@ -77,7 +78,7 @@ export async function up(query) {
     },
     created_at: {
       type: DataTypes.DATE,
-      defaultValue: DataTypes.NOW,
+      defaultValue: Sequelize.fn('now'),
       allowNull: false,
     },
     updated_at: {
@@ -95,6 +96,7 @@ export async function up(query) {
       type: DataTypes.UUID,
       allowNull: false,
       primaryKey: true,
+      defaultValue: Sequelize.fn('uuid_generate_v4'),
     },
     invoice_id: {
       type: DataTypes.UUID,
@@ -130,7 +132,7 @@ export async function up(query) {
     },
     created_at: {
       type: DataTypes.DATE,
-      defaultValue: DataTypes.NOW,
+      defaultValue: Sequelize.fn('now'),
       allowNull: false,
     },
     updated_at: {
@@ -149,6 +151,7 @@ export async function up(query) {
       type: DataTypes.UUID,
       allowNull: false,
       primaryKey: true,
+      defaultValue: Sequelize.fn('uuid_generate_v4'),
     },
     invoice_id: {
       type: DataTypes.UUID,
@@ -172,7 +175,7 @@ export async function up(query) {
     },
     created_at: {
       type: DataTypes.DATE,
-      defaultValue: DataTypes.NOW,
+      defaultValue: Sequelize.fn('now'),
       allowNull: false,
     },
     updated_at: {
@@ -191,6 +194,7 @@ export async function up(query) {
       type: DataTypes.UUID,
       allowNull: false,
       primaryKey: true,
+      defaultValue: Sequelize.fn('uuid_generate_v4'),
     },
     invoice_id: {
       type: DataTypes.UUID,
@@ -244,7 +248,7 @@ export async function up(query) {
 
     created_at: {
       type: DataTypes.DATE,
-      defaultValue: DataTypes.NOW,
+      defaultValue: Sequelize.fn('now'),
       allowNull: false,
     },
     updated_at: {
@@ -263,6 +267,7 @@ export async function up(query) {
       type: DataTypes.UUID,
       allowNull: false,
       primaryKey: true,
+      defaultValue: Sequelize.fn('uuid_generate_v4'),
     },
     invoice_item_id: {
       type: DataTypes.UUID,
@@ -282,7 +287,7 @@ export async function up(query) {
     },
     created_at: {
       type: DataTypes.DATE,
-      defaultValue: DataTypes.NOW,
+      defaultValue: Sequelize.fn('now'),
       allowNull: false,
     },
     updated_at: {

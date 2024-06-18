@@ -7,8 +7,14 @@ export class InvoiceProduct extends Model {
     super.init(
       {
         id: primaryKey,
-        name: DataTypes.TEXT,
-        price: DataTypes.DECIMAL,
+        name: {
+          type: DataTypes.TEXT,
+          allowNull: false,
+        },
+        price: {
+          type: DataTypes.DECIMAL,
+          allowNull: false,
+        },
       },
       { syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL, ...options },
     );
@@ -33,5 +39,9 @@ export class InvoiceProduct extends Model {
 
   static buildSyncFilter() {
     return null; // syncs everywhere
+  }
+
+  static getFullReferenceAssociations() {
+    return ['referenceData', 'labTestType'];
   }
 }

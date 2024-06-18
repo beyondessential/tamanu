@@ -6,6 +6,7 @@ import { INVOICE_PAYMENT_STATUSES, INVOICE_STATUSES } from '@tamanu/constants';
 import { v4 as uuidv4 } from 'uuid';
 import { z } from 'zod';
 import { Op } from 'sequelize';
+import { invoiceItemsRoute } from './invoiceItems';
 import { getPotentialInvoiceItems } from './getPotentialInvoiceItems';
 
 const invoiceRoute = express.Router();
@@ -17,7 +18,7 @@ const createInvoiceSchema = z
     encounterId: z.string().uuid(),
     discount: z
       .object({
-        percentage: z
+        percentage: z.coerce
           .number()
           .min(0)
           .max(1),
@@ -39,7 +40,7 @@ const createInvoiceSchema = z
 invoiceRoute.post(
   '/',
   asyncHandler(async (req, res) => {
-    req.checkPermission('write', 'Invoice');
+    req.checkPermission('create', 'Invoice');
 
     const { data, error } = await createInvoiceSchema.safeParseAsync(req.body);
     if (error) throw new ValidationError(error.message);
@@ -65,9 +66,10 @@ invoiceRoute.post(
     // create invoice transaction
     const transaction = await req.db.transaction();
 
+    let invoice;
     try {
       //create invoice
-      await req.models.Invoice.create(data, { transaction });
+      invoice = await req.models.Invoice.create(data, { transaction });
 
       // insert default insurer
       if (defaultInsurer)
@@ -79,7 +81,12 @@ invoiceRoute.post(
       // create invoice discount
       if (data.discount)
         await req.models.InvoiceDiscount.create(
-          { invoiceId: data.id, ...data.discount, appliedByUserId: req.user?.id },
+          {
+            ...data.discount,
+            invoiceId: data.id,
+            appliedByUserId: req.user.id,
+            appliedTime: new Date(),
+          },
           { transaction },
         );
 
@@ -89,27 +96,7 @@ invoiceRoute.post(
       throw error;
     }
 
-    const invoice = await req.models.Invoice.findByPk(data.id, {
-      include: [
-        { model: req.models.Encounter, as: 'encounter' },
-        {
-          model: req.models.InvoiceDiscount,
-          as: 'discount',
-          include: [{ model: req.models.User, as: 'appliedByUser', attributes: ['displayName'] }],
-        },
-        {
-          model: req.models.InvoiceInsurer,
-          as: 'insurers',
-          include: [
-            {
-              model: req.models.ReferenceData,
-              as: 'insurer',
-            },
-          ],
-        },
-      ],
-    });
-    res.json(invoice.dataValues);
+    res.json(invoice);
   }),
 );
 
@@ -122,7 +109,7 @@ const updateInvoiceSchema = z
           .string()
           .uuid()
           .default(uuidv4),
-        percentage: z
+        percentage: z.coerce
           .number()
           .min(0)
           .max(1),
@@ -137,7 +124,7 @@ const updateInvoiceSchema = z
           .string()
           .uuid()
           .default(uuidv4),
-        percentage: z
+        percentage: z.coerce
           .number()
           .min(0)
           .max(1),
@@ -151,7 +138,10 @@ const updateInvoiceSchema = z
           .string()
           .uuid()
           .default(uuidv4),
-        orderDate: z.date(),
+        orderDate: z.preprocess(
+          arg => (typeof arg == 'string' ? new Date(arg) : undefined),
+          z.date(),
+        ),
         orderedByUserId: z.string().uuid(),
         productId: z.string(),
         discount: z
@@ -160,9 +150,9 @@ const updateInvoiceSchema = z
               .string()
               .uuid()
               .default(uuidv4),
-            percentage: z
+            percentage: z.coerce
               .number()
-              .min(0)
+              .min(-1)
               .max(1),
             reason: z.string().optional(),
           })
@@ -192,14 +182,21 @@ invoiceRoute.put(
     try {
       //update invoice discount
       await req.models.InvoiceDiscount.destroy(
-        { where: { invoiceId, id: { [Op.ne]: data.discount?.id ? [data.discount.id] : [] } } },
+        { where: { invoiceId, id: { [Op.notIn]: data.discount?.id ? [data.discount.id] : [] } } },
         { transaction },
       );
 
-      await req.models.InvoiceDiscount.upsert(
-        { ...data.discount, invoiceId, appliedByUserId: req.user?.id },
-        { conflictFields: ['id', 'invoiceId'], transaction },
-      );
+      if (data.discount) {
+        await req.models.InvoiceDiscount.upsert(
+          {
+            ...data.discount,
+            invoiceId,
+            appliedByUserId: req.user.id,
+            appliedTime: new Date(),
+          },
+          { onConflict: { conflictFields: ['id', 'invoiceId'] }, transaction },
+        );
+      }
 
       //update invoice insurers
       await req.models.InvoiceInsurer.destroy(
@@ -210,7 +207,7 @@ invoiceRoute.put(
       for (const insurer of data.insurers) {
         await req.models.InvoiceInsurer.upsert(
           { ...insurer, invoiceId },
-          { conflictFields: ['id', 'invoiceId'], transaction },
+          { onConflict: { conflictFields: ['id', 'invoiceId'] }, transaction },
         );
       }
 
@@ -222,8 +219,8 @@ invoiceRoute.put(
 
       for (const item of data.items) {
         await req.models.InvoiceItem.upsert(
-          { ...item, invoiceId, orderedByUserId: req.user?.id },
-          { conflictFields: ['id', 'invoiceId'], transaction },
+          { ...item, invoiceId, deletedAt: null, orderedByUserId: req.user?.id },
+          { onConflict: { conflictFields: ['id', 'invoiceId'] }, transaction },
         );
 
         //update invoice item discount
@@ -231,16 +228,18 @@ invoiceRoute.put(
           {
             where: {
               invoiceItemId: item.id,
-              id: { [Op.ne]: item.discount?.id ? [item.discount.id] : [] },
+              id: { [Op.notIn]: item.discount?.id ? [item.discount.id] : [] },
             },
           },
           { transaction },
         );
 
-        await req.models.InvoiceItemDiscount.upsert(
-          { ...item.discount, invoiceItemId: item.id },
-          { conflictFields: ['id', 'invoiceItemId'], transaction },
-        );
+        if (item.discount) {
+          await req.models.InvoiceItemDiscount.upsert(
+            { ...item.discount, invoiceItemId: item.id },
+            { onConflict: { conflictFields: ['id', 'invoiceItemId'] }, transaction },
+          );
+        }
       }
       await transaction.commit();
     } catch (error) {
@@ -248,59 +247,23 @@ invoiceRoute.put(
       throw error;
     }
 
-    const invoice = await req.models.Invoice.findByPk(data.id, {
-      include: [
-        { model: req.models.Encounter, as: 'encounter' },
-        {
-          model: req.models.InvoiceDiscount,
-          as: 'discount',
-          include: [{ model: req.models.User, as: 'appliedByUser', attributes: ['displayName'] }],
-        },
-        {
-          model: req.models.InvoiceInsurer,
-          as: 'insurers',
-          include: [
-            {
-              model: req.models.ReferenceData,
-              as: 'insurer',
-            },
-          ],
-        },
-        {
-          model: req.models.InvoiceItem,
-          as: 'items',
-          include: [
-            {
-              model: req.models.InvoiceItemDiscount,
-              as: 'discount',
-            },
-            {
-              model: req.models.InvoiceProduct,
-              as: 'product',
-              include: [
-                {
-                  model: req.models.ReferenceData,
-                  as: 'referenceData',
-                },
-                {
-                  model: req.models.LabTestType,
-                  as: 'labTestType',
-                },
-              ],
-            },
-          ],
-        },
-      ],
-    });
+    const invoice = await req.models.Invoice.findByPk(invoiceId);
     res.json(invoice.dataValues);
   }),
 );
 
-invoiceRoute.get(
-  '/:id/potentialInvoiceItems',
+invoiceRoute.post(
+  '/:id/cancel',
   asyncHandler(async (req, res) => {
-    req.flagPermissionChecked();
-    const data = await getPotentialInvoiceItems(req.db, req.models, req.params.id);
-    res.json(data);
+    req.checkPermission('write', 'Invoice');
+
+    await req.models.Invoice.update(
+      { status: INVOICE_STATUSES.CANCELLED },
+      { where: { id: req.params.id } },
+    );
+
+    res.send({});
   }),
 );
+
+invoiceRoute.use(invoiceItemsRoute);

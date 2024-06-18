@@ -8,10 +8,19 @@ export class InvoiceDiscount extends Model {
     super.init(
       {
         id: primaryKey,
-        percentage: DataTypes.DECIMAL,
+        percentage: {
+          type: DataTypes.DECIMAL,
+          allowNull: false,
+        },
         reason: Sequelize.STRING,
-        isManual: Sequelize.BOOLEAN,
-        appliedTime: Sequelize.DATETIMESTRING,
+        isManual: {
+          type: Sequelize.BOOLEAN,
+          allowNull: false,
+        },
+        appliedTime: {
+          type: Sequelize.DATETIMESTRING,
+          allowNull: false,
+        },
       },
       { syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL, ...options },
     );

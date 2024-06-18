@@ -8,10 +8,22 @@ export class Invoice extends Model {
     super.init(
       {
         id: primaryKey,
-        displayId: Sequelize.STRING,
-        date: DataTypes.DATESTRING,
-        status: Sequelize.STRING,
-        paymentStatus: Sequelize.STRING,
+        displayId: {
+          type: Sequelize.STRING,
+          allowNull: false,
+        },
+        date: {
+          type: DataTypes.DATESTRING,
+          allowNull: false,
+        },
+        status: {
+          type: Sequelize.STRING,
+          allowNull: false,
+        },
+        paymentStatus: {
+          type: Sequelize.STRING,
+          allowNull: false,
+        },
         receiptNumber: Sequelize.STRING,
       },
       { syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL, ...options },
@@ -49,5 +61,33 @@ export class Invoice extends Model {
       return null;
     }
     return buildEncounterLinkedSyncFilter([this.tableName, 'encounters']);
+  }
+
+  static getFullReferenceAssociations() {
+    const { models } = this.sequelize;
+
+    return [
+      'encounter',
+      {
+        model: models.InvoiceDiscount,
+        as: 'discount',
+        include: [{ model: models.User, as: 'appliedByUser', attributes: ['displayName'] }],
+      },
+      {
+        model: models.InvoiceInsurer,
+        as: 'insurers',
+        include: [
+          {
+            model: models.ReferenceData,
+            as: 'insurer',
+          },
+        ],
+      },
+      {
+        model: models.InvoiceItem,
+        as: 'items',
+        include: models.InvoiceItem.getListReferenceAssociations(models),
+      },
+    ];
   }
 }

@@ -8,7 +8,10 @@ export class InvoiceItem extends Model {
     super.init(
       {
         id: primaryKey,
-        orderDate: DataTypes.DATESTRING,
+        orderDate: {
+          type: DataTypes.DATESTRING,
+          allowNull: false,
+        },
         productId: {
           type: DataTypes.STRING,
           allowNull: true,
@@ -61,5 +64,29 @@ export class InvoiceItem extends Model {
       return null;
     }
     return buildEncounterLinkedSyncFilter([this.tableName, 'invoices', 'encounters']);
+  }
+
+  static getListReferenceAssociations(models) {
+    return [
+      {
+        model: models.InvoiceProduct,
+        as: 'product',
+        attributes: ['name', 'price'],
+        include: {
+          model: models.ReferenceData,
+          as: 'referenceData',
+          attributes: ['code'],
+        },
+      },
+      {
+        model: models.User,
+        as: 'orderedByUser',
+        attributes: ['displayName'],
+      },
+      {
+        model: models.InvoiceItemDiscount,
+        as: 'discount',
+      },
+    ];
   }
 }
