@@ -3,6 +3,7 @@ import React, { ReactElement } from 'react';
 import { formatStringDate } from '/helpers/date';
 import { DateFormats } from '/helpers/constants';
 import { FieldRowDisplay } from '~/ui/components/FieldRowDisplay';
+import { PATIENT_DATA_FIELDS } from '~/ui/helpers/patient';
 import { PatientSection } from '../../CustomComponents/PatientSection';
 import { useLocalisation } from '~/ui/contexts/LocalisationContext';
 import { getGender } from '~/ui/helpers/user';
@@ -11,6 +12,7 @@ import { usePatientAdditionalData } from '~/ui/hooks/usePatientAdditionalData';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
 import { TranslatedText } from '/components/Translations/TranslatedText';
 import { mapValues } from 'lodash';
+import { CAMBODIA_CUSTOM_FIELDS } from './fields';
 
 interface GeneralInfoProps {
   onEdit: () => void;
@@ -31,12 +33,15 @@ export const GeneralInfo = ({ onEdit, patient }: GeneralInfoProps): ReactElement
   const customDataById = mapValues(customPatientFieldValues, nestedObject => nestedObject[0].value);
 
   const fields = [
-    ['lastName', patient.lastName],
-    ['firstName', patient.firstName],
-    ['dateOfBirth', formatStringDate(patient.dateOfBirth, DateFormats.DDMMYY)],
-    ['sex', getGender(patient.sex)],
-    ['culturalName', patient.culturalName],
-    ['fieldDefinition-fathersFirstName', customDataById['fieldDefinition-fathersFirstName']],
+    [PATIENT_DATA_FIELDS.LAST_NAME, patient.lastName],
+    [PATIENT_DATA_FIELDS.FIRST_NAME, patient.firstName],
+    [PATIENT_DATA_FIELDS.DATE_OF_BIRTH, formatStringDate(patient.dateOfBirth, DateFormats.DDMMYY)],
+    [PATIENT_DATA_FIELDS.SEX, getGender(patient.sex)],
+    [PATIENT_DATA_FIELDS.CULTURAL_NAME, patient.culturalName],
+    [
+      CAMBODIA_CUSTOM_FIELDS.FATHERS_FIRST_NAME,
+      customDataById[CAMBODIA_CUSTOM_FIELDS.FATHERS_FIRST_NAME],
+    ],
   ];
 
   return (

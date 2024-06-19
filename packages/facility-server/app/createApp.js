@@ -59,6 +59,7 @@ export async function createApp({ sequelize, reportSchemaStores, models, syncMan
     req.reportSchemaStores = reportSchemaStores;
     req.syncManager = syncManager;
     req.deviceId = deviceId;
+    req.language = req.headers['language'];
     req.websocketService = websocketService;
     req.websocketClientService = websocketClientService;
 

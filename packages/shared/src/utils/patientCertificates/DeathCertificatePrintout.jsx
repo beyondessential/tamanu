@@ -20,6 +20,9 @@ import { renderDataItems } from './printComponents/renderDataItems';
 import { P } from './Typography';
 import { getDisplayDate } from './getDisplayDate';
 import { DataSection } from './printComponents/DataSection';
+import { withLanguageContext } from '../pdf/languageContext';
+import { Page } from '../pdf/Page';
+import { Text } from '../pdf/Text';
 import { formatDistanceStrict, milliseconds } from 'date-fns';
 
 const borderStyle = '1 solid black';
@@ -227,7 +230,7 @@ const PATIENT_DEATH_DETAILS = {
 
 const SectionContainer = props => <View style={generalStyles.sectionContainer} {...props} />;
 
-export const DeathCertificatePrintout = React.memo(
+const DeathCertificatePrintoutComponent = React.memo(
   ({ patientData, certificateData, getLocalisation }) => {
     const { logo, deathCertFooterImg } = certificateData;
 
@@ -366,6 +369,8 @@ export const DeathCertificatePrintout = React.memo(
     );
   },
 );
+
+export const DeathCertificatePrintout = withLanguageContext(DeathCertificatePrintoutComponent);
 
 DeathCertificatePrintout.propTypes = {
   patientData: PropTypes.object.isRequired,

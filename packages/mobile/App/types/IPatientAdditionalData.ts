@@ -1,3 +1,4 @@
+import { IFacility } from './IFacility';
 import { IPatient } from './IPatient';
 import { IReferenceData } from './IReferenceData';
 
@@ -16,8 +17,8 @@ export interface IPatientAdditionalData {
   birthCertificate?: string;
   drivingLicense?: string;
   passport?: string;
-  emergencyContactName?: string,
-  emergencyContactNumber?: string,
+  emergencyContactName?: string;
+  emergencyContactNumber?: string;
   nationality?: IReferenceData;
   country?: IReferenceData;
   division?: IReferenceData;
@@ -28,8 +29,10 @@ export interface IPatientAdditionalData {
   ethnicity?: IReferenceData;
   occupation?: IReferenceData;
   countryOfBirth?: IReferenceData;
+  healthCenter?: IFacility;
   religion?: IReferenceData;
   patientBillingType?: IReferenceData;
+  secondaryVillage?: IReferenceData;
   nationalityId?: string;
   countryId?: string;
   divisionId?: string;
@@ -42,4 +45,6 @@ export interface IPatientAdditionalData {
   countryOfBirthId?: string;
   religionId?: string;
   patientBillingTypeId?: string;
+  secondaryVillageId?: string;
+  healthCenterId?: string;
 }

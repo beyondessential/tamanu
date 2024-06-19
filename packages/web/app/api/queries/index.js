@@ -11,5 +11,3 @@ export * from './usePatientProgramRegistration';
 export * from './useTranslations';
 export * from './useTranslationLanguages';
 export * from './useTelegramBotInfoQuery';
-export * from './useEthnicityQuery';
-export * from './useAddressHierarchyQuery';
