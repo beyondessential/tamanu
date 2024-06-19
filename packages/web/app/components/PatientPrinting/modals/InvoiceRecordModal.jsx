@@ -15,7 +15,6 @@ import { ForbiddenErrorModalContents } from '../../ForbiddenErrorModal';
 import { PDFLoader, printPDF } from '../PDFLoader';
 import { TranslatedText } from '../../Translation/TranslatedText';
 import { useTranslation } from '../../../contexts/Translation';
-import { calculateInvoiceLinesTotal } from '../../../utils';
 
 export const InvoiceRecordModal = ({ 
   encounter, 
@@ -29,10 +28,6 @@ export const InvoiceRecordModal = ({
     'general.localisedField.clinician.label.short',
     'Clinician',
   ).toLowerCase();
-
-  const discountableTotal = useMemo(() => {
-    return calculateInvoiceLinesTotal(invoice?.items);
-  }, [invoice]);
 
   const { getLocalisation } = useLocalisation();
   const certificateQuery = useCertificate();
@@ -89,7 +84,6 @@ export const InvoiceRecordModal = ({
           getLocalisation={getLocalisation}
           clinicianText={clinicianText}
           invoice={invoice}
-          discountableTotal={discountableTotal}
         />
       </PDFLoader>
     </Modal>

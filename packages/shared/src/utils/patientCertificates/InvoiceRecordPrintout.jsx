@@ -9,6 +9,13 @@ import { Footer } from './printComponents/Footer';
 import { formatShort } from '../dateTime';
 import { EncounterDetails } from './printComponents/EncounterDetails';
 import { InvoiceDetails } from './printComponents/InvoiceDetails';
+import { 
+  getInvoiceItemCode,
+  getInvoiceItemDiscountPriceDisplay,
+  getInvoiceItemName,
+  getInvoiceItemPriceDisplay,
+  getInvoiceSummary 
+} from '../invoice';
 
 const borderStyle = '1 solid black';
 
@@ -150,18 +157,16 @@ const PriceCell = ({ children, style = {} }) => (
   </View>
 );
 
-const getPrice = (row) => {
-  const originalPrice = row?.productPrice ? parseFloat(row.productPrice).toFixed(2) : 0;
-  const discountPercentage = row?.discount?.percentage ? parseFloat(row.discount.percentage).toFixed(2) : 0;
-  const priceChange = (originalPrice * discountPercentage).toFixed(2);
-  const finalPrice = (+originalPrice - (+priceChange)).toFixed(2);
+const getPrice = (item) => {
+  const price = getInvoiceItemPriceDisplay(item);
+  const discountPrice = getInvoiceItemDiscountPriceDisplay(item);
 
   return (
     <>
-      <P style={discountPercentage ? priceCellStyles.crossOutText : undefined}>
-        {originalPrice}
+      <P style={!!discountPrice ? priceCellStyles.crossOutText : undefined}>
+        {price}
       </P>
-      {!!discountPercentage && <P>{finalPrice}</P>}
+      {!!discountPrice && <P>{discountPrice}</P>}
     </>
   );
 };
@@ -188,18 +193,18 @@ const COLUMNS = {
       key: 'productName',
       title: 'Details',
       style: { width: '30%' },
-      accessor: ({ productName }) => productName
+      accessor: (row) => getInvoiceItemName(row)
     },
     {
       key: 'code',
       title: 'Code',
       style: { width: '12%' },
-      accessor: ({ productCode }) => productCode
+      accessor: (row) => getInvoiceItemCode(row)
     },
     {
       key: 'orderedBy',
       title: 'Ordered by',
-      accessor: ({ orderedByUserName }) => orderedByUserName,
+      accessor: ({ orderedByUser }) => orderedByUser?.displayName,
       style: { width: '27%' },
     },
     {
@@ -344,31 +349,36 @@ const TableSection = ({ title, data, columns, type }) => {
   );
 };
 
-const SummaryPane = ({ discountableTotal, invoice }) => {
-  const discountPercentage = invoice?.discount?.percentage || 0;
-  const discountedPrice = discountPercentage ? discountableTotal * discountPercentage : 0;
-  const patientTotal = discountableTotal - discountedPrice;
+const SummaryPane = ({ invoice }) => {
+  const {
+    discountableItemsSubtotal,
+    nonDiscountableItemsSubtotal,
+    total,
+    appliedToDiscountableSubtotal,
+    discountTotal,
+    patientTotal,
+  } = getInvoiceSummary(invoice);
 
   return (
     <View wrap={false} style={summaryPaneStyles.container}>
       <View style={summaryPaneStyles.item}>
         <P>Discountable items subtotal</P>
-        <P>{discountableTotal || '-'}</P>
+        <P>{discountableItemsSubtotal ?? '-'}</P>
       </View>
       <View style={summaryPaneStyles.item}>
         <P>Non-discountable items subtotal</P>
-        <P>-</P>
+        <P>{nonDiscountableItemsSubtotal ?? '-'}</P>
       </View>
       <HorizontalRule />
       <View style={summaryPaneStyles.item}>
         <P isBold>Total</P>
-        <P isBold>{discountableTotal || '-'}</P>
+        <P isBold>{total ?? '-'}</P>
       </View>
       <HorizontalRule />
-      <View style={summaryPaneStyles.item}>
+      {/* TODO: get invoice insurer data from back-end */}
+      {/* <View style={summaryPaneStyles.item}>
         <P isBold>Insurer</P>
       </View>
-      {/* TODO: get invoice insurer data from back-end */}
       <View style={summaryPaneStyles.item}>
         <P>NIB</P>
         <View style={summaryPaneStyles.subItem}>
@@ -376,32 +386,39 @@ const SummaryPane = ({ discountableTotal, invoice }) => {
           <P>8.00</P>
         </View>
       </View>
-      <HorizontalRule />
-      <View style={summaryPaneStyles.item}>
+      <HorizontalRule /> */}
+      {/* <View style={summaryPaneStyles.item}>
         <P isBold>Patient subtotal</P>
         <P>2.00</P>
-      </View>
-      <HorizontalRule />
+      </View> */}
       <View style={summaryPaneStyles.item}>
         <P isBold>Discount</P>
-        <View style={summaryPaneStyles.subItem}>
-          <P>{discountPercentage * 100}%</P>
-          <P isBold>{discountedPrice.toFixed(2)}</P>
-        </View>
+        {!!invoice.discount && (
+          <View style={summaryPaneStyles.subItem}>
+            <P>{invoice.discount?.percentage * 100}%</P>
+            <P isBold>-{discountTotal}</P>
+          </View>
+        )}
       </View>
-      <View style={summaryPaneStyles.item}>
-        <P>{invoice?.discount?.reason}</P>
-      </View>
-      <View style={summaryPaneStyles.item}>
-        <P>Applied to discountable balance</P>
-        <View style={summaryPaneStyles.subItem}>
-          <P>{discountableTotal}</P>
-        </View>
-      </View>
+      {!!invoice.discount && (
+        <>
+          <View style={summaryPaneStyles.item}>
+            {invoice.discount?.isManual
+              ? <P>Manual discount</P>
+              : <P>Patient discount applied</P>}
+          </View>
+          <View style={summaryPaneStyles.item}>
+            <P>Applied to discountable balance</P>
+            <View style={summaryPaneStyles.subItem}>
+              <P>{appliedToDiscountableSubtotal ?? '-'}</P>
+            </View>
+          </View>
+        </>
+      )}
       <HorizontalRule />
       <View style={[summaryPaneStyles.item, { marginVertical: 7.5 }]}>
         <P isBold>Patient total</P>
-        <P isBold>{patientTotal ? patientTotal.toFixed(2) : '-'}</P>
+        <P isBold>{patientTotal ?? '-'}</P>
       </View>
     </View>
   );
@@ -415,7 +432,6 @@ export const InvoiceRecordPrintout = ({
   getLocalisation,
   clinicianText,
   invoice,
-  discountableTotal,
   patientPayments,
   insurerPayments,
 }) => {
@@ -454,10 +470,7 @@ export const InvoiceRecordPrintout = ({
         {invoice?.items?.length > 0 && (
           <TableSection data={invoice?.items} columns={COLUMNS.lineItems} />
         )}
-        <SummaryPane 
-          discountableTotal={discountableTotal}
-          invoice={invoice}
-        />
+        <SummaryPane invoice={invoice} />
         <SectionSpacing />
         {patientPayments?.length && (
           <TableSection data={patientPayments} columns={COLUMNS.patientPayments} />
