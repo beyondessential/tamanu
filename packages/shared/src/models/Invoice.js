@@ -2,6 +2,7 @@ import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
 import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
+import { dateType } from './dateTimeTypes';
 
 export class Invoice extends Model {
   static init({ primaryKey, ...options }) {
@@ -12,10 +13,9 @@ export class Invoice extends Model {
           type: DataTypes.STRING,
           allowNull: false,
         },
-        date: {
-          type: DataTypes.DATESTRING,
+        date: dateType('date', {
           allowNull: false,
-        },
+        }),
         status: {
           type: DataTypes.STRING,
           allowNull: false,
