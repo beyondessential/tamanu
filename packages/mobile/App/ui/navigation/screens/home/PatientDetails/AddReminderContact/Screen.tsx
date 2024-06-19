@@ -119,13 +119,30 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
               reminderContactRelationship: '',
             }}
             validationSchema={yup.object().shape({
-              reminderContactName: yup.string().required('Contact name is required'),
-              reminderContactRelationship: yup.string().required('Relationship is required'),
+              reminderContactName: yup
+                .string()
+                .required()
+                .translatedLabel(
+                  <TranslatedText
+                    stringId="general.localisedField.reminderContactName.label"
+                    fallback="Contact Name"
+                  />,
+                ),
+              reminderContactRelationship: yup
+                .string()
+                .required()
+                .translatedLabel(
+                  <TranslatedText
+                    stringId="general.localisedField.reminderContactRelationship.label"
+                    fallback="Relationship"
+                  />,
+                ),
             })}
             onSubmit={submit}
           >
             {({ handleSubmit, isSubmitting, values }): ReactElement => {
-              const isPopulated = values.reminderContactName?.trim() && values.reminderContactRelationship
+              const isPopulated =
+                values.reminderContactName?.trim() && values.reminderContactRelationship;
 
               return (
                 <>
@@ -133,6 +150,12 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
                     <LocalisedField
                       name="reminderContactName"
                       component={TextField}
+                      label={
+                        <TranslatedText
+                          stringId="general.localisedField.reminderContactName.label"
+                          fallback="Contact Name"
+                        />
+                      }
                       placeholder={getTranslation(
                         'patient.details.addReminderContact.placeholder.contactName',
                         'Contact Name',
@@ -145,6 +168,12 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
                       name="reminderContactRelationship"
                       component={SuggesterDropdown}
                       referenceDataType="contactRelationship"
+                      label={
+                        <TranslatedText
+                          stringId="general.localisedField.reminderContactRelationship.label"
+                          fallback="Relationship"
+                        />
+                      }
                       selectPlaceholderText={getTranslation(
                         'patient.details.addReminderContact.placeholder.select',
                         'Select',

@@ -42,6 +42,13 @@ export class PatientAdditionalData extends Model {
         motherId: DataTypes.STRING,
         fatherId: DataTypes.STRING,
         healthCenterId: DataTypes.STRING,
+        secondaryVillageId: {
+          type: DataTypes.STRING,
+          references: {
+            model: 'reference_data',
+            key: 'id',
+          },
+        },
         updatedAtByField: DataTypes.JSON,
       },
       {

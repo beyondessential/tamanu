@@ -1,14 +1,5 @@
 import * as yup from 'yup';
-import { capitaliseFirstLetter } from './capitalise';
-import { replaceStringVariables } from '../contexts/Translation';
-
-const camelCaseTest = /(?=[A-Z])/;
-function splitFieldName(name) {
-  const splitField = name.split(camelCaseTest);
-  const fieldNameAsWords = splitField.join(' ');
-  const joined = capitaliseFirstLetter(fieldNameAsWords.toLowerCase());
-  return joined;
-}
+import { replaceStringVariables } from '@tamanu/shared/utils/translation/translationFactory';
 
 const registerTranslatedLabelMethod = (translations = {}) => {
   yup.addMethod(yup.mixed, 'translatedLabel', function(translatedTextComponent) {
@@ -34,7 +25,7 @@ export function registerYup(translations = {}) {
   yup.setLocale({
     mixed: {
       required: function({ path }) {
-        return defaultMessage.replace(':path', splitFieldName(path));
+        return defaultMessage.replace(':path', path);
       },
     },
   });
