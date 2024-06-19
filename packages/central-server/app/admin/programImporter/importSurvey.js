@@ -5,7 +5,11 @@ import { ImporterMetadataError } from '../errors';
 import { importRows } from '../importRows';
 
 import { readSurveyQuestions } from './readSurveyQuestions';
-import { ensureRequiredQuestionsPresent, validateVitalsSurvey } from './validation';
+import {
+  ensureRequiredQuestionsPresent,
+  validateComplexChartSurvey,
+  validateVitalsSurvey,
+} from './validation';
 import { validateProgramDataElementRecords } from './vitalsValidation';
 
 function readSurveyInfo(workbook, surveyInfo) {
@@ -46,6 +50,10 @@ export async function importSurvey(context, workbook, surveyInfo) {
 
   if (surveyType === SURVEY_TYPES.VITALS) {
     await validateVitalsSurvey(context, surveyInfo);
+  }
+
+  if ([SURVEY_TYPES.COMPLEX_CHART, SURVEY_TYPES.COMPLEX_CHART_CORE].includes(surveyType)) {
+    await validateComplexChartSurvey(context, surveyInfo);
   }
 
   const records = readSurveyInfo(workbook, surveyInfo);

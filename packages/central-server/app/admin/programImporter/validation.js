@@ -50,3 +50,23 @@ export async function validateVitalsSurvey(context, surveyInfo) {
   await ensureOnlyOneVitalsSurveyExists(context, surveyInfo);
   ensureVitalsSurveyNonSensitive(surveyInfo);
 }
+
+async function ensureOnlyOneComplexSurveySetPerProgram({ models }, surveyInfo) {
+  const surveyCount = await models.Survey.count({
+    where: {
+      id: {
+        [Op.not]: surveyInfo.id,
+      },
+      survey_type: surveyInfo.surveyType,
+      programId: surveyInfo.programId,
+    },
+  });
+
+  if (surveyCount > 0) {
+    throw new ImporterMetadataError('Complex chart set already exists for this program');
+  }
+}
+
+export async function validateComplexChartSurvey(context, surveyInfo) {
+  await ensureOnlyOneComplexSurveySetPerProgram(context, surveyInfo);
+}

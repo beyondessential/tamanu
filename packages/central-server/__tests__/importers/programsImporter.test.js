@@ -759,6 +759,29 @@ describe('Programs import', () => {
         });
         expect(errors).toContainAnError('metadata', 0, 'Only one complex chart and complex chart core allowed in a program');
       });
+      it('Should refuse to import a complex chart set if it already exists in that program', async () => {
+        const { Program, Survey } = ctx.store.models;
+        const program = await Program.create({
+          ...fake(Program),
+          id: 'program-testcomplexchart',
+          code: 'testcomplexchart',
+        });
+        await Survey.create({
+          ...fake(Survey),
+          surveyType: SURVEY_TYPES.COMPLEX_CHART,
+          programId: program.id,
+        });
+        await Survey.create({
+          ...fake(Survey),
+          surveyType: SURVEY_TYPES.COMPLEX_CHART_CORE,
+          programId: program.id,
+        });
+        const { errors } = await doImport({
+          file: 'charting-complex-valid',
+          dryRun: true,
+        });
+        expect(errors).toContainAnError('metadata', 0, 'Complex chart set already exists for this program');
+      });
     });
   });
 });
