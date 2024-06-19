@@ -82,21 +82,38 @@ const useTranslationMutation = () => {
     onSuccess: response => {
       const newStringIds = response?.data?.length;
       toast.success(
-        `Translations saved${
-          newStringIds ? `, Created ${newStringIds} new translated string entries` : ''
-        }`,
+        <span>
+          <TranslatedText
+            stringId="admin.translation.notification.translationsSaved"
+            fallback="Translations saved"
+          />
+          {newStringIds
+            ? <>
+              {", "}
+              <TranslatedText
+                stringId="admin.translation.notification.newStringIdCreated"
+                fallback={`Created ${newStringIds} new translated string entries`}
+                replacements={{ newStringIds }}
+              />
+            </>
+            : ''}
+        </span>
       );
       queryClient.invalidateQueries(['translation']);
     },
     onError: err => {
-      toast.error(`Error saving translations: ${err.message}`);
+      <TranslatedText
+        stringId="admin.translation.notification.savingFailed"
+        fallback={`Error saving translations: ${err.message}`}
+        replacements={{ message: err.message }}
+      />
     },
   });
 };
 
 const TranslationField = ({ placeholderId, stringId, code }) => (
   // This id format is necessary to avoid formik nesting at . delimiters
-  <AccessorField id={`['${placeholderId || stringId}']`} name={code} component={TextField} />
+  <AccessorField id={`['${placeholderId || stringId}']`} name={code} component={TextField} multiline />
 );
 
 export const FormContents = ({
@@ -256,7 +273,17 @@ export const TranslationForm = () => {
   };
 
   if (isLoading) return <LoadingIndicator />;
-  if (error) return <ErrorMessage error={error} />;
+  if (error) return (
+    <ErrorMessage
+      title={
+        <TranslatedText
+          stringId="admin.translation.error.loadTranslations"
+          fallback="Error: Could not load translations:"
+        />
+      }
+      error={error}
+    />
+  );
 
   const sortedTranslations = sortBy(translations, obj => obj.stringId !== 'languageName'); // Ensure languageName key stays on top
 

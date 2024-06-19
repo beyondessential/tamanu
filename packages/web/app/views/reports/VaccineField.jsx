@@ -3,7 +3,7 @@ import { useApi } from '../../api';
 import { Dialog, Field, SelectField } from '../../components';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
 
-export const VaccineField = ({ name = 'vaccine', required, parameterValues }) => {
+export const VaccineField = ({ name = 'vaccine', required, label, parameterValues }) => {
   const api = useApi();
   const { category } = parameterValues;
   const [vaccineOptions, setVaccineOptions] = useState([]);
@@ -40,7 +40,7 @@ export const VaccineField = ({ name = 'vaccine', required, parameterValues }) =>
     <>
       <Field
         name={name}
-        label={<TranslatedText stringId="vaccine.vaccine.label" fallback="Vaccine" />}
+        label={label ?? <TranslatedText stringId="vaccine.vaccine.label" fallback="Vaccine" />}
         component={SelectField}
         required={required}
         options={vaccineOptions}
