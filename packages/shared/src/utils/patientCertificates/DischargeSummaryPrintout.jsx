@@ -227,7 +227,7 @@ const DischargeSummaryPrintoutComponent = ({
     certificateData = {
       ...certificateData,
       title: facilityName,
-      subTitle: `${facilityAddress}${facilityTown ? `, ${facilityTown}` : ''}`,
+    subTitle: facilityTown ? `${facilityAddress}, ${facilityTown}` : facilityAddress
     };
   }
 
