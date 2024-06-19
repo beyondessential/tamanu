@@ -28,6 +28,12 @@ function checkHomeServer(homeServer) {
   return importingToHome;
 }
 
+function ensureValidProgramMetadata(surveyMetadata) {
+  if (surveyMetadata.some(({ sheetName }) => sheetName === 'Registry')) {
+    throw new ImporterMetadataError('Cannot have a survey called "Registry"');
+  }
+}
+
 export function readTwoModelTypeSheet(sheet, sheetName) {
   // The sheet follows this structure:
   // first few rows: data for the primary record (key in column A, value in column B)
@@ -125,9 +131,7 @@ export function readMetadata(metadataSheet) {
       }
     });
 
-  if (surveyMetadata.some(({ sheetName }) => sheetName === 'Registry')) {
-    throw new ImporterMetadataError('Cannot have a survey called "Registry"');
-  }
+  ensureValidProgramMetadata(surveyMetadata);
 
   return {
     programRecord: {
