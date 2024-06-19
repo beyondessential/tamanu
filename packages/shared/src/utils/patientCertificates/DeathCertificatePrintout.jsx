@@ -20,6 +20,7 @@ import { renderDataItems } from './printComponents/renderDataItems';
 import { P } from './Typography';
 import { getDisplayDate } from './getDisplayDate';
 import { DataSection } from './printComponents/DataSection';
+import { formatDistanceStrict, milliseconds } from 'date-fns';
 
 const borderStyle = '1 solid black';
 const tableLabelWidth = 200;
@@ -124,18 +125,6 @@ const signStyles = StyleSheet.create({
   },
 });
 
-const formatMinutes = minutes => {
-  if (minutes === undefined) return null;
-
-  if (minutes < 60) {
-    return minutes + ' minutes';
-  } else if (minutes < 1440) {
-    return Math.floor(minutes / 60) + ' hours';
-  } else {
-    return Math.floor(minutes / 1440) + ' days';
-  }
-};
-
 const InfoBoxRow = props => <View style={infoBoxStyles.row} {...props} />;
 
 const InfoBoxLabelCol = props => <View style={infoBoxStyles.labelCol} {...props} />;
@@ -153,7 +142,7 @@ const CauseField = ({ cause, label, helperText, ...props }) => {
         {label && <Text style={infoBoxStyles.infoText}>({label}) </Text>}
         <UnderlinedText text={cause.name}> </UnderlinedText>
         <UnderlinedText
-          text={formatMinutes(cause.timeAfterOnset)}
+          text={formatDistanceStrict(0, milliseconds({ minutes: cause.timeAfterOnset }))}
           style={{ width: 85, marginLeft: 10 }}
         />
       </Row>
