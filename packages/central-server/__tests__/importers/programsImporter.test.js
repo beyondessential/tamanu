@@ -713,10 +713,10 @@ describe('Programs import', () => {
         });
 
         const errorMessages = [
-          "sheetName: Core, code: 'chartcodecomplexchartinstancename', invalid question type",
-          "sheetName: Core, code: 'chartcodecomplexchartdate', invalid question type",
-          "sheetName: Core, code: 'chartcodecomplexcharttype', invalid question type",
-          "sheetName: Core, code: 'chartcodecomplexchartsubtype', invalid question type",
+          "sheetName: Core, code: 'testchartcorecode0', invalid question type",
+          "sheetName: Core, code: 'testchartcorecode1', invalid question type",
+          "sheetName: Core, code: 'testchartcorecode2', invalid question type",
+          "sheetName: Core, code: 'testchartcorecode3', invalid question type",
         ];
 
         errors.forEach((error, i) => {
@@ -737,8 +737,8 @@ describe('Programs import', () => {
         });
 
         const errorMessages = [
-          "sheetName: Core, code: 'chartcodecomplexchartinstancename', ComplexChartInstanceName cannot be hidden",
-          "sheetName: Core, code: 'chartcodecomplexchartdate', ComplexChartDate cannot be hidden",
+          "sheetName: Core, code: 'testchartcorecode0', ComplexChartInstanceName cannot be hidden",
+          "sheetName: Core, code: 'testchartcorecode1', ComplexChartDate cannot be hidden",
         ];
 
         errors.forEach((error, i) => {
