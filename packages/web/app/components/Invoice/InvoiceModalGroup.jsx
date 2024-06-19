@@ -1,5 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from 'react';
+import { cloneDeep } from 'lodash';
 import { INVOICE_MODAL_TYPES } from '../../constants';
 import { UpsertInvoiceModal } from './UpsertInvoiceModal';
 import { EditInvoiceModal } from './EditInvoiceModal';
@@ -7,33 +8,43 @@ import { CancelInvoiceModal } from './CancelInvoiceModal';
 import { FinaliseInvoiceModal } from './FinaliseInvoiceModal';
 
 export const InvoiceModalGroup = ({
+  initialModalType,
+  initialInvoice,
   encounterId,
-  initialState,
-  onUpdateSuccess = () => null,
+  onClose,
   isPatientView,
 }) => {
   const [invoice, setInvoice] = useState();
   const [invoiceModal, setInvoiceModal] = useState([]);
 
   useEffect(() => {
-    if (initialState) {
-      handleOpenInvoiceModal(initialState.type);
-      setInvoice(initialState.invoice);
+    if (initialModalType) {
+      handleOpenInvoiceModal(initialModalType);
     }
-  }, [initialState]);
+  }, [initialModalType]);
 
-  const handleCloseInvoiceModal = type =>
+  useEffect(() => {
+    setInvoice(cloneDeep(initialInvoice));
+  }, [initialInvoice]);
+
+  const handleCloseInvoiceModal = type => {
     setInvoiceModal(type ? invoiceModal.filter(modal => modal !== type) : []);
+    onClose();
+  };
 
   const handleOpenInvoiceModal = (type, keepPreviousModals = false) =>
     setInvoiceModal(keepPreviousModals ? invoiceModal.concat(type) : [type]);
 
-  const handleEditDiscount = () => {
-    handleOpenInvoiceModal(INVOICE_MODAL_TYPES.CREATE_INVOICE, true);
+  const handleTemporaryUpdateInvoice = data => {
+    setInvoice({ ...invoice, ...data });
   };
 
-  const onUpdateInvoice = data => {
-    setInvoice({ ...invoice, ...data });
+  const handleCreateInvoiceSuccess = () => {
+    handleOpenInvoiceModal(INVOICE_MODAL_TYPES.EDIT_INVOICE);
+  };
+
+  const handleEditDiscount = () => {
+    handleOpenInvoiceModal(INVOICE_MODAL_TYPES.CREATE_INVOICE, true);
   };
 
   const handleCancelInvoice = () => {
@@ -49,10 +60,11 @@ export const InvoiceModalGroup = ({
       {invoiceModal.includes(INVOICE_MODAL_TYPES.CREATE_INVOICE) && (
         <UpsertInvoiceModal
           open
-          onClose={() => handleCloseInvoiceModal(INVOICE_MODAL_TYPES.CREATE_INVOICE)}
           encounterId={encounterId}
           invoice={invoice}
-          onUpdate={onUpdateInvoice}
+          onClose={() => handleCloseInvoiceModal(INVOICE_MODAL_TYPES.CREATE_INVOICE)}
+          onCreateSuccess={handleCreateInvoiceSuccess}
+          onTemporaryUpdate={handleTemporaryUpdateInvoice}
         />
       )}
       {invoiceModal.includes(INVOICE_MODAL_TYPES.EDIT_INVOICE) && invoice && (
@@ -60,7 +72,6 @@ export const InvoiceModalGroup = ({
           open
           onClose={() => handleCloseInvoiceModal()}
           invoice={invoice}
-          onSuccess={onUpdateSuccess}
           handleEditDiscount={handleEditDiscount}
           handleCancelInvoice={handleCancelInvoice}
           handleFinaliseInvoice={handleFinaliseInvoice}
@@ -70,17 +81,15 @@ export const InvoiceModalGroup = ({
       {invoiceModal.includes(INVOICE_MODAL_TYPES.CANCEL_INVOICE) && invoice && (
         <CancelInvoiceModal
           open
-          onClose={() => handleCloseInvoiceModal(INVOICE_MODAL_TYPES.CANCEL_INVOICE)}
+          onClose={() => handleCloseInvoiceModal()}
           invoice={invoice}
-          onSuccess={onUpdateSuccess}
         />
       )}
       {invoiceModal.includes(INVOICE_MODAL_TYPES.FINALISE_INVOICE) && invoice && (
         <FinaliseInvoiceModal
           open
-          onClose={() => handleCloseInvoiceModal(INVOICE_MODAL_TYPES.FINALISE_INVOICE)}
+          onClose={() => handleCloseInvoiceModal()}
           invoice={invoice}
-          onSuccess={onUpdateSuccess}
         />
       )}
     </>

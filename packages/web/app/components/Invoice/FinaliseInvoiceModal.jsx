@@ -9,17 +9,14 @@ const ContentText = styled.div`
   margin: 20px 18px 50px 18px;
 `;
 
-export const FinaliseInvoiceModal = ({ open, onClose, onSuccess, invoice }) => {
+export const FinaliseInvoiceModal = ({ open, onClose, invoice }) => {
   const { mutate } = useFinaliseInvoice(invoice);
 
   const finaliseInvoice = async () => {
     mutate(
       {},
       {
-        onSuccess: () => {
-          onSuccess();
-          onClose();
-        },
+        onSuccess: onClose,
       },
     );
   };

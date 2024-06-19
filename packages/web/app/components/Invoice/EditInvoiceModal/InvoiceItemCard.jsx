@@ -1,10 +1,15 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
+import {
+  getInvoiceItemDiscountPriceDisplay,
+  getInvoiceItemPriceDisplay,
+  getInvoiceItemName,
+  getInvoiceItemCode,
+} from '@tamanu/shared/utils/invoice';
 import { Colors } from '../../../constants';
 import { TranslatedText } from '../../Translation/TranslatedText';
 import { getDateDisplay } from '../../DateDisplay';
-import { getInvoiceItemDiscountPrice } from '@tamanu/shared/utils/invoice';
 
 const Card = styled(Box)`
   background: white;
@@ -58,9 +63,8 @@ const CardItem = ({ label, value, ...props }) => (
 );
 
 export const InvoiceItemCard = ({ item }) => {
-  const price = item?.productPrice ?? item.product?.price ?? item?.price;
-  const discountPercentage = item?.discount?.percentage;
-  const discountedPrice = getInvoiceItemDiscountPrice(price, discountPercentage);
+  const price = getInvoiceItemPriceDisplay(item);
+  const discountPrice = getInvoiceItemDiscountPriceDisplay(item);
 
   return (
     <Card mb={3}>
@@ -71,7 +75,7 @@ export const InvoiceItemCard = ({ item }) => {
         />
         <CardItem
           label={<TranslatedText stringId="invoice.table.column.code" fallback="Code" />}
-          value={item?.product?.referenceData?.code || item?.code}
+          value={getInvoiceItemCode(item)}
         />
         <CardItem
           label={
@@ -79,8 +83,8 @@ export const InvoiceItemCard = ({ item }) => {
           }
           value={
             <>
-              <PriceText $isCrossedOut={!!discountPercentage}>{price}</PriceText>
-              {!!discountPercentage && <span>{discountedPrice}</span>}
+              <PriceText $isCrossedOut={!!discountPrice}>{price}</PriceText>
+              {!!discountPrice && <span>{discountPrice}</span>}
             </>
           }
         />
@@ -90,7 +94,7 @@ export const InvoiceItemCard = ({ item }) => {
           label={
             <TranslatedText stringId="invoice.modal.addInvoice.details.label" fallback="Details" />
           }
-          value={item?.productName ?? item?.product?.name ?? item?.name}
+          value={getInvoiceItemName(item)}
         />
         <CardItem
           label={

@@ -8,7 +8,12 @@ import { Colors, INVOICE_ITEM_ACTION_MODAL_TYPES } from '../../../constants';
 import { ThemedTooltip } from '../../Tooltip';
 import { ThreeDotMenu } from '../../ThreeDotMenu';
 import { InvoiceItemActionModal } from './InvoiceItemActionModal';
-import { getInvoiceItemDiscountPrice } from '@tamanu/shared/utils/invoice';
+import {
+  getInvoiceItemDiscountPriceDisplay,
+  getInvoiceItemPriceDisplay,
+  getInvoiceItemName,
+  getInvoiceItemCode,
+} from '@tamanu/shared/utils/invoice';
 import { getDateDisplay } from '../../DateDisplay';
 
 const PriceText = styled.span`
@@ -96,9 +101,8 @@ export const InvoiceItemRow = ({
   });
   const practitionerSuggester = useSuggester('practitioner');
 
-  const price = item?.productPrice ?? item.product?.price ?? item?.price;
-  const discountPercentage = item.discount?.percentage;
-  const discountedPrice = getInvoiceItemDiscountPrice(price, discountPercentage);
+  const price = getInvoiceItemPriceDisplay(item);
+  const discountPrice = getInvoiceItemDiscountPriceDisplay(item);
 
   const [actionModal, setActionModal] = useState();
 
@@ -235,18 +239,16 @@ export const InvoiceItemRow = ({
               onChange={handleChangeProduct}
             />
           ) : (
-            <ViewOnlyCell>{item?.productName ?? item?.product?.name ?? item?.name}</ViewOnlyCell>
+            <ViewOnlyCell>{getInvoiceItemName(item)}</ViewOnlyCell>
           )}
         </StyledItemCell>
         <StyledItemCell item justifyContent="center" xs={1}>
           {editable ? (
             <CodeCell minHeight="39px" display="flex" alignItems="center">
-              {item.product?.referenceData?.code || item?.code}
+              {getInvoiceItemCode(item)}
             </CodeCell>
           ) : (
-            <ViewOnlyCell marginLeft="5%">
-              {item.product?.referenceData?.code || item?.code}
-            </ViewOnlyCell>
+            <ViewOnlyCell marginLeft="5%">{getInvoiceItemCode(item)}</ViewOnlyCell>
           )}
         </StyledItemCell>
         <StyledItemCell item xs={3}>
@@ -266,24 +268,27 @@ export const InvoiceItemRow = ({
         <StyledItemCell item xs={2}>
           {editable ? (
             <PriceCell>
-              <PriceText $isCrossedOut={!!discountPercentage}>{price}</PriceText>
-              {!!discountPercentage && !isNaN(discountedPrice) && (
+              <PriceText $isCrossedOut={!!discountPrice}>{price}</PriceText>
+              {!!discountPrice && (
                 <ThemedTooltip
                   key={item.discount?.reason}
                   title={item.discount?.reason}
                   open={item.discount?.reason ? undefined : false}
                 >
-                  <span>{discountedPrice}</span>
+                  <span>{discountPrice}</span>
                 </ThemedTooltip>
               )}
               {showActionMenu && <ThreeDotMenu items={menuItems} />}
             </PriceCell>
           ) : (
             <ViewOnlyCell marginLeft="10%">
-              <PriceText $isCrossedOut={!!discountPercentage}>{price}</PriceText>
-              {!!discountPercentage && !isNaN(discountedPrice) && (
-                <ThemedTooltip title={item.discount?.reason}>
-                  <span>{discountedPrice}</span>
+              <PriceText $isCrossedOut={!!discountPrice}>{price}</PriceText>
+              {!!discountPrice && (
+                <ThemedTooltip
+                  title={item.discount?.reason}
+                  open={item.discount?.reason ? undefined : false}
+                >
+                  <span>{discountPrice}</span>
                 </ThemedTooltip>
               )}
             </ViewOnlyCell>

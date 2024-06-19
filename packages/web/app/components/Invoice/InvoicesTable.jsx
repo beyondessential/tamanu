@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 
 import {
@@ -118,10 +118,17 @@ const COLUMNS = [
 ];
 
 export const InvoicesTable = ({ patient }) => {
+  const [openInvoiceModal, setOpenInvoiceModal] = useState();
   const [selectedInvoice, setSelectedInvoice] = useState();
   const [refreshTable, setRefreshTable] = useState(0);
 
   const { data: invoice } = useEncounterInvoice(selectedInvoice?.encounterId);
+
+  useEffect(() => {
+    if (invoice) {
+      setRefreshTable(prev => prev + 1);
+    }
+  }, [invoice]);
 
   return (
     <>
@@ -137,19 +144,18 @@ export const InvoicesTable = ({ patient }) => {
             <TranslatedText stringId="patient.invoice.table.title" fallback="Patient invoices" />
           </TableTitle>
         }
-        onClickRow={(_, data) => setSelectedInvoice(data)}
+        onClickRow={(_, data) => {
+          setSelectedInvoice(data);
+          setOpenInvoiceModal(INVOICE_MODAL_TYPES.EDIT_INVOICE);
+        }}
         refreshCount={refreshTable}
       />
-      {!!selectedInvoice && (
-        <InvoiceModalGroup
-          initialState={{
-            type: INVOICE_MODAL_TYPES.EDIT_INVOICE,
-            invoice,
-          }}
-          onUpdateSuccess={() => setRefreshTable(prev => prev + 1)}
-          isPatientView
-        />
-      )}
+      <InvoiceModalGroup
+        initialModalType={openInvoiceModal}
+        initialInvoice={invoice}
+        onClose={() => setOpenInvoiceModal()}
+        isPatientView
+      />
     </>
   );
 };

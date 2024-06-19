@@ -9,17 +9,14 @@ const ContentText = styled.div`
   margin: 20px 18px 50px 18px;
 `;
 
-export const CancelInvoiceModal = ({ open, onClose, onSuccess, invoice }) => {
+export const CancelInvoiceModal = ({ open, onClose, invoice }) => {
   const { mutate } = useCancelInvoice(invoice);
 
   const cancelInvoice = async () => {
     mutate(
       {},
       {
-        onSuccess: () => {
-          onSuccess();
-          onClose();
-        },
+        onSuccess: onClose,
       },
     );
   };
