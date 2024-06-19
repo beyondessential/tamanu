@@ -181,7 +181,7 @@ const SectionSpacing = () => <View style={{ paddingBottom: '10px' }} />;
 
 //TODO: re-map row data based on data returned from Back-end
 const COLUMNS = {
-  lineItems: [
+  invoiceItems: [
     {
       key: 'orderDate',
       title: 'Date',
@@ -468,7 +468,7 @@ export const InvoiceRecordPrintout = ({
         />
         <SectionSpacing />
         {invoice?.items?.length > 0 && (
-          <TableSection data={invoice?.items} columns={COLUMNS.lineItems} />
+          <TableSection data={invoice?.items} columns={COLUMNS.invoiceItems} />
         )}
         <SummaryPane invoice={invoice} />
         <SectionSpacing />
