@@ -42,7 +42,7 @@ async function generateData(models) {
     ScheduledVaccine,
     AdministeredVaccine,
   } = models;
-
+  // test
   const examiner = await User.create(fake(User));
   const patient = await Patient.create(fake(Patient));
   const facility = await Facility.create(fake(Facility));
