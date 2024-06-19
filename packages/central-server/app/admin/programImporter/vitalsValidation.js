@@ -3,6 +3,7 @@ import config from 'config';
 import { parseOrNull } from '@tamanu/shared/utils/parse-or-null';
 import { isNumberOrFloat } from '../../utils/numbers';
 import { statkey, updateStat } from '../stats';
+import { PROGRAM_DATA_ELEMENT_TYPES, VISIBILITY_STATUSES, SURVEY_TYPES } from '@tamanu/constants';
 
 const checkIfWithinGraphRange = (normalRange, graphRange) => {
   if (isNumberOrFloat(normalRange.min) && normalRange.min < graphRange.min) {
@@ -62,9 +63,34 @@ function validateVitalVisualisationConfig(visualisationConfigString, validationC
   }
 }
 
+function validateComplexChartCoreConfig(programDataElementRecord, surveyScreenComponentRecord) {
+  const { type } = programDataElementRecord.values;
+  const { visibilityStatus } = surveyScreenComponentRecord.values;
+
+  const complexCoreTypes = [
+    PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_INSTANCE_NAME,
+    PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_DATE,
+    PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_TYPE,
+    PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_SUBTYPE,
+  ];
+
+  if (complexCoreTypes.includes(type) === false) {
+    throw new Error('invalid question type');
+  }
+
+  if (visibilityStatus !== VISIBILITY_STATUSES.CURRENT) {
+    if (type === PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_INSTANCE_NAME) {
+      throw new Error('ComplexChartInstanceName cannot be hidden');
+    }
+    if (type === PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_DATE) {
+      throw new Error('ComplexChartDate cannot be hidden');
+    }
+  }
+}
+
 export function validateProgramDataElementRecords(
   records,
-  { context, sheetName, stats: previousStats = {} },
+  { context, sheetName, stats: previousStats = {}, surveyType },
 ) {
   if (!config.validateQuestionConfigs.enabled) {
     return previousStats;
@@ -86,6 +112,9 @@ export function validateProgramDataElementRecords(
 
     try {
       validateVitalVisualisationConfig(visualisationConfig, validationCriteria);
+      if (surveyType === SURVEY_TYPES.COMPLEX_CHART_CORE) {
+        validateComplexChartCoreConfig(programDataElementRecord, surveyScreenComponentRecord);
+      }
     } catch (e) {
       const error = new Error(`sheetName: ${sheetName}, code: '${dataElementCode}', ${e.message}`);
       newErrors.push(error);

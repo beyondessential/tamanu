@@ -57,7 +57,7 @@ export async function importSurvey(context, workbook, surveyInfo) {
   }
 
   const records = readSurveyInfo(workbook, surveyInfo);
-  const stats = validateProgramDataElementRecords(records, { context, sheetName });
+  const stats = validateProgramDataElementRecords(records, { context, sheetName, surveyType });
 
   return importRows(
     context,
