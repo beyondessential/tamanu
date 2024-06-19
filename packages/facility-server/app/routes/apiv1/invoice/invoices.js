@@ -313,7 +313,7 @@ invoiceRoute.put(
             productPrice: plain.product.price,
           };
         }),
-        { updateOnDuplicate: ['id'], transaction },
+        { updateOnDuplicate: ['productName', 'productPrice'], transaction },
       );
 
       const invoice = await req.models.Invoice.update(
