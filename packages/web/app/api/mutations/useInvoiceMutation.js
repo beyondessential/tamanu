@@ -41,3 +41,16 @@ export const useCancelInvoice = invoice => {
     onError: error => notifyError(error.message),
   });
 };
+
+export const useFinaliseInvoice = invoice => {
+  const api = useApi();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async () => {
+      await api.put(`invoices/${invoice?.id}/finalize`);
+      await queryClient.invalidateQueries([`encounter/${invoice?.encounterId}/invoice`]);
+    },
+    onError: error => notifyError(error.message),
+  });
+};
