@@ -176,7 +176,7 @@ function getComponentForField(
 
 export const PatientAdditionalDataFields = ({ fields, showMandatory = true }): ReactElement => {
   const { getLocalisation } = useLocalisation();
-  const isHardCodedLayout = true;
+  const isHardCodedLayout = getLocalisation('layouts.patientDetails') !== 'generic';
   const [customFieldDefinitions, _, loading] = useBackendEffect(({ models }) =>
     models.PatientFieldDefinition.getRepository().find({
       select: ['id'],
