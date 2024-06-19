@@ -7,21 +7,6 @@ export const INVOICE_STATUS_LABELS = {
   [INVOICE_STATUSES.FINALISED]: 'Finalised',
 };
 
-export const INVOICE_STATUS_OPTIONS = [
-  {
-    value: INVOICE_STATUSES.CANCELLED,
-    label: INVOICE_STATUS_LABELS[INVOICE_STATUSES.CANCELLED],
-  },
-  {
-    value: INVOICE_STATUSES.IN_PROGRESS,
-    label: INVOICE_STATUS_LABELS[INVOICE_STATUSES.IN_PROGRESS],
-  },
-  {
-    value: INVOICE_STATUSES.FINALISED,
-    label: INVOICE_STATUS_LABELS[INVOICE_STATUSES.FINALISED],
-  },
-];
-
 export const INVOICE_STATUS_COLORS = {
   [INVOICE_STATUSES.CANCELLED]: Colors.darkestText,
   [INVOICE_STATUSES.IN_PROGRESS]: Colors.darkOrange,
@@ -36,16 +21,23 @@ export const INVOICE_PAYMENT_STATUS_LABELS = {
   [INVOICE_PAYMENT_STATUSES.PAID_REJECTED]: 'Paid/Rejected',
 };
 
-export const INVOICE_ACTION_MODALS = {
+export const INVOICE_ITEM_ACTION_MODAL_TYPES = {
   ADD_DISCOUNT: 'addDiscount',
-  ADD_MARKUP: 'addMarkup',
+  ADD_MARKUP: 'addMarkupLine',
+  REMOVE_DISCOUNT_MARKUP: 'removeDiscountMarkup',
   DELETE: 'delete',
-  CANCEL_INVOICE: 'cancelInvoice',
 };
 
-export const INVOICE_ACTIVE_MODALS = {
+export const INVOICE_MODAL_TYPES = {
   EDIT_INVOICE: "editInvoice",
   CREATE_INVOICE: "createInvoice",
+  CANCEL_INVOICE: "cancelInvoice",
+  FINALISE_INVOICE: "finaliseInvoice",
+};
+
+export const INVOICE_DISCOUNT_TYPES = {
+  MANUAL: 'manual',
+  ASSESSMENT: 'assessment',
 };
 
 export const slidingFeeScaleTable = [
