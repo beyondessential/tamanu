@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 
-import { Document, Page, StyleSheet, Text, View } from '@react-pdf/renderer';
+import { Document, StyleSheet, View } from '@react-pdf/renderer';
 import { getName, getTimeOfDeath, getDateOfDeath, getSex } from '../patientAccessors';
 import { CertificateHeader, Col, Row, styles, SigningImage } from './Layout';
 import { LetterheadSection } from './LetterheadSection';
@@ -10,6 +10,9 @@ import { MultiPageHeader } from './printComponents/MultiPageHeader';
 import { renderDataItems } from './printComponents/renderDataItems';
 import { P } from './Typography';
 import { getDisplayDate } from './getDisplayDate';
+import { withLanguageContext } from '../pdf/languageContext';
+import { Page } from '../pdf/Page';
+import { Text } from '../pdf/Text';
 
 const borderStyle = '1 solid black';
 const tableLabelWidth = 250;
@@ -189,7 +192,7 @@ const HEADER_FIELDS = {
 
 const SectionContainer = props => <View style={generalStyles.sectionContainer} {...props} />;
 
-export const DeathCertificatePrintout = React.memo(
+const DeathCertificatePrintoutComponent = React.memo(
   ({ patientData, certificateData, getLocalisation }) => {
     const { logo, deathCertFooterImg } = certificateData;
 
@@ -200,7 +203,7 @@ export const DeathCertificatePrintout = React.memo(
     const antecedentCause3 = getCauseName(causes?.antecedent3);
     return (
       <Document>
-        <Page size="A4" style={{...styles.page, paddingBottom: 25}}>
+        <Page size="A4" style={{ ...styles.page, paddingBottom: 25 }}>
           <MultiPageHeader
             documentName="Cause of death certificate"
             patientName={getName(patientData)}
@@ -309,13 +312,19 @@ export const DeathCertificatePrintout = React.memo(
               means the disease, injury, or complication that caused death.
             </Text>
           </View>
-          {deathCertFooterImg ? <SigningImage src={deathCertFooterImg} /> : <AuthorisedAndSignSection />}
+          {deathCertFooterImg ? (
+            <SigningImage src={deathCertFooterImg} />
+          ) : (
+            <AuthorisedAndSignSection />
+          )}
           <Footer />
         </Page>
       </Document>
     );
   },
 );
+
+export const DeathCertificatePrintout = withLanguageContext(DeathCertificatePrintoutComponent);
 
 DeathCertificatePrintout.propTypes = {
   patientData: PropTypes.object.isRequired,
