@@ -62,8 +62,8 @@ export const FormScreenView = ({
   // Check if the screen content is bigger then the ScrollContainer
   useEffect(() => {
     if (contentHeight > 0 && layoutHeight > 0) {
-      const contentBiggerThanScreen = contentHeight - layoutHeight - scrollOffset
-        > beginningEndOfScreenThreshold;
+      const contentBiggerThanScreen =
+        contentHeight - layoutHeight - scrollOffset > beginningEndOfScreenThreshold;
       if (contentBiggerThanScreen) {
         setAnimated(true);
       } else {
@@ -73,9 +73,7 @@ export const FormScreenView = ({
   }, [contentHeight, layoutHeight, scrollOffset]);
 
   const onScroll = useCallback(
-    ({
-      nativeEvent: { contentOffset },
-    }: NativeSyntheticEvent<NativeScrollEvent>) => {
+    ({ nativeEvent: { contentOffset } }: NativeSyntheticEvent<NativeScrollEvent>) => {
       setscrollOffset(contentOffset.y);
     },
     [],
@@ -106,9 +104,7 @@ export const FormScreenView = ({
           scrollToOverflowEnabled
           overScrollMode="always"
         >
-          <FullView margin={screenPercentageToDP(4.86, Orientation.Width)}>
-            {children}
-          </FullView>
+          <FullView margin={screenPercentageToDP(4.86, Orientation.Width)}>{children}</FullView>
         </ScrollView>
         {animated && (
           <CenterView

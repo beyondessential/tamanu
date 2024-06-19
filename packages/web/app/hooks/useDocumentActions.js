@@ -4,6 +4,7 @@ import { extension } from 'mime-types';
 import { useApi } from '../api';
 import { notify, notifyError, notifySuccess } from '../utils';
 import { saveFile } from '../utils/fileSystemAccess';
+import { useTranslation } from '../contexts/Translation'; 
 
 const base64ToUint8Array = base64 => {
   const binString = atob(base64);
@@ -13,6 +14,7 @@ const base64ToUint8Array = base64 => {
 export const useDocumentActions = () => {
   const api = useApi();
   const [dataUrl, setDataUrl] = useState('');
+  const { getTranslation } = useTranslation();
 
   // In order to make sure we cleanup any iframes we create from printing, we need to
   // trigger it in a useEffect with a cleanup function that wil remove the iframe
@@ -40,7 +42,13 @@ export const useDocumentActions = () => {
     async document => {
       try {
         // Give feedback to user that download is starting
-        notify('Your download has started, please wait.', { type: 'info' });
+        notify(
+          getTranslation(
+            'document.notification.downloadStart',
+            'Your download has started, please wait.'
+          ), 
+          { type: 'info' }
+        );
 
         // Download attachment (*currently the API only supports base64 responses)
         const { data } = await api.get(`attachment/${document.attachmentId}`, {
@@ -54,7 +62,12 @@ export const useDocumentActions = () => {
           mimetype: document.type,
         });
 
-        notifySuccess('Successfully downloaded file');
+        notifySuccess(
+          getTranslation(
+            'document.notification.downloadSuccess',
+            'Successfully downloaded file'
+          )
+        );
       } catch (error) {
         notifyError(error.message);
       }

@@ -35,7 +35,7 @@ const getVaccinationDescription = (vaccineData, scheduledVaccine): string => {
   const vaccineDetails =
     scheduledVaccine.category === VaccineCategory.OTHER
       ? [vaccineData.vaccineName]
-      : [scheduledVaccine?.vaccine?.name, scheduledVaccine?.schedule];
+      : [scheduledVaccine?.vaccine?.name, scheduledVaccine?.doseLabel];
   return [prefixMessage, ...vaccineDetails].filter(Boolean).join(' ');
 };
 

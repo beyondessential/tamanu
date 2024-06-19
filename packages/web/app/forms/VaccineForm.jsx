@@ -81,22 +81,27 @@ export const NEW_RECORD_VACCINE_SCHEME_VALIDATION = BASE_VACCINE_SCHEME_VALIDATI
   }),
 });
 
+const getInitialCategory = (editMode, existingValues) => {
+  if (editMode)
+    return existingValues?.vaccineName ? VACCINE_CATEGORIES.OTHER : VACCINE_CATEGORIES.ROUTINE;
+  return existingValues?.category;
+};
+
 export const VaccineForm = ({
   onCancel,
   onSubmit,
   editMode = false,
-  currentVaccineRecordValues,
+  existingValues,
   patientId,
   getScheduledVaccines,
   vaccineRecordingType,
 }) => {
   const { getLocalisation } = useLocalisation();
   const { getSetting } = useSettings();
+
+  const [vaccineLabel, setVaccineLabel] = useState(existingValues?.vaccineLabel);
+  const [category, setCategory] = useState(getInitialCategory(editMode, existingValues));
   const [vaccineOptions, setVaccineOptions] = useState([]);
-  const [category, setCategory] = useState(
-    currentVaccineRecordValues?.vaccineName ? VACCINE_CATEGORIES.OTHER : VACCINE_CATEGORIES.ROUTINE,
-  );
-  const [vaccineLabel, setVaccineLabel] = useState();
 
   const {
     data: patientData,
@@ -167,7 +172,9 @@ export const VaccineForm = ({
   const initialValues = !editMode
     ? {
         status: vaccineRecordingType,
+        vaccineLabel,
         category,
+        scheduledVaccineId: existingValues?.scheduledVaccineId,
         date: getCurrentDateTimeString(),
         locationGroupId: !currentEncounter
           ? vaccinationDefaults?.locationGroupId
@@ -184,15 +191,16 @@ export const VaccineForm = ({
         patientData,
       }
     : {
-        ...currentVaccineRecordValues,
-        ...(currentVaccineRecordValues.circumstanceIds
-          ? { circumstanceIds: JSON.stringify(currentVaccineRecordValues.circumstanceIds) }
+        ...existingValues,
+        ...(existingValues.circumstanceIds
+          ? { circumstanceIds: JSON.stringify(existingValues.circumstanceIds) }
           : {}),
         patientData,
       };
 
   return (
     <Form
+      enableReinitialize
       onSubmit={async data => onSubmit({ ...data, category })}
       showInlineErrorsOnly
       initialValues={initialValues}
@@ -237,15 +245,19 @@ const VaccineFormComponent = ({
   initialValues,
   ...props
 }) => {
-  const { setCategory, setVaccineLabel, editMode } = props;
+  const [prevVaccineRecordingType, setPrevVaccineRecordingType] = useState(vaccineRecordingType);
+
+  const { setCategory, editMode } = props;
   useEffect(() => {
     // Reset the entire form values when switching between GIVEN and NOT_GIVEN tab
-    resetForm({ values: initialValues });
-    if (!editMode) {
-      setCategory(VACCINE_CATEGORIES.ROUTINE);
+    if (prevVaccineRecordingType !== vaccineRecordingType) {
+      resetForm({ values: initialValues });
+      if (!editMode) {
+        setCategory(VACCINE_CATEGORIES.ROUTINE);
+      } // we strictly only want to reset the form values when vaccineRecordingType is changed
     }
-    setVaccineLabel(null);
-    // we strictly only want to reset the form values when vaccineRecordingType is changed
+    // Keep track of the previous vaccineRecordingType - this avoids the form being reset on initial load
+    setPrevVaccineRecordingType(vaccineRecordingType);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [vaccineRecordingType]);
 
