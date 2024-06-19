@@ -1,11 +1,13 @@
-import { config } from '../../common.jest.config.mjs';
-
-export default config(import.meta, {
+module.exports = {
   preset: '@testing-library/react-native',
   moduleFileExtensions: ['ts', 'tsx', 'js'],
   transformIgnorePatterns: [
     'node_modules/(?!(jest-)?@?react-native|@?react-navigation|react-pose-core|react-native-gesture-handler|animated-pose|@react-native-community/datetimepicker|@vinipachecov/react-native-datepicker|typeorm)',
   ],
+  transform: {
+    '^.+\\.(js)$': '<rootDir>/../../node_modules/babel-jest',
+    '\\.(ts|tsx)$': 'ts-jest',
+  },
   testEnvironment: 'node',
   testPathIgnorePatterns: ['\\.snap$', '<rootDir>/node_modules/', 'e2e'],
   cacheDirectory: '.jest/cache',
@@ -34,4 +36,4 @@ export default config(import.meta, {
     },
   },
   collectCoverageFrom: ['App/**/*.{js,ts,jsx,tsx}', '!**/*.spec.{js,ts,jsx,tsx}'],
-});
+};
