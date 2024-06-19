@@ -11,6 +11,7 @@ import { getGender, joinNames } from '../../helpers/user';
 import { IPatient } from '~/types';
 import { useLocalisation } from '~/ui/contexts/LocalisationContext';
 import { TranslatedText } from '/components/Translations/TranslatedText';
+import { TranslatedReferenceData } from '../Translations/TranslatedReferenceData';
 
 export interface PatientCardProps {
   patient: IPatient;
@@ -75,7 +76,11 @@ export const PatientCard = ({ patient, onPress }: PatientCardProps): JSX.Element
               fontWeight={500}
               color={theme.colors.TEXT_MID}
             >
-              {village?.name ?? ''}
+              <TranslatedReferenceData
+                fallback={village?.name}
+                value={village?.id}
+                category="village"
+              />
             </StyledText>
           </StyledView>
         </ColumnView>

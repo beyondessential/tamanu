@@ -16,6 +16,7 @@ import { VisibilityStatus } from '~/visibilityStatuses';
 import { useSettings } from '~/ui/contexts/SettingsContext';
 import { getVaccineStatus, parseThresholdsSetting } from '~/ui/helpers/getVaccineStatus';
 import { SETTING_KEYS } from '~/constants';
+import { TranslatedReferenceData } from '../Translations/TranslatedReferenceData';
 
 interface VaccinesTableProps {
   selectedPatient: any;
@@ -127,7 +128,15 @@ export const VaccinesTable = ({
       <VaccineRowHeader
         key={scheduledVaccine.id}
         title={scheduledVaccine.label}
-        subtitle={scheduledVaccine.vaccine && scheduledVaccine.vaccine.name}
+        subtitle={
+          scheduledVaccine.vaccine && (
+            <TranslatedReferenceData
+              fallback={scheduledVaccine.vaccine.name}
+              value={scheduledVaccine.vaccine.id}
+              category="vaccine"
+            />
+          )
+        }
       />
     ),
     cell: (cellData: VaccineTableCellData) => {

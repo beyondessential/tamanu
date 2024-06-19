@@ -1,4 +1,6 @@
 import React from 'react';
+import { TranslatedReferenceData } from '~/ui/components/Translations/TranslatedReferenceData';
+import { TranslatedText, TranslatedTextElement } from '~/ui/components/Translations/TranslatedText';
 
 import { DateFormats } from '~/ui/helpers/constants';
 import { formatStringDate } from '~/ui/helpers/date';
@@ -6,7 +8,10 @@ import { useBackendEffect } from '~/ui/hooks/index';
 import { StyledText, StyledView, StyledScrollView } from '~/ui/styled/common';
 import { theme } from '~/ui/styled/theme';
 
-const DataRow = (props: { label: string; value: string | string[] }) => {
+const DataRow = (props: {
+  label: TranslatedTextElement;
+  value: TranslatedTextElement | TranslatedTextElement[];
+}) => {
   return (
     <StyledView
       margin={20}
@@ -71,17 +76,49 @@ export const PatientProgramRegistrationDetails = ({ route }) => {
         marginBottom={20}
       ></StyledView>
       <DataRow
-        label="Date of registration"
+        label={
+          <TranslatedText
+            stringId="patientProgramRegistry.date.label"
+            fallback="Date of registration"
+          />
+        }
         value={formatStringDate(patientProgramRegistration.date, DateFormats.DDMMYY)}
       />
-      <DataRow label="Registered by" value={patientProgramRegistration?.clinician?.displayName} />
       <DataRow
-        label="Registration facility"
-        value={patientProgramRegistration.registeringFacility?.name}
+        label={
+          <TranslatedText
+            stringId="patientProgramRegistry.registeredBy.label"
+            fallback="Registered by"
+          />
+        }
+        value={patientProgramRegistration?.clinician?.displayName}
       />
-      <DataRow label="Status" value={patientProgramRegistration?.clinicalStatus?.name || '-'} />
       <DataRow
-        label="Conditions"
+        label={
+          <TranslatedText
+            stringId="patientProgramRegistry.registeringFacility.label"
+            fallback="Registering facility"
+          />
+        }
+        value={
+          <TranslatedReferenceData
+            fallback={patientProgramRegistration.registeringFacility?.name}
+            value={patientProgramRegistration.registeringFacility?.id}
+            category="facility"
+          />
+        }
+      />
+      <DataRow
+        label={<TranslatedText stringId="general.status.label" fallback="Status" />}
+        value={patientProgramRegistration?.clinicalStatus?.name || '-'}
+      />
+      <DataRow
+        label={
+          <TranslatedText
+            stringId="patientProgramRegistry.conditions.label"
+            fallback="Conditions"
+          />
+        }
         value={
           Array.isArray(pprCondition) && pprCondition.length > 0
             ? pprCondition.map(x => x.programRegistryCondition.name)

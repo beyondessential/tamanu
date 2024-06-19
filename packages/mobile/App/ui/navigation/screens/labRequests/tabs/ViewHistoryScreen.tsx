@@ -18,6 +18,7 @@ import { DateFormats } from '~/ui/helpers/constants';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { getSyncTick, LAST_SUCCESSFUL_PUSH } from '~/services/sync';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
+import { TranslatedReferenceData } from '~/ui/components/Translations/TranslatedReferenceData';
 
 const SyncStatusIndicator = ({ synced }): JSX.Element => (
   <StyledView flexDirection="row">
@@ -77,7 +78,15 @@ const LabRequestRow = ({ labRequest, synced }: LabRequestRowProps): JSX.Element 
         <StyledText style={styles.text}>{date}</StyledText>
       </StyledView>
       <StyledView width={screenPercentageToDP(25, Orientation.Width)}>
-        <StyledText style={styles.text}>{labRequest.labTestCategory.name}</StyledText>
+        <StyledText style={styles.text}>
+          {
+            <TranslatedReferenceData
+              fallback={labRequest.labTestCategory.name}
+              value={labRequest.labTestCategory.id}
+              category="labTestCategory"
+            />
+          }
+        </StyledText>
       </StyledView>
       <StyledView width={screenPercentageToDP(30, Orientation.Width)}>
         <SyncStatusIndicator synced={synced} />

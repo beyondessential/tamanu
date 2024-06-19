@@ -9,6 +9,7 @@ import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { formatStringDate } from '../../helpers/date';
 import { DateFormats } from '../../helpers/constants';
 import { TranslatedText } from '../Translations/TranslatedText';
+import { TranslatedReferenceData } from '../Translations/TranslatedReferenceData';
 
 const GivenOnTimeFields: FC<VaccineDataProps> = ({ administeredVaccine }) => (
   <StyledView
@@ -45,15 +46,33 @@ const GivenOnTimeFields: FC<VaccineDataProps> = ({ administeredVaccine }) => (
       <View>
         <RowField
           label={<TranslatedText stringId="general.form.area.label" fallback="Area" />}
-          value={administeredVaccine.location?.locationGroup?.name}
+          value={
+            <TranslatedReferenceData
+              fallback={administeredVaccine.location?.locationGroup?.name}
+              value={administeredVaccine.location?.locationGroup?.id}
+              category="locationGroup"
+            />
+          }
         />
         <RowField
           label={<TranslatedText stringId="general.form.location.label" fallback="Location" />}
-          value={administeredVaccine.location?.name}
+          value={
+            <TranslatedReferenceData
+              fallback={administeredVaccine.location?.name}
+              value={administeredVaccine.location?.id}
+              category="location"
+            />
+          }
         />
         <RowField
           label={<TranslatedText stringId="general.form.department.label" fallback="Department" />}
-          value={administeredVaccine.department?.name}
+          value={
+            <TranslatedReferenceData
+              fallback={administeredVaccine.department?.name}
+              value={administeredVaccine.department?.id}
+              category="department"
+            />
+          }
         />
       </View>
     ) : null}

@@ -132,7 +132,7 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
                   name="registeringFacilityId"
                   label={
                     <TranslatedText
-                      stringId="patientProgramRegistry.registeredBy.label"
+                      stringId="patientProgramRegistry.registeringFacility.label"
                       fallback="Registering facility"
                     />
                   }

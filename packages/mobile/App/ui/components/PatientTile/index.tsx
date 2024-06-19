@@ -7,10 +7,16 @@ import { getGender, joinNames } from '/helpers/user';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { IPatient } from '~/types';
 import { useLocalisation } from '~/ui/contexts/LocalisationContext';
+import {
+  TranslatedReferenceData,
+  getReferenceDataStringId,
+} from '../Translations/TranslatedReferenceData';
+import { useTranslation } from '~/ui/contexts/TranslationContext';
 
 export const PatientTile = (patient: IPatient): JSX.Element => {
   const { firstName, lastName, sex } = patient;
   const { getLocalisation } = useLocalisation();
+  const { getTranslation } = useTranslation();
   const ageDisplayFormat = getLocalisation('ageDisplayFormat');
 
   return (
@@ -43,7 +49,7 @@ export const PatientTile = (patient: IPatient): JSX.Element => {
           fontWeight={500}
           textAlign="left"
         >
-          {getSecondaryInfoString(ageDisplayFormat, patient)}
+          {getSecondaryInfoString(getTranslation, ageDisplayFormat, patient)}
         </StyledText>
       </StyledView>
     </RowView>
@@ -51,6 +57,7 @@ export const PatientTile = (patient: IPatient): JSX.Element => {
 };
 
 const getSecondaryInfoString = (
+  getTranslation,
   ageDisplayFormat,
   { displayId, sex, dateOfBirth, village }: IPatient,
 ) => {
@@ -58,7 +65,7 @@ const getSecondaryInfoString = (
     displayId,
     gender: getGender(sex)[0],
     age: dateOfBirth && `${getDisplayAge(dateOfBirth, ageDisplayFormat)}`,
-    village: village?.name,
+    village: getTranslation(getReferenceDataStringId(village?.id, 'village'), village?.name),
   };
   return Object.values(secondaryInfo)
     .filter(e => e)

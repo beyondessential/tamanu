@@ -4,10 +4,11 @@ import { StyleSheet } from 'react-native';
 import { StyledText, StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import { TranslatedTextElement } from '../Translations/TranslatedText';
 
 type RowFieldProps = {
-  label: string;
-  value: string;
+  label: TranslatedTextElement;
+  value: TranslatedTextElement;
 };
 
 const styles = StyleSheet.create({
