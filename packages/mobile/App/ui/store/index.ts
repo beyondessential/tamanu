@@ -1,4 +1,4 @@
-import { compose, createStore } from 'redux';
+import { createStore } from 'redux';
 import { persistReducer, persistStore } from 'redux-persist';
 import createSensitiveStorage from 'redux-persist-sensitive-storage';
 import rootReducer from './ducks';

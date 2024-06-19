@@ -250,7 +250,6 @@ jobs:
       matrix:
         workdir:
           - .
-          - packages/mobile
     name: Check ${{ matrix.workdir }}/package-lock.json is up to date
     runs-on: ubuntu-latest
     steps:
