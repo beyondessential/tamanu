@@ -77,9 +77,7 @@ export const DischargeModal = React.memo(({ open, onClose }) => {
         facilityAddress: facility.streetAddress,
         facilityTown: facility.cityTown,
       };
-      await writeAndViewEncounter(encounter.id, {
-        ...data,
-      });
+      await writeAndViewEncounter(encounter.id, data);
       await dispatch(reloadPatient(patient.id));
       navigateToPatient(patient.id);
       onClose();
