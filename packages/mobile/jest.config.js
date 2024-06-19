@@ -6,7 +6,7 @@ module.exports = {
   ],
   transform: {
     '^.+\\.(js)$': '<rootDir>/../../node_modules/babel-jest',
-    '\\.(ts|tsx)$': 'ts-jest',
+    '\\.(ts|tsx)$': '<rootDir>/../../node_modules/ts-jest',
   },
   testEnvironment: 'node',
   testPathIgnorePatterns: ['\\.snap$', '<rootDir>/node_modules/', 'e2e'],
