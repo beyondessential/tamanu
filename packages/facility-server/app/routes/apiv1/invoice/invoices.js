@@ -188,7 +188,7 @@ invoiceRoute.put(
       else {
         //remove any existing discount if discount id is not matching
         await req.models.InvoiceDiscount.destroy(
-          { where: { invoiceId, id: data.discount.id } },
+          { where: { invoiceId, id: { [Op.ne]: data.discount.id } } },
           { transaction },
         );
         //update or create discount
@@ -239,7 +239,7 @@ invoiceRoute.put(
             {
               where: {
                 invoiceItemId: item.id,
-                id: item.discount.id,
+                id: { [Op.ne]: item.discount.id },
               },
             },
             { transaction },
