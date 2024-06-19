@@ -752,7 +752,7 @@ describe('Programs import', () => {
           SurveyScreenComponent: { created: 8, updated: 0, errored: 0 },
         });
       });
-      it('Should only be one complex chart and complex core per program.', async () => {
+      it('Should only be one complex chart and complex core per program', async () => {
         const { errors } = await doImport({
           file: 'charting-complex-multiple-invalid',
           dryRun: true,
