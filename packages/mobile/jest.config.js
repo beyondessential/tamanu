@@ -9,7 +9,7 @@ module.exports = {
     '\\.(ts|tsx)$': '<rootDir>/../../node_modules/ts-jest',
   },
   testEnvironment: 'node',
-  testPathIgnorePatterns: ['\\.snap$', '<rootDir>/node_modules/', 'e2e'],
+  testPathIgnorePatterns: ['\\.snap$', '<rootDir>/../../node_modules/', 'e2e'],
   cacheDirectory: '.jest/cache',
   setupFiles: ['./jest.setup.ts'],
   moduleNameMapper: {
