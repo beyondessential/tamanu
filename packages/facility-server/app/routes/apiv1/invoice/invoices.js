@@ -144,7 +144,10 @@ const updateInvoiceSchema = z
         orderedByUserId: z.string().uuid(),
         productId: z.string(),
         quantity: z.coerce.number().default(0),
-        sourceId: z.string().uuid(),
+        sourceId: z
+          .string()
+          .uuid()
+          .optional(),
         discount: z
           .object({
             id: z
@@ -302,12 +305,15 @@ invoiceRoute.put(
       );
 
       await req.models.InvoiceItem.bulkCreate(
-        items.map(item => ({
-          ...item,
-          productName: item.product.name,
-          productPrice: item.product.price,
-        })),
-        { conflictAttributes: ['id'], transaction },
+        items.map(item => {
+          const plain = item.get();
+          return {
+            ...plain,
+            productName: plain.product.name,
+            productPrice: plain.product.price,
+          };
+        }),
+        { updateOnDuplicate: ['id'], transaction },
       );
 
       const invoice = await req.models.Invoice.update(
