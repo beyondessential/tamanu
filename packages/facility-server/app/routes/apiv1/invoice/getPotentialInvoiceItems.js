@@ -8,6 +8,7 @@ import { QueryTypes } from 'sequelize';
  * and return the dummy potential invoice line items for the ones that have not been created yet.
  * @param {import('sequelize').Sequelize} db
  * @param {string} invoiceId
+ * @param {string[]} imagingTypes
  */
 export const getPotentialInvoiceItems = async (db, invoiceId, imagingTypes) => {
   const encounterId = await db
@@ -46,12 +47,11 @@ filtered_imagings as (
 		ir.requested_by_id as "orderedByUserId"
 	from imaging_requests ir
 	join (
-		SELECT
-        	key as id,
-			value->>'code' AS code,
-			value->>'label' AS label
-		FROM jsonb_each(:imagingTypes)
-	) as reference_data rd on rd.deleted_at is null and rd.id = ir.imaging_type
+		select
+			"unnest" as "id",
+			"unnest" as "code"
+		from unnest(array[:imagingTypes])
+	) as rd on rd.id = ir.imaging_type
 	where ir.deleted_at is null
 	and ir.encounter_id = :encounterId
 ),

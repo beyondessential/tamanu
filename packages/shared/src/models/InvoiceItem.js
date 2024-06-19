@@ -2,16 +2,16 @@ import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
 import { Model } from './Model';
+import { dateType } from './dateTimeTypes';
 
 export class InvoiceItem extends Model {
   static init({ primaryKey, ...options }) {
     super.init(
       {
         id: primaryKey,
-        orderDate: {
-          type: DataTypes.DATESTRING,
+        orderDate: dateType('date', {
           allowNull: false,
-        },
+        }),
         productId: {
           type: DataTypes.STRING,
           allowNull: true,

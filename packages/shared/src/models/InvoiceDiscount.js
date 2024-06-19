@@ -2,6 +2,7 @@ import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
 import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
+import { dateTimeType } from './dateTimeTypes';
 
 export class InvoiceDiscount extends Model {
   static init({ primaryKey, ...options }) {
@@ -17,10 +18,9 @@ export class InvoiceDiscount extends Model {
           type: DataTypes.BOOLEAN,
           allowNull: false,
         },
-        appliedTime: {
-          type: DataTypes.DATETIMESTRING,
+        appliedTime: dateTimeType('appliedTime', {
           allowNull: false,
-        },
+        }),
       },
       { syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL, ...options },
     );
