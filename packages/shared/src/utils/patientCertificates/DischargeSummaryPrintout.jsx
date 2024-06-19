@@ -1,4 +1,4 @@
-import { Document, Page, StyleSheet, Text, View } from '@react-pdf/renderer';
+import { Document, StyleSheet, View } from '@react-pdf/renderer';
 import React from 'react';
 import { CertificateHeader, styles } from './Layout';
 import { PatientDetailsWithAddress } from './printComponents/PatientDetailsWithAddress';
@@ -6,6 +6,9 @@ import { DIAGNOSIS_CERTAINTIES_TO_HIDE } from '@tamanu/constants';
 import { EncounterDetailsExtended } from './printComponents/EncounterDetailsExtended';
 import { P } from './Typography';
 import { LetterheadSection } from './LetterheadSection';
+import { withLanguageContext } from '../pdf/languageContext';
+import { Page } from '../pdf/Page';
+import { Text } from '../pdf/Text';
 
 const borderStyle = '1 solid black';
 const tableLabelWidth = 150;
@@ -199,7 +202,7 @@ const MedicationsTable = ({ medications }) => {
   );
 };
 
-export const DischargeSummaryPrintout = ({
+const DischargeSummaryPrintoutComponent = ({
   patientData,
   encounter,
   discharge,
@@ -294,3 +297,5 @@ export const DischargeSummaryPrintout = ({
     </Document>
   );
 };
+
+export const DischargeSummaryPrintout = withLanguageContext(DischargeSummaryPrintoutComponent);
