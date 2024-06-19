@@ -48,6 +48,9 @@ export const SURVEY_TYPES = {
   REFERRAL: 'referral',
   OBSOLETE: 'obsolete',
   VITALS: 'vitals',
+  SIMPLE_CHART: 'simpleChart',
+  COMPLEX_CHART: 'complexChart',
+  COMPLEX_CHART_CORE: 'complexChartCore',
 };
 
 const PDE_DATE_RECORDED = 'pde-PatientVitalsDate';
