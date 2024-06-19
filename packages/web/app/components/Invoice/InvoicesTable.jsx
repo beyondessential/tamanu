@@ -1,16 +1,22 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { INVOICE_PAYMENT_STATUS_LABELS } from '@tamanu/constants';
-import { Colors, ENCOUNTER_OPTIONS_BY_VALUE } from '../constants';
 
-import { DataFetchingTable } from './Table';
-import { DateDisplay } from './DateDisplay';
-import { TranslatedEnum, TranslatedText } from './Translation';
+import {
+  Colors,
+  ENCOUNTER_OPTIONS_BY_VALUE,
+  INVOICE_MODAL_TYPES,
+  INVOICE_PAYMENT_STATUS_LABELS,
+} from '../../constants';
+import { DataFetchingTable } from '../Table';
+import { DateDisplay } from '../DateDisplay';
+import { TranslatedEnum, TranslatedText } from '../Translation';
 import { Typography } from '@material-ui/core';
-import { ThemedTooltip } from './Tooltip';
+import { ThemedTooltip } from '../Tooltip';
 import { upperCase } from 'lodash';
 import { InvoiceStatus } from './InvoiceStatus';
-import { EditInvoiceModal } from './EditInvoiceModal';
+import { InvoiceModalGroup } from './InvoiceModalGroup';
+import { getInvoiceSummary } from '@tamanu/shared/utils/invoice';
 
 const TableTitle = styled(Typography)`
   font-size: 16px;
@@ -33,7 +39,7 @@ const Table = styled(DataFetchingTable)`
     padding-top: 6px !important;
     padding-bottom: 6px !important;
   }
-  .MuiTableBody-root .MuiTableRow-root {
+  .MuiTableBody-root .MuiTableRow-root:not(.statusRow) {
     cursor: pointer;
     &:hover {
       background-color: ${Colors.veryLightBlue};
@@ -41,12 +47,11 @@ const Table = styled(DataFetchingTable)`
   }
 `;
 
-const InvoiceTotal = () => {
-  return `$0`;
-};
-
 const getDate = ({ date }) => <DateDisplay date={date} />;
-const getInvoiceTotal = row => <InvoiceTotal row={row} />;
+const getInvoiceTotal = row => {
+  const { patientTotal } = getInvoiceSummary(row);
+  return patientTotal === undefined ? '-' : `$${patientTotal}`;
+};
 const getPaymentStatus = row => (
   <TranslatedEnum
     prefix="invoice.payment.property.status"
@@ -111,7 +116,7 @@ const COLUMNS = [
   },
 ];
 
-export const InvoicesTable = React.memo(({ patient }) => {
+export const InvoicesTable = ({ patient }) => {
   const [selectedInvoice, setSelectedInvoice] = useState();
 
   return (
@@ -131,13 +136,13 @@ export const InvoicesTable = React.memo(({ patient }) => {
         onClickRow={(_, data) => setSelectedInvoice(data)}
       />
       {!!selectedInvoice && (
-        <EditInvoiceModal
-          open
-          onClose={() => setSelectedInvoice(undefined)}
-          invoice={selectedInvoice}
-          afterSaveInvoice={selectedInvoice.refreshTable}
+        <InvoiceModalGroup
+          initialState={{
+            type: INVOICE_MODAL_TYPES.EDIT_INVOICE,
+            invoice: selectedInvoice,
+          }}
         />
       )}
     </>
   );
-});
+};

@@ -25,6 +25,12 @@ export async function up(query) {
       type: DataTypes.DECIMAL,
       allowNull: false,
     },
+    undiscountable: {
+      // only apply for invoice discount, not item discount
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+    },
     created_at: {
       type: DataTypes.DATE,
       defaultValue: Sequelize.fn('now'),
@@ -277,6 +283,7 @@ export async function up(query) {
         model: 'invoice_items',
         key: 'id',
       },
+      unique: true,
     },
     percentage: {
       type: DataTypes.DECIMAL,

@@ -15,6 +15,11 @@ export class InvoiceProduct extends Model {
           type: DataTypes.DECIMAL,
           allowNull: false,
         },
+        undiscountable: {
+          type: DataTypes.BOOLEAN,
+          allowNull: false,
+          defaultValue: false,
+        },
         type: {
           type: DataTypes.VIRTUAL,
           get() {
