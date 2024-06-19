@@ -75,7 +75,7 @@ function validateComplexChartCoreConfig(programDataElementRecord, surveyScreenCo
   ];
 
   if (complexCoreTypes.includes(type) === false) {
-    throw new Error('invalid question type');
+    throw new Error('Invalid question type');
   }
 
   if (visibilityStatus !== VISIBILITY_STATUSES.CURRENT) {

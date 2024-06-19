@@ -713,10 +713,10 @@ describe('Programs import', () => {
         });
 
         const errorMessages = [
-          "sheetName: Core, code: 'testchartcorecode0', invalid question type",
-          "sheetName: Core, code: 'testchartcorecode1', invalid question type",
-          "sheetName: Core, code: 'testchartcorecode2', invalid question type",
-          "sheetName: Core, code: 'testchartcorecode3', invalid question type",
+          "sheetName: Core, code: 'testchartcorecode0', Invalid question type",
+          "sheetName: Core, code: 'testchartcorecode1', Invalid question type",
+          "sheetName: Core, code: 'testchartcorecode2', Invalid question type",
+          "sheetName: Core, code: 'testchartcorecode3', Invalid question type",
         ];
 
         errors.forEach((error, i) => {
