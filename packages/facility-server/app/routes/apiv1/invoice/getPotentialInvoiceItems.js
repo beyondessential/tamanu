@@ -11,7 +11,7 @@ import { QueryTypes } from 'sequelize';
  */
 export const getPotentialInvoiceItems = async (db, invoiceId, imagingTypes) => {
   const encounterId = await db
-    .query(`SELECT i."encounterId" from invoices i where i.id = :invoiceId`, {
+    .query(`SELECT i."encounter_id" as "encounterId" from invoices i where i.id = :invoiceId`, {
       replacements: {
         invoiceId,
       },
