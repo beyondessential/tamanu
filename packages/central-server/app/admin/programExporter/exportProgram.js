@@ -34,12 +34,16 @@ export async function exportProgram(context, programId) {
       ['country', country],
       ['homeServer', country ? 'true' : ''],
       [],
-      ['code', 'name', 'surveyType', 'isSensitive'],
+      ['code', 'name', 'surveyType', 'targetLocationId', 'targetDepartmentId', 'status', 'isSensitive', 'visibilityStatus'],
       ...surveys.map(survey => [
         survey.code,
         survey.name.replace(`(${country}) `, ''),
         survey.surveyType,
+        '',
+        '',
+        'publish',
         survey.isSensitive,
+        survey.visibilityStatus
       ]),
     ],
   };
@@ -58,6 +62,7 @@ export async function exportProgram(context, programId) {
           ssc.validation_criteria,
           ssc.calculation,
           ssc.config,
+          ssc.visibility_status,
           pde.code,
           pde.type,
           pde.name,
@@ -85,6 +90,7 @@ export async function exportProgram(context, programId) {
             'newScreen',
             'options',
             'optionLabels',
+            'optionColors',
             'visibilityCriteria',
             'validationCriteria',
             'optionSet',
@@ -92,6 +98,7 @@ export async function exportProgram(context, programId) {
             'detailLabel',
             'calculation',
             'config',
+            'visibilityStatus'
           ],
           ...surveyRecords.map(it => [
             it.code,
@@ -102,6 +109,7 @@ export async function exportProgram(context, programId) {
             '',
             it.options,
             '',
+            '',
             it.visibility_criteria,
             it.validation_criteria,
             '',
@@ -109,6 +117,7 @@ export async function exportProgram(context, programId) {
             '',
             it.calculation,
             it.config,
+            it.visibility_status
           ]),
         ],
       });
