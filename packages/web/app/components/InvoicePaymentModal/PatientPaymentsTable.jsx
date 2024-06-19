@@ -1,6 +1,8 @@
 import React, { useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { customAlphabet } from 'nanoid';
+import * as yup from 'yup';
+
 import CachedIcon from '@material-ui/icons/Cached';
 import { Box } from '@material-ui/core';
 import { TranslatedText } from '../Translation';
@@ -26,10 +28,11 @@ const TableContainer = styled.div`
 `;
 
 const IconButton = styled.div`
-  align-self: center;
   cursor: pointer;
-  margin-left: 5px;
   color: ${Colors.primary};
+  position: absolute;
+  top: 6px;
+  right: -30px;
 `;
 
 const FormRow = styled.div`
@@ -161,7 +164,7 @@ export const PatientPaymentsTable = ({
                 style={{ gridColumn: 'span 2' }}
               />
             </Box>
-            <Box sx={{ width: 'calc(25% - 5px)', display: 'flex' }}>
+            <Box sx={{ width: 'calc(20% - 5px)', position: 'relative' }}>
               {/* TODO: make this a Select field */}
               <Field
                 name='receiptNumber'
@@ -182,6 +185,24 @@ export const PatientPaymentsTable = ({
             </Box>
           </FormRow>
         )}
+        validationSchema={yup.object().shape({
+          date: yup
+            .string()
+            .required()
+            .translatedLabel(<TranslatedText stringId="general.date.label" fallback="date" />),
+          method: yup
+            .string()
+            .required()
+            .translatedLabel(<TranslatedText stringId="invoice.table.payment.column.method" fallback="Method" />),
+          amount: yup
+            .string()
+            .required()
+            .translatedLabel(<TranslatedText stringId="invoice.table.payment.column.amount" fallback="Amount" />),
+          receiptNumber: yup
+            .string()
+            .required()
+            .translatedLabel(<TranslatedText stringId="invoice.table.payment.column.receiptNumber" fallback="Receipt number" />),
+        })}
       />
     </TableContainer >
   );
