@@ -1,12 +1,18 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
+import {
+  getInvoiceItemDiscountPriceDisplay,
+  getInvoiceItemPriceDisplay,
+  getInvoiceItemName,
+  getInvoiceItemCode,
+} from '@tamanu/shared/utils/invoice';
 
 import { Colors, denseTableStyle } from '../../constants';
 import { DataFetchingTable } from '../Table';
 import { DateDisplay } from '../DateDisplay';
 import { TranslatedText } from '../Translation';
-import { getInvoiceItemDiscountPrice } from '@tamanu/shared/utils/invoice';
+import { ThemedTooltip } from '../Tooltip';
 
 const StyledTitleCell = ({ value }) => (
   <Box sx={{ color: Colors.midText, fontWeight: 400 }}>{value}</Box>
@@ -22,15 +28,17 @@ const PriceText = styled.span`
 `;
 
 const getPrice = row => {
-  const price = row?.productPrice ?? row.product?.price;
-  const originalPrice = parseFloat(price).toFixed(2);
-  const discountPercentage = row.discount?.percentage;
-  const finalPrice = getInvoiceItemDiscountPrice(price, discountPercentage);
+  const price = getInvoiceItemPriceDisplay(row);
+  const discountPrice = getInvoiceItemDiscountPriceDisplay(row);
 
   return (
     <PriceCell>
-      <PriceText isCrossedOut={!!discountPercentage}>{originalPrice}</PriceText>
-      {!!discountPercentage && <span>{finalPrice}</span>}
+      <PriceText isCrossedOut={!!discountPrice}>{price}</PriceText>
+      {!!discountPrice && (
+        <ThemedTooltip title={row.discount?.reason} open={row.discount?.reason ? undefined : false}>
+          <span>{discountPrice}</span>
+        </ThemedTooltip>
+      )}
     </PriceCell>
   );
 };
@@ -47,14 +55,14 @@ const INVOICE_LINE_COLUMNS = [
     key: 'details',
     title: <TranslatedText stringId="invoice.table.column.details" fallback="Details" />,
     sortable: false,
-    accessor: ({ productName, product }) => productName ?? product.name,
+    accessor: getInvoiceItemName,
     TitleCellComponent: StyledTitleCell,
   },
   {
     key: 'code',
     title: <TranslatedText stringId="invoice.table.column.code" fallback="Code" />,
     sortable: false,
-    accessor: ({ product }) => product?.referenceData?.code,
+    accessor: getInvoiceItemCode,
     TitleCellComponent: StyledTitleCell,
   },
   {

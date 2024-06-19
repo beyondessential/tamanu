@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { INVOICE_PAYMENT_STATUS_LABELS } from '@tamanu/constants';
 
@@ -17,6 +17,7 @@ import { upperCase } from 'lodash';
 import { InvoiceStatus } from './InvoiceStatus';
 import { InvoiceModalGroup } from './InvoiceModalGroup';
 import { getInvoiceSummary } from '@tamanu/shared/utils/invoice';
+import { useEncounterInvoice } from '../../api/queries/useInvoiceQuery';
 
 const TableTitle = styled(Typography)`
   font-size: 16px;
@@ -117,7 +118,17 @@ const COLUMNS = [
 ];
 
 export const InvoicesTable = ({ patient }) => {
+  const [openInvoiceModal, setOpenInvoiceModal] = useState();
   const [selectedInvoice, setSelectedInvoice] = useState();
+  const [refreshTable, setRefreshTable] = useState(0);
+
+  const { data: invoice } = useEncounterInvoice(selectedInvoice?.encounterId);
+
+  useEffect(() => {
+    if (invoice) {
+      setRefreshTable(prev => prev + 1);
+    }
+  }, [invoice]);
 
   return (
     <>
@@ -133,16 +144,18 @@ export const InvoicesTable = ({ patient }) => {
             <TranslatedText stringId="patient.invoice.table.title" fallback="Patient invoices" />
           </TableTitle>
         }
-        onClickRow={(_, data) => setSelectedInvoice(data)}
+        onClickRow={(_, data) => {
+          setSelectedInvoice(data);
+          setOpenInvoiceModal(INVOICE_MODAL_TYPES.EDIT_INVOICE);
+        }}
+        refreshCount={refreshTable}
       />
-      {!!selectedInvoice && (
-        <InvoiceModalGroup
-          initialState={{
-            type: INVOICE_MODAL_TYPES.EDIT_INVOICE,
-            invoice: selectedInvoice,
-          }}
-        />
-      )}
+      <InvoiceModalGroup
+        initialModalType={openInvoiceModal}
+        initialInvoice={invoice}
+        onClose={() => setOpenInvoiceModal()}
+        isPatientView
+      />
     </>
   );
 };

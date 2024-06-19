@@ -54,7 +54,7 @@ export const EncounterInvoicingPane = ({ encounter }) => {
 
   const { data: invoice } = useEncounterInvoice(encounter.id);
 
-  const handleOpenInvoiceModal = type => setOpenInvoiceModal({ type, invoice });
+  const handleOpenInvoiceModal = type => setOpenInvoiceModal(type);
 
   return (
     <>
@@ -101,7 +101,12 @@ export const EncounterInvoicingPane = ({ encounter }) => {
           </Button>
         </EmptyPane>
       )}
-      <InvoiceModalGroup initialState={openInvoiceModal} encounterId={encounter.id} />
+      <InvoiceModalGroup
+        initialModalType={openInvoiceModal}
+        initialInvoice={invoice}
+        encounterId={encounter.id}
+        onClose={() => setOpenInvoiceModal()}
+      />
     </>
   );
 };
