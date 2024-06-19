@@ -181,7 +181,7 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
                     }
                     placeholder={getTranslation('general.placeholder.select', 'Select')}
                     component={MultiselectField}
-                    options={conditions.map(condition => ({
+                    options={conditions?.map(condition => ({
                       label: (
                         <TranslatedReferenceData
                           fallback={condition.name}
