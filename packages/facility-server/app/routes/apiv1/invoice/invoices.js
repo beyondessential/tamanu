@@ -144,6 +144,7 @@ const updateInvoiceSchema = z
         orderedByUserId: z.string().uuid(),
         productId: z.string(),
         quantity: z.coerce.number().default(0),
+        sourceId: z.string().uuid(),
         discount: z
           .object({
             id: z
@@ -165,9 +166,9 @@ const updateInvoiceSchema = z
   .strip();
 
 invoiceRoute.put(
-  '/:id',
+  '/:id/',
   asyncHandler(async (req, res) => {
-    req.checkPermission('write', 'Invoice');
+    req.checkPermission('create', 'Invoice');
 
     const invoiceId = req.params.id;
 
@@ -199,7 +200,7 @@ invoiceRoute.put(
             appliedByUserId: req.user.id,
             appliedTime: getCurrentCountryTimeZoneDateTimeString(),
           },
-          { onConflict: { conflictFields: ['id', 'invoiceId'] }, transaction },
+          { transaction },
         );
       }
 
@@ -209,10 +210,9 @@ invoiceRoute.put(
         { transaction },
       );
       //update or create insurers
-      await req.models.InvoiceInsurer.bulkCreate(
-        data.insurers.map(insurer => ({ ...insurer, invoiceId })),
-        { transaction, conflictAttributes: ['id'] },
-      );
+      for (const insurer of data.insurers) {
+        await req.models.InvoiceInsurer.upsert({ ...insurer, invoiceId }, { transaction });
+      }
 
       //remove any existing item if item ids are not matching
       await req.models.InvoiceItem.destroy(
@@ -221,14 +221,12 @@ invoiceRoute.put(
       );
 
       for (const item of data.items) {
+        const { discount: itemDiscount, ...itemData } = item;
         //update or create item
-        await req.models.InvoiceItem.upsert(
-          { ...item, invoiceId, deletedAt: null, orderedByUserId: req.user?.id },
-          { onConflict: { conflictFields: ['id', 'invoiceId'] }, transaction },
-        );
+        await req.models.InvoiceItem.upsert({ ...itemData, invoiceId }, { transaction });
 
         //remove any existing discount if discount info is not provided
-        if (!item.discount) {
+        if (!itemDiscount) {
           await req.models.InvoiceItemDiscount.destroy(
             { where: { invoiceItemId: item.id } },
             { transaction },
@@ -239,15 +237,15 @@ invoiceRoute.put(
             {
               where: {
                 invoiceItemId: item.id,
-                id: { [Op.ne]: item.discount.id },
+                id: { [Op.ne]: itemDiscount.id },
               },
             },
             { transaction },
           );
           //update or create discount
           await req.models.InvoiceItemDiscount.upsert(
-            { ...item.discount, invoiceItemId: item.id },
-            { onConflict: { conflictFields: ['id', 'invoiceItemId'] }, transaction },
+            { ...itemDiscount, invoiceItemId: item.id },
+            { transaction },
           );
         }
       }

@@ -75,7 +75,6 @@ export async function up(query) {
       allowNull: true,
     },
     encounter_id: {
-      unique: true,
       type: DataTypes.STRING,
       allowNull: false,
       references: {
@@ -244,13 +243,9 @@ export async function up(query) {
       },
     },
 
-    sourceId: {
+    source_id: {
       type: DataTypes.UUID,
-      allowNull: false,
-    },
-    sourceType: {
-      type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: true,
     },
 
     created_at: {
@@ -283,7 +278,6 @@ export async function up(query) {
         model: 'invoice_items',
         key: 'id',
       },
-      unique: true,
     },
     percentage: {
       type: DataTypes.DECIMAL,
