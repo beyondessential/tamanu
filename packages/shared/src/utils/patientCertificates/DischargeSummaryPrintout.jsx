@@ -223,11 +223,11 @@ const DischargeSummaryPrintoutComponent = ({
   const { facilityName, facilityAddress, facilityTown } = discharge;
 
   // change header if facility details are present in discharge
-  if (facilityName && facilityAddress && certificateData?.title && certificateData?.subTitle) {
+  if (facilityName && facilityAddress && certificateData?.title) {
     certificateData = {
       ...certificateData,
       title: facilityName,
-    subTitle: facilityTown ? `${facilityAddress}, ${facilityTown}` : facilityAddress
+      subTitle: facilityTown ? `${facilityAddress}, ${facilityTown}` : facilityAddress,
     };
   }
 
