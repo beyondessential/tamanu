@@ -28,7 +28,11 @@ export const getInvoiceItemDiscountPriceDisplay = invoiceItem => {
 };
 
 const calculateDiscountableItemsTotal = invoiceItems => {
-  if (!invoiceItems?.length) return undefined;
+  if (
+    !invoiceItems?.filter(item => !!(item.productPrice ?? item.product?.price ?? item.price))
+      ?.length
+  )
+    return undefined;
   let total = 0;
   invoiceItems.forEach(item => {
     const price = item.productPrice ?? item.product?.price ?? item.price;
@@ -49,7 +53,7 @@ const calculateInsurerPayments = (insurers, total) => {
 
 export const getInsurerPaymentsDisplay = (insurers, total) => {
   const payments = calculateInsurerPayments(insurers, total);
-  return payments.map(payment => payment?.toFixed(2));
+  return payments.map(payment => (isNaN(payment) ? undefined : payment?.toFixed(2)));
 };
 
 export const getInvoiceSummary = invoice => {
