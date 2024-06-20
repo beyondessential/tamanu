@@ -230,7 +230,6 @@ const DischargeSummaryPrintoutComponent = ({
       subTitle: facilityTown ? `${facilityAddress}, ${facilityTown}` : facilityAddress,
     };
   }
-  // test
 
   return (
     <Document>
