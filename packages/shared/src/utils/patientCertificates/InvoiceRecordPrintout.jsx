@@ -164,7 +164,7 @@ const getPrice = item => {
 
   return (
     <>
-      <P style={!!discountPrice ? priceCellStyles.crossOutText : undefined}>{price}</P>
+      <P style={discountPrice ? priceCellStyles.crossOutText : undefined}>{price}</P>
       {!!discountPrice && <P>{discountPrice}</P>}
     </>
   );
