@@ -68,6 +68,9 @@ labRequest.put(
         });
       }
 
+      if (labRequestData.specimenTypeId !== undefined) {
+        labRequestData.specimenAttached = !!labRequestData.specimenTypeId;
+      }
       await labRequestRecord.update(labRequestData);
     });
 
@@ -177,7 +180,7 @@ labRequest.get(
 
     const { whereClauses, filterReplacements } = getWhereClausesAndReplacementsFromFilters(
       filters,
-      {},
+      filterParams,
     );
 
     const from = `
@@ -253,6 +256,7 @@ labRequest.get(
           priority.id AS priority_id,
           priority.name AS priority_name,
           lab_test_panel.name as lab_test_panel_name,
+          lab_test_panel.id as lab_test_panel_id,
           laboratory.id AS laboratory_id,
           laboratory.name AS laboratory_name,
           location.facility_id AS facility_id
@@ -506,7 +510,7 @@ async function createLabRequest(
   const labRequestData = {
     ...labRequestBody,
     ...requestSampleDetails,
-    specimenAttached: requestSampleDetails.specimenTypeId ? 'yes' : 'no',
+    specimenAttached: !!requestSampleDetails.specimenTypeId,
     status: requestSampleDetails.sampleTime
       ? LAB_REQUEST_STATUSES.RECEPTION_PENDING
       : LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED,

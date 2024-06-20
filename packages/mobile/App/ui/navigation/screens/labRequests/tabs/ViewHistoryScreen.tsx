@@ -17,6 +17,7 @@ import { formatDate } from '/helpers/date';
 import { DateFormats } from '~/ui/helpers/constants';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { getSyncTick, LAST_SUCCESSFUL_PUSH } from '~/services/sync';
+import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 
 const SyncStatusIndicator = ({ synced }): JSX.Element => (
   <StyledView flexDirection="row">
@@ -24,7 +25,11 @@ const SyncStatusIndicator = ({ synced }): JSX.Element => (
       <Circle fill={synced ? 'green' : 'red'} r={5} cx={10} cy={10} />
     </Svg>
     <StyledText color={theme.colors.TEXT_DARK} fontSize={13}>
-      {synced ? 'Synced' : 'Syncing'}
+      {synced ? (
+        <TranslatedText stringId="general.synced.label" fallback="Synced" />
+      ) : (
+        <TranslatedText stringId="general.syncing.label" fallback="Syncing" />
+      )}
     </StyledText>
   </StyledView>
 );

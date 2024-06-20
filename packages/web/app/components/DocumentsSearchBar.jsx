@@ -66,7 +66,7 @@ export const DocumentsSearchBar = ({ setSearchParameters }) => {
           <CustomFormGrid columns={5}>
             <Field
               name="type"
-              label="Type"
+              label={<TranslatedText stringId="document.type.label" fallback="Type" />}
               component={DynamicSelectField}
               options={DOCUMENT_TYPE_OPTIONS}
               size="small"

@@ -1,7 +1,6 @@
 import React, { ReactElement, useCallback, useRef } from 'react';
 import { StyledView } from '/styled/common';
 import { Form } from '../Form';
-import { FormScreenView } from '/components/Forms/FormScreenView';
 import { PatientAdditionalDataFields } from './PatientAdditionalDataFields';
 import {
   getInitialAdditionalValues,
@@ -10,18 +9,19 @@ import {
 } from './helpers';
 import { PatientAdditionalData } from '~/models/PatientAdditionalData';
 import { PatientFieldValue } from '~/models/PatientFieldValue';
+import { Patient } from '~/models/Patient';
 import { Routes } from '~/ui/helpers/routes';
-import { additionalDataSections } from '~/ui/helpers/additionalData';
 import { SubmitButton } from '../SubmitButton';
 import { TranslatedText } from '/components/Translations/TranslatedText';
+import { FormScreenView } from '../FormScreenView';
+import { PatientFieldDefinition } from '~/models/PatientFieldDefinition';
 
 export const PatientAdditionalDataForm = ({
-  patientId,
+  patient,
   additionalData,
+  additionalDataSections,
   navigation,
   sectionTitle,
-  isCustomFields,
-  customSectionFields,
   customPatientFieldValues,
 }): ReactElement => {
   const scrollViewRef = useRef();
@@ -29,57 +29,60 @@ export const PatientAdditionalDataForm = ({
   // patient for sync (see beforeInsert and beforeUpdate decorators).
   const onCreateOrEditAdditionalData = useCallback(
     async values => {
-      if (isCustomFields) {
-        await Promise.all(
-          Object.keys(values || {}).map(definitionId =>
-            PatientFieldValue.updateOrCreateForPatientAndDefinition(
-              patientId,
-              definitionId,
-              values[definitionId],
-            ),
+      const customPatientFieldDefinitions = await PatientFieldDefinition.findVisible({
+        relations: ['category'],
+        order: {
+          // Nested ordering only works with typeorm version > 0.3.0
+          // category: { name: 'DESC' },
+          name: 'DESC',
+        },
+      });
+
+      await Patient.updateValues(patient.id, values);
+
+      await PatientAdditionalData.updateForPatient(patient.id, values);
+
+      // Update any custom field definitions contained in this form
+      const customValuesToUpdate = Object.keys(values).filter(key =>
+        customPatientFieldDefinitions.map(({ id }) => id).includes(key),
+      );
+      await Promise.all(
+        customValuesToUpdate.map(definitionId =>
+          PatientFieldValue.updateOrCreateForPatientAndDefinition(
+            patient.id,
+            definitionId,
+            values[definitionId],
           ),
-        );
-      } else {
-        await PatientAdditionalData.updateForPatient(patientId, values);
-      }
+        ),
+      );
+
       // Navigate back to patient details
       navigation.navigate(Routes.HomeStack.PatientDetailsStack.Index);
     },
-    [navigation, isCustomFields],
+    [navigation, patient.id],
   );
 
-  // Get the actual additional data section object
-  const section = isCustomFields
-    ? {
-        fields: customSectionFields.map(({ id, name, fieldType, options }) => ({
-          id,
-          name,
-          fieldType,
-          options,
-        })),
-      }
-    : additionalDataSections.find(({ title }) => title === sectionTitle);
-  const { fields } = section;
+  // Get the field group for this section of the additional data template
+  const { fields } = additionalDataSections.find(({ title }) => title === sectionTitle);
 
   return (
     <Form
-      initialValues={
-        isCustomFields
-          ? getInitialCustomValues(customPatientFieldValues, fields)
-          : getInitialAdditionalValues(additionalData, fields)
-      }
+      initialValues={{
+        ...getInitialAdditionalValues(additionalData, fields),
+        ...getInitialCustomValues(customPatientFieldValues, fields),
+        ...patient
+      }}
       validationSchema={patientAdditionalDataValidationSchema}
       onSubmit={onCreateOrEditAdditionalData}
     >
       {(): ReactElement => (
         <FormScreenView scrollViewRef={scrollViewRef}>
           <StyledView justifyContent="space-between">
-            <PatientAdditionalDataFields
-              fields={fields}
-              isCustomFields={isCustomFields}
-              showMandatory={false}
+            <PatientAdditionalDataFields fields={fields} showMandatory={false} />
+            <SubmitButton
+              buttonText={<TranslatedText stringId="general.action.save" fallback="Save" />}
+              marginTop={10}
             />
-            <SubmitButton buttonText={<TranslatedText stringId="general.action.save" fallback="Save" />} marginTop={10} />
           </StyledView>
         </FormScreenView>
       )}

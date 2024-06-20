@@ -20,7 +20,7 @@ import { InvoicePriceChangeItemModal } from './InvoicePriceChangeItemModal';
 import { ConfirmModal } from './ConfirmModal';
 import { DropdownButton } from './DropdownButton';
 import { DateDisplay } from './DateDisplay';
-import { TranslatedEnum, TranslatedText } from './Translation';
+import { TranslatedText, TranslatedReferenceData, TranslatedEnum } from './Translation';
 
 const InvoiceLineDetail = styled.p`
   font-size: 15px;
@@ -205,7 +205,11 @@ const getInvoicePriceChangeCategory = row => {
   let name = null;
   let category = null;
   if (row.invoicePriceChangeType) {
-    name = row.invoicePriceChangeType.name;
+    name = <TranslatedReferenceData
+      fallback={row.invoicePriceChangeType.name}
+      value={row.invoicePriceChangeType.id}
+      category="invoicePriceChangeType"
+    />;
     const { itemType } = row.invoicePriceChangeType;
     category = (
       <TranslatedEnum

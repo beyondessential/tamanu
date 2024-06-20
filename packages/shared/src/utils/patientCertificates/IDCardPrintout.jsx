@@ -1,7 +1,10 @@
 import React from 'react';
-import { Document, Image, Page, StyleSheet, View, Text } from '@react-pdf/renderer';
+import { Document, Image, StyleSheet, View } from '@react-pdf/renderer';
 import { getDOB, getSex } from '../patientAccessors';
 import JsBarcode from 'jsbarcode';
+import { withLanguageContext } from '../pdf/languageContext';
+import { Page } from '../pdf/Page';
+import { Text } from '../pdf/Text';
 
 const CustomBarcode = ({ id, width, height }) => {
   // eslint-disable-next-line no-undef
@@ -99,7 +102,7 @@ const PatientPhoto = ({ patientImageData }) => {
   );
 };
 
-export const IDCardPrintout = ({
+const IDCardPrintoutComponent = ({
   patient,
   patientImageData,
   cardDimensions,
@@ -157,3 +160,5 @@ export const IDCardPrintout = ({
     </Document>
   );
 };
+
+export const IDCardPrintout = withLanguageContext(IDCardPrintoutComponent);

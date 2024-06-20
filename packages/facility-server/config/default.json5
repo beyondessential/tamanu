@@ -104,6 +104,12 @@
     "medicationDiscontinuer": {
       // every day at 12:01 AM
       "schedule": "1 0 * * *"
+    },
+    "refreshMaterializedView": {
+      "upcomingVaccinations": {
+        // every 10 mins
+        "schedule": "*/10 * * * *"
+      },
     }
   },
   // Note: this config should be duplicated on the central server if the same behavior is

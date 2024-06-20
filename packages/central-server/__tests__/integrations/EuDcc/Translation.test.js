@@ -71,7 +71,7 @@ describe('EU DCC: Vaccination', () => {
     const scheduledVax = await ScheduledVaccine.create({
       ...fake(ScheduledVaccine),
       label: 'COVID-19 AZ',
-      schedule: 'Dose 1',
+      doseLabel: 'Dose 1',
       vaccineId: data.vaxDrug.id,
     });
 
