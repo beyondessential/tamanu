@@ -66,12 +66,15 @@ export class InvoiceProduct extends Model {
 
   static sanitizeForFacilityServer(product) {
     //remove virtual fields for sync
-    const { type: _type, code: _code, ...rest } = product;
-    return rest;
+    delete product.type;
+    delete product.code;
+    return product;
   }
   static sanitizeForCentralServer(product) {
     //remove virtual fields for sync
     const { type: _type, code: _code, ...rest } = product;
-    return rest;
+    delete product.type;
+    delete product.code;
+    return product;
   }
 }
