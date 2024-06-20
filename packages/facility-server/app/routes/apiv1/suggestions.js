@@ -71,8 +71,6 @@ function createSuggesterRoute(
         : [];
       const suggestedIds = translations.map(extractDataId);
 
-      console.log('query.filterByFacility ', query.filterByFacility);
-
       const where = {
         [Op.or]: [
           whereBuilder(`%${searchQuery}%`, query),
