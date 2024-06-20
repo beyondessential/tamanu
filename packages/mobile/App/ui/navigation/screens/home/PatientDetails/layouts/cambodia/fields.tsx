@@ -97,7 +97,13 @@ export const CAMBODIA_ADDITIONAL_DATA_SECTIONS_FOR_DISPLAY = [
         fallback="Current address"
       />
     ),
-    fields: ['divisionId', 'subdivisionId', 'settlementId', 'villageId'],
+    fields: [
+      'divisionId',
+      'subdivisionId',
+      'settlementId',
+      'villageId',
+      ADDITIONAL_DATA_FIELDS.STREET_VILLAGE,
+    ],
   },
   {
     sectionKey: 'permanentAddress',

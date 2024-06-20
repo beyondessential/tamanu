@@ -1,4 +1,5 @@
 import React, { ReactElement, useCallback, useRef } from 'react';
+import { keyBy } from 'lodash';
 import { StyledView } from '/styled/common';
 import { Form } from '../Form';
 import { PatientAdditionalDataFields } from './PatientAdditionalDataFields';
@@ -15,6 +16,34 @@ import { SubmitButton } from '../SubmitButton';
 import { TranslatedText } from '/components/Translations/TranslatedText';
 import { FormScreenView } from '../FormScreenView';
 import { PatientFieldDefinition } from '~/models/PatientFieldDefinition';
+import { useBackendEffect } from '~/ui/hooks';
+
+const useLocationInitialValues = (data, fields) => {
+  const [hierarchy, error, loading] = useBackendEffect(async ({ models }) => {
+    const entity = await models.ReferenceData.getNode({
+      id: data.secondaryVillageId,
+    });
+    const ancestors = await entity?.getAncestors();
+    return [...ancestors, entity];
+  });
+  if (!data) {
+    return {};
+  }
+
+  const hierarchyByType = keyBy(hierarchy, 'type');
+
+  const values = {};
+  fields.forEach(field => {
+    if (field === 'cambodiaSecondaryVillageId') {
+      values['secondaryVillageId'] = data.secondaryVillageId;
+      values['secondaryDivisionId'] = hierarchyByType['division']?.id;
+      values['secondarySubdivisionId'] = hierarchyByType['subdivision']?.id;
+      values['secondarySettlementId'] = hierarchyByType['settlement']?.id;
+    }
+  });
+
+  return [values, error, loading];
+};
 
 export const PatientAdditionalDataForm = ({
   patient,
@@ -64,12 +93,23 @@ export const PatientAdditionalDataForm = ({
 
   // Get the field group for this section of the additional data template
   const { fields } = additionalDataSections.find(({ sectionKey: key }) => key === sectionKey);
+  const [locationInitialValues, error, loading] = useLocationInitialValues(additionalData, fields);
+  const initialAdditionalData = getInitialAdditionalValues(additionalData, fields);
+  const initialCustomValues = getInitialCustomValues(customPatientFieldValues, fields);
+
+  if (loading) {
+    return (
+      <StyledView justifyContent="center">
+        <TranslatedText stringId="general.loading" fallback="Loading..." />
+      </StyledView>
+    );
+  }
 
   return (
     <Form
       initialValues={{
-        ...getInitialAdditionalValues(additionalData, fields),
-        ...getInitialCustomValues(customPatientFieldValues, fields),
+        ...initialAdditionalData,
+        ...initialCustomValues,
         ...patient,
       }}
       validationSchema={patientAdditionalDataValidationSchema}

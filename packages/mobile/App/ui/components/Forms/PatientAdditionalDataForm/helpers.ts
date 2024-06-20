@@ -10,7 +10,6 @@ import {
   titleOptions,
 } from '~/ui/helpers/additionalData';
 import { yupAttemptTransformToNumber } from '~/ui/helpers/numeralTranslation';
-import { isObject, isString } from 'lodash';
 
 // All PatientAdditionalData plain fields sorted alphabetically
 export const plainFields = [
@@ -185,16 +184,6 @@ export const getInitialCustomValues = (data, fields): {} => {
 export const getInitialAdditionalValues = (data, fields): {} => {
   if (!data) {
     return {};
-  } else {
-    return data;
   }
-  // const values = {};
-  // fields.forEach(field => {
-  //   if (isString(data[field])) values[field] = data[field];
-  //   if (isObject(field)) {
-  //     console.log('is object', field);
-  //     values[field.name] = data[field.name];
-  //   }
-  // });
-  // return values;
+  return data;
 };
