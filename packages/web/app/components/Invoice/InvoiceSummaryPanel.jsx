@@ -105,7 +105,13 @@ const InsurersEditable = ({ insurerPaymentsDisplay }) => {
           <CardItem flexDirection="column">
             <TranslatedText stringId="invoice.summary.insurer.label" fallback="Insurer" />
             {insurers?.map((insurer, index) => (
-              <Box key={insurer?.id} display="flex" justifyContent="space-between" width="100%" position="relative">
+              <Box
+                key={insurer?.id}
+                display="flex"
+                justifyContent="space-between"
+                width="100%"
+                position="relative"
+              >
                 <Box display="flex" style={{ gap: '8px' }}>
                   <Field
                     name={`insurers.${index}.insurerId`}
@@ -170,7 +176,9 @@ const InsurersView = ({ insurers, insurerPaymentsDisplay }) => {
           <DiscountedPrice>
             <span>{insurer.percentage * 100}%</span>
             <BodyText color={Colors.darkestText}>
-              {insurerPaymentsDisplay[index] ? `-${insurerPaymentsDisplay[index]}` : '-'}
+              {typeof insurerPaymentsDisplay[index] === 'string'
+                ? `-${insurerPaymentsDisplay[index]}`
+                : '-'}
             </BodyText>
           </DiscountedPrice>
         </Box>
@@ -258,7 +266,7 @@ export const InvoiceSummaryPanel = ({ invoice, editable, handleEditDiscount }) =
           <DiscountedPrice>
             <span>{invoice.discount.percentage * 100}%</span>
             <BodyText sx={{ fontWeight: 400 }} color={Colors.darkestText}>
-              {discountTotal ? `-${discountTotal}` : '-'}
+              {typeof discountTotal === 'string' ? `-${discountTotal}` : '-'}
             </BodyText>
           </DiscountedPrice>
         )}
