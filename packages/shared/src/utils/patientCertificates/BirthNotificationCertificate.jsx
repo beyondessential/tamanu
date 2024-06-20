@@ -1,5 +1,5 @@
 import React from 'react';
-import { Document, Page, StyleSheet, Text, View } from '@react-pdf/renderer';
+import { Document, StyleSheet, View } from '@react-pdf/renderer';
 import { CertificateHeader, styles, Watermark } from './Layout';
 import { ageInYears, getCurrentDateString } from '../dateTime';
 import { LetterheadSection } from './LetterheadSection';
@@ -13,6 +13,9 @@ import {
 } from '@tamanu/constants';
 import { Footer } from './printComponents/Footer';
 import { getDisplayDate } from './getDisplayDate';
+import { withLanguageContext } from '../pdf/languageContext';
+import { Page } from '../pdf/Page';
+import { Text } from '../pdf/Text';
 
 const borderStyle = '1 solid black';
 
@@ -82,30 +85,33 @@ const tableStyles = StyleSheet.create({
     width: '125pt',
   },
   p: {
-    fontFamily: 'Helvetica',
     fontSize: 9,
   },
 });
 
 const Table = props => <View style={tableStyles.table} {...props} />;
 const Row = props => <View style={tableStyles.row} {...props} />;
-const P = ({ style = {}, children }) => <Text style={[tableStyles.p, style]}>{children}</Text>;
+const P = ({ style = {}, bold, children }) => (
+  <Text bold={bold} style={[tableStyles.p, style]}>
+    {children}
+  </Text>
+);
 
 const FlexCell = ({ children, style = {}, bold = false }) => (
   <View style={[tableStyles.baseCell, tableStyles.flexCell, style]}>
-    <P style={{ fontFamily: bold ? 'Helvetica-Bold' : 'Helvetica' }}>{children}</P>
+    <P bold={bold}>{children}</P>
   </View>
 );
 
 const Cell = ({ children, style = {}, bold }) => (
   <View style={[tableStyles.baseCell, style]}>
-    <P style={{ fontFamily: bold ? 'Helvetica-Bold' : 'Helvetica' }}>{children}</P>
+    <P bold={bold}>{children}</P>
   </View>
 );
 
 const LeftCell = ({ children }) => (
   <View style={[tableStyles.baseCell, tableStyles.leftCell]}>
-    <P style={{ fontFamily: 'Helvetica-Bold' }}>{children}</P>
+    <P bold>{children}</P>
   </View>
 );
 
@@ -282,7 +288,7 @@ const SignatureSection = () => {
         </View>
         <View style={signatureStyles.leftCell}>
           <P style={signatureStyles.leftText}>Circle applicable:</P>
-          <P style={{ fontFamily: 'Helvetica-Bold' }}>Doctor/midwife/nurse</P>
+          <P bold>Doctor/midwife/nurse</P>
         </View>
       </View>
       <View style={{ flex: 1 }}>
@@ -299,7 +305,7 @@ const SignatureSection = () => {
   );
 };
 
-export const BirthNotificationCertificate = ({
+const BirthNotificationCertificateComponent = ({
   motherData,
   fatherData,
   childData,
@@ -330,3 +336,7 @@ export const BirthNotificationCertificate = ({
     </Document>
   );
 };
+
+export const BirthNotificationCertificate = withLanguageContext(
+  BirthNotificationCertificateComponent,
+);
