@@ -1,31 +1,37 @@
 import React from 'react';
 import { ContentPane, DataFetchingTable, PageContainer, TopBar } from '../../components';
 import { FHIR_JOB_STATS_ENDPOINT } from './constants';
+import { TranslatedText } from '../../components/Translation';
 
 export const FhirJobStatsView = () => {
   return (
     <PageContainer>
-      <TopBar title="FHIR job stats" />
+      <TopBar title={<TranslatedText stringId="admin.fhir.title" fallback="FHIR job stats" />} />
       <ContentPane>
-        <p>Warning: this query can be slow with a large number of FHIR jobs</p>
+        <p>
+          <TranslatedText
+            stringId="admin.fhir.warning"
+            fallback="Warning: this query can be slow with a large number of FHIR jobs"
+          />
+        </p>
         <DataFetchingTable
           endpoint={FHIR_JOB_STATS_ENDPOINT}
           disablePagination
           columns={[
             {
               key: 'topic',
-              title: 'Topic',
+              title: <TranslatedText stringId="admin.fhir.table.column.topic" fallback="Topic" />,
             },
             {
               key: 'status',
-              title: 'Status',
+              title: <TranslatedText stringId="general.table.column.status" fallback="Status" />,
             },
             {
               key: 'count',
-              title: 'Count',
+              title: <TranslatedText stringId="admin.fhir.table.column.count" fallback="Count" />,
             },
           ]}
-          noDataMessage="No data"
+          noDataMessage={<TranslatedText stringId="general.table.noData" fallback="No data" />}
         />
       </ContentPane>
     </PageContainer>

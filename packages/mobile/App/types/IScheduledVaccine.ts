@@ -6,7 +6,7 @@ export interface IScheduledVaccine {
   id: ID;
   index?: number;
   label?: string;
-  schedule?: string;
+  doseLabel?: string;
   weeksFromBirthDue?: number;
   weeksFromLastVaccinationDue?: number;
   category?: string;
@@ -14,4 +14,5 @@ export interface IScheduledVaccine {
   vaccineId: string;
   hideFromCertificate: boolean;
   visibilityStatus: VisibilityStatus;
+  sortIndex: number;
 }

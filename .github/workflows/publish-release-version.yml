@@ -23,6 +23,8 @@ jobs:
     - uses: actions/checkout@v4
       with:
         token: ${{ secrets.TAMANU_RELEASE_PAT }}
+        fetch-depth: 0 # fetch all history so we can generate release notes
+        fetch-tags: true
 
     - uses: actions/setup-node@v4
       with:
@@ -60,14 +62,17 @@ jobs:
 
     - name: Generate release notes
       run: |
-        version=${{ steps.tagged.outputs.current_version }}
-        pattern="^v$(cut -d. -f-2 <<< "$version" | sed 's/[.]/[.]/g')[.]"
-        # 2.6.1 -> ^v2[.]6[.]
-
-        git cliff --topo-order --strip all --latest \
-          --tag-pattern "$pattern" --tag "v$version" \
-          --output RELEASE_NOTES.md
-        cat RELEASE_NOTES.md
+        git switch --detach "v${{ steps.tagged.outputs.current_version }}"
+        git cliff --strip all --current \
+          | node -e 'console.log(
+            (require("fs")
+              .readFileSync(0)
+              .toString()
+              .split(/^## Release notes.+/m)[1]??"") // sometimes cliff prints more than one release
+              .replace(/no[\s-]+issue:?\s?/ig, "") // remove "no issue" labels
+              .replace(/release[\s-]+fix[\s-]+v?[\d.]+:\s?/ig, "") // remove "release fix vX.Y" labels
+            )' \
+          | tee RELEASE_NOTES.md
 
     - name: Determine the true latest version
       id: latest

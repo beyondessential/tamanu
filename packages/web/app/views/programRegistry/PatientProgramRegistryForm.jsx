@@ -103,7 +103,12 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
 
                 <Field
                   name="date"
-                  label="Date of registration"
+                  label={
+                    <TranslatedText
+                      stringId="patientProgramRegistry.date.label"
+                      fallback="Date of registration"
+                    />
+                  }
                   saveDateAsString
                   required
                   component={DateField}
@@ -141,7 +146,7 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
                 <FieldWithTooltip
                   disabledTooltipText="Select a program registry to set the status"
                   name="clinicalStatusId"
-                  label="Status"
+                  label={<TranslatedText stringId="general.status.label" fallback="Status" />}
                   placeholder={getTranslation('general.placeholder.select', 'Select')}
                   component={AutocompleteField}
                   suggester={programRegistryStatusSuggester}
@@ -154,7 +159,12 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
                       : 'No conditions have been configured for this program registry'
                   }
                   name="conditionIds"
-                  label="Related conditions"
+                  label={
+                    <TranslatedText
+                      stringId="patientProgramRegistry.relatedConditions.label"
+                      fallback="Related conditions"
+                    />
+                  }
                   placeholder={getTranslation('general.placeholder.select', 'Select')}
                   component={MultiselectField}
                   options={conditions}

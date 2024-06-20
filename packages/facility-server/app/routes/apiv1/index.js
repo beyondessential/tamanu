@@ -48,6 +48,7 @@ import { user } from './user';
 import { vitals } from './vitals';
 import { translation } from './translation';
 import { vaccinationSettings } from './vaccinationSettings';
+import { upcomingVaccinations } from './upcomingVaccinations';
 import { telegramRoutes } from './telegram/telegramRoutes';
 
 export const apiv1 = express.Router();
@@ -159,6 +160,7 @@ referenceDataRoutes.use('/suggestions', suggestions);
 referenceDataRoutes.use('/survey', survey);
 referenceDataRoutes.use('/user', user);
 referenceDataRoutes.use('/vaccinationSettings', vaccinationSettings);
+referenceDataRoutes.use('/upcomingVaccinations', upcomingVaccinations);
 referenceDataRoutes.use('/translation', translation);
 
 // sync endpoints

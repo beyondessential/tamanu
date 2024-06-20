@@ -14,6 +14,7 @@ import { usePatientNavigation } from '../../utils/usePatientNavigation';
 import { ConditionalTooltip } from '../../components/Tooltip';
 import { useProgramRegistryContext } from '../../contexts/ProgramRegistry';
 import { useTranslation } from '../../contexts/Translation';
+import { TranslatedText } from '../../components/Translation/TranslatedText';
 
 const DisplayContainer = styled.div`
   display: flex;
@@ -94,7 +95,12 @@ export const PatientProgramRegistrationSelectSurvey = ({ patientProgramRegistrat
               <ConditionalTooltip visible={isRemoved} title="Patient must be active">
                 <Field
                   name="surveyId"
-                  label="Select form"
+                  label={
+                    <TranslatedText
+                      stringId="patientProgramRegistry.selectForm.label"
+                      fallback="Select form"
+                    />
+                  }
                   component={BaseSelectField}
                   placeholder={getTranslation('general.placeholder.select', 'Select')}
                   options={surveys}
@@ -113,7 +119,10 @@ export const PatientProgramRegistrationSelectSurvey = ({ patientProgramRegistrat
                     disabled={isRemoved || !values.surveyId}
                     isSubmitting={false}
                   >
-                    Begin form
+                    <TranslatedText
+                      stringId="patientProgramRegistry.action.beginForm"
+                      fallback="Begin form"
+                    />
                   </StyledButton>
                 </div>
               </ConditionalTooltip>

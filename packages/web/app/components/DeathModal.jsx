@@ -6,6 +6,7 @@ import { FormModal } from './FormModal';
 import { DeathForm } from '../forms/DeathForm';
 import { useApi, useSuggester } from '../api';
 import { usePatientNavigation } from '../utils/usePatientNavigation';
+import { TranslatedText } from './Translation/TranslatedText';
 
 export const DeathModal = React.memo(({ open, onClose, deathData }) => {
   const api = useApi();
@@ -28,7 +29,11 @@ export const DeathModal = React.memo(({ open, onClose, deathData }) => {
   };
 
   return (
-    <FormModal title="Record patient death" open={open} onClose={onClose}>
+    <FormModal
+      title={<TranslatedText stringId="death.modal.title" fallback="Record patient death" />}
+      open={open}
+      onClose={onClose}
+    >
       <DeathForm
         onSubmit={recordPatientDeath}
         onCancel={onClose}

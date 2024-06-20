@@ -3,6 +3,7 @@ import EmailIcon from '@material-ui/icons/Email';
 import { EmailAddressConfirmationForm } from '../../forms/EmailAddressConfirmationForm';
 import { Button } from '..';
 import { FormModal } from '../FormModal';
+import { TranslatedText } from '../Translation/TranslatedText';
 
 export const EmailButton = ({ onEmail }) => {
   const [openModal, setOpenModal] = useState(false);
@@ -19,7 +20,11 @@ export const EmailButton = ({ onEmail }) => {
       >
         Email
       </Button>
-      <FormModal title="Enter email address" open={openModal} onClose={() => setOpenModal(false)}>
+      <FormModal
+        title={<TranslatedText stringId="patient.email.title" fallback="Enter email address" />}
+        open={openModal}
+        onClose={() => setOpenModal(false)}
+      >
         <EmailAddressConfirmationForm
           onSubmit={async data => {
             if (!openModal) return;

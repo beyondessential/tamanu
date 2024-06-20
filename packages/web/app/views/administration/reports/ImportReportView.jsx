@@ -110,12 +110,7 @@ const ImportForm = ({ isSubmitting, setFieldValue, feedback, values = {} }) => {
       <FormContainer columns={1}>
         <Field
           required
-          label={
-            <TranslatedText
-              stringId="admin.report.import.reportName.label"
-              fallback="Report name"
-            />
-          }
+          label={<TranslatedText stringId="admin.report.reportName.label" fallback="Report name" />}
           name="name"
           onChange={handleNameChange}
           component={TextField}
@@ -150,7 +145,7 @@ const ImportForm = ({ isSubmitting, setFieldValue, feedback, values = {} }) => {
         />
       </FormContainer>
       <StyledButton type="submit" isSubmitting={isSubmitting}>
-        <TranslatedText stringId="generic.action.import" fallback="Import" />
+        <TranslatedText stringId="general.action.import" fallback="Import" />
       </StyledButton>
       {feedback && <ImportFeedback name={values.name} dryRun={values.dryRun} feedback={feedback} />}
     </InnerContainer>
@@ -176,7 +171,13 @@ export const ImportReportView = () => {
         }
       }
     } catch (err) {
-      toast.error(`Failed to import: ${err.message}`);
+      toast.error(
+        <TranslatedText
+          stringId="admin.report.notification.importFailed"
+          fallback={`Failed to import: ${err.message}`}
+          replacements={{ message: err.message }}
+        />
+      );
     }
   };
 

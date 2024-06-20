@@ -139,7 +139,7 @@ export const InvoicesTable = ({ patient }) => {
           <TranslatedText stringId="patient.invoice.table.noData" fallback="No invoices found" />
         }
         allowExport={false}
-        inlineTitle={
+        TableHeader={
           <TableTitle>
             <TranslatedText stringId="patient.invoice.table.title" fallback="Patient invoices" />
           </TableTitle>

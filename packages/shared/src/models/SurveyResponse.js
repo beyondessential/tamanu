@@ -280,7 +280,7 @@ export class SurveyResponse extends Model {
       encounterId,
       patientId,
       forceNewEncounter,
-      reasonForEncounter: `Form response for ${survey.name}`,
+      reasonForEncounter: 'Form response',
       ...responseData,
     });
     const { result, resultText } = getResultValue(questions, answers, {
