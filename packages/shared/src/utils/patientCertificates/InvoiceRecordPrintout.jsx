@@ -386,7 +386,7 @@ const SummaryPane = ({ invoice }) => {
           </View>
           {invoice?.insurers.map((insurer, index) => {
             return (
-              <View style={summaryPaneStyles.item}>
+              <View key={insurer.id} style={summaryPaneStyles.item}>
                 <P>{insurer.insurer?.name}</P>
                 <View style={summaryPaneStyles.subItem}>
                   <P>{insurer.percentage * 100}%</P>
