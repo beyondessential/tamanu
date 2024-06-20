@@ -3,7 +3,12 @@ import config from 'config';
 import { parseOrNull } from '@tamanu/shared/utils/parse-or-null';
 import { isNumberOrFloat } from '../../utils/numbers';
 import { statkey, updateStat } from '../stats';
-import { PROGRAM_DATA_ELEMENT_TYPES, VISIBILITY_STATUSES, SURVEY_TYPES } from '@tamanu/constants';
+import {
+  PROGRAM_DATA_ELEMENT_TYPES,
+  VISIBILITY_STATUSES,
+  SURVEY_TYPES,
+  COMPLEX_CORE_DATA_ELEMENT_TYPES,
+} from '@tamanu/constants';
 
 const checkIfWithinGraphRange = (normalRange, graphRange) => {
   if (isNumberOrFloat(normalRange.min) && normalRange.min < graphRange.min) {
@@ -67,14 +72,7 @@ function validateComplexChartCoreConfig(programDataElementRecord, surveyScreenCo
   const { type } = programDataElementRecord.values;
   const { visibilityStatus } = surveyScreenComponentRecord.values;
 
-  const complexCoreTypes = [
-    PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_INSTANCE_NAME,
-    PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_DATE,
-    PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_TYPE,
-    PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_SUBTYPE,
-  ];
-
-  if (complexCoreTypes.includes(type) === false) {
+  if (COMPLEX_CORE_DATA_ELEMENT_TYPES.includes(type) === false) {
     throw new Error('Invalid question type');
   }
 
@@ -107,6 +105,15 @@ export function validateProgramDataElementRecords(
       const error = new Error(
         `sheetName: ${sheetName}, code: '${code}', First question should be DateTime type`,
       );
+      updateStat(stats, statkey('ProgramDataElement', sheetName), 'errored', 1);
+      errors.push(error);
+    }
+  }
+
+  if (surveyType === SURVEY_TYPES.COMPLEX_CHART_CORE) {
+    const typesString = programDataElementRecords.map(pde => pde.values.type).join();
+    if (typesString !== COMPLEX_CORE_DATA_ELEMENT_TYPES.join()) {
+      const error = new Error('Invalid complex chart core questions');
       updateStat(stats, statkey('ProgramDataElement', sheetName), 'errored', 1);
       errors.push(error);
     }
