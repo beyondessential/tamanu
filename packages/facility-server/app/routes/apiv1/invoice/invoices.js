@@ -312,7 +312,9 @@ invoiceRoute.put(
 invoiceRoute.put(
   '/:id/finalize',
   asyncHandler(async (req, res) => {
-    throw new NotFoundError();
+    if (req.models) {
+      throw new NotFoundError();
+    }
     req.checkPermission('write', 'Invoice');
 
     //assert invoice status = in progress
