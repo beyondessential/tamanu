@@ -391,7 +391,7 @@ const SummaryPane = ({ invoice }) => {
               <View style={summaryPaneStyles.item}>
                 <P>{insurer.insurer?.name}</P>
                 <View style={summaryPaneStyles.subItem}>
-                  <P>{Math.round(insurer.percentage * 100)}%</P>
+                  <P>{insurer.percentage * 100}%</P>
                   <P>{insurerPaymentsDisplay[index] ? `-${insurerPaymentsDisplay[index]}` : '-'}</P>
                 </View>
               </View>
