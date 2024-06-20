@@ -23,7 +23,7 @@ export class InvoiceItemDiscount extends Model {
    * @param {import('./')} models
    */
   static initRelations(models) {
-    this.belongsTo(models.Invoice, {
+    this.belongsTo(models.InvoiceItem, {
       foreignKey: 'invoiceItemId',
       as: 'invoiceItem',
     });

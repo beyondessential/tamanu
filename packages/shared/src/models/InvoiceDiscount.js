@@ -42,10 +42,10 @@ export class InvoiceDiscount extends Model {
     });
   }
 
-  static buildPatientSyncFilter(patientIds) {
-    if (patientIds.length === 0) {
-      return null;
-    }
-    return buildEncounterLinkedSyncFilter([this.tableName, 'invoices', 'encounters']);
-  }
+  // static buildPatientSyncFilter(patientIds) {
+  //   if (patientIds.length === 0) {
+  //     return null;
+  //   }
+  //   return buildEncounterLinkedSyncFilter([this.tableName, 'encounters']);
+  // }
 }
