@@ -9,10 +9,10 @@ const path = require('path');
 
 const { FileStore } = require('metro-cache');
 
+// still works with npm
 const getWorkspaces = require('get-yarn-workspaces');
 
 const workspaces = getWorkspaces(__dirname);
-console.log('workspacesssss', workspaces);
 
 module.exports = {
   projectRoot: path.resolve(__dirname, '.'),
