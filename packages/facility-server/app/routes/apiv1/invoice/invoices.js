@@ -126,7 +126,7 @@ const updateInvoiceSchema = z
           .number()
           .min(0)
           .max(1),
-        insurerId: z.string().uuid(),
+        insurerId: z.string(),
       })
       .strip()
       .array(),

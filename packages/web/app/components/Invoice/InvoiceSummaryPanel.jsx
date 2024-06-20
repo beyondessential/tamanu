@@ -1,14 +1,21 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Box, Divider } from '@material-ui/core';
+import CloseIcon from '@material-ui/icons/Close';
+import { SETTING_KEYS } from '@tamanu/constants';
+import { FieldArray, useFormikContext } from 'formik';
+import { v4 as uuidv4 } from 'uuid';
 import { Colors } from '../../constants';
 import { TranslatedText } from '../Translation';
 import { PencilIcon } from '../../assets/icons/PencilIcon';
 import { ThemedTooltip } from '../Tooltip';
 import { BodyText, Heading3 } from '../Typography';
 import { Button } from '../Button';
-import { getInvoiceSummary } from '@tamanu/shared/utils/invoice';
+import { getInsurerPaymentsDisplay, getInvoiceSummary } from '@tamanu/shared/utils/invoice';
 import { getDateDisplay } from '../DateDisplay';
+import { useSettings } from '../../contexts/Settings';
+import { AutocompleteField, Field, NumberField } from '../Field';
+import { useSuggester } from '../../api';
 
 const CardItem = styled(Box)`
   display: flex;
@@ -26,7 +33,7 @@ const Container = styled.div`
   width: 382px;
   border: 1px solid ${Colors.outline};
   border-radius: 5px;
-  padding: 8px 16px;
+  padding: 16px 20px;
   margin-left: auto;
   background: ${Colors.white};
 `;
@@ -34,6 +41,7 @@ const Container = styled.div`
 const DiscountedPrice = styled.div`
   display: flex;
   justify-content: space-between;
+  align-items: center;
   width: 100px;
 `;
 
@@ -49,15 +57,146 @@ const DescriptionText = styled.span`
   white-space: nowrap;
 `;
 
+const AddInsurerButton = styled(Button)`
+  padding: 4px 8px !important;
+  margin-left: -8px;
+  &:hover {
+    background: unset;
+  }
+`;
+
+const RemoveInsurerButton = styled(IconButton)`
+  position: absolute;
+  right: -17px;
+  top: 12.5px;
+  display: flex;
+  .MuiSvgIcon-root {
+    font-size: 16px;
+  }
+`;
+
+const StyledNumberField = styled(NumberField)`
+  input {
+    padding: 13px 10px !important;
+    font-size: 11px !important;
+  }
+`;
+
+const InsurersEditable = ({ insurerPaymentsDisplay }) => {
+  const formikContext = useFormikContext();
+  const insurers = formikContext?.values?.insurers || [];
+
+  const { getSetting } = useSettings();
+  const defaultContributionInsurer = getSetting(SETTING_KEYS.DEFAUlT_CONTRIBUTION_INSURER);
+
+  const insurerSuggester = useSuggester('insurer');
+
+  const preventInvalid = event => {
+    if (!event.target.validity.valid) {
+      event.target.value = '';
+    }
+  };
+
+  return (
+    <FieldArray name="insurers">
+      {formArrayMethods => {
+        return (
+          <CardItem flexDirection="column">
+            <TranslatedText stringId="invoice.summary.insurer.label" fallback="Insurer" />
+            {insurers?.map((insurer, index) => (
+              <Box display="flex" justifyContent="space-between" width="100%" position="relative">
+                <Box display="flex" style={{ gap: '8px' }}>
+                  <Field
+                    name={`insurers.${index}.insurerId`}
+                    required
+                    component={AutocompleteField}
+                    suggester={insurerSuggester}
+                    size="small"
+                  />
+                  <Field
+                    name={`insurers.${index}.percentage`}
+                    component={StyledNumberField}
+                    min={1}
+                    max={100}
+                    onInput={preventInvalid}
+                    required
+                  />
+                  <Box marginTop="11px">%</Box>
+                </Box>
+                <Box marginTop="11px" display="flex" justifyContent="flex-end">
+                  {insurerPaymentsDisplay[index] ?? '-'}
+                  <RemoveInsurerButton onClick={() => formArrayMethods.remove(index)}>
+                    <CloseIcon />
+                  </RemoveInsurerButton>
+                </Box>
+              </Box>
+            ))}
+            <AddInsurerButton
+              variant="text"
+              disableRipple
+              onClick={() => {
+                formArrayMethods.push({
+                  id: uuidv4(),
+                  percentage:
+                    !insurers?.length && defaultContributionInsurer
+                      ? defaultContributionInsurer * 100
+                      : undefined,
+                });
+              }}
+            >
+              {'+ '}
+              <TranslatedText
+                stringId="invoice.summary.addInsurer"
+                fallback="Add another insurer"
+              />
+            </AddInsurerButton>
+          </CardItem>
+        );
+      }}
+    </FieldArray>
+  );
+};
+
+const InsurersView = ({ insurers, insurerPaymentsDisplay }) => {
+  return (
+    <CardItem flexDirection="column">
+      <Box fontWeight={500}>
+        <TranslatedText stringId="invoice.summary.insurer.label" fallback="Insurer" />
+      </Box>
+      {insurers?.map((insurer, index) => (
+        <Box key={insurer.id} display="flex" justifyContent="space-between" width="100%">
+          {insurer.insurer?.name}
+          <DiscountedPrice>
+            <span>{insurer.percentage * 100}%</span>
+            <BodyText color={Colors.darkestText}>{insurerPaymentsDisplay[index] ?? '-'}</BodyText>
+          </DiscountedPrice>
+        </Box>
+      ))}
+    </CardItem>
+  );
+};
+
 export const InvoiceSummaryPanel = ({ invoice, editable, handleEditDiscount }) => {
+  const formikContext = useFormikContext();
+  const insurers =
+    formikContext?.values?.insurers?.map(insurer => ({
+      ...insurer,
+      percentage: insurer.percentage / 100,
+    })) ||
+    invoice?.insurers ||
+    [];
+
   const {
     discountableItemsSubtotal,
     nonDiscountableItemsSubtotal,
     total,
     appliedToDiscountableSubtotal,
     discountTotal,
+    patientSubtotal,
     patientTotal,
-  } = getInvoiceSummary(invoice);
+  } = getInvoiceSummary({ ...invoice, insurers });
+
+  const insurerPaymentsDisplay = getInsurerPaymentsDisplay(insurers, total);
 
   return (
     <Container>
@@ -81,6 +220,30 @@ export const InvoiceSummaryPanel = ({ invoice, editable, handleEditDiscount }) =
         <span>{total ?? '-'}</span>
       </CardItem>
       <Divider />
+      {editable && (
+        <>
+          <InsurersEditable insurerPaymentsDisplay={insurerPaymentsDisplay} />
+          <Divider />
+        </>
+      )}
+      {!editable && !!insurers?.length && (
+        <>
+          <InsurersView insurers={insurers} insurerPaymentsDisplay={insurerPaymentsDisplay} />
+          <Divider />
+        </>
+      )}
+      {(!!insurers?.length || editable) && (
+        <>
+          <CardItem sx={{ fontWeight: 500 }}>
+            <TranslatedText
+              stringId="invoice.summary.patientSubtotal.label"
+              fallback="Patient subtotal"
+            />
+            <span>{patientSubtotal ?? '-'}</span>
+          </CardItem>
+          <Divider />
+        </>
+      )}
       <CardItem sx={{ marginBottom: '-6px', fontWeight: 500 }}>
         <TranslatedText stringId="invoice.summary.discount.label" fallback="Discount" />
         {editable && !invoice.discount && (
