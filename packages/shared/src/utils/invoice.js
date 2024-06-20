@@ -4,6 +4,8 @@ import { INVOICE_STATUSES } from '@tamanu/constants';
 export const isInvoiceEditable = invoice =>
   ![INVOICE_STATUSES.FINALISED, INVOICE_STATUSES.CANCELLED].includes(invoice.status);
 
+const formatDisplayValue = value => (isNaN(value) ? undefined : value.toFixed(2));
+
 const calculateInvoiceItemDiscountPrice = (price, discount) => {
   const priceFloat = parseFloat(price);
   const priceChange = discount * priceFloat;
@@ -17,14 +19,14 @@ const getInvoiceItemPrice = invoiceItem => {
 
 export const getInvoiceItemPriceDisplay = invoiceItem => {
   const result = getInvoiceItemPrice(invoiceItem);
-  return isNaN(result) ? undefined : result.toFixed(2);
+  return formatDisplayValue(result);
 };
 
 export const getInvoiceItemDiscountPriceDisplay = invoiceItem => {
   const originalPrice = getInvoiceItemPrice(invoiceItem);
   const discount = invoiceItem?.discount?.percentage;
   const result = calculateInvoiceItemDiscountPrice(originalPrice, discount);
-  return isNaN(result) ? undefined : result.toFixed(2);
+  return formatDisplayValue(result);
 };
 
 const calculateDiscountableItemsTotal = invoiceItems => {
@@ -53,7 +55,7 @@ const calculateInsurerPayments = (insurers, total) => {
 
 export const getInsurerPaymentsDisplay = (insurers, total) => {
   const payments = calculateInsurerPayments(insurers, total);
-  return payments.map(payment => (isNaN(payment) ? undefined : payment?.toFixed(2)));
+  return payments.map(payment => formatDisplayValue(payment));
 };
 
 export const getInvoiceSummary = invoice => {
@@ -88,12 +90,10 @@ export const getInvoiceSummary = invoice => {
     discountableItemsSubtotal: discountableItemsSubtotal?.toFixed(2),
     nonDiscountableItemsSubtotal: nonDiscountableItemsSubtotal?.toFixed(2),
     total: total?.toFixed(2),
-    appliedToDiscountableSubtotal: isNaN(appliedToDiscountableSubtotal)
-      ? undefined
-      : appliedToDiscountableSubtotal.toFixed(2),
-    discountTotal: isNaN(discountTotal) ? undefined : discountTotal.toFixed(2),
-    patientSubtotal: isNaN(patientSubtotal) ? undefined : patientSubtotal.toFixed(2),
-    patientTotal: isNaN(patientTotal) ? undefined : patientTotal.toFixed(2),
+    appliedToDiscountableSubtotal: formatDisplayValue(appliedToDiscountableSubtotal),
+    discountTotal: formatDisplayValue(discountTotal),
+    patientSubtotal: formatDisplayValue(patientSubtotal),
+    patientTotal: formatDisplayValue(patientTotal),
   };
 };
 
