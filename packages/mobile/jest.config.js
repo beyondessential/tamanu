@@ -1,11 +1,12 @@
 module.exports = {
+  verbose: true,
   preset: '@testing-library/react-native',
   moduleFileExtensions: ['ts', 'tsx', 'js'],
   transformIgnorePatterns: [
     'node_modules/(?!(jest-)?@?react-native|@?react-navigation|react-pose-core|react-native-gesture-handler|animated-pose|@react-native-community/datetimepicker|@vinipachecov/react-native-datepicker|typeorm)',
   ],
   transform: {
-    '^.+\\.(js)$': '<rootDir>/../../node_modules/babel-jest',
+    '^.+\\.(ts|js)$': '<rootDir>/../../node_modules/babel-jest',
     '\\.(ts|tsx)$': '<rootDir>/../../node_modules/ts-jest',
   },
   testEnvironment: 'node',
