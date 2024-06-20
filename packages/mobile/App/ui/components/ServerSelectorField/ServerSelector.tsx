@@ -2,8 +2,6 @@ import React, { ReactElement, useEffect, useState } from 'react';
 import { useNetInfo } from '@react-native-community/netinfo';
 import { keyBy, mapValues } from 'lodash';
 
-// import { GENERAL_IMPORTABLE_DATA_TYPES } from '@tamanu/constants';
-
 import { Dropdown, SelectOption } from '../Dropdown';
 import { StyledText, StyledView } from '../../styled/common';
 import { theme } from '../../styled/theme';
@@ -51,7 +49,6 @@ export const ServerSelector = ({ onChange, label, value, error }): ReactElement 
     setHost,
   } = useTranslation();
 
-  // console.log('GENERAL_IMPORTABLE_DATA_TYPES', GENERAL_IMPORTABLE_DATA_TYPES);
   const updateHost = value => {
     onChange(value);
     setHost(value);
