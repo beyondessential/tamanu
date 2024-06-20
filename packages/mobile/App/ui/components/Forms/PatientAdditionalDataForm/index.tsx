@@ -110,6 +110,7 @@ export const PatientAdditionalDataForm = ({
       initialValues={{
         ...initialAdditionalData,
         ...initialCustomValues,
+        ...locationInitialValues,
         ...patient,
       }}
       validationSchema={patientAdditionalDataValidationSchema}

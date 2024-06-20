@@ -7,12 +7,16 @@ export const CAMBODIA_CUSTOM_FIELDS = {
   ID_POOR_CARD_NUMBER: 'fieldDefinition-idPoorCardNumber',
   PMRS_NUMBER: 'fieldDefinition-pmrsNumber',
   FATHERS_FIRST_NAME: 'fieldDefinition-fathersFirstName',
+  SECONDARY_STREET_ADDRESS: 'fieldDefinition-secondaryAddressStreet',
 };
 
 // Cambodia data layout
 export const CAMBODIA_ADDITIONAL_DATA_FIELDS = {
   ADDRESS: ['cambodiaVillageId', ADDITIONAL_DATA_FIELDS.STREET_VILLAGE],
-  PERMANENT_ADDRESS: ['cambodiaSecondaryVillageId'],
+  PERMANENT_ADDRESS: [
+    'cambodiaSecondaryVillageId',
+    CAMBODIA_CUSTOM_FIELDS.SECONDARY_STREET_ADDRESS,
+  ],
   CONTACT: [
     ADDITIONAL_DATA_FIELDS.PRIMARY_CONTACT_NUMBER,
     ADDITIONAL_DATA_FIELDS.SECONDARY_CONTACT_NUMBER,
@@ -118,6 +122,7 @@ export const CAMBODIA_ADDITIONAL_DATA_SECTIONS_FOR_DISPLAY = [
       'secondarySubdivisionId',
       'secondarySettlementId',
       'secondaryVillageId',
+      CAMBODIA_CUSTOM_FIELDS.SECONDARY_STREET_ADDRESS,
     ],
   },
   ...COMMON,
