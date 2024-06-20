@@ -1,10 +1,17 @@
+import { getCurrentLanguageCode } from './translation';
+
 const defaultFormatter = ({ name, id }) => ({ label: name, value: id });
 
 export class Suggester {
   constructor(
     api,
     endpoint,
-    { formatter = defaultFormatter, filterer = () => true, baseQueryParameters = {}, enable = true} = {},
+    {
+      formatter = defaultFormatter,
+      filterer = () => true,
+      baseQueryParameters = {},
+      enable = true,
+    } = {},
   ) {
     this.api = api;
     this.endpoint = `suggestions/${encodeURIComponent(endpoint)}`;
@@ -21,7 +28,9 @@ export class Suggester {
   fetchCurrentOption = async (value, showFullData = false) => {
     if (!this.enable) return undefined;
     try {
-      const data = await this.fetch(`/${encodeURIComponent(value)}`);
+      const data = await this.fetch(`/${encodeURIComponent(value)}`, {
+        language: getCurrentLanguageCode(),
+      });
       if (showFullData) {
         return { label: data.name, value: data.id, ...data };
       }
@@ -34,7 +43,11 @@ export class Suggester {
   fetchSuggestions = async search => {
     if (!this.enable) return [];
     try {
-      const data = await this.fetch('', { ...this.baseQueryParameters, q: search });
+      const data = await this.fetch('', {
+        ...this.baseQueryParameters,
+        q: search,
+        language: getCurrentLanguageCode(),
+      });
       return data.filter(this.filterer).map(this.formatter);
     } catch (e) {
       return [];
