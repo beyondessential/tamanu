@@ -259,17 +259,53 @@ invoiceRoute.put(
   }),
 );
 
+async function freezeInvoiceItemsData(req, transaction) {
+  const items = await req.models.InvoiceItem.findAll(
+    {
+      where: { invoiceId: req.params.id },
+      include: {
+        model: req.models.InvoiceProduct,
+        as: 'product',
+        attributes: ['name', 'price'],
+      },
+    },
+    { transaction },
+  );
+
+  await req.models.InvoiceItem.bulkCreate(
+    items.map(item => {
+      const plain = item.get();
+      return {
+        ...plain,
+        productName: plain.product.name,
+        productPrice: plain.product.price,
+      };
+    }),
+    { updateOnDuplicate: ['productName', 'productPrice'], transaction },
+  );
+}
+
 invoiceRoute.put(
   '/:id/cancel',
   asyncHandler(async (req, res) => {
     req.checkPermission('write', 'Invoice');
 
-    await req.models.Invoice.update(
-      { status: INVOICE_STATUSES.CANCELLED },
-      { where: { id: req.params.id, status: INVOICE_STATUSES.IN_PROGRESS } },
-    );
+    const transaction = await req.db.transaction();
 
-    res.send({});
+    try {
+      await freezeInvoiceItemsData(req, transaction);
+
+      await req.models.Invoice.update(
+        { status: INVOICE_STATUSES.CANCELLED },
+        { where: { id: req.params.id, paymentStatus: INVOICE_PAYMENT_STATUSES.UNPAID } },
+        { transaction },
+      );
+      await transaction.commit();
+      res.send({});
+    } catch (error) {
+      await transaction.rollback();
+      throw error;
+    }
   }),
 );
 
@@ -287,30 +323,7 @@ invoiceRoute.put(
     const transaction = await req.db.transaction();
 
     try {
-      //freeze invoice items data
-      const items = await req.models.InvoiceItem.findAll(
-        {
-          where: { invoiceId: req.params.id },
-          include: {
-            model: req.models.InvoiceProduct,
-            as: 'product',
-            attributes: ['name', 'price'],
-          },
-        },
-        { transaction },
-      );
-
-      await req.models.InvoiceItem.bulkCreate(
-        items.map(item => {
-          const plain = item.get();
-          return {
-            ...plain,
-            productName: plain.product.name,
-            productPrice: plain.product.price,
-          };
-        }),
-        { updateOnDuplicate: ['productName', 'productPrice'], transaction },
-      );
+      await freezeInvoiceItemsData(req, transaction);
 
       const invoice = await req.models.Invoice.update(
         { status: INVOICE_STATUSES.FINALISED },
