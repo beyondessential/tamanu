@@ -56,14 +56,20 @@ export const EditTemplateForm = memo(
           />
           <Field
             name="title"
-            label="Title"
+            label={
+              <TranslatedText stringId="general.localisedField.title.label" fallback="Title" />
+            }
             component={TextField}
             disabled={!allowInputTitleType.includes(values.type)}
           />
         </FormGrid>
         <SmallGridSpacer />
         <FormGrid columns={1} nested style={{ marginBottom: '42px' }}>
-          <Field name="body" label="Contents" component={TallMultilineTextField} />
+          <Field
+            name="body"
+            label={<TranslatedText stringId="admin.template.content.label" fallback="Contents" />}
+            component={TallMultilineTextField}
+          />
         </FormGrid>
         {dirty ? (
           <EditedActions onDelete={onDelete} onSave={submitForm} onClose={onClose} />

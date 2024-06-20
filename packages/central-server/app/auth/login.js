@@ -72,7 +72,7 @@ export const login = ({ secret, refreshSecret }) =>
 
     const getSettingsForFrontEnd = async () => {
       // Only attach central scoped settings if login request is for central admin panel login
-      if (tamanuClient === SERVER_TYPES.WEBAPP && !facilityId) {
+      if ([SERVER_TYPES.WEBAPP, SERVER_TYPES.MOBILE].includes(tamanuClient) && !facilityId) {
         return await settings.getFrontEndSettings();
       }
     };
@@ -124,7 +124,6 @@ export const login = ({ secret, refreshSecret }) =>
       getPermissionsForRoles(models, user.role),
       models.Role.findByPk(user.role),
     ]);
-
     // Send some additional data with login to tell the user about
     // the context they've just logged in to.
     res.send({

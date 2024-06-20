@@ -38,6 +38,7 @@ export interface LoginResponse {
   refreshToken: string;
   user: IUser;
   localisation: object;
+  settings: object;
   permissions: [];
 }
 

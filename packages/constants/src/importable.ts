@@ -51,7 +51,7 @@ export const REFERENCE_TYPES = {
 export const REFERENCE_TYPE_VALUES = Object.values(REFERENCE_TYPES);
 
 // Reference data stored in its own table (not in 'reference_data' table)
-const OTHER_REFERENCE_TYPES = {
+export const OTHER_REFERENCE_TYPES = {
   DEPARTMENT: 'department',
   FACILITY: 'facility',
   INVOICE_LINE_TYPE: 'invoiceLineType',

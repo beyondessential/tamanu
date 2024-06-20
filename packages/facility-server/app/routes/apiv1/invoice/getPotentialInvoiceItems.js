@@ -1,4 +1,4 @@
-import { REFERENCE_TYPES } from '@tamanu/constants';
+import { OTHER_REFERENCE_TYPES, REFERENCE_TYPES } from '@tamanu/constants';
 import { NotFoundError } from '@tamanu/shared/errors';
 import { QueryTypes } from 'sequelize';
 
@@ -97,7 +97,7 @@ join users u on u.deleted_at is null and coalesce(fpc."orderedByUserId",fi."orde
         encounterId,
         imagingType: REFERENCE_TYPES.IMAGING_TYPE,
         imagingTypes,
-        labtestType: 'labTestType',
+        labtestType: OTHER_REFERENCE_TYPES.LAB_TEST_TYPE,
       },
       type: QueryTypes.SELECT,
     },
