@@ -15,7 +15,7 @@ import {
   getInvoiceItemDiscountPriceDisplay,
   getInvoiceItemName,
   getInvoiceItemPriceDisplay,
-  getInvoiceSummary
+  getInvoiceSummary,
 } from '../invoice';
 import { withLanguageContext } from '../pdf/languageContext';
 import { Page } from '../pdf/Page';
@@ -113,7 +113,7 @@ const priceCellStyles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   crossOutText: {
-    textDecoration: 'line-through'
+    textDecoration: 'line-through',
   },
 });
 
@@ -129,13 +129,13 @@ const summaryPaneStyles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginTop: 4.5,
-    marginBottom: 4.5
+    marginBottom: 4.5,
   },
   subItem: {
     width: 56,
     flexDirection: 'row',
-    justifyContent: 'space-between'
-  }
+    justifyContent: 'space-between',
+  },
 });
 
 const HorizontalRule = ({ width = '1px' }) => {
@@ -144,10 +144,9 @@ const HorizontalRule = ({ width = '1px' }) => {
 
 const Table = props => <View style={tableStyles.table} {...props} />;
 const Row = props => <View style={tableStyles.row} {...props} />;
-const P = ({ style = {}, children, isBold }) =>
-  <Text style={[tableStyles.p, isBold && { fontFamily: 'Helvetica-Bold' }, style]}>
-    {children}
-  </Text>;
+const P = ({ style = {}, children, isBold }) => (
+  <Text style={[tableStyles.p, isBold && { fontFamily: 'Helvetica-Bold' }, style]}>{children}</Text>
+);
 
 const Cell = ({ children, style = {} }) => (
   <View style={[tableStyles.baseCell, style]}>
@@ -156,20 +155,16 @@ const Cell = ({ children, style = {} }) => (
 );
 
 const PriceCell = ({ children, style = {} }) => (
-  <View style={[tableStyles.baseCell, priceCellStyles.container, style]}>
-    {children}
-  </View>
+  <View style={[tableStyles.baseCell, priceCellStyles.container, style]}>{children}</View>
 );
 
-const getPrice = (item) => {
+const getPrice = item => {
   const price = getInvoiceItemPriceDisplay(item);
   const discountPrice = getInvoiceItemDiscountPriceDisplay(item);
 
   return (
     <>
-      <P style={!!discountPrice ? priceCellStyles.crossOutText : undefined}>
-        {price}
-      </P>
+      <P style={!!discountPrice ? priceCellStyles.crossOutText : undefined}>{price}</P>
       {!!discountPrice && <P>{discountPrice}</P>}
     </>
   );
@@ -190,20 +185,19 @@ const COLUMNS = {
       key: 'orderDate',
       title: 'Date',
       style: { width: '15%' },
-      accessor: ({ orderDate }) =>
-        orderDate ? formatShort(orderDate) : '--/--/----',
+      accessor: ({ orderDate }) => (orderDate ? formatShort(orderDate) : '--/--/----'),
     },
     {
       key: 'productName',
       title: 'Details',
       style: { width: '30%' },
-      accessor: (row) => getInvoiceItemName(row)
+      accessor: row => getInvoiceItemName(row),
     },
     {
       key: 'code',
       title: 'Code',
       style: { width: '12%' },
-      accessor: (row) => getInvoiceItemCode(row)
+      accessor: row => getInvoiceItemCode(row),
     },
     {
       key: 'orderedBy',
@@ -214,9 +208,9 @@ const COLUMNS = {
     {
       key: 'price',
       title: 'Price',
-      accessor: (row) => getPrice(row),
+      accessor: row => getPrice(row),
       style: { width: '16%' },
-      CellComponent: PriceCell
+      CellComponent: PriceCell,
     },
   ],
   patientPayments: [
@@ -224,19 +218,19 @@ const COLUMNS = {
       key: 'date',
       title: 'Date',
       style: { width: '15%' },
-      accessor: ({ date }) => date
+      accessor: ({ date }) => date,
     },
     {
       key: 'method',
       title: 'Method',
       style: { width: '29%' },
-      accessor: ({ method }) => method
+      accessor: ({ method }) => method,
     },
     {
       key: 'amount',
       title: 'Amount',
       style: { width: '12%' },
-      accessor: ({ amount }) => amount
+      accessor: ({ amount }) => amount,
     },
     {
       key: 'receiptNumber',
@@ -256,19 +250,19 @@ const COLUMNS = {
       key: 'date',
       title: 'Date',
       style: { width: '16%' },
-      accessor: ({ date }) => date
+      accessor: ({ date }) => date,
     },
     {
       key: 'payer',
       title: 'Payer',
       style: { width: '18%' },
-      accessor: ({ payer }) => payer
+      accessor: ({ payer }) => payer,
     },
     {
       key: 'amount',
       title: 'Amount',
       style: { width: '10%' },
-      accessor: ({ amount }) => amount
+      accessor: ({ amount }) => amount,
     },
     {
       key: 'receiptNumber',
@@ -330,13 +324,17 @@ const DataTable = ({ data, columns, title }) => (
         {columns.map(({ key, accessor, style, CellComponent }) => {
           const displayValue = accessor ? accessor(row) : row[key] || '';
           if (CellComponent) {
-            return <CellComponent key={key} style={style}>
-              {displayValue}
-            </CellComponent>
+            return (
+              <CellComponent key={key} style={style}>
+                {displayValue}
+              </CellComponent>
+            );
           }
-          return <Cell key={key} style={style}>
-            {displayValue}
-          </Cell>
+          return (
+            <Cell key={key} style={style}>
+              {displayValue}
+            </Cell>
+          );
         })}
       </Row>
     ))}
@@ -392,10 +390,14 @@ const SummaryPane = ({ invoice }) => {
                 <P>{insurer.insurer?.name}</P>
                 <View style={summaryPaneStyles.subItem}>
                   <P>{insurer.percentage * 100}%</P>
-                  <P>{insurerPaymentsDisplay[index] ? `-${insurerPaymentsDisplay[index]}` : '-'}</P>
+                  <P>
+                    {typeof insurerPaymentsDisplay[index] === 'string'
+                      ? `-${insurerPaymentsDisplay[index]}`
+                      : '-'}
+                  </P>
                 </View>
               </View>
-            )
+            );
           })}
           <HorizontalRule />
         </>
@@ -409,16 +411,14 @@ const SummaryPane = ({ invoice }) => {
         {!!invoice.discount && (
           <View style={summaryPaneStyles.subItem}>
             <P>{invoice.discount?.percentage * 100}%</P>
-            <P isBold>{discountTotal ? `-${discountTotal}` : '-'}</P>
+            <P isBold>{typeof discountTotal === 'string' ? `-${discountTotal}` : '-'}</P>
           </View>
         )}
       </View>
       {!!invoice.discount && (
         <>
           <View style={summaryPaneStyles.item}>
-            {invoice.discount?.isManual
-              ? <P>Manual discount</P>
-              : <P>Patient discount applied</P>}
+            {invoice.discount?.isManual ? <P>Manual discount</P> : <P>Patient discount applied</P>}
           </View>
           <View style={summaryPaneStyles.item}>
             <P>Applied to discountable balance</P>
@@ -475,10 +475,7 @@ const InvoiceRecordPrintoutComponent = ({
           clinicianText={clinicianText}
         />
         <SectionSpacing />
-        <InvoiceDetails
-          encounter={encounter}
-          invoice={invoice}
-        />
+        <InvoiceDetails encounter={encounter} invoice={invoice} />
         <SectionSpacing />
         {invoice?.items?.length > 0 && (
           <TableSection data={invoice?.items} columns={COLUMNS.invoiceItems} />
