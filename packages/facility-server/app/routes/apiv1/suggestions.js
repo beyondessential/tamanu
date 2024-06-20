@@ -62,16 +62,7 @@ function createSuggesterRoute(
 
       const isTranslatable = TRANSLATABLE_REFERENCE_TYPES.includes(getDataType(endpoint));
 
-      const translations = isTranslatable
-        ? await models.TranslatedString.getReferenceDataTranslationsByDataType({
-            language,
-            refDataType: getDataType(endpoint),
-            queryString: searchQuery,
-          })
-        : [];
-      const suggestedIds = translations.map(extractDataId);
-
-      const where = { [Op.or]: [whereBuilder(`%${searchQuery}%`, query), { id: suggestedIds }] };
+      const where = whereBuilder(`%${searchQuery}%`, query);
 
       if (endpoint === 'location' && query.locationGroupId) {
         where.locationGroupId = query.locationGroupId;
@@ -92,7 +83,18 @@ function createSuggesterRoute(
       // Allow for async mapping functions (currently only used by location suggester)
       const data = await Promise.all(results.map(mapper));
 
-      res.send(isTranslatable ? replaceDataLabelsWithTranslations({ data, translations }) : data);
+      res.send(
+        isTranslatable
+          ? replaceDataLabelsWithTranslations({
+              data,
+              translations: await models.TranslatedString.getReferenceDataTranslationsByDataType({
+                language,
+                refDataType: getDataType(endpoint),
+                queryString: searchQuery,
+              }),
+            })
+          : data,
+      );
     }),
   );
 }
