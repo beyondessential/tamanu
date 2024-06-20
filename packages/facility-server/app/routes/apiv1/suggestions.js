@@ -62,7 +62,27 @@ function createSuggesterRoute(
 
       const isTranslatable = TRANSLATABLE_REFERENCE_TYPES.includes(getDataType(endpoint));
 
-      const where = whereBuilder(`%${searchQuery}%`, query);
+      const translations = isTranslatable
+        ? await models.TranslatedString.getReferenceDataTranslationsByDataType({
+            language,
+            refDataType: getDataType(endpoint),
+            queryString: searchQuery,
+          })
+        : [];
+      const suggestedIds = translations.map(extractDataId);
+
+      const where = {
+        [Op.or]: [
+          whereBuilder(`%${searchQuery}%`, query),
+          {
+            id: {
+              [Op.in]: suggestedIds,
+            },
+            ...(query.filterByFacility === true ||
+              (endpoint === 'facilityLocationGroup' && { facilityId: config.serverFacilityId })),
+          },
+        ],
+      };
 
       if (endpoint === 'location' && query.locationGroupId) {
         where.locationGroupId = query.locationGroupId;
@@ -87,11 +107,7 @@ function createSuggesterRoute(
         isTranslatable
           ? replaceDataLabelsWithTranslations({
               data,
-              translations: await models.TranslatedString.getReferenceDataTranslationsByDataType({
-                language,
-                refDataType: getDataType(endpoint),
-                queryString: searchQuery,
-              }),
+              translations,
             })
           : data,
       );
