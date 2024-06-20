@@ -42,10 +42,13 @@ export class InvoiceDiscount extends Model {
     });
   }
 
-  static buildPatientSyncFilter(patientCount) {
+  static buildPatientSyncFilter(patientCount, markedForSyncPatientsTable) {
     if (patientCount === 0) {
       return null;
     }
-    return buildEncounterLinkedSyncFilter([this.tableName, 'invoices']);
+    return buildEncounterLinkedSyncFilter(
+      [this.tableName, 'invoices', 'encounters'],
+      markedForSyncPatientsTable,
+    );
   }
 }
