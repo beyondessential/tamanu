@@ -4,7 +4,7 @@ import asyncHandler from 'express-async-handler';
 export const patientInvoiceRoutes = express.Router();
 
 const encounterOrderByKeys = ['encounterType'];
-const invoiceOrderByKeys = ['date', 'displayId', 'total', 'paymentStatus', 'status'];
+const invoiceOrderByKeys = ['date', 'displayId', 'paymentStatus', 'status'];
 
 patientInvoiceRoutes.get(
   '/:id/invoices',
