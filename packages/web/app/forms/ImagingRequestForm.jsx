@@ -217,11 +217,7 @@ export const ImagingRequestForm = React.memo(
                   options={imagingAreas.map(area => ({
                     label: area.name,
                     value: area.id,
-                  })).sort((area1, area2) => {
-                    const { label: label1 } = area1;
-                    const { label: label2 } = area2;
-                    return label1.localeCompare(label2);
-                  })
+                  })).sort((area1, area2) => area1.label.localeCompare(area2.label))
                   }
                   name="areas"
                   label={
