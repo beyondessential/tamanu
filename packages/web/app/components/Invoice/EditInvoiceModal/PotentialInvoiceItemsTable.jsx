@@ -115,7 +115,7 @@ export const PotentialInvoiceItemsTable = ({ invoice, invoiceItems, formArrayMet
         <TranslatedText
           stringId="invoice.table.cell.price"
           fallback="$:price"
-          replacements={{ price }}
+          replacements={{ price: parseFloat(price)?.toFixed(2) }}
         />
       ),
     },

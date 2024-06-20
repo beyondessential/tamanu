@@ -79,7 +79,14 @@ export const EditInvoiceModal = ({
 
   const handleSubmit = async data => {
     updateInvoice(
-      { ...invoice, items: data.invoiceItems },
+      {
+        ...invoice,
+        items: data.invoiceItems,
+        insurers: data.insurers.map(insurer => ({
+          ...insurer,
+          percentage: insurer.percentage / 100,
+        })),
+      },
       {
         onSuccess: onClose,
       },
@@ -113,6 +120,36 @@ export const EditInvoiceModal = ({
           ),
       }),
     ),
+    insurers: yup.array(
+      yup.object({
+        insurerId: yup
+          .string()
+          .required()
+          .translatedLabel(
+            <TranslatedText
+              stringId="invoice.modal.editInvoice.insurer.label"
+              fallback="Insurer"
+            />,
+          ),
+        percentage: yup
+          .number()
+          .required(<TranslatedText stringId="general.required" fallback="Required" />),
+      }),
+    ),
+    totalInsurerPercentage: yup
+      .mixed()
+      .test(
+        'totalInsurerPercentage',
+        <TranslatedText
+          stringId="invoice.modal.editInvoice.insurer.totalPercentageError"
+          fallback="Total insurer percentage must be less than or equal to 100%"
+        />,
+        function(_, context) {
+          return (
+            context.parent.insurers.reduce((acc, curr) => acc + curr.percentage || 0, 0) <= 100
+          );
+        },
+      ),
   });
 
   return (
@@ -181,6 +218,12 @@ export const EditInvoiceModal = ({
           onSubmit={handleSubmit}
           initialValues={{
             invoiceItems: invoice.items?.length ? invoice.items : [getDefaultRow()],
+            insurers: invoice.insurers?.length
+              ? invoice.insurers.map(insurer => ({
+                  ...insurer,
+                  percentage: insurer.percentage * 100,
+                }))
+              : [],
           }}
           validationSchema={schema}
           render={({ submitForm, values }) => (

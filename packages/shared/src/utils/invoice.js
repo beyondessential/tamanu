@@ -39,14 +39,17 @@ const calculateDiscountableItemsTotal = invoiceItems => {
   return total;
 };
 
-const calculateInsurersPercentage = insurers => {
-  let total = 0;
-  insurers.forEach(insurer => {
-    const percentage = parseInt(insurer.percentage);
-    total += percentage;
+const calculateInsurerPayments = (insurers, total) => {
+  return insurers.map(insurer => {
+    const percentage = parseFloat(insurer.percentage);
+    if (isNaN(insurer.percentage)) return undefined;
+    return round(total * percentage, 2);
   });
+};
 
-  return total;
+export const getInsurerPaymentsDisplay = (insurers, total) => {
+  const payments = calculateInsurerPayments(insurers, total);
+  return payments.map(payment => payment?.toFixed(2));
 };
 
 export const getInvoiceSummary = invoice => {
@@ -57,12 +60,19 @@ export const getInvoiceSummary = invoice => {
       ? undefined
       : (discountableItemsSubtotal || 0) + (nonDiscountableItemsSubtotal || 0);
 
-  const paidFromInsurersPercentage = calculateInsurersPercentage(invoice.insurers);
-  const paidFromInsurers = round(total * paidFromInsurersPercentage, 2);
+  const paidFromInsurersPercentage = invoice.insurers
+    .filter(insurer => insurer.percentage)
+    .reduce((acc, val) => acc + val.percentage, 0);
+  const paidFromInsurers = calculateInsurerPayments(invoice.insurers, total)
+    .filter(Boolean)
+    .reduce((acc, val) => acc + val, 0);
+
   const patientSubtotal = total - paidFromInsurers;
 
-  const appliedToDiscountableSubtotal =
-    discountableItemsSubtotal - round(discountableItemsSubtotal * paidFromInsurersPercentage, 2);
+  const appliedToDiscountableSubtotal = round(
+    discountableItemsSubtotal - discountableItemsSubtotal * paidFromInsurersPercentage,
+    2,
+  );
   const discountTotal = round(
     appliedToDiscountableSubtotal * (invoice.discount?.percentage || 0),
     2,
@@ -78,6 +88,7 @@ export const getInvoiceSummary = invoice => {
       ? undefined
       : appliedToDiscountableSubtotal.toFixed(2),
     discountTotal: isNaN(discountTotal) ? undefined : discountTotal.toFixed(2),
+    patientSubtotal: isNaN(patientSubtotal) ? undefined : patientSubtotal.toFixed(2),
     patientTotal: isNaN(patientTotal) ? undefined : patientTotal.toFixed(2),
   };
 };
