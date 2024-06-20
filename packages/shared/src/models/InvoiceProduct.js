@@ -20,20 +20,20 @@ export class InvoiceProduct extends Model {
           allowNull: false,
           defaultValue: false,
         },
-        // type: {
-        //   type: DataTypes.VIRTUAL,
-        //   get() {
-        //     if (IMAGING_TYPES_VALUES.includes(this.id)) return REFERENCE_TYPES.IMAGING_TYPE;
-        //     return this.referenceData?.type ?? this.labTestType?.id ? 'labTestType' : undefined;
-        //   },
-        // },
-        // code: {
-        //   type: DataTypes.VIRTUAL,
-        //   get() {
-        //     if (IMAGING_TYPES_VALUES.includes(this.id)) return this.id;
-        //     return this.referenceData?.code ?? this.labTestType?.code;
-        //   },
-        // },
+        type: {
+          type: DataTypes.VIRTUAL,
+          get() {
+            if (IMAGING_TYPES_VALUES.includes(this.id)) return REFERENCE_TYPES.IMAGING_TYPE;
+            return this.referenceData?.type ?? this.labTestType?.code ? 'labTestType' : undefined;
+          },
+        },
+        code: {
+          type: DataTypes.VIRTUAL,
+          get() {
+            if (IMAGING_TYPES_VALUES.includes(this.id)) return this.id;
+            return this.referenceData?.code ?? this.labTestType?.code;
+          },
+        },
       },
       { syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL, ...options },
     );
@@ -62,5 +62,16 @@ export class InvoiceProduct extends Model {
 
   static getFullReferenceAssociations() {
     return ['referenceData', 'labTestType'];
+  }
+
+  static sanitizeForFacilityServer(product) {
+    //remove virtual fields for sync
+    const { type, code, ...rest } = product;
+    return rest;
+  }
+  static sanitizeForCentralServer(product) {
+    //remove virtual fields for sync
+    const { type, code, ...rest } = product;
+    return rest;
   }
 }

@@ -1,4 +1,8 @@
-import { SYNC_DIRECTIONS } from '@tamanu/constants';
+import {
+  SYNC_DIRECTIONS,
+  ENGLISH_LANGUAGE_CODE,
+  REFERENCE_DATA_TRANSLATION_PREFIX,
+} from '@tamanu/constants';
 import { DataTypes, Op } from 'sequelize';
 import { Model } from './Model';
 import { keyBy, mapValues } from 'lodash';
@@ -85,6 +89,24 @@ export class TranslatedString extends Model {
     });
 
     return { languagesInDb, languageNames };
+  };
+
+  static getReferenceDataTranslationsByDataType = async ({
+    language = ENGLISH_LANGUAGE_CODE,
+    refDataType,
+    queryString,
+  }) => {
+    return this.findAll({
+      where: {
+        language,
+        stringId: {
+          [Op.startsWith]: `${REFERENCE_DATA_TRANSLATION_PREFIX}.${refDataType}`,
+        },
+        ...(queryString ? { text: { [Op.iLike]: `%${queryString}%` } } : {}),
+      },
+      attributes: ['stringId', 'text'],
+      raw: true,
+    });
   };
 
   /**

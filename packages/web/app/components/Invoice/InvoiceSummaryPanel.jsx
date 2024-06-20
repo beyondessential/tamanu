@@ -88,7 +88,7 @@ const InsurersEditable = ({ insurerPaymentsDisplay }) => {
   const insurers = formikContext?.values?.insurers || [];
 
   const { getSetting } = useSettings();
-  const defaultContributionInsurer = getSetting(SETTING_KEYS.DEFAUlT_CONTRIBUTION_INSURER);
+  const defaultContributionInsurer = getSetting(SETTING_KEYS.INSURER_DEFAUlT_CONTRIBUTION);
 
   const insurerSuggester = useSuggester('insurer');
 

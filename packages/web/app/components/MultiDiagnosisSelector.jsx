@@ -3,6 +3,7 @@ import styled from 'styled-components';
 
 import { Button } from './Button';
 import { AutocompleteInput } from './Field/AutocompleteField';
+import { TranslatedReferenceData } from './Translation';
 
 const AdderContainer = styled.div`
   display: grid;
@@ -22,7 +23,10 @@ const DiagnosisItem = React.memo(({ diagnosis, onRemove }) => {
         </span>
         )
       </>
-      <span>{` ${diagnosis.name}`}</span>
+      <span>
+        {" "}
+        <TranslatedReferenceData fallback={diagnosis.name} value={diagnosis.id} category="icd10" />
+      </span>
     </li>
   );
 });
