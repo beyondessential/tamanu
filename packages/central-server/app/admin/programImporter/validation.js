@@ -67,6 +67,9 @@ async function ensureOnlyOneComplexSurveySetPerProgram({ models }, surveyInfo) {
   }
 }
 
-export async function validateComplexChartSurvey(context, surveyInfo) {
-  await ensureOnlyOneComplexSurveySetPerProgram(context, surveyInfo);
+export async function validateChartingSurvey(context, surveyInfo) {
+  if (surveyInfo.surveyType !== SURVEY_TYPES.SIMPLE_CHART) {
+    await ensureOnlyOneComplexSurveySetPerProgram(context, surveyInfo);
+  }
+  ensureSurveyNonSensitive(surveyInfo, 'Charting survey can not be sensitive');
 }

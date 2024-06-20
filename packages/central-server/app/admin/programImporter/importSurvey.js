@@ -7,7 +7,7 @@ import { importRows } from '../importRows';
 import { readSurveyQuestions } from './readSurveyQuestions';
 import {
   ensureRequiredQuestionsPresent,
-  validateComplexChartSurvey,
+  validateChartingSurvey,
   validateVitalsSurvey,
 } from './validation';
 import { validateProgramDataElementRecords } from './vitalsValidation';
@@ -52,8 +52,12 @@ export async function importSurvey(context, workbook, surveyInfo) {
     await validateVitalsSurvey(context, surveyInfo);
   }
 
-  if ([SURVEY_TYPES.COMPLEX_CHART, SURVEY_TYPES.COMPLEX_CHART_CORE].includes(surveyType)) {
-    await validateComplexChartSurvey(context, surveyInfo);
+  if ([
+    SURVEY_TYPES.SIMPLE_CHART,
+    SURVEY_TYPES.COMPLEX_CHART,
+    SURVEY_TYPES.COMPLEX_CHART_CORE,
+  ].includes(surveyType)) {
+    await validateChartingSurvey(context, surveyInfo);
   }
 
   const records = readSurveyInfo(workbook, surveyInfo);
