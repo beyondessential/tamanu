@@ -4,6 +4,8 @@ import { INVOICE_STATUSES } from '@tamanu/constants';
 export const isInvoiceEditable = invoice =>
   ![INVOICE_STATUSES.FINALISED, INVOICE_STATUSES.CANCELLED].includes(invoice.status);
 
+const formatDisplayValue = value => (isNaN(value) ? undefined : value.toFixed(2));
+
 const calculateInvoiceItemDiscountPrice = (price, discount) => {
   const priceFloat = parseFloat(price);
   const priceChange = discount * priceFloat;
@@ -17,18 +19,22 @@ const getInvoiceItemPrice = invoiceItem => {
 
 export const getInvoiceItemPriceDisplay = invoiceItem => {
   const result = getInvoiceItemPrice(invoiceItem);
-  return isNaN(result) ? undefined : result.toFixed(2);
+  return formatDisplayValue(result);
 };
 
 export const getInvoiceItemDiscountPriceDisplay = invoiceItem => {
   const originalPrice = getInvoiceItemPrice(invoiceItem);
   const discount = invoiceItem?.discount?.percentage;
   const result = calculateInvoiceItemDiscountPrice(originalPrice, discount);
-  return isNaN(result) ? undefined : result.toFixed(2);
+  return formatDisplayValue(result);
 };
 
 const calculateDiscountableItemsTotal = invoiceItems => {
-  if (!invoiceItems?.length) return undefined;
+  if (
+    !invoiceItems?.filter(item => !!(item.productPrice ?? item.product?.price ?? item.price))
+      ?.length
+  )
+    return undefined;
   let total = 0;
   invoiceItems.forEach(item => {
     const price = item.productPrice ?? item.product?.price ?? item.price;
@@ -39,14 +45,17 @@ const calculateDiscountableItemsTotal = invoiceItems => {
   return total;
 };
 
-const calculateInsurersPercentage = insurers => {
-  let total = 0;
-  insurers.forEach(insurer => {
-    const percentage = parseInt(insurer.percentage);
-    total += percentage;
+const calculateInsurerPayments = (insurers, total) => {
+  return insurers.map(insurer => {
+    const percentage = parseFloat(insurer.percentage);
+    if (isNaN(insurer.percentage)) return undefined;
+    return round(total * percentage, 2);
   });
+};
 
-  return total;
+export const getInsurerPaymentsDisplay = (insurers, total) => {
+  const payments = calculateInsurerPayments(insurers, total);
+  return payments.map(payment => formatDisplayValue(payment));
 };
 
 export const getInvoiceSummary = invoice => {
@@ -57,12 +66,19 @@ export const getInvoiceSummary = invoice => {
       ? undefined
       : (discountableItemsSubtotal || 0) + (nonDiscountableItemsSubtotal || 0);
 
-  const paidFromInsurersPercentage = calculateInsurersPercentage(invoice.insurers);
-  const paidFromInsurers = round(total * paidFromInsurersPercentage, 2);
+  const paidFromInsurersPercentage = invoice.insurers
+    .filter(insurer => insurer.percentage)
+    .reduce((acc, val) => acc + val.percentage, 0);
+  const paidFromInsurers = calculateInsurerPayments(invoice.insurers, total)
+    .filter(Boolean)
+    .reduce((acc, val) => acc + val, 0);
+
   const patientSubtotal = total - paidFromInsurers;
 
-  const appliedToDiscountableSubtotal =
-    discountableItemsSubtotal - round(discountableItemsSubtotal * paidFromInsurersPercentage, 2);
+  const appliedToDiscountableSubtotal = round(
+    discountableItemsSubtotal - discountableItemsSubtotal * paidFromInsurersPercentage,
+    2,
+  );
   const discountTotal = round(
     appliedToDiscountableSubtotal * (invoice.discount?.percentage || 0),
     2,
@@ -74,11 +90,10 @@ export const getInvoiceSummary = invoice => {
     discountableItemsSubtotal: discountableItemsSubtotal?.toFixed(2),
     nonDiscountableItemsSubtotal: nonDiscountableItemsSubtotal?.toFixed(2),
     total: total?.toFixed(2),
-    appliedToDiscountableSubtotal: isNaN(appliedToDiscountableSubtotal)
-      ? undefined
-      : appliedToDiscountableSubtotal.toFixed(2),
-    discountTotal: isNaN(discountTotal) ? undefined : discountTotal.toFixed(2),
-    patientTotal: isNaN(patientTotal) ? undefined : patientTotal.toFixed(2),
+    appliedToDiscountableSubtotal: formatDisplayValue(appliedToDiscountableSubtotal),
+    discountTotal: formatDisplayValue(discountTotal),
+    patientSubtotal: formatDisplayValue(patientSubtotal),
+    patientTotal: formatDisplayValue(patientTotal),
   };
 };
 

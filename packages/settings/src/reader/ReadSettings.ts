@@ -7,7 +7,8 @@ const KEYS_EXPOSED_TO_FRONT_END = [
   'vaccinations',
   'templates',
   'features',
-  'invoice'
+  'invoice',
+  'insurer'
 ];
 
 export class ReadSettings {

@@ -2,7 +2,7 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { customAlphabet } from 'nanoid';
 import { ValidationError, NotFoundError, ForbiddenError } from '@tamanu/shared/errors';
-import { INVOICE_PAYMENT_STATUSES, INVOICE_STATUSES } from '@tamanu/constants';
+import { INVOICE_PAYMENT_STATUSES, INVOICE_STATUSES, SETTING_KEYS } from '@tamanu/constants';
 import { v4 as uuidv4 } from 'uuid';
 import { z } from 'zod';
 import { Op } from 'sequelize';
@@ -59,11 +59,7 @@ invoiceRoute.post(
       where: { patientId: encounter.patientId },
       attributes: ['insurerId'],
     }).then(patientData => patientData?.insurerId);
-    const insurerPercentage = await req.models.Setting.findOne({
-      where: { key: 'insurer.defaultContribution' },
-    })
-      .then(setting => JSON.parse(setting.value))
-      .catch(() => null);
+    const insurerPercentage = await req.settings.get(SETTING_KEYS.INSURER_DEFAUlT_CONTRIBUTION);
     const defaultInsurer =
       insurerId && insurerPercentage ? { insurerId, percentage: insurerPercentage } : null;
 
@@ -130,7 +126,7 @@ const updateInvoiceSchema = z
           .number()
           .min(0)
           .max(1),
-        insurerId: z.string().uuid(),
+        insurerId: z.string(),
       })
       .strip()
       .array(),
@@ -144,7 +140,10 @@ const updateInvoiceSchema = z
         orderedByUserId: z.string().uuid(),
         productId: z.string(),
         quantity: z.coerce.number().default(0),
-        sourceId: z.string().uuid(),
+        sourceId: z
+          .string()
+          .uuid()
+          .optional(),
         discount: z
           .object({
             id: z
@@ -260,17 +259,53 @@ invoiceRoute.put(
   }),
 );
 
+async function freezeInvoiceItemsData(req, transaction) {
+  const items = await req.models.InvoiceItem.findAll(
+    {
+      where: { invoiceId: req.params.id },
+      include: {
+        model: req.models.InvoiceProduct,
+        as: 'product',
+        attributes: ['name', 'price'],
+      },
+    },
+    { transaction },
+  );
+
+  await req.models.InvoiceItem.bulkCreate(
+    items.map(item => {
+      const plain = item.get();
+      return {
+        ...plain,
+        productName: plain.product.name,
+        productPrice: plain.product.price,
+      };
+    }),
+    { updateOnDuplicate: ['productName', 'productPrice'], transaction },
+  );
+}
+
 invoiceRoute.put(
   '/:id/cancel',
   asyncHandler(async (req, res) => {
     req.checkPermission('write', 'Invoice');
 
-    await req.models.Invoice.update(
-      { status: INVOICE_STATUSES.CANCELLED },
-      { where: { id: req.params.id, status: INVOICE_STATUSES.IN_PROGRESS } },
-    );
+    const transaction = await req.db.transaction();
 
-    res.send({});
+    try {
+      await freezeInvoiceItemsData(req, transaction);
+
+      await req.models.Invoice.update(
+        { status: INVOICE_STATUSES.CANCELLED },
+        { where: { id: req.params.id, paymentStatus: INVOICE_PAYMENT_STATUSES.UNPAID } },
+        { transaction },
+      );
+      await transaction.commit();
+      res.send({});
+    } catch (error) {
+      await transaction.rollback();
+      throw error;
+    }
   }),
 );
 
@@ -288,27 +323,7 @@ invoiceRoute.put(
     const transaction = await req.db.transaction();
 
     try {
-      //freeze invoice items data
-      const items = await req.models.InvoiceItem.findAll(
-        {
-          where: { invoiceId: req.params.id },
-          include: {
-            model: req.models.InvoiceProduct,
-            as: 'product',
-            attributes: ['name', 'price'],
-          },
-        },
-        { transaction },
-      );
-
-      await req.models.InvoiceItem.bulkCreate(
-        items.map(item => ({
-          ...item,
-          productName: item.product.name,
-          productPrice: item.product.price,
-        })),
-        { conflictAttributes: ['id'], transaction },
-      );
+      await freezeInvoiceItemsData(req, transaction);
 
       const invoice = await req.models.Invoice.update(
         { status: INVOICE_STATUSES.FINALISED },
