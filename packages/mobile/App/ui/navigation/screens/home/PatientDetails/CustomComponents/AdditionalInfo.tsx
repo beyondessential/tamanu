@@ -18,6 +18,7 @@ interface AdditionalInfoProps {
     additionalInfo: PatientAdditionalData,
     sectionTitle: Element,
     customPatientFieldValues: CustomPatientFieldValues,
+    sectionKey: string,
   ) => void;
   patient: Patient;
   dataSections;
@@ -59,10 +60,9 @@ export const AdditionalInfo = ({
   const isEditable = getBool('features.editPatientDetailsOnMobile');
 
   // Add edit callback and map the inner 'fields' array
-  // Todo: Refactor to allow for hierarchy fields
-  const sections = dataSections.map(({ title, fields }) => {
+  const sections = dataSections.map(({ title, fields, sectionKey }) => {
     const onEditCallback = (): void =>
-      onEdit(patientAdditionalData, title, customPatientFieldValues);
+      onEdit(patientAdditionalData, title, customPatientFieldValues, sectionKey);
 
     const fieldsWithData = fields.map(field => {
       if (field === 'villageId' || field.name === 'villageId') {

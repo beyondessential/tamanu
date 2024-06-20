@@ -13,13 +13,14 @@ export const PatientDetails = ({ patient, navigation }): ReactElement => {
   }, [navigation, patient]);
 
   const editPatientAdditionalData = useCallback(
-    (additionalData, sectionTitle, customPatientFieldValues) => {
+    (additionalData, sectionTitle, customPatientFieldValues, sectionKey) => {
       navigation.navigate(Routes.HomeStack.PatientDetailsStack.Cambodia.EditPatientAdditionalData, {
         patientName: joinNames(patient),
         patient,
         additionalDataJSON: JSON.stringify(additionalData),
         sectionTitle,
         customPatientFieldValues,
+        sectionKey,
       });
     },
     [navigation, patient],

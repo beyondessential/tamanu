@@ -21,7 +21,7 @@ export const PatientAdditionalDataForm = ({
   additionalData,
   additionalDataSections,
   navigation,
-  sectionTitle,
+  sectionKey,
   customPatientFieldValues,
 }): ReactElement => {
   const scrollViewRef = useRef();
@@ -63,14 +63,14 @@ export const PatientAdditionalDataForm = ({
   );
 
   // Get the field group for this section of the additional data template
-  const { fields } = additionalDataSections.find(({ title }) => title === sectionTitle);
+  const { fields } = additionalDataSections.find(({ sectionKey: key }) => key === sectionKey);
 
   return (
     <Form
       initialValues={{
         ...getInitialAdditionalValues(additionalData, fields),
         ...getInitialCustomValues(customPatientFieldValues, fields),
-        ...patient
+        ...patient,
       }}
       validationSchema={patientAdditionalDataValidationSchema}
       onSubmit={onCreateOrEditAdditionalData}

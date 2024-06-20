@@ -33,6 +33,7 @@ export const CAMBODIA_ADDITIONAL_DATA_FIELDS = {
 
 const COMMON = [
   {
+    sectionKey: 'contactInformation',
     title: (
       <TranslatedText
         stringId="patient.details.subheading.contactInformation"
@@ -42,6 +43,7 @@ const COMMON = [
     fields: CAMBODIA_ADDITIONAL_DATA_FIELDS.CONTACT,
   },
   {
+    sectionKey: 'identificationInformation',
     title: (
       <TranslatedText
         stringId="patient.details.subheading.identificationInformation"
@@ -51,6 +53,7 @@ const COMMON = [
     fields: CAMBODIA_ADDITIONAL_DATA_FIELDS.IDENTIFICATION,
   },
   {
+    sectionKey: 'personalInformation',
     title: (
       <TranslatedText
         stringId="patient.details.subheading.personalInformation"
@@ -63,6 +66,7 @@ const COMMON = [
 
 export const CAMBODIA_ADDITIONAL_DATA_SECTIONS = [
   {
+    sectionKey: 'currentAddress',
     title: (
       <TranslatedText
         stringId="patient.details.subheading.currentAddress"
@@ -72,6 +76,7 @@ export const CAMBODIA_ADDITIONAL_DATA_SECTIONS = [
     fields: CAMBODIA_ADDITIONAL_DATA_FIELDS.ADDRESS,
   },
   {
+    sectionKey: 'permanentAddress',
     title: (
       <TranslatedText
         stringId="patient.details.subheading.permanentAddress"
@@ -85,6 +90,7 @@ export const CAMBODIA_ADDITIONAL_DATA_SECTIONS = [
 
 export const CAMBODIA_ADDITIONAL_DATA_SECTIONS_FOR_DISPLAY = [
   {
+    sectionKey: 'currentAddress',
     title: (
       <TranslatedText
         stringId="patient.details.subheading.currentAddress"
@@ -94,6 +100,7 @@ export const CAMBODIA_ADDITIONAL_DATA_SECTIONS_FOR_DISPLAY = [
     fields: ['divisionId', 'subdivisionId', 'settlementId', 'villageId'],
   },
   {
+    sectionKey: 'permanentAddress',
     title: (
       <TranslatedText
         stringId="patient.details.subheading.permanentAddress"
