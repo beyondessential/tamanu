@@ -28,7 +28,7 @@ export const VaccineScreenComponent = ({ selectedPatient }): ReactElement => {
         return value.scheduledVaccine;
       }
       return getTranslation(
-        getReferenceDataStringId(value.scheduledVaccine.vaccine.id, 'vaccine'),
+        getReferenceDataStringId(value.scheduledVaccine.vaccine.id, 'scheduledVaccine'),
         value.scheduledVaccine.vaccine.name,
       );
     }),
