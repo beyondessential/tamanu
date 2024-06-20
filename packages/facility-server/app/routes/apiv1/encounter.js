@@ -25,7 +25,11 @@ import { noteChangelogsHandler, noteListHandler } from '../../routeHandlers';
 import { createPatientLetter } from '../../routeHandlers/createPatientLetter';
 
 import { getLabRequestList } from '../../routeHandlers/labs';
-import { deleteDocumentMetadata, deleteEncounter, deleteSurveyResponse } from '../../routeHandlers/deleteModel';
+import {
+  deleteDocumentMetadata,
+  deleteEncounter,
+  deleteSurveyResponse,
+} from '../../routeHandlers/deleteModel';
 
 export const encounter = softDeletionCheckingRouter('Encounter');
 
@@ -251,7 +255,7 @@ encounterRelations.get(
 
 encounterRelations.get(
   '/:id/invoice',
-  simpleGetHasOne('Invoice', 'encounterId'),
+  simpleGetHasOne('Invoice', 'encounterId', {}, invoice => invoice.addVirtualFields()),
 );
 
 const PROGRAM_RESPONSE_SORT_KEYS = {

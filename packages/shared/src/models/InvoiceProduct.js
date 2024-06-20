@@ -1,5 +1,10 @@
 import { DataTypes } from 'sequelize';
-import { IMAGING_TYPES_VALUES, REFERENCE_TYPES, SYNC_DIRECTIONS } from '@tamanu/constants';
+import {
+  IMAGING_TYPES_VALUES,
+  OTHER_REFERENCE_TYPES,
+  REFERENCE_TYPES,
+  SYNC_DIRECTIONS,
+} from '@tamanu/constants';
 import { Model } from './Model';
 
 export class InvoiceProduct extends Model {
@@ -19,20 +24,6 @@ export class InvoiceProduct extends Model {
           type: DataTypes.BOOLEAN,
           allowNull: false,
           defaultValue: false,
-        },
-        type: {
-          type: DataTypes.VIRTUAL,
-          get() {
-            if (IMAGING_TYPES_VALUES.includes(this.id)) return REFERENCE_TYPES.IMAGING_TYPE;
-            return this.referenceData?.type ?? this.labTestType?.code ? 'labTestType' : undefined;
-          },
-        },
-        code: {
-          type: DataTypes.VIRTUAL,
-          get() {
-            if (IMAGING_TYPES_VALUES.includes(this.id)) return this.id;
-            return this.referenceData?.code ?? this.labTestType?.code;
-          },
         },
       },
       { syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL, ...options },
@@ -64,17 +55,18 @@ export class InvoiceProduct extends Model {
     return ['referenceData', 'labTestType'];
   }
 
-  static sanitizeForFacilityServer(product) {
-    //remove virtual fields for sync
-    delete product.type;
-    delete product.code;
-    return product;
-  }
-  static sanitizeForCentralServer(product) {
-    //remove virtual fields for sync
-    const { type: _type, code: _code, ...rest } = product;
-    delete product.type;
-    delete product.code;
-    return product;
+  addVirtualFields() {
+    this.type =
+      this.referenceData?.type ??
+      (this.labTestType?.code
+        ? OTHER_REFERENCE_TYPES.LAB_TEST_TYPE
+        : IMAGING_TYPES_VALUES.includes(this.id)
+        ? REFERENCE_TYPES.IMAGING_TYPE
+        : undefined);
+    this.code =
+      this.referenceData?.code ??
+      this.labTestType?.code ??
+      (IMAGING_TYPES_VALUES.includes(this.id) ? this.id : undefined);
+    return this;
   }
 }

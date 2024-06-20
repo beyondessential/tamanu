@@ -75,12 +75,18 @@ export class InvoiceItem extends Model {
       {
         model: models.InvoiceProduct,
         as: 'product',
-        attributes: ['name', 'price'],
-        include: {
-          model: models.ReferenceData,
-          as: 'referenceData',
-          attributes: ['code'],
-        },
+        include: [
+          {
+            model: models.ReferenceData,
+            as: 'referenceData',
+            attributes: ['code', 'type'],
+          },
+          {
+            model: models.LabTestType,
+            as: 'labTestType',
+            attributes: ['code'],
+          },
+        ],
       },
       {
         model: models.User,
@@ -92,5 +98,12 @@ export class InvoiceItem extends Model {
         as: 'discount',
       },
     ];
+  }
+
+  addVirtualFields() {
+    this.productName = this.productName ?? this.product?.name;
+    this.productPrice = this.productPrice ?? this.product?.price;
+    this.product = this.product.addVirtualFields();
+    return this;
   }
 }
