@@ -101,6 +101,17 @@ export function validateProgramDataElementRecords(
 
   const programDataElementRecords = records.filter(({ model }) => model === 'ProgramDataElement');
 
+  if ([SURVEY_TYPES.SIMPLE_CHART, SURVEY_TYPES.COMPLEX_CHART].includes(surveyType)) {
+    const { code, type } = programDataElementRecords[0].values;
+    if (type !== PROGRAM_DATA_ELEMENT_TYPES.DATE_TIME) {
+      const error = new Error(
+        `sheetName: ${sheetName}, code: '${code}', First question should be DateTime type`,
+      );
+      updateStat(stats, statkey('ProgramDataElement', sheetName), 'errored', 1);
+      errors.push(error);
+    }
+  }
+
   for (const programDataElementRecord of programDataElementRecords) {
     const newErrors = [];
     const { values } = programDataElementRecord;
