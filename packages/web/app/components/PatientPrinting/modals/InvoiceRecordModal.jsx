@@ -15,13 +15,12 @@ import { ForbiddenErrorModalContents } from '../../ForbiddenErrorModal';
 import { PDFLoader, printPDF } from '../PDFLoader';
 import { TranslatedText } from '../../Translation/TranslatedText';
 import { useTranslation } from '../../../contexts/Translation';
+import { useEncounterData } from '../../../api/queries';
 
 export const InvoiceRecordModal = ({ 
-  encounter, 
   open, 
   onClose, 
   invoice,
-
 }) => {
   const { getTranslation } = useTranslation();
   const clinicianText = getTranslation(
@@ -33,7 +32,10 @@ export const InvoiceRecordModal = ({
   const certificateQuery = useCertificate();
   const { data: certificateData } = certificateQuery;
 
-  const patientQuery = usePatientData(encounter.patientId);
+  const encounterQuery = useEncounterData(invoice.encounter.id);
+  const { data: encounter } = encounterQuery;
+
+  const patientQuery = usePatientData(invoice.encounter.patientId);
   const patient = patientQuery.data;
 
   const padDataQuery = usePatientAdditionalDataQuery(patient?.id);
@@ -43,6 +45,7 @@ export const InvoiceRecordModal = ({
   const village = villageQuery.data;
 
   const allQueries = combineQueries([
+    encounterQuery,
     patientQuery,
     certificateQuery,
     villageQuery,

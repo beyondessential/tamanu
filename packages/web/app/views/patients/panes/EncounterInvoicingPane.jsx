@@ -52,7 +52,6 @@ const InvoiceContainer = styled.div`
 
 export const EncounterInvoicingPane = ({ encounter }) => {
   const [openInvoiceModal, setOpenInvoiceModal] = useState();
-  const [printModalOpen, setPrintModalOpen] = useState(false);
 
   const { data: invoice } = useEncounterInvoice(encounter.id);
 
@@ -62,15 +61,6 @@ export const EncounterInvoicingPane = ({ encounter }) => {
     <>
       {invoice ? (
         <TabPane>
-          <Button onClick={() => setPrintModalOpen(true)}>
-            <TranslatedText stringId="general.action.print" fallback="Print" />
-          </Button>
-          {printModalOpen && <InvoiceRecordModal
-            open
-            onClose={() => setPrintModalOpen(false)}
-            encounter={encounter}
-            invoice={invoice}
-          />}
           <InvoiceContainer>
             <InvoiceTopBar>
               <InvoiceHeading>

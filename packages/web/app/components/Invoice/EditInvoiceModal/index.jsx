@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
 import * as yup from 'yup';
@@ -19,6 +19,7 @@ import { useUpdateInvoice } from '../../../api/mutations/useInvoiceMutation';
 import { ThreeDotMenu } from '../../ThreeDotMenu';
 import { PotentialInvoiceItemsTable } from './PotentialInvoiceItemsTable';
 import { Button } from '../../Button';
+import { InvoiceRecordModal } from '../../PatientPrinting/modals/InvoiceRecordModal';
 
 const LinkText = styled.div`
   font-weight: 500;
@@ -65,6 +66,7 @@ export const EditInvoiceModal = ({
   handleFinaliseInvoice,
   isPatientView,
 }) => {
+  const [printModalOpen, setPrintModalOpen] = useState(false);
   const editable = isInvoiceEditable(invoice);
   const cancelable =
     invoice.status !== INVOICE_STATUSES.CANCELLED &&
@@ -167,11 +169,23 @@ export const EditInvoiceModal = ({
               <InvoiceStatus status={invoice.status} />
             </StatusContainer>
           </Box>
-          {isPatientView && !editable && (
-            <PrintButton color="primary" variant="outlined" startIcon={<PrintIcon />} size="small">
+          {/* TODO: check condition to show Print button only after finalized */}
+          {isPatientView && (
+            <PrintButton 
+              onClick={() => setPrintModalOpen(true)}
+              color="primary"
+              variant="outlined"
+              startIcon={<PrintIcon />}
+              size="small"
+            >
               <TranslatedText stringId="general.action.print" fallback="Print" />
             </PrintButton>
           )}
+          {printModalOpen && <InvoiceRecordModal
+            open
+            onClose={() => setPrintModalOpen(false)}
+            invoice={invoice}
+          />}
         </Box>
       }
       open={open}
