@@ -125,7 +125,7 @@ const InsurersEditable = ({ insurerPaymentsDisplay }) => {
                   <Box marginTop="11px">%</Box>
                 </Box>
                 <Box marginTop="11px" display="flex" justifyContent="flex-end">
-                  {insurerPaymentsDisplay[index] ?? '-'}
+                  {insurerPaymentsDisplay[index] ? `-${insurerPaymentsDisplay[index]}` : '-'}
                   <RemoveInsurerButton onClick={() => formArrayMethods.remove(index)}>
                     <CloseIcon />
                   </RemoveInsurerButton>
