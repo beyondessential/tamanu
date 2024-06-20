@@ -167,8 +167,8 @@ const InsurersView = ({ insurers, insurerPaymentsDisplay }) => {
         <Box key={insurer.id} display="flex" justifyContent="space-between" width="100%">
           {insurer.insurer?.name}
           <DiscountedPrice>
-            <span>{insurer.percentage * 100}%</span>
-            <BodyText color={Colors.darkestText}>{insurerPaymentsDisplay[index] ?? '-'}</BodyText>
+            <span>{Math.round(insurer.percentage * 100)}%</span>
+            <BodyText color={Colors.darkestText}>-{insurerPaymentsDisplay[index] ?? '-'}</BodyText>
           </DiscountedPrice>
         </Box>
       ))}

@@ -9,12 +9,13 @@ import { Footer } from './printComponents/Footer';
 import { formatShort } from '../dateTime';
 import { EncounterDetails } from './printComponents/EncounterDetails';
 import { InvoiceDetails } from './printComponents/InvoiceDetails';
-import { 
+import {
+  getInsurerPaymentsDisplay,
   getInvoiceItemCode,
   getInvoiceItemDiscountPriceDisplay,
   getInvoiceItemName,
   getInvoiceItemPriceDisplay,
-  getInvoiceSummary 
+  getInvoiceSummary
 } from '../invoice';
 
 const borderStyle = '1 solid black';
@@ -356,8 +357,10 @@ const SummaryPane = ({ invoice }) => {
     total,
     appliedToDiscountableSubtotal,
     discountTotal,
+    patientSubtotal,
     patientTotal,
   } = getInvoiceSummary(invoice);
+  const insurerPaymentsDisplay = getInsurerPaymentsDisplay(invoice?.insurers, total);
 
   return (
     <View wrap={false} style={summaryPaneStyles.container}>
@@ -375,22 +378,29 @@ const SummaryPane = ({ invoice }) => {
         <P isBold>{total ?? '-'}</P>
       </View>
       <HorizontalRule />
-      {/* TODO: get invoice insurer data from back-end */}
-      {/* <View style={summaryPaneStyles.item}>
-        <P isBold>Insurer</P>
-      </View>
+      {invoice?.insurers?.length && (
+        <>
+          <View style={summaryPaneStyles.item}>
+            <P isBold>Insurer</P>
+          </View>
+          {invoice?.insurers.map((insurer, index) => {
+            return (
+              <View style={summaryPaneStyles.item}>
+                <P>{insurer.insurer?.name}</P>
+                <View style={summaryPaneStyles.subItem}>
+                  <P>{Math.round(insurer.percentage * 100)}%</P>
+                  <P>-{insurerPaymentsDisplay[index] ?? '-'}</P>
+                </View>
+              </View>
+            )
+          })}
+          <HorizontalRule />
+        </>
+      )}
       <View style={summaryPaneStyles.item}>
-        <P>NIB</P>
-        <View style={summaryPaneStyles.subItem}>
-          <P>80%</P>
-          <P>8.00</P>
-        </View>
-      </View>
-      <HorizontalRule /> */}
-      {/* <View style={summaryPaneStyles.item}>
         <P isBold>Patient subtotal</P>
-        <P>2.00</P>
-      </View> */}
+        <P>{patientSubtotal}</P>
+      </View>
       <View style={summaryPaneStyles.item}>
         <P isBold>Discount</P>
         {!!invoice.discount && (
