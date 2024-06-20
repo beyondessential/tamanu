@@ -822,6 +822,24 @@ describe('Programs import', () => {
         expect(errors.length).toEqual(1);
         expect(errors[0].message).toEqual(expectedError);
       });
+      it('Should refuse to import a complex chart core without exactly 4 question types', async () => {
+        const { errors } = await doImport({
+          file: 'charting-complex-core-question-amount-invalid',
+          dryRun: true,
+        });
+        const expectedError = "Invalid complex chart core questions";
+        expect(errors.length).toEqual(1);
+        expect(errors[0].message).toEqual(expectedError);
+      });
+      it('Should refuse to import a complex chart core without specific order', async () => {
+        const { errors } = await doImport({
+          file: 'charting-complex-core-question-order-invalid',
+          dryRun: true,
+        });
+        const expectedError = "Invalid complex chart core questions";
+        expect(errors.length).toEqual(1);
+        expect(errors[0].message).toEqual(expectedError);
+      });
     });
   });
 });
