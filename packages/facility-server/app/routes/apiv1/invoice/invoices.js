@@ -2,7 +2,7 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { customAlphabet } from 'nanoid';
 import { ValidationError, NotFoundError, ForbiddenError } from '@tamanu/shared/errors';
-import { INVOICE_PAYMENT_STATUSES, INVOICE_STATUSES } from '@tamanu/constants';
+import { INVOICE_PAYMENT_STATUSES, INVOICE_STATUSES, SETTING_KEYS } from '@tamanu/constants';
 import { v4 as uuidv4 } from 'uuid';
 import { z } from 'zod';
 import { Op } from 'sequelize';
@@ -59,7 +59,7 @@ invoiceRoute.post(
       where: { patientId: encounter.patientId },
       attributes: ['insurerId'],
     }).then(patientData => patientData?.insurerId);
-    const insurerPercentage = await req.settings.get('insurer.defaultContribution');
+    const insurerPercentage = await req.settings.get(SETTING_KEYS.INSURER_DEFAUlT_CONTRIBUTION);
     const defaultInsurer =
       insurerId && insurerPercentage ? { insurerId, percentage: insurerPercentage } : null;
 

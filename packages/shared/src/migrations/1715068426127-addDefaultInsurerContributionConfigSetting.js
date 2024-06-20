@@ -1,9 +1,9 @@
 /** @typedef {import('sequelize').QueryInterface} QueryInterface */
-import config from 'config';
+import { SETTING_KEYS } from '@tamanu/constants';
 import { Op } from 'sequelize';
 
 const DEFAULT_SETTINGS = {
-  'insurer.defaultContribution': JSON.stringify(0.8),
+  [SETTING_KEYS.INSURER_DEFAUlT_CONTRIBUTION]: JSON.stringify(0.8),
 };
 
 /**
