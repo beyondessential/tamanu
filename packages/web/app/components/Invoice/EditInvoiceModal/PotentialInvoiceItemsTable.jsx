@@ -1,12 +1,16 @@
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
+import { differenceBy } from 'lodash';
+import { v4 as uuidv4 } from 'uuid';
+import { INVOICE_ITEMS_CATEGORY_LABELS } from '@tamanu/constants';
+import {
+  toDateString,
+} from '@tamanu/shared/utils/dateTime';
 import { DataFetchingTable } from '../../Table';
 import { TranslatedEnum, TranslatedText } from '../../Translation';
 import { DateDisplay } from '../../DateDisplay';
-import { INVOICE_ITEMS_CATEGORY_LABELS } from '@tamanu/constants';
 import { Button } from '../../Button';
 import { Colors, denseTableStyle } from '../../../constants';
-import { differenceBy } from 'lodash';
 
 const StyledDataFetchingTable = styled(DataFetchingTable)`
   max-height: 400px;
@@ -73,18 +77,25 @@ export const PotentialInvoiceItemsTable = ({ invoice, invoiceItems, formArrayMet
     setPotentialInvoiceItems(data?.data || []);
   }, []);
 
-  const potentialInvoiceItemRowStyle = ({ id }) => {
-    const idList = invoiceItems.map(row => row?.id).filter(Boolean);
-    if (idList.includes(id)) return 'display: none;';
+  const potentialInvoiceItemRowStyle = ({ sourceId }) => {
+    const idList = invoiceItems.map(row => row?.sourceId).filter(Boolean);
+    if (idList.includes(sourceId)) return 'display: none;';
     return '';
   };
 
   const handleAddPotentialInvoiceItems = items => {
-    items.forEach(item => !potentialInvoiceItemRowStyle(item) && formArrayMethods.push(item));
+    items.forEach(
+      item =>
+        !potentialInvoiceItemRowStyle(item) &&
+        formArrayMethods.push({ ...item, id: uuidv4(), orderDate: toDateString(item.orderDate) }),
+    );
   };
 
-  const isEmptyPotentialInvoiceItems = !differenceBy(potentialInvoiceItems, invoiceItems, 'id')
-    .length;
+  const isEmptyPotentialInvoiceItems = !differenceBy(
+    potentialInvoiceItems,
+    invoiceItems,
+    (it) => it.sourceId || it.id,
+  ).length;
 
   const POTENTIAL_INVOICE_ITEMS_TABLE_COLUMNS = [
     {
@@ -95,15 +106,15 @@ export const PotentialInvoiceItemsTable = ({ invoice, invoiceItems, formArrayMet
     {
       key: 'code',
       title: <TranslatedText stringId="invoice.table.column.code" fallback="Code" />,
-      accessor: ({ code }) => code,
+      accessor: ({ productCode }) => productCode,
     },
     {
       key: 'type',
       title: <TranslatedText stringId="invoice.table.column.category" fallback="Category" />,
-      accessor: ({ type }) => (
+      accessor: ({ productType }) => (
         <TranslatedEnum
           prefix="invoice.table.column.type"
-          value={type}
+          value={productType}
           enumValues={INVOICE_ITEMS_CATEGORY_LABELS}
         />
       ),
@@ -111,11 +122,11 @@ export const PotentialInvoiceItemsTable = ({ invoice, invoiceItems, formArrayMet
     {
       key: 'price',
       title: <TranslatedText stringId="invoice.table.column.price" fallback="Price" />,
-      accessor: ({ price }) => (
+      accessor: ({ productPrice }) => (
         <TranslatedText
           stringId="invoice.table.cell.price"
           fallback="$:price"
-          replacements={{ price: parseFloat(price)?.toFixed(2) }}
+          replacements={{ price: parseFloat(productPrice)?.toFixed(2) }}
         />
       ),
     },
