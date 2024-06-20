@@ -676,6 +676,22 @@ describe('Programs import', () => {
           SurveyScreenComponent: { created: 8, updated: 0, errored: 0 },
         });
       });
+      it('Should refuse to import a simple chart survey with isSensitive set to true', async () => {
+        const { errors } = await doImport({
+          file: 'charting-simple-sensitive-invalid',
+          dryRun: true,
+        });
+        expect(errors).toContainAnError('metadata', 0, 'Charting survey can not be sensitive');
+      });
+      it('Should refuse to import a simple chart if the first question is not DateTime type', async () => {
+        const { errors } = await doImport({
+          file: 'charting-simple-datetime-invalid',
+          dryRun: true,
+        });
+        const expectedError = "sheetName: Test Chart, code: 'testchartcode0', First question should be DateTime type";
+        expect(errors.length).toEqual(1);
+        expect(errors[0].message).toEqual(expectedError);
+      });
     });
     describe('Complex chart', () => {
       it('Should import a valid complex chart survey', async () => {
@@ -781,6 +797,29 @@ describe('Programs import', () => {
           dryRun: true,
         });
         expect(errors).toContainAnError('metadata', 0, 'Complex chart set already exists for this program');
+      });
+      it('Should refuse to import a complex chart survey with isSensitive set to true', async () => {
+        const { errors } = await doImport({
+          file: 'charting-complex-sensitive-invalid',
+          dryRun: true,
+        });
+        expect(errors).toContainAnError('metadata', 0, 'Charting survey can not be sensitive');
+      });
+      it('Should refuse to import a complex chart core survey with isSensitive set to true', async () => {
+        const { errors } = await doImport({
+          file: 'charting-complex-core-sensitive-invalid',
+          dryRun: true,
+        });
+        expect(errors).toContainAnError('metadata', 0, 'Charting survey can not be sensitive');
+      });
+      it('Should refuse to import a complex chart if the first question is not DateTime type', async () => {
+        const { errors } = await doImport({
+          file: 'charting-complex-datetime-invalid',
+          dryRun: true,
+        });
+        const expectedError = "sheetName: Test Chart, code: 'testchartcode0', First question should be DateTime type";
+        expect(errors.length).toEqual(1);
+        expect(errors[0].message).toEqual(expectedError);
       });
     });
   });
