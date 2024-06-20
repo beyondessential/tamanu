@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
+import { INVOICE_PAYMENT_STATUS_LABELS } from '@tamanu/constants';
 
 import {
   Colors,
   ENCOUNTER_OPTIONS_BY_VALUE,
   INVOICE_MODAL_TYPES,
-  INVOICE_PAYMENT_STATUS_LABELS,
 } from '../../constants';
-
 import { DataFetchingTable } from '../Table';
 import { DateDisplay } from '../DateDisplay';
 import { TranslatedEnum, TranslatedText } from '../Translation';

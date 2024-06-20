@@ -105,7 +105,7 @@ const InsurersEditable = ({ insurerPaymentsDisplay }) => {
           <CardItem flexDirection="column">
             <TranslatedText stringId="invoice.summary.insurer.label" fallback="Insurer" />
             {insurers?.map((insurer, index) => (
-              <Box display="flex" justifyContent="space-between" width="100%" position="relative">
+              <Box key={insurer?.id} display="flex" justifyContent="space-between" width="100%" position="relative">
                 <Box display="flex" style={{ gap: '8px' }}>
                   <Field
                     name={`insurers.${index}.insurerId`}
@@ -125,7 +125,7 @@ const InsurersEditable = ({ insurerPaymentsDisplay }) => {
                   <Box marginTop="11px">%</Box>
                 </Box>
                 <Box marginTop="11px" display="flex" justifyContent="flex-end">
-                  {insurerPaymentsDisplay[index] ?? '-'}
+                  {insurerPaymentsDisplay[index] ? `-${insurerPaymentsDisplay[index]}` : '-'}
                   <RemoveInsurerButton onClick={() => formArrayMethods.remove(index)}>
                     <CloseIcon />
                   </RemoveInsurerButton>
@@ -169,7 +169,9 @@ const InsurersView = ({ insurers, insurerPaymentsDisplay }) => {
           {insurer.insurer?.name}
           <DiscountedPrice>
             <span>{insurer.percentage * 100}%</span>
-            <BodyText color={Colors.darkestText}>{insurerPaymentsDisplay[index] ?? '-'}</BodyText>
+            <BodyText color={Colors.darkestText}>
+              {insurerPaymentsDisplay[index] ? `-${insurerPaymentsDisplay[index]}` : '-'}
+            </BodyText>
           </DiscountedPrice>
         </Box>
       ))}
@@ -256,7 +258,7 @@ export const InvoiceSummaryPanel = ({ invoice, editable, handleEditDiscount }) =
           <DiscountedPrice>
             <span>{invoice.discount.percentage * 100}%</span>
             <BodyText sx={{ fontWeight: 400 }} color={Colors.darkestText}>
-              -{discountTotal}
+              {discountTotal ? `-${discountTotal}` : '-'}
             </BodyText>
           </DiscountedPrice>
         )}
