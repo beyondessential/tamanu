@@ -59,11 +59,7 @@ invoiceRoute.post(
       where: { patientId: encounter.patientId },
       attributes: ['insurerId'],
     }).then(patientData => patientData?.insurerId);
-    const insurerPercentage = await req.models.Setting.findOne({
-      where: { key: 'insurer.defaultContribution' },
-    })
-      .then(setting => JSON.parse(setting.value))
-      .catch(() => null);
+    const insurerPercentage = await req.settings.get('insurer.defaultContribution');
     const defaultInsurer =
       insurerId && insurerPercentage ? { insurerId, percentage: insurerPercentage } : null;
 
