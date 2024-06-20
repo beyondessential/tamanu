@@ -168,8 +168,10 @@ const InsurersView = ({ insurers, insurerPaymentsDisplay }) => {
         <Box key={insurer.id} display="flex" justifyContent="space-between" width="100%">
           {insurer.insurer?.name}
           <DiscountedPrice>
-            <span>{Math.round(insurer.percentage * 100)}%</span>
-            <BodyText color={Colors.darkestText}>-{insurerPaymentsDisplay[index] ?? '-'}</BodyText>
+            <span>{insurer.percentage * 100}%</span>
+            <BodyText color={Colors.darkestText}>
+              {insurerPaymentsDisplay[index] ? `-${insurerPaymentsDisplay[index]}` : '-'}
+            </BodyText>
           </DiscountedPrice>
         </Box>
       ))}
@@ -256,7 +258,7 @@ export const InvoiceSummaryPanel = ({ invoice, editable, handleEditDiscount }) =
           <DiscountedPrice>
             <span>{invoice.discount.percentage * 100}%</span>
             <BodyText sx={{ fontWeight: 400 }} color={Colors.darkestText}>
-              -{discountTotal}
+              {discountTotal ? `-${discountTotal}` : '-'}
             </BodyText>
           </DiscountedPrice>
         )}
