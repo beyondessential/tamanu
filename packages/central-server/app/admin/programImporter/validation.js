@@ -40,15 +40,15 @@ async function ensureOnlyOneVitalsSurveyExists({ models }, surveyInfo) {
   }
 }
 
-function ensureVitalsSurveyNonSensitive(surveyInfo) {
+function ensureSurveyNonSensitive(surveyInfo, errorMessage) {
   if (surveyInfo.isSensitive) {
-    throw new ImporterMetadataError('Vitals survey can not be sensitive');
+    throw new ImporterMetadataError(errorMessage);
   }
 }
 
 export async function validateVitalsSurvey(context, surveyInfo) {
   await ensureOnlyOneVitalsSurveyExists(context, surveyInfo);
-  ensureVitalsSurveyNonSensitive(surveyInfo);
+  ensureSurveyNonSensitive(surveyInfo, 'Vitals survey can not be sensitive');
 }
 
 async function ensureOnlyOneComplexSurveySetPerProgram({ models }, surveyInfo) {
