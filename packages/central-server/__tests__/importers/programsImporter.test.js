@@ -729,6 +729,7 @@ describe('Programs import', () => {
         });
 
         const errorMessages = [
+          "Invalid complex chart core questions",
           "sheetName: Core, code: 'testchartcorecode0', Invalid question type",
           "sheetName: Core, code: 'testchartcorecode1', Invalid question type",
           "sheetName: Core, code: 'testchartcorecode2', Invalid question type",
