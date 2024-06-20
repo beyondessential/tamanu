@@ -1,7 +1,6 @@
 import { useCallback, useState } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
-import { groupBy } from 'lodash';
-
+import { groupBy, keyBy } from 'lodash';
 import { useBackend } from '.';
 import { PatientFieldDefinition } from '~/models/PatientFieldDefinition';
 import { PatientFieldValue } from '~/models/PatientFieldValue';
@@ -48,6 +47,18 @@ export const usePatientAdditionalData = patientId => {
               }),
             ]);
             const result = record && record[0];
+
+            const entity = await models.ReferenceData.getNode({
+              id: result?.secondaryVillageId,
+            });
+            const ancestors = await entity?.getAncestors();
+            const hierarchy = [...ancestors, entity];
+
+            const hierarchyByType = keyBy(hierarchy, 'type');
+            result['secondaryDivisionId'] = hierarchyByType['division']?.id;
+            result['secondarySubdivisionId'] = hierarchyByType['subdivision']?.id;
+            result['secondarySettlementId'] = hierarchyByType['settlement']?.id;
+
             if (!mounted) {
               return;
             }

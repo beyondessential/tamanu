@@ -35,7 +35,41 @@ export const CAMBODIA_ADDITIONAL_DATA_FIELDS = {
   PERSONAL: [ADDITIONAL_DATA_FIELDS.COUNTRY_OF_BIRTH_ID, ADDITIONAL_DATA_FIELDS.NATIONALITY_ID],
 };
 
-const COMMON = [
+export const CAMBODIA_ADDITIONAL_DATA_SECTIONS = [
+  {
+    sectionKey: 'currentAddress',
+    title: (
+      <TranslatedText
+        stringId="patient.details.subheading.currentAddress"
+        fallback="Current address"
+      />
+    ),
+    fields: CAMBODIA_ADDITIONAL_DATA_FIELDS.ADDRESS,
+    dataFields: [
+      'divisionId',
+      'subdivisionId',
+      'settlementId',
+      'villageId',
+      ADDITIONAL_DATA_FIELDS.STREET_VILLAGE,
+    ],
+  },
+  {
+    sectionKey: 'permanentAddress',
+    title: (
+      <TranslatedText
+        stringId="patient.details.subheading.permanentAddress"
+        fallback="Permanent address"
+      />
+    ),
+    fields: CAMBODIA_ADDITIONAL_DATA_FIELDS.PERMANENT_ADDRESS,
+    dataFields: [
+      'secondaryDivisionId',
+      'secondarySubdivisionId',
+      'secondarySettlementId',
+      'secondaryVillageId',
+      CAMBODIA_CUSTOM_FIELDS.SECONDARY_STREET_ADDRESS,
+    ],
+  },
   {
     sectionKey: 'contactInformation',
     title: (
@@ -66,64 +100,4 @@ const COMMON = [
     ),
     fields: CAMBODIA_ADDITIONAL_DATA_FIELDS.PERSONAL,
   },
-];
-
-export const CAMBODIA_ADDITIONAL_DATA_SECTIONS = [
-  {
-    sectionKey: 'currentAddress',
-    title: (
-      <TranslatedText
-        stringId="patient.details.subheading.currentAddress"
-        fallback="Current address"
-      />
-    ),
-    fields: CAMBODIA_ADDITIONAL_DATA_FIELDS.ADDRESS,
-  },
-  {
-    sectionKey: 'permanentAddress',
-    title: (
-      <TranslatedText
-        stringId="patient.details.subheading.permanentAddress"
-        fallback="Permanent address"
-      />
-    ),
-    fields: CAMBODIA_ADDITIONAL_DATA_FIELDS.PERMANENT_ADDRESS,
-  },
-  ...COMMON,
-];
-
-export const CAMBODIA_ADDITIONAL_DATA_SECTIONS_FOR_DISPLAY = [
-  {
-    sectionKey: 'currentAddress',
-    title: (
-      <TranslatedText
-        stringId="patient.details.subheading.currentAddress"
-        fallback="Current address"
-      />
-    ),
-    fields: [
-      'divisionId',
-      'subdivisionId',
-      'settlementId',
-      'villageId',
-      ADDITIONAL_DATA_FIELDS.STREET_VILLAGE,
-    ],
-  },
-  {
-    sectionKey: 'permanentAddress',
-    title: (
-      <TranslatedText
-        stringId="patient.details.subheading.permanentAddress"
-        fallback="Permanent address"
-      />
-    ),
-    fields: [
-      'secondaryDivisionId',
-      'secondarySubdivisionId',
-      'secondarySettlementId',
-      'secondaryVillageId',
-      CAMBODIA_CUSTOM_FIELDS.SECONDARY_STREET_ADDRESS,
-    ],
-  },
-  ...COMMON,
 ];

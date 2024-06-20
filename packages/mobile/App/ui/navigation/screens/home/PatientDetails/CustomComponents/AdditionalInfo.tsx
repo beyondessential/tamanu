@@ -49,6 +49,8 @@ export const AdditionalInfo = ({
     error,
   } = usePatientAdditionalData(patient.id);
 
+  console.log('patientAdditionalData', patientAdditionalData);
+
   const customDataById = mapValues(customPatientFieldValues, nestedObject => nestedObject[0].value);
 
   // Display general error
@@ -60,17 +62,14 @@ export const AdditionalInfo = ({
   const isEditable = getBool('features.editPatientDetailsOnMobile');
 
   // Add edit callback and map the inner 'fields' array
-  const sections = dataSections.map(({ title, fields, sectionKey }) => {
+  const sections = dataSections.map(({ title, dataFields, fields: displayFields, sectionKey }) => {
+    const fields = dataFields || displayFields;
     const onEditCallback = (): void =>
       onEdit(patientAdditionalData, title, customPatientFieldValues, sectionKey);
 
     const fieldsWithData = fields.map(field => {
       if (field === 'villageId' || field.name === 'villageId') {
         return [field.name, patient.village?.name];
-      } else if (field === 'cambodiaSecondaryVillageId') {
-        return ['secondaryVillageId', getPadFieldData(patientAdditionalData, 'secondaryVillageId')];
-      } else if (field === 'cambodiaVillageId') {
-        return ['villageId', patient.village?.name];
       } else if (Object.keys(customDataById).includes(field)) {
         return [field, customDataById[field]];
       } else {
