@@ -13,13 +13,13 @@ export interface FormField {
 
 export interface RadioOption extends FormField {
   label: string;
-  width: string;
+  width?: string | number;
 }
 
 export interface RadioOptionProps extends RadioOption {
   onPress: Function;
   value: string;
-  width: string;
+  width?: string | number;
 }
 
 export const RadioButton = (props: RadioOptionProps): JSX.Element => {

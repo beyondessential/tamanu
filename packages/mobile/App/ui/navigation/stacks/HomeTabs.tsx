@@ -113,8 +113,6 @@ function MyTabBar({ state, descriptors, navigation }: BottomTabBarProps): ReactE
             });
           };
 
-          if (options.tabBarVisible === false) return null;
-
           return (
             <StyledView key={route.key} flex={1} paddingTop={13} paddingBottom={13}>
               <StyledTouchableOpacity
@@ -165,7 +163,6 @@ const TabNavigator = ({ selectedPatient }: BaseAppProps): ReactElement => {
     tabBarIcon: TabScreenIcon(PatientIcon),
     tabBarLabel: getTranslation('general.patient', 'Patient'),
     tabBarTestID: 'PATIENT',
-    tabBarVisible: false,
   };
   const SyncDataScreenOptions: BottomTabNavigationOptions = {
     tabBarIcon: TabScreenIcon(SyncCloudIcon),

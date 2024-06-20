@@ -15,7 +15,7 @@ export interface RadioButtonGroupProps {
   required?: boolean;
   CustomComponent?: FC<any>;
   labelFontSize?: string | number;
-  componentWidth?: string;
+  optionComponentWidth?: string | number;
 }
 
 export const RadioButtonGroup = ({
@@ -27,7 +27,7 @@ export const RadioButtonGroup = ({
   required = false,
   CustomComponent,
   labelFontSize,
-  componentWidth,
+  optionComponentWidth: componentWidth,
 }: RadioButtonGroupProps): JSX.Element => {
   const RadioComponent = CustomComponent || RadioButton;
 

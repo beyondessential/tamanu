@@ -28,7 +28,7 @@ export const SexSection = (): ReactElement => (
       name="sex"
       options={options}
       labelFontSize={14}
-      componentWidth={buttonWidth}
+      optionComponentWidth={buttonWidth}
     />
   </StyledView>
 );
