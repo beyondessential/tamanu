@@ -68,7 +68,7 @@ export const getInvoiceSummary = invoice => {
 
   const paidFromInsurersPercentage = invoice.insurers
     .filter(insurer => insurer.percentage)
-    .reduce((acc, val) => acc + +val.percentage, 0);
+    .reduce((acc, val) => acc + Number(val.percentage), 0);
   const paidFromInsurers = calculateInsurerPayments(invoice.insurers, total)
     .filter(Boolean)
     .reduce((acc, val) => acc + val, 0);
