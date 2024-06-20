@@ -1,4 +1,4 @@
-import { INVOICE_STATUSES, INVOICE_STATUS_LABELS } from '@tamanu/constants';
+import { INVOICE_STATUSES } from '@tamanu/constants';
 import { Colors } from './styles';
 
 export const INVOICE_STATUS_COLORS = {

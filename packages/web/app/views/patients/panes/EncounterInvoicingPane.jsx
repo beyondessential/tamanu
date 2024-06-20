@@ -13,7 +13,6 @@ import { InvoiceSummaryPanel } from '../../../components/Invoice/InvoiceSummaryP
 import { ThreeDotMenu } from '../../../components/ThreeDotMenu';
 import { useEncounterInvoice } from '../../../api/queries/useInvoiceQuery';
 import { InvoiceModalGroup } from '../../../components/Invoice/InvoiceModalGroup';
-import { InvoiceRecordModal } from '../../../components/PatientPrinting/modals/InvoiceRecordModal';
 
 const EmptyPane = styled(ContentPane)`
   text-align: center;

@@ -104,7 +104,7 @@ const InsurersEditable = ({ insurerPaymentsDisplay }) => {
           <CardItem flexDirection="column">
             <TranslatedText stringId="invoice.summary.insurer.label" fallback="Insurer" />
             {insurers?.map((insurer, index) => (
-              <Box display="flex" justifyContent="space-between" width="100%" position="relative">
+              <Box key={insurer?.id} display="flex" justifyContent="space-between" width="100%" position="relative">
                 <Box display="flex" style={{ gap: '8px' }}>
                   <Field
                     name={`insurers.${index}.insurerId`}
