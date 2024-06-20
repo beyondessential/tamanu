@@ -152,7 +152,18 @@ export const ImagingRequestForm = React.memo(
                   options={imagingAreas.map(area => ({
                     label: area.name,
                     value: area.id,
-                  }))}
+                  })).sort((area1, area2) => {
+                    const { label: label1 } = area1;
+                    const { label: label2 } = area2;
+                    if (label1.toUpperCase() < label2.toUpperCase()) {
+                      return -1;
+                    }
+                    if (label1.toUpperCase() > label2.toUpperCase()) {
+                      return 1;
+                    }
+                    return 0;
+                  })
+                  }
                   name="areas"
                   label="Areas to be imaged"
                   component={MultiselectField}
