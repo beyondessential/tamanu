@@ -6,7 +6,7 @@ import styled from 'styled-components';
 import { Box, IconButton, Tooltip } from '@material-ui/core';
 import { Add as AddIcon, Delete as DeleteIcon } from '@material-ui/icons';
 import shortid from 'shortid';
-import { Alert, AlertTitle } from '@material-ui/lab';
+import { Alert } from '@material-ui/lab';
 import { toast } from 'react-toastify';
 import HelpIcon from '@material-ui/icons/HelpOutlined';
 import { useApi } from '../../../api';
@@ -22,6 +22,7 @@ import { AccessorField } from '../../patients/components/AccessorField';
 import { LoadingIndicator } from '../../../components/LoadingIndicator';
 import { Colors } from '../../../constants';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
+import { ErrorMessage } from '../../../components/ErrorMessage';
 
 const StyledTableFormFields = styled(TableFormFields)`
   thead tr th {
@@ -108,22 +109,6 @@ const useTranslationMutation = () => {
       />
     },
   });
-};
-
-const ErrorMessage = ({ error }) => {
-  return (
-    <Box p={5}>
-      <Alert severity="error">
-        <AlertTitle>
-          <TranslatedText
-            stringId="admin.translation.error.loadTranslations"
-            fallback="Error: Could not load translations:"
-          />
-        </AlertTitle>
-        {error}
-      </Alert>
-    </Box>
-  );
 };
 
 const TranslationField = ({ placeholderId, stringId, code }) => (
@@ -288,7 +273,17 @@ export const TranslationForm = () => {
   };
 
   if (isLoading) return <LoadingIndicator />;
-  if (error) return <ErrorMessage error={error} />;
+  if (error) return (
+    <ErrorMessage
+      title={
+        <TranslatedText
+          stringId="admin.translation.error.loadTranslations"
+          fallback="Error: Could not load translations:"
+        />
+      }
+      error={error}
+    />
+  );
 
   const sortedTranslations = sortBy(translations, obj => obj.stringId !== 'languageName'); // Ensure languageName key stays on top
 
