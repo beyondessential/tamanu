@@ -208,7 +208,9 @@ export const InvoiceItemRow = ({
     const value = e.target;
     formArrayMethods.replace(index, {
       ...item,
-      product: value,
+      productName: value.label,
+      productCode: value.code,
+      productPrice: value.price,
     });
   };
 

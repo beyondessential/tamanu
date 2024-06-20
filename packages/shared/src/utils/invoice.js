@@ -98,9 +98,9 @@ export const getInvoiceSummary = invoice => {
 };
 
 export const getInvoiceItemName = invoiceItem => {
-  return invoiceItem?.productName ?? invoiceItem?.product?.name;
+  return invoiceItem?.productName;
 };
 
 export const getInvoiceItemCode = invoiceItem => {
-  return invoiceItem?.product?.referenceData?.code ?? invoiceItem?.productCode;
+  return invoiceItem?.productCode ?? invoiceItem?.product?.code;
 };

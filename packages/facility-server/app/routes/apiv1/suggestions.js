@@ -350,13 +350,23 @@ createSuggester(
     '$referenceData.type$': REFERENCE_TYPES.ADDITIONAL_INVOICE_PRODUCT,
   }),
   {
-    mapper: ({ id, name, price, referenceData }) => ({ id, name, price, referenceData }),
+    mapper: product => {
+      product.addVirtualFields();
+      return product;
+    },
     includeBuilder: req => {
-      return {
-        model: req.models.ReferenceData,
-        as: 'referenceData',
-        attributes: ['code'],
-      };
+      return [
+        {
+          model: req.models.ReferenceData,
+          as: 'referenceData',
+          attributes: ['code'],
+        },
+        {
+          model: req.models.LabTestType,
+          as: 'labTestType',
+          attributes: ['code'],
+        },
+      ];
     },
   },
 );

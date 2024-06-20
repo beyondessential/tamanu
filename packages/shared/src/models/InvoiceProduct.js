@@ -56,14 +56,14 @@ export class InvoiceProduct extends Model {
   }
 
   addVirtualFields() {
-    this.type =
+    this.dataValues.type =
       this.referenceData?.type ??
       (this.labTestType?.code
         ? OTHER_REFERENCE_TYPES.LAB_TEST_TYPE
         : IMAGING_TYPES_VALUES.includes(this.id)
         ? REFERENCE_TYPES.IMAGING_TYPE
         : undefined);
-    this.code =
+    this.dataValues.code =
       this.referenceData?.code ??
       this.labTestType?.code ??
       (IMAGING_TYPES_VALUES.includes(this.id) ? this.id : undefined);

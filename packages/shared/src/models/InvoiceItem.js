@@ -101,8 +101,8 @@ export class InvoiceItem extends Model {
   }
 
   addVirtualFields() {
-    this.productName = this.productName ?? this.product?.name;
-    this.productPrice = this.productPrice ?? this.product?.price;
+    this.dataValues.productName = this.productName ?? this.product?.name;
+    this.dataValues.productPrice = this.productPrice ?? this.product?.price;
     this.product = this.product.addVirtualFields();
     return this;
   }
