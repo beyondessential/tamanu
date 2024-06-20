@@ -8,7 +8,7 @@ import { LocalisedField } from '~/ui/components/Forms/LocalisedField';
 import { Field } from '~/ui/components/Forms/FormField';
 import { AutocompleteModalField } from '~/ui/components/AutocompleteModal/AutocompleteModalField';
 import { PatientFieldDefinitionComponents } from '~/ui/helpers/fieldComponents';
-import { useBackend } from '~/ui/hooks';
+import { useBackend, useBackendEffect } from '~/ui/hooks';
 
 import {
   getSuggester,
@@ -19,11 +19,22 @@ import {
   selectFieldsOptions,
 } from './helpers';
 import { getConfiguredPatientAdditionalDataFields } from '~/ui/helpers/patient';
+import { ActivityIndicator } from 'react-native';
+import { useTranslation } from '~/ui/contexts/TranslationContext';
+import { HierarchyFields } from '../../HierarchyFields';
+import { CAMBODIA_LOCATION_HIERARCHY_FIELDS } from '~/ui/navigation/screens/home/PatientDetails/layouts/cambodia/fields';
+import { isObject, isString } from 'lodash';
+import { labels } from '~/ui/navigation/screens/home/PatientDetails/layouts/generic/labels';
 
 const PlainField = ({ fieldName, required }): ReactElement => (
   // Outter styled view to momentarily add distance between fields
   <StyledView key={fieldName} paddingTop={15}>
-    <LocalisedField name={fieldName} component={TextField} required={required} />
+    <LocalisedField
+      label={labels[fieldName]}
+      name={fieldName}
+      component={TextField}
+      required={required}
+    />
   </StyledView>
 );
 
@@ -31,6 +42,7 @@ const SelectField = ({ fieldName, required }): ReactElement => (
   <LocalisedField
     key={fieldName}
     name={fieldName}
+    label={labels[fieldName]}
     options={selectFieldsOptions[fieldName]}
     component={Dropdown}
     required={required}
@@ -39,15 +51,19 @@ const SelectField = ({ fieldName, required }): ReactElement => (
 
 const RelationField = ({ fieldName, required }): ReactElement => {
   const { models } = useBackend();
-  const { getString } = useLocalisation();
+  const { getTranslation } = useTranslation();
   const navigation = useNavigation();
   const { type, placeholder } = relationIdFieldsProperties[fieldName];
-  const localisedPlaceholder = getString(`fields.${fieldName}.longLabel`, placeholder);
+  const localisedPlaceholder = getTranslation(
+    `general.localisedField.${fieldName}.label`,
+    placeholder,
+  );
   const suggester = getSuggester(models, type);
 
   return (
     <LocalisedField
       key={fieldName}
+      label={labels[fieldName]}
       component={AutocompleteModalField}
       placeholder={`Search for ${localisedPlaceholder}`}
       navigation={navigation}
@@ -58,7 +74,32 @@ const RelationField = ({ fieldName, required }): ReactElement => {
   );
 };
 
-function getComponentForField(fieldName: string): React.FC<{ fieldName: string }> {
+const CustomField = ({ fieldName, required }): ReactElement => {
+  const [fieldDefinition, _, loading] = useBackendEffect(({ models }) =>
+    models.PatientFieldDefinition.findOne({
+      where: { id: fieldName },
+    }),
+  );
+
+  if (loading) return <ActivityIndicator />;
+
+  return (
+    <Field
+      name={fieldDefinition.id}
+      label={labels[fieldDefinition.id] || fieldDefinition.name}
+      component={PatientFieldDefinitionComponents[fieldDefinition.fieldType]}
+      options={fieldDefinition.options
+        ?.split(',')
+        ?.map(option => ({ label: option, value: option }))}
+      required={required}
+    />
+  );
+};
+
+function getComponentForField(
+  fieldName: string,
+  customFieldIds: string[],
+): React.FC<{ fieldName: string }> {
   if (plainFields.includes(fieldName)) {
     return PlainField;
   }
@@ -68,34 +109,42 @@ function getComponentForField(fieldName: string): React.FC<{ fieldName: string }
   if (relationIdFields.includes(fieldName)) {
     return RelationField;
   }
+  if (customFieldIds.includes(fieldName)) {
+    return CustomField;
+  }
   // Shouldn't happen
   throw new Error(`Unexpected field ${fieldName} for patient additional data.`);
 }
 
-const getCustomFieldComponent = ({ id, name, options, fieldType }) => {
-  return (
-    <Field
-      name={id}
-      label={name}
-      component={PatientFieldDefinitionComponents[fieldType]}
-      options={options?.split(',')?.map(option => ({ label: option, value: option }))}
-    />
+export const PatientAdditionalDataFields = ({ fields, showMandatory = true }): ReactElement => {
+  const { getLocalisation } = useLocalisation();
+  const isHardCodedLayout = getLocalisation('layouts.patientDetails') !== 'generic';
+  const [customFieldDefinitions, _, loading] = useBackendEffect(({ models }) =>
+    models.PatientFieldDefinition.getRepository().find({
+      select: ['id'],
+    }),
   );
-};
+  const customFieldIds = customFieldDefinitions?.map(({ id }) => id);
 
-export const PatientAdditionalDataFields = ({
-  fields,
-  isCustomFields,
-  showMandatory = true,
-}): ReactElement => {
-  const { getBool } = useLocalisation();
+  const padFields = isHardCodedLayout
+    ? fields
+    : getConfiguredPatientAdditionalDataFields(fields, showMandatory, getLocalisation);
 
-  if (isCustomFields) return fields.map(getCustomFieldComponent);
+  if (loading) return [];
 
-  const padFields = getConfiguredPatientAdditionalDataFields(fields, showMandatory, getBool);
+  return padFields.map((field: string | object, i: number) => {
+    if (isString(field)) {
+      const Component = getComponentForField(field, customFieldIds);
+      const isRequired = getLocalisation(`fields.${field}.requiredPatientData`);
+      return <Component fieldName={field} key={field} required={isRequired} />;
+    }
 
-  return padFields.map(fieldName => {
-    const Component = getComponentForField(fieldName);
-    return <Component fieldName={fieldName} key={fieldName} required={showMandatory} />;
+    // TODO: This is a hack to get working with location hierarchy
+    if (isObject(field)) {
+      const nextField = padFields[i + 1];
+      return !isObject(nextField) ? (
+        <HierarchyFields fields={CAMBODIA_LOCATION_HIERARCHY_FIELDS} />
+      ) : null;
+    }
   });
 };

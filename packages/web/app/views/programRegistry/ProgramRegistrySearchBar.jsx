@@ -62,7 +62,12 @@ export const ProgramRegistrySearchBar = ({ searchParameters, setSearchParameters
           />
           <Field
             name="registeringFacilityId"
-            label="Registering Facility"
+            label={
+              <TranslatedText
+                stringId="patientProgramRegistry.registeredBy.label"
+                fallback="Registering facility"
+              />
+            }
             component={AutocompleteField}
             suggester={facilitySuggester}
           />
@@ -121,13 +126,23 @@ export const ProgramRegistrySearchBar = ({ searchParameters, setSearchParameters
       <Spacer />
 
       <Field
-        label="Home village"
+        label={
+          <TranslatedText
+            stringId="patientProgramRegistry.homeVillage.label"
+            fallback="Home village"
+          />
+        }
         name="homeVillage"
         component={AutocompleteField}
         suggester={villageSuggester}
       />
       <Field
-        label="Currently in"
+        label={
+          <TranslatedText
+            stringId="patientProgramRegistry.currentlyIn.label"
+            fallback="Currently in"
+          />
+        }
         name="currentlyIn"
         component={AutocompleteField}
         suggester={
@@ -137,13 +152,18 @@ export const ProgramRegistrySearchBar = ({ searchParameters, setSearchParameters
         }
       />
       <Field
-        label="Related condition"
+        label={
+          <TranslatedText
+            stringId="patientProgramRegistry.relatedCondition.label"
+            fallback="Related condition"
+          />
+        }
         name="programRegistryCondition"
         component={AutocompleteField}
         suggester={programRegistryConditionSuggester}
       />
       <Field
-        label="Status"
+        label={<TranslatedText stringId="general.status.label" fallback="Status" />}
         name="clinicalStatus"
         component={AutocompleteField}
         suggester={programRegistryStatusSuggester}

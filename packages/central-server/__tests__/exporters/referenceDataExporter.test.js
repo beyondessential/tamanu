@@ -89,7 +89,7 @@ describe('Reference data exporter', () => {
         .query(qs.stringify({ includedDataTypes: ['allergy'] }));
 
       expect(result).toBeForbidden();
-      expect(result.body.error.message).toBe('Cannot perform action "list" on ReferenceData.');
+      expect(result.body.error.message).toBe('No permission to perform action "list" on "ReferenceData"');
     });
 
     it('allows export if having sufficient permission for reference data', async () => {
@@ -427,7 +427,7 @@ describe('Reference data exporter', () => {
 
   it('Should export Administered vaccine with encounter data', async () => {
     await createDataForEncounter(models);
-    const vaccine = await createVaccine(models, { label: 'Covid', schedule: 'Dose 1' });
+    const vaccine = await createVaccine(models, { label: 'Covid', doseLabel: 'Dose 1' });
     const { administeredVaccine, encounter } = await createAdministeredVaccineData(models, vaccine);
     const {
       administeredVaccine: administeredVaccine2,

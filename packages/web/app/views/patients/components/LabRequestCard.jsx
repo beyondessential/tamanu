@@ -4,7 +4,7 @@ import { Box } from '@material-ui/core';
 import { labsIcon } from '../../../constants/images';
 import { DateDisplay } from '../../../components';
 import { Colors } from '../../../constants';
-import { TranslatedText } from '../../../components/Translation/TranslatedText';
+import { TranslatedText, TranslatedReferenceData } from '../../../components/Translation';
 
 const Container = styled.div`
   display: flex;
@@ -90,7 +90,10 @@ export const LabRequestCard = ({ labRequest, actions }) => {
           <CardLabel>
             <TranslatedText stringId="general.department.label" fallback="Department" />:
           </CardLabel>
-          <CardValue>{labRequest.department?.name}</CardValue>
+          <CardValue>
+            {labRequest.department?.name
+              && <TranslatedReferenceData fallback={labRequest.department.name} value={labRequest.department.id} category="department"/>}
+          </CardValue>
         </BorderSection>
       </Box>
       {actions || null}

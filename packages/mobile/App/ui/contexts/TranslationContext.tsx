@@ -9,8 +9,17 @@ import React, {
 import { DevSettings } from 'react-native';
 import { useBackend } from '../hooks';
 import { isEmpty } from 'lodash';
+import { registerYup } from '../helpers/yupMethods';
+import { readConfig, writeConfig } from '~/services/config';
 
 type Replacements = { [key: string]: any };
+
+export type GetTranslationFunction = (
+  stringId: string,
+  fallback?: string,
+  replacements?: Replacements,
+) => string;
+
 export interface TranslatedTextProps {
   stringId: string;
   fallback: string;
@@ -23,21 +32,29 @@ interface TranslationContextData {
   language: string;
   languageOptions: [];
   setLanguageOptions: (languageOptions: []) => void;
-  getTranslation: (stringId: string, fallback?: string, replacements?: Replacements) => string;
+  getTranslation: GetTranslationFunction;
   setLanguage: (language: string) => void;
+  refreshTranslations: () => void;
   host: string;
   setHost: (host: string) => void;
 }
 
 // Duplicated from TranslatedText.js on desktop
-const replaceStringVariables = (templateString: string, replacements?: Replacements) => {
+export const replaceStringVariables = (
+  templateString: string,
+  replacements?: Replacements,
+  translations?: object,
+) => {
   if (!replacements) return templateString;
   const result = templateString
     .split(/(:[a-zA-Z]+)/g)
     .map((part, index) => {
       // Even indexes are the unchanged parts of the string
       if (index % 2 === 0) return part;
-      return replacements[part.slice(1)] ?? part;
+      const replacement = replacements[part.slice(1)] ?? part;
+      // Replacements might be a string or a translatable string component, handle each case
+      if (typeof replacement !== 'object') return replacement;
+      return translations?.[replacement.props.stringId] || replacement.props.fallback;
     })
     .join('');
 
@@ -61,6 +78,7 @@ export const TranslationProvider = ({ children }: PropsWithChildren<object>): Re
   };
 
   const setLanguageState = async (languageCode: string = DEFAULT_LANGUAGE) => {
+    await writeLanguage(languageCode);
     if (!languageOptions) getLanguageOptions();
     const translations = await models.TranslatedString.getForLanguage(languageCode);
     if (isEmpty(translations)) {
@@ -74,15 +92,33 @@ export const TranslationProvider = ({ children }: PropsWithChildren<object>): Re
   };
 
   const getTranslation = (stringId: string, fallback?: string, replacements?: Replacements) => {
-    const translation = translations?.[stringId] || fallback;
-    return replaceStringVariables(translation, replacements);
+    const translation = translations[stringId] || fallback;
+    return replaceStringVariables(translation, replacements, translations);
   };
+
+  const refreshTranslations = async () => {
+    setLanguageState(language);
+  };
+
+  const writeLanguage = async (languageCode: string) => {
+    await writeConfig('language', languageCode);
+  };
+
+  const restoreLanguage = async () => {
+    const languageCode = await readConfig('language');
+    setLanguage(languageCode || DEFAULT_LANGUAGE);
+  };
+
+  useEffect(() => {
+    registerYup(translations);
+  }, [translations]);
 
   useEffect(() => {
     setLanguageState(language);
   }, [language]);
 
   useEffect(() => {
+    restoreLanguage();
     if (!__DEV__) return;
     DevSettings.addMenuItem('Toggle translation highlighting', () => setIsDebugMode(!isDebugMode));
   }, []);
@@ -96,6 +132,7 @@ export const TranslationProvider = ({ children }: PropsWithChildren<object>): Re
         setLanguageOptions,
         getTranslation,
         setLanguage,
+        refreshTranslations,
         host,
         setHost,
       }}

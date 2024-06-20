@@ -16,6 +16,7 @@ import {
   MenuButton,
   MODAL_TRANSITION_DURATION,
   OutlinedButton,
+  TableButtonRow,
   Tile,
   TileContainer,
   TileTag,
@@ -36,7 +37,7 @@ import { useUrlSearchParams } from '../../utils/useUrlSearchParams';
 import { LabRequestPrintLabelModal } from '../../components/PatientPrinting/modals/LabRequestPrintLabelModal';
 import { LabRequestSampleDetailsModal } from './components/LabRequestSampleDetailsModal';
 import { Colors } from '../../constants';
-import { TranslatedText } from '../../components/Translation/TranslatedText';
+import { TranslatedText, TranslatedReferenceData } from '../../components/Translation';
 import { LabAttachmentModal } from '../../components/LabAttachmentModal';
 import { ConditionalTooltip } from '../../components/Tooltip';
 
@@ -171,7 +172,7 @@ export const LabRequestView = () => {
   const areLabRequestsReadOnly = !canWriteLabRequest || isHidden;
   const areLabTestsReadOnly = !canWriteLabTest || isHidden || isPublished;
   const hasAttachment = Boolean(labRequest.latestAttachment);
-  const canEnterResults = !isPublished && !areLabTestsReadOnly && !hasAttachment;
+  const canEnterResults = !isPublished && !areLabTestsReadOnly;
 
   // If the value of status is enteredInError or deleted, it should display to the user as Cancelled
   const displayStatus = areLabRequestsReadOnly ? LAB_REQUEST_STATUSES.CANCELLED : labRequest.status;
@@ -181,21 +182,21 @@ export const LabRequestView = () => {
   const actions =
     labRequest.status === LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED
       ? [
-          {
-            label: <TranslatedText stringId="lab.action.recordSample" fallback="Record sample" />,
-            action: () => handleChangeModalId(MODAL_IDS.RECORD_SAMPLE),
-          },
-        ]
+        {
+          label: <TranslatedText stringId="lab.action.recordSample" fallback="Record sample" />,
+          action: () => handleChangeModalId(MODAL_IDS.RECORD_SAMPLE),
+        },
+      ]
       : [
-          {
-            label: <TranslatedText stringId="general.action.edit" fallback="Edit" />,
-            action: () => handleChangeModalId(MODAL_IDS.RECORD_SAMPLE),
-          },
-          {
-            label: <TranslatedText stringId="lab.action.viewDetails" fallback="View details" />,
-            action: () => handleChangeModalId(MODAL_IDS.SAMPLE_DETAILS),
-          },
-        ];
+        {
+          label: <TranslatedText stringId="general.action.edit" fallback="Edit" />,
+          action: () => handleChangeModalId(MODAL_IDS.RECORD_SAMPLE),
+        },
+        {
+          label: <TranslatedText stringId="lab.action.viewDetails" fallback="View details" />,
+          action: () => handleChangeModalId(MODAL_IDS.SAMPLE_DETAILS),
+        },
+      ];
 
   const handleChangeStatus = () => {
     if (labRequest.status === LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED) return;
@@ -235,7 +236,17 @@ export const LabRequestView = () => {
                 fallback="Test Category"
               />
             }
-            main={labRequest.category?.name || '-'}
+            main={
+              labRequest.category?.name ? (
+                <TranslatedReferenceData
+                  fallback={labRequest.category.name}
+                  value={labRequest.category.id}
+                  category="labTestCategory"
+                />
+              ) : (
+                '-'
+              )
+            }
           />
           <Tile
             Icon={Timelapse}
@@ -298,7 +309,17 @@ export const LabRequestView = () => {
           <Tile
             Icon={Business}
             text={<TranslatedText stringId="lab.laboratory.label" fallback="Laboratory" />}
-            main={labRequest.laboratory?.name || '-'}
+            main={
+              labRequest.laboratory?.name ? (
+                <TranslatedReferenceData
+                  fallback={labRequest.laboratory.name}
+                  value={labRequest.laboratory.id}
+                  category="labTestLaboratory"
+                />
+              ) : (
+                '-'
+              )
+            }
             isReadOnly={areLabRequestsReadOnly}
             actions={[
               {
@@ -315,7 +336,17 @@ export const LabRequestView = () => {
           <Tile
             Icon={AssignmentLate}
             text={<TranslatedText stringId="lab.view.tile.priority.label" fallback="Priority" />}
-            main={labRequest.priority?.name || '-'}
+            main={
+              labRequest.priority?.name ? (
+                <TranslatedReferenceData
+                  fallback={labRequest.priority.name}
+                  value={labRequest.priority.id}
+                  category="labTestPriority"
+                />
+              ) : (
+                '-'
+              )
+            }
             isReadOnly={areLabRequestsReadOnly}
             actions={[
               {
@@ -329,20 +360,18 @@ export const LabRequestView = () => {
         </FixedTileRow>
       </TopContainer>
       <BottomContainer>
-        {canEnterResults && (
-          <Box display="flex" justifyContent="flex-end" marginBottom="20px">
-            <Button onClick={() => handleChangeModalId(MODAL_IDS.ENTER_RESULTS)}>
-              <TranslatedText stringId="lab.action.enterResults" fallback="Enter results" />
-            </Button>
-          </Box>
-        )}
-        {hasAttachment && (
-          <Box display="flex" justifyContent="flex-end" marginBottom="20px">
+        <TableButtonRow variant="small">
+          {hasAttachment && (
             <Button onClick={() => handleChangeModalId(MODAL_IDS.VIEW_REPORT)}>
               <TranslatedText stringId="lab.action.viewReport" fallback="View report" />
             </Button>
-          </Box>
-        )}
+          )}
+          {canEnterResults && (
+            <Button onClick={() => handleChangeModalId(MODAL_IDS.ENTER_RESULTS)}>
+              <TranslatedText stringId="lab.action.enterResults" fallback="Enter results" />
+            </Button>
+          )}
+        </TableButtonRow>
         <LabRequestResultsTable
           labRequest={labRequest}
           patient={patient}

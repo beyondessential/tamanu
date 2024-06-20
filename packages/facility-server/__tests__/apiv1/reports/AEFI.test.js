@@ -85,13 +85,13 @@ describe('AEFI report', () => {
     scheduledVaccine1 = await models.ScheduledVaccine.create(
       await createScheduledVaccine(models, {
         label: 'vaccine 1',
-        schedule: 'Dose 1',
+        doseLabel: 'Dose 1',
       }),
     );
     scheduledVaccine2 = await models.ScheduledVaccine.create(
       await createScheduledVaccine(models, {
         label: 'vaccine 2',
-        schedule: 'Dose 2',
+        doseLabel: 'Dose 2',
       }),
     );
 

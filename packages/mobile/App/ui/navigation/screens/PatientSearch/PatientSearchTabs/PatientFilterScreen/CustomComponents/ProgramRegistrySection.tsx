@@ -12,6 +12,7 @@ import { useBackend, useBackendEffect } from '~/ui/hooks';
 import { useAuth } from '~/ui/contexts/AuthContext';
 import { VisibilityStatus } from '~/visibilityStatuses';
 import { Dropdown } from '~/ui/components/Dropdown';
+import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 
 const REGISTRY_COUNT_THRESHOLD = 10;
 
@@ -50,6 +51,12 @@ export const ProgramRegistrySection = (): ReactElement => {
     <StyledView marginLeft={20} marginRight={20}>
       {doesRegistryCountExceedThreshold ? (
         <LocalisedField
+          label={
+          <TranslatedText
+            stringId="general.localisedField.programRegistry.label"
+            fallback="Program registry"
+          />
+          }
           localisationPath="fields.programRegistry"
           labelFontSize={14}
           component={AutocompleteModalField}
@@ -60,6 +67,12 @@ export const ProgramRegistrySection = (): ReactElement => {
         />
       ) : (
         <LocalisedField
+          label={
+          <TranslatedText
+            stringId="general.localisedField.programRegistry.label"
+            fallback="Program registry"
+          />
+          }
           localisationPath="fields.programRegistry"
           labelFontSize={14}
           component={Dropdown}
