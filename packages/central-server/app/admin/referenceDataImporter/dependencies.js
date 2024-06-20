@@ -49,8 +49,7 @@ export default {
     loader: labTestPanelLoader,
     needs: ['labTestType'],
   },
-  invoicePriceChangeType: {},
-  invoiceLineType: {
+  invoiceProduct: {
     needs: ['labTestType'],
   },
 

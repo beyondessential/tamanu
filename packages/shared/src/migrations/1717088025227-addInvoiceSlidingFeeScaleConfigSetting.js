@@ -1,5 +1,4 @@
 /** @typedef {import('sequelize').QueryInterface} QueryInterface */
-import config from 'config';
 import { Op } from 'sequelize';
 
 const DEFAULT_SETTINGS = {
@@ -15,7 +14,7 @@ const DEFAULT_SETTINGS = {
     [0, 14800, 38300, 45900, 53600, 65000],
     [0, 16600, 41800, 50200, 58500, 70000],
     [0, 18900, 45300, 54400, 63400, 75000],
-    [0, 23500, 48800, 58600, 68400, 85000]
+    [0, 23500, 48800, 58600, 68400, 85000],
   ]),
 };
 
@@ -23,7 +22,6 @@ const DEFAULT_SETTINGS = {
  * @param {QueryInterface} query
  */
 export async function up(query) {
-  if (config?.serverFacilityId) return;
   await query.bulkInsert(
     'settings',
     Object.entries(DEFAULT_SETTINGS).map(([key, value]) => ({
@@ -37,7 +35,6 @@ export async function up(query) {
  * @param {QueryInterface} query
  */
 export async function down(query) {
-  if (config?.serverFacilityId) return;
   await query.bulkDelete('settings', {
     key: {
       [Op.in]: Object.keys(DEFAULT_SETTINGS),

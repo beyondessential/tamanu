@@ -10,6 +10,7 @@ export * from './labRequestAccessors';
 export * from './DeathCertificatePrintout';
 export * from './DischargeSummaryPrintout';
 export * from './EncounterRecordPrintout';
+export * from './InvoiceRecordPrintout';
 export * from './MultipleImagingRequestsPrintout'
 export * from './MultipleLabRequestsPrintout'
 export * from './PrescriptionPrintout';

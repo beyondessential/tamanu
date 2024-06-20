@@ -5,6 +5,7 @@ export const SETTING_KEYS = {
   FEATURES_REMINDER_CONTACT_ENABLED: 'features.reminderContactModule.enabled',
   FEATURE_MANDATE_SPECIMEN_TYPE: 'features.mandateSpecimenType',
   SLIDING_FEE_SCALE: 'invoice.slidingFeeScale',
+  INSURER_DEFAUlT_CONTRIBUTION: 'insurer.defaultContribution',
 };
 
 export const SETTINGS_SCOPES = {

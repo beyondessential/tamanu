@@ -3,26 +3,28 @@ import * as yup from 'yup';
 import styled from 'styled-components';
 import { Divider } from '@material-ui/core';
 import { SETTING_KEYS } from '@tamanu/constants';
-import { TranslatedText } from '../Translation';
-import { BodyText, Heading3 } from '../Typography';
-import { ConfirmCancelBackRow } from '../ButtonRow';
-import { Field, Form, SelectField } from '../Field';
-import { FormGrid } from '../FormGrid';
-import { useSettings } from '../../contexts/Settings';
-import { slidingFeeScaleTable as defaultSlidingFeeScale } from '../../constants';
+import { TranslatedText } from '../../Translation';
+import { BodyText, Heading3 } from '../../Typography';
+import { ConfirmCancelBackRow } from '../../ButtonRow';
+import { Field, Form, SelectField } from '../../Field';
+import { FormGrid } from '../../FormGrid';
+import { useSettings } from '../../../contexts/Settings';
+import { slidingFeeScaleTable as defaultSlidingFeeScale } from '../../../constants';
 
 const StyledDivider = styled(Divider)`
   margin: 36px -32px 20px -32px;
 `;
 
+const MAX_FAMILY_SIZE = 12;
+
 export const InvoiceDiscountAssessmentForm = ({ handleSubmit, onClose, handleBack }) => {
   const [familySize, setFamilySize] = useState();
-  const [percentageChange, setPercentageChange] = useState();
+  const [percentage, setPercentage] = useState();
   const { getSetting } = useSettings();
 
   const slidingFeeScale = getSetting(SETTING_KEYS.SLIDING_FEE_SCALE) ?? defaultSlidingFeeScale;
 
-  const familySizesOptions = Array.from({ length: 12 }, (_, i) => ({
+  const familySizesOptions = Array.from({ length: MAX_FAMILY_SIZE }, (_, i) => ({
     label: (i + 1).toString(),
     value: i,
   }));
@@ -37,14 +39,14 @@ export const InvoiceDiscountAssessmentForm = ({ handleSubmit, onClose, handleBac
       } else {
         range = `${income} - ${incomeArray[index + 1]}`;
       }
-      return { value: range, label: range, percentageChange: (index + 2) / 10 };
+      return { value: range, label: range, percentage: (index + 2) / 10 };
     });
-  }, [familySize]);
+  }, [familySize, slidingFeeScale]);
 
-  const handleAnnualIncomeChange = (e) => {
+  const handleAnnualIncomeChange = e => {
     const selectedOption = annualIncomeOptions.find(option => option.value === e.target.value);
     if (selectedOption) {
-      setPercentageChange(selectedOption.percentageChange);
+      setPercentage(selectedOption.percentage);
     }
   };
 
@@ -63,7 +65,7 @@ export const InvoiceDiscountAssessmentForm = ({ handleSubmit, onClose, handleBac
         />
       </BodyText>
       <Form
-        onSubmit={() => handleSubmit({ percentageChange: 1 - percentageChange })}
+        onSubmit={() => handleSubmit({ percentage: 1 - percentage })}
         render={({ submitForm }) => (
           <>
             <FormGrid columns={1}>

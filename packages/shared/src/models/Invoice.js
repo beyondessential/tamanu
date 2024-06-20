@@ -1,4 +1,4 @@
-import { Sequelize } from 'sequelize';
+import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
 import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
@@ -9,28 +9,50 @@ export class Invoice extends Model {
     super.init(
       {
         id: primaryKey,
-        displayId: Sequelize.STRING,
-        status: Sequelize.STRING,
-        total: Sequelize.DECIMAL,
-        paymentStatus: Sequelize.STRING,
-        receiptNumber: Sequelize.STRING,
-        date: dateType('date'),
-        discountMarkupPercentage: Sequelize.DECIMAL,
-        discountMarkupReason: Sequelize.STRING,
+        displayId: {
+          type: DataTypes.STRING,
+          allowNull: false,
+        },
+        date: dateType('date', {
+          allowNull: false,
+        }),
+        status: {
+          type: DataTypes.STRING,
+          allowNull: false,
+        },
+        paymentStatus: {
+          type: DataTypes.STRING,
+          allowNull: false,
+        },
+        receiptNumber: DataTypes.STRING,
       },
       { syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL, ...options },
     );
   }
 
+  /**
+   *
+   * @param {import('./')} models
+   */
   static initRelations(models) {
     this.belongsTo(models.Encounter, {
       foreignKey: 'encounterId',
       as: 'encounter',
     });
 
-    this.hasMany(models.InvoiceLineItem, {
+    this.hasOne(models.InvoiceDiscount, {
       foreignKey: 'invoiceId',
-      as: 'invoiceLineItems',
+      as: 'discount',
+    });
+
+    this.hasMany(models.InvoiceInsurer, {
+      foreignKey: 'invoiceId',
+      as: 'insurers',
+    });
+
+    this.hasMany(models.InvoiceItem, {
+      foreignKey: 'invoiceId',
+      as: 'items',
     });
   }
 
@@ -42,5 +64,38 @@ export class Invoice extends Model {
       [this.tableName, 'encounters'],
       markedForSyncPatientsTable,
     );
+  }
+
+  static getFullReferenceAssociations() {
+    const { models } = this.sequelize;
+
+    return [
+      'encounter',
+      {
+        model: models.InvoiceDiscount,
+        as: 'discount',
+        include: [{ model: models.User, as: 'appliedByUser', attributes: ['displayName'] }],
+      },
+      {
+        model: models.InvoiceInsurer,
+        as: 'insurers',
+        include: [
+          {
+            model: models.ReferenceData,
+            as: 'insurer',
+          },
+        ],
+      },
+      {
+        model: models.InvoiceItem,
+        as: 'items',
+        include: models.InvoiceItem.getListReferenceAssociations(models),
+      },
+    ];
+  }
+
+  addVirtualFields() {
+    this.items = this.items.map(item => item.addVirtualFields());
+    return this;
   }
 }

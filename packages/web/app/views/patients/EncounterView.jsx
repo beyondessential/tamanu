@@ -16,7 +16,7 @@ import {
   EncounterMedicationPane,
   EncounterProgramsPane,
   ImagingPane,
-  InvoicingPane,
+  EncounterInvoicingPane,
   LabsPane,
   NotesPane,
   ProcedurePane,
@@ -80,7 +80,7 @@ const TABS = [
   {
     label: <TranslatedText stringId="encounter.tabs.invoicing" fallback="Invoicing" />,
     key: ENCOUNTER_TAB_NAMES.INVOICING,
-    render: props => <InvoicingPane {...props} />,
+    render: props => <EncounterInvoicingPane {...props} />,
     condition: getLocalisation => getLocalisation('features.enableInvoicing'),
   },
 ];

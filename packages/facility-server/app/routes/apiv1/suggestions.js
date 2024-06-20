@@ -5,7 +5,6 @@ import { literal, Op, Sequelize } from 'sequelize';
 import config from 'config';
 import { NotFoundError } from '@tamanu/shared/errors';
 import {
-  INVOICE_LINE_TYPES,
   REFERENCE_TYPE_VALUES,
   REFERENCE_TYPES,
   TRANSLATABLE_REFERENCE_TYPES,
@@ -344,13 +343,32 @@ createNameSuggester('survey', 'Survey', (search, { programId }) => ({
 }));
 
 createSuggester(
-  'invoiceLineTypes',
-  'InvoiceLineType',
+  'invoiceProducts',
+  'InvoiceProduct',
   search => ({
     name: { [Op.iLike]: search },
-    itemType: INVOICE_LINE_TYPES.ADDITIONAL,
+    '$referenceData.type$': REFERENCE_TYPES.ADDITIONAL_INVOICE_PRODUCT,
   }),
-  { mapper: ({ id, name, price }) => ({ id, name, price }) },
+  {
+    mapper: product => {
+      product.addVirtualFields();
+      return product;
+    },
+    includeBuilder: req => {
+      return [
+        {
+          model: req.models.ReferenceData,
+          as: 'referenceData',
+          attributes: ['code'],
+        },
+        {
+          model: req.models.LabTestType,
+          as: 'labTestType',
+          attributes: ['code'],
+        },
+      ];
+    },
+  },
 );
 
 createSuggester(

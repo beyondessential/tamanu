@@ -12,7 +12,7 @@ export const SUGGESTER_ENDPOINTS = [
   'department',
   'facility',
   'facilityLocationGroup',
-  'invoiceLineTypes',
+  'invoiceProducts',
   'location',
   'patient',
   'patientLabTestCategories',
