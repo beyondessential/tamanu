@@ -5,9 +5,10 @@ import { Models } from './readers/SettingsDBReader';
 
 const KEYS_EXPOSED_TO_FRONT_END = [
   'vaccinations',
+  'upcomingVaccinations',
   'templates',
   'features',
-  'invoice'
+  'invoice',
 ];
 
 export class ReadSettings {

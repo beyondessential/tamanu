@@ -59,15 +59,6 @@ const CenteredLoadingIndicatorContainer = styled.div`
   margin: 1rem auto 0.5rem;
 `;
 
-const OptionRow = styled.div`
-  border-bottom: 1px solid ${Colors.outline};
-  display: flex;
-  flex-direction: row;
-  justify-content: flex-end;
-  font-size: 0.85rem;
-  padding: 0.7rem;
-`;
-
 const StyledTableRow = styled(TableRow)`
   ${p =>
     p.onClick
@@ -161,6 +152,7 @@ const StyledTableHead = styled(TableHead)`
       display: table;
       table-layout: fixed;
       width: 100%;
+      padding-right: 15px;
     `
       : ''}
   ${props =>
@@ -466,7 +458,7 @@ class TableComponent extends React.Component {
       hideHeader,
       fixedHeader,
       lazyLoading,
-      optionRow,
+      TableHeader,
       data,
       isLoading,
       noDataBackgroundColor,
@@ -474,7 +466,6 @@ class TableComponent extends React.Component {
       containerStyle,
       isBodyScrollable,
       headStyle,
-      inlineTitle
     } = this.props;
 
     return (
@@ -489,8 +480,7 @@ class TableComponent extends React.Component {
             : Colors.outline
         }
       >
-        {inlineTitle}
-        {optionRow && <OptionRow>{optionRow}</OptionRow>}
+        {TableHeader && TableHeader}
         <StyledTable
           $backgroundColor={data?.length || isLoading ? Colors.white : noDataBackgroundColor}
         >

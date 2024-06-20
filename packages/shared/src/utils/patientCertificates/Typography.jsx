@@ -1,5 +1,6 @@
 import React from 'react';
-import { StyleSheet, Text } from '@react-pdf/renderer';
+import { StyleSheet } from '@react-pdf/renderer';
+import { Text } from '../pdf/Text';
 
 const styles = StyleSheet.create({
   h1: {
@@ -49,12 +50,8 @@ export const H3 = ({ style, ...props }) => <Text style={{ ...styles.h3, ...style
 export const P = ({ mt = 0, mb, bold = false, fontSize = 14, style = {}, ...props }) => (
   <Text
     {...props}
-    style={[
-      styles.p,
-      { marginTop: mt, marginBottom: mb, fontSize },
-      ...(bold ? [{ fontFamily: 'Helvetica-Bold' }] : []),
-      style,
-    ]}
+    style={[styles.p, { marginTop: mt, marginBottom: mb, fontSize }, style]}
+    bold={bold}
   />
 );
 export const CertificateAddress = props => <Text style={styles.certificateAddress} {...props} />;

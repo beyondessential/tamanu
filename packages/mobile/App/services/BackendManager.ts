@@ -6,6 +6,7 @@ import { AuthenticationError } from './error';
 import { LocalisationService } from './localisation';
 import { PermissionsService } from './permissions';
 import { MODELS_MAP } from '../models/modelsMap';
+import { SettingsService } from './settings';
 
 const SYNC_PERIOD_MINUTES = 5;
 
@@ -26,9 +27,11 @@ export class BackendManager {
 
   localisation: LocalisationService;
 
+  settings: SettingsService;
+
   permissions: PermissionsService;
 
-  interval: number;
+  interval: NodeJS.Timeout;
 
   constructor() {
     const { models } = Database;
@@ -36,6 +39,7 @@ export class BackendManager {
     this.centralServer = new CentralServerConnection();
     this.auth = new AuthService(models, this.centralServer);
     this.localisation = new LocalisationService(this.auth);
+    this.settings = new SettingsService(this.auth);
     this.permissions = new PermissionsService(this.auth);
     this.syncManager = new MobileSyncManager(this.centralServer);
   }

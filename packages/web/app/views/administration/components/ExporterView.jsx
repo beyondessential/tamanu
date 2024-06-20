@@ -11,19 +11,27 @@ import { ButtonRow } from '../../../components/ButtonRow';
 import { FormSubmitButton } from '../../../components/Button';
 import { saveFile } from '../../../utils/fileSystemAccess';
 import { FORM_TYPES } from '../../../constants';
+import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
 const ExportForm = ({ dataTypes, dataTypesSelectable }) => (
   <FormGrid columns={1}>
     {dataTypesSelectable && (
       <Field
         name="includedDataTypes"
-        label="Select data types to export"
+        label={
+          <TranslatedText
+            stringId="admin.export.includedDataTypes.label"
+            fallback="Select data types to export"
+          />
+        }
         component={ExpandedMultiSelectField}
         options={dataTypes.map(value => ({ value, label: startCase(value) }))}
       />
     )}
     <ButtonRow>
-      <FormSubmitButton text="Export" />
+      <FormSubmitButton
+        text={<TranslatedText stringId="general.action.export" fallback="Export" />}
+      />
     </ButtonRow>
   </FormGrid>
 );

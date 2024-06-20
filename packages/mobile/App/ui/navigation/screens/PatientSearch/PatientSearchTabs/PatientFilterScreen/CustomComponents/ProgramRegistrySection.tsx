@@ -11,6 +11,7 @@ import { Suggester } from '~/ui/helpers/suggester';
 import { useBackend } from '~/ui/hooks';
 import { useAuth } from '~/ui/contexts/AuthContext';
 import { VisibilityStatus } from '~/visibilityStatuses';
+import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 
 export const ProgramRegistrySection = (): ReactElement => {
   const navigation = useNavigation();
@@ -31,6 +32,12 @@ export const ProgramRegistrySection = (): ReactElement => {
   return (
     <StyledView marginLeft={20} marginRight={20}>
       <LocalisedField
+        label={
+          <TranslatedText
+            stringId="general.localisedField.programRegistry.label"
+            fallback="Program registry"
+          />
+        }
         localisationPath="fields.programRegistry"
         labelFontSize={14}
         component={AutocompleteModalField}
