@@ -46,6 +46,6 @@ export class InvoiceDiscount extends Model {
     if (patientIds.length === 0) {
       return null;
     }
-    return buildEncounterLinkedSyncFilter([this.tableName, 'encounters']);
+    return buildEncounterLinkedSyncFilter([this.tableName, 'invoices']);
   }
 }
