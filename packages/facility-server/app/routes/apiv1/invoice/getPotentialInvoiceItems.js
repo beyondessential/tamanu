@@ -83,10 +83,10 @@ select
 	coalesce(fpc."sourceType",fi."sourceType",fl."sourceType") as "productType",
 	fpd.name as "productName",
 	fpd.price as "productPrice",
-	coalesce(fpc."date",fi."date",fl."date") as "date",
+	coalesce(fpc."date",fi."date",fl."date") as "orderDate",
 	coalesce(fpc."sourceId",fi."sourceId",fl."sourceId") as "sourceId",
 	coalesce(fpc."orderedByUserId",fi."orderedByUserId",fl."orderedByUserId") as "orderedByUserId",
-	u.display_name as "orderedByUserName"
+	u.display_name as "orderedByUser.displayName"
 from filtered_products fpd
 left join filtered_procedures fpc on fpc."productId" = fpd.id
 left join filtered_imagings fi on fi."productId" = fpd.id

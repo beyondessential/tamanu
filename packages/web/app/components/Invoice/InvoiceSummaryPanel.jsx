@@ -43,6 +43,7 @@ const DiscountedPrice = styled.div`
   justify-content: space-between;
   align-items: center;
   width: 100px;
+  flex-shrink: 0;
 `;
 
 const IconButton = styled.span`
