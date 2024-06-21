@@ -55,7 +55,6 @@ export const OTHER_REFERENCE_TYPES = {
   DEPARTMENT: 'department',
   FACILITY: 'facility',
   INVOICE_PRODUCT: 'invoiceProduct',
-  INVOICE_PRICE_CHANGE_TYPE: 'invoicePriceChangeType',
   LAB_TEST_TYPE: 'labTestType',
   LAB_TEST_PANEL: 'labTestPanel',
   LOCATION: 'location',
