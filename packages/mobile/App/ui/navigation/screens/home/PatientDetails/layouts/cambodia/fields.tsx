@@ -3,7 +3,6 @@ import { TranslatedText } from '/components/Translations/TranslatedText';
 import { ADDITIONAL_DATA_FIELDS } from '~/ui/helpers/additionalData';
 import { PATIENT_DATA_FIELDS } from '/helpers/patient';
 import { ReferenceDataType } from '~/types';
-import { labels } from '/navigation/screens/home/PatientDetails/layouts/generic/labels';
 
 export const CAMBODIA_CUSTOM_FIELDS = {
   NATIONAL_ID: 'fieldDefinition-nationalId',
@@ -20,47 +19,48 @@ export const CAMBODIA_LOCATION_HIERARCHY_FIELD_IDS = [
 
 export const CAMBODIA_LOCATION_HIERARCHY_FIELDS = [
   {
-    name: 'divisionId',
+    name: ADDITIONAL_DATA_FIELDS.DIVISION_ID,
     referenceType: ReferenceDataType.Division,
     label: <TranslatedText stringId="cambodiaPatientDetails.province.label" fallback="Province" />,
   },
   {
-    name: 'subdivisionId',
+    name: ADDITIONAL_DATA_FIELDS.SUBDIVISION_ID,
     referenceType: ReferenceDataType.SubDivision,
     label: <TranslatedText stringId="cambodiaPatientDetails.district.label" fallback="District" />,
   },
   {
-    name: 'settlementId',
+    name: ADDITIONAL_DATA_FIELDS.SETTLEMENT_ID,
     referenceType: ReferenceDataType.Settlement,
     label: <TranslatedText stringId="cambodiaPatientDetails.commune.label" fallback="Commune" />,
   },
   {
-    name: 'villageId',
+    name: PATIENT_DATA_FIELDS.VILLAGE_ID,
     referenceType: ReferenceDataType.Village,
     label: <TranslatedText stringId="general.localisedField.villageId.label" fallback="Village" />,
   },
 ];
 
+// Note can't re-use the labels from the generic layout as it triggers a circular dependency error
 export const SECONDARY_LOCATION_HIERARCHY_FIELDS = [
   {
     name: 'secondaryDivisionId',
     referenceType: ReferenceDataType.Division,
-    label: labels.secondaryDivisionId,
+    label: <TranslatedText stringId="cambodiaPatientDetails.province.label" fallback="Province" />,
   },
   {
     name: 'secondarySubdivisionId',
     referenceType: ReferenceDataType.SubDivision,
-    label: labels.secondarySubdivisionId,
+    label: <TranslatedText stringId="cambodiaPatientDetails.district.label" fallback="District" />,
   },
   {
     name: 'secondarySettlementId',
     referenceType: ReferenceDataType.Settlement,
-    label: labels.secondarySettlementId,
+    label: <TranslatedText stringId="cambodiaPatientDetails.commune.label" fallback="Commune" />,
   },
   {
     name: 'secondaryVillageId',
     referenceType: ReferenceDataType.Village,
-    label: labels.secondaryVillageId,
+    label: <TranslatedText stringId="general.localisedField.villageId.label" fallback="Village" />,
   },
 ];
 

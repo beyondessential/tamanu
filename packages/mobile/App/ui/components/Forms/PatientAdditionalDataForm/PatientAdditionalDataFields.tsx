@@ -24,8 +24,8 @@ import { HierarchyFields } from '../../HierarchyFields';
 import { labels } from '~/ui/navigation/screens/home/PatientDetails/layouts/generic/labels';
 import {
   CAMBODIA_LOCATION_HIERARCHY_FIELDS,
-  SECONDARY_LOCATION_HIERARCHY_FIELDS,,
-  CAMBODIA_LOCATION_HIERARCHY_FIELD_IDS
+  CAMBODIA_LOCATION_HIERARCHY_FIELD_IDS,
+  SECONDARY_LOCATION_HIERARCHY_FIELDS,
 } from '/navigation/screens/home/PatientDetails/layouts/cambodia/fields';
 
 const PlainField = ({ fieldName, required }): ReactElement => (
