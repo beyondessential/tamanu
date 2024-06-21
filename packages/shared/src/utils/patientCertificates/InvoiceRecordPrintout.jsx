@@ -16,6 +16,7 @@ import {
   getInvoiceItemName,
   getInvoiceItemPriceDisplay,
   getInvoiceSummary,
+  getInvoiceItemQuantity,
 } from '../invoice';
 import { withLanguageContext } from '../pdf/languageContext';
 import { Page } from '../pdf/Page';
@@ -184,7 +185,7 @@ const COLUMNS = {
     {
       key: 'orderDate',
       title: 'Date',
-      style: { width: '15%' },
+      style: { width: '13%' },
       accessor: ({ orderDate }) => (orderDate ? formatShort(orderDate) : '--/--/----'),
     },
     {
@@ -196,20 +197,26 @@ const COLUMNS = {
     {
       key: 'code',
       title: 'Code',
-      style: { width: '12%' },
+      style: { width: '10%' },
       accessor: row => getInvoiceItemCode(row),
+    },
+    {
+      key: 'quantity',
+      title: 'Quantity',
+      style: { width: '12%' },
+      accessor: row => getInvoiceItemQuantity(row),
     },
     {
       key: 'orderedBy',
       title: 'Ordered by',
       accessor: ({ orderedByUser }) => orderedByUser?.displayName,
-      style: { width: '27%' },
+      style: { width: '20%' },
     },
     {
       key: 'price',
       title: 'Price',
       accessor: row => getPrice(row),
-      style: { width: '16%' },
+      style: { width: '15%' },
       CellComponent: PriceCell,
     },
   ],

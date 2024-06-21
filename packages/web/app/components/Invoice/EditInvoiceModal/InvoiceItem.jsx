@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Box, Grid } from '@material-ui/core';
 import { TranslatedText } from '../../Translation';
-import { AutocompleteField, DateField, Field } from '../../Field';
+import { AutocompleteField, DateField, Field, NumberField } from '../../Field';
 import { useSuggester } from '../../../api';
 import { Colors, INVOICE_ITEM_ACTION_MODAL_TYPES } from '../../../constants';
 import { ThemedTooltip } from '../../Tooltip';
@@ -64,9 +64,11 @@ const ViewOnlyCell = styled(Box)`
 
 export const InvoiceItemHeader = () => {
   return (
-    <StyledItemHeader container alignItems="center" spacing={1}>
-      <Grid item xs={2}>
-        <TranslatedText stringId="general.date.label" fallback="Date" />
+    <StyledItemHeader container alignItems="center" spacing={1} wrap="nowrap">
+      <Grid item xs="auto">
+        <Box sx={{ width: 114.5 }}>
+          <TranslatedText stringId="general.date.label" fallback="Date" />
+        </Box>
       </Grid>
       <Grid item xs={4}>
         <TranslatedText stringId="invoice.modal.addInvoice.details.label" fallback="Details" />
@@ -74,6 +76,11 @@ export const InvoiceItemHeader = () => {
       <Grid item xs={1}>
         <CodeCell>
           <TranslatedText stringId="invoice.table.column.code" fallback="Code" />
+        </CodeCell>
+      </Grid>
+      <Grid item xs={1}>
+        <CodeCell>
+          <TranslatedText stringId="invoice.table.column.quantity" fallback="Quantity" />
         </CodeCell>
       </Grid>
       <Grid item xs={3}>
@@ -152,42 +159,42 @@ export const InvoiceItemRow = ({
   const menuItems = [
     ...(item.discount?.percentage
       ? [
-          {
-            label:
-              Number(item.discount?.percentage) < 0 ? (
-                <TranslatedText
-                  stringId="invoice.modal.editInvoice.removeMarkup"
-                  fallback="Remove markup"
-                />
-              ) : (
-                <TranslatedText
-                  stringId="invoice.modal.editInvoice.removeDiscount"
-                  fallback="Remove discount"
-                />
-              ),
-            onClick: () => handleAction({}, INVOICE_ITEM_ACTION_MODAL_TYPES.REMOVE_DISCOUNT_MARKUP),
-          },
-        ]
+        {
+          label:
+            Number(item.discount?.percentage) < 0 ? (
+              <TranslatedText
+                stringId="invoice.modal.editInvoice.removeMarkup"
+                fallback="Remove markup"
+              />
+            ) : (
+              <TranslatedText
+                stringId="invoice.modal.editInvoice.removeDiscount"
+                fallback="Remove discount"
+              />
+            ),
+          onClick: () => handleAction({}, INVOICE_ITEM_ACTION_MODAL_TYPES.REMOVE_DISCOUNT_MARKUP),
+        },
+      ]
       : [
-          {
-            label: (
-              <TranslatedText
-                stringId="invoice.modal.editInvoice.addDiscount"
-                fallback="Add discount"
-              />
-            ),
-            onClick: () => setActionModal(INVOICE_ITEM_ACTION_MODAL_TYPES.ADD_DISCOUNT),
-          },
-          {
-            label: (
-              <TranslatedText
-                stringId="invoice.modal.editInvoice.addMarkup"
-                fallback="Add markup"
-              />
-            ),
-            onClick: () => setActionModal(INVOICE_ITEM_ACTION_MODAL_TYPES.ADD_MARKUP),
-          },
-        ]),
+        {
+          label: (
+            <TranslatedText
+              stringId="invoice.modal.editInvoice.addDiscount"
+              fallback="Add discount"
+            />
+          ),
+          onClick: () => setActionModal(INVOICE_ITEM_ACTION_MODAL_TYPES.ADD_DISCOUNT),
+        },
+        {
+          label: (
+            <TranslatedText
+              stringId="invoice.modal.editInvoice.addMarkup"
+              fallback="Add markup"
+            />
+          ),
+          onClick: () => setActionModal(INVOICE_ITEM_ACTION_MODAL_TYPES.ADD_MARKUP),
+        },
+      ]),
     {
       label: <TranslatedText stringId="invoice.modal.editInvoice.delete" fallback="Delete" />,
       onClick: () => setActionModal(INVOICE_ITEM_ACTION_MODAL_TYPES.DELETE),
@@ -216,8 +223,8 @@ export const InvoiceItemRow = ({
 
   return (
     <>
-      <StyledItemRow container alignItems="center" spacing={1}>
-        <StyledItemCell item xs={2}>
+      <StyledItemRow container alignItems="center" spacing={1} wrap="nowrap">
+        <StyledItemCell item xs="auto">
           {editable ? (
             <Field
               name={`invoiceItems.${index}.orderDate`}
@@ -227,7 +234,7 @@ export const InvoiceItemRow = ({
               saveDateAsString
             />
           ) : (
-            <ViewOnlyCell>{getDateDisplay(item?.orderDate, 'dd/MM/yyyy')}</ViewOnlyCell>
+            <ViewOnlyCell width={118.5}>{getDateDisplay(item?.orderDate, 'dd/MM/yyyy')}</ViewOnlyCell>
           )}
         </StyledItemCell>
         <StyledItemCell item xs={4}>
@@ -251,6 +258,24 @@ export const InvoiceItemRow = ({
             </CodeCell>
           ) : (
             <ViewOnlyCell marginLeft="5%">{getInvoiceItemCode(item)}</ViewOnlyCell>
+          )}
+        </StyledItemCell>
+        <StyledItemCell item justifyContent="center" xs={1}>
+          {editable ? (
+            <Field
+              name={`invoiceItems.${index}.quantity`}
+              component={NumberField}
+              min={1}
+              onInput={event => {
+                if (!event.target.validity.valid) {
+                  event.target.value = '';
+                }
+              }}
+              size="small"
+              required
+            />
+          ) : (
+            <ViewOnlyCell>{item?.quantity}</ViewOnlyCell>
           )}
         </StyledItemCell>
         <StyledItemCell item xs={3}>
