@@ -12,10 +12,10 @@ export const CAMBODIA_CUSTOM_FIELDS = {
   SECONDARY_STREET_ADDRESS: 'fieldDefinition-secondaryAddressStreet',
 };
 
-export const CAMBODIA_LOCATION_HIERARCHY_FIELD_IDS = [
-  'cambodiaVillageId',
-  'cambodiaSecondaryVillageId',
-];
+export const CAMBODIA_LOCATION_HIERARCHY_FIELD_IDS = {
+  VILLAGE_ID: 'cambodiaVillageId',
+  SECONDARY_VILLAGE_ID: 'cambodiaSecondaryVillageId',
+};
 
 export const CAMBODIA_LOCATION_HIERARCHY_FIELDS = [
   {
@@ -66,9 +66,12 @@ export const SECONDARY_LOCATION_HIERARCHY_FIELDS = [
 
 // Cambodia data layout
 export const CAMBODIA_ADDITIONAL_DATA_FIELDS = {
-  ADDRESS: ['cambodiaVillageId', ADDITIONAL_DATA_FIELDS.STREET_VILLAGE],
+  ADDRESS: [
+    CAMBODIA_LOCATION_HIERARCHY_FIELD_IDS.VILLAGE_ID,
+    ADDITIONAL_DATA_FIELDS.STREET_VILLAGE,
+  ],
   PERMANENT_ADDRESS: [
-    'cambodiaSecondaryVillageId',
+    CAMBODIA_LOCATION_HIERARCHY_FIELD_IDS.SECONDARY_VILLAGE_ID,
     CAMBODIA_CUSTOM_FIELDS.SECONDARY_STREET_ADDRESS,
   ],
   CONTACT: [

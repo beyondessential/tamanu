@@ -100,7 +100,7 @@ const CustomField = ({ fieldName, required }): ReactElement => {
 
 const HierarchyField = ({ fieldName }): ReactElement => {
   const fields =
-    fieldName === 'cambodiaVillageId'
+    fieldName === CAMBODIA_LOCATION_HIERARCHY_FIELD_IDS.VILLAGE_ID
       ? CAMBODIA_LOCATION_HIERARCHY_FIELDS
       : SECONDARY_LOCATION_HIERARCHY_FIELDS;
   return <HierarchyFields fields={fields} />;
@@ -122,7 +122,7 @@ function getComponentForField(
   if (customFieldIds.includes(fieldName)) {
     return CustomField;
   }
-  if (CAMBODIA_LOCATION_HIERARCHY_FIELD_IDS.includes(fieldName)) {
+  if (Object.values(CAMBODIA_LOCATION_HIERARCHY_FIELD_IDS).includes(fieldName)) {
     return HierarchyField;
   }
   // Shouldn't happen
