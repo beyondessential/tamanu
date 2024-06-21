@@ -34,11 +34,12 @@ import { SimpleTopBar } from '../../../components';
 
 import { CancelModalButton } from './CancelModalButton';
 import { PrintModalButton } from './PrintModalButton';
-import { TranslatedText, TranslatedReferenceData } from '../../../components/Translation';
+import { getReferenceDataStringId, TranslatedText } from '../../../components/Translation';
 import { useTranslation } from '../../../contexts/Translation';
 
 const ImagingRequestSection = ({ currentStatus, imagingRequest }) => {
   const { getLocalisation } = useLocalisation();
+  const { getTranslation } = useTranslation();
   const imagingPriorities = getLocalisation('imagingPriorities') || [];
   const imagingTypes = getLocalisation('imagingTypes') || {};
 
@@ -104,11 +105,11 @@ const ImagingRequestSection = ({ currentStatus, imagingRequest }) => {
         value={
           // Either use free text area or multi-select areas data
           imagingRequest.areas?.length
-            ? imagingRequest.areas.map(area => (
-              <span key={area.id}>
-                <TranslatedReferenceData fallback={area.name} value={area.id} category={area.type} />
-              </span>
-            )).join(', ')
+            ? imagingRequest.areas
+                .map(area =>
+                  getTranslation(getReferenceDataStringId(area.id, area.type), area.name),
+                )
+                .join(', ')
             : imagingRequest.areaNote
         }
         label={<TranslatedText stringId="imaging.areas.label" fallback="Areas to be imaged" />}
@@ -173,6 +174,7 @@ const NewResultSection = ({ disabled = false }) => {
 function openUrl(url) {
   window.open(url, '_blank');
 }
+
 const ImagingResultRow = ({ result }) => {
   const { externalUrl, completedAt, completedBy, description } = result;
 
