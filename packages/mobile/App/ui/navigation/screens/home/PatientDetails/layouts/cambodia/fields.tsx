@@ -1,6 +1,9 @@
 import React from 'react';
 import { TranslatedText } from '/components/Translations/TranslatedText';
 import { ADDITIONAL_DATA_FIELDS } from '~/ui/helpers/additionalData';
+import { PATIENT_DATA_FIELDS } from '/helpers/patient';
+import { ReferenceDataType } from '~/types';
+import { labels } from '/navigation/screens/home/PatientDetails/layouts/generic/labels';
 
 export const CAMBODIA_CUSTOM_FIELDS = {
   NATIONAL_ID: 'fieldDefinition-nationalId',
@@ -9,6 +12,57 @@ export const CAMBODIA_CUSTOM_FIELDS = {
   FATHERS_FIRST_NAME: 'fieldDefinition-fathersFirstName',
   SECONDARY_STREET_ADDRESS: 'fieldDefinition-secondaryAddressStreet',
 };
+
+export const CAMBODIA_LOCATION_HIERARCHY_FIELD_IDS = [
+  'cambodiaVillageId',
+  'cambodiaSecondaryVillageId',
+];
+
+export const CAMBODIA_LOCATION_HIERARCHY_FIELDS = [
+  {
+    name: 'divisionId',
+    referenceType: ReferenceDataType.Division,
+    label: <TranslatedText stringId="cambodiaPatientDetails.province.label" fallback="Province" />,
+  },
+  {
+    name: 'subdivisionId',
+    referenceType: ReferenceDataType.SubDivision,
+    label: <TranslatedText stringId="cambodiaPatientDetails.district.label" fallback="District" />,
+  },
+  {
+    name: 'settlementId',
+    referenceType: ReferenceDataType.Settlement,
+    label: <TranslatedText stringId="cambodiaPatientDetails.commune.label" fallback="Commune" />,
+  },
+  {
+    name: 'villageId',
+    referenceType: ReferenceDataType.Village,
+    label: <TranslatedText stringId="general.localisedField.villageId.label" fallback="Village" />,
+  },
+];
+
+export const SECONDARY_LOCATION_HIERARCHY_FIELDS = [
+  {
+    name: 'secondaryDivisionId',
+    referenceType: ReferenceDataType.Division,
+    label: labels.secondaryDivisionId,
+  },
+  {
+    name: 'secondarySubdivisionId',
+    referenceType: ReferenceDataType.SubDivision,
+    label: labels.secondarySubdivisionId,
+  },
+  {
+    name: 'secondarySettlementId',
+    referenceType: ReferenceDataType.Settlement,
+    label: labels.secondarySettlementId,
+  },
+  {
+    name: 'secondaryVillageId',
+    referenceType: ReferenceDataType.Village,
+    label: labels.secondaryVillageId,
+  },
+];
 
 // Cambodia data layout
 export const CAMBODIA_ADDITIONAL_DATA_FIELDS = {
@@ -46,10 +100,10 @@ export const CAMBODIA_ADDITIONAL_DATA_SECTIONS = [
     ),
     fields: CAMBODIA_ADDITIONAL_DATA_FIELDS.ADDRESS,
     dataFields: [
-      'divisionId',
-      'subdivisionId',
-      'settlementId',
-      'villageId',
+      ADDITIONAL_DATA_FIELDS.DIVISION_ID,
+      ADDITIONAL_DATA_FIELDS.SUBDIVISION_ID,
+      ADDITIONAL_DATA_FIELDS.SETTLEMENT_ID,
+      PATIENT_DATA_FIELDS.VILLAGE_ID,
       ADDITIONAL_DATA_FIELDS.STREET_VILLAGE,
     ],
   },
@@ -66,7 +120,7 @@ export const CAMBODIA_ADDITIONAL_DATA_SECTIONS = [
       'secondaryDivisionId',
       'secondarySubdivisionId',
       'secondarySettlementId',
-      'secondaryVillageId',
+      ADDITIONAL_DATA_FIELDS.SECONDARY_VILLAGE_ID,
       CAMBODIA_CUSTOM_FIELDS.SECONDARY_STREET_ADDRESS,
     ],
   },

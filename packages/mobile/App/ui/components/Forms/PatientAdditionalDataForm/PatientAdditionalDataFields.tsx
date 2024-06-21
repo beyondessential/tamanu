@@ -22,8 +22,11 @@ import { ActivityIndicator } from 'react-native';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
 import { HierarchyFields } from '../../HierarchyFields';
 import { labels } from '~/ui/navigation/screens/home/PatientDetails/layouts/generic/labels';
-import { ReferenceDataType } from '~/types';
-import { TranslatedText } from '/components/Translations/TranslatedText';
+import {
+  CAMBODIA_LOCATION_HIERARCHY_FIELDS,
+  SECONDARY_LOCATION_HIERARCHY_FIELDS,,
+  CAMBODIA_LOCATION_HIERARCHY_FIELD_IDS
+} from '/navigation/screens/home/PatientDetails/layouts/cambodia/fields';
 
 const PlainField = ({ fieldName, required }): ReactElement => (
   // Outter styled view to momentarily add distance between fields
@@ -95,54 +98,6 @@ const CustomField = ({ fieldName, required }): ReactElement => {
   );
 };
 
-const hierarchyFields = ['cambodiaVillageId', 'cambodiaSecondaryVillageId'];
-
-const CAMBODIA_LOCATION_HIERARCHY_FIELDS = [
-  {
-    name: 'divisionId',
-    referenceType: ReferenceDataType.Division,
-    label: <TranslatedText stringId="cambodiaPatientDetails.province.label" fallback="Province" />,
-  },
-  {
-    name: 'subdivisionId',
-    referenceType: ReferenceDataType.SubDivision,
-    label: <TranslatedText stringId="cambodiaPatientDetails.district.label" fallback="District" />,
-  },
-  {
-    name: 'settlementId',
-    referenceType: ReferenceDataType.Settlement,
-    label: <TranslatedText stringId="cambodiaPatientDetails.commune.label" fallback="Commune" />,
-  },
-  {
-    name: 'villageId',
-    referenceType: ReferenceDataType.Village,
-    label: <TranslatedText stringId="general.localisedField.villageId.label" fallback="Village" />,
-  },
-];
-
-const SECONDARY_LOCATION_HIERARCHY_FIELDS = [
-  {
-    name: 'secondaryDivisionId',
-    referenceType: ReferenceDataType.Division,
-    label: labels.secondaryDivisionId,
-  },
-  {
-    name: 'secondarySubdivisionId',
-    referenceType: ReferenceDataType.SubDivision,
-    label: labels.secondarySubdivisionId,
-  },
-  {
-    name: 'secondarySettlementId',
-    referenceType: ReferenceDataType.Settlement,
-    label: labels.secondarySettlementId,
-  },
-  {
-    name: 'secondaryVillageId',
-    referenceType: ReferenceDataType.Village,
-    label: labels.secondaryVillageId,
-  },
-];
-
 const HierarchyField = ({ fieldName }): ReactElement => {
   const fields =
     fieldName === 'cambodiaVillageId'
@@ -167,7 +122,7 @@ function getComponentForField(
   if (customFieldIds.includes(fieldName)) {
     return CustomField;
   }
-  if (hierarchyFields.includes(fieldName)) {
+  if (CAMBODIA_LOCATION_HIERARCHY_FIELD_IDS.includes(fieldName)) {
     return HierarchyField;
   }
   // Shouldn't happen

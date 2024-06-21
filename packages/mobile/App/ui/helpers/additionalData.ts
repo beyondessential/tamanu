@@ -54,6 +54,7 @@ export const ADDITIONAL_DATA_FIELDS = {
   PASSPORT: 'passport',
   PRIMARY_CONTACT_NUMBER: 'primaryContactNumber',
   SECONDARY_CONTACT_NUMBER: 'secondaryContactNumber',
+  SECONDARY_VILLAGE_ID: 'secondaryVillageId',
   EMERGENCY_CONTACT_NAME: 'emergencyContactName',
   EMERGENCY_CONTACT_NUMBER: 'emergencyContactNumber',
   TITLE: 'title',
