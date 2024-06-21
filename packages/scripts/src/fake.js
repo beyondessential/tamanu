@@ -7,6 +7,7 @@ const config = require('config');
 async function generateData(models) {
   const {
     Department,
+    Discharge,
     Encounter,
     Facility,
     Location,
@@ -35,6 +36,9 @@ async function generateData(models) {
     PatientAllergy,
     PatientCommunication,
     PatientDeathData,
+    CertificateNotification,
+    LabTest,
+    LabTestType,
     ScheduledVaccine,
     AdministeredVaccine,
   } = models;
@@ -65,6 +69,12 @@ async function generateData(models) {
       locationId: location.id,
       examinerId: examiner.id,
       startDate: '2023-12-21T04:59:51.851Z',
+    }),
+  );
+  await Discharge.create(
+    fake(Discharge, {
+      encounterId: encounter.id,
+      dischargerId: examiner.id,
     }),
   );
   await EncounterHistory.create(
@@ -178,6 +188,28 @@ async function generateData(models) {
       patientId: patient.id,
     }),
   );
+
+  const labTestType = await LabTestType.create(
+    fake(LabTestType, {
+      labTestCategoryId: referenceData.id,
+    }),
+  );
+  const labTest = await LabTest.create(
+    fake(LabTest, {
+      labRequestId: labRequest.id,
+      categoryId: referenceData.id,
+      labTestMethodId: referenceData.id,
+      labTestTypeId: labTestType.id,
+    }),
+  );
+  await CertificateNotification.create(
+    fake(CertificateNotification, {
+      patientId: patient.id,
+      labTestId: labTest.id,
+      labRequestId: labRequest.id,
+    }),
+  );
+
   const scheduledVaccine = await models.ScheduledVaccine.create(
     fake(ScheduledVaccine, {
       vaccineId: referenceData.id,

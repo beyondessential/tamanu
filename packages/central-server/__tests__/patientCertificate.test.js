@@ -193,8 +193,6 @@ describe('Certificate', () => {
       printedAt,
       'test facility',
       models,
-      'TEST UVCI',
-      [{ foo: 'bar' }],
     );
     expect(result.status).toEqual('success');
   });

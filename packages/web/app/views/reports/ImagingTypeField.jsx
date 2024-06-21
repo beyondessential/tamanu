@@ -4,7 +4,7 @@ import { Field, SelectField } from '../../components';
 import { useLocalisation } from '../../contexts/Localisation';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
 
-export const ImagingTypeField = ({ name = 'imagingType', required }) => {
+export const ImagingTypeField = ({ name = 'imagingType', label, required }) => {
   const { getLocalisation } = useLocalisation();
   const imagingTypes = getLocalisation('imagingTypes') || {};
   const imagingTypeOptions = Object.entries(imagingTypes).map(([key, val]) => ({
@@ -16,10 +16,12 @@ export const ImagingTypeField = ({ name = 'imagingType', required }) => {
     <Field
       name={name}
       label={
-        <TranslatedText
-          stringId="report.generate.parameter.imagingType.label"
-          fallback="Imaging type"
-        />
+        label ?? (
+          <TranslatedText
+            stringId="report.generate.parameter.imagingType.label"
+            fallback="Imaging type"
+          />
+        )
       }
       component={SelectField}
       options={imagingTypeOptions}
