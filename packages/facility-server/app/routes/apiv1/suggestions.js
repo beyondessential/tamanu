@@ -71,15 +71,14 @@ function createSuggesterRoute(
         : [];
       const suggestedIds = translations.map(extractDataId);
 
+      const filterByFacility = !!query.filterByFacility || endpoint === 'facilityLocationGroup';
+
       const where = {
         [Op.or]: [
           whereBuilder(`%${searchQuery}%`, query),
           {
-            id: {
-              [Op.in]: suggestedIds,
-            },
-            ...(query.filterByFacility === true ||
-              (endpoint === 'facilityLocationGroup' && { facilityId: config.serverFacilityId })),
+            id: { [Op.in]: suggestedIds },
+            ...(filterByFacility ? { facilityId: config.serverFacilityId } : {}),
           },
         ],
       };
