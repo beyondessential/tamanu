@@ -1,5 +1,4 @@
 import { inRange, isNil } from 'lodash';
-import { formatISO9075, parseISO } from 'date-fns';
 import { DataElementType, ISurveyScreenComponent } from '~/types/ISurvey';
 import { PATIENT_DATA_FIELD_LOCATIONS } from '~/constants';
 
@@ -50,12 +49,10 @@ export const getStringValue = (type: string, value: any): string => {
   switch (type) {
     case FieldTypes.TEXT:
     case FieldTypes.MULTILINE:
-      return value;
-
     case FieldTypes.DATE:
     case FieldTypes.DATE_TIME:
     case FieldTypes.SUBMISSION_DATE:
-      return value && formatISO9075(parseISO(value));
+      return value;
     case FieldTypes.BINARY:
     case FieldTypes.CHECKBOX:
       if (typeof value === 'string') return value;
