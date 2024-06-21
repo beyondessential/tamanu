@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
-import { TranslatedText, DataFetchingTable, Heading4 } from '../../components';
-import { getDueDate, getStatusTag, getRecordAction } from './accessors';
+import { DataFetchingTable, Heading4, TranslatedText } from '../../components';
+import { getDueDate, getRecordAction, getStatusTag } from './accessors';
 import styled from 'styled-components';
 import { Colors } from '../../constants';
 
@@ -24,7 +24,9 @@ const TableHeader = () => {
 };
 
 const getSchedule = record =>
-  record.schedule || <TranslatedText stringId="general.fallback.notApplicable" fallback="N/A" />;
+  record.scheduleName || (
+    <TranslatedText stringId="general.fallback.notApplicable" fallback="N/A" />
+  );
 const getVaccineName = record =>
   record.label || <TranslatedText stringId="general.fallback.unknown" fallback="Unknown" />;
 
