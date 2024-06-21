@@ -15,6 +15,7 @@ import {
   REFERENCE_DATA_TRANSLATION_PREFIX,
   ENGLISH_LANGUAGE_CODE,
   DEFAULT_HIERARCHY_TYPE,
+  OTHER_REFERENCE_TYPES,
 } from '@tamanu/constants';
 import { keyBy } from 'lodash';
 
@@ -32,10 +33,10 @@ const replaceDataLabelsWithTranslations = ({ data, translations }) => {
 };
 const ENDPOINT_TO_DATA_TYPE = {
   // Special cases where the endpoint name doesn't match the dataType
-  ['facilityLocationGroup']: 'locationGroup',
-  ['patientLabTestCategories']: 'labTestCategory',
-  ['patientLabTestPanelTypes']: 'labTestPanelType',
-  ['invoiceLineTypes']: 'invoiceLineType',
+  ['facilityLocationGroup']: OTHER_REFERENCE_TYPES.LOCATION_GROUP,
+  ['patientLabTestCategories']: REFERENCE_TYPES.LAB_TEST_CATEGORY,
+  ['patientLabTestPanelTypes']: OTHER_REFERENCE_TYPES.LAB_TEST_PANEL,
+  ['invoiceProducts']: OTHER_REFERENCE_TYPES.INVOICE_PRODUCT,
 };
 const getDataType = endpoint => ENDPOINT_TO_DATA_TYPE[endpoint] || endpoint;
 
