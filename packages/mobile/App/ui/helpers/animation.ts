@@ -1,4 +1,17 @@
-import { and, block, Clock, clockRunning, cond, Easing, eq, Node, set, startClock, timing, Value } from 'react-native-reanimated';
+import {
+  and,
+  block,
+  Clock,
+  clockRunning,
+  cond,
+  EasingNode,
+  eq,
+  Node,
+  set,
+  startClock,
+  timing,
+  Value,
+} from 'react-native-reanimated';
 
 /**
  * Uses an Animated State to change during the specified period of time.
@@ -11,7 +24,7 @@ export const animateState = (
   timing(animatedValue, {
     duration,
     toValue,
-    easing: Easing.in(Easing.linear),
+    easing: EasingNode.in(EasingNode.linear),
   }).start();
 };
 
@@ -26,24 +39,14 @@ export const runTiming = (clock: Clock, value: number, dest: number): Node<numbe
   const config = {
     duration: 500,
     toValue: new Value(0),
-    easing: Easing.inOut(Easing.ease),
+    easing: EasingNode.inOut(EasingNode.ease),
   };
 
-  const reset = [
-    set(state.finished, 0),
-    set(state.time, 0),
-    set(state.frameTime, 0),
-  ];
+  const reset = [set(state.finished, 0), set(state.time, 0), set(state.frameTime, 0)];
 
   return block([
-    cond(and(state.finished, eq(state.position, value)), [
-      ...reset,
-      set(config.toValue, dest),
-    ]),
-    cond(and(state.finished, eq(state.position, dest)), [
-      ...reset,
-      set(config.toValue, value),
-    ]),
+    cond(and(state.finished, eq(state.position, value)), [...reset, set(config.toValue, dest)]),
+    cond(and(state.finished, eq(state.position, dest)), [...reset, set(config.toValue, value)]),
     cond(clockRunning(clock), 0, startClock(clock)),
     timing(clock, state, config),
     state.position,
