@@ -56,8 +56,11 @@ export const usePatientAdditionalData = patientId => {
 
             const hierarchyByType = keyBy(hierarchy, 'type');
             result['secondaryDivisionId'] = hierarchyByType['division']?.id;
+            result['secondaryDivision'] = hierarchyByType['division'];
             result['secondarySubdivisionId'] = hierarchyByType['subdivision']?.id;
+            result['secondarySubdivision'] = hierarchyByType['subdivision'];
             result['secondarySettlementId'] = hierarchyByType['settlement']?.id;
+            result['secondarySettlement'] = hierarchyByType['settlement'];
 
             if (!mounted) {
               return;

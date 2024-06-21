@@ -70,7 +70,6 @@ export const PatientAdditionalDataForm = ({
   const initialAdditionalData = getInitialAdditionalValues(additionalData, dataFields || fields);
   const initialCustomValues = getInitialCustomValues(customPatientFieldValues, fields);
 
-  console.log('TEST', initialAdditionalData);
   return (
     <Form
       initialValues={{

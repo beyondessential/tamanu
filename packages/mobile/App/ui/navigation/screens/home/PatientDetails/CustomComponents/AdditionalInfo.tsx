@@ -49,8 +49,6 @@ export const AdditionalInfo = ({
     error,
   } = usePatientAdditionalData(patient.id);
 
-  console.log('patientAdditionalData', patientAdditionalData);
-
   const customDataById = mapValues(customPatientFieldValues, nestedObject => nestedObject[0].value);
 
   // Display general error
