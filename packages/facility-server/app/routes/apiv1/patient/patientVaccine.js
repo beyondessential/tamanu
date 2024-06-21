@@ -131,7 +131,7 @@ patientVaccineRoutes.get(
         sv.id "scheduledVaccineId",
         sv.category,
         sv.label,
-        sv.dose_label,
+        sv.dose_label "scheduleName",
         sv.vaccine_id "vaccineId",
         uv.due_date "dueDate",
         uv.status
