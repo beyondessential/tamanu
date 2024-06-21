@@ -168,6 +168,10 @@ const updateInvoiceSchema = z
   })
   .strip();
 
+/**
+ * Update invoice
+ * - Only in progress invoices can be updated
+ */
 invoiceRoute.put(
   '/:id/',
   asyncHandler(async (req, res) => {
@@ -177,6 +181,10 @@ invoiceRoute.put(
 
     const foundInvoice = await req.models.Invoice.findByPk(invoiceId);
     if (!foundInvoice) throw new NotFoundError(`Unable to find invoice ${invoiceId}`);
+
+    //* Only in progress invoices can be updated
+    if (foundInvoice.status !== INVOICE_STATUSES.IN_PROGRESS)
+      throw new ForbiddenError('Only in progress invoices can be updated');
 
     const { data, error } = await updateInvoiceSchema.safeParseAsync(req.body);
     if (error) throw new ValidationError(error.message);
@@ -263,12 +271,18 @@ invoiceRoute.put(
   }),
 );
 
-async function freezeInvoiceItemsData(req, transaction) {
-  const items = await req.models.InvoiceItem.findAll(
+/**
+ * Freeze invoice items data
+ * @param {string} invoiceId
+ * @param {import('@tamanu/shared/models')} models
+ * @param {import('sequelize').Transaction} transaction
+ */
+async function freezeInvoiceItemsData(invoiceId, models, transaction) {
+  const items = await models.InvoiceItem.findAll(
     {
-      where: { invoiceId: req.params.id },
+      where: { invoiceId },
       include: {
-        model: req.models.InvoiceProduct,
+        model: models.InvoiceProduct,
         as: 'product',
         attributes: ['name', 'price'],
       },
@@ -276,19 +290,16 @@ async function freezeInvoiceItemsData(req, transaction) {
     { transaction },
   );
 
-  await req.models.InvoiceItem.bulkCreate(
-    items.map(item => {
-      const plain = item.get();
-      return {
-        ...plain,
-        productName: plain.product.name,
-        productPrice: plain.product.price,
-      };
-    }),
-    { updateOnDuplicate: ['productName', 'productPrice'], transaction },
-  );
+  for (const item of items) {
+    item.productName = item.product.name;
+    item.productPrice = item.product.price;
+    await item.save({ transaction });
+  }
 }
 
+/**
+ * Cancel invoice
+ */
 invoiceRoute.put(
   '/:id/cancel',
   asyncHandler(async (req, res) => {
@@ -313,30 +324,43 @@ invoiceRoute.put(
   }),
 );
 
+/**
+ * Finalize invoice
+ * - An invoice cannot be finalised until the Encounter has been closed
+ * - Only in progress invoices can be finalised
+ * - Invoice items data will be frozen
+ */
 invoiceRoute.put(
   '/:id/finalize',
   asyncHandler(async (req, res) => {
-    if (req.models) {
-      throw new NotFoundError();
-    }
     req.checkPermission('write', 'Invoice');
-
-    //assert invoice status = in progress
-    const isInProgress = req.models.Invoice.findByPk(req.params.id, {
+    const invoiceId = req.params.id;
+    const invoice = await req.models.Invoice.findByPk(invoiceId, {
       attributes: ['status'],
-    }).then(invoice => (!invoice ? false : invoice.status === INVOICE_STATUSES.IN_PROGRESS));
-    if (!isInProgress) throw new ForbiddenError('Invoice not in progress');
+    });
+    if (!invoice) throw new NotFoundError('Invoice not found');
+
+    //only in progress invoices can be finalised
+    if (invoice.status !== INVOICE_STATUSES.IN_PROGRESS) {
+      throw new ForbiddenError('Only in progress invoices can be finalised');
+    }
+
+    //An invoice cannot be finalised until the Encounter has been closed
+    const encounter = await req.models.Encounter.findByPk(invoice.encounterId, {
+      attributes: ['status'],
+    });
+    if (encounter?.status !== 'CLOSED') {
+      throw new ForbiddenError('Ivnvoice cannot be finalised until the Encounter has been closed');
+    }
 
     const transaction = await req.db.transaction();
 
     try {
-      await freezeInvoiceItemsData(req, transaction);
+      await freezeInvoiceItemsData(invoiceId, req.models, transaction);
 
-      const invoice = await req.models.Invoice.update(
-        { status: INVOICE_STATUSES.FINALISED },
-        { where: { id: req.params.id, status: INVOICE_STATUSES.IN_PROGRESS } },
-        { transaction },
-      );
+      invoice.status = INVOICE_STATUSES.FINALISED;
+      await invoice.save({ transaction });
+
       await transaction.commit();
       res.json(invoice);
     } catch (error) {
