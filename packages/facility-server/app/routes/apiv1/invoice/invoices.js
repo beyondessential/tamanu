@@ -129,7 +129,11 @@ const updateInvoiceSchema = z
         insurerId: z.string(),
       })
       .strip()
-      .array(),
+      .array()
+      .refine(
+        insurers => insurers.reduce((sum, insurer) => (sum += insurer.percentage), 0) > 1,
+        'Total insurer percentage should not exceed 100%',
+      ),
     items: z
       .object({
         id: z
