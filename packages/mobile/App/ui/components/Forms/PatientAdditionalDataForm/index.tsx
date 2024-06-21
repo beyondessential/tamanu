@@ -1,5 +1,4 @@
 import React, { ReactElement, useCallback, useRef } from 'react';
-import { keyBy } from 'lodash';
 import { StyledView } from '/styled/common';
 import { Form } from '../Form';
 import { PatientAdditionalDataFields } from './PatientAdditionalDataFields';
