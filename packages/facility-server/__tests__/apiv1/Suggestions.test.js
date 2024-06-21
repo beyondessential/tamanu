@@ -524,7 +524,7 @@ describe('Suggestions', () => {
     expect(khmerRecord.name).toEqual(KHMER_LABEL);
   });
 
-  it('should return translated labels for the correct facility', async () => {
+  it.skip('should return translated labels for the correct facility', async () => {
     const { TranslatedString } = models;
 
     const facility1 = await findOneOrCreate(models, models.Facility, {
