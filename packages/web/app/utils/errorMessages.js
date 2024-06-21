@@ -1,5 +1,5 @@
 import * as yup from 'yup';
-import { replaceStringVariables } from '../contexts/Translation';
+import { replaceStringVariables } from '@tamanu/shared/utils/translation/translationFactory';
 
 const registerTranslatedLabelMethod = (translations = {}) => {
   yup.addMethod(yup.mixed, 'translatedLabel', function(translatedTextComponent) {
