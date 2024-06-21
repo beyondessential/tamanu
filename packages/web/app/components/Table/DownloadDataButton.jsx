@@ -13,7 +13,11 @@ import { TranslatedText } from '../Translation/TranslatedText';
 // by supplying the fallback string in place of the component. proper translation export implmentation coming in NASS-1201
 const normaliseTranslatedText = element => {
   if (!isValidElement(element)) return element;
-  if (element.type?.name === 'TranslatedText' || 'TranslatedReferenceData' || 'TranslatedEnum')
+  if (
+    element.type?.name === 'TranslatedText' ||
+    element.type?.name === 'TranslatedReferenceData' ||
+    element.type?.name === 'TranslatedEnum'
+  )
     return element.props.fallback;
   if (!Array.isArray(element.props?.children)) return element;
 
