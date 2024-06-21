@@ -67,7 +67,7 @@ export const AdditionalInfo = ({
 
     const fieldsWithData = fields.map(field => {
       if (field === 'villageId' || field.name === 'villageId') {
-        return [field.name, patient.village?.name];
+        return ['villageId', patient.village?.name];
       } else if (Object.keys(customDataById).includes(field)) {
         return [field, customDataById[field]];
       } else {

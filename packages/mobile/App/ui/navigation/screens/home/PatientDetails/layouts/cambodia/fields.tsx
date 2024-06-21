@@ -3,6 +3,7 @@ import { TranslatedText } from '/components/Translations/TranslatedText';
 import { ADDITIONAL_DATA_FIELDS } from '~/ui/helpers/additionalData';
 import { PATIENT_DATA_FIELDS } from '/helpers/patient';
 import { ReferenceDataType } from '~/types';
+import { keyBy } from 'lodash';
 
 export const CAMBODIA_CUSTOM_FIELDS = {
   NATIONAL_ID: 'fieldDefinition-nationalId',
@@ -63,6 +64,29 @@ export const SECONDARY_LOCATION_HIERARCHY_FIELDS = [
     label: <TranslatedText stringId="general.localisedField.villageId.label" fallback="Village" />,
   },
 ];
+
+// For a given secondary village id, get the hierarchy data
+export const getSecondaryVillageData = async (models, secondaryVillageId) => {
+  const data = {};
+  const entity = await models.ReferenceData.getNode({
+    id: secondaryVillageId,
+  });
+  const ancestors = await entity?.getAncestors();
+  const hierarchy = [...ancestors, entity];
+
+  if (!entity || !hierarchy) {
+    return data;
+  }
+
+  const hierarchyByType = keyBy(hierarchy, 'type');
+  data['secondaryDivisionId'] = hierarchyByType['division']?.id;
+  data['secondaryDivision'] = hierarchyByType['division'];
+  data['secondarySubdivisionId'] = hierarchyByType['subdivision']?.id;
+  data['secondarySubdivision'] = hierarchyByType['subdivision'];
+  data['secondarySettlementId'] = hierarchyByType['settlement']?.id;
+  data['secondarySettlement'] = hierarchyByType['settlement'];
+  return data;
+};
 
 // Cambodia data layout
 export const CAMBODIA_ADDITIONAL_DATA_FIELDS = {
