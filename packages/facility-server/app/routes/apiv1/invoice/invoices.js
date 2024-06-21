@@ -302,25 +302,26 @@ async function freezeInvoiceItemsData(invoiceId, models, transaction) {
  */
 invoiceRoute.put(
   '/:id/cancel',
-  asyncHandler(async (req, res) => {
+  asyncHandler(async req => {
     req.checkPermission('write', 'Invoice');
+    throw new ForbiddenError('Not implemented');
+    // const invoiceId = req.params.id;
+    // const transaction = await req.db.transaction();
 
-    const transaction = await req.db.transaction();
+    // try {
+    //   await freezeInvoiceItemsData(invoiceId, req.models, transaction);
 
-    try {
-      await freezeInvoiceItemsData(req, transaction);
-
-      await req.models.Invoice.update(
-        { status: INVOICE_STATUSES.CANCELLED },
-        { where: { id: req.params.id, paymentStatus: INVOICE_PAYMENT_STATUSES.UNPAID } },
-        { transaction },
-      );
-      await transaction.commit();
-      res.send({});
-    } catch (error) {
-      await transaction.rollback();
-      throw error;
-    }
+    //   await req.models.Invoice.update(
+    //     { status: INVOICE_STATUSES.CANCELLED },
+    //     { where: { id: req.params.id, paymentStatus: INVOICE_PAYMENT_STATUSES.UNPAID } },
+    //     { transaction },
+    //   );
+    //   await transaction.commit();
+    //   res.send({});
+    // } catch (error) {
+    //   await transaction.rollback();
+    //   throw error;
+    // }
   }),
 );
 
