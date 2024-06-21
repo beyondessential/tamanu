@@ -7,10 +7,7 @@ import { getGender, joinNames } from '/helpers/user';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { IPatient } from '~/types';
 import { useLocalisation } from '~/ui/contexts/LocalisationContext';
-import {
-  TranslatedReferenceData,
-  getReferenceDataStringId,
-} from '../Translations/TranslatedReferenceData';
+import { getReferenceDataStringId } from '../Translations/TranslatedReferenceData';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
 
 export const PatientTile = (patient: IPatient): JSX.Element => {
