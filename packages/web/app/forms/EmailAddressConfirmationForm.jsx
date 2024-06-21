@@ -19,6 +19,7 @@ export const EmailAddressConfirmationForm = React.memo(({ onCancel, onSubmit }) 
       validationSchema={Yup.object().shape({
         email: Yup.string()
           .email(getTranslation('validation.rule.validEmail', 'Must be a valid email address'))
+          .nullable()
           .required(),
         confirmEmail: Yup.string()
           .oneOf(
