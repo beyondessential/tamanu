@@ -29,7 +29,10 @@ const defaultMapper = ({ name, code, id }) => ({ name, code, id });
 const extractDataId = ({ stringId }) => stringId.split('.').pop();
 const replaceDataLabelsWithTranslations = ({ data, translations }) => {
   const translationsByDataId = keyBy(translations, extractDataId);
-  return data.map(item => ({ ...item, name: translationsByDataId[item.id]?.text || item.name }));
+  return data.map(item => {
+    const itemData = item instanceof Sequelize.Model ? item.dataValues : item; // if is Sequelize model, use the dataValues instead to prevent Converting circular structure to JSON error when destructing
+    return { ...itemData, name: translationsByDataId[item.id]?.text || item.name };
+  });
 };
 const ENDPOINT_TO_DATA_TYPE = {
   // Special cases where the endpoint name doesn't match the dataType
@@ -90,8 +93,7 @@ function createSuggesterRoute(
       });
 
       // Allow for async mapping functions (currently only used by location suggester)
-      const data = await Promise.all(results.map(mapper));
-
+      const data = await Promise.all(results.map(r => mapper(r)));
       res.send(isTranslatable ? replaceDataLabelsWithTranslations({ data, translations }) : data);
     }),
   );
