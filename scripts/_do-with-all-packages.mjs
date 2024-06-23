@@ -38,6 +38,8 @@ export function doWithAllPackages(fn) {
     ),
   );
 
+  console.log('workspaceTreee', workspaceTree);
+
   const workspaces = new Set(Object.keys(workspaceTree.dependencies));
   const processed = new Set();
 
