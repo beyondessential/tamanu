@@ -98,8 +98,11 @@ jobs:
         working-directory: packages/mobile/android
         run: |
           ls /home/runner/work/tamanu/tamanu/packages/constants
-          ls /home/runner/work/tamanu/tamanu/packages/shared
 
+      - name: Test 2
+        working-directory: packages/mobile/android
+        run: |
+          ls /home/runner/work/tamanu/tamanu/packages/shared
 
       - name: Run npm install --legacy-peer-deps
         working-directory: packages/mobile
