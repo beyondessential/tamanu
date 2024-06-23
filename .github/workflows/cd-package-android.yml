@@ -97,7 +97,7 @@ jobs:
       - name: Test
         working-directory: packages/mobile/android
         run: |
-          ls /home/runner/work/tamanu/tamanu/packages
+          ls /home/runner/work/tamanu/tamanu/packages/constants
 
 
       - name: Run npm install --legacy-peer-deps
