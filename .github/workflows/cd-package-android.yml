@@ -95,7 +95,7 @@ jobs:
           cache: npm
 
       - name: Build shared packages
-        working-directory: packages
+        working-directory: ./
         run: |
           npm run build-shared
 
