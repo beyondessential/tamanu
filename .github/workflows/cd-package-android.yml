@@ -94,17 +94,22 @@ jobs:
           node-version: 20.x
           cache: npm
 
+      - name: Test 1
+        working-directory: packages/mobile/android
+        run: |
+          npm ls --workspaces --json
+  
       - name: Build shared packages
         working-directory: ./
         run: |
           npm run build-shared
 
-      - name: Test
+      - name: Test 2
         working-directory: packages/mobile/android
         run: |
           ls /home/runner/work/tamanu/tamanu/packages/constants
 
-      - name: Test 2
+      - name: Test 3
         working-directory: packages/mobile/android
         run: |
           ls /home/runner/work/tamanu/tamanu/packages/shared
