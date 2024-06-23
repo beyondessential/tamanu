@@ -94,6 +94,12 @@ jobs:
           node-version: 20.x
           cache: npm
 
+      - name: Test
+        working-directory: packages/mobile/android
+        run: |
+          ls /home/runner/work/tamanu/tamanu/packages/constants/dist/cjs
+
+
       - name: Run npm install --legacy-peer-deps
         working-directory: packages/mobile
         run: |
