@@ -29,7 +29,7 @@ export const LabRequestMultiStepForm = ({
   editedObject,
 }) => {
   const { getSetting } = useSettings();
-  const mandateSpecimenType = getSetting(SETTING_KEYS.FEATURE_MANDATE_SPECIMEN_TYPE);
+  const mandateSpecimenType = getSetting(SETTING_KEYS.FEATURES_MANDATE_SPECIMEN_TYPE);
 
   const { getTranslation } = useTranslation();
   const { currentUser } = useAuth();

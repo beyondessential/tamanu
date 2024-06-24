@@ -89,7 +89,7 @@ const HorizontalLine = styled.div`
 
 const LabRequestRecordSampleForm = ({ submitForm, values, onClose }) => {
   const { getSetting } = useSettings();
-  const mandateSpecimenType = getSetting(SETTING_KEYS.FEATURE_MANDATE_SPECIMEN_TYPE);
+  const mandateSpecimenType = getSetting(SETTING_KEYS.FEATURES_MANDATE_SPECIMEN_TYPE);
 
   const practitionerSuggester = useSuggester('practitioner');
   const specimenTypeSuggester = useSuggester('specimenType');
@@ -156,7 +156,7 @@ const LabRequestRecordSampleForm = ({ submitForm, values, onClose }) => {
 export const LabRequestRecordSampleModal = React.memo(
   ({ updateLabReq, labRequest, open, onClose }) => {
     const { getSetting } = useSettings();
-    const mandateSpecimenType = getSetting(SETTING_KEYS.FEATURE_MANDATE_SPECIMEN_TYPE);
+    const mandateSpecimenType = getSetting(SETTING_KEYS.FEATURES_MANDATE_SPECIMEN_TYPE);
 
     const sampleNotCollected = labRequest.status === LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED;
     const updateSample = async formValues => {
