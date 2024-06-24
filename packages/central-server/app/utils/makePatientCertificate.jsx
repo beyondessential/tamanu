@@ -72,6 +72,7 @@ export const makeCovidVaccineCertificate = async (
   models,
   uvci,
   qrData = null,
+  language
 ) => {
   const localisation = await getLocalisation();
   const getLocalisationData = key => get(localisation, key);
@@ -96,6 +97,7 @@ export const makeCovidVaccineCertificate = async (
       logoSrc={logo}
       vdsSrc={vds}
       getLocalisation={getLocalisationData}
+      language={language}
     />,
     fileName,
   );
@@ -107,6 +109,8 @@ export const makeVaccineCertificate = async (
   printedDate,
   facilityName,
   models,
+  language,
+  translations,
 ) => {
   const localisation = await getLocalisation();
 
@@ -127,7 +131,9 @@ export const makeVaccineCertificate = async (
       signingSrc={signingImage}
       watermarkSrc={watermark}
       logoSrc={logo}
+      translations={translations}
       localisation={localisation}
+      language={language}
     />,
     fileName,
   );
@@ -139,6 +145,7 @@ export const makeCovidCertificate = async (
   printedBy,
   models,
   vdsData = null,
+  language
 ) => {
   const localisation = await getLocalisation();
   const getLocalisationData = key => get(localisation, key);
@@ -196,6 +203,7 @@ export const makeCovidCertificate = async (
       vdsSrc={vds}
       getLocalisation={getLocalisationData}
       certType={certType}
+      language={language}
     />,
     fileName,
   );
