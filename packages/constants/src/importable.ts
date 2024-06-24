@@ -12,7 +12,6 @@ export const GENERAL_IMPORTABLE_DATA_TYPES = [
   'colonoscopyImagingArea',
   'contactRelationship',
   'country',
-  'crImagingArea',
   'ctScanImagingArea',
   'department',
   'diagnosis',
