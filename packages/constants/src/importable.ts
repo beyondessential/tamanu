@@ -19,7 +19,6 @@ export const GENERAL_IMPORTABLE_DATA_TYPES = [
   'dischargeDisposition',
   'division',
   'drug',
-  'dxImagingArea',
   'ecgImagingArea',
   'echocardiogramImagingArea',
   'endoscopyImagingArea',
