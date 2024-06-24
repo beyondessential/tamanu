@@ -347,10 +347,12 @@ invoiceRoute.put(
     }
 
     //An invoice cannot be finalised until the Encounter has been closed
-    const encounter = await req.models.Encounter.findByPk(invoice.encounterId, {
-      attributes: ['status'],
-    });
-    if (encounter?.status !== 'CLOSED') {
+    //an encounter is considered closed if it has an end date
+    const encounterClosed = await req.models.Encounter.findByPk(invoice.encounterId, {
+      attributes: ['endDate'],
+    }).then(encounter => !!encounter?.endDate);
+
+    if (encounterClosed) {
       throw new ForbiddenError('Ivnvoice cannot be finalised until the Encounter has been closed');
     }
 
