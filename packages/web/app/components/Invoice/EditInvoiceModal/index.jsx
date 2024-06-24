@@ -67,6 +67,7 @@ export const EditInvoiceModal = ({
   isPatientView,
 }) => {
   const [printModalOpen, setPrintModalOpen] = useState(false);
+
   const payable = isInvoicePayable(invoice);
   const cancelable =
     invoice.status !== INVOICE_STATUSES.CANCELLED &&
@@ -146,7 +147,7 @@ export const EditInvoiceModal = ({
           stringId="invoice.modal.editInvoice.insurer.totalPercentageError"
           fallback="Total insurer percentage must be less than or equal to 100%"
         />,
-        function(_, context) {
+        function (_, context) {
           return (
             context.parent.insurers.reduce((acc, curr) => acc + curr.percentage || 0, 0) <= 100
           );
@@ -171,7 +172,7 @@ export const EditInvoiceModal = ({
           </Box>
           {/* TODO: check condition to show Print button only after finalized */}
           {isPatientView && (
-            <PrintButton 
+            <PrintButton
               onClick={() => setPrintModalOpen(true)}
               color="primary"
               variant="outlined"
@@ -195,7 +196,7 @@ export const EditInvoiceModal = ({
       <>
         {(finalisable || cancelable) && (
           <>
-            <Box display="flex" justifyContent="space-between" alignItems="center" paddingX="36px">
+            <Box display="flex" justifyContent="space-between" alignItems="center" paddingX="36px" marginBottom="-16px">
               {finalisable && (
                 <Button onClick={handleFinaliseInvoice}>
                   <TranslatedText
@@ -220,11 +221,13 @@ export const EditInvoiceModal = ({
                 />
               )}
             </Box>
-            <Divider
-              style={{
-                margin: '15px 36px -15px 36px',
-              }}
-            />
+            {finalisable && (
+              <Divider
+                style={{
+                  margin: '30px 36px -15px 36px',
+                }}
+              />
+            )}
           </>
         )}
         <Form
@@ -234,9 +237,9 @@ export const EditInvoiceModal = ({
             invoiceItems: invoice.items?.length ? invoice.items : [getDefaultRow()],
             insurers: invoice.insurers?.length
               ? invoice.insurers.map(insurer => ({
-                  ...insurer,
-                  percentage: insurer.percentage * 100,
-                }))
+                ...insurer,
+                percentage: insurer.percentage * 100,
+              }))
               : [],
           }}
           validationSchema={schema}
