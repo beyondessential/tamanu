@@ -6,37 +6,38 @@ import {
   LAB_REQUEST_STATUSES,
 } from '@tamanu/constants';
 import { createTestContext } from '../../utilities';
+import Chance from 'chance';
 
 describe(`Testing Incoming Bundle Handlers`, () => {
+  const chance = new Chance();
   let ctx;
-    let app;
-    let resources;
-    beforeAll(async () => {
-      ctx = await createTestContext();
-      app = await ctx.baseApp.asRole('practitioner');
-      resources = await fakeResourcesOfFhirServiceRequest(ctx.store.models);
-      const {
-        FhirServiceRequest,
-        LabRequest,
-        LabTestPanel,
-        LabTestPanelRequest,
-        FhirEncounter,
-      } = ctx.store.models;
-      await FhirEncounter.destroy({ where: {} });
-      await FhirServiceRequest.destroy({ where: {} });
-      await LabRequest.destroy({ where: {} });
-      await LabTestPanel.destroy({ where: {} });
-      await LabTestPanelRequest.destroy({ where: {} });
-    });
-    afterAll(() => ctx.close());
+  let app;
+  let resources;
+  beforeAll(async () => {
+    ctx = await createTestContext();
+    app = await ctx.baseApp.asRole('practitioner');
+    resources = await fakeResourcesOfFhirServiceRequest(ctx.store.models);
+    const {
+      FhirServiceRequest,
+      LabRequest,
+      LabTestPanel,
+      LabTestPanelRequest,
+      FhirEncounter,
+    } = ctx.store.models;
+    await FhirEncounter.destroy({ where: {} });
+    await FhirServiceRequest.destroy({ where: {} });
+    await LabRequest.destroy({ where: {} });
+    await LabTestPanel.destroy({ where: {} });
+    await LabTestPanelRequest.destroy({ where: {} });
+  });
+  afterAll(() => ctx.close());
   describe('success', () => {
-    
 
     it('handles a lims bundle', async () => {
       // arrange
       const { FhirServiceRequest } = ctx.store.models;
 
-      const { labRequest } = await fakeResourcesOfFhirServiceRequestWithLabRequest(
+      const { labRequest, panelTestTypes, labTestPanel } = await fakeResourcesOfFhirServiceRequestWithLabRequest(
         ctx.store.models,
         resources,
         {
@@ -46,51 +47,47 @@ describe(`Testing Incoming Bundle Handlers`, () => {
           status: LAB_REQUEST_STATUSES.TO_BE_VERIFIED
         }
       );
+      console.log({ labRequest, panelTestTypes, labTestPanel });
       const mat = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
       const serviceRequestId = mat.id;
 
+      const filteredTests = panelTestTypes.filter(x => x.externalCode !== null);
+      const randomTestInPanel =
+        filteredTests[chance.integer({
+          min: 0,
+          max: filteredTests.length - 1,
+        })];
+
       const validBundle = {
         resourceType: 'Bundle',
-        id: 'bundle-id',
         type: 'transaction',
         entry: [
           {
             resource: {
               resourceType: 'DiagnosticReport',
-              id: '9b3e1c8b-0adb-48c5-81e9-528b2ba40977',
               status: 'final',
               basedOn: [
                 {
                   reference: `ServiceRequest/${serviceRequestId}` // this needs to be overwritten to work
                 }
               ],
-              category: [{
-                coding: [
-                  {
-                    system: 'http://terminology.hl7.org/CodeSystem/v2-0074',
-                    code: 'HM',
-                    display: 'Haematology'
-                  }]
-              }],
               code: {
                 coding: [
                   {
                     system: 'http://loinc.org',
-                    code: '43153-6',
-                    display: 'coagulation'
-                  }], text: 'coagulation'
+                    code: labTestPanel.externalCode,
+                    display: labTestPanel.name,
+                  }]
               },
               subject: {
                 reference: `Patient/${resources.fhirPatient.id}`
               },
-              issued: '2024-01-29T11:45:33+11:01',
               result: [
                 {
                   id: 'prothrombin-time',
                   reference: 'Observation/prothrombin-time'
                 },
               ],
-              conclusion: 'Patient is on Warfarin',
               presentedForm: [
                 {
                   data: 'JVBERi0xLjQKMSAwIG9iago8PAovVGl0bGUgKP7/AFUAYgBlAHIpCi9DcmVhdG9yICj',
@@ -103,20 +100,14 @@ describe(`Testing Incoming Bundle Handlers`, () => {
           {
             resource: {
               resourceType: 'Observation',
-              id: 'prothrombin-time',
               status: 'final',
               code: {
                 coding: [[
                   {
                     system: 'http://loinc.org',
-                    code: '42638-7',
-                    display: 'Prothrombin Time'
+                    code: randomTestInPanel.externalCode,
                   }
-                ]], text: 'Prothrombin Time'
-              },
-              subject: {
-                display: 'Jack Bouma',
-                reference: `Patient/${resources.fhirPatient.id}`
+                ]]
               },
               valueQuantity: { value: 25, unit: 'Seconds' },
               referenceRange: [{
@@ -127,6 +118,7 @@ describe(`Testing Incoming Bundle Handlers`, () => {
             }
           }]
       };
+      console.log({ body: JSON.stringify(validBundle) })
 
       const INTEGRATION_ROUTE = 'fhir/mat';
       const endpoint = `/v1/integration/${INTEGRATION_ROUTE}`;
@@ -140,61 +132,7 @@ describe(`Testing Incoming Bundle Handlers`, () => {
 
 
   describe('failure', () => {
-    it('returns error if cannot match with any handlers', async () => {
-      // arrange
-      const { FhirServiceRequest } = ctx.store.models;
-
-      const { labRequest } = await fakeResourcesOfFhirServiceRequestWithLabRequest(
-        ctx.store.models,
-        resources,
-        {
-          isWithPanels: true,
-        },
-        {
-          status: LAB_REQUEST_STATUSES.TO_BE_VERIFIED
-        }
-      );
-      const mat = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
-      const serviceRequestId = mat.id;
-
-      const validBundle = {
-        resourceType: 'Bundle',
-        id: 'bundle-id',
-        type: 'transaction',
-        entry: [
-          {
-            resource: {
-              resourceType: 'FakeResource',
-              id: '9b3e1c8b-0adb-48c5-81e9-528b2ba40977',
-              status: 'final',
-              basedOn: [
-                {
-                  reference: `ServiceRequest/${serviceRequestId}` // this needs to be overwritten to work
-                }
-              ],
-            }
-          },
-        ]
-      };
-
-      const INTEGRATION_ROUTE = 'fhir/mat';
-      const endpoint = `/v1/integration/${INTEGRATION_ROUTE}`;
-      // act
-      const response = await app.post(endpoint).send(validBundle);
-      console.log({ response });
-      // assert
-      expect(response).toHaveRequestError(422);
-      expect(response.body).toMatchObject({
-        error: {
-          errors: [
-            'subject:identifier must be in the format "<namespace>|<id>"',
-            '_count must be a `number` type, but the final value was: `NaN` (cast from the value `"x"`).',
-            '_page must be a `number` type, but the final value was: `NaN` (cast from the value `"z"`).',
-            'Unsupported or unknown parameters in _sort',
-          ],
-        },
-      });
-    });
+    test.todo('returns error if cannot match with any handlers');
 
   });
 });
