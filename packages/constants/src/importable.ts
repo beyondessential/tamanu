@@ -10,7 +10,6 @@ export const GENERAL_IMPORTABLE_DATA_TYPES = [
   'certifiableVaccine',
   'colonoscopyImagingArea',
   'country',
-  'crImagingArea',
   'ctScanImagingArea',
   'department',
   'diagnosis',
