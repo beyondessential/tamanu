@@ -47,19 +47,17 @@ const StyledItemHeader = styled(Grid)`
   border: 1px solid ${Colors.outline};
 `;
 
-const CodeCell = styled(Box)`
-  margin-left: 5%;
+const ViewOnlyCell = styled(Box)`
+  font-size: ${p => p.$hasLargeFont ? '14px' : '11px'};
+  padding: 8px 0;
+  padding-left: ${p => p.$hasLeftPadding ? '16px' : '0px'};
 `;
 
-const PriceCell = styled.div`
+const PriceCell = styled(ViewOnlyCell)`
   margin-left: 10%;
   display: flex;
   align-items: center;
-`;
-
-const ViewOnlyCell = styled(Box)`
-  font-size: 14px;
-  padding: 8px 0;
+  padding: 0;
 `;
 
 export const InvoiceItemHeader = () => {
@@ -72,9 +70,9 @@ export const InvoiceItemHeader = () => {
         <TranslatedText stringId="invoice.modal.addInvoice.details.label" fallback="Details" />
       </Grid>
       <Grid item xs={1}>
-        <CodeCell>
+        <Box marginLeft="5%">
           <TranslatedText stringId="invoice.table.column.code" fallback="Code" />
-        </CodeCell>
+        </Box>
       </Grid>
       <Grid item xs={3}>
         <TranslatedText stringId="invoice.modal.addInvoice.orderedBy.label" fallback="Ordered by" />
@@ -95,6 +93,7 @@ export const InvoiceItemRow = ({
   showActionMenu,
   formArrayMethods,
   editable,
+  payable,
 }) => {
   const invoiceProductsSuggester = useSuggester('invoiceProducts', {
     formatter: ({ name, id, ...others }) => ({ ...others, label: name, value: id }),
@@ -152,42 +151,42 @@ export const InvoiceItemRow = ({
   const menuItems = [
     ...(item.discount?.percentage
       ? [
-          {
-            label:
-              Number(item.discount?.percentage) < 0 ? (
-                <TranslatedText
-                  stringId="invoice.modal.editInvoice.removeMarkup"
-                  fallback="Remove markup"
-                />
-              ) : (
-                <TranslatedText
-                  stringId="invoice.modal.editInvoice.removeDiscount"
-                  fallback="Remove discount"
-                />
-              ),
-            onClick: () => handleAction({}, INVOICE_ITEM_ACTION_MODAL_TYPES.REMOVE_DISCOUNT_MARKUP),
-          },
-        ]
+        {
+          label:
+            Number(item.discount?.percentage) < 0 ? (
+              <TranslatedText
+                stringId="invoice.modal.editInvoice.removeMarkup"
+                fallback="Remove markup"
+              />
+            ) : (
+              <TranslatedText
+                stringId="invoice.modal.editInvoice.removeDiscount"
+                fallback="Remove discount"
+              />
+            ),
+          onClick: () => handleAction({}, INVOICE_ITEM_ACTION_MODAL_TYPES.REMOVE_DISCOUNT_MARKUP),
+        },
+      ]
       : [
-          {
-            label: (
-              <TranslatedText
-                stringId="invoice.modal.editInvoice.addDiscount"
-                fallback="Add discount"
-              />
-            ),
-            onClick: () => setActionModal(INVOICE_ITEM_ACTION_MODAL_TYPES.ADD_DISCOUNT),
-          },
-          {
-            label: (
-              <TranslatedText
-                stringId="invoice.modal.editInvoice.addMarkup"
-                fallback="Add markup"
-              />
-            ),
-            onClick: () => setActionModal(INVOICE_ITEM_ACTION_MODAL_TYPES.ADD_MARKUP),
-          },
-        ]),
+        {
+          label: (
+            <TranslatedText
+              stringId="invoice.modal.editInvoice.addDiscount"
+              fallback="Add discount"
+            />
+          ),
+          onClick: () => setActionModal(INVOICE_ITEM_ACTION_MODAL_TYPES.ADD_DISCOUNT),
+        },
+        {
+          label: (
+            <TranslatedText
+              stringId="invoice.modal.editInvoice.addMarkup"
+              fallback="Add markup"
+            />
+          ),
+          onClick: () => setActionModal(INVOICE_ITEM_ACTION_MODAL_TYPES.ADD_MARKUP),
+        },
+      ]),
     {
       label: <TranslatedText stringId="invoice.modal.editInvoice.delete" fallback="Delete" />,
       onClick: () => setActionModal(INVOICE_ITEM_ACTION_MODAL_TYPES.DELETE),
@@ -227,7 +226,9 @@ export const InvoiceItemRow = ({
               saveDateAsString
             />
           ) : (
-            <ViewOnlyCell>{getDateDisplay(item?.orderDate, 'dd/MM/yyyy')}</ViewOnlyCell>
+            <ViewOnlyCell $hasLargeFont={payable} $hasLeftPadding={!payable}>
+              {getDateDisplay(item?.orderDate, 'dd/MM/yyyy')}
+            </ViewOnlyCell>
           )}
         </StyledItemCell>
         <StyledItemCell item xs={4}>
@@ -241,17 +242,15 @@ export const InvoiceItemRow = ({
               onChange={handleChangeProduct}
             />
           ) : (
-            <ViewOnlyCell>{getInvoiceItemName(item)}</ViewOnlyCell>
+            <ViewOnlyCell $hasLargeFont={payable} $hasLeftPadding={!payable}>
+              {getInvoiceItemName(item)}
+            </ViewOnlyCell>
           )}
         </StyledItemCell>
         <StyledItemCell item justifyContent="center" xs={1}>
-          {editable ? (
-            <CodeCell minHeight="39px" display="flex" alignItems="center">
-              {getInvoiceItemCode(item)}
-            </CodeCell>
-          ) : (
-            <ViewOnlyCell marginLeft="5%">{getInvoiceItemCode(item)}</ViewOnlyCell>
-          )}
+          <ViewOnlyCell $hasLargeFont={payable} marginLeft="5%" minHeight="39px" display="flex" alignItems="center">
+            {getInvoiceItemCode(item)}
+          </ViewOnlyCell>
         </StyledItemCell>
         <StyledItemCell item xs={3}>
           {editable ? (
@@ -264,37 +263,22 @@ export const InvoiceItemRow = ({
               onChange={handleChangeOrderedBy}
             />
           ) : (
-            <ViewOnlyCell>{item?.orderedByUser?.displayName}</ViewOnlyCell>
+            <ViewOnlyCell $hasLargeFont={payable} $hasLeftPadding={!payable}>{item?.orderedByUser?.displayName}</ViewOnlyCell>
           )}
         </StyledItemCell>
         <StyledItemCell item xs={2}>
-          {editable ? (
-            <PriceCell>
-              <PriceText $isCrossedOut={!!discountPrice}>{price}</PriceText>
-              {!!discountPrice && (
-                <ThemedTooltip
-                  key={item.discount?.reason}
-                  title={item.discount?.reason}
-                  open={item.discount?.reason ? undefined : false}
-                >
-                  <span>{discountPrice}</span>
-                </ThemedTooltip>
-              )}
-              {showActionMenu && <ThreeDotMenu items={menuItems} />}
-            </PriceCell>
-          ) : (
-            <ViewOnlyCell marginLeft="10%">
-              <PriceText $isCrossedOut={!!discountPrice}>{price}</PriceText>
-              {!!discountPrice && (
-                <ThemedTooltip
-                  title={item.discount?.reason}
-                  open={item.discount?.reason ? undefined : false}
-                >
-                  <span>{discountPrice}</span>
-                </ThemedTooltip>
-              )}
-            </ViewOnlyCell>
-          )}
+          <PriceCell $hasLargeFont={payable}>
+            <PriceText $isCrossedOut={!!discountPrice}>{price}</PriceText>
+            {!!discountPrice && (
+              <ThemedTooltip
+                title={item.discount?.reason}
+                open={item.discount?.reason ? undefined : false}
+              >
+                <span>{discountPrice}</span>
+              </ThemedTooltip>
+            )}
+            {showActionMenu && <ThreeDotMenu items={menuItems} />}
+          </PriceCell>
         </StyledItemCell>
       </StyledItemRow>
       {actionModal && (

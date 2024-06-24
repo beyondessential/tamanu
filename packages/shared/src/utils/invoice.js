@@ -1,8 +1,8 @@
 import { round } from 'lodash';
 import { INVOICE_STATUSES } from '@tamanu/constants';
 
-export const isInvoiceEditable = invoice =>
-  ![INVOICE_STATUSES.FINALISED, INVOICE_STATUSES.CANCELLED].includes(invoice.status);
+export const isInvoicePayable = invoice =>
+  [INVOICE_STATUSES.FINALISED, INVOICE_STATUSES.CANCELLED].includes(invoice.status);
 
 const formatDisplayValue = value => (isNaN(value) ? undefined : value.toFixed(2));
 

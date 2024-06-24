@@ -5,7 +5,7 @@ import * as yup from 'yup';
 import { Box, CircularProgress, Divider } from '@material-ui/core';
 import PrintIcon from '@material-ui/icons/Print';
 import { FieldArray } from 'formik';
-import { isInvoiceEditable } from '@tamanu/shared/utils/invoice';
+import { isInvoicePayable } from '@tamanu/shared/utils/invoice';
 import { INVOICE_PAYMENT_STATUSES, INVOICE_STATUSES } from '@tamanu/constants';
 import { Modal } from '../../Modal';
 import { TranslatedText } from '../../Translation';
@@ -55,7 +55,7 @@ const PrintButton = styled(Button)`
   right: 70px;
 `;
 
-const getDefaultRow = () => ({ id: uuidv4() });
+const getDefaultRow = () => ({ id: uuidv4(), editable: true });
 
 export const EditInvoiceModal = ({
   open,
@@ -67,7 +67,7 @@ export const EditInvoiceModal = ({
   isPatientView,
 }) => {
   const [printModalOpen, setPrintModalOpen] = useState(false);
-  const editable = isInvoiceEditable(invoice);
+  const payable = isInvoicePayable(invoice);
   const cancelable =
     invoice.status !== INVOICE_STATUSES.CANCELLED &&
     invoice.paymentStatus === INVOICE_PAYMENT_STATUSES.UNPAID &&
@@ -255,11 +255,12 @@ export const EditInvoiceModal = ({
                           isDeleteDisabled={values.invoiceItems?.length === 1}
                           showActionMenu={item.productId || values.invoiceItems.length > 1}
                           formArrayMethods={formArrayMethods}
-                          editable={editable}
+                          editable={item.editable || !payable}
+                          payable={payable}
                         />
                       ))}
                     </Box>
-                    {editable && (
+                    {!payable && (
                       <LinkText onClick={() => formArrayMethods.push(getDefaultRow())}>
                         {'+ '}
                         <TranslatedText
@@ -269,7 +270,7 @@ export const EditInvoiceModal = ({
                       </LinkText>
                     )}
                     <ModalSection>
-                      {editable && (
+                      {!payable && (
                         <PotentialInvoiceItemsTable
                           invoice={invoice}
                           invoiceItems={values.invoiceItems}
@@ -278,7 +279,7 @@ export const EditInvoiceModal = ({
                       )}
                       <InvoiceSummaryPanel
                         invoice={{ ...invoice, items: values.invoiceItems }}
-                        editable={editable}
+                        editable={!payable}
                         handleEditDiscount={handleEditDiscount}
                       />
                     </ModalSection>
