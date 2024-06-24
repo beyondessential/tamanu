@@ -147,7 +147,7 @@ export const CAMBODIA_ADDITIONAL_DATA_SECTIONS = [
       'secondaryDivisionId',
       'secondarySubdivisionId',
       'secondarySettlementId',
-      ADDITIONAL_DATA_FIELDS.SECONDARY_VILLAGE_ID,
+      'secondaryVillageId',
       CAMBODIA_CUSTOM_FIELDS.SECONDARY_STREET_ADDRESS,
     ],
   },
