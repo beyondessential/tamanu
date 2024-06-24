@@ -385,38 +385,140 @@ describe('Parse Observation Results', () => {
 
 
     describe('errors', () => {
-      test.todo('Receive Observation for with multiple results of different types')
-      test.todo('Receive Observation for with no results')
-      //   it('error if attach a diagnosticReport to an ImagingRequest', async () => {
-      //     const { FhirServiceRequest } = ctx.store.models;
-      //     const imagingRequest = await fakeResourcesOfFhirServiceRequestWithImagingRequest(
-      //       ctx.store.models,
-      //       resources,
-      //     );
-      //     const mat = await FhirServiceRequest.materialiseFromUpstream(imagingRequest.id);
-      //     const serviceRequestId = mat.id;
-      //     await FhirServiceRequest.resolveUpstreams();
+      it('should throw an error if receive an Observation with results of different types', async () => {
+        // arrange
+        const { FhirServiceRequest } = ctx.store.models;
+        const { labRequest, panelTestTypes } = await fakeResourcesOfFhirServiceRequestWithLabRequest(
+          ctx.store.models,
+          resources,
+          {
+            isWithPanels: true,
+          },
+          {
+            status: LAB_REQUEST_STATUSES.TO_BE_VERIFIED
+          }
+        );
 
-      //     const body = postBody(serviceRequestId);
-      //     const response = await app.post(endpoint).send(body);
-      //     expect(response.body).toMatchObject({
-      //       resourceType: 'OperationOutcome',
-      //       id: expect.any(String),
-      //       issue: [
-      //         {
-      //           severity: 'error',
-      //           code: 'invalid',
-      //           diagnostics: expect.any(String),
-      //           details: {
-      //             text: `No LabRequest with id: '${imagingRequest.id}', might be ImagingRequest id`,
-      //           },
-      //         },
-      //       ],
-      //     });
-      //     expect(response.status).toBe(400);
-      //   });
+        const filteredTests = panelTestTypes.filter(x => x.externalCode !== null);
+        const randomTestInPanel =
+          filteredTests[chance.integer({
+            min: 0,
+            max: filteredTests.length - 1,
+          })];
+        const mat = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
+        const serviceRequestId = mat.id;
+        await FhirServiceRequest.resolveUpstreams();
+        const body = {
+          resourceType: 'Observation',
+          status: 'final',
+          id: 'id-string-valued-observation',
+          basedOn: [
+            {
+              reference: `ServiceRequest/${serviceRequestId}`
+            }
+          ],
+          code: {
+            coding: [
+              {
+                system: 'http://loinc.org',
+                code: randomTestInPanel.externalCode,
+                display: 'Random Test'
+              }
+            ],
+            text: 'Random Test in Panel'
+          },
+          valueString: {
+            value: 'stringVal',
+            unit: 'units'
+          },
+          valueQuantity: {
+            value: 9999,
+            unit: 'units'
+          }
+        };
 
+        // act
+        const response = await app.post(endpoint).send(body);
+        // assert
+        expect(response.body).toMatchObject({
+          resourceType: 'OperationOutcome',
+          id: expect.any(String),
+          issue: [
+            {
+              severity: 'error',
+              code: 'invalid',
+              diagnostics: expect.any(String),
+              details: {
+                text: `Each Observation may only have one value type`,
+              },
+            },
+          ],
+        });
+        expect(response.status).toBe(400);
+      });
+      it('should throw an error if receive an Observation with no results', async () => {
+        // arrange
+        const { FhirServiceRequest } = ctx.store.models;
+        const { labRequest, panelTestTypes } = await fakeResourcesOfFhirServiceRequestWithLabRequest(
+          ctx.store.models,
+          resources,
+          {
+            isWithPanels: true,
+          },
+          {
+            status: LAB_REQUEST_STATUSES.TO_BE_VERIFIED
+          }
+        );
+
+        const filteredTests = panelTestTypes.filter(x => x.externalCode !== null);
+        const randomTestInPanel =
+          filteredTests[chance.integer({
+            min: 0,
+            max: filteredTests.length - 1,
+          })];
+        const mat = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
+        const serviceRequestId = mat.id;
+        await FhirServiceRequest.resolveUpstreams();
+        const body = {
+          resourceType: 'Observation',
+          status: 'final',
+          id: 'id-string-valued-observation',
+          basedOn: [
+            {
+              reference: `ServiceRequest/${serviceRequestId}`
+            }
+          ],
+          code: {
+            coding: [
+              {
+                system: 'http://loinc.org',
+                code: randomTestInPanel.externalCode,
+                display: 'Random Test'
+              }
+            ],
+            text: 'Random Test in Panel'
+          },
+        };
+
+        // act
+        const response = await app.post(endpoint).send(body);
+        // assert
+        expect(response.body).toMatchObject({
+          resourceType: 'OperationOutcome',
+          id: expect.any(String),
+          issue: [
+            {
+              severity: 'error',
+              code: 'invalid',
+              diagnostics: expect.any(String),
+              details: {
+                text: `Observation must have either valueQuantity or valueString`,
+              },
+            },
+          ],
+        });
+        expect(response.status).toBe(400);
+      });
     });
   });
-
 });
