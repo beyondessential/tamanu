@@ -3,7 +3,7 @@ export const SETTING_KEYS = {
   VACCINATION_GIVEN_ELSEWHERE_DEFAULTS: 'vaccinations.givenElsewhere.defaults',
   TEMPLATES_LETTERHEAD: 'templates.letterhead',
   FEATURES_REMINDER_CONTACT_ENABLED: 'features.reminderContactModule.enabled',
-  FEATURES_MANDATE_SPECIMEN_TYPE: 'features.mandateSpecimenType',
+  FEATURE_MANDATE_SPECIMEN_TYPE: 'features.mandateSpecimenType',
   SLIDING_FEE_SCALE: 'invoice.slidingFeeScale',
   INSURER_DEFAUlT_CONTRIBUTION: 'insurer.defaultContribution',
   CUSTOMISATIONS_COMPONENTS: 'customisations.componentVersions',
