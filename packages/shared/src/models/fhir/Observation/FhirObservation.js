@@ -162,27 +162,38 @@ export class FhirObservation extends FhirResource {
 
   parseValue(currentTestType) {
     const printableTestCode = this.getExternalTestCode() || this.getInternalTestCode();
+    const { value: stringValue } = this.valueString;
+    const { value: quantityValue } = this.valueQuantity;
+
+    if (stringValue !== undefined && quantityValue !== undefined) {
+      throw new Invalid(`Each Observation may only have one value type`);
+    }
+
+    if (stringValue === undefined && quantityValue === undefined) {
+      throw new Invalid(`Observation must have either valueQuantity or valueString`);
+    }
+
     switch (currentTestType.resultType) {
       case LAB_TEST_RESULT_TYPES.NUMBER:
-        if (!this.valueQuantity) {
+        if (!quantityValue) {
           throw new Invalid(`Observation with code '${printableTestCode}' is results for a ${LAB_TEST_RESULT_TYPES.NUMBER}, it requires a valueQuantity value`);
         }
-        return this.valueQuantity.value;
+        return quantityValue;
       case LAB_TEST_RESULT_TYPES.FREE_TEXT:
-        if (!this.valueString) {
+        if (!stringValue) {
           throw new Invalid(`Observation with code '${printableTestCode}' is results for a ${LAB_TEST_RESULT_TYPES.FREE_TEXT}, it requires a valueString value`);
         }
-        return this.valueString.value;
+        return stringValue;
       case LAB_TEST_RESULT_TYPES.SELECT:
-        if (!this.valueString) {
+        if (!stringValue) {
           throw new Invalid(`Observation with code '${printableTestCode}' is results for a ${LAB_TEST_RESULT_TYPES.SELECT}, it requires a valueString value`);
         }
-        
+
         // some options are delimited by ', ' sometimes by just ','
-        if (!currentTestType.options.replaceAll(', ', ',').split(',').includes(this.valueString.value)) {
+        if (!currentTestType.options.replaceAll(', ', ',').split(',').includes(stringValue)) {
           throw new Invalid(`Observation with code '${printableTestCode}' needs valueString.value to be one of: ${currentTestType.options}`);
         }
-        return this.valueString.value;
+        return stringValue;
       default:
         throw new Invalid(`We do not support parsing results of type ${currentTestType.resultType}`);
     }
