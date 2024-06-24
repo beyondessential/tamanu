@@ -1,3 +1,5 @@
+import { Chance } from 'chance';
+
 import {
   createDummyEncounter,
   createDummyPatient,
@@ -7,9 +9,10 @@ import {
 import { randomDate, randomLabRequest } from '@tamanu/shared/demoData';
 import { PATIENT_FIELD_DEFINITION_TYPES } from '@tamanu/constants/patientFields';
 import { LAB_REQUEST_STATUSES } from '@tamanu/constants';
-import { Chance } from 'chance';
 import { fake } from '@tamanu/shared/test-helpers/fake';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
+
 import { createTestContext } from '../utilities';
 
 const chance = new Chance();
@@ -80,21 +83,42 @@ describe('Patient relations', () => {
         surveyResponseId: surveyResponse.id,
       }));
 
-    return { patient, encounter, surveyResponse, program, surveyResponseAnswer, referral };
+    return { patient, encounter, survey, surveyResponse, program, surveyResponseAnswer, referral };
   };
 
   describe('programResponses', () => {
+    disableHardcodedPermissionsForSuite();
+
+    let permissionApp;
+
     it('should return empty list if no programResponses', async () => {
       const patient = await models.Patient.create(await createDummyPatient(models));
-      const response = await app.get(`/api/patient/${patient.id}/programResponses`);
+
+      const permissions = [
+        ['read', 'Patient'],
+        ['list', 'SurveyResponse'],
+      ];
+
+      permissionApp = await baseApp.asNewRole(permissions);
+
+      const response = await permissionApp.get(`/api/patient/${patient.id}/programResponses`);
       expect(response.body).toEqual({ count: 0, data: [] });
     });
 
     it('should return list of programResponses', async () => {
-      const { patient } = await setupSurvey({
+      const { patient, survey } = await setupSurvey({
         surveyName: 'test-survey-name',
       });
-      const response = await app.get(`/api/patient/${patient.id}/programResponses`);
+
+      const permissions = [
+        ['read', 'Patient'],
+        ['list', 'SurveyResponse'],
+        ['read', 'Survey', survey.id],
+      ];
+
+      permissionApp = await baseApp.asNewRole(permissions);
+
+      const response = await permissionApp.get(`/api/patient/${patient.id}/programResponses`);
       expect(response).toHaveSucceeded();
       expect(response.body.count).toEqual(1);
       expect(response.body.data).toHaveLength(1);
@@ -102,18 +126,32 @@ describe('Patient relations', () => {
     });
 
     it('should order by endTime asc by default', async () => {
-      const { patient } = await setupSurvey({
+      const { patient, survey: survey1 } = await setupSurvey({
         endTime: '2019-01-01 00:00:00',
+        surveyName: 'survey-1',
       });
-      await setupSurvey({
+      const { survey: survey2 } = await setupSurvey({
         endTime: '2019-01-03 00:00:00',
         patientId: patient.id,
+        surveyName: 'survey-2',
       });
-      await setupSurvey({
+      const { survey: survey3 } = await setupSurvey({
         endTime: '2019-01-02 00:00:00',
         patientId: patient.id,
+        surveyName: 'survey-3',
       });
-      const response = await app.get(`/api/patient/${patient.id}/programResponses`);
+
+      const permissions = [
+        ['read', 'Patient'],
+        ['list', 'SurveyResponse'],
+        ['read', 'Survey', survey1.id],
+        ['read', 'Survey', survey2.id],
+        ['read', 'Survey', survey3.id],
+      ];
+
+      permissionApp = await baseApp.asNewRole(permissions);
+
+      const response = await permissionApp.get(`/api/patient/${patient.id}/programResponses`);
       expect(response).toHaveSucceeded();
       expect(response.body.count).toEqual(3);
       expect(response.body.data).toHaveLength(3);
@@ -125,18 +163,30 @@ describe('Patient relations', () => {
     });
 
     it('should order using query when provided', async () => {
-      const { patient } = await setupSurvey({
+      const { patient, survey: survey1 } = await setupSurvey({
         surveyName: 'survey-a',
       });
-      await setupSurvey({
-        surveyName: 'survey-c',
-        patientId: patient.id,
-      });
-      await setupSurvey({
+
+      const { survey: survey2 } = await setupSurvey({
         surveyName: 'survey-b',
         patientId: patient.id,
       });
-      const response = await app.get(
+      const { survey: survey3 } = await setupSurvey({
+        surveyName: 'survey-c',
+        patientId: patient.id,
+      });
+
+      const permissions = [
+        ['read', 'Patient'],
+        ['list', 'SurveyResponse'],
+        ['read', 'Survey', survey1.id],
+        ['read', 'Survey', survey2.id],
+        ['read', 'Survey', survey3.id],
+      ];
+
+      permissionApp = await baseApp.asNewRole(permissions);
+
+      const response = await permissionApp.get(
         `/api/patient/${patient.id}/programResponses?orderBy=surveyName&order=asc`,
       );
       expect(response).toHaveSucceeded();
@@ -147,6 +197,37 @@ describe('Patient relations', () => {
         'survey-b',
         'survey-c',
       ]);
+    });
+
+    it('should return only permitted survey responses', async () => {
+      const { patient, survey: survey1 } = await setupSurvey({
+        surveyName: 'survey-d',
+      });
+
+      await setupSurvey({
+        surveyName: 'survey-e',
+        patientId: patient.id,
+      });
+      await setupSurvey({
+        surveyName: 'survey-f',
+        patientId: patient.id,
+      });
+
+      const permissions = [
+        ['read', 'Patient'],
+        ['list', 'SurveyResponse'],
+        ['read', 'Survey', survey1.id],
+      ];
+
+      permissionApp = await baseApp.asNewRole(permissions);
+
+      const response = await permissionApp.get(
+        `/api/patient/${patient.id}/programResponses?orderBy=surveyName&order=asc`,
+      );
+      expect(response).toHaveSucceeded();
+      expect(response.body.count).toEqual(1);
+      expect(response.body.data).toHaveLength(1);
+      expect(response.body.data.map(x => x.surveyName)).toEqual(['survey-d']);
     });
   });
 
