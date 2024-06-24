@@ -20,6 +20,10 @@ export class InvoiceItem extends Model {
           type: DataTypes.INTEGER,
           allowNull: false,
         },
+        note: {
+          type: DataTypes.STRING,
+          allowNull: true,
+        },
         sourceId: {
           type: DataTypes.UUID,
           allowNull: true,
