@@ -295,6 +295,7 @@ export class CentralServerConnection {
       this.emitter.emit('statusChange', CentralConnectionStatus.Connected);
       return data;
     } catch (err) {
+      console.log('ERROR on login:', err);
       this.throwError(err);
     }
   }
