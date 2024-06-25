@@ -55,7 +55,7 @@ const PrintButton = styled(Button)`
   right: 70px;
 `;
 
-const getDefaultRow = () => ({ id: uuidv4(), editable: true });
+const getDefaultRow = () => ({ id: uuidv4() });
 
 export const EditInvoiceModal = ({
   open,
