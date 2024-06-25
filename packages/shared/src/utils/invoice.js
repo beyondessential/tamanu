@@ -14,12 +14,12 @@ const calculateInvoiceItemDiscountPrice = (price, discount) => {
 };
 
 const getInvoiceItemPrice = invoiceItem => {
-  const singleItemPrice = parseFloat(invoiceItem?.productPrice ?? invoiceItem?.product?.price);
-  return singleItemPrice * invoiceItem?.quantity;
+  return parseFloat(invoiceItem?.productPrice ?? invoiceItem?.product?.price);
 };
 
 export const getInvoiceItemPriceDisplay = invoiceItem => {
-  const result = getInvoiceItemPrice(invoiceItem);
+  const singleItemPrice = getInvoiceItemPrice(invoiceItem);
+  const result = singleItemPrice * invoiceItem?.quantity;
   return formatDisplayValue(result);
 };
 
