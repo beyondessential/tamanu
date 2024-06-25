@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Typography } from '@material-ui/core';
-import { isInvoicePayable } from '@tamanu/shared/utils/invoice';
+import { isInvoiceEditable } from '@tamanu/shared/utils/invoice';
 import { InvoiceItemsTable } from '../../../components/Invoice/InvoiceItemsTable';
 import { Button } from '../../../components/Button';
 import { ContentPane } from '../../../components/ContentPane';
@@ -69,7 +69,7 @@ export const EncounterInvoicingPane = ({ encounter }) => {
                 </InvoiceTitle>
                 <InvoiceStatus status={invoice.status} />
               </InvoiceHeading>
-              {!isInvoicePayable(invoice) && (
+              {isInvoiceEditable(invoice) && (
                 <ActionsPane>
                   <ThreeDotMenu
                     items={[

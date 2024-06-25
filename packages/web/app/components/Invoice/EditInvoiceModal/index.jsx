@@ -5,7 +5,7 @@ import * as yup from 'yup';
 import { Box, CircularProgress, Divider } from '@material-ui/core';
 import PrintIcon from '@material-ui/icons/Print';
 import { FieldArray } from 'formik';
-import { isInvoicePayable } from '@tamanu/shared/utils/invoice';
+import { isInvoiceEditable } from '@tamanu/shared/utils/invoice';
 import { INVOICE_PAYMENT_STATUSES, INVOICE_STATUSES } from '@tamanu/constants';
 import { Modal } from '../../Modal';
 import { TranslatedText } from '../../Translation';
@@ -68,7 +68,7 @@ export const EditInvoiceModal = ({
 }) => {
   const [printModalOpen, setPrintModalOpen] = useState(false);
 
-  const payable = isInvoicePayable(invoice);
+  const payable = !isInvoiceEditable(invoice);
   const cancelable =
     invoice.status !== INVOICE_STATUSES.CANCELLED &&
     invoice.paymentStatus === INVOICE_PAYMENT_STATUSES.UNPAID &&
