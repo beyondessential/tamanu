@@ -104,3 +104,7 @@ export const getInvoiceItemName = invoiceItem => {
 export const getInvoiceItemCode = invoiceItem => {
   return invoiceItem?.productCode ?? invoiceItem?.product?.code;
 };
+
+export const getInvoiceItemNote = invoiceItem => {
+  return invoiceItem?.note;
+};
