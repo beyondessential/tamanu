@@ -17,6 +17,7 @@ import {
   getInvoiceItemPriceDisplay,
   getInvoiceSummary,
   getInvoiceItemQuantity,
+  getInvoiceItemNote,
 } from '../invoice';
 import { withLanguageContext } from '../pdf/languageContext';
 import { Page } from '../pdf/Page';
@@ -37,31 +38,7 @@ const textStyles = StyleSheet.create({
     fontFamily: 'Helvetica-Bold',
     marginBottom: 3,
     fontSize: 11,
-    fontWeight: 500,
-  },
-  tableColumnHeader: {
-    fontFamily: 'Helvetica-Bold',
-    fontSize: 10,
-  },
-  tableCellContent: {
-    fontFamily: 'Helvetica',
-    fontSize: 10,
-  },
-  tableCellFooter: {
-    fontFamily: 'Helvetica',
-    fontSize: 8,
-  },
-  headerLabel: {
-    fontSize: 8,
-    fontFamily: 'Helvetica-Bold',
-    fontWeight: 400,
-    color: '#888888',
-  },
-  headerValue: {
-    fontSize: 8,
-    fontWeight: 400,
-    fontFamily: 'Helvetica',
-    color: '#888888',
+    fontWeight: 600,
   },
 });
 
@@ -78,12 +55,6 @@ const tableStyles = StyleSheet.create({
     borderBottom: borderStyle,
     marginBottom: -1,
   },
-  notesRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-evenly',
-    borderTop: borderStyle,
-    marginBottom: -1,
-  },
   baseCell: {
     flexDirection: 'row',
     borderLeft: borderStyle,
@@ -92,26 +63,20 @@ const tableStyles = StyleSheet.create({
   },
   p: {
     fontFamily: 'Helvetica',
-    fontSize: 10,
+    fontSize: 9,
   },
-  notesCell: {
-    width: '100%',
-    flexDirection: 'column',
-    borderLeft: borderStyle,
-    borderRight: borderStyle,
-    borderBottom: borderStyle,
-    alignItems: 'flex-start',
-    padding: 7,
-  },
-  notesFooter: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-  },
+  noteText: {
+    fontFamily: 'Helvetica',
+    fontSize: 7,
+    marginTop: 1,
+  }
 });
 
 const priceCellStyles = StyleSheet.create({
   container: {
     justifyContent: 'space-between',
+    width: '100%',
+    flexDirection: 'row'
   },
   crossOutText: {
     textDecoration: 'line-through',
@@ -155,8 +120,8 @@ const Cell = ({ children, style = {} }) => (
   </View>
 );
 
-const PriceCell = ({ children, style = {} }) => (
-  <View style={[tableStyles.baseCell, priceCellStyles.container, style]}>{children}</View>
+const CustomCellComponent = ({ children, style = {} }) => (
+  <View style={[tableStyles.baseCell, style]}>{children}</View>
 );
 
 const getPrice = item => {
@@ -164,10 +129,26 @@ const getPrice = item => {
   const discountPrice = getInvoiceItemDiscountPriceDisplay(item);
 
   return (
-    <>
+    <View style={priceCellStyles.container}>
       <P style={discountPrice ? priceCellStyles.crossOutText : undefined}>{price}</P>
       {!!discountPrice && <P>{discountPrice}</P>}
-    </>
+    </View>
+  );
+};
+
+const getInvoiceItemDetails = item => {
+  const name = getInvoiceItemName(item);
+  const note = getInvoiceItemNote(item);
+
+  return (
+    <View>
+      <View>
+        <P>{name}</P>
+      </View>
+      {!!note && <View>
+        <P style={[tableStyles.noteText]}>Note: {note}</P>
+      </View>}
+    </View>
   );
 };
 
@@ -185,14 +166,15 @@ const COLUMNS = {
     {
       key: 'orderDate',
       title: 'Date',
-      style: { width: '13%' },
+      style: { width: '12%' },
       accessor: ({ orderDate }) => (orderDate ? formatShort(orderDate) : '--/--/----'),
     },
     {
       key: 'productName',
       title: 'Details',
-      style: { width: '30%' },
-      accessor: row => getInvoiceItemName(row),
+      style: { width: '36%' },
+      accessor: row => getInvoiceItemDetails(row),
+      CellComponent: CustomCellComponent
     },
     {
       key: 'code',
@@ -203,21 +185,21 @@ const COLUMNS = {
     {
       key: 'quantity',
       title: 'Quantity',
-      style: { width: '12%' },
+      style: { width: '11%' },
       accessor: row => getInvoiceItemQuantity(row),
     },
     {
       key: 'orderedBy',
       title: 'Ordered by',
       accessor: ({ orderedByUser }) => orderedByUser?.displayName,
-      style: { width: '20%' },
+      style: { width: '17%' },
     },
     {
       key: 'price',
       title: 'Price',
       accessor: row => getPrice(row),
-      style: { width: '15%' },
-      CellComponent: PriceCell,
+      style: { width: '14%' },
+      CellComponent: CustomCellComponent,
     },
   ],
   patientPayments: [
