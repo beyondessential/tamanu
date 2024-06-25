@@ -12,6 +12,7 @@ export const INVOICE_ITEM_ACTION_MODAL_TYPES = {
   ADD_MARKUP: 'addMarkupLine',
   REMOVE_DISCOUNT_MARKUP: 'removeDiscountMarkup',
   DELETE: 'delete',
+  ADD_NOTE: 'addNote',
 };
 
 export const INVOICE_MODAL_TYPES = {

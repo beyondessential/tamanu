@@ -38,6 +38,9 @@ const StyledItemRow = styled(Grid)`
 
 const StyledItemCell = styled(Grid)`
   align-self: flex-start;
+  .MuiFormHelperText-root {
+    font-size: 11px;
+  }
 `;
 
 const StyledItemHeader = styled(Grid)`
@@ -69,7 +72,7 @@ export const InvoiceItemHeader = () => {
         <TranslatedText stringId="general.date.label" fallback="Date" />
       </Grid>
       <Grid item xs={4}>
-        <TranslatedText stringId="invoice.modal.addInvoice.details.label" fallback="Details" />
+        <TranslatedText stringId="invoice.modal.editInvoice.details.label" fallback="Details" />
       </Grid>
       <Grid item xs={1}>
         <CodeCell>
@@ -77,11 +80,14 @@ export const InvoiceItemHeader = () => {
         </CodeCell>
       </Grid>
       <Grid item xs={3}>
-        <TranslatedText stringId="invoice.modal.addInvoice.orderedBy.label" fallback="Ordered by" />
+        <TranslatedText
+          stringId="invoice.modal.editInvoice.orderedBy.label"
+          fallback="Ordered by"
+        />
       </Grid>
       <Grid item xs={2}>
         <PriceCell>
-          <TranslatedText stringId="invoice.modal.addInvoice.price.label" fallback="Price" />
+          <TranslatedText stringId="invoice.modal.editInvoice.price.label" fallback="Price" />
         </PriceCell>
       </Grid>
     </StyledItemHeader>
@@ -145,6 +151,13 @@ export const InvoiceItemRow = ({
         });
         break;
       }
+      case INVOICE_ITEM_ACTION_MODAL_TYPES.ADD_NOTE: {
+        formArrayMethods.replace(index, {
+          ...item,
+          note: data.note,
+        });
+        break;
+      }
     }
     onCloseActionModal();
   };
@@ -177,6 +190,7 @@ export const InvoiceItemRow = ({
               />
             ),
             onClick: () => setActionModal(INVOICE_ITEM_ACTION_MODAL_TYPES.ADD_DISCOUNT),
+            disabled: !item.productId,
           },
           {
             label: (
@@ -186,8 +200,18 @@ export const InvoiceItemRow = ({
               />
             ),
             onClick: () => setActionModal(INVOICE_ITEM_ACTION_MODAL_TYPES.ADD_MARKUP),
+            disabled: !item.productId,
           },
         ]),
+    {
+      label: item.note ? (
+        <TranslatedText stringId="invoice.modal.editInvoice.editNote" fallback="Edit note" />
+      ) : (
+        <TranslatedText stringId="invoice.modal.editInvoice.addNote" fallback="Add note" />
+      ),
+      onClick: () => setActionModal(INVOICE_ITEM_ACTION_MODAL_TYPES.ADD_NOTE),
+      disabled: !item.productId,
+    },
     {
       label: <TranslatedText stringId="invoice.modal.editInvoice.delete" fallback="Delete" />,
       onClick: () => setActionModal(INVOICE_ITEM_ACTION_MODAL_TYPES.DELETE),
@@ -242,6 +266,16 @@ export const InvoiceItemRow = ({
             />
           ) : (
             <ViewOnlyCell>{getInvoiceItemName(item)}</ViewOnlyCell>
+          )}
+          {item.note && (
+            <Box
+              paddingLeft={editable ? '15px' : 0}
+              marginTop={editable ? '4px' : '-8px'}
+              color={Colors.darkText}
+            >
+              <TranslatedText stringId="invoice.modal.editInvoice.note.label" fallback="Note" />
+              {`: ${item.note}`}
+            </Box>
           )}
         </StyledItemCell>
         <StyledItemCell item justifyContent="center" xs={1}>
