@@ -81,7 +81,7 @@ export const InvoiceItemCard = ({ item }) => {
         <CardItem
           label={
             <TranslatedText
-              stringId="invoice.modal.addInvoice.orderedBy.label"
+              stringId="invoice.modal.editInvoice.orderedBy.label"
               fallback="Ordered by"
             />
           }
@@ -91,14 +91,14 @@ export const InvoiceItemCard = ({ item }) => {
       <Column>
         <CardItem
           label={
-            <TranslatedText stringId="invoice.modal.addInvoice.details.label" fallback="Details" />
+            <TranslatedText stringId="invoice.modal.editInvoice.details.label" fallback="Details" />
           }
           value={getInvoiceItemName(item)}
         />
         <CardItem
           label={
             <TranslatedText
-              stringId="invoice.modal.addInvoice.quantity.label"
+              stringId="invoice.modal.editInvoice.quantity.label"
               fallback="Quantity"
             />
           }
@@ -106,7 +106,7 @@ export const InvoiceItemCard = ({ item }) => {
         />
         <CardItem
           label={
-            <TranslatedText stringId="invoice.modal.addInvoice.price.label" fallback="Price" />
+            <TranslatedText stringId="invoice.modal.editInvoice.price.label" fallback="Price" />
           }
           value={
             <>

@@ -71,7 +71,7 @@ export const InvoiceItemHeader = () => {
         <TranslatedText stringId="general.date.label" fallback="Date" />
       </Box>
       <Box width="32%">
-        <TranslatedText stringId="invoice.modal.addInvoice.details.label" fallback="Details" />
+        <TranslatedText stringId="invoice.modal.editInvoice.details.label" fallback="Details" />
       </Box>
       <Box width="7%">
         <CodeCell>
@@ -82,11 +82,11 @@ export const InvoiceItemHeader = () => {
         <TranslatedText stringId="invoice.table.column.quantity" fallback="Quantity" />
       </Box>
       <Box width="23%">
-        <TranslatedText stringId="invoice.modal.addInvoice.orderedBy.label" fallback="Ordered by" />
+        <TranslatedText stringId="invoice.modal.editInvoice.orderedBy.label" fallback="Ordered by" />
       </Box>
       <Box width="10%" marginLeft="2px">
         <PriceCell>
-          <TranslatedText stringId="invoice.modal.addInvoice.price.label" fallback="Price" />
+          <TranslatedText stringId="invoice.modal.editInvoice.price.label" fallback="Price" />
         </PriceCell>
       </Box>
     </StyledItemHeader>
