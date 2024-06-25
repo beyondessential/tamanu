@@ -91,9 +91,11 @@ export const defineTelegramBotService = async injector => {
    * @param {string} contactId
    */
   const subscribeCommandHandler = async (message, contactId) => {
+    console.log('debug here', contactId, injector.models?.PatientContact)
     const contact = await injector.models?.PatientContact?.findByPk(contactId, {
       include: [{ model: injector.models?.Patient, as: 'patient' }],
     });
+    console.log({ contact })
     const getTranslation = await injector.models?.TranslatedString?.getTranslationFunction(
       injector.config.language,
       ['telegramRegistration'],

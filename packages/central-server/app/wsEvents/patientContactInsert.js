@@ -13,7 +13,6 @@ export const registerPatientContactInsert = injector => {
      * @param {Models.PatientContact} patient
      */
     async patient => {
-      console.log('registerPatientContactInsert', patient)
       try {
         await injector.models.PatientContact.create(patient);
       } catch (e) {
