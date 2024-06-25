@@ -19,7 +19,18 @@ const normaliseTranslatedText = element => {
     element.type?.name === 'TranslatedEnum'
   )
     return element.props.fallback;
-  if (!Array.isArray(element.props?.children)) return element;
+
+  // temporary fix for handling LocationCell components
+  if (element.type?.name === 'LocationCell') return element.props.locationName;
+
+  if (!Array.isArray(element.props?.children)) {
+    // temporary fix for handling components with one React element child (e.g. facility in patient encounter table)
+    if (element.props?.children !== null && typeof element.props?.children === 'object') {
+      return normaliseTranslatedText(element.props?.children);
+    }
+
+    return element;
+  }
 
   return React.cloneElement(element, {
     children: element.props.children.map(normaliseTranslatedText),
