@@ -110,3 +110,7 @@ export const getInvoiceItemCode = invoiceItem => {
 export const getInvoiceItemQuantity = invoiceItem => {
   return invoiceItem?.quantity;
 };
+
+export const getInvoiceItemNote = invoiceItem => {
+  return invoiceItem?.note;
+};
