@@ -54,7 +54,7 @@ export const EncounterInvoicingPane = ({ encounter }) => {
 
   const { data: invoice } = useEncounterInvoice(encounter.id);
 
-  const handleOpenInvoiceModal = type => setOpenInvoiceModal(type);
+  const handleOpenInvoiceModal = (type) => setOpenInvoiceModal(type);
 
   return (
     <>

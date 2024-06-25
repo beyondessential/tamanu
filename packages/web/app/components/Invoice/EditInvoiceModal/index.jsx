@@ -80,12 +80,12 @@ export const EditInvoiceModal = ({
 
   const { mutate: updateInvoice, isLoading: isUpdatingInvoice } = useUpdateInvoice(invoice);
 
-  const handleSubmit = async data => {
+  const handleSubmit = async (data) => {
     updateInvoice(
       {
         ...invoice,
         items: data.invoiceItems,
-        insurers: data.insurers.map(insurer => ({
+        insurers: data.insurers.map((insurer) => ({
           ...insurer,
           percentage: insurer.percentage / 100,
         })),
@@ -182,11 +182,9 @@ export const EditInvoiceModal = ({
               <TranslatedText stringId="general.action.print" fallback="Print" />
             </PrintButton>
           )}
-          {printModalOpen && <InvoiceRecordModal
-            open
-            onClose={() => setPrintModalOpen(false)}
-            invoice={invoice}
-          />}
+          {printModalOpen && (
+            <InvoiceRecordModal open onClose={() => setPrintModalOpen(false)} invoice={invoice} />
+          )}
         </Box>
       }
       open={open}
@@ -196,7 +194,13 @@ export const EditInvoiceModal = ({
       <>
         {(finalisable || cancelable) && (
           <>
-            <Box display="flex" justifyContent="space-between" alignItems="center" paddingX="36px" marginBottom="-16px">
+            <Box
+              display="flex"
+              justifyContent="space-between"
+              alignItems="center"
+              paddingX="36px"
+              marginBottom="-16px"
+            >
               {finalisable && (
                 <Button onClick={handleFinaliseInvoice}>
                   <TranslatedText
@@ -236,16 +240,16 @@ export const EditInvoiceModal = ({
           initialValues={{
             invoiceItems: invoice.items?.length ? invoice.items : [getDefaultRow()],
             insurers: invoice.insurers?.length
-              ? invoice.insurers.map(insurer => ({
-                ...insurer,
-                percentage: insurer.percentage * 100,
-              }))
+              ? invoice.insurers.map((insurer) => ({
+                  ...insurer,
+                  percentage: insurer.percentage * 100,
+                }))
               : [],
           }}
           validationSchema={schema}
           render={({ submitForm, values }) => (
             <FieldArray name="invoiceItems">
-              {formArrayMethods => {
+              {(formArrayMethods) => {
                 return (
                   <FormContainer>
                     <InvoiceItemHeader />
@@ -258,7 +262,7 @@ export const EditInvoiceModal = ({
                           isDeleteDisabled={values.invoiceItems?.length === 1}
                           showActionMenu={item.productId || values.invoiceItems.length > 1}
                           formArrayMethods={formArrayMethods}
-                          editable={item.editable || !payable}
+                          editable={(item.editable || !item.sourceId) && !payable}
                           payable={payable}
                         />
                       ))}

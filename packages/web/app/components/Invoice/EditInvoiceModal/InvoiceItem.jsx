@@ -18,7 +18,7 @@ import { getDateDisplay } from '../../DateDisplay';
 
 const PriceText = styled.span`
   margin-right: 16px;
-  text-decoration: ${props => (props.$isCrossedOut ? 'line-through' : 'none')};
+  text-decoration: ${(props) => (props.$isCrossedOut ? 'line-through' : 'none')};
 `;
 
 const StyledItemRow = styled(Grid)`
@@ -48,9 +48,9 @@ const StyledItemHeader = styled(Grid)`
 `;
 
 const ViewOnlyCell = styled(Box)`
-  font-size: ${p => p.$hasLargeFont ? '14px' : '11px'};
+  font-size: ${(p) => (p.$hasLargeFont ? '14px' : '11px')};
   padding: 8px 0;
-  padding-left: ${p => p.$hasLeftPadding ? '16px' : '0px'};
+  padding-left: ${(p) => (p.$hasLeftPadding ? '16px' : '0px')};
 `;
 
 const PriceCell = styled(ViewOnlyCell)`
@@ -151,42 +151,42 @@ export const InvoiceItemRow = ({
   const menuItems = [
     ...(item.discount?.percentage
       ? [
-        {
-          label:
-            Number(item.discount?.percentage) < 0 ? (
+          {
+            label:
+              Number(item.discount?.percentage) < 0 ? (
+                <TranslatedText
+                  stringId="invoice.modal.editInvoice.removeMarkup"
+                  fallback="Remove markup"
+                />
+              ) : (
+                <TranslatedText
+                  stringId="invoice.modal.editInvoice.removeDiscount"
+                  fallback="Remove discount"
+                />
+              ),
+            onClick: () => handleAction({}, INVOICE_ITEM_ACTION_MODAL_TYPES.REMOVE_DISCOUNT_MARKUP),
+          },
+        ]
+      : [
+          {
+            label: (
               <TranslatedText
-                stringId="invoice.modal.editInvoice.removeMarkup"
-                fallback="Remove markup"
-              />
-            ) : (
-              <TranslatedText
-                stringId="invoice.modal.editInvoice.removeDiscount"
-                fallback="Remove discount"
+                stringId="invoice.modal.editInvoice.addDiscount"
+                fallback="Add discount"
               />
             ),
-          onClick: () => handleAction({}, INVOICE_ITEM_ACTION_MODAL_TYPES.REMOVE_DISCOUNT_MARKUP),
-        },
-      ]
-      : [
-        {
-          label: (
-            <TranslatedText
-              stringId="invoice.modal.editInvoice.addDiscount"
-              fallback="Add discount"
-            />
-          ),
-          onClick: () => setActionModal(INVOICE_ITEM_ACTION_MODAL_TYPES.ADD_DISCOUNT),
-        },
-        {
-          label: (
-            <TranslatedText
-              stringId="invoice.modal.editInvoice.addMarkup"
-              fallback="Add markup"
-            />
-          ),
-          onClick: () => setActionModal(INVOICE_ITEM_ACTION_MODAL_TYPES.ADD_MARKUP),
-        },
-      ]),
+            onClick: () => setActionModal(INVOICE_ITEM_ACTION_MODAL_TYPES.ADD_DISCOUNT),
+          },
+          {
+            label: (
+              <TranslatedText
+                stringId="invoice.modal.editInvoice.addMarkup"
+                fallback="Add markup"
+              />
+            ),
+            onClick: () => setActionModal(INVOICE_ITEM_ACTION_MODAL_TYPES.ADD_MARKUP),
+          },
+        ]),
     {
       label: <TranslatedText stringId="invoice.modal.editInvoice.delete" fallback="Delete" />,
       onClick: () => setActionModal(INVOICE_ITEM_ACTION_MODAL_TYPES.DELETE),
@@ -194,7 +194,7 @@ export const InvoiceItemRow = ({
     },
   ];
 
-  const handleChangeOrderedBy = e => {
+  const handleChangeOrderedBy = (e) => {
     formArrayMethods.replace(index, {
       ...item,
       orderedByUser: {
@@ -203,7 +203,7 @@ export const InvoiceItemRow = ({
     });
   };
 
-  const handleChangeProduct = e => {
+  const handleChangeProduct = (e) => {
     const value = e.target;
     formArrayMethods.replace(index, {
       ...item,
@@ -248,7 +248,13 @@ export const InvoiceItemRow = ({
           )}
         </StyledItemCell>
         <StyledItemCell item justifyContent="center" xs={1}>
-          <ViewOnlyCell $hasLargeFont={payable} marginLeft="5%" minHeight="39px" display="flex" alignItems="center">
+          <ViewOnlyCell
+            $hasLargeFont={payable}
+            marginLeft="5%"
+            minHeight="39px"
+            display="flex"
+            alignItems="center"
+          >
             {getInvoiceItemCode(item)}
           </ViewOnlyCell>
         </StyledItemCell>
@@ -263,7 +269,9 @@ export const InvoiceItemRow = ({
               onChange={handleChangeOrderedBy}
             />
           ) : (
-            <ViewOnlyCell $hasLargeFont={payable} $hasLeftPadding={!payable}>{item?.orderedByUser?.displayName}</ViewOnlyCell>
+            <ViewOnlyCell $hasLargeFont={payable} $hasLeftPadding={!payable}>
+              {item?.orderedByUser?.displayName}
+            </ViewOnlyCell>
           )}
         </StyledItemCell>
         <StyledItemCell item xs={2}>
@@ -286,7 +294,7 @@ export const InvoiceItemRow = ({
           open
           action={actionModal}
           onClose={onCloseActionModal}
-          onAction={data => handleAction(data)}
+          onAction={(data) => handleAction(data)}
           item={item}
         />
       )}

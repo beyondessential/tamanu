@@ -3,9 +3,7 @@ import styled from 'styled-components';
 import { differenceBy } from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 import { INVOICE_ITEMS_CATEGORY_LABELS } from '@tamanu/constants';
-import {
-  toDateString,
-} from '@tamanu/shared/utils/dateTime';
+import { toDateString } from '@tamanu/shared/utils/dateTime';
 import { DataFetchingTable } from '../../Table';
 import { TranslatedEnum, TranslatedText } from '../../Translation';
 import { DateDisplay } from '../../DateDisplay';
@@ -73,21 +71,26 @@ const Container = styled.div`
 export const PotentialInvoiceItemsTable = ({ invoice, invoiceItems, formArrayMethods }) => {
   const [potentialInvoiceItems, setPotentialInvoiceItems] = useState([]);
 
-  const onPotentialInvoiceItemsFetched = useCallback(data => {
+  const onPotentialInvoiceItemsFetched = useCallback((data) => {
     setPotentialInvoiceItems(data?.data || []);
   }, []);
 
   const potentialInvoiceItemRowStyle = ({ sourceId }) => {
-    const idList = invoiceItems.map(row => row?.sourceId).filter(Boolean);
+    const idList = invoiceItems.map((row) => row?.sourceId).filter(Boolean);
     if (idList.includes(sourceId)) return 'display: none;';
     return '';
   };
 
-  const handleAddPotentialInvoiceItems = items => {
+  const handleAddPotentialInvoiceItems = (items) => {
     items.forEach(
-      item =>
+      (item) =>
         !potentialInvoiceItemRowStyle(item) &&
-        formArrayMethods.push({ ...item, id: uuidv4(), orderDate: toDateString(item.orderDate), editable: false }),
+        formArrayMethods.push({
+          ...item,
+          id: uuidv4(),
+          orderDate: toDateString(item.orderDate),
+          editable: false,
+        }),
     );
   };
 
@@ -132,7 +135,7 @@ export const PotentialInvoiceItemsTable = ({ invoice, invoiceItems, formArrayMet
     },
     {
       sortable: false,
-      accessor: row => (
+      accessor: (row) => (
         <SingleAddButton variant="outlined" onClick={() => handleAddPotentialInvoiceItems([row])}>
           <TranslatedText stringId="general.action.add" fallback="Add" />
         </SingleAddButton>
