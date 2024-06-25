@@ -166,13 +166,13 @@ const COLUMNS = {
     {
       key: 'orderDate',
       title: 'Date',
-      style: { width: '13%' },
+      style: { width: '12%' },
       accessor: ({ orderDate }) => (orderDate ? formatShort(orderDate) : '--/--/----'),
     },
     {
       key: 'productName',
       title: 'Details',
-      style: { width: '30%' },
+      style: { width: '36%' },
       accessor: row => getInvoiceItemDetails(row),
       CellComponent: CustomCellComponent
     },
@@ -185,20 +185,20 @@ const COLUMNS = {
     {
       key: 'quantity',
       title: 'Quantity',
-      style: { width: '12%' },
+      style: { width: '11%' },
       accessor: row => getInvoiceItemQuantity(row),
     },
     {
       key: 'orderedBy',
       title: 'Ordered by',
       accessor: ({ orderedByUser }) => orderedByUser?.displayName,
-      style: { width: '20%' },
+      style: { width: '17%' },
     },
     {
       key: 'price',
       title: 'Price',
       accessor: row => getPrice(row),
-      style: { width: '16%' },
+      style: { width: '14%' },
       CellComponent: CustomCellComponent,
     },
   ],
