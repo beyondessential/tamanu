@@ -67,7 +67,7 @@ const ViewOnlyCell = styled(Box)`
 export const InvoiceItemHeader = () => {
   return (
     <StyledItemHeader>
-      <Box width="12%" >
+      <Box width="12%">
         <TranslatedText stringId="general.date.label" fallback="Date" />
       </Box>
       <Box width="32%">
@@ -157,42 +157,42 @@ export const InvoiceItemRow = ({
   const menuItems = [
     ...(item.discount?.percentage
       ? [
-        {
-          label:
-            Number(item.discount?.percentage) < 0 ? (
+          {
+            label:
+              Number(item.discount?.percentage) < 0 ? (
+                <TranslatedText
+                  stringId="invoice.modal.editInvoice.removeMarkup"
+                  fallback="Remove markup"
+                />
+              ) : (
+                <TranslatedText
+                  stringId="invoice.modal.editInvoice.removeDiscount"
+                  fallback="Remove discount"
+                />
+              ),
+            onClick: () => handleAction({}, INVOICE_ITEM_ACTION_MODAL_TYPES.REMOVE_DISCOUNT_MARKUP),
+          },
+        ]
+      : [
+          {
+            label: (
               <TranslatedText
-                stringId="invoice.modal.editInvoice.removeMarkup"
-                fallback="Remove markup"
-              />
-            ) : (
-              <TranslatedText
-                stringId="invoice.modal.editInvoice.removeDiscount"
-                fallback="Remove discount"
+                stringId="invoice.modal.editInvoice.addDiscount"
+                fallback="Add discount"
               />
             ),
-          onClick: () => handleAction({}, INVOICE_ITEM_ACTION_MODAL_TYPES.REMOVE_DISCOUNT_MARKUP),
-        },
-      ]
-      : [
-        {
-          label: (
-            <TranslatedText
-              stringId="invoice.modal.editInvoice.addDiscount"
-              fallback="Add discount"
-            />
-          ),
-          onClick: () => setActionModal(INVOICE_ITEM_ACTION_MODAL_TYPES.ADD_DISCOUNT),
-        },
-        {
-          label: (
-            <TranslatedText
-              stringId="invoice.modal.editInvoice.addMarkup"
-              fallback="Add markup"
-            />
-          ),
-          onClick: () => setActionModal(INVOICE_ITEM_ACTION_MODAL_TYPES.ADD_MARKUP),
-        },
-      ]),
+            onClick: () => setActionModal(INVOICE_ITEM_ACTION_MODAL_TYPES.ADD_DISCOUNT),
+          },
+          {
+            label: (
+              <TranslatedText
+                stringId="invoice.modal.editInvoice.addMarkup"
+                fallback="Add markup"
+              />
+            ),
+            onClick: () => setActionModal(INVOICE_ITEM_ACTION_MODAL_TYPES.ADD_MARKUP),
+          },
+        ]),
     {
       label: <TranslatedText stringId="invoice.modal.editInvoice.delete" fallback="Delete" />,
       onClick: () => setActionModal(INVOICE_ITEM_ACTION_MODAL_TYPES.DELETE),
