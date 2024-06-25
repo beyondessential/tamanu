@@ -79,7 +79,7 @@ jobs:
         run: |
           cat <<EOF > serverOverrides.json
           {
-            "centralServers": [{"label": "Central Server", "value": "https://${{inputs.server}}" }]
+            "centralServers": [{"label": "Central Server", "value": "https://central.cambodia-khmeir-demo.internal.tamanu.io" }]
           }
           EOF
 
