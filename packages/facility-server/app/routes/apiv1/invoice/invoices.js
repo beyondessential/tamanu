@@ -131,7 +131,7 @@ const updateInvoiceSchema = z
       .strip()
       .array()
       .refine(
-        insurers => insurers.reduce((sum, insurer) => (sum += insurer.percentage), 0) > 1,
+        insurers => insurers.reduce((sum, insurer) => (sum += insurer.percentage), 0) <= 1,
         'Total insurer percentage should not exceed 100%',
       ),
     items: z
@@ -338,7 +338,7 @@ invoiceRoute.put(
     req.checkPermission('write', 'Invoice');
     const invoiceId = req.params.id;
     const invoice = await req.models.Invoice.findByPk(invoiceId, {
-      attributes: ['status'],
+      attributes: ['id', 'status'],
     });
     if (!invoice) throw new NotFoundError('Invoice not found');
 

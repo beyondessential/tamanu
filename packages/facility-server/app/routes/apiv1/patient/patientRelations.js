@@ -57,7 +57,8 @@ patientRelations.get(
           encounters.*,
           locations.facility_id AS facility_id,
           facilities.name AS facility_name,
-          location_groups.name AS location_group_name
+          location_groups.name AS location_group_name,
+          location_groups.id AS location_group_id
         FROM
           encounters
           INNER JOIN locations

@@ -66,7 +66,10 @@ export const NEW_RECORD_VACCINE_SCHEME_VALIDATION = BASE_VACCINE_SCHEME_VALIDATI
   category: yup.string().required(REQUIRED_INLINE_ERROR_MESSAGE),
   vaccineLabel: yup.string().when('category', {
     is: categoryValue => !!categoryValue && categoryValue !== VACCINE_CATEGORIES.OTHER,
-    then: yup.string().required(REQUIRED_INLINE_ERROR_MESSAGE),
+    then: yup
+      .string()
+      .nullable()
+      .required(REQUIRED_INLINE_ERROR_MESSAGE),
     otherwise: yup.string().nullable(),
   }),
   vaccineName: yup.string().when('category', {
