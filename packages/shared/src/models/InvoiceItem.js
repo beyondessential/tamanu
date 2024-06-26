@@ -36,6 +36,10 @@ export class InvoiceItem extends Model {
           type: DataTypes.DECIMAL,
           allowNull: true,
         },
+        productCode: {
+          type: DataTypes.STRING,
+          allowNull: true,
+        },
       },
       { syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL, ...options },
     );
@@ -108,9 +112,10 @@ export class InvoiceItem extends Model {
   }
 
   addVirtualFields() {
+    this.product = this.product.addVirtualFields();
     this.dataValues.productName = this.productName ?? this.product?.name;
     this.dataValues.productPrice = this.productPrice ?? this.product?.price;
-    this.product = this.product.addVirtualFields();
+    this.dataValues.productCode = this.productCode ?? this.product?.code;
     return this;
   }
 }

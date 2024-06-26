@@ -71,7 +71,7 @@ export async function up(query) {
       allowNull: false,
     },
     receipt_number: {
-      type: DataTypes.DECIMAL,
+      type: DataTypes.STRING,
       allowNull: true,
     },
     encounter_id: {

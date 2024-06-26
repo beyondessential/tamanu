@@ -54,6 +54,11 @@ export class Invoice extends Model {
       foreignKey: 'invoiceId',
       as: 'items',
     });
+
+    this.hasMany(models.InvoicePayment, {
+      foreignKey: 'invoiceId',
+      as: 'payments',
+    });
   }
 
   static buildPatientSyncFilter(patientCount, markedForSyncPatientsTable) {

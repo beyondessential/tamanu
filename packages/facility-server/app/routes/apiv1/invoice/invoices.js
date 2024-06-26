@@ -11,6 +11,7 @@ import {
   getCurrentCountryTimeZoneDateString,
   getCurrentCountryTimeZoneDateTimeString,
 } from '@tamanu/shared/utils/countryDateTime';
+import { patientPaymentRoute } from './patientPayment';
 
 const invoiceRoute = express.Router();
 export { invoiceRoute as invoices };
@@ -348,3 +349,4 @@ invoiceRoute.put(
 );
 
 invoiceRoute.use(invoiceItemsRoute);
+invoiceRoute.use(patientPaymentRoute);

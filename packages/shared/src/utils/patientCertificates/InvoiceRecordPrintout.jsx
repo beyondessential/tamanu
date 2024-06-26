@@ -15,8 +15,8 @@ import {
   getInvoiceItemDiscountPriceDisplay,
   getInvoiceItemName,
   getInvoiceItemPriceDisplay,
-  getInvoiceSummary,
   getInvoiceItemNote,
+  getInvoiceSummaryDisplay,
 } from '../invoice';
 import { withLanguageContext } from '../pdf/languageContext';
 import { Page } from '../pdf/Page';
@@ -68,14 +68,14 @@ const tableStyles = StyleSheet.create({
     fontFamily: 'Helvetica',
     fontSize: 7,
     marginTop: 1,
-  }
+  },
 });
 
 const priceCellStyles = StyleSheet.create({
   container: {
     justifyContent: 'space-between',
     width: '100%',
-    flexDirection: 'row'
+    flexDirection: 'row',
   },
   crossOutText: {
     textDecoration: 'line-through',
@@ -144,9 +144,11 @@ const getInvoiceItemDetails = item => {
       <View>
         <P>{name}</P>
       </View>
-      {!!note && <View>
-        <P style={[tableStyles.noteText]}>Note: {note}</P>
-      </View>}
+      {!!note && (
+        <View>
+          <P style={[tableStyles.noteText]}>Note: {note}</P>
+        </View>
+      )}
     </View>
   );
 };
@@ -173,7 +175,7 @@ const COLUMNS = {
       title: 'Details',
       style: { width: '30%' },
       accessor: row => getInvoiceItemDetails(row),
-      CellComponent: CustomCellComponent
+      CellComponent: CustomCellComponent,
     },
     {
       key: 'code',
@@ -337,13 +339,13 @@ const SummaryPane = ({ invoice }) => {
   const {
     discountableItemsSubtotal,
     nonDiscountableItemsSubtotal,
-    total,
-    appliedToDiscountableSubtotal,
-    discountTotal,
+    itemsSubtotal,
     patientSubtotal,
+    patientDiscountableSubtotal,
+    discountTotal,
     patientTotal,
-  } = getInvoiceSummary(invoice);
-  const insurerPaymentsDisplay = getInsurerPaymentsDisplay(invoice?.insurers, total);
+  } = getInvoiceSummaryDisplay(invoice);
+  const insurerPaymentsDisplay = getInsurerPaymentsDisplay(invoice?.insurers, itemsSubtotal);
 
   return (
     <View wrap={false} style={summaryPaneStyles.container}>
@@ -358,7 +360,7 @@ const SummaryPane = ({ invoice }) => {
       <HorizontalRule />
       <View style={summaryPaneStyles.item}>
         <P isBold>Total</P>
-        <P isBold>{total ?? '-'}</P>
+        <P isBold>{itemsSubtotal ?? '-'}</P>
       </View>
       <HorizontalRule />
       {invoice?.insurers?.length && (
@@ -405,7 +407,7 @@ const SummaryPane = ({ invoice }) => {
           <View style={summaryPaneStyles.item}>
             <P>Applied to discountable balance</P>
             <View style={summaryPaneStyles.subItem}>
-              <P>{appliedToDiscountableSubtotal ?? '-'}</P>
+              <P>{patientDiscountableSubtotal ?? '-'}</P>
             </View>
           </View>
         </>

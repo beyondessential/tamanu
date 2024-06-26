@@ -11,7 +11,7 @@ import { PencilIcon } from '../../assets/icons/PencilIcon';
 import { ThemedTooltip } from '../Tooltip';
 import { BodyText, Heading3 } from '../Typography';
 import { Button } from '../Button';
-import { getInsurerPaymentsDisplay, getInvoiceSummary } from '@tamanu/shared/utils/invoice';
+import { getInsurerPaymentsDisplay, getInvoiceSummaryDisplay } from '@tamanu/shared/utils/invoice';
 import { getDateDisplay } from '../DateDisplay';
 import { useSettings } from '../../contexts/Settings';
 import { AutocompleteField, Field, NumberField } from '../Field';
@@ -200,14 +200,14 @@ export const InvoiceSummaryPanel = ({ invoice, editable, handleEditDiscount }) =
   const {
     discountableItemsSubtotal,
     nonDiscountableItemsSubtotal,
-    total,
-    appliedToDiscountableSubtotal,
-    discountTotal,
+    itemsSubtotal,
     patientSubtotal,
+    patientDiscountableSubtotal,
+    discountTotal,
     patientTotal,
-  } = getInvoiceSummary({ ...invoice, insurers });
+  } = getInvoiceSummaryDisplay({ ...invoice, insurers });
 
-  const insurerPaymentsDisplay = getInsurerPaymentsDisplay(insurers, total);
+  const insurerPaymentsDisplay = getInsurerPaymentsDisplay(insurers, itemsSubtotal);
 
   return (
     <Container>
@@ -228,7 +228,7 @@ export const InvoiceSummaryPanel = ({ invoice, editable, handleEditDiscount }) =
       <Divider />
       <CardItem sx={{ fontWeight: 500 }}>
         <TranslatedText stringId="invoice.summary.total.label" fallback="Total" />
-        <span>{total ?? '-'}</span>
+        <span>{itemsSubtotal ?? '-'}</span>
       </CardItem>
       <Divider />
       {editable && (
@@ -321,7 +321,7 @@ export const InvoiceSummaryPanel = ({ invoice, editable, handleEditDiscount }) =
             stringId="invoice.summary.appliedDiscountable"
             fallback="Applied to discountable balance"
           />
-          <DiscountedPrice>{appliedToDiscountableSubtotal ?? '-'}</DiscountedPrice>
+          <DiscountedPrice>{patientDiscountableSubtotal ?? '-'}</DiscountedPrice>
         </CardItem>
       )}
       <Divider />
