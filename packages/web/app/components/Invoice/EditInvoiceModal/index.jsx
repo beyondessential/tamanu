@@ -262,8 +262,7 @@ export const EditInvoiceModal = ({
                           isDeleteDisabled={values.invoiceItems?.length === 1}
                           showActionMenu={item.productId || values.invoiceItems.length > 1}
                           formArrayMethods={formArrayMethods}
-                          editable={!item.sourceId && editable}
-                          isInvoiceEditable={editable}
+                          editable={editable}
                         />
                       ))}
                     </Box>

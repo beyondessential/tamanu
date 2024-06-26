@@ -94,8 +94,8 @@ export const InvoiceItemRow = ({
   showActionMenu,
   formArrayMethods,
   editable,
-  isInvoiceEditable,
 }) => {
+  const isItemEditable = !item.sourceId && editable;
   const invoiceProductsSuggester = useSuggester('invoiceProducts', {
     formatter: ({ name, id, ...others }) => ({ ...others, label: name, value: id }),
   });
@@ -218,7 +218,7 @@ export const InvoiceItemRow = ({
     <>
       <StyledItemRow container alignItems="center" spacing={1}>
         <StyledItemCell item xs={2}>
-          {editable ? (
+          {isItemEditable ? (
             <Field
               name={`invoiceItems.${index}.orderDate`}
               required
@@ -227,13 +227,13 @@ export const InvoiceItemRow = ({
               saveDateAsString
             />
           ) : (
-            <ViewOnlyCell $hasLargeFont={!isInvoiceEditable} $hasLeftPadding={isInvoiceEditable}>
+            <ViewOnlyCell $hasLargeFont={!editable} $hasLeftPadding={editable}>
               {getDateDisplay(item?.orderDate, 'dd/MM/yyyy')}
             </ViewOnlyCell>
           )}
         </StyledItemCell>
         <StyledItemCell item xs={4}>
-          {editable ? (
+          {isItemEditable ? (
             <Field
               name={`invoiceItems.${index}.productId`}
               required
@@ -243,14 +243,14 @@ export const InvoiceItemRow = ({
               onChange={handleChangeProduct}
             />
           ) : (
-            <ViewOnlyCell $hasLargeFont={!isInvoiceEditable} $hasLeftPadding={isInvoiceEditable}>
+            <ViewOnlyCell $hasLargeFont={!editable} $hasLeftPadding={editable}>
               {getInvoiceItemName(item)}
             </ViewOnlyCell>
           )}
         </StyledItemCell>
         <StyledItemCell item justifyContent="center" xs={1}>
           <ViewOnlyCell
-            $hasLargeFont={!isInvoiceEditable}
+            $hasLargeFont={!editable}
             marginLeft="5%"
             minHeight="39px"
             display="flex"
@@ -260,7 +260,7 @@ export const InvoiceItemRow = ({
           </ViewOnlyCell>
         </StyledItemCell>
         <StyledItemCell item xs={3}>
-          {editable ? (
+          {isItemEditable ? (
             <Field
               name={`invoiceItems.${index}.orderedByUserId`}
               required
@@ -270,13 +270,13 @@ export const InvoiceItemRow = ({
               onChange={handleChangeOrderedBy}
             />
           ) : (
-            <ViewOnlyCell $hasLargeFont={!isInvoiceEditable} $hasLeftPadding={isInvoiceEditable}>
+            <ViewOnlyCell $hasLargeFont={!editable} $hasLeftPadding={editable}>
               {item?.orderedByUser?.displayName}
             </ViewOnlyCell>
           )}
         </StyledItemCell>
         <StyledItemCell item xs={2}>
-          <PriceCell $hasLargeFont={!isInvoiceEditable}>
+          <PriceCell $hasLargeFont={!editable}>
             <PriceText $isCrossedOut={!!discountPrice}>{price}</PriceText>
             {!!discountPrice && (
               <ThemedTooltip
