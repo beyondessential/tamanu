@@ -279,7 +279,9 @@ export const InvoiceItemRow = ({
               required
             />
           ) : (
-            <ViewOnlyCell marginLeft="5px">{item?.quantity}</ViewOnlyCell>
+            <ViewOnlyCell $hasLargeFont={!editable} $hasLeftPadding={editable}>
+              {item?.quantity}
+            </ViewOnlyCell>
           )}
         </Box>
         <Box width="23%">
@@ -293,7 +295,7 @@ export const InvoiceItemRow = ({
               onChange={handleChangeOrderedBy}
             />
           ) : (
-            <ViewOnlyCell $hasLargeFont={!editable} $hasLeftPadding={editable} marginLeft="4px">
+            <ViewOnlyCell $hasLargeFont={!editable} $hasLeftPadding={editable}>
               {item?.orderedByUser?.displayName}
             </ViewOnlyCell>
           )}
