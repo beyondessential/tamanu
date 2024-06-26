@@ -139,7 +139,8 @@ export const getInvoiceSummaryDisplay = invoice => {
 };
 
 export const getInvoiceItemPriceDisplay = invoiceItem => {
-  const result = getInvoiceItemPrice(invoiceItem);
+  const singleItemPrice = getInvoiceItemPrice(invoiceItem);
+  const result = singleItemPrice * invoiceItem?.quantity;
   return formatDisplayValue(result);
 };
 
@@ -160,6 +161,10 @@ export const getInvoiceItemName = invoiceItem => {
 
 export const getInvoiceItemCode = invoiceItem => {
   return invoiceItem?.productCode ?? invoiceItem?.product?.code;
+};
+
+export const getInvoiceItemQuantity = invoiceItem => {
+  return invoiceItem?.quantity;
 };
 
 export const getInvoiceItemNote = invoiceItem => {

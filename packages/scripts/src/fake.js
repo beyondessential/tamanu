@@ -7,6 +7,7 @@ const config = require('config');
 async function generateData(models) {
   const {
     Department,
+    Discharge,
     Encounter,
     Facility,
     Location,
@@ -69,6 +70,12 @@ async function generateData(models) {
       locationId: location.id,
       examinerId: examiner.id,
       startDate: '2023-12-21T04:59:51.851Z',
+    }),
+  );
+  await Discharge.create(
+    fake(Discharge, {
+      encounterId: encounter.id,
+      dischargerId: examiner.id,
     }),
   );
   await EncounterHistory.create(
