@@ -18,7 +18,7 @@ import { getDateDisplay } from '../../DateDisplay';
 
 const PriceText = styled.span`
   margin-right: 16px;
-  text-decoration: ${props => (props.$isCrossedOut ? 'line-through' : 'none')};
+  text-decoration: ${(props) => (props.$isCrossedOut ? 'line-through' : 'none')};
 `;
 
 const StyledItemRow = styled(Box)`
@@ -49,19 +49,18 @@ const StyledItemHeader = styled(Box)`
   border: 1px solid ${Colors.outline};
 `;
 
-const CodeCell = styled(Box)`
-  margin-left: 5%;
+const ViewOnlyCell = styled(Box)`
+  font-size: ${(p) => (p.$hasLargeFont ? '14px' : '11px')};
+  padding: 8px 0;
+  padding-left: ${(p) => (p.$hasLeftPadding ? '16px' : '0px')};
 `;
 
-const PriceCell = styled.div`
+const PriceCell = styled(ViewOnlyCell)`
   margin-left: 10%;
   display: flex;
   align-items: center;
-`;
-
-const ViewOnlyCell = styled(Box)`
-  font-size: 14px;
-  padding: 8px 0;
+  padding: 0;
+  min-height: 39px;
 `;
 
 export const InvoiceItemHeader = () => {
@@ -74,9 +73,9 @@ export const InvoiceItemHeader = () => {
         <TranslatedText stringId="invoice.modal.editInvoice.details.label" fallback="Details" />
       </Box>
       <Box width="7%">
-        <CodeCell>
+        <Box marginLeft="5%">
           <TranslatedText stringId="invoice.table.column.code" fallback="Code" />
-        </CodeCell>
+        </Box>
       </Box>
       <Box width="6%" marginLeft="5px">
         <TranslatedText stringId="invoice.table.column.quantity" fallback="Quantity" />
@@ -85,9 +84,9 @@ export const InvoiceItemHeader = () => {
         <TranslatedText stringId="invoice.modal.editInvoice.orderedBy.label" fallback="Ordered by" />
       </Box>
       <Box width="10%" marginLeft="2px">
-        <PriceCell>
+        <Box marginLeft="10%">
           <TranslatedText stringId="invoice.modal.editInvoice.price.label" fallback="Price" />
-        </PriceCell>
+        </Box>
       </Box>
     </StyledItemHeader>
   );
@@ -101,6 +100,7 @@ export const InvoiceItemRow = ({
   formArrayMethods,
   editable,
 }) => {
+  const isItemEditable = !item.sourceId && editable;
   const invoiceProductsSuggester = useSuggester('invoiceProducts', {
     formatter: ({ name, id, ...others }) => ({ ...others, label: name, value: id }),
   });
@@ -200,7 +200,7 @@ export const InvoiceItemRow = ({
     },
   ];
 
-  const handleChangeOrderedBy = e => {
+  const handleChangeOrderedBy = (e) => {
     formArrayMethods.replace(index, {
       ...item,
       orderedByUser: {
@@ -209,7 +209,7 @@ export const InvoiceItemRow = ({
     });
   };
 
-  const handleChangeProduct = e => {
+  const handleChangeProduct = (e) => {
     const value = e.target;
     formArrayMethods.replace(index, {
       ...item,
@@ -223,7 +223,7 @@ export const InvoiceItemRow = ({
     <>
       <StyledItemRow container alignItems="center" spacing={1} wrap="nowrap">
         <Box width="12%">
-          {editable ? (
+          {isItemEditable ? (
             <Field
               name={`invoiceItems.${index}.orderDate`}
               required
@@ -232,11 +232,13 @@ export const InvoiceItemRow = ({
               saveDateAsString
             />
           ) : (
-            <ViewOnlyCell>{getDateDisplay(item?.orderDate, 'dd/MM/yyyy')}</ViewOnlyCell>
+            <ViewOnlyCell $hasLargeFont={!editable} $hasLeftPadding={editable}>
+              {getDateDisplay(item?.orderDate, 'dd/MM/yyyy')}
+            </ViewOnlyCell>
           )}
         </Box>
         <Box width="32%">
-          {editable ? (
+          {isItemEditable ? (
             <Field
               name={`invoiceItems.${index}.productId`}
               required
@@ -246,20 +248,24 @@ export const InvoiceItemRow = ({
               onChange={handleChangeProduct}
             />
           ) : (
-            <ViewOnlyCell>{getInvoiceItemName(item)}</ViewOnlyCell>
+            <ViewOnlyCell $hasLargeFont={!editable} $hasLeftPadding={editable}>
+              {getInvoiceItemName(item)}
+            </ViewOnlyCell>
           )}
         </Box>
         <Box width="7%">
-          {editable ? (
-            <CodeCell minHeight="39px" display="flex" alignItems="center">
-              {getInvoiceItemCode(item)}
-            </CodeCell>
-          ) : (
-            <ViewOnlyCell marginLeft="5%">{getInvoiceItemCode(item)}</ViewOnlyCell>
-          )}
+          <ViewOnlyCell
+            $hasLargeFont={!editable}
+            marginLeft="5%"
+            minHeight="39px"
+            display="flex"
+            alignItems="center"
+          >
+            {getInvoiceItemCode(item)}
+          </ViewOnlyCell>
         </Box>
         <Box width="6%">
-          {editable ? (
+          {isItemEditable ? (
             <Field
               name={`invoiceItems.${index}.quantity`}
               component={NumberField}
@@ -273,11 +279,13 @@ export const InvoiceItemRow = ({
               required
             />
           ) : (
-            <ViewOnlyCell marginLeft="5px">{item?.quantity}</ViewOnlyCell>
+            <ViewOnlyCell $hasLargeFont={!editable} $hasLeftPadding={editable}>
+              {item?.quantity}
+            </ViewOnlyCell>
           )}
         </Box>
         <Box width="23%">
-          {editable ? (
+          {isItemEditable ? (
             <Field
               name={`invoiceItems.${index}.orderedByUserId`}
               required
@@ -287,37 +295,25 @@ export const InvoiceItemRow = ({
               onChange={handleChangeOrderedBy}
             />
           ) : (
-            <ViewOnlyCell marginLeft="4px">{item?.orderedByUser?.displayName}</ViewOnlyCell>
+            <ViewOnlyCell $hasLargeFont={!editable} $hasLeftPadding={editable}>
+              {item?.orderedByUser?.displayName}
+            </ViewOnlyCell>
           )}
         </Box>
         <Box width="10%" sx={{ flexGrow: 1 }}>
-          {editable ? (
-            <PriceCell>
-              <PriceText $isCrossedOut={!!discountPrice}>{price}</PriceText>
-              {!!discountPrice && (
-                <ThemedTooltip
-                  key={item.discount?.reason}
-                  title={item.discount?.reason}
-                  open={item.discount?.reason ? undefined : false}
-                >
-                  <span>{discountPrice}</span>
-                </ThemedTooltip>
-              )}
-              {showActionMenu && <ThreeDotMenu items={menuItems} />}
-            </PriceCell>
-          ) : (
-            <ViewOnlyCell marginLeft="10%">
-              <PriceText $isCrossedOut={!!discountPrice}>{price}</PriceText>
-              {!!discountPrice && (
-                <ThemedTooltip
-                  title={item.discount?.reason}
-                  open={item.discount?.reason ? undefined : false}
-                >
-                  <span>{discountPrice}</span>
-                </ThemedTooltip>
-              )}
-            </ViewOnlyCell>
-          )}
+          <PriceCell $hasLargeFont={!editable}>
+            <PriceText $isCrossedOut={!!discountPrice}>{price}</PriceText>
+            {!!discountPrice && (
+              <ThemedTooltip
+                key={item.discount?.reason}
+                title={item.discount?.reason}
+                open={item.discount?.reason ? undefined : false}
+              >
+                <span>{discountPrice}</span>
+              </ThemedTooltip>
+            )}
+            {showActionMenu && editable && <ThreeDotMenu items={menuItems} />}
+          </PriceCell>
         </Box>
       </StyledItemRow>
       {actionModal && (
@@ -325,7 +321,7 @@ export const InvoiceItemRow = ({
           open
           action={actionModal}
           onClose={onCloseActionModal}
-          onAction={data => handleAction(data)}
+          onAction={(data) => handleAction(data)}
           item={item}
         />
       )}
