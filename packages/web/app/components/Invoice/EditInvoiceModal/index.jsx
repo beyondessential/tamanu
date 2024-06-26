@@ -20,6 +20,8 @@ import { ThreeDotMenu } from '../../ThreeDotMenu';
 import { PotentialInvoiceItemsTable } from './PotentialInvoiceItemsTable';
 import { Button } from '../../Button';
 import { InvoiceRecordModal } from '../../PatientPrinting/modals/InvoiceRecordModal';
+import { InsurerPaymentsTable } from './InsurerPaymentsTable';
+import { PatientPaymentsTable } from './PatientPaymentsTable';
 
 const LinkText = styled.div`
   font-weight: 500;
@@ -155,6 +157,24 @@ export const EditInvoiceModal = ({
       ),
   });
 
+  const renderDataTables = (values, formArrayMethods) => {
+    if (editable) {
+      return (
+        <PotentialInvoiceItemsTable
+          invoice={invoice}
+          invoiceItems={values.invoiceItems}
+          formArrayMethods={formArrayMethods}
+        />
+      );
+    }
+    return (
+      <Box sx={{ flex: 2 }}>
+        <PatientPaymentsTable/>
+        <InsurerPaymentsTable/>
+      </Box>
+    );
+  };
+
   return (
     <Modal
       width="lg"
@@ -276,13 +296,7 @@ export const EditInvoiceModal = ({
                       </LinkText>
                     )}
                     <ModalSection>
-                      {editable && (
-                        <PotentialInvoiceItemsTable
-                          invoice={invoice}
-                          invoiceItems={values.invoiceItems}
-                          formArrayMethods={formArrayMethods}
-                        />
-                      )}
+                      {renderDataTables(values, formArrayMethods)}
                       <InvoiceSummaryPanel
                         invoice={{ ...invoice, items: values.invoiceItems }}
                         editable={editable}
