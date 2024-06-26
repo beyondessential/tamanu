@@ -20,13 +20,13 @@ import { TranslatedText } from '../Translation/TranslatedText';
  * Based on: https://github.com/tatethurston/react-itertools/blob/main/src/map/index.ts. Used under
  * MIT licence.
  */
-const normalizeTranslatedText = (element, normalizeFn) => {
+const normalizeRecursively = (element, normalizeFn) => {
   return Children.map(element.props.children, child => {
     if (!isValidElement(child)) return child;
 
     if (child.props.children) {
       child = cloneElement(child, {
-        children: normalizeTranslatedText(child, normalizeFn),
+        children: normalizeRecursively(child, normalizeFn),
       });
     }
 
@@ -56,9 +56,7 @@ export function DownloadDataButton({ exportName, columns, data }) {
       if (isValidElement(title)) {
         return cheerio
           .load(
-            ReactDOMServer.renderToString(
-              normalizeTranslatedText(title, stringifyIfIsTranslatedText),
-            ),
+            ReactDOMServer.renderToString(normalizeRecursively(title, stringifyIfIsTranslatedText)),
           )
           .text();
       }
@@ -94,7 +92,7 @@ export function DownloadDataButton({ exportName, columns, data }) {
                   dx[headerValue] = cheerio
                     .load(
                       ReactDOMServer.renderToString(
-                        normalizeTranslatedText(value, stringifyIfIsTranslatedText),
+                        normalizeRecursively(value, stringifyIfIsTranslatedText),
                       ),
                     )
                     .text(); // render react element and get the text value with cheerio
