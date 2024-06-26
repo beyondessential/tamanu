@@ -338,7 +338,7 @@ invoiceRoute.put(
     req.checkPermission('write', 'Invoice');
     const invoiceId = req.params.id;
     const invoice = await req.models.Invoice.findByPk(invoiceId, {
-      attributes: ['status'],
+      attributes: ['id', 'status'],
     });
     if (!invoice) throw new NotFoundError('Invoice not found');
 
