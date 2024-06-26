@@ -93,7 +93,7 @@ export const InvoiceItemRow = ({
   showActionMenu,
   formArrayMethods,
   editable,
-  payable,
+  isInvoiceEditable,
 }) => {
   const invoiceProductsSuggester = useSuggester('invoiceProducts', {
     formatter: ({ name, id, ...others }) => ({ ...others, label: name, value: id }),
@@ -226,7 +226,7 @@ export const InvoiceItemRow = ({
               saveDateAsString
             />
           ) : (
-            <ViewOnlyCell $hasLargeFont={payable} $hasLeftPadding={!payable}>
+            <ViewOnlyCell $hasLargeFont={!isInvoiceEditable} $hasLeftPadding={isInvoiceEditable}>
               {getDateDisplay(item?.orderDate, 'dd/MM/yyyy')}
             </ViewOnlyCell>
           )}
@@ -242,14 +242,14 @@ export const InvoiceItemRow = ({
               onChange={handleChangeProduct}
             />
           ) : (
-            <ViewOnlyCell $hasLargeFont={payable} $hasLeftPadding={!payable}>
+            <ViewOnlyCell $hasLargeFont={!isInvoiceEditable} $hasLeftPadding={isInvoiceEditable}>
               {getInvoiceItemName(item)}
             </ViewOnlyCell>
           )}
         </StyledItemCell>
         <StyledItemCell item justifyContent="center" xs={1}>
           <ViewOnlyCell
-            $hasLargeFont={payable}
+            $hasLargeFont={!isInvoiceEditable}
             marginLeft="5%"
             minHeight="39px"
             display="flex"
@@ -269,16 +269,17 @@ export const InvoiceItemRow = ({
               onChange={handleChangeOrderedBy}
             />
           ) : (
-            <ViewOnlyCell $hasLargeFont={payable} $hasLeftPadding={!payable}>
+            <ViewOnlyCell $hasLargeFont={!isInvoiceEditable} $hasLeftPadding={isInvoiceEditable}>
               {item?.orderedByUser?.displayName}
             </ViewOnlyCell>
           )}
         </StyledItemCell>
         <StyledItemCell item xs={2}>
-          <PriceCell $hasLargeFont={payable}>
+          <PriceCell $hasLargeFont={!isInvoiceEditable}>
             <PriceText $isCrossedOut={!!discountPrice}>{price}</PriceText>
             {!!discountPrice && (
               <ThemedTooltip
+                key={item.discount?.reason}
                 title={item.discount?.reason}
                 open={item.discount?.reason ? undefined : false}
               >

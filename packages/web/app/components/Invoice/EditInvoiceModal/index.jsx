@@ -68,7 +68,7 @@ export const EditInvoiceModal = ({
 }) => {
   const [printModalOpen, setPrintModalOpen] = useState(false);
 
-  const payable = !isInvoiceEditable(invoice);
+  const editable = isInvoiceEditable(invoice);
   const cancelable =
     invoice.status !== INVOICE_STATUSES.CANCELLED &&
     invoice.paymentStatus === INVOICE_PAYMENT_STATUSES.UNPAID &&
@@ -262,12 +262,12 @@ export const EditInvoiceModal = ({
                           isDeleteDisabled={values.invoiceItems?.length === 1}
                           showActionMenu={item.productId || values.invoiceItems.length > 1}
                           formArrayMethods={formArrayMethods}
-                          editable={(item.editable || !item.sourceId) && !payable}
-                          payable={payable}
+                          editable={!item.sourceId && editable}
+                          isInvoiceEditable={editable}
                         />
                       ))}
                     </Box>
-                    {!payable && (
+                    {editable && (
                       <LinkText onClick={() => formArrayMethods.push(getDefaultRow())}>
                         {'+ '}
                         <TranslatedText
@@ -277,7 +277,7 @@ export const EditInvoiceModal = ({
                       </LinkText>
                     )}
                     <ModalSection>
-                      {!payable && (
+                      {editable && (
                         <PotentialInvoiceItemsTable
                           invoice={invoice}
                           invoiceItems={values.invoiceItems}
@@ -286,7 +286,7 @@ export const EditInvoiceModal = ({
                       )}
                       <InvoiceSummaryPanel
                         invoice={{ ...invoice, items: values.invoiceItems }}
-                        editable={!payable}
+                        editable={editable}
                         handleEditDiscount={handleEditDiscount}
                       />
                     </ModalSection>

@@ -85,12 +85,7 @@ export const PotentialInvoiceItemsTable = ({ invoice, invoiceItems, formArrayMet
     items.forEach(
       (item) =>
         !potentialInvoiceItemRowStyle(item) &&
-        formArrayMethods.push({
-          ...item,
-          id: uuidv4(),
-          orderDate: toDateString(item.orderDate),
-          editable: false,
-        }),
+        formArrayMethods.push({ ...item, id: uuidv4(), orderDate: toDateString(item.orderDate) }),
     );
   };
 
