@@ -15,6 +15,7 @@ export const EditPatientAdditionalDataScreen = ({ navigation, route }): ReactEle
     additionalDataJSON,
     sectionTitle,
     customPatientFieldValues,
+    sectionKey,
   } = route.params;
   // additionalDataJSON might be undefined if record doesn't exist,
   // JSON.parse will break if it doesn't get a JSON object
@@ -43,7 +44,7 @@ export const EditPatientAdditionalDataScreen = ({ navigation, route }): ReactEle
         additionalData={additionalData}
         additionalDataSections={CAMBODIA_ADDITIONAL_DATA_SECTIONS}
         navigation={navigation}
-        sectionTitle={sectionTitle}
+        sectionKey={sectionKey}
         customPatientFieldValues={customPatientFieldValues}
       />
     </FullView>

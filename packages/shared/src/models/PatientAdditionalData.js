@@ -108,7 +108,7 @@ export class PatientAdditionalData extends Model {
   }
 
   static getFullReferenceAssociations() {
-    return ['countryOfBirth', 'nationality'];
+    return ['countryOfBirth', 'nationality', 'ethnicity'];
   }
 
   static buildPatientSyncFilter = buildPatientSyncFilterViaPatientId;
