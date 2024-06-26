@@ -66,11 +66,18 @@ export const ThreeDotMenu = ({ items }) => {
           horizontal: 'right',
         }}
       >
-        {items.map((item, index) => (
-          <ThreeDotMenuItem key={index} onClick={() => handleAction(item)} disabled={item.disabled}>
-            {item.label}
-          </ThreeDotMenuItem>
-        ))}
+        {items.map(
+          (item, index) =>
+            !item.hidden && (
+              <ThreeDotMenuItem
+                key={index}
+                onClick={() => handleAction(item)}
+                disabled={item.disabled}
+              >
+                {item.label}
+              </ThreeDotMenuItem>
+            ),
+        )}
       </StyledMenu>
     </>
   );
