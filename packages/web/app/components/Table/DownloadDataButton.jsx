@@ -1,4 +1,4 @@
-import React, { isValidElement } from 'react';
+import React, { Children, cloneElement, isValidElement } from 'react';
 import ReactDOMServer from 'react-dom/server';
 import GetAppIcon from '@material-ui/icons/GetApp';
 import { getCurrentDateString } from '@tamanu/shared/utils/dateTime';
@@ -6,39 +6,66 @@ import cheerio from 'cheerio';
 import * as XLSX from 'xlsx';
 
 import { saveFile } from '../../utils/fileSystemAccess';
+import { useTranslation } from '../../contexts/Translation';
 import { GreyOutlinedButton } from '../Button';
 import { TranslatedText } from '../Translation/TranslatedText';
 
-// This is a temporary implementation to basically keep TranslatedText components from breaking export
-// by supplying the fallback string in place of the component. proper translation export implmentation coming in NASS-1201
-const normaliseTranslatedText = element => {
-  if (!isValidElement(element)) return element;
-  if (element.type?.name === 'TranslatedText') return element.props.fallback;
-  if (!Array.isArray(element.props?.children)) return element;
+/**
+ * Recursive mapper for normalising descendant {@link TranslatedText} elements into translated
+ * primitive strings.
+ *
+ * @privateRemarks Cheerio doesn’t like rendering {@link TranslatedText} elements, because it uses
+ * the {@link useTranslation} hook under the hood.
+ *
+ * Based on: https://github.com/tatethurston/react-itertools/blob/main/src/map/index.ts. Used under
+ * MIT licence.
+ */
+const normalizeTranslatedText = (element, normalizeFn) => {
+  return Children.map(element.props.children, child => {
+    if (!isValidElement(child)) return child;
 
-  return React.cloneElement(element, {
-    children: element.props.children.map(normaliseTranslatedText),
+    if (child.props.children) {
+      child = cloneElement(child, {
+        children: normalizeTranslatedText(child, normalizeFn),
+      });
+    }
+
+    return normalizeFn(child);
   });
 };
 
-function getHeaderValue(column) {
-  if (!column.title) {
-    return column.key;
-  }
-  if (typeof column.title === 'string') {
-    return column.title;
-  }
-  if (typeof column.title === 'object') {
-    if (isValidElement(column.title)) {
-      return cheerio
-        .load(ReactDOMServer.renderToString(normaliseTranslatedText(column.title)))
-        .text();
-    }
-  }
-  return column.key;
-}
-
 export function DownloadDataButton({ exportName, columns, data }) {
+  const { getTranslation } = useTranslation();
+  const stringifyIfIsTranslatedText = element => {
+    if (!isValidElement(element) || element.type !== TranslatedText) return element;
+
+    const { stringId, fallback, replacements, uppercase, lowercase } = element.props;
+    return getTranslation(
+      stringId,
+      fallback?.split('\\n').join('\n'),
+      replacements,
+      uppercase,
+      lowercase,
+    );
+  };
+
+  const getHeaderValue = ({ key, title }) => {
+    if (!title) return key;
+    if (typeof title === 'string') return title;
+    if (typeof title === 'object') {
+      if (isValidElement(title)) {
+        return cheerio
+          .load(
+            ReactDOMServer.renderToString(
+              normalizeTranslatedText(title, stringifyIfIsTranslatedText),
+            ),
+          )
+          .text();
+      }
+    }
+    return key;
+  };
+
   const exportableColumnsWithOverrides = columns
     .filter(c => c.isExportable !== false)
     .map(c => {
@@ -65,7 +92,11 @@ export function DownloadDataButton({ exportName, columns, data }) {
               if (typeof value === 'object') {
                 if (isValidElement(value)) {
                   dx[headerValue] = cheerio
-                    .load(ReactDOMServer.renderToString(normaliseTranslatedText(value)))
+                    .load(
+                      ReactDOMServer.renderToString(
+                        normalizeTranslatedText(value, stringifyIfIsTranslatedText),
+                      ),
+                    )
                     .text(); // render react element and get the text value with cheerio
                 } else {
                   dx[headerValue] = d[c.key];
