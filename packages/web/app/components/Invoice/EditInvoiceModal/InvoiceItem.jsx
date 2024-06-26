@@ -163,46 +163,38 @@ export const InvoiceItemRow = ({
   };
 
   const menuItems = [
-    ...(item.discount?.percentage
-      ? [
-          {
-            label:
-              Number(item.discount?.percentage) < 0 ? (
-                <TranslatedText
-                  stringId="invoice.modal.editInvoice.removeMarkup"
-                  fallback="Remove markup"
-                />
-              ) : (
-                <TranslatedText
-                  stringId="invoice.modal.editInvoice.removeDiscount"
-                  fallback="Remove discount"
-                />
-              ),
-            onClick: () => handleAction({}, INVOICE_ITEM_ACTION_MODAL_TYPES.REMOVE_DISCOUNT_MARKUP),
-          },
-        ]
-      : [
-          {
-            label: (
-              <TranslatedText
-                stringId="invoice.modal.editInvoice.addDiscount"
-                fallback="Add discount"
-              />
-            ),
-            onClick: () => setActionModal(INVOICE_ITEM_ACTION_MODAL_TYPES.ADD_DISCOUNT),
-            disabled: !item.productId,
-          },
-          {
-            label: (
-              <TranslatedText
-                stringId="invoice.modal.editInvoice.addMarkup"
-                fallback="Add markup"
-              />
-            ),
-            onClick: () => setActionModal(INVOICE_ITEM_ACTION_MODAL_TYPES.ADD_MARKUP),
-            disabled: !item.productId,
-          },
-        ]),
+    {
+      label:
+        Number(item.discount?.percentage) < 0 ? (
+          <TranslatedText
+            stringId="invoice.modal.editInvoice.removeMarkup"
+            fallback="Remove markup"
+          />
+        ) : (
+          <TranslatedText
+            stringId="invoice.modal.editInvoice.removeDiscount"
+            fallback="Remove discount"
+          />
+        ),
+      onClick: () => handleAction({}, INVOICE_ITEM_ACTION_MODAL_TYPES.REMOVE_DISCOUNT_MARKUP),
+      hidden: !item.discount?.percentage,
+    },
+    {
+      label: (
+        <TranslatedText stringId="invoice.modal.editInvoice.addDiscount" fallback="Add discount" />
+      ),
+      onClick: () => setActionModal(INVOICE_ITEM_ACTION_MODAL_TYPES.ADD_DISCOUNT),
+      disabled: !item.productId,
+      hidden: !!item.discount?.percentage,
+    },
+    {
+      label: (
+        <TranslatedText stringId="invoice.modal.editInvoice.addMarkup" fallback="Add markup" />
+      ),
+      onClick: () => setActionModal(INVOICE_ITEM_ACTION_MODAL_TYPES.ADD_MARKUP),
+      disabled: !item.productId,
+      hidden: !!item.discount?.percentage,
+    },
     {
       label: item.note ? (
         <TranslatedText stringId="invoice.modal.editInvoice.editNote" fallback="Edit note" />
@@ -211,6 +203,7 @@ export const InvoiceItemRow = ({
       ),
       onClick: () => setActionModal(INVOICE_ITEM_ACTION_MODAL_TYPES.ADD_NOTE),
       disabled: !item.productId,
+      hidden: !!item.sourceId,
     },
     {
       label: <TranslatedText stringId="invoice.modal.editInvoice.delete" fallback="Delete" />,
