@@ -8,7 +8,7 @@ import express from 'express';
 const createPatientPaymentSchema = z
   .object({
     date: z.string().date(),
-    amount: z.number(),
+    amount: z.coerce.number(),
     receiptNumber: z.string().regex(/^[A-Z0-9]+$/),
     method: z.string(),
   })
@@ -25,23 +25,7 @@ const updatePatientPaymentSchema = z
 
 async function getInvoiceWithDetails(req, invoiceId) {
   return req.models.Invoice.findByPk(invoiceId, {
-    include: [
-      {
-        model: req.models.InvoiceItem,
-        as: 'items',
-        include: [
-          { model: req.models.Product, as: 'product' },
-          { model: req.models.InvoiceItemDiscount, as: 'discount' },
-        ],
-      },
-      { model: req.models.InvoiceDiscount, as: 'discount' },
-      { model: req.models.InvoiceInsurer, as: 'insurers' },
-      {
-        model: req.models.InvoicePayment,
-        as: 'payments',
-        include: [{ model: req.models.InvoicePatientPayment, as: 'patientPayment' }],
-      },
-    ],
+    include: req.models.Invoice.getFullReferenceAssociations(req.models),
   });
 }
 const handleCreatePatientPayment = asyncHandler(async (req, res) => {

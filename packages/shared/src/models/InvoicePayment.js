@@ -15,7 +15,7 @@ export class InvoicePayment extends Model {
         receiptNumber: {
           type: DataTypes.STRING,
           allowNull: false,
-          unique: true
+          unique: true,
         },
         amount: {
           type: DataTypes.DECIMAL,
@@ -49,5 +49,14 @@ export class InvoicePayment extends Model {
       [this.tableName, 'invoices', 'encounters'],
       markedForSyncPatientsTable,
     );
+  }
+
+  static getListReferenceAssociations(models) {
+    return [
+      {
+        model: models.InvoicePatientPayment,
+        as: 'patientPayment',
+      },
+    ];
   }
 }

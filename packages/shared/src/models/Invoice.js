@@ -20,11 +20,6 @@ export class Invoice extends Model {
           type: DataTypes.STRING,
           allowNull: false,
         },
-        paymentStatus: {
-          type: DataTypes.STRING,
-          allowNull: false,
-        },
-        receiptNumber: DataTypes.STRING,
       },
       { syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL, ...options },
     );
@@ -95,6 +90,11 @@ export class Invoice extends Model {
         model: models.InvoiceItem,
         as: 'items',
         include: models.InvoiceItem.getListReferenceAssociations(models),
+      },
+      {
+        model: models.InvoicePayment,
+        as: 'payments',
+        include: models.InvoicePayment.getListReferenceAssociations(models),
       },
     ];
   }

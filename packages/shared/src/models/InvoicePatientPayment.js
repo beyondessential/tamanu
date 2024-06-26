@@ -4,9 +4,10 @@ import { Model } from './Model';
 import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
 
 export class InvoicePatientPayment extends Model {
-  static init({ ...options }) {
+  static init({ primaryKey, ...options }) {
     super.init(
       {
+        id: primaryKey,
         method: {
           type: DataTypes.STRING,
           allowNull: false,

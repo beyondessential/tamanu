@@ -1,5 +1,5 @@
 /** @typedef {import('sequelize').QueryInterface} QueryInterface */
-import { DataTypes } from 'sequelize';
+import { DataTypes, Sequelize } from 'sequelize';
 
 /**
  * @param {QueryInterface} query
@@ -35,6 +35,21 @@ export async function up(query) {
       type: DataTypes.DECIMAL,
       allowNull: false,
     },
+
+    created_at: {
+      type: DataTypes.DATE,
+      defaultValue: Sequelize.fn('now'),
+      allowNull: false,
+    },
+    updated_at: {
+      type: DataTypes.DATE,
+      allowNull: true,
+      defaultValue: DataTypes.NOW,
+    },
+    deleted_at: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
   });
 
   await query.createTable('invoice_patient_payments', {
@@ -50,6 +65,21 @@ export async function up(query) {
     method: {
       type: DataTypes.STRING,
       allowNull: false,
+    },
+
+    created_at: {
+      type: DataTypes.DATE,
+      defaultValue: Sequelize.fn('now'),
+      allowNull: false,
+    },
+    updated_at: {
+      type: DataTypes.DATE,
+      allowNull: true,
+      defaultValue: DataTypes.NOW,
+    },
+    deleted_at: {
+      type: DataTypes.DATE,
+      allowNull: true,
     },
   });
 }
