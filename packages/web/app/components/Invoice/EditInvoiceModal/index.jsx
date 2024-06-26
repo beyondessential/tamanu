@@ -55,7 +55,7 @@ const PrintButton = styled(Button)`
   right: 70px;
 `;
 
-const getDefaultRow = () => ({ id: uuidv4() });
+const getDefaultRow = () => ({ id: uuidv4(), quantity: 1 });
 
 export const EditInvoiceModal = ({
   open,
@@ -67,6 +67,7 @@ export const EditInvoiceModal = ({
   isPatientView,
 }) => {
   const [printModalOpen, setPrintModalOpen] = useState(false);
+
   const editable = isInvoiceEditable(invoice);
   const cancelable =
     invoice.status !== INVOICE_STATUSES.CANCELLED &&
@@ -79,12 +80,12 @@ export const EditInvoiceModal = ({
 
   const { mutate: updateInvoice, isLoading: isUpdatingInvoice } = useUpdateInvoice(invoice);
 
-  const handleSubmit = async data => {
+  const handleSubmit = async (data) => {
     updateInvoice(
       {
         ...invoice,
         items: data.invoiceItems,
-        insurers: data.insurers.map(insurer => ({
+        insurers: data.insurers.map((insurer) => ({
           ...insurer,
           percentage: insurer.percentage / 100,
         })),
@@ -146,7 +147,7 @@ export const EditInvoiceModal = ({
           stringId="invoice.modal.editInvoice.insurer.totalPercentageError"
           fallback="Total insurer percentage must be less than or equal to 100%"
         />,
-        function(_, context) {
+        function (_, context) {
           return (
             context.parent.insurers.reduce((acc, curr) => acc + curr.percentage || 0, 0) <= 100
           );
@@ -171,7 +172,7 @@ export const EditInvoiceModal = ({
           </Box>
           {/* TODO: check condition to show Print button only after finalized */}
           {isPatientView && (
-            <PrintButton 
+            <PrintButton
               onClick={() => setPrintModalOpen(true)}
               color="primary"
               variant="outlined"
@@ -181,11 +182,9 @@ export const EditInvoiceModal = ({
               <TranslatedText stringId="general.action.print" fallback="Print" />
             </PrintButton>
           )}
-          {printModalOpen && <InvoiceRecordModal
-            open
-            onClose={() => setPrintModalOpen(false)}
-            invoice={invoice}
-          />}
+          {printModalOpen && (
+            <InvoiceRecordModal open onClose={() => setPrintModalOpen(false)} invoice={invoice} />
+          )}
         </Box>
       }
       open={open}
@@ -195,7 +194,13 @@ export const EditInvoiceModal = ({
       <>
         {(finalisable || cancelable) && (
           <>
-            <Box display="flex" justifyContent="space-between" alignItems="center" paddingX="36px">
+            <Box
+              display="flex"
+              justifyContent="space-between"
+              alignItems="center"
+              paddingX="36px"
+              marginBottom="-16px"
+            >
               {finalisable && (
                 <Button onClick={handleFinaliseInvoice}>
                   <TranslatedText
@@ -220,11 +225,13 @@ export const EditInvoiceModal = ({
                 />
               )}
             </Box>
-            <Divider
-              style={{
-                margin: '15px 36px -15px 36px',
-              }}
-            />
+            {finalisable && (
+              <Divider
+                style={{
+                  margin: '30px 36px -15px 36px',
+                }}
+              />
+            )}
           </>
         )}
         <Form
@@ -233,7 +240,7 @@ export const EditInvoiceModal = ({
           initialValues={{
             invoiceItems: invoice.items?.length ? invoice.items : [getDefaultRow()],
             insurers: invoice.insurers?.length
-              ? invoice.insurers.map(insurer => ({
+              ? invoice.insurers.map((insurer) => ({
                   ...insurer,
                   percentage: insurer.percentage * 100,
                 }))
@@ -242,7 +249,7 @@ export const EditInvoiceModal = ({
           validationSchema={schema}
           render={({ submitForm, values }) => (
             <FieldArray name="invoiceItems">
-              {formArrayMethods => {
+              {(formArrayMethods) => {
                 return (
                   <FormContainer>
                     <InvoiceItemHeader />

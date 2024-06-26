@@ -18,7 +18,8 @@ const getInvoiceItemPrice = invoiceItem => {
 };
 
 export const getInvoiceItemPriceDisplay = invoiceItem => {
-  const result = getInvoiceItemPrice(invoiceItem);
+  const singleItemPrice = getInvoiceItemPrice(invoiceItem);
+  const result = singleItemPrice * invoiceItem?.quantity;
   return formatDisplayValue(result);
 };
 
@@ -37,8 +38,9 @@ const calculateDiscountableItemsTotal = invoiceItems => {
     return undefined;
   let total = 0;
   invoiceItems.forEach(item => {
-    const price = item.productPrice ?? item.product?.price ?? item.price;
+    let price = item.productPrice ?? item.product?.price ?? item.price;
     if (!price) return;
+    price = price * item.quantity;
     total += calculateInvoiceItemDiscountPrice(price, item.discount?.percentage || 0);
   });
 
@@ -103,6 +105,10 @@ export const getInvoiceItemName = invoiceItem => {
 
 export const getInvoiceItemCode = invoiceItem => {
   return invoiceItem?.productCode ?? invoiceItem?.product?.code;
+};
+
+export const getInvoiceItemQuantity = invoiceItem => {
+  return invoiceItem?.quantity;
 };
 
 export const getInvoiceItemNote = invoiceItem => {

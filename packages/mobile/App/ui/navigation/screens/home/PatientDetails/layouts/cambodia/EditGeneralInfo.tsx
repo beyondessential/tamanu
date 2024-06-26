@@ -73,6 +73,7 @@ export const Fields = ({ isEdit }): ReactElement => {
       <PatientAdditionalDataFields fields={[CAMBODIA_CUSTOM_FIELDS.FATHERS_FIRST_NAME]} />
       {!isEdit && (
         <PatientAdditionalDataFields
+          isEdit={false}
           fields={Object.values(CAMBODIA_ADDITIONAL_DATA_FIELDS).flat()}
         />
       )}

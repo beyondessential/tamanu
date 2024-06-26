@@ -1,4 +1,4 @@
-import { useQueryClient, useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import * as yup from 'yup';
 import { has, omit, sortBy } from 'lodash';
 import React, { useCallback, useMemo, useState } from 'react';
@@ -233,13 +233,17 @@ export const FormContents = ({
     <>
       <Box display="flex" alignItems="flex-end" mb={2}>
         <Box mr={2} width="250px">
-          <Field label={<TranslatedText stringId="general.action.search" fallback="Search" />} name="search" component={SearchField} />
+          <Field
+            label={<TranslatedText stringId="general.action.search" fallback="Search" />}
+            name="search"
+            component={SearchField}
+          />
         </Box>
         <OutlinedButton disabled={isSaving || !dirty} onClick={handleSave}>
           <TranslatedText stringId="general.action.save" fallback="Save" />
         </OutlinedButton>
       </Box>
-      <StyledTableFormFields columns={columns} data={tableRows} />
+      <StyledTableFormFields columns={columns} data={tableRows} pagination />
     </>
   );
 };
