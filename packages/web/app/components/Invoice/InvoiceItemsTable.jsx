@@ -6,6 +6,7 @@ import {
   getInvoiceItemPriceDisplay,
   getInvoiceItemName,
   getInvoiceItemCode,
+  getInvoiceItemQuantity,
 } from '@tamanu/shared/utils/invoice';
 
 import { Colors, denseTableStyle } from '../../constants';
@@ -63,6 +64,13 @@ const INVOICE_LINE_COLUMNS = [
     title: <TranslatedText stringId="invoice.table.column.code" fallback="Code" />,
     sortable: false,
     accessor: getInvoiceItemCode,
+    TitleCellComponent: StyledTitleCell,
+  },
+  {
+    key: 'quantity',
+    title: <TranslatedText stringId="invoice.table.column.quantity" fallback="Quantity" />,
+    sortable: false,
+    accessor: getInvoiceItemQuantity,
     TitleCellComponent: StyledTitleCell,
   },
   {

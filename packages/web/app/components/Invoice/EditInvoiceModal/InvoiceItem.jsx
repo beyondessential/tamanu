@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { Box, Grid } from '@material-ui/core';
+import { Box } from '@material-ui/core';
 import { TranslatedText } from '../../Translation';
-import { AutocompleteField, DateField, Field } from '../../Field';
+import { AutocompleteField, DateField, Field, NumberField } from '../../Field';
 import { useSuggester } from '../../../api';
 import { Colors, INVOICE_ITEM_ACTION_MODAL_TYPES } from '../../../constants';
 import { ThemedTooltip } from '../../Tooltip';
@@ -21,27 +21,29 @@ const PriceText = styled.span`
   text-decoration: ${props => (props.$isCrossedOut ? 'line-through' : 'none')};
 `;
 
-const StyledItemRow = styled(Grid)`
+const StyledItemRow = styled(Box)`
+  display: flex;
+  gap: 10px;
   font-size: 11px;
-  padding-left: 10px;
-  padding-right: 10px;
-  padding-bottom: 4px;
-  background: white;
+  padding-left: 20px;
+  padding-right: 13px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  background: ${Colors.white};
   border-left: 1px solid ${Colors.outline};
   border-right: 1px solid ${Colors.outline};
   border-top: 1px solid ${Colors.outline};
   &:last-child {
     border-bottom: 1px solid ${Colors.outline};
-    padding-bottom: 0px;
   }
 `;
 
-const StyledItemCell = styled(Grid)`
-  align-self: flex-start;
-`;
-
-const StyledItemHeader = styled(Grid)`
+const StyledItemHeader = styled(Box)`
+  display: flex;
+  gap: 10px;
   padding: 14px;
+  padding-left: 20px;
+  padding-right: 20px;
   font-weight: 500;
   border-radius: 4px 4px 0 0;
   border: 1px solid ${Colors.outline};
@@ -64,26 +66,29 @@ const ViewOnlyCell = styled(Box)`
 
 export const InvoiceItemHeader = () => {
   return (
-    <StyledItemHeader container alignItems="center" spacing={1}>
-      <Grid item xs={2}>
+    <StyledItemHeader>
+      <Box width="12%">
         <TranslatedText stringId="general.date.label" fallback="Date" />
-      </Grid>
-      <Grid item xs={4}>
-        <TranslatedText stringId="invoice.modal.addInvoice.details.label" fallback="Details" />
-      </Grid>
-      <Grid item xs={1}>
+      </Box>
+      <Box width="32%">
+        <TranslatedText stringId="invoice.modal.editInvoice.details.label" fallback="Details" />
+      </Box>
+      <Box width="7%">
         <CodeCell>
           <TranslatedText stringId="invoice.table.column.code" fallback="Code" />
         </CodeCell>
-      </Grid>
-      <Grid item xs={3}>
-        <TranslatedText stringId="invoice.modal.addInvoice.orderedBy.label" fallback="Ordered by" />
-      </Grid>
-      <Grid item xs={2}>
+      </Box>
+      <Box width="6%" marginLeft="5px">
+        <TranslatedText stringId="invoice.table.column.quantity" fallback="Quantity" />
+      </Box>
+      <Box width="23%">
+        <TranslatedText stringId="invoice.modal.editInvoice.orderedBy.label" fallback="Ordered by" />
+      </Box>
+      <Box width="10%" marginLeft="2px">
         <PriceCell>
-          <TranslatedText stringId="invoice.modal.addInvoice.price.label" fallback="Price" />
+          <TranslatedText stringId="invoice.modal.editInvoice.price.label" fallback="Price" />
         </PriceCell>
-      </Grid>
+      </Box>
     </StyledItemHeader>
   );
 };
@@ -216,8 +221,8 @@ export const InvoiceItemRow = ({
 
   return (
     <>
-      <StyledItemRow container alignItems="center" spacing={1}>
-        <StyledItemCell item xs={2}>
+      <StyledItemRow container alignItems="center" spacing={1} wrap="nowrap">
+        <Box width="12%">
           {editable ? (
             <Field
               name={`invoiceItems.${index}.orderDate`}
@@ -229,8 +234,8 @@ export const InvoiceItemRow = ({
           ) : (
             <ViewOnlyCell>{getDateDisplay(item?.orderDate, 'dd/MM/yyyy')}</ViewOnlyCell>
           )}
-        </StyledItemCell>
-        <StyledItemCell item xs={4}>
+        </Box>
+        <Box width="32%">
           {editable ? (
             <Field
               name={`invoiceItems.${index}.productId`}
@@ -243,8 +248,8 @@ export const InvoiceItemRow = ({
           ) : (
             <ViewOnlyCell>{getInvoiceItemName(item)}</ViewOnlyCell>
           )}
-        </StyledItemCell>
-        <StyledItemCell item justifyContent="center" xs={1}>
+        </Box>
+        <Box width="7%">
           {editable ? (
             <CodeCell minHeight="39px" display="flex" alignItems="center">
               {getInvoiceItemCode(item)}
@@ -252,8 +257,26 @@ export const InvoiceItemRow = ({
           ) : (
             <ViewOnlyCell marginLeft="5%">{getInvoiceItemCode(item)}</ViewOnlyCell>
           )}
-        </StyledItemCell>
-        <StyledItemCell item xs={3}>
+        </Box>
+        <Box width="6%">
+          {editable ? (
+            <Field
+              name={`invoiceItems.${index}.quantity`}
+              component={NumberField}
+              min={1}
+              onInput={event => {
+                if (!event.target.validity.valid) {
+                  event.target.value = '';
+                }
+              }}
+              size="small"
+              required
+            />
+          ) : (
+            <ViewOnlyCell marginLeft="5px">{item?.quantity}</ViewOnlyCell>
+          )}
+        </Box>
+        <Box width="23%">
           {editable ? (
             <Field
               name={`invoiceItems.${index}.orderedByUserId`}
@@ -264,10 +287,10 @@ export const InvoiceItemRow = ({
               onChange={handleChangeOrderedBy}
             />
           ) : (
-            <ViewOnlyCell>{item?.orderedByUser?.displayName}</ViewOnlyCell>
+            <ViewOnlyCell marginLeft="4px">{item?.orderedByUser?.displayName}</ViewOnlyCell>
           )}
-        </StyledItemCell>
-        <StyledItemCell item xs={2}>
+        </Box>
+        <Box width="10%" sx={{ flexGrow: 1 }}>
           {editable ? (
             <PriceCell>
               <PriceText $isCrossedOut={!!discountPrice}>{price}</PriceText>
@@ -295,7 +318,7 @@ export const InvoiceItemRow = ({
               )}
             </ViewOnlyCell>
           )}
-        </StyledItemCell>
+        </Box>
       </StyledItemRow>
       {actionModal && (
         <InvoiceItemActionModal
