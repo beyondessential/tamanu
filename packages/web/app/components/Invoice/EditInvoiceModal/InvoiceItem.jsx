@@ -58,6 +58,7 @@ const PriceCell = styled(ViewOnlyCell)`
   display: flex;
   align-items: center;
   padding: 0;
+  min-height: 39px;
 `;
 
 export const InvoiceItemHeader = () => {
@@ -78,9 +79,9 @@ export const InvoiceItemHeader = () => {
         <TranslatedText stringId="invoice.modal.addInvoice.orderedBy.label" fallback="Ordered by" />
       </Grid>
       <Grid item xs={2}>
-        <PriceCell>
+        <Box marginLeft="10%">
           <TranslatedText stringId="invoice.modal.addInvoice.price.label" fallback="Price" />
-        </PriceCell>
+        </Box>
       </Grid>
     </StyledItemHeader>
   );
@@ -286,7 +287,7 @@ export const InvoiceItemRow = ({
                 <span>{discountPrice}</span>
               </ThemedTooltip>
             )}
-            {showActionMenu && <ThreeDotMenu items={menuItems} />}
+            {showActionMenu && editable && <ThreeDotMenu items={menuItems} />}
           </PriceCell>
         </StyledItemCell>
       </StyledItemRow>
