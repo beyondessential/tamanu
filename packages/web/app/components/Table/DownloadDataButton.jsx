@@ -21,16 +21,13 @@ import { TranslatedText } from '../Translation/TranslatedText';
  * MIT licence.
  */
 const normalizeRecursively = (element, normalizeFn) => {
-  return Children.map(element.props.children, child => {
-    if (!isValidElement(child)) return child;
+  if (!isValidElement(element)) return element;
 
-    if (child.props.children) {
-      child = cloneElement(child, {
-        children: normalizeRecursively(child, normalizeFn),
-      });
-    }
+  const { children } = element.props;
+  if (!children) return normalizeFn(element);
 
-    return normalizeFn(child);
+  return cloneElement(element, {
+    children: Children.map(children, child => normalizeRecursively(child, normalizeFn)),
   });
 };
 
