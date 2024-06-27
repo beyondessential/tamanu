@@ -35,10 +35,10 @@ function ensureValidProgramMetadata(surveyMetadata) {
   }
 
   // Ensures complex chart import rules
-  if (
-    surveyMetadata.some(({ surveyType }) => 
-    [SURVEY_TYPES.COMPLEX_CHART, SURVEY_TYPES.COMPLEX_CHART_CORE].includes(surveyType))
-  ) {
+  const containsComplexChart = surveyMetadata.some(({ surveyType }) => 
+    [SURVEY_TYPES.COMPLEX_CHART, SURVEY_TYPES.COMPLEX_CHART_CORE].includes(surveyType));
+
+  if (containsComplexChart) {
     const surveyTypeSummary = surveyMetadata
     .map(({ surveyType }) => surveyType)
     .reduce((summary, type) => {
