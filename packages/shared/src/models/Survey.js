@@ -55,6 +55,12 @@ export class Survey extends Model {
     });
   }
 
+  static getChartSurveys() {
+    return this.findOne({
+      where: { surveyType: SURVEY_TYPES.CHART },
+    });
+  }
+
   static async getResponsePermissionCheck(id) {
     const vitalsSurvey = await this.getVitalsSurvey();
     if (vitalsSurvey && id === vitalsSurvey.id) {

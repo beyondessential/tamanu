@@ -16,6 +16,8 @@ export class UserPreference extends Model {
           },
         },
         selectedGraphedVitalsOnFilter: Sequelize.STRING,
+        preferenceKey: Sequelize.STRING,
+        preferenceValue: Sequelize.JSONB,
         userId: {
           type: DataTypes.STRING,
           primaryKey: true,
@@ -27,6 +29,20 @@ export class UserPreference extends Model {
       },
       { syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL, ...options },
     );
+  }
+
+  static async getAllPreferences(userId) {
+    const userPreferences = await UserPreference.findAll({
+      where: { userId },
+    });
+
+    const allPreferences = {};
+
+    for (const userPreference of userPreferences) {
+      allPreferences[userPreference.preferenceKey] = userPreference.preferenceValue;
+    }
+
+    return allPreferences;
   }
 
   static initRelations(models) {

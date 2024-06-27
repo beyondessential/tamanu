@@ -8,4 +8,5 @@ export const ENCOUNTER_TAB_NAMES = {
   FORMS: 'forms',
   DOCUMENTS: 'documents',
   INVOICING: 'invoicing',
+  CHARTS: 'charts',
 };

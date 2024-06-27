@@ -21,6 +21,7 @@ import {
   NotesPane,
   ProcedurePane,
   VitalsPane,
+  ChartsPane,
 } from './panes';
 import { Colors, ENCOUNTER_OPTIONS_BY_VALUE } from '../../constants';
 import { ENCOUNTER_TAB_NAMES } from '../../constants/encounterTabNames';
@@ -41,6 +42,11 @@ const TABS = [
         <VitalsPane {...props} />
       </VitalChartDataProvider>
     ),
+  },
+  {
+    label: <TranslatedText stringId="encounter.tabs.charts" fallback="Charts" />,
+    key: ENCOUNTER_TAB_NAMES.CHARTS,
+    render: props => <ChartsPane {...props} />,
   },
   {
     label: <TranslatedText stringId="encounter.tabs.notes" fallback="Notes" />,
@@ -148,12 +154,15 @@ export const EncounterView = () => {
     <GridColumnContainer>
       <EncounterTopBar
         title={getHeaderText(encounter)}
-        subTitle={encounter.location?.facility
-          && <TranslatedReferenceData
-            fallback={encounter.location.facility.name}
-            value={encounter.location.facility.id}
-            category="facility"
-          />}
+        subTitle={
+          encounter.location?.facility && (
+            <TranslatedReferenceData
+              fallback={encounter.location.facility.name}
+              value={encounter.location.facility.id}
+              category="facility"
+            />
+          )
+        }
         encounter={encounter}
       >
         {(facility.id === encounter.location.facilityId || encounter.endDate) &&
@@ -167,18 +176,17 @@ export const EncounterView = () => {
       <EncounterInfoPane
         encounter={encounter}
         getLocalisation={getLocalisation}
-        patientBillingType={patientBillingTypeData
-          && <TranslatedReferenceData
-            fallback={patientBillingTypeData.name}
-            value={patientBillingTypeData.id}
-            category="patientBillingType"
-          />}
+        patientBillingType={
+          patientBillingTypeData && (
+            <TranslatedReferenceData
+              fallback={patientBillingTypeData.name}
+              value={patientBillingTypeData.id}
+              category="patientBillingType"
+            />
+          )
+        }
       />
-      <DiagnosisView
-        encounter={encounter}
-        isTriage={getIsTriage(encounter)}
-        disabled={disabled}
-      />
+      <DiagnosisView encounter={encounter} isTriage={getIsTriage(encounter)} disabled={disabled} />
       <ContentPane>
         <StyledTabDisplay
           tabs={visibleTabs}
