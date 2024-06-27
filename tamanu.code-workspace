@@ -31,7 +31,7 @@
     {
       "name": "central-server",
       "path": "packages/central-server"
-    }
+    },
   ],
   "settings": {
     "cSpell.language": "en-GB",
@@ -48,7 +48,7 @@
       {
         "fileMatch": ["*.hl7.json"],
         "url": "./packages/central-server/__tests__/hl7fhir/fhir.schema.json"
-      }
+      },
     ],
     "prettier.enable": true,
     "search.exclude": {
@@ -61,7 +61,7 @@
       "esbenp.prettier-vscode",
       "humao.rest-client",
       "streetsidesoftware.code-spell-checker",
-      "styled-components.vscode-styled-components"
+      "styled-components.vscode-styled-components",
     ]
   },
 }
