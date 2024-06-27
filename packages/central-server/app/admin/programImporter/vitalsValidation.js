@@ -111,8 +111,11 @@ export function validateProgramDataElementRecords(
   }
 
   if (surveyType === SURVEY_TYPES.COMPLEX_CHART_CORE) {
-    const typesString = programDataElementRecords.map(pde => pde.values.type).join();
-    if (typesString !== COMPLEX_CORE_DATA_ELEMENT_TYPES.join()) {
+    const hasFourQuestions = programDataElementRecords.length === COMPLEX_CORE_DATA_ELEMENT_TYPES.length;
+    const hasCorrectOrder = programDataElementRecords.every(
+      (element, index) => element?.values?.type === COMPLEX_CORE_DATA_ELEMENT_TYPES[index],
+    );
+    if (!hasFourQuestions || !hasCorrectOrder) {
       const error = new Error('Invalid complex chart core questions');
       updateStat(stats, statkey('ProgramDataElement', sheetName), 'errored', 1);
       errors.push(error);
