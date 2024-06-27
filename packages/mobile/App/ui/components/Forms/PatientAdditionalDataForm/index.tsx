@@ -15,6 +15,7 @@ import { SubmitButton } from '../SubmitButton';
 import { TranslatedText } from '/components/Translations/TranslatedText';
 import { FormScreenView } from '../FormScreenView';
 import { PatientFieldDefinition } from '~/models/PatientFieldDefinition';
+import { Text } from 'react-native-paper';
 
 export const PatientAdditionalDataForm = ({
   patient,
@@ -23,6 +24,8 @@ export const PatientAdditionalDataForm = ({
   navigation,
   sectionTitle,
   customPatientFieldValues,
+  isCustomFields = false,
+  customSectionFields,
 }): ReactElement => {
   const scrollViewRef = useRef();
   // After save/update, the model will mark itself for upload and the
@@ -62,8 +65,18 @@ export const PatientAdditionalDataForm = ({
     [navigation, patient.id],
   );
 
-  // Get the field group for this section of the additional data template
-  const { fields } = additionalDataSections.find(({ title }) => title === sectionTitle);
+  const section = isCustomFields
+    ? {
+        fields: customSectionFields.map(({ id, name, fieldType, options }) => ({
+          id,
+          name,
+          fieldType,
+          options,
+        })),
+      }
+    : additionalDataSections.find(({ title }) => title === sectionTitle)
+
+  const { fields } = section;
 
   return (
     <Form
@@ -78,6 +91,9 @@ export const PatientAdditionalDataForm = ({
       {(): ReactElement => (
         <FormScreenView scrollViewRef={scrollViewRef}>
           <StyledView justifyContent="space-between">
+            <Text>isCustomFields: {isCustomFields}</Text>
+            <Text>section: {JSON.stringify(section)}</Text>
+            {/* <Text>{JSON.stringify(fields)}</Text> */}
             <PatientAdditionalDataFields fields={fields} showMandatory={false} />
             <SubmitButton
               buttonText={<TranslatedText stringId="general.action.save" fallback="Save" />}

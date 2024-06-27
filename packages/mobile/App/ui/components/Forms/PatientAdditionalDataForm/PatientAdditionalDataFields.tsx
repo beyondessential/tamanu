@@ -130,6 +130,8 @@ export const PatientAdditionalDataFields = ({ fields, showMandatory = true }): R
     ? fields
     : getConfiguredPatientAdditionalDataFields(fields, showMandatory, getLocalisation);
 
+  // TODO: no custom fields are showing and instead it is showing hierarcy as custom fields are objects
+
   if (loading) return [];
 
   return padFields.map((field: string | object, i: number) => {

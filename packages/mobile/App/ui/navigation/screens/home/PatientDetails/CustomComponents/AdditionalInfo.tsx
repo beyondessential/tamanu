@@ -41,6 +41,7 @@ export const AdditionalInfo = ({
 }: AdditionalInfoProps): ReactElement => {
   const { getBool } = useLocalisation();
   const {
+    customPatientSections,
     customPatientFieldValues,
     customPatientFieldDefinitions,
     patientAdditionalData,
@@ -59,7 +60,8 @@ export const AdditionalInfo = ({
   const isEditable = getBool('features.editPatientDetailsOnMobile');
 
   // Add edit callback and map the inner 'fields' array
-  const sections = dataSections.map(({ title, fields }) => {
+  const additionalSections = dataSections.map(({ title, fields }) => {
+    // TODO: this is for some reason triggering the isCustomFields logic down the line
     const onEditCallback = (): void =>
       onEdit(patientAdditionalData, title, customPatientFieldValues);
 
@@ -77,6 +79,18 @@ export const AdditionalInfo = ({
 
     return { title, fields: fieldsWithData, onEditCallback };
   });
+
+  const customSections = customPatientSections.map(([_categoryId, fields]) => {
+    const title = fields[0].category.name;
+    const onEditCallback = (): void => onEdit(null, title, true, fields, customPatientFieldValues);
+    const mappedFields = fields.map(field => [
+      field.name,
+      customPatientFieldValues[field.id]?.[0]?.value,
+    ]);
+    return { title, fields: mappedFields, onEditCallback, isCustomFields: true };
+  });
+
+  const sections = [...(additionalSections || []), ...(customSections || [])];
 
   return (
     <>
