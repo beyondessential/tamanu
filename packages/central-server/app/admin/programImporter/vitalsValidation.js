@@ -76,13 +76,13 @@ function validateComplexChartCoreConfig(programDataElementRecord, surveyScreenCo
     throw new Error('Invalid question type');
   }
 
-  if (visibilityStatus !== VISIBILITY_STATUSES.CURRENT) {
-    if (type === PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_INSTANCE_NAME) {
-      throw new Error('ComplexChartInstanceName cannot be hidden');
-    }
-    if (type === PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_DATE) {
-      throw new Error('ComplexChartDate cannot be hidden');
-    }
+  const mandatoryTypes = [
+    PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_INSTANCE_NAME,
+    PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_DATE,
+  ];
+  const isMandatory = mandatoryTypes.includes(type);
+  if (visibilityStatus !== VISIBILITY_STATUSES.CURRENT && isMandatory) {
+    throw new Error(`${type} cannot be hidden`);
   }
 }
 
