@@ -36,18 +36,7 @@
   "settings": {
     "files.exclude": {
       "packages/": true
-<<<<<<< HEAD
-    },
-    "json.schemas": [
-      {
-        "fileMatch": ["*.hl7.json"],
-        "url": "./packages/central-server/__tests__/hl7fhir/fhir.schema.json"
-      }
-    ],
-    "prettier.enable": true,
-    "search.exclude": {
-      "**/dist": true,
-    },
+    }
   },
   "extensions": {
     "recommendations": [
