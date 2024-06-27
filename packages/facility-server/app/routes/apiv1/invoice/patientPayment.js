@@ -60,7 +60,7 @@ const handleCreatePatientPayment = asyncHandler(async (req, res) => {
     );
     await req.models.InvoicePatientPayment.create(
       {
-        id: payment.id,
+        invoicePaymentId: payment.id,
         methodId: data.methodId,
       },
       { transaction },
@@ -122,7 +122,7 @@ const handleUpdatePatientPayment = asyncHandler(async (req, res) => {
       {
         methodId: data.methodId,
       },
-      { where: { id: paymentId } },
+      { where: { invoicePaymentId: paymentId } },
       { transaction },
     );
 
@@ -156,7 +156,7 @@ const handleGetPatientPayments = asyncHandler(async (req, res) => {
     ],
   }).then(payments =>
     payments.map(payment => ({
-      id: payment.id,
+      id: payment.invoicePaymentId,
       date: payment.detail.date,
       amount: payment.detail.amount,
       receiptNumber: payment.detail.receiptNumber,

@@ -23,12 +23,11 @@ export class InvoicePatientPayment extends Model {
    */
   static initRelations(models) {
     this.belongsTo(models.InvoicePayment, {
-      foreignKey: 'id',
+      foreignKey: 'invoicePaymentId',
       as: 'detail',
-      constraints: false,
     });
     this.belongsTo(models.ReferenceData, {
-      foreignKey: 'method_id',
+      foreignKey: 'methodId',
       as: 'method',
       constraints: false,
     });
