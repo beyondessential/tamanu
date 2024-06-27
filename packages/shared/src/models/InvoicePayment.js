@@ -15,7 +15,6 @@ export class InvoicePayment extends Model {
         receiptNumber: {
           type: DataTypes.STRING,
           allowNull: false,
-          unique: true,
         },
         amount: {
           type: DataTypes.DECIMAL,
@@ -38,6 +37,7 @@ export class InvoicePayment extends Model {
     this.hasOne(models.InvoicePatientPayment, {
       foreignKey: 'id',
       as: 'patientPayment',
+      constraints: false,
     });
   }
 
