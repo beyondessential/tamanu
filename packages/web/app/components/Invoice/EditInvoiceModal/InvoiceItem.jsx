@@ -18,7 +18,7 @@ import { getDateDisplay } from '../../DateDisplay';
 
 const PriceText = styled.span`
   margin-right: 16px;
-  text-decoration: ${(props) => (props.$isCrossedOut ? 'line-through' : 'none')};
+  text-decoration: ${props => (props.$isCrossedOut ? 'line-through' : 'none')};
 `;
 
 const StyledItemRow = styled(Box)`
@@ -216,7 +216,7 @@ export const InvoiceItemRow = ({
     },
   ];
 
-  const handleChangeOrderedBy = (e) => {
+  const handleChangeOrderedBy = e => {
     formArrayMethods.replace(index, {
       ...item,
       orderedByUser: {
@@ -225,7 +225,7 @@ export const InvoiceItemRow = ({
     });
   };
 
-  const handleChangeProduct = (e) => {
+  const handleChangeProduct = e => {
     const value = e.target;
     formArrayMethods.replace(index, {
       ...item,
@@ -339,7 +339,7 @@ export const InvoiceItemRow = ({
           open
           action={actionModal}
           onClose={onCloseActionModal}
-          onAction={(data) => handleAction(data)}
+          onAction={data => handleAction(data)}
           item={item}
         />
       )}

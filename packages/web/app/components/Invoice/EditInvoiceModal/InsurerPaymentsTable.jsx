@@ -1,27 +1,28 @@
-
 import React from 'react';
 import styled from 'styled-components';
-import { TranslatedText } from '../../Translation'; 
+import { TranslatedText } from '../../Translation';
 import { Table } from '../../Table';
 import { Colors, denseTableStyle } from '../../../constants';
 import { Heading4 } from '../../Typography';
 
-const insurerPaymentsMock = [{
-  date: '02/02/24',
-  payer: 'NIB',
-  amount: '8.00',
-  receiptNumber: '823792387',
-  status: 'Paid'
-}]
+const insurerPaymentsMock = [
+  {
+    date: '02/02/24',
+    payer: 'NIB',
+    amount: '8.00',
+    receiptNumber: '823792387',
+    status: 'Paid',
+  },
+];
 
 const TableContainer = styled.div`
   margin-top: 10px;
   padding-left: 16px;
   padding-right: 16px;
-  background-color: ${Colors.white}; 
+  background-color: ${Colors.white};
   flex: 2;
   border-radius: 4px;
-  border: 1px solid ${Colors.outline}; 
+  border: 1px solid ${Colors.outline};
 `;
 
 const Title = styled.div`
@@ -52,7 +53,8 @@ const COLUMNS = [
       <TranslatedText
         stringId="invoice.table.payment.column.receiptNumber"
         fallback="Receipt number"
-      />),
+      />
+    ),
     sortable: false,
   },
   {
@@ -67,7 +69,10 @@ export const InsurerPaymentsTable = () => {
     <TableContainer>
       <Title>
         <Heading4 sx={{ margin: '15px 0 15px 0' }}>
-          <TranslatedText stringId="invoice.modal.payment.insurerPayments" fallback="Insurer payments" />
+          <TranslatedText
+            stringId="invoice.modal.payment.insurerPayments"
+            fallback="Insurer payments"
+          />
         </Heading4>
         <Heading4 sx={{ margin: '15px 0 15px 0' }}>
           <TranslatedText
@@ -84,17 +89,20 @@ export const InsurerPaymentsTable = () => {
         page={null}
         elevated={false}
         containerStyle={denseTableStyle.container}
-        cellStyle={denseTableStyle.cell + `
+        cellStyle={
+          denseTableStyle.cell +
+          `
           &:nth-child(2) {
             width 30%;
           }
           &:nth-child(5) {
             width 25%;
           }
-        `}
+        `
+        }
         headStyle={denseTableStyle.head}
         statusCellStyle={denseTableStyle.statusCell}
       />
-    </TableContainer >
+    </TableContainer>
   );
 };
