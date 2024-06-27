@@ -1,11 +1,11 @@
 import React from 'react';
 import * as yup from 'yup';
-import { Divider } from '@material-ui/core';
+import { Box, Divider } from '@material-ui/core';
 import styled from 'styled-components';
 import { Modal } from '../../Modal';
 import { TranslatedText } from '../../Translation';
 import { InvoiceItemCard } from './InvoiceItemCard';
-import { INVOICE_ITEM_ACTION_MODAL_TYPES } from '../../../constants';
+import { Colors, INVOICE_ITEM_ACTION_MODAL_TYPES } from '../../../constants';
 import { Field, Form, NumberField, TextField } from '../../Field';
 import { FormGrid } from '../../FormGrid';
 import { useTranslation } from '../../../contexts/Translation';
@@ -104,6 +104,30 @@ const MarkupForm = () => {
   );
 };
 
+const AddNoteForm = () => {
+  return (
+    <FormGrid columns={3}>
+      <Field
+        name="note"
+        label={<TranslatedText stringId="invoice.modal.addNote.note.label" fallback="Note" />}
+        component={TextField}
+        inputProps={{
+          maxLength: 30,
+        }}
+        style={{ gridColumn: '1 / 3' }}
+        helperText={
+          <Box textAlign="right" fontSize="11px" fontWeight={400} color={Colors.midText}>
+            <TranslatedText
+              stringId="invoice.modal.addNote.note.helperText"
+              fallback="Max 30 characters"
+            />
+          </Box>
+        }
+      />
+    </FormGrid>
+  );
+};
+
 const discountValidationSchema = yup.object({
   percentage: yup
     .number()
@@ -152,6 +176,8 @@ export const InvoiceItemActionModal = ({ open, onClose, onAction, item, action }
             fallback="Add markup"
           />
         );
+      case INVOICE_ITEM_ACTION_MODAL_TYPES.ADD_NOTE:
+        return <TranslatedText stringId="invoice.modal.addNote.title" fallback="Add note" />;
       default:
         return '';
     }
@@ -165,6 +191,10 @@ export const InvoiceItemActionModal = ({ open, onClose, onAction, item, action }
     [INVOICE_ITEM_ACTION_MODAL_TYPES.ADD_MARKUP]: {
       form: <MarkupForm />,
       schema: markupValidationSchema,
+    },
+    [INVOICE_ITEM_ACTION_MODAL_TYPES.ADD_NOTE]: {
+      form: <AddNoteForm />,
+      initialValues: { note: item.note },
     },
   };
 
@@ -185,6 +215,7 @@ export const InvoiceItemActionModal = ({ open, onClose, onAction, item, action }
       <InvoiceItemCard item={item} />
       <Form
         validationSchema={formData[action]?.schema}
+        initialValues={formData[action]?.initialValues}
         onSubmit={handleSubmit}
         render={renderForm}
       ></Form>
