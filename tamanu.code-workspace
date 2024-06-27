@@ -34,15 +34,9 @@
     },
   ],
   "settings": {
-    "cSpell.language": "en-GB",
-    "cSpell.words": ["clearable", "singularize", "Tamanu", "upsert", "upserted"],
-    "editor.defaultFormatter": "esbenp.prettier-vscode",
-    "editor.formatOnSave": true,
-    "eslint.experimental.useFlatConfig": true,
-    "eslint.useFlatConfig": true, // Will only take effect after bumping ESLint to 8.57 or later
-    "eslint.lintTask.enable": true,
     "files.exclude": {
       "packages/": true
+<<<<<<< HEAD
     },
     "json.schemas": [
       {
