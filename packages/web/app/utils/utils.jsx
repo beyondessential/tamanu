@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { isValidElement } from 'react';
 import { each, isArray, toString } from 'lodash';
 import { toast } from 'react-toastify';
 import deepEqual from 'deep-equal';
@@ -19,7 +19,9 @@ export const prepareToastMessage = msg => {
   return (
     <>
       {messages.map(text => (
-        <div key={`err-msg-${text}`}>{toString(text)}</div>
+        <div key={`err-msg-${text}`}>
+          {isValidElement(text) ? text : toString(text)}
+        </div>
       ))}
     </>
   );

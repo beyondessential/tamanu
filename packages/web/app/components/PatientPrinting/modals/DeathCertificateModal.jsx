@@ -5,12 +5,22 @@ import { useCertificate } from '../../../utils/useCertificate';
 import { PDFLoader, printPDF } from '../PDFLoader';
 import { DeathCertificatePrintout } from '@tamanu/shared/utils/patientCertificates';
 import { useLocalisation } from '../../../contexts/Localisation';
+import { usePatientAdditionalDataQuery } from '../../../api/queries';
 
 export const DeathCertificateModal = ({ patient, deathData }) => {
   const [isOpen, setIsOpen] = useState();
-  const patientData = { ...patient, ...deathData };
   const { getLocalisation } = useLocalisation();
+
+  const {
+    data: additionalData,
+    isFetching: isAdditionalDataFetching,
+  } = usePatientAdditionalDataQuery(patient.id);
+
   const { data: certificateData, isFetching: isCertificateFetching } = useCertificate();
+
+  const patientData = { ...patient, ...deathData, additionalData };
+
+  const isLoading = isAdditionalDataFetching || isCertificateFetching;
 
   return (
     <>
@@ -22,7 +32,7 @@ export const DeathCertificateModal = ({ patient, deathData }) => {
         printable
         onPrint={() => printPDF('death-certificate-printout')}
       >
-        <PDFLoader isLoading={isCertificateFetching} id="death-certificate-printout">
+        <PDFLoader isLoading={isLoading} id="death-certificate-printout">
           <DeathCertificatePrintout
             patientData={patientData}
             certificateData={certificateData}
