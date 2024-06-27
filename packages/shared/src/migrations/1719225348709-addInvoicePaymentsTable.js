@@ -29,7 +29,6 @@ export async function up(query) {
     receipt_number: {
       type: DataTypes.STRING,
       allowNull: false,
-      unique: true,
     },
     amount: {
       type: DataTypes.DECIMAL,

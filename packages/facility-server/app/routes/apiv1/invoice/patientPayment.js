@@ -2,7 +2,7 @@ import asyncHandler from 'express-async-handler';
 import { INVOICE_STATUSES } from '@tamanu/constants';
 import { z } from 'zod';
 import { ForbiddenError, NotFoundError, ValidationError } from '@tamanu/shared/errors';
-import { getInvoiceSummary } from '@tamanu/shared/utils/invoice';
+import { getInvoicePatientPaymentStatus, getInvoiceSummary } from '@tamanu/shared/utils/invoice';
 import express from 'express';
 
 const createPatientPaymentSchema = z
@@ -10,23 +10,23 @@ const createPatientPaymentSchema = z
     date: z.string().date(),
     amount: z.coerce.number(),
     receiptNumber: z.string().regex(/^[A-Z0-9]+$/),
-    method: z.string(),
+    methodId: z.string(),
   })
   .strip();
 
 const updatePatientPaymentSchema = z
   .object({
     date: z.string().date(),
-    amount: z.number(),
+    amount: z.coerce.number(),
     receiptNumber: z.string().regex(/^[A-Z0-9]+$/),
-    method: z.string(),
+    methodId: z.string(),
   })
   .strip();
 
 async function getInvoiceWithDetails(req, invoiceId) {
-  return req.models.Invoice.findByPk(invoiceId, {
+  return await req.models.Invoice.findByPk(invoiceId, {
     include: req.models.Invoice.getFullReferenceAssociations(req.models),
-  });
+  }).then(invoice => invoice.addVirtualFields());
 }
 const handleCreatePatientPayment = asyncHandler(async (req, res) => {
   req.checkPermission('write', 'Invoice');
@@ -61,8 +61,20 @@ const handleCreatePatientPayment = asyncHandler(async (req, res) => {
     await req.models.InvoicePatientPayment.create(
       {
         id: payment.id,
-        method: data.method,
+        methodId: data.methodId,
       },
+      { transaction },
+    );
+
+    //Update the overall patient payment status to invoice
+    await req.models.Invoice.update(
+      {
+        patientPaymentStatus: getInvoicePatientPaymentStatus(
+          data.amount + patientPaymentsTotal,
+          patientTotal,
+        ),
+      },
+      { where: { id: invoiceId } },
       { transaction },
     );
     await transaction.commit();
@@ -108,9 +120,21 @@ const handleUpdatePatientPayment = asyncHandler(async (req, res) => {
     );
     await req.models.InvoicePatientPayment.update(
       {
-        method: data.method,
+        methodId: data.methodId,
       },
       { where: { id: paymentId } },
+      { transaction },
+    );
+
+    //Update the overall patient payment status to invoice
+    await req.models.Invoice.update(
+      {
+        patientPaymentStatus: getInvoicePatientPaymentStatus(
+          data.amount + patientPaymentsTotal - payment.amount,
+          patientTotal,
+        ),
+      },
+      { where: { id: invoiceId } },
       { transaction },
     );
     await transaction.commit();
@@ -126,14 +150,18 @@ const handleGetPatientPayments = asyncHandler(async (req, res) => {
 
   const invoiceId = req.params.id;
   const patientPayments = await req.models.InvoicePatientPayment.findAll({
-    include: [{ model: req.models.InvoicePayment, as: 'detail', where: { invoiceId } }],
+    include: [
+      { model: req.models.InvoicePayment, as: 'detail', where: { invoiceId } },
+      { model: req.models.ReferenceData, as: 'method' },
+    ],
   }).then(payments =>
     payments.map(payment => ({
       id: payment.id,
       date: payment.detail.date,
       amount: payment.detail.amount,
       receiptNumber: payment.detail.receiptNumber,
-      method: payment.method,
+      methodId: payment.methodId,
+      methodName: payment.method.name,
     })),
   );
 

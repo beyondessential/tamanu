@@ -51,11 +51,16 @@ export class InvoicePayment extends Model {
     );
   }
 
+  /**
+   *
+   * @param {import('./')} models
+   */
   static getListReferenceAssociations(models) {
     return [
       {
         model: models.InvoicePatientPayment,
         as: 'patientPayment',
+        include: models.InvoicePatientPayment.getListReferenceAssociations(models),
       },
     ];
   }

@@ -8,7 +8,7 @@ export class InvoicePatientPayment extends Model {
     super.init(
       {
         id: primaryKey,
-        method: {
+        methodId: {
           type: DataTypes.STRING,
           allowNull: false,
         },
@@ -26,6 +26,12 @@ export class InvoicePatientPayment extends Model {
       foreignKey: 'id',
       as: 'detail',
     });
+
+    this.belongsTo(models.ReferenceData, {
+      foreignKey: 'method_id',
+      as: 'method',
+      constraints: false,
+    });
   }
 
   static buildPatientSyncFilter(patientCount, markedForSyncPatientsTable) {
@@ -36,5 +42,18 @@ export class InvoicePatientPayment extends Model {
       [this.tableName, 'invoice_payments', 'invoices', 'encounters'],
       markedForSyncPatientsTable,
     );
+  }
+
+  /**
+   *
+   * @param {import('./')} models
+   */
+  static getListReferenceAssociations(models) {
+    return [
+      {
+        model: models.ReferenceData,
+        as: 'method',
+      },
+    ];
   }
 }

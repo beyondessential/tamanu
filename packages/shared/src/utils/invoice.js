@@ -1,6 +1,14 @@
-import { round, sumBy, chain } from 'lodash';
-import { INVOICE_STATUSES } from '@tamanu/constants';
-import { Invoice, InvoiceDiscount, InvoiceInsurer, InvoiceItem } from '../models';
+import { round, chain } from 'lodash';
+import {
+  INVOICE_INSURER_PAYMENT_STATUSES,
+  INVOICE_PATIENT_PAYMENT_STATUSES,
+  INVOICE_STATUSES,
+} from '@tamanu/constants';
+
+/** @typedef {import('../models').Invoice} Invoice */
+/** @typedef {import('../models').InvoiceDiscount} InvoiceDiscount */
+/** @typedef {import('../models').InvoiceInsurer} InvoiceInsurer */
+/** @typedef {import('../models').InvoiceItem} InvoiceItem */
 
 export const isInvoiceEditable = invoice =>
   ![INVOICE_STATUSES.FINALISED, INVOICE_STATUSES.CANCELLED].includes(invoice.status);
@@ -69,12 +77,12 @@ const getInvoiceDiscountDiscountAmount = (discount, total) => {
  */
 export const getInvoiceSummary = invoice => {
   const discountableItemsSubtotal = chain(invoice.items)
-    .map(item => !item.product.undiscountable)
+    .filter(item => !item.product.undiscountable)
     .sumBy(item => getInvoiceItemPriceAfterDiscount(item))
     .value();
 
   const nonDiscountableItemsSubtotal = chain(invoice.items)
-    .map(item => item.product.undiscountable)
+    .filter(item => item.product.undiscountable)
     .sumBy(item => getInvoiceItemPriceAfterDiscount(item))
     .value();
 
@@ -94,22 +102,22 @@ export const getInvoiceSummary = invoice => {
     insurersDiscountPercentage,
   );
 
-  const patientSubtotal = patientDiscountableSubtotal + patientNonDiscountableSubtotal;
+  const patientSubtotal = round(patientDiscountableSubtotal + patientNonDiscountableSubtotal, 2);
 
   const discountTotal = getInvoiceDiscountDiscountAmount(
     invoice.discount,
     patientDiscountableSubtotal,
   );
 
-  const patientTotal = patientSubtotal - discountTotal;
+  const patientTotal = round(patientSubtotal - discountTotal, 2);
 
   //Calculate payments as well
   const patientPaymentsTotal = chain(invoice.payments)
     .filter(payment => payment?.patientPayment?.id)
-    .sumBy(payment => payment.amount)
+    .sumBy(payment => parseFloat(payment.amount))
     .value();
   const paymentsTotal = chain(invoice.payments)
-    .sumBy(payment => payment.amount)
+    .sumBy(payment => parseFloat(payment.amount))
     .value();
 
   return {
@@ -169,4 +177,23 @@ export const getInvoiceItemQuantity = invoiceItem => {
 
 export const getInvoiceItemNote = invoiceItem => {
   return invoiceItem?.note;
+};
+
+export const getInvoicePatientPaymentStatus = (paidAmount, owingAmount) => {
+  if (paidAmount < 0) throw new Error('Paid amount cannot be negative');
+  if (paidAmount > owingAmount) throw new Error('Paid amount cannot be greater than owing amount');
+
+  if (paidAmount === 0) return INVOICE_PATIENT_PAYMENT_STATUSES.UNPAID;
+  if (paidAmount === owingAmount) return INVOICE_PATIENT_PAYMENT_STATUSES.PAID;
+  return INVOICE_PATIENT_PAYMENT_STATUSES.PARTIAL;
+};
+
+export const getInvoiceInsurerPaymentStatus = (paidAmount, owingAmount) => {
+  if (paidAmount == null) return INVOICE_INSURER_PAYMENT_STATUSES.UNPAID;
+  if (paidAmount < 0) throw new Error('Paid amount cannot be negative');
+  if (paidAmount > owingAmount) throw new Error('Paid amount cannot be greater than owing amount');
+
+  if (paidAmount === 0) return INVOICE_INSURER_PAYMENT_STATUSES.REJECTED;
+  if (paidAmount === owingAmount) return INVOICE_INSURER_PAYMENT_STATUSES.PAID;
+  return INVOICE_INSURER_PAYMENT_STATUSES.PARTIAL;
 };
