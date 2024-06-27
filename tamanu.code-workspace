@@ -34,8 +34,34 @@
     }
   ],
   "settings": {
+    "cSpell.language": "en-GB",
+    "cSpell.words": ["clearable", "singularize", "Tamanu", "upsert", "upserted"],
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true,
+    "eslint.experimental.useFlatConfig": true,
+    "eslint.useFlatConfig": true, // Will only take effect after bumping ESLint to 8.57 or later
+    "eslint.lintTask.enable": true,
     "files.exclude": {
       "packages/": true
-    }
-  }
+    },
+    "json.schemas": [
+      {
+        "fileMatch": ["*.hl7.json"],
+        "url": "./packages/central-server/__tests__/hl7fhir/fhir.schema.json"
+      }
+    ],
+    "prettier.enable": true,
+    "search.exclude": {
+      "**/dist": true,
+    },
+  },
+  "extensions": {
+    "recommendations": [
+      "dbaeumer.vscode-eslint",
+      "esbenp.prettier-vscode",
+      "humao.rest-client",
+      "streetsidesoftware.code-spell-checker",
+      "styled-components.vscode-styled-components"
+    ]
+  },
 }
