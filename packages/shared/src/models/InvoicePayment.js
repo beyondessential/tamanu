@@ -35,9 +35,8 @@ export class InvoicePayment extends Model {
       as: 'invoice',
     });
     this.hasOne(models.InvoicePatientPayment, {
-      foreignKey: 'id',
+      foreignKey: 'invoicePaymentId',
       as: 'patientPayment',
-      constraints: false,
     });
   }
 

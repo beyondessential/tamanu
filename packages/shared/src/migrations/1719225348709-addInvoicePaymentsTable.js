@@ -13,6 +13,7 @@ export async function up(query) {
       type: DataTypes.UUID,
       allowNull: false,
       primaryKey: true,
+      defaultValue: Sequelize.fn('uuid_generate_v4'),
     },
     invoice_id: {
       type: DataTypes.UUID,
@@ -56,10 +57,16 @@ export async function up(query) {
       type: DataTypes.UUID,
       allowNull: false,
       primaryKey: true,
+      defaultValue: Sequelize.fn('uuid_generate_v4'),
+    },
+    invoice_payment_id: {
+      type: DataTypes.UUID,
+      allowNull: false,
       references: {
         model: 'invoice_payments',
         key: 'id',
       },
+      unique: true,
     },
     method_id: {
       type: DataTypes.STRING,
