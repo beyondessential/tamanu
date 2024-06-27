@@ -32,7 +32,7 @@ async function ensureOnlyOneVitalsSurveyExists({ models }, surveyInfo) {
       id: {
         [Op.not]: surveyInfo.id,
       },
-      survey_type: SURVEY_TYPES.VITALS,
+      surveyType: SURVEY_TYPES.VITALS,
     },
   });
   if (vitalsCount > 0) {
@@ -57,7 +57,7 @@ async function ensureOnlyOneComplexSurveySetPerProgram({ models }, surveyInfo) {
       id: {
         [Op.not]: surveyInfo.id,
       },
-      survey_type: surveyInfo.surveyType,
+      surveyType: surveyInfo.surveyType,
       programId: surveyInfo.programId,
     },
   });
