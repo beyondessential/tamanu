@@ -61,7 +61,7 @@ export async function up(query) {
         key: 'id',
       },
     },
-    method: {
+    method_id: {
       type: DataTypes.STRING,
       allowNull: false,
     },

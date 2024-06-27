@@ -25,8 +25,8 @@ export class InvoicePatientPayment extends Model {
     this.belongsTo(models.InvoicePayment, {
       foreignKey: 'id',
       as: 'detail',
+      constraints: false,
     });
-
     this.belongsTo(models.ReferenceData, {
       foreignKey: 'method_id',
       as: 'method',
