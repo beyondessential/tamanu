@@ -82,12 +82,12 @@ export const EditInvoiceModal = ({
 
   const { mutate: updateInvoice, isLoading: isUpdatingInvoice } = useUpdateInvoice(invoice);
 
-  const handleSubmit = async (data) => {
+  const handleSubmit = async data => {
     updateInvoice(
       {
         ...invoice,
         items: data.invoiceItems,
-        insurers: data.insurers.map((insurer) => ({
+        insurers: data.insurers.map(insurer => ({
           ...insurer,
           percentage: insurer.percentage / 100,
         })),
@@ -149,7 +149,7 @@ export const EditInvoiceModal = ({
           stringId="invoice.modal.editInvoice.insurer.totalPercentageError"
           fallback="Total insurer percentage must be less than or equal to 100%"
         />,
-        function (_, context) {
+        function(_, context) {
           return (
             context.parent.insurers.reduce((acc, curr) => acc + curr.percentage || 0, 0) <= 100
           );
@@ -169,8 +169,8 @@ export const EditInvoiceModal = ({
     }
     return (
       <Box sx={{ flex: 2 }}>
-        <PatientPaymentsTable/>
-        <InsurerPaymentsTable/>
+        <PatientPaymentsTable />
+        <InsurerPaymentsTable />
       </Box>
     );
   };
@@ -260,7 +260,7 @@ export const EditInvoiceModal = ({
           initialValues={{
             invoiceItems: invoice.items?.length ? invoice.items : [getDefaultRow()],
             insurers: invoice.insurers?.length
-              ? invoice.insurers.map((insurer) => ({
+              ? invoice.insurers.map(insurer => ({
                   ...insurer,
                   percentage: insurer.percentage * 100,
                 }))
@@ -269,7 +269,7 @@ export const EditInvoiceModal = ({
           validationSchema={schema}
           render={({ submitForm, values }) => (
             <FieldArray name="invoiceItems">
-              {(formArrayMethods) => {
+              {formArrayMethods => {
                 return (
                   <FormContainer>
                     <InvoiceItemHeader />
