@@ -25,11 +25,11 @@ export async function up(query) {
       type: DataTypes.DECIMAL,
       allowNull: false,
     },
-    undiscountable: {
+    discountable: {
       // only apply for invoice discount, not item discount
       type: DataTypes.BOOLEAN,
       allowNull: false,
-      defaultValue: false,
+      defaultValue: true,
     },
     created_at: {
       type: DataTypes.DATE,

@@ -30,7 +30,7 @@ export const getInvoiceItemDiscountPriceDisplay = invoiceItem => {
   return formatDisplayValue(result);
 };
 
-const calculateDiscountableItemsTotal = invoiceItems => {
+const calculateInvoiceItemsTotal = invoiceItems => {
   if (
     !invoiceItems?.filter(item => !!(item.productPrice ?? item.product?.price ?? item.price))
       ?.length
@@ -61,8 +61,10 @@ export const getInsurerPaymentsDisplay = (insurers, total) => {
 };
 
 export const getInvoiceSummary = invoice => {
-  const discountableItemsSubtotal = calculateDiscountableItemsTotal(invoice.items);
-  const nonDiscountableItemsSubtotal = undefined;
+  const discountableItems = invoice.items.filter(it => it.product?.discountable);
+  const nonDiscountableItems = invoice.items.filter(it => !it.product?.discountable);
+  const discountableItemsSubtotal = calculateInvoiceItemsTotal(discountableItems);
+  const nonDiscountableItemsSubtotal = calculateInvoiceItemsTotal(nonDiscountableItems);
   const total =
     discountableItemsSubtotal === undefined && nonDiscountableItemsSubtotal === undefined
       ? undefined

@@ -44,6 +44,22 @@ const getPrice = row => {
   );
 };
 
+const getInvoiceItemDetails = row => {
+  if (row.product?.discountable) {
+    return getInvoiceItemName(row);
+  }
+  return (
+    <>
+      {getInvoiceItemName(row)} {'('}
+      <TranslatedText
+        stringId="invoice.table.details.nonDiscountable"
+        fallback="Non-discountable"
+      />
+      {')'}
+    </>
+  );
+};
+
 const INVOICE_LINE_COLUMNS = [
   {
     key: 'orderDate',
@@ -56,7 +72,7 @@ const INVOICE_LINE_COLUMNS = [
     key: 'details',
     title: <TranslatedText stringId="invoice.table.column.details" fallback="Details" />,
     sortable: false,
-    accessor: getInvoiceItemName,
+    accessor: getInvoiceItemDetails,
     TitleCellComponent: StyledTitleCell,
   },
   {
