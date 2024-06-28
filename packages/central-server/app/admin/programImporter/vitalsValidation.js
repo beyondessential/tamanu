@@ -90,10 +90,6 @@ export function validateProgramDataElementRecords(
   records,
   { context, sheetName, stats: previousStats = {}, surveyType },
 ) {
-  if (!config.validateQuestionConfigs.enabled) {
-    return previousStats;
-  }
-
   const { errors } = context;
   const stats = { ...previousStats };
 
@@ -132,7 +128,9 @@ export function validateProgramDataElementRecords(
     const { validationCriteria = '' } = surveyScreenComponentRecord.values;
 
     try {
-      validateVitalVisualisationConfig(visualisationConfig, validationCriteria);
+      if (config.validateQuestionConfigs.enabled) {
+        validateVitalVisualisationConfig(visualisationConfig, validationCriteria);
+      }
       if (surveyType === SURVEY_TYPES.COMPLEX_CHART_CORE) {
         validateComplexChartCoreConfig(programDataElementRecord, surveyScreenComponentRecord);
       }
