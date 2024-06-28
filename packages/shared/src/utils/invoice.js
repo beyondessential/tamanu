@@ -77,12 +77,12 @@ const getInvoiceDiscountDiscountAmount = (discount, total) => {
  */
 export const getInvoiceSummary = invoice => {
   const discountableItemsSubtotal = chain(invoice.items)
-    .filter(item => !item.product.undiscountable)
+    .filter(item => item.product.discountable)
     .sumBy(item => getInvoiceItemPriceAfterDiscount(item))
     .value();
 
   const nonDiscountableItemsSubtotal = chain(invoice.items)
-    .filter(item => item.product.undiscountable)
+    .filter(item => !item.product.discountable)
     .sumBy(item => getInvoiceItemPriceAfterDiscount(item))
     .value();
 
