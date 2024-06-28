@@ -46,6 +46,7 @@ export const GENERAL_IMPORTABLE_DATA_TYPES = [
   'nationality',
   'nursingZone',
   'occupation',
+  'orthopantomographyImagingArea',
   'patient',
   'patientBillingType',
   'patientFieldDefinition',
