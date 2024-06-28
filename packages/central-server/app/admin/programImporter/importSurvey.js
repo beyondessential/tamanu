@@ -10,7 +10,7 @@ import {
   validateChartingSurvey,
   validateVitalsSurvey,
 } from './validation';
-import { validateProgramDataElementRecords } from './vitalsValidation';
+import { validateProgramDataElementRecords } from './programDataElementValidation';
 
 function readSurveyInfo(workbook, surveyInfo) {
   const { sheetName, surveyType, code } = surveyInfo;
