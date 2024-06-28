@@ -20,10 +20,10 @@ export class InvoiceProduct extends Model {
           type: DataTypes.DECIMAL,
           allowNull: false,
         },
-        undiscountable: {
+        discountable: {
           type: DataTypes.BOOLEAN,
           allowNull: false,
-          defaultValue: false,
+          defaultValue: true,
         },
       },
       { syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL, ...options },
