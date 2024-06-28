@@ -43,13 +43,13 @@ function validateComplexChartCore(programDataElementRecords, sheetName, stats, e
 
 function validateChartingFirstQuestion(programDataElementRecords, sheetName, stats, errors) {
   const { code, type } = programDataElementRecords[0].values;
-    if (type !== PROGRAM_DATA_ELEMENT_TYPES.DATE_TIME) {
-      const error = new Error(
-        `sheetName: ${sheetName}, code: '${code}', First question should be DateTime type`,
-      );
-      updateStat(stats, statkey('ProgramDataElement', sheetName), 'errored', 1);
-      errors.push(error);
-    }
+  if (type !== PROGRAM_DATA_ELEMENT_TYPES.DATE_TIME) {
+    const error = new Error(
+      `sheetName: ${sheetName}, code: '${code}', First question should be DateTime type`,
+    );
+    updateStat(stats, statkey('ProgramDataElement', sheetName), 'errored', 1);
+    errors.push(error);
+  }
 }
 
 export function validateProgramDataElementRecords(
