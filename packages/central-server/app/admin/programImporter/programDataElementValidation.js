@@ -8,7 +8,7 @@ import {
 } from '@tamanu/constants';
 import { validateVisualisationConfig } from './visualisationConfigValidation';
 
-function validateComplexChartCoreConfig(programDataElementRecord, surveyScreenComponentRecord) {
+function validateComplexChartCoreQuestion(programDataElementRecord, surveyScreenComponentRecord) {
   const { type } = programDataElementRecord.values;
   const { visibilityStatus } = surveyScreenComponentRecord.values;
 
@@ -72,7 +72,7 @@ export function validateProgramDataElementRecords(
         validateVisualisationConfig(visualisationConfig, validationCriteria);
       }
       if (surveyType === SURVEY_TYPES.COMPLEX_CHART_CORE) {
-        validateComplexChartCoreConfig(programDataElementRecord, surveyScreenComponentRecord);
+        validateComplexChartCoreQuestion(programDataElementRecord, surveyScreenComponentRecord);
       }
     } catch (e) {
       const error = new Error(`sheetName: ${sheetName}, code: '${dataElementCode}', ${e.message}`);
