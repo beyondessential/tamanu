@@ -152,7 +152,8 @@ export const ImagingRequestForm = React.memo(
                   options={imagingAreas.map(area => ({
                     label: area.name,
                     value: area.id,
-                  }))}
+                  })).sort((area1, area2) => area1.label.localeCompare(area2.label))
+                  }
                   name="areas"
                   label="Areas to be imaged"
                   component={MultiselectField}

@@ -941,27 +941,38 @@
       "imagingCancellationReasons": [
         {
           "value": "clinical",
-          "label": "Clinical reason"
+          "label": "Clinical reason",
+          "hidden": false
         },
         {
           "value": "duplicate",
-          "label": "Duplicate"
+          "label": "Duplicate",
+          "hidden": false
         },
         {
           "value": "entered-in-error",
-          "label": "Entered in error"
+          "label": "Entered in error",
+          "hidden": false
         },
         {
           "value": "patient-discharged",
-          "label": "Patient discharged"
+          "label": "Patient discharged",
+          "hidden": false
         },
         {
           "value": "patient-refused",
-          "label": "Patient refused"
+          "label": "Patient refused",
+          "hidden": false
+        },
+        {
+          "value": "cancelled-externally",
+          "label": "Cancelled externally via API",
+          "hidden": true
         },
         {
           "value": "other",
-          "label": "Other"
+          "label": "Other",
+          "hidden": false
         }
       ],
       "labsCancellationReasons": [
