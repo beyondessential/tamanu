@@ -217,7 +217,8 @@ export const ImagingRequestForm = React.memo(
                   options={imagingAreas.map(area => ({
                     label: <TranslatedReferenceData fallback={area.name} value={area.id} category={area.type} />,
                     value: area.id,
-                  }))}
+                  })).sort((area1, area2) => area1.label.localeCompare(area2.label))
+                  }
                   name="areas"
                   label={
                     <TranslatedText stringId="imaging.areas.label" fallback="Areas to be imaged" />
