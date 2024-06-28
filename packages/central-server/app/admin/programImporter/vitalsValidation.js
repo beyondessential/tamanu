@@ -52,7 +52,7 @@ const validateNormalRange = (normalRange, graphRange) => {
   return false;
 };
 
-function validateVitalVisualisationConfig(visualisationConfigString, validationCriteriaString) {
+function validateVisualisationConfig(visualisationConfigString, validationCriteriaString) {
   const visualisationConfig = parseOrNull(visualisationConfigString);
   const validationCriteria = parseOrNull(validationCriteriaString);
 
@@ -129,7 +129,7 @@ export function validateProgramDataElementRecords(
 
     try {
       if (config.validateQuestionConfigs.enabled) {
-        validateVitalVisualisationConfig(visualisationConfig, validationCriteria);
+        validateVisualisationConfig(visualisationConfig, validationCriteria);
       }
       if (surveyType === SURVEY_TYPES.COMPLEX_CHART_CORE) {
         validateComplexChartCoreConfig(programDataElementRecord, surveyScreenComponentRecord);
