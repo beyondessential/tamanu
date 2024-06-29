@@ -6,7 +6,7 @@ export const charts = express.Router();
 charts.get(
   '/surveys',
   asyncHandler(async (req, res) => {
-    req.checkPermission('read', 'Chart'); //TODO Implement permission
+    req.checkPermission('read', 'Chart');
 
     const {
       models: { Survey },
@@ -14,7 +14,6 @@ charts.get(
 
     const chartSurveys = await Survey.getChartSurveys();
 
-    console.log('chartSurveyssss', chartSurveys);
     res.send(chartSurveys);
   }),
 );
