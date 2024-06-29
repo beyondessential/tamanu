@@ -489,7 +489,8 @@ describe('User', () => {
       app = await baseApp.asUser(user);
 
       await updateUserPreference({
-        selectedGraphedVitalsOnFilter: defaultSelectedGraphedVitalsOnFilter,
+        preferenceKey: 'selectedGraphedVitalsOnFilter',
+        preferenceValue: defaultSelectedGraphedVitalsOnFilter,
       });
     });
 
@@ -497,7 +498,8 @@ describe('User', () => {
       const result = await app.get('/api/user/userPreferences');
       expect(result).toHaveSucceeded();
       expect(result.body).toMatchObject({
-        selectedGraphedVitalsOnFilter: defaultSelectedGraphedVitalsOnFilter,
+        preferenceKey: 'selectedGraphedVitalsOnFilter',
+        preferenceValue: defaultSelectedGraphedVitalsOnFilter,
       });
     });
 
@@ -505,7 +507,8 @@ describe('User', () => {
       const newSelectedGraphedVitalsOnFilter = ['data-element-1', 'data-element-2'].join(',');
       const result1 = await app.get('/api/user/userPreferences');
       const result2 = await updateUserPreference({
-        selectedGraphedVitalsOnFilter: newSelectedGraphedVitalsOnFilter,
+        preferenceKey: 'selectedGraphedVitalsOnFilter',
+        preferenceValue: defaultSelectedGraphedVitalsOnFilter,
       });
       const result1Date = new Date(result1.body.updatedAt);
       const result2Date = new Date(result2.body.updatedAt);

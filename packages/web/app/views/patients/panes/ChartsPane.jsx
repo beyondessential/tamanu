@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import styled from 'styled-components';
 
 import { TabPane } from '../components';
@@ -14,20 +14,27 @@ const StyledTranslatedSelectField = styled(SelectField)`
 `;
 
 const ChartDropDown = () => {
-  const { data: chartSurveys } = useChartSurveys();
-  const chartTypes = chartSurveys
-    .sort((a, b) => (a.name < b.name ? -1 : 1))
-    .map(chartSurvey => ({
-      label: chartSurvey.name,
-      value: chartSurvey.id,
-    }));
+  const [selectedChartType, setSelectedChartType] = useState('');
+  
+  const { data: chartSurveys = [] } = useChartSurveys();
+  const chartTypes = useMemo(
+    () =>
+      chartSurveys
+        .sort((a, b) => (a.name < b.name ? -1 : 1))
+        .map(chartSurvey => ({
+          label: chartSurvey.name,
+          value: chartSurvey.id,
+        })),
+    [chartSurveys],
+  );
 
   const userPreferencesMutation = useUserPreferencesMutation();
-  const userPreferencesQuery = useUserPreferencesQuery();
+  const { data: userPreferences } = useUserPreferencesQuery();
 
   const handleChange = newValues => {
     const newSelectedChartType = newValues.target.value;
 
+    setSelectedChartType(newSelectedChartType);
     userPreferencesMutation.mutate({
       preferenceKey: 'selectedChartType',
       preferenceValue: newSelectedChartType,
@@ -38,9 +45,9 @@ const ChartDropDown = () => {
     <StyledTranslatedSelectField
       options={chartTypes}
       onChange={handleChange}
-      value={userPreferencesQuery.selectedChartType}
-      name="noteType"
-      prefix="note.property.type"
+      value={selectedChartType || userPreferences?.selectedChartType}
+      name="chartType"
+      prefix="chart.property.type"
       isClearable={false}
     />
   );

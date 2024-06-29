@@ -164,9 +164,10 @@ user.post(
 
     req.checkPermission('write', currentUser);
 
-    const { selectedGraphedVitalsOnFilter } = body;
+    const { preferenceKey, preferenceValue } = body;
     const [userPreferences] = await UserPreference.upsert({
-      selectedGraphedVitalsOnFilter,
+      preferenceKey,
+      preferenceValue,
       userId: currentUser.id,
       deletedAt: null,
     });

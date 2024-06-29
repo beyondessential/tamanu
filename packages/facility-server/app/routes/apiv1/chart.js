@@ -14,6 +14,7 @@ charts.get(
 
     const chartSurveys = await Survey.getChartSurveys();
 
+    console.log('chartSurveyssss', chartSurveys);
     res.send(chartSurveys);
   }),
 );
