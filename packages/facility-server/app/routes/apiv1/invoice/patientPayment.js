@@ -31,7 +31,7 @@ async function getInvoiceWithDetails(req, invoiceId) {
 const handleCreatePatientPayment = asyncHandler(async (req, res) => {
   req.checkPermission('write', 'Invoice');
 
-  const invoiceId = req.params.id;
+  const invoiceId = req.params.invoiceId;
 
   const invoice = await getInvoiceWithDetails(req, invoiceId);
 
@@ -148,7 +148,7 @@ const handleUpdatePatientPayment = asyncHandler(async (req, res) => {
 const handleGetPatientPayments = asyncHandler(async (req, res) => {
   req.checkPermission('read', 'Invoice');
 
-  const invoiceId = req.params.id;
+  const invoiceId = req.params.invoiceId;
   const patientPayments = await req.models.InvoicePatientPayment.findAll({
     include: [
       { model: req.models.InvoicePayment, as: 'detail', where: { invoiceId } },
@@ -170,6 +170,6 @@ const handleGetPatientPayments = asyncHandler(async (req, res) => {
 
 export const patientPaymentRoute = express.Router();
 
-patientPaymentRoute.post('/:id/patientPayments', handleCreatePatientPayment);
+patientPaymentRoute.post('/:invoiceId/patientPayments', handleCreatePatientPayment);
 patientPaymentRoute.put('/:invoiceId/patientPayments/:paymentId', handleUpdatePatientPayment);
-patientPaymentRoute.get('/:id/patientPayments', handleGetPatientPayments);
+patientPaymentRoute.get('/:invoiceId/patientPayments', handleGetPatientPayments);
