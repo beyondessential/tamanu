@@ -103,7 +103,9 @@ const InsurersEditable = ({ insurerPaymentsDisplay }) => {
       {formArrayMethods => {
         return (
           <CardItem flexDirection="column">
-            <TranslatedText stringId="invoice.summary.insurer.label" fallback="Insurer" />
+            {!!insurers.length && (
+              <TranslatedText stringId="invoice.summary.insurer.label" fallback="Insurer" />
+            )}
             {insurers?.map((insurer, index) => (
               <Box
                 key={insurer?.id}
@@ -152,10 +154,17 @@ const InsurersEditable = ({ insurerPaymentsDisplay }) => {
               }}
             >
               {'+ '}
-              <TranslatedText
-                stringId="invoice.summary.addInsurer"
-                fallback="Add another insurer"
-              />
+              {insurers.length ? (
+                <TranslatedText
+                  stringId="invoice.summary.action.addAnotherInsurer"
+                  fallback="Add another insurer"
+                />
+              ) : (
+                <TranslatedText
+                  stringId="invoice.summary.action.addInsurer"
+                  fallback="Add insurer"
+                />
+              )}
             </AddInsurerButton>
           </CardItem>
         );
