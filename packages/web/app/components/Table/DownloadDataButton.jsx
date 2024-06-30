@@ -39,6 +39,11 @@ const normalizeRecursively = (element, normalizeFn) => {
 
 export function DownloadDataButton({ exportName, columns, data }) {
   const { getTranslation } = useTranslation();
+
+  /**
+   * If the input is a {@link TranslatedText} element (or one of its derivatives), converts it to a
+   * primitive string for safe export. (Otherwise, returns the input as-is.)
+   */
   const stringifyIfIsTranslatedText = element => {
     if (!isValidElement(element)) return element;
 
