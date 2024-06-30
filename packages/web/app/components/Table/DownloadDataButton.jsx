@@ -8,7 +8,8 @@ import * as XLSX from 'xlsx';
 import { saveFile } from '../../utils/fileSystemAccess';
 import { useTranslation } from '../../contexts/Translation';
 import { GreyOutlinedButton } from '../Button';
-import { TranslatedText } from '../Translation/TranslatedText';
+import { TranslatedText, TranslatedReferenceData, translatedTextAsString } from '../Translation';
+import { translatedReferenceDataAsString } from '../Translation/TranslatedReferenceData';
 
 /**
  * Recursive mapper for normalising descendant {@link TranslatedText} elements into translated
@@ -21,10 +22,16 @@ import { TranslatedText } from '../Translation/TranslatedText';
  * MIT licence.
  */
 const normalizeRecursively = (element, normalizeFn) => {
-  if (!isValidElement(element)) return element;
+  console.log(`normalising... \x1b[32m${JSON.stringify(element, null, 2)}\x1b[m`);
+
+  if (!isValidElement(element)) {
+    return element;
+  }
 
   const { children } = element.props;
-  if (!children) return normalizeFn(element);
+  if (!children) {
+    return normalizeFn(element);
+  }
 
   return cloneElement(element, {
     children: Children.map(children, child => normalizeRecursively(child, normalizeFn)),
@@ -34,16 +41,34 @@ const normalizeRecursively = (element, normalizeFn) => {
 export function DownloadDataButton({ exportName, columns, data }) {
   const { getTranslation } = useTranslation();
   const stringifyIfIsTranslatedText = element => {
-    if (!isValidElement(element) || element.type !== TranslatedText) return element;
+    if (!isValidElement(element)) return element;
 
-    const { stringId, fallback, replacements, uppercase, lowercase } = element.props;
-    return getTranslation(
-      stringId,
-      fallback?.split('\\n').join('\n'),
-      replacements,
-      uppercase,
-      lowercase,
-    );
+    const isTranslatedText =
+      element.type === TranslatedText || element.type === TranslatedReferenceData;
+    if (!isTranslatedText) {
+      console.log('\x1b[3mstringifyIfIsTranslatedText\x1b[m Non-TranslatedText. Skipping...');
+      return element;
+    }
+
+    const stringifyFn =
+      element.type === TranslatedText ? translatedTextAsString : translatedReferenceDataAsString;
+    return stringifyFn(element.props, getTranslation);
+
+    // const { stringId, fallback, replacements, uppercase, lowercase } = element.props;
+    // const translated = getTranslation(
+    //   stringId,
+    //   fallback?.split('\\n').join('\n'),
+    //   replacements,
+    //   uppercase,
+    //   lowercase,
+    // );
+
+    // const type = element.type === TranslatedText ? 'TranslatedText' : 'TranslatedReferenceData';
+    // console.log(
+    //   `\x1b[3mstringifyIfIsTranslatedText\x1b[m \x1b[1m<${type} /> → \x1b[1;34m${translated}\x1b[m`,
+    // );
+
+    // return translated;
   };
 
   const getHeaderValue = ({ key, title }) => {
@@ -55,11 +80,9 @@ export function DownloadDataButton({ exportName, columns, data }) {
     }
     if (typeof title === 'object') {
       if (isValidElement(title)) {
-        return cheerio
-          .load(
-            ReactDOMServer.renderToString(normalizeRecursively(title, stringifyIfIsTranslatedText)),
-          )
-          .text();
+        const normalizedElement = normalizeRecursively(title, stringifyIfIsTranslatedText);
+        const normalizedStr = ReactDOMServer.renderToString(normalizedElement);
+        return cheerio.load(normalizedStr).text();
       }
     }
     return key;
@@ -90,13 +113,10 @@ export function DownloadDataButton({ exportName, columns, data }) {
               const value = c.accessor(d);
               if (typeof value === 'object') {
                 if (isValidElement(value)) {
-                  dx[headerValue] = cheerio
-                    .load(
-                      ReactDOMServer.renderToString(
-                        normalizeRecursively(value, stringifyIfIsTranslatedText),
-                      ),
-                    )
-                    .text(); // render react element and get the text value with cheerio
+                  const normalized = normalizeRecursively(value, stringifyIfIsTranslatedText);
+                  const normalizedStr = ReactDOMServer.renderToString(normalized);
+                  // Render React element and get the text value with Cheerio
+                  dx[headerValue] = cheerio.load(normalizedStr).text();
                 } else {
                   dx[headerValue] = d[c.key];
                 }

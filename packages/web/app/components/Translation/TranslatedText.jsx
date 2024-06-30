@@ -38,6 +38,12 @@ export const TranslatedText = ({ stringId, fallback, replacements, uppercase, lo
   return translation;
 };
 
+export const translatedTextAsString = (
+  { stringId, fallback, replacements, uppercase, lowercase },
+  getTranslation,
+) =>
+  getTranslation(stringId, fallback?.split('\\n').join('\n'), replacements, uppercase, lowercase);
+
 TranslatedText.propTypes = {
   stringId: PropTypes.string.isRequired,
   fallback: PropTypes.string.isRequired,
