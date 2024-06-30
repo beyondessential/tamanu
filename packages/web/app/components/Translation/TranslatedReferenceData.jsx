@@ -8,9 +8,6 @@ export const getReferenceDataStringId = (value, category) => {
 };
 
 export const TranslatedReferenceData = ({ category, value, fallback, placeholder }) => {
-  console.log(
-    `<TranslatedReferenceData stringId={(\x1b[1m${value}\x1b[m, \x1b[1m${category}\x1b[m)} />`,
-  );
   return value ? (
     <TranslatedText stringId={getReferenceDataStringId(value, category)} fallback={`${fallback}`} />
   ) : (

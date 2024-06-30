@@ -22,8 +22,6 @@ import { translatedReferenceDataAsString } from '../Translation/TranslatedRefere
  * MIT licence.
  */
 const normalizeRecursively = (element, normalizeFn) => {
-  console.log(`normalising... \x1b[32m${JSON.stringify(element, null, 2)}\x1b[m`);
-
   if (!isValidElement(element)) {
     return element;
   }
@@ -45,39 +43,16 @@ export function DownloadDataButton({ exportName, columns, data }) {
 
     const isTranslatedText =
       element.type === TranslatedText || element.type === TranslatedReferenceData;
-    if (!isTranslatedText) {
-      console.log('\x1b[3mstringifyIfIsTranslatedText\x1b[m Non-TranslatedText. Skipping...');
-      return element;
-    }
+    if (!isTranslatedText) return element;
 
     const stringifyFn =
       element.type === TranslatedText ? translatedTextAsString : translatedReferenceDataAsString;
     return stringifyFn(element.props, getTranslation);
-
-    // const { stringId, fallback, replacements, uppercase, lowercase } = element.props;
-    // const translated = getTranslation(
-    //   stringId,
-    //   fallback?.split('\\n').join('\n'),
-    //   replacements,
-    //   uppercase,
-    //   lowercase,
-    // );
-
-    // const type = element.type === TranslatedText ? 'TranslatedText' : 'TranslatedReferenceData';
-    // console.log(
-    //   `\x1b[3mstringifyIfIsTranslatedText\x1b[m \x1b[1m<${type} /> → \x1b[1;34m${translated}\x1b[m`,
-    // );
-
-    // return translated;
   };
 
   const getHeaderValue = ({ key, title }) => {
-    if (!title) {
-      return key;
-    }
-    if (typeof title === 'string') {
-      return title;
-    }
+    if (!title) return key;
+    if (typeof title === 'string') return title;
     if (typeof title === 'object') {
       if (isValidElement(title)) {
         const normalizedElement = normalizeRecursively(title, stringifyIfIsTranslatedText);
