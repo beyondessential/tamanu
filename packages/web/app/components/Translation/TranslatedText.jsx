@@ -38,6 +38,19 @@ export const TranslatedText = ({ stringId, fallback, replacements, uppercase, lo
   return translation;
 };
 
+/**
+ * You should probably not be using this! Consider using the {@link TranslatedText} function
+ * component.
+ *
+ * This function was created for {@link DownloadDataButton} to export translated table data, which
+ * for some reason is unable to access `getTranslation` via the `useTranslation` hook when Cheerio
+ * renders {@link TranslatedText} elements into strings for export to spreadsheet. Hence, in this
+ * case we pass `getTranslation` from the caller.
+ *
+ * @param props Props object for {@link TranslatedText}
+ * @param getTranslation The `getTranslation` function from `useTranslation`
+ * @returns The translated text as a primitive string.
+ */
 export const translatedTextAsString = (
   { stringId, fallback, replacements, uppercase, lowercase },
   getTranslation,

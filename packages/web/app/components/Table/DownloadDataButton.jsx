@@ -19,21 +19,18 @@ import {
  * Recursive mapper for normalising descendant {@link TranslatedText} elements into translated
  * primitive strings.
  *
- * @privateRemarks Cheerio doesn’t like rendering {@link TranslatedText} elements, because it uses
- * the {@link useTranslation} hook under the hood.
+ * @privateRemarks Cheerio doesn’t like rendering {@link TranslatedText} elements. When it tries to
+ * access `getTranslation` from the the {@link useTranslation} hook under the hood, the function is
+ * undefined.
  *
  * Based on: https://github.com/tatethurston/react-itertools/blob/main/src/map/index.ts. Used under
  * MIT licence.
  */
 const normalizeRecursively = (element, normalizeFn) => {
-  if (!isValidElement(element)) {
-    return element;
-  }
+  if (!isValidElement(element)) return element;
 
   const { children } = element.props;
-  if (!children) {
-    return normalizeFn(element);
-  }
+  if (!children) return normalizeFn(element);
 
   return cloneElement(element, {
     children: Children.map(children, child => normalizeRecursively(child, normalizeFn)),
