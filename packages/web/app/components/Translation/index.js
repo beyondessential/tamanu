@@ -1,8 +1,7 @@
 export * from './TranslatedEnum';
-export * from './TranslatedText';
+export { TranslatedText, translatedTextAsString } from './TranslatedText';
 export {
   TranslatedReferenceData,
   getReferenceDataStringId,
   translatedReferenceDataAsString,
-  translatedTextAsString,
 } from './TranslatedReferenceData';
