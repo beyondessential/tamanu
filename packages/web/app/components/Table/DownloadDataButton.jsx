@@ -8,8 +8,12 @@ import * as XLSX from 'xlsx';
 import { saveFile } from '../../utils/fileSystemAccess';
 import { useTranslation } from '../../contexts/Translation';
 import { GreyOutlinedButton } from '../Button';
-import { TranslatedText, TranslatedReferenceData, translatedTextAsString } from '../Translation';
-import { translatedReferenceDataAsString } from '../Translation/TranslatedReferenceData';
+import {
+  TranslatedText,
+  TranslatedReferenceData,
+  translatedTextAsString,
+  translatedReferenceDataAsString,
+} from '../Translation';
 
 /**
  * Recursive mapper for normalising descendant {@link TranslatedText} elements into translated
