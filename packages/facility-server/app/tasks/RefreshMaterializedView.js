@@ -8,7 +8,6 @@ import {
   NOTIFY_CHANNELS,
 } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
-import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 
 const buildRefreshMaterializedViewTask = viewName =>
   class RefreshMaterializedView extends ScheduledTask {
@@ -39,7 +38,7 @@ const buildRefreshMaterializedViewTask = viewName =>
       });
       await this.models.LocalSystemFact.set(
         `${MATERIALIZED_VIEW_LAST_REFRESHED_AT_KEY_NAMESPACE}:${this.viewName}`,
-        getCurrentDateTimeString(),
+        new Date().toISOString(),
       );
     }
   };
