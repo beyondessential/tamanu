@@ -13,8 +13,24 @@ const safeGetIsDebugMode = () => {
   }
 };
 
-export const TranslatedText = ({ stringId, fallback, replacements, uppercase, lowercase }) => {
-  const { getTranslation } = useTranslation();
+export const TranslatedText = ({
+  stringId,
+  fallback,
+  replacements,
+  uppercase,
+  lowercase,
+  /**
+   * You should probably not be using this prop! Consider deferring to the `useTranslation` context
+   * hook.
+   *
+   * @privateRemarks This prop exists for the edge case in {@link DownloadDataButton}, where its
+   * (indirect) access to `useTranslation` yields `undefined`. In that case, the ancestor fetches
+   * the context itself, and explicitly passes it down as a prop.
+   */
+  customTranslationContext,
+}) => {
+  const translationContext = useTranslation();
+  const { getTranslation } = customTranslationContext ?? translationContext;
 
   const translation = useMemo(
     () =>
@@ -37,25 +53,6 @@ export const TranslatedText = ({ stringId, fallback, replacements, uppercase, lo
     );
   return translation;
 };
-
-/**
- * You should probably not be using this! Consider using the {@link TranslatedText} function
- * component.
- *
- * This function was created for {@link DownloadDataButton} to export translated table data, which
- * for some reason is unable to access `getTranslation` via the `useTranslation` hook when Cheerio
- * renders {@link TranslatedText} elements into strings for export to spreadsheet. Hence, in this
- * case we pass `getTranslation` from the caller.
- *
- * @param props Props object for {@link TranslatedText}
- * @param getTranslation The `getTranslation` function from `useTranslation`
- * @returns The translated text as a primitive string.
- */
-export const translatedTextAsString = (
-  { stringId, fallback, replacements, uppercase, lowercase },
-  getTranslation,
-) =>
-  getTranslation(stringId, fallback?.split('\\n').join('\n'), replacements, uppercase, lowercase);
 
 TranslatedText.propTypes = {
   stringId: PropTypes.string.isRequired,

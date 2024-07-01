@@ -8,14 +8,7 @@ import * as XLSX from 'xlsx';
 import { saveFile } from '../../utils/fileSystemAccess';
 import { useTranslation } from '../../contexts/Translation';
 import { GreyOutlinedButton } from '../Button';
-import {
-  TranslatedEnum,
-  translatedEnumAsString,
-  TranslatedReferenceData,
-  translatedReferenceDataAsString,
-  TranslatedText,
-  translatedTextAsString,
-} from '../Translation';
+import { TranslatedEnum, TranslatedReferenceData, TranslatedText } from '../Translation';
 
 /**
  * Recursive mapper for normalising descendant {@link TranslatedText} elements into translated
@@ -40,11 +33,13 @@ const normalizeRecursively = (element, normalizeFn) => {
 };
 
 export function DownloadDataButton({ exportName, columns, data }) {
-  const { getTranslation } = useTranslation();
+  const translationContext = useTranslation();
 
   /**
-   * If the input is a {@link TranslatedText} element (or one of its derivatives), converts it to a
-   * primitive string for safe export. (Otherwise, returns the input as-is.)
+   * If the input is a {@link TranslatedText} element (or one of its derivatives), explicitly adds
+   * passes the translation context as a prop. This is a workaround for the issue where
+   * `useTranslation`’s returns undefined in {@link TranslatedText} when accessed via this
+   * component.
    */
   const stringifyIfIsTranslatedText = element => {
     if (!isValidElement(element)) return element;
@@ -54,19 +49,7 @@ export function DownloadDataButton({ exportName, columns, data }) {
     );
     if (!isTranslatedText) return element;
 
-    let stringifyFn;
-    switch (element.type) {
-      case TranslatedText:
-        stringifyFn = translatedTextAsString;
-        break;
-      case TranslatedReferenceData:
-        stringifyFn = translatedReferenceDataAsString;
-        break;
-      case TranslatedEnum:
-        stringifyFn = translatedEnumAsString;
-        break;
-    }
-    return stringifyFn(element.props, getTranslation);
+    return cloneElement(element, { customTranslationContext: translationContext });
   };
 
   const getHeaderValue = ({ key, title }) => {
