@@ -174,11 +174,12 @@ export const getInitialCustomValues = (data, fields): {} => {
     return {};
   }
   // Copy values from data only in the specified fields
-  // TODO: get this to work with both custom field concepts
   const values = {};
-  fields.forEach(fieldName => {
-    if (data[fieldName]) values[fieldName] = data[fieldName]?.[0]?.value;
-  });
+  fields
+    .map((field: object | string) => field.id || field) // This handles either an array of objects with custom field ids or just an array of field ids on its own
+    .forEach((fieldId: string) => {
+      if (data[fieldId]) values[fieldId] = data[fieldId]?.[0]?.value;
+    });
   return values;
 };
 
