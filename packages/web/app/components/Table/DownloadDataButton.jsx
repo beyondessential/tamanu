@@ -4,12 +4,13 @@ import { getCurrentDateString } from '@tamanu/shared/utils/dateTime';
 import * as XLSX from 'xlsx';
 import { createRoot } from 'react-dom/client';
 import { flushSync } from 'react-dom';
+import { QueryClientProvider, useQueryClient } from '@tanstack/react-query';
 
+import { ApiContext, useApi } from '../../api';
 import { saveFile } from '../../utils/fileSystemAccess';
 import { TranslationProvider, useTranslation } from '../../contexts/Translation';
 import { GreyOutlinedButton } from '../Button';
 import { TranslatedEnum, TranslatedReferenceData, TranslatedText } from '../Translation';
-import { QueryClientProvider, useQueryClient } from '@tanstack/react-query';
 
 /**
  * Recursive mapper for normalising descendant {@link TranslatedText} elements into translated
@@ -47,8 +48,8 @@ const renderToString = element => {
 };
 
 export function DownloadDataButton({ exportName, columns, data }) {
-  // const translationContext = useTranslation();
   const queryClient = useQueryClient();
+  const api = useApi();
 
   /**
    * If the input is a {@link TranslatedText} element (or one of its derivatives), explicitly adds
@@ -66,7 +67,9 @@ export function DownloadDataButton({ exportName, columns, data }) {
 
     return (
       <QueryClientProvider client={queryClient}>
-        <TranslationProvider>{element}</TranslationProvider>
+        <ApiContext.Provider value={api}>
+          <TranslationProvider>{element}</TranslationProvider>
+        </ApiContext.Provider>
       </QueryClientProvider>
     );
   };
