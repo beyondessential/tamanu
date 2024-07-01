@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import { uniqBy } from 'lodash';
 import { useBackendEffect } from '~/ui/hooks';
 import { Table } from '../Table';
@@ -16,7 +16,7 @@ import { VisibilityStatus } from '~/visibilityStatuses';
 import { useSettings } from '~/ui/contexts/SettingsContext';
 import { getVaccineStatus, parseThresholdsSetting } from '~/ui/helpers/getVaccineStatus';
 import { SETTING_KEYS } from '~/constants';
-import { useNavigation } from '@react-navigation/native';
+import { useVaccineFormRefresh } from '../Forms/VaccineForms/VaccineRefreshContext';
 
 interface VaccinesTableProps {
   selectedPatient: any;
@@ -29,17 +29,8 @@ export const VaccinesTable = ({
   categoryName,
   selectedPatient,
 }: VaccinesTableProps): JSX.Element => {
+  const { refreshCount } = useVaccineFormRefresh();
   const { getSetting } = useSettings();
-  const [refreshCount, setRefreshCount] = useState(0);
-  const navigation = useNavigation();
-
-  useEffect(() => {
-    const unsubscribe = navigation.addListener('focus', () => {
-      setRefreshCount(count => count + 1);
-    });
-
-    return unsubscribe;
-  }, [navigation]);
 
   const thresholds = useMemo(
     () => parseThresholdsSetting(getSetting<any>(SETTING_KEYS.UPCOMING_VACCINATION_THRESHOLDS)),
