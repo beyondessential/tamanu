@@ -63,7 +63,7 @@ const BottomContainer = styled.div`
 `;
 
 const LabelContainer = styled.div`
-  color: ${p => p.color || Colors.darkestText}
+  color: ${p => p.color || Colors.darkestText};
 `;
 
 const FixedTileRow = styled(TileContainer)`
@@ -73,6 +73,7 @@ const FixedTileRow = styled(TileContainer)`
 const HIDDEN_STATUSES = [
   LAB_REQUEST_STATUSES.DELETED,
   LAB_REQUEST_STATUSES.CANCELLED,
+  LAB_REQUEST_STATUSES.INVALIDATED,
   LAB_REQUEST_STATUSES.ENTERED_IN_ERROR,
 ];
 
@@ -182,21 +183,21 @@ export const LabRequestView = () => {
   const actions =
     labRequest.status === LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED
       ? [
-        {
-          label: <TranslatedText stringId="lab.action.recordSample" fallback="Record sample" />,
-          action: () => handleChangeModalId(MODAL_IDS.RECORD_SAMPLE),
-        },
-      ]
+          {
+            label: <TranslatedText stringId="lab.action.recordSample" fallback="Record sample" />,
+            action: () => handleChangeModalId(MODAL_IDS.RECORD_SAMPLE),
+          },
+        ]
       : [
-        {
-          label: <TranslatedText stringId="general.action.edit" fallback="Edit" />,
-          action: () => handleChangeModalId(MODAL_IDS.RECORD_SAMPLE),
-        },
-        {
-          label: <TranslatedText stringId="lab.action.viewDetails" fallback="View details" />,
-          action: () => handleChangeModalId(MODAL_IDS.SAMPLE_DETAILS),
-        },
-      ];
+          {
+            label: <TranslatedText stringId="general.action.edit" fallback="Edit" />,
+            action: () => handleChangeModalId(MODAL_IDS.RECORD_SAMPLE),
+          },
+          {
+            label: <TranslatedText stringId="lab.action.viewDetails" fallback="View details" />,
+            action: () => handleChangeModalId(MODAL_IDS.SAMPLE_DETAILS),
+          },
+        ];
 
   const handleChangeStatus = () => {
     if (labRequest.status === LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED) return;
@@ -258,26 +259,32 @@ export const LabRequestView = () => {
             }
             actions={[
               !areLabRequestsReadOnly &&
-              canWriteLabRequestStatus && {
-                label: (
-                  <ConditionalTooltip
-                    visible={labRequest.status === LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED}
-                    title={<TranslatedText
-                      stringId="lab.tooltip.cannotChangeStatus"
-                      fallback="You cannot change the status of lab request without entering the sample details"
-                    />}
-                  >
-                    <LabelContainer
-                      color={
-                        labRequest.status === LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED && Colors.softText
+                canWriteLabRequestStatus && {
+                  label: (
+                    <ConditionalTooltip
+                      visible={labRequest.status === LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED}
+                      title={
+                        <TranslatedText
+                          stringId="lab.tooltip.cannotChangeStatus"
+                          fallback="You cannot change the status of lab request without entering the sample details"
+                        />
                       }
                     >
-                      <TranslatedText stringId="lab.action.changeStatus" fallback="Change status" />
-                    </LabelContainer>
-                  </ConditionalTooltip>
-                ),
-                action: handleChangeStatus
-              },
+                      <LabelContainer
+                        color={
+                          labRequest.status === LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED &&
+                          Colors.softText
+                        }
+                      >
+                        <TranslatedText
+                          stringId="lab.action.changeStatus"
+                          fallback="Change status"
+                        />
+                      </LabelContainer>
+                    </ConditionalTooltip>
+                  ),
+                  action: handleChangeStatus,
+                },
               {
                 label: (
                   <TranslatedText stringId="lab.action.viewStatusLog" fallback="View status log" />

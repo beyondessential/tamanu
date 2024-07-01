@@ -217,6 +217,7 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
   // Remove cancelled/entered in error labs. Attach parent lab request data to each test object in order to be displayed in table format
   const labFilterStatuses = [
     LAB_REQUEST_STATUSES.CANCELLED,
+    LAB_REQUEST_STATUSES.INVALIDATED,
     LAB_REQUEST_STATUSES.ENTERED_IN_ERROR,
     LAB_REQUEST_STATUSES.DELETED,
   ];

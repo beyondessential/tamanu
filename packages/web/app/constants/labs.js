@@ -7,6 +7,7 @@ export const LAB_REQUEST_STATUS_OPTIONS = Object.values(LAB_REQUEST_STATUSES)
         LAB_REQUEST_STATUSES.DELETED,
         LAB_REQUEST_STATUSES.ENTERED_IN_ERROR,
         LAB_REQUEST_STATUSES.CANCELLED,
+        LAB_REQUEST_STATUSES.INVALIDATED,
       ].includes(status),
   )
   .map(status => ({
