@@ -80,7 +80,8 @@ export function getCurrentDateString() {
   return formatISO9075(new Date(), { representation: 'date' });
 }
 
-export function getCurrentISODateString() {
+// Don't use this function when using a datestring or datetimestring column
+export function getCurrentISO8601DateString() {
   return new Date().toISOString();
 }
 
