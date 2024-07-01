@@ -94,8 +94,8 @@ export function DownloadDataButton({ exportName, columns, data }) {
                     value,
                     stringifyIfIsTranslatedText,
                   );
-                  const normalizedStr = ReactDOMServer.renderToString(normalizedElement);
                   // Render React element and get the text value with Cheerio
+                  const normalizedStr = ReactDOMServer.renderToString(normalizedElement);
                   dx[headerValue] = cheerio.load(normalizedStr).text();
                 } else {
                   dx[headerValue] = d[c.key];
