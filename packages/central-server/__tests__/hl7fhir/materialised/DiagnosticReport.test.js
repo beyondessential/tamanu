@@ -92,12 +92,12 @@ describe('Create DiagnosticReport', () => {
         FHIR_DIAGNOSTIC_REPORT_STATUS.REGISTERED,
         FHIR_DIAGNOSTIC_REPORT_STATUS.PARTIAL._,
         FHIR_DIAGNOSTIC_REPORT_STATUS.PARTIAL.PRELIMINARY,
+        FHIR_DIAGNOSTIC_REPORT_STATUS.FINAL,
         FHIR_DIAGNOSTIC_REPORT_STATUS.CANCELLED,
         FHIR_DIAGNOSTIC_REPORT_STATUS.AMENDED._,
         FHIR_DIAGNOSTIC_REPORT_STATUS.AMENDED.CORRECTED,
         FHIR_DIAGNOSTIC_REPORT_STATUS.AMENDED.APPENDED,
         FHIR_DIAGNOSTIC_REPORT_STATUS.ENTERED_IN_ERROR,
-        FHIR_DIAGNOSTIC_REPORT_STATUS.FINAL, // FINAL must be last in this list, as once it's been set to FINAL it can't change
       ];
       const { FhirServiceRequest } = ctx.store.models;
       const { labRequest } = await fakeResourcesOfFhirServiceRequestWithLabRequest(
@@ -147,6 +147,10 @@ describe('Create DiagnosticReport', () => {
         await labRequest.reload();
         expect(labRequest.status).toBe(expectedLabRequestStatus);
         expect(response).toHaveSucceeded();
+
+        // Reset the labRequest status
+        labRequest.set({ status: LAB_REQUEST_STATUSES.TO_BE_VERIFIED });
+        await labRequest.save();
       }
     });
 
@@ -195,6 +199,10 @@ describe('Create DiagnosticReport', () => {
         await labRequest.reload();
         expect(labRequest.status).toBe(expectedLabRequestStatus);
         expect(response).toHaveSucceeded();
+
+        // Reset the labRequest status
+        labRequest.set({ status: LAB_REQUEST_STATUSES.PUBLISHED });
+        await labRequest.save();
       }
     });
 
