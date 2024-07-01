@@ -8,17 +8,14 @@ import { QueryClientProvider, useQueryClient } from '@tanstack/react-query';
 
 import { ApiContext, useApi } from '../../api';
 import { saveFile } from '../../utils/fileSystemAccess';
-import { TranslationProvider, useTranslation } from '../../contexts/Translation';
+import { TranslationProvider } from '../../contexts/Translation';
 import { GreyOutlinedButton } from '../Button';
 import { TranslatedEnum, TranslatedReferenceData, TranslatedText } from '../Translation';
 
 /**
- * Recursive mapper for normalising descendant {@link TranslatedText} elements into translated
- * primitive strings.
- *
- * @privateRemarks Cheerio doesn’t like rendering {@link TranslatedText} elements. When it tries to
- * access `getTranslation` from the {@link useTranslation} hook under the hood, the function is
- * undefined.
+ * Recursive mapper for transforming leaf nodes in a DOM tree. Used here to explicitly wrap
+ * {@link TranslatedText} elements (and its derivatives) in the context providers needed to render
+ * it into a translated primitive string.
  *
  * Based on: https://github.com/tatethurston/react-itertools/blob/main/src/map/index.ts. Used under
  * MIT licence.
@@ -52,12 +49,12 @@ export function DownloadDataButton({ exportName, columns, data }) {
   const api = useApi();
 
   /**
-   * If the input is a {@link TranslatedText} element (or one of its derivatives), explicitly adds
-   * passes the translation context as a prop. This is a workaround for the issue where
-   * `useTranslation`’s returns undefined in {@link TranslatedText} when accessed via this
-   * component.
+   * If the input is a {@link TranslatedText} element (or one of its derivatives), explicitly wraps
+   * it in a {@link TranslationProvider} (and its dependents). This is a workaround for the case
+   * where a {@link TranslatedText} is rendered into a string for export, which happens in a
+   * “headless” React root node, outside the context providers defined in `Root.jsx`.
    */
-  const stringifyIfIsTranslatedText = element => {
+  const contextualiseIfIsTranslatedText = element => {
     if (!isValidElement(element)) return element;
 
     const isTranslatedText = [TranslatedText, TranslatedReferenceData, TranslatedEnum].includes(
@@ -79,7 +76,7 @@ export function DownloadDataButton({ exportName, columns, data }) {
     if (typeof title === 'string') return title;
     if (typeof title === 'object') {
       if (isValidElement(title)) {
-        const normalizedElement = normalizeRecursively(title, stringifyIfIsTranslatedText);
+        const normalizedElement = normalizeRecursively(title, contextualiseIfIsTranslatedText);
         return renderToString(normalizedElement);
       }
     }
@@ -113,7 +110,7 @@ export function DownloadDataButton({ exportName, columns, data }) {
                 if (isValidElement(value)) {
                   const normalizedElement = normalizeRecursively(
                     value,
-                    stringifyIfIsTranslatedText,
+                    contextualiseIfIsTranslatedText,
                   );
                   dx[headerValue] = renderToString(normalizedElement);
                 } else {
