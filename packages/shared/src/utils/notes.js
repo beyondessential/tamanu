@@ -5,11 +5,7 @@ notes: Array<SequelizeModel>
 noteType: string
 */
 export const getNoteWithType = (notes, noteType) => {
-  return getNotesWithType(notes, noteType)
-    .reduce(
-      (latest, note) => note.date > latest.date ? note : latest,
-      notes[0],
-    );
+  return getNotesWithType(notes, noteType)[0];
 };
 
 /*

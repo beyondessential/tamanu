@@ -100,7 +100,10 @@ const ImagingRequestSection = ({ currentStatus, imagingRequest }) => {
       />
       <TextInput
         multiline
-        value={imagingRequest.note}
+        value={imagingRequest.notes
+          ?.filter(note => note.noteType === 'OTHER')
+          .map(note => note.content)
+          .join(', ')}
         label="Notes"
         style={{ gridColumn: '1 / -1', minHeight: '60px' }}
         disabled
