@@ -1,4 +1,4 @@
-const applyCasing = (text, lowercase, uppercase) => {
+const applyCasing = (text, uppercase, lowercase) => {
   if (lowercase) return text.toLowerCase();
   if (uppercase) return text.toUpperCase();
   return text;
