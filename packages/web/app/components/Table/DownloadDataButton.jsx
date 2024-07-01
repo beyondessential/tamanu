@@ -20,7 +20,7 @@ import {
  * primitive strings.
  *
  * @privateRemarks Cheerio doesn’t like rendering {@link TranslatedText} elements. When it tries to
- * access `getTranslation` from the the {@link useTranslation} hook under the hood, the function is
+ * access `getTranslation` from the {@link useTranslation} hook under the hood, the function is
  * undefined.
  *
  * Based on: https://github.com/tatethurston/react-itertools/blob/main/src/map/index.ts. Used under
