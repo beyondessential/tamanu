@@ -11,6 +11,7 @@ import {
   reportCommand,
   startAllCommand,
   startApiCommand,
+  startSyncCommand,
   startTasksCommand,
   syncCommand,
 } from './subCommands';
@@ -23,6 +24,7 @@ async function run() {
 
   program.addCommand(startAllCommand, { isDefault: true });
   program.addCommand(startApiCommand);
+  program.addCommand(startSyncCommand);
   program.addCommand(startTasksCommand);
   program.addCommand(reportCommand);
   program.addCommand(syncCommand);
