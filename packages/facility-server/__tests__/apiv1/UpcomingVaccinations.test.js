@@ -199,7 +199,7 @@ describe('Upcoming vaccinations', () => {
       const res = await app.get('/api/upcomingVaccinations/updateStats');
       expect(res).toHaveStatus(200);
       expect(res.body).toEqual({
-        lastRefreshed: '2021-01-01 00:00:00:000Z',
+        lastRefreshed: '2021-01-01 00:00:00.000Z',
         schedule: '*/50 * * * *',
       });
     });
