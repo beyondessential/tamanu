@@ -80,6 +80,10 @@ export function getCurrentDateString() {
   return formatISO9075(new Date(), { representation: 'date' });
 }
 
+export function getCurrentISODateString() {
+  return new Date().toISOString();
+}
+
 export function convertISO9075toRFC3339(dateString) {
   // parseISO does not support null values
   const parsedDate = dateString === null ? new Date() : parseISO(dateString);

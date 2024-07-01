@@ -1,6 +1,6 @@
 import config from 'config';
 import { subDays } from 'date-fns';
-import { createTestContext, withDateUnsafelyFaked } from '../utilities';
+import { createTestContext } from '../utilities';
 
 import { createScheduledVaccine } from '@tamanu/shared/demoData/vaccines';
 import { toDateString } from '@tamanu/shared/utils/dateTime';
@@ -8,6 +8,11 @@ import { VACCINE_STATUS, REFERENCE_TYPES, VACCINE_CATEGORIES } from '@tamanu/con
 import { fake } from '@tamanu/shared/test-helpers/fake';
 
 import { RefreshUpcomingVaccinations } from '../../dist/tasks/RefreshMaterializedView';
+
+jest.mock('@tamanu/shared/utils/dateTime', () => ({
+  ...jest.requireActual('@tamanu/shared/utils/dateTime'),
+  getCurrentISODateString: jest.fn(() => '2021-01-01 00:00:00:000Z'),
+}));
 
 const createPatient = async (models, overrides) => {
   return models.Patient.create({
@@ -189,14 +194,12 @@ describe('Upcoming vaccinations', () => {
 
   describe('Refresh stats', () => {
     it('returns the last updated time and cron schedule for a upcoming vaccinations materialized view', async () => {
-      const res = await withDateUnsafelyFaked(new Date('2021-01-01T00:00:000Z'), async () => {
-        const task = new RefreshUpcomingVaccinations(ctx);
-        await task.run();
-        return app.get('/api/upcomingVaccinations/updateStats');
-      });
+      const task = new RefreshUpcomingVaccinations(ctx);
+      await task.run();
+      const res = await app.get('/api/upcomingVaccinations/updateStats');
       expect(res).toHaveStatus(200);
       expect(res.body).toEqual({
-        lastRefreshed: '2021-01-01T00:00:00.000Z',
+        lastRefreshed: '2021-01-01 00:00:00:000Z',
         schedule: '*/50 * * * *',
       });
     });
