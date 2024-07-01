@@ -9,6 +9,7 @@ import { TranslatedEnum, TranslatedText } from '../../Translation';
 import { DateDisplay } from '../../DateDisplay';
 import { Button } from '../../Button';
 import { Colors, denseTableStyle } from '../../../constants';
+import { useTableSorting } from '../../Table/useTableSorting';
 
 const StyledDataFetchingTable = styled(DataFetchingTable)`
   max-height: 400px;
@@ -70,20 +71,34 @@ const Container = styled.div`
 
 export const PotentialInvoiceItemsTable = ({ invoice, invoiceItems, formArrayMethods }) => {
   const [potentialInvoiceItems, setPotentialInvoiceItems] = useState([]);
+  const { orderBy, order, onChangeOrderBy, customSort } = useTableSorting({
+    initialSortKey: '',
+    initialSortDirection: 'asc',
+  });
 
-  const onPotentialInvoiceItemsFetched = useCallback((data) => {
+  const customSortWrapper = customSort => data => {
+    const potentialInvoiceItems = data.map(item => ({
+      ...item,
+      productPrice: Number(item.productPrice),
+    }));
+    return customSort(potentialInvoiceItems);
+  };
+
+  const wrappedCustomSort = customSortWrapper(customSort);
+
+  const onPotentialInvoiceItemsFetched = useCallback(data => {
     setPotentialInvoiceItems(data?.data || []);
   }, []);
 
   const potentialInvoiceItemRowStyle = ({ sourceId }) => {
-    const idList = invoiceItems.map((row) => row?.sourceId).filter(Boolean);
+    const idList = invoiceItems.map(row => row?.sourceId).filter(Boolean);
     if (idList.includes(sourceId)) return 'display: none;';
     return '';
   };
 
-  const handleAddPotentialInvoiceItems = (items) => {
+  const handleAddPotentialInvoiceItems = items => {
     items.forEach(
-      (item) =>
+      item =>
         !potentialInvoiceItemRowStyle(item) &&
         formArrayMethods.push({
           ...item,
@@ -97,7 +112,7 @@ export const PotentialInvoiceItemsTable = ({ invoice, invoiceItems, formArrayMet
   const isEmptyPotentialInvoiceItems = !differenceBy(
     potentialInvoiceItems,
     invoiceItems,
-    (it) => it.sourceId || it.id,
+    it => it.sourceId || it.id,
   ).length;
 
   const POTENTIAL_INVOICE_ITEMS_TABLE_COLUMNS = [
@@ -107,12 +122,12 @@ export const PotentialInvoiceItemsTable = ({ invoice, invoiceItems, formArrayMet
       accessor: ({ orderDate }) => <DateDisplay date={orderDate} />,
     },
     {
-      key: 'code',
+      key: 'productCode',
       title: <TranslatedText stringId="invoice.table.column.code" fallback="Code" />,
       accessor: ({ productCode }) => productCode,
     },
     {
-      key: 'type',
+      key: 'productType',
       title: <TranslatedText stringId="invoice.table.column.category" fallback="Category" />,
       accessor: ({ productType }) => (
         <TranslatedEnum
@@ -123,7 +138,7 @@ export const PotentialInvoiceItemsTable = ({ invoice, invoiceItems, formArrayMet
       ),
     },
     {
-      key: 'price',
+      key: 'productPrice',
       title: <TranslatedText stringId="invoice.table.column.price" fallback="Price" />,
       accessor: ({ productPrice }) => (
         <TranslatedText
@@ -135,7 +150,7 @@ export const PotentialInvoiceItemsTable = ({ invoice, invoiceItems, formArrayMet
     },
     {
       sortable: false,
-      accessor: (row) => (
+      accessor: row => (
         <SingleAddButton variant="outlined" onClick={() => handleAddPotentialInvoiceItems([row])}>
           <TranslatedText stringId="general.action.add" fallback="Add" />
         </SingleAddButton>
@@ -177,6 +192,11 @@ export const PotentialInvoiceItemsTable = ({ invoice, invoiceItems, formArrayMet
         headStyle={denseTableStyle.head}
         statusCellStyle={denseTableStyle.statusCell}
         disablePagination
+        orderBy={orderBy}
+        order={order}
+        onChangeOrderBy={onChangeOrderBy}
+        customSort={wrappedCustomSort}
+        rowIdKey="sourceId"
       />
     </Container>
   );
