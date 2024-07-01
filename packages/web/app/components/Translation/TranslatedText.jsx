@@ -23,9 +23,9 @@ export const TranslatedText = ({
    * You should probably not be using this prop! Consider deferring to the `useTranslation` context
    * hook.
    *
-   * @privateRemarks This prop exists for the edge case in {@link DownloadDataButton}, where its
-   * (indirect) access to `useTranslation` yields `undefined`. In that case, the ancestor fetches
-   * the context itself, and explicitly passes it down as a prop.
+   * @privateRemarks This prop exists for the edge case in {@link DownloadDataButton}, where this
+   * component can’t see the {@link TranslationProvider}. In that case, the ancestor fetches the
+   * context itself, and explicitly passes it down as a prop.
    */
   customTranslationContext,
 }) => {
