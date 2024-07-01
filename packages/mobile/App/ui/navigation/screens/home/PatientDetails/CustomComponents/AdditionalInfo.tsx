@@ -63,7 +63,7 @@ export const AdditionalInfo = ({
   const additionalSections = dataSections.map(({ title, fields }) => {
     // TODO: this is for some reason triggering the isCustomFields logic down the line
     const onEditCallback = (): void =>
-      onEdit(patientAdditionalData, title, customPatientFieldValues);
+      onEdit(patientAdditionalData, title, false, null, customPatientFieldValues);
 
     const fieldsWithData = fields.map(field => {
       if (field === 'villageId' || field.name === 'villageId')
