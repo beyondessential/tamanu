@@ -61,7 +61,7 @@ export const getInsurerPaymentsDisplay = (insurers, total) => {
 };
 
 export const getInvoiceSummary = invoice => {
-  const discountableItems = invoice.items.filter(it => it.product?.discountable);
+  const discountableItems = invoice.items.filter(item => item.product?.discountable);
   const nonDiscountableItems = invoice.items.filter(item => ! item.product?.discountable);
   const discountableItemsSubtotal = calculateInvoiceItemsTotal(discountableItems);
   const nonDiscountableItemsSubtotal = calculateInvoiceItemsTotal(nonDiscountableItems);
