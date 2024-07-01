@@ -11,7 +11,7 @@ import { RefreshUpcomingVaccinations } from '../../dist/tasks/RefreshMaterialize
 
 jest.mock('@tamanu/shared/utils/dateTime', () => ({
   ...jest.requireActual('@tamanu/shared/utils/dateTime'),
-  getCurrentISO8601DateString: jest.fn(() => '2021-01-01 00:00:00:000Z'),
+  getCurrentISO8601DateString: jest.fn(() => '2021-01-01 00:00:00.000Z'),
 }));
 
 const createPatient = async (models, overrides) => {
