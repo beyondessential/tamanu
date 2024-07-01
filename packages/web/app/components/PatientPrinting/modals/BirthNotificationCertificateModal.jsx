@@ -42,15 +42,6 @@ const useParent = (api, enabled, parentId) => {
     { enabled: !isAdditionalDataLoading },
   );
 
-  const { data: ethnicity, isLoading: isEthnicityLoading } = useQuery(
-    ['ethnicity', additionalData?.ethnicityId],
-    () =>
-      additionalData?.ethnicityId
-        ? api.get(`referenceData/${encodeURIComponent(additionalData.ethnicityId)}`)
-        : null,
-    { enabled: !isAdditionalDataLoading },
-  );
-
   const { data: grandMother, isLoading: isGrandMotherLoading } = useQuery(
     ['mothersName', additionalData?.motherId],
     () =>
@@ -75,7 +66,6 @@ const useParent = (api, enabled, parentId) => {
       additionalData,
       village,
       occupation,
-      ethnicity,
       mother: grandMother,
       father: grandFather,
     },
@@ -85,8 +75,7 @@ const useParent = (api, enabled, parentId) => {
       isGrandMotherLoading ||
       isGrandFatherLoading ||
       isVillageLoading ||
-      isOccupationLoading ||
-      isEthnicityLoading,
+      isOccupationLoading,
   };
 };
 
@@ -126,21 +115,12 @@ export const BirthNotificationCertificateModal = React.memo(({ patient }) => {
       ),
   );
 
-  const { data: ethnicity, isLoading: isEthnicityLoading } = useQuery(
-    ['ethnicity', additionalData?.ethnicityId],
-    () =>
-      additionalData?.ethnicityId
-        ? api.get(`referenceData/${encodeURIComponent(additionalData.ethnicityId)}`)
-        : null,
-    { enabled: !isAdditionalDataLoading },
-  );
-
   const isLoading =
     isMotherDataLoading ||
     isFatherDataLoading ||
     isBirthDataLoading ||
-    isEthnicityLoading ||
     isDeathDataLoading ||
+    isAdditionalDataLoading ||
     isCertificateFetching;
 
   return (
@@ -155,7 +135,7 @@ export const BirthNotificationCertificateModal = React.memo(({ patient }) => {
         <BirthNotificationCertificate
           motherData={motherData}
           fatherData={fatherData}
-          childData={{ ...patient, birthData, additionalData, ethnicity, deathData }}
+          childData={{ ...patient, birthData, additionalData, deathData }}
           facility={facility}
           certificateData={certificateData}
           getLocalisation={getLocalisation}

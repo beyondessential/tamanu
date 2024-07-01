@@ -18,6 +18,7 @@ interface AdditionalInfoProps {
     additionalInfo: PatientAdditionalData,
     sectionTitle: Element,
     customPatientFieldValues: CustomPatientFieldValues,
+    sectionKey: string,
   ) => void;
   patient: Patient;
   dataSections;
@@ -59,15 +60,14 @@ export const AdditionalInfo = ({
   const isEditable = getBool('features.editPatientDetailsOnMobile');
 
   // Add edit callback and map the inner 'fields' array
-  const sections = dataSections.map(({ title, fields }) => {
+  const sections = dataSections.map(({ title, dataFields, fields: displayFields, sectionKey }) => {
+    const fields = dataFields || displayFields;
     const onEditCallback = (): void =>
-      onEdit(patientAdditionalData, title, customPatientFieldValues);
+      onEdit(patientAdditionalData, title, customPatientFieldValues, sectionKey);
 
     const fieldsWithData = fields.map(field => {
-      if (field === 'villageId' || field.name === 'villageId')
-        return [field.name, patient.village?.name];
-      else if (typeof field === 'object') {
-        return [field.name, getPadFieldData(patientAdditionalData, field.name)];
+      if (field === 'villageId' || field.name === 'villageId') {
+        return ['villageId', patient.village?.name];
       } else if (Object.keys(customDataById).includes(field)) {
         return [field, customDataById[field]];
       } else {

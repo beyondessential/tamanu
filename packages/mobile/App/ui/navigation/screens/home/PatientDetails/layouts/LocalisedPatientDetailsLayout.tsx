@@ -30,4 +30,4 @@ export const LocalisedNewPatientForm = ({ route }) => {
     default:
       return <GenericEditPatientScreen route={route} isEdit={false} />;
   }
-}
+};
