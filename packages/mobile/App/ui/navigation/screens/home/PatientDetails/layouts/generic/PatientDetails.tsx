@@ -16,7 +16,7 @@ export const PatientDetails = ({ patient, navigation }): ReactElement => {
     (
       additionalData,
       sectionTitle,
-      isCustomFields,
+      isCustomSection,
       customSectionFields,
       customPatientFieldValues,
     ) => {
@@ -25,7 +25,7 @@ export const PatientDetails = ({ patient, navigation }): ReactElement => {
         patient,
         additionalDataJSON: JSON.stringify(additionalData),
         sectionTitle,
-        isCustomFields,
+        isCustomSection,
         customSectionFields,
         customPatientFieldValues,
       });

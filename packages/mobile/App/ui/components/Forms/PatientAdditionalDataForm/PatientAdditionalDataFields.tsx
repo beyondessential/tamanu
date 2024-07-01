@@ -83,15 +83,16 @@ const CustomField = ({ fieldName, required }): ReactElement => {
 
   if (loading) return <ActivityIndicator />;
 
+  return getCustomFieldComponent(fieldType);
+};
+
+const getCustomFieldComponent = ({ id, name, options, fieldType }) => {
   return (
     <Field
-      name={fieldDefinition.id}
-      label={labels[fieldDefinition.id] || fieldDefinition.name}
-      component={PatientFieldDefinitionComponents[fieldDefinition.fieldType]}
-      options={fieldDefinition.options
-        ?.split(',')
-        ?.map(option => ({ label: option, value: option }))}
-      required={required}
+      name={id}
+      label={name}
+      component={PatientFieldDefinitionComponents[fieldType]}
+      options={options?.split(',')?.map(option => ({ label: option, value: option }))}
     />
   );
 };
@@ -116,7 +117,7 @@ function getComponentForField(
   throw new Error(`Unexpected field ${fieldName} for patient additional data.`);
 }
 
-export const PatientAdditionalDataFields = ({ fields, showMandatory = true }): ReactElement => {
+export const PatientAdditionalDataFields = ({ fields, isCustomSection, showMandatory = true }): ReactElement => {
   const { getLocalisation } = useLocalisation();
   const isHardCodedLayout = getLocalisation('layouts.patientDetails') !== 'generic';
   const [customFieldDefinitions, _, loading] = useBackendEffect(({ models }) =>
@@ -132,6 +133,7 @@ export const PatientAdditionalDataFields = ({ fields, showMandatory = true }): R
 
   // TODO: no custom fields are showing and instead it is showing hierarcy as custom fields are objects
 
+  if (isCustomSection) return fields.map(getCustomFieldComponent)
   if (loading) return [];
 
   return padFields.map((field: string | object, i: number) => {

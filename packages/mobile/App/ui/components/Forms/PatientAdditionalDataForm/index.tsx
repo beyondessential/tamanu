@@ -15,7 +15,6 @@ import { SubmitButton } from '../SubmitButton';
 import { TranslatedText } from '/components/Translations/TranslatedText';
 import { FormScreenView } from '../FormScreenView';
 import { PatientFieldDefinition } from '~/models/PatientFieldDefinition';
-import { Text } from 'react-native-paper';
 
 export const PatientAdditionalDataForm = ({
   patient,
@@ -24,7 +23,7 @@ export const PatientAdditionalDataForm = ({
   navigation,
   sectionTitle,
   customPatientFieldValues,
-  isCustomFields = false,
+  isCustomSection = false,
   customSectionFields,
 }): ReactElement => {
   const scrollViewRef = useRef();
@@ -65,7 +64,7 @@ export const PatientAdditionalDataForm = ({
     [navigation, patient.id],
   );
 
-  const section = isCustomFields
+  const section = isCustomSection
     ? {
         fields: customSectionFields.map(({ id, name, fieldType, options }) => ({
           id,
@@ -74,7 +73,7 @@ export const PatientAdditionalDataForm = ({
           options,
         })),
       }
-    : additionalDataSections.find(({ title }) => title === sectionTitle)
+    : additionalDataSections.find(({ title }) => title === sectionTitle);
 
   const { fields } = section;
 
@@ -83,7 +82,7 @@ export const PatientAdditionalDataForm = ({
       initialValues={{
         ...getInitialAdditionalValues(additionalData, fields),
         ...getInitialCustomValues(customPatientFieldValues, fields),
-        ...patient
+        ...patient,
       }}
       validationSchema={patientAdditionalDataValidationSchema}
       onSubmit={onCreateOrEditAdditionalData}
@@ -91,10 +90,11 @@ export const PatientAdditionalDataForm = ({
       {(): ReactElement => (
         <FormScreenView scrollViewRef={scrollViewRef}>
           <StyledView justifyContent="space-between">
-            <Text>isCustomFields: {isCustomFields}</Text>
-            <Text>section: {JSON.stringify(section)}</Text>
-            {/* <Text>{JSON.stringify(fields)}</Text> */}
-            <PatientAdditionalDataFields fields={fields} showMandatory={false} />
+            <PatientAdditionalDataFields
+              fields={fields}
+              isCustomSection={isCustomSection}
+              showMandatory={false}
+            />
             <SubmitButton
               buttonText={<TranslatedText stringId="general.action.save" fallback="Save" />}
               marginTop={10}

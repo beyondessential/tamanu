@@ -61,7 +61,6 @@ export const AdditionalInfo = ({
 
   // Add edit callback and map the inner 'fields' array
   const additionalSections = dataSections.map(({ title, fields }) => {
-    // TODO: this is for some reason triggering the isCustomFields logic down the line
     const onEditCallback = (): void =>
       onEdit(patientAdditionalData, title, false, null, customPatientFieldValues);
 
@@ -87,7 +86,7 @@ export const AdditionalInfo = ({
       field.name,
       customPatientFieldValues[field.id]?.[0]?.value,
     ]);
-    return { title, fields: mappedFields, onEditCallback, isCustomFields: true };
+    return { title, fields: mappedFields, onEditCallback, isCustomSection: true };
   });
 
   const sections = [...(additionalSections || []), ...(customSections || [])];
