@@ -372,12 +372,7 @@ createSuggester(
         {
           model: req.models.ReferenceData,
           as: 'referenceData',
-          attributes: ['code'],
-        },
-        {
-          model: req.models.LabTestType,
-          as: 'labTestType',
-          attributes: ['code'],
+          attributes: ['code', 'type'],
         },
       ];
     },
