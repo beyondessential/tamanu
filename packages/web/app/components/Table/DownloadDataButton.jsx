@@ -9,10 +9,11 @@ import { saveFile } from '../../utils/fileSystemAccess';
 import { useTranslation } from '../../contexts/Translation';
 import { GreyOutlinedButton } from '../Button';
 import {
-  TranslatedText,
+  TranslatedEnum,
   TranslatedReferenceData,
-  translatedTextAsString,
   translatedReferenceDataAsString,
+  TranslatedText,
+  translatedTextAsString,
 } from '../Translation';
 
 /**
@@ -47,12 +48,23 @@ export function DownloadDataButton({ exportName, columns, data }) {
   const stringifyIfIsTranslatedText = element => {
     if (!isValidElement(element)) return element;
 
-    const isTranslatedText =
-      element.type === TranslatedText || element.type === TranslatedReferenceData;
+    const isTranslatedText = [TranslatedText, TranslatedReferenceData, TranslatedEnum].includes(
+      element.type,
+    );
     if (!isTranslatedText) return element;
 
-    const stringifyFn =
-      element.type === TranslatedText ? translatedTextAsString : translatedReferenceDataAsString;
+    let stringifyFn;
+    switch (element.type) {
+      case TranslatedText:
+        stringifyFn = translatedTextAsString;
+        break;
+      case TranslatedReferenceData:
+        stringifyFn = translatedReferenceDataAsString;
+        break;
+      case TranslatedEnum:
+        stringifyFn = translatedEnumAsString;
+        break;
+    }
     return stringifyFn(element.props, getTranslation);
   };
 
