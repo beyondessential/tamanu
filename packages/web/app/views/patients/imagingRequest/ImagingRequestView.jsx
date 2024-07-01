@@ -104,7 +104,7 @@ const ImagingRequestSection = ({ currentStatus, imagingRequest }) => {
           ?.filter(note => note.noteType === NOTE_TYPES.OTHER)
           .map(note => note.content)
           .join('\n')}
-        label="Notes"
+        label={<TranslatedText stringId="general.notes.label" fallback="Notes" />}
         style={{ gridColumn: '1 / -1', minHeight: '60px' }}
         disabled
       />
