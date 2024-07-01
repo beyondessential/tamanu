@@ -10,6 +10,7 @@ import { useTranslation } from '../../contexts/Translation';
 import { GreyOutlinedButton } from '../Button';
 import {
   TranslatedEnum,
+  translatedEnumAsString,
   TranslatedReferenceData,
   translatedReferenceDataAsString,
   TranslatedText,
