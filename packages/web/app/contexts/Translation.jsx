@@ -22,13 +22,7 @@ export const TranslationProvider = ({ children }) => {
   const translationFunc = translationFactory(translations);
 
   const getTranslation = (stringId, fallback, replacements, uppercase, lowercase) => {
-    const { value } = translationFunc(
-      stringId,
-      fallback,
-      replacements,
-      uppercase,
-      lowercase,
-    );
+    const { value } = translationFunc(stringId, fallback, replacements, uppercase, lowercase);
     return value;
   };
 
@@ -45,7 +39,7 @@ export const TranslationProvider = ({ children }) => {
         getTranslation,
         updateStoredLanguage,
         storedLanguage,
-        translations
+        translations,
       }}
     >
       {children}
