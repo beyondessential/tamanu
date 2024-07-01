@@ -11,7 +11,7 @@ import { RefreshUpcomingVaccinations } from '../../dist/tasks/RefreshMaterialize
 
 jest.mock('@tamanu/shared/utils/dateTime', () => ({
   ...jest.requireActual('@tamanu/shared/utils/dateTime'),
-  getCurrentDateTimeString: jest.fn(() => '2021-01-01 00:00:00'),
+  getCurrentISO8601DateString: jest.fn(() => '2021-01-01 00:00:00.000Z'),
 }));
 
 const createPatient = async (models, overrides) => {
@@ -199,7 +199,7 @@ describe('Upcoming vaccinations', () => {
       const res = await app.get('/api/upcomingVaccinations/updateStats');
       expect(res).toHaveStatus(200);
       expect(res.body).toEqual({
-        lastRefreshed: '2021-01-01 00:00:00',
+        lastRefreshed: '2021-01-01 00:00:00.000Z',
         schedule: '*/50 * * * *',
       });
     });
