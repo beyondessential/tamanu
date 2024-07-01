@@ -13,24 +13,8 @@ const safeGetIsDebugMode = () => {
   }
 };
 
-export const TranslatedText = ({
-  stringId,
-  fallback,
-  replacements,
-  uppercase,
-  lowercase,
-  /**
-   * You should probably not be using this prop! Consider deferring to the `useTranslation` context
-   * hook.
-   *
-   * @privateRemarks This prop exists for the edge case in {@link DownloadDataButton}, where this
-   * component can’t see the {@link TranslationProvider}. In that case, the ancestor fetches the
-   * context itself, and explicitly passes it down as a prop.
-   */
-  customTranslationContext,
-}) => {
-  const translationContext = useTranslation();
-  const { getTranslation } = customTranslationContext ?? translationContext;
+export const TranslatedText = ({ stringId, fallback, replacements, uppercase, lowercase }) => {
+  const { getTranslation } = useTranslation();
 
   const translation = useMemo(
     () =>

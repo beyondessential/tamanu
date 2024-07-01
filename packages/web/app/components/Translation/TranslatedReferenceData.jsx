@@ -7,19 +7,9 @@ export const getReferenceDataStringId = (value, category) => {
   return `${REFERENCE_DATA_TRANSLATION_PREFIX}.${category}.${value}`;
 };
 
-export const TranslatedReferenceData = ({
-  category,
-  value,
-  fallback,
-  placeholder,
-  customTranslationContext,
-}) => {
+export const TranslatedReferenceData = ({ category, value, fallback, placeholder }) => {
   return value ? (
-    <TranslatedText
-      stringId={getReferenceDataStringId(value, category)}
-      fallback={`${fallback}`}
-      customTranslationContext={customTranslationContext}
-    />
+    <TranslatedText stringId={getReferenceDataStringId(value, category)} fallback={`${fallback}`} />
   ) : (
     placeholder
   );

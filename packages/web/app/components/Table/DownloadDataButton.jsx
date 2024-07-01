@@ -1,14 +1,15 @@
 import React, { Children, cloneElement, isValidElement } from 'react';
-import ReactDOMServer from 'react-dom/server';
 import GetAppIcon from '@material-ui/icons/GetApp';
 import { getCurrentDateString } from '@tamanu/shared/utils/dateTime';
-import cheerio from 'cheerio';
 import * as XLSX from 'xlsx';
+import { createRoot } from 'react-dom/client';
+import { flushSync } from 'react-dom';
 
 import { saveFile } from '../../utils/fileSystemAccess';
-import { useTranslation } from '../../contexts/Translation';
+import { TranslationProvider, useTranslation } from '../../contexts/Translation';
 import { GreyOutlinedButton } from '../Button';
 import { TranslatedEnum, TranslatedReferenceData, TranslatedText } from '../Translation';
+import { QueryClientProvider, useQueryClient } from '@tanstack/react-query';
 
 /**
  * Recursive mapper for normalising descendant {@link TranslatedText} elements into translated
@@ -32,8 +33,22 @@ const normalizeRecursively = (element, normalizeFn) => {
   });
 };
 
+const renderToString = element => {
+  if (!isValidElement(element)) {
+    throw new Error('`renderToString` has been called with an invalid element.');
+  }
+
+  const div = document.createElement('div');
+  const root = createRoot(div);
+  flushSync(() => {
+    root.render(element); // Force DOM update before reading innerHTML
+  });
+  return div.innerHTML;
+};
+
 export function DownloadDataButton({ exportName, columns, data }) {
-  const translationContext = useTranslation();
+  // const translationContext = useTranslation();
+  const queryClient = useQueryClient();
 
   /**
    * If the input is a {@link TranslatedText} element (or one of its derivatives), explicitly adds
@@ -49,7 +64,11 @@ export function DownloadDataButton({ exportName, columns, data }) {
     );
     if (!isTranslatedText) return element;
 
-    return cloneElement(element, { customTranslationContext: translationContext });
+    return (
+      <QueryClientProvider client={queryClient}>
+        <TranslationProvider>{element}</TranslationProvider>
+      </QueryClientProvider>
+    );
   };
 
   const getHeaderValue = ({ key, title }) => {
@@ -58,8 +77,7 @@ export function DownloadDataButton({ exportName, columns, data }) {
     if (typeof title === 'object') {
       if (isValidElement(title)) {
         const normalizedElement = normalizeRecursively(title, stringifyIfIsTranslatedText);
-        const normalizedStr = ReactDOMServer.renderToString(normalizedElement);
-        return cheerio.load(normalizedStr).text();
+        return renderToString(normalizedElement);
       }
     }
     return key;
@@ -94,9 +112,7 @@ export function DownloadDataButton({ exportName, columns, data }) {
                     value,
                     stringifyIfIsTranslatedText,
                   );
-                  // Render React element and get the text value with Cheerio
-                  const normalizedStr = ReactDOMServer.renderToString(normalizedElement);
-                  dx[headerValue] = cheerio.load(normalizedStr).text();
+                  dx[headerValue] = renderToString(normalizedElement);
                 } else {
                   dx[headerValue] = d[c.key];
                 }
