@@ -287,14 +287,17 @@ async function freezeInvoiceItemsData(invoiceId, models, transaction) {
         model: models.InvoiceProduct,
         as: 'product',
         attributes: ['name', 'price'],
+        include: models.InvoiceProduct.getFullReferenceAssociations(),
       },
     },
     { transaction },
   );
 
   for (const item of items) {
+    item.product.addVirtualFields();
     item.productName = item.product.name;
     item.productPrice = item.product.price;
+    item.productCode = item.product.dataValues.code;
     await item.save({ transaction });
   }
 }
