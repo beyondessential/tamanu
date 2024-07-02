@@ -483,10 +483,18 @@ const InvoiceRecordPrintoutComponent = ({
         <SummaryPane invoice={invoice} />
         <SectionSpacing />
         {patientPayments?.data?.length && (
-          <TableSection data={patientPayments.data} columns={COLUMNS.patientPayments} />
+          <TableSection
+            title="Patient payment"
+            data={patientPayments.data}
+            columns={COLUMNS.patientPayments}
+          />
         )}
         {insurerPayments?.data?.length && (
-          <TableSection data={insurerPayments.data} columns={COLUMNS.insurerPayments} />
+          <TableSection
+            title="Insurer payment"
+            data={insurerPayments.data}
+            columns={COLUMNS.insurerPayments}
+          />
         )}
         <Footer />
       </Page>

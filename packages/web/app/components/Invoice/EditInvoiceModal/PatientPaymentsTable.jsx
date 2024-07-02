@@ -82,9 +82,10 @@ export const PatientPaymentsTable = ({ onDataFetched, remainingBalance, invoiceI
     return customAlphabet('123456789', 8)() + customAlphabet('ABCDEFGHJKLMNPQRSTUVWXYZ', 2)();
   };
 
-  const onRecord = async data => {
+  const onRecord = async (data, { resetForm }) => {
     await api.post(`invoices/${invoiceId}/patientPayments`, data);
     setRefreshCount(prev => prev + 1);
+    resetForm();
   };
 
   return (
