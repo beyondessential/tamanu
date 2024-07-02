@@ -2,7 +2,6 @@ import React, { useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { customAlphabet } from 'nanoid';
 import * as yup from 'yup';
-import { getInvoiceSummaryDisplay } from '@tamanu/shared/utils/invoice';
 import CachedIcon from '@material-ui/icons/Cached';
 import { Box } from '@material-ui/core';
 import { TranslatedText } from '../../Translation';
@@ -12,7 +11,7 @@ import { AutocompleteField, DateField, Field, Form, NumberField, TextField } fro
 import { Button } from '../../Button';
 import { Heading4 } from '../../Typography';
 import { useApi, useSuggester } from '../../../api';
-import { useCreatePatientPayments } from '../../../api/mutations';
+import { DateDisplay } from '../../DateDisplay';
 
 const TableContainer = styled.div`
   padding-left: 16px;
@@ -48,6 +47,7 @@ const COLUMNS = [
     key: 'date',
     title: <TranslatedText stringId="general.date.label" fallback="Date" />,
     sortable: false,
+    accessor: ({ date }) => <DateDisplay date={date} />,
   },
   {
     key: 'methodName',
@@ -59,6 +59,7 @@ const COLUMNS = [
     key: 'amount',
     title: <TranslatedText stringId="invoice.table.payment.column.amount" fallback="Amount" />,
     sortable: false,
+    accessor: ({ amount }) => parseFloat(amount).toFixed(2),
   },
   {
     key: 'receiptNumber',

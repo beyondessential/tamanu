@@ -20,8 +20,6 @@ import { ThreeDotMenu } from '../../ThreeDotMenu';
 import { PotentialInvoiceItemsTable } from './PotentialInvoiceItemsTable';
 import { Button } from '../../Button';
 import { InvoiceRecordModal } from '../../PatientPrinting/modals/InvoiceRecordModal';
-import { InsurerPaymentsTable } from './InsurerPaymentsTable';
-import { PatientPaymentsTable } from './PatientPaymentsTable';
 import { PaymentTablesGroup } from './PaymentTablesGroup';
 
 const LinkText = styled.div`

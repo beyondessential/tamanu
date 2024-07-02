@@ -177,7 +177,7 @@ const COLUMNS = {
     {
       key: 'productName',
       title: 'Details',
-      style: { width: '36%' },
+      style: { width: '34%' },
       accessor: row => getInvoiceItemDetails(row),
       CellComponent: CustomCellComponent,
     },
@@ -203,7 +203,7 @@ const COLUMNS = {
       key: 'price',
       title: 'Price',
       accessor: row => getPrice(row),
-      style: { width: '14%' },
+      style: { width: '16%' },
       CellComponent: CustomCellComponent,
     },
   ],
@@ -212,7 +212,7 @@ const COLUMNS = {
       key: 'date',
       title: 'Date',
       style: { width: '15%' },
-      accessor: ({ date }) => date,
+      accessor: ({ date }) => (date ? formatShort(date) : '--/--/----'),
     },
     {
       key: 'methodName',
@@ -224,7 +224,7 @@ const COLUMNS = {
       key: 'amount',
       title: 'Amount',
       style: { width: '12%' },
-      accessor: ({ amount }) => amount,
+      accessor: ({ amount }) => parseFloat(amount).toFixed(2),
     },
     {
       key: 'receiptNumber',
