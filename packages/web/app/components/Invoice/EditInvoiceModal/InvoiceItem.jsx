@@ -15,6 +15,7 @@ import {
   getInvoiceItemCode,
 } from '@tamanu/shared/utils/invoice';
 import { getDateDisplay } from '../../DateDisplay';
+import { useTranslation } from '../../../contexts/Translation';
 
 const PriceText = styled.span`
   margin-right: 16px;
@@ -106,8 +107,22 @@ export const InvoiceItemRow = ({
   editable,
 }) => {
   const isItemEditable = !item.sourceId && editable;
+  const { getTranslation } = useTranslation();
   const invoiceProductsSuggester = useSuggester('invoiceProducts', {
-    formatter: ({ name, id, ...others }) => ({ ...others, label: name, value: id }),
+    formatter: ({ name, id, ...others }) => ({
+      ...others,
+      productName: name,
+      label: others.discountable
+        ? name
+        : `${name} (${getTranslation(
+            'invoice.table.details.nonDiscountable',
+            'Non-discountable',
+            {},
+            false,
+            true,
+          )})`,
+      value: id,
+    }),
   });
   const practitionerSuggester = useSuggester('practitioner');
 
@@ -229,7 +244,7 @@ export const InvoiceItemRow = ({
     const value = e.target;
     formArrayMethods.replace(index, {
       ...item,
-      productName: value.label,
+      productName: value.productName,
       productCode: value.code,
       productPrice: value.price,
     });

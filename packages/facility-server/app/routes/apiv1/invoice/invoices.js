@@ -143,7 +143,7 @@ const updateInvoiceSchema = z
         orderDate: z.string().date(),
         orderedByUserId: z.string().uuid(),
         productId: z.string(),
-        quantity: z.coerce.number().default(0),
+        quantity: z.coerce.number().default(1),
         note: z.string().optional(),
         sourceId: z
           .string()

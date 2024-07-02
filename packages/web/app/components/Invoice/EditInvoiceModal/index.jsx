@@ -255,6 +255,7 @@ export const EditInvoiceModal = ({
           </>
         )}
         <Form
+          suppressErrorDialog
           enableReinitialize
           onSubmit={handleSubmit}
           initialValues={{
