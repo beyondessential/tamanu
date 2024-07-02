@@ -61,13 +61,12 @@ export const VaccinesTable = ({
 
   const [cells, setCells] = useState<{ [doseLabel: string]: VaccineTableCellData[] }>({});
 
-  const handleClearCells = () => {
+  useEffect(() => {
     if (!patientAdministeredVaccines) return;
+    // Reset cells after a vaccine is administered to update the table
     setCells({});
-  };
-
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(handleClearCells, [lastUpdated]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lastUpdated]);
 
   const nonHistoricalOrAdministeredScheduledVaccines = useMemo(() => {
     if (!scheduledVaccines || !patientAdministeredVaccines || !thresholds) return null;
