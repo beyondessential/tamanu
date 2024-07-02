@@ -144,7 +144,7 @@ const updateInvoiceSchema = z
         orderDate: z.string().date(),
         orderedByUserId: z.string().uuid(),
         productId: z.string(),
-        quantity: z.coerce.number().default(0),
+        quantity: z.coerce.number().default(1),
         note: z.string().optional(),
         sourceId: z
           .string()
@@ -287,14 +287,17 @@ async function freezeInvoiceItemsData(invoiceId, models, transaction) {
         model: models.InvoiceProduct,
         as: 'product',
         attributes: ['name', 'price'],
+        include: models.InvoiceProduct.getFullReferenceAssociations(),
       },
     },
     { transaction },
   );
 
   for (const item of items) {
+    item.product.addVirtualFields();
     item.productName = item.product.name;
     item.productPrice = item.product.price;
+    item.productCode = item.product.dataValues.code;
     await item.save({ transaction });
   }
 }

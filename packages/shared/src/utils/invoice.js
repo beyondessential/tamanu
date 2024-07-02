@@ -1,4 +1,4 @@
-import { round, chain } from 'lodash';
+import { chain } from 'lodash';
 import {
   INVOICE_INSURER_PAYMENT_STATUSES,
   INVOICE_PATIENT_PAYMENT_STATUSES,
@@ -77,39 +77,57 @@ const getInvoiceDiscountDiscountAmount = (discount, total) => {
  */
 export const getInvoiceSummary = invoice => {
   const discountableItemsSubtotal = chain(invoice.items)
-    .filter(item => item.product.discountable)
+    .filter(item => item?.product?.discountable)
     .sumBy(item => getInvoiceItemPriceAfterDiscount(item) * Number(item.quantity))
+    .round(2)
     .value();
 
   const nonDiscountableItemsSubtotal = chain(invoice.items)
-    .filter(item => !item.product.discountable)
+    .filter(item => !item?.product?.discountable)
     .sumBy(item => getInvoiceItemPriceAfterDiscount(item) * Number(item.quantity))
+    .round(2)
     .value();
 
-  const itemsSubtotal = discountableItemsSubtotal + nonDiscountableItemsSubtotal;
+  const itemsSubtotal = chain(discountableItemsSubtotal)
+    .add(nonDiscountableItemsSubtotal)
+    .round(2)
+    .value();
 
   const insurersDiscountPercentage = chain(invoice.insurers)
     .sumBy(insurer => insurer.percentage ?? 0)
     .value();
-  const insurerDiscountTotal = itemsSubtotal * insurersDiscountPercentage;
 
-  const patientDiscountableSubtotal = priceAfterDiscount(
-    discountableItemsSubtotal,
-    insurersDiscountPercentage,
-  );
-  const patientNonDiscountableSubtotal = priceAfterDiscount(
-    nonDiscountableItemsSubtotal,
-    insurersDiscountPercentage,
-  );
+  const insurerDiscountTotal = chain(itemsSubtotal)
+    .multiply(insurersDiscountPercentage)
+    .round(2)
+    .value();
 
-  const patientSubtotal = patientDiscountableSubtotal + patientNonDiscountableSubtotal;
+  const patientDiscountableSubtotal = chain(
+    priceAfterDiscount(discountableItemsSubtotal, insurersDiscountPercentage),
+  )
+    .round(2)
+    .value();
+  const patientNonDiscountableSubtotal = chain(
+    priceAfterDiscount(nonDiscountableItemsSubtotal, insurersDiscountPercentage),
+  )
+    .round(2)
+    .value();
 
-  const discountTotal = getInvoiceDiscountDiscountAmount(
-    invoice.discount,
-    patientDiscountableSubtotal,
-  );
+  const patientSubtotal = chain(patientDiscountableSubtotal)
+    .add(patientNonDiscountableSubtotal)
+    .round(2)
+    .value();
 
-  const patientTotal = patientSubtotal - discountTotal;
+  const discountTotal = chain(
+    getInvoiceDiscountDiscountAmount(invoice.discount, patientDiscountableSubtotal),
+  )
+    .round(2)
+    .value();
+
+  const patientTotal = chain(patientSubtotal)
+    .subtract(discountTotal)
+    .round(2)
+    .value();
 
   //Calculate payments as well
   const patientPaymentsTotal = chain(invoice.payments)
@@ -120,7 +138,7 @@ export const getInvoiceSummary = invoice => {
     .sumBy(payment => parseFloat(payment.amount))
     .value();
 
-  return chain({
+  return {
     discountableItemsSubtotal,
     nonDiscountableItemsSubtotal,
     itemsSubtotal,
@@ -131,9 +149,7 @@ export const getInvoiceSummary = invoice => {
     patientTotal,
     patientPaymentsTotal,
     paymentsTotal,
-  })
-    .mapValues(value => round(value, 2))
-    .value();
+  };
 };
 
 /**
