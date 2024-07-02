@@ -13,6 +13,9 @@ interface VaccineHistoryTabProps {
   navigation: NavigationProp<any>;
   route: {
     name: string;
+    params?: {
+      lastUpdated: number;
+    };
   };
   selectedPatient: IPatient;
 }
