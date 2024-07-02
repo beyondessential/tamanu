@@ -47,7 +47,6 @@ export const NewVaccineTabComponent = ({
   const { vaccine } = route;
   const { administeredVaccine } = vaccine;
   const navigation = useNavigation();
-  const { handleRefresh } = useVaccineFormRefresh();
   const [isSubmitting, setSubmitting] = useState(false);
 
   const onPressCancel = useCallback(() => {
@@ -130,7 +129,6 @@ export const NewVaccineTabComponent = ({
       const notGivenReason = await models.ReferenceData.findOne({ id: notGivenReasonId });
       const location = await models.Location.findOne(locationId, { relations: ['locationGroup'] });
       const department = await models.Department.findOne(departmentId);
-      handleRefresh();
       if (values.administeredVaccine) {
         navigation.navigate(Routes.HomeStack.VaccineStack.VaccineModalScreen, {
           vaccine: {
@@ -149,7 +147,9 @@ export const NewVaccineTabComponent = ({
           },
         });
       } else {
-        navigation.goBack();
+        navigation.navigate(Routes.HomeStack.VaccineStack.VaccineTabs.Routine, {
+          lastUpdated: Date.now(),
+        });
       }
     },
     [isSubmitting],

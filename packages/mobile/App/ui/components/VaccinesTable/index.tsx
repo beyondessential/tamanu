@@ -16,7 +16,6 @@ import { VisibilityStatus } from '~/visibilityStatuses';
 import { useSettings } from '~/ui/contexts/SettingsContext';
 import { getVaccineStatus, parseThresholdsSetting } from '~/ui/helpers/getVaccineStatus';
 import { SETTING_KEYS } from '~/constants';
-import { useVaccineFormRefresh } from '../Forms/VaccineForms/VaccineRefreshContext';
 
 interface VaccinesTableProps {
   selectedPatient: any;
@@ -28,8 +27,8 @@ export const VaccinesTable = ({
   onPressItem,
   categoryName,
   selectedPatient,
+  lastUpdated,
 }: VaccinesTableProps): JSX.Element => {
-  const { refreshCount } = useVaccineFormRefresh();
   const { getSetting } = useSettings();
 
   const thresholds = useMemo(
@@ -56,15 +55,14 @@ export const VaccinesTable = ({
 
   const [patientAdministeredVaccines, administeredError] = useBackendEffect(
     ({ models }) => models.AdministeredVaccine.getForPatient(selectedPatient.id),
-    [refreshCount],
+    [],
   );
 
   const [cells, setCells] = useState<{ [doseLabel: string]: VaccineTableCellData[] }>({});
 
   useEffect(() => {
-    if (!refreshCount) return;
     setCells({});
-  }, [refreshCount]);
+  }, [lastUpdated]);
 
   const nonHistoricalOrAdministeredScheduledVaccines = useMemo(() => {
     if (!scheduledVaccines || !patientAdministeredVaccines || !thresholds) return null;
@@ -109,7 +107,7 @@ export const VaccinesTable = ({
       return shouldDisplayVaccine;
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [patientAdministeredVaccines, thresholds, refreshCount]);
+  }, [patientAdministeredVaccines, thresholds]);
 
   const uniqueByVaccine = uniqBy(nonHistoricalOrAdministeredScheduledVaccines, 'label');
 
@@ -117,8 +115,7 @@ export const VaccinesTable = ({
   if (
     !scheduledVaccines ||
     !patientAdministeredVaccines ||
-    !nonHistoricalOrAdministeredScheduledVaccines ||
-    isEmpty(cells)
+    !nonHistoricalOrAdministeredScheduledVaccines
   )
     return <LoadingScreen />;
 

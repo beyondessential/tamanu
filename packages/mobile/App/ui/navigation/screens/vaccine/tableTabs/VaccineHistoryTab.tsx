@@ -45,6 +45,7 @@ export const VaccineHistoryTabComponent = ({
           selectedPatient={selectedPatient}
           categoryName={category}
           onPressItem={onNavigateToClickedCell}
+          lastUpdated={route?.params?.lastUpdated}
         />
       </FullView>
     </StyledSafeAreaView>
