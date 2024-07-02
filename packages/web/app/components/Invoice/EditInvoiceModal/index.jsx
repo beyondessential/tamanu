@@ -188,9 +188,7 @@ export const EditInvoiceModal = ({
         />
       );
     }
-    return (
-      <PaymentTablesGroup invoice={invoice} />
-    );
+    return <PaymentTablesGroup invoice={invoice} />;
   };
 
   return (
@@ -208,8 +206,7 @@ export const EditInvoiceModal = ({
               <InvoiceStatus status={invoice.status} />
             </StatusContainer>
           </Box>
-          {/* TODO: check condition to show Print button only after finalized */}
-          {isPatientView && (
+          {isPatientView && !editable && (
             <PrintButton
               onClick={() => setPrintModalOpen(true)}
               color="primary"
