@@ -17,7 +17,6 @@ import { VaccineStatus } from '~/ui/helpers/patient';
 import { Routes } from '~/ui/helpers/routes';
 import { getCurrentDateTimeString } from '~/ui/helpers/date';
 import { VaccineCategory } from '../../../../helpers/patient';
-import { useVaccineFormRefresh } from '~/ui/components/Forms/VaccineForms/VaccineRefreshContext';
 
 type NewVaccineTabProps = {
   route: Route & {

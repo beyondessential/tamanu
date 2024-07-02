@@ -55,14 +55,17 @@ export const VaccinesTable = ({
 
   const [patientAdministeredVaccines, administeredError] = useBackendEffect(
     ({ models }) => models.AdministeredVaccine.getForPatient(selectedPatient.id),
-    [],
+    [lastUpdated],
   );
 
   const [cells, setCells] = useState<{ [doseLabel: string]: VaccineTableCellData[] }>({});
 
-  useEffect(() => {
+  const handleClearCells = () => {
+    if (!patientAdministeredVaccines) return;
     setCells({});
-  }, [lastUpdated]);
+  };
+
+  useEffect(handleClearCells, [lastUpdated]);
 
   const nonHistoricalOrAdministeredScheduledVaccines = useMemo(() => {
     if (!scheduledVaccines || !patientAdministeredVaccines || !thresholds) return null;
@@ -115,7 +118,8 @@ export const VaccinesTable = ({
   if (
     !scheduledVaccines ||
     !patientAdministeredVaccines ||
-    !nonHistoricalOrAdministeredScheduledVaccines
+    !nonHistoricalOrAdministeredScheduledVaccines ||
+    isEmpty(cells)
   )
     return <LoadingScreen />;
 
