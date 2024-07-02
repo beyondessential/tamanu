@@ -49,9 +49,7 @@ export default {
     loader: labTestPanelLoader,
     needs: ['labTestType'],
   },
-  invoiceProduct: {
-    needs: ['labTestType'],
-  },
+  invoiceProduct: {},
 
   role: {},
   permission: {

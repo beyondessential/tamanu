@@ -143,7 +143,10 @@ const getInvoiceItemDetails = item => {
   return (
     <View>
       <View>
-        <P>{name}</P>
+        <P>
+          {name}
+          {!item.product.discountable && ' (Non-discountable)'}
+        </P>
       </View>
       {!!note && (
         <View>
