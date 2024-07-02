@@ -55,7 +55,7 @@ export function DownloadDataButton({ exportName, columns, data }) {
    * where a {@link TranslatedText} is rendered into a string for export, which happens in a
    * “headless” React root node, outside the context providers defined in `Root.jsx`.
    */
-  const contextualiseIfIsTranslatedText = element => {
+  const contextualizeIfIsTranslatedText = element => {
     if (!isValidElement(element)) return element;
 
     const isTranslatedText = [TranslatedText, TranslatedReferenceData, TranslatedEnum].includes(
@@ -77,7 +77,7 @@ export function DownloadDataButton({ exportName, columns, data }) {
     if (typeof title === 'string') return title;
     if (typeof title === 'object') {
       if (isValidElement(title)) {
-        const normalizedElement = normalizeRecursively(title, contextualiseIfIsTranslatedText);
+        const normalizedElement = normalizeRecursively(title, contextualizeIfIsTranslatedText);
         return renderToString(normalizedElement);
       }
     }
@@ -111,7 +111,7 @@ export function DownloadDataButton({ exportName, columns, data }) {
                 if (isValidElement(value)) {
                   const normalizedElement = normalizeRecursively(
                     value,
-                    contextualiseIfIsTranslatedText,
+                    contextualizeIfIsTranslatedText,
                   );
                   dx[headerValue] = renderToString(normalizedElement);
                 } else {
