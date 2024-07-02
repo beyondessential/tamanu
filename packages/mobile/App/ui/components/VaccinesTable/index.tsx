@@ -20,6 +20,7 @@ import { SETTING_KEYS } from '~/constants';
 interface VaccinesTableProps {
   selectedPatient: any;
   categoryName: string;
+  lastUpdated?: number;
   onPressItem: (item: any) => void;
 }
 
@@ -65,6 +66,7 @@ export const VaccinesTable = ({
     setCells({});
   };
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(handleClearCells, [lastUpdated]);
 
   const nonHistoricalOrAdministeredScheduledVaccines = useMemo(() => {
