@@ -1,5 +1,5 @@
 import asyncHandler from 'express-async-handler';
-import { QueryTypes, Sequelize } from 'sequelize';
+import { Op, QueryTypes, Sequelize } from 'sequelize';
 import { subject } from '@casl/ability';
 
 import { getPatientAdditionalData } from '@tamanu/shared/utils';
@@ -17,6 +17,17 @@ import { patientProfilePicture } from './patientProfilePicture';
 import { deleteReferral, deleteSurveyResponse } from '../../../routeHandlers/deleteModel';
 
 export const patientRelations = permissionCheckingRouter('read', 'Patient');
+
+const getPermittedSurveyIds = async (req, models) => {
+  // Number of surveys should not be too large, so it's ok to load all survey ids into the memory
+  const surveys = await models.Survey.findAll({ attributes: ['id'] });
+
+  // Use this list of permittedSurveyIds in the query to only grab the survey responses
+  // user has permission to read
+  return surveys
+    .filter(survey => req.ability.can('read', subject('Survey', { id: survey.id })))
+    .map(survey => survey.id);
+};
 
 patientRelations.get(
   '/:id/encounters',
@@ -180,6 +191,16 @@ patientRelations.get(
     req.checkPermission('list', 'SurveyResponse');
     const sortKey = REFERRAL_SORT_KEYS[orderBy] || REFERRAL_SORT_KEYS.date;
     const sortDirection = order.toLowerCase() === 'asc' ? 'ASC' : 'DESC';
+
+    const permittedSurveyIds = await getPermittedSurveyIds(req, models);
+
+    if (!permittedSurveyIds.length) {
+      res.send({
+        data: [],
+        count: 0,
+      });
+    }
+    
     const patientReferrals = await models.Referral.findAll({
       include: [
         {
@@ -225,6 +246,11 @@ patientRelations.get(
           ],
         },
       ],
+      where: {
+        '$surveyResponse.survey_id$': {
+          [Op.in]: permittedSurveyIds,
+        },
+      },
       order: [[sortKey, sortDirection]],
     });
 
@@ -258,14 +284,7 @@ patientRelations.get(
     const sortKey = PROGRAM_RESPONSE_SORT_KEYS[orderBy] || PROGRAM_RESPONSE_SORT_KEYS.endTime;
     const sortDirection = order.toLowerCase() === 'asc' ? 'ASC' : 'DESC';
 
-    // Number of surveys should not be too large, so it's ok to load all survey ids into the memory
-    const surveys = await models.Survey.findAll({ attributes: ['id'] });
-    
-    // Use this list of permittedSurveyIds in the query to only grab the survey responses
-    // user has permission to read
-    const permittedSurveyIds = surveys
-      .filter(survey => req.ability.can('read', subject('Survey', { id: survey.id })))
-      .map(survey => survey.id);
+    const permittedSurveyIds = await getPermittedSurveyIds(req, models);
 
     if (!permittedSurveyIds.length) {
       res.send({

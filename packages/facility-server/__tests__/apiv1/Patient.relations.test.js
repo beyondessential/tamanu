@@ -232,27 +232,54 @@ describe('Patient relations', () => {
   });
 
   describe('referrals', () => {
+    disableHardcodedPermissionsForSuite();
+
+    let permissionApp;
+
     it('should return empty list if no referrals', async () => {
+      const permissions = [
+        ['read', 'Patient'],
+        ['list', 'SurveyResponse'],
+      ];
+
+      permissionApp = await baseApp.asNewRole(permissions);
+
       const patient = await models.Patient.create(await createDummyPatient(models));
-      const response = await app.get(`/api/patient/${patient.id}/referrals`);
+      const response = await permissionApp.get(`/api/patient/${patient.id}/referrals`);
       expect(response.body).toEqual({ count: 0, data: [] });
     });
 
     it('should return list of referrals', async () => {
-      const { patient, referral } = await setupSurvey({ withReferral: true });
-      const response = await app.get(`/api/patient/${patient.id}/referrals`);
+      const { patient, referral, survey } = await setupSurvey({ withReferral: true });
+      const permissions = [
+        ['read', 'Patient'],
+        ['list', 'SurveyResponse'],
+        ['read', 'Survey', survey.id],
+      ];
+
+      permissionApp = await baseApp.asNewRole(permissions);
+
+      const response = await permissionApp.get(`/api/patient/${patient.id}/referrals`);
       expect(response).toHaveSucceeded();
       expect(response.body.count).toEqual(1);
       expect(response.body.data).toHaveLength(1);
       expect(response.body.data[0].id).toEqual(referral.id);
     });
     it('should return submissionDate', async () => {
-      const { patient, surveyResponseAnswer, referral } = await setupSurvey({
+      const { patient, surveyResponseAnswer, survey, referral } = await setupSurvey({
         withReferral: true,
         submissionDate: '2020-01-01',
       });
 
-      const response = await app.get(`/api/patient/${patient.id}/referrals`);
+      const permissions = [
+        ['read', 'Patient'],
+        ['list', 'SurveyResponse'],
+        ['read', 'Survey', survey.id],
+      ];
+
+      permissionApp = await baseApp.asNewRole(permissions);
+
+      const response = await permissionApp.get(`/api/patient/${patient.id}/referrals`);
       expect(response).toHaveSucceeded();
       expect(response.body.count).toEqual(1);
       expect(response.body.data).toHaveLength(1);
@@ -262,10 +289,19 @@ describe('Patient relations', () => {
       );
     });
     it('should use endTime if no SubmissionDate answer', async () => {
-      const { patient, surveyResponse, referral } = await setupSurvey({
+      const { patient, surveyResponse, survey, referral } = await setupSurvey({
         withReferral: true,
       });
-      const response = await app.get(`/api/patient/${patient.id}/referrals`);
+
+      const permissions = [
+        ['read', 'Patient'],
+        ['list', 'SurveyResponse'],
+        ['read', 'Survey', survey.id],
+      ];
+
+      permissionApp = await baseApp.asNewRole(permissions);
+
+      const response = await permissionApp.get(`/api/patient/${patient.id}/referrals`);
       expect(response).toHaveSucceeded();
       expect(response.body.count).toEqual(1);
       expect(response.body.data).toHaveLength(1);
@@ -273,21 +309,33 @@ describe('Patient relations', () => {
       expect(response.body.data[0].surveyResponse.submissionDate).toEqual(surveyResponse.endTime);
     });
     it('should order by submissionDate asc by default', async () => {
-      const { patient } = await setupSurvey({
+      const { patient, survey: survey1 } = await setupSurvey({
         withReferral: true,
         submissionDate: '2019-01-01',
       });
-      await setupSurvey({
+
+      const { survey: survey2 } = await setupSurvey({
         withReferral: true,
         submissionDate: '2019-01-03',
         patientId: patient.id,
       });
-      await setupSurvey({
+      const {  survey: survey3 } = await setupSurvey({
         withReferral: true,
         submissionDate: '2019-01-02',
         patientId: patient.id,
       });
-      const response = await app.get(`/api/patient/${patient.id}/referrals`);
+
+      const permissions = [
+        ['read', 'Patient'],
+        ['list', 'SurveyResponse'],
+        ['read', 'Survey', survey1.id],
+        ['read', 'Survey', survey2.id],
+        ['read', 'Survey', survey3.id],
+      ];
+
+      permissionApp = await baseApp.asNewRole(permissions);
+      
+      const response = await permissionApp.get(`/api/patient/${patient.id}/referrals`);
       expect(response).toHaveSucceeded();
       expect(response.body.count).toEqual(3);
       expect(response.body.data).toHaveLength(3);
@@ -298,21 +346,32 @@ describe('Patient relations', () => {
       ]);
     });
     it('should order by referralType survey name', async () => {
-      const { patient } = await setupSurvey({
+      const { patient, survey: survey1 } = await setupSurvey({
         withReferral: true,
         surveyName: 'name-c',
       });
-      await setupSurvey({
+      const { survey: survey2 } = await setupSurvey({
         withReferral: true,
         surveyName: 'name-a',
         patientId: patient.id,
       });
-      await setupSurvey({
+      const { survey: survey3 } = await setupSurvey({
         withReferral: true,
         surveyName: 'name-b',
         patientId: patient.id,
       });
-      const response = await app.get(
+
+      const permissions = [
+        ['read', 'Patient'],
+        ['list', 'SurveyResponse'],
+        ['read', 'Survey', survey1.id],
+        ['read', 'Survey', survey2.id],
+        ['read', 'Survey', survey3.id],
+      ];
+
+      permissionApp = await baseApp.asNewRole(permissions);
+
+      const response = await permissionApp.get(
         `/api/patient/${patient.id}/referrals?orderBy=referralType&order=asc`,
       );
       expect(response).toHaveSucceeded();
@@ -322,6 +381,44 @@ describe('Patient relations', () => {
         'name-a',
         'name-b',
         'name-c',
+      ]);
+    });
+
+    it('should return only permitted referrals', async () => {
+      const { patient, survey: survey1 } = await setupSurvey({
+        withReferral: true,
+        surveyName: 'name-a',
+      });
+      const { survey: survey2 } = await setupSurvey({
+        withReferral: true,
+        surveyName: 'name-b',
+        patientId: patient.id,
+      });
+      await setupSurvey({
+        withReferral: true,
+        surveyName: 'name-c',
+        patientId: patient.id,
+      });
+
+      const permissions = [
+        ['read', 'Patient'],
+        ['list', 'SurveyResponse'],
+        ['read', 'Survey', survey1.id],
+        ['read', 'Survey', survey2.id], // no survey3 so results shouldn't contain survey3
+      ];
+
+      permissionApp = await baseApp.asNewRole(permissions);
+
+      const response = await permissionApp.get(
+        `/api/patient/${patient.id}/referrals?orderBy=referralType&order=asc`,
+      );
+
+      expect(response).toHaveSucceeded();
+      expect(response.body.count).toEqual(2);
+      expect(response.body.data).toHaveLength(2);
+      expect(response.body.data.map(x => x.surveyResponse.survey.name)).toEqual([
+        'name-a',
+        'name-b',
       ]);
     });
   });
