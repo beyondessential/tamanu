@@ -87,7 +87,7 @@ const CustomField = ({ fieldName, required }): ReactElement => {
   return getCustomFieldComponent(fieldDefinition, required);
 };
 
-const getCustomFieldComponent = ({ id, name, options, fieldType }: PatientFieldDefinition, required?: boolean) => {
+const getCustomFieldComponent = ({ id, name, options, fieldType }: PatientFieldDefinition, required: boolean = false) => {
   return (
     <Field
       name={id}
@@ -133,7 +133,7 @@ export const PatientAdditionalDataFields = ({ fields, isCustomSection, showManda
     ? fields
     : getConfiguredPatientAdditionalDataFields(fields, showMandatory, getLocalisation);
 
-  if (isCustomSection) return fields.map(getCustomFieldComponent)
+  if (isCustomSection) return fields.map((field: PatientFieldDefinition) => getCustomFieldComponent(field))
     
   if (loading) return [];
 
