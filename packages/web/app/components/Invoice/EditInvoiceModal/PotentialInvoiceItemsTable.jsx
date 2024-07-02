@@ -9,6 +9,7 @@ import { TranslatedEnum, TranslatedText } from '../../Translation';
 import { DateDisplay } from '../../DateDisplay';
 import { Button } from '../../Button';
 import { Colors, denseTableStyle } from '../../../constants';
+import { useTableSorting } from '../../Table/useTableSorting';
 
 const StyledDataFetchingTable = styled(DataFetchingTable)`
   max-height: 400px;
@@ -70,6 +71,21 @@ const Container = styled.div`
 
 export const PotentialInvoiceItemsTable = ({ invoice, invoiceItems, formArrayMethods }) => {
   const [potentialInvoiceItems, setPotentialInvoiceItems] = useState([]);
+  const { orderBy, order, onChangeOrderBy, customSort } = useTableSorting({
+    initialSortKey: '',
+    initialSortDirection: 'asc',
+  });
+
+  const customSortWrapper = customSort => data => {
+    const potentialInvoiceItems = data.map(item => ({
+      ...item,
+      productPrice: Number(item.productPrice),
+    }));
+    return customSort(potentialInvoiceItems);
+  };
+
+  const wrappedCustomSort = customSortWrapper(customSort);
+
   const isInvoiceItemsEmpty =
     invoiceItems.length === 1 &&
     !invoiceItems[0].orderDate &&
@@ -113,12 +129,12 @@ export const PotentialInvoiceItemsTable = ({ invoice, invoiceItems, formArrayMet
       accessor: ({ orderDate }) => <DateDisplay date={orderDate} />,
     },
     {
-      key: 'code',
+      key: 'productCode',
       title: <TranslatedText stringId="invoice.table.column.code" fallback="Code" />,
       accessor: ({ productCode }) => productCode,
     },
     {
-      key: 'type',
+      key: 'productType',
       title: <TranslatedText stringId="invoice.table.column.category" fallback="Category" />,
       accessor: ({ productType }) => (
         <TranslatedEnum
@@ -129,7 +145,7 @@ export const PotentialInvoiceItemsTable = ({ invoice, invoiceItems, formArrayMet
       ),
     },
     {
-      key: 'price',
+      key: 'productPrice',
       title: <TranslatedText stringId="invoice.table.column.price" fallback="Price" />,
       accessor: ({ productPrice }) => (
         <TranslatedText
@@ -183,6 +199,11 @@ export const PotentialInvoiceItemsTable = ({ invoice, invoiceItems, formArrayMet
         headStyle={denseTableStyle.head}
         statusCellStyle={denseTableStyle.statusCell}
         disablePagination
+        orderBy={orderBy}
+        order={order}
+        onChangeOrderBy={onChangeOrderBy}
+        customSort={wrappedCustomSort}
+        rowIdKey="sourceId"
       />
     </Container>
   );
