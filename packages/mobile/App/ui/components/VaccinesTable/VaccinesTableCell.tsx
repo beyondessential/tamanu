@@ -98,6 +98,10 @@ export const VaccineTableCell = memo(
     );
   },
   (prevProps, nextProps) => {
-    return prevProps.id === nextProps.id;
+    return (
+      (prevProps.id === nextProps.id &&
+        prevProps.data.vaccineStatus === nextProps.data.vaccineStatus) ||
+      prevProps.data.dueStatus.status === nextProps.data.dueStatus.status
+    );
   },
 );
