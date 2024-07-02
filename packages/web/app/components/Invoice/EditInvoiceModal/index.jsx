@@ -99,42 +99,49 @@ export const EditInvoiceModal = ({
 
   const schema = yup.object({
     invoiceItems: yup.array(
-      yup.object().shape({
-        orderDate: yup.string().when(['productId', 'orderedByUserId'], {
-          is: (productId, orderedByUserId) => productId || orderedByUserId,
-          then: yup
-            .string()
-            .required()
-            .translatedLabel(<TranslatedText stringId="general.date.label" fallback="Date" />),
-          otherwise: yup.string(),
-        }),
-        productId: yup.string().when(['orderDate', 'orderedByUserId'], {
-          is: (orderDate, orderedByUserId) => orderDate || orderedByUserId,
-          then: yup
-            .string()
-            .required()
-            .translatedLabel(
-              <TranslatedText
-                stringId="invoice.modal.editInvoice.details.label"
-                fallback="Details"
-              />,
-            ),
-          otherwise: yup.string(),
-        }),
-        orderedByUserId: yup.string().when(['orderDate', 'productId'], {
-          is: (orderDate, productId) => orderDate || productId,
-          then: yup
-            .string()
-            .required()
-            .translatedLabel(
-              <TranslatedText
-                stringId="invoice.modal.editInvoice.orderedBy.label"
-                fallback="Ordered by"
-              />,
-            ),
-          otherwise: yup.string(),
-        }),
-      }, [['orderDate', 'productId'], ['productId', 'orderedByUserId'], ['orderDate','orderedByUserId']]),
+      yup.object().shape(
+        {
+          orderDate: yup.string().when(['productId', 'orderedByUserId'], {
+            is: (productId, orderedByUserId) => productId || orderedByUserId,
+            then: yup
+              .string()
+              .required()
+              .translatedLabel(<TranslatedText stringId="general.date.label" fallback="Date" />),
+            otherwise: yup.string(),
+          }),
+          productId: yup.string().when(['orderDate', 'orderedByUserId'], {
+            is: (orderDate, orderedByUserId) => orderDate || orderedByUserId,
+            then: yup
+              .string()
+              .required()
+              .translatedLabel(
+                <TranslatedText
+                  stringId="invoice.modal.editInvoice.details.label"
+                  fallback="Details"
+                />,
+              ),
+            otherwise: yup.string(),
+          }),
+          orderedByUserId: yup.string().when(['orderDate', 'productId'], {
+            is: (orderDate, productId) => orderDate || productId,
+            then: yup
+              .string()
+              .required()
+              .translatedLabel(
+                <TranslatedText
+                  stringId="invoice.modal.editInvoice.orderedBy.label"
+                  fallback="Ordered by"
+                />,
+              ),
+            otherwise: yup.string(),
+          }),
+        },
+        [
+          ['orderDate', 'productId'],
+          ['productId', 'orderedByUserId'],
+          ['orderDate', 'orderedByUserId'],
+        ],
+      ),
     ),
     insurers: yup.array(
       yup.object({
