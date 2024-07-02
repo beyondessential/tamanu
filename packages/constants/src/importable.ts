@@ -46,6 +46,7 @@ export const REFERENCE_TYPES = {
   ADDITIONAL_INVOICE_PRODUCT: 'additionalInvoiceProduct',
   SPECIMEN_TYPE: 'specimenType',
   INSURER: 'insurer',
+  PAYMENT_METHOD: 'paymentMethod',
   ...IMAGING_AREA_TYPES,
 };
 export const REFERENCE_TYPE_VALUES = Object.values(REFERENCE_TYPES);

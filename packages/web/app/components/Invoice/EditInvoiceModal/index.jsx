@@ -22,6 +22,7 @@ import { Button } from '../../Button';
 import { InvoiceRecordModal } from '../../PatientPrinting/modals/InvoiceRecordModal';
 import { InsurerPaymentsTable } from './InsurerPaymentsTable';
 import { PatientPaymentsTable } from './PatientPaymentsTable';
+import { PaymentTablesGroup } from './PaymentTablesGroup';
 
 const LinkText = styled.div`
   font-weight: 500;
@@ -188,10 +189,7 @@ export const EditInvoiceModal = ({
       );
     }
     return (
-      <Box sx={{ flex: 2 }}>
-        <PatientPaymentsTable />
-        <InsurerPaymentsTable />
-      </Box>
+      <PaymentTablesGroup invoice={invoice} />
     );
   };
 

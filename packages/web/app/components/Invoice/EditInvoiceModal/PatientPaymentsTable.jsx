@@ -2,24 +2,17 @@ import React, { useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { customAlphabet } from 'nanoid';
 import * as yup from 'yup';
-
+import { getInvoiceSummaryDisplay } from '@tamanu/shared/utils/invoice';
 import CachedIcon from '@material-ui/icons/Cached';
 import { Box } from '@material-ui/core';
 import { TranslatedText } from '../../Translation';
-import { Table } from '../../Table';
+import { DataFetchingTable, Table } from '../../Table';
 import { Colors, denseTableStyle } from '../../../constants';
-import { DateField, Field, Form, NumberField, TextField } from '../../Field';
+import { AutocompleteField, DateField, Field, Form, NumberField, TextField } from '../../Field';
 import { Button } from '../../Button';
 import { Heading4 } from '../../Typography';
-
-const patientPaymentsMock = [
-  {
-    date: '02/02/24',
-    method: 'Cash',
-    amount: '1.00',
-    receiptNumber: '823792387',
-  },
-];
+import { useApi, useSuggester } from '../../../api';
+import { useCreatePatientPayments } from '../../../api/mutations';
 
 const TableContainer = styled.div`
   padding-left: 16px;
@@ -57,9 +50,10 @@ const COLUMNS = [
     sortable: false,
   },
   {
-    key: 'method',
+    key: 'methodName',
     title: <TranslatedText stringId="invoice.table.payment.column.method" fallback="Method" />,
     sortable: false,
+    accessor: ({ methodName }) => methodName,
   },
   {
     key: 'amount',
@@ -78,26 +72,21 @@ const COLUMNS = [
   },
 ];
 
-export const PatientPaymentsTable = () => {
-  const [receiptNumber, setReceiptNumber] = useState('');
-  const [newPatientPayments, setNewPatientPayments] = useState([]);
+export const PatientPaymentsTable = ({ onDataFetched, remainingBalance, invoiceId }) => {
+  const [refreshCount, setRefreshCount] = useState(0);
 
-  const patientPaymentsData = useMemo(() => [...patientPaymentsMock, ...newPatientPayments], [
-    newPatientPayments,
-  ]);
+  const paymentMethodSuggester = useSuggester('paymentMethod');
+  const api = useApi();
 
   const generateReceiptNumber = () => {
-    const receiptNumber =
-      customAlphabet('123456789', 8)() + customAlphabet('ABCDEFGHJKLMNPQRSTUVWXYZ', 2)();
-    setReceiptNumber(receiptNumber);
+    return customAlphabet('123456789', 8)() + customAlphabet('ABCDEFGHJKLMNPQRSTUVWXYZ', 2)();
   };
 
-  const onRecord = data => {
-    setNewPatientPayments(prevPatientPayments => [
-      ...prevPatientPayments,
-      { ...data, receiptNumber },
-    ]);
+  const onRecord = async data => {
+    await api.post(`invoices/${invoiceId}/patientPayments`, data);
+    setRefreshCount(prev => prev + 1);
   };
+
   return (
     <TableContainer>
       <Title>
@@ -111,15 +100,16 @@ export const PatientPaymentsTable = () => {
           <TranslatedText
             stringId="invoice.modal.payment.remainingBalance"
             fallback="Remaining balance: :remainingBalance"
-            replacements={{ remainingBalance: '0.90' }}
+            replacements={{ remainingBalance: remainingBalance.toFixed(2) }}
           />
         </Heading4>
       </Title>
-      <Table
+      <DataFetchingTable
+        endpoint={`invoices/${invoiceId}/patientPayments`}
         columns={COLUMNS}
-        data={patientPaymentsData}
+        allowExport={false}
         headerColor={Colors.white}
-        page={null}
+        fetchOptions={{ page: undefined }}
         elevated={false}
         containerStyle={denseTableStyle.container}
         cellStyle={
@@ -138,10 +128,13 @@ export const PatientPaymentsTable = () => {
         }
         headStyle={denseTableStyle.head}
         statusCellStyle={denseTableStyle.statusCell}
+        disablePagination
+        refreshCount={refreshCount}
+        onDataFetched={onDataFetched}
       />
       <Form
         onSubmit={onRecord}
-        render={({ submitForm }) => (
+        render={({ submitForm, setFieldValue }) => (
           <FormRow>
             <Box sx={{ width: 'calc(20% - 5px)' }}>
               <Field
@@ -154,7 +147,13 @@ export const PatientPaymentsTable = () => {
               />
             </Box>
             <Box sx={{ width: 'calc(20% - 5px)' }}>
-              <Field name="method" required component={TextField} size="small" />
+              <Field
+                name="methodId"
+                required
+                component={AutocompleteField}
+                suggester={paymentMethodSuggester}
+                size="small"
+              />
             </Box>
             <Box sx={{ width: 'calc(15% - 5px)' }}>
               <Field
@@ -167,16 +166,14 @@ export const PatientPaymentsTable = () => {
               />
             </Box>
             <Box sx={{ width: 'calc(20% - 5px)', position: 'relative' }}>
-              {/* TODO: make this a Select field */}
               <Field
                 name="receiptNumber"
                 required
                 component={TextField}
                 size="small"
-                value={receiptNumber}
-                disabled
+                onChange={e => setFieldValue('receiptNumber', e.target.value)}
               />
-              <IconButton onClick={generateReceiptNumber}>
+              <IconButton onClick={() => setFieldValue('receiptNumber', generateReceiptNumber())}>
                 <CachedIcon />
               </IconButton>
             </Box>
@@ -192,7 +189,7 @@ export const PatientPaymentsTable = () => {
             .string()
             .required()
             .translatedLabel(<TranslatedText stringId="general.date.label" fallback="date" />),
-          method: yup
+          methodId: yup
             .string()
             .required()
             .translatedLabel(
@@ -203,6 +200,16 @@ export const PatientPaymentsTable = () => {
             .required()
             .translatedLabel(
               <TranslatedText stringId="invoice.table.payment.column.amount" fallback="Amount" />,
+            )
+            .test(
+              'is-valid-amount',
+              <TranslatedText
+                stringId="invoice.payment.validation.exceedAmount"
+                fallback="Cannot be more than outstanding balance"
+              />,
+              function(value) {
+                return value <= remainingBalance;
+              },
             ),
           receiptNumber: yup
             .string()

@@ -31,6 +31,7 @@ const Title = styled.div`
   border-bottom: 1px solid ${Colors.outline};
 `;
 
+//TODO: re-map data after back-end is finished
 const COLUMNS = [
   {
     key: 'date',

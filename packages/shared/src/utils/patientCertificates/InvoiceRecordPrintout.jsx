@@ -215,10 +215,10 @@ const COLUMNS = {
       accessor: ({ date }) => date,
     },
     {
-      key: 'method',
+      key: 'methodName',
       title: 'Method',
       style: { width: '29%' },
-      accessor: ({ method }) => method,
+      accessor: ({ methodName }) => methodName,
     },
     {
       key: 'amount',
@@ -443,6 +443,12 @@ const InvoiceRecordPrintoutComponent = ({
   insurerPayments,
 }) => {
   const { watermark, logo } = certificateData;
+
+  let { patientTotal } = getInvoiceSummaryDisplay(invoice);
+  patientPayments?.data?.forEach(payment => {
+    patientTotal -= parseFloat(payment.amount);
+    payment.remainingBalance = patientTotal.toFixed(2);
+  });
   return (
     <Document>
       <Page size="A4" style={pageStyles.body} wrap>
@@ -476,11 +482,11 @@ const InvoiceRecordPrintoutComponent = ({
         )}
         <SummaryPane invoice={invoice} />
         <SectionSpacing />
-        {patientPayments?.length && (
-          <TableSection data={patientPayments} columns={COLUMNS.patientPayments} />
+        {patientPayments?.data?.length && (
+          <TableSection data={patientPayments.data} columns={COLUMNS.patientPayments} />
         )}
-        {insurerPayments?.length && (
-          <TableSection data={insurerPayments} columns={COLUMNS.insurerPayments} />
+        {insurerPayments?.data?.length && (
+          <TableSection data={insurerPayments.data} columns={COLUMNS.insurerPayments} />
         )}
         <Footer />
       </Page>
