@@ -86,6 +86,12 @@ export const PotentialInvoiceItemsTable = ({ invoice, invoiceItems, formArrayMet
 
   const wrappedCustomSort = customSortWrapper(customSort);
 
+  const isInvoiceItemsEmpty =
+    invoiceItems.length === 1 &&
+    !invoiceItems[0].orderDate &&
+    !invoiceItems[0].productId &&
+    !invoiceItems[0].orderedByUserId;
+
   const onPotentialInvoiceItemsFetched = useCallback(data => {
     setPotentialInvoiceItems(data?.data || []);
   }, []);
@@ -97,6 +103,7 @@ export const PotentialInvoiceItemsTable = ({ invoice, invoiceItems, formArrayMet
   };
 
   const handleAddPotentialInvoiceItems = items => {
+    if (isInvoiceItemsEmpty) formArrayMethods.remove(0);
     items.forEach(
       item =>
         !potentialInvoiceItemRowStyle(item) &&

@@ -69,14 +69,14 @@ const tableStyles = StyleSheet.create({
     fontFamily: 'Helvetica',
     fontSize: 7,
     marginTop: 1,
-  }
+  },
 });
 
 const priceCellStyles = StyleSheet.create({
   container: {
     justifyContent: 'space-between',
     width: '100%',
-    flexDirection: 'row'
+    flexDirection: 'row',
   },
   crossOutText: {
     textDecoration: 'line-through',
@@ -143,11 +143,16 @@ const getInvoiceItemDetails = item => {
   return (
     <View>
       <View>
-        <P>{name}</P>
+        <P>
+          {name}
+          {!item.product.discountable && ' (Non-discountable)'}
+        </P>
       </View>
-      {!!note && <View>
-        <P style={[tableStyles.noteText]}>Note: {note}</P>
-      </View>}
+      {!!note && (
+        <View>
+          <P style={[tableStyles.noteText]}>Note: {note}</P>
+        </View>
+      )}
     </View>
   );
 };
@@ -174,7 +179,7 @@ const COLUMNS = {
       title: 'Details',
       style: { width: '36%' },
       accessor: row => getInvoiceItemDetails(row),
-      CellComponent: CustomCellComponent
+      CellComponent: CustomCellComponent,
     },
     {
       key: 'code',

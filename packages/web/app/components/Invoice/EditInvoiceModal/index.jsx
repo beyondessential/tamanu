@@ -80,12 +80,13 @@ export const EditInvoiceModal = ({
 
   const { mutate: updateInvoice, isLoading: isUpdatingInvoice } = useUpdateInvoice(invoice);
 
-  const handleSubmit = async (data) => {
+  const handleSubmit = async data => {
+    const invoiceItems = data.invoiceItems.filter(item => !!item.productId);
     updateInvoice(
       {
         ...invoice,
-        items: data.invoiceItems,
-        insurers: data.insurers.map((insurer) => ({
+        items: invoiceItems,
+        insurers: data.insurers.map(insurer => ({
           ...insurer,
           percentage: insurer.percentage / 100,
         })),
@@ -98,30 +99,49 @@ export const EditInvoiceModal = ({
 
   const schema = yup.object({
     invoiceItems: yup.array(
-      yup.object({
-        orderDate: yup
-          .string()
-          .required()
-          .translatedLabel(<TranslatedText stringId="general.date.label" fallback="Date" />),
-        productId: yup
-          .string()
-          .required()
-          .translatedLabel(
-            <TranslatedText
-              stringId="invoice.modal.editInvoice.details.label"
-              fallback="Details"
-            />,
-          ),
-        orderedByUserId: yup
-          .string()
-          .required()
-          .translatedLabel(
-            <TranslatedText
-              stringId="invoice.modal.editInvoice.orderedBy.label"
-              fallback="Ordered by"
-            />,
-          ),
-      }),
+      yup.object().shape(
+        {
+          orderDate: yup.string().when(['productId', 'orderedByUserId'], {
+            is: (productId, orderedByUserId) => productId || orderedByUserId,
+            then: yup
+              .string()
+              .required()
+              .translatedLabel(<TranslatedText stringId="general.date.label" fallback="Date" />),
+            otherwise: yup.string(),
+          }),
+          productId: yup.string().when(['orderDate', 'orderedByUserId'], {
+            is: (orderDate, orderedByUserId) => orderDate || orderedByUserId,
+            then: yup
+              .string()
+              .required()
+              .translatedLabel(
+                <TranslatedText
+                  stringId="invoice.modal.editInvoice.details.label"
+                  fallback="Details"
+                />,
+              ),
+            otherwise: yup.string(),
+          }),
+          orderedByUserId: yup.string().when(['orderDate', 'productId'], {
+            is: (orderDate, productId) => orderDate || productId,
+            then: yup
+              .string()
+              .required()
+              .translatedLabel(
+                <TranslatedText
+                  stringId="invoice.modal.editInvoice.orderedBy.label"
+                  fallback="Ordered by"
+                />,
+              ),
+            otherwise: yup.string(),
+          }),
+        },
+        [
+          ['orderDate', 'productId'],
+          ['productId', 'orderedByUserId'],
+          ['orderDate', 'orderedByUserId'],
+        ],
+      ),
     ),
     insurers: yup.array(
       yup.object({
@@ -147,7 +167,7 @@ export const EditInvoiceModal = ({
           stringId="invoice.modal.editInvoice.insurer.totalPercentageError"
           fallback="Total insurer percentage must be less than or equal to 100%"
         />,
-        function (_, context) {
+        function(_, context) {
           return (
             context.parent.insurers.reduce((acc, curr) => acc + curr.percentage || 0, 0) <= 100
           );
@@ -235,12 +255,13 @@ export const EditInvoiceModal = ({
           </>
         )}
         <Form
+          suppressErrorDialog
           enableReinitialize
           onSubmit={handleSubmit}
           initialValues={{
             invoiceItems: invoice.items?.length ? invoice.items : [getDefaultRow()],
             insurers: invoice.insurers?.length
-              ? invoice.insurers.map((insurer) => ({
+              ? invoice.insurers.map(insurer => ({
                   ...insurer,
                   percentage: insurer.percentage * 100,
                 }))
@@ -249,7 +270,7 @@ export const EditInvoiceModal = ({
           validationSchema={schema}
           render={({ submitForm, values }) => (
             <FieldArray name="invoiceItems">
-              {(formArrayMethods) => {
+              {formArrayMethods => {
                 return (
                   <FormContainer>
                     <InvoiceItemHeader />
