@@ -162,7 +162,7 @@ export const VaccinesTable = ({
         <VaccinesTableTitle />
         <ScrollView ref={scrollViewRef} horizontal scrollEnabled={false}>
           {columns.map((column: any) => (
-            <StyledView key={`${column}`}>
+            <StyledView key={`tab-${categoryName}-${column}`}>
               {vaccineTableHeader.accessor(column, onPressItem)}
             </StyledView>
           ))}
