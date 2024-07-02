@@ -12,11 +12,14 @@ import {
 import { mapValues } from 'lodash';
 import { PatientAdditionalData } from '~/models/PatientAdditionalData';
 import { Patient } from '~/models/Patient';
+import { PatientFieldDefinition } from '~/models/PatientFieldDefinition';
 
 interface AdditionalInfoProps {
   onEdit: (
     additionalInfo: PatientAdditionalData,
     sectionTitle: Element,
+    isCustomSection: Boolean,
+    fields: PatientFieldDefinition[],
     customPatientFieldValues: CustomPatientFieldValues,
   ) => void;
   patient: Patient;
@@ -79,6 +82,7 @@ export const AdditionalInfo = ({
     return { title, fields: fieldsWithData, onEditCallback };
   });
 
+  // TODO: filter out of cambodia mode
   const customSections = customPatientSections.map(([_categoryId, fields]) => {
     const title = fields[0].category.name;
     const onEditCallback = (): void => onEdit(null, title, true, fields, customPatientFieldValues);
