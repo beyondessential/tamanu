@@ -8,15 +8,13 @@ import { compose } from 'redux';
 import { withPatient } from '~/ui/containers/Patient';
 import { IPatient } from '~/types';
 import { VaccineStatus } from '~/ui/helpers/patient';
-
+import { VaccineTableCategory } from '~/ui/navigation/stacks/VaccineTableTabs';
 interface VaccineHistoryTabProps {
   navigation: NavigationProp<any>;
   route: {
     name: string;
     params?: {
-      lastUpdated?: {
-        [key: string]: number;
-      };
+      lastUpdated?: Record<VaccineTableCategory, number>;
     };
   };
   selectedPatient: IPatient;
@@ -51,7 +49,7 @@ export const VaccineHistoryTabComponent = ({
           selectedPatient={selectedPatient}
           categoryName={category}
           onPressItem={onNavigateToClickedCell}
-          lastUpdated={route?.params?.lastUpdated}
+          lastUpdated={route.params?.lastUpdated?.[category]}
         />
       </FullView>
     </StyledSafeAreaView>

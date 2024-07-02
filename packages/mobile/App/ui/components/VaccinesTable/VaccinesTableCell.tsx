@@ -23,6 +23,7 @@ interface VaccineTableCellProps {
   data: VaccineTableCellData;
   onPress?: (item: any) => void;
   id?: string;
+  status: VaccineStatus;
 }
 
 export const CellContent = ({
@@ -57,12 +58,11 @@ export const CellContent = ({
 };
 
 export const VaccineTableCell = memo(
-  ({ data, onPress }: VaccineTableCellProps): JSX.Element => {
+  ({ data, status, onPress }: VaccineTableCellProps): JSX.Element => {
     const { scheduledVaccine, administeredVaccine, vaccineStatus, dueStatus } = data;
     const { vaccine, id: scheduledVaccineId } = scheduledVaccine;
 
-    let cellStatus = vaccineStatus || dueStatus.status || VaccineStatus.UNKNOWN;
-    if (vaccineStatus === VaccineStatus.SCHEDULED) cellStatus = dueStatus.status;
+    if (vaccineStatus === VaccineStatus.SCHEDULED) status = dueStatus.status;
 
     const onAdminister = useCallback(() => {
       onPress({ ...vaccine, status: vaccineStatus, scheduledVaccineId, administeredVaccine });
@@ -71,7 +71,7 @@ export const VaccineTableCell = memo(
     }, [data]);
 
     const onPressItem = useCallback(() => {
-      if (cellStatus !== VaccineStatus.GIVEN && dueStatus.warningMessage) {
+      if (status !== VaccineStatus.GIVEN && dueStatus.warningMessage) {
         Popup.show({
           type: 'Warning',
           title: 'Vaccination Warning',
@@ -93,7 +93,7 @@ export const VaccineTableCell = memo(
 
     return (
       <StyledTouchableOpacity onPress={onPressItem}>
-        <CellContent status={vaccineStatus} cellStatus={cellStatus} />
+        <CellContent status={vaccineStatus} cellStatus={status} />
       </StyledTouchableOpacity>
     );
   },

@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { isEmpty, uniqBy } from 'lodash';
+import React, { useMemo, useRef } from 'react';
+import { uniqBy } from 'lodash';
 import { useBackendEffect } from '~/ui/hooks';
 import { Table } from '../Table';
 import { VaccineRowHeader } from './VaccineRowHeader';
@@ -20,7 +20,7 @@ import { SETTING_KEYS } from '~/constants';
 interface VaccinesTableProps {
   selectedPatient: any;
   categoryName: string;
-  lastUpdated?: { [key: string]: number };
+  lastUpdated?: number;
   onPressItem: (item: any) => void;
 }
 
@@ -59,18 +59,10 @@ export const VaccinesTable = ({
     [lastUpdated],
   );
 
-  const [cells, setCells] = useState<{ [doseLabel: string]: VaccineTableCellData[] }>({});
-
-  useEffect(() => {
-    if (!patientAdministeredVaccines || !lastUpdated[categoryName]) return;
-    // Reset cells after a vaccine is administered to update the table
-    setCells({});
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [lastUpdated]);
-
-  const nonHistoricalOrAdministeredScheduledVaccines = useMemo(() => {
-    if (!scheduledVaccines || !patientAdministeredVaccines || !thresholds) return null;
-    return scheduledVaccines.filter(scheduledVaccine => {
+  const [nonHistoricalOrAdministeredScheduledVaccines, cells] = useMemo(() => {
+    if (!scheduledVaccines || !patientAdministeredVaccines || !thresholds) return [];
+    const cells: { [doseLabel: string]: VaccineTableCellData[] } = {};
+    const filteredScheduledVaccines = scheduledVaccines.filter(scheduledVaccine => {
       const administeredVaccine = patientAdministeredVaccines?.find(v => {
         if (typeof v.scheduledVaccine === 'string') {
           throw new Error('VaccinesTable: administeredVaccine did not embed scheduledVaccine');
@@ -91,25 +83,24 @@ export const VaccinesTable = ({
           thresholds,
         );
 
-        setCells(cells => ({
-          ...cells,
-          [scheduledVaccine.doseLabel]: [
-            ...(cells[scheduledVaccine.doseLabel] || []),
-            {
-              scheduledVaccine: scheduledVaccine as IScheduledVaccine,
-              vaccineStatus,
-              administeredVaccine,
-              patientAdministeredVaccines,
-              patient: selectedPatient,
-              dueStatus,
-              label: scheduledVaccine.label,
-            },
-          ],
-        }));
+        cells[scheduledVaccine.doseLabel] = [
+          ...(cells[scheduledVaccine.doseLabel] || []),
+          {
+            scheduledVaccine: scheduledVaccine as IScheduledVaccine,
+            vaccineStatus,
+            administeredVaccine,
+            patientAdministeredVaccines,
+            patient: selectedPatient,
+            dueStatus,
+            label: scheduledVaccine.label,
+          },
+        ];
       }
 
       return shouldDisplayVaccine;
     });
+
+    return [filteredScheduledVaccines, cells];
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [patientAdministeredVaccines, thresholds]);
 
@@ -119,8 +110,7 @@ export const VaccinesTable = ({
   if (
     !scheduledVaccines ||
     !patientAdministeredVaccines ||
-    !nonHistoricalOrAdministeredScheduledVaccines ||
-    isEmpty(cells)
+    !nonHistoricalOrAdministeredScheduledVaccines
   )
     return <LoadingScreen />;
 
@@ -142,15 +132,19 @@ export const VaccinesTable = ({
       />
     ),
     cell: (cellData: VaccineTableCellData) => {
-      return cellData ? (
+      if (!cellData) return <CellContent status={VaccineStatus.UNKNOWN} />;
+      const cellStatus =
+        cellData.vaccineStatus || cellData.dueStatus.status || VaccineStatus.UNKNOWN;
+      const cellId = `${categoryName}-${cellData?.scheduledVaccine?.id ||
+        Math.random()}-${cellStatus}`;
+      return (
         <VaccineTableCell
           onPress={onPressItem}
           data={cellData}
-          key={cellData?.scheduledVaccine?.id || Math.random()}
-          id={cellData?.scheduledVaccine?.id}
+          status={cellStatus}
+          key={`vaccine-table-cell-${cellId}`}
+          id={cellId}
         />
-      ) : (
-        <CellContent status={VaccineStatus.UNKNOWN} />
       );
     },
   }));
@@ -164,7 +158,7 @@ export const VaccinesTable = ({
         <VaccinesTableTitle />
         <ScrollView ref={scrollViewRef} horizontal scrollEnabled={false}>
           {columns.map((column: any) => (
-            <StyledView key={`tab-${categoryName}-${column}`}>
+            <StyledView key={`vaccine-table-tab-${categoryName}-${column}`}>
               {vaccineTableHeader.accessor(column, onPressItem)}
             </StyledView>
           ))}

@@ -1,4 +1,11 @@
-import React, { ReactElement, useCallback, useEffect, useMemo, useState } from 'react';
+import React, {
+  FunctionComponent,
+  ReactElement,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { NavigationProp, RouteProp } from '@react-navigation/native';
 
@@ -15,6 +22,8 @@ import { VaccineDataProps } from '/components/VaccineCard';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { VaccineStatus } from '~/ui/helpers/patient';
 import { CenterView } from '../../styled/common';
+import { VaccineTableCategory } from './VaccineTableTabs';
+import { SceneRendererProps } from 'react-native-tab-view';
 
 type NewVaccineHeaderProps = {
   navigation: NavigationProp<any>;
@@ -67,7 +76,7 @@ type NewVaccineTabsRouteProps = RouteProp<
     NewVaccineTabs: {
       vaccine: VaccineDataProps;
       patient: IPatient;
-      category: string;
+      category: VaccineTableCategory;
     };
   },
   'NewVaccineTabs'
@@ -116,6 +125,7 @@ export const NewVaccineTabs = ({ navigation, route }: NewVaccineTabsProps): Reac
         break;
       default:
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [route]);
 
   return (
@@ -127,10 +137,14 @@ export const NewVaccineTabs = ({ navigation, route }: NewVaccineTabsProps): Reac
       />
       <VaccineTabNavigator
         state={state}
-        scenes={{
-          [VaccineStatus.GIVEN]: NewVaccineTab,
-          [VaccineStatus.NOT_GIVEN]: NewVaccineTab,
-        }}
+        scenes={
+          {
+            [VaccineStatus.GIVEN]: NewVaccineTab,
+            [VaccineStatus.NOT_GIVEN]: NewVaccineTab,
+          } as {
+            [key: string]: FunctionComponent<SceneRendererProps>;
+          }
+        }
         onChangeTab={setState}
       />
     </FullView>
