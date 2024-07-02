@@ -1,5 +1,5 @@
-import React, { useMemo, useRef, useState } from 'react';
-import { uniqBy } from 'lodash';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { isEmpty, uniqBy } from 'lodash';
 import { useBackendEffect } from '~/ui/hooks';
 import { Table } from '../Table';
 import { VaccineRowHeader } from './VaccineRowHeader';
@@ -61,6 +61,11 @@ export const VaccinesTable = ({
 
   const [cells, setCells] = useState<{ [doseLabel: string]: VaccineTableCellData[] }>({});
 
+  useEffect(() => {
+    if (!refreshCount) return;
+    setCells({});
+  }, [refreshCount]);
+
   const nonHistoricalOrAdministeredScheduledVaccines = useMemo(() => {
     if (!scheduledVaccines || !patientAdministeredVaccines || !thresholds) return null;
     return scheduledVaccines.filter(scheduledVaccine => {
@@ -104,7 +109,7 @@ export const VaccinesTable = ({
       return shouldDisplayVaccine;
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [patientAdministeredVaccines, thresholds]);
+  }, [patientAdministeredVaccines, thresholds, refreshCount]);
 
   const uniqueByVaccine = uniqBy(nonHistoricalOrAdministeredScheduledVaccines, 'label');
 
@@ -112,7 +117,8 @@ export const VaccinesTable = ({
   if (
     !scheduledVaccines ||
     !patientAdministeredVaccines ||
-    !nonHistoricalOrAdministeredScheduledVaccines
+    !nonHistoricalOrAdministeredScheduledVaccines ||
+    isEmpty(cells)
   )
     return <LoadingScreen />;
 
