@@ -25,6 +25,7 @@ import { HierarchyFields } from '../../HierarchyFields';
 import { CAMBODIA_LOCATION_HIERARCHY_FIELDS } from '~/ui/navigation/screens/home/PatientDetails/layouts/cambodia/fields';
 import { isObject, isString } from 'lodash';
 import { labels } from '~/ui/navigation/screens/home/PatientDetails/layouts/generic/labels';
+import { PatientFieldDefinition } from '~/models/PatientFieldDefinition';
 
 const PlainField = ({ fieldName, required }): ReactElement => (
   // Outter styled view to momentarily add distance between fields
@@ -83,16 +84,17 @@ const CustomField = ({ fieldName, required }): ReactElement => {
 
   if (loading) return <ActivityIndicator />;
 
-  return getCustomFieldComponent(fieldType);
+  return getCustomFieldComponent(fieldDefinition, required);
 };
 
-const getCustomFieldComponent = ({ id, name, options, fieldType }) => {
+const getCustomFieldComponent = ({ id, name, options, fieldType }: PatientFieldDefinition, required?: boolean) => {
   return (
     <Field
       name={id}
       label={name}
       component={PatientFieldDefinitionComponents[fieldType]}
       options={options?.split(',')?.map(option => ({ label: option, value: option }))}
+      required={required}
     />
   );
 };
@@ -131,9 +133,8 @@ export const PatientAdditionalDataFields = ({ fields, isCustomSection, showManda
     ? fields
     : getConfiguredPatientAdditionalDataFields(fields, showMandatory, getLocalisation);
 
-  // TODO: no custom fields are showing and instead it is showing hierarcy as custom fields are objects
-
   if (isCustomSection) return fields.map(getCustomFieldComponent)
+    
   if (loading) return [];
 
   return padFields.map((field: string | object, i: number) => {
