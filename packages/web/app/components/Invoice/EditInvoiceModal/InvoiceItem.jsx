@@ -303,6 +303,7 @@ export const InvoiceItemRow = ({
               name={`invoiceItems.${index}.quantity`}
               component={NumberField}
               min={1}
+              max={99}
               onInput={event => {
                 if (!event.target.validity.valid) {
                   event.target.value = '';
