@@ -14,7 +14,9 @@ interface VaccineHistoryTabProps {
   route: {
     name: string;
     params?: {
-      lastUpdated: number;
+      lastUpdated?: {
+        [key: string]: number;
+      };
     };
   };
   selectedPatient: IPatient;
@@ -31,6 +33,7 @@ export const VaccineHistoryTabComponent = ({
       navigation.navigate(Routes.HomeStack.VaccineStack.NewVaccineTabs.Index, {
         vaccine: item,
         patient: selectedPatient,
+        returnTo: category,
       });
     } else {
       navigation.navigate(Routes.HomeStack.VaccineStack.VaccineModalScreen, {

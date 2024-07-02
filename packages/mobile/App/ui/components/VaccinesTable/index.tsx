@@ -20,7 +20,7 @@ import { SETTING_KEYS } from '~/constants';
 interface VaccinesTableProps {
   selectedPatient: any;
   categoryName: string;
-  lastUpdated?: number;
+  lastUpdated?: { [key: string]: number };
   onPressItem: (item: any) => void;
 }
 
@@ -62,7 +62,7 @@ export const VaccinesTable = ({
   const [cells, setCells] = useState<{ [doseLabel: string]: VaccineTableCellData[] }>({});
 
   useEffect(() => {
-    if (!patientAdministeredVaccines) return;
+    if (!patientAdministeredVaccines || !lastUpdated[categoryName]) return;
     // Reset cells after a vaccine is administered to update the table
     setCells({});
     // eslint-disable-next-line react-hooks/exhaustive-deps

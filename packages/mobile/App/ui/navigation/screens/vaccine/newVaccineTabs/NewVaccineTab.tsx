@@ -23,6 +23,7 @@ type NewVaccineTabProps = {
     icon: FC<SvgProps>;
     color?: string;
     vaccine: VaccineDataProps;
+    returnTo: string;
   };
   selectedPatient: IPatient;
 };
@@ -146,8 +147,11 @@ export const NewVaccineTabComponent = ({
           },
         });
       } else {
-        navigation.navigate(Routes.HomeStack.VaccineStack.VaccineTabs.Routine, {
-          lastUpdated: Date.now(),
+        const category = route.returnTo;
+        navigation.navigate(Routes.HomeStack.VaccineStack.VaccineTabs[category], {
+          lastUpdated: {
+            [category]: Date.now(),
+          },
         });
       }
     },

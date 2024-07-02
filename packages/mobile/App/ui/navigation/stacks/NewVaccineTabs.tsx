@@ -67,6 +67,7 @@ type NewVaccineTabsRouteProps = RouteProp<
     NewVaccineTabs: {
       vaccine: VaccineDataProps;
       patient: IPatient;
+      returnTo: string;
     };
   },
   'NewVaccineTabs'
@@ -84,6 +85,7 @@ export const NewVaccineTabs = ({ navigation, route }: NewVaccineTabsProps): Reac
         key: VaccineStatus.GIVEN,
         title: 'Given',
         vaccine: route.params.vaccine,
+        returnTo: route.params.returnTo,
         color: theme.colors.SAFE,
         icon: Icons.GivenOnTimeIcon,
       },
@@ -91,6 +93,7 @@ export const NewVaccineTabs = ({ navigation, route }: NewVaccineTabsProps): Reac
         key: VaccineStatus.NOT_GIVEN,
         title: 'Not given',
         vaccine: route.params.vaccine,
+        returnTo: route.params.returnTo,
         color: theme.colors.PRIMARY_MAIN,
         icon: Icons.NotGivenIcon,
       },
