@@ -43,7 +43,7 @@ const handleCreatePatientPayment = asyncHandler(async (req, res) => {
   if (error) throw new ValidationError(error.message);
 
   const { patientTotal, patientPaymentsTotal } = getInvoiceSummary(invoice);
-  if (data.amount > patientTotal - patientPaymentsTotal)
+  if (data.amount > (patientTotal - patientPaymentsTotal).toFixed(2))
     throw new ForbiddenError('Amount of payment is higher than the invoice total');
 
   const transaction = await req.db.transaction();

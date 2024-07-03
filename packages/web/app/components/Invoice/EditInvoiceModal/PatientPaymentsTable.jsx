@@ -92,7 +92,7 @@ export const PatientPaymentsTable = ({ onDataFetched, remainingBalance, invoice 
   };
 
   const hideRecordPaymentForm =
-    Number(remainingBalance) <= 0 && invoice.status === INVOICE_STATUSES.CANCELLED;
+    remainingBalance <= 0 || invoice.status === INVOICE_STATUSES.CANCELLED;
 
   return (
     <TableContainer>
@@ -219,7 +219,7 @@ export const PatientPaymentsTable = ({ onDataFetched, remainingBalance, invoice 
                   fallback="Cannot be more than outstanding balance"
                 />,
                 function(value) {
-                  return value < remainingBalance;
+                  return Number(value) <= remainingBalance.toFixed(2);
                 },
               ),
             receiptNumber: yup
