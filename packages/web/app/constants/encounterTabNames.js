@@ -1,5 +1,6 @@
 export const ENCOUNTER_TAB_NAMES = {
   VITALS: 'vitals',
+  CHARTS: 'charts',
   NOTES: 'notes',
   PROCEDURES: 'procedures',
   LABS: 'labs',
@@ -8,5 +9,4 @@ export const ENCOUNTER_TAB_NAMES = {
   FORMS: 'forms',
   DOCUMENTS: 'documents',
   INVOICING: 'invoicing',
-  CHARTS: 'charts',
 };
