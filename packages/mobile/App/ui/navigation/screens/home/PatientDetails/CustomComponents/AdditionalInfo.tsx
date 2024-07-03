@@ -42,7 +42,7 @@ export const AdditionalInfo = ({
   onEdit,
   dataSections,
 }: AdditionalInfoProps): ReactElement => {
-  const { getBool } = useLocalisation();
+  const { getBool, getLocalisation } = useLocalisation();
   const {
     customPatientSections,
     customPatientFieldValues,
@@ -51,6 +51,7 @@ export const AdditionalInfo = ({
     loading,
     error,
   } = usePatientAdditionalData(patient.id);
+  const isHardCodedLayout = getLocalisation('layouts.patientDetails') !== 'generic';
 
   const customDataById = mapValues(customPatientFieldValues, nestedObject => nestedObject[0].value);
 
@@ -82,7 +83,6 @@ export const AdditionalInfo = ({
     return { title, fields: fieldsWithData, onEditCallback };
   });
 
-  // TODO: filter out of cambodia mode
   const customSections = customPatientSections.map(([_categoryId, fields]) => {
     const title = fields[0].category.name;
     const onEditCallback = (): void => onEdit(null, title, true, fields, customPatientFieldValues);
@@ -93,7 +93,9 @@ export const AdditionalInfo = ({
     return { title, fields: mappedFields, onEditCallback, isCustomSection: true };
   });
 
-  const sections = [...(additionalSections || []), ...(customSections || [])];
+  const sections = isHardCodedLayout
+    ? additionalSections
+    : [...(additionalSections || []), ...(customSections || [])];
 
   return (
     <>
