@@ -28,12 +28,12 @@ interface VaccineTableCellProps {
 
 export const CellContent = ({
   cellStatus,
-  status,
+  vaccineStatus,
 }: {
-  status?: string;
+  vaccineStatus?: string;
   cellStatus?: string;
 }): JSX.Element => {
-  const cellData = VaccineStatusCells[cellStatus] || VaccineStatusCells[status];
+  const cellData = VaccineStatusCells[cellStatus] || VaccineStatusCells[vaccineStatus];
   const Icon = cellData.Icon;
 
   return (
@@ -62,7 +62,7 @@ export const VaccineTableCell = memo(
     const { scheduledVaccine, administeredVaccine, vaccineStatus, dueStatus } = data;
     const { vaccine, id: scheduledVaccineId } = scheduledVaccine;
 
-    if (vaccineStatus === VaccineStatus.SCHEDULED) status = dueStatus.status;
+    const cellStatus = vaccineStatus === VaccineStatus.SCHEDULED ? dueStatus.status : status;
 
     const onAdminister = useCallback(() => {
       onPress({ ...vaccine, status: vaccineStatus, scheduledVaccineId, administeredVaccine });
@@ -93,7 +93,7 @@ export const VaccineTableCell = memo(
 
     return (
       <StyledTouchableOpacity onPress={onPressItem}>
-        <CellContent status={vaccineStatus} cellStatus={status} />
+        <CellContent vaccineStatus={vaccineStatus} cellStatus={cellStatus} />
       </StyledTouchableOpacity>
     );
   },

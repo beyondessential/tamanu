@@ -16,11 +16,13 @@ import { VisibilityStatus } from '~/visibilityStatuses';
 import { useSettings } from '~/ui/contexts/SettingsContext';
 import { getVaccineStatus, parseThresholdsSetting } from '~/ui/helpers/getVaccineStatus';
 import { SETTING_KEYS } from '~/constants';
+import { useIsFocused } from '@react-navigation/native';
+
+type VaccineTableCells = Record<string, VaccineTableCellData[]>;
 
 interface VaccinesTableProps {
   selectedPatient: any;
   categoryName: string;
-  lastUpdated?: number;
   onPressItem: (item: any) => void;
 }
 
@@ -28,15 +30,15 @@ export const VaccinesTable = ({
   onPressItem,
   categoryName,
   selectedPatient,
-  lastUpdated,
 }: VaccinesTableProps): JSX.Element => {
   const { getSetting } = useSettings();
-
   const thresholds = useMemo(
     () => parseThresholdsSetting(getSetting<any>(SETTING_KEYS.UPCOMING_VACCINATION_THRESHOLDS)),
     [],
   );
+
   const scrollViewRef = useRef(null);
+  const isFocused = useIsFocused();
 
   // This manages the horizontal scroll of the header. This handler is passed down
   // to the scrollview in the generic table. That gets the horizontal scroll coordinate
@@ -56,14 +58,16 @@ export const VaccinesTable = ({
 
   const [patientAdministeredVaccines, administeredError] = useBackendEffect(
     ({ models }) => models.AdministeredVaccine.getForPatient(selectedPatient.id),
-    [lastUpdated],
+    [isFocused],
   );
 
   const [nonHistoricalOrAdministeredScheduledVaccines, cells] = useMemo(() => {
     if (!scheduledVaccines || !patientAdministeredVaccines || !thresholds) return [];
-    const cells: { [doseLabel: string]: VaccineTableCellData[] } = {};
-    const filteredScheduledVaccines = scheduledVaccines.filter(scheduledVaccine => {
-      const administeredVaccine = patientAdministeredVaccines?.find(v => {
+    const cells: VaccineTableCells = {};
+    const filteredScheduledVaccines = [];
+
+    for (const scheduledVaccine of scheduledVaccines) {
+      const administeredVaccine = patientAdministeredVaccines.find(v => {
         if (typeof v.scheduledVaccine === 'string') {
           throw new Error('VaccinesTable: administeredVaccine did not embed scheduledVaccine');
         }
@@ -95,11 +99,9 @@ export const VaccinesTable = ({
             label: scheduledVaccine.label,
           },
         ];
+        filteredScheduledVaccines.push(scheduledVaccine);
       }
-
-      return shouldDisplayVaccine;
-    });
-
+    }
     return [filteredScheduledVaccines, cells];
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [patientAdministeredVaccines, thresholds]);
@@ -132,16 +134,14 @@ export const VaccinesTable = ({
       />
     ),
     cell: (cellData: VaccineTableCellData) => {
-      if (!cellData) return <CellContent status={VaccineStatus.UNKNOWN} />;
-      const cellStatus =
-        cellData.vaccineStatus || cellData.dueStatus.status || VaccineStatus.UNKNOWN;
-      const cellId = `${categoryName}-${cellData?.scheduledVaccine?.id ||
-        Math.random()}-${cellStatus}`;
+      if (!cellData) return <CellContent vaccineStatus={VaccineStatus.UNKNOWN} />;
+      const status = cellData.vaccineStatus || cellData.dueStatus.status || VaccineStatus.UNKNOWN;
+      const cellId = `${categoryName}-${cellData?.scheduledVaccine?.id || Math.random()}-${status}`;
       return (
         <VaccineTableCell
           onPress={onPressItem}
           data={cellData}
-          status={cellStatus}
+          status={status}
           key={`vaccine-table-cell-${cellId}`}
           id={cellId}
         />

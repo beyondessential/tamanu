@@ -125,8 +125,14 @@ export const NewVaccineTabs = ({ navigation, route }: NewVaccineTabsProps): Reac
         break;
       default:
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [route]);
+  }, [route, routes]);
+
+  const scenes = {
+    [VaccineStatus.GIVEN]: NewVaccineTab,
+    [VaccineStatus.NOT_GIVEN]: NewVaccineTab,
+  } as {
+    [key: string]: FunctionComponent<SceneRendererProps>;
+  };
 
   return (
     <FullView>
@@ -135,18 +141,7 @@ export const NewVaccineTabs = ({ navigation, route }: NewVaccineTabsProps): Reac
         vaccine={route.params.vaccine}
         patient={route.params.patient}
       />
-      <VaccineTabNavigator
-        state={state}
-        scenes={
-          {
-            [VaccineStatus.GIVEN]: NewVaccineTab,
-            [VaccineStatus.NOT_GIVEN]: NewVaccineTab,
-          } as {
-            [key: string]: FunctionComponent<SceneRendererProps>;
-          }
-        }
-        onChangeTab={setState}
-      />
+      <VaccineTabNavigator state={state} scenes={scenes} onChangeTab={setState} />
     </FullView>
   );
 };

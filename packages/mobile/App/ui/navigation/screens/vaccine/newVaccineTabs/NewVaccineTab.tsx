@@ -18,6 +18,7 @@ import { Routes } from '~/ui/helpers/routes';
 import { getCurrentDateTimeString } from '~/ui/helpers/date';
 import { VaccineCategory } from '../../../../helpers/patient';
 import { VaccineTableCategory } from '~/ui/navigation/stacks/VaccineTableTabs';
+import { AdministeredVaccine } from '~/models/AdministeredVaccine';
 
 type NewVaccineTabProps = {
   route: Route & {
@@ -125,7 +126,9 @@ export const NewVaccineTabComponent = ({
         }
       }
 
-      const updatedVaccine = await models.AdministeredVaccine.createAndSaveOne(vaccineData);
+      const updatedVaccine = await models.AdministeredVaccine.createAndSaveOne<AdministeredVaccine>(
+        vaccineData,
+      );
 
       const notGivenReason = await models.ReferenceData.findOne({ id: notGivenReasonId });
       const location = await models.Location.findOne(locationId, { relations: ['locationGroup'] });
@@ -148,11 +151,7 @@ export const NewVaccineTabComponent = ({
           },
         });
       } else {
-        navigation.navigate(Routes.HomeStack.VaccineStack.VaccineTabs[category], {
-          lastUpdated: {
-            [category]: Date.now(),
-          },
-        });
+        navigation.navigate(Routes.HomeStack.VaccineStack.VaccineTabs[category]);
       }
     },
     [isSubmitting],
