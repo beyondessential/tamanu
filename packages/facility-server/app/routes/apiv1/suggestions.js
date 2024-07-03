@@ -73,17 +73,18 @@ function createSuggesterRoute(
 
       const filterByFacility = !!query.filterByFacility || endpoint === 'facilityLocationGroup';
 
-      const filterByVisibilityStatus = !!whereBuilder(`%${searchQuery}%`, query).visibilityStatus;
+      const whereQuery = whereBuilder(`%${searchQuery}%`, query);
+      const visibilityStatus = whereQuery.visibilityStatus;
 
       const where = {
         [Op.or]: [
-          whereBuilder(`%${searchQuery}%`, query),
+          whereQuery,
           {
             id: { [Op.in]: suggestedIds },
-            ...(filterByVisibilityStatus
+            ...(visibilityStatus
               ? {
                   visibilityStatus: {
-                    [Op.eq]: whereBuilder(`%${searchQuery}%`, query).visibilityStatus,
+                    [Op.eq]: visibilityStatus,
                   },
                 }
               : {}),
