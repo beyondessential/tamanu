@@ -135,8 +135,9 @@ export const VaccinesTable = ({
     ),
     cell: (cellData: VaccineTableCellData) => {
       if (!cellData) return <CellContent vaccineStatus={VaccineStatus.UNKNOWN} />;
-      const status = cellData.vaccineStatus || cellData.dueStatus.status || VaccineStatus.UNKNOWN;
-      const cellId = `${categoryName}-${cellData?.scheduledVaccine?.id || Math.random()}-${status}`;
+      const { vaccineStatus, dueStatus, scheduledVaccine } = cellData;
+      const status = vaccineStatus || dueStatus.status || VaccineStatus.UNKNOWN;
+      const cellId = `${categoryName}-${scheduledVaccine?.id}-${status}`;
       return (
         <VaccineTableCell
           onPress={onPressItem}
