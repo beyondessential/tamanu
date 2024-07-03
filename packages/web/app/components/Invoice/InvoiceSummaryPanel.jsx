@@ -11,7 +11,7 @@ import { PencilIcon } from '../../assets/icons/PencilIcon';
 import { ThemedTooltip } from '../Tooltip';
 import { BodyText, Heading3 } from '../Typography';
 import { Button } from '../Button';
-import { getInsurerPaymentsDisplay, getInvoiceSummary } from '@tamanu/shared/utils/invoice';
+import { getInsurerPaymentsDisplay, getInvoiceSummaryDisplay } from '@tamanu/shared/utils/invoice';
 import { getDateDisplay } from '../DateDisplay';
 import { useSettings } from '../../contexts/Settings';
 import { AutocompleteField, Field, NumberField } from '../Field';
@@ -133,7 +133,7 @@ const InsurersEditable = ({ insurerPaymentsDisplay }) => {
                   <Box marginTop="11px">%</Box>
                 </Box>
                 <Box marginTop="11px" display="flex" justifyContent="flex-end">
-                  {insurerPaymentsDisplay[index] ? `-${insurerPaymentsDisplay[index]}` : '-'}
+                  {`-${insurerPaymentsDisplay[index] ?? ''}`}
                   <RemoveInsurerButton onClick={() => formArrayMethods.remove(index)}>
                     <CloseIcon />
                   </RemoveInsurerButton>
@@ -185,9 +185,7 @@ const InsurersView = ({ insurers, insurerPaymentsDisplay }) => {
           <DiscountedPrice>
             <span>{insurer.percentage * 100}%</span>
             <BodyText color={Colors.darkestText}>
-              {typeof insurerPaymentsDisplay[index] === 'string'
-                ? `-${insurerPaymentsDisplay[index]}`
-                : '-'}
+              {`-${insurerPaymentsDisplay[index] ?? '-'}`}
             </BodyText>
           </DiscountedPrice>
         </Box>
@@ -209,14 +207,14 @@ export const InvoiceSummaryPanel = ({ invoice, editable, handleEditDiscount }) =
   const {
     discountableItemsSubtotal,
     nonDiscountableItemsSubtotal,
-    total,
-    appliedToDiscountableSubtotal,
-    discountTotal,
+    itemsSubtotal,
     patientSubtotal,
+    patientDiscountableSubtotal,
+    discountTotal,
     patientTotal,
-  } = getInvoiceSummary({ ...invoice, insurers });
+  } = getInvoiceSummaryDisplay({ ...invoice, insurers });
 
-  const insurerPaymentsDisplay = getInsurerPaymentsDisplay(insurers, total);
+  const insurerPaymentsDisplay = getInsurerPaymentsDisplay(insurers, itemsSubtotal);
 
   return (
     <Container>
@@ -237,7 +235,7 @@ export const InvoiceSummaryPanel = ({ invoice, editable, handleEditDiscount }) =
       <Divider />
       <CardItem sx={{ fontWeight: 500 }}>
         <TranslatedText stringId="invoice.summary.total.label" fallback="Total" />
-        <span>{total ?? '-'}</span>
+        <span>{itemsSubtotal ?? '-'}</span>
       </CardItem>
       <Divider />
       {editable && (
@@ -330,7 +328,7 @@ export const InvoiceSummaryPanel = ({ invoice, editable, handleEditDiscount }) =
             stringId="invoice.summary.appliedDiscountable"
             fallback="Applied to discountable balance"
           />
-          <DiscountedPrice>{appliedToDiscountableSubtotal ?? '-'}</DiscountedPrice>
+          <DiscountedPrice>{patientDiscountableSubtotal ?? '-'}</DiscountedPrice>
         </CardItem>
       )}
       <Divider />

@@ -98,6 +98,8 @@ export * from './InvoiceDiscount';
 export * from './InvoiceInsurer';
 export * from './InvoiceItem';
 export * from './InvoiceItemDiscount';
+export * from './InvoicePayment';
+export * from './InvoicePatientPayment';
 
 export * from './Signer';
 

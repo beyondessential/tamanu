@@ -1,104 +1,194 @@
-import { round } from 'lodash';
-import { INVOICE_STATUSES } from '@tamanu/constants';
+import { chain, round, sum } from 'lodash';
+import {
+  INVOICE_INSURER_PAYMENT_STATUSES,
+  INVOICE_PATIENT_PAYMENT_STATUSES,
+  INVOICE_STATUSES,
+} from '@tamanu/constants';
+
+/** @typedef {import('../models').Invoice} Invoice */
+/** @typedef {import('../models').InvoiceDiscount} InvoiceDiscount */
+/** @typedef {import('../models').InvoiceInsurer} InvoiceInsurer */
+/** @typedef {import('../models').InvoiceItem} InvoiceItem */
 
 export const isInvoiceEditable = invoice =>
   ![INVOICE_STATUSES.FINALISED, INVOICE_STATUSES.CANCELLED].includes(invoice.status);
-
+/**
+ *
+ * @param {number} value
+ * @returns
+ */
 const formatDisplayValue = value => (isNaN(value) ? undefined : value.toFixed(2));
 
-const calculateInvoiceItemDiscountPrice = (price, discount) => {
-  const priceFloat = parseFloat(price);
-  const priceChange = discount * priceFloat;
-  const result = round(priceFloat - priceChange, 2);
-  return result;
-};
-
 const getInvoiceItemPrice = invoiceItem => {
-  return parseFloat(invoiceItem?.productPrice ?? invoiceItem?.product?.price);
+  return invoiceItem?.productPrice ?? invoiceItem?.product?.price;
 };
 
-export const getInvoiceItemPriceDisplay = invoiceItem => {
-  const singleItemPrice = getInvoiceItemPrice(invoiceItem);
-  const result = singleItemPrice * invoiceItem?.quantity;
-  return formatDisplayValue(result);
+/**
+ * Get the price of an invoice item
+ * @param {InvoiceItem} invoiceItem
+ * @returns {number}
+ */
+const getInvoiceItemFloatPrice = invoiceItem => {
+  return parseFloat(getInvoiceItemPrice(invoiceItem) ?? 0);
 };
 
-export const getInvoiceItemDiscountPriceDisplay = invoiceItem => {
-  const originalPrice = getInvoiceItemPrice(invoiceItem);
-  const discount = invoiceItem?.discount?.percentage;
-  const result = calculateInvoiceItemDiscountPrice(originalPrice, discount);
-  return formatDisplayValue(result);
+/**
+ * get a price after applying a discount
+ * @param {number} price
+ * @param {number} discount
+ * @returns {number}
+ */
+const priceAfterDiscount = (price, discount) => {
+  return round(price * (1 - discount), 2);
 };
 
-const calculateInvoiceItemsTotal = invoiceItems => {
-  if (
-    !invoiceItems?.filter(item => !!(item.productPrice ?? item.product?.price ?? item.price))
-      ?.length
-  )
-    return undefined;
-  let total = 0;
-  invoiceItems.forEach(item => {
-    let price = item.productPrice ?? item.product?.price ?? item.price;
-    if (!price) return;
-    price = price * item.quantity;
-    total += calculateInvoiceItemDiscountPrice(price, item.discount?.percentage || 0);
-  });
-
-  return total;
+/**
+ * get a discounted price
+ * @param {number} price
+ * @param {number} discount
+ * @returns {number}
+ */
+const priceDiscounted = (price, discount) => {
+  return price - priceAfterDiscount(price, discount);
 };
 
-const calculateInsurerPayments = (insurers, total) => {
-  return insurers.map(insurer => {
-    const percentage = parseFloat(insurer.percentage);
-    if (isNaN(insurer.percentage)) return undefined;
-    return round(total * percentage, 2);
-  });
-};
-
-export const getInsurerPaymentsDisplay = (insurers, total) => {
-  const payments = calculateInsurerPayments(insurers, total);
-  return payments.map(payment => formatDisplayValue(payment));
-};
-
-export const getInvoiceSummary = invoice => {
-  const discountableItems = invoice.items.filter(item => item.product?.discountable);
-  const nonDiscountableItems = invoice.items.filter(item => ! item.product?.discountable);
-  const discountableItemsSubtotal = calculateInvoiceItemsTotal(discountableItems);
-  const nonDiscountableItemsSubtotal = calculateInvoiceItemsTotal(nonDiscountableItems);
-  const total =
-    discountableItemsSubtotal === undefined && nonDiscountableItemsSubtotal === undefined
-      ? undefined
-      : (discountableItemsSubtotal || 0) + (nonDiscountableItemsSubtotal || 0);
-
-  const paidFromInsurersPercentage = invoice.insurers
-    .filter(insurer => insurer.percentage)
-    .reduce((acc, val) => acc + Number(val.percentage), 0);
-  const paidFromInsurers = calculateInsurerPayments(invoice.insurers, total)
-    .filter(Boolean)
-    .reduce((acc, val) => acc + val, 0);
-
-  const patientSubtotal = total - paidFromInsurers;
-
-  const appliedToDiscountableSubtotal = round(
-    discountableItemsSubtotal - discountableItemsSubtotal * paidFromInsurersPercentage,
-    2,
+/**
+ * Get the price of an invoice item after applying the discount
+ * @param {InvoiceItem} invoiceItem
+ * @returns {number}
+ */
+const getInvoiceItemPriceAfterDiscount = invoiceItem => {
+  return priceAfterDiscount(
+    getInvoiceItemFloatPrice(invoiceItem),
+    invoiceItem?.discount?.percentage ?? 0,
   );
-  const discountTotal = round(
-    appliedToDiscountableSubtotal * (invoice.discount?.percentage || 0),
-    2,
+};
+
+/**
+ * Get the discount amount of an invoice insurer
+ * @param {InvoiceInsurer} insurer
+ * @param {number} total
+ * @returns {number}
+ */
+const getInvoiceInsurerDiscountAmount = (insurer, total) => {
+  return priceDiscounted(total, insurer?.percentage ?? 0);
+};
+
+/**
+ * Get the discount amount of an invoice discount
+ * @param {InvoiceDiscount} discount
+ * @param {number} total
+ * @returns {number}
+ */
+const getInvoiceDiscountDiscountAmount = (discount, total) => {
+  return priceDiscounted(total, discount?.percentage ?? 0);
+};
+
+const getInsurerPayments = (insurers, total) => {
+  return insurers.map(insurer => getInvoiceInsurerDiscountAmount(insurer, total));
+};
+
+/**
+ * get invoice summary
+ * @param {Invoice} invoice
+ * @returns
+ */
+export const getInvoiceSummary = invoice => {
+  const discountableItemsSubtotal = chain(invoice.items)
+    .filter(item => item?.product?.discountable)
+    .sumBy(item => getInvoiceItemPriceAfterDiscount(item) * Number(item.quantity))
+    .value();
+
+  const nonDiscountableItemsSubtotal = chain(invoice.items)
+    .filter(item => !item?.product?.discountable)
+    .sumBy(item => getInvoiceItemPriceAfterDiscount(item) * Number(item.quantity))
+    .value();
+
+  const itemsSubtotal = discountableItemsSubtotal + nonDiscountableItemsSubtotal;
+
+  const insurersDiscountPercentage = chain(invoice.insurers)
+    .sumBy(insurer => insurer.percentage ?? 0)
+    .value();
+
+  const insurerDiscountTotal = sum(getInsurerPayments(invoice.insurers, itemsSubtotal));
+
+  const patientSubtotal = itemsSubtotal - insurerDiscountTotal;
+
+  const patientDiscountableSubtotal = priceAfterDiscount(
+    discountableItemsSubtotal,
+    insurersDiscountPercentage,
+  );
+
+  const discountTotal = getInvoiceDiscountDiscountAmount(
+    invoice.discount,
+    patientDiscountableSubtotal,
   );
 
   const patientTotal = patientSubtotal - discountTotal;
 
+  //Calculate payments as well
+  const patientPaymentsTotal = chain(invoice.payments)
+    .filter(payment => payment?.patientPayment?.id)
+    .sumBy(payment => parseFloat(payment.amount))
+    .value();
+  const paymentsTotal = chain(invoice.payments)
+    .sumBy(payment => parseFloat(payment.amount))
+    .value();
+
   return {
-    discountableItemsSubtotal: discountableItemsSubtotal?.toFixed(2),
-    nonDiscountableItemsSubtotal: nonDiscountableItemsSubtotal?.toFixed(2),
-    total: total?.toFixed(2),
-    appliedToDiscountableSubtotal: formatDisplayValue(appliedToDiscountableSubtotal),
-    discountTotal: formatDisplayValue(discountTotal),
-    patientSubtotal: formatDisplayValue(patientSubtotal),
-    patientTotal: formatDisplayValue(patientTotal),
+    discountableItemsSubtotal,
+    nonDiscountableItemsSubtotal,
+    itemsSubtotal,
+    insurerDiscountTotal,
+    patientSubtotal,
+    patientDiscountableSubtotal,
+    discountTotal,
+    patientTotal,
+    patientPaymentsTotal,
+    paymentsTotal,
   };
+};
+
+/**
+ * get invoice summary for display
+ * @param {Invoice} invoice
+ * @returns
+ */
+export const getInvoiceSummaryDisplay = invoice => {
+  const discountableItems = invoice.items.filter(
+    item => item.product?.discountable && !isNaN(getInvoiceItemPrice(item)),
+  );
+  const nonDiscountableItems = invoice.items.filter(
+    item => !item.product?.discountable && !isNaN(getInvoiceItemPrice(item)),
+  );
+  const summary = getInvoiceSummary(invoice);
+  return chain(summary)
+    .mapValues((value, key) => {
+      if (!discountableItems.length && !nonDiscountableItems.length) return undefined;
+      if (!discountableItems.length && key === 'discountableItemsSubtotal') return undefined;
+      if (!nonDiscountableItems.length && key === 'nonDiscountableItemsSubtotal') return undefined;
+      return formatDisplayValue(value);
+    })
+    .value();
+};
+
+export const getInvoiceItemPriceDisplay = invoiceItem => {
+  const singleItemPrice = getInvoiceItemPrice(invoiceItem);
+  const result = isNaN(singleItemPrice) ? undefined : singleItemPrice * invoiceItem?.quantity;
+  return formatDisplayValue(result);
+};
+
+export const getInvoiceItemDiscountPriceDisplay = invoiceItem => {
+  const result = isNaN(invoiceItem?.discount?.percentage)
+    ? undefined
+    : getInvoiceItemPriceAfterDiscount(invoiceItem);
+  return formatDisplayValue(result);
+};
+
+export const getInsurerPaymentsDisplay = (insurers, total) => {
+  return getInsurerPayments(insurers, total).map((payment, index) =>
+    formatDisplayValue(isNaN(insurers[index]?.percentage) ? undefined : payment),
+  );
 };
 
 export const getInvoiceItemName = invoiceItem => {
@@ -115,4 +205,23 @@ export const getInvoiceItemQuantity = invoiceItem => {
 
 export const getInvoiceItemNote = invoiceItem => {
   return invoiceItem?.note;
+};
+
+export const getInvoicePatientPaymentStatus = (paidAmount, owingAmount) => {
+  if (paidAmount < 0) throw new Error('Paid amount cannot be negative');
+  if (paidAmount > owingAmount) throw new Error('Paid amount cannot be greater than owing amount');
+
+  if (paidAmount === 0) return INVOICE_PATIENT_PAYMENT_STATUSES.UNPAID;
+  if (paidAmount === owingAmount) return INVOICE_PATIENT_PAYMENT_STATUSES.PAID;
+  return INVOICE_PATIENT_PAYMENT_STATUSES.PARTIAL;
+};
+
+export const getInvoiceInsurerPaymentStatus = (paidAmount, owingAmount) => {
+  if (paidAmount == null) return INVOICE_INSURER_PAYMENT_STATUSES.UNPAID;
+  if (paidAmount < 0) throw new Error('Paid amount cannot be negative');
+  if (paidAmount > owingAmount) throw new Error('Paid amount cannot be greater than owing amount');
+
+  if (paidAmount === 0) return INVOICE_INSURER_PAYMENT_STATUSES.REJECTED;
+  if (paidAmount === owingAmount) return INVOICE_INSURER_PAYMENT_STATUSES.PAID;
+  return INVOICE_INSURER_PAYMENT_STATUSES.PARTIAL;
 };

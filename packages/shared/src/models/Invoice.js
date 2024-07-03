@@ -1,5 +1,5 @@
 import { DataTypes } from 'sequelize';
-import { SYNC_DIRECTIONS } from '@tamanu/constants';
+import { INVOICE_PATIENT_PAYMENT_STATUSES, SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
 import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
 import { dateType } from './dateTimeTypes';
@@ -20,11 +20,11 @@ export class Invoice extends Model {
           type: DataTypes.STRING,
           allowNull: false,
         },
-        paymentStatus: {
+        patientPaymentStatus: {
           type: DataTypes.STRING,
           allowNull: false,
+          defaultValue: INVOICE_PATIENT_PAYMENT_STATUSES.UNPAID,
         },
-        receiptNumber: DataTypes.STRING,
       },
       { syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL, ...options },
     );
@@ -53,6 +53,11 @@ export class Invoice extends Model {
     this.hasMany(models.InvoiceItem, {
       foreignKey: 'invoiceId',
       as: 'items',
+    });
+
+    this.hasMany(models.InvoicePayment, {
+      foreignKey: 'invoiceId',
+      as: 'payments',
     });
   }
 
@@ -90,6 +95,11 @@ export class Invoice extends Model {
         model: models.InvoiceItem,
         as: 'items',
         include: models.InvoiceItem.getListReferenceAssociations(models),
+      },
+      {
+        model: models.InvoicePayment,
+        as: 'payments',
+        include: models.InvoicePayment.getListReferenceAssociations(models),
       },
     ];
   }

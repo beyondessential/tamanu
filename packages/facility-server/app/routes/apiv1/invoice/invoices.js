@@ -11,6 +11,7 @@ import {
   getCurrentCountryTimeZoneDateString,
   getCurrentCountryTimeZoneDateTimeString,
 } from '@tamanu/shared/utils/countryDateTime';
+import { patientPaymentRoute } from './patientPayment';
 
 const invoiceRoute = express.Router();
 export { invoiceRoute as invoices };
@@ -286,14 +287,17 @@ async function freezeInvoiceItemsData(invoiceId, models, transaction) {
         model: models.InvoiceProduct,
         as: 'product',
         attributes: ['name', 'price'],
+        include: models.InvoiceProduct.getFullReferenceAssociations(),
       },
     },
     { transaction },
   );
 
   for (const item of items) {
+    item.product.addVirtualFields();
     item.productName = item.product.name;
     item.productPrice = item.product.price;
+    item.productCode = item.product.dataValues.code;
     await item.save({ transaction });
   }
 }
@@ -375,3 +379,4 @@ invoiceRoute.put(
 );
 
 invoiceRoute.use(invoiceItemsRoute);
+invoiceRoute.use(patientPaymentRoute);

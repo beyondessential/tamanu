@@ -2,11 +2,7 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { INVOICE_PAYMENT_STATUS_LABELS } from '@tamanu/constants';
 
-import {
-  Colors,
-  ENCOUNTER_OPTIONS_BY_VALUE,
-  INVOICE_MODAL_TYPES,
-} from '../../constants';
+import { Colors, ENCOUNTER_OPTIONS_BY_VALUE, INVOICE_MODAL_TYPES } from '../../constants';
 import { DataFetchingTable } from '../Table';
 import { DateDisplay } from '../DateDisplay';
 import { TranslatedEnum, TranslatedText } from '../Translation';
@@ -15,7 +11,7 @@ import { ThemedTooltip } from '../Tooltip';
 import { upperCase } from 'lodash';
 import { InvoiceStatus } from './InvoiceStatus';
 import { InvoiceModalGroup } from './InvoiceModalGroup';
-import { getInvoiceSummary } from '@tamanu/shared/utils/invoice';
+import { getInvoiceSummaryDisplay } from '@tamanu/shared/utils/invoice';
 import { useEncounterInvoice } from '../../api/queries/useInvoiceQuery';
 
 const TableTitle = styled(Typography)`
@@ -49,7 +45,7 @@ const Table = styled(DataFetchingTable)`
 
 const getDate = ({ date }) => <DateDisplay date={date} />;
 const getInvoiceTotal = row => {
-  const { patientTotal } = getInvoiceSummary(row);
+  const { patientTotal } = getInvoiceSummaryDisplay(row);
   return patientTotal === undefined ? '-' : `$${patientTotal}`;
 };
 const getPaymentStatus = row => (

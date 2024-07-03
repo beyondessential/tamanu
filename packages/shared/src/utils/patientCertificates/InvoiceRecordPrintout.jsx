@@ -15,9 +15,9 @@ import {
   getInvoiceItemDiscountPriceDisplay,
   getInvoiceItemName,
   getInvoiceItemPriceDisplay,
-  getInvoiceSummary,
   getInvoiceItemQuantity,
   getInvoiceItemNote,
+  getInvoiceSummaryDisplay,
 } from '../invoice';
 import { withLanguageContext } from '../pdf/languageContext';
 import { Page } from '../pdf/Page';
@@ -349,13 +349,13 @@ const SummaryPane = ({ invoice }) => {
   const {
     discountableItemsSubtotal,
     nonDiscountableItemsSubtotal,
-    total,
-    appliedToDiscountableSubtotal,
-    discountTotal,
+    itemsSubtotal,
     patientSubtotal,
+    patientDiscountableSubtotal,
+    discountTotal,
     patientTotal,
-  } = getInvoiceSummary(invoice);
-  const insurerPaymentsDisplay = getInsurerPaymentsDisplay(invoice?.insurers, total);
+  } = getInvoiceSummaryDisplay(invoice);
+  const insurerPaymentsDisplay = getInsurerPaymentsDisplay(invoice?.insurers, itemsSubtotal);
 
   return (
     <View wrap={false} style={summaryPaneStyles.container}>
@@ -370,7 +370,7 @@ const SummaryPane = ({ invoice }) => {
       <HorizontalRule />
       <View style={summaryPaneStyles.item}>
         <P isBold>Total</P>
-        <P isBold>{total ?? '-'}</P>
+        <P isBold>{itemsSubtotal ?? '-'}</P>
       </View>
       <HorizontalRule />
       {invoice?.insurers?.length && (
@@ -384,11 +384,7 @@ const SummaryPane = ({ invoice }) => {
                 <P>{insurer.insurer?.name}</P>
                 <View style={summaryPaneStyles.subItem}>
                   <P>{insurer.percentage * 100}%</P>
-                  <P>
-                    {typeof insurerPaymentsDisplay[index] === 'string'
-                      ? `-${insurerPaymentsDisplay[index]}`
-                      : '-'}
-                  </P>
+                  <P>{`-${insurerPaymentsDisplay[index] ?? ''}`}</P>
                 </View>
               </View>
             );
@@ -417,7 +413,7 @@ const SummaryPane = ({ invoice }) => {
           <View style={summaryPaneStyles.item}>
             <P>Applied to discountable balance</P>
             <View style={summaryPaneStyles.subItem}>
-              <P>{appliedToDiscountableSubtotal ?? '-'}</P>
+              <P>{patientDiscountableSubtotal ?? '-'}</P>
             </View>
           </View>
         </>
