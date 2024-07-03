@@ -17,7 +17,6 @@ import { VaccineStatus } from '~/ui/helpers/patient';
 import { Routes } from '~/ui/helpers/routes';
 import { getCurrentDateTimeString } from '~/ui/helpers/date';
 import { VaccineCategory } from '../../../../helpers/patient';
-import { VaccineTableCategory } from '~/ui/navigation/stacks/VaccineTableTabs';
 import { AdministeredVaccine } from '~/models/AdministeredVaccine';
 
 type NewVaccineTabProps = {
@@ -25,7 +24,6 @@ type NewVaccineTabProps = {
     icon: FC<SvgProps>;
     color?: string;
     vaccine: VaccineDataProps;
-    category?: VaccineTableCategory;
   };
   selectedPatient: IPatient;
 };
@@ -46,7 +44,7 @@ export const NewVaccineTabComponent = ({
   route,
   selectedPatient,
 }: NewVaccineTabProps): ReactElement => {
-  const { vaccine, category } = route;
+  const { vaccine } = route;
   const { administeredVaccine } = vaccine;
   const navigation = useNavigation();
   const [isSubmitting, setSubmitting] = useState(false);
@@ -151,7 +149,7 @@ export const NewVaccineTabComponent = ({
           },
         });
       } else {
-        navigation.navigate(Routes.HomeStack.VaccineStack.VaccineTabs[category]);
+        navigation.goBack();
       }
     },
     [isSubmitting],

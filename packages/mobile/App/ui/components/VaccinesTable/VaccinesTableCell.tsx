@@ -71,7 +71,7 @@ export const VaccineTableCell = memo(
     }, [data]);
 
     const onPressItem = useCallback(() => {
-      if (status !== VaccineStatus.GIVEN && dueStatus.warningMessage) {
+      if (cellStatus !== VaccineStatus.GIVEN && dueStatus.warningMessage) {
         Popup.show({
           type: 'Warning',
           title: 'Vaccination Warning',
