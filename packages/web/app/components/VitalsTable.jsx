@@ -34,7 +34,6 @@ const StyledTable = styled(Table)`
     tbody tr td:first-child {
       left: 0;
       position: sticky;
-      z-index: 1;
       border-right: 2px solid ${Colors.outline};
     }
     thead tr th:first-child {
