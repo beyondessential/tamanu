@@ -28,7 +28,6 @@ export const VaccineHistoryTabComponent = ({
       navigation.navigate(Routes.HomeStack.VaccineStack.NewVaccineTabs.Index, {
         vaccine: item,
         patient: selectedPatient,
-        category,
       });
     } else {
       navigation.navigate(Routes.HomeStack.VaccineStack.VaccineModalScreen, {

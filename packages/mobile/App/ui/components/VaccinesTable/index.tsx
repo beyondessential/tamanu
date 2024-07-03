@@ -47,7 +47,7 @@ export const VaccinesTable = ({
     scrollViewRef.current.scrollTo({ x: event.nativeEvent.contentOffset.x, animated: false });
   };
 
-  const [scheduledVaccines, error] = useBackendEffect(
+  const [scheduledVaccines, scheduledVaccineError] = useBackendEffect(
     async ({ models }) =>
       (await models.ScheduledVaccine.find({
         order: { index: 'ASC' },
@@ -55,7 +55,6 @@ export const VaccinesTable = ({
       })) as IScheduledVaccine[],
     [],
   );
-
   const [patientAdministeredVaccines, administeredError] = useBackendEffect(
     ({ models }) => models.AdministeredVaccine.getForPatient(selectedPatient.id),
     [isFocused],
@@ -106,15 +105,16 @@ export const VaccinesTable = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [patientAdministeredVaccines, thresholds]);
 
-  const uniqueByVaccine = uniqBy(nonHistoricalOrAdministeredScheduledVaccines, 'label');
-
-  if (error || administeredError) return <ErrorScreen error={error || administeredError} />;
-  if (
+  const error = scheduledVaccineError || administeredError;
+  const isLoading =
     !scheduledVaccines ||
     !patientAdministeredVaccines ||
-    !nonHistoricalOrAdministeredScheduledVaccines
-  )
-    return <LoadingScreen />;
+    !nonHistoricalOrAdministeredScheduledVaccines;
+
+  const uniqueByVaccine = uniqBy(nonHistoricalOrAdministeredScheduledVaccines, 'label');
+
+  if (error) return <ErrorScreen error={error} />;
+  if (isLoading) return <LoadingScreen />;
 
   uniqueByVaccine.sort(
     (a, b) =>
