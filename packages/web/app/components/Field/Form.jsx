@@ -259,6 +259,7 @@ export class Form extends React.PureComponent {
       initialValues,
       formType,
       suppressErrorDialog = false,
+      suppressErrorDialogCondition = () => true,
       ...props
     } = this.props;
     delete props.showInlineErrorsOnly;
@@ -289,7 +290,7 @@ export class Form extends React.PureComponent {
         >
           {this.renderFormContents}
         </Formik>
-        {!suppressErrorDialog && (
+        {!suppressErrorDialog && suppressErrorDialogCondition(validationErrors) && (
           <Dialog
             isVisible={hasErrors}
             onClose={this.hideErrorDialog}

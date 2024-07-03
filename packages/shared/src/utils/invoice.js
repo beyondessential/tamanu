@@ -1,4 +1,4 @@
-import { chain } from 'lodash';
+import { chain, round, sum } from 'lodash';
 import {
   INVOICE_INSURER_PAYMENT_STATUSES,
   INVOICE_PATIENT_PAYMENT_STATUSES,
@@ -19,14 +19,8 @@ export const isInvoiceEditable = invoice =>
  */
 const formatDisplayValue = value => (isNaN(value) ? undefined : value.toFixed(2));
 
-/**
- * get a price after applying a discount
- * @param {number} price
- * @param {number} discount
- * @returns {number}
- */
-const priceAfterDiscount = (price, discount) => {
-  return price * (1 - discount);
+const getInvoiceItemPrice = invoiceItem => {
+  return invoiceItem?.productPrice ?? invoiceItem?.product?.price;
 };
 
 /**
@@ -34,8 +28,28 @@ const priceAfterDiscount = (price, discount) => {
  * @param {InvoiceItem} invoiceItem
  * @returns {number}
  */
-const getInvoiceItemPrice = invoiceItem => {
-  return parseFloat(invoiceItem?.productPrice ?? invoiceItem?.product?.price ?? 0);
+const getInvoiceItemFloatPrice = invoiceItem => {
+  return parseFloat(getInvoiceItemPrice(invoiceItem) ?? 0);
+};
+
+/**
+ * get a price after applying a discount
+ * @param {number} price
+ * @param {number} discount
+ * @returns {number}
+ */
+const priceAfterDiscount = (price, discount) => {
+  return round(price * (1 - discount), 2);
+};
+
+/**
+ * get a discounted price
+ * @param {number} price
+ * @param {number} discount
+ * @returns {number}
+ */
+const priceDiscounted = (price, discount) => {
+  return price - priceAfterDiscount(price, discount);
 };
 
 /**
@@ -45,7 +59,7 @@ const getInvoiceItemPrice = invoiceItem => {
  */
 const getInvoiceItemPriceAfterDiscount = invoiceItem => {
   return priceAfterDiscount(
-    getInvoiceItemPrice(invoiceItem),
+    getInvoiceItemFloatPrice(invoiceItem),
     invoiceItem?.discount?.percentage ?? 0,
   );
 };
@@ -57,7 +71,7 @@ const getInvoiceItemPriceAfterDiscount = invoiceItem => {
  * @returns {number}
  */
 const getInvoiceInsurerDiscountAmount = (insurer, total) => {
-  return total * (insurer?.percentage ?? 0);
+  return priceDiscounted(total, insurer?.percentage ?? 0);
 };
 
 /**
@@ -67,7 +81,11 @@ const getInvoiceInsurerDiscountAmount = (insurer, total) => {
  * @returns {number}
  */
 const getInvoiceDiscountDiscountAmount = (discount, total) => {
-  return total * (discount?.percentage ?? 0);
+  return priceDiscounted(total, discount?.percentage ?? 0);
+};
+
+const getInsurerPayments = (insurers, total) => {
+  return insurers.map(insurer => getInvoiceInsurerDiscountAmount(insurer, total));
 };
 
 /**
@@ -79,55 +97,34 @@ export const getInvoiceSummary = invoice => {
   const discountableItemsSubtotal = chain(invoice.items)
     .filter(item => item?.product?.discountable)
     .sumBy(item => getInvoiceItemPriceAfterDiscount(item) * Number(item.quantity))
-    .round(2)
     .value();
 
   const nonDiscountableItemsSubtotal = chain(invoice.items)
     .filter(item => !item?.product?.discountable)
     .sumBy(item => getInvoiceItemPriceAfterDiscount(item) * Number(item.quantity))
-    .round(2)
     .value();
 
-  const itemsSubtotal = chain(discountableItemsSubtotal)
-    .add(nonDiscountableItemsSubtotal)
-    .round(2)
-    .value();
+  const itemsSubtotal = discountableItemsSubtotal + nonDiscountableItemsSubtotal;
 
   const insurersDiscountPercentage = chain(invoice.insurers)
     .sumBy(insurer => insurer.percentage ?? 0)
     .value();
 
-  const insurerDiscountTotal = chain(itemsSubtotal)
-    .multiply(insurersDiscountPercentage)
-    .round(2)
-    .value();
+  const insurerDiscountTotal = sum(getInsurerPayments(invoice.insurers, itemsSubtotal));
 
-  const patientDiscountableSubtotal = chain(
-    priceAfterDiscount(discountableItemsSubtotal, insurersDiscountPercentage),
-  )
-    .round(2)
-    .value();
-  const patientNonDiscountableSubtotal = chain(
-    priceAfterDiscount(nonDiscountableItemsSubtotal, insurersDiscountPercentage),
-  )
-    .round(2)
-    .value();
+  const patientSubtotal = itemsSubtotal - insurerDiscountTotal;
 
-  const patientSubtotal = chain(patientDiscountableSubtotal)
-    .add(patientNonDiscountableSubtotal)
-    .round(2)
-    .value();
+  const patientDiscountableSubtotal = priceAfterDiscount(
+    discountableItemsSubtotal,
+    insurersDiscountPercentage,
+  );
 
-  const discountTotal = chain(
-    getInvoiceDiscountDiscountAmount(invoice.discount, patientDiscountableSubtotal),
-  )
-    .round(2)
-    .value();
+  const discountTotal = getInvoiceDiscountDiscountAmount(
+    invoice.discount,
+    patientDiscountableSubtotal,
+  );
 
-  const patientTotal = chain(patientSubtotal)
-    .subtract(discountTotal)
-    .round(2)
-    .value();
+  const patientTotal = patientSubtotal - discountTotal;
 
   //Calculate payments as well
   const patientPaymentsTotal = chain(invoice.payments)
@@ -158,27 +155,40 @@ export const getInvoiceSummary = invoice => {
  * @returns
  */
 export const getInvoiceSummaryDisplay = invoice => {
+  const discountableItems = invoice.items.filter(
+    item => item.product?.discountable && !isNaN(getInvoiceItemPrice(item)),
+  );
+  const nonDiscountableItems = invoice.items.filter(
+    item => !item.product?.discountable && !isNaN(getInvoiceItemPrice(item)),
+  );
   const summary = getInvoiceSummary(invoice);
   return chain(summary)
-    .mapValues(value => formatDisplayValue(value))
+    .mapValues((value, key) => {
+      if (!discountableItems.length && !nonDiscountableItems.length) return undefined;
+      if (!discountableItems.length && key === 'discountableItemsSubtotal') return undefined;
+      if (!nonDiscountableItems.length && key === 'nonDiscountableItemsSubtotal') return undefined;
+      return formatDisplayValue(value);
+    })
     .value();
 };
 
 export const getInvoiceItemPriceDisplay = invoiceItem => {
   const singleItemPrice = getInvoiceItemPrice(invoiceItem);
-  const result = singleItemPrice * invoiceItem?.quantity;
+  const result = isNaN(singleItemPrice) ? undefined : singleItemPrice * invoiceItem?.quantity;
   return formatDisplayValue(result);
 };
 
 export const getInvoiceItemDiscountPriceDisplay = invoiceItem => {
-  const result = getInvoiceItemPriceAfterDiscount(invoiceItem);
+  const result = isNaN(invoiceItem?.discount?.percentage)
+    ? undefined
+    : getInvoiceItemPriceAfterDiscount(invoiceItem);
   return formatDisplayValue(result);
 };
 
 export const getInsurerPaymentsDisplay = (insurers, total) => {
-  return insurers
-    .map(insurer => getInvoiceInsurerDiscountAmount(insurer, total))
-    .map(payment => formatDisplayValue(payment));
+  return getInsurerPayments(insurers, total).map((payment, index) =>
+    formatDisplayValue(isNaN(insurers[index]?.percentage) ? undefined : payment),
+  );
 };
 
 export const getInvoiceItemName = invoiceItem => {
