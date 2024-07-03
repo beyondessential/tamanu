@@ -133,7 +133,7 @@ const InsurersEditable = ({ insurerPaymentsDisplay }) => {
                   <Box marginTop="11px">%</Box>
                 </Box>
                 <Box marginTop="11px" display="flex" justifyContent="flex-end">
-                  {insurerPaymentsDisplay[index] ? `-${insurerPaymentsDisplay[index]}` : '-'}
+                  {`-${insurerPaymentsDisplay[index] ?? ''}`}
                   <RemoveInsurerButton onClick={() => formArrayMethods.remove(index)}>
                     <CloseIcon />
                   </RemoveInsurerButton>
@@ -185,9 +185,7 @@ const InsurersView = ({ insurers, insurerPaymentsDisplay }) => {
           <DiscountedPrice>
             <span>{insurer.percentage * 100}%</span>
             <BodyText color={Colors.darkestText}>
-              {typeof insurerPaymentsDisplay[index] === 'string'
-                ? `-${insurerPaymentsDisplay[index]}`
-                : '-'}
+              {`-${insurerPaymentsDisplay[index] ?? '-'}`}
             </BodyText>
           </DiscountedPrice>
         </Box>

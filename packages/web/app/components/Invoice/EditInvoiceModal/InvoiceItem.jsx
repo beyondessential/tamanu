@@ -247,6 +247,7 @@ export const InvoiceItemRow = ({
       productName: value.productName,
       productCode: value.code,
       productPrice: value.price,
+      product: value,
     });
   };
 

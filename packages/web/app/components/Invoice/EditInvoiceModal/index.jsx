@@ -98,6 +98,10 @@ export const EditInvoiceModal = ({
     );
   };
 
+  const handleShowErrorDialog = errors => {
+    return Object.keys(errors).length === 1 && errors['totalInsurerPercentage'];
+  };
+
   const schema = yup.object({
     invoiceItems: yup.array(
       yup.object().shape(
@@ -268,7 +272,7 @@ export const EditInvoiceModal = ({
           </>
         )}
         <Form
-          suppressErrorDialog
+          suppressErrorDialogCondition={handleShowErrorDialog}
           enableReinitialize
           onSubmit={handleSubmit}
           initialValues={{

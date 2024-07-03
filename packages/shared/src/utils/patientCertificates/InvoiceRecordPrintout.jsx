@@ -384,11 +384,7 @@ const SummaryPane = ({ invoice }) => {
                 <P>{insurer.insurer?.name}</P>
                 <View style={summaryPaneStyles.subItem}>
                   <P>{insurer.percentage * 100}%</P>
-                  <P>
-                    {typeof insurerPaymentsDisplay[index] === 'string'
-                      ? `-${insurerPaymentsDisplay[index]}`
-                      : '-'}
-                  </P>
+                  <P>{`-${insurerPaymentsDisplay[index] ?? ''}`}</P>
                 </View>
               </View>
             );
