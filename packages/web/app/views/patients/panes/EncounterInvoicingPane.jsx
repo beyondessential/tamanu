@@ -56,7 +56,7 @@ export const EncounterInvoicingPane = ({ encounter }) => {
 
   const { data: invoice } = useEncounterInvoice(encounter.id);
 
-  const handleOpenInvoiceModal = (type) => setOpenInvoiceModal(type);
+  const handleOpenInvoiceModal = type => setOpenInvoiceModal(type);
 
   return (
     <>
@@ -98,9 +98,11 @@ export const EncounterInvoicingPane = ({ encounter }) => {
         </TabPane>
       ) : (
         <EmptyPane>
-          <Button onClick={() => handleOpenInvoiceModal(INVOICE_MODAL_TYPES.CREATE_INVOICE)}>
-            <TranslatedText stringId="invoice.action.create" fallback="Create invoice" />
-          </Button>
+          {ability.can('create', 'Invoice') && (
+            <Button onClick={() => handleOpenInvoiceModal(INVOICE_MODAL_TYPES.CREATE_INVOICE)}>
+              <TranslatedText stringId="invoice.action.create" fallback="Create invoice" />
+            </Button>
+          )}
         </EmptyPane>
       )}
       <InvoiceModalGroup
