@@ -307,26 +307,34 @@ async function freezeInvoiceItemsData(invoiceId, models, transaction) {
  */
 invoiceRoute.put(
   '/:id/cancel',
-  asyncHandler(async req => {
+  asyncHandler(async (req, res) => {
     req.checkPermission('write', 'Invoice');
-    throw new ForbiddenError('Not implemented');
-    // const invoiceId = req.params.id;
-    // const transaction = await req.db.transaction();
 
-    // try {
-    //   await freezeInvoiceItemsData(invoiceId, req.models, transaction);
+    const invoiceId = req.params.id;
+    const invoice = await req.models.Invoice.findByPk(invoiceId, {
+      attributes: ['id', 'status'],
+    });
+    if (!invoice) throw new NotFoundError('Invoice not found');
 
-    //   await req.models.Invoice.update(
-    //     { status: INVOICE_STATUSES.CANCELLED },
-    //     { where: { id: req.params.id, paymentStatus: INVOICE_PAYMENT_STATUSES.UNPAID } },
-    //     { transaction },
-    //   );
-    //   await transaction.commit();
-    //   res.send({});
-    // } catch (error) {
-    //   await transaction.rollback();
-    //   throw error;
-    // }
+    //only in progress invoices can be cancelled
+    if (invoice.status !== INVOICE_STATUSES.IN_PROGRESS) {
+      throw new ForbiddenError('Only in progress invoices can be cancelled');
+    }
+
+    const transaction = await req.db.transaction();
+
+    try {
+      await freezeInvoiceItemsData(invoiceId, req.models, transaction);
+
+      invoice.status = INVOICE_STATUSES.CANCELLED;
+      await invoice.save({ transaction });
+
+      await transaction.commit();
+      res.send(invoice);
+    } catch (error) {
+      await transaction.rollback();
+      throw error;
+    }
   }),
 );
 
