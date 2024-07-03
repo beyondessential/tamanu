@@ -32,7 +32,7 @@ async function ensureOnlyOneVitalsSurveyExists({ models }, surveyInfo) {
       id: {
         [Op.not]: surveyInfo.id,
       },
-      survey_type: SURVEY_TYPES.VITALS,
+      surveyType: SURVEY_TYPES.VITALS,
     },
   });
   if (vitalsCount > 0) {
@@ -40,13 +40,36 @@ async function ensureOnlyOneVitalsSurveyExists({ models }, surveyInfo) {
   }
 }
 
-function ensureVitalsSurveyNonSensitive(surveyInfo) {
+function ensureSurveyNonSensitive(surveyInfo, errorMessage) {
   if (surveyInfo.isSensitive) {
-    throw new ImporterMetadataError('Vitals survey can not be sensitive');
+    throw new ImporterMetadataError(errorMessage);
   }
 }
 
 export async function validateVitalsSurvey(context, surveyInfo) {
   await ensureOnlyOneVitalsSurveyExists(context, surveyInfo);
-  ensureVitalsSurveyNonSensitive(surveyInfo);
+  ensureSurveyNonSensitive(surveyInfo, 'Vitals survey can not be sensitive');
+}
+
+async function ensureOnlyOneComplexSurveySetPerProgram({ models }, surveyInfo) {
+  const surveyCount = await models.Survey.count({
+    where: {
+      id: {
+        [Op.not]: surveyInfo.id,
+      },
+      surveyType: surveyInfo.surveyType,
+      programId: surveyInfo.programId,
+    },
+  });
+
+  if (surveyCount > 0) {
+    throw new ImporterMetadataError('Complex chart set already exists for this program');
+  }
+}
+
+export async function validateChartingSurvey(context, surveyInfo) {
+  if (surveyInfo.surveyType !== SURVEY_TYPES.SIMPLE_CHART) {
+    await ensureOnlyOneComplexSurveySetPerProgram(context, surveyInfo);
+  }
+  ensureSurveyNonSensitive(surveyInfo, 'Charting survey can not be sensitive');
 }
