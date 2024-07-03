@@ -138,6 +138,7 @@ export const PatientPaymentsTable = ({ onDataFetched, remainingBalance, invoice 
         disablePagination
         refreshCount={refreshCount}
         onDataFetched={onDataFetched}
+        noDataMessage={<Box paddingBottom='24px' />}
       />
       {!hideRecordPaymentForm && (
         <Form
