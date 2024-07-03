@@ -1,11 +1,13 @@
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { customAlphabet } from 'nanoid';
 import * as yup from 'yup';
 import CachedIcon from '@material-ui/icons/Cached';
 import { Box } from '@material-ui/core';
+import { INVOICE_STATUSES } from '@tamanu/constants';
+
 import { TranslatedText } from '../../Translation';
-import { DataFetchingTable, Table } from '../../Table';
+import { DataFetchingTable } from '../../Table';
 import { Colors, denseTableStyle } from '../../../constants';
 import { AutocompleteField, DateField, Field, Form, NumberField, TextField } from '../../Field';
 import { Button } from '../../Button';
@@ -73,7 +75,7 @@ const COLUMNS = [
   },
 ];
 
-export const PatientPaymentsTable = ({ onDataFetched, remainingBalance, invoiceId }) => {
+export const PatientPaymentsTable = ({ onDataFetched, remainingBalance, invoice }) => {
   const [refreshCount, setRefreshCount] = useState(0);
 
   const paymentMethodSuggester = useSuggester('paymentMethod');
@@ -84,10 +86,13 @@ export const PatientPaymentsTable = ({ onDataFetched, remainingBalance, invoiceI
   };
 
   const onRecord = async (data, { resetForm }) => {
-    await api.post(`invoices/${invoiceId}/patientPayments`, data);
+    await api.post(`invoices/${invoice.id}/patientPayments`, data);
     setRefreshCount(prev => prev + 1);
     resetForm();
   };
+
+  const hideRecordPaymentForm =
+    Number(remainingBalance) <= 0 && invoice.status === INVOICE_STATUSES.CANCELLED;
 
   return (
     <TableContainer>
@@ -107,7 +112,7 @@ export const PatientPaymentsTable = ({ onDataFetched, remainingBalance, invoiceI
         </Heading4>
       </Title>
       <DataFetchingTable
-        endpoint={`invoices/${invoiceId}/patientPayments`}
+        endpoint={`invoices/${invoice.id}/patientPayments`}
         columns={COLUMNS}
         allowExport={false}
         headerColor={Colors.white}
@@ -134,96 +139,101 @@ export const PatientPaymentsTable = ({ onDataFetched, remainingBalance, invoiceI
         refreshCount={refreshCount}
         onDataFetched={onDataFetched}
       />
-      <Form
-        onSubmit={onRecord}
-        render={({ submitForm, setFieldValue }) => (
-          <FormRow>
-            <Box sx={{ width: 'calc(20% - 5px)' }}>
-              <Field
-                name="date"
-                required
-                component={DateField}
-                saveDateAsString
-                size="small"
-                style={{ gridColumn: 'span 3' }}
-              />
-            </Box>
-            <Box sx={{ width: 'calc(20% - 5px)' }}>
-              <Field
-                name="methodId"
-                required
-                component={AutocompleteField}
-                suggester={paymentMethodSuggester}
-                size="small"
-              />
-            </Box>
-            <Box sx={{ width: 'calc(15% - 5px)' }}>
-              <Field
-                name="amount"
-                required
-                component={NumberField}
-                size="small"
-                min={0}
-                style={{ gridColumn: 'span 2' }}
-              />
-            </Box>
-            <Box sx={{ width: 'calc(20% - 5px)', position: 'relative' }}>
-              <Field
-                name="receiptNumber"
-                required
-                component={TextField}
-                size="small"
-                onChange={e => setFieldValue('receiptNumber', e.target.value)}
-              />
-              <IconButton onClick={() => setFieldValue('receiptNumber', generateReceiptNumber())}>
-                <CachedIcon />
-              </IconButton>
-            </Box>
-            <Box sx={{ gridColumn: 'span 3', marginLeft: 'auto' }}>
-              <Button size="small" onClick={submitForm}>
-                <TranslatedText stringId="invoice.modal.payment.action.record" fallback="Record" />
-              </Button>
-            </Box>
-          </FormRow>
-        )}
-        validationSchema={yup.object().shape({
-          date: yup
-            .string()
-            .required()
-            .translatedLabel(<TranslatedText stringId="general.date.label" fallback="date" />),
-          methodId: yup
-            .string()
-            .required()
-            .translatedLabel(
-              <TranslatedText stringId="invoice.table.payment.column.method" fallback="Method" />,
-            ),
-          amount: yup
-            .string()
-            .required()
-            .translatedLabel(
-              <TranslatedText stringId="invoice.table.payment.column.amount" fallback="Amount" />,
-            )
-            .test(
-              'is-valid-amount',
-              <TranslatedText
-                stringId="invoice.payment.validation.exceedAmount"
-                fallback="Cannot be more than outstanding balance"
-              />,
-              function(value) {
-                return value <= remainingBalance;
-              },
-            ),
-          receiptNumber: yup
-            .string()
-            .required()
-            .translatedLabel(
-              <TranslatedText
-                stringId="invoice.table.payment.column.receiptNumber"
-                fallback="Receipt number"
-              />,
-            ),
-        })}
-      />
+      {!hideRecordPaymentForm && (
+        <Form
+          onSubmit={onRecord}
+          render={({ submitForm, setFieldValue }) => (
+            <FormRow>
+              <Box sx={{ width: 'calc(20% - 5px)' }}>
+                <Field
+                  name="date"
+                  required
+                  component={DateField}
+                  saveDateAsString
+                  size="small"
+                  style={{ gridColumn: 'span 3' }}
+                />
+              </Box>
+              <Box sx={{ width: 'calc(20% - 5px)' }}>
+                <Field
+                  name="methodId"
+                  required
+                  component={AutocompleteField}
+                  suggester={paymentMethodSuggester}
+                  size="small"
+                />
+              </Box>
+              <Box sx={{ width: 'calc(15% - 5px)' }}>
+                <Field
+                  name="amount"
+                  required
+                  component={NumberField}
+                  size="small"
+                  min={0}
+                  style={{ gridColumn: 'span 2' }}
+                />
+              </Box>
+              <Box sx={{ width: 'calc(20% - 5px)', position: 'relative' }}>
+                <Field
+                  name="receiptNumber"
+                  required
+                  component={TextField}
+                  size="small"
+                  onChange={e => setFieldValue('receiptNumber', e.target.value)}
+                />
+                <IconButton onClick={() => setFieldValue('receiptNumber', generateReceiptNumber())}>
+                  <CachedIcon />
+                </IconButton>
+              </Box>
+              <Box sx={{ gridColumn: 'span 3', marginLeft: 'auto' }}>
+                <Button size="small" onClick={submitForm}>
+                  <TranslatedText
+                    stringId="invoice.modal.payment.action.record"
+                    fallback="Record"
+                  />
+                </Button>
+              </Box>
+            </FormRow>
+          )}
+          validationSchema={yup.object().shape({
+            date: yup
+              .string()
+              .required()
+              .translatedLabel(<TranslatedText stringId="general.date.label" fallback="date" />),
+            methodId: yup
+              .string()
+              .required()
+              .translatedLabel(
+                <TranslatedText stringId="invoice.table.payment.column.method" fallback="Method" />,
+              ),
+            amount: yup
+              .string()
+              .required()
+              .translatedLabel(
+                <TranslatedText stringId="invoice.table.payment.column.amount" fallback="Amount" />,
+              )
+              .test(
+                'is-valid-amount',
+                <TranslatedText
+                  stringId="invoice.payment.validation.exceedAmount"
+                  fallback="Cannot be more than outstanding balance"
+                />,
+                function(value) {
+                  return value < remainingBalance;
+                },
+              ),
+            receiptNumber: yup
+              .string()
+              .required()
+              .translatedLabel(
+                <TranslatedText
+                  stringId="invoice.table.payment.column.receiptNumber"
+                  fallback="Receipt number"
+                />,
+              ),
+          })}
+        />
+      )}
     </TableContainer>
   );
 };

@@ -19,7 +19,7 @@ export const PaymentTablesGroup = ({ invoice }) => {
       <PatientPaymentsTable
         remainingBalance={patientRemainingBalance}
         onDataFetched={onPatientPaymentsFetched}
-        invoiceId={invoice.id}
+        invoice={invoice}
       />
       <InsurerPaymentsTable />
     </Box>
