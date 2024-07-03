@@ -152,8 +152,6 @@ const handleGetPatientPayments = asyncHandler(async (req, res) => {
 
   const invoiceId = req.params.invoiceId;
 
-  req.checkPermission('list', 'InvoicePayment');
-
   const patientPayments = await req.models.InvoicePatientPayment.findAll({
     include: [
       { model: req.models.InvoicePayment, as: 'detail', where: { invoiceId } },
