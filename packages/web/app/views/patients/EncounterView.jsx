@@ -28,7 +28,6 @@ import { ENCOUNTER_TAB_NAMES } from '../../constants/encounterTabNames';
 import { EncounterActions } from './components';
 import { useReferenceData } from '../../api/queries';
 import { useAuth } from '../../contexts/Auth';
-import { VitalChartDataProvider } from '../../contexts/VitalChartData';
 import { TranslatedText, TranslatedReferenceData } from '../../components/Translation';
 
 const getIsTriage = encounter => ENCOUNTER_OPTIONS_BY_VALUE[encounter.encounterType].triageFlowOnly;
@@ -37,11 +36,7 @@ const TABS = [
   {
     label: <TranslatedText stringId="encounter.tabs.vitals" fallback="Vitals" />,
     key: ENCOUNTER_TAB_NAMES.VITALS,
-    render: props => (
-      <VitalChartDataProvider>
-        <VitalsPane {...props} />
-      </VitalChartDataProvider>
-    ),
+    render: props => <VitalsPane {...props} />,
   },
   {
     label: <TranslatedText stringId="encounter.tabs.charts" fallback="Charts" />,
