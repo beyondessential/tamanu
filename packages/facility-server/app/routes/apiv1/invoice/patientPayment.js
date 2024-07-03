@@ -29,15 +29,16 @@ async function getInvoiceWithDetails(req, invoiceId) {
   }).then(invoice => invoice.addVirtualFields());
 }
 const handleCreatePatientPayment = asyncHandler(async (req, res) => {
-  req.checkPermission('write', 'Invoice');
-
   const invoiceId = req.params.invoiceId;
 
+  req.checkPermission('read', 'Invoice');
   const invoice = await getInvoiceWithDetails(req, invoiceId);
 
   if (!invoice) throw new NotFoundError('Invoice not found');
   if (invoice.status !== INVOICE_STATUSES.FINALISED)
     throw new ForbiddenError('Invoice is not finalised');
+
+  req.checkPermission('create', 'InvoicePayment');
 
   const { data, error } = await createPatientPaymentSchema.safeParseAsync(req.body);
   if (error) throw new ValidationError(error.message);
@@ -86,12 +87,13 @@ const handleCreatePatientPayment = asyncHandler(async (req, res) => {
 });
 
 const handleUpdatePatientPayment = asyncHandler(async (req, res) => {
-  req.checkPermission('write', 'Invoice');
-
   const invoiceId = req.params.invoiceId;
   const paymentId = req.params.paymentId;
 
+  req.checkPermission('read', 'Invoice');
   const invoice = await getInvoiceWithDetails(req, invoiceId);
+
+  req.checkPermission('write', 'InvoicePayment');
   const payment = await req.models.InvoicePayment.findByPk(paymentId);
 
   if (!invoice) throw new NotFoundError('Invoice not found');
@@ -149,6 +151,9 @@ const handleGetPatientPayments = asyncHandler(async (req, res) => {
   req.checkPermission('read', 'Invoice');
 
   const invoiceId = req.params.invoiceId;
+
+  req.checkPermission('list', 'InvoicePayment');
+
   const patientPayments = await req.models.InvoicePatientPayment.findAll({
     include: [
       { model: req.models.InvoicePayment, as: 'detail', where: { invoiceId } },
