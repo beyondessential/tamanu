@@ -4,9 +4,8 @@ import { PROGRAM_DATA_ELEMENT_TYPES, VISIBILITY_STATUSES } from '@tamanu/constan
 import { VITALS_DATA_ELEMENT_IDS } from '@tamanu/constants/surveys';
 import { Box, CircularProgress, IconButton as IconButtonComponent } from '@material-ui/core';
 import { useSelector } from 'react-redux';
-import { Table } from './Table';
+import { DynamicColumnTable } from './Table';
 import { useEncounter } from '../contexts/Encounter';
-import { Colors } from '../constants';
 import {
   DateHeadCell,
   LimitedLinesCell,
@@ -24,36 +23,6 @@ import { useVitalsVisualisationConfigsQuery } from '../api/queries/useVitalsVisu
 import { useUserPreferencesQuery } from '../api/queries/useUserPreferencesQuery';
 import { combineQueries } from '../api';
 import { TranslatedText } from './Translation/TranslatedText';
-
-const StyledTable = styled(Table)`
-  overflow-x: auto;
-  overflow-y: hidden;
-  table {
-    position: relative;
-    thead tr th:first-child,
-    tbody tr td:first-child {
-      left: 0;
-      position: sticky;
-      border-right: 2px solid ${Colors.outline};
-    }
-    thead tr th:first-child {
-      background: ${Colors.background};
-      width: 160px;
-      min-width: 160px;
-    }
-    thead tr th:not(:first-child):not(:last-child) {
-      /* Each data column is fixed width except the last one, which takes the rest of the space */
-      width: 115px;
-    }
-    tbody tr td:first-child {
-      background: ${Colors.white};
-    }
-    tfoot tr td button {
-      position: sticky;
-      left: 16px;
-    }
-  }
-`;
 
 const getExportOverrideTitle = date => {
   const shortestDate = DateDisplay.stringFormat(date, formatShortest);
@@ -233,7 +202,7 @@ export const VitalsTable = React.memo(() => {
           setOpenEditModal(false);
         }}
       />
-      <StyledTable
+      <DynamicColumnTable
         columns={columns}
         data={data}
         elevated={false}
@@ -241,12 +210,8 @@ export const VitalsTable = React.memo(() => {
         errorMessage={error?.message}
         count={data.length}
         allowExport
+        showFooterLegend={showFooterLegend}
       />
-      {showFooterLegend && (
-        <Box textAlign="end" marginTop="8px" fontSize="9px" color={Colors.softText}>
-          *Changed record
-        </Box>
-      )}
     </>
   );
 });
