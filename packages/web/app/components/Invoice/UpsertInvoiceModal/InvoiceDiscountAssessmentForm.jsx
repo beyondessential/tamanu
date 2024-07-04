@@ -65,7 +65,7 @@ export const InvoiceDiscountAssessmentForm = ({ handleSubmit, onClose, handleBac
         />
       </BodyText>
       <Form
-        onSubmit={() => handleSubmit({ percentage: 1 - percentage })}
+        onSubmit={() => handleSubmit({ percentage: (1 - percentage).toFixed(2) })}
         render={({ submitForm }) => (
           <>
             <FormGrid columns={1}>
