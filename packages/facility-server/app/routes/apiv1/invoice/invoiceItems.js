@@ -6,7 +6,7 @@ import { transform, set } from 'lodash';
 
 export const invoiceItemsRoute = permissionCheckingRouter('read', 'Invoice');
 
-invoiceItemsRoute.get('/:id/items', simpleGetList('InvoiceItem', 'invoiceId'));
+invoiceItemsRoute.get('/:id/items', simpleGetList('InvoiceItem', 'invoiceId', { skipPermissionCheck: true }));
 
 invoiceItemsRoute.get(
   '/:id/potentialInvoiceItems',

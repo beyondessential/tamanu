@@ -29,10 +29,10 @@ async function getInvoiceWithDetails(req, invoiceId) {
   }).then(invoice => invoice.addVirtualFields());
 }
 const handleCreatePatientPayment = asyncHandler(async (req, res) => {
-  req.checkPermission('write', 'Invoice');
-
   const invoiceId = req.params.invoiceId;
 
+  req.checkPermission('read', 'Invoice');
+  req.checkPermission('create', 'InvoicePayment');
   const invoice = await getInvoiceWithDetails(req, invoiceId);
 
   if (!invoice) throw new NotFoundError('Invoice not found');
@@ -86,12 +86,13 @@ const handleCreatePatientPayment = asyncHandler(async (req, res) => {
 });
 
 const handleUpdatePatientPayment = asyncHandler(async (req, res) => {
-  req.checkPermission('write', 'Invoice');
-
   const invoiceId = req.params.invoiceId;
   const paymentId = req.params.paymentId;
 
+  req.checkPermission('read', 'Invoice');
+  req.checkPermission('write', 'InvoicePayment');
   const invoice = await getInvoiceWithDetails(req, invoiceId);
+
   const payment = await req.models.InvoicePayment.findByPk(paymentId);
 
   if (!invoice) throw new NotFoundError('Invoice not found');
@@ -149,6 +150,7 @@ const handleGetPatientPayments = asyncHandler(async (req, res) => {
   req.checkPermission('read', 'Invoice');
 
   const invoiceId = req.params.invoiceId;
+
   const patientPayments = await req.models.InvoicePatientPayment.findAll({
     include: [
       { model: req.models.InvoicePayment, as: 'detail', where: { invoiceId } },

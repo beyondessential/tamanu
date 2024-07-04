@@ -177,7 +177,7 @@ const updateInvoiceSchema = z
 invoiceRoute.put(
   '/:id/',
   asyncHandler(async (req, res) => {
-    req.checkPermission('create', 'Invoice');
+    req.checkPermission('write', 'Invoice');
 
     const invoiceId = req.params.id;
 
