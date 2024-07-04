@@ -86,16 +86,17 @@ export const AdditionalInfo = ({
   const customSections = customPatientSections.map(([_categoryId, fields]) => {
     const title = fields[0].category.name;
     const onEditCallback = (): void => onEdit(null, title, true, fields, customPatientFieldValues);
-    const mappedFields = fields.map(field => [
-      field.name,
-      customPatientFieldValues[field.id]?.[0]?.value,
-    ]);
+    const mappedFields = fields.map(field => {
+      const { id, name } = field;
+      const [customFieldValue] = customPatientFieldValues[id] || [];
+      return [name, customFieldValue?.value];
+    });
     return { title, fields: mappedFields, onEditCallback, isCustomSection: true };
   });
 
   const sections = isHardCodedLayout
     ? additionalSections
-    : [...(additionalSections || []), ...(customSections || [])];
+    : [...additionalSections, ...customSections];
 
   return (
     <>

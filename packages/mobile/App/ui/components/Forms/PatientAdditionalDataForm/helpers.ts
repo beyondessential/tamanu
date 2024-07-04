@@ -13,6 +13,7 @@ import { yupAttemptTransformToNumber } from '~/ui/helpers/numeralTranslation';
 import { isObject, isString } from 'lodash';
 import { CustomPatientFieldValues } from '~/ui/hooks/usePatientAdditionalData';
 import { PatientAdditionalData } from '~/models/PatientAdditionalData';
+import { PatientFieldDefinition } from '~/models/PatientFieldDefinition';
 
 // All PatientAdditionalData plain fields sorted alphabetically
 export const plainFields = [
@@ -174,7 +175,7 @@ export const patientAdditionalDataValidationSchema = Yup.object().shape({
 export const getInitialCustomValues = (
   data: CustomPatientFieldValues,
   // TODO: upstream types are not defined
-  fields: ({ id: string } | string)[],
+  fields: (PatientFieldDefinition | string)[],
 ): { [key: string]: string } => {
   if (!data) {
     return {};
@@ -191,7 +192,7 @@ export const getInitialCustomValues = (
 export const getInitialAdditionalValues = (
   data: PatientAdditionalData,
   // TODO: upstream types are not defined
-  fields: ({ name: string } | string)[],
+  fields: (PatientFieldDefinition | string)[],
 ): { [key: string]: string } => {
   if (!data) {
     return {};
