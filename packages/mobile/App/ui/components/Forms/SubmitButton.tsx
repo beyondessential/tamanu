@@ -4,8 +4,9 @@ import { theme } from '/styled/theme';
 import { Button, StyledButtonProps } from '/components/Button';
 import { TranslatedText } from '/components/Translations/TranslatedText';
 
-interface SubmitButtonProps extends StyledButtonProps {
+interface SubmitButtonProps extends Omit<StyledButtonProps, 'onPress'> {
   onSubmit?: () => Promise<void>;
+  onPress?: (value: any) => void | Promise<any> | Function;
 }
 
 export const SubmitButton = ({ onSubmit, ...props }: SubmitButtonProps): ReactElement => {
