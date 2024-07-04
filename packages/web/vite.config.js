@@ -67,5 +67,9 @@ export default async ({ mode }) => {
         },
       },
     },
+    test: {
+      globals: true,
+      environment: 'jsdom',
+    },
   });
 };
