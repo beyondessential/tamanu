@@ -10,10 +10,11 @@ import {
   titleOptions,
 } from '~/ui/helpers/additionalData';
 import { yupAttemptTransformToNumber } from '~/ui/helpers/numeralTranslation';
-import { isObject, isString } from 'lodash';
+
 import { CustomPatientFieldValues } from '~/ui/hooks/usePatientAdditionalData';
 import { PatientAdditionalData } from '~/models/PatientAdditionalData';
 import { PatientFieldDefinition } from '~/models/PatientFieldDefinition';
+import { isObject } from 'lodash';
 
 // All PatientAdditionalData plain fields sorted alphabetically
 export const plainFields = [
@@ -174,7 +175,6 @@ export const patientAdditionalDataValidationSchema = Yup.object().shape({
 // Strip off unwanted fields from additional data and only keep specified ones
 export const getInitialCustomValues = (
   data: CustomPatientFieldValues,
-  // TODO: upstream types are not defined
   fields: (PatientFieldDefinition | string)[],
 ): { [key: string]: string } => {
   if (!data) {
@@ -182,7 +182,7 @@ export const getInitialCustomValues = (
   }
   // Copy values from data only in the specified fields
   return fields.reduce((acc, field) => {
-    const fieldId = typeof field === 'object' ? field.id : field;
+    const fieldId = isObject(field) ? field.id : field;
     const value = data[fieldId]?.[0]?.value;
     return { ...acc, ...(value && { [fieldId]: value }) };
   }, {});
@@ -191,14 +191,13 @@ export const getInitialCustomValues = (
 // Strip off unwanted fields from additional data and only keep specified ones
 export const getInitialAdditionalValues = (
   data: PatientAdditionalData,
-  // TODO: upstream types are not defined
   fields: (PatientFieldDefinition | string)[],
 ): { [key: string]: string } => {
   if (!data) {
     return {};
   }
   return fields.reduce((acc, field) => {
-    const fieldName = typeof field === 'object' ? field.name : field;
+    const fieldName = isObject(field) ? field.name : field;
     const value = data[fieldName];
     return { ...acc, ...(value && { [fieldName]: value }) };
   }, {});

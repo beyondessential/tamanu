@@ -15,6 +15,20 @@ import { SubmitButton } from '../SubmitButton';
 import { TranslatedText } from '/components/Translations/TranslatedText';
 import { FormScreenView } from '../FormScreenView';
 import { PatientFieldDefinition } from '~/models/PatientFieldDefinition';
+import { CustomPatientFieldValues } from '~/ui/hooks/usePatientAdditionalData';
+import { NavigationProp } from '@react-navigation/native';
+
+// TODO: type and work out customSectionFields and additionalDataSections
+interface PatientAdditionalDataFormProps {
+  patient: Patient;
+  additionalData: PatientAdditionalData;
+  additionalDataSections: any;
+  navigation: NavigationProp<any>;
+  sectionTitle: string;
+  customPatientFieldValues: CustomPatientFieldValues;
+  isCustomSection?: boolean;
+  customSectionFields?: any[];
+}
 
 export const PatientAdditionalDataForm = ({
   patient,
@@ -25,7 +39,7 @@ export const PatientAdditionalDataForm = ({
   customPatientFieldValues,
   isCustomSection = false,
   customSectionFields,
-}): ReactElement => {
+}: PatientAdditionalDataFormProps): ReactElement => {
   const scrollViewRef = useRef();
   // After save/update, the model will mark itself for upload and the
   // patient for sync (see beforeInsert and beforeUpdate decorators).

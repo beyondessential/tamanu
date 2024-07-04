@@ -123,7 +123,7 @@ function getComponentForField(
 }
 
 interface PatientAdditionalDataFieldsProps {
-  fields: (string | object)[];
+  fields: (string | PatientFieldDefinition)[];
   isCustomSection?: boolean;
   showMandatory?: boolean;
 }
