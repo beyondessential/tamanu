@@ -11,6 +11,8 @@ import {
 } from '~/ui/helpers/additionalData';
 import { yupAttemptTransformToNumber } from '~/ui/helpers/numeralTranslation';
 import { isObject, isString } from 'lodash';
+import { CustomPatientFieldValues } from '~/ui/hooks/usePatientAdditionalData';
+import { PatientAdditionalData } from '~/models/PatientAdditionalData';
 
 // All PatientAdditionalData plain fields sorted alphabetically
 export const plainFields = [
@@ -169,14 +171,17 @@ export const patientAdditionalDataValidationSchema = Yup.object().shape({
 });
 
 // Strip off unwanted fields from additional data and only keep specified ones
-export const getInitialCustomValues = (data, fields): {} => {
+export const getInitialCustomValues = (
+  data: CustomPatientFieldValues,
+  fields: ({ id: string } | string)[],
+): { [key: string]: string } => {
   if (!data) {
     return {};
   }
   // Copy values from data only in the specified fields
   const values = {};
   fields
-    .map((field: object | string) => field.id || field) // This handles either an array of objects with custom field ids or just an array of field ids on its own
+    .map(field => (typeof field === 'object' ? field.id : field)) // This handles either an array of objects with custom field ids or just an array of field ids on its own
     .forEach((fieldId: string) => {
       if (data[fieldId]) values[fieldId] = data[fieldId]?.[0]?.value;
     });
@@ -184,14 +189,17 @@ export const getInitialCustomValues = (data, fields): {} => {
 };
 
 // Strip off unwanted fields from additional data and only keep specified ones
-export const getInitialAdditionalValues = (data, fields): {} => {
+export const getInitialAdditionalValues = (
+  data: PatientAdditionalData,
+  fields: ({ name: string } | string)[],
+): { [key: string]: string } => {
   if (!data) {
     return {};
   }
   const values = {};
   fields.forEach(field => {
-    if (isString(data[field])) values[field] = data[field];
     if (isObject(field)) values[field.name] = data[field.name];
+    if (isString(field)) values[field] = data[field];
   });
   return values;
 };

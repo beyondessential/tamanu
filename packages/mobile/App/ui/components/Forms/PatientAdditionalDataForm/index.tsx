@@ -64,18 +64,14 @@ export const PatientAdditionalDataForm = ({
     [navigation, patient.id],
   );
 
-  const section = isCustomSection
-    ? {
-        fields: customSectionFields.map(({ id, name, fieldType, options }) => ({
-          id,
-          name,
-          fieldType,
-          options,
-        })),
-      }
-    : additionalDataSections.find(({ title }) => title === sectionTitle);
-
-  const { fields } = section;
+  const fields = isCustomSection
+    ? customSectionFields.map(({ id, name, fieldType, options }) => ({
+        id,
+        name,
+        fieldType,
+        options,
+      }))
+    : additionalDataSections.find(({ title }) => title === sectionTitle)?.fields;
 
   return (
     <Form
