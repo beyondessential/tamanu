@@ -147,7 +147,7 @@ export const PatientAdditionalDataFields = ({
     : getConfiguredPatientAdditionalDataFields(fields as string[], showMandatory, getLocalisation);
 
   if (isCustomSection)
-    return fields.map((field: PatientFieldDefinition) => getCustomFieldComponent(field));
+    return fields.map(field => getCustomFieldComponent(field as PatientFieldDefinition));
 
   if (loading) return [];
 

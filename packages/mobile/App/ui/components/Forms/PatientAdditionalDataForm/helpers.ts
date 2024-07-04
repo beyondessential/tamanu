@@ -173,33 +173,32 @@ export const patientAdditionalDataValidationSchema = Yup.object().shape({
 // Strip off unwanted fields from additional data and only keep specified ones
 export const getInitialCustomValues = (
   data: CustomPatientFieldValues,
+  // TODO: upstream types are not defined
   fields: ({ id: string } | string)[],
 ): { [key: string]: string } => {
   if (!data) {
     return {};
   }
   // Copy values from data only in the specified fields
-  const values = {};
-  fields
-    .map(field => (typeof field === 'object' ? field.id : field)) // This handles either an array of objects with custom field ids or just an array of field ids on its own
-    .forEach((fieldId: string) => {
-      if (data[fieldId]) values[fieldId] = data[fieldId]?.[0]?.value;
-    });
-  return values;
+  return fields.reduce((acc, field) => {
+    const fieldId = typeof field === 'object' ? field.id : field;
+    const value = data[fieldId]?.[0]?.value;
+    return { ...acc, ...(value && { [fieldId]: value }) };
+  }, {});
 };
 
 // Strip off unwanted fields from additional data and only keep specified ones
 export const getInitialAdditionalValues = (
   data: PatientAdditionalData,
+  // TODO: upstream types are not defined
   fields: ({ name: string } | string)[],
 ): { [key: string]: string } => {
   if (!data) {
     return {};
   }
-  const values = {};
-  fields.forEach(field => {
-    if (isObject(field)) values[field.name] = data[field.name];
-    if (isString(field)) values[field] = data[field];
-  });
-  return values;
+  return fields.reduce((acc, field) => {
+    const fieldName = typeof field === 'object' ? field.name : field;
+    const value = data[fieldName];
+    return { ...acc, ...(value && { [fieldName]: value }) };
+  }, {});
 };
