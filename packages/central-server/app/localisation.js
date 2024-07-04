@@ -508,6 +508,7 @@ const rootLocalisationSchema = yup
             .required()
             .max(31),
           label: yup.string().required(),
+          hidden: yup.boolean(),
         }),
       )
       .test({
