@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { customAlphabet } from 'nanoid';
 import * as yup from 'yup';
 import CachedIcon from '@material-ui/icons/Cached';
 import { Box } from '@material-ui/core';
 import { INVOICE_STATUSES } from '@tamanu/constants';
+import { getPatientPaymentRemainingBalance } from '@tamanu/shared/utils/invoice';
 
 import { TranslatedText } from '../../Translation';
 import { DataFetchingTable } from '../../Table';
@@ -75,8 +76,14 @@ const COLUMNS = [
   },
 ];
 
-export const PatientPaymentsTable = ({ onDataFetched, remainingBalance, invoice }) => {
+export const PatientPaymentsTable = ({ invoice }) => {
   const [refreshCount, setRefreshCount] = useState(0);
+  const [patientRemainingBalance, setPatientRemainingBalance] = useState(0);
+
+  const onPatientPaymentsFetched = useCallback(({ data }) => {
+    const patientRemainingBalance = getPatientPaymentRemainingBalance(data, invoice)
+    setPatientRemainingBalance(patientRemainingBalance);
+  }, []);
 
   const paymentMethodSuggester = useSuggester('paymentMethod');
   const api = useApi();
@@ -86,13 +93,19 @@ export const PatientPaymentsTable = ({ onDataFetched, remainingBalance, invoice 
   };
 
   const onRecord = async (data, { resetForm }) => {
-    await api.post(`invoices/${invoice.id}/patientPayments`, data);
+    const { date, methodId, receiptNumber, amount } = data;
+    await api.post(`invoices/${invoice.id}/patientPayments`, {
+      date,
+      methodId,
+      receiptNumber,
+      amount: amount.toFixed(2),
+    });
     setRefreshCount(prev => prev + 1);
     resetForm();
   };
 
   const hideRecordPaymentForm =
-    remainingBalance <= 0 || invoice.status === INVOICE_STATUSES.CANCELLED;
+    patientRemainingBalance <= 0 || invoice.status === INVOICE_STATUSES.CANCELLED;
 
   return (
     <TableContainer>
@@ -107,7 +120,7 @@ export const PatientPaymentsTable = ({ onDataFetched, remainingBalance, invoice 
           <TranslatedText
             stringId="invoice.modal.payment.remainingBalance"
             fallback="Remaining balance: :remainingBalance"
-            replacements={{ remainingBalance: remainingBalance.toFixed(2) }}
+            replacements={{ remainingBalance: patientRemainingBalance.toFixed(2) }}
           />
         </Heading4>
       </Title>
@@ -137,8 +150,8 @@ export const PatientPaymentsTable = ({ onDataFetched, remainingBalance, invoice 
         statusCellStyle={denseTableStyle.statusCell}
         disablePagination
         refreshCount={refreshCount}
-        onDataFetched={onDataFetched}
-        noDataMessage={<Box paddingBottom='24px' />}
+        onDataFetched={onPatientPaymentsFetched}
+        noDataMessage={<Box paddingBottom="24px" />}
       />
       {!hideRecordPaymentForm && (
         <Form
@@ -220,7 +233,7 @@ export const PatientPaymentsTable = ({ onDataFetched, remainingBalance, invoice 
                   fallback="Cannot be more than outstanding balance"
                 />,
                 function(value) {
-                  return Number(value) <= remainingBalance.toFixed(2);
+                  return Number(value) <= patientRemainingBalance;
                 },
               ),
             receiptNumber: yup

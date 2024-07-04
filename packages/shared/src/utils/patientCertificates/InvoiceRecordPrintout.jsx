@@ -18,6 +18,7 @@ import {
   getInvoiceItemQuantity,
   getInvoiceItemNote,
   getInvoiceSummaryDisplay,
+  getPatientPaymentsWithRemainingBalance,
 } from '../invoice';
 import { withLanguageContext } from '../pdf/languageContext';
 import { Page } from '../pdf/Page';
@@ -435,16 +436,12 @@ const InvoiceRecordPrintoutComponent = ({
   getLocalisation,
   clinicianText,
   invoice,
-  patientPayments,
+  patientPayments: defaultPatientPayments,
   insurerPayments,
 }) => {
   const { watermark, logo } = certificateData;
+  const patientPayments = getPatientPaymentsWithRemainingBalance(defaultPatientPayments, invoice);
 
-  let { patientTotal } = getInvoiceSummaryDisplay(invoice);
-  patientPayments?.data?.forEach(payment => {
-    patientTotal -= parseFloat(payment.amount);
-    payment.remainingBalance = patientTotal.toFixed(2);
-  });
   return (
     <Document>
       <Page size="A4" style={pageStyles.body} wrap>
