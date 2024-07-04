@@ -5,6 +5,7 @@ import { TranslatedText } from '../../components/Translation/TranslatedText';
 
 export const LabTestCategoryField = ({
   name = 'labTestCategoryId',
+  label,
   required,
   includeAllOption,
 }) => (
@@ -12,10 +13,12 @@ export const LabTestCategoryField = ({
     name={name}
     includeAllOption={includeAllOption}
     label={
-      <TranslatedText
-        stringId="report.generate.parameter.labTestCategory.label"
-        fallback="Test category"
-      />
+      label ?? (
+        <TranslatedText
+          stringId="report.generate.parameter.labTestCategory.label"
+          fallback="Test category"
+        />
+      )
     }
     component={SuggesterSelectField}
     endpoint="labTestCategory"
