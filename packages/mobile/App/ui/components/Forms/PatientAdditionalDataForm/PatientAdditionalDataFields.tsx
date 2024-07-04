@@ -87,7 +87,10 @@ const CustomField = ({ fieldName, required }): ReactElement => {
   return getCustomFieldComponent(fieldDefinition, required);
 };
 
-const getCustomFieldComponent = ({ id, name, options, fieldType }: PatientFieldDefinition, required: boolean = false) => {
+const getCustomFieldComponent = (
+  { id, name, options, fieldType }: PatientFieldDefinition,
+  required?: boolean,
+) => {
   return (
     <Field
       name={id}
@@ -102,7 +105,7 @@ const getCustomFieldComponent = ({ id, name, options, fieldType }: PatientFieldD
 function getComponentForField(
   fieldName: string,
   customFieldIds: string[],
-): React.FC<{ fieldName: string }> {
+): React.FC<{ fieldName: string; required: boolean }> {
   if (plainFields.includes(fieldName)) {
     return PlainField;
   }
@@ -119,7 +122,17 @@ function getComponentForField(
   throw new Error(`Unexpected field ${fieldName} for patient additional data.`);
 }
 
-export const PatientAdditionalDataFields = ({ fields, isCustomSection, showMandatory = true }): ReactElement => {
+interface PatientAdditionalDataFieldsProps {
+  fields: (string | object)[];
+  isCustomSection?: boolean;
+  showMandatory?: boolean;
+}
+
+export const PatientAdditionalDataFields = ({
+  fields,
+  isCustomSection,
+  showMandatory = true,
+}: PatientAdditionalDataFieldsProps): ReactElement[] => {
   const { getLocalisation } = useLocalisation();
   const isHardCodedLayout = getLocalisation('layouts.patientDetails') !== 'generic';
   const [customFieldDefinitions, _, loading] = useBackendEffect(({ models }) =>
@@ -131,10 +144,11 @@ export const PatientAdditionalDataFields = ({ fields, isCustomSection, showManda
 
   const padFields = isHardCodedLayout
     ? fields
-    : getConfiguredPatientAdditionalDataFields(fields, showMandatory, getLocalisation);
+    : getConfiguredPatientAdditionalDataFields(fields as string[], showMandatory, getLocalisation);
 
-  if (isCustomSection) return fields.map((field: PatientFieldDefinition) => getCustomFieldComponent(field))
-    
+  if (isCustomSection)
+    return fields.map((field: PatientFieldDefinition) => getCustomFieldComponent(field));
+
   if (loading) return [];
 
   return padFields.map((field: string | object, i: number) => {
