@@ -190,6 +190,16 @@ export const EditInvoiceModal = ({
     return <PaymentTablesGroup invoice={invoice} />;
   };
 
+  const getConfirmText = () => {
+    if (!editable) {
+      return <TranslatedText stringId="general.action.close" fallback="Close" />;
+    }
+    if (isUpdatingInvoice) {
+      return <CircularProgress size={14} color={Colors.white} />;
+    }
+    return <TranslatedText stringId="general.action.save" fallback="Save" />;
+  };
+
   return (
     <Modal
       width="lg"
@@ -320,15 +330,9 @@ export const EditInvoiceModal = ({
                     </ModalSection>
                     <StyledDivider />
                     <FormSubmitCancelRow
-                      confirmText={
-                        !isUpdatingInvoice ? (
-                          <TranslatedText stringId="general.action.save" fallback="Save" />
-                        ) : (
-                          <CircularProgress size={14} color={Colors.white} />
-                        )
-                      }
-                      onConfirm={submitForm}
-                      onCancel={onClose}
+                      confirmText={getConfirmText()}
+                      onConfirm={editable ? submitForm : onClose}
+                      onCancel={editable && onClose}
                       confirmDisabled={isUpdatingInvoice}
                       confirmStyle={`
                       &.Mui-disabled {

@@ -81,6 +81,7 @@ export const PatientPaymentsTable = ({ invoice }) => {
   const patientPayments = invoice.payments.filter(payment => !!payment?.patientPayment);
   const [refreshCount, setRefreshCount] = useState(0);
   const [patientRemainingBalance, setPatientRemainingBalance] = useState(0);
+  const [isSaving, setIsSaving] = useState(false);
 
   const { mutate: createPatientPayment } = useCreatePatientPayment(invoice);
 
@@ -96,6 +97,7 @@ export const PatientPaymentsTable = ({ invoice }) => {
   };
 
   const onRecord = async (data, { resetForm }) => {
+    setIsSaving(true);
     const { date, methodId, receiptNumber, amount } = data;
     createPatientPayment(
       {
@@ -109,6 +111,7 @@ export const PatientPaymentsTable = ({ invoice }) => {
           setRefreshCount(prev => prev + 1);
           resetForm();
         },
+        onSettled: () => setIsSaving(false)
       },
     );
   };
@@ -208,7 +211,7 @@ export const PatientPaymentsTable = ({ invoice }) => {
                 </IconButton>
               </Box>
               <Box sx={{ gridColumn: 'span 3', marginLeft: 'auto' }}>
-                <Button size="small" onClick={submitForm}>
+                <Button size="small" onClick={submitForm} disabled={isSaving}>
                   <TranslatedText
                     stringId="invoice.modal.payment.action.record"
                     fallback="Record"
