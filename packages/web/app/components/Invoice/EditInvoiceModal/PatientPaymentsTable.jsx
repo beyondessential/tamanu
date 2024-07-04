@@ -16,6 +16,7 @@ import { Heading4 } from '../../Typography';
 import { DateDisplay } from '../../DateDisplay';
 import { useCreatePatientPayment } from '../../../api/mutations';
 import { useSuggester } from '../../../api';
+import { useAuth } from '../../../contexts/Auth';
 
 const TableContainer = styled.div`
   padding-left: 16px;
@@ -83,6 +84,9 @@ export const PatientPaymentsTable = ({ invoice }) => {
   const [patientRemainingBalance, setPatientRemainingBalance] = useState(0);
   const [isSaving, setIsSaving] = useState(false);
 
+  const { ability } = useAuth();
+  const canCreatePayment = ability.can('create', 'InvoicePayment');
+
   const { mutate: createPatientPayment } = useCreatePatientPayment(invoice);
 
   useEffect(() => {
@@ -111,7 +115,7 @@ export const PatientPaymentsTable = ({ invoice }) => {
           setRefreshCount(prev => prev + 1);
           resetForm();
         },
-        onSettled: () => setIsSaving(false)
+        onSettled: () => setIsSaving(false),
       },
     );
   };
@@ -164,7 +168,7 @@ export const PatientPaymentsTable = ({ invoice }) => {
         refreshCount={refreshCount}
         noDataMessage={<Box paddingBottom="24px" />}
       />
-      {!hideRecordPaymentForm && (
+      {!hideRecordPaymentForm && canCreatePayment && (
         <Form
           onSubmit={onRecord}
           render={({ submitForm, setFieldValue }) => (
