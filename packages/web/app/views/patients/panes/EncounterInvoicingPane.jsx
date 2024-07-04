@@ -13,6 +13,7 @@ import { InvoiceSummaryPanel } from '../../../components/Invoice/InvoiceSummaryP
 import { ThreeDotMenu } from '../../../components/ThreeDotMenu';
 import { useEncounterInvoice } from '../../../api/queries/useInvoiceQuery';
 import { InvoiceModalGroup } from '../../../components/Invoice/InvoiceModalGroup';
+import { useAuth } from '../../../contexts/Auth';
 
 const EmptyPane = styled(ContentPane)`
   text-align: center;
@@ -50,11 +51,12 @@ const InvoiceContainer = styled.div`
 `;
 
 export const EncounterInvoicingPane = ({ encounter }) => {
+  const { ability } = useAuth();
   const [openInvoiceModal, setOpenInvoiceModal] = useState();
 
   const { data: invoice } = useEncounterInvoice(encounter.id);
 
-  const handleOpenInvoiceModal = (type) => setOpenInvoiceModal(type);
+  const handleOpenInvoiceModal = type => setOpenInvoiceModal(type);
 
   return (
     <>
@@ -69,7 +71,7 @@ export const EncounterInvoicingPane = ({ encounter }) => {
                 </InvoiceTitle>
                 <InvoiceStatus status={invoice.status} />
               </InvoiceHeading>
-              {isInvoiceEditable(invoice) && (
+              {isInvoiceEditable(invoice) && ability.can('write', 'Invoice') && (
                 <ActionsPane>
                   <ThreeDotMenu
                     items={[
@@ -96,9 +98,11 @@ export const EncounterInvoicingPane = ({ encounter }) => {
         </TabPane>
       ) : (
         <EmptyPane>
-          <Button onClick={() => handleOpenInvoiceModal(INVOICE_MODAL_TYPES.CREATE_INVOICE)}>
-            <TranslatedText stringId="invoice.action.create" fallback="Create invoice" />
-          </Button>
+          {ability.can('create', 'Invoice') && (
+            <Button onClick={() => handleOpenInvoiceModal(INVOICE_MODAL_TYPES.CREATE_INVOICE)}>
+              <TranslatedText stringId="invoice.action.create" fallback="Create invoice" />
+            </Button>
+          )}
         </EmptyPane>
       )}
       <InvoiceModalGroup

@@ -13,6 +13,7 @@ import { InvoiceStatus } from './InvoiceStatus';
 import { InvoiceModalGroup } from './InvoiceModalGroup';
 import { getInvoiceSummaryDisplay } from '@tamanu/shared/utils/invoice';
 import { useEncounterInvoice } from '../../api/queries/useInvoiceQuery';
+import { useAuth } from '../../contexts/Auth';
 
 const TableTitle = styled(Typography)`
   font-size: 16px;
@@ -36,9 +37,9 @@ const Table = styled(DataFetchingTable)`
     padding-bottom: 6px !important;
   }
   .MuiTableBody-root .MuiTableRow-root:not(.statusRow) {
-    cursor: pointer;
+    cursor: ${props => (props.onClickRow ? 'pointer' : '')};
     &:hover {
-      background-color: ${Colors.veryLightBlue};
+      background-color: ${props => (props.onClickRow ? Colors.veryLightBlue : '')};
     }
   }
 `;
@@ -113,6 +114,7 @@ const COLUMNS = [
 ];
 
 export const InvoicesTable = ({ patient }) => {
+  const { ability } = useAuth();
   const [openInvoiceModal, setOpenInvoiceModal] = useState();
   const [selectedInvoice, setSelectedInvoice] = useState();
   const [refreshTable, setRefreshTable] = useState(0);
@@ -139,10 +141,14 @@ export const InvoicesTable = ({ patient }) => {
             <TranslatedText stringId="patient.invoice.table.title" fallback="Patient invoices" />
           </TableTitle>
         }
-        onClickRow={(_, data) => {
-          setSelectedInvoice(data);
-          setOpenInvoiceModal(INVOICE_MODAL_TYPES.EDIT_INVOICE);
-        }}
+        onClickRow={
+          ability.can('read', 'Invoice')
+            ? (_, data) => {
+                setSelectedInvoice(data);
+                setOpenInvoiceModal(INVOICE_MODAL_TYPES.EDIT_INVOICE);
+              }
+            : undefined
+        }
         refreshCount={refreshTable}
       />
       <InvoiceModalGroup
