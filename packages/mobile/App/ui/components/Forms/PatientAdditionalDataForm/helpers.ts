@@ -181,11 +181,13 @@ export const getInitialCustomValues = (
     return {};
   }
   // Copy values from data only in the specified fields
-  return fields.reduce((acc, field) => {
+  const values = {};
+  for (const field of fields) {
     const fieldId = isObject(field) ? field.id : field;
     const value = data[fieldId]?.[0]?.value;
-    return { ...acc, ...(value && { [fieldId]: value }) };
-  }, {});
+    if (value) values[fieldId] = value;
+  }
+  return values;
 };
 
 // Strip off unwanted fields from additional data and only keep specified ones
@@ -196,9 +198,11 @@ export const getInitialAdditionalValues = (
   if (!data) {
     return {};
   }
-  return fields.reduce((acc, field) => {
+  const values = {};
+  for (const field of fields) {
     const fieldName = isObject(field) ? field.name : field;
     const value = data[fieldName];
-    return { ...acc, ...(value && { [fieldName]: value }) };
-  }, {});
+    if (value) values[fieldName] = value;
+  }
+  return values;
 };
