@@ -10,6 +10,7 @@ const KEYS_EXPOSED_TO_FRONT_END = [
   'features',
   'invoice',
   'insurer',
+  'customisations'
 ];
 
 export class ReadSettings {
