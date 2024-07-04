@@ -6,7 +6,7 @@ import { useParams } from 'react-router-dom';
 import { pick } from 'lodash';
 import styled from 'styled-components';
 
-import { IMAGING_REQUEST_STATUS_TYPES, LAB_REQUEST_STATUS_CONFIG } from '@tamanu/constants';
+import { IMAGING_REQUEST_STATUS_TYPES, LAB_REQUEST_STATUS_CONFIG, NOTE_TYPES } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 
 import { FORM_TYPES, IMAGING_REQUEST_STATUS_OPTIONS } from '../../../constants';
@@ -113,7 +113,10 @@ const ImagingRequestSection = ({ currentStatus, imagingRequest }) => {
       />
       <TextInput
         multiline
-        value={imagingRequest.note}
+        value={imagingRequest.notes
+          ?.filter(note => note.noteType === NOTE_TYPES.OTHER)
+          .map(note => note.content)
+          .join('\n')}
         label={<TranslatedText stringId="general.notes.label" fallback="Notes" />}
         style={{ gridColumn: '1 / -1', minHeight: '60px' }}
         disabled

@@ -1,7 +1,10 @@
 import { Op } from 'sequelize';
 
 import { fake, fakeReferenceData, showError } from '@tamanu/shared/test-helpers';
-import { IMAGING_REQUEST_STATUS_TYPES } from '@tamanu/constants';
+import {
+  IMAGING_REQUEST_STATUS_TYPES,
+  FHIR_IMAGING_STUDY_STATUS,
+} from '@tamanu/constants';
 import { fakeUUID } from '@tamanu/shared/utils/generateId';
 import { sleepAsync } from '@tamanu/shared/utils/sleepAsync';
 
@@ -124,7 +127,7 @@ describe(`Materialised FHIR - ImagingStudy`, () => {
           basedOn: [
             {
               type: 'ServiceRequest',
-              reference: `/ServiceRequest/${mat.id}`,
+              reference: `ServiceRequest/${mat.id}`,
             },
           ],
           note: [{ text: 'This is an okay note' }, { text: 'This is another note' }],
@@ -348,6 +351,50 @@ describe(`Materialised FHIR - ImagingStudy`, () => {
         expect(ires.description).toEqual('This is a fine note\n\nThis is another note');
       }));
 
+
+    it('ImagingStudy can cancel a ImagingRequest', () =>
+      showError(async () => {
+        // arrange
+        const { FhirServiceRequest, ImagingRequest } = ctx.store.models;
+        const ir = await ImagingRequest.create(
+          fake(ImagingRequest, {
+            requestedById: resources.practitioner.id,
+            encounterId: encounter.id,
+            locationId: resources.location.id,
+            status: IMAGING_REQUEST_STATUS_TYPES.PENDING,
+            priority: 'routine',
+            requestedDate: '2022-03-04 15:30:00',
+          }),
+        );
+        await ir.setAreas([resources.area1.id, resources.area2.id]);
+        await ir.reload();
+        const mat = await FhirServiceRequest.materialiseFromUpstream(ir.id);
+
+        await FhirServiceRequest.resolveUpstreams();
+
+        // act
+        const response = await app.post(PATH).send({
+          resourceType: 'ImagingStudy',
+          status: 'cancelled',
+          basedOn: [
+            {
+              type: 'ServiceRequest',
+              reference: `ServiceRequest/${mat.id}`,
+            },
+          ]
+        });
+
+        // assert
+        expect(response).toHaveSucceeded();
+        expect(response.status).toBe(201);
+        await ir.reload();
+        const notes = await ir.getNotes();
+        notes.sort((a,b) => a.createdAt < b.createdAt);
+        expect(ir.status).toEqual(IMAGING_REQUEST_STATUS_TYPES.CANCELLED);
+        expect(notes[0].content).toEqual('Request cancelled. Reason: Cancelled externally via API.');
+        expect(ir.reasonForCancellation).toEqual('Cancelled externally via API');
+      }));
+
     describe('errors', () => {
       it('returns invalid if the resourceType does not match', async () => {
         // act
@@ -404,7 +451,7 @@ describe(`Materialised FHIR - ImagingStudy`, () => {
           basedOn: [
             {
               type: 'ServiceRequest',
-              reference: `/ServiceRequest/${mat.id}`,
+              reference: `ServiceRequest/${mat.id}`,
             },
           ],
           note: [{ text: 'A note' }],
@@ -420,7 +467,7 @@ describe(`Materialised FHIR - ImagingStudy`, () => {
               code: 'value',
               diagnostics: expect.any(String),
               details: {
-                text: "ImagingStudy status must be 'final'",
+                text: `ImagingStudy status must be either '${FHIR_IMAGING_STUDY_STATUS.AVAILABLE}' or '${FHIR_IMAGING_STUDY_STATUS.CANCELLED}'`,
               },
             },
           ],
@@ -503,6 +550,179 @@ describe(`Materialised FHIR - ImagingStudy`, () => {
         });
         expect(response.status).toBe(400);
       });
+
+      it('returns invalid if posting results to cancelled request', () =>
+        showError(async () => {
+          // arrange
+          const { FhirServiceRequest, ImagingRequest } = ctx.store.models;
+          const ir = await ImagingRequest.create(
+            fake(ImagingRequest, {
+              requestedById: resources.practitioner.id,
+              encounterId: encounter.id,
+              locationId: resources.location.id,
+              priority: 'routine',
+              requestedDate: '2022-03-04 15:30:00',
+              status: IMAGING_REQUEST_STATUS_TYPES.CANCELLED,
+            }),
+          );
+          await ir.setAreas([resources.area1.id, resources.area2.id]);
+          await ir.reload();
+          const mat = await FhirServiceRequest.materialiseFromUpstream(ir.id);
+
+          await FhirServiceRequest.resolveUpstreams();
+
+          // act
+
+          const response = await app.post(PATH).send({
+            resourceType: 'ImagingStudy',
+            status: 'final',
+            identifier: [
+              {
+                system: 'http://example.com',
+                value: 'ACCESSION',
+              },
+            ],
+            basedOn: [
+              {
+                type: 'ServiceRequest',
+                reference: `ServiceRequest/${mat.id}`,
+              },
+            ],
+            note: [{ text: 'This is a fair note' }, { text: 'This is another note' }],
+          });
+
+          // assert
+          expect(response.body).toMatchObject({
+            resourceType: 'OperationOutcome',
+            id: expect.any(String),
+            issue: [
+              {
+                severity: 'error',
+                code: 'invalid',
+                diagnostics: expect.any(String),
+                details: {
+                  text: 'ImagingRequest has been cancelled',
+                },
+              },
+            ],
+          });
+          expect(response.status).toBe(400);
+        }));
+      it('returns invalid if posting results to entered-in-error request', () =>
+        showError(async () => {
+          // arrange
+          const { FhirServiceRequest, ImagingRequest } = ctx.store.models;
+          const ir = await ImagingRequest.create(
+            fake(ImagingRequest, {
+              requestedById: resources.practitioner.id,
+              encounterId: encounter.id,
+              locationId: resources.location.id,
+              priority: 'routine',
+              requestedDate: '2022-03-04 15:30:00',
+              status: IMAGING_REQUEST_STATUS_TYPES.ENTERED_IN_ERROR,
+            }),
+          );
+          await ir.setAreas([resources.area1.id, resources.area2.id]);
+          await ir.reload();
+          const mat = await FhirServiceRequest.materialiseFromUpstream(ir.id);
+
+          await FhirServiceRequest.resolveUpstreams();
+
+          // act
+
+          const response = await app.post(PATH).send({
+            resourceType: 'ImagingStudy',
+            status: 'final',
+            identifier: [
+              {
+                system: 'http://example.com',
+                value: 'ACCESSION',
+              },
+            ],
+            basedOn: [
+              {
+                type: 'ServiceRequest',
+                reference: `ServiceRequest/${mat.id}`,
+              },
+            ],
+            note: [{ text: 'This is a fair note' }, { text: 'This is another note' }],
+          });
+
+          // assert
+          expect(response.body).toMatchObject({
+            resourceType: 'OperationOutcome',
+            id: expect.any(String),
+            issue: [
+              {
+                severity: 'error',
+                code: 'invalid',
+                diagnostics: expect.any(String),
+                details: {
+                  text: 'ImagingRequest has been cancelled',
+                },
+              },
+            ],
+          });
+          expect(response.status).toBe(400);
+        }));
+
+      it('returns invalid if posting results to a deleted ImagingRequest', () =>
+        showError(async () => {
+          // arrange
+          const { FhirServiceRequest, ImagingRequest } = ctx.store.models;
+          const ir = await ImagingRequest.create(
+            fake(ImagingRequest, {
+              requestedById: resources.practitioner.id,
+              encounterId: encounter.id,
+              locationId: resources.location.id,
+              priority: 'routine',
+              requestedDate: '2022-03-04 15:30:00',
+              status: IMAGING_REQUEST_STATUS_TYPES.DELETED,
+            }),
+          );
+          await ir.setAreas([resources.area1.id, resources.area2.id]);
+          await ir.reload();
+          const mat = await FhirServiceRequest.materialiseFromUpstream(ir.id);
+
+          await FhirServiceRequest.resolveUpstreams();
+
+          // act
+
+          const response = await app.post(PATH).send({
+            resourceType: 'ImagingStudy',
+            status: 'final',
+            identifier: [
+              {
+                system: 'http://example.com',
+                value: 'ACCESSION',
+              },
+            ],
+            basedOn: [
+              {
+                type: 'ServiceRequest',
+                reference: `ServiceRequest/${mat.id}`,
+              },
+            ],
+            note: [{ text: 'This is a fair note' }, { text: 'This is another note' }],
+          });
+
+          // assert
+          expect(response.body).toMatchObject({
+            resourceType: 'OperationOutcome',
+            id: expect.any(String),
+            issue: [
+              {
+                severity: 'error',
+                code: 'deleted',
+                diagnostics: expect.any(String),
+                details: {
+                  text: 'ImagingRequest has been deleted',
+                },
+              },
+            ],
+          });
+          expect(response.status).toBe(410);
+        }));
     });
   });
 });
