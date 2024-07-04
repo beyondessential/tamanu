@@ -14,6 +14,8 @@ export const EditPatientAdditionalDataScreen = ({ navigation, route }): ReactEle
     patient,
     additionalDataJSON,
     sectionTitle,
+    isCustomSection,
+    customSectionFields,
     customPatientFieldValues,
   } = route.params;
   // additionalDataJSON might be undefined if record doesn't exist,
@@ -44,6 +46,8 @@ export const EditPatientAdditionalDataScreen = ({ navigation, route }): ReactEle
         additionalDataSections={GENERIC_ADDITIONAL_DATA_SECTIONS}
         navigation={navigation}
         sectionTitle={sectionTitle}
+        customSectionFields={customSectionFields}
+        isCustomSection={isCustomSection}
         customPatientFieldValues={customPatientFieldValues}
       />
     </FullView>
