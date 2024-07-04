@@ -225,17 +225,22 @@ export const getInvoiceInsurerPaymentStatus = (paidAmount, owingAmount) => {
   return INVOICE_INSURER_PAYMENT_STATUSES.PARTIAL;
 };
 
-export const getPatientPaymentRemainingBalance = (payments, invoice) => {
-  const totalPatientPayment = payments.reduce((acc, { amount }) => acc + Number(amount), 0);
+export const getPatientPaymentRemainingBalance = invoice => {
+  const patientPayments = invoice.payments.filter(payment => !!payment?.patientPayment);
+  const totalPatientPayment = patientPayments.reduce((acc, { amount }) => acc + Number(amount), 0);
   const { patientTotal } = getInvoiceSummary(invoice);
   return patientTotal - totalPatientPayment;
 };
 
-export const getPatientPaymentsWithRemainingBalance = (patientPayments, invoice) => {
+export const getPatientPaymentsWithRemainingBalance = invoice => {
+  const patientPayments = invoice.payments.filter(payment => !!payment?.patientPayment);
   let { patientTotal } = getInvoiceSummaryDisplay(invoice);
-  patientPayments?.data?.forEach(payment => {
+  const patientPaymentsWithRemainingBalance = patientPayments?.map(payment => {
     patientTotal -= parseFloat(payment.amount);
-    payment.remainingBalance = patientTotal.toFixed(2);
+    return {
+      ...payment,
+      remainingBalance: patientTotal.toFixed(2),
+    };
   });
-  return patientPayments;
+  return patientPaymentsWithRemainingBalance;
 };

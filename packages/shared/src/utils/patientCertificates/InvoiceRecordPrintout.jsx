@@ -219,7 +219,7 @@ const COLUMNS = {
       key: 'methodName',
       title: 'Method',
       style: { width: '29%' },
-      accessor: ({ methodName }) => methodName,
+      accessor: ({ patientPayment }) => patientPayment?.method?.name,
     },
     {
       key: 'amount',
@@ -436,11 +436,10 @@ const InvoiceRecordPrintoutComponent = ({
   getLocalisation,
   clinicianText,
   invoice,
-  patientPayments: defaultPatientPayments,
   insurerPayments,
 }) => {
   const { watermark, logo } = certificateData;
-  const patientPayments = getPatientPaymentsWithRemainingBalance(defaultPatientPayments, invoice);
+  const patientPayments = getPatientPaymentsWithRemainingBalance(invoice);
 
   return (
     <Document>
@@ -475,14 +474,14 @@ const InvoiceRecordPrintoutComponent = ({
         )}
         <SummaryPane invoice={invoice} />
         <SectionSpacing />
-        {patientPayments?.data?.length && (
+        {patientPayments?.length && (
           <TableSection
             title="Patient payment"
-            data={patientPayments.data}
+            data={patientPayments}
             columns={COLUMNS.patientPayments}
           />
         )}
-        {insurerPayments?.data?.length && (
+        {insurerPayments?.length && (
           <TableSection
             title="Insurer payment"
             data={insurerPayments.data}

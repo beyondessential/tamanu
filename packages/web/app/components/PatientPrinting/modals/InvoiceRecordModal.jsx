@@ -15,7 +15,7 @@ import { ForbiddenErrorModalContents } from '../../ForbiddenErrorModal';
 import { PDFLoader, printPDF } from '../PDFLoader';
 import { TranslatedText } from '../../Translation/TranslatedText';
 import { useTranslation } from '../../../contexts/Translation';
-import { useEncounterData, usePatientPayments } from '../../../api/queries';
+import { useEncounterData } from '../../../api/queries';
 
 export const InvoiceRecordModal = ({ 
   open, 
@@ -44,16 +44,12 @@ export const InvoiceRecordModal = ({
   const villageQuery = useReferenceData(patient?.villageId);
   const village = villageQuery.data;
 
-  const patientPaymentsQuery = usePatientPayments(invoice.id);
-  const patientPayments = patientPaymentsQuery.data;
-
   const allQueries = combineQueries([
     encounterQuery,
     patientQuery,
     certificateQuery,
     villageQuery,
     padDataQuery,
-    patientPaymentsQuery,
   ]);
 
   const modalProps = {
@@ -91,7 +87,6 @@ export const InvoiceRecordModal = ({
           getLocalisation={getLocalisation}
           clinicianText={clinicianText}
           invoice={invoice}
-          patientPayments={patientPayments}
         />
       </PDFLoader>
     </Modal>

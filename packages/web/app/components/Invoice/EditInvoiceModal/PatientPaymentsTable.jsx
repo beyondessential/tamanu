@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { customAlphabet } from 'nanoid';
 import * as yup from 'yup';
@@ -8,14 +8,14 @@ import { INVOICE_STATUSES } from '@tamanu/constants';
 import { getPatientPaymentRemainingBalance } from '@tamanu/shared/utils/invoice';
 
 import { TranslatedText } from '../../Translation';
-import { DataFetchingTable } from '../../Table';
+import { Table } from '../../Table';
 import { Colors, denseTableStyle } from '../../../constants';
 import { AutocompleteField, DateField, Field, Form, NumberField, TextField } from '../../Field';
 import { Button } from '../../Button';
 import { Heading4 } from '../../Typography';
-import { useApi, useSuggester } from '../../../api';
 import { DateDisplay } from '../../DateDisplay';
 import { useCreatePatientPayment } from '../../../api/mutations';
+import { useSuggester } from '../../../api';
 
 const TableContainer = styled.div`
   padding-left: 16px;
@@ -57,7 +57,7 @@ const COLUMNS = [
     key: 'methodName',
     title: <TranslatedText stringId="invoice.table.payment.column.method" fallback="Method" />,
     sortable: false,
-    accessor: ({ methodName }) => methodName,
+    accessor: ({ patientPayment }) => patientPayment?.method?.name,
   },
   {
     key: 'amount',
@@ -78,18 +78,18 @@ const COLUMNS = [
 ];
 
 export const PatientPaymentsTable = ({ invoice }) => {
+  const patientPayments = invoice.payments.filter(payment => !!payment?.patientPayment);
   const [refreshCount, setRefreshCount] = useState(0);
   const [patientRemainingBalance, setPatientRemainingBalance] = useState(0);
 
-  const { mutate: createPatientPayment } = useCreatePatientPayment(invoice.id);
+  const { mutate: createPatientPayment } = useCreatePatientPayment(invoice);
 
-  const onPatientPaymentsFetched = useCallback(({ data }) => {
-    const patientRemainingBalance = getPatientPaymentRemainingBalance(data, invoice);
+  useEffect(() => {
+    const patientRemainingBalance = getPatientPaymentRemainingBalance(invoice);
     setPatientRemainingBalance(patientRemainingBalance);
-  }, []);
+  }, [invoice]);
 
   const paymentMethodSuggester = useSuggester('paymentMethod');
-  const api = useApi();
 
   const generateReceiptNumber = () => {
     return customAlphabet('123456789', 8)() + customAlphabet('ABCDEFGHJKLMNPQRSTUVWXYZ', 2)();
@@ -133,8 +133,8 @@ export const PatientPaymentsTable = ({ invoice }) => {
           />
         </Heading4>
       </Title>
-      <DataFetchingTable
-        endpoint={`invoices/${invoice.id}/patientPayments`}
+      <Table
+        data={patientPayments}
         columns={COLUMNS}
         allowExport={false}
         headerColor={Colors.white}
@@ -159,7 +159,6 @@ export const PatientPaymentsTable = ({ invoice }) => {
         statusCellStyle={denseTableStyle.statusCell}
         disablePagination
         refreshCount={refreshCount}
-        onDataFetched={onPatientPaymentsFetched}
         noDataMessage={<Box paddingBottom="24px" />}
       />
       {!hideRecordPaymentForm && (
