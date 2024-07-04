@@ -73,10 +73,7 @@ export const EditInvoiceModal = ({
   const canWriteInvoice = ability.can('write', 'Invoice');
   const editable = isInvoiceEditable(invoice) && canWriteInvoice;
   const cancelable =
-    invoice.status !== INVOICE_STATUSES.CANCELLED &&
-    invoice.paymentStatus === INVOICE_PAYMENT_STATUSES.UNPAID &&
-    isPatientView &&
-    canWriteInvoice;
+    invoice.status === INVOICE_STATUSES.IN_PROGRESS && isPatientView && canWriteInvoice;
   const finalisable =
     invoice.status === INVOICE_STATUSES.IN_PROGRESS &&
     !!invoice.encounter?.endDate &&
