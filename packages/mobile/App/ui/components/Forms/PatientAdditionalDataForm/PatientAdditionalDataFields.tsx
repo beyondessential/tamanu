@@ -25,6 +25,7 @@ import { HierarchyFields } from '../../HierarchyFields';
 import { CAMBODIA_LOCATION_HIERARCHY_FIELDS } from '~/ui/navigation/screens/home/PatientDetails/layouts/cambodia/fields';
 import { isObject, isString } from 'lodash';
 import { labels } from '~/ui/navigation/screens/home/PatientDetails/layouts/generic/labels';
+import { PatientFieldDefinition } from '~/models/PatientFieldDefinition';
 
 const PlainField = ({ fieldName, required }): ReactElement => (
   // Outter styled view to momentarily add distance between fields
@@ -83,14 +84,19 @@ const CustomField = ({ fieldName, required }): ReactElement => {
 
   if (loading) return <ActivityIndicator />;
 
+  return getCustomFieldComponent(fieldDefinition, required);
+};
+
+const getCustomFieldComponent = (
+  { id, name, options, fieldType }: PatientFieldDefinition,
+  required?: boolean,
+) => {
   return (
     <Field
-      name={fieldDefinition.id}
-      label={labels[fieldDefinition.id] || fieldDefinition.name}
-      component={PatientFieldDefinitionComponents[fieldDefinition.fieldType]}
-      options={fieldDefinition.options
-        ?.split(',')
-        ?.map(option => ({ label: option, value: option }))}
+      name={id}
+      label={name}
+      component={PatientFieldDefinitionComponents[fieldType]}
+      options={options?.split(',')?.map(option => ({ label: option, value: option }))}
       required={required}
     />
   );
@@ -99,7 +105,7 @@ const CustomField = ({ fieldName, required }): ReactElement => {
 function getComponentForField(
   fieldName: string,
   customFieldIds: string[],
-): React.FC<{ fieldName: string }> {
+): React.FC<{ fieldName: string; required: boolean }> {
   if (plainFields.includes(fieldName)) {
     return PlainField;
   }
@@ -116,7 +122,17 @@ function getComponentForField(
   throw new Error(`Unexpected field ${fieldName} for patient additional data.`);
 }
 
-export const PatientAdditionalDataFields = ({ fields, showMandatory = true }): ReactElement => {
+interface PatientAdditionalDataFieldsProps {
+  fields: (string | PatientFieldDefinition)[];
+  isCustomSection?: boolean;
+  showMandatory?: boolean;
+}
+
+export const PatientAdditionalDataFields = ({
+  fields,
+  isCustomSection,
+  showMandatory = true,
+}: PatientAdditionalDataFieldsProps): ReactElement[] => {
   const { getLocalisation } = useLocalisation();
   const isHardCodedLayout = getLocalisation('layouts.patientDetails') !== 'generic';
   const [customFieldDefinitions, _, loading] = useBackendEffect(({ models }) =>
@@ -128,7 +144,10 @@ export const PatientAdditionalDataFields = ({ fields, showMandatory = true }): R
 
   const padFields = isHardCodedLayout
     ? fields
-    : getConfiguredPatientAdditionalDataFields(fields, showMandatory, getLocalisation);
+    : getConfiguredPatientAdditionalDataFields(fields as string[], showMandatory, getLocalisation);
+
+  if (isCustomSection)
+    return fields.map(field => getCustomFieldComponent(field as PatientFieldDefinition));
 
   if (loading) return [];
 

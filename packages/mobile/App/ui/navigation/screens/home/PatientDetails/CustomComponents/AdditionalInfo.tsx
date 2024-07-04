@@ -12,11 +12,14 @@ import {
 import { mapValues } from 'lodash';
 import { PatientAdditionalData } from '~/models/PatientAdditionalData';
 import { Patient } from '~/models/Patient';
+import { PatientFieldDefinition } from '~/models/PatientFieldDefinition';
 
 interface AdditionalInfoProps {
   onEdit: (
     additionalInfo: PatientAdditionalData,
     sectionTitle: Element,
+    isCustomSection: boolean,
+    fields: PatientFieldDefinition[],
     customPatientFieldValues: CustomPatientFieldValues,
   ) => void;
   patient: Patient;
@@ -39,14 +42,16 @@ export const AdditionalInfo = ({
   onEdit,
   dataSections,
 }: AdditionalInfoProps): ReactElement => {
-  const { getBool } = useLocalisation();
+  const { getBool, getLocalisation } = useLocalisation();
   const {
+    customPatientSections,
     customPatientFieldValues,
     customPatientFieldDefinitions,
     patientAdditionalData,
     loading,
     error,
   } = usePatientAdditionalData(patient.id);
+  const isHardCodedLayout = getLocalisation('layouts.patientDetails') !== 'generic';
 
   const customDataById = mapValues(customPatientFieldValues, nestedObject => nestedObject[0].value);
 
@@ -59,9 +64,9 @@ export const AdditionalInfo = ({
   const isEditable = getBool('features.editPatientDetailsOnMobile');
 
   // Add edit callback and map the inner 'fields' array
-  const sections = dataSections.map(({ title, fields }) => {
+  const additionalSections = dataSections.map(({ title, fields }) => {
     const onEditCallback = (): void =>
-      onEdit(patientAdditionalData, title, customPatientFieldValues);
+      onEdit(patientAdditionalData, title, false, null, customPatientFieldValues);
 
     const fieldsWithData = fields.map(field => {
       if (field === 'villageId' || field.name === 'villageId')
@@ -77,6 +82,21 @@ export const AdditionalInfo = ({
 
     return { title, fields: fieldsWithData, onEditCallback };
   });
+
+  const customSections = customPatientSections.map(([_categoryId, fields]) => {
+    const title = fields[0].category.name;
+    const onEditCallback = (): void => onEdit(null, title, true, fields, customPatientFieldValues);
+    const mappedFields = fields.map(field => {
+      const { id, name } = field;
+      const [customFieldValue] = customPatientFieldValues[id] || [];
+      return [name, customFieldValue?.value];
+    });
+    return { title, fields: mappedFields, onEditCallback, isCustomSection: true };
+  });
+
+  const sections = isHardCodedLayout
+    ? additionalSections
+    : [...additionalSections, ...customSections];
 
   return (
     <>

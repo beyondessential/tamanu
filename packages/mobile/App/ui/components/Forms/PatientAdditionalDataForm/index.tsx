@@ -15,6 +15,20 @@ import { SubmitButton } from '../SubmitButton';
 import { TranslatedText } from '/components/Translations/TranslatedText';
 import { FormScreenView } from '../FormScreenView';
 import { PatientFieldDefinition } from '~/models/PatientFieldDefinition';
+import { CustomPatientFieldValues } from '~/ui/hooks/usePatientAdditionalData';
+import { NavigationProp } from '@react-navigation/native';
+
+// TODO: type and work out customSectionFields and additionalDataSections
+interface PatientAdditionalDataFormProps {
+  patient: Patient;
+  additionalData: PatientAdditionalData;
+  additionalDataSections: any;
+  navigation: NavigationProp<any>;
+  sectionTitle: string;
+  customPatientFieldValues: CustomPatientFieldValues;
+  isCustomSection?: boolean;
+  customSectionFields?: any[];
+}
 
 export const PatientAdditionalDataForm = ({
   patient,
@@ -23,7 +37,9 @@ export const PatientAdditionalDataForm = ({
   navigation,
   sectionTitle,
   customPatientFieldValues,
-}): ReactElement => {
+  isCustomSection = false,
+  customSectionFields,
+}: PatientAdditionalDataFormProps): ReactElement => {
   const scrollViewRef = useRef();
   // After save/update, the model will mark itself for upload and the
   // patient for sync (see beforeInsert and beforeUpdate decorators).
@@ -62,15 +78,21 @@ export const PatientAdditionalDataForm = ({
     [navigation, patient.id],
   );
 
-  // Get the field group for this section of the additional data template
-  const { fields } = additionalDataSections.find(({ title }) => title === sectionTitle);
+  const fields = isCustomSection
+    ? customSectionFields.map(({ id, name, fieldType, options }) => ({
+        id,
+        name,
+        fieldType,
+        options,
+      }))
+    : additionalDataSections.find(({ title }) => title === sectionTitle)?.fields;
 
   return (
     <Form
       initialValues={{
         ...getInitialAdditionalValues(additionalData, fields),
         ...getInitialCustomValues(customPatientFieldValues, fields),
-        ...patient
+        ...patient,
       }}
       validationSchema={patientAdditionalDataValidationSchema}
       onSubmit={onCreateOrEditAdditionalData}
@@ -78,7 +100,11 @@ export const PatientAdditionalDataForm = ({
       {(): ReactElement => (
         <FormScreenView scrollViewRef={scrollViewRef}>
           <StyledView justifyContent="space-between">
-            <PatientAdditionalDataFields fields={fields} showMandatory={false} />
+            <PatientAdditionalDataFields
+              fields={fields}
+              isCustomSection={isCustomSection}
+              showMandatory={false}
+            />
             <SubmitButton
               buttonText={<TranslatedText stringId="general.action.save" fallback="Save" />}
               marginTop={10}
