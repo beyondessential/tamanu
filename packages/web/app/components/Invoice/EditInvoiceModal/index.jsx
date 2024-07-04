@@ -70,17 +70,18 @@ export const EditInvoiceModal = ({
   const { ability } = useAuth();
   const [printModalOpen, setPrintModalOpen] = useState(false);
 
-  const editable = isInvoiceEditable(invoice) && ability.can('write', 'Invoice');
+  const canWriteInvoice = ability.can('write', 'Invoice');
+  const editable = isInvoiceEditable(invoice) && canWriteInvoice;
   const cancelable =
     invoice.status !== INVOICE_STATUSES.CANCELLED &&
     invoice.paymentStatus === INVOICE_PAYMENT_STATUSES.UNPAID &&
     isPatientView &&
-    ability.can('write', 'Invoice');
+    canWriteInvoice;
   const finalisable =
     invoice.status === INVOICE_STATUSES.IN_PROGRESS &&
     !!invoice.encounter?.endDate &&
     isPatientView &&
-    ability.can('write', 'Invoice');
+    canWriteInvoice;
 
   const { mutate: updateInvoice, isLoading: isUpdatingInvoice } = useUpdateInvoice(invoice);
 
