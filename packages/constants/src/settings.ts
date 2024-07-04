@@ -6,6 +6,7 @@ export const SETTING_KEYS = {
   FEATURE_MANDATE_SPECIMEN_TYPE: 'features.mandateSpecimenType',
   SLIDING_FEE_SCALE: 'invoice.slidingFeeScale',
   INSURER_DEFAUlT_CONTRIBUTION: 'insurer.defaultContribution',
+  CUSTOMISATIONS_COMPONENTS: 'customisations.componentVersions',
 };
 
 export const SETTINGS_SCOPES = {

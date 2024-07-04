@@ -10,8 +10,7 @@ import {
 /** @typedef {import('../models').InvoiceInsurer} InvoiceInsurer */
 /** @typedef {import('../models').InvoiceItem} InvoiceItem */
 
-export const isInvoiceEditable = invoice =>
-  ![INVOICE_STATUSES.FINALISED, INVOICE_STATUSES.CANCELLED].includes(invoice.status);
+export const isInvoiceEditable = invoice => invoice.status === INVOICE_STATUSES.IN_PROGRESS;
 /**
  *
  * @param {number} value
