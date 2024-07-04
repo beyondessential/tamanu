@@ -10,6 +10,7 @@ import { VaccineStatus } from '~/ui/helpers/patient';
 export type VaccineDataProps = {
   administeredVaccine: IAdministeredVaccine;
   status: VaccineStatus;
+  doseLabel: string;
   name: string;
   code: string;
 };
