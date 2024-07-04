@@ -37,6 +37,7 @@ export const DataFetchingTable = memo(
     hasPermission = true,
     ...props
   }) => {
+    console.log('DataFetchingTable');
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(ROWS_PER_PAGE_OPTIONS[0]);
     const [sorting, setSorting] = useState(initialSort);
