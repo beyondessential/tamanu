@@ -18,7 +18,7 @@ interface AdditionalInfoProps {
   onEdit: (
     additionalInfo: PatientAdditionalData,
     sectionTitle: Element,
-    isCustomSection: Boolean,
+    isCustomSection: boolean,
     fields: PatientFieldDefinition[],
     customPatientFieldValues: CustomPatientFieldValues,
   ) => void;
