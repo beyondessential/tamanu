@@ -15,6 +15,7 @@ import { Button } from '../../Button';
 import { Heading4 } from '../../Typography';
 import { useApi, useSuggester } from '../../../api';
 import { DateDisplay } from '../../DateDisplay';
+import { useCreatePatientPayment } from '../../../api/mutations';
 
 const TableContainer = styled.div`
   padding-left: 16px;
@@ -80,8 +81,10 @@ export const PatientPaymentsTable = ({ invoice }) => {
   const [refreshCount, setRefreshCount] = useState(0);
   const [patientRemainingBalance, setPatientRemainingBalance] = useState(0);
 
+  const { mutate: createPatientPayment } = useCreatePatientPayment(invoice.id);
+
   const onPatientPaymentsFetched = useCallback(({ data }) => {
-    const patientRemainingBalance = getPatientPaymentRemainingBalance(data, invoice)
+    const patientRemainingBalance = getPatientPaymentRemainingBalance(data, invoice);
     setPatientRemainingBalance(patientRemainingBalance);
   }, []);
 
@@ -94,14 +97,20 @@ export const PatientPaymentsTable = ({ invoice }) => {
 
   const onRecord = async (data, { resetForm }) => {
     const { date, methodId, receiptNumber, amount } = data;
-    await api.post(`invoices/${invoice.id}/patientPayments`, {
-      date,
-      methodId,
-      receiptNumber,
-      amount: amount.toFixed(2),
-    });
-    setRefreshCount(prev => prev + 1);
-    resetForm();
+    createPatientPayment(
+      {
+        date,
+        methodId,
+        receiptNumber,
+        amount: amount.toFixed(2),
+      },
+      {
+        onSuccess: () => {
+          setRefreshCount(prev => prev + 1);
+          resetForm();
+        },
+      },
+    );
   };
 
   const hideRecordPaymentForm =
