@@ -123,6 +123,16 @@ export const PatientPaymentsTable = ({ invoice }) => {
   const hideRecordPaymentForm =
     patientRemainingBalance <= 0 || invoice.status === INVOICE_STATUSES.CANCELLED;
 
+  const validateDecimalPlaces = e => {
+    const value = e.target.value;
+    if (value.includes('.')) {
+      const decimalPlaces = value.split('.')[1].length;
+      if (decimalPlaces > 2) {
+        e.target.value = parseFloat(value).toFixed(2);
+      }
+    }
+  };
+
   return (
     <TableContainer>
       <Title>
@@ -200,6 +210,7 @@ export const PatientPaymentsTable = ({ invoice }) => {
                   size="small"
                   min={0}
                   style={{ gridColumn: 'span 2' }}
+                  onInput={validateDecimalPlaces}
                 />
               </Box>
               <Box sx={{ width: 'calc(20% - 5px)', position: 'relative' }}>
