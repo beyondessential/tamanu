@@ -224,3 +224,23 @@ export const getInvoiceInsurerPaymentStatus = (paidAmount, owingAmount) => {
   if (paidAmount === owingAmount) return INVOICE_INSURER_PAYMENT_STATUSES.PAID;
   return INVOICE_INSURER_PAYMENT_STATUSES.PARTIAL;
 };
+
+export const getPatientPaymentRemainingBalance = invoice => {
+  const patientPayments = invoice.payments.filter(payment => !!payment?.patientPayment);
+  const totalPatientPayment = patientPayments.reduce((acc, { amount }) => acc + Number(amount), 0);
+  const { patientTotal } = getInvoiceSummary(invoice);
+  return patientTotal - totalPatientPayment;
+};
+
+export const getPatientPaymentsWithRemainingBalance = invoice => {
+  const patientPayments = invoice.payments.filter(payment => !!payment?.patientPayment);
+  let { patientTotal } = getInvoiceSummaryDisplay(invoice);
+  const patientPaymentsWithRemainingBalance = patientPayments?.map(payment => {
+    patientTotal -= parseFloat(payment.amount);
+    return {
+      ...payment,
+      remainingBalance: patientTotal.toFixed(2),
+    };
+  });
+  return patientPaymentsWithRemainingBalance;
+};

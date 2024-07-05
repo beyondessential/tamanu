@@ -20,6 +20,7 @@ import { ThreeDotMenu } from '../../ThreeDotMenu';
 import { PotentialInvoiceItemsTable } from './PotentialInvoiceItemsTable';
 import { Button } from '../../Button';
 import { InvoiceRecordModal } from '../../PatientPrinting/modals/InvoiceRecordModal';
+import { PaymentTablesGroup } from './PaymentTablesGroup';
 import { useAuth } from '../../../contexts/Auth';
 
 const LinkText = styled.div`
@@ -181,6 +182,19 @@ export const EditInvoiceModal = ({
       ),
   });
 
+  const renderDataTables = (values, formArrayMethods) => {
+    if (editable) {
+      return (
+        <PotentialInvoiceItemsTable
+          invoice={invoice}
+          invoiceItems={values.invoiceItems}
+          formArrayMethods={formArrayMethods}
+        />
+      );
+    }
+    return <PaymentTablesGroup invoice={invoice} />;
+  };
+
   return (
     <Modal
       width="lg"
@@ -196,8 +210,7 @@ export const EditInvoiceModal = ({
               <InvoiceStatus status={invoice.status} />
             </StatusContainer>
           </Box>
-          {/* TODO: check condition to show Print button only after finalized */}
-          {isPatientView && (
+          {isPatientView && !editable && (
             <PrintButton
               onClick={() => setPrintModalOpen(true)}
               color="primary"
@@ -303,13 +316,7 @@ export const EditInvoiceModal = ({
                       </LinkText>
                     )}
                     <ModalSection>
-                      {editable && (
-                        <PotentialInvoiceItemsTable
-                          invoice={invoice}
-                          invoiceItems={values.invoiceItems}
-                          formArrayMethods={formArrayMethods}
-                        />
-                      )}
+                      {renderDataTables(values, formArrayMethods)}
                       <InvoiceSummaryPanel
                         invoice={{ ...invoice, items: values.invoiceItems }}
                         editable={editable}

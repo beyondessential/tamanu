@@ -167,7 +167,7 @@ const handleGetPatientPayments = asyncHandler(async (req, res) => {
     })),
   );
 
-  res.json(patientPayments);
+  res.json({ count: patientPayments.length, data: patientPayments });
 });
 
 export const patientPaymentRoute = express.Router();
