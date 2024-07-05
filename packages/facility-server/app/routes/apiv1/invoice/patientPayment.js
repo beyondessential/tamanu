@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { ForbiddenError, NotFoundError, ValidationError } from '@tamanu/shared/errors';
 import { getInvoicePatientPaymentStatus, getInvoiceSummary } from '@tamanu/shared/utils/invoice';
 import express from 'express';
+import Decimal from 'decimal.js';
 
 const createPatientPaymentSchema = z
   .object({
@@ -29,10 +30,10 @@ async function getInvoiceWithDetails(req, invoiceId) {
   }).then(invoice => invoice.addVirtualFields());
 }
 const handleCreatePatientPayment = asyncHandler(async (req, res) => {
+  req.checkPermission('create', 'InvoicePayment');
+
   const invoiceId = req.params.invoiceId;
 
-  req.checkPermission('read', 'Invoice');
-  req.checkPermission('create', 'InvoicePayment');
   const invoice = await getInvoiceWithDetails(req, invoiceId);
 
   if (!invoice) throw new NotFoundError('Invoice not found');
@@ -43,8 +44,9 @@ const handleCreatePatientPayment = asyncHandler(async (req, res) => {
   if (error) throw new ValidationError(error.message);
 
   const { patientTotal, patientPaymentsTotal } = getInvoiceSummary(invoice);
-  if (data.amount > patientTotal - patientPaymentsTotal)
-    throw new ForbiddenError('Amount of payment is higher than the invoice total');
+  const owingBalance = new Decimal(patientTotal).minus(patientPaymentsTotal).toNumber();
+  if (data.amount > owingBalance)
+    throw new ForbiddenError('Amount of payment is higher than the owing total');
 
   const transaction = await req.db.transaction();
 
@@ -70,7 +72,7 @@ const handleCreatePatientPayment = asyncHandler(async (req, res) => {
     await req.models.Invoice.update(
       {
         patientPaymentStatus: getInvoicePatientPaymentStatus(
-          data.amount + patientPaymentsTotal,
+          new Decimal(patientPaymentsTotal).add(data.amount).toNumber(),
           patientTotal,
         ),
       },
@@ -86,11 +88,10 @@ const handleCreatePatientPayment = asyncHandler(async (req, res) => {
 });
 
 const handleUpdatePatientPayment = asyncHandler(async (req, res) => {
+  req.checkPermission('write', 'InvoicePayment');
   const invoiceId = req.params.invoiceId;
   const paymentId = req.params.paymentId;
 
-  req.checkPermission('read', 'Invoice');
-  req.checkPermission('write', 'InvoicePayment');
   const invoice = await getInvoiceWithDetails(req, invoiceId);
 
   const payment = await req.models.InvoicePayment.findByPk(paymentId);
@@ -104,7 +105,11 @@ const handleUpdatePatientPayment = asyncHandler(async (req, res) => {
   if (error) throw new ValidationError(error.message);
 
   const { patientTotal, patientPaymentsTotal } = getInvoiceSummary(invoice);
-  if (data.amount > patientTotal - patientPaymentsTotal + payment.amount)
+  const owingBalance = new Decimal(patientTotal)
+    .minus(patientPaymentsTotal)
+    .add(payment.amount)
+    .toNumber();
+  if (data.amount > owingBalance)
     throw new ForbiddenError('Amount of payment is higher than the invoice total');
 
   const transaction = await req.db.transaction();
@@ -131,7 +136,10 @@ const handleUpdatePatientPayment = asyncHandler(async (req, res) => {
     await req.models.Invoice.update(
       {
         patientPaymentStatus: getInvoicePatientPaymentStatus(
-          data.amount + patientPaymentsTotal - payment.amount,
+          new Decimal(patientPaymentsTotal)
+            .minus(payment.amount)
+            .add(data.amount)
+            .toNumber(),
           patientTotal,
         ),
       },
@@ -147,7 +155,7 @@ const handleUpdatePatientPayment = asyncHandler(async (req, res) => {
 });
 
 const handleGetPatientPayments = asyncHandler(async (req, res) => {
-  req.checkPermission('read', 'Invoice');
+  req.checkPermission('read', 'InvoicePayment');
 
   const invoiceId = req.params.invoiceId;
 
