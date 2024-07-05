@@ -65,13 +65,14 @@ function createSuggesterRoute(
 
       const isTranslatable = TRANSLATABLE_REFERENCE_TYPES.includes(getDataType(endpoint));
 
-      const translations = isTranslatable
-        ? await models.TranslatedString.getReferenceDataTranslationsByDataType({
-            language,
-            refDataType: getDataType(endpoint),
-            queryString: searchQuery,
-          })
-        : [];
+      const translations =
+        isTranslatable && searchQuery
+          ? await models.TranslatedString.getReferenceDataTranslationsByDataType({
+              language,
+              refDataType: getDataType(endpoint),
+              queryString: searchQuery,
+            })
+          : [];
       const suggestedIds = translations.map(extractDataId);
 
       const filterByFacility = !!query.filterByFacility || endpoint === 'facilityLocationGroup';
