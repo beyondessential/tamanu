@@ -265,7 +265,7 @@ export const InvoiceItemRow = ({
             />
           ) : (
             <ViewOnlyCell $hasLargeFont={!editable} $hasLeftPadding={editable}>
-              {getDateDisplay(item?.orderDate, 'dd/MM/yyyy')}
+              {getDateDisplay(item?.orderDate)}
             </ViewOnlyCell>
           )}
         </StyledItemCell>
