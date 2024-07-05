@@ -5,16 +5,16 @@ import { literal, Op, Sequelize } from 'sequelize';
 import config from 'config';
 import { NotFoundError } from '@tamanu/shared/errors';
 import {
+  DEFAULT_HIERARCHY_TYPE,
+  ENGLISH_LANGUAGE_CODE,
+  REFERENCE_DATA_TRANSLATION_PREFIX,
   REFERENCE_TYPE_VALUES,
   REFERENCE_TYPES,
-  TRANSLATABLE_REFERENCE_TYPES,
   REGISTRATION_STATUSES,
   SUGGESTER_ENDPOINTS,
   SURVEY_TYPES,
+  TRANSLATABLE_REFERENCE_TYPES,
   VISIBILITY_STATUSES,
-  REFERENCE_DATA_TRANSLATION_PREFIX,
-  ENGLISH_LANGUAGE_CODE,
-  DEFAULT_HIERARCHY_TYPE,
   OTHER_REFERENCE_TYPES,
 } from '@tamanu/constants';
 import { keyBy } from 'lodash';
@@ -76,11 +76,21 @@ function createSuggesterRoute(
 
       const filterByFacility = !!query.filterByFacility || endpoint === 'facilityLocationGroup';
 
+      const whereQuery = whereBuilder(`%${searchQuery}%`, query);
+      const visibilityStatus = whereQuery.visibilityStatus;
+
       const where = {
         [Op.or]: [
-          whereBuilder(`%${searchQuery}%`, query),
+          whereQuery,
           {
             id: { [Op.in]: suggestedIds },
+            ...(visibilityStatus
+              ? {
+                  visibilityStatus: {
+                    [Op.eq]: visibilityStatus,
+                  },
+                }
+              : {}),
             ...(filterByFacility ? { facilityId: config.serverFacilityId } : {}),
           },
         ],
@@ -101,7 +111,6 @@ function createSuggesterRoute(
         },
         limit: defaultLimit,
       });
-
       // Allow for async mapping functions (currently only used by location suggester)
       const data = await Promise.all(results.map(r => mapper(r)));
       res.send(isTranslatable ? replaceDataLabelsWithTranslations({ data, translations }) : data);
