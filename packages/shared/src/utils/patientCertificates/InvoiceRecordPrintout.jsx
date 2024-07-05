@@ -18,6 +18,7 @@ import {
   getInvoiceItemQuantity,
   getInvoiceItemNote,
   getInvoiceSummaryDisplay,
+  getPatientPaymentsWithRemainingBalance,
 } from '../invoice';
 import { withLanguageContext } from '../pdf/languageContext';
 import { Page } from '../pdf/Page';
@@ -177,7 +178,7 @@ const COLUMNS = {
     {
       key: 'productName',
       title: 'Details',
-      style: { width: '36%' },
+      style: { width: '34%' },
       accessor: row => getInvoiceItemDetails(row),
       CellComponent: CustomCellComponent,
     },
@@ -203,7 +204,7 @@ const COLUMNS = {
       key: 'price',
       title: 'Price',
       accessor: row => getPrice(row),
-      style: { width: '14%' },
+      style: { width: '16%' },
       CellComponent: CustomCellComponent,
     },
   ],
@@ -212,19 +213,19 @@ const COLUMNS = {
       key: 'date',
       title: 'Date',
       style: { width: '15%' },
-      accessor: ({ date }) => date,
+      accessor: ({ date }) => (date ? formatShort(date) : '--/--/----'),
     },
     {
-      key: 'method',
+      key: 'methodName',
       title: 'Method',
       style: { width: '29%' },
-      accessor: ({ method }) => method,
+      accessor: ({ patientPayment }) => patientPayment?.method?.name,
     },
     {
       key: 'amount',
       title: 'Amount',
       style: { width: '12%' },
-      accessor: ({ amount }) => amount,
+      accessor: ({ amount }) => parseFloat(amount).toFixed(2),
     },
     {
       key: 'receiptNumber',
@@ -435,10 +436,11 @@ const InvoiceRecordPrintoutComponent = ({
   getLocalisation,
   clinicianText,
   invoice,
-  patientPayments,
   insurerPayments,
 }) => {
   const { watermark, logo } = certificateData;
+  const patientPayments = getPatientPaymentsWithRemainingBalance(invoice);
+
   return (
     <Document>
       <Page size="A4" style={pageStyles.body} wrap>
@@ -473,10 +475,18 @@ const InvoiceRecordPrintoutComponent = ({
         <SummaryPane invoice={invoice} />
         <SectionSpacing />
         {patientPayments?.length && (
-          <TableSection data={patientPayments} columns={COLUMNS.patientPayments} />
+          <TableSection
+            title="Patient payment"
+            data={patientPayments}
+            columns={COLUMNS.patientPayments}
+          />
         )}
         {insurerPayments?.length && (
-          <TableSection data={insurerPayments} columns={COLUMNS.insurerPayments} />
+          <TableSection
+            title="Insurer payment"
+            data={insurerPayments.data}
+            columns={COLUMNS.insurerPayments}
+          />
         )}
         <Footer />
       </Page>

@@ -20,6 +20,8 @@ import { ThreeDotMenu } from '../../ThreeDotMenu';
 import { PotentialInvoiceItemsTable } from './PotentialInvoiceItemsTable';
 import { Button } from '../../Button';
 import { InvoiceRecordModal } from '../../PatientPrinting/modals/InvoiceRecordModal';
+import { PaymentTablesGroup } from './PaymentTablesGroup';
+import { useAuth } from '../../../contexts/Auth';
 
 const LinkText = styled.div`
   font-weight: 500;
@@ -66,14 +68,18 @@ export const EditInvoiceModal = ({
   handleFinaliseInvoice,
   isPatientView,
 }) => {
+  const { ability } = useAuth();
   const [printModalOpen, setPrintModalOpen] = useState(false);
 
-  const editable = isInvoiceEditable(invoice);
-  const cancelable = invoice.status === INVOICE_STATUSES.IN_PROGRESS && isPatientView;
+  const canWriteInvoice = ability.can('write', 'Invoice');
+  const editable = isInvoiceEditable(invoice) && canWriteInvoice;
+  const cancelable =
+    invoice.status === INVOICE_STATUSES.IN_PROGRESS && isPatientView && canWriteInvoice;
   const finalisable =
     invoice.status === INVOICE_STATUSES.IN_PROGRESS &&
     !!invoice.encounter?.endDate &&
-    isPatientView;
+    isPatientView &&
+    canWriteInvoice;
 
   const { mutate: updateInvoice, isLoading: isUpdatingInvoice } = useUpdateInvoice(invoice);
 
@@ -176,6 +182,19 @@ export const EditInvoiceModal = ({
       ),
   });
 
+  const renderDataTables = (values, formArrayMethods) => {
+    if (editable) {
+      return (
+        <PotentialInvoiceItemsTable
+          invoice={invoice}
+          invoiceItems={values.invoiceItems}
+          formArrayMethods={formArrayMethods}
+        />
+      );
+    }
+    return <PaymentTablesGroup invoice={invoice} />;
+  };
+
   return (
     <Modal
       width="lg"
@@ -191,8 +210,7 @@ export const EditInvoiceModal = ({
               <InvoiceStatus status={invoice.status} />
             </StatusContainer>
           </Box>
-          {/* TODO: check condition to show Print button only after finalized */}
-          {isPatientView && (
+          {isPatientView && !editable && (
             <PrintButton
               onClick={() => setPrintModalOpen(true)}
               color="primary"
@@ -298,13 +316,7 @@ export const EditInvoiceModal = ({
                       </LinkText>
                     )}
                     <ModalSection>
-                      {editable && (
-                        <PotentialInvoiceItemsTable
-                          invoice={invoice}
-                          invoiceItems={values.invoiceItems}
-                          formArrayMethods={formArrayMethods}
-                        />
-                      )}
+                      {renderDataTables(values, formArrayMethods)}
                       <InvoiceSummaryPanel
                         invoice={{ ...invoice, items: values.invoiceItems }}
                         editable={editable}
@@ -315,13 +327,17 @@ export const EditInvoiceModal = ({
                     <FormSubmitCancelRow
                       confirmText={
                         !isUpdatingInvoice ? (
-                          <TranslatedText stringId="general.action.save" fallback="Save" />
+                          editable ? (
+                            <TranslatedText stringId="general.action.save" fallback="Save" />
+                          ) : (
+                            <TranslatedText stringId="general.action.close" fallback="Close" />
+                          )
                         ) : (
                           <CircularProgress size={14} color={Colors.white} />
                         )
                       }
-                      onConfirm={submitForm}
-                      onCancel={onClose}
+                      onConfirm={editable ? submitForm : onClose}
+                      onCancel={editable ? onClose : undefined}
                       confirmDisabled={isUpdatingInvoice}
                       confirmStyle={`
                       &.Mui-disabled {
