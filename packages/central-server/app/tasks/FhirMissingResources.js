@@ -4,10 +4,11 @@ import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
 import { resourcesThatCanDo } from '@tamanu/shared/utils/fhir/resources';
 import { prepareQuery } from '../utils/prepareQuery';
+import { Op } from 'sequelize';
 
 export class FhirMissingResources extends ScheduledTask {
-  constructor(context) {
-    const conf = config.schedules.fhirMissingResources;
+  constructor(context, overrideConfig = null) {
+    const conf = { ...config.schedules.fhirMissingResources, ...overrideConfig };
     const { schedule, jitterTime } = conf;
     super(schedule, log.child({ task: 'FhirMissingResources' }), jitterTime);
     this.config = conf;
@@ -22,6 +23,26 @@ export class FhirMissingResources extends ScheduledTask {
     return 'FhirMissingResources';
   }
 
+  async getQueryToFilterUpstream(Resource, UpstreamModel) {
+    const { created_after } = this.config;
+
+    const upstreamTable = UpstreamModel.tableName;
+    const baseQueryToFilterUpstream = await Resource.queryToFilterUpstream(upstreamTable);
+
+    if (!created_after) {
+      return baseQueryToFilterUpstream;
+    }
+
+    // Filter by created_at >= created_after
+    const queryToFilterUpstream = { ...baseQueryToFilterUpstream };
+    queryToFilterUpstream.where = {
+      ...baseQueryToFilterUpstream?.where,
+      created_at: { [Op.gte]: created_after },
+    };
+
+    return queryToFilterUpstream;
+  }
+
   async countQueue() {
     let all = 0;
 
@@ -29,8 +50,7 @@ export class FhirMissingResources extends ScheduledTask {
       const resourceTable = Resource.tableName;
 
       for (const UpstreamModel of Resource.UpstreamModels) {
-        const upstreamTable = UpstreamModel.tableName;
-        const queryToFilterUpstream = await Resource.queryToFilterUpstream(upstreamTable);
+        const queryToFilterUpstream = await this.getQueryToFilterUpstream(Resource, UpstreamModel);
         const sql = await prepareQuery(UpstreamModel, {
           ...queryToFilterUpstream,
           attributes: ['id'],
@@ -55,8 +75,7 @@ export class FhirMissingResources extends ScheduledTask {
     for (const Resource of this.materialisableResources) {
       const resourceTable = Resource.tableName;
       for (const UpstreamModel of Resource.UpstreamModels) {
-        const upstreamTable = UpstreamModel.tableName;
-        const queryToFilterUpstream = await Resource.queryToFilterUpstream(upstreamTable);
+        const queryToFilterUpstream = await this.getQueryToFilterUpstream(Resource, UpstreamModel);
         const sql = await prepareQuery(UpstreamModel, {
           ...queryToFilterUpstream,
           attributes: ['id'],

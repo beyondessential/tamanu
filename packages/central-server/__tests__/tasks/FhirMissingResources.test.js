@@ -4,6 +4,7 @@ import { createTestContext } from '../utilities';
 import {
   fakeResourcesOfFhirServiceRequest,
   fakeResourcesOfFhirServiceRequestWithImagingRequest,
+  fakeResourcesOfFhirSpecimen,
 } from '../fake/fhir';
 import { FhirMissingResources } from '../../dist/tasks/FhirMissingResources';
 
@@ -24,9 +25,10 @@ describe('FhirMissingResources task', () => {
   });
 
   beforeEach(async () => {
-    const { FhirJob, FhirServiceRequest, ImagingRequest } = ctx.store.models;
+    const { FhirJob, FhirServiceRequest, FhirSpecimen, ImagingRequest } = ctx.store.models;
     await FhirJob.destroy({ where: {} });
     await FhirServiceRequest.destroy({ where: {} });
+    await FhirSpecimen.destroy({ where: {} });
     await ImagingRequest.destroy({ where: {} });
   });
 
@@ -105,5 +107,52 @@ describe('FhirMissingResources task', () => {
 
     expect(fhirJob).toBeNull();
     await encounter.destroy();
+  });
+
+  it('should only create FHIR fromUpstream job if the missing upstream resource was created after the created_after setting', async () => {
+    const { FhirJob } = ctx.store.models;
+
+    const { labRequest: oldLabRequest } = await fakeResourcesOfFhirSpecimen(
+      ctx.store.models,
+      resources,
+      {
+        createdAt: '2020-01-01T00:00:00.000Z',
+      },
+    );
+
+    const { labRequest: newLabRequest } = await fakeResourcesOfFhirSpecimen(
+      ctx.store.models,
+      resources,
+      {
+        createdAt: '2020-01-03T00:00:00.000Z',
+      },
+    );
+
+    const created_after = '2020-01-02T00:00:00.000Z';
+
+    const fhirMissingResourcesCreatedAfterWorker = new FhirMissingResources(ctx, {
+      created_after,
+    });
+
+    const countQueue = await fhirMissingResourcesCreatedAfterWorker.countQueue();
+    expect(countQueue).toEqual(3); // 1 Organization, 1 ServiceRequest, 1 Specimen
+    await fhirMissingResourcesCreatedAfterWorker.run();
+
+    const { count, rows } = await FhirJob.findAndCountAll({
+      where: {
+        topic: 'fhir.refresh.fromUpstream',
+        payload: {
+          resource: {
+            [Op.ne]: 'Organization',
+          },
+        },
+      },
+    });
+
+    expect(count).toEqual(2);
+    rows.forEach(job => expect(job.payload.upstreamId).toEqual(newLabRequest.id));
+
+    await oldLabRequest.destroy();
+    await newLabRequest.destroy();
   });
 });
