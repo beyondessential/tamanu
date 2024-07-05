@@ -1,5 +1,5 @@
 import config from 'config';
-import { FHIR_INTERACTIONS, JOB_TOPICS } from '@tamanu/constants';
+import { FHIR_INTERACTIONS, JOB_PRIORITIES, JOB_TOPICS } from '@tamanu/constants';
 import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
 import { resourcesThatCanDo } from '@tamanu/shared/utils/fhir/resources';
@@ -102,13 +102,14 @@ export class FhirMissingResources extends ScheduledTask {
         await Resource.sequelize.query(
           `
           WITH upstream AS (${sql.replace(/;$/, '')})
-          INSERT INTO fhir.jobs (topic, payload)
+          INSERT INTO fhir.jobs (topic, payload, priority)
           SELECT
             $topic::text as topic,
             json_build_object(
               'resource', $resource::text,
               'upstreamId', upstream.id
-            ) as payload
+            ) as payload,
+            $priority::int as priority
           FROM upstream
           LEFT JOIN fhir."${resourceTable}" r ON r.upstream_id = upstream.id
           WHERE r.id IS NULL`,
@@ -116,6 +117,7 @@ export class FhirMissingResources extends ScheduledTask {
             bind: {
               topic: JOB_TOPICS.FHIR.REFRESH.FROM_UPSTREAM,
               resource: Resource.fhirName,
+              priority: JOB_PRIORITIES.LOW, // Ensure MissingResource jobs come in as low priority so they don't clog up the job queue
             },
           },
         );

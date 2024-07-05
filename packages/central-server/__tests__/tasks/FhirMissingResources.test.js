@@ -7,6 +7,7 @@ import {
   fakeResourcesOfFhirSpecimen,
 } from '../fake/fhir';
 import { FhirMissingResources } from '../../dist/tasks/FhirMissingResources';
+import { JOB_PRIORITIES } from '@tamanu/constants';
 
 describe('FhirMissingResources task', () => {
   let ctx;
@@ -34,6 +35,25 @@ describe('FhirMissingResources task', () => {
 
   afterAll(() => {
     ctx.close();
+  });
+
+  it('should create jobs with low priority', async () => {
+    const { FhirJob } = ctx.store.models;
+
+    const { labRequest } = await fakeResourcesOfFhirSpecimen(ctx.store.models, resources);
+
+    await fhirMissingResourcesWorker.run();
+
+    const { count, rows } = await FhirJob.findAndCountAll({
+      where: {
+        topic: 'fhir.refresh.fromUpstream',
+      },
+    });
+
+    expect(count).toEqual(3); // 1 Organization, 1 ServiceRequest, 1 Specimen
+    rows.forEach(job => expect(job.priority).toEqual(JOB_PRIORITIES.LOW));
+
+    await labRequest.destroy();
   });
 
   it('should create FHIR fromUpstream jobs if FHIR resource are missing', async () => {
