@@ -308,23 +308,23 @@ export async function up(query) {
     allowNull: true,
   });
 
-  await query.addIndex('invoices', ['encounter_id'], {
-    where: { deleted_at: null },
-    unique: true,
-    name: 'invoices_encounter_id_unique',
-  });
+  // await query.addIndex('invoices', ['encounter_id'], {
+  //   where: { deleted_at: null },
+  //   unique: true,
+  //   name: 'invoices_encounter_id_unique',
+  // });
 
-  await query.addIndex('invoice_discounts', ['invoice_id'], {
-    where: { deleted_at: null },
-    unique: true,
-    name: 'invoice_discounts_invoice_id_unique',
-  });
+  // await query.addIndex('invoice_discounts', ['invoice_id'], {
+  //   where: { deleted_at: null },
+  //   unique: true,
+  //   name: 'invoice_discounts_invoice_id_unique',
+  // });
 
-  await query.addIndex('invoice_item_discounts', ['invoice_item_id'], {
-    where: { deleted_at: null },
-    unique: true,
-    name: 'invoice_item_discounts_invoice_item_id_unique',
-  });
+  // await query.addIndex('invoice_item_discounts', ['invoice_item_id'], {
+  //   where: { deleted_at: null },
+  //   unique: true,
+  //   name: 'invoice_item_discounts_invoice_item_id_unique',
+  // });
 }
 
 /**
@@ -333,14 +333,14 @@ export async function up(query) {
 export async function down(query) {
   await query.removeColumn('invoice_items', 'product_code');
 
-  await query.removeIndex('invoices', 'invoices_encounter_id_unique');
+  // await query.removeIndex('invoices', 'invoices_encounter_id_unique');
 
-  await query.removeIndex('invoice_discounts', 'invoice_discounts_invoice_id_unique');
+  // await query.removeIndex('invoice_discounts', 'invoice_discounts_invoice_id_unique');
 
-  await query.removeIndex(
-    'invoice_item_discounts',
-    'invoice_item_discounts_invoice_item_id_unique',
-  );
+  // await query.removeIndex(
+  //   'invoice_item_discounts',
+  //   'invoice_item_discounts_invoice_item_id_unique',
+  // );
 
   await query.dropTable('invoice_item_discounts');
   await query.dropTable('invoice_items');
