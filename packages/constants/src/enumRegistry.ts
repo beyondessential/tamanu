@@ -28,10 +28,10 @@ import { DRUG_ROUTE_LABELS, REPEATS_LABELS } from './medications';
 import { PLACE_OF_DEATHS } from './deaths';
 import { LOCATION_AVAILABILITY_STATUS_LABELS } from './locations';
 
-// This is a set of all the enums that are registered to be translatable.
+// This is a group of all the enums that are registered to be translatable.
 // This allows us to keep track of changes to existing enums or the additional
 // of new enum constants when maintaining translations
-export const enumRegistry = new Set([
+export const registeredEnums = {
   APPOINTMENT_STATUSES,
   APPOINTMENT_TYPES,
   ASSET_NAMES,
@@ -59,4 +59,10 @@ export const enumRegistry = new Set([
   TEMPLATE_TYPE_LABELS,
   VACCINE_CATEGORIES,
   VACCINE_STATUS_LABELS,
-]);
+};
+
+const enumRegistry = new Set(Object.values(registeredEnums));
+
+// Used to enforce usage of translatable enums
+// Recognises registered enums from object references
+export const isRegisteredEnum = (value: any): boolean => enumRegistry.has(value);
