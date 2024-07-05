@@ -17,11 +17,11 @@ import {
   FormCancelButton,
   FormGrid,
   FormSubmitButton,
+  getDateDisplay,
   NumberField,
   TextField,
-  getDateDisplay,
 } from '../components';
-import { MAX_AGE_TO_RECORD_WEIGHT, FORM_TYPES } from '../constants';
+import { FORM_TYPES, MAX_AGE_TO_RECORD_WEIGHT } from '../constants';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useLocalisation } from '../contexts/Localisation';
 import { useTranslation } from '../contexts/Translation';
@@ -29,7 +29,8 @@ import { getAgeDurationFromDate } from '../../../shared/src/utils/date';
 import { useQuery } from '@tanstack/react-query';
 import { useApi } from '../api';
 import { useSelector } from 'react-redux';
-import { TranslatedSelectField } from '../components/Translation/TranslatedSelect';
+import { getReferenceDataStringId } from '../components/Translation/index.js';
+import { TranslatedSelectField } from '../components/Translation/TranslatedSelect.jsx';
 
 const validationSchema = readOnly =>
   !readOnly
@@ -141,7 +142,14 @@ export const MedicationForm = React.memo(
       () => api.get(`patient/${patient?.id}/allergies`),
       { enabled: !!patient?.id },
     );
-    const allergiesList = allergies?.data?.map(it => it?.allergy.name).join(', ');
+    const allergiesList = allergies?.data
+      ?.map(allergyDetail =>
+        getTranslation(
+          getReferenceDataStringId(allergyDetail?.allergy.id, allergyDetail?.allergy.type),
+          allergyDetail?.allergy.name,
+        ),
+      )
+      .join(', ');
 
     // Transition to print page as soon as we have the generated id
     useEffect(() => {

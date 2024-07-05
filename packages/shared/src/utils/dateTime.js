@@ -80,6 +80,11 @@ export function getCurrentDateString() {
   return formatISO9075(new Date(), { representation: 'date' });
 }
 
+// Don't use this function when using a datestring or datetimestring column
+export function getCurrentISO8601DateString() {
+  return new Date().toISOString();
+}
+
 export function convertISO9075toRFC3339(dateString) {
   // parseISO does not support null values
   const parsedDate = dateString === null ? new Date() : parseISO(dateString);

@@ -25,5 +25,17 @@ module.exports = {
         NODE_ENV: 'production',
       },
     },
+    {
+      name: 'tamanu-sync-server',
+      cwd: '.', // IMPORTANT: Leave this as-is, for production build
+      script: './dist/index.js',
+      args: 'startSync',
+      interpreter_args: `--max_old_space_size=${memory}`,
+      instances: 1,
+      exec_mode: 1,
+      env: {
+        NODE_ENV: 'production',
+      },
+    },
   ],
 };

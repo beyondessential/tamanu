@@ -6,10 +6,10 @@ import { Field } from '../../components';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
 import { TranslatedSelectField } from '../../components/Translation/TranslatedSelect';
 
-export const VaccineCategoryField = ({ name = 'category', required }) => (
+export const VaccineCategoryField = ({ name = 'category', required, label }) => (
   <Field
     name={name}
-    label={<TranslatedText stringId="vaccine.category.label" fallback="Category" />}
+    label={label ?? <TranslatedText stringId="vaccine.category.label" fallback="Category" />}
     component={TranslatedSelectField}
     required={required}
     enumValues={VACCINE_CATEGORIES}

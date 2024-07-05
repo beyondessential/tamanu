@@ -1,5 +1,5 @@
 import React from 'react';
-import { Document, Page, StyleSheet, Text, View } from '@react-pdf/renderer';
+import { Document, StyleSheet, View } from '@react-pdf/renderer';
 import { CertificateHeader, Watermark } from './Layout';
 import { LetterheadSection } from './LetterheadSection';
 import { PatientDetailsWithAddress } from './printComponents/PatientDetailsWithAddress';
@@ -15,6 +15,9 @@ import { EncounterDetailsExtended } from './printComponents/EncounterDetailsExte
 import { MultiPageHeader } from './printComponents/MultiPageHeader';
 import { getName } from '../patientAccessors';
 import { Footer } from './printComponents/Footer';
+import { withLanguageContext } from '../pdf/languageContext';
+import { Page } from '../pdf/Page';
+import { Text } from '../pdf/Text';
 import { formatShort } from '../dateTime';
 
 const borderStyle = '1 solid black';
@@ -111,7 +114,11 @@ const Row = props => (
     {...props}
   />
 );
-const P = ({ style = {}, children }) => <Text style={[tableStyles.p, style]}>{children}</Text>;
+const P = ({ style = {}, bold, children }) => (
+  <Text bold={bold} style={[tableStyles.p, style]}>
+    {children}
+  </Text>
+);
 
 const Cell = ({ children, style = {} }) => (
   <View style={[tableStyles.baseCell, style]}>
@@ -121,7 +128,7 @@ const Cell = ({ children, style = {} }) => (
 
 const HeaderCell = ({ children, style }) => (
   <View style={[tableStyles.baseCell, style]}>
-    <P style={{ fontFamily: 'Helvetica-Bold' }}>{children}</P>
+    <P bold>{children}</P>
   </View>
 );
 
@@ -449,7 +456,7 @@ const NotesSection = ({ notes }) => {
   );
 };
 
-export const EncounterRecordPrintout = ({
+const EncounterRecordPrintoutComponent = ({
   patientData,
   encounter,
   certificateData,
@@ -548,3 +555,5 @@ export const EncounterRecordPrintout = ({
     </Document>
   );
 };
+
+export const EncounterRecordPrintout = withLanguageContext(EncounterRecordPrintoutComponent);

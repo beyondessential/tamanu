@@ -1,6 +1,6 @@
 import { promises as asyncFs } from 'fs';
 import config from 'config';
-import { writeExcelFile } from './excelUtils';
+import { writeExcelFile } from '../../utils/excelUtils';
 import { createModelExporter } from './modelExporters/createModelExporter';
 
 async function buildSheetDataForDataType(context, dataType) {

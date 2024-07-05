@@ -8,6 +8,7 @@ import { Colors } from '../../constants';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
 import { SETTING_KEYS } from '@tamanu/constants';
 import { useSettings } from '../../contexts/Settings';
+import { TranslatedReferenceData } from '../../components/Translation/index.js';
 
 const Container = styled.div`
   border: 1px solid ${Colors.outline};
@@ -85,13 +86,13 @@ export const SampleDetailsField = ({
       fallback="Collected by"
     />,
     <>
-    <TranslatedText
-      key="specimentType"
-      stringId="lab.sampleDetail.table.column.specimenType"
-      fallback="Specimen type"
+      <TranslatedText
+        key="specimentType"
+        stringId="lab.sampleDetail.table.column.specimenType"
+        fallback="Specimen type"
       />
       {mandateSpecimenType && <span style={{ color: Colors.alert }}> *</span>}
-      </>,
+    </>,
     <TranslatedText key="site" stringId="lab.site.label" fallback="Site" />,
   ];
   const WITH_PANELS_HEADERS = [
@@ -151,7 +152,13 @@ export const SampleDetailsField = ({
         <React.Fragment key={identifier}>
           {hasPanels && (
             <Cell style={{ marginLeft: '32px' }}>
-              <Typography variant="subtitle1">{sample.panelName}</Typography>
+              <Typography variant="subtitle1">
+                <TranslatedReferenceData
+                  category="labTestPanel"
+                  fallback={sample.panelName}
+                  value={sample.panelId}
+                />
+              </Typography>
             </Cell>
           )}
           <Cell style={!hasPanels ? { marginLeft: '32px' } : {}}>

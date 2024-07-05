@@ -6,17 +6,19 @@ import { TranslatedText } from '../../components/Translation/TranslatedText';
 import { IMAGING_TYPES } from '@tamanu/constants';
 import { TranslatedSelectField } from '../../components/Translation/TranslatedSelect';
 
-export const ImagingTypeField = ({ name = 'imagingType', required }) => {
+export const ImagingTypeField = ({ name = 'imagingType', label, required }) => {
   const { getLocalisation } = useLocalisation();
   const imagingTypes = getLocalisation('imagingTypes') || {};
   return (
     <Field
       name={name}
       label={
-        <TranslatedText
-          stringId="report.generate.parameter.imagingType.label"
-          fallback="Imaging type"
-        />
+        label ?? (
+          <TranslatedText
+            stringId="report.generate.parameter.imagingType.label"
+            fallback="Imaging type"
+          />
+        )
       }
       component={TranslatedSelectField}
       required={required}
