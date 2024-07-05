@@ -143,9 +143,11 @@ export class FhirDiagnosticReport extends FhirResource {
       case FHIR_DIAGNOSTIC_REPORT_STATUS.ENTERED_IN_ERROR:
         return LAB_REQUEST_STATUSES.ENTERED_IN_ERROR;
       case FHIR_DIAGNOSTIC_REPORT_STATUS.AMENDED._:
+        return LAB_REQUEST_STATUSES.INVALIDATED;
       case FHIR_DIAGNOSTIC_REPORT_STATUS.AMENDED.CORRECTED:
       case FHIR_DIAGNOSTIC_REPORT_STATUS.AMENDED.APPENDED:
-        return LAB_REQUEST_STATUSES.INVALIDATED;
+        // no workflow for these yet
+        throw new Invalid(`${this.status} workflow unsupported`);
       default:
         throw new Invalid(`'${this.status}' is an invalid ServiceRequest status`);
     }
