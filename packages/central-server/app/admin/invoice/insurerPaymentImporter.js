@@ -5,6 +5,7 @@ import { customAlphabet } from 'nanoid';
 import { getInvoiceInsurerPaymentStatus, getInvoiceSummary } from '@tamanu/shared/utils/invoice';
 import { INVOICE_INSURER_PAYMENT_STATUSES, INVOICE_STATUSES } from '@tamanu/constants';
 import { ValidationError } from '../errors';
+import Decimal from 'decimal.js';
 
 /**
  * Parse an excel file into a object with keys as sheet names and values as arrays of objects
@@ -38,6 +39,7 @@ const insurerPaymentImportSchema = z
   }));
 
 export async function insurerPaymentImporter({ errors, models, stats, file, checkPermission }) {
+  //TODO: SUPPORT UPDATE
   checkPermission('create', 'InvoicePayment');
   const workbook = parseExcel(file);
 
@@ -75,57 +77,50 @@ export async function insurerPaymentImporter({ errors, models, stats, file, chec
 
     const { insurerDiscountTotal, insurerPaymentsTotal } = getInvoiceSummary(invoice);
 
+    const owingBalance = new Decimal(insurerDiscountTotal).minus(insurerPaymentsTotal).toNumber();
+
     //* Block payment if the amount is greater than the amount owing
-    if (
-      chain(data.amount)
-        .add(insurerPaymentsTotal)
-        .round(2)
-        .gt(insurerDiscountTotal)
-        .value()
-    ) {
-      //TODO: push error to errors array
+    if (data.amount > owingBalance) {
       errors.push(new ValidationError('', index + 1, 'Amount is greater than the amount owing'));
       continue;
     }
+    try {
+      // Skip database actions if there are errors
+      if (errors.length) continue;
 
-    // Skip database actions if there are errors
-    if (errors.length) continue;
+      const payment = await models.InvoicePayment.create(
+        {
+          invoiceId: data.invoiceId,
+          date: data.date,
+          receiptNumber: data.receiptNumber,
+          amount: data.amount,
+        },
+        { returning: true },
+      );
+      await models.InvoiceInsurerPayment.create({
+        invoicePaymentId: payment.id,
+        insurerId: data.insurerId,
+        status:
+          data.amount === 0
+            ? INVOICE_INSURER_PAYMENT_STATUSES.REJECTED
+            : data.amount === insurerDiscountTotal
+            ? INVOICE_INSURER_PAYMENT_STATUSES.PAID
+            : INVOICE_INSURER_PAYMENT_STATUSES.PARTIAL,
+      });
 
-    const payment = await models.InvoicePayment.create(
-      {
-        invoiceId: data.invoiceId,
-        date: data.date,
-        receiptNumber: data.receiptNumber,
-        amount: data.amount,
-      },
-      { returning: true, transaction },
-    );
-    await models.InvoiceInsurerPayment.create({
-      invoicePaymentId: payment.id,
-      insurerId: data.insurerId,
-      status:
-        data.amount === 0
-          ? INVOICE_INSURER_PAYMENT_STATUSES.REJECTED
-          : data.amount === insurerDiscountTotal
-          ? INVOICE_INSURER_PAYMENT_STATUSES.PAID
-          : INVOICE_INSURER_PAYMENT_STATUSES.PARTIAL,
-    });
-
-    //Update the overall insurer payment status to invoice
-    await models.Invoice.update(
-      {
-        insurerPaymentStatus: getInvoiceInsurerPaymentStatus(
-          chain(data.amount)
-            .add(insurerPaymentsTotal)
-            .round(2)
-            .value(),
-          chain(insurerDiscountTotal)
-            .round(2)
-            .value(),
-        ),
-      },
-      { where: { id: data.invoiceId } },
-    );
+      //Update the overall insurer payment status to invoice
+      await models.Invoice.update(
+        {
+          insurerPaymentStatus: getInvoiceInsurerPaymentStatus(
+            new Decimal(insurerPaymentsTotal).add(data.amount).toNumber(),
+            insurerDiscountTotal,
+          ),
+        },
+        { where: { id: data.invoiceId } },
+      );
+    } catch (e) {
+      errors.push(new ValidationError('', index + 1, e));
+    }
   }
 
   stats.error = errors.length;
