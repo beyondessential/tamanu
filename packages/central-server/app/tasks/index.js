@@ -32,10 +32,13 @@ export async function startScheduledTasks(context) {
     CertificateNotificationProcessor,
     IPSRequestProcessor,
     PatientMergeMaintainer,
-    FhirMissingResources,
     PatientTelegramCommunicationProcessor,
     VaccinationReminderProcessor,
   ];
+
+  if (config.schedules.fhirMissingResources.enabled) {
+    taskClasses.push(FhirMissingResources);
+  }
 
   if (config.schedules.automaticLabTestResultPublisher.enabled) {
     taskClasses.push(AutomaticLabTestResultPublisher);
