@@ -41,6 +41,7 @@ export const PatientPaymentsTable = ({ invoice }) => {
 
   const { ability } = useAuth();
   const canCreatePayment = ability.can('create', 'InvoicePayment');
+  const canEditPayment = ability.can('write', 'InvoicePayment');
 
   const { mutate: createPatientPayment } = useCreatePatientPayment(invoice);
   const { mutate: updatePatientPayment } = useUpdatePatientPayment(invoice, editingPayment?.id);
@@ -122,13 +123,15 @@ export const PatientPaymentsTable = ({ invoice }) => {
     },
     {
       sortable: false,
-      accessor: row => (
-        <Box display="flex" justifyContent="flex-end">
-          <Box sx={{ cursor: 'pointer' }} onClick={() => setEditingPayment(row)}>
-            <PencilIcon />
+      accessor: row =>
+        !hideRecordPaymentForm &&
+        canEditPayment && (
+          <Box display="flex" justifyContent="flex-end">
+            <Box sx={{ cursor: 'pointer' }} onClick={() => setEditingPayment(row)}>
+              <PencilIcon />
+            </Box>
           </Box>
-        </Box>
-      ),
+        ),
     },
   ];
 
