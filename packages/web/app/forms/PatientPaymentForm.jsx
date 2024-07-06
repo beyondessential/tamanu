@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { customAlphabet } from 'nanoid';
 import * as yup from 'yup';
 import styled from 'styled-components';
@@ -16,6 +16,8 @@ import {
 } from '../components';
 import { useSuggester } from '../api';
 import { Colors, FORM_TYPES } from '../constants';
+import { useCreatePatientPayment, useUpdatePatientPayment } from '../api/mutations';
+import { ConfirmPaidModal } from '../components/Invoice/EditInvoiceModal/ConfirmPaidModal';
 
 const IconButton = styled.div`
   cursor: pointer;
@@ -33,12 +35,18 @@ const FormRow = styled.div`
 `;
 
 export const PatientPaymentForm = ({
-  handleSubmit,
   patientRemainingBalance,
-  isSaving,
   editingPayment = {},
+  updateRefreshCount,
+  updateEditingPayment,
+  invoice,
 }) => {
+  const [isSaving, setIsSaving] = useState(false);
+  const [openConfirmPaidModal, setOpenConfirmPaidModal] = useState(false);
   const paymentMethodSuggester = useSuggester('paymentMethod');
+
+  const { mutate: createPatientPayment } = useCreatePatientPayment(invoice);
+  const { mutate: updatePatientPayment } = useUpdatePatientPayment(invoice, editingPayment?.id);
 
   const generateReceiptNumber = () => {
     return customAlphabet('123456789', 8)() + customAlphabet('ABCDEFGHJKLMNPQRSTUVWXYZ', 2)();
@@ -53,6 +61,57 @@ export const PatientPaymentForm = ({
       }
     }
   };
+
+  const onRecord = (data, { resetForm }) => {
+    setIsSaving(true);
+    const { date, methodId, receiptNumber, amount } = data;
+    if (!editingPayment?.id) {
+      createPatientPayment(
+        {
+          date,
+          methodId,
+          receiptNumber,
+          amount: amount.toFixed(2),
+        },
+        {
+          onSuccess: () => {
+            updateRefreshCount();
+            resetForm();
+          },
+          onSettled: () => setIsSaving(false),
+        },
+      );
+    } else {
+      updatePatientPayment(
+        {
+          date,
+          methodId,
+          receiptNumber,
+          amount,
+        },
+        {
+          onSuccess: () => {
+            updateRefreshCount();
+            updateEditingPayment({});
+          },
+          onSettled: () => setIsSaving(false),
+        },
+      );
+    }
+  };
+
+  const handleSubmit = (data, { resetForm }) => {
+    const editingAmount = editingPayment?.amount ? Number(editingPayment.amount) : 0;
+    const showConfirmModal =
+      data?.amount >= patientRemainingBalance + editingAmount && !openConfirmPaidModal;
+    if (showConfirmModal) {
+      setOpenConfirmPaidModal(true);
+      return;
+    }
+    setOpenConfirmPaidModal(false);
+    onRecord(data, { resetForm });
+  };
+
   return (
     <Form
       onSubmit={handleSubmit}
@@ -105,6 +164,13 @@ export const PatientPaymentForm = ({
               <TranslatedText stringId="invoice.modal.payment.action.record" fallback="Record" />
             </Button>
           </Box>
+          {openConfirmPaidModal && (
+            <ConfirmPaidModal
+              open
+              onClose={() => setOpenConfirmPaidModal(false)}
+              onConfirm={submitForm}
+            />
+          )}
         </FormRow>
       )}
       validationSchema={yup.object().shape({
@@ -131,7 +197,8 @@ export const PatientPaymentForm = ({
               fallback="Cannot be more than outstanding balance"
             />,
             function(value) {
-              return Number(value) <= patientRemainingBalance;
+              const editingAmount = editingPayment?.amount ? Number(editingPayment.amount) : 0;
+              return Number(value) <= patientRemainingBalance + editingAmount;
             },
           ),
         receiptNumber: yup

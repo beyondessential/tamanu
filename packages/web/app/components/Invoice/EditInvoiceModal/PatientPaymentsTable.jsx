@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { Box, Divider } from '@material-ui/core';
 import { INVOICE_STATUSES } from '@tamanu/constants';
@@ -9,7 +9,6 @@ import { Table } from '../../Table';
 import { Colors, denseTableStyle } from '../../../constants';
 import { Heading4 } from '../../Typography';
 import { DateDisplay } from '../../DateDisplay';
-import { useCreatePatientPayment, useUpdatePatientPayment } from '../../../api/mutations';
 import { useAuth } from '../../../contexts/Auth';
 import { PatientPaymentForm } from '../../../forms/PatientPaymentForm';
 import { PencilIcon } from '../../../assets/icons/PencilIcon';
@@ -35,7 +34,6 @@ export const PatientPaymentsTable = ({ invoice }) => {
 
   const [refreshCount, setRefreshCount] = useState(0);
   const [patientRemainingBalance, setPatientRemainingBalance] = useState(0);
-  const [isSaving, setIsSaving] = useState(false);
 
   const [editingPayment, setEditingPayment] = useState({});
 
@@ -43,51 +41,13 @@ export const PatientPaymentsTable = ({ invoice }) => {
   const canCreatePayment = ability.can('create', 'InvoicePayment');
   const canEditPayment = ability.can('write', 'InvoicePayment');
 
-  const { mutate: createPatientPayment } = useCreatePatientPayment(invoice);
-  const { mutate: updatePatientPayment } = useUpdatePatientPayment(invoice, editingPayment?.id);
+  const updateRefreshCount = useCallback(() => setRefreshCount(prev => prev + 1), []);
+  const updateEditingPayment = useCallback(editingPayment => setEditingPayment(editingPayment), []);
 
   useEffect(() => {
     const patientRemainingBalance = getPatientPaymentRemainingBalance(invoice);
     setPatientRemainingBalance(patientRemainingBalance);
   }, [invoice]);
-
-  const onRecord = async (data, { resetForm }) => {
-    setIsSaving(true);
-    const { date, methodId, receiptNumber, amount } = data;
-    if (!editingPayment?.id) {
-      createPatientPayment(
-        {
-          date,
-          methodId,
-          receiptNumber,
-          amount: amount.toFixed(2),
-        },
-        {
-          onSuccess: () => {
-            setRefreshCount(prev => prev + 1);
-            resetForm();
-          },
-          onSettled: () => setIsSaving(false),
-        },
-      );
-    } else {
-      updatePatientPayment(
-        {
-          date,
-          methodId,
-          receiptNumber,
-          amount,
-        },
-        {
-          onSuccess: () => {
-            setRefreshCount(prev => prev + 1);
-            setEditingPayment({});
-          },
-          onSettled: () => setIsSaving(false),
-        },
-      );
-    }
-  };
 
   const hideRecordPaymentForm =
     patientRemainingBalance <= 0 || invoice.status === INVOICE_STATUSES.CANCELLED;
@@ -191,10 +151,11 @@ export const PatientPaymentsTable = ({ invoice }) => {
       {editingPayment?.id && (
         <>
           <PatientPaymentForm
-            handleSubmit={onRecord}
-            isSaving={isSaving}
             patientRemainingBalance={patientRemainingBalance}
             editingPayment={editingPayment}
+            invoice={invoice}
+            updateRefreshCount={updateRefreshCount}
+            updateEditingPayment={updateEditingPayment}
           />
           <Divider />
         </>
@@ -210,9 +171,10 @@ export const PatientPaymentsTable = ({ invoice }) => {
       />
       {!hideRecordPaymentForm && canCreatePayment && (
         <PatientPaymentForm
-          handleSubmit={onRecord}
-          isSaving={isSaving}
+          invoice={invoice}
           patientRemainingBalance={patientRemainingBalance}
+          updateRefreshCount={updateRefreshCount}
+          updateEditingPayment={updateEditingPayment}
         />
       )}
     </TableContainer>
