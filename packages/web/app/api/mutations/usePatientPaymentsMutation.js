@@ -15,3 +15,17 @@ export const useCreatePatientPayment = invoice => {
     onError: error => notifyError(error.message),
   });
 };
+
+export const useUpdatePatientPayment = (invoice, paymentId) => {
+  const api = useApi();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async body => {
+      const result = await api.put(`invoices/${invoice.id}/patientPayments/${paymentId}`, body);
+      await queryClient.invalidateQueries([`encounter/${invoice.encounterId}/invoice`]);
+      return result;
+    },
+    onError: error => notifyError(error.message),
+  });
+};
