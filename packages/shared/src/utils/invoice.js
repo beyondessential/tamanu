@@ -180,7 +180,7 @@ export const getInvoiceItemPriceDisplay = invoiceItem => {
 export const getInvoiceItemDiscountPriceDisplay = invoiceItem => {
   const result = isNaN(invoiceItem?.discount?.percentage)
     ? undefined
-    : getInvoiceItemPriceAfterDiscount(invoiceItem);
+    : getInvoiceItemPriceAfterDiscount(invoiceItem) * Number(invoiceItem?.quantity);
   return formatDisplayValue(result);
 };
 
