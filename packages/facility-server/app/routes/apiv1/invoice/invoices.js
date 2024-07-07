@@ -39,7 +39,6 @@ const createInvoiceSchema = z
     displayId:
       customAlphabet('0123456789', 8)() + customAlphabet('ABCDEFGHIJKLMNOPQRSTUVWXYZ', 2)(),
     status: INVOICE_STATUSES.IN_PROGRESS,
-    paymentStatus: INVOICE_PAYMENT_STATUSES.UNPAID,
     date: getCurrentCountryTimeZoneDateString(),
   }));
 invoiceRoute.post(
