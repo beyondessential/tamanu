@@ -38,6 +38,7 @@ function makeScreen(questions, componentData) {
     const { surveyId, ...otherComponentData } = componentData;
     const dataElId = `pde-${elementData.code}`;
 
+    console.log('visibilityStatus', visibilityStatus);
     const deletedAt =
       VISIBILITY_STATUSES.HISTORICAL === visibilityStatus.toLowerCase() ? Date.now() : null;
 

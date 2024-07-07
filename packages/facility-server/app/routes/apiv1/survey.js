@@ -2,7 +2,7 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { Op } from 'sequelize';
 
-import { VISIBILITY_STATUSES } from '@tamanu/constants';
+import { VISIBILITY_STATUSES, SURVEY_TYPES } from '@tamanu/constants';
 import { getFilteredListByPermission } from '@tamanu/shared/utils/getFilteredListByPermission';
 import { NotFoundError } from '@tamanu/shared/errors';
 import {
@@ -34,6 +34,26 @@ survey.get(
     });
   }),
 );
+
+survey.get(
+  '/charts/simple/:surveyId',
+  asyncHandler(async (req, res) => {
+    const { models, params } = req;
+    const { surveyId } = params;
+
+    req.checkPermission('read', 'Chart');
+    const surveyRecord = await models.Survey.findOne({
+      where: { surveyType: SURVEY_TYPES.SIMPLE_CHART, id: surveyId },
+    });
+    if (!surveyRecord) throw new NotFoundError();
+    const components = await models.SurveyScreenComponent.getComponentsForSurvey(surveyRecord.id);
+    res.send({
+      ...surveyRecord.forResponse(),
+      components,
+    });
+  }),
+);
+
 survey.get(
   '/:id',
   asyncHandler(async (req, res) => {

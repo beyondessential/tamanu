@@ -135,9 +135,11 @@ export function readMetadata(metadataSheet) {
   const { country } = metadata;
   const prefix = !importingToHome && country ? `(${country}) ` : '';
 
+  console.log('metadataaa', metadata);
   const programName = `${prefix}${metadata.programName}`;
   const programId = `program-${idify(metadata.programCode)}`;
 
+  console.log('surveyRowsss', surveyRows);
   const surveyMetadata = surveyRows
     .map(row => ({
       ...row,

@@ -27,7 +27,7 @@
     "host": "https://central.main.internal.tamanu.io",
     "email": "",
     "password": "",
-    "timeout": 10000,
+    "timeout": 10000000,
     "persistedCacheBatchSize": 10000,
     "pauseBetweenPersistedCacheBatchesInMilliseconds": 50,
     "pauseBetweenCacheBatchInMilliseconds": 50,
@@ -38,7 +38,7 @@
     "backoff": {
       "multiplierMs": 300,
       "maxAttempts": 15,
-      "maxWaitMs": 10000
+      "maxWaitMs": 100000000,
     },
     "dynamicLimiter": {
       "initialLimit": 10, // start relatively low then grow upward
