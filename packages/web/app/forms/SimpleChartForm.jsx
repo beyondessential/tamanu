@@ -1,7 +1,7 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 
-=import { VISIBILITY_STATUSES } from '@tamanu/constants';
+import { VISIBILITY_STATUSES } from '@tamanu/constants';
 
 import { Form, FormSubmitCancelRow, ModalLoader } from '../components';
 import { SurveyScreen } from '../components/Surveys';
@@ -57,22 +57,6 @@ export const SimpleChartForm = React.memo(({ patient, onSubmit, onClose, encount
       showInlineErrorsOnly
       validateOnChange
       validateOnBlur
-      //   validationSchema={validationSchema}
-      //   initialValues={{
-      //     [VITALS_DATA_ELEMENT_IDS.dateRecorded]: getCurrentDateTimeString(),
-      //     ...getFormInitialValues(currentComponents, patient, patientAdditionalData),
-      //   }}
-      //   validate={values => {
-      //     if (
-      //       Object.entries(values)
-      //         .filter(([name]) => name !== VITALS_DATA_ELEMENT_IDS.dateRecorded)
-      //         .every(([, value]) => value === '' || value === null || value === undefined)
-      //     ) {
-      //       return { form: 'At least one recording must be entered.' };
-      //     }
-
-      //     return {};
-      //   }}
       render={({ submitForm, values, setFieldValue }) => (
         <SurveyScreen
           allComponents={currentComponents}

@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallBack } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import styled from 'styled-components';
 
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
@@ -77,8 +77,8 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
     handleClose();
   };
 
-  const findChartName = useCallBack(chartId => chartTypes.find(c => c.value === chartId), [
-    selectedChartType,
+  const findChartName = useCallback(chartId => chartTypes.find(c => c.value === chartId), [
+    chartTypes,
   ]);
 
   return (
@@ -97,11 +97,7 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
           handleSelectChartType={setSelectedChartType}
           chartTypes={chartTypes}
         />
-        <ButtonWithPermissionCheck
-          onClick={() => setModalOpen(true)}
-          verb="create"
-          noun="Chart"
-        >
+        <ButtonWithPermissionCheck onClick={() => setModalOpen(true)} verb="create" noun="Chart">
           <TranslatedText stringId="chart.action.new" fallback="Record" />
         </ButtonWithPermissionCheck>
       </TableButtonRow>

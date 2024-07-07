@@ -13,6 +13,10 @@ const Text = styled.div`
   margin-bottom: 10px;
 `;
 
+export const FullWidthCol = styled.div`
+  grid-column: 1/-1;
+`;
+
 export const SurveyQuestion = ({ component, patient, inputRef, disabled, encounterType }) => {
   const {
     dataElement,
@@ -37,7 +41,7 @@ export const SurveyQuestion = ({ component, patient, inputRef, disabled, encount
   if (component.dataElement.type === 'Result') return <Text>{`${text} ${component.detail}`}</Text>;
   if (!FieldComponent) return <Text>{text}</Text>;
 
-  return (
+  const fieldComponent = (
     <Field
       inputRef={inputRef}
       label={text}
@@ -51,4 +55,6 @@ export const SurveyQuestion = ({ component, patient, inputRef, disabled, encount
       disabled={disabled}
     />
   );
+
+  return configObject.fullWidth ? <FullWidthCol>{fieldComponent}</FullWidthCol> : fieldComponent;
 };
