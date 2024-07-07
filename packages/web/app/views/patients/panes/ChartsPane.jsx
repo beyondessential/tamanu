@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallBack } from 'react';
 import styled from 'styled-components';
 
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
@@ -19,7 +19,7 @@ const StyledTranslatedSelectField = styled(SelectField)`
   width: 200px;
 `;
 
-const ChartDropDown = ({ value, handleSelectChartType, chartTypes }) => {
+const ChartDropDown = ({ selectedChart, handleSelectChartType, chartTypes }) => {
   const userPreferencesMutation = useUserPreferencesMutation();
 
   const handleChange = newValues => {
@@ -36,7 +36,7 @@ const ChartDropDown = ({ value, handleSelectChartType, chartTypes }) => {
     <StyledTranslatedSelectField
       options={chartTypes}
       onChange={handleChange}
-      value={value}
+      value={selectedChart}
       name="chartType"
       prefix="chart.property.type"
       isClearable={false}
@@ -77,13 +77,17 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
     handleClose();
   };
 
+  const findChartName = useCallBack(chartId => chartTypes.find(c => c.value === chartId), [
+    selectedChartType,
+  ]);
+
   return (
     <TabPane>
       <ChartModal
         open={modalOpen}
         chartName={selectedChartType}
         onCancel={() => setModalOpen(false)}
-        surveyId={selectedChartType || chartTypes?.[0]?.value}
+        surveyId={findChartName(selectedChartType) || chartTypes?.[0]?.value}
         onSubmit={handleSubmitChart}
       />
 
@@ -96,9 +100,9 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
         <ButtonWithPermissionCheck
           onClick={() => setModalOpen(true)}
           verb="create"
-          noun="EncounterNote"
+          noun="Chart"
         >
-          <TranslatedText stringId="note.action.new" fallback="Record" />
+          <TranslatedText stringId="chart.action.new" fallback="Record" />
         </ButtonWithPermissionCheck>
       </TableButtonRow>
     </TabPane>

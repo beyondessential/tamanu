@@ -36,15 +36,13 @@ survey.get(
 );
 
 survey.get(
-  '/charts/simple/:surveyId',
+  '/chart/:surveyId',
   asyncHandler(async (req, res) => {
     const { models, params } = req;
     const { surveyId } = params;
 
     req.checkPermission('read', 'Chart');
-    const surveyRecord = await models.Survey.findOne({
-      where: { surveyType: SURVEY_TYPES.SIMPLE_CHART, id: surveyId },
-    });
+    const surveyRecord = await models.Survey.findByPk(surveyId);
     if (!surveyRecord) throw new NotFoundError();
     const components = await models.SurveyScreenComponent.getComponentsForSurvey(surveyRecord.id);
     res.send({
