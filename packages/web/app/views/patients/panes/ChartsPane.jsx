@@ -77,7 +77,6 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
     handleClose();
   };
 
-  console.log('selectedChartType', selectedChartType);
   return (
     <TabPane>
       <ChartModal

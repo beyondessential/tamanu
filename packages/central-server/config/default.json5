@@ -294,8 +294,8 @@
       // the FHIR API being exposed to the public in a deployment that doesn't need it.
       "enabled": false, // the HTTP routes
       "worker": {
-        "enabled": false, // the materialisation worker
-        "concurrency": 1,
+        "enabled": true, // the materialisation worker
+        "concurrency": 100,
         "resourceMaterialisationEnabled": {
           "Patient": true,
           "Encounter": false,
