@@ -18,6 +18,7 @@ import {
   getInvoiceItemNote,
   getInvoiceSummaryDisplay,
   getPatientPaymentsWithRemainingBalance,
+  formatDisplayPrice
 } from '../invoice';
 import { withLanguageContext } from '../pdf/languageContext';
 import { Page } from '../pdf/Page';
@@ -225,7 +226,7 @@ const COLUMNS = {
       key: 'amount',
       title: 'Amount',
       style: { width: '12%' },
-      accessor: ({ amount }) => parseFloat(amount).toFixed(2),
+      accessor: ({ amount }) => formatDisplayPrice(amount),
     },
     {
       key: 'receiptNumber',
@@ -385,7 +386,7 @@ const SummaryPane = ({ invoice }) => {
                 <P>{insurer.insurer?.name}</P>
                 <View style={summaryPaneStyles.subItem}>
                   <P>{insurer.percentage * 100}%</P>
-                  <P>{`-${insurerPaymentsDisplay[index] ?? ''}`}</P>
+                  <P>{`-${insurerPaymentsDisplay[index]}`}</P>
                 </View>
               </View>
             );

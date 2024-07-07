@@ -6,7 +6,7 @@ import { Box, CircularProgress, Divider } from '@material-ui/core';
 import PrintIcon from '@material-ui/icons/Print';
 import { FieldArray } from 'formik';
 import { isInvoiceEditable } from '@tamanu/shared/utils/invoice';
-import { INVOICE_PAYMENT_STATUSES, INVOICE_STATUSES } from '@tamanu/constants';
+import { INVOICE_STATUSES } from '@tamanu/constants';
 import { Modal } from '../../Modal';
 import { TranslatedText } from '../../Translation';
 import { Form } from '../../Field';

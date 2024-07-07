@@ -4,6 +4,7 @@ import { differenceBy } from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 import { INVOICE_ITEMS_CATEGORY_LABELS } from '@tamanu/constants';
 import { toDateString } from '@tamanu/shared/utils/dateTime';
+import { formatDisplayPrice } from '@tamanu/shared/utils/invoice';
 import { DataFetchingTable } from '../../Table';
 import { TranslatedEnum, TranslatedText } from '../../Translation';
 import { DateDisplay } from '../../DateDisplay';
@@ -147,13 +148,7 @@ export const PotentialInvoiceItemsTable = ({ invoice, invoiceItems, formArrayMet
     {
       key: 'productPrice',
       title: <TranslatedText stringId="invoice.table.column.price" fallback="Price" />,
-      accessor: ({ productPrice }) => (
-        <TranslatedText
-          stringId="invoice.table.cell.price"
-          fallback="$:price"
-          replacements={{ price: parseFloat(productPrice)?.toFixed(2) }}
-        />
-      ),
+      accessor: ({ productPrice }) => `$${formatDisplayPrice(productPrice)}`
     },
     {
       sortable: false,
