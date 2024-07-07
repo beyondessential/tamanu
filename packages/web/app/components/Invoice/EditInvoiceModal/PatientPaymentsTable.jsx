@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { customAlphabet } from 'nanoid';
 import * as yup from 'yup';
 import CachedIcon from '@material-ui/icons/Cached';
 import { Box } from '@material-ui/core';
 import { INVOICE_STATUSES } from '@tamanu/constants';
-import { getPatientPaymentRemainingBalance } from '@tamanu/shared/utils/invoice';
+import { getInvoiceSummaryDisplay, formatDisplayPrice } from '@tamanu/shared/utils/invoice';
 
 import { TranslatedText } from '../../Translation';
 import { Table } from '../../Table';
@@ -64,7 +64,7 @@ const COLUMNS = [
     key: 'amount',
     title: <TranslatedText stringId="invoice.table.payment.column.amount" fallback="Amount" />,
     sortable: false,
-    accessor: ({ amount }) => parseFloat(amount).toFixed(2),
+    accessor: ({ amount }) => formatDisplayPrice(amount),
   },
   {
     key: 'receiptNumber',
@@ -80,19 +80,14 @@ const COLUMNS = [
 
 export const PatientPaymentsTable = ({ invoice }) => {
   const patientPayments = invoice.payments.filter(payment => !!payment?.patientPayment);
+  const { patientPaymentRemainingBalance } = getInvoiceSummaryDisplay(invoice);
+
   const [refreshCount, setRefreshCount] = useState(0);
-  const [patientRemainingBalance, setPatientRemainingBalance] = useState(0);
-  const [isSaving, setIsSaving] = useState(false);
 
   const { ability } = useAuth();
   const canCreatePayment = ability.can('create', 'InvoicePayment');
 
-  const { mutate: createPatientPayment } = useCreatePatientPayment(invoice);
-
-  useEffect(() => {
-    const patientRemainingBalance = getPatientPaymentRemainingBalance(invoice);
-    setPatientRemainingBalance(patientRemainingBalance);
-  }, [invoice]);
+  const { mutate: createPatientPayment, isLoading: isSaving } = useCreatePatientPayment(invoice);
 
   const paymentMethodSuggester = useSuggester('paymentMethod');
 
@@ -101,7 +96,6 @@ export const PatientPaymentsTable = ({ invoice }) => {
   };
 
   const onRecord = async (data, { resetForm }) => {
-    setIsSaving(true);
     const { date, methodId, receiptNumber, amount } = data;
     createPatientPayment(
       {
@@ -115,13 +109,12 @@ export const PatientPaymentsTable = ({ invoice }) => {
           setRefreshCount(prev => prev + 1);
           resetForm();
         },
-        onSettled: () => setIsSaving(false),
       },
     );
   };
 
   const hideRecordPaymentForm =
-    patientRemainingBalance <= 0 || invoice.status === INVOICE_STATUSES.CANCELLED;
+    Number(patientPaymentRemainingBalance) <= 0 || invoice.status === INVOICE_STATUSES.CANCELLED;
 
   const validateDecimalPlaces = e => {
     const value = e.target.value;
@@ -146,7 +139,7 @@ export const PatientPaymentsTable = ({ invoice }) => {
           <TranslatedText
             stringId="invoice.modal.payment.remainingBalance"
             fallback="Remaining balance: :remainingBalance"
-            replacements={{ remainingBalance: patientRemainingBalance.toFixed(2) }}
+            replacements={{ remainingBalance: patientPaymentRemainingBalance }}
           />
         </Heading4>
       </Title>
@@ -259,7 +252,8 @@ export const PatientPaymentsTable = ({ invoice }) => {
                   fallback="Cannot be more than outstanding balance"
                 />,
                 function(value) {
-                  return Number(value) <= patientRemainingBalance;
+                  console.log(value)
+                  return Number(value) <= Number(patientPaymentRemainingBalance);
                 },
               ),
             receiptNumber: yup
