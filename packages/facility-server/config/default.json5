@@ -38,7 +38,7 @@
     "backoff": {
       "multiplierMs": 300,
       "maxAttempts": 15,
-      "maxWaitMs": 10000,
+      "maxWaitMs": 10000
     },
     "dynamicLimiter": {
       "initialLimit": 10, // start relatively low then grow upward
