@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import styled from 'styled-components';
+import PropTypes from 'prop-types';
 
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 
@@ -22,9 +23,7 @@ const StyledTranslatedSelectField = styled(SelectField)`
 const ChartDropDown = ({ selectedChart, handleSelectChartType, chartTypes }) => {
   const userPreferencesMutation = useUserPreferencesMutation();
 
-  const handleChange = newValues => {
-    const newSelectedChartType = newValues.target.value;
-
+  const handleChange = ({ target: { value: newSelectedChartType } }) => {
     handleSelectChartType(newSelectedChartType);
     userPreferencesMutation.mutate({
       preferenceKey: 'selectedChartType',
@@ -55,10 +54,10 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
   const chartTypes = useMemo(
     () =>
       chartSurveys
-        .sort((a, b) => (a.name < b.name ? -1 : 1))
-        .map(chartSurvey => ({
-          label: chartSurvey.name,
-          value: chartSurvey.id,
+        .sort((a, b) => a.name.localeCompare(b.name))
+        .map(({ name, id }) => ({
+          label: name,
+          value: id,
         })),
     [chartSurveys],
   );
@@ -77,7 +76,7 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
     handleClose();
   };
 
-  const findChartName = useCallback(chartId => chartTypes.find(c => c.value === chartId), [
+  const findChartName = useCallback(chartId => chartTypes.find(({ value }) => value === chartId), [
     chartTypes,
   ]);
 
@@ -86,14 +85,14 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
       <ChartModal
         open={modalOpen}
         chartName={selectedChartType}
-        onCancel={() => setModalOpen(false)}
-        surveyId={findChartName(selectedChartType) || chartTypes?.[0]?.value}
+        onClose={handleClose}
+        surveyId={findChartName(selectedChartType)?.value || chartTypes?.[0]?.value}
         onSubmit={handleSubmitChart}
       />
 
       <TableButtonRow variant="small" justifyContent="space-between">
         <ChartDropDown
-          value={selectedChartType || userPreferences?.selectedChartType}
+          selectedChart={selectedChartType || userPreferences?.selectedChartType}
           handleSelectChartType={setSelectedChartType}
           chartTypes={chartTypes}
         />
@@ -104,3 +103,8 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
     </TabPane>
   );
 });
+
+ChartsPane.propTypes = {
+  patient: PropTypes.object.isRequired,
+  encounter: PropTypes.string.isRequired,
+};

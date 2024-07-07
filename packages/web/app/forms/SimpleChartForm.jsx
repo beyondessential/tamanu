@@ -12,7 +12,7 @@ import { useAuth } from '../contexts/Auth';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useChartSurveyQuery } from '../api/queries/useChartSurveyQuery';
 
-export const SimpleChartForm = React.memo(({ patient, onSubmit, onClose, encounterType, surveyId }) => {
+export const SimpleChartForm = React.memo(({ patient, onSubmit, onClose, surveyId }) => {
   const {
     data: chartSurvey,
     isLoading,
@@ -71,7 +71,6 @@ export const SimpleChartForm = React.memo(({ patient, onSubmit, onClose, encount
               onCancel={onClose}
             />
           }
-          encounterType={encounterType}
         />
       )}
     />
@@ -82,4 +81,5 @@ SimpleChartForm.propTypes = {
   onSubmit: PropTypes.func.isRequired,
   onClose: PropTypes.func.isRequired,
   patient: PropTypes.object.isRequired,
+  surveyId: PropTypes.string.isRequired,
 };

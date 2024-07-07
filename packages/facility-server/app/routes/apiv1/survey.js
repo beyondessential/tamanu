@@ -43,7 +43,11 @@ survey.get(
 
     req.checkPermission('read', 'Chart');
     const surveyRecord = await models.Survey.findByPk(surveyId);
-    if (!surveyRecord) throw new NotFoundError();
+
+    if (!surveyRecord) {
+      throw new NotFoundError();
+    }
+
     const components = await models.SurveyScreenComponent.getComponentsForSurvey(surveyRecord.id);
     res.send({
       ...surveyRecord.forResponse(),
