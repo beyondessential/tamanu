@@ -1,12 +1,12 @@
 import { TranslatedText } from './TranslatedText';
 import { camelCase } from 'lodash';
 import React from 'react';
-import { enumRegistry } from '@tamanu/constants';
+import { isRegisteredEnum } from '@tamanu/constants';
 import { IS_DEVELOPMENT } from '../../utils/env';
 
 export const enforceRegisteredEnum = (prefix, options) => {
   if (!prefix) return;
-  if (!enumRegistry.has(options)) {
+  if (!isRegisteredEnum(options)) {
     console.error('Enum is not registered in enumRegistry');
   }
 };

@@ -1,5 +1,5 @@
 import React from 'react';
-import { enumRegistry } from '@tamanu/constants';
+import { isRegisteredEnum } from '@tamanu/constants';
 import { MultiselectInput, SelectInput } from '../Field';
 import { getTranslatedOptions } from './getTranslatedOptions';
 import { IS_DEVELOPMENT } from '../../utils/env';
@@ -15,7 +15,7 @@ const TranslatedSelectInput = ({
   ...props
 }) => {
   const InputComponent = component;
-  if (IS_DEVELOPMENT && !enumRegistry.has(enumValues)) {
+  if (IS_DEVELOPMENT && !isRegisteredEnum(enumValues)) {
     throw new Error(
       `TranslatedSelect enumValues for field ${name ||
         field?.name} are not registered in enumRegistry`,

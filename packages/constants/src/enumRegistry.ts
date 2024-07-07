@@ -64,5 +64,5 @@ export const registeredEnums = {
 const enumRegistry = new Set(Object.values(registeredEnums));
 
 // Used to enforce usage of translatable enums
-// Recognises registered enums from object references
+// recognises registered enums from object references
 export const isRegisteredEnum = (value: any): boolean => enumRegistry.has(value);
