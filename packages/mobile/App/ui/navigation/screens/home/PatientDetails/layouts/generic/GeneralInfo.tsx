@@ -8,7 +8,7 @@ import { useLocalisation } from '~/ui/contexts/LocalisationContext';
 import { getGender } from '~/ui/helpers/user';
 import { IPatient } from '~/types';
 import { ALL_ADDITIONAL_DATA_FIELDS } from '/helpers/additionalData';
-import { PATIENT_DATA_FIELDS, getFieldData } from '~/ui/helpers/patient';
+import { getFieldData, PATIENT_DATA_FIELDS } from '~/ui/helpers/patient';
 import { usePatientAdditionalData } from '~/ui/hooks/usePatientAdditionalData';
 import { ErrorScreen } from '../../../../../../components/ErrorScreen';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
@@ -31,15 +31,11 @@ export const GeneralInfo = ({ onEdit, patient }: GeneralInfoProps): ReactElement
     [PATIENT_DATA_FIELDS.EMAIL, patient.email],
     [
       PATIENT_DATA_FIELDS.VILLAGE_ID,
-      patient.village ? (
-        <TranslatedReferenceData
-          fallback={patient.village?.name}
-          value={patient.village?.id}
-          category="village"
-        />
-      ) : (
-        ''
-      ),
+      <TranslatedReferenceData
+        fallback={patient.village?.name ?? ''}
+        value={patient.village?.id}
+        category="village"
+      />,
     ],
   ];
 
