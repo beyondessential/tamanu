@@ -1,19 +1,11 @@
 import React from 'react';
 import styled from 'styled-components';
+import { getInvoiceSummary } from '@tamanu/shared/utils/invoice';
 import { TranslatedText } from '../../Translation';
 import { Table } from '../../Table';
 import { Colors, denseTableStyle } from '../../../constants';
 import { Heading4 } from '../../Typography';
-
-const insurerPaymentsMock = [
-  {
-    date: '02/02/24',
-    payer: 'NIB',
-    amount: '8.00',
-    receiptNumber: '823792387',
-    status: 'Paid',
-  },
-];
+import { DateDisplay } from '../../DateDisplay';
 
 const TableContainer = styled.div`
   margin-top: 10px;
@@ -31,17 +23,18 @@ const Title = styled.div`
   border-bottom: 1px solid ${Colors.outline};
 `;
 
-//TODO: re-map data after back-end is finished
 const COLUMNS = [
   {
     key: 'date',
     title: <TranslatedText stringId="general.date.label" fallback="Date" />,
     sortable: false,
+    accessor: ({ date }) => <DateDisplay date={date} />,
   },
   {
-    key: 'payer',
+    key: 'insurerName',
     title: <TranslatedText stringId="invoice.table.payment.column.payer" fallback="Payer" />,
     sortable: false,
+    accessor: ({ insurerPayment }) => insurerPayment?.insurer?.name,
   },
   {
     key: 'amount',
@@ -62,10 +55,14 @@ const COLUMNS = [
     key: 'status',
     title: <TranslatedText stringId="invoice.table.payment.column.status" fallback="Status" />,
     sortable: false,
+    accessor: ({ insurerPayment }) => insurerPayment?.status,
   },
 ];
 
-export const InsurerPaymentsTable = () => {
+export const InsurerPaymentsTable = ({ invoice }) => {
+  const { insurerPaymentRemainingBalance } = getInvoiceSummary(invoice);
+  const insurerPayment = invoice.payments.filter(payment => !!payment?.insurerPayment?.id);
+
   return (
     <TableContainer>
       <Title>
@@ -79,28 +76,21 @@ export const InsurerPaymentsTable = () => {
           <TranslatedText
             stringId="invoice.modal.payment.remainingBalance"
             fallback="Remaining balance: :remainingBalance"
-            replacements={{ remainingBalance: '0.00' }}
+            replacements={{
+              remainingBalance:
+                insurerPaymentRemainingBalance <= 0 ? 0 : insurerPaymentRemainingBalance,
+            }}
           />
         </Heading4>
       </Title>
       <Table
         columns={COLUMNS}
-        data={insurerPaymentsMock}
+        data={insurerPayment}
         headerColor={Colors.white}
         page={null}
         elevated={false}
         containerStyle={denseTableStyle.container}
-        cellStyle={
-          denseTableStyle.cell +
-          `
-          &:nth-child(2) {
-            width 30%;
-          }
-          &:nth-child(5) {
-            width 25%;
-          }
-        `
-        }
+        cellStyle={denseTableStyle.cell}
         headStyle={denseTableStyle.head}
         statusCellStyle={denseTableStyle.statusCell}
       />

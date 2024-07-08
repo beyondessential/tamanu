@@ -165,6 +165,10 @@ export const getInvoiceSummary = invoice => {
     .round(2)
     .value();
 
+  const insurerPaymentRemainingBalance = chain(insurerDiscountTotal - insurerPaymentsTotal)
+    .round(2)
+    .value();
+
   return {
     discountableItemsSubtotal,
     nonDiscountableItemsSubtotal,
@@ -178,6 +182,7 @@ export const getInvoiceSummary = invoice => {
     insurerPaymentsTotal,
     paymentsTotal,
     patientPaymentRemainingBalance,
+    insurerPaymentRemainingBalance,
   };
 };
 
