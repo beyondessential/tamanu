@@ -79,13 +79,11 @@ const LabRequestRow = ({ labRequest, synced }: LabRequestRowProps): JSX.Element 
       </StyledView>
       <StyledView width={screenPercentageToDP(25, Orientation.Width)}>
         <StyledText style={styles.text}>
-          {
-            <TranslatedReferenceData
-              fallback={labRequest.labTestCategory.name}
-              value={labRequest.labTestCategory.id}
-              category="labTestCategory"
-            />
-          }
+          <TranslatedReferenceData
+            fallback={labRequest.labTestCategory.name}
+            value={labRequest.labTestCategory.id}
+            category="labTestCategory"
+          />
         </StyledText>
       </StyledView>
       <StyledView width={screenPercentageToDP(30, Orientation.Width)}>
