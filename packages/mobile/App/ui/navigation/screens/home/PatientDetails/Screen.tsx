@@ -19,13 +19,9 @@ import { theme } from '~/ui/styled/theme';
 import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
 import { ArrowLeftIcon } from '~/ui/components/Icons';
 import { UserAvatar } from '~/ui/components/UserAvatar';
-import {
-  AdditionalInfo,
-  GeneralInfo,
-  HealthIdentificationRow,
-  PatientIssues,
-} from './CustomComponents';
+import { HealthIdentificationRow, PatientIssues } from './CustomComponents';
 import { useLocalisation } from '~/ui/contexts/LocalisationContext';
+import { LocalisedPatientDetailsLayout } from './layouts/LocalisedPatientDetailsLayout';
 import { Button } from '~/ui/components/Button';
 import { ReminderBellIcon } from '~/ui/components/Icons/ReminderBellIcon';
 import { useAuth } from '~/ui/contexts/AuthContext';
@@ -48,33 +44,6 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps): ReactElement => 
   const onNavigateBack = useCallback(() => {
     navigation.goBack();
   }, [navigation]);
-
-  const onEditPatient = useCallback(() => {
-    navigation.navigate(Routes.HomeStack.PatientDetailsStack.EditPatient, {
-      patientName: joinNames(selectedPatient),
-    });
-  }, [navigation, selectedPatient]);
-
-  const editPatientAdditionalData = useCallback(
-    (
-      additionalData,
-      sectionTitle,
-      isCustomFields,
-      customSectionFields,
-      customPatientFieldValues,
-    ) => {
-      navigation.navigate(Routes.HomeStack.PatientDetailsStack.EditPatientAdditionalData, {
-        patientId: selectedPatient.id,
-        patientName: joinNames(selectedPatient),
-        additionalDataJSON: JSON.stringify(additionalData),
-        sectionTitle,
-        isCustomFields,
-        customSectionFields,
-        customPatientFieldValues,
-      });
-    },
-    [navigation, selectedPatient],
-  );
 
   const onEditPatientIssues = useCallback(() => {
     navigation.navigate(Routes.HomeStack.PatientDetailsStack.AddPatientIssue);
@@ -156,8 +125,7 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps): ReactElement => 
       </StyledSafeAreaView>
       <FullView>
         <StyledScrollView background={theme.colors.BACKGROUND_GREY}>
-          <GeneralInfo patient={selectedPatient} onEdit={onEditPatient} />
-          <AdditionalInfo patient={selectedPatient} onEdit={editPatientAdditionalData} />
+          <LocalisedPatientDetailsLayout navigation={navigation} patient={selectedPatient} />
           <PatientIssues onEdit={onEditPatientIssues} patientId={selectedPatient.id} />
         </StyledScrollView>
       </FullView>

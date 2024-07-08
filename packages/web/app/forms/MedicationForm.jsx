@@ -10,18 +10,18 @@ import {
   AutocompleteField,
   Button,
   ButtonRow,
-  DateDisplay,
   DateField,
   Field,
   Form,
   FormCancelButton,
   FormGrid,
   FormSubmitButton,
+  getDateDisplay,
   NumberField,
   SelectField,
   TextField,
 } from '../components';
-import { MAX_AGE_TO_RECORD_WEIGHT, FORM_TYPES } from '../constants';
+import { FORM_TYPES, MAX_AGE_TO_RECORD_WEIGHT } from '../constants';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useLocalisation } from '../contexts/Localisation';
 import { useTranslation } from '../contexts/Translation';
@@ -29,6 +29,7 @@ import { getAgeDurationFromDate } from '../../../shared/src/utils/date';
 import { useQuery } from '@tanstack/react-query';
 import { useApi } from '../api';
 import { useSelector } from 'react-redux';
+import { getReferenceDataStringId } from '../components/Translation/index.js';
 
 const drugRouteOptions = [
   { label: 'Dermal', value: 'dermal' },
@@ -102,7 +103,7 @@ const DiscontinuedLabel = ({ medication }) => {
       <TranslatedText
         stringId="medication.detail.discontinued.discontinuedAt"
         fallback="Discontinued at: :date"
-        replacements={{ date: <DateDisplay date={discontinuedDate} /> }}
+        replacements={{ date: getDateDisplay(discontinuedDate) }}
       />
       <br />
       <TranslatedText
@@ -156,7 +157,14 @@ export const MedicationForm = React.memo(
       () => api.get(`patient/${patient?.id}/allergies`),
       { enabled: !!patient?.id },
     );
-    const allergiesList = allergies?.data?.map(it => it?.allergy.name).join(', ');
+    const allergiesList = allergies?.data
+      ?.map(allergyDetail =>
+        getTranslation(
+          getReferenceDataStringId(allergyDetail?.allergy.id, allergyDetail?.allergy.type),
+          allergyDetail?.allergy.name,
+        ),
+      )
+      .join(', ');
 
     // Transition to print page as soon as we have the generated id
     useEffect(() => {

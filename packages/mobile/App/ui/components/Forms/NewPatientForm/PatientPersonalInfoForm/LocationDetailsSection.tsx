@@ -7,6 +7,7 @@ import { AutocompleteModalField } from '~/ui/components/AutocompleteModal/Autoco
 import { ReferenceDataType } from '~/types';
 import { Suggester } from '~/ui/helpers/suggester';
 import { useBackend } from '~/ui/hooks';
+import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 
 export const LocationDetailsSection = (): ReactElement => {
   const navigation = useNavigation();
@@ -22,6 +23,9 @@ export const LocationDetailsSection = (): ReactElement => {
   return (
     <LocalisedField
       component={AutocompleteModalField}
+      label={
+        <TranslatedText stringId="general.localisedField.villageId.label" fallback="Village" />
+      }
       placeholder={`Search for ${getString('fields.villageId.longLabel', 'Village')}`}
       navigation={navigation}
       suggester={villageSuggester}

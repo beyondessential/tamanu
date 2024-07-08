@@ -3,6 +3,7 @@ import {
   LOCATION_AVAILABILITY_STATUS,
   SURVEY_TYPES,
   VISIBILITY_STATUSES,
+  REFERENCE_DATA_TRANSLATION_PREFIX,
 } from '@tamanu/constants';
 import {
   buildDiagnosis,
@@ -357,7 +358,7 @@ describe('Suggestions', () => {
 
     it('should look up a specific suggestion', async () => {
       const record = await models.ReferenceData.findOne();
-      const result = await userApp.get(`/api/suggestions/icd10/${record.id}`);
+      const result = await userApp.get(`/api/suggestions/icd10/${record.id}`, { language: 'en' });
       expect(result).toHaveSucceeded();
       const { body } = result;
       expect(body).toHaveProperty('name', record.name);
@@ -481,6 +482,90 @@ describe('Suggestions', () => {
       const sortedTestData = testData.sort((a, b) => a.name.localeCompare(b.name));
       expect(body.map(({ name }) => name)).toEqual(sortedTestData.map(({ name }) => name));
     });
+  });
+
+  it('should return translated labels for current language if present in the db', async () => {
+    const { TranslatedString, ReferenceData } = models;
+
+    const DATA_TYPE = 'icd10';
+    const DATA_ID = 'test-diagnosis';
+    const ORIGINAL_LABEL = 'AAAOrignal label'; // A's are to ensure it comes first in the list
+    const ENGLISH_LABEL = 'AAAEnglish label';
+    const KHMER_LABEL = 'AAAKhmer label';
+    const ENGLISH_CODE = 'en';
+    const KHMER_CODE = 'km';
+
+    await ReferenceData.create({
+      id: DATA_ID,
+      type: DATA_TYPE,
+      name: ORIGINAL_LABEL,
+      code: 'test-diagnosis',
+    });
+
+    await TranslatedString.create({
+      stringId: `${REFERENCE_DATA_TRANSLATION_PREFIX}.${DATA_TYPE}.${DATA_ID}`,
+      text: ENGLISH_LABEL,
+      language: ENGLISH_CODE,
+    });
+
+    await TranslatedString.create({
+      stringId: `${REFERENCE_DATA_TRANSLATION_PREFIX}.${DATA_TYPE}.${DATA_ID}`,
+      text: KHMER_LABEL,
+      language: KHMER_CODE,
+    });
+
+    const englishResults = await userApp.get(`/api/suggestions/${DATA_TYPE}?language=en`);
+    const khmerResults = await userApp.get(`/api/suggestions/${DATA_TYPE}?language=km`);
+
+    const englishRecord = englishResults.body.find(({ id }) => id === DATA_ID);
+    expect(englishRecord.name).toEqual(ENGLISH_LABEL);
+
+    const khmerRecord = khmerResults.body.find(({ id }) => id === DATA_ID);
+    expect(khmerRecord.name).toEqual(KHMER_LABEL);
+  });
+
+  it.skip('should return translated labels for the correct facility', async () => {
+    const { TranslatedString } = models;
+
+    const facility1 = await findOneOrCreate(models, models.Facility, {
+      id: 'facility-1',
+    });
+
+    const facility2 = await findOneOrCreate(models, models.Facility, {
+      id: 'facility-2',
+    });
+    await findOneOrCreate(models, models.LocationGroup, {
+      id: 'f1-test-area',
+      name: 'F1 Test Area',
+      facilityId: facility1.id,
+    });
+
+    await findOneOrCreate(models, models.LocationGroup, {
+      id: 'f2-test-area',
+      name: 'F2 Test Area',
+      facilityId: facility2.id,
+    });
+
+    const DATA_TYPE = 'locationGroup';
+    const ENGLISH_CODE = 'en';
+    const KHMER_CODE = 'km';
+
+    await TranslatedString.create({
+      stringId: `${REFERENCE_DATA_TRANSLATION_PREFIX}.${DATA_TYPE}.f1-test-area`,
+      text: 'Facility 1 Test Area',
+      language: ENGLISH_CODE,
+    });
+
+    await TranslatedString.create({
+      stringId: `${REFERENCE_DATA_TRANSLATION_PREFIX}.${DATA_TYPE}.f2-test-area`,
+      text: 'Facility 1 Test Area',
+      language: KHMER_CODE,
+    });
+
+    const englishResults = await userApp.get(`/api/suggestions/facilityLocationGroup?language=en`);
+    const khmerResults = await userApp.get(`/api/suggestions/facilityLocationGroup?language=km`);
+    expect(englishResults.body.length).toEqual(1);
+    expect(khmerResults.body.length).toEqual(1);
   });
 
   it('should respect visibility status', async () => {

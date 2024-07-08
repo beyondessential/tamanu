@@ -13,6 +13,7 @@ import { TEMPLATE_ENDPOINT } from '../constants';
 import { TemplateList } from './TemplateList';
 import { EditTemplateModal } from './EditTemplateModal';
 import { useRefreshCount } from '../../../hooks/useRefreshCount';
+import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
 const ContentContainer = styled.div`
   padding: 32px 30px;
@@ -71,7 +72,7 @@ export const TemplateView = () => {
         onDelete={onDeleteTemplate}
         allowInputTitleType={[TEMPLATE_TYPES.PATIENT_LETTER]}
       />
-      <TopBar title="Templates" />
+      <TopBar title={<TranslatedText stringId="admin.template.title" fallback="Templates" />} />
       <ContentPane>
         <ContentContainer>
           <NewTemplateForm

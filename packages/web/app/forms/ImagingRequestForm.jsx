@@ -29,7 +29,7 @@ import { ButtonRow } from '../components/ButtonRow';
 import { DateDisplay } from '../components/DateDisplay';
 import { FormSeparatorLine } from '../components/FormSeparatorLine';
 import { FormSubmitDropdownButton } from '../components/DropdownButton';
-import { TranslatedText } from '../components/Translation/TranslatedText';
+import { TranslatedText, TranslatedReferenceData } from '../components/Translation';
 import { useTranslation } from '../contexts/Translation';
 
 function getEncounterTypeLabel(type) {
@@ -215,15 +215,21 @@ export const ImagingRequestForm = React.memo(
               {imagingAreas.length ? (
                 <Field
                   options={imagingAreas.map(area => ({
-                    label: area.name,
+                    label: (
+                      <TranslatedReferenceData
+                        fallback={area.name}
+                        value={area.id}
+                        category={area.type}
+                      />
+                    ),
                     value: area.id,
-                  }))}
+                  })).sort((area1, area2) => area1.label.localeCompare(area2.label))
+                  }
                   name="areas"
                   label={
                     <TranslatedText stringId="imaging.areas.label" fallback="Areas to be imaged" />
                   }
                   component={MultiselectField}
-                  prefix="imaging.property.area"
                 />
               ) : (
                 <Field

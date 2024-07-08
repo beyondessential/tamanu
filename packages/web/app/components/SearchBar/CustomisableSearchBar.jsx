@@ -9,6 +9,8 @@ import { Form } from '../Field';
 import { Colors, FORM_TYPES } from '../../constants';
 import { TranslatedText } from '../Translation/TranslatedText';
 import { ThemedTooltip } from '../Tooltip';
+import { withPermissionCheck } from '../withPermissionCheck';
+import { withPermissionTooltip } from '../withPermissionTooltip';
 
 const Container = styled.div`
   border: 1px solid ${Colors.outline};
@@ -57,7 +59,7 @@ const ActionsContainer = styled(Box)`
   margin-left: 8px;
 `;
 
-const SearchButton = styled(Button)`
+const SearchButton = styled(withPermissionTooltip(Button))`
   margin-right: 20px;
   margin-left: 6px;
 `;
@@ -74,6 +76,7 @@ export const CustomisableSearchBar = ({
   setIsExpanded,
   initialValues = {},
   hiddenFields,
+  hasPermission = true,
 }) => {
   const switchExpandValue = useCallback(() => {
     setIsExpanded(previous => !previous);
@@ -106,7 +109,7 @@ export const CustomisableSearchBar = ({
                   </IconButton>
                 </ThemedTooltip>
               )}
-              <SearchButton type="submit">
+              <SearchButton type="submit" hasPermission={hasPermission}>
                 <TranslatedText stringId="general.action.search" fallback="Search" />
               </SearchButton>
               <ClearButton
@@ -132,3 +135,5 @@ export const CustomisableSearchBar = ({
     />
   );
 };
+
+export const CustomisableSearchBarWithPermissionCheck = withPermissionCheck(CustomisableSearchBar);

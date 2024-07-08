@@ -14,7 +14,7 @@ export const reportColumnTemplate = [
   { title: 'Village', accessor: data => data.village },
   { title: 'Vaccine name', accessor: data => data.vaccineName },
   { title: 'Vaccine status', accessor: data => data.vaccineStatus },
-  { title: 'Schedule', accessor: data => data.schedule },
+  { title: 'Schedule', accessor: data => data.doseLabel },
   { title: 'Vaccine date', accessor: data => data.vaccineDate },
   { title: 'Batch', accessor: data => data.batch },
   { title: 'Vaccinator', accessor: data => data.vaccinator },
@@ -120,7 +120,7 @@ export async function queryCovidVaccineListData(models, parameters) {
       date,
       status,
       batch,
-      scheduledVaccine: { schedule, label: vaccineName },
+      scheduledVaccine: { doseLabel, label: vaccineName },
       recorder,
     } = vaccine;
 
@@ -134,7 +134,7 @@ export async function queryCovidVaccineListData(models, parameters) {
       sex,
       village: village?.name,
       vaccineName,
-      schedule,
+      doseLabel,
       vaccineStatus: status === 'GIVEN' ? 'Yes' : 'No',
       vaccineDate: format(date, 'dd-MM-yyyy'),
       batch: status === 'GIVEN' ? batch : '',

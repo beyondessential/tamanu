@@ -2,10 +2,11 @@ import React, { useMemo } from 'react';
 import { useDispatch } from 'react-redux';
 import { push } from 'connected-react-router';
 import { LAB_REQUEST_STATUSES } from '@tamanu/constants';
-import { SearchTable } from '../components';
+import { SearchTableWithPermissionCheck } from '../components';
 import { reloadPatient } from '../store/patient';
 import {
   getDateWithTimeTooltip,
+  getPanelType,
   getPatientDisplayId,
   getPatientName,
   getPriority,
@@ -40,7 +41,7 @@ export const LabRequestsTable = React.memo(
           sortable: false,
         },
         { key: 'requestId', title: 'Test ID', accessor: getRequestId, sortable: false },
-        { key: 'labTestPanelName', title: 'Panel' },
+        { key: 'labTestPanelName', title: 'Panel', accessor: getPanelType },
         { key: 'testCategory', title: 'Test category', accessor: getRequestType },
         { key: 'requestedDate', title: 'Requested at time', accessor: getDateWithTimeTooltip },
         publishedStatus
@@ -71,7 +72,9 @@ export const LabRequestsTable = React.memo(
     };
 
     return (
-      <SearchTable
+      <SearchTableWithPermissionCheck
+        verb="list"
+        noun="LabRequest"
         autoRefresh
         endpoint="labRequest"
         columns={columns}

@@ -1,4 +1,4 @@
-import { useQueryClient, useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import * as yup from 'yup';
 import { has, omit, sortBy } from 'lodash';
 import React, { useCallback, useMemo, useState } from 'react';
@@ -6,7 +6,7 @@ import styled from 'styled-components';
 import { Box, IconButton, Tooltip } from '@material-ui/core';
 import { Add as AddIcon, Delete as DeleteIcon } from '@material-ui/icons';
 import shortid from 'shortid';
-import { Alert, AlertTitle } from '@material-ui/lab';
+import { Alert } from '@material-ui/lab';
 import { toast } from 'react-toastify';
 import HelpIcon from '@material-ui/icons/HelpOutlined';
 import { useApi } from '../../../api';
@@ -21,6 +21,8 @@ import {
 import { AccessorField } from '../../patients/components/AccessorField';
 import { LoadingIndicator } from '../../../components/LoadingIndicator';
 import { Colors } from '../../../constants';
+import { TranslatedText } from '../../../components/Translation/TranslatedText';
+import { ErrorMessage } from '../../../components/ErrorMessage';
 
 const StyledTableFormFields = styled(TableFormFields)`
   thead tr th {
@@ -80,32 +82,38 @@ const useTranslationMutation = () => {
     onSuccess: response => {
       const newStringIds = response?.data?.length;
       toast.success(
-        `Translations saved${
-          newStringIds ? `, Created ${newStringIds} new translated string entries` : ''
-        }`,
+        <span>
+          <TranslatedText
+            stringId="admin.translation.notification.translationsSaved"
+            fallback="Translations saved"
+          />
+          {newStringIds
+            ? <>
+              {", "}
+              <TranslatedText
+                stringId="admin.translation.notification.newStringIdCreated"
+                fallback={`Created ${newStringIds} new translated string entries`}
+                replacements={{ newStringIds }}
+              />
+            </>
+            : ''}
+        </span>
       );
       queryClient.invalidateQueries(['translation']);
     },
     onError: err => {
-      toast.error(`Error saving translations: ${err.message}`);
+      <TranslatedText
+        stringId="admin.translation.notification.savingFailed"
+        fallback={`Error saving translations: ${err.message}`}
+        replacements={{ message: err.message }}
+      />
     },
   });
 };
 
-const ErrorMessage = ({ error }) => {
-  return (
-    <Box p={5}>
-      <Alert severity="error">
-        <AlertTitle>Error: Could not load translations:</AlertTitle>
-        {error}
-      </Alert>
-    </Box>
-  );
-};
-
 const TranslationField = ({ placeholderId, stringId, code }) => (
   // This id format is necessary to avoid formik nesting at . delimiters
-  <AccessorField id={`['${placeholderId || stringId}']`} name={code} component={TextField} />
+  <AccessorField id={`['${placeholderId || stringId}']`} name={code} component={TextField} multiline />
 );
 
 export const FormContents = ({
@@ -151,7 +159,10 @@ export const FormContents = ({
         key: 'stringId',
         title: (
           <Box display="flex" alignItems="center">
-            Translation ID
+            <TranslatedText
+              stringId="admin.translation.table.column.translationId"
+              fallback="Translation ID"
+            />
             <StyledIconButton onClick={handleAddColumn}>
               <AddIcon />
             </StyledIconButton>
@@ -162,7 +173,14 @@ export const FormContents = ({
             return (
               <Box display="flex" alignItems="center">
                 <ReservedText>{stringId}</ReservedText>
-                <Tooltip title="Language name is a reserved translation ID used for displaying language in selector">
+                <Tooltip
+                  title={
+                    <TranslatedText
+                      stringId="admin.translation.table.languageName.toolTip"
+                      fallback="Language name is a reserved translation ID used for displaying language in selector"
+                    />
+                  }
+                >
                   <HelpIcon style={{ color: Colors.primary }} />
                 </Tooltip>
               </Box>
@@ -215,13 +233,17 @@ export const FormContents = ({
     <>
       <Box display="flex" alignItems="flex-end" mb={2}>
         <Box mr={2} width="250px">
-          <Field label="Search" name="search" component={SearchField} />
+          <Field
+            label={<TranslatedText stringId="general.action.search" fallback="Search" />}
+            name="search"
+            component={SearchField}
+          />
         </Box>
         <OutlinedButton disabled={isSaving || !dirty} onClick={handleSave}>
-          Save
+          <TranslatedText stringId="general.action.save" fallback="Save" />
         </OutlinedButton>
       </Box>
-      <StyledTableFormFields columns={columns} data={tableRows} />
+      <StyledTableFormFields columns={columns} data={tableRows} pagination />
     </>
   );
 };
@@ -255,7 +277,17 @@ export const TranslationForm = () => {
   };
 
   if (isLoading) return <LoadingIndicator />;
-  if (error) return <ErrorMessage error={error} />;
+  if (error) return (
+    <ErrorMessage
+      title={
+        <TranslatedText
+          stringId="admin.translation.error.loadTranslations"
+          fallback="Error: Could not load translations:"
+        />
+      }
+      error={error}
+    />
+  );
 
   const sortedTranslations = sortBy(translations, obj => obj.stringId !== 'languageName'); // Ensure languageName key stays on top
 

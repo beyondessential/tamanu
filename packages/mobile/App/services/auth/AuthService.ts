@@ -22,7 +22,7 @@ export class AuthService {
     this.models = models;
     this.centralServer = centralServer;
 
-    this.centralServer.emitter.on('error', (err) => {
+    this.centralServer.emitter.on('error', err => {
       if (err instanceof AuthenticationError || err instanceof OutdatedVersionError) {
         this.emitter.emit('authError', err);
       }
@@ -71,8 +71,12 @@ export class AuthService {
   async remoteSignIn(
     params: SyncConnectionParameters,
   ): Promise<{
-      user: IUser; token: string; refreshToken: string; localisation: object
-    }> {
+    user: IUser;
+    token: string;
+    refreshToken: string;
+    localisation: object;
+    settings: object;
+  }> {
     // always use the server stored in config if there is one - last thing
     // we want is a device syncing down data from one server and then up
     // to another!
@@ -86,12 +90,10 @@ export class AuthService {
       user,
       token,
       refreshToken,
+      settings,
       localisation,
       permissions,
-    } = await this.centralServer.login(
-      params.email,
-      params.password,
-    );
+    } = await this.centralServer.login(params.email, params.password);
     console.log(`Signed in as ${user.displayName}`);
 
     if (!syncServerLocation) {
@@ -103,7 +105,7 @@ export class AuthService {
     // kick off a local save
     const userData = await this.saveLocalUser(user, params.password);
 
-    const result = { user: userData, token, refreshToken, localisation, permissions };
+    const result = { user: userData, token, refreshToken, settings, localisation, permissions };
     this.emitter.emit('remoteSignIn', result);
     return result;
   }
