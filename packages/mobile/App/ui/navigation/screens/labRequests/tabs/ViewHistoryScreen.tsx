@@ -120,11 +120,7 @@ export const DumbViewHistoryScreen = ({ selectedPatient, navigation }): ReactEle
     return <LabRequestRow key={labRequest.id} labRequest={labRequest} synced={synced} />;
   });
 
-  return (
-    <>
-      <ScrollView>{rows}</ScrollView>
-    </>
-  );
+  return <ScrollView>{rows}</ScrollView>;
 };
 
 export const ViewHistoryScreen = compose(withPatient)(DumbViewHistoryScreen);
