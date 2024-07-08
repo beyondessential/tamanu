@@ -282,3 +282,16 @@ export const getPatientPaymentsWithRemainingBalance = invoice => {
   });
   return patientPaymentsWithRemainingBalance;
 };
+
+export const getInsurerPaymentsWithRemainingBalance = invoice => {
+  const insurerPayments = invoice.payments.filter(payment => payment?.insurerPayment?.id);
+  let { insurerDiscountTotal } = getInvoiceSummaryDisplay(invoice);
+  const insurerPaymentsWithRemainingBalance = insurerPayments?.map(payment => {
+    insurerDiscountTotal = round(insurerDiscountTotal - parseFloat(payment.amount), 2);
+    return {
+      ...payment,
+      remainingBalance: insurerDiscountTotal.toFixed(2),
+    };
+  });
+  return insurerPaymentsWithRemainingBalance;
+};

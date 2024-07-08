@@ -66,7 +66,7 @@ const COLUMNS = [
 
 export const InsurerPaymentsTable = ({ invoice }) => {
   const { insurerPaymentRemainingBalance } = getInvoiceSummary(invoice);
-  const insurerPayment = invoice.payments.filter(payment => !!payment?.insurerPayment?.id);
+  const insurerPayments = invoice.payments.filter(payment => !!payment?.insurerPayment?.id);
 
   return (
     <TableContainer>
@@ -90,7 +90,7 @@ export const InsurerPaymentsTable = ({ invoice }) => {
       </Title>
       <Table
         columns={COLUMNS}
-        data={insurerPayment}
+        data={insurerPayments}
         headerColor={Colors.white}
         page={null}
         elevated={false}
