@@ -41,7 +41,7 @@ const renderToString = element => {
   flushSync(() => {
     root.render(element); // Force DOM update before reading innerHTML
   });
-  const htmlString = div.innerHTML;
+  const htmlString = div.innerText;
   root.unmount();
   return htmlString;
 };
