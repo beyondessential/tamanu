@@ -1,5 +1,4 @@
 import config from 'config';
-import { camelCase } from 'lodash';
 
 import { log } from '@tamanu/shared/services/logging';
 
@@ -52,26 +51,17 @@ export async function startScheduledTasks(context) {
 
   const reportSchedulers = await getReportSchedulers(context);
   const tasks = [
-    ...taskClasses.map(Task => {
+    ...taskClasses.map(TaskClass => {
       try {
-        log.debug(`Starting to initialise scheduled task ${Task.name}`);
-        return new Task(context);
+        log.debug(`Starting to initialise scheduled task ${TaskClass.name}`);
+        return new TaskClass(context);
       } catch (err) {
-        log.warn('Failed to initialise scheduled task', { name: Task.name, err });
+        log.warn('Failed to initialise scheduled task', { name: TaskClass.name, err });
         return null;
       }
     }),
     ...reportSchedulers,
-  ].filter(Task => {
-    if (!Task) return false;
-    // check for explicit "false" value only
-    // if not specified, default to enabled
-    const isTaskDisabled = config.schedules[camelCase(Task.name)]?.enabled === false;
-    if (isTaskDisabled) {
-      log.info(`Skipping initialisation of task ${Task.name} as it is disabled in config`);
-    }
-    return !isTaskDisabled;
-  });
+  ].filter(x => x);
   tasks.forEach(t => t.beginPolling());
   return () => tasks.forEach(t => t.cancelPolling());
 }
