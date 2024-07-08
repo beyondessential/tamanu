@@ -27,6 +27,7 @@ import { createPatientLetter } from '../../routeHandlers/createPatientLetter';
 
 import { getLabRequestList } from '../../routeHandlers/labs';
 import { deleteDocumentMetadata, deleteEncounter, deleteSurveyResponse } from '../../routeHandlers/deleteModel';
+import { getPermittedSurveyIds } from '../../utils/getPermittedSurveyIds';
 
 export const encounter = softDeletionCheckingRouter('Encounter');
 
@@ -277,6 +278,16 @@ encounterRelations.get(
     const { order = 'asc', orderBy = 'endTime' } = query;
     const sortKey = PROGRAM_RESPONSE_SORT_KEYS[orderBy] || PROGRAM_RESPONSE_SORT_KEYS.endTime;
     const sortDirection = order.toLowerCase() === 'asc' ? 'ASC' : 'DESC';
+
+    const permittedSurveyIds = await getPermittedSurveyIds(req, models);
+
+    if (!permittedSurveyIds.length) {
+      res.send({
+        data: [],
+        count: 0,
+      });
+    }
+
     const { count, data } = await runPaginatedQuery(
       db,
       models.SurveyResponse,
@@ -292,6 +303,8 @@ encounterRelations.get(
           survey_responses.encounter_id = :encounterId
         AND
           surveys.survey_type = :surveyType
+        AND 
+          surveys.id IN (:surveyIds)
         AND
           encounters.deleted_at IS NULL
         AND
@@ -319,13 +332,15 @@ encounterRelations.get(
           survey_responses.encounter_id = :encounterId
         AND
           surveys.survey_type = :surveyType
+        AND 
+          surveys.id IN (:surveyIds)
         AND
           survey_responses.deleted_at IS NULL
         AND
           encounters.deleted_at is null
         ORDER BY ${sortKey} ${sortDirection}
       `,
-      { encounterId, surveyType },
+      { encounterId, surveyType, surveyIds: permittedSurveyIds },
       query,
     );
 

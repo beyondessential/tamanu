@@ -1,5 +1,3 @@
-import { Chance } from 'chance';
-
 import {
   createDummyEncounter,
   createDummyPatient,
@@ -10,12 +8,10 @@ import { randomDate, randomLabRequest } from '@tamanu/shared/demoData';
 import { PATIENT_FIELD_DEFINITION_TYPES } from '@tamanu/constants/patientFields';
 import { LAB_REQUEST_STATUSES } from '@tamanu/constants';
 import { fake } from '@tamanu/shared/test-helpers/fake';
-import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
 
 import { createTestContext } from '../utilities';
-
-const chance = new Chance();
+import { setupSurvey } from '../setupSurvey';
 
 describe('Patient relations', () => {
   let app = null;
@@ -30,61 +26,6 @@ describe('Patient relations', () => {
     app = await baseApp.asRole('practitioner');
   });
   afterAll(() => ctx.close());
-  const setupSurvey = async ({
-    surveyName = chance.word(),
-    programName = chance.word(),
-    submissionDate = null,
-    endTime = getCurrentDateTimeString(),
-    patientId,
-    withReferral,
-  } = {}) => {
-    let patient = { id: patientId };
-    if (!patientId) {
-      patient = await models.Patient.create(await createDummyPatient(models));
-    }
-    const encounter = await models.Encounter.create({
-      ...(await createDummyEncounter(models)),
-      patientId: patient.id,
-    });
-    const program = await models.Program.create({
-      name: programName,
-    });
-    const survey = await models.Survey.create({
-      programId: program.id,
-      name: surveyName,
-    });
-
-    const surveyResponse = await models.SurveyResponse.create({
-      surveyId: survey.id,
-      encounterId: encounter.id,
-      endTime,
-    });
-
-    const dataElement =
-      withReferral &&
-      (await models.ProgramDataElement.create({
-        ...fake(models.ProgramDataElement),
-        type: 'SubmissionDate',
-      }));
-
-    const surveyResponseAnswer =
-      withReferral &&
-      (await models.SurveyResponseAnswer.create({
-        ...fake(models.SurveyResponseAnswer),
-        dataElementId: dataElement.id,
-        responseId: surveyResponse.id,
-        body: submissionDate,
-      }));
-
-    const referral =
-      withReferral &&
-      (await models.Referral.create({
-        initiatingEncounterId: encounter.id,
-        surveyResponseId: surveyResponse.id,
-      }));
-
-    return { patient, encounter, survey, surveyResponse, program, surveyResponseAnswer, referral };
-  };
 
   describe('programResponses', () => {
     disableHardcodedPermissionsForSuite();
@@ -107,6 +48,7 @@ describe('Patient relations', () => {
 
     it('should return list of programResponses', async () => {
       const { patient, survey } = await setupSurvey({
+        models,
         surveyName: 'test-survey-name',
       });
 
@@ -127,15 +69,18 @@ describe('Patient relations', () => {
 
     it('should order by endTime asc by default', async () => {
       const { patient, survey: survey1 } = await setupSurvey({
+        models,
         endTime: '2019-01-01 00:00:00',
         surveyName: 'survey-1',
       });
       const { survey: survey2 } = await setupSurvey({
+        models,
         endTime: '2019-01-03 00:00:00',
         patientId: patient.id,
         surveyName: 'survey-2',
       });
       const { survey: survey3 } = await setupSurvey({
+        models,
         endTime: '2019-01-02 00:00:00',
         patientId: patient.id,
         surveyName: 'survey-3',
@@ -164,14 +109,17 @@ describe('Patient relations', () => {
 
     it('should order using query when provided', async () => {
       const { patient, survey: survey1 } = await setupSurvey({
+        models,
         surveyName: 'survey-a',
       });
 
       const { survey: survey2 } = await setupSurvey({
+        models,
         surveyName: 'survey-b',
         patientId: patient.id,
       });
       const { survey: survey3 } = await setupSurvey({
+        models,
         surveyName: 'survey-c',
         patientId: patient.id,
       });
@@ -201,14 +149,17 @@ describe('Patient relations', () => {
 
     it('should return only permitted survey responses', async () => {
       const { patient, survey: survey1 } = await setupSurvey({
+        models,
         surveyName: 'survey-d',
       });
 
       await setupSurvey({
+        models,
         surveyName: 'survey-e',
         patientId: patient.id,
       });
       await setupSurvey({
+        models,
         surveyName: 'survey-f',
         patientId: patient.id,
       });
@@ -250,7 +201,7 @@ describe('Patient relations', () => {
     });
 
     it('should return list of referrals', async () => {
-      const { patient, referral, survey } = await setupSurvey({ withReferral: true });
+      const { patient, referral, survey } = await setupSurvey({ models, withReferral: true });
       const permissions = [
         ['read', 'Patient'],
         ['list', 'SurveyResponse'],
@@ -267,6 +218,7 @@ describe('Patient relations', () => {
     });
     it('should return submissionDate', async () => {
       const { patient, surveyResponseAnswer, survey, referral } = await setupSurvey({
+        models,
         withReferral: true,
         submissionDate: '2020-01-01',
       });
@@ -290,6 +242,7 @@ describe('Patient relations', () => {
     });
     it('should use endTime if no SubmissionDate answer', async () => {
       const { patient, surveyResponse, survey, referral } = await setupSurvey({
+        models,
         withReferral: true,
       });
 
@@ -310,16 +263,19 @@ describe('Patient relations', () => {
     });
     it('should order by submissionDate asc by default', async () => {
       const { patient, survey: survey1 } = await setupSurvey({
+        models,
         withReferral: true,
         submissionDate: '2019-01-01',
       });
 
       const { survey: survey2 } = await setupSurvey({
+        models,
         withReferral: true,
         submissionDate: '2019-01-03',
         patientId: patient.id,
       });
-      const {  survey: survey3 } = await setupSurvey({
+      const { survey: survey3 } = await setupSurvey({
+        models,
         withReferral: true,
         submissionDate: '2019-01-02',
         patientId: patient.id,
@@ -334,7 +290,7 @@ describe('Patient relations', () => {
       ];
 
       permissionApp = await baseApp.asNewRole(permissions);
-      
+
       const response = await permissionApp.get(`/api/patient/${patient.id}/referrals`);
       expect(response).toHaveSucceeded();
       expect(response.body.count).toEqual(3);
@@ -347,15 +303,18 @@ describe('Patient relations', () => {
     });
     it('should order by referralType survey name', async () => {
       const { patient, survey: survey1 } = await setupSurvey({
+        models,
         withReferral: true,
         surveyName: 'name-c',
       });
       const { survey: survey2 } = await setupSurvey({
+        models,
         withReferral: true,
         surveyName: 'name-a',
         patientId: patient.id,
       });
       const { survey: survey3 } = await setupSurvey({
+        models,
         withReferral: true,
         surveyName: 'name-b',
         patientId: patient.id,
@@ -386,15 +345,18 @@ describe('Patient relations', () => {
 
     it('should return only permitted referrals', async () => {
       const { patient, survey: survey1 } = await setupSurvey({
+        models,
         withReferral: true,
         surveyName: 'name-a',
       });
       const { survey: survey2 } = await setupSurvey({
+        models,
         withReferral: true,
         surveyName: 'name-b',
         patientId: patient.id,
       });
       await setupSurvey({
+        models,
         withReferral: true,
         surveyName: 'name-c',
         patientId: patient.id,

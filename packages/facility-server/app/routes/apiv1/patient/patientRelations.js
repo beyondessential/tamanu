@@ -1,6 +1,5 @@
 import asyncHandler from 'express-async-handler';
 import { Op, QueryTypes, Sequelize } from 'sequelize';
-import { subject } from '@casl/ability';
 
 import { getPatientAdditionalData } from '@tamanu/shared/utils';
 import { HIDDEN_VISIBILITY_STATUSES } from '@tamanu/constants/importable';
@@ -15,19 +14,9 @@ import { patientSecondaryIdRoutes } from './patientSecondaryId';
 import { patientDeath } from './patientDeath';
 import { patientProfilePicture } from './patientProfilePicture';
 import { deleteReferral, deleteSurveyResponse } from '../../../routeHandlers/deleteModel';
+import { getPermittedSurveyIds } from '../../../utils/getPermittedSurveyIds';
 
 export const patientRelations = permissionCheckingRouter('read', 'Patient');
-
-const getPermittedSurveyIds = async (req, models) => {
-  // Number of surveys should not be too large, so it's ok to load all survey ids into the memory
-  const surveys = await models.Survey.findAll({ attributes: ['id'] });
-
-  // Use this list of permittedSurveyIds in the query to only grab the survey responses
-  // user has permission to read
-  return surveys
-    .filter(survey => req.ability.can('read', subject('Survey', { id: survey.id })))
-    .map(survey => survey.id);
-};
 
 patientRelations.get(
   '/:id/encounters',
