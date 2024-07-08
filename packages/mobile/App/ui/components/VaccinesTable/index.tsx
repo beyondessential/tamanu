@@ -1,4 +1,5 @@
 import React, { useMemo, useRef } from 'react';
+import { NativeScrollEvent, NativeSyntheticEvent } from 'react-native';
 import { uniqBy } from 'lodash';
 import { useBackendEffect } from '~/ui/hooks';
 import { Table } from '../Table';
@@ -34,7 +35,7 @@ export const VaccinesTable = ({
 }: VaccinesTableProps): JSX.Element => {
   const { getSetting } = useSettings();
   const thresholds = useMemo(
-    () => parseThresholdsSetting(getSetting<any>(SETTING_KEYS.UPCOMING_VACCINATION_THRESHOLDS)),
+    () => parseThresholdsSetting(getSetting(SETTING_KEYS.UPCOMING_VACCINATION_THRESHOLDS)),
     [],
   );
 
@@ -44,7 +45,7 @@ export const VaccinesTable = ({
   // This manages the horizontal scroll of the header. This handler is passed down
   // to the scrollview in the generic table. That gets the horizontal scroll coordinate
   // of the table and feeds this back up to position the header appropriately.
-  const handleScroll = (event: any) => {
+  const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
     scrollViewRef.current.scrollTo({ x: event.nativeEvent.contentOffset.x, animated: false });
   };
 
