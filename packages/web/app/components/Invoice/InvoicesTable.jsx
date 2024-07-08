@@ -1,6 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { INVOICE_PAYMENT_STATUS_LABELS } from '@tamanu/constants';
+import {
+  INVOICE_PATIENT_PAYMENT_STATUSES_LABELS,
+  INVOICE_INSURER_PAYMENT_STATUSES,
+  INVOICE_INSURER_PAYMENT_STATUS_LABELS,
+  INVOICE_STATUSES
+} from '@tamanu/constants';
 
 import { Colors, ENCOUNTER_OPTIONS_BY_VALUE, INVOICE_MODAL_TYPES } from '../../constants';
 import { DataFetchingTable } from '../Table';
@@ -49,13 +54,32 @@ const getInvoiceTotal = row => {
   const { patientTotal } = getInvoiceSummaryDisplay(row);
   return patientTotal === undefined ? '-' : `$${patientTotal}`;
 };
-const getPaymentStatus = row => (
-  <TranslatedEnum
-    prefix="invoice.payment.property.status"
-    value={row.paymentStatus}
-    enumValues={INVOICE_PAYMENT_STATUS_LABELS}
-  />
-);
+const getPaymentStatus = row => {
+  if (row.status !== INVOICE_STATUSES.FINALISED) {
+    return <TranslatedText stringId="general.fallback.notApplicable" fallback="N/A" lowercase />;
+  }
+  return (
+    <>
+      <TranslatedEnum
+        prefix="invoice.patientPayment.property.status"
+        value={row.patientPaymentStatus}
+        enumValues={INVOICE_PATIENT_PAYMENT_STATUSES_LABELS}
+      />
+      {/* The payment status refers to the patient contribution only UNLESS the insurer has rejected the payment,
+      in which case the status is followed by a /Rejected */}
+      {row.insurerPaymentStatus === INVOICE_INSURER_PAYMENT_STATUSES.REJECTED && (
+        <>
+          {'/'}
+          <TranslatedEnum
+            prefix="invoice.insurerPayment.property.status"
+            value={row.insurerPaymentStatus}
+            enumValues={INVOICE_INSURER_PAYMENT_STATUS_LABELS}
+          />
+        </>
+      )}
+    </>
+  );
+};
 const getEncounterType = row => {
   const label = ENCOUNTER_OPTIONS_BY_VALUE[row.encounter.encounterType]?.label || '';
   const abbreviationLabel = upperCase(
