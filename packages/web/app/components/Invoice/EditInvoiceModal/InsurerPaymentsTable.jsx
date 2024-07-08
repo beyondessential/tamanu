@@ -28,18 +28,21 @@ const COLUMNS = [
     key: 'date',
     title: <TranslatedText stringId="general.date.label" fallback="Date" />,
     sortable: false,
+    dontCallRowInput: true,
     accessor: ({ date }) => <DateDisplay date={date} />,
   },
   {
     key: 'insurerName',
     title: <TranslatedText stringId="invoice.table.payment.column.payer" fallback="Payer" />,
     sortable: false,
+    dontCallRowInput: true,
     accessor: ({ insurerPayment }) => insurerPayment?.insurer?.name,
   },
   {
     key: 'amount',
     title: <TranslatedText stringId="invoice.table.payment.column.amount" fallback="Amount" />,
     sortable: false,
+    dontCallRowInput: true,
   },
   {
     key: 'receiptNumber',
@@ -50,11 +53,13 @@ const COLUMNS = [
       />
     ),
     sortable: false,
+    dontCallRowInput: true,
   },
   {
     key: 'status',
     title: <TranslatedText stringId="invoice.table.payment.column.status" fallback="Status" />,
     sortable: false,
+    dontCallRowInput: true,
     accessor: ({ insurerPayment }) => insurerPayment?.status,
   },
 ];
