@@ -2,7 +2,6 @@ import React from 'react';
 import { Document, StyleSheet, View } from '@react-pdf/renderer';
 import { CertificateHeader, Watermark } from './Layout';
 import { LetterheadSection } from './LetterheadSection';
-import { PatientDetailsWithAddress } from './printComponents/PatientDetailsWithAddress';
 import { MultiPageHeader } from './printComponents/MultiPageHeader';
 import { getName } from '../patientAccessors';
 import { Footer } from './printComponents/Footer';
@@ -24,6 +23,7 @@ import {
 import { withLanguageContext } from '../pdf/languageContext';
 import { Page } from '../pdf/Page';
 import { Text } from '../pdf/Text';
+import { PatientDetails } from './printComponents/PatientDetails';
 
 const borderStyle = '1 solid black';
 
@@ -199,13 +199,13 @@ const COLUMNS = {
       key: 'orderedBy',
       title: 'Ordered by',
       accessor: ({ orderedByUser }) => orderedByUser?.displayName,
-      style: { width: '17%' },
+      style: { width: '14%' },
     },
     {
       key: 'price',
       title: 'Price',
       accessor: row => getPrice(row),
-      style: { width: '16%' },
+      style: { width: '19%' },
       CellComponent: CustomCellComponent,
     },
   ],
@@ -447,7 +447,7 @@ const InvoiceRecordPrintoutComponent = ({
       <Page size="A4" style={pageStyles.body} wrap>
         {watermark && <Watermark src={watermark} />}
         <MultiPageHeader
-          documentName="Patient encounter record"
+          documentName={`Invoice number: ${invoice.displayId}`}
           patientId={patientData.displayId}
           patientName={getName(patientData)}
         />
@@ -455,12 +455,12 @@ const InvoiceRecordPrintoutComponent = ({
           <LetterheadSection
             getLocalisation={getLocalisation}
             logoSrc={logo}
-            certificateTitle="Patient encounter record"
+            certificateTitle={`Invoice number: ${invoice.displayId}`}
             letterheadConfig={certificateData}
           />
         </CertificateHeader>
         <SectionSpacing />
-        <PatientDetailsWithAddress getLocalisation={getLocalisation} patient={patientData} />
+        <PatientDetails getLocalisation={getLocalisation} patient={patientData} />
         <SectionSpacing />
         <EncounterDetails
           encounter={encounter}
