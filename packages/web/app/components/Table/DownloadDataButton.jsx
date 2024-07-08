@@ -41,8 +41,9 @@ const renderToString = element => {
   flushSync(() => {
     root.render(element); // Force DOM update before reading innerHTML
   });
+  const renderedString = div.innerText;
   root.unmount();
-  return div.innerHTML;
+  return renderedString;
 };
 
 export function DownloadDataButton({ exportName, columns, data }) {
@@ -100,8 +101,7 @@ export function DownloadDataButton({ exportName, columns, data }) {
           exportableColumnsWithOverrides.map(async c => {
             const headerValue = getHeaderValue(c);
             if (c.asyncExportAccessor) {
-              const value = await c.asyncExportAccessor(d);
-              dx[headerValue] = value;
+              dx[headerValue] = await c.asyncExportAccessor(d);
               return;
             }
 
