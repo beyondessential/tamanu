@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useMemo, useRef } from 'react';
 import { uniqBy } from 'lodash';
 import { useBackendEffect } from '~/ui/hooks';
 import { Table } from '../Table';
@@ -17,6 +17,9 @@ import { useSettings } from '~/ui/contexts/SettingsContext';
 import { getVaccineStatus, parseThresholdsSetting } from '~/ui/helpers/getVaccineStatus';
 import { SETTING_KEYS } from '~/constants';
 import { TranslatedReferenceData } from '../Translations/TranslatedReferenceData';
+import { useIsFocused } from '@react-navigation/native';
+
+type VaccineTableCells = Record<string, VaccineTableCellData[]>;
 
 interface VaccinesTableProps {
   selectedPatient: any;
@@ -34,7 +37,9 @@ export const VaccinesTable = ({
     () => parseThresholdsSetting(getSetting<any>(SETTING_KEYS.UPCOMING_VACCINATION_THRESHOLDS)),
     [],
   );
+
   const scrollViewRef = useRef(null);
+  const isFocused = useIsFocused();
 
   // This manages the horizontal scroll of the header. This handler is passed down
   // to the scrollview in the generic table. That gets the horizontal scroll coordinate
@@ -43,7 +48,7 @@ export const VaccinesTable = ({
     scrollViewRef.current.scrollTo({ x: event.nativeEvent.contentOffset.x, animated: false });
   };
 
-  const [scheduledVaccines, error] = useBackendEffect(
+  const [scheduledVaccines, scheduledVaccineError] = useBackendEffect(
     async ({ models }) =>
       (await models.ScheduledVaccine.find({
         order: { index: 'ASC' },
@@ -51,18 +56,18 @@ export const VaccinesTable = ({
       })) as IScheduledVaccine[],
     [],
   );
-
   const [patientAdministeredVaccines, administeredError] = useBackendEffect(
     ({ models }) => models.AdministeredVaccine.getForPatient(selectedPatient.id),
-    [],
+    [isFocused],
   );
 
-  const [cells, setCells] = useState<{ [doseLabel: string]: VaccineTableCellData[] }>({});
+  const [nonHistoricalOrAdministeredScheduledVaccines, cells] = useMemo(() => {
+    if (!scheduledVaccines || !patientAdministeredVaccines || !thresholds) return [];
+    const cells: VaccineTableCells = {};
+    const filteredScheduledVaccines = [];
 
-  const nonHistoricalOrAdministeredScheduledVaccines = useMemo(() => {
-    if (!scheduledVaccines || !patientAdministeredVaccines || !thresholds) return null;
-    return scheduledVaccines.filter(scheduledVaccine => {
-      const administeredVaccine = patientAdministeredVaccines?.find(v => {
+    for (const scheduledVaccine of scheduledVaccines) {
+      const administeredVaccine = patientAdministeredVaccines.find(v => {
         if (typeof v.scheduledVaccine === 'string') {
           throw new Error('VaccinesTable: administeredVaccine did not embed scheduledVaccine');
         }
@@ -82,37 +87,35 @@ export const VaccinesTable = ({
           thresholds,
         );
 
-        setCells(cells => ({
-          ...cells,
-          [scheduledVaccine.doseLabel]: [
-            ...(cells[scheduledVaccine.doseLabel] || []),
-            {
-              scheduledVaccine: scheduledVaccine as IScheduledVaccine,
-              vaccineStatus,
-              administeredVaccine,
-              patientAdministeredVaccines,
-              patient: selectedPatient,
-              dueStatus,
-              label: scheduledVaccine.label,
-            },
-          ],
-        }));
+        cells[scheduledVaccine.doseLabel] = [
+          ...(cells[scheduledVaccine.doseLabel] || []),
+          {
+            scheduledVaccine: scheduledVaccine as IScheduledVaccine,
+            vaccineStatus,
+            administeredVaccine,
+            patientAdministeredVaccines,
+            patient: selectedPatient,
+            dueStatus,
+            label: scheduledVaccine.label,
+          },
+        ];
+        filteredScheduledVaccines.push(scheduledVaccine);
       }
-
-      return shouldDisplayVaccine;
-    });
+    }
+    return [filteredScheduledVaccines, cells];
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [patientAdministeredVaccines, thresholds]);
 
-  const uniqueByVaccine = uniqBy(nonHistoricalOrAdministeredScheduledVaccines, 'label');
-
-  if (error || administeredError) return <ErrorScreen error={error || administeredError} />;
-  if (
+  const error = scheduledVaccineError || administeredError;
+  const isLoading =
     !scheduledVaccines ||
     !patientAdministeredVaccines ||
-    !nonHistoricalOrAdministeredScheduledVaccines
-  )
-    return <LoadingScreen />;
+    !nonHistoricalOrAdministeredScheduledVaccines;
+
+  const uniqueByVaccine = uniqBy(nonHistoricalOrAdministeredScheduledVaccines, 'label');
+
+  if (error) return <ErrorScreen error={error} />;
+  if (isLoading) return <LoadingScreen />;
 
   uniqueByVaccine.sort(
     (a, b) =>
@@ -140,15 +143,18 @@ export const VaccinesTable = ({
       />
     ),
     cell: (cellData: VaccineTableCellData) => {
-      return cellData ? (
+      if (!cellData) return <CellContent vaccineStatus={VaccineStatus.UNKNOWN} />;
+      const { vaccineStatus, dueStatus, scheduledVaccine } = cellData;
+      const status = vaccineStatus || dueStatus.status || VaccineStatus.UNKNOWN;
+      const cellId = `${categoryName}-${scheduledVaccine?.id}-${status}`;
+      return (
         <VaccineTableCell
           onPress={onPressItem}
           data={cellData}
-          key={cellData?.scheduledVaccine?.id || Math.random()}
-          id={cellData?.scheduledVaccine?.id}
+          status={status}
+          key={`vaccine-table-cell-${cellId}`}
+          id={cellId}
         />
-      ) : (
-        <CellContent status={VaccineStatus.UNKNOWN} />
       );
     },
   }));
@@ -162,7 +168,7 @@ export const VaccinesTable = ({
         <VaccinesTableTitle />
         <ScrollView ref={scrollViewRef} horizontal scrollEnabled={false}>
           {columns.map((column: any) => (
-            <StyledView key={`${column}`}>
+            <StyledView key={`vaccine-table-tab-${categoryName}-${column}`}>
               {vaccineTableHeader.accessor(column, onPressItem)}
             </StyledView>
           ))}
