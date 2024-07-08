@@ -6,10 +6,10 @@ import { theme } from '/styled/theme';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { TranslatedTextElement } from '../Translations/TranslatedText';
 
-type RowFieldProps = {
+interface RowFieldProps {
   label: TranslatedTextElement;
   value: TranslatedTextElement;
-};
+}
 
 const styles = StyleSheet.create({
   row: {
