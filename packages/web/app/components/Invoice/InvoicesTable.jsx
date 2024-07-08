@@ -3,7 +3,8 @@ import styled from 'styled-components';
 import {
   INVOICE_PATIENT_PAYMENT_STATUSES_LABELS,
   INVOICE_INSURER_PAYMENT_STATUSES,
-  INVOICE_INSURER_PAYMENT_STATUS_LABELS
+  INVOICE_INSURER_PAYMENT_STATUS_LABELS,
+  INVOICE_STATUSES
 } from '@tamanu/constants';
 
 import { Colors, ENCOUNTER_OPTIONS_BY_VALUE, INVOICE_MODAL_TYPES } from '../../constants';
@@ -18,7 +19,6 @@ import { InvoiceModalGroup } from './InvoiceModalGroup';
 import { getInvoiceSummaryDisplay } from '@tamanu/shared/utils/invoice';
 import { useEncounterInvoice } from '../../api/queries/useInvoiceQuery';
 import { useAuth } from '../../contexts/Auth';
-import { INVOICE_STATUSES } from '@tamanu/constants';
 
 const TableTitle = styled(Typography)`
   font-size: 16px;
