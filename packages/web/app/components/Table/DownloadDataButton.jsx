@@ -101,8 +101,7 @@ export function DownloadDataButton({ exportName, columns, data }) {
           exportableColumnsWithOverrides.map(async c => {
             const headerValue = getHeaderValue(c);
             if (c.asyncExportAccessor) {
-              const value = await c.asyncExportAccessor(d);
-              dx[headerValue] = value;
+              dx[headerValue] = await c.asyncExportAccessor(d);
               return;
             }
 
