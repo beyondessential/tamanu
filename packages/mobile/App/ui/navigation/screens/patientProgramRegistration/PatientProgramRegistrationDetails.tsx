@@ -4,11 +4,14 @@ import { TranslatedText, TranslatedTextElement } from '~/ui/components/Translati
 
 import { DateFormats } from '~/ui/helpers/constants';
 import { formatStringDate } from '~/ui/helpers/date';
-import { useBackendEffect } from '~/ui/hooks/index';
-import { StyledText, StyledView, StyledScrollView } from '~/ui/styled/common';
+import { useBackendEffect } from '~/ui/hooks';
+import { StyledScrollView, StyledText, StyledView } from '~/ui/styled/common';
 import { theme } from '~/ui/styled/theme';
 
-const DataRow = (props: {
+const DataRow = ({
+  label,
+  value,
+}: {
   label: TranslatedTextElement;
   value: TranslatedTextElement | TranslatedTextElement[];
 }) => {
@@ -22,17 +25,17 @@ const DataRow = (props: {
       borderBottomWidth={1}
       borderColor={theme.colors.BOX_OUTLINE}
     >
-      <StyledView width={'40%'}>
+      <StyledView width="40%">
         <StyledText fontSize={14} color={theme.colors.TEXT_MID} fontWeight={400}>
-          {props.label}
+          {label}
         </StyledText>
       </StyledView>
-      <StyledView width={'60%'}>
-        {Array.isArray(props.value) ? (
-          props.value.map((x, i) => (
+      <StyledView width="60%">
+        {Array.isArray(value) ? (
+          value.map((x, i) => (
             <StyledText
               key={i}
-              width={'50%'}
+              width="50%"
               marginBottom={10}
               marginLeft={20}
               fontSize={14}
@@ -44,13 +47,13 @@ const DataRow = (props: {
           ))
         ) : (
           <StyledText
-            width={'50%'}
+            width="50%"
             marginLeft={20}
             fontSize={14}
             color={theme.colors.TEXT_SUPER_DARK}
             fontWeight={500}
           >
-            {props.value}
+            {value}
           </StyledText>
         )}
       </StyledView>
@@ -70,11 +73,7 @@ export const PatientProgramRegistrationDetails = ({ route }) => {
   );
   return (
     <StyledScrollView background={theme.colors.WHITE}>
-      <StyledView
-        borderColor={theme.colors.BOX_OUTLINE}
-        borderBottomWidth={1}
-        marginBottom={20}
-      ></StyledView>
+      <StyledView borderColor={theme.colors.BOX_OUTLINE} borderBottomWidth={1} marginBottom={20} />
       <DataRow
         label={
           <TranslatedText
@@ -110,7 +109,7 @@ export const PatientProgramRegistrationDetails = ({ route }) => {
       />
       <DataRow
         label={<TranslatedText stringId="general.status.label" fallback="Status" />}
-        value={patientProgramRegistration?.clinicalStatus?.name || '-'}
+        value={patientProgramRegistration?.clinicalStatus?.name || '—'}
       />
       <DataRow
         label={
@@ -122,7 +121,7 @@ export const PatientProgramRegistrationDetails = ({ route }) => {
         value={
           Array.isArray(pprCondition) && pprCondition.length > 0
             ? pprCondition.map(x => x.programRegistryCondition.name)
-            : '-'
+            : '—'
         }
       />
     </StyledScrollView>
