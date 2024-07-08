@@ -108,16 +108,15 @@ export const VaccinesTable = ({
   }, [patientAdministeredVaccines, thresholds]);
 
   const error = scheduledVaccineError || administeredError;
+  if (error) return <ErrorScreen error={error} />;
+
   const isLoading =
     !scheduledVaccines ||
     !patientAdministeredVaccines ||
     !nonHistoricalOrAdministeredScheduledVaccines;
-
-  const uniqueByVaccine = uniqBy(nonHistoricalOrAdministeredScheduledVaccines, 'label');
-
-  if (error) return <ErrorScreen error={error} />;
   if (isLoading) return <LoadingScreen />;
 
+  const uniqueByVaccine = uniqBy(nonHistoricalOrAdministeredScheduledVaccines, 'label');
   uniqueByVaccine.sort(
     (a, b) =>
       a.sortIndex - b.sortIndex ||
