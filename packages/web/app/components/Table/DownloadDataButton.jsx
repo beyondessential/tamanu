@@ -41,8 +41,9 @@ const renderToString = element => {
   flushSync(() => {
     root.render(element); // Force DOM update before reading innerHTML
   });
+  const htmlString = div.innerHTML;
   root.unmount();
-  return div.innerHTML;
+  return htmlString;
 };
 
 export function DownloadDataButton({ exportName, columns, data }) {
