@@ -17,6 +17,7 @@ const queryClient = new QueryClient({
 
 const stubTheme = createTheme({});
 
+// eslint-disable-next-line no-unused-vars
 const mockGetTranslation = (stringId, fallback, _replacements, _uppercase, _lowercase) =>
   translatedStrings[stringId] ?? fallback;
 const mockTranslationContext = {
