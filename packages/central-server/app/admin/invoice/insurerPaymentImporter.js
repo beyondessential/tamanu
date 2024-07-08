@@ -48,7 +48,7 @@ export async function insurerPaymentImporter({ errors, models, stats, file, chec
     throw new Error('No sheet found in workbook');
   }
 
-  for (let index = 0; index <= sheet.length; index++) {
+  for (let index = 0; index <= sheet.length - 1; index++) {
     const row = sheet[index];
     const { data, error } = await insurerPaymentImportSchema.safeParseAsync(row);
 
