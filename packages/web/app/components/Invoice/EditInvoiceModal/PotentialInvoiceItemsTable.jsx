@@ -113,10 +113,6 @@ export const PotentialInvoiceItemsTable = ({ invoice, invoiceItems, formArrayMet
           id: uuidv4(),
           orderDate: toDateString(item.orderDate),
           quantity: 1,
-          productName: item.productName,
-          productCode: item.code,
-          productPrice: item.price,
-          productDiscountable: item.discountable,
         }),
     );
   };
