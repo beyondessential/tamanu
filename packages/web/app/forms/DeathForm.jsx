@@ -101,6 +101,15 @@ export const DeathForm = React.memo(
                 <TranslatedText stringId="death.causeOfDeath.label" fallback="Cause Of Death" />,
               ),
           }),
+          mannerOfDeath: yup.string().when('isPartialWorkflow', {
+            is: undefined,
+            then: yup
+              .string()
+              .required()
+              .translatedLabel(
+                <TranslatedText stringId="death.mannerOfDeath.label" fallback="Manner of death" />,
+              ),
+          }),
           causeOfDeathInterval: yup.string().when('isPartialWorkflow', {
             is: undefined,
             then: yup
