@@ -24,6 +24,7 @@ const receiptNumberGenerator = customAlphabet('123456789ABCDEFGHJKLMNPQRSTWUVXYZ
 
 const insurerPaymentImportSchema = z
   .object({
+    id: z.string().uuid(),
     date: z.string().date(),
     amount: z.coerce
       .number()
@@ -31,6 +32,7 @@ const insurerPaymentImportSchema = z
       .transform(amount => round(amount, 2)),
     invoiceId: z.string(),
     insurerId: z.string(),
+    reason: z.string().optional(),
   })
   .strip()
   .transform(data => ({
@@ -88,25 +90,56 @@ export async function insurerPaymentImporter({ errors, models, stats, file, chec
       // Skip database actions if there are errors
       if (errors.length) continue;
 
-      const payment = await models.InvoicePayment.create(
-        {
-          invoiceId: data.invoiceId,
-          date: data.date,
-          receiptNumber: data.receiptNumber,
-          amount: data.amount,
-        },
-        { returning: true },
-      );
-      await models.InvoiceInsurerPayment.create({
-        invoicePaymentId: payment.id,
-        insurerId: data.insurerId,
-        status:
-          data.amount === 0
-            ? INVOICE_INSURER_PAYMENT_STATUSES.REJECTED
-            : data.amount === insurerDiscountTotal
-            ? INVOICE_INSURER_PAYMENT_STATUSES.PAID
-            : INVOICE_INSURER_PAYMENT_STATUSES.PARTIAL,
-      });
+      //check if the insurer payment already exists
+      const patientPayment = await models.InvoiceInsurerPayment.findByPk(data.id);
+      if (patientPayment) {
+        //update the payment
+        await models.InvoicePayment.update(
+          {
+            invoiceId: data.invoiceId,
+            date: data.date,
+            receiptNumber: data.receiptNumber,
+            amount: data.amount,
+          },
+          { where: { id: patientPayment.invoicePaymentId } },
+        );
+
+        await models.InvoiceInsurerPayment.update(
+          {
+            insurerId: data.insurerId,
+            reason: data.reason,
+            status:
+              data.amount === 0
+                ? INVOICE_INSURER_PAYMENT_STATUSES.REJECTED
+                : data.amount === insurerDiscountTotal
+                ? INVOICE_INSURER_PAYMENT_STATUSES.PAID
+                : INVOICE_INSURER_PAYMENT_STATUSES.PARTIAL,
+          },
+          { where: { invoicePaymentId: data.id } },
+        );
+      } else {
+        //create new payment
+        const payment = await models.InvoicePayment.create(
+          {
+            invoiceId: data.invoiceId,
+            date: data.date,
+            receiptNumber: data.receiptNumber,
+            amount: data.amount,
+          },
+          { returning: true },
+        );
+        await models.InvoiceInsurerPayment.create({
+          invoicePaymentId: payment.id,
+          insurerId: data.insurerId,
+          reason: data.reason,
+          status:
+            data.amount === 0
+              ? INVOICE_INSURER_PAYMENT_STATUSES.REJECTED
+              : data.amount === insurerDiscountTotal
+              ? INVOICE_INSURER_PAYMENT_STATUSES.PAID
+              : INVOICE_INSURER_PAYMENT_STATUSES.PARTIAL,
+        });
+      }
 
       //Update the overall insurer payment status to invoice
       await models.Invoice.update(
@@ -122,8 +155,12 @@ export async function insurerPaymentImporter({ errors, models, stats, file, chec
       errors.push(new ValidationError('', index + 1, e));
     }
   }
-
-  stats.error = errors.length;
-  stats.ok = sheet.length - errors.length;
-  stats.imported = stats.ok === sheet.length ? stats.ok : 0;
+  stats.push({
+    sheet: 'Insurer Payments',
+    stats: {
+      error: errors.length,
+      ok: sheet.length - errors.length,
+      imported: stats.ok === sheet.length ? stats.ok : 0,
+    },
+  });
 }
