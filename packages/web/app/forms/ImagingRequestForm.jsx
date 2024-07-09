@@ -18,19 +18,18 @@ import {
   Field,
   Form,
   ImagingPriorityField,
+  MultiselectField,
   SelectField,
   TextField,
   TextInput,
-  MultiselectField,
 } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
 import { FormCancelButton } from '../components/Button';
-import { ButtonRow } from '../components/ButtonRow';
-import { DateDisplay } from '../components/DateDisplay';
-import { FormSeparatorLine } from '../components/FormSeparatorLine';
+import { ButtonRow, DateDisplay, FormSeparatorLine } from '../components';
 import { FormSubmitDropdownButton } from '../components/DropdownButton';
-import { TranslatedText, TranslatedReferenceData } from '../components/Translation';
+import { TranslatedReferenceData, TranslatedText } from '../components/Translation';
 import { useTranslation } from '../contexts/Translation';
+import { renderToText } from '../utils';
 
 function getEncounterTypeLabel(type) {
   return ENCOUNTER_OPTIONS.find(x => x.value === type).label;
@@ -212,19 +211,18 @@ export const ImagingRequestForm = React.memo(
                 options={imagingTypeOptions}
                 prefix="imaging.property.type"
               />
-              {imagingAreas.length ? (
+              {imagingAreas.length > 0 ? (
                 <Field
-                  options={imagingAreas.map(area => ({
-                    label: (
-                      <TranslatedReferenceData
-                        fallback={area.name}
-                        value={area.id}
-                        category={area.type}
-                      />
-                    ),
-                    value: area.id,
-                  })).sort((area1, area2) => area1.label.localeCompare(area2.label))
-                  }
+                  options={imagingAreas
+                    .map(({ id, name, type }) => ({
+                      label: <TranslatedReferenceData fallback={name} value={id} category={type} />,
+                      value: id,
+                    }))
+                    .sort((area1, area2) => {
+                      const str1 = renderToText(area1.label);
+                      const str2 = renderToText(area2.label);
+                      return str1.localeCompare(str2);
+                    })}
                   name="areas"
                   label={
                     <TranslatedText stringId="imaging.areas.label" fallback="Areas to be imaged" />
