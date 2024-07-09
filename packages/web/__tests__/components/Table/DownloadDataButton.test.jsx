@@ -173,9 +173,15 @@ describe('DownloadDataButton', () => {
 
   it('renders <TranslatedReference> to a translated string', () => {});
 
+  it('renders <TranslatedSex> to a translated string', () => {});
+
   it('renders <TranslatedEnum> to a translated string', () => {});
 
   it('renders <LocationCell> to a translated string', () => {});
 
-  it('renders a non-<TranslatedText> element faithfully', () => {});
+  it('renders <TranslatedText> wrapped in a tooltip without its tooltip', () => {});
+
+  it('renders a non-<TranslatedText> faithfully', () => {});
+
+  it('renders a primitive string faithfully', () => {});
 });
