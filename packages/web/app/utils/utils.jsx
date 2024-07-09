@@ -94,7 +94,7 @@ export const hexToRgba = (hex, opacity) => {
 
 export const renderToText = element => {
   if (!isValidElement(element)) {
-    throw new Error('`renderToString` has been called with an invalid element.');
+    throw new Error('`renderToText` has been called with an invalid element.');
   }
 
   const div = document.createElement('div');
