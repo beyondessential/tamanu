@@ -5,11 +5,12 @@ import { ForbiddenError, NotFoundError, ValidationError } from '@tamanu/shared/e
 import { getInvoicePatientPaymentStatus, getInvoiceSummary } from '@tamanu/shared/utils/invoice';
 import express from 'express';
 import Decimal from 'decimal.js';
+import { round } from 'lodash';
 
 const createPatientPaymentSchema = z
   .object({
     date: z.string().date(),
-    amount: z.coerce.number(),
+    amount: z.coerce.number().transform(amount => round(amount, 2)),
     receiptNumber: z.string().regex(/^[A-Z0-9]+$/),
     methodId: z.string(),
   })
@@ -18,7 +19,7 @@ const createPatientPaymentSchema = z
 const updatePatientPaymentSchema = z
   .object({
     date: z.string().date(),
-    amount: z.coerce.number(),
+    amount: z.coerce.number().transform(amount => round(amount, 2)),
     receiptNumber: z.string().regex(/^[A-Z0-9]+$/),
     methodId: z.string(),
   })
@@ -155,7 +156,7 @@ const handleUpdatePatientPayment = asyncHandler(async (req, res) => {
 });
 
 const handleGetPatientPayments = asyncHandler(async (req, res) => {
-  req.checkPermission('read', 'InvoicePayment');
+  req.checkPermission('list', 'InvoicePayment');
 
   const invoiceId = req.params.invoiceId;
 

@@ -100,6 +100,7 @@ export * from './InvoiceItem';
 export * from './InvoiceItemDiscount';
 export * from './InvoicePayment';
 export * from './InvoicePatientPayment';
+export * from './InvoiceInsurerPayment';
 
 export * from './Signer';
 

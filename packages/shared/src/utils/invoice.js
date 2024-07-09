@@ -1,4 +1,4 @@
-import { chain, round, sum } from 'lodash';
+import { chain, round } from 'lodash';
 import {
   INVOICE_INSURER_PAYMENT_STATUSES,
   INVOICE_PATIENT_PAYMENT_STATUSES,
@@ -16,20 +16,8 @@ export const isInvoiceEditable = invoice => invoice.status === INVOICE_STATUSES.
  * @param {number} value
  * @returns
  */
-const formatDisplayValue = value => (isNaN(value) ? undefined : value.toFixed(2));
-
-const getInvoiceItemPrice = invoiceItem => {
-  return invoiceItem?.productPrice ?? invoiceItem?.product?.price;
-};
-
-/**
- * Get the price of an invoice item
- * @param {InvoiceItem} invoiceItem
- * @returns {number}
- */
-const getInvoiceItemFloatPrice = invoiceItem => {
-  return parseFloat(getInvoiceItemPrice(invoiceItem) ?? 0);
-};
+export const formatDisplayPrice = value =>
+  isNaN(parseFloat(value)) ? undefined : parseFloat(value).toFixed(2);
 
 /**
  * get a price after applying a discount
@@ -48,7 +36,30 @@ const priceAfterDiscount = (price, discount) => {
  * @returns {number}
  */
 const priceDiscounted = (price, discount) => {
-  return price - priceAfterDiscount(price, discount);
+  return round(price - priceAfterDiscount(price, discount), 2);
+};
+
+/**
+ * Get the original price of an invoice item with quantity = 1
+ * @param {InvoiceItem} invoiceItem
+ * @returns {number | NaN}
+ */
+const getInvoiceItemPrice = invoiceItem => {
+  return chain(parseFloat(invoiceItem?.productPrice ?? invoiceItem?.product?.price))
+    .round(2)
+    .value();
+};
+
+/**
+ * Get the price of an invoice item
+ * @param {InvoiceItem} invoiceItem
+ * @returns {number}
+ */
+const getInvoiceItemTotalPrice = invoiceItem => {
+  return chain(getInvoiceItemPrice(invoiceItem) || 0)
+    .multiply(Number(invoiceItem?.quantity) || 1)
+    .round(2)
+    .value();
 };
 
 /**
@@ -56,10 +67,10 @@ const priceDiscounted = (price, discount) => {
  * @param {InvoiceItem} invoiceItem
  * @returns {number}
  */
-const getInvoiceItemPriceAfterDiscount = invoiceItem => {
+const getInvoiceItemTotalPriceAfterDiscount = invoiceItem => {
   return priceAfterDiscount(
-    getInvoiceItemFloatPrice(invoiceItem),
-    invoiceItem?.discount?.percentage ?? 0,
+    getInvoiceItemTotalPrice(invoiceItem),
+    invoiceItem?.discount?.percentage || 0,
   );
 };
 
@@ -70,7 +81,7 @@ const getInvoiceItemPriceAfterDiscount = invoiceItem => {
  * @returns {number}
  */
 const getInvoiceInsurerDiscountAmount = (insurer, total) => {
-  return priceDiscounted(total, insurer?.percentage ?? 0);
+  return priceDiscounted(total, insurer?.percentage || 0);
 };
 
 /**
@@ -80,7 +91,7 @@ const getInvoiceInsurerDiscountAmount = (insurer, total) => {
  * @returns {number}
  */
 const getInvoiceDiscountDiscountAmount = (discount, total) => {
-  return priceDiscounted(total, discount?.percentage ?? 0);
+  return priceDiscounted(total, discount?.percentage || 0);
 };
 
 const getInsurerPayments = (insurers, total) => {
@@ -95,23 +106,34 @@ const getInsurerPayments = (insurers, total) => {
 export const getInvoiceSummary = invoice => {
   const discountableItemsSubtotal = chain(invoice.items)
     .filter(item => item?.product?.discountable)
-    .sumBy(item => getInvoiceItemPriceAfterDiscount(item) * Number(item.quantity))
+    .sumBy(item => getInvoiceItemTotalPriceAfterDiscount(item) || 0)
+    .round(2)
     .value();
 
   const nonDiscountableItemsSubtotal = chain(invoice.items)
     .filter(item => !item?.product?.discountable)
-    .sumBy(item => getInvoiceItemPriceAfterDiscount(item) * Number(item.quantity))
+    .sumBy(item => getInvoiceItemTotalPriceAfterDiscount(item) || 0)
+    .round(2)
     .value();
 
-  const itemsSubtotal = discountableItemsSubtotal + nonDiscountableItemsSubtotal;
+  const itemsSubtotal = chain(discountableItemsSubtotal + nonDiscountableItemsSubtotal)
+    .round(2)
+    .value();
 
   const insurersDiscountPercentage = chain(invoice.insurers)
-    .sumBy(insurer => insurer.percentage ?? 0)
+    .sumBy(insurer => insurer.percentage || 0)
+    .round(2)
     .value();
 
-  const insurerDiscountTotal = sum(getInsurerPayments(invoice.insurers, itemsSubtotal));
+  const insurerDiscountTotal = chain(getInsurerPayments(invoice.insurers, itemsSubtotal))
+    .sum()
+    .round(2)
+    .value();
 
-  const patientSubtotal = itemsSubtotal - insurerDiscountTotal;
+  const patientSubtotal = chain(itemsSubtotal)
+    .subtract(insurerDiscountTotal)
+    .round(2)
+    .value();
 
   const patientDiscountableSubtotal = priceAfterDiscount(
     discountableItemsSubtotal,
@@ -123,15 +145,29 @@ export const getInvoiceSummary = invoice => {
     patientDiscountableSubtotal,
   );
 
-  const patientTotal = patientSubtotal - discountTotal;
+  const patientTotal = chain(patientSubtotal)
+    .subtract(discountTotal)
+    .round(2)
+    .value();
 
   //Calculate payments as well
   const patientPaymentsTotal = chain(invoice.payments)
     .filter(payment => payment?.patientPayment?.id)
     .sumBy(payment => parseFloat(payment.amount))
+    .round(2)
+    .value();
+  const insurerPaymentsTotal = chain(invoice.payments)
+    .filter(payment => payment?.insurerPayment?.id)
+    .sumBy(payment => parseFloat(payment.amount))
+    .round(2)
     .value();
   const paymentsTotal = chain(invoice.payments)
     .sumBy(payment => parseFloat(payment.amount))
+    .round(2)
+    .value();
+
+  const patientPaymentRemainingBalance = chain(patientTotal - patientPaymentsTotal)
+    .round(2)
     .value();
 
   return {
@@ -144,7 +180,9 @@ export const getInvoiceSummary = invoice => {
     discountTotal,
     patientTotal,
     patientPaymentsTotal,
+    insurerPaymentsTotal,
     paymentsTotal,
+    patientPaymentRemainingBalance,
   };
 };
 
@@ -166,27 +204,30 @@ export const getInvoiceSummaryDisplay = invoice => {
       if (!discountableItems.length && !nonDiscountableItems.length) return undefined;
       if (!discountableItems.length && key === 'discountableItemsSubtotal') return undefined;
       if (!nonDiscountableItems.length && key === 'nonDiscountableItemsSubtotal') return undefined;
-      return formatDisplayValue(value);
+      return formatDisplayPrice(value);
     })
     .value();
 };
 
 export const getInvoiceItemPriceDisplay = invoiceItem => {
-  const singleItemPrice = getInvoiceItemPrice(invoiceItem);
-  const result = isNaN(singleItemPrice) ? undefined : singleItemPrice * invoiceItem?.quantity;
-  return formatDisplayValue(result);
+  return formatDisplayPrice(
+    isNaN(parseFloat(getInvoiceItemPrice(invoiceItem)))
+      ? undefined
+      : getInvoiceItemTotalPrice(invoiceItem),
+  );
 };
 
 export const getInvoiceItemDiscountPriceDisplay = invoiceItem => {
-  const result = isNaN(invoiceItem?.discount?.percentage)
-    ? undefined
-    : getInvoiceItemPriceAfterDiscount(invoiceItem);
-  return formatDisplayValue(result);
+  return formatDisplayPrice(
+    isNaN(parseFloat(invoiceItem?.discount?.percentage))
+      ? undefined
+      : getInvoiceItemTotalPriceAfterDiscount(invoiceItem),
+  );
 };
 
 export const getInsurerPaymentsDisplay = (insurers, total) => {
   return getInsurerPayments(insurers, total).map((payment, index) =>
-    formatDisplayValue(isNaN(insurers[index]?.percentage) ? undefined : payment),
+    formatDisplayPrice(isNaN(insurers[index]?.percentage) ? undefined : payment),
   );
 };
 
@@ -206,6 +247,12 @@ export const getInvoiceItemNote = invoiceItem => {
   return invoiceItem?.note;
 };
 
+/**
+ *
+ * @param {number} paidAmount
+ * @param {number} owingAmount
+ * @returns
+ */
 export const getInvoicePatientPaymentStatus = (paidAmount, owingAmount) => {
   if (paidAmount < 0) throw new Error('Paid amount cannot be negative');
   if (paidAmount > owingAmount) throw new Error('Paid amount cannot be greater than owing amount');
@@ -215,6 +262,12 @@ export const getInvoicePatientPaymentStatus = (paidAmount, owingAmount) => {
   return INVOICE_PATIENT_PAYMENT_STATUSES.PARTIAL;
 };
 
+/**
+ *
+ * @param {null|number} paidAmount
+ * @param {number} owingAmount
+ * @returns
+ */
 export const getInvoiceInsurerPaymentStatus = (paidAmount, owingAmount) => {
   if (paidAmount == null) return INVOICE_INSURER_PAYMENT_STATUSES.UNPAID;
   if (paidAmount < 0) throw new Error('Paid amount cannot be negative');
@@ -225,18 +278,11 @@ export const getInvoiceInsurerPaymentStatus = (paidAmount, owingAmount) => {
   return INVOICE_INSURER_PAYMENT_STATUSES.PARTIAL;
 };
 
-export const getPatientPaymentRemainingBalance = invoice => {
-  const patientPayments = invoice.payments.filter(payment => !!payment?.patientPayment);
-  const totalPatientPayment = patientPayments.reduce((acc, { amount }) => acc + Number(amount), 0);
-  const { patientTotal } = getInvoiceSummary(invoice);
-  return patientTotal - totalPatientPayment;
-};
-
 export const getPatientPaymentsWithRemainingBalance = invoice => {
-  const patientPayments = invoice.payments.filter(payment => !!payment?.patientPayment);
+  const patientPayments = invoice.payments.filter(payment => payment?.patientPayment?.id);
   let { patientTotal } = getInvoiceSummaryDisplay(invoice);
   const patientPaymentsWithRemainingBalance = patientPayments?.map(payment => {
-    patientTotal -= parseFloat(payment.amount);
+    patientTotal = round(patientTotal - parseFloat(payment.amount), 2);
     return {
       ...payment,
       remainingBalance: patientTotal.toFixed(2),

@@ -35,7 +35,7 @@ const FormRow = styled.div`
 `;
 
 export const PatientPaymentForm = ({
-  patientRemainingBalance,
+  patientPaymentRemainingBalance,
   editingPayment = {},
   updateRefreshCount,
   updateEditingPayment,
@@ -101,9 +101,10 @@ export const PatientPaymentForm = ({
   };
 
   const handleSubmit = (data, { resetForm }) => {
-    const editingAmount = editingPayment?.amount ? Number(editingPayment.amount) : 0;
+    const editingAmount = Number(editingPayment?.amount) ? Number(editingPayment.amount) : 0;
     const showConfirmModal =
-      data?.amount >= patientRemainingBalance + editingAmount && !openConfirmPaidModal;
+      data?.amount >= Number(patientPaymentRemainingBalance) + editingAmount &&
+      !openConfirmPaidModal;
     if (showConfirmModal) {
       setOpenConfirmPaidModal(true);
       return;
@@ -197,8 +198,10 @@ export const PatientPaymentForm = ({
               fallback="Cannot be more than outstanding balance"
             />,
             function(value) {
-              const editingAmount = editingPayment?.amount ? Number(editingPayment.amount) : 0;
-              return Number(value) <= patientRemainingBalance + editingAmount;
+              const editingAmount = Number(editingPayment?.amount)
+                ? Number(editingPayment.amount)
+                : 0;
+              return Number(value) <= Number(patientPaymentRemainingBalance) + editingAmount;
             },
           ),
         receiptNumber: yup

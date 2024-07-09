@@ -2,7 +2,7 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { customAlphabet } from 'nanoid';
 import { ValidationError, NotFoundError, InvalidOperationError } from '@tamanu/shared/errors';
-import { INVOICE_PAYMENT_STATUSES, INVOICE_STATUSES, SETTING_KEYS } from '@tamanu/constants';
+import { INVOICE_STATUSES, SETTING_KEYS } from '@tamanu/constants';
 import { v4 as uuidv4 } from 'uuid';
 import { z } from 'zod';
 import { Op } from 'sequelize';
@@ -12,6 +12,7 @@ import {
   getCurrentCountryTimeZoneDateTimeString,
 } from '@tamanu/shared/utils/countryDateTime';
 import { patientPaymentRoute } from './patientPayment';
+import { round } from 'lodash';
 
 const invoiceRoute = express.Router();
 export { invoiceRoute as invoices };
@@ -25,7 +26,8 @@ const createInvoiceSchema = z
         percentage: z.coerce
           .number()
           .min(0)
-          .max(1),
+          .max(1)
+          .transform(amount => round(amount, 2)),
         reason: z.string().optional(),
         isManual: z.boolean(),
       })
@@ -39,7 +41,6 @@ const createInvoiceSchema = z
     displayId:
       customAlphabet('0123456789', 8)() + customAlphabet('ABCDEFGHIJKLMNOPQRSTUVWXYZ', 2)(),
     status: INVOICE_STATUSES.IN_PROGRESS,
-    paymentStatus: INVOICE_PAYMENT_STATUSES.UNPAID,
     date: getCurrentCountryTimeZoneDateString(),
   }));
 invoiceRoute.post(
@@ -111,7 +112,8 @@ const updateInvoiceSchema = z
         percentage: z.coerce
           .number()
           .min(0)
-          .max(1),
+          .max(1)
+          .transform(amount => round(amount, 2)),
         reason: z.string().optional(),
         isManual: z.boolean(),
       })
@@ -126,7 +128,8 @@ const updateInvoiceSchema = z
         percentage: z.coerce
           .number()
           .min(0)
-          .max(1),
+          .max(1)
+          .transform(amount => round(amount, 2)),
         insurerId: z.string(),
       })
       .strip()
@@ -159,7 +162,8 @@ const updateInvoiceSchema = z
             percentage: z.coerce
               .number()
               .min(-1)
-              .max(1),
+              .max(1)
+              .transform(amount => round(amount, 2)),
             reason: z.string().optional(),
           })
           .strip()
@@ -366,7 +370,9 @@ invoiceRoute.put(
     }).then(encounter => !!encounter?.endDate);
 
     if (encounterClosed) {
-      throw new InvalidOperationError('Ivnvoice cannot be finalised until the Encounter has been closed');
+      throw new InvalidOperationError(
+        'Ivnvoice cannot be finalised until the Encounter has been closed',
+      );
     }
 
     const transaction = await req.db.transaction();

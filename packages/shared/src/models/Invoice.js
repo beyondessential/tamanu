@@ -1,5 +1,9 @@
 import { DataTypes } from 'sequelize';
-import { INVOICE_PATIENT_PAYMENT_STATUSES, SYNC_DIRECTIONS } from '@tamanu/constants';
+import {
+  INVOICE_INSURER_PAYMENT_STATUSES,
+  INVOICE_PATIENT_PAYMENT_STATUSES,
+  SYNC_DIRECTIONS,
+} from '@tamanu/constants';
 import { Model } from './Model';
 import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
 import { dateType } from './dateTimeTypes';
@@ -24,6 +28,11 @@ export class Invoice extends Model {
           type: DataTypes.STRING,
           allowNull: false,
           defaultValue: INVOICE_PATIENT_PAYMENT_STATUSES.UNPAID,
+        },
+        insurerPaymentStatus: {
+          type: DataTypes.STRING,
+          allowNull: false,
+          defaultValue: INVOICE_INSURER_PAYMENT_STATUSES.UNPAID,
         },
       },
       { syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL, ...options },

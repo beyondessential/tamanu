@@ -1,8 +1,8 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { Box, Divider } from '@material-ui/core';
 import { INVOICE_STATUSES } from '@tamanu/constants';
-import { getPatientPaymentRemainingBalance } from '@tamanu/shared/utils/invoice';
+import { getInvoiceSummaryDisplay, formatDisplayPrice } from '@tamanu/shared/utils/invoice';
 
 import { TranslatedText } from '../../Translation';
 import { Table } from '../../Table';
@@ -33,8 +33,7 @@ export const PatientPaymentsTable = ({ invoice }) => {
     .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
 
   const [refreshCount, setRefreshCount] = useState(0);
-  const [patientRemainingBalance, setPatientRemainingBalance] = useState(0);
-
+  const { patientPaymentRemainingBalance } = getInvoiceSummaryDisplay(invoice);
   const [editingPayment, setEditingPayment] = useState({});
 
   const { ability } = useAuth();
@@ -44,14 +43,8 @@ export const PatientPaymentsTable = ({ invoice }) => {
   const updateRefreshCount = useCallback(() => setRefreshCount(prev => prev + 1), []);
   const updateEditingPayment = useCallback(editingPayment => setEditingPayment(editingPayment), []);
 
-  useEffect(() => {
-    const patientRemainingBalance = getPatientPaymentRemainingBalance(invoice);
-    setPatientRemainingBalance(patientRemainingBalance);
-  }, [invoice]);
-
   const hideRecordPaymentForm =
-    patientRemainingBalance <= 0 || invoice.status === INVOICE_STATUSES.CANCELLED;
-
+    Number(patientPaymentRemainingBalance) <= 0 || invoice.status === INVOICE_STATUSES.CANCELLED;
   const COLUMNS = [
     {
       key: 'date',
@@ -69,7 +62,7 @@ export const PatientPaymentsTable = ({ invoice }) => {
       key: 'amount',
       title: <TranslatedText stringId="invoice.table.payment.column.amount" fallback="Amount" />,
       sortable: false,
-      accessor: ({ amount }) => parseFloat(amount).toFixed(2),
+      accessor: ({ amount }) => formatDisplayPrice(amount),
     },
     {
       key: 'receiptNumber',
@@ -98,19 +91,19 @@ export const PatientPaymentsTable = ({ invoice }) => {
   const sliceIndex = patientPayments.findIndex(payment => payment.id === editingPayment.id);
 
   const cellsWidthString = `
-    &:nth-child(1) {
-      width 20%;
-    }
-    &:nth-child(2) {
-      width 20%;
-    }
-    &:nth-child(3) {
-      width 15%;
-    }
-    &:nth-child(4) {
-      width 20%;
-    }
-  `;
+      &:nth-child(1) {
+        width 20%;
+      }
+      &:nth-child(2) {
+        width 20%;
+      }
+      &:nth-child(3) {
+        width 15%;
+      }
+      &:nth-child(4) {
+        width 20%;
+      }
+    `;
 
   const tableProps = {
     columns: COLUMNS,
@@ -140,7 +133,7 @@ export const PatientPaymentsTable = ({ invoice }) => {
           <TranslatedText
             stringId="invoice.modal.payment.remainingBalance"
             fallback="Remaining balance: :remainingBalance"
-            replacements={{ remainingBalance: patientRemainingBalance.toFixed(2) }}
+            replacements={{ remainingBalance: patientPaymentRemainingBalance }}
           />
         </Heading4>
       </Title>
@@ -151,7 +144,7 @@ export const PatientPaymentsTable = ({ invoice }) => {
       {editingPayment?.id && (
         <>
           <PatientPaymentForm
-            patientRemainingBalance={patientRemainingBalance}
+            patientPaymentRemainingBalance={patientPaymentRemainingBalance}
             editingPayment={editingPayment}
             invoice={invoice}
             updateRefreshCount={updateRefreshCount}
@@ -172,7 +165,7 @@ export const PatientPaymentsTable = ({ invoice }) => {
       {!hideRecordPaymentForm && canCreatePayment && (
         <PatientPaymentForm
           invoice={invoice}
-          patientRemainingBalance={patientRemainingBalance}
+          patientPaymentRemainingBalance={patientPaymentRemainingBalance}
           updateRefreshCount={updateRefreshCount}
           updateEditingPayment={updateEditingPayment}
         />

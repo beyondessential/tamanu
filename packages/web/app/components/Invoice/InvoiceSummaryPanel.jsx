@@ -133,7 +133,7 @@ const InsurersEditable = ({ insurerPaymentsDisplay }) => {
                   <Box marginTop="11px">%</Box>
                 </Box>
                 <Box marginTop="11px" display="flex" justifyContent="flex-end">
-                  {`-${insurerPaymentsDisplay[index] ?? ''}`}
+                  {insurerPaymentsDisplay[index] ? `-${insurerPaymentsDisplay[index]}` : ''}
                   <RemoveInsurerButton onClick={() => formArrayMethods.remove(index)}>
                     <CloseIcon />
                   </RemoveInsurerButton>
@@ -185,7 +185,7 @@ const InsurersView = ({ insurers, insurerPaymentsDisplay }) => {
           <DiscountedPrice>
             <span>{insurer.percentage * 100}%</span>
             <BodyText color={Colors.darkestText}>
-              {`-${insurerPaymentsDisplay[index] ?? '-'}`}
+              {insurerPaymentsDisplay[index] ? `-${insurerPaymentsDisplay[index]}` : ''}
             </BodyText>
           </DiscountedPrice>
         </Box>
@@ -199,7 +199,7 @@ export const InvoiceSummaryPanel = ({ invoice, editable, handleEditDiscount }) =
   const insurers =
     formikContext?.values?.insurers?.map(insurer => ({
       ...insurer,
-      percentage: insurer.percentage / 100,
+      percentage: isNaN(parseFloat(insurer.percentage)) ? undefined : insurer.percentage / 100,
     })) ||
     invoice?.insurers ||
     [];
