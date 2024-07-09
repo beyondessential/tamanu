@@ -106,19 +106,20 @@ export const InvoiceItemRow = ({
 }) => {
   const isItemEditable = !item.sourceId && editable;
   const { getTranslation } = useTranslation();
+
+  const nonDiscountableTranslation = getTranslation(
+    'invoice.table.details.nonDiscountable',
+    'Non-discountable',
+    {},
+    false,
+    true,
+  );
+
   const invoiceProductsSuggester = useSuggester('invoiceProducts', {
     formatter: ({ name, id, ...others }) => ({
       ...others,
       productName: name,
-      label: others.discountable
-        ? name
-        : `${name} (${getTranslation(
-            'invoice.table.details.nonDiscountable',
-            'Non-discountable',
-            {},
-            false,
-            true,
-          )})`,
+      label: others.discountable ? name : `${name} (${nonDiscountableTranslation})`,
       value: id,
     }),
   });
@@ -280,6 +281,7 @@ export const InvoiceItemRow = ({
           ) : (
             <ViewOnlyCell $hasLargeFont={!editable} $hasLeftPadding={editable}>
               {item.productName}
+              {item.productDiscountable ? '' : ` (${nonDiscountableTranslation})`}
             </ViewOnlyCell>
           )}
           {item.note && (

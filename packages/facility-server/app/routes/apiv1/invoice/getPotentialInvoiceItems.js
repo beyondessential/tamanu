@@ -73,7 +73,8 @@ filtered_products as (
 	select
 		ip.id,
 		ip.name,
-		ip.price
+		ip.price,
+    ip.discountable
 	from invoice_products ip
 	where ip.deleted_at is null and ip.visibility_status = :visibilityStatus
 )
@@ -83,6 +84,7 @@ select
 	coalesce(fpc."sourceType",fi."sourceType",fl."sourceType") as "productType",
 	fpd.name as "productName",
 	fpd.price as "productPrice",
+	fpd.discountable as "productDiscountable",
 	coalesce(fpc."date",fi."date",fl."date") as "orderDate",
 	coalesce(fpc."sourceId",fi."sourceId",fl."sourceId") as "sourceId",
 	coalesce(fpc."orderedByUserId",fi."orderedByUserId",fl."orderedByUserId") as "orderedByUserId",
