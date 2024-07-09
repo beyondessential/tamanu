@@ -149,7 +149,8 @@ const updateInvoiceSchema = z
         productId: z.string(),
         productName: z.string(),
         productPrice: z.coerce.number().transform(amount => round(amount, 2)),
-        productCode: z.string(),
+        productCode: z.string().default(''),
+        productDiscountable: z.boolean().default(true),
         quantity: z.coerce.number().default(1),
         note: z.string().optional(),
         sourceId: z
