@@ -17,7 +17,7 @@ export const InvoiceDetails = ({ encounter, invoice }) => {
     <>
       <DataSection title="Invoice details" hideBottomRule>
         <Col>
-          <DataItem label="Date" value={formatShort(invoice.createdAt)} />
+          <DataItem label="Date" value={formatShort(invoice.date)} />
           <DataItem label="Invoice status" value={INVOICE_STATUS_LABELS[invoice.status]} />
         </Col>
         <Col>

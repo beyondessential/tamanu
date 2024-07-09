@@ -121,7 +121,7 @@ export const getInvoiceSummary = invoice => {
     .value();
 
   const insurersDiscountPercentage = chain(invoice.insurers)
-    .sumBy(insurer => insurer.percentage || 0)
+    .sumBy(insurer => parseFloat(insurer.percentage) || 0)
     .round(2)
     .value();
 

@@ -9,7 +9,7 @@ import {
 
 import { Colors, ENCOUNTER_OPTIONS_BY_VALUE, INVOICE_MODAL_TYPES } from '../../constants';
 import { DataFetchingTable } from '../Table';
-import { DateDisplay } from '../DateDisplay';
+import { formatShort } from '../DateDisplay';
 import { TranslatedEnum, TranslatedText } from '../Translation';
 import { Typography } from '@material-ui/core';
 import { ThemedTooltip } from '../Tooltip';
@@ -49,7 +49,7 @@ const Table = styled(DataFetchingTable)`
   }
 `;
 
-const getDate = ({ date }) => <DateDisplay date={date} />;
+const getDate = ({ date }) => formatShort(date);
 const getInvoiceTotal = row => {
   const { patientTotal } = getInvoiceSummaryDisplay(row);
   return patientTotal === undefined ? '-' : `$${patientTotal}`;
