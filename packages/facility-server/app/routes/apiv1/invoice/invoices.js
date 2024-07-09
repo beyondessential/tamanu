@@ -147,6 +147,9 @@ const updateInvoiceSchema = z
         orderDate: z.string().date(),
         orderedByUserId: z.string().uuid(),
         productId: z.string(),
+        productName: z.string(),
+        productPrice: z.coerce.number().transform(amount => round(amount, 2)),
+        productCode: z.string(),
         quantity: z.coerce.number().default(1),
         note: z.string().optional(),
         sourceId: z
@@ -278,35 +281,6 @@ invoiceRoute.put(
 );
 
 /**
- * Freeze invoice items data
- * @param {string} invoiceId
- * @param {import('@tamanu/shared/models')} models
- * @param {import('sequelize').Transaction} transaction
- */
-async function freezeInvoiceItemsData(invoiceId, models, transaction) {
-  const items = await models.InvoiceItem.findAll(
-    {
-      where: { invoiceId },
-      include: {
-        model: models.InvoiceProduct,
-        as: 'product',
-        attributes: ['name', 'price'],
-        include: models.InvoiceProduct.getFullReferenceAssociations(),
-      },
-    },
-    { transaction },
-  );
-
-  for (const item of items) {
-    item.product.addVirtualFields();
-    item.productName = item.product.name;
-    item.productPrice = item.product.price;
-    item.productCode = item.product.dataValues.code;
-    await item.save({ transaction });
-  }
-}
-
-/**
  * Cancel invoice
  */
 invoiceRoute.put(
@@ -328,8 +302,6 @@ invoiceRoute.put(
     const transaction = await req.db.transaction();
 
     try {
-      await freezeInvoiceItemsData(invoiceId, req.models, transaction);
-
       invoice.status = INVOICE_STATUSES.CANCELLED;
       await invoice.save({ transaction });
 
@@ -378,8 +350,6 @@ invoiceRoute.put(
     const transaction = await req.db.transaction();
 
     try {
-      await freezeInvoiceItemsData(invoiceId, req.models, transaction);
-
       invoice.status = INVOICE_STATUSES.FINALISED;
       await invoice.save({ transaction });
 

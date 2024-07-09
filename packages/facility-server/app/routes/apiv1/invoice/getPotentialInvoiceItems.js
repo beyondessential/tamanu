@@ -1,4 +1,4 @@
-import { OTHER_REFERENCE_TYPES, REFERENCE_TYPES } from '@tamanu/constants';
+import { OTHER_REFERENCE_TYPES, REFERENCE_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { NotFoundError } from '@tamanu/shared/errors';
 import { QueryTypes } from 'sequelize';
 
@@ -75,7 +75,7 @@ filtered_products as (
 		ip.name,
 		ip.price
 	from invoice_products ip
-	where ip.deleted_at is null
+	where ip.deleted_at is null and ip.visibility_status = :visibilityStatus
 )
 select
 	fpd.id as "productId",
@@ -98,6 +98,7 @@ join users u on u.deleted_at is null and coalesce(fpc."orderedByUserId",fi."orde
         imagingType: REFERENCE_TYPES.IMAGING_TYPE,
         imagingTypes,
         labtestType: OTHER_REFERENCE_TYPES.LAB_TEST_TYPE,
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT
       },
       type: QueryTypes.SELECT,
     },

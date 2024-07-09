@@ -25,6 +25,11 @@ export class InvoiceProduct extends Model {
           allowNull: false,
           defaultValue: true,
         },
+        visibilityStatus: {
+          type: DataTypes.STRING,
+          allowNull: false,
+          defaultValue: 'current',
+        },
       },
       { syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL, ...options },
     );

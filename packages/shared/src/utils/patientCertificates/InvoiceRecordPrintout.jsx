@@ -10,15 +10,11 @@ import { EncounterDetails } from './printComponents/EncounterDetails';
 import { InvoiceDetails } from './printComponents/InvoiceDetails';
 import {
   getInsurerPaymentsDisplay,
-  getInvoiceItemCode,
   getInvoiceItemDiscountPriceDisplay,
-  getInvoiceItemName,
   getInvoiceItemPriceDisplay,
-  getInvoiceItemQuantity,
-  getInvoiceItemNote,
   getInvoiceSummaryDisplay,
   getPatientPaymentsWithRemainingBalance,
-  formatDisplayPrice
+  formatDisplayPrice,
 } from '../invoice';
 import { withLanguageContext } from '../pdf/languageContext';
 import { Page } from '../pdf/Page';
@@ -139,15 +135,15 @@ const getPrice = item => {
 };
 
 const getInvoiceItemDetails = item => {
-  const name = getInvoiceItemName(item);
-  const note = getInvoiceItemNote(item);
+  const name = item.productName;
+  const note = item.note;
 
   return (
     <View>
       <View>
         <P>
           {name}
-          {!item.product.discountable && ' (Non-discountable)'}
+          {!item.productDiscountable && ' (Non-discountable)'}
         </P>
       </View>
       {!!note && (
@@ -184,16 +180,16 @@ const COLUMNS = {
       CellComponent: CustomCellComponent,
     },
     {
-      key: 'code',
+      key: 'productCode',
       title: 'Code',
       style: { width: '10%' },
-      accessor: row => getInvoiceItemCode(row),
+      accessor: ({ productCode }) => productCode,
     },
     {
       key: 'quantity',
       title: 'Quantity',
       style: { width: '11%' },
-      accessor: row => getInvoiceItemQuantity(row),
+      accessor: ({ quantity }) => quantity,
     },
     {
       key: 'orderedBy',
