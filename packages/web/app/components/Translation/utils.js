@@ -1,5 +1,5 @@
 import { isValidElement } from 'react';
-import { LocationCell } from '../LocationCell.jsx';
+import { LocationCell } from '../LocationCell';
 import { TranslatedEnum, TranslatedReferenceData, TranslatedSex, TranslatedText } from '.';
 
 /**
