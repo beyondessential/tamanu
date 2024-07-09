@@ -70,12 +70,11 @@ export function DownloadDataButton({ exportName, columns, data }) {
   const getHeaderValue = ({ key, title }) => {
     if (!title) return key;
     if (typeof title === 'string') return title;
-    if (typeof title === 'object') {
-      if (isValidElement(title)) {
-        const normalizedElement = normalizeRecursively(title, contextualizeIfIsTranslatedText);
-        return renderToString(normalizedElement);
-      }
+    if (isValidElement(title)) {
+      const normalizedElement = normalizeRecursively(title, contextualizeIfIsTranslatedText);
+      return renderToString(normalizedElement);
     }
+
     return key;
   };
 
