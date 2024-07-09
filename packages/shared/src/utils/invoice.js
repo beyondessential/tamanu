@@ -145,6 +145,11 @@ export const getInvoiceSummary = invoice => {
     .sumBy(payment => parseFloat(payment.amount))
     .round(2)
     .value();
+  const insurerPaymentsTotal = chain(invoice.payments)
+    .filter(payment => payment?.insurerPayment?.id)
+    .sumBy(payment => parseFloat(payment.amount))
+    .round(2)
+    .value();
   const paymentsTotal = chain(invoice.payments)
     .sumBy(payment => parseFloat(payment.amount))
     .round(2)
@@ -164,6 +169,7 @@ export const getInvoiceSummary = invoice => {
     discountTotal,
     patientTotal,
     patientPaymentsTotal,
+    insurerPaymentsTotal,
     paymentsTotal,
     patientPaymentRemainingBalance,
   };
@@ -212,6 +218,12 @@ export const getInsurerPaymentsDisplay = (insurers, total) => {
   );
 };
 
+/**
+ *
+ * @param {number} paidAmount
+ * @param {number} owingAmount
+ * @returns
+ */
 export const getInvoicePatientPaymentStatus = (paidAmount, owingAmount) => {
   if (paidAmount < 0) throw new Error('Paid amount cannot be negative');
   if (paidAmount > owingAmount) throw new Error('Paid amount cannot be greater than owing amount');
@@ -221,6 +233,12 @@ export const getInvoicePatientPaymentStatus = (paidAmount, owingAmount) => {
   return INVOICE_PATIENT_PAYMENT_STATUSES.PARTIAL;
 };
 
+/**
+ *
+ * @param {null|number} paidAmount
+ * @param {number} owingAmount
+ * @returns
+ */
 export const getInvoiceInsurerPaymentStatus = (paidAmount, owingAmount) => {
   if (paidAmount == null) return INVOICE_INSURER_PAYMENT_STATUSES.UNPAID;
   if (paidAmount < 0) throw new Error('Paid amount cannot be negative');

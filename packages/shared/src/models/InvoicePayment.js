@@ -38,6 +38,10 @@ export class InvoicePayment extends Model {
       foreignKey: 'invoicePaymentId',
       as: 'patientPayment',
     });
+    this.hasOne(models.InvoiceInsurerPayment, {
+      foreignKey: 'invoicePaymentId',
+      as: 'insurerPayment',
+    });
   }
 
   static buildPatientSyncFilter(patientCount, markedForSyncPatientsTable) {
@@ -60,6 +64,11 @@ export class InvoicePayment extends Model {
         model: models.InvoicePatientPayment,
         as: 'patientPayment',
         include: models.InvoicePatientPayment.getListReferenceAssociations(models),
+      },
+      {
+        model: models.InvoiceInsurerPayment,
+        as: 'insurerPayment',
+        include: models.InvoiceInsurerPayment.getListReferenceAssociations(models),
       },
     ];
   }
