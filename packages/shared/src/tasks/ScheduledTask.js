@@ -3,7 +3,7 @@ import shortid from 'shortid';
 import { scheduleJob } from 'node-schedule';
 import ms from 'ms';
 
-import { sleepAsync } from '@tamanu/shared/utils/sleepAsync';
+import { sleepAsync } from '../utils/sleepAsync';
 
 import { getTracer, spanWrapFn } from '../services/logging';
 
@@ -124,7 +124,7 @@ export class ScheduledTask {
 
     if (!this.isEnabled) {
       this.log.info(`ScheduledTask: ${this.getName()} is disabled, won't run immediately`);
-      return false;
+      return true;
     }
 
     return getTracer().startActiveSpan(`ScheduledTask/${name}`, { root: true }, async span => {
