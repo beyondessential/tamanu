@@ -4,7 +4,7 @@ import asyncHandler from 'express-async-handler';
 import { literal, Op, Sequelize } from 'sequelize';
 import config from 'config';
 import { NotFoundError } from '@tamanu/shared/errors';
-import { omit } from 'lodash';
+import { keyBy, omit } from 'lodash';
 import {
   DEFAULT_HIERARCHY_TYPE,
   ENGLISH_LANGUAGE_CODE,
@@ -18,7 +18,6 @@ import {
   VISIBILITY_STATUSES,
   OTHER_REFERENCE_TYPES,
 } from '@tamanu/constants';
-import { keyBy } from 'lodash';
 
 export const suggestions = express.Router();
 
