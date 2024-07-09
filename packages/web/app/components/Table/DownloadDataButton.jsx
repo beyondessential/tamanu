@@ -10,7 +10,7 @@ import { ApiContext, useApi } from '../../api';
 import { saveFile } from '../../utils/fileSystemAccess';
 import { TranslationProvider } from '../../contexts/Translation';
 import { GreyOutlinedButton } from '../Button';
-import { TranslatedEnum, TranslatedReferenceData, TranslatedText } from '../Translation';
+import { isTranslatedText, TranslatedText } from '../Translation';
 
 /**
  * Recursive mapper for transforming leaf nodes in a DOM tree. Used here to explicitly wrap
@@ -57,13 +57,7 @@ export function DownloadDataButton({ exportName, columns, data }) {
    * “headless” React root node, outside the context providers defined in `Root.jsx`.
    */
   const contextualizeIfIsTranslatedText = element => {
-    if (!isValidElement(element)) return element;
-
-    const isTranslatedText = [TranslatedText, TranslatedReferenceData, TranslatedEnum].includes(
-      element.type,
-    );
-    if (!isTranslatedText) return element;
-
+    if (!isTranslatedText(element)) return element;
     return (
       <QueryClientProvider client={queryClient}>
         <ApiContext.Provider value={api}>
