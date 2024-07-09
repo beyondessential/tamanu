@@ -21,13 +21,20 @@ export const TranslatedText = ({
   fallback,
   replacements,
   uppercase = false,
+  lowercase = false,
 }: TranslatedTextProps): ReactElement => {
   const { debugMode, getTranslation } = useTranslation();
   const translation = useMemo(
-    () => getTranslation(stringId, fallback?.split('\\n').join('\n'), replacements, uppercase),
-    [getTranslation, stringId, fallback, replacements, uppercase],
+    () =>
+      getTranslation(
+        stringId,
+        fallback?.split('\\n').join('\n'),
+        replacements,
+        uppercase,
+        lowercase,
+      ),
+    [getTranslation, stringId, fallback, replacements, uppercase, lowercase],
   );
-  // const translation = getTranslation(stringId, fallback, replacements);
 
   const isDebugMode = __DEV__ && debugMode;
 

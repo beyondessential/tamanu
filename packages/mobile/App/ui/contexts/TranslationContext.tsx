@@ -1,4 +1,12 @@
-import React, { createContext, PropsWithChildren, ReactElement, useContext, useEffect, useState } from 'react';
+import React, {
+  createContext,
+  isValidElement,
+  PropsWithChildren,
+  ReactElement,
+  useContext,
+  useEffect,
+  useState,
+} from 'react';
 import { DevSettings } from 'react-native';
 import { useBackend } from '../hooks';
 import { isEmpty } from 'lodash';
@@ -12,6 +20,7 @@ export type GetTranslationFunction = (
   fallback?: string,
   replacements?: Replacements,
   uppercase?: boolean,
+  lowercase?: boolean,
 ) => string;
 
 export interface TranslatedTextProps {
@@ -19,6 +28,7 @@ export interface TranslatedTextProps {
   fallback: string;
   replacements?: Replacements;
   uppercase?: boolean;
+  lowercase?: boolean;
 }
 
 interface TranslationContextData {
@@ -36,6 +46,7 @@ interface TranslationContextData {
 interface ReplacementConfig {
   replacements?: Replacements;
   uppercase?: boolean;
+  lowercase?: boolean;
 }
 
 // Duplicated from TranslatedText.js on desktop
@@ -44,8 +55,8 @@ export const replaceStringVariables = (
   replacementConfig: ReplacementConfig,
   translations?: object,
 ) => {
-  const { replacements, uppercase } = replacementConfig || {};
-  if (!replacements) return applyCasing(templateString, uppercase);
+  const { replacements, uppercase, lowercase } = replacementConfig || {};
+  if (!replacements) return applyCasing(templateString, uppercase, lowercase);
   const result = templateString
     .split(/(:[a-zA-Z]+)/g)
     .map((part, index) => {
@@ -53,17 +64,25 @@ export const replaceStringVariables = (
       if (index % 2 === 0) return part;
       const replacement = replacements[part.slice(1)] ?? part;
       // Replacements might be a string or a translatable string component, handle each case
-      if (typeof replacement !== 'object') return replacement;
-      const translation = translations?.[replacement.props.stringId] || replacement.props.fallback;
-      return applyCasing(translation, replacement.props.uppercase);
+      if (!isValidElement(replacement)) return replacement;
+
+      const replacementElement = replacement as ReactElement<TranslatedTextProps>;
+      const translation =
+        translations?.[replacementElement.props.stringId] || replacementElement.props.fallback;
+      return applyCasing(
+        translation,
+        replacementElement.props.uppercase,
+        replacementElement.props.lowercase,
+      );
     })
     .join('');
 
-  return applyCasing(result, uppercase);
+  return applyCasing(result, uppercase, lowercase);
 };
 
-// duplicated and adapted from translationFactory.js
-const applyCasing = (text: string, uppercase: boolean) => {
+// duplicated from translationFactory.js
+const applyCasing = (text: string, uppercase: boolean, lowercase: boolean) => {
+  if (lowercase) return text.toLowerCase();
   if (uppercase) return text.toUpperCase();
   return text;
 };
@@ -103,10 +122,12 @@ export const TranslationProvider = ({ children }: PropsWithChildren<object>): Re
     fallback?: string,
     replacements?: Replacements,
     uppercase?: boolean,
+    lowercase?: boolean,
   ) => {
     const replacementConfig = {
       replacements,
       uppercase,
+      lowercase,
     };
     if (!translations) return replaceStringVariables(fallback, replacementConfig, translations);
     const translation = translations[stringId] ?? fallback;
