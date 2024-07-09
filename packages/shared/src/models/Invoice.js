@@ -103,9 +103,4 @@ export class Invoice extends Model {
       },
     ];
   }
-
-  addVirtualFields() {
-    this.items = this.items.map(item => item.addVirtualFields());
-    return this;
-  }
 }

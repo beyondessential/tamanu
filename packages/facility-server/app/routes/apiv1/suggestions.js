@@ -371,6 +371,7 @@ createSuggester(
   search => ({
     name: { [Op.iLike]: search },
     '$referenceData.type$': REFERENCE_TYPES.ADDITIONAL_INVOICE_PRODUCT,
+    ...VISIBILITY_CRITERIA,
   }),
   {
     mapper: product => {
