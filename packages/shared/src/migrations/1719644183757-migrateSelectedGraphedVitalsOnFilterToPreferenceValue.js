@@ -3,7 +3,7 @@ import { DataTypes } from 'sequelize';
 export async function up(query) {
   await query.sequelize.query(`
     UPDATE user_preferences
-    SET preference_value = selected_graphed_vitals_on_filter::jsonb
+    SET preference_value = (to_json(selected_graphed_vitals_on_filter::text)::jsonb)
     WHERE selected_graphed_vitals_on_filter IS NOT NULL;
   `);
 

@@ -47,7 +47,6 @@ import { triage } from './triage';
 import { user } from './user';
 import { vitals } from './vitals';
 import { translation } from './translation';
-import { charts } from './chart';
 import { vaccinationSettings } from './vaccinationSettings';
 import { upcomingVaccinations } from './upcomingVaccinations';
 import { telegramRoutes } from './telegram/telegramRoutes';
@@ -163,7 +162,6 @@ referenceDataRoutes.use('/user', user);
 referenceDataRoutes.use('/vaccinationSettings', vaccinationSettings);
 referenceDataRoutes.use('/upcomingVaccinations', upcomingVaccinations);
 referenceDataRoutes.use('/translation', translation);
-referenceDataRoutes.use('/chart', charts);
 
 // sync endpoints
 syncRoutes.use('/sync', sync);

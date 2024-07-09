@@ -15,16 +15,14 @@ const StyledTranslatedSelectField = styled(SelectField)`
 
 const ChartDropDown = () => {
   const [selectedChartType, setSelectedChartType] = useState('');
-  
+
   const { data: chartSurveys = [] } = useChartSurveys();
   const chartTypes = useMemo(
     () =>
-      chartSurveys
-        .sort((a, b) => (a.name < b.name ? -1 : 1))
-        .map(chartSurvey => ({
-          label: chartSurvey.name,
-          value: chartSurvey.id,
-        })),
+      chartSurveys.map(chartSurvey => ({
+        label: chartSurvey.name,
+        value: chartSurvey.id,
+      })),
     [chartSurveys],
   );
 
