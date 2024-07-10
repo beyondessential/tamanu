@@ -81,6 +81,7 @@ const COLUMNS = [
 export const PatientPaymentsTable = ({ invoice }) => {
   const patientPayments = invoice.payments.filter(payment => !!payment?.patientPayment);
   const { patientPaymentRemainingBalance } = getInvoiceSummaryDisplay(invoice);
+  const [amount, setAmount] = useState('');
 
   const [refreshCount, setRefreshCount] = useState(0);
 
@@ -92,10 +93,10 @@ export const PatientPaymentsTable = ({ invoice }) => {
   const paymentMethodSuggester = useSuggester('paymentMethod');
 
   const generateReceiptNumber = () => {
-    return customAlphabet('123456789', 8)() + customAlphabet('ABCDEFGHJKLMNPQRSTUVWXYZ', 2)();
+    return customAlphabet('ABCDEFGHJKLMNPQRSTUVWXYZ123456789', 8)();
   };
 
-  const onRecord = async (data, { resetForm }) => {
+  const onRecord = (data, { resetForm }) => {
     const { date, methodId, receiptNumber, amount } = data;
     createPatientPayment(
       {
@@ -107,6 +108,7 @@ export const PatientPaymentsTable = ({ invoice }) => {
       {
         onSuccess: () => {
           setRefreshCount(prev => prev + 1);
+          setAmount('');
           resetForm();
         },
       },
@@ -125,6 +127,21 @@ export const PatientPaymentsTable = ({ invoice }) => {
       }
     }
   };
+
+  const cellsWidthString = `
+    &:nth-child(1) {
+      width 20%;
+    }
+    &:nth-child(2) {
+      width 20%;
+    }
+    &:nth-child(3) {
+      width 15%;
+    }
+    &.MuiTableCell-body {
+      padding: 12px 30px 12px 0px;
+    }
+  `;
 
   return (
     <TableContainer>
@@ -151,28 +168,16 @@ export const PatientPaymentsTable = ({ invoice }) => {
         fetchOptions={{ page: undefined }}
         elevated={false}
         containerStyle={denseTableStyle.container}
-        cellStyle={
-          denseTableStyle.cell +
-          `
-          &:nth-child(1) {
-            width 20%;
-          }
-          &:nth-child(2) {
-            width 20%;
-          }
-          &:nth-child(3) {
-            width 15%;
-          }
-        `
-        }
-        headStyle={denseTableStyle.head}
+        cellStyle={denseTableStyle.cell + cellsWidthString}
+        headStyle={denseTableStyle.head + `.MuiTableCell-head {${cellsWidthString}}`}
         statusCellStyle={denseTableStyle.statusCell}
         disablePagination
         refreshCount={refreshCount}
-        noDataMessage={<Box paddingBottom="24px" />}
+        noDataMessage=''
       />
       {!hideRecordPaymentForm && canCreatePayment && (
         <Form
+          suppressErrorDialog
           onSubmit={onRecord}
           render={({ submitForm, setFieldValue }) => (
             <FormRow>
@@ -204,6 +209,8 @@ export const PatientPaymentsTable = ({ invoice }) => {
                   min={0}
                   style={{ gridColumn: 'span 2' }}
                   onInput={validateDecimalPlaces}
+                  value={amount}
+                  onChange={e => setAmount(e.target.value)}
                 />
               </Box>
               <Box sx={{ width: 'calc(20% - 5px)', position: 'relative' }}>
@@ -252,7 +259,6 @@ export const PatientPaymentsTable = ({ invoice }) => {
                   fallback="Cannot be more than outstanding balance"
                 />,
                 function(value) {
-                  console.log(value)
                   return Number(value) <= Number(patientPaymentRemainingBalance);
                 },
               ),
@@ -264,7 +270,15 @@ export const PatientPaymentsTable = ({ invoice }) => {
                   stringId="invoice.table.payment.column.receiptNumber"
                   fallback="Receipt number"
                 />,
-              ),
+              )
+              .matches(/^[A-Z0-9]+$/, {
+                message: (
+                  <TranslatedText
+                    stringId="invoice.payment.validation.invalidReceiptNumber"
+                    fallback="Invalid receipt number"
+                  />
+                ),
+              }),
           })}
         />
       )}

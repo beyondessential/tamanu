@@ -2,7 +2,6 @@ import React from 'react';
 import { Document, StyleSheet, View } from '@react-pdf/renderer';
 import { CertificateHeader, Watermark } from './Layout';
 import { LetterheadSection } from './LetterheadSection';
-import { PatientDetailsWithAddress } from './printComponents/PatientDetailsWithAddress';
 import { MultiPageHeader } from './printComponents/MultiPageHeader';
 import { getName } from '../patientAccessors';
 import { Footer } from './printComponents/Footer';
@@ -11,12 +10,8 @@ import { EncounterDetails } from './printComponents/EncounterDetails';
 import { InvoiceDetails } from './printComponents/InvoiceDetails';
 import {
   getInsurerPaymentsDisplay,
-  getInvoiceItemCode,
   getInvoiceItemDiscountPriceDisplay,
-  getInvoiceItemName,
   getInvoiceItemPriceDisplay,
-  getInvoiceItemQuantity,
-  getInvoiceItemNote,
   getInvoiceSummaryDisplay,
   getPatientPaymentsWithRemainingBalance,
   formatDisplayPrice,
@@ -25,6 +20,7 @@ import {
 import { withLanguageContext } from '../pdf/languageContext';
 import { Page } from '../pdf/Page';
 import { Text } from '../pdf/Text';
+import { PatientDetails } from './printComponents/PatientDetails';
 
 const borderStyle = '1 solid black';
 
@@ -140,15 +136,15 @@ const getPrice = item => {
 };
 
 const getInvoiceItemDetails = item => {
-  const name = getInvoiceItemName(item);
-  const note = getInvoiceItemNote(item);
+  const name = item.productName;
+  const note = item.note;
 
   return (
     <View>
       <View>
         <P>
           {name}
-          {!item.product.discountable && ' (Non-discountable)'}
+          {!item.productDiscountable && ' (Non-discountable)'}
         </P>
       </View>
       {!!note && (
@@ -185,28 +181,28 @@ const COLUMNS = {
       CellComponent: CustomCellComponent,
     },
     {
-      key: 'code',
+      key: 'productCode',
       title: 'Code',
       style: { width: '10%' },
-      accessor: row => getInvoiceItemCode(row),
+      accessor: ({ productCode }) => productCode,
     },
     {
       key: 'quantity',
       title: 'Quantity',
       style: { width: '11%' },
-      accessor: row => getInvoiceItemQuantity(row),
+      accessor: ({ quantity }) => quantity,
     },
     {
       key: 'orderedBy',
       title: 'Ordered by',
       accessor: ({ orderedByUser }) => orderedByUser?.displayName,
-      style: { width: '17%' },
+      style: { width: '14%' },
     },
     {
       key: 'price',
       title: 'Price',
       accessor: row => getPrice(row),
-      style: { width: '16%' },
+      style: { width: '19%' },
       CellComponent: CustomCellComponent,
     },
   ],
@@ -448,7 +444,7 @@ const InvoiceRecordPrintoutComponent = ({
       <Page size="A4" style={pageStyles.body} wrap>
         {watermark && <Watermark src={watermark} />}
         <MultiPageHeader
-          documentName="Patient encounter record"
+          documentName={`Invoice number: ${invoice.displayId}`}
           patientId={patientData.displayId}
           patientName={getName(patientData)}
         />
@@ -456,12 +452,12 @@ const InvoiceRecordPrintoutComponent = ({
           <LetterheadSection
             getLocalisation={getLocalisation}
             logoSrc={logo}
-            certificateTitle="Patient encounter record"
+            certificateTitle={`Invoice number: ${invoice.displayId}`}
             letterheadConfig={certificateData}
           />
         </CertificateHeader>
         <SectionSpacing />
-        <PatientDetailsWithAddress getLocalisation={getLocalisation} patient={patientData} />
+        <PatientDetails getLocalisation={getLocalisation} patient={patientData} />
         <SectionSpacing />
         <EncounterDetails
           encounter={encounter}

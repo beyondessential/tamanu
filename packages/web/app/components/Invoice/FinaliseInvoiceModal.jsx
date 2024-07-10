@@ -39,7 +39,11 @@ export const FinaliseInvoiceModal = ({ open, onClose, invoice }) => {
           fallback="Are you sure you would like to finalise this invoice? You will not be able to make any changes."
         />
       </ContentText>
-      <ModalActionRow onConfirm={finaliseInvoice} onCancel={onClose} />
+      <ModalActionRow
+        onConfirm={finaliseInvoice}
+        onCancel={onClose}
+        confirmText={<TranslatedText stringId="general.action.finalise" fallback="Finalise" />}
+      />
     </Modal>
   );
 };

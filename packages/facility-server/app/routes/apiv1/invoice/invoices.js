@@ -2,7 +2,7 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { customAlphabet } from 'nanoid';
 import { ValidationError, NotFoundError, InvalidOperationError } from '@tamanu/shared/errors';
-import { INVOICE_PAYMENT_STATUSES, INVOICE_STATUSES, SETTING_KEYS } from '@tamanu/constants';
+import { INVOICE_STATUSES, SETTING_KEYS } from '@tamanu/constants';
 import { v4 as uuidv4 } from 'uuid';
 import { z } from 'zod';
 import { Op } from 'sequelize';
@@ -41,7 +41,6 @@ const createInvoiceSchema = z
     displayId:
       customAlphabet('0123456789', 8)() + customAlphabet('ABCDEFGHIJKLMNOPQRSTUVWXYZ', 2)(),
     status: INVOICE_STATUSES.IN_PROGRESS,
-    paymentStatus: INVOICE_PAYMENT_STATUSES.UNPAID,
     date: getCurrentCountryTimeZoneDateString(),
   }));
 invoiceRoute.post(
@@ -148,6 +147,10 @@ const updateInvoiceSchema = z
         orderDate: z.string().date(),
         orderedByUserId: z.string().uuid(),
         productId: z.string(),
+        productName: z.string(),
+        productPrice: z.coerce.number().transform(amount => round(amount, 2)),
+        productCode: z.string().default(''),
+        productDiscountable: z.boolean().default(true),
         quantity: z.coerce.number().default(1),
         note: z.string().optional(),
         sourceId: z
@@ -279,35 +282,6 @@ invoiceRoute.put(
 );
 
 /**
- * Freeze invoice items data
- * @param {string} invoiceId
- * @param {import('@tamanu/shared/models')} models
- * @param {import('sequelize').Transaction} transaction
- */
-async function freezeInvoiceItemsData(invoiceId, models, transaction) {
-  const items = await models.InvoiceItem.findAll(
-    {
-      where: { invoiceId },
-      include: {
-        model: models.InvoiceProduct,
-        as: 'product',
-        attributes: ['name', 'price'],
-        include: models.InvoiceProduct.getFullReferenceAssociations(),
-      },
-    },
-    { transaction },
-  );
-
-  for (const item of items) {
-    item.product.addVirtualFields();
-    item.productName = item.product.name;
-    item.productPrice = item.product.price;
-    item.productCode = item.product.dataValues.code;
-    await item.save({ transaction });
-  }
-}
-
-/**
  * Cancel invoice
  */
 invoiceRoute.put(
@@ -329,8 +303,6 @@ invoiceRoute.put(
     const transaction = await req.db.transaction();
 
     try {
-      await freezeInvoiceItemsData(invoiceId, req.models, transaction);
-
       invoice.status = INVOICE_STATUSES.CANCELLED;
       await invoice.save({ transaction });
 
@@ -379,8 +351,6 @@ invoiceRoute.put(
     const transaction = await req.db.transaction();
 
     try {
-      await freezeInvoiceItemsData(invoiceId, req.models, transaction);
-
       invoice.status = INVOICE_STATUSES.FINALISED;
       await invoice.save({ transaction });
 

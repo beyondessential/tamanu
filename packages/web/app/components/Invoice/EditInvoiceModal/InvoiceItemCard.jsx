@@ -4,9 +4,6 @@ import { Box } from '@material-ui/core';
 import {
   getInvoiceItemDiscountPriceDisplay,
   getInvoiceItemPriceDisplay,
-  getInvoiceItemName,
-  getInvoiceItemCode,
-  getInvoiceItemQuantity,
 } from '@tamanu/shared/utils/invoice';
 import { Colors } from '../../../constants';
 import { TranslatedText } from '../../Translation/TranslatedText';
@@ -76,7 +73,7 @@ export const InvoiceItemCard = ({ item }) => {
         />
         <CardItem
           label={<TranslatedText stringId="invoice.table.column.code" fallback="Code" />}
-          value={getInvoiceItemCode(item)}
+          value={item.productCode}
         />
         <CardItem
           label={
@@ -93,7 +90,7 @@ export const InvoiceItemCard = ({ item }) => {
           label={
             <TranslatedText stringId="invoice.modal.editInvoice.details.label" fallback="Details" />
           }
-          value={getInvoiceItemName(item)}
+          value={item.productName}
         />
         <CardItem
           label={
@@ -102,7 +99,7 @@ export const InvoiceItemCard = ({ item }) => {
               fallback="Quantity"
             />
           }
-          value={getInvoiceItemQuantity(item)}
+          value={item.quantity}
         />
         <CardItem
           label={

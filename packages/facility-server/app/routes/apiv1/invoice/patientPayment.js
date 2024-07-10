@@ -28,7 +28,7 @@ const updatePatientPaymentSchema = z
 async function getInvoiceWithDetails(req, invoiceId) {
   return await req.models.Invoice.findByPk(invoiceId, {
     include: req.models.Invoice.getFullReferenceAssociations(req.models),
-  }).then(invoice => invoice.addVirtualFields());
+  });
 }
 const handleCreatePatientPayment = asyncHandler(async (req, res) => {
   req.checkPermission('create', 'InvoicePayment');

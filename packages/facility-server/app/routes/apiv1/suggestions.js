@@ -4,6 +4,7 @@ import asyncHandler from 'express-async-handler';
 import { literal, Op, Sequelize } from 'sequelize';
 import config from 'config';
 import { NotFoundError } from '@tamanu/shared/errors';
+import { keyBy, omit } from 'lodash';
 import {
   DEFAULT_HIERARCHY_TYPE,
   ENGLISH_LANGUAGE_CODE,
@@ -17,7 +18,6 @@ import {
   VISIBILITY_STATUSES,
   OTHER_REFERENCE_TYPES,
 } from '@tamanu/constants';
-import { keyBy } from 'lodash';
 
 export const suggestions = express.Router();
 
@@ -62,17 +62,17 @@ function createSuggesterRoute(
       const positionQuery = literal(
         `POSITION(LOWER(:positionMatch) in LOWER(${`"${modelName}"."${searchColumn}"`})) > 1`,
       );
+      const dataType = getDataType(endpoint);
 
-      const isTranslatable = TRANSLATABLE_REFERENCE_TYPES.includes(getDataType(endpoint));
+      const isTranslatable = TRANSLATABLE_REFERENCE_TYPES.includes(dataType);
 
-      const translations =
-        isTranslatable && searchQuery
-          ? await models.TranslatedString.getReferenceDataTranslationsByDataType({
-              language,
-              refDataType: getDataType(endpoint),
-              queryString: searchQuery,
-            })
-          : [];
+      const translations = isTranslatable
+        ? await models.TranslatedString.getReferenceDataTranslationsByDataType({
+            language,
+            refDataType: dataType,
+            queryString: searchQuery,
+          })
+        : [];
       const suggestedIds = translations.map(extractDataId);
 
       const filterByFacility = !!query.filterByFacility || endpoint === 'facilityLocationGroup';
@@ -84,6 +84,7 @@ function createSuggesterRoute(
         [Op.or]: [
           whereQuery,
           {
+            ...(dataType === OTHER_REFERENCE_TYPES.INVOICE_PRODUCT ? omit(whereQuery, 'name') : {}), //! Workaround for invoice product suggester while waiting for the actual fix
             id: { [Op.in]: suggestedIds },
             ...(visibilityStatus
               ? {
@@ -371,6 +372,7 @@ createSuggester(
   search => ({
     name: { [Op.iLike]: search },
     '$referenceData.type$': REFERENCE_TYPES.ADDITIONAL_INVOICE_PRODUCT,
+    ...VISIBILITY_CRITERIA,
   }),
   {
     mapper: product => {

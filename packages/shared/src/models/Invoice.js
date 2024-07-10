@@ -112,13 +112,4 @@ export class Invoice extends Model {
       },
     ];
   }
-
-  addVirtualFields() {
-    this.items = this.items.map(item => item.addVirtualFields());
-    this.paymentStatus =
-      this.patientPaymentStatus === this.insurerPaymentStatus
-        ? this.patientPaymentStatus
-        : `${this.patientPaymentStatus}/${this.insurerPaymentStatus}`;
-    return this;
-  }
 }

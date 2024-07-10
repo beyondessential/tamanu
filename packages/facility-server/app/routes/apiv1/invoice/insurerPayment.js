@@ -6,7 +6,7 @@ export const insurerPaymentRoute = express.Router();
 insurerPaymentRoute.get(
   '/:invoiceId/insurerPayments',
   asyncHandler(async (req, res) => {
-    req.checkPermission('read', 'InvoicePayment');
+    req.checkPermission('list', 'InvoicePayment');
 
     const invoiceId = req.params.invoiceId;
     const insurerPayments = await req.models.InvoiceInsurerPayment.findAll({
