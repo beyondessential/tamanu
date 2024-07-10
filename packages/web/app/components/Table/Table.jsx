@@ -388,7 +388,7 @@ class TableComponent extends React.Component {
     const status = this.getStatusMessage();
     if (status) {
       return (
-        <StatusRow className='statusRow' colSpan={columns.length} statusCellStyle={statusCellStyle}>
+        <StatusRow className="statusRow" colSpan={columns.length} statusCellStyle={statusCellStyle}>
           {errorMessage ? <ErrorSpan>{status}</ErrorSpan> : status}
         </StatusRow>
       );
@@ -397,24 +397,25 @@ class TableComponent extends React.Component {
     const sortedData = customSort && !lazyLoading ? customSort(data) : data;
     return (
       <>
-        {sortedData.map((rowData, rowIndex) => {
-          const key = rowData[rowIdKey] || rowData[columns[0].key];
-          return (
-            <Row
-              rowIndex={rowIndex}
-              data={rowData}
-              key={key}
-              columns={columns}
-              onClick={onRowClick}
-              cellOnChange={cellOnChange}
-              refreshTable={refreshTable}
-              rowStyle={rowStyle}
-              lazyLoading={lazyLoading}
-              cellStyle={cellStyle}
-              onClickRow={onClickRow}
-            />
-          );
-        })}
+        {Array.isArray(sortedData) &&
+          sortedData.map((rowData, rowIndex) => {
+            const key = rowData[rowIdKey] || rowData[columns[0].key];
+            return (
+              <Row
+                rowIndex={rowIndex}
+                data={rowData}
+                key={key}
+                columns={columns}
+                onClick={onRowClick}
+                cellOnChange={cellOnChange}
+                refreshTable={refreshTable}
+                rowStyle={rowStyle}
+                lazyLoading={lazyLoading}
+                cellStyle={cellStyle}
+                onClickRow={onClickRow}
+              />
+            );
+          })}
         {isLoadingMore && (
           <StyledTableRow $lazyLoading={lazyLoading}>
             <CenteredLoadingIndicatorContainer>
