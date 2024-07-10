@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { getInvoiceSummary } from '@tamanu/shared/utils/invoice';
+import { formatDisplayPrice, getInvoiceSummary } from '@tamanu/shared/utils/invoice';
 import { TranslatedText } from '../../Translation';
 import { Table } from '../../Table';
 import { Colors, denseTableStyle } from '../../../constants';
@@ -43,6 +43,7 @@ const COLUMNS = [
     title: <TranslatedText stringId="invoice.table.payment.column.amount" fallback="Amount" />,
     sortable: false,
     dontCallRowInput: true,
+    accessor: ({ amount }) => formatDisplayPrice(amount),
   },
   {
     key: 'receiptNumber',
@@ -83,7 +84,7 @@ export const InsurerPaymentsTable = ({ invoice }) => {
             fallback="Remaining balance: :remainingBalance"
             replacements={{
               remainingBalance:
-                insurerPaymentRemainingBalance <= 0 ? 0 : insurerPaymentRemainingBalance,
+                insurerPaymentRemainingBalance <= 0 ? '0.00' : insurerPaymentRemainingBalance,
             }}
           />
         </Heading4>
@@ -95,7 +96,7 @@ export const InsurerPaymentsTable = ({ invoice }) => {
         page={null}
         elevated={false}
         containerStyle={denseTableStyle.container}
-        cellStyle={denseTableStyle.cell}
+        cellStyle={denseTableStyle.cell + '&.MuiTableCell-body { padding: 8px 30px 8px 0px }'}
         headStyle={denseTableStyle.head}
         statusCellStyle={denseTableStyle.statusCell}
       />
