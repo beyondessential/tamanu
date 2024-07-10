@@ -11,7 +11,10 @@ import { PencilIcon } from '../../assets/icons/PencilIcon';
 import { ThemedTooltip } from '../Tooltip';
 import { BodyText, Heading3 } from '../Typography';
 import { Button } from '../Button';
-import { getInsurerPaymentsDisplay, getInvoiceSummaryDisplay } from '@tamanu/shared/utils/invoice';
+import {
+  getInsurerDiscountAmountDisplayList,
+  getInvoiceSummaryDisplay,
+} from '@tamanu/shared/utils/invoice';
 import { getDateDisplay } from '../DateDisplay';
 import { useSettings } from '../../contexts/Settings';
 import { AutocompleteField, Field, NumberField } from '../Field';
@@ -83,7 +86,7 @@ const StyledNumberField = styled(NumberField)`
   }
 `;
 
-const InsurersEditable = ({ insurerPaymentsDisplay }) => {
+const InsurersEditable = ({ insurerDiscountAmountDisplayList }) => {
   const formikContext = useFormikContext();
   const insurers = formikContext?.values?.insurers || [];
 
@@ -133,7 +136,9 @@ const InsurersEditable = ({ insurerPaymentsDisplay }) => {
                   <Box marginTop="11px">%</Box>
                 </Box>
                 <Box marginTop="11px" display="flex" justifyContent="flex-end">
-                  {insurerPaymentsDisplay[index] ? `-${insurerPaymentsDisplay[index]}` : ''}
+                  {insurerDiscountAmountDisplayList[index]
+                    ? `-${insurerDiscountAmountDisplayList[index]}`
+                    : ''}
                   <RemoveInsurerButton onClick={() => formArrayMethods.remove(index)}>
                     <CloseIcon />
                   </RemoveInsurerButton>
@@ -173,7 +178,7 @@ const InsurersEditable = ({ insurerPaymentsDisplay }) => {
   );
 };
 
-const InsurersView = ({ insurers, insurerPaymentsDisplay }) => {
+const InsurersView = ({ insurers, insurerDiscountAmountDisplayList }) => {
   return (
     <CardItem flexDirection="column">
       <Box fontWeight={500}>
@@ -185,7 +190,9 @@ const InsurersView = ({ insurers, insurerPaymentsDisplay }) => {
           <DiscountedPrice>
             <span>{insurer.percentage * 100}%</span>
             <BodyText color={Colors.darkestText}>
-              {insurerPaymentsDisplay[index] ? `-${insurerPaymentsDisplay[index]}` : ''}
+              {insurerDiscountAmountDisplayList[index]
+                ? `-${insurerDiscountAmountDisplayList[index]}`
+                : ''}
             </BodyText>
           </DiscountedPrice>
         </Box>
@@ -214,7 +221,10 @@ export const InvoiceSummaryPanel = ({ invoice, editable, handleEditDiscount }) =
     patientTotal,
   } = getInvoiceSummaryDisplay({ ...invoice, insurers });
 
-  const insurerPaymentsDisplay = getInsurerPaymentsDisplay(insurers, itemsSubtotal);
+  const insurerDiscountAmountDisplayList = getInsurerDiscountAmountDisplayList(
+    insurers,
+    itemsSubtotal,
+  );
 
   return (
     <Container>
@@ -240,13 +250,16 @@ export const InvoiceSummaryPanel = ({ invoice, editable, handleEditDiscount }) =
       <Divider />
       {editable && (
         <>
-          <InsurersEditable insurerPaymentsDisplay={insurerPaymentsDisplay} />
+          <InsurersEditable insurerDiscountAmountDisplayList={insurerDiscountAmountDisplayList} />
           <Divider />
         </>
       )}
       {!editable && !!insurers?.length && (
         <>
-          <InsurersView insurers={insurers} insurerPaymentsDisplay={insurerPaymentsDisplay} />
+          <InsurersView
+            insurers={insurers}
+            insurerDiscountAmountDisplayList={insurerDiscountAmountDisplayList}
+          />
           <Divider />
         </>
       )}

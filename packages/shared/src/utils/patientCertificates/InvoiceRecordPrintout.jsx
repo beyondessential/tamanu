@@ -9,13 +9,13 @@ import { formatShort } from '../dateTime';
 import { EncounterDetails } from './printComponents/EncounterDetails';
 import { InvoiceDetails } from './printComponents/InvoiceDetails';
 import {
-  getInsurerPaymentsDisplay,
+  getInsurerDiscountAmountDisplayList,
   getInvoiceItemDiscountPriceDisplay,
   getInvoiceItemPriceDisplay,
   getInvoiceSummaryDisplay,
-  getPatientPaymentsWithRemainingBalance,
+  getPatientPaymentsWithRemainingBalanceDisplay,
   formatDisplayPrice,
-  getInsurerPaymentsWithRemainingBalance,
+  getInsurerPaymentsWithRemainingBalanceDisplay,
 } from '../invoice';
 import { withLanguageContext } from '../pdf/languageContext';
 import { Page } from '../pdf/Page';
@@ -354,7 +354,10 @@ const SummaryPane = ({ invoice }) => {
     discountTotal,
     patientTotal,
   } = getInvoiceSummaryDisplay(invoice);
-  const insurerPaymentsDisplay = getInsurerPaymentsDisplay(invoice?.insurers, itemsSubtotal);
+  const isurerDiscountAmountDisplayList = getInsurerDiscountAmountDisplayList(
+    invoice?.insurers,
+    itemsSubtotal,
+  );
 
   return (
     <View wrap={false} style={summaryPaneStyles.container}>
@@ -383,7 +386,7 @@ const SummaryPane = ({ invoice }) => {
                 <P>{insurer.insurer?.name}</P>
                 <View style={summaryPaneStyles.subItem}>
                   <P>{insurer.percentage * 100}%</P>
-                  <P>{`-${insurerPaymentsDisplay[index]}`}</P>
+                  <P>{`-${isurerDiscountAmountDisplayList[index]}`}</P>
                 </View>
               </View>
             );
@@ -436,8 +439,8 @@ const InvoiceRecordPrintoutComponent = ({
   invoice,
 }) => {
   const { watermark, logo } = certificateData;
-  const patientPayments = getPatientPaymentsWithRemainingBalance(invoice);
-  const insurerPayments = getInsurerPaymentsWithRemainingBalance(invoice);
+  const patientPayments = getPatientPaymentsWithRemainingBalanceDisplay(invoice);
+  const insurerPayments = getInsurerPaymentsWithRemainingBalanceDisplay(invoice);
 
   return (
     <Document>
