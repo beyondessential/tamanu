@@ -25,6 +25,6 @@ insurerPaymentRoute.get(
       })),
     );
 
-    res.json(insurerPayments);
+    res.json({ count: insurerPayments.length, data: insurerPayments });
   }),
 );

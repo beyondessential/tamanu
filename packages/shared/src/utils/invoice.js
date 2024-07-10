@@ -159,6 +159,10 @@ export const getInvoiceSummary = invoice => {
     .round(2)
     .value();
 
+  const insurerPaymentRemainingBalance = chain(insurerDiscountTotal - insurerPaymentsTotal)
+    .round(2)
+    .value();
+
   return {
     discountableItemsSubtotal,
     nonDiscountableItemsSubtotal,
@@ -172,6 +176,7 @@ export const getInvoiceSummary = invoice => {
     insurerPaymentsTotal,
     paymentsTotal,
     patientPaymentRemainingBalance,
+    insurerPaymentRemainingBalance,
   };
 };
 
@@ -260,4 +265,17 @@ export const getPatientPaymentsWithRemainingBalance = invoice => {
     };
   });
   return patientPaymentsWithRemainingBalance;
+};
+
+export const getInsurerPaymentsWithRemainingBalance = invoice => {
+  const insurerPayments = invoice.payments.filter(payment => payment?.insurerPayment?.id);
+  let { insurerDiscountTotal } = getInvoiceSummaryDisplay(invoice);
+  const insurerPaymentsWithRemainingBalance = insurerPayments?.map(payment => {
+    insurerDiscountTotal = round(insurerDiscountTotal - parseFloat(payment.amount), 2);
+    return {
+      ...payment,
+      remainingBalance: insurerDiscountTotal.toFixed(2),
+    };
+  });
+  return insurerPaymentsWithRemainingBalance;
 };

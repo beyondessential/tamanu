@@ -7,7 +7,7 @@ export const PaymentTablesGroup = ({ invoice }) => {
   return (
     <Box sx={{ flex: 2 }}>
       <PatientPaymentsTable invoice={invoice} />
-      <InsurerPaymentsTable />
+      <InsurerPaymentsTable invoice={invoice} />
     </Box>
   );
 };
