@@ -41,13 +41,17 @@ export const PatientPaymentForm = ({
   updateEditingPayment,
   invoice,
 }) => {
-  const [isSaving, setIsSaving] = useState(false);
   const [openConfirmPaidModal, setOpenConfirmPaidModal] = useState(false);
   const paymentMethodSuggester = useSuggester('paymentMethod');
-  const [amount, setAmount] = useState('');
+  const [amount, setAmount] = useState(editingPayment?.amount ?? '');
 
-  const { mutate: createPatientPayment } = useCreatePatientPayment(invoice);
-  const { mutate: updatePatientPayment } = useUpdatePatientPayment(invoice, editingPayment?.id);
+  const { mutate: createPatientPayment, isLoading: isCreatingPayment } = useCreatePatientPayment(
+    invoice,
+  );
+  const { mutate: updatePatientPayment, isLoading: isUpdatingPayment } = useUpdatePatientPayment(
+    invoice,
+    editingPayment?.id,
+  );
 
   const generateReceiptNumber = () => {
     return customAlphabet('ABCDEFGHJKLMNPQRSTUVWXYZ123456789', 8)();
@@ -64,7 +68,6 @@ export const PatientPaymentForm = ({
   };
 
   const onRecord = (data, { resetForm }) => {
-    setIsSaving(true);
     const { date, methodId, receiptNumber, amount } = data;
     if (!editingPayment?.id) {
       createPatientPayment(
@@ -80,7 +83,6 @@ export const PatientPaymentForm = ({
             setAmount('');
             resetForm();
           },
-          onSettled: () => setIsSaving(false),
         },
       );
     } else {
@@ -96,7 +98,6 @@ export const PatientPaymentForm = ({
             updateRefreshCount();
             updateEditingPayment({});
           },
-          onSettled: () => setIsSaving(false),
         },
       );
     }
@@ -166,7 +167,11 @@ export const PatientPaymentForm = ({
             </IconButton>
           </Box>
           <Box sx={{ gridColumn: 'span 3', marginLeft: 'auto' }}>
-            <Button size="small" onClick={submitForm} disabled={isSaving}>
+            <Button
+              size="small"
+              onClick={submitForm}
+              disabled={isCreatingPayment || isUpdatingPayment}
+            >
               <TranslatedText stringId="invoice.modal.payment.action.record" fallback="Record" />
             </Button>
           </Box>
