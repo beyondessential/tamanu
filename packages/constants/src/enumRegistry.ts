@@ -1,3 +1,4 @@
+import { camelCase } from 'lodash';
 import { SEX_LABELS } from './patientFields';
 import {
   INVOICE_LINE_TYPE_LABELS,
@@ -30,6 +31,7 @@ import { LOCATION_AVAILABILITY_STATUS_LABELS } from './locations';
 
 type EnumKeys = keyof typeof registeredEnums;
 type EnumValues = typeof registeredEnums[EnumKeys];
+type EnumEntries = [EnumKeys, EnumValues][];
 
 /** This is a group of all the enums that are registered to be translatable.
  * This allows us to keep track of changes to existing enums or the additional
@@ -107,7 +109,7 @@ const enumRegistry = new Set(Object.values(registeredEnums));
 
 // Map enum value references to their translation prefix
 const prefixMap = new Map(
-  (Object.entries(registeredEnums) as [EnumKeys, EnumValues][]).map(([key, enumValue]) => [
+  (Object.entries(registeredEnums) as EnumEntries).map(([key, enumValue]) => [
     enumValue,
     translationPrefixes[key],
   ]),
@@ -121,3 +123,15 @@ export const isRegisteredEnum = (enumValues: any): boolean => enumRegistry.has(e
 
 /** Get the translation prefix from an object reference to a registered enum */
 export const getEnumPrefix = (enumValues: any): string | undefined => prefixMap.get(enumValues);
+
+/**
+ * The list of all translatable enums string id and fallback
+ */
+export const enumTranslations = (Object.entries(
+  registeredEnums,
+) as EnumEntries).flatMap(([key, value]) =>
+  Object.entries(value).map(([enumKey, enumValue]) => [
+    `${translationPrefixes[key]}.${camelCase(enumKey)}`,
+    enumValue,
+  ]),
+);
