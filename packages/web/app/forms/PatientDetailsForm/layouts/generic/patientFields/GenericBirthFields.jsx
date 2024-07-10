@@ -89,7 +89,7 @@ export const GenericBirthFields = ({ filterByMandatory, registeredBirthPlace }) 
           fallback="Delivery type"
         />
       ),
-      prefix: 'localisedField.property.birthDeliveryType',
+      prefix: 'birth.property.birthDeliveryType',
     },
     birthType: {
       component: SelectField,
