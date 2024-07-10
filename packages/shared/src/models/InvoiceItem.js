@@ -30,15 +30,19 @@ export class InvoiceItem extends Model {
         },
         productName: {
           type: DataTypes.STRING,
-          allowNull: true,
+          allowNull: false,
         },
         productPrice: {
           type: DataTypes.DECIMAL,
-          allowNull: true,
+          allowNull: false,
         },
         productCode: {
           type: DataTypes.STRING,
-          allowNull: true,
+          allowNull: false,
+        },
+        productDiscountable: {
+          type: DataTypes.BOOLEAN,
+          allowNull: false,
         },
       },
       { syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL, ...options },
@@ -109,13 +113,5 @@ export class InvoiceItem extends Model {
         as: 'discount',
       },
     ];
-  }
-
-  addVirtualFields() {
-    this.product = this.product.addVirtualFields();
-    this.dataValues.productName = this.productName ?? this.product?.name;
-    this.dataValues.productPrice = this.productPrice ?? this.product?.price;
-    this.dataValues.productCode = this.productCode ?? this.product?.code;
-    return this;
   }
 }

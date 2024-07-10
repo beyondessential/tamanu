@@ -253,10 +253,7 @@ encounterRelations.get(
   noteChangelogsHandler(NOTE_RECORD_TYPES.ENCOUNTER),
 );
 
-encounterRelations.get(
-  '/:id/invoice',
-  simpleGetHasOne('Invoice', 'encounterId', {}, invoice => invoice.addVirtualFields()),
-);
+encounterRelations.get('/:id/invoice', simpleGetHasOne('Invoice', 'encounterId', {}));
 
 const PROGRAM_RESPONSE_SORT_KEYS = {
   endTime: 'end_time',

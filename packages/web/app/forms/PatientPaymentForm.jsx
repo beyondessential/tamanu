@@ -44,12 +44,13 @@ export const PatientPaymentForm = ({
   const [isSaving, setIsSaving] = useState(false);
   const [openConfirmPaidModal, setOpenConfirmPaidModal] = useState(false);
   const paymentMethodSuggester = useSuggester('paymentMethod');
+  const [amount, setAmount] = useState('');
 
   const { mutate: createPatientPayment } = useCreatePatientPayment(invoice);
   const { mutate: updatePatientPayment } = useUpdatePatientPayment(invoice, editingPayment?.id);
 
   const generateReceiptNumber = () => {
-    return customAlphabet('123456789', 8)() + customAlphabet('ABCDEFGHJKLMNPQRSTUVWXYZ', 2)();
+    return customAlphabet('ABCDEFGHJKLMNPQRSTUVWXYZ123456789', 8)();
   };
 
   const validateDecimalPlaces = e => {
@@ -76,6 +77,7 @@ export const PatientPaymentForm = ({
         {
           onSuccess: () => {
             updateRefreshCount();
+            setAmount('');
             resetForm();
           },
           onSettled: () => setIsSaving(false),
@@ -115,6 +117,7 @@ export const PatientPaymentForm = ({
 
   return (
     <Form
+      suppressErrorDialog
       onSubmit={handleSubmit}
       render={({ submitForm, setFieldValue }) => (
         <FormRow>
@@ -146,6 +149,8 @@ export const PatientPaymentForm = ({
               min={0}
               style={{ gridColumn: 'span 2' }}
               onInput={validateDecimalPlaces}
+              value={amount}
+              onChange={e => setAmount(e.target.value)}
             />
           </Box>
           <Box sx={{ width: 'calc(20% - 5px)', position: 'relative' }}>
@@ -212,7 +217,15 @@ export const PatientPaymentForm = ({
               stringId="invoice.table.payment.column.receiptNumber"
               fallback="Receipt number"
             />,
-          ),
+          )
+          .matches(/^[A-Z0-9]+$/, {
+            message: (
+              <TranslatedText
+                stringId="invoice.payment.validation.invalidReceiptNumber"
+                fallback="Invalid receipt number"
+              />
+            ),
+          }),
       })}
       enableReinitialize
       initialValues={{

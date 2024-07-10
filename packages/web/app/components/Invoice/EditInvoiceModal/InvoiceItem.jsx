@@ -11,8 +11,6 @@ import { InvoiceItemActionModal } from './InvoiceItemActionModal';
 import {
   getInvoiceItemDiscountPriceDisplay,
   getInvoiceItemPriceDisplay,
-  getInvoiceItemName,
-  getInvoiceItemCode,
 } from '@tamanu/shared/utils/invoice';
 import { getDateDisplay } from '../../DateDisplay';
 import { useTranslation } from '../../../contexts/Translation';
@@ -108,19 +106,20 @@ export const InvoiceItemRow = ({
 }) => {
   const isItemEditable = !item.sourceId && editable;
   const { getTranslation } = useTranslation();
+
+  const nonDiscountableTranslation = getTranslation(
+    'invoice.table.details.nonDiscountable',
+    'Non-discountable',
+    {},
+    false,
+    true,
+  );
+
   const invoiceProductsSuggester = useSuggester('invoiceProducts', {
     formatter: ({ name, id, ...others }) => ({
       ...others,
       productName: name,
-      label: others.discountable
-        ? name
-        : `${name} (${getTranslation(
-            'invoice.table.details.nonDiscountable',
-            'Non-discountable',
-            {},
-            false,
-            true,
-          )})`,
+      label: others.discountable ? name : `${name} (${nonDiscountableTranslation})`,
       value: id,
     }),
   });
@@ -247,7 +246,7 @@ export const InvoiceItemRow = ({
       productName: value.productName,
       productCode: value.code,
       productPrice: value.price,
-      product: value,
+      productDiscountable: value.discountable,
     });
   };
 
@@ -281,7 +280,8 @@ export const InvoiceItemRow = ({
             />
           ) : (
             <ViewOnlyCell $hasLargeFont={!editable} $hasLeftPadding={editable}>
-              {getInvoiceItemName(item)}
+              {item.productName}
+              {item.productDiscountable ? '' : ` (${nonDiscountableTranslation})`}
             </ViewOnlyCell>
           )}
           {item.note && (
@@ -296,7 +296,7 @@ export const InvoiceItemRow = ({
           )}
         </StyledItemCell>
         <StyledItemCell width="10%" paddingLeft="10px">
-          <ViewOnlyCell $hasLargeFont={!editable}>{getInvoiceItemCode(item)}</ViewOnlyCell>
+          <ViewOnlyCell $hasLargeFont={!editable}>{item.productCode}</ViewOnlyCell>
         </StyledItemCell>
         <StyledItemCell width="10%" paddingLeft="10px">
           {isItemEditable ? (

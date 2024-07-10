@@ -16,6 +16,10 @@ export class InvoiceInsurerPayment extends Model {
           type: DataTypes.STRING,
           allowNull: false,
         },
+        reason: {
+          type: DataTypes.STRING,
+          allowNull: true,
+        },
       },
       { syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL, ...options },
     );

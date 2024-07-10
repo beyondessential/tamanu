@@ -103,6 +103,9 @@ export const PatientPaymentsTable = ({ invoice }) => {
       &:nth-child(4) {
         width 20%;
       }
+      &.MuiTableCell-body {
+        padding: 12px 30px 12px 0px;
+      }
     `;
 
   const tableProps = {
@@ -117,7 +120,7 @@ export const PatientPaymentsTable = ({ invoice }) => {
     statusCellStyle: denseTableStyle.statusCell,
     disablePagination: true,
     refreshCount: refreshCount,
-    noDataMessage: patientPayments.length ? '' : <Box paddingBottom="12px" />,
+    noDataMessage: '',
   };
 
   return (

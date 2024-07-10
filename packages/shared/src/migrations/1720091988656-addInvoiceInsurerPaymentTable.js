@@ -29,6 +29,10 @@ export async function up(query) {
       type: DataTypes.STRING,
       allowNull: false,
     },
+    reason: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
 
     created_at: {
       type: DataTypes.DATE,
@@ -51,5 +55,4 @@ export async function up(query) {
  */
 export async function down(query) {
   await query.dropTable('invoice_insurer_payments');
-  await query.dropTable('invoice_payments');
 }
