@@ -187,20 +187,13 @@ export const PatientPaymentForm = ({
       validationSchema={yup.object().shape({
         date: yup
           .string()
-          .required()
-          .translatedLabel(<TranslatedText stringId="general.date.label" fallback="date" />),
+          .required(<TranslatedText stringId="general.required" fallback="Required" />),
         methodId: yup
           .string()
-          .required()
-          .translatedLabel(
-            <TranslatedText stringId="invoice.table.payment.column.method" fallback="Method" />,
-          ),
+          .required(<TranslatedText stringId="general.required" fallback="Required" />),
         amount: yup
           .string()
-          .required()
-          .translatedLabel(
-            <TranslatedText stringId="invoice.table.payment.column.amount" fallback="Amount" />,
-          )
+          .required(<TranslatedText stringId="general.required" fallback="Required" />)
           .test(
             'is-valid-amount',
             <TranslatedText
@@ -216,13 +209,7 @@ export const PatientPaymentForm = ({
           ),
         receiptNumber: yup
           .string()
-          .required()
-          .translatedLabel(
-            <TranslatedText
-              stringId="invoice.table.payment.column.receiptNumber"
-              fallback="Receipt number"
-            />,
-          )
+          .required(<TranslatedText stringId="general.required" fallback="Required" />)
           .matches(/^[A-Z0-9]+$/, {
             message: (
               <TranslatedText
