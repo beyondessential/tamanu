@@ -145,7 +145,7 @@ const updateInvoiceSchema = z
           .uuid()
           .default(uuidv4),
         orderDate: z.string().date(),
-        orderedByUserId: z.string().uuid(),
+        orderedByUserId: z.string(),
         productId: z.string(),
         productName: z.string(),
         productPrice: z.coerce.number().transform(amount => round(amount, 2)),
