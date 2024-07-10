@@ -96,9 +96,10 @@ export const InsurerPaymentsTable = ({ invoice }) => {
         page={null}
         elevated={false}
         containerStyle={denseTableStyle.container}
-        cellStyle={denseTableStyle.cell + '&.MuiTableCell-body { padding: 8px 30px 8px 0px }'}
+        cellStyle={denseTableStyle.cell + '&.MuiTableCell-body { padding: 12px 30px 12px 0px }'}
         headStyle={denseTableStyle.head}
         statusCellStyle={denseTableStyle.statusCell}
+        noDataMessage=''
       />
     </TableContainer>
   );
