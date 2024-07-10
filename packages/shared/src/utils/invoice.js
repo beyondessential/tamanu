@@ -95,7 +95,7 @@ const getInsurerDiscountAmountList = (insurers, total) => {
  * @returns
  */
 export const getInvoiceSummary = invoice => {
-  invoice = JSON.stringify(JSON.parse(invoice)); // deep clone to convert sequelize entity to plain objects
+  invoice = JSON.parse(JSON.stringify(invoice)); // deep clone to convert sequelize entity to plain objects
 
   const discountableItemsSubtotal = invoice.items
     .filter(item => item?.productDiscountable)
