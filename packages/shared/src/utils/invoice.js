@@ -6,7 +6,7 @@ import {
 import Decimal from 'decimal.js';
 import { mapValues } from 'lodash';
 
-const round = (value, decimals = 2) => {
+export const round = (value, decimals = 2) => {
   return new Decimal(value).toNearest(new Decimal(10).pow(-decimals)).toNumber();
 };
 
@@ -217,6 +217,8 @@ export const getInsurerDiscountAmountDisplayList = (insurers, total) => {
  * @returns
  */
 export const getInvoicePatientPaymentStatus = (paidAmount, owingAmount) => {
+  paidAmount = round(paidAmount, 2);
+  owingAmount = round(owingAmount, 2);
   if (paidAmount < 0) throw new Error('Paid amount cannot be negative');
   if (paidAmount > owingAmount) throw new Error('Paid amount cannot be greater than owing amount');
 
@@ -233,6 +235,9 @@ export const getInvoicePatientPaymentStatus = (paidAmount, owingAmount) => {
  */
 export const getInvoiceInsurerPaymentStatus = (paidAmount, owingAmount) => {
   if (paidAmount == null) return INVOICE_INSURER_PAYMENT_STATUSES.UNPAID;
+
+  paidAmount = round(paidAmount, 2);
+  owingAmount = round(owingAmount, 2);
   if (paidAmount < 0) throw new Error('Paid amount cannot be negative');
   if (paidAmount > owingAmount) throw new Error('Paid amount cannot be greater than owing amount');
 

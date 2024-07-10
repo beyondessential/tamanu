@@ -5,7 +5,7 @@ import { ForbiddenError, NotFoundError, ValidationError } from '@tamanu/shared/e
 import { getInvoicePatientPaymentStatus, getInvoiceSummary } from '@tamanu/shared/utils/invoice';
 import express from 'express';
 import Decimal from 'decimal.js';
-import { round } from 'lodash';
+import { round } from '@tamanu/shared/utils/invoice';
 
 const createPatientPaymentSchema = z
   .object({
@@ -44,9 +44,8 @@ const handleCreatePatientPayment = asyncHandler(async (req, res) => {
   const { data, error } = await createPatientPaymentSchema.safeParseAsync(req.body);
   if (error) throw new ValidationError(error.message);
 
-  const { patientTotal, patientPaymentsTotal } = getInvoiceSummary(invoice);
-  const owingBalance = new Decimal(patientTotal).minus(patientPaymentsTotal).toNumber();
-  if (data.amount > owingBalance)
+  const { patientTotal, patientPaymentRemainingBalance } = getInvoiceSummary(invoice);
+  if (data.amount > round(patientPaymentRemainingBalance, 2))
     throw new ForbiddenError('Amount of payment is higher than the owing total');
 
   const transaction = await req.db.transaction();
@@ -73,7 +72,10 @@ const handleCreatePatientPayment = asyncHandler(async (req, res) => {
     await req.models.Invoice.update(
       {
         patientPaymentStatus: getInvoicePatientPaymentStatus(
-          new Decimal(patientPaymentsTotal).add(data.amount).toNumber(),
+          new Decimal(patientTotal)
+            .minus(patientPaymentRemainingBalance)
+            .add(data.amount)
+            .toNumber(),
           patientTotal,
         ),
       },
@@ -105,12 +107,11 @@ const handleUpdatePatientPayment = asyncHandler(async (req, res) => {
   const { data, error } = await updatePatientPaymentSchema.safeParseAsync(req.body);
   if (error) throw new ValidationError(error.message);
 
-  const { patientTotal, patientPaymentsTotal } = getInvoiceSummary(invoice);
-  const owingBalance = new Decimal(patientTotal)
-    .minus(patientPaymentsTotal)
-    .add(payment.amount)
-    .toNumber();
-  if (data.amount > owingBalance)
+  const { patientTotal, patientPaymentRemainingBalance } = getInvoiceSummary(invoice);
+  if (
+    data.amount >
+    round(new Decimal(patientPaymentRemainingBalance).add(payment.amount).toNumber(), 2)
+  )
     throw new ForbiddenError('Amount of payment is higher than the invoice total');
 
   const transaction = await req.db.transaction();
@@ -137,7 +138,8 @@ const handleUpdatePatientPayment = asyncHandler(async (req, res) => {
     await req.models.Invoice.update(
       {
         patientPaymentStatus: getInvoicePatientPaymentStatus(
-          new Decimal(patientPaymentsTotal)
+          new Decimal(patientTotal)
+            .minus(patientPaymentRemainingBalance)
             .minus(payment.amount)
             .add(data.amount)
             .toNumber(),

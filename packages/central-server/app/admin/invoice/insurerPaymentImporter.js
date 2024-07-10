@@ -2,7 +2,11 @@ import * as xlsx from 'xlsx';
 import { chain, round } from 'lodash';
 import { z } from 'zod';
 import { customAlphabet } from 'nanoid';
-import { getInvoiceInsurerPaymentStatus, getInvoiceSummary } from '@tamanu/shared/utils/invoice';
+import {
+  getInvoiceInsurerPaymentStatus,
+  getInvoiceSummary,
+  round,
+} from '@tamanu/shared/utils/invoice';
 import { INVOICE_INSURER_PAYMENT_STATUSES, INVOICE_STATUSES } from '@tamanu/constants';
 import { ValidationError } from '../errors';
 import Decimal from 'decimal.js';
@@ -77,12 +81,10 @@ export async function insurerPaymentImporter({ errors, models, stats, file, chec
       continue;
     }
 
-    const { insurerDiscountTotal, insurerPaymentsTotal } = getInvoiceSummary(invoice);
-
-    const owingBalance = new Decimal(insurerDiscountTotal).minus(insurerPaymentsTotal).toNumber();
+    const { insurerDiscountTotal, insurerPaymentRemainingBalance } = getInvoiceSummary(invoice);
 
     //* Block payment if the amount is greater than the amount owing
-    if (data.amount > owingBalance) {
+    if (data.amount > round(insurerPaymentRemainingBalance, 2)) {
       errors.push(new ValidationError('', index + 1, 'Amount is greater than the amount owing'));
       continue;
     }
@@ -145,7 +147,10 @@ export async function insurerPaymentImporter({ errors, models, stats, file, chec
       await models.Invoice.update(
         {
           insurerPaymentStatus: getInvoiceInsurerPaymentStatus(
-            new Decimal(insurerPaymentsTotal).add(data.amount).toNumber(),
+            new Decimal(insurerDiscountTotal)
+              .minus(insurerPaymentRemainingBalance)
+              .add(data.amount)
+              .toNumber(),
             insurerDiscountTotal,
           ),
         },
