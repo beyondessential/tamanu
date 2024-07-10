@@ -15,6 +15,7 @@ import {
   getInvoiceSummaryDisplay,
   getPatientPaymentsWithRemainingBalance,
   formatDisplayPrice,
+  getInsurerPaymentsWithRemainingBalance,
 } from '../invoice';
 import { withLanguageContext } from '../pdf/languageContext';
 import { Page } from '../pdf/Page';
@@ -215,64 +216,64 @@ const COLUMNS = {
     {
       key: 'methodName',
       title: 'Method',
-      style: { width: '29%' },
+      style: { width: '28%' },
       accessor: ({ patientPayment }) => patientPayment?.method?.name,
     },
     {
       key: 'amount',
       title: 'Amount',
-      style: { width: '12%' },
+      style: { width: '15%' },
       accessor: ({ amount }) => formatDisplayPrice(amount),
     },
     {
       key: 'receiptNumber',
       title: 'Receipt number',
       accessor: ({ receiptNumber }) => receiptNumber,
-      style: { width: '22%' },
+      style: { width: '21%' },
     },
     {
       key: 'remainingBalance',
       title: 'Remaining balance',
       accessor: ({ remainingBalance }) => remainingBalance,
-      style: { width: '22%' },
+      style: { width: '21%' },
     },
   ],
   insurerPayments: [
     {
       key: 'date',
       title: 'Date',
-      style: { width: '16%' },
-      accessor: ({ date }) => date,
+      style: { width: '15%' },
+      accessor: ({ date }) => (date ? formatShort(date) : '--/--/----'),
     },
     {
-      key: 'payer',
+      key: 'insurerName',
       title: 'Payer',
-      style: { width: '18%' },
-      accessor: ({ payer }) => payer,
+      style: { width: '17%' },
+      accessor: ({ insurerPayment }) => insurerPayment?.insurer?.name,
     },
     {
       key: 'amount',
       title: 'Amount',
-      style: { width: '10%' },
+      style: { width: '11%' },
       accessor: ({ amount }) => amount,
     },
     {
       key: 'receiptNumber',
       title: 'Receipt number',
       accessor: ({ receiptNumber }) => receiptNumber,
-      style: { width: '13%' },
+      style: { width: '14%' },
     },
     {
       key: 'remainingBalance',
       title: 'Remaining balance',
       accessor: ({ remainingBalance }) => remainingBalance,
-      style: { width: '14%' },
+      style: { width: '13%' },
     },
     {
       key: 'status',
       title: 'Status',
-      accessor: ({ status }) => status,
-      style: { width: '29%' },
+      accessor: ({ insurerPayment }) => insurerPayment?.status,
+      style: { width: '30%' },
     },
   ],
 };
@@ -433,10 +434,10 @@ const InvoiceRecordPrintoutComponent = ({
   getLocalisation,
   clinicianText,
   invoice,
-  insurerPayments,
 }) => {
   const { watermark, logo } = certificateData;
   const patientPayments = getPatientPaymentsWithRemainingBalance(invoice);
+  const insurerPayments = getInsurerPaymentsWithRemainingBalance(invoice);
 
   return (
     <Document>
@@ -481,7 +482,7 @@ const InvoiceRecordPrintoutComponent = ({
         {insurerPayments?.length && (
           <TableSection
             title="Insurer payment"
-            data={insurerPayments.data}
+            data={insurerPayments}
             columns={COLUMNS.insurerPayments}
           />
         )}
