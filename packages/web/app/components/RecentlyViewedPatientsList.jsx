@@ -10,8 +10,7 @@ import { useApi } from '../api';
 import { Colors } from '../constants';
 import { DateDisplay } from './DateDisplay';
 import { ThemedTooltip } from './Tooltip';
-import { TranslatedText } from './Translation/TranslatedText';
-import { TranslatedSex } from './Translation/TranslatedSex.jsx';
+import { TranslatedSex, TranslatedText } from './Translation';
 
 const colorFromEncounterType = {
   admission: Colors.green,

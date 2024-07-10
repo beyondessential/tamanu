@@ -2,11 +2,10 @@ import React, { Children, cloneElement, isValidElement } from 'react';
 import GetAppIcon from '@material-ui/icons/GetApp';
 import { getCurrentDateString } from '@tamanu/shared/utils/dateTime';
 import * as XLSX from 'xlsx';
-import { createRoot } from 'react-dom/client';
-import { flushSync } from 'react-dom';
 import { QueryClientProvider, useQueryClient } from '@tanstack/react-query';
 
 import { ApiContext, useApi } from '../../api';
+import { renderToText } from '../../utils';
 import { saveFile } from '../../utils/fileSystemAccess';
 import { TranslationProvider } from '../../contexts/Translation';
 import { GreyOutlinedButton } from '../Button';
@@ -29,21 +28,6 @@ const normalizeRecursively = (element, normalizeFn) => {
   return cloneElement(element, {
     children: Children.map(children, child => normalizeRecursively(child, normalizeFn)),
   });
-};
-
-const renderToString = element => {
-  if (!isValidElement(element)) {
-    throw new Error('`renderToString` has been called with an invalid element.');
-  }
-
-  const div = document.createElement('div');
-  const root = createRoot(div);
-  flushSync(() => {
-    root.render(element); // Force DOM update before reading innerHTML
-  });
-  const renderedString = div.innerText;
-  root.unmount();
-  return renderedString;
 };
 
 export function DownloadDataButton({ exportName, columns, data }) {
@@ -70,12 +54,11 @@ export function DownloadDataButton({ exportName, columns, data }) {
   const getHeaderValue = ({ key, title }) => {
     if (!title) return key;
     if (typeof title === 'string') return title;
-    if (typeof title === 'object') {
-      if (isValidElement(title)) {
-        const normalizedElement = normalizeRecursively(title, contextualizeIfIsTranslatedText);
-        return renderToString(normalizedElement);
-      }
+    if (isValidElement(title)) {
+      const normalizedElement = normalizeRecursively(title, contextualizeIfIsTranslatedText);
+      return renderToText(normalizedElement);
     }
+
     return key;
   };
 
@@ -107,7 +90,7 @@ export function DownloadDataButton({ exportName, columns, data }) {
                     value,
                     contextualizeIfIsTranslatedText,
                   );
-                  dx[headerValue] = renderToString(normalizedElement);
+                  dx[headerValue] = renderToText(normalizedElement);
                 } else {
                   dx[headerValue] = d[c.key];
                 }

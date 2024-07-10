@@ -1,10 +1,12 @@
 import React from 'react';
 import { CloudDownload, CloudOff } from '@material-ui/icons';
-import { DateDisplay } from '../../components';
+import {
+  DateDisplay,
+  TranslatedReferenceData,
+  TranslatedSex,
+  TranslatedText,
+} from '../../components';
 import { getPatientStatus } from '../../utils/getPatientStatus';
-import { TranslatedSex } from '../../components/Translation/TranslatedSex.jsx';
-import { TranslatedText } from '../../components/Translation/TranslatedText';
-import { TranslatedReferenceData } from '../../components/Translation';
 import { ThemedTooltip } from '../../components/Tooltip';
 
 const DateCell = React.memo(({ value }) => <DateDisplay date={value} />);
