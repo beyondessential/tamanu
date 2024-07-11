@@ -57,6 +57,7 @@ export const sex = {
   key: 'sex',
   title: <TranslatedText stringId="general.localisedField.sex.label" fallback="Sex" />,
   minWidth: 80,
+  accessor: row => <TranslatedSex sex={row.sex} />,
   CellComponent: SexCell,
   sortable: false,
 };
