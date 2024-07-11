@@ -1,4 +1,5 @@
 import { isValidElement } from 'react';
+import { SexCell } from '../../views/patients/columns';
 import { LocationCell } from '../LocationCell';
 import { TranslatedEnum, TranslatedReferenceData, TranslatedSex, TranslatedText } from '.';
 
@@ -15,5 +16,6 @@ export const isTranslatedText = element => {
     TranslatedEnum,
     TranslatedSex,
     LocationCell,
+    SexCell,
   ].includes(element.type);
 };

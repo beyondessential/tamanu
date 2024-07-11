@@ -10,7 +10,7 @@ import { getPatientStatus } from '../../utils/getPatientStatus';
 import { ThemedTooltip } from '../../components/Tooltip';
 
 const DateCell = React.memo(({ value }) => <DateDisplay date={value} />);
-const SexCell = React.memo(({ value }) => <TranslatedSex sex={value} />);
+export const SexCell = React.memo(({ value }) => <TranslatedSex sex={value} />);
 const SyncedCell = React.memo(({ value }) => (value === true ? <CloudDownload /> : <CloudOff />));
 
 export const markedForSync = {
@@ -57,7 +57,6 @@ export const sex = {
   key: 'sex',
   title: <TranslatedText stringId="general.localisedField.sex.label" fallback="Sex" />,
   minWidth: 80,
-  accessor: row => <TranslatedSex sex={row.sex} />,
   CellComponent: SexCell,
   sortable: false,
 };

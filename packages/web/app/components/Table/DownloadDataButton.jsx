@@ -97,10 +97,16 @@ export function DownloadDataButton({ exportName, columns, data }) {
               }
 
               dx[headerValue] = 'Error: Could not parse accessor';
-            } else {
-              // Some columns have no accessor at all.
-              dx[headerValue] = d[c.key];
             }
+
+            if (c.CellComponent) {
+              const CellComponent = c.CellComponent;
+              dx[headerValue] = safelyRenderToText(<CellComponent value={d[c.key]} />);
+              return;
+            }
+
+            // Some columns have no accessor at all.
+            dx[headerValue] = d[c.key];
           }),
         );
         return dx;
