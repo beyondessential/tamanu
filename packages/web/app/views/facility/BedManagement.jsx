@@ -228,7 +228,13 @@ export const BedManagement = () => {
     <PageContainer>
       <TopBar
         title={<TranslatedText stringId="bedManagement.title" fallback="Bed management" />}
-        subTitle={<TranslatedReferenceData fallback={facility.name} value={facility.id} category="facility" />}
+        subTitle={
+          <TranslatedReferenceData
+            fallback={facility.name}
+            value={facility.id}
+            category="facility"
+          />
+        }
       />
       <ContentPane>
         <DashboardContainer>
