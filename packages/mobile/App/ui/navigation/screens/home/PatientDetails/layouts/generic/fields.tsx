@@ -42,7 +42,6 @@ const GENERIC_ADDITIONAL_DATA_FIELDS = {
 
 export const GENERIC_ADDITIONAL_DATA_SECTIONS = [
   {
-    sectionKey: 'identificationInformation',
     title: (
       <TranslatedText
         stringId="patient.details.subheading.identificationInformation"
@@ -52,7 +51,6 @@ export const GENERIC_ADDITIONAL_DATA_SECTIONS = [
     fields: GENERIC_ADDITIONAL_DATA_FIELDS.IDENTIFICATION,
   },
   {
-    sectionKey: 'contactInformation',
     title: (
       <TranslatedText
         stringId="patient.details.subheading.contactInformation"
@@ -62,7 +60,6 @@ export const GENERIC_ADDITIONAL_DATA_SECTIONS = [
     fields: GENERIC_ADDITIONAL_DATA_FIELDS.CONTACT,
   },
   {
-    sectionKey: 'personalInformation',
     title: (
       <TranslatedText
         stringId="patient.details.subheading.personalInformation"
@@ -72,7 +69,6 @@ export const GENERIC_ADDITIONAL_DATA_SECTIONS = [
     fields: GENERIC_ADDITIONAL_DATA_FIELDS.PERSONAL,
   },
   {
-    sectionKey: 'otherInformation',
     title: (
       <TranslatedText
         stringId="patient.details.subheading.otherInformation"
