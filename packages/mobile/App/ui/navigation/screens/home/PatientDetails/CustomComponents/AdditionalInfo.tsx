@@ -85,7 +85,7 @@ export const AdditionalInfo = ({
 
   const customSections = customPatientSections.map(([_categoryId, fields]) => {
     const title = fields[0].category.name;
-    const onEditCallback = (): void => onEdit(null, title, true, fields, customPatientFieldValues, null);
+    const onEditCallback = (): void => onEdit(null, title, true, fields, customPatientFieldValues);
     const mappedFields = fields.map(field => {
       const { id, name } = field;
       const [customFieldValue] = customPatientFieldValues[id] || [];
