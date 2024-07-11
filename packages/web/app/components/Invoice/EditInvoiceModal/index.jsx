@@ -66,12 +66,14 @@ export const EditInvoiceModal = ({
   handleEditDiscount,
   handleCancelInvoice,
   handleFinaliseInvoice,
+  handleDeleteInvoice,
   isPatientView,
 }) => {
   const { ability } = useAuth();
   const [printModalOpen, setPrintModalOpen] = useState(false);
 
   const canWriteInvoice = ability.can('write', 'Invoice');
+  const canDeleteInvoice = ability.can('delete', 'Invoice');
   const editable = isInvoiceEditable(invoice) && canWriteInvoice;
   const cancelable =
     invoice.status === INVOICE_STATUSES.IN_PROGRESS && isPatientView && canWriteInvoice;
@@ -80,6 +82,8 @@ export const EditInvoiceModal = ({
     !!invoice.encounter?.endDate &&
     isPatientView &&
     canWriteInvoice;
+  const deletable =
+    invoice.status !== INVOICE_STATUSES.FINALISED && isPatientView && canDeleteInvoice;
 
   const { mutate: updateInvoice, isLoading: isUpdatingInvoice } = useUpdateInvoice(invoice);
 
@@ -231,7 +235,7 @@ export const EditInvoiceModal = ({
       overrideContentPadding
     >
       <>
-        {(finalisable || cancelable) && (
+        {(finalisable || cancelable || deletable) && (
           <>
             <Box
               display="flex"
@@ -248,7 +252,7 @@ export const EditInvoiceModal = ({
                   />
                 </Button>
               )}
-              {cancelable && (
+              {(cancelable || deletable) && (
                 <ThreeDotMenu
                   items={[
                     {
@@ -259,6 +263,17 @@ export const EditInvoiceModal = ({
                         />
                       ),
                       onClick: handleCancelInvoice,
+                      hidden: !cancelable,
+                    },
+                    {
+                      label: (
+                        <TranslatedText
+                          stringId="invoice.modal.editInvoice.deleteInvoice"
+                          fallback="Delete invoice"
+                        />
+                      ),
+                      onClick: handleDeleteInvoice,
+                      hidden: !deletable,
                     },
                   ]}
                 />

@@ -6,6 +6,7 @@ import { UpsertInvoiceModal } from './UpsertInvoiceModal';
 import { EditInvoiceModal } from './EditInvoiceModal';
 import { CancelInvoiceModal } from './CancelInvoiceModal';
 import { FinaliseInvoiceModal } from './FinaliseInvoiceModal';
+import { DeleteInvoiceModal } from './DeleteInvoiceModal';
 
 export const InvoiceModalGroup = ({
   initialModalType,
@@ -13,6 +14,7 @@ export const InvoiceModalGroup = ({
   encounterId,
   onClose,
   isPatientView,
+  updateRefreshTable,
 }) => {
   const [invoice, setInvoice] = useState();
   const [invoiceModal, setInvoiceModal] = useState([]);
@@ -51,6 +53,10 @@ export const InvoiceModalGroup = ({
     handleOpenInvoiceModal(INVOICE_MODAL_TYPES.CANCEL_INVOICE, true);
   };
 
+  const handleDeleteInvoice = () => {
+    handleOpenInvoiceModal(INVOICE_MODAL_TYPES.DELETE_INVOICE, true);
+  };
+
   const handleFinaliseInvoice = () => {
     handleOpenInvoiceModal(INVOICE_MODAL_TYPES.FINALISE_INVOICE, true);
   };
@@ -74,6 +80,7 @@ export const InvoiceModalGroup = ({
           invoice={invoice}
           handleEditDiscount={handleEditDiscount}
           handleCancelInvoice={handleCancelInvoice}
+          handleDeleteInvoice={handleDeleteInvoice}
           handleFinaliseInvoice={handleFinaliseInvoice}
           isPatientView={isPatientView}
         />
@@ -83,6 +90,14 @@ export const InvoiceModalGroup = ({
           open
           onClose={() => handleCloseInvoiceModal()}
           invoice={invoice}
+        />
+      )}
+      {invoiceModal.includes(INVOICE_MODAL_TYPES.DELETE_INVOICE) && invoice && (
+        <DeleteInvoiceModal
+          open
+          onClose={() => handleCloseInvoiceModal()}
+          invoice={invoice}
+          updateRefreshTable={updateRefreshTable}
         />
       )}
       {invoiceModal.includes(INVOICE_MODAL_TYPES.FINALISE_INVOICE) && invoice && (

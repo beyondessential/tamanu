@@ -54,3 +54,23 @@ export const useFinaliseInvoice = invoice => {
     onError: error => notifyError(error.message),
   });
 };
+
+export const useDeleteInvoice = invoice => {
+  const api = useApi();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async () => {
+      await api.delete(`invoices/${invoice?.id}`);
+    },
+    onMutate: async () => {
+      await queryClient.invalidateQueries([`encounter/${invoice?.encounterId}/invoice`]);
+      const previousInvoice = queryClient.getQueryData([
+        `encounter/${invoice?.encounterId}/invoice`,
+      ]);
+      queryClient.setQueryData([`encounter/${invoice?.encounterId}/invoice`], () => null);
+      return previousInvoice;
+    },
+    onError: error => notifyError(error.message),
+  });
+};
