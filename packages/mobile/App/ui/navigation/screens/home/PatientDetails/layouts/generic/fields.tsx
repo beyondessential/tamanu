@@ -40,7 +40,6 @@ const GENERIC_ADDITIONAL_DATA_FIELDS = {
   ],
 };
 
-// TODO: add scetion keys + datafields (omg) to all of these
 export const GENERIC_ADDITIONAL_DATA_SECTIONS = [
   {
     sectionKey: 'identificationInformation',
