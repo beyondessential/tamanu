@@ -21,9 +21,7 @@ export const prepareToastMessage = msg => {
   return (
     <>
       {messages.map(text => (
-        <div key={`err-msg-${text}`}>
-          {isValidElement(text) ? text : toString(text)}
-        </div>
+        <div key={`err-msg-${text}`}>{isValidElement(text) ? text : toString(text)}</div>
       ))}
     </>
   );
