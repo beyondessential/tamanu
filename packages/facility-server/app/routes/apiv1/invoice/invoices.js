@@ -300,16 +300,11 @@ invoiceRoute.put(
       throw new InvalidOperationError('Only in progress invoices can be cancelled');
     }
 
-    const transaction = await req.db.transaction();
-
     try {
       invoice.status = INVOICE_STATUSES.CANCELLED;
-      await invoice.save({ transaction });
-
-      await transaction.commit();
+      await invoice.save();
       res.send(invoice);
     } catch (error) {
-      await transaction.rollback();
       throw error;
     }
   }),
@@ -352,12 +347,9 @@ invoiceRoute.put(
 
     try {
       invoice.status = INVOICE_STATUSES.FINALISED;
-      await invoice.save({ transaction });
-
-      await transaction.commit();
+      await invoice.save();
       res.json(invoice);
     } catch (error) {
-      await transaction.rollback();
       throw error;
     }
   }),
