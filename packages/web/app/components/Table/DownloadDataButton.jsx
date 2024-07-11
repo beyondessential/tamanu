@@ -52,8 +52,8 @@ export function DownloadDataButton({ exportName, columns, data }) {
       );
     };
 
-    const normalizedElement = normalizeRecursively(element);
-    return renderToText(normalizedElement, contextualizeIfIsTranslatedText);
+    const normalizedElement = normalizeRecursively(element, contextualizeIfIsTranslatedText);
+    return renderToText(normalizedElement);
   };
 
   const getHeaderValue = ({ key, title }) => {
