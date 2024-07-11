@@ -31,7 +31,7 @@ export const replaceStringVariables = (
       if (typeof replacement !== 'object') return replacement;
 
       const translation = translations?.[replacement.props.stringId] || replacement.props.fallback;
-      return applyCasing(translation, replacement.props.lowercase, replacement.props.uppercase);
+      return applyCasing(translation, replacement.props.uppercase, replacement.props.lowercase);
     })
     .join('');
 

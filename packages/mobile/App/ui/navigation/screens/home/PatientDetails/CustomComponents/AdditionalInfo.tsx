@@ -65,11 +65,10 @@ export const AdditionalInfo = ({
   const isEditable = getBool('features.editPatientDetailsOnMobile');
 
   // Add edit callback and map the inner 'fields' array
-  const additionalSections = dataSections.map(
-    ({ title, dataFields, fields: displayFields, sectionKey }) => {
-      const fields = dataFields || displayFields;
-      const onEditCallback = (): void =>
-        onEdit(patientAdditionalData, title, false, null, customPatientFieldValues, sectionKey);
+  const additionalSections = dataSections.map(({ title, dataFields, fields: displayFields, sectionKey }) => {
+    const fields = dataFields || displayFields;
+    const onEditCallback = (): void =>
+      onEdit(patientAdditionalData, title, false, null, customPatientFieldValues, sectionKey);
 
       const fieldsWithData = fields.map(field => {
         if (field === 'villageId' || field.name === 'villageId') {
