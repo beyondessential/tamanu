@@ -1,33 +1,33 @@
-import { camelCase } from 'lodash';
-import { SEX_LABELS } from './patientFields';
+import camelCase from 'lodash/camelCase.js';
+import { SEX_LABELS } from './patientFields.js';
 import {
   INVOICE_LINE_TYPE_LABELS,
   INVOICE_PAYMENT_STATUS_LABELS,
   INVOICE_PRICE_CHANGE_TYPE_LABELS,
   INVOICE_STATUS_LABELS,
-} from './invoices';
-import { NOTE_TYPE_LABELS } from './notes';
+} from './invoices.js';
+import { NOTE_TYPE_LABELS } from './notes.js';
 import {
   REFERRAL_STATUS_LABELS,
   APPOINTMENT_TYPES,
   APPOINTMENT_STATUSES,
   IMAGING_REQUEST_STATUS_LABELS,
-} from './statuses';
-import { VACCINE_STATUS_LABELS, INJECTION_SITE_LABELS, VACCINE_CATEGORIES } from './vaccines';
-import { BIRTH_TYPE_LABELS } from './births';
-import { IMAGING_TYPES } from './imaging';
+} from './statuses.js';
+import { VACCINE_STATUS_LABELS, INJECTION_SITE_LABELS, VACCINE_CATEGORIES } from './vaccines.js';
+import { BIRTH_TYPE_LABELS } from './births.js';
+import { IMAGING_TYPES } from './imaging.js';
 import {
   REPORT_DATA_SOURCE_LABELS,
   REPORT_DATE_RANGE_LABELS,
   REPORT_DB_SCHEMA_LABELS,
-} from './reports';
-import { TEMPLATE_TYPE_LABELS } from './templates';
-import { LAB_REQUEST_STATUS_LABELS } from './labs';
-import { ASSET_NAMES } from './importable';
-import { DIAGNOSIS_CERTAINTY_LABELS, PATIENT_ISSUE_LABELS } from './diagnoses';
-import { DRUG_ROUTE_LABELS, REPEATS_LABELS } from './medications';
-import { PLACE_OF_DEATHS, MANNER_OF_DEATHS } from './deaths';
-import { LOCATION_AVAILABILITY_STATUS_LABELS } from './locations';
+} from './reports.js';
+import { TEMPLATE_TYPE_LABELS } from './templates.js';
+import { LAB_REQUEST_STATUS_LABELS } from './labs.js';
+import { ASSET_NAMES } from './importable.js';
+import { DIAGNOSIS_CERTAINTY_LABELS, PATIENT_ISSUE_LABELS } from './diagnoses.js';
+import { DRUG_ROUTE_LABELS, REPEATS_LABELS } from './medications.js';
+import { PLACE_OF_DEATHS, MANNER_OF_DEATHS } from './deaths.js';
+import { LOCATION_AVAILABILITY_STATUS_LABELS } from './locations.js';
 
 type EnumKeys = keyof typeof registeredEnums;
 type EnumValues = typeof registeredEnums[EnumKeys];

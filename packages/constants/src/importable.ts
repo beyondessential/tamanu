@@ -1,4 +1,4 @@
-import { IMAGING_AREA_TYPES } from './imaging';
+import { IMAGING_AREA_TYPES } from './imaging.js';
 
 // Reference data stored IN the "reference_data" table
 export const REFERENCE_TYPES = {

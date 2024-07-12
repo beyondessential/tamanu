@@ -1,4 +1,4 @@
-import keyBy from 'lodash/keyBy';
+import keyBy from 'lodash/keyBy.js';
 
 export const PATIENT_FIELD_DEFINITION_TYPES = {
   STRING: 'string',

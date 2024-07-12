@@ -1,4 +1,4 @@
-import { REFERENCE_TYPE_VALUES } from './importable';
+import { REFERENCE_TYPE_VALUES } from './importable.js';
 
 export const SUGGESTER_ENDPOINTS_SUPPORTING_ALL = [
   ...REFERENCE_TYPE_VALUES,
