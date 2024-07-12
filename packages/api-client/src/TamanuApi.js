@@ -154,7 +154,8 @@ export class TamanuApi {
     let j = 0;
     let responsePromise = response.ok
       ? Promise.resolve(response)
-      : Promise.reject(await this.extractError(endpoint, response));
+      : Promise.reject(throwResponse ? response : await this.extractError(endpoint, response));
+
     while (j < responseInterceptorChain.length) {
       responsePromise = responsePromise.then(
         responseInterceptorChain[j++],
