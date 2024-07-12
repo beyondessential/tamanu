@@ -1,16 +1,12 @@
 name: Diff Translations
 on:
   workflow_dispatch:
-    # inputs:
-    #   version:
-    #     description: Bump version on main to the next
-    #     required: true
-    #     type: choice
-    #     options:
-    #       - minor
-    #       - major
-    #     default: minor
 
+env:
+  NODE_MODULES_PATHS: |
+    node_modules
+    packages/*/node_modules
+    !packages/mobile/node_modules
 jobs:
   run:
     name: Diff Translations
@@ -18,11 +14,37 @@ jobs:
     permissions:
       contents: write
     steps:
+    - if: (!startsWith(github.ref, 'refs/heads/release/'))
+      run: |
+        echo "This workflow can only be run on a release branch"
+        exit 1
     - uses: actions/checkout@v4
       with:
-        ref: main
         token: ${{ secrets.TAMANU_RELEASE_PAT }}
+        fetch-depth: 0 # fetch all history so we can generate release notes
+        fetch-tags: true
 
     - uses: actions/setup-node@v4
       with:
         node-version: 20.x
+        cache: yarn
+    - uses: actions/cache/restore@v3
+      with:
+        key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
+        path: ${{ env.NODE_MODULES_PATHS }}
+
+    - run: yarn
+    - run: yarn build-shared
+
+    - name: get current version
+      id: currentv
+      run: |
+        version=$(jq -r .version package.json)
+        echo "current_version=$version" | tee -a $GITHUB_ENV
+
+    - name: get previous version
+      id: previousv
+      run: |
+        git fetch --tags
+        previous_version=$(git describe --tags `git rev-list --tags --max-count=1`)
+        echo "previous_version=$previous_version" | tee -a $GITHUB_ENV
