@@ -69,7 +69,8 @@
     "persistUpdateWorkerPoolSize": 5,
     // at its very large default, maxRecordsPerPullSnapshotChunk is essentially "off"
     // can be turned on by lowering to some amount that seems appropriate if snapshot performance is an issue
-    "maxRecordsPerPullSnapshotChunk": 1000000000
+    "maxRecordsPerPullSnapshotChunk": 1000000000,
+    snapshotTransactionTimeout: null,
   },
   "loadshedder": {
     // paths are checked sequentially until a path matches a prefix
