@@ -59,21 +59,16 @@ jobs:
 
     - name: get this versions translations
       run: |
-          set -euxo pipefail
+          # Get all translated string data from TranslatedText, getTranslatedString and enums.
+          teoutput=$(node scripts/print-enum-translations.mjs)
+          ttoutput=$(rg -PINU --multiline-dotall 'stringId="([^"]*)"\s*?fallback="([^"]*)' -or '"$1","$2"' | rg --multiline-dotall --passthru -U '\n\s*\b' -r '')
+          gttoutput=$(rg -PINU --multiline-dotall "getTranslation\(\s*?[\"'](.*?)[\"'],.*?[\"'](.*?)[\"'].*?\)" -or '"$1","$2"')
 
-          # Entries for TranslatedEnum
-          teoutput="$(node scripts/print-enum-translations.mjs)"
+          # Combine and sort
+          data=$(printf "%s\n%s\n%s" "$ttoutput" "$gttoutput" "$teoutput" | sort -u)
 
-          # Entries for TranslatedText
-          ttregex='stringId="([^"]*)"\s*?fallback="([^"]*)'
-          ttoutput=$(rg -PINU --multiline-dotall $ttregex -or '"$1","$2"' | rg --multiline-dotall --passthru -U '\n\s*\b' -r '')
-
-          # Entries for getTranslation
-          gttregex="getTranslation\(\s*?[\"'](.*?)[\"'],.*?[\"'](.*?)[\"'].*?\)"
-          gttoutput=$(rg -PINU --multiline-dotall $gttregex -or '"$1","$2"')
-
-          printf "%s\n%s\n%s" "$ttoutput" "$gttoutput" "$teoutput" | sort -u > current-translations.csv
-
+          # Append header and write to csv file
+          printf "stringId,fallback\n%s" "$data" > current-translations.csv
     - name: Upload translations
       id: translations-upload
       uses: actions/upload-artifact@v4
