@@ -42,9 +42,16 @@ jobs:
         version=$(jq -r .version package.json)
         echo "current_version=$version" | tee -a $GITHUB_ENV
 
-    - name: get previous version
+    - name: get closest previous version
       id: previousv
       run: |
+        set -euxo pipefail
         git fetch --tags
-        previous_version=$(git describe --tags `git rev-list --tags --max-count=1`)
-        echo "previous_version=$previous_version" | tee -a $GITHUB_ENV
+        git tag --list \
+          | grep -E '^v[0-9]+[.][0-9]+[.][0-9]+$' \
+          | cut -c2- \
+          | sort --version-sort \
+          | awk -v current_version="v${{ steps.currentv.outputs.current_version }}" '$0 < current_version' \
+          | tail -n1 \
+          | sed 's/^/previous_version=/' \
+          | tee -a $GITHUB_OUTPUT
