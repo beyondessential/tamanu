@@ -152,13 +152,16 @@ export class TamanuApi {
       responseInterceptorChain.push(interceptor.fulfilled, interceptor.rejected);
     });
     let j = 0;
-    let responsePromise = response.ok ? Promise.resolve(response) : Promise.reject(response);
+    let responsePromise = response.ok
+      ? Promise.resolve(response)
+      : Promise.reject(await this.extractError(endpoint, response));
     while (j < responseInterceptorChain.length) {
       responsePromise = responsePromise.then(
         responseInterceptorChain[j++],
         responseInterceptorChain[j++],
       );
     }
+
     await responsePromise;
 
     if (response.ok) {
@@ -177,7 +180,8 @@ export class TamanuApi {
       throw response;
     }
 
-    return this.extractError(endpoint, response);
+    const err = await this.extractError(endpoint, response);
+    throw err;
   }
 
   /**
@@ -191,18 +195,18 @@ export class TamanuApi {
 
     // handle forbidden error and trigger catch all modal
     if (response.status === 403 && error) {
-      throw new ForbiddenError(message);
+      return new ForbiddenError(message);
     }
 
     if (response.status === 404) {
-      throw new NotFoundError(message);
+      return new NotFoundError(message);
     }
 
     // handle auth expiring
     if (response.status === 401 && endpoint !== 'login' && this.#onAuthFailure) {
       const message = 'Your session has expired. Please log in again.';
       this.#onAuthFailure(message);
-      throw new AuthExpiredError(message);
+      return new AuthExpiredError(message);
     }
 
     // handle version incompatibility
@@ -212,11 +216,11 @@ export class TamanuApi {
         if (this.#onVersionIncompatible) {
           this.#onVersionIncompatible(versionIncompatibleMessage);
         }
-        throw new VersionIncompatibleError(versionIncompatibleMessage);
+        return new VersionIncompatibleError(versionIncompatibleMessage);
       }
     }
 
-    throw new ServerResponseError(`Server error response: ${message}`);
+    return new ServerResponseError(`Server error response: ${message}`);
   }
 
   async get(endpoint, query = {}, config = {}) {
