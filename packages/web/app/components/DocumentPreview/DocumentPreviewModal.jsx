@@ -52,7 +52,7 @@ const Preview = ({ documentType, attachmentId, ...props }) => {
 
 export const DocumentPreviewModal = ({ open, onClose, document = {} }) => {
   const [scrollPage, setScrollPage] = useState(1);
-  const [pageCount, setPageCount] = useState(0);
+  const [pageCount, setPageCount] = useState(null);
   const { onDownload, onPrintPDF } = useDocumentActions();
 
   const { type: documentType, attachmentId } = document;
@@ -72,7 +72,7 @@ export const DocumentPreviewModal = ({ open, onClose, document = {} }) => {
                 fallback="Page :scrollPage of :pageCount"
                 replacements={{
                   scrollPage,
-                  pageCount: pageCount || '‒', // figure dash
+                  pageCount: pageCount ?? '‒', // figure dash
                 }}
               />
             ) : null}
