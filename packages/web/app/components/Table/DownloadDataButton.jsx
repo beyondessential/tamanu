@@ -7,7 +7,7 @@ import { QueryClientProvider, useQueryClient } from '@tanstack/react-query';
 import { ApiContext, useApi } from '../../api';
 import { renderToText } from '../../utils';
 import { saveFile } from '../../utils/fileSystemAccess';
-import { TranslationProvider } from '../../contexts/Translation';
+import { TranslationContext, useTranslation } from '../../contexts/Translation';
 import { GreyOutlinedButton } from '../Button';
 import { isTranslatedText, TranslatedText } from '../Translation';
 
@@ -33,31 +33,40 @@ const normalizeRecursively = (element, normalizeFn) => {
 export function DownloadDataButton({ exportName, columns, data }) {
   const queryClient = useQueryClient();
   const api = useApi();
+  const translationContext = useTranslation();
 
-  /**
-   * If the input is a {@link TranslatedText} element (or one of its derivatives), explicitly wraps
-   * it in a {@link TranslationProvider} (and its dependents). This is a workaround for the case
-   * where a {@link TranslatedText} is rendered into a string for export, which happens in a
-   * “headless” React root node, outside the context providers defined in `Root.jsx`.
-   */
-  const contextualizeIfIsTranslatedText = element => {
-    if (!isTranslatedText(element)) return element;
-    return (
-      <QueryClientProvider client={queryClient}>
-        <ApiContext.Provider value={api}>
-          <TranslationProvider>{element}</TranslationProvider>
-        </ApiContext.Provider>
-      </QueryClientProvider>
-    );
+  const safelyRenderToText = element => {
+    /**
+     * If the input is a {@link TranslatedText} element (or one of its derivatives), explicitly wraps
+     * it in a {@link TranslationProvider} (and its dependents). This is a workaround for the case
+     * where a {@link TranslatedText} is rendered into a string for export, which happens in a
+     * “headless” React root node, outside the context providers defined in `Root.jsx`.
+     *
+     * @privateRemarks Cannot use TranslationProvider convenience component, otherwise the context
+     * object isn’t guaranteed to be defined when this element is rendered by {@link renderToText},
+     * which behaves synchronously.
+     */
+    const contextualizeIfIsTranslatedText = element => {
+      if (!isTranslatedText(element)) return element;
+      return (
+        <QueryClientProvider client={queryClient}>
+          <ApiContext.Provider value={api}>
+            <TranslationContext.Provider value={translationContext}>
+              {element}
+            </TranslationContext.Provider>
+          </ApiContext.Provider>
+        </QueryClientProvider>
+      );
+    };
+
+    const normalizedElement = normalizeRecursively(element, contextualizeIfIsTranslatedText);
+    return renderToText(normalizedElement);
   };
 
   const getHeaderValue = ({ key, title }) => {
     if (!title) return key;
     if (typeof title === 'string') return title;
-    if (isValidElement(title)) {
-      const normalizedElement = normalizeRecursively(title, contextualizeIfIsTranslatedText);
-      return renderToText(normalizedElement);
-    }
+    if (isValidElement(title)) return safelyRenderToText(title);
 
     return key;
   };
@@ -85,15 +94,7 @@ export function DownloadDataButton({ exportName, columns, data }) {
             if (c.accessor) {
               const value = c.accessor(d);
               if (typeof value === 'object') {
-                if (isValidElement(value)) {
-                  const normalizedElement = normalizeRecursively(
-                    value,
-                    contextualizeIfIsTranslatedText,
-                  );
-                  dx[headerValue] = renderToText(normalizedElement);
-                } else {
-                  dx[headerValue] = d[c.key];
-                }
+                dx[headerValue] = isValidElement(value) ? safelyRenderToText(value) : d[c.key];
                 return;
               }
 
@@ -103,10 +104,16 @@ export function DownloadDataButton({ exportName, columns, data }) {
               }
 
               dx[headerValue] = 'Error: Could not parse accessor';
-            } else {
-              // Some columns have no accessor at all.
-              dx[headerValue] = d[c.key];
             }
+
+            if (c.CellComponent) {
+              const CellComponent = c.CellComponent;
+              dx[headerValue] = safelyRenderToText(<CellComponent value={d[c.key]} />);
+              return;
+            }
+
+            // Some columns have no accessor at all.
+            dx[headerValue] = d[c.key];
           }),
         );
         return dx;
