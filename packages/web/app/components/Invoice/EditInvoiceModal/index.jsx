@@ -280,7 +280,7 @@ export const EditInvoiceModal = ({
           enableReinitialize
           onSubmit={handleSubmit}
           initialValues={{
-            invoiceItems: invoice.items?.length ? invoice.items : [getDefaultRow()],
+            invoiceItems: invoice.items?.length ? invoice.items : [editable ? getDefaultRow() : {}],
             insurers: invoice.insurers?.length
               ? invoice.insurers.map(insurer => ({
                   ...insurer,

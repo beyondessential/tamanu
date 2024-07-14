@@ -264,7 +264,7 @@ export const InvoiceItemRow = ({
             />
           ) : (
             <ViewOnlyCell $hasLargeFont={!editable} $hasLeftPadding={editable}>
-              {getDateDisplay(item?.orderDate, 'dd/MM/yyyy')}
+              {item?.orderDate ? getDateDisplay(item?.orderDate, 'dd/MM/yyyy') : ''}
             </ViewOnlyCell>
           )}
         </StyledItemCell>
@@ -281,7 +281,8 @@ export const InvoiceItemRow = ({
           ) : (
             <ViewOnlyCell $hasLargeFont={!editable} $hasLeftPadding={editable}>
               {item.productName}
-              {item.productDiscountable ? '' : ` (${nonDiscountableTranslation})`}
+              {item.productId &&
+                (item.productDiscountable ? '' : ` (${nonDiscountableTranslation})`)}
             </ViewOnlyCell>
           )}
           {item.note && (
