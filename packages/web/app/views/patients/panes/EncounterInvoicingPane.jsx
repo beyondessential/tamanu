@@ -105,12 +105,14 @@ export const EncounterInvoicingPane = ({ encounter }) => {
           )}
         </EmptyPane>
       )}
-      <InvoiceModalGroup
-        initialModalType={openInvoiceModal}
-        initialInvoice={invoice}
-        encounterId={encounter.id}
-        onClose={() => setOpenInvoiceModal()}
-      />
+      {openInvoiceModal && (
+        <InvoiceModalGroup
+          initialModalType={openInvoiceModal}
+          initialInvoice={invoice}
+          encounterId={encounter.id}
+          onClose={() => setOpenInvoiceModal()}
+        />
+      )}
     </>
   );
 };

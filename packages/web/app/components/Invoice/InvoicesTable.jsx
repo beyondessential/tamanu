@@ -4,7 +4,7 @@ import {
   INVOICE_PATIENT_PAYMENT_STATUSES_LABELS,
   INVOICE_INSURER_PAYMENT_STATUSES,
   INVOICE_INSURER_PAYMENT_STATUS_LABELS,
-  INVOICE_STATUSES
+  INVOICE_STATUSES,
 } from '@tamanu/constants';
 
 import { Colors, ENCOUNTER_OPTIONS_BY_VALUE, INVOICE_MODAL_TYPES } from '../../constants';
@@ -175,12 +175,14 @@ export const InvoicesTable = ({ patient }) => {
         }
         refreshCount={refreshTable}
       />
-      <InvoiceModalGroup
-        initialModalType={openInvoiceModal}
-        initialInvoice={invoice}
-        onClose={() => setOpenInvoiceModal()}
-        isPatientView
-      />
+      {openInvoiceModal && (
+        <InvoiceModalGroup
+          initialModalType={openInvoiceModal}
+          initialInvoice={invoice}
+          onClose={() => setOpenInvoiceModal()}
+          isPatientView
+        />
+      )}
     </>
   );
 };
