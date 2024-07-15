@@ -307,11 +307,17 @@ export class CentralSyncManager {
       await this.store.sequelize.transaction(
         { isolationLevel: Transaction.ISOLATION_LEVELS.REPEATABLE_READ },
         async () => {
-          const { snapshotTransactionTimeoutMs } = this.constructor.config.sync;
-          if (snapshotTransactionTimeoutMs) {
+          // if the snapshot is taking too long, throw an error - we have seen snapshots stall even
+          // when running on a small delta, and if manually errored the next sync works fine
+          const {
+            elapsedMsMoreThan,
+            numberOfTicksLessThan, // if it's a genuinely large sync, don't time out
+          } = this.constructor.config.sync.snapshotStalledIf;
+          const numberOfTicks = tick - since;
+          if (elapsedMsMoreThan && numberOfTicks < numberOfTicksLessThan) {
             transactionTimeout = setTimeout(() => {
               throw new Error(`Snapshot for session ${sessionId} timed out`);
-            }, snapshotTransactionTimeoutMs);
+            }, elapsedMsMoreThan);
           }
 
           // full changes
