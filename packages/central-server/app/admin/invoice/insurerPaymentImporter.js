@@ -97,9 +97,6 @@ export async function insurerPaymentImporter({ errors, models, stats, file, chec
       continue;
     }
     try {
-      // Skip database actions if there are errors
-      if (errors.length) continue;
-
       //check if the insurer payment already exists
       if (data.id) {
         const patientPayment = await models.InvoiceInsurerPayment.findByPk(data.id);
