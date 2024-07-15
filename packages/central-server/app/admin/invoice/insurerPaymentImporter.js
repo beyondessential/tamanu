@@ -98,19 +98,8 @@ export async function insurerPaymentImporter({ errors, models, stats, file, chec
     }
     try {
       //check if the insurer payment already exists
-      if (data.id) {
-        const patientPayment = await models.InvoiceInsurerPayment.findByPk(data.id);
-        if (!patientPayment) {
-          errors.push(
-            new ValidationError(
-              sheetName,
-              index + 1,
-              'Existing payment not found for this invoice',
-            ),
-          );
-          continue;
-        }
-
+      const patientPayment = await models.InvoiceInsurerPayment.findByPk(data.id);
+      if (patientPayment) {
         checkPermission('write', 'InvoicePayment');
         //update the payment
         await models.InvoicePayment.update(
