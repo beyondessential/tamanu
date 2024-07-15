@@ -55,8 +55,8 @@ export const InvoiceRecordModal = ({
   const modalProps = {
     title: (
       <TranslatedText
-        stringId="patient.modal.print.encounterRecord.title"
-        fallback="Encounter Record"
+        stringId="invoice.modal.print.invoiceRecord.title"
+        fallback="Invoice Record"
       />
     ),
     color: Colors.white,
