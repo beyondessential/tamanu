@@ -50,6 +50,7 @@ export const getStringValue = (type: string, value: any): string => {
   switch (type) {
     case FieldTypes.TEXT:
     case FieldTypes.MULTILINE:
+      return value;
     case FieldTypes.DATE:
     case FieldTypes.DATE_TIME:
     case FieldTypes.SUBMISSION_DATE:
