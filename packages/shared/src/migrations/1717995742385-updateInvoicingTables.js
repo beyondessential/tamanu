@@ -59,7 +59,7 @@ export async function up(query) {
       allowNull: false,
     },
     date: {
-      type: DataTypes.DATESTRING,
+      type: DataTypes.DATETIMESTRING,
       allowNull: false,
     },
     status: {
