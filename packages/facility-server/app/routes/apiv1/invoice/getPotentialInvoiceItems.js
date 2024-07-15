@@ -12,13 +12,16 @@ import { QueryTypes } from 'sequelize';
  */
 export const getPotentialInvoiceItems = async (db, invoiceId, imagingTypes) => {
   const encounterId = await db
-    .query(`SELECT i."encounter_id" as "encounterId" from invoices i where i.id = :invoiceId`, {
-      replacements: {
-        invoiceId,
+    .query(
+      `SELECT i."encounter_id" as "encounterId" from invoices i where i.id = :invoiceId and i.deleted_at is null`,
+      {
+        replacements: {
+          invoiceId,
+        },
+        type: QueryTypes.SELECT,
+        plain: true,
       },
-      type: QueryTypes.SELECT,
-      plain: true,
-    })
+    )
     .then(invoice => invoice?.encounterId);
 
   if (!encounterId) throw new NotFoundError(`invoice ${invoiceId} not found`);
@@ -33,7 +36,7 @@ export const getPotentialInvoiceItems = async (db, invoiceId, imagingTypes) => {
 		rd.code as "productCode",
 		p.physician_id as "orderedByUserId"
 	from "procedures" p
-	join reference_data rd on rd.deleted_at is null and rd.id = p.procedure_type_id
+	join reference_data rd on rd.deleted_at is null and rd.visibility_status = :visibilityStatus and rd.id = p.procedure_type_id
 	where p.deleted_at is null
 	and p.encounter_id = :encounterId
 ),
@@ -65,7 +68,7 @@ filtered_labtests as (
 		lr.requested_by_id as "orderedByUserId"
 	from lab_tests lt
 	join lab_requests lr on lr.deleted_at is null and lr.id = lt.lab_request_id
-	join lab_test_types ltt on ltt.deleted_at is null and ltt.id = lt.lab_test_type_id
+	join lab_test_types ltt on ltt.deleted_at is null and ltt.visibility_status = :visibilityStatus and ltt.id = lt.lab_test_type_id
 	where lt.deleted_at is null
 	and lr.encounter_id = :encounterId
 ),
@@ -100,7 +103,7 @@ join users u on u.deleted_at is null and coalesce(fpc."orderedByUserId",fi."orde
         imagingType: REFERENCE_TYPES.IMAGING_TYPE,
         imagingTypes,
         labtestType: OTHER_REFERENCE_TYPES.LAB_TEST_TYPE,
-        visibilityStatus: VISIBILITY_STATUSES.CURRENT
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
       },
       type: QueryTypes.SELECT,
     },

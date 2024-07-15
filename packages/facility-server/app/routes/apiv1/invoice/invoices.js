@@ -344,6 +344,32 @@ invoiceRoute.put(
     res.json(invoice);
   }),
 );
+/**
+ * Finalize invoice
+ * You cannot delete a Finalised invoice
+ * You can delete a cancelled or in progress invoice
+ */
+invoiceRoute.delete(
+  '/:id',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('delete', 'Invoice');
+    const invoiceId = req.params.id;
+
+    const invoice = await req.models.Invoice.findByPk(invoiceId, {
+      attributes: ['id', 'status'],
+    });
+    if (!invoice) throw new NotFoundError('Invoice not found');
+
+    //Finalised invoices cannot be deleted
+    if (invoice.status === INVOICE_STATUSES.FINALISED) {
+      throw new InvalidOperationError('Only in progress invoices can be finalised');
+    }
+
+    await invoice.destroy();
+
+    res.status(204).send();
+  }),
+);
 
 invoiceRoute.use(invoiceItemsRoute);
 invoiceRoute.use(patientPaymentRoute);
