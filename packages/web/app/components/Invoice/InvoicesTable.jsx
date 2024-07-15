@@ -145,7 +145,7 @@ export const InvoicesTable = ({ patient }) => {
 
   const { data: invoice } = useEncounterInvoice(selectedInvoice?.encounterId);
 
-  const updateRefreshTable = useCallback(() => setRefreshTable(prev => prev + 1), []);
+  const afterDeleteInvoice = useCallback(() => setRefreshTable(prev => prev + 1), []);
 
   useEffect(() => {
     if (invoice) {
@@ -182,7 +182,7 @@ export const InvoicesTable = ({ patient }) => {
         initialInvoice={invoice}
         onClose={() => setOpenInvoiceModal()}
         isPatientView
-        updateRefreshTable={updateRefreshTable}
+        afterDeleteInvoice={afterDeleteInvoice}
       />
     </>
   );

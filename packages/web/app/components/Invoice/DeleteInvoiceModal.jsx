@@ -9,7 +9,7 @@ const ContentText = styled.div`
   margin: 20px 18px 50px 18px;
 `;
 
-export const DeleteInvoiceModal = ({ open, onClose, invoice, updateRefreshTable }) => {
+export const DeleteInvoiceModal = ({ open, onClose, invoice, onDeleteSuccess }) => {
   const { mutate } = useDeleteInvoice(invoice);
 
   const deleteInvoice = async () => {
@@ -17,7 +17,7 @@ export const DeleteInvoiceModal = ({ open, onClose, invoice, updateRefreshTable 
       {},
       {
         onSuccess: () => {
-          if (updateRefreshTable) updateRefreshTable();
+          if (onDeleteSuccess) onDeleteSuccess();
           onClose();
         },
       },

@@ -65,11 +65,7 @@ export const useDeleteInvoice = invoice => {
     },
     onMutate: async () => {
       await queryClient.invalidateQueries([`encounter/${invoice?.encounterId}/invoice`]);
-      const previousInvoice = queryClient.getQueryData([
-        `encounter/${invoice?.encounterId}/invoice`,
-      ]);
-      queryClient.setQueryData([`encounter/${invoice?.encounterId}/invoice`], () => null);
-      return previousInvoice;
+      queryClient.removeQueries([`encounter/${invoice?.encounterId}/invoice`]);
     },
     onError: error => notifyError(error.message),
   });

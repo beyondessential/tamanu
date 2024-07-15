@@ -14,7 +14,7 @@ export const InvoiceModalGroup = ({
   encounterId,
   onClose,
   isPatientView,
-  updateRefreshTable,
+  afterDeleteInvoice,
 }) => {
   const [invoice, setInvoice] = useState();
   const [invoiceModal, setInvoiceModal] = useState([]);
@@ -97,7 +97,7 @@ export const InvoiceModalGroup = ({
           open
           onClose={() => handleCloseInvoiceModal()}
           invoice={invoice}
-          updateRefreshTable={updateRefreshTable}
+          onDeleteSuccess={afterDeleteInvoice}
         />
       )}
       {invoiceModal.includes(INVOICE_MODAL_TYPES.FINALISE_INVOICE) && invoice && (
