@@ -15,6 +15,20 @@ import { SubmitButton } from '../SubmitButton';
 import { TranslatedText } from '/components/Translations/TranslatedText';
 import { FormScreenView } from '../FormScreenView';
 import { PatientFieldDefinition } from '~/models/PatientFieldDefinition';
+import { CustomPatientFieldValues } from '~/ui/hooks/usePatientAdditionalData';
+import { NavigationProp } from '@react-navigation/native';
+
+// TODO: type and work out customSectionFields and additionalDataSections
+interface PatientAdditionalDataFormProps {
+  patient: Patient;
+  additionalData: PatientAdditionalData;
+  additionalDataSections: any;
+  navigation: NavigationProp<any>;
+  sectionTitle: string;
+  customPatientFieldValues: CustomPatientFieldValues;
+  isCustomSection?: boolean;
+  customSectionFields?: any[];
+}
 
 export const PatientAdditionalDataForm = ({
   patient,
@@ -23,7 +37,9 @@ export const PatientAdditionalDataForm = ({
   navigation,
   sectionKey,
   customPatientFieldValues,
-}): ReactElement => {
+  isCustomSection = false,
+  customSectionFields,
+}: PatientAdditionalDataFormProps): ReactElement => {
   const scrollViewRef = useRef();
   // After save/update, the model will mark itself for upload and the
   // patient for sync (see beforeInsert and beforeUpdate decorators).
@@ -63,7 +79,13 @@ export const PatientAdditionalDataForm = ({
   );
 
   // Get the field group for this section of the additional data template
-  const { fields, dataFields } = additionalDataSections.find(
+  const { fields, dataFields } = isCustomSection ? customSectionFields.map(({ id, name, fieldType, options }) => ({
+    id,
+    name,
+    fieldType,
+    options,
+  }))
+: additionalDataSections.find(
     ({ sectionKey: key }) => key === sectionKey,
   );
   const initialAdditionalData = getInitialAdditionalValues(additionalData, dataFields || fields);
@@ -82,7 +104,11 @@ export const PatientAdditionalDataForm = ({
       {(): ReactElement => (
         <FormScreenView scrollViewRef={scrollViewRef}>
           <StyledView justifyContent="space-between">
-            <PatientAdditionalDataFields fields={fields} showMandatory={false} />
+            <PatientAdditionalDataFields
+              fields={fields}
+              isCustomSection={isCustomSection}
+              showMandatory={false}
+            />
             <SubmitButton
               buttonText={<TranslatedText stringId="general.action.save" fallback="Save" />}
               marginTop={10}

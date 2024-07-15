@@ -1,37 +1,39 @@
 import { IMAGING_REQUEST_STATUS_TYPES } from './statuses';
 
 export const IMAGING_AREA_TYPES = {
-  X_RAY_IMAGING_AREA: 'xRayImagingArea',
-  ULTRASOUND_IMAGING_AREA: 'ultrasoundImagingArea',
-  CT_SCAN_IMAGING_AREA: 'ctScanImagingArea',
-  ECHOCARDIOGRAM_IMAGING_AREA: 'echocardiogramImagingArea',
-  MRI_IMAGING_AREA: 'mriImagingArea',
-  MAMMOGRAM_IMAGING_AREA: 'mammogramImagingArea',
-  ECG_IMAGING_AREA: 'ecgImagingArea',
-  HOLTER_MONITOR_IMAGING_AREA: 'holterMonitorImagingArea',
-  ENDOSCOPY_IMAGING_AREA: 'endoscopyImagingArea',
-  FLUROSCOPY_IMAGING_AREA: 'fluroscopyImagingArea',
   ANGIOGRAM_IMAGING_AREA: 'angiogramImagingArea',
   COLONOSCOPY_IMAGING_AREA: 'colonoscopyImagingArea',
-  VASCULAR_STUDY_IMAGING_AREA: 'vascularStudyImagingArea',
+  CT_SCAN_IMAGING_AREA: 'ctScanImagingArea',
+  ECG_IMAGING_AREA: 'ecgImagingArea',
+  ECHOCARDIOGRAM_IMAGING_AREA: 'echocardiogramImagingArea',
+  ENDOSCOPY_IMAGING_AREA: 'endoscopyImagingArea',
+  FLUROSCOPY_IMAGING_AREA: 'fluroscopyImagingArea',
+  HOLTER_MONITOR_IMAGING_AREA: 'holterMonitorImagingArea',
+  ORTHOPANTOMOGRAPHY_IMAGING_AREA: 'orthopantomographyImagingArea',
+  MRI_IMAGING_AREA: 'mriImagingArea',
+  MAMMOGRAM_IMAGING_AREA: 'mammogramImagingArea',
   STRESS_TEST_IMAGING_AREA: 'stressTestImagingArea',
+  ULTRASOUND_IMAGING_AREA: 'ultrasoundImagingArea',
+  VASCULAR_STUDY_IMAGING_AREA: 'vascularStudyImagingArea',
+  X_RAY_IMAGING_AREA: 'xRayImagingArea',
 };
 
 export const IMAGING_TYPES = {
-  X_RAY: 'xRay',
-  CT_SCAN: 'ctScan',
-  ULTRASOUND: 'ultrasound',
-  MRI: 'mri',
-  ECG: 'ecg',
-  HOLTER_MONITOR: 'holterMonitor',
-  ECHOCARDIOGRAM: 'echocardiogram',
-  MAMMOGRAM: 'mammogram',
-  ENDOSCOPY: 'endoscopy',
-  FLUROSCOPY: 'fluroscopy',
   ANGIOGRAM: 'angiogram',
   COLONOSCOPY: 'colonoscopy',
-  VASCULAR_STUDY: 'vascularStudy',
+  CT_SCAN: 'ctScan',
+  ECG: 'ecg',
+  ECHOCARDIOGRAM: 'echocardiogram',
+  ENDOSCOPY: 'endoscopy',
+  FLUROSCOPY: 'fluroscopy',
+  HOLTER_MONITOR: 'holterMonitor',
+  MAMMOGRAM: 'mammogram',
+  ORTHOPANTOMOGRAPHY: 'orthopantomography',
+  MRI: 'mri',
   STRESS_TEST: 'stressTest',
+  ULTRASOUND: 'ultrasound',
+  VASCULAR_STUDY: 'vascularStudy',
+  X_RAY: 'xRay',
 };
 
 export const IMAGING_TYPES_VALUES = Object.values(IMAGING_TYPES);
@@ -39,6 +41,7 @@ export const IMAGING_TYPES_VALUES = Object.values(IMAGING_TYPES);
 export const AREA_TYPE_TO_IMAGING_TYPE = {
   [IMAGING_AREA_TYPES.X_RAY_IMAGING_AREA]: IMAGING_TYPES.X_RAY,
   [IMAGING_AREA_TYPES.CT_SCAN_IMAGING_AREA]: IMAGING_TYPES.CT_SCAN,
+  [IMAGING_AREA_TYPES.ORTHOPANTOMOGRAPHY_IMAGING_AREA]: IMAGING_TYPES.ORTHOPANTOMOGRAPHY,
   [IMAGING_AREA_TYPES.ULTRASOUND_IMAGING_AREA]: IMAGING_TYPES.ULTRASOUND,
   [IMAGING_AREA_TYPES.MRI_IMAGING_AREA]: IMAGING_TYPES.MRI,
   [IMAGING_AREA_TYPES.ECG_IMAGING_AREA]: IMAGING_TYPES.ECG,
@@ -80,7 +83,7 @@ export const IMAGING_TABLE_VERSIONS: { [key: string]: ImagingTableVersion } =
     Object.keys(IMAGING_TABLE_STATUS_GROUPINGS).map((key) => {
       const statuses =
         IMAGING_TABLE_STATUS_GROUPINGS[
-          key as keyof typeof IMAGING_TABLE_STATUS_GROUPINGS
+        key as keyof typeof IMAGING_TABLE_STATUS_GROUPINGS
         ];
       return [
         key,
