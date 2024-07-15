@@ -10,7 +10,11 @@ import {
   titleOptions,
 } from '~/ui/helpers/additionalData';
 import { yupAttemptTransformToNumber } from '~/ui/helpers/numeralTranslation';
-import { isObject, isString } from 'lodash';
+
+import { CustomPatientFieldValues } from '~/ui/hooks/usePatientAdditionalData';
+import { PatientAdditionalData } from '~/models/PatientAdditionalData';
+import { PatientFieldDefinition } from '~/models/PatientFieldDefinition';
+import { isObject } from 'lodash';
 
 // All PatientAdditionalData plain fields sorted alphabetically
 export const plainFields = [
@@ -169,27 +173,36 @@ export const patientAdditionalDataValidationSchema = Yup.object().shape({
 });
 
 // Strip off unwanted fields from additional data and only keep specified ones
-export const getInitialCustomValues = (data, fields): {} => {
+export const getInitialCustomValues = (
+  data: CustomPatientFieldValues,
+  fields: (PatientFieldDefinition | string)[],
+): { [key: string]: string } => {
   if (!data) {
     return {};
   }
   // Copy values from data only in the specified fields
   const values = {};
-  fields.forEach(fieldName => {
-    if (data[fieldName]) values[fieldName] = data[fieldName]?.[0]?.value;
-  });
+  for (const field of fields) {
+    const fieldId = isObject(field) ? field.id : field;
+    const value = data[fieldId]?.[0]?.value;
+    if (value) values[fieldId] = value;
+  }
   return values;
 };
 
 // Strip off unwanted fields from additional data and only keep specified ones
-export const getInitialAdditionalValues = (data, fields): {} => {
+export const getInitialAdditionalValues = (
+  data: PatientAdditionalData,
+  fields: (PatientFieldDefinition | string)[],
+): { [key: string]: string } => {
   if (!data) {
     return {};
   }
   const values = {};
-  fields.forEach(field => {
-    if (isString(data[field])) values[field] = data[field];
-    if (isObject(field)) values[field.name] = data[field.name];
-  });
+  for (const field of fields) {
+    const fieldName = isObject(field) ? field.name : field;
+    const value = data[fieldName];
+    if (value) values[fieldName] = value;
+  }
   return values;
 };

@@ -1,4 +1,4 @@
-const applyCasing = (text, lowercase, uppercase) => {
+const applyCasing = (text, uppercase, lowercase) => {
   if (lowercase) return text.toLowerCase();
   if (uppercase) return text.toUpperCase();
   return text;
@@ -31,7 +31,7 @@ export const replaceStringVariables = (
       if (typeof replacement !== 'object') return replacement;
 
       const translation = translations?.[replacement.props.stringId] || replacement.props.fallback;
-      return applyCasing(translation, replacement.props.lowercase, replacement.props.uppercase);
+      return applyCasing(translation, replacement.props.uppercase, replacement.props.lowercase);
     })
     .join('');
 

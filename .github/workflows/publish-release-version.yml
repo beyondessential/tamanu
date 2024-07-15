@@ -1,4 +1,12 @@
+# IF THIS WORKFLOW FAILS AT The CHECKOUT STEP
+# - check the bes bot account for the token's expiry
+# - make a new Classic Token with a 1-year expiry and `repo` scope
+# - change the TAMANU_RELEASE_PAT Actions Secret in this repo's settings
+
 name: Publish Release Version
+
+permissions:
+  contents: write
 
 on:
   workflow_dispatch:
@@ -12,8 +20,6 @@ jobs:
   run:
     name: Publish Release Version
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
     steps:
     - if: (!startsWith(github.ref, 'refs/heads/release/'))
       run: |
