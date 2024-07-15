@@ -66,14 +66,15 @@ function getActiveRouteName(navigationState) {
   if (route.state) {
     return getActiveRouteName(route.state);
   }
+  console.log("test")
   return route;
 }
 
 function MyTabBar({ state, descriptors, navigation }: BottomTabBarProps): ReactElement {
   const currentRoute = getActiveRouteName(state);
-  const isHideTabBar = !!currentRoute?.params?.hideTabBar;
+  const shouldHideTabBar = !!currentRoute?.params?.hideTabBar;
 
-  if (isHideTabBar) return null;
+  if (shouldHideTabBar) return null;
 
   return (
     <StyledSafeAreaView background={theme.colors.PRIMARY_MAIN}>
