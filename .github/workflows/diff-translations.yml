@@ -58,17 +58,7 @@ jobs:
           | tee -a $GITHUB_OUTPUT
 
     - name: get this versions translations
-      run: |
-          # Get all translated string data from TranslatedText, getTranslatedString and enums.
-          teoutput=$(node scripts/print-enum-translations.mjs)
-          ttoutput=$(rg -PINU --multiline-dotall 'stringId="([^"]*)"\s*?fallback="([^"]*)' -or '"$1","$2"' | rg --multiline-dotall --passthru -U '\n\s*\b' -r '')
-          gttoutput=$(rg -PINU --multiline-dotall "getTranslation\(\s*?[\"'](.*?)[\"'],.*?[\"'](.*?)[\"'].*?\)" -or '"$1","$2"')
-
-          # Combine and sort
-          data=$(printf "%s\n%s\n%s" "$ttoutput" "$gttoutput" "$teoutput" | sort -u)
-
-          # Append header and write to csv file
-          printf "stringId,fallback\n%s" "$data" > current-translations.csv
+      run: .github/scripts/scrape-translations.sh > current-translations.csv
     - name: Upload translations
       id: translations-upload
       uses: actions/upload-artifact@v4
