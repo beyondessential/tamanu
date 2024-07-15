@@ -62,25 +62,25 @@ export async function insurerPaymentImporter({ errors, models, stats, file, chec
     const { data, error } = await insurerPaymentImportSchema.safeParseAsync(row);
 
     if (error) {
-      errors.push(new ValidationError(sheetName, index + 1, error));
+      errors.push(new ValidationError(sheetName, index, error));
       continue;
     }
 
     const invoice = await models.Invoice.findByPk(data.invoiceId, {
-      include: models.Invoice.getFullReferenceAssociations(models),
+      include: models.Invoice.getFullReferenceAssociations(),
     });
 
     if (!invoice) {
-      errors.push(new ValidationError(sheetName, index + 1, 'Invoice not found'));
+      errors.push(new ValidationError(sheetName, index, 'Invoice not found'));
       continue;
     }
 
     if (invoice.status !== INVOICE_STATUSES.FINALISED) {
-      errors.push(new ValidationError(sheetName, index + 1, 'Invoice is not finalised'));
+      errors.push(new ValidationError(sheetName, index, 'Invoice is not finalised'));
       continue;
     }
     if (!invoice.insurers.map(insurer => insurer.insurerId).includes(data.insurerId)) {
-      errors.push(new ValidationError(sheetName, index + 1, 'Insurer not found for this invoice'));
+      errors.push(new ValidationError(sheetName, index, 'Insurer not found for this invoice'));
       continue;
     }
 
@@ -101,19 +101,21 @@ export async function insurerPaymentImporter({ errors, models, stats, file, chec
 
     try {
       //check if the insurer payment already exists
-      const insurerPayment = await models.InvoiceInsurerPayment.findByPk(data.id);
+      const insurerPayment = await models.InvoiceInsurerPayment.findByPk(data.id, {
+        include: models.InvoiceInsurerPayment.getFullReferenceAssociations(),
+      });
       if (insurerPayment) {
         checkPermission('write', 'InvoicePayment');
         //update the payment
         if (
           data.amount >
           round(
-            new Decimal(insurerPaymentRemainingBalance).add(insurerPayment.amount).toNumber(),
+            new Decimal(insurerPaymentRemainingBalance).add(insurerPayment.detail.amount).toNumber(),
             2,
           )
         ) {
           errors.push(
-            new ValidationError(sheetName, index + 1, 'Amount is greater than the amount owing'),
+            new ValidationError(sheetName, index, 'Amount is greater than the amount owing'),
           );
           continue;
         }
@@ -121,7 +123,6 @@ export async function insurerPaymentImporter({ errors, models, stats, file, chec
           {
             invoiceId: data.invoiceId,
             date: data.date,
-            receiptNumber: data.receiptNumber,
             amount: data.amount,
           },
           { where: { id: insurerPayment.invoicePaymentId } },
@@ -138,14 +139,14 @@ export async function insurerPaymentImporter({ errors, models, stats, file, chec
                 ? INVOICE_INSURER_PAYMENT_STATUSES.PAID
                 : INVOICE_INSURER_PAYMENT_STATUSES.PARTIAL,
           },
-          { where: { invoicePaymentId: data.id } },
+          { where: { invoicePaymentId: insurerPayment.id } },
         );
         //Update the overall insurer payment status to invoice
         await models.Invoice.update(
           {
             insurerPaymentStatus: getInvoiceInsurerPaymentStatus(
               new Decimal(allInsurerPaymentsTotal)
-                .minus(insurerPayment.amount)
+                .minus(insurerPayment.detail.amount)
                 .add(data.amount)
                 .toNumber(),
               allInsurerDiscountTotal,
@@ -160,7 +161,7 @@ export async function insurerPaymentImporter({ errors, models, stats, file, chec
         //* Block payment if the amount is greater than the amount owing of this insurer
         if (data.amount > round(insurerPaymentRemainingBalance, 2)) {
           errors.push(
-            new ValidationError(sheetName, index + 1, 'Amount is greater than the amount owing'),
+            new ValidationError(sheetName, index, 'Amount is greater than the amount owing'),
           );
           continue;
         }
@@ -174,6 +175,7 @@ export async function insurerPaymentImporter({ errors, models, stats, file, chec
           { returning: true },
         );
         await models.InvoiceInsurerPayment.create({
+          id: data.id,
           invoicePaymentId: payment.id,
           insurerId: data.insurerId,
           reason: data.reason,
@@ -198,7 +200,7 @@ export async function insurerPaymentImporter({ errors, models, stats, file, chec
         updateStat(subStat, statkey('InvoiceInsurerPayment', sheetName), 'created');
       }
     } catch (e) {
-      errors.push(new ValidationError('', index + 1, e));
+      errors.push(new ValidationError('', index, e));
     }
   }
 
