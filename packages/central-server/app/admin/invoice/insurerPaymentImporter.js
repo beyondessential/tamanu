@@ -6,6 +6,7 @@ import {
   getInvoiceInsurerPaymentStatus,
   getInvoiceSummary,
   round,
+  getSpecificInsurerPaymentRemainingBalance,
 } from '@tamanu/shared/utils/invoice';
 import { INVOICE_INSURER_PAYMENT_STATUSES, INVOICE_STATUSES } from '@tamanu/constants';
 import { ValidationError } from '../errors';
@@ -29,10 +30,7 @@ const receiptNumberGenerator = customAlphabet('123456789ABCDEFGHJKLMNPQRSTWUVXYZ
 
 const insurerPaymentImportSchema = z
   .object({
-    id: z
-      .string()
-      .uuid()
-      .optional(),
+    id: z.string().uuid(),
     date: z.string().date(),
     amount: z.coerce
       .number()
@@ -49,7 +47,6 @@ const insurerPaymentImportSchema = z
   }));
 
 export async function insurerPaymentImporter({ errors, models, stats, file, checkPermission }) {
-  //TODO: SUPPORT UPDATE
   checkPermission('create', 'InvoicePayment');
   const workbook = parseExcel(file);
 
@@ -87,21 +84,39 @@ export async function insurerPaymentImporter({ errors, models, stats, file, chec
       continue;
     }
 
-    const { insurerDiscountTotal, insurerPaymentRemainingBalance } = getInvoiceSummary(invoice);
+    const {
+      patientSubtotal,
+      insurerPaymentsTotal: allInsurerPaymentsTotal,
+      insurerDiscountTotal: allInsurerDiscountTotal,
+    } = getInvoiceSummary(invoice);
+    const {
+      insurerDiscountTotal,
+      insurerPaymentRemainingBalance,
+    } = getSpecificInsurerPaymentRemainingBalance(
+      invoice?.insurers ?? [],
+      invoice?.payments ?? [],
+      data.insurerId,
+      patientSubtotal,
+    );
 
-    //* Block payment if the amount is greater than the amount owing
-    if (data.amount > round(insurerPaymentRemainingBalance, 2)) {
-      errors.push(
-        new ValidationError(sheetName, index + 1, 'Amount is greater than the amount owing'),
-      );
-      continue;
-    }
     try {
       //check if the insurer payment already exists
-      const patientPayment = await models.InvoiceInsurerPayment.findByPk(data.id);
-      if (patientPayment) {
+      const insurerPayment = await models.InvoiceInsurerPayment.findByPk(data.id);
+      if (insurerPayment) {
         checkPermission('write', 'InvoicePayment');
         //update the payment
+        if (
+          data.amount >
+          round(
+            new Decimal(insurerPaymentRemainingBalance).add(insurerPayment.amount).toNumber(),
+            2,
+          )
+        ) {
+          errors.push(
+            new ValidationError(sheetName, index + 1, 'Amount is greater than the amount owing'),
+          );
+          continue;
+        }
         await models.InvoicePayment.update(
           {
             invoiceId: data.invoiceId,
@@ -109,7 +124,7 @@ export async function insurerPaymentImporter({ errors, models, stats, file, chec
             receiptNumber: data.receiptNumber,
             amount: data.amount,
           },
-          { where: { id: patientPayment.invoicePaymentId } },
+          { where: { id: insurerPayment.invoicePaymentId } },
         );
 
         await models.InvoiceInsurerPayment.update(
@@ -125,10 +140,30 @@ export async function insurerPaymentImporter({ errors, models, stats, file, chec
           },
           { where: { invoicePaymentId: data.id } },
         );
+        //Update the overall insurer payment status to invoice
+        await models.Invoice.update(
+          {
+            insurerPaymentStatus: getInvoiceInsurerPaymentStatus(
+              new Decimal(allInsurerPaymentsTotal)
+                .minus(insurerPayment.amount)
+                .add(data.amount)
+                .toNumber(),
+              allInsurerDiscountTotal,
+            ),
+          },
+          { where: { id: data.invoiceId } },
+        );
 
         updateStat(subStat, statkey('InvoiceInsurerPayment', sheetName), 'updated');
       } else {
         //create new payment
+        //* Block payment if the amount is greater than the amount owing of this insurer
+        if (data.amount > round(insurerPaymentRemainingBalance, 2)) {
+          errors.push(
+            new ValidationError(sheetName, index + 1, 'Amount is greater than the amount owing'),
+          );
+          continue;
+        }
         const payment = await models.InvoicePayment.create(
           {
             invoiceId: data.invoiceId,
@@ -149,23 +184,19 @@ export async function insurerPaymentImporter({ errors, models, stats, file, chec
               ? INVOICE_INSURER_PAYMENT_STATUSES.PAID
               : INVOICE_INSURER_PAYMENT_STATUSES.PARTIAL,
         });
+        //Update the overall insurer payment status to invoice
+        await models.Invoice.update(
+          {
+            insurerPaymentStatus: getInvoiceInsurerPaymentStatus(
+              new Decimal(allInsurerPaymentsTotal).add(data.amount).toNumber(),
+              allInsurerDiscountTotal,
+            ),
+          },
+          { where: { id: data.invoiceId } },
+        );
 
         updateStat(subStat, statkey('InvoiceInsurerPayment', sheetName), 'created');
       }
-
-      //Update the overall insurer payment status to invoice
-      await models.Invoice.update(
-        {
-          insurerPaymentStatus: getInvoiceInsurerPaymentStatus(
-            new Decimal(insurerDiscountTotal)
-              .minus(insurerPaymentRemainingBalance)
-              .add(data.amount)
-              .toNumber(),
-            insurerDiscountTotal,
-          ),
-        },
-        { where: { id: data.invoiceId } },
-      );
     } catch (e) {
       errors.push(new ValidationError('', index + 1, e));
     }
