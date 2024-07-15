@@ -10,6 +10,7 @@ import {
 import { INVOICE_INSURER_PAYMENT_STATUSES, INVOICE_STATUSES } from '@tamanu/constants';
 import { ValidationError } from '../errors';
 import Decimal from 'decimal.js';
+import { statkey, updateStat } from '../stats';
 
 /**
  * Parse an excel file into a object with keys as sheet names and values as arrays of objects
@@ -28,7 +29,10 @@ const receiptNumberGenerator = customAlphabet('123456789ABCDEFGHJKLMNPQRSTWUVXYZ
 
 const insurerPaymentImportSchema = z
   .object({
-    id: z.string().uuid(),
+    id: z
+      .string()
+      .uuid()
+      .optional(),
     date: z.string().date(),
     amount: z.coerce
       .number()
@@ -50,6 +54,8 @@ export async function insurerPaymentImporter({ errors, models, stats, file, chec
   const workbook = parseExcel(file);
 
   const sheet = Object.values(workbook).at(0);
+  const sheetName = Object.keys(workbook).at(0);
+  const subStat = {};
   if (!sheet) {
     throw new Error('No sheet found in workbook');
   }
@@ -59,25 +65,25 @@ export async function insurerPaymentImporter({ errors, models, stats, file, chec
     const { data, error } = await insurerPaymentImportSchema.safeParseAsync(row);
 
     if (error) {
-      errors.push(new ValidationError('', index + 1, error));
+      errors.push(new ValidationError(sheetName, index + 1, error));
       continue;
     }
 
     const invoice = await models.Invoice.findByPk(data.invoiceId, {
       include: models.Invoice.getFullReferenceAssociations(models),
-    }).then(invoice => invoice.addVirtualFields());
+    });
 
     if (!invoice) {
-      errors.push(new ValidationError('', index + 1, 'Invoice not found'));
+      errors.push(new ValidationError(sheetName, index + 1, 'Invoice not found'));
       continue;
     }
 
     if (invoice.status !== INVOICE_STATUSES.FINALISED) {
-      errors.push(new ValidationError('', index + 1, 'Invoice is not finalised'));
+      errors.push(new ValidationError(sheetName, index + 1, 'Invoice is not finalised'));
       continue;
     }
     if (!invoice.insurers.map(insurer => insurer.insurerId).includes(data.insurerId)) {
-      errors.push(new ValidationError('', index + 1, 'Insurer not found for this invoice'));
+      errors.push(new ValidationError(sheetName, index + 1, 'Insurer not found for this invoice'));
       continue;
     }
 
@@ -85,7 +91,9 @@ export async function insurerPaymentImporter({ errors, models, stats, file, chec
 
     //* Block payment if the amount is greater than the amount owing
     if (data.amount > round(insurerPaymentRemainingBalance, 2)) {
-      errors.push(new ValidationError('', index + 1, 'Amount is greater than the amount owing'));
+      errors.push(
+        new ValidationError(sheetName, index + 1, 'Amount is greater than the amount owing'),
+      );
       continue;
     }
     try {
@@ -93,8 +101,20 @@ export async function insurerPaymentImporter({ errors, models, stats, file, chec
       if (errors.length) continue;
 
       //check if the insurer payment already exists
-      const patientPayment = await models.InvoiceInsurerPayment.findByPk(data.id);
-      if (patientPayment) {
+      if (data.id) {
+        const patientPayment = await models.InvoiceInsurerPayment.findByPk(data.id);
+        if (!patientPayment) {
+          errors.push(
+            new ValidationError(
+              sheetName,
+              index + 1,
+              'Existing payment not found for this invoice',
+            ),
+          );
+          continue;
+        }
+
+        checkPermission('write', 'InvoicePayment');
         //update the payment
         await models.InvoicePayment.update(
           {
@@ -119,6 +139,8 @@ export async function insurerPaymentImporter({ errors, models, stats, file, chec
           },
           { where: { invoicePaymentId: data.id } },
         );
+
+        updateStat(subStat, statkey('InvoiceInsurerPayment', sheetName), 'updated');
       } else {
         //create new payment
         const payment = await models.InvoicePayment.create(
@@ -141,6 +163,8 @@ export async function insurerPaymentImporter({ errors, models, stats, file, chec
               ? INVOICE_INSURER_PAYMENT_STATUSES.PAID
               : INVOICE_INSURER_PAYMENT_STATUSES.PARTIAL,
         });
+
+        updateStat(subStat, statkey('InvoiceInsurerPayment', sheetName), 'created');
       }
 
       //Update the overall insurer payment status to invoice
@@ -160,12 +184,6 @@ export async function insurerPaymentImporter({ errors, models, stats, file, chec
       errors.push(new ValidationError('', index + 1, e));
     }
   }
-  stats.push({
-    sheet: 'Insurer Payments',
-    stats: {
-      error: errors.length,
-      ok: sheet.length - errors.length,
-      imported: stats.ok === sheet.length ? stats.ok : 0,
-    },
-  });
+
+  stats.push(subStat);
 }
