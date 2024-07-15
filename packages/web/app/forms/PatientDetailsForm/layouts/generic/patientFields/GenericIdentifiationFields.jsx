@@ -12,6 +12,7 @@ export const GenericIdentificationFields = ({ isEdit, patientRegistryType, filte
   const { getLocalisation } = useLocalisation();
   const insurerSuggester = useSuggester('insurer');
   const canEditDisplayId = isEdit && getLocalisation('features.editPatientDisplayId');
+  const enablePatientInsurer = getLocalisation('features.enablePatientInsurer');
 
   const IDENTIFICATION_FIELDS = {
     displayId: {
@@ -36,7 +37,7 @@ export const GenericIdentificationFields = ({ isEdit, patientRegistryType, filte
           fallback="Insurer"
         />
       ),
-      condition: () => !!isEdit,
+      condition: () => !!enablePatientInsurer,
     },
     insurerPolicyNumber: {
       component: TextField,
@@ -46,7 +47,7 @@ export const GenericIdentificationFields = ({ isEdit, patientRegistryType, filte
           fallback="Insurance policy number"
         />
       ),
-      condition: () => !!isEdit,
+      condition: () => !!enablePatientInsurer,
     },
     drivingLicense: {
       component: TextField,
