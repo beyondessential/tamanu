@@ -68,7 +68,7 @@ const getInvoiceItemTotalDiscountedPrice = invoiceItem => {
  * @param {number} total
  */
 const getInvoiceInsurerDiscountAmount = (insurer, total) => {
-  return discountAmount(total, insurer?.percentage || 0);
+  return discountAmount(total || 0, insurer?.percentage || 0);
 };
 
 /**
@@ -77,16 +77,7 @@ const getInvoiceInsurerDiscountAmount = (insurer, total) => {
  * @param {number} total
  */
 const getInvoiceDiscountDiscountAmount = (discount, total) => {
-  return discountAmount(total, discount?.percentage || 0);
-};
-
-/**
- *
- * @param {InvoiceInsurer[]} insurers
- * @param {number} total
- */
-const getInsurerDiscountAmountList = (insurers, total) => {
-  return insurers.map(insurer => getInvoiceInsurerDiscountAmount(insurer, total));
+  return discountAmount(total || 0, discount?.percentage || 0);
 };
 
 /**
@@ -205,9 +196,11 @@ export const getInvoiceItemDiscountPriceDisplay = invoiceItem => {
 };
 
 export const getInsurerDiscountAmountDisplayList = (insurers, total) => {
-  return getInsurerDiscountAmountList(insurers, total).map((payment, index) =>
-    formatDisplayPrice(isNaN(insurers[index]?.percentage) ? undefined : payment),
-  );
+  return insurers
+    .map(insurer => getInvoiceInsurerDiscountAmount(insurer, total || 0))
+    .map((value, index) =>
+      formatDisplayPrice(isNaN(insurers[index]?.percentage) ? undefined : value),
+    );
 };
 
 /**
@@ -248,7 +241,7 @@ export const getInvoiceInsurerPaymentStatus = (paidAmount, owingAmount) => {
 
 export const getPatientPaymentsWithRemainingBalanceDisplay = invoice => {
   const patientPayments = invoice.payments.filter(payment => payment?.patientPayment?.id);
-  let { patientTotal } = getInvoiceSummaryDisplay(invoice);
+  let { patientTotal } = getInvoiceSummary(invoice);
 
   const patientPaymentsWithRemainingBalance = patientPayments?.map(payment => {
     patientTotal = new Decimal(patientTotal).minus(payment.amount).toNumber();
@@ -263,7 +256,7 @@ export const getPatientPaymentsWithRemainingBalanceDisplay = invoice => {
 
 export const getInsurerPaymentsWithRemainingBalanceDisplay = invoice => {
   const insurerPayments = invoice.payments.filter(payment => payment?.insurerPayment?.id);
-  let { insurerDiscountTotal } = getInvoiceSummaryDisplay(invoice);
+  let { insurerDiscountTotal } = getInvoiceSummary(invoice);
   const insurerPaymentsWithRemainingBalance = insurerPayments?.map(payment => {
     insurerDiscountTotal = new Decimal(insurerDiscountTotal).minus(payment.amount).toNumber();
     return {

@@ -83,8 +83,7 @@ export const InsurerPaymentsTable = ({ invoice }) => {
             stringId="invoice.modal.payment.remainingBalance"
             fallback="Remaining balance: :remainingBalance"
             replacements={{
-              remainingBalance:
-                insurerPaymentRemainingBalance <= 0 ? '0.00' : insurerPaymentRemainingBalance,
+              remainingBalance: formatDisplayPrice(Math.max(0, insurerPaymentRemainingBalance)),
             }}
           />
         </Heading4>
@@ -99,7 +98,7 @@ export const InsurerPaymentsTable = ({ invoice }) => {
         cellStyle={denseTableStyle.cell + '&.MuiTableCell-body { padding: 12px 30px 12px 0px }'}
         headStyle={denseTableStyle.head}
         statusCellStyle={denseTableStyle.statusCell}
-        noDataMessage=''
+        noDataMessage=""
       />
     </TableContainer>
   );

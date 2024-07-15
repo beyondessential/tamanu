@@ -193,6 +193,7 @@ export const practitioner = [
   { verb: 'read', noun: 'Invoice' },
   { verb: 'write', noun: 'Invoice' },
   { verb: 'create', noun: 'Invoice' },
+  { verb: 'delete', noun: 'Invoice' },
 
   { verb: 'list', noun: 'InvoiceProduct' },
   { verb: 'read', noun: 'InvoiceProduct' },
