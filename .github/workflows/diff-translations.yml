@@ -43,6 +43,8 @@ jobs:
         version=$(jq -r .version package.json)
         echo "current_version=v$version" | tee -a $GITHUB_ENV
 
+
+    # TODO: lexical order not what we want for version awk
     - name: get closest previous version
       id: previousv
       run: |
