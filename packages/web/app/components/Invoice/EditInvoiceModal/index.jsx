@@ -189,11 +189,13 @@ export const EditInvoiceModal = ({
   const renderDataTables = (values, formArrayMethods) => {
     if (editable) {
       return (
-        <PotentialInvoiceItemsTable
-          invoice={invoice}
-          invoiceItems={values.invoiceItems}
-          formArrayMethods={formArrayMethods}
-        />
+        canWriteInvoice && (
+          <PotentialInvoiceItemsTable
+            invoice={invoice}
+            invoiceItems={values.invoiceItems}
+            formArrayMethods={formArrayMethods}
+          />
+        )
       );
     }
     return <PaymentTablesGroup invoice={invoice} />;
@@ -293,7 +295,7 @@ export const EditInvoiceModal = ({
           enableReinitialize
           onSubmit={handleSubmit}
           initialValues={{
-            invoiceItems: invoice.items?.length ? invoice.items : [getDefaultRow()],
+            invoiceItems: invoice.items?.length ? invoice.items : [editable ? getDefaultRow() : {}],
             insurers: invoice.insurers?.length
               ? invoice.insurers.map(insurer => ({
                   ...insurer,
@@ -317,11 +319,11 @@ export const EditInvoiceModal = ({
                           isDeleteDisabled={values.invoiceItems?.length === 1}
                           showActionMenu={item.productId || values.invoiceItems.length > 1}
                           formArrayMethods={formArrayMethods}
-                          editable={editable}
+                          editable={editable && canWriteInvoice}
                         />
                       ))}
                     </Box>
-                    {editable && (
+                    {editable && canWriteInvoice && (
                       <LinkText onClick={() => formArrayMethods.push(getDefaultRow())}>
                         {'+ '}
                         <TranslatedText
@@ -334,7 +336,7 @@ export const EditInvoiceModal = ({
                       {renderDataTables(values, formArrayMethods)}
                       <InvoiceSummaryPanel
                         invoice={{ ...invoice, items: values.invoiceItems }}
-                        editable={editable}
+                        editable={editable && canWriteInvoice}
                         handleEditDiscount={handleEditDiscount}
                       />
                     </ModalSection>
@@ -342,7 +344,7 @@ export const EditInvoiceModal = ({
                     <FormSubmitCancelRow
                       confirmText={
                         !isUpdatingInvoice ? (
-                          editable ? (
+                          editable && canWriteInvoice ? (
                             <TranslatedText stringId="general.action.save" fallback="Save" />
                           ) : (
                             <TranslatedText stringId="general.action.close" fallback="Close" />
@@ -351,8 +353,8 @@ export const EditInvoiceModal = ({
                           <CircularProgress size={14} color={Colors.white} />
                         )
                       }
-                      onConfirm={editable ? submitForm : onClose}
-                      onCancel={editable ? onClose : undefined}
+                      onConfirm={editable && canWriteInvoice ? submitForm : onClose}
+                      onCancel={editable && canWriteInvoice ? onClose : undefined}
                       confirmDisabled={isUpdatingInvoice}
                       confirmStyle={`
                       &.Mui-disabled {

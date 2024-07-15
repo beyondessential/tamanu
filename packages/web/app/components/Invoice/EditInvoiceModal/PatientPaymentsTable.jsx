@@ -2,7 +2,7 @@ import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { Box, Divider } from '@material-ui/core';
 import { INVOICE_STATUSES } from '@tamanu/constants';
-import { getInvoiceSummaryDisplay, formatDisplayPrice } from '@tamanu/shared/utils/invoice';
+import { getInvoiceSummary, formatDisplayPrice } from '@tamanu/shared/utils/invoice';
 
 import { TranslatedText } from '../../Translation';
 import { Table } from '../../Table';
@@ -33,7 +33,7 @@ export const PatientPaymentsTable = ({ invoice }) => {
     .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
 
   const [refreshCount, setRefreshCount] = useState(0);
-  const { patientPaymentRemainingBalance } = getInvoiceSummaryDisplay(invoice);
+  const { patientPaymentRemainingBalance } = getInvoiceSummary(invoice);
   const [editingPayment, setEditingPayment] = useState({});
 
   const { ability } = useAuth();
@@ -44,7 +44,7 @@ export const PatientPaymentsTable = ({ invoice }) => {
   const updateEditingPayment = useCallback(editingPayment => setEditingPayment(editingPayment), []);
 
   const hideRecordPaymentForm =
-    Number(patientPaymentRemainingBalance) <= 0 || invoice.status === INVOICE_STATUSES.CANCELLED;
+    patientPaymentRemainingBalance <= 0 || invoice.status === INVOICE_STATUSES.CANCELLED;
   const COLUMNS = [
     {
       key: 'date',
@@ -139,7 +139,9 @@ export const PatientPaymentsTable = ({ invoice }) => {
           <TranslatedText
             stringId="invoice.modal.payment.remainingBalance"
             fallback="Remaining balance: :remainingBalance"
-            replacements={{ remainingBalance: patientPaymentRemainingBalance }}
+            replacements={{
+              remainingBalance: formatDisplayPrice(Math.max(0, patientPaymentRemainingBalance)),
+            }}
           />
         </Heading4>
       </Title>

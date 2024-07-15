@@ -354,7 +354,7 @@ const SummaryPane = ({ invoice }) => {
     discountTotal,
     patientTotal,
   } = getInvoiceSummaryDisplay(invoice);
-  const isurerDiscountAmountDisplayList = getInsurerDiscountAmountDisplayList(
+  const insurerDiscountAmountDisplayList = getInsurerDiscountAmountDisplayList(
     invoice?.insurers,
     itemsSubtotal,
   );
@@ -386,7 +386,7 @@ const SummaryPane = ({ invoice }) => {
                 <P>{insurer.insurer?.name}</P>
                 <View style={summaryPaneStyles.subItem}>
                   <P>{insurer.percentage * 100}%</P>
-                  <P>{`-${isurerDiscountAmountDisplayList[index]}`}</P>
+                  <P>{`-${insurerDiscountAmountDisplayList[index]}`}</P>
                 </View>
               </View>
             );
