@@ -13,6 +13,7 @@ import {
 } from '@tamanu/constants';
 import { Footer } from './printComponents/Footer';
 import { getDisplayDate } from './getDisplayDate';
+import { getEthnicity } from '../patientAccessors';
 import { withLanguageContext } from '../pdf/languageContext';
 import { Page } from '../pdf/Page';
 import { Text } from '../pdf/Text';
@@ -175,7 +176,7 @@ const ChildSection = ({ data }) => {
         <LeftCell>Sex</LeftCell>
         <Cell style={{ width: 130 }}>{getLabelFromValue(SEX_OPTIONS, data?.sex)}</Cell>
         <FlexCell bold>Ethnicity</FlexCell>
-        <FlexCell>{data?.ethnicity?.name}</FlexCell>
+        <FlexCell>{getEthnicity(data)}</FlexCell>
       </Row>
       <Row>
         <LeftCell>Attendant at birth</LeftCell>
@@ -201,11 +202,15 @@ const ParentSection = ({ parentType, data = {} }) => {
       </Row>
       <Row>
         <LeftCell>Name</LeftCell>
-        <FlexCell>{getFullName(data)}</FlexCell>
+        <Cell style={{ width: 150 }}>{getFullName(data)}</Cell>
+        <Cell style={{ width: 90 }} bold>
+          Nationality
+        </Cell>
+        <FlexCell>{data?.additionalData?.nationality?.name}</FlexCell>
       </Row>
       <Row>
         <LeftCell>Ethnicity</LeftCell>
-        <Cell style={{ width: 150 }}>{data?.ethnicity?.name}</Cell>
+        <Cell style={{ width: 150 }}>{getEthnicity(data)}</Cell>
         <Cell style={{ width: 90 }} bold>
           Marital status
         </Cell>
@@ -233,7 +238,11 @@ const ParentSection = ({ parentType, data = {} }) => {
       </Row>
       <Row>
         <LeftCell>Address</LeftCell>
-        <FlexCell>{data?.additionalData?.streetVillage}</FlexCell>
+        <Cell style={{ width: 150 }}>{data?.additionalData?.streetVillage}</Cell>
+        <Cell style={{ width: 90 }} bold>
+          Phone number
+        </Cell>
+        <FlexCell>{data?.additionalData?.primaryContactNumber}</FlexCell>
       </Row>
       <Row>
         <LeftCell>Mother&apos;s name</LeftCell>

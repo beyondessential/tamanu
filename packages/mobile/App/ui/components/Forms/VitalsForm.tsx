@@ -9,7 +9,6 @@ import { theme } from '/styled/theme';
 import { LoadingScreen } from '/components/LoadingScreen';
 import { authUserSelector } from '/helpers/selectors';
 import { SurveyTypes } from '~/types';
-import { getCurrentDateTimeString } from '/helpers/date';
 import { SurveyForm } from '/components/Forms/SurveyForm';
 import { VitalsDataElements } from '/helpers/constants';
 import { useCurrentScreen } from '~/ui/hooks/useCurrentScreen';
@@ -70,7 +69,7 @@ export const VitalsForm: React.FC<VitalsFormProps> = ({ onAfterSubmit }) => {
         surveyType: SurveyTypes.Vitals,
         encounterReason: 'Form response',
       },
-      { ...values, [dateComponent.dataElement.code]: getCurrentDateTimeString() },
+      { ...values, [dateComponent.dataElement.code]: new Date() },
     );
 
     if (responseRecord) {

@@ -1,7 +1,7 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useApi } from '../../api';
-import { MultiselectField, Field } from '../../components';
+import { MultiselectField, Field, TranslatedReferenceData } from '../../components';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
 
 export const useLabTestTypes = labTestCategoryId => {
@@ -36,8 +36,12 @@ export const LabTestTypeField = ({ name = 'labTestTypeIds', label, required, par
       }
       component={MultiselectField}
       required={required}
-      options={data.map(type => ({ value: type.id, label: type.name }))}
-      prefix="report.property.labTestType"
+      options={data.map(type => ({
+        value: type.id,
+        label: (
+          <TranslatedReferenceData value={type.id} fallback={type.name} category="labTestType" />
+        ),
+      }))}
     />
   );
 };

@@ -48,6 +48,7 @@
         "alpha-3": "UTO"
       },
       "imagingTypes": {
+        "orthopantomography": { "label": "Orthopantomography" },
         "xRay": { "label": "X-Ray" },
         "ctScan": { "label": "CT Scan" },
         "ultrasound": { "label": "Ultrasound" },

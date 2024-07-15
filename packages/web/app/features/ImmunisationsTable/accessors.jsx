@@ -3,19 +3,23 @@ import { parseISO, startOfWeek } from 'date-fns';
 import { VACCINE_STATUS, VACCINE_STATUS_LABELS } from '@tamanu/constants/vaccines';
 import styled from 'styled-components';
 import {
-  TranslatedText,
   DateDisplay,
   MenuButton,
   OutlinedButton,
   TableCellTag,
+  TranslatedReferenceData,
+  TranslatedText,
 } from '../../components';
 import { Colors } from '../../constants';
 
 export const getVaccineName = record =>
-  record.vaccineName ||
-  record.scheduledVaccine?.label || (
-    <TranslatedText stringId="general.fallback.unknown" fallback="Unknown" />
-  );
+  record.vaccineName || (
+    <TranslatedReferenceData
+      category="scheduledVaccine"
+      value={record.scheduledVaccine.id}
+      fallback={record.scheduledVaccine.label}
+    />
+  ) || <TranslatedText stringId="general.fallback.unknown" fallback="Unknown" />;
 export const getDate = ({ date }) =>
   date ? (
     <DateDisplay date={date} />
