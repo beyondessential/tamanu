@@ -29,13 +29,6 @@ jobs:
       with:
         node-version: 20.x
         cache: yarn
-    - uses: actions/cache/restore@v3
-      with:
-        key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
-        path: ${{ env.NODE_MODULES_PATHS }}
-
-    - run: yarn
-    - run: yarn build-shared
 
     - name: get current version
       id: currentv
