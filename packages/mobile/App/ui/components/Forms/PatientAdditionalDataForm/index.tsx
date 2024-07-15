@@ -35,7 +35,7 @@ export const PatientAdditionalDataForm = ({
   additionalData,
   additionalDataSections,
   navigation,
-  sectionTitle,
+  sectionKey,
   customPatientFieldValues,
   isCustomSection = false,
   customSectionFields,
@@ -78,20 +78,24 @@ export const PatientAdditionalDataForm = ({
     [navigation, patient.id],
   );
 
-  const fields = isCustomSection
-    ? customSectionFields.map(({ id, name, fieldType, options }) => ({
-        id,
-        name,
-        fieldType,
-        options,
-      }))
-    : additionalDataSections.find(({ title }) => title === sectionTitle)?.fields;
+  // Get the field group for this section of the additional data template
+  const { fields, dataFields } = isCustomSection ? customSectionFields.map(({ id, name, fieldType, options }) => ({
+    id,
+    name,
+    fieldType,
+    options,
+  }))
+: additionalDataSections.find(
+    ({ sectionKey: key }) => key === sectionKey,
+  );
+  const initialAdditionalData = getInitialAdditionalValues(additionalData, dataFields || fields);
+  const initialCustomValues = getInitialCustomValues(customPatientFieldValues, fields);
 
   return (
     <Form
       initialValues={{
-        ...getInitialAdditionalValues(additionalData, fields),
-        ...getInitialCustomValues(customPatientFieldValues, fields),
+        ...initialAdditionalData,
+        ...initialCustomValues,
         ...patient,
       }}
       validationSchema={patientAdditionalDataValidationSchema}

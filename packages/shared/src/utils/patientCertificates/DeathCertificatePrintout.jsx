@@ -1,8 +1,17 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 
-import { Document, Page, StyleSheet, Text, View } from '@react-pdf/renderer';
-import { getName, getTimeOfDeath, getDateOfDeath, getSex } from '../patientAccessors';
+import { Document, StyleSheet, View } from '@react-pdf/renderer';
+import {
+  getName,
+  getTimeOfDeath,
+  getDateOfDeath,
+  getSex,
+  getAddress,
+  getNationality,
+  getEthnicity,
+  getClinician,
+} from '../patientAccessors';
 import { CertificateHeader, Col, Row, styles, SigningImage } from './Layout';
 import { LetterheadSection } from './LetterheadSection';
 import { Footer } from './printComponents/Footer';
@@ -10,15 +19,19 @@ import { MultiPageHeader } from './printComponents/MultiPageHeader';
 import { renderDataItems } from './printComponents/renderDataItems';
 import { P } from './Typography';
 import { getDisplayDate } from './getDisplayDate';
+import { DataSection } from './printComponents/DataSection';
+import { withLanguageContext } from '../pdf/languageContext';
+import { Page } from '../pdf/Page';
+import { Text } from '../pdf/Text';
+import { formatDistanceStrict, milliseconds } from 'date-fns';
 
 const borderStyle = '1 solid black';
-const tableLabelWidth = 250;
+const tableLabelWidth = 200;
 const tablePadding = 10;
 const dataColPadding = 10;
 
 const generalStyles = StyleSheet.create({
   container: {
-    marginHorizontal: 16,
     marginVertical: 8,
   },
   tableContainer: {
@@ -70,7 +83,7 @@ const infoBoxStyles = StyleSheet.create({
   },
   underlinedText: {
     borderBottom: borderStyle,
-    width: 200,
+    width: 175,
   },
   marginTop: {
     marginTop: 50,
@@ -87,7 +100,6 @@ const signStyles = StyleSheet.create({
   container: {
     paddingBottom: 20,
     marginVertical: 30,
-    marginHorizontal: 16,
   },
   text: {
     fontFamily: 'Helvetica-Bold',
@@ -117,18 +129,25 @@ const signStyles = StyleSheet.create({
 });
 
 const InfoBoxRow = props => <View style={infoBoxStyles.row} {...props} />;
+
 const InfoBoxLabelCol = props => <View style={infoBoxStyles.labelCol} {...props} />;
-const UnderlinedText = ({ text, ...props }) => (
-  <View style={[infoBoxStyles.infoText, infoBoxStyles.underlinedText]} {...props}>
+
+const UnderlinedText = ({ text, style, props }) => (
+  <View style={{ ...infoBoxStyles.infoText, ...infoBoxStyles.underlinedText, ...style }} {...props}>
     <Text>{text}</Text>
   </View>
 );
-const UnderlinedField = ({ text, label, helperText, ...props }) => {
+
+const CauseField = ({ cause, label, helperText, ...props }) => {
   return (
     <View {...props}>
       <Row>
         {label && <Text style={infoBoxStyles.infoText}>({label}) </Text>}
-        <UnderlinedText text={text}> </UnderlinedText>
+        <UnderlinedText text={cause.name}> </UnderlinedText>
+        <UnderlinedText
+          text={formatDistanceStrict(0, milliseconds({ minutes: cause.timeAfterOnset }))}
+          style={{ width: 85, marginLeft: 10 }}
+        />
       </Row>
       {helperText && (
         <Text style={[infoBoxStyles.infoText, infoBoxStyles.smallMarginTop]}>{helperText}</Text>
@@ -163,6 +182,12 @@ const placeOfDeathAccessor = ({ facility }) => {
 
 const getCauseName = cause => cause?.condition?.name;
 
+const getCauseInfo = cause => {
+  const name = cause?.condition?.name;
+  const timeAfterOnset = cause?.timeAfterOnset;
+  return { name, timeAfterOnset };
+};
+
 const causeOfDeathAccessor = ({ causes }) => {
   return getCauseName(causes?.primary);
 };
@@ -171,36 +196,52 @@ const causeOfDeathAccessor = ({ causes }) => {
 const getDOB = ({ dateOfBirth }, getLocalisation) =>
   dateOfBirth ? getDisplayDate(dateOfBirth, 'd MMM yyyy', getLocalisation) : 'Unknown';
 
-const HEADER_FIELDS = {
+const getDateAndTimeOfDeath = (patientData, getLocalisation) => {
+  return `${getDateOfDeath(patientData, getLocalisation)} ${getTimeOfDeath(
+    patientData,
+    getLocalisation,
+  )}`;
+};
+
+const PATIENT_DETAIL_FIELDS = {
   leftCol: [
     { key: 'firstName', label: 'First name' },
-    { key: 'dateOfBirth', label: 'DOB', accessor: getDOB },
-    { key: 'deathDate', label: 'Date of death', accessor: getDateOfDeath },
-    { key: 'timeOfDeath', label: 'Time of death', accessor: getTimeOfDeath },
-    { key: 'printedBy', label: 'Printed by' },
+    { key: 'lastName', label: 'Last name' },
+    { key: 'nationality', label: 'Nationality', accessor: getNationality },
+    { key: 'address', label: 'Address', accessor: getAddress },
   ],
   rightCol: [
-    { key: 'lastName', label: 'Last name' },
     { key: 'sex', label: 'Sex', accessor: getSex },
+    { key: 'dateOfBirth', label: 'DOB', accessor: getDOB },
+    { key: 'ethnicity', label: 'Ethnicity', accessor: getEthnicity },
+  ],
+};
+
+const PATIENT_DEATH_DETAILS = {
+  leftCol: [
+    { key: 'deathDateAndTime', label: 'Date & time of death', accessor: getDateAndTimeOfDeath },
     { key: 'placeOfDeath', label: 'Place of death', accessor: placeOfDeathAccessor },
+  ],
+  rightCol: [
     { key: 'causeOfDeath', label: 'Cause of death', accessor: causeOfDeathAccessor },
+    { key: 'clinician', label: 'Attending clinician', accessor: getClinician },
   ],
 };
 
 const SectionContainer = props => <View style={generalStyles.sectionContainer} {...props} />;
 
-export const DeathCertificatePrintout = React.memo(
+const DeathCertificatePrintoutComponent = React.memo(
   ({ patientData, certificateData, getLocalisation }) => {
     const { logo, deathCertFooterImg } = certificateData;
 
     const { causes } = patientData;
-    const causeOfDeath = getCauseName(causes?.primary);
-    const antecedentCause1 = getCauseName(causes?.antecedent1);
-    const antecedentCause2 = getCauseName(causes?.antecedent2);
-    const antecedentCause3 = getCauseName(causes?.antecedent3);
+    const causeOfDeath = getCauseInfo(causes?.primary);
+    const antecedentCause1 = getCauseInfo(causes?.antecedent1);
+    const antecedentCause2 = getCauseInfo(causes?.antecedent2);
+    const antecedentCause3 = getCauseInfo(causes?.antecedent3);
     return (
       <Document>
-        <Page size="A4" style={{...styles.page, paddingBottom: 25}}>
+        <Page size="A4" style={{ ...styles.page, paddingBottom: 25 }}>
           <MultiPageHeader
             documentName="Cause of death certificate"
             patientName={getName(patientData)}
@@ -214,24 +255,32 @@ export const DeathCertificatePrintout = React.memo(
               certificateTitle="Cause of death certificate"
             />
             <SectionContainer>
-              <Row>
+              <DataSection title="Patient details" hideBottomRule>
+                <Col>
+                  {renderDataItems(PATIENT_DETAIL_FIELDS.leftCol, patientData, getLocalisation, 12)}
+                </Col>
                 <Col>
                   {renderDataItems(
-                    HEADER_FIELDS.leftCol,
-                    { ...certificateData, ...patientData },
+                    PATIENT_DETAIL_FIELDS.rightCol,
+                    patientData,
                     getLocalisation,
                     12,
                   )}
                 </Col>
+              </DataSection>
+              <DataSection title="">
+                <Col>
+                  {renderDataItems(PATIENT_DEATH_DETAILS.leftCol, patientData, getLocalisation, 12)}
+                </Col>
                 <Col>
                   {renderDataItems(
-                    HEADER_FIELDS.rightCol,
-                    { ...certificateData, ...patientData },
+                    PATIENT_DEATH_DETAILS.rightCol,
+                    patientData,
                     getLocalisation,
                     12,
                   )}
                 </Col>
-              </Row>
+              </DataSection>
             </SectionContainer>
           </CertificateHeader>
           <TableContainer>
@@ -253,29 +302,29 @@ export const DeathCertificatePrintout = React.memo(
                 </Text>
               </InfoBoxLabelCol>
               <InfoBoxDataCol>
-                <UnderlinedField
+                <CauseField
                   style={infoBoxStyles.mediumMarginTop}
                   label="a"
                   helperText="due to (or as a consequence of)"
-                  text={causeOfDeath}
-                ></UnderlinedField>
-                <UnderlinedField
+                  cause={causeOfDeath}
+                />
+                <CauseField
                   style={infoBoxStyles.mediumMarginTop}
                   label="b"
                   helperText="due to (or as a consequence of)"
-                  text={antecedentCause1}
-                ></UnderlinedField>
-                <UnderlinedField
+                  cause={antecedentCause1}
+                />
+                <CauseField
                   style={infoBoxStyles.mediumMarginTop}
                   label="c"
                   helperText="due to (or as a consequence of)"
-                  text={antecedentCause2}
-                ></UnderlinedField>
-                <UnderlinedField
+                  cause={antecedentCause2}
+                />
+                <CauseField
                   style={infoBoxStyles.mediumMarginTop}
                   label="d"
-                  text={antecedentCause3}
-                ></UnderlinedField>
+                  cause={antecedentCause3}
+                />
               </InfoBoxDataCol>
             </InfoBoxRow>
             <InfoBoxRow>
@@ -290,15 +339,15 @@ export const DeathCertificatePrintout = React.memo(
               </InfoBoxLabelCol>
               <InfoBoxDataCol>
                 {causes?.contributing?.map((cause, index) => (
-                  <UnderlinedField
+                  <CauseField
                     style={
                       causes?.contributing.length < 3
                         ? infoBoxStyles.mediumMarginTop
                         : infoBoxStyles.smallMarginTop
                     }
                     key={index}
-                    text={getCauseName(cause)}
-                  ></UnderlinedField>
+                    cause={getCauseInfo(cause)}
+                  />
                 ))}
               </InfoBoxDataCol>
             </InfoBoxRow>
@@ -309,13 +358,19 @@ export const DeathCertificatePrintout = React.memo(
               means the disease, injury, or complication that caused death.
             </Text>
           </View>
-          {deathCertFooterImg ? <SigningImage src={deathCertFooterImg} /> : <AuthorisedAndSignSection />}
+          {deathCertFooterImg ? (
+            <SigningImage src={deathCertFooterImg} />
+          ) : (
+            <AuthorisedAndSignSection />
+          )}
           <Footer />
         </Page>
       </Document>
     );
   },
 );
+
+export const DeathCertificatePrintout = withLanguageContext(DeathCertificatePrintoutComponent);
 
 DeathCertificatePrintout.propTypes = {
   patientData: PropTypes.object.isRequired,
