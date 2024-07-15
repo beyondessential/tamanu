@@ -86,9 +86,11 @@ jobs:
       run: |
         aws s3 --no-progress cp s3://bes-tamanu-translations/$pversion.csv previous-translations.csv
 
+    # Todo make sure that when there are empty current-translations or no previous-translations or
+    # no diff not to post anything
     - name: Diff translations
       run: |
-        diff previous-translations.csv current-translations.csv > translations.diff
+        git diff --no-index previous-translations.csv current-translations.csv > translations.diff
 
     # - name: Post to release notes somehow
     #   run:
