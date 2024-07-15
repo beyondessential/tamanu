@@ -35,16 +35,8 @@ export const InvoiceModalGroup = ({
   const handleOpenInvoiceModal = (type, keepPreviousModals = false) =>
     setInvoiceModal(keepPreviousModals ? invoiceModal.concat(type) : [type]);
 
-  const handleTemporaryUpdateInvoice = data => {
-    setInvoice({ ...invoice, ...data });
-  };
-
   const handleCreateInvoiceSuccess = () => {
     handleOpenInvoiceModal(INVOICE_MODAL_TYPES.EDIT_INVOICE);
-  };
-
-  const handleEditDiscount = () => {
-    handleOpenInvoiceModal(INVOICE_MODAL_TYPES.CREATE_INVOICE, true);
   };
 
   const handleCancelInvoice = () => {
@@ -64,7 +56,6 @@ export const InvoiceModalGroup = ({
           invoice={invoice}
           onClose={() => handleCloseInvoiceModal(INVOICE_MODAL_TYPES.CREATE_INVOICE)}
           onCreateSuccess={handleCreateInvoiceSuccess}
-          onTemporaryUpdate={handleTemporaryUpdateInvoice}
         />
       )}
       {invoiceModal.includes(INVOICE_MODAL_TYPES.EDIT_INVOICE) && invoice && (
@@ -72,7 +63,6 @@ export const InvoiceModalGroup = ({
           open
           onClose={() => handleCloseInvoiceModal()}
           invoice={invoice}
-          handleEditDiscount={handleEditDiscount}
           handleCancelInvoice={handleCancelInvoice}
           handleFinaliseInvoice={handleFinaliseInvoice}
           isPatientView={isPatientView}

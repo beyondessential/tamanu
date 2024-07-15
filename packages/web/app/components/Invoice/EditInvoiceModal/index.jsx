@@ -63,7 +63,6 @@ export const EditInvoiceModal = ({
   open,
   onClose,
   invoice,
-  handleEditDiscount,
   handleCancelInvoice,
   handleFinaliseInvoice,
   isPatientView,
@@ -93,6 +92,7 @@ export const EditInvoiceModal = ({
           ...insurer,
           percentage: insurer.percentage / 100,
         })),
+        ...(data?.discount && { discount: data.discount }),
       },
       {
         onSuccess: onClose,
@@ -289,7 +289,7 @@ export const EditInvoiceModal = ({
               : [],
           }}
           validationSchema={schema}
-          render={({ submitForm, values }) => (
+          render={({ submitForm, values, setFieldValue }) => (
             <FieldArray name="invoiceItems">
               {formArrayMethods => {
                 return (
@@ -322,7 +322,7 @@ export const EditInvoiceModal = ({
                       <InvoiceSummaryPanel
                         invoice={{ ...invoice, items: values.invoiceItems }}
                         editable={editable && canWriteInvoice}
-                        handleEditDiscount={handleEditDiscount}
+                        setFieldValue={setFieldValue}
                       />
                     </ModalSection>
                     <StyledDivider />

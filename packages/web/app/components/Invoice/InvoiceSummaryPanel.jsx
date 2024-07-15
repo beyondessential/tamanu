@@ -1,11 +1,11 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { Box, Divider } from '@material-ui/core';
 import CloseIcon from '@material-ui/icons/Close';
 import { SETTING_KEYS } from '@tamanu/constants';
 import { FieldArray, useFormikContext } from 'formik';
 import { v4 as uuidv4 } from 'uuid';
-import { Colors } from '../../constants';
+import { Colors, INVOICE_MODAL_TYPES } from '../../constants';
 import { TranslatedText } from '../Translation';
 import { PencilIcon } from '../../assets/icons/PencilIcon';
 import { ThemedTooltip } from '../Tooltip';
@@ -19,6 +19,7 @@ import { getDateDisplay } from '../DateDisplay';
 import { useSettings } from '../../contexts/Settings';
 import { AutocompleteField, Field, NumberField } from '../Field';
 import { useSuggester } from '../../api';
+import { UpsertInvoiceModal } from './UpsertInvoiceModal';
 
 const CardItem = styled(Box)`
   display: flex;
@@ -201,7 +202,18 @@ const InsurersView = ({ insurers, insurerDiscountAmountDisplayList }) => {
   );
 };
 
-export const InvoiceSummaryPanel = ({ invoice, editable, handleEditDiscount }) => {
+export const InvoiceSummaryPanel = ({ invoice, editable, setFieldValue }) => {
+  const [invoiceModal, setInvoiceModal] = useState('');
+  const [invoiceDiscount, setInvoiceDiscount] = useState(invoice.discount);
+
+  useEffect(() => {
+    if (invoice?.discount) {
+      setInvoiceDiscount(invoice.discount);
+    }
+  }, [invoice.discount]);
+
+  const handleEditDiscount = () => setInvoiceModal(INVOICE_MODAL_TYPES.CREATE_INVOICE);
+
   const formikContext = useFormikContext();
   const insurers =
     formikContext?.values?.insurers?.map(insurer => ({
@@ -211,6 +223,11 @@ export const InvoiceSummaryPanel = ({ invoice, editable, handleEditDiscount }) =
     invoice?.insurers ||
     [];
 
+  const handleTemporaryUpdateInvoice = ({ discount }) => {
+    setInvoiceDiscount(discount);
+    setFieldValue('discount', discount);
+  };
+
   const {
     discountableItemsSubtotal,
     nonDiscountableItemsSubtotal,
@@ -219,7 +236,7 @@ export const InvoiceSummaryPanel = ({ invoice, editable, handleEditDiscount }) =
     patientDiscountableSubtotal,
     discountTotal,
     patientTotal,
-  } = getInvoiceSummaryDisplay({ ...invoice, insurers });
+  } = getInvoiceSummaryDisplay({ ...invoice, insurers, discount: invoiceDiscount });
 
   const insurerDiscountAmountDisplayList = getInsurerDiscountAmountDisplayList(
     insurers,
@@ -277,21 +294,21 @@ export const InvoiceSummaryPanel = ({ invoice, editable, handleEditDiscount }) =
       )}
       <CardItem sx={{ marginBottom: '-6px', fontWeight: 500 }}>
         <TranslatedText stringId="invoice.summary.discount.label" fallback="Discount" />
-        {editable && !invoice.discount && (
+        {editable && !invoiceDiscount && (
           <Button onClick={handleEditDiscount}>
             <TranslatedText stringId="invoice.summary.action.addDiscount" fallback="Add discount" />
           </Button>
         )}
-        {!!invoice.discount && (
+        {!!invoiceDiscount && (
           <DiscountedPrice>
-            <span>{invoice.discount.percentage * 100}%</span>
+            <span>{invoiceDiscount.percentage * 100}%</span>
             <BodyText sx={{ fontWeight: 400 }} color={Colors.darkestText}>
               {typeof discountTotal === 'string' ? `-${discountTotal}` : '-'}
             </BodyText>
           </DiscountedPrice>
         )}
       </CardItem>
-      {!!invoice.discount && (
+      {!!invoiceDiscount && (
         <CardItem
           sx={{
             marginBottom: '-6px',
@@ -303,18 +320,18 @@ export const InvoiceSummaryPanel = ({ invoice, editable, handleEditDiscount }) =
             <ThemedTooltip
               title={
                 <Box textAlign="center" whiteSpace="pre">
-                  <span>{invoice.discount?.reason}</span>
-                  {invoice.discount?.reason && '\n'}
+                  <span>{invoiceDiscount?.reason}</span>
+                  {invoiceDiscount?.reason && '\n'}
                   <span>
-                    {`${invoice.discount?.appliedByUser?.displayName}, ${getDateDisplay(
-                      invoice.discount?.appliedTime,
+                    {`${invoiceDiscount?.appliedByUser?.displayName}, ${getDateDisplay(
+                      invoiceDiscount?.appliedTime,
                     )}`}
                   </span>
                 </Box>
               }
             >
               <span>
-                {invoice.discount?.isManual ? (
+                {invoiceDiscount?.isManual ? (
                   <TranslatedText
                     stringId="invoice.summary.discountManual"
                     fallback="Manual discount"
@@ -335,7 +352,7 @@ export const InvoiceSummaryPanel = ({ invoice, editable, handleEditDiscount }) =
           )}
         </CardItem>
       )}
-      {!!invoice.discount && (
+      {!!invoiceDiscount && (
         <CardItem sx={{ marginBottom: '-6px', color: Colors.midText }}>
           <TranslatedText
             stringId="invoice.summary.appliedDiscountable"
@@ -351,6 +368,15 @@ export const InvoiceSummaryPanel = ({ invoice, editable, handleEditDiscount }) =
         </Heading3>
         <Heading3 sx={{ margin: 0 }}>{patientTotal ?? '-'}</Heading3>
       </CardItem>
+      {invoiceModal.includes(INVOICE_MODAL_TYPES.CREATE_INVOICE) && (
+        <UpsertInvoiceModal
+          open
+          encounterId={invoice.encounterId}
+          invoice={invoice}
+          onClose={() => setInvoiceModal('')}
+          onTemporaryUpdate={handleTemporaryUpdateInvoice}
+        />
+      )}
     </Container>
   );
 };
