@@ -292,7 +292,6 @@ export const EditInvoiceModal = ({
         )}
         <Form
           suppressErrorDialogCondition={handleShowErrorDialog}
-          enableReinitialize
           onSubmit={handleSubmit}
           initialValues={{
             invoiceItems: invoice.items?.length ? invoice.items : [editable ? getDefaultRow() : {}],
