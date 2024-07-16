@@ -5,10 +5,10 @@ import { render as baseRender, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ThemeProvider } from 'styled-components';
+import * as XLSX from 'xlsx';
 import { DownloadDataButton } from '../../../app/components/Table/DownloadDataButton';
 import { TranslationContext } from '../../../app/contexts/Translation';
-import * as XLSX from 'xlsx';
-import { sex } from '../../../app/views/patients/columns';
+import { firstName, sex } from '../../../app/views/patients/columns';
 
 /** Dictionary mapping string IDs to translations. */
 const translatedStrings = {
@@ -96,6 +96,62 @@ describe('DownloadDataButton', () => {
     vi.doUnmock('../../../app/contexts/Translation.jsx');
   });
 
+  const data = [
+    {
+      id: '5d9bf276-c93e-4f23-b77a-e3509541b77b',
+      sex: 'male',
+      encounterId: 'bc86d214-de36-4363-b741-616086be76fe',
+      encounterType: 'admission',
+      markedForSync: true,
+      displayId: 'MACF991194',
+      firstName: 'Rahul',
+      lastName: '2.9',
+      dateOfBirth: '1995-07-11',
+      visibilityStatus: 'current',
+      updatedAtSyncTick: '-999',
+      createdAt: '2024-07-02T00:38:04.377Z',
+      updatedAt: '2024-07-02T00:38:04.377Z',
+    },
+    {
+      id: '19324abf-b485-4184-8537-0a7fe4be1d0b',
+      sex: 'other',
+      encounterId: '31466555-fbd1-4d91-8e17-b5904acd9c4e',
+      encounterType: 'admission',
+      villageName: 'Nasaga',
+      markedForSync: true,
+      displayId: 'ZLTH247813',
+      firstName: 'Roy',
+      middleName: 'Ernest',
+      lastName: 'Antonini',
+      culturalName: 'Joe',
+      dateOfBirth: '1981-10-27',
+      visibilityStatus: 'current',
+      updatedAtSyncTick: '-999',
+      createdAt: '2024-06-24T00:11:13.082Z',
+      updatedAt: '2024-07-09T03:19:02.708Z',
+      villageId: 'village-Nasaga',
+    },
+    {
+      id: 'b7800158-d575-415c-8a7a-cf97a2e1e63f',
+      sex: 'female',
+      encounterId: '4e5409e9-af66-45ad-b795-3289969ab350',
+      encounterType: 'triage',
+      villageName: 'Nabualau',
+      markedForSync: true,
+      displayId: 'SCGH129788',
+      firstName: 'Margaret',
+      middleName: 'Ruby',
+      lastName: 'Ballard',
+      culturalName: 'Willie',
+      dateOfBirth: '1984-09-22',
+      visibilityStatus: 'current',
+      updatedAtSyncTick: '-999',
+      createdAt: '2024-06-24T00:11:13.082Z',
+      updatedAt: '2024-06-24T00:11:13.082Z',
+      villageId: 'village-Nabualau',
+    },
+  ];
+
   it('renders without throwing errors', async () => {
     const renderButton = () =>
       render(<DownloadDataButton exportName="Export" columns={[]} data={[]} />);
@@ -118,38 +174,6 @@ describe('DownloadDataButton', () => {
     expect(button.textContent).toBe('🌐 Export 🌐');
   });
 
-  // it('transforms the data correctly for creating an XLSX worksheet', async () => {
-  //   const user = userEvent.setup();
-  //   const columns = [displayId, culturalName, dateOfBirth];
-  //   const data = [
-  //     {
-  //       id: '409257d7-5d58-4684-8b32-3ad92cbe6a5e',
-  //       displayId: 'ZZTC137803',
-  //       culturalName: 'Edith',
-  //       dateOfBirth: '1963-01-25',
-  //     },
-  //     {
-  //       id: '4902c05e-468f-470d-93d1-90d0cc9e97bf',
-  //       displayId: 'MEOO646402',
-  //       culturalName: 'Oscar',
-  //       dateOfBirth: '1956-04-10',
-  //     },
-  //   ];
-  //   const expectedData = data.map(({ displayId, culturalName, dateOfBirth }) => ({
-  //     "Mother's first name": culturalName,
-  //     DOB: dateOfBirth,
-  //     EIRN: displayId,
-  //   }));
-  //   const expectedOptions = { header: ['EIRN', "Mother's first name", 'DOB'] };
-  //
-  //   render(<DownloadDataButton columns={columns} data={data} exportName="Export" />);
-  //   const button = screen.getByTestId('download-data-button');
-  //   await user.click(button);
-  //
-  //   expect(sheetToJsonSpy).toHaveBeenCalledTimes(1);
-  //   expect(sheetToJsonSpy).toHaveBeenCalledWith(expectedData, expectedOptions);
-  // });
-
   it('exports <TranslatedText> as a translated string', () => {});
 
   it('exports <TranslatedReference> as a translated string', () => {});
@@ -157,61 +181,7 @@ describe('DownloadDataButton', () => {
   it('exports <TranslatedSex> as a translated string', async () => {
     const user = userEvent.setup();
     const columns = [sex];
-    const data = [
-      {
-        id: '5d9bf276-c93e-4f23-b77a-e3509541b77b',
-        sex: 'male',
-        encounterId: 'bc86d214-de36-4363-b741-616086be76fe',
-        encounterType: 'admission',
-        markedForSync: true,
-        displayId: 'MACF991194',
-        firstName: 'Rahul',
-        lastName: '2.9',
-        dateOfBirth: '1995-07-11',
-        visibilityStatus: 'current',
-        updatedAtSyncTick: '-999',
-        createdAt: '2024-07-02T00:38:04.377Z',
-        updatedAt: '2024-07-02T00:38:04.377Z',
-      },
-      {
-        id: '19324abf-b485-4184-8537-0a7fe4be1d0b',
-        sex: 'other',
-        encounterId: '31466555-fbd1-4d91-8e17-b5904acd9c4e',
-        encounterType: 'admission',
-        villageName: 'Nasaga',
-        markedForSync: true,
-        displayId: 'ZLTH247813',
-        firstName: 'Roy',
-        middleName: 'Ernest',
-        lastName: 'Antonini',
-        culturalName: 'Joe',
-        dateOfBirth: '1981-10-27',
-        visibilityStatus: 'current',
-        updatedAtSyncTick: '-999',
-        createdAt: '2024-06-24T00:11:13.082Z',
-        updatedAt: '2024-07-09T03:19:02.708Z',
-        villageId: 'village-Nasaga',
-      },
-      {
-        id: 'b7800158-d575-415c-8a7a-cf97a2e1e63f',
-        sex: 'female',
-        encounterId: '4e5409e9-af66-45ad-b795-3289969ab350',
-        encounterType: 'triage',
-        villageName: 'Nabualau',
-        markedForSync: true,
-        displayId: 'SCGH129788',
-        firstName: 'Margaret',
-        middleName: 'Ruby',
-        lastName: 'Ballard',
-        culturalName: 'Willie',
-        dateOfBirth: '1984-09-22',
-        visibilityStatus: 'current',
-        updatedAtSyncTick: '-999',
-        createdAt: '2024-06-24T00:11:13.082Z',
-        updatedAt: '2024-06-24T00:11:13.082Z',
-        villageId: 'village-Nabualau',
-      },
-    ];
+
     const expectedData = [
       { '🌐 Sex 🌐': '🌐 Male 🌐' },
       { '🌐 Sex 🌐': '🌐 Other 🌐' },
@@ -223,7 +193,65 @@ describe('DownloadDataButton', () => {
     const button = screen.getByTestId('download-data-button');
     await user.click(button);
 
-    // expect(getTranslationSpy).toHaveBeenCalledTimes(0);
+    expect(getTranslationSpy).toHaveBeenCalledTimes(8);
+    // First call is to translate button label
+    expect(getTranslationSpy).toHaveBeenNthCalledWith(
+      2,
+      'general.localisedField.sex.label', // Header value
+      'Sex',
+      undefined,
+      undefined,
+      undefined,
+    );
+    expect(getTranslationSpy).toHaveBeenNthCalledWith(
+      3,
+      'general.localisedField.sex.label', // 1st row key
+      'Sex',
+      undefined,
+      undefined,
+      undefined,
+    );
+    expect(getTranslationSpy).toHaveBeenNthCalledWith(
+      4,
+      'patient.property.sex.male', // 1st row value
+      'Male',
+      undefined,
+      undefined,
+      undefined,
+    );
+    expect(getTranslationSpy).toHaveBeenNthCalledWith(
+      5,
+      'general.localisedField.sex.label', // 2nd row key
+      'Sex',
+      undefined,
+      undefined,
+      undefined,
+    );
+    expect(getTranslationSpy).toHaveBeenNthCalledWith(
+      6,
+      'patient.property.sex.other', // 2nd row value
+      'Other',
+      undefined,
+      undefined,
+      undefined,
+    );
+    expect(getTranslationSpy).toHaveBeenNthCalledWith(
+      7,
+      'general.localisedField.sex.label', // 3rd row key
+      'Sex',
+      undefined,
+      undefined,
+      undefined,
+    );
+    expect(getTranslationSpy).toHaveBeenNthCalledWith(
+      8,
+      'patient.property.sex.female', // 3rd row value
+      'Female',
+      undefined,
+      undefined,
+      undefined,
+    );
+
     expect(sheetToJsonSpy).toHaveBeenCalledTimes(1);
     expect(sheetToJsonSpy).toHaveBeenCalledWith(expectedData, expectedOptions);
   });
@@ -234,7 +262,17 @@ describe('DownloadDataButton', () => {
 
   it('exports <TranslatedText> wrapped in a tooltip without its tooltip', () => {});
 
-  it('exports a non-<TranslatedText> faithfully', () => {});
+  it('exports a non-<TranslatedText> faithfully', async () => {
+    const user = userEvent.setup();
+    const columns = [firstName];
+    const expectedData = [{ firstName: 'Rahul' }, { firstName: 'Roy' }, { firstName: 'Margaret' }];
+    const expectedOptions = { header: ['firstName'] };
 
-  it('exports a primitive string faithfully', () => {});
+    render(<DownloadDataButton columns={columns} data={data} exportName="Export" />);
+    const button = screen.getByTestId('download-data-button');
+    await user.click(button);
+
+    expect(sheetToJsonSpy).toHaveBeenCalledTimes(1);
+    expect(sheetToJsonSpy).toHaveBeenCalledWith(expectedData, expectedOptions);
+  });
 });
