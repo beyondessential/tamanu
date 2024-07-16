@@ -9,5 +9,11 @@ gtoutput=$(rg -PINU --multiline-dotall "getTranslation\(\s*?[\"'](.*?)[\"'],.*?[
 # Combine and sort
 data=$(printf "%s\n%s\n%s" "$ttoutput" "$gtoutput" "$teoutput" | sort -u)
 
+# if no data, exit
+if [ -z "$data" ]; then
+    echo "No data found"
+    exit 1
+fi
+
 # Append header and write to csv file
 printf "stringId,fallback\n%s" "$data"
