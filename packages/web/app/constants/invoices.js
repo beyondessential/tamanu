@@ -16,10 +16,11 @@ export const INVOICE_ITEM_ACTION_MODAL_TYPES = {
 };
 
 export const INVOICE_MODAL_TYPES = {
-  EDIT_INVOICE: "editInvoice",
-  CREATE_INVOICE: "createInvoice",
-  CANCEL_INVOICE: "cancelInvoice",
-  FINALISE_INVOICE: "finaliseInvoice",
+  EDIT_INVOICE: 'editInvoice',
+  CREATE_INVOICE: 'createInvoice',
+  CANCEL_INVOICE: 'cancelInvoice',
+  FINALISE_INVOICE: 'finaliseInvoice',
+  DELETE_INVOICE: 'deleteInvoice',
 };
 
 export const INVOICE_DISCOUNT_TYPES = {
@@ -39,5 +40,5 @@ export const slidingFeeScaleTable = [
   [0, 14800, 38300, 45900, 53600, 65000],
   [0, 16600, 41800, 50200, 58500, 70000],
   [0, 18900, 45300, 54400, 63400, 75000],
-  [0, 23500, 48800, 58600, 68400, 85000]
+  [0, 23500, 48800, 58600, 68400, 85000],
 ];
