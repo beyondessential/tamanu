@@ -51,6 +51,15 @@ export class InvoiceInsurerPayment extends Model {
     );
   }
 
+  static getFullReferenceAssociations() {
+    return [
+      {
+        model: this.sequelize.models.InvoicePayment,
+        as: 'detail',
+      },
+    ];
+  }
+
   /**
    *
    * @param {import('.')} models

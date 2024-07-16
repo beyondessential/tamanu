@@ -181,6 +181,30 @@ export const getInvoiceSummaryDisplay = invoice => {
   });
 };
 
+export const getSpecificInsurerPaymentRemainingBalance = (insurers, payments, insurerId, total) => {
+  const insurersDiscountPercentage = insurers
+    .filter(insurer => insurer.insurerId === insurerId)
+    .reduce((sum, insurer) => sum.plus(insurer?.percentage || 0), new Decimal(0))
+    .toNumber();
+
+  const insurerDiscountTotal = new Decimal(total).times(insurersDiscountPercentage).toNumber();
+
+  const insurerPaymentsTotal = payments
+    .filter(
+      payment => payment?.insurerPayment?.id && payment.insurerPayment.insurerId === insurerId,
+    )
+    .reduce((sum, payment) => sum.plus(payment.amount), new Decimal(0))
+    .toNumber();
+
+  return {
+    insurerDiscountTotal,
+    insurerPaymentsTotal,
+    insurerPaymentRemainingBalance: new Decimal(insurerDiscountTotal)
+      .minus(insurerPaymentsTotal)
+      .toNumber(),
+  };
+};
+
 export const getInvoiceItemPriceDisplay = invoiceItem => {
   return formatDisplayPrice(
     isNaN(parseFloat(invoiceItem.productPrice)) ? undefined : getInvoiceItemTotalPrice(invoiceItem),
