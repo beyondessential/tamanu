@@ -7,6 +7,7 @@ import { InvoiceDiscountAssessmentForm } from './InvoiceDiscountAssessmentForm';
 import { InvoiceDiscountManualForm } from './InvoiceDiscountManualForm';
 import { useCreateInvoice } from '../../../api/mutations/useInvoiceMutation';
 import { useApi } from '../../../api';
+import { getCurrentDateTimeString } from '../../../../../shared/src/utils/dateTime';
 
 const ACTIVE_VIEW = {
   DISCOUNT_TYPE_SELECTOR: 'discountTypeSelector',
@@ -20,7 +21,7 @@ export const UpsertInvoiceModal = ({
   encounterId,
   invoice,
   onTemporaryUpdate,
-  onCreateSuccess
+  onCreateSuccess,
 }) => {
   const api = useApi();
   const isCreating = !invoice?.id;
@@ -61,7 +62,10 @@ export const UpsertInvoiceModal = ({
 
   const handleUpsertInvoice = payload => {
     if (isCreating) {
-      createInvoice({ encounterId, ...payload }, { onSuccess: onCreateSuccess });
+      createInvoice(
+        { encounterId, date: getCurrentDateTimeString(), ...payload },
+        { onSuccess: onCreateSuccess },
+      );
     } else {
       onTemporaryUpdate(payload);
       onClose();

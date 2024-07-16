@@ -14,7 +14,7 @@ const createPatientPaymentSchema = z
   .object({
     date: z.string().date(),
     amount: z.coerce.number().transform(amount => round(amount, 2)),
-    receiptNumber: z.string().regex(/^[A-Z0-9]+$/),
+    receiptNumber: z.string().regex(/^[A-Za-z0-9]+$/),
     methodId: z.string(),
   })
   .strip();
@@ -23,7 +23,7 @@ const updatePatientPaymentSchema = z
   .object({
     date: z.string().date(),
     amount: z.coerce.number().transform(amount => round(amount, 2)),
-    receiptNumber: z.string().regex(/^[A-Z0-9]+$/),
+    receiptNumber: z.string().regex(/^[A-Za-z0-9]+$/),
     methodId: z.string(),
   })
   .strip();

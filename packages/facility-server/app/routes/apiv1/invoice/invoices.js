@@ -7,10 +7,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { z } from 'zod';
 import { Op } from 'sequelize';
 import { invoiceItemsRoute } from './invoiceItems';
-import {
-  getCurrentCountryTimeZoneDateString,
-  getCurrentCountryTimeZoneDateTimeString,
-} from '@tamanu/shared/utils/countryDateTime';
+import { getCurrentCountryTimeZoneDateTimeString } from '@tamanu/shared/utils/countryDateTime';
 import { patientPaymentRoute } from './patientPayment';
 import { round } from 'lodash';
 
@@ -33,6 +30,7 @@ const createInvoiceSchema = z
       })
       .strip()
       .optional(),
+    date: z.string(),
   })
   .strip()
   .transform(data => ({
@@ -41,7 +39,6 @@ const createInvoiceSchema = z
     displayId:
       customAlphabet('0123456789', 8)() + customAlphabet('ABCDEFGHIJKLMNOPQRSTUVWXYZ', 2)(),
     status: INVOICE_STATUSES.IN_PROGRESS,
-    date: getCurrentCountryTimeZoneDateString(),
   }));
 invoiceRoute.post(
   '/',

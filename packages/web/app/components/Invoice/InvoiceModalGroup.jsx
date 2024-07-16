@@ -30,8 +30,11 @@ export const InvoiceModalGroup = ({
   }, [initialInvoice]);
 
   const handleCloseInvoiceModal = type => {
-    setInvoiceModal(type ? invoiceModal.filter(modal => modal !== type) : []);
-    onClose();
+    const isCloseAll = !type;
+    setInvoiceModal(isCloseAll ? [] : invoiceModal.filter(modal => modal !== type));
+    if (isCloseAll) {
+      onClose();
+    }
   };
 
   const handleOpenInvoiceModal = (type, keepPreviousModals = false) =>
@@ -68,7 +71,12 @@ export const InvoiceModalGroup = ({
           open
           encounterId={encounterId}
           invoice={invoice}
-          onClose={() => handleCloseInvoiceModal(INVOICE_MODAL_TYPES.CREATE_INVOICE)}
+          onClose={() => {
+            if (invoiceModal.length === 1) {
+              return handleCloseInvoiceModal();
+            }
+            handleCloseInvoiceModal(INVOICE_MODAL_TYPES.CREATE_INVOICE);
+          }}
           onCreateSuccess={handleCreateInvoiceSuccess}
           onTemporaryUpdate={handleTemporaryUpdateInvoice}
         />
@@ -86,11 +94,7 @@ export const InvoiceModalGroup = ({
         />
       )}
       {invoiceModal.includes(INVOICE_MODAL_TYPES.CANCEL_INVOICE) && invoice && (
-        <CancelInvoiceModal
-          open
-          onClose={() => handleCloseInvoiceModal()}
-          invoice={invoice}
-        />
+        <CancelInvoiceModal open onClose={() => handleCloseInvoiceModal()} invoice={invoice} />
       )}
       {invoiceModal.includes(INVOICE_MODAL_TYPES.DELETE_INVOICE) && invoice && (
         <DeleteInvoiceModal
@@ -101,11 +105,7 @@ export const InvoiceModalGroup = ({
         />
       )}
       {invoiceModal.includes(INVOICE_MODAL_TYPES.FINALISE_INVOICE) && invoice && (
-        <FinaliseInvoiceModal
-          open
-          onClose={() => handleCloseInvoiceModal()}
-          invoice={invoice}
-        />
+        <FinaliseInvoiceModal open onClose={() => handleCloseInvoiceModal()} invoice={invoice} />
       )}
     </>
   );

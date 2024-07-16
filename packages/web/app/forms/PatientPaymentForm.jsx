@@ -18,6 +18,7 @@ import { useSuggester } from '../api';
 import { Colors, FORM_TYPES } from '../constants';
 import { useCreatePatientPayment, useUpdatePatientPayment } from '../api/mutations';
 import { ConfirmPaidModal } from '../components/Invoice/EditInvoiceModal/ConfirmPaidModal';
+import { ThemedTooltip } from '../components/Tooltip';
 
 const IconButton = styled.div`
   cursor: pointer;
@@ -161,9 +162,18 @@ export const PatientPaymentForm = ({
               size="small"
               onChange={e => setFieldValue('receiptNumber', e.target.value)}
             />
-            <IconButton onClick={() => setFieldValue('receiptNumber', generateReceiptNumber())}>
-              <CachedIcon />
-            </IconButton>
+            <ThemedTooltip
+              title={
+                <TranslatedText
+                  stringId="invoice.payment.tooltip.generateReceiptNumber"
+                  fallback="Generate receipt number"
+                />
+              }
+            >
+              <IconButton onClick={() => setFieldValue('receiptNumber', generateReceiptNumber())}>
+                <CachedIcon />
+              </IconButton>
+            </ThemedTooltip>
           </Box>
           <Box sx={{ gridColumn: 'span 3', marginLeft: 'auto' }}>
             <Button
@@ -209,7 +219,7 @@ export const PatientPaymentForm = ({
         receiptNumber: yup
           .string()
           .required(<TranslatedText stringId="general.required" fallback="Required" />)
-          .matches(/^[A-Z0-9]+$/, {
+          .matches(/^[A-Za-z0-9]+$/, {
             message: (
               <TranslatedText
                 stringId="invoice.payment.validation.invalidReceiptNumber"

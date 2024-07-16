@@ -6,7 +6,7 @@ import {
 } from '@tamanu/constants';
 import { Model } from './Model';
 import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
-import { dateType } from './dateTimeTypes';
+import { dateTimeType } from './dateTimeTypes';
 
 export class Invoice extends Model {
   static init({ primaryKey, ...options }) {
@@ -17,7 +17,7 @@ export class Invoice extends Model {
           type: DataTypes.STRING,
           allowNull: false,
         },
-        date: dateType('date', {
+        date: dateTimeType('date', {
           allowNull: false,
         }),
         status: {
