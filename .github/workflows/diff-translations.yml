@@ -38,29 +38,38 @@ jobs:
       with:
         node-version: 20.x
         cache: yarn
+    - uses: actions/cache/restore@v3
+      with:
+        key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
+        path: ${{ env.NODE_MODULES_PATHS }}
 
     - name: install lodash in constants package
       working-directory: packages/constants
       run: yarn
 
+    - name: install ripgrep
+      run: |
+        sudo apt-get install ripgrep
+
     - name: get current version
       id: currentv
       run: |
         version=$(jq -r .version package.json)
-        echo "current_version=$version" | tee -a $GITHUB_ENV
+        echo "version=$version" >> $GITHUB_OUTPUT
 
     - name: get closest previous version
-      id: previousv
       env:
-        current_version: ${{ steps.currentv.outputs.current_version }}
+        currentv: ${{ steps.currentv.outputs.version }}
+      id: previousv
       run: |
         set -euxo pipefail
         git fetch --tags
+        git tag --list
         git tag --list \
           | grep -E '^v[0-9]+[.][0-9]+[.][0-9]+$' \
           | cut -c2- \
           | sort --version-sort \
-          | grep -B 1 "$current_version" \
+          | grep -B 1 "$currentv" \
           | head -n 1 \
           | sed 's/^/previous_version=/' \
           | tee -a $GITHUB_OUTPUT
@@ -77,9 +86,9 @@ jobs:
 
     - name: test
       run: |
-        echo "current_version=$current_version"
-        echo "previous_version=$previous_version"
-        echo "translations=$translations"
+        echo "current_version=${{ steps.currentv.outputs.version }}"
+        echo "previous_version=${{ steps.previousv.outputs.previous_version }}"
+        cat current-translations.csv
 
     # - name: Upload translations
     #   id: translations-upload
