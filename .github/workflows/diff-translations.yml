@@ -1,4 +1,5 @@
 name: Diff Translations
+
 on:
   workflow_dispatch:
 
@@ -15,10 +16,10 @@ jobs:
       contents: write
       id-token: write
     steps:
-    - if: (!startsWith(github.ref, 'refs/heads/release/'))
-      run: |
-        echo "This workflow can only be run on a release branch"
-        exit 1
+    # - if: (!startsWith(github.ref, 'refs/heads/release/'))
+    #   run: |
+    #     echo "This workflow can only be run on a release branch"
+    #     exit 1
     - uses: actions/checkout@v4
       with:
         token: ${{ secrets.TAMANU_RELEASE_PAT }}
@@ -60,50 +61,56 @@ jobs:
           echo "Scrape translations script failed with exit code $exit_code."
         fi
 
-    - name: Upload translations
-      id: translations-upload
-      uses: actions/upload-artifact@v4
-      with:
-        name: translations-${{ steps.currentv.outputs.current_version }}
-        if-no-files-found: warn
-        path: current-translations.csv
-        retention-days: 7
-
-    - name: exit if no upload
-      if: steps.translations-upload.outputs.artifact_size == 0
+    - name: test
       run: |
-        echo "No translations to diff"
-        exit 0
+        echo "current_version=$current_version"
+        echo "previous_version=$previous_version"
+        echo "translations=$translations"
 
-    - name: Configure AWS Credentials (upload)
-      uses: aws-actions/configure-aws-credentials@v4
-      with:
-        aws-region: ap-southeast-2
-        role-to-assume: arn:aws:iam::143295493206:role/gha-desktop-s3
-        role-session-name: GHA@Tamanu=DiffTranslations
+    # - name: Upload translations
+    #   id: translations-upload
+    #   uses: actions/upload-artifact@v4
+    #   with:
+    #     name: translations-${{ steps.currentv.outputs.current_version }}
+    #     if-no-files-found: warn
+    #     path: current-translations.csv
+    #     retention-days: 7
 
-    - name: Upload translations to S3
-      env:
-        cversion: ${{ steps.currentv.outputs.current_version }}
-      run: |
-        aws s3 --no-progress cp current-translations.csv s3://bes-tamanu-translations/$cversion.csv
+    # - name: exit if no upload
+    #   if: steps.translations-upload.outputs.artifact_size == 0
+    #   run: |
+    #     echo "No translations to diff"
+    #     exit 0
 
-    - name: Download previous versions translations from s3
-      env:
-        pversion: ${{ steps.previousv.outputs.previous_version }}
-      run: |
-        aws s3 --no-progress cp s3://bes-tamanu-translations/$pversion.csv previous-translations.csv
+    # - name: Configure AWS Credentials (upload)
+    #   uses: aws-actions/configure-aws-credentials@v4
+    #   with:
+    #     aws-region: ap-southeast-2
+    #     role-to-assume: arn:aws:iam::143295493206:role/gha-desktop-s3
+    #     role-session-name: GHA@Tamanu=DiffTranslations
 
-    - name: Create empty csv if no previous translations
-      if:
-      run: |
-        if [ ! -f previous-translations.csv ]; then
-          echo "stringId,fallback" > previsous-translations.csv
-        fi
+    # - name: Upload translations to S3
+    #   env:
+    #     cversion: ${{ steps.currentv.outputs.current_version }}
+    #   run: |
+    #     aws s3 --no-progress cp current-translations.csv s3://bes-tamanu-translations/$cversion.csv
 
-    - name: Diff translations
-      run: |
-        git diff --no-index previous-translations.csv current-translations.csv > translations.diff
+    # - name: Download previous versions translations from s3
+    #   env:
+    #     pversion: ${{ steps.previousv.outputs.previous_version }}
+    #   run: |
+    #     aws s3 --no-progress cp s3://bes-tamanu-translations/$pversion.csv previous-translations.csv
+
+    # - name: Create empty csv if no previous translations
+    #   if:
+    #   run: |
+    #     if [ ! -f previous-translations.csv ]; then
+    #       echo "stringId,fallback" > previsous-translations.csv
+    #     fi
+
+    # - name: Diff translations
+    #   run: |
+    #     git diff --no-index previous-translations.csv current-translations.csv > translations.diff
 
     # - name: Post to release notes somehow
     #   run:
