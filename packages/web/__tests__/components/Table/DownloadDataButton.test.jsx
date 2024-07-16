@@ -14,11 +14,13 @@ import { sex } from '../../../app/views/patients/columns';
 const translatedStrings = {
   'general.localisedField.culturalName.label.short': '🌐 Cultural name 🌐',
   'general.localisedField.displayId.label.short': '🌐 NHN 🌐',
+  'general.localisedField.firstName.label': '🌐 First name 🌐',
   'general.localisedField.sex.label': '🌐 Sex 🌐',
   'general.table.action.export': '🌐 Export 🌐',
   'patient.property.sex.female': '🌐 Female 🌐',
   'patient.property.sex.male': '🌐 Male 🌐',
   'patient.property.sex.other': '🌐 Other 🌐',
+  'refData.settlement.settlement-nabualau': '🌐 Nabualau 🌐',
   'refData.settlement.settlement-nasaga': '🌐 Nasaga 🌐',
 };
 
