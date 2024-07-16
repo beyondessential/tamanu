@@ -55,7 +55,6 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
   const registeredBySuggester = useSuggester('practitioner');
   const registeringFacilitySuggester = useSuggester('facility');
 
-  console.log('conditionsss', conditions);
   return (
     <Form
       showInlineErrorsOnly
