@@ -57,8 +57,8 @@ export async function insurerPaymentImporter({ errors, models, stats, file, chec
     throw new Error('No sheet found in workbook');
   }
 
-  for (let index = 0; index <= sheet.length - 1; index++) {
-    const row = sheet[index];
+  let index = 0;
+  for await (const row of sheet) {
     const { data, error } = await insurerPaymentImportSchema.safeParseAsync(row);
 
     if (error) {
@@ -110,7 +110,9 @@ export async function insurerPaymentImporter({ errors, models, stats, file, chec
         if (
           data.amount >
           round(
-            new Decimal(insurerPaymentRemainingBalance).add(insurerPayment.detail.amount).toNumber(),
+            new Decimal(insurerPaymentRemainingBalance)
+              .add(insurerPayment.detail.amount)
+              .toNumber(),
             2,
           )
         ) {
@@ -202,6 +204,8 @@ export async function insurerPaymentImporter({ errors, models, stats, file, chec
     } catch (e) {
       errors.push(new ValidationError('', index, e));
     }
+
+    index++;
   }
 
   stats.push(subStat);
