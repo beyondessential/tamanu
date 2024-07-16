@@ -44,7 +44,7 @@ const TABLES_WITHOUT_TRIGGER_QUERY = `
       FROM
         pg_trigger p
       WHERE
-        p.tgname = concat('set_', lower(t.table_name), '_updated_at_sync_tick')
+        p.tgname = substring(concat('set_', lower(t.table_name), '_updated_at_sync_tick'), 0, 64)
     )
   AND
     privileges.privilege_type = 'TRIGGER'
