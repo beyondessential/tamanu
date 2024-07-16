@@ -34,10 +34,8 @@ jobs:
       id: currentv
       run: |
         version=$(jq -r .version package.json)
-        echo "current_version=v$version" | tee -a $GITHUB_ENV
+        echo "current_version=$version" | tee -a $GITHUB_ENV
 
-
-    # TODO: lexical order not what we want for version awk
     - name: get closest previous version
       id: previousv
       run: |
@@ -47,8 +45,8 @@ jobs:
           | grep -E '^v[0-9]+[.][0-9]+[.][0-9]+$' \
           | cut -c2- \
           | sort --version-sort \
-          | awk -v current_version="${{ steps.currentv.outputs.current_version }}" '$0 < current_version' \
-          | tail -n1 \
+          | grep -B 1 "$current_version" \
+          | head -n 1 \
           | sed 's/^/previous_version=/' \
           | tee -a $GITHUB_OUTPUT
 
