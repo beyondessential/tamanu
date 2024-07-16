@@ -105,7 +105,9 @@ describe('DownloadDataButton', () => {
 
   it('is rendered with a translated button label', () => {
     render(<DownloadDataButton exportName="Export" columns={[]} data={[]} />);
+
     const button = screen.getByTestId('download-data-button');
+    expect(getTranslationSpy).toHaveBeenCalledTimes(1);
     expect(getTranslationSpy).toHaveBeenCalledWith(
       'general.table.action.export',
       'Export',
