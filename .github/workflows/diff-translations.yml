@@ -57,7 +57,7 @@ jobs:
         if [ $exit_code -eq 0 ]; then
          echo "$translations" > current-translations.csv
         else
-          echo "Script failed with exit code $exit_code."
+          echo "Scrape translations script failed with exit code $exit_code."
         fi
 
     - name: Upload translations
@@ -65,8 +65,15 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: translations-${{ steps.currentv.outputs.current_version }}
+        if-no-files-found: warn
         path: current-translations.csv
         retention-days: 7
+
+    - name: exit if no upload
+      if: steps.translations-upload.outputs.artifact_size == 0
+      run: |
+        echo "No translations to diff"
+        exit 0
 
     - name: Configure AWS Credentials (upload)
       uses: aws-actions/configure-aws-credentials@v4
@@ -87,8 +94,13 @@ jobs:
       run: |
         aws s3 --no-progress cp s3://bes-tamanu-translations/$pversion.csv previous-translations.csv
 
-    # Todo make sure that when there are empty current-translations or no previous-translations or
-    # no diff not to post anything
+    - name: Create empty csv if no previous translations
+      if:
+      run: |
+        if [ ! -f previous-translations.csv ]; then
+          cat "stringId,fallback" > previsous-translations.csv
+        fi
+
     - name: Diff translations
       run: |
         git diff --no-index previous-translations.csv current-translations.csv > translations.diff
