@@ -35,7 +35,7 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
   const { data: program } = useQuery(['programRegistry', selectedProgramRegistryId], () =>
     selectedProgramRegistryId ? api.get(`programRegistry/${selectedProgramRegistryId}`) : null,
   );
-  const { data: conditions } = useQuery(
+  const { data: { data: conditions } = {} } = useQuery(
     ['programRegistryConditions', selectedProgramRegistryId],
     () =>
       api.get(`programRegistry/${selectedProgramRegistryId}/conditions`, {
@@ -55,7 +55,7 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
   const registeredBySuggester = useSuggester('practitioner');
   const registeringFacilitySuggester = useSuggester('facility');
 
-
+  console.log('conditionsss', conditions);
   return (
     <Form
       showInlineErrorsOnly
@@ -168,7 +168,7 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
                   }
                   placeholder={getTranslation('general.placeholder.select', 'Select')}
                   component={MultiselectField}
-                  options={conditions?.map(condition => ({
+                  options={conditions?.map?.(condition => ({
                     label: (
                       <TranslatedReferenceData
                         fallback={condition.name}
