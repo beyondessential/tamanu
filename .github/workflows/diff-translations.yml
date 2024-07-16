@@ -98,7 +98,7 @@ jobs:
       if:
       run: |
         if [ ! -f previous-translations.csv ]; then
-          cat "stringId,fallback" > previsous-translations.csv
+          echo "stringId,fallback" > previsous-translations.csv
         fi
 
     - name: Diff translations
