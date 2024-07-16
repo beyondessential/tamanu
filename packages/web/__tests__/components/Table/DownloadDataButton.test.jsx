@@ -10,20 +10,6 @@ import { DownloadDataButton } from '../../../app/components/Table/DownloadDataBu
 import { TranslationContext } from '../../../app/contexts/Translation';
 import { firstName, sex } from '../../../app/views/patients/columns';
 
-/** Dictionary mapping string IDs to translations. */
-const translatedStrings = {
-  'general.localisedField.culturalName.label.short': '🌐 Cultural name 🌐',
-  'general.localisedField.displayId.label.short': '🌐 NHN 🌐',
-  'general.localisedField.firstName.label': '🌐 First name 🌐',
-  'general.localisedField.sex.label': '🌐 Sex 🌐',
-  'general.table.action.export': '🌐 Export 🌐',
-  'patient.property.sex.female': '🌐 Female 🌐',
-  'patient.property.sex.male': '🌐 Male 🌐',
-  'patient.property.sex.other': '🌐 Other 🌐',
-  'refData.settlement.settlement-nabualau': '🌐 Nabualau 🌐',
-  'refData.settlement.settlement-nasaga': '🌐 Nasaga 🌐',
-};
-
 /** Stub `saveFile` to prevent `URL.createObjectURL` erroring in test environment */
 vi.mock('../../../app/utils/fileSystemAccess.js', async () => {
   const actual = await vi.importActual('../../../app/utils/fileSystemAccess.js');
@@ -40,15 +26,29 @@ const queryClient = new QueryClient({
     },
   },
 });
+
 const stubTheme = createTheme({});
+
+const mockTranslations = {
+  'general.localisedField.culturalName.label.short': '🌐 Cultural name 🌐',
+  'general.localisedField.displayId.label.short': '🌐 NHN 🌐',
+  'general.localisedField.firstName.label': '🌐 First name 🌐',
+  'general.localisedField.sex.label': '🌐 Sex 🌐',
+  'general.table.action.export': '🌐 Export 🌐',
+  'patient.property.sex.female': '🌐 Female 🌐',
+  'patient.property.sex.male': '🌐 Male 🌐',
+  'patient.property.sex.other': '🌐 Other 🌐',
+  'refData.settlement.settlement-nabualau': '🌐 Nabualau 🌐',
+  'refData.settlement.settlement-nasaga': '🌐 Nasaga 🌐',
+};
 // eslint-disable-next-line no-unused-vars
 const mockGetTranslation = (stringId, fallback, _replacements, _uppercase, _lowercase) =>
-  translatedStrings[stringId] ?? fallback;
+  mockTranslations[stringId] ?? fallback;
 const mockTranslationContext = {
   getTranslation: vi.fn().mockImplementation(mockGetTranslation),
   updateStoredLanguage: () => {},
   storedLanguage: 'aa',
-  translations: [],
+  translations: mockTranslations,
 };
 
 const getTranslationSpy = vi.spyOn(mockTranslationContext, 'getTranslation');
