@@ -125,7 +125,14 @@ const TitleCell = React.memo(({ value }) => {
   );
 });
 
-const getDynamicTableColumns = (firstColKey, firstColTitle, patient, recordedDates, onCellClick, isEditEnabled) => {
+export const getChartsTableColumns = (
+  firstColKey,
+  firstColTitle,
+  patient,
+  recordedDates,
+  onCellClick,
+  isEditEnabled,
+) => {
   return [
     {
       key: firstColKey,
@@ -177,7 +184,7 @@ const getDynamicTableColumns = (firstColKey, firstColTitle, patient, recordedDat
 };
 
 export const getVitalsTableColumns = (patient, recordedDates, onCellClick, isEditEnabled) => {
-  return getDynamicTableColumns(
+  return getChartsTableColumns(
     'measure',
     <TranslatedText stringId="encounter.vitals.table.column.measure" fallback="Measure" />,
     patient,
