@@ -4,6 +4,8 @@ import { theme } from '/styled/theme';
 import { VaccineStatus } from '/helpers/patient';
 import { ColorHelper } from './colors';
 
+export const ReferenceDataTranslationPrefix = 'refData';
+
 export const DateFormats = {
   short: 'EEE, dd MMM',
   DAY_MONTH_YEAR_SHORT: 'dd MMM yyyy',
