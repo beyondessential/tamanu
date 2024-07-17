@@ -131,7 +131,7 @@ export const getChartsTableColumns = (
   patient,
   recordedDates,
   onCellClick,
-  isEditEnabled,
+  isEditEnabled = true,
 ) => {
   return [
     {
