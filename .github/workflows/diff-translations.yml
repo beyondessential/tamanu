@@ -48,12 +48,11 @@ jobs:
       run: yarn
 
     - name: install ripgrep
-      # Had to install manually due to pcre2 not being enabled in apt-get
+      # Had to install manually due to pcre2 not being enabled in apt-get vesrision
       run: |
        curl -LO https://github.com/BurntSushi/ripgrep/releases/download/14.1.0/ripgrep_14.1.0-1_amd64.deb
        sudo dpkg -i ripgrep_14.1.0-1_amd64.deb
        echo $(rg --version)
-
 
     - name: get current version
       id: currentv
@@ -86,20 +85,14 @@ jobs:
           echo "Scrape translations script failed with exit code $exit_code."
         fi
 
-    - name: test
-      run: |
-        echo "current_version=${{ steps.currentv.outputs.current_version }}"
-        echo "previous_version=${{ steps.previousv.outputs.previous_version }}"
-        cat current-translations.csv
-
-    # - name: Upload translations
-    #   id: translations-upload
-    #   uses: actions/upload-artifact@v4
-    #   with:
-    #     name: translations-${{ steps.currentv.outputs.current_version }}
-    #     if-no-files-found: warn
-    #     path: current-translations.csv
-    #     retention-days: 7
+    - name: Upload translations
+      id: translations-upload
+      uses: actions/upload-artifact@v4
+      with:
+        name: translations-${{ steps.currentv.outputs.current_version }}
+        if-no-files-found: warn
+        path: current-translations.csv
+        retention-days: 1
 
     # - name: exit if no upload
     #   if: steps.translations-upload.outputs.artifact_size == 0
