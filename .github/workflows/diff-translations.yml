@@ -1,7 +1,7 @@
 name: Diff Translations
 
 on:
-  # Test this
+  # TODO remove this trigger before merge
   pull_request:
     types:
       - opened
