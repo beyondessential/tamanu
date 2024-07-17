@@ -223,7 +223,7 @@ export const PatientPaymentForm = ({
             message: (
               <TranslatedText
                 stringId="invoice.payment.validation.invalidReceiptNumber"
-                fallback="Invalid receipt number"
+                fallback="Invalid receipt number - alphanumeric characters only"
               />
             ),
           }),
