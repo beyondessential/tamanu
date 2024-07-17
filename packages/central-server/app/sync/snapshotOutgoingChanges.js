@@ -193,19 +193,6 @@ const snapshotOutgoingChangesFromSyncLookup = withConfig(
     sessionConfig,
     config,
   ) => {
-    const params = {
-      store,
-      since,
-      patientCount,
-      markedForSyncPatientsTable,
-      sessionId,
-      facilityId,
-      sessionConfig,
-      config,
-    };
-
-    log.info('snapshotOutgoingChangesFromSyncLookup.params', params);
-
     let fromId = '';
     let totalCount = 0;
     const snapshotTableName = getSnapshotTableName(sessionId);
@@ -267,9 +254,6 @@ const snapshotOutgoingChangesFromSyncLookup = withConfig(
       );
 
       const chunkCount = parseInt(count, 10); // count should always be default to '0'
-
-      console.log('countttt', count);
-      console.log('chunkCount', chunkCount);
 
       fromId = maxId;
       totalCount += chunkCount;

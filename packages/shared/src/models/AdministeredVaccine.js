@@ -88,7 +88,6 @@ export class AdministeredVaccine extends Model {
   static buildPatientSyncFilter(
     patientCount,
     markedForSyncPatientsTable,
-    { syncAllEncountersForTheseVaccines },
   ) {
     const joins = [];
     const wheres = [];
@@ -101,21 +100,6 @@ export class AdministeredVaccine extends Model {
       `);
       wheres.push(`
         encounters.id IS NOT NULL
-      `);
-    }
-
-    // add any administered vaccines with a vaccine in the list of scheduled vaccines that sync everywhere
-    if (syncAllEncountersForTheseVaccines?.length > 0) {
-      const escapedVaccineIds = syncAllEncountersForTheseVaccines
-        .map(id => this.sequelize.escape(id))
-        .join(',');
-      joins.push(`
-        LEFT JOIN scheduled_vaccines
-        ON scheduled_vaccines.id = administered_vaccines.scheduled_vaccine_id
-        AND scheduled_vaccines.vaccine_id IN (${escapedVaccineIds})
-      `);
-      wheres.push(`
-        scheduled_vaccines.id IS NOT NULL
       `);
     }
 

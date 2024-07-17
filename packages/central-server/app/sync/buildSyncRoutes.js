@@ -1,6 +1,5 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import config from 'config';
 
 import { Op } from 'sequelize';
 import { log } from '@tamanu/shared/services/logging';

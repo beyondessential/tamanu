@@ -17,6 +17,6 @@ export class SyncLookupRefresher extends ScheduledTask {
   }
 
   async run() {
-    await this.context.centralSyncManager.triggerGlobalSnapshot();
+    await this.context.centralSyncManager.updateLookupTable();
   }
 }

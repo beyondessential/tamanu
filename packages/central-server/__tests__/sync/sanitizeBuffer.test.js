@@ -51,7 +51,6 @@ describe('sanitize binary data', () => {
               '',
               {
                 syncAllLabRequests: false,
-                syncAllEncountersForTheseVaccines: [],
                 isMobile: false,
               },
             );

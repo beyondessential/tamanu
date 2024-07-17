@@ -30,9 +30,7 @@ import { snapshotOutgoingChanges } from './snapshotOutgoingChanges';
 import { filterModelsFromName } from './filterModelsFromName';
 import { startSnapshotWhenCapacityAvailable } from './startSnapshotWhenCapacityAvailable';
 import { createMarkedForSyncPatientsTable } from './createMarkedForSyncPatientsTable';
-import { triggerGlobalSnapshot } from './triggerGlobalSnapshot';
-import { findGlobalSnapshotChanges } from './findGlobalSnapshotChanges';
-import { countGlobalSnapshotChanges } from './countGlobalSnapshotChanges';
+import { updateLookupTable } from './updateLookupTable';
 
 const errorMessageFromSession = session =>
   `Sync session '${session.id}' encountered an error: ${session.error}`;
@@ -222,7 +220,7 @@ export class CentralSyncManager {
     }
   }
 
-  async triggerGlobalSnapshot() {
+  async updateLookupTable() {
     // get a sync tick that we can safely consider the snapshot to be up to (because we use the
     // "tick" of the tick-tock, so we know any more changes on the server, even while the snapshot
     // process is ongoing, will have a later updated_at_sync_tick)
@@ -236,7 +234,7 @@ export class CentralSyncManager {
     await this.store.sequelize.transaction(
       { isolationLevel: Transaction.ISOLATION_LEVELS.REPEATABLE_READ },
       async () => {
-        await triggerGlobalSnapshot(
+        await updateLookupTable(
           [this.store.models.Encounter],
           globalSyncSince,
           this.constructor.config,
@@ -327,19 +325,11 @@ export class CentralSyncManager {
       );
 
       const syncAllLabRequests = await models.Setting.get('syncAllLabRequests', facilityId);
-      const syncTheseProgramRegistries = await models.Setting.get(
-        'syncTheseProgramRegistries',
-        facilityId,
-      );
+     
       const sessionConfig = {
         // for facilities with a lab, need ongoing lab requests
         // no need for historical ones on initial sync, and no need on mobile
         syncAllLabRequests: syncAllLabRequests && !isMobile && since > -1,
-        syncAllEncountersForTheseVaccines: isMobile
-          ? this.constructor.config.sync.syncAllEncountersForTheseVaccines
-          : [],
-        isMobile,
-        syncTheseProgramRegistries: isMobile ? [] : syncTheseProgramRegistries || [],
       };
 
       // snapshot inside a "repeatable read" transaction, so that other changes made while this
@@ -467,14 +457,6 @@ export class CentralSyncManager {
     await this.store.models.SyncSession.addDebugInfo(sessionId, { totalToPull });
     const { pullUntil } = session;
     return { totalToPull, pullUntil };
-  }
-
-  async countSyncLookupData({ since }) {
-    return countGlobalSnapshotChanges(this.store.sequelize, since);
-  }
-
-  async getSyncLookupData({ fromId, limit, since }) {
-    return findGlobalSnapshotChanges(this.store.sequelize, fromId, limit, since);
   }
 
   async getOutgoingChanges(sessionId, { fromId, limit }) {

@@ -64,7 +64,6 @@
     "persistedCacheBatchSize": 20000,
     "pauseBetweenPersistedCacheBatchesInMilliseconds": 50,
     "adjustDataBatchSize": 20000,
-    "syncAllEncountersForTheseVaccines": [],
     "numberConcurrentPullSnapshots": 4,
     "persistUpdateWorkerPoolSize": 5,
     // at its very large default, maxRecordsPerPullSnapshotChunk is essentially "off"

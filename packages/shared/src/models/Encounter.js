@@ -222,7 +222,7 @@ export class Encounter extends Model {
   }
 
   static buildFilterQuery(sessionConfig, patientCount, markedForSyncPatientsTable) {
-    const { syncAllLabRequests, syncAllEncountersForTheseVaccines } = sessionConfig;
+    const { syncAllLabRequests } = sessionConfig;
     const joins = [];
     const encountersToIncludeClauses = [];
     const updatedAtSyncTickClauses = ['encounters.updated_at_sync_tick > :since'];
@@ -260,44 +260,6 @@ export class Encounter extends Model {
 
       updatedAtSyncTickClauses.push(`
         encounters_with_labs.lr_updated_at_sync_tick > :since
-      `);
-    }
-
-    // for mobile, add any encounters with a vaccine in the list of scheduled vaccines that sync everywhere
-    if (syncAllEncountersForTheseVaccines?.length > 0) {
-      const escapedVaccineIds = syncAllEncountersForTheseVaccines
-        .map(id => this.sequelize.escape(id))
-        .join(',');
-      joins.push(`
-        LEFT JOIN (
-          SELECT e.id, MAX(av.updated_at_sync_tick) AS av_updated_at_sync_tick
-          FROM encounters e
-          INNER JOIN administered_vaccines av ON av.encounter_id = e.id
-          INNER JOIN scheduled_vaccines sv ON sv.id = av.scheduled_vaccine_id
-          WHERE
-            sv.vaccine_id IN (${escapedVaccineIds})
-          AND
-            (
-              e.updated_at_sync_tick > :since
-            OR
-              av.updated_at_sync_tick > :since
-            )
-          ${
-            patientCount > 0
-              ? `AND e.patient_id NOT IN (SELECT patient_id FROM ${markedForSyncPatientsTable}) -- no need to sync if it would be synced anyway`
-              : ''
-          }
-          GROUP BY e.id
-        ) AS encounters_with_scheduled_vaccines
-        ON encounters_with_scheduled_vaccines.id = encounters.id
-      `);
-
-      encountersToIncludeClauses.push(`
-        encounters_with_scheduled_vaccines.id IS NOT NULL
-      `);
-
-      updatedAtSyncTickClauses.push(`
-        encounters_with_scheduled_vaccines.av_updated_at_sync_tick > :since
       `);
     }
 
