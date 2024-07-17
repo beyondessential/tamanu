@@ -85,7 +85,7 @@ export async function insurerPaymentImporter({ errors, models, stats, file, chec
     }
 
     const {
-      patientSubtotal,
+      itemsSubtotal,
       insurerPaymentsTotal: allInsurerPaymentsTotal,
       insurerDiscountTotal: allInsurerDiscountTotal,
     } = getInvoiceSummary(invoice);
@@ -96,9 +96,9 @@ export async function insurerPaymentImporter({ errors, models, stats, file, chec
       invoice?.insurers ?? [],
       invoice?.payments ?? [],
       data.insurerId,
-      patientSubtotal,
+      itemsSubtotal,
     );
-      console.log({insurerPaymentRemainingBalance})
+
     try {
       //check if the insurer payment already exists
       const insurerPayment = await models.InvoiceInsurerPayment.findByPk(data.id, {
