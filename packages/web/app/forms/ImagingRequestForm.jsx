@@ -230,7 +230,6 @@ export const ImagingRequestForm = React.memo(
                     <TranslatedText stringId="imaging.areas.label" fallback="Areas to be imaged" />
                   }
                   component={MultiselectField}
-                  prefix="imaging.property.area"
                 />
               ) : (
                 <Field
