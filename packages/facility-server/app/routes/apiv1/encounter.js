@@ -500,4 +500,117 @@ encounterRelations.get(
   }),
 );
 
+encounterRelations.get(
+  '/:id/charts/:surveyId',
+  asyncHandler(async (req, res) => {
+    const { db, params, query } = req;
+    req.checkPermission('list', 'SurveyResponse');
+    const { id: encounterId, surveyId } = params;
+    const { order = 'DESC' } = query;
+    const dateDataElement = 'pde-ChartDate';
+    // The LIMIT and OFFSET occur in an unusual place in this query
+    // So we can't run it through the generic runPaginatedQuery function
+    const countResult = await db.query(
+      `
+        SELECT COUNT(1) AS count
+        FROM survey_response_answers
+        INNER JOIN survey_responses response
+        ON response.id = response_id
+        WHERE data_element_id = :dateDataElement
+        AND body IS NOT NULL
+        AND response.encounter_id = :encounterId
+        AND response.deleted_at IS NULL
+        AND response.survey_id = :surveyId
+      `,
+      {
+        replacements: {
+          encounterId,
+          dateDataElement,
+          surveyId,
+        },
+        type: QueryTypes.SELECT,
+      },
+    );
+    const { count } = countResult[0];
+    if (count === 0) {
+      res.send({
+        data: [],
+        count: 0,
+      });
+      return;
+    }
+
+    const { page = 0, rowsPerPage = 10 } = query;
+
+    const result = await db.query(
+      `
+        WITH
+        date AS (
+          SELECT response_id, body
+          FROM survey_response_answers
+          INNER JOIN survey_responses response
+          ON response.id = response_id
+          WHERE data_element_id = :dateDataElement
+          AND body IS NOT NULL
+          AND response.encounter_id = :encounterId
+          AND response.deleted_at IS NULL
+          AND response.survey_id = :surveyId
+          ORDER BY body ${order} LIMIT :limit OFFSET :offset
+        ),
+        history AS (
+          SELECT
+            vl.answer_id,
+            ARRAY_AGG((
+              JSONB_BUILD_OBJECT(
+                'newValue', vl.new_value,
+                'reasonForChange', vl.reason_for_change,
+                'date', vl.date,
+                'userDisplayName', u.display_name
+              )
+            )) logs
+          FROM survey_response_answers sra
+          	INNER JOIN survey_responses sr ON sr.id = sra.response_id
+          	LEFT JOIN vital_logs vl ON vl.answer_id = sra.id
+          	LEFT JOIN users u ON u.id = vl.recorded_by_id
+          WHERE sr.encounter_id = :encounterId
+          	AND sr.deleted_at IS NULL
+          GROUP BY vl.answer_id
+        )
+
+        SELECT
+          JSONB_BUILD_OBJECT(
+            'dataElementId', answer.data_element_id,
+            'records', JSONB_OBJECT_AGG(date.body, JSONB_BUILD_OBJECT('id', answer.id, 'body', answer.body, 'logs', history.logs))
+          ) result
+        FROM
+          survey_response_answers answer
+        INNER JOIN
+          date
+        ON date.response_id = answer.response_id
+        LEFT JOIN
+          history
+        ON history.answer_id = answer.id
+        GROUP BY answer.data_element_id
+      `,
+      {
+        replacements: {
+          encounterId,
+          limit: rowsPerPage,
+          offset: page * rowsPerPage,
+          dateDataElement,
+          surveyId,
+        },
+        type: QueryTypes.SELECT,
+      },
+    );
+
+    const data = result.map(r => r.result);
+
+    res.send({
+      count: parseInt(count, 10),
+      data,
+    });
+  }),
+);
+
 encounter.use(encounterRelations);
