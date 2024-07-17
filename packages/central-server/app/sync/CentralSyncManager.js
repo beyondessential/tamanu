@@ -5,7 +5,7 @@ import _config from 'config';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import {
   CURRENT_SYNC_TIME_KEY,
-  LAST_SUCCESSFUL_GLOBAL_SYNC_KEY,
+  LAST_SUCCESSFUL_LOOKUP_TABLE_UPDATE_KEY,
 } from '@tamanu/shared/sync/constants';
 import { log } from '@tamanu/shared/services/logging';
 import {
@@ -229,7 +229,7 @@ export class CentralSyncManager {
     await this.waitForPendingEdits(tick);
 
     const globalSyncSince =
-      (await this.store.models.LocalSystemFact.get(LAST_SUCCESSFUL_GLOBAL_SYNC_KEY)) || -1;
+      (await this.store.models.LocalSystemFact.get(LAST_SUCCESSFUL_LOOKUP_TABLE_UPDATE_KEY)) || -1;
 
     await this.store.sequelize.transaction(
       { isolationLevel: Transaction.ISOLATION_LEVELS.REPEATABLE_READ },
@@ -242,7 +242,7 @@ export class CentralSyncManager {
       },
     );
 
-    await this.store.models.LocalSystemFact.set(LAST_SUCCESSFUL_GLOBAL_SYNC_KEY, tick);
+    await this.store.models.LocalSystemFact.set(LAST_SUCCESSFUL_LOOKUP_TABLE_UPDATE_KEY, tick);
   }
 
   async waitForPendingEdits(tick) {
