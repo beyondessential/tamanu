@@ -129,7 +129,6 @@ export const PatientPaymentForm = ({
               component={DateField}
               saveDateAsString
               size="small"
-              style={{ gridColumn: 'span 3' }}
             />
           </Box>
           <Box sx={{ width: 'calc(20% - 5px)' }}>
@@ -148,7 +147,6 @@ export const PatientPaymentForm = ({
               component={NumberField}
               size="small"
               min={0}
-              style={{ gridColumn: 'span 2' }}
               onInput={validateDecimalPlaces}
               value={amount}
               onChange={e => setAmount(e.target.value)}
@@ -175,7 +173,7 @@ export const PatientPaymentForm = ({
               </IconButton>
             </ThemedTooltip>
           </Box>
-          <Box sx={{ gridColumn: 'span 3', marginLeft: 'auto' }}>
+          <Box sx={{ marginLeft: 'auto' }}>
             <Button
               size="small"
               onClick={submitForm}
