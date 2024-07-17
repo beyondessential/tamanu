@@ -15,7 +15,6 @@ export class UserPreference extends Model {
             // any sets of the convenience generated "id" field can be ignored, so do nothing here
           },
         },
-        selectedGraphedVitalsOnFilter: Sequelize.STRING,
         userId: {
           type: DataTypes.STRING,
           primaryKey: true,

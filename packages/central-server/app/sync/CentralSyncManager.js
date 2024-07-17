@@ -3,7 +3,10 @@ import { Op, Transaction } from 'sequelize';
 import _config from 'config';
 
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
-import { CURRENT_SYNC_TIME_KEY } from '@tamanu/shared/sync/constants';
+import {
+  CURRENT_SYNC_TIME_KEY,
+  LAST_SUCCESSFUL_GLOBAL_SYNC_KEY,
+} from '@tamanu/shared/sync/constants';
 import { log } from '@tamanu/shared/services/logging';
 import {
   adjustDataPostSyncPush,
@@ -27,6 +30,9 @@ import { snapshotOutgoingChanges } from './snapshotOutgoingChanges';
 import { filterModelsFromName } from './filterModelsFromName';
 import { startSnapshotWhenCapacityAvailable } from './startSnapshotWhenCapacityAvailable';
 import { createMarkedForSyncPatientsTable } from './createMarkedForSyncPatientsTable';
+import { triggerGlobalSnapshot } from './triggerGlobalSnapshot';
+import { findGlobalSnapshotChanges } from './findGlobalSnapshotChanges';
+import { countGlobalSnapshotChanges } from './countGlobalSnapshotChanges';
 
 const errorMessageFromSession = session =>
   `Sync session '${session.id}' encountered an error: ${session.error}`;
@@ -216,6 +222,44 @@ export class CentralSyncManager {
     }
   }
 
+  async triggerGlobalSnapshot() {
+    // get a sync tick that we can safely consider the snapshot to be up to (because we use the
+    // "tick" of the tick-tock, so we know any more changes on the server, even while the snapshot
+    // process is ongoing, will have a later updated_at_sync_tick)
+    const { tick } = await this.tickTockGlobalClock();
+
+    await this.waitForPendingEdits(tick);
+
+    const globalSyncSince =
+      (await this.store.models.LocalSystemFact.get(LAST_SUCCESSFUL_GLOBAL_SYNC_KEY)) || -1;
+
+    await this.store.sequelize.transaction(
+      { isolationLevel: Transaction.ISOLATION_LEVELS.REPEATABLE_READ },
+      async () => {
+        await triggerGlobalSnapshot(
+          [this.store.models.Encounter],
+          globalSyncSince,
+          this.constructor.config,
+        );
+      },
+    );
+
+    await this.store.models.LocalSystemFact.set(LAST_SUCCESSFUL_GLOBAL_SYNC_KEY, tick);
+  }
+
+  async waitForPendingEdits(tick) {
+    // get all the ticks (ie: keys of in-flight transaction advisory locks) of previously pending edits
+    const pendingSyncTicks = (await getSyncTicksOfPendingEdits(this.store.sequelize)).filter(
+      t => t < tick,
+    );
+
+    // wait for any in-flight transactions of pending edits
+    // that we don't miss any changes that are in progress
+    await Promise.all(
+      pendingSyncTicks.map(t => waitForPendingEditsUsingSyncTick(this.store.sequelize, t)),
+    );
+  }
+
   async setupSnapshotForPull(
     sessionId,
     { since, facilityId, tablesToInclude, tablesForFullResync, isMobile },
@@ -308,6 +352,7 @@ export class CentralSyncManager {
         async () => {
           // full changes
           await snapshotOutgoingChanges(
+            this.store,
             getPatientLinkedModels(modelsToInclude),
             -1, // for all time, i.e. 0 onwards
             newPatientFacilitiesCount,
@@ -325,6 +370,7 @@ export class CentralSyncManager {
 
           // regular changes
           await snapshotOutgoingChanges(
+            this.store,
             getModelsForDirection(modelsToInclude, SYNC_DIRECTIONS.PULL_FROM_CENTRAL),
             since,
             patientFacilitiesCount,
@@ -339,6 +385,7 @@ export class CentralSyncManager {
           if (tablesForFullResync) {
             const modelsForFullResync = filterModelsFromName(models, tablesForFullResync);
             await snapshotOutgoingChanges(
+              this.store,
               getModelsForDirection(modelsForFullResync, SYNC_DIRECTIONS.PULL_FROM_CENTRAL),
               -1,
               patientFacilitiesCount,
@@ -420,6 +467,14 @@ export class CentralSyncManager {
     await this.store.models.SyncSession.addDebugInfo(sessionId, { totalToPull });
     const { pullUntil } = session;
     return { totalToPull, pullUntil };
+  }
+
+  async countSyncLookupData({ since }) {
+    return countGlobalSnapshotChanges(this.store.sequelize, since);
+  }
+
+  async getSyncLookupData({ fromId, limit, since }) {
+    return findGlobalSnapshotChanges(this.store.sequelize, fromId, limit, since);
   }
 
   async getOutgoingChanges(sessionId, { fromId, limit }) {

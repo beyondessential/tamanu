@@ -4,6 +4,7 @@ import { log } from '@tamanu/shared/services/logging';
 
 import { ApplicationContext } from '../ApplicationContext';
 import { startFhirWorkerTasks, startScheduledTasks } from '../tasks';
+import { CentralSyncManager } from '../sync/CentralSyncManager';
 import { provision } from './provision';
 import pkg from '../../package.json';
 
@@ -16,6 +17,7 @@ export const tasks = async ({ skipMigrationCheck, provisioning }) => {
 
   const context = await new ApplicationContext().init({ appType: 'tasks' });
   await context.store.sequelize.assertUpToDate({ skipMigrationCheck });
+  context.centralSyncManager = new CentralSyncManager(context);
 
   const stopScheduledTasks = await startScheduledTasks(context);
   const worker = await startFhirWorkerTasks(context);
