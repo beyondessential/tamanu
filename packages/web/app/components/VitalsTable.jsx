@@ -131,20 +131,8 @@ const TitleCell = React.memo(({ value }) => {
   );
 });
 
-export const VitalsTable = React.memo(() => {
-  const patient = useSelector(state => state.patient);
-  const { encounter } = useEncounter();
-  const { data, recordedDates, error, isLoading } = useVitals(encounter.id);
-  const [openEditModal, setOpenEditModal] = useState(false);
-  const [selectedCell, setSelectedCell] = useState(null);
-  const { getLocalisation } = useLocalisation();
-  const isVitalEditEnabled = getLocalisation('features.enableVitalEdit');
-  const showFooterLegend = data.some(entry =>
-    recordedDates.some(date => entry[date].historyLogs.length > 1),
-  );
-
-  // create a column for each reading
-  const columns = [
+const getVitalsTableColumns = (patient, recordedDates, onCellClick, isEditEnabled) => {
+  return [
     {
       key: 'measure',
       title: <TranslatedText stringId="encounter.vitals.table.column.measure" fallback="Measure" />,
@@ -159,6 +147,7 @@ export const VitalsTable = React.memo(() => {
       CellComponent: MeasureCell,
       TitleCellComponent: TitleCell,
     },
+    // create a column for each reading
     ...recordedDates
       .sort((a, b) => b.localeCompare(a))
       .map(date => ({
@@ -170,12 +159,11 @@ export const VitalsTable = React.memo(() => {
           const isCalculatedQuestion =
             component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.CALCULATED;
           const handleCellClick = () => {
-            setOpenEditModal(true);
-            setSelectedCell(cells[date]);
+            onCellClick(cells[date]);
           };
           const isCurrent = component.visibilityStatus === VISIBILITY_STATUSES.CURRENT;
           const isValid = isCurrent ? true : Boolean(value);
-          const shouldBeClickable = isVitalEditEnabled && isCalculatedQuestion === false && isValid;
+          const shouldBeClickable = isEditEnabled && isCalculatedQuestion === false && isValid;
           return (
             <RangeValidatedCell
               value={value}
@@ -192,6 +180,26 @@ export const VitalsTable = React.memo(() => {
         },
       })),
   ];
+};
+
+export const VitalsTable = React.memo(() => {
+  const patient = useSelector(state => state.patient);
+  const { encounter } = useEncounter();
+  const { data, recordedDates, error, isLoading } = useVitals(encounter.id);
+  const [openEditModal, setOpenEditModal] = useState(false);
+  const [selectedCell, setSelectedCell] = useState(null);
+  const { getLocalisation } = useLocalisation();
+  const isVitalEditEnabled = getLocalisation('features.enableVitalEdit');
+  const showFooterLegend = data.some(entry =>
+    recordedDates.some(date => entry[date].historyLogs.length > 1),
+  );
+
+  const onCellClick = clickedCell => {
+    setOpenEditModal(true);
+    setSelectedCell(clickedCell);
+  };
+
+  const columns = getVitalsTableColumns(patient, recordedDates, onCellClick, isVitalEditEnabled);
 
   return (
     <>
