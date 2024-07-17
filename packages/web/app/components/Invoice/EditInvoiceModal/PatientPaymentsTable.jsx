@@ -104,7 +104,7 @@ export const PatientPaymentsTable = ({ invoice }) => {
         width 20%;
       }
       &.MuiTableCell-body {
-        padding: 12px 30px 12px 0px;
+        padding: 12px 12px 12px 0px;
         &:last-child {
           padding-right: 5px;
         }
