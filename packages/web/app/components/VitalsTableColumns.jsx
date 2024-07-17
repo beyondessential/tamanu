@@ -125,11 +125,11 @@ const TitleCell = React.memo(({ value }) => {
   );
 });
 
-export const getVitalsTableColumns = (patient, recordedDates, onCellClick, isEditEnabled) => {
+const getDynamicTableColumns = (firstColKey, firstColTitle, patient, recordedDates, onCellClick, isEditEnabled) => {
   return [
     {
-      key: 'measure',
-      title: <TranslatedText stringId="encounter.vitals.table.column.measure" fallback="Measure" />,
+      key: firstColKey,
+      title: firstColTitle,
       sortable: false,
       accessor: ({ value, config, validationCriteria }) => (
         <RangeTooltipCell
@@ -174,4 +174,15 @@ export const getVitalsTableColumns = (patient, recordedDates, onCellClick, isEdi
         },
       })),
   ];
+};
+
+export const getVitalsTableColumns = (patient, recordedDates, onCellClick, isEditEnabled) => {
+  return getDynamicTableColumns(
+    'measure',
+    <TranslatedText stringId="encounter.vitals.table.column.measure" fallback="Measure" />,
+    patient,
+    recordedDates,
+    onCellClick,
+    isEditEnabled,
+  );
 };
