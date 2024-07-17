@@ -2,7 +2,7 @@ import React from 'react';
 import { usePDF } from '@react-pdf/renderer';
 import { Box, CircularProgress, Typography } from '@material-ui/core';
 import styled from 'styled-components';
-import { TranslatedText } from '../Translation/index.js';
+import { TranslatedText } from '../Translation';
 
 const FullIframe = styled.iframe`
   width: 100%;
