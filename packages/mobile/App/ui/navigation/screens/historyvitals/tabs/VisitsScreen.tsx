@@ -9,7 +9,7 @@ import { LoadingScreen } from '~/ui/components/LoadingScreen';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
 import { withPatient } from '~/ui/containers/Patient';
 import { IDiagnosis, INote } from '~/types';
-import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
+import { TranslatedText, TranslatedTextElement } from '~/ui/components/Translations/TranslatedText';
 
 const DEFAULT_FIELD_VAL = (
   <TranslatedText stringId="general.fallback.notApplicable" fallback="N/A" uppercase />
@@ -24,7 +24,7 @@ const displayNotes = (notes: INote[]): string =>
 const visitsHistoryRows = {
   diagnoses: {
     name: <TranslatedText stringId="general.form.diagnosis.label" fallback="Diagnosis" />,
-    accessor: (diagnoses: IDiagnosis[]): string =>
+    accessor: (diagnoses: IDiagnosis[]): TranslatedTextElement =>
       diagnoses.map(d => `${d.diagnosis?.name} (${d.certainty})`).join('\n\n') || DEFAULT_FIELD_VAL,
   },
   notes: {
