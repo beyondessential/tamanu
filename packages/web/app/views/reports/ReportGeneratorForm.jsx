@@ -22,6 +22,7 @@ import {
   Field,
   Form,
   FormGrid,
+  getReferenceDataStringId,
   RadioField,
   TextButton,
 } from '../../components';
@@ -32,7 +33,7 @@ import { saveFile } from '../../utils/fileSystemAccess';
 import { EmailField, parseEmails } from './EmailField';
 import { ParameterField } from './ParameterField';
 import { useLocalisation } from '../../contexts/Localisation';
-import { TranslatedText, TranslatedReferenceData } from '../../components/Translation';
+import { TranslatedText } from '../../components/Translation';
 import { ReportAboutModal } from './ReportAboutModal';
 import { useTranslation } from '../../contexts/Translation';
 
@@ -60,6 +61,7 @@ const AboutReportButton = styled(TextButton)`
   color: ${Colors.darkText};
   width: fit-content;
   text-transform: none;
+
   :hover {
     font-weight: 500;
     color: ${Colors.primary};
@@ -92,10 +94,9 @@ const useFileName = () => {
   const { getLocalisation } = useLocalisation();
   const country = getLocalisation('country');
   const date = format(new Date(), 'ddMMyyyy');
+  const { getTranslation } = useTranslation();
 
-  const countryName = <span>
-    <TranslatedReferenceData fallback={country.name} value={country.id} category="country"/>
-  </span>;
+  const countryName = getTranslation(getReferenceDataStringId(country.id, 'country'), country.name);
 
   return reportName => {
     const dashedName = `${reportName}-${countryName}`
