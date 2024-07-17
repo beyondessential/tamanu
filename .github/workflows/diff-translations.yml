@@ -69,7 +69,7 @@ jobs:
           | grep -E '^v[0-9]+[.][0-9]+[.][0-9]+$' \
           | cut -c2- \
           | sort --version-sort \
-          | grep -B 1 "2.3.18" \
+          | grep -B 1 "2.9.0" \
           | head -n 1 \
           | sed 's/^/previous_version=/' \
           | tee -a $GITHUB_OUTPUT
@@ -94,30 +94,14 @@ jobs:
         path: current-translations.csv
         retention-days: 1
 
-    # - name: exit if no upload
-    #   if: steps.translations-upload.outputs.artifact_size == 0
-    #   run: |
-    #     echo "No translations to diff"
-    #     exit 0
+    - name: exit if no upload
+      if: steps.translations-upload.outputs.artifact_size == 0
+      run: |
+        echo "No translations to diff"
+        exit 0
 
-    # - name: Configure AWS Credentials (upload)
-    #   uses: aws-actions/configure-aws-credentials@v4
-    #   with:
-    #     aws-region: ap-southeast-2
-    #     role-to-assume: arn:aws:iam::143295493206:role/gha-desktop-s3
-    #     role-session-name: GHA@Tamanu=DiffTranslations
-
-    # - name: Upload translations to S3
-    #   env:
-    #     cversion: ${{ steps.currentv.outputs.current_version }}
-    #   run: |
-    #     aws s3 --no-progress cp current-translations.csv s3://bes-tamanu-translations/$cversion.csv
-
-    # - name: Download previous versions translations from s3
-    #   env:
-    #     pversion: ${{ steps.previousv.outputs.previous_version }}
-    #   run: |
-    #     aws s3 --no-progress cp s3://bes-tamanu-translations/$pversion.csv previous-translations.csv
+    # TODO: I removed s3 steps as we will use Pulumi
+    # These following steps will take place once previous_translations.csv is available
 
     # - name: Create empty csv if no previous translations
     #   if:
