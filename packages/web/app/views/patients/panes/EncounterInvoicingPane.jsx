@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Typography } from '@material-ui/core';
+import { INVOICE_STATUSES } from '@tamanu/constants';
 import { isInvoiceEditable } from '@tamanu/shared/utils/invoice';
 import { InvoiceItemsTable } from '../../../components/Invoice/InvoiceItemsTable';
 import { Button } from '../../../components/Button';
@@ -58,6 +59,11 @@ export const EncounterInvoicingPane = ({ encounter }) => {
 
   const handleOpenInvoiceModal = type => setOpenInvoiceModal(type);
 
+  const canWriteInvoice = ability.can('write', 'Invoice');
+  const canDeleteInvoice = ability.can('delete', 'Invoice');
+  const cancelable = invoice && isInvoiceEditable(invoice) && canWriteInvoice;
+  const deletable = invoice && invoice.status !== INVOICE_STATUSES.FINALISED && canDeleteInvoice;
+
   return (
     <>
       {invoice ? (
@@ -71,7 +77,7 @@ export const EncounterInvoicingPane = ({ encounter }) => {
                 </InvoiceTitle>
                 <InvoiceStatus status={invoice.status} />
               </InvoiceHeading>
-              {isInvoiceEditable(invoice) && ability.can('write', 'Invoice') && (
+              {(cancelable || deletable) && (
                 <ActionsPane>
                   <ThreeDotMenu
                     items={[
@@ -83,6 +89,17 @@ export const EncounterInvoicingPane = ({ encounter }) => {
                           />
                         ),
                         onClick: () => handleOpenInvoiceModal(INVOICE_MODAL_TYPES.CANCEL_INVOICE),
+                        hidden: !cancelable,
+                      },
+                      {
+                        label: (
+                          <TranslatedText
+                            stringId="invoice.modal.editInvoice.deleteInvoice"
+                            fallback="Delete invoice"
+                          />
+                        ),
+                        onClick: () => handleOpenInvoiceModal(INVOICE_MODAL_TYPES.DELETE_INVOICE),
+                        hidden: !deletable,
                       },
                     ]}
                   />

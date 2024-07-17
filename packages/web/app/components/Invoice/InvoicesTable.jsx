@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import {
   INVOICE_PATIENT_PAYMENT_STATUSES_LABELS,
@@ -145,6 +145,8 @@ export const InvoicesTable = ({ patient }) => {
 
   const { data: invoice } = useEncounterInvoice(selectedInvoice?.encounterId);
 
+  const afterDeleteInvoice = useCallback(() => setRefreshTable(prev => prev + 1), []);
+
   useEffect(() => {
     if (invoice) {
       setRefreshTable(prev => prev + 1);
@@ -181,6 +183,7 @@ export const InvoicesTable = ({ patient }) => {
           initialInvoice={invoice}
           onClose={() => setOpenInvoiceModal()}
           isPatientView
+          afterDeleteInvoice={afterDeleteInvoice}
         />
       )}
     </>
