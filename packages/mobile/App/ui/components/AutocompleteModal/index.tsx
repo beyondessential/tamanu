@@ -7,6 +7,7 @@ import { TouchableOpacity } from 'react-native-gesture-handler';
 import { theme } from '../../styled/theme';
 import { BaseModelSubclass, Suggester } from '../../helpers/suggester';
 import { TranslatedText } from '../Translations/TranslatedText';
+import { getReferenceDataStringId } from '~/ui/helpers/translation';
 
 const styles = StyleSheet.create({
   container: {
@@ -51,6 +52,8 @@ export const AutocompleteModalScreen = ({
   const [searchTerm, setSearchTerm] = useState('');
   const [displayedOptions, setDisplayedOptions] = useState([]);
 
+  const refDataType = suggester.options?.where?.type;
+
   useEffect(() => {
     (async (): Promise<void> => {
       const data = await suggester.fetchSuggestions(searchTerm);
@@ -82,7 +85,14 @@ export const AutocompleteModalScreen = ({
             return (
               <TouchableOpacity onPress={(): void => onSelectItem(item)}>
                 <Text style={useDarkBackground ? styles.darkItemText : styles.lightItemText}>
-                  {item.label}
+                  {refDataType ? (
+                    <TranslatedText
+                      stringId={getReferenceDataStringId(refDataType, item.value)}
+                      fallback={item.label}
+                    />
+                  ) : (
+                    item.label
+                  )}
                 </Text>
               </TouchableOpacity>
             );
