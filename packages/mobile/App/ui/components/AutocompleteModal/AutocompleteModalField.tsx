@@ -11,7 +11,6 @@ import { RequiredIndicator } from '../RequiredIndicator';
 import { TranslatedTextElement, TranslatedText } from '../Translations/TranslatedText';
 import { SearchIcon } from '../Icons';
 import { ReadOnlyField } from '../ReadOnlyField/index';
-import { getReferenceDataStringId } from '~/ui/helpers/translation';
 
 interface AutocompleteModalFieldProps {
   value?: string;
@@ -42,8 +41,6 @@ export const AutocompleteModalField = ({
 }: AutocompleteModalFieldProps): ReactElement => {
   const navigation = useNavigation();
   const [label, setLabel] = useState(null);
-  const refDataType = suggester.options?.where?.type;
-
   const onPress = (selectedItem): void => {
     onChange(selectedItem.value);
     setLabel(selectedItem.label);
@@ -60,12 +57,7 @@ export const AutocompleteModalField = ({
     (async (): Promise<void> => {
       const data = await suggester.fetchCurrentOption(value);
       if (data) {
-        setLabel(
-          <TranslatedText
-            stringId={getReferenceDataStringId(refDataType, data.value)}
-            fallback={data.label}
-          />,
-        );
+        setLabel(data.label);
       } else {
         setLabel(null);
       }
