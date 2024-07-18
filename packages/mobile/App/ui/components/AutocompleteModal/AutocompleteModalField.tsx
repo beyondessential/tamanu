@@ -12,6 +12,7 @@ import { TranslatedTextElement, TranslatedText } from '../Translations/Translate
 import { SearchIcon } from '../Icons';
 import { ReadOnlyField } from '../ReadOnlyField/index';
 import { getReferenceDataStringId } from '~/ui/helpers/translation';
+import { useTranslation } from '~/ui/contexts/TranslationContext';
 
 interface AutocompleteModalFieldProps {
   value?: string;

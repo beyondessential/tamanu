@@ -1,6 +1,5 @@
 import { keyBy } from 'lodash';
-import { In } from 'typeorm';
-import { FindManyOptions, Like, ObjectLiteral } from 'typeorm/browser';
+import { Brackets, FindManyOptions, ObjectLiteral } from 'typeorm/browser';
 import { BaseModel } from '~/models/BaseModel';
 import { TranslatedString } from '~/models/TranslatedString';
 
@@ -67,29 +66,44 @@ export class Suggester<ModelType extends BaseModelSubclass> {
     }
   };
 
-  fetchSuggestions = async (search: string): Promise<OptionType[]> => {
+  fetchSuggestions = async (search: string, language: string = 'en'): Promise<OptionType[]> => {
     const { where = {}, column = 'name', relations } = this.options;
 
     try {
       const translations = await TranslatedString.getReferenceDataTranslationsByDataType(
-        'km',
+        language,
         this.options?.where?.type,
         search,
       );
 
       const suggestedIds = translations.map(extractDataId);
 
-      let data = await this.fetch({
-        where: {
-          [column]: Like(`%${search}%`),
-          id: In(suggestedIds),
-          ...where,
-        },
-        order: {
-          [column]: 'ASC',
-        },
-        relations,
-      });
+      let query = this.model
+        .getRepository()
+        .createQueryBuilder('entity')
+        .where(
+          new Brackets(qb => {
+            qb.where(`${column} LIKE :search`, {
+              search: `%${search}%`,
+            }).orWhere('entity.id IN (:...suggestedIds)', { suggestedIds });
+          }),
+        );
+
+      // Apply additional conditions from optional where
+      for (const [key, value] of Object.entries(where)) {
+        query = query.andWhere(`entity.${key} = :${key}`, { [key]: value });
+      }
+
+      query = query.orderBy(`entity.${column}`, 'ASC');
+
+      // Add relations
+      if (relations) {
+        for (const relation of relations) {
+          query = query.leftJoinAndSelect(`entity.${relation}`, relation);
+        }
+      }
+
+      let data = await query.getMany();
 
       data = replaceDataLabelsWithTranslations({ data, translations });
 
