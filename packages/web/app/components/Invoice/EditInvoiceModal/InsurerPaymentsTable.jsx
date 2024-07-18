@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import { capitalize } from 'lodash';
 import { formatDisplayPrice, getInvoiceSummary } from '@tamanu/shared/utils/invoice';
 import { TranslatedText } from '../../Translation';
 import { Table } from '../../Table';
@@ -61,7 +62,7 @@ const COLUMNS = [
     title: <TranslatedText stringId="invoice.table.payment.column.status" fallback="Status" />,
     sortable: false,
     dontCallRowInput: true,
-    accessor: ({ insurerPayment }) => insurerPayment?.status,
+    accessor: ({ insurerPayment }) => capitalize(insurerPayment?.status),
   },
 ];
 
