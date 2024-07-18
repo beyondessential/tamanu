@@ -5,7 +5,7 @@ import { useEncounter } from '../contexts/Encounter';
 import { useVitals } from '../api/queries/useVitals';
 import { EditVitalCellModal } from './EditVitalCellModal';
 import { useLocalisation } from '../contexts/Localisation';
-import { getVitalsTableColumns } from './VitalsTableColumns';
+import { getVitalsTableColumns } from './VitalsAndChartsTableColumns';
 
 export const VitalsTable = React.memo(() => {
   const patient = useSelector(state => state.patient);
