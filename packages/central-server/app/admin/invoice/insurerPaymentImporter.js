@@ -34,7 +34,7 @@ const insurerPaymentImportSchema = z
     date: z.string().date(),
     amount: z.coerce
       .number()
-      .positive()
+      .min(0)
       .transform(amount => round(amount, 2)),
     invoiceId: z.string(),
     insurerId: z.string(),
