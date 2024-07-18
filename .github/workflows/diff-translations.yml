@@ -131,9 +131,9 @@ jobs:
         fi
 
     - name: Diff translations
-      continue-on-error: true # diff will exit with 1 if there are differences
       run: |
         git diff --no-index --output=translations.diff previous-translations.csv current-translations.csv
+        exit 0
 
     - name: Upload diff
       uses: actions/upload-artifact@v4
