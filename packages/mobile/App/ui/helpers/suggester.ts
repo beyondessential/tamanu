@@ -1,5 +1,8 @@
+import { keyBy } from 'lodash';
+import { In } from 'typeorm';
 import { FindManyOptions, Like, ObjectLiteral } from 'typeorm/browser';
 import { BaseModel } from '~/models/BaseModel';
+import { TranslatedString } from '~/models/TranslatedString';
 
 export interface OptionType {
   label: string;
@@ -14,6 +17,16 @@ interface SuggesterOptions<ModelType> extends FindManyOptions<ModelType> {
 }
 
 const defaultFormatter = (model): OptionType => ({ label: model.name, value: model.id });
+
+const extractDataId = ({ stringId }) => stringId.split('.').pop();
+
+const replaceDataLabelsWithTranslations = ({ data, translations }) => {
+  const translationsByDataId = keyBy(translations, extractDataId);
+  return data.map(item => ({
+    ...item,
+    name: translationsByDataId[item.id]?.text || item.name,
+  }));
+};
 
 export class Suggester<ModelType extends BaseModelSubclass> {
   model: ModelType;
@@ -58,9 +71,18 @@ export class Suggester<ModelType extends BaseModelSubclass> {
     const { where = {}, column = 'name', relations } = this.options;
 
     try {
-      const data = await this.fetch({
+      const translations = await TranslatedString.getReferenceDataTranslationsByDataType(
+        'km',
+        this.options?.where?.type,
+        search,
+      );
+
+      const suggestedIds = translations.map(extractDataId);
+
+      let data = await this.fetch({
         where: {
           [column]: Like(`%${search}%`),
+          id: In(suggestedIds),
           ...where,
         },
         order: {
@@ -68,6 +90,8 @@ export class Suggester<ModelType extends BaseModelSubclass> {
         },
         relations,
       });
+
+      data = replaceDataLabelsWithTranslations({ data, translations });
 
       return this.filter ? data.filter(this.filter).map(this.formatter) : data.map(this.formatter);
     } catch (e) {
