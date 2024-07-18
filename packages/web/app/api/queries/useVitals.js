@@ -10,6 +10,11 @@ function hasHistoricalData(answer) {
   return Object.values(records).some(record => record.body);
 }
 
+function getSortedLogsByDate(logs) {
+  if (!logs) return [];
+  return logs.slice().sort((a, b) => b.date.localeCompare(a.date));
+}
+
 export const useVitals = encounterId => {
   const api = useApi();
   const vitalsQuery = useQuery(['encounterVitals', encounterId], () =>
@@ -82,8 +87,3 @@ export const useVitals = encounterId => {
     error,
   };
 };
-
-function getSortedLogsByDate(logs) {
-  if (!logs) return [];
-  return logs.slice().sort((a, b) => b.date.localeCompare(a.date));
-}
