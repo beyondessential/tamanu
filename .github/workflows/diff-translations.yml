@@ -46,10 +46,6 @@ jobs:
     - name: install lodash in constants package
       working-directory: packages/constants
       run: yarn
-    - uses: actions/cache/save@v3
-      with:
-        key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
-        path: ${{ env.NODE_MODULES_PATHS }}
 
     - name: install ripgrep
       # Had to install manually due to pcre2 not being enabled in apt-get vesrision
