@@ -76,34 +76,6 @@ const Providers = ({ children }) => (
 const render = (element, options) => baseRender(element, { wrapper: Providers, ...options });
 
 describe('DownloadDataButton', () => {
-  beforeAll(() => {
-    vi.doMock('@tanstack/react-query', async () => {
-      const actual = await vi.importActual('@tanstack/react-query');
-      return {
-        ...actual,
-        useQueryClient: vi.fn().mockReturnValue(queryClient),
-      };
-    });
-
-    vi.doMock('../../../app/contexts/Translation.jsx', async () => {
-      const actual = await vi.importActual('../../../app/contexts/Translation.jsx');
-      return {
-        ...actual,
-        useTranslation: vi.fn().mockReturnValue(mockTranslationContext),
-        TranslationProvider: ({ children }) => (
-          <TranslationContext.Provider value={mockTranslationContext}>
-            {children}
-          </TranslationContext.Provider>
-        ),
-      };
-    });
-  });
-
-  afterAll(() => {
-    vi.doUnmock('@tanstack/react-query');
-    vi.doUnmock('../../../app/contexts/Translation.jsx');
-  });
-
   const columns = [
     culturalName,
     dateOfBirth,
