@@ -147,7 +147,7 @@ describe('DownloadDataButton', () => {
     const button = screen.getByTestId('download-data-button');
     await user.click(button);
 
-    // Ideally this would check the arguments which the spy is called with, but those object depend
+    // Ideally this would check the arguments with which the spy is called, but those objects depend
     // on `renderToText` working in this testing environment
     expect(sheetToJsonSpy).toHaveBeenCalledTimes(1);
   });
