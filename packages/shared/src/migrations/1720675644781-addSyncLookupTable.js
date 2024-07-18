@@ -29,6 +29,10 @@ export async function up(query) {
       type: Sequelize.STRING,
       allowNull: false,
     },
+    facility_id: {
+      type: Sequelize.STRING,
+      allowNull: false,
+    },
     is_lab_request: {
       type: Sequelize.BOOLEAN,
       allowNull: false,

@@ -225,10 +225,10 @@ const snapshotOutgoingChangesFromSyncLookup = withConfig(
         WHERE updated_at_sync_tick > :since
         ${fromId ? `AND record_id > :fromId` : ''}
         AND (
-          patient_id IS NULL -- for syncing reference data
+          patient_id IS NULL
         ${
           patientCount
-            ? `OR patient_id IN (SELECT patient_id FROM ${markedForSyncPatientsTable}) -- for syncing patient data`
+            ? `OR patient_id IN (SELECT patient_id FROM ${markedForSyncPatientsTable})`
             : ''
         })
         ${syncAllLabRequests ? 'OR is_lab_request IS TRUE' : ''}
