@@ -11,7 +11,7 @@ export const snapshotGlobalChangesForModel = async (model, config, since, sessio
   let fromId = '';
   let totalCount = 0;
   const attributes = model.getAttributes();
-  const { patientIdTable, facilityIdTable, globalFilter: filter } = model.buildPatientSyncSelectQuery(sessionConfig);
+  const { patientIdTable, facilityIdTable, globalFilter: filter } = model.buildSyncLookupFilter(sessionConfig);
   const useUpdatedAtByFieldSum = !!attributes.updatedAtByField;
 
   while (fromId != null) {

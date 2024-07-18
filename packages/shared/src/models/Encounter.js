@@ -221,7 +221,7 @@ export class Encounter extends Model {
     // this.hasMany(models.Report);
   }
 
-  static buildFilterQuery(sessionConfig, patientCount, markedForSyncPatientsTable) {
+  static buildSyncFilterQuery({ sessionConfig, patientCount, markedForSyncPatientsTable }) {
     const { syncAllLabRequests } = sessionConfig;
     const joins = [];
     const encountersToIncludeClauses = [];
@@ -278,15 +278,15 @@ export class Encounter extends Model {
     `;
   }
 
-  static buildPatientSyncSelectQuery(sessionConfig) {
+  static buildSyncLookupFilter(sessionConfig) {
     return {
-      globalFilter: this.buildFilterQuery(sessionConfig),
+      globalFilter: this.buildSyncFilterQuery({ sessionConfig }),
       patientIdTable: 'encounters',
     };
   }
 
   static buildPatientSyncFilter(patientCount, markedForSyncPatientsTable, sessionConfig) {
-    return this.buildFilterQuery(sessionConfig, patientCount, markedForSyncPatientsTable)
+    return this.buildSyncFilterQuery({ patientCount, markedForSyncPatientsTable, sessionConfig });
   }
 
   static async adjustDataPostSyncPush(recordIds) {
