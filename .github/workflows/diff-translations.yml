@@ -123,12 +123,13 @@ jobs:
       if:
       run: |
         if [ ! -f previous-translations.csv ]; then
-          echo "stringId,fallback" > previsous-translations.csv
+          echo "stringId,fallback" > previous-translations.csv
         fi
 
     - name: Diff translations
+      continue-on-error: true # diff will exit with 1 if there are differences
       run: |
-        git diff --no-index previous-translations.csv current-translations.csv > translations.diff
+        git diff --no-index --output=translations.diff previous-translations.csv current-translations.csv
 
     - name: Upload diff
       uses: actions/upload-artifact@v4
