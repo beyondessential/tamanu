@@ -1,5 +1,7 @@
 import React from 'react';
 import { Document, StyleSheet, View } from '@react-pdf/renderer';
+import { capitalize } from 'lodash';
+import { INVOICE_INSURER_PAYMENT_STATUSES } from '@tamanu/constants';
 import { CertificateHeader, Watermark } from './Layout';
 import { LetterheadSection } from './LetterheadSection';
 import { MultiPageHeader } from './printComponents/MultiPageHeader';
@@ -164,7 +166,19 @@ const HeaderCell = ({ children, style }) => (
 
 const SectionSpacing = () => <View style={{ paddingBottom: '10px' }} />;
 
-//TODO: re-map row data based on data returned from Back-end
+const getInsurerPaymentStatus = insurerPayment => {
+  if (insurerPayment?.status === INVOICE_INSURER_PAYMENT_STATUSES.REJECTED) {
+    return (
+      <P>
+        {`${capitalize(insurerPayment?.status)}${
+          insurerPayment?.reason ? ` (${insurerPayment?.reason})` : ''
+        }`}
+      </P>
+    );
+  }
+  return capitalize(insurerPayment?.status);
+};
+
 const COLUMNS = {
   invoiceItems: [
     {
@@ -272,7 +286,7 @@ const COLUMNS = {
     {
       key: 'status',
       title: 'Status',
-      accessor: ({ insurerPayment }) => insurerPayment?.status,
+      accessor: ({ insurerPayment }) => getInsurerPaymentStatus(insurerPayment),
       style: { width: '30%' },
     },
   ],
