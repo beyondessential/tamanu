@@ -141,7 +141,7 @@ export async function insurerPaymentImporter({ errors, models, stats, file, chec
                 ? INVOICE_INSURER_PAYMENT_STATUSES.PAID
                 : INVOICE_INSURER_PAYMENT_STATUSES.PARTIAL,
           },
-          { where: { invoicePaymentId: insurerPayment.id } },
+          { where: { id: insurerPayment.id } },
         );
         //Update the overall insurer payment status to invoice
         await models.Invoice.update(
