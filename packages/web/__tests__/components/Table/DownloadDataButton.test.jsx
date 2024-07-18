@@ -7,16 +7,12 @@
  * https://github.com/beyondessential/tamanu/blob/b692d02ef28f7d654003659a3bf93b1b9b702ba6/packages/web/__tests__/components/Table/DownloadDataButton.test.jsx
  */
 
-import { createTheme } from '@material-ui/core/styles';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { render as baseRender, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import * as React from 'react';
-import { ThemeProvider } from 'styled-components';
 import { assert, describe, it, vi } from 'vitest';
 import * as XLSX from 'xlsx';
 import { DownloadDataButton } from '../../../app/components/Table/DownloadDataButton';
-import { TranslationContext } from '../../../app/contexts/Translation';
 import {
   culturalName,
   dateOfBirth,
@@ -27,6 +23,7 @@ import {
   sex,
   village,
 } from '../../../app/views/patients/columns';
+import { renderElementWithTranslatedText } from '../../helpers';
 
 /** Stub `saveFile` to prevent `URL.createObjectURL` erroring in test environment */
 vi.mock('../../../app/utils/fileSystemAccess.js', async () => {
@@ -36,16 +33,6 @@ vi.mock('../../../app/utils/fileSystemAccess.js', async () => {
     saveFile: vi.fn().mockImplementation(() => {}),
   };
 });
-
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: false,
-    },
-  },
-});
-
-const stubTheme = createTheme({});
 
 const mockTranslations = { 'general.table.action.export': '🌐 Export 🌐' };
 // eslint-disable-next-line no-unused-vars
@@ -61,19 +48,8 @@ const mockTranslationContext = {
 const getTranslationSpy = vi.spyOn(mockTranslationContext, 'getTranslation');
 const sheetToJsonSpy = vi.spyOn(XLSX.utils, 'json_to_sheet');
 
-/** The “minimum” context providers needed to render the component under test. */
-const Providers = ({ children }) => (
-  <QueryClientProvider client={queryClient}>
-    <ThemeProvider theme={stubTheme}>
-      <TranslationContext.Provider value={mockTranslationContext}>
-        {children}
-      </TranslationContext.Provider>
-    </ThemeProvider>
-  </QueryClientProvider>
-);
-
-/** {@link DownloadDataButton} must  be rendered within a translation context */
-const render = (element, options) => baseRender(element, { wrapper: Providers, ...options });
+/** {@link DownloadDataButton} must be rendered within a translation context */
+const render = element => renderElementWithTranslatedText(element, null, mockTranslationContext);
 
 describe('DownloadDataButton', () => {
   const columns = [
