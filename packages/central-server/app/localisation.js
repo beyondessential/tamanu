@@ -590,6 +590,7 @@ const rootLocalisationSchema = yup
         enableNoteBackdating: yup.boolean().required(),
         enableCovidClearanceCertificate: yup.boolean().required(),
         editPatientDisplayId: yup.boolean().required(),
+        enablePatientInsurer: yup.boolean().required(),
         patientPlannedMove: yup.boolean().required(),
         idleTimeout: yup
           .object()

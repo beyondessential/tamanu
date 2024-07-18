@@ -793,6 +793,7 @@
         "enableNoteBackdating": true,
         "enableCovidClearanceCertificate": false,
         "editPatientDisplayId": false,
+        "enablePatientInsurer": false,
         "patientPlannedMove": false,
         "idleTimeout": {
           "enabled": true,
