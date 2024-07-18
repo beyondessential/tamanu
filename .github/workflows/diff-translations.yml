@@ -111,24 +111,33 @@ jobs:
     #   env:
     #     version: ${{ steps.currentv.outputs.current_version }}
     #   run: |
-    #     aws s3 --no-progress cp current-translations.csv s3://bes-tamanu-translations/$version.csv
+    #     aws s3 --no-progress cp current-translations.csv s3://bes-tamanu-translations/v$version.csv
 
     # - name: Download previous versions translations from s3
     #   env:
     #     pversion: ${{ steps.previousv.outputs.previous_version }}
     #   run: |
-    #     aws s3 --no-progress cp s3://bes-tamanu-translations/$pversion.csv previous-translations.csv
+    #     aws s3 --no-progress cp s3://bes-tamanu-translations/v$pversion.csv previous-translations.csv
 
-    # - name: Create empty csv if no previous translations
-    #   if:
-    #   run: |
-    #     if [ ! -f previous-translations.csv ]; then
-    #       echo "stringId,fallback" > previsous-translations.csv
-    #     fi
+    - name: Create empty csv if no previous translations
+      if:
+      run: |
+        if [ ! -f previous-translations.csv ]; then
+          echo "stringId,fallback" > previsous-translations.csv
+        fi
 
-    # - name: Diff translations
-    #   run: |
-    #     git diff --no-index previous-translations.csv current-translations.csv > translations.diff
+    - name: Diff translations
+      run: |
+        git diff --no-index previous-translations.csv current-translations.csv > translations.diff
+
+    - name: Upload diff
+      uses: actions/upload-artifact@v4
+      with:
+        name: translations-diff-${{ steps.currentv.outputs.current_version }}
+        path: translations.diff
+        retention-days: 1
 
     # - name: Post to release notes somehow
     #   run:
+
+
