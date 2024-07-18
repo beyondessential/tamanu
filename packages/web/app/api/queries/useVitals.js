@@ -15,13 +15,13 @@ function getSortedLogsByDate(logs) {
   return logs.slice().sort((a, b) => b.date.localeCompare(a.date));
 }
 
-function getDatesAndRecords(data, surveyData) {
+function getDatesAndRecords(data, surveyData, dateElementId) {
   if (data.length > 0 === false || Boolean(surveyData) === false) {
     return { recordedDates: [], records: [] };
   }
 
   const recordedDates = Object.keys(
-    data.find(vital => vital.dataElementId === VITALS_DATA_ELEMENT_IDS.dateRecorded)
+    data.find(vital => vital.dataElementId === dateElementId)
       .records,
   );
 
@@ -31,7 +31,7 @@ function getDatesAndRecords(data, surveyData) {
   );
 
   const records = surveyData.components
-    .filter(component => component.dataElementId !== VITALS_DATA_ELEMENT_IDS.dateRecorded)
+    .filter(component => component.dataElementId !== dateElementId)
     // Show current components or ones that have historical data in them
     .filter(
       component =>
@@ -84,7 +84,11 @@ export const useVitals = encounterId => {
   const vitalsData = vitalsQuery?.data?.data || [];
   const surveyData = surveyQuery?.data;
 
-  const { recordedDates, records } = getDatesAndRecords(vitalsData, surveyData);
+  const { recordedDates, records } = getDatesAndRecords(
+    vitalsData,
+    surveyData,
+    VITALS_DATA_ELEMENT_IDS.dateRecorded,
+  );
 
   return {
     ...vitalsQuery,
