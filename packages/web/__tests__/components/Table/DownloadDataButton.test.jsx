@@ -24,6 +24,7 @@ import {
   village,
 } from '../../../app/views/patients/columns';
 import { renderElementWithTranslatedText } from '../../helpers';
+import { randomTestPatient } from '../../helpers/randomTestPatient';
 
 /** Stub `saveFile` to prevent `URL.createObjectURL` erroring in test environment */
 vi.mock('../../../app/utils/fileSystemAccess.js', async () => {
@@ -62,61 +63,7 @@ describe('DownloadDataButton', () => {
     sex,
     village,
   ];
-  const data = [
-    {
-      id: '5d9bf276-c93e-4f23-b77a-e3509541b77b',
-      sex: 'male',
-      encounterId: 'bc86d214-de36-4363-b741-616086be76fe',
-      encounterType: 'admission',
-      markedForSync: true,
-      displayId: 'MACF991194',
-      firstName: 'Rahul',
-      lastName: '2.9',
-      dateOfBirth: '1995-07-11',
-      visibilityStatus: 'current',
-      updatedAtSyncTick: '-999',
-      createdAt: '2024-07-02T00:38:04.377Z',
-      updatedAt: '2024-07-02T00:38:04.377Z',
-    },
-    {
-      id: '19324abf-b485-4184-8537-0a7fe4be1d0b',
-      sex: 'other',
-      encounterId: '31466555-fbd1-4d91-8e17-b5904acd9c4e',
-      encounterType: 'admission',
-      villageName: 'Nasaga',
-      markedForSync: true,
-      displayId: 'ZLTH247813',
-      firstName: 'Roy',
-      middleName: 'Ernest',
-      lastName: 'Antonini',
-      culturalName: 'Joe',
-      dateOfBirth: '1981-10-27',
-      visibilityStatus: 'current',
-      updatedAtSyncTick: '-999',
-      createdAt: '2024-06-24T00:11:13.082Z',
-      updatedAt: '2024-07-09T03:19:02.708Z',
-      villageId: 'village-Nasaga',
-    },
-    {
-      id: 'b7800158-d575-415c-8a7a-cf97a2e1e63f',
-      sex: 'female',
-      encounterId: '4e5409e9-af66-45ad-b795-3289969ab350',
-      encounterType: 'triage',
-      villageName: 'Nabualau',
-      markedForSync: true,
-      displayId: 'SCGH129788',
-      firstName: 'Margaret',
-      middleName: 'Ruby',
-      lastName: 'Ballard',
-      culturalName: 'Willie',
-      dateOfBirth: '1984-09-22',
-      visibilityStatus: 'current',
-      updatedAtSyncTick: '-999',
-      createdAt: '2024-06-24T00:11:13.082Z',
-      updatedAt: '2024-06-24T00:11:13.082Z',
-      villageId: 'village-Nabualau',
-    },
-  ];
+  const data = Array.from({ length: 10 }, () => randomTestPatient());
 
   it('renders without throwing errors', async () => {
     const renderButton = () =>
