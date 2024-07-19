@@ -12,7 +12,6 @@ gtoutput=$(rg -PINU --multiline-dotall $gtregex -or '"$1","$2"' -g "*.{ts,tsx,js
 # Combine and sort
 data=$(printf "%s\n%s\n%s" "$ttoutput" "$gtoutput" "$teoutput" | sort -u)
 
-# if no data, exit
 if [ -z "$data" ]; then
     echo "No data found"
     exit 1
