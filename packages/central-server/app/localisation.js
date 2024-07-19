@@ -121,6 +121,8 @@ const HIDEABLE_FIELDS = [
   'educationalLevel',
   'middleName',
   'birthCertificate',
+  'insurerId',
+  'insurerPolicyNumber',
   'drivingLicense',
   'passport',
   'religionId',
