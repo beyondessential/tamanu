@@ -5,7 +5,7 @@ import { TabPane } from '../components';
 import { TableButtonRow, ButtonWithPermissionCheck } from '../../../components';
 
 import { SelectField } from '../../../components/Field';
-import { useChartSurveys } from '../../../api/queries';
+import { useChartSurveysQuery } from '../../../api/queries';
 import { useUserPreferencesMutation } from '../../../api/mutations/useUserPreferencesMutation';
 import { useUserPreferencesQuery } from '../../../api/queries/useUserPreferencesQuery';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
@@ -17,8 +17,8 @@ const StyledTranslatedSelectField = styled(SelectField)`
 
 const ChartDropDown = () => {
   const [selectedChartType, setSelectedChartType] = useState('');
-
-  const { data: chartSurveys = [] } = useChartSurveys();
+  
+  const { data: chartSurveys = [] } = useChartSurveysQuery();
   const chartTypes = useMemo(
     () =>
       chartSurveys.map(chartSurvey => ({
