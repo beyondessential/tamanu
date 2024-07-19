@@ -1,6 +1,7 @@
 import { mergeConfig } from 'vite';
 import path from 'path';
 
+/** @type { import('@storybook/react-vite').StorybookConfig } */
 export default {
   framework: '@storybook/react-vite',
   stories: ['../**/*.stories.@(js|jsx|mjs|ts|tsx)'],
