@@ -131,13 +131,13 @@ export const updateLookupTable = withConfig(async (outgoingModels, since, config
 
       changesCount += modelChangesCount || 0;
     } catch (e) {
-      log.error(`Failed to snapshot global ${model.name}: `);
+      log.error(`Failed to update ${model.name} for lookup table`);
       log.debug(e);
-      throw new Error(`Failed to snapshot ${model.name}: ${e.message}`);
+      throw new Error(`Failed to update ${model.name} for lookup table: ${e.message}`);
     }
   }
 
-  log.debug('snapshotOutgoingChanges.countedAll', { count: changesCount, since });
+  log.debug('updateLookupTable.countedAll', { count: changesCount, since });
 
   return changesCount;
 });
