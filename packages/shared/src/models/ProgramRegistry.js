@@ -70,6 +70,6 @@ export class ProgramRegistry extends Model {
   }
 
   static buildSyncLookupFilter() {
-    return null;
+    return null; // syncs everywhere
   }
 }

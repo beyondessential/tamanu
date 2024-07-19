@@ -50,6 +50,6 @@ export class LabTestPanel extends Model {
   }
 
   static buildSyncLookupFilter() {
-    return null;
+    return null; // syncs everywhere
   }
 }

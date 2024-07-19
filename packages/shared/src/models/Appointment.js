@@ -77,7 +77,6 @@ export class Appointment extends Model {
 
   static buildSyncLookupFilter() {
     return {
-      globalFilter: null,
       patientIdTables: ['appointments'],
     };
   }

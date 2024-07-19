@@ -68,6 +68,6 @@ export class Permission extends Model {
   }
 
   static buildSyncLookupFilter() {
-    return null;
+    return null; // syncs everywhere
   }
 }

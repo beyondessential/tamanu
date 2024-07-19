@@ -52,6 +52,6 @@ export class Department extends Model {
   }
 
   static buildSyncLookupFilter() {
-    return null;
+    return null; // syncs everywhere
   }
 }

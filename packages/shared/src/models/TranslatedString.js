@@ -79,7 +79,7 @@ export class TranslatedString extends Model {
   }
 
   static buildSyncLookupFilter() {
-    return null;
+    return null; // syncs everywhere
   }
 
   static getPossibleLanguages = async () => {

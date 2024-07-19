@@ -57,6 +57,6 @@ export class DeathRevertLog extends Model {
   }
 
   static buildSyncLookupFilter() {
-    return null;
+    return null; // syncs everywhere
   }
 }
