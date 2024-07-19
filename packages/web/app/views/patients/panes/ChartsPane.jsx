@@ -70,7 +70,7 @@ export const ChartsPane = React.memo(({ patient, encounter, readonly }) => {
           <TranslatedText stringId="chart.action.record" fallback="Record" />
         </ButtonWithPermissionCheck>
       </TableButtonRow>
-      <ChartsTable />
+      <ChartsTable selectedSurveyId={selectedChartType} />
     </TabPane>
   );
 });
