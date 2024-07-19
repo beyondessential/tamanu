@@ -1,21 +1,10 @@
 name: Diff Translations
 
 on:
-  pull_request:
-    types:
-      - opened
-      - synchronize
-      - reopened
-      - edited
-  # push:
-  #   tags:
-  #     - 'v*'
+  push:
+    tags:
+      - 'v*'
 
-env:
-  NODE_MODULES_PATHS: |
-    node_modules
-    packages/*/node_modules
-    !packages/mobile/node_modules
 jobs:
   run:
     name: Diff Translations
@@ -24,14 +13,10 @@ jobs:
       contents: write
       id-token: write
     steps:
-    # - if: (!startsWith(github.ref, 'refs/heads/release/'))
-    #   run: |
-    #     echo "This workflow can only be run on a release branch"
-    #     exit 1
+
     - uses: actions/checkout@v4
       with:
-        # token: ${{ secrets.TAMANU_RELEASE_PAT }}
-        # fetch-depth: 0 # fetch all history so we can generate release notes
+        token: ${{ secrets.TAMANU_RELEASE_PAT }}
         fetch-tags: true
 
     - uses: actions/setup-node@v4
@@ -39,12 +24,12 @@ jobs:
         node-version: 20.x
         cache: yarn
 
+      # We have to install specific version of ripgrep
+      # due to pcre2 not being enabled in apt-get vesrision
     - name: install ripgrep
-      # Had to install manually due to pcre2 not being enabled in apt-get vesrision
       run: |
        curl -LO https://github.com/BurntSushi/ripgrep/releases/download/14.1.0/ripgrep_14.1.0-1_amd64.deb
        sudo dpkg -i ripgrep_14.1.0-1_amd64.deb
-       echo $(rg --version)
 
     - name: get current version
       id: currentv
@@ -52,7 +37,6 @@ jobs:
         version=$(jq -r .version package.json)
         echo "current_version=$version" >> $GITHUB_OUTPUT
 
-    # DEBUG TODO: hardcoded 2.9.0 for test
     - name: get closest previous version
       id: previousv
       run: |
@@ -62,7 +46,7 @@ jobs:
           | grep -E '^v[0-9]+[.][0-9]+[.][0-9]+$' \
           | cut -c2- \
           | sort --version-sort \
-          | grep -B 1 "2.9.0" \
+          | grep -B 1 ${{steps.currentv.outputs.current_version}} \
           | head -n 1 \
           | sed 's/^/previous_version=/' \
           | tee -a $GITHUB_OUTPUT
@@ -71,28 +55,11 @@ jobs:
       run: |
         set -euxo pipefail
         translations=$(.github/scripts/scrape-translations.sh)
-        exit_code=$?
-        if [ $exit_code -eq 0 ]; then
+        if [ $? -eq 0 ]; then
          echo "$translations" > current-translations.csv
         else
-          echo "Scrape translations script failed with exit code $exit_code."
+          echo "Scrape translations script failed with exit code $?"
         fi
-
-    # can probably remove need to upload to artifacts after tests
-    - name: Upload translations to artifacts
-      id: translations-upload
-      uses: actions/upload-artifact@v4
-      with:
-        name: translations-${{ steps.currentv.outputs.current_version }}
-        if-no-files-found: warn
-        path: current-translations.csv
-        retention-days: 1
-
-    - name: exit if no upload
-      if: steps.translations-upload.outputs.artifact_size == 0
-      run: |
-        echo "No translations to diff"
-        exit 0
 
     - name: Configure AWS Credentials (upload)
       uses: aws-actions/configure-aws-credentials@v4
@@ -126,21 +93,13 @@ jobs:
         git diff --no-index --output=translations.diff previous-translations.csv current-translations.csv
         exit 0
 
-    # can probably remove need to upload to artifacts after tests
-    - name: Upload diff to artifacts
-      uses: actions/upload-artifact@v4
+    - uses: softprops/action-gh-release@v2
       with:
-        name: translations-diff-${{ steps.currentv.outputs.current_version }}
-        path: translations.diff
-        retention-days: 1
-
-    # - uses: softprops/action-gh-release@v2
-    #   with:
-    #     tag: ${{ github.ref_name }}
-    #     append_body: true
-    #     body: |
-    #       ## Translations diff
-    #       Changes agianst previous version: ${{ steps.previousv.outputs.previous_version }}
-    #       \`\`\`diff
-    #       $(cat translations.diff)
-    #       \`\`\`
+        tag: ${{ github.ref_name }}
+        append_body: true
+        body: |
+          ## Translations diff
+          Changes agianst previous version: ${{ steps.previousv.outputs.previous_version }}
+          \`\`\`diff
+          $(cat translations.diff)
+          \`\`\`
