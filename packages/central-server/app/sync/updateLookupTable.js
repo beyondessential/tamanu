@@ -11,7 +11,8 @@ export const snapshotGlobalChangesForModel = async (model, config, since, sessio
   let fromId = '';
   let totalCount = 0;
   const attributes = model.getAttributes();
-  const { patientIdTable, facilityIdTable, globalFilter: filter } = model.buildSyncLookupFilter(sessionConfig);
+  const { patientIdTables, facilityIdTable, joins, globalFilter: filter } =
+    model.buildSyncLookupFilter(sessionConfig) || {};
   const useUpdatedAtByFieldSum = !!attributes.updatedAtByField;
 
   while (fromId != null) {
@@ -32,7 +33,11 @@ export const snapshotGlobalChangesForModel = async (model, config, since, sessio
           SELECT
             ${table}.id,
             '${table}',
-            ${patientIdTable ? `${patientIdTable}.patient_id` : 'NULL'},
+            ${
+              patientIdTables
+                ? `COALESCE(${patientIdTables.map(t => `${t}.patient_id`).join(',')})`
+                : 'NULL'
+            },
             ${facilityIdTable ? `${facilityIdTable}.facility_id` : 'NULL'},
             ${table}.deleted_at IS NOT NULL,
             ${table}.updated_at_sync_tick,
@@ -46,8 +51,8 @@ export const snapshotGlobalChangesForModel = async (model, config, since, sessio
           FROM
             ${table}
            ${
-            useUpdatedAtByFieldSum
-              ? `
+             useUpdatedAtByFieldSum
+               ? `
           LEFT JOIN (
             SELECT
               ${table}.id, sum(value::text::bigint) sum
@@ -58,8 +63,9 @@ export const snapshotGlobalChangesForModel = async (model, config, since, sessio
           ) updated_at_by_field_summary
           ON
             ${table}.id = updated_at_by_field_summary.id`
-                : ''
-            }
+               : ''
+           }
+          ${joins || ''}
           ${filter || `WHERE ${table}.updated_at_sync_tick > :since`}
           ${fromId ? `AND ${table}.id > :fromId` : ''}
           ORDER BY ${table}.id
