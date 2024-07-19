@@ -23,7 +23,6 @@ export class InvoiceProduct extends Model {
         discountable: {
           type: DataTypes.BOOLEAN,
           allowNull: false,
-          defaultValue: true,
         },
         visibilityStatus: {
           type: DataTypes.STRING,
