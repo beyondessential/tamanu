@@ -98,8 +98,8 @@ jobs:
         tag: ${{ github.ref_name }}
         append_body: true
         body: |
-          ## Translations diff
-          Changes agianst previous version: ${{ steps.previousv.outputs.previous_version }}
+          ## Translation Changes
+          *Changes compared to previous version: v${{ steps.previousv.outputs.previous_version }}*
           \`\`\`diff
           $(cat translations.diff)
           \`\`\`
