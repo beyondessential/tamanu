@@ -21,7 +21,7 @@ export function getDatesAndRecords(data, surveyData, dateElementId) {
   }
 
   const recordedDates = Object.keys(
-    data.find(vital => vital.dataElementId === dateElementId)
+    data.find(record => record.dataElementId === dateElementId)
       .records,
   );
 
