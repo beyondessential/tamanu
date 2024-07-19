@@ -84,4 +84,15 @@ export class DocumentMetadata extends Model {
       AND ${this.tableName}.updated_at_sync_tick > :since
     `;
   }
+
+  static buildSyncLookupFilter() {
+    return {
+      joins: `
+        LEFT JOIN encounters ON ${this.tableName}.encounter_id = encounters.id
+        LEFT JOIN patients ON ${this.tableName}.patient_id = encounters.id
+      `,
+      globalFilter: null,
+      patientIdTables: ['document_metadata', 'encounters'],
+    };
+  }
 }

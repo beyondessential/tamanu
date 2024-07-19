@@ -36,5 +36,14 @@ export class PatientAllergy extends Model {
     return ['allergy', 'reaction'];
   }
 
-  static buildPatientSyncFilter = buildPatientSyncFilterViaPatientId;
+  static buildSyncLookupFilter() {
+    return {
+      globalFilter: buildPatientSyncFilterViaPatientId({ isPatientFilter: false }),
+      patientIdTables: ['patient_allergies'],
+    };
+  }
+
+  static buildPatientSyncFilter(patientCount, markedForSyncPatientsTable) {
+    return buildPatientSyncFilterViaPatientId({ patientCount, markedForSyncPatientsTable });
+  }
 }

@@ -1,7 +1,10 @@
 import { Sequelize } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
-import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
+import {
+  buildEncounterLinkedSyncFilter,
+  buildEncounterLinkedSyncFilterJoins,
+} from './buildEncounterLinkedSyncFilter';
 import { dateType } from './dateTimeTypes';
 
 export class Invoice extends Model {
@@ -45,5 +48,12 @@ export class Invoice extends Model {
       [this.tableName, 'encounters'],
       markedForSyncPatientsTable,
     );
+  }
+
+  static buildSyncLookupFilter() {
+    return {
+      joins: buildEncounterLinkedSyncFilterJoins([this.tableName, 'encounters']),
+      patientIdTables: ['encounters'],
+    };
   }
 }

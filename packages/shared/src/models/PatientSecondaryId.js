@@ -37,5 +37,14 @@ export class PatientSecondaryId extends Model {
     });
   }
 
-  static buildPatientSyncFilter = buildPatientSyncFilterViaPatientId;
+  static buildSyncLookupFilter() {
+    return {
+      globalFilter: buildPatientSyncFilterViaPatientId({ isPatientFilter: false }),
+      patientIdTables: ['patient_secondary_ids'],
+    };
+  }
+
+  static buildPatientSyncFilter(patientCount, markedForSyncPatientsTable) {
+    return buildPatientSyncFilterViaPatientId({ patientCount, markedForSyncPatientsTable });
+  }
 }

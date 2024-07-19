@@ -47,4 +47,11 @@ export class Referral extends Model {
       AND ${this.tableName}.updated_at_sync_tick > :since
     `;
   }
+
+  static buildSyncLookupFilter() {
+    return {
+      joins: 'JOIN encounters ON referrals.initiating_encounter_id = encounters.id',
+      patientIdTables: ['encounters'],
+    };
+  }
 }

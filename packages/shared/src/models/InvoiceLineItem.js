@@ -1,6 +1,9 @@
 import { Sequelize } from 'sequelize';
 import { INVOICE_LINE_ITEM_STATUSES, SYNC_DIRECTIONS } from '@tamanu/constants';
-import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
+import {
+  buildEncounterLinkedSyncFilter,
+  buildEncounterLinkedSyncFilterJoins,
+} from './buildEncounterLinkedSyncFilter';
 import { Model } from './Model';
 import { dateType } from './dateTimeTypes';
 
@@ -60,5 +63,12 @@ export class InvoiceLineItem extends Model {
       [this.tableName, 'invoices', 'encounters'],
       markedForSyncPatientsTable,
     );
+  }
+
+  static buildSyncLookupFilter() {
+    return {
+      joins: buildEncounterLinkedSyncFilterJoins([this.tableName, 'invoices', 'encounters']),
+      patientIdTables: ['encounters'],
+    };
   }
 }

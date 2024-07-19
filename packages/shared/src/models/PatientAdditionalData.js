@@ -109,7 +109,16 @@ export class PatientAdditionalData extends Model {
     return ['countryOfBirth', 'nationality', 'ethnicity'];
   }
 
-  static buildPatientSyncFilter = buildPatientSyncFilterViaPatientId;
+  static buildSyncLookupFilter() {
+    return {
+      globalFilter: buildPatientSyncFilterViaPatientId({ isPatientFilter: false }),
+      patientIdTables: ['patient_additional_data'],
+    };
+  }
+
+  static buildPatientSyncFilter(patientCount, markedForSyncPatientsTable) {
+    return buildPatientSyncFilterViaPatientId({ patientCount, markedForSyncPatientsTable });
+  }
 
   static async getForPatient(patientId) {
     return this.findOne({ where: { patientId } });

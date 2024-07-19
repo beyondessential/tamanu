@@ -4,7 +4,10 @@ import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { InvalidOperationError } from '../errors';
 
 import { Model } from './Model';
-import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
+import {
+  buildEncounterLinkedSyncFilter,
+  buildEncounterLinkedSyncFilterJoins,
+} from './buildEncounterLinkedSyncFilter';
 import { dateTimeType } from './dateTimeTypes';
 import { getCurrentDateTimeString } from '../utils/dateTime';
 
@@ -72,5 +75,12 @@ export class ImagingResult extends Model {
       [this.tableName, 'imaging_requests', 'encounters'],
       markedForSyncPatientsTable,
     );
+  }
+
+  static buildSyncLookupFilter() {
+    return {
+      joins: buildEncounterLinkedSyncFilterJoins([this.tableName, 'imaging_requests', 'encounters']),
+      patientIdTables: ['encounters'],
+    };
   }
 }

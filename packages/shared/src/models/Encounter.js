@@ -221,20 +221,21 @@ export class Encounter extends Model {
     // this.hasMany(models.Report);
   }
 
-  static buildSyncFilterQuery({ sessionConfig, patientCount, markedForSyncPatientsTable }) {
+  static buildSyncFilterQuery({
+    isPatientFilter = true,
+    sessionConfig,
+    patientCount,
+    markedForSyncPatientsTable,
+  }) {
     const { syncAllLabRequests } = sessionConfig;
     const joins = [];
     const encountersToIncludeClauses = [];
     const updatedAtSyncTickClauses = ['encounters.updated_at_sync_tick > :since'];
 
-    if (patientCount > 0) {
+    if (!isPatientFilter && patientCount > 0) {
       encountersToIncludeClauses.push(
         `encounters.patient_id IN (SELECT patient_id FROM ${markedForSyncPatientsTable})`,
       );
-    } else {
-      joins.push(`
-        LEFT JOIN patients ON patients.id = encounters.patient_id
-      `);
     }
 
     // add any encounters with a lab request, if syncing all labs is turned on for facility server
@@ -280,8 +281,8 @@ export class Encounter extends Model {
 
   static buildSyncLookupFilter(sessionConfig) {
     return {
-      globalFilter: this.buildSyncFilterQuery({ sessionConfig }),
-      patientIdTable: 'encounters',
+      globalFilter: this.buildSyncFilterQuery({ isPatientFilter: false, sessionConfig }),
+      patientIdTables: ['encounters'],
     };
   }
 

@@ -235,7 +235,7 @@ export class CentralSyncManager {
       { isolationLevel: Transaction.ISOLATION_LEVELS.REPEATABLE_READ },
       async () => {
         await updateLookupTable(
-          [this.store.models.Encounter],
+          getModelsForDirection(this.store.models, SYNC_DIRECTIONS.PULL_FROM_CENTRAL),
           globalSyncSince,
           this.constructor.config,
         );
@@ -325,7 +325,7 @@ export class CentralSyncManager {
       );
 
       const syncAllLabRequests = await models.Setting.get('syncAllLabRequests', facilityId);
-     
+
       const sessionConfig = {
         // for facilities with a lab, need ongoing lab requests
         // no need for historical ones on initial sync, and no need on mobile

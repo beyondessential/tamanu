@@ -5,6 +5,7 @@ import { Model } from './Model';
 import { Encounter } from './Encounter';
 import { ScheduledVaccine } from './ScheduledVaccine';
 import { dateTimeType } from './dateTimeTypes';
+import { buildEncounterLinkedSyncFilterJoins } from './buildEncounterLinkedSyncFilter';
 
 export class AdministeredVaccine extends Model {
   static init({ primaryKey, ...options }) {
@@ -114,6 +115,13 @@ export class AdministeredVaccine extends Model {
       )
       AND ${this.tableName}.updated_at_sync_tick > :since
     `;
+  }
+
+  static buildSyncLookupFilter() {
+    return {
+      joins: buildEncounterLinkedSyncFilterJoins([this.tableName, 'encounters']),
+      patientIdTables: ['encounters'],
+    };
   }
 
   static async lastVaccinationForPatient(patientId, vaccineIds = []) {

@@ -73,5 +73,14 @@ export class PatientFieldValue extends Model {
     });
   }
 
-  static buildPatientSyncFilter = buildPatientSyncFilterViaPatientId;
+  static buildSyncLookupFilter() {
+    return {
+      globalFilter: buildPatientSyncFilterViaPatientId({ isPatientFilter: false }),
+      patientIdTables: ['patient_field_values'],
+    };
+  }
+
+  static buildPatientSyncFilter(patientCount, markedForSyncPatientsTable) {
+    return buildPatientSyncFilterViaPatientId({ patientCount, markedForSyncPatientsTable });
+  }
 }

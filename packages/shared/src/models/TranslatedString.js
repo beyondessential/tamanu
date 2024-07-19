@@ -78,6 +78,10 @@ export class TranslatedString extends Model {
     return null; // syncs everywhere
   }
 
+  static buildSyncLookupFilter() {
+    return null;
+  }
+
   static getPossibleLanguages = async () => {
     const languagesInDb = await TranslatedString.findAll({
       attributes: ['language'],

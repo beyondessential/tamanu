@@ -7,7 +7,7 @@ import {
 } from '@tamanu/constants';
 
 import { Model } from './Model';
-import { buildNoteLinkedSyncFilter } from './buildNoteLinkedSyncFilter';
+import { buildNoteLinkedJoins, buildNoteLinkedSyncFilter } from './buildNoteLinkedSyncFilter';
 import { dateTimeType } from './dateTimeTypes';
 import { getCurrentDateTimeString } from '../utils/dateTime';
 
@@ -105,5 +105,14 @@ export class Note extends Model {
     return this[parentGetter](options);
   }
 
-  static buildPatientSyncFilter = buildNoteLinkedSyncFilter;
+  static buildSyncLookupFilter() {
+    return {
+      joins: buildNoteLinkedJoins().join('\n'),
+      patientIdTables: ['encounters'],
+    };
+  }
+
+  static buildPatientSyncFilter(patientCount, markedForSyncPatientsTable) {
+    return buildNoteLinkedSyncFilter({ patientCount, markedForSyncPatientsTable });
+  }
 }

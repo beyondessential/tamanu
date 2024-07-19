@@ -41,4 +41,8 @@ export class ReferenceDataRelation extends Model {
   static buildSyncFilter() {
     return null; // syncs everywhere
   }
+
+  static buildSyncLookupFilter() {
+    return null;
+  }
 }

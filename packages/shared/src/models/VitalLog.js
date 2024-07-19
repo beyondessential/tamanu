@@ -86,4 +86,15 @@ export class VitalLog extends Model {
         ${this.tableName}.updated_at_sync_tick > :since
     `;
   }
+
+  static buildSyncLookupFilter() {
+    return {
+      joins: `
+        INNER JOIN survey_response_answers ON vital_logs.answer_id = survey_response_answers.id
+        INNER JOIN survey_responses ON survey_response_answers.response_id = survey_responses.id
+        INNER JOIN encounters ON survey_responses.encounter_id = encounters.id
+      `,
+      patientIdTables: ['encounters'],
+    };
+  }
 }

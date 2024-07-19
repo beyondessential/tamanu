@@ -201,6 +201,13 @@ export class Setting extends Model {
   static buildSyncFilter() {
     return `WHERE (facility_id = :facilityId OR scope = '${SETTINGS_SCOPES.GLOBAL}') AND ${this.tableName}.updated_at_sync_tick > :since`;
   }
+
+  static buildSyncLookupFilter() {
+    return {
+      globalFilter: null,
+      facilityIdTable: 'settings',
+    };
+  }
 }
 
 export function buildSettingsRecords(keyPrefix, value, facilityId, scope) {

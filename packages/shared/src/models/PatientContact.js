@@ -39,7 +39,16 @@ export class PatientContact extends Model {
     });
   }
 
-  static buildPatientSyncFilter = buildPatientSyncFilterViaPatientId;
+  static buildSyncLookupFilter() {
+    return {
+      globalFilter: buildPatientSyncFilterViaPatientId({ isPatientFilter: false }),
+      patientIdTables: ['patient_contacts'],
+    };
+  }
+
+  static buildPatientSyncFilter(patientCount, markedForSyncPatientsTable) {
+    return buildPatientSyncFilterViaPatientId({ patientCount, markedForSyncPatientsTable });
+  }
 
   static getListReferenceAssociations() {
     return ['relationship'];

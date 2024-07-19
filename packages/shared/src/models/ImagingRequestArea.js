@@ -1,6 +1,9 @@
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
-import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
+import {
+  buildEncounterLinkedSyncFilter,
+  buildEncounterLinkedSyncFilterJoins,
+} from './buildEncounterLinkedSyncFilter';
 
 export class ImagingRequestArea extends Model {
   static init({ primaryKey, ...options }) {
@@ -34,5 +37,12 @@ export class ImagingRequestArea extends Model {
       [this.tableName, 'imaging_requests', 'encounters'],
       markedForSyncPatientsTable,
     );
+  }
+
+  static buildSyncLookupFilter() {
+    return {
+      joins: buildEncounterLinkedSyncFilterJoins([this.tableName, 'imaging_requests', 'encounters']),
+      patientIdTables: ['encounters'],
+    };
   }
 }

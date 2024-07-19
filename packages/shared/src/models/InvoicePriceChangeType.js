@@ -51,4 +51,8 @@ export class InvoicePriceChangeType extends Model {
   static buildSyncFilter() {
     return null; // syncs everywhere
   }
+
+  static buildSyncLookupFilter() {
+    return null;
+  }
 }

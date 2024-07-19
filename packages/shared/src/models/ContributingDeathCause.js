@@ -63,4 +63,17 @@ export class ContributingDeathCause extends Model {
         contributing_death_causes.updated_at_sync_tick > :since
     `;
   }
+
+  static buildSyncLookupFilter() {
+    return {
+      joins:  `
+        JOIN
+          patient_death_data
+        ON
+          patient_death_data_id = patient_death_data.id
+      `,
+      globalFilter: null,
+      patientIdTables: ['patient_death_data'],
+    };
+  }
 }

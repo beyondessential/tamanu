@@ -1,7 +1,10 @@
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
 import { Sequelize } from 'sequelize';
-import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
+import {
+  buildEncounterLinkedSyncFilter,
+  buildEncounterLinkedSyncFilterJoins,
+} from './buildEncounterLinkedSyncFilter';
 
 export class LabRequestAttachment extends Model {
   static init({ primaryKey, ...options }) {
@@ -48,5 +51,12 @@ export class LabRequestAttachment extends Model {
       [this.tableName, 'lab_requests', 'encounters'],
       markedForSyncPatientsTable,
     );
+  }
+
+  static buildSyncLookupFilter() {
+    return {
+      joins: buildEncounterLinkedSyncFilterJoins([this.tableName, 'lab_requests', 'encounters']),
+      patientIdTables: ['encounters'],
+    };
   }
 }

@@ -74,4 +74,11 @@ export class Appointment extends Model {
         appointments.updated_at_sync_tick > :since
     `;
   }
+
+  static buildSyncLookupFilter() {
+    return {
+      globalFilter: null,
+      patientIdTables: ['appointments'],
+    };
+  }
 }

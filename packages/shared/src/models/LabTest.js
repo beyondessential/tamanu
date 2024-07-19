@@ -1,6 +1,9 @@
 import { Sequelize } from 'sequelize';
 import { LAB_TEST_STATUSES, SYNC_DIRECTIONS } from '@tamanu/constants';
-import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
+import {
+  buildEncounterLinkedSyncFilter,
+  buildEncounterLinkedSyncFilterJoins,
+} from './buildEncounterLinkedSyncFilter';
 import { Model } from './Model';
 import { dateTimeType, dateType } from './dateTimeTypes';
 import { getCurrentDateString } from '../utils/dateTime';
@@ -73,5 +76,12 @@ export class LabTest extends Model {
       [this.tableName, 'lab_requests', 'encounters'],
       markedForSyncPatientsTable,
     );
+  }
+
+  static buildSyncLookupFilter() {
+    return {
+      joins: buildEncounterLinkedSyncFilterJoins([this.tableName, 'lab_requests', 'encounters']),
+      patientIdTables: ['encounters'],
+    };
   }
 }

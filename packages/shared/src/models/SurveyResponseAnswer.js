@@ -69,6 +69,16 @@ export class SurveyResponseAnswer extends Model {
     `;
   }
 
+  static buildSyncLookupFilter() {
+    return {
+      joins: `
+        JOIN survey_responses ON survey_response_answers.response_id = survey_responses.id
+        JOIN encounters ON survey_responses.encounter_id = encounters.id
+      `,
+      patientIdTables: ['encounters'],
+    };
+  }
+
   static getDefaultId = async resource => {
     const code = config.survey.defaultCodes[resource];
     const modelName = upperFirst(resource);
