@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import { customAlphabet } from 'nanoid';
 import * as yup from 'yup';
 import styled from 'styled-components';
+import Decimal from 'decimal.js';
 import { Box } from '@material-ui/core';
 import CachedIcon from '@material-ui/icons/Cached';
+import { round } from '@tamanu/shared/utils/invoice';
 import {
   AutocompleteField,
   Button,
@@ -123,13 +125,7 @@ export const PatientPaymentForm = ({
       render={({ submitForm, setFieldValue }) => (
         <FormRow>
           <Box sx={{ width: 'calc(20% - 5px)' }}>
-            <Field
-              name="date"
-              required
-              component={DateField}
-              saveDateAsString
-              size="small"
-            />
+            <Field name="date" required component={DateField} saveDateAsString size="small" />
           </Box>
           <Box sx={{ width: 'calc(20% - 5px)' }}>
             <Field
@@ -211,7 +207,10 @@ export const PatientPaymentForm = ({
               const editingAmount = Number(editingPayment?.amount)
                 ? Number(editingPayment.amount)
                 : 0;
-              return Number(value) <= patientPaymentRemainingBalance + editingAmount;
+              return (
+                Number(value) <=
+                round(new Decimal(patientPaymentRemainingBalance).add(editingAmount).toNumber(), 2)
+              );
             },
           ),
         receiptNumber: yup
