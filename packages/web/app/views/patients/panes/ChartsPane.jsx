@@ -15,9 +15,7 @@ const StyledTranslatedSelectField = styled(SelectField)`
   width: 200px;
 `;
 
-const ChartDropDown = () => {
-  const [selectedChartType, setSelectedChartType] = useState('');
-  
+const ChartDropDown = ({ selectedChartType, setSelectedChartType }) => {
   const { data: chartSurveys = [] } = useChartSurveysQuery();
   const chartTypes = useMemo(
     () =>
@@ -29,7 +27,6 @@ const ChartDropDown = () => {
   );
 
   const userPreferencesMutation = useUserPreferencesMutation();
-  const { data: userPreferences } = useUserPreferencesQuery();
 
   const handleChange = newValues => {
     const newSelectedChartType = newValues.target.value;
@@ -45,7 +42,7 @@ const ChartDropDown = () => {
     <StyledTranslatedSelectField
       options={chartTypes}
       onChange={handleChange}
-      value={selectedChartType || userPreferences?.selectedChartType}
+      value={selectedChartType}
       name="chartType"
       prefix="chart.property.type"
       isClearable={false}
@@ -54,11 +51,16 @@ const ChartDropDown = () => {
 };
 
 export const ChartsPane = React.memo(({ patient, encounter, readonly }) => {
+  const { data: userPreferences } = useUserPreferencesQuery();
+  const [selectedChartType, setSelectedChartType] = useState(userPreferences?.selectedChartType || '');
   console.log('TODO: submit', patient.id, encounter.id);
   return (
     <TabPane>
       <TableButtonRow variant="small" justifyContent="space-between">
-        <ChartDropDown />
+        <ChartDropDown
+          selectedChartType={selectedChartType}
+          setSelectedChartType={setSelectedChartType}
+        />
         <ButtonWithPermissionCheck
           onClick={() => {}}
           disabled={readonly}
