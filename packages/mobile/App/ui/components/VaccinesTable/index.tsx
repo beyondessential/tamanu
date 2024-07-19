@@ -124,19 +124,29 @@ export const VaccinesTable = ({
       a.label.localeCompare(b.label),
   );
 
+  uniqueByVaccine.forEach(scheduledVaccine => {
+    console.log(scheduledVaccine);
+  });
+
   const rows = uniqueByVaccine.map(scheduledVaccine => ({
     rowTitle: scheduledVaccine.label,
     rowKey: 'label',
     rowHeader: () => (
       <VaccineRowHeader
         key={scheduledVaccine.id}
-        title={scheduledVaccine.label}
+        title={
+          <TranslatedReferenceData
+            fallback={scheduledVaccine.label}
+            value={scheduledVaccine.id}
+            category="scheduledVaccine"
+          />
+        }
         subtitle={
           scheduledVaccine.vaccine && (
             <TranslatedReferenceData
               fallback={scheduledVaccine.vaccine.name}
               value={scheduledVaccine.vaccine.id}
-              category="vaccine"
+              category="drug"
             />
           )
         }
