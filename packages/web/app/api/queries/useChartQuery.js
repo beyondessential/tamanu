@@ -78,7 +78,7 @@ export const useChartQuery = (encounterId, surveyId) => {
     ),
   );
 
-  const surveyQuery = useChartSurveyQuery();
+  const surveyQuery = useChartSurveyQuery(surveyId);
   const error = chartQuery.error || surveyQuery.error;
 
   const chartData = chartQuery?.data?.data || [];
