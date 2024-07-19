@@ -1,4 +1,3 @@
-import camelCase from 'lodash/camelCase.js';
 import { SEX_LABELS } from './patientFields.js';
 import {
   INVOICE_LINE_TYPE_LABELS,
@@ -131,7 +130,9 @@ export const enumTranslations = (Object.entries(
   registeredEnums,
 ) as EnumEntries).flatMap(([key, value]) =>
   Object.entries(value).map(([enumKey, enumValue]) => [
-    `${translationPrefixes[key]}.${camelCase(enumKey)}`,
+    `${translationPrefixes[key]}.${enumKey
+      .toLowerCase()
+      .replace(/[^a-zA-Z0-9]+(.)/g, (_, char) => char.toUpperCase())}`,
     enumValue,
   ]),
 );
