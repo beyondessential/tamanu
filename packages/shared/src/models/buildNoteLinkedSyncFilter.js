@@ -24,13 +24,8 @@ export function buildNoteLinkedJoins() {
   return joins;
 }
 
-export function buildNoteLinkedSyncFilter({
-  isPatientFilter = true,
-  patientCount,
-  markedForSyncPatientsTable,
-  sessionConfig,
-}) {
-  if (!isPatientFilter || patientCount === 0) {
+export function buildNoteLinkedSyncFilter(patientCount, markedForSyncPatientsTable, sessionConfig) {
+  if (patientCount === 0) {
     return null;
   }
 

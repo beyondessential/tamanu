@@ -111,14 +111,11 @@ export class PatientAdditionalData extends Model {
 
   static buildSyncLookupFilter() {
     return {
-      globalFilter: buildPatientSyncFilterViaPatientId({ isPatientFilter: false }),
       patientIdTables: ['patient_additional_data'],
     };
   }
 
-  static buildPatientSyncFilter(patientCount, markedForSyncPatientsTable) {
-    return buildPatientSyncFilterViaPatientId({ patientCount, markedForSyncPatientsTable });
-  }
+  static buildPatientSyncFilter = buildPatientSyncFilterViaPatientId;
 
   static async getForPatient(patientId) {
     return this.findOne({ where: { patientId } });

@@ -44,12 +44,9 @@ export class PatientCarePlan extends Model {
 
   static buildSyncLookupFilter() {
     return {
-      globalFilter: buildPatientSyncFilterViaPatientId({ isPatientFilter: false }),
       patientIdTables: ['patient_care_plans'],
     };
   }
 
-  static buildPatientSyncFilter(patientCount, markedForSyncPatientsTable) {
-    return buildPatientSyncFilterViaPatientId({ patientCount, markedForSyncPatientsTable });
-  }
+  static buildPatientSyncFilter = buildPatientSyncFilterViaPatientId;
 }

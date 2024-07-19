@@ -44,12 +44,9 @@ export class PatientCondition extends Model {
 
   static buildSyncLookupFilter() {
     return {
-      globalFilter: buildPatientSyncFilterViaPatientId({ isPatientFilter: false }),
       patientIdTables: ['patient_conditions'],
     };
   }
 
-  static buildPatientSyncFilter(patientCount, markedForSyncPatientsTable) {
-    return buildPatientSyncFilterViaPatientId({ patientCount, markedForSyncPatientsTable });
-  }
+  static buildPatientSyncFilter = buildPatientSyncFilterViaPatientId;
 }

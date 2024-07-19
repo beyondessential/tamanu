@@ -39,12 +39,9 @@ export class PatientSecondaryId extends Model {
 
   static buildSyncLookupFilter() {
     return {
-      globalFilter: buildPatientSyncFilterViaPatientId({ isPatientFilter: false }),
       patientIdTables: ['patient_secondary_ids'],
     };
   }
 
-  static buildPatientSyncFilter(patientCount, markedForSyncPatientsTable) {
-    return buildPatientSyncFilterViaPatientId({ patientCount, markedForSyncPatientsTable });
-  }
+  static buildPatientSyncFilter = buildPatientSyncFilterViaPatientId;
 }
