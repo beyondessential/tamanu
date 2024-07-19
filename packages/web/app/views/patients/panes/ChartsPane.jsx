@@ -2,12 +2,14 @@ import React, { useState, useMemo } from 'react';
 import styled from 'styled-components';
 
 import { TabPane } from '../components';
-import { TableButtonRow } from '../../../components';
+import { TableButtonRow, ButtonWithPermissionCheck } from '../../../components';
 
 import { SelectField } from '../../../components/Field';
 import { useChartSurveys } from '../../../api/queries';
 import { useUserPreferencesMutation } from '../../../api/mutations/useUserPreferencesMutation';
 import { useUserPreferencesQuery } from '../../../api/queries/useUserPreferencesQuery';
+import { TranslatedText } from '../../../components/Translation/TranslatedText';
+import { ChartsTable } from '../../../components/ChartsTable';
 
 const StyledTranslatedSelectField = styled(SelectField)`
   width: 200px;
@@ -51,13 +53,22 @@ const ChartDropDown = () => {
   );
 };
 
-// eslint-disable-next-line no-unused-vars
-export const ChartsPane = React.memo(({ patient, encounter }) => {
+export const ChartsPane = React.memo(({ patient, encounter, readonly }) => {
+  console.log('TODO: submit', patient.id, encounter.id);
   return (
     <TabPane>
       <TableButtonRow variant="small" justifyContent="space-between">
         <ChartDropDown />
+        <ButtonWithPermissionCheck
+          onClick={() => {}}
+          disabled={readonly}
+          verb="submit"
+          noun="SurveyResponse"
+        >
+          <TranslatedText stringId="chart.action.record" fallback="Record" />
+        </ButtonWithPermissionCheck>
       </TableButtonRow>
+      <ChartsTable />
     </TabPane>
   );
 });
