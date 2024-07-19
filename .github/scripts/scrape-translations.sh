@@ -17,5 +17,5 @@ if [ -z "$data" ]; then
     exit 1
 fi
 
-# Append header and write to csv file
+# Append csv header and print data
 printf "stringId,fallback\n%s" "$data"
