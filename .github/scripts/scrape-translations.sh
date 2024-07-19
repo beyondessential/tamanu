@@ -20,4 +20,3 @@ fi
 
 # Append header and write to csv file
 printf "stringId,fallback\n%s" "$data"
-``
