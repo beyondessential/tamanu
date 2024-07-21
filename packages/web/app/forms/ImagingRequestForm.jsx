@@ -30,6 +30,8 @@ import { FormSeparatorLine } from '../components/FormSeparatorLine';
 import { FormSubmitDropdownButton } from '../components/DropdownButton';
 import { TranslatedReferenceData, TranslatedText } from '../components/Translation';
 import { useTranslation } from '../contexts/Translation';
+import { IMAGING_TYPES } from '@tamanu/constants';
+import { TranslatedSelectField } from '../components/Translation/TranslatedSelect';
 import { renderToText } from '../utils';
 
 function getEncounterTypeLabel(type) {
