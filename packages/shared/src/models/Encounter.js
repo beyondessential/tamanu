@@ -221,22 +221,13 @@ export class Encounter extends Model {
     // this.hasMany(models.Report);
   }
 
-<<<<<<< HEAD
-  static buildSyncFilterQuery({
-    isPatientFilter = true,
-    sessionConfig,
-    patientCount,
-    markedForSyncPatientsTable,
-  }) {
-=======
   static buildPatientSyncFilter(patientCount, markedForSyncPatientsTable, sessionConfig) {
->>>>>>> feature/sav-744-sync-lookup-table-poc
     const { syncAllLabRequests } = sessionConfig;
     const joins = [];
     const encountersToIncludeClauses = [];
     const updatedAtSyncTickClauses = ['encounters.updated_at_sync_tick > :since'];
 
-    if (!isPatientFilter && patientCount > 0) {
+    if (patientCount > 0) {
       encountersToIncludeClauses.push(
         `encounters.patient_id IN (SELECT patient_id FROM ${markedForSyncPatientsTable})`,
       );
