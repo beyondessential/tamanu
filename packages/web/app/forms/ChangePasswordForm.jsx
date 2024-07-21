@@ -287,7 +287,7 @@ export const ChangePasswordForm = React.memo(
             )
             .oneOf(
               [yup.ref('newPassword'), null],
-              getTranslation('validation.rule.passwordMatch', "Passwords don't match"),
+              getTranslation('validation.rule.passwordMatch', 'Passwords don’t match'),
             )
             .required(getTranslation('validation.required.inline', '*Required')),
         })}
