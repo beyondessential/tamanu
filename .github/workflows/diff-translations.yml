@@ -53,7 +53,6 @@ jobs:
 
     - name: get this versions translations
       run: |
-        set -euxo pipefail
         translations=$(.github/scripts/scrape-translations.sh)
         if [ $? -eq 0 ]; then
          echo "$translations" > current-translations.csv
