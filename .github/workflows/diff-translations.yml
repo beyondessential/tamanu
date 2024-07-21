@@ -75,7 +75,7 @@ jobs:
         aws s3 --no-progress cp current-translations.csv s3://bes-tamanu-translations/v$version.csv
 
     - name: Download previous versions translations from s3
-
+      continue-on-error: true
       env:
         pversion: ${{ steps.previousv.outputs.previous_version }}
       run: |
