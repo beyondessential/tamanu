@@ -1,7 +1,7 @@
 import { TranslatedText } from './TranslatedText';
 import { camelCase } from 'lodash';
 import React from 'react';
-import { isRegisteredEnum } from '@tamanu/constants';
+import { isRegisteredEnum } from '@tamanu/shared';
 import { IS_DEVELOPMENT } from '../../utils/env';
 
 export const enforceRegisteredEnum = (prefix, options) => {
