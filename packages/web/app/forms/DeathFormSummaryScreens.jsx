@@ -73,7 +73,7 @@ export const SummaryScreenOne = ({ onStepBack, submitForm, onCancel }) => (
         <br />
         <TranslatedText
           stringId="death.summary.save.text"
-          fallback="The record of this patient's death will be saved but not finalised. Please return at a later time or date to enter the complete cause of death details and finalise."
+          fallback='The record of this patient’s death will be saved but not finalised. Please return at a later time or date to enter the complete cause of death details and finalise.'
         />
       </>
     }
