@@ -80,6 +80,7 @@ export class LabTest extends Model {
 
   static buildSyncLookupFilter() {
     return {
+      isLabRequestValue: 'TRUE',
       joins: buildEncounterLinkedSyncFilterJoins([this.tableName, 'lab_requests', 'encounters']),
       patientIdTables: ['encounters'],
     };

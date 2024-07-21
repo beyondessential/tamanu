@@ -11,7 +11,7 @@ export const snapshotGlobalChangesForModel = async (model, config, since, sessio
   let fromId = '';
   let totalCount = 0;
   const attributes = model.getAttributes();
-  const { patientIdTables, facilityIdTable, joins, globalFilter: filter } =
+  const { patientIdTables, facilityIdTable, joins, globalFilter: filter, isLabRequestValue } =
     model.buildSyncLookupFilter(sessionConfig) || {};
   const useUpdatedAtByFieldSum = !!attributes.updatedAtByField;
 
@@ -42,7 +42,7 @@ export const snapshotGlobalChangesForModel = async (model, config, since, sessio
             ${table}.deleted_at IS NOT NULL,
             ${table}.updated_at_sync_tick,
             ${useUpdatedAtByFieldSum ? 'updated_at_by_field_summary.sum' : 'NULL'},
-            false,
+            ${isLabRequestValue ? isLabRequestValue : 'FALSE'},
             json_build_object(
               ${Object.keys(attributes)
                 .filter(a => !COLUMNS_EXCLUDED_FROM_SYNC.includes(a))
@@ -131,13 +131,13 @@ export const updateLookupTable = withConfig(async (outgoingModels, since, config
 
       changesCount += modelChangesCount || 0;
     } catch (e) {
-      log.error(`Failed to snapshot global ${model.name}: `);
+      log.error(`Failed to update ${model.name} for lookup table`);
       log.debug(e);
-      throw new Error(`Failed to snapshot ${model.name}: ${e.message}`);
+      throw new Error(`Failed to update ${model.name} for lookup table: ${e.message}`);
     }
   }
 
-  log.debug('snapshotOutgoingChanges.countedAll', { count: changesCount, since });
+  log.debug('updateLookupTable.countedAll', { count: changesCount, since });
 
   return changesCount;
 });

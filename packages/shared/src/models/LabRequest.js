@@ -207,6 +207,7 @@ export class LabRequest extends Model {
 
   static buildSyncLookupFilter() {
     return {
+      isLabRequestValue: 'TRUE',
       joins: buildEncounterLinkedSyncFilterJoins([this.tableName, 'encounters']),
       patientIdTables: ['encounters'],
     };
