@@ -276,13 +276,13 @@ export class Encounter extends Model {
 
   static buildSyncLookupFilter() {
     return {
-      isLabRequestValue: 'encounters_with_labs.id IS NOT NULL',
+      isLabRequestValue: 'encounters_with_labs.lab_encounter_id IS NOT NULL',
       joins: `LEFT JOIN (
-        SELECT e.id AS "encounter_lab_id"
+        SELECT e.id AS "lab_encounter_id"
         FROM encounters e
         INNER JOIN lab_requests lr ON lr.encounter_id = e.id
         GROUP BY e.id
-      ) AS encounters_with_labs ON encounters_with_labs.encounter_lab_id = encounters.id`,
+      ) AS encounters_with_labs ON encounters_with_labs.lab_encounter_id = encounters.id`,
       patientIdTables: ['encounters'],
     };
   }
