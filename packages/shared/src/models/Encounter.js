@@ -221,18 +221,13 @@ export class Encounter extends Model {
     // this.hasMany(models.Report);
   }
 
-  static buildSyncFilterQuery({
-    isPatientFilter = true,
-    sessionConfig,
-    patientCount,
-    markedForSyncPatientsTable,
-  }) {
+  static buildPatientSyncFilter(patientCount, markedForSyncPatientsTable, sessionConfig) {
     const { syncAllLabRequests } = sessionConfig;
     const joins = [];
     const encountersToIncludeClauses = [];
     const updatedAtSyncTickClauses = ['encounters.updated_at_sync_tick > :since'];
 
-    if (!isPatientFilter && patientCount > 0) {
+    if (patientCount > 0) {
       encountersToIncludeClauses.push(
         `encounters.patient_id IN (SELECT patient_id FROM ${markedForSyncPatientsTable})`,
       );
@@ -279,15 +274,17 @@ export class Encounter extends Model {
     `;
   }
 
-  static buildSyncLookupFilter(sessionConfig) {
+  static buildSyncLookupFilter() {
     return {
-      globalFilter: this.buildSyncFilterQuery({ isPatientFilter: false, sessionConfig }),
+      isLabRequestValue: 'encounters_with_labs.id IS NOT NULL',
+      joins: `LEFT JOIN (
+        SELECT e.id AS "encounter_lab_id"
+        FROM encounters e
+        INNER JOIN lab_requests lr ON lr.encounter_id = e.id
+        GROUP BY e.id
+      ) AS encounters_with_labs ON encounters_with_labs.encounter_lab_id = encounters.id`,
       patientIdTables: ['encounters'],
     };
-  }
-
-  static buildPatientSyncFilter(patientCount, markedForSyncPatientsTable, sessionConfig) {
-    return this.buildSyncFilterQuery({ patientCount, markedForSyncPatientsTable, sessionConfig });
   }
 
   static async adjustDataPostSyncPush(recordIds) {

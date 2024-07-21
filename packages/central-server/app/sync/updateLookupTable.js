@@ -11,7 +11,7 @@ export const snapshotGlobalChangesForModel = async (model, config, since, sessio
   let fromId = '';
   let totalCount = 0;
   const attributes = model.getAttributes();
-  const { patientIdTables, facilityIdTable, joins, globalFilter: filter } =
+  const { patientIdTables, facilityIdTable, joins, globalFilter: filter, isLabRequestValue } =
     model.buildSyncLookupFilter(sessionConfig) || {};
   const useUpdatedAtByFieldSum = !!attributes.updatedAtByField;
 
@@ -42,7 +42,7 @@ export const snapshotGlobalChangesForModel = async (model, config, since, sessio
             ${table}.deleted_at IS NOT NULL,
             ${table}.updated_at_sync_tick,
             ${useUpdatedAtByFieldSum ? 'updated_at_by_field_summary.sum' : 'NULL'},
-            false,
+            ${isLabRequestValue},
             json_build_object(
               ${Object.keys(attributes)
                 .filter(a => !COLUMNS_EXCLUDED_FROM_SYNC.includes(a))
