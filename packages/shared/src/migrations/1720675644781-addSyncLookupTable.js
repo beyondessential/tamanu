@@ -27,11 +27,11 @@ export async function up(query) {
     },
     patient_id: {
       type: Sequelize.STRING,
-      allowNull: false,
+      allowNull: true,
     },
     facility_id: {
       type: Sequelize.STRING,
-      allowNull: false,
+      allowNull: true,
     },
     is_lab_request: {
       type: Sequelize.BOOLEAN,
