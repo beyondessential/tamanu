@@ -1,6 +1,6 @@
 import React from 'react';
 import { startOfDay } from 'date-fns';
-import { CustomisableSearchBar } from './CustomisableSearchBar';
+import { CustomisableSearchBarWithPermissionCheck } from './CustomisableSearchBar';
 import {
   AutocompleteField,
   DateTimeField,
@@ -18,7 +18,9 @@ export const AppointmentsSearchBar = ({ onSearch }) => {
   const locationGroupSuggester = useSuggester('facilityLocationGroup');
 
   return (
-    <CustomisableSearchBar
+    <CustomisableSearchBarWithPermissionCheck
+      verb="list"
+      noun="Appointment"
       title="Search appointments"
       onSearch={values => {
         const { firstName, lastName, displayId, ...queries } = values;
@@ -98,13 +100,12 @@ export const AppointmentsSearchBar = ({ onSearch }) => {
         component={DateTimeField}
       />
       <Field
-        keepLetterCase
         label={
           <TranslatedText stringId="general.localisedField.displayId.label.short" fallback="NHN" />
         }
         name="displayId"
         component={SearchField}
       />
-    </CustomisableSearchBar>
+    </CustomisableSearchBarWithPermissionCheck>
   );
 };

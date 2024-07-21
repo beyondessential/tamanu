@@ -2,6 +2,7 @@ import React from 'react';
 import { usePDF } from '@react-pdf/renderer';
 import { Box, CircularProgress, Typography } from '@material-ui/core';
 import styled from 'styled-components';
+import { TranslatedText } from '../Translation';
 
 const FullIframe = styled.iframe`
   width: 100%;
@@ -29,7 +30,9 @@ const Loader = styled.div`
 const LoadingIndicator = () => (
   <Loader>
     <CircularProgress size="5rem" />
-    <Typography>Loading...</Typography>
+    <Typography>
+      <TranslatedText stringId="general.status.loading" fallback="Loading…" />
+    </Typography>
   </Loader>
 );
 

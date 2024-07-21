@@ -60,7 +60,7 @@ export const EmailField = (props = {}) => (
     component={TextField}
     placeholder="example@example.com"
     multiline
-    rows={3}
+    minRows={3}
     validate={validateCommaSeparatedEmails}
     required
     {...props}

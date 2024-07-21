@@ -100,8 +100,20 @@ function isMigrationIgnored(path) {
   return !!module.NON_DETERMINISTIC;
 }
 
-const UNHASHED_TABLES = ['SequelizeMeta', 'columns', 'key_column_usage', 'pg_attribute', 'pg_class', 'pg_description',
-  'pg_enum', 'pg_statio_all_tables', 'pg_type', 'pg_index', 'table_constraints', 'tables'];
+const UNHASHED_TABLES = [
+  'SequelizeMeta',
+  'columns',
+  'key_column_usage',
+  'pg_attribute',
+  'pg_class',
+  'pg_description',
+  'pg_enum',
+  'pg_statio_all_tables',
+  'pg_type',
+  'pg_index',
+  'table_constraints',
+  'tables',
+];
 const UNHASHED_COLUMNS = ['created_at', 'updated_at', 'deleted_at', 'updated_at_sync_tick'];
 const ORDER_BY_OVERRIDE = {};
 
@@ -123,13 +135,18 @@ async function getHashesForTables(sequelize, tables) {
 
     // find all data
     const orderBy = ORDER_BY_OVERRIDE[table] || 'id';
-    const data = (await model.findAll({
-      attributes: columns,
-      order: [[orderBy, 'DESC']]
-    })).map(d => d.dataValues);
-    if (data.length === 0) throw new Error(`table not populated with data: ${table}. ` +
-      'See the note "How to resolve an error in Test for Determinism" to resolve this:' +
-      "https://beyond-essential.slab.com/posts/how-to-resolve-an-error-in-test-for-determinism-nwksh8cf.");
+    const data = (
+      await model.findAll({
+        attributes: columns,
+        order: [[orderBy, 'DESC']],
+      })
+    ).map(d => d.dataValues);
+    if (data.length === 0)
+      throw new Error(
+        `table not populated with data: ${table}. ` +
+          'See the note "How to resolve an error in Test for Determinism" to resolve this:' +
+          'https://beyond-essential.slab.com/posts/how-to-resolve-an-error-in-test-for-determinism-nwksh8cf',
+      );
     hashes[table] = hashObject(data);
   }
   return hashes;
@@ -144,20 +161,19 @@ async function run(command, args) {
   const proc = spawn(command, args);
   proc.stdout.on('data', d => console.log(d.toString()));
   proc.stderr.on('data', d => console.error(d.toString()));
-  const [code] = await once(proc, "exit");
+  const [code] = await once(proc, 'exit');
   if (code !== 0) {
     console.error(`${command} failed with ${code}.`);
     process.exit(1);
   }
 }
 
-program
-  .requiredOption('-d, --dump-path <string>', 'An absolute path to a pg dump file');
+program.requiredOption('-d, --dump-path <string>', 'An absolute path to a pg dump file');
 
 program.parse();
 
 async function getHashesForDb(migrationsInfo) {
-  await run("pg_restore", ["--create", "--clean", "-d", "postgres", program.opts().dumpPath]);
+  await run('pg_restore', ['--create', '--clean', '-d', 'postgres', program.opts().dumpPath]);
   const db = await initDatabase({ testMode: true, ...config.db });
   const umzug = createMigrationInterface(log, db.sequelize);
 
@@ -178,7 +194,7 @@ async function getHashesForDb(migrationsInfo) {
 
 (async () => {
   // The `setup-postgres-for-one-package` script makes a db so reuse that.
-  await run("pg_restore", ["-d", "fake", program.opts().dumpPath]);
+  await run('pg_restore', ['-d', 'fake', program.opts().dumpPath]);
   const qc = await initQueryCollectingDb({ testMode: true, ...config.db });
   const { flushQueries } = qc;
   const db = qc.db;

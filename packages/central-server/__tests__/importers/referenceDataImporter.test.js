@@ -3,15 +3,18 @@ import { fake } from '@tamanu/shared/test-helpers/fake';
 import {
   GENERAL_IMPORTABLE_DATA_TYPES,
   PERMISSION_IMPORTABLE_DATA_TYPES,
+  OTHER_REFERENCE_TYPE_VALUES,
 } from '@tamanu/constants/importable';
+import { getPermissionsForRoles } from '@tamanu/shared/permissions/rolesToPermissions';
 import { createDummyPatient } from '@tamanu/shared/demoData/patients';
-import { REFERENCE_TYPES } from '@tamanu/constants';
+import { REFERENCE_TYPES, REFERENCE_DATA_TRANSLATION_PREFIX } from '@tamanu/constants';
 import { importerTransaction } from '../../dist/admin/importerEndpoint';
 import { referenceDataImporter } from '../../dist/admin/referenceDataImporter';
 import { createTestContext } from '../utilities';
 import './matchers';
 import { exporter } from '../../dist/admin/exporter/exporter';
 import { createAllergy, createDiagnosis } from '../exporters/referenceDataUtils';
+import { camelCase } from 'lodash';
 import { makeRoleWithPermissions } from '../permissions';
 
 // the importer can take a little while
@@ -68,7 +71,7 @@ describe('Data definition import', () => {
       expect(didntSendReason).toEqual('validationFailed');
       expect(errors[0]).toHaveProperty(
         'message',
-        `ForbiddenError: Cannot perform action "create" on ReferenceData.`,
+        `ForbiddenError: No permission to perform action "create" on "ReferenceData"`,
       );
     });
 
@@ -120,13 +123,20 @@ describe('Data definition import', () => {
   });
 
   it('should not write anything for a dry run', async () => {
-    const { ReferenceData } = ctx.store.models;
-    const beforeCount = await ReferenceData.count();
+    const { ReferenceData, TranslatedString } = ctx.store.models;
+    const beforeCount = {
+      referenceData: await ReferenceData.count(),
+      translatedString: await TranslatedString.count(),
+    };
 
     await doImport({ file: 'valid', dryRun: true });
 
-    const afterCount = await ReferenceData.count();
-    expect(afterCount).toEqual(beforeCount);
+    const afterCount = {
+      referenceData: await ReferenceData.count(),
+      translatedString: await TranslatedString.count(),
+    };
+
+    expect(beforeCount).toEqual(afterCount);
   });
 
   it('should error on missing file', async () => {
@@ -338,6 +348,40 @@ describe('Data definition import', () => {
       },
     });
   });
+
+  it('should create translations records for the translatable reference data types', async () => {
+    const { models } = ctx.store;
+    const { ReferenceData, TranslatedString } = models;
+    const { stats } = await doImport({ file: 'valid' });
+
+    // It should create a translation for each record in the reference data table
+    const refDataTableRecords = await ReferenceData.findAll({ raw: true });
+    const expectedStringIds = refDataTableRecords.map(
+      ({ type, id }) => `${REFERENCE_DATA_TRANSLATION_PREFIX}.${type}.${id}`,
+    );
+
+    // Filter out the clinical/patient record types as they dont get translated
+    const translatableNonRefDataTableImports = Object.keys(stats).filter(key =>
+      OTHER_REFERENCE_TYPE_VALUES.includes(camelCase(key)),
+    );
+    await Promise.all(
+      translatableNonRefDataTableImports.map(async type => {
+        const recordsForDataType = await models[type].findAll({
+          attributes: ['id'],
+          raw: true,
+        });
+        const nonRefDataTableStringIds = recordsForDataType.map(
+          ({ id }) => `${REFERENCE_DATA_TRANSLATION_PREFIX}.${camelCase(type)}.${id}`,
+        );
+        expectedStringIds.push(...nonRefDataTableStringIds);
+      }),
+    );
+
+    const createdTranslationCount = await TranslatedString.count({
+      where: { stringId: { [Op.in]: expectedStringIds } },
+    });
+    expect(expectedStringIds.length).toEqual(createdTranslationCount);
+  });
 });
 
 describe('Permissions import', () => {
@@ -442,30 +486,37 @@ describe('Permissions import', () => {
   it('should revoke (and reinstate) a permission', async () => {
     const { Permission } = ctx.store.models;
 
-    const where = {
-      noun: 'RevokeTest',
-    };
-
-    const beforeImport = await Permission.findOne({ where });
+    const beforeImport = await Permission.findOne({ where: { noun: 'RevokeTest' } });
     expect(beforeImport).toBeFalsy();
 
     await doImport({ file: 'revoke-a' });
 
-    const afterImport = await Permission.findOne({ where });
-    expect(afterImport).toBeTruthy();
-    expect(afterImport.deletedAt).toEqual(null);
+    const initialPermissions = await getPermissionsForRoles(ctx.store.models, 'reception');
+    expect(initialPermissions).toEqual(
+      expect.arrayContaining([{ noun: 'RevokeTest', verb: 'read' }]),
+    );
+    expect(initialPermissions.length).toBe(1);
 
     await doImport({ file: 'revoke-b' });
 
-    const afterRevoke = await Permission.findOne({ where, paranoid: false });
-    expect(afterRevoke).toBeTruthy();
-    expect(afterRevoke.deletedAt).toBeTruthy();
+    const afterImport = await Permission.findOne({
+      where: { noun: 'RevokeTest' },
+      paranoid: false,
+    });
+    expect(afterImport).toBeTruthy();
+    const revokedPermissions = await getPermissionsForRoles(ctx.store.models, 'reception');
+    expect(revokedPermissions).toEqual(
+      expect.not.arrayContaining([{ noun: 'RevokeTest', verb: 'read' }]),
+    );
+    expect(revokedPermissions.length).toBe(0);
 
     await doImport({ file: 'revoke-a' });
 
-    const afterReinstate = await Permission.findOne({ where, paranoid: false });
-    expect(afterReinstate).toBeTruthy();
-    expect(afterReinstate.deletedAt).toEqual(null);
+    const reinstatedPermissions = await getPermissionsForRoles(ctx.store.models, 'reception');
+    expect(reinstatedPermissions).toEqual(
+      expect.arrayContaining([{ noun: 'RevokeTest', verb: 'read' }]),
+    );
+    expect(reinstatedPermissions.length).toBe(1);
   });
 
   it('should not import rows specified in pages other than "Permissions"', async () => {

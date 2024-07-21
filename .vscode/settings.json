@@ -1,6 +1,7 @@
 {
   "cSpell.language": "en-GB",
-  "cSpell.words": ["singularize", "upsert", "upserted"],
+  "cSpell.words": ["clearable", "singularize", "upsert", "upserted"],
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
   "eslint.experimental.useFlatConfig": true,
   "eslint.lintTask.enable": true,
   "json.schemas": [

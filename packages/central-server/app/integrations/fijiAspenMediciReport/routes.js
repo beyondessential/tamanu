@@ -10,6 +10,7 @@ import { FHIR_DATETIME_PRECISION } from '@tamanu/constants/fhir';
 import { parseDateTime, formatFhirDate } from '@tamanu/shared/utils/fhir/datetime';
 
 import { requireClientHeaders } from '../../middleware/requireClientHeaders';
+import { InvalidOperationError } from '@tamanu/shared/errors';
 
 export const routes = express.Router();
 
@@ -86,6 +87,13 @@ const parseDateParam = date => {
   return parsedDate || null;
 };
 
+const checkTimePeriod = (fromDate, toDate) => {
+  const fromParsed = new Date(parseDateParam(fromDate));
+  const toParsed = new Date(parseDateParam(toDate));
+  // Check if start & end time are within 1 hour
+  return Math.abs(toParsed - fromParsed) <= 60 * 60 * 1000;
+};
+
 routes.use(requireClientHeaders);
 routes.get(
   '/',
@@ -100,6 +108,14 @@ routes.get(
     } = req.query;
     if (!COUNTRY_TIMEZONE) {
       throw new Error('A countryTimeZone must be configured in local.json5 for this report to run');
+    }
+
+    if (!fromDate || !toDate) {
+      throw new InvalidOperationError('Both period.start and period.end are required query parameters');
+    }
+
+    if (!checkTimePeriod(fromDate, toDate)) {
+      throw new InvalidOperationError('The time period must be within 1 hour');
     }
 
     const data = await sequelize.query(reportQuery, {

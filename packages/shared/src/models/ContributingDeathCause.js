@@ -48,8 +48,8 @@ export class ContributingDeathCause extends Model {
     });
   }
 
-  static buildPatientSyncFilter(patientIds) {
-    if (patientIds.length === 0) {
+  static buildPatientSyncFilter(patientCount, markedForSyncPatientsTable) {
+    if (patientCount === 0) {
       return null;
     }
     return `
@@ -58,7 +58,7 @@ export class ContributingDeathCause extends Model {
       ON
         patient_death_data_id = patient_death_data.id
       WHERE
-        patient_death_data.patient_id IN (:patientIds)
+        patient_death_data.patient_id IN (SELECT patient_id FROM ${markedForSyncPatientsTable})
       AND
         contributing_death_causes.updated_at_sync_tick > :since
     `;
