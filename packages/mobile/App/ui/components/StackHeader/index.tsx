@@ -13,8 +13,8 @@ import { ArrowLeftIcon, KebabIcon } from '../Icons';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 
 type HeaderTitleProps = {
-  title: string;
-  subtitle: string;
+  title: Element;
+  subtitle: Element;
 };
 
 const HeaderTitle = ({ subtitle, title }: HeaderTitleProps): ReactElement => (
@@ -29,8 +29,8 @@ const HeaderTitle = ({ subtitle, title }: HeaderTitleProps): ReactElement => (
 );
 
 type StackHeaderProps = {
-  title: string;
-  subtitle: string;
+  title: Element;
+  subtitle: Element;
   onGoBack: () => void;
   onRightSideIconTap?: () => void;
 };

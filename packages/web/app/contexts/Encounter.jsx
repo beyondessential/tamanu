@@ -58,7 +58,11 @@ export const EncounterProvider = ({ children }) => {
         () => api.get(`encounter/${encounterId}/medications`),
         { data: [] },
       );
-      setEncounterData({ ...data, diagnoses, procedures, medications });
+      const { data: triages } = await getDataOrDefaultOnError(
+        () => api.get(`encounter/${encounterId}/triages`),
+        { data: [] },
+      );
+      setEncounterData({ ...data, diagnoses, procedures, medications, triages });
       setIsLoadingEncounter(false);
     },
     [api],

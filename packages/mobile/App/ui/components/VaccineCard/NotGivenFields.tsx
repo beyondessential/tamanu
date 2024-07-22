@@ -20,7 +20,7 @@ export const NotGivenFields: FC<VaccineDataProps> = ({ administeredVaccine }) =>
           : null
       }
     />
-    <RowField label="Schedule" value={administeredVaccine.scheduledVaccine?.schedule} />
+    <RowField label="Schedule" value={administeredVaccine.scheduledVaccine?.doseLabel} />
     <RowField label="Reason" value={administeredVaccine.notGivenReason?.name} />
     <RowField label="Area" value={administeredVaccine.location?.locationGroup?.name} />
     <RowField label="Location" value={administeredVaccine.location?.name} />

@@ -36,7 +36,7 @@ const VaccinationDetailsList = ({ status, date, scheduledVaccine }): ReactElemen
         <Text style={styles.item}>
           <TranslatedText stringId="general.schedule.label" fallback="Schedule" />:
         </Text>
-        <Text style={styles.item}>{scheduledVaccine.schedule}</Text>
+        <Text style={styles.item}>{scheduledVaccine.doseLabel}</Text>
       </View>
       <View style={styles.row}>
         <Text style={styles.item}>

@@ -159,6 +159,11 @@ export class LabRequest extends Model {
       as: 'certificate_notification',
     });
 
+    this.hasMany(models.LabRequestAttachment, {
+      foreignKey: 'labRequestId',
+      as: 'labRequestAttachments',
+    });
+
     this.hasMany(models.Note, {
       foreignKey: 'recordId',
       as: 'notes',
@@ -184,19 +189,31 @@ export class LabRequest extends Model {
     ];
   }
 
-  static buildPatientSyncFilter(patientIds, sessionConfig) {
+  static buildPatientSyncFilter(patientCount, markedForSyncPatientsTable, sessionConfig) {
     if (sessionConfig.syncAllLabRequests) {
       return ''; // include all lab requests
     }
-    if (patientIds.length === 0) {
+    if (patientCount === 0) {
       return null;
     }
-    return buildEncounterLinkedSyncFilter([this.tableName, 'encounters']);
+    return buildEncounterLinkedSyncFilter(
+      [this.tableName, 'encounters'],
+      markedForSyncPatientsTable,
+    );
   }
 
   getTests() {
     return this.sequelize.models.LabTest.findAll({
       where: { labRequestId: this.id },
+    });
+  }
+
+  getLatestAttachment() {
+    return this.sequelize.models.LabRequestAttachment.findOne({
+      where: {
+        labRequestId: this.id,
+        replacedById: null,
+      },
     });
   }
 }

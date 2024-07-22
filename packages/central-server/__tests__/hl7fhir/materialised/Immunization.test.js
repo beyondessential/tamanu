@@ -159,7 +159,7 @@ describe(`Materialised FHIR - Immunization`, () => {
         ],
         protocolApplied: [
           {
-            doseNumberString: scheduledVaccine.schedule,
+            doseNumberString: scheduledVaccine.doseLabel,
             targetDisease: [],
           },
         ],

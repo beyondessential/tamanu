@@ -8,6 +8,7 @@ import { AddLabRequestScreen, ViewHistoryScreen } from '../screens/labRequests/t
 import { withPatient } from '~/ui/containers/Patient';
 import { IPatient } from '~/types';
 import { joinNames } from '~/ui/helpers/user';
+import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 
 const Tabs = createTopTabNavigator();
 
@@ -29,21 +30,28 @@ const DumbLabRequestTabs = ({
   return (
     <>
       <StackHeader
-        title="New Test - Lab request"
+        title={<TranslatedText stringId="patient.test.title" fallback="New Test - Lab request" />}
         subtitle={getPatientName(selectedPatient)}
         onGoBack={goBack}
       />
       <Tabs.Navigator swipeEnabled={false} lazy>
         <Tabs.Screen
           options={{
-            title: 'New test',
+            title: () => (
+              <TranslatedText stringId="patient.test.newTest.title" fallback="New test" />
+            ),
           }}
           name={Routes.HomeStack.LabRequestStack.LabRequestTabs.NewRequest}
           component={AddLabRequestScreen}
         />
         <Tabs.Screen
           options={{
-            title: 'Request history',
+            title: () => (
+              <TranslatedText
+                stringId="patient.test.requestHistory.title"
+                fallback="Request history"
+              />
+            ),
           }}
           name={Routes.HomeStack.LabRequestStack.LabRequestTabs.ViewHistory}
           component={ViewHistoryScreen}

@@ -3,7 +3,7 @@ import React from 'react';
 import { DateFormats } from '~/ui/helpers/constants';
 import { formatStringDate } from '~/ui/helpers/date';
 import { useBackendEffect } from '~/ui/hooks/index';
-import { FullView, StyledText, StyledView } from '~/ui/styled/common';
+import { StyledText, StyledView, StyledScrollView } from '~/ui/styled/common';
 import { theme } from '~/ui/styled/theme';
 
 const DataRow = (props: { label: string; value: string | string[] }) => {
@@ -64,7 +64,7 @@ export const PatientProgramRegistrationDetails = ({ route }) => {
     [patientProgramRegistration],
   );
   return (
-    <FullView background={theme.colors.WHITE}>
+    <StyledScrollView background={theme.colors.WHITE}>
       <StyledView
         borderColor={theme.colors.BOX_OUTLINE}
         borderBottomWidth={1}
@@ -88,6 +88,6 @@ export const PatientProgramRegistrationDetails = ({ route }) => {
             : '-'
         }
       />
-    </FullView>
+    </StyledScrollView>
   );
 };

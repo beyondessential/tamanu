@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
 import { AppointmentModal } from './AppointmentModal';
-import { Button } from '..';
+import { ButtonWithPermissionCheck } from '..';
 import { TranslatedText } from '../Translation/TranslatedText';
 
 export const NewAppointmentButton = ({ onSuccess }) => {
   const [openModal, setOpenModal] = useState(false);
   return (
     <>
-      <Button
+      <ButtonWithPermissionCheck
+        verb="write"
+        noun="Appointment"
         color="primary"
         variant="contained"
         onClick={() => {
@@ -15,7 +17,7 @@ export const NewAppointmentButton = ({ onSuccess }) => {
         }}
       >
         <TranslatedText stringId="scheduling.action.newAppointment" fallback="New appointment" />
-      </Button>
+      </ButtonWithPermissionCheck>
       <AppointmentModal
         open={openModal}
         onClose={() => setOpenModal(false)}

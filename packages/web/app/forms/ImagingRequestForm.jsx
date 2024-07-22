@@ -18,10 +18,10 @@ import {
   Field,
   Form,
   ImagingPriorityField,
+  MultiselectField,
   SelectField,
   TextField,
   TextInput,
-  MultiselectField,
 } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
 import { FormCancelButton } from '../components/Button';
@@ -29,8 +29,9 @@ import { ButtonRow } from '../components/ButtonRow';
 import { DateDisplay } from '../components/DateDisplay';
 import { FormSeparatorLine } from '../components/FormSeparatorLine';
 import { FormSubmitDropdownButton } from '../components/DropdownButton';
-import { TranslatedText } from '../components/Translation/TranslatedText';
+import { TranslatedReferenceData, TranslatedText } from '../components/Translation';
 import { useTranslation } from '../contexts/Translation';
+import { renderToText } from '../utils';
 
 function getEncounterTypeLabel(type) {
   return ENCOUNTER_OPTIONS.find(x => x.value === type).label;
@@ -212,18 +213,23 @@ export const ImagingRequestForm = React.memo(
                 options={imagingTypeOptions}
                 prefix="imaging.property.type"
               />
-              {imagingAreas.length ? (
+              {imagingAreas.length > 0 ? (
                 <Field
-                  options={imagingAreas.map(area => ({
-                    label: area.name,
-                    value: area.id,
-                  }))}
+                  options={imagingAreas
+                    .map(({ id, name, type }) => ({
+                      label: <TranslatedReferenceData fallback={name} value={id} category={type} />,
+                      value: id,
+                    }))
+                    .sort((area1, area2) => {
+                      const str1 = renderToText(area1.label);
+                      const str2 = renderToText(area2.label);
+                      return str1.localeCompare(str2);
+                    })}
                   name="areas"
                   label={
                     <TranslatedText stringId="imaging.areas.label" fallback="Areas to be imaged" />
                   }
                   component={MultiselectField}
-                  prefix="imaging.property.area"
                 />
               ) : (
                 <Field
@@ -237,7 +243,7 @@ export const ImagingRequestForm = React.memo(
                   component={TextField}
                   multiline
                   style={{ gridColumn: '1 / -1' }}
-                  rows={3}
+                  minRows={3}
                 />
               )}
               <Field
@@ -246,7 +252,7 @@ export const ImagingRequestForm = React.memo(
                 component={TextField}
                 multiline
                 style={{ gridColumn: '1 / -1' }}
-                rows={3}
+                minRows={3}
               />
               <ButtonRow>
                 <FormCancelButton onClick={onCancel}>
