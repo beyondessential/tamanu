@@ -104,24 +104,15 @@ export const translationPrefixes: Record<EnumKeys, string> = {
   VACCINE_STATUS_LABELS: 'vaccine.property.status',
 };
 
-const enumRegistry = new Set(Object.values(registeredEnums));
+export const enumRegistry = new Set(Object.values(registeredEnums));
 
 // Map enum value references to their translation prefix
-const prefixMap = new Map(
+export const prefixMap = new Map(
   (Object.entries(registeredEnums) as EnumEntries).map(([key, enumValue]) => [
     enumValue,
     translationPrefixes[key],
   ]),
 );
-
-/**
- * Used to enforce usage of translatable enums
- * recognises registered enums from object references
- */
-export const isRegisteredEnum = (enumValues: any): boolean => enumRegistry.has(enumValues);
-
-/** Get the translation prefix from an object reference to a registered enum */
-export const getEnumPrefix = (enumValues: any): string | undefined => prefixMap.get(enumValues);
 
 /**
  * The list of all translatable enums string id and fallback

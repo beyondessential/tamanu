@@ -1,5 +1,5 @@
-import { isRegisteredEnum } from '../src/enumRegistry';
-import { APPOINTMENT_STATUSES } from '../src/statuses';
+import { APPOINTMENT_STATUSES } from '@tamanu/constants';
+import { isRegisteredEnum } from '../../dist/cjs/utils';
 
 describe('enumRegistry', () => {
   it('returns true for registered enum', () => {

@@ -76,7 +76,6 @@ export const CategoryField = ({ setCategory, setVaccineLabel, resetForm }) => (
 );
 
 export const VaccineLabelField = ({ vaccineOptions, setVaccineLabel }) => (
-  // enum registry TODO
   <Field
     name="vaccineLabel"
     label={<TranslatedText stringId="vaccine.vaccine.label" fallback="Vaccine" />}
@@ -84,7 +83,6 @@ export const VaccineLabelField = ({ vaccineOptions, setVaccineLabel }) => (
     options={vaccineOptions}
     onChange={e => setVaccineLabel(e.target.value)}
     required
-    prefix="vaccine.property.name"
   />
 );
 
@@ -114,7 +112,6 @@ export const InjectionSiteField = () => (
     label={<TranslatedText stringId="vaccine.injectionSite.label" fallback="Injection site" />}
     component={TranslatedSelectField}
     enumValues={INJECTION_SITE_LABELS}
-    prefix="vaccine.property.injectionSite"
   />
 );
 

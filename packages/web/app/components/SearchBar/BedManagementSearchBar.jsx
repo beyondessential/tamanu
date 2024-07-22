@@ -94,7 +94,6 @@ export const BedManagementSearchBar = React.memo(({ onSearch, searchParameters }
           size="small"
           suggester={locationGroupSuggester}
         />
-        {/** enum registry TODO */}
         <LocalisedField
           name="status"
           label={
@@ -104,7 +103,6 @@ export const BedManagementSearchBar = React.memo(({ onSearch, searchParameters }
           component={TranslatedSelectField}
           transformOptions={options => [{ value: '', label: 'All' }, ...options]}
           enumValues={LOCATION_AVAILABILITY_STATUS_LABELS}
-          prefix="bedManagement.property.status"
         />
       </CustomisableSearchBar>
       <HandoverNotesModal

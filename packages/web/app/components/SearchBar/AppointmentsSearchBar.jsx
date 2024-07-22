@@ -66,7 +66,6 @@ export const AppointmentsSearchBar = ({ onSearch }) => {
         component={TranslatedSelectField}
         enumValues={APPOINTMENT_TYPES}
         size="small"
-        prefix="appointment.property.type"
       />
       <LocalisedField
         name="status"
@@ -79,7 +78,6 @@ export const AppointmentsSearchBar = ({ onSearch }) => {
         component={TranslatedSelectField}
         enumValues={APPOINTMENT_STATUSES}
         size="small"
-        prefix="appointment.property.status"
       />
       <Field
         saveDateAsString

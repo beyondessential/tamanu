@@ -64,11 +64,7 @@ const ViewButton = React.memo(({ row }) => {
 
 const StatusDisplay = React.memo(({ status }) => (
   <StatusLabel color={INVOICE_STATUS_COLORS[status] || INVOICE_STATUS_COLORS.unknown}>
-    <TranslatedEnum
-      prefix="invoice.property.status"
-      value={status}
-      enumValues={INVOICE_STATUS_LABELS}
-    />
+    <TranslatedEnum value={status} enumValues={INVOICE_STATUS_LABELS} />
   </StatusLabel>
 ));
 
@@ -76,11 +72,7 @@ const getDate = ({ date }) => <DateDisplay date={date} />;
 const getViewButton = row => <ViewButton row={row} />;
 const getInvoiceTotal = row => <InvoiceTotal row={row} />;
 const getPaymentStatus = row => (
-  <TranslatedEnum
-    prefix="invoice.payment.property.status"
-    value={row.paymentStatus}
-    enumValues={INVOICE_PAYMENT_STATUS_LABELS}
-  />
+  <TranslatedEnum value={row.paymentStatus} enumValues={INVOICE_PAYMENT_STATUS_LABELS} />
 );
 const getStatus = ({ status }) => <StatusDisplay status={status} />;
 

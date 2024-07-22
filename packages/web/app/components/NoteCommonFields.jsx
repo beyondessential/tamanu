@@ -163,17 +163,16 @@ export const NoteTypeField = ({ required, noteTypeCountByType, onChange }) => (
     enumValues={NOTE_TYPE_LABELS}
     transformOptions={types =>
       types
-        .filter(x => !x.hideFromDropdown)
-        .map(x => ({
-          ...x,
+        .filter(option => !option.hideFromDropdown)
+        .map(option => ({
+          ...option,
           isDisabled:
             noteTypeCountByType &&
-            x.value === NOTE_TYPES.TREATMENT_PLAN &&
-            !!noteTypeCountByType[x.value],
+            option.value === NOTE_TYPES.TREATMENT_PLAN &&
+            !!noteTypeCountByType[option.value],
         }))
     }
     formatOptionLabel={option => renderOptionLabel(option, noteTypeCountByType)}
-    prefix="note.property.type"
     onChange={onChange}
   />
 );

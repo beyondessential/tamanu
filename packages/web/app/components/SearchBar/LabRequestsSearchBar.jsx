@@ -218,7 +218,6 @@ export const LabRequestsSearchBar = ({ status = '' }) => {
             }
             enumValues={LAB_REQUEST_STATUS_LABELS}
             size="small"
-            prefix="labs.property.status"
           />
         )}
       </>

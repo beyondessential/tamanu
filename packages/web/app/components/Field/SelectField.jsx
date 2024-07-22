@@ -11,7 +11,6 @@ import { Colors } from '../../constants';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 import { StyledTextField } from './TextField';
 import { FormFieldTag } from '../Tag';
-import { getTranslatedOptions } from '../Translation/getTranslatedOptions';
 import { useTranslation } from '../../contexts/Translation';
 
 const StyledFormControl = styled(FormControl)`
@@ -210,7 +209,7 @@ export const SelectInput = ({
           menuPosition="fixed"
           styles={customStyleObject || defaultStyles}
           menuShouldBlockScroll="true"
-          placeholder={getTranslation("general.placeholder.select", "Select")}
+          placeholder={getTranslation('general.placeholder.select', 'Select')}
           isClearable={value !== '' && isClearable && !props.required && !disabled}
           isSearchable={false}
           tabIndex={inputProps.tabIndex}
@@ -235,13 +234,8 @@ export const BaseSelectField = ({ field, ...props }) => (
 );
 
 // NOTE: not compatible with disabled SelectFields
-export const SelectField = ({ field, options, prefix, value, name, ...props }) => (
-  <SelectInput
-    options={getTranslatedOptions(options, prefix)}
-    value={field ? field.value : value}
-    name={field ? field.name : name}
-    {...props}
-  />
+export const SelectField = ({ field, value, name, ...props }) => (
+  <SelectInput value={field ? field.value : value} name={field ? field.name : name} {...props} />
 );
 
 SelectField.propTypes = {

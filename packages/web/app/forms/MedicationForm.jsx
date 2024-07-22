@@ -238,7 +238,6 @@ export const MedicationForm = React.memo(
                 enumValues={DRUG_ROUTE_LABELS}
                 disabled={readOnly}
                 required={!readOnly}
-                prefix="medication.property.route"
               />
               <Field
                 name="date"

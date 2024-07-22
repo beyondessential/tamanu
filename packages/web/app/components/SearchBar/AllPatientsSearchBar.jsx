@@ -56,7 +56,6 @@ export const AllPatientsSearchBar = React.memo(({ onSearch, searchParameters }) 
           />
           <TwoColumnsField>
             <DOBFields showExactBirth={false} />
-            {/** TODO enum registry */}
             <SexLocalisedField
               name="sex"
               label={<TranslatedText stringId="general.localisedField.sex.label" fallback="Sex" />}
@@ -66,7 +65,6 @@ export const AllPatientsSearchBar = React.memo(({ onSearch, searchParameters }) 
               }
               enumValues={SEX_LABELS}
               size="small"
-              prefix="patient.property.sex"
             />
           </TwoColumnsField>
           <VillageLocalisedField

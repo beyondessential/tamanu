@@ -51,7 +51,6 @@ export const NewTemplateForm = memo(({ onSubmit, allowInputTitleType }) => {
             component={TranslatedSelectField}
             enumValues={TEMPLATE_TYPE_LABELS}
             required
-            prefix="template.property.type"
             onChange={() => resetForm({ values: {} })}
           />
           <Field

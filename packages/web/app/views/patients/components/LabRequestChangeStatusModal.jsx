@@ -73,7 +73,6 @@ export const LabRequestChangeStatusModal = React.memo(
                 }
                 component={TranslatedSelectField}
                 required
-                prefix="lab.property.status"
               />
               {labRequest.status === LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED &&
                 values.status !== LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED && (

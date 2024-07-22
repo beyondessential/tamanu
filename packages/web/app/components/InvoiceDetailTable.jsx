@@ -214,13 +214,7 @@ const getInvoicePriceChangeCategory = row => {
       />
     );
     const { itemType } = row.invoicePriceChangeType;
-    category = (
-      <TranslatedEnum
-        prefix="invoice.priceChange.property.type"
-        value={itemType}
-        enumValues={INVOICE_PRICE_CHANGE_TYPE_LABELS}
-      />
-    );
+    category = <TranslatedEnum value={itemType} enumValues={INVOICE_PRICE_CHANGE_TYPE_LABELS} />;
   } else {
     name = row.description;
     category = 'Additional';

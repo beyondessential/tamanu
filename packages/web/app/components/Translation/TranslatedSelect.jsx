@@ -1,12 +1,12 @@
 import React from 'react';
-import { isRegisteredEnum } from '@tamanu/constants';
+import { getEnumPrefix } from '@tamanu/shared/utils';
 import { MultiselectInput, SelectInput } from '../Field';
 import { getTranslatedOptions } from './getTranslatedOptions';
 import { IS_DEVELOPMENT } from '../../utils/env';
+import { throwIfNotRegisteredEnum } from '../../utils/throwIfNotRegisteredEnum';
 
 const TranslatedSelectInput = ({
   field,
-  prefix,
   enumValues,
   transformOptions,
   value,
@@ -14,13 +14,16 @@ const TranslatedSelectInput = ({
   component,
   ...props
 }) => {
-  const InputComponent = component;
-  if (IS_DEVELOPMENT && !isRegisteredEnum(enumValues)) {
-    throw new Error(
-      `TranslatedSelect enumValues for field ${name ||
-        field?.name} are not registered in enumRegistry`,
-    );
+  if (IS_DEVELOPMENT) {
+    throwIfNotRegisteredEnum(enumValues, name);
   }
+  const prefix = getEnumPrefix(enumValues);
+  const InputComponent = component;
+
+  const filteredOptions = transformOptions
+    ? transformOptions(translatedOptions)
+    : translatedOptions;
+
   const translatedOptions = getTranslatedOptions(
     Object.entries(enumValues).map(([value, label]) => ({
       value,
@@ -28,9 +31,6 @@ const TranslatedSelectInput = ({
     })),
     prefix,
   );
-  const filteredOptions = transformOptions
-    ? transformOptions(translatedOptions)
-    : translatedOptions;
   return (
     <InputComponent
       options={filteredOptions}
