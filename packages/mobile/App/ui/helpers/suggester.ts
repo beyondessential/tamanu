@@ -15,6 +15,13 @@ interface SuggesterOptions<ModelType> extends FindManyOptions<ModelType> {
   where: ObjectLiteral; // Suggester only takes 'where' of type object.
 }
 
+const ModelToDataType = {
+  LocationGroup: 'locationGroup',
+  Facility: 'facility',
+  Department: 'department',
+  Location: 'location',
+};
+
 const defaultFormatter = (model): OptionType => ({ label: model.name, value: model.id });
 
 const extractDataId = ({ stringId }) => stringId.split('.').pop();
@@ -68,11 +75,12 @@ export class Suggester<ModelType extends BaseModelSubclass> {
 
   fetchSuggestions = async (search: string, language: string = 'en'): Promise<OptionType[]> => {
     const { where = {}, column = 'name', relations } = this.options;
+    const dataType = where?.type ?? ModelToDataType[this.model.name];
 
     try {
       const translations = await TranslatedString.getReferenceDataTranslationsByDataType(
         language,
-        this.options?.where?.type,
+        dataType,
         search,
       );
 
