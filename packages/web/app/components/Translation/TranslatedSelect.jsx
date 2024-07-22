@@ -3,7 +3,6 @@ import { getEnumPrefix, throwIfNotRegisteredEnum } from '@tamanu/shared/utils/en
 import { MultiselectInput, SelectInput } from '../Field';
 import { getTranslatedOptions } from './getTranslatedOptions';
 import { IS_DEVELOPMENT } from '../../utils/env';
-// import { throwIfNotRegisteredEnum } from '../../utils/throwIfNotRegisteredEnum';
 
 const TranslatedSelectInput = ({
   field,

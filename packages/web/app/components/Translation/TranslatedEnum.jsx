@@ -4,7 +4,6 @@ import PropTypes from 'prop-types';
 import { TranslatedText } from './TranslatedText.jsx';
 import { IS_DEVELOPMENT } from '../../utils/env';
 import { getEnumPrefix, throwIfNotRegisteredEnum } from '@tamanu/shared/utils/enumRegistry';
-// import { throwIfNotRegisteredEnum } from '../../utils/throwIfNotRegisteredEnum.js';
 
 export const TranslatedEnum = ({ value, enumValues, enumFallback = 'Unknown' }) => {
   if (IS_DEVELOPMENT) {
