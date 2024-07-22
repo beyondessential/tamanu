@@ -1,8 +1,8 @@
 import React from 'react';
-// import { getEnumPrefix } from '@tamanu/shared/utils';
+import { getEnumPrefix, throwIfNotRegisteredEnum } from '@tamanu/shared/utils/enumRegistry';
 import { MultiselectInput, SelectInput } from '../Field';
 import { getTranslatedOptions } from './getTranslatedOptions';
-// import { IS_DEVELOPMENT } from '../../utils/env';
+import { IS_DEVELOPMENT } from '../../utils/env';
 // import { throwIfNotRegisteredEnum } from '../../utils/throwIfNotRegisteredEnum';
 
 const TranslatedSelectInput = ({
@@ -14,10 +14,10 @@ const TranslatedSelectInput = ({
   component,
   ...props
 }) => {
-  // if (IS_DEVELOPMENT) {
-  //   throwIfNotRegisteredEnum(enumValues, name);
-  // }
-  const prefix = 'placeholder_dog';
+  if (IS_DEVELOPMENT) {
+    throwIfNotRegisteredEnum(enumValues, name);
+  }
+  const prefix = getEnumPrefix(enumValues);
   const InputComponent = component;
 
   const filteredOptions = transformOptions
