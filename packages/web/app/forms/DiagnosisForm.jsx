@@ -16,6 +16,7 @@ import {
 } from '../components/Field';
 import { useSuggester } from '../api';
 import { TranslatedText } from '../components/Translation/TranslatedText';
+import { useAuth } from '../contexts/Auth';
 
 export const DiagnosisForm = React.memo(
   ({ isTriage = false, onCancel, onSave, diagnosis, excludeDiagnoses }) => {
@@ -28,9 +29,12 @@ export const DiagnosisForm = React.memo(
     });
     const defaultCertainty = certaintyOptions[0].value;
 
+    const { currentUser } = useAuth();
+
     const icd10Suggester = useSuggester('icd10', {
       filterer: icd => !excludeDiagnoses.some(d => d.diagnosisId === icd.id),
     });
+    const practitionerSuggester = useSuggester('practitioner');
 
     return (
       <Form
@@ -40,6 +44,7 @@ export const DiagnosisForm = React.memo(
           isPrimary: true,
           certainty: defaultCertainty,
           ...diagnosis,
+          clinicianId: diagnosis?.clinicianId || currentUser.id
         }}
         formType={diagnosis ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
         validationSchema={yup.object().shape({
@@ -97,6 +102,17 @@ export const DiagnosisForm = React.memo(
               component={DateField}
               required
               saveDateAsString
+            />
+            <Field
+              name="clinicianId"
+              label={
+                <TranslatedText
+                  stringId="general.localisedField.clinician.label"
+                  fallback="Clinician"
+                />
+              }
+              component={AutocompleteField}
+              suggester={practitionerSuggester}
             />
             <FormSubmitCancelRow onConfirm={submitForm} onCancel={onCancel} />
           </FormGrid>
