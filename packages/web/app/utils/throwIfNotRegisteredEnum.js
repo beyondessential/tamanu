@@ -1,18 +1,18 @@
 import { getEnumPrefix, isRegisteredEnum } from '../../../shared/src/utils/enumRegistry';
 
-export const throwIfNotRegisteredEnum = (enumValues, name) => {
+export const throwIfNotRegisteredEnum = (enumValues, fieldName) => {
   if (!isRegisteredEnum(enumValues)) {
     throw new Error(
       `enumValues ${
-        name ? `for field ${name} ` : ''
+        fieldName ? `for field ${fieldName} ` : ''
       }are not registered in enumRegistry: ${JSON.stringify(enumValues)} `,
     );
   }
   if (!getEnumPrefix(enumValues)) {
     throw new Error(
-      `enumValues for ${name ? `for field ${name} ` : ''}has no associated prefix: ${JSON.stringify(
-        enumValues,
-      )}`,
+      `enumValues for ${
+        fieldName ? `for field ${fieldName} ` : ''
+      }has no associated prefix: ${JSON.stringify(enumValues)}`,
     );
   }
 };

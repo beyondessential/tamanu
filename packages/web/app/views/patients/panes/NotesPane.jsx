@@ -42,7 +42,6 @@ export const NotesPane = React.memo(({ encounter, readonly }) => {
           onChange={e => setNoteType(e.target.value)}
           value={noteType}
           name="noteType"
-          prefix="note.property.type"
           enumValues={NOTE_TYPE_LABELS}
           transformOptions={options => [
             {

@@ -98,7 +98,6 @@ const ImagingRequestSection = ({ currentStatus, imagingRequest }) => {
         disabled={isCancelled}
         isClearable={false}
         required
-        prefix="imaging.property.status"
       />
       <DateTimeInput
         value={imagingRequest.requestedDate}

@@ -194,7 +194,6 @@ export const AppointmentsCalendar = () => {
               value={appointmentType}
               name="appointmentType"
               enumValues={APPOINTMENT_TYPES}
-              prefix="appointment.property.type"
             />
           </Section>
         </LeftContainer>

@@ -31,7 +31,6 @@ export const InvoicesSearchBar = React.memo(({ onSearch }) => (
       label={<TranslatedText stringId="general.localisedField.status.label" fallback="Status" />}
       component={TranslatedSelectField}
       enumValues={INVOICE_STATUS_LABELS}
-      prefix="invoice.property.status"
     />
     <LocalisedField
       name="paymentStatus"
@@ -43,7 +42,6 @@ export const InvoicesSearchBar = React.memo(({ onSearch }) => (
       }
       component={TranslatedSelectField}
       enumValues={INVOICE_PAYMENT_STATUS_LABELS}
-      prefix="invoice.property.paymentStatus"
     />
   </CustomisableSearchBar>
 ));

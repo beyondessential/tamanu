@@ -99,7 +99,6 @@ export const DiagnosisForm = React.memo(
                 });
               }}
               required
-              prefix="diagnosis.property.certainty"
             />
             <Field
               name="date"

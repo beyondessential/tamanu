@@ -13,6 +13,5 @@ export const VaccineCategoryField = ({ name = 'category', required, label }) => 
     component={TranslatedSelectField}
     required={required}
     enumValues={VACCINE_CATEGORIES}
-    prefix="vaccine.property.category"
   />
 );

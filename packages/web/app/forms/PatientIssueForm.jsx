@@ -20,7 +20,6 @@ export const PatientIssueForm = ({ onSubmit, editedObject, onCancel }) => (
           component={TranslatedSelectField}
           enumValues={PATIENT_ISSUE_LABELS}
           required
-          prefix="issues.property.option"
         />
         <Field
           name="note"

@@ -166,7 +166,6 @@ export const ImagingRequestsSearchBar = ({ memoryKey, statuses = [], advancedFie
             )
           }
           size="small"
-          prefix="imaging.property.status"
         />
       )}
       {isCompletedTable && <Spacer />}
@@ -186,7 +185,6 @@ export const ImagingRequestsSearchBar = ({ memoryKey, statuses = [], advancedFie
         }
         enumValues={IMAGING_TYPES}
         size="small"
-        prefix="imaging.property.type"
       />
       <LocalisedField
         name="requestedDateFrom"

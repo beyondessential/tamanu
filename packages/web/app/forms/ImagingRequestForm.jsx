@@ -216,7 +216,6 @@ export const ImagingRequestForm = React.memo(
                       label: imagingTypes[option.value],
                     }))
                 }
-                prefix="imaging.property.type"
               />
               {imagingAreas.length > 0 ? (
                 <Field

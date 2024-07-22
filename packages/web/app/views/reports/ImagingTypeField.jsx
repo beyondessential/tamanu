@@ -33,7 +33,6 @@ export const ImagingTypeField = ({ name = 'imagingType', label, required }) => {
         )
       }
       enumValues={IMAGING_TYPES}
-      prefix="imaging.property.type"
     />
   );
 };

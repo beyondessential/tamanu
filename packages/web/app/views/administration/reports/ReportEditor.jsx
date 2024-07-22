@@ -89,7 +89,6 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit, setF
             component={TranslatedSelectField}
             isClearable={false}
             enumValues={REPORT_DEFAULT_DATE_RANGES_LABELS}
-            prefix="report.property.defaultDateRange"
           />
         </Grid>
         {canWriteRawReportUser && schemaOptions?.length > 0 && (
@@ -114,7 +113,6 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit, setF
               name="dataSources"
               component={TranslatedMultiSelectField}
               enumValues={REPORT_DATA_SOURCE_LABELS}
-              prefix="report.property.dataSources"
             />
           </Grid>
         )}
@@ -171,7 +169,6 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit, setF
           component={TranslatedSelectField}
           isClearable={false}
           enumValues={REPORT_STATUS_LABELS}
-          prefix="report.property.status"
         />
         <Button
           disabled={!dirty}

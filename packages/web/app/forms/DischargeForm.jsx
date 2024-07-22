@@ -194,7 +194,6 @@ const RepeatsAccessor = ({ id }) => (
     isClearable={false}
     component={TranslatedSelectField}
     enumValues={REPEATS_LABELS}
-    prefix="discharge.medication.property.repeats"
   />
 );
 

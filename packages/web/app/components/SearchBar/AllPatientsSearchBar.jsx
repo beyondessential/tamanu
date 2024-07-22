@@ -65,7 +65,6 @@ export const AllPatientsSearchBar = React.memo(({ onSearch, searchParameters }) 
               }
               enumValues={SEX_LABELS}
               size="small"
-              prefix="patient.property.sex"
             />
           </TwoColumnsField>
           <VillageLocalisedField

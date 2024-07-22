@@ -173,7 +173,6 @@ export const NoteTypeField = ({ required, noteTypeCountByType, onChange }) => (
         }))
     }
     formatOptionLabel={option => renderOptionLabel(option, noteTypeCountByType)}
-    prefix="note.property.type"
     onChange={onChange}
   />
 );

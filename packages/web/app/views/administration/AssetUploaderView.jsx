@@ -96,7 +96,6 @@ export const AssetUploaderView = memo(() => {
                 label={<TranslatedText stringId="asset.name.label" fallback="Select asset" />}
                 name="name"
                 required
-                prefix="asset.property.name"
               />
               <Field
                 component={FileChooserField}

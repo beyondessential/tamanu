@@ -105,7 +105,6 @@ export const AppointmentForm = props => {
               component={TranslatedSelectField}
               enumValues={APPOINTMENT_TYPES}
               required
-              prefix="appointment.property.type"
             />
           </FormGrid>
           <div style={{ marginTop: '1rem' }}>

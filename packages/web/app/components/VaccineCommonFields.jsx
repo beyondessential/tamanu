@@ -112,7 +112,6 @@ export const InjectionSiteField = () => (
     label={<TranslatedText stringId="vaccine.injectionSite.label" fallback="Injection site" />}
     component={TranslatedSelectField}
     enumValues={INJECTION_SITE_LABELS}
-    prefix="vaccine.property.injectionSite"
   />
 );
 
