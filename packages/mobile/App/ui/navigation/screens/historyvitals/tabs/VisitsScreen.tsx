@@ -25,23 +25,19 @@ const displayNotes = (notes: INote[]): string | Element =>
 const visitsHistoryRows = {
   diagnoses: {
     name: <TranslatedText stringId="general.form.diagnosis.label" fallback="Diagnosis" />,
-    accessor: (diagnoses: IDiagnosis[]) => {
-      console.log(diagnoses);
-      return (
-        diagnoses.map((d, i) => (
-          <>
-            {i > 0 && '\n\n'}
-            <TranslatedReferenceData
-              key={d.id}
-              category="icd10"
-              value={d.diagnosis.id}
-              fallback={d.diagnosis.name}
-            />
-            {` (${d.certainty})`} {/* TODO: translated enum */}
-          </>
-        )) || DEFAULT_FIELD_VAL
-      );
-    },
+    accessor: (diagnoses: IDiagnosis[]) =>
+      diagnoses.map((d, i) => (
+        <>
+          {i > 0 && '\n\n'}
+          <TranslatedReferenceData
+            key={d.id}
+            category="icd10"
+            value={d.diagnosis.id}
+            fallback={d.diagnosis.name}
+          />
+          {` (${d.certainty})`} {/* TODO: translated enum */}
+        </>
+      )) || DEFAULT_FIELD_VAL,
   },
   notes: {
     name: <TranslatedText stringId="note.property.type.clinicalNote" fallback="Clinical Note" />,
