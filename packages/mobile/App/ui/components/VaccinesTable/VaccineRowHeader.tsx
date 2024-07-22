@@ -1,10 +1,11 @@
 import React from 'react';
 import { StyledText, StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
+import { TranslatedTextElement } from '../Translations/TranslatedText';
 
 interface VaccineRowHeaderProps {
   title: string;
-  subtitle?: string;
+  subtitle?: TranslatedTextElement;
 }
 
 export const VaccineRowHeader = React.memo(
