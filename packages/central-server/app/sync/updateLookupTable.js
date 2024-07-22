@@ -4,16 +4,30 @@ import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging/log';
 import { withConfig } from '@tamanu/shared/utils/withConfig';
 
-export const snapshotGlobalChangesForModel = async (model, config, since, sessionConfig) => {
+export const updateLookupTableForModel = async (model, config, since, sessionConfig) => {
   const CHUNK_SIZE = config.sync.maxRecordsPerPullSnapshotChunk;
   const { tableName: table } = model;
 
   let fromId = '';
   let totalCount = 0;
   const attributes = model.getAttributes();
-  const { patientIdTables, facilityIdTable, joins, globalFilter: filter, isLabRequestValue } =
-    model.buildSyncLookupFilter(sessionConfig) || {};
+  const {
+    patientIdTables,
+    facilityIdTable,
+    encounterIdTable,
+    encounterIdColumn,
+    joins,
+    globalFilter: filter,
+    isLabRequestValue,
+  } = model.buildSyncLookupFilter(sessionConfig) || {};
   const useUpdatedAtByFieldSum = !!attributes.updatedAtByField;
+
+  let encounterIdColumnValue = 'NULL';
+  if (encounterIdTable) {
+    encounterIdColumnValue = `${encounterIdTable}.${
+      encounterIdColumn ? encounterIdColumn : 'encounter_id'
+    }`;
+  }
 
   while (fromId != null) {
     const [[{ maxId, count }]] = await model.sequelize.query(
@@ -24,6 +38,7 @@ export const snapshotGlobalChangesForModel = async (model, config, since, sessio
             record_type,
             patient_id,
             facility_id,
+            encounter_id,
             is_deleted,
             updated_at_sync_tick,
             updated_at_by_field_sum,
@@ -39,6 +54,7 @@ export const snapshotGlobalChangesForModel = async (model, config, since, sessio
                 : 'NULL'
             },
             ${facilityIdTable ? `${facilityIdTable}.facility_id` : 'NULL'},
+            ${encounterIdColumnValue},
             ${table}.deleted_at IS NOT NULL,
             ${table}.updated_at_sync_tick,
             ${useUpdatedAtByFieldSum ? 'updated_at_by_field_summary.sum' : 'NULL'},
@@ -122,7 +138,7 @@ export const updateLookupTable = withConfig(async (outgoingModels, since, config
 
   for (const model of Object.values(outgoingModels)) {
     try {
-      const modelChangesCount = await snapshotGlobalChangesForModel(
+      const modelChangesCount = await updateLookupTableForModel(
         model,
         config,
         since,

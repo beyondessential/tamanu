@@ -29,6 +29,10 @@ export async function up(query) {
       type: Sequelize.STRING,
       allowNull: true,
     },
+    encounter_id: {
+      type: Sequelize.STRING,
+      allowNull: true,
+    },
     facility_id: {
       type: Sequelize.STRING,
       allowNull: true,

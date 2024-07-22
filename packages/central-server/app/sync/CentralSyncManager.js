@@ -235,7 +235,7 @@ export class CentralSyncManager {
       { isolationLevel: Transaction.ISOLATION_LEVELS.REPEATABLE_READ },
       async () => {
         await updateLookupTable(
-          [this.store.models.Encounter],
+          [this.store.models.Encounter], //TODO: Will be changed to all models later
           globalSyncSince,
           this.constructor.config,
         );
