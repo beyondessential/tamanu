@@ -9,7 +9,7 @@ import { LoadingScreen } from '~/ui/components/LoadingScreen';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
 import { withPatient } from '~/ui/containers/Patient';
 import { IDiagnosis, INote } from '~/types';
-import { TranslatedText, TranslatedTextElement } from '~/ui/components/Translations/TranslatedText';
+import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 import { TranslatedReferenceData } from '~/ui/components/Translations/TranslatedReferenceData';
 
 const DEFAULT_FIELD_VAL = (
