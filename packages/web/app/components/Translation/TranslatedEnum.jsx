@@ -1,20 +1,19 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { isRegisteredEnum, getEnumPrefix } from '@tamanu/shared';
+import { getEnumPrefix } from '@tamanu/shared';
 import { TranslatedText } from './TranslatedText.jsx';
 import { IS_DEVELOPMENT } from '../../utils/env';
+import { throwIfNotRegisteredEnum } from '../../utils/throwIfNotRegisteredEnum.js';
 
 export const TranslatedEnum = ({ value, enumValues, enumFallback = 'Unknown' }) => {
-  if (IS_DEVELOPMENT && !isRegisteredEnum(enumValues))
-    throw new Error(
-      'enumValues prop must be a constant registered within enumRegistry in @tamanu/constants',
-    );
-
+  if (IS_DEVELOPMENT) {
+    throwIfNotRegisteredEnum(enumValues);
+  }
+  const prefix = getEnumPrefix(enumValues);
   if (!enumValues[value]) {
     return <TranslatedText stringId="general.fallback.unknown" fallback={enumFallback} />;
   }
 
-  const prefix = getEnumPrefix(enumValues);
   const fallback = enumValues[value];
   const stringId = `${prefix}.${value}`;
   return <TranslatedText stringId={stringId} fallback={fallback} />;
