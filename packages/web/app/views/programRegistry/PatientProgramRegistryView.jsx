@@ -53,8 +53,13 @@ export const PatientProgramRegistryView = () => {
     isLoading: conditionsLoading,
   } = useProgramRegistryConditionsQuery(data?.programRegistryId);
 
-  if (isLoading || conditionsLoading) return <LoadingIndicator />;
-  if (isError) return <p>Program registry &apos;{title || 'Unknown'}&apos; not found.</p>;
+  if (isLoading || conditionsLoading) {
+    return <LoadingIndicator />;
+  }
+
+  if (isError) {
+    return <p>Program registry &apos;{title || 'Unknown'}&apos; not found.</p>;
+  }
 
   const conditionOptions = programRegistryConditions.map(x => ({
     label: x.name,
