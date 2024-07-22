@@ -5,21 +5,16 @@ import { RowView, StyledText, StyledTouchableOpacity, StyledView } from '/styled
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { VaccineStatus } from '~/ui/helpers/patient';
 import { TranslatedReferenceData } from '../Translations/TranslatedReferenceData';
+import { VaccineDataProps } from '.';
 
 export interface CardHeaderProps {
-  name: string;
-  id: string;
-  code: string;
-  status: string;
+  vaccineData: VaccineDataProps;
   onCloseModal: () => void;
   onEditDetails: () => void;
 }
 
 export const VaccineCardHeader = ({
-  name,
-  id,
-  code,
-  status,
+  vaccineData: { name, id, code, status },
   onCloseModal,
   onEditDetails,
 }: CardHeaderProps): JSX.Element => {
