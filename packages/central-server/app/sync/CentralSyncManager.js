@@ -239,10 +239,16 @@ export class CentralSyncManager {
           globalSyncSince,
           this.constructor.config,
         );
+
+        // update the last successful lookup table in the same transaction - if updating the cursor fails,
+        // we want to roll back the rest of the saves so that the next update can still detect the recods that failed
+        // to be updated last time
+        log.debug('CentralSyncManager.updateLookupTable()', {
+          lastSuccessfulLookupTableUpdate: tick,
+        });
+        await this.store.models.LocalSystemFact.set(LAST_SUCCESSFUL_LOOKUP_TABLE_UPDATE_KEY, tick);
       },
     );
-
-    await this.store.models.LocalSystemFact.set(LAST_SUCCESSFUL_LOOKUP_TABLE_UPDATE_KEY, tick);
   }
 
   async waitForPendingEdits(tick) {
@@ -325,7 +331,7 @@ export class CentralSyncManager {
       );
 
       const syncAllLabRequests = await models.Setting.get('syncAllLabRequests', facilityId);
-     
+
       const sessionConfig = {
         // for facilities with a lab, need ongoing lab requests
         // no need for historical ones on initial sync, and no need on mobile
