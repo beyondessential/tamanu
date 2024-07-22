@@ -124,10 +124,6 @@ export const VaccinesTable = ({
       a.label.localeCompare(b.label),
   );
 
-  uniqueByVaccine.forEach(scheduledVaccine => {
-    console.log(scheduledVaccine);
-  });
-
   const rows = uniqueByVaccine.map(scheduledVaccine => ({
     rowTitle: scheduledVaccine.label,
     rowKey: 'label',
