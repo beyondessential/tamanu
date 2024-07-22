@@ -109,7 +109,9 @@ export const PatientPaymentForm = ({
   const handleSubmit = (data, { resetForm }) => {
     const editingAmount = Number(editingPayment?.amount) ? Number(editingPayment.amount) : 0;
     const showConfirmModal =
-      data?.amount >= patientPaymentRemainingBalance + editingAmount && !openConfirmPaidModal;
+      Number(data?.amount) >=
+        round(new Decimal(patientPaymentRemainingBalance).add(editingAmount).toNumber(), 2) &&
+      !openConfirmPaidModal;
     if (showConfirmModal) {
       setOpenConfirmPaidModal(true);
       return;
