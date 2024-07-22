@@ -15,11 +15,7 @@ export const TemplateList = React.memo(props => (
         key: 'type',
         title: <TranslatedText stringId="general.type.label" fallback="Type" />,
         accessor: record => (
-          <TranslatedEnum
-            prefix="template.property.type"
-            value={record.type}
-            enumValues={TEMPLATE_TYPE_LABELS}
-          />
+          <TranslatedEnum value={record.type} enumValues={TEMPLATE_TYPE_LABELS} />
         ),
         sortable: false,
       },

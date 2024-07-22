@@ -67,11 +67,7 @@ const getDate = ({ surveyResponse: { submissionDate } }) => {
 const getReferralType = ({ surveyResponse: { survey } }) => survey.name;
 const getReferralBy = ({ surveyResponse }) => <ReferralBy surveyResponse={surveyResponse} />;
 const getStatus = ({ status }) => (
-  <TranslatedEnum
-    prefix="referral.property.status"
-    value={status}
-    enumValues={REFERRAL_STATUS_LABELS}
-  />
+  <TranslatedEnum value={status} enumValues={REFERRAL_STATUS_LABELS} />
 );
 
 const MODAL_IDS = {
