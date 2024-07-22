@@ -40,6 +40,7 @@ export const VaccineCard: FunctionComponent<PropsWithChildren<VaccineCardProps>>
     <StyledView>
       <VaccineCardHeader
         name={vaccineData.name}
+        id={vaccineData.id}
         code={vaccineData.code}
         status={vaccineData.status}
         onCloseModal={onCloseModal}

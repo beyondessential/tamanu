@@ -4,9 +4,11 @@ import * as Icons from '../Icons';
 import { RowView, StyledText, StyledTouchableOpacity, StyledView } from '/styled/common';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { VaccineStatus } from '~/ui/helpers/patient';
+import { TranslatedReferenceData } from '../Translations/TranslatedReferenceData';
 
 export interface CardHeaderProps {
   name: string;
+  id: string;
   code: string;
   status: string;
   onCloseModal: () => void;
@@ -15,6 +17,7 @@ export interface CardHeaderProps {
 
 export const VaccineCardHeader = ({
   name,
+  id,
   code,
   status,
   onCloseModal,
@@ -75,7 +78,7 @@ export const VaccineCardHeader = ({
             color={theme.colors.WHITE}
             fontSize={screenPercentageToDP(1.944, Orientation.Height)}
           >
-            {name}
+            <TranslatedReferenceData category="drug" value={id} fallback={name} />
           </StyledText>
         </StyledView>
       </RowView>
