@@ -12,7 +12,7 @@ import { User } from './User';
 
 @Entity('note')
 export class Note extends BaseModel implements INote {
-  static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
+  static syncDirection = SYNC_DIRECTIONS.PUSH_TO_CENTRAL;
 
   @Column({ type: 'varchar', nullable: false })
   noteType: NoteType;
