@@ -44,7 +44,8 @@ export const PatientPaymentsTable = ({ invoice }) => {
   const updateEditingPayment = useCallback(editingPayment => setEditingPayment(editingPayment), []);
 
   const hideRecordPaymentForm =
-    patientPaymentRemainingBalance <= 0 || invoice.status === INVOICE_STATUSES.CANCELLED;
+    round(new Decimal(patientPaymentRemainingBalance).toNumber(), 2) <= 0 ||
+    invoice.status === INVOICE_STATUSES.CANCELLED;
   const COLUMNS = [
     {
       key: 'date',
