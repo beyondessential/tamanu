@@ -159,7 +159,7 @@ export class TamanuApi {
         responseInterceptorChain[j++],
       );
     }
-    await responsePromise;
+    await responsePromise.catch(() => {});
 
     if (response.ok) {
       if (returnResponse) {
