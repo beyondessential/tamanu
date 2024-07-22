@@ -137,7 +137,7 @@ export async function insurerPaymentImporter({ errors, models, stats, file, chec
             status:
               data.amount === 0
                 ? INVOICE_INSURER_PAYMENT_STATUSES.REJECTED
-                : data.amount === insurerDiscountTotal
+                : data.amount === round(insurerDiscountTotal, 2)
                 ? INVOICE_INSURER_PAYMENT_STATUSES.PAID
                 : INVOICE_INSURER_PAYMENT_STATUSES.PARTIAL,
           },
@@ -184,7 +184,7 @@ export async function insurerPaymentImporter({ errors, models, stats, file, chec
           status:
             data.amount === 0
               ? INVOICE_INSURER_PAYMENT_STATUSES.REJECTED
-              : data.amount === insurerDiscountTotal
+              : data.amount === round(insurerDiscountTotal, 2)
               ? INVOICE_INSURER_PAYMENT_STATUSES.PAID
               : INVOICE_INSURER_PAYMENT_STATUSES.PARTIAL,
         });
