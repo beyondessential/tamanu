@@ -1,5 +1,5 @@
 import React from 'react';
-import { getEnumPrefix } from '@tamanu/shared/utils/enumRegistry';
+import { getEnumPrefix } from '@tamanu/shared/utils';
 import { MultiselectInput, SelectInput } from '../Field';
 import { getTranslatedOptions } from './getTranslatedOptions';
 import { IS_DEVELOPMENT } from '../../utils/env';

@@ -1,4 +1,4 @@
-import { getEnumPrefix, isRegisteredEnum } from '@tamanu/shared';
+import { getEnumPrefix, isRegisteredEnum } from '@tamanu/shared/utils';
 
 export const throwIfNotRegisteredEnum = (enumValues, fieldName) => {
   if (!isRegisteredEnum(enumValues)) {

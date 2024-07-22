@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { getEnumPrefix } from '@tamanu/shared/utils/enumRegistry';
+import { getEnumPrefix } from '@tamanu/shared/utils';
 import { TranslatedText } from './TranslatedText.jsx';
 import { IS_DEVELOPMENT } from '../../utils/env';
 import { throwIfNotRegisteredEnum } from '../../utils/throwIfNotRegisteredEnum.js';
