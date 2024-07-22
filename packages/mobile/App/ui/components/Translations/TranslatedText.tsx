@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useMemo } from 'react';
 import styled from 'styled-components';
 import { StyledText } from '~/ui/styled/common';
 import { TranslatedTextProps, useTranslation } from '~/ui/contexts/TranslationContext';
@@ -21,15 +21,22 @@ export const TranslatedText = ({
   fallback,
   replacements,
   uppercase = false,
+  lowercase = false,
 }: TranslatedTextProps): ReactElement => {
   const { debugMode, getTranslation } = useTranslation();
-  const translation = getTranslation(stringId, fallback, replacements);
+  const translation = useMemo(
+    () =>
+      getTranslation(
+        stringId,
+        fallback?.split('\\n').join('\n'),
+        replacements,
+        uppercase,
+        lowercase,
+      ),
+    [getTranslation, stringId, fallback, replacements, uppercase, lowercase],
+  );
 
   const isDebugMode = __DEV__ && debugMode;
 
-  return (
-    <TextWrapper $isDebugMode={isDebugMode}>
-      {uppercase ? translation.toUpperCase() : translation}
-    </TextWrapper>
-  );
+  return <TextWrapper $isDebugMode={isDebugMode}>{translation}</TextWrapper>;
 };

@@ -12,6 +12,7 @@ import { ReferenceDataType } from '~/types';
 import { useBackend } from '~/ui/hooks';
 import { VisibilityStatus } from '~/visibilityStatuses';
 import { TranslatedText } from '../../Translations/TranslatedText';
+import { TranslatedReferenceData } from '../../Translations/TranslatedReferenceData';
 
 export const LabRequestForm = ({ errors, handleSubmit, navigation }): ReactElement => {
   const [labTestTypes, setLabTestTypes] = useState([]);
@@ -51,7 +52,13 @@ export const LabRequestForm = ({ errors, handleSubmit, navigation }): ReactEleme
     });
     const labTestTypeOptions = selectedLabTestTypes.map(labTestType => ({
       id: labTestType.id,
-      text: labTestType.name,
+      text: (
+        <TranslatedReferenceData
+          fallback={labTestType.name}
+          value={labTestType.id}
+          category="labTestType"
+        />
+      ),
       value: false,
     }));
     setLabTestTypes(labTestTypeOptions);
