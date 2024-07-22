@@ -60,12 +60,12 @@ export const CellContent = ({
 export const VaccineTableCell = memo(
   ({ data, status, onPress }: VaccineTableCellProps): JSX.Element => {
     const { scheduledVaccine, administeredVaccine, vaccineStatus, dueStatus } = data;
-    const { vaccine, id: scheduledVaccineId } = scheduledVaccine;
+    const { vaccine, id: scheduledVaccineId, doseLabel } = scheduledVaccine;
 
     const cellStatus = vaccineStatus === VaccineStatus.SCHEDULED ? dueStatus.status : status;
 
     const onAdminister = useCallback(() => {
-      onPress({ ...vaccine, status: vaccineStatus, scheduledVaccineId, administeredVaccine });
+      onPress({ ...vaccine, status: vaccineStatus, scheduledVaccineId, administeredVaccine, doseLabel });
       Popup.hide();
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [data]);

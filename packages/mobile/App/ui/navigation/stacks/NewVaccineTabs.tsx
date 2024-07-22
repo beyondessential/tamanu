@@ -37,7 +37,7 @@ const Header = ({ navigation, vaccine, patient }: NewVaccineHeaderProps): ReactE
   return (
     <SafeAreaView
       style={{
-        height: screenPercentageToDP(10.01, Orientation.Height),
+        height: screenPercentageToDP(12.01, Orientation.Height),
         backgroundColor: theme.colors.PRIMARY_MAIN,
       }}
     >

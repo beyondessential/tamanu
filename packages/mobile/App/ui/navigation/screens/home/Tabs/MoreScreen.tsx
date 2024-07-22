@@ -18,6 +18,7 @@ import { useFacility } from '~/ui/contexts/FacilityContext';
 import { authUserSelector } from '/helpers/selectors';
 import { useLocalisation } from '~/ui/contexts/LocalisationContext';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
+import { TranslatedReferenceData } from '~/ui/components/Translations/TranslatedReferenceData';
 
 const StyledSeparator = styled(Separator)`
   padding-left: ${screenPercentageToDP(4.86, Orientation.Width)}px;
@@ -97,7 +98,7 @@ export const MoreScreen = (): ReactElement => {
   const supportDeskUrl = getLocalisation('supportDeskUrl');
   const authCtx = useAuth();
   const user = useSelector(authUserSelector);
-  const { facilityName } = useFacility();
+  const { facilityName, facilityId } = useFacility();
   const settings = useMemo(
     () => [
       {
@@ -139,7 +140,12 @@ export const MoreScreen = (): ReactElement => {
             fontSize={screenPercentageToDP(1.7, Orientation.Height)}
             color={theme.colors.TEXT_SUPER_DARK}
           >
-            {user.role} | {facilityName}
+            {user.role} |{' '}
+            <TranslatedReferenceData
+              category="facility"
+              fallback={facilityName}
+              value={facilityId}
+            />
           </StyledText>
         </RowView>
         <Button

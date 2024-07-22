@@ -4,19 +4,17 @@ import * as Icons from '../Icons';
 import { RowView, StyledText, StyledTouchableOpacity, StyledView } from '/styled/common';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { VaccineStatus } from '~/ui/helpers/patient';
+import { TranslatedReferenceData } from '../Translations/TranslatedReferenceData';
+import { VaccineDataProps } from '.';
 
 export interface CardHeaderProps {
-  name: string;
-  code: string;
-  status: string;
+  vaccineData: VaccineDataProps;
   onCloseModal: () => void;
   onEditDetails: () => void;
 }
 
 export const VaccineCardHeader = ({
-  name,
-  code,
-  status,
+  vaccineData: { name, id, code, status },
   onCloseModal,
   onEditDetails,
 }: CardHeaderProps): JSX.Element => {
@@ -75,7 +73,7 @@ export const VaccineCardHeader = ({
             color={theme.colors.WHITE}
             fontSize={screenPercentageToDP(1.944, Orientation.Height)}
           >
-            {name}
+            <TranslatedReferenceData category="drug" value={id} fallback={name} />
           </StyledText>
         </StyledView>
       </RowView>
