@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { TranslatedText } from './TranslatedText.jsx';
+import { TranslatedText } from './TranslatedText';
 
 export const TranslatedEnum = ({ prefix, value, enumValues, enumFallback = 'Unknown' }) => {
   if (!enumValues[value]) {
