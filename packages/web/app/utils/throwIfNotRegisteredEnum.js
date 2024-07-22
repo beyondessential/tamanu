@@ -1,9 +1,9 @@
-import { getEnumPrefix, isRegisteredEnum } from '../../../shared/src/utils/enumRegistry';
+import { getEnumPrefix, isRegisteredEnum } from '@tamanu/shared';
 
 export const throwIfNotRegisteredEnum = (enumValues, fieldName) => {
   if (!isRegisteredEnum(enumValues)) {
     throw new Error(
-      `enumValues ${
+      `enumValues for ${
         fieldName ? `for field ${fieldName} ` : ''
       }are not registered in enumRegistry: ${JSON.stringify(enumValues)} `,
     );
