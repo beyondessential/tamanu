@@ -147,9 +147,6 @@ export const ImagingRequestsSearchBar = ({ memoryKey, statuses = [], advancedFie
         }
         component={SearchField}
       />
-      {/*
-        enum registry TODO
-      */}
       {!isCompletedTable && (
         <LocalisedField
           name="status"

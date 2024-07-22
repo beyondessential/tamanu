@@ -94,7 +94,6 @@ export const BedManagementSearchBar = React.memo(({ onSearch, searchParameters }
           size="small"
           suggester={locationGroupSuggester}
         />
-        {/** enum registry TODO */}
         <LocalisedField
           name="status"
           label={
