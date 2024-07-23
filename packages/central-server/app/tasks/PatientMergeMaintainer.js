@@ -27,8 +27,8 @@ export class PatientMergeMaintainer extends ScheduledTask {
       ...config.schedules.patientMergeMaintainer,
       ...overrideConfig,
     };
-    const { schedule, jitterTime } = conf;
-    super(schedule, log, jitterTime);
+    const { schedule, jitterTime, enabled } = conf;
+    super(schedule, log, jitterTime, enabled);
     this.config = conf;
     this.models = context.store.models;
   }

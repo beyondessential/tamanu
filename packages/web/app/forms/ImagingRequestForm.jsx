@@ -25,9 +25,7 @@ import {
 } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
 import { FormCancelButton } from '../components/Button';
-import { ButtonRow } from '../components/ButtonRow';
-import { DateDisplay } from '../components/DateDisplay';
-import { FormSeparatorLine } from '../components/FormSeparatorLine';
+import { ButtonRow, DateDisplay, FormSeparatorLine } from '../components';
 import { FormSubmitDropdownButton } from '../components/DropdownButton';
 import { TranslatedReferenceData, TranslatedText } from '../components/Translation';
 import { useTranslation } from '../contexts/Translation';
