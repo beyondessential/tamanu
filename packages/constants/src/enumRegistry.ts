@@ -18,7 +18,7 @@ import { BIRTH_TYPE_LABELS } from './births';
 import { IMAGING_TYPES } from './imaging';
 import {
   REPORT_DATA_SOURCE_LABELS,
-  REPORT_DATE_RANGE_LABELS,
+  REPORT_DEFAULT_DATE_RANGES_LABELS,
   REPORT_DB_SCHEMA_LABELS,
   REPORT_STATUS_LABELS,
 } from './reports';
@@ -61,7 +61,7 @@ export const registeredEnums = {
   REFERRAL_STATUS_LABELS,
   REPEATS_LABELS,
   REPORT_DATA_SOURCE_LABELS,
-  REPORT_DATE_RANGE_LABELS,
+  REPORT_DEFAULT_DATE_RANGES_LABELS,
   REPORT_DB_SCHEMA_LABELS,
   REPORT_STATUS_LABELS,
   SEX_LABELS,
@@ -99,7 +99,7 @@ export const translationPrefixes: Record<EnumKeys, string> = {
   REFERRAL_STATUS_LABELS: 'referral.property.status',
   REPEATS_LABELS: 'medication.property.repeats',
   REPORT_DATA_SOURCE_LABELS: 'report.property.dataSource',
-  REPORT_DATE_RANGE_LABELS: 'report.property.defaultDateRange',
+  REPORT_DEFAULT_DATE_RANGES_LABELS: 'report.property.defaultDateRange',
   REPORT_DB_SCHEMA_LABELS: 'report.property.schema',
   REPORT_STATUS_LABELS: 'report.property.status',
   SEX_LABELS: 'patient.property.sex',
