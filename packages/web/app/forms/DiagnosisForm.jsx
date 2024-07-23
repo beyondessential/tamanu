@@ -28,7 +28,7 @@ export const DiagnosisForm = React.memo(
       return true;
     });
     const defaultCertainty = certaintyOptions[0].value;
-
+    const hasDiagnosis = Boolean(diagnosis?.id);
     const { currentUser } = useAuth();
 
     const icd10Suggester = useSuggester('icd10', {
@@ -44,7 +44,7 @@ export const DiagnosisForm = React.memo(
           isPrimary: true,
           certainty: defaultCertainty,
           ...diagnosis,
-          clinicianId: diagnosis?.clinicianId || currentUser.id
+          clinicianId: hasDiagnosis ? diagnosis.clinicianId : currentUser.id,
         }}
         formType={diagnosis ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
         validationSchema={yup.object().shape({
