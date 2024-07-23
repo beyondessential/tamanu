@@ -31,7 +31,7 @@ export const DiagnosisForm = React.memo(
     // don't show the "ED Diagnosis" option if we're just on a regular encounter
     // (unless we're editing a diagnosis with ED certainty already set)
     const certaintyOptions = DIAGNOSIS_CERTAINTY_VALUES.filter(value =>
-      shouldIncludeCertaintyOption(value, isTriage, isEdit),
+      shouldIncludeCertaintyOption({ value }, isTriage, isEdit),
     );
     const defaultCertainty = certaintyOptions[0].value;
 
@@ -58,7 +58,7 @@ export const DiagnosisForm = React.memo(
           ),
           certainty: yup
             .string()
-            .oneOf(certaintyOptions.map(x => x.value))
+            .oneOf(certaintyOptions)
             .required()
             .translatedLabel(
               <TranslatedText stringId="diagnosis.certainty.label" fallback="Certainty" />,
