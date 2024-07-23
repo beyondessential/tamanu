@@ -19,6 +19,7 @@ import { createApiApp } from '../createApiApp';
 import { version } from '../serverInfo';
 import { ApplicationContext } from '../ApplicationContext';
 import { createSyncApp } from '../createSyncApp';
+import { selectFacilityIds } from '../utils/configUtils';
 
 const APP_TYPES = {
   API: 'api',
