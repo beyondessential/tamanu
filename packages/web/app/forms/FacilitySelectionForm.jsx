@@ -16,7 +16,6 @@ import {
 import { Colors } from '../constants';
 import { LanguageSelector } from '../components/LanguageSelector';
 import { TranslatedText } from '../components/Translation/TranslatedText';
-import { useSuggester } from '../api';
 
 const FormSubtext = styled(BodyText)`
   color: ${Colors.midText};
