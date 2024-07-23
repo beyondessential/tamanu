@@ -19,16 +19,20 @@ import { TranslatedSelectField } from '../components/Translation/TranslatedSelec
 const TRIAGE_ONLY = [DIAGNOSIS_CERTAINTY.EMERGENCY];
 const EDIT_ONLY = [DIAGNOSIS_CERTAINTY.DISPROVEN, DIAGNOSIS_CERTAINTY.ERROR];
 
+const shouldIncludeCertaintyOption = (option, isTriage, isEdit) => {
+  if (isTriage && TRIAGE_ONLY.includes(option.value)) return true;
+  if (isEdit && EDIT_ONLY.includes(option.value)) return true;
+  return !EDIT_ONLY.includes(option.value);
+};
+
 export const DiagnosisForm = React.memo(
   ({ isTriage = false, onCancel, onSave, diagnosis, excludeDiagnoses }) => {
     const isEdit = !!diagnosis?.id;
     // don't show the "ED Diagnosis" option if we're just on a regular encounter
     // (unless we're editing a diagnosis with ED certainty already set)
-    const certaintyOptions = DIAGNOSIS_CERTAINTY_VALUES.filter(x => {
-      if (isTriage && TRIAGE_ONLY.includes(x.value)) return true;
-      if (isEdit && EDIT_ONLY.includes(x.value)) return true;
-      return !EDIT_ONLY.includes(x.value);
-    });
+    const certaintyOptions = DIAGNOSIS_CERTAINTY_VALUES.filter(value =>
+      shouldIncludeCertaintyOption(value, isTriage, isEdit),
+    );
     const defaultCertainty = certaintyOptions[0].value;
 
     const icd10Suggester = useSuggester('icd10', {
@@ -91,13 +95,9 @@ export const DiagnosisForm = React.memo(
               label={<TranslatedText stringId="diagnosis.certainty.label" fallback="Certainty" />}
               component={TranslatedSelectField}
               enumValues={DIAGNOSIS_CERTAINTY_LABELS}
-              transformOptions={options => {
-                return options.filter(option => {
-                  if (isTriage && TRIAGE_ONLY.includes(option.value)) return true;
-                  if (isEdit && EDIT_ONLY.includes(option.value)) return true;
-                  return !EDIT_ONLY.includes(option.value);
-                });
-              }}
+              transformOptions={options =>
+                options.filter(option => shouldIncludeCertaintyOption(option, isTriage, isEdit))
+              }
               required
             />
             <Field

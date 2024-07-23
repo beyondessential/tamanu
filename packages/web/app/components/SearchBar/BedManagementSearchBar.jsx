@@ -11,6 +11,7 @@ import { ThemedTooltip } from '../Tooltip';
 import { TranslatedText } from '../Translation/TranslatedText';
 import { LOCATION_AVAILABILITY_STATUS_LABELS } from '@tamanu/constants';
 import { TranslatedSelectField } from '../Translation/TranslatedSelect';
+import { useTranslation } from '../../contexts/Translation';
 
 const HandoverNotesButton = styled(Button)`
   font-weight: 500;
@@ -31,6 +32,7 @@ const HandoverNotesButton = styled(Button)`
 const EmptyGridItem = styled.div``;
 
 export const BedManagementSearchBar = React.memo(({ onSearch, searchParameters }) => {
+  const { getTranslation } = useTranslation();
   const locationGroupSuggester = useSuggester('locationGroup', {
     baseQueryParameters: { filterByFacility: true },
   });
@@ -101,7 +103,10 @@ export const BedManagementSearchBar = React.memo(({ onSearch, searchParameters }
           }
           size="small"
           component={TranslatedSelectField}
-          transformOptions={options => [{ value: '', label: 'All' }, ...options]}
+          transformOptions={options => [
+            { value: '', label: getTranslation('general.select.all', 'All') },
+            ...options,
+          ]}
           enumValues={LOCATION_AVAILABILITY_STATUS_LABELS}
         />
       </CustomisableSearchBar>

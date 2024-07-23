@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import styled from 'styled-components';
 import {
   AppointmentsSearchBar,
   ContentPane,
@@ -8,14 +7,12 @@ import {
   SearchTableTitle,
   SearchTableWithPermissionCheck,
   TopBar,
+  TranslatedReferenceData,
+  TranslatedSex,
+  TranslatedText,
 } from '../../components';
 import { NewAppointmentButton } from '../../components/Appointments/NewAppointmentButton';
 import { useRefreshCount } from '../../hooks/useRefreshCount';
-import { TranslatedText, TranslatedReferenceData } from '../../components/Translation';
-
-const CapitalisedValue = styled.span`
-  text-transform: capitalize;
-`;
 
 export const AppointmentListingView = () => {
   const COLUMNS = [
@@ -39,7 +36,7 @@ export const AppointmentListingView = () => {
     {
       key: 'sex',
       title: <TranslatedText stringId="general.localisedField.sex.label" fallback="Sex" />,
-      accessor: row => <CapitalisedValue>{row.patient.sex}</CapitalisedValue>,
+      accessor: row => <TranslatedSex sex={row.patient.sex} />,
     },
     {
       key: 'dateOfBirth',
@@ -58,7 +55,13 @@ export const AppointmentListingView = () => {
     {
       key: 'locationGroupId',
       title: <TranslatedText stringId="general.area.label" fallback="Area" />,
-      accessor: row => <TranslatedReferenceData fallback={row.locationGroup.name} value={row.locationGroup.id} category="locationGroup"/>
+      accessor: row => (
+        <TranslatedReferenceData
+          fallback={row.locationGroup.name}
+          value={row.locationGroup.id}
+          category="locationGroup"
+        />
+      ),
     },
     { key: 'type', title: <TranslatedText stringId="general.type.label" fallback="Type" /> },
     { key: 'status', title: <TranslatedText stringId="general.status.label" fallback="Status" /> },

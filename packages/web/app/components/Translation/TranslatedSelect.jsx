@@ -19,10 +19,6 @@ const TranslatedSelectInput = ({
   const prefix = getEnumPrefix(enumValues);
   const InputComponent = component;
 
-  const filteredOptions = transformOptions
-    ? transformOptions(translatedOptions)
-    : translatedOptions;
-
   const translatedOptions = getTranslatedOptions(
     Object.entries(enumValues).map(([value, label]) => ({
       value,
@@ -30,6 +26,11 @@ const TranslatedSelectInput = ({
     })),
     prefix,
   );
+
+  const filteredOptions = transformOptions
+    ? transformOptions(translatedOptions)
+    : translatedOptions;
+
   return (
     <InputComponent
       options={filteredOptions}
