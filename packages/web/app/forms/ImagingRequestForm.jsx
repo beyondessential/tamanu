@@ -31,6 +31,7 @@ import { useTranslation } from '../contexts/Translation';
 import { IMAGING_TYPES } from '@tamanu/constants';
 import { TranslatedSelectField } from '../components/Translation/TranslatedSelect';
 import { renderToText } from '../utils';
+import { camelCase } from 'lodash';
 
 function getEncounterTypeLabel(type) {
   return ENCOUNTER_OPTIONS.find(x => x.value === type).label;
@@ -206,14 +207,19 @@ export const ImagingRequestForm = React.memo(
                 required
                 enumValues={IMAGING_TYPES}
                 component={TranslatedSelectField}
-                transformOptions={options =>
-                  options
-                    .filter(option => Object.values(imagingTypes).includes(option.value))
+                transformOptions={options => {
+                  console.log({ options });
+                  const availableTypes = Object.keys(imagingTypes);
+                  return options
+                    .filter(option => availableTypes.includes(camelCase(option.value)))
                     .map(option => ({
                       ...option,
-                      label: imagingTypes[option.value],
-                    }))
-                }
+                      label: getTranslation(
+                        option.label.stringId,
+                        imagingTypes[camelCase(option.value)].label,
+                      ),
+                    }));
+                }}
               />
               {imagingAreas.length > 0 ? (
                 <Field
