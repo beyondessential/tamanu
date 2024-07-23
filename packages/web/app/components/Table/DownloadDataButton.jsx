@@ -138,6 +138,7 @@ export function DownloadDataButton({ exportName, columns, data }) {
     <GreyOutlinedButton
       onClick={onDownloadData}
       data-test-class="download-data-button"
+      data-testid="download-data-button"
       startIcon={<GetAppIcon />}
     >
       <TranslatedText stringId="general.table.action.export" fallback="Export" />
