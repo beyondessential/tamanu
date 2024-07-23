@@ -20,8 +20,7 @@ const sortChildItems = (a, b) => {
 
 // This hook is used to get the menu items for the facility sidebar. It gets the configured hidden and
 // sortPriority values from  sidebar config and merges them with the *_MENU_ITEMS constant
-const useSidebarFactory = (ITEMS, configKey) => () => {
-  // eslint-disable-next-line react-hooks/rules-of-hooks
+const useSidebarFactory = (ITEMS, configKey) => {
   const { getLocalisation } = useLocalisation();
   const sidebarConfig = getLocalisation(configKey);
 
@@ -52,8 +51,5 @@ const useSidebarFactory = (ITEMS, configKey) => () => {
   }, []).sort(sortTopLevelItems);
 };
 
-// eslint-disable-next-line react-hooks/rules-of-hooks
-export const useFacilitySidebar = useSidebarFactory(FACILITY_MENU_ITEMS, 'layout.sidebar');
-
-// eslint-disable-next-line react-hooks/rules-of-hooks
-export const useCentralSidebar = useSidebarFactory(CENTRAL_MENU_ITEMS, 'layout.centralSidebar');
+export const useFacilitySidebar = () => useSidebarFactory(FACILITY_MENU_ITEMS, 'layout.sidebar');
+export const useCentralSidebar = () => useSidebarFactory(CENTRAL_MENU_ITEMS, 'layout.centralSidebar');
