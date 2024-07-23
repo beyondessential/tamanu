@@ -213,10 +213,6 @@ export const BedManagement = () => {
     api.get(`facility/${encodeURIComponent(facilityId)}`),
   );
 
-  const { data: facility } = useQuery(['facility', facilityId], () =>
-    api.get(`facility/${encodeURIComponent(facilityId)}`),
-  );
-
   // hides hover for rows that arent clickable (do not have a patient to click to)
   const rowStyle = row =>
     (row.locationMaxOccupancy !== 1 || !row.patientId) &&

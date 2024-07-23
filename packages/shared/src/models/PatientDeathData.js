@@ -4,7 +4,6 @@ import { InvalidOperationError } from '../errors';
 import { dateType } from './dateTimeTypes';
 import { Model } from './Model';
 import { buildPatientSyncFilterViaPatientId } from './buildPatientSyncFilterViaPatientId';
-import { onSaveMarkPatientForSync } from './onSaveMarkPatientForSync';
 
 export class PatientDeathData extends Model {
   static init({ primaryKey, ...options }) {
@@ -70,7 +69,6 @@ export class PatientDeathData extends Model {
         },
       },
     );
-    onSaveMarkPatientForSync(this);
   }
 
   static initRelations(models) {

@@ -115,7 +115,7 @@ patientRoute.post(
   asyncHandler(async (req, res) => {
     const {
       db,
-      models: { Patient, PatientAdditionalData, PatientBirthData },
+      models: { Patient, PatientAdditionalData, PatientBirthData, PatientFacility },
       facilityId,
     } = req;
     req.checkPermission('create', 'Patient');
@@ -142,6 +142,12 @@ patientRoute.post(
           patientId: createdPatient.id,
         });
       }
+
+      // mark for sync in this facility
+      await PatientFacility.create({
+        where: { facilityId, patientId: createdPatient.id },
+      });
+
       return createdPatient;
     });
 
