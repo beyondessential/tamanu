@@ -14,7 +14,7 @@ export interface CardHeaderProps {
 }
 
 export const VaccineCardHeader = ({
-  vaccineData: { name, id, code, status },
+  vaccineData: { name, id: drugId, status, scheduledVaccineId, scheduledVaccineLabel },
   onCloseModal,
   onEditDetails,
 }: CardHeaderProps): JSX.Element => {
@@ -67,13 +67,17 @@ export const VaccineCardHeader = ({
             color={theme.colors.WHITE}
             fontSize={screenPercentageToDP(2.55, Orientation.Height)}
           >
-            {code}
+            <TranslatedReferenceData
+              value={scheduledVaccineId}
+              fallback={scheduledVaccineLabel}
+              category="scheduledVaccine"
+            />
           </StyledText>
           <StyledText
             color={theme.colors.WHITE}
             fontSize={screenPercentageToDP(1.944, Orientation.Height)}
           >
-            <TranslatedReferenceData category="drug" value={id} fallback={name} />
+            <TranslatedReferenceData category="drug" value={drugId} fallback={name} />
           </StyledText>
         </StyledView>
       </RowView>

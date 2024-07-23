@@ -8,8 +8,11 @@ import { VaccineStatusHeader } from './VaccineStatusHeader';
 import { VaccineStatus } from '~/ui/helpers/patient';
 
 export type VaccineDataProps = {
+  id: string, // Drug id
   administeredVaccine: IAdministeredVaccine;
   status: VaccineStatus;
+  scheduledVaccineId: string, // Vaccine id
+  scheduledVaccineLabel: string,
   doseLabel: string;
   name: string;
   code: string;
