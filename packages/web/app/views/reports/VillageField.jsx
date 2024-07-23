@@ -3,7 +3,7 @@ import { useSuggester } from '../../api';
 import { AutocompleteField, LocalisedField } from '../../components';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
 
-export const VillageField = ({ name = 'villageName', label, required }) => {
+export const VillageField = ({ name = 'village', label, required }) => {
   const villageSuggester = useSuggester('village');
   return (
     <LocalisedField
