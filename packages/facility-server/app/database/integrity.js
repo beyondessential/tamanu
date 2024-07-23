@@ -1,6 +1,7 @@
 import config from 'config';
 import { log } from '@tamanu/shared/services/logging';
 import { isSyncTriggerDisabled } from '@tamanu/shared/dataMigrations';
+import { selectFacilityIds } from '@tamanu/shared/utils';
 import { CentralServerConnection } from '../sync';
 import { selectFacilityIds } from '../utils/configUtils';
 

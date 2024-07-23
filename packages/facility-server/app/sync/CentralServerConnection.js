@@ -8,7 +8,7 @@ import {
   RemoteTimeoutError,
 } from '@tamanu/shared/errors';
 import { SERVER_TYPES, VERSION_COMPATIBILITY_ERRORS } from '@tamanu/constants';
-import { getResponseJsonSafely } from '@tamanu/shared/utils';
+import { getResponseJsonSafely, selectFacilityIds } from '@tamanu/shared/utils';
 import { log } from '@tamanu/shared/services/logging';
 import { fetchWithTimeout } from '@tamanu/shared/utils/fetchWithTimeout';
 import { sleepAsync } from '@tamanu/shared/utils/sleepAsync';

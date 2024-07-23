@@ -6,12 +6,13 @@
 // - Consider the case when the config you're using were to go missing - would this be ok for the
 //   migration? (here, a missing serverFacilityId is just a no-op)
 import config from 'config';
+import { selectFacilityIds } from '../utils';
 
 const LAST_SUCCESSFUL_SYNC_PULL = 'lastSuccessfulSyncPull';
 
 export async function up(query) {
-  const { serverFacilityId } = config;
-  if (!serverFacilityId) {
+  const isFacilityServer = !!selectFacilityIds(config);
+  if (!isFacilityServer) {
     return; // probably a central server, this migration is not required
   }
 
@@ -35,8 +36,8 @@ export async function up(query) {
 }
 
 export async function down(query) {
-  const { serverFacilityId } = config;
-  if (!serverFacilityId) {
+  const isFacilityServer = !!selectFacilityIds(config);
+  if (!isFacilityServer) {
     return; // probably a central server, this migration is not required
   }
 
