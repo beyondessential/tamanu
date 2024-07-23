@@ -3,7 +3,6 @@ import { log } from '@tamanu/shared/services/logging';
 import { isSyncTriggerDisabled } from '@tamanu/shared/dataMigrations';
 import { selectFacilityIds } from '@tamanu/shared/utils';
 import { CentralServerConnection } from '../sync';
-import { selectFacilityIds } from '../utils/configUtils';
 
 export async function performDatabaseIntegrityChecks(context) {
   if (await isSyncTriggerDisabled(context.sequelize)) {

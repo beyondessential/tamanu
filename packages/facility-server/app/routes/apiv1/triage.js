@@ -96,7 +96,7 @@ const sortKeys = {
 triage.get(
   '/$',
   asyncHandler(async (req, res) => {
-    const { models, db, query, facilityId } = req;
+    const { models, db, query } = req;
     const { Triage } = models;
 
     req.checkPermission('list', 'Triage');

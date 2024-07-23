@@ -12,7 +12,6 @@ import { getPermissionsForRoles } from '@tamanu/shared/permissions/rolesToPermis
 import { selectFacilityIds } from '@tamanu/shared/utils';
 
 import { CentralServerConnection } from '../sync';
-import { selectFacilityIds } from '../utils/configUtils';
 
 const { tokenDuration, secret } = config.auth;
 
