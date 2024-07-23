@@ -25,6 +25,7 @@ import { BackHandler } from 'react-native';
 import { useBackendEffect } from '~/ui/hooks';
 import { LoadingScreen } from '../../LoadingScreen';
 import { ErrorScreen } from '../../ErrorScreen';
+import { TranslatedText } from '../../Translations/TranslatedText';
 
 interface UseScrollToFirstError {
   setQuestionPosition: (yPosition: string) => void;
@@ -227,12 +228,16 @@ export const FormFields = ({
               borderWidth={0.1}
               margin={5}
               disabled={isSubmitting}
-              buttonText="Cancel"
+              buttonText={<TranslatedText stringId="general.action.cancel" fallback="Cancel" />}
               onPress={onCancel}
             />
           )}
           {currentScreenIndex !== maxIndex ? (
-            <Button margin={5} buttonText="Next" onPress={onNavigateNext} />
+            <Button
+              margin={5}
+              buttonText={<TranslatedText stringId="general.action.next" fallback="Next" />}
+              onPress={onNavigateNext}
+            />
           ) : (
             <SubmitButton margin={5} onSubmit={onSubmit} />
           )}

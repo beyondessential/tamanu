@@ -8,8 +8,8 @@ import {
   ContentPane,
   PageContainer,
   PatientSearchBar,
-  SearchTable,
   SearchTableTitle,
+  SearchTableWithPermissionCheck,
   TopBar,
 } from '../../components';
 import { RecentlyViewedPatientsList } from '../../components/RecentlyViewedPatientsList';
@@ -20,7 +20,9 @@ import {
   culturalName,
   dateOfBirth,
   department,
+  diet,
   displayId,
+  inpatientSex,
   firstName,
   lastName,
   markedForSync,
@@ -58,8 +60,15 @@ const locationGroup = {
   accessor: LocationGroupCell,
 };
 
-const INPATIENT_COLUMNS = [markedForSync, displayId, firstName, lastName, dateOfBirth, sex].concat(
+const OUTPATIENT_COLUMNS = [markedForSync, displayId, firstName, lastName, dateOfBirth, sex].concat(
   [locationGroup, location, department, clinician].map(column => ({
+    ...column,
+    sortable: false,
+  })),
+);
+
+const INPATIENT_COLUMNS = [displayId, firstName, lastName, dateOfBirth, inpatientSex].concat(
+  [locationGroup, location, department, clinician, diet].map(column => ({
     ...column,
     sortable: false,
   })),
@@ -76,7 +85,9 @@ const PatientTable = ({ columns, fetchOptions, searchParameters }) => {
   };
 
   return (
-    <SearchTable
+    <SearchTableWithPermissionCheck
+      verb="list"
+      noun="Patient"
       columns={columns}
       noDataMessage="No patients found"
       onRowClick={handleViewPatient}
@@ -180,7 +191,7 @@ export const AdmittedPatientsView = () => {
         <SearchTableTitle>
           <TranslatedText stringId="patientList.search.title" fallback="Patient search" />
         </SearchTableTitle>
-        <PatientSearchBar onSearch={setSearchParameters} searchParameters={searchParameters} />
+        <PatientSearchBar onSearch={setSearchParameters} searchParameters={searchParameters} isInpatient />
         <PatientTable
           fetchOptions={{ inpatient: 1 }}
           searchParameters={{ facilityId, ...searchParameters }}
@@ -213,7 +224,7 @@ export const OutpatientsView = () => {
         <PatientTable
           fetchOptions={{ outpatient: 1 }}
           searchParameters={{ facilityId, ...searchParameters }}
-          columns={INPATIENT_COLUMNS}
+          columns={OUTPATIENT_COLUMNS}
         />
       </ContentPane>
     </PageContainer>

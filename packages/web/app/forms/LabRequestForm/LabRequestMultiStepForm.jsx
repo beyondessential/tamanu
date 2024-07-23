@@ -12,6 +12,9 @@ import { LabRequestFormScreen1 } from './LabRequestFormScreen1';
 import { LabRequestFormScreen2 } from './LabRequestFormScreen2';
 import { LabRequestFormScreen3 } from './LabRequestFormScreen3';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
+import { useSettings } from '../../contexts/Settings';
+import { SETTING_KEYS } from '@tamanu/constants';
+import { SAMPLE_DETAILS_FIELD_PREFIX } from '../../views/labRequest/SampleDetailsField';
 
 export const LabRequestMultiStepForm = ({
   isSubmitting,
@@ -25,6 +28,9 @@ export const LabRequestMultiStepForm = ({
   onSubmit,
   editedObject,
 }) => {
+  const { getSetting } = useSettings();
+  const mandateSpecimenType = getSetting(SETTING_KEYS.FEATURE_MANDATE_SPECIMEN_TYPE);
+
   const { getTranslation } = useTranslation();
   const { currentUser } = useAuth();
   const [initialSamples, setInitialSamples] = useState([]);
@@ -93,7 +99,34 @@ export const LabRequestMultiStepForm = ({
       }),
     notes: yup.string(),
   });
-  const combinedValidationSchema = screen1ValidationSchema.concat(screen2ValidationSchema);
+
+  const screen3ValidationSchema = yup.object().shape(
+    initialSamples.reduce((acc, sample) => {
+      acc[
+        `${SAMPLE_DETAILS_FIELD_PREFIX}specimenType-${sample.panelId || sample.categoryId}`
+      ] = mandateSpecimenType
+        ? yup.string().when(`sampleDetails.${sample.panelId || sample.categoryId}.sampleTime`, {
+            is: value => !!value,
+            then: yup
+              .string()
+              .required()
+              .translatedLabel(
+                <TranslatedText
+                  stringId="lab.modal.recordSample.specimenType.label"
+                  fallback="Specimen type"
+                />,
+              ),
+            otherwise: yup.string(),
+          })
+        : yup.string();
+
+      return acc;
+    }, {}),
+  );
+
+  const combinedValidationSchema = screen1ValidationSchema
+    .concat(screen2ValidationSchema)
+    .concat(screen3ValidationSchema);
 
   return (
     <MultiStepForm
@@ -126,6 +159,7 @@ export const LabRequestMultiStepForm = ({
         />
       </FormStep>
       <FormStep
+        validationSchema={screen3ValidationSchema}
         submitButtonText={<TranslatedText stringId="general.action.finalise" fallback="Finalise" />}
       >
         <LabRequestFormScreen3

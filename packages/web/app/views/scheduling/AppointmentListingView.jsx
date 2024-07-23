@@ -5,13 +5,13 @@ import {
   ContentPane,
   DateDisplay,
   PageContainer,
-  SearchTable,
   SearchTableTitle,
+  SearchTableWithPermissionCheck,
   TopBar,
 } from '../../components';
 import { NewAppointmentButton } from '../../components/Appointments/NewAppointmentButton';
 import { useRefreshCount } from '../../hooks/useRefreshCount';
-import { TranslatedText } from '../../components/Translation/TranslatedText';
+import { TranslatedText, TranslatedReferenceData } from '../../components/Translation';
 
 const CapitalisedValue = styled.span`
   text-transform: capitalize;
@@ -58,7 +58,7 @@ export const AppointmentListingView = () => {
     {
       key: 'locationGroupId',
       title: <TranslatedText stringId="general.area.label" fallback="Area" />,
-      accessor: row => row.locationGroup.name,
+      accessor: row => <TranslatedReferenceData fallback={row.locationGroup.name} value={row.locationGroup.id} category="locationGroup"/>
     },
     { key: 'type', title: <TranslatedText stringId="general.type.label" fallback="Type" /> },
     { key: 'status', title: <TranslatedText stringId="general.status.label" fallback="Status" /> },
@@ -84,7 +84,9 @@ export const AppointmentListingView = () => {
           />
         </SearchTableTitle>
         <AppointmentsSearchBar onSearch={setSearchParams} />
-        <SearchTable
+        <SearchTableWithPermissionCheck
+          verb="list"
+          noun="Appointment"
           endpoint="appointments"
           columns={COLUMNS}
           noDataMessage={

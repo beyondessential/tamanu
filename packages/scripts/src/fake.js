@@ -1,8 +1,4 @@
-const {
-  REPORT_STATUSES,
-  NOTE_RECORD_TYPES,
-  REPORT_DB_SCHEMAS
-} = require('@tamanu/constants');
+const { REPORT_STATUSES, NOTE_RECORD_TYPES, REPORT_DB_SCHEMAS } = require('@tamanu/constants');
 const { fake } = require('@tamanu/shared/test-helpers/fake');
 const { initDatabase } = require('@tamanu/shared/services/database');
 const config = require('config');
@@ -11,14 +7,17 @@ const config = require('config');
 async function generateData(models) {
   const {
     Department,
+    Discharge,
     Encounter,
     Facility,
     Location,
+    LocationGroup,
     EncounterHistory,
     Patient,
     User,
     Note,
     PatientBirthData,
+    Survey,
     SurveyScreenComponent,
     ReferenceData,
     ReferenceDataRelation,
@@ -35,7 +34,13 @@ async function generateData(models) {
     PatientProgramRegistration,
     PatientProgramRegistrationCondition,
     PatientAllergy,
-    PatientCommunication
+    PatientCommunication,
+    PatientDeathData,
+    CertificateNotification,
+    LabTest,
+    LabTestType,
+    ScheduledVaccine,
+    AdministeredVaccine,
   } = models;
 
   const examiner = await User.create(fake(User));
@@ -46,9 +51,15 @@ async function generateData(models) {
       facilityId: facility.id,
     }),
   );
+  const locationGroup = await LocationGroup.create(
+    fake(LocationGroup, {
+      facilityId: facility.id,
+    }),
+  );
   const location = await Location.create(
     fake(Location, {
       facilityId: facility.id,
+      locationGroupId: locationGroup.id,
     }),
   );
   const encounter = await Encounter.create(
@@ -58,6 +69,12 @@ async function generateData(models) {
       locationId: location.id,
       examinerId: examiner.id,
       startDate: '2023-12-21T04:59:51.851Z',
+    }),
+  );
+  await Discharge.create(
+    fake(Discharge, {
+      encounterId: encounter.id,
+      dischargerId: examiner.id,
     }),
   );
   await EncounterHistory.create(
@@ -81,8 +98,10 @@ async function generateData(models) {
       facilityId: facility.id,
     }),
   );
+  const survey = await Survey.create(fake(Survey));
   await SurveyScreenComponent.create(
     fake(SurveyScreenComponent, {
+      surveyId: survey.id,
       option: '{"foo":"bar"}',
       config: '{"source": "ReferenceData", "where": {"type": "facility"}}',
     }),
@@ -118,9 +137,7 @@ async function generateData(models) {
       userId: examiner.id,
     }),
   );
-  await ProgramDataElement.create(
-    fake(ProgramDataElement),
-  );
+  await ProgramDataElement.create(fake(ProgramDataElement));
   const program = await Program.create(fake(Program));
   const programRegistry = await ProgramRegistry.create(
     fake(ProgramRegistry, {
@@ -154,14 +171,55 @@ async function generateData(models) {
   await PatientAllergy.create(
     fake(PatientAllergy, {
       patientId: patient.id,
-    })
+    }),
   );
-  await ReferenceData.create(fake(ReferenceData));
+
+  await PatientDeathData.create(
+    fake(PatientDeathData, {
+      patientId: patient.id,
+      clinicianId: examiner.id,
+    }),
+  );
+
+  const referenceData = await ReferenceData.create(fake(ReferenceData));
   await ReferenceDataRelation.create(fake(ReferenceDataRelation));
   await PatientCommunication.create(
     fake(PatientCommunication, {
       patientId: patient.id,
-    })
+    }),
+  );
+
+  const labTestType = await LabTestType.create(
+    fake(LabTestType, {
+      labTestCategoryId: referenceData.id,
+    }),
+  );
+  const labTest = await LabTest.create(
+    fake(LabTest, {
+      labRequestId: labRequest.id,
+      categoryId: referenceData.id,
+      labTestMethodId: referenceData.id,
+      labTestTypeId: labTestType.id,
+    }),
+  );
+  await CertificateNotification.create(
+    fake(CertificateNotification, {
+      patientId: patient.id,
+      labTestId: labTest.id,
+      labRequestId: labRequest.id,
+    }),
+  );
+
+  const scheduledVaccine = await models.ScheduledVaccine.create(
+    fake(ScheduledVaccine, {
+      vaccineId: referenceData.id,
+    }),
+  );
+  await models.AdministeredVaccine.create(
+    fake(AdministeredVaccine, {
+      scheduledVaccineId: scheduledVaccine.id,
+      encounterId: encounter.id,
+    }),
   );
 }
 

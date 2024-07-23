@@ -7,9 +7,14 @@ import {
   educationalAttainmentOptions,
   maritalStatusOptions,
   socialMediaOptions,
-  titleOptions
+  titleOptions,
 } from '~/ui/helpers/additionalData';
 import { yupAttemptTransformToNumber } from '~/ui/helpers/numeralTranslation';
+
+import { CustomPatientFieldValues } from '~/ui/hooks/usePatientAdditionalData';
+import { PatientAdditionalData } from '~/models/PatientAdditionalData';
+import { PatientFieldDefinition } from '~/models/PatientFieldDefinition';
+import { isObject } from 'lodash';
 
 // All PatientAdditionalData plain fields sorted alphabetically
 export const plainFields = [
@@ -48,6 +53,7 @@ export const relationIdFields = [
   'religionId',
   'settlementId',
   'subdivisionId',
+  'villageId',
 ];
 
 // Maps selectFields with the expected options needed for the field
@@ -112,19 +118,22 @@ export const relationIdFieldsProperties = {
     type: 'subdivision',
     placeholder: 'Subdivision',
   },
+  villageId: {
+    type: 'village',
+    placeholder: 'Village',
+  },
 };
 
 // Helper function to reduce boilerplate in main file
 export const getSuggester = (
   models: typeof MODELS_MAP,
   type: string,
-): Suggester<typeof ReferenceData> => (
+): Suggester<typeof ReferenceData> =>
   new Suggester(models.ReferenceData, {
     where: {
       type,
     },
-  })
-);
+  });
 
 // Plain and ID fields in alphabetical order
 export const patientAdditionalDataValidationSchema = Yup.object().shape({
@@ -145,40 +154,55 @@ export const patientAdditionalDataValidationSchema = Yup.object().shape({
   passport: Yup.string().nullable(),
   patientBillingTypeId: Yup.string().nullable(),
   placeOfBirth: Yup.string().nullable(),
-  primaryContactNumber: Yup.number().transform(yupAttemptTransformToNumber).nullable(),
+  primaryContactNumber: Yup.number()
+    .transform(yupAttemptTransformToNumber)
+    .nullable(),
   religionId: Yup.string().nullable(),
-  secondaryContactNumber: Yup.number().transform(yupAttemptTransformToNumber).nullable(),
+  secondaryContactNumber: Yup.number()
+    .transform(yupAttemptTransformToNumber)
+    .nullable(),
   settlementId: Yup.string().nullable(),
   socialMedia: Yup.string().nullable(),
   streetVillage: Yup.string().nullable(),
   subdivisionId: Yup.string().nullable(),
   title: Yup.string().nullable(),
   emergencyContactName: Yup.string().nullable(),
-  emergencyContactNumber: Yup.number().transform(yupAttemptTransformToNumber).nullable(),
+  emergencyContactNumber: Yup.number()
+    .transform(yupAttemptTransformToNumber)
+    .nullable(),
 });
 
 // Strip off unwanted fields from additional data and only keep specified ones
-export const getInitialCustomValues = (data, fields): {} => {
+export const getInitialCustomValues = (
+  data: CustomPatientFieldValues,
+  fields: (PatientFieldDefinition | string)[],
+): { [key: string]: string } => {
   if (!data) {
     return {};
   }
   // Copy values from data only in the specified fields
   const values = {};
-  fields.map(({ id }) => id).forEach(fieldName => {
-    values[fieldName] = data[fieldName]?.[0]?.value;
-  });
+  for (const field of fields) {
+    const fieldId = isObject(field) ? field.id : field;
+    const value = data[fieldId]?.[0]?.value;
+    if (value) values[fieldId] = value;
+  }
   return values;
-}
+};
 
 // Strip off unwanted fields from additional data and only keep specified ones
-export const getInitialAdditionalValues = (data, fields): {} => {
+export const getInitialAdditionalValues = (
+  data: PatientAdditionalData,
+  fields: (PatientFieldDefinition | string)[],
+): { [key: string]: string } => {
   if (!data) {
     return {};
   }
-  // Copy values from data only in the specified fields
   const values = {};
-  fields.forEach(fieldName => {
-    values[fieldName] = data[fieldName];
-  });
+  for (const field of fields) {
+    const fieldName = isObject(field) ? field.name : field;
+    const value = data[fieldName];
+    if (value) values[fieldName] = value;
+  }
   return values;
 };
