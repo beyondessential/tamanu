@@ -4,6 +4,7 @@ import {
   OTHER_REFERENCE_TYPES,
   REFERENCE_TYPES,
   SYNC_DIRECTIONS,
+  VISIBILITY_STATUSES,
 } from '@tamanu/constants';
 import { Model } from './Model';
 
@@ -27,7 +28,7 @@ export class InvoiceProduct extends Model {
         visibilityStatus: {
           type: DataTypes.STRING,
           allowNull: false,
-          defaultValue: 'current',
+          defaultValue: VISIBILITY_STATUSES.CURRENT,
         },
       },
       { syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL, ...options },

@@ -354,5 +354,5 @@ export const InvoiceProduct = yup.object().shape({
   name: yup.string().required(),
   price: yup.number().required(),
   discountable: yup.boolean().required(),
-  visibilityStatus: yup.string().required(),
+  visibilityStatus
 });
