@@ -8,8 +8,8 @@ import { theme } from '~/ui/styled/theme';
 import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
 import { TextFieldErrorMessage } from '../TextField/TextFieldErrorMessage';
 import { useBackend } from '~/ui/hooks';
-import { TranslatedText, TranslatedTextElement } from '../Translations/TranslatedText';
-import { getReferenceDataStringId } from '../Translations/TranslatedReferenceData';
+import { TranslatedTextElement } from '../Translations/TranslatedText';
+import { TranslatedReferenceData } from '../Translations/TranslatedReferenceData';
 
 const MIN_COUNT_FILTERABLE_BY_DEFAULT = 8;
 
@@ -203,8 +203,9 @@ export const SuggesterDropdown = ({ referenceDataType, ...props }): ReactElement
       const results = await models.ReferenceData.getSelectOptionsForType(referenceDataType);
       const translatedResults = results.map(option => ({
         label: (
-          <TranslatedText
-            stringId={getReferenceDataStringId(option.value, referenceDataType)}
+          <TranslatedReferenceData
+            category={referenceDataType}
+            value={option.value}
             fallback={option.label}
           />
         ),
