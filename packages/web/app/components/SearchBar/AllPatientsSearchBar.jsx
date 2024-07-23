@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { getCurrentDateString } from '@tamanu/shared/utils/dateTime';
 import Box from '@material-ui/core/Box';
 import styled from 'styled-components';
-import { CustomisableSearchBar } from './CustomisableSearchBar';
+import { CustomisableSearchBarWithPermissionCheck } from './CustomisableSearchBar';
 import {
   AutocompleteField,
   DOBFields,
@@ -38,7 +38,9 @@ export const AllPatientsSearchBar = React.memo(({ onSearch, searchParameters }) 
   const [showAdvancedFields, setShowAdvancedFields] = useState(false);
 
   return (
-    <CustomisableSearchBar
+    <CustomisableSearchBarWithPermissionCheck
+      verb="list"
+      noun="Patient"
       showExpandButton
       isExpanded={showAdvancedFields}
       setIsExpanded={setShowAdvancedFields}
@@ -92,7 +94,6 @@ export const AllPatientsSearchBar = React.memo(({ onSearch, searchParameters }) 
       }
     >
       <LocalisedField
-        keepLetterCase
         component={SearchField}
         name="displayId"
         label={
@@ -120,6 +121,6 @@ export const AllPatientsSearchBar = React.memo(({ onSearch, searchParameters }) 
         label={<TranslatedText stringId="general.dateOfBirth.label" fallback="DOB" />}
         max={getCurrentDateString()}
       />
-    </CustomisableSearchBar>
+    </CustomisableSearchBarWithPermissionCheck>
   );
 });

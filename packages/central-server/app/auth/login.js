@@ -2,6 +2,7 @@ import asyncHandler from 'express-async-handler';
 import config from 'config';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import { SERVER_TYPES } from '@tamanu/constants';
 import { JWT_TOKEN_TYPES } from '@tamanu/constants/auth';
 import { BadAuthenticationError } from '@tamanu/shared/errors';
 import { getPermissionsForRoles } from '@tamanu/shared/permissions/rolesToPermissions';
@@ -67,15 +68,20 @@ export const login = ({ secret, refreshSecret }) =>
     const { store, body, settings } = req;
     const { models } = store;
     const { email, password, facilityIds, deviceId } = body;
+    const tamanuClient = req.header('X-Tamanu-Client');
 
-    const settingsObject = await settings.getFrontEndSettings();
-    settingsObject.countryTimeZone = config.countryTimeZone; // This needs to be in config but also needs to be front end accessible
+    const getSettingsForFrontEnd = async () => {
+      // Only attach central scoped settings if login request is for central admin panel login
+      if ([SERVER_TYPES.WEBAPP, SERVER_TYPES.MOBILE].includes(tamanuClient) && !facilityIds) {
+        return await settings.getFrontEndSettings();
+      }
+    };
 
     if (!email || !password) {
       throw new BadAuthenticationError('Missing credentials');
     }
 
-    const internalClient = isInternalClient(req.header('X-Tamanu-Client'));
+    const internalClient = isInternalClient(tamanuClient);
     if (internalClient && !deviceId) {
       throw new BadAuthenticationError('Missing deviceId');
     }
@@ -93,21 +99,17 @@ export const login = ({ secret, refreshSecret }) =>
       throw new BadAuthenticationError('Invalid credentials');
     }
 
-    const allowedFacilities = await user.allowedFacilities();
-    if (facilityIds) {
-      const availableFacilities = await models.User.filterAllowedFacilities(
-        allowedFacilities,
-        facilityIds,
-      );
-      if (availableFacilities.length !== facilityIds.length) {
-        throw new BadAuthenticationError('User does not have access to all facilities');
-      }
-    }
-
     const { auth, canonicalHostName } = config;
     const { tokenDuration } = auth;
     const accessTokenJwtId = getRandomU32();
-    const [token, refreshToken, localisation, permissions, role] = await Promise.all([
+    const [
+      token,
+      refreshToken,
+      allowedFacilities,
+      localisation,
+      permissions,
+      role,
+    ] = await Promise.all([
       buildToken(
         {
           userId: user.id,
@@ -124,11 +126,11 @@ export const login = ({ secret, refreshSecret }) =>
       internalClient
         ? getRefreshToken(models, { refreshSecret, userId: user.id, deviceId })
         : undefined,
+      user.allowedFacilities(),
       getLocalisation(),
       getPermissionsForRoles(models, user.role),
       models.Role.findByPk(user.role),
     ]);
-
     // Send some additional data with login to tell the user about
     // the context they've just logged in to.
     res.send({
@@ -140,6 +142,6 @@ export const login = ({ secret, refreshSecret }) =>
       allowedFacilities,
       localisation,
       centralHost: config.canonicalHostName,
-      settings: settingsObject,
+      settings: await getSettingsForFrontEnd(),
     });
   });

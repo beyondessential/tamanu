@@ -17,7 +17,7 @@ export class ScheduledVaccine extends BaseModel implements IScheduledVaccine {
   label?: string;
 
   @Column({ nullable: true })
-  schedule?: string;
+  doseLabel?: string;
 
   @Column({ nullable: true })
   weeksFromBirthDue?: number;
@@ -44,4 +44,7 @@ export class ScheduledVaccine extends BaseModel implements IScheduledVaccine {
 
   @Column({ default: VisibilityStatus.Current })
   visibilityStatus: string;
+
+  @Column({ default: 0 })
+  sortIndex: number;
 }

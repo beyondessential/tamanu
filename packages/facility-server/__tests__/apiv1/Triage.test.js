@@ -278,17 +278,42 @@ describe('Triage', () => {
 
   describe('Listing & filtering', () => {
     let createTestTriage;
+    let bulkCreateTestTriage;
 
     beforeAll(async () => {
-      await models.Triage.truncate({ cascade: true });
-      await models.Encounter.truncate({ cascade: true });
-      await models.Patient.truncate({ cascade: true });
-
-      // create a few test triages
       const { id: locationId } = await models.Location.create({
         ...fake(models.Location),
         facilityId: facility.id,
       });
+
+      createTestTriage = async overrides => {
+        const { Patient, Triage } = models;
+        const encounterPatient = await Patient.create(await createDummyPatient(models));
+        return Triage.create(
+          await createDummyTriage(models, {
+            patientId: encounterPatient.id,
+            locationId,
+            ...overrides,
+          }),
+        );
+      };
+
+      bulkCreateTestTriage = async triageConfigs => {
+        const promises = [];
+        triageConfigs.forEach(c => {
+          promises.push(createTestTriage(c));
+        });
+        await Promise.all(promises);
+      };
+    });
+
+    beforeEach(async () => {
+      await models.Triage.truncate({ cascade: true });
+      await models.Encounter.truncate({ cascade: true });
+      await models.Patient.truncate({ cascade: true });
+    });
+
+    it('should get a list of triages ordered by score and arrival time', async () => {
       const triageConfigs = [
         {
           score: 1,
@@ -311,28 +336,8 @@ describe('Triage', () => {
           arrivalTime: '2022-01-03 08:15:00',
         },
       ];
+      await bulkCreateTestTriage(triageConfigs);
 
-      createTestTriage = async overrides => {
-        const { Patient, Triage } = models;
-        const encounterPatient = await Patient.create(await createDummyPatient(models));
-        return Triage.create(
-          await createDummyTriage(models, {
-            patientId: encounterPatient.id,
-            locationId,
-            departmentId: emergencyDepartment.id,
-            ...overrides,
-          }),
-        );
-      };
-
-      const promises = [];
-      triageConfigs.forEach(c => {
-        promises.push(createTestTriage(c));
-      });
-      await Promise.all(promises);
-    });
-
-    it('should get a list of triages ordered by score and arrival time', async () => {
       const response = await app.get(`/api/triage?facilityId=${facility.id}`);
       const results = response.body;
       expect(results.count).toEqual(5);
@@ -348,6 +353,18 @@ describe('Triage', () => {
     });
 
     it('should include short stay patients in the triage list', async () => {
+      const triageConfigs = [
+        {
+          score: 3,
+          triageTime: '2022-01-03 06:15:00',
+        },
+        {
+          score: 2,
+          arrivalTime: '2022-01-03 06:15:00',
+        },
+      ];
+      await bulkCreateTestTriage(triageConfigs);
+
       const createdTriage = await createTestTriage();
       const createdEncounter = await models.Encounter.findByPk(createdTriage.encounterId);
       await createdEncounter.update({

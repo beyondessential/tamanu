@@ -16,6 +16,7 @@ export class CertificateNotification extends Model {
         requireSigning: Sequelize.BOOLEAN,
         status: Sequelize.STRING,
         error: Sequelize.TEXT,
+        language: Sequelize.STRING,
         printedDate: dateType('printedDate'),
       },
       {
