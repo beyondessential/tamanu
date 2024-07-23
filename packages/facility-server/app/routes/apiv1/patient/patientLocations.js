@@ -189,7 +189,7 @@ patientLocations.get(
   asyncHandler(async (req, res) => {
     req.checkPermission('list', 'Patient');
 
-    const { query, facilityId } = req;
+    const { query } = req;
 
     const defaultRowsPerPage = 10;
     const defaultPage = 0;
