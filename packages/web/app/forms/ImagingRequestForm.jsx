@@ -208,7 +208,6 @@ export const ImagingRequestForm = React.memo(
                 enumValues={IMAGING_TYPES}
                 component={TranslatedSelectField}
                 transformOptions={options => {
-                  console.log({ options });
                   const availableTypes = Object.keys(imagingTypes);
                   return options
                     .filter(option => availableTypes.includes(camelCase(option.value)))
