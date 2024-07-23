@@ -15,11 +15,19 @@ interface SuggesterOptions<ModelType> extends FindManyOptions<ModelType> {
   where: ObjectLiteral; // Suggester only takes 'where' of type object.
 }
 
-const ModelToDataType = {
+const MODEL_TO_REFERENCE_DATA_TYPE = {
   LocationGroup: 'locationGroup',
   Facility: 'facility',
   Department: 'department',
   Location: 'location',
+};
+
+const TRANSLATABLE_MODELS = ['ReferenceData', ...Object.keys(MODEL_TO_REFERENCE_DATA_TYPE)];
+
+export const getReferenceDataTypeFromSuggester = (suggester: Suggester<any>): string => {
+  if (!TRANSLATABLE_MODELS.includes(suggester.model.name)) return null;
+
+  return MODEL_TO_REFERENCE_DATA_TYPE[suggester.model.name] || suggester.options?.where?.type;
 };
 
 const defaultFormatter = (model): OptionType => ({ label: model.name, value: model.id });
@@ -75,7 +83,7 @@ export class Suggester<ModelType extends BaseModelSubclass> {
 
   fetchSuggestions = async (search: string, language: string = 'en'): Promise<OptionType[]> => {
     const { where = {}, column = 'name', relations } = this.options;
-    const dataType = ModelToDataType[this.model.name] ?? where?.type;
+    const dataType = getReferenceDataTypeFromSuggester(this);
 
     try {
       const translations = await TranslatedString.getReferenceDataTranslationsByDataType(
