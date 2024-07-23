@@ -30,9 +30,10 @@ export function serviceContext() {
     deploymentHost && new URL(deploymentHost).hostname.replace(/[^a-z0-9]+/gi, '-');
   const serverFacilityIds = selectFacilityIds(config);
   const facilityLoggingKey =
-    serverFacilityIds && serverFacilityIds.length === 1
+    serverFacilityIds &&
+    (serverFacilityIds.length === 1
       ? serverFacilityIds[0]
-      : `multi-facility:${serverFacilityIds.join(';')}`;
+      : `multi-facility:${serverFacilityIds.join(';')}`);
   const facilityId = facilityLoggingKey?.replace(/([^a-z0-9]+|^(ref\/)?facility[-/])/gi, '');
 
   const context = {
