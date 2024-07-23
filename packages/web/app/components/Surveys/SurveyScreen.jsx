@@ -10,7 +10,7 @@ import { FORM_STATUSES } from '../../constants';
 import { TranslatedText } from '../Translation/TranslatedText';
 
 const StyledButtonRow = styled(ButtonRow)`
-  margin-top: 24px;
+  margin-block-start: 24px;
 `;
 
 const useCalculatedFormValues = (components, values, setFieldValue) => {
