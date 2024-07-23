@@ -327,10 +327,7 @@ patientRoute.get(
     const filters = createPatientFilters(filterParams);
     const { whereClauses, filterReplacements } = getWhereClausesAndReplacementsFromFilters(
       filters,
-      {
-        ...filterParams,
-        facilityId: config.serverFacilityId,
-      },
+      filterParams,
     );
 
     const from = isAllPatientsListing

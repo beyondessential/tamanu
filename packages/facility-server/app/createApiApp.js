@@ -1,7 +1,7 @@
 import config from 'config';
 import defineExpress from 'express';
 
-import { buildSettingsReaderMiddleware } from '@tamanu/settings/middleware';
+import { settingsReaderMiddleware } from '@tamanu/settings/middleware';
 import { getAuditMiddleware } from './middleware/auditLog';
 
 import routes from './routes';
@@ -13,7 +13,13 @@ import { defineWebsocketService } from './services/websocketService';
 import { defineWebsocketClientService } from './services/websocketClientService';
 import { addFacilityMiddleware } from './addFacilityMiddleware';
 
-export async function createApiApp({ sequelize, reportSchemaStores, models, syncConnection, deviceId }) {
+export async function createApiApp({
+  sequelize,
+  reportSchemaStores,
+  models,
+  syncConnection,
+  deviceId,
+}) {
   const express = defineExpress();
   const server = createServer(express);
 
@@ -23,7 +29,7 @@ export async function createApiApp({ sequelize, reportSchemaStores, models, sync
   const websocketClientService = defineWebsocketClientService({ config, websocketService, models });
 
   const { errorMiddleware } = addFacilityMiddleware(express);
-  
+
   // Release the connection back to the pool when the server is closed
   server.on('close', () => sequelize.connectionManager.releaseConnection(pg));
 
@@ -47,8 +53,7 @@ export async function createApiApp({ sequelize, reportSchemaStores, models, sync
   // note that we do not know facility yet so cannot get facility-specific permissions
   // this global-only settings reader will be replaced after we have extracted the facilityId during
   // auth checking
-  // TODO: get working with omniserver
-  express.use(buildSettingsReaderMiddleware(config.serverFacilityId));
+  express.use(settingsReaderMiddleware);
 
   // index route for debugging connectivity
   express.get('/$', (req, res) => {
