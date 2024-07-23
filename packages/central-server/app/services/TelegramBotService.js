@@ -4,13 +4,21 @@ import TelegramBot from 'node-telegram-bot-api';
 
 /**
  *
- * @param {{ config: { telegramBot: { apiToken: string, webhook: { url: string, secret: string} }, language: string, }}} injector
+ * @param {{ config: { telegramBot: { apiToken: string, webhook: { url: string, secret: string} }, language: string, }, models: NonNullable<import('./../ApplicationContext.js').ApplicationContext['store']>['models']}} injector
  */
 export const defineTelegramBotService = async injector => {
   //fallback to polling if webhook url is not set
-  const bot = new TelegramBot(injector.config.telegramBot.apiToken, {
-    polling: !injector.config.telegramBot.webhook.url,
-  });
+  const bot = !injector.config.telegramBot?.apiToken
+    ? null
+    : new TelegramBot(injector.config.telegramBot.apiToken, {
+        polling: !injector.config.telegramBot?.webhook?.url,
+        request: {
+          agentOptions: {
+            keepAlive: true,
+            family: 4,
+          },
+        },
+      });
 
   /** @type {ReturnType<import('./websocketService.js').defineWebsocketService>|null} */
   let websocketService = null;
@@ -27,6 +35,7 @@ export const defineTelegramBotService = async injector => {
    * @param {TelegramBot.Update} update
    */
   const update = update => {
+    if (!bot) return;
     bot.processUpdate(update);
   };
   /**
@@ -36,7 +45,9 @@ export const defineTelegramBotService = async injector => {
    */
   const setWebhook = async hook => {
     try {
-      await bot.setWebHook(hook.url, { secret_token: hook.secret });
+      await bot
+        .setWebHook(hook.url, { secret_token: hook.secret })
+        .then(result => log.info('set telegram webhook successfully', { result }));
     } catch (e) {
       log.error('set telegram webhook failed', { url: hook.url, error: e.message });
     }
@@ -59,6 +70,7 @@ export const defineTelegramBotService = async injector => {
    * @param {options?: TelegramBot.SendMessageOptions} options
    *  */
   const sendMessage = async (chatId, textMsg, options) => {
+    if (!bot) return;
     try {
       const message = await bot.sendMessage(chatId, textMsg, options);
       return { status: COMMUNICATION_STATUSES.SENT, result: message };
@@ -68,6 +80,7 @@ export const defineTelegramBotService = async injector => {
   };
 
   const getBotInfo = async () => {
+    if (!bot) return {};
     return await bot.getMe();
   };
 
@@ -81,15 +94,23 @@ export const defineTelegramBotService = async injector => {
     const contact = await injector.models?.PatientContact?.findByPk(contactId, {
       include: [{ model: injector.models?.Patient, as: 'patient' }],
     });
-    if (!contact) return;
-
-    contact.connectionDetails = { chatId: message.chat.id };
-    await contact.save();
-
     const getTranslation = await injector.models?.TranslatedString?.getTranslationFunction(
       injector.config.language,
       ['telegramRegistration'],
     );
+
+    if (!contact) {
+      const notFoundMessage = getTranslation(
+        'telegramRegistration.contactNotFound',
+        'Contact not found',
+        {},
+      );
+      await sendMessage(message.chat.id, notFoundMessage, { parse_mode: 'HTML' });
+      return;
+    }
+    contact.connectionDetails = { chatId: message.chat.id };
+    await contact.save();
+
     const botInfo = await getBotInfo();
     const contactName = contact.name;
     const patientName = [contact.patient.firstName, contact.patient.lastName].join(' ').trim();
@@ -127,12 +148,12 @@ export const defineTelegramBotService = async injector => {
     };
 
     const handleRemoveContact = async contact => {
-      await contact.destroy();
       const botInfo = await getBotInfo();
 
       const contactName = contact.name;
       const patientName = [contact.patient.firstName, contact.patient.lastName].join(' ').trim();
 
+      await injector.models.PatientContact.destroy({ where: { id: contact.id } });
       const successMessage = getTranslation(
         'telegramDeregistration.successMessage',
         `Dear <strong>:contactName</strong>, you have successfully deregistered from receiving messages for <strong>:patientName</strong> from <strong>:botName</strong>. Thank you.`,
@@ -192,23 +213,25 @@ export const defineTelegramBotService = async injector => {
     await handleRemoveContact(contact);
   };
 
-  await setWebhook(injector.config.telegramBot.webhook);
-  setCommand('start', subscribeCommandHandler);
-  setCommand('unsubscribe', unsubscribeCommandHandler);
+  if (bot) {
+    await setWebhook(injector.config.telegramBot.webhook);
+    setCommand('start', subscribeCommandHandler);
+    setCommand('unsubscribe', unsubscribeCommandHandler);
 
-  bot.on('callback_query', async query => {
-    try {
-      const data = query.data?.split('|') || [];
-      if (data[0] === 'unsubscribe-contact') {
-        await unsubscribeCommandHandler(query.message, data[1]);
+    bot.on('callback_query', async query => {
+      try {
+        const data = query.data?.split('|') || [];
+        if (data[0] === 'unsubscribe-contact') {
+          await unsubscribeCommandHandler(query.message, data[1]);
+        }
+        // eslint-disable-next-line no-empty
+      } catch (e) {
+        log.error('telegram callback query failed', { error: e.message });
+      } finally {
+        bot.answerCallbackQuery({ callback_query_id: query.id });
       }
-      // eslint-disable-next-line no-empty
-    } catch (e) {
-      log.error('telegram callback query failed', { error: e.message });
-    } finally {
-      bot.answerCallbackQuery({ callback_query_id: query.id });
-    }
-  });
+    });
+  }
 
   return {
     update,

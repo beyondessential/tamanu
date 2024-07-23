@@ -4,14 +4,22 @@ import { useDispatch } from 'react-redux';
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 import { useEncounter } from '../contexts/Encounter';
+import { useAuth } from '../contexts/Auth';
 import { MedicationModal } from './MedicationModal';
 import { reloadPatient } from '../store';
 import { ENCOUNTER_TAB_NAMES } from '../constants/encounterTabNames';
 import { Colors } from '../constants';
 import { getFullLocationName } from '../utils/location';
-import { TranslatedText } from './Translation/TranslatedText';
+import { TranslatedText, TranslatedReferenceData } from './Translation';
+import { DataFetchingTableWithPermissionCheck } from './Table/DataFetchingTable';
 
-const getMedicationName = ({ medication }) => medication.name;
+const getMedicationName = ({ medication }) => (
+  <TranslatedReferenceData
+    fallback={medication.name}
+    value={medication.id}
+    category={medication.type}
+  />
+);
 
 const MEDICATION_COLUMNS = [
   {
@@ -58,7 +66,13 @@ const FULL_LISTING_COLUMNS = [
   {
     key: 'department',
     title: <TranslatedText stringId="general.department.label" fallback="Department" />,
-    accessor: ({ encounter }) => encounter.department.name,
+    accessor: ({ encounter }) => (
+      <TranslatedReferenceData
+        fallback={encounter.department.name}
+        value={encounter.department.id}
+        category="department"
+      />
+    ),
     sortable: false,
   },
   {
@@ -115,6 +129,7 @@ export const EncounterMedicationTable = React.memo(({ encounterId }) => {
 
 export const DataFetchingMedicationTable = () => {
   const { loadEncounter } = useEncounter();
+  const { facilityId } = useAuth();
   const dispatch = useDispatch();
   const onMedicationSelect = useCallback(
     async medication => {
@@ -130,8 +145,11 @@ export const DataFetchingMedicationTable = () => {
   );
 
   return (
-    <DataFetchingTable
+    <DataFetchingTableWithPermissionCheck
+      verb="list"
+      noun="EncounterMedication"
       endpoint="medication"
+      fetchOptions={{ facilityId }}
       columns={FULL_LISTING_COLUMNS}
       noDataMessage={
         <TranslatedText

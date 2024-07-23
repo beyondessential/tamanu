@@ -20,7 +20,7 @@ import { InvoicePriceChangeItemModal } from './InvoicePriceChangeItemModal';
 import { ConfirmModal } from './ConfirmModal';
 import { DropdownButton } from './DropdownButton';
 import { DateDisplay } from './DateDisplay';
-import { TranslatedEnum, TranslatedText } from './Translation';
+import { TranslatedEnum, TranslatedReferenceData, TranslatedText } from './Translation';
 
 const InvoiceLineDetail = styled.p`
   font-size: 15px;
@@ -186,8 +186,7 @@ const getInvoicePriceChangeCode = row => {
   }
 };
 const getInvoiceLineCategory = row => {
-  const { name } = row.invoiceLineType;
-  const { itemType } = row.invoiceLineType;
+  const { name, itemType, id } = row.invoiceLineType;
   return (
     <>
       <p>
@@ -197,7 +196,9 @@ const getInvoiceLineCategory = row => {
           enumValues={INVOICE_LINE_TYPE_LABELS}
         />
       </p>
-      <InvoiceLineDetail title={name}>{name}</InvoiceLineDetail>
+      <InvoiceLineDetail title={name}>
+        <TranslatedReferenceData category="invoiceLineType" fallback={name} value={id} />
+      </InvoiceLineDetail>
     </>
   );
 };
@@ -205,7 +206,13 @@ const getInvoicePriceChangeCategory = row => {
   let name = null;
   let category = null;
   if (row.invoicePriceChangeType) {
-    name = row.invoicePriceChangeType.name;
+    name = (
+      <TranslatedReferenceData
+        fallback={row.invoicePriceChangeType.name}
+        value={row.invoicePriceChangeType.id}
+        category="invoicePriceChangeType"
+      />
+    );
     const { itemType } = row.invoicePriceChangeType;
     category = (
       <TranslatedEnum

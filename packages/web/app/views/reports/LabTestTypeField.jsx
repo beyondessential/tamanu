@@ -1,7 +1,7 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useApi } from '../../api';
-import { MultiselectField, Field } from '../../components';
+import { MultiselectField, Field, TranslatedReferenceData } from '../../components';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
 
 export const useLabTestTypes = labTestCategoryId => {
@@ -15,7 +15,7 @@ export const useLabTestTypes = labTestCategoryId => {
   return { ...query, data: query.isSuccess ? query.data.data : [] };
 };
 
-export const LabTestTypeField = ({ name = 'labTestTypeIds', required, parameterValues }) => {
+export const LabTestTypeField = ({ name = 'labTestTypeIds', label, required, parameterValues }) => {
   const { labTestCategoryId: category } = parameterValues;
   const { data } = useLabTestTypes(category);
 
@@ -27,15 +27,21 @@ export const LabTestTypeField = ({ name = 'labTestTypeIds', required, parameterV
     <Field
       name={name}
       label={
-        <TranslatedText
-          stringId="report.generate.parameter.labTestType.label"
-          fallback="Test type"
-        />
+        label ?? (
+          <TranslatedText
+            stringId="report.generate.parameter.labTestType.label"
+            fallback="Test type"
+          />
+        )
       }
       component={MultiselectField}
       required={required}
-      options={data.map(type => ({ value: type.id, label: type.name }))}
-      prefix="report.property.labTestType"
+      options={data.map(type => ({
+        value: type.id,
+        label: (
+          <TranslatedReferenceData value={type.id} fallback={type.name} category="labTestType" />
+        ),
+      }))}
     />
   );
 };

@@ -6,6 +6,7 @@ import { useTranslation } from '../contexts/Translation';
 import { FormSubmitCancelRow } from '../components/ButtonRow';
 import { Field, Form, TextField } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
+import { TranslatedText } from '../components/Translation/TranslatedText';
 
 export const EmailAddressConfirmationForm = React.memo(({ onCancel, onSubmit }) => {
   const { getTranslation } = useTranslation();
@@ -18,6 +19,7 @@ export const EmailAddressConfirmationForm = React.memo(({ onCancel, onSubmit }) 
       validationSchema={Yup.object().shape({
         email: Yup.string()
           .email(getTranslation('validation.rule.validEmail', 'Must be a valid email address'))
+          .nullable()
           .required(),
         confirmEmail: Yup.string()
           .oneOf(
@@ -28,8 +30,23 @@ export const EmailAddressConfirmationForm = React.memo(({ onCancel, onSubmit }) 
       })}
       render={({ submitForm }) => (
         <FormGrid columns={1}>
-          <Field name="email" label="Patient Email" component={TextField} required />
-          <Field name="confirmEmail" label="Confirm Patient Email" component={TextField} required />
+          <Field
+            name="email"
+            label={<TranslatedText stringId="patient.email.label" fallback="Patient email" />}
+            component={TextField}
+            required
+          />
+          <Field
+            name="confirmEmail"
+            label={
+              <TranslatedText
+                stringId="patient.confirmEmail.label"
+                fallback="Confirm patient email"
+              />
+            }
+            component={TextField}
+            required
+          />
           <FormSubmitCancelRow onConfirm={submitForm} onCancel={onCancel} />
         </FormGrid>
       )}

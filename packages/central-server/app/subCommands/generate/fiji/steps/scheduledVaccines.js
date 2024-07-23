@@ -17,7 +17,7 @@ export default {
           id: `scheduledVaccine-COVID-19-Dose-${dose}`,
           category: 'Campaign',
           label: 'COVID-19',
-          schedule: `Dose ${dose}`,
+          doseLabel: `Dose ${dose}`,
           weeksFromLastVaccinationDue: dose === 1 ? null : 8,
           index: dose,
           vaccineId: az.id,

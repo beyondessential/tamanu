@@ -5,6 +5,7 @@ import { Modal } from './Modal';
 import { OutlinedButton } from './Button';
 import { ButtonRow } from './ButtonRow';
 import { TranslatedText } from './Translation/TranslatedText';
+import { ConfirmRowDivider } from './ConfirmRowDivider';
 
 const Content = styled.div`
   text-align: center;
@@ -31,6 +32,7 @@ export const ConfirmModal = ({
         <p>{subText}</p>
       </Content>
     )}
+    <ConfirmRowDivider />
     <ButtonRow>
       <OutlinedButton onClick={onCancel}>{cancelButtonText}</OutlinedButton>
       <ConfirmButton variant="contained" onClick={onConfirm}>

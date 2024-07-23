@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 
-import { VISIBILITY_STATUSES } from '@tamanu/constants';
+import { TEMPLATE_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
 
 import { ContentPane, PageContainer, TopBar } from '../../../components';
 import { Colors } from '../../../constants';
@@ -13,6 +13,7 @@ import { TEMPLATE_ENDPOINT } from '../constants';
 import { TemplateList } from './TemplateList';
 import { EditTemplateModal } from './EditTemplateModal';
 import { useRefreshCount } from '../../../hooks/useRefreshCount';
+import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
 const ContentContainer = styled.div`
   padding: 32px 30px;
@@ -69,11 +70,16 @@ export const TemplateView = () => {
         onSubmit={onEditTemplate}
         onClose={() => setEditingTemplate(null)}
         onDelete={onDeleteTemplate}
+        allowInputTitleType={[TEMPLATE_TYPES.PATIENT_LETTER]}
       />
-      <TopBar title="Templates" />
+      <TopBar title={<TranslatedText stringId="admin.template.title" fallback="Templates" />} />
       <ContentPane>
         <ContentContainer>
-          <NewTemplateForm onSubmit={createTemplate} refreshTable={updateRefreshCount} />
+          <NewTemplateForm
+            allowInputTitleType={[TEMPLATE_TYPES.PATIENT_LETTER]}
+            onSubmit={createTemplate}
+            refreshTable={updateRefreshCount}
+          />
         </ContentContainer>
         <TemplateList refreshCount={refreshCount} onRowClick={setEditingTemplate} />
       </ContentPane>

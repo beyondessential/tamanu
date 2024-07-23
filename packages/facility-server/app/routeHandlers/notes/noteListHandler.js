@@ -52,6 +52,7 @@ export const noteListHandler = recordType =>
         FROM notes n
         WHERE record_type = :recordType
           AND record_id = :recordId
+          AND deleted_at IS NULL 
       )
 
       -- now filter out anything except the latest revision for each note
