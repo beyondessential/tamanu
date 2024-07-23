@@ -27,6 +27,7 @@ import { snapshotOutgoingChanges } from './snapshotOutgoingChanges';
 import { filterModelsFromName } from './filterModelsFromName';
 import { startSnapshotWhenCapacityAvailable } from './startSnapshotWhenCapacityAvailable';
 import { createMarkedForSyncPatientsTable } from './createMarkedForSyncPatientsTable';
+import { getMobileFilteredModels } from './getMobileFilteredModels';
 
 const errorMessageFromSession = session =>
   `Sync session '${session.id}' encountered an error: ${session.error}`;
@@ -256,6 +257,8 @@ export class CentralSyncManager {
         ? filterModelsFromName(models, tablesToInclude)
         : models;
 
+      const filteredModelsToInclude = getMobileFilteredModels(modelsToInclude, isMobile);
+
       // work out if any patients were newly marked for sync since this device last connected, and
       // include changes from all time for those patients
       const newPatientFacilitiesCount = await models.PatientFacility.count({
@@ -308,7 +311,7 @@ export class CentralSyncManager {
         async () => {
           // full changes
           await snapshotOutgoingChanges(
-            getPatientLinkedModels(modelsToInclude),
+            getPatientLinkedModels(filteredModelsToInclude),
             -1, // for all time, i.e. 0 onwards
             newPatientFacilitiesCount,
             fullSyncPatientsTable,
@@ -325,7 +328,7 @@ export class CentralSyncManager {
 
           // regular changes
           await snapshotOutgoingChanges(
-            getModelsForDirection(modelsToInclude, SYNC_DIRECTIONS.PULL_FROM_CENTRAL),
+            getModelsForDirection(filteredModelsToInclude, SYNC_DIRECTIONS.PULL_FROM_CENTRAL),
             since,
             patientFacilitiesCount,
             incrementalSyncPatientsTable,
