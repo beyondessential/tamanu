@@ -1,4 +1,3 @@
-import config from 'config';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { QueryTypes } from 'sequelize';
@@ -30,7 +29,7 @@ patientLocations.get(
   '/locations/occupancy',
   asyncHandler(async (req, res) => {
     req.checkPermission('list', 'Patient');
-    const { facilityId } = req;
+    const { facilityId } = req.query;
 
     const [{ occupancy } = {}] = await req.db.query(
       `
@@ -55,7 +54,7 @@ patientLocations.get(
   '/locations/alos',
   asyncHandler(async (req, res) => {
     req.checkPermission('list', 'Patient');
-    const { facilityId } = req;
+    const { facilityId } = req.query;
 
     const [{ alos } = {}] = await req.db.query(
       `
@@ -88,7 +87,7 @@ patientLocations.get(
   '/locations/readmissions',
   asyncHandler(async (req, res) => {
     req.checkPermission('list', 'Patient');
-    const { facilityId } = req;
+    const { facilityId } = req.query;
 
     const [{ count: readmissionsCount } = {}] = await req.db.query(
       `
@@ -328,7 +327,7 @@ patientLocations.get(
       ...(filterParams.status && { status: filterParams.status }),
       ...(filterParams.area && { area: filterParams.area }),
       ...(filterParams.location && { location: filterParams.location }),
-      facilityId,
+      facilityId: filterParams.facilityId,
       visibilityStatusCurrent: VISIBILITY_STATUSES.CURRENT,
     };
 

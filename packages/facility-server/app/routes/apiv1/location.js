@@ -12,7 +12,7 @@ location.get(
   '/$',
   asyncHandler(async (req, res) => {
     req.checkPermission('list', 'Location');
-    const { facilityId } = req;
+    const { facilityId } = req.query;
     const locations = await req.models.Location.findAll({
       where: {
         facilityId,

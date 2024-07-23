@@ -157,7 +157,7 @@ labRequest.get(
       makeFilter(
         !JSON.parse(filterParams.allFacilities || false),
         'location.facility_id = :facilityId',
-        () => ({ facilityId }),
+        ({ facilityId }) => ({ facilityId }),
       ),
       makeFilter(
         filterParams.publishedDate,

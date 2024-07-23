@@ -1,4 +1,3 @@
-import config from 'config';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { QueryTypes } from 'sequelize';
@@ -79,7 +78,7 @@ triage.get(
 
     req.checkPermission('list', 'Triage');
 
-    const { orderBy = 'score', order = 'asc' } = query;
+    const { facilityId, orderBy = 'score', order = 'asc' } = query;
     const sortKey = sortKeys[orderBy];
 
     if (!sortKey) {

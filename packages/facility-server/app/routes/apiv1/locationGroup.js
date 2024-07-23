@@ -12,7 +12,7 @@ locationGroup.get(
   '/$',
   asyncHandler(async (req, res) => {
     req.checkPermission('list', 'Location');
-    const { facilityId } = req;
+    const { facilityId } = req.query;
     const locationGroups = await req.models.LocationGroup.findAll({
       where: {
         facilityId,
@@ -26,7 +26,7 @@ locationGroup.get(
   '/:id/locations',
   asyncHandler(async (req, res) => {
     req.checkPermission('list', 'Location');
-    const { facilityId } = req;
+    const { facilityId } = req.query;
     const locations = await req.models.Location.findAll({
       where: {
         facilityId,
@@ -41,7 +41,7 @@ locationGroup.get(
   '/:id/handoverNotes',
   asyncHandler(async (req, res) => {
     checkHandoverNotesPermissions(req);
-    const { facilityId } = req;
+    const { facilityId } = req.query;
 
     const group = await req.models.LocationGroup.findByPk(req.params.id);
 
@@ -60,7 +60,7 @@ locationGroup.get(
                 ROW_NUMBER() OVER (PARTITION BY record_id ORDER BY date DESC) AS row_num
               FROM notes
               WHERE revised_by_id IS NULL
-                AND record_type = 'Encounter' 
+                AND record_type = 'Encounter'
                 AND note_type = 'handover'
                 AND deleted_at IS NULL) n
         WHERE n.row_num = 1
@@ -98,8 +98,8 @@ locationGroup.get(
           content,
           latest.date as created_date
         FROM latest_root_handover_notes latest
-        WHERE NOT EXISTS (SELECT id FROM notes 
-                          WHERE revised_by_id = latest.id 
+        WHERE NOT EXISTS (SELECT id FROM notes
+                          WHERE revised_by_id = latest.id
                           AND deleted_at IS NULL)
       )
 
@@ -138,7 +138,7 @@ locationGroup.get(
           GROUP BY encounter_id
           ) AS diagnosis ON encounters.id = diagnosis.encounter_id
 		    LEFT JOIN latest_handover_notes ON encounters.id = latest_handover_notes.record_id
-        WHERE location_groups.id = :id 
+        WHERE location_groups.id = :id
         AND locations.max_occupancy = 1
         AND locations.facility_id = :facilityId
         AND encounters.deleted_at is null

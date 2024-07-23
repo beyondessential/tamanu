@@ -77,7 +77,12 @@ const INPATIENT_COLUMNS = [displayId, firstName, lastName, dateOfBirth, inpatien
 const PatientTable = ({ columns, fetchOptions, searchParameters }) => {
   const { navigateToPatient } = usePatientNavigation();
   const dispatch = useDispatch();
-  const fetchOptionsWithSearchParameters = { ...searchParameters, ...fetchOptions };
+  const { facilityId } = useAuth();
+  const fetchOptionsWithSearchParameters = {
+    ...searchParameters,
+    ...fetchOptions,
+    markedForSyncFacility: facilityId,
+  };
 
   const handleViewPatient = async row => {
     await dispatch(reloadPatient(row.id));

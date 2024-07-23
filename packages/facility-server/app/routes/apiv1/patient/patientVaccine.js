@@ -1,7 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import Sequelize, { Op, QueryTypes } from 'sequelize';
-import config from 'config';
 
 import {
   ENCOUNTER_TYPES,
