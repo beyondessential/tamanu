@@ -211,14 +211,15 @@ export const ImagingRequestForm = React.memo(
                   const availableTypes = Object.keys(imagingTypes);
                   return options
                     .filter(option => availableTypes.includes(camelCase(option.value)))
-                    .map(option => ({
-                      ...option,
-                      value: camelCase(option.value),
-                      label: getTranslation(
-                        option.label.stringId,
-                        imagingTypes[camelCase(option.value)].label,
-                      ),
-                    }));
+                    .map(option => {
+                      const imagingTypeKey = camelCase(option.value);
+                      const { label } = imagingTypes[imagingTypeKey];
+                      return {
+                        ...option,
+                        value: imagingTypeKey,
+                        label: getTranslation(option.label.stringId, label),
+                      };
+                    });
                 }}
               />
               {imagingAreas.length > 0 ? (

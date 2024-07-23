@@ -14,7 +14,7 @@ import {
   IMAGING_REQUEST_STATUS_LABELS,
 } from './statuses';
 import { VACCINE_STATUS_LABELS, INJECTION_SITE_LABELS, VACCINE_CATEGORIES } from './vaccines';
-import { BIRTH_TYPE_LABELS } from './births';
+import { BIRTH_DELIVERY_TYPE_LABELS, BIRTH_TYPE_LABELS } from './births';
 import { IMAGING_TYPES } from './imaging';
 import {
   REPORT_DATA_SOURCE_LABELS,
@@ -34,7 +34,8 @@ type EnumKeys = keyof typeof registeredEnums;
 type EnumValues = typeof registeredEnums[EnumKeys];
 type EnumEntries = [EnumKeys, EnumValues][];
 
-/** This is a group of all the enums that are registered to be translatable.
+/**
+ * This is a group of all the enums that are registered to be translatable.
  * This allows us to keep track of changes to existing enums or the additional
  * of new enum constants when maintaining translations
  */
@@ -42,6 +43,7 @@ export const registeredEnums = {
   APPOINTMENT_STATUSES,
   APPOINTMENT_TYPES,
   ASSET_NAMES,
+  BIRTH_DELIVERY_TYPE_LABELS,
   BIRTH_TYPE_LABELS,
   DIAGNOSIS_CERTAINTY_LABELS,
   DRUG_ROUTE_LABELS,
@@ -80,7 +82,8 @@ export const translationPrefixes: Record<EnumKeys, string> = {
   APPOINTMENT_STATUSES: 'appointment.property.status',
   APPOINTMENT_TYPES: 'appointment.property.types',
   ASSET_NAMES: 'asset.property.name',
-  BIRTH_TYPE_LABELS: 'birth.property.birthDeliveryType',
+  BIRTH_DELIVERY_TYPE_LABELS: 'birth.property.birthDeliveryType',
+  BIRTH_TYPE_LABELS: 'birth.property.birthType',
   DIAGNOSIS_CERTAINTY_LABELS: 'diagnosis.property.certainty',
   DRUG_ROUTE_LABELS: 'medication.property.route',
   IMAGING_REQUEST_STATUS_LABELS: 'imaging.property.status',
@@ -110,7 +113,7 @@ export const translationPrefixes: Record<EnumKeys, string> = {
 
 export const enumRegistry = new Set(Object.values(registeredEnums));
 
-// Map enum value references to their translation prefix
+/** Map holds pairs of key: enum object reference and value: translation prefix as value */
 export const prefixMap = new Map(
   (Object.entries(registeredEnums) as EnumEntries).map(([key, enumValue]) => [
     enumValue,
@@ -118,9 +121,7 @@ export const prefixMap = new Map(
   ]),
 );
 
-/**
- * The list of all translatable enums string id and fallback
- */
+/** The list of all translatable enums string id and fallback */
 export const enumTranslations = (Object.entries(
   registeredEnums,
 ) as EnumEntries).flatMap(([key, value]) =>
