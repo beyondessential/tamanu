@@ -82,11 +82,7 @@ export const usePatientNavigation = () => {
       navigate(programRegistryRoute);
     } else {
       const existingParams = getParams(PATIENT_PATHS.PROGRAM_REGISTRY);
-      const path =
-        generatePath(`${PATIENT_PATHS.PROGRAM_REGISTRY}`, { ...existingParams }) +
-        '?' +
-        location.search;
-
+      const path = `${generatePath(`${PATIENT_PATHS.PROGRAM_REGISTRY}`, { ...existingParams })}?${location.search}`
       navigate(path);
     }
   };
