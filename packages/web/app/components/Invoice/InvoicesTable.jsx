@@ -72,7 +72,11 @@ const Table = styled(DataFetchingTable)`
 const getDate = ({ date }) => formatShortest(date);
 const getInvoiceTotal = row => {
   const { patientTotal } = getInvoiceSummaryDisplay(row);
-  return patientTotal === undefined ? '-' : `$${patientTotal}`;
+  return patientTotal === undefined ? (
+    <TranslatedText stringId="general.fallback.notApplicable" fallback="N/A" lowercase />
+  ) : (
+    `$${patientTotal}`
+  );
 };
 const getPaymentStatus = row => {
   if (row.status !== INVOICE_STATUSES.FINALISED) {
@@ -117,7 +121,8 @@ const getEncounterType = row => {
 const getStatus = ({ status }) => <InvoiceStatus status={status} />;
 
 const getRemainingBalance = row => {
-  if (row.status !== INVOICE_STATUSES.FINALISED) return '-';
+  if (row.status !== INVOICE_STATUSES.FINALISED)
+    return <TranslatedText stringId="general.fallback.notApplicable" fallback="N/A" lowercase />;
   const { patientPaymentRemainingBalance } = getInvoiceSummary(row);
   const remainingBalance = formatDisplayPrice(Math.max(0, patientPaymentRemainingBalance));
   return `$${remainingBalance}`;
