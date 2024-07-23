@@ -9,21 +9,8 @@ export async function up(query) {
       key: 'id',
     },
   });
-  await query.addConstraint('encounter_diagnoses', {
-    type: 'foreign key',
-    name: 'encounter_diagnoses_registering_clinician_id_fkey',
-    fields: ['clinician_id'],
-    references: {
-      table: 'users',
-      field: 'id',
-    },
-  });
 }
 
 export async function down(query) {
-  await query.removeConstraint(
-    'encounter_diagnoses',
-    'encounter_diagnoses_registering_clinician_id_fkey',
-  );
   await query.removeColumn('encounter_diagnoses', 'clinician_id');
 }

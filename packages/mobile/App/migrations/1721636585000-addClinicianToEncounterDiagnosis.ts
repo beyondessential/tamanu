@@ -27,10 +27,6 @@ export class addClinicianToEncounterDiagnosis1721636585000 implements MigrationI
 
   async down(queryRunner: QueryRunner): Promise<void> {
     const tableObject = await getTable(queryRunner, TABLE_NAME);
-    const foreignKey = tableObject.foreignKeys.find(
-      fk => fk.columnNames.indexOf(COLUMN_NAME) !== 0,
-    );
-    await queryRunner.dropForeignKey(tableObject, foreignKey);
     await queryRunner.dropColumn(tableObject, COLUMN_NAME);
   }
 }
