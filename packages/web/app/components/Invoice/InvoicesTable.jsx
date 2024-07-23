@@ -9,14 +9,18 @@ import {
 
 import { Colors, ENCOUNTER_OPTIONS_BY_VALUE, INVOICE_MODAL_TYPES } from '../../constants';
 import { DataFetchingTable } from '../Table';
-import { formatShort } from '../DateDisplay';
+import { formatShortest } from '../DateDisplay';
 import { TranslatedEnum, TranslatedText } from '../Translation';
 import { Typography } from '@material-ui/core';
 import { ThemedTooltip } from '../Tooltip';
 import { upperCase } from 'lodash';
 import { InvoiceStatus } from './InvoiceStatus';
 import { InvoiceModalGroup } from './InvoiceModalGroup';
-import { getInvoiceSummaryDisplay } from '@tamanu/shared/utils/invoice';
+import {
+  formatDisplayPrice,
+  getInvoiceSummary,
+  getInvoiceSummaryDisplay,
+} from '@tamanu/shared/utils/invoice';
 import { useEncounterInvoice } from '../../api/queries/useInvoiceQuery';
 import { useAuth } from '../../contexts/Auth';
 
@@ -36,10 +40,26 @@ const Table = styled(DataFetchingTable)`
       font-weight: 400;
       color: ${Colors.midText} !important;
     }
+    padding-left: 11px;
+    padding-right: 11px;
+    &:last-child {
+      padding-right: 20px;
+    }
+    &:first-child {
+      padding-left: 20px;
+    }
   }
   .MuiTableCell-body {
     padding-top: 6px !important;
     padding-bottom: 6px !important;
+    padding-left: 11px;
+    padding-right: 11px;
+    &:last-child {
+      padding-right: 20px;
+    }
+    &:first-child {
+      padding-left: 20px;
+    }
   }
   .MuiTableBody-root .MuiTableRow-root:not(.statusRow) {
     cursor: ${props => (props.onClickRow ? 'pointer' : '')};
@@ -49,7 +69,7 @@ const Table = styled(DataFetchingTable)`
   }
 `;
 
-const getDate = ({ date }) => formatShort(date);
+const getDate = ({ date }) => formatShortest(date);
 const getInvoiceTotal = row => {
   const { patientTotal } = getInvoiceSummaryDisplay(row);
   return patientTotal === undefined ? '-' : `$${patientTotal}`;
@@ -96,6 +116,13 @@ const getEncounterType = row => {
 };
 const getStatus = ({ status }) => <InvoiceStatus status={status} />;
 
+const getRemainingBalance = row => {
+  if (row.status !== INVOICE_STATUSES.FINALISED) return '-';
+  const { patientPaymentRemainingBalance } = getInvoiceSummary(row);
+  const remainingBalance = formatDisplayPrice(Math.max(0, patientPaymentRemainingBalance));
+  return `$${remainingBalance}`;
+};
+
 const COLUMNS = [
   {
     key: 'date',
@@ -116,8 +143,13 @@ const COLUMNS = [
     accessor: getEncounterType,
   },
   {
-    key: 'total',
-    title: <TranslatedText stringId="patient.invoice.table.column.total" fallback="Total" />,
+    key: 'patientTotal',
+    title: (
+      <TranslatedText
+        stringId="patient.invoice.table.column.patientTotal"
+        fallback="Patient total"
+      />
+    ),
     accessor: getInvoiceTotal,
   },
   {
@@ -129,6 +161,11 @@ const COLUMNS = [
       />
     ),
     accessor: getPaymentStatus,
+  },
+  {
+    key: 'balance',
+    title: <TranslatedText stringId="patient.invoice.table.column.balance" fallback="Balance" />,
+    accessor: getRemainingBalance,
   },
   {
     key: 'status',
