@@ -48,8 +48,7 @@ describe('CentralSyncManager', () => {
   const createNotesOfRecordsWithPatientViaEncounter = async encounters => {
     const [encounter1, encounter2, encounter3] = encounters;
 
-    // work around as Triage.create needs config.facilityId which is not available in central
-    const [triage] = await models.Triage.upsert({
+    const [triage] = await models.Triage.create({
       encounterId: encounter1.id,
       patientId: patient.id,
       departmentId: department.id,

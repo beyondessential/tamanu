@@ -17,15 +17,38 @@ triage.put('/:id', simplePut('Triage'));
 triage.post(
   '/$',
   asyncHandler(async (req, res) => {
-    const { models, db, user } = req;
-    const { vitals, notes } = req.body;
+    const { models, db, user, body } = req;
+    const { vitals, notes } = body;
 
     req.checkPermission('create', 'Triage');
     if (vitals) {
       req.checkPermission('create', 'Vitals');
     }
 
-    const triageRecord = await models.Triage.create({ ...req.body, actorId: user.id });
+    const getDepartmentId = async () => {
+      const { facilityId, departmentId } = body;
+      if (departmentId) {
+        return departmentId;
+      }
+
+      if (!facilityId) {
+        throw new Error('Providing facilityId is required to find the emergency department');
+      }
+
+      // default to the emergency department of the facility
+      const department = await models.Department.findOne({
+        where: { name: 'Emergency', facilityId },
+      });
+
+      if (!department) {
+        throw new Error('Cannot find Emergency department for current facility');
+      }
+
+      return department.id;
+    };
+    const departmentId = await getDepartmentId();
+
+    const triageRecord = await models.Triage.create({ ...body, departmentId, actorId: user.id });
 
     if (vitals) {
       const getDefaultId = async type => models.SurveyResponseAnswer.getDefaultId(type);

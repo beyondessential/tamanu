@@ -228,32 +228,50 @@ describe('Triage', () => {
 
   it("should use Emergency department for encounter's department", async () => {
     const encounterPatient = await models.Patient.create(await createDummyPatient(models));
-    const createdTriage = await models.Triage.create(
-      await createDummyTriage(models, {
-        patientId: encounterPatient.id,
-        chiefComplaintId: await randomReferenceId(models, 'triageReason'),
-        secondaryComplaintId: await randomReferenceId(models, 'triageReason'),
-      }),
-    );
+    const triageBody = await createDummyTriage(models, {
+      patientId: encounterPatient.id,
+      chiefComplaintId: await randomReferenceId(models, 'triageReason'),
+      secondaryComplaintId: await randomReferenceId(models, 'triageReason'),
+    });
+    const { body: createdTriage } = await app
+      .post('/api/triage')
+      .send({ ...triageBody, facilityId: facility.id });
     const createdEncounter = await models.Encounter.findByPk(createdTriage.encounterId);
     expect(createdEncounter.departmentId).toEqual(emergencyDepartment.id);
   });
 
-  it('should throw error when there is no Emergency department for the current facility', async () => {
+  it('should throw an error when there is no Emergency department for the current facility', async () => {
     const testFacility = await models.Facility.create({
       ...fake(models.Facility, { id: 'testFacility' }),
     });
     await emergencyDepartment.update({ facilityId: testFacility.id });
     const encounterPatient = await models.Patient.create(await createDummyPatient(models));
-    await expect(
-      models.Triage.create(
-        await createDummyTriage(models, {
-          patientId: encounterPatient.id,
-          chiefComplaintId: await randomReferenceId(models, 'triageReason'),
-          secondaryComplaintId: await randomReferenceId(models, 'triageReason'),
-        }),
-      ),
-    ).rejects.toThrow('Cannot find Emergency department for current facility');
+    const triageBody = await createDummyTriage(models, {
+      patientId: encounterPatient.id,
+      chiefComplaintId: await randomReferenceId(models, 'triageReason'),
+      secondaryComplaintId: await randomReferenceId(models, 'triageReason'),
+    });
+    const response = await app.post('/api/triage').send({ ...triageBody, facilityId: facility.id });
+    expect(response).toHaveStatus(500);
+    expect(response.body?.error?.message).toEqual(
+      'Cannot find Emergency department for current facility',
+    );
+
+    await emergencyDepartment.update({ facilityId: config.serverFacilityId });
+  });
+
+  it('should throw an error when neither departmentId nor facilityId is provided', async () => {
+    const encounterPatient = await models.Patient.create(await createDummyPatient(models));
+    const triageBody = await createDummyTriage(models, {
+      patientId: encounterPatient.id,
+      chiefComplaintId: await randomReferenceId(models, 'triageReason'),
+      secondaryComplaintId: await randomReferenceId(models, 'triageReason'),
+    });
+    const response = await app.post('/api/triage').send(triageBody);
+    expect(response).toHaveStatus(500);
+    expect(response.body?.error?.message).toEqual(
+      'Providing facilityId is required to find the emergency department',
+    );
 
     await emergencyDepartment.update({ facilityId: config.serverFacilityId });
   });
@@ -320,7 +338,7 @@ describe('Triage', () => {
       ];
       await bulkCreateTestTriage(triageConfigs);
 
-      const response = await app.get('/api/triage');
+      const response = await app.get(`/api/triage?facilityId=${facility.id}`);
       const results = response.body;
       expect(results.count).toEqual(5);
       // Test Score
@@ -353,7 +371,7 @@ describe('Triage', () => {
         reasonForEncounter: 'Test include short stay',
         encounterType: ENCOUNTER_TYPES.EMERGENCY,
       });
-      const response = await app.get('/api/triage');
+      const response = await app.get(`/api/triage?facilityId=${facility.id}`);
 
       expect(response.body.data.some(b => b.encounterId === createdEncounter.id)).toEqual(true);
     });
