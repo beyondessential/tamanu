@@ -10,7 +10,7 @@ import { importerRouter } from './importer';
 import { assetRoutes } from './asset';
 import { fhirJobStats } from './fhirJobStats';
 import { mergePatientHandler } from './patientMerge';
-import { patientLetterTemplateRoutes } from './patientLetterTemplate';
+import { templateRoutes } from './template';
 import { reportsRouter } from './reports/reportRoutes';
 import { syncLastCompleted } from './sync';
 import { translationRouter } from './translation';
@@ -54,7 +54,7 @@ adminRoutes.get('/sync/lastCompleted', syncLastCompleted);
 
 adminRoutes.get('/fhir/jobStats', fhirJobStats);
 
-adminRoutes.use('/patientLetterTemplate', patientLetterTemplateRoutes);
+adminRoutes.use('/template', templateRoutes);
 
 adminRoutes.use('/asset', assetRoutes);
 adminRoutes.use('/users', usersRouter);
