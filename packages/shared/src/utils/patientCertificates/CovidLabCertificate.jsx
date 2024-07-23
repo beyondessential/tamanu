@@ -1,5 +1,5 @@
 import React from 'react';
-import { Document, Page } from '@react-pdf/renderer';
+import { Document } from '@react-pdf/renderer';
 import { replaceInTemplate } from '../replaceInTemplate';
 import { Table } from './Table';
 import { Box, Col, Row, styles, Watermark } from './Layout';
@@ -16,6 +16,8 @@ import {
   getTimeOfSwab,
 } from './labRequestAccessors';
 import { getDisplayDate } from './getDisplayDate';
+import { withLanguageContext } from '../pdf/languageContext';
+import { Page } from '../pdf/Page';
 
 const columns = [
   {
@@ -78,7 +80,7 @@ const getCertificateRemark = (patient, getLocalisation) => ({
   ),
 });
 
-export const CovidLabCertificate = ({
+const CovidLabCertificateComponent = ({
   patient,
   labs,
   signingSrc,
@@ -120,3 +122,5 @@ export const CovidLabCertificate = ({
     </Page>
   </Document>
 );
+
+export const CovidLabCertificate = withLanguageContext(CovidLabCertificateComponent);

@@ -3,13 +3,15 @@ import { useSuggester } from '../../api';
 import { AutocompleteField, LocalisedField } from '../../components';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
 
-export const VillageField = ({ name = 'villageName', required }) => {
+export const VillageField = ({ name = 'village', label, required }) => {
   const villageSuggester = useSuggester('village');
   return (
     <LocalisedField
       name={name}
       label={
-        <TranslatedText stringId="general.localisedField.villageId.label" fallback="Village" />
+        label ?? (
+          <TranslatedText stringId="general.localisedField.villageId.label" fallback="Village" />
+        )
       }
       path="fields.villageId"
       component={AutocompleteField}

@@ -3,16 +3,17 @@ import { QueryTypes, Sequelize } from 'sequelize';
 
 import { getPatientAdditionalData } from '@tamanu/shared/utils';
 import { HIDDEN_VISIBILITY_STATUSES } from '@tamanu/constants/importable';
-
 import { renameObjectKeys } from '@tamanu/shared/utils/renameObjectKeys';
 import {
   permissionCheckingRouter,
   runPaginatedQuery,
   simpleGetList,
 } from '@tamanu/shared/utils/crudHelpers';
+
 import { patientSecondaryIdRoutes } from './patientSecondaryId';
 import { patientDeath } from './patientDeath';
 import { patientProfilePicture } from './patientProfilePicture';
+import { deleteReferral, deleteSurveyResponse } from '../../../routeHandlers/deleteModel';
 
 export const patientRelations = permissionCheckingRouter('read', 'Patient');
 
@@ -48,6 +49,7 @@ patientRelations.get(
           encounters
         WHERE
           patient_id = :patientId
+          AND deleted_at IS NULL
           ${open ? 'AND end_date IS NULL' : ''}
       `,
       `
@@ -55,7 +57,8 @@ patientRelations.get(
           encounters.*,
           locations.facility_id AS facility_id,
           facilities.name AS facility_name,
-          location_groups.name AS location_group_name
+          location_groups.name AS location_group_name,
+          location_groups.id AS location_group_id
         FROM
           encounters
           INNER JOIN locations
@@ -66,6 +69,10 @@ patientRelations.get(
             ON location_groups.id = locations.location_group_id
         WHERE
           patient_id = :patientId
+        AND encounters.deleted_at is null
+        AND locations.deleted_at is null
+        AND facilities.deleted_at is null
+        AND location_groups.deleted_at is null
           ${open ? 'AND end_date IS NULL' : ''}
         ${sortKey ? `ORDER BY ${sortKey} ${sortDirection}` : ''}
       `,
@@ -224,6 +231,8 @@ patientRelations.get(
   }),
 );
 
+patientRelations.delete('/:id/referrals/:referralId', deleteReferral);
+
 const PROGRAM_RESPONSE_SORT_KEYS = {
   endTime: 'end_time',
   submittedBy: 'submitted_by',
@@ -261,6 +270,7 @@ patientRelations.get(
         WHERE
           encounters.patient_id = :patientId
           AND surveys.survey_type = :surveyType
+          AND survey_responses.deleted_at IS NULL
           ${surveyId ? 'AND surveys.id = :surveyId' : ''}
       `,
       `
@@ -283,9 +293,10 @@ patientRelations.get(
             ON (survey_user.id = survey_responses.user_id)
           LEFT JOIN programs
             ON (programs.id = surveys.program_id)
-        WHERE
-          encounters.patient_id = :patientId
+        WHERE encounters.patient_id = :patientId
+          AND encounters.deleted_at is null
           AND surveys.survey_type = :surveyType
+          AND survey_responses.deleted_at IS NULL
           ${surveyId ? 'AND surveys.id = :surveyId' : ''}
           ${programId ? 'AND programs.id = :programId' : ''}
         ORDER BY ${sortKey} ${sortDirection}
@@ -359,6 +370,7 @@ patientRelations.get(
     )
   AND lab_requests.status = :status
   AND lab_requests.sample_time IS NOT NULL
+  AND lab_requests.deleted_at IS NULL
   ${categoryId ? 'AND lab_requests.lab_test_category_id = :categoryId' : ''}
   ${
     panelId
@@ -391,6 +403,8 @@ patientRelations.get(
     });
   }),
 );
+
+patientRelations.delete('/:id/programResponses/:surveyResponseId', deleteSurveyResponse);
 
 patientRelations.use(patientProfilePicture);
 patientRelations.use(patientDeath);

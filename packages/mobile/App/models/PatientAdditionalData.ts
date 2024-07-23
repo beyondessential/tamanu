@@ -145,6 +145,11 @@ export class PatientAdditionalData extends BaseModel implements IPatientAddition
   @IdRelation()
   countryOfBirthId?: string | null;
 
+  @ReferenceDataRelation()
+  secondaryVillage?: ReferenceData;
+  @IdRelation()
+  secondaryVillageId?: string | null;
+
   @ManyToOne(() => Facility)
   healthCenter: Facility;
   @RelationId(({ healthCenter }) => healthCenter)

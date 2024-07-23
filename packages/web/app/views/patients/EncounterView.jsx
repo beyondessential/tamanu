@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
-import { Box, Divider } from '@material-ui/core';
 import { ENCOUNTER_TYPES } from '@tamanu/constants';
 import { useEncounter } from '../../contexts/Encounter';
 import { useLocalisation } from '../../contexts/Localisation';
@@ -29,7 +28,7 @@ import { EncounterActions } from './components';
 import { useReferenceData } from '../../api/queries';
 import { useAuth } from '../../contexts/Auth';
 import { VitalChartDataProvider } from '../../contexts/VitalChartData';
-import { TranslatedText } from '../../components/Translation/TranslatedText';
+import { TranslatedText, TranslatedReferenceData } from '../../components/Translation';
 
 const getIsTriage = encounter => ENCOUNTER_OPTIONS_BY_VALUE[encounter.encounterType].triageFlowOnly;
 
@@ -149,7 +148,12 @@ export const EncounterView = () => {
     <GridColumnContainer>
       <EncounterTopBar
         title={getHeaderText(encounter)}
-        subTitle={encounter.location?.facility?.name}
+        subTitle={encounter.location?.facility
+          && <TranslatedReferenceData
+            fallback={encounter.location.facility.name}
+            value={encounter.location.facility.id}
+            category="facility"
+          />}
         encounter={encounter}
       >
         {(facilityId === encounter.location.facilityId || encounter.endDate) &&
@@ -160,21 +164,21 @@ export const EncounterView = () => {
             encounter.encounterType,
           ) && <EncounterActions encounter={encounter} />}
       </EncounterTopBar>
-      <ContentPane>
-        <EncounterInfoPane
-          encounter={encounter}
-          getLocalisation={getLocalisation}
-          patientBillingType={patientBillingTypeData?.name}
-        />
-        <Box mt={4} mb={4}>
-          <Divider />
-        </Box>
-        <DiagnosisView
-          encounter={encounter}
-          isTriage={getIsTriage(encounter)}
-          disabled={disabled}
-        />
-      </ContentPane>
+      <EncounterInfoPane
+        encounter={encounter}
+        getLocalisation={getLocalisation}
+        patientBillingType={patientBillingTypeData
+          && <TranslatedReferenceData
+            fallback={patientBillingTypeData.name}
+            value={patientBillingTypeData.id}
+            category="patientBillingType"
+          />}
+      />
+      <DiagnosisView
+        encounter={encounter}
+        isTriage={getIsTriage(encounter)}
+        disabled={disabled}
+      />
       <ContentPane>
         <StyledTabDisplay
           tabs={visibleTabs}

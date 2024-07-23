@@ -90,7 +90,7 @@ export async function createEuDccVaccinationData(administeredVaccineId, { models
     date,
     location,
     scheduledVaccine: {
-      schedule,
+      doseLabel,
       vaccine: { id: vaccineId },
     },
     encounter: {
@@ -133,7 +133,7 @@ export async function createEuDccVaccinationData(administeredVaccineId, { models
         vp: certVax.vaccineCode,
         mp: certVax.euProductCode,
         ma: certVax.manufacturer.code,
-        dn: SCHEDULE_TO_SEQUENCE[schedule],
+        dn: SCHEDULE_TO_SEQUENCE[doseLabel],
         sd: certVax.maximumDosage,
         dt: vaxDate,
         co: country['alpha-2'],

@@ -1,4 +1,8 @@
-import { SYNC_DIRECTIONS } from '@tamanu/constants';
+import {
+  SYNC_DIRECTIONS,
+  ENGLISH_LANGUAGE_CODE,
+  REFERENCE_DATA_TRANSLATION_PREFIX,
+} from '@tamanu/constants';
 import { DataTypes, Op } from 'sequelize';
 import { Model } from './Model';
 import { keyBy, mapValues } from 'lodash';
@@ -87,12 +91,25 @@ export class TranslatedString extends Model {
     return { languagesInDb, languageNames };
   };
 
-  /**
-   *
-   * @param {string} language
-   * @param {string[]} prefixIds
-   */
-  static getTranslationFunction = async (language, prefixIds = []) => {
+  static getReferenceDataTranslationsByDataType = async ({
+    language = ENGLISH_LANGUAGE_CODE,
+    refDataType,
+    queryString,
+  }) => {
+    return this.findAll({
+      where: {
+        language,
+        stringId: {
+          [Op.startsWith]: `${REFERENCE_DATA_TRANSLATION_PREFIX}.${refDataType}`,
+        },
+        ...(queryString ? { text: { [Op.iLike]: `%${queryString}%` } } : {}),
+      },
+      attributes: ['stringId', 'text'],
+      raw: true,
+    });
+  };
+
+  static getTranslations = async (language, prefixIds) => {
     const translatedStringRecords = await TranslatedString.findAll({
       where: {
         language,
@@ -107,15 +124,15 @@ export class TranslatedString extends Model {
     });
 
     const translations = mapValues(keyBy(translatedStringRecords, 'stringId'), 'text');
+    return translations;
+  };
 
-    /**
-     * @param {string} stringId
-     * @param {string} fallback
-     * @param {Record<string, unknown} replacements
-     */
-    return (stringId, fallback, replacements) => {
+  static getTranslationFunction = async (language, prefixIds = []) => {
+    const translations = await TranslatedString.getTranslations(language, prefixIds);
+
+    return (stringId, fallback, replacements, uppercase, lowercase) => {
       const translationFunc = translationFactory(translations);
-      const value = translationFunc(stringId, fallback, replacements);
+      const { value } = translationFunc(stringId, fallback, replacements, uppercase, lowercase);
       return value;
     };
   };

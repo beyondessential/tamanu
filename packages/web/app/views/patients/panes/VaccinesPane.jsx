@@ -1,6 +1,12 @@
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
-import { Button, ContentPane, TableButtonRow } from '../../../components';
+import {
+  Button,
+  ButtonWithPermissionCheck,
+  ContentPane,
+  TableButtonRow,
+  TranslatedText,
+} from '../../../components';
 import { ViewAdministeredVaccineModal } from '../../../components/ViewAdministeredVaccineModal';
 import { EditAdministeredVaccineModal } from '../../../components/EditAdministeredVaccineModal';
 import { DeleteAdministeredVaccineModal } from '../../../components/DeleteAdministeredVaccineModal';
@@ -9,9 +15,8 @@ import {
   CovidVaccineCertificateModal,
   VaccineCertificateModal,
 } from '../../../components/PatientPrinting';
-import { ImmunisationsTable } from '../../../components/ImmunisationsTable';
-import { useAdministeredVaccines } from '../../../api/queries/useAdministeredVaccines';
-import { TranslatedText } from '../../../components/Translation/TranslatedText';
+import { ImmunisationsTable, ImmunisationScheduleTable } from '../../../features';
+import { useAdministeredVaccines } from '../../../api/queries';
 
 const CovidCertificateButton = styled(Button)`
   margin-left: 0;
@@ -20,6 +25,14 @@ const CovidCertificateButton = styled(Button)`
 
 const CovidCertificateIcon = styled.i`
   margin-right: 4px;
+`;
+
+const TableWrapper = styled.div`
+  margin-bottom: 1.5rem;
+
+  tbody {
+    max-height: 300px;
+  }
 `;
 
 export const VaccinesPane = React.memo(({ patient, readonly }) => {
@@ -46,6 +59,16 @@ export const VaccinesPane = React.memo(({ patient, readonly }) => {
     setVaccineData(row);
   }, []);
 
+  const handleOpenRecordModal = useCallback(row => {
+    setIsAdministerModalOpen(true);
+    setVaccineData(row);
+  }, []);
+
+  const handleCloseRecordModal = useCallback(() => {
+    setIsAdministerModalOpen(false);
+    setVaccineData(null);
+  }, []);
+
   const { data: vaccines } = useAdministeredVaccines(patient.id);
   const vaccinations = vaccines?.data || [];
   const certifiable = vaccinations.some(v => v.certifiable);
@@ -55,7 +78,11 @@ export const VaccinesPane = React.memo(({ patient, readonly }) => {
       <VaccineModal
         open={isAdministerModalOpen}
         patientId={patient.id}
-        onClose={() => setIsAdministerModalOpen(false)}
+        vaccineRecord={{
+          ...vaccineData,
+          vaccineLabel: vaccineData?.label,
+        }}
+        onClose={handleCloseRecordModal}
       />
       <ViewAdministeredVaccineModal
         open={isViewAdministeredModalOpen}
@@ -101,10 +128,21 @@ export const VaccinesPane = React.memo(({ patient, readonly }) => {
               />
             </Button>
           )}
-          <Button onClick={() => setIsAdministerModalOpen(true)} disabled={readonly}>
+          <ButtonWithPermissionCheck
+            verb="create"
+            noun="PatientVaccine"
+            onClick={() => setIsAdministerModalOpen(true)}
+            disabled={readonly}
+          >
             <TranslatedText stringId="vaccine.action.recordVaccine" fallback="Record vaccine" />
-          </Button>
+          </ButtonWithPermissionCheck>
         </TableButtonRow>
+        <TableWrapper>
+          <ImmunisationScheduleTable
+            patient={patient}
+            onItemEdit={id => handleOpenRecordModal(id)}
+          />
+        </TableWrapper>
         <ImmunisationsTable
           patient={patient}
           onItemClick={id => handleOpenViewModal(id)}

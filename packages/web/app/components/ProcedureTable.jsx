@@ -2,9 +2,14 @@ import React from 'react';
 
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
-import { TranslatedText } from './Translation/TranslatedText';
+import { TranslatedText, TranslatedReferenceData } from './Translation';
 
-const getProcedureLabel = ({ procedureType }) => procedureType.name;
+const getProcedureLabel = ({ procedureType }) => (
+  <TranslatedReferenceData 
+    fallback={procedureType.name} 
+    value={procedureType.id} 
+    category={procedureType.type} />
+);
 const getCodeLabel = ({ procedureType }) => procedureType.code;
 
 const COLUMNS = [

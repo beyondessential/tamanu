@@ -4,21 +4,40 @@ import asyncHandler from 'express-async-handler';
 import { literal, Op, Sequelize } from 'sequelize';
 import { NotFoundError } from '@tamanu/shared/errors';
 import {
+  DEFAULT_HIERARCHY_TYPE,
+  ENGLISH_LANGUAGE_CODE,
   INVOICE_LINE_TYPES,
+  REFERENCE_DATA_TRANSLATION_PREFIX,
   REFERENCE_TYPE_VALUES,
   REFERENCE_TYPES,
   REGISTRATION_STATUSES,
   SUGGESTER_ENDPOINTS,
   SURVEY_TYPES,
+  TRANSLATABLE_REFERENCE_TYPES,
   VISIBILITY_STATUSES,
-  DEFAULT_HIERARCHY_TYPE,
 } from '@tamanu/constants';
+import { keyBy } from 'lodash';
 
 export const suggestions = express.Router();
 
 const defaultLimit = 25;
 
 const defaultMapper = ({ name, code, id }) => ({ name, code, id });
+
+// Translation helpers
+const extractDataId = ({ stringId }) => stringId.split('.').pop();
+const replaceDataLabelsWithTranslations = ({ data, translations }) => {
+  const translationsByDataId = keyBy(translations, extractDataId);
+  return data.map(item => ({ ...item, name: translationsByDataId[item.id]?.text || item.name }));
+};
+const ENDPOINT_TO_DATA_TYPE = {
+  // Special cases where the endpoint name doesn't match the dataType
+  ['facilityLocationGroup']: 'locationGroup',
+  ['patientLabTestCategories']: 'labTestCategory',
+  ['patientLabTestPanelTypes']: 'labTestPanelType',
+  ['invoiceLineTypes']: 'invoiceLineType',
+};
+const getDataType = endpoint => ENDPOINT_TO_DATA_TYPE[endpoint] || endpoint;
 
 function createSuggesterRoute(
   endpoint,
@@ -31,15 +50,52 @@ function createSuggesterRoute(
     asyncHandler(async (req, res) => {
       req.checkPermission('list', modelName);
       const { models, query } = req;
-
+      const { language } = query;
+      delete query.language;
       const model = models[modelName];
 
+      const searchQuery = (query.q || '').trim().toLowerCase();
       const positionQuery = literal(
         `POSITION(LOWER(:positionMatch) in LOWER(${`"${modelName}"."${searchColumn}"`})) > 1`,
       );
 
-      const searchQuery = (query.q || '').trim().toLowerCase();
-      const where = whereBuilder(`%${searchQuery}%`, query, req);
+      const isTranslatable = TRANSLATABLE_REFERENCE_TYPES.includes(getDataType(endpoint));
+
+      const translations = isTranslatable
+        ? await models.TranslatedString.getReferenceDataTranslationsByDataType({
+            language,
+            refDataType: getDataType(endpoint),
+            queryString: searchQuery,
+          })
+        : [];
+      const suggestedIds = translations.map(extractDataId);
+
+      const filterByFacility = !!query.filterByFacility || endpoint === 'facilityLocationGroup';
+
+      const whereQuery = whereBuilder(`%${searchQuery}%`, query, req);
+      const visibilityStatus = whereQuery.visibilityStatus;
+
+      const where = {
+        [Op.or]: [
+          whereQuery,
+          {
+            id: { [Op.in]: suggestedIds },
+            ...(visibilityStatus
+              ? {
+                  visibilityStatus: {
+                    [Op.eq]: visibilityStatus,
+                  },
+                }
+              : {}),
+              // 
+            ...(filterByFacility ? { facilityId: req.facilityId } : {}),
+          },
+        ],
+      };
+
+      if (endpoint === 'location' && query.locationGroupId) {
+        where.locationGroupId = query.locationGroupId;
+      }
       const include = includeBuilder?.(req);
 
       const results = await model.findAll({
@@ -52,9 +108,10 @@ function createSuggesterRoute(
         },
         limit: defaultLimit,
       });
-
       // Allow for async mapping functions (currently only used by location suggester)
-      res.send(await Promise.all(results.map(mapper)));
+      const data = await Promise.all(results.map(mapper));
+
+      res.send(isTranslatable ? replaceDataLabelsWithTranslations({ data, translations }) : data);
     }),
   );
 }
@@ -66,12 +123,43 @@ function createSuggesterLookupRoute(endpoint, modelName, { mapper }) {
   suggestions.get(
     `/${endpoint}/:id`,
     asyncHandler(async (req, res) => {
-      const { models, params } = req;
+      const {
+        models,
+        params,
+        query: { language = ENGLISH_LANGUAGE_CODE },
+      } = req;
       req.checkPermission('list', modelName);
       const record = await models[modelName].findByPk(params.id);
       if (!record) throw new NotFoundError();
+
       req.checkPermission('read', record);
-      res.send(await mapper(record));
+      const mappedRecord = await mapper(record);
+
+      if (!TRANSLATABLE_REFERENCE_TYPES.includes(getDataType(endpoint))) {
+        res.send(mappedRecord);
+        return;
+      }
+
+      const translation = await models.TranslatedString.findOne({
+        where: {
+          stringId: `${REFERENCE_DATA_TRANSLATION_PREFIX}.${getDataType(endpoint)}.${record.id}`,
+          language,
+        },
+        attributes: ['stringId', 'text'],
+        raw: true,
+      });
+
+      if (!translation) {
+        res.send(mappedRecord);
+        return;
+      }
+
+      const translatedRecord = replaceDataLabelsWithTranslations({
+        data: [mappedRecord],
+        translations: [translation],
+      })[0];
+
+      res.send(translatedRecord);
     }),
   );
 }
@@ -96,8 +184,27 @@ function createAllRecordsRoute(
         replacements: extraReplacementsBuilder(query),
       });
 
+      const mappedResults = await Promise.all(results.map(mapper));
+
+      if (!TRANSLATABLE_REFERENCE_TYPES.includes(getDataType(endpoint))) {
+        res.send(mappedResults);
+        return;
+      }
+
+      const translatedStrings = await models.TranslatedString.getReferenceDataTranslationsByDataType(
+        {
+          language: query.language,
+          refDataType: getDataType(endpoint),
+        },
+      );
+
+      const translatedResults = replaceDataLabelsWithTranslations({
+        data: mappedResults,
+        translations: translatedStrings,
+      });
+
       // Allow for async mapping functions (currently only used by location suggester)
-      res.send(await Promise.all(results.map(mapper)));
+      res.send(translatedResults);
     }),
   );
 }
@@ -319,6 +426,8 @@ createSuggester(
             encounters ON encounters.id = lab_requests.encounter_id
           WHERE lab_requests.status = :lab_request_status
             AND encounters.patient_id = :patient_id
+            AND encounters.deleted_at is null
+            AND lab_requests.deleted_at is null
         )`,
         ),
       },
@@ -360,6 +469,8 @@ createSuggester(
             encounters ON encounters.id = lab_requests.encounter_id
           WHERE lab_requests.status = :lab_request_status
             AND encounters.patient_id = :patient_id
+            AND encounters.deleted_at is null
+            AND lab_requests.deleted_at is null
         )`,
         ),
       },
@@ -426,6 +537,15 @@ createNameSuggester(
   }),
 );
 
+createNameSuggester(
+  'programRegistryCondition',
+  'ProgramRegistryCondition',
+  (search, { programRegistryId }) => ({
+    ...DEFAULT_WHERE_BUILDER(search),
+    ...(programRegistryId ? { programRegistryId } : {}),
+  }),
+);
+
 createNameSuggester('programRegistry', 'ProgramRegistry', (search, query) => {
   const baseWhere = DEFAULT_WHERE_BUILDER(search);
   if (!query.patientId) {
@@ -455,7 +575,19 @@ createNameSuggester('programRegistry', 'ProgramRegistry', (search, query) => {
 // TODO: Use generic LabTest permissions for this suggester
 createNameSuggester('labTestPanel', 'LabTestPanel');
 
-createNameSuggester('patientLetterTemplate', 'PatientLetterTemplate');
+createNameSuggester('template', 'Template', (search, query) => {
+  const baseWhere = DEFAULT_WHERE_BUILDER(search);
+  const { type } = query;
+
+  if (!type) {
+    return baseWhere;
+  }
+
+  return {
+    ...baseWhere,
+    type,
+  };
+});
 
 const routerEndpoints = suggestions.stack.map(layer => {
   const path = layer.route.path.replace('/', '').replaceAll('$', '');

@@ -14,6 +14,7 @@ import { Program } from '~/models/Program';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
 import { SurveyTypes } from '~/types';
 import { In } from 'typeorm/browser';
+import { VisibilityStatus } from '~/visibilityStatuses';
 
 const Screen = (): ReactElement => {
   const navigation = useNavigation();
@@ -22,6 +23,7 @@ const Screen = (): ReactElement => {
     const surveys = await models.Survey.find({
       where: {
         surveyType: SurveyTypes.Programs,
+        visibilityStatus: VisibilityStatus.Current,
       },
     });
 

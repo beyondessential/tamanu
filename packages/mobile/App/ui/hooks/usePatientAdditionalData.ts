@@ -1,16 +1,28 @@
 import { useCallback, useState } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 import { groupBy } from 'lodash';
-
 import { useBackend } from '.';
+import { PatientFieldDefinition } from '~/models/PatientFieldDefinition';
+import { PatientFieldValue } from '~/models/PatientFieldValue';
+import { PatientAdditionalData } from '~/models/PatientAdditionalData';
+import { getSecondaryVillageData } from '/navigation/screens/home/PatientDetails/layouts/cambodia/fields';
+
+export type CustomPatientFieldValues = {
+  [key: string]: PatientFieldValue[];
+};
 
 export const usePatientAdditionalData = patientId => {
   const backend = useBackend();
   const [customPatientSections, setCustomPatientSections] = useState([]);
-  const [customPatientFieldValues, setCustomPatientFieldValues] = useState([]);
-  const [patientAdditionalData, setPatientAdditionalData] = useState(null);
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [customPatientFieldDefinitions, setCustomPatientFieldDefinitions] = useState<
+    PatientFieldDefinition[]
+  >([]);
+  const [customPatientFieldValues, setCustomPatientFieldValues] = useState<
+    CustomPatientFieldValues
+  >({});
+  const [patientAdditionalData, setPatientAdditionalData] = useState<PatientAdditionalData>(null);
+  const [error, setError] = useState<Error>(null);
+  const [loading, setLoading] = useState<boolean>(true);
 
   useFocusEffect(
     useCallback(() => {
@@ -24,7 +36,7 @@ export const usePatientAdditionalData = patientId => {
                 where: { patient: { id: patientId } },
               }),
               models.PatientFieldDefinition.findVisible({
-                relations: [ 'category' ],
+                relations: ['category'],
                 order: {
                   // Nested ordering only works with typeorm version > 0.3.0
                   // category: { name: 'DESC' },
@@ -35,7 +47,16 @@ export const usePatientAdditionalData = patientId => {
                 where: { patient: { id: patientId } },
               }),
             ]);
-            const result = record && record[0];
+            const padData = record && record[0];
+            let secondaryVillageData = {};
+
+            if (padData?.secondaryVillageId) {
+              secondaryVillageData = await getSecondaryVillageData(
+                models,
+                padData.secondaryVillageId,
+              );
+            }
+
             if (!mounted) {
               return;
             }
@@ -44,13 +65,14 @@ export const usePatientAdditionalData = patientId => {
             setCustomPatientSections(
               Object.entries(
                 groupBy(
-                  fieldDefinitions.sort((a, b) => a.category?.name > b.category?.name),
+                  fieldDefinitions.sort((a, b) => a.category?.name.localeCompare(b.category?.name)),
                   'categoryId',
-                )
-              )
+                ),
+              ),
             );
+            setCustomPatientFieldDefinitions(fieldDefinitions);
             setCustomPatientFieldValues(groupBy(fieldValues, 'definitionId'));
-            setPatientAdditionalData(result);
+            setPatientAdditionalData({ ...padData, ...secondaryVillageData });
           }
         } catch (err) {
           if (!mounted) {
@@ -69,9 +91,10 @@ export const usePatientAdditionalData = patientId => {
 
   return {
     customPatientSections,
+    customPatientFieldDefinitions,
     customPatientFieldValues,
     patientAdditionalData,
     loading,
-    error
+    error,
   };
 };
