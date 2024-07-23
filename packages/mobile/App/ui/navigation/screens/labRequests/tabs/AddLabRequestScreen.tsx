@@ -16,8 +16,10 @@ import { authUserSelector } from '~/ui/helpers/selectors';
 import { ID } from '~/types/ID';
 import { LabRequestForm } from '~/ui/components/Forms/LabRequestForm';
 import { getCombinedDateString } from '/helpers/date';
+import { useTranslation } from '~/ui/contexts/TranslationContext';
 
-const ALPHABET_FOR_ID = 'ABCDEFGH' + /*I*/ 'JK' + /*L*/ 'MN' + /*O*/ 'PQRSTUVWXYZ' + /*01*/ '23456789';
+const ALPHABET_FOR_ID =
+  'ABCDEFGH' + /*I*/ 'JK' + /*L*/ 'MN' + /*O*/ 'PQRSTUVWXYZ' + /*01*/ '23456789';
 
 interface LabRequestFormData {
   displayId: ID;
@@ -34,16 +36,6 @@ interface LabRequestFormData {
   labTestTypeIds: string[];
 }
 
-const validationSchema = Yup.object().shape({
-  displayId: Yup.string().required(),
-  requestedDate: Yup.date().required(),
-  sampleDate: Yup.date().required(),
-  sampleTime: Yup.date().required(),
-  categoryId: Yup.string().required('Required'),
-  requestedById: Yup.string().required('Required'),
-  priorityId: Yup.string(),
-});
-
 interface DumbAddLabRequestScreenProps {
   selectedPatient: IPatient;
   navigation: any;
@@ -53,6 +45,7 @@ export const DumbAddLabRequestScreen = ({
   selectedPatient,
   navigation,
 }: DumbAddLabRequestScreenProps): ReactElement => {
+  const { getTranslation } = useTranslation();
   const displayId = useMemo(customAlphabet(ALPHABET_FOR_ID, 7), [selectedPatient]);
 
   const navigateToHistory = useCallback(() => {
@@ -143,7 +136,27 @@ export const DumbAddLabRequestScreen = ({
       >
         <Formik
           initialValues={initialValues}
-          validationSchema={validationSchema}
+          validationSchema={Yup.object().shape({
+            displayId: Yup.string().required(
+              getTranslation('validation.required.inline', '*Required'),
+            ),
+            requestedDate: Yup.date().required(
+              getTranslation('validation.required.inline', '*Required'),
+            ),
+            sampleDate: Yup.date().required(
+              getTranslation('validation.required.inline', '*Required'),
+            ),
+            sampleTime: Yup.date().required(
+              getTranslation('validation.required.inline', '*Required'),
+            ),
+            categoryId: Yup.string().required(
+              getTranslation('validation.required.inline', '*Required'),
+            ),
+            requestedById: Yup.string().required(
+              getTranslation('validation.required.inline', '*Required'),
+            ),
+            priorityId: Yup.string(),
+          })}
           validateOnChange={false}
           validateOnBlur={false}
           onSubmit={recordLabRequest}

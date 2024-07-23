@@ -66,17 +66,17 @@ export class DocumentMetadata extends Model {
     return ['department'];
   }
 
-  static buildPatientSyncFilter(patientIds) {
-    if (patientIds.length === 0) {
+  static buildPatientSyncFilter(patientCount, markedForSyncPatientsTable) {
+    if (patientCount === 0) {
       return null;
     }
     const join = buildEncounterLinkedSyncFilterJoins([this.tableName, 'encounters']);
     return `
       ${join}
       WHERE (
-        encounters.patient_id IN (:patientIds)
+        encounters.patient_id IN (SELECT patient_id FROM ${markedForSyncPatientsTable})
         OR
-        ${this.tableName}.patient_id IN (:patientIds)
+        ${this.tableName}.patient_id IN (SELECT patient_id FROM ${markedForSyncPatientsTable})
       )
       AND ${this.tableName}.updated_at_sync_tick > :since
     `;

@@ -259,8 +259,8 @@ export const TriageForm = ({
           .required()
           .translatedLabel(
             <TranslatedText
-              stringId="patient.modal.triage.validation.triageScore.path"
-              fallback="Path"
+              stringId="patient.modal.triage.triageScore.label"
+              fallback="Triage score"
             />,
           ),
       })}

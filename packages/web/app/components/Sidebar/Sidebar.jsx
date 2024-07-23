@@ -16,7 +16,7 @@ import { SecondarySidebarItem } from './SecondarySidebarItem';
 import { checkAbility } from '../../utils/ability';
 import { useAuth } from '../../contexts/Auth';
 import { useApi } from '../../api';
-import { TranslatedText } from '../Translation/TranslatedText';
+import { TranslatedText, TranslatedReferenceData } from '../Translation';
 import { KebabMenu } from './KebabMenu';
 
 const Container = styled.div`
@@ -205,7 +205,9 @@ export const Sidebar = React.memo(({ items }) => {
         <TranslatedText stringId="general.meta.centralServer" fallback="Central admin server" />
       );
     }
-    return facility.name;
+    return (
+      <TranslatedReferenceData fallback={facility.name} value={facility.id} category="facility" />
+    );
   }, [facility, isFacilityLoading]);
 
   return (

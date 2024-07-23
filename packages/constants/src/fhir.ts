@@ -233,6 +233,15 @@ export const FHIR_DIAGNOSTIC_REPORT_STATUS = {
   UNKNOWN: 'unknown',
 };
 
+export const FHIR_IMAGING_STUDY_STATUS = {
+  REGISTERED: 'registered',
+  AVAILABLE: 'available',
+  FINAL_INVALID_LEGACY: 'final', // this needs to be supported but is not valid FHIR
+  CANCELLED: 'cancelled',
+  ENTERED_IN_ERROR: 'entered-in-error',
+  UNKNOWN: 'unknown',
+};
+
 export const FHIR_ENCOUNTER_CLASS_DISPLAY = {
   IMP: 'inpatient encounter',
   AMB: 'ambulatory encounter',
@@ -297,3 +306,13 @@ export const IPS_REQUEST_STATUSES = {
   ERROR: 'Error',
   IGNORE: 'Ignore',
 };
+
+export const HTTP_BODY_DATA_PATHS = {
+  DIAGNOSTIC_REPORT_ATTACHMENT: '$.presentedForm[*].data',
+};
+
+export const SCRUBBED_DATA_MESSAGE = 'Raw data removed from logs';
+export const SUPPORTED_CONTENT_TYPES = {
+  PDF: 'application/pdf',
+};
+export const DEFAULT_REASON_CANCELLED_BY_API = 'cancelled externally via api';

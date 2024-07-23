@@ -1,7 +1,5 @@
-/* eslint-disable global-require */
-import { inspect } from 'util';
-
 import { sleepAsync } from '@tamanu/shared/utils/sleepAsync';
+
 import { FacilitySyncManager } from '../../dist/sync/FacilitySyncManager';
 import { createTestContext } from '../utilities';
 
@@ -32,10 +30,10 @@ describe('FacilitySyncManager', () => {
 
       await syncManager.triggerSync();
 
-      expect(syncManager.syncPromise).toBe(null);
+      expect(syncManager.currentSyncPromise).toBe(null);
     });
 
-    it('awaits the existing sync if one is ongoing', async () => {
+    it('runs next sync immediately after current sync finishes when triggering sync while another sync is running', async () => {
       FacilitySyncManager.overrideConfig({ sync: { enabled: true } });
       const syncManager = new FacilitySyncManager({
         models: {},
@@ -43,17 +41,31 @@ describe('FacilitySyncManager', () => {
         centralServer: {},
       });
 
-      const resolveWhenNonEmpty = [];
-      syncManager.syncPromise = jest.fn().mockImplementation(async () => {
-        while (resolveWhenNonEmpty.length === 0) {
-          await sleepAsync(5);
-        }
+      let resolveSyncPromise;
+
+      // set up promise so that sync cannot be finished until promise is resolved
+      syncManager.runSync = jest.fn().mockImplementation(async () => {
+        return new Promise(resolve => {
+          resolveSyncPromise = async () => resolve(true);
+        });
       });
 
-      const promise = syncManager.triggerSync();
-      expect(inspect(promise)).toMatch(/pending/);
-      resolveWhenNonEmpty.push(true);
-      await promise;
+      // trigger 2 syncs
+      syncManager.triggerSync();
+      syncManager.triggerSync();
+
+      await sleepAsync(100);
+
+      // assert that after 2 syncs, only 1 sync is actually run
+      expect(syncManager.runSync).toBeCalledTimes(1);
+
+      // resolve the promise of first sync
+      await resolveSyncPromise();
+
+      await sleepAsync(100);
+
+      // assert that right after the 1st sync is finished, 2nd sync is then run
+      expect(syncManager.runSync).toBeCalledTimes(2);
     });
   });
 

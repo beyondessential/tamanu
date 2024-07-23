@@ -4,15 +4,25 @@ import { useQuery } from '@tanstack/react-query';
 import styled from 'styled-components';
 
 import { Table, useSelectableColumn } from '../../Table';
-import { AutocompleteInput, OuterLabelFieldWrapper, SelectInput, TextInput } from '../../Field';
+import {
+  AutocompleteInput,
+  OuterLabelFieldWrapper,
+  SelectInput,
+  TextField,
+  TextInput,
+} from '../../Field';
 import { ConfirmCancelRow } from '../../ButtonRow';
 import { DateDisplay } from '../../DateDisplay';
 import { useApi, useSuggester } from '../../../api';
 import { useAuth } from '../../../contexts/Auth';
-import { Colors } from '../../../constants';
+import { MAX_AGE_TO_RECORD_WEIGHT, Colors } from '../../../constants';
 
 import { MultiplePrescriptionPrintoutModal } from './MultiplePrescriptionPrintoutModal';
-import { TranslatedText } from '../../Translation/TranslatedText';
+import { TranslatedText, TranslatedReferenceData } from '../../Translation';
+import { useLocalisation } from '../../../contexts/Localisation';
+import { useTranslation } from '../../../contexts/Translation';
+import { useSelector } from 'react-redux';
+import { getAgeDurationFromDate } from '../../../../../shared/src/utils/date';
 
 const REPEAT_OPTIONS = [0, 1, 2, 3, 4, 5].map(n => ({ label: n, value: n }));
 
@@ -41,7 +51,11 @@ const COLUMNS = [
     ),
     sortable: false,
     maxWidth: 300,
-    accessor: ({ medication }) => medication.name,
+    accessor: ({ medication }) => <TranslatedReferenceData
+      fallback={medication.name}
+      value={medication.id}
+      category={medication.type}
+    />,
   },
   {
     key: COLUMN_KEYS.QUANTITY,
@@ -82,14 +96,25 @@ const COLUMNS = [
 ];
 
 const PrescriberWrapper = styled.div`
-  width: 200px;
+  width: 100%;
   margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+
+  .react-autosuggest__container,
+  .patient-weight-input {
+    width: 270px;
+  }
 `;
 
 export const PrintMultipleMedicationSelectionForm = React.memo(({ encounter, onClose }) => {
+  const { getTranslation } = useTranslation();
+  const { getLocalisation } = useLocalisation();
+  const weightUnit = getLocalisation('fields.weightUnit.longLabel');
   const [openPrintoutModal, setOpenPrintoutModal] = useState(false);
   const [medicationData, setMedicationData] = useState([]);
   const [prescriberId, setPrescriberId] = useState(null);
+  const [patientWeight, setPatientWeight] = useState('');
   const prescriberSelected = Boolean(prescriberId);
   const api = useApi();
   const practitionerSuggester = useSuggester('practitioner');
@@ -101,6 +126,10 @@ export const PrintMultipleMedicationSelectionForm = React.memo(({ encounter, onC
   const { selectedRows, selectableColumn } = useSelectableColumn(medicationData, {
     columnKey: COLUMN_KEYS.SELECTED,
   });
+
+  const patient = useSelector(state => state.patient);
+  const age = getAgeDurationFromDate(patient.dateOfBirth).years;
+  const showPatientWeight = age < MAX_AGE_TO_RECORD_WEIGHT;
 
   useEffect(() => {
     const medications = data?.data || [];
@@ -142,6 +171,7 @@ export const PrintMultipleMedicationSelectionForm = React.memo(({ encounter, onC
         prescriptions={selectedRows}
         open={openPrintoutModal}
         onClose={() => setOpenPrintoutModal(false)}
+        patientWeight={showPatientWeight ? patientWeight : undefined}
       />
 
       <PrescriberWrapper>
@@ -173,6 +203,25 @@ export const PrintMultipleMedicationSelectionForm = React.memo(({ encounter, onC
             )
           }
         />
+        {showPatientWeight && (
+          <TextField
+            field={{
+              name: 'patientWeight',
+              value: patientWeight,
+              onChange: e => setPatientWeight(e.target.value),
+            }}
+            label={
+              <TranslatedText
+                stringId="medication.patientWeight.label"
+                fallback="Patient weight :unit"
+                replacements={{ unit: `(${weightUnit})` }}
+              />
+            }
+            placeholder={getTranslation('medication.patientWeight.placeholder', 'e.g 2.4')}
+            className="patient-weight-input"
+            type="number"
+          />
+        )}
       </PrescriberWrapper>
 
       <OuterLabelFieldWrapper

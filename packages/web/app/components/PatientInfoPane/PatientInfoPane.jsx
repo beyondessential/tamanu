@@ -22,7 +22,7 @@ import { useLocalisation } from '../../contexts/Localisation';
 import { isErrorUnknownAllow404s, useApi } from '../../api';
 import { PANE_SECTION_IDS } from './paneSections';
 import { RecordDeathSection } from '../RecordDeathSection';
-import { TranslatedText } from '../Translation/TranslatedText';
+import { TranslatedText, TranslatedReferenceData } from '../Translation';
 
 const OngoingConditionDisplay = memo(({ patient, readonly }) => (
   <InfoPaneList
@@ -63,7 +63,13 @@ const AllergyDisplay = memo(({ patient, readonly }) => (
     endpoint="allergy"
     getEndpoint={`patient/${patient.id}/allergies`}
     Form={AllergyForm}
-    getName={allergy => allergy.allergy.name}
+    getName={allergy => (
+      <TranslatedReferenceData
+        fallback={allergy.allergy.name}
+        value={allergy.allergy.id}
+        category="allergy"
+      />
+    )}
   />
 ));
 
@@ -122,14 +128,14 @@ const CarePlanDisplay = memo(({ patient, readonly }) => (
     endpoint="patientCarePlan"
     getEndpoint={`patient/${patient.id}/carePlans`}
     Form={PatientCarePlanForm}
-    getName={({ carePlan }) => carePlan.name}
+    getName={({ carePlan }) => <TranslatedReferenceData fallback={carePlan.name} value={carePlan.id} category="carePlan" />}
     behavior="modal"
     itemTitle={<TranslatedText stringId="carePlan.modal.create.title" fallback="Add care plan" />}
     CustomEditForm={PatientCarePlanDetails}
     getEditFormName={({ carePlan }) => (
       <>
         <TranslatedText stringId="carePlan.modal.edit.title" fallback="Care plan" />:{' '}
-        {carePlan.name}
+        <TranslatedReferenceData fallback={carePlan.name} value={carePlan.id} category="carePlan" />
       </>
     )}
   />

@@ -42,13 +42,18 @@ const Message = styled(Typography)`
 const ErrorMessageContents = ({ error, onCancel }) => (
   <div>
     <MessageContainer>
-      <MessageTitle>Unable to upload file</MessageTitle>
+      <MessageTitle>
+        <TranslatedText stringId="document.form.error.upload.title" fallback="Unable to upload file" />
+      </MessageTitle>
       <Message>
-        File cannot be uploaded at this time. This may be due to network problems or insufficient
-        storage space on your server. Please try again in a few minutes or contact your system
-        administrator.
+        <TranslatedText 
+          stringId="document.form.error.upload.content" 
+          fallback="File cannot be uploaded at this time. This may be due to network problems or insufficient
+          storage space on your server. Please try again in a few minutes or contact your system
+          administrator." 
+        />
         <br />
-        Error message details:
+          <TranslatedText stringId="document.form.error.messageDetails" fallback="Error message details:" />
         <br />
         {error}
       </Message>

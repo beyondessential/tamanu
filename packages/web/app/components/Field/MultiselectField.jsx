@@ -281,7 +281,7 @@ export const MultiselectField = ({ field, options, prefix, value, name, ...props
 
 MultiselectField.propTypes = {
   options: PropTypes.array.isRequired,
-  prefix: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
   value: PropTypes.any.isRequired,
+  prefix: PropTypes.string,
 };
