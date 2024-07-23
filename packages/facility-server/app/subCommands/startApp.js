@@ -8,18 +8,13 @@ import { selectFacilityIds } from '@tamanu/shared/utils';
 import { checkConfig } from '../checkConfig';
 import { initDeviceId } from '../sync/initDeviceId';
 import { performDatabaseIntegrityChecks } from '../database';
-import {
-  FacilitySyncConnection,
-  CentralServerConnection,
-  FacilitySyncManager,
-} from '../sync';
+import { FacilitySyncConnection, CentralServerConnection, FacilitySyncManager } from '../sync';
 
 import { createApiApp } from '../createApiApp';
 
 import { version } from '../serverInfo';
 import { ApplicationContext } from '../ApplicationContext';
 import { createSyncApp } from '../createSyncApp';
-import { selectFacilityIds } from '../utils/configUtils';
 
 const APP_TYPES = {
   API: 'api',

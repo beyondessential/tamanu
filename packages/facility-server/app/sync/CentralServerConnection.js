@@ -15,7 +15,6 @@ import { sleepAsync } from '@tamanu/shared/utils/sleepAsync';
 
 import { version } from '../serverInfo';
 import { callWithBackoff } from './callWithBackoff';
-import { selectFacilityIds } from '../utils/configUtils';
 
 const getVersionIncompatibleMessage = (error, response) => {
   if (error.message === VERSION_COMPATIBILITY_ERRORS.LOW) {
