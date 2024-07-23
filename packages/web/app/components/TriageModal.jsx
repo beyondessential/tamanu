@@ -5,7 +5,7 @@ import { FormModal } from './FormModal';
 import { Colors } from '../constants';
 import { TriageForm } from '../forms/TriageForm';
 import { DateDisplay } from './DateDisplay';
-import { TranslatedText } from './Translation/TranslatedText';
+import { TranslatedSex, TranslatedText } from './Translation';
 
 const Header = styled.div`
   font-weight: 500;
@@ -50,7 +50,7 @@ const DetailValue = styled.span`
 const DETAILS_FIELD_DEFINITIONS = [
   ['firstName'],
   ['lastName'],
-  ['sex'],
+  ['sex', ({ sex }) => <TranslatedSex sex={sex} />],
   ['dateOfBirth', ({ dateOfBirth }) => <DateDisplay date={dateOfBirth} />],
 ];
 
