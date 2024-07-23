@@ -6,14 +6,17 @@ html {
 /* Monospaced font for sql editor */
 @font-face {
   font-family: 'Fira Code';
-  src: url(fonts/FiraCode-Medium.ttf) format('truetype');
+  font-display: swap;
+  src: url('fonts/FiraCode-Medium.woff2') format('woff2'),
+    url('fonts/FiraCode-Medium.ttf') format('truetype');
 }
 
 @font-face {
   font-family: 'Battambang';
   font-style: normal;
   font-display: swap;
-  src: url(fonts/Battambang-Regular.ttf) format('truetype');
+  src: url('fonts/Battambang-Regular.woff2') format('woff2'),
+    url('fonts/Battambang-Regular.ttf') format('truetype');
   unicode-range: U+1780-17FF; /* Khmer characters */
 }
 
@@ -21,6 +24,7 @@ html {
   font-family: 'Moul';
   font-style: normal;
   font-display: swap;
-  src: url(fonts/Moul-Regular.ttf) format('truetype');
+  src: url('fonts/Moul-Regular.woff2') format('woff2'),
+    url('fonts/Moul-Regular.ttf') format('truetype');
   unicode-range: U+1780-17FF; /* Khmer characters */
 }
