@@ -213,6 +213,7 @@ export const ImagingRequestForm = React.memo(
                     .filter(option => availableTypes.includes(camelCase(option.value)))
                     .map(option => ({
                       ...option,
+                      value: camelCase(option.value),
                       label: getTranslation(
                         option.label.stringId,
                         imagingTypes[camelCase(option.value)].label,
