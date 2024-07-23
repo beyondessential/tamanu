@@ -31,6 +31,8 @@ export const CambodiaPrimaryDetailsLayout = ({
   isRequiredPatientData,
   isDetailsForm = false,
 }) => {
+  // TODO: Omniserver resolve getSetting usage with facilityId
+  // const { facilityId } = useAuth();
   const { getSetting } = useSettings();
   const isReminderContactEnabled = getSetting(SETTING_KEYS.FEATURES_REMINDER_CONTACT_ENABLED);
 

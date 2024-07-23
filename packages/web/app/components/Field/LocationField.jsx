@@ -52,7 +52,7 @@ export const LocationInput = React.memo(
     enableLocationStatus = true,
   }) => {
     const api = useApi();
-    const { facility } = useAuth();
+    const { facilityId } = useAuth();
     const [groupId, setGroupId] = useState('');
     const [locationId, setLocationId] = useState(value);
     const suggester = locationSuggester(api, groupId, enableLocationStatus);
@@ -92,7 +92,7 @@ export const LocationInput = React.memo(
     // 2. The existing location has a different facility than the current facility
     // Disable just the location field if location group has not been chosen or pre-filled
     const existingLocationHasSameFacility =
-      value && location?.facilityId ? facility.id === location.facilityId : true;
+      value && location?.facilityId ? facilityId === location.facilityId : true;
     const locationSelectIsDisabled = !groupId || !existingLocationHasSameFacility;
     const locationGroupSelectIsDisabled = !existingLocationHasSameFacility;
 

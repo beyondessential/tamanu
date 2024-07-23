@@ -69,7 +69,7 @@ export class TamanuApi {
       token,
       localisation,
       server = {},
-      allowedFacilities,
+      availableFacilities,
       permissions,
       centralHost,
       role,
@@ -80,7 +80,7 @@ export class TamanuApi {
     this.setToken(token);
 
     const { user, ability } = await this.fetchUserData(permissions);
-    return { user, token, localisation, server, allowedFacilities, ability, role, settings };
+    return { user, token, localisation, server, availableFacilities, ability, role, settings };
   }
 
   async fetchUserData(permissions) {

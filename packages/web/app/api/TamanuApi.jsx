@@ -10,8 +10,9 @@ import { TranslatedText } from '../components/Translation/TranslatedText';
 const {
   TOKEN,
   LOCALISATION,
-  SERVER,
-  ALLOWED_FACILITIES,
+  SERVER_TYPE,
+  AVAILABLE_FACILITIES,
+  FACILITY_ID,
   PERMISSIONS,
   ROLE,
   SETTINGS,
@@ -29,38 +30,67 @@ function safeGetStoredJSON(key) {
 function restoreFromLocalStorage() {
   const token = localStorage.getItem(TOKEN);
   const localisation = safeGetStoredJSON(LOCALISATION);
-  const server = safeGetStoredJSON(SERVER);
-  const allowedFacilities = safeGetStoredJSON(ALLOWED_FACILITIES);
+  const serverType = safeGetStoredJSON(SERVER_TYPE);
+  const availableFacilities = safeGetStoredJSON(AVAILABLE_FACILITIES);
+  const facilityId = safeGetStoredJSON(FACILITY_ID);
   const permissions = safeGetStoredJSON(PERMISSIONS);
   const role = safeGetStoredJSON(ROLE);
   const settings = safeGetStoredJSON(SETTINGS);
 
-  return { token, localisation, server, allowedFacilities, permissions, role, settings };
+  return {
+    token,
+    localisation,
+    serverType,
+    availableFacilities,
+    facilityId,
+    permissions,
+    role,
+    settings,
+  };
 }
 
 function saveToLocalStorage({
   token,
   localisation,
-  server,
-  allowedFacilities,
+  serverType,
+  availableFacilities,
+  facilityId,
   permissions,
   role,
   settings,
 }) {
-  localStorage.setItem(TOKEN, token);
-  localStorage.setItem(LOCALISATION, JSON.stringify(localisation));
-  localStorage.setItem(SERVER, JSON.stringify(server));
-  localStorage.setItem(PERMISSIONS, JSON.stringify(permissions));
-  localStorage.setItem(ALLOWED_FACILITIES, JSON.stringify(allowedFacilities));
-  localStorage.setItem(ROLE, JSON.stringify(role));
-  localStorage.setItem(SETTINGS, JSON.stringify(settings));
+  if (token) {
+    localStorage.setItem(TOKEN, token);
+  }
+  if (localisation) {
+    localStorage.setItem(LOCALISATION, JSON.stringify(localisation));
+  }
+  if (serverType) {
+    localStorage.setItem(SERVER_TYPE, JSON.stringify(serverType));
+  }
+  if (permissions) {
+    localStorage.setItem(PERMISSIONS, JSON.stringify(permissions));
+  }
+  if (availableFacilities) {
+    localStorage.setItem(AVAILABLE_FACILITIES, JSON.stringify(availableFacilities));
+  }
+  if (facilityId) {
+    localStorage.setItem(FACILITY_ID, JSON.stringify(facilityId));
+  }
+  if (role) {
+    localStorage.setItem(ROLE, JSON.stringify(role));
+  }
+  if (settings) {
+    localStorage.setItem(SETTINGS, JSON.stringify(settings));
+  }
 }
 
 function clearLocalStorage() {
   localStorage.removeItem(TOKEN);
   localStorage.removeItem(LOCALISATION);
-  localStorage.removeItem(SERVER);
-  localStorage.removeItem(ALLOWED_FACILITIES);
+  localStorage.removeItem(SERVER_TYPE);
+  localStorage.removeItem(AVAILABLE_FACILITIES);
+  localStorage.removeItem(FACILITY_ID);
   localStorage.removeItem(PERMISSIONS);
   localStorage.removeItem(ROLE);
   localStorage.removeItem(SETTINGS);
@@ -107,8 +137,9 @@ export class TamanuApi extends ApiClient {
     const {
       token,
       localisation,
-      server,
-      allowedFacilities,
+      serverType,
+      availableFacilities,
+      facilityId,
       permissions,
       role,
       settings,
@@ -121,22 +152,49 @@ export class TamanuApi extends ApiClient {
     this.user = user;
     const ability = buildAbilityForUser(user, permissions);
 
-    return { user, token, localisation, server, allowedFacilities, ability, role, settings };
+    return {
+      user,
+      token,
+      localisation,
+      serverType,
+      availableFacilities,
+      facilityId,
+      ability,
+      role,
+      settings,
+    };
   }
 
   async login(email, password) {
     const output = await super.login(email, password);
-    const { token, localisation, server, allowedFacilities, permissions, role, settings } = output;
+    const {
+      token,
+      localisation,
+      serverType,
+      availableFacilities,
+      permissions,
+      role,
+      settings,
+    } = output;
     saveToLocalStorage({
       token,
       localisation,
-      server,
-      allowedFacilities,
+      serverType,
+      availableFacilities,
       permissions,
       role,
       settings,
     });
     return output;
+  }
+
+  async setFacility(facilityId) {
+    const { token } = await this.post('setFacility', { facilityId });
+    this.setToken(token);
+    saveToLocalStorage({
+      token,
+      facilityId,
+    });
   }
 
   async fetch(endpoint, query, config) {

@@ -5,12 +5,13 @@ import config from 'config';
 import { promisify } from 'util';
 import crypto from 'crypto';
 
-import { VISIBILITY_STATUSES } from '@tamanu/constants';
+import { SERVER_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { BadAuthenticationError } from '@tamanu/shared/errors';
 import { log } from '@tamanu/shared/services/logging';
 import { getPermissionsForRoles } from '@tamanu/shared/permissions/rolesToPermissions';
 
 import { CentralServerConnection } from '../sync';
+import { selectFacilityIds } from '../utils/configUtils';
 
 const { tokenDuration, secret } = config.auth;
 
@@ -20,10 +21,11 @@ const jwtSecretKey = secret || crypto.randomUUID();
 const sign = promisify(signCallback);
 const verify = promisify(verifyCallback);
 
-export async function getToken(user, expiresIn = tokenDuration) {
+export async function buildToken(user, facilityId, expiresIn = tokenDuration) {
   return sign(
     {
       userId: user.id,
+      facilityId,
     },
     jwtSecretKey,
     { expiresIn },
@@ -55,7 +57,7 @@ export async function centralServerLogin(models, email, password, deviceId) {
       email,
       password,
       deviceId,
-      facilityId: config.serverFacilityId,
+      facilityIds: selectFacilityIds(config),
     },
     backoff: {
       maxAttempts: 1,
@@ -93,16 +95,12 @@ async function localLogin(models, email, password) {
     throw new BadAuthenticationError('Incorrect username or password, please try again');
   }
 
-  if (!(await user.canAccessFacility(config.serverFacilityId))) {
-    throw new BadAuthenticationError('User does not have access to this facility');
-  }
+  const allowedFacilities = await user.allowedFacilities();
 
   const localisation = await models.UserLocalisationCache.getLocalisation({
     where: { userId: user.id },
     order: [['createdAt', 'DESC']],
   });
-
-  const allowedFacilities = await user.allowedFacilities();
 
   return {
     central: false,
@@ -152,10 +150,22 @@ export async function loginHandler(req, res, next) {
       allowedFacilities,
       settings,
     } = await centralServerLoginWithLocalFallback(models, email, password, deviceId);
-    const [facility, permissions, token, role] = await Promise.all([
-      models.Facility.findByPk(config.serverFacilityId),
+
+    // check if user has access to any facilities on this server
+    const serverFacilities = selectFacilityIds(config);
+    const availableFacilities = await models.User.filterAllowedFacilities(
+      allowedFacilities,
+      serverFacilities,
+    );
+    if (availableFacilities.length === 0) {
+      throw new BadAuthenticationError(
+        'User does not have access to any facilities on this server',
+      );
+    }
+
+    const [permissions, token, role] = await Promise.all([
       getPermissionsForRoles(models, user.role),
-      getToken(user),
+      buildToken(user),
       models.Role.findByPk(user.role),
     ]);
     res.send({
@@ -164,15 +174,28 @@ export async function loginHandler(req, res, next) {
       localisation,
       permissions,
       role: role?.forResponse() ?? null,
-      server: {
-        facility: facility?.forResponse() ?? null,
-      },
-      allowedFacilities,
+      serverType: SERVER_TYPES.FACILITY,
+      availableFacilities,
       settings,
     });
   } catch (e) {
     next(e);
   }
+}
+
+export async function setFacilityHandler(req, res) {
+  const { user, body } = req;
+  const { facilityId } = body;
+
+  // Run after auth middleware, requires valid token but no other permission
+  req.flagPermissionChecked();
+
+  const hasAccess = await user.canAccessFacility(facilityId);
+  if (!hasAccess) {
+    throw new BadAuthenticationError('User does not have access to this facility');
+  }
+  const token = await buildToken(user, facilityId);
+  res.send({ token });
 }
 
 export async function refreshHandler(req, res) {
@@ -181,16 +204,22 @@ export async function refreshHandler(req, res) {
   // Run after auth middleware, requires valid token but no other permission
   req.flagPermissionChecked();
 
-  const token = await getToken(user);
+  const token = await buildToken(user);
   res.send({ token });
 }
 
-function decodeToken(token) {
-  return verify(token, jwtSecretKey);
+async function decodeToken(token) {
+  try {
+    return await verify(token, jwtSecretKey);
+  } catch (e) {
+    throw new BadAuthenticationError(
+      'Your session has expired or is invalid. Please log in again.',
+    );
+  }
 }
 
-async function getUserFromToken(request) {
-  const { models, headers } = request;
+function getTokenFromHeaders(request) {
+  const { headers } = request;
   const authHeader = headers.authorization || '';
   if (!authHeader) return null;
 
@@ -200,24 +229,25 @@ async function getUserFromToken(request) {
   }
 
   const token = bearer[1];
-  try {
-    const { userId } = await decodeToken(token);
-    const user = await models.User.findByPk(userId);
-    if (user.visibilityStatus !== VISIBILITY_STATUSES.CURRENT) {
-      throw new Error('User is not visible to the system'); // will be caught immediately
-    }
-    return user;
-  } catch (e) {
-    throw new BadAuthenticationError(
-      'Your session has expired or is invalid. Please log in again.',
-    );
+  return token;
+}
+
+async function getUser(models, userId) {
+  const user = await models.User.findByPk(userId);
+  if (user.visibilityStatus !== VISIBILITY_STATUSES.CURRENT) {
+    throw new Error('User is not visible to the system');
   }
+  return user;
 }
 
 export const authMiddleware = async (req, res, next) => {
+  const { models } = req;
   try {
-    // eslint-disable-next-line require-atomic-updates
-    req.user = await getUserFromToken(req);
+    const token = getTokenFromHeaders(req);
+    const { userId, facilityId } = await decodeToken(token);
+    const user = await getUser(models, userId);
+    req.user = user; // eslint-disable-line require-atomic-updates
+    req.facilityId = facilityId; // eslint-disable-line require-atomic-updates
     req.getLocalisation = async () =>
       req.models.UserLocalisationCache.getLocalisation({
         where: { userId: req.user.id },

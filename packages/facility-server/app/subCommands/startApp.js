@@ -18,6 +18,7 @@ import { createApiApp } from '../createApiApp';
 import { version } from '../serverInfo';
 import { ApplicationContext } from '../ApplicationContext';
 import { createSyncApp } from '../createSyncApp';
+import { selectFacilityIds } from '../utils/configUtils';
 
 const APP_TYPES = {
   API: 'api',
@@ -26,7 +27,7 @@ const APP_TYPES = {
 
 const startApp = appType => async ({ skipMigrationCheck }) => {
   log.info(`Starting facility ${appType} server version ${version}`, {
-    serverFacilityId: config.serverFacilityId,
+    serverFacilityIds: selectFacilityIds(config),
   });
 
   log.info(`Process info`, {

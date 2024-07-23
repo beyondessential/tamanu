@@ -216,7 +216,7 @@ async function getVaccinationDescription(models, vaccineData) {
 patientVaccineRoutes.post(
   '/:id/administeredVaccine',
   asyncHandler(async (req, res) => {
-    const { db, user } = req;
+    const { db, user, facilityId } = req;
     req.checkPermission('create', 'PatientVaccine');
 
     // Require scheduledVaccineId if vaccine category is not OTHER
@@ -256,7 +256,7 @@ patientVaccineRoutes.post(
           vaccineData.givenElsewhere
             ? SETTING_KEYS.VACCINATION_GIVEN_ELSEWHERE_DEFAULTS
             : SETTING_KEYS.VACCINATION_DEFAULTS,
-          config.serverFacilityId,
+          facilityId,
         )) || {};
       departmentId = departmentId || vaccinationDefaults.departmentId;
       locationId = locationId || vaccinationDefaults.locationId;

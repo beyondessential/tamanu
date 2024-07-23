@@ -35,6 +35,7 @@ patientRoute.get(
     const {
       models: { Patient },
       params,
+      facilityId,
     } = req;
     req.checkPermission('read', 'Patient');
     const patient = await Patient.findByPk(params.id, {
@@ -42,7 +43,7 @@ patientRoute.get(
     });
     if (!patient) throw new NotFoundError();
 
-    res.send(dbRecordToResponse(patient));
+    res.send(dbRecordToResponse(patient, facilityId));
   }),
 );
 
@@ -53,6 +54,7 @@ patientRoute.put(
       db,
       models: { Patient, PatientAdditionalData, PatientBirthData, PatientSecondaryId },
       params,
+      facilityId,
     } = req;
     req.checkPermission('read', 'Patient');
     const patient = await Patient.findByPk(params.id);
@@ -105,7 +107,7 @@ patientRoute.put(
       await patient.writeFieldValues(req.body.patientFields);
     });
 
-    res.send(dbRecordToResponse(patient));
+    res.send(dbRecordToResponse(patient, facilityId));
   }),
 );
 
@@ -115,6 +117,7 @@ patientRoute.post(
     const {
       db,
       models: { Patient, PatientAdditionalData, PatientBirthData },
+      facilityId,
     } = req;
     req.checkPermission('create', 'Patient');
     const requestData = requestBodyToRecord(req.body);
@@ -143,7 +146,7 @@ patientRoute.post(
       return createdPatient;
     });
 
-    res.send(dbRecordToResponse(patientRecord));
+    res.send(dbRecordToResponse(patientRecord, facilityId));
   }),
 );
 
@@ -234,6 +237,7 @@ patientRoute.get(
     const {
       models: { Patient },
       query,
+      facilityId,
     } = req;
 
     req.checkPermission('list', 'Patient');
@@ -379,7 +383,7 @@ patientRoute.get(
       ${whereClauses && `WHERE ${whereClauses}`}
     `;
 
-    filterReplacements.facilityId = config.serverFacilityId;
+    filterReplacements.facilityId = facilityId;
 
     const countResult = await req.db.query(`SELECT COUNT(1) AS count ${from}`, {
       replacements: filterReplacements,
@@ -486,7 +490,7 @@ patientRoute.post(
     req.checkPermission('read', 'Patient');
     req.checkPermission('create', 'IPSRequest');
 
-    const { models, params } = req;
+    const { models, params, facilityId } = req;
     const { IPSRequest } = models;
 
     if (!req.body.email) {
@@ -500,7 +504,7 @@ patientRoute.post(
       status: IPS_REQUEST_STATUSES.QUEUED,
     });
 
-    res.send(dbRecordToResponse(ipsRequest));
+    res.send(dbRecordToResponse(ipsRequest, facilityId));
   }),
 );
 

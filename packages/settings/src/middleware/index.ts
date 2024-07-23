@@ -1,1 +1,1 @@
-export * from './buildSettingsReaderMiddleware';
+export * from './settingsReaderMiddleware';

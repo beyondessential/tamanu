@@ -19,7 +19,7 @@ const globalMedicationRequests = permissionCheckingRouter('list', 'EncounterMedi
 globalMedicationRequests.get('/$', (req, res, next) =>
   paginatedGetList('EncounterMedication', '', {
     additionalFilters: {
-      '$encounter.location.facility.id$': config.serverFacilityId,
+      '$encounter.location.facility.id$': req.facilityId,
     },
     include: [
       {

@@ -40,10 +40,15 @@ export async function createApiApp({ sequelize, reportSchemaStores, models, sync
     next();
   });
 
-  express.use(buildSettingsReaderMiddleware(config.serverFacilityId));
   express.use(versionCompatibility);
 
   express.use(getAuditMiddleware());
+
+  // note that we do not know facility yet so cannot get facility-specific permissions
+  // this global-only settings reader will be replaced after we have extracted the facilityId during
+  // auth checking
+  // TODO: get working with omniserver
+  express.use(buildSettingsReaderMiddleware(config.serverFacilityId));
 
   // index route for debugging connectivity
   express.get('/$', (req, res) => {
@@ -64,5 +69,8 @@ export async function createApiApp({ sequelize, reportSchemaStores, models, sync
   }
   express.use(errorHandler);
 
-  return { express, server };
+  return {
+    express,
+    server,
+  };
 }

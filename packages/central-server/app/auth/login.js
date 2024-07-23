@@ -11,7 +11,7 @@ import { convertFromDbRecord } from '../convertDbRecord';
 import {
   getRandomBase64String,
   getRandomU32,
-  getToken,
+  buildToken,
   isInternalClient,
   stripUser,
 } from './utils';
@@ -28,7 +28,7 @@ const getRefreshToken = async (models, { refreshSecret, userId, deviceId }) => {
   const refreshTokenJwtId = getRandomU32();
   const [hashedRefreshId, refreshToken] = await Promise.all([
     bcrypt.hash(refreshId, saltRounds),
-    getToken(
+    buildToken(
       {
         userId,
         refreshId,
@@ -67,12 +67,12 @@ export const login = ({ secret, refreshSecret }) =>
   asyncHandler(async (req, res) => {
     const { store, body, settings } = req;
     const { models } = store;
-    const { email, password, facilityId, deviceId } = body;
+    const { email, password, facilityIds, deviceId } = body;
     const tamanuClient = req.header('X-Tamanu-Client');
 
     const getSettingsForFrontEnd = async () => {
       // Only attach central scoped settings if login request is for central admin panel login
-      if ([SERVER_TYPES.WEBAPP, SERVER_TYPES.MOBILE].includes(tamanuClient) && !facilityId) {
+      if ([SERVER_TYPES.WEBAPP, SERVER_TYPES.MOBILE].includes(tamanuClient) && !facilityIds) {
         return await settings.getFrontEndSettings();
       }
     };
@@ -99,23 +99,18 @@ export const login = ({ secret, refreshSecret }) =>
       throw new BadAuthenticationError('Invalid credentials');
     }
 
-    if (facilityId && !(await user.canAccessFacility(facilityId))) {
-      throw new BadAuthenticationError('User does not have access to this facility');
-    }
-
     const { auth, canonicalHostName } = config;
     const { tokenDuration } = auth;
     const accessTokenJwtId = getRandomU32();
     const [
       token,
       refreshToken,
-      facility,
       allowedFacilities,
       localisation,
       permissions,
       role,
     ] = await Promise.all([
-      getToken(
+      buildToken(
         {
           userId: user.id,
           deviceId,
@@ -131,8 +126,7 @@ export const login = ({ secret, refreshSecret }) =>
       internalClient
         ? getRefreshToken(models, { refreshSecret, userId: user.id, deviceId })
         : undefined,
-      models.Facility.findByPk(facilityId),
-      await user.allowedFacilities(),
+      user.allowedFacilities(),
       getLocalisation(),
       getPermissionsForRoles(models, user.role),
       models.Role.findByPk(user.role),
@@ -145,7 +139,6 @@ export const login = ({ secret, refreshSecret }) =>
       user: convertFromDbRecord(stripUser(user.get({ plain: true }))).data,
       permissions,
       role: role?.forResponse() ?? null,
-      facility,
       allowedFacilities,
       localisation,
       centralHost: config.canonicalHostName,

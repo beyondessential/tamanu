@@ -5,7 +5,7 @@ import { QueryTypes } from 'sequelize';
 import { objectToCamelCase } from '@tamanu/shared/utils';
 import { LOCATION_AVAILABILITY_STATUS, VISIBILITY_STATUSES } from '@tamanu/constants';
 
-const patientsLocationSelect = (planned, encountersWhereAndClauses) => `
+const patientsLocationSelect = (planned, encountersWhereAndClauses, facilityId) => `
   SELECT
   	locations.id,
   	COUNT(open_encounters)
@@ -18,7 +18,7 @@ const patientsLocationSelect = (planned, encountersWhereAndClauses) => `
     ${encountersWhereAndClauses ? `AND ${encountersWhereAndClauses}` : ''}
   ) open_encounters
   ON locations.id = open_encounters.${planned ? 'planned_' : ''}location_id
-  WHERE locations.facility_id = '${config.serverFacilityId}'
+  WHERE locations.facility_id = '${facilityId}'
   AND locations.max_occupancy = 1
   AND locations.deleted_at IS NULL
   GROUP BY locations.id
@@ -30,13 +30,14 @@ patientLocations.get(
   '/locations/occupancy',
   asyncHandler(async (req, res) => {
     req.checkPermission('list', 'Patient');
+    const { facilityId } = req;
 
     const [{ occupancy } = {}] = await req.db.query(
       `
         SELECT
           (SUM(max_1_occupancy_locations.count) / COUNT(max_1_occupancy_locations) * 100)::float AS occupancy
         FROM (
-          ${patientsLocationSelect(false, `encounters.encounter_type = 'admission'`)}
+          ${patientsLocationSelect(false, `encounters.encounter_type = 'admission'`, facilityId)}
         ) max_1_occupancy_locations
       `,
       {
@@ -54,6 +55,7 @@ patientLocations.get(
   '/locations/alos',
   asyncHandler(async (req, res) => {
     req.checkPermission('list', 'Patient');
+    const { facilityId } = req;
 
     const [{ alos } = {}] = await req.db.query(
       `
@@ -71,7 +73,7 @@ patientLocations.get(
       {
         type: QueryTypes.SELECT,
         bind: {
-          facilityId: config.serverFacilityId,
+          facilityId,
         },
       },
     );
@@ -86,6 +88,7 @@ patientLocations.get(
   '/locations/readmissions',
   asyncHandler(async (req, res) => {
     req.checkPermission('list', 'Patient');
+    const { facilityId } = req;
 
     const [{ count: readmissionsCount } = {}] = await req.db.query(
       `
@@ -124,7 +127,7 @@ patientLocations.get(
       {
         type: QueryTypes.SELECT,
         bind: {
-          facilityId: config.serverFacilityId,
+          facilityId,
         },
       },
     );
@@ -187,7 +190,7 @@ patientLocations.get(
   asyncHandler(async (req, res) => {
     req.checkPermission('list', 'Patient');
 
-    const { query } = req;
+    const { query, facilityId } = req;
 
     const defaultRowsPerPage = 10;
     const defaultPage = 0;
@@ -234,7 +237,7 @@ patientLocations.get(
         FROM locations
         LEFT JOIN location_groups ON locations.location_group_id = location_groups.id
         LEFT JOIN open_encounters ON locations.id = open_encounters.location_id
-        WHERE locations.facility_id = $facilityId 
+        WHERE locations.facility_id = $facilityId
         AND locations.visibility_status = $visibilityStatusCurrent
         AND locations.deleted_at IS NULL
         GROUP BY locations.id, location_groups.id
@@ -325,7 +328,7 @@ patientLocations.get(
       ...(filterParams.status && { status: filterParams.status }),
       ...(filterParams.area && { area: filterParams.area }),
       ...(filterParams.location && { location: filterParams.location }),
-      facilityId: config.serverFacilityId,
+      facilityId,
       visibilityStatusCurrent: VISIBILITY_STATUSES.CURRENT,
     };
 

@@ -15,6 +15,7 @@ import { sleepAsync } from '@tamanu/shared/utils/sleepAsync';
 
 import { version } from '../serverInfo';
 import { callWithBackoff } from './callWithBackoff';
+import { selectFacilityIds } from '../utils/configUtils';
 
 const getVersionIncompatibleMessage = (error, response) => {
   if (error.message === VERSION_COMPATIBILITY_ERRORS.LOW) {
@@ -178,12 +179,13 @@ export class CentralServerConnection {
 
       log.info(`Logging in to ${this.host} as ${email}...`);
 
+      const facilityIds = selectFacilityIds(config);
       const body = await this.fetch('login', {
         method: 'POST',
         body: {
           email,
           password,
-          facilityId: config.serverFacilityId,
+          facilityIds,
           deviceId: this.deviceId,
         },
         awaitConnection: false,
@@ -199,7 +201,7 @@ export class CentralServerConnection {
       log.info(`Received token for user ${body.user.displayName} (${body.user.email})`);
       this.token = body.token;
 
-      return body;
+      return { ...body, serverFacilityIds: facilityIds };
     })();
 
     // await connection attempt, throwing an error if applicable, but always removing connectionPromise
@@ -212,10 +214,11 @@ export class CentralServerConnection {
   }
 
   async startSyncSession({ urgent, lastSyncedTick }) {
+    const facilityIds = selectFacilityIds(config);
     const { sessionId, status } = await this.fetch('sync', {
       method: 'POST',
       body: {
-        facilityId: config.serverFacilityId,
+        facilityId: facilityIds[0], // TODO placeholder
         deviceId: this.deviceId,
         urgent,
         lastSyncedTick,
@@ -245,7 +248,8 @@ export class CentralServerConnection {
   async initiatePull(sessionId, since) {
     // first, set the pull filter on the central server, which will kick of a snapshot of changes
     // to pull
-    const body = { since, facilityId: config.serverFacilityId };
+    const facilityIds = selectFacilityIds(config);
+    const body = { since, facilityId: facilityIds[0] };
     await this.fetch(`sync/${sessionId}/pull/initiate`, { method: 'POST', body });
 
     // then, poll the pull/ready endpoint until we get a valid response - it takes a while for

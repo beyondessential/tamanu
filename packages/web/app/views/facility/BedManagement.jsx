@@ -166,7 +166,7 @@ const DetailedDashboardItem = ({ api }) => {
 export const BedManagement = () => {
   const api = useApi();
   const dispatch = useDispatch();
-  const { facility } = useAuth();
+  const { facilityId } = useAuth();
 
   const { searchParameters, setSearchParameters } = usePatientSearch(
     PatientSearchKeys.BedManagementView,
@@ -179,7 +179,7 @@ export const BedManagement = () => {
     api.get('patient', {
       countOnly: true,
       currentPatient: true,
-      facilityId: facility.id,
+      facilityId,
     }),
   );
 
@@ -191,7 +191,7 @@ export const BedManagement = () => {
       countOnly: true,
       currentPatient: true,
       inpatient: true,
-      facilityId: facility.id,
+      facilityId,
     }),
   );
 
@@ -207,6 +207,10 @@ export const BedManagement = () => {
   const { data: { data: readmissionsCount } = {}, isLoading: readmissionsCountLoading } = useQuery(
     ['readmissionsCount'],
     () => api.get('patient/locations/readmissions'),
+  );
+
+  const { data: facility } = useQuery(['facility', facilityId], () =>
+    api.get(`facility/${encodeURIComponent(facilityId)}`),
   );
 
   // hides hover for rows that arent clickable (do not have a patient to click to)
@@ -228,7 +232,13 @@ export const BedManagement = () => {
     <PageContainer>
       <TopBar
         title={<TranslatedText stringId="bedManagement.title" fallback="Bed management" />}
-        subTitle={<TranslatedReferenceData fallback={facility.name} value={facility.id} category="facility" />}
+        subTitle={
+          <TranslatedReferenceData
+            fallback={facility.name}
+            value={facility.id}
+            category="facility"
+          />
+        }
       />
       <ContentPane>
         <DashboardContainer>

@@ -4,7 +4,7 @@ import { chance, disableHardcodedPermissionsForSuite, fake } from '@tamanu/share
 import { addHours } from 'date-fns';
 import { createDummyEncounter } from '@tamanu/shared/demoData/patients';
 
-import { centralServerLogin, getToken, comparePassword } from '../../dist/middleware/auth';
+import { centralServerLogin, buildToken, comparePassword } from '../../dist/middleware/auth';
 import { CentralServerConnection } from '../../dist/sync/CentralServerConnection';
 import { createTestContext } from '../utilities';
 
@@ -197,7 +197,7 @@ describe('User', () => {
       });
 
       it('should fail to get the user with an expired token', async () => {
-        const expiredToken = await getToken(authUser, '-1s');
+        const expiredToken = await buildToken(authUser, null, '-1s');
         const result = await baseApp
           .get('/api/user/me')
           .set('authorization', `Bearer ${expiredToken}`);
@@ -225,7 +225,7 @@ describe('User', () => {
         });
 
         it('should fail to get the user with an expired token', async () => {
-          const expiredToken = await getToken(authUser, '-1s');
+          const expiredToken = await buildToken(authUser, null, '-1s');
           const result = await baseApp
             .get('/api/user/me')
             .set('authorization', `Bearer ${expiredToken}`);

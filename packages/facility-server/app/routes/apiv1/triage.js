@@ -74,7 +74,7 @@ const sortKeys = {
 triage.get(
   '/$',
   asyncHandler(async (req, res) => {
-    const { models, db, query } = req;
+    const { models, db, query, facilityId } = req;
     const { Triage } = models;
 
     req.checkPermission('list', 'Triage');
@@ -126,7 +126,7 @@ triage.get(
             ON (planned_location.location_group_id = planned_location_group.id)
           WHERE true
           AND encounters.end_date IS NULL
-          AND location.facility_id = :facility
+          AND location.facility_id = :facilityId
           AND encounters.encounter_type IN (:triageEncounterTypes)
           AND encounters.deleted_at is null
         ORDER BY encounter_type IN (:seenEncounterTypes) ASC, ${sortKey} ${sortDirection} NULLS LAST, Coalesce(arrival_time,triage_time) ASC
@@ -136,7 +136,7 @@ triage.get(
         type: QueryTypes.SELECT,
         mapToModel: true,
         replacements: {
-          facility: config.serverFacilityId,
+          facilityId,
           triageEncounterTypes: [
             ENCOUNTER_TYPES.TRIAGE,
             ENCOUNTER_TYPES.OBSERVATION,

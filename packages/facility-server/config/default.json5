@@ -105,7 +105,8 @@
       "location": "GeneralClinic"
     }
   },
-  "serverFacilityId": "",
+  "serverFacilityId": null,
+  "serverFacilityIds": null,
   "debugging": {
     "requestFailureRate": 0
   },

@@ -1,13 +1,9 @@
-import config from 'config';
-
-export function dbRecordToResponse(patientRecord) {
+export function dbRecordToResponse(patientRecord, facilityId) {
   return {
     ...patientRecord.get({
       plain: true,
     }),
-    markedForSync: !!patientRecord.markedForSyncFacilities?.find(
-      f => f.id === config.serverFacilityId,
-    ),
+    markedForSync: !!patientRecord.markedForSyncFacilities?.find(f => f.id === facilityId),
   };
 }
 

@@ -8,7 +8,7 @@ import { AuthFlowView } from './AuthFlowView';
 export const FacilitySelectionView = () => {
   const dispatch = useDispatch();
   const error = useSelector(state => state.auth.error);
-  const facilities = useSelector(state => state.auth.facilities);
+  const facilities = useSelector(state => state.auth.availableFacilities);
 
   const handleSubmit = async data => {
     const { facilityId } = data;

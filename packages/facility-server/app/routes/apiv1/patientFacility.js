@@ -1,12 +1,10 @@
 import express from 'express';
-import config from 'config';
-
 import { NotFoundError } from '@tamanu/shared/errors';
 
 export const patientFacility = express.Router();
 
 patientFacility.post('/$', async (req, res) => {
-  const { syncConnection, models, body } = req;
+  const { syncConnection, models, body, facilityId } = req;
   const { patientId } = body;
 
   // slightly unusual to check read permissions in a post endpoint, but if you can read patients,
@@ -17,8 +15,6 @@ patientFacility.post('/$', async (req, res) => {
   if (!patient) {
     throw new NotFoundError();
   }
-
-  const facilityId = config.serverFacilityId;
 
   // this endpoint functions as a "find or update", avoiding any issues where another device marks
   // the patient for sync, and that copy syncs in after the user is already in the patient page

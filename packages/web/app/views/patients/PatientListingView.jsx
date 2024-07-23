@@ -174,7 +174,7 @@ export const AdmittedPatientsView = () => {
   const { searchParameters, setSearchParameters } = usePatientSearch(
     PatientSearchKeys.AdmittedPatientsView,
   );
-  const { facility } = useAuth();
+  const { facilityId } = useAuth();
 
   return (
     <PageContainer>
@@ -194,7 +194,7 @@ export const AdmittedPatientsView = () => {
         <PatientSearchBar onSearch={setSearchParameters} searchParameters={searchParameters} isInpatient />
         <PatientTable
           fetchOptions={{ inpatient: 1 }}
-          searchParameters={{ facilityId: facility.id, ...searchParameters }}
+          searchParameters={{ facilityId, ...searchParameters }}
           columns={INPATIENT_COLUMNS}
         />
       </ContentPane>
@@ -206,7 +206,7 @@ export const OutpatientsView = () => {
   const { searchParameters, setSearchParameters } = usePatientSearch(
     PatientSearchKeys.OutpatientsView,
   );
-  const { facility } = useAuth();
+  const { facilityId } = useAuth();
 
   return (
     <PageContainer>
@@ -223,7 +223,7 @@ export const OutpatientsView = () => {
         <PatientSearchBar onSearch={setSearchParameters} searchParameters={searchParameters} />
         <PatientTable
           fetchOptions={{ outpatient: 1 }}
-          searchParameters={{ facilityId: facility.id, ...searchParameters }}
+          searchParameters={{ facilityId, ...searchParameters }}
           columns={OUTPATIENT_COLUMNS}
         />
       </ContentPane>

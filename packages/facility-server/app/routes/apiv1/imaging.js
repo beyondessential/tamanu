@@ -1,5 +1,4 @@
 import express from 'express';
-import config from 'config';
 import asyncHandler from 'express-async-handler';
 import { endOfDay, parseISO, startOfDay } from 'date-fns';
 import { literal, Op } from 'sequelize';
@@ -286,7 +285,7 @@ const globalImagingRequests = permissionCheckingRouter('list', 'ImagingRequest')
 globalImagingRequests.get(
   '/$',
   asyncHandler(async (req, res) => {
-    const { models, query } = req;
+    const { models, query, facilityId } = req;
     const { order = 'ASC', orderBy, rowsPerPage = 10, page = 0, ...filterParams } = query;
 
     const orderDirection = order.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
@@ -357,7 +356,7 @@ globalImagingRequests.get(
       where:
         filterParams?.allFacilities && JSON.parse(filterParams.allFacilities)
           ? {}
-          : { facilityId: { [Op.eq]: config.serverFacilityId } },
+          : { facilityId: { [Op.eq]: facilityId } },
     };
 
     const location = {

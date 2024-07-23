@@ -5,6 +5,7 @@ import { Op, Sequelize } from 'sequelize';
 import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
 import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { selectFacilityIds } from '../utils/configUtils';
 
 export class MedicationDiscontinuer extends ScheduledTask {
   getName() {
@@ -26,6 +27,23 @@ export class MedicationDiscontinuer extends ScheduledTask {
   async run() {
     // Get start of day
     const startOfToday = toDateTimeString(startOfDay(new Date()));
+
+    // TODO: Omniserver solve usage of localsystem facts for facilityid
+    // // Get all encounters with the same facility ID as this facility server
+    // // (found in the config). Note that the facility ID will be read from
+    // // the department associated to each encounter.
+    // const encounters = await this.models.Encounter.findAll({
+    //   include: [
+    //     {
+    //       association: 'department',
+    //       required: true,
+    //       include: [{ model: this.models.Facility, where: { id: selectFacilityIds(config) } }],
+    //     },
+    //   ],
+    // });
+
+    // // Get all the encounter IDs
+    // const encounterIds = encounters.map(row => row.id);
 
     // Query interface expects database naming scheme
     // (snake case, table column fields)
