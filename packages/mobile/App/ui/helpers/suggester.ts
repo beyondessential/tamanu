@@ -30,7 +30,7 @@ const replaceDataLabelsWithTranslations = ({ data, translations }) => {
   const translationsByDataId = keyBy(translations, extractDataId);
   return data.map(item => ({
     ...item,
-    name: translationsByDataId[item.id]?.text || item.name,
+    name: translationsByDataId[item.id]?.text ?? item.name,
   }));
 };
 
@@ -75,7 +75,7 @@ export class Suggester<ModelType extends BaseModelSubclass> {
 
   fetchSuggestions = async (search: string, language: string = 'en'): Promise<OptionType[]> => {
     const { where = {}, column = 'name', relations } = this.options;
-    const dataType = where?.type ?? ModelToDataType[this.model.name];
+    const dataType = ModelToDataType[this.model.name] ?? where?.type;
 
     try {
       const translations = await TranslatedString.getReferenceDataTranslationsByDataType(
