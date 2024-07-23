@@ -99,8 +99,8 @@ export const login = ({ secret, refreshSecret }) =>
       throw new BadAuthenticationError('Invalid credentials');
     }
 
-    if (facilityId && !await user.canAccessFacility(facilityId)) {
-        throw new BadAuthenticationError('User does not have access to this facility');
+    if (facilityId && !(await user.canAccessFacility(facilityId))) {
+      throw new BadAuthenticationError('User does not have access to this facility');
     }
 
     const { auth, canonicalHostName } = config;

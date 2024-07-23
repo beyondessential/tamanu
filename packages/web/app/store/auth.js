@@ -15,6 +15,7 @@ const CHANGE_PASSWORD_SUCCESS = 'CHANGE_PASSWORD_SUCCESS';
 const CHANGE_PASSWORD_FAILURE = 'CHANGE_PASSWORD_FAILURE';
 const VALIDATE_RESET_CODE_START = 'VALIDATE_RESET_CODE_START';
 const VALIDATE_RESET_CODE_COMPLETE = 'VALIDATE_RESET_CODE_COMPLETE';
+const SET_FACILITY_ID = 'SET_FACILITY_ID';
 
 export const restoreSession = () => async (dispatch, getState, { api }) => {
   try {
@@ -23,11 +24,26 @@ export const restoreSession = () => async (dispatch, getState, { api }) => {
       token,
       localisation,
       server,
+      facilities,
       ability,
       role,
       settings,
     } = await api.restoreSession();
-    dispatch({ type: LOGIN_SUCCESS, user, token, localisation, server, ability, role, settings });
+    // if there's just one facility the user has access to, select it immediately
+    // otherwise they will be prompted to select a facility after login
+    const facilityId = facilities.length === 1 ? [0] : null;
+    dispatch({
+      type: LOGIN_SUCCESS,
+      user,
+      token,
+      localisation,
+      server,
+      facilities,
+      facilityId,
+      ability,
+      role,
+      settings,
+    });
   } catch (e) {
     // no action required -- this just means we haven't logged in
   }
@@ -37,14 +53,41 @@ export const login = (email, password) => async (dispatch, getState, { api }) =>
   dispatch({ type: LOGIN_START });
 
   try {
-    const { user, token, localisation, server, ability, role, settings } = await api.login(
-      email,
-      password,
-    );
-    dispatch({ type: LOGIN_SUCCESS, user, token, localisation, server, ability, role, settings });
+    const {
+      user,
+      token,
+      localisation,
+      server,
+      allowedFacilities,
+      ability,
+      role,
+      settings,
+    } = await api.login(email, password);
+    // if there's just one facility the user has access to, select it immediately
+    // otherwise they will be prompted to select a facility after login
+    const facilityId = allowedFacilities.length === 1 ? [0] : null;
+    dispatch({
+      type: LOGIN_SUCCESS,
+      user,
+      token,
+      localisation,
+      server,
+      facilities: allowedFacilities,
+      facilityId,
+      ability,
+      role,
+      settings,
+    });
   } catch (error) {
     dispatch({ type: LOGIN_FAILURE, error: error.message });
   }
+};
+
+export const setFacilityId = facilityId => async dispatch => {
+  dispatch({
+    type: SET_FACILITY_ID,
+    facilityId,
+  });
 };
 
 export const authFailure = () => async dispatch => {
@@ -106,6 +149,7 @@ export const changePassword = data => async (dispatch, getState, { api }) => {
 // selectors
 export const getCurrentUser = ({ auth }) => auth.user;
 export const checkIsLoggedIn = state => !!getCurrentUser(state);
+export const checkIsFacilitySelected = ({ auth }) => !!auth.facilityId;
 
 // reducer
 const defaultState = {
@@ -118,6 +162,8 @@ const defaultState = {
   role: null,
   server: null,
   settings: null,
+  facilities: [],
+  facilityId: null,
   resetPassword: {
     loading: false,
     success: false,
@@ -136,17 +182,26 @@ const defaultState = {
   },
 };
 
+const resetState = {
+  user: defaultState.user,
+  role: defaultState.role,
+  facilities: defaultState.facilities,
+  facilityId: defaultState.facilityId,
+  error: defaultState.error,
+  token: null,
+};
+
 const actionHandlers = {
   [LOGIN_START]: () => ({
     loading: true,
-    user: defaultState.user,
-    role: defaultState.role,
-    error: defaultState.error,
+    ...resetState,
   }),
   [LOGIN_SUCCESS]: action => ({
     loading: false,
     user: action.user,
     ability: action.ability,
+    facilities: action.facilities,
+    facilityId: action.facilityId,
     error: defaultState.error,
     token: action.token,
     localisation: action.localisation,
@@ -156,20 +211,19 @@ const actionHandlers = {
     resetPassword: defaultState.resetPassword,
     changePassword: defaultState.changePassword,
   }),
+  [SET_FACILITY_ID]: action => ({
+    facilityId: action.facilityId,
+  }),
   [LOGIN_FAILURE]: action => ({
     loading: false,
     error: action.error,
   }),
   [LOGOUT_WITH_ERROR]: ({ error }) => ({
-    user: defaultState.user,
-    role: defaultState.role,
+    ...resetState,
     error,
-    token: null,
   }),
   [LOGOUT]: () => ({
-    user: defaultState.user,
-    role: defaultState.role,
-    token: null,
+    ...resetState,
   }),
   [REQUEST_PASSWORD_RESET_START]: () => ({
     resetPassword: {

@@ -23,7 +23,8 @@ export const buildSyncRoutes = ctx => {
         models: { SyncQueuedDevice, SyncSession },
       } = req;
 
-      if (!user.canAccessFacility(facilityId)) {
+      const userInstance = await store.models.User.findByPk(user.id);
+      if (!userInstance.canAccessFacility(facilityId)) {
         throw new ForbiddenError('User does not have access to facility');
       }
 

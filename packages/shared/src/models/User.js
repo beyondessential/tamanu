@@ -2,7 +2,12 @@ import { hash } from 'bcrypt';
 import config from 'config';
 import { Sequelize } from 'sequelize';
 
-import { CAN_ACCESS_ALL_FACILITIES, SYNC_DIRECTIONS, SYSTEM_USER_UUID, VISIBILITY_STATUSES } from '@tamanu/constants';
+import {
+  CAN_ACCESS_ALL_FACILITIES,
+  SYNC_DIRECTIONS,
+  SYSTEM_USER_UUID,
+  VISIBILITY_STATUSES,
+} from '@tamanu/constants';
 
 import { Model } from './Model';
 import { Permission } from './Permission';
@@ -157,10 +162,6 @@ export class User extends Model {
       foreignKey: 'userId',
     });
 
-    this.hasMany(models.UserFacility, {
-      foreignKey: 'facilityId',
-    });
-
     this.belongsToMany(models.Facility, {
       through: 'UserFacility',
       as: 'facilities',
@@ -182,7 +183,8 @@ export class User extends Model {
 
     if (!hasPermission) {
       const rule = ability.relevantRuleFor(action, subject, field);
-      const reason = (rule && rule.reason) || `Cannot perform action "${action}" on ${subjectName}.`;
+      const reason =
+        (rule && rule.reason) || `Cannot perform action "${action}" on ${subjectName}.`;
 
       throw new ForbiddenError(reason);
     }
@@ -197,20 +199,38 @@ export class User extends Model {
     }
   }
 
+  async checkCanAccessAllFacilities() {
+    if (!config.auth.restrictUsersToFacilities) return true;
+    if (this.isSuperUser()) return true;
+    // Allow for roles that have access to all facilities configured via permissions
+    // (e.g. a custom "AdminICT" role)
+    if (await this.hasPermission('login', 'Facility')) return true;
+    return false;
+  }
+
   async allowedFacilities() {
-    if (!config.auth.restrictUsersToFacilities) return CAN_ACCESS_ALL_FACILITIES;
-    if (this.isSuperUser()) return CAN_ACCESS_ALL_FACILITIES;
-    if (await this.hasPermission('login', 'Facility')) return CAN_ACCESS_ALL_FACILITIES;
+    const canAccessAllFacilities = await this.checkCanAccessAllFacilities();
+    if (canAccessAllFacilities) {
+      return CAN_ACCESS_ALL_FACILITIES;
+    }
 
     if (!this.facilities) {
       await this.reload({ include: 'facilities' });
     }
 
-    return this.facilities?.map(f => f.id) ?? [];
+    return this.facilities?.map(({ id, name }) => ({ id, name })) ?? [];
+  }
+
+  async allowedFacilityIds() {
+    const allowedFacilities = await this.allowedFacilities();
+    if (allowedFacilities === CAN_ACCESS_ALL_FACILITIES) {
+      return CAN_ACCESS_ALL_FACILITIES;
+    }
+    return allowedFacilities.map(f => f.id);
   }
 
   async canAccessFacility(id) {
-    const allowed = this.allowedFacilities();
+    const allowed = await this.allowedFacilityIds();
     if (allowed === CAN_ACCESS_ALL_FACILITIES) return true;
 
     return allowed?.includes(id) ?? false;
