@@ -8,6 +8,11 @@ import { SurveyQuestion } from './SurveyQuestion';
 import { ButtonRow } from '../ButtonRow';
 import { FORM_STATUSES } from '../../constants';
 import { TranslatedText } from '../Translation/TranslatedText';
+import { Typography } from '@material-ui/core';
+
+const EmptyStateText = styled(Typography)`
+  color: ${({ theme }) => theme.palette.text.secondary};
+`;
 
 const StyledButtonRow = styled(ButtonRow)`
   margin-block-start: 24px;
@@ -103,19 +108,30 @@ export const SurveyScreen = ({
     }
   };
 
+  const visibleComponents = screenComponents
+    .filter(c => checkVisibility(c, values, allComponents))
+    .map(c => (
+      <SurveyQuestion
+        component={c}
+        patient={patient}
+        key={c.id}
+        inputRef={setQuestionToRef(c.dataElementId)}
+        encounterType={encounterType}
+      />
+    ));
+
+  const blankScreenMessage = (
+    <EmptyStateText variant="body2">
+      <TranslatedText
+        stringId="general.form.blankPage"
+        fallback="This page intentionally left blank"
+      />
+    </EmptyStateText>
+  );
+
   return (
     <FormGrid columns={cols}>
-      {screenComponents
-        .filter(c => checkVisibility(c, values, allComponents))
-        .map(c => (
-          <SurveyQuestion
-            component={c}
-            patient={patient}
-            key={c.id}
-            inputRef={setQuestionToRef(c.dataElementId)}
-            encounterType={encounterType}
-          />
-        ))}
+      {visibleComponents.length > 0 ? visibleComponents : blankScreenMessage}
       <StyledButtonRow>
         {submitButton || (
           <>
