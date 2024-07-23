@@ -22,9 +22,14 @@ export class Suggester<ModelType extends BaseModelSubclass> {
 
   formatter: (entity: BaseModel) => OptionType;
 
-  filter: (entity: BaseModel) => boolean;
+  filter?: (entity: BaseModel) => boolean;
 
-  constructor(model: ModelType, options, formatter = defaultFormatter, filter) {
+  constructor(
+    model: ModelType,
+    options,
+    formatter = defaultFormatter,
+    filter?: (entity: BaseModel) => boolean,
+  ) {
     this.model = model;
     this.options = options;
     // If you don't provide a formatter, this assumes that your model has "name" and "id" fields
@@ -50,7 +55,7 @@ export class Suggester<ModelType extends BaseModelSubclass> {
   };
 
   fetchSuggestions = async (search: string): Promise<OptionType[]> => {
-    const { where = {}, column = 'name' } = this.options;
+    const { where = {}, column = 'name', relations } = this.options;
 
     try {
       const data = await this.fetch({
@@ -61,6 +66,7 @@ export class Suggester<ModelType extends BaseModelSubclass> {
         order: {
           [column]: 'ASC',
         },
+        relations,
       });
 
       return this.filter ? data.filter(this.filter).map(this.formatter) : data.map(this.formatter);

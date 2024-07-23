@@ -1,5 +1,5 @@
 import { disableHardcodedPermissionsForSuite, fake } from '@tamanu/shared/test-helpers';
-import { DELETION_STATUSES, REGISTRATION_STATUSES } from '@tamanu/constants';
+import { REGISTRATION_STATUSES } from '@tamanu/constants';
 import { createTestContext } from '../utilities';
 
 describe('PatientProgramRegistration', () => {
@@ -422,7 +422,6 @@ describe('PatientProgramRegistration', () => {
             patientId: patient.id,
             programRegistryId: programRegistry.id,
             programRegistryConditionId: programRegistryCondition.id,
-            deletionStatus: null,
           }),
         );
         const result = await app
@@ -474,6 +473,7 @@ describe('PatientProgramRegistration', () => {
 
         const deletedCondition = await models.PatientProgramRegistrationCondition.findByPk(
           result.body.id,
+          { paranoid: false },
         );
 
         expect(deletedCondition).toMatchObject({
@@ -482,7 +482,6 @@ describe('PatientProgramRegistration', () => {
           programRegistryConditionId: programRegistryCondition.id,
           date: '2023-09-01 08:00:00',
           deletionDate: '2023-09-02 08:00:00',
-          deletionStatus: DELETION_STATUSES.DELETED,
         });
       });
     });
@@ -766,7 +765,6 @@ describe('PatientProgramRegistration', () => {
             patientId: patient.id,
             programRegistryId: programRegistry.id,
             programRegistryConditionId: programRegistryCondition.id,
-            deletionStatus: null,
           }),
         );
 
@@ -801,7 +799,6 @@ describe('PatientProgramRegistration', () => {
             patientId: patient.id,
             programRegistryId: programRegistry.id,
             programRegistryConditionId: programRegistryCondition.id,
-            deletionStatus: null,
           }),
         );
 
@@ -838,14 +835,13 @@ describe('PatientProgramRegistration', () => {
             patientId: patient.id,
             programRegistryId: programRegistry.id,
             programRegistryConditionId: programRegistryCondition.id,
-            deletionStatus: null,
           }),
         );
 
         const permissions = [
           ['read', 'ProgramRegistry', 'different-object-id'],
           ['read', 'Patient'],
-          ['write', 'PatientProgramRegistrationCondition'],
+          ['delete', 'PatientProgramRegistrationCondition'],
         ];
         const appWithPermissions = await ctx.baseApp.asNewRole(permissions);
         const result = await appWithPermissions
@@ -880,14 +876,13 @@ describe('PatientProgramRegistration', () => {
             patientId: patient.id,
             programRegistryId: programRegistry.id,
             programRegistryConditionId: programRegistryCondition.id,
-            deletionStatus: null,
           }),
         );
 
         const permissions = [
           ['read', 'ProgramRegistry', programRegistry.id],
           ['read', 'Patient'],
-          ['write', 'PatientProgramRegistrationCondition'],
+          ['delete', 'PatientProgramRegistrationCondition'],
         ];
         const appWithPermissions = await ctx.baseApp.asNewRole(permissions);
         const result = await appWithPermissions

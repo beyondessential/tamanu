@@ -1,86 +1,11 @@
 import { IMAGING_AREA_TYPES } from './imaging';
 
-export const GENERAL_IMPORTABLE_DATA_TYPES = [
-  'additionalInvoiceLine',
-  'administeredVaccine',
-  'allergy',
-  'angiogramImagingArea',
-  'arrivalMode',
-  'carePlan',
-  'catchment',
-  'certifiableVaccine',
-  'colonoscopyImagingArea',
-  'contactRelationship',
-  'country',
-  'ctScanImagingArea',
-  'department',
-  'diagnosis',
-  'diet',
-  'dischargeDisposition',
-  'division',
-  'drug',
-  'ecgImagingArea',
-  'echocardiogramImagingArea',
-  'endoscopyImagingArea',
-  'ethnicity',
-  'facility',
-  'fluroscopyImagingArea',
-  'holterMonitorImagingArea',
-  'imagingAreaExternalCode',
-  'imagingType',
-  'invoiceLineType',
-  'invoicePriceChangeType',
-  'labTestCategory',
-  'labTestLaboratory',
-  'labTestMethod',
-  'labTestPriority',
-  'labTestType',
-  'labTestPanel',
-  'labSampleSite',
-  'location',
-  'locationGroup',
-  'mammogramImagingArea',
-  'manufacturer',
-  'medicalArea',
-  'mriImagingArea',
-  'nationality',
-  'nursingZone',
-  'occupation',
-  'patient',
-  'patientBillingType',
-  'patientFieldDefinition',
-  'patientFieldDefinitionCategory',
-  'procedureType',
-  'reaction',
-  'referralSource',
-  'referenceDataRelation',
-  'religion',
-  'scheduledVaccine',
-  'secondaryIdType',
-  'settlement',
-  'specimenType',
-  'stressTestImagingArea',
-  'subdivision',
-  'translatedString',
-  'triageReason',
-  'ultrasoundImagingArea',
-  'user',
-  'userFacility',
-  'vaccine',
-  'vascularStudyImagingArea',
-  'village',
-  'xRayImagingArea',
-  'vaccineNotGivenReason',
-  'vaccineCircumstance',
-].sort();
-
-export const PERMISSION_IMPORTABLE_DATA_TYPES = ['permission', 'role'];
-
+// Reference data stored IN the "reference_data" table
 export const REFERENCE_TYPES = {
   ICD10: 'icd10',
   ALLERGY: 'allergy',
   CONDITION: 'condition',
-  CONTACT_RELATIONSHIP: 'contactRelationship',
+  CATCHMENT: 'catchment',
   DRUG: 'drug',
   DIET: 'diet',
   TRIAGE_REASON: 'triageReason',
@@ -97,20 +22,19 @@ export const REFERENCE_TYPES = {
   ETHNICITY: 'ethnicity',
   NATIONALITY: 'nationality',
   COUNTRY: 'country',
+  CONTACT_RELATIONSHIP: 'contactRelationship',
   DIVISION: 'division',
   SUBDIVISION: 'subdivision',
   MEDICAL_AREA: 'medicalArea',
   NURSING_ZONE: 'nursingZone',
   SETTLEMENT: 'settlement',
   OCCUPATION: 'occupation',
-  SEX: 'sex',
   PLACE_OF_BIRTH: 'placeOfBirth',
   MARITAL_STATUS: 'maritalStatus',
   RELIGION: 'religion',
+  REACTION: 'reaction',
   FAMILY_RELATION: 'familyRelation',
   PATIENT_TYPE: 'patientType',
-  BLOOD_TYPE: 'bloodType',
-  SOCIAL_MEDIA_PLATFORM: 'socialMediaPlatform',
   PATIENT_BILLING_TYPE: 'patientBillingType',
   MANUFACTURER: 'manufacturer',
   SECONDARY_ID_TYPE: 'secondaryIdType',
@@ -121,12 +45,58 @@ export const REFERENCE_TYPES = {
   VACCINE_CIRCUMSTANCE: 'vaccineCircumstance',
   ADDITIONAL_INVOICE_LINE: 'additionalInvoiceLine',
   SPECIMEN_TYPE: 'specimenType',
-  CATCHMENT: 'catchment',
-  REACTION: 'reaction',
   ...IMAGING_AREA_TYPES,
 };
-
 export const REFERENCE_TYPE_VALUES = Object.values(REFERENCE_TYPES);
+
+// Reference data stored in its own table (not in 'reference_data' table)
+const OTHER_REFERENCE_TYPES = {
+  DEPARTMENT: 'department',
+  FACILITY: 'facility',
+  INVOICE_LINE_TYPE: 'invoiceLineType',
+  INVOICE_PRICE_CHANGE_TYPE: 'invoicePriceChangeType',
+  LAB_TEST_TYPE: 'labTestType',
+  LAB_TEST_PANEL: 'labTestPanel',
+  LOCATION: 'location',
+  LOCATION_GROUP: 'locationGroup',
+  PATIENT_FIELD_DEFINITION: 'patientFieldDefinition',
+  PATIENT_FIELD_DEFININION_CATEGORY: 'patientFieldDefinitionCategory',
+  SCHEDULED_VACCINE: 'scheduledVaccine',
+};
+export const OTHER_REFERENCE_TYPE_VALUES = Object.values(OTHER_REFERENCE_TYPES);
+
+export const TRANSLATABLE_REFERENCE_TYPES = [
+  ...REFERENCE_TYPE_VALUES,
+  ...OTHER_REFERENCE_TYPE_VALUES,
+];
+
+// Data types created through tamanu
+const CLINCAL_DATA_TYPES = {
+  PATIENT: 'patient',
+  ADMINISTERED_VACCINE: 'administeredVaccine',
+  USER: 'user',
+  USER_FACILITY: 'userFacility',
+};
+const CLINICAL_DATA_TYPES_VALUES = Object.values(CLINCAL_DATA_TYPES);
+
+// System data used for configuration purposes
+const SYSTEM_DATA_TYPES = {
+  REFERENCE_DATA_RELATION: 'referenceDataRelation',
+  TRANSLATED_STRING: 'translatedString',
+  CERTIFIABLE_VACCINE: 'certifiableVaccine',
+  IMAGING_AREA_EXTERNAL_CODE: 'imagingAreaExternalCode',
+};
+const SYSTEM_DATA_TYPES_VALUES = Object.values(SYSTEM_DATA_TYPES);
+
+export const GENERAL_IMPORTABLE_DATA_TYPES = [
+  ...REFERENCE_TYPE_VALUES.filter(type => type !== REFERENCE_TYPES.ICD10),
+  'diagnosis', // Weird edge case where we sometimes call diagnosis icd10 so we have to account for this in a bunch of places
+  ...OTHER_REFERENCE_TYPE_VALUES,
+  ...CLINICAL_DATA_TYPES_VALUES,
+  ...SYSTEM_DATA_TYPES_VALUES,
+].sort();
+
+export const PERMISSION_IMPORTABLE_DATA_TYPES = ['permission', 'role'];
 
 export const VISIBILITY_STATUSES = {
   CURRENT: 'current',

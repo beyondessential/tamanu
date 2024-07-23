@@ -13,8 +13,24 @@ import { TranslatedText } from '../Translation/TranslatedText';
 // by supplying the fallback string in place of the component. proper translation export implmentation coming in NASS-1201
 const normaliseTranslatedText = element => {
   if (!isValidElement(element)) return element;
-  if (element.type?.name === 'TranslatedText') return element.props.fallback;
-  if (!Array.isArray(element.props?.children)) return element;
+  if (
+    element.type?.name === 'TranslatedText' ||
+    element.type?.name === 'TranslatedReferenceData' ||
+    element.type?.name === 'TranslatedEnum'
+  )
+    return element.props.fallback;
+
+  // temporary fix for handling LocationCell components
+  if (element.type?.name === 'LocationCell') return element.props.locationName;
+
+  if (!Array.isArray(element.props?.children)) {
+    // temporary fix for handling components with one React element child (e.g. facility in patient encounter table)
+    if (element.props?.children !== null && typeof element.props?.children === 'object') {
+      return normaliseTranslatedText(element.props?.children);
+    }
+
+    return element;
+  }
 
   return React.cloneElement(element, {
     children: element.props.children.map(normaliseTranslatedText),

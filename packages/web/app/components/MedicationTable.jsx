@@ -10,9 +10,16 @@ import { reloadPatient } from '../store';
 import { ENCOUNTER_TAB_NAMES } from '../constants/encounterTabNames';
 import { Colors } from '../constants';
 import { getFullLocationName } from '../utils/location';
-import { TranslatedText } from './Translation/TranslatedText';
+import { TranslatedText, TranslatedReferenceData } from './Translation';
+import { DataFetchingTableWithPermissionCheck } from './Table/DataFetchingTable';
 
-const getMedicationName = ({ medication }) => medication.name;
+const getMedicationName = ({ medication }) => (
+  <TranslatedReferenceData
+    fallback={medication.name}
+    value={medication.id}
+    category={medication.type}
+  />
+);
 
 const MEDICATION_COLUMNS = [
   {
@@ -59,7 +66,13 @@ const FULL_LISTING_COLUMNS = [
   {
     key: 'department',
     title: <TranslatedText stringId="general.department.label" fallback="Department" />,
-    accessor: ({ encounter }) => encounter.department.name,
+    accessor: ({ encounter }) => (
+      <TranslatedReferenceData
+        fallback={encounter.department.name}
+        value={encounter.department.id}
+        category="department"
+      />
+    ),
     sortable: false,
   },
   {
@@ -132,7 +145,9 @@ export const DataFetchingMedicationTable = () => {
   );
 
   return (
-    <DataFetchingTable
+    <DataFetchingTableWithPermissionCheck
+      verb="list"
+      noun="EncounterMedication"
       endpoint="medication"
       fetchOptions={{ facilityId }}
       columns={FULL_LISTING_COLUMNS}

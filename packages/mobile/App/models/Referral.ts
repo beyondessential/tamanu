@@ -71,6 +71,7 @@ export class Referral extends BaseModel implements IReferral {
         'surveyScreenComponent.dataElementId = dataElement.id and surveyScreenComponent.surveyId = survey.id',
       )
       .where('initiatingEncounter.patientId = :patientId', { patientId })
+      .andWhere('referral.deletedAt IS NULL')
       .orderBy({
         'surveyResponse.endTime': 'DESC',
         'surveyScreenComponent.screenIndex': 'ASC',

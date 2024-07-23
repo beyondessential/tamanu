@@ -13,6 +13,7 @@ import { DefaultSettingsModal } from './DefaultSettingsModal';
 import { useApi } from '../../../api';
 import { notifySuccess, notifyError } from '../../../utils';
 import { ErrorMessage } from '../../../components/ErrorMessage';
+import { TranslatedText } from '../../../components/Translation';
 
 const StyledTopBar = styled(TopBar)`
   padding: 0;
@@ -100,7 +101,9 @@ export const SettingsView = React.memo(() => {
   const isEditorVisible = scope !== SETTINGS_SCOPES.FACILITY || facilityId;
 
   return (
-    <AdminViewContainer title="Settings">
+    <AdminViewContainer
+      title={<TranslatedText stringId="admin.settings.title" fallback="Settings" />}
+    >
       <StyledTopBar>
         <ScopeSelector
           selectedScope={scope}
@@ -110,21 +113,24 @@ export const SettingsView = React.memo(() => {
         />
         <DefaultSettingsButton onClick={() => setIsDefaultModalOpen(true)}>
           <Settings />
-          View default {scope} settings
+          <TranslatedText
+            stringId="admin.settings.viewDefaultScope.message"
+            fallback="View default {scope} settings"
+          />
         </DefaultSettingsButton>
         <ButtonRow>
           {editMode ? (
             <>
               <LargeButton variant="outlined" onClick={turnOffEditMode}>
-                Cancel
+                <TranslatedText stringId="general.action.cancel" fallback="Cancel" />
               </LargeButton>
               <LargeButton onClick={saveSettings} disabled={!hasSettingsChanged}>
-                Save
+                <TranslatedText stringId="general.action.save" fallback="Save" />
               </LargeButton>
             </>
           ) : (
             <LargeButton onClick={turnOnEditMode} disabled={!isEditorVisible}>
-              Edit
+              <TranslatedText stringId="general.action.edit" fallback="Edit" />
             </LargeButton>
           )}
         </ButtonRow>
