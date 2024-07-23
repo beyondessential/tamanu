@@ -1,6 +1,6 @@
 {
   "name": "@tamanu/shared",
-  "version": "2.8.8",
+  "version": "2.8.9",
   "description": "Common code across Tamanu packages",
   "main": "dist/cjs/index.js",
   "module": "dist/mjs/index.js",
