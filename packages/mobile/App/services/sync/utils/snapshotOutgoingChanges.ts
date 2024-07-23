@@ -27,7 +27,7 @@ const buildToSyncRecord = (model: typeof BaseModel, record: object): SyncRecord 
  * @returns
  */
 export const snapshotOutgoingChanges = async (
-  outgoingModels: typeof MODELS_MAP,
+  outgoingModels: Partial<typeof MODELS_MAP>,
   since: number,
 ): Promise<SyncRecord[]> => {
   let outgoingChanges = [];

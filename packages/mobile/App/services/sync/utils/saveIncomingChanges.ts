@@ -95,7 +95,7 @@ export const saveChangesForModel = async (
 export const saveIncomingChanges = async (
   sessionId: string,
   incomingChangesCount: number,
-  incomingModels: typeof MODELS_MAP,
+  incomingModels: Partial<typeof MODELS_MAP>,
   progressCallback: (total: number, batchTotal: number, progressMessage: string) => void,
 ): Promise<void> => {
   const sortedModels = await sortInDependencyOrder(incomingModels);

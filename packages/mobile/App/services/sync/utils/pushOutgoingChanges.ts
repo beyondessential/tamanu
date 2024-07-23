@@ -13,7 +13,7 @@ import { calculatePageLimit } from './calculatePageLimit';
  */
 export const pushOutgoingChanges = async (
   centralServer: CentralServerConnection,
-  outgoingModels: typeof MODELS_MAP,
+  outgoingModels: Partial<typeof MODELS_MAP>,
   sessionId: string,
   changes: SyncRecord[],
   progressCallback: (total: number, progressCount: number) => void,
