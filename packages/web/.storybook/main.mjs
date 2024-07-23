@@ -37,7 +37,7 @@ export default {
       },
       resolve: {
         alias: {
-          '@react-refresh': resolve(__dirname, './__mocks__/react-refresh.js'),
+          'react-refresh': resolve(__dirname, './__mocks__/react-refresh.js'),
           buffer: resolve(__dirname, './__mocks__/buffer.js'),
           sequelize: resolve(__dirname, './__mocks__/sequelize.js'),
           config: resolve(__dirname, './__mocks__/config.js'),
