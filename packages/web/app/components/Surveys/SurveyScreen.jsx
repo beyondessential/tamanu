@@ -7,7 +7,7 @@ import { Button, OutlinedButton } from '../Button';
 import { SurveyQuestion } from './SurveyQuestion';
 import { ButtonRow } from '../ButtonRow';
 import { FORM_STATUSES } from '../../constants';
-import { TranslatedText } from '../Translation/TranslatedText';
+import { TranslatedText } from '../Translation';
 import { Typography } from '@material-ui/core';
 
 const EmptyStateText = styled(Typography)`
