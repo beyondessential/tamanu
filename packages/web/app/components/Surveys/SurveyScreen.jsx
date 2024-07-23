@@ -120,7 +120,7 @@ export const SurveyScreen = ({
       />
     ));
 
-  const blankScreenMessage = (
+  const emptyStateMessage = (
     <EmptyStateText variant="body2">
       <TranslatedText
         stringId="general.form.blankPage"
@@ -131,7 +131,7 @@ export const SurveyScreen = ({
 
   return (
     <FormGrid columns={cols}>
-      {visibleComponents.length > 0 ? visibleComponents : blankScreenMessage}
+      {visibleComponents.length > 0 ? visibleComponents : emptyStateMessage}
       <StyledButtonRow>
         {submitButton || (
           <>
