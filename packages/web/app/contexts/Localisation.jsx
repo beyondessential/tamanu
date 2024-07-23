@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { get } from 'lodash';
+import { get, merge } from 'lodash';
 
 const overrides = {}; // add keys to this object to help with development
 
@@ -14,7 +14,7 @@ export const LocalisationProvider = ({ children }) => {
   const [localisation, setLocalisation] = useState({});
   const reduxLocalisation = useSelector(state => state.auth.localisation);
   useEffect(() => {
-    setLocalisation({ ...reduxLocalisation, ...overrides });
+    setLocalisation(merge(reduxLocalisation, overrides));
   }, [reduxLocalisation]);
 
   return (

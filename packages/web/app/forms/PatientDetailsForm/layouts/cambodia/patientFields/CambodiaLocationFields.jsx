@@ -4,8 +4,13 @@ import { ConfiguredMandatoryPatientFields } from '../../../ConfiguredMandatoryPa
 import { TranslatedText } from '../../../../../components/Translation/TranslatedText';
 import { LinkedField } from '../../../../../components/Field/LinkedField';
 import { HierarchyFields } from '../../../../../components/Field/HierarchyFields';
-import { REFERENCE_DATA_RELATION_TYPES, REFERENCE_TYPES } from '@tamanu/constants';
+import {
+  PATIENT_FIELD_DEFINITION_TYPES,
+  REFERENCE_DATA_RELATION_TYPES,
+  REFERENCE_TYPES,
+} from '@tamanu/constants';
 import { useFilterPatientFields } from '../../../useFilterPatientFields';
+import { PatientField } from '../../../PatientFields';
 
 const HealthCenterLinkedVillageField = props => (
   <LinkedField
@@ -17,35 +22,56 @@ const HealthCenterLinkedVillageField = props => (
   />
 );
 
-export const CambodiaLocationFields = ({ filterByMandatory }) => {
+export const SECONDARY_LOCATION_HIERARCHY_FIELDS = {
+  secondaryDivisionId: {
+    referenceType: REFERENCE_TYPES.DIVISION,
+    label: <TranslatedText stringId="cambodiaPatientDetails.province.label" fallback="Province" />,
+  },
+  secondarySubdivisionId: {
+    referenceType: REFERENCE_TYPES.SUBDIVISION,
+    label: <TranslatedText stringId="cambodiaPatientDetails.district.label" fallback="District" />,
+  },
+  secondarySettlementId: {
+    referenceType: REFERENCE_TYPES.SETTLEMENT,
+    label: <TranslatedText stringId="cambodiaPatientDetails.commune.label" fallback="Commune" />,
+  },
+  secondaryVillageId: {
+    referenceType: REFERENCE_TYPES.VILLAGE,
+    label: <TranslatedText stringId="general.localisedField.villageId.label" fallback="Village" />,
+  },
+};
+
+export const CambodiaLocationFields = ({ filterByMandatory, secondary }) => {
   const LOCATION_FIELDS = {
     streetVillage: {
       component: TextField,
       label: (
         <TranslatedText
-          stringId="cambodiaPatientDetails.streetNoAndName.label"
+          stringId="general.localisedField.streetVillage.label"
           fallback="Street No. & Name"
         />
       ),
     },
   };
 
-  const LOCATION_HIERARCHY_FIELDS = {
+  const CURRENT_LOCATION_HIERARCHY_FIELDS = {
     divisionId: {
       referenceType: REFERENCE_TYPES.DIVISION,
       label: (
-        <TranslatedText stringId="cambodiaPatientDetails.province.label" fallback="Province" />
+        <TranslatedText stringId="general.localisedField.divisionId.label" fallback="Province" />
       ),
     },
     subdivisionId: {
       referenceType: REFERENCE_TYPES.SUBDIVISION,
       label: (
-        <TranslatedText stringId="cambodiaPatientDetails.district.label" fallback="District" />
+        <TranslatedText stringId="general.localisedField.subdivisionId.label" fallback="District" />
       ),
     },
     settlementId: {
       referenceType: REFERENCE_TYPES.SETTLEMENT,
-      label: <TranslatedText stringId="cambodiaPatientDetails.commune.label" fallback="Commune" />,
+      label: (
+        <TranslatedText stringId="general.localisedField.settlementId.label" fallback="Commune" />
+      ),
     },
     villageId: {
       component: HealthCenterLinkedVillageField,
@@ -57,7 +83,7 @@ export const CambodiaLocationFields = ({ filterByMandatory }) => {
   };
 
   const { fieldsToShow: locationHierarchyFieldsToShow } = useFilterPatientFields({
-    fields: LOCATION_HIERARCHY_FIELDS,
+    fields: secondary ? SECONDARY_LOCATION_HIERARCHY_FIELDS : CURRENT_LOCATION_HIERARCHY_FIELDS,
     filterByMandatory,
   });
 
@@ -67,11 +93,27 @@ export const CambodiaLocationFields = ({ filterByMandatory }) => {
         relationType={REFERENCE_DATA_RELATION_TYPES.ADDRESS_HIERARCHY}
         leafNodeType={REFERENCE_TYPES.VILLAGE}
         fields={locationHierarchyFieldsToShow}
+        assumeParentHierarchyValues={!!secondary}
       />
-      <ConfiguredMandatoryPatientFields
-        fields={LOCATION_FIELDS}
-        filterByMandatory={filterByMandatory}
-      />
+      {secondary ? (
+        <PatientField
+          definition={{
+            name: (
+              <TranslatedText
+                stringId="general.localisedField.streetVillage.label"
+                fallback="Street No. & Name"
+              />
+            ),
+            definitionId: 'fieldDefinition-secondaryAddressStreet',
+            fieldType: PATIENT_FIELD_DEFINITION_TYPES.STRING,
+          }}
+        />
+      ) : (
+        <ConfiguredMandatoryPatientFields
+          fields={LOCATION_FIELDS}
+          filterByMandatory={filterByMandatory}
+        />
+      )}
     </>
   );
 };

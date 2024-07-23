@@ -5,13 +5,15 @@ import { TextField } from './TextField';
 import { LocalisedField } from './LocalisedField';
 import { useTranslation } from '../../contexts/Translation';
 
-const useDisplayIdValidation = label => {
+const useDisplayIdValidation = (label, fieldName = 'displayId') => {
   const { initialValues } = useFormikContext();
   const { getLocalisation } = useLocalisation();
-  const pattern = getLocalisation('fields.displayId.pattern') || null;
+  const pattern = getLocalisation('fields.displayId.pattern');
   const regex = pattern ? new RegExp(pattern) : null;
   return value =>
-    value !== initialValues[name] && regex && !regex.test(value) ? `Invalid ${label}` : undefined;
+    value !== initialValues[fieldName] && regex && !regex.test(value)
+      ? `Invalid ${label}`
+      : undefined;
 };
 
 export const DisplayIdField = ({ required }) => {

@@ -51,8 +51,8 @@ export const getStringValue = (type: string, value: any): string => {
     case FieldTypes.TEXT:
     case FieldTypes.MULTILINE:
       return value;
-
     case FieldTypes.DATE:
+    case FieldTypes.DATE_TIME:
     case FieldTypes.SUBMISSION_DATE:
       return value && formatISO9075(value);
     case FieldTypes.BINARY:

@@ -2,7 +2,7 @@ import React, { FC, useMemo } from 'react';
 import { ScrollView } from 'react-native';
 import { useSelector } from 'react-redux';
 import * as Yup from 'yup';
-import { FormikHandlers } from 'formik';
+import { FormikProps } from 'formik';
 import { NavigationProp } from '@react-navigation/native';
 
 import { authUserSelector } from '~/ui/helpers/selectors';
@@ -23,6 +23,7 @@ import { useBackendEffect } from '~/ui/hooks';
 import { SETTING_KEYS } from '../../../../constants';
 import { useLocalisation } from '~/ui/contexts/LocalisationContext';
 import { ScheduledVaccine } from '~/models/ScheduledVaccine';
+import { useTranslation } from '~/ui/contexts/TranslationContext';
 
 const getFormType = (status: VaccineStatus): { Form: FC<any> } => {
   switch (status) {
@@ -46,8 +47,9 @@ export type VaccineFormValues = {
   givenBy?: string;
   recorderId?: string;
   status: string | VaccineStatus;
-  consent: boolean;
+  consent?: boolean;
   scheduledVaccine?: ScheduledVaccine;
+  notGivenReasonId?: string;
 };
 
 interface VaccineFormProps {
@@ -67,8 +69,6 @@ const createInitialValues = (initialValues: VaccineFormValues): VaccineFormValue
   ...initialValues,
 });
 
-const REQUIRED_INLINE_ERROR_MESSAGE = 'Required';
-
 /* eslint-disable @typescript-eslint/no-empty-function */
 export const VaccineForm = ({
   initialValues,
@@ -81,6 +81,7 @@ export const VaccineForm = ({
   const { Form: StatusForm } = useMemo(() => getFormType(status), [status]);
   const user = useSelector(authUserSelector);
   const { getLocalisation } = useLocalisation();
+  const { getTranslation } = useTranslation();
 
   const vaccineConsentEnabled = getLocalisation('features.enableVaccineConsent');
 
@@ -133,7 +134,10 @@ export const VaccineForm = ({
     status === VaccineStatus.GIVEN
       ? Yup.boolean().when([], {
           is: () => vaccineConsentEnabled,
-          then: Yup.boolean().oneOf([true], REQUIRED_INLINE_ERROR_MESSAGE),
+          then: Yup.boolean().oneOf(
+            [true],
+            getTranslation('validation.required.inline', '*Required'),
+          ),
           otherwise: Yup.boolean(),
         })
       : undefined;
@@ -144,30 +148,30 @@ export const VaccineForm = ({
         date: Yup.date().when('givenElsewhere', {
           is: givenElsewhere => !givenElsewhere,
           then: Yup.date()
-            .typeError(REQUIRED_INLINE_ERROR_MESSAGE)
+            .typeError(getTranslation('validation.required.inline', '*Required'))
             .required(),
           otherwise: Yup.date().nullable(),
         }),
         locationId: Yup.string().when('givenElsewhere', {
           is: givenElsewhere => !givenElsewhere,
-          then: Yup.string().required(REQUIRED_INLINE_ERROR_MESSAGE),
+          then: Yup.string().required(getTranslation('validation.required.inline', '*Required')),
           otherwise: Yup.string().nullable(),
         }),
         locationGroupId: Yup.string().when('givenElsewhere', {
           is: givenElsewhere => !givenElsewhere,
-          then: Yup.string().required(REQUIRED_INLINE_ERROR_MESSAGE),
+          then: Yup.string().required(getTranslation('validation.required.inline', '*Required')),
           otherwise: Yup.string().nullable(),
         }),
         departmentId: Yup.string().when('givenElsewhere', {
           is: givenElsewhere => !givenElsewhere,
-          then: Yup.string().required(REQUIRED_INLINE_ERROR_MESSAGE),
+          then: Yup.string().required(getTranslation('validation.required.inline', '*Required')),
           otherwise: Yup.string().nullable(),
         }),
         consent: consentSchema,
       })}
       initialValues={newInitialValues}
     >
-      {({ isSubmitting }: FormikHandlers): JSX.Element => (
+      {({ isSubmitting }: FormikProps<VaccineFormValues>): JSX.Element => (
         <ScrollView style={{ flex: 1, paddingLeft: 20, paddingRight: 20 }}>
           <StatusForm navigation={navigation} />
           <RowView paddingTop={20} paddingBottom={20} flex={1}>

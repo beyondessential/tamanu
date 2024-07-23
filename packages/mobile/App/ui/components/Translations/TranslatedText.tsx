@@ -27,5 +27,9 @@ export const TranslatedText = ({
 
   const isDebugMode = __DEV__ && debugMode;
 
-  return <TextWrapper $isDebugMode={isDebugMode}>{uppercase ? translation.toUpperCase() : translation}</TextWrapper>;
+  return (
+    <TextWrapper $isDebugMode={isDebugMode}>
+      {uppercase ? translation.toUpperCase() : translation}
+    </TextWrapper>
+  );
 };

@@ -29,7 +29,7 @@ async function getValuesFromAdministeredVaccine(administeredVaccine) {
     lotNumber: administeredVaccine.batch,
     site: site(administeredVaccine.injectionSite),
     performer: performer(recorder),
-    protocolApplied: protocolApplied(scheduledVaccine.schedule),
+    protocolApplied: protocolApplied(scheduledVaccine.doseLabel),
   };
 }
 

@@ -86,10 +86,14 @@ export const NewUserForm = memo(({ onSubmit, onCancel }) => {
           .translatedLabel(<TranslatedText stringId="user.role.label" fallback="Role ID" />),
         displayId: yup
           .string()
-          .translatedLabel(<TranslatedText stringId="user.displayId.label" fallback="Display ID" />),
+          .translatedLabel(
+            <TranslatedText stringId="user.displayId.label" fallback="Display ID" />,
+          ),
         phoneNumber: yup
           .string()
-          .translatedLabel(<TranslatedText stringId="user.phoneNumber.label" fallback="Phone number" />),
+          .translatedLabel(
+            <TranslatedText stringId="user.phoneNumber.label" fallback="Phone number" />,
+          ),
       })}
     />
   );

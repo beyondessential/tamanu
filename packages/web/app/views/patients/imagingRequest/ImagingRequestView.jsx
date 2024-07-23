@@ -6,7 +6,7 @@ import { useParams } from 'react-router-dom';
 import { pick } from 'lodash';
 import styled from 'styled-components';
 
-import { IMAGING_REQUEST_STATUS_TYPES, LAB_REQUEST_STATUS_CONFIG } from '@tamanu/constants';
+import { IMAGING_REQUEST_STATUS_TYPES, LAB_REQUEST_STATUS_CONFIG, NOTE_TYPES } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 
 import { FORM_TYPES, IMAGING_REQUEST_STATUS_OPTIONS } from '../../../constants';
@@ -34,11 +34,12 @@ import { SimpleTopBar } from '../../../components';
 
 import { CancelModalButton } from './CancelModalButton';
 import { PrintModalButton } from './PrintModalButton';
-import { TranslatedText } from '../../../components/Translation/TranslatedText';
+import { getReferenceDataStringId, TranslatedText } from '../../../components/Translation';
 import { useTranslation } from '../../../contexts/Translation';
 
 const ImagingRequestSection = ({ currentStatus, imagingRequest }) => {
   const { getLocalisation } = useLocalisation();
+  const { getTranslation } = useTranslation();
   const imagingPriorities = getLocalisation('imagingPriorities') || [];
   const imagingTypes = getLocalisation('imagingTypes') || {};
 
@@ -104,7 +105,11 @@ const ImagingRequestSection = ({ currentStatus, imagingRequest }) => {
         value={
           // Either use free text area or multi-select areas data
           imagingRequest.areas?.length
-            ? imagingRequest.areas.map(area => area.name).join(', ')
+            ? imagingRequest.areas
+                .map(area =>
+                  getTranslation(getReferenceDataStringId(area.id, area.type), area.name),
+                )
+                .join(', ')
             : imagingRequest.areaNote
         }
         label={<TranslatedText stringId="imaging.areas.label" fallback="Areas to be imaged" />}
@@ -113,7 +118,10 @@ const ImagingRequestSection = ({ currentStatus, imagingRequest }) => {
       />
       <TextInput
         multiline
-        value={imagingRequest.note}
+        value={imagingRequest.notes
+          ?.filter(note => note.noteType === NOTE_TYPES.OTHER)
+          .map(note => note.content)
+          .join('\n')}
         label={<TranslatedText stringId="general.notes.label" fallback="Notes" />}
         style={{ gridColumn: '1 / -1', minHeight: '60px' }}
         disabled
@@ -169,6 +177,7 @@ const NewResultSection = ({ disabled = false }) => {
 function openUrl(url) {
   window.open(url, '_blank');
 }
+
 const ImagingResultRow = ({ result }) => {
   const { externalUrl, completedAt, completedBy, description } = result;
 
@@ -177,11 +186,15 @@ const ImagingResultRow = ({ result }) => {
   return (
     <BottomAlignFormGrid columns={externalUrl ? 3 : 2}>
       <TextInput
-        label="Completed by"
+        label={<TranslatedText stringId="imaging.completedBy.label" fallback="Completed by" />}
         value={completedBy?.displayName ?? (externalUrl && 'External provider') ?? ''}
         disabled
       />
-      <DateTimeInput label="Completed" value={completedAt} disabled />
+      <DateTimeInput
+        label={<TranslatedText stringId="imaging.completedAt.label" fallback="Completed" />}
+        value={completedAt}
+        disabled
+      />
       {externalUrl && (
         <Button color="secondary" onClick={onOpenUrl}>
           View image (external link)
@@ -189,7 +202,9 @@ const ImagingResultRow = ({ result }) => {
       )}
 
       <TextInput
-        label="Result description"
+        label={
+          <TranslatedText stringId="imaging.description.label" fallback="Result description" />
+        }
         value={description}
         multiline
         disabled

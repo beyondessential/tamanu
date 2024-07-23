@@ -105,15 +105,19 @@ export const LabRequestMultiStepForm = ({
       acc[
         `${SAMPLE_DETAILS_FIELD_PREFIX}specimenType-${sample.panelId || sample.categoryId}`
       ] = mandateSpecimenType
-        ? yup
-            .string()
-            .required()
-            .translatedLabel(
-              <TranslatedText
-                stringId="lab.modal.recordSample.specimenType.label"
-                fallback="Specimen type"
-              />,
-            )
+        ? yup.string().when(`sampleDetails.${sample.panelId || sample.categoryId}.sampleTime`, {
+            is: value => !!value,
+            then: yup
+              .string()
+              .required()
+              .translatedLabel(
+                <TranslatedText
+                  stringId="lab.modal.recordSample.specimenType.label"
+                  fallback="Specimen type"
+                />,
+              ),
+            otherwise: yup.string(),
+          })
         : yup.string();
 
       return acc;

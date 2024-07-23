@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import React from 'react';
-import { Document, Page, StyleSheet, Text, View } from '@react-pdf/renderer';
+import { Document, StyleSheet, View } from '@react-pdf/renderer';
 import { getName } from '../patientAccessors';
 import { BaseSigningSection } from './BaseSigningSection';
 import { getDisplayDate } from './getDisplayDate';
@@ -14,6 +14,9 @@ import { MultiPageHeader } from './printComponents/MultiPageHeader';
 import { PatientDetailsWithBarcode } from './printComponents/PatientDetailsWithBarcode';
 import { startCase } from 'lodash';
 import { DoubleHorizontalRule } from './printComponents/DoubleHorizontalRule';
+import { withLanguageContext } from '../pdf/languageContext';
+import { Page } from '../pdf/Page';
+import { Text } from '../pdf/Text';
 
 const DATE_TIME_FORMAT = 'dd/MM/yyyy h:mma';
 const labDetailsSectionStyles = StyleSheet.create({
@@ -120,7 +123,7 @@ const ImagingRequestDetailsView = ({ imagingRequests, getLocalisation }) => {
   );
 };
 
-export const MultipleImagingRequestsPrintout = React.memo(
+const MultipleImagingRequestsPrintoutComponent = React.memo(
   ({ patient, imagingRequests, encounter, certificateData, getLocalisation }) => {
     const { logo } = certificateData;
     return (
@@ -160,6 +163,10 @@ export const MultipleImagingRequestsPrintout = React.memo(
       </Document>
     );
   },
+);
+
+export const MultipleImagingRequestsPrintout = withLanguageContext(
+  MultipleImagingRequestsPrintoutComponent,
 );
 
 MultipleImagingRequestsPrintout.propTypes = {

@@ -33,9 +33,11 @@ const StyledField = styled(Field)`
 
 const ConfirmClearRow = React.memo(({ onClear, onConfirm }) => (
   <ButtonRow>
-    <CenteredLink onClick={onClear}>Clear</CenteredLink>
+    <CenteredLink onClick={onClear}>
+      <TranslatedText stringId="general.action.clear" fallback="Clear" />
+    </CenteredLink>
     <ConfirmButton color="primary" onClick={onConfirm}>
-      Confirm
+      <TranslatedText stringId="general.action.confirm" fallback="Confirm" />
     </ConfirmButton>
   </ButtonRow>
 ));
@@ -70,8 +72,19 @@ export const NewTemplateForm = memo(({ onSubmit, allowInputTitleType }) => {
         </FormGrid>
         <SmallGridSpacer />
         <FormGrid columns={1} nested>
-          <StyledField name="title" label="Title" component={TextField} disabled={disabledTitle} />
-          <Field name="body" label="Contents" component={TallMultilineTextField} />
+          <StyledField
+            name="title"
+            label={
+              <TranslatedText stringId="general.localisedField.title.label" fallback="Title" />
+            }
+            component={TextField}
+            disabled={disabledTitle}
+          />
+          <Field
+            name="body"
+            label={<TranslatedText stringId="admin.template.content.label" fallback="Contents" />}
+            component={TallMultilineTextField}
+          />
         </FormGrid>
         <ConfirmClearRow onConfirm={submitForm} onClear={resetForm} />
       </>

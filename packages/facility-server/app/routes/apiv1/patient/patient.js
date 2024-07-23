@@ -24,6 +24,7 @@ import { patientProgramRegistration } from './patientProgramRegistration';
 import { getOrderClause } from '../../../database/utils';
 import { dbRecordToResponse, pickPatientBirthData, requestBodyToRecord } from './utils';
 import { PATIENT_SORT_KEYS } from './constants';
+import { getWhereClausesAndReplacementsFromFilters } from '../../../utils/query';
 import { patientContact } from './patientContact';
 
 const patientRoute = express.Router();
@@ -308,7 +309,13 @@ patientRoute.get(
     // clauses to improve query speed by removing unused joins
     const { isAllPatientsListing = false } = filterParams;
     const filters = createPatientFilters(filterParams);
-    const whereClauses = filters.map(f => f.sql).join(' AND ');
+    const { whereClauses, filterReplacements } = getWhereClausesAndReplacementsFromFilters(
+      filters,
+      {
+        ...filterParams,
+        facilityId: config.serverFacilityId,
+      },
+    );
 
     const from = isAllPatientsListing
       ? `
@@ -317,6 +324,7 @@ patientRoute.get(
           SELECT *, ROW_NUMBER() OVER (PARTITION BY patient_id ORDER BY start_date DESC, id DESC) AS row_num
           FROM encounters
           WHERE end_date IS NULL
+          AND deleted_at is NULL
         ) encounters
           ON (patients.id = encounters.patient_id AND encounters.row_num = 1)
         LEFT JOIN reference_data AS village
@@ -339,6 +347,7 @@ patientRoute.get(
             SELECT *, ROW_NUMBER() OVER (PARTITION BY patient_id ORDER BY start_date DESC, id DESC) AS row_num
             FROM encounters
             WHERE end_date IS NULL
+            AND deleted_at is NULL
           ) encounters
           ON (patients.id = encounters.patient_id AND encounters.row_num = 1)
         LEFT JOIN users AS clinician
@@ -370,15 +379,6 @@ patientRoute.get(
       ${whereClauses && `WHERE ${whereClauses}`}
     `;
 
-    const filterReplacements = filters
-      .filter(f => f.transform)
-      .reduce(
-        (current, { transform }) => ({
-          ...current,
-          ...transform(current),
-        }),
-        filterParams,
-      );
     filterReplacements.facilityId = config.serverFacilityId;
 
     const countResult = await req.db.query(`SELECT COUNT(1) AS count ${from}`, {
@@ -418,7 +418,9 @@ patientRoute.get(
         location.id AS location_id,
         location.name AS location_name,
         location_group.name AS location_group_name,
+        location_group.id AS location_group_id,
         planned_location_group.name AS planned_location_group_name,
+        planned_location_group.id AS planned_location_group_id,
         planned_location.id AS planned_location_id,
         planned_location.name AS planned_location_name,
         encounters.planned_location_start_time,

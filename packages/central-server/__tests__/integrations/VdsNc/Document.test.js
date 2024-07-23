@@ -123,7 +123,7 @@ describe('VDS-NC: Document cryptography', () => {
     const scheduledAz = await ScheduledVaccine.create({
       ...fake(ScheduledVaccine),
       label: 'COVID-19 AZ',
-      schedule: 'Dose 1',
+      doseLabel: 'Dose 1',
       vaccineId: azVaxDrug.id,
     });
 
