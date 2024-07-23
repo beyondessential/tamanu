@@ -103,20 +103,20 @@ export class Suggester<ModelType extends BaseModelSubclass> {
               search: `%${search}%`,
             }).orWhere('entity.id IN (:...suggestedIds)', { suggestedIds });
           }),
-        );
+        )
+        .andWhere(
+          new Brackets(qb => {
+            Object.entries(where).forEach(([key, value]) => {
+              qb.andWhere(`entity.${key} = :${key}`, { [key]: value });
+            });
+          }),
+        )
+        .orderBy(`entity.${column}`, 'ASC');
 
-      // Apply additional conditions from optional where
-      for (const [key, value] of Object.entries(where)) {
-        query = query.andWhere(`entity.${key} = :${key}`, { [key]: value });
-      }
-
-      query = query.orderBy(`entity.${column}`, 'ASC');
-
-      // Add relations
       if (relations) {
-        for (const relation of relations) {
+        relations.forEach(relation => {
           query = query.leftJoinAndSelect(`entity.${relation}`, relation);
-        }
+        });
       }
 
       let data = await query.getMany();
