@@ -285,7 +285,7 @@ const globalImagingRequests = permissionCheckingRouter('list', 'ImagingRequest')
 globalImagingRequests.get(
   '/$',
   asyncHandler(async (req, res) => {
-    const { models, query, facilityId } = req;
+    const { models, query } = req;
     const { order = 'ASC', orderBy, rowsPerPage = 10, page = 0, ...filterParams } = query;
 
     const orderDirection = order.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';

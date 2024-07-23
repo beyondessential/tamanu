@@ -102,7 +102,6 @@ labRequest.get(
     const {
       models: { LabRequest },
       query,
-      facilityId,
     } = req;
     req.checkPermission('list', 'LabRequest');
 
