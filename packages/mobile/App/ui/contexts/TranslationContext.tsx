@@ -149,7 +149,7 @@ export const TranslationProvider = ({ children }: PropsWithChildren<object>): Re
 
   useEffect(() => {
     setLanguageState(language);
-  }, [language]);
+  }, [language, host]);
 
   useEffect(() => {
     restoreLanguage();

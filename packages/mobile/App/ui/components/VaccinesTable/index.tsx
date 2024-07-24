@@ -130,13 +130,19 @@ export const VaccinesTable = ({
     rowHeader: () => (
       <VaccineRowHeader
         key={scheduledVaccine.id}
-        title={scheduledVaccine.label}
+        title={
+          <TranslatedReferenceData
+            fallback={scheduledVaccine.label}
+            value={scheduledVaccine.id}
+            category="scheduledVaccine"
+          />
+        }
         subtitle={
           scheduledVaccine.vaccine && (
             <TranslatedReferenceData
               fallback={scheduledVaccine.vaccine.name}
               value={scheduledVaccine.vaccine.id}
-              category="vaccine"
+              category="drug"
             />
           )
         }

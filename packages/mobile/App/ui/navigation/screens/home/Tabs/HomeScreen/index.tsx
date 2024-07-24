@@ -25,6 +25,7 @@ import { theme } from '/styled/theme';
 import { ConditionalRegisterPatientButton } from './RegisterPatientButton';
 import { SyncInactiveAlert } from '~/ui/components/SyncInactiveAlert';
 import { TranslatedText } from '/components/Translations/TranslatedText';
+import { TranslatedReferenceData } from '~/ui/components/Translations/TranslatedReferenceData';
 
 const SearchPatientsButton = ({ onPress }: { onPress: () => void }): ReactElement => (
   <StyledTouchableOpacity testID="search-patients-button" onPress={onPress}>
@@ -50,7 +51,7 @@ const SearchPatientsButton = ({ onPress }: { onPress: () => void }): ReactElemen
 const BaseHomeScreen = ({ navigation, user, setSelectedPatient }: BaseAppProps): ReactElement => {
   disableAndroidBackButton();
   const { checkFirstSession, setUserFirstSignIn } = useAuth();
-  const { facilityName } = useFacility();
+  const { facilityName, facilityId } = useFacility();
 
   useEffect(() => {
     if (checkFirstSession()) {
@@ -107,7 +108,7 @@ const BaseHomeScreen = ({ navigation, user, setSelectedPatient }: BaseAppProps):
               fontSize={screenPercentageToDP(2.18, Orientation.Height)}
               color={theme.colors.WHITE}
             >
-              {facilityName}
+              <TranslatedReferenceData category='facility' value={facilityId} fallback={facilityName} />
             </StyledText>
           </StyledView>
         </StyledView>
