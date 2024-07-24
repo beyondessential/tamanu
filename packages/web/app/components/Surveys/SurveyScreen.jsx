@@ -124,7 +124,7 @@ export const SurveyScreen = ({
     <EmptyStateText variant="body2">
       <TranslatedText
         stringId="general.form.blankPage"
-        fallback="This page intentionally left blank"
+        fallback="This page has been intentionally left blank"
       />
     </EmptyStateText>
   );
