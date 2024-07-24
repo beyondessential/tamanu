@@ -9,6 +9,7 @@ import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
 import { TextFieldErrorMessage } from '../TextField/TextFieldErrorMessage';
 import { useBackend } from '~/ui/hooks';
 import { TranslatedTextElement } from '../Translations/TranslatedText';
+import { TranslatedReferenceData } from '../Translations/TranslatedReferenceData';
 
 const MIN_COUNT_FILTERABLE_BY_DEFAULT = 8;
 
@@ -39,7 +40,7 @@ const baseStyleDropdownMenuSubsection = {
   paddingBottom: 9,
   paddingLeft: screenPercentageToDP(3, Orientation.Width),
   borderRadius: 5,
-  height: '100%'
+  height: '100%',
 };
 
 const STYLE_PROPS: Record<string, Partial<MultiSelectProps>> = {
@@ -200,7 +201,17 @@ export const SuggesterDropdown = ({ referenceDataType, ...props }): ReactElement
   useEffect(() => {
     (async (): Promise<void> => {
       const results = await models.ReferenceData.getSelectOptionsForType(referenceDataType);
-      setOptions(results);
+      const translatedResults = results.map(option => ({
+        label: (
+          <TranslatedReferenceData
+            category={referenceDataType}
+            value={option.value}
+            fallback={option.label}
+          />
+        ),
+        value: option.value,
+      }));
+      setOptions(translatedResults);
     })();
   }, []);
 

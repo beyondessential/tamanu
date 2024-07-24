@@ -7,6 +7,7 @@ import { TouchableOpacity } from 'react-native-gesture-handler';
 import { theme } from '../../styled/theme';
 import { BaseModelSubclass, Suggester } from '../../helpers/suggester';
 import { TranslatedText } from '../Translations/TranslatedText';
+import { useTranslation } from '~/ui/contexts/TranslationContext';
 
 const styles = StyleSheet.create({
   container: {
@@ -50,10 +51,11 @@ export const AutocompleteModalScreen = ({
   const { callback, suggester } = route.params;
   const [searchTerm, setSearchTerm] = useState('');
   const [displayedOptions, setDisplayedOptions] = useState([]);
+  const { language } = useTranslation();
 
   useEffect(() => {
     (async (): Promise<void> => {
-      const data = await suggester.fetchSuggestions(searchTerm);
+      const data = await suggester.fetchSuggestions(searchTerm, language);
       setDisplayedOptions(data);
     })();
   }, [searchTerm]);
