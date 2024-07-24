@@ -116,9 +116,16 @@ const BorderFormGrid = styled(SecondaryDetailsFormGrid)`
   border-radius: 3px;
   padding: 1rem 1.5rem 2rem;
   margin-top: -1rem;
+  ${p => p.$isHidden && 'display: none;'}
 `;
 
-export const CambodiaSecondaryDetailsLayout = ({ values = {}, patientRegistryType, className }) => {
+export const CambodiaSecondaryDetailsLayout = ({
+  values = {},
+  patientRegistryType,
+  className,
+  isSameAddress,
+  toggleIsSameAddress,
+}) => {
   return (
     <div className={className}>
       <SecondaryDetailsGroup>
@@ -142,15 +149,20 @@ export const CambodiaSecondaryDetailsLayout = ({ values = {}, patientRegistryTyp
           />
         </PatientDetailsHeading>
         <BorderFormGrid>
-          <CambodiaLocationFields />
-        </BorderFormGrid>
-        <PatientDetailsHeading>
-          <TranslatedText
-            stringId="patient.detail.subheading.permanentAddress"
-            fallback="Permanent address"
+          <CambodiaLocationFields
+            isSameAddress={isSameAddress}
+            toggleIsSameAddress={toggleIsSameAddress}
           />
-        </PatientDetailsHeading>
-        <BorderFormGrid>
+        </BorderFormGrid>
+        {!isSameAddress && (
+          <PatientDetailsHeading>
+            <TranslatedText
+              stringId="patient.detail.subheading.permanentAddress"
+              fallback="Permanent address"
+            />
+          </PatientDetailsHeading>
+        )}
+        <BorderFormGrid $isHidden={isSameAddress}>
           <CambodiaLocationFields secondary />
         </BorderFormGrid>
         <PatientDetailsHeading>

@@ -1,5 +1,7 @@
 import React from 'react';
-import { AutocompleteField, TextField } from '../../../../../components';
+import styled from 'styled-components';
+import { Box } from '@material-ui/core';
+import { AutocompleteField, CheckControl, TextField } from '../../../../../components';
 import { ConfiguredMandatoryPatientFields } from '../../../ConfiguredMandatoryPatientFields';
 import { TranslatedText } from '../../../../../components/Translation/TranslatedText';
 import { LinkedField } from '../../../../../components/Field/LinkedField';
@@ -11,6 +13,10 @@ import {
 } from '@tamanu/constants';
 import { useFilterPatientFields } from '../../../useFilterPatientFields';
 import { PatientField } from '../../../PatientFields';
+
+const StyledCheckbox = styled(CheckControl)`
+  font-size: 16px;
+`;
 
 const HealthCenterLinkedVillageField = props => (
   <LinkedField
@@ -41,7 +47,12 @@ export const SECONDARY_LOCATION_HIERARCHY_FIELDS = {
   },
 };
 
-export const CambodiaLocationFields = ({ filterByMandatory, secondary }) => {
+export const CambodiaLocationFields = ({
+  filterByMandatory,
+  secondary,
+  isSameAddress,
+  toggleIsSameAddress,
+}) => {
   const LOCATION_FIELDS = {
     streetVillage: {
       component: TextField,
@@ -113,6 +124,21 @@ export const CambodiaLocationFields = ({ filterByMandatory, secondary }) => {
           fields={LOCATION_FIELDS}
           filterByMandatory={filterByMandatory}
         />
+      )}
+      <div />
+      {!secondary && (
+        <Box display="flex" alignItems="center">
+          <StyledCheckbox
+            color="primary"
+            name="isCurrentAddressSameAsPermanentAddress"
+            value={isSameAddress}
+            onChange={e => toggleIsSameAddress(!isSameAddress)}
+          />
+          <TranslatedText
+            stringId="cambodiaPatientDetails.checkbox.sameAddress.label"
+            fallback="Same as permanent address"
+          />
+        </Box>
       )}
     </>
   );

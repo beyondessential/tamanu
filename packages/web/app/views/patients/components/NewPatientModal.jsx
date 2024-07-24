@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 
 import { generateId } from '@tamanu/shared/utils/generateId';
 import { PATIENT_DETAIL_LAYOUTS } from '@tamanu/constants';
@@ -18,17 +18,45 @@ export const NewPatientModal = ({ open, onCancel, onCreateNewPatient, ...formPro
     getLocalisation('layouts.patientDetails') !== PATIENT_DETAIL_LAYOUTS.CAMBODIA;
 
   const api = useApi();
+
+  const [isSameAddress, setIsSameAddress] = useState(true);
+  const toggleIsSameAddress = useCallback(value => setIsSameAddress(value));
+
   const onSubmit = useCallback(
     async data => {
       try {
-        const newPatient = await api.post('patient', { ...data, registeredById: api.user.id });
+        let submittedData = data;
+        const {
+          divisionId,
+          subdivisionId,
+          settlementId,
+          villageId,
+          streetVillage,
+        } = submittedData;
+  
+        if (isSameAddress) {
+          submittedData = {
+            ...submittedData,
+            secondaryDivisionId: divisionId,
+            secondarySubdivisionId: subdivisionId,
+            secondarySettlementId: settlementId,
+            secondaryVillageId: villageId,
+            patientFields: {
+              ...submittedData.patientFields,
+              "fieldDefinition-secondaryAddressStreet": streetVillage,
+            }
+          };
+        }
+
+        const newPatient = await api.post('patient', { ...submittedData, registeredById: api.user.id });
         onCreateNewPatient(newPatient);
       } catch (e) {
         notifyError(e.message);
       }
     },
-    [api, onCreateNewPatient],
+    [api, onCreateNewPatient, isSameAddress],
   );
+
   return (
     <FormModal
       title={<TranslatedText stringId="patient.modal.create.title" fallback="Add new patient" />}
@@ -40,6 +68,8 @@ export const NewPatientModal = ({ open, onCancel, onCreateNewPatient, ...formPro
         onCancel={onCancel}
         onSubmit={onSubmit}
         collapseAdditionalFields={collapseAdditionalFields}
+        isSameAddress={isSameAddress}
+        toggleIsSameAddress={toggleIsSameAddress}
         {...formProps}
       />
     </FormModal>

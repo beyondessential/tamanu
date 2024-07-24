@@ -71,7 +71,14 @@ const StyledRadioField = styled(RadioField)`
 `;
 
 export const NewPatientForm = memo(
-  ({ collapseAdditionalFields, onSubmit, onCancel, generateId }) => {
+  ({
+    collapseAdditionalFields,
+    onSubmit,
+    onCancel,
+    generateId,
+    isSameAddress,
+    toggleIsSameAddress,
+  }) => {
     const [isExpanded, setExpanded] = useState(false);
     const [patientRegistryType, setPatientRegistryType] = useState(
       PATIENT_REGISTRY_TYPES.NEW_PATIENT,
@@ -177,6 +184,8 @@ export const NewPatientForm = memo(
           <SecondaryDetails
             patientRegistryType={patientRegistryType}
             registeredBirthPlace={values.registeredBirthPlace}
+            isSameAddress={isSameAddress}
+            toggleIsSameAddress={toggleIsSameAddress}
           />
           {isLoading ? (
             <LoadingIndicator />
