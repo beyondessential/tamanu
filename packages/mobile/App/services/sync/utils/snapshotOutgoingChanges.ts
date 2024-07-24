@@ -44,7 +44,8 @@ export const snapshotOutgoingChanges = async (
         withDeleted: true,
       });
       const syncRecordsForModel = changesForModel.map(change => buildToSyncRecord(model, change));
-      const sanitizedSyncRecords = model.sanitizeRecordDataForPush
+      const hasSanitizeMethod = 'sanitizeRecordDataForPush' in model;
+      const sanitizedSyncRecords = hasSanitizeMethod
         ? model.sanitizeRecordDataForPush(syncRecordsForModel)
         : syncRecordsForModel;
 
