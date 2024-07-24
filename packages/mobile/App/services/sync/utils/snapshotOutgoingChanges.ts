@@ -7,7 +7,7 @@ import { MODELS_MAP } from '../../../models/modelsMap';
 import { extractIncludedColumns } from './extractIncludedColumns';
 import { Database } from '~/infra/db';
 
-const buildToSyncRecord = (model: typeof BaseModel, record: object): SyncRecord => {
+const buildToSyncRecord = (model: typeof BaseModel, record: object): Omit<SyncRecord, 'id'> => {
   const includedColumns = extractIncludedColumns(model);
   const data = pick(record, includedColumns) as SyncRecordData;
 
