@@ -140,7 +140,7 @@ export class PatientProgramRegistration extends Model {
       return null;
     }
 
-    return `WHERE (patient_id IN (SELECT patient_id FROM ${markedForSyncPatientsTable}) AND updated_at_sync_tick > :since`;
+    return `WHERE patient_id IN (SELECT patient_id FROM ${markedForSyncPatientsTable}) AND updated_at_sync_tick > :since`;
   }
 
   static buildSyncLookupFilter() {

@@ -283,6 +283,8 @@ export class Encounter extends Model {
         INNER JOIN lab_requests lr ON lr.encounter_id = e.id
         GROUP BY e.id
       ) AS encounters_with_labs ON encounters_with_labs.lab_encounter_id = encounters.id`,
+      encounterIdColumn: 'id',
+      encounterIdTable: 'encounters',
       patientIdTables: ['encounters'],
     };
   }

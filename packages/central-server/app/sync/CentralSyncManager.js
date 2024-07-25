@@ -239,10 +239,16 @@ export class CentralSyncManager {
           globalSyncSince,
           this.constructor.config,
         );
+
+        // update the last successful lookup table in the same transaction - if updating the cursor fails,
+        // we want to roll back the rest of the saves so that the next update can still detect the recods that failed
+        // to be updated last time
+        log.debug('CentralSyncManager.updateLookupTable()', {
+          lastSuccessfulLookupTableUpdate: tick,
+        });
+        await this.store.models.LocalSystemFact.set(LAST_SUCCESSFUL_LOOKUP_TABLE_UPDATE_KEY, tick);
       },
     );
-
-    await this.store.models.LocalSystemFact.set(LAST_SUCCESSFUL_LOOKUP_TABLE_UPDATE_KEY, tick);
   }
 
   async waitForPendingEdits(tick) {
@@ -263,6 +269,7 @@ export class CentralSyncManager {
     { since, facilityId, tablesToInclude, tablesForFullResync, isMobile },
     unmarkSnapshotAsProcessing,
   ) {
+    let transactionTimeout;
     try {
       const { models, sequelize } = this.store;
 
@@ -340,6 +347,13 @@ export class CentralSyncManager {
       await this.store.sequelize.transaction(
         { isolationLevel: Transaction.ISOLATION_LEVELS.REPEATABLE_READ },
         async () => {
+          const { snapshotTransactionTimeoutMs } = this.constructor.config.sync;
+          if (snapshotTransactionTimeoutMs) {
+            transactionTimeout = setTimeout(() => {
+              throw new Error(`Snapshot for session ${sessionId} timed out`);
+            }, snapshotTransactionTimeoutMs);
+          }
+
           // full changes
           await snapshotOutgoingChanges(
             this.store,
@@ -405,6 +419,7 @@ export class CentralSyncManager {
         { where: { id: sessionId } },
       );
     } finally {
+      if (transactionTimeout) clearTimeout(transactionTimeout);
       await unmarkSnapshotAsProcessing();
     }
   }

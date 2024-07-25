@@ -52,6 +52,7 @@ describe('snapshotOutgoingChanges', () => {
       );
 
       const result = await snapshotOutgoingChanges(
+        ctx.store,
         outgoingModels,
         tock - 1,
         0,
@@ -87,6 +88,7 @@ describe('snapshotOutgoingChanges', () => {
       );
 
       const result = await snapshotOutgoingChanges(
+        ctx.store,
         outgoingModels,
         tock - 1,
         0,
@@ -134,6 +136,7 @@ describe('snapshotOutgoingChanges', () => {
       );
 
       const result = await snapshotOutgoingChanges(
+        ctx.store,
         outgoingModels,
         tock - 1,
         0,
@@ -172,6 +175,7 @@ describe('snapshotOutgoingChanges', () => {
       );
 
       const result = await snapshotOutgoingChanges(
+        ctx.store,
         outgoingModels,
         firstTock - 1,
         0,
@@ -232,6 +236,7 @@ describe('snapshotOutgoingChanges', () => {
         { isolationLevel: Transaction.ISOLATION_LEVELS.REPEATABLE_READ },
         async () => {
           return snapshotOutgoingChanges(
+            ctx.store,
             {
               // the transaction needs to have a select, ANY select, so the database
               // actually takes a snapshot of the db at that point in time. THEN we
@@ -316,6 +321,7 @@ describe('snapshotOutgoingChanges', () => {
         { isolationLevel: Transaction.ISOLATION_LEVELS.REPEATABLE_READ },
         async () => {
           return snapshotOutgoingChanges(
+            ctx.store,
             {
               Facility: models.Facility,
               FakeModel: fakeModelThatWaitsUntilWeSaySo,
@@ -470,6 +476,7 @@ describe('snapshotOutgoingChanges', () => {
       );
 
       await snapshotOutgoingChanges(
+        ctx.store,
         { Encounter, LabRequest, LabTest },
         firstTock - 1,
         1,
@@ -518,6 +525,7 @@ describe('snapshotOutgoingChanges', () => {
       );
 
       await snapshotOutgoingChanges(
+        ctx.store,
         { Encounter, LabRequest, LabTest },
         secondTock - 1,
         1,
@@ -550,6 +558,7 @@ describe('snapshotOutgoingChanges', () => {
       const { firstTock, syncSession } = await setupTestData();
 
       await snapshotOutgoingChanges(
+        ctx.store,
         { Encounter, LabRequest, LabTest },
         firstTock - 1,
         0,
