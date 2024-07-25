@@ -42,6 +42,7 @@ async function generateData(models) {
     LabTestType,
     ScheduledVaccine,
     AdministeredVaccine,
+    EncounterDiagnosis,
     Invoice,
     InvoiceDiscount,
     InvoiceInsurer,
@@ -238,6 +239,12 @@ async function generateData(models) {
     }),
   );
 
+  await EncounterDiagnosis.create(
+    fake(EncounterDiagnosis, {
+      diagnosisId: referenceData.id,
+      encounterId: encounter.id,
+    }),
+  );
   const invoice = await Invoice.create(
     fake(Invoice, {
       encounterId: encounter.id,
