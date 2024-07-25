@@ -193,26 +193,17 @@ export const practitioner = [
   { verb: 'read', noun: 'Invoice' },
   { verb: 'write', noun: 'Invoice' },
   { verb: 'create', noun: 'Invoice' },
+  { verb: 'delete', noun: 'Invoice' },
 
-  { verb: 'list', noun: 'InvoiceLineItem' },
-  { verb: 'read', noun: 'InvoiceLineItem' },
-  { verb: 'write', noun: 'InvoiceLineItem' },
-  { verb: 'create', noun: 'InvoiceLineItem' },
+  { verb: 'list', noun: 'InvoiceProduct' },
+  { verb: 'read', noun: 'InvoiceProduct' },
+  { verb: 'write', noun: 'InvoiceProduct' },
+  { verb: 'create', noun: 'InvoiceProduct' },
 
-  { verb: 'list', noun: 'InvoiceLineType' },
-  { verb: 'read', noun: 'InvoiceLineType' },
-  { verb: 'write', noun: 'InvoiceLineType' },
-  { verb: 'create', noun: 'InvoiceLineType' },
-
-  { verb: 'list', noun: 'InvoicePriceChangeItem' },
-  { verb: 'read', noun: 'InvoicePriceChangeItem' },
-  { verb: 'write', noun: 'InvoicePriceChangeItem' },
-  { verb: 'create', noun: 'InvoicePriceChangeItem' },
-
-  { verb: 'list', noun: 'InvoicePriceChangeType' },
-  { verb: 'read', noun: 'InvoicePriceChangeType' },
-  { verb: 'write', noun: 'InvoicePriceChangeType' },
-  { verb: 'create', noun: 'InvoicePriceChangeType' },
+  { verb: 'list', noun: 'InvoicePayment' },
+  { verb: 'read', noun: 'InvoicePayment' },
+  { verb: 'write', noun: 'InvoicePayment' },
+  { verb: 'create', noun: 'InvoicePayment' },
 
   { verb: 'create', noun: 'CertificateNotification' },
 

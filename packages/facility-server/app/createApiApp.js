@@ -13,7 +13,13 @@ import { defineWebsocketService } from './services/websocketService';
 import { defineWebsocketClientService } from './services/websocketClientService';
 import { addFacilityMiddleware } from './addFacilityMiddleware';
 
-export async function createApiApp({ sequelize, reportSchemaStores, models, syncConnection, deviceId }) {
+export async function createApiApp({
+  sequelize,
+  reportSchemaStores,
+  models,
+  syncConnection,
+  deviceId,
+}) {
   const express = defineExpress();
   const server = createServer(express);
 
@@ -23,7 +29,7 @@ export async function createApiApp({ sequelize, reportSchemaStores, models, sync
   const websocketClientService = defineWebsocketClientService({ config, websocketService, models });
 
   const { errorMiddleware } = addFacilityMiddleware(express);
-  
+
   // Release the connection back to the pool when the server is closed
   server.on('close', () => sequelize.connectionManager.releaseConnection(pg));
 
