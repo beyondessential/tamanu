@@ -166,8 +166,8 @@ export const FormFields = ({
     }
   };
 
-    await submitScreen(() => {
   const onNavigateNext = async () => {
+    await submitScreen(async () => {
       setCurrentScreenIndex(Math.min(currentScreenIndex + 1, maxIndex));
     });
   };
