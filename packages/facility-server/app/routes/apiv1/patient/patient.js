@@ -367,7 +367,7 @@ patientRoute.get(
         LEFT JOIN (
             SELECT ed.encounter_id, jsonb_agg(json_build_object('id', rd.id, 'name', rd.name, 'code', rd.code)) diets
             FROM encounter_diets ed
-            JOIN reference_data rd ON rd.id = ed.diet_id AND rd."type" = 'icd10' AND rd.visibility_status = 'current'
+            JOIN reference_data rd ON rd.id = ed.diet_id AND rd."type" = 'diet' AND rd.visibility_status = 'current'
             GROUP BY ed.encounter_id
         ) diets ON diets.encounter_id = encounters.id
         LEFT JOIN (
