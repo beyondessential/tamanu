@@ -271,7 +271,7 @@ export class AutocompleteInput extends Component {
         <Typography variant="body2">
           {isCustomized ? (
             <>
-              "{suggestion.label}" (
+              &quot;{suggestion.label}&quot; (
               <TranslatedText
                 stringId="general.autocompleteField.itemNotInList"
                 fallback="item not in list"
