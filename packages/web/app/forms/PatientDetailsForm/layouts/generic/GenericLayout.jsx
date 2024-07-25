@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { PATIENT_REGISTRY_TYPES, SETTING_KEYS, SEX_VALUES } from '@tamanu/constants';
+import { PATIENT_REGISTRY_TYPES, SETTING_KEYS, SEX_LABELS, SEX_VALUES } from '@tamanu/constants';
 import { getCurrentDateString } from '@tamanu/shared/utils/dateTime';
 
 import {
@@ -117,6 +117,7 @@ export const GenericPrimaryDetailsLayout = ({
           name="sex"
           label={<TranslatedText stringId="general.localisedField.sex.label" fallback="Sex" />}
           component={TranslatedRadioField}
+          enumValues={SEX_LABELS}
           transformOptions={options =>
             hideOtherSex ? options.filter(o => o.value !== SEX_VALUES.OTHER) : options
           }
