@@ -29,7 +29,6 @@ export async function up(query) {
       // only apply for invoice discount, not item discount
       type: DataTypes.BOOLEAN,
       allowNull: false,
-      defaultValue: true,
     },
     created_at: {
       type: DataTypes.DATE,
