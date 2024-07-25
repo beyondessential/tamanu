@@ -23,6 +23,12 @@ import { isErrorUnknownAllow404s, useApi } from '../../api';
 import { PANE_SECTION_IDS } from './paneSections';
 import { RecordDeathSection } from '../RecordDeathSection';
 import { TranslatedText, TranslatedReferenceData } from '../Translation';
+import { useSettings } from '../../contexts/Settings';
+import { SETTING_KEYS } from '@tamanu/constants';
+
+const RedText = styled.span`
+  color: ${props => props.$highlightAllergy && 'red'};
+`;
 
 const OngoingConditionDisplay = memo(({ patient, readonly }) => (
   <InfoPaneList
@@ -52,26 +58,36 @@ const OngoingConditionDisplay = memo(({ patient, readonly }) => (
   />
 ));
 
-const AllergyDisplay = memo(({ patient, readonly }) => (
-  <InfoPaneList
-    patient={patient}
-    readonly={readonly}
-    id={PANE_SECTION_IDS.ALLERGIES}
-    title={
-      <TranslatedText stringId="patient.detailsSidebar.subheading.allergies" fallback="Allergies" />
-    }
-    endpoint="allergy"
-    getEndpoint={`patient/${patient.id}/allergies`}
-    Form={AllergyForm}
-    getName={allergy => (
-      <TranslatedReferenceData
-        fallback={allergy.allergy.name}
-        value={allergy.allergy.id}
-        category="allergy"
-      />
-    )}
-  />
-));
+const AllergyDisplay = memo(({ patient, readonly }) => {
+  const { getSetting } = useSettings();
+  const isHighlightAllergy = getSetting(SETTING_KEYS.FEATURE_HIGHLIGHT_ALLERGY);
+
+  return (
+    <InfoPaneList
+      patient={patient}
+      readonly={readonly}
+      id={PANE_SECTION_IDS.ALLERGIES}
+      title={
+        <TranslatedText
+          stringId="patient.detailsSidebar.subheading.allergies"
+          fallback="Allergies"
+        />
+      }
+      endpoint="allergy"
+      getEndpoint={`patient/${patient.id}/allergies`}
+      Form={AllergyForm}
+      getName={allergy => (
+        <RedText $highlightAllergy={isHighlightAllergy}>
+          <TranslatedReferenceData
+            fallback={allergy.allergy.name}
+            value={allergy.allergy.id}
+            category="allergy"
+          />
+        </RedText>
+      )}
+    />
+  );
+});
 
 const FamilyHistoryDisplay = memo(({ patient, readonly }) => (
   <InfoPaneList
@@ -128,7 +144,9 @@ const CarePlanDisplay = memo(({ patient, readonly }) => (
     endpoint="patientCarePlan"
     getEndpoint={`patient/${patient.id}/carePlans`}
     Form={PatientCarePlanForm}
-    getName={({ carePlan }) => <TranslatedReferenceData fallback={carePlan.name} value={carePlan.id} category="carePlan" />}
+    getName={({ carePlan }) => (
+      <TranslatedReferenceData fallback={carePlan.name} value={carePlan.id} category="carePlan" />
+    )}
     behavior="modal"
     itemTitle={<TranslatedText stringId="carePlan.modal.create.title" fallback="Add care plan" />}
     CustomEditForm={PatientCarePlanDetails}

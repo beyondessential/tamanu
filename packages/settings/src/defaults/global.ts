@@ -42,5 +42,6 @@ export const globalDefaults = {
   },
   features: {
     mandateSpecimenType: false,
+    highlightAllergy: false,
   },
 };
