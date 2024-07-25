@@ -49,7 +49,7 @@ export const PatientProgramRegistryView = () => {
   const { patientId, programRegistryId } = useParams();
   const { data, isLoading, isError } = usePatientProgramRegistration(patientId, programRegistryId);
   const {
-    data: programRegistryConditions,
+    data: programRegistryConditions = [],
     isLoading: conditionsLoading,
   } = useProgramRegistryConditionsQuery(data?.programRegistryId);
 

@@ -26,6 +26,7 @@ import { ErrorBoundary } from '../ErrorBoundary';
 import { Paginator } from './Paginator';
 import { TranslatedText } from '../Translation/TranslatedText';
 import { get } from 'lodash';
+import { useTranslation } from '../../contexts/Translation.jsx';
 
 const preventInputCallback = e => {
   e.stopPropagation();
@@ -603,6 +604,7 @@ TableComponent.defaultProps = {
 export const Table = React.forwardRef(
   ({ columns: allColumns, data, exportName, ...props }, ref) => {
     const { getLocalisation } = useLocalisation();
+    const { getTranslation } = useTranslation();
     const columns = allColumns.filter(
       ({ key }) => getLocalisation(`fields.${key}.hidden`) !== true,
     );
@@ -611,7 +613,7 @@ export const Table = React.forwardRef(
       <TableComponent
         columns={columns}
         data={data}
-        exportname={exportName}
+        exportName={getTranslation('general.table.action.export', exportName)}
         tableRef={ref}
         {...props}
       />
