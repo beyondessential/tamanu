@@ -1,4 +1,5 @@
 import React, {
+  Fragment,
   MutableRefObject,
   ReactElement,
   useCallback,
@@ -105,6 +106,14 @@ export const FormFields = ({
   const screenComponents = components
     .filter(x => x.screenIndex === currentScreenIndex)
     .sort((a, b) => a.componentIndex - b.componentIndex);
+  const visibleComponents = screenComponents.filter(shouldShow);
+
+  const emptyStateMessage = (
+    <TranslatedText
+      stringId="general.form.blankPage"
+      fallback="This page has been intentionally left blank"
+    />
+  );
 
   const submitScreen = async (handleSubmit: () => Promise<void>): Promise<void> => {
     // Validate form on screen before moving to the next one
@@ -177,44 +186,53 @@ export const FormFields = ({
   return (
     <FullView key={currentScreenIndex}>
       <FormScreenView scrollViewRef={scrollViewRef}>
-        {screenComponents.filter(shouldShow).map((component, index) => {
-          const validationCriteria = component && component.getValidationCriteriaObject();
-          const mandatory = checkMandatory(validationCriteria.mandatory, {
-            encounterType: encounter?.encounterType,
-          });
-          return (
-            <React.Fragment key={component.id}>
-              <StyledView marginTop={index === 0 ? 0 : 20} flexDirection="row" alignItems="center">
-                <SectionHeader h3>
-                  {component.text || component.dataElement.defaultText || ''}
-                </SectionHeader>
-                {mandatory && (
-                  <StyledText
-                    marginLeft={screenPercentageToDP(0.5, Orientation.Width)}
-                    fontSize={screenPercentageToDP(1.6, Orientation.Height)}
-                    color={theme.colors.ALERT}
+        {visibleComponents.length === 0
+          ? emptyStateMessage
+          : visibleComponents.map((component, index) => {
+              const validationCriteria = component?.getValidationCriteriaObject();
+              const mandatory = checkMandatory(validationCriteria.mandatory, {
+                encounterType: encounter?.encounterType,
+              });
+              return (
+                <Fragment key={component.id}>
+                  <StyledView
+                    marginTop={index === 0 ? 0 : 20}
+                    flexDirection="row"
+                    alignItems="center"
                   >
-                    *
-                  </StyledText>
-                )}
-              </StyledView>
-              {component.detail ? (
-                <StyledText marginTop={4} fontSize={screenPercentageToDP(2.2, Orientation.Height)}>
-                  {component.detail}
-                </StyledText>
-              ) : null}
-              <ErrorBoundary errorComponent={SurveyQuestionErrorView}>
-                <SurveyQuestion
-                  key={component.id}
-                  component={component}
-                  patient={patient}
-                  zIndex={components.length - index}
-                  setPosition={setQuestionPosition(component.dataElement.code)}
-                />
-              </ErrorBoundary>
-            </React.Fragment>
-          );
-        })}
+                    <SectionHeader h3>
+                      {component.text || component.dataElement.defaultText || ''}
+                    </SectionHeader>
+                    {mandatory && (
+                      <StyledText
+                        marginLeft={screenPercentageToDP(0.5, Orientation.Width)}
+                        fontSize={screenPercentageToDP(1.6, Orientation.Height)}
+                        color={theme.colors.ALERT}
+                      >
+                        *
+                      </StyledText>
+                    )}
+                  </StyledView>
+                  {component.detail ? (
+                    <StyledText
+                      marginTop={4}
+                      fontSize={screenPercentageToDP(2.2, Orientation.Height)}
+                    >
+                      {component.detail}
+                    </StyledText>
+                  ) : null}
+                  <ErrorBoundary errorComponent={SurveyQuestionErrorView}>
+                    <SurveyQuestion
+                      key={component.id}
+                      component={component}
+                      patient={patient}
+                      zIndex={components.length - index}
+                      setPosition={setQuestionPosition(component.dataElement.code)}
+                    />
+                  </ErrorBoundary>
+                </Fragment>
+              );
+            })}
         {errors?.form && (
           <StyledText fontSize={16} color={theme.colors.ALERT} marginTop={20}>
             {errors.form}
