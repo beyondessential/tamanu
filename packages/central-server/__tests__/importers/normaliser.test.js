@@ -1,4 +1,4 @@
-import { normaliseSheetName } from '../../dist/admin/importerEndpoint';
+import { normaliseSheetName } from '../../dist/admin/importer/importerEndpoint';
 
 describe('Sheet name normaliser', () => {
   it('should normalise single words', () => {
