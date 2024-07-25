@@ -13,7 +13,7 @@ function cleanupLeadingGarbage(jsonStr) {
 
 export function doWithAllPackages(fn) {
   const workspaceTree = JSON.parse(
-    cleanupLeadingGarbage(execFileSync('yarn', ['-s', 'workspaces', 'info'], { encoding: 'utf8' })),
+    cleanupLeadingGarbage(execFileSync('yarn', ['-s', 'workspaces', 'info'], { encoding: 'utf8', shell: true })),
   );
   const workspaces = new Set(Object.keys(workspaceTree));
   const processed = new Set();
