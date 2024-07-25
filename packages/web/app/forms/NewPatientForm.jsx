@@ -82,9 +82,6 @@ export const NewPatientForm = memo(
     const { getTranslation } = useTranslation();
     const { PrimaryDetails, SecondaryDetails, PatientFields } = useLayoutComponents();
 
-    const sexValues = useSexValues();
-    const sexOptions = useSexOptions();
-
     const isRequiredPatientData = fieldName =>
       getLocalisation(`fields.${fieldName}.requiredPatientData`);
 
@@ -143,7 +140,6 @@ export const NewPatientForm = memo(
         <PrimaryDetails
           registeredBirthPlace={values.registeredBirthPlace}
           isRequiredPatientData={isRequiredPatientData}
-          sexOptions={sexOptions}
           values={values}
           patientRegistryType={patientRegistryType}
         />
@@ -198,7 +194,6 @@ export const NewPatientForm = memo(
         }}
         validationSchema={getPatientDetailsValidation(
           patientRegistryType,
-          sexValues,
           getLocalisation,
           getTranslation,
         )}

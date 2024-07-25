@@ -50,7 +50,6 @@ const requiredBirthFieldWhenConfiguredMandatory = (
 
 export const getPatientDetailsValidation = (
   patientRegistryType,
-  sexValues,
   getLocalisation,
   getTranslation,
 ) => {
