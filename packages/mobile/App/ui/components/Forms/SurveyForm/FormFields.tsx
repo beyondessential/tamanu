@@ -98,6 +98,34 @@ export const FormFields = ({
     [patient.id],
   );
 
+  const shouldShow = useCallback(
+    (component: ISurveyScreenComponent) => checkVisibilityCriteria(component, components, values),
+    [values],
+  );
+
+  // Handle back button press or swipe right gesture
+  useEffect(() => {
+    const backAction = () => {
+      if (!onGoBack) {
+        return false;
+      }
+      onGoBack();
+      return true;
+    };
+
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
+
+    return () => backHandler.remove();
+  }, [currentScreenIndex]); // Re-subscribe if screen index changes, otherwise onGoBack() won't work.
+
+  if (encounterError) {
+    return <ErrorScreen error={encounterError} />;
+  }
+
+  if (isEncounterLoading) {
+    return <LoadingScreen />;
+  }
+
   const { encounter } = encounterResult || {};
   const maxIndex = components
     .map(x => x.screenIndex)
@@ -150,34 +178,6 @@ export const FormFields = ({
       resetForm();
     });
   };
-
-  const shouldShow = useCallback(
-    (component: ISurveyScreenComponent) => checkVisibilityCriteria(component, components, values),
-    [values],
-  );
-
-  // Handle back button press or swipe right gesture
-  useEffect(() => {
-    const backAction = () => {
-      if (!onGoBack) {
-        return false;
-      }
-      onGoBack();
-      return true;
-    };
-
-    const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
-
-    return () => backHandler.remove();
-  }, [currentScreenIndex]); // Re-subscribe if screen index changes, otherwise onGoBack() won't work.
-
-  if (encounterError) {
-    return <ErrorScreen error={encounterError} />;
-  }
-
-  if (isEncounterLoading) {
-    return <LoadingScreen />;
-  }
 
   // Note: we set the key on FullView so that React registers it as a whole
   // new component, rather than a component whose contents happen to have
