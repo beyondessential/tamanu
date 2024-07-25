@@ -6,7 +6,12 @@ export class Suggester {
   constructor(
     api,
     endpoint,
-    { formatter = defaultFormatter, filterer = () => true, baseQueryParameters = {}, enable = true} = {},
+    {
+      formatter = defaultFormatter,
+      filterer = () => true,
+      baseQueryParameters = {},
+      enable = true,
+    } = {},
   ) {
     this.api = api;
     this.endpoint = `suggestions/${encodeURIComponent(endpoint)}`;
@@ -20,12 +25,15 @@ export class Suggester {
     return this.api.get(`${this.endpoint}${suffix}`, queryParameters);
   }
 
-  fetchCurrentOption = async value => {
+  fetchCurrentOption = async (value, showFullData = false) => {
     if (!this.enable) return undefined;
     try {
       const data = await this.fetch(`/${encodeURIComponent(value)}`, {
         language: getCurrentLanguageCode(),
       });
+      if (showFullData) {
+        return { label: data.name, value: data.id, ...data };
+      }
       return this.formatter(data);
     } catch (e) {
       return undefined;
