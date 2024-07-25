@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { Typography } from '@material-ui/core';
 import { runCalculations } from '@tamanu/shared/utils/calculations';
 import styled from 'styled-components';
 import { checkVisibility } from '../../utils';
@@ -8,7 +9,6 @@ import { SurveyQuestion } from './SurveyQuestion';
 import { ButtonRow } from '../ButtonRow';
 import { FORM_STATUSES } from '../../constants';
 import { TranslatedText } from '../Translation';
-import { Typography } from '@material-ui/core';
 
 const EmptyStateText = styled(Typography)`
   color: ${({ theme }) => theme.palette.text.secondary};
