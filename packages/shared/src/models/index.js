@@ -37,6 +37,7 @@ export * from './Vitals';
 export * from './Procedure';
 export * from './EncounterDiagnosis';
 export * from './EncounterMedication';
+export * from './EncounterDiet';
 export * from './LabRequest';
 export * from './LabRequestAttachment';
 export * from './LabTest';
