@@ -6,8 +6,6 @@ import {
   StyledView,
   StyledSafeAreaView,
   StyledText,
-  ColumnView,
-  StyledTouchableOpacity,
   RowView,
   StyledScrollView,
 } from '/styled/common';
@@ -22,9 +20,8 @@ import { getDisplayAge } from '/helpers/date';
 import { setDotsOnMaxLength } from '/helpers/text';
 import { SyncInactiveAlert } from '~/ui/components/SyncInactiveAlert';
 import { MenuOptionButtonProps } from '~/types/MenuOptionButtonProps';
-import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 import { useLocalisation } from '~/ui/contexts/LocalisationContext';
-import { PatientSyncIcon } from '~/ui/components/Icons';
+import { PatientSyncStatus } from '~/ui/components/PatientSyncStatus';
 
 interface ScreenProps {
   navigateToSearchPatients: () => void;
@@ -115,27 +112,7 @@ export const Screen = ({
               </RowView>
             </StyledView>
           </StyledView>
-          <StyledView flex={1}>
-            <StyledTouchableOpacity
-              onPress={markPatientForSync}
-              marginLeft={'auto'}
-              marginRight={screenPercentageToDP(3.65, Orientation.Width)}
-            >
-              <ColumnView alignItems="center">
-                <PatientSyncIcon
-                  size={screenPercentageToDP(4.86, Orientation.Height)}
-                  fill="white"
-                />
-                <StyledText
-                  fontSize={10}
-                  color="white"
-                  marginTop={screenPercentageToDP(-0.6, Orientation.Height)}
-                >
-                  <TranslatedText stringId="general.action.syncData" fallback="Sync Data" />
-                </StyledText>
-              </ColumnView>
-            </StyledTouchableOpacity>
-          </StyledView>
+          <PatientSyncStatus markPatientForSync={markPatientForSync} />
         </StyledView>
         <StyledScrollView flex={1} background={theme.colors.BACKGROUND_GREY}>
           <PatientMenuButtons list={patientMenuButtons} />
