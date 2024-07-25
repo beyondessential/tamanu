@@ -10,6 +10,7 @@ import { foreignKey } from '../utils/validation';
 import { FORM_TYPES } from '../constants';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useTranslation } from '../contexts/Translation';
+import { useAuth } from '../contexts/Auth';
 
 export const AllergyForm = ({
   onSubmit,
@@ -18,6 +19,9 @@ export const AllergyForm = ({
   practitionerSuggester,
   allergySuggester,
 }) => {
+  const { ability } = useAuth();
+  const canCreateReferenceData = ability.can('create', 'ReferenceData');
+
   const { getTranslation } = useTranslation();
   return (
     <Form
@@ -32,6 +36,7 @@ export const AllergyForm = ({
             component={AutocompleteField}
             suggester={allergySuggester}
             required
+            allowCreatingCustomValue={canCreateReferenceData}
           />
           <Field
             name="reactionId"

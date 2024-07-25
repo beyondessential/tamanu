@@ -25,15 +25,12 @@ export class Suggester {
     return this.api.get(`${this.endpoint}${suffix}`, queryParameters);
   }
 
-  fetchCurrentOption = async (value, showFullData = false) => {
+  fetchCurrentOption = async value => {
     if (!this.enable) return undefined;
     try {
       const data = await this.fetch(`/${encodeURIComponent(value)}`, {
         language: getCurrentLanguageCode(),
       });
-      if (showFullData) {
-        return { label: data.name, value: data.id, ...data };
-      }
       return this.formatter(data);
     } catch (e) {
       return undefined;
@@ -52,5 +49,11 @@ export class Suggester {
     } catch (e) {
       return [];
     }
+  };
+
+  createSuggestion = async body => {
+    if (!this.enable) throw new Error('Suggester is disabled');
+    const data = await this.api.post(`${this.endpoint}/create`, body);
+    return this.formatter(data);
   };
 }
