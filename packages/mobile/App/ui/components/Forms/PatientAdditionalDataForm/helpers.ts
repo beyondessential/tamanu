@@ -15,6 +15,14 @@ import { CustomPatientFieldValues } from '~/ui/hooks/usePatientAdditionalData';
 import { PatientAdditionalData } from '~/models/PatientAdditionalData';
 import { PatientFieldDefinition } from '~/models/PatientFieldDefinition';
 import { isObject } from 'lodash';
+import { CAMBODIA_CUSTOM_FIELDS } from '~/ui/navigation/screens/home/PatientDetails/layouts/cambodia/fields';
+
+const {
+  FATHERS_FIRST_NAME,
+  ID_POOR_CARD_NUMBER,
+  NATIONAL_ID,
+  PMRS_NUMBER,
+} = CAMBODIA_CUSTOM_FIELDS;
 
 // All PatientAdditionalData plain fields sorted alphabetically
 export const plainFields = [
@@ -25,9 +33,12 @@ export const plainFields = [
   'placeOfBirth',
   'primaryContactNumber',
   'secondaryContactNumber',
-  'streetVillage',
   'emergencyContactName',
   'emergencyContactNumber',
+  FATHERS_FIRST_NAME,
+  ID_POOR_CARD_NUMBER,
+  NATIONAL_ID,
+  PMRS_NUMBER,
 ];
 
 // All PatientAdditionalData select fields sorted alphabetically

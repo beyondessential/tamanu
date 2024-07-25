@@ -133,14 +133,35 @@ const FormComponent = ({ selectedPatient, setSelectedPatient, isEdit, children }
   const onCreateNewPatient = useCallback(
     async (values, { resetForm }) => {
       // submit form to server for new patient
-      const { dateOfBirth, ...otherValues } = values;
+      let submittedValues = values;
+      const {
+        villageId,
+        divisionId,
+        subdivisionId,
+        settlementId,
+        streetVillage,
+        dateOfBirth,
+        sameAddress
+      } = submittedValues;
+
+      if (sameAddress) {
+        submittedValues = {
+          ...submittedValues,
+          secondaryVillageId: villageId,
+          secondaryDivisionId: divisionId,
+          secondarySubdivisionId: subdivisionId,
+          secondarySettlementId: settlementId,
+          'fieldDefinition-secondaryAddressStreet': streetVillage,
+        };
+      }
+
       const newPatient = await Patient.createAndSaveOne<Patient>({
-        ...otherValues,
+        ...submittedValues,
         dateOfBirth: formatISO9075(dateOfBirth),
         displayId: generateId(),
       });
 
-      await createOrUpdateOtherPatientData(values, newPatient.id);
+      await createOrUpdateOtherPatientData(submittedValues, newPatient.id);
       await Patient.markForSync(newPatient.id);
 
       // Reload instance to get the complete village fields

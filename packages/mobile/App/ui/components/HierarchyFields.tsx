@@ -5,15 +5,6 @@ import { get } from 'lodash';
 import { StyledView } from '/styled/common';
 import { useBackendEffect } from '~/ui/hooks';
 import { ReferenceDataType, ReferenceDataRelationType } from '~/types';
-import { theme } from '../styled/theme';
-import styled from 'styled-components';
-
-const HierarchyFieldContainer = styled(StyledView)`
-  padding: 10px 8px 0 10px;
-  border: 1px solid ${theme.colors.BOX_OUTLINE};
-  border-radius: 3px;
-  margin-bottom: 10px;
-`;
 
 interface LocationHierarchyField {
   name: string;
@@ -55,7 +46,7 @@ export const HierarchyFields = ({
   const hierarchyFields = useAddressHierarchy(fields, leafNodeType);
 
   return (
-    <HierarchyFieldContainer>
+    <StyledView>
       {hierarchyFields.map(({ label, name, referenceType }, index) => {
         const parentFieldData = hierarchyFields[index - 1];
         const parentId = get(values, parentFieldData?.name);
@@ -72,6 +63,6 @@ export const HierarchyFields = ({
           />
         );
       })}
-    </HierarchyFieldContainer>
+    </StyledView>
   );
 };

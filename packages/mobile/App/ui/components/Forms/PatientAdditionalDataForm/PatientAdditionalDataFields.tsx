@@ -1,5 +1,6 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
+import styled from 'styled-components';
 import { StyledText, StyledView } from '/styled/common';
 import { TextField } from '../../TextField/TextField';
 import { Dropdown } from '~/ui/components/Dropdown';
@@ -24,6 +25,7 @@ import { HierarchyFields } from '../../HierarchyFields';
 import { labels } from '~/ui/navigation/screens/home/PatientDetails/layouts/generic/labels';
 import { PatientFieldDefinition } from '~/models/PatientFieldDefinition';
 import {
+  CAMBODIA_CUSTOM_FIELDS,
   CAMBODIA_LOCATION_HIERARCHY_FIELDS,
   CAMBODIA_LOCATION_HIERARCHY_FIELD_IDS,
   SECONDARY_LOCATION_HIERARCHY_FIELDS,
@@ -31,6 +33,14 @@ import {
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { theme } from '/styled/theme';
 import { TranslatedText } from '/components/Translations/TranslatedText';
+import { Checkbox } from '../../Checkbox';
+
+const HierarchyFieldContainer = styled(StyledView)`
+  padding: 10px 8px 0 10px;
+  border: 1px solid ${theme.colors.BOX_OUTLINE};
+  border-radius: 3px;
+  margin-bottom: 10px;
+`;
 
 const PlainField = ({ fieldName, required }): ReactElement => (
   // Outter styled view to momentarily add distance between fields
@@ -107,7 +117,14 @@ const getCustomFieldComponent = (
   );
 };
 
-const HierarchyField = ({ fieldName, isEdit }): ReactElement => {
+const HierarchyField = ({
+  fieldName,
+  isEdit,
+  isRequired,
+  sameAddress,
+  toggleSameAddress,
+}): ReactElement => {
+  const secondary = fieldName.toLowerCase().includes('secondary');
   const fields = {
     [CAMBODIA_LOCATION_HIERARCHY_FIELD_IDS.VILLAGE_ID]: CAMBODIA_LOCATION_HIERARCHY_FIELDS,
     [CAMBODIA_LOCATION_HIERARCHY_FIELD_IDS.SECONDARY_VILLAGE_ID]: SECONDARY_LOCATION_HIERARCHY_FIELDS,
@@ -119,14 +136,19 @@ const HierarchyField = ({ fieldName, isEdit }): ReactElement => {
   };
 
   const fallback = {
-    [CAMBODIA_LOCATION_HIERARCHY_FIELD_IDS.VILLAGE_ID]: 'Current address',
+    [CAMBODIA_LOCATION_HIERARCHY_FIELD_IDS.VILLAGE_ID]: 'Current address 331',
     [CAMBODIA_LOCATION_HIERARCHY_FIELD_IDS.SECONDARY_VILLAGE_ID]: 'Permanent address',
   };
+
+  const streetFieldName = secondary
+    ? CAMBODIA_CUSTOM_FIELDS.SECONDARY_STREET_ADDRESS
+    : 'streetVillage';
 
   if (isEdit) {
     return <HierarchyFields fields={fields[fieldName]} />;
   }
 
+  if (sameAddress && secondary) return null;
   return (
     <StyledView>
       <StyledText
@@ -137,7 +159,24 @@ const HierarchyField = ({ fieldName, isEdit }): ReactElement => {
       >
         <TranslatedText stringId={stringId[fieldName]} fallback={fallback[fieldName]} />
       </StyledText>
-      <HierarchyFields fields={fields[fieldName]} />
+      <HierarchyFieldContainer>
+        <HierarchyFields fields={fields[fieldName]} />
+        <PlainField fieldName={streetFieldName} key={streetFieldName} required={isRequired} />
+        {!secondary && (
+          <Field
+            component={Checkbox}
+            name="sameAddress"
+            text={
+              <TranslatedText
+                stringId="cambodiaPatientDetails.checkbox.sameAddress.label"
+                fallback="Same as permanent address"
+              />
+            }
+            value={sameAddress}
+            onChange={toggleSameAddress}
+          />
+        )}
+      </HierarchyFieldContainer>
     </StyledView>
   );
 };
@@ -185,6 +224,10 @@ export const PatientAdditionalDataFields = ({
       select: ['id'],
     }),
   );
+
+  const [sameAddress, setSameAddress] = useState(true);
+  const toggleSameAddress = () => setSameAddress(!sameAddress);
+
   const customFieldIds = customFieldDefinitions?.map(({ id }) => id);
 
   const padFields = isHardCodedLayout
@@ -197,8 +240,21 @@ export const PatientAdditionalDataFields = ({
   if (loading) return [];
 
   return padFields.map((field: string) => {
+    //exceptional fields that are handled separatively
+    if (['streetVillage', CAMBODIA_CUSTOM_FIELDS.SECONDARY_STREET_ADDRESS].includes(field)) {
+      return null;
+    }
     const Component = getComponentForField(field, customFieldIds);
     const isRequired = getLocalisation(`fields.${field}.requiredPatientData`);
-    return <Component fieldName={field} key={field} required={isRequired} isEdit={isEdit} />;
+    return (
+      <Component
+        fieldName={field}
+        key={field}
+        required={isRequired}
+        isEdit={isEdit}
+        sameAddress={sameAddress}
+        toggleSameAddress={toggleSameAddress}
+      />
+    );
   });
 };

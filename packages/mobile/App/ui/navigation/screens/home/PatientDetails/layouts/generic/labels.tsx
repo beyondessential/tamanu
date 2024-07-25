@@ -119,7 +119,7 @@ export const labels = {
   [ADDITIONAL_DATA_FIELDS.STREET_VILLAGE]: (
     <TranslatedText
       stringId="general.localisedField.streetVillage.label"
-      fallback="Residential landmark"
+      fallback="Street"
     />
   ),
   [ADDITIONAL_DATA_FIELDS.CITY_TOWN]: (
@@ -172,5 +172,11 @@ export const labels = {
   ),
   secondaryVillageId: (
     <TranslatedText stringId="general.localisedField.villageId.label" fallback="Village" />
+  ),
+  [CAMBODIA_CUSTOM_FIELDS.SECONDARY_STREET_ADDRESS]: (
+    <TranslatedText
+      stringId="general.localisedField.streetVillage.label"
+      fallback="Street"
+    />
   ),
 };
