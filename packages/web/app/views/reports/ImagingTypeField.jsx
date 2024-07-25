@@ -1,10 +1,9 @@
 import React from 'react';
 
-import { Field } from '../../components';
+import { Field, TranslatedSelectField } from '../../components';
 import { useLocalisation } from '../../contexts/Localisation';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
 import { IMAGING_TYPES } from '@tamanu/constants';
-import { TranslatedSelectField } from '../../components/Translation/TranslatedSelect';
 
 export const ImagingTypeField = ({ name = 'imagingType', label, required }) => {
   const { getLocalisation } = useLocalisation();

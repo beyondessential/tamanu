@@ -11,10 +11,9 @@ import { FORM_TYPES } from '../constants';
 
 import { FormSubmitCancelRow } from '../components/ButtonRow';
 import { FormGrid } from '../components/FormGrid';
-import { AutocompleteField, CheckField, DateField, Field, Form } from '../components/Field';
+import { AutocompleteField, CheckField, DateField, Field, Form, TranslatedSelectField } from '../components/Field';
 import { useSuggester } from '../api';
 import { TranslatedText } from '../components/Translation/TranslatedText';
-import { TranslatedSelectField } from '../components/Translation/TranslatedSelect';
 
 const TRIAGE_ONLY = [DIAGNOSIS_CERTAINTY.EMERGENCY];
 const EDIT_ONLY = [DIAGNOSIS_CERTAINTY.DISPROVEN, DIAGNOSIS_CERTAINTY.ERROR];

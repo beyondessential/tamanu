@@ -33,6 +33,7 @@ import {
   Form,
   TextField,
   TextInput,
+  TranslatedSelectField,
 } from '../../../components/Field';
 import { SimpleTopBar } from '../../../components';
 
@@ -40,7 +41,6 @@ import { CancelModalButton } from './CancelModalButton';
 import { PrintModalButton } from './PrintModalButton';
 import { getReferenceDataStringId, TranslatedText } from '../../../components/Translation';
 import { useTranslation } from '../../../contexts/Translation';
-import { TranslatedSelectField } from '../../../components/Translation/TranslatedSelect';
 
 const ImagingRequestSection = ({ currentStatus, imagingRequest }) => {
   const { getLocalisation } = useLocalisation();

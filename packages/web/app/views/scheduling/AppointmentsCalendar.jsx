@@ -11,7 +11,7 @@ import { TwoColumnDisplay } from '../../components/TwoColumnDisplay';
 import { DailySchedule } from '../../components/Appointments/DailySchedule';
 import { NewAppointmentButton } from '../../components/Appointments/NewAppointmentButton';
 import { Button } from '../../components/Button';
-import { AutocompleteInput } from '../../components/Field';
+import { AutocompleteInput, TranslatedMultiSelectField } from '../../components/Field';
 import { Suggester } from '../../utils/suggester';
 import { Colors } from '../../constants';
 import { useApi, useSuggester } from '../../api';
@@ -19,7 +19,6 @@ import { TranslatedText } from '../../components/Translation/TranslatedText';
 import { useAuth } from '../../contexts/Auth';
 import { ErrorMessage } from '../../components/ErrorMessage';
 import { APPOINTMENT_TYPES } from '@tamanu/constants';
-import { TranslatedMultiSelectField } from '../../components/Translation/TranslatedSelect';
 
 const LeftContainer = styled.div`
   min-height: 100%;

@@ -16,13 +16,13 @@ import {
   SelectField,
   TextField,
   BaseSelectField,
+  TranslatedSelectField,
 } from './Field';
 import { FormSubmitCancelRow } from './ButtonRow';
 import { useSuggester } from '../api';
 import { useAuth } from '../contexts/Auth';
 import { Colors } from '../constants';
 import { TranslatedText } from './Translation/TranslatedText';
-import { TranslatedSelectField } from './Translation/TranslatedSelect';
 
 export const FullWidthCol = styled.div`
   grid-column: 1/-1;

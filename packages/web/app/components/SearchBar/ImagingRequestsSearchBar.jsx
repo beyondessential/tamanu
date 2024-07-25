@@ -14,6 +14,7 @@ import {
   LocalisedField,
   SearchField,
   SelectField,
+  TranslatedSelectField,
 } from '../Field';
 import { CustomisableSearchBarWithPermissionCheck } from './CustomisableSearchBar';
 import { useLocalisation } from '../../contexts/Localisation';
@@ -21,7 +22,6 @@ import { useSuggester } from '../../api';
 import { useImagingRequests } from '../../contexts/ImagingRequests';
 import { useAdvancedFields } from './useAdvancedFields';
 import { TranslatedText } from '../Translation/TranslatedText';
-import { TranslatedSelectField } from '../Translation/TranslatedSelect';
 
 const FacilityCheckbox = styled.div`
   display: flex;

@@ -19,6 +19,7 @@ import {
   RadioField,
   TextField,
   TimeWithUnitField,
+  TranslatedSelectField,
 } from '../components';
 import { useAuth } from '../contexts/Auth';
 import { DeathFormScreen } from './DeathFormScreen';
@@ -26,7 +27,6 @@ import { SummaryScreenThree, SummaryScreenTwo } from './DeathFormSummaryScreens'
 import { BINARY_OPTIONS, BINARY_UNKNOWN_OPTIONS, FORM_TYPES } from '../constants';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useTranslation } from '../contexts/Translation';
-import { TranslatedSelectField } from '../components/Translation/TranslatedSelect';
 
 const StyledFormGrid = styled(FormGrid)`
   min-height: 200px;

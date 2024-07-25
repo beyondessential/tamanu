@@ -208,3 +208,5 @@ export const RadioField = ({ field, error, ...props }) => (
     {...props}
   />
 );
+
+export const TranslatedRadioField = ({ field, error, ...props }) => (

@@ -14,7 +14,15 @@ import {
   REPORT_STATUSES_VALUES,
   REPORT_STATUS_LABELS,
 } from '@tamanu/constants/reports';
-import { Button, ButtonRow, Field, Form, TextField } from '../../../components';
+import {
+  Button,
+  ButtonRow,
+  Field,
+  Form,
+  TextField,
+  TranslatedMultiSelectField,
+  TranslatedSelectField,
+} from '../../../components';
 import { ParameterItem, ParameterList, SQLQueryEditor } from './components/editing';
 import {
   FIELD_TYPES_WITH_PREDEFINED_OPTIONS,
@@ -25,10 +33,6 @@ import { useApi } from '../../../api';
 import { FORM_TYPES } from '../../../constants';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { useTranslation } from '../../../contexts/Translation';
-import {
-  TranslatedMultiSelectField,
-  TranslatedSelectField,
-} from '../../../components/Translation/TranslatedSelect';
 
 const StyledField = styled(Field)`
   flex-grow: 1;

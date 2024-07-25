@@ -12,6 +12,7 @@ import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 import { StyledTextField } from './TextField';
 import { FormFieldTag } from '../Tag';
 import { useTranslation } from '../../contexts/Translation';
+import { TranslatedEnumField } from '../Translation/TranslatedEnumIInput';
 
 const StyledFormControl = styled(FormControl)`
   display: flex;
@@ -237,6 +238,10 @@ export const BaseSelectField = ({ field, ...props }) => (
 export const SelectField = ({ field, value, name, ...props }) => (
   <SelectInput value={field ? field.value : value} name={field ? field.name : name} {...props} />
 );
+
+export const TranslatedSelectField = props => {
+  return <TranslatedEnumField {...props} component={SelectInput} />;
+};
 
 SelectField.propTypes = {
   options: PropTypes.object.isRequired,

@@ -19,6 +19,7 @@ import {
   PaginatedForm,
   StyledTextField,
   TextField,
+  TranslatedSelectField,
   useLocalisedSchema,
 } from '../components/Field';
 import { OuterLabelFieldWrapper } from '../components/Field/OuterLabelFieldWrapper';
@@ -32,7 +33,6 @@ import { DiagnosisList } from '../components/DiagnosisList';
 import { useEncounter } from '../contexts/Encounter';
 import { MODAL_PADDING_LEFT_AND_RIGHT, MODAL_PADDING_TOP_AND_BOTTOM } from '../components';
 import { TranslatedText, TranslatedReferenceData } from '../components/Translation';
-import { TranslatedSelectField } from '../components/Translation/TranslatedSelect';
 
 const Divider = styled(BaseDivider)`
   margin: 30px -${MODAL_PADDING_LEFT_AND_RIGHT}px;

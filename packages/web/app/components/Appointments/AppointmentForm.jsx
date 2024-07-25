@@ -2,13 +2,12 @@ import React, { useCallback } from 'react';
 import * as yup from 'yup';
 import { APPOINTMENT_STATUSES, APPOINTMENT_TYPES } from '@tamanu/constants';
 import { FormGrid } from '../FormGrid';
-import { AutocompleteField, DateTimeField, Field, Form } from '../Field';
+import { AutocompleteField, DateTimeField, Field, Form, TranslatedSelectField } from '../Field';
 import { FormSubmitCancelRow } from '../ButtonRow';
 import { FormSeparatorLine } from '../FormSeparatorLine';
 import { useApi, usePatientSuggester, useSuggester } from '../../api';
 import { FORM_TYPES } from '../../constants';
 import { TranslatedText } from '../Translation/TranslatedText';
-import { TranslatedSelectField } from '../Translation/TranslatedSelect';
 
 export const AppointmentForm = props => {
   const { onSuccess = () => {}, onCancel, appointment } = props;

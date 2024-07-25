@@ -20,6 +20,7 @@ import {
   getDateDisplay,
   NumberField,
   TextField,
+  TranslatedSelectField,
 } from '../components';
 import { FORM_TYPES, MAX_AGE_TO_RECORD_WEIGHT } from '../constants';
 import { TranslatedText } from '../components/Translation/TranslatedText';
@@ -30,7 +31,6 @@ import { useQuery } from '@tanstack/react-query';
 import { useApi } from '../api';
 import { useSelector } from 'react-redux';
 import { getReferenceDataStringId } from '../components/Translation/index.js';
-import { TranslatedSelectField } from '../components/Translation/TranslatedSelect.jsx';
 
 const validationSchema = readOnly =>
   !readOnly

@@ -9,13 +9,13 @@ import {
   LocalisedField,
   SearchField,
   SuggesterSelectField,
+  TranslatedSelectField,
 } from '../Field';
 import { CustomisableSearchBarWithPermissionCheck } from './CustomisableSearchBar';
 import { LabRequestSearchParamKeys, useLabRequest } from '../../contexts/LabRequest';
 import { useSuggester } from '../../api';
 import { useAdvancedFields } from './useAdvancedFields';
 import { TranslatedText } from '../Translation/TranslatedText';
-import { TranslatedSelectField } from '../Translation/TranslatedSelect';
 
 const BASE_ADVANCED_FIELDS = ['locationGroupId', 'departmentId', 'allFacilities'];
 const PUBLISHED_ADVANCED_FIELDS = [...BASE_ADVANCED_FIELDS, 'publishedDate'];

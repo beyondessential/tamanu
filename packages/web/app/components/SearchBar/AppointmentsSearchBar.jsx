@@ -1,11 +1,17 @@
 import React from 'react';
 import { startOfDay } from 'date-fns';
 import { CustomisableSearchBarWithPermissionCheck } from './CustomisableSearchBar';
-import { AutocompleteField, DateTimeField, Field, LocalisedField, SearchField } from '../Field';
+import {
+  AutocompleteField,
+  DateTimeField,
+  Field,
+  LocalisedField,
+  SearchField,
+  TranslatedSelectField,
+} from '../Field';
 import { TranslatedText } from '../Translation/TranslatedText';
 import { useSuggester } from '../../api';
 import { APPOINTMENT_STATUSES, APPOINTMENT_TYPES } from '@tamanu/constants';
-import { TranslatedSelectField } from '../Translation/TranslatedSelect';
 
 export const AppointmentsSearchBar = ({ onSearch }) => {
   const practitionerSuggester = useSuggester('practitioner');

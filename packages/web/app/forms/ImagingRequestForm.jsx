@@ -21,6 +21,7 @@ import {
   MultiselectField,
   TextField,
   TextInput,
+  TranslatedSelectField,
 } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
 import { FormCancelButton } from '../components/Button';
@@ -29,7 +30,6 @@ import { FormSubmitDropdownButton } from '../components/DropdownButton';
 import { TranslatedReferenceData, TranslatedText } from '../components/Translation';
 import { useTranslation } from '../contexts/Translation';
 import { IMAGING_TYPES } from '@tamanu/constants';
-import { TranslatedSelectField } from '../components/Translation/TranslatedSelect';
 import { renderToText } from '../utils';
 import { camelCase } from 'lodash';
 

@@ -7,11 +7,16 @@ import {
   PLACE_OF_BIRTH_OPTIONS,
   PLACE_OF_BIRTH_TYPES,
 } from '@tamanu/constants';
-import { AutocompleteField, SelectField, TextField, TimeField } from '../../../../../components';
+import {
+  AutocompleteField,
+  SelectField,
+  TextField,
+  TimeField,
+  TranslatedSelectField,
+} from '../../../../../components';
 import { ConfiguredMandatoryPatientFields } from '../../../ConfiguredMandatoryPatientFields';
 import { useSuggester } from '../../../../../api';
 import { TranslatedText } from '../../../../../components/Translation/TranslatedText';
-import { TranslatedSelectField } from '../../../../../components/Translation/TranslatedSelect';
 
 export const GenericBirthFields = ({ filterByMandatory, registeredBirthPlace }) => {
   const facilitySuggester = useSuggester('facility');
