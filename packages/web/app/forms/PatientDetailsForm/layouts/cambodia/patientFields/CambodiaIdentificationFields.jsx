@@ -1,15 +1,21 @@
 import React from 'react';
-import { TextField } from '../../../../../components';
+import { AutocompleteField, TextField } from '../../../../../components';
 import { ConfiguredMandatoryPatientFields } from '../../../ConfiguredMandatoryPatientFields';
 import { PatientField } from '../../../PatientFields';
 import { PATIENT_FIELD_DEFINITION_TYPES } from '@tamanu/constants';
 import { TranslatedText } from '../../../../../components/Translation/TranslatedText';
+import { useLocalisation } from '../../../../../contexts/Localisation';
+import { useSuggester } from '../../../../../api';
 
 const NATIONAL_ID_DEFINITION_ID = 'fieldDefinition-nationalId';
 const ID_POOR_CARD_NUMBER_DEFINITION_ID = 'fieldDefinition-idPoorCardNumber';
 const PMRS_NUMBER_DEFINITION_ID = 'fieldDefinition-pmrsNumber';
 
 export const CambodiaIdentificationFields = ({ filterByMandatory }) => {
+  const { getLocalisation } = useLocalisation();
+  const insurerSuggester = useSuggester('insurer');
+  const enablePatientInsurer = getLocalisation('features.enablePatientInsurer');
+
   const IDENTIFICATION_FIELDS = {
     birthCertificate: {
       component: TextField,
@@ -28,6 +34,22 @@ export const CambodiaIdentificationFields = ({ filterByMandatory }) => {
           fallback="Passport number"
         />
       ),
+    },
+    insurerId: {
+      component: AutocompleteField,
+      suggester: insurerSuggester,
+      label: <TranslatedText stringId="general.localisedField.insurer.label" fallback="Insurer" />,
+      condition: () => !!enablePatientInsurer,
+    },
+    insurerPolicyNumber: {
+      component: TextField,
+      label: (
+        <TranslatedText
+          stringId="general.localisedField.insurerPolicyNumber.label"
+          fallback="Insurance policy number"
+        />
+      ),
+      condition: () => !!enablePatientInsurer,
     },
   };
 

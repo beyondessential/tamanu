@@ -21,3 +21,4 @@ export * from './getLabTestsFromLabRequests';
 export { renameObjectKeys, deepRenameObjectKeys } from './renameObjectKeys';
 export * from './objectToCamelCase';
 export * from './numeralTranslation';
+export * from './invoice';
