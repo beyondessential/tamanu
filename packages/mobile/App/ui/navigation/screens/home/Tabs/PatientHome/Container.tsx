@@ -15,7 +15,6 @@ import { theme } from '/styled/theme';
 import { withPatient } from '/containers/Patient';
 import { useBackend } from '~/ui/hooks';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
-import { Patient } from '../../../../../../models/Patient';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 import { useAuth } from '~/ui/contexts/AuthContext';
 import { PatientFromRoute } from '~/ui/helpers/constants';
@@ -177,16 +176,7 @@ const PatientHomeContainer = ({
     }
   }, [from, navigation, setSelectedPatient]);
 
-  const { models, syncManager } = useBackend();
-  const onSyncPatient = useCallback(async (): Promise<void> => {
-    try {
-      await Patient.markForSync(selectedPatient.id);
-      syncManager.triggerUrgentSync();
-      navigation.navigate(Routes.HomeStack.HomeTabs.SyncData);
-    } catch (error) {
-      setErrorMessage(error.message);
-    }
-  }, [navigation, syncManager, selectedPatient]);
+  const { models } = useBackend();
 
   const [patientIssues, setPatientIssues] = useState(null);
   useFocusEffect(
@@ -231,7 +221,6 @@ const PatientHomeContainer = ({
       navigateToSearchPatients={onNavigateToSearchPatients}
       visitTypeButtons={patientModules}
       patientMenuButtons={patientMenuButtons}
-      markPatientForSync={onSyncPatient}
     />
   );
 };

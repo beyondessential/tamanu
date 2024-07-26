@@ -27,7 +27,6 @@ interface ScreenProps {
   navigateToSearchPatients: () => void;
   visitTypeButtons: MenuOptionButtonProps[];
   patientMenuButtons: MenuOptionButtonProps[];
-  markPatientForSync: () => void;
   selectedPatient: IPatient;
 }
 
@@ -36,7 +35,6 @@ export const Screen = ({
   patientMenuButtons,
   navigateToSearchPatients,
   selectedPatient,
-  markPatientForSync,
 }: ScreenProps): ReactElement => {
   const { getLocalisation } = useLocalisation();
   const ageDisplayFormat = getLocalisation('ageDisplayFormat');
@@ -112,7 +110,7 @@ export const Screen = ({
               </RowView>
             </StyledView>
           </StyledView>
-          <PatientSyncStatus markPatientForSync={markPatientForSync} />
+          <PatientSyncStatus selectedPatient={selectedPatient} />
         </StyledView>
         <StyledScrollView flex={1} background={theme.colors.BACKGROUND_GREY}>
           <PatientMenuButtons list={patientMenuButtons} />
