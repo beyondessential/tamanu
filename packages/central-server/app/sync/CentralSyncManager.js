@@ -231,6 +231,7 @@ export class CentralSyncManager {
     const globalSyncSince =
       (await this.store.models.LocalSystemFact.get(LAST_SUCCESSFUL_LOOKUP_TABLE_UPDATE_KEY)) || -1;
 
+    console.log('globalSyncSinceee', globalSyncSince);
     await this.store.sequelize.transaction(
       { isolationLevel: Transaction.ISOLATION_LEVELS.REPEATABLE_READ },
       async () => {

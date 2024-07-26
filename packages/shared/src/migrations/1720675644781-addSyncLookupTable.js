@@ -47,6 +47,7 @@ export async function up(query) {
     },
     updated_at_by_field_sum: {
       type: DataTypes.BIGINT,
+      allowNull: true,
     }
   });
 }

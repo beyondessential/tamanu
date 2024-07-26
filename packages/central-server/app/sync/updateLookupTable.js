@@ -136,6 +136,8 @@ export const updateLookupTable = withConfig(async (outgoingModels, since, config
 
   let changesCount = 0;
 
+  console.log('updateLookupTable is being run')
+
   for (const model of Object.values(outgoingModels)) {
     try {
       const modelChangesCount = await updateLookupTableForModel(
