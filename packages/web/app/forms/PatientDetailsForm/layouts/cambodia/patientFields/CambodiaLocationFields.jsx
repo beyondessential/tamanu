@@ -1,7 +1,13 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
-import { AutocompleteField, CheckControl, TextField } from '../../../../../components';
+import {
+  AutocompleteField,
+  CheckControl,
+  CheckField,
+  Field,
+  TextField,
+} from '../../../../../components';
 import { ConfiguredMandatoryPatientFields } from '../../../ConfiguredMandatoryPatientFields';
 import { TranslatedText } from '../../../../../components/Translation/TranslatedText';
 import { LinkedField } from '../../../../../components/Field/LinkedField';
@@ -52,6 +58,7 @@ export const CambodiaLocationFields = ({
   secondary,
   isSameAddress,
   toggleIsSameAddress,
+  isEdit,
 }) => {
   const LOCATION_FIELDS = {
     streetVillage: {
@@ -126,13 +133,13 @@ export const CambodiaLocationFields = ({
         />
       )}
       <div />
-      {!secondary && (
+      {!secondary && !isEdit && (
         <Box display="flex" alignItems="center">
-          <StyledCheckbox
-            color="primary"
-            name="isCurrentAddressSameAsPermanentAddress"
+          <Field
+            name="isSameAddress"
+            component={CheckField}
             value={isSameAddress}
-            onChange={e => toggleIsSameAddress(!isSameAddress)}
+            onChange={toggleIsSameAddress}
           />
           <TranslatedText
             stringId="cambodiaPatientDetails.checkbox.sameAddress.label"

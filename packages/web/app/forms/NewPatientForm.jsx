@@ -76,8 +76,6 @@ export const NewPatientForm = memo(
     onSubmit,
     onCancel,
     generateId,
-    isSameAddress,
-    toggleIsSameAddress,
   }) => {
     const [isExpanded, setExpanded] = useState(false);
     const [patientRegistryType, setPatientRegistryType] = useState(
@@ -184,8 +182,6 @@ export const NewPatientForm = memo(
           <SecondaryDetails
             patientRegistryType={patientRegistryType}
             registeredBirthPlace={values.registeredBirthPlace}
-            isSameAddress={isSameAddress}
-            toggleIsSameAddress={toggleIsSameAddress}
           />
           {isLoading ? (
             <LoadingIndicator />

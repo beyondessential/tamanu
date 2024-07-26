@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import {
   PATIENT_FIELD_DEFINITION_TYPES,
@@ -123,9 +123,10 @@ export const CambodiaSecondaryDetailsLayout = ({
   values = {},
   patientRegistryType,
   className,
-  isSameAddress,
-  toggleIsSameAddress,
+  isEdit,
 }) => {
+  const [isSameAddress, setIsSameAddress] = useState(true);
+  const toggleIsSameAddress = () => setIsSameAddress(!isSameAddress);
   return (
     <div className={className}>
       <SecondaryDetailsGroup>
@@ -152,9 +153,10 @@ export const CambodiaSecondaryDetailsLayout = ({
           <CambodiaLocationFields
             isSameAddress={isSameAddress}
             toggleIsSameAddress={toggleIsSameAddress}
+            isEdit={isEdit}
           />
         </BorderFormGrid>
-        {!isSameAddress && (
+        {(!isSameAddress || isEdit) && (
           <PatientDetailsHeading>
             <TranslatedText
               stringId="patient.detail.subheading.permanentAddress"
@@ -162,7 +164,7 @@ export const CambodiaSecondaryDetailsLayout = ({
             />
           </PatientDetailsHeading>
         )}
-        <BorderFormGrid $isHidden={isSameAddress}>
+        <BorderFormGrid $isHidden={isSameAddress && !isEdit}>
           <CambodiaLocationFields secondary />
         </BorderFormGrid>
         <PatientDetailsHeading>

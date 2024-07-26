@@ -136,7 +136,7 @@ const HierarchyField = ({
   };
 
   const fallback = {
-    [CAMBODIA_LOCATION_HIERARCHY_FIELD_IDS.VILLAGE_ID]: 'Current address 331',
+    [CAMBODIA_LOCATION_HIERARCHY_FIELD_IDS.VILLAGE_ID]: 'Current address',
     [CAMBODIA_LOCATION_HIERARCHY_FIELD_IDS.SECONDARY_VILLAGE_ID]: 'Permanent address',
   };
 

@@ -141,7 +141,7 @@ const FormComponent = ({ selectedPatient, setSelectedPatient, isEdit, children }
         settlementId,
         streetVillage,
         dateOfBirth,
-        sameAddress
+        sameAddress = true,
       } = submittedValues;
 
       if (sameAddress) {

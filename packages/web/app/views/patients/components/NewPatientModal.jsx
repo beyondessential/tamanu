@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback } from 'react';
 
 import { generateId } from '@tamanu/shared/utils/generateId';
 import { PATIENT_DETAIL_LAYOUTS } from '@tamanu/constants';
@@ -19,9 +19,6 @@ export const NewPatientModal = ({ open, onCancel, onCreateNewPatient, ...formPro
 
   const api = useApi();
 
-  const [isSameAddress, setIsSameAddress] = useState(true);
-  const toggleIsSameAddress = useCallback(value => setIsSameAddress(value));
-
   const onSubmit = useCallback(
     async data => {
       try {
@@ -32,6 +29,7 @@ export const NewPatientModal = ({ open, onCancel, onCreateNewPatient, ...formPro
           settlementId,
           villageId,
           streetVillage,
+          isSameAddress = true,
         } = submittedData;
   
         if (isSameAddress) {
@@ -54,7 +52,7 @@ export const NewPatientModal = ({ open, onCancel, onCreateNewPatient, ...formPro
         notifyError(e.message);
       }
     },
-    [api, onCreateNewPatient, isSameAddress],
+    [api, onCreateNewPatient],
   );
 
   return (
@@ -68,8 +66,6 @@ export const NewPatientModal = ({ open, onCancel, onCreateNewPatient, ...formPro
         onCancel={onCancel}
         onSubmit={onSubmit}
         collapseAdditionalFields={collapseAdditionalFields}
-        isSameAddress={isSameAddress}
-        toggleIsSameAddress={toggleIsSameAddress}
         {...formProps}
       />
     </FormModal>
