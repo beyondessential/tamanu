@@ -59,8 +59,15 @@ const getReferralSource = ({ referralSource }) =>
     <TranslatedText stringId="general.fallback.unknown" fallback="Unknown" />
   );
 
-const getDiet = ({ diet }) =>
-  diet ? <TranslatedReferenceData category="diet" fallback={diet.name} value={diet.id} /> : '-';
+const getDiet = ({ diets }) => {
+  if (!diets?.length) return '-';
+  return diets.map(({ diet }, index) => (
+    <>
+      {!!index && ', '}
+      <TranslatedReferenceData category="diet" fallback={diet?.name} value={diet?.id} />
+    </>
+  ));
+};
 
 export const getEncounterType = ({ encounterType }) =>
   encounterType ? ENCOUNTER_OPTIONS_BY_VALUE[encounterType]?.label : 'Unknown';

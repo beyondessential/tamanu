@@ -1,8 +1,6 @@
 import React from 'react';
-import {
-  CustomisableSearchBarWithPermissionCheck,
-} from './CustomisableSearchBar';
-import { AutocompleteField, LocalisedField, SearchField } from '../Field';
+import { CustomisableSearchBarWithPermissionCheck } from './CustomisableSearchBar';
+import { AutocompleteField, LocalisedField, SearchField, SuggesterSelectField } from '../Field';
 import { useSuggester } from '../../api';
 import { useAdvancedFields } from './useAdvancedFields';
 import { TranslatedText } from '../Translation/TranslatedText';
@@ -24,7 +22,6 @@ export const PatientSearchBar = React.memo(
     );
 
     const practitionerSuggester = useSuggester('practitioner');
-    const dietSuggester = useSuggester('diet');
     return (
       <CustomisableSearchBarWithPermissionCheck
         verb="list"
@@ -61,18 +58,17 @@ export const PatientSearchBar = React.memo(
               size="small"
               suggester={practitionerSuggester}
             />
-            {isInpatient && <LocalisedField
-              name="dietId"
-              size="small"
-              label={
-                <TranslatedText
-                  stringId="general.localisedField.dietId.label"
-                  fallback="Diet"
-                />
-              }
-              suggester={dietSuggester}
-              component={AutocompleteField}
-            />}
+            {isInpatient && (
+              <LocalisedField
+                name="dietIds"
+                label={
+                  <TranslatedText stringId="general.localisedField.dietId.label" fallback="Diet" />
+                }
+                endpoint="diet"
+                component={SuggesterSelectField}
+                isMulti
+              />
+            )}
           </>
         }
       >

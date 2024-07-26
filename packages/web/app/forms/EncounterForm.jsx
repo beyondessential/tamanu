@@ -122,12 +122,13 @@ export const EncounterForm = React.memo(
           />
           {isInpatient(encounterType) && (
             <LocalisedField
-              name="dietId"
+              name="dietIds"
               label={
                 <TranslatedText stringId="general.localisedField.dietId.label" fallback="Diet" />
               }
-              suggester={dietSuggester}
-              component={AutocompleteField}
+              endpoint="diet"
+              component={SuggesterSelectField}
+              isMulti
             />
           )}
           <Field

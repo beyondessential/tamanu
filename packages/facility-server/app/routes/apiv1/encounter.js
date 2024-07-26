@@ -40,6 +40,13 @@ encounter.post(
     const { models, body, user } = req;
     req.checkPermission('create', 'Encounter');
     const object = await models.Encounter.create({ ...body, actorId: user.id });
+
+    if (body.dietIds) {
+      const dietIds = JSON.parse(body.dietIds);
+      for (const dietId of dietIds) {
+        await models.EncounterDiet.create({ dietId, encounterId: object.id });
+      }
+    }
     res.send(object);
   }),
 );
@@ -89,6 +96,21 @@ encounter.put(
           throw new InvalidOperationError('Cannot update a deleted referral.');
         await referral.update({ encounterId: id });
       }
+
+      if (req.body.dietIds) {
+        const dietIds = JSON.parse(req.body.dietIds);
+        //remove any existing encounter diets
+        await models.EncounterDiet.destroy({
+          where: {
+            encounterId: id,
+          },
+        });
+        for (const dietId of dietIds) {
+          //create encounter diets
+          await models.EncounterDiet.create({ dietId, encounterId: id });
+        }
+      }
+
       await encounterObject.update({ ...req.body, systemNote }, user);
     });
 

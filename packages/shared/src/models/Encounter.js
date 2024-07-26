@@ -79,7 +79,10 @@ export class Encounter extends Model {
         include: ['facility', 'locationGroup'],
       },
       'referralSource',
-      'diet',
+      {
+        association: 'diets',
+        include: ['diet'],
+      },
     ];
   }
 
