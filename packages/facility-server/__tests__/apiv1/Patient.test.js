@@ -1,3 +1,4 @@
+import { beforeAll } from '@jest/globals';
 import { startOfDay, subDays } from 'date-fns';
 import config from 'config';
 
