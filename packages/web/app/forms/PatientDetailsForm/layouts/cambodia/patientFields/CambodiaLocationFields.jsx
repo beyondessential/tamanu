@@ -1,13 +1,6 @@
 import React from 'react';
-import styled from 'styled-components';
 import { Box } from '@material-ui/core';
-import {
-  AutocompleteField,
-  CheckControl,
-  CheckField,
-  Field,
-  TextField,
-} from '../../../../../components';
+import { AutocompleteField, CheckField, Field, TextField } from '../../../../../components';
 import { ConfiguredMandatoryPatientFields } from '../../../ConfiguredMandatoryPatientFields';
 import { TranslatedText } from '../../../../../components/Translation/TranslatedText';
 import { LinkedField } from '../../../../../components/Field/LinkedField';
