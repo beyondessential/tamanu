@@ -20,10 +20,6 @@ import {
 import { useFilterPatientFields } from '../../../useFilterPatientFields';
 import { PatientField } from '../../../PatientFields';
 
-const StyledCheckbox = styled(CheckControl)`
-  font-size: 16px;
-`;
-
 const HealthCenterLinkedVillageField = props => (
   <LinkedField
     {...props}
