@@ -179,9 +179,10 @@ export const FormFields = ({
     });
   };
 
-  // We set the key on FullView so that React registers it as a whole new component, rather than a
-  // component whose contents happen to have changed. This means that each new page will start at
-  // the top, rather than the scroll position continuing across pages.
+  // Note: we set the key on FullView so that React registers it as a whole
+  // new component, rather than a component whose contents happen to have
+  // changed. This means that each new page will start at the top, rather than
+  // the scroll position continuing across pages.
   return (
     <FullView key={currentScreenIndex}>
       <FormScreenView scrollViewRef={scrollViewRef}>
