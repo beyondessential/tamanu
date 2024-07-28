@@ -5,29 +5,14 @@ import { log } from '@tamanu/shared/services/logging/log';
 import { withConfig } from '@tamanu/shared/utils/withConfig';
 
 export const updateLookupTableForModel = async (model, config, since, sessionConfig) => {
-  const CHUNK_SIZE = config.sync.maxRecordsPerPullSnapshotChunk;
+  const CHUNK_SIZE = config.sync.maxRecordsPerSnapshotChunk;
   const { tableName: table } = model;
 
   let fromId = '';
   let totalCount = 0;
   const attributes = model.getAttributes();
-  const {
-    patientIdTables,
-    facilityIdTable,
-    encounterIdTable,
-    encounterIdColumn,
-    joins,
-    globalFilter: filter,
-    isLabRequestValue,
-  } = model.buildSyncLookupFilter(sessionConfig) || {};
+  const { select, joins } = model.buildSyncLookupFilter(sessionConfig) || {};
   const useUpdatedAtByFieldSum = !!attributes.updatedAtByField;
-
-  let encounterIdColumnValue = 'NULL';
-  if (encounterIdTable) {
-    encounterIdColumnValue = `${encounterIdTable}.${
-      encounterIdColumn ? encounterIdColumn : 'encounter_id'
-    }`;
-  }
 
   while (fromId != null) {
     const [[{ maxId, count }]] = await model.sequelize.query(
@@ -46,19 +31,7 @@ export const updateLookupTableForModel = async (model, config, since, sessionCon
             data
           )
           SELECT
-            ${table}.id,
-            '${table}',
-            ${
-              patientIdTables
-                ? `COALESCE(${patientIdTables.map(t => `${t}.patient_id`).join(',')})`
-                : 'NULL'
-            },
-            ${facilityIdTable ? `${facilityIdTable}.facility_id` : 'NULL'},
-            ${encounterIdColumnValue},
-            ${table}.deleted_at IS NOT NULL,
-            ${table}.updated_at_sync_tick,
-            ${useUpdatedAtByFieldSum ? 'updated_at_by_field_summary.sum' : 'NULL'},
-            ${isLabRequestValue},
+            ${select}
             json_build_object(
               ${Object.keys(attributes)
                 .filter(a => !COLUMNS_EXCLUDED_FROM_SYNC.includes(a))
@@ -82,7 +55,7 @@ export const updateLookupTableForModel = async (model, config, since, sessionCon
                : ''
            }
           ${joins || ''}
-          ${filter || `WHERE ${table}.updated_at_sync_tick > :since`}
+          WHERE ${table}.updated_at_sync_tick > :since
           ${fromId ? `AND ${table}.id > :fromId` : ''}
           ORDER BY ${table}.id
           LIMIT :limit
@@ -90,7 +63,10 @@ export const updateLookupTableForModel = async (model, config, since, sessionCon
           DO UPDATE SET 
             data = EXCLUDED.data,
             updated_at_sync_tick = EXCLUDED.updated_at_sync_tick,
-            is_lab_request = EXCLUDED.is_lab_request
+            is_lab_request = EXCLUDED.is_lab_request,
+            patient_id = EXCLUDED.patient_id,
+            encounter_id = EXCLUDED.encounter_id,
+            facility_id = EXCLUDED.facility_id,
           RETURNING record_id
         )
         SELECT MAX(record_id) as "maxId",
@@ -100,8 +76,6 @@ export const updateLookupTableForModel = async (model, config, since, sessionCon
       {
         replacements: {
           since,
-          // include replacement params used in some model specific sync filters outside of this file
-          // see e.g. Referral.buildSyncFilter
           limit: CHUNK_SIZE,
           fromId,
         },

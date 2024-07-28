@@ -5,7 +5,7 @@ import _config from 'config';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import {
   CURRENT_SYNC_TIME_KEY,
-  LAST_SUCCESSFUL_LOOKUP_TABLE_UPDATE_KEY,
+  LOOKUP_UP_TO_TICK_KEY,
 } from '@tamanu/shared/sync/constants';
 import { log } from '@tamanu/shared/services/logging';
 import {
@@ -228,25 +228,25 @@ export class CentralSyncManager {
 
     await this.waitForPendingEdits(tick);
 
-    const globalSyncSince =
-      (await this.store.models.LocalSystemFact.get(LAST_SUCCESSFUL_LOOKUP_TABLE_UPDATE_KEY)) || -1;
+    const previouslyUpToTick =
+      (await this.store.models.LocalSystemFact.get(LOOKUP_UP_TO_TICK_KEY)) || -1;
 
     await this.store.sequelize.transaction(
       { isolationLevel: Transaction.ISOLATION_LEVELS.REPEATABLE_READ },
       async () => {
         await updateLookupTable(
           [this.store.models.Encounter], //TODO: Will be changed to all models later
-          globalSyncSince,
+          previouslyUpToTick,
           this.constructor.config,
         );
 
         // update the last successful lookup table in the same transaction - if updating the cursor fails,
-        // we want to roll back the rest of the saves so that the next update can still detect the recods that failed
+        // we want to roll back the rest of the saves so that the next update can still detect the records that failed
         // to be updated last time
         log.debug('CentralSyncManager.updateLookupTable()', {
           lastSuccessfulLookupTableUpdate: tick,
         });
-        await this.store.models.LocalSystemFact.set(LAST_SUCCESSFUL_LOOKUP_TABLE_UPDATE_KEY, tick);
+        await this.store.models.LocalSystemFact.set(LOOKUP_UP_TO_TICK_KEY, tick);
       },
     );
   }

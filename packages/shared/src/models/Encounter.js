@@ -276,16 +276,24 @@ export class Encounter extends Model {
 
   static buildSyncLookupFilter() {
     return {
-      isLabRequestValue: 'encounters_with_labs.lab_encounter_id IS NOT NULL',
-      joins: `LEFT JOIN (
-        SELECT e.id AS "lab_encounter_id"
-        FROM encounters e
-        INNER JOIN lab_requests lr ON lr.encounter_id = e.id
-        GROUP BY e.id
-      ) AS encounters_with_labs ON encounters_with_labs.lab_encounter_id = encounters.id`,
-      encounterIdColumn: 'id',
-      encounterIdTable: 'encounters',
-      patientIdTables: ['encounters'],
+      select: `
+        encounters.id,
+        encounters,
+        encounters.patient_id,
+        locations.facility_id,
+        encounters.id,
+        encounters.deleted_at IS NOT NULL,
+        encounters.updated_at_sync_tick,
+        NULL,
+        labs.encounter_id IS NOT NULL,
+      `,
+      joins: `
+        LEFT JOIN (
+          SELECT DISTINCT encounter_id
+          FROM lab_requests
+        ) AS labs ON labs.encounter_id = encounters.id
+        LEFT JOIN locations on locations.id = encounters.location_id
+      `,
     };
   }
 
