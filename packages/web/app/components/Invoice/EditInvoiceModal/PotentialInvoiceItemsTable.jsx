@@ -138,11 +138,7 @@ export const PotentialInvoiceItemsTable = ({ invoice, invoiceItems, formArrayMet
       key: 'productType',
       title: <TranslatedText stringId="invoice.table.column.category" fallback="Category" />,
       accessor: ({ productType }) => (
-        <TranslatedEnum
-          prefix="invoice.property.itemCategory"
-          value={productType}
-          enumValues={INVOICE_ITEMS_CATEGORY_LABELS}
-        />
+        <TranslatedEnum value={productType} enumValues={INVOICE_ITEMS_CATEGORY_LABELS} />
       ),
     },
     {

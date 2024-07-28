@@ -15,7 +15,6 @@ import { IdBanner } from '../components/IdBanner';
 import { Colors, FORM_TYPES } from '../constants';
 import { getPatientDetailsValidation } from '../validations';
 
-import { useSexOptions, useSexValues } from '../hooks';
 import { LoadingIndicator } from '../components/LoadingIndicator';
 
 import plusCircle from '../assets/images/plus_circle.svg';
