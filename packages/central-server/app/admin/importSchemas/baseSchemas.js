@@ -349,3 +349,10 @@ export const ReferenceDataRelation = yup.object().shape({
   referenceDataId: yup.string().required(),
   type: yup.string().oneOf(Object.values(REFERENCE_DATA_RELATION_TYPES)),
 });
+
+export const InvoiceProduct = yup.object().shape({
+  name: yup.string().required(),
+  price: yup.number().required(),
+  discountable: yup.boolean().required(),
+  visibilityStatus
+});

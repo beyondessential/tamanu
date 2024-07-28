@@ -14,18 +14,21 @@ import { IS_DEVELOPMENT } from '../../utils/env';
 import { TranslatedText } from '../Translation/TranslatedText';
 
 const ErrorMessage = ({ error }) => {
-  if (isValidElement(error)) return error
+  if (isValidElement(error)) return error;
   return `${JSON.stringify(error)}`;
 };
 
 const FormErrors = ({ errors }) => {
   const allErrors = flattenObject(errors);
 
-  return Object.entries(allErrors).map(([name, error]) => (
-    <Typography key={name} variant="subtitle2">
-      <ErrorMessage error={error} />
-    </Typography>
-  ));
+  return Object.entries(allErrors).map(
+    ([name, error]) =>
+      error && (
+        <Typography key={name} variant="subtitle2">
+          <ErrorMessage error={error} />
+        </Typography>
+      ),
+  );
 };
 
 const ScrollToError = () => {
@@ -256,6 +259,7 @@ export class Form extends React.PureComponent {
       initialValues,
       formType,
       suppressErrorDialog = false,
+      suppressErrorDialogCondition = () => true,
       ...props
     } = this.props;
     delete props.showInlineErrorsOnly;
@@ -286,7 +290,7 @@ export class Form extends React.PureComponent {
         >
           {this.renderFormContents}
         </Formik>
-        {!suppressErrorDialog && (
+        {!suppressErrorDialog && suppressErrorDialogCondition(validationErrors) && (
           <Dialog
             isVisible={hasErrors}
             onClose={this.hideErrorDialog}

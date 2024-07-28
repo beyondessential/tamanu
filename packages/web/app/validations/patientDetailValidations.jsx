@@ -370,6 +370,31 @@ export const getPatientDetailsValidation = (
         ),
       'Birth certificate',
     ),
+    insurerId: requiredWhenConfiguredMandatory(
+      getLocalisation,
+      getTranslation,
+      'insurerId',
+      yup
+        .string()
+        .translatedLabel(
+          <TranslatedText stringId="general.localisedField.insurer.label" fallback="Insurer" />,
+        ),
+      'Insurer',
+    ),
+    insurerPolicyNumber: requiredWhenConfiguredMandatory(
+      getLocalisation,
+      getTranslation,
+      'insurerPolicyNumber',
+      yup
+        .string()
+        .translatedLabel(
+          <TranslatedText
+            stringId="general.localisedField.insurerPolicyNumber.label"
+            fallback="Insurance policy number"
+          />,
+        ),
+      'Insurance policy number',
+    ),
     passport: requiredWhenConfiguredMandatory(
       getLocalisation,
       getTranslation,

@@ -1,14 +1,16 @@
-import React, { useState } from 'react';
-import { InvoicesTable } from '../../../components/InvoicesTable';
-import { ContentPane, InvoicesSearchBar } from '../../../components';
+import React from 'react';
+import styled from 'styled-components';
+import { InvoicesTable } from '../../../components/Invoice/InvoicesTable';
+
+const ContentPane = styled.div`
+  margin: 24px 25px 0px 14px;
+`;
 
 export const InvoicesPane = React.memo(({ patient }) => {
-  const [searchParameters, setSearchParameters] = useState({});
   return (
     <>
-      <InvoicesSearchBar onSearch={setSearchParameters} />
       <ContentPane>
-        <InvoicesTable patient={patient} searchParameters={searchParameters} />
+        <InvoicesTable patient={patient} />
       </ContentPane>
     </>
   );
