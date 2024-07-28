@@ -5,6 +5,7 @@ import { ReportAdminRoutes } from './ReportAdminRoutes';
 import { FhirAdminRoutes } from './FhirAdminRoutes';
 import {
   AssetUploaderView,
+  InsurerPaymentsAdminView,
   PatientMergeView,
   PermissionsAdminView,
   ProgramsAdminView,
@@ -30,6 +31,7 @@ export const AdministrationRoutes = React.memo(({ match }) => (
     <Route path={`${match.path}/translation`} component={TranslationAdminView} />
     <Route path={`${match.path}/settings`} component={SettingsView} />
     <Route path={`${match.path}/fhir`} component={FhirAdminRoutes} />
+    <Route path={`${match.path}/insurerPayments`} component={InsurerPaymentsAdminView} />
     <Redirect to={`${match.path}/referenceData`} />
   </Switch>
 ));

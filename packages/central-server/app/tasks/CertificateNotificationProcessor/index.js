@@ -28,8 +28,8 @@ import { LabRequestNotificationGenerator } from './LabRequestNotificationGenerat
 export class CertificateNotificationProcessor extends ScheduledTask {
   constructor(context) {
     const conf = config.schedules.certificateNotificationProcessor;
-    const { schedule, jitterTime } = conf;
-    super(schedule, log, jitterTime);
+    const { schedule, jitterTime, enabled } = conf;
+    super(schedule, log, jitterTime, enabled);
     this.config = conf;
     this.context = context;
     this.subtasks = [new LabRequestNotificationGenerator(context)];
@@ -154,7 +154,7 @@ export class CertificateNotificationProcessor extends ScheduledTask {
               models,
               uvci,
               qrData,
-              language
+              language,
             );
             break;
           }
@@ -180,7 +180,7 @@ export class CertificateNotificationProcessor extends ScheduledTask {
               printedBy,
               models,
               qrData,
-              language
+              language,
             );
             break;
           }
@@ -195,7 +195,7 @@ export class CertificateNotificationProcessor extends ScheduledTask {
               printedBy,
               models,
               qrData,
-              language
+              language,
             );
             break;
 

@@ -20,7 +20,7 @@ import { Button, DeleteButton } from '../Button';
 import { EncounterModal } from '../EncounterModal';
 import { usePatientCurrentEncounter } from '../../api/queries';
 import { Modal } from '../Modal';
-import { TranslatedText, TranslatedReferenceData } from '../Translation';
+import { TranslatedReferenceData, TranslatedSex, TranslatedText } from '../Translation';
 
 const Heading = styled.div`
   font-weight: 700;
@@ -88,7 +88,9 @@ const PatientInfo = ({ patient }) => {
             <PatientInfoLabel>
               <TranslatedText stringId="general.sex.label" fallback="Sex" />
             </PatientInfoLabel>
-            <PatientInfoValue>{sex}</PatientInfoValue>
+            <PatientInfoValue>
+              <TranslatedSex sex={sex} />
+            </PatientInfoValue>
           </tr>
           <tr>
             <PatientInfoLabel>
