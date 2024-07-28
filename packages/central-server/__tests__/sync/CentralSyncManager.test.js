@@ -6,7 +6,7 @@ import {
   LAST_SUCCESSFUL_LOOKUP_TABLE_UPDATE_KEY,
 } from '@tamanu/shared/sync/constants';
 import { SYNC_SESSION_DIRECTION } from '@tamanu/shared/sync';
-import { fake, fakeSurvey, fakeUser } from '@tamanu/shared/test-helpers/fake';
+import { fake, fakeUser } from '@tamanu/shared/test-helpers/fake';
 import { createDummyEncounter, createDummyPatient } from '@tamanu/shared/demoData/patients';
 import { randomLabRequest } from '@tamanu/shared/demoData';
 import { sleepAsync } from '@tamanu/shared/utils/sleepAsync';
@@ -391,7 +391,7 @@ describe('CentralSyncManager', () => {
         ctx.store.models = models;
       });
 
-      it.only('excludes manually inserted records when main snapshot transaction already started', async () => {
+      it('excludes manually inserted records when main snapshot transaction already started', async () => {
         const [facility, program, survey] = await prepareRecordsForSync();
 
         // Build the fakeModelPromise so that it can block the snapshotting process,
@@ -555,31 +555,37 @@ describe('CentralSyncManager', () => {
         // and block the snapshotting process inside the wrapper transaction
         await modelQueryWaitingPromise;
 
-        const survey1 = fakeSurvey();
-        const survey2 = fakeSurvey();
-        const survey3 = fakeSurvey();
-
+        const patient1 = await models.Patient.create({
+          ...fake(models.Patient),
+        });
+        const patient2 = await models.Patient.create({
+          ...fake(models.Patient),
+        });
+        const patient3 = await models.Patient.create({
+          ...fake(models.Patient),
+        });
+  
         const changes = [
           {
             direction: SYNC_SESSION_DIRECTION.OUTGOING,
             isDeleted: false,
-            recordType: 'surveys',
-            recordId: survey1.id,
-            data: survey1,
+            recordType: 'patients',
+            recordId: patient1.id,
+            data: patient1,
           },
           {
             direction: SYNC_SESSION_DIRECTION.OUTGOING,
             isDeleted: false,
-            recordType: 'surveys',
-            recordId: survey2.id,
-            data: survey2,
+            recordType: 'patients',
+            recordId: patient2.id,
+            data: patient2,
           },
           {
             direction: SYNC_SESSION_DIRECTION.OUTGOING,
             isDeleted: false,
-            recordType: 'surveys',
-            recordId: survey3.id,
-            data: survey2,
+            recordType: 'patients',
+            recordId: patient3.id,
+            data: patient3,
           },
         ];
 
@@ -1033,7 +1039,7 @@ describe('CentralSyncManager', () => {
     beforeEach(async () => {
       jest.resetModules();
       await models.SyncLookup.truncate({ force: true });
-      // await models.LocalSystemFact.set(LAST_SUCCESSFUL_LOOKUP_TABLE_UPDATE_KEY, null);
+      await models.LocalSystemFact.set(LAST_SUCCESSFUL_LOOKUP_TABLE_UPDATE_KEY, null);
     });
 
     it('inserts records into sync lookup table', async () => {
@@ -1071,7 +1077,7 @@ describe('CentralSyncManager', () => {
       );
     });
 
-    it.only('does not include records inserted when updating lookup table already started', async () => {
+    it('does not include records inserted when updating lookup table already started', async () => {
       const [facility, program, survey] = await prepareRecordsForSync();
 
       // Build the fakeModelPromise so that it can block the snapshotting process,
@@ -1095,11 +1101,6 @@ describe('CentralSyncManager', () => {
       // wait until setupSnapshotForPull() reaches snapshotting for MockedModel
       // and block the snapshotting process inside the wrapper transaction,
       await modelQueryWaitingPromise;
-
-      const hehe = await models.LocalSystemFact.get(LAST_SUCCESSFUL_LOOKUP_TABLE_UPDATE_KEY);
-      const haha = await models.LocalSystemFact.get(CURRENT_SYNC_TIME_KEY);
-      console.log('CURRENT_SYNC_TIME_KEY', haha);
-      console.log('LAST_SUCCESSFUL_LOOKUP_TABLE_UPDATE_KEY', hehe);
 
       // Insert the records just before we release the lock,
       // meaning that we're inserting the records below in the middle of the snapshotting process,
@@ -1136,7 +1137,7 @@ describe('CentralSyncManager', () => {
       ctx.store.models = models;
     });
 
-    it.skip('does not include records inserted from importer when updating lookup table already started', async () => {
+    it('does not include records inserted from importer when updating lookup table already started', async () => {
       await prepareRecordsForSync();
 
       // Build the fakeModelPromise so that it can block the snapshotting process,
@@ -1179,7 +1180,7 @@ describe('CentralSyncManager', () => {
       ctx.store.models = models;
     });
 
-    it.skip('does not include records inserted from another sync session when updating lookup table already started', async () => {
+    it('does not include records inserted from another sync session when updating lookup table already started', async () => {
       await prepareRecordsForSync();
 
       // Build the fakeModelPromise so that it can block the snapshotting process,
@@ -1204,31 +1205,37 @@ describe('CentralSyncManager', () => {
       // and block the snapshotting process inside the wrapper transaction,
       await modelQueryWaitingPromise;
 
-      const survey1 = fakeSurvey();
-      const survey2 = fakeSurvey();
-      const survey3 = fakeSurvey();
+      const patient1 = await models.Patient.create({
+        ...fake(models.Patient),
+      });
+      const patient2 = await models.Patient.create({
+        ...fake(models.Patient),
+      });
+      const patient3 = await models.Patient.create({
+        ...fake(models.Patient),
+      });
 
       const changes = [
         {
           direction: SYNC_SESSION_DIRECTION.OUTGOING,
           isDeleted: false,
-          recordType: 'surveys',
-          recordId: survey1.id,
-          data: survey1,
+          recordType: 'patients',
+          recordId: patient1.id,
+          data: patient1,
         },
         {
           direction: SYNC_SESSION_DIRECTION.OUTGOING,
           isDeleted: false,
-          recordType: 'surveys',
-          recordId: survey2.id,
-          data: survey2,
+          recordType: 'patients',
+          recordId: patient2.id,
+          data: patient2,
         },
         {
           direction: SYNC_SESSION_DIRECTION.OUTGOING,
           isDeleted: false,
-          recordType: 'surveys',
-          recordId: survey3.id,
-          data: survey2,
+          recordType: 'patients',
+          recordId: patient3.id,
+          data: patient3,
         },
       ];
 

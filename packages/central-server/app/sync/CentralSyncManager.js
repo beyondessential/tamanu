@@ -495,6 +495,7 @@ export class CentralSyncManager {
     );
     await models.SyncSession.addDebugInfo(sessionId, { beganPersistAt: new Date(), totalPushed });
 
+    console.log('modelsss', models);
     const modelsToInclude = tablesToInclude
       ? filterModelsFromName(models, tablesToInclude)
       : getModelsForDirection(models, SYNC_DIRECTIONS.PUSH_TO_CENTRAL);
