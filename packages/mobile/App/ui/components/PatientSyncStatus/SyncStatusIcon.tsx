@@ -7,6 +7,9 @@ export const SyncStatusIcon = ({ isMarkedForSync }) => {
   const CurrentStatusIcon = isMarkedForSync ? MarkedForSyncIcon : NotMarkedForSyncIcon;
   return (
     <StyledView
+      alignItems="center"
+      paddingTop={screenPercentageToDP(0.8, Orientation.Height)}
+      paddingRight={screenPercentageToDP(1.6, Orientation.Width)}
     >
       <CurrentStatusIcon
         size={screenPercentageToDP(4.86, Orientation.Height)}
