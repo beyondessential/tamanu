@@ -41,7 +41,7 @@ export const SyncStatusModal = ({ open, onClose, selectedPatient, isMarkedForSyn
         >
           <TranslatedText
             stringId="patient.details.unsynced.modal.description"
-            fallback="This will mark this patient for sync. All encounters (past and future) will be automatically synced to this device."
+            fallback="This will mark this patient for sync. All patient data (past and future) will be automatically synced to this device."
           />
         </StyledText>
       </ConfirmModal>
