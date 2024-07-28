@@ -143,7 +143,7 @@ export const FormFields = ({
     />
   );
 
-  const submitScreen = async (handleSubmit: () => Promise<void>) => {
+  const submitScreen = async (handleSubmit: () => Promise<void>): Promise<void> => {
     // Validate form on screen before moving to the next one
     const formErrors = await validateForm();
 
@@ -166,13 +166,13 @@ export const FormFields = ({
     }
   };
 
-  const onNavigateNext = async () => {
+  const onNavigateNext = async (): Promise<void> => {
     await submitScreen(async () => {
       setCurrentScreenIndex(Math.min(currentScreenIndex + 1, maxIndex));
     });
   };
 
-  const onSubmit = async () => {
+  const onSubmit = async (): Promise<void> => {
     await submitScreen(async () => {
       await submitForm();
       resetForm();
