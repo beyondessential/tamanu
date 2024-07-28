@@ -100,7 +100,6 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit, setF
             <StyledField
               label={<TranslatedText stringId="admin.report.dbSchema.label" fallback="DB Schema" />}
               name="dbSchema"
-              prefix="report.property.schema"
               component={TranslatedSelectField}
               enumValues={REPORT_DB_SCHEMA_LABELS}
               disabled={isEdit}

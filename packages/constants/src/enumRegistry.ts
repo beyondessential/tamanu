@@ -1,11 +1,6 @@
 import { camelCase } from 'lodash';
 import { SEX_LABELS } from './patientFields';
-import {
-  INVOICE_LINE_TYPE_LABELS,
-  INVOICE_PAYMENT_STATUS_LABELS,
-  INVOICE_PRICE_CHANGE_TYPE_LABELS,
-  INVOICE_STATUS_LABELS,
-} from './invoices';
+import { INVOICE_STATUS_LABELS } from './invoices';
 import { NOTE_TYPE_LABELS } from './notes';
 import {
   REFERRAL_STATUS_LABELS,
@@ -50,9 +45,6 @@ export const registeredEnums = {
   IMAGING_REQUEST_STATUS_LABELS,
   IMAGING_TYPES,
   INJECTION_SITE_LABELS,
-  INVOICE_LINE_TYPE_LABELS,
-  INVOICE_PAYMENT_STATUS_LABELS,
-  INVOICE_PRICE_CHANGE_TYPE_LABELS,
   INVOICE_STATUS_LABELS,
   LAB_REQUEST_STATUS_LABELS,
   LOCATION_AVAILABILITY_STATUS_LABELS,
@@ -89,9 +81,6 @@ export const translationPrefixes: Record<EnumKeys, string> = {
   IMAGING_REQUEST_STATUS_LABELS: 'imaging.property.status',
   IMAGING_TYPES: 'imaging.property.type',
   INJECTION_SITE_LABELS: 'vaccine.property.injectionSite',
-  INVOICE_LINE_TYPE_LABELS: 'invoice.property.lineType',
-  INVOICE_PAYMENT_STATUS_LABELS: 'invoice.property.paymentStatus',
-  INVOICE_PRICE_CHANGE_TYPE_LABELS: 'invoice.property.priceChangeType',
   INVOICE_STATUS_LABELS: 'invoice.property.status',
   LAB_REQUEST_STATUS_LABELS: 'lab.property.status',
   LOCATION_AVAILABILITY_STATUS_LABELS: 'bedManagement.property.status',
