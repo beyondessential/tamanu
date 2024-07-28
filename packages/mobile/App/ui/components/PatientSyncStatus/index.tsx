@@ -1,31 +1,43 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
-import { ColumnView, StyledText, StyledTouchableOpacity, StyledView } from '~/ui/styled/common';
-import { PatientSyncIcon } from '~/ui/components/Icons';
-import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
+import { StyledTouchableOpacity, StyledView } from '~/ui/styled/common';
+import { useBackendEffect } from '../../hooks';
+import { readConfig } from '~/services/config';
+import { SyncStatusModal } from './SyncStatusModal';
+import { SyncStatusIcon } from './SyncStatusIcon';
 
-export const PatientSyncStatus = ({ markPatientForSync }) => {
-  return (
-    <StyledView flex={1}>
-      <StyledTouchableOpacity
-        onPress={markPatientForSync}
-        marginLeft={'auto'}
-        marginRight={screenPercentageToDP(3.65, Orientation.Width)}
-      >
-        <ColumnView alignItems="center">
-          <PatientSyncIcon
-            size={screenPercentageToDP(4.86, Orientation.Height)}
-            fill="white"
-          />
-          <StyledText
-            fontSize={10}
-            color="white"
-            marginTop={screenPercentageToDP(-0.6, Orientation.Height)}
-          >
-            <TranslatedText stringId="general.action.syncData" fallback="Sync Data" />
-          </StyledText>
-        </ColumnView>
-      </StyledTouchableOpacity>
-    </StyledView>
+export const PatientSyncStatus = ({ selectedPatient }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const facilityId = readConfig('facilityId', '');
+  const [patientFacility, , isLoading] = useBackendEffect(({ models: m }) =>
+    m.PatientFacility.findOne({
+      where: { patient: selectedPatient.id, facility: facilityId },
+    }),
   );
-}
+
+  if (isLoading) {
+    return (<StyledView flex={1} />);
+  }
+
+  const isMarkedForSync = Boolean(patientFacility);
+
+  return (
+    <>
+      <SyncStatusModal
+        open={isOpen}
+        onClose={() => setIsOpen(false)}
+        selectedPatient={selectedPatient}
+        isMarkedForSync={isMarkedForSync}
+      />
+      <StyledView flex={1}>
+        <StyledTouchableOpacity
+          onPress={() => setIsOpen(true)}
+          marginLeft={'auto'}
+          marginRight={screenPercentageToDP(3.65, Orientation.Width)}
+        >
+          <SyncStatusIcon isMarkedForSync={isMarkedForSync} />
+        </StyledTouchableOpacity>
+      </StyledView>
+    </>
+  );
+};
