@@ -33,7 +33,7 @@ export const BaseModal = ({ open, onClose, title, children }: BaseModalProps): J
           </StyledView>
         </StyledView>
         <StyledText
-          fontSize={screenPercentageToDP(2, Orientation.Height)}
+          fontSize={16}
           fontWeight={500}
           color={theme.colors.TEXT_SUPER_DARK}
           textAlign="center"

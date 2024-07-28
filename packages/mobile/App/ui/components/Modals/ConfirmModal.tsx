@@ -33,7 +33,7 @@ export const ConfirmModal = ({
         marginTop={14}
         backgroundColor={theme.colors.PRIMARY_MAIN}
         textColor={theme.colors.WHITE}
-        fontSize={screenPercentageToDP(2, Orientation.Height)}
+        fontSize={16}
         fontWeight={500}
         buttonText={confirmButtonText}
       />
@@ -46,7 +46,7 @@ export const ConfirmModal = ({
           borderColor={theme.colors.PRIMARY_MAIN}
           textColor={theme.colors.PRIMARY_MAIN}
           borderWidth={1}
-          fontSize={screenPercentageToDP(2, Orientation.Height)}
+          fontSize={16}
           fontWeight={500}
           buttonText={<TranslatedText
             stringId="general.action.cancel"
