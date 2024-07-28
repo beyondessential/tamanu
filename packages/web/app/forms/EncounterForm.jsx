@@ -26,7 +26,6 @@ import { useTranslation } from '../contexts/Translation';
 export const EncounterForm = React.memo(
   ({ editedObject, onSubmit, patientBillingTypeId, encounterType }) => {
     const practitionerSuggester = useSuggester('practitioner');
-    const dietSuggester = useSuggester('diet');
     const departmentSuggester = useSuggester('department', {
       baseQueryParameters: { filterByFacility: true },
     });
