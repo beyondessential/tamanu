@@ -56,6 +56,7 @@ export class PatientFacility extends Model {
   static buildSyncLookupFilter() {
     return {
       globalFilter: null,
+      patientIdTables: ['patient_facilities'],
       facilityIdTable: 'patient_facilities',
     };
   }
