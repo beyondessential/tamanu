@@ -1,6 +1,11 @@
 import { camelCase } from 'lodash';
 import { SEX_LABELS } from './patientFields';
-import { INVOICE_ITEMS_CATEGORY_LABELS, INVOICE_STATUS_LABELS } from './invoices';
+import {
+  INVOICE_ITEMS_CATEGORY_LABELS,
+  INVOICE_STATUS_LABELS,
+  INVOICE_PATIENT_PAYMENT_STATUSES_LABELS,
+  INVOICE_INSURER_PAYMENT_STATUS_LABELS
+} from './invoices';
 import { NOTE_TYPE_LABELS } from './notes';
 import {
   REFERRAL_STATUS_LABELS,
@@ -47,6 +52,8 @@ export const registeredEnums = {
   INJECTION_SITE_LABELS,
   INVOICE_STATUS_LABELS,
   INVOICE_ITEMS_CATEGORY_LABELS,
+  INVOICE_PATIENT_PAYMENT_STATUSES_LABELS,
+  INVOICE_INSURER_PAYMENT_STATUS_LABELS,
   LAB_REQUEST_STATUS_LABELS,
   LOCATION_AVAILABILITY_STATUS_LABELS,
   MANNER_OF_DEATHS,
@@ -84,6 +91,8 @@ export const translationPrefixes: Record<EnumKeys, string> = {
   INJECTION_SITE_LABELS: 'vaccine.property.injectionSite',
   INVOICE_ITEMS_CATEGORY_LABELS: 'invoice.property.itemCategory',
   INVOICE_STATUS_LABELS: 'invoice.property.status',
+  INVOICE_PATIENT_PAYMENT_STATUSES_LABELS: 'invoice.property.patientPaymentStatus',
+  INVOICE_INSURER_PAYMENT_STATUS_LABELS: 'invoice.property.insurerPaymentStatus',
   LAB_REQUEST_STATUS_LABELS: 'lab.property.status',
   LOCATION_AVAILABILITY_STATUS_LABELS: 'bedManagement.property.status',
   MANNER_OF_DEATHS: 'death.property.mannerOfDeath',
