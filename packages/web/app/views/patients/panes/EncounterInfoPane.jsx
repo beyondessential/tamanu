@@ -25,6 +25,7 @@ import {
 import { isInpatient } from '../../../utils/isInpatient';
 import { isEmergencyPatient } from '../../../utils/isEmergencyPatient';
 import { TranslatedReferenceData } from '../../../components/Translation/index.js';
+import { ThemedTooltip } from '../../../components/Tooltip.jsx';
 
 const CardLabel = styled.span`
   margin-right: 5px;
@@ -48,6 +49,12 @@ const InfoCardSecondColumn = styled(InfoCardFirstColumn)`
   width: 60%;
 `;
 
+const DietCardValue = styled.div`
+  max-width: calc(100% - 28px);
+  overflow: hidden;
+  text-overflow: ellipsis;
+`;
+
 const getReferralSource = ({ referralSource }) =>
   referralSource ? (
     <TranslatedReferenceData
@@ -61,12 +68,19 @@ const getReferralSource = ({ referralSource }) =>
 
 const getDiet = ({ diets }) => {
   if (!diets?.length) return '-';
-  return diets.map(({ diet }, index) => (
-    <>
-      {!!index && ', '}
-      <TranslatedReferenceData category="diet" fallback={diet?.name} value={diet?.id} />
-    </>
-  ));
+
+  const dietsDisplay = (
+    <DietCardValue>
+      {' '}
+      {diets.map(({ diet }, index) => (
+        <>
+          {!!index && ', '}
+          <TranslatedReferenceData category="diet" fallback={diet?.name} value={diet?.id} />
+        </>
+      ))}
+    </DietCardValue>
+  );
+  return <ThemedTooltip title={dietsDisplay}>{dietsDisplay}</ThemedTooltip>;
 };
 
 export const getEncounterType = ({ encounterType }) =>

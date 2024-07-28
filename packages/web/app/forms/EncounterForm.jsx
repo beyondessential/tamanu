@@ -129,6 +129,7 @@ export const EncounterForm = React.memo(
               endpoint="diet"
               component={SuggesterSelectField}
               isMulti
+              style={{ gridColumn: 'span 2' }}
             />
           )}
           <Field

@@ -41,6 +41,8 @@ const CardLabel = styled.span`
 const CardValue = styled.span`
   font-weight: 500;
   color: ${props => props.theme.palette.text.primary};
+  width: 100%;
+  vertical-align: bottom;
 `;
 
 const Card = styled.div`
@@ -56,15 +58,19 @@ const Card = styled.div`
     }
   }
   ${CardValue} {
-    display: ${({ $inlineValues }) => ($inlineValues ? 'inline' : 'block')};
+    display: ${({ $inlineValues }) => ($inlineValues ? 'inline-block' : 'block')};
   }
 `;
 
+const CardEntry = styled.div`
+  max-width: 100%;
+`;
+
 const InfoCardEntry = ({ label, value }) => (
-  <div>
+  <CardEntry>
     <CardLabel>{label}</CardLabel>
     <CardValue>{value}</CardValue>
-  </div>
+  </CardEntry>
 );
 
 export const EncounterInfoCardHeader = ({ label, value, ...props }) => (
