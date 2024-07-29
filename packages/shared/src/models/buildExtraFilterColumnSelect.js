@@ -6,10 +6,10 @@ export function buildExtraFilterColumnSelect({
   updatedAtByFieldSum,
 }) {
   return `
-    ${patientId} || NULL,
-    ${facilityId} || NULL,
-    ${encounterId} || NULL,
-    ${isLabRequest} || FALSE,
-    ${updatedAtByFieldSum} || NULL
+    ${patientId || 'NULL'},
+    ${facilityId || 'NULL'},
+    ${encounterId || 'NULL'},
+    ${isLabRequest || 'FALSE'},
+    ${updatedAtByFieldSum || 'NULL'}
   `;
 }
