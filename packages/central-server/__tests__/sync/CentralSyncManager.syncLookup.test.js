@@ -1,5 +1,5 @@
 import { fake, fakeUser } from '@tamanu/shared/test-helpers/fake';
-import { CentralSyncManager } from '../dist/sync/CentralSyncManager';
+import { CentralSyncManager } from '../../dist/sync/CentralSyncManager';
 import { createTestContext } from '../utilities';
 
 describe('Sync Lookup data', () => {
@@ -13,7 +13,7 @@ describe('Sync Lookup data', () => {
     centralSyncManager = new CentralSyncManager(ctx);
   });
 
-  it('Encounter lookup data', async () => {
+  it('Encounter lookup data is correct', async () => {
     const facility = await models.Facility.create({
       ...fake(models.Facility),
       name: 'Utopia HQ',
@@ -58,7 +58,7 @@ describe('Sync Lookup data', () => {
     );
   });
 
-  it('Setting lookup data', async () => {
+  it('Setting lookup data is correct', async () => {
     const facility = await models.Facility.create({
       ...fake(models.Facility),
       name: 'Utopia HQ',
@@ -88,7 +88,7 @@ describe('Sync Lookup data', () => {
     );
   });
 
-  it('PatientFacility lookup data', async () => {
+  it('PatientFacility lookup data is correct', async () => {
     const facility = await models.Facility.create({
       ...fake(models.Facility),
       name: 'Utopia HQ',
