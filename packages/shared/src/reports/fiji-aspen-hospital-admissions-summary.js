@@ -20,6 +20,8 @@ const reportColumnTemplate = FIELDS.map(field => ({
   accessor: data => data[field],
 }));
 
+const facilityIds = selectFacilityIds(config) || [];
+
 const query = `
 with
   -- Default reporting date range - all months
@@ -47,9 +49,7 @@ with
       join facilities f on d.facility_id = f.id
     where
       e.encounter_type = 'admission' and e.patient_id != '5d9043ff-6745-4bca-b1c7-1c7751bad1f0'
-      and f.id in (${selectFacilityIds(config)
-        .map(id => `'${id}'`)
-        .join(',')})
+      and f.id in (${facilityIds.map(id => `'${id}'`).join(',')})
   ),
   admissions as (
     select
