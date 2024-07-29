@@ -4,10 +4,18 @@ import {
   PATIENT_FIELD_DEFINITION_TYPES,
   PATIENT_REGISTRY_TYPES,
   SETTING_KEYS,
+  SEX_LABELS,
+  SEX_VALUES,
 } from '@tamanu/constants';
 import { Colors } from '../../../../constants';
 import { getCurrentDateString } from '@tamanu/shared/utils/dateTime';
-import { LocalisedField, TextField, DateField, RadioField, FormGrid } from '../../../../components';
+import {
+  LocalisedField,
+  TextField,
+  DateField,
+  FormGrid,
+  TranslatedRadioField,
+} from '../../../../components';
 import {
   PatientDetailsHeading,
   SecondaryDetailsFormGrid,
@@ -27,7 +35,7 @@ const FATHERS_FIRST_NAME_DEFINITION_ID = 'fieldDefinition-fathersFirstName';
 const CAMBODIA_CORE_FIELD_CATEGORY_ID = 'fieldCategory-cambodiaCorePatientFields';
 
 export const CambodiaPrimaryDetailsLayout = ({
-  sexOptions,
+  hideOtherSex,
   isRequiredPatientData,
   isDetailsForm = false,
 }) => {
@@ -79,8 +87,11 @@ export const CambodiaPrimaryDetailsLayout = ({
         <LocalisedField
           name="sex"
           label={<TranslatedText stringId="general.localisedField.sex.label" fallback="Sex" />}
-          component={RadioField}
-          options={sexOptions}
+          component={TranslatedRadioField}
+          enumValues={SEX_LABELS}
+          transformOptions={options =>
+            hideOtherSex ? options.filter(o => o.value !== SEX_VALUES.OTHER) : options
+          }
           required
         />
         <LocalisedField
