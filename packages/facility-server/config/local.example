@@ -15,5 +15,5 @@
   "log": {
     "consoleLevel": null
   },
-  "serverFacilityId": "facility-BaHealthCentre"
+  "serverFacilityIds": ["facility-BaHealthCentre"]
 }
