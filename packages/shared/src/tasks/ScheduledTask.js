@@ -3,7 +3,7 @@ import shortid from 'shortid';
 import { scheduleJob } from 'node-schedule';
 import ms from 'ms';
 
-import { sleepAsync } from '@tamanu/shared/utils/sleepAsync';
+import { sleepAsync } from '../utils/sleepAsync';
 
 import { getTracer, spanWrapFn } from '../services/logging';
 
@@ -14,7 +14,7 @@ export class ScheduledTask {
     throw new Error(`ScheduledTask::getName not overridden for ${this.constructor.name}`);
   }
 
-  constructor(schedule, log, jitterTime) {
+  constructor(schedule, log, jitterTime, isEnabled = true) {
     log.info('Initialising scheduled task', {
       name: this.getName(),
     });
@@ -26,6 +26,7 @@ export class ScheduledTask {
     this.start = null;
     this.subtasks = [];
     this.jitterTime = jitterTime;
+    this.isEnabled = isEnabled;
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -121,6 +122,11 @@ export class ScheduledTask {
   async runImmediately() {
     const name = this.getName();
 
+    if (!this.isEnabled) {
+      this.log.info(`ScheduledTask: ${this.getName()} is disabled, won't run immediately`);
+      return true;
+    }
+
     return getTracer().startActiveSpan(`ScheduledTask/${name}`, { root: true }, async span => {
       span.setAttribute('code.function', name);
       try {
@@ -137,6 +143,11 @@ export class ScheduledTask {
   }
 
   beginPolling() {
+    if (!this.isEnabled) {
+      this.log.info(`ScheduledTask: ${this.getName()} is disabled, won't begin polling`);
+      return;
+    }
+
     if (!this.schedule) {
       this.log.error(`ScheduledTask: ${this.getName()} began polling without a schedule assigned`);
       return;

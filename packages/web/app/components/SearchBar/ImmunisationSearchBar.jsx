@@ -1,11 +1,17 @@
 import React from 'react';
-import { VACCINE_STATUS } from '@tamanu/constants';
+import { SEX_LABELS, SEX_VALUES, VACCINE_STATUS } from '@tamanu/constants';
 import styled from 'styled-components';
 import { CustomisableSearchBar } from './CustomisableSearchBar';
 import { useSuggester } from '../../api';
-import { AutocompleteField, LocalisedField, SearchField, SelectField } from '../Field';
+import {
+  AutocompleteField,
+  LocalisedField,
+  SearchField,
+  SelectField,
+  TranslatedSelectField,
+} from '../Field';
 import { TranslatedText } from '../Translation';
-import { useSexOptions } from '../../hooks';
+import { useLocalisation } from '../../contexts/Localisation';
 
 const Spacer = styled.div`
   flex: 1;
@@ -29,8 +35,9 @@ const statusOptions = Object.entries(VACCINE_STATUS_LABELS).map(([value, label])
 }));
 
 export const ImmunisationSearchBar = ({ onSearch }) => {
+  const { getLocalisation } = useLocalisation();
   const villageSuggester = useSuggester('village');
-  const sexOptions = useSexOptions(false);
+  const hideOtherSex = getLocalisation('features.hideOtherSex') === true;
 
   return (
     <CustomisableSearchBar title="Search for Patients" onSearch={onSearch}>
@@ -58,10 +65,12 @@ export const ImmunisationSearchBar = ({ onSearch }) => {
       <LocalisedField
         name="sex"
         label={<TranslatedText stringId="general.localisedField.sex.label" fallback="Sex" />}
-        component={SelectField}
-        options={sexOptions}
+        component={TranslatedSelectField}
+        transformOptions={options =>
+          hideOtherSex ? options.filter(o => o.value !== SEX_VALUES.OTHER) : options
+        }
+        enumValues={SEX_LABELS}
         size="small"
-        prefix="patient.property.sex"
       />
       <Spacer />
       <LocalisedField

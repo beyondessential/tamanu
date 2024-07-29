@@ -1,8 +1,15 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { TranslatedText } from './TranslatedText.jsx';
+import { TranslatedText } from './TranslatedText';
 
-export const TranslatedEnum = ({ prefix, value, enumValues, enumFallback = 'Unknown' }) => {
+import { IS_DEVELOPMENT } from '../../utils/env';
+import { getEnumPrefix, throwIfNotRegisteredEnum } from '@tamanu/shared/utils/enumRegistry';
+
+export const TranslatedEnum = ({ value, enumValues, enumFallback = 'Unknown' }) => {
+  if (IS_DEVELOPMENT) {
+    throwIfNotRegisteredEnum(enumValues);
+  }
+  const prefix = getEnumPrefix(enumValues);
   if (!enumValues[value]) {
     return <TranslatedText stringId="general.fallback.unknown" fallback={enumFallback} />;
   }

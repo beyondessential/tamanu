@@ -9,8 +9,7 @@ import { LocationCell, LocationGroupCell } from './LocationCell';
 import { TriageWaitTimeCell } from './TriageWaitTimeCell';
 import { useLocalisation } from '../contexts/Localisation';
 import { reloadPatient } from '../store';
-import { TranslatedText } from './Translation/TranslatedText';
-import { TranslatedReferenceData } from './Translation';
+import { TranslatedReferenceData, TranslatedSex, TranslatedText } from './Translation';
 import { DataFetchingTableWithPermissionCheck } from './Table/DataFetchingTable';
 
 const ADMITTED_PRIORITY_COLOR = '#bdbdbd';
@@ -75,7 +74,7 @@ const useColumns = () => {
     {
       key: 'sex',
       title: <TranslatedText stringId="general.localisedField.sex.label" fallback="Sex" />,
-      accessor: row => <span style={{ textTransform: 'capitalize' }}>{row.sex || ''}</span>,
+      accessor: row => <TranslatedSex sex={row.sex} />,
     },
     {
       key: 'locationGroupName',

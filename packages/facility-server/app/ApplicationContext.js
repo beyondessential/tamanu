@@ -5,8 +5,10 @@ import { closeDatabase, initDatabase, initReporting } from './database';
 import { VERSION } from './middleware/versionCompatibility.js';
 
 export class ApplicationContext {
+  /** @type {import('sequelize').Sequelize | null} */
   sequelize = null;
 
+  /** @type {import('@tamanu/shared/models') | null} */
   models = null;
 
   reportSchemaStores = null;
