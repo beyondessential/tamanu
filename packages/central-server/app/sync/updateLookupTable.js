@@ -41,8 +41,14 @@ export const updateLookupTableForModel = async (model, config, since, sessionCon
                 .filter(a => !COLUMNS_EXCLUDED_FROM_SYNC.includes(a))
                 .map(a => `'${a}', ${table}.${snake(a)}`)}
             ),
-            ${extraFilterColumnSelect}
-
+            ${extraFilterColumnSelect ||
+              `
+            NULL,
+            NULL,
+            NULL,
+            FALSE,
+            NULL
+            `}
           FROM
             ${table}
            ${
