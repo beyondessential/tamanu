@@ -91,7 +91,6 @@ export const SyncStatusModal = ({
         <StyledText
           textAlign="center"
           fontSize={14}
-          marginTop={20}
           color={theme.colors.TEXT_SUPER_DARK}
         >
           {String(lastPull?.updatedAt)}
