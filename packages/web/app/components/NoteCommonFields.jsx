@@ -2,15 +2,15 @@ import React from 'react';
 import styled from 'styled-components';
 import Divider from '@material-ui/core/Divider';
 import Tooltip from '@material-ui/core/Tooltip';
-import { NOTE_TYPES } from '@tamanu/constants';
+import { NOTE_TYPES, NOTE_TYPE_LABELS } from '@tamanu/constants';
 
 import { InfoCard, InfoCardItem } from './InfoCard';
-import { AutocompleteField, DateTimeField, Field, SelectField, TextField } from './Field';
+import { AutocompleteField, DateTimeField, Field, TextField, TranslatedSelectField } from './Field';
 import { useLocalisation } from '../contexts/Localisation';
 
 import { useSuggester } from '../api';
 import { DateDisplay } from './DateDisplay';
-import { Colors, noteTypes } from '../constants';
+import { Colors } from '../constants';
 import { FormGrid } from './FormGrid';
 import { TranslatedText } from './Translation/TranslatedText';
 
@@ -47,22 +47,6 @@ export const StyledFormGrid = styled(FormGrid)`
   margin-top: 20px;
   margin-bottom: 20px;
 `;
-
-/**
- * If there's already a treatment plan note, don't allow users to add another one
- * @param {*} noteTypeCountByType
- * @returns
- */
-const getSelectableNoteTypes = noteTypeCountByType =>
-  noteTypes
-    .filter(x => !x.hideFromDropdown)
-    .map(x => ({
-      ...x,
-      isDisabled:
-        noteTypeCountByType &&
-        x.value === NOTE_TYPES.TREATMENT_PLAN &&
-        !!noteTypeCountByType[x.value],
-    }));
 
 const renderOptionLabel = ({ value, label }, noteTypeCountByType) => {
   return value === NOTE_TYPES.TREATMENT_PLAN && noteTypeCountByType[NOTE_TYPES.TREATMENT_PLAN] ? (
@@ -174,10 +158,20 @@ export const NoteTypeField = ({ required, noteTypeCountByType, onChange }) => (
     name="noteType"
     label={<TranslatedText stringId="note.type.label" fallback="Type" />}
     required={required}
-    component={SelectField}
-    options={getSelectableNoteTypes(noteTypeCountByType)}
+    component={TranslatedSelectField}
+    enumValues={NOTE_TYPE_LABELS}
+    transformOptions={types =>
+      types
+        .filter(option => !option.hideFromDropdown)
+        .map(option => ({
+          ...option,
+          isDisabled:
+            noteTypeCountByType &&
+            option.value === NOTE_TYPES.TREATMENT_PLAN &&
+            !!noteTypeCountByType[option.value],
+        }))
+    }
     formatOptionLabel={option => renderOptionLabel(option, noteTypeCountByType)}
-    prefix="note.property.type"
     onChange={onChange}
   />
 );

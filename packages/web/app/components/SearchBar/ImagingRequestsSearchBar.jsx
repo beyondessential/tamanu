@@ -1,7 +1,11 @@
 import React from 'react';
 import styled from 'styled-components';
-import { IMAGING_REQUEST_STATUS_TYPES, IMAGING_TABLE_VERSIONS } from '@tamanu/constants';
-import { IMAGING_REQUEST_STATUS_OPTIONS } from '../../constants';
+import {
+  IMAGING_REQUEST_STATUS_LABELS,
+  IMAGING_REQUEST_STATUS_TYPES,
+  IMAGING_TABLE_VERSIONS,
+  IMAGING_TYPES,
+} from '@tamanu/constants';
 import {
   AutocompleteField,
   CheckField,
@@ -10,10 +14,9 @@ import {
   LocalisedField,
   SearchField,
   SelectField,
+  TranslatedSelectField,
 } from '../Field';
-import {
-  CustomisableSearchBarWithPermissionCheck,
-} from './CustomisableSearchBar';
+import { CustomisableSearchBarWithPermissionCheck } from './CustomisableSearchBar';
 import { useLocalisation } from '../../contexts/Localisation';
 import { useSuggester } from '../../api';
 import { useImagingRequests } from '../../contexts/ImagingRequests';
@@ -46,11 +49,6 @@ export const ImagingRequestsSearchBar = ({ memoryKey, statuses = [], advancedFie
     searchParameters,
   );
   const statusFilter = statuses ? { status: statuses } : {};
-
-  const imagingTypeOptions = Object.entries(imagingTypes).map(([key, val]) => ({
-    label: val.label,
-    value: key,
-  }));
 
   return (
     <CustomisableSearchBarWithPermissionCheck
@@ -155,12 +153,19 @@ export const ImagingRequestsSearchBar = ({ memoryKey, statuses = [], advancedFie
           label={
             <TranslatedText stringId="general.localisedField.status.label" fallback="Status" />
           }
-          component={SelectField}
-          options={IMAGING_REQUEST_STATUS_OPTIONS.filter(
-            ({ value }) => value !== IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
-          )}
+          component={TranslatedSelectField}
+          enumValues={IMAGING_REQUEST_STATUS_LABELS}
+          transformOptions={options =>
+            options.filter(option =>
+              [
+                IMAGING_REQUEST_STATUS_TYPES.DELETED,
+                IMAGING_REQUEST_STATUS_TYPES.ENTERED_IN_ERROR,
+                IMAGING_REQUEST_STATUS_TYPES.CANCELLED,
+                IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
+              ].includes(option.value),
+            )
+          }
           size="small"
-          prefix="imaging.property.status"
         />
       )}
       {isCompletedTable && <Spacer />}
@@ -169,10 +174,17 @@ export const ImagingRequestsSearchBar = ({ memoryKey, statuses = [], advancedFie
         label={
           <TranslatedText stringId="general.localisedField.imagingType.label" fallback="Type" />
         }
-        component={SelectField}
-        options={imagingTypeOptions}
+        component={TranslatedSelectField}
+        transformOptions={options =>
+          options
+            .filter(option => !!imagingTypes[option.value])
+            .map(option => ({
+              ...option,
+              label: imagingTypes[option.value],
+            }))
+        }
+        enumValues={IMAGING_TYPES}
         size="small"
-        prefix="imaging.property.type"
       />
       <LocalisedField
         name="requestedDateFrom"

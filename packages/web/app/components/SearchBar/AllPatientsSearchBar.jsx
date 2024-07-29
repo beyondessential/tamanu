@@ -9,13 +9,14 @@ import {
   Field,
   LocalisedField,
   SearchField,
-  SelectField,
+  TranslatedSelectField,
 } from '../Field';
 import { useSuggester } from '../../api';
 import { DateField } from '../Field/DateField';
-import { useSexOptions } from '../../hooks';
 import { SearchBarCheckField } from './SearchBarCheckField';
 import { TranslatedText } from '../Translation/TranslatedText';
+import { SEX_LABELS, SEX_VALUES } from '@tamanu/constants';
+import { useLocalisation } from '../../contexts/Localisation';
 
 const TwoColumnsField = styled(Box)`
   grid-column: span 2;
@@ -33,8 +34,9 @@ const VillageLocalisedField = styled(LocalisedField)`
 `;
 
 export const AllPatientsSearchBar = React.memo(({ onSearch, searchParameters }) => {
+  const { getLocalisation } = useLocalisation();
   const villageSuggester = useSuggester('village');
-  const sexOptions = useSexOptions(false);
+  const hideOtherSex = getLocalisation('features.hideOtherSex') === true;
   const [showAdvancedFields, setShowAdvancedFields] = useState(false);
 
   return (
@@ -63,10 +65,12 @@ export const AllPatientsSearchBar = React.memo(({ onSearch, searchParameters }) 
             <SexLocalisedField
               name="sex"
               label={<TranslatedText stringId="general.localisedField.sex.label" fallback="Sex" />}
-              component={SelectField}
-              options={sexOptions}
+              component={TranslatedSelectField}
+              transformOptions={options =>
+                hideOtherSex ? options.filter(o => o.value !== SEX_VALUES.OTHER) : options
+              }
+              enumValues={SEX_LABELS}
               size="small"
-              prefix="patient.property.sex"
             />
           </TwoColumnsField>
           <VillageLocalisedField
