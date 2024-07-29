@@ -40,7 +40,7 @@
     "allowedOrigin": "https://fake-place-xxx-yyy.com"
   },
   "sync": {
-    "lookupTable": false,
+    "useLookupTable": false,
   },
   "localisation": {
     "data": {
