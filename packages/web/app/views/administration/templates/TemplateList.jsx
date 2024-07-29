@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { DataFetchingTable, DateDisplay } from '../../../components';
+import { DataFetchingTable, DateDisplay, TranslatedEnum } from '../../../components';
 import { TEMPLATE_ENDPOINT } from '../constants';
 import { TEMPLATE_TYPE_LABELS } from '@tamanu/constants';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
@@ -14,7 +14,9 @@ export const TemplateList = React.memo(props => (
       {
         key: 'type',
         title: <TranslatedText stringId="general.type.label" fallback="Type" />,
-        accessor: record => TEMPLATE_TYPE_LABELS[record.type],
+        accessor: record => (
+          <TranslatedEnum value={record.type} enumValues={TEMPLATE_TYPE_LABELS} />
+        ),
         sortable: false,
       },
       {
@@ -34,13 +36,17 @@ export const TemplateList = React.memo(props => (
       },
       {
         key: 'dateCreated',
-        title: <TranslatedText stringId="admin.template.table.column.createdOn" fallback="Created on" />,
+        title: (
+          <TranslatedText stringId="admin.template.table.column.createdOn" fallback="Created on" />
+        ),
         accessor: ({ dateCreated }) => <DateDisplay date={dateCreated} />,
         sortable: false,
       },
       {
         key: 'createdBy',
-        title: <TranslatedText stringId="admin.template.table.column.createdBy" fallback="Created by" />,
+        title: (
+          <TranslatedText stringId="admin.template.table.column.createdBy" fallback="Created by" />
+        ),
         accessor: getDisplayName,
         sortable: false,
       },
