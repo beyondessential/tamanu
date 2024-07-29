@@ -276,16 +276,12 @@ export class Encounter extends Model {
 
   static buildSyncLookupFilter() {
     return {
-      select: `
-        encounters.id,
-        encounters,
+      extraFilterColumnSelect: `
         encounters.patient_id,
         locations.facility_id,
         encounters.id,
-        encounters.deleted_at IS NOT NULL,
-        encounters.updated_at_sync_tick,
-        NULL,
         labs.encounter_id IS NOT NULL,
+        NULL
       `,
       joins: `
         LEFT JOIN (
