@@ -10,7 +10,7 @@ import { TranslatedText } from '../components/Translation/TranslatedText';
 const {
   TOKEN,
   LOCALISATION,
-  SERVER_TYPE,
+  SERVER,
   AVAILABLE_FACILITIES,
   FACILITY_ID,
   PERMISSIONS,
@@ -29,9 +29,9 @@ function safeGetStoredJSON(key) {
 
 function restoreFromLocalStorage() {
   const token = localStorage.getItem(TOKEN);
-  const serverType = localStorage.getItem(SERVER_TYPE);
   const facilityId = localStorage.getItem(FACILITY_ID);
   const localisation = safeGetStoredJSON(LOCALISATION);
+  const server = safeGetStoredJSON(SERVER);
   const availableFacilities = safeGetStoredJSON(AVAILABLE_FACILITIES);
   const permissions = safeGetStoredJSON(PERMISSIONS);
   const role = safeGetStoredJSON(ROLE);
@@ -40,7 +40,7 @@ function restoreFromLocalStorage() {
   return {
     token,
     localisation,
-    server: { type: serverType },
+    server,
     availableFacilities,
     facilityId,
     permissions,
@@ -52,7 +52,7 @@ function restoreFromLocalStorage() {
 function saveToLocalStorage({
   token,
   localisation,
-  serverType,
+  server,
   availableFacilities,
   facilityId,
   permissions,
@@ -65,8 +65,8 @@ function saveToLocalStorage({
   if (facilityId) {
     localStorage.setItem(FACILITY_ID, facilityId);
   }
-  if (serverType) {
-    localStorage.setItem(SERVER_TYPE, serverType);
+  if (server) {
+    localStorage.setItem(SERVER, JSON.stringify(server));
   }
   if (localisation) {
     localStorage.setItem(LOCALISATION, JSON.stringify(localisation));
@@ -88,7 +88,7 @@ function saveToLocalStorage({
 function clearLocalStorage() {
   localStorage.removeItem(TOKEN);
   localStorage.removeItem(LOCALISATION);
-  localStorage.removeItem(SERVER_TYPE);
+  localStorage.removeItem(SERVER);
   localStorage.removeItem(AVAILABLE_FACILITIES);
   localStorage.removeItem(FACILITY_ID);
   localStorage.removeItem(PERMISSIONS);
@@ -179,7 +179,7 @@ export class TamanuApi extends ApiClient {
     saveToLocalStorage({
       token,
       localisation,
-      serverType: server.type,
+      server,
       availableFacilities,
       permissions,
       role,
