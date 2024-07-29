@@ -26,8 +26,8 @@ import { TranslatedText, TranslatedReferenceData } from '../Translation';
 import { useSettings } from '../../contexts/Settings';
 import { SETTING_KEYS } from '@tamanu/constants';
 
-const RedText = styled.span`
-  color: ${props => props.$highlightAllergy && 'red'};
+const HighlightedText = styled.span`
+  color: ${props => props.color};
 `;
 
 const OngoingConditionDisplay = memo(({ patient, readonly }) => (
@@ -60,7 +60,7 @@ const OngoingConditionDisplay = memo(({ patient, readonly }) => (
 
 const AllergyDisplay = memo(({ patient, readonly }) => {
   const { getSetting } = useSettings();
-  const isHighlightAllergy = getSetting(SETTING_KEYS.FEATURE_HIGHLIGHT_ALLERGY);
+  const shouldHighlightAllergy = getSetting(SETTING_KEYS.FEATURE_HIGHLIGHT_ALLERGY);
 
   return (
     <InfoPaneList
@@ -77,13 +77,13 @@ const AllergyDisplay = memo(({ patient, readonly }) => {
       getEndpoint={`patient/${patient.id}/allergies`}
       Form={AllergyForm}
       getName={allergy => (
-        <RedText $highlightAllergy={isHighlightAllergy}>
+        <HighlightedText color={shouldHighlightAllergy ? 'red' : undefined}>
           <TranslatedReferenceData
             fallback={allergy.allergy.name}
             value={allergy.allergy.id}
             category="allergy"
           />
-        </RedText>
+        </HighlightedText>
       )}
     />
   );
