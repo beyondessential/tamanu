@@ -2,6 +2,7 @@ import { Sequelize } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { InvalidOperationError } from '../errors';
 import { Model } from './Model';
+import { buildExtraFilterColumnSelect } from './buildExtraFilterColumnSelect';
 
 export class ContributingDeathCause extends Model {
   static init({ primaryKey, ...options }) {
@@ -66,14 +67,15 @@ export class ContributingDeathCause extends Model {
 
   static buildSyncLookupFilter() {
     return {
-      joins:  `
+      extraFilterColumnSelect: buildExtraFilterColumnSelect({
+        patientId: 'patient_death_data.patient_id',
+      }),
+      joins: `
         JOIN
           patient_death_data
         ON
           patient_death_data_id = patient_death_data.id
       `,
-      globalFilter: null,
-      patientIdTables: ['patient_death_data'],
     };
   }
 }

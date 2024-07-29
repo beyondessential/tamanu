@@ -5,6 +5,7 @@ import { buildPatientSyncFilterViaPatientId } from './buildPatientSyncFilterViaP
 import { dateTimeType } from './dateTimeTypes';
 import { getCurrentDateTimeString } from '../utils/dateTime';
 import { onSaveMarkPatientForSync } from './onSaveMarkPatientForSync';
+import { buildPatientLinkedLookupFilter } from './buildPatientLinkedLookupFilter';
 
 export class PatientIssue extends Model {
   static init({ primaryKey, ...options }) {
@@ -35,9 +36,7 @@ export class PatientIssue extends Model {
   }
 
   static buildSyncLookupFilter() {
-    return {
-      patientIdTables: ['patient_issues'],
-    };
+    return buildPatientLinkedLookupFilter(this.tableName);
   }
 
   static buildPatientSyncFilter = buildPatientSyncFilterViaPatientId;

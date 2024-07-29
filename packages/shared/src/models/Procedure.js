@@ -1,11 +1,9 @@
 import { Sequelize } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
-import {
-  buildEncounterLinkedSyncFilter,
-  buildEncounterLinkedSyncFilterJoins,
-} from './buildEncounterLinkedSyncFilter';
+import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
 import { dateTimeType } from './dateTimeTypes';
+import { buildEncounterLinkedLookupFilter } from './buildEncounterLinkedLookupFilter';
 
 export class Procedure extends Model {
   static init({ primaryKey, ...options }) {
@@ -65,13 +63,11 @@ export class Procedure extends Model {
     if (patientCount === 0) {
       return null;
     }
-    return buildEncounterLinkedSyncFilter([this.tableName, 'encounters'], markedForSyncPatientsTable);
+    return buildEncounterLinkedSyncFilter(
+      [this.tableName, 'encounters'],
+      markedForSyncPatientsTable,
+    );
   }
 
-  static buildSyncLookupFilter() {
-    return {
-      joins: buildEncounterLinkedSyncFilterJoins([this.tableName, 'encounters']),
-      patientIdTables: ['encounters'],
-    };
-  }
+  static buildSyncLookupFilter = buildEncounterLinkedLookupFilter;
 }

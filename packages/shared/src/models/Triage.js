@@ -10,6 +10,7 @@ import {
   buildEncounterLinkedSyncFilterJoins,
 } from './buildEncounterLinkedSyncFilter';
 import { dateTimeType } from './dateTimeTypes';
+import { buildExtraFilterColumnSelect } from './buildExtraFilterColumnSelect';
 
 export class Triage extends Model {
   static init({ primaryKey, ...options }) {
@@ -63,13 +64,18 @@ export class Triage extends Model {
     if (patientCount === 0) {
       return null;
     }
-    return buildEncounterLinkedSyncFilter([this.tableName, 'encounters'], markedForSyncPatientsTable);
+    return buildEncounterLinkedSyncFilter(
+      [this.tableName, 'encounters'],
+      markedForSyncPatientsTable,
+    );
   }
 
   static buildSyncLookupFilter() {
     return {
+      extraFilterColumnSelect: buildExtraFilterColumnSelect({
+        patientId: 'encounters.id',
+      }),
       joins: buildEncounterLinkedSyncFilterJoins([this.tableName, 'encounters']),
-      patientIdTables: ['encounters'],
     };
   }
 

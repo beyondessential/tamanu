@@ -4,6 +4,7 @@ import {
   buildEncounterLinkedSyncFilter,
   buildEncounterLinkedSyncFilterJoins,
 } from './buildEncounterLinkedSyncFilter';
+import { buildExtraFilterColumnSelect } from './buildExtraFilterColumnSelect';
 
 export class LabTestPanelRequest extends Model {
   static init({ primaryKey, ...options }) {
@@ -44,9 +45,11 @@ export class LabTestPanelRequest extends Model {
 
   static buildSyncLookupFilter() {
     return {
-      isLabRequestValue: 'TRUE',
+      extraFilterColumnSelect: buildExtraFilterColumnSelect({
+        patientId: 'encounters.patient_id',
+        isLabRequestValue: 'TRUE',
+      }),
       joins: buildEncounterLinkedSyncFilterJoins([this.tableName, 'encounters']),
-      patientIdTables: ['encounters'],
     };
   }
 }

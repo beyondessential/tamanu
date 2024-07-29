@@ -3,6 +3,7 @@ import { isPlainObject, get as getAtPath, set as setAtPath } from 'lodash';
 import { settingsCache } from '@tamanu/settings/cache';
 import { SYNC_DIRECTIONS, SETTINGS_SCOPES } from '@tamanu/constants';
 import { Model } from './Model';
+import { buildExtraFilterColumnSelect } from './buildExtraFilterColumnSelect';
 
 /**
  * Stores nested settings data, where each leaf node in the nested object has a record in the table,
@@ -204,8 +205,9 @@ export class Setting extends Model {
 
   static buildSyncLookupFilter() {
     return {
-      globalFilter: null,
-      facilityIdTable: 'settings',
+      extraFilterColumnSelect: buildExtraFilterColumnSelect({
+        facilityId: 'settings.facility_id',
+      }),
     };
   }
 }

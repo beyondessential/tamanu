@@ -7,6 +7,7 @@ import {
 import { Model } from './Model';
 import { dateTimeType, dateType } from './dateTimeTypes';
 import { getCurrentDateString } from '../utils/dateTime';
+import { buildExtraFilterColumnSelect } from './buildExtraFilterColumnSelect';
 
 const LAB_TEST_STATUS_VALUES = Object.values(LAB_TEST_STATUSES);
 
@@ -80,9 +81,11 @@ export class LabTest extends Model {
 
   static buildSyncLookupFilter() {
     return {
-      isLabRequestValue: 'TRUE',
+      extraFilterColumnSelect: buildExtraFilterColumnSelect({
+        patientId: 'encounters.patient_id',
+        isLabRequestValue: 'TRUE',
+      }),
       joins: buildEncounterLinkedSyncFilterJoins([this.tableName, 'lab_requests', 'encounters']),
-      patientIdTables: ['encounters'],
     };
   }
 }

@@ -6,6 +6,7 @@ import { Encounter } from './Encounter';
 import { ScheduledVaccine } from './ScheduledVaccine';
 import { dateTimeType } from './dateTimeTypes';
 import { buildEncounterLinkedSyncFilterJoins } from './buildEncounterLinkedSyncFilter';
+import { buildExtraFilterColumnSelect } from './buildExtraFilterColumnSelect';
 
 export class AdministeredVaccine extends Model {
   static init({ primaryKey, ...options }) {
@@ -119,8 +120,11 @@ export class AdministeredVaccine extends Model {
 
   static buildSyncLookupFilter() {
     return {
+      extraFilterColumnSelect: buildExtraFilterColumnSelect({
+        patientId: 'encounters.patient_id',
+        encounterId: 'encounters.id',
+      }),
       joins: buildEncounterLinkedSyncFilterJoins([this.tableName, 'encounters']),
-      patientIdTables: ['encounters'],
     };
   }
 

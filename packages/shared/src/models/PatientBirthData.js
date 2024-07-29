@@ -7,6 +7,7 @@ import { dateTimeType } from './dateTimeTypes';
 import { Model } from './Model';
 import { buildPatientSyncFilterViaPatientId } from './buildPatientSyncFilterViaPatientId';
 import { onSaveMarkPatientForSync } from './onSaveMarkPatientForSync';
+import { buildPatientLinkedLookupFilter } from './buildPatientLinkedLookupFilter';
 
 export class PatientBirthData extends Model {
   static init(options) {
@@ -89,9 +90,7 @@ export class PatientBirthData extends Model {
   ];
 
   static buildSyncLookupFilter() {
-    return {
-      patientIdTables: ['patient_birth_data'],
-    };
+    return buildPatientLinkedLookupFilter(this.tableName);
   }
 
   static buildPatientSyncFilter = buildPatientSyncFilterViaPatientId;

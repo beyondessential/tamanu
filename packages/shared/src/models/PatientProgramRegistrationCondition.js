@@ -2,7 +2,7 @@ import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { dateTimeType } from './dateTimeTypes';
 import { getCurrentDateTimeString } from '../utils/dateTime';
 import { Model } from './Model';
-import { buildEncounterLinkedSyncFilterJoins } from './buildEncounterLinkedSyncFilter';
+import { buildPatientLinkedLookupFilter } from './buildPatientLinkedLookupFilter';
 
 export class PatientProgramRegistrationCondition extends Model {
   static init({ primaryKey, ...options }) {
@@ -67,8 +67,5 @@ export class PatientProgramRegistrationCondition extends Model {
   }
 
   static buildSyncLookupFilter() {
-    return {
-      patientIdTables: ['patient_program_registration_conditions'],
-    };
-  }
-}
+    return buildPatientLinkedLookupFilter(this.tableName);
+  }}

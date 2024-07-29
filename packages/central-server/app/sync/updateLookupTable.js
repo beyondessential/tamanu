@@ -11,7 +11,7 @@ export const updateLookupTableForModel = async (model, config, since, sessionCon
   let fromId = '';
   let totalCount = 0;
   const attributes = model.getAttributes();
-  const { select, joins } = model.buildSyncLookupFilter(sessionConfig) || {};
+  const { extraFilterColumnSelect, joins } = model.buildSyncLookupFilter(sessionConfig) || {};
   const useUpdatedAtByFieldSum = !!attributes.updatedAtByField;
 
   while (fromId != null) {
@@ -21,22 +21,34 @@ export const updateLookupTableForModel = async (model, config, since, sessionCon
           INSERT INTO sync_lookup (
             record_id,
             record_type,
+            is_deleted,
+            updated_at_sync_tick,
+            data,
+            
             patient_id,
             facility_id,
             encounter_id,
-            is_deleted,
-            updated_at_sync_tick,
-            updated_at_by_field_sum,
             is_lab_request,
-            data
+            updated_at_by_field_sum
           )
           SELECT
-            ${select}
+            ${table}.id,
+            '${table}',
+            ${table}.deleted_at IS NOT NULL,
+            ${table}.updated_at_sync_tick,
             json_build_object(
               ${Object.keys(attributes)
                 .filter(a => !COLUMNS_EXCLUDED_FROM_SYNC.includes(a))
                 .map(a => `'${a}', ${table}.${snake(a)}`)}
-            )
+            ),
+            ${extraFilterColumnSelect ||
+              `
+            NULL,
+            NULL,
+            NULL,
+            FALSE,
+            NULL
+            `}
           FROM
             ${table}
            ${
@@ -66,7 +78,7 @@ export const updateLookupTableForModel = async (model, config, since, sessionCon
             is_lab_request = EXCLUDED.is_lab_request,
             patient_id = EXCLUDED.patient_id,
             encounter_id = EXCLUDED.encounter_id,
-            facility_id = EXCLUDED.facility_id,
+            facility_id = EXCLUDED.facility_id
           RETURNING record_id
         )
         SELECT MAX(record_id) as "maxId",
