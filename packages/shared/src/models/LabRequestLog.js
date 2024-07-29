@@ -6,6 +6,7 @@ import {
   buildEncounterLinkedSyncFilterJoins,
 } from './buildEncounterLinkedSyncFilter';
 import { Model } from './Model';
+import { buildExtraFilterColumnSelect } from './buildExtraFilterColumnSelect';
 
 const LAB_REQUEST_STATUS_VALUES = Object.values(LAB_REQUEST_STATUSES);
 
@@ -52,8 +53,11 @@ export class LabRequestLog extends Model {
 
   static buildSyncLookupFilter() {
     return {
+      extraFilterColumnSelect: buildExtraFilterColumnSelect({
+        patientId: 'encounters.patient_id',
+        isLabRequestValue: 'TRUE',
+      }),
       joins: buildEncounterLinkedSyncFilterJoins([this.tableName, 'lab_requests', 'encounters']),
-      patientIdTables: ['encounters'],
     };
   }
 }

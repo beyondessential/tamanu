@@ -10,6 +10,7 @@ import {
 } from './buildEncounterLinkedSyncFilter';
 import { dateTimeType } from './dateTimeTypes';
 import { getCurrentDateTimeString } from '../utils/dateTime';
+import { buildExtraFilterColumnSelect } from './buildExtraFilterColumnSelect';
 
 export class ImagingResult extends Model {
   static init(options) {
@@ -79,8 +80,10 @@ export class ImagingResult extends Model {
 
   static buildSyncLookupFilter() {
     return {
+      extraFilterColumnSelect: buildExtraFilterColumnSelect({
+        patientId: 'encounters.patient_id',
+      }),
       joins: buildEncounterLinkedSyncFilterJoins([this.tableName, 'imaging_requests', 'encounters']),
-      patientIdTables: ['encounters'],
     };
   }
 }

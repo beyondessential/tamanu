@@ -10,13 +10,10 @@ import { getNoteWithType } from '../utils/notes';
 import { InvalidOperationError } from '../errors';
 
 import { Model } from './Model';
-import {
-  buildEncounterLinkedJoin,
-  buildEncounterLinkedSyncFilter,
-  buildEncounterLinkedSyncFilterJoins,
-} from './buildEncounterLinkedSyncFilter';
+import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
 import { dateTimeType } from './dateTimeTypes';
 import { getCurrentDateTimeString } from '../utils/dateTime';
+import { buildEncounterLinkedLookupFilter } from './buildEncounterLinkedLookupFilter';
 
 const ALL_IMAGING_REQUEST_STATUS_TYPES = Object.values(IMAGING_REQUEST_STATUS_TYPES);
 
@@ -164,10 +161,5 @@ export class ImagingRequest extends Model {
     );
   }
 
-  static buildSyncLookupFilter() {
-    return {
-      joins: buildEncounterLinkedSyncFilterJoins([this.tableName, 'encounters']),
-      patientIdTables: ['encounters'],
-    };
-  }
+  static buildSyncLookupFilter = buildEncounterLinkedLookupFilter;
 }

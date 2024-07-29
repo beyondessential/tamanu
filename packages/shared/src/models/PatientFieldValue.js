@@ -3,6 +3,7 @@ import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
 import { buildPatientSyncFilterViaPatientId } from './buildPatientSyncFilterViaPatientId';
 import { onSaveMarkPatientForSync } from './onSaveMarkPatientForSync';
+import { buildPatientLinkedLookupFilter } from './buildPatientLinkedLookupFilter';
 
 export class PatientFieldValue extends Model {
   static init(options) {
@@ -74,9 +75,7 @@ export class PatientFieldValue extends Model {
   }
 
   static buildSyncLookupFilter() {
-    return {
-      patientIdTables: ['patient_field_values'],
-    };
+    return buildPatientLinkedLookupFilter(this.tableName);
   }
 
   static buildPatientSyncFilter = buildPatientSyncFilterViaPatientId;

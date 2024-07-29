@@ -1,6 +1,7 @@
 import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
+import { buildPatientLinkedLookupFilter } from './buildPatientLinkedLookupFilter';
 
 export class PatientFacility extends Model {
   static init(options) {
@@ -54,9 +55,5 @@ export class PatientFacility extends Model {
   }
 
   static buildSyncLookupFilter() {
-    return {
-      globalFilter: null,
-      facilityIdTable: 'patient_facilities',
-    };
-  }
-}
+    return buildPatientLinkedLookupFilter(this.tableName);
+  }}

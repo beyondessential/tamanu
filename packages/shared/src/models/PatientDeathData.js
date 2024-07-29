@@ -5,6 +5,7 @@ import { dateType } from './dateTimeTypes';
 import { Model } from './Model';
 import { buildPatientSyncFilterViaPatientId } from './buildPatientSyncFilterViaPatientId';
 import { onSaveMarkPatientForSync } from './onSaveMarkPatientForSync';
+import { buildPatientLinkedLookupFilter } from './buildPatientLinkedLookupFilter';
 
 export class PatientDeathData extends Model {
   static init({ primaryKey, ...options }) {
@@ -122,11 +123,9 @@ export class PatientDeathData extends Model {
       as: 'contributingCauses',
     });
   }
-
+  
   static buildSyncLookupFilter() {
-    return {
-      patientIdTables: ['patient_death_data'],
-    };
+    return buildPatientLinkedLookupFilter(this.tableName);
   }
 
   static buildPatientSyncFilter = buildPatientSyncFilterViaPatientId;

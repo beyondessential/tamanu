@@ -3,6 +3,8 @@ import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
 import { buildPatientSyncFilterViaPatientId } from './buildPatientSyncFilterViaPatientId';
 import { onSaveMarkPatientForSync } from './onSaveMarkPatientForSync';
+import { buildExtraFilterColumnSelect } from './buildExtraFilterColumnSelect';
+import { buildPatientLinkedLookupFilter } from './buildPatientLinkedLookupFilter';
 
 export class PatientAdditionalData extends Model {
   static init(options) {
@@ -110,11 +112,8 @@ export class PatientAdditionalData extends Model {
   }
 
   static buildSyncLookupFilter() {
-    return {
-      patientIdTables: ['patient_additional_data'],
-    };
+    return buildPatientLinkedLookupFilter(this.tableName);
   }
-
   static buildPatientSyncFilter = buildPatientSyncFilterViaPatientId;
 
   static async getForPatient(patientId) {

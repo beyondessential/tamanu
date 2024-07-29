@@ -5,6 +5,8 @@ import { buildPatientSyncFilterViaPatientId } from './buildPatientSyncFilterViaP
 import { dateTimeType } from './dateTimeTypes';
 import { getCurrentDateTimeString } from '../utils/dateTime';
 import { onSaveMarkPatientForSync } from './onSaveMarkPatientForSync';
+import { buildExtraFilterColumnSelect } from './buildExtraFilterColumnSelect';
+import { buildPatientLinkedLookupFilter } from './buildPatientLinkedLookupFilter';
 
 export class PatientAllergy extends Model {
   static init({ primaryKey, ...options }) {
@@ -37,9 +39,7 @@ export class PatientAllergy extends Model {
   }
 
   static buildSyncLookupFilter() {
-    return {
-      patientIdTables: ['patient_allergies'],
-    };
+    return buildPatientLinkedLookupFilter(this.tableName);
   }
 
   static buildPatientSyncFilter = buildPatientSyncFilterViaPatientId;
