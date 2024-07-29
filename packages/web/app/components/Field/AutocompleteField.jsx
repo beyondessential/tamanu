@@ -159,7 +159,7 @@ export class AutocompleteInput extends Component {
 
   handleSuggestionChange = option => {
     const { onChange, name, suggester } = this.props;
-    if (!option.isCustomized) {
+    if (!option.isCustomizedOption) {
       onChange({ target: { ...option, name } });
     } else if (suggester) {
       const payload = { name: option.label };
@@ -208,7 +208,7 @@ export class AutocompleteInput extends Component {
         suggest => suggest.label.toLowerCase() === trimmedValue.toLowerCase(),
       );
       if (allowCreatingCustomValue && trimmedValue && !isValueInOptions) {
-        suggestions.push({ label: trimmedValue, value: trimmedValue, isCustomized: true });
+        suggestions.push({ label: trimmedValue, value: trimmedValue, isCustomizedOption: true });
       }
     }
     this.setState({ suggestions });
@@ -265,11 +265,11 @@ export class AutocompleteInput extends Component {
   };
 
   renderSuggestion = (suggestion, { isHighlighted }) => {
-    const { tag, isCustomized } = suggestion;
+    const { tag, isCustomizedOption } = suggestion;
     return (
       <Item selected={isHighlighted} component="div">
         <Typography variant="body2">
-          {isCustomized ? (
+          {isCustomizedOption ? (
             <>
               &quot;{suggestion.label}&quot; (
               <TranslatedText
@@ -294,7 +294,7 @@ export class AutocompleteInput extends Component {
   renderContainer = option => {
     const { size = 'medium' } = this.props;
     const { suggestions } = this.state;
-    const hasCustomizeItem = suggestions[suggestions.length - 1]?.isCustomized;
+    const hasCustomizeItem = suggestions[suggestions.length - 1]?.isCustomizedOption;
 
     return (
       <SuggestionsContainer
