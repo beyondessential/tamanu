@@ -15,7 +15,7 @@ import { SyncErrorDisplay } from '../../../../components/SyncErrorDisplay';
 import { ErrorIcon, GreenTickIcon } from '../../../../components/Icons';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 import { useTranslation } from '/contexts/TranslationContext';
-import { formatLastSuccessfulSyncTick } from '~/ui/helpers/date';
+import { formatlastSuccessfulSyncTime } from '~/ui/helpers/date';
 
 export const SyncDataScreen = ({ navigation }): ReactElement => {
   const backend = useContext(BackendContext);
@@ -29,8 +29,8 @@ export const SyncDataScreen = ({ navigation }): ReactElement => {
   const [syncStage, setSyncStage] = useState(syncManager.syncStage);
   const [progress, setProgress] = useState(syncManager.progress);
   const [progressMessage, setProgressMessage] = useState(syncManager.progressMessage);
-  const [formattedLastSuccessfulSyncTick, setFormattedLastSuccessfulSyncTick] = useState(
-    formatLastSuccessfulSyncTick(syncManager.lastSuccessfulSyncTick),
+  const [formattedlastSuccessfulSyncTime, setFormattedlastSuccessfulSyncTime] = useState(
+    formatlastSuccessfulSyncTime(syncManager.lastSuccessfulSyncTime),
   );
   const [lastSyncPushedRecordsCount, setLastSyncPushedRecordsCount] = useState(null);
   const [lastSyncPulledRecordsCount, setLastSyncPulledRecordsCount] = useState(null);
@@ -82,8 +82,8 @@ export const SyncDataScreen = ({ navigation }): ReactElement => {
           setSyncStage(syncManager.syncStage);
           setProgress(syncManager.progress);
           setProgressMessage(syncManager.progressMessage);
-          setFormattedLastSuccessfulSyncTick(
-            formatLastSuccessfulSyncTick(syncManager.lastSuccessfulSyncTick),
+          setFormattedlastSuccessfulSyncTime(
+            formatlastSuccessfulSyncTime(syncManager.lastSuccessfulSyncTime),
           );
           setLastSyncPushedRecordsCount(syncManager.lastSyncPushedRecordsCount);
           setLastSyncPulledRecordsCount(syncManager.lastSyncPulledRecordsCount);
@@ -104,8 +104,8 @@ export const SyncDataScreen = ({ navigation }): ReactElement => {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setFormattedLastSuccessfulSyncTick(
-        formatLastSuccessfulSyncTick(syncManager.lastSuccessfulSyncTick),
+      setFormattedlastSuccessfulSyncTime(
+        formatlastSuccessfulSyncTime(syncManager.lastSuccessfulSyncTime),
       );
     }, 1000);
     return () => {
@@ -205,7 +205,7 @@ export const SyncDataScreen = ({ navigation }): ReactElement => {
             {progressMessage}
           </StyledText>
         ) : null}
-        {!isSyncing && formattedLastSuccessfulSyncTick ? (
+        {!isSyncing && formattedlastSuccessfulSyncTime ? (
           <>
             <StyledText
               marginTop={screenPercentageToDP(1.72, Orientation.Height)}
@@ -222,7 +222,7 @@ export const SyncDataScreen = ({ navigation }): ReactElement => {
               fontSize={screenPercentageToDP(1.7, Orientation.Height)}
               color={theme.colors.WHITE}
             >
-              {formattedLastSuccessfulSyncTick}
+              {formattedlastSuccessfulSyncTime}
             </StyledText>
             {!isSyncing &&
             lastSyncPulledRecordsCount !== null &&

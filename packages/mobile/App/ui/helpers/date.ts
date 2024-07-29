@@ -162,8 +162,8 @@ function compareDate(leftDate, operator, rightDate, exclusive) {
   return comparatorFn(leftDate, rightDate);
 }
 
-export function formatLastSuccessfulSyncTick(lastSuccessfulSyncTick: Date): string {
-  return lastSuccessfulSyncTick
-    ? formatDistance(lastSuccessfulSyncTick, new Date(), { addSuffix: true })
+export function formatlastSuccessfulSyncTime(lastSuccessfulSyncTime: Date): string {
+  return lastSuccessfulSyncTime
+    ? formatDistance(lastSuccessfulSyncTime, new Date(), { addSuffix: true })
     : '';
 }
