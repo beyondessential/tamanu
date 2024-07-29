@@ -228,7 +228,6 @@ export class CentralSyncManager {
     const previouslyUpToTick =
       (await this.store.models.LocalSystemFact.get(LOOKUP_UP_TO_TICK_KEY)) || -1;
 
-    console.log('globalSyncSinceee', globalSyncSince);
     await this.store.sequelize.transaction(
       { isolationLevel: Transaction.ISOLATION_LEVELS.REPEATABLE_READ },
       async () => {
