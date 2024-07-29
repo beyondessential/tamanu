@@ -12,6 +12,7 @@ import { dateTimeType } from './dateTimeTypes';
 import { Model } from './Model';
 import { onSaveMarkPatientForSync } from './onSaveMarkPatientForSync';
 import { dischargeOutpatientEncounters } from '../utils/dischargeOutpatientEncounters';
+import { buildExtraFilterColumnSelect } from './buildExtraFilterColumnSelect';
 
 export class Encounter extends Model {
   static init({ primaryKey, hackToSkipEncounterValidation, ...options }) {
@@ -276,13 +277,12 @@ export class Encounter extends Model {
 
   static buildSyncLookupFilter() {
     return {
-      extraFilterColumnSelect: `
-        encounters.patient_id,
-        locations.facility_id,
-        encounters.id,
-        labs.encounter_id IS NOT NULL,
-        NULL
-      `,
+      extraFilterColumnSelect: buildExtraFilterColumnSelect({
+        patientId: 'encounters.patient_id',
+        facilityId: 'locations.facility_id',
+        encounterId: 'encounters.id',
+        isLabRequest: 'labs.encounter_id IS NOT NULL',
+      }),
       joins: `
         LEFT JOIN (
           SELECT DISTINCT encounter_id
