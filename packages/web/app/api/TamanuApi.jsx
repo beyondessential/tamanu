@@ -40,7 +40,7 @@ function restoreFromLocalStorage() {
   return {
     token,
     localisation,
-    serverType,
+    server: { type: serverType },
     availableFacilities,
     facilityId,
     permissions,
@@ -137,7 +137,7 @@ export class TamanuApi extends ApiClient {
     const {
       token,
       localisation,
-      serverType,
+      server,
       availableFacilities,
       facilityId,
       permissions,
@@ -156,7 +156,7 @@ export class TamanuApi extends ApiClient {
       user,
       token,
       localisation,
-      serverType,
+      server,
       availableFacilities,
       facilityId,
       ability,
