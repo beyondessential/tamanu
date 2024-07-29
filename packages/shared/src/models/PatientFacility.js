@@ -2,6 +2,7 @@ import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
 import { buildPatientLinkedLookupFilter } from './buildPatientLinkedLookupFilter';
+import { buildExtraFilterColumnSelect } from './buildExtraFilterColumnSelect';
 
 export class PatientFacility extends Model {
   static init(options) {
@@ -55,5 +56,11 @@ export class PatientFacility extends Model {
   }
 
   static buildSyncLookupFilter() {
-    return buildPatientLinkedLookupFilter(this.tableName);
-  }}
+    return {
+      extraFilterColumnSelect: buildExtraFilterColumnSelect({
+        patientId: `${this.tableName}.patient_id`,
+        facilityId: `${this.tableName}.facility_id`,
+      }),
+    };
+  }
+}
