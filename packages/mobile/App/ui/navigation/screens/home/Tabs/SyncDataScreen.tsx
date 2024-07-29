@@ -1,7 +1,6 @@
 import React, { ReactElement, useCallback, useContext, useEffect, useState } from 'react';
 import { ActivityIndicator } from 'react-native';
 import { activateKeepAwake, deactivateKeepAwake } from '@sayem314/react-native-keep-awake';
-import { formatDistance } from 'date-fns';
 import { CenterView, StyledText, StyledView } from '../../../../styled/common';
 import { theme } from '../../../../styled/theme';
 import { Orientation, screenPercentageToDP, setStatusBar } from '../../../../helpers/screen';
@@ -16,15 +15,12 @@ import { SyncErrorDisplay } from '../../../../components/SyncErrorDisplay';
 import { ErrorIcon, GreenTickIcon } from '../../../../components/Icons';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 import { useTranslation } from '/contexts/TranslationContext';
+import { formatLastSuccessfulSyncTick } from '~/ui/helpers/date';
 
 export const SyncDataScreen = ({ navigation }): ReactElement => {
   const backend = useContext(BackendContext);
   const syncManager: MobileSyncManager = backend.syncManager;
   const { getTranslation } = useTranslation();
-  const formatLastSuccessfulSyncTick = (lastSuccessfulSyncTick: Date): string =>
-    lastSuccessfulSyncTick
-      ? formatDistance(lastSuccessfulSyncTick, new Date(), { addSuffix: true })
-      : '';
 
   const [syncStarted, setSyncStarted] = useState(syncManager.isSyncing);
   const [hasError, setHasError] = useState(false);

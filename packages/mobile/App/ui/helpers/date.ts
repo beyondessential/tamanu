@@ -12,6 +12,7 @@ import {
   differenceInDays,
   formatDuration,
   startOfDay,
+  formatDistance,
 } from 'date-fns';
 
 // Note: A lot of these functions are copied in from shared, i.e. are duplicates of functions in shared/utils/date.js
@@ -159,4 +160,10 @@ function compareDate(leftDate, operator, rightDate, exclusive) {
   const comparatorFn = comparators[comparator];
 
   return comparatorFn(leftDate, rightDate);
+}
+
+export function formatLastSuccessfulSyncTick(lastSuccessfulSyncTick: Date): string {
+  return lastSuccessfulSyncTick
+    ? formatDistance(lastSuccessfulSyncTick, new Date(), { addSuffix: true })
+    : '';
 }
