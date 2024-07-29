@@ -5,8 +5,13 @@ import { useBackendEffect } from '../../hooks';
 import { readConfig } from '~/services/config';
 import { SyncStatusModal } from './SyncStatusModal';
 import { SyncStatusIcon } from './SyncStatusIcon';
+import { IPatient } from '~/types';
 
-export const PatientSyncStatus = ({ selectedPatient }) => {
+interface PatientSyncStatusProps {
+  selectedPatient: IPatient;
+}
+
+export const PatientSyncStatus = ({ selectedPatient }: PatientSyncStatusProps): JSX.Element => {
   const [isOpen, setIsOpen] = useState(false);
   const facilityId = readConfig('facilityId', '');
   const [patientFacility, , isLoading] = useBackendEffect(({ models: m }) =>

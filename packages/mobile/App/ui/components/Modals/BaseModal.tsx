@@ -8,7 +8,7 @@ import { TranslatedTextElement } from '~/ui/components/Translations/TranslatedTe
 
 export interface BaseModalProps {
   open: boolean;
-  onClose: () => void;
+  onClose: (() => void) | (() => Promise<void>);
   title: TranslatedTextElement;
   children: ReactNode;
 }

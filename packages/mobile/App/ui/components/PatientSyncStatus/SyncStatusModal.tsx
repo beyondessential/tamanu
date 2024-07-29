@@ -6,8 +6,21 @@ import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 import { ConfirmModal } from '../Modals/ConfirmModal';
 import { Patient } from '~/models/Patient';
 import { LAST_SUCCESSFUL_PULL } from '~/services/sync';
+import { IPatient } from '~/types';
 
-export const SyncStatusModal = ({ open, onClose, selectedPatient, isMarkedForSync }): JSX.Element => {
+interface SyncStatusModalModalProps {
+  open: boolean;
+  onClose: () => void;
+  selectedPatient: IPatient;
+  isMarkedForSync: boolean;
+}
+
+export const SyncStatusModal = ({
+  open,
+  onClose,
+  selectedPatient,
+  isMarkedForSync,
+}: SyncStatusModalModalProps): JSX.Element => {
   const { syncManager } = useBackend();
   const [lastPull] = useBackendEffect(({ models: m }) =>
     m.LocalSystemFact.findOne({ where: { key: LAST_SUCCESSFUL_PULL } }),

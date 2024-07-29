@@ -3,7 +3,11 @@ import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
 import { NotMarkedForSyncIcon, MarkedForSyncIcon } from '~/ui/components/Icons';
 import { StyledView } from '~/ui/styled/common';
 
-export const SyncStatusIcon = ({ isMarkedForSync }) => {
+interface SyncStatusIconProps {
+  isMarkedForSync: boolean;
+}
+
+export const SyncStatusIcon = ({ isMarkedForSync }: SyncStatusIconProps) => {
   const CurrentStatusIcon = isMarkedForSync ? MarkedForSyncIcon : NotMarkedForSyncIcon;
   return (
     <StyledView

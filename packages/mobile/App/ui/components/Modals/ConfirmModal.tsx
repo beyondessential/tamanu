@@ -7,7 +7,7 @@ import { BaseModal, BaseModalProps } from './BaseModal';
 
 export interface ConfirmModalProps extends BaseModalProps {
   confirmButtonText: TranslatedTextElement;
-  onConfirm: () => Promise<any>;
+  onConfirm: (() => void) | (() => Promise<void>);
   showCancelButton?: boolean;
 }
 
