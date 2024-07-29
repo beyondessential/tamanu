@@ -25,11 +25,11 @@ export const SyncStatusModal = ({ open, onClose, selectedPatient, isMarkedForSyn
         onClose={onClose}
         onConfirm={onSyncPatient}
         title={<TranslatedText
-          stringId="patient.details.unsynced.modal.title"
+          stringId="patient.details.modal.unsynced.title"
           fallback="Sync patient?"
         />}
         confirmButtonText={<TranslatedText
-          stringId="patient.details.unsynced.modal.action.sync"
+          stringId="patient.details.modal.unsynced.action.sync"
           fallback="Sync patient"
         />}
       >
@@ -40,7 +40,7 @@ export const SyncStatusModal = ({ open, onClose, selectedPatient, isMarkedForSyn
           color={theme.colors.TEXT_SUPER_DARK}
         >
           <TranslatedText
-            stringId="patient.details.unsynced.modal.description"
+            stringId="patient.details.modal.unsynced.description"
             fallback="This will mark this patient for sync. All patient data (past and future) will be automatically synced to this device."
           />
         </StyledText>
@@ -55,7 +55,7 @@ export const SyncStatusModal = ({ open, onClose, selectedPatient, isMarkedForSyn
         onConfirm={onClose}
         showCancelButton={false}
         title={<TranslatedText
-          stringId="patient.details.synced.modal.title"
+          stringId="patient.details.modal.synced.title"
           fallback="Patient sync information"
         />}
         confirmButtonText={<TranslatedText
