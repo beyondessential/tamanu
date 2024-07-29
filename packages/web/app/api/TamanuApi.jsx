@@ -29,10 +29,10 @@ function safeGetStoredJSON(key) {
 
 function restoreFromLocalStorage() {
   const token = localStorage.getItem(TOKEN);
+  const serverType = localStorage.getItem(SERVER_TYPE);
+  const facilityId = localStorage.getItem(FACILITY_ID);
   const localisation = safeGetStoredJSON(LOCALISATION);
-  const serverType = safeGetStoredJSON(SERVER_TYPE);
   const availableFacilities = safeGetStoredJSON(AVAILABLE_FACILITIES);
-  const facilityId = safeGetStoredJSON(FACILITY_ID);
   const permissions = safeGetStoredJSON(PERMISSIONS);
   const role = safeGetStoredJSON(ROLE);
   const settings = safeGetStoredJSON(SETTINGS);
@@ -62,20 +62,20 @@ function saveToLocalStorage({
   if (token) {
     localStorage.setItem(TOKEN, token);
   }
-  if (localisation) {
-    localStorage.setItem(LOCALISATION, JSON.stringify(localisation));
+  if (facilityId) {
+    localStorage.setItem(FACILITY_ID, facilityId);
   }
   if (serverType) {
-    localStorage.setItem(SERVER_TYPE, JSON.stringify(serverType));
+    localStorage.setItem(SERVER_TYPE, serverType);
+  }
+  if (localisation) {
+    localStorage.setItem(LOCALISATION, JSON.stringify(localisation));
   }
   if (permissions) {
     localStorage.setItem(PERMISSIONS, JSON.stringify(permissions));
   }
   if (availableFacilities) {
     localStorage.setItem(AVAILABLE_FACILITIES, JSON.stringify(availableFacilities));
-  }
-  if (facilityId) {
-    localStorage.setItem(FACILITY_ID, JSON.stringify(facilityId));
   }
   if (role) {
     localStorage.setItem(ROLE, JSON.stringify(role));
@@ -170,7 +170,7 @@ export class TamanuApi extends ApiClient {
     const {
       token,
       localisation,
-      serverType,
+      server,
       availableFacilities,
       permissions,
       role,
@@ -179,7 +179,7 @@ export class TamanuApi extends ApiClient {
     saveToLocalStorage({
       token,
       localisation,
-      serverType,
+      serverType: server.type,
       availableFacilities,
       permissions,
       role,
