@@ -67,5 +67,10 @@ export default async ({ mode }) => {
         },
       },
     },
+    test: {
+      clearMocks: true,
+      globals: true,
+      environment: 'jsdom',
+    },
   });
 };

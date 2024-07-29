@@ -9,6 +9,7 @@ import {
   LocalisedField,
   SearchField,
   SuggesterSelectField,
+  TranslatedSelectField,
 } from '../Field';
 import { CustomisableSearchBarWithPermissionCheck } from './CustomisableSearchBar';
 import { LabRequestSearchParamKeys, useLabRequest } from '../../contexts/LabRequest';

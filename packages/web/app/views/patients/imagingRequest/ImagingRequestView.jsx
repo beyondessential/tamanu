@@ -33,6 +33,7 @@ import {
   Form,
   TextField,
   TextInput,
+  TranslatedSelectField,
 } from '../../../components/Field';
 import { SimpleTopBar } from '../../../components';
 

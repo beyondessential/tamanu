@@ -4,13 +4,16 @@ import styled from 'styled-components';
 import { useEncounter } from '../../../contexts/Encounter';
 import { NoteModal } from '../../../components/NoteModal';
 import { NoteTableWithPermission } from '../../../components/NoteTable';
-import { ButtonWithPermissionCheck, TableButtonRow } from '../../../components';
+import {
+  ButtonWithPermissionCheck,
+  TableButtonRow,
+  TranslatedSelectField,
+} from '../../../components';
 import { TabPane } from '../components';
 import { NOTE_FORM_MODES } from '../../../constants';
 import { useEncounterNotes } from '../../../contexts/EncounterNotes';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { NOTE_TYPES, NOTE_TYPE_LABELS } from '@tamanu/constants';
-import { TranslatedSelectField } from '../../../components/Translation/TranslatedSelect';
 
 const StyledTranslatedSelectField = styled(TranslatedSelectField)`
   width: 200px;

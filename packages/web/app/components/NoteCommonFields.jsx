@@ -5,7 +5,7 @@ import Tooltip from '@material-ui/core/Tooltip';
 import { NOTE_TYPES, NOTE_TYPE_LABELS } from '@tamanu/constants';
 
 import { InfoCard, InfoCardItem } from './InfoCard';
-import { AutocompleteField, DateTimeField, Field, TextField } from './Field';
+import { AutocompleteField, DateTimeField, Field, TextField, TranslatedSelectField } from './Field';
 import { useLocalisation } from '../contexts/Localisation';
 
 import { useSuggester } from '../api';
@@ -13,7 +13,6 @@ import { DateDisplay } from './DateDisplay';
 import { Colors } from '../constants';
 import { FormGrid } from './FormGrid';
 import { TranslatedText } from './Translation/TranslatedText';
-import { TranslatedSelectField } from './Translation/TranslatedSelect';
 
 export const StyledDivider = styled(Divider)`
   margin-top: 30px;

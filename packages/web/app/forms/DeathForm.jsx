@@ -19,6 +19,7 @@ import {
   RadioField,
   TextField,
   TimeWithUnitField,
+  TranslatedSelectField,
 } from '../components';
 import { useAuth } from '../contexts/Auth';
 import { DeathFormScreen } from './DeathFormScreen';

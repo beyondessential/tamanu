@@ -11,10 +11,17 @@ import { FORM_TYPES } from '../constants';
 
 import { FormSubmitCancelRow } from '../components/ButtonRow';
 import { FormGrid } from '../components/FormGrid';
-import { AutocompleteField, CheckField, DateField, Field, Form } from '../components/Field';
+import {
+  AutocompleteField,
+  CheckField,
+  DateField,
+  Field,
+  Form,
+  TranslatedSelectField,
+} from '../components/Field';
 import { useSuggester } from '../api';
 import { TranslatedText } from '../components/Translation/TranslatedText';
-import { TranslatedSelectField } from '../components/Translation/TranslatedSelect';
+import { useAuth } from '../contexts/Auth';
 
 const TRIAGE_ONLY = [DIAGNOSIS_CERTAINTY.EMERGENCY];
 const EDIT_ONLY = [DIAGNOSIS_CERTAINTY.DISPROVEN, DIAGNOSIS_CERTAINTY.ERROR];
@@ -31,13 +38,16 @@ export const DiagnosisForm = React.memo(
     // don't show the "ED Diagnosis" option if we're just on a regular encounter
     // (unless we're editing a diagnosis with ED certainty already set)
     const certaintyOptions = DIAGNOSIS_CERTAINTY_VALUES.filter(value =>
-      shouldIncludeCertaintyOption(value, isTriage, isEdit),
+      shouldIncludeCertaintyOption({ value }, isTriage, isEdit),
     );
     const defaultCertainty = certaintyOptions[0].value;
+    const hasDiagnosis = Boolean(diagnosis?.id);
+    const { currentUser } = useAuth();
 
     const icd10Suggester = useSuggester('icd10', {
       filterer: icd => !excludeDiagnoses.some(d => d.diagnosisId === icd.id),
     });
+    const practitionerSuggester = useSuggester('practitioner');
 
     return (
       <Form
@@ -47,6 +57,7 @@ export const DiagnosisForm = React.memo(
           isPrimary: true,
           certainty: defaultCertainty,
           ...diagnosis,
+          clinicianId: hasDiagnosis ? diagnosis.clinicianId : currentUser.id,
         }}
         formType={isEdit ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
         validationSchema={yup.object().shape({
@@ -58,7 +69,7 @@ export const DiagnosisForm = React.memo(
           ),
           certainty: yup
             .string()
-            .oneOf(certaintyOptions.map(x => x.value))
+            .oneOf(certaintyOptions)
             .required()
             .translatedLabel(
               <TranslatedText stringId="diagnosis.certainty.label" fallback="Certainty" />,
@@ -106,6 +117,17 @@ export const DiagnosisForm = React.memo(
               component={DateField}
               required
               saveDateAsString
+            />
+            <Field
+              name="clinicianId"
+              label={
+                <TranslatedText
+                  stringId="general.localisedField.clinician.label"
+                  fallback="Clinician"
+                />
+              }
+              component={AutocompleteField}
+              suggester={practitionerSuggester}
             />
             <FormSubmitCancelRow onConfirm={submitForm} onCancel={onCancel} />
           </FormGrid>

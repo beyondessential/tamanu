@@ -19,6 +19,7 @@ import {
   PaginatedForm,
   StyledTextField,
   TextField,
+  TranslatedSelectField,
   useLocalisedSchema,
 } from '../components/Field';
 import { OuterLabelFieldWrapper } from '../components/Field/OuterLabelFieldWrapper';

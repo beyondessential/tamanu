@@ -8,6 +8,7 @@ import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 import { StyledTextField } from './TextField';
 import { Colors } from '../../constants';
 import { Icon, StyledExpandMore } from './FieldCommonComponents';
+import { TranslatedEnumField } from '../Translation/TranslatedEnumIInput';
 
 const StyledFormControl = styled(FormControl)`
   display: flex;
@@ -248,6 +249,10 @@ export const MultiselectInput = ({
 export const BaseMultiselectField = ({ field, ...props }) => (
   <MultiselectInput name={field.name} onChange={field.onChange} value={field.value} {...props} />
 );
+
+export const TranslatedMultiSelectField = props => {
+  return <TranslatedEnumField {...props} component={MultiselectInput} />;
+};
 
 MultiselectInput.propTypes = {
   name: PropTypes.string.isRequired,

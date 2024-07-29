@@ -14,6 +14,7 @@ import {
   LocalisedField,
   SearchField,
   SelectField,
+  TranslatedSelectField,
 } from '../Field';
 import { CustomisableSearchBarWithPermissionCheck } from './CustomisableSearchBar';
 import { useLocalisation } from '../../contexts/Localisation';

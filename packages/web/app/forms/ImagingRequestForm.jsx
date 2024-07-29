@@ -21,6 +21,7 @@ import {
   MultiselectField,
   TextField,
   TextInput,
+  TranslatedSelectField,
 } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
 import { FormCancelButton } from '../components/Button';
@@ -29,7 +30,6 @@ import { FormSubmitDropdownButton } from '../components/DropdownButton';
 import { TranslatedReferenceData, TranslatedText } from '../components/Translation';
 import { useTranslation } from '../contexts/Translation';
 import { IMAGING_TYPES } from '@tamanu/constants';
-import { TranslatedSelectField } from '../components/Translation/TranslatedSelect';
 import { renderToText } from '../utils';
 import { camelCase } from 'lodash';
 
@@ -211,13 +211,15 @@ export const ImagingRequestForm = React.memo(
                   const availableTypes = Object.keys(imagingTypes);
                   return options
                     .filter(option => availableTypes.includes(camelCase(option.value)))
-                    .map(option => ({
-                      ...option,
-                      label: getTranslation(
-                        option.label.stringId,
-                        imagingTypes[camelCase(option.value)].label,
-                      ),
-                    }));
+                    .map(option => {
+                      const imagingTypeKey = camelCase(option.value);
+                      const { label } = imagingTypes[imagingTypeKey];
+                      return {
+                        ...option,
+                        value: imagingTypeKey,
+                        label: getTranslation(option.label.stringId, label),
+                      };
+                    });
                 }}
               />
               {imagingAreas.length > 0 ? (

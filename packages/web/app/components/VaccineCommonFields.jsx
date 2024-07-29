@@ -16,6 +16,7 @@ import {
   SelectField,
   TextField,
   BaseSelectField,
+  TranslatedSelectField,
 } from './Field';
 import { FormSubmitCancelRow } from './ButtonRow';
 import { useSuggester } from '../api';
