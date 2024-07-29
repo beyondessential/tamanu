@@ -16,7 +16,7 @@ import {
   EncounterMedicationPane,
   EncounterProgramsPane,
   ImagingPane,
-  InvoicingPane,
+  EncounterInvoicingPane,
   LabsPane,
   NotesPane,
   ProcedurePane,
@@ -80,8 +80,9 @@ const TABS = [
   {
     label: <TranslatedText stringId="encounter.tabs.invoicing" fallback="Invoicing" />,
     key: ENCOUNTER_TAB_NAMES.INVOICING,
-    render: props => <InvoicingPane {...props} />,
-    condition: getLocalisation => getLocalisation('features.enableInvoicing'),
+    render: props => <EncounterInvoicingPane {...props} />,
+    condition: (getLocalisation, ability) =>
+      getLocalisation('features.enableInvoicing') && ability.can('read', 'Invoice'),
   },
 ];
 
@@ -129,7 +130,7 @@ export const EncounterView = () => {
   const api = useApi();
   const query = useUrlSearchParams();
   const { getLocalisation } = useLocalisation();
-  const { facilityId } = useAuth();
+  const { facilityId, ability } = useAuth();
   const patient = useSelector(state => state.patient);
   const { encounter, isLoadingEncounter } = useEncounter();
   const { data: patientBillingTypeData } = useReferenceData(encounter?.patientBillingTypeId);
@@ -142,18 +143,21 @@ export const EncounterView = () => {
 
   if (!encounter || isLoadingEncounter || patient.loading) return <LoadingIndicator />;
 
-  const visibleTabs = TABS.filter(tab => !tab.condition || tab.condition(getLocalisation));
+  const visibleTabs = TABS.filter(tab => !tab.condition || tab.condition(getLocalisation, ability));
 
   return (
     <GridColumnContainer>
       <EncounterTopBar
         title={getHeaderText(encounter)}
-        subTitle={encounter.location?.facility
-          && <TranslatedReferenceData
-            fallback={encounter.location.facility.name}
-            value={encounter.location.facility.id}
-            category="facility"
-          />}
+        subTitle={
+          encounter.location?.facility && (
+            <TranslatedReferenceData
+              fallback={encounter.location.facility.name}
+              value={encounter.location.facility.id}
+              category="facility"
+            />
+          )
+        }
         encounter={encounter}
       >
         {(facilityId === encounter.location.facilityId || encounter.endDate) &&
@@ -167,18 +171,17 @@ export const EncounterView = () => {
       <EncounterInfoPane
         encounter={encounter}
         getLocalisation={getLocalisation}
-        patientBillingType={patientBillingTypeData
-          && <TranslatedReferenceData
-            fallback={patientBillingTypeData.name}
-            value={patientBillingTypeData.id}
-            category="patientBillingType"
-          />}
+        patientBillingType={
+          patientBillingTypeData && (
+            <TranslatedReferenceData
+              fallback={patientBillingTypeData.name}
+              value={patientBillingTypeData.id}
+              category="patientBillingType"
+            />
+          )
+        }
       />
-      <DiagnosisView
-        encounter={encounter}
-        isTriage={getIsTriage(encounter)}
-        disabled={disabled}
-      />
+      <DiagnosisView encounter={encounter} isTriage={getIsTriage(encounter)} disabled={disabled} />
       <ContentPane>
         <StyledTabDisplay
           tabs={visibleTabs}
