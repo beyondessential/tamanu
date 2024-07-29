@@ -68,6 +68,10 @@ describe('Reference data exporter', () => {
       'TranslatedString',
     ];
     for (const model of modelsToDestroy) {
+      // FK constraints on patient facility table that prevent deleting patient table
+      if (model === 'Patient') {
+        await ctx.store.models.PatientFacility.destroy({ where: {}, force: true });
+      }
       await ctx.store.models[model].destroy({ where: {}, force: true });
     }
   });
@@ -89,7 +93,9 @@ describe('Reference data exporter', () => {
         .query(qs.stringify({ includedDataTypes: ['allergy'] }));
 
       expect(result).toBeForbidden();
-      expect(result.body.error.message).toBe('No permission to perform action "list" on "ReferenceData"');
+      expect(result.body.error.message).toBe(
+        'No permission to perform action "list" on "ReferenceData"',
+      );
     });
 
     it('allows export if having sufficient permission for reference data', async () => {
