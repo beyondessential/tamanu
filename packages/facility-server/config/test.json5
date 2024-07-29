@@ -34,7 +34,6 @@
       }
     }
   },
-  "serverFacilityId": "balwyn",
   "serverFacilityIds": ["balwyn"],
   "sync": {
     "backoff": {
