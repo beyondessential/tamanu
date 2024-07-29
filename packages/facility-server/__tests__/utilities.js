@@ -26,6 +26,7 @@ import { FacilitySyncManager } from '../dist/sync/FacilitySyncManager';
 import { CentralServerConnection } from '../dist/sync/CentralServerConnection';
 import { ApplicationContext } from '../dist/ApplicationContext';
 import { FacilitySyncConnection } from '../dist/sync/FacilitySyncConnection';
+import { selectFacilityIds } from '@tamanu/shared/utils/configSelectors';
 
 jest.mock('../dist/sync/CentralServerConnection');
 jest.mock('../dist/utils/uploadAttachment');
@@ -135,10 +136,12 @@ export async function createTestContext({ enableReportInstances } = {}) {
   await seedLocationGroups(models);
   await seedSettings(models);
 
+  const [facilityId] = selectFacilityIds(config);
+
   // Create the facility for the current config if it doesn't exist
   const [facility] = await models.Facility.findOrCreate({
     where: {
-      id: config.serverFacilityId,
+      id: facilityId,
     },
     defaults: {
       code: 'TEST',
@@ -157,7 +160,7 @@ export async function createTestContext({ enableReportInstances } = {}) {
 
   baseApp.asUser = async user => {
     const agent = supertest.agent(expressApp);
-    const token = await buildToken(user, null, '1d');
+    const token = await buildToken(user, facilityId, '1d');
     agent.set('authorization', `Bearer ${token}`);
     agent.user = user;
     return agent;
