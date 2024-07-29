@@ -142,6 +142,7 @@ export const changePassword = data => async (dispatch, getState, { api }) => {
 
 // selectors
 export const getCurrentUser = ({ auth }) => auth.user;
+export const getServerType = ({ auth }) => auth?.server?.type;
 export const checkIsLoggedIn = state => !!getCurrentUser(state);
 export const checkIsFacilitySelected = ({ auth }) => !!auth.facilityId;
 
