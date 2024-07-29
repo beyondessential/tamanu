@@ -7,6 +7,7 @@ import { ConfirmModal } from '../Modals/ConfirmModal';
 import { Patient } from '~/models/Patient';
 import { LAST_SUCCESSFUL_PULL } from '~/services/sync';
 import { IPatient } from '~/types';
+import { formatlastSuccessfulSyncTime } from '~/ui/helpers/date';
 
 interface SyncStatusModalModalProps {
   open: boolean;
@@ -61,6 +62,8 @@ export const SyncStatusModal = ({
     );
   }
 
+  const formattedLastPull = lastPull ? formatlastSuccessfulSyncTime(lastPull.updatedAt) : '';
+
   return (
     <ConfirmModal
         open={open}
@@ -93,7 +96,7 @@ export const SyncStatusModal = ({
           fontSize={14}
           color={theme.colors.TEXT_SUPER_DARK}
         >
-          {String(lastPull?.updatedAt)}
+          {formattedLastPull}
         </StyledText>
       </ConfirmModal>
   );
