@@ -1,7 +1,7 @@
 import crypto from 'crypto';
 import { endOfDay, parseISO, sub } from 'date-fns';
 
-import { CURRENT_SYNC_TIME_KEY } from '@tamanu/shared/sync/constants';
+import { CURRENT_SYNC_TIME_KEY, LOOKUP_UP_TO_TICK_KEY } from '@tamanu/shared/sync/constants';
 import { SYNC_SESSION_DIRECTION } from '@tamanu/shared/sync';
 import { fake, fakeUser } from '@tamanu/shared/test-helpers/fake';
 import { createDummyEncounter, createDummyPatient } from '@tamanu/shared/demoData/patients';
@@ -1029,6 +1029,235 @@ describe('CentralSyncManager', () => {
         sessionId,
         expect.arrayContaining(incomingChanges),
       );
+    });
+  });
+
+  describe('updateLookupTable', () => {
+    beforeEach(async () => {
+      jest.resetModules();
+      await models.SyncLookup.truncate({ force: true });
+      await models.LocalSystemFact.set(LOOKUP_UP_TO_TICK_KEY, null);
+    });
+
+    beforeAll(async () => {
+      ctx = await createTestContext();
+      ({ models } = ctx.store);
+    });
+
+    it('inserts records into sync lookup table', async () => {
+      const patient1 = await models.Patient.create(fake(models.Patient));
+
+      const centralSyncManager = initializeCentralSyncManager();
+
+      await centralSyncManager.updateLookupTable();
+
+      const lookupData = await models.SyncLookup.findAll({});
+
+      expect(lookupData).toHaveLength(1);
+      expect(lookupData[0]).toEqual(
+        expect.objectContaining({
+          recordId: patient1.id,
+          recordType: 'patients',
+          data: expect.objectContaining({
+            id: patient1.id,
+            displayId: patient1.displayId,
+            firstName: patient1.firstName,
+            middleName: patient1.middleName,
+            lastName: patient1.lastName,
+            culturalName: patient1.culturalName,
+            dateOfBirth: patient1.dateOfBirth,
+            dateOfDeath: null,
+            sex: patient1.sex,
+            email: patient1.email,
+            visibilityStatus: patient1.visibilityStatus,
+            villageId: null,
+            mergedIntoId: null,
+          }),
+          isLabRequest: false,
+          isDeleted: false,
+        }),
+      );
+    });
+
+    it('does not include records inserted when updating lookup table already started', async () => {
+      const [facility, program, survey] = await prepareRecordsForSync();
+
+      // Build the fakeModelPromise so that it can block the updateLookupTable process,
+      // then we can insert some new records while updateLookupTable is happening
+      const {
+        resolveMockedQueryPromise,
+        modelQueryWaitingPromise,
+        MockedPullOnlyModel,
+      } = await prepareMockedPullOnlyModelQueryPromise();
+
+      ctx.store.models = {
+        MockedPullOnlyModel,
+        ...models,
+      };
+
+      const centralSyncManager = initializeCentralSyncManager();
+
+      // Start the update lookup table process
+      const updateLookupTablePromise = centralSyncManager.updateLookupTable();
+
+      // wait until updateLookupTable() reaches the point of querying for MockedModel
+      // and block the process inside the wrapper transaction,
+      await modelQueryWaitingPromise;
+
+      // Insert the records just before we release the lock,
+      // meaning that we're inserting the records below in the middle of the updateLookupTable process,
+      const survey2 = await models.Survey.create({
+        id: 'test-survey-2',
+        programId: program.id,
+      });
+      const dataElement = await models.ProgramDataElement.create({
+        name: 'Profile picture',
+        defaultText: 'abcd',
+        code: 'ProfilePhoto',
+        type: 'Photo',
+      });
+      await models.SurveyScreenComponent.create({
+        dataElementId: dataElement.id,
+        surveyId: survey2.id,
+        componentIndex: 0,
+        text: 'Photo',
+        screenIndex: 0,
+      });
+
+      // Now release the lock to see if the lookup table captures the newly inserted records above
+      await resolveMockedQueryPromise();
+      await sleepAsync(20);
+
+      await updateLookupTablePromise;
+
+      const lookupData = await models.SyncLookup.findAll({});
+
+      expect(lookupData).toHaveLength(3);
+
+      // Revert the models
+      ctx.store.models = models;
+    });
+
+    it('does not include records inserted from importer when updating lookup table already started', async () => {
+      await prepareRecordsForSync();
+
+      // Build the fakeModelPromise so that it can block the updateLookupTable process,
+      // then we can insert some new records while updateLookupTable is happening
+      const {
+        resolveMockedQueryPromise,
+        modelQueryWaitingPromise,
+        MockedPullOnlyModel,
+      } = await prepareMockedPullOnlyModelQueryPromise();
+
+      ctx.store.models = {
+        MockedPullOnlyModel,
+        ...models,
+      };
+
+      const centralSyncManager = initializeCentralSyncManager();
+
+      // Start the update lookup table process
+      const updateLookupTablePromise = centralSyncManager.updateLookupTable();
+
+      // wait until updateLookupTable() reaches the point of querying for MockedModel
+      // and block the process inside the wrapper transaction,
+      await modelQueryWaitingPromise;
+
+      // Insert the records just before we release the lock,
+      // meaning that we're inserting the records below in the middle of the updateLookupTable process,
+      await doImport({ file: 'refdata-valid', dryRun: false }, models);
+
+      // Now release the lock to see if the lookup table captures the newly inserted records above
+      await resolveMockedQueryPromise();
+      await sleepAsync(20);
+
+      await updateLookupTablePromise;
+
+      const lookupData = await models.SyncLookup.findAll({});
+
+      expect(lookupData).toHaveLength(3);
+
+      // Revert the models
+      ctx.store.models = models;
+    });
+
+    it('does not include records inserted from another sync session when updating lookup table already started', async () => {
+      await prepareRecordsForSync();
+
+      // Build the fakeModelPromise so that it can block the updateLookupTable process,
+      // then we can insert some new records while updateLookupTable is happening
+      const {
+        resolveMockedQueryPromise,
+        modelQueryWaitingPromise,
+        MockedPullOnlyModel,
+      } = await prepareMockedPullOnlyModelQueryPromise();
+
+      ctx.store.models = {
+        MockedPullOnlyModel,
+        ...models,
+      };
+
+      const centralSyncManager = initializeCentralSyncManager();
+
+      // Start the update lookup table process
+      const updateLookupTablePromise = centralSyncManager.updateLookupTable();
+
+      // wait until updateLookupTable() reaches the point of querying for MockedModel
+      // and block the process inside the wrapper transaction,
+      await modelQueryWaitingPromise;
+
+      const patient1 = await models.Patient.create({
+        ...fake(models.Patient),
+      });
+      const patient2 = await models.Patient.create({
+        ...fake(models.Patient),
+      });
+      const patient3 = await models.Patient.create({
+        ...fake(models.Patient),
+      });
+
+      const changes = [
+        {
+          direction: SYNC_SESSION_DIRECTION.OUTGOING,
+          isDeleted: false,
+          recordType: 'patients',
+          recordId: patient1.id,
+          data: patient1,
+        },
+        {
+          direction: SYNC_SESSION_DIRECTION.OUTGOING,
+          isDeleted: false,
+          recordType: 'patients',
+          recordId: patient2.id,
+          data: patient2,
+        },
+        {
+          direction: SYNC_SESSION_DIRECTION.OUTGOING,
+          isDeleted: false,
+          recordType: 'patients',
+          recordId: patient3.id,
+          data: patient3,
+        },
+      ];
+
+      const { sessionId: sessionIdTwo } = await centralSyncManager.startSession();
+      await waitForSession(centralSyncManager, sessionIdTwo);
+
+      await centralSyncManager.addIncomingChanges(sessionIdTwo, changes);
+      await centralSyncManager.completePush(sessionIdTwo);
+
+      // Now release the lock to see if the lookup table captures the newly inserted records above
+      await resolveMockedQueryPromise();
+      await sleepAsync(20);
+
+      await updateLookupTablePromise;
+
+      const lookupData = await models.SyncLookup.findAll({});
+
+      expect(lookupData).toHaveLength(3);
+
+      // Revert the models
+      ctx.store.models = models;
     });
   });
 });
