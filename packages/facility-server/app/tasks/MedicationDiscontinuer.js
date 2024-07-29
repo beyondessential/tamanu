@@ -27,7 +27,6 @@ export class MedicationDiscontinuer extends ScheduledTask {
     // Get start of day
     const startOfToday = toDateTimeString(startOfDay(new Date()));
 
-    // TODO: Omniserver solve usage of localsystem facts for facilityid
     // // Get all encounters with the same facility ID as this facility server
     // // (found in the config). Note that the facility ID will be read from
     // // the department associated to each encounter.
