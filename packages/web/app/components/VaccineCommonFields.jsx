@@ -94,15 +94,14 @@ export const BatchField = () => (
   />
 );
 
-export const VaccineDateField = ({ label, required = true, min, skipMinChecking }) => (
+export const VaccineDateField = ({ label, required = true, ...otherProps }) => (
   <Field
     name="date"
     label={label}
     component={DateField}
     required={required}
     saveDateAsString
-    min={min}
-    skipMinChecking={skipMinChecking}
+    {...otherProps}
   />
 );
 

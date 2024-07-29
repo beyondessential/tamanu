@@ -27,6 +27,7 @@ export const VaccineFormNotGiven = ({ navigation }: VaccineFormProps): JSX.Eleme
           <TranslatedText stringId="vaccine.form.dateRecorded.label" fallback="Date recorded" />
         }
         min={selectedPatient?.dateOfBirth ? parseISO(selectedPatient.dateOfBirth) : undefined}
+        max={new Date()}
       />
 
       <NotGivenReasonField />

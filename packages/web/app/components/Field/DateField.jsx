@@ -62,7 +62,7 @@ export const DateInput = ({
   saveDateAsString = false,
   arrows = false,
   inputProps = {},
-  skipMinChecking,
+  keepIncorrectValue,
   ...props
 }) => {
   delete props.placeholder;
@@ -111,7 +111,7 @@ export const DateInput = ({
   const handleBlur = () => {
     const date = parse(currentText, format, new Date());
 
-    if (max) {
+    if (max && !keepIncorrectValue) {
       const maxDate = parse(max, format, new Date());
       if (isAfter(date, maxDate)) {
         onChange({ target: { value: '', name } });
@@ -119,7 +119,7 @@ export const DateInput = ({
       }
     }
 
-    if (min && !skipMinChecking) {
+    if (min && !keepIncorrectValue) {
       const minDate = parse(min, format, new Date());
       if (isBefore(date, minDate)) {
         onChange({ target: { value: '', name } });

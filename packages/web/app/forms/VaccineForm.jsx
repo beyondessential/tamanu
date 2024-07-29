@@ -21,7 +21,7 @@ import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useLocalisation } from '../contexts/Localisation';
 import { useSettings } from '../contexts/Settings';
 import { usePatientData } from '../api/queries/usePatientData';
-import { isBefore, parse } from 'date-fns';
+import { isAfter, isBefore, parse } from 'date-fns';
 import { TranslatedReferenceData } from '../components/Translation';
 
 const validateGivenElsewhereRequiredField = (status, givenElsewhere) =>
@@ -36,19 +36,25 @@ const BASE_VACCINE_SCHEME_VALIDATION = yup.object().shape({
       then: yup.string().required(REQUIRED_INLINE_ERROR_MESSAGE),
       otherwise: yup.string().nullable(),
     })
-    .when(['status'], {
-      is: VACCINE_RECORDING_TYPES.GIVEN,
-      then: schema =>
-        schema.test('min', 'Date cannot be prior to patient date of birth', (value, context) => {
-          if (!value) return true;
-          const format = 'yyyy-MM-dd';
-          const minDate = parse(context.parent?.patientData?.dateOfBirth, format, new Date());
-          const date = parse(value, format, new Date());
-          if (isBefore(date, minDate)) {
-            return false;
-          }
-          return true;
-        }),
+    .test('min', 'Date cannot be prior to patient date of birth', (value, context) => {
+      if (!value) return true;
+      const format = 'yyyy-MM-dd';
+      const minDate = parse(context.parent?.patientData?.dateOfBirth, format, new Date());
+      const date = parse(value, format, new Date());
+      if (isBefore(date, minDate)) {
+        return false;
+      }
+      return true;
+    })
+    .test('max', 'Date cannot be later than today', (value) => {
+      if (!value) return true;
+      const format = 'yyyy-MM-dd';
+      const maxDate = new Date();
+      const date = parse(value, format, new Date());
+      if (isAfter(date, maxDate)) {
+        return false;
+      }
+      return true;
     }),
   locationId: yup.string().when(['status', 'givenElsewhere'], {
     is: validateGivenElsewhereRequiredField,

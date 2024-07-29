@@ -3,7 +3,7 @@ import { PropTypes } from 'prop-types';
 import * as yup from 'yup';
 
 import { VACCINE_CATEGORIES } from '@tamanu/constants';
-import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { getCurrentDateString, getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 
 import { REQUIRED_INLINE_ERROR_MESSAGE } from '../constants';
 import { TwoTwoGrid } from '../components/TwoTwoGrid';
@@ -153,7 +153,8 @@ export const VaccineGivenForm = ({
         label={<TranslatedText stringId="vaccine.dateGiven.label" fallback="Date given" />}
         required={!values.givenElsewhere}
         min={values?.patientData?.dateOfBirth}
-        skipMinChecking
+        max={getCurrentDateString()}
+        keepIncorrectValue
       />
 
       <InjectionSiteField />

@@ -25,7 +25,7 @@ const InjectionSiteDropdown = ({ value, label, onChange, selectPlaceholderText }
   />
 );
 
-interface LabelledFieldProps {
+interface LabelledFieldProps extends Record<string, any> {
   label?: TranslatedTextElement;
   required?: boolean;
 }
@@ -37,9 +37,9 @@ interface NavigationFieldProps {
 export const DateGivenField = ({
   label = <TranslatedText stringId="vaccine.form.dateGiven.label" fallback="Date given" />,
   required = true,
-  min
+  ...otherProps
 }: LabelledFieldProps): JSX.Element => (
-  <Field component={DateField} name="date" label={label} required={required} min={min} />
+  <Field component={DateField} name="date" label={label} required={required} {...otherProps} />
 );
 
 export const BatchField = (): JSX.Element => (
