@@ -24,7 +24,7 @@ const snapshotChangesForModel = async (
     sessionId,
   });
 
-  const CHUNK_SIZE = config.sync.maxRecordsPerPullSnapshotChunk;
+  const CHUNK_SIZE = config.sync.maxRecordsPerSnapshotChunk;
   const modelHasPatientSyncFilter = !!model.buildPatientSyncFilter;
   const patientSyncFilter = modelHasPatientSyncFilter
     ? model.buildPatientSyncFilter(patientCount, markedForSyncPatientsTable, sessionConfig)
@@ -196,7 +196,7 @@ const snapshotOutgoingChangesFromSyncLookup = withConfig(
     let fromId = '';
     let totalCount = 0;
     const snapshotTableName = getSnapshotTableName(sessionId);
-    const CHUNK_SIZE = config.sync.maxRecordsPerPullSnapshotChunk;
+    const CHUNK_SIZE = config.sync.maxRecordsPerSnapshotChunk;
     const { syncAllLabRequests } = sessionConfig;
 
     while (fromId != null) {
@@ -286,7 +286,7 @@ export const snapshotOutgoingChanges = withConfig(
     sessionConfig,
     config,
   ) => {
-    return config.sync.lookupTable
+    return config.sync.useLookupTable
       ? snapshotOutgoingChangesFromSyncLookup(
           store,
           since,

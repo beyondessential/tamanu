@@ -3,10 +3,7 @@ import { Op, Transaction } from 'sequelize';
 import _config from 'config';
 
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
-import {
-  CURRENT_SYNC_TIME_KEY,
-  LAST_SUCCESSFUL_LOOKUP_TABLE_UPDATE_KEY,
-} from '@tamanu/shared/sync/constants';
+import { CURRENT_SYNC_TIME_KEY, LOOKUP_UP_TO_TICK_KEY } from '@tamanu/shared/sync/constants';
 import { log } from '@tamanu/shared/services/logging';
 import {
   adjustDataPostSyncPush,
@@ -228,25 +225,25 @@ export class CentralSyncManager {
 
     await this.waitForPendingEdits(tick);
 
-    const globalSyncSince =
-      (await this.store.models.LocalSystemFact.get(LAST_SUCCESSFUL_LOOKUP_TABLE_UPDATE_KEY)) || -1;
+    const previouslyUpToTick =
+      (await this.store.models.LocalSystemFact.get(LOOKUP_UP_TO_TICK_KEY)) || -1;
 
     await this.store.sequelize.transaction(
       { isolationLevel: Transaction.ISOLATION_LEVELS.REPEATABLE_READ },
       async () => {
         await updateLookupTable(
           getModelsForDirection(this.store.models, SYNC_DIRECTIONS.PULL_FROM_CENTRAL),
-          globalSyncSince,
+          previouslyUpToTick,
           this.constructor.config,
         );
 
         // update the last successful lookup table in the same transaction - if updating the cursor fails,
-        // we want to roll back the rest of the saves so that the next update can still detect the recods that failed
+        // we want to roll back the rest of the saves so that the next update can still detect the records that failed
         // to be updated last time
         log.debug('CentralSyncManager.updateLookupTable()', {
           lastSuccessfulLookupTableUpdate: tick,
         });
-        await this.store.models.LocalSystemFact.set(LAST_SUCCESSFUL_LOOKUP_TABLE_UPDATE_KEY, tick);
+        await this.store.models.LocalSystemFact.set(LOOKUP_UP_TO_TICK_KEY, tick);
       },
     );
   }
@@ -284,12 +281,7 @@ export class CentralSyncManager {
       // process is ongoing, will have a later updated_at_sync_tick)
       const { tick } = await this.tickTockGlobalClock();
 
-      // get all the ticks (ie: keys of in-flight transaction advisory locks) of previously pending edits
-      const pendingSyncTicks = (await getSyncTicksOfPendingEdits(sequelize)).filter(t => t < tick);
-
-      // wait for any in-flight transactions of pending edits
-      // that we don't miss any changes that are in progress
-      await Promise.all(pendingSyncTicks.map(t => waitForPendingEditsUsingSyncTick(sequelize, t)));
+      await this.waitForPendingEdits(tick);
 
       await models.SyncSession.update(
         { pullSince: since, pullUntil: tick },
