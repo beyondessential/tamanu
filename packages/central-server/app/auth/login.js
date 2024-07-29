@@ -138,6 +138,7 @@ export const login = ({ secret, refreshSecret }) =>
       refreshToken,
       user: convertFromDbRecord(stripUser(user.get({ plain: true }))).data,
       permissions,
+      serverType: SERVER_TYPES.CENTRAL,
       role: role?.forResponse() ?? null,
       allowedFacilities,
       localisation,
