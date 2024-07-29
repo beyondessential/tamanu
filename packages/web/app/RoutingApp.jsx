@@ -21,7 +21,7 @@ import { Sidebar, useCentralSidebar, useFacilitySidebar } from './components/Sid
 import { UserActivityMonitor } from './components/UserActivityMonitor';
 
 export const RoutingApp = () => {
-  const isCentralServer = useSelector(state => state.auth?.serverType === SERVER_TYPES.CENTRAL);
+  const isCentralServer = useSelector(state => state.auth?.server?.type === SERVER_TYPES.CENTRAL);
   return isCentralServer ? <RoutingAdminApp /> : <RoutingFacilityApp />;
 };
 
