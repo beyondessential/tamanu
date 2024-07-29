@@ -4,7 +4,7 @@
 // We import config here in a departure from that rule of thumb, but please don't copy blindly:
 // - It's probably not okay to use config if the schema is altered (not the case here, only data)
 // - Consider the case when the config you're using were to go missing - would this be ok for the
-//   migration? (here, a missing serverFacilityId is just a no-op)
+//   migration? (here, missing serverFacilityIds is just a no-op)
 import config from 'config';
 import { selectFacilityIds } from '../utils';
 
