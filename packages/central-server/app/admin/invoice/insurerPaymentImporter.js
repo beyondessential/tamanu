@@ -36,7 +36,7 @@ const insurerPaymentImportSchema = z
       .number()
       .min(0)
       .transform(amount => round(amount, 2)),
-    invoiceId: z.string(),
+    invoiceNumber: z.string(),
     insurerId: z.string(),
     reason: z.string().optional(),
   })
@@ -66,7 +66,19 @@ export async function insurerPaymentImporter({ errors, models, stats, file, chec
       continue;
     }
 
-    const invoice = await models.Invoice.findByPk(data.invoiceId, {
+    const countInvoices = await models.Invoice.count({ where: { displayId: data.invoiceNumber } });
+    if (!countInvoices) {
+      errors.push(new ValidationError(sheetName, index, 'Invoice not found'));
+      continue;
+    }
+
+    if (countInvoices > 1) {
+      errors.push(new ValidationError(sheetName, index, 'Multiple invoices found'));
+      continue;
+    }
+
+    const invoice = await models.Invoice.findOne({
+      where: { displayId: data.invoiceNumber },
       include: models.Invoice.getFullReferenceAssociations(),
     });
 
@@ -123,7 +135,7 @@ export async function insurerPaymentImporter({ errors, models, stats, file, chec
         }
         await models.InvoicePayment.update(
           {
-            invoiceId: data.invoiceId,
+            invoiceId: invoice.id,
             date: data.date,
             amount: data.amount,
           },
@@ -154,7 +166,7 @@ export async function insurerPaymentImporter({ errors, models, stats, file, chec
               allInsurerDiscountTotal,
             ),
           },
-          { where: { id: data.invoiceId } },
+          { where: { id: invoice.id } },
         );
 
         updateStat(subStat, statkey('InvoiceInsurerPayment', sheetName), 'updated');
@@ -169,7 +181,7 @@ export async function insurerPaymentImporter({ errors, models, stats, file, chec
         }
         const payment = await models.InvoicePayment.create(
           {
-            invoiceId: data.invoiceId,
+            invoiceId: invoice.id,
             date: data.date,
             receiptNumber: data.receiptNumber,
             amount: data.amount,
@@ -196,7 +208,7 @@ export async function insurerPaymentImporter({ errors, models, stats, file, chec
               allInsurerDiscountTotal,
             ),
           },
-          { where: { id: data.invoiceId } },
+          { where: { id: invoice.id } },
         );
 
         updateStat(subStat, statkey('InvoiceInsurerPayment', sheetName), 'created');
