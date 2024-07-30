@@ -8,17 +8,6 @@ export const PATIENT_ISSUE_LABELS = {
   [PATIENT_ISSUE_TYPES.WARNING]: 'Warning',
 };
 
-export const PATIENT_ISSUE_OPTIONS = [
-  {
-    value: PATIENT_ISSUE_TYPES.ISSUE,
-    label: PATIENT_ISSUE_LABELS[PATIENT_ISSUE_TYPES.ISSUE],
-  },
-  {
-    value: PATIENT_ISSUE_TYPES.WARNING,
-    label: PATIENT_ISSUE_LABELS[PATIENT_ISSUE_TYPES.WARNING],
-  },
-];
-
 export const AVPU_TYPES = {
   ALERT: 'alert',
   VERBAL: 'verbal',
@@ -46,6 +35,14 @@ export const DIAGNOSIS_CERTAINTY = {
   EMERGENCY: 'emergency',
   DISPROVEN: 'disproven',
   ERROR: 'error',
+};
+
+export const DIAGNOSIS_CERTAINTY_LABELS = {
+  [DIAGNOSIS_CERTAINTY.EMERGENCY]: 'ED Diagnosis',
+  [DIAGNOSIS_CERTAINTY.SUSPECTED]: 'Suspected',
+  [DIAGNOSIS_CERTAINTY.CONFIRMED]: 'Confirmed',
+  [DIAGNOSIS_CERTAINTY.DISPROVEN]: 'Disproven',
+  [DIAGNOSIS_CERTAINTY.ERROR]: 'Recorded in error',
 };
 
 export const DIAGNOSIS_CERTAINTY_VALUES = Object.values(DIAGNOSIS_CERTAINTY);
