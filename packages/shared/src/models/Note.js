@@ -115,7 +115,5 @@ export class Note extends Model {
     };
   }
 
-  static buildPatientSyncFilter(patientCount, markedForSyncPatientsTable) {
-    return buildNoteLinkedSyncFilter({ patientCount, markedForSyncPatientsTable });
-  }
+  static buildPatientSyncFilter = buildNoteLinkedSyncFilter;
 }
