@@ -316,15 +316,19 @@ export class Encounter extends Model {
     await dischargeOutpatientEncounters(this.sequelize.models, recordIds);
   }
 
-  static async create(data, ...args) {
+  static async create(data, options = {}) {
     const { actorId, ...encounterData } = data;
-    const encounter = await super.create(encounterData, ...args);
+    const encounter = await super.create(encounterData, options);
 
     const { EncounterHistory } = this.sequelize.models;
-    await EncounterHistory.createSnapshot(encounter, {
-      actorId: actorId || encounter.examinerId,
-      submittedTime: encounter.startDate,
-    });
+    await EncounterHistory.createSnapshot(
+      encounter,
+      {
+        actorId: actorId || encounter.examinerId,
+        submittedTime: encounter.startDate,
+      },
+      options,
+    );
 
     return encounter;
   }
