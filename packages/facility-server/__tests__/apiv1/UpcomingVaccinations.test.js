@@ -31,11 +31,12 @@ const setupBaseDate = async models => {
   await models.ScheduledVaccine.truncate({ cascade: true });
   await models.AdministeredVaccine.truncate({ cascade: true });
 
-  const [facilityId] = (selectFacilityIds(config)[facility] = await models.Facility.upsert({
+  const [facilityId] = selectFacilityIds(config);
+  [facility] = await models.Facility.upsert({
     id: facilityId,
     name: facilityId,
     code: facilityId,
-  }));
+  });
 
   await models.Department.create({
     ...fake(models.Department),
