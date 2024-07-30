@@ -201,8 +201,7 @@ export class Encounter extends Model {
       as: 'referralSource',
     });
 
-    this.belongsToMany(models.ReferenceData, {
-      through: models.EncounterDiet,
+    this.hasMany(models.EncounterDiet, {
       foreignKey: 'encounterId',
       as: 'diets',
     });
