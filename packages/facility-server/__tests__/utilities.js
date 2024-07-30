@@ -149,8 +149,9 @@ export async function createTestContext({ enableReportInstances } = {}) {
     },
   });
 
+  const facilityIdsString = JSON.stringify([facility.id]);
   // ensure there's a corresponding local system fact for it too
-  await models.LocalSystemFact.set('facilityId', facility.id);
+  await models.LocalSystemFact.set('facilityIds', facilityIdsString);
 
   context.syncManager = new FacilitySyncManager(context);
   context.syncConnection = new FacilitySyncConnection();

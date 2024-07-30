@@ -6,7 +6,7 @@ import { promisify } from 'util';
 import crypto from 'crypto';
 
 import { SERVER_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
-import { BadAuthenticationError } from '@tamanu/shared/errors';
+import { BadAuthenticationError, ForbiddenError } from '@tamanu/shared/errors';
 import { log } from '@tamanu/shared/services/logging';
 import { getPermissionsForRoles } from '@tamanu/shared/permissions/rolesToPermissions';
 import { selectFacilityIds } from '@tamanu/shared/utils';
@@ -221,11 +221,14 @@ async function decodeToken(token) {
 function getTokenFromHeaders(request) {
   const { headers } = request;
   const authHeader = headers.authorization || '';
-  if (!authHeader) return null;
-
+  if (!authHeader) {
+    throw new ForbiddenError();
+  }
   const bearer = authHeader.match(/Bearer (\S*)/);
   if (!bearer) {
-    throw new BadAuthenticationError('Missing auth token header');
+    throw new BadAuthenticationError(
+      'Your session has expired or is invalid. Please log in again.',
+    );
   }
 
   const token = bearer[1];
@@ -235,7 +238,9 @@ function getTokenFromHeaders(request) {
 async function getUser(models, userId) {
   const user = await models.User.findByPk(userId);
   if (user.visibilityStatus !== VISIBILITY_STATUSES.CURRENT) {
-    throw new Error('User is not visible to the system');
+    throw new BadAuthenticationError(
+      'Your session has expired or is invalid. Please log in again.',
+    );
   }
   return user;
 }
