@@ -5,7 +5,6 @@ import { useQuery } from '@tanstack/react-query';
 
 import { PATIENT_REGISTRY_TYPES, PLACE_OF_BIRTH_TYPES } from '@tamanu/constants';
 
-import { useSexOptions, useSexValues } from '../../hooks';
 import { useLocalisation } from '../../contexts/Localisation';
 import { useApi } from '../../api';
 import { getPatientDetailsValidation } from '../../validations';
@@ -84,12 +83,8 @@ export const PatientDetailsForm = ({ patient, additionalData, birthData, onSubmi
     await onSubmit(newData);
   };
 
-  const sexValues = useSexValues();
-
   const { getLocalisation } = useLocalisation();
   const { PrimaryDetails, SecondaryDetails, PatientFields } = useLayoutComponents();
-
-  const sexOptions = useSexOptions();
 
   const isRequiredPatientData = fieldName =>
     getLocalisation(`fields.${fieldName}.requiredPatientData`);
@@ -133,7 +128,6 @@ export const PatientDetailsForm = ({ patient, additionalData, birthData, onSubmi
             registeredBirthPlace={values.registeredBirthPlace}
             patientRegistryType={patientRegistryType}
             isRequiredPatientData={isRequiredPatientData}
-            sexOptions={sexOptions}
             isDetailsForm
           />
           <StyledPatientDetailSecondaryDetailsGroupWrapper>
@@ -163,7 +157,6 @@ export const PatientDetailsForm = ({ patient, additionalData, birthData, onSubmi
       onSubmit={handleSubmit}
       validationSchema={getPatientDetailsValidation(
         patientRegistryType,
-        sexValues,
         getLocalisation,
         getTranslation,
       )}
