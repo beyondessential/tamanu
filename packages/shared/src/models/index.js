@@ -116,3 +116,4 @@ export * from './fhir';
 export * from './TranslatedString';
 
 export * from './IPSRequest';
+export * from './SyncLookup';
