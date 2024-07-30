@@ -225,18 +225,27 @@ const snapshotOutgoingChangesFromSyncLookup = withConfig(
         WHERE updated_at_sync_tick > :since
         ${fromId ? `AND record_id > :fromId` : ''}
         AND (
-          patient_id IS NULL
-        ${
-          patientCount
-            ? `OR patient_id IN (SELECT patient_id FROM ${markedForSyncPatientsTable})`
-            : ''
-        })
-        AND (
-          facility_id IS NULL
-          OR
-          facility_id = :facilityId
+          --- either no patient_id (meaning we don't care if the record is associate to a patient, eg: reference_data) 
+          --- or patient_id has to match the marked for sync patient_ids, eg: encounters
+          (
+            patient_id IS NULL
+          ${
+            patientCount
+              ? `OR patient_id IN (SELECT patient_id FROM ${markedForSyncPatientsTable})`
+              : ''
+          })
+          --- either no facility_id (meaning we don't care if the record is associate to a facility, , eg: reference_data) 
+          --- or facility_id has to match the current facility, eg: patient_facilities
+          AND (
+            facility_id IS NULL
+            OR
+            facility_id = :facilityId
+          )
+          --- if syncAllLabRequests is on then sync all records with is_lab_request IS TRUE
+          ${syncAllLabRequests ? `
+            OR is_lab_request IS TRUE
+          ` : ''}
         )
-        ${syncAllLabRequests ? 'OR is_lab_request IS TRUE' : ''}
         ORDER BY record_id
         LIMIT :limit
         RETURNING record_id
