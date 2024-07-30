@@ -19,7 +19,7 @@
     "lint-all": "eslint .",
     "lint-fix": "yarn run lint-all --fix",
     "web-start-dev": "yarn workspace @tamanu/web-frontend run start-dev",
-    "storybook": "yarn run watch-shared-and @tamanu/web-frontend storybook",
+    "storybook": "yarn run watch-shared-and @tamanu/web-frontend storybook dev",
     "watch-shared-and": "node scripts/watch-shared-and.js",
     "web-unit-test": "yarn run build-shared && yarn workspace @tamanu/web-frontend run test",
     "web-unit-test-watch": "yarn run build-shared && yarn workspace @tamanu/web-frontend run test-watch",
