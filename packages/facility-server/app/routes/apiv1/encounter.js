@@ -106,7 +106,6 @@ encounter.put(
           },
         });
         for (const dietId of dietIds) {
-          //create encounter diets
           await models.EncounterDiet.create({ dietId, encounterId: id });
         }
       }
