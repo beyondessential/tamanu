@@ -257,7 +257,7 @@ describe('FacilitySyncManager edge cases', () => {
       await expect(async () => {
         await syncPromise;
       }).rejects.toThrow(
-        "Facility: There are 1 encounters record(s) updated between 'snapshot-for-pushing' and now. Error thrown to restart the sync cycle and push the updated records to central",
+      "Facility: There are 1 encounters record(s) updated between 'snapshot-for-pushing' and now. Error thrown to restart the sync cycle and push the updated records to central",
       );
     });
 
