@@ -1,5 +1,5 @@
 import { trace } from '@opentelemetry/api';
-import { Op, Transaction } from 'sequelize';
+import { Op } from 'sequelize';
 import _config from 'config';
 
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
