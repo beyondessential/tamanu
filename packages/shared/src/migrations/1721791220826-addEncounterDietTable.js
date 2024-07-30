@@ -16,7 +16,7 @@ export async function up(query) {
       allowNull: false,
       references: {
         model: 'encounters',
-        field: 'id',
+        key: 'id',
       },
     },
     diet_id: {
@@ -24,7 +24,7 @@ export async function up(query) {
       allowNull: false,
       references: {
         model: 'reference_data',
-        field: 'id',
+        key: 'id',
       },
     },
     created_at: {
@@ -74,7 +74,7 @@ export async function down(query) {
     allowNull: true,
     references: {
       model: 'reference_data',
-      field: 'id',
+      key: 'id',
     },
   });
 
