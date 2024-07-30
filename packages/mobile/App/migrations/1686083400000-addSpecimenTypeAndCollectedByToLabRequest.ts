@@ -57,6 +57,6 @@ export class addSpecimenTypeAndCollectedByToLabRequest1686083400000 implements M
       fk => fk.columnNames.indexOf(collectedByIdColumn) !== 0,
     );
     await queryRunner.dropForeignKey(labRequestTable, collectedByFK);
-    await queryRunner.dropColumn(labRequestTable, collectedByFK);
+    await queryRunner.dropColumn(labRequestTable, collectedByIdColumn);
   }
 }
