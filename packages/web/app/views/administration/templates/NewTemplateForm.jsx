@@ -6,16 +6,17 @@ import { Link } from '@material-ui/core';
 import {
   Field,
   Form,
-  SelectField,
   TallMultilineTextField,
   TextField,
+  TranslatedSelectField,
 } from '../../../components/Field';
 import { FormGrid, SmallGridSpacer } from '../../../components/FormGrid';
-import { Colors, FORM_TYPES, TEMPLATE_TYPE_OPTIONS } from '../../../constants';
+import { Colors, FORM_TYPES } from '../../../constants';
 
 import { Button } from '../../../components/Button';
 import { ButtonRow } from '../../../components/ButtonRow';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
+import { TEMPLATE_TYPE_LABELS } from '@tamanu/constants';
 
 const ConfirmButton = styled(Button)`
   min-width: 90px;
@@ -52,10 +53,9 @@ export const NewTemplateForm = memo(({ onSubmit, allowInputTitleType }) => {
           <Field
             name="type"
             label={<TranslatedText stringId="general.type.label" fallback="Type" />}
-            component={SelectField}
-            options={TEMPLATE_TYPE_OPTIONS}
+            component={TranslatedSelectField}
+            enumValues={TEMPLATE_TYPE_LABELS}
             required
-            prefix="template.property.type"
             onChange={() => resetForm({ values: {} })}
           />
           <Field
