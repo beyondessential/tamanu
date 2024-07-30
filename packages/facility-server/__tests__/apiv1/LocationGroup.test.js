@@ -1,4 +1,5 @@
 import config from 'config';
+import { afterAll, beforeAll } from '@jest/globals';
 
 import { fake } from '@tamanu/shared/test-helpers/fake';
 import { createDummyEncounter, createDummyPatient } from '@tamanu/shared/demoData/patients';
