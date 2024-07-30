@@ -75,7 +75,7 @@ const getDiet = ({ diets }) => {
       {diets.map(({ diet }, index) => (
         <>
           {!!index && ', '}
-          <TranslatedReferenceData category="diet" fallback={diet?.name} value={diet?.id} />
+          <TranslatedReferenceData category="diet" fallback={diet.name} value={diet.id} />
         </>
       ))}
     </DietCardValue>
