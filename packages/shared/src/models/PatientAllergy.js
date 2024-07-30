@@ -5,7 +5,6 @@ import { buildPatientSyncFilterViaPatientId } from './buildPatientSyncFilterViaP
 import { dateTimeType } from './dateTimeTypes';
 import { getCurrentDateTimeString } from '../utils/dateTime';
 import { onSaveMarkPatientForSync } from './onSaveMarkPatientForSync';
-import { buildExtraFilterColumnSelect } from './buildExtraFilterColumnSelect';
 import { buildPatientLinkedLookupFilter } from './buildPatientLinkedLookupFilter';
 
 export class PatientAllergy extends Model {
