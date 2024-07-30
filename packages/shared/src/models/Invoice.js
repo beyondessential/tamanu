@@ -6,7 +6,7 @@ import {
 } from '@tamanu/constants';
 import { Model } from './Model';
 import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
-import { dateType } from './dateTimeTypes';
+import { dateTimeType } from './dateTimeTypes';
 import { buildEncounterLinkedLookupFilter } from './buildEncounterLinkedLookupFilter';
 
 export class Invoice extends Model {
