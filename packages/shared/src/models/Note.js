@@ -115,5 +115,5 @@ export class Note extends Model {
     };
   }
 
-  static buildPatientSyncFilter = buildNoteLinkedSyncFilter
+  static buildPatientSyncFilter = buildNoteLinkedSyncFilter;
 }
