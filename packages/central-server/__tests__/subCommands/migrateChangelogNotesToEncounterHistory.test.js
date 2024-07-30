@@ -17,22 +17,6 @@ import { migrateDataInBatches } from '../../dist/subCommands/migrateDataInBatche
 
 const DEFAULT_USER_ID = 'DEFAULT_USER_ID';
 
-const addLegacySystemNote = async (models, recordId, content, date, user) => {
-  const notePage = await models.LegacyNotePage.create({
-    recordId,
-    recordType: NOTE_RECORD_TYPES.ENCOUNTER,
-    date,
-    noteType: NOTE_TYPES.SYSTEM,
-  });
-
-  return models.LegacyNoteItem.create({
-    notePageId: notePage.id,
-    date,
-    content,
-    authorId: user?.id || DEFAULT_USER_ID,
-  });
-};
-
 const addSystemNote = async (models, recordId, content, date, user) =>
   models.Note.create({
     recordId,
@@ -50,7 +34,6 @@ const addLocationChangeNote = async (
   newLocationId,
   submittedTime,
   user,
-  newNoteSchema = false,
 ) => {
   const { Location } = models;
   const oldLocation = await Location.findOne({
@@ -72,7 +55,7 @@ const addLocationChangeNote = async (
     user,
   ];
 
-  return newNoteSchema ? addSystemNote(...args) : addLegacySystemNote(...args);
+  return addSystemNote(...args);
 };
 
 const addDepartmentChangeNote = async (
@@ -82,7 +65,6 @@ const addDepartmentChangeNote = async (
   toDepartmentId,
   submittedTime,
   user,
-  newNoteSchema = false,
 ) => {
   const { Department } = models;
   const oldDepartment = await Department.findOne({ where: { id: fromDepartmentId } });
@@ -95,7 +77,7 @@ const addDepartmentChangeNote = async (
     user,
   ];
 
-  return newNoteSchema ? addSystemNote(...args) : addLegacySystemNote(...args);
+  return addSystemNote(...args);
 };
 
 const updateClinician = async (
@@ -105,7 +87,6 @@ const updateClinician = async (
   newClinicianId,
   submittedTime,
   user,
-  newNoteSchema = false,
 ) => {
   const { User } = models;
   const oldClinician = await User.findOne({ where: { id: oldClinicianId } });
@@ -118,7 +99,7 @@ const updateClinician = async (
     user,
   ];
 
-  return newNoteSchema ? addSystemNote(...args) : addLegacySystemNote(...args);
+  return addSystemNote(...args);
 };
 
 const onEncounterProgression = async (
@@ -128,7 +109,6 @@ const onEncounterProgression = async (
   newEncounterType,
   submittedTime,
   user,
-  newNoteSchema = false,
 ) => {
   const args = [
     models,
@@ -138,7 +118,7 @@ const onEncounterProgression = async (
     user,
   ];
 
-  return newNoteSchema ? addSystemNote(...args) : addLegacySystemNote(...args);
+  return addSystemNote(...args);
 };
 
 describe('migrateChangelogNotesToEncounterHistory', () => {
@@ -212,8 +192,6 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
       cascade: true,
       force: true,
     });
-    await models.LegacyNoteItem.truncate({ cascade: true, force: true });
-    await models.LegacyNotePage.truncate({ cascade: true, force: true });
     await models.Note.truncate({ cascade: true, force: true });
     await models.User.destroy({
       cascade: true,
@@ -3042,14 +3020,6 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         encounterType,
         startDate: getDateSubtractedFromNow(6),
       });
-
-      await models.LegacyNotePage.createForRecord(
-        encounter.id,
-        NOTE_RECORD_TYPES.ENCOUNTER,
-        NOTE_TYPES.SYSTEM,
-        'Automatically discharged',
-        clinician.id,
-      );
 
       // Migration
       await migrateDataInBatches(NOTE_PAGE_SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
