@@ -17,9 +17,14 @@ export class SyncLookup extends Model {
         facilityId: { type: DataTypes.STRING },
         isLabRequest: { type: DataTypes.BOOLEAN },
         isDeleted: { type: DataTypes.BOOLEAN },
-        updatedAtFieldBySum: { type: DataTypes.BIGINT },
+        updatedAtByFieldSum: { type: DataTypes.BIGINT },
       },
-      { syncDirection: SYNC_DIRECTIONS.DO_NOT_SYNC, ...options },
+      {
+        syncDirection: SYNC_DIRECTIONS.DO_NOT_SYNC,
+        ...options,
+        tableName: 'sync_lookup',
+        timestamps: false,
+      },
     );
   }
 }
