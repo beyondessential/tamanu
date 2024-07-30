@@ -111,21 +111,29 @@ export class CentralSyncManager {
   }
 
   async prepareSession(syncSession) {
-    await createSnapshotTable(this.store.sequelize, syncSession.id);
+    try {
+      await createSnapshotTable(this.store.sequelize, syncSession.id);
 
-    const { tick } = await this.tickTockGlobalClock();
+      const { tick } = await this.tickTockGlobalClock();
 
-    await this.store.sequelize.models.SyncSession.update(
-      { startedAtTick: tick },
-      { where: { id: syncSession.id } },
-    );
-    // eslint-disable-next-line no-unused-expressions
-    trace.getActiveSpan()?.setAttributes({
-      'app.sync.sessionId': syncSession.id,
-      'app.sync.tick': tick,
-    });
+      await this.store.sequelize.models.SyncSession.update(
+        { startedAtTick: tick },
+        { where: { id: syncSession.id } },
+      );
+      // eslint-disable-next-line no-unused-expressions
+      trace.getActiveSpan()?.setAttributes({
+        'app.sync.sessionId': syncSession.id,
+        'app.sync.tick': tick,
+      });
 
-    return { sessionId: syncSession.id, tick };
+      return { sessionId: syncSession.id, tick };
+    } catch (error) {
+      log.error('CentralSyncManager.prepareSession encountered an error', error);
+      await this.store.models.SyncSession.update(
+        { error: error.message },
+        { where: { id: syncSession.id } },
+      );
+    }
   }
 
   async connectToSession(sessionId) {
@@ -176,32 +184,32 @@ export class CentralSyncManager {
     });
   }
 
-  async markSnapshotAsProcessing(sessionId) {
-    // Mark the snapshot as processing in a way that
+  async markSessionAsProcessing(sessionId) {
+    // Mark the session as processing something asynchronous in a way that
     // a) can be read across processes, if the central server is running in cluster mode; and
     // b) will automatically get cleared if the process restarts
     // A transaction level advisory lock fulfils both of these criteria, as it sits at the database
     // level (independent of an individual node process), but will be unlocked if the transaction is
     // rolled back for any reason (e.g. the server restarts
     const transaction = await this.store.sequelize.transaction();
-    await this.store.sequelize.query('SELECT pg_advisory_xact_lock(:snapshotLockId);', {
-      replacements: { snapshotLockId: uuidToFairlyUniqueInteger(sessionId) },
+    await this.store.sequelize.query('SELECT pg_advisory_xact_lock(:sessionLockId);', {
+      replacements: { sessionLockId: uuidToFairlyUniqueInteger(sessionId) },
       transaction,
     });
-    const unmarkSnapshotAsProcessing = async () => {
+    const unmarkSessionAsProcessing = async () => {
       await transaction.commit();
     };
-    return unmarkSnapshotAsProcessing;
+    return unmarkSessionAsProcessing;
   }
 
-  async checkSnapshotIsProcessing(sessionId) {
+  async checkSessionIsProcessing(sessionId) {
     const [rows] = await this.store.sequelize.query(
-      'SELECT NOT(pg_try_advisory_xact_lock(:snapshotLockId)) AS snapshot_is_processing;',
+      'SELECT NOT(pg_try_advisory_xact_lock(:sessionLockId)) AS session_is_processing;',
       {
-        replacements: { snapshotLockId: uuidToFairlyUniqueInteger(sessionId) },
+        replacements: { sessionLockId: uuidToFairlyUniqueInteger(sessionId) },
       },
     );
-    return rows[0].snapshot_is_processing;
+    return rows[0].session_is_processing;
   }
 
   // set pull filter begins creating a snapshot of changes to pull at this point in time
@@ -211,13 +219,13 @@ export class CentralSyncManager {
 
       // first check if the snapshot is already being processed, to throw a sane error if (for some
       // reason) the client managed to kick off the pull twice (ran into this in v1.24.0 and v1.24.1)
-      const isAlreadyProcessing = await this.checkSnapshotIsProcessing(sessionId);
+      const isAlreadyProcessing = await this.checkSessionIsProcessing(sessionId);
       if (isAlreadyProcessing) {
         throw new Error(`Snapshot for session ${sessionId} is already being processed`);
       }
 
-      const unmarkSnapshotAsProcessing = await this.markSnapshotAsProcessing(sessionId);
-      this.setupSnapshotForPull(sessionId, params, unmarkSnapshotAsProcessing); // don't await, as it takes a while - the sync client will poll for it to finish
+      const unmarkSessionAsProcessing = await this.markSessionAsProcessing(sessionId);
+      this.setupSnapshotForPull(sessionId, params, unmarkSessionAsProcessing); // don't await, as it takes a while - the sync client will poll for it to finish
     } catch (error) {
       log.error('CentralSyncManager.initiatePull encountered an error', error);
       await this.store.models.SyncSession.update(
@@ -230,7 +238,7 @@ export class CentralSyncManager {
   async setupSnapshotForPull(
     sessionId,
     { since, facilityId, tablesToInclude, tablesForFullResync, isMobile },
-    unmarkSnapshotAsProcessing,
+    unmarkSessionAsProcessing,
   ) {
     let transactionTimeout;
     try {
@@ -381,17 +389,27 @@ export class CentralSyncManager {
       );
     } finally {
       if (transactionTimeout) clearTimeout(transactionTimeout);
-      await unmarkSnapshotAsProcessing();
+      await unmarkSessionAsProcessing();
     }
   }
 
   async checkSessionReady(sessionId) {
-    await this.connectToSession(sessionId);
-    const session = await this.connectToSession(sessionId);
-    if (session.startedAtTick === null) {
+    // if this session is still initiating, return false to tell the client to keep waiting
+    const sessionIsInitiating = await this.checkSessionIsProcessing(sessionId);
+    if (sessionIsInitiating) {
       return false;
     }
 
+    // if this session is not marked as processing, but also never set startedAtTick, record an error
+    const session = await this.connectToSession(sessionId);
+    if (session.startedAtTick === null) {
+      session.error =
+        'Session initiation incomplete, likely because the central server restarted during the process';
+      await session.save();
+      throw new Error(errorMessageFromSession(session));
+    }
+
+    // session ready!
     return true;
   }
 
@@ -399,7 +417,7 @@ export class CentralSyncManager {
     await this.connectToSession(sessionId);
 
     // if this snapshot still processing, return false to tell the client to keep waiting
-    const snapshotIsProcessing = await this.checkSnapshotIsProcessing(sessionId);
+    const snapshotIsProcessing = await this.checkSessionIsProcessing(sessionId);
     if (snapshotIsProcessing) {
       return false;
     }
