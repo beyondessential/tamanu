@@ -138,17 +138,13 @@ export const PotentialInvoiceItemsTable = ({ invoice, invoiceItems, formArrayMet
       key: 'productType',
       title: <TranslatedText stringId="invoice.table.column.category" fallback="Category" />,
       accessor: ({ productType }) => (
-        <TranslatedEnum
-          prefix="invoice.table.column.type"
-          value={productType}
-          enumValues={INVOICE_ITEMS_CATEGORY_LABELS}
-        />
+        <TranslatedEnum value={productType} enumValues={INVOICE_ITEMS_CATEGORY_LABELS} />
       ),
     },
     {
       key: 'productPrice',
       title: <TranslatedText stringId="invoice.table.column.price" fallback="Price" />,
-      accessor: ({ productPrice }) => `$${formatDisplayPrice(productPrice)}`
+      accessor: ({ productPrice }) => `$${formatDisplayPrice(productPrice)}`,
     },
     {
       sortable: false,
