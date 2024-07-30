@@ -5,6 +5,7 @@ import { createDummyEncounter, createDummyPatient } from '@tamanu/shared/demoDat
 import { NOTE_RECORD_TYPES, NOTE_TYPES } from '@tamanu/constants';
 import { findOneOrCreate } from '@tamanu/shared/test-helpers/factory';
 import { getDateTimeSubtractedFromNow } from '@tamanu/shared/utils/dateTime';
+import { selectFacilityIds } from '@tamanu/shared/utils/configSelectors';
 
 import { createTestContext } from '../utilities';
 
@@ -47,6 +48,7 @@ describe('Location groups', () => {
   });
 
   describe('Handover notes', () => {
+    const [facilityId] = selectFacilityIds(config);
     let facility;
     let group;
     let location;
@@ -55,9 +57,9 @@ describe('Location groups', () => {
 
     beforeAll(async () => {
       [facility] = await models.Facility.upsert({
-        id: config.serverFacilityId,
-        name: config.serverFacilityId,
-        code: config.serverFacilityId,
+        id: facilityId,
+        name: facilityId,
+        code: facilityId,
       });
       group = await models.LocationGroup.create({
         name: 'Test Location Group',
@@ -117,7 +119,9 @@ describe('Location groups', () => {
         date: getDateTimeSubtractedFromNow(1),
       });
 
-      const result = await app.get(`/api/locationGroup/${group.id}/handoverNotes`);
+      const result = await app.get(
+        `/api/locationGroup/${group.id}/handoverNotes?facilityId=${facilityId}`,
+      );
       expect(result).toHaveSucceeded();
       expect(result.body.data).toHaveLength(1);
       expect(result.body.data[0]).toMatchObject({
@@ -151,7 +155,9 @@ describe('Location groups', () => {
         date: getDateTimeSubtractedFromNow(1),
       });
 
-      const result = await app.get(`/api/locationGroup/${group.id}/handoverNotes`);
+      const result = await app.get(
+        `/api/locationGroup/${group.id}/handoverNotes?facilityId=${facilityId}`,
+      );
       expect(result).toHaveSucceeded();
       expect(result.body.data).toHaveLength(1);
       expect(result.body.data[0]).toMatchObject({
