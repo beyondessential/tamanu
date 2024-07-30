@@ -4,4 +4,5 @@ export { syncCommand } from './sync';
 export { startAllCommand } from './startAll';
 export { startApiCommand, startSyncCommand } from './startApp';
 export { startTasksCommand } from './startTasks';
+export { shellCommand } from './shell';
 export * from './migrateAppointmentsToLocationGroups';
