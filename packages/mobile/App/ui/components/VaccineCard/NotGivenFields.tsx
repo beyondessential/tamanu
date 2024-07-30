@@ -28,7 +28,13 @@ export const NotGivenFields: FC<VaccineDataProps> = ({ administeredVaccine }) =>
     />
     <RowField
       label={<TranslatedText stringId="vaccine.form.notGivenReason.label" fallback="Reason" />}
-      value={administeredVaccine.notGivenReason?.name}
+      value={
+        <TranslatedReferenceData
+          fallback={administeredVaccine.notGivenReason?.name}
+          value={administeredVaccine.notGivenReason?.id}
+          category="vaccineNotGivenReason"
+        />
+      }
     />
     <RowField
       label={<TranslatedText stringId="general.form.area.label" fallback="Area" />}
