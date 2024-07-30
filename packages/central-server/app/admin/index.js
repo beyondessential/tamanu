@@ -22,6 +22,7 @@ import { assetRoutes } from './asset';
 import { translationRouter } from './translation';
 import { exportProgram } from './programExporter/exportProgram';
 import { simpleGetList } from '@tamanu/shared/utils/crudHelpers';
+import { insurerPaymentImporter } from './invoice/insurerPaymentImporter';
 
 export const adminRoutes = express.Router();
 adminRoutes.use(ensurePermissionCheck);
@@ -58,6 +59,8 @@ adminRoutes.post('/import/referenceData', createDataImporterEndpoint(referenceDa
 adminRoutes.post('/import/program', createDataImporterEndpoint(programImporter));
 
 adminRoutes.post('/import/surveyResponses', createDataImporterEndpoint(surveyResponsesImporter));
+
+adminRoutes.post('/import/insurerPayments', createDataImporterEndpoint(insurerPaymentImporter));
 
 adminRoutes.get(
   '/export/referenceData',

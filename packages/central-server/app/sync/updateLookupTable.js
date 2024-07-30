@@ -78,7 +78,9 @@ export const updateLookupTableForModel = async (model, config, since, sessionCon
             is_lab_request = EXCLUDED.is_lab_request,
             patient_id = EXCLUDED.patient_id,
             encounter_id = EXCLUDED.encounter_id,
-            facility_id = EXCLUDED.facility_id
+            facility_id = EXCLUDED.facility_id,
+            updated_at_by_field_sum = EXCLUDED.updated_at_by_field_sum,
+            is_deleted = EXCLUDED.is_deleted
           RETURNING record_id
         )
         SELECT MAX(record_id) as "maxId",

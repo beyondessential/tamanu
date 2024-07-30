@@ -55,6 +55,10 @@ export class EncounterDiagnosis extends Model {
       foreignKey: 'diagnosisId',
       as: 'Diagnosis',
     });
+    this.belongsTo(models.User, {
+      foreignKey: 'clinicianId',
+      as: 'clinician',
+    });
   }
 
   static getListReferenceAssociations() {

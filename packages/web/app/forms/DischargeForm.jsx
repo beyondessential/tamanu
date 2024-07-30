@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
-import { range } from 'lodash';
+import { REPEATS_LABELS } from '@tamanu/constants';
 import { isFuture, parseISO, set } from 'date-fns';
 import { format, getCurrentDateTimeString, toDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { Divider as BaseDivider } from '@material-ui/core';
@@ -17,9 +17,9 @@ import {
   Field,
   LocalisedField,
   PaginatedForm,
-  SelectField,
   StyledTextField,
   TextField,
+  TranslatedSelectField,
   useLocalisedSchema,
 } from '../components/Field';
 import { OuterLabelFieldWrapper } from '../components/Field/OuterLabelFieldWrapper';
@@ -64,22 +64,19 @@ const dischargingClinicianLabel = (
   />
 );
 
-const MAX_REPEATS = 12;
-const REPEATS_OPTIONS = range(MAX_REPEATS + 1).map(value => ({ label: value, value }));
-
 const getDischargeInitialValues = (encounter, dischargeNotes, medicationInitialValues) => {
   const today = new Date();
   const encounterStartDate = parseISO(encounter.startDate);
   return {
     endDate: isFuture(encounterStartDate)
       ? // In the case of a future start_date we cannot default to current datetime as it falls outside of the min date.
-      toDateTimeString(
-        set(encounterStartDate, {
-          hours: today.getHours(),
-          minutes: today.getMinutes(),
-          seconds: today.getSeconds(),
-        }),
-      )
+        toDateTimeString(
+          set(encounterStartDate, {
+            hours: today.getHours(),
+            minutes: today.getMinutes(),
+            seconds: today.getSeconds(),
+          }),
+        )
       : getCurrentDateTimeString(),
     discharge: {
       note: dischargeNotes.map(n => n.content).join('\n\n'),
@@ -117,13 +114,15 @@ const StyledUnorderedList = styled.ul`
 const ProcedureList = React.memo(({ procedures }) => (
   <StyledUnorderedList>
     {procedures.length > 0 ? (
-      procedures.map(({ procedureType }) => <li key={procedureType.id}>
-        <TranslatedReferenceData 
-          fallback={procedureType.name} 
-          value={procedureType.id} 
-          category={procedureType.type}  
-        />
-      </li>)
+      procedures.map(({ procedureType }) => (
+        <li key={procedureType.id}>
+          <TranslatedReferenceData
+            fallback={procedureType.name}
+            value={procedureType.id}
+            category={procedureType.type}
+          />
+        </li>
+      ))
     ) : (
       <TranslatedText stringId="general.fallback.notApplicable" fallback="N/A" />
     )}
@@ -176,7 +175,11 @@ const MedicationAccessor = ({ id, medication, prescription }) => (
   <Field
     name={`medications.${id}.isDischarge`}
     lineOne={
-      <TranslatedReferenceData fallback={medication.name} value={medication.id} category={medication.type} />
+      <TranslatedReferenceData
+        fallback={medication.name}
+        value={medication.id}
+        category={medication.type}
+      />
     }
     lineTwo={prescription}
     component={CustomCheckField}
@@ -189,9 +192,8 @@ const RepeatsAccessor = ({ id }) => (
   <Field
     name={`medications.${id}.repeats`}
     isClearable={false}
-    component={SelectField}
-    options={REPEATS_OPTIONS}
-    prefix="discharge.medication.property.repeats"
+    component={TranslatedSelectField}
+    enumValues={REPEATS_LABELS}
   />
 );
 

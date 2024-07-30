@@ -4,14 +4,18 @@ import styled from 'styled-components';
 import { useEncounter } from '../../../contexts/Encounter';
 import { NoteModal } from '../../../components/NoteModal';
 import { NoteTableWithPermission } from '../../../components/NoteTable';
-import { ButtonWithPermissionCheck, TableButtonRow } from '../../../components';
+import {
+  ButtonWithPermissionCheck,
+  TableButtonRow,
+  TranslatedSelectField,
+} from '../../../components';
 import { TabPane } from '../components';
-import { SelectField } from '../../../components/Field';
-import { NOTE_FORM_MODES, noteTypes } from '../../../constants';
+import { NOTE_FORM_MODES } from '../../../constants';
 import { useEncounterNotes } from '../../../contexts/EncounterNotes';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
+import { NOTE_TYPES, NOTE_TYPE_LABELS } from '@tamanu/constants';
 
-const StyledTranslatedSelectField = styled(SelectField)`
+const StyledTranslatedSelectField = styled(TranslatedSelectField)`
   width: 200px;
 `;
 
@@ -38,17 +42,19 @@ export const NotesPane = React.memo(({ encounter, readonly }) => {
       />
       <TableButtonRow variant="small" justifyContent="space-between">
         <StyledTranslatedSelectField
-          options={[
+          onChange={e => setNoteType(e.target.value)}
+          value={noteType}
+          name="noteType"
+          enumValues={NOTE_TYPE_LABELS}
+          transformOptions={options => [
             {
               value: null,
               label: <TranslatedText stringId="general.select.all" fallback="All" />,
             },
-            ...noteTypes,
+            ...options.filter(
+              option => ![NOTE_TYPES.CLINICAL_MOBILE, NOTE_TYPES.SYSTEM].includes(option.value),
+            ),
           ]}
-          onChange={e => setNoteType(e.target.value)}
-          value={noteType}
-          name="noteType"
-          prefix="note.property.type"
           isClearable={false}
         />
         <ButtonWithPermissionCheck
