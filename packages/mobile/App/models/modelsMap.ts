@@ -34,7 +34,6 @@ import { Facility } from './Facility';
 import { Department } from './Department';
 import { Location } from './Location';
 import { LocationGroup } from './LocationGroup';
-import { BaseModel } from './BaseModel';
 import { LabRequest } from './LabRequest';
 import { LabTest } from './LabTest';
 import { LabTestType } from './LabTestType';
@@ -94,4 +93,7 @@ export const MODELS_MAP = {
   Setting,
   Note,
 };
-export const MODELS_ARRAY: typeof BaseModel[] = Object.values(MODELS_MAP);
+
+type AllValuesOfObject<T extends object> = Array<T[keyof T]>;
+export type ArrayOfModels = AllValuesOfObject<typeof MODELS_MAP>;
+export const MODELS_ARRAY: ArrayOfModels = Object.values(MODELS_MAP);
