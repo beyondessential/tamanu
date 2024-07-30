@@ -3,7 +3,8 @@ export * from '@tamanu/shared/utils/dateTime';
 export * from '@tamanu/shared/utils/date';
 
 export const getLocaleDatePlaceholder = () => {
-  const format = new Intl.DateTimeFormat();
+  const locale = globalThis.navigator?.language ?? 'default';
+  const format = new Intl.DateTimeFormat(locale);
   const parts = format.formatToParts(new Date());
 
   let placeholder = '';

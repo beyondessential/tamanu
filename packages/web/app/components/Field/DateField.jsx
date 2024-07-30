@@ -178,7 +178,8 @@ export const DateInput = ({
           break;
       }
       const date = new Date(currentText);
-      return date.toLocaleString(undefined, format);
+      const locale = globalThis.navigator?.language ?? 'default';
+      return date.toLocaleString(locale, format);
     } else {
       return <Box color={Colors.softText}>{getLocaleDatePlaceholder()}</Box>;
     }
