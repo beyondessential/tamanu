@@ -66,7 +66,6 @@ function getActiveRouteName(navigationState) {
   if (route.state) {
     return getActiveRouteName(route.state);
   }
-  console.log("test")
   return route;
 }
 
