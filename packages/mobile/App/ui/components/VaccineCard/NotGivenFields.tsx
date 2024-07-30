@@ -8,6 +8,7 @@ import { formatStringDate } from '../../helpers/date';
 import { DateFormats } from '../../helpers/constants';
 import { TranslatedReferenceData } from '../Translations/TranslatedReferenceData';
 import { TranslatedText } from '../Translations/TranslatedText';
+import { ReferenceDataType } from '~/types';
 
 export const NotGivenFields: FC<VaccineDataProps> = ({ administeredVaccine }) => (
   <StyledView
@@ -32,7 +33,7 @@ export const NotGivenFields: FC<VaccineDataProps> = ({ administeredVaccine }) =>
         <TranslatedReferenceData
           fallback={administeredVaccine.notGivenReason?.name}
           value={administeredVaccine.notGivenReason?.id}
-          category="vaccineNotGivenReason"
+          category={ReferenceDataType.VaccineNotGivenReason}
         />
       }
     />

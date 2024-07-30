@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { IPatientContact } from '~/types';
+import { IPatientContact, ReferenceDataType } from '~/types';
 import { TranslatedReferenceData } from '~/ui/components/Translations/TranslatedReferenceData';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 import { useReminderContact } from '~/ui/contexts/ReminderContactContext';
@@ -55,7 +55,7 @@ export const ContactCard = (contact: IPatientContact) => {
         </StyledText>
         <StyledText color={getColor()} fontSize={screenPercentageToDP(2, Orientation.Height)}>
           <TranslatedReferenceData
-            category="contactRelationship"
+            category={ReferenceDataType.ContactRelationship}
             fallback={relationship?.name}
             value={relationship?.id}
           />
