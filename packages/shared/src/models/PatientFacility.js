@@ -1,7 +1,6 @@
 import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
-import { buildPatientLinkedLookupFilter } from './buildPatientLinkedLookupFilter';
 import { buildExtraFilterColumnSelect } from './buildExtraFilterColumnSelect';
 
 export class PatientFacility extends Model {
