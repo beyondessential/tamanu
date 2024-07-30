@@ -4,6 +4,7 @@ import { Setting } from '@tamanu/shared/models/Setting';
 import { fake } from '@tamanu/shared/test-helpers/fake';
 import { createTestContext } from '../utilities';
 import { SETTINGS_SCOPES } from '@tamanu/constants';
+import { selectFacilityIds } from '@tamanu/shared/utils/configSelectors';
 
 describe('Vaccination Settings', () => {
   let ctx = null;
@@ -27,16 +28,17 @@ describe('Vaccination Settings', () => {
 
   describe('GET vaccinationSettings/:key', () => {
     it('fetches a vaccination setting record from the current facility', async () => {
+      const [facilityId] = selectFacilityIds(config);
       await models.Facility.upsert({
-        id: config.serverFacilityId,
-        name: config.serverFacilityId,
-        code: config.serverFacilityId,
+        id: facilityId,
+        name: facilityId,
+        code: facilityId,
       });
 
       const TEST_KEY = 'vaccinations.test.key';
       const TEST_VALUE = 'test-value';
 
-      await Setting.set(TEST_KEY, TEST_VALUE, SETTINGS_SCOPES.FACILITY, config.serverFacilityId);
+      await Setting.set(TEST_KEY, TEST_VALUE, SETTINGS_SCOPES.FACILITY, facilityId);
 
       const result = await app.get(`/api/vaccinationSettings/${TEST_KEY}`).send({});
 
