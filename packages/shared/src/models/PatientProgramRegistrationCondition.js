@@ -67,5 +67,5 @@ export class PatientProgramRegistrationCondition extends Model {
   }
 
   static buildSyncLookupFilter() {
-    return buildPatientLinkedLookupFilter(this.tableName);
+    return buildPatientLinkedLookupFilter(this);
   }}

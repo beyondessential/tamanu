@@ -1,7 +1,7 @@
 import { Sequelize } from 'sequelize';
 import { REFERRAL_STATUSES, SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
-import { buildExtraFilterColumnSelect } from './buildExtraFilterColumnSelect';
+import { buildEncounterPatientIdSelect } from './buildPatientLinkedLookupFilter';
 
 export class Referral extends Model {
   static init({ primaryKey, ...options }) {
@@ -51,9 +51,7 @@ export class Referral extends Model {
 
   static buildSyncLookupFilter() {
     return {
-      extraFilterColumnSelect: buildExtraFilterColumnSelect({
-        patientId: 'encounters.patient_id',
-      }),
+      select: buildEncounterPatientIdSelect(this),
       joins: 'JOIN encounters ON referrals.initiating_encounter_id = encounters.id',
     };
   }

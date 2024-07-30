@@ -10,7 +10,7 @@ import {
   buildEncounterLinkedSyncFilterJoins,
 } from './buildEncounterLinkedSyncFilter';
 import { dateTimeType } from './dateTimeTypes';
-import { buildExtraFilterColumnSelect } from './buildExtraFilterColumnSelect';
+import { buildEncounterPatientIdSelect } from './buildPatientLinkedLookupFilter';
 
 export class Triage extends Model {
   static init({ primaryKey, ...options }) {
@@ -72,9 +72,7 @@ export class Triage extends Model {
 
   static buildSyncLookupFilter() {
     return {
-      extraFilterColumnSelect: buildExtraFilterColumnSelect({
-        patientId: 'encounters.id',
-      }),
+      select: buildEncounterPatientIdSelect(this),
       joins: buildEncounterLinkedSyncFilterJoins([this.tableName, 'encounters']),
     };
   }

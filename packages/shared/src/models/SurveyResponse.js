@@ -15,7 +15,7 @@ import { getActiveActionComponents, getResultValue, getStringValue } from '../ut
 import { getPatientDataDbLocation } from '../utils/getPatientDataDbLocation';
 import { dateTimeType } from './dateTimeTypes';
 import { getCurrentDateTimeString } from '../utils/dateTime';
-import { buildExtraFilterColumnSelect } from './buildExtraFilterColumnSelect';
+import { buildEncounterPatientIdSelect } from './buildPatientLinkedLookupFilter';
 
 async function createPatientIssues(models, questions, patientId) {
   const issueQuestions = questions.filter(
@@ -190,14 +190,15 @@ export class SurveyResponse extends Model {
     if (patientCount === 0) {
       return null;
     }
-    return buildEncounterLinkedSyncFilter([this.tableName, 'encounters'], markedForSyncPatientsTable);
+    return buildEncounterLinkedSyncFilter(
+      [this.tableName, 'encounters'],
+      markedForSyncPatientsTable,
+    );
   }
 
   static buildSyncLookupFilter() {
     return {
-      extraFilterColumnSelect: buildExtraFilterColumnSelect({
-        patientId: 'encounters.id',
-      }),
+      select: buildEncounterPatientIdSelect(this),
       joins: buildEncounterLinkedSyncFilterJoins([this.tableName, 'encounters']),
     };
   }

@@ -4,7 +4,7 @@ import { Model } from './Model';
 import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
 import { dateTimeType } from './dateTimeTypes';
 import { getCurrentDateTimeString } from '../utils/dateTime';
-import { buildEncounterLinkedLookupFilter } from './buildEncounterLinkedLookupFilter';
+import { buildEncounterLinkedLookupFilter } from '../sync/buildEncounterLinkedLookupFilter';
 
 export class EncounterMedication extends Model {
   static init({ primaryKey, ...options }) {
@@ -92,5 +92,7 @@ export class EncounterMedication extends Model {
     );
   }
 
-  static buildSyncLookupFilter = buildEncounterLinkedLookupFilter;
+  static buildSyncLookupFilter() {
+    return buildEncounterLinkedLookupFilter(this);
+  }
 }

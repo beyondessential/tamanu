@@ -2,7 +2,7 @@ import { Sequelize } from 'sequelize';
 import { APPOINTMENT_STATUSES, APPOINTMENT_TYPES, SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
 import { dateTimeType } from './dateTimeTypes';
-import { buildExtraFilterColumnSelect } from './buildExtraFilterColumnSelect';
+import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
 
 export class Appointment extends Model {
   static init({ primaryKey, ...options }) {
@@ -78,7 +78,7 @@ export class Appointment extends Model {
 
   static buildSyncLookupFilter() {
     return {
-      extraFilterColumnSelect: buildExtraFilterColumnSelect({
+      select: buildSyncLookupSelect(this, {
         patientId: 'appointments.patient_id',
       }),
     };

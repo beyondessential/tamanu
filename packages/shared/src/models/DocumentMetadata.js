@@ -5,7 +5,7 @@ import { dateTimeType } from './dateTimeTypes';
 import { getCurrentDateTimeString } from '../utils/dateTime';
 import { buildEncounterLinkedSyncFilterJoins } from './buildEncounterLinkedSyncFilter';
 import { onSaveMarkPatientForSync } from './onSaveMarkPatientForSync';
-import { buildExtraFilterColumnSelect } from './buildExtraFilterColumnSelect';
+import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
 
 export class DocumentMetadata extends Model {
   static init({ primaryKey, ...options }) {
@@ -88,7 +88,7 @@ export class DocumentMetadata extends Model {
 
   static buildSyncLookupFilter() {
     return {
-      extraFilterColumnSelect: buildExtraFilterColumnSelect({
+      select: buildSyncLookupSelect(this, {
         patientId: 'COALESCE(document_metadata.patient_id, encounters.patient_id)',
       }),
       joins: `

@@ -13,7 +13,7 @@ import { Model } from './Model';
 import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
 import { dateTimeType } from './dateTimeTypes';
 import { getCurrentDateTimeString } from '../utils/dateTime';
-import { buildEncounterLinkedLookupFilter } from './buildEncounterLinkedLookupFilter';
+import { buildEncounterLinkedLookupFilter } from '../sync/buildEncounterLinkedLookupFilter';
 
 const ALL_IMAGING_REQUEST_STATUS_TYPES = Object.values(IMAGING_REQUEST_STATUS_TYPES);
 
@@ -161,5 +161,7 @@ export class ImagingRequest extends Model {
     );
   }
 
-  static buildSyncLookupFilter = buildEncounterLinkedLookupFilter;
+  static buildSyncLookupFilter() {
+    return buildEncounterLinkedLookupFilter(this);
+  }
 }

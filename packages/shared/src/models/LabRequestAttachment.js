@@ -5,7 +5,7 @@ import {
   buildEncounterLinkedSyncFilter,
   buildEncounterLinkedSyncFilterJoins,
 } from './buildEncounterLinkedSyncFilter';
-import { buildExtraFilterColumnSelect } from './buildExtraFilterColumnSelect';
+import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
 
 export class LabRequestAttachment extends Model {
   static init({ primaryKey, ...options }) {
@@ -56,7 +56,7 @@ export class LabRequestAttachment extends Model {
 
   static buildSyncLookupFilter() {
     return {
-      extraFilterColumnSelect: buildExtraFilterColumnSelect({
+      select: buildSyncLookupSelect(this, {
         patientId: 'encounters.patient_id',
         isLabRequestValue: 'TRUE',
       }),

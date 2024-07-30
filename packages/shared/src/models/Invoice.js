@@ -7,7 +7,7 @@ import {
 import { Model } from './Model';
 import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
 import { dateTimeType } from './dateTimeTypes';
-import { buildEncounterLinkedLookupFilter } from './buildEncounterLinkedLookupFilter';
+import { buildEncounterLinkedLookupFilter } from '../sync/buildEncounterLinkedLookupFilter';
 
 export class Invoice extends Model {
   static init({ primaryKey, ...options }) {
@@ -81,7 +81,9 @@ export class Invoice extends Model {
     );
   }
 
-  static buildSyncLookupFilter = buildEncounterLinkedLookupFilter;
+  static buildSyncLookupFilter() {
+    return buildEncounterLinkedLookupFilter(this);
+  }
 
   static getFullReferenceAssociations() {
     const { models } = this.sequelize;

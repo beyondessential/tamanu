@@ -10,7 +10,7 @@ import { Model } from './Model';
 import { buildNoteLinkedJoins, buildNoteLinkedSyncFilter } from './buildNoteLinkedSyncFilter';
 import { dateTimeType } from './dateTimeTypes';
 import { getCurrentDateTimeString } from '../utils/dateTime';
-import { buildExtraFilterColumnSelect } from './buildExtraFilterColumnSelect';
+import { buildEncounterPatientIdSelect } from './buildPatientLinkedLookupFilter';
 
 export class Note extends Model {
   static init({ primaryKey, ...options }) {
@@ -108,9 +108,7 @@ export class Note extends Model {
 
   static buildSyncLookupFilter() {
     return {
-      extraFilterColumnSelect: buildExtraFilterColumnSelect({
-        patientId: 'encounters.patient_id',
-      }),
+      select: buildEncounterPatientIdSelect(this),
       joins: buildNoteLinkedJoins().join('\n'),
     };
   }

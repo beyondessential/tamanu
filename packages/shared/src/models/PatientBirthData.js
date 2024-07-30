@@ -90,7 +90,7 @@ export class PatientBirthData extends Model {
   ];
 
   static buildSyncLookupFilter() {
-    return buildPatientLinkedLookupFilter(this.tableName);
+    return buildPatientLinkedLookupFilter(this);
   }
 
   static buildPatientSyncFilter = buildPatientSyncFilterViaPatientId;

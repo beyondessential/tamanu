@@ -1,9 +1,15 @@
-import { buildExtraFilterColumnSelect } from './buildExtraFilterColumnSelect';
+import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
 
-export function buildPatientLinkedLookupFilter(tableName) {
+export function buildPatientLinkedLookupFilter(model) {
   return {
-    extraFilterColumnSelect: buildExtraFilterColumnSelect({
-      patientId: `${tableName}.patient_id`,
+    select: buildSyncLookupSelect(model, {
+      patientId: `${model.tableName}.patient_id`,
     }),
   };
+}
+
+export function buildEncounterPatientIdSelect(model) {
+  return buildSyncLookupSelect(model, {
+    patientId: 'encounters.patient_id',
+  });
 }

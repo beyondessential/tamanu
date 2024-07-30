@@ -7,7 +7,7 @@ import {
 } from './buildEncounterLinkedSyncFilter';
 import { dateTimeType } from './dateTimeTypes';
 import { getCurrentDateTimeString } from '../utils/dateTime';
-import { buildExtraFilterColumnSelect } from './buildExtraFilterColumnSelect';
+import { buildEncounterPatientIdSelect } from './buildPatientLinkedLookupFilter';
 
 export class Vitals extends Model {
   static init({ primaryKey, ...options }) {
@@ -75,9 +75,7 @@ export class Vitals extends Model {
 
   static buildSyncLookupFilter() {
     return {
-      extraFilterColumnSelect: buildExtraFilterColumnSelect({
-        patientId: 'encounters.id',
-      }),
+      select: buildEncounterPatientIdSelect(this),
       joins: buildEncounterLinkedSyncFilterJoins([this.tableName, 'encounters']),
     };
   }
