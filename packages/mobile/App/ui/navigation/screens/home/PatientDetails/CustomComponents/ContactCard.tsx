@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
-import { IPatientContact } from '~/types';
+import { IPatientContact, ReferenceDataType } from '~/types';
+import { TranslatedReferenceData } from '~/ui/components/Translations/TranslatedReferenceData';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 import { useReminderContact } from '~/ui/contexts/ReminderContactContext';
 import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
@@ -53,7 +54,11 @@ export const ContactCard = (contact: IPatientContact) => {
           />
         </StyledText>
         <StyledText color={getColor()} fontSize={screenPercentageToDP(2, Orientation.Height)}>
-          {relationship?.name}
+          <TranslatedReferenceData
+            category={ReferenceDataType.ContactRelationship}
+            fallback={relationship?.name}
+            value={relationship?.id}
+          />
         </StyledText>
       </RowView>
       <RowView justifyContent="space-between" paddingTop={10} paddingBottom={10}>

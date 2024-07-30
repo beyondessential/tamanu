@@ -8,6 +8,7 @@ import { formatStringDate } from '../../helpers/date';
 import { DateFormats } from '../../helpers/constants';
 import { TranslatedReferenceData } from '../Translations/TranslatedReferenceData';
 import { TranslatedText } from '../Translations/TranslatedText';
+import { ReferenceDataType } from '~/types';
 
 export const NotGivenFields: FC<VaccineDataProps> = ({ administeredVaccine }) => (
   <StyledView
@@ -28,7 +29,13 @@ export const NotGivenFields: FC<VaccineDataProps> = ({ administeredVaccine }) =>
     />
     <RowField
       label={<TranslatedText stringId="vaccine.form.notGivenReason.label" fallback="Reason" />}
-      value={administeredVaccine.notGivenReason?.name}
+      value={
+        <TranslatedReferenceData
+          fallback={administeredVaccine.notGivenReason?.name}
+          value={administeredVaccine.notGivenReason?.id}
+          category={ReferenceDataType.VaccineNotGivenReason}
+        />
+      }
     />
     <RowField
       label={<TranslatedText stringId="general.form.area.label" fallback="Area" />}
