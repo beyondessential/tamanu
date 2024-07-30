@@ -20,8 +20,8 @@ export class SyncLookup extends Model {
         updatedAtByFieldSum: { type: DataTypes.BIGINT },
       },
       {
-        ...options,
         syncDirection: SYNC_DIRECTIONS.DO_NOT_SYNC,
+        ...options,
         tableName: 'sync_lookup',
         timestamps: false,
       },
