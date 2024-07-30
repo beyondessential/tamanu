@@ -12,6 +12,11 @@ export const REPORT_DATA_SOURCES = {
   ALL_FACILITIES: 'allFacilities',
 };
 
+export const REPORT_DATA_SOURCE_LABELS = {
+  [REPORT_DATA_SOURCES.THIS_FACILITY]: 'This facility',
+  [REPORT_DATA_SOURCES.ALL_FACILITIES]: 'All facilities',
+};
+
 export const REPORT_DATA_SOURCE_VALUES = Object.values(REPORT_DATA_SOURCES);
 
 export const REPORT_EXPORT_FORMATS = {
@@ -26,6 +31,11 @@ export const REPORT_VERSION_EXPORT_FORMATS = {
 
 export const REPORT_STATUSES = { DRAFT: 'draft', PUBLISHED: 'published' };
 
+export const REPORT_STATUS_LABELS = {
+  [REPORT_STATUSES.DRAFT]: 'Draft',
+  [REPORT_STATUSES.PUBLISHED]: 'Published',
+};
+
 export const REPORT_STATUSES_VALUES = Object.values(REPORT_STATUSES);
 
 export const REPORT_DEFAULT_DATE_RANGES = {
@@ -36,6 +46,16 @@ export const REPORT_DEFAULT_DATE_RANGES = {
   TWENTY_FOUR_HOURS: '24hours',
   NEXT_THIRTY_DAYS: 'next30days',
 };
+
+export const REPORT_DEFAULT_DATE_RANGES_LABELS = {
+  [REPORT_DEFAULT_DATE_RANGES.ALL_TIME]: 'All time',
+  [REPORT_DEFAULT_DATE_RANGES.EIGHTEEN_YEARS]: 'Past 18 years',
+  [REPORT_DEFAULT_DATE_RANGES.THIRTY_DAYS]: 'Past 30 days',
+  [REPORT_DEFAULT_DATE_RANGES.SEVEN_DAYS]: 'Past 7 days',
+  [REPORT_DEFAULT_DATE_RANGES.TWENTY_FOUR_HOURS]: 'Past 24 hours',
+  [REPORT_DEFAULT_DATE_RANGES.NEXT_THIRTY_DAYS]: 'Next 30 days',
+};
+
 export const REPORT_DATE_RANGE_LABELS = {
   [REPORT_DEFAULT_DATE_RANGES.ALL_TIME]: 'Date range (or leave blank for all data)',
   [REPORT_DEFAULT_DATE_RANGES.EIGHTEEN_YEARS]:
@@ -55,4 +75,11 @@ export const REPORT_DEFAULT_DATE_RANGES_VALUES = Object.values(REPORT_DEFAULT_DA
 export const REPORT_DB_SCHEMAS = {
   REPORTING: 'reporting',
   RAW: 'raw',
+};
+
+export const REPORT_DB_SCHEMA_VALUES = Object.values(REPORT_DB_SCHEMAS);
+
+export const REPORT_DB_SCHEMA_LABELS = {
+  [REPORT_DB_SCHEMAS.REPORTING]: 'Reporting',
+  [REPORT_DB_SCHEMAS.RAW]: 'Raw',
 };

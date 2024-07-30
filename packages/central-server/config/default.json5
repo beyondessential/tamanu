@@ -565,6 +565,18 @@
           "hidden": false,
           "requiredPatientData": false
         },
+        "insurerId": {
+          "shortLabel": "Insurer",
+          "longLabel": "Insurer",
+          "hidden": false,
+          "requiredPatientData": false
+        },
+        "insurerPolicyNumber": {
+          "shortLabel": "Insurance policy",
+          "longLabel": "Insurance policy number",
+          "hidden": false,
+          "requiredPatientData": false
+        },
         "drivingLicense": {
           "shortLabel": "Driving license",
           "longLabel": "Driving license number",
@@ -798,6 +810,7 @@
         "enableNoteBackdating": true,
         "enableCovidClearanceCertificate": false,
         "editPatientDisplayId": false,
+        "enablePatientInsurer": false,
         "patientPlannedMove": false,
         "idleTimeout": {
           "enabled": true,

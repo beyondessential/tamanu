@@ -17,7 +17,7 @@ import { diagnosis } from './diagnosis';
 import { encounter } from './encounter';
 import { familyHistory } from './familyHistory';
 import { imagingRequest } from './imaging';
-import { invoiceLineTypes, invoices } from './invoice';
+import { invoices } from './invoice';
 import { labRequest, labTest, labTestPanel, labTestType } from './labs';
 import { labRequestLog } from './labRequestLog';
 import { location } from './location';
@@ -144,7 +144,7 @@ referenceDataRoutes.use('/asset', asset);
 referenceDataRoutes.use('/attachment', attachment);
 referenceDataRoutes.use('/certificateNotification', certificateNotification);
 referenceDataRoutes.use('/department', department);
-referenceDataRoutes.use('/invoiceLineTypes', invoiceLineTypes);
+
 referenceDataRoutes.use('/labRequestLog', labRequestLog);
 referenceDataRoutes.use('/location', location);
 referenceDataRoutes.use('/locationGroup', locationGroup);

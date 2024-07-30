@@ -2,13 +2,15 @@ import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { Button } from '@material-ui/core';
 import { useSuggester } from '../../api';
-import { Colors, LOCATION_AVAILABILITY_OPTIONS } from '../../constants';
+import { Colors } from '../../constants';
 import { HandoverNotesIcon } from '../../assets/icons/HandoverNotesIcon';
-import { AutocompleteField, LocalisedField, SelectField } from '../Field';
+import { AutocompleteField, LocalisedField, TranslatedSelectField } from '../Field';
 import { HandoverNotesModal } from '../BedManagement/HandoverNotesModal';
 import { CustomisableSearchBar } from './CustomisableSearchBar';
 import { ThemedTooltip } from '../Tooltip';
 import { TranslatedText } from '../Translation/TranslatedText';
+import { LOCATION_AVAILABILITY_STATUS_LABELS } from '@tamanu/constants';
+import { useTranslation } from '../../contexts/Translation';
 
 const HandoverNotesButton = styled(Button)`
   font-weight: 500;
@@ -29,6 +31,7 @@ const HandoverNotesButton = styled(Button)`
 const EmptyGridItem = styled.div``;
 
 export const BedManagementSearchBar = React.memo(({ onSearch, searchParameters }) => {
+  const { getTranslation } = useTranslation();
   const locationGroupSuggester = useSuggester('locationGroup', {
     baseQueryParameters: { filterByFacility: true },
   });
@@ -98,9 +101,12 @@ export const BedManagementSearchBar = React.memo(({ onSearch, searchParameters }
             <TranslatedText stringId="general.localisedField.status.label" fallback="Status" />
           }
           size="small"
-          component={SelectField}
-          options={LOCATION_AVAILABILITY_OPTIONS}
-          prefix="bedManagement.property.status"
+          component={TranslatedSelectField}
+          transformOptions={options => [
+            { value: '', label: getTranslation('general.select.all', 'All') },
+            ...options,
+          ]}
+          enumValues={LOCATION_AVAILABILITY_STATUS_LABELS}
         />
       </CustomisableSearchBar>
       <HandoverNotesModal
