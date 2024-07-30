@@ -111,6 +111,7 @@ export class CentralSyncManager {
   }
 
   async prepareSession(syncSession) {
+    const unmarkSessionAsProcessing = await this.markSessionAsProcessing(syncSession.id);
     try {
       await createSnapshotTable(this.store.sequelize, syncSession.id);
 
@@ -133,6 +134,8 @@ export class CentralSyncManager {
         { error: error.message },
         { where: { id: syncSession.id } },
       );
+    } finally {
+      await unmarkSessionAsProcessing();
     }
   }
 
