@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { Typography } from '@material-ui/core';
 import { runCalculations } from '@tamanu/shared/utils/calculations';
 import styled from 'styled-components';
 import { checkVisibility } from '../../utils';
@@ -7,10 +8,14 @@ import { Button, OutlinedButton } from '../Button';
 import { SurveyQuestion } from './SurveyQuestion';
 import { ButtonRow } from '../ButtonRow';
 import { FORM_STATUSES } from '../../constants';
-import { TranslatedText } from '../Translation/TranslatedText';
+import { TranslatedText } from '../Translation';
+
+const EmptyStateText = styled(Typography)`
+  color: ${({ theme }) => theme.palette.text.secondary};
+`;
 
 const StyledButtonRow = styled(ButtonRow)`
-  margin-top: 24px;
+  margin-block-start: 24px;
 `;
 
 const useCalculatedFormValues = (components, values, setFieldValue) => {
@@ -103,19 +108,30 @@ export const SurveyScreen = ({
     }
   };
 
+  const visibleComponents = screenComponents
+    .filter(c => checkVisibility(c, values, allComponents))
+    .map(c => (
+      <SurveyQuestion
+        component={c}
+        patient={patient}
+        key={c.id}
+        inputRef={setQuestionToRef(c.dataElementId)}
+        encounterType={encounterType}
+      />
+    ));
+
+  const emptyStateMessage = (
+    <EmptyStateText variant="body2">
+      <TranslatedText
+        stringId="general.form.blankPage"
+        fallback="This page has been intentionally left blank"
+      />
+    </EmptyStateText>
+  );
+
   return (
     <FormGrid columns={cols}>
-      {screenComponents
-        .filter(c => checkVisibility(c, values, allComponents))
-        .map(c => (
-          <SurveyQuestion
-            component={c}
-            patient={patient}
-            key={c.id}
-            inputRef={setQuestionToRef(c.dataElementId)}
-            encounterType={encounterType}
-          />
-        ))}
+      {visibleComponents.length > 0 ? visibleComponents : emptyStateMessage}
       <StyledButtonRow>
         {submitButton || (
           <>
