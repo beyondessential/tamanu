@@ -14,6 +14,7 @@ import PropTypes from 'prop-types';
 import { TextInput } from './TextField';
 import { Colors } from '../../constants';
 import { DefaultIconButton } from '../Button';
+import { getLocaleDatePlaceholder } from '../../utils/dateTime';
 
 // This component is pretty tricky! It has to keep track of two layers of state:
 //
@@ -44,6 +45,21 @@ const CustomIconTextInput = styled(TextInput)`
     border-radius: 50%;
     margin-left: 0.5rem;
   }
+  input::-webkit-datetime-edit,
+  input::-webkit-inner-spin-button,
+  input::-webkit-clear-button {
+    visibility: hidden;
+  }
+`;
+
+const DateDisplay = styled.div`
+  position: absolute;
+  top: 32px;
+  left: 15px;
+`;
+
+const TextInputContainer = styled.div`
+  position: relative;
 `;
 
 function fromRFC3339(rfc3339Date, format) {
@@ -126,7 +142,7 @@ export const DateInput = ({
         return;
       }
     }
-  }
+  };
 
   useEffect(() => {
     const formattedValue = fromRFC3339(value, format);
@@ -140,19 +156,50 @@ export const DateInput = ({
     };
   }, [value, format]);
 
+  const getDateDisplay = () => {
+    if (currentText) {
+      let format;
+      switch (type) {
+        case 'date':
+          format = { year: 'numeric', month: '2-digit', day: '2-digit' };
+          break;
+        case 'time':
+          format = { hour: 'numeric', minute: 'numeric', second: 'numeric' };
+          break;
+        case 'datetime-local':
+          format = {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: 'numeric',
+            minute: 'numeric',
+            second: 'numeric',
+          };
+          break;
+      }
+      const date = new Date(currentText);
+      return date.toLocaleString(undefined, format);
+    } else {
+      return <Box color={Colors.softText}>{getLocaleDatePlaceholder()}</Box>;
+    }
+  };
+
   const defaultDateField = (
-    <CustomIconTextInput
-      type={type}
-      value={currentText}
-      onChange={onValueChange}
-      onBlur={handleBlur}
-      InputProps={{
-        // Set max property on HTML input element to force 4-digit year value (max year being 9999)
-        inputProps: { max, min, ...inputProps },
-      }}
-      style={isPlaceholder ? { color: Colors.softText } : undefined}
-      {...props}
-    />
+    <TextInputContainer>
+      <CustomIconTextInput
+        type={type}
+        value={currentText}
+        onChange={onValueChange}
+        onBlur={handleBlur}
+        InputProps={{
+          // Set max property on HTML input element to force 4-digit year value (max year being 9999)
+          inputProps: { max, min, ...inputProps },
+        }}
+        style={isPlaceholder ? { color: Colors.softText } : undefined}
+        {...props}
+      />
+      <DateDisplay>{getDateDisplay()}</DateDisplay>
+    </TextInputContainer>
   );
 
   const ContainerWithArrows = ({ children }) => (
