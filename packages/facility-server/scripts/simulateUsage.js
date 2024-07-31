@@ -3,6 +3,7 @@ const Chance = require('chance');
 const { v4: uuidv4 } = require('uuid');
 const { fake } = require('@tamanu/shared/test-helpers/fake');
 const { randomReferenceData } = require('@tamanu/shared/demoData/patients');
+const { randomRecord } = require('@tamanu/shared/demoData/utilities');
 const { sleepAsync } = require('@tamanu/shared/utils/sleepAsync');
 const {
   NOTE_RECORD_TYPES,
@@ -52,11 +53,11 @@ async function createPatient(models, facilityId) {
 }
 
 async function createEncounter(models, facilityId) {
-  const { Encounter, Location, Department, User, PatientFacility } = models;
+  const { Encounter, Location, Department, PatientFacility } = models;
 
   const location = await Location.findOne({ where: { facilityId } });
   const department = await Department.findOne({ where: { facilityId } });
-  const examiner = await User.findOne();
+  const examiner = await randomRecord(models, 'User');
   const patientFacility = await PatientFacility.findOne({ where: { facilityId } });
   const encounter = await Encounter.create(
     fake(Encounter, {
@@ -71,8 +72,8 @@ async function createEncounter(models, facilityId) {
 }
 
 async function createProgramSurveyResponse(models, facilityId) {
-  const { Encounter, PatientFacility, Survey, SurveyResponse, SurveyScreenComponent } = models;
-  const survey = await Survey.findOne();
+  const { Encounter, PatientFacility, SurveyResponse, SurveyScreenComponent } = models;
+  const survey = await randomRecord(models, 'Survey');
   const ssc = await SurveyScreenComponent.findOne({ where: { surveyId: survey.id } });
   const patientFacility = await PatientFacility.findOne({ where: { facilityId } });
   const encounter = await Encounter.findOne({ where: { patientId: patientFacility.patientId } });
@@ -89,10 +90,10 @@ async function createProgramSurveyResponse(models, facilityId) {
 }
 
 async function createNote(models, facilityId) {
-  const { Encounter, Note, PatientFacility, User } = models;
+  const { Encounter, Note, PatientFacility } = models;
   const patientFacility = await PatientFacility.findOne({ where: { facilityId } });
   const encounter = await Encounter.findOne({ where: { patientId: patientFacility.patientId } });
-  const author = await User.findOne();
+  const author = await randomRecord(models, 'User');
 
   const note = await Note.create(
     fake(Note, {
@@ -127,10 +128,10 @@ async function createProcedure(models, facilityId) {
 }
 
 async function createAdministeredVaccine(models, facilityId) {
-  const { AdministeredVaccine, Encounter, PatientFacility, ScheduledVaccine } = models;
+  const { AdministeredVaccine, Encounter, PatientFacility } = models;
   const patientFacility = await PatientFacility.findOne({ where: { facilityId } });
   const encounter = await Encounter.findOne({ where: { patientId: patientFacility.patientId } });
-  const scheduledVaccine = await ScheduledVaccine.findOne();
+  const scheduledVaccine = await randomRecord(models, 'ScheduledVaccine');
 
   const administeredVaccine = await AdministeredVaccine.create(
     fake(AdministeredVaccine, {
@@ -146,10 +147,10 @@ async function createAdministeredVaccine(models, facilityId) {
 
 
 async function createAppointment(models, facilityId) {
-  const { Appointment, Location, PatientFacility, User } = models;
+  const { Appointment, Location, PatientFacility } = models;
   const patientFacility = await PatientFacility.findOne({ where: { facilityId } });
   const location = await Location.findOne({ where: { facilityId } });
-  const clinician = await User.findOne();
+  const clinician = await randomRecord(models, 'User');
 
   const appointment = await Appointment.create(
     fake(Appointment, {
@@ -197,11 +198,11 @@ async function createLabTest(models, facilityId) {
 }
 
 async function createImagingRequest(models, facilityId) {
-  const { Encounter, ImagingRequest, Location, PatientFacility, User } = models;
+  const { Encounter, ImagingRequest, Location, PatientFacility } = models;
   const patientFacility = await PatientFacility.findOne({ where: { facilityId } });
   const encounter = await Encounter.findOne({ where: { patientId: patientFacility.patientId } });
   const location = await Location.findOne({ where: { facilityId } });
-  const clinician = await User.findOne();
+  const clinician =  await randomRecord(models, 'User');
 
   const imagingRequest = await ImagingRequest.create(
     fake(ImagingRequest, {
