@@ -121,8 +121,25 @@ async function createProcedure(models, facilityId) {
   return procedure;
 }
 
+async function createAdministeredVaccine(models, facilityId) {
+  const { AdministeredVaccine, Encounter, PatientFacility, ScheduledVaccine } = models;
+  const patientFacility = await PatientFacility.findOne({ where: { facilityId } });
+  const encounter = await Encounter.findOne({ where: { patientId: patientFacility.patientId } });
+  const scheduledVaccine = await ScheduledVaccine.findOne();
+
+  const procedure = await AdministeredVaccine.create(
+    fake(AdministeredVaccine, {
+      status: 'GIVEN',
+      date: getCurrentDateTimeString(),
+      scheduledVaccineId: scheduledVaccine.id,
+      encounterId: encounter.id,
+    }),
+  );
+
+  return procedure;
+}
+
 /*
-  AdministeredVaccine: 551,
   Appointment: 448,
   ImagingRequest: 32,
   ImagingResult: 30,
@@ -164,6 +181,10 @@ const ACTIONS = {
   newProcedure: {
     likelihood: calculateLikelihood('Procedure'),
     generator: createProcedure,
+  },
+  newAdministeredVaccine: {
+    likelihood: calculateLikelihood('AdministeredVaccine'),
+    generator: createAdministeredVaccine,
   },
 };
 const ACTIONS_ENTRIES = Object.entries(ACTIONS);
