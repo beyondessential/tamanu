@@ -105,7 +105,7 @@ async function createProcedure(models, facilityId) {
   const { Encounter, PatientFacility, Procedure } = models;
   const patientFacility = await PatientFacility.findOne({ where: { facilityId } });
   const encounter = await Encounter.findOne({ where: { patientId: patientFacility.patientId } });
-  const procedureType = randomReferenceData(models, REFERENCE_TYPES.PROCEDURE_TYPE);
+  const procedureType = await randomReferenceData(models, REFERENCE_TYPES.PROCEDURE_TYPE);
 
   const procedure = await Procedure.create(
     fake(Procedure, {
