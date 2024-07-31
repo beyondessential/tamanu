@@ -3,7 +3,8 @@ import { snake } from 'case';
 import { COLUMNS_EXCLUDED_FROM_SYNC } from '@tamanu/shared/sync';
 
 export function buildSyncLookupSelect(model, columns = {}) {
-  const { patientId, facilityId, encounterId, isLabRequest, updatedAtByFieldSum } = columns;
+  const useUpdatedAtByFieldSum = !!attributes.updatedAtByField;
+  const { patientId, facilityId, encounterId, isLabRequest } = columns;
   const table = model.tableName;
   const attributes = model.getAttributes();
 
@@ -22,6 +23,6 @@ export function buildSyncLookupSelect(model, columns = {}) {
       ${facilityId || 'NULL'},
       ${encounterId || 'NULL'},
       ${isLabRequest || 'FALSE'},
-      ${updatedAtByFieldSum || 'NULL'}
+      ${useUpdatedAtByFieldSum ? 'updated_at_by_field_summary.sum' : 'NULL'}
   `;
 }
