@@ -31,11 +31,17 @@ describe('CentralSyncManager', () => {
 
   const DEFAULT_CURRENT_SYNC_TIME_VALUE = 2;
 
-  const initializeCentralSyncManager = () => {
+  const initializeCentralSyncManager = (useLookupTable = false) => {
     // Have to load test function within test scope so that we can mock dependencies per test case
     const {
       CentralSyncManager: TestCentralSyncManager,
     } = require('../../dist/sync/CentralSyncManager');
+    TestCentralSyncManager.overrideConfig({
+      sync: {
+        useLookupTable,
+        maxRecordsPerSnapshotChunk: 1000000000,
+      },
+    });
     return new TestCentralSyncManager(ctx);
   };
 
@@ -458,9 +464,6 @@ describe('CentralSyncManager', () => {
         expect(outgoingChanges.map(r => r.recordId).sort()).toEqual(
           [facility, program, survey].map(r => r.id).sort(),
         );
-
-        // Revert the models
-        ctx.store.models = models;
       });
 
       it('excludes imported records when main snapshot transaction already started', async () => {
@@ -1039,15 +1042,15 @@ describe('CentralSyncManager', () => {
       await models.LocalSystemFact.set(LOOKUP_UP_TO_TICK_KEY, null);
     });
 
-    beforeAll(async () => {
-      ctx = await createTestContext();
-      ({ models } = ctx.store);
+    afterEach(async () => {
+      // Revert to the original models
+      ctx.store.models = models;
     });
 
     it('inserts records into sync lookup table', async () => {
       const patient1 = await models.Patient.create(fake(models.Patient));
 
-      const centralSyncManager = initializeCentralSyncManager();
+      const centralSyncManager = initializeCentralSyncManager(true);
 
       await centralSyncManager.updateLookupTable();
 
@@ -1095,7 +1098,7 @@ describe('CentralSyncManager', () => {
         ...models,
       };
 
-      const centralSyncManager = initializeCentralSyncManager();
+      const centralSyncManager = initializeCentralSyncManager(true);
 
       // Start the update lookup table process
       const updateLookupTablePromise = centralSyncManager.updateLookupTable();
@@ -1133,9 +1136,6 @@ describe('CentralSyncManager', () => {
       const lookupData = await models.SyncLookup.findAll({});
 
       expect(lookupData).toHaveLength(3);
-
-      // Revert the models
-      ctx.store.models = models;
     });
 
     it('does not include records inserted from importer when updating lookup table already started', async () => {
@@ -1154,7 +1154,7 @@ describe('CentralSyncManager', () => {
         ...models,
       };
 
-      const centralSyncManager = initializeCentralSyncManager();
+      const centralSyncManager = initializeCentralSyncManager(true);
 
       // Start the update lookup table process
       const updateLookupTablePromise = centralSyncManager.updateLookupTable();
@@ -1176,9 +1176,6 @@ describe('CentralSyncManager', () => {
       const lookupData = await models.SyncLookup.findAll({});
 
       expect(lookupData).toHaveLength(3);
-
-      // Revert the models
-      ctx.store.models = models;
     });
 
     it('does not include records inserted from another sync session when updating lookup table already started', async () => {
@@ -1255,9 +1252,6 @@ describe('CentralSyncManager', () => {
       const lookupData = await models.SyncLookup.findAll({});
 
       expect(lookupData).toHaveLength(3);
-
-      // Revert the models
-      ctx.store.models = models;
     });
   });
 });
