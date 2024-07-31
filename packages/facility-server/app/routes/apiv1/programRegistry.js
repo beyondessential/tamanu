@@ -72,9 +72,12 @@ programRegistry.get(
       offset: page && rowsPerPage ? page * rowsPerPage : undefined,
     });
 
-    const filteredObjects = objects.filter(programRegistry => req.ability.can('list', programRegistry));
+    const filteredObjects = objects.filter(programRegistry =>
+      req.ability.can('list', programRegistry),
+    );
     const filteredData = filteredObjects.map(x => x.forResponse());
-    const filteredCount = objects.length !== filteredObjects.length ? filteredObjects.length : count;
+    const filteredCount =
+      objects.length !== filteredObjects.length ? filteredObjects.length : count;
 
     res.send({ count: filteredCount, data: filteredData });
   }),
@@ -131,7 +134,10 @@ programRegistry.get(
         filterParams.registeringFacilityId,
         'mrr.registering_facility_id = :registeringFacilityId',
       ),
-      makeFilter(filterParams.clinicalStatus, 'mrr.clinical_status_id = :clinicalStatus'),
+      makeFilter(
+        filterParams.clinicalStatus,
+        'mrr.clinical_status_id = any(array[:clinicalStatus])',
+      ),
       makeFilter(
         filterParams.currentlyIn,
         'mrr.village_id = :currentlyIn OR mrr.facility_id = :currentlyIn',
@@ -140,7 +146,7 @@ programRegistry.get(
         filterParams.programRegistryCondition,
         // Essentially the `<@` operator checks that the json on the left is contained in the json on the right
         // so we build up a string like '["A_condition_name"]' and cast it to json before checking membership.
-        `(select '["' || prc2.name || '"]' from program_registry_conditions prc2 where prc2.id = :programRegistryCondition)::jsonb <@ conditions.condition_list`,
+        `(select '["' || prc2.name || '"]' from program_registry_conditions prc2 where prc2.id = any(array[:programRegistryCondition]))::jsonb <@ conditions.condition_list`,
       ),
       makeFilter(true, 'mrr.registration_status != :error_status', () => ({
         error_status: REGISTRATION_STATUSES.RECORDED_IN_ERROR,
@@ -171,7 +177,7 @@ programRegistry.get(
         most_recent_registrations as (
           SELECT *
           FROM (
-            SELECT 
+            SELECT
               *,
               ROW_NUMBER() OVER (PARTITION BY patient_id, program_registry_id ORDER BY date DESC, id DESC) AS row_num
             FROM patient_program_registrations
@@ -180,7 +186,7 @@ programRegistry.get(
           WHERE n.row_num = 1
         ),
         conditions as (
-          SELECT patient_id, jsonb_agg(prc."name") condition_list 
+          SELECT patient_id, jsonb_agg(prc."name") condition_list
           FROM patient_program_registration_conditions pprc
             JOIN program_registry_conditions prc
               ON pprc.program_registry_condition_id = prc.id

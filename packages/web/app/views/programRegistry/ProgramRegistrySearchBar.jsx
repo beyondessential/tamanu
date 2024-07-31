@@ -16,6 +16,7 @@ import {
 import { useProgramRegistryQuery } from '../../api/queries/useProgramRegistryQuery';
 import { useSexOptions } from '../../hooks';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
+import { MultiAutocompleteField } from '../../components/Field/MultiAutocompleteField';
 
 const FacilityCheckbox = styled.div`
   display: flex;
@@ -159,13 +160,13 @@ export const ProgramRegistrySearchBar = ({ searchParameters, setSearchParameters
           />
         }
         name="programRegistryCondition"
-        component={AutocompleteField}
+        component={MultiAutocompleteField}
         suggester={programRegistryConditionSuggester}
       />
       <Field
         label={<TranslatedText stringId="general.status.label" fallback="Status" />}
         name="clinicalStatus"
-        component={AutocompleteField}
+        component={MultiAutocompleteField}
         suggester={programRegistryStatusSuggester}
       />
     </CustomisableSearchBar>
