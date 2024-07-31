@@ -127,7 +127,7 @@ async function createAdministeredVaccine(models, facilityId) {
   const encounter = await Encounter.findOne({ where: { patientId: patientFacility.patientId } });
   const scheduledVaccine = await ScheduledVaccine.findOne();
 
-  const procedure = await AdministeredVaccine.create(
+  const administeredVaccine = await AdministeredVaccine.create(
     fake(AdministeredVaccine, {
       status: 'GIVEN',
       date: getCurrentDateTimeString(),
@@ -136,7 +136,7 @@ async function createAdministeredVaccine(models, facilityId) {
     }),
   );
 
-  return procedure;
+  return administeredVaccine;
 }
 
 /*
