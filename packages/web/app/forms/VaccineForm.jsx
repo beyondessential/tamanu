@@ -3,7 +3,7 @@ import { PropTypes } from 'prop-types';
 import * as yup from 'yup';
 
 import { SETTING_KEYS, VACCINE_CATEGORIES, VACCINE_RECORDING_TYPES } from '@tamanu/constants';
-import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { ISO9075_DATE_FORMAT, getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 
 import { FORM_TYPES, REQUIRED_INLINE_ERROR_MESSAGE } from '../constants';
 import { Form } from '../components/Field';
@@ -38,9 +38,8 @@ const BASE_VACCINE_SCHEME_VALIDATION = yup.object().shape({
     })
     .test('min', 'Date cannot be prior to patient date of birth', (value, context) => {
       if (!value) return true;
-      const format = 'yyyy-MM-dd';
-      const minDate = parse(context.parent?.patientData?.dateOfBirth, format, new Date());
-      const date = parse(value, format, new Date());
+      const minDate = parse(context.parent?.patientData?.dateOfBirth, ISO9075_DATE_FORMAT, new Date());
+      const date = parse(value, ISO9075_DATE_FORMAT, new Date());
       if (isBefore(date, minDate)) {
         return false;
       }
@@ -48,9 +47,8 @@ const BASE_VACCINE_SCHEME_VALIDATION = yup.object().shape({
     })
     .test('max', 'Date cannot be later than today', (value) => {
       if (!value) return true;
-      const format = 'yyyy-MM-dd';
       const maxDate = new Date();
-      const date = parse(value, format, new Date());
+      const date = parse(value, ISO9075_DATE_FORMAT, new Date());
       if (isAfter(date, maxDate)) {
         return false;
       }
