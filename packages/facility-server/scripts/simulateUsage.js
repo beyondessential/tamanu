@@ -10,6 +10,7 @@ const {
   REFERENCE_TYPES,
   IMAGING_TYPES_VALUES,
   IMAGING_REQUEST_STATUS_TYPES,
+  PROGRAM_DATA_ELEMENT_TYPES,
 } = require('@tamanu/constants');
 const { getCurrentDateTimeString } = require('@tamanu/shared/utils/dateTime');
 
@@ -98,19 +99,34 @@ async function createEncounter(models, facilityId) {
   return encounter;
 }
 
+// Shortened list that is easier to support
+const SIMPLE_PDE_TYPES_HANDLERS = {
+  [PROGRAM_DATA_ELEMENT_TYPES.TEXT]: chance.word,
+  [PROGRAM_DATA_ELEMENT_TYPES.DATE_TIME]: getCurrentDateTimeString,
+  [PROGRAM_DATA_ELEMENT_TYPES.NUMBER]: chance.natural,
+};
+
 async function createProgramSurveyResponse(models, facilityId) {
   const { Encounter, PatientFacility, SurveyResponse, SurveyScreenComponent } = models;
   const survey = await randomRecord(models, 'Survey');
-  const ssc = await SurveyScreenComponent.findOne({ where: { surveyId: survey.id } });
+  const sscs = await SurveyScreenComponent.findAll({
+    where: { surveyId: survey.id, validationCriteria: null },
+    include: { association: 'dataElement' },
+  });
+  const answers = {};
+  sscs.forEach(ssc => {
+    if (ssc.dataElement.type in SIMPLE_PDE_TYPES_HANDLERS) {
+      answers[ssc.dataElement.id] = SIMPLE_PDE_TYPES_HANDLERS[ssc.dataElement.type]();
+    }
+  });
+
   const patientFacility = await PatientFacility.findOne({ where: { facilityId } });
   const encounter = await Encounter.findOne({ where: { patientId: patientFacility.patientId } });
   const response = await SurveyResponse.createWithAnswers({
     patientId: patientFacility.patientId,
     encounterId: encounter.id,
     surveyId: survey.id,
-    answers: {
-      [ssc.dataElementId]: chance.string(),
-    },
+    answers,
   });
 
   return response;
