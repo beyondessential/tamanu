@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import Bowser from 'bowser';
 import 'typeface-roboto';
 import { Colors } from './constants';
-import { checkIsLoggedIn, checkIsFacilitySelected } from './store/auth';
+import { checkIsLoggedIn, checkIsFacilitySelected, getServerType } from './store/auth';
 import { getCurrentRoute } from './store/router';
 import { LoginView, FacilitySelectionView } from './views';
 import { ErrorBoundary } from './components/ErrorBoundary';
@@ -19,6 +19,7 @@ import {
 } from './components/StatusPage';
 import { useCheckServerAliveQuery } from './api/queries/useCheckServerAliveQuery';
 import { useSingleTab } from './utils/singleTab';
+import { SERVER_TYPES } from '@tamanu/constants';
 
 const AppContainer = styled.div`
   display: flex;
@@ -37,6 +38,7 @@ export function App({ sidebar, children }) {
   const isUserLoggedIn = useSelector(checkIsLoggedIn);
   const isFacilitySelected = useSelector(checkIsFacilitySelected);
   const currentRoute = useSelector(getCurrentRoute);
+  const serverType = useSelector(getServerType);
   const isPrimaryTab = useSingleTab();
   const disableSingleTab = localStorage.getItem('DISABLE_SINGLE_TAB');
 
@@ -57,7 +59,7 @@ export function App({ sidebar, children }) {
   if (isLoading) return <LoadingStatusPage />;
   if (!isServerAlive) return <UnavailableStatusPage />;
   if (!isUserLoggedIn) return <LoginView />;
-  if (!isFacilitySelected) return <FacilitySelectionView />;
+  if (serverType === SERVER_TYPES.FACILITY && !isFacilitySelected) return <FacilitySelectionView />;
 
   return (
     <AppContainer>
