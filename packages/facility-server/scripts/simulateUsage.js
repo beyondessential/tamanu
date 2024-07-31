@@ -4,7 +4,12 @@ const { v4: uuidv4 } = require('uuid');
 const { fake } = require('@tamanu/shared/test-helpers/fake');
 const { randomReferenceData } = require('@tamanu/shared/demoData/patients');
 const { sleepAsync } = require('@tamanu/shared/utils/sleepAsync');
-const { NOTE_RECORD_TYPES, REFERENCE_TYPES, IMAGING_TYPES_VALUES } = require('@tamanu/constants');
+const {
+  NOTE_RECORD_TYPES,
+  REFERENCE_TYPES,
+  IMAGING_TYPES_VALUES,
+  IMAGING_REQUEST_STATUS_TYPES,
+} = require('@tamanu/constants');
 const { getCurrentDateTimeString } = require('@tamanu/shared/utils/dateTime');
 
 const DAILY_CREATION_STATS = {
@@ -208,11 +213,19 @@ async function createImagingRequest(models, facilityId) {
     }),
   );
 
+  if (imagingRequest.status === IMAGING_REQUEST_STATUS_TYPES.COMPLETED) {
+    await models.ImagingResult.create({
+      completedAt: getCurrentDateTimeString(),
+      imagingRequestId: imagingRequest.id,
+      description: chance.sentence(),
+      completedById: clinician.id,
+    });
+  }
+
   return imagingRequest;
 }
 
 /*
-  ImagingResult: 30,
   PatientBirthData: 6,
   PatientCommunication: 3,
   PatientCondition: 32,
