@@ -332,10 +332,13 @@ async function simulateUsage(models, sequelize, hours = 1) {
 
 // IMPORTANT NOTE: YOU SHOULD NEVER RUN THIS IN A PRODUCTION ENVIRONMENT
 // AS IT WILL INTRODUCE MOCK RECORDS INTO THE DATABASE.
-// Usage (note that if you -await- the function you WILL NOT be able to cancel it until it's done!):
-// const { simulateUsage } = require('@tamanu/facility-server/scripts/simulateUsage.js');
-// // This will run for one hour (well, a bit longer but for simplicity sake, around that)
-// await simulateUsage(models, context.sequelize);
+
+/*
+  Usage (note that if you -await- the function you WILL NOT be able to cancel it until it's done!),
+  also, this example will run for one hour (well, a bit longer but for simplicity sake an hour)
+  const { simulateUsage } = require('@tamanu/facility-server/scripts/simulateUsage.js');
+  await simulateUsage(models, context.sequelize);
+*/
 
 module.exports = {
   simulateUsage: simulateUsage,
