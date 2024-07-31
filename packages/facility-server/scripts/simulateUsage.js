@@ -3,6 +3,7 @@ const Chance = require('chance');
 const { v4: uuidv4 } = require('uuid');
 const { fake } = require('@tamanu/shared/test-helpers/fake');
 const { sleepAsync } = require('@tamanu/shared/utils/sleepAsync');
+const { NOTE_RECORD_TYPES } = require('@tamanu/constants');
 
 const DAILY_CREATION_STATS = {
   AdministeredVaccine: 551,
@@ -80,6 +81,23 @@ async function createProgramSurveyResponse(models, facilityId) {
   return response;
 }
 
+async function createNote(models, facilityId) {
+  const { Encounter, Note, PatientFacility, User } = models;
+  const patientFacility = await PatientFacility.findOne({ where: { facilityId } });
+  const encounter = await Encounter.findOne({ where: { patientId: patientFacility.patientId } });
+  const author = await User.findOne();
+
+  const note = await Note.create(
+    fake(Note, {
+      recordId: encounter.id,
+      recordType: NOTE_RECORD_TYPES.ENCOUNTER,
+      content: chance.paragraph({ sentences: chance.natural({ min: 1, max: 20 }) }),
+      authorId: author.id,
+    }),
+  );
+
+  return note;
+}
 
 /*
   AdministeredVaccine: 551,
@@ -87,7 +105,6 @@ async function createProgramSurveyResponse(models, facilityId) {
   ImagingRequest: 32,
   ImagingResult: 30,
   LabTest: 530,
-  Note: 1700,
   PatientBirthData: 6,
   PatientCommunication: 3,
   PatientCondition: 32,
@@ -118,6 +135,10 @@ const ACTIONS = {
   newSurveyResponse: {
     likelihood: calculateLikelihood('SurveyResponse'),
     generator: createProgramSurveyResponse,
+  },
+  newNote: {
+    likelihood: calculateLikelihood('Note'),
+    generator: createNote,
   },
 };
 const ACTIONS_ENTRIES = Object.entries(ACTIONS);
