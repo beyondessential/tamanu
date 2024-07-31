@@ -172,7 +172,6 @@ async function createAdministeredVaccine(models, facilityId) {
   return administeredVaccine;
 }
 
-
 async function createAppointment(models, facilityId) {
   const { Appointment, Location, PatientFacility } = models;
   const patientFacility = await PatientFacility.findOne({ where: { facilityId } });
