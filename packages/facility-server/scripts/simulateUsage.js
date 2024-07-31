@@ -239,16 +239,6 @@ async function createPatientCondition(models, facilityId) {
   return patientCondition;
 }
 
-/*
-  PatientBirthData: 6,
-  PatientCommunication: 3,
-  Referral: 3,
-  SurveyResponseAnswer: 9439,
-  Triage: 14,
-*/
-
-
-
 // Likelihood should be a percentage number so from 0 to 100
 function calculateLikelihood(modelName, ratio = 1) {
   const dailyTotal = DAILY_CREATION_STATS[modelName];
