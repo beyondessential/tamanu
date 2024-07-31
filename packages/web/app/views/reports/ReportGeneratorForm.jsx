@@ -123,8 +123,7 @@ export const ReportGeneratorForm = () => {
   const api = useApi();
   const { getTranslation } = useTranslation();
   const getFileName = useFileName();
-  const { facilityId } = useAuth();
-  const { currentUser } = useAuth();
+  const { currentUser, facilityId } = useAuth();
   const [successMessage, setSuccessMessage] = useState(null);
   const [requestError, setRequestError] = useState(null);
   const [bookType, setBookFormat] = useState(REPORT_EXPORT_FORMATS.XLSX);
