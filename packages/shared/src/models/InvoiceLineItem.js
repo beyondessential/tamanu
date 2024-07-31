@@ -6,7 +6,7 @@ import {
 } from './buildEncounterLinkedSyncFilter';
 import { Model } from './Model';
 import { dateType } from './dateTimeTypes';
-import { buildExtraFilterColumnSelect } from './buildExtraFilterColumnSelect';
+import { buildEncounterPatientIdSelect } from './buildPatientLinkedLookupFilter';
 
 export class InvoiceLineItem extends Model {
   static init({ primaryKey, ...options }) {
@@ -68,9 +68,7 @@ export class InvoiceLineItem extends Model {
 
   static buildSyncLookupFilter() {
     return {
-      extraFilterColumnSelect: buildExtraFilterColumnSelect({
-        patientId: 'encounters.patient_id',
-      }),
+      select: buildEncounterPatientIdSelect(this),
       joins: buildEncounterLinkedSyncFilterJoins([this.tableName, 'invoices', 'encounters']),
     };
   }

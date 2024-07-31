@@ -1,8 +1,7 @@
-import { snake } from 'case';
-import { COLUMNS_EXCLUDED_FROM_SYNC } from '@tamanu/shared/sync';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging/log';
 import { withConfig } from '@tamanu/shared/utils/withConfig';
+import { buildSyncLookupSelect } from '@tamanu/shared/sync';
 
 export const updateLookupTableForModel = async (model, config, since, sessionConfig) => {
   const CHUNK_SIZE = config.sync.maxRecordsPerSnapshotChunk;
@@ -11,7 +10,7 @@ export const updateLookupTableForModel = async (model, config, since, sessionCon
   let fromId = '';
   let totalCount = 0;
   const attributes = model.getAttributes();
-  const { extraFilterColumnSelect, joins } = model.buildSyncLookupFilter(sessionConfig) || {};
+  const { select, joins } = model.buildSyncLookupFilter(sessionConfig) || {};
   const useUpdatedAtByFieldSum = !!attributes.updatedAtByField;
 
   while (fromId != null) {
@@ -31,24 +30,7 @@ export const updateLookupTableForModel = async (model, config, since, sessionCon
             is_lab_request,
             updated_at_by_field_sum
           )
-          SELECT
-            ${table}.id,
-            '${table}',
-            ${table}.deleted_at IS NOT NULL,
-            ${table}.updated_at_sync_tick,
-            json_build_object(
-              ${Object.keys(attributes)
-                .filter(a => !COLUMNS_EXCLUDED_FROM_SYNC.includes(a))
-                .map(a => `'${a}', ${table}.${snake(a)}`)}
-            ),
-            ${extraFilterColumnSelect ||
-              `
-            NULL,
-            NULL,
-            NULL,
-            FALSE,
-            NULL
-            `}
+          ${select || buildSyncLookupSelect(model)}
           FROM
             ${table}
            ${

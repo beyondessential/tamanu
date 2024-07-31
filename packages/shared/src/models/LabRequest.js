@@ -9,7 +9,7 @@ import {
 import { dateTimeType } from './dateTimeTypes';
 import { getCurrentDateTimeString } from '../utils/dateTime';
 import { generateDisplayId } from '../utils/generateDisplayId';
-import { buildExtraFilterColumnSelect } from './buildExtraFilterColumnSelect';
+import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
 
 export class LabRequest extends Model {
   static init({ primaryKey, ...options }) {
@@ -208,7 +208,7 @@ export class LabRequest extends Model {
 
   static buildSyncLookupFilter() {
     return {
-      extraFilterColumnSelect: buildExtraFilterColumnSelect({
+      select: buildSyncLookupSelect(this, {
         patientId: 'encounters.patient_id',
         isLabRequestValue: 'TRUE',
       }),

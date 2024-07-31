@@ -3,7 +3,7 @@ import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
 import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
 import { dateTimeType } from './dateTimeTypes';
-import { buildEncounterLinkedLookupFilter } from './buildEncounterLinkedLookupFilter';
+import { buildEncounterLinkedLookupFilter } from '../sync/buildEncounterLinkedLookupFilter';
 
 export class Procedure extends Model {
   static init({ primaryKey, ...options }) {
@@ -69,5 +69,7 @@ export class Procedure extends Model {
     );
   }
 
-  static buildSyncLookupFilter = buildEncounterLinkedLookupFilter;
+  static buildSyncLookupFilter() {
+    return buildEncounterLinkedLookupFilter(this);
+  }
 }

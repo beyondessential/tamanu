@@ -6,7 +6,7 @@ import { Model } from './Model';
 import { InvalidOperationError } from '../errors';
 import { runCalculations } from '../utils/calculations';
 import { getStringValue } from '../utils/fields';
-import { buildExtraFilterColumnSelect } from './buildExtraFilterColumnSelect';
+import { buildEncounterPatientIdSelect } from './buildPatientLinkedLookupFilter';
 
 export class SurveyResponseAnswer extends Model {
   static init({ primaryKey, ...options }) {
@@ -72,9 +72,7 @@ export class SurveyResponseAnswer extends Model {
 
   static buildSyncLookupFilter() {
     return {
-      extraFilterColumnSelect: buildExtraFilterColumnSelect({
-        patientId: 'encounters.id',
-      }),
+      select: buildEncounterPatientIdSelect(this),
       joins: `
         JOIN survey_responses ON survey_response_answers.response_id = survey_responses.id
         JOIN encounters ON survey_responses.encounter_id = encounters.id

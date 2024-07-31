@@ -6,7 +6,7 @@ import { Encounter } from './Encounter';
 import { ScheduledVaccine } from './ScheduledVaccine';
 import { dateTimeType } from './dateTimeTypes';
 import { buildEncounterLinkedSyncFilterJoins } from './buildEncounterLinkedSyncFilter';
-import { buildExtraFilterColumnSelect } from './buildExtraFilterColumnSelect';
+import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
 
 export class AdministeredVaccine extends Model {
   static init({ primaryKey, ...options }) {
@@ -87,10 +87,7 @@ export class AdministeredVaccine extends Model {
     });
   }
 
-  static buildPatientSyncFilter(
-    patientCount,
-    markedForSyncPatientsTable,
-  ) {
+  static buildPatientSyncFilter(patientCount, markedForSyncPatientsTable) {
     const joins = [];
     const wheres = [];
 
@@ -120,7 +117,7 @@ export class AdministeredVaccine extends Model {
 
   static buildSyncLookupFilter() {
     return {
-      extraFilterColumnSelect: buildExtraFilterColumnSelect({
+      select: buildSyncLookupSelect(this, {
         patientId: 'encounters.patient_id',
         encounterId: 'encounters.id',
       }),

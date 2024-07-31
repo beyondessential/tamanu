@@ -4,7 +4,7 @@ import {
   buildEncounterLinkedSyncFilter,
   buildEncounterLinkedSyncFilterJoins,
 } from './buildEncounterLinkedSyncFilter';
-import { buildExtraFilterColumnSelect } from './buildExtraFilterColumnSelect';
+import { buildEncounterPatientIdSelect } from './buildPatientLinkedLookupFilter';
 
 export class ImagingRequestArea extends Model {
   static init({ primaryKey, ...options }) {
@@ -42,10 +42,12 @@ export class ImagingRequestArea extends Model {
 
   static buildSyncLookupFilter() {
     return {
-      extraFilterColumnSelect: buildExtraFilterColumnSelect({
-        patientId: 'encounters.patient_id',
-      }),
-      joins: buildEncounterLinkedSyncFilterJoins([this.tableName, 'imaging_requests', 'encounters']),
+      select: buildEncounterPatientIdSelect(this),
+      joins: buildEncounterLinkedSyncFilterJoins([
+        this.tableName,
+        'imaging_requests',
+        'encounters',
+      ]),
     };
   }
 }
