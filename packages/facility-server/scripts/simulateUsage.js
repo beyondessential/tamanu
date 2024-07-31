@@ -158,10 +158,42 @@ async function createAppointment(models, facilityId) {
   return appointment;
 }
 
+async function createLabTest(models, facilityId) {
+  const { Encounter, LabRequest, LabTest, LabTestType, PatientFacility } = models;
+  const patientFacility = await PatientFacility.findOne({ where: { facilityId } });
+  const encounter = await Encounter.findOne({ where: { patientId: patientFacility.patientId } });
+  const labTestLaboratory = await randomReferenceData(models, REFERENCE_TYPES.LAB_TEST_LABORATORY);
+  const labTestCategory = await randomReferenceData(models, REFERENCE_TYPES.LAB_TEST_CATEGORY);
+  const labTestMethod = await randomReferenceData(models, REFERENCE_TYPES.LAB_TEST_METHOD);
+  const labTestType = await LabTestType.findOne({ where: {
+    labTestCategoryId: labTestCategory.id },
+  });
+
+  const labRequest = await LabRequest.create(
+    fake(LabRequest, {
+      encounterId: encounter.id,
+      labTestLaboratoryId: labTestLaboratory.id,
+      labTestCategoryId: labTestCategory.id,
+      status: 'published',
+    }),
+  );
+
+  const labTest = await LabTest.create(
+    fake(LabTest, {
+      labTestTypeId: labTestType.id,
+      labRequestId: labRequest.id,
+      labTestMethodId: labTestMethod.id,
+      categoryId: labTestCategory.id,
+      result: 'Negative',
+    }),
+  );
+
+  return labTest;
+}
+
 /*
   ImagingRequest: 32,
   ImagingResult: 30,
-  LabTest: 530,
   PatientBirthData: 6,
   PatientCommunication: 3,
   PatientCondition: 32,
@@ -207,6 +239,10 @@ const ACTIONS = {
   newAppointment: {
     likelihood: calculateLikelihood('Appointment'),
     generator: createAppointment,
+  },
+  newLabTest: {
+    likelihood: calculateLikelihood('LabTest'),
+    generator: createLabTest,
   },
 };
 const ACTIONS_ENTRIES = Object.entries(ACTIONS);
