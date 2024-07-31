@@ -193,7 +193,7 @@ describe('User', () => {
 
       it('should fail to get the user with a null token', async () => {
         const result = await baseApp.get('/api/user/me');
-        expect(result).toHaveRequestError();
+        expect(result).toBeForbidden();
       });
 
       it('should fail to get the user with an expired token', async () => {
@@ -217,11 +217,6 @@ describe('User', () => {
           const result = await userAgent.get('/api/user/me');
           expect(result).toHaveSucceeded();
           expect(result.body).toHaveProperty('id', authUser.id);
-        });
-
-        it('should fail to get the user with a null token', async () => {
-          const result = await baseApp.get('/api/user/me');
-          expect(result).toHaveRequestError();
         });
 
         it('should fail to get the user with an expired token', async () => {

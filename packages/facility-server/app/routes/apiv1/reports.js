@@ -32,6 +32,7 @@ reports.post(
       getLocalisation,
       models,
       reportSchemaStores,
+      query: { facilityId },
     } = req;
     const { reportId } = params;
     const facilityReportLog = createNamedLogger(FACILITY_REPORT_LOG_NAME, {
@@ -56,6 +57,7 @@ reports.post(
           models,
           reportSchemaStores,
           sequelize: db,
+          facilityId,
         },
         parameters,
       );

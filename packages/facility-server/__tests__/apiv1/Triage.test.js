@@ -10,6 +10,7 @@ import { fake } from '@tamanu/shared/test-helpers';
 import { ENCOUNTER_TYPES } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { createTestContext } from '../utilities';
+import { selectFacilityIds } from '@tamanu/shared/utils/configSelectors';
 
 describe('Triage', () => {
   let app = null;
@@ -25,15 +26,17 @@ describe('Triage', () => {
     models = ctx.models;
     app = await baseApp.asRole('practitioner');
 
+    const [facilityId] = selectFacilityIds(config);
+
     facility = await models.Facility.findOne({
-      where: { id: config.serverFacilityId },
+      where: { id: facilityId },
     });
 
     [emergencyDepartment] = await models.Department.upsert({
       id: 'emergency',
       code: 'Emergency',
       name: 'Emergency',
-      facilityId: config.serverFacilityId,
+      facilityId: facility.id,
     });
   });
 
@@ -257,7 +260,7 @@ describe('Triage', () => {
       'Cannot find Emergency department for current facility',
     );
 
-    await emergencyDepartment.update({ facilityId: config.serverFacilityId });
+    await emergencyDepartment.update({ facilityId: facility.id });
   });
 
   it('should throw an error when neither departmentId nor facilityId is provided', async () => {
@@ -273,7 +276,7 @@ describe('Triage', () => {
       'Providing facilityId is required to find the emergency department',
     );
 
-    await emergencyDepartment.update({ facilityId: config.serverFacilityId });
+    await emergencyDepartment.update({ facilityId: facility.id });
   });
 
   describe('Listing & filtering', () => {
@@ -286,6 +289,11 @@ describe('Triage', () => {
         facilityId: facility.id,
       });
 
+      const { id: departmentId } = await models.Department.create({
+        ...fake(models.Department),
+        facilityId: facility.id,
+      });
+
       createTestTriage = async overrides => {
         const { Patient, Triage } = models;
         const encounterPatient = await Patient.create(await createDummyPatient(models));
@@ -293,6 +301,7 @@ describe('Triage', () => {
           await createDummyTriage(models, {
             patientId: encounterPatient.id,
             locationId,
+            departmentId,
             ...overrides,
           }),
         );
