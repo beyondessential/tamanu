@@ -50,7 +50,7 @@ async function createEncounter(models, facilityId) {
   const department = await Department.findOne({ where: { facilityId } });
   const examiner = await User.findOne();
   const patientFacility = await PatientFacility.findOne({ where: { facilityId } });
-  const encounter = await models.Encounter.create(
+  const encounter = await Encounter.create(
     fake(Encounter, {
       locationId: location.id,
       departmentId: department.id,
