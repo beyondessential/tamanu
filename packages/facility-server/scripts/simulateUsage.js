@@ -80,6 +80,26 @@ async function createProgramSurveyResponse(models, facilityId) {
   return response;
 }
 
+/*
+  AdministeredVaccine: 551,
+  Appointment: 448,
+  ImagingRequest: 32,
+  ImagingResult: 30,
+  LabTest: 530,
+  Note: 1700,
+  PatientBirthData: 6,
+  PatientCommunication: 3,
+  PatientCondition: 32,
+
+  Procedure: 555,
+  Referral: 3,
+  SurveyResponse: 710,
+  SurveyResponseAnswer: 9439,
+  Triage: 14,
+*/
+
+
+
 // Likelihood should be a percentage number so from 0 to 100
 function calculateLikelihood(modelName, ratio = 1) {
   const dailyTotal = DAILY_CREATION_STATS[modelName];
@@ -143,7 +163,7 @@ async function simulateUsage(models, sequelize, hours = 1) {
   console.log(JSON.stringify(actionsTaken));
 }
 
-// TODO: simulate usage for a while that is cancellable, track creation count, generate other models
+// TODO:  track creation count, generate other models
 // Usage (note that if you -await- the function you WILL NOT be able to cancel it until it's done!):
 // const { simulateUsage } = require('@tamanu/facility-server/scripts/simulateUsage.js');
 // // This will run for one hour (well, a bit longer but for simplicity sake, around that)
