@@ -233,7 +233,7 @@ async function createPatientCondition(models, facilityId) {
 
   const patientCondition = await PatientCondition.create({
     conditionId: condition.id,
-    patientId: patientFacility.id,
+    patientId: patientFacility.patientId,
     note: chance.sentence(),
   });
 
