@@ -225,10 +225,23 @@ async function createImagingRequest(models, facilityId) {
   return imagingRequest;
 }
 
+async function createPatientCondition(models, facilityId) {
+  const { PatientFacility, PatientCondition } = models;
+  const patientFacility = await PatientFacility.findOne({ where: { facilityId } });
+  const condition = await randomReferenceData(models, REFERENCE_TYPES.ICD10);
+
+  const patientCondition = await PatientCondition.create({
+    conditionId: condition.id,
+    patientId: patientFacility.id,
+    note: chance.sentence(),
+  });
+
+  return patientCondition;
+}
+
 /*
   PatientBirthData: 6,
   PatientCommunication: 3,
-  PatientCondition: 32,
   Referral: 3,
   SurveyResponseAnswer: 9439,
   Triage: 14,
@@ -279,6 +292,10 @@ const ACTIONS = {
   newImagingRequest: {
     likelihood: calculateLikelihood('ImagingRequest'),
     generator: createImagingRequest,
+  },
+  newPatientCondition: {
+    likelihood: calculateLikelihood('PatientCondition'),
+    generator: createPatientCondition,
   },
 };
 const ACTIONS_ENTRIES = Object.entries(ACTIONS);
