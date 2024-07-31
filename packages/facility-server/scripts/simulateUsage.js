@@ -2,8 +2,10 @@ const config = require('config');
 const Chance = require('chance');
 const { v4: uuidv4 } = require('uuid');
 const { fake } = require('@tamanu/shared/test-helpers/fake');
+const { randomReferenceData } = require('@tamanu/shared/demoData/patients');
 const { sleepAsync } = require('@tamanu/shared/utils/sleepAsync');
-const { NOTE_RECORD_TYPES } = require('@tamanu/constants');
+const { NOTE_RECORD_TYPES, REFERENCE_TYPES } = require('@tamanu/constants');
+const { getCurrentDateTimeString } = require('@tamanu/shared/utils/dateTime');
 
 const DAILY_CREATION_STATS = {
   AdministeredVaccine: 551,
@@ -99,6 +101,26 @@ async function createNote(models, facilityId) {
   return note;
 }
 
+async function createProcedure(models, facilityId) {
+  const { Encounter, PatientFacility, Procedure } = models;
+  const patientFacility = await PatientFacility.findOne({ where: { facilityId } });
+  const encounter = await Encounter.findOne({ where: { patientId: patientFacility.patientId } });
+  const procedureType = randomReferenceData(models, REFERENCE_TYPES.PROCEDURE_TYPE);
+
+  const procedure = await Procedure.create(
+    fake(Procedure, {
+      encounterId: encounter.id,
+      procedureTypeId: procedureType.id,
+      locationId: encounter.locationId,
+      date: getCurrentDateTimeString(),
+      note: chance.sentence(),
+      completedNote: chance.sentence(),
+    }),
+  );
+
+  return procedure;
+}
+
 /*
   AdministeredVaccine: 551,
   Appointment: 448,
@@ -108,7 +130,6 @@ async function createNote(models, facilityId) {
   PatientBirthData: 6,
   PatientCommunication: 3,
   PatientCondition: 32,
-  Procedure: 555,
   Referral: 3,
   SurveyResponseAnswer: 9439,
   Triage: 14,
@@ -139,6 +160,10 @@ const ACTIONS = {
   newNote: {
     likelihood: calculateLikelihood('Note'),
     generator: createNote,
+  },
+  newProcedure: {
+    likelihood: calculateLikelihood('Procedure'),
+    generator: createProcedure,
   },
 };
 const ACTIONS_ENTRIES = Object.entries(ACTIONS);
