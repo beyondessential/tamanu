@@ -11,6 +11,7 @@ export class SyncLookup extends Model {
         recordId: { type: DataTypes.STRING },
         recordType: { type: DataTypes.STRING },
         data: { type: DataTypes.JSON },
+        updatedAtSyncTick: { type: DataTypes.BIGINT },
         patientId: { type: DataTypes.STRING },
         encounterId: { type: DataTypes.STRING },
         facilityId: { type: DataTypes.STRING },
