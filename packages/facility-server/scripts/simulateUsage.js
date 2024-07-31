@@ -13,6 +13,7 @@ const {
 } = require('@tamanu/constants');
 const { getCurrentDateTimeString } = require('@tamanu/shared/utils/dateTime');
 
+// Even though not all stats are being used, they might be handy to have around
 const DAILY_CREATION_STATS = {
   AdministeredVaccine: 551,
   Appointment: 448,
@@ -32,13 +33,43 @@ const DAILY_CREATION_STATS = {
   Triage: 14,
 };
 
+const DAILY_UPDATE_STATS = {
+  AdministeredVaccine: 37,
+  Appointment: 336,
+  Encounter: 391,
+  ImagingRequest: 22,
+  ImagingResult: 0,
+  LabTest: 323,
+  Note: 2,
+  PatientBirthData: 1,
+  PatientCommunication: 8,
+  PatientCondition: 2,
+  Patient: 64,
+  Procedure: 7,
+  Referral: 1,
+  SurveyResponse: 0,
+  SurveyResponseAnswer: 16,
+  Triage: 33,
+};
+
 const DAY_DURATION_MS = 24 * 60 * 60 * 1000;
 const INSERT_INTERVAL_MS = 20000;
 
 // How many times we can split the day in the given interval
 const TIMES_PER_DAY = DAY_DURATION_MS / INSERT_INTERVAL_MS;
 
+// Bumping this will vamp up the amount of records. Note that 2 means twice the records!
+const RATIO = 1;
+
 const chance = new Chance();
+
+async function updateRecord(model) {
+  await model.sequelize.query(`
+    UPDATE ${model.tableName}
+    SET updated_at = now()
+    WHERE id = (SELECT id FROM ${model.tableName} ORDER BY random() LIMIT 1);
+  `);
+}
 
 async function createPatient(models) {
   const { Patient, PatientAdditionalData } = models;
@@ -237,10 +268,11 @@ async function createPatientCondition(models, facilityId) {
 }
 
 // Likelihood should be a percentage number so from 0 to 100
-function calculateLikelihood(modelName, ratio = 1) {
-  const dailyTotal = DAILY_CREATION_STATS[modelName];
+function calculateLikelihood(modelName, isCreate = true) {
+  const STATS_CONST = isCreate ? DAILY_CREATION_STATS : DAILY_UPDATE_STATS;
+  const dailyTotal = STATS_CONST[modelName];
   if (!dailyTotal) throw new Error(`Invalid stat for model ${modelName}`);
-  return ratio * 100 * (dailyTotal / TIMES_PER_DAY);
+  return RATIO * 100 * (dailyTotal / TIMES_PER_DAY);
 }
 
 const ACTIONS = {
@@ -283,6 +315,30 @@ const ACTIONS = {
   newPatientCondition: {
     likelihood: calculateLikelihood('PatientCondition'),
     generator: createPatientCondition,
+  },
+  updateAdministeredVaccine: {
+    likelihood: calculateLikelihood('AdministeredVaccine', false),
+    generator: async models => updateRecord(models.AdministeredVaccine),
+  },
+  updateAppointment: {
+    likelihood: calculateLikelihood('Appointment', false),
+    generator: async models => updateRecord(models.Appointment),
+  },
+  updateEncounter: {
+    likelihood: calculateLikelihood('Encounter', false),
+    generator: async models => updateRecord(models.Encounter),
+  },
+  updateImagingRequest: {
+    likelihood: calculateLikelihood('ImagingRequest', false),
+    generator: async models => updateRecord(models.ImagingRequest),
+  },
+  updateLabTest: {
+    likelihood: calculateLikelihood('LabTest', false),
+    generator: async models => updateRecord(models.LabTest),
+  },
+  updatePatient: {
+    likelihood: calculateLikelihood('Patient', false),
+    generator: async models => updateRecord(models.Patient),
   },
 };
 const ACTIONS_ENTRIES = Object.entries(ACTIONS);
