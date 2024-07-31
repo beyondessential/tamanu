@@ -4,7 +4,7 @@ const { v4: uuidv4 } = require('uuid');
 const { fake } = require('@tamanu/shared/test-helpers/fake');
 const { randomReferenceData } = require('@tamanu/shared/demoData/patients');
 const { sleepAsync } = require('@tamanu/shared/utils/sleepAsync');
-const { NOTE_RECORD_TYPES, REFERENCE_TYPES } = require('@tamanu/constants');
+const { NOTE_RECORD_TYPES, REFERENCE_TYPES, IMAGING_TYPES_VALUES } = require('@tamanu/constants');
 const { getCurrentDateTimeString } = require('@tamanu/shared/utils/dateTime');
 
 const DAILY_CREATION_STATS = {
@@ -191,8 +191,27 @@ async function createLabTest(models, facilityId) {
   return labTest;
 }
 
+async function createImagingRequest(models, facilityId) {
+  const { Encounter, ImagingRequest, Location, PatientFacility, User } = models;
+  const patientFacility = await PatientFacility.findOne({ where: { facilityId } });
+  const encounter = await Encounter.findOne({ where: { patientId: patientFacility.patientId } });
+  const location = await Location.findOne({ where: { facilityId } });
+  const clinician = await User.findOne();
+
+  const imagingRequest = await ImagingRequest.create(
+    fake(ImagingRequest, {
+      requestedById: clinician.id,
+      encounterId: encounter.id,
+      locationId: location.id,
+      priority: 'routine',
+      imagingType: chance.pickone(IMAGING_TYPES_VALUES),
+    }),
+  );
+
+  return imagingRequest;
+}
+
 /*
-  ImagingRequest: 32,
   ImagingResult: 30,
   PatientBirthData: 6,
   PatientCommunication: 3,
@@ -243,6 +262,10 @@ const ACTIONS = {
   newLabTest: {
     likelihood: calculateLikelihood('LabTest'),
     generator: createLabTest,
+  },
+  newImagingRequest: {
+    likelihood: calculateLikelihood('ImagingRequest'),
+    generator: createImagingRequest,
   },
 };
 const ACTIONS_ENTRIES = Object.entries(ACTIONS);
