@@ -40,15 +40,11 @@ const TIMES_PER_DAY = DAY_DURATION_MS / INSERT_INTERVAL_MS;
 
 const chance = new Chance();
 
-async function createPatient(models, facilityId) {
-  const { Patient, PatientAdditionalData, PatientFacility } = models;
+async function createPatient(models) {
+  const { Patient, PatientAdditionalData } = models;
   const patient = await Patient.create(fake(Patient, { displayId: uuidv4() }));
   await PatientAdditionalData.create(fake(PatientAdditionalData, { patientId: patient.id }));
-  await PatientFacility.create({
-    id: PatientFacility.generateId(),
-    patientId: patient.id,
-    facilityId,
-  });
+
   return patient;
 }
 
