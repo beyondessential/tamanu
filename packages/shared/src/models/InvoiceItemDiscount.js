@@ -5,7 +5,6 @@ import {
   buildEncounterLinkedSyncFilterJoins,
 } from './buildEncounterLinkedSyncFilter';
 import { Model } from './Model';
-import { buildEncounterLinkedLookupFilter } from '../sync/buildEncounterLinkedLookupFilter';
 import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
 
 export class InvoiceItemDiscount extends Model {
