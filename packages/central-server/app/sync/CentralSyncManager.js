@@ -160,7 +160,7 @@ export class CentralSyncManager {
     log.info('CentralSyncManager.completedSession', {
       sessionId,
       durationMs,
-      facilityId: session.debugInfo.facilityId,
+      facilityIds: session.debugInfo.facilityIds,
       deviceId: session.debugInfo.deviceId,
     });
   }
@@ -218,7 +218,7 @@ export class CentralSyncManager {
 
   async setupSnapshotForPull(
     sessionId,
-    { since, facilityId, tablesToInclude, tablesForFullResync, isMobile },
+    { since, facilityIds, tablesToInclude, tablesForFullResync, isMobile },
     unmarkSnapshotAsProcessing,
   ) {
     let transactionTimeout;
@@ -260,10 +260,10 @@ export class CentralSyncManager {
       // work out if any patients were newly marked for sync since this device last connected, and
       // include changes from all time for those patients
       const newPatientFacilitiesCount = await models.PatientFacility.count({
-        where: { facilityId, updatedAtSyncTick: { [Op.gt]: since } },
+        where: { facilityId: facilityIds, updatedAtSyncTick: { [Op.gt]: since } },
       });
       log.debug('CentralSyncManager.initiatePull', {
-        facilityId,
+        facilityIds,
         newlyMarkedPatientCount: newPatientFacilitiesCount,
       });
 
@@ -271,7 +271,7 @@ export class CentralSyncManager {
         sequelize,
         sessionId,
         true,
-        facilityId,
+        facilityIds,
         since,
       );
 
@@ -279,14 +279,14 @@ export class CentralSyncManager {
         sequelize,
         sessionId,
         false,
-        facilityId,
+        facilityIds,
         since,
       );
 
-      const syncAllLabRequests = await models.Setting.get('syncAllLabRequests', facilityId);
+      const syncAllLabRequests = await models.Setting.get('syncAllLabRequests', facilityIds);
       const syncTheseProgramRegistries = await models.Setting.get(
         'syncTheseProgramRegistries',
-        facilityId,
+        facilityIds,
       );
       const sessionConfig = {
         // for facilities with a lab, need ongoing lab requests
@@ -321,14 +321,14 @@ export class CentralSyncManager {
             newPatientFacilitiesCount,
             fullSyncPatientsTable,
             sessionId,
-            facilityId,
+            facilityIds,
             {}, // sending empty session config because this snapshot attempt is only for syncing new marked for sync patients
           );
 
           // get changes since the last successful sync for all other synced patients and independent
           // record types
           const patientFacilitiesCount = await models.PatientFacility.count({
-            where: { facilityId },
+            where: { facilityId: facilityIds },
           });
 
           // regular changes
@@ -338,7 +338,7 @@ export class CentralSyncManager {
             patientFacilitiesCount,
             incrementalSyncPatientsTable,
             sessionId,
-            facilityId,
+            facilityIds,
             sessionConfig,
           );
 
@@ -352,7 +352,7 @@ export class CentralSyncManager {
               patientFacilitiesCount,
               incrementalSyncPatientsTable,
               sessionId,
-              facilityId,
+              facilityIds,
               sessionConfig,
             );
           }

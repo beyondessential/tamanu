@@ -19,13 +19,13 @@ export const buildSyncRoutes = ctx => {
       const {
         store,
         user,
-        body: { facilityId, deviceId },
+        body: { facilityIds, deviceId },
         models: { SyncQueuedDevice, SyncSession },
       } = req;
 
       const userInstance = await store.models.User.findByPk(user.id);
-      if (!userInstance.canAccessFacility(facilityId)) {
-        throw new ForbiddenError('User does not have access to facility');
+      if (facilityIds.some(id => !userInstance.canAccessFacility(id))) {
+        throw new ForbiddenError('User does not have access facility');
       }
 
       // first check if our device has any stale sessions...
@@ -50,7 +50,7 @@ export const buildSyncRoutes = ctx => {
         log.info('StaleSyncSessionCleaner.closedReconnectedSession', {
           sessionId: session.id,
           durationMs,
-          facilityId: session.debugInfo.facilityId,
+          facilityIds: session.debugInfo.facilityIds,
           deviceId: session.debugInfo.deviceId,
         });
       }
@@ -92,7 +92,7 @@ export const buildSyncRoutes = ctx => {
       const { sessionId, tick } = await syncManager.startSession({
         userId: user.id,
         deviceId,
-        facilityId,
+        facilityIds,
       });
       res.json({ sessionId, tick });
     }),
@@ -126,7 +126,7 @@ export const buildSyncRoutes = ctx => {
       const { params, body } = req;
       const {
         since: sinceString,
-        facilityId,
+        facilityIds,
         tablesToInclude,
         tablesForFullResync,
         isMobile,
@@ -137,7 +137,7 @@ export const buildSyncRoutes = ctx => {
       }
       await syncManager.initiatePull(params.sessionId, {
         since,
-        facilityId,
+        facilityIds,
         tablesToInclude,
         tablesForFullResync,
         isMobile,
