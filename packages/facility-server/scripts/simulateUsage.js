@@ -80,6 +80,7 @@ async function createProgramSurveyResponse(models, facilityId) {
   return response;
 }
 
+
 /*
   AdministeredVaccine: 551,
   Appointment: 448,
@@ -90,10 +91,8 @@ async function createProgramSurveyResponse(models, facilityId) {
   PatientBirthData: 6,
   PatientCommunication: 3,
   PatientCondition: 32,
-
   Procedure: 555,
   Referral: 3,
-  SurveyResponse: 710,
   SurveyResponseAnswer: 9439,
   Triage: 14,
 */
