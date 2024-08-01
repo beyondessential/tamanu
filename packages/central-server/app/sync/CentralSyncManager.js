@@ -84,8 +84,12 @@ export class CentralSyncManager {
     // this is a convenient way to tick the clock, as it means that no two sync sessions will
     // happen at the same global sync time, meaning there's no ambiguity when resolving conflicts
 
+    const sessionId = await this.store.models.SyncSession.generateDbUuid();
     const startTime = new Date();
+
+    const unmarkSessionAsProcessing = await this.markSessionAsProcessing(sessionId);
     const syncSession = await this.store.models.SyncSession.create({
+      id: sessionId,
       startTime,
       lastConnectionTime: startTime,
       debugInfo,
@@ -94,7 +98,7 @@ export class CentralSyncManager {
     // no await as prepare session (especially the tickTockGlobalClock action) might get blocked
     // and take a while if the central server is concurrently persisting records from another client.
     // Client should poll for the result later.
-    const preparation = this.prepareSession(syncSession);
+    const preparation = this.prepareSession(syncSession).finally(unmarkSessionAsProcessing);
 
     // ...but in unit tests, the tests interfere with each other if we leave prepares running
     // in the background! So, allow overriding the above behaviour.
@@ -111,16 +115,11 @@ export class CentralSyncManager {
   }
 
   async prepareSession(syncSession) {
-    const unmarkSessionAsProcessing = await this.markSessionAsProcessing(syncSession.id);
     try {
       await createSnapshotTable(this.store.sequelize, syncSession.id);
-
       const { tick } = await this.tickTockGlobalClock();
+      await syncSession.markAsStartedAt(tick);
 
-      await this.store.sequelize.models.SyncSession.update(
-        { startedAtTick: tick },
-        { where: { id: syncSession.id } },
-      );
       // eslint-disable-next-line no-unused-expressions
       trace.getActiveSpan()?.setAttributes({
         'app.sync.sessionId': syncSession.id,
@@ -134,8 +133,6 @@ export class CentralSyncManager {
         { error: error.message },
         { where: { id: syncSession.id } },
       );
-    } finally {
-      await unmarkSessionAsProcessing();
     }
   }
 
@@ -193,7 +190,7 @@ export class CentralSyncManager {
     // b) will automatically get cleared if the process restarts
     // A transaction level advisory lock fulfils both of these criteria, as it sits at the database
     // level (independent of an individual node process), but will be unlocked if the transaction is
-    // rolled back for any reason (e.g. the server restarts
+    // rolled back for any reason (e.g. the server restarts)
     const transaction = await this.store.sequelize.transaction();
     await this.store.sequelize.query('SELECT pg_advisory_xact_lock(:sessionLockId);', {
       replacements: { sessionLockId: uuidToFairlyUniqueInteger(sessionId) },

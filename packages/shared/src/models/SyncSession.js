@@ -29,4 +29,14 @@ export class SyncSession extends Model {
       debugInfo: { ...session.debugInfo, ...info },
     });
   }
+
+  /**
+   * @param {number} tick sync tick
+   */
+  async markAsStartedAt(tick) {
+    return this.sequelize.models.SyncSession.update(
+      { startedAtTick: tick },
+      { where: { id: this.id } },
+    );
+  }
 }
