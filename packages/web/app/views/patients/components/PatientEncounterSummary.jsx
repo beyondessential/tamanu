@@ -313,7 +313,7 @@ export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckin })
               {referralSourceId ? (
                 <TranslatedReferenceData
                   category="referralSource"
-                  fallback={referralSource}
+                  fallback={referralSource?.name}
                   value={referralSourceId}
                 />
               ) : (
