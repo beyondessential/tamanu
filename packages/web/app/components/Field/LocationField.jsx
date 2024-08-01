@@ -6,25 +6,9 @@ import { LOCATION_AVAILABILITY_STATUS, LOCATION_AVAILABILITY_TAG_CONFIG } from '
 
 import { AutocompleteInput } from './AutocompleteField';
 import { useApi, useSuggester } from '../../api';
-import { Suggester } from '../../utils/suggester';
 import { BodyText } from '../Typography';
 import { useAuth } from '../../contexts/Auth';
 import { TranslatedText } from '../Translation/TranslatedText';
-
-const locationSuggester = (api, groupValue, enableLocationStatus) => {
-  return new Suggester(api, 'location', {
-    formatter: ({ name, id, locationGroup, availability }) => {
-      return {
-        value: id,
-        label: name,
-        locationGroup,
-        availability: enableLocationStatus ? availability : null,
-        tag: enableLocationStatus ? LOCATION_AVAILABILITY_TAG_CONFIG[availability] : null,
-      };
-    },
-    baseQueryParameters: { filterByFacility: true, locationGroupId: groupValue },
-  });
-};
 
 const useLocationSuggestion = locationId => {
   const api = useApi();
@@ -51,11 +35,21 @@ export const LocationInput = React.memo(
     onChange,
     enableLocationStatus = true,
   }) => {
-    const api = useApi();
     const { facilityId } = useAuth();
     const [groupId, setGroupId] = useState('');
     const [locationId, setLocationId] = useState(value);
-    const suggester = locationSuggester(api, groupId, enableLocationStatus);
+    const suggester = useSuggester('location', {
+      formatter: ({ name, id, locationGroup, availability }) => {
+        return {
+          value: id,
+          label: name,
+          locationGroup,
+          availability: enableLocationStatus ? availability : null,
+          tag: enableLocationStatus ? LOCATION_AVAILABILITY_TAG_CONFIG[availability] : null,
+        };
+      },
+      baseQueryParameters: { filterByFacility: true, locationGroupId: groupId },
+    });
     const locationGroupSuggester = useSuggester('facilityLocationGroup');
     const { data: location } = useLocationSuggestion(locationId);
 

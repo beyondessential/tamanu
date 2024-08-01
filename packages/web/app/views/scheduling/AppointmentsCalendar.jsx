@@ -86,6 +86,7 @@ const TodayButton = styled(Button)`
 export const AppointmentsCalendar = () => {
   const api = useApi();
   const locationGroupSuggester = useSuggester('facilityLocationGroup');
+  const practitionerSuggester = useSuggester('practitioner');
   const { ability } = useAuth();
 
   const [date, setDate] = useState(new Date());
@@ -124,7 +125,7 @@ export const AppointmentsCalendar = () => {
         <AutocompleteInput
           value={filterValue}
           onChange={updateFilterValue}
-          suggester={new Suggester(api, 'practitioner')}
+          suggester={practitionerSuggester}
         />
       ),
     },
