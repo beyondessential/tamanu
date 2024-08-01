@@ -66,7 +66,7 @@ export class InvoiceLineItem extends Model {
     );
   }
 
-  static buildSyncLookupFilter() {
+  static buildSyncLookupQueryDetails() {
     return {
       select: buildEncounterPatientIdSelect(this),
       joins: buildEncounterLinkedSyncFilterJoins([this.tableName, 'invoices', 'encounters']),

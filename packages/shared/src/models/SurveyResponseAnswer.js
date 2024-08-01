@@ -70,7 +70,7 @@ export class SurveyResponseAnswer extends Model {
     `;
   }
 
-  static buildSyncLookupFilter() {
+  static buildSyncLookupQueryDetails() {
     return {
       select: buildEncounterPatientIdSelect(this),
       joins: `

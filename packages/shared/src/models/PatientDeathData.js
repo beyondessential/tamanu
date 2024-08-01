@@ -124,7 +124,7 @@ export class PatientDeathData extends Model {
     });
   }
   
-  static buildSyncLookupFilter() {
+  static buildSyncLookupQueryDetails() {
     return buildPatientLinkedLookupFilter(this);
   }
 

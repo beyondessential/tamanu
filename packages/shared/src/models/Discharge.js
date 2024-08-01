@@ -67,7 +67,7 @@ export class Discharge extends Model {
     );
   }
 
-  static buildSyncLookupFilter() {
+  static buildSyncLookupQueryDetails() {
     return buildEncounterLinkedLookupFilter(this);
   }
 }

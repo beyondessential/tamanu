@@ -47,7 +47,7 @@ export class InvoicePatientPayment extends Model {
     );
   }
 
-  static buildSyncLookupFilter() {
+  static buildSyncLookupQueryDetails() {
     return {
       select: buildSyncLookupSelect(this, {
         patientId: 'encounters.patient_id',

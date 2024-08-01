@@ -112,7 +112,7 @@ export class PatientAdditionalData extends Model {
     return ['countryOfBirth', 'nationality', 'ethnicity'];
   }
 
-  static buildSyncLookupFilter() {
+  static buildSyncLookupQueryDetails() {
     return buildPatientLinkedLookupFilter(this);
   }
   static buildPatientSyncFilter = buildPatientSyncFilterViaPatientId;

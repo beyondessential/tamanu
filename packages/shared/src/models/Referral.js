@@ -49,7 +49,7 @@ export class Referral extends Model {
     `;
   }
 
-  static buildSyncLookupFilter() {
+  static buildSyncLookupQueryDetails() {
     return {
       select: buildEncounterPatientIdSelect(this),
       joins: 'JOIN encounters ON referrals.initiating_encounter_id = encounters.id',

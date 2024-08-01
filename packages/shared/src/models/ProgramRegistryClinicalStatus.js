@@ -45,7 +45,7 @@ export class ProgramRegistryClinicalStatus extends Model {
     return null; // syncs everywhere
   }
 
-  static buildSyncLookupFilter() {
+  static buildSyncLookupQueryDetails() {
     return null; // syncs everywhere
   }
 }

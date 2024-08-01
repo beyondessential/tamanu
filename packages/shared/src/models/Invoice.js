@@ -81,7 +81,7 @@ export class Invoice extends Model {
     );
   }
 
-  static buildSyncLookupFilter() {
+  static buildSyncLookupQueryDetails() {
     return buildEncounterLinkedLookupFilter(this);
   }
 
