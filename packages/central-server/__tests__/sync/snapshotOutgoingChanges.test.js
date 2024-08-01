@@ -83,7 +83,7 @@ describe('snapshotOutgoingChanges', () => {
         ctx.store.sequelize,
         syncSession.id,
         true,
-        '',
+        [''],
         tock - 1,
       );
 
@@ -93,7 +93,7 @@ describe('snapshotOutgoingChanges', () => {
         0,
         fullSyncPatientsTable,
         syncSession.id,
-        '',
+        [''],
         simplestSessionConfig,
       );
       expect(result).toEqual(1);
@@ -130,7 +130,7 @@ describe('snapshotOutgoingChanges', () => {
         ctx.store.sequelize,
         syncSession.id,
         true,
-        '',
+        [''],
         tock - 1,
       );
 
@@ -140,7 +140,7 @@ describe('snapshotOutgoingChanges', () => {
         0,
         fullSyncPatientsTable,
         syncSession.id,
-        '',
+        [''],
         simplestSessionConfig,
       );
       expect(result).toEqual(1);
@@ -168,7 +168,7 @@ describe('snapshotOutgoingChanges', () => {
         ctx.store.sequelize,
         syncSession.id,
         true,
-        '',
+        [''],
         firstTock - 1,
       );
 
@@ -178,7 +178,7 @@ describe('snapshotOutgoingChanges', () => {
         0,
         fullSyncPatientsTable,
         syncSession.id,
-        '',
+        [''],
         simplestSessionConfig,
       );
       expect(result).toEqual(2);
@@ -245,7 +245,7 @@ describe('snapshotOutgoingChanges', () => {
             0,
             true,
             syncSession.id,
-            '',
+            [''],
             simplestSessionConfig,
           );
         },
@@ -326,7 +326,7 @@ describe('snapshotOutgoingChanges', () => {
             0,
             true,
             syncSession.id,
-            '',
+            [''],
             simplestSessionConfig,
           );
         },
@@ -388,6 +388,7 @@ describe('snapshotOutgoingChanges', () => {
         locationId: location.id,
         departmentId: department.id,
       });
+
       await PatientFacility.create({ patientId: patient2.id, facilityId: facility.id });
 
       const secondTock = await LocalSystemFact.increment('currentSyncTick', 2);
@@ -466,7 +467,7 @@ describe('snapshotOutgoingChanges', () => {
         ctx.store.sequelize,
         syncSession.id,
         true,
-        facilityId,
+        [facilityId],
         firstTock - 1,
       );
 
@@ -476,7 +477,7 @@ describe('snapshotOutgoingChanges', () => {
         1,
         incrementalSyncPatientsTable,
         syncSession.id,
-        facilityId,
+        [facilityId],
         { ...simplestSessionConfig, syncAllLabRequests: true },
       );
 
@@ -514,7 +515,7 @@ describe('snapshotOutgoingChanges', () => {
         ctx.store.sequelize,
         syncSession.id,
         false,
-        facility.id,
+        [facility.id],
         secondTock - 1,
       );
 
@@ -524,7 +525,7 @@ describe('snapshotOutgoingChanges', () => {
         1,
         incrementalSyncPatientsTable,
         syncSession.id,
-        facility.id,
+        [facility.id],
         { ...simplestSessionConfig, syncAllLabRequests: true },
       );
 
