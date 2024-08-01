@@ -13,6 +13,10 @@ describe('Sync Lookup data', () => {
     centralSyncManager = new CentralSyncManager(ctx);
   });
 
+  beforeEach(async () => {
+    await models.SyncLookup.truncate({ force: true });
+  });
+
   it('Encounter lookup data is correct', async () => {
     const facility = await models.Facility.create({
       ...fake(models.Facility),

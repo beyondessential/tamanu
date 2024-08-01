@@ -1083,7 +1083,8 @@ describe('CentralSyncManager', () => {
     });
 
     it('does not include records inserted when updating lookup table already started', async () => {
-      const [facility, program, survey] = await prepareRecordsForSync();
+      const records = await prepareRecordsForSync();
+      const program = records[1];
 
       // Build the fakeModelPromise so that it can block the updateLookupTable process,
       // then we can insert some new records while updateLookupTable is happening
