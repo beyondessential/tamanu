@@ -11,7 +11,9 @@ import { ThemedTooltip } from '../../components/Tooltip';
 
 const DateCell = React.memo(({ value }) => <DateDisplay date={value} />);
 export const SexCell = React.memo(({ value }) => <TranslatedSex sex={value} />);
-const SyncedCell = React.memo(({ value }) => (value === true ? <CloudDone /> : <CloudOff />));
+const SyncedCell = React.memo(({ value }) => (
+  value === true ? <CloudDone color="primary" /> : <CloudOff color="primary" />),
+);
 
 export const markedForSync = {
   key: 'markedForSync',
