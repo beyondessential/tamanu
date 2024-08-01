@@ -93,12 +93,12 @@ export class Setting extends Model {
    * IMPORTANT: Duplicated from mobile/models/Setting.ts
    * Please update both places when modify
    */
-  static async get(key = '', facilityId = null, scopeOverride = null) {
+  static async get(key = '', facilityIds = null, scopeOverride = null) {
     const determineScope = () => {
       if (scopeOverride) {
         return scopeOverride;
       }
-      if (facilityId) {
+      if (facilityIds) {
         return SETTINGS_SCOPES.FACILITY;
       }
       return null;
@@ -122,7 +122,7 @@ export class Setting extends Model {
             }
           : {}),
         facilityId: {
-          ...(facilityId ? { [Op.eq]: facilityId } : { [Op.is]: null }),
+          ...(facilityIds ? { [Op.in]: facilityIds } : { [Op.is]: null }),
         },
       },
 
