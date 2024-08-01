@@ -1,8 +1,8 @@
 import { trace } from '@opentelemetry/api';
-import { Op, Transaction } from 'sequelize';
+import { Op, QueryTypes, Transaction } from 'sequelize';
 import _config from 'config';
 
-import { SYNC_DIRECTIONS } from '@tamanu/constants';
+import { SETTINGS_SCOPES, SYNC_DIRECTIONS } from '@tamanu/constants';
 import { CURRENT_SYNC_TIME_KEY } from '@tamanu/shared/sync/constants';
 import { log } from '@tamanu/shared/services/logging';
 import {
@@ -283,11 +283,42 @@ export class CentralSyncManager {
         since,
       );
 
-      const syncAllLabRequests = await models.Setting.get('syncAllLabRequests', facilityIds);
-      const syncTheseProgramRegistries = await models.Setting.get(
-        'syncTheseProgramRegistries',
-        facilityIds,
+      // query settings table and return boolean for if any syncAllLabRequests with facility id in ids
+
+      const [{ syncAllLabRequests }] = await sequelize.query(
+        `
+        SELECT EXISTS (
+          SELECT 1
+          FROM settings
+          WHERE key = 'syncAllLabRequests'
+            AND scope = '${SETTINGS_SCOPES.FACILITY}'
+            AND facility_id IN (:facilityIds)
+            AND value = 'true'
+        ) AS "syncAllLabRequests"
+        `,
+        {
+          replacements: { facilityIds },
+          type: QueryTypes.SELECT,
+        },
       );
+
+      const [{ syncTheseProgramRegistries }] = await sequelize.query(
+        `
+        SELECT ARRAY_AGG(DISTINCT elem::text) as "syncTheseProgramRegistries"
+        FROM (
+          SELECT jsonb_array_elements_text(value) AS elem
+          FROM settings
+          WHERE key = 'syncTheseProgramRegistries'
+            AND scope = '${SETTINGS_SCOPES.FACILITY}'
+            AND facility_id IN (:facilityIds)
+        ) sq;
+         `,
+        {
+          replacements: { facilityIds },
+          type: QueryTypes.SELECT,
+        },
+      );
+
       const sessionConfig = {
         // for facilities with a lab, need ongoing lab requests
         // no need for historical ones on initial sync, and no need on mobile
