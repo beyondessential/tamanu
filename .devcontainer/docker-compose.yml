@@ -12,7 +12,7 @@ services:
     restart: unless-stopped
     volumes:
       # - central-data:/var/lib/postgresql/data # Uncomment this line to persist data.
-      - ./db/central.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./db/central.sql.gz:/docker-entrypoint-initdb.d/init.sql.gz
     environment:
       POSTGRES_PASSWORD: postgres
       POSTGRES_USER: postgres
@@ -25,7 +25,7 @@ services:
     restart: unless-stopped
     volumes:
       # - facility-data:/var/lib/postgresql/data # Uncomment this line to persist data.
-      - ./db/facility.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./db/facility.sql.gz:/docker-entrypoint-initdb.d/init.sql.gz
     environment:
       POSTGRES_PASSWORD: postgres
       POSTGRES_USER: postgres
