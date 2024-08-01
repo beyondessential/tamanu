@@ -372,8 +372,9 @@ describe('snapshotOutgoingChanges', () => {
       const patient1 = await Patient.create(fake(Patient));
       const patient2 = await Patient.create(fake(Patient));
       const facility = await Facility.create(fake(Facility));
-      const location = await Location.create({ ...fake(Location), facilityId: facility.id });
-      const department = await Department.create({ ...fake(Department), facilityId: facility.id });
+      const facility2 = await Facility.create(fake(Facility));
+      const location = await Location.create({ ...fake(Location), facilityId: facility2.id });
+      const department = await Department.create({ ...fake(Department), facilityId: facility2.id });
       const encounter1 = await Encounter.create({
         ...fake(Encounter),
         examinerId: user.id,
@@ -498,7 +499,7 @@ describe('snapshotOutgoingChanges', () => {
       );
     });
 
-    it('includes encounters for patients marked for sync even if the encounter is older than the sync "since" time', async () => {
+    it('includes encounters for patients not marked for sync even if the encounter is older than the sync "since" time', async () => {
       const { Encounter, LabRequest, LabTest } = models;
       const {
         encounter1,
