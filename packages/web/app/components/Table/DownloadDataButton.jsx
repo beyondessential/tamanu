@@ -26,7 +26,9 @@ const normalizeRecursively = (element, normalizeFn) => {
   if (!children) return normalizeFn(element);
 
   return cloneElement(element, {
-    children: Children.map(children, child => normalizeRecursively(child, normalizeFn)),
+    children: Array.isArray(children)
+      ? Children.map(children, child => normalizeRecursively(child, normalizeFn))
+      : normalizeRecursively(children, normalizeFn),
   });
 };
 

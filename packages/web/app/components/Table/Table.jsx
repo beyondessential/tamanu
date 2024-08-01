@@ -235,7 +235,7 @@ const Row = React.memo(
         return (
           <StyledTableCell
             key={key}
-            onClick={dontCallRowInput ? preventInputCallback : e => onClickRow(e, passingData)}
+            onClick={dontCallRowInput ? preventInputCallback : e => onClickRow?.(e, passingData)}
             background={backgroundColor}
             $cellStyle={cellStyle}
             align={numeric ? 'right' : 'left'}
