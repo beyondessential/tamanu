@@ -203,7 +203,7 @@ export class Setting extends Model {
     return `WHERE (facility_id = :facilityId OR scope = '${SETTINGS_SCOPES.GLOBAL}') AND ${this.tableName}.updated_at_sync_tick > :since`;
   }
 
-  static buildSyncLookupFilter() {
+  static buildSyncLookupQueryDetails() {
     return {
       select: buildSyncLookupSelect(this, {
         facilityId: 'settings.facility_id',

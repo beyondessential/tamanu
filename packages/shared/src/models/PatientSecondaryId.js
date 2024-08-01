@@ -38,7 +38,7 @@ export class PatientSecondaryId extends Model {
     });
   }
 
-  static buildSyncLookupFilter() {
+  static buildSyncLookupQueryDetails() {
     return buildPatientLinkedLookupFilter(this);
   }
 

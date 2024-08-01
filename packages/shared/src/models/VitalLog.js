@@ -88,7 +88,7 @@ export class VitalLog extends Model {
     `;
   }
 
-  static buildSyncLookupFilter() {
+  static buildSyncLookupQueryDetails() {
     return {
       select: buildEncounterPatientIdSelect(this),
       joins: `

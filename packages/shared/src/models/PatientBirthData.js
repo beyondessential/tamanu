@@ -89,7 +89,7 @@ export class PatientBirthData extends Model {
     'registeredBirthPlace',
   ];
 
-  static buildSyncLookupFilter() {
+  static buildSyncLookupQueryDetails() {
     return buildPatientLinkedLookupFilter(this);
   }
 

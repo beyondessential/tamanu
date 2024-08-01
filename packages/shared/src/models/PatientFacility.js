@@ -54,7 +54,7 @@ export class PatientFacility extends Model {
     return `WHERE facility_id = :facilityId AND ${this.tableName}.updated_at_sync_tick > :since`;
   }
 
-  static buildSyncLookupFilter() {
+  static buildSyncLookupQueryDetails() {
     return {
       select: buildSyncLookupSelect(this, {
         patientId: `${this.tableName}.patient_id`,

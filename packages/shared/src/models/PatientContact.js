@@ -40,7 +40,7 @@ export class PatientContact extends Model {
     });
   }
 
-  static buildSyncLookupFilter() {
+  static buildSyncLookupQueryDetails() {
     return buildPatientLinkedLookupFilter(this);
   }
 

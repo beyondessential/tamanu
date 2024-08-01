@@ -106,7 +106,7 @@ export class Note extends Model {
     return this[parentGetter](options);
   }
 
-  static buildSyncLookupFilter() {
+  static buildSyncLookupQueryDetails() {
     return {
       select: buildEncounterPatientIdSelect(this),
       joins: buildNoteLinkedJoins().join('\n'),

@@ -66,6 +66,6 @@ export class PatientProgramRegistrationCondition extends Model {
     return `WHERE patient_id IN (SELECT patient_id FROM ${markedForSyncPatientsTable}) AND updated_at_sync_tick > :since`;
   }
 
-  static buildSyncLookupFilter() {
+  static buildSyncLookupQueryDetails() {
     return buildPatientLinkedLookupFilter(this);
   }}

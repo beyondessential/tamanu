@@ -40,7 +40,7 @@ export class ImagingRequestArea extends Model {
     );
   }
 
-  static buildSyncLookupFilter() {
+  static buildSyncLookupQueryDetails() {
     return {
       select: buildEncounterPatientIdSelect(this),
       joins: buildEncounterLinkedSyncFilterJoins([

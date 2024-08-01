@@ -76,7 +76,7 @@ export class Appointment extends Model {
     `;
   }
 
-  static buildSyncLookupFilter() {
+  static buildSyncLookupQueryDetails() {
     return {
       select: buildSyncLookupSelect(this, {
         patientId: 'appointments.patient_id',

@@ -10,7 +10,7 @@ export const updateLookupTableForModel = async (model, config, since, sessionCon
   let fromId = '';
   let totalCount = 0;
   const attributes = model.getAttributes();
-  const { select, joins } = model.buildSyncLookupFilter(sessionConfig) || {};
+  const { select, joins } = model.buildSyncLookupQueryDetails(sessionConfig) || {};
   const useUpdatedAtByFieldSum = !!attributes.updatedAtByField;
 
   while (fromId != null) {
