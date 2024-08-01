@@ -105,7 +105,7 @@ describe('CentralSyncManager', () => {
         },
       },
       buildSyncFilter: () => null,
-      buildSyncLookupFilter: () => null,
+      buildSyncLookupQueryDetails: () => null,
     };
 
     return {
