@@ -114,6 +114,45 @@ describe('CentralSyncManager', () => {
       expect(syncSession1).not.toBeUndefined();
       expect(syncSession2).not.toBeUndefined();
     });
+
+    it('throws an error when checking a session is ready if it failed to start', async () => {
+      const errorMessage = "I'm a sleepy session, I don't want to start";
+      const fakeMarkAsStartedAt = () => {
+        throw new Error(errorMessage);
+      };
+
+      const spyMarkAsStartedAt = jest
+        .spyOn(models.SyncSession.prototype, 'markAsStartedAt')
+        .mockImplementation(fakeMarkAsStartedAt);
+
+      const centralSyncManager = initializeCentralSyncManager();
+      const { sessionId } = await centralSyncManager.startSession();
+
+      await expect(waitForSession(centralSyncManager, sessionId))
+        .rejects.toThrow(`Sync session '${sessionId}' encountered an error: ${errorMessage}`)
+        .finally(() => spyMarkAsStartedAt.mockRestore());
+    });
+
+    it('throws an error when checking a session is ready if it never assigned a started_at_tick', async () => {
+      const fakeMarkAsStartedAt = () => {
+        // Do nothing and ensure we error out when the client starts polling
+      };
+
+      const spyMarkAsStartedAt = jest
+        .spyOn(models.SyncSession.prototype, 'markAsStartedAt')
+        .mockImplementation(fakeMarkAsStartedAt);
+
+      const centralSyncManager = initializeCentralSyncManager();
+      const { sessionId } = await centralSyncManager.startSession();
+
+      await expect(waitForSession(centralSyncManager, sessionId))
+        .rejects.toThrow(
+          new RegExp(
+            `Sync session '${sessionId}' encountered an error: Session initiation incomplete, likely because the central server restarted during the process`,
+          ),
+        )
+        .finally(() => spyMarkAsStartedAt.mockRestore());
+    });
   });
 
   describe('connectToSession', () => {
