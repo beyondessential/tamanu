@@ -8,10 +8,7 @@
     "nodemon": "./node_modules/.bin/nodemon",
     "concurrently": "./node_modules/.bin/concurrently",
     "dual-pkg": "./dual-pkg.mjs",
-    "move-dts": "./move-dts.mjs",
-    "pkg": "./node_modules/.bin/pkg",
-    "swc": "./node_modules/.bin/swc",
-    "tsc": "./node_modules/.bin/tsc"
+    "move-dts": "./move-dts.mjs"
   },
   "dependencies": {
     "@swc/cli": "^0.1.63",
