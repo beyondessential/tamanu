@@ -1,5 +1,5 @@
 import React from 'react';
-import { CloudDownload, CloudOff } from '@material-ui/icons';
+import { CloudOff, CloudDone } from '@material-ui/icons';
 import {
   DateDisplay,
   TranslatedReferenceData,
@@ -11,7 +11,7 @@ import { ThemedTooltip } from '../../components/Tooltip';
 
 const DateCell = React.memo(({ value }) => <DateDisplay date={value} />);
 export const SexCell = React.memo(({ value }) => <TranslatedSex sex={value} />);
-const SyncedCell = React.memo(({ value }) => (value === true ? <CloudDownload /> : <CloudOff />));
+const SyncedCell = React.memo(({ value }) => (value === true ? <CloudDone /> : <CloudOff />));
 
 export const markedForSync = {
   key: 'markedForSync',
