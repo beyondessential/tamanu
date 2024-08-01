@@ -260,12 +260,7 @@ export const ViewAdministeredVaccineContent = ({ vaccineRecord, editMode }) => {
       value: givenElsewhere ? (
         'Given elsewhere'
       ) : (
-        <TranslatedEnum
-          prefix="vaccine.property.status"
-          value={status}
-          enumValues={VACCINE_STATUS_LABELS}
-          enumFallback="-"
-        />
+        <TranslatedEnum value={status} enumValues={VACCINE_STATUS_LABELS} enumFallback="-" />
       ),
     },
     country: {

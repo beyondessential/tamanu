@@ -11,6 +11,8 @@ import { StyledTextField } from './TextField';
 import { FormFieldTag } from '../Tag';
 import { TranslationContext } from '../../contexts/Translation';
 import { Icon, StyledExpandLess, StyledExpandMore } from './FieldCommonComponents';
+import { TranslatedText } from '../Translation/TranslatedText';
+import { notifyError } from '../../utils';
 
 const SuggestionsContainer = styled(Popper)`
   z-index: 9999;
@@ -39,7 +41,6 @@ const SuggestionsList = styled(Paper)`
     list-style-type: none;
 
     .MuiButtonBase-root {
-      padding: 12px 12px 12px 20px;
       padding: ${props => (props.size === 'small' ? '8px 12px 8px 20px' : '12px 12px 12px 20px')};
       white-space: normal;
 
@@ -53,6 +54,25 @@ const SuggestionsList = styled(Paper)`
       }
     }
   }
+
+  ${props =>
+    props.$hasCustomizeItem &&
+    `
+    li:last-child {
+      position: sticky;
+      bottom: 0;
+      background: ${Colors.white};
+      z-index: 1;
+      ${!props.$onlyOneItem &&
+        `&::before {
+        content: '';
+        display: block;
+        border-top: 1px solid;
+        border-color: ${Colors.outline};
+        margin: 2px 10px;
+      }`}
+    }
+  `}
 `;
 
 const OptionTag = styled(FormFieldTag)`
@@ -108,8 +128,9 @@ export class AutocompleteInput extends Component {
   }
 
   updateValue = async (allowFreeTextForExistingValue = false) => {
-    const { value, suggester, onFetchCurrentOption } = this.props;
-    if (!suggester || value === undefined) {
+    const { value, suggester } = this.props;
+
+    if (!suggester) {
       return;
     }
     if (value === '') {
@@ -119,11 +140,7 @@ export class AutocompleteInput extends Component {
     }
 
     if (!allowFreeTextForExistingValue) {
-      const showFullData = !!onFetchCurrentOption;
-      const currentOption = await suggester.fetchCurrentOption(value, showFullData);
-      if (onFetchCurrentOption) {
-        onFetchCurrentOption(currentOption);
-      }
+      const currentOption = await suggester.fetchCurrentOption(value);
       if (currentOption) {
         this.setState({
           selectedOption: {
@@ -141,29 +158,39 @@ export class AutocompleteInput extends Component {
   };
 
   handleSuggestionChange = option => {
-    const { onChange, name } = this.props;
-    const { value, label } = option;
-    onChange({ target: { ...option, value, name } });
-    return label;
+    const { onChange, name, suggester } = this.props;
+    if (!option.isCustomizedOption) {
+      onChange({ target: { ...option, name } });
+    } else if (suggester) {
+      const payload = { name: option.label };
+      suggester
+        .createSuggestion(payload)
+        .then(result => onChange({ target: { ...result, name } }))
+        .catch(e => {
+          notifyError(e.message);
+          onChange({ target: { value: undefined, name } });
+        });
+    }
+    return option.label;
   };
 
-  fetchAllOptions = async (suggester, options) =>
-    suggester ? suggester.fetchSuggestions('') : options;
+  fetchAllOptions = async (searchValue = '') => {
+    const { suggester, options } = this.props;
+    return suggester
+      ? suggester.fetchSuggestions(searchValue)
+      : options.filter(x => x.label.toLowerCase().includes(searchValue.toLowerCase()));
+  };
 
   fetchOptions = async ({ value, reason }) => {
-    const { suggester, options, value: formValue } = this.props;
+    const { value: formValue, allowCreatingCustomValue } = this.props;
 
     if (reason === 'suggestion-selected') {
       this.clearOptions();
       return;
     }
 
-    const searchSuggestions = suggester
-      ? await suggester.fetchSuggestions(value)
-      : options.filter(x => x.label.toLowerCase().includes(value.toLowerCase()));
-
     if (value === '') {
-      if (await this.attemptAutoFill({ suggestions: searchSuggestions })) return;
+      if (await this.attemptAutoFill()) return;
     }
 
     // presence of formValue means the user has selected an option for this field
@@ -171,22 +198,28 @@ export class AutocompleteInput extends Component {
 
     // This will show the full suggestions list (or at least the first page) if the user
     // has either just clicked the input or if the input does not match a value from list
-    this.setState({
-      suggestions: fieldClickedWithOptionSelected
-        ? await this.fetchAllOptions(suggester, options)
-        : searchSuggestions,
-    });
+    let suggestions = [];
+    if (fieldClickedWithOptionSelected) {
+      suggestions = await this.fetchAllOptions();
+    } else {
+      const trimmedValue = value.trim();
+      suggestions = await this.fetchAllOptions(trimmedValue);
+      const isValueInOptions = suggestions.some(
+        suggest => suggest.label.toLowerCase() === trimmedValue.toLowerCase(),
+      );
+      if (allowCreatingCustomValue && trimmedValue && !isValueInOptions) {
+        suggestions.push({ label: trimmedValue, value: trimmedValue, isCustomizedOption: true });
+      }
+    }
+    this.setState({ suggestions });
   };
 
-  attemptAutoFill = async (overrides = { suggestions: null }) => {
-    const { suggester, options, autofill, name } = this.props;
+  attemptAutoFill = async () => {
+    const { autofill, name } = this.props;
     if (!autofill) {
       return false;
     }
-    const suggestions =
-      overrides.suggestions || suggester
-        ? await suggester.fetchSuggestions('')
-        : options.filter(x => x.label.toLowerCase().includes(''));
+    const suggestions = await this.fetchAllOptions();
     if (suggestions.length !== 1) {
       return false;
     }
@@ -209,10 +242,7 @@ export class AutocompleteInput extends Component {
     if (typeof newValue !== 'undefined') {
       this.setState(prevState => {
         const newSuggestion = prevState.suggestions.find(suggest => suggest.label === newValue);
-        if (!newSuggestion) {
-          return { selectedOption: { value: newValue, tag: null } };
-        }
-        return { selectedOption: { value: newSuggestion.label, tag: newSuggestion.tag } };
+        return { selectedOption: { value: newValue, tag: newSuggestion?.tag ?? null } };
       });
     }
   };
@@ -235,10 +265,23 @@ export class AutocompleteInput extends Component {
   };
 
   renderSuggestion = (suggestion, { isHighlighted }) => {
-    const { tag } = suggestion;
+    const { tag, isCustomizedOption } = suggestion;
     return (
       <Item selected={isHighlighted} component="div">
-        <Typography variant="body2">{suggestion.label}</Typography>
+        <Typography variant="body2">
+          {isCustomizedOption ? (
+            <>
+              &quot;{suggestion.label}&quot; (
+              <TranslatedText
+                stringId="general.autocompleteField.itemNotInList"
+                fallback="item not in list"
+              />
+              )
+            </>
+          ) : (
+            suggestion.label
+          )}
+        </Typography>
         {tag && (
           <OptionTag $background={tag.background} $color={tag.color}>
             {tag.label}
@@ -250,13 +293,21 @@ export class AutocompleteInput extends Component {
 
   renderContainer = option => {
     const { size = 'medium' } = this.props;
+    const { suggestions } = this.state;
+    const hasCustomizeItem = suggestions[suggestions.length - 1]?.isCustomizedOption;
+
     return (
       <SuggestionsContainer
         anchorEl={this.anchorEl}
         open={!!option.children}
         placement="bottom-start"
       >
-        <SuggestionsList {...option.containerProps} size={size}>
+        <SuggestionsList
+          {...option.containerProps}
+          size={size}
+          $onlyOneItem={suggestions.length === 1}
+          $hasCustomizeItem={hasCustomizeItem}
+        >
           {option.children}
         </SuggestionsList>
       </SuggestionsContainer>
@@ -398,6 +449,7 @@ AutocompleteInput.propTypes = {
     }),
   ),
   autofill: PropTypes.bool,
+  allowCreatingCustomValue: PropTypes.bool,
 };
 
 AutocompleteInput.defaultProps = {
@@ -412,6 +464,7 @@ AutocompleteInput.defaultProps = {
   options: [],
   suggester: null,
   autofill: false,
+  allowCreatingCustomValue: false,
 };
 
 export const AutocompleteField = ({ field, ...props }) => (

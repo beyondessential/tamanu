@@ -7,6 +7,7 @@ import {
   BIRTH_TYPES,
   PATIENT_REGISTRY_TYPES,
   PLACE_OF_BIRTH_TYPES,
+  SEX_VALUES,
 } from '@tamanu/constants';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { yupAttemptTransformToNumber } from '../utils';
@@ -49,7 +50,6 @@ const requiredBirthFieldWhenConfiguredMandatory = (
 
 export const getPatientDetailsValidation = (
   patientRegistryType,
-  sexValues,
   getLocalisation,
   getTranslation,
 ) => {
@@ -105,7 +105,11 @@ export const getPatientDetailsValidation = (
       ),
     sex: yup
       .string()
-      .oneOf(sexValues)
+      .oneOf(
+        Object.values(SEX_VALUES).filter(value =>
+          getLocalisation('features.hideOtherSex') === true ? value !== SEX_VALUES.OTHER : true,
+        ),
+      )
       .required()
       .translatedLabel(
         <TranslatedText stringId="general.localisedField.sex.label" fallback="Sex" />,
