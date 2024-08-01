@@ -26,7 +26,7 @@ const StyledFormControl = styled(FormControl)`
 const StyledSelect = styled(props => <Select classNamePrefix="react-select" {...props} />)`
   .react-select__control {
     padding-right: 8px;
-    min-height: ${props => props.$minHeight || '44px'};
+    min-height: 44px;
     ${props => (props.$borderColor ? `border: 1px solid ${props.$borderColor};` : '')}
     &:hover {
       border: 1px solid ${Colors.primary};

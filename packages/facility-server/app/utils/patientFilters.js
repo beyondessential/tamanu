@@ -59,16 +59,12 @@ export const createPatientFilters = filterParams => {
     makeFilter(filterParams.outpatient, `encounters.encounter_type = 'clinic'`),
     makeFilter(filterParams.clinicianId, `encounters.examiner_id = :clinicianId`),
     makeFilter(
-      filterParams.dietIds,
-      `:dietIds = '[]'
-      OR NOT EXISTS (
-        SELECT 1
-        FROM jsonb_array_elements_text(:dietIds::jsonb) diet_id
-        WHERE diet_id NOT IN (
-          SELECT elem->>'id'
-          FROM jsonb_array_elements(diets.diets) elem
-        )
-      )`,
+      filterParams.dietId,
+      `EXISTS (
+    SELECT 1
+    FROM jsonb_array_elements(diets.diets) elem
+    WHERE elem->>'id' = :dietId
+)`,
     ),
     makeFilter(filterParams.sex, `patients.sex = :sex`),
     makeFilter(
