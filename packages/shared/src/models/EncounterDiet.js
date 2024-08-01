@@ -26,10 +26,6 @@ export class EncounterDiet extends Model {
     });
   }
 
-  static getListReferenceAssociations() {
-    return ['diet'];
-  }
-
   static buildPatientSyncFilter(patientCount, markedForSyncPatientsTable) {
     if (patientCount === 0) {
       return null;

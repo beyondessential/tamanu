@@ -79,10 +79,7 @@ export class Encounter extends Model {
         include: ['facility', 'locationGroup'],
       },
       'referralSource',
-      {
-        association: 'diets',
-        include: ['diet'],
-      },
+      'diets'
     ];
   }
 
@@ -200,10 +197,11 @@ export class Encounter extends Model {
       foreignKey: 'referralSourceId',
       as: 'referralSource',
     });
-
-    this.hasMany(models.EncounterDiet, {
-      foreignKey: 'encounterId',
+    
+    this.belongsToMany(models.ReferenceData, {
+      through: models.EncounterDiet,
       as: 'diets',
+      foreignKey: 'encounterId',
     });
 
     this.hasMany(models.Note, {
