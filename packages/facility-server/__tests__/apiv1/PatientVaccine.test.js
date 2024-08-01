@@ -20,6 +20,7 @@ import {
 import { fake } from '@tamanu/shared/test-helpers/fake';
 import { createTestContext } from '../utilities';
 import { toDateString } from '@tamanu/shared/utils/dateTime';
+import { selectFacilityIds } from '@tamanu/shared/utils/configSelectors';
 import { subDays } from 'date-fns';
 
 describe('PatientVaccine', () => {
@@ -72,10 +73,11 @@ describe('PatientVaccine', () => {
     models = ctx.models;
     app = await baseApp.asRole('practitioner');
     clinician = await models.User.create(fake(models.User));
+    const [facilityId] = selectFacilityIds(config);
     [facility] = await models.Facility.upsert({
-      id: config.serverFacilityId,
-      name: config.serverFacilityId,
-      code: config.serverFacilityId,
+      id: facilityId,
+      name: facilityId,
+      code: facilityId,
     });
     patient = await models.Patient.create(await createDummyPatient(models));
 

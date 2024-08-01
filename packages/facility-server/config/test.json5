@@ -34,7 +34,7 @@
       }
     }
   },
-  "serverFacilityId": "balwyn",
+  "serverFacilityIds": ["balwyn"],
   "sync": {
     "backoff": {
       "maxAttempts": 1,

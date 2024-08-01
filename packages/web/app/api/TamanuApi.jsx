@@ -10,7 +10,7 @@ import { TranslatedText } from '../components/Translation/TranslatedText';
 const {
   TOKEN,
   LOCALISATION,
-  SERVER_TYPE,
+  SERVER,
   AVAILABLE_FACILITIES,
   FACILITY_ID,
   PERMISSIONS,
@@ -29,10 +29,10 @@ function safeGetStoredJSON(key) {
 
 function restoreFromLocalStorage() {
   const token = localStorage.getItem(TOKEN);
+  const facilityId = localStorage.getItem(FACILITY_ID);
   const localisation = safeGetStoredJSON(LOCALISATION);
-  const serverType = safeGetStoredJSON(SERVER_TYPE);
+  const server = safeGetStoredJSON(SERVER);
   const availableFacilities = safeGetStoredJSON(AVAILABLE_FACILITIES);
-  const facilityId = safeGetStoredJSON(FACILITY_ID);
   const permissions = safeGetStoredJSON(PERMISSIONS);
   const role = safeGetStoredJSON(ROLE);
   const settings = safeGetStoredJSON(SETTINGS);
@@ -40,7 +40,7 @@ function restoreFromLocalStorage() {
   return {
     token,
     localisation,
-    serverType,
+    server,
     availableFacilities,
     facilityId,
     permissions,
@@ -52,7 +52,7 @@ function restoreFromLocalStorage() {
 function saveToLocalStorage({
   token,
   localisation,
-  serverType,
+  server,
   availableFacilities,
   facilityId,
   permissions,
@@ -62,20 +62,20 @@ function saveToLocalStorage({
   if (token) {
     localStorage.setItem(TOKEN, token);
   }
+  if (facilityId) {
+    localStorage.setItem(FACILITY_ID, facilityId);
+  }
+  if (server) {
+    localStorage.setItem(SERVER, JSON.stringify(server));
+  }
   if (localisation) {
     localStorage.setItem(LOCALISATION, JSON.stringify(localisation));
-  }
-  if (serverType) {
-    localStorage.setItem(SERVER_TYPE, JSON.stringify(serverType));
   }
   if (permissions) {
     localStorage.setItem(PERMISSIONS, JSON.stringify(permissions));
   }
   if (availableFacilities) {
     localStorage.setItem(AVAILABLE_FACILITIES, JSON.stringify(availableFacilities));
-  }
-  if (facilityId) {
-    localStorage.setItem(FACILITY_ID, JSON.stringify(facilityId));
   }
   if (role) {
     localStorage.setItem(ROLE, JSON.stringify(role));
@@ -88,7 +88,7 @@ function saveToLocalStorage({
 function clearLocalStorage() {
   localStorage.removeItem(TOKEN);
   localStorage.removeItem(LOCALISATION);
-  localStorage.removeItem(SERVER_TYPE);
+  localStorage.removeItem(SERVER);
   localStorage.removeItem(AVAILABLE_FACILITIES);
   localStorage.removeItem(FACILITY_ID);
   localStorage.removeItem(PERMISSIONS);
@@ -137,7 +137,7 @@ export class TamanuApi extends ApiClient {
     const {
       token,
       localisation,
-      serverType,
+      server,
       availableFacilities,
       facilityId,
       permissions,
@@ -156,7 +156,7 @@ export class TamanuApi extends ApiClient {
       user,
       token,
       localisation,
-      serverType,
+      server,
       availableFacilities,
       facilityId,
       ability,
@@ -170,7 +170,7 @@ export class TamanuApi extends ApiClient {
     const {
       token,
       localisation,
-      serverType,
+      server,
       availableFacilities,
       permissions,
       role,
@@ -179,7 +179,7 @@ export class TamanuApi extends ApiClient {
     saveToLocalStorage({
       token,
       localisation,
-      serverType,
+      server,
       availableFacilities,
       permissions,
       role,

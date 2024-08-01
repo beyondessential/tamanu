@@ -88,3 +88,13 @@ adminRoutes.delete(
     res.status(204).send();
   }),
 );
+
+adminRoutes.get(
+  '/facilities',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('list', 'Facility');
+    const { Facility } = req.store.models;
+    const data = await Facility.findAll({ attributes: ['id', 'name'] });
+    res.send(data);
+  }),
+);

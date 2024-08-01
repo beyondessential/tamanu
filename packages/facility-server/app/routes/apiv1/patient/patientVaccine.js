@@ -11,6 +11,7 @@ import {
 } from '@tamanu/constants';
 import { NotFoundError } from '@tamanu/shared/errors';
 import { getCurrentDateString } from '@tamanu/shared/utils/dateTime';
+import config from 'config';
 
 export const patientVaccineRoutes = express.Router();
 

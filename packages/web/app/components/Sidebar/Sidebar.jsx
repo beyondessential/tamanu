@@ -194,6 +194,9 @@ export const Sidebar = React.memo(({ items }) => {
   const { data: facility, isLoading: isFacilityLoading } = useQuery(
     ['facility', facilityId],
     async () => await api.get(`facility/${encodeURIComponent(facilityId)}`),
+    {
+      enabled: !!facilityId,
+    },
   );
 
   const connectionName = useMemo(() => {
