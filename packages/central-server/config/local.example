@@ -1,10 +1,12 @@
 {
   "db": {
-    "name": "",
+    "host": "central-db",
+    "port": "5432",
+    "name": "postgres",
     "verbose": false,
-    "username": "",
-    "password": "",
-    "migrateOnStartup": true
+    "username": "postgres",
+    "password": "postgres",
+    "migrateOnStartup": true,
   },
   "countryTimeZone": "Australia/Sydney",
   "localisation": {

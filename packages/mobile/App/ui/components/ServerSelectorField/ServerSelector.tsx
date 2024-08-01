@@ -31,10 +31,20 @@ const fetchServers = async (): Promise<SelectOption[]> => {
   const response = await fetch(`${metaServer}/servers`);
   const servers: Server[] = await response.json();
 
-  return servers.map(s => ({
+  const options = servers.map(s => ({
     label: s.name,
     value: s.host,
   }));
+
+  if (__DEV__) {
+    // If dev mode, add a local server option using special alias to localhost
+    options.unshift({
+      label: 'Local central server (port 3000)',
+      value: 'http://10.0.2.2:3000',
+    });
+  }
+
+  return options;
 };
 
 export const ServerSelector = ({ onChange, label, value, error }): ReactElement => {

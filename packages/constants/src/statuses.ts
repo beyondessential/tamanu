@@ -69,6 +69,12 @@ export const REFERRAL_STATUSES = {
   COMPLETED: 'completed',
 };
 
+export const REFERRAL_STATUS_LABELS = {
+  [REFERRAL_STATUSES.PENDING]: 'Pending',
+  [REFERRAL_STATUSES.CANCELLED]: 'Cancelled',
+  [REFERRAL_STATUSES.COMPLETED]: 'Completed',
+};
+
 export const COMMUNICATION_STATUSES = {
   QUEUED: 'Queued',
   PROCESSED: 'Processed',
