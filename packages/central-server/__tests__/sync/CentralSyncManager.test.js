@@ -293,12 +293,6 @@ describe('CentralSyncManager', () => {
           ...(await createDummyEncounter(models)),
           patientId: patient1.id,
         });
-        // ~ ~ ~ Set up data for marked for sync patients
-        await models.PatientFacility.create({
-          id: models.PatientFacility.generateId(),
-          patientId: patient1.id,
-          facilityId: facility.id,
-        });
 
         await models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, NEW_SYNC_TICK);
 
@@ -417,7 +411,7 @@ describe('CentralSyncManager', () => {
           sessionId,
           {
             since: 1,
-            facilityId: facility.id,
+            facilityIds: [facility.id],
             isMobile: true,
           },
           () => true,
@@ -490,7 +484,7 @@ describe('CentralSyncManager', () => {
           sessionId,
           {
             since: 1,
-            facilityId: facility.id,
+            facilityIds: [facility.id],
             isMobile: true,
           },
           () => true,
@@ -544,7 +538,7 @@ describe('CentralSyncManager', () => {
           sessionIdOne,
           {
             since: 1,
-            facilityId: facility.id,
+            facilityIds: [facility.id],
             isMobile: true,
           },
           () => true,
@@ -610,6 +604,7 @@ describe('CentralSyncManager', () => {
     describe('handles sync special case configurations', () => {
       describe('syncAllLabRequests', () => {
         let facility;
+        let otherFacility;
         let encounter1;
         let encounter2;
         let labTestPanelRequest1;
@@ -635,14 +630,23 @@ describe('CentralSyncManager', () => {
 
           // Create the lab requests to be tested
           facility = await models.Facility.create(fake(models.Facility));
+          otherFacility = await models.Facility.create(fake(models.Facility));
           await models.User.create(fakeUser());
-          await models.Department.create({
+          const department1 = await models.Department.create({
             ...fake(models.Department),
             facilityId: facility.id,
           });
-          await models.Location.create({
+          const department2 = await models.Department.create({
+            ...fake(models.Department),
+            facilityId: otherFacility.id,
+          });
+          const location1 = await models.Location.create({
             ...fake(models.Location),
             facilityId: facility.id,
+          });
+          const location2 = await models.Location.create({
+            ...fake(models.Location),
+            facilityId: otherFacility.id,
           });
           const patient1 = await models.Patient.create({
             ...fake(models.Patient),
@@ -653,10 +657,14 @@ describe('CentralSyncManager', () => {
           encounter1 = await models.Encounter.create({
             ...(await createDummyEncounter(models)),
             patientId: patient1.id,
+            locationId: location2.id,
+            departmentId: department2.id,
           });
           encounter2 = await models.Encounter.create({
             ...(await createDummyEncounter(models)),
             patientId: patient2.id,
+            locationId: location2.id,
+            departmentId: department2.id,
           });
           const category = await models.ReferenceData.create({
             id: 'test1',
@@ -710,6 +718,8 @@ describe('CentralSyncManager', () => {
           fullSyncedPatientEncounter = await models.Encounter.create({
             ...(await createDummyEncounter(models)),
             patientId: fullSyncedPatient.id,
+            locationId: location1.id,
+            departmentId: department1.id,
           });
           const fullSyncedPatientLabRequestData = await randomLabRequest(models, {
             patientId: fullSyncedPatientEncounter.id,
@@ -729,11 +739,6 @@ describe('CentralSyncManager', () => {
           fullSyncedPatientLabRequestTests = await Promise.all(
             fullSyncedPatientLabRequestTestsData.map(lt => models.LabTest.create(lt)),
           );
-          await models.PatientFacility.create({
-            id: models.PatientFacility.generateId(),
-            patientId: fullSyncedPatient.id,
-            facilityId: facility.id,
-          });
         });
 
         it('syncs all lab requests when enabled', async () => {
@@ -828,6 +833,7 @@ describe('CentralSyncManager', () => {
 
       describe('syncAllEncountersForTheseVaccines', () => {
         let facility;
+        let otherFacility;
         let encounter1;
         let encounter2;
         let fullSyncedPatient;
@@ -846,6 +852,7 @@ describe('CentralSyncManager', () => {
           await models.AdministeredVaccine.truncate({ cascade: true, force: true });
 
           facility = await models.Facility.create(fake(models.Facility));
+          otherFacility = await models.Facility.create(fake(models.Facility));
           const [vaccineOne, vaccineTwo, vaccineThree] = await Promise.all([
             models.ReferenceData.create({
               ...fakeReferenceData(),
@@ -874,27 +881,35 @@ describe('CentralSyncManager', () => {
             ...fake(models.Patient),
           });
           const { id: examinerId } = await models.User.create(fakeUser());
-          const { id: departmentId } = await models.Department.create({
+          const { id: departmentId1 } = await models.Department.create({
             ...fake(models.Department),
             facilityId: facility.id,
           });
-          const { id: locationId } = await models.Location.create({
+          const { id: departmentId2 } = await models.Department.create({
+            ...fake(models.Department),
+            facilityId: otherFacility.id,
+          });
+          const { id: locationId1 } = await models.Location.create({
             ...fake(models.Location),
             facilityId: facility.id,
+          });
+          const { id: locationId2 } = await models.Location.create({
+            ...fake(models.Location),
+            facilityId: otherFacility.id,
           });
 
           encounter1 = await models.Encounter.create({
             ...fake(models.Encounter),
-            departmentId,
-            locationId,
+            departmentId: departmentId2,
+            locationId: locationId2,
             patientId,
             examinerId,
             endDate: null,
           });
           encounter2 = await models.Encounter.create({
             ...fake(models.Encounter),
-            departmentId,
-            locationId,
+            departmentId: departmentId2,
+            locationId: locationId2,
             patientId,
             examinerId,
             endDate: null,
@@ -902,6 +917,8 @@ describe('CentralSyncManager', () => {
           const fullSyncedPatientEncounter = await models.Encounter.create({
             ...(await createDummyEncounter(models)),
             patientId: fullSyncedPatient.id,
+            departmentId: departmentId1,
+            locationId: locationId1,
           });
           const [scheduleOne, scheduleTwo, scheduleThree] = await Promise.all([
             models.ScheduledVaccine.create({
@@ -992,12 +1009,6 @@ describe('CentralSyncManager', () => {
 
           const centralSyncManager = new TestCentralSyncManager(ctx);
 
-          await models.PatientFacility.create({
-            id: models.PatientFacility.generateId(),
-            patientId: fullSyncedPatient.id,
-            facilityId: facility.id,
-          });
-
           const { sessionId } = await centralSyncManager.startSession();
           await waitForSession(centralSyncManager, sessionId);
 
@@ -1068,7 +1079,7 @@ describe('CentralSyncManager', () => {
           sessionId,
           {
             since: 2,
-            facilityId: facility.id,
+            facilityIds: [facility.id],
           },
           () => true,
         );
