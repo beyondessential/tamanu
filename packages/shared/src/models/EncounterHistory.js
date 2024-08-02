@@ -58,17 +58,20 @@ export class EncounterHistory extends Model {
     });
   }
 
-  static async createSnapshot(encounter, { actorId, changeType, submittedTime }) {
-    return EncounterHistory.create({
-      encounterId: encounter.id,
-      encounterType: encounter.encounterType,
-      locationId: encounter.locationId,
-      departmentId: encounter.departmentId,
-      examinerId: encounter.examinerId,
-      actorId,
-      changeType,
-      date: submittedTime || getCurrentDateTimeString(),
-    });
+  static async createSnapshot(encounter, { actorId, changeType, submittedTime }, options = {}) {
+    return EncounterHistory.create(
+      {
+        encounterId: encounter.id,
+        encounterType: encounter.encounterType,
+        locationId: encounter.locationId,
+        departmentId: encounter.departmentId,
+        examinerId: encounter.examinerId,
+        actorId,
+        changeType,
+        date: submittedTime || getCurrentDateTimeString(),
+      },
+      options,
+    );
   }
 
   static buildPatientSyncFilter(patientCount, markedForSyncPatientsTable) {

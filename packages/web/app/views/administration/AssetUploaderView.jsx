@@ -2,7 +2,7 @@ import React, { memo, useCallback, useState } from 'react';
 import * as yup from 'yup';
 import { ASSET_NAMES } from '@tamanu/constants/importable';
 import { useApi } from '../../api';
-import { Field, Form, SelectField } from '../../components/Field';
+import { Field, Form, TranslatedSelectField } from '../../components/Field';
 import { FileChooserField, FILTER_IMAGES } from '../../components/Field/FileChooserField';
 import { ContentPane } from '../../components/ContentPane';
 import { FormGrid } from '../../components/FormGrid';
@@ -29,8 +29,6 @@ const ResultDisplay = ({ result }) => {
 export const AssetUploaderView = memo(() => {
   const [resetKey, setResetKey] = useState(Math.random());
   const [result, setResult] = useState(null);
-
-  const nameOptions = Object.values(ASSET_NAMES).map(v => ({ label: v, value: v }));
 
   const api = useApi();
 
@@ -92,12 +90,11 @@ export const AssetUploaderView = memo(() => {
           <ContentPane>
             <FormGrid columns={1}>
               <Field
-                component={SelectField}
-                options={nameOptions}
+                component={TranslatedSelectField}
+                enumValues={ASSET_NAMES}
                 label={<TranslatedText stringId="asset.name.label" fallback="Select asset" />}
                 name="name"
                 required
-                prefix="asset.property.type"
               />
               <Field
                 component={FileChooserField}

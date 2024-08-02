@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import Divider from '@material-ui/core/Divider';
 import { CheckCircleRounded } from '@material-ui/icons';
 
-import { VACCINE_CATEGORIES, INJECTION_SITE_OPTIONS } from '@tamanu/constants';
+import { VACCINE_CATEGORIES, INJECTION_SITE_LABELS } from '@tamanu/constants';
 
 import { OuterLabelFieldWrapper } from './Field/OuterLabelFieldWrapper';
 import {
@@ -16,6 +16,7 @@ import {
   SelectField,
   TextField,
   BaseSelectField,
+  TranslatedSelectField,
 } from './Field';
 import { FormSubmitCancelRow } from './ButtonRow';
 import { useSuggester } from '../api';
@@ -82,7 +83,6 @@ export const VaccineLabelField = ({ vaccineOptions, setVaccineLabel }) => (
     options={vaccineOptions}
     onChange={e => setVaccineLabel(e.target.value)}
     required
-    prefix="vaccine.property.name"
   />
 );
 
@@ -110,9 +110,8 @@ export const InjectionSiteField = () => (
   <Field
     name="injectionSite"
     label={<TranslatedText stringId="vaccine.injectionSite.label" fallback="Injection site" />}
-    component={SelectField}
-    options={INJECTION_SITE_OPTIONS}
-    prefix="vaccine.property.injectionSite"
+    component={TranslatedSelectField}
+    enumValues={INJECTION_SITE_LABELS}
   />
 );
 

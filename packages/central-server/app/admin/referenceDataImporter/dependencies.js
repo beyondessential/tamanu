@@ -49,10 +49,7 @@ export default {
     loader: labTestPanelLoader,
     needs: ['labTestType'],
   },
-  invoicePriceChangeType: {},
-  invoiceLineType: {
-    needs: ['labTestType'],
-  },
+  invoiceProduct: {},
 
   role: {},
   permission: {

@@ -203,7 +203,6 @@ export const VaccineForm = ({
 
   return (
     <Form
-      enableReinitialize
       onSubmit={async data => onSubmit({ ...data, category })}
       showInlineErrorsOnly
       initialValues={initialValues}

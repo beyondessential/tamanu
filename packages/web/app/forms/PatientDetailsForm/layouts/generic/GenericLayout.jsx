@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { PATIENT_REGISTRY_TYPES, SETTING_KEYS } from '@tamanu/constants';
+import { PATIENT_REGISTRY_TYPES, SETTING_KEYS, SEX_LABELS, SEX_VALUES } from '@tamanu/constants';
 import { getCurrentDateString } from '@tamanu/shared/utils/dateTime';
 
 import {
@@ -8,8 +8,8 @@ import {
   TextField,
   DateField,
   AutocompleteField,
-  RadioField,
   FormGrid,
+  TranslatedRadioField,
 } from '../../../../components';
 import {
   PatientDetailsHeading,
@@ -26,17 +26,19 @@ import { PatientFieldsGroup } from '../../PatientFields';
 import { TranslatedText } from '../../../../components/Translation/TranslatedText';
 import { ReminderContactSection } from '../../../../components/ReminderContact/ReminderContactSection';
 import { useSettings } from '../../../../contexts/Settings';
+import { useLocalisation } from '../../../../contexts/Localisation';
 
 export const GenericPrimaryDetailsLayout = ({
   patientRegistryType,
   registeredBirthPlace,
-  sexOptions,
   isRequiredPatientData,
   isDetailsForm = false,
 }) => {
+  const { getLocalisation } = useLocalisation();
   const { getSetting } = useSettings();
   const isReminderContactEnabled = getSetting(SETTING_KEYS.FEATURES_REMINDER_CONTACT_ENABLED);
   const villageSuggester = useSuggester('village');
+  const hideOtherSex = getLocalisation('features.hideOtherSex') === true;
 
   return (
     <>
@@ -114,8 +116,11 @@ export const GenericPrimaryDetailsLayout = ({
         <LocalisedField
           name="sex"
           label={<TranslatedText stringId="general.localisedField.sex.label" fallback="Sex" />}
-          component={RadioField}
-          options={sexOptions}
+          component={TranslatedRadioField}
+          enumValues={SEX_LABELS}
+          transformOptions={options =>
+            hideOtherSex ? options.filter(o => o.value !== SEX_VALUES.OTHER) : options
+          }
           required
         />
         <LocalisedField

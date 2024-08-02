@@ -7,7 +7,7 @@ import { Colors } from '../../constants';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
 import { getDisplayAge } from '../../utils/dateTime';
 import { useLocalisation } from '../../contexts/Localisation';
-import { TranslatedText } from '../Translation/TranslatedText';
+import { TranslatedSex, TranslatedText } from '../Translation';
 
 const PatientButton = styled(Button)`
   display: block;
@@ -158,7 +158,7 @@ export const CoreInfoDisplay = memo(({ patient }) => {
           label={<TranslatedText stringId="general.localisedField.sex.label" fallback="Sex" />}
           testId="core-info-patient-sex"
         >
-          {patient.sex}
+          <TranslatedSex sex={patient.sex} />
         </CoreInfoCell>
         <CoreInfoCell
           label={

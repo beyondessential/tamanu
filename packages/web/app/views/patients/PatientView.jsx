@@ -28,6 +28,7 @@ import { TranslatedText } from '../../components/Translation/TranslatedText';
 import { invalidatePatientDataQueries } from '../../utils';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
 import { useSyncState } from '../../contexts/SyncState';
+import { useAuth } from '../../contexts/Auth';
 
 const StyledDisplayTabs = styled(TabDisplay)`
   overflow: initial;
@@ -95,6 +96,7 @@ const TABS = [
     key: PATIENT_TABS.INVOICES,
     icon: 'fa fa-cash-register',
     render: props => <InvoicesPane {...props} />,
+    condition: ability => ability.can('list', 'Invoice'),
   },
 ];
 
@@ -105,10 +107,13 @@ const tabCompare = ({ firstTab, secondTab, patientTabLocalisation }) => {
 };
 
 const usePatientTabs = () => {
+  const { ability } = useAuth();
   const { getLocalisation } = useLocalisation();
   const patientTabLocalisation = getLocalisation('layouts.patientTabs');
   return TABS.filter(
-    tab => patientTabLocalisation?.[tab.key]?.hidden === false,
+    tab =>
+      patientTabLocalisation?.[tab.key]?.hidden === false &&
+      (!tab.condition || tab.condition(ability)),
   ).sort((firstTab, secondTab) => tabCompare({ firstTab, secondTab, patientTabLocalisation }));
 };
 

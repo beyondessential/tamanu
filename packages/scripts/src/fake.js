@@ -35,12 +35,23 @@ async function generateData(models) {
     PatientProgramRegistrationCondition,
     PatientAllergy,
     PatientCommunication,
+    PatientAdditionalData,
     PatientDeathData,
     CertificateNotification,
     LabTest,
     LabTestType,
     ScheduledVaccine,
     AdministeredVaccine,
+    EncounterDiagnosis,
+    Invoice,
+    InvoiceDiscount,
+    InvoiceInsurer,
+    InvoicePayment,
+    InvoiceInsurerPayment,
+    InvoicePatientPayment,
+    InvoiceItem,
+    InvoiceItemDiscount,
+    InvoiceProduct,
   } = models;
 
   const examiner = await User.create(fake(User));
@@ -174,6 +185,12 @@ async function generateData(models) {
     }),
   );
 
+  await PatientAdditionalData.create(
+    fake(PatientAdditionalData, {
+      patientId: patient.id,
+    }),
+  );
+
   await PatientDeathData.create(
     fake(PatientDeathData, {
       patientId: patient.id,
@@ -219,6 +236,64 @@ async function generateData(models) {
     fake(AdministeredVaccine, {
       scheduledVaccineId: scheduledVaccine.id,
       encounterId: encounter.id,
+    }),
+  );
+
+  await EncounterDiagnosis.create(
+    fake(EncounterDiagnosis, {
+      diagnosisId: referenceData.id,
+      encounterId: encounter.id,
+    }),
+  );
+  const invoice = await Invoice.create(
+    fake(Invoice, {
+      encounterId: encounter.id,
+    }),
+  );
+  await InvoiceDiscount.create(
+    fake(InvoiceDiscount, {
+      invoiceId: invoice.id,
+      appliedByUserId: examiner.id,
+    }),
+  );
+  await InvoiceInsurer.create(
+    fake(InvoiceInsurer, {
+      invoiceId: invoice.id,
+      insurerId: referenceData.id,
+    }),
+  );
+  const invoicePayment = await InvoicePayment.create(
+    fake(InvoicePayment, {
+      invoiceId: invoice.id,
+    }),
+  );
+  await InvoiceInsurerPayment.create(
+    fake(InvoiceInsurerPayment, {
+      invoicePaymentId: invoicePayment.id,
+      insurerId: referenceData.id,
+    }),
+  );
+  await InvoicePatientPayment.create(
+    fake(InvoicePatientPayment, {
+      invoicePaymentId: invoicePayment.id,
+      methodId: referenceData.id,
+    }),
+  );
+  const invoiceProduct = await InvoiceProduct.create(
+    fake(InvoiceProduct, {
+      id: referenceData.id,
+    }),
+  );
+  const invoiceItem = await InvoiceItem.create(
+    fake(InvoiceItem, {
+      invoiceId: invoice.id,
+      productId: invoiceProduct.id,
+      orderedByUserId: examiner.id,
+    }),
+  );
+  await InvoiceItemDiscount.create(
+    fake(InvoiceItemDiscount, {
+      invoiceItemId: invoiceItem.id,
     }),
   );
 }

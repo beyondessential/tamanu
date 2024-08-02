@@ -1,7 +1,6 @@
 import { getManager } from 'typeorm';
 
-import { MODELS_MAP } from '../../../models/modelsMap';
-import { BaseModel } from '../../../models/BaseModel';
+import { MODELS_MAP, ArrayOfModels } from '../../../models/modelsMap';
 
 type DependencyMap = {
   [tableName: string]: string[];
@@ -16,7 +15,7 @@ type DependencyMap = {
  * }
  * @returns
  */
-const getDependencyMap = async (models: typeof MODELS_MAP): Promise<DependencyMap> => {
+const getDependencyMap = async (models: Partial<typeof MODELS_MAP>): Promise<DependencyMap> => {
   const entityManager = getManager();
   const dependencyMap = {};
   const tableNameToModelName = getTableNameToModelName(models);
@@ -45,7 +44,7 @@ const getDependencyMap = async (models: typeof MODELS_MAP): Promise<DependencyMa
  * @param models
  * @returns
  */
-const getTableNameToModelName = (models: typeof MODELS_MAP): { [key: string]: string } => {
+const getTableNameToModelName = (models: Partial<typeof MODELS_MAP>): { [key: string]: string } => {
   const tableNameToModelName = {};
 
   Object.values(models).forEach(model => {
@@ -64,8 +63,8 @@ const getTableNameToModelName = (models: typeof MODELS_MAP): { [key: string]: st
  * @returns
  */
 export const sortInDependencyOrder = async (
-  models: typeof MODELS_MAP,
-): Promise<typeof BaseModel[]> => {
+  models: Partial<typeof MODELS_MAP>,
+): Promise<ArrayOfModels> => {
   const dependencyMap = await getDependencyMap(models);
   const sorted = [];
   const stillToSort = { ...models };

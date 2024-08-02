@@ -263,4 +263,9 @@ export const SYNC_MENU_ITEMS = [
     label: <TranslatedText stringId="adminSidebar.reports" fallback="Reports" />,
     path: '/admin/reports',
   },
+  {
+    key: 'Insurer payments',
+    label: <TranslatedText stringId="adminSidebar.insurerPayments" fallback="Insurer payments" />,
+    path: '/admin/insurerPayments',
+  },
 ];

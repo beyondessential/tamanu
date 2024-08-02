@@ -90,11 +90,11 @@ const vaccineCertificateStyles = StyleSheet.create({
 });
 
 const VaccineCertificateHeader = ({ patient }) => {
-  const valueStyles = useTextStyles(styles.valueText);
-  const labelStyles = useTextStyles(styles.labelText);
+  const valueStyles = useTextStyles(vaccineCertificateStyles.valueText);
+  const labelStyles = useTextStyles(vaccineCertificateStyles.labelText);
 
-  const ValueText = props => <BaseText styles={valueStyles} {...props} />;
-  const LabelText = props => <BaseText styles={labelStyles} {...props} />;
+  const ValueText = props => <BaseText style={valueStyles} {...props} />;
+  const LabelText = props => <BaseText style={labelStyles} {...props} />;
 
   const { getTranslation } = useLanguageContext();
   return (
@@ -119,7 +119,7 @@ const VaccineCertificateHeader = ({ patient }) => {
             <LabelText>
               {getTranslation('pdf.vaccineCertificate.patientId', 'Patient ID')}:{' '}
             </LabelText>
-            <BaseText>{patient.displayId}</BaseText>
+            <ValueText>{patient.displayId}</ValueText>
           </View>
         )
       }

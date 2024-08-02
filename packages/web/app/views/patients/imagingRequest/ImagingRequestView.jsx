@@ -6,10 +6,15 @@ import { useParams } from 'react-router-dom';
 import { pick } from 'lodash';
 import styled from 'styled-components';
 
-import { IMAGING_REQUEST_STATUS_TYPES, LAB_REQUEST_STATUS_CONFIG, NOTE_TYPES } from '@tamanu/constants';
+import {
+  IMAGING_REQUEST_STATUS_LABELS,
+  IMAGING_REQUEST_STATUS_TYPES,
+  LAB_REQUEST_STATUS_CONFIG,
+  NOTE_TYPES,
+} from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 
-import { FORM_TYPES, IMAGING_REQUEST_STATUS_OPTIONS } from '../../../constants';
+import { FORM_TYPES } from '../../../constants';
 import { ENCOUNTER_TAB_NAMES } from '../../../constants/encounterTabNames';
 
 import { useLocalisation } from '../../../contexts/Localisation';
@@ -26,9 +31,9 @@ import {
   DateTimeInput,
   Field,
   Form,
-  SelectField,
   TextField,
   TextInput,
+  TranslatedSelectField,
 } from '../../../components/Field';
 import { SimpleTopBar } from '../../../components';
 
@@ -45,13 +50,6 @@ const ImagingRequestSection = ({ currentStatus, imagingRequest }) => {
 
   const locationGroupSuggester = useSuggester('facilityLocationGroup');
   const isCancelled = imagingRequest.status === IMAGING_REQUEST_STATUS_TYPES.CANCELLED;
-  // Just needed for read only state
-  const cancelledOption = [
-    {
-      label: LAB_REQUEST_STATUS_CONFIG[IMAGING_REQUEST_STATUS_TYPES.CANCELLED].label,
-      value: IMAGING_REQUEST_STATUS_TYPES.CANCELLED,
-    },
-  ];
 
   const allowLocationChange = [
     IMAGING_REQUEST_STATUS_TYPES.IN_PROGRESS,
@@ -78,12 +76,28 @@ const ImagingRequestSection = ({ currentStatus, imagingRequest }) => {
       <Field
         name="status"
         label={<TranslatedText stringId="general.status.label" fallback="Status" />}
-        component={SelectField}
-        options={isCancelled ? cancelledOption : IMAGING_REQUEST_STATUS_OPTIONS}
+        component={TranslatedSelectField}
+        enumValues={IMAGING_REQUEST_STATUS_LABELS}
+        transformOptions={options => {
+          return isCancelled
+            ? [
+                {
+                  label: LAB_REQUEST_STATUS_CONFIG[IMAGING_REQUEST_STATUS_TYPES.CANCELLED].label,
+                  value: IMAGING_REQUEST_STATUS_TYPES.CANCELLED,
+                },
+              ]
+            : options.filter(
+                option =>
+                  ![
+                    IMAGING_REQUEST_STATUS_TYPES.DELETED,
+                    IMAGING_REQUEST_STATUS_TYPES.ENTERED_IN_ERROR,
+                    IMAGING_REQUEST_STATUS_TYPES.CANCELLED,
+                  ].includes(option.value),
+              );
+        }}
         disabled={isCancelled}
         isClearable={false}
         required
-        prefix="imaging.property.status"
       />
       <DateTimeInput
         value={imagingRequest.requestedDate}

@@ -7,7 +7,6 @@ import {
   CovidPatientsSearchBar,
   ImagingRequestsSearchBar,
   ImmunisationSearchBar,
-  InvoicesSearchBar,
   LabRequestsSearchBar,
   PatientSearchBar,
 } from '../app/components';
@@ -46,9 +45,6 @@ const ImmunisationTemplate = args => (
   <ImmunisationSearchBar onSearch={action('search')} {...args} />
 );
 export const Immunisation = ImmunisationTemplate.bind({});
-
-const InvoicesTemplate = args => <InvoicesSearchBar onSearch={action('search')} {...args} />;
-export const Invoices = InvoicesTemplate.bind({});
 
 const LabRequestsTemplate = args => <LabRequestsSearchBar onSearch={action('search')} {...args} />;
 export const LabRequests = LabRequestsTemplate.bind({});

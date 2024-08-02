@@ -1,12 +1,12 @@
 import React, { useCallback } from 'react';
 import * as yup from 'yup';
-import { APPOINTMENT_STATUSES } from '@tamanu/constants';
+import { APPOINTMENT_STATUSES, APPOINTMENT_TYPES } from '@tamanu/constants';
 import { FormGrid } from '../FormGrid';
-import { AutocompleteField, DateTimeField, Field, Form, SelectField } from '../Field';
+import { AutocompleteField, DateTimeField, Field, Form, TranslatedSelectField } from '../Field';
 import { FormSubmitCancelRow } from '../ButtonRow';
 import { FormSeparatorLine } from '../FormSeparatorLine';
 import { useApi, usePatientSuggester, useSuggester } from '../../api';
-import { APPOINTMENT_TYPE_OPTIONS, FORM_TYPES } from '../../constants';
+import { FORM_TYPES } from '../../constants';
 import { TranslatedText } from '../Translation/TranslatedText';
 
 export const AppointmentForm = props => {
@@ -101,10 +101,9 @@ export const AppointmentForm = props => {
                 <TranslatedText stringId="appointment.type.label" fallback="Appointment type" />
               }
               name="type"
-              component={SelectField}
-              options={APPOINTMENT_TYPE_OPTIONS}
+              component={TranslatedSelectField}
+              enumValues={APPOINTMENT_TYPES}
               required
-              prefix="appointment.property.type"
             />
           </FormGrid>
           <div style={{ marginTop: '1rem' }}>

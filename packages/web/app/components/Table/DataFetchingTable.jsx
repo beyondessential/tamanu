@@ -1,7 +1,6 @@
 import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { isEqual } from 'lodash';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
-
 import { useApi } from '../../api';
 import { useLocalisation } from '../../contexts/Localisation';
 
@@ -228,6 +227,7 @@ export const DataFetchingTable = memo(
           }
           setErrorMessage('');
           const { data, count } = await fetchData();
+          
           if (loadingDelay) clearTimeout(loadingDelay); // Clear the loading indicator timeout if data fetched before 1 second passes (stops flash from short loading time)
 
           const transformedData = transformData(data, count); // Transform the data before updating the table rows

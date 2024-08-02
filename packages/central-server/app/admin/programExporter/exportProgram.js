@@ -79,7 +79,7 @@ export async function exportProgram(context, programId) {
       );
 
       surveySheets.push({
-        name: survey.name.replace(`(${country}) `, ''),
+        name: survey.code,
         data: [
           [
             'code',

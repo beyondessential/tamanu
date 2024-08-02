@@ -20,6 +20,7 @@ export class InsufficientStorageError extends BaseError {}
 export class InvalidClientHeadersError extends BaseError {}
 export class InvalidConfigError extends BaseError {}
 export class FacilityAndSyncVersionIncompatibleError extends BaseError {}
+export class ValidationError extends BaseError {}
 
 export function getCodeForErrorName(name) {
   switch (name) {

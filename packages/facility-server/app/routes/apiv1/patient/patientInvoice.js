@@ -1,21 +1,10 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { Op } from 'sequelize';
-
-import { getCaseInsensitiveFilter, mapQueryFilters } from '../../../database/utils';
 
 export const patientInvoiceRoutes = express.Router();
 
-const COLUMNS_MAP = {
-  invoiceDisplayId: 'display_id',
-  receiptNumber: 'receipt_number',
-  status: 'status',
-  paymentStatus: 'payment_status',
-};
-
-const caseInsensitiveFilter = getCaseInsensitiveFilter(COLUMNS_MAP);
 const encounterOrderByKeys = ['encounterType'];
-const invoiceOrderByKeys = ['date', 'displayId', 'receiptNumber', 'total', 'status'];
+const invoiceOrderByKeys = ['date', 'displayId', 'status'];
 
 patientInvoiceRoutes.get(
   '/:id/invoices',
@@ -23,34 +12,12 @@ patientInvoiceRoutes.get(
     req.checkPermission('list', 'Invoice');
 
     const { models, params, query } = req;
-    const { order = 'ASC', orderBy, rowsPerPage = 10, page = 0, ...filterParams } = query;
+    const { order = 'ASC', orderBy, rowsPerPage = 10, page = 0 } = query;
     const patientId = params.id;
-    // Model filters for Sequelize 'where' clauses
-    const invoiceFilters = mapQueryFilters(filterParams, [
-      {
-        key: 'invoiceDisplayId',
-        operator: Op.startsWith,
-        mapFn: caseInsensitiveFilter,
-      },
-      {
-        key: 'receiptNumber',
-        operator: Op.startsWith,
-        mapFn: caseInsensitiveFilter,
-      },
-      {
-        key: 'status',
-        operator: Op.eq,
-        mapFn: caseInsensitiveFilter,
-      },
-      {
-        key: 'paymentStatus',
-        operator: Op.eq,
-        mapFn: caseInsensitiveFilter,
-      },
-    ]);
 
-    const { rows, count } = await models.Invoice.findAndCountAll({
+    const data = await models.Invoice.findAll({
       include: [
+        ...models.Invoice.getFullReferenceAssociations(),
         {
           model: models.Encounter,
           as: 'encounter',
@@ -61,7 +28,6 @@ patientInvoiceRoutes.get(
               : undefined,
         },
       ],
-      where: invoiceFilters,
       order:
         orderBy && invoiceOrderByKeys.includes(orderBy)
           ? [[orderBy, order.toUpperCase()]]
@@ -70,9 +36,19 @@ patientInvoiceRoutes.get(
       offset: page * rowsPerPage,
     });
 
+    const count = await models.Invoice.count({
+      include: [
+        {
+          model: models.Encounter,
+          as: 'encounter',
+          where: { patientId },
+        },
+      ],
+    });
+
     res.send({
       count,
-      data: rows,
+      data,
     });
   }),
 );

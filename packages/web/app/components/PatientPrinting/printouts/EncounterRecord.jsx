@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { Typography } from '@material-ui/core';
 import { startCase } from 'lodash';
 
-import { NOTE_TYPES, NOTE_TYPE_LABELS, DRUG_ROUTE_VALUE_TO_LABEL } from '@tamanu/constants';
+import { NOTE_TYPES, NOTE_TYPE_LABELS, DRUG_ROUTE_LABELS } from '@tamanu/constants';
 
 import { PrintLetterhead } from './reusable/PrintLetterhead';
 import { DateDisplay } from '../../DateDisplay';
@@ -140,16 +140,19 @@ const COLUMNS = {
     {
       key: 'diagnoses',
       title: 'Diagnoses',
-      accessor: ({ diagnosis }) => diagnosis && <>
-        <span>
-          <TranslatedReferenceData
-            fallback={diagnosis.name}
-            value={diagnosis.id}
-            category="icd10"
-          />
-        </span>
-        <span> {diagnosis.code}</span>
-      </>,
+      accessor: ({ diagnosis }) =>
+        diagnosis && (
+          <>
+            <span>
+              <TranslatedReferenceData
+                fallback={diagnosis.name}
+                value={diagnosis.id}
+                category="icd10"
+              />
+            </span>
+            <span> {diagnosis.code}</span>
+          </>
+        ),
       style: { width: '60%' },
     },
     {
@@ -170,16 +173,19 @@ const COLUMNS = {
     {
       key: 'procedure',
       title: 'Procedure',
-      accessor: ({ procedureType }) => procedureType && <>
-        <span>
-          <TranslatedReferenceData
-            fallback={procedureType.name}
-            value={procedureType.id}
-            category={procedureType.type}
-          />
-        </span>
-        <span> {procedureType.code}</span>
-      </>,
+      accessor: ({ procedureType }) =>
+        procedureType && (
+          <>
+            <span>
+              <TranslatedReferenceData
+                fallback={procedureType.name}
+                value={procedureType.id}
+                category={procedureType.type}
+              />
+            </span>
+            <span> {procedureType.code}</span>
+          </>
+        ),
       style: { width: '80%' },
     },
     {
@@ -257,8 +263,14 @@ const COLUMNS = {
     {
       key: 'medication',
       title: 'Medication',
-      accessor: ({ medication }) => medication 
-        && <TranslatedReferenceData fallback={medication.name} value={medication.id} category={medication.type} />,
+      accessor: ({ medication }) =>
+        medication && (
+          <TranslatedReferenceData
+            fallback={medication.name}
+            value={medication.id}
+            category={medication.type}
+          />
+        ),
       style: { width: '20%' },
     },
     {
@@ -270,7 +282,7 @@ const COLUMNS = {
     {
       key: 'route',
       title: 'Route',
-      accessor: ({ route }) => DRUG_ROUTE_VALUE_TO_LABEL[route] || '',
+      accessor: ({ route }) => DRUG_ROUTE_LABELS[route] || '',
       style: { width: '10%' },
     },
     {
@@ -342,11 +354,11 @@ export const EncounterRecord = React.memo(
         <RowContainer>
           <div>
             <LocalisedDisplayValue name="facility">
-              <TranslatedReferenceData 
-                fallback={location.facility.name} 
+              <TranslatedReferenceData
+                fallback={location.facility.name}
                 value={location.facility.id}
                 category="facility"
-              />  
+              />
             </LocalisedDisplayValue>
             <DisplayValue
               name={
@@ -394,10 +406,10 @@ export const EncounterRecord = React.memo(
           </div>
           <div>
             <DisplayValue name="Discharging department" size="10px">
-              <TranslatedReferenceData 
+              <TranslatedReferenceData
                 fallback={department.name}
                 value={department.id}
-                category="department" 
+                category="department"
               />
             </DisplayValue>
             <DisplayValue name="Date of admission" size="10px">

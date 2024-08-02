@@ -32,13 +32,7 @@ export const EditTreatmentPlanNoteForm = ({ note, onNoteContentChange, onSubmit,
     <>
       <NoteInfoSection
         numberOfColumns={3}
-        noteType={
-          <TranslatedEnum
-            prefix="note.property.type"
-            value={note.noteType}
-            enumValues={NOTE_TYPE_LABELS}
-          />
-        }
+        noteType={<TranslatedEnum value={note.noteType} enumValues={NOTE_TYPE_LABELS} />}
         writtenByLabel={
           <TranslatedText
             stringId="treatmentPlan.note.form.lastUpdatedBy.label"
@@ -56,20 +50,24 @@ export const EditTreatmentPlanNoteForm = ({ note, onNoteContentChange, onSubmit,
       />
       <StyledFormGrid columns={2}>
         <WrittenByField
-          label={<TranslatedText
-            stringId="treatmentPlan.note.updatedBy.label"
-            fallback="Updated by (or on behalf of)"
-          />}
+          label={
+            <TranslatedText
+              stringId="treatmentPlan.note.updatedBy.label"
+              fallback="Updated by (or on behalf of)"
+            />
+          }
           required
         />
         <NoteDateTimeField required />
       </StyledFormGrid>
 
       <NoteContentField
-        label={<TranslatedText
-          stringId="treatmentPlan.note.updateTreatmentPlan.label"
-          fallback="Update treatment plan"
-        />}
+        label={
+          <TranslatedText
+            stringId="treatmentPlan.note.updateTreatmentPlan.label"
+            fallback="Update treatment plan"
+          />
+        }
         onChange={onNoteContentChange}
       />
       <StyledDivider />

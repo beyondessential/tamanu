@@ -7,7 +7,7 @@ import { MODELS_MAP } from '../../../models/modelsMap';
 import { extractIncludedColumns } from './extractIncludedColumns';
 import { Database } from '~/infra/db';
 
-const buildToSyncRecord = (model: typeof BaseModel, record: object): SyncRecord => {
+const buildToSyncRecord = (model: typeof BaseModel, record: object): Omit<SyncRecord, 'id'> => {
   const includedColumns = extractIncludedColumns(model);
   const data = pick(record, includedColumns) as SyncRecordData;
 
@@ -27,7 +27,7 @@ const buildToSyncRecord = (model: typeof BaseModel, record: object): SyncRecord 
  * @returns
  */
 export const snapshotOutgoingChanges = async (
-  outgoingModels: typeof MODELS_MAP,
+  outgoingModels: Partial<typeof MODELS_MAP>,
   since: number,
 ): Promise<SyncRecord[]> => {
   let outgoingChanges = [];
@@ -44,7 +44,8 @@ export const snapshotOutgoingChanges = async (
         withDeleted: true,
       });
       const syncRecordsForModel = changesForModel.map(change => buildToSyncRecord(model, change));
-      const sanitizedSyncRecords = model.sanitizeRecordDataForPush
+      const hasSanitizeMethod = 'sanitizeRecordDataForPush' in model;
+      const sanitizedSyncRecords = hasSanitizeMethod
         ? model.sanitizeRecordDataForPush(syncRecordsForModel)
         : syncRecordsForModel;
 

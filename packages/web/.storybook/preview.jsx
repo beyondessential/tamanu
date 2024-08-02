@@ -21,27 +21,31 @@ const queryClient = new QueryClient({
   },
 });
 
-export const decorators = [
-  Story => (
-    <Provider store={store}>
-      <ConnectedRouter history={history}>
-        <StylesProvider injectFirst>
-          <MuiThemeProvider theme={theme}>
-            <ThemeProvider theme={theme}>
-              <QueryClientProvider client={queryClient}>
-                <CssBaseline />
-                <LocalisationProvider>
-                  <TranslationProvider>
-                    <MockedApi endpoints={defaultEndpoints}>
-                      <Story />
-                    </MockedApi>
-                  </TranslationProvider>
-                </LocalisationProvider>
-              </QueryClientProvider>
-            </ThemeProvider>
-          </MuiThemeProvider>
-        </StylesProvider>
-      </ConnectedRouter>
-    </Provider>
-  ),
-];
+const preview = {
+  decorators: [
+    Story => (
+      <Provider store={store}>
+        <ConnectedRouter history={history}>
+          <StylesProvider injectFirst>
+            <MuiThemeProvider theme={theme}>
+              <ThemeProvider theme={theme}>
+                <QueryClientProvider client={queryClient}>
+                  <CssBaseline />
+                  <LocalisationProvider>
+                    <TranslationProvider>
+                      <MockedApi endpoints={defaultEndpoints}>
+                        <Story />
+                      </MockedApi>
+                    </TranslationProvider>
+                  </LocalisationProvider>
+                </QueryClientProvider>
+              </ThemeProvider>
+            </MuiThemeProvider>
+          </StylesProvider>
+        </ConnectedRouter>
+      </Provider>
+    ),
+  ],
+};
+
+export default preview;

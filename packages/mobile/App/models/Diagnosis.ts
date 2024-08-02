@@ -5,6 +5,7 @@ import { Encounter } from './Encounter';
 import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
 import { DateTimeStringColumn } from './DateColumns';
 import { SYNC_DIRECTIONS } from './types';
+import { User } from './User';
 
 @Entity('diagnosis')
 export class Diagnosis extends BaseModel implements IDiagnosis {
@@ -31,6 +32,11 @@ export class Diagnosis extends BaseModel implements IDiagnosis {
   encounter: Encounter;
   @RelationId(({ encounter }) => encounter)
   encounterId?: string;
+
+  @ManyToOne(() => User)
+  clinician: User;
+  @RelationId(({ clinician }) => clinician)
+  clinicianId: string;
 
   static getTableNameForSync(): string {
     return 'encounter_diagnoses';

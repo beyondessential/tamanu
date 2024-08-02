@@ -70,3 +70,5 @@ lints.md
 !.elasticbeanstalk/*.cfg.yml
 !.elasticbeanstalk/*.global.yml
 
+#keep .devcontainer
+!.devcontainer/**/*

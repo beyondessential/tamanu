@@ -102,7 +102,7 @@ export const renderToText = element => {
   flushSync(() => {
     root.render(element); // Force DOM update before reading innerText
   });
-  const renderedString = div.innerText;
+  const renderedText = div.innerText;
   root.unmount();
-  return renderedString;
+  return renderedText;
 };

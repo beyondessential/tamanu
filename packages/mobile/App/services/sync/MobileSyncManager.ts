@@ -301,19 +301,20 @@ export class MobileSyncManager {
     const tablesForFullResync = await this.models.LocalSystemFact.findOne({
       where: { key: 'tablesForFullResync' },
     });
+
+    const incomingModels = getModelsForDirection(this.models, SYNC_DIRECTIONS.PULL_FROM_CENTRAL);
+
     const { totalPulled, pullUntil } = await pullIncomingChanges(
       this.centralServer,
       sessionId,
       pullSince,
-      Object.values(this.models).map(m => m.getTableNameForSync()),
+      Object.values(incomingModels).map(m => m.getTableNameForSync()),
       tablesForFullResync?.value.split(','),
       (total, downloadedChangesTotal) =>
         this.updateProgress(total, downloadedChangesTotal, 'Pulling all new changes...'),
     );
 
     console.log(`MobileSyncManager.syncIncomingChanges(): Saving ${totalPulled} changes`);
-
-    const incomingModels = getModelsForDirection(this.models, SYNC_DIRECTIONS.PULL_FROM_CENTRAL);
 
     this.setSyncStage(3);
 

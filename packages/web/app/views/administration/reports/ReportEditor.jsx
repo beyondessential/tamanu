@@ -1,24 +1,27 @@
 import React from 'react';
 import styled from 'styled-components';
 import { useQuery } from '@tanstack/react-query';
-import { capitalize } from 'lodash';
 import * as yup from 'yup';
 import { Accordion, AccordionDetails, AccordionSummary, Grid } from '@material-ui/core';
 import {
   REPORT_DATA_SOURCE_VALUES,
-  REPORT_DATA_SOURCES,
+  REPORT_DATA_SOURCE_LABELS,
+  REPORT_DEFAULT_DATE_RANGES_LABELS,
   REPORT_DB_SCHEMAS,
+  REPORT_DB_SCHEMA_LABELS,
+  REPORT_DB_SCHEMA_VALUES,
   REPORT_DEFAULT_DATE_RANGES_VALUES,
   REPORT_STATUSES_VALUES,
+  REPORT_STATUS_LABELS,
 } from '@tamanu/constants/reports';
 import {
   Button,
   ButtonRow,
   Field,
   Form,
-  SelectField,
-  MultiselectField,
   TextField,
+  TranslatedMultiSelectField,
+  TranslatedSelectField,
 } from '../../../components';
 import { ParameterItem, ParameterList, SQLQueryEditor } from './components/editing';
 import {
@@ -38,26 +41,6 @@ const StyledField = styled(Field)`
 const StatusField = styled(Field)`
   width: 130px;
 `;
-
-const STATUS_OPTIONS = REPORT_STATUSES_VALUES.map(status => ({
-  label: capitalize(status),
-  value: status,
-}));
-
-const DATA_SOURCE_OPTIONS = [
-  { label: 'Facility server', value: REPORT_DATA_SOURCES.THIS_FACILITY },
-  { label: 'Central server', value: REPORT_DATA_SOURCES.ALL_FACILITIES },
-];
-
-const DATE_RANGE_OPTIONS = REPORT_DEFAULT_DATE_RANGES_VALUES.map(value => ({
-  label: value,
-  value,
-}));
-
-const DB_SCHEMA_OPTIONS = Object.values(REPORT_DB_SCHEMAS).map(value => ({
-  label: capitalize(value),
-  value,
-}));
 
 const generateDefaultParameter = () => ({
   id: Math.random(),
@@ -107,10 +90,9 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit, setF
               />
             }
             name="defaultDateRange"
-            component={SelectField}
+            component={TranslatedSelectField}
             isClearable={false}
-            options={DATE_RANGE_OPTIONS}
-            prefix="report.property.defaultDateRange"
+            enumValues={REPORT_DEFAULT_DATE_RANGES_LABELS}
           />
         </Grid>
         {canWriteRawReportUser && schemaOptions?.length > 0 && (
@@ -118,9 +100,8 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit, setF
             <StyledField
               label={<TranslatedText stringId="admin.report.dbSchema.label" fallback="DB Schema" />}
               name="dbSchema"
-              prefix="report.property.canWrite"
-              component={SelectField}
-              options={schemaOptions}
+              component={TranslatedSelectField}
+              enumValues={REPORT_DB_SCHEMA_LABELS}
               disabled={isEdit}
               isClearable={false}
             />
@@ -133,9 +114,8 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit, setF
                 <TranslatedText stringId="admin.report.canBeRunOn.label" fallback="Can be run on" />
               }
               name="dataSources"
-              component={MultiselectField}
-              options={DATA_SOURCE_OPTIONS}
-              prefix="report.property.canBeRunOn"
+              component={TranslatedMultiSelectField}
+              enumValues={REPORT_DATA_SOURCE_LABELS}
             />
           </Grid>
         )}
@@ -189,10 +169,9 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit, setF
       <ButtonRow>
         <StatusField
           name="status"
-          component={SelectField}
+          component={TranslatedSelectField}
           isClearable={false}
-          options={STATUS_OPTIONS}
-          prefix="report.property.status"
+          enumValues={REPORT_STATUS_LABELS}
         />
         <Button
           disabled={!dirty}
@@ -244,12 +223,12 @@ export const ReportEditor = ({ initialValues, onSubmit, isEdit }) => {
           .required(),
         defaultDateRange: yup
           .string()
-          .oneOf(DATE_RANGE_OPTIONS.map(o => o.value))
+          .oneOf(REPORT_DEFAULT_DATE_RANGES_VALUES)
           .required(),
         dbSchema: yup
           .string()
           .nullable()
-          .oneOf([...DB_SCHEMA_OPTIONS.map(o => o.value), null]),
+          .oneOf([...REPORT_DB_SCHEMA_VALUES, null]),
         parameters: yup.array().of(
           yup.object().shape({
             name: yup
@@ -311,7 +290,7 @@ export const ReportEditor = ({ initialValues, onSubmit, isEdit }) => {
           .translatedLabel(<TranslatedText stringId="admin.report.query.label" fallback="Query" />),
         status: yup
           .string()
-          .oneOf(STATUS_OPTIONS.map(s => s.value))
+          .oneOf(REPORT_STATUSES_VALUES)
           .required()
           .translatedLabel(<TranslatedText stringId="general.status.label" fallback="Status" />),
       })}

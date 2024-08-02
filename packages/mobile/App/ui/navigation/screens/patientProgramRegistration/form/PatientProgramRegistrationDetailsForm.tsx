@@ -152,6 +152,12 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
                 </StyledView>
                 <StyledView marginLeft={20} marginRight={20}>
                   <LocalisedField
+                    label={
+                      <TranslatedText
+                        stringId="general.localisedField.facility.label"
+                        fallback="Facility"
+                      />
+                    }
                     localisationPath="fields.facility"
                     labelFontSize={14}
                     component={AutocompleteModalField}
@@ -163,6 +169,12 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
                 </StyledView>
                 <StyledView marginLeft={20} marginRight={20}>
                   <LocalisedField
+                    label={
+                      <TranslatedText
+                        stringId="general.localisedField.status.label"
+                        fallback="Status"
+                      />
+                    }
                     localisationPath="fields.status"
                     labelFontSize={14}
                     component={Dropdown}
@@ -174,6 +186,12 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
                 </StyledView>
                 <StyledView marginLeft={20} marginRight={20}>
                   <LocalisedField
+                    label={
+                      <TranslatedText
+                        stringId="general.localisedField.conditions.label"
+                        fallback="Conditions"
+                      />
+                    }
                     localisationPath="fields.conditions"
                     labelFontSize={14}
                     component={MultiSelectModalField}
@@ -187,7 +205,9 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
                   />
                 </StyledView>
                 <Button
-                  buttonText="Confirm"
+                  buttonText={
+                    <TranslatedText stringId="general.action.confirm" fallback="Confirm" />
+                  }
                   backgroundColor={theme.colors.PRIMARY_MAIN}
                   marginLeft={screenPercentageToDP(2.43, Orientation.Width)}
                   marginRight={screenPercentageToDP(7, Orientation.Width)}

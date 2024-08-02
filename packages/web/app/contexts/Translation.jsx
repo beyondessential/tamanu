@@ -4,9 +4,15 @@ import { useTranslations } from '../api/queries/useTranslations';
 import { translationFactory } from '@tamanu/shared/utils/translation/translationFactory';
 import { getCurrentLanguageCode } from '../utils/translation';
 
-export const TranslationContext = React.createContext();
+export const TranslationContext = React.createContext(null);
 
-export const useTranslation = () => useContext(TranslationContext);
+export const useTranslation = () => {
+  const context = useContext(TranslationContext);
+  if (!context) {
+    throw new Error('useTranslation has been called outside a TranslationProvider.');
+  }
+  return context;
+};
 
 export const TranslationProvider = ({ children }) => {
   const [storedLanguage, setStoredLanguage] = useState(getCurrentLanguageCode());
@@ -16,13 +22,7 @@ export const TranslationProvider = ({ children }) => {
   const translationFunc = translationFactory(translations);
 
   const getTranslation = (stringId, fallback, replacements, uppercase, lowercase) => {
-    const { value } = translationFunc(
-      stringId,
-      fallback,
-      replacements,
-      uppercase,
-      lowercase,
-    );
+    const { value } = translationFunc(stringId, fallback, replacements, uppercase, lowercase);
     return value;
   };
 
@@ -39,7 +39,7 @@ export const TranslationProvider = ({ children }) => {
         getTranslation,
         updateStoredLanguage,
         storedLanguage,
-        translations
+        translations,
       }}
     >
       {children}
