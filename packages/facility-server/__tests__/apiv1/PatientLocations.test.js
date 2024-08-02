@@ -1,12 +1,15 @@
+import { afterAll, beforeAll } from '@jest/globals';
 import config from 'config';
 import { createDummyEncounter, createDummyPatient } from '@tamanu/shared/demoData/patients';
 import { LOCATION_AVAILABILITY_STATUS, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { fake } from '@tamanu/shared/test-helpers/fake';
+import { selectFacilityIds } from '@tamanu/shared/utils/configSelectors';
 import { createTestContext } from '../utilities';
 
+const [facilityId] = selectFacilityIds(config);
 const generateFakeLocation = (LocationModel, additionalParams) => ({
   ...fake(LocationModel),
-  facilityId: config.serverFacilityId,
+  facilityId,
   maxOccupancy: 1,
   ...additionalParams,
 });
@@ -101,7 +104,9 @@ describe('PatientLocations', () => {
   });
 
   it('should return accurate occupancy', async () => {
-    const oneInpatientEncounterOccupancyResponse = await app.get('/api/patient/locations/occupancy');
+    const oneInpatientEncounterOccupancyResponse = await app.get(
+      '/api/patient/locations/occupancy',
+    );
 
     expect(oneInpatientEncounterOccupancyResponse).toHaveSucceeded();
     expect(oneInpatientEncounterOccupancyResponse.body.data).toBeGreaterThanOrEqual(
@@ -293,7 +298,7 @@ describe('PatientLocations', () => {
     const { Location } = models;
     const createdLocations = await Location.bulkCreate(
       Object.values(VISIBILITY_STATUSES).map(visibilityStatus =>
-        fake(Location, { visibilityStatus, facilityId: config.serverFacilityId }),
+        fake(Location, { visibilityStatus, facilityId }),
       ),
     );
     const locationIds = createdLocations.map(l => l.id);
