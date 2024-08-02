@@ -7,6 +7,7 @@ import {
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging/log';
 import { withConfig } from '@tamanu/shared/utils/withConfig';
+import { sleepAsync } from '@tamanu/shared/utils/sleepAsync';
 
 const snapshotChangesForModel = async (
   model,
@@ -136,6 +137,7 @@ export const snapshotOutgoingChanges = withConfig(
     sessionId,
     facilityId,
     sessionConfig,
+    checkSessionError,
     config,
   ) => {
     const invalidModelNames = Object.values(outgoingModels)
@@ -156,6 +158,12 @@ export const snapshotOutgoingChanges = withConfig(
     let changesCount = 0;
 
     for (const model of Object.values(outgoingModels)) {
+      // check between each model whether the session has been meanwhile invalidated, e.g.
+      // due to snapshotting taking too long
+      const sessionError = await checkSessionError();
+      if (sessionError) {
+        throw new Error(sessionError);
+      }
       try {
         const modelChangesCount = await snapshotChangesForModel(
           model,
@@ -176,7 +184,11 @@ export const snapshotOutgoingChanges = withConfig(
       }
     }
 
-    log.debug('snapshotOutgoingChanges.countedAll', { count: changesCount, since, sessionId });
+    log.debug('snapshotOutgoingChanges.countedAll', {
+      count: changesCount,
+      since,
+      sessionId,
+    });
 
     return changesCount;
   },

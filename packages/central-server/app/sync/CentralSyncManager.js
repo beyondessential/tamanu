@@ -299,6 +299,11 @@ export class CentralSyncManager {
         syncTheseProgramRegistries: isMobile ? [] : syncTheseProgramRegistries || [],
       };
 
+      const checkSessionError = async () => {
+        const session = await this.store.models.SyncSession.findOne({ where: { id: sessionId } });
+        return session.error;
+      };
+
       // snapshot inside a "repeatable read" transaction, so that other changes made while this
       // snapshot is underway aren't included (as this could lead to a pair of foreign records with
       // the child in the snapshot and its parent missing)
@@ -309,8 +314,12 @@ export class CentralSyncManager {
         async () => {
           const { snapshotTransactionTimeoutMs } = this.constructor.config.sync;
           if (snapshotTransactionTimeoutMs) {
-            transactionTimeout = setTimeout(() => {
-              throw new Error(`Snapshot for session ${sessionId} timed out`);
+            // if the snapshot takes too long, set an error on the session, which has two effects:
+            // - the client will see the error and stop polling for the snapshot to complete
+            // - the central server snapshot process will check for this error between each model
+            //   and stop if it's set
+            transactionTimeout = setTimeout(async () => {
+              await session.update({ error: 'Snapshot transaction timed out' });
             }, snapshotTransactionTimeoutMs);
           }
 
@@ -323,6 +332,7 @@ export class CentralSyncManager {
             sessionId,
             facilityId,
             {}, // sending empty session config because this snapshot attempt is only for syncing new marked for sync patients
+            checkSessionError,
           );
 
           // get changes since the last successful sync for all other synced patients and independent
@@ -340,6 +350,7 @@ export class CentralSyncManager {
             sessionId,
             facilityId,
             sessionConfig,
+            checkSessionError,
           );
 
           // any tables for full resync from (used when mobile needs to wipe and resync tables as
@@ -354,6 +365,7 @@ export class CentralSyncManager {
               sessionId,
               facilityId,
               sessionConfig,
+              checkSessionError,
             );
           }
 
