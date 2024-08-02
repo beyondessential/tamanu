@@ -3,4 +3,7 @@ export const facilityDefaults = {
     letterhead: {},
   },
   vaccinations: {},
+  survey: {
+    defaultCodes: {},
+  },
 };

@@ -173,7 +173,7 @@ describe('CentralSyncManager', () => {
         sessionId,
         {
           since: 1,
-          facilityId: facility.id,
+          facilityIds: [facility.id],
         },
         () => true,
       );
@@ -202,17 +202,20 @@ describe('CentralSyncManager', () => {
         const patient3 = await models.Patient.create({
           ...fake(models.Patient),
         });
-        const facility = await models.Facility.create({
+        const facility1 = await models.Facility.create({
+          ...fake(models.Facility),
+        });
+        const facility2 = await models.Facility.create({
           ...fake(models.Facility),
         });
         await models.User.create(fakeUser());
         await models.Department.create({
           ...fake(models.Department),
-          facilityId: facility.id,
+          facilityId: facility2.id,
         });
         await models.Location.create({
           ...fake(models.Location),
-          facilityId: facility.id,
+          facilityId: facility2.id,
         });
         const encounter1 = await models.Encounter.create({
           ...(await createDummyEncounter(models)),
@@ -233,12 +236,12 @@ describe('CentralSyncManager', () => {
         await models.PatientFacility.create({
           id: models.PatientFacility.generateId(),
           patientId: patient1.id,
-          facilityId: facility.id,
+          facilityId: facility1.id,
         });
         await models.PatientFacility.create({
           id: models.PatientFacility.generateId(),
           patientId: patient2.id,
-          facilityId: facility.id,
+          facilityId: facility1.id,
         });
 
         const centralSyncManager = initializeCentralSyncManager();
@@ -249,7 +252,7 @@ describe('CentralSyncManager', () => {
           sessionId,
           {
             since: 15,
-            facilityId: facility.id,
+            facilityIds: [facility1.id],
           },
           () => true,
         );
@@ -312,7 +315,7 @@ describe('CentralSyncManager', () => {
           sessionId,
           {
             since: 15,
-            facilityId: facility.id,
+            facilityIds: [facility.id],
           },
           () => true,
         );
@@ -751,7 +754,7 @@ describe('CentralSyncManager', () => {
             sessionId,
             {
               since: 1,
-              facilityId: facility.id,
+              facilityIds: [facility.id],
             },
             () => true,
           );
@@ -797,7 +800,7 @@ describe('CentralSyncManager', () => {
             sessionId,
             {
               since: 1,
-              facilityId: facility.id,
+              facilityIds: [facility.id],
             },
             () => true,
           );
@@ -963,7 +966,7 @@ describe('CentralSyncManager', () => {
             sessionId,
             {
               since: 1,
-              facilityId: facility.id,
+              facilityIds: [facility.id],
               isMobile: true,
             },
             () => true,
@@ -1002,7 +1005,7 @@ describe('CentralSyncManager', () => {
             sessionId,
             {
               since: 1,
-              facilityId: facility.id,
+              facilityIds: [facility.id],
               isMobile: true,
             },
             () => true,
@@ -1153,7 +1156,7 @@ describe('CentralSyncManager', () => {
           sessionId,
           {
             since: CURRENT_SYNC_TICK - 2,
-            facilityId: facility.id,
+            facilityIds: [facility.id],
           },
           () => true,
         );
