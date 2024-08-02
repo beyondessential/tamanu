@@ -25,7 +25,7 @@ export const buildSyncRoutes = ctx => {
 
       const userInstance = await store.models.User.findByPk(user.id);
       if (facilityIds.some(id => !userInstance.canAccessFacility(id))) {
-        throw new ForbiddenError('User does not have access facility');
+        throw new ForbiddenError('User does not have access to facility');
       }
 
       // first check if our device has any stale sessions...
