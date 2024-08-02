@@ -507,6 +507,9 @@ export class CentralSyncManager {
         { persistCompletedAt: new Date() },
         { where: { id: sessionId } },
       );
+
+      // WARNING: if you are adding another db call here, you need to either move the
+      // persistCompletedAt lower down, or change the check in checkPushComplete
     } catch (error) {
       log.error('CentralSyncManager.persistIncomingChanges encountered an error', error);
       await models.SyncSession.update({ error: error.message }, { where: { id: sessionId } });
@@ -536,15 +539,27 @@ export class CentralSyncManager {
 
     // don't await persisting, the client should asynchronously poll as it may take longer than
     // the http request timeout
-    this.persistIncomingChanges(sessionId, tablesToInclude);
+    const unmarkSessionAsProcessing = await this.markSessionAsProcessing(sessionId);
+    this.persistIncomingChanges(sessionId, tablesToInclude).finally(unmarkSessionAsProcessing);
   }
 
   async checkPushComplete(sessionId) {
-    const session = await this.connectToSession(sessionId);
-    // respond with whether the push is properly complete, i.e. has been persisted to the db tables
-    if (!session.persistCompletedAt) {
+    // if the push is still persisting, return false to tell the client to keep waiting
+    const persistIsProcessing = await this.checkSessionIsProcessing(sessionId);
+    if (persistIsProcessing) {
       return false;
     }
+
+    // if this session is not marked as processing, but also never set persistCompletedAt, record an error
+    const session = await this.connectToSession(sessionId);
+    if (session.persistCompletedAt === null) {
+      session.error =
+        'Push persist incomplete, likely because the central server restarted during the process';
+      await session.save();
+      throw new Error(errorMessageFromSession(session));
+    }
+
+    // push complete!
     return true;
   }
 }
