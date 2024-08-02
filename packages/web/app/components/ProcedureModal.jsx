@@ -33,7 +33,7 @@ export const ProcedureModal = ({ onClose, onSaved, encounterId, editedProcedure 
     baseQueryParameters: { filterByFacility: true },
   });
   const practitionerSuggester = useSuggester('practitioner');
-  const procedureSuggester = useSuggester('procedure');
+  const procedureSuggester = useSuggester('procedureType');
   const anaestheticSuggester = useSuggester('drug');
 
   return (

@@ -12,7 +12,6 @@ import { DailySchedule } from '../../components/Appointments/DailySchedule';
 import { NewAppointmentButton } from '../../components/Appointments/NewAppointmentButton';
 import { Button } from '../../components/Button';
 import { AutocompleteInput, TranslatedMultiSelectField } from '../../components/Field';
-import { Suggester } from '../../utils/suggester';
 import { Colors } from '../../constants';
 import { useApi, useSuggester } from '../../api';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
