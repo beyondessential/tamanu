@@ -202,20 +202,20 @@ describe('CentralSyncManager', () => {
         const patient3 = await models.Patient.create({
           ...fake(models.Patient),
         });
-        const facility1 = await models.Facility.create({
+        const thisFacility = await models.Facility.create({
           ...fake(models.Facility),
         });
-        const facility2 = await models.Facility.create({
+        const otherFacility = await models.Facility.create({
           ...fake(models.Facility),
         });
         await models.User.create(fakeUser());
         await models.Department.create({
           ...fake(models.Department),
-          facilityId: facility2.id,
+          facilityId: otherFacility.id,
         });
         await models.Location.create({
           ...fake(models.Location),
-          facilityId: facility2.id,
+          facilityId: otherFacility.id,
         });
         const encounter1 = await models.Encounter.create({
           ...(await createDummyEncounter(models)),
@@ -236,12 +236,12 @@ describe('CentralSyncManager', () => {
         await models.PatientFacility.create({
           id: models.PatientFacility.generateId(),
           patientId: patient1.id,
-          facilityId: facility1.id,
+          facilityId: thisFacility.id,
         });
         await models.PatientFacility.create({
           id: models.PatientFacility.generateId(),
           patientId: patient2.id,
-          facilityId: facility1.id,
+          facilityId: thisFacility.id,
         });
 
         const centralSyncManager = initializeCentralSyncManager();
@@ -252,7 +252,7 @@ describe('CentralSyncManager', () => {
           sessionId,
           {
             since: 15,
-            facilityIds: [facility1.id],
+            facilityIds: [thisFacility.id],
           },
           () => true,
         );
