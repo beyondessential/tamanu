@@ -2,7 +2,7 @@
 
 // This expects to be run in the production docker build in /Dockerfile.
 
-import * as child_process from 'node:child_process';
+import { spawnSync } from 'node:child_process';
 import * as path from 'node:path';
 import { createReadStream, createWriteStream } from 'node:fs';
 import * as fs from 'node:fs/promises';
@@ -11,7 +11,6 @@ import * as util from 'node:util';
 import * as zlib from 'node:zlib';
 import { listPackages } from './list-packages.mjs';
 import { exit } from 'node:process';
-const execFile = util.promisify(child_process.execFile);
 const pipeline = util.promisify(stream.pipeline);
 
 const TAMANU_ROOT = 'C:\\tamanu';
@@ -23,10 +22,10 @@ async function common() {
   await fs.writeFile('package.json', JSON.stringify(packageJson, null, '  '));
 
   // put cache in packages / so it's carried between stages
-  await execFile('yarn', ['config', 'set', 'cache-folder', path.join(TAMANU_ROOT, 'packages', '.yarn-cache')], { stdio: 'inherit', shell: true });
+  spawnSync('yarn', ['config', 'set', 'cache-folder', path.join(TAMANU_ROOT, 'packages', '.yarn-cache')], { stdio: 'inherit', shell: true });
 
   // install dependencies
-  await execFile('yarn', ['install', '--non-interactive', '--frozen-lockfile'], { stdio: 'inherit', shell: true });
+  spawnSync('yarn', ['install', '--non-interactive', '--frozen-lockfile'], { stdio: 'inherit', shell: true });
 }
 
 async function remove_irrelevant_packages(targetPackage) {
@@ -78,7 +77,7 @@ async function build_server(targetPackage) {
   await remove_irrelevant_packages(targetPackage);
 
   // build the world
-  await execFile('yarn', ['build'], { stdio: 'inherit', shell: true });
+  spawnSync('yarn', ['build'], { stdio: 'inherit', shell: true });
 
   // clear out the build-tooling
   const packagesNodeModules = packages
@@ -106,11 +105,11 @@ async function build_server(targetPackage) {
   await fs.writeFile('package.json', JSON.stringify(packageJson, null, '  '));
 
   // remove build dependencies
-  await execFile('yarn', 'install', '--non-interactive', '--frozen-lockfile', { stdio: 'inherit', shell: true });
+  spawnSync('yarn', 'install', '--non-interactive', '--frozen-lockfile', { stdio: 'inherit', shell: true });
 
   // cleanup
-  await execFile('yarn', 'cache', 'clean', { stdio: 'inherit', shell: true });
-  await execFile('yarn', 'config', 'delete', 'cache-folder', { stdio: 'inherit', shell: true });
+  spawnSync('yarn', 'cache', 'clean', { stdio: 'inherit', shell: true });
+  spawnSync('yarn', 'config', 'delete', 'cache-folder', { stdio: 'inherit', shell: true });
   await fs.rm('packages/.yarn-cache', { recursive: true, force: true });
   await fs.rm(import.meta.filename, { force: true });
 }
@@ -145,8 +144,8 @@ async function precompress_assets(root) {
 }
 
 async function build_web() {
-  await execFile('yarn', 'build-shared', { stdio: 'inherit', shell: true });
-  await execFile('yarn', 'workspace', '@tamanu/web-frontend', 'build', { stdio: 'inherit', shell: true });
+  spawnSync('yarn', 'build-shared', { stdio: 'inherit', shell: true });
+  spawnSync('yarn', 'workspace', '@tamanu/web-frontend', 'build', { stdio: 'inherit', shell: true });
   await precompress_assets('packages/web/dist');
 }
 

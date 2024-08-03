@@ -1,4 +1,4 @@
-import { execFileSync } from 'child_process';
+import { spawnSync } from 'child_process';
 import { doWithAllPackages } from './_do-with-all-packages.mjs';
 
 const args = process.argv.slice(2);
@@ -25,5 +25,5 @@ doWithAllPackages((name, pkg, _pkgPath, isShared) => {
   }
 
   console.log(`Building ${name}...`);
-  execFileSync('yarn', ['workspace', pkg.name, 'run', 'build'], { stdio: 'inherit', shell: true });
+  spawnSync('yarn', ['workspace', pkg.name, 'run', 'build'], { stdio: 'inherit', shell: true });
 });
