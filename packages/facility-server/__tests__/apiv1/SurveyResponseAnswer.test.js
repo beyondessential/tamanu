@@ -280,11 +280,13 @@ describe('SurveyResponseAnswer', () => {
           answer => answer.dataElementId === dataElements[2].id,
         );
 
-        const result = await app.put(`/api/surveyResponseAnswer/vital/${calculatedAnswer.id}`).send({
-          reasonForChange: 'test5',
-          newValue: chance.integer({ min: 0, max: 100 }),
-          date: getCurrentDateTimeString(),
-        });
+        const result = await app
+          .put(`/api/surveyResponseAnswer/vital/${calculatedAnswer.id}`)
+          .send({
+            reasonForChange: 'test5',
+            newValue: chance.integer({ min: 0, max: 100 }),
+            date: getCurrentDateTimeString(),
+          });
         expect(result).not.toHaveSucceeded();
         expect(result.status).toBe(404);
       });
@@ -358,6 +360,10 @@ describe('SurveyResponseAnswer', () => {
           localisation: JSON.stringify(mockLocalisation),
           deletedAt: null,
         });
+      });
+
+      it('should use default codes from settings', async () => {
+        
       });
 
       it('should create a survey response answer', async () => {
