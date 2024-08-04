@@ -237,6 +237,14 @@ describe('User', () => {
         expect(result).toHaveRequestError();
       });
 
+      it('should return token if setting a facilitiy with permission', async () => {
+        const userAgent = await baseApp.asUser(authUser);
+        const validFacilityResult = await userAgent.post('/api/setFacility').send({
+          facilityId: FACILITY_1.id,
+        });
+        expect(validFacilityResult).toHaveSucceeded();
+      });
+
       describe('Rejected tokens', () => {
         it('should get the user based on the current token', async () => {
           const userAgent = await baseApp.asUser(authUser);
