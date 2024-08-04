@@ -104,11 +104,11 @@ async function build_server(targetPackage) {
   await fs.writeFile('package.json', JSON.stringify(packageJson, null, '  '));
 
   // remove build dependencies
-  spawnSync('yarn', 'install', '--non-interactive', '--frozen-lockfile', { stdio: 'inherit', shell: true });
+  spawnSync('yarn', ['install', '--non-interactive', '--frozen-lockfile'], { stdio: 'inherit', shell: true });
 
   // cleanup
-  spawnSync('yarn', 'cache', 'clean', { stdio: 'inherit', shell: true });
-  spawnSync('yarn', 'config', 'delete', 'cache-folder', { stdio: 'inherit', shell: true });
+  spawnSync('yarn', ['cache', 'clean'], { stdio: 'inherit', shell: true });
+  spawnSync('yarn', ['config', 'delete', 'cache-folder'], { stdio: 'inherit', shell: true });
   await fs.rm('packages/.yarn-cache', { recursive: true, force: true });
   await fs.rm(import.meta.filename, { force: true });
 }
@@ -143,8 +143,8 @@ async function precompress_assets(root) {
 }
 
 async function build_web() {
-  spawnSync('yarn', 'build-shared', { stdio: 'inherit', shell: true });
-  spawnSync('yarn', 'workspace', '@tamanu/web-frontend', 'build', { stdio: 'inherit', shell: true });
+  spawnSync('yarn', ['build-shared'], { stdio: 'inherit', shell: true });
+  spawnSync('yarn', ['workspace', '@tamanu/web-frontend', 'build'], { stdio: 'inherit', shell: true });
   await precompress_assets('packages/web/dist');
 }
 
