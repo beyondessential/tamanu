@@ -7,7 +7,6 @@ import { createDummyEncounter } from '@tamanu/shared/demoData/patients';
 import { centralServerLogin, buildToken, comparePassword } from '../../dist/middleware/auth';
 import { CentralServerConnection } from '../../dist/sync/CentralServerConnection';
 import { createTestContext } from '../utilities';
-import config from 'config';
 
 const createUser = overrides => ({
   email: chance.email(),
