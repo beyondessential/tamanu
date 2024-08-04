@@ -49,8 +49,7 @@ async function remove_irrelevant_packages(targetPackage) {
 
 async function build_server(targetPackage) {
   // clear out the tests and files not useful for production
-  const packages = await fs.readdir('packages');
-  const devArtifactsRm = packages.map(async (packageName) => {
+  const devArtifactsRm = (await fs.readdir('packages')).map(async (packageName) => {
     const packagePath = path.join('packages', packageName);
     const jests = (await fs.readdir(packagePath)).filter((p) => p.startsWith('jest'));
     let config = [];
@@ -80,7 +79,7 @@ async function build_server(targetPackage) {
   spawnSync('yarn', ['build'], { stdio: 'inherit', shell: true });
 
   // clear out the build-tooling
-  const packagesNodeModules = packages
+  const packagesNodeModules = (await fs.readdir('packages'))
     .map((p) => path.join('packages', p, 'node_modules', '@tamanu', 'build-tooling'));
   const toolingArtifactsRm = [
     'node_modules/@tamanu/build-tooling',
@@ -89,7 +88,7 @@ async function build_server(targetPackage) {
   ].map((p) => fs.rm(p, { recursive: true, force: true }));
   await Promise.all(toolingArtifactsRm);
 
-  const buildConfigRm = packages.map(async (packageName) => {
+  const buildConfigRm = (await fs.readdir('packages')).map(async (packageName) => {
     const packagePath = path.join('packages', packageName);
     return (await fs.readdir(packagePath))
       .filter((p) => p.match(/.config\./g));
