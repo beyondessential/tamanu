@@ -1,4 +1,5 @@
 import Chance from 'chance';
+import config from 'config';
 import { fake } from '@tamanu/shared/test-helpers/fake';
 import {
   PROGRAM_DATA_ELEMENT_TYPES,
@@ -7,6 +8,8 @@ import {
 } from '@tamanu/constants/surveys';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { createTestContext } from '../utilities';
+import { selectFacilityIds } from '@tamanu/shared/utils/configSelectors';
+import { SETTINGS_SCOPES } from '@tamanu/constants';
 
 const chance = new Chance();
 const TEST_VITALS_SURVEY_ID = 'vitals-survey-id-for-testing-purposes';
@@ -23,6 +26,42 @@ describe('SurveyResponseAnswer', () => {
     app = await baseApp.asRole('practitioner');
   });
   afterAll(() => ctx.close());
+
+  describe('getDefaultId', () => {
+    const [facilityId] = selectFacilityIds(config);
+    beforeAll(async () => {
+      const { Setting, Department } = models;
+      await Department.create({
+        id: 'test-department-id',
+        code: 'test-department-code',
+        name: 'Test Department',
+        facilityId,
+      });
+      await Setting.set(
+        'survey.defaultCodes.department',
+        'test-department-code',
+        SETTINGS_SCOPES.FACILITY,
+        facilityId,
+      );
+    });
+    afterAll(async () => {
+      const { Setting } = models;
+      await Setting.truncate();
+    });
+
+    it('should return the default id for a resource from settings', async () => {
+      const departmentId = await models.SurveyResponseAnswer.getDefaultId('department', facilityId);
+      expect(departmentId).toEqual('test-department-id');
+    });
+    it('should return the default id for a resource from config if no setting', async () => {
+      const locationId = await models.SurveyResponseAnswer.getDefaultId('location', facilityId);
+      const { id: defaultLocationId } = await models.Location.findOne({
+        where: { code: config.survey.defaultCodes.location },
+        attributes: ['id'],
+      });
+      expect(locationId).toEqual(defaultLocationId);
+    });
+  });
 
   describe('vitals', () => {
     let dataElements;
@@ -360,10 +399,6 @@ describe('SurveyResponseAnswer', () => {
           localisation: JSON.stringify(mockLocalisation),
           deletedAt: null,
         });
-      });
-
-      it('should use default codes from settings', async () => {
-        
       });
 
       it('should create a survey response answer', async () => {
