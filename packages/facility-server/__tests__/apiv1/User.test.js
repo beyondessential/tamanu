@@ -432,8 +432,6 @@ describe('User', () => {
         expect(userAllowedFacilities).toStrictEqual(VALID_USER_FACILITIES);
       });
     });
-
-    it.todo('setFacilityHandler');
   });
 
   describe('Recently viewed patients', () => {
