@@ -77,6 +77,12 @@ const HIDDEN_STATUSES = [
   LAB_REQUEST_STATUSES.ENTERED_IN_ERROR,
 ];
 
+// These statuses are a little unique, as from a user's perspective they've just cancelled the request so they expect the status to be cancelled
+const STATUSES_TO_DISPLAY_AS_CANCELLED = [
+  LAB_REQUEST_STATUSES.DELETED,
+  LAB_REQUEST_STATUSES.ENTERED_IN_ERROR,
+];
+
 const MODAL_IDS = {
   CANCEL: 'cancel',
   CHANGE_LABORATORY: 'changeLaboratory',
@@ -170,13 +176,14 @@ export const LabRequestView = () => {
 
   const isPublished = labRequest.status === LAB_REQUEST_STATUSES.PUBLISHED;
   const isHidden = HIDDEN_STATUSES.includes(labRequest.status);
+  const displayAsCancelled = STATUSES_TO_DISPLAY_AS_CANCELLED.includes(labRequest.status);
   const areLabRequestsReadOnly = !canWriteLabRequest || isHidden;
   const areLabTestsReadOnly = !canWriteLabTest || isHidden || isPublished;
   const hasAttachment = Boolean(labRequest.latestAttachment);
   const canEnterResults = !isPublished && !areLabTestsReadOnly;
 
   // If the value of status is enteredInError or deleted, it should display to the user as Cancelled
-  const displayStatus = areLabRequestsReadOnly ? LAB_REQUEST_STATUSES.CANCELLED : labRequest.status;
+  const displayStatus = displayAsCancelled ? LAB_REQUEST_STATUSES.CANCELLED : labRequest.status;
 
   const ActiveModal = MODALS[modalId] || null;
 
@@ -253,7 +260,7 @@ export const LabRequestView = () => {
             Icon={Timelapse}
             text={<TranslatedText stringId="lab.view.tile.status.label" fallback="Status" />}
             main={
-              <TileTag $color={LAB_REQUEST_STATUS_CONFIG[labRequest.status]?.color}>
+              <TileTag $color={LAB_REQUEST_STATUS_CONFIG[displayStatus]?.color}>
                 {LAB_REQUEST_STATUS_CONFIG[displayStatus]?.label || 'Unknown'}
               </TileTag>
             }
