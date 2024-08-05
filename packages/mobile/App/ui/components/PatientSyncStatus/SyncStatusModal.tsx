@@ -11,6 +11,7 @@ import { formatlastSuccessfulSyncTime } from '~/ui/helpers/date';
 
 interface SyncStatusModalModalProps {
   open: boolean;
+  onSyncPatient: () => void;
   onClose: () => void;
   selectedPatient: IPatient;
   isMarkedForSync: boolean;
@@ -18,6 +19,7 @@ interface SyncStatusModalModalProps {
 
 export const SyncStatusModal = ({
   open,
+  onSyncPatient,
   onClose,
   selectedPatient,
   isMarkedForSync,
@@ -26,18 +28,19 @@ export const SyncStatusModal = ({
   const [lastPull] = useBackendEffect(({ models: m }) =>
     m.LocalSystemFact.findOne({ where: { key: LAST_SUCCESSFUL_PULL } }),
   );
-  const onSyncPatient = useCallback(async (): Promise<void> => {
+  const handleSyncPatient = useCallback(async (): Promise<void> => {
     await Patient.markForSync(selectedPatient.id);
     syncManager.triggerUrgentSync();
     onClose();
-  }, [syncManager, selectedPatient, onClose]);
+    onSyncPatient();
+  }, [syncManager, selectedPatient, onClose, onSyncPatient]);
 
   if (isMarkedForSync === false) {
     return (
       <ConfirmModal
         open={open}
         onClose={onClose}
-        onConfirm={onSyncPatient}
+        onConfirm={handleSyncPatient}
         title={<TranslatedText
           stringId="patient.details.modal.unsynced.title"
           fallback="Sync patient?"

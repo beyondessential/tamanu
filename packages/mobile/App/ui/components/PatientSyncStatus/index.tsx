@@ -6,6 +6,7 @@ import { readConfig } from '~/services/config';
 import { SyncStatusModal } from './SyncStatusModal';
 import { SyncStatusIcon } from './SyncStatusIcon';
 import { IPatient } from '~/types';
+import { useRefreshCount } from '~/ui/hooks/useRefreshCount';
 
 interface PatientSyncStatusProps {
   selectedPatient: IPatient;
@@ -13,11 +14,13 @@ interface PatientSyncStatusProps {
 
 export const PatientSyncStatus = ({ selectedPatient }: PatientSyncStatusProps): JSX.Element => {
   const [isOpen, setIsOpen] = useState(false);
+  const [refreshCount, updateRefreshCount] = useRefreshCount();
   const facilityId = readConfig('facilityId', '');
   const [patientFacility, , isLoading] = useBackendEffect(({ models: m }) =>
     m.PatientFacility.findOne({
       where: { patient: selectedPatient.id, facility: facilityId },
     }),
+    [refreshCount],
   );
 
   if (isLoading) {
@@ -30,6 +33,7 @@ export const PatientSyncStatus = ({ selectedPatient }: PatientSyncStatusProps): 
     <>
       <SyncStatusModal
         open={isOpen}
+        onSyncPatient={updateRefreshCount}
         onClose={() => setIsOpen(false)}
         selectedPatient={selectedPatient}
         isMarkedForSync={isMarkedForSync}
