@@ -36,7 +36,7 @@ export const syncLastCompleted = asyncHandler(async (req, res) => {
 
   res.send({
     data: sessions.map(session => ({
-      facilityIds: session.debugInfo.facilityIds,
+      facilityIds: session.debugInfo.facilityIds || [session.debugInfo.facilityId],
       completedAt: session.completedAt,
       duration: session.completedAt - session.createdAt,
     })),
