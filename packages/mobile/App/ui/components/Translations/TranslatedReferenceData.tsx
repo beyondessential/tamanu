@@ -1,10 +1,8 @@
 import React from 'react';
 import { TranslatedText } from './TranslatedText';
 
-export const REFERENCE_DATA_PREFIX = 'refData';
-
 export const getReferenceDataStringId = (value: string, category: string) => {
-  return `${REFERENCE_DATA_PREFIX}.${category}.${value}`;
+  return `refData.${category}.${value}`;
 };
 
 interface TranslatedReferenceDataProps {

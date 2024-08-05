@@ -1,7 +1,6 @@
 import { BeforeInsert, Entity, PrimaryColumn, BeforeUpdate, Column, Like } from 'typeorm/browser';
 import { BaseModel } from './BaseModel';
 import { SYNC_DIRECTIONS } from './types';
-import { REFERENCE_DATA_PREFIX } from '~/ui/components/Translations/TranslatedReferenceData';
 
 @Entity('translated_string')
 export class TranslatedString extends BaseModel {
@@ -64,7 +63,7 @@ export class TranslatedString extends BaseModel {
     const referenceDataTranslations = await this.getRepository().find({
       where: {
         language,
-        stringId: Like(`${REFERENCE_DATA_PREFIX}.${refDataType}%`),
+        stringId: Like(`refData.${refDataType}%`),
         text: Like(`%${queryString}%`),
       },
       select: ['stringId', 'text'],
