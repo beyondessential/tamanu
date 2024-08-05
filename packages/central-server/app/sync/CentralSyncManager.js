@@ -142,7 +142,6 @@ export class CentralSyncManager {
     const { idleSyncSessionTimeoutMs } = this.constructor.config.sync;
     if (
       idleSyncSessionTimeoutMs &&
-      !session.snapshotCompletedAt &&
       !session.error &&
       session.updatedAt - session.createdAt > idleSyncSessionTimeoutMs
     ) {
