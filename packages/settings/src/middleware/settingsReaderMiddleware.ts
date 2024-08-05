@@ -1,10 +1,9 @@
 import config from 'config';
 import { ReadSettings } from '../reader';
-import { selectFacilityIds } from '@tamanu/shared/utils/configSelectors';
 
 export const settingsReaderMiddleware = (req, _res, next) => {
   const { models } = req;
-  const facilityIds = selectFacilityIds(config);
+  const facilityIds = (config as any).facilityIds;
   try {
     // n.b. facilityId will not be defined if
     // - this is a central server; or
