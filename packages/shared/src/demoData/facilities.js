@@ -19,7 +19,7 @@ export const FACILITIES = splitIds(`
 export const seedFacilities = async models => {
   const facilities = FACILITIES.map(d => ({ ...d, code: d.name }));
 
-  // ensure that whatever our configured serverFacilityId is has an entry as well
+  // ensure that all our configured serverFacilityIds have an entry as well
   // otherwise a bunch of tests will break
   const serverFacilityIds = selectFacilityIds(config);
   if (serverFacilityIds) {

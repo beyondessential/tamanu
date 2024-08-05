@@ -3,10 +3,10 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { literal, Op, Sequelize } from 'sequelize';
 import { NotFoundError } from '@tamanu/shared/errors';
+import { keyBy, omit } from 'lodash';
 import {
   DEFAULT_HIERARCHY_TYPE,
   ENGLISH_LANGUAGE_CODE,
-  INVOICE_LINE_TYPES,
   REFERENCE_DATA_TRANSLATION_PREFIX,
   REFERENCE_TYPE_VALUES,
   REFERENCE_TYPES,
@@ -15,8 +15,8 @@ import {
   SURVEY_TYPES,
   TRANSLATABLE_REFERENCE_TYPES,
   VISIBILITY_STATUSES,
+  OTHER_REFERENCE_TYPES,
 } from '@tamanu/constants';
-import { keyBy } from 'lodash';
 
 export const suggestions = express.Router();
 
@@ -28,14 +28,17 @@ const defaultMapper = ({ name, code, id }) => ({ name, code, id });
 const extractDataId = ({ stringId }) => stringId.split('.').pop();
 const replaceDataLabelsWithTranslations = ({ data, translations }) => {
   const translationsByDataId = keyBy(translations, extractDataId);
-  return data.map(item => ({ ...item, name: translationsByDataId[item.id]?.text || item.name }));
+  return data.map(item => {
+    const itemData = item instanceof Sequelize.Model ? item.dataValues : item; // if is Sequelize model, use the dataValues instead to prevent Converting circular structure to JSON error when destructing
+    return { ...itemData, name: translationsByDataId[item.id]?.text || item.name };
+  });
 };
 const ENDPOINT_TO_DATA_TYPE = {
   // Special cases where the endpoint name doesn't match the dataType
-  ['facilityLocationGroup']: 'locationGroup',
-  ['patientLabTestCategories']: 'labTestCategory',
-  ['patientLabTestPanelTypes']: 'labTestPanelType',
-  ['invoiceLineTypes']: 'invoiceLineType',
+  ['facilityLocationGroup']: OTHER_REFERENCE_TYPES.LOCATION_GROUP,
+  ['patientLabTestCategories']: REFERENCE_TYPES.LAB_TEST_CATEGORY,
+  ['patientLabTestPanelTypes']: OTHER_REFERENCE_TYPES.LAB_TEST_PANEL,
+  ['invoiceProducts']: OTHER_REFERENCE_TYPES.INVOICE_PRODUCT,
 };
 const getDataType = endpoint => ENDPOINT_TO_DATA_TYPE[endpoint] || endpoint;
 
@@ -58,13 +61,14 @@ function createSuggesterRoute(
       const positionQuery = literal(
         `POSITION(LOWER(:positionMatch) in LOWER(${`"${modelName}"."${searchColumn}"`})) > 1`,
       );
+      const dataType = getDataType(endpoint);
 
-      const isTranslatable = TRANSLATABLE_REFERENCE_TYPES.includes(getDataType(endpoint));
+      const isTranslatable = TRANSLATABLE_REFERENCE_TYPES.includes(dataType);
 
       const translations = isTranslatable
         ? await models.TranslatedString.getReferenceDataTranslationsByDataType({
             language,
-            refDataType: getDataType(endpoint),
+            refDataType: dataType,
             queryString: searchQuery,
           })
         : [];
@@ -79,6 +83,7 @@ function createSuggesterRoute(
         [Op.or]: [
           whereQuery,
           {
+            ...(dataType === OTHER_REFERENCE_TYPES.INVOICE_PRODUCT ? omit(whereQuery, 'name') : {}), //! Workaround for invoice product suggester while waiting for the actual fix
             id: { [Op.in]: suggestedIds },
             ...(visibilityStatus
               ? {
@@ -109,8 +114,7 @@ function createSuggesterRoute(
         limit: defaultLimit,
       });
       // Allow for async mapping functions (currently only used by location suggester)
-      const data = await Promise.all(results.map(mapper));
-
+      const data = await Promise.all(results.map(r => mapper(r)));
       res.send(isTranslatable ? replaceDataLabelsWithTranslations({ data, translations }) : data);
     }),
   );
@@ -363,13 +367,28 @@ createNameSuggester('survey', 'Survey', (search, { programId }) => ({
 }));
 
 createSuggester(
-  'invoiceLineTypes',
-  'InvoiceLineType',
+  'invoiceProducts',
+  'InvoiceProduct',
   search => ({
     name: { [Op.iLike]: search },
-    itemType: INVOICE_LINE_TYPES.ADDITIONAL,
+    '$referenceData.type$': REFERENCE_TYPES.ADDITIONAL_INVOICE_PRODUCT,
+    ...VISIBILITY_CRITERIA,
   }),
-  { mapper: ({ id, name, price }) => ({ id, name, price }) },
+  {
+    mapper: product => {
+      product.addVirtualFields();
+      return product;
+    },
+    includeBuilder: req => {
+      return [
+        {
+          model: req.models.ReferenceData,
+          as: 'referenceData',
+          attributes: ['code', 'type'],
+        },
+      ];
+    },
+  },
 );
 
 createSuggester(

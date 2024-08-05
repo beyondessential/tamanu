@@ -43,18 +43,19 @@ export const REFERENCE_TYPES = {
   ARRIVAL_MODE: 'arrivalMode',
   VACCINE_NOT_GIVEN_REASON: 'vaccineNotGivenReason',
   VACCINE_CIRCUMSTANCE: 'vaccineCircumstance',
-  ADDITIONAL_INVOICE_LINE: 'additionalInvoiceLine',
+  ADDITIONAL_INVOICE_PRODUCT: 'additionalInvoiceProduct',
   SPECIMEN_TYPE: 'specimenType',
+  INSURER: 'insurer',
+  PAYMENT_METHOD: 'paymentMethod',
   ...IMAGING_AREA_TYPES,
 };
 export const REFERENCE_TYPE_VALUES = Object.values(REFERENCE_TYPES);
 
 // Reference data stored in its own table (not in 'reference_data' table)
-const OTHER_REFERENCE_TYPES = {
+export const OTHER_REFERENCE_TYPES = {
   DEPARTMENT: 'department',
   FACILITY: 'facility',
-  INVOICE_LINE_TYPE: 'invoiceLineType',
-  INVOICE_PRICE_CHANGE_TYPE: 'invoicePriceChangeType',
+  INVOICE_PRODUCT: 'invoiceProduct',
   LAB_TEST_TYPE: 'labTestType',
   LAB_TEST_PANEL: 'labTestPanel',
   LOCATION: 'location',

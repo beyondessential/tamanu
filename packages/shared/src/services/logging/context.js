@@ -5,7 +5,7 @@ import os from 'os';
 import { selectFacilityIds } from '../../utils/configSelectors';
 
 export const ENV = process.env.NODE_ENV ?? 'development';
-export const PROCESS_ID = shortid.generate();
+export const PROCESS_ID = shortid();
 export const HOSTNAME = os.hostname();
 
 const SemanticAttributes = {

@@ -49,6 +49,7 @@ export class PatientAdditionalData extends Model {
           },
         },
         updatedAtByField: DataTypes.JSON,
+        insurerPolicyNumber: DataTypes.STRING,
       },
       {
         ...options,
@@ -101,6 +102,7 @@ export class PatientAdditionalData extends Model {
     referenceRelation('religion');
     referenceRelation('patientBillingType');
     referenceRelation('countryOfBirth');
+    referenceRelation('insurer');
   }
 
   static getFullReferenceAssociations() {

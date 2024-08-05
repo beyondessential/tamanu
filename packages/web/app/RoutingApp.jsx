@@ -19,9 +19,10 @@ import {
 } from './routes';
 import { Sidebar, useCentralSidebar, useFacilitySidebar } from './components/Sidebar';
 import { UserActivityMonitor } from './components/UserActivityMonitor';
+import { getServerType } from './store';
 
 export const RoutingApp = () => {
-  const isCentralServer = useSelector(state => state.auth?.serverType === SERVER_TYPES.CENTRAL);
+  const isCentralServer = useSelector(getServerType) === SERVER_TYPES.CENTRAL;
   return isCentralServer ? <RoutingAdminApp /> : <RoutingFacilityApp />;
 };
 

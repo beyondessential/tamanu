@@ -55,8 +55,10 @@ const handleLoginSuccess = (dispatch, loginInfo) => {
   } else {
     // if there's just one facility the user has access to, select it immediately
     // otherwise they will be prompted to select a facility after login
-    const onlyFacilityId = availableFacilities.length === 1 ? availableFacilities[0].id : null;
-    dispatch(setFacilityId(onlyFacilityId));
+    const onlyFacilityId = availableFacilities?.length === 1 ? availableFacilities[0].id : null;
+    if (onlyFacilityId) {
+      dispatch(setFacilityId(onlyFacilityId));
+    }
   }
 
   dispatch({
@@ -142,6 +144,7 @@ export const changePassword = data => async (dispatch, getState, { api }) => {
 
 // selectors
 export const getCurrentUser = ({ auth }) => auth.user;
+export const getServerType = ({ auth }) => auth?.server?.type;
 export const checkIsLoggedIn = state => !!getCurrentUser(state);
 export const checkIsFacilitySelected = ({ auth }) => !!auth.facilityId;
 

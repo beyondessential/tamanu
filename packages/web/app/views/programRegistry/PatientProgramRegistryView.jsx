@@ -49,17 +49,22 @@ export const PatientProgramRegistryView = () => {
   const { patientId, programRegistryId } = useParams();
   const { data, isLoading, isError } = usePatientProgramRegistration(patientId, programRegistryId);
   const {
-    data: programRegistryConditions,
+    data: programRegistryConditions = [],
     isLoading: conditionsLoading,
   } = useProgramRegistryConditionsQuery(data?.programRegistryId);
+
+  if (isLoading || conditionsLoading) {
+    return <LoadingIndicator />;
+  }
+
+  if (isError) {
+    return <p>Program registry &apos;{title || 'Unknown'}&apos; not found.</p>;
+  }
 
   const conditionOptions = programRegistryConditions.map(x => ({
     label: x.name,
     value: x.id,
   }));
-
-  if (isLoading || conditionsLoading) return <LoadingIndicator />;
-  if (isError) return <p>Program registry &apos;{title || 'Unknown'}&apos; not found.</p>;
 
   return (
     <Fragment key={data.id}>

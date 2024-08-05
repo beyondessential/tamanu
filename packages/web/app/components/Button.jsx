@@ -60,6 +60,7 @@ const StyledButton = styled(({ ...props }) => {
   &.MuiButton-outlinedPrimary {
     border-color: ${props => props.theme.palette.primary.main};
   }
+  ${props => props.confirmStyle ? props.confirmStyle : ''}
 `;
 
 const StyledCircularProgress = styled(CircularProgress)`
