@@ -91,6 +91,16 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
         maxWidth: 200,
       },
       {
+        key: 'division',
+        title: 'Division',
+        accessor: ({ patient }) => patient.division.name,
+      },
+      {
+        key: 'subdivision',
+        title: 'Subdivision',
+        accessor: ({ patient }) => patient.subdivision.name,
+      },
+      {
         key: 'clinicalStatus',
         title: 'Status',
         accessor: row => {
