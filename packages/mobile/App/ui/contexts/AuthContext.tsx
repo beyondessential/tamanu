@@ -104,6 +104,7 @@ const Provider = ({
   };
 
   const remoteSignIn = async (params: SyncConnectionParameters): Promise<void> => {
+    // TODO: enforce allowed
     const { user: usr, settings, token, refreshToken } = await backend.auth.remoteSignIn(params);
     setToken(token);
     setSettings(settings);
