@@ -11,10 +11,12 @@ import { createTestContext } from '../utilities';
 import { selectFacilityIds } from '@tamanu/shared/utils/configSelectors';
 import { SETTINGS_SCOPES } from '@tamanu/constants';
 import { ReadSettings } from '@tamanu/settings';
+import { facilityTestSettings } from '@tamanu/settings/test';
 
 const chance = new Chance();
 const TEST_VITALS_SURVEY_ID = 'vitals-survey-id-for-testing-purposes';
 describe('SurveyResponseAnswer', () => {
+  const [facilityId] = selectFacilityIds(config);
   let app;
   let baseApp;
   let models;
@@ -29,8 +31,6 @@ describe('SurveyResponseAnswer', () => {
   afterAll(() => ctx.close());
 
   describe('getDefaultId', () => {
-    const [facilityId] = selectFacilityIds(config);
-    let settings;
     beforeAll(async () => {
       const { Setting, Department } = models;
       await Department.create({
@@ -45,16 +45,31 @@ describe('SurveyResponseAnswer', () => {
         SETTINGS_SCOPES.FACILITY,
         facilityId,
       );
-      settings = new ReadSettings(models, facilityId);
     });
     afterAll(async () => {
       const { Setting } = models;
       await Setting.truncate();
     });
 
-    it('should return the default id for a resource from settings', async () => {
-      const departmentId = await models.SurveyResponseAnswer.getDefaultId('location', settings);
-      expect(departmentId).toEqual('test-location-id');
+    it('should return the default id for a resource matching a code specified with settings', async () => {
+      const departmentId = await models.SurveyResponseAnswer.getDefaultId(
+        'department',
+        new ReadSettings(models, facilityId),
+      );
+      expect(departmentId).toEqual('test-department-id');
+    });
+    it('should return the id of record matching the default code for a resource when no settings are defined', async () => {
+      const locationId = await models.SurveyResponseAnswer.getDefaultId(
+        'location',
+        new ReadSettings(models, facilityId),
+      );
+      const location = await models.Location.findOne({
+        where: {
+          code: facilityTestSettings.survey.defaultCodes.location,
+        },
+        attributes: ['id'],
+      });
+      expect(locationId).toBe(location.id);
     });
   });
 
