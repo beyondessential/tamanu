@@ -143,6 +143,7 @@ export class CentralSyncManager {
     if (
       snapshotTransactionTimeoutMs &&
       !session.snapshotCompletedAt &&
+      !session.error &&
       session.updatedAt - session.createdAt > snapshotTransactionTimeoutMs
     ) {
       session.error = `Snapshot for session ${sessionId} timed out`;
