@@ -2,7 +2,7 @@ import { DataTypes } from 'sequelize';
 export async function up(query) {
   await query.removeColumn('sync_queued_devices', 'facility_id');
   await query.addColumn('sync_queued_devices', 'facility_ids', {
-    type: DataTypes.STRING,
+    type: DataTypes.TEXT,
     allowNull: false,
   });
 }
