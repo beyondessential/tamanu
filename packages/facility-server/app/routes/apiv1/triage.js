@@ -8,6 +8,7 @@ import { ENCOUNTER_TYPES, NOTE_TYPES } from '@tamanu/constants';
 import { renameObjectKeys } from '@tamanu/shared/utils';
 
 import { simpleGet, simplePut } from '@tamanu/shared/utils/crudHelpers';
+import { ReadSettings } from '@tamanu/settings';
 
 export const triage = express.Router();
 
@@ -52,7 +53,8 @@ triage.post(
     const triageRecord = await models.Triage.create({ ...body, departmentId, actorId: user.id });
 
     if (vitals) {
-      const getDefaultId = async type => models.SurveyResponseAnswer.getDefaultId(type, facilityId);
+      const settings = new ReadSettings(models, facilityId);
+      const getDefaultId = async type => models.SurveyResponseAnswer.getDefaultId(type, settings);
       const updatedBody = {
         locationId: vitals.locationId || (await getDefaultId('location')),
         departmentId: vitals.departmentId || (await getDefaultId('department')),

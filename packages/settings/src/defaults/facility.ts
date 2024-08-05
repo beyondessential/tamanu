@@ -4,6 +4,9 @@ export const facilityDefaults = {
   },
   vaccinations: {},
   survey: {
-    defaultCodes: {},
+    defaultCodes: {
+      department: 'GeneralClinic',
+      location: 'GeneralClinic',
+    },
   },
 };

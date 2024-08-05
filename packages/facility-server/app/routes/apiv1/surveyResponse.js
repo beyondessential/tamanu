@@ -2,6 +2,8 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 
 import { getAutocompleteComponentMap } from '@tamanu/shared/reports/utilities';
+import { ReadSettings } from '@tamanu/settings';
+
 export const surveyResponse = express.Router();
 
 // also update getNameColumnForModel in /packages/facility-server/app/routes/apiv1/surveyResponse.js when this changes
@@ -103,7 +105,8 @@ surveyResponse.post(
     const noun = await models.Survey.getResponsePermissionCheck(body.surveyId);
     req.checkPermission('create', noun);
 
-    const getDefaultId = async type => models.SurveyResponseAnswer.getDefaultId(type, facilityId);
+    const settings = new ReadSettings(models, facilityId);
+    const getDefaultId = async type => models.SurveyResponseAnswer.getDefaultId(type, settings);
     const updatedBody = {
       locationId: body.locationId || (await getDefaultId('location')),
       departmentId: body.departmentId || (await getDefaultId('department')),

@@ -2,6 +2,7 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 
 import { permissionCheckingRouter, simpleGet, simplePut } from '@tamanu/shared/utils/crudHelpers';
+import { ReadSettings } from '@tamanu/settings';
 
 export const referral = express.Router();
 
@@ -17,7 +18,8 @@ referral.post(
     } = req;
     req.checkPermission('create', 'Referral');
 
-    const getDefaultId = async type => models.SurveyResponseAnswer.getDefaultId(type, facilityId);
+    const settings = new ReadSettings(models, facilityId);
+    const getDefaultId = async type => models.SurveyResponseAnswer.getDefaultId(type, settings);
     const updatedBody = {
       locationId: body.locationId || (await getDefaultId('location')),
       departmentId: body.departmentId || (await getDefaultId('department')),
