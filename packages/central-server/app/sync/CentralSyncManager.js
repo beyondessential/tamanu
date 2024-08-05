@@ -138,6 +138,16 @@ export class CentralSyncManager {
     if (session.completedAt) {
       throw new Error(`Sync session '${sessionId}' is already completed`);
     }
+
+    const { snapshotTransactionTimeoutMs } = this.constructor.config.sync;
+    if (
+      snapshotTransactionTimeoutMs &&
+      session.updatedAt - session.createdAt > snapshotTransactionTimeoutMs
+    ) {
+      session.error = `Snapshot for session ${sessionId} timed out`;
+      await session.save();
+    }
+
     if (session.error) {
       throw new Error(errorMessageFromSession(session));
     }
