@@ -47,7 +47,11 @@ export const Screen = ({ onSubmit, onClear, onCancel }: ScreenProps): ReactEleme
           />
         </Button>
 
-        <StyledText fontSize={16} color={theme.colors.WHITE}>
+        <StyledText
+          fontSize={screenPercentageToDP(2.28, Orientation.Height)}
+          color={theme.colors.WHITE}
+          textAlign="center"
+        >
           <TranslatedText stringId="patient.search.filter.title" fallback="Filter Search" />
         </StyledText>
 
@@ -57,7 +61,10 @@ export const Screen = ({ onSubmit, onClear, onCancel }: ScreenProps): ReactEleme
           width={screenPercentageToDP(20, Orientation.Width)}
           marginRight={screenPercentageToDP(2.43, Orientation.Width)}
         >
-          <StyledText color={theme.colors.BOX_OUTLINE} fontSize={11}>
+          <StyledText
+            color={theme.colors.WHITE}
+            fontSize={screenPercentageToDP(1.57, Orientation.Height)}
+          >
             <TranslatedText
               stringId="patient.search.filter.action.clearFilters"
               fallback="Clear filters"
@@ -67,12 +74,12 @@ export const Screen = ({ onSubmit, onClear, onCancel }: ScreenProps): ReactEleme
       </RowView>
     </StyledSafeAreaView>
     <StyledScrollView keyboardShouldPersistTaps="never">
-        <NameSection />
-        <DateSection />
-        <VillageSection />
-        <SexSection />
-        <ProgramRegistrySection />
-        <SubmitSection onSubmit={onSubmit} />
+      <NameSection />
+      <DateSection />
+      <VillageSection />
+      <SexSection />
+      <ProgramRegistrySection />
+      <SubmitSection onSubmit={onSubmit} />
     </StyledScrollView>
   </FullView>
 );

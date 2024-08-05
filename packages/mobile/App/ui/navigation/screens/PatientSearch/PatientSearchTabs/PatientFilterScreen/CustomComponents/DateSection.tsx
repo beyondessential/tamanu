@@ -3,6 +3,7 @@ import { DateField } from '/components/DateField/DateField';
 import { StyledView } from '~/ui/styled/common';
 import { LocalisedField } from '~/ui/components/Forms/LocalisedField';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
+import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
 
 export const DateSection = (): ReactElement => (
   <StyledView marginLeft={20} marginRight={20}>
@@ -14,7 +15,8 @@ export const DateSection = (): ReactElement => (
         />
       }
       localisationPath="fields.dateOfBirth"
-      labelFontSize={14}
+      labelFontSize={screenPercentageToDP(2, Orientation.Height)}
+      fieldFontSize={screenPercentageToDP(2, Orientation.Height)}
       component={DateField}
       max={new Date()}
       name="dateOfBirth"
