@@ -2,4 +2,4 @@ export { settingsCache } from './cache';
 export { centralDefaults, globalDefaults, facilityDefaults } from './defaults';
 export { ReadSettings, buildSettings } from './reader';
 export { facilityTestSettings, centralTestSettings, globalTestSettings } from './test';
-export { settingsReaderMiddleware } from './middleware';
+// export { settingsReaderMiddleware } from './middleware';

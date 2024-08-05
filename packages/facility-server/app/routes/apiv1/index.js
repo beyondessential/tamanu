@@ -1,7 +1,8 @@
 import express from 'express';
 
 import { constructPermission } from '@tamanu/shared/permissions/middleware';
-import { settingsReaderMiddleware, settingsCache } from '@tamanu/settings';
+import { settingsCache } from '@tamanu/settings';
+import { settingsReaderMiddleware } from '@tamanu/settings/middleware';
 import {
   authMiddleware,
   loginHandler,
