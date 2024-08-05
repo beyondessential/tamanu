@@ -121,6 +121,8 @@ programRegistry.get(
       })),
       makeFilter(filterParams.dateOfBirth, `patient.date_of_birth = :dateOfBirth`),
       makeFilter(filterParams.homeVillage, `patient.village_id = :homeVillage`),
+      makeFilter(filterParams.divisionId, `pad.division_id = :divisionId`),
+      makeFilter(filterParams.subDivisionId, `pad.subdivision_id = :subDivisionId`),
       makeFilter(
         !filterParams.deceased || filterParams.deceased === 'false',
         'patient.date_of_death IS NULL',
