@@ -142,6 +142,7 @@ export class CentralSyncManager {
     const { snapshotTransactionTimeoutMs } = this.constructor.config.sync;
     if (
       snapshotTransactionTimeoutMs &&
+      !session.snapshotCompletedAt &&
       session.updatedAt - session.createdAt > snapshotTransactionTimeoutMs
     ) {
       session.error = `Snapshot for session ${sessionId} timed out`;
