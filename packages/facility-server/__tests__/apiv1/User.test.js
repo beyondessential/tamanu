@@ -29,11 +29,11 @@ describe('User', () => {
   let authUser = null;
   let deactivatedUser = null;
 
-  const FACILITY_1 = { id: 'balwyn', name: 'Balwyn' };
-  const FACILITY_2 = { id: 'kerang', name: 'Kerang' };
-  const FACILITY_3 = { id: 'lake-charm', name: 'Lake Charm' };
-  const CONFIG_FACILITIES = [FACILITY_1, FACILITY_2, FACILITY_3];
-  const CONFIG_FACILITY_IDS = CONFIG_FACILITIES.map(f => f.id);
+  const facility1 = { id: 'balwyn', name: 'Balwyn' };
+  const facility2 = { id: 'kerang', name: 'Kerang' };
+  const facility3 = { id: 'lake-charm', name: 'Lake Charm' };
+  const configFacilities = [facility1, facility2, facility3];
+  const configFacilityIds = configFacilities.map(f => f.id);
 
   beforeAll(async () => {
     ctx = await createTestContext();
@@ -60,7 +60,7 @@ describe('User', () => {
         }),
       );
       await models.UserFacility.create({
-        facilityId: FACILITY_1.id,
+        facilityId: facility1.id,
         userId: authUser.id,
       });
     });
@@ -85,7 +85,23 @@ describe('User', () => {
       expect(result).toHaveSucceeded();
       console.log(result.body);
       expect(result.body).toHaveProperty('availableFacilities');
-      expect(result.body.availableFacilities).toStrictEqual([FACILITY_1]);
+      expect(result.body.availableFacilities).toStrictEqual([facility1]);
+    });
+
+    it('should succeed if setting a facilitiy with permission', async () => {
+      const userAgent = await baseApp.asUser(authUser);
+      const validFacilityResult = await userAgent.post('/api/setFacility').send({
+        facilityId: facility1.id,
+      });
+      expect(validFacilityResult).toHaveSucceeded();
+    });
+
+    it('should throw error if trying to set a facilitiy without permission', async () => {
+      const userAgent = await baseApp.asUser(authUser);
+      const validFacilityResult = await userAgent.post('/api/setFacility').send({
+        facilityId: facility2.id,
+      });
+      expect(validFacilityResult).toHaveRequestError();
     });
   });
 
@@ -102,7 +118,7 @@ describe('User', () => {
         localisation: JSON.stringify(localisation),
       });
       await models.UserFacility.create({
-        facilityId: FACILITY_1.id,
+        facilityId: facility1.id,
         userId: authUser.id,
       });
     });
@@ -236,14 +252,6 @@ describe('User', () => {
         expect(result).toHaveRequestError();
       });
 
-      it('should return token if setting a facilitiy with permission', async () => {
-        const userAgent = await baseApp.asUser(authUser);
-        const validFacilityResult = await userAgent.post('/api/setFacility').send({
-          facilityId: FACILITY_1.id,
-        });
-        expect(validFacilityResult).toHaveSucceeded();
-      });
-
       describe('Rejected tokens', () => {
         it('should get the user based on the current token', async () => {
           const userAgent = await baseApp.asUser(authUser);
@@ -332,19 +340,30 @@ describe('User', () => {
   describe('User facility methods', () => {
     let user = null;
     let superUser = null;
+    let noFacilityUser = null;
 
-    const VALID_USER_FACILITIES = [FACILITY_1, FACILITY_2];
-    const VALID_USER_FACILITY_IDS = VALID_USER_FACILITIES.map(f => f.id);
+    const validUserFacilities = [facility1, facility2];
+    const validUserFacilityIds = validUserFacilities.map(f => f.id);
 
     beforeAll(async () => {
+      superUser = await models.User.create(
+        createUser({
+          role: 'admin',
+        }),
+      );
       user = await models.User.create(
+        createUser({
+          role: 'practitioner',
+        }),
+      );
+      noFacilityUser = await models.User.create(
         createUser({
           role: 'practitioner',
         }),
       );
 
       await Promise.all(
-        VALID_USER_FACILITIES.map(async facility => {
+        validUserFacilities.map(async facility => {
           return await models.UserFacility.create({
             facilityId: facility.id,
             userId: user.id,
@@ -353,12 +372,6 @@ describe('User', () => {
       );
 
       await user.reload({ include: 'facilities' });
-
-      superUser = await models.User.create(
-        createUser({
-          role: 'admin',
-        }),
-      );
     });
 
     describe('checkCanAccessAllFacilities', () => {
@@ -377,7 +390,11 @@ describe('User', () => {
       });
       it('should return linked facilities from user_facilities table', async () => {
         const userFacilities = await user.allowedFacilities();
-        expect(userFacilities).toStrictEqual(VALID_USER_FACILITIES);
+        expect(userFacilities).toStrictEqual(validUserFacilities);
+      });
+      it('should return empty array if no linked facilities', async () => {
+        const userFacilities = await noFacilityUser.allowedFacilities();
+        expect(userFacilities).toHaveLength(0);
       });
     });
 
@@ -390,9 +407,13 @@ describe('User', () => {
         expect(superUserFacilityIds).toBe(CAN_ACCESS_ALL_FACILITIES);
       });
       it('should return linked facility ids from user_facilities table', async () => {
-        jest.spyOn(user, 'allowedFacilities').mockImplementation(() => VALID_USER_FACILITIES);
+        jest.spyOn(user, 'allowedFacilities').mockImplementation(() => validUserFacilities);
         const userFacilityIds = await user.allowedFacilityIds();
-        expect(userFacilityIds).toStrictEqual(VALID_USER_FACILITY_IDS);
+        expect(userFacilityIds).toStrictEqual(validUserFacilityIds);
+      });
+      it('should return empty array if no linked facilities', async () => {
+        const userFacilityIds = await noFacilityUser.allowedFacilities();
+        expect(userFacilityIds).toHaveLength(0);
       });
     });
 
@@ -401,16 +422,23 @@ describe('User', () => {
         jest
           .spyOn(superUser, 'allowedFacilityIds')
           .mockImplementation(() => CAN_ACCESS_ALL_FACILITIES);
-        expect(await superUser.canAccessFacility(FACILITY_1.id)).toBe(true);
-        expect(await superUser.canAccessFacility(FACILITY_2.id)).toBe(true);
-        expect(await superUser.canAccessFacility(FACILITY_3.id)).toBe(true);
+        expect(await superUser.canAccessFacility(facility1.id)).toBe(true);
+        expect(await superUser.canAccessFacility(facility2.id)).toBe(true);
+        expect(await superUser.canAccessFacility(facility3.id)).toBe(true);
       });
 
       it('should only return true if valid facility linked through user table', async () => {
-        jest.spyOn(user, 'allowedFacilityIds').mockImplementation(() => VALID_USER_FACILITY_IDS);
-        expect(await user.canAccessFacility(FACILITY_1.id)).toBe(true);
-        expect(await user.canAccessFacility(FACILITY_2.id)).toBe(true);
-        expect(await user.canAccessFacility(FACILITY_3.id)).toBe(false);
+        jest.spyOn(user, 'allowedFacilityIds').mockImplementation(() => validUserFacilityIds);
+        expect(await user.canAccessFacility(facility1.id)).toBe(true);
+        expect(await user.canAccessFacility(facility2.id)).toBe(true);
+        expect(await user.canAccessFacility(facility3.id)).toBe(false);
+      });
+
+      it('should only always return false if no facility links', async () => {
+        jest.spyOn(user, 'allowedFacilityIds').mockImplementation(() => []);
+        expect(await user.canAccessFacility(facility1.id)).toBe(false);
+        expect(await user.canAccessFacility(facility2.id)).toBe(false);
+        expect(await user.canAccessFacility(facility3.id)).toBe(false);
       });
     });
 
@@ -418,17 +446,17 @@ describe('User', () => {
       it('should return all DB facilities that match facilityIds argument if super user', async () => {
         const superUserAllowedFacilities = await models.User.filterAllowedFacilities(
           CAN_ACCESS_ALL_FACILITIES,
-          CONFIG_FACILITY_IDS,
+          configFacilityIds,
         );
-        expect(superUserAllowedFacilities).toStrictEqual([FACILITY_1, FACILITY_2, FACILITY_3]);
+        expect(superUserAllowedFacilities).toStrictEqual([facility1, facility2, facility3]);
       });
 
       it('should filter allowed facilities by facilityIds argument if normal user', async () => {
         const userAllowedFacilities = await models.User.filterAllowedFacilities(
-          VALID_USER_FACILITIES,
-          CONFIG_FACILITY_IDS,
+          validUserFacilities,
+          configFacilityIds,
         );
-        expect(userAllowedFacilities).toStrictEqual(VALID_USER_FACILITIES);
+        expect(userAllowedFacilities).toStrictEqual(validUserFacilities);
       });
     });
   });
