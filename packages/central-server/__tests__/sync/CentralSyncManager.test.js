@@ -183,6 +183,28 @@ describe('CentralSyncManager', () => {
       });
       expect(changes.length).toBe(1);
     });
+    it('returns all the outgoing changes with multiple facilities', async () => {
+      const facility1 = await models.Facility.create(fake(models.Facility));
+      const facility2 = await models.Facility.create(fake(models.Facility));
+      const facility3 = await models.Facility.create(fake(models.Facility));
+      const centralSyncManager = initializeCentralSyncManager();
+      const { sessionId } = await centralSyncManager.startSession();
+      await waitForSession(centralSyncManager, sessionId);
+
+      await centralSyncManager.setupSnapshotForPull(
+        sessionId,
+        {
+          since: 1,
+          facilityIds: [facility1.id, facility2.id, facility3.id],
+        },
+        () => true,
+      );
+
+      const changes = await centralSyncManager.getOutgoingChanges(sessionId, {
+        limit: 10,
+      });
+      expect(changes.length).toBe(3);
+    });
   });
 
   describe('setupSnapshotForPull', () => {
