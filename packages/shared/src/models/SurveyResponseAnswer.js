@@ -69,10 +69,10 @@ export class SurveyResponseAnswer extends Model {
     `;
   }
 
-  static getDefaultId = async (resource, facilityId) => {
+  static getDefaultId = async (resource, settings) => {
     const { models } = this.sequelize;
     const code =
-      (await models.Setting.get(`survey.defaultCodes.${resource}`, facilityId)) ||
+      (await settings.get(`survey.defaultCodes.${resource}`)) ||
       config.survey.defaultCodes[resource];
     const modelName = upperFirst(resource);
     const model = models[modelName];
