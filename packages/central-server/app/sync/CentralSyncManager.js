@@ -283,25 +283,25 @@ export class CentralSyncManager {
         since,
       );
 
-      // query settings table and return boolean for if any syncAllLabRequests with facility id in ids
-
+      // query settings table and return true if any facility has set syncAllLabRequests to true
       const [{ syncAllLabRequests }] = await sequelize.query(
         `
         SELECT EXISTS (
           SELECT 1
           FROM settings
           WHERE key = 'syncAllLabRequests'
-            AND scope = '${SETTINGS_SCOPES.FACILITY}'
+            AND scope = :scope
             AND facility_id IN (:facilityIds)
             AND value = 'true'
         ) AS "syncAllLabRequests"
         `,
         {
-          replacements: { facilityIds },
+          replacements: { facilityIds, scope: SETTINGS_SCOPES.FACILITY },
           type: QueryTypes.SELECT,
         },
       );
 
+      // query settings table and return unique concatenated array of each facilities program registries to sync
       const [{ syncTheseProgramRegistries }] = await sequelize.query(
         `
         SELECT ARRAY_AGG(DISTINCT elem::text) as "syncTheseProgramRegistries"
@@ -309,12 +309,12 @@ export class CentralSyncManager {
           SELECT jsonb_array_elements_text(value) AS elem
           FROM settings
           WHERE key = 'syncTheseProgramRegistries'
-            AND scope = '${SETTINGS_SCOPES.FACILITY}'
+            AND scope = :scope
             AND facility_id IN (:facilityIds)
         ) sq;
          `,
         {
-          replacements: { facilityIds },
+          replacements: { facilityIds, scope: SETTINGS_SCOPES.FACILITY },
           type: QueryTypes.SELECT,
         },
       );
