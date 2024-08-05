@@ -183,19 +183,23 @@ export async function loginHandler(req, res, next) {
   }
 }
 
-export async function setFacilityHandler(req, res) {
+export async function setFacilityHandler(req, res, next) {
   const { user, body } = req;
   const { facilityId } = body;
 
   // Run after auth middleware, requires valid token but no other permission
   req.flagPermissionChecked();
 
-  const hasAccess = await user.canAccessFacility(facilityId);
-  if (!hasAccess) {
-    throw new BadAuthenticationError('User does not have access to this facility');
+  try {
+    const hasAccess = await user.canAccessFacility(facilityId, req);
+    if (!hasAccess) {
+      throw new BadAuthenticationError('User does not have access to this facility');
+    }
+    const token = await buildToken(user, facilityId);
+    res.send({ token });
+  } catch (error) {
+    next(error);
   }
-  const token = await buildToken(user, facilityId);
-  res.send({ token });
 }
 
 export async function refreshHandler(req, res) {
