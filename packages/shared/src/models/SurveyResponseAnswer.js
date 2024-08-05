@@ -1,3 +1,4 @@
+import config from 'config';
 import { upperFirst } from 'lodash';
 import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
@@ -68,10 +69,13 @@ export class SurveyResponseAnswer extends Model {
     `;
   }
 
-  static getDefaultId = async (resource, settings) => {
-    const code = await settings.get(`survey.defaultCodes.${resource}`);
+  static getDefaultId = async (resource, facilityId) => {
+    const { models } = this.sequelize;
+    const code =
+      (await models.Setting.get(`survey.defaultCodes.${resource}`, facilityId)) ||
+      config.survey.defaultCodes[resource];
     const modelName = upperFirst(resource);
-    const model = this.sequelize.models[modelName];
+    const model = models[modelName];
     if (!model) {
       throw new Error(`Model not found: ${modelName}`);
     }

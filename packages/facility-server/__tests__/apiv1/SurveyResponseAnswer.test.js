@@ -10,13 +10,11 @@ import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { createTestContext } from '../utilities';
 import { selectFacilityIds } from '@tamanu/shared/utils/configSelectors';
 import { SETTINGS_SCOPES } from '@tamanu/constants';
-import { ReadSettings } from '@tamanu/settings';
 import { facilityTestSettings } from '@tamanu/settings/test';
 
 const chance = new Chance();
 const TEST_VITALS_SURVEY_ID = 'vitals-survey-id-for-testing-purposes';
 describe('SurveyResponseAnswer', () => {
-  const [facilityId] = selectFacilityIds(config);
   let app;
   let baseApp;
   let models;
@@ -31,6 +29,7 @@ describe('SurveyResponseAnswer', () => {
   afterAll(() => ctx.close());
 
   describe('getDefaultId', () => {
+    const [facilityId] = selectFacilityIds(config);
     beforeAll(async () => {
       const { Setting, Department } = models;
       await Department.create({
@@ -51,18 +50,12 @@ describe('SurveyResponseAnswer', () => {
       await Setting.truncate();
     });
 
-    it('should return the default id for a resource matching a code specified with settings', async () => {
-      const departmentId = await models.SurveyResponseAnswer.getDefaultId(
-        'department',
-        new ReadSettings(models, facilityId),
-      );
+    it('should return the default id for a resource from settings', async () => {
+      const departmentId = await models.SurveyResponseAnswer.getDefaultId('department', facilityId);
       expect(departmentId).toEqual('test-department-id');
     });
-    it('should return the id of record matching the default code for a resource when no settings are defined', async () => {
-      const locationId = await models.SurveyResponseAnswer.getDefaultId(
-        'location',
-        new ReadSettings(models, facilityId),
-      );
+    it('should return the default id from config if no settings facility override defined', async () => {
+      const locationId = await models.SurveyResponseAnswer.getDefaultId('location', facilityId);
       const location = await models.Location.findOne({
         where: {
           code: facilityTestSettings.survey.defaultCodes.location,
