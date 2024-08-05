@@ -1,4 +1,10 @@
-import { OTHER_REFERENCE_TYPES, REFERENCE_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
+import {
+  IMAGING_REQUEST_STATUS_TYPES,
+  LAB_TEST_STATUSES,
+  OTHER_REFERENCE_TYPES,
+  REFERENCE_TYPES,
+  VISIBILITY_STATUSES,
+} from '@tamanu/constants';
 import { NotFoundError } from '@tamanu/shared/errors';
 import { QueryTypes } from 'sequelize';
 
@@ -55,7 +61,8 @@ filtered_imagings as (
 			"unnest" as "code"
 		from unnest(array[:imagingTypes])
 	) as rd on rd.id = ir.imaging_type
-	where ir.deleted_at is null
+	where ir.status NOT IN (:excludedImagingRequestStatuses)
+	and ir.deleted_at is null
 	and ir.encounter_id = :encounterId
 ),
 filtered_labtests as (
@@ -69,7 +76,8 @@ filtered_labtests as (
 	from lab_tests lt
 	join lab_requests lr on lr.deleted_at is null and lr.id = lt.lab_request_id
 	join lab_test_types ltt on ltt.deleted_at is null and ltt.visibility_status = :visibilityStatus and ltt.id = lt.lab_test_type_id
-	where lt.deleted_at is null
+	where lt.status NOT IN (:excludedLabTestStatuses)
+	and lt.deleted_at is null
 	and lr.encounter_id = :encounterId
 ),
 filtered_products as (
@@ -102,6 +110,14 @@ join users u on u.deleted_at is null and coalesce(fpc."orderedByUserId",fi."orde
         encounterId,
         imagingType: REFERENCE_TYPES.IMAGING_TYPE,
         imagingTypes,
+        excludedLabTestStatuses: [
+          LAB_TEST_STATUSES.RECEPTION_PENDING,
+          LAB_TEST_STATUSES.CANCELLED,
+          LAB_TEST_STATUSES.DELETED,
+          LAB_TEST_STATUSES.SAMPLE_NOT_COLLECTED,
+          LAB_TEST_STATUSES.ENTERED_IN_ERROR,
+        ],
+        excludedImagingRequestStatuses: [IMAGING_REQUEST_STATUS_TYPES.PENDING],
         labtestType: OTHER_REFERENCE_TYPES.LAB_TEST_TYPE,
         visibilityStatus: VISIBILITY_STATUSES.CURRENT,
       },
