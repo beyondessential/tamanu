@@ -29,4 +29,12 @@ export class SyncSession extends Model {
       debugInfo: { ...session.debugInfo, ...info },
     });
   }
+
+  static async markErrored(id, error) {
+    const session = await this.findOne({ where: { id } });
+    await session.update({
+      error: error.toString(),
+      completedAt: new Date(),
+    });
+  }
 }

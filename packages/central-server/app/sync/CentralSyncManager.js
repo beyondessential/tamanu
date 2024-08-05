@@ -209,10 +209,7 @@ export class CentralSyncManager {
       this.setupSnapshotForPull(sessionId, params, unmarkSnapshotAsProcessing); // don't await, as it takes a while - the sync client will poll for it to finish
     } catch (error) {
       log.error('CentralSyncManager.initiatePull encountered an error', error);
-      await this.store.models.SyncSession.update(
-        { error: error.message },
-        { where: { id: sessionId } },
-      );
+      await this.store.models.SyncSession.markErrored(sessionId, error.message);
     }
   }
 
@@ -371,10 +368,7 @@ export class CentralSyncManager {
         sessionId,
         ...error,
       });
-      await this.store.models.SyncSession.update(
-        { error: error.message },
-        { where: { id: sessionId } },
-      );
+      await this.store.models.SyncSession.markErrored(sessionId, error.message);
     } finally {
       if (transactionTimeout) clearTimeout(transactionTimeout);
       await unmarkSnapshotAsProcessing();
@@ -487,7 +481,7 @@ export class CentralSyncManager {
       );
     } catch (error) {
       log.error('CentralSyncManager.persistIncomingChanges encountered an error', error);
-      await models.SyncSession.update({ error: error.message }, { where: { id: sessionId } });
+      await models.SyncSession.markErrored(sessionId, error.message);
     }
   }
 
