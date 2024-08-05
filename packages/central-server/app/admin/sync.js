@@ -26,7 +26,7 @@ export const syncLastCompleted = asyncHandler(async (req, res) => {
         where: {
           completedAt: timestamp,
           [Op.or]: [
-            { 'debugInfo.facilityId': facilities }, // legacy treatment of facilityId
+            { 'debugInfo.facilityId': facilities }, // support displaying legacy format of syncs limited to one facility id
             { 'debugInfo.facilityIds': facilities },
           ],
         },

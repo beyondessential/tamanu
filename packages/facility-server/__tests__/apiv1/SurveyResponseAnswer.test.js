@@ -10,7 +10,6 @@ import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { createTestContext } from '../utilities';
 import { selectFacilityIds } from '@tamanu/shared/utils/configSelectors';
 import { SETTINGS_SCOPES } from '@tamanu/constants';
-import { facilityTestSettings } from '@tamanu/settings/test';
 
 const chance = new Chance();
 const TEST_VITALS_SURVEY_ID = 'vitals-survey-id-for-testing-purposes';
@@ -58,7 +57,7 @@ describe('SurveyResponseAnswer', () => {
       const locationId = await models.SurveyResponseAnswer.getDefaultId('location', facilityId);
       const location = await models.Location.findOne({
         where: {
-          code: facilityTestSettings.survey.defaultCodes.location,
+          code: config.survey.defaultCodes.location,
         },
         attributes: ['id'],
       });
