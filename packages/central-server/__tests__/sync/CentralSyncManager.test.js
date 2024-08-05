@@ -38,7 +38,6 @@ describe('CentralSyncManager', () => {
     } = require('../../dist/sync/CentralSyncManager');
 
     if (config) {
-      // Turn on syncAllEncountersForTheseVaccines config
       TestCentralSyncManager.overrideConfig(config);
     }
 
