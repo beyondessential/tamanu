@@ -83,7 +83,7 @@ export class SurveyResponseAnswer extends Model {
     const record = await model.findOne({ where: { code } });
     if (!record) {
       throw new Error(
-        `Could not Sfind default answer for '${resource}': code '${code}' not found (check survey.defaultCodes.${resource} in the config)`,
+        `Could not find default answer for '${resource}': code '${code}' not found (check survey.defaultCodes.${resource} in the config)`,
       );
     }
     return record.id;
