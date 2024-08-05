@@ -38,9 +38,7 @@ describe('CentralSyncManager', () => {
     } = require('../../dist/sync/CentralSyncManager');
 
     // Turn on syncAllEncountersForTheseVaccines config
-    TestCentralSyncManager.overrideConfig({
-      configOverride,
-    });
+    TestCentralSyncManager.overrideConfig(configOverride);
     return new TestCentralSyncManager(ctx);
   };
 
@@ -48,6 +46,14 @@ describe('CentralSyncManager', () => {
     let ready = false;
     while (!ready) {
       ready = await centralSyncManager.checkSessionReady(sessionId);
+      await sleepAsync(100);
+    }
+  };
+
+  const waitForSnapshotComplete = async (centralSyncManager, sessionId) => {
+    let complete = false;
+    while (!complete) {
+      complete = await centralSyncManager.checkPullReady(sessionId);
       await sleepAsync(100);
     }
   };
@@ -1167,6 +1173,39 @@ describe('CentralSyncManager', () => {
         expect(returnedEncounter.data.endDate).toBe(expectedDischargedEndDate);
         expect(outgoingChanges.find(c => c.recordType === 'notes')).toBeDefined();
         expect(outgoingChanges.find(c => c.recordType === 'discharges')).toBeDefined();
+      });
+    });
+
+    describe.only('handles timeout of snapshot', () => {
+      it.only('throws an error if the snapshot process takes too long', async () => {
+        const facility = await models.Facility.create(fake(models.Facility));
+
+        const configOverride = {
+          sync: {
+            snapshotTransactionTimeoutMs: 100,
+          },
+        };
+        const centralSyncManager = initializeCentralSyncManager(configOverride);
+
+        const { sessionId } = await centralSyncManager.startSession();
+        await waitForSession(centralSyncManager, sessionId);
+
+        // Insert a patient
+        await models.Patient.create(createDummyPatient());
+
+        // Start the snapshot process
+        centralSyncManager.setupSnapshotForPull(
+          sessionId,
+          {
+            since: 1,
+            facilityId: facility.id,
+          },
+          () => true,
+        );
+
+        const waitForSnapshot = waitForSnapshotComplete(centralSyncManager, sessionId);
+
+        await expect(waitForSnapshot).rejects.toThrowError('Sync snapshot transaction timed out');
       });
     });
   });
