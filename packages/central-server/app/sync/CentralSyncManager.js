@@ -145,7 +145,7 @@ export class CentralSyncManager {
       !session.error &&
       session.updatedAt - session.createdAt > syncSessionTimeoutMs
     ) {
-      session.error = `Snapshot for session ${sessionId} timed out`;
+      session.error = `Sync session ${sessionId} timed out`;
       await session.save();
     }
 
