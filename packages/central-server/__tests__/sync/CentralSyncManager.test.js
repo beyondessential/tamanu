@@ -432,6 +432,7 @@ describe('CentralSyncManager', () => {
 
         // Insert the records just before we release the lock,
         // meaning that we're inserting the records below in the middle of the snapshotting process,
+        // and they SHOULD NOT be included in the snapshot
 
         const survey2 = await models.Survey.create({
           id: 'test-survey-2',
@@ -503,6 +504,7 @@ describe('CentralSyncManager', () => {
 
         // Insert the records just before we release the lock,
         // meaning that we're inserting the records below in the middle of the snapshotting process,
+        // and they SHOULD NOT be included in the snapshot
         await doImport({ file: 'refdata-valid', dryRun: false }, models);
 
         // Now release the lock to see if the snapshot captures the newly inserted records above
@@ -1110,6 +1112,7 @@ describe('CentralSyncManager', () => {
 
       // Insert the records just before we release the lock,
       // meaning that we're inserting the records below in the middle of the updateLookupTable process,
+      // and they SHOULD NOT be included sync_lookup
       const survey2 = await models.Survey.create({
         id: 'test-survey-2',
         programId: program.id,
@@ -1136,6 +1139,7 @@ describe('CentralSyncManager', () => {
 
       const lookupData = await models.SyncLookup.findAll({});
 
+      // only expect 3 records as it should not include the 3 records inserted manually
       expect(lookupData).toHaveLength(3);
     });
 
@@ -1165,7 +1169,8 @@ describe('CentralSyncManager', () => {
       await modelQueryWaitingPromise;
 
       // Insert the records just before we release the lock,
-      // meaning that we're inserting the records below in the middle of the updateLookupTable process,
+      // meaning that we're inserting the records below in the middle of the updateLookupTable process.
+      // and they SHOULD NOT be included sync_lookup,
       await doImport({ file: 'refdata-valid', dryRun: false }, models);
 
       // Now release the lock to see if the lookup table captures the newly inserted records above
@@ -1176,6 +1181,7 @@ describe('CentralSyncManager', () => {
 
       const lookupData = await models.SyncLookup.findAll({});
 
+      // only expect 3 records as it should not include the 3 records inserted from the importer
       expect(lookupData).toHaveLength(3);
     });
 
@@ -1252,6 +1258,7 @@ describe('CentralSyncManager', () => {
 
       const lookupData = await models.SyncLookup.findAll({});
 
+      // only expect 3 records as it should not include the 3 records inserted from another sync session
       expect(lookupData).toHaveLength(3);
     });
   });
