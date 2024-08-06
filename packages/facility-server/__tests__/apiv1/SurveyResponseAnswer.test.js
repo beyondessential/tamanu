@@ -56,6 +56,19 @@ describe('SurveyResponseAnswer', () => {
       );
       expect(departmentId).toEqual('test-department-id');
     });
+    it('should return the default id from config if no settings facility override defined', async () => {
+      const locationId = await models.SurveyResponseAnswer.getDefaultId(
+        'location',
+        ctx.settings[facilityId],
+      );
+      const location = await models.Location.findOne({
+        where: {
+          code: config.survey.defaultCodes.location,
+        },
+        attributes: ['id'],
+      });
+      expect(locationId).toBe(location.id);
+    });
   });
 
   describe('vitals', () => {

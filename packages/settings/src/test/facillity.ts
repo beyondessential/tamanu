@@ -1,8 +1,1 @@
-export const facilityTestSettings = {
-  survey: {
-    defaultCodes: {
-      department: 'Emergency',
-      location: 'Bed 1',
-    },
-  },
-};
+export const facilityTestSettings = {};
