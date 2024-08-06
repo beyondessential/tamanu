@@ -8,6 +8,7 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import FormHelperText from '@material-ui/core/FormHelperText';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 import { Colors } from '../../constants';
+import { TranslatedEnumField } from '../Translation/TranslatedEnumIInput';
 
 const DEFAULT_LABEL_THEME = {
   color: { default: Colors.outline, selected: Colors.primary },
@@ -208,3 +209,7 @@ export const RadioField = ({ field, error, ...props }) => (
     {...props}
   />
 );
+
+export const TranslatedRadioField = props => {
+  return <TranslatedEnumField {...props} component={RadioInput} />;
+};

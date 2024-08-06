@@ -6,7 +6,12 @@ export class Suggester {
   constructor(
     api,
     endpoint,
-    { formatter = defaultFormatter, filterer = () => true, baseQueryParameters = {}, enable = true} = {},
+    {
+      formatter = defaultFormatter,
+      filterer = () => true,
+      baseQueryParameters = {},
+      enable = true,
+    } = {},
   ) {
     this.api = api;
     this.endpoint = `suggestions/${encodeURIComponent(endpoint)}`;
@@ -44,5 +49,11 @@ export class Suggester {
     } catch (e) {
       return [];
     }
+  };
+
+  createSuggestion = async body => {
+    if (!this.enable) throw new Error('Suggester is disabled');
+    const data = await this.api.post(`${this.endpoint}/create`, body);
+    return this.formatter(data);
   };
 }

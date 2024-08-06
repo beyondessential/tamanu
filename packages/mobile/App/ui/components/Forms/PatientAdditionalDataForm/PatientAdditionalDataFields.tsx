@@ -165,12 +165,19 @@ function getComponentForField(
   throw new Error(`Unexpected field ${fieldName} for patient additional data.`);
 }
 
+interface PatientAdditionalDataFieldsProps {
+  fields: (string | PatientFieldDefinition)[];
+  isCustomSection?: boolean;
+  showMandatory?: boolean;
+  isEdit?: boolean;
+}
+
 export const PatientAdditionalDataFields = ({
   fields,
   isCustomSection,
   showMandatory = true,
   isEdit = true,
-}): ReactElement => {
+}: PatientAdditionalDataFieldsProps): ReactElement[] => {
   const { getLocalisation } = useLocalisation();
   const isHardCodedLayout = getLocalisation('layouts.patientDetails') !== 'generic';
   const [customFieldDefinitions, _, loading] = useBackendEffect(({ models }) =>

@@ -11,13 +11,14 @@ import { TwoColumnDisplay } from '../../components/TwoColumnDisplay';
 import { DailySchedule } from '../../components/Appointments/DailySchedule';
 import { NewAppointmentButton } from '../../components/Appointments/NewAppointmentButton';
 import { Button } from '../../components/Button';
-import { AutocompleteInput, MultiselectField } from '../../components/Field';
+import { AutocompleteInput, TranslatedMultiSelectField } from '../../components/Field';
 import { Suggester } from '../../utils/suggester';
-import { APPOINTMENT_TYPE_OPTIONS, Colors } from '../../constants';
+import { Colors } from '../../constants';
 import { useApi, useSuggester } from '../../api';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
 import { useAuth } from '../../contexts/Auth';
 import { ErrorMessage } from '../../components/ErrorMessage';
+import { APPOINTMENT_TYPES } from '@tamanu/constants';
 
 const LeftContainer = styled.div`
   min-height: 100%;
@@ -181,7 +182,7 @@ export const AppointmentsCalendar = () => {
             <SectionTitle variant="subtitle2">
               <TranslatedText stringId="appointment.type.label" fallback="Appointment type" />
             </SectionTitle>
-            <MultiselectField
+            <TranslatedMultiSelectField
               onChange={e => {
                 if (!e.target.value) {
                   setAppointmentType([]);
@@ -191,8 +192,7 @@ export const AppointmentsCalendar = () => {
               }}
               value={appointmentType}
               name="appointmentType"
-              options={APPOINTMENT_TYPE_OPTIONS}
-              prefix="appointment.property.type"
+              enumValues={APPOINTMENT_TYPES}
             />
           </Section>
         </LeftContainer>

@@ -5,6 +5,9 @@
 
 name: Publish Release Version
 
+permissions:
+  contents: write
+
 on:
   workflow_dispatch:
     inputs:
@@ -17,8 +20,6 @@ jobs:
   run:
     name: Publish Release Version
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
     steps:
     - if: (!startsWith(github.ref, 'refs/heads/release/'))
       run: |

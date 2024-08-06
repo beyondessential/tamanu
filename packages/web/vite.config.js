@@ -9,6 +9,7 @@ export default async ({ mode }) => {
   Object.assign(process.env, loadEnv(mode, process.cwd(), 'TAMANU_'));
 
   return defineConfig({
+    assetsInclude: ['/sb-preview/runtime.js'],
     esbuild: {
       loader: 'jsx',
     },
@@ -66,6 +67,11 @@ export default async ({ mode }) => {
           ws: true,
         },
       },
+    },
+    test: {
+      clearMocks: true,
+      globals: true,
+      environment: 'jsdom',
     },
   });
 };

@@ -18,7 +18,6 @@ import { PatientFieldDefinition } from '~/models/PatientFieldDefinition';
 import { CustomPatientFieldValues } from '~/ui/hooks/usePatientAdditionalData';
 import { NavigationProp } from '@react-navigation/native';
 
-// TODO: type and work out customSectionFields and additionalDataSections
 interface PatientAdditionalDataFormProps {
   patient: Patient;
   additionalData: PatientAdditionalData;
@@ -28,6 +27,7 @@ interface PatientAdditionalDataFormProps {
   customPatientFieldValues: CustomPatientFieldValues;
   isCustomSection?: boolean;
   customSectionFields?: any[];
+  sectionKey: Element;
 }
 
 export const PatientAdditionalDataForm = ({
@@ -79,15 +79,16 @@ export const PatientAdditionalDataForm = ({
   );
 
   // Get the field group for this section of the additional data template
-  const { fields, dataFields } = isCustomSection
-    ? customSectionFields.map(({ id, name, fieldType, options }) => ({
-        id,
-        name,
-        fieldType,
-        options,
-      }))
+  const { fields, dataFields = null } = isCustomSection
+    ? {
+        fields: customSectionFields.map(({ id, name, fieldType, options }) => ({
+          id,
+          name,
+          fieldType,
+          options,
+        })),
+      }
     : additionalDataSections.find(({ sectionKey: key }) => key === sectionKey);
-    
   const initialAdditionalData = getInitialAdditionalValues(additionalData, dataFields || fields);
   const initialCustomValues = getInitialCustomValues(customPatientFieldValues, fields);
 

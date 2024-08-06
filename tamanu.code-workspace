@@ -29,6 +29,10 @@
       "path": "packages/shared"
     },
     {
+      "name": "constants",
+      "path": "packages/constants"
+    },
+    {
       "name": "central-server",
       "path": "packages/central-server"
     }
