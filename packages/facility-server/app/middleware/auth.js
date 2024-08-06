@@ -191,7 +191,7 @@ export async function setFacilityHandler(req, res, next) {
   req.flagPermissionChecked();
 
   try {
-    const hasAccess = await user.canAccessFacility(facilityId, req);
+    const hasAccess = await user.canAccessFacility(facilityId);
     if (!hasAccess) {
       throw new BadAuthenticationError('User does not have access to this facility');
     }
