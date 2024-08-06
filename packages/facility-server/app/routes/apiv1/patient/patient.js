@@ -145,7 +145,8 @@ patientRoute.post(
 
       // mark for sync in this facility
       await PatientFacility.create({
-        where: { facilityId, patientId: createdPatient.id },
+        facilityId,
+        patientId: createdPatient.id,
       });
 
       return createdPatient;

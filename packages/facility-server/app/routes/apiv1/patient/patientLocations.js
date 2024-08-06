@@ -142,6 +142,8 @@ patientLocations.get(
   asyncHandler(async (req, res) => {
     req.checkPermission('list', 'Patient');
 
+    const { facilityId } = req.query;
+
     const [
       {
         occupied_location_count: occupiedLocationCount,
@@ -153,7 +155,7 @@ patientLocations.get(
           SUM(sign(max_1_occupancy_locations.count)) AS occupied_location_count,
           COUNT(max_1_occupancy_locations) - SUM(sign(max_1_occupancy_locations.count)) AS available_location_count
         FROM (
-          ${patientsLocationSelect()}
+          ${patientsLocationSelect(undefined, undefined, facilityId)}
         ) max_1_occupancy_locations
       `,
       {
@@ -166,7 +168,7 @@ patientLocations.get(
         SELECT
           SUM(sign(max_1_occupancy_locations.count)) AS reserved_location_count
         FROM (
-          ${patientsLocationSelect(true)}
+          ${patientsLocationSelect(true, undefined, facilityId)}
         ) max_1_occupancy_locations
       `,
       {

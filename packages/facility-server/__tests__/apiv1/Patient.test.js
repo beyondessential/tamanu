@@ -1,3 +1,4 @@
+import { afterAll, beforeAll } from '@jest/globals';
 import { startOfDay, subDays } from 'date-fns';
 import config from 'config';
 
@@ -13,7 +14,7 @@ import { randomLabRequest } from '@tamanu/shared/demoData/labRequests';
 import { LAB_REQUEST_STATUSES, REFERENCE_TYPES, SETTINGS_SCOPES } from '@tamanu/constants';
 import { getCurrentDateString, toDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { CertificateTypes } from '@tamanu/shared/utils/patientCertificates';
-
+import { selectFacilityIds } from '@tamanu/shared/utils/configSelectors';
 import { createTestContext } from '../utilities';
 
 describe('Patient', () => {
@@ -28,10 +29,11 @@ describe('Patient', () => {
     baseApp = ctx.baseApp;
     models = ctx.models;
     app = await baseApp.asRole('practitioner');
+    const [facilityId] = selectFacilityIds(config);
     await models.Facility.upsert({
-      id: config.serverFacilityId,
-      name: config.serverFacilityId,
-      code: config.serverFacilityId,
+      id: facilityId,
+      name: facilityId,
+      code: facilityId,
     });
     patient = await models.Patient.create(await createDummyPatient(models));
   });
