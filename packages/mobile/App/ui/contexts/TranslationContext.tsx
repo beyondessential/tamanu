@@ -1,10 +1,11 @@
 import React, {
   createContext,
-  useContext,
-  useState,
+  isValidElement,
   PropsWithChildren,
   ReactElement,
+  useContext,
   useEffect,
+  useState,
 } from 'react';
 import { DevSettings } from 'react-native';
 import { useBackend } from '../hooks';
@@ -18,6 +19,8 @@ export type GetTranslationFunction = (
   stringId: string,
   fallback?: string,
   replacements?: Replacements,
+  uppercase?: boolean,
+  lowercase?: boolean,
 ) => string;
 
 export interface TranslatedTextProps {
@@ -25,6 +28,7 @@ export interface TranslatedTextProps {
   fallback: string;
   replacements?: Replacements;
   uppercase?: boolean;
+  lowercase?: boolean;
 }
 
 interface TranslationContextData {
@@ -34,18 +38,24 @@ interface TranslationContextData {
   setLanguageOptions: (languageOptions: []) => void;
   getTranslation: GetTranslationFunction;
   setLanguage: (language: string) => void;
-  refreshTranslations: () => void;
   host: string;
   setHost: (host: string) => void;
+}
+
+interface ReplacementConfig {
+  replacements?: Replacements;
+  uppercase?: boolean;
+  lowercase?: boolean;
 }
 
 // Duplicated from TranslatedText.js on desktop
 export const replaceStringVariables = (
   templateString: string,
-  replacements?: Replacements,
+  replacementConfig: ReplacementConfig,
   translations?: object,
 ) => {
-  if (!replacements) return templateString;
+  const { replacements, uppercase, lowercase } = replacementConfig || {};
+  if (!replacements) return applyCasing(templateString, uppercase, lowercase);
   const result = templateString
     .split(/(:[a-zA-Z]+)/g)
     .map((part, index) => {
@@ -53,12 +63,27 @@ export const replaceStringVariables = (
       if (index % 2 === 0) return part;
       const replacement = replacements[part.slice(1)] ?? part;
       // Replacements might be a string or a translatable string component, handle each case
-      if (typeof replacement !== 'object') return replacement;
-      return translations?.[replacement.props.stringId] || replacement.props.fallback;
+      if (!isValidElement(replacement)) return replacement;
+
+      const replacementElement = replacement as ReactElement<TranslatedTextProps>;
+      const translation =
+        translations?.[replacementElement.props.stringId] || replacementElement.props.fallback;
+      return applyCasing(
+        translation,
+        replacementElement.props.uppercase,
+        replacementElement.props.lowercase,
+      );
     })
     .join('');
 
-  return result;
+  return applyCasing(result, uppercase, lowercase);
+};
+
+// duplicated from translationFactory.js
+const applyCasing = (text: string, uppercase: boolean, lowercase: boolean) => {
+  if (lowercase) return text.toLowerCase();
+  if (uppercase) return text.toUpperCase();
+  return text;
 };
 
 const TranslationContext = createContext<TranslationContextData>({} as TranslationContextData);
@@ -91,13 +116,22 @@ export const TranslationProvider = ({ children }: PropsWithChildren<object>): Re
     }
   };
 
-  const getTranslation = (stringId: string, fallback?: string, replacements?: Replacements) => {
-    const translation = translations[stringId] || fallback;
-    return replaceStringVariables(translation, replacements, translations);
-  };
+  const getTranslation = (
+    stringId: string,
+    fallback?: string,
+    replacements?: Replacements,
+    uppercase?: boolean,
+    lowercase?: boolean,
+  ) => {
+    const replacementConfig = {
+      replacements,
+      uppercase,
+      lowercase,
+    };
+    if (!translations) return replaceStringVariables(fallback, replacementConfig, translations);
+    const translation = translations[stringId] ?? fallback;
 
-  const refreshTranslations = async () => {
-    setLanguageState(language);
+    return replaceStringVariables(translation, replacementConfig, translations);
   };
 
   const writeLanguage = async (languageCode: string) => {
@@ -115,7 +149,7 @@ export const TranslationProvider = ({ children }: PropsWithChildren<object>): Re
 
   useEffect(() => {
     setLanguageState(language);
-  }, [language]);
+  }, [language, host]);
 
   useEffect(() => {
     restoreLanguage();
@@ -132,7 +166,6 @@ export const TranslationProvider = ({ children }: PropsWithChildren<object>): Re
         setLanguageOptions,
         getTranslation,
         setLanguage,
-        refreshTranslations,
         host,
         setHost,
       }}
