@@ -2,18 +2,18 @@
   "sync": {
     "host": "http://localhost:3000",
     "email": "admin@tamanu.io",
-    "password": "admin"
+    "password": "admin",
+    "enabled": true,
   },
   "db": {
-    "name": "",
-    "verbose": false,
-    "username": "",
-    "password": "",
+    "host": "facility-db",
     "port": "5432",
-    "migrateOnStartup": true
+    "name": "postgres",
+    "verbose": false,
+    "username": "postgres",
+    "password": "postgres",
+    "migrateOnStartup": true,
   },
-  "log": {
-    "consoleLevel": null
-  },
-  "serverFacilityId": "facility-BaHealthCentre"
+  "log": {},
+  "serverFacilityId": "facility-1"
 }
