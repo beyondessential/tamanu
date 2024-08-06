@@ -8,7 +8,7 @@ import {
   NOTIFY_CHANNELS,
 } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
-import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { getCurrentISO8601DateString } from '@tamanu/shared/utils/dateTime';
 
 const buildRefreshMaterializedViewTask = viewName =>
   class RefreshMaterializedView extends ScheduledTask {
@@ -19,8 +19,8 @@ const buildRefreshMaterializedViewTask = viewName =>
     }
 
     constructor(context) {
-      const { schedule, jitterTime } = config.schedules.refreshMaterializedView[viewName];
-      super(schedule, log, jitterTime);
+      const { schedule, jitterTime, enabled } = config.schedules.refreshMaterializedView[viewName];
+      super(schedule, log, jitterTime, enabled);
       this.sequelize = context.sequelize;
       this.models = context.models;
       this.runImmediately();
@@ -39,7 +39,7 @@ const buildRefreshMaterializedViewTask = viewName =>
       });
       await this.models.LocalSystemFact.set(
         `${MATERIALIZED_VIEW_LAST_REFRESHED_AT_KEY_NAMESPACE}:${this.viewName}`,
-        getCurrentDateTimeString(),
+        getCurrentISO8601DateString(),
       );
     }
   };

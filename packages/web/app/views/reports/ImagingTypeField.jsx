@@ -1,30 +1,37 @@
 import React from 'react';
 
-import { Field, SelectField } from '../../components';
+import { Field, TranslatedSelectField } from '../../components';
 import { useLocalisation } from '../../contexts/Localisation';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
+import { IMAGING_TYPES } from '@tamanu/constants';
 
-export const ImagingTypeField = ({ name = 'imagingType', required }) => {
+export const ImagingTypeField = ({ name = 'imagingType', label, required }) => {
   const { getLocalisation } = useLocalisation();
   const imagingTypes = getLocalisation('imagingTypes') || {};
-  const imagingTypeOptions = Object.entries(imagingTypes).map(([key, val]) => ({
-    label: val.label,
-    value: key,
-  }));
-
   return (
     <Field
       name={name}
       label={
-        <TranslatedText
-          stringId="report.generate.parameter.imagingType.label"
-          fallback="Imaging type"
-        />
+        label ?? (
+          <TranslatedText
+            stringId="report.generate.parameter.imagingType.label"
+            fallback="Imaging type"
+          />
+        )
       }
-      component={SelectField}
-      options={imagingTypeOptions}
+      component={TranslatedSelectField}
       required={required}
-      prefix="imaging.property.type"
+      transformOptions={options =>
+        options.filter(option =>
+          Object.keys(imagingTypes)
+            .includes(option.value)
+            .map(option => ({
+              ...option,
+              label: imagingTypes[option.value].label,
+            })),
+        )
+      }
+      enumValues={IMAGING_TYPES}
     />
   );
 };

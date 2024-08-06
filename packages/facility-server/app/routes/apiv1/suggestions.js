@@ -3,21 +3,23 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { literal, Op, Sequelize } from 'sequelize';
 import config from 'config';
-import { NotFoundError } from '@tamanu/shared/errors';
+import { NotFoundError, ValidationError } from '@tamanu/shared/errors';
+import { camelCase, keyBy, omit } from 'lodash';
 import {
-  INVOICE_LINE_TYPES,
+  DEFAULT_HIERARCHY_TYPE,
+  ENGLISH_LANGUAGE_CODE,
+  REFERENCE_DATA_TRANSLATION_PREFIX,
   REFERENCE_TYPE_VALUES,
   REFERENCE_TYPES,
-  TRANSLATABLE_REFERENCE_TYPES,
   REGISTRATION_STATUSES,
   SUGGESTER_ENDPOINTS,
   SURVEY_TYPES,
+  TRANSLATABLE_REFERENCE_TYPES,
   VISIBILITY_STATUSES,
-  REFERENCE_DATA_TRANSLATION_PREFIX,
-  ENGLISH_LANGUAGE_CODE,
-  DEFAULT_HIERARCHY_TYPE,
+  OTHER_REFERENCE_TYPES,
 } from '@tamanu/constants';
-import { keyBy } from 'lodash';
+import { v4 as uuidv4 } from 'uuid';
+import { customAlphabet } from 'nanoid';
 
 export const suggestions = express.Router();
 
@@ -29,14 +31,17 @@ const defaultMapper = ({ name, code, id }) => ({ name, code, id });
 const extractDataId = ({ stringId }) => stringId.split('.').pop();
 const replaceDataLabelsWithTranslations = ({ data, translations }) => {
   const translationsByDataId = keyBy(translations, extractDataId);
-  return data.map(item => ({ ...item, name: translationsByDataId[item.id]?.text || item.name }));
+  return data.map(item => {
+    const itemData = item instanceof Sequelize.Model ? item.dataValues : item; // if is Sequelize model, use the dataValues instead to prevent Converting circular structure to JSON error when destructing
+    return { ...itemData, name: translationsByDataId[item.id]?.text || item.name };
+  });
 };
 const ENDPOINT_TO_DATA_TYPE = {
   // Special cases where the endpoint name doesn't match the dataType
-  ['facilityLocationGroup']: 'locationGroup',
-  ['patientLabTestCategories']: 'labTestCategory',
-  ['patientLabTestPanelTypes']: 'labTestPanelType',
-  ['invoiceLineTypes']: 'invoiceLineType',
+  ['facilityLocationGroup']: OTHER_REFERENCE_TYPES.LOCATION_GROUP,
+  ['patientLabTestCategories']: REFERENCE_TYPES.LAB_TEST_CATEGORY,
+  ['patientLabTestPanelTypes']: OTHER_REFERENCE_TYPES.LAB_TEST_PANEL,
+  ['invoiceProducts']: OTHER_REFERENCE_TYPES.INVOICE_PRODUCT,
 };
 const getDataType = endpoint => ENDPOINT_TO_DATA_TYPE[endpoint] || endpoint;
 
@@ -59,19 +64,41 @@ function createSuggesterRoute(
       const positionQuery = literal(
         `POSITION(LOWER(:positionMatch) in LOWER(${`"${modelName}"."${searchColumn}"`})) > 1`,
       );
+      const dataType = getDataType(endpoint);
 
-      const isTranslatable = TRANSLATABLE_REFERENCE_TYPES.includes(getDataType(endpoint));
+      const isTranslatable = TRANSLATABLE_REFERENCE_TYPES.includes(dataType);
 
       const translations = isTranslatable
         ? await models.TranslatedString.getReferenceDataTranslationsByDataType({
             language,
-            refDataType: getDataType(endpoint),
+            refDataType: dataType,
             queryString: searchQuery,
           })
         : [];
       const suggestedIds = translations.map(extractDataId);
 
-      const where = { [Op.or]: [whereBuilder(`%${searchQuery}%`, query), { id: suggestedIds }] };
+      const filterByFacility = !!query.filterByFacility || endpoint === 'facilityLocationGroup';
+
+      const whereQuery = whereBuilder(`%${searchQuery}%`, query);
+      const visibilityStatus = whereQuery.visibilityStatus;
+
+      const where = {
+        [Op.or]: [
+          whereQuery,
+          {
+            ...(dataType === OTHER_REFERENCE_TYPES.INVOICE_PRODUCT ? omit(whereQuery, 'name') : {}), //! Workaround for invoice product suggester while waiting for the actual fix
+            id: { [Op.in]: suggestedIds },
+            ...(visibilityStatus
+              ? {
+                  visibilityStatus: {
+                    [Op.eq]: visibilityStatus,
+                  },
+                }
+              : {}),
+            ...(filterByFacility ? { facilityId: config.serverFacilityId } : {}),
+          },
+        ],
+      };
 
       if (endpoint === 'location' && query.locationGroupId) {
         where.locationGroupId = query.locationGroupId;
@@ -88,10 +115,8 @@ function createSuggesterRoute(
         },
         limit: defaultLimit,
       });
-
       // Allow for async mapping functions (currently only used by location suggester)
-      const data = await Promise.all(results.map(mapper));
-
+      const data = await Promise.all(results.map(r => mapper(r)));
       res.send(isTranslatable ? replaceDataLabelsWithTranslations({ data, translations }) : data);
     }),
   );
@@ -190,11 +215,32 @@ function createAllRecordsRoute(
   );
 }
 
+function createSuggesterCreateRoute(endpoint, modelName, { creatingBodyBuilder, mapper }) {
+  suggestions.post(
+    `/${endpoint}/create`,
+    asyncHandler(async (req, res) => {
+      const { models } = req;
+      req.checkPermission('create', modelName);
+
+      const body = await creatingBodyBuilder(req);
+      const newRecord = await models[modelName].create(body, { returning: true });
+      const mappedRecord = await mapper(newRecord);
+      res.send(mappedRecord);
+    }),
+  );
+}
+
 // Add a new suggester for a particular model at the given endpoint.
 // Records will be filtered based on the whereSql parameter. The user's search term
 // will be passed to the sql query as ":search" - see the existing suggestion
 // endpoints for usage examples.
-function createSuggester(endpoint, modelName, whereBuilder, optionOverrides) {
+function createSuggester(
+  endpoint,
+  modelName,
+  whereBuilder,
+  optionOverrides,
+  allowCreatingNewSuggestion,
+) {
   const options = {
     mapper: defaultMapper,
     searchColumn: 'name',
@@ -206,6 +252,9 @@ function createSuggester(endpoint, modelName, whereBuilder, optionOverrides) {
   createAllRecordsRoute(endpoint, modelName, whereBuilder, options);
   createSuggesterLookupRoute(endpoint, modelName, options);
   createSuggesterRoute(endpoint, modelName, whereBuilder, options);
+  if (allowCreatingNewSuggestion) {
+    createSuggesterCreateRoute(endpoint, modelName, options);
+  }
 }
 
 // this should probably be changed to a `visibility_criteria IN ('list', 'of', 'statuses')`
@@ -245,7 +294,26 @@ REFERENCE_TYPE_VALUES.forEach(typeName => {
           },
         };
       },
+      creatingBodyBuilder: req => {
+        const { body } = req;
+        if (!body.name) {
+          throw new ValidationError('Name is required');
+        }
+
+        const code = `${camelCase(body.name)}-${customAlphabet(
+          '1234567890ABCDEFGHIJKLMNPQRSTUVWXYZ',
+          3,
+        )()}`;
+
+        return {
+          id: uuidv4(),
+          code,
+          type: typeName,
+          name: body.name,
+        };
+      },
     },
+    true,
   );
 });
 
@@ -344,13 +412,28 @@ createNameSuggester('survey', 'Survey', (search, { programId }) => ({
 }));
 
 createSuggester(
-  'invoiceLineTypes',
-  'InvoiceLineType',
+  'invoiceProducts',
+  'InvoiceProduct',
   search => ({
     name: { [Op.iLike]: search },
-    itemType: INVOICE_LINE_TYPES.ADDITIONAL,
+    '$referenceData.type$': REFERENCE_TYPES.ADDITIONAL_INVOICE_PRODUCT,
+    ...VISIBILITY_CRITERIA,
   }),
-  { mapper: ({ id, name, price }) => ({ id, name, price }) },
+  {
+    mapper: product => {
+      product.addVirtualFields();
+      return product;
+    },
+    includeBuilder: req => {
+      return [
+        {
+          model: req.models.ReferenceData,
+          as: 'referenceData',
+          attributes: ['code', 'type'],
+        },
+      ];
+    },
+  },
 );
 
 createSuggester(

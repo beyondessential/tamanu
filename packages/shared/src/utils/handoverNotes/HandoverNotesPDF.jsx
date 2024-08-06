@@ -1,10 +1,12 @@
 import React from 'react';
-import { Document, Page } from '@react-pdf/renderer';
+import { Document } from '@react-pdf/renderer';
 import { Box, styles } from '../patientCertificates/Layout';
 import { HandoverHeaderSection } from './HandoverHeaderSection';
 import { HandoverPatient } from './HandoverPatient';
+import { withLanguageContext } from '../pdf/languageContext';
+import { Page } from '../pdf/Page';
 
-export const HandoverNotesPDF = ({
+const HandoverNotesPDFComponent = ({
   handoverNotes = [],
   locationGroupName,
   logoSrc,
@@ -38,3 +40,5 @@ export const HandoverNotesPDF = ({
     </Page>
   </Document>
 );
+
+export const HandoverNotesPDF = withLanguageContext(HandoverNotesPDFComponent);

@@ -7,6 +7,7 @@ const config = require('config');
 async function generateData(models) {
   const {
     Department,
+    Discharge,
     Encounter,
     Facility,
     Location,
@@ -34,9 +35,23 @@ async function generateData(models) {
     PatientProgramRegistrationCondition,
     PatientAllergy,
     PatientCommunication,
+    PatientAdditionalData,
     PatientDeathData,
+    CertificateNotification,
+    LabTest,
+    LabTestType,
     ScheduledVaccine,
     AdministeredVaccine,
+    EncounterDiagnosis,
+    Invoice,
+    InvoiceDiscount,
+    InvoiceInsurer,
+    InvoicePayment,
+    InvoiceInsurerPayment,
+    InvoicePatientPayment,
+    InvoiceItem,
+    InvoiceItemDiscount,
+    InvoiceProduct,
   } = models;
 
   const examiner = await User.create(fake(User));
@@ -65,6 +80,12 @@ async function generateData(models) {
       locationId: location.id,
       examinerId: examiner.id,
       startDate: '2023-12-21T04:59:51.851Z',
+    }),
+  );
+  await Discharge.create(
+    fake(Discharge, {
+      encounterId: encounter.id,
+      dischargerId: examiner.id,
     }),
   );
   await EncounterHistory.create(
@@ -164,6 +185,12 @@ async function generateData(models) {
     }),
   );
 
+  await PatientAdditionalData.create(
+    fake(PatientAdditionalData, {
+      patientId: patient.id,
+    }),
+  );
+
   await PatientDeathData.create(
     fake(PatientDeathData, {
       patientId: patient.id,
@@ -178,6 +205,28 @@ async function generateData(models) {
       patientId: patient.id,
     }),
   );
+
+  const labTestType = await LabTestType.create(
+    fake(LabTestType, {
+      labTestCategoryId: referenceData.id,
+    }),
+  );
+  const labTest = await LabTest.create(
+    fake(LabTest, {
+      labRequestId: labRequest.id,
+      categoryId: referenceData.id,
+      labTestMethodId: referenceData.id,
+      labTestTypeId: labTestType.id,
+    }),
+  );
+  await CertificateNotification.create(
+    fake(CertificateNotification, {
+      patientId: patient.id,
+      labTestId: labTest.id,
+      labRequestId: labRequest.id,
+    }),
+  );
+
   const scheduledVaccine = await models.ScheduledVaccine.create(
     fake(ScheduledVaccine, {
       vaccineId: referenceData.id,
@@ -187,6 +236,64 @@ async function generateData(models) {
     fake(AdministeredVaccine, {
       scheduledVaccineId: scheduledVaccine.id,
       encounterId: encounter.id,
+    }),
+  );
+
+  await EncounterDiagnosis.create(
+    fake(EncounterDiagnosis, {
+      diagnosisId: referenceData.id,
+      encounterId: encounter.id,
+    }),
+  );
+  const invoice = await Invoice.create(
+    fake(Invoice, {
+      encounterId: encounter.id,
+    }),
+  );
+  await InvoiceDiscount.create(
+    fake(InvoiceDiscount, {
+      invoiceId: invoice.id,
+      appliedByUserId: examiner.id,
+    }),
+  );
+  await InvoiceInsurer.create(
+    fake(InvoiceInsurer, {
+      invoiceId: invoice.id,
+      insurerId: referenceData.id,
+    }),
+  );
+  const invoicePayment = await InvoicePayment.create(
+    fake(InvoicePayment, {
+      invoiceId: invoice.id,
+    }),
+  );
+  await InvoiceInsurerPayment.create(
+    fake(InvoiceInsurerPayment, {
+      invoicePaymentId: invoicePayment.id,
+      insurerId: referenceData.id,
+    }),
+  );
+  await InvoicePatientPayment.create(
+    fake(InvoicePatientPayment, {
+      invoicePaymentId: invoicePayment.id,
+      methodId: referenceData.id,
+    }),
+  );
+  const invoiceProduct = await InvoiceProduct.create(
+    fake(InvoiceProduct, {
+      id: referenceData.id,
+    }),
+  );
+  const invoiceItem = await InvoiceItem.create(
+    fake(InvoiceItem, {
+      invoiceId: invoice.id,
+      productId: invoiceProduct.id,
+      orderedByUserId: examiner.id,
+    }),
+  );
+  await InvoiceItemDiscount.create(
+    fake(InvoiceItemDiscount, {
+      invoiceItemId: invoiceItem.id,
     }),
   );
 }

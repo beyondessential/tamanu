@@ -83,6 +83,7 @@ export class Triage extends Model {
       [data.chiefComplaintId, data.secondaryComplaintId].map(x => ReferenceData.findByPk(x)),
     );
 
+    // TODO: to handle translations for triage reason for encounter
     const reasonsText = reasons
       .filter(x => x)
       .map(x => x.name)

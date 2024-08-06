@@ -10,6 +10,10 @@ const CUSTOM_PATIENT_DETAIL_LAYOUTS = {
   CAMBODIA: 'cambodia',
 };
 
+
+// This is a temporary hard-coded implementation of the alternative cambodia patient details form. Ideally this would
+// be more configurable/dynamically generated. For now now bug fixes/changes within GenericPatientDetails also
+// need to be applied to CambodiaPatientDetails
 export const LocalisedPatientDetailsLayout = ({ patient, navigation }) => {
   const { getLocalisation } = useLocalisation();
   const layout = getLocalisation('layouts.patientDetails');
@@ -30,4 +34,4 @@ export const LocalisedNewPatientForm = ({ route }) => {
     default:
       return <GenericEditPatientScreen route={route} isEdit={false} />;
   }
-}
+};

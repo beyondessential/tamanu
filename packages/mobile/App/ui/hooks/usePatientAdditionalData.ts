@@ -1,11 +1,11 @@
 import { useCallback, useState } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 import { groupBy } from 'lodash';
-
 import { useBackend } from '.';
 import { PatientFieldDefinition } from '~/models/PatientFieldDefinition';
 import { PatientFieldValue } from '~/models/PatientFieldValue';
 import { PatientAdditionalData } from '~/models/PatientAdditionalData';
+import { getSecondaryVillageData } from '/navigation/screens/home/PatientDetails/layouts/cambodia/fields';
 
 export type CustomPatientFieldValues = {
   [key: string]: PatientFieldValue[];
@@ -47,7 +47,16 @@ export const usePatientAdditionalData = patientId => {
                 where: { patient: { id: patientId } },
               }),
             ]);
-            const result = record && record[0];
+            const padData = record && record[0];
+            let secondaryVillageData = {};
+
+            if (padData?.secondaryVillageId) {
+              secondaryVillageData = await getSecondaryVillageData(
+                models,
+                padData.secondaryVillageId,
+              );
+            }
+
             if (!mounted) {
               return;
             }
@@ -63,7 +72,7 @@ export const usePatientAdditionalData = patientId => {
             );
             setCustomPatientFieldDefinitions(fieldDefinitions);
             setCustomPatientFieldValues(groupBy(fieldValues, 'definitionId'));
-            setPatientAdditionalData(result);
+            setPatientAdditionalData({ ...padData, ...secondaryVillageData });
           }
         } catch (err) {
           if (!mounted) {

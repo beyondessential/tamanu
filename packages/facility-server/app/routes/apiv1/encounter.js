@@ -6,7 +6,6 @@ import {
   LAB_REQUEST_STATUSES,
   DOCUMENT_SIZE_LIMIT,
   DOCUMENT_SOURCES,
-  INVOICE_STATUSES,
   NOTE_RECORD_TYPES,
   VITALS_DATA_ELEMENT_IDS,
   IMAGING_REQUEST_STATUS_TYPES,
@@ -26,7 +25,11 @@ import { noteChangelogsHandler, noteListHandler } from '../../routeHandlers';
 import { createPatientLetter } from '../../routeHandlers/createPatientLetter';
 
 import { getLabRequestList } from '../../routeHandlers/labs';
-import { deleteDocumentMetadata, deleteEncounter, deleteSurveyResponse } from '../../routeHandlers/deleteModel';
+import {
+  deleteDocumentMetadata,
+  deleteEncounter,
+  deleteSurveyResponse,
+} from '../../routeHandlers/deleteModel';
 
 export const encounter = softDeletionCheckingRouter('Encounter');
 
@@ -250,14 +253,7 @@ encounterRelations.get(
   noteChangelogsHandler(NOTE_RECORD_TYPES.ENCOUNTER),
 );
 
-encounterRelations.get(
-  '/:id/invoice',
-  simpleGetHasOne('Invoice', 'encounterId', {
-    additionalFilters: {
-      status: { [Op.ne]: INVOICE_STATUSES.CANCELLED },
-    },
-  }),
-);
+encounterRelations.get('/:id/invoice', simpleGetHasOne('Invoice', 'encounterId', {}));
 
 const PROGRAM_RESPONSE_SORT_KEYS = {
   endTime: 'end_time',

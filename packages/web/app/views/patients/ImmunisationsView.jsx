@@ -105,7 +105,7 @@ export const ImmunisationsView = () => {
         <SearchTableWithPermissionCheck
           endpoint="upcomingVaccinations"
           verb="list"
-          noun="PatientVaccines"
+          noun="PatientVaccine"
           columns={COLUMNS}
           refreshCount={refreshCount}
           noDataMessage="No upcoming vaccinations found"

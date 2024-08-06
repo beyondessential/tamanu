@@ -15,14 +15,13 @@ import {
   MultiselectField,
 } from '../../components/Field';
 import { FormGrid } from '../../components/FormGrid';
-import { ConfirmCancelRow } from '../../components/ButtonRow';
+import { ConfirmCancelRow, TranslatedReferenceData, TranslatedText } from '../../components';
 import { foreignKey, optionalForeignKey } from '../../utils/validation';
 import { useSuggester } from '../../api';
 import { useAuth } from '../../contexts/Auth';
 import { useApi } from '../../api/useApi';
 import { useTranslation } from '../../contexts/Translation';
 import { FORM_TYPES } from '../../constants';
-import { TranslatedText } from '../../components/Translation/TranslatedText';
 
 export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject }) => {
   const api = useApi();
@@ -34,17 +33,16 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
   const { data: program } = useQuery(['programRegistry', selectedProgramRegistryId], () =>
     selectedProgramRegistryId ? api.get(`programRegistry/${selectedProgramRegistryId}`) : null,
   );
-  const { data: conditions } = useQuery(
+  const { data: { data: conditions } = {} } = useQuery(
     ['programRegistryConditions', selectedProgramRegistryId],
     () =>
-      selectedProgramRegistryId
-        ? api
-            .get(`programRegistry/${selectedProgramRegistryId}/conditions`, {
-              orderBy: 'name',
-              order: 'ASC',
-            })
-            .then(response => response.data.map(x => ({ label: x.name, value: x.id })))
-        : undefined,
+      api.get(`programRegistry/${selectedProgramRegistryId}/conditions`, {
+        orderBy: 'name',
+        order: 'ASC',
+      }),
+    {
+      enabled: !!selectedProgramRegistryId,
+    },
   );
   const programRegistrySuggester = useSuggester('programRegistry', {
     baseQueryParameters: { patientId: patient.id },
@@ -167,9 +165,17 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
                   }
                   placeholder={getTranslation('general.placeholder.select', 'Select')}
                   component={MultiselectField}
-                  options={conditions}
+                  options={conditions?.map?.(condition => ({
+                    label: (
+                      <TranslatedReferenceData
+                        fallback={condition.name}
+                        value={condition.id}
+                        category="condition"
+                      />
+                    ),
+                    value: condition.id,
+                  }))}
                   disabled={!conditions || conditions.length === 0}
-                  prefix="programRegistry.property.relatedCondition"
                 />
               </FormGrid>
             </FormGrid>

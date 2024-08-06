@@ -22,9 +22,14 @@ export class Suggester<ModelType extends BaseModelSubclass> {
 
   formatter: (entity: BaseModel) => OptionType;
 
-  filter: (entity: BaseModel) => boolean;
+  filter?: (entity: BaseModel) => boolean;
 
-  constructor(model: ModelType, options, formatter = defaultFormatter, filter) {
+  constructor(
+    model: ModelType,
+    options,
+    formatter = defaultFormatter,
+    filter?: (entity: BaseModel) => boolean,
+  ) {
     this.model = model;
     this.options = options;
     // If you don't provide a formatter, this assumes that your model has "name" and "id" fields

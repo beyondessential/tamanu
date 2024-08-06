@@ -29,6 +29,10 @@
       "path": "packages/shared"
     },
     {
+      "name": "constants",
+      "path": "packages/constants"
+    },
+    {
       "name": "central-server",
       "path": "packages/central-server"
     }
@@ -37,5 +41,14 @@
     "files.exclude": {
       "packages/": true
     }
-  }
+  },
+  "extensions": {
+    "recommendations": [
+      "dbaeumer.vscode-eslint",
+      "esbenp.prettier-vscode",
+      "humao.rest-client",
+      "streetsidesoftware.code-spell-checker",
+      "styled-components.vscode-styled-components"
+    ]
+  },
 }

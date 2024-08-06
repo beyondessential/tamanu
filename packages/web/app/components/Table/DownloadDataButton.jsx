@@ -1,44 +1,76 @@
-import React, { isValidElement } from 'react';
-import ReactDOMServer from 'react-dom/server';
+import React, { Children, cloneElement, isValidElement } from 'react';
 import GetAppIcon from '@material-ui/icons/GetApp';
 import { getCurrentDateString } from '@tamanu/shared/utils/dateTime';
-import cheerio from 'cheerio';
 import * as XLSX from 'xlsx';
+import { QueryClientProvider, useQueryClient } from '@tanstack/react-query';
 
+import { ApiContext, useApi } from '../../api';
+import { renderToText } from '../../utils';
 import { saveFile } from '../../utils/fileSystemAccess';
+import { TranslationContext, useTranslation } from '../../contexts/Translation';
 import { GreyOutlinedButton } from '../Button';
-import { TranslatedText } from '../Translation/TranslatedText';
+import { isTranslatedText, TranslatedText } from '../Translation';
 
-// This is a temporary implementation to basically keep TranslatedText components from breaking export
-// by supplying the fallback string in place of the component. proper translation export implmentation coming in NASS-1201
-const normaliseTranslatedText = element => {
+/**
+ * Recursive mapper for transforming leaf nodes in a DOM tree. Used here to explicitly wrap
+ * {@link TranslatedText} elements (and its derivatives) in the context providers needed to render
+ * it into a translated primitive string.
+ *
+ * Based on: https://github.com/tatethurston/react-itertools/blob/main/src/map/index.ts. Used under
+ * MIT licence.
+ */
+const normalizeRecursively = (element, normalizeFn) => {
   if (!isValidElement(element)) return element;
-  if (element.type?.name === 'TranslatedText') return element.props.fallback;
-  if (!Array.isArray(element.props?.children)) return element;
 
-  return React.cloneElement(element, {
-    children: element.props.children.map(normaliseTranslatedText),
+  const { children } = element.props;
+  if (!children) return normalizeFn(element);
+
+  return cloneElement(element, {
+    children: Children.map(children, child => normalizeRecursively(child, normalizeFn)),
   });
 };
 
-function getHeaderValue(column) {
-  if (!column.title) {
-    return column.key;
-  }
-  if (typeof column.title === 'string') {
-    return column.title;
-  }
-  if (typeof column.title === 'object') {
-    if (isValidElement(column.title)) {
-      return cheerio
-        .load(ReactDOMServer.renderToString(normaliseTranslatedText(column.title)))
-        .text();
-    }
-  }
-  return column.key;
-}
-
 export function DownloadDataButton({ exportName, columns, data }) {
+  const queryClient = useQueryClient();
+  const api = useApi();
+  const translationContext = useTranslation();
+
+  const safelyRenderToText = element => {
+    /**
+     * If the input is a {@link TranslatedText} element (or one of its derivatives), explicitly wraps
+     * it in a {@link TranslationProvider} (and its dependents). This is a workaround for the case
+     * where a {@link TranslatedText} is rendered into a string for export, which happens in a
+     * “headless” React root node, outside the context providers defined in `Root.jsx`.
+     *
+     * @privateRemarks Cannot use TranslationProvider convenience component, otherwise the context
+     * object isn’t guaranteed to be defined when this element is rendered by {@link renderToText},
+     * which behaves synchronously.
+     */
+    const contextualizeIfIsTranslatedText = element => {
+      if (!isTranslatedText(element)) return element;
+      return (
+        <QueryClientProvider client={queryClient}>
+          <ApiContext.Provider value={api}>
+            <TranslationContext.Provider value={translationContext}>
+              {element}
+            </TranslationContext.Provider>
+          </ApiContext.Provider>
+        </QueryClientProvider>
+      );
+    };
+
+    const normalizedElement = normalizeRecursively(element, contextualizeIfIsTranslatedText);
+    return renderToText(normalizedElement);
+  };
+
+  const getHeaderValue = ({ key, title }) => {
+    if (!title) return key;
+    if (typeof title === 'string') return title;
+    if (isValidElement(title)) return safelyRenderToText(title);
+
+    return key;
+  };
+
   const exportableColumnsWithOverrides = columns
     .filter(c => c.isExportable !== false)
     .map(c => {
@@ -55,21 +87,14 @@ export function DownloadDataButton({ exportName, columns, data }) {
           exportableColumnsWithOverrides.map(async c => {
             const headerValue = getHeaderValue(c);
             if (c.asyncExportAccessor) {
-              const value = await c.asyncExportAccessor(d);
-              dx[headerValue] = value;
+              dx[headerValue] = await c.asyncExportAccessor(d);
               return;
             }
 
             if (c.accessor) {
               const value = c.accessor(d);
               if (typeof value === 'object') {
-                if (isValidElement(value)) {
-                  dx[headerValue] = cheerio
-                    .load(ReactDOMServer.renderToString(normaliseTranslatedText(value)))
-                    .text(); // render react element and get the text value with cheerio
-                } else {
-                  dx[headerValue] = d[c.key];
-                }
+                dx[headerValue] = isValidElement(value) ? safelyRenderToText(value) : d[c.key];
                 return;
               }
 
@@ -79,10 +104,16 @@ export function DownloadDataButton({ exportName, columns, data }) {
               }
 
               dx[headerValue] = 'Error: Could not parse accessor';
-            } else {
-              // Some columns have no accessor at all.
-              dx[headerValue] = d[c.key];
             }
+
+            if (c.CellComponent) {
+              const CellComponent = c.CellComponent;
+              dx[headerValue] = safelyRenderToText(<CellComponent value={d[c.key]} />);
+              return;
+            }
+
+            // Some columns have no accessor at all.
+            dx[headerValue] = d[c.key];
           }),
         );
         return dx;
@@ -107,6 +138,7 @@ export function DownloadDataButton({ exportName, columns, data }) {
     <GreyOutlinedButton
       onClick={onDownloadData}
       data-test-class="download-data-button"
+      data-testid="download-data-button"
       startIcon={<GetAppIcon />}
     >
       <TranslatedText stringId="general.table.action.export" fallback="Export" />

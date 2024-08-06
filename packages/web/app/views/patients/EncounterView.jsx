@@ -16,7 +16,7 @@ import {
   EncounterMedicationPane,
   EncounterProgramsPane,
   ImagingPane,
-  InvoicingPane,
+  EncounterInvoicingPane,
   LabsPane,
   NotesPane,
   ProcedurePane,
@@ -80,8 +80,8 @@ const TABS = [
   {
     label: <TranslatedText stringId="encounter.tabs.invoicing" fallback="Invoicing" />,
     key: ENCOUNTER_TAB_NAMES.INVOICING,
-    render: props => <InvoicingPane {...props} />,
-    condition: getLocalisation => getLocalisation('features.enableInvoicing'),
+    render: props => <EncounterInvoicingPane {...props} />,
+    condition: (getLocalisation, ability) => getLocalisation('features.enableInvoicing') && ability.can('read', 'Invoice'),
   },
 ];
 
@@ -129,7 +129,7 @@ export const EncounterView = () => {
   const api = useApi();
   const query = useUrlSearchParams();
   const { getLocalisation } = useLocalisation();
-  const { facility } = useAuth();
+  const { facility, ability } = useAuth();
   const patient = useSelector(state => state.patient);
   const { encounter, isLoadingEncounter } = useEncounter();
   const { data: patientBillingTypeData } = useReferenceData(encounter?.patientBillingTypeId);
@@ -142,7 +142,7 @@ export const EncounterView = () => {
 
   if (!encounter || isLoadingEncounter || patient.loading) return <LoadingIndicator />;
 
-  const visibleTabs = TABS.filter(tab => !tab.condition || tab.condition(getLocalisation));
+  const visibleTabs = TABS.filter(tab => !tab.condition || tab.condition(getLocalisation, ability));
 
   return (
     <GridColumnContainer>

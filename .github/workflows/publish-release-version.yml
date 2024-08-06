@@ -1,4 +1,12 @@
+# IF THIS WORKFLOW FAILS AT The CHECKOUT STEP
+# - check the bes bot account for the token's expiry
+# - make a new Classic Token with a 1-year expiry and `repo` scope
+# - change the TAMANU_RELEASE_PAT Actions Secret in this repo's settings
+
 name: Publish Release Version
+
+permissions:
+  contents: write
 
 on:
   workflow_dispatch:
@@ -12,8 +20,6 @@ jobs:
   run:
     name: Publish Release Version
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
     steps:
     - if: (!startsWith(github.ref, 'refs/heads/release/'))
       run: |
@@ -62,14 +68,17 @@ jobs:
 
     - name: Generate release notes
       run: |
-        version=${{ steps.tagged.outputs.current_version }}
-        pattern="^v$(cut -d. -f-2 <<< "$version" | sed 's/[.]/[.]/g')[.]"
-        # 2.6.1 -> ^v2[.]6[.]
-
-        git cliff --topo-order --strip all --latest \
-          --tag-pattern "$pattern" --tag "v$version" \
-          --output RELEASE_NOTES.md
-        cat RELEASE_NOTES.md
+        git switch --detach "v${{ steps.tagged.outputs.current_version }}"
+        git cliff --strip all --current \
+          | node -e 'console.log(
+            (require("fs")
+              .readFileSync(0)
+              .toString()
+              .split(/^## Release notes.+/m)[1]??"") // sometimes cliff prints more than one release
+              .replace(/no[\s-]+issue:?\s?/ig, "") // remove "no issue" labels
+              .replace(/release[\s-]+fix[\s-]+v?[\d.]+:\s?/ig, "") // remove "release fix vX.Y" labels
+            )' \
+          | tee RELEASE_NOTES.md
 
     - name: Determine the true latest version
       id: latest

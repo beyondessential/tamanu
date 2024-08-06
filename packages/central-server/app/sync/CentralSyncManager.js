@@ -221,6 +221,7 @@ export class CentralSyncManager {
     { since, facilityId, tablesToInclude, tablesForFullResync, isMobile },
     unmarkSnapshotAsProcessing,
   ) {
+    let transactionTimeout;
     try {
       const { models, sequelize } = this.store;
 
@@ -306,6 +307,13 @@ export class CentralSyncManager {
       await this.store.sequelize.transaction(
         { isolationLevel: Transaction.ISOLATION_LEVELS.REPEATABLE_READ },
         async () => {
+          const { snapshotTransactionTimeoutMs } = this.constructor.config.sync;
+          if (snapshotTransactionTimeoutMs) {
+            transactionTimeout = setTimeout(() => {
+              throw new Error(`Snapshot for session ${sessionId} timed out`);
+            }, snapshotTransactionTimeoutMs);
+          }
+
           // full changes
           await snapshotOutgoingChanges(
             getPatientLinkedModels(modelsToInclude),
@@ -368,6 +376,7 @@ export class CentralSyncManager {
         { where: { id: sessionId } },
       );
     } finally {
+      if (transactionTimeout) clearTimeout(transactionTimeout);
       await unmarkSnapshotAsProcessing();
     }
   }
