@@ -163,14 +163,14 @@ patientProgramRegistration.get(
       .map(({ date, clinician }) => ({ date, clinician }))
       .reverse();
 
-    const recentDeativationRecord = deactivationRecords.find(
+    const recentDeactivationRecord = deactivationRecords.find(
       ({ date }) => !isAfter(new Date(date), new Date(registration.date)),
     );
     const deactivationData =
       registration.registrationStatus === REGISTRATION_STATUSES.INACTIVE
         ? {
-            dateRemoved: recentDeativationRecord.date,
-            removedBy: recentDeativationRecord.clinician,
+            dateRemoved: recentDeactivationRecord.date,
+            removedBy: recentDeactivationRecord.clinician,
           }
         : {};
 
