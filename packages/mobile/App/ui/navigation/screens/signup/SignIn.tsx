@@ -91,30 +91,21 @@ export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
             marginTop={screenPercentageToDP(5.29, Orientation.Height)}
             marginBottom={screenPercentageToDP(10.7, Orientation.Height)}
           >
-            {branding === Branding.Cambodia ? (
-              <StyledImage
-                width={240}
-                height={70}
-                marginBottom={-20}
-                source={require('../../../assets/cambodia-logo-with-title.png')}
+            <>
+              <HomeBottomLogoIcon
+                size={screenPercentageToDP(7.29, Orientation.Height)}
+                fill={theme.colors.SECONDARY_MAIN}
               />
-            ) : (
-              <>
-                <HomeBottomLogoIcon
-                  size={screenPercentageToDP(7.29, Orientation.Height)}
-                  fill={theme.colors.SECONDARY_MAIN}
-                />
-                <StyledText
-                  marginLeft={screenPercentageToDP(0.5, Orientation.Height)}
-                  fontSize="40"
-                  color={theme.colors.WHITE}
-                  fontWeight="bold"
-                  verticalAlign="center"
-                >
-                  tamanu
-                </StyledText>
-              </>
-            )}
+              <StyledText
+                marginLeft={screenPercentageToDP(0.5, Orientation.Height)}
+                fontSize="40"
+                color={theme.colors.WHITE}
+                fontWeight="bold"
+                verticalAlign="center"
+              >
+                tamanu
+              </StyledText>
+            </>
           </StyledView>
           <StyledView marginLeft={screenPercentageToDP(2.43, Orientation.Width)}>
             <StyledText fontSize={30} fontWeight="bold" marginBottom={5} color={theme.colors.WHITE}>
