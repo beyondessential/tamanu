@@ -83,7 +83,6 @@ describe('User', () => {
         password: rawPassword,
       });
       expect(result).toHaveSucceeded();
-      console.log(result.body);
       expect(result.body).toHaveProperty('availableFacilities');
       expect(result.body.availableFacilities).toStrictEqual([facility1]);
     });
