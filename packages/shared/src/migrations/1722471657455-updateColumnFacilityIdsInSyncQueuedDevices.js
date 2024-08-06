@@ -1,20 +1,17 @@
-import { DataTypes } from 'sequelize';
 export async function up(query) {
-  await query.removeColumn('sync_queued_devices', 'facility_id');
-  await query.addColumn('sync_queued_devices', 'facility_ids', {
-    type: DataTypes.TEXT,
-    allowNull: false,
-  });
+  await query.renameColumn('sync_queued_devices', 'facility_id', 'facility_id_legacy');
+  await query.sequelize.query(`
+    ALTER TABLE sync_queued_devices
+    ADD COLUMN facility_ids TEXT;
+
+    UPDATE sync_queued_devices SET facility_ids = facility_id_legacy;
+
+    ALTER TABLE sync_queued_devices
+    ALTER COLUMN facility_ids SET NOT NULL;
+  `);
 }
 
 export async function down(query) {
+  await query.renameColumn('sync_queued_devices', 'facility_id_legacy', 'facility_id');
   await query.removeColumn('sync_queued_devices', 'facility_ids');
-  await query.addColumn('sync_queued_devices', 'facility_id', {
-    type: DataTypes.STRING,
-    references: {
-      model: 'facilities',
-      key: 'id',
-    },
-    allowNull: false,
-  });
 }
