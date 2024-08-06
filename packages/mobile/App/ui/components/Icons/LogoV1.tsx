@@ -1,7 +1,6 @@
 import React, { memo } from 'react';
 import { SvgXml } from 'react-native-svg';
 import { Branding, useBranding } from '~/ui/hooks/useBranding';
-import { StyledImage } from '~/ui/styled/common';
 
 export const LogoV1Icon = memo(props => {
   const branding = useBranding();
