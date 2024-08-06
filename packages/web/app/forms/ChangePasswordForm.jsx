@@ -142,6 +142,7 @@ const ChangePasswordFormComponent = ({
           autoComplete="new-password"
         />
         <Field
+          autoComplete="new-password"
           name="confirmNewPassword"
           type="password"
           label={
