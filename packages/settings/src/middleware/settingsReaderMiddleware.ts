@@ -3,7 +3,7 @@ import { ReadSettings } from '../reader';
 
 export const settingsReaderMiddleware = (req, _res, next) => {
   const { models } = req;
-  const facilityIds = (config as any).facilityIds;
+  const facilityIds = (config as any).serverFacilityIds;
   try {
     // n.b. facilityId will not be defined if
     // - this is a central server; or
