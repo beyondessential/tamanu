@@ -29,6 +29,7 @@ export const SexSection = (): ReactElement => (
       options={options}
       labelFontSize={screenPercentageToDP(2, Orientation.Height)}
       optionComponentWidth={buttonWidth}
+      initialValue="all"
     />
   </StyledView>
 );
