@@ -16,6 +16,7 @@ const CHANGE_PASSWORD_FAILURE = 'CHANGE_PASSWORD_FAILURE';
 const VALIDATE_RESET_CODE_START = 'VALIDATE_RESET_CODE_START';
 const VALIDATE_RESET_CODE_COMPLETE = 'VALIDATE_RESET_CODE_COMPLETE';
 const SET_FACILITY_ID = 'SET_FACILITY_ID';
+const SET_SETTINGS = 'SET_SETTINGS';
 
 export const restoreSession = () => async (dispatch, getState, { api }) => {
   try {
@@ -76,10 +77,14 @@ const handleLoginSuccess = (dispatch, loginInfo) => {
 
 export const setFacilityId = facilityId => async (dispatch, getState, { api }) => {
   try {
-    await api.setFacility(facilityId);
+    const { settings } = await api.setFacility(facilityId);
     dispatch({
       type: SET_FACILITY_ID,
       facilityId,
+    });
+    dispatch({
+      type: SET_SETTINGS,
+      settings,
     });
   } catch (error) {
     dispatch({ type: LOGIN_FAILURE, error: error.message });
@@ -210,6 +215,9 @@ const actionHandlers = {
   }),
   [SET_FACILITY_ID]: action => ({
     facilityId: action.facilityId,
+  }),
+  [SET_SETTINGS]: action => ({
+    settings: action.settings,
   }),
   [LOGIN_FAILURE]: action => ({
     loading: false,

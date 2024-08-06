@@ -2,7 +2,7 @@ import express from 'express';
 
 import { constructPermission } from '@tamanu/shared/permissions/middleware';
 import { settingsCache } from '@tamanu/settings';
-import { settingsReaderMiddleware } from '@tamanu/settings/middleware';
+
 import {
   authMiddleware,
   loginHandler,
@@ -103,9 +103,6 @@ apiv1.get(
 );
 
 apiv1.use(authMiddleware);
-
-// replace settings reader now that we have extracted the facilityId during auth
-apiv1.use(settingsReaderMiddleware);
 
 apiv1.use(constructPermission);
 

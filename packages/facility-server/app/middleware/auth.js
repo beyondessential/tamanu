@@ -196,7 +196,8 @@ export async function setFacilityHandler(req, res, next) {
       throw new BadAuthenticationError('User does not have access to this facility');
     }
     const token = await buildToken(user, facilityId);
-    res.send({ token });
+    const settings = await req.settings[facilityId].getFrontEndSettings();
+    res.send({ token, settings });
   } catch (e) {
     next(e);
   }
