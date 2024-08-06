@@ -1,4 +1,5 @@
 import { disableHardcodedPermissionsForSuite, fake } from '@tamanu/shared/test-helpers';
+import { afterAll, beforeAll } from '@jest/globals';
 import { REGISTRATION_STATUSES } from '@tamanu/constants';
 import { createTestContext } from '../utilities';
 
@@ -289,8 +290,8 @@ describe('PatientProgramRegistration', () => {
       ];
 
       for (const r of records) {
-        await app.post(`/api/patient/${patient.id}/programRegistration`).send(r);
-        // await sleepAsync(1000);
+        const result = await app.post(`/api/patient/${patient.id}/programRegistration`).send(r);
+        expect(result).toHaveSucceeded();
       }
 
       return { patient, registry, records };

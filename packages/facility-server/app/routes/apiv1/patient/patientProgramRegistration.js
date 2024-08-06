@@ -77,7 +77,7 @@ patientProgramRegistration.post(
           })),
         ),
         // as a side effect, mark for sync in the current facility
-        models.PatientFacility.create({
+        models.PatientFacility.upsert({
           patientId,
           facilityId,
         }),
