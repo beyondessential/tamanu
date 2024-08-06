@@ -11,7 +11,7 @@ import { LAB_REQUEST_STATUSES, SETTINGS_SCOPES, SYNC_DIRECTIONS } from '@tamanu/
 import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
 
 import { createTestContext } from '../utilities';
-import { importerTransaction } from '../../dist/admin/importerEndpoint';
+import { importerTransaction } from '../../dist/admin/importer/importerEndpoint';
 import { referenceDataImporter } from '../../dist/admin/referenceDataImporter';
 
 const doImport = (options, models) => {
