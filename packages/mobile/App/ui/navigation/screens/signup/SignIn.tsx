@@ -4,7 +4,6 @@ import { KeyboardAvoidingView, Linking, StatusBar } from 'react-native';
 import {
   FullView,
   RowView,
-  StyledImage,
   StyledSafeAreaView,
   StyledText,
   StyledTouchableOpacity,
@@ -24,7 +23,6 @@ import { LanguageSelectButton } from './LanguageSelectButton';
 import { useLocalisation } from '~/ui/contexts/LocalisationContext';
 import { SupportCentreButton } from './SupportCentreButton';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
-import { Branding, useBranding } from '~/ui/hooks/useBranding';
 
 interface ModalContent {
   message: string;
@@ -34,7 +32,6 @@ interface ModalContent {
 
 export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
   const authState = useSelector(authSelector);
-  const branding = useBranding();
 
   const [modalVisible, setModalVisible] = useState(false);
   const [modalContent, setModalContent] = useState<ModalContent>({ message: '' });
