@@ -7,8 +7,12 @@ export const facilityRoutes = express.Router();
 facilityRoutes.get(
   '/$',
   asyncHandler(async (req, res) => {
-    const allowed = await req.user.allowedFacilityIds();
-    const facilities = await req.store.models.Facility.findAll({
+    const { store, user } = req;
+    const { Facility, User } = store.models;
+    const userEntity = await User.findByPk(user.id);
+
+    const allowed = await userEntity.allowedFacilityIds();
+    const facilities = await Facility.findAll({
       where: allowed === CAN_ACCESS_ALL_FACILITIES ? {} : { id: allowed },
     });
 
