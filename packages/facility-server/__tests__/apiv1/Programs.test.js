@@ -1,9 +1,11 @@
-import { createDummyEncounter, createDummyPatient } from '@tamanu/shared/demoData/patients';
 import config from 'config';
+
+import { createDummyEncounter, createDummyPatient } from '@tamanu/shared/demoData/patients';
 import { PROGRAM_DATA_ELEMENT_TYPES, SURVEY_TYPES } from '@tamanu/constants';
-import { chance } from '@tamanu/shared/test-helpers';
-import { createTestContext } from '../utilities';
 import { selectFacilityIds } from '@tamanu/shared/utils/configSelectors';
+import { chance } from '@tamanu/shared/test-helpers';
+
+import { createTestContext } from '../utilities';
 
 let baseApp = null;
 let models = null;
