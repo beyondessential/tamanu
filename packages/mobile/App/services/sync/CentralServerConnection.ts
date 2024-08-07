@@ -287,6 +287,13 @@ export class CentralServerConnection {
         { backoff: { maxAttempts: 1 } },
       );
 
+      const facilityId = await readConfig('facilityId', '');
+      const { allowedFacilities } = data;
+      if (allowedFacilities !== 'ALL' && !allowedFacilities.map(f => f.id).includes(facilityId)) {
+        console.warn('User doesnt have permission for this facility: ', facilityId);
+        throw new AuthenticationError('You dont have access to this facility');
+      }
+
       if (!data.token || !data.refreshToken || !data.user) {
         // auth failed in some other regard
         console.warn('Auth failed with an inexplicable error', data);
