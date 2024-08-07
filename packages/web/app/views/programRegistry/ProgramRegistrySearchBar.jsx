@@ -93,9 +93,9 @@ export const ProgramRegistrySearchBar = ({ searchParameters, setSearchParameters
                 fallback="Subdivision"
               />
             }
-            name="subDivisionId"
+            name="subdivisionId"
             component={AutocompleteField}
-            suggester={subDivisionSuggester}
+            suggester={subdivisionSuggester}
           />
           <div
             style={{
