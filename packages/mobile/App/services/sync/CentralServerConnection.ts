@@ -4,6 +4,7 @@ import { readConfig } from '../config';
 import { FetchOptions, LoginResponse, SyncRecord } from './types';
 import {
   AuthenticationError,
+  forbiddenFacilityMessage,
   generalErrorMessage,
   invalidTokenMessage,
   invalidUserCredentialsMessage,
@@ -291,7 +292,7 @@ export class CentralServerConnection {
       const { allowedFacilities } = data;
       if (allowedFacilities !== 'ALL' && !allowedFacilities.map(f => f.id).includes(facilityId)) {
         console.warn('User doesnt have permission for this facility: ', facilityId);
-        throw new AuthenticationError('You dont have access to this facility');
+        throw new AuthenticationError(forbiddenFacilityMessage);
       }
 
       if (!data.token || !data.refreshToken || !data.user) {
