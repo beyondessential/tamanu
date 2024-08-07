@@ -9,14 +9,26 @@ export class SyncLookupRefresher extends ScheduledTask {
 
   constructor(context, options) {
     const conf = config.schedules.syncLookupRefresher;
-    const { schedule, jitterTime, enabled } = conf;
+    const { schedule, jitterTime, enabled, updateLookupTableTimeoutMs } = conf;
     super(schedule, log, jitterTime, enabled);
     this.context = context;
     this.models = context.store.models;
     this.options = options;
+    this.updateLookupTableTimeoutMs = updateLookupTableTimeoutMs;
   }
 
   async run() {
-    await this.context.centralSyncManager.updateLookupTable();
+    let transactionTimeout;
+
+    try {
+      if (this.updateLookupTableTimeoutMs) {
+        transactionTimeout = setTimeout(() => {
+          throw new Error(`Updating lookup table timed out`);
+        }, this.updateLookupTableTimeoutMs);
+      }
+      await this.context.centralSyncManager.updateLookupTable();
+    } finally {
+      if (transactionTimeout) clearTimeout(transactionTimeout);
+    }
   }
 }

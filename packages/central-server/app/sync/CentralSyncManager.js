@@ -230,6 +230,22 @@ export class CentralSyncManager {
       (await this.store.models.LocalSystemFact.get(LOOKUP_UP_TO_TICK_KEY)) || -1;
 
     await repeatableReadTransaction(this.store.sequelize, async () => {
+      const { singleModelUpdateTimeoutMs } = this.constructor.config.sync.lookupTable;
+
+      // Set timeout duration for a single snapshot query of a model
+      if (singleModelUpdateTimeoutMs) {
+        await this.store.sequelize.query(
+          `
+          SET LOCAL statement_timeout = :singleModelUpdateTimeoutMs;
+        `,
+          {
+            replacements: {
+              singleModelUpdateTimeoutMs,
+            },
+          },
+        );
+      }
+
       await updateLookupTable(
         getModelsForDirection(this.store.models, SYNC_DIRECTIONS.PULL_FROM_CENTRAL),
         previouslyUpToTick,

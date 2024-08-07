@@ -295,7 +295,7 @@ export const snapshotOutgoingChanges = withConfig(
     sessionConfig,
     config,
   ) => {
-    return config.sync.useLookupTable
+    return config.sync.lookupTable.enabled
       ? snapshotOutgoingChangesFromSyncLookup(
           store,
           since,

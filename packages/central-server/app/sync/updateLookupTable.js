@@ -16,6 +16,8 @@ export const updateLookupTableForModel = async (model, config, since, sessionCon
   while (fromId != null) {
     const [[{ maxId, count }]] = await model.sequelize.query(
       `
+        SELECT pg_sleep(60);
+  
         WITH inserted AS (
           INSERT INTO sync_lookup (
             record_id,

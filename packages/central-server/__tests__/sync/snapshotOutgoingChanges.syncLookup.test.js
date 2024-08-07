@@ -30,7 +30,9 @@ describe('snapshotOutgoingChanges', () => {
 
   const simplestConfig = {
     sync: {
-      useLookupTable: true,
+      lookupTable: {
+        enabled: false,
+      },
       maxRecordsPerSnapshotChunk: 10000000,
     },
   };

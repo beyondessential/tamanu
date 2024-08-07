@@ -38,7 +38,9 @@ describe('CentralSyncManager', () => {
     } = require('../../dist/sync/CentralSyncManager');
     TestCentralSyncManager.overrideConfig({
       sync: {
-        useLookupTable,
+        lookupTable: {
+          enabled: useLookupTable,
+        },
         maxRecordsPerSnapshotChunk: 1000000000,
       },
     });
