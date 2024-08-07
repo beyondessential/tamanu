@@ -1,5 +1,6 @@
 import {
   IMAGING_REQUEST_STATUS_TYPES,
+  LAB_REQUEST_STATUSES,
   LAB_TEST_STATUSES,
   OTHER_REFERENCE_TYPES,
   REFERENCE_TYPES,
@@ -76,7 +77,8 @@ filtered_labtests as (
 	from lab_tests lt
 	join lab_requests lr on lr.deleted_at is null and lr.id = lt.lab_request_id
 	join lab_test_types ltt on ltt.deleted_at is null and ltt.visibility_status = :visibilityStatus and ltt.id = lt.lab_test_type_id
-	where lt.status NOT IN (:excludedLabTestStatuses)
+	where lr.status NOT IN (:excludedLabRequestStatuses)
+	and lt.status NOT IN (:excludedLabTestStatuses)
 	and lt.deleted_at is null
 	and lr.encounter_id = :encounterId
 ),
@@ -110,6 +112,13 @@ join users u on u.deleted_at is null and coalesce(fpc."orderedByUserId",fi."orde
         encounterId,
         imagingType: REFERENCE_TYPES.IMAGING_TYPE,
         imagingTypes,
+        excludedLabRequestStatuses: [
+          LAB_REQUEST_STATUSES.RECEPTION_PENDING,
+          LAB_REQUEST_STATUSES.CANCELLED,
+          LAB_REQUEST_STATUSES.DELETED,
+          LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED,
+          LAB_REQUEST_STATUSES.ENTERED_IN_ERROR,
+        ],
         excludedLabTestStatuses: [
           LAB_TEST_STATUSES.RECEPTION_PENDING,
           LAB_TEST_STATUSES.CANCELLED,
