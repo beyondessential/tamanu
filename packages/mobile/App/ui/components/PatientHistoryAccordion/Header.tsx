@@ -7,6 +7,7 @@ import { DateFormats, EncounterTypeNames, HeaderIcons } from '/helpers/constants
 import * as Icons from '../Icons';
 import { Separator } from '../Separator';
 import { EncounterType, IEncounter, ILocation } from '~/types';
+import { TranslatedReferenceData } from '../Translations/TranslatedReferenceData';
 
 interface IconProps {
   IconComponent: FunctionComponent<SvgProps>;
@@ -22,9 +23,7 @@ interface HeaderRightIconContainerProps {
   isActive: boolean;
 }
 
-const HeaderRightIconContainer = ({
-  isActive,
-}: HeaderRightIconContainerProps): JSX.Element => (
+const HeaderRightIconContainer = ({ isActive }: HeaderRightIconContainerProps): JSX.Element => (
   <StyledView>
     <StatusIcon
       height={12}
@@ -40,11 +39,8 @@ interface HeaderDateProps {
 }
 
 const HeaderDate = ({ startDate, date, isActive }: HeaderDateProps): JSX.Element => (
-  <StyledText
-    fontSize={14}
-    color={isActive ? theme.colors.WHITE : theme.colors.TEXT_DARK}
-  >
-    {formatStringDate((startDate || date), DateFormats.DAY_MONTH_YEAR_SHORT)}
+  <StyledText fontSize={14} color={isActive ? theme.colors.WHITE : theme.colors.TEXT_DARK}>
+    {formatStringDate(startDate || date, DateFormats.DAY_MONTH_YEAR_SHORT)}
   </StyledText>
 );
 
@@ -87,26 +83,30 @@ const HeaderDescription = ({
       {EncounterTypeNames[encounterType] || formTitle || ''}
     </StyledText>
     <StyledView marginTop={1}>
-      <StyledText
-        color={isActive ? theme.colors.SECONDARY_MAIN : theme.colors.TEXT_MID}
-      >
-        {location?.facility?.name ?? location?.name ?? ''}
+      <StyledText color={isActive ? theme.colors.SECONDARY_MAIN : theme.colors.TEXT_MID}>
+        {location?.facility?.name ? (
+          <TranslatedReferenceData
+            fallback={location?.facility?.name}
+            value={location?.facility?.id}
+            category="facility"
+          />
+        ) : (
+          <TranslatedReferenceData
+            fallback={location?.name}
+            value={location?.id}
+            category="location"
+          />
+        )}
       </StyledText>
     </StyledView>
   </ColumnView>
 );
 
-const Header = (
-  section: IEncounter,
-  index: number,
-  isActive: boolean,
-  ): JSX.Element => (
+const Header = (section: IEncounter, index: number, isActive: boolean): JSX.Element => (
   <StyledView>
     <RowView
       width="100%"
-      background={
-        isActive ? theme.colors.MAIN_SUPER_DARK : theme.colors.BACKGROUND_GREY
-      }
+      background={isActive ? theme.colors.MAIN_SUPER_DARK : theme.colors.BACKGROUND_GREY}
       height={60}
       alignItems="center"
       paddingLeft={20}
