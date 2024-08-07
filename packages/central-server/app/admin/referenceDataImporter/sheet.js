@@ -1,6 +1,10 @@
 import { utils } from 'xlsx';
 
-import { PATIENT_FIELD_DEFINITION_TYPES, REFERENCE_TYPE_VALUES } from '@tamanu/constants';
+import {
+  PATIENT_FIELD_DEFINITION_TYPES,
+  REFERENCE_TYPES,
+  REFERENCE_TYPE_VALUES,
+} from '@tamanu/constants';
 import { DataLoaderError, ValidationError, WorkSheetError } from '../errors';
 import { statkey, updateStat } from '../stats';
 import { importRows } from '../importRows';
@@ -98,6 +102,8 @@ export async function importSheet({ errors, log, models }, { loader, sheetName, 
   log.debug('Preparing rows of data into table rows', { rows: sheetRows.length });
   const tableRows = [];
   const idCache = new Set();
+  const nameCache = new Set();
+
   for (const [sheetRow, data] of sheetRows.entries()) {
     const trimmed = Object.fromEntries(
       Object.entries(data).map(([key, value]) => [key.trim(), value]),
@@ -134,6 +140,22 @@ export async function importSheet({ errors, log, models }, { loader, sheetName, 
           continue;
         } else {
           idCache.add(values.id);
+        }
+
+        // Validation for designation name uniqueness
+        if (values.name && model === 'ReferenceData' && sheetName === REFERENCE_TYPES.DESIGNATION) {
+          if (nameCache.has(values.name)) {
+            errors.push(
+              new ValidationError(
+                sheetName,
+                sheetRow,
+                `Duplicate designation name: ${values.name}`,
+              ),
+            );
+            continue;
+          } else {
+            nameCache.add(values.name);
+          }
         }
 
         updateStat(stats, statkey(model, sheetName), 'created', 0);
