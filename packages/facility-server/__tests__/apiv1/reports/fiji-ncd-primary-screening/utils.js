@@ -45,8 +45,8 @@ export const createCVDReferral = async (app, patient, referralDate) => {
       'pde-FijCVDRef7': `pde-FijCVDRef7-on-${referralDate}-${patient.firstName}`,
       'pde-FijCVDRef11': `pde-FijCVDRef11-on-${referralDate}-${patient.firstName}`,
     },
+    facilityId,
   });
-  facilityId;
 };
 
 export const createBreastCancerFormSurveyResponse = async (
