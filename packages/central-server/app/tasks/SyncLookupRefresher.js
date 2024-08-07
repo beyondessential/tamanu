@@ -18,17 +18,6 @@ export class SyncLookupRefresher extends ScheduledTask {
   }
 
   async run() {
-    let transactionTimeout;
-
-    try {
-      if (this.updateLookupTableTimeoutMs) {
-        transactionTimeout = setTimeout(() => {
-          throw new Error(`Updating lookup table timed out`);
-        }, this.updateLookupTableTimeoutMs);
-      }
-      await this.context.centralSyncManager.updateLookupTable();
-    } finally {
-      if (transactionTimeout) clearTimeout(transactionTimeout);
-    }
+    await this.context.centralSyncManager.updateLookupTable();
   }
 }
