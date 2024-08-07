@@ -139,23 +139,22 @@ export async function createTestContext({ enableReportInstances } = {}) {
   const facilityIds = selectFacilityIds(config);
 
   // Create the facility for the current config if it doesn't exist
-  const facilities = [];
+  const facilities = await Promise.all(
+    facilityIds.map(async facilityId => {
+      const [facility] = await models.Facility.findOrCreate({
+        where: {
+          id: facilityId,
+        },
+        defaults: {
+          code: facilityId,
+          name: facilityId,
+        },
+      });
+      return facility;
+    }),
+  );
 
-  facilityIds.forEach(async (facilityId, i) => {
-    const [facility] = await models.Facility.findOrCreate({
-      where: {
-        id: facilityId,
-      },
-      defaults: {
-        code: `TEST${i + 1}`,
-        name: `Test Facility ${i + 1}`,
-      },
-    });
-
-    facilities.push(facility);
-  });
-
-  const facilityIdsString = JSON.stringify(facilityIds);
+  const facilityIdsString = JSON.stringify(facilities.map(facility => facility.id));
   // ensure there's a corresponding local system fact for it too
   await models.LocalSystemFact.set('facilityIds', facilityIdsString);
 
