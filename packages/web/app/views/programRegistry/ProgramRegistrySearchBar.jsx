@@ -45,7 +45,7 @@ export const ProgramRegistrySearchBar = ({ searchParameters, setSearchParameters
   });
 
   const divisionSuggester = useSuggester('division');
-  const subDivisionSuggester = useSuggester('subdivision');
+  const subdivisionSuggester = useSuggester('subdivision');
 
   return (
     <CustomisableSearchBar
