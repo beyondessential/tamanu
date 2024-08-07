@@ -9,12 +9,11 @@ export class SyncLookupRefresher extends ScheduledTask {
 
   constructor(context, options) {
     const conf = config.schedules.syncLookupRefresher;
-    const { schedule, jitterTime, enabled, updateLookupTableTimeoutMs } = conf;
+    const { schedule, jitterTime, enabled } = conf;
     super(schedule, log, jitterTime, enabled);
     this.context = context;
     this.models = context.store.models;
     this.options = options;
-    this.updateLookupTableTimeoutMs = updateLookupTableTimeoutMs;
   }
 
   async run() {
