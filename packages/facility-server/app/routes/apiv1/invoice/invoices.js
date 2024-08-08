@@ -11,6 +11,8 @@ import { getCurrentCountryTimeZoneDateTimeString } from '@tamanu/shared/utils/co
 import { patientPaymentRoute } from './patientPayment';
 import { round } from 'lodash';
 
+const invoiceNumberGenerator = customAlphabet('123456789ABCDEFGHIJKLMNPQRSTUVWXYZ', 10);
+
 const invoiceRoute = express.Router();
 export { invoiceRoute as invoices };
 
@@ -36,8 +38,7 @@ const createInvoiceSchema = z
   .transform(data => ({
     ...data,
     id: uuidv4(),
-    displayId:
-      customAlphabet('0123456789', 8)() + customAlphabet('ABCDEFGHIJKLMNOPQRSTUVWXYZ', 2)(),
+    displayId: invoiceNumberGenerator(),
     status: INVOICE_STATUSES.IN_PROGRESS,
   }));
 invoiceRoute.post(

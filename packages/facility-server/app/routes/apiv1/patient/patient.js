@@ -372,8 +372,13 @@ patientRoute.get(
           ON (planned_location.location_group_id = planned_location_group.id)
         LEFT JOIN reference_data AS village
           ON (village.type = 'village' AND village.id = patients.village_id)
-        LEFT JOIN reference_data AS diet
-          ON (diet.type = 'diet' AND diet.id = encounters.diet_id)
+        LEFT JOIN (
+            SELECT ed.encounter_id, jsonb_agg(json_build_object('id', rd.id, 'name', rd.name, 'code', rd.code)) diets
+            FROM encounter_diets ed
+            JOIN reference_data rd ON rd.id = ed.diet_id AND rd."type" = 'diet' AND rd.visibility_status = 'current' 
+            WHERE ed.deleted_at is NULL
+            GROUP BY ed.encounter_id
+        ) diets ON diets.encounter_id = encounters.id
         LEFT JOIN (
           SELECT
             patient_id,
@@ -418,9 +423,7 @@ patientRoute.get(
         patients.*,
         encounters.id AS encounter_id,
         encounters.encounter_type,
-        diet.id AS diet_id,
-        diet.name AS diet_name,
-        diet.code AS diet_code,
+        diets.diets AS diets,
         clinician.display_name as clinician,
         department.id AS department_id,
         department.name AS department_name,

@@ -150,7 +150,7 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
                     name="registeringFacilityId"
                     label={
                       <TranslatedText
-                        stringId="patientProgramRegistry.registeredBy.label"
+                        stringId="patientProgramRegistry.registeringFacility.label"
                         fallback="Registering facility"
                       />
                     }
@@ -242,7 +242,7 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
             .required()
             .translatedLabel(
               <TranslatedText
-                stringId="patientProgramRegistry.registeredBy.label"
+                stringId="patientProgramRegistry.registeringFacility.label"
                 fallback="Registering facility"
               />,
             ),
