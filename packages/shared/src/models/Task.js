@@ -23,7 +23,7 @@ export class Task extends Model {
           allowNull: false,
         }),
         status: {
-          type: Sequelize.ENUM(Object.values(TASK_STATUSES)),
+          type: DataTypes.ENUM(Object.values(TASK_STATUSES)),
           defaultValue: TASK_STATUSES.TODO,
           allowNull: false,
         },
