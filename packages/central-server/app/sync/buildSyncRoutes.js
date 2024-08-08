@@ -59,7 +59,6 @@ export const buildSyncRoutes = ctx => {
       const queueRecord = await SyncQueuedDevice.checkSyncRequest({
         lastSyncedTick: 0,
         urgent: false,
-        facilityIds,
         ...req.body,
       });
       log.info('Dummy queue result:', { queueRecord });
