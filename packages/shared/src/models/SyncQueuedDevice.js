@@ -19,7 +19,7 @@ export class SyncQueuedDevice extends Model {
           primaryKey: true,
         },
         facilityIds: {
-          type: DataTypes.STRING,
+          type: DataTypes.JSONB,
           allowNull: false,
         },
         lastSeenTime: { type: DataTypes.DATE },
@@ -59,7 +59,7 @@ export class SyncQueuedDevice extends Model {
       // new entry in sync queue
       await this.create({
         id: deviceId,
-        facilityIds: facilityIds.join(','),
+        facilityIds: JSON.stringify(facilityIds),
         lastSeenTime: getCurrentDateTimeString(),
         urgent,
         lastSyncedTick,
