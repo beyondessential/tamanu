@@ -68,15 +68,15 @@ export class AuthService {
       visibilityStatus: VisibilityStatus.Current,
     });
 
+    if (!user || !(await compare(password, user.localPassword))) {
+      throw new AuthenticationError(invalidUserCredentialsMessage);
+    }
+
     // TODO: check 'login', 'Facility' permission
     const restrictUsersToFacilities = await Setting.getByKey('auth.restrictUsersToFacilities');
     const linkedFacility = await readConfig('facilityId', '');
     if (restrictUsersToFacilities && !(await user.canAccessFacility(linkedFacility))) {
       throw new AuthenticationError(forbiddenFacilityMessage);
-    }
-
-    if (!user || !(await compare(password, user.localPassword))) {
-      throw new AuthenticationError(invalidUserCredentialsMessage);
     }
 
     return user;
