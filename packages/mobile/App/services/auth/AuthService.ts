@@ -68,6 +68,7 @@ export class AuthService {
       visibilityStatus: VisibilityStatus.Current,
     });
 
+    // TODO: check 'login', 'Facility' permission
     const restrictUsersToFacilities = await Setting.getByKey('auth.restrictUsersToFacilities');
     const linkedFacility = await readConfig('facilityId', '');
     if (restrictUsersToFacilities && !(await user.canAccessFacility(linkedFacility))) {
