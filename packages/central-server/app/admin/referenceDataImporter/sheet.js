@@ -82,6 +82,50 @@ const FOREIGN_KEY_SCHEMATA = {
   ],
 };
 
+const patientFieldDefinitionValidator = async ({ values, models }) => {
+  const existingDefinition =
+    values?.definitionId &&
+    (await models.PatientFieldDefinition.findOne({ where: { id: values.definitionId } }));
+
+  if (!existingDefinition)
+    throw new Error(`No such patient field definition: ${values?.definitionId}`);
+
+  if (
+    existingDefinition.fieldType === PATIENT_FIELD_DEFINITION_TYPES.NUMBER &&
+    values.value &&
+    isNaN(values.value)
+  )
+    throw new Error(`Field Type mismatch: expected field type is a number value`);
+
+  if (
+    existingDefinition.fieldType === PATIENT_FIELD_DEFINITION_TYPES.SELECT &&
+    values.value &&
+    !existingDefinition.options.includes(values.value)
+  )
+    throw new Error(
+      `Field Type mismatch: expected value to be one of "${existingDefinition.options.join(', ')}"`,
+    );
+};
+
+const referenceDataValidator = ({ values, sheetName, sheetRow, nameCache, errors }) => {
+  if (values.name && sheetName === REFERENCE_TYPES.DESIGNATION) {
+    if (nameCache.has(values.name)) {
+      errors.push(
+        new ValidationError(sheetName, sheetRow, `Duplicate designation name: ${values.name}`),
+      );
+      return false;
+    } else {
+      nameCache.add(values.name);
+    }
+  }
+  return true;
+};
+
+const validationHandlers = {
+  PatientFieldValue: patientFieldDefinitionValidator,
+  ReferenceData: referenceDataValidator,
+};
+
 export async function importSheet({ errors, log, models }, { loader, sheetName, sheet }) {
   const stats = {};
 
@@ -111,28 +155,17 @@ export async function importSheet({ errors, log, models }, { loader, sheetName, 
     try {
       for (const { model, values } of loader(trimmed, models, FOREIGN_KEY_SCHEMATA)) {
         if (!models[model]) throw new Error(`No such type of data: ${model}`);
-        if (model === 'PatientFieldValue') {
-          const existingDefinition =
-            values?.definitionId &&
-            (await models.PatientFieldDefinition.findOne({ where: { id: values.definitionId } }));
-          if (!existingDefinition)
-            throw new Error(`No such patient field definition: ${values?.definitionId}`);
-          if (
-            existingDefinition.fieldType === PATIENT_FIELD_DEFINITION_TYPES.NUMBER &&
-            values.value &&
-            isNaN(values.value)
-          )
-            throw new Error(`Field Type mismatch: expected field type is a number value`);
-          if (
-            existingDefinition.fieldType === PATIENT_FIELD_DEFINITION_TYPES.SELECT &&
-            values.value &&
-            !existingDefinition.options.includes(values.value)
-          )
-            throw new Error(
-              `Field Type mismatch: expected value to be one of "${existingDefinition.options.join(
-                ', ',
-              )}"`,
-            );
+
+        if (validationHandlers[model]) {
+          const isValid = await validationHandlers[model]({
+            values,
+            models,
+            sheetName,
+            sheetRow,
+            nameCache,
+            errors,
+          });
+          if (!isValid) continue;
         }
 
         if (values.id && idCache.has(values.id)) {
@@ -140,22 +173,6 @@ export async function importSheet({ errors, log, models }, { loader, sheetName, 
           continue;
         } else {
           idCache.add(values.id);
-        }
-
-        // Validation for designation name uniqueness
-        if (values.name && model === 'ReferenceData' && sheetName === REFERENCE_TYPES.DESIGNATION) {
-          if (nameCache.has(values.name)) {
-            errors.push(
-              new ValidationError(
-                sheetName,
-                sheetRow,
-                `Duplicate designation name: ${values.name}`,
-              ),
-            );
-            continue;
-          } else {
-            nameCache.add(values.name);
-          }
         }
 
         updateStat(stats, statkey(model, sheetName), 'created', 0);
