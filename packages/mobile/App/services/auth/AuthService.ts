@@ -67,13 +67,13 @@ export class AuthService {
       visibilityStatus: VisibilityStatus.Current,
     });
 
-    if (!user || !user.localPassword || !(await compare(password, user.localPassword))) {
-      throw new AuthenticationError(invalidUserCredentialsMessage);
+    const currentFacility = await readConfig('facilityId', '');
+    if (!(await user.canAccessFacility(currentFacility))) {
+      throw new AuthenticationError(forbiddenFacilityMessage);
     }
 
-    const currentFacility = await readConfig('facilityId', '');
-    if (!user.facilities.map(f => f.id).includes(currentFacility)) {
-      throw new AuthenticationError(forbiddenFacilityMessage);
+    if (!user || !(await compare(password, user.localPassword))) {
+      throw new AuthenticationError(invalidUserCredentialsMessage);
     }
 
     return user;
