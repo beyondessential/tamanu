@@ -36,41 +36,50 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
         accessor: ({ patient }) => patient.displayId || 'Unknown',
       },
       {
-        key: 'firstName',
-        title: 'First name',
-        accessor: ({ patient }) => patient.firstName,
-        maxWidth: 200,
-      },
-      {
-        key: 'lastName',
-        title: 'Last name',
-        accessor: ({ patient }) => patient.lastName,
+        key: 'patientName',
+        title: (
+          <TranslatedText
+            stringId="programRegistry.table.column.patientName"
+            fallback="Patient name"
+          />
+        ),
+        accessor: ({ patient }) => `${patient.firstName} ${patient.lastName}`,
         maxWidth: 200,
       },
       {
         key: 'dateOfBirth',
-        title: 'DOB',
+        title: (
+          <TranslatedText
+            stringId="general.localisedField.dateOfBirth.label.short"
+            fallback="DOB"
+          />
+        ),
         accessor: ({ patient }) => <DateDisplay date={patient.dateOfBirth} />,
       },
       {
         key: 'sex',
-        title: 'Sex',
+        title: <TranslatedText stringId="general.localisedField.sex.label" fallback="Sex" />,
         accessor: ({ patient }) => patient.sex && patient.sex.slice(0, 1).toUpperCase(),
         sortable: false,
       },
       {
         key: 'homeVillage',
-        title: 'Home village',
+        title: (
+          <TranslatedText
+            stringId="programRegistry.table.column.homeVillage"
+            fallback="Home village"
+          />
+        ),
         accessor: ({ patient }) => patient.village.name,
       },
       {
-        key: 'registeringFacility',
-        title: 'Registering facility',
-        accessor: ({ registeringFacility }) => registeringFacility.name,
-      },
-      {
         key: 'currentlyIn',
-        title: 'Currently in',
+        title: (
+          <TranslatedText
+            stringId="programRegistry.table.column.currentlyIn"
+            fallback="Currently in"
+          />
+        ),
         accessor: row => {
           if (row.programRegistry.currentlyAtType === 'village') return row.village.name;
           if (row.programRegistry.currentlyAtType === 'facility') return row.facility.name;
@@ -79,7 +88,12 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
       },
       {
         key: 'conditions',
-        title: 'Related conditions',
+        title: (
+          <TranslatedText
+            stringId="programRegistry.table.column.conditions"
+            fallback="Related conditions"
+          />
+        ),
         sortable: false,
         accessor: ({ conditions }) => {
           const conditionsText = Array.isArray(conditions)
@@ -91,18 +105,35 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
         maxWidth: 200,
       },
       {
+        key: 'registeringFacility',
+        title: (
+          <TranslatedText
+            stringId="programRegistry.table.column.registeringFacility"
+            fallback="Registering facility"
+          />
+        ),
+        accessor: ({ registeringFacility }) => registeringFacility.name,
+      },
+      {
         key: 'division',
-        title: 'Division',
+        title: (
+          <TranslatedText stringId="general.localisedField.division.label" fallback="Division" />
+        ),
         accessor: ({ patient }) => patient.division.name,
       },
       {
         key: 'subdivision',
-        title: 'Subdivision',
+        title: (
+          <TranslatedText
+            stringId="general.localisedField.subdivision.label"
+            fallback="Subdivision"
+          />
+        ),
         accessor: ({ patient }) => patient.subdivision.name,
       },
       {
         key: 'clinicalStatus',
-        title: 'Status',
+        title: <TranslatedText stringId="general.status.label" fallback="Status" />,
         accessor: row => {
           return <ClinicalStatusDisplay clinicalStatus={row.clinicalStatus} />;
         },
