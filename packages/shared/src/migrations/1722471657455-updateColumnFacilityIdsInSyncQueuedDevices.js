@@ -8,7 +8,7 @@ export async function up(query) {
     ALTER TABLE sync_queued_devices
     ADD COLUMN facility_ids JSONB;
 
-    UPDATE sync_queued_devices SET facility_ids = json_build_array(facility_id_legacy)
+    UPDATE sync_queued_devices SET facility_ids = json_build_array(facility_id_legacy);
 
     ALTER TABLE sync_queued_devices
     ALTER COLUMN facility_ids SET NOT NULL;
