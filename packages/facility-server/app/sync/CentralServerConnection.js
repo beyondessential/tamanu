@@ -217,7 +217,7 @@ export class CentralServerConnection {
     const { sessionId, status } = await this.fetch('sync', {
       method: 'POST',
       body: {
-        facilityId: facilityIds[0], // TODO placeholder
+        facilityIds,
         deviceId: this.deviceId,
         urgent,
         lastSyncedTick,
@@ -248,7 +248,7 @@ export class CentralServerConnection {
     // first, set the pull filter on the central server, which will kick of a snapshot of changes
     // to pull
     const facilityIds = selectFacilityIds(config);
-    const body = { since, facilityId: facilityIds[0] };
+    const body = { since, facilityIds };
     await this.fetch(`sync/${sessionId}/pull/initiate`, { method: 'POST', body });
 
     // then, poll the pull/ready endpoint until we get a valid response - it takes a while for

@@ -17,8 +17,9 @@ triage.put('/:id', simplePut('Triage'));
 triage.post(
   '/$',
   asyncHandler(async (req, res) => {
-    const { models, db, user, body } = req;
+    const { models, db, user, body, settings } = req;
     const { vitals, notes } = body;
+    const { facilityId } = body;
 
     req.checkPermission('create', 'Triage');
     if (vitals) {
@@ -26,7 +27,7 @@ triage.post(
     }
 
     const getDepartmentId = async () => {
-      const { facilityId, departmentId } = body;
+      const { departmentId } = body;
       if (departmentId) {
         return departmentId;
       }
@@ -51,7 +52,8 @@ triage.post(
     const triageRecord = await models.Triage.create({ ...body, departmentId, actorId: user.id });
 
     if (vitals) {
-      const getDefaultId = async type => models.SurveyResponseAnswer.getDefaultId(type);
+      const getDefaultId = async type =>
+        models.SurveyResponseAnswer.getDefaultId(type, settings[facilityId]);
       const updatedBody = {
         locationId: vitals.locationId || (await getDefaultId('location')),
         departmentId: vitals.departmentId || (await getDefaultId('department')),

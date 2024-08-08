@@ -92,8 +92,7 @@ function createSuggesterRoute(
                   },
                 }
               : {}),
-              // 
-            ...(filterByFacility ? { facilityId: req.facilityId } : {}),
+            ...(filterByFacility ? { facilityId: query.facilityId } : {}),
           },
         ],
       };
@@ -281,7 +280,7 @@ const DEFAULT_WHERE_BUILDER = search => ({
   ...VISIBILITY_CRITERIA,
 });
 
-const filterByFacilityWhereBuilder = (search, query, req) => {
+const filterByFacilityWhereBuilder = (search, query) => {
   const baseWhere = DEFAULT_WHERE_BUILDER(search);
   if (!query.filterByFacility) {
     return baseWhere;
@@ -289,7 +288,7 @@ const filterByFacilityWhereBuilder = (search, query, req) => {
 
   return {
     ...baseWhere,
-    facilityId: req.facilityId,
+    facilityId: query.facilityId,
   };
 };
 

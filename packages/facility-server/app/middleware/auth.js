@@ -187,18 +187,19 @@ export async function setFacilityHandler(req, res, next) {
   const { user, body } = req;
   const { facilityId } = body;
 
-  // Run after auth middleware, requires valid token but no other permission
-  req.flagPermissionChecked();
-
   try {
+    // Run after auth middleware, requires valid token but no other permission
+    req.flagPermissionChecked();
+
     const hasAccess = await user.canAccessFacility(facilityId);
     if (!hasAccess) {
       throw new BadAuthenticationError('User does not have access to this facility');
     }
     const token = await buildToken(user, facilityId);
-    res.send({ token });
-  } catch (error) {
-    next(error);
+    const settings = await req.settings[facilityId]?.getFrontEndSettings();
+    res.send({ token, settings });
+  } catch (e) {
+    next(e);
   }
 }
 

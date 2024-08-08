@@ -70,7 +70,6 @@ describe('FacilitySyncManager edge cases', () => {
     await ctx.models.LocalSystemFact.set(LAST_SUCCESSFUL_SYNC_PUSH_KEY, LAST_SUCCESSFUL_SYNC_PUSH);
 
     const [facilityId] = selectFacilityIds(config);
-
     // create a record that will be committed before the sync starts, so safely gets the current
     // sync tick and available in the db for snapshotting
     await models.Facility.findOrCreate({
@@ -257,7 +256,7 @@ describe('FacilitySyncManager edge cases', () => {
       await expect(async () => {
         await syncPromise;
       }).rejects.toThrow(
-      "Facility: There are 1 encounters record(s) updated between 'snapshot-for-pushing' and now. Error thrown to restart the sync cycle and push the updated records to central",
+        "Facility: There are 1 encounters record(s) updated between 'snapshot-for-pushing' and now. Error thrown to restart the sync cycle and push the updated records to central",
       );
     });
 

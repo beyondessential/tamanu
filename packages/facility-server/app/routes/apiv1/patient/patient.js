@@ -53,7 +53,7 @@ patientRoute.put(
       db,
       models: { Patient, PatientAdditionalData, PatientBirthData, PatientSecondaryId },
       params,
-      facilityId,
+      body: { facilityId, ...body },
     } = req;
     req.checkPermission('read', 'Patient');
     const patient = await Patient.findByPk(params.id);
@@ -66,7 +66,7 @@ patientRoute.put(
 
     await db.transaction(async () => {
       // First check if displayId changed to create a secondaryId record
-      if (req.body.displayId && req.body.displayId !== patient.displayId) {
+      if (body.displayId && body.displayId !== patient.displayId) {
         const oldDisplayIdType = isGeneratedDisplayId(patient.displayId)
           ? 'secondaryIdType-tamanu-display-id'
           : 'secondaryIdType-nhn';
@@ -78,7 +78,7 @@ patientRoute.put(
         });
       }
 
-      await patient.update(requestBodyToRecord(req.body));
+      await patient.update(requestBodyToRecord(body));
 
       const patientAdditionalData = await PatientAdditionalData.findOne({
         where: { patientId: patient.id },
@@ -86,11 +86,11 @@ patientRoute.put(
 
       if (!patientAdditionalData) {
         await PatientAdditionalData.create({
-          ...requestBodyToRecord(req.body),
+          ...requestBodyToRecord(body),
           patientId: patient.id,
         });
       } else {
-        await patientAdditionalData.update(requestBodyToRecord(req.body));
+        await patientAdditionalData.update(requestBodyToRecord(body));
       }
 
       const patientBirth = await PatientBirthData.findOne({
@@ -113,14 +113,11 @@ patientRoute.put(
 patientRoute.post(
   '/$',
   asyncHandler(async (req, res) => {
-    const {
-      db,
-      models: { Patient, PatientAdditionalData, PatientBirthData, PatientFacility },
-      facilityId,
-    } = req;
+    const { db, models, body } = req;
+    const { Patient, PatientAdditionalData, PatientBirthData, PatientFacility } = models;
     req.checkPermission('create', 'Patient');
-    const requestData = requestBodyToRecord(req.body);
-    const { patientRegistryType, ...patientData } = requestData;
+    const requestData = requestBodyToRecord(body);
+    const { patientRegistryType, facilityId, ...patientData } = requestData;
 
     const patientRecord = await db.transaction(async () => {
       const createdPatient = await Patient.create(patientData);
@@ -144,10 +141,7 @@ patientRoute.post(
       }
 
       // mark for sync in this facility
-      await PatientFacility.create({
-        facilityId,
-        patientId: createdPatient.id,
-      });
+      await PatientFacility.create({ facilityId, patientId: createdPatient.id });
 
       return createdPatient;
     });
