@@ -13,6 +13,7 @@ import { saveFile } from '../../../utils/fileSystemAccess';
 import { FORM_TYPES } from '../../../constants';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { useFormikContext } from 'formik';
+import { notify, notifyError, notifySuccess } from '../../../utils';
 
 const ExportForm = ({
   dataTypes,
@@ -64,26 +65,62 @@ export const ExporterView = memo(({ title, endpoint, dataTypes, dataTypesSelecta
   const api = useApi();
   const [dataReadyForSaving, setDataReadyForSaving] = useState(null);
 
+  const resetDownload = useCallback(() => setDataReadyForSaving(null), []);
+
   const onPrepareExport = useCallback(
     async ({ includedDataTypes }) => {
-      if (!includedDataTypes.length) return;
+      if (!includedDataTypes.length) {
+        notify(
+          <TranslatedText
+            stringId="admin.export.notification.selectDataTypes"
+            fallback="Please select at least one data type to export"
+          />,
+          {
+            type: 'warning',
+          },
+        );
+        return;
+      }
+      notify(
+        <TranslatedText
+          stringId="admin.export.notification.prepare"
+          fallback="Preparing export..."
+        />,
+        { type: 'info' },
+      );
       const blob = await api.download(`admin/export/${endpoint}`, {
         includedDataTypes,
       });
       setDataReadyForSaving(blob);
+      notifySuccess(
+        <TranslatedText
+          stringId="admin.export.notification.prepareSuccess"
+          fallback="Export prepared. Click download to save the file."
+        />,
+      );
     },
     [api, endpoint],
   );
 
   const onDownload = useCallback(async () => {
-    await saveFile({
-      defaultFileName: `${title} export ${getCurrentDateTimeString()}`,
-      data: dataReadyForSaving,
-      extension: 'xlsx',
-    });
-  }, [title, dataReadyForSaving]);
-
-  const resetDownload = useCallback(() => setDataReadyForSaving(null), []);
+    try {
+      await saveFile({
+        defaultFileName: `${title} export ${getCurrentDateTimeString()}`,
+        data: dataReadyForSaving,
+        extension: 'xlsx',
+      });
+    } catch (error) {
+      notifyError(
+        <TranslatedText
+          stringId="general.error.downloadFailed"
+          fallback="Download failed - :error"
+          replacements={{ error: error.message }}
+        />,
+      );
+    } finally {
+      resetDownload();
+    }
+  }, [title, dataReadyForSaving, resetDownload]);
 
   const renderForm = useCallback(
     props => (
@@ -96,13 +133,7 @@ export const ExporterView = memo(({ title, endpoint, dataTypes, dataTypesSelecta
         {...props}
       />
     ),
-    [
-      dataTypes,
-      dataTypesSelectable,
-      dataReadyForSaving,
-      onDownload,
-      resetDownload,
-    ],
+    [dataTypes, dataTypesSelectable, dataReadyForSaving, onDownload, resetDownload],
   );
 
   return (
