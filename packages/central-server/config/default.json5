@@ -72,7 +72,7 @@
     snapshotTransactionTimeoutMs: null,
     "lookupTable": {
       "enabled": false,
-      "singleModelUpdateTimeoutMs": null
+      "perModelUpdateTimeoutMs": null
     }
   },
   "loadshedder": {

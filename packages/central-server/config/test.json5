@@ -42,7 +42,7 @@
   "sync": {
     "lookupTable": {
       "enabled": false,
-      "singleModelUpdateTimeoutMs": null
+      "perModelUpdateTimeoutMs": null
     }
   },
   "localisation": {
