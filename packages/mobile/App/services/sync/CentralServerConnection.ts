@@ -290,7 +290,7 @@ export class CentralServerConnection {
 
       const facilityId = await readConfig('facilityId', '');
       const { allowedFacilities } = data;
-      if (allowedFacilities !== 'ALL' && !allowedFacilities.map(f => f.id).includes(facilityId)) {
+      if (facilityId && allowedFacilities !== 'ALL' && !allowedFacilities.map(f => f.id).includes(facilityId)) {
         console.warn('User doesnt have permission for this facility: ', facilityId);
         throw new AuthenticationError(forbiddenFacilityMessage);
       }

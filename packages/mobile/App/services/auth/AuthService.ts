@@ -5,7 +5,12 @@ import { IUser, SyncConnectionParameters } from '~/types';
 import { compare, hash } from './bcrypt';
 import { CentralServerConnection } from '~/services/sync';
 import { readConfig, writeConfig } from '~/services/config';
-import { AuthenticationError, invalidUserCredentialsMessage, OutdatedVersionError } from '../error';
+import {
+  AuthenticationError,
+  forbiddenFacilityMessage,
+  invalidUserCredentialsMessage,
+  OutdatedVersionError,
+} from '../error';
 import { ResetPasswordFormModel } from '/interfaces/forms/ResetPasswordFormProps';
 import { ChangePasswordFormModel } from '/interfaces/forms/ChangePasswordFormProps';
 
@@ -62,8 +67,13 @@ export class AuthService {
       visibilityStatus: VisibilityStatus.Current,
     });
 
-    if (!user || !(await compare(password, user.localPassword))) {
+    if (!user || !user.localPassword || !(await compare(password, user.localPassword))) {
       throw new AuthenticationError(invalidUserCredentialsMessage);
+    }
+
+    const currentFacility = await readConfig('facilityId', '');
+    if (!user.facilities.map(f => f.id).includes(currentFacility)) {
+      throw new AuthenticationError(forbiddenFacilityMessage);
     }
 
     return user;
