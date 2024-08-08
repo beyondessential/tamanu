@@ -19,7 +19,7 @@ export class SyncQueuedDevice extends Model {
           primaryKey: true,
         },
         facilityIds: {
-          type: DataTypes.STRING,
+          type: DataTypes.TEXT,
           allowNull: false,
         },
         lastSeenTime: { type: DataTypes.DATE },
