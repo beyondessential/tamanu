@@ -116,10 +116,10 @@ async function createProgramSurveyResponse(models, facilityId) {
     include: { association: 'dataElement' },
   });
   const answers = {};
-  sscs.forEach(ssc => {
-    if (ssc.dataElement.type in SIMPLE_PDE_TYPES_HANDLERS) {
+  sscs
+    .filter(ssc => ssc.dataElement.type in SIMPLE_PDE_TYPES_HANDLERS)
+    .forEach(ssc => {
       answers[ssc.dataElement.id] = SIMPLE_PDE_TYPES_HANDLERS[ssc.dataElement.type]();
-    }
   });
 
   const patientFacility = await PatientFacility.findOne({ where: { facilityId } });
