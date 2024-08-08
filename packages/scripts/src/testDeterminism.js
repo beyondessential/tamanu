@@ -102,12 +102,6 @@ function isMigrationIgnored(path) {
   return !!module.NON_DETERMINISTIC;
 }
 
-function isModelIgnored(model) {
-  // Redundant check in this case given
-  // that the test is to enforce that data to be migrated exactly the same on central and facility
-  return model.syncDirection === SYNC_DIRECTIONS.DO_NOT_SYNC;
-}
-
 const UNHASHED_TABLES = [
   'SequelizeMeta',
   'columns',
@@ -133,7 +127,9 @@ async function getHashesForTables(sequelize, tables) {
 
     const model = sequelize.modelManager.findModel(m => m.tableName === table);
 
-    if (isModelIgnored(model)) continue;
+    // Redundant check in this case given
+    // that the test is to enforce data to be migrated exactly the same on central and facility
+    if (model.syncDirection === SYNC_DIRECTIONS.DO_NOT_SYNC) continue;
 
     // get columns
     const allColumns = await getColumnsForModel(model);
