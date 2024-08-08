@@ -12,9 +12,6 @@ import { UserFacility } from './UserFacility';
 import { PrimaryColumn } from 'typeorm';
 import { CAN_ACCESS_ALL_FACILITIES, SYSTEM_USER_UUID } from '~/constants';
 
-// export const SYSTEM_USER_UUID = "00000000-0000-0000-0000-000000000000";
-// export const CAN_ACCESS_ALL_FACILITIES = "ALL";
-
 @Entity('user')
 export class User extends BaseModel implements IUser {
   static syncDirection = SYNC_DIRECTIONS.PULL_FROM_CENTRAL;
