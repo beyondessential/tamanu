@@ -127,8 +127,7 @@ async function getHashesForTables(sequelize, tables) {
 
     const model = sequelize.modelManager.findModel(m => m.tableName === table);
 
-    // Redundant check in this case given
-    // that the test is to enforce data to be migrated exactly the same on central and facility
+    // No need for determinism test when data is not shared between central and facility
     if (model.syncDirection === SYNC_DIRECTIONS.DO_NOT_SYNC) continue;
 
     // get columns
