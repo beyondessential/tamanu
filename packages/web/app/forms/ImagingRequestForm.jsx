@@ -121,6 +121,30 @@ export const ImagingRequestForm = React.memo(
             .date()
             .required(getTranslation('validation.required.inline', '*Required')),
           imagingType: foreignKey(getTranslation('validation.required.inline', '*Required')),
+          areas: yup
+            .string()
+            .when("imagingType", {
+              is: imagingType => {
+                const imagingAreas = getAreasForImagingType(imagingType);
+                return imagingAreas.length > 0;
+              },
+              then: yup
+                .string()
+                .min(3, getTranslation('validation.required.inline', '*Required'))
+                .required(getTranslation('validation.required.inline', '*Required')),
+            }),
+          areaNote: yup
+            .string()
+            .when("imagingType", {
+              is: imagingType => {
+                const imagingAreas = getAreasForImagingType(imagingType);
+                return imagingAreas.length === 0;
+              },
+              then: yup
+                .string()
+                .trim()
+                .required(getTranslation('validation.required.inline', '*Required')),
+            }),
         })}
         showInlineErrorsOnly
         render={({ submitForm, values }) => {
