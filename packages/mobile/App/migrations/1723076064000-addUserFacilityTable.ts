@@ -24,6 +24,12 @@ const BaseColumns = [
     isNullable: false,
     default: -999,
   }),
+  new TableColumn({
+    name: 'deletedAt',
+    isNullable: true,
+    type: 'date',
+    default: null,
+  }),
 ];
 
 const EncounterHistory = new Table({

@@ -47,6 +47,7 @@ import { LegacyNotePage } from './LegacyNotePage';
 import { LegacyNoteItem } from './LegacyNoteItem';
 import { Note } from './Note';
 import { VitalLog } from './VitalLog';
+import { UserFacility } from './UserFacility';
 
 export const MODELS_MAP = {
   ReferenceData,
@@ -97,5 +98,6 @@ export const MODELS_MAP = {
   LegacyNotePage,
   LegacyNoteItem,
   Note,
+  UserFacility
 };
 export const MODELS_ARRAY: typeof BaseModel[] = Object.values(MODELS_MAP);
