@@ -106,6 +106,7 @@ export const ImagingRequestForm = React.memo(
     const examinerLabel = examiner.displayName;
     const encounterLabel = getEncounterLabel(encounter);
     const { getAreasForImagingType } = useImagingRequestAreas();
+    const requiredValidationMessage = getTranslation('validation.required.inline', '*Required');
     return (
       <Form
         onSubmit={onSubmit}
@@ -116,11 +117,11 @@ export const ImagingRequestForm = React.memo(
         }}
         formType={editedObject ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
         validationSchema={yup.object().shape({
-          requestedById: foreignKey(getTranslation('validation.required.inline', '*Required')),
+          requestedById: foreignKey(),
           requestedDate: yup
             .date()
-            .required(getTranslation('validation.required.inline', '*Required')),
-          imagingType: foreignKey(getTranslation('validation.required.inline', '*Required')),
+            .required(requiredValidationMessage),
+          imagingType: foreignKey(requiredValidationMessage),
           areas: yup
             .string()
             .when("imagingType", {
@@ -130,8 +131,8 @@ export const ImagingRequestForm = React.memo(
               },
               then: yup
                 .string()
-                .min(3, getTranslation('validation.required.inline', '*Required'))
-                .required(getTranslation('validation.required.inline', '*Required')),
+                .min(3, requiredValidationMessage)
+                .required(requiredValidationMessage),
             }),
           areaNote: yup
             .string()
@@ -143,7 +144,7 @@ export const ImagingRequestForm = React.memo(
               then: yup
                 .string()
                 .trim()
-                .required(getTranslation('validation.required.inline', '*Required')),
+                .required(requiredValidationMessage),
             }),
         })}
         showInlineErrorsOnly
