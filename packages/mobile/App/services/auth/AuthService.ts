@@ -62,13 +62,15 @@ export class AuthService {
 
   async localSignIn({ email, password }: SyncConnectionParameters): Promise<IUser> {
     console.log('Signing in locally as', email);
-    const user = await this.models.User.findOne({
+    const { User, Setting } = this.models;
+    const user = await User.findOne({
       email,
       visibilityStatus: VisibilityStatus.Current,
     });
 
-    const currentFacility = await readConfig('facilityId', '');
-    if (!(await user.canAccessFacility(currentFacility))) {
+    const restrictUsersToFacilities = await Setting.getByKey('auth.restrictUsersToFacilities');
+    const linkedFacility = await readConfig('facilityId', '');
+    if (restrictUsersToFacilities && !(await user.canAccessFacility(linkedFacility))) {
       throw new AuthenticationError(forbiddenFacilityMessage);
     }
 

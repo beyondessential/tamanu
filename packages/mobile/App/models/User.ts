@@ -90,8 +90,6 @@ export class User extends BaseModel implements IUser {
   }
 
   async checkCanAccessAllFacilities() {
-    // TODO: move to settings so we can access
-    // if (!config.auth.restrictUsersToFacilities) return true;
     if (this.isSuperUser()) return true;
     // Allow for roles that have access to all facilities configured via permissions
     // TODO: figure out mobile permissions
@@ -112,8 +110,7 @@ export class User extends BaseModel implements IUser {
       },
     });
 
-    const userFacilityIds = userFacilities.map(f => f.facilityId)
-    return userFacilityIds;
+    return userFacilities.map(f => f.facilityId);
   }
 
   async canAccessFacility(id: string) {
