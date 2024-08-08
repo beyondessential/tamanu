@@ -6,18 +6,17 @@ export const INVOICE_STATUSES = {
   FINALISED: 'finalised',
 };
 
+export const INVOICE_STATUS_LABELS = {
+  [INVOICE_STATUSES.CANCELLED]: 'Cancelled',
+  [INVOICE_STATUSES.IN_PROGRESS]: 'In progress',
+  [INVOICE_STATUSES.FINALISED]: 'Finalised',
+};
 export const INVOICE_PAYMENT_STATUSES = {
   UNPAID: 'unpaid',
   PAID: 'paid',
   PARTIAL: 'partial',
   REJECTED: 'rejected',
   PAID_REJECTED: 'paid/rejected',
-};
-
-export const INVOICE_STATUS_LABELS = {
-  [INVOICE_STATUSES.CANCELLED]: 'Cancelled',
-  [INVOICE_STATUSES.IN_PROGRESS]: 'In progress',
-  [INVOICE_STATUSES.FINALISED]: 'Finalised',
 };
 
 export const INVOICE_ITEMS_CATEGORY_LABELS = {

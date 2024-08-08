@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import * as yup from 'yup';
 import { Box } from '@material-ui/core';
+import { DRUG_ROUTE_LABELS, DRUG_ROUTE_VALUES } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { foreignKey } from '../utils/validation';
 import { PrintPrescriptionModal } from '../components/PatientPrinting';
@@ -18,8 +19,8 @@ import {
   FormSubmitButton,
   getDateDisplay,
   NumberField,
-  SelectField,
   TextField,
+  TranslatedSelectField,
 } from '../components';
 import { FORM_TYPES, MAX_AGE_TO_RECORD_WEIGHT } from '../constants';
 import { TranslatedText } from '../components/Translation/TranslatedText';
@@ -30,22 +31,6 @@ import { useQuery } from '@tanstack/react-query';
 import { useApi } from '../api';
 import { useSelector } from 'react-redux';
 import { getReferenceDataStringId } from '../components/Translation/index.js';
-
-const drugRouteOptions = [
-  { label: 'Dermal', value: 'dermal' },
-  { label: 'Ear', value: 'ear' },
-  { label: 'Eye', value: 'eye' },
-  { label: 'IM', value: 'intramuscular' },
-  { label: 'IV', value: 'intravenous' },
-  { label: 'Inhaled', value: 'inhaled' },
-  { label: 'Nasal', value: 'nasal' },
-  { label: 'Oral', value: 'oral' },
-  { label: 'Rectal', value: 'rectal' },
-  { label: 'S/C', value: 'subcutaneous' },
-  { label: 'Sublingual', value: 'sublingual' },
-  { label: 'Topical', value: 'topical' },
-  { label: 'Vaginal', value: 'vaginal' },
-];
 
 const validationSchema = readOnly =>
   !readOnly
@@ -64,7 +49,7 @@ const validationSchema = readOnly =>
           ),
         route: yup
           .string()
-          .oneOf(drugRouteOptions.map(x => x.value))
+          .oneOf(DRUG_ROUTE_VALUES)
           .required()
           .translatedLabel(
             <TranslatedText stringId="medication.validation.route.path" fallback="Route" />,
@@ -249,11 +234,10 @@ export const MedicationForm = React.memo(
                 label={
                   <TranslatedText stringId="medication.route.label" fallback="Route of admission" />
                 }
-                component={SelectField}
-                options={drugRouteOptions}
+                component={TranslatedSelectField}
+                enumValues={DRUG_ROUTE_LABELS}
                 disabled={readOnly}
                 required={!readOnly}
-                prefix="medication.property.route"
               />
               <Field
                 name="date"

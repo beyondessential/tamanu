@@ -18,11 +18,7 @@ const StatusLabel = styled.div`
 export const InvoiceStatus = ({ status }) => {
   return (
     <StatusLabel $color={INVOICE_STATUS_COLORS[status]}>
-      <TranslatedEnum
-        prefix="invoice.property.status"
-        value={status}
-        enumValues={INVOICE_STATUS_LABELS}
-      />
+      <TranslatedEnum value={status} enumValues={INVOICE_STATUS_LABELS} />
     </StatusLabel>
   );
 };
