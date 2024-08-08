@@ -219,7 +219,7 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
         ),
         registeringFacilityId: foreignKey().translatedLabel(
           <TranslatedText
-            stringId="patientProgramRegistry.registeredBy.label"
+            stringId="patientProgramRegistry.registeringFacility.label"
             fallback="Registering facility"
           />,
         ),

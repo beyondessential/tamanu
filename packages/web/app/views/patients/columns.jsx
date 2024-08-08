@@ -1,5 +1,5 @@
 import React from 'react';
-import { CloudDownload, CloudOff } from '@material-ui/icons';
+import { CloudOff, CloudDone } from '@material-ui/icons';
 import {
   DateDisplay,
   TranslatedReferenceData,
@@ -11,7 +11,9 @@ import { ThemedTooltip } from '../../components/Tooltip';
 
 const DateCell = React.memo(({ value }) => <DateDisplay date={value} />);
 export const SexCell = React.memo(({ value }) => <TranslatedSex sex={value} />);
-const SyncedCell = React.memo(({ value }) => (value === true ? <CloudDownload /> : <CloudOff />));
+const SyncedCell = React.memo(({ value }) => (
+  value === true ? <CloudDone color="primary" /> : <CloudOff color="primary" />),
+);
 
 export const markedForSync = {
   key: 'markedForSync',
@@ -126,13 +128,15 @@ export const vaccinationStatus = {
 };
 
 export const diet = {
-  key: 'dietName',
+  key: 'diets',
   title: <TranslatedText stringId="general.diet.label" fallback="Diet" />,
-  accessor: ({ dietName, dietCode }) => {
-    if (!dietName || !dietCode) return null;
+  accessor: ({ diets }) => {
+    if (!diets?.length) return null;
+    const dietNames = diets.map(diet => diet.name);
+    const dietCodes = diets.map(diet => diet.code);
     return (
-      <ThemedTooltip title={dietName}>
-        <span>{dietCode}</span>
+      <ThemedTooltip title={dietNames.join(', ')}>
+        <span>{dietCodes.join(', ')}</span>
       </ThemedTooltip>
     );
   },
