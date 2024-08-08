@@ -68,7 +68,7 @@ export const ProgramRegistrySearchBar = ({ searchParameters, setSearchParameters
             name="registeringFacilityId"
             label={
               <TranslatedText
-                stringId="patientProgramRegistry.registeredBy.label"
+                stringId="patientProgramRegistry.registeringFacility.label"
                 fallback="Registering facility"
               />
             }

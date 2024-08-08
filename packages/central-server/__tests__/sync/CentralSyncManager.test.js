@@ -31,11 +31,16 @@ describe('CentralSyncManager', () => {
 
   const DEFAULT_CURRENT_SYNC_TIME_VALUE = 2;
 
-  const initializeCentralSyncManager = () => {
+  const initializeCentralSyncManager = config => {
     // Have to load test function within test scope so that we can mock dependencies per test case
     const {
       CentralSyncManager: TestCentralSyncManager,
     } = require('../../dist/sync/CentralSyncManager');
+
+    if (config) {
+      TestCentralSyncManager.overrideConfig(config);
+    }
+
     return new TestCentralSyncManager(ctx);
   };
 
@@ -133,6 +138,38 @@ describe('CentralSyncManager', () => {
 
       await expect(centralSyncManager.connectToSession(sessionId)).rejects.toThrow(
         `Sync session '${sessionId}' encountered an error: Snapshot processing incomplete, likely because the central server restarted during the snapshot`,
+      );
+    });
+
+    it("does not throw an error when connecting to a session that has not taken longer than configured 'syncSessionTimeoutMs'", async () => {
+      const centralSyncManager = initializeCentralSyncManager({
+        sync: { syncSessionTimeoutMs: 1000 },
+      });
+      const { sessionId } = await centralSyncManager.startSession();
+      await waitForSession(centralSyncManager, sessionId);
+
+      await sleepAsync(500);
+
+      // updated_at will be set to timestamp that is 500ms later
+      await centralSyncManager.connectToSession(sessionId);
+
+      expect(() => centralSyncManager.connectToSession(sessionId)).not.toThrow();
+    });
+
+    it("throws an error when connecting to a session that has taken longer than configured 'syncSessionTimeoutMs'", async () => {
+      const centralSyncManager = initializeCentralSyncManager({
+        sync: { syncSessionTimeoutMs: 200 },
+      });
+      const { sessionId } = await centralSyncManager.startSession();
+      await waitForSession(centralSyncManager, sessionId);
+
+      await sleepAsync(500);
+
+      // updated_at will be set to timestamp that is 500ms later
+      await centralSyncManager.connectToSession(sessionId);
+
+      await expect(centralSyncManager.connectToSession(sessionId)).rejects.toThrow(
+        `Sync session '${sessionId}' encountered an error: Sync session ${sessionId} timed out`,
       );
     });
   });
@@ -944,17 +981,9 @@ describe('CentralSyncManager', () => {
         });
 
         it('syncs the configured vaccine encounters when it is enabled and client is mobile', async () => {
-          // Create the vaccines to be tested
-          const {
-            CentralSyncManager: TestCentralSyncManager,
-          } = require('../../dist/sync/CentralSyncManager');
-
-          // Turn on syncAllEncountersForTheseVaccines config
-          TestCentralSyncManager.overrideConfig({
+          const centralSyncManager = initializeCentralSyncManager({
             sync: { syncAllEncountersForTheseVaccines: ['drug-COVAX', 'drug-COVID-19-Pfizer'] },
           });
-
-          const centralSyncManager = new TestCentralSyncManager(ctx);
 
           const { sessionId } = await centralSyncManager.startSession();
           await waitForSession(centralSyncManager, sessionId);
@@ -978,16 +1007,9 @@ describe('CentralSyncManager', () => {
         });
 
         it('does not sync any vaccine encounters when it is disabled and client is mobile', async () => {
-          const {
-            CentralSyncManager: TestCentralSyncManager,
-          } = require('../../dist/sync/CentralSyncManager');
-
-          // Turn off syncAllEncountersForTheseVaccines config
-          TestCentralSyncManager.overrideConfig({
+          const centralSyncManager = initializeCentralSyncManager({
             sync: { syncAllEncountersForTheseVaccines: [] },
           });
-
-          const centralSyncManager = new TestCentralSyncManager(ctx);
 
           await models.PatientFacility.create({
             id: models.PatientFacility.generateId(),
