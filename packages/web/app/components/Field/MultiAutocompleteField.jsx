@@ -231,7 +231,11 @@ const Option = props => {
       <span>{props.children}</span>
     </>
   );
-  return <components.Option {...props} children={children} isFocused={false} />;
+  return (
+    <components.Option {...props} isFocused={false}>
+      {children}
+    </components.Option>
+  );
 };
 
 const MultiAutocompleteInput = ({
@@ -298,7 +302,7 @@ const MultiAutocompleteInput = ({
           tabSelectsValue={false}
           backspaceRemovesValue={false}
           noOptionsMessage={() => null}
-          placeholder={getTranslation('general.placeholder.search...', 'Search...')}
+          placeholder={placeholder ?? getTranslation('general.placeholder.search...', 'Search...')}
           inputValue={inputValue}
           filterOption={null} // filter by suggester
           components={{
