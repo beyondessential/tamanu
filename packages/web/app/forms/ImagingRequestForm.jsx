@@ -214,17 +214,19 @@ export const ImagingRequestForm = React.memo(
               />
               {imagingAreas.length ? (
                 <Field
-                  options={imagingAreas.map(area => ({
-                    label: area.name,
-                    value: area.id,
-                  })).sort((area1, area2) => area1.label.localeCompare(area2.label))
-                  }
+                  options={imagingAreas
+                    .map(area => ({
+                      label: area.name,
+                      value: area.id,
+                    }))
+                    .sort((area1, area2) => area1.label.localeCompare(area2.label))}
                   name="areas"
                   label={
                     <TranslatedText stringId="imaging.areas.label" fallback="Areas to be imaged" />
                   }
                   component={MultiselectField}
                   prefix="imaging.property.area"
+                  required
                 />
               ) : (
                 <Field
