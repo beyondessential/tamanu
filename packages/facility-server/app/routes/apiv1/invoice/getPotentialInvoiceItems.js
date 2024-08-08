@@ -78,7 +78,6 @@ filtered_labtests as (
 	join lab_requests lr on lr.deleted_at is null and lr.id = lt.lab_request_id
 	join lab_test_types ltt on ltt.deleted_at is null and ltt.visibility_status = :visibilityStatus and ltt.id = lt.lab_test_type_id
 	where lr.status NOT IN (:excludedLabRequestStatuses)
-	and lt.status NOT IN (:excludedLabTestStatuses)
 	and lt.deleted_at is null
 	and lr.encounter_id = :encounterId
 ),
@@ -118,13 +117,6 @@ join users u on u.deleted_at is null and coalesce(fpc."orderedByUserId",fi."orde
           LAB_REQUEST_STATUSES.DELETED,
           LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED,
           LAB_REQUEST_STATUSES.ENTERED_IN_ERROR,
-        ],
-        excludedLabTestStatuses: [
-          LAB_TEST_STATUSES.RECEPTION_PENDING,
-          LAB_TEST_STATUSES.CANCELLED,
-          LAB_TEST_STATUSES.DELETED,
-          LAB_TEST_STATUSES.SAMPLE_NOT_COLLECTED,
-          LAB_TEST_STATUSES.ENTERED_IN_ERROR,
         ],
         excludedImagingRequestStatuses: [IMAGING_REQUEST_STATUS_TYPES.PENDING],
         labtestType: OTHER_REFERENCE_TYPES.LAB_TEST_TYPE,
