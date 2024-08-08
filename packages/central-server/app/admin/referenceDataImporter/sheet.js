@@ -107,16 +107,37 @@ const patientFieldDefinitionValidator = async ({ values, models }) => {
     );
 };
 
-const referenceDataValidator = ({ values, sheetName, sheetRow, nameCache, errors }) => {
+const referenceDataValidator = async ({
+  values,
+  models,
+  sheetName,
+  sheetRow,
+  nameCache,
+  errors,
+}) => {
   if (values.name && sheetName === REFERENCE_TYPES.DESIGNATION) {
     if (nameCache.has(values.name)) {
       errors.push(
-        new ValidationError(sheetName, sheetRow, `Duplicate designation name: ${values.name}`),
+        new ValidationError(
+          sheetName,
+          sheetRow,
+          `Duplicate designation name in selected file: ${values.name}`,
+        ),
       );
       return false;
-    } else {
-      nameCache.add(values.name);
     }
+
+    const existingDesignation = await models.ReferenceData.findOne({
+      where: { name: values.name, type: REFERENCE_TYPES.DESIGNATION },
+    });
+    if (existingDesignation) {
+      errors.push(
+        new ValidationError(sheetName, sheetRow, `${values.name} already exists in the database`),
+      );
+      return false;
+    }
+
+    nameCache.add(values.name);
   }
   return true;
 };
