@@ -83,7 +83,6 @@ const StyledSelect = styled(props => <Select classNamePrefix="react-select" {...
     }
   }
 
-  /* This does not seem to be working on electron (although it works on Chrome) */
   /* Scrollbar styling (for windows) */
   /* scrollbar total width */
   .react-select__menu::-webkit-scrollbar {
