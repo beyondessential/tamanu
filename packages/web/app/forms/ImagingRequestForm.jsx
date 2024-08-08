@@ -241,6 +241,7 @@ export const ImagingRequestForm = React.memo(
                   multiline
                   style={{ gridColumn: '1 / -1' }}
                   minRows={3}
+                  required
                 />
               )}
               <Field
