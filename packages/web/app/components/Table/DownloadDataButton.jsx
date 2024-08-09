@@ -80,7 +80,7 @@ export function DownloadDataButton({ exportName, columns, data }) {
       return { ...rest, ...exportOverrides };
     });
 
-  const onDownloadData = async () => {
+  const prepareData = async () => {
     const header = exportableColumnsWithOverrides.map(getHeaderValue);
     const rows = await Promise.all(
       data.map(async d => {
@@ -128,10 +128,13 @@ export function DownloadDataButton({ exportName, columns, data }) {
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, exportName);
 
-    const xlsxDataArray = XLSX.write(wb, { bookType: 'xlsx', type: 'buffer' });
+    return XLSX.write(wb, { bookType: 'xlsx', type: 'buffer' });
+  };
+
+  const onDownloadData = async () => {
     await saveFile({
       defaultFileName: `${exportName}-${getCurrentDateString()}`,
-      data: xlsxDataArray,
+      getData: prepareData,
       extension: 'xlsx',
     });
   };

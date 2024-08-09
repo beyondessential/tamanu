@@ -4,7 +4,7 @@ import { extension } from 'mime-types';
 import { useApi } from '../api';
 import { notify, notifyError, notifySuccess } from '../utils';
 import { saveFile } from '../utils/fileSystemAccess';
-import { useTranslation } from '../contexts/Translation'; 
+import { useTranslation } from '../contexts/Translation';
 
 const base64ToUint8Array = base64 => {
   const binString = atob(base64);
@@ -45,28 +45,24 @@ export const useDocumentActions = () => {
         notify(
           getTranslation(
             'document.notification.downloadStart',
-            'Your download has started, please wait.'
-          ), 
-          { type: 'info' }
+            'Your download has started, please wait.',
+          ),
+          { type: 'info' },
         );
-
-        // Download attachment (*currently the API only supports base64 responses)
-        const { data } = await api.get(`attachment/${document.attachmentId}`, {
-          base64: true,
-        });
 
         await saveFile({
           defaultFileName: document.name,
-          data: base64ToUint8Array(data),
+          getData: async () => {
+            // Download attachment (*currently the API only supports base64 responses)
+            const { data } = await api.get(`attachment/${document.attachmentId}`, { base64: true });
+            return base64ToUint8Array(data);
+          },
           extension: extension(document.type),
           mimetype: document.type,
         });
 
         notifySuccess(
-          getTranslation(
-            'document.notification.downloadSuccess',
-            'Successfully downloaded file'
-          )
+          getTranslation('document.notification.downloadSuccess', 'Successfully downloaded file'),
         );
       } catch (error) {
         notifyError(error.message);

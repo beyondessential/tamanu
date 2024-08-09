@@ -41,12 +41,9 @@ export const ExporterView = memo(({ title, endpoint, dataTypes, dataTypesSelecta
 
   const onSubmit = useCallback(
     async ({ includedDataTypes }) => {
-      const blob = await api.download(`admin/export/${endpoint}`, {
-        includedDataTypes,
-      });
       await saveFile({
         defaultFileName: `${title} export ${getCurrentDateTimeString()}`,
-        data: blob,
+        getData: async () => api.download(`admin/export/${endpoint}`, { includedDataTypes }),
         extension: 'xlsx',
       });
     },
@@ -61,18 +58,16 @@ export const ExporterView = memo(({ title, endpoint, dataTypes, dataTypesSelecta
   );
 
   return (
-    <>
-      <Form
-        onSubmit={onSubmit}
-        validationSchema={yup.object().shape({
-          includedDataTypes: yup.array(),
-        })}
-        formType={FORM_TYPES.CREATE_FORM}
-        initialValues={{
-          includedDataTypes: [...dataTypes],
-        }}
-        render={renderForm}
-      />
-    </>
+    <Form
+      onSubmit={onSubmit}
+      validationSchema={yup.object().shape({
+        includedDataTypes: yup.array(),
+      })}
+      formType={FORM_TYPES.CREATE_FORM}
+      initialValues={{
+        includedDataTypes: [...dataTypes],
+      }}
+      render={renderForm}
+    />
   );
 });

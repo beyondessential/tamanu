@@ -16,7 +16,12 @@ const ExportForm = ({ options = [] }) => (
   <FormGrid columns={1}>
     <Field
       name="programId"
-      label={<TranslatedText stringId="admin.program.export.program.selectLabel" fallback="Select program to export" />}
+      label={
+        <TranslatedText
+          stringId="admin.program.export.program.selectLabel"
+          fallback="Select program to export"
+        />
+      }
       component={AutocompleteField}
       options={options}
       required
@@ -46,10 +51,9 @@ export const ProgramExporterView = memo(({ setIsLoading }) => {
       try {
         setIsLoading(true);
         const programName = programOptions.find(option => option.value === programId).label;
-        const blob = await api.download(`admin/export/program/${programId}`);
         await saveFile({
           defaultFileName: `Program-${programName}-export-${getCurrentDateTimeString()}`,
-          data: blob,
+          getData: async () => await api.download(`admin/export/program/${programId}`),
           extension: 'xlsx',
         });
       } finally {
@@ -68,12 +72,12 @@ export const ProgramExporterView = memo(({ setIsLoading }) => {
       <Form
         onSubmit={onSubmit}
         validationSchema={yup.object().shape({
-          programId: yup.string().required().translatedLabel(
-            <TranslatedText
-              stringId="admin.program.export.program.label"
-              fallback="Program"
-            />,
-          ),
+          programId: yup
+            .string()
+            .required()
+            .translatedLabel(
+              <TranslatedText stringId="admin.program.export.program.label" fallback="Program" />,
+            ),
         })}
         formType={FORM_TYPES.CREATE_FORM}
         initialValues={{
