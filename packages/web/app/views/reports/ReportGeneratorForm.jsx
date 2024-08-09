@@ -193,10 +193,6 @@ export const ReportGeneratorForm = () => {
 
     try {
       if (dataSource === REPORT_DATA_SOURCES.THIS_FACILITY) {
-        const excelData = await api.post(`reports/${reportId}`, {
-          parameters: updatedFilters,
-        });
-
         const filterString = Object.entries(filterValues)
           .map(([key, value]) => `${key}: ${value}`)
           .join(', ');
@@ -214,7 +210,8 @@ export const ReportGeneratorForm = () => {
 
         setDataReadyForSaving(
           prepareExcelFile({
-            data: excelData,
+            getData: async () =>
+              await api.post(`reports/${reportId}`, { parameters: updatedFilters }),
             metadata,
             defaultFileName: getFileName(reportName),
             bookType,
