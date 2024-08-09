@@ -214,7 +214,7 @@ export function labTestPanelLoader(item) {
 }
 
 export function userLoader(item) {
-  const { id, facilities, ...otherFields } = item;
+  const { id, allowedFacilities, ...otherFields } = item;
   const rows = [];
 
   rows.push({
@@ -225,7 +225,7 @@ export function userLoader(item) {
     },
   });
 
-  (facilities || '')
+  (allowedFacilities || '')
     .split(',')
     .map(t => t.trim())
     .forEach(facilityId => {
