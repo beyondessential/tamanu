@@ -15,6 +15,8 @@ import { ResetPasswordFormModel } from '/interfaces/forms/ResetPasswordFormProps
 import { ChangePasswordFormModel } from '/interfaces/forms/ChangePasswordFormProps';
 
 import { VisibilityStatus } from '../../visibilityStatuses';
+import { User } from '~/models/User';
+import { PureAbility } from '@casl/ability';
 
 export class AuthService {
   models: typeof MODELS_MAP;
@@ -22,6 +24,7 @@ export class AuthService {
   centralServer: CentralServerConnection;
 
   emitter = mitt();
+
 
   constructor(models: typeof MODELS_MAP, centralServer: CentralServerConnection) {
     this.models = models;
@@ -60,7 +63,10 @@ export class AuthService {
     return user;
   }
 
-  async localSignIn({ email, password }: SyncConnectionParameters): Promise<IUser> {
+  async localSignIn(
+    { email, password }: SyncConnectionParameters,
+    generateAbilityForUser: (user: User) => PureAbility,
+  ): Promise<IUser> {
     console.log('Signing in locally as', email);
     const { User, Setting } = this.models;
     const user = await User.findOne({
@@ -68,14 +74,25 @@ export class AuthService {
       visibilityStatus: VisibilityStatus.Current,
     });
 
+    if (!user.localPassword) {
+      throw new AuthenticationError(
+        'You need to first login when connected to internet to use your account offline.',
+      );
+    }
+
     if (!user || !(await compare(password, user.localPassword))) {
       throw new AuthenticationError(invalidUserCredentialsMessage);
     }
 
-    // TODO: check 'login', 'Facility' permission
+    const ability = generateAbilityForUser(user);
     const restrictUsersToFacilities = await Setting.getByKey('auth.restrictUsersToFacilities');
+    const canViewAllFacilities = ability.can('login', 'Facility');
     const linkedFacility = await readConfig('facilityId', '');
-    if (restrictUsersToFacilities && !(await user.canAccessFacility(linkedFacility))) {
+    if (
+      restrictUsersToFacilities &&
+      !canViewAllFacilities &&
+      !(await user.canAccessFacility(linkedFacility))
+    ) {
       throw new AuthenticationError(forbiddenFacilityMessage);
     }
 

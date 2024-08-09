@@ -11,7 +11,6 @@ import { VisibilityStatus } from '../visibilityStatuses';
 import { UserFacility } from './UserFacility';
 import { PrimaryColumn } from 'typeorm';
 import { CAN_ACCESS_ALL_FACILITIES, SYSTEM_USER_UUID } from '~/constants';
-
 @Entity('user')
 export class User extends BaseModel implements IUser {
   static syncDirection = SYNC_DIRECTIONS.PULL_FROM_CENTRAL;
@@ -86,17 +85,8 @@ export class User extends BaseModel implements IUser {
     return this.role === 'admin' || this.id === SYSTEM_USER_UUID;
   }
 
-  async checkCanAccessAllFacilities() {
-    if (this.isSuperUser()) return true;
-    // Allow for roles that have access to all facilities configured via permissions
-    // TODO: figure out mobile permissions
-    // (e.g. a custom "AdminICT" role)
-    // if (await this.hasPermission('login', 'Facility')) return true;
-    return false;
-  }
-
   async allowedFacilityIds() {
-    const canAccessAllFacilities = await this.checkCanAccessAllFacilities();
+    const canAccessAllFacilities = this.isSuperUser();
     if (canAccessAllFacilities) {
       return CAN_ACCESS_ALL_FACILITIES;
     }
