@@ -38,7 +38,8 @@ const createFileSystemHandle = ({ defaultFileName, filetype }) =>
 
 export const saveFile = async ({
   defaultFileName,
-  data, // The file data to write, in the form of an ArrayBuffer, TypedArray, DataView, Blob, or string.
+  /** Async function which returns the file data to write (ArrayBuffer, TypedArray, DataView, Blob, or string) */
+  getData,
   extension = null, // The file extension.
   mimetype = null,
 }) => {
@@ -54,12 +55,19 @@ export const saveFile = async ({
   }
 
   if ('showSaveFilePicker' in window) {
+    // To avoid a SecurityError, get the file handle first...
     const fileHandle = await createFileSystemHandle({ defaultFileName, filetype });
     const writable = await fileHandle.createWritable();
+
+    // ...and THEN prepare the file for download.
+    // See https://developer.chrome.com/docs/capabilities/web-apis/file-system-access#write-file
+    const data = await getData();
+
     await writable.write(data);
     await writable.close();
   } else {
     // fallback to non-file-picker download if it's not available
+    const data = await getData();
     const blob = new Blob([data], {
       type: Object.keys(filetype.accept)?.[0] ?? 'application/binary',
     });
