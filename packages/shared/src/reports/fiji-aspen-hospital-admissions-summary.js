@@ -2,7 +2,7 @@ import config from 'config';
 import { endOfDay, parseISO, startOfDay } from 'date-fns';
 import { toDateTimeString } from '../utils/dateTime';
 import { generateReportFromQueryData } from './utilities';
-import { selectFacilityIds } from '../utils';
+import { selectFacilityIds } from '../utils/configSelectors';
 
 const FIELDS = [
   'Reporting period',

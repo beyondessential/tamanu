@@ -1,7 +1,7 @@
 /** @typedef {import('sequelize').QueryInterface} QueryInterface */
 import { Op } from 'sequelize';
 import config from 'config';
-import { selectFacilityIds } from '../utils';
+import { selectFacilityIds } from '../utils/configSelectors';
 
 const DEFAULT_SETTINGS = {
   'features.reminderContactModule.enabled': 'false',

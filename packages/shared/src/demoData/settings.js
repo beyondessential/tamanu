@@ -2,7 +2,7 @@ import config from 'config';
 import { SETTINGS_SCOPES } from '@tamanu/constants';
 import { facilityTestSettings, centralTestSettings, globalTestSettings } from '@tamanu/settings';
 import { defaultsDeep } from 'lodash';
-import { selectFacilityIds } from '../utils';
+import { selectFacilityIds } from '../utils/configSelectors';
 
 const seedForScope = async (models, settings, serverFacilityIds, scopeOverride) => {
   const { Setting } = models;

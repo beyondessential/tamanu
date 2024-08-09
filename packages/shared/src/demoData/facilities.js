@@ -1,6 +1,6 @@
 import config from 'config';
 import { splitIds } from './utilities';
-import { selectFacilityIds } from '../utils';
+import { selectFacilityIds } from '../utils/configSelectors';
 
 export const FACILITIES = splitIds(`
   Balwyn
