@@ -212,3 +212,32 @@ export function labTestPanelLoader(item) {
 
   return rows;
 }
+
+export function userLoader(item) {
+  const { id, facilities, ...otherFields } = item;
+  const rows = [];
+
+  rows.push({
+    model: 'User',
+    values: {
+      id,
+      ...otherFields,
+    },
+  });
+
+  (facilities || '')
+    .split(',')
+    .map(t => t.trim())
+    .forEach(facilityId => {
+      rows.push({
+        model: 'UserFacilities',
+        values: {
+          id: `${id};${facilityId}`,
+          userId: id,
+          facilityId: facilityId,
+        },
+      });
+    });
+
+  return rows;
+}
