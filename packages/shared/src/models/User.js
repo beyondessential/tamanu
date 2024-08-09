@@ -160,6 +160,10 @@ export class User extends Model {
     this.belongsToMany(models.Facility, {
       through: 'UserFacility',
     });
+
+    this.hasMany(models.UserDesignation, {
+      foreignKey: 'userId',
+    });
   }
 
   static buildSyncFilter() {

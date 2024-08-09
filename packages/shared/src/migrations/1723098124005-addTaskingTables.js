@@ -80,8 +80,8 @@ export async function up(query) {
     },
     updated_at: {
       type: DataTypes.DATE,
-      allowNull: true,
-      defaultValue: DataTypes.NOW,
+      defaultValue: Sequelize.fn('now'),
+      allowNull: false,
     },
     deleted_at: {
       type: DataTypes.DATE,
@@ -119,8 +119,8 @@ export async function up(query) {
     },
     updated_at: {
       type: DataTypes.DATE,
-      allowNull: true,
-      defaultValue: DataTypes.NOW,
+      defaultValue: Sequelize.fn('now'),
+      allowNull: false,
     },
     deleted_at: {
       type: DataTypes.DATE,
@@ -157,8 +157,8 @@ export async function up(query) {
     },
     updated_at: {
       type: DataTypes.DATE,
-      allowNull: true,
-      defaultValue: DataTypes.NOW,
+      defaultValue: Sequelize.fn('now'),
+      allowNull: false,
     },
     deleted_at: {
       type: DataTypes.DATE,
@@ -196,8 +196,8 @@ export async function up(query) {
     },
     updated_at: {
       type: DataTypes.DATE,
-      allowNull: true,
-      defaultValue: DataTypes.NOW,
+      defaultValue: Sequelize.fn('now'),
+      allowNull: false,
     },
     deleted_at: {
       type: DataTypes.DATE,
@@ -235,8 +235,8 @@ export async function up(query) {
     },
     updated_at: {
       type: DataTypes.DATE,
-      allowNull: true,
-      defaultValue: DataTypes.NOW,
+      defaultValue: Sequelize.fn('now'),
+      allowNull: false,
     },
     deleted_at: {
       type: DataTypes.DATE,
@@ -249,9 +249,9 @@ export async function up(query) {
  * @param {QueryInterface} query
  */
 export async function down(query) {
-  await query.dropTable('tasks');
-  await query.dropTable('task_designations');
-  await query.dropTable('task_templates');
-  await query.dropTable('task_template_designations');
   await query.dropTable('user_designations');
+  await query.dropTable('task_template_designations');
+  await query.dropTable('task_templates');
+  await query.dropTable('task_designations');
+  await query.dropTable('tasks');
 }

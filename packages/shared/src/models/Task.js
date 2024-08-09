@@ -13,13 +13,13 @@ export class Task extends Model {
           type: DataTypes.TEXT,
           allowNull: false,
         },
-        startTime: dateTimeType('date', {
+        startTime: dateTimeType('startTime', {
           allowNull: false,
         }),
-        endTime: dateTimeType('date', {
+        endTime: dateTimeType('endTime', {
           allowNull: true,
         }),
-        requestTime: dateTimeType('date', {
+        requestTime: dateTimeType('requestTime', {
           allowNull: false,
         }),
         status: {
