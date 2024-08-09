@@ -166,7 +166,10 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
                   placeholder={getTranslation('general.placeholder.select', 'Select')}
                   component={BaseMultiselectField}
                   options={conditions?.map?.(condition => ({
-                    label: getTranslation(getReferenceDataStringId(condition.id, 'condition'), condition.name),
+                    label: getTranslation(
+                      getReferenceDataStringId(condition.id, 'condition'),
+                      condition.name,
+                    ),
                     value: condition.id,
                   }))}
                   disabled={!conditions || conditions.length === 0}
