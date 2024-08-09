@@ -230,7 +230,7 @@ export function userLoader(item) {
     .map(t => t.trim())
     .forEach(facilityId => {
       rows.push({
-        model: 'UserFacilities',
+        model: 'UserFacility',
         values: {
           id: `${id};${facilityId}`,
           userId: id,
