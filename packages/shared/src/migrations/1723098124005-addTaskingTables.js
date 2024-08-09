@@ -1,5 +1,5 @@
 /** @typedef {import('sequelize').QueryInterface} QueryInterface */
-import { DataTypes, Sequelize } from 'sequelize';
+import { DataTypes, Sequelize, Op } from 'sequelize';
 
 /**
  * @param {QueryInterface} query
@@ -243,12 +243,41 @@ export async function up(query) {
       allowNull: true,
     },
   });
+
+  await query.addIndex('tasks', ['start_time', 'parent_task_id'], {
+    where: { deleted_at: null, parent_task_id: { [Op.ne]: null } },
+    unique: true,
+    name: 'start_time_in_sequence_unique',
+  });
+
+  await query.addIndex('task_designations', ['task_id', 'designation_id'], {
+    where: { deleted_at: null },
+    unique: true,
+    name: 'task_designation_unique',
+  });
+
+  await query.addIndex('task_template_designations', ['task_template_id', 'designation_id'], {
+    where: { deleted_at: null },
+    unique: true,
+    name: 'task_template_designation_unique',
+  });
+
+  await query.addIndex('user_designations', ['user_id', 'designation_id'], {
+    where: { deleted_at: null },
+    unique: true,
+    name: 'user_designation_unique',
+  });
 }
 
 /**
  * @param {QueryInterface} query
  */
 export async function down(query) {
+  await query.removeIndex('tasks', 'start_time_in_sequence_unique');
+  await query.removeIndex('task_designations', 'task_designation_unique');
+  await query.removeIndex('task_template_designations', 'task_template_designation_unique');
+  await query.removeIndex('user_designations', 'user_designation_unique');
+
   await query.dropTable('user_designations');
   await query.dropTable('task_template_designations');
   await query.dropTable('task_templates');
