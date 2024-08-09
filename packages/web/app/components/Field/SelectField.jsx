@@ -11,8 +11,8 @@ import { Colors } from '../../constants';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 import { StyledTextField } from './TextField';
 import { FormFieldTag } from '../Tag';
-import { getTranslatedOptions } from '../Translation/getTranslatedOptions';
 import { useTranslation } from '../../contexts/Translation';
+import { TranslatedEnumField } from '../Translation/TranslatedEnumIInput';
 
 const StyledFormControl = styled(FormControl)`
   display: flex;
@@ -210,7 +210,7 @@ export const SelectInput = ({
           menuPosition="fixed"
           styles={customStyleObject || defaultStyles}
           menuShouldBlockScroll="true"
-          placeholder={getTranslation("general.placeholder.select", "Select")}
+          placeholder={getTranslation('general.placeholder.select', 'Select')}
           isClearable={value !== '' && isClearable && !props.required && !disabled}
           isSearchable={false}
           tabIndex={inputProps.tabIndex}
@@ -235,14 +235,13 @@ export const BaseSelectField = ({ field, ...props }) => (
 );
 
 // NOTE: not compatible with disabled SelectFields
-export const SelectField = ({ field, options, prefix, value, name, ...props }) => (
-  <SelectInput
-    options={getTranslatedOptions(options, prefix)}
-    value={field ? field.value : value}
-    name={field ? field.name : name}
-    {...props}
-  />
+export const SelectField = ({ field, value, name, ...props }) => (
+  <SelectInput value={field ? field.value : value} name={field ? field.name : name} {...props} />
 );
+
+export const TranslatedSelectField = props => {
+  return <TranslatedEnumField {...props} component={SelectInput} />;
+};
 
 SelectField.propTypes = {
   options: PropTypes.object.isRequired,

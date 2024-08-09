@@ -12,7 +12,7 @@ import { useQuery } from '@tanstack/react-query';
 import { PatientNameDisplay } from '../PatientNameDisplay';
 import { TextDisplayIdLabel } from '../DisplayIdLabel';
 import { DateDisplay } from '../DateDisplay';
-import { APPOINTMENT_STATUS_OPTIONS, Colors } from '../../constants';
+import { Colors } from '../../constants';
 import { useApi } from '../../api';
 import { reloadPatient } from '../../store/patient';
 import { AppointmentModal } from './AppointmentModal';
@@ -56,6 +56,11 @@ const PatientInfoLabel = styled.td`
 const PatientInfoValue = styled.td`
   text-transform: capitalize;
 `;
+
+const APPOINTMENT_STATUS_OPTIONS = Object.entries(APPOINTMENT_STATUSES).map(([value, label]) => ({
+  value,
+  label,
+}));
 
 const PatientInfo = ({ patient }) => {
   const api = useApi();

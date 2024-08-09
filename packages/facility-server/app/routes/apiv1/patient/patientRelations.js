@@ -1,5 +1,5 @@
 import asyncHandler from 'express-async-handler';
-import { QueryTypes, Sequelize } from 'sequelize';
+import { Op, QueryTypes, Sequelize } from 'sequelize';
 
 import { getPatientAdditionalData } from '@tamanu/shared/utils';
 import { HIDDEN_VISIBILITY_STATUSES } from '@tamanu/constants/importable';
@@ -14,6 +14,7 @@ import { patientSecondaryIdRoutes } from './patientSecondaryId';
 import { patientDeath } from './patientDeath';
 import { patientProfilePicture } from './patientProfilePicture';
 import { deleteReferral, deleteSurveyResponse } from '../../../routeHandlers/deleteModel';
+import { getPermittedSurveyIds } from '../../../utils/getPermittedSurveyIds';
 
 export const patientRelations = permissionCheckingRouter('read', 'Patient');
 
@@ -179,6 +180,16 @@ patientRelations.get(
     req.checkPermission('list', 'SurveyResponse');
     const sortKey = REFERRAL_SORT_KEYS[orderBy] || REFERRAL_SORT_KEYS.date;
     const sortDirection = order.toLowerCase() === 'asc' ? 'ASC' : 'DESC';
+
+    const permittedSurveyIds = await getPermittedSurveyIds(req, models);
+
+    if (!permittedSurveyIds.length) {
+      res.send({
+        data: [],
+        count: 0,
+      });
+    }
+    
     const patientReferrals = await models.Referral.findAll({
       include: [
         {
@@ -224,6 +235,11 @@ patientRelations.get(
           ],
         },
       ],
+      where: {
+        '$surveyResponse.survey_id$': {
+          [Op.in]: permittedSurveyIds,
+        },
+      },
       order: [[sortKey, sortDirection]],
     });
 
@@ -256,6 +272,16 @@ patientRelations.get(
     } = query;
     const sortKey = PROGRAM_RESPONSE_SORT_KEYS[orderBy] || PROGRAM_RESPONSE_SORT_KEYS.endTime;
     const sortDirection = order.toLowerCase() === 'asc' ? 'ASC' : 'DESC';
+
+    const permittedSurveyIds = await getPermittedSurveyIds(req, models);
+
+    if (!permittedSurveyIds.length) {
+      res.send({
+        data: [],
+        count: 0,
+      });
+    }
+
     const { count, data } = await runPaginatedQuery(
       db,
       models.SurveyResponse,
@@ -271,7 +297,7 @@ patientRelations.get(
           encounters.patient_id = :patientId
           AND surveys.survey_type = :surveyType
           AND survey_responses.deleted_at IS NULL
-          ${surveyId ? 'AND surveys.id = :surveyId' : ''}
+          ${surveyId ? 'AND surveys.id = :surveyId' : 'AND surveys.id IN (:surveyIds)'}
       `,
       `
         SELECT
@@ -297,11 +323,11 @@ patientRelations.get(
           AND encounters.deleted_at is null
           AND surveys.survey_type = :surveyType
           AND survey_responses.deleted_at IS NULL
-          ${surveyId ? 'AND surveys.id = :surveyId' : ''}
+          ${surveyId ? 'AND surveys.id = :surveyId' : 'AND surveys.id IN (:surveyIds)'}
           ${programId ? 'AND programs.id = :programId' : ''}
         ORDER BY ${sortKey} ${sortDirection}
       `,
-      { patientId, surveyId, programId, surveyType },
+      { patientId, surveyId, surveyIds: permittedSurveyIds, programId, surveyType },
       query,
     );
 

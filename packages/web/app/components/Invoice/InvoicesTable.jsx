@@ -85,7 +85,6 @@ const getPaymentStatus = row => {
   return (
     <>
       <TranslatedEnum
-        prefix="invoice.patientPayment.property.status"
         value={row.patientPaymentStatus}
         enumValues={INVOICE_PATIENT_PAYMENT_STATUSES_LABELS}
       />
@@ -95,7 +94,6 @@ const getPaymentStatus = row => {
         <>
           {'/'}
           <TranslatedEnum
-            prefix="invoice.insurerPayment.property.status"
             value={row.insurerPaymentStatus}
             enumValues={INVOICE_INSURER_PAYMENT_STATUS_LABELS}
           />

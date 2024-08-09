@@ -29,8 +29,6 @@ export * from './IAdministeredVaccine';
 export * from './IDiagnosis';
 export * from './IScheduledVaccine';
 export * from './IMedication';
-export * from './ILegacyNoteItem';
-export * from './ILegacyNotePage';
 export * from './INote';
 export * from './IReferral';
 export * from './IPatientAdditionalData';

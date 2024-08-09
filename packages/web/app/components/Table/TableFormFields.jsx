@@ -119,7 +119,7 @@ export const TableFormFields = React.memo(
           ) : (
             <TableRow>
               <NoDataTableCell colSpan={columns.length}>
-                <TranslatedText stringId="general.table.noData" fallback="No data" />
+                <TranslatedText stringId="general.table.noData" fallback="No data found" />
               </NoDataTableCell>
             </TableRow>
           )}

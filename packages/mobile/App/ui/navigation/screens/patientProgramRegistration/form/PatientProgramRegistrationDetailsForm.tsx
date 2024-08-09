@@ -195,7 +195,9 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
                   />
                 </StyledView>
                 <Button
-                  buttonText="Confirm"
+                  buttonText={
+                    <TranslatedText stringId="general.action.confirm" fallback="Confirm" />
+                  }
                   backgroundColor={theme.colors.PRIMARY_MAIN}
                   marginLeft={screenPercentageToDP(2.43, Orientation.Width)}
                   marginRight={screenPercentageToDP(7, Orientation.Width)}
