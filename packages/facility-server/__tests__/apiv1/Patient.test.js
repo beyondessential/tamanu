@@ -18,6 +18,7 @@ import { selectFacilityIds } from '@tamanu/shared/utils/configSelectors';
 import { createTestContext } from '../utilities';
 
 describe('Patient', () => {
+  const [facilityId] = selectFacilityIds(config);
   let app = null;
   let baseApp = null;
   let models = null;
@@ -29,7 +30,6 @@ describe('Patient', () => {
     baseApp = ctx.baseApp;
     models = ctx.models;
     app = await baseApp.asRole('practitioner');
-    const [facilityId] = selectFacilityIds(config);
     await models.Facility.upsert({
       id: facilityId,
       name: facilityId,
@@ -142,7 +142,7 @@ describe('Patient', () => {
 
     it('should create a new patient', async () => {
       const newPatient = await createDummyPatient(models);
-      const result = await app.post('/api/patient').send(newPatient);
+      const result = await app.post('/api/patient').send({ ...newPatient, facilityId });
       expect(result).toHaveSucceeded();
       expect(result.body).toHaveProperty('displayId', newPatient.displayId);
       expect(result.body).toHaveProperty('firstName', newPatient.firstName);
@@ -154,6 +154,7 @@ describe('Patient', () => {
       const result = await app.post('/api/patient').send({
         ...newPatient,
         passport: 'TEST-PASSPORT',
+        facilityId,
       });
 
       expect(result).toHaveSucceeded();
@@ -183,6 +184,7 @@ describe('Patient', () => {
         patientFields: {
           [definition.id]: 'Test Field Value',
         },
+        facilityId,
       });
 
       // Assert
@@ -200,7 +202,7 @@ describe('Patient', () => {
     it('should update patient details', async () => {
       // skip middleName, to be added in PUT request
       const newPatient = await createDummyPatient(models, { middleName: '' });
-      const result = await app.post('/api/patient').send(newPatient);
+      const result = await app.post('/api/patient').send({ ...newPatient, facilityId });
       expect(result.body.middleName).toEqual('');
 
       const newVillage = await randomReferenceId(models, 'village');
@@ -239,6 +241,7 @@ describe('Patient', () => {
         patientFields: {
           [definition.id]: 'Test Field Value',
         },
+        facilityId,
       });
 
       // Act

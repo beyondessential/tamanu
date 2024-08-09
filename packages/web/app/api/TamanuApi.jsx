@@ -189,12 +189,14 @@ export class TamanuApi extends ApiClient {
   }
 
   async setFacility(facilityId) {
-    const { token } = await this.post('setFacility', { facilityId });
+    const { token, settings } = await this.post('setFacility', { facilityId });
     this.setToken(token);
     saveToLocalStorage({
       token,
       facilityId,
+      settings,
     });
+    return { settings };
   }
 
   async fetch(endpoint, query, config) {

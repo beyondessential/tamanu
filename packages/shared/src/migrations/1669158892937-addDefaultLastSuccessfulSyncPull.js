@@ -6,7 +6,7 @@
 // - Consider the case when the config you're using were to go missing - would this be ok for the
 //   migration? (here, missing serverFacilityIds is just a no-op)
 import config from 'config';
-import { selectFacilityIds } from '../utils';
+import { selectFacilityIds } from '../utils/configSelectors';
 
 const LAST_SUCCESSFUL_SYNC_PULL = 'lastSuccessfulSyncPull';
 

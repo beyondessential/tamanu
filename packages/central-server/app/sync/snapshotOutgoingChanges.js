@@ -14,7 +14,7 @@ const snapshotChangesForModel = async (
   patientCount,
   markedForSyncPatientsTable,
   sessionId,
-  facilityId,
+  facilityIds,
   sessionConfig,
   config,
 ) => {
@@ -105,7 +105,7 @@ const snapshotChangesForModel = async (
           since,
           // include replacement params used in some model specific sync filters outside of this file
           // see e.g. Referral.buildSyncFilter
-          facilityId,
+          facilityIds,
           limit: CHUNK_SIZE,
           fromId,
         },
@@ -134,7 +134,7 @@ export const snapshotOutgoingChanges = withConfig(
     patientCount,
     markedForSyncPatientsTable,
     sessionId,
-    facilityId,
+    facilityIds,
     sessionConfig,
     config,
   ) => {
@@ -163,7 +163,7 @@ export const snapshotOutgoingChanges = withConfig(
           patientCount,
           markedForSyncPatientsTable,
           sessionId,
-          facilityId,
+          facilityIds,
           sessionConfig,
           config,
         );

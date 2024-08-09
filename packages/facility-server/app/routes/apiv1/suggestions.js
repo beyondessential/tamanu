@@ -2,8 +2,8 @@ import { pascal } from 'case';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { literal, Op, Sequelize } from 'sequelize';
-import { NotFoundError } from '@tamanu/shared/errors';
-import { keyBy, omit } from 'lodash';
+import { NotFoundError, ValidationError } from '@tamanu/shared/errors';
+import { camelCase, keyBy, omit } from 'lodash';
 import {
   DEFAULT_HIERARCHY_TYPE,
   ENGLISH_LANGUAGE_CODE,
@@ -17,6 +17,8 @@ import {
   VISIBILITY_STATUSES,
   OTHER_REFERENCE_TYPES,
 } from '@tamanu/constants';
+import { v4 as uuidv4 } from 'uuid';
+import { customAlphabet } from 'nanoid';
 
 export const suggestions = express.Router();
 
@@ -92,8 +94,7 @@ function createSuggesterRoute(
                   },
                 }
               : {}),
-              // 
-            ...(filterByFacility ? { facilityId: req.facilityId } : {}),
+            ...(filterByFacility ? { facilityId: query.facilityId } : {}),
           },
         ],
       };
@@ -213,11 +214,32 @@ function createAllRecordsRoute(
   );
 }
 
+function createSuggesterCreateRoute(endpoint, modelName, { creatingBodyBuilder, mapper }) {
+  suggestions.post(
+    `/${endpoint}/create`,
+    asyncHandler(async (req, res) => {
+      const { models } = req;
+      req.checkPermission('create', modelName);
+
+      const body = await creatingBodyBuilder(req);
+      const newRecord = await models[modelName].create(body, { returning: true });
+      const mappedRecord = await mapper(newRecord);
+      res.send(mappedRecord);
+    }),
+  );
+}
+
 // Add a new suggester for a particular model at the given endpoint.
 // Records will be filtered based on the whereSql parameter. The user's search term
 // will be passed to the sql query as ":search" - see the existing suggestion
 // endpoints for usage examples.
-function createSuggester(endpoint, modelName, whereBuilder, optionOverrides) {
+function createSuggester(
+  endpoint,
+  modelName,
+  whereBuilder,
+  optionOverrides,
+  allowCreatingNewSuggestion,
+) {
   const options = {
     mapper: defaultMapper,
     searchColumn: 'name',
@@ -229,6 +251,9 @@ function createSuggester(endpoint, modelName, whereBuilder, optionOverrides) {
   createAllRecordsRoute(endpoint, modelName, whereBuilder, options);
   createSuggesterLookupRoute(endpoint, modelName, options);
   createSuggesterRoute(endpoint, modelName, whereBuilder, options);
+  if (allowCreatingNewSuggestion) {
+    createSuggesterCreateRoute(endpoint, modelName, options);
+  }
 }
 
 // this should probably be changed to a `visibility_criteria IN ('list', 'of', 'statuses')`
@@ -268,7 +293,26 @@ REFERENCE_TYPE_VALUES.forEach(typeName => {
           },
         };
       },
+      creatingBodyBuilder: req => {
+        const { body } = req;
+        if (!body.name) {
+          throw new ValidationError('Name is required');
+        }
+
+        const code = `${camelCase(body.name)}-${customAlphabet(
+          '1234567890ABCDEFGHIJKLMNPQRSTUVWXYZ',
+          3,
+        )()}`;
+
+        return {
+          id: uuidv4(),
+          code,
+          type: typeName,
+          name: body.name,
+        };
+      },
     },
+    true,
   );
 });
 
@@ -281,7 +325,7 @@ const DEFAULT_WHERE_BUILDER = search => ({
   ...VISIBILITY_CRITERIA,
 });
 
-const filterByFacilityWhereBuilder = (search, query, req) => {
+const filterByFacilityWhereBuilder = (search, query) => {
   const baseWhere = DEFAULT_WHERE_BUILDER(search);
   if (!query.filterByFacility) {
     return baseWhere;
@@ -289,7 +333,7 @@ const filterByFacilityWhereBuilder = (search, query, req) => {
 
   return {
     ...baseWhere,
-    facilityId: req.facilityId,
+    facilityId: query.facilityId,
   };
 };
 

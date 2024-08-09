@@ -1,7 +1,8 @@
 import express from 'express';
 
 import { constructPermission } from '@tamanu/shared/permissions/middleware';
-import { settingsReaderMiddleware, settingsCache } from '@tamanu/settings';
+import { settingsCache } from '@tamanu/settings';
+
 import {
   authMiddleware,
   loginHandler,
@@ -53,7 +54,6 @@ import { triage } from './triage';
 import { user } from './user';
 import { vitals } from './vitals';
 import { translation } from './translation';
-import { vaccinationSettings } from './vaccinationSettings';
 import { upcomingVaccinations } from './upcomingVaccinations';
 import { telegramRoutes } from './telegram/telegramRoutes';
 
@@ -103,9 +103,6 @@ apiv1.get(
 );
 
 apiv1.use(authMiddleware);
-
-// replace settings reader now that we have extracted the facilityId during auth
-apiv1.use(settingsReaderMiddleware);
 
 apiv1.use(constructPermission);
 
@@ -170,7 +167,6 @@ referenceDataRoutes.use('/scheduledVaccine', scheduledVaccine);
 referenceDataRoutes.use('/suggestions', suggestions);
 referenceDataRoutes.use('/survey', survey);
 referenceDataRoutes.use('/user', user);
-referenceDataRoutes.use('/vaccinationSettings', vaccinationSettings);
 referenceDataRoutes.use('/upcomingVaccinations', upcomingVaccinations);
 referenceDataRoutes.use('/translation', translation);
 

@@ -1,6 +1,6 @@
 import config from 'config';
 import Sequelize from 'sequelize';
-import { selectFacilityIds } from '../utils';
+import { selectFacilityIds } from '../utils/configSelectors';
 
 module.exports = {
   up: async query => {

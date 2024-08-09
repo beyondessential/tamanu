@@ -136,20 +136,25 @@ export async function createTestContext({ enableReportInstances } = {}) {
   await seedLocationGroups(models);
   await seedSettings(models);
 
-  const [facilityId] = selectFacilityIds(config);
+  const facilityIds = selectFacilityIds(config);
 
   // Create the facility for the current config if it doesn't exist
-  const [facility] = await models.Facility.findOrCreate({
-    where: {
-      id: facilityId,
-    },
-    defaults: {
-      code: 'TEST',
-      name: 'Test Facility',
-    },
-  });
+  const facilities = await Promise.all(
+    facilityIds.map(async facilityId => {
+      const [facility] = await models.Facility.findOrCreate({
+        where: {
+          id: facilityId,
+        },
+        defaults: {
+          code: facilityId,
+          name: facilityId,
+        },
+      });
+      return facility;
+    }),
+  );
 
-  const facilityIdsString = JSON.stringify([facility.id]);
+  const facilityIdsString = JSON.stringify(facilities.map(facility => facility.id));
   // ensure there's a corresponding local system fact for it too
   await models.LocalSystemFact.set('facilityIds', facilityIdsString);
 
@@ -161,7 +166,7 @@ export async function createTestContext({ enableReportInstances } = {}) {
 
   baseApp.asUser = async user => {
     const agent = supertest.agent(expressApp);
-    const token = await buildToken(user, facilityId, '1d');
+    const token = await buildToken(user, facilityIds[0], '1d');
     agent.set('authorization', `Bearer ${token}`);
     agent.user = user;
     return agent;
@@ -184,7 +189,13 @@ export async function createTestContext({ enableReportInstances } = {}) {
 
   jest.setTimeout(30 * 1000); // more generous than the default 5s but not crazy
 
-  const settings = new ReadSettings(models, config.serverFacilityId);
+  const settings = facilityIds.reduce(
+    (acc, facilityId) => ({
+      ...acc,
+      [facilityId]: new ReadSettings(models, facilityId),
+    }),
+    {},
+  );
   const centralServer = new CentralServerConnection({ deviceId: 'test' });
 
   context.onClose(async () => {
