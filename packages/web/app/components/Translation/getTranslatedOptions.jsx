@@ -4,6 +4,7 @@ import React from 'react';
 
 export const getTranslatedOptions = (options, prefix) => {
   if (!options) return [];
+
   return options.map(option => {
     const { label, ...rest } = option;
     return typeof label === 'string'

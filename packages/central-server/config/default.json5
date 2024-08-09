@@ -69,7 +69,8 @@
     "persistUpdateWorkerPoolSize": 5,
     // at its very large default, maxRecordsPerPullSnapshotChunk is essentially "off"
     // can be turned on by lowering to some amount that seems appropriate if snapshot performance is an issue
-    "maxRecordsPerPullSnapshotChunk": 1000000000
+    "maxRecordsPerPullSnapshotChunk": 1000000000,
+    syncSessionTimeoutMs: null,
   },
   "loadshedder": {
     // paths are checked sequentially until a path matches a prefix
@@ -560,6 +561,18 @@
           "hidden": false,
           "requiredPatientData": false
         },
+        "insurerId": {
+          "shortLabel": "Insurer",
+          "longLabel": "Insurer",
+          "hidden": false,
+          "requiredPatientData": false
+        },
+        "insurerPolicyNumber": {
+          "shortLabel": "Insurance policy",
+          "longLabel": "Insurance policy number",
+          "hidden": false,
+          "requiredPatientData": false
+        },
         "drivingLicense": {
           "shortLabel": "Driving license",
           "longLabel": "Driving license number",
@@ -793,6 +806,7 @@
         "enableNoteBackdating": true,
         "enableCovidClearanceCertificate": false,
         "editPatientDisplayId": false,
+        "enablePatientInsurer": false,
         "patientPlannedMove": false,
         "idleTimeout": {
           "enabled": true,

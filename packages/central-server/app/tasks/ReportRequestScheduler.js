@@ -15,8 +15,8 @@ export class ReportRequestScheduler extends ScheduledTask {
   }
 
   constructor(context, options) {
-    const { schedule, jitterTime } = options;
-    super(schedule, log, jitterTime);
+    const { schedule, jitterTime, enabled } = options;
+    super(schedule, log, jitterTime, enabled);
     this.context = context;
     this.options = options;
   }

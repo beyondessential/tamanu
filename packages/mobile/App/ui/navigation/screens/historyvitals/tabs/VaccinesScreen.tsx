@@ -8,8 +8,12 @@ import { useBackendEffect } from '~/ui/hooks';
 import { FullView, StyledSafeAreaView } from '/styled/common';
 import { theme } from '/styled/theme';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
+import { useTranslation } from '~/ui/contexts/TranslationContext';
+import { getReferenceDataStringId } from '~/ui/components/Translations/TranslatedReferenceData';
 
 export const VaccineScreenComponent = ({ selectedPatient }): ReactElement => {
+  const { getTranslation } = useTranslation();
+
   const [administeredVaccines, error] = useBackendEffect(
     ({ models }) => models.AdministeredVaccine.getForPatient(selectedPatient.id),
     [],
@@ -20,10 +24,13 @@ export const VaccineScreenComponent = ({ selectedPatient }): ReactElement => {
 
   const dataGroupedByVaccine = Object.entries(
     groupBy(administeredVaccines, value => {
-      if (typeof value.scheduledVaccine === "string") {
+      if (typeof value.scheduledVaccine === 'string') {
         return value.scheduledVaccine;
       }
-      return value.scheduledVaccine.vaccine.name;
+      return getTranslation(
+        getReferenceDataStringId(value.scheduledVaccine.vaccine.id, 'drug'),
+        value.scheduledVaccine.vaccine.name,
+      );
     }),
   ).map(([title, data]) => ({ title, data }));
   if (error) return <ErrorScreen error={error} />;

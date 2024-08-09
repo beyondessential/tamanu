@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { TranslatedEnum } from '../../app/components/Translation';
 import { TranslationProvider } from '../../app/contexts/Translation';
 import { MockedApi } from '../utils/mockedApi';
+import { SEX_LABELS } from '@tamanu/constants';
 
 const Container = styled.div`
   padding: 1rem;
@@ -12,9 +13,9 @@ const Container = styled.div`
 const endpoints = {
   'translation/en': () => {
     return {
-      'status.draft': 'Draft (Translated)',
-      'status.sent': 'Sent (Translated)',
-      'status.paid': 'Paid (Translated)',
+      'patient.property.sex.male': 'M (Translated)',
+      'patient.property.sex.female': 'F (Translated)',
+      'patient.property.sex.other': 'O (Translated)',
     };
   },
 };
@@ -37,30 +38,20 @@ export default {
 
 const BasicTemplate = args => <TranslatedEnum {...args} />;
 
-const STATUS_LABELS = {
-  draft: 'Draft (default)',
-  sent: 'Sent (default)',
-  paid: 'Paid (default)',
-  cancelled: 'Cancelled (default)',
-};
-
 export const Translated = BasicTemplate.bind({});
 Translated.args = {
-  prefix: 'status',
   value: 'draft',
-  enumValues: STATUS_LABELS,
+  enumValues: SEX_LABELS,
 };
 
 export const UnTranslated = BasicTemplate.bind({});
 UnTranslated.args = {
-  prefix: 'status',
   value: 'cancelled',
-  enumValues: STATUS_LABELS,
+  enumValues: SEX_LABELS,
 };
 
 export const Fallback = BasicTemplate.bind({});
 Fallback.args = {
-  prefix: 'status',
   value: 'missing',
-  enumValues: STATUS_LABELS,
+  enumValues: SEX_LABELS,
 };

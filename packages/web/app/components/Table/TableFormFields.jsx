@@ -6,10 +6,12 @@ import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
+import { TableFooter } from '@material-ui/core';
 
 import { Colors } from '../../constants';
 import { Paginator } from './Paginator.jsx';
-import { TableFooter } from '@material-ui/core';
+
+import { TranslatedText } from '../../components/Translation';
 
 const ROWS_PER_PAGE_OPTIONS = [10, 25, 50];
 
@@ -116,7 +118,9 @@ export const TableFormFields = React.memo(
             ))
           ) : (
             <TableRow>
-              <NoDataTableCell colSpan={columns.length}>No translations found</NoDataTableCell>
+              <NoDataTableCell colSpan={columns.length}>
+                <TranslatedText stringId="general.table.noData" fallback="No data found" />
+              </NoDataTableCell>
             </TableRow>
           )}
         </TableBody>

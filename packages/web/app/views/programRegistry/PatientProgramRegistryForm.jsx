@@ -15,15 +15,13 @@ import {
   MultiselectField,
 } from '../../components/Field';
 import { FormGrid } from '../../components/FormGrid';
-import { ConfirmCancelRow } from '../../components/ButtonRow';
+import { ConfirmCancelRow, TranslatedReferenceData, TranslatedText } from '../../components';
 import { foreignKey, optionalForeignKey } from '../../utils/validation';
 import { useSuggester } from '../../api';
 import { useAuth } from '../../contexts/Auth';
 import { useApi } from '../../api/useApi';
 import { useTranslation } from '../../contexts/Translation';
 import { FORM_TYPES } from '../../constants';
-import { TranslatedText } from '../../components/Translation/TranslatedText';
-import { TranslatedReferenceData } from '../../components';
 
 export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject }) => {
   const api = useApi();
@@ -35,7 +33,7 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
   const { data: program } = useQuery(['programRegistry', selectedProgramRegistryId], () =>
     selectedProgramRegistryId ? api.get(`programRegistry/${selectedProgramRegistryId}`) : null,
   );
-  const { data: conditions } = useQuery(
+  const { data: { data: conditions } = {} } = useQuery(
     ['programRegistryConditions', selectedProgramRegistryId],
     () =>
       api.get(`programRegistry/${selectedProgramRegistryId}/conditions`, {
@@ -54,7 +52,6 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
   });
   const registeredBySuggester = useSuggester('practitioner');
   const registeringFacilitySuggester = useSuggester('facility');
-
 
   return (
     <Form
@@ -133,7 +130,7 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
                   name="registeringFacilityId"
                   label={
                     <TranslatedText
-                      stringId="patientProgramRegistry.registeredBy.label"
+                      stringId="patientProgramRegistry.registeringFacility.label"
                       fallback="Registering facility"
                     />
                   }
@@ -168,7 +165,7 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
                   }
                   placeholder={getTranslation('general.placeholder.select', 'Select')}
                   component={MultiselectField}
-                  options={conditions?.map(condition => ({
+                  options={conditions?.map?.(condition => ({
                     label: (
                       <TranslatedReferenceData
                         fallback={condition.name}
@@ -222,7 +219,7 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
         ),
         registeringFacilityId: foreignKey().translatedLabel(
           <TranslatedText
-            stringId="patientProgramRegistry.registeredBy.label"
+            stringId="patientProgramRegistry.registeringFacility.label"
             fallback="Registering facility"
           />,
         ),

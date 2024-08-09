@@ -52,12 +52,9 @@ export const translationFactory = translations => (
   };
   if (!translations)
     return { value: replaceStringVariables(fallback, replacementConfig, translations) };
+  const translation = translations[stringId] ?? fallback;
   return {
-    value: replaceStringVariables(
-      translations[stringId] ?? fallback,
-      replacementConfig,
-      translations,
-    ),
+    value: replaceStringVariables(translation, replacementConfig, translations),
     notExisting: !translations[stringId],
   };
 };

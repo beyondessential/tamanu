@@ -3,7 +3,7 @@ import { PropTypes } from 'prop-types';
 import * as yup from 'yup';
 
 import { SETTING_KEYS, VACCINE_CATEGORIES, VACCINE_RECORDING_TYPES } from '@tamanu/constants';
-import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { ISO9075_DATE_FORMAT, getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 
 import { FORM_TYPES, REQUIRED_INLINE_ERROR_MESSAGE } from '../constants';
 import { Form } from '../components/Field';
@@ -21,68 +21,12 @@ import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useLocalisation } from '../contexts/Localisation';
 import { useSettings } from '../contexts/Settings';
 import { usePatientData } from '../api/queries/usePatientData';
-import { isBefore, parse } from 'date-fns';
+import { isAfter, isBefore, parse } from 'date-fns';
 import { TranslatedReferenceData } from '../components/Translation';
 
 const validateGivenElsewhereRequiredField = (status, givenElsewhere) =>
   (status === VACCINE_RECORDING_TYPES.GIVEN && !givenElsewhere) ||
   status === VACCINE_RECORDING_TYPES.NOT_GIVEN; // If NOT_GIVEN then do not care about givenElsewhere
-
-const BASE_VACCINE_SCHEME_VALIDATION = yup.object().shape({
-  date: yup
-    .string()
-    .when(['status', 'givenElsewhere'], {
-      is: validateGivenElsewhereRequiredField,
-      then: yup.string().required(REQUIRED_INLINE_ERROR_MESSAGE),
-      otherwise: yup.string().nullable(),
-    })
-    .when(['status'], {
-      is: VACCINE_RECORDING_TYPES.GIVEN,
-      then: schema =>
-        schema.test('min', 'Date cannot be prior to patient date of birth', (value, context) => {
-          if (!value) return true;
-          const format = 'yyyy-MM-dd';
-          const minDate = parse(context.parent?.patientData?.dateOfBirth, format, new Date());
-          const date = parse(value, format, new Date());
-          if (isBefore(date, minDate)) {
-            return false;
-          }
-          return true;
-        }),
-    }),
-  locationId: yup.string().when(['status', 'givenElsewhere'], {
-    is: validateGivenElsewhereRequiredField,
-    then: yup.string().required(REQUIRED_INLINE_ERROR_MESSAGE),
-    otherwise: yup.string().nullable(),
-  }),
-  departmentId: yup.string().when(['status', 'givenElsewhere'], {
-    is: validateGivenElsewhereRequiredField,
-    then: yup.string().required(REQUIRED_INLINE_ERROR_MESSAGE),
-    otherwise: yup.string().nullable(),
-  }),
-});
-
-export const NEW_RECORD_VACCINE_SCHEME_VALIDATION = BASE_VACCINE_SCHEME_VALIDATION.shape({
-  category: yup.string().required(REQUIRED_INLINE_ERROR_MESSAGE),
-  vaccineLabel: yup.string().when('category', {
-    is: categoryValue => !!categoryValue && categoryValue !== VACCINE_CATEGORIES.OTHER,
-    then: yup
-      .string()
-      .nullable()
-      .required(REQUIRED_INLINE_ERROR_MESSAGE),
-    otherwise: yup.string().nullable(),
-  }),
-  vaccineName: yup.string().when('category', {
-    is: VACCINE_CATEGORIES.OTHER,
-    then: yup.string().required(REQUIRED_INLINE_ERROR_MESSAGE),
-    otherwise: yup.string().nullable(),
-  }),
-  scheduledVaccineId: yup.string().when('category', {
-    is: categoryValue => categoryValue !== VACCINE_CATEGORIES.OTHER,
-    then: yup.string().required(REQUIRED_INLINE_ERROR_MESSAGE),
-    otherwise: yup.string().nullable(),
-  }),
-});
 
 const getInitialCategory = (editMode, existingValues) => {
   if (editMode)
@@ -166,6 +110,84 @@ export const VaccineForm = ({
     );
   }
 
+  const BASE_VACCINE_SCHEME_VALIDATION = yup.object().shape({
+    date: yup
+      .string()
+      .when(['status', 'givenElsewhere'], {
+        is: validateGivenElsewhereRequiredField,
+        then: yup.string().required(REQUIRED_INLINE_ERROR_MESSAGE),
+        otherwise: yup.string().nullable(),
+      })
+      .test(
+        'min',
+        <TranslatedText
+          stringId="vaccine.minDateError"
+          fallback="Date cannot be prior to patient date of birth"
+        />,
+        (value, context) => {
+          if (!value) return true;
+          const minDate = parse(
+            context.parent?.patientData?.dateOfBirth,
+            ISO9075_DATE_FORMAT,
+            new Date(),
+          );
+          const date = parse(value, ISO9075_DATE_FORMAT, new Date());
+          if (isBefore(date, minDate)) {
+            return false;
+          }
+          return true;
+        },
+      )
+      .test(
+        'max',
+        <TranslatedText
+          stringId="vaccine.maxDateError"
+          fallback="Date cannot be in the future"
+        />,
+        value => {
+          if (!value) return true;
+          const maxDate = new Date();
+          const date = parse(value, ISO9075_DATE_FORMAT, new Date());
+          if (isAfter(date, maxDate)) {
+            return false;
+          }
+          return true;
+        },
+      ),
+    locationId: yup.string().when(['status', 'givenElsewhere'], {
+      is: validateGivenElsewhereRequiredField,
+      then: yup.string().required(REQUIRED_INLINE_ERROR_MESSAGE),
+      otherwise: yup.string().nullable(),
+    }),
+    departmentId: yup.string().when(['status', 'givenElsewhere'], {
+      is: validateGivenElsewhereRequiredField,
+      then: yup.string().required(REQUIRED_INLINE_ERROR_MESSAGE),
+      otherwise: yup.string().nullable(),
+    }),
+  });
+
+  const NEW_RECORD_VACCINE_SCHEME_VALIDATION = BASE_VACCINE_SCHEME_VALIDATION.shape({
+    category: yup.string().required(REQUIRED_INLINE_ERROR_MESSAGE),
+    vaccineLabel: yup.string().when('category', {
+      is: categoryValue => !!categoryValue && categoryValue !== VACCINE_CATEGORIES.OTHER,
+      then: yup
+        .string()
+        .nullable()
+        .required(REQUIRED_INLINE_ERROR_MESSAGE),
+      otherwise: yup.string().nullable(),
+    }),
+    vaccineName: yup.string().when('category', {
+      is: VACCINE_CATEGORIES.OTHER,
+      then: yup.string().required(REQUIRED_INLINE_ERROR_MESSAGE),
+      otherwise: yup.string().nullable(),
+    }),
+    scheduledVaccineId: yup.string().when('category', {
+      is: categoryValue => categoryValue !== VACCINE_CATEGORIES.OTHER,
+      then: yup.string().required(REQUIRED_INLINE_ERROR_MESSAGE),
+      otherwise: yup.string().nullable(),
+    }),
+  });
+
   const baseSchemeValidation = editMode
     ? BASE_VACCINE_SCHEME_VALIDATION
     : NEW_RECORD_VACCINE_SCHEME_VALIDATION;
@@ -203,7 +225,6 @@ export const VaccineForm = ({
 
   return (
     <Form
-      enableReinitialize
       onSubmit={async data => onSubmit({ ...data, category })}
       showInlineErrorsOnly
       initialValues={initialValues}

@@ -19,8 +19,8 @@ const buildRefreshMaterializedViewTask = viewName =>
     }
 
     constructor(context) {
-      const { schedule, jitterTime } = config.schedules.refreshMaterializedView[viewName];
-      super(schedule, log, jitterTime);
+      const { schedule, jitterTime, enabled } = config.schedules.refreshMaterializedView[viewName];
+      super(schedule, log, jitterTime, enabled);
       this.sequelize = context.sequelize;
       this.models = context.models;
       this.runImmediately();

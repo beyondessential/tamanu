@@ -1,4 +1,5 @@
 import config from 'config';
+
 import { log } from '@tamanu/shared/services/logging';
 
 import { PatientEmailCommunicationProcessor } from './PatientEmailCommunicationProcessor';
@@ -34,44 +35,28 @@ export async function startScheduledTasks(context) {
     PatientMergeMaintainer,
     PatientTelegramCommunicationProcessor,
     VaccinationReminderProcessor,
+    AutomaticLabTestResultPublisher,
+    CovidClearanceCertificatePublisher,
+    StaleSyncSessionCleaner,
+    PlannedMoveTimeout,
+    FhirMissingResources,
   ];
-
-  if (config.schedules.fhirMissingResources.enabled) {
-    taskClasses.push(FhirMissingResources);
-  }
-
-  if (config.schedules.automaticLabTestResultPublisher.enabled) {
-    taskClasses.push(AutomaticLabTestResultPublisher);
-  }
-
-  if (config.schedules.covidClearanceCertificatePublisher.enabled) {
-    taskClasses.push(CovidClearanceCertificatePublisher);
-  }
 
   if (config.integrations.fijiVrs.enabled) {
     taskClasses.push(VRSActionRetrier);
   }
-
   if (config.integrations.signer.enabled) {
     taskClasses.push(SignerWorkingPeriodChecker, SignerRenewalChecker, SignerRenewalSender);
   }
 
-  if (config.schedules.plannedMoveTimeout.enabled) {
-    taskClasses.push(PlannedMoveTimeout);
-  }
-
-  if (config.schedules.staleSyncSessionCleaner.enabled) {
-    taskClasses.push(StaleSyncSessionCleaner);
-  }
-
   const reportSchedulers = await getReportSchedulers(context);
   const tasks = [
-    ...taskClasses.map(Task => {
+    ...taskClasses.map(TaskClass => {
       try {
-        log.debug(`Starting to initialise scheduled task ${Task.name}`);
-        return new Task(context);
+        log.debug(`Starting to initialise scheduled task ${TaskClass.name}`);
+        return new TaskClass(context);
       } catch (err) {
-        log.warn('Failed to initialise scheduled task', { name: Task.name, err });
+        log.warn('Failed to initialise scheduled task', { name: TaskClass.name, err });
         return null;
       }
     }),
