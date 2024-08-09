@@ -232,7 +232,7 @@ export function userLoader(item) {
       rows.push({
         model: 'UserFacility',
         values: {
-          id: `${id};${facilityId}`,
+          id: `${id}-${facilityId}`,
           userId: id,
           facilityId: facilityId,
         },

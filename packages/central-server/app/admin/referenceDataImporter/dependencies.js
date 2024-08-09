@@ -22,7 +22,7 @@ import {
 export default {
   user: {
     loader: userLoader,
-    needs: ['facilities'],
+    needs: ['facility'],
   },
 
   patient: {
