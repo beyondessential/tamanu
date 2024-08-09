@@ -124,6 +124,8 @@ programRegistry.get(
       })),
       makeFilter(filterParams.dateOfBirth, `patient.date_of_birth = :dateOfBirth`),
       makeFilter(filterParams.homeVillage, `patient.village_id = :homeVillage`),
+      makeFilter(filterParams.divisionId, `pad.division_id = :divisionId`),
+      makeFilter(filterParams.subdivisionId, `pad.subdivision_id = :subdivisionId`),
       makeFilter(
         !filterParams.deceased || filterParams.deceased === 'false',
         'patient.date_of_death IS NULL',
@@ -214,6 +216,12 @@ programRegistry.get(
           ON mrr.program_registry_id = program_registry.id
         LEFT JOIN users clinician
           ON mrr.clinician_id = clinician.id
+        LEFT JOIN patient_additional_data pad
+          ON pad.patient_id = patient.id
+        LEFT JOIN reference_data division
+          ON division.id = pad.division_id
+        LEFT JOIN reference_data subdivision
+          ON subdivision.id = pad.subdivision_id
       ${whereClauses && `WHERE ${whereClauses}`}
     `;
 
@@ -241,6 +249,8 @@ programRegistry.get(
       registeringFacility: 'registering_facility.name',
       currentlyIn: 'COALESCE(UPPER(currently_at_village.name), UPPER(currently_at_facility.name))',
       clinicalStatus: 'mrr.clinical_status_id',
+      divisionName: 'patient.division.name',
+      subdivisionName: 'patient.subdivision.name',
     };
 
     const sortKey = sortKeys[orderBy] ?? sortKeys.displayId;
@@ -261,6 +271,8 @@ programRegistry.get(
         patient.date_of_birth AS "patient.date_of_birth",
         patient.date_of_death AS "patient.date_of_death",
         patient.sex AS "patient.sex",
+        division.name AS "patient.division.name",
+        subdivision.name AS "patient.subdivision.name",
         patient_village.name AS "patient.village.name",
         currently_at_village.name as "village.name",
         currently_at_facility.name as "facility.name",
