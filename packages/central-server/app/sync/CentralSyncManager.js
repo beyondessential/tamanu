@@ -29,7 +29,7 @@ import { startSnapshotWhenCapacityAvailable } from './startSnapshotWhenCapacityA
 import { createMarkedForSyncPatientsTable } from './createMarkedForSyncPatientsTable';
 
 const errorMessageFromSession = session =>
-  `Sync session '${session.id}' encountered an error: ${session.error}`;
+  `Sync session '${session.id}' encountered an error: ${session.errors[session.errors.length - 1]}`;
 
 // about variables lapsedSessionSeconds and lapsedSessionCheckFrequencySeconds:
 // after x minutes of no activity, consider a session lapsed and wipe it to avoid holding invalid
@@ -64,7 +64,7 @@ export class CentralSyncManager {
     const activeSyncs = await this.store.models.SyncSession.findAll({
       where: {
         completedAt: null,
-        error: null,
+        errors: null,
       },
     });
     return activeSyncs.length >= maxConcurrentSessions;
@@ -140,14 +140,13 @@ export class CentralSyncManager {
     const { syncSessionTimeoutMs } = this.constructor.config.sync;
     if (
       syncSessionTimeoutMs &&
-      !session.error &&
+      !session.errors &&
       session.updatedAt - session.createdAt > syncSessionTimeoutMs
     ) {
-      session.error = `Sync session ${sessionId} timed out`;
-      await session.save();
+      await session.markErrored(`Sync session ${sessionId} timed out`);
     }
 
-    if (session.error) {
+    if (session.errors) {
       throw new Error(errorMessageFromSession(session));
     }
     if (session.completedAt) {
@@ -220,7 +219,7 @@ export class CentralSyncManager {
       this.setupSnapshotForPull(sessionId, params, unmarkSnapshotAsProcessing); // don't await, as it takes a while - the sync client will poll for it to finish
     } catch (error) {
       log.error('CentralSyncManager.initiatePull encountered an error', error);
-      await this.store.models.SyncSession.markErrored(sessionId, error.message);
+      await this.store.models.SyncSession.markSessionErrored(sessionId, error.message);
     }
   }
 
@@ -372,7 +371,7 @@ export class CentralSyncManager {
         sessionId,
         ...error,
       });
-      await this.store.models.SyncSession.markErrored(sessionId, error.message);
+      await this.store.models.SyncSession.markSessionErrored(sessionId, error.message);
     } finally {
       if (transactionTimeout) clearTimeout(transactionTimeout);
       await unmarkSnapshotAsProcessing();
@@ -401,9 +400,9 @@ export class CentralSyncManager {
     // if this snapshot is not marked as processing, but also never completed, record an error
     const session = await this.connectToSession(sessionId);
     if (session.snapshotCompletedAt === null) {
-      session.error =
-        'Snapshot processing incomplete, likely because the central server restarted during the snapshot';
-      await session.save();
+      await session.markErrored(
+        'Snapshot processing incomplete, likely because the central server restarted during the snapshot',
+      );
       throw new Error(errorMessageFromSession(session));
     }
 
@@ -485,7 +484,7 @@ export class CentralSyncManager {
       );
     } catch (error) {
       log.error('CentralSyncManager.persistIncomingChanges encountered an error', error);
-      await models.SyncSession.markErrored(sessionId, error.message);
+      await models.SyncSession.markSessionErrored(sessionId, error.message);
     }
   }
 
