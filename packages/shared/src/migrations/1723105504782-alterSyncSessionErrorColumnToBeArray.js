@@ -1,6 +1,3 @@
-/* eslint-disable no-unused-vars */
-// remove the above line
-
 import { DataTypes } from 'sequelize';
 
 export async function up(query) {
@@ -18,6 +15,6 @@ export async function up(query) {
 }
 
 export async function down(query) {
-  // Will not be able to revert to the original state (single error column) 
+  // Will not be able to revert to the original state (single error column)
   // anymore when errors column contain multiple errors.
 }
