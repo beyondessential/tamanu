@@ -225,19 +225,22 @@ export function userLoader(item) {
     },
   });
 
-  (allowedFacilities || '')
-    .split(',')
-    .map(t => t.trim())
-    .forEach(facilityId => {
-      rows.push({
-        model: 'UserFacility',
-        values: {
-          id: `${id}-${facilityId}`,
-          userId: id,
-          facilityId: facilityId,
-        },
+  // TODO: how/should this work with deleting?
+  if (allowedFacilities) {
+    allowedFacilities
+      .split(',')
+      .map(t => t.trim())
+      .forEach(facilityId => {
+        rows.push({
+          model: 'UserFacility',
+          values: {
+            id: `${id};${facilityId}`,
+            userId: id,
+            facilityId: facilityId,
+          },
+        });
       });
-    });
+  }
 
   return rows;
 }
