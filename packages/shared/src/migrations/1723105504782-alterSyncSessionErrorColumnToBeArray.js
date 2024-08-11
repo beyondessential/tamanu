@@ -2,7 +2,7 @@ import { DataTypes } from 'sequelize';
 
 export async function up(query) {
   await query.addColumn('sync_sessions', 'errors', {
-    type: DataTypes.ARRAY(DataTypes.STRING),
+    type: DataTypes.ARRAY(DataTypes.TEXT),
     allowNull: true,
   });
 
@@ -15,6 +15,15 @@ export async function up(query) {
 }
 
 export async function down(query) {
-  // Will not be able to revert to the original state (single error column)
-  // anymore when errors column contain multiple errors.
+  await query.addColumn('sync_sessions', 'error', {
+    type: DataTypes.TEXT,
+    allowNull: true,
+  });
+
+  await query.sequelize.query(`
+    UPDATE sync_sessions SET error = ARRAY[1]
+    WHERE errors IS NOT NULL;
+  `);
+
+  await query.removeColumn('sync_sessions', 'errors');
 }
