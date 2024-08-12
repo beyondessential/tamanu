@@ -225,7 +225,6 @@ export function userLoader(item) {
     },
   });
 
-  // TODO: how/should this work with deleting?
   if (allowedFacilities) {
     allowedFacilities
       .split(',')

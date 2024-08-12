@@ -1,4 +1,4 @@
-import { ValidationError } from 'sequelize';
+import { ValidationError, Sequelize, Op } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
 
@@ -40,6 +40,20 @@ export class UserFacility extends Model {
       throw new ValidationError(`Invalid facilityId: ${facilityId}`);
     }
     return super.create(values, options);
+  }
+
+  static async deleteOtherFacilities(validFacilityIds, userId) {
+    await this.update(
+      {
+        deletedAt: Sequelize.fn('now'),
+      },
+      {
+        where: {
+          facilityId: { [Op.notIn]: validFacilityIds },
+          userId,
+        },
+      },
+    );
   }
 
   static buildSyncFilter() {

@@ -98,12 +98,21 @@ export async function importSheet({ errors, log, models }, { loader, sheetName, 
   log.debug('Preparing rows of data into table rows', { rows: sheetRows.length });
   const tableRows = [];
   const idCache = new Set();
+
   for (const [sheetRow, data] of sheetRows.entries()) {
     const trimmed = Object.fromEntries(
       Object.entries(data).map(([key, value]) => [key.trim(), value]),
     );
     try {
-      for (const { model, values } of loader(trimmed, models, FOREIGN_KEY_SCHEMATA)) {
+      const loaderRows = loader(trimmed, models, FOREIGN_KEY_SCHEMATA);
+
+      // TODO: clean up and find appropriate place for this
+      const userId = loaderRows.filter(r => r.model === 'User').map(r => r.values.id)[0];
+      const userFacilityRows = loaderRows.filter(r => r.model === 'UserFacility').map(r => r.values.facilityId);
+
+      await models.UserFacility.deleteOtherFacilities(userFacilityRows, userId)
+
+      for (const { model, values } of loaderRows) {
         if (!models[model]) throw new Error(`No such type of data: ${model}`);
         if (model === 'PatientFieldValue') {
           const existingDefinition =
