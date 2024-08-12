@@ -81,7 +81,7 @@ const PatientTable = ({ columns, fetchOptions, searchParameters }) => {
   const fetchOptionsWithSearchParameters = {
     ...searchParameters,
     ...fetchOptions,
-    markedForSyncFacility: facilityId,
+    facilityId,
   };
 
   const handleViewPatient = async row => {

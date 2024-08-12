@@ -28,9 +28,9 @@ patientProgramRegistration.get(
 patientProgramRegistration.post(
   '/:patientId/programRegistration',
   asyncHandler(async (req, res) => {
-    const { db, models, params, body, facilityId } = req;
+    const { db, models, params, body } = req;
     const { patientId } = params;
-    const { programRegistryId } = body;
+    const { programRegistryId, facilityId } = body;
 
     req.checkPermission('read', 'Patient');
     const patient = await models.Patient.findByPk(patientId);
