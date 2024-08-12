@@ -1,10 +1,56 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Box, Typography } from '@material-ui/core';
 import { Colors } from '../../../constants';
 import { AutocompleteInput, Button, Heading4, TranslatedText } from '../../../components';
 import { useSuggester } from '../../../api';
 import { TasksTable } from '../../../components/Tasks/TasksTable';
+
+const mockData = [
+  {
+    id: 1,
+    task: 'Change bedpan',
+    dueAt: '2024-08-11 10:00:29.563+07',
+    assignedTo: [
+      {
+        id: "designation-Nurse",
+        name: 'Nurse',
+      },
+    ],
+    frequency: '2 hours',
+    notes: '',
+  },
+  {
+    id: 2,
+    task: 'Contact patient family/caretaker',
+    dueAt: '2024-08-11 10:00:29.563+07',
+    assignedTo: [
+      {
+        id: "designation-Nurse",
+        name: 'Nurse',
+      },
+      {
+        id: "designation-SeniorNurse",
+        name: 'Senior Nurse',
+      },
+    ],
+    frequency: 'Once',
+    notes: 'Lorem ipsum dolor sit',
+  },
+  {
+    id: 3,
+    task: 'Contact patient family/caretaker',
+    dueAt: '2024-08-11 10:00:29.563+07',
+    assignedTo: [
+      {
+        id: 'designation-Admin',
+        name: 'Admin',
+      },
+    ],
+    frequency: 'Once',
+    notes: 'Lorem ipsum dolor sit ipsum dolor sit ',
+  },
+];
 
 const TabPane = styled.div`
   margin: 20px 24px 24px;
@@ -42,6 +88,21 @@ const ActionRow = styled.div`
 
 export const TasksPane = React.memo(() => {
   const designationSuggester = useSuggester('designation');
+  const [data, setData] = useState(mockData);
+
+  const onFilterByDesignation = e => {
+    if (!e.target.value) {
+      setData(mockData);
+      return;
+    }
+    
+    const designationId = e.target.value;
+    const filteredData = data.filter(item =>
+      item.assignedTo.some(assignee => assignee.id === designationId),
+    );
+    setData(filteredData);
+  };
+
   return (
     <TabPane>
       <TitleContainer>
@@ -72,14 +133,14 @@ export const TasksPane = React.memo(() => {
             }
             size="small"
             suggester={designationSuggester}
-            onChange={() => {}}
+            onChange={onFilterByDesignation}
           />
           <Button onClick={() => {}} variant="outlined" color="primary">
             <TranslatedText stringId="encounter.tasks.action.newTask" fallback="+ New task" />
           </Button>
         </ActionRow>
       </TitleContainer>
-      <TasksTable />
+      <TasksTable data={data}/>
     </TabPane>
   );
 });
