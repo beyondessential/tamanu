@@ -141,6 +141,17 @@ export class CentralSyncManager {
     if (session.completedAt) {
       throw new Error(`Sync session '${sessionId}' is already completed`);
     }
+
+    const { syncSessionTimeoutMs } = this.constructor.config.sync;
+    if (
+      syncSessionTimeoutMs &&
+      !session.error &&
+      session.updatedAt - session.createdAt > syncSessionTimeoutMs
+    ) {
+      session.error = `Sync session ${sessionId} timed out`;
+      await session.save();
+    }
+
     if (session.error) {
       throw new Error(errorMessageFromSession(session));
     }

@@ -31,17 +31,16 @@ describe('CentralSyncManager', () => {
 
   const DEFAULT_CURRENT_SYNC_TIME_VALUE = 2;
 
-  const initializeCentralSyncManager = (useLookupTable = false) => {
+  const initializeCentralSyncManager = config => {
     // Have to load test function within test scope so that we can mock dependencies per test case
     const {
       CentralSyncManager: TestCentralSyncManager,
     } = require('../../dist/sync/CentralSyncManager');
-    TestCentralSyncManager.overrideConfig({
-      sync: {
-        useLookupTable,
-        maxRecordsPerSnapshotChunk: 1000000000,
-      },
-    });
+
+    if (config) {
+      TestCentralSyncManager.overrideConfig(config);
+    }
+
     return new TestCentralSyncManager(ctx);
   };
 
@@ -193,6 +192,38 @@ describe('CentralSyncManager', () => {
 
       await expect(centralSyncManager.connectToSession(sessionId)).rejects.toThrow(
         `Sync session '${sessionId}' encountered an error: Snapshot processing incomplete, likely because the central server restarted during the snapshot`,
+      );
+    });
+
+    it("does not throw an error when connecting to a session that has not taken longer than configured 'syncSessionTimeoutMs'", async () => {
+      const centralSyncManager = initializeCentralSyncManager({
+        sync: { syncSessionTimeoutMs: 1000 },
+      });
+      const { sessionId } = await centralSyncManager.startSession();
+      await waitForSession(centralSyncManager, sessionId);
+
+      await sleepAsync(500);
+
+      // updated_at will be set to timestamp that is 500ms later
+      await centralSyncManager.connectToSession(sessionId);
+
+      expect(() => centralSyncManager.connectToSession(sessionId)).not.toThrow();
+    });
+
+    it("throws an error when connecting to a session that has taken longer than configured 'syncSessionTimeoutMs'", async () => {
+      const centralSyncManager = initializeCentralSyncManager({
+        sync: { syncSessionTimeoutMs: 200 },
+      });
+      const { sessionId } = await centralSyncManager.startSession();
+      await waitForSession(centralSyncManager, sessionId);
+
+      await sleepAsync(500);
+
+      // updated_at will be set to timestamp that is 500ms later
+      await centralSyncManager.connectToSession(sessionId);
+
+      await expect(centralSyncManager.connectToSession(sessionId)).rejects.toThrow(
+        `Sync session '${sessionId}' encountered an error: Sync session ${sessionId} timed out`,
       );
     });
   });
@@ -1052,7 +1083,11 @@ describe('CentralSyncManager', () => {
     it('inserts records into sync lookup table', async () => {
       const patient1 = await models.Patient.create(fake(models.Patient));
 
-      const centralSyncManager = initializeCentralSyncManager(true);
+      const centralSyncManager = initializeCentralSyncManager({
+        sync: {
+          useLookupTable: true,
+        },
+      });
 
       await centralSyncManager.updateLookupTable();
 
@@ -1101,7 +1136,11 @@ describe('CentralSyncManager', () => {
         ...models,
       };
 
-      const centralSyncManager = initializeCentralSyncManager(true);
+      const centralSyncManager = initializeCentralSyncManager({
+        sync: {
+          useLookupTable: true,
+        },
+      });
 
       // Start the update lookup table process
       const updateLookupTablePromise = centralSyncManager.updateLookupTable();
@@ -1159,7 +1198,11 @@ describe('CentralSyncManager', () => {
         ...models,
       };
 
-      const centralSyncManager = initializeCentralSyncManager(true);
+      const centralSyncManager = initializeCentralSyncManager({
+        sync: {
+          useLookupTable: true,
+        },
+      });
 
       // Start the update lookup table process
       const updateLookupTablePromise = centralSyncManager.updateLookupTable();
