@@ -118,34 +118,28 @@ export const ImagingRequestForm = React.memo(
         formType={editedObject ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
         validationSchema={yup.object().shape({
           requestedById: foreignKey(),
-          requestedDate: yup
-            .date()
-            .required(requiredValidationMessage),
+          requestedDate: yup.date().required(requiredValidationMessage),
           imagingType: foreignKey(requiredValidationMessage),
-          areas: yup
-            .string()
-            .when("imagingType", {
-              is: imagingType => {
-                const imagingAreas = getAreasForImagingType(imagingType);
-                return imagingAreas.length > 0;
-              },
-              then: yup
-                .string()
-                .min(3, requiredValidationMessage)
-                .required(requiredValidationMessage),
-            }),
-          areaNote: yup
-            .string()
-            .when("imagingType", {
-              is: imagingType => {
-                const imagingAreas = getAreasForImagingType(imagingType);
-                return imagingAreas.length === 0;
-              },
-              then: yup
-                .string()
-                .trim()
-                .required(requiredValidationMessage),
-            }),
+          areas: yup.string().when('imagingType', {
+            is: imagingType => {
+              const imagingAreas = getAreasForImagingType(imagingType);
+              return imagingAreas.length > 0;
+            },
+            then: yup
+              .string()
+              .min(3, requiredValidationMessage) // Empty input is '[]', so validating that it's got at least one value in the array
+              .required(requiredValidationMessage),
+          }),
+          areaNote: yup.string().when('imagingType', {
+            is: imagingType => {
+              const imagingAreas = getAreasForImagingType(imagingType);
+              return imagingAreas.length === 0;
+            },
+            then: yup
+              .string()
+              .trim()
+              .required(requiredValidationMessage),
+          }),
         })}
         showInlineErrorsOnly
         render={({ submitForm, values }) => {
