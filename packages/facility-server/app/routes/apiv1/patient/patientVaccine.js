@@ -216,7 +216,8 @@ async function getVaccinationDescription(models, vaccineData) {
 patientVaccineRoutes.post(
   '/:id/administeredVaccine',
   asyncHandler(async (req, res) => {
-    const { db, user, facilityId } = req;
+    const { db, user } = req;
+    const { facilityId } = req.body;
     req.checkPermission('create', 'PatientVaccine');
 
     // Require scheduledVaccineId if vaccine category is not OTHER
