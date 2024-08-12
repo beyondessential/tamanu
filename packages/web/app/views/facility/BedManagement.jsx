@@ -172,6 +172,8 @@ export const BedManagement = () => {
     PatientSearchKeys.BedManagementView,
   );
 
+  // TODO: make sure these numbers properly reflect the numbers of the facility
+
   const {
     data: { count: totalCurrentPatientsCount } = {},
     isLoading: totalCurrentPatientsCountLoading,
