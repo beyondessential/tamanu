@@ -498,7 +498,8 @@ patientRoute.post(
     req.checkPermission('read', 'Patient');
     req.checkPermission('create', 'IPSRequest');
 
-    const { models, params, facilityId } = req;
+    const { models, params, body } = req;
+    const { facilityId } = body;
     const { IPSRequest } = models;
 
     if (!req.body.email) {
