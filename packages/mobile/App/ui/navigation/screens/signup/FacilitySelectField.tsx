@@ -59,7 +59,7 @@ export const FacilitySelectField = ({ options, onChange, value }): ReactElement 
 
   const contents = ((): ReactElement => {
     if (items.length > 0) return items;
-    if (options === null) return <LoadingIndicator />;
+    if (!options) return <LoadingIndicator />;
     if (options.length === 0) return <NoFacilitiesIndicator />;
   })();
 
