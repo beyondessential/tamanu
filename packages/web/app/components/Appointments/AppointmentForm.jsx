@@ -149,7 +149,7 @@ export const AppointmentForm = props => {
                   isUpdating ? (
                     <TranslatedText
                       stringId="scheduling.newAppointment.action.updateAppointment"
-                      fallback="'Update appointment'"
+                      fallback="Update appointment"
                     />
                   ) : (
                     <TranslatedText
