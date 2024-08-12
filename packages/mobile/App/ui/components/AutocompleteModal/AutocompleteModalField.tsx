@@ -2,7 +2,11 @@ import React, { ReactElement, useEffect, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { StyledText, StyledView } from '/styled/common';
 import { Orientation, screenPercentageToDP } from '../../helpers/screen';
-import { BaseModelSubclass, Suggester } from '../../helpers/suggester';
+import {
+  BaseModelSubclass,
+  getReferenceDataTypeFromSuggester,
+  Suggester,
+} from '../../helpers/suggester';
 import { theme } from '../../styled/theme';
 import { Button } from '../Button';
 import { Routes } from '~/ui/helpers/routes';
@@ -11,6 +15,7 @@ import { RequiredIndicator } from '../RequiredIndicator';
 import { TranslatedTextElement, TranslatedText } from '../Translations/TranslatedText';
 import { SearchIcon } from '../Icons';
 import { ReadOnlyField } from '../ReadOnlyField/index';
+import { getReferenceDataStringId } from '../Translations/TranslatedReferenceData';
 
 interface AutocompleteModalFieldProps {
   value?: string;
@@ -41,6 +46,8 @@ export const AutocompleteModalField = ({
 }: AutocompleteModalFieldProps): ReactElement => {
   const navigation = useNavigation();
   const [label, setLabel] = useState(null);
+  const refDataType = getReferenceDataTypeFromSuggester(suggester);
+
   const onPress = (selectedItem): void => {
     onChange(selectedItem.value);
     setLabel(selectedItem.label);
@@ -57,7 +64,12 @@ export const AutocompleteModalField = ({
     (async (): Promise<void> => {
       const data = await suggester.fetchCurrentOption(value);
       if (data) {
-        setLabel(data.label);
+        setLabel(
+          <TranslatedText
+            stringId={getReferenceDataStringId(data.value, refDataType)}
+            fallback={data.label}
+          />,
+        );
       } else {
         setLabel(null);
       }

@@ -37,6 +37,7 @@ export const VaccineFormGiven = ({ navigation }: VaccineFormProps): JSX.Element 
       <DateGivenField
         required={!values.givenElsewhere}
         min={selectedPatient?.dateOfBirth ? parseISO(selectedPatient.dateOfBirth) : undefined}
+        max={new Date()}
       />
 
       <BatchField />

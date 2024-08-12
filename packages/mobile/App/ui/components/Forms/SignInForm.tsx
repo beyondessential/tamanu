@@ -20,6 +20,7 @@ import { SubmitButton } from './SubmitButton';
 import { ServerSelector } from '../ServerSelectorField/ServerSelector';
 import { TranslatedText } from '../Translations/TranslatedText';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
+import { TranslatedReferenceData } from '../Translations/TranslatedReferenceData';
 
 interface SignInFormModelValues {
   email: string;
@@ -29,14 +30,18 @@ interface SignInFormModelValues {
 
 const ServerInfo = __DEV__
   ? ({ host }): ReactElement => {
-      const { facilityName } = useFacility();
+      const { facilityName, facilityId } = useFacility();
       return (
         <StyledView marginBottom={10}>
           <StyledText color={theme.colors.WHITE}>
             <TranslatedText stringId="login.server.label" fallback="Server" />: {host}
           </StyledText>
           <StyledText color={theme.colors.WHITE}>
-            <TranslatedText stringId="general.facility.label" fallback="Facility" />: {facilityName}
+            <TranslatedText stringId="general.facility.label" fallback="Facility" />: <TranslatedReferenceData
+            fallback={facilityName}
+            value={facilityId}
+            category="facility"
+          />
           </StyledText>
         </StyledView>
       );
@@ -47,7 +52,7 @@ export const SignInForm: FunctionComponent<any> = ({ onError, onSuccess }) => {
   const [existingHost, setExistingHost] = useState('');
   const passwordRef = useRef(null);
   const { signIn } = useAuth();
-  const { getTranslation, refreshTranslations } = useTranslation();
+  const { getTranslation } = useTranslation();
 
   const handleSignIn = useCallback(
     async (values: SignInFormModelValues) => {
@@ -58,8 +63,6 @@ export const SignInForm: FunctionComponent<any> = ({ onError, onSuccess }) => {
           return;
         }
         await signIn(values);
-        refreshTranslations();
-
         onSuccess();
       } catch (error) {
         onError(error);
