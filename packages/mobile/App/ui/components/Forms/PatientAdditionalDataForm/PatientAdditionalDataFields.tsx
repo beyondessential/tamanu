@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 import { useNavigation } from '@react-navigation/native';
-import { StyledText, StyledView } from '/styled/common';
+import { StyledView } from '/styled/common';
 import { TextField } from '../../TextField/TextField';
 import { Dropdown } from '~/ui/components/Dropdown';
 import { useLocalisation } from '~/ui/contexts/LocalisationContext';
@@ -20,17 +20,8 @@ import {
 import { getConfiguredPatientAdditionalDataFields } from '~/ui/helpers/patient';
 import { ActivityIndicator } from 'react-native';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
-import { HierarchyFields } from '../../HierarchyFields';
 import { labels } from '~/ui/navigation/screens/home/PatientDetails/layouts/generic/labels';
 import { PatientFieldDefinition } from '~/models/PatientFieldDefinition';
-import {
-  CAMBODIA_LOCATION_HIERARCHY_FIELDS,
-  CAMBODIA_LOCATION_HIERARCHY_FIELD_IDS,
-  SECONDARY_LOCATION_HIERARCHY_FIELDS,
-} from '/navigation/screens/home/PatientDetails/layouts/cambodia/fields';
-import { Orientation, screenPercentageToDP } from '/helpers/screen';
-import { theme } from '/styled/theme';
-import { TranslatedText } from '/components/Translations/TranslatedText';
 
 const PlainField = ({ fieldName, required }): ReactElement => (
   // Outter styled view to momentarily add distance between fields
@@ -107,41 +98,6 @@ const getCustomFieldComponent = (
   );
 };
 
-const HierarchyField = ({ fieldName, isEdit }): ReactElement => {
-  const fields = {
-    [CAMBODIA_LOCATION_HIERARCHY_FIELD_IDS.VILLAGE_ID]: CAMBODIA_LOCATION_HIERARCHY_FIELDS,
-    [CAMBODIA_LOCATION_HIERARCHY_FIELD_IDS.SECONDARY_VILLAGE_ID]: SECONDARY_LOCATION_HIERARCHY_FIELDS,
-  };
-  const stringId = {
-    [CAMBODIA_LOCATION_HIERARCHY_FIELD_IDS.VILLAGE_ID]: 'patient.details.subheading.currentAddress',
-    [CAMBODIA_LOCATION_HIERARCHY_FIELD_IDS.SECONDARY_VILLAGE_ID]:
-      'patient.details.subheading.permanentAddress',
-  };
-
-  const fallback = {
-    [CAMBODIA_LOCATION_HIERARCHY_FIELD_IDS.VILLAGE_ID]: 'Current address',
-    [CAMBODIA_LOCATION_HIERARCHY_FIELD_IDS.SECONDARY_VILLAGE_ID]: 'Permanent address',
-  };
-
-  if (isEdit) {
-    return <HierarchyFields fields={fields[fieldName]} />;
-  }
-
-  return (
-    <StyledView>
-      <StyledText
-        color={theme.colors.TEXT_SUPER_DARK}
-        fontSize={screenPercentageToDP(2.4, Orientation.Height)}
-        fontWeight={500}
-        marginBottom={screenPercentageToDP(1.2, Orientation.Height)}
-      >
-        <TranslatedText stringId={stringId[fieldName]} fallback={fallback[fieldName]} />
-      </StyledText>
-      <HierarchyFields fields={fields[fieldName]} />
-    </StyledView>
-  );
-};
-
 function getComponentForField(
   fieldName: string,
   customFieldIds: string[],
@@ -157,9 +113,6 @@ function getComponentForField(
   }
   if (customFieldIds.includes(fieldName)) {
     return CustomField;
-  }
-  if (Object.values(CAMBODIA_LOCATION_HIERARCHY_FIELD_IDS).includes(fieldName)) {
-    return HierarchyField;
   }
   // Shouldn't happen
   throw new Error(`Unexpected field ${fieldName} for patient additional data.`);
