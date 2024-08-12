@@ -159,15 +159,17 @@ describe('Patient search', () => {
   });
   afterAll(() => ctx.close());
 
+  const searchEndpointWithFacility = `/api/patient?facilityId=${facilityId}`
+
   it('should error if user has insufficient permissions', async () => {
-    const response = await baseApp.get(`/api/patient?facilityId=${facilityId}`).query({
+    const response = await baseApp.get(searchEndpointWithFacility).query({
       displayId: 'really-shouldnt-show-up',
     });
     expect(response).toBeForbidden();
   });
 
   it('should not error if there are no results', async () => {
-    const response = await app.get(`/api/patient?facilityId=${facilityId}`).query({
+    const response = await app.get(searchEndpointWithFacility).query({
       displayId: 'really-shouldnt-show-up',
     });
     expect(response).toHaveSucceeded();
@@ -176,7 +178,7 @@ describe('Patient search', () => {
   });
 
   it('should get a patient by displayId', async () => {
-    const response = await app.get(`/api/patient?facilityId=${facilityId}`).query({
+    const response = await app.get(searchEndpointWithFacility).query({
       displayId: 'search-by-display-id',
     });
     expect(response).toHaveSucceeded();
@@ -188,7 +190,7 @@ describe('Patient search', () => {
 
   describe('Searching by secondary IDs', () => {
     it('should NOT get a patient by secondary ID by default', async () => {
-      const response = await app.get(`/api/patient?facilityId=${facilityId}`).query({
+      const response = await app.get(searchEndpointWithFacility).query({
         displayId: 'patient-secondary-id',
       });
       expect(response).toHaveSucceeded();
@@ -196,7 +198,7 @@ describe('Patient search', () => {
     });
 
     it('should get a patient by secondary ID if query param matchSecondaryIds is true', async () => {
-      const response = await app.get(`/api/patient?facilityId=${facilityId}`).query({
+      const response = await app.get(searchEndpointWithFacility).query({
         displayId: 'patient-secondary-id',
         matchSecondaryIds: true,
       });
@@ -208,7 +210,7 @@ describe('Patient search', () => {
     });
 
     it('should get a patient by secondary ID case-insensitively', async () => {
-      const response = await app.get(`/api/patient?facilityId=${facilityId}`).query({
+      const response = await app.get(searchEndpointWithFacility).query({
         displayId: 'Patient-Secondary-Id',
         matchSecondaryIds: true,
       });
@@ -220,7 +222,7 @@ describe('Patient search', () => {
     });
 
     it("should not get a patient by secondaryId if it's only a partial match", async () => {
-      const response = await app.get(`/api/patient?facilityId=${facilityId}`).query({
+      const response = await app.get(searchEndpointWithFacility).query({
         displayId: 'patient-seco',
         matchSecondaryIds: true,
       });
@@ -229,7 +231,7 @@ describe('Patient search', () => {
     });
 
     it('should get a patient by displayId even if query param matchSecondaryIds is true', async () => {
-      const response = await app.get(`/api/patient?facilityId=${facilityId}`).query({
+      const response = await app.get(searchEndpointWithFacility).query({
         displayId: 'search-by-display-id',
         matchSecondaryIds: true,
       });
@@ -241,7 +243,7 @@ describe('Patient search', () => {
     });
 
     it('should not see duplicates when patient primary displayId matches a secondary ID', async () => {
-      const response = await app.get(`/api/patient?facilityId=${facilityId}`).query({
+      const response = await app.get(searchEndpointWithFacility).query({
         displayId: 'matching-2ndary-id',
       });
       expect(response).toHaveSucceeded();
@@ -249,7 +251,7 @@ describe('Patient search', () => {
     });
 
     it('should not see duplicates when patients have multiple secondary IDs', async () => {
-      const response = await app.get(`/api/patient?facilityId=${facilityId}`).query({
+      const response = await app.get(searchEndpointWithFacility).query({
         displayId: 'multiple-secondary-id',
       });
       expect(response).toHaveSucceeded();
@@ -258,7 +260,7 @@ describe('Patient search', () => {
   });
 
   it('should get a list of patients by first name', async () => {
-    const response = await app.get(`/api/patient?facilityId=${facilityId}`).query({
+    const response = await app.get(searchEndpointWithFacility).query({
       firstName: 'search-by-name',
     });
     expect(response).toHaveSucceeded();
@@ -270,7 +272,7 @@ describe('Patient search', () => {
   });
 
   it('should get a list of patients by first name (partial match, case insensitive)', async () => {
-    const response = await app.get(`/api/patient?facilityId=${facilityId}`).query({
+    const response = await app.get(searchEndpointWithFacility).query({
       firstName: 'SeArCh-bY-Na',
     });
     expect(response).toHaveSucceeded();
@@ -283,7 +285,7 @@ describe('Patient search', () => {
 
   describe('Age filtering', () => {
     it('should get a list of patients by maximum age', async () => {
-      const response = await app.get(`/api/patient?facilityId=${facilityId}`).query({
+      const response = await app.get(searchEndpointWithFacility).query({
         ageMax: 30,
         rowsPerPage: searchTestPatients.length,
       });
@@ -300,7 +302,7 @@ describe('Patient search', () => {
     });
 
     it('should get a list of patients by minimum age', async () => {
-      const response = await app.get(`/api/patient?facilityId=${facilityId}`).query({
+      const response = await app.get(searchEndpointWithFacility).query({
         ageMin: 20,
         rowsPerPage: searchTestPatients.length,
       });
@@ -317,7 +319,7 @@ describe('Patient search', () => {
     });
 
     it('should get a list of patients by age range', async () => {
-      const response = await app.get(`/api/patient?facilityId=${facilityId}`).query({
+      const response = await app.get(searchEndpointWithFacility).query({
         ageMax: 30,
         ageMin: 20,
         rowsPerPage: searchTestPatients.length,
@@ -337,7 +339,7 @@ describe('Patient search', () => {
 
   it('should get a list of patients by village', async () => {
     const { id: villageId, name: villageName } = villages[0];
-    const response = await app.get(`/api/patient?facilityId=${facilityId}`).query({
+    const response = await app.get(searchEndpointWithFacility).query({
       villageId,
     });
     expect(response).toHaveSucceeded();
@@ -354,7 +356,7 @@ describe('Patient search', () => {
 
   describe('Joining encounter info', () => {
     it('should get a list of outpatients', async () => {
-      const response = await app.get(`/api/patient?facilityId=${facilityId}`).query({
+      const response = await app.get(searchEndpointWithFacility).query({
         outpatient: true,
       });
       expect(response).toHaveSucceeded();
@@ -370,7 +372,7 @@ describe('Patient search', () => {
     });
 
     it('should get a list of inpatients', async () => {
-      const response = await app.get(`/api/patient?facilityId=${facilityId}`).query({
+      const response = await app.get(searchEndpointWithFacility).query({
         inpatient: true,
       });
       expect(response).toHaveSucceeded();
@@ -386,9 +388,8 @@ describe('Patient search', () => {
     });
 
     it('should get a list of patients by location (not on all-patients listing)', async () => {
-      const response = await app.get(`/api/patient?facilityId=${facilityId}`).query({
+      const response = await app.get(searchEndpointWithFacility).query({
         locationId: locations[0].id,
-        facilityId: locations[0].facilityId,
       });
       expect(response).toHaveSucceeded();
 
@@ -399,9 +400,8 @@ describe('Patient search', () => {
     });
 
     it('should get a list of patients by location group (not on all-patients listing)', async () => {
-      const response = await app.get(`/api/patient?facilityId=${facilityId}`).query({
+      const response = await app.get(searchEndpointWithFacility).query({
         locationGroupId: locationGroups[0].id,
-        facilityId: locationGroups[0].facilityId,
       });
       expect(response).toHaveSucceeded();
 
@@ -412,9 +412,8 @@ describe('Patient search', () => {
     });
 
     it('should get a list of patients by department (not on all-patients listing)', async () => {
-      const response = await app.get(`/api/patient?facilityId=${facilityId}`).query({
+      const response = await app.get(searchEndpointWithFacility).query({
         departmentId: departments[0].id,
-        facilityId: departments[0].facilityId,
       });
       expect(response).toHaveSucceeded();
 
@@ -425,7 +424,7 @@ describe('Patient search', () => {
     });
 
     it('should return only 1 result for patients with multiple open encounters', async () => {
-      const response = await app.get(`/api/patient?facilityId=${facilityId}`).query({
+      const response = await app.get(searchEndpointWithFacility).query({
         firstName: 'more-than-one-open-encounter',
       });
       expect(response).toHaveSucceeded();
@@ -469,7 +468,7 @@ describe('Patient search', () => {
     });
 
     it('should sort by surname by default', async () => {
-      const response = await app.get(`/api/patient?facilityId=${facilityId}`);
+      const response = await app.get(searchEndpointWithFacility);
 
       expect(response).toHaveSucceeded();
 
@@ -477,7 +476,7 @@ describe('Patient search', () => {
     });
 
     it('should sort in descending order', async () => {
-      const response = await app.get(`/api/patient?facilityId=${facilityId}`, {
+      const response = await app.get(searchEndpointWithFacility, {
         order: 'desc',
       });
 
@@ -487,7 +486,7 @@ describe('Patient search', () => {
     });
 
     it('should sort by date of birth', async () => {
-      const response = await app.get(`/api/patient?facilityId=${facilityId}`).query({
+      const response = await app.get(searchEndpointWithFacility).query({
         orderBy: 'dateOfBirth',
       });
 
@@ -497,7 +496,7 @@ describe('Patient search', () => {
     });
 
     it('should sort by date of birth in descending order', async () => {
-      const response = await app.get(`/api/patient?facilityId=${facilityId}`).query({
+      const response = await app.get(searchEndpointWithFacility).query({
         orderBy: 'dateOfBirth',
         order: 'desc',
       });
@@ -508,7 +507,7 @@ describe('Patient search', () => {
     });
 
     it('should sort by age', async () => {
-      const response = await app.get(`/api/patient?facilityId=${facilityId}`).query({
+      const response = await app.get(searchEndpointWithFacility).query({
         orderBy: 'age',
       });
 
@@ -518,7 +517,7 @@ describe('Patient search', () => {
     });
 
     it('should sort by age in descending order', async () => {
-      const response = await app.get(`/api/patient?facilityId=${facilityId}`).query({
+      const response = await app.get(searchEndpointWithFacility).query({
         orderBy: 'age',
         order: 'desc',
       });
@@ -529,7 +528,7 @@ describe('Patient search', () => {
     });
 
     it('should sort by encounter type', async () => {
-      const response = await app.get(`/api/patient?facilityId=${facilityId}`).query({
+      const response = await app.get(searchEndpointWithFacility).query({
         orderBy: 'encounterType',
       });
 
@@ -539,7 +538,7 @@ describe('Patient search', () => {
     });
 
     it('should sort by encounter type in descending order', async () => {
-      const response = await app.get(`/api/patient?facilityId=${facilityId}`).query({
+      const response = await app.get(searchEndpointWithFacility).query({
         orderBy: 'encounterType',
         order: 'desc',
       });
@@ -550,9 +549,8 @@ describe('Patient search', () => {
     });
 
     it('should sort by location (not on all-patients listing)', async () => {
-      const response = await app.get(`/api/patient?facilityId=${facilityId}`).query({
+      const response = await app.get(searchEndpointWithFacility).query({
         orderBy: 'locationName',
-        facilityId: locations[0].facilityId,
       });
 
       expect(response).toHaveSucceeded();
@@ -561,9 +559,8 @@ describe('Patient search', () => {
     });
 
     it('should sort by department (not on all-patients listing)', async () => {
-      const response = await app.get(`/api/patient?facilityId=${facilityId}`).query({
+      const response = await app.get(searchEndpointWithFacility).query({
         orderBy: 'departmentName',
-        facilityId: departments[0].facilityId,
       });
 
       expect(response).toHaveSucceeded();
@@ -572,7 +569,7 @@ describe('Patient search', () => {
     });
 
     it('should sort by village', async () => {
-      const response = await app.get(`/api/patient?facilityId=${facilityId}`).query({
+      const response = await app.get(searchEndpointWithFacility).query({
         orderBy: 'villageName',
       });
 
@@ -584,7 +581,7 @@ describe('Patient search', () => {
 
   describe('Pagination', () => {
     it('should retrieve first page of patients', async () => {
-      const response = await app.get(`/api/patient?facilityId=${facilityId}`).query({
+      const response = await app.get(searchEndpointWithFacility).query({
         firstName: 'pagination',
         orderBy: 'lastName',
         rowsPerPage: 3,
@@ -600,7 +597,7 @@ describe('Patient search', () => {
     });
 
     it('should retrieve second page of patients', async () => {
-      const response = await app.get(`/api/patient?facilityId=${facilityId}`).query({
+      const response = await app.get(searchEndpointWithFacility).query({
         firstName: 'pagination',
         orderBy: 'lastName',
         rowsPerPage: 3,
@@ -643,7 +640,7 @@ describe('Patient search', () => {
     });
 
     it('Display Id - Exact match on top and rest are sorted alphabetically', async () => {
-      const response = await app.get(`/api/patient?facilityId=${facilityId}`).query({
+      const response = await app.get(searchEndpointWithFacility).query({
         displayId: 'sort-test-1C',
       });
 
@@ -662,7 +659,7 @@ describe('Patient search', () => {
     });
 
     it('First Name - Exact match on top and rest are sorted according to best match', async () => {
-      const response = await app.get(`/api/patient?facilityId=${facilityId}`).query({
+      const response = await app.get(searchEndpointWithFacility).query({
         firstName: 'QQQQ',
       });
 
@@ -686,7 +683,7 @@ describe('Patient search', () => {
     });
 
     it('Last Name - Exact match on top and rest are sorted according to best match', async () => {
-      const response = await app.get(`/api/patient?facilityId=${facilityId}`).query({
+      const response = await app.get(searchEndpointWithFacility).query({
         lastName: 'UUUU',
       });
 
@@ -709,7 +706,7 @@ describe('Patient search', () => {
     // If we have a condition attended by two or more results, for instance, a exact match for display id and first time.
     // It should prioritize 1)displayId 2)lastName 3)firstName.
     it('Should prioritize 1-displayId, 2-lastName, 3-firstName', async () => {
-      const response = await app.get(`/api/patient?facilityId=${facilityId}`).query({
+      const response = await app.get(searchEndpointWithFacility).query({
         displayId: 'sort-test-1',
         firstName: 'QQQQ',
         lastName: 'UUUU',
@@ -730,7 +727,7 @@ describe('Patient search', () => {
     });
 
     it('Should prioritize Last name in relation to first name', async () => {
-      const response = await app.get(`/api/patient?facilityId=${facilityId}`).query({
+      const response = await app.get(searchEndpointWithFacility).query({
         firstName: 'QQQQ',
         lastName: 'UUUU',
       });
