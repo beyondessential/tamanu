@@ -41,7 +41,7 @@ export const AutocompleteModalField = ({
   disabled = false,
   readOnly = false,
   labelFontSize,
-  fieldFontSize=screenPercentageToDP(2.1, Orientation.Height),
+  fieldFontSize = screenPercentageToDP(2.1, Orientation.Height),
 }: AutocompleteModalFieldProps): ReactElement => {
   const navigation = useNavigation();
   const [label, setLabel] = useState(null);
