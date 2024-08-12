@@ -97,6 +97,12 @@ const IconButton = styled.div`
   cursor: pointer;
 `;
 
+const TooltipContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+`;
+
 const getStatus = () => {
   return <StatusTodo />;
 };
@@ -173,6 +179,22 @@ const NotesCell = ({ row, hoveredRow }) => {
   );
 };
 
+const getTask = ({ task, requestedBy, requestedDate }) => (
+  <ThemedTooltip
+    title={
+      <TooltipContainer>
+        <div>{task}</div>
+        <div>{requestedBy}</div>
+        <Box sx={{ textTransform: 'lowercase' }}>
+          {`${formatShortest(requestedDate)} ${formatTime(requestedDate)}`}
+        </Box>
+      </TooltipContainer>
+    }
+  >
+    <span>{task}</span>
+  </ThemedTooltip>
+);
+
 export const TasksTable = ({ data }) => {
   const { selectedRows, selectableColumn } = useSelectableColumn(data, {
     bulkDeselectOnly: true,
@@ -189,6 +211,7 @@ export const TasksTable = ({ data }) => {
       key: 'task',
       title: <TranslatedText stringId="encounter.tasks.table.column.task" fallback="Task" />,
       maxWidth: 160,
+      accessor: getTask,
     },
     {
       key: 'dueAt',

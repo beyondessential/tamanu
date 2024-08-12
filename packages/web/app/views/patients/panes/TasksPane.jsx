@@ -19,6 +19,8 @@ const mockData = [
     ],
     frequency: '2 hours',
     notes: '',
+    requestedBy: 'Catherine Jennings',
+    requestedDate: '2024-08-11 10:00:29.563+07'
   },
   {
     id: 2,
@@ -36,6 +38,8 @@ const mockData = [
     ],
     frequency: 'Once',
     notes: 'Lorem ipsum dolor sit',
+    requestedBy: 'Catherine Jennings',
+    requestedDate: '2024-08-11 10:00:29.563+07'
   },
   {
     id: 3,
@@ -49,6 +53,8 @@ const mockData = [
     ],
     frequency: 'Once',
     notes: 'Lorem ipsum dolor sit ipsum dolor sit ',
+    requestedBy: 'Catherine Jennings',
+    requestedDate: '2024-08-11 10:00:29.563+07'
   },
 ];
 
