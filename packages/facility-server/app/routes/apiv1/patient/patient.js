@@ -237,7 +237,6 @@ patientRoute.get(
     const {
       models: { Patient },
       query,
-      facilityId,
     } = req;
 
     req.checkPermission('list', 'Patient');
@@ -375,7 +374,7 @@ patientRoute.get(
         LEFT JOIN (
             SELECT ed.encounter_id, jsonb_agg(json_build_object('id', rd.id, 'name', rd.name, 'code', rd.code)) diets
             FROM encounter_diets ed
-            JOIN reference_data rd ON rd.id = ed.diet_id AND rd."type" = 'diet' AND rd.visibility_status = 'current' 
+            JOIN reference_data rd ON rd.id = ed.diet_id AND rd."type" = 'diet' AND rd.visibility_status = 'current'
             WHERE ed.deleted_at is NULL
             GROUP BY ed.encounter_id
         ) diets ON diets.encounter_id = encounters.id
@@ -393,7 +392,6 @@ patientRoute.get(
     `;
 
     filterReplacements.markedForSyncFacility = markedForSyncFacility;
-    filterReplacements.facilityId = facilityId;
 
     const countResult = await req.db.query(`SELECT COUNT(1) AS count ${from}`, {
       replacements: filterReplacements,
