@@ -224,6 +224,8 @@ const Row = React.memo(
     refreshTable,
     cellStyle,
     onClickRow,
+    onMouseEnterRow,
+    onMouseLeaveRow
   }) => {
     const cells = columns.map(
       ({ key, accessor, CellComponent, numeric, maxWidth, cellColor, dontCallRowInput }) => {
@@ -236,6 +238,8 @@ const Row = React.memo(
           <StyledTableCell
             key={key}
             onClick={dontCallRowInput ? preventInputCallback : e => onClickRow?.(e, passingData)}
+            onMouseEnter={e => onMouseEnterRow?.(e, passingData)}
+            onMouseLeave={e => onMouseLeaveRow?.(e, passingData)}
             background={backgroundColor}
             $cellStyle={cellStyle}
             align={numeric ? 'right' : 'left'}
@@ -384,6 +388,8 @@ class TableComponent extends React.Component {
       cellStyle,
       statusCellStyle,
       onClickRow,
+      onMouseEnterRow,
+      onMouseLeaveRow
     } = this.props;
 
     const status = this.getStatusMessage();
@@ -414,6 +420,8 @@ class TableComponent extends React.Component {
                 lazyLoading={lazyLoading}
                 cellStyle={cellStyle}
                 onClickRow={onClickRow}
+                onMouseEnterRow={onMouseEnterRow}
+                onMouseLeaveRow={onMouseLeaveRow}
               />
             );
           })}

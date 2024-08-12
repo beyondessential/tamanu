@@ -1,7 +1,17 @@
 import React, { useCallback, useMemo, useState } from 'react';
+import IndeterminateCheckBoxOutlinedIcon from '@material-ui/icons/IndeterminateCheckBoxOutlined';
+import styled from 'styled-components';
 import { CheckInput } from '../Field';
+import { Colors } from '../../constants';
 
-export const useSelectableColumn = (rows, { columnKey = 'selected', selectionKey = 'id' } = {}) => {
+const IconButton = styled.div`
+  cursor: pointer;
+`;
+
+export const useSelectableColumn = (
+  rows,
+  { columnKey = 'selected', selectionKey = 'id', bulkDeselectOnly = false } = {},
+) => {
   const [selectedKeys, setSelectedKeys] = useState(new Set());
 
   const selectedRows = useMemo(() => {
@@ -40,8 +50,17 @@ export const useSelectableColumn = (rows, { columnKey = 'selected', selectionKey
     },
     [rows, selectionKey],
   );
+
   const titleAccessor = useCallback(() => {
     const isEveryRowSelected = rows?.length > 0 && selectedRows.length === rows.length;
+    if (bulkDeselectOnly && selectedRows.length > 0) {
+      return (
+        <IconButton onClick={titleOnChange}>
+          <IndeterminateCheckBoxOutlinedIcon style={{ color: Colors.primary, fontSize: '20px' }} />
+        </IconButton>
+      );
+    }
+
     return (
       <CheckInput
         value={isEveryRowSelected}
