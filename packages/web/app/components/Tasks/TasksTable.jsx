@@ -118,8 +118,8 @@ const getDueAt = ({ dueAt }) => {
 };
 
 const AssignedToCell = ({ assignedTo }) => {
-  if (!assignedTo?.length) return '';
   const [ref, isOverflowing] = useOverflow();
+  if (!assignedTo?.length) return '';
 
   const assignedToNames = assignedTo.map(assigned => assigned.name);
   return (
