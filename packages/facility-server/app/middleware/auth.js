@@ -191,8 +191,11 @@ export async function setFacilityHandler(req, res, next) {
     // Run after auth middleware, requires valid token but no other permission
     req.flagPermissionChecked();
 
+    const restrictUsersToFacilities = req.settings[facilityId]?.get(
+      'auth.restrictUsersToFacilities',
+    );
     const hasAccess = await user.canAccessFacility(facilityId);
-    if (!hasAccess) {
+    if (restrictUsersToFacilities && !hasAccess) {
       throw new BadAuthenticationError('User does not have access to this facility');
     }
     const token = await buildToken(user, facilityId);

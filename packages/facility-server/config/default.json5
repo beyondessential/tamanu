@@ -93,11 +93,6 @@
     // Authentication "cookie" secret. Set to a random value so sessions don't
     // expire when the server restarts.
     // "secret": "some long secret value",
-
-    // Enables the use of the user_facility table to restrict users from logging
-    // into facilities they are not associated with. Ensure this is set on both
-    // central and facility configs.
-    "restrictUsersToFacilities": false,
   },
   "survey": {
     "defaultCodes": {
