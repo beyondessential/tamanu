@@ -42,7 +42,7 @@ export class UserFacility extends Model {
     return super.create(values, options);
   }
 
-  static async deleteOtherFacilities(validFacilityIds, userId) {
+  static async deleteOtherFacilitiesForUser(validFacilityIds, userId) {
     await this.update(
       {
         deletedAt: Sequelize.fn('now'),
