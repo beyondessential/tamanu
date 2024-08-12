@@ -246,7 +246,6 @@ patientRoute.get(
       order = 'asc',
       rowsPerPage = 10,
       page = 0,
-      facilityId,
       ...filterParams
     } = query;
 
@@ -391,7 +390,7 @@ patientRoute.get(
       ${whereClauses && `WHERE ${whereClauses}`}
     `;
 
-    filterReplacements.facilityId = facilityId;
+    filterReplacements.facilityId = filterParams.facilityId;
 
     const countResult = await req.db.query(`SELECT COUNT(1) AS count ${from}`, {
       replacements: filterReplacements,
