@@ -16,6 +16,7 @@ import {
 import { Colors } from '../../constants';
 import useOverflow from '../../hooks/useOverflow';
 import { ConditionalTooltip, ThemedTooltip } from '../Tooltip';
+import { useTableSorting } from '../Table/useTableSorting';
 
 const StyledTable = styled(Table)`
   margin-top: 6px;
@@ -201,6 +202,11 @@ export const TasksTable = ({ data }) => {
   });
   const [hoveredRow, setHoveredRow] = useState();
 
+  const { orderBy, order, onChangeOrderBy, customSort } = useTableSorting({
+    initialSortKey: '',
+    initialSortDirection: 'asc',
+  });
+
   const COLUMNS = [
     {
       accessor: getStatus,
@@ -302,6 +308,10 @@ export const TasksTable = ({ data }) => {
         allowExport={false}
         onMouseEnterRow={(_, data) => setHoveredRow(data)}
         onMouseLeaveRow={() => setHoveredRow(null)}
+        orderBy={orderBy}
+        order={order}
+        onChangeOrderBy={onChangeOrderBy}
+        customSort={customSort}
       />
     </div>
   );
