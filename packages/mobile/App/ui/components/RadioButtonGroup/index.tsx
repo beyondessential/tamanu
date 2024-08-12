@@ -1,4 +1,4 @@
-import React, { FC } from 'react';
+import React, { FC, useEffect } from 'react';
 import { RowView, StyledText } from '/styled/common';
 import { theme } from '/styled/theme';
 import { RadioButton, RadioOption } from '../RadioButton';
@@ -16,6 +16,7 @@ export interface RadioButtonGroupProps {
   CustomComponent?: FC<any>;
   labelFontSize?: string | number;
   optionComponentWidth?: string | number;
+  initialValue?: string;
 }
 
 export const RadioButtonGroup = ({
@@ -28,8 +29,15 @@ export const RadioButtonGroup = ({
   CustomComponent,
   labelFontSize,
   optionComponentWidth: componentWidth,
+  initialValue,
 }: RadioButtonGroupProps): JSX.Element => {
   const RadioComponent = CustomComponent || RadioButton;
+
+  useEffect(() => {
+    if (initialValue && !value) {
+      onChange(initialValue);
+    }
+  }, []);
 
   return (
     <>

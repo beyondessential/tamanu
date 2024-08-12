@@ -40,7 +40,7 @@ export const RadioButton = (props: RadioOptionProps): JSX.Element => {
         justifyContent="flex-start"
         height={screenPercentageToDP(6, Orientation.Height)}
         borderColor={getBorderColor(props)}
-        paddingLeft={12}
+        paddingLeft={screenPercentageToDP(2.14, Orientation.Width)}
         paddingRight={25}
         borderWidth={1}
         borderRadius={5}
@@ -56,7 +56,7 @@ export const RadioButton = (props: RadioOptionProps): JSX.Element => {
           borderColor={theme.colors.TEXT_MID}
           justifyContent="center"
           alignItems="center"
-          marginRight={5}
+          marginRight={screenPercentageToDP(1.29, Orientation.Width)}
         >
           <StyledView
             height={6}

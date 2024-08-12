@@ -27,8 +27,9 @@ export const SexSection = (): ReactElement => (
       component={RadioButtonGroup}
       name="sex"
       options={options}
-      labelFontSize={14}
+      labelFontSize={screenPercentageToDP(2, Orientation.Height)}
       optionComponentWidth={buttonWidth}
+      initialValue="all"
     />
   </StyledView>
 );

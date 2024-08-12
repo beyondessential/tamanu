@@ -14,6 +14,7 @@ export interface StyledTextInputProps {
   focused?: boolean;
   hasValue?: boolean;
   disabled?: boolean;
+  fieldFontSize?: string | number;
 }
 
 export const InputContainer = styled(StyledView)`
@@ -34,7 +35,8 @@ export const StyledTextInput = styled.TextInput<StyledViewProps>`
       return theme.colors.DEFAULT_OFF;
     }};
   border-radius: 5px;
-  font-size: ${screenPercentageToDP(2.18, Orientation.Height)};
+  font-size: font-size: ${({ fieldFontSize }) =>
+    fieldFontSize || screenPercentageToDP(2.18, Orientation.Height)};
   line-height: ${screenPercentageToDP(2.58, Orientation.Height)};
   font-weight: 400;
   justify-content: flex-start;

@@ -13,6 +13,7 @@ import { useAuth } from '~/ui/contexts/AuthContext';
 import { VisibilityStatus } from '~/visibilityStatuses';
 import { Dropdown } from '~/ui/components/Dropdown';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
+import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
 
 const REGISTRY_COUNT_THRESHOLD = 10;
 
@@ -58,7 +59,8 @@ export const ProgramRegistrySection = (): ReactElement => {
           />
           }
           localisationPath="fields.programRegistry"
-          labelFontSize={14}
+          labelFontSize={screenPercentageToDP(2, Orientation.Height)}
+          fieldFontSize={screenPercentageToDP(2, Orientation.Height)}
           component={AutocompleteModalField}
           placeholder="Search"
           suggester={ProgramRegistrySuggester}
