@@ -52,7 +52,7 @@ const ExportForm = ({
         ) : (
           <FormSubmitButton
             text={
-              <TranslatedText stringId="admin.export.prepareExport" fallback="Prepare export" />
+              <TranslatedText stringId="admin.export.action.prepare" fallback="Prepare export" />
             }
           />
         )}
@@ -83,7 +83,7 @@ export const ExporterView = memo(({ title, endpoint, dataTypes, dataTypesSelecta
       }
       notify(
         <TranslatedText
-          stringId="admin.export.notification.prepare"
+          stringId="admin.export.notification.preparing"
           fallback="Preparing export..."
         />,
         { type: 'info' },
