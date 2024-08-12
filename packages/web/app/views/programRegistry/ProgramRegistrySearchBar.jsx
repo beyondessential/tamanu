@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Field } from 'formik';
 import styled from 'styled-components';
+import { Box } from '@material-ui/core';
 import { getCurrentDateString } from '@tamanu/shared/utils/dateTime';
 import { useSuggester } from '../../api';
 import {
@@ -17,10 +18,10 @@ import { useProgramRegistryQuery } from '../../api/queries/useProgramRegistryQue
 import { useSexOptions } from '../../hooks';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
 
-const FacilityCheckbox = styled.div`
+const FacilityCheckbox = styled(Box)`
   display: flex;
   align-items: center;
-  margin-top: 20px;
+  margin-left: 20px;
 `;
 
 const Spacer = styled.div`
@@ -42,6 +43,9 @@ export const ProgramRegistrySearchBar = ({ searchParameters, setSearchParameters
   const programRegistryConditionSuggester = useSuggester('programRegistryCondition', {
     baseQueryParameters: { programRegistryId: params.programRegistryId },
   });
+
+  const divisionSuggester = useSuggester('division');
+  const subdivisionSuggester = useSuggester('subdivision');
 
   return (
     <CustomisableSearchBar
@@ -71,19 +75,40 @@ export const ProgramRegistrySearchBar = ({ searchParameters, setSearchParameters
             component={AutocompleteField}
             suggester={facilitySuggester}
           />
+          <Field
+            label={
+              <TranslatedText
+                stringId="general.localisedField.division.label"
+                fallback="Division"
+              />
+            }
+            name="divisionId"
+            component={AutocompleteField}
+            suggester={divisionSuggester}
+          />
+          <Field
+            label={
+              <TranslatedText
+                stringId="general.localisedField.subdivision.label"
+                fallback="Subdivision"
+              />
+            }
+            name="subdivisionId"
+            component={AutocompleteField}
+            suggester={subdivisionSuggester}
+          />
           <div
             style={{
               display: 'flex',
-              flexDirection: 'row',
+              flexDirection: 'column',
               width: '100%',
               justifyContent: 'flex-start',
-              gridColumn: '3 / span 3',
             }}
           >
-            <FacilityCheckbox>
+            <FacilityCheckbox marginTop="6px">
               <Field name="removed" label="Include removed patients" component={CheckField} />
             </FacilityCheckbox>
-            <FacilityCheckbox>
+            <FacilityCheckbox marginTop="15px">
               <Field name="deceased" label="Include deceased patients" component={CheckField} />
             </FacilityCheckbox>
           </div>
