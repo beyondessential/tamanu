@@ -24,6 +24,7 @@ import { selectFacilityIds } from '@tamanu/shared/utils/configSelectors';
 import { subDays } from 'date-fns';
 
 describe('PatientVaccine', () => {
+  const [facilityId] = selectFacilityIds(config);
   let ctx;
   let models = null;
   let app = null;
@@ -311,6 +312,7 @@ describe('PatientVaccine', () => {
         date: new Date(),
         givenElsewhere: true,
         givenBy: country.name,
+        facilityId,
       });
 
       expect(result).toHaveSucceeded();
@@ -341,6 +343,7 @@ describe('PatientVaccine', () => {
         vaccineBrand: VACCINE_BRAND,
         vaccineName: VACCINE_NAME,
         disease: VACCINE_DISEASE,
+        facilityId,
       });
 
       expect(result).toHaveSucceeded();
@@ -373,6 +376,7 @@ describe('PatientVaccine', () => {
         date: new Date(),
         givenElsewhere: true,
         givenBy: country.name,
+        facilityId,
       });
 
       expect(result).toHaveSucceeded();
@@ -396,6 +400,7 @@ describe('PatientVaccine', () => {
         recorderId: clinician.id,
         date: new Date(),
         givenBy: 'Clinician',
+        facilityId,
       });
 
       expect(result).toHaveSucceeded();
@@ -413,6 +418,7 @@ describe('PatientVaccine', () => {
         scheduledVaccineId: scheduled1.id,
         recorderId: clinician.id,
         givenBy: 'Clinician',
+        facilityId,
       });
 
       expect(result).toHaveSucceeded();
@@ -431,6 +437,7 @@ describe('PatientVaccine', () => {
         recorderId: clinician.id,
         givenBy: 'Clinician',
         givenElsewhere: true,
+        facilityId,
       });
 
       expect(result).toHaveSucceeded();
@@ -446,6 +453,7 @@ describe('PatientVaccine', () => {
         recorderId: clinician.id,
         givenBy: 'Clinician',
         givenElsewhere: true,
+        facilityId,
       });
 
       expect(result).toHaveSucceeded();
