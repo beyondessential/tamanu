@@ -34,7 +34,7 @@ patientRoute.get(
     const {
       models: { Patient },
       params,
-      facilityId,
+      query: { facilityId },
     } = req;
     req.checkPermission('read', 'Patient');
     const patient = await Patient.findByPk(params.id, {

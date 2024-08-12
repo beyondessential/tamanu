@@ -9,11 +9,11 @@ export const clearPatient = () => ({
   type: PATIENT_CLEAR,
 });
 
-export const reloadPatient = id => async (dispatch, getState, { api }) => {
+export const reloadPatient = (id, facilityId) => async (dispatch, getState, { api }) => {
   dispatch({ type: PATIENT_LOAD_START, id });
 
   try {
-    const patient = await api.get(`patient/${id}`);
+    const patient = await api.get(`patient/${id}`, { facilityId });
 
     dispatch({
       type: PATIENT_LOAD_FINISH,
