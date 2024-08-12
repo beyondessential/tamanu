@@ -104,16 +104,11 @@ export async function importSheet({ errors, log, models }, { loader, sheetName, 
       Object.entries(data).map(([key, value]) => [key.trim(), value]),
     );
     try {
-      const loaderRows = loader(trimmed, models, FOREIGN_KEY_SCHEMATA);
-
-      // TODO: clean up and find appropriate place for this
-      const userId = loaderRows.filter(r => r.model === 'User').map(r => r.values.id)[0];
-      const userFacilityRows = loaderRows.filter(r => r.model === 'UserFacility').map(r => r.values.facilityId);
-
-      await models.UserFacility.deleteOtherFacilities(userFacilityRows, userId)
-
-      for (const { model, values } of loaderRows) {
+      for (const { model, values, ...options } of loader(trimmed, models, FOREIGN_KEY_SCHEMATA)) {
         if (!models[model]) throw new Error(`No such type of data: ${model}`);
+        if (model === 'User') {
+          await models.UserFacility.deleteOtherFacilities(options.allowedFacilityIds, values.id);
+        }
         if (model === 'PatientFieldValue') {
           const existingDefinition =
             values?.definitionId &&

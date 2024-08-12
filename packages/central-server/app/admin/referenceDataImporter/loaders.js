@@ -217,29 +217,30 @@ export function userLoader(item) {
   const { id, allowedFacilities, ...otherFields } = item;
   const rows = [];
 
+  let allowedFacilityIds = [];
+  if (allowedFacilities) {
+    allowedFacilityIds = allowedFacilities.split(',').map(t => t.trim());
+  }
+
   rows.push({
     model: 'User',
     values: {
       id,
       ...otherFields,
     },
+    allowedFacilityIds,
   });
 
-  if (allowedFacilities) {
-    allowedFacilities
-      .split(',')
-      .map(t => t.trim())
-      .forEach(facilityId => {
-        rows.push({
-          model: 'UserFacility',
-          values: {
-            id: `${id};${facilityId}`,
-            userId: id,
-            facilityId: facilityId,
-          },
-        });
-      });
-  }
+  allowedFacilityIds.forEach(facilityId => {
+    rows.push({
+      model: 'UserFacility',
+      values: {
+        id: `${id};${facilityId}`,
+        userId: id,
+        facilityId: facilityId,
+      },
+    });
+  });
 
   return rows;
 }
