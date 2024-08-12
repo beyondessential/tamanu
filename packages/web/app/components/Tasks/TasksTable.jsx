@@ -17,52 +17,6 @@ import { Colors } from '../../constants';
 import useOverflow from '../../hooks/useOverflow';
 import { ConditionalTooltip, ThemedTooltip } from '../Tooltip';
 
-const mockData = [
-  {
-    id: 1,
-    task: 'Change bedpan',
-    dueAt: '2024-08-11 10:00:29.563+07',
-    assignedTo: [
-      {
-        id: 'designation-Nursing',
-        name: 'Nursing',
-      },
-    ],
-    frequency: '2 hours',
-    notes: '',
-  },
-  {
-    id: 2,
-    task: 'Contact patient family/caretaker',
-    dueAt: '2024-08-11 10:00:29.563+07',
-    assignedTo: [
-      {
-        id: 'designation-Nursing',
-        name: 'Nursing',
-      },
-      {
-        id: 'designation-SeniorNursing',
-        name: 'Senior Nursing',
-      },
-    ],
-    frequency: 'Once',
-    notes: 'Lorem ipsum dolor sit',
-  },
-  {
-    id: 3,
-    task: 'Contact patient family/caretaker',
-    dueAt: '2024-08-11 10:00:29.563+07',
-    assignedTo: [
-      {
-        id: 'designation-Admin',
-        name: 'Admin',
-      },
-    ],
-    frequency: 'Once',
-    notes: 'Lorem ipsum dolor sit ipsum dolor sit ',
-  },
-];
-
 const StyledTable = styled(Table)`
   margin-top: 6px;
   box-shadow: none;
@@ -219,8 +173,8 @@ const NotesCell = ({ row, hoveredRow }) => {
   );
 };
 
-export const TasksTable = () => {
-  const { selectedRows, selectableColumn } = useSelectableColumn(mockData, {
+export const TasksTable = ({ data }) => {
+  const { selectedRows, selectableColumn } = useSelectableColumn(data, {
     bulkDeselectOnly: true,
   });
   const [hoveredRow, setHoveredRow] = useState();
@@ -314,7 +268,7 @@ export const TasksTable = () => {
         </div>
       )}
       <StyledTable
-        data={mockData}
+        data={data}
         columns={[selectableColumn, ...COLUMNS]}
         noDataMessage={
           <TranslatedText
