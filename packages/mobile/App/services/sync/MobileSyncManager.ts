@@ -44,7 +44,7 @@ export class MobileSyncManager {
 
   syncStage = null;
 
-  lastSuccessfulSyncTick = null;
+  lastSuccessfulSyncTime = null;
 
   lastSyncPushedRecordsCount: number = null;
 
@@ -225,7 +225,7 @@ export class MobileSyncManager {
     // clear persisted cache from last session
     await clearPersistedSyncSessionRecords();
 
-    this.lastSuccessfulSyncTick = new Date();
+    this.lastSuccessfulSyncTime = new Date();
     this.setProgress(0, '');
   }
 

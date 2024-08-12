@@ -69,7 +69,7 @@
     // at its very large default, maxRecordsPerSnapshotChunk is essentially "off"
     // can be turned on by lowering to some amount that seems appropriate if snapshot performance is an issue
     "maxRecordsPerSnapshotChunk": 1000000000,
-    snapshotTransactionTimeoutMs: null,
+    "syncSessionTimeoutMs": null,
     "useLookupTable": false,
   },
   "loadshedder": {

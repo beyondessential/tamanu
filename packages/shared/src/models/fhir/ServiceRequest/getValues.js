@@ -72,16 +72,16 @@ async function getValuesFromImagingRequest(upstream, models) {
     orderDetail: upstream.areas.flatMap(({ id }) =>
       areaExtCodes.has(id)
         ? [
-          new FhirCodeableConcept({
-            text: areaExtCodes.get(id)?.description,
-            coding: [
-              new FhirCoding({
-                code: areaExtCodes.get(id)?.code,
-                system: config.hl7.dataDictionaries.areaExternalCode,
-              }),
-            ],
-          }),
-        ]
+            new FhirCodeableConcept({
+              text: areaExtCodes.get(id)?.description,
+              coding: [
+                new FhirCoding({
+                  code: areaExtCodes.get(id)?.code,
+                  system: config.hl7.dataDictionaries.areaExternalCode,
+                }),
+              ],
+            }),
+          ]
         : [],
     ),
     subject: new FhirReference({
@@ -222,6 +222,7 @@ function statusFromLabRequest(upstream) {
     case LAB_REQUEST_STATUSES.PUBLISHED:
       return FHIR_REQUEST_STATUS.COMPLETED;
     case LAB_REQUEST_STATUSES.CANCELLED:
+    case LAB_REQUEST_STATUSES.INVALIDATED:
     case LAB_REQUEST_STATUSES.DELETED:
       return FHIR_REQUEST_STATUS.REVOKED;
     case LAB_REQUEST_STATUSES.ENTERED_IN_ERROR:
@@ -244,7 +245,7 @@ function labCode(upstream) {
     externalCode,
     name,
     config.hl7.dataDictionaries.serviceRequestLabPanelCodeSystem,
-    config.hl7.dataDictionaries.serviceRequestLabPanelExternalCodeSystem
+    config.hl7.dataDictionaries.serviceRequestLabPanelExternalCodeSystem,
   );
 }
 
@@ -260,7 +261,7 @@ function labOrderDetails({ tests }) {
         externalCode,
         name,
         config.hl7.dataDictionaries.serviceRequestLabTestCodeSystem,
-        config.hl7.dataDictionaries.serviceRequestLabTestExternalCodeSystem
+        config.hl7.dataDictionaries.serviceRequestLabTestExternalCodeSystem,
       );
     });
   }
@@ -307,7 +308,7 @@ function generateCodings(code, externalCode, name, codeSystem, externalCodeSyste
         code: externalCode,
         display: name,
       }),
-    )
+    );
   }
   if (coding.length > 0) {
     return new FhirCodeableConcept({
