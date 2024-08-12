@@ -100,9 +100,9 @@ export const ImagingRequestsTable = React.memo(({ encounterId, memoryKey, status
       const patientId = params.patientId || encounter.patient.id;
       if (encounter) {
         await loadEncounter(encounter.id);
-        await dispatch(reloadPatient(patientId));
+        await dispatch(reloadPatient(patientId, facilityId));
       }
-      await dispatch(reloadImagingRequest(imagingRequest.id));
+      await dispatch(reloadImagingRequest(imagingRequest.id, facilityId));
       const category = params.category || 'all';
       dispatch(
         push(

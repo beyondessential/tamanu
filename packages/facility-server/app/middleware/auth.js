@@ -257,7 +257,8 @@ export const authMiddleware = async (req, res, next) => {
     const { userId, facilityId } = await decodeToken(token);
     const user = await getUser(models, userId);
     req.user = user; // eslint-disable-line require-atomic-updates
-    req.facilityId = facilityId; // eslint-disable-line require-atomic-updates
+    // req.facilityId = facilityId; // eslint-disable-line require-atomic-updates
+    delete req.facilityId;
     req.getLocalisation = async () =>
       req.models.UserLocalisationCache.getLocalisation({
         where: { userId: req.user.id },

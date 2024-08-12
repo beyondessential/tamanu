@@ -15,9 +15,11 @@ import { ClinicalStatusDisplay } from './ClinicalStatusDisplay';
 import { useRefreshCount } from '../../hooks/useRefreshCount';
 import { ActivatePatientProgramRegistry } from './ActivatePatientProgramRegistry';
 import { TranslatedText } from '../../components/Translation';
+import { useAuth } from '../../contexts/Auth';
 
 export const ProgramRegistryTable = ({ searchParameters }) => {
   const params = useParams();
+  const { facilityId } = useAuth();
   const [openModal, setOpenModal] = useState();
   const [refreshCount, updateRefreshCount] = useRefreshCount();
   const columns = useMemo(() => {
@@ -198,7 +200,7 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
   const selectRegistration = async registration => {
     const { patient, programRegistry } = registration;
     if (patient.id) {
-      await dispatch(reloadPatient(patient.id));
+      await dispatch(reloadPatient(patient.id, facilityId));
     }
     dispatch(
       push(

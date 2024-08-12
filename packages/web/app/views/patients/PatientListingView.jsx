@@ -85,7 +85,7 @@ const PatientTable = ({ columns, fetchOptions, searchParameters }) => {
   };
 
   const handleViewPatient = async row => {
-    await dispatch(reloadPatient(row.id));
+    await dispatch(reloadPatient(row.id, facilityId));
     navigateToPatient(row.id);
   };
 
@@ -108,6 +108,7 @@ const PatientTable = ({ columns, fetchOptions, searchParameters }) => {
 
 const NewPatientButton = ({ onCreateNewPatient }) => {
   const { navigateToPatient } = usePatientNavigation();
+  const { facilityId } = useAuth();
   const [isCreatingPatient, setCreatingPatient] = useState(false);
   const dispatch = useDispatch();
   const hideModal = useCallback(() => setCreatingPatient(false), [setCreatingPatient]);
@@ -121,7 +122,7 @@ const NewPatientButton = ({ onCreateNewPatient }) => {
     if (onCreateNewPatient) {
       onCreateNewPatient(newPatient.id);
     } else {
-      await dispatch(reloadPatient(newPatient.id));
+      await dispatch(reloadPatient(newPatient.id, facilityId));
     }
     navigateToPatient(newPatient.id);
   };
@@ -196,7 +197,11 @@ export const AdmittedPatientsView = () => {
         <SearchTableTitle>
           <TranslatedText stringId="patientList.search.title" fallback="Patient search" />
         </SearchTableTitle>
-        <PatientSearchBar onSearch={setSearchParameters} searchParameters={searchParameters} isInpatient />
+        <PatientSearchBar
+          onSearch={setSearchParameters}
+          searchParameters={searchParameters}
+          isInpatient
+        />
         <PatientTable
           fetchOptions={{ inpatient: 1 }}
           searchParameters={{ facilityId, ...searchParameters }}

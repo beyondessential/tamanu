@@ -222,7 +222,7 @@ export const BedManagement = () => {
     if (row.locationMaxOccupancy === 1) {
       const patientId = row.patientId || row.plannedPatientId;
       if (patientId) {
-        await dispatch(reloadPatient(patientId));
+        await dispatch(reloadPatient(patientId, facilityId));
         dispatch(push(`/patients/all/${patientId}`));
       }
     }

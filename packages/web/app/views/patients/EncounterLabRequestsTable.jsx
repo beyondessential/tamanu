@@ -14,6 +14,7 @@ import {
   getStatus,
 } from '../../utils/lab';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
+import { useAuth } from '../../contexts/Auth';
 
 const columns = [
   {
@@ -55,11 +56,12 @@ const columns = [
 
 export const EncounterLabRequestsTable = React.memo(({ encounterId }) => {
   const { patientId, category } = useParams();
+  const { facilityId } = useAuth();
   const dispatch = useDispatch();
   const { loadLabRequest } = useLabRequest();
 
   const selectLab = async lab => {
-    if (lab.patientId) await dispatch(reloadPatient(lab.patientId));
+    if (lab.patientId) await dispatch(reloadPatient(lab.patientId, facilityId));
     await loadLabRequest(lab.id);
     dispatch(
       push(`/patients/${category}/${patientId}/encounter/${encounterId}/lab-request/${lab.id}`),

@@ -65,7 +65,7 @@ export const LabRequestsTable = React.memo(
       await loadEncounter(lab.encounterId);
 
       if (lab.patientId) {
-        await dispatch(reloadPatient(lab.patientId));
+        await dispatch(reloadPatient(lab.patientId, facilityId));
       }
       const { patientId } = lab;
       await loadLabRequest(lab.id);

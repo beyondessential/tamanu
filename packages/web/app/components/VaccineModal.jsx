@@ -10,10 +10,12 @@ import { useApi, useSuggester } from '../api';
 import { reloadPatient } from '../store/patient';
 import { getCurrentUser } from '../store/auth';
 import { TranslatedText } from './Translation/TranslatedText';
+import { useAuth } from '../contexts/Auth';
 
 export const VaccineModal = ({ open, onClose, patientId, vaccineRecord }) => {
   const [currentTabKey, setCurrentTabKey] = useState(VACCINE_RECORDING_TYPES.GIVEN);
 
+  const { facilityId } = useAuth();
   const api = useApi();
   const countrySuggester = useSuggester('country');
   const dispatch = useDispatch();
@@ -44,9 +46,9 @@ export const VaccineModal = ({ open, onClose, patientId, vaccineRecord }) => {
       }
 
       await api.post(`patient/${patientId}/administeredVaccine`, body);
-      dispatch(reloadPatient(patientId));
+      dispatch(reloadPatient(patientId, facilityId));
     },
-    [api, dispatch, patientId, currentUser.id, currentTabKey, countrySuggester],
+    [api, dispatch, patientId, currentUser.id, currentTabKey, countrySuggester, facilityId],
   );
 
   const getScheduledVaccines = useCallback(

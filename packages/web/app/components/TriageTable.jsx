@@ -97,7 +97,7 @@ export const TriageTable = React.memo(() => {
   const columns = useColumns();
 
   const viewEncounter = async triage => {
-    await dispatch(reloadPatient(triage.patientId));
+    await dispatch(reloadPatient(triage.patientId, facilityId));
     await loadEncounter(triage.encounterId);
     dispatch(push(`/patients/${category}/${triage.patientId}/encounter/${triage.encounterId}`));
   };

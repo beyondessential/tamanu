@@ -7,10 +7,12 @@ import { reloadPatient } from '../store/patient';
 import { ViewAdministeredVaccineContent } from './ViewAdministeredVaccineModal';
 import { VaccineForm } from '../forms/VaccineForm';
 import { TranslatedText } from './Translation/TranslatedText';
+import { useAuth } from '../contexts/Auth';
 
 export const EditAdministeredVaccineModal = ({ open, onClose, patientId, vaccineRecord }) => {
   const api = useApi();
   const dispatch = useDispatch();
+  const { facilityId } = useAuth();
   const countrySuggester = useSuggester('country');
 
   const handleUpdateVaccine = useCallback(
@@ -31,9 +33,9 @@ export const EditAdministeredVaccineModal = ({ open, onClose, patientId, vaccine
           ? newData.circumstanceIds
           : JSON.parse(newData.circumstanceIds),
       });
-      dispatch(reloadPatient(patientId));
+      dispatch(reloadPatient(patientId, facilityId));
     },
-    [api, dispatch, patientId, vaccineRecord, countrySuggester],
+    [api, dispatch, patientId, vaccineRecord, countrySuggester, facilityId],
   );
 
   if (!vaccineRecord) return null;

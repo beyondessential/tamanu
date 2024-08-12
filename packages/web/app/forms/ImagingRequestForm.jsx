@@ -32,6 +32,7 @@ import { useTranslation } from '../contexts/Translation';
 import { IMAGING_TYPES } from '@tamanu/constants';
 import { renderToText } from '../utils';
 import { camelCase } from 'lodash';
+import { useAuth } from '../contexts/Auth';
 
 function getEncounterTypeLabel(type) {
   return ENCOUNTER_OPTIONS.find(x => x.value === type).label;
@@ -45,6 +46,7 @@ function getEncounterLabel(encounter) {
 
 const FormSubmitActionDropdown = React.memo(({ requestId, encounter, submitForm }) => {
   const dispatch = useDispatch();
+  const { facilityId } = useAuth();
   const { loadEncounter } = useEncounter();
   const { navigateToImagingRequest } = usePatientNavigation();
   const [awaitingPrintRedirect, setAwaitingPrintRedirect] = useState();
@@ -53,7 +55,7 @@ const FormSubmitActionDropdown = React.memo(({ requestId, encounter, submitForm 
   useEffect(() => {
     (async () => {
       if (awaitingPrintRedirect && requestId) {
-        await dispatch(reloadImagingRequest(requestId));
+        await dispatch(reloadImagingRequest(requestId, facilityId));
         navigateToImagingRequest(requestId, 'print');
       }
     })();
