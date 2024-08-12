@@ -86,11 +86,11 @@ export class AuthService {
 
     const ability = generateAbilityForUser(user);
     const restrictUsersToFacilities = await Setting.getByKey('auth.restrictUsersToFacilities');
-    const canViewAllFacilities = ability.can('login', 'Facility');
+    const canLogIntoAllFacilities = ability.can('login', 'Facility');
     const linkedFacility = await readConfig('facilityId', '');
     if (
       restrictUsersToFacilities &&
-      !canViewAllFacilities &&
+      !canLogIntoAllFacilities &&
       !(await user.canAccessFacility(linkedFacility))
     ) {
       throw new AuthenticationError(forbiddenFacilityMessage);
