@@ -15,7 +15,7 @@ common() {
   npm config set cache /app/packages/.npm
 
   # install dependencies
-  npm install --legacy-peer-deps --no-interactive --package-lock
+  npm install --no-interactive --package-lock
 }
 
 remove_irrelevant_packages() {
@@ -68,7 +68,7 @@ build_server() {
   rm package.json.working
 
   # remove build dependencies
-  npm install --legacy-peer-deps --no-interactive --package-lock
+  npm install --no-interactive --package-lock
 
   # cleanup
   npm cache clean --force

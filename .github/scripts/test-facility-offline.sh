@@ -17,7 +17,7 @@ test_facility_offline_setup_postgres() {
 
 # Build both the facility and central servers.
 test_facility_offline_build() {
-    npm install --legacy-peer-deps
+    npm install
     npm run build-shared
     npm run build --workspace @tamanu/central-server
     npm run build --workspace @tamanu/facility-server
