@@ -109,35 +109,30 @@ const patientFieldDefinitionValidator = async ({ values, models }) => {
 
 const referenceDataValidator = async ({
   values,
-  models,
   sheetName,
   sheetRow,
   nameCache,
   errors,
 }) => {
-  if (values.name && sheetName === REFERENCE_TYPES.DESIGNATION) {
-    if (nameCache.has(values.name)) {
+  if (values.name) {
+    if (!nameCache.has(sheetName)) {
+      nameCache.set(sheetName, new Set());
+    }
+
+    const referenceDataNameCache = nameCache.get(sheetName);
+
+    if (referenceDataNameCache.has(values.name)) {
       errors.push(
         new ValidationError(
           sheetName,
           sheetRow,
-          `Duplicate designation name in selected file: ${values.name}`,
+          `Duplicate name in selected file for type "${sheetName}": ${values.name}`,
         ),
       );
       return false;
     }
 
-    const existingDesignation = await models.ReferenceData.findOne({
-      where: { name: values.name, type: REFERENCE_TYPES.DESIGNATION },
-    });
-    if (existingDesignation) {
-      errors.push(
-        new ValidationError(sheetName, sheetRow, `${values.name} already exists in the database`),
-      );
-      return false;
-    }
-
-    nameCache.add(values.name);
+    referenceDataNameCache.add(values.name);
   }
   return true;
 };
@@ -167,7 +162,7 @@ export async function importSheet({ errors, log, models }, { loader, sheetName, 
   log.debug('Preparing rows of data into table rows', { rows: sheetRows.length });
   const tableRows = [];
   const idCache = new Set();
-  const nameCache = new Set();
+  const nameCache = new Map();
 
   for (const [sheetRow, data] of sheetRows.entries()) {
     const trimmed = Object.fromEntries(
