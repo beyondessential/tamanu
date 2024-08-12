@@ -6,19 +6,17 @@ import { reloadPatient } from '../store/patient';
 import { DeleteButton } from './Button';
 import { ConfirmModal } from './ConfirmModal';
 import { TranslatedText } from './Translation/TranslatedText';
-import { useAuth } from '../contexts/Auth';
 
 export const DeleteAdministeredVaccineModal = ({ open, onClose, patientId, vaccineRecord }) => {
   const api = useApi();
-  const { facilityId } = useAuth();
   const dispatch = useDispatch();
 
   const onMarkRecordedInError = useCallback(async () => {
     await api.put(`patient/${patientId}/administeredVaccine/${vaccineRecord.id}`, {
       status: VACCINE_STATUS.RECORDED_IN_ERROR,
     });
-    dispatch(reloadPatient(patientId, facilityId));
-  }, [patientId, vaccineRecord, dispatch, api, facilityId]);
+    dispatch(reloadPatient(patientId));
+  }, [patientId, vaccineRecord, dispatch, api]);
 
   if (!vaccineRecord) return null;
 

@@ -7,11 +7,9 @@ import { DeathForm } from '../forms/DeathForm';
 import { useApi, useSuggester } from '../api';
 import { usePatientNavigation } from '../utils/usePatientNavigation';
 import { TranslatedText } from './Translation/TranslatedText';
-import { useAuth } from '../contexts/Auth';
 
 export const DeathModal = React.memo(({ open, onClose, deathData }) => {
   const api = useApi();
-  const { facilityId } = useAuth();
   const dispatch = useDispatch();
   const { navigateToPatient } = usePatientNavigation();
   const patient = useSelector(state => state.patient);
@@ -26,7 +24,7 @@ export const DeathModal = React.memo(({ open, onClose, deathData }) => {
     queryClient.invalidateQueries(['patientDeathSummary', patient.id]);
 
     onClose();
-    await dispatch(reloadPatient(patientId, facilityId));
+    await dispatch(reloadPatient(patientId));
     navigateToPatient(patientId);
   };
 

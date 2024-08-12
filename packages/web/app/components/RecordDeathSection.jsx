@@ -10,7 +10,6 @@ import { usePatientNavigation } from '../utils/usePatientNavigation';
 import { reloadPatient } from '../store/patient';
 import { MODAL_PADDING_LEFT_AND_RIGHT, MODAL_PADDING_TOP_AND_BOTTOM } from './BaseModal';
 import { TranslatedText } from './Translation/TranslatedText';
-import { useAuth } from '../contexts/Auth';
 
 const TypographyLink = styled(Typography)`
   color: ${Colors.primary};
@@ -45,7 +44,6 @@ const customContent = (
 
 export const RecordDeathSection = memo(({ patient, openDeathModal }) => {
   const api = useApi();
-  const { facilityId } = useAuth();
   const dispatch = useDispatch();
   const { navigateToPatient } = usePatientNavigation();
   const queryClient = useQueryClient();
@@ -58,7 +56,7 @@ export const RecordDeathSection = memo(({ patient, openDeathModal }) => {
     queryClient.resetQueries(['patientDeathSummary', patient.id]);
 
     closeRevertModal();
-    await dispatch(reloadPatient(patientId, facilityId));
+    await dispatch(reloadPatient(patientId));
     navigateToPatient(patientId);
   };
 

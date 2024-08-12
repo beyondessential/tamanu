@@ -12,7 +12,6 @@ import { TranslatedText } from './Translation/TranslatedText';
 import { getPatientStatus } from '../utils/getPatientStatus';
 import { PATIENT_STATUS } from '../constants';
 import { useLocalisation } from '../contexts/Localisation';
-import { useAuth } from '../contexts/Auth';
 
 const DISCHARGE_DISPOSITION_FOR_EMERGENCY_ONLY = 'AE-';
 const DISCHARGE_DISPOSITION_FOR_INPATIENTS_ONLY = 'IN-';
@@ -20,7 +19,6 @@ const DISCHARGE_DISPOSITION_FOR_OUTPATIENTS_ONLY = 'OP-';
 
 export const DischargeModal = React.memo(({ open, onClose }) => {
   const dispatch = useDispatch();
-  const { facilityId } = useAuth();
   const { navigateToPatient } = usePatientNavigation();
   const patient = useSelector(state => state.patient);
   const { getLocalisation } = useLocalisation();
@@ -80,7 +78,7 @@ export const DischargeModal = React.memo(({ open, onClose }) => {
         facilityTown: facility.cityTown,
       };
       await writeAndViewEncounter(encounter.id, data);
-      await dispatch(reloadPatient(patient.id, facilityId));
+      await dispatch(reloadPatient(patient.id));
       navigateToPatient(patient.id);
       onClose();
     },

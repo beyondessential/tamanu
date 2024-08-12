@@ -29,7 +29,6 @@ const ForbiddenMessage = () => (
 export const PatientDetailsPane = React.memo(
   ({ patient, additionalData, birthData, patientFields }) => {
     const api = useApi();
-    const { facilityId } = useAuth();
     const queryClient = useQueryClient();
     const dispatch = useDispatch();
     const { ability } = useAuth();
@@ -44,7 +43,7 @@ export const PatientDetailsPane = React.memo(
 
       // invalidate the cache of patient data queries to reload the patient data
       await invalidatePatientDataQueries(queryClient, patient.id);
-      dispatch(reloadPatient(patient.id, facilityId));
+      dispatch(reloadPatient(patient.id));
     };
 
     // Display form if user can read, write or create patient additional data.

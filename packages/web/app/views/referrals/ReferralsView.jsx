@@ -104,7 +104,6 @@ const ReferralFlow = ({ patient, currentUser }) => {
 };
 
 export const ReferralsView = () => {
-  const { facilityId } = useAuth();
   const patient = useSelector(state => state.patient);
   const currentUser = useSelector(getCurrentUser);
   const dispatch = useDispatch();
@@ -112,7 +111,7 @@ export const ReferralsView = () => {
     return (
       <PatientListingView
         onViewPatient={id => {
-          dispatch(reloadPatient(id, facilityId));
+          dispatch(reloadPatient(id));
         }}
       />
     );

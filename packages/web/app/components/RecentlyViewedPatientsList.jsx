@@ -11,7 +11,6 @@ import { Colors } from '../constants';
 import { DateDisplay } from './DateDisplay';
 import { ThemedTooltip } from './Tooltip';
 import { TranslatedSex, TranslatedText } from './Translation';
-import { useAuth } from '../contexts/Auth';
 
 const colorFromEncounterType = {
   admission: Colors.green,
@@ -157,7 +156,6 @@ const Card = ({ patient, handleClick }) => {
 };
 
 export const RecentlyViewedPatientsList = ({ encounterType }) => {
-  const { facilityId } = useAuth();
   const { navigateToPatient } = usePatientNavigation();
   const [isExpanded, setIsExpanded] = useState(true);
   const [pageIndex, setPageIndex] = useState(0);
@@ -175,10 +173,10 @@ export const RecentlyViewedPatientsList = ({ encounterType }) => {
 
   const cardOnClick = useCallback(
     async patientId => {
-      await dispatch(reloadPatient(patientId, facilityId));
+      await dispatch(reloadPatient(patientId));
       navigateToPatient(patientId);
     },
-    [dispatch, navigateToPatient, facilityId],
+    [dispatch, navigateToPatient],
   );
 
   if (!recentlyViewedPatients?.length) {

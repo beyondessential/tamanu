@@ -22,7 +22,6 @@ import { PATIENT_TABS } from '../../constants/patientPaths.js';
 import { reloadPatient } from '../../store/index.js';
 import { UpdateStatsDisplay } from '../../components/Table/UpdateStatsDisplay.jsx';
 import { useAutoUpdatingQuery } from '../../api/queries/useAutoUpdatingQuery.js';
-import { useAuth } from '../../contexts/Auth.js';
 
 const StyledSearchTableTitle = styled(SearchTableTitle)`
   display: flex;
@@ -70,7 +69,6 @@ const COLUMNS = [
 
 export const ImmunisationsView = () => {
   const [refreshCount, setRefreshCount] = useState(0);
-  const { facilityId } = useAuth();
   const dispatch = useDispatch();
 
   const { data: updateStats, error } = useAutoUpdatingQuery('upcomingVaccinations/updateStats');
@@ -78,7 +76,7 @@ export const ImmunisationsView = () => {
   const [searchParameters, setSearchParameters] = useState({});
   const { navigateToPatient } = usePatientNavigation();
   const onRowClick = async patient => {
-    await dispatch(reloadPatient(patient.id, facilityId));
+    await dispatch(reloadPatient(patient.id));
     navigateToPatient(patient.id, { tab: PATIENT_TABS.VACCINES });
   };
 

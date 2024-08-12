@@ -21,7 +21,6 @@ import { EncounterModal } from '../EncounterModal';
 import { usePatientCurrentEncounter } from '../../api/queries';
 import { Modal } from '../Modal';
 import { TranslatedReferenceData, TranslatedSex, TranslatedText } from '../Translation';
-import { useAuth } from '../../contexts/Auth';
 
 const Heading = styled.div`
   font-weight: 700;
@@ -65,7 +64,6 @@ const APPOINTMENT_STATUS_OPTIONS = Object.entries(APPOINTMENT_STATUSES).map(([va
 
 const PatientInfo = ({ patient }) => {
   const api = useApi();
-  const { facilityId } = useAuth();
   const dispatch = useDispatch();
   const { id, displayId, sex, dateOfBirth, village } = patient;
   const [additionalData, setAdditionalData] = useState();
@@ -77,9 +75,9 @@ const PatientInfo = ({ patient }) => {
   }, [id, api]);
 
   const handlePatientInfoContainerClick = useCallback(async () => {
-    await dispatch(reloadPatient(id, facilityId));
+    await dispatch(reloadPatient(id));
     dispatch(push(`/patients/all/${id}`));
-  }, [dispatch, id, facilityId]);
+  }, [dispatch, id]);
 
   return (
     <PatientInfoContainer onClick={handlePatientInfoContainerClick}>

@@ -105,12 +105,12 @@ const SurveyFlow = ({ patient, currentUser }) => {
       answers: getAnswersFromData(data, survey),
       facilityId,
     });
-    dispatch(reloadPatient(patient.id, facilityId));
+    dispatch(reloadPatient(patient.id));
     if (params?.encounterId && encounter && !encounter.endDate) {
       navigateToEncounter(params.encounterId, { tab: ENCOUNTER_TAB_NAMES.FORMS });
     } else {
       queryClient.resetQueries(['patientFields', patient.id]);
-      await dispatch(reloadPatient(patient.id, facilityId));
+      await dispatch(reloadPatient(patient.id));
       navigateToPatient(patient.id, { tab: PATIENT_TABS.PROGRAMS });
     }
   };
@@ -185,11 +185,10 @@ const SurveyFlow = ({ patient, currentUser }) => {
 
 export const ProgramsView = () => {
   const dispatch = useDispatch();
-  const { facilityId } = useAuth();
   const patient = useSelector(state => state.patient);
   const currentUser = useSelector(getCurrentUser);
   if (!patient.id) {
-    return <PatientListingView onViewPatient={id => dispatch(reloadPatient(id, facilityId))} />;
+    return <PatientListingView onViewPatient={id => dispatch(reloadPatient(id))} />;
   }
 
   return <SurveyFlow patient={patient} currentUser={currentUser} />;
