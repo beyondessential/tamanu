@@ -4,11 +4,12 @@ import react from '@vitejs/plugin-react-swc';
 import json5Plugin from 'vite-plugin-json5';
 import { nodePolyfills } from 'vite-plugin-node-polyfills';
 
-// https://vitejs.dev/config/
+/** @see https://vitejs.dev/config */
 export default async ({ mode }) => {
   Object.assign(process.env, loadEnv(mode, process.cwd(), 'TAMANU_'));
 
   return defineConfig({
+    assetsInclude: ['/sb-preview/runtime.js'],
     esbuild: {
       loader: 'jsx',
     },
@@ -64,8 +65,13 @@ export default async ({ mode }) => {
         '/socket.io': {
           target: process.env.TAMANU_VITE_TARGET ?? 'https://facility-1.main.internal.tamanu.io',
           ws: true,
-        }
+        },
       },
+    },
+    test: {
+      clearMocks: true,
+      globals: true,
+      environment: 'jsdom',
     },
   });
 };

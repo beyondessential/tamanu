@@ -161,4 +161,16 @@ export const labels = {
       fallback="Father's first name"
     />
   ),
+  secondaryDivisionId: (
+    <TranslatedText stringId="cambodiaPatientDetails.province.label" fallback="Province" />
+  ),
+  secondarySubdivisionId: (
+    <TranslatedText stringId="cambodiaPatientDetails.district.label" fallback="District" />
+  ),
+  secondarySettlementId: (
+    <TranslatedText stringId="cambodiaPatientDetails.commune.label" fallback="Commune" />
+  ),
+  secondaryVillageId: (
+    <TranslatedText stringId="general.localisedField.villageId.label" fallback="Village" />
+  ),
 };

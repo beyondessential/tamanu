@@ -21,8 +21,8 @@ export class ReportRequestProcessor extends ScheduledTask {
   constructor(context) {
     // run at 30 seconds interval, process 10 report requests each time
     const conf = config.schedules.reportRequestProcessor;
-    const { schedule, jitterTime } = conf;
-    super(schedule, log, jitterTime);
+    const { schedule, jitterTime, enabled } = conf;
+    super(schedule, log, jitterTime, enabled);
     this.config = conf;
     this.context = context;
     this.childProcesses = new Map();

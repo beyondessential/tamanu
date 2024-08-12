@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { replaceStringVariables } from '../../app/contexts/Translation';
+import { replaceStringVariables } from '@tamanu/shared/utils/translation/translationFactory';
 
 describe('replaceStringVariables', () => {
   test.each([

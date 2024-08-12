@@ -49,7 +49,7 @@ jobs:
           key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
 
-      - run: npm install --legacy-peer-deps
+      - run: npm install
       - run: npm run build-shared
 
       - name: Install and start postgres ${{ matrix.postgres }}

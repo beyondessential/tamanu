@@ -1,0 +1,43 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/javascript-node-postgres
+{
+  "name": "Tamanu devcontainer",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "app",
+  "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+
+  // Features to add to the dev container. More info: https://containers.dev/features.
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker": "latest"
+  },
+
+  // Use 'forwardPorts' to make a list of ports inside the container available locally.
+  // This can be used to network with other containers or with the host.
+  // "forwardPorts": [ 5432],
+
+  // Use 'postCreateCommand' to run commands after the container is created.
+  "postCreateCommand": "corepack enable yarn && yes | yarn install",
+
+  // Configure tool-specific properties.
+  // "customizations": {},
+
+  // Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
+  "remoteUser": "root",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "aaron-bond.better-comments",
+        "esbenp.prettier-vscode",
+        "Cardinal90.multi-cursor-case-preserve",
+        "VisualStudioExptTeam.vscodeintellicode",
+        "eamodio.gitlens",
+        "Wattenberger.footsteps",
+        "dbaeumer.vscode-eslint",
+        "albert.TabOut",
+        "sburg.vscode-javascript-booster",
+        "wix.vscode-import-cost",
+        "mikestead.dotenv"
+      ]
+    }
+  }
+}

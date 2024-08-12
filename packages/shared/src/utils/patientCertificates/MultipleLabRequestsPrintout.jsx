@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { Document, Page, StyleSheet, View, Text } from '@react-pdf/renderer';
+import { Document, StyleSheet, View } from '@react-pdf/renderer';
 import { PatientDetailsWithBarcode } from './printComponents/PatientDetailsWithBarcode';
 import { styles, CertificateContent, CertificateHeader, Col, Row, Signature } from './Layout';
 import { LetterheadSection } from './LetterheadSection';
@@ -12,6 +12,9 @@ import { HorizontalRule } from './printComponents/HorizontalRule';
 import { EncounterDetails } from './printComponents/EncounterDetails';
 import { getDisplayDate } from './getDisplayDate';
 import { DoubleHorizontalRule } from './printComponents/DoubleHorizontalRule';
+import { withLanguageContext } from '../pdf/languageContext';
+import { Page } from '../pdf/Page';
+import { Text } from '../pdf/Text';
 
 const DATE_TIME_FORMAT = 'dd/MM/yyyy h:mma';
 const headingFontSize = 11;
@@ -27,7 +30,6 @@ const signingSectionStyles = StyleSheet.create({
   disclaimerText: {
     fontFamily: 'Helvetica-Oblique',
     fontSize: 8,
-    fontStyle: 'italic',
   },
 });
 
@@ -158,7 +160,7 @@ const LabRequestDetailsView = ({ labRequests }) => {
   );
 };
 
-export const MultipleLabRequestsPrintout = React.memo(
+const MultipleLabRequestsPrintoutComponent = React.memo(
   ({ patientData, labRequests, encounter, certificateData, getLocalisation, getTranslation }) => {
     const { logo } = certificateData;
 
@@ -191,6 +193,10 @@ export const MultipleLabRequestsPrintout = React.memo(
       </Document>
     );
   },
+);
+
+export const MultipleLabRequestsPrintout = withLanguageContext(
+  MultipleLabRequestsPrintoutComponent,
 );
 
 MultipleLabRequestsPrintout.propTypes = {

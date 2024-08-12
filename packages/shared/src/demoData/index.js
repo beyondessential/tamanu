@@ -17,3 +17,4 @@ export * from './villages';
 export * from './utilities';
 export * from './createMockReportingSchemaAndRoles';
 export * from './settings';
+export * from './insurers';

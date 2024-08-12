@@ -1,4 +1,11 @@
-import React, { ReactElement, useCallback, useEffect, useMemo, useState } from 'react';
+import React, {
+  FunctionComponent,
+  ReactElement,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { NavigationProp, RouteProp } from '@react-navigation/native';
 
@@ -15,6 +22,8 @@ import { VaccineDataProps } from '/components/VaccineCard';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { VaccineStatus } from '~/ui/helpers/patient';
 import { CenterView } from '../../styled/common';
+import { SceneRendererProps } from 'react-native-tab-view';
+import { TranslatedReferenceData } from '~/ui/components/Translations/TranslatedReferenceData';
 
 type NewVaccineHeaderProps = {
   navigation: NavigationProp<any>;
@@ -22,14 +31,18 @@ type NewVaccineHeaderProps = {
   patient: IPatient;
 };
 
-const Header = ({ navigation, vaccine, patient }: NewVaccineHeaderProps): ReactElement => {
+const Header = ({
+  navigation,
+  vaccine: { scheduledVaccineId, scheduledVaccineLabel, doseLabel },
+  patient,
+}: NewVaccineHeaderProps): ReactElement => {
   const onPress = useCallback(() => {
     navigation.navigate(Routes.HomeStack.VaccineStack.VaccineTabs.Index);
   }, []);
   return (
     <SafeAreaView
       style={{
-        height: screenPercentageToDP(10.01, Orientation.Height),
+        height: screenPercentageToDP(12.01, Orientation.Height),
         backgroundColor: theme.colors.PRIMARY_MAIN,
       }}
     >
@@ -53,9 +66,13 @@ const Header = ({ navigation, vaccine, patient }: NewVaccineHeaderProps): ReactE
             {`${patient.firstName} ${patient.lastName}`}
           </StyledText>
           <StyledText color={theme.colors.WHITE} fontSize={21} fontWeight="bold">
-            {vaccine.code}
+            <TranslatedReferenceData
+              value={scheduledVaccineId}
+              fallback={scheduledVaccineLabel}
+              category="scheduledVaccine"
+            />
           </StyledText>
-          <StyledText color={theme.colors.WHITE}>{vaccine.doseLabel}</StyledText>
+          <StyledText color={theme.colors.WHITE}>{doseLabel}</StyledText>
         </CenterView>
       </RowView>
     </SafeAreaView>
@@ -113,7 +130,14 @@ export const NewVaccineTabs = ({ navigation, route }: NewVaccineTabsProps): Reac
         break;
       default:
     }
-  }, [route]);
+  }, [route, routes]);
+
+  const scenes = {
+    [VaccineStatus.GIVEN]: NewVaccineTab,
+    [VaccineStatus.NOT_GIVEN]: NewVaccineTab,
+  } as {
+    [key: string]: FunctionComponent<SceneRendererProps>;
+  };
 
   return (
     <FullView>
@@ -122,14 +146,7 @@ export const NewVaccineTabs = ({ navigation, route }: NewVaccineTabsProps): Reac
         vaccine={route.params.vaccine}
         patient={route.params.patient}
       />
-      <VaccineTabNavigator
-        state={state}
-        scenes={{
-          [VaccineStatus.GIVEN]: NewVaccineTab,
-          [VaccineStatus.NOT_GIVEN]: NewVaccineTab,
-        }}
-        onChangeTab={setState}
-      />
+      <VaccineTabNavigator state={state} scenes={scenes} onChangeTab={setState} />
     </FullView>
   );
 };

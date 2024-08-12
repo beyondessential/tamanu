@@ -23,16 +23,17 @@ interface VaccineTableCellProps {
   data: VaccineTableCellData;
   onPress?: (item: any) => void;
   id?: string;
+  status: VaccineStatus;
 }
 
 export const CellContent = ({
   cellStatus,
-  status,
+  vaccineStatus,
 }: {
-  status?: string;
+  vaccineStatus?: string;
   cellStatus?: string;
 }): JSX.Element => {
-  const cellData = VaccineStatusCells[cellStatus] || VaccineStatusCells[status];
+  const cellData = VaccineStatusCells[cellStatus] || VaccineStatusCells[vaccineStatus];
   const Icon = cellData.Icon;
 
   return (
@@ -57,15 +58,26 @@ export const CellContent = ({
 };
 
 export const VaccineTableCell = memo(
-  ({ data, onPress }: VaccineTableCellProps): JSX.Element => {
+  ({ data, status, onPress }: VaccineTableCellProps): JSX.Element => {
     const { scheduledVaccine, administeredVaccine, vaccineStatus, dueStatus } = data;
-    const { vaccine, id: scheduledVaccineId } = scheduledVaccine;
+    const {
+      vaccine: drug,
+      id: scheduledVaccineId,
+      label: scheduledVaccineLabel,
+      doseLabel,
+    } = scheduledVaccine;
 
-    let cellStatus = vaccineStatus || dueStatus.status || VaccineStatus.UNKNOWN;
-    if (vaccineStatus === VaccineStatus.SCHEDULED) cellStatus = dueStatus.status;
+    const cellStatus = vaccineStatus === VaccineStatus.SCHEDULED ? dueStatus.status : status;
 
     const onAdminister = useCallback(() => {
-      onPress({ ...vaccine, status: vaccineStatus, scheduledVaccineId, administeredVaccine });
+      onPress({
+        ...drug,
+        status: vaccineStatus,
+        scheduledVaccineId,
+        scheduledVaccineLabel,
+        doseLabel,
+        administeredVaccine,
+      });
       Popup.hide();
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [data]);
@@ -93,7 +105,7 @@ export const VaccineTableCell = memo(
 
     return (
       <StyledTouchableOpacity onPress={onPressItem}>
-        <CellContent status={vaccineStatus} cellStatus={cellStatus} />
+        <CellContent vaccineStatus={vaccineStatus} cellStatus={cellStatus} />
       </StyledTouchableOpacity>
     );
   },

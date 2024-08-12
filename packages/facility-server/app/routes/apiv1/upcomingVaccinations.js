@@ -116,7 +116,8 @@ upcomingVaccinations.get(
       sv.vaccine_id "vaccineId",
       uv.due_date "dueDate",
       uv.status,
-      village.name "villageName"
+      village.name "villageName",
+      village.id "villageId"
       ${fromUpcomingVaccinations}
       ORDER BY ${sortKey} ${sortDirection}, sv.label
       LIMIT :limit

@@ -47,22 +47,31 @@ const Dot = styled.span`
 export const TopBar = React.memo(({ title, subTitle, children, className, encounterType }) => {
   const dotColors = {
     [ENCOUNTER_TYPES.ADMISSION]: Colors.safe,
-    [ENCOUNTER_TYPES.CLINIC]: '#F9BA5B', 
+    [ENCOUNTER_TYPES.CLINIC]: '#F9BA5B',
     [ENCOUNTER_TYPES.TRIAGE]: Colors.orange,
-    [ENCOUNTER_TYPES.OBSERVATION]: Colors.orange, 
-    [ENCOUNTER_TYPES.EMERGENCY]: Colors.orange,       
+    [ENCOUNTER_TYPES.OBSERVATION]: Colors.orange,
+    [ENCOUNTER_TYPES.EMERGENCY]: Colors.orange,
   };
 
-  return <AppBar className={className}>
-    <Bar>
-      {dotColors[encounterType] && <Dot color={dotColors[encounterType]}/>}
-      {title && <TopBarHeading variant="h3">
-        {title}
-        {subTitle && ` | ${subTitle}`}
-      </TopBarHeading>}
-      {children}
-    </Bar>
-  </AppBar>
+  return (
+    <AppBar className={className}>
+      <Bar>
+        {dotColors[encounterType] && <Dot color={dotColors[encounterType]} />}
+        {title && (
+          <TopBarHeading variant="h3">
+            {title}
+            {subTitle && (
+              <>
+                {' | '}
+                {subTitle}
+              </>
+            )}
+          </TopBarHeading>
+        )}
+        {children}
+      </Bar>
+    </AppBar>
+  );
 });
 
 TopBar.propTypes = {
@@ -114,9 +123,7 @@ const StaticTopBar = styled(TopBar)`
 
 export const EncounterTopBar = ({ title, subTitle, children, encounter }) => (
   <StaticTopBar title={title} subTitle={subTitle} encounterType={encounter.encounterType}>
-    <Container>
-      {children}
-    </Container>
+    <Container>{children}</Container>
   </StaticTopBar>
 );
 

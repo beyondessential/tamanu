@@ -62,7 +62,7 @@ jobs:
     - uses: chainguard-dev/actions/setup-gitsign@main
     - name: Autolint
       run: |
-        npm install --legacy-peer-deps --package-lock
+        npm install --package-lock
         npm run lint-fix || true
     - name: Commit and push
       run: |

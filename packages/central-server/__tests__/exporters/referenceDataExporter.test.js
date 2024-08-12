@@ -20,11 +20,11 @@ import { createTestContext } from '../utilities';
 import { exporter } from '../../dist/admin/exporter';
 import { parseDate } from '@tamanu/shared/utils/dateTime';
 import { REFERENCE_TYPES } from '@tamanu/constants';
-import { writeExcelFile } from '../../dist/admin/exporter/excelUtils';
+import { writeExcelFile } from '../../dist/utils/excelUtils';
 import { makeRoleWithPermissions } from '../permissions';
 
-jest.mock('../../dist/admin/exporter/excelUtils', () => {
-  const originalModule = jest.requireActual('../../dist/admin/exporter/excelUtils');
+jest.mock('../../dist/utils/excelUtils', () => {
+  const originalModule = jest.requireActual('../../dist/utils/excelUtils');
 
   return {
     __esModule: true,

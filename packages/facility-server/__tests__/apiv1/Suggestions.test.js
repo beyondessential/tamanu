@@ -524,6 +524,50 @@ describe('Suggestions', () => {
     expect(khmerRecord.name).toEqual(KHMER_LABEL);
   });
 
+  it.skip('should return translated labels for the correct facility', async () => {
+    const { TranslatedString } = models;
+
+    const facility1 = await findOneOrCreate(models, models.Facility, {
+      id: 'facility-1',
+    });
+
+    const facility2 = await findOneOrCreate(models, models.Facility, {
+      id: 'facility-2',
+    });
+    await findOneOrCreate(models, models.LocationGroup, {
+      id: 'f1-test-area',
+      name: 'F1 Test Area',
+      facilityId: facility1.id,
+    });
+
+    await findOneOrCreate(models, models.LocationGroup, {
+      id: 'f2-test-area',
+      name: 'F2 Test Area',
+      facilityId: facility2.id,
+    });
+
+    const DATA_TYPE = 'locationGroup';
+    const ENGLISH_CODE = 'en';
+    const KHMER_CODE = 'km';
+
+    await TranslatedString.create({
+      stringId: `${REFERENCE_DATA_TRANSLATION_PREFIX}.${DATA_TYPE}.f1-test-area`,
+      text: 'Facility 1 Test Area',
+      language: ENGLISH_CODE,
+    });
+
+    await TranslatedString.create({
+      stringId: `${REFERENCE_DATA_TRANSLATION_PREFIX}.${DATA_TYPE}.f2-test-area`,
+      text: 'Facility 1 Test Area',
+      language: KHMER_CODE,
+    });
+
+    const englishResults = await userApp.get(`/api/suggestions/facilityLocationGroup?language=en`);
+    const khmerResults = await userApp.get(`/api/suggestions/facilityLocationGroup?language=km`);
+    expect(englishResults.body.length).toEqual(1);
+    expect(khmerResults.body.length).toEqual(1);
+  });
+
   it('should respect visibility status', async () => {
     const visible = await models.ReferenceData.create({
       type: 'allergy',

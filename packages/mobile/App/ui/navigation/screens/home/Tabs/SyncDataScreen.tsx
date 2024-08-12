@@ -1,7 +1,6 @@
 import React, { ReactElement, useCallback, useContext, useEffect, useState } from 'react';
 import { ActivityIndicator } from 'react-native';
 import { activateKeepAwake, deactivateKeepAwake } from '@sayem314/react-native-keep-awake';
-import { formatDistance } from 'date-fns';
 import { CenterView, StyledText, StyledView } from '../../../../styled/common';
 import { theme } from '../../../../styled/theme';
 import { Orientation, screenPercentageToDP, setStatusBar } from '../../../../helpers/screen';
@@ -16,15 +15,12 @@ import { SyncErrorDisplay } from '../../../../components/SyncErrorDisplay';
 import { ErrorIcon, GreenTickIcon } from '../../../../components/Icons';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 import { useTranslation } from '/contexts/TranslationContext';
+import { formatlastSuccessfulSyncTime } from '~/ui/helpers/date';
 
 export const SyncDataScreen = ({ navigation }): ReactElement => {
   const backend = useContext(BackendContext);
   const syncManager: MobileSyncManager = backend.syncManager;
   const { getTranslation } = useTranslation();
-  const formatLastSuccessfulSyncTick = (lastSuccessfulSyncTick: Date): string =>
-    lastSuccessfulSyncTick
-      ? formatDistance(lastSuccessfulSyncTick, new Date(), { addSuffix: true })
-      : '';
 
   const [syncStarted, setSyncStarted] = useState(syncManager.isSyncing);
   const [hasError, setHasError] = useState(false);
@@ -33,8 +29,8 @@ export const SyncDataScreen = ({ navigation }): ReactElement => {
   const [syncStage, setSyncStage] = useState(syncManager.syncStage);
   const [progress, setProgress] = useState(syncManager.progress);
   const [progressMessage, setProgressMessage] = useState(syncManager.progressMessage);
-  const [formattedLastSuccessfulSyncTick, setFormattedLastSuccessfulSyncTick] = useState(
-    formatLastSuccessfulSyncTick(syncManager.lastSuccessfulSyncTick),
+  const [formattedlastSuccessfulSyncTime, setFormattedlastSuccessfulSyncTime] = useState(
+    formatlastSuccessfulSyncTime(syncManager.lastSuccessfulSyncTime),
   );
   const [lastSyncPushedRecordsCount, setLastSyncPushedRecordsCount] = useState(null);
   const [lastSyncPulledRecordsCount, setLastSyncPulledRecordsCount] = useState(null);
@@ -86,8 +82,8 @@ export const SyncDataScreen = ({ navigation }): ReactElement => {
           setSyncStage(syncManager.syncStage);
           setProgress(syncManager.progress);
           setProgressMessage(syncManager.progressMessage);
-          setFormattedLastSuccessfulSyncTick(
-            formatLastSuccessfulSyncTick(syncManager.lastSuccessfulSyncTick),
+          setFormattedlastSuccessfulSyncTime(
+            formatlastSuccessfulSyncTime(syncManager.lastSuccessfulSyncTime),
           );
           setLastSyncPushedRecordsCount(syncManager.lastSyncPushedRecordsCount);
           setLastSyncPulledRecordsCount(syncManager.lastSyncPulledRecordsCount);
@@ -108,8 +104,8 @@ export const SyncDataScreen = ({ navigation }): ReactElement => {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setFormattedLastSuccessfulSyncTick(
-        formatLastSuccessfulSyncTick(syncManager.lastSuccessfulSyncTick),
+      setFormattedlastSuccessfulSyncTime(
+        formatlastSuccessfulSyncTime(syncManager.lastSuccessfulSyncTime),
       );
     }, 1000);
     return () => {
@@ -209,7 +205,7 @@ export const SyncDataScreen = ({ navigation }): ReactElement => {
             {progressMessage}
           </StyledText>
         ) : null}
-        {!isSyncing && formattedLastSuccessfulSyncTick ? (
+        {!isSyncing && formattedlastSuccessfulSyncTime ? (
           <>
             <StyledText
               marginTop={screenPercentageToDP(1.72, Orientation.Height)}
@@ -226,7 +222,7 @@ export const SyncDataScreen = ({ navigation }): ReactElement => {
               fontSize={screenPercentageToDP(1.7, Orientation.Height)}
               color={theme.colors.WHITE}
             >
-              {formattedLastSuccessfulSyncTick}
+              {formattedlastSuccessfulSyncTime}
             </StyledText>
             {!isSyncing &&
             lastSyncPulledRecordsCount !== null &&

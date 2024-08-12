@@ -1,5 +1,6 @@
 import React from 'react';
-import { Image, StyleSheet, Text, View } from '@react-pdf/renderer';
+import { Image, StyleSheet, View } from '@react-pdf/renderer';
+import { Text } from '../pdf/Text';
 
 const certificateMargins = '0 18px';
 

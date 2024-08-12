@@ -3,7 +3,7 @@ import * as Yup from 'yup';
 import styled from 'styled-components';
 
 import { FormSubmitCancelRow } from '../components/ButtonRow';
-import { Form, Field, TextField } from '../components/Field';
+import { Field, Form, TextField } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
 import { DateDisplay } from '../components';
 import { usePatientNavigation } from '../utils/usePatientNavigation';
@@ -16,6 +16,7 @@ const StyledPatientDetailsLink = styled.span`
   cursor: pointer;
   font-weight: bold;
   text-decoration: underline;
+
   &:hover {
     color: ${Colors.primary};
   }
@@ -102,6 +103,7 @@ export const IPSQRCodeForm = ({ patient, onSubmit, confirmDisabled, onCancel }) 
       validationSchema={Yup.object().shape({
         email: Yup.string()
           .email(getTranslation('validation.rule.validEmail', 'Must be a valid email address'))
+          .nullable()
           .required(),
         confirmEmail: Yup.string()
           .oneOf(

@@ -63,7 +63,7 @@ export const simpleGet = modelName =>
     res.send(object);
   });
 
-export const simpleGetHasOne = (modelName, foreignKey, options = {}) =>
+export const simpleGetHasOne = (modelName, foreignKey, options = {}, transform = undefined) =>
   asyncHandler(async (req, res) => {
     const { models, params } = req;
     const model = models[modelName];
@@ -75,7 +75,7 @@ export const simpleGetHasOne = (modelName, foreignKey, options = {}) =>
     });
     if (!object) throw new NotFoundError();
 
-    res.send(object);
+    res.send(transform ? transform(object) : object);
   });
 
 export const simplePut = modelName =>
