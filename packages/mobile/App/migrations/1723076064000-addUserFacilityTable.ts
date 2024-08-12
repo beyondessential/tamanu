@@ -32,7 +32,7 @@ const BaseColumns = [
   }),
 ];
 
-const EncounterHistory = new Table({
+const UserFacility = new Table({
   name: TABLE_NAME,
   columns: [
     ...BaseColumns,
@@ -63,7 +63,7 @@ const EncounterHistory = new Table({
 
 export class addUserFacilityTable1723076064000 implements MigrationInterface {
   async up(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.createTable(EncounterHistory, true);
+    await queryRunner.createTable(UserFacility, true);
   }
 
   async down(queryRunner: QueryRunner): Promise<void> {
