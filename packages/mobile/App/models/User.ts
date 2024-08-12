@@ -104,7 +104,7 @@ export class User extends BaseModel implements IUser {
     const allowed = await this.allowedFacilityIds();
     if (allowed === CAN_ACCESS_ALL_FACILITIES) return true;
 
-    return allowed?.includes(id) ?? false;
+    return allowed.includes(id);
   }
 
   static excludedSyncColumns: string[] = [...BaseModel.excludedSyncColumns, 'localPassword'];
