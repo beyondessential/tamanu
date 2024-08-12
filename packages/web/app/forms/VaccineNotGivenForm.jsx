@@ -20,6 +20,7 @@ import {
 } from '../components/VaccineCommonFields';
 import { LocalisedField, SuggesterSelectField } from '../components/Field';
 import { TranslatedText } from '../components/Translation/TranslatedText';
+import { getCurrentDateString } from '@tamanu/shared/utils/dateTime';
 
 export const VaccineNotGivenForm = ({
   vaccineLabel,
@@ -76,6 +77,8 @@ export const VaccineNotGivenForm = ({
     <VaccineDateField
       label={<TranslatedText stringId="vaccine.dateRecorded.label" fallback="Date recorded" />}
       min={values?.patientData?.dateOfBirth}
+      max={getCurrentDateString()}
+      keepIncorrectValue
     />
 
     <StyledDivider />
