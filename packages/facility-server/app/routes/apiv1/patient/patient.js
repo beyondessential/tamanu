@@ -247,6 +247,7 @@ patientRoute.get(
       rowsPerPage = 10,
       page = 0,
       markedForSyncFacility,
+      facilityId,
       ...filterParams
     } = query;
 
@@ -392,6 +393,7 @@ patientRoute.get(
     `;
 
     filterReplacements.markedForSyncFacility = markedForSyncFacility;
+    filterReplacements.facilityId = facilityId;
 
     const countResult = await req.db.query(`SELECT COUNT(1) AS count ${from}`, {
       replacements: filterReplacements,

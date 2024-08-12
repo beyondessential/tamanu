@@ -8,6 +8,7 @@ import { reloadPatient } from '../store/patient';
 import { EncounterForm } from '../forms/EncounterForm';
 import { useEncounter } from '../contexts/Encounter';
 import { TranslatedText } from './Translation/TranslatedText';
+import { useAuth } from '../contexts/Auth';
 
 function getEncounterTypeLabel(encounterType) {
   switch (encounterType) {
@@ -28,6 +29,7 @@ function getEncounterTypeLabel(encounterType) {
 export const CheckInModal = React.memo(
   ({ open, onClose, onSubmitEncounter, patientId, referral, patientBillingTypeId, ...props }) => {
     const { createEncounter } = useEncounter();
+    const { facilityId } = useAuth();
     const api = useApi();
     const dispatch = useDispatch();
 
@@ -50,9 +52,9 @@ export const CheckInModal = React.memo(
 
         onClose();
 
-        dispatch(reloadPatient(patientId));
+        dispatch(reloadPatient(patientId, facilityId));
       },
-      [dispatch, patientId, api, createEncounter, onSubmitEncounter, onClose, referral],
+      [dispatch, patientId, api, createEncounter, onSubmitEncounter, onClose, referral, facilityId],
     );
     return (
       <FormModal
