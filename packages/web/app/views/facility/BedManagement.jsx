@@ -180,6 +180,7 @@ export const BedManagement = () => {
       countOnly: true,
       currentPatient: true,
       facilityId,
+      markedForSyncFacility: facilityId,
     }),
   );
 
@@ -192,6 +193,7 @@ export const BedManagement = () => {
       currentPatient: true,
       inpatient: true,
       facilityId,
+      markedForSyncFacility: facilityId
     }),
   );
 
