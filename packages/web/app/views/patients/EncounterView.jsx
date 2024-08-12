@@ -21,6 +21,7 @@ import {
   NotesPane,
   ProcedurePane,
   VitalsPane,
+  TasksPane,
 } from './panes';
 import { Colors, ENCOUNTER_OPTIONS_BY_VALUE } from '../../constants';
 import { ENCOUNTER_TAB_NAMES } from '../../constants/encounterTabNames';
@@ -33,6 +34,11 @@ import { TranslatedText, TranslatedReferenceData } from '../../components/Transl
 const getIsTriage = encounter => ENCOUNTER_OPTIONS_BY_VALUE[encounter.encounterType].triageFlowOnly;
 
 const TABS = [
+  {
+    label: <TranslatedText stringId="encounter.tabs.tasks" fallback="tasks" />,
+    key: ENCOUNTER_TAB_NAMES.TASKS,
+    render: props => <TasksPane {...props} />,
+  },
   {
     label: <TranslatedText stringId="encounter.tabs.vitals" fallback="Vitals" />,
     key: ENCOUNTER_TAB_NAMES.VITALS,
@@ -133,7 +139,7 @@ export const EncounterView = () => {
   const patient = useSelector(state => state.patient);
   const { encounter, isLoadingEncounter } = useEncounter();
   const { data: patientBillingTypeData } = useReferenceData(encounter?.patientBillingTypeId);
-  const [currentTab, setCurrentTab] = useState(query.get('tab') || ENCOUNTER_TAB_NAMES.VITALS);
+  const [currentTab, setCurrentTab] = useState(query.get('tab') || ENCOUNTER_TAB_NAMES.TASKS);
   const disabled = encounter?.endDate || patient.death;
 
   useEffect(() => {
