@@ -246,7 +246,6 @@ patientRoute.get(
       order = 'asc',
       rowsPerPage = 10,
       page = 0,
-      markedForSyncFacility,
       facilityId,
       ...filterParams
     } = query;
@@ -346,7 +345,7 @@ patientRoute.get(
         ) psi
           ON (patients.id = psi.patient_id)
         LEFT JOIN patient_facilities
-          ON (patient_facilities.patient_id = patients.id AND patient_facilities.facility_id = :markedForSyncFacility)
+          ON (patient_facilities.patient_id = patients.id AND patient_facilities.facility_id = :facilityId)
       ${whereClauses && `WHERE ${whereClauses}`}
       `
       : `
@@ -388,11 +387,10 @@ patientRoute.get(
         ) psi
           ON (patients.id = psi.patient_id)
         LEFT JOIN patient_facilities
-          ON (patient_facilities.patient_id = patients.id AND patient_facilities.facility_id = :markedForSyncFacility)
+          ON (patient_facilities.patient_id = patients.id AND patient_facilities.facility_id = :facilityId)
       ${whereClauses && `WHERE ${whereClauses}`}
     `;
 
-    filterReplacements.markedForSyncFacility = markedForSyncFacility;
     filterReplacements.facilityId = facilityId;
 
     const countResult = await req.db.query(`SELECT COUNT(1) AS count ${from}`, {
@@ -498,7 +496,8 @@ patientRoute.post(
     req.checkPermission('read', 'Patient');
     req.checkPermission('create', 'IPSRequest');
 
-    const { models, params, facilityId } = req;
+    const { models, params, body } = req;
+    const { facilityId } = body;
     const { IPSRequest } = models;
 
     if (!req.body.email) {

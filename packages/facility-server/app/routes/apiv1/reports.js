@@ -25,14 +25,13 @@ reports.post(
   '/:reportId',
   asyncHandler(async (req, res) => {
     const {
-      body: { parameters = {} },
+      body: { parameters = {}, facilityId },
       user,
       params,
       db,
       getLocalisation,
       models,
       reportSchemaStores,
-      query: { facilityId },
     } = req;
     const { reportId } = params;
     const facilityReportLog = createNamedLogger(FACILITY_REPORT_LOG_NAME, {
