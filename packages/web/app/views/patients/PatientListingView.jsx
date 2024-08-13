@@ -151,6 +151,8 @@ const NewPatientButton = ({ onCreateNewPatient }) => {
 export const PatientListingView = ({ onViewPatient }) => {
   const [searchParameters, setSearchParameters] = useState({});
 
+  const { facilityId } = useAuth();
+
   return (
     <PageContainer>
       <TopBar
@@ -167,7 +169,7 @@ export const PatientListingView = ({ onViewPatient }) => {
         <PatientTable
           onViewPatient={onViewPatient}
           fetchOptions={{ matchSecondaryIds: true }}
-          searchParameters={{ isAllPatientsListing: true, ...searchParameters }}
+          searchParameters={{ isAllPatientsListing: true, facilityId, ...searchParameters }}
           columns={LISTING_COLUMNS}
         />
       </ContentPane>
