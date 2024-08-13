@@ -340,7 +340,6 @@ export class CentralSyncManager {
         syncAllLabRequests: syncAllLabRequests && !isMobile && since > -1,
       };
 
-      console.log('HAHAHAHA', this.constructor.config);
       // snapshot inside a "repeatable read" transaction, so that other changes made while this
       // snapshot is underway aren't included (as this could lead to a pair of foreign records with
       // the child in the snapshot and its parent missing)
