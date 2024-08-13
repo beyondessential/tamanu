@@ -5,7 +5,6 @@ import { useBackend } from '.';
 import { PatientFieldDefinition } from '~/models/PatientFieldDefinition';
 import { PatientFieldValue } from '~/models/PatientFieldValue';
 import { PatientAdditionalData } from '~/models/PatientAdditionalData';
-import { getSecondaryVillageData } from '/navigation/screens/home/PatientDetails/layouts/cambodia/fields';
 
 export type CustomPatientFieldValues = {
   [key: string]: PatientFieldValue[];
@@ -48,15 +47,6 @@ export const usePatientAdditionalData = patientId => {
               }),
             ]);
             const padData = record && record[0];
-            let secondaryVillageData = {};
-
-            if (padData?.secondaryVillageId) {
-              secondaryVillageData = await getSecondaryVillageData(
-                models,
-                padData.secondaryVillageId,
-              );
-            }
-
             if (!mounted) {
               return;
             }
@@ -72,7 +62,7 @@ export const usePatientAdditionalData = patientId => {
             );
             setCustomPatientFieldDefinitions(fieldDefinitions);
             setCustomPatientFieldValues(groupBy(fieldValues, 'definitionId'));
-            setPatientAdditionalData({ ...padData, ...secondaryVillageData });
+            setPatientAdditionalData(padData);
           }
         } catch (err) {
           if (!mounted) {
