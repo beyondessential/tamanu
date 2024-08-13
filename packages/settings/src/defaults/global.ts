@@ -5,16 +5,16 @@ import { extractDefaults } from './utils';
 export const globalSettings = {
   features: {
     mandateSpecimenType: {
-      name: "Mandate specimen type",
-      description: "_",
+      name: 'Mandate specimen type',
+      description: '_',
       schema: yup.boolean().required(),
       default: false,
     },
   },
   customisations: {
     componentVersions: {
-      name: "Component versions",
-      description: "_",
+      name: 'Component versions',
+      description: '_',
       schema: yup.object().required(),
       default: {},
     },
@@ -22,14 +22,14 @@ export const globalSettings = {
   fhir: {
     worker: {
       heartbeat: {
-        name: "Heartbeat interval",
-        description: "_",
+        name: 'Heartbeat interval',
+        description: '_',
         schema: yup.string().required(),
         default: '1 minute',
       },
       assumeDroppedAfter: {
-        name: "Assume dropped after",
-        description: "_",
+        name: 'Assume dropped after',
+        description: '_',
         schema: yup.string().required(),
         default: '10 minutes',
       },
@@ -38,8 +38,8 @@ export const globalSettings = {
   integrations: {
     imaging: {
       enabled: {
-        name: "Imaging integration enabled",
-        description: "_",
+        name: 'Imaging integration enabled',
+        description: '_',
         schema: yup.boolean().required(),
         default: false,
       },
@@ -47,20 +47,23 @@ export const globalSettings = {
   },
   upcomingVaccinations: {
     ageLimit: {
-      name: "Upcoming vaccination age limit",
-      description: "_",
+      name: 'Upcoming vaccination age limit',
+      description: '_',
       schema: yup.number().required(),
       default: 15,
     },
     thresholds: {
-      name: "Upcoming vaccination thresholds",
-      description: "_",
-      schema: yup.array().of(
-        yup.object({
-          threshold: yup.number(),
-          status: yup.string(),
-        }),
-      ).required(),
+      name: 'Upcoming vaccination thresholds',
+      description: '_',
+      schema: yup
+        .array()
+        .of(
+          yup.object({
+            threshold: yup.number(),
+            status: yup.string(),
+          }),
+        )
+        .required(),
       default: [
         {
           threshold: 28,
@@ -87,14 +90,19 @@ export const globalSettings = {
   },
 };
 
+// export const globalDefaults = extractDefaults(globalSettings);
 
-export const globalDefaults = extractDefaults(globalSettings);
-
-export const validateGlobalSettings = async (settings, schema = globalSettings) => {
+export const validateGlobalSettings = async (settings: any, schema = globalSettings) => {
   for (const [key, value] of Object.entries(settings)) {
     if (schema[key]) {
       if (schema[key].schema) {
-        await schema[key].schema.validate(value);
+        try {
+          await schema[key].schema.validate(value);
+        } catch (error) {
+          if (error instanceof yup.ValidationError)
+            throw new Error(`Invalid value for ${key}: ${error.message}`);
+          throw error;
+        }
       } else {
         await validateGlobalSettings(value, schema[key]);
       }
@@ -103,3 +111,5 @@ export const validateGlobalSettings = async (settings, schema = globalSettings) 
     }
   }
 };
+
+export const globalDefaults = extractDefaults(globalSettings);
