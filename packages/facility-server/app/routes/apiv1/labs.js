@@ -122,6 +122,9 @@ labRequest.get(
       makeFilter(true, `lab_requests.status != :cancelled`, () => ({
         cancelled: LAB_REQUEST_STATUSES.CANCELLED,
       })),
+      makeFilter(true, `lab_requests.status != :invalidated`, () => ({
+        invalidated: LAB_REQUEST_STATUSES.INVALIDATED,
+      })),
       makeDeletedAtIsNullFilter('lab_requests'),
       makeFilter(true, `lab_requests.status != :enteredInError`, () => ({
         enteredInError: LAB_REQUEST_STATUSES.ENTERED_IN_ERROR,
