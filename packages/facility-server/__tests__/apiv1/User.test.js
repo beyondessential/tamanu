@@ -50,6 +50,7 @@ describe('User', () => {
 
     beforeAll(async () => {
       const { User, Role } = models;
+      await models.Setting.set('auth.restrictUsersToFacilities', true)
       authRole = await Role.create(fake(Role));
       authUser = await User.create(fake(User, { password: rawPassword, role: authRole.id }));
       deactivatedUser = await User.create(
