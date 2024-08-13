@@ -104,6 +104,21 @@ const TooltipContainer = styled.div`
   align-items: center;
 `;
 
+const StyledDeleteOutlineIcon = styled(DeleteOutlineIcon)`
+  font-size: 20px;
+  color: ${Colors.primary};
+`;
+
+const StyledCancelIcon = styled(CancelIcon)`
+  font-size: 20px;
+  color: ${Colors.alert};
+`;
+
+const StyledCheckCircleIcon = styled(CheckCircleIcon)`
+  font-size: 20px;
+  color: ${Colors.green};
+`;
+
 const getStatus = () => {
   return <StatusTodo />;
 };
@@ -147,7 +162,7 @@ const NotesCell = ({ row, hoveredRow }) => {
             }
           >
             <IconButton>
-              <DeleteOutlineIcon style={{ color: Colors.primary, fontSize: '20px' }} />
+              <StyledDeleteOutlineIcon />
             </IconButton>
           </ThemedTooltip>
           <ThemedTooltip
@@ -159,7 +174,7 @@ const NotesCell = ({ row, hoveredRow }) => {
             }
           >
             <IconButton>
-              <CancelIcon style={{ color: Colors.alert, fontSize: '20px' }} />
+              <StyledCancelIcon />
             </IconButton>
           </ThemedTooltip>
           <ThemedTooltip
@@ -171,7 +186,7 @@ const NotesCell = ({ row, hoveredRow }) => {
             }
           >
             <IconButton>
-              <CheckCircleIcon style={{ color: Colors.green, fontSize: '20px' }} />
+              <StyledCheckCircleIcon />
             </IconButton>
           </ThemedTooltip>
         </BulkActions>
@@ -266,7 +281,7 @@ export const TasksTable = ({ data }) => {
               }
             >
               <IconButton>
-                <CancelIcon style={{ color: Colors.alert, fontSize: '20px' }} />
+                <StyledCancelIcon />
               </IconButton>
             </ThemedTooltip>
             <ThemedTooltip
@@ -278,7 +293,7 @@ export const TasksTable = ({ data }) => {
               }
             >
               <IconButton>
-                <CheckCircleIcon style={{ color: Colors.green, fontSize: '20px' }} />
+                <StyledCheckCircleIcon />
               </IconButton>
             </ThemedTooltip>
             <ThemedTooltip
@@ -290,7 +305,7 @@ export const TasksTable = ({ data }) => {
               }
             >
               <IconButton>
-                <DeleteOutlineIcon style={{ color: Colors.primary, fontSize: '20px' }} />
+                <StyledDeleteOutlineIcon />
               </IconButton>
             </ThemedTooltip>
           </BulkActions>
