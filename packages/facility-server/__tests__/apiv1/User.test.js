@@ -1,4 +1,4 @@
-import { CAN_ACCESS_ALL_FACILITIES, SETTINGS_SCOPES, VISIBILITY_STATUSES } from '@tamanu/constants';
+import { CAN_ACCESS_ALL_FACILITIES, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { pick } from 'lodash';
 import { chance, disableHardcodedPermissionsForSuite, fake } from '@tamanu/shared/test-helpers';
 import { addHours } from 'date-fns';
