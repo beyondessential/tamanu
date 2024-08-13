@@ -30,6 +30,7 @@ describe('CentralSyncManager', () => {
   let sequelize;
 
   const DEFAULT_CURRENT_SYNC_TIME_VALUE = 2;
+  const DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS = 100000000;
 
   const initializeCentralSyncManager = config => {
     // Have to load test function within test scope so that we can mock dependencies per test case
@@ -197,7 +198,10 @@ describe('CentralSyncManager', () => {
 
     it("does not throw an error when connecting to a session that has not taken longer than configured 'syncSessionTimeoutMs'", async () => {
       const centralSyncManager = initializeCentralSyncManager({
-        sync: { syncSessionTimeoutMs: 1000 },
+        sync: {
+          syncSessionTimeoutMs: 1000,
+          maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
+        },
       });
       const { sessionId } = await centralSyncManager.startSession();
       await waitForSession(centralSyncManager, sessionId);
@@ -212,7 +216,10 @@ describe('CentralSyncManager', () => {
 
     it("throws an error when connecting to a session that has taken longer than configured 'syncSessionTimeoutMs'", async () => {
       const centralSyncManager = initializeCentralSyncManager({
-        sync: { syncSessionTimeoutMs: 200 },
+        sync: {
+          syncSessionTimeoutMs: 200,
+          maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
+        },
       });
       const { sessionId } = await centralSyncManager.startSession();
       await waitForSession(centralSyncManager, sessionId);
@@ -1086,6 +1093,7 @@ describe('CentralSyncManager', () => {
       const centralSyncManager = initializeCentralSyncManager({
         sync: {
           useLookupTable: true,
+          maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
         },
       });
 
@@ -1139,6 +1147,7 @@ describe('CentralSyncManager', () => {
       const centralSyncManager = initializeCentralSyncManager({
         sync: {
           useLookupTable: true,
+          maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
         },
       });
 
@@ -1201,6 +1210,7 @@ describe('CentralSyncManager', () => {
       const centralSyncManager = initializeCentralSyncManager({
         sync: {
           useLookupTable: true,
+          maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
         },
       });
 
