@@ -107,6 +107,7 @@ export const ImagingRequestForm = React.memo(
     const examinerLabel = examiner.displayName;
     const encounterLabel = getEncounterLabel(encounter);
     const { getAreasForImagingType } = useImagingRequestAreas();
+    const requiredValidationMessage = getTranslation('validation.required.inline', '*Required');
     return (
       <Form
         onSubmit={onSubmit}
@@ -117,11 +118,29 @@ export const ImagingRequestForm = React.memo(
         }}
         formType={editedObject ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
         validationSchema={yup.object().shape({
-          requestedById: foreignKey(getTranslation('validation.required.inline', '*Required')),
-          requestedDate: yup
-            .date()
-            .required(getTranslation('validation.required.inline', '*Required')),
-          imagingType: foreignKey(getTranslation('validation.required.inline', '*Required')),
+          requestedById: foreignKey(),
+          requestedDate: yup.date().required(requiredValidationMessage),
+          imagingType: foreignKey(requiredValidationMessage),
+          areas: yup.string().when('imagingType', {
+            is: imagingType => {
+              const imagingAreas = getAreasForImagingType(imagingType);
+              return imagingAreas.length > 0;
+            },
+            then: yup
+              .string()
+              .min(3, requiredValidationMessage) // Empty input is '[]', so validating that it's got at least one value in the array
+              .required(requiredValidationMessage),
+          }),
+          areaNote: yup.string().when('imagingType', {
+            is: imagingType => {
+              const imagingAreas = getAreasForImagingType(imagingType);
+              return imagingAreas.length === 0;
+            },
+            then: yup
+              .string()
+              .trim()
+              .required(requiredValidationMessage),
+          }),
         })}
         showInlineErrorsOnly
         render={({ submitForm, values }) => {
@@ -231,6 +250,7 @@ export const ImagingRequestForm = React.memo(
                   }
                   component={MultiselectField}
                   prefix="imaging.property.area"
+                  required
                 />
               ) : (
                 <Field
@@ -245,6 +265,7 @@ export const ImagingRequestForm = React.memo(
                   multiline
                   style={{ gridColumn: '1 / -1' }}
                   minRows={3}
+                  required
                 />
               )}
               <Field
