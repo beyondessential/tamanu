@@ -46,12 +46,13 @@ export const ExportReportView = () => {
 
   const handleSubmit = async ({ reportId, versionId, format }) => {
     try {
+      // TODO: Determine filename synchronously, and fetch data within getData
       const { filename, data } = await api.get(
         `admin/reports/${reportId}/versions/${versionId}/export/${format}`,
       );
       await saveFile({
         defaultFileName: filename,
-        data,
+        getData: async () => data,
         extension: format,
       });
     } catch (err) {
@@ -60,7 +61,7 @@ export const ExportReportView = () => {
           stringId="admin.report.notification.exportFailed"
           fallback={`Failed to export: ${err.message}`}
           replacements={{ message: err.message }}
-        />  
+        />,
       );
     }
   };
