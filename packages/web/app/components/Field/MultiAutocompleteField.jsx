@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import Select, { components } from 'react-select';
+import { components } from 'react-select';
 import styled from 'styled-components';
 import FormControl from '@material-ui/core/FormControl';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
@@ -205,13 +205,17 @@ const MultiAutocompleteInput = ({
         setOptions([]);
       }
     }, 200),
-    [],
+    [suggester],
   );
 
   const handleInputChange = (value, { action }) => {
-    if (action !== 'input-change') return;
-    setInputValue(value);
-    handleLoadOption(value);
+    let newValue = value;
+    if (action !== 'input-change' && action !== 'set-value') return;
+    if (action === 'set-value') {
+      newValue = '';
+    }
+    setInputValue(newValue);
+    handleLoadOption(newValue);
   };
 
   return (
