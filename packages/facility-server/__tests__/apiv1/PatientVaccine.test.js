@@ -268,11 +268,12 @@ describe('PatientVaccine', () => {
     });
 
     it('Should get administered vaccines with pagination', async () => {
+      const expectedOrder = ['vaccine 2 catchup', 'vaccine 1 routine', 'vaccine 1 routine'];
       const result = await app.get(
-        `/api/patient/${patient.id}/administeredVaccines?page=0&rowsPerPage=10&orderBy=date&order=desc`,
+        `/api/patient/${patient.id}/administeredVaccines?page=0&rowsPerPage=3&orderBy=vaccineDisplayName&order=desc`,
       );
       expect(result).toHaveSucceeded();
-      expect(result.body.count).toEqual(5);
+      expect(result.body.data.map(x => x.vaccineDisplayName)).toEqual(expectedOrder);
     });
 
     it('Should include not given vaccines', async () => {
