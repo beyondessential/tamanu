@@ -267,6 +267,14 @@ describe('PatientVaccine', () => {
       expect(result.body.count).toEqual(5); // there are 5 recorded given vaccines in beforeAll
     });
 
+    it('Should get administered vaccines with pagination', async () => {
+      const result = await app.get(
+        `/api/patient/${patient.id}/administeredVaccines?page=0&rowsPerPage=10&orderBy=date&order=desc`,
+      );
+      expect(result).toHaveSucceeded();
+      expect(result.body.count).toEqual(5);
+    });
+
     it('Should include not given vaccines', async () => {
       const freshPatient = await models.Patient.create(await createDummyPatient(models));
       await recordAdministeredVaccine(freshPatient, scheduled1);
