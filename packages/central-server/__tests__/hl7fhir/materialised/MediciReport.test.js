@@ -387,4 +387,47 @@ describe(`Materialised - MediciReport`, () => {
       });
     });
   });
+
+  describe('materialise Department History in Medici Report', () => {
+    it('returns all departments for an encounter', async () => {
+      const { Department } = ctx.store.models;
+      const oldDepartment = await Department.create(
+        fake(Department, {
+          facilityId: resources.facility.id,
+          locationId: resources.location.id,
+        }),
+      );
+      const newDepartment = await Department.create(
+        fake(Department, {
+          facilityId: resources.facility.id,
+          locationId: resources.location.id,
+        }),
+      );
+
+      const { encounter } = await makeEncounter({
+        encounterType: 'emergency',
+        departmentId: oldDepartment.id,
+      });
+
+      await encounter.update({ departmentId: newDepartment.id });
+
+      const { MediciReport } = ctx.store.models;
+
+      await MediciReport.materialiseFromUpstream(encounter.id);
+      await MediciReport.resolveUpstreams();
+
+      const mediciReport = await MediciReport.findOne();
+
+      expect(mediciReport.dataValues).toMatchObject({
+        departments: [
+          {
+            department: oldDepartment.name,
+          },
+          {
+            department: newDepartment.name,
+          },
+        ],
+      });
+    });
+  });
 });
