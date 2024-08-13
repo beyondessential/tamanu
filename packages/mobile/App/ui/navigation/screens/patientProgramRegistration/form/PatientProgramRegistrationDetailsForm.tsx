@@ -122,11 +122,10 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
                   <LocalisedField
                     label={
                       <TranslatedText
-                        stringId="general.localisedField.date.label"
-                        fallback="Date"
+                        stringId="patientProgramRegistry.date.label"
+                        fallback="Date of registration"
                       />
                     }
-                    localisationPath="fields.date"
                     labelFontSize={14}
                     component={DateField}
                     min={new Date()}
@@ -137,11 +136,10 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
                   <LocalisedField
                     label={
                       <TranslatedText
-                        stringId="general.localisedField.registeredBy.label"
+                        stringId="patientProgramRegistry.registeredBy.label"
                         fallback="Registered by"
                       />
                     }
-                    localisationPath="fields.registeredBy"
                     labelFontSize={14}
                     component={AutocompleteModalField}
                     placeholder={`Search`}
@@ -152,7 +150,12 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
                 </StyledView>
                 <StyledView marginLeft={20} marginRight={20}>
                   <LocalisedField
-                    localisationPath="fields.facility"
+                    label={
+                      <TranslatedText
+                        stringId="patientProgramRegistry.registeringFacility.label"
+                        fallback="Registering facility"
+                      />
+                    }
                     labelFontSize={14}
                     component={AutocompleteModalField}
                     placeholder={`Search`}
@@ -163,7 +166,7 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
                 </StyledView>
                 <StyledView marginLeft={20} marginRight={20}>
                   <LocalisedField
-                    localisationPath="fields.status"
+                    label={<TranslatedText stringId="general.status.label" fallback="Status" />}
                     labelFontSize={14}
                     component={Dropdown}
                     name="clinicalStatusId"
@@ -174,7 +177,12 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
                 </StyledView>
                 <StyledView marginLeft={20} marginRight={20}>
                   <LocalisedField
-                    localisationPath="fields.conditions"
+                    label={
+                      <TranslatedText
+                        stringId="patientProgramRegistry.relatedConditions.label"
+                        fallback="Related conditions"
+                      />
+                    }
                     labelFontSize={14}
                     component={MultiSelectModalField}
                     modalTitle="Conditions"
@@ -187,7 +195,9 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
                   />
                 </StyledView>
                 <Button
-                  buttonText="Confirm"
+                  buttonText={
+                    <TranslatedText stringId="general.action.confirm" fallback="Confirm" />
+                  }
                   backgroundColor={theme.colors.PRIMARY_MAIN}
                   marginLeft={screenPercentageToDP(2.43, Orientation.Width)}
                   marginRight={screenPercentageToDP(7, Orientation.Width)}

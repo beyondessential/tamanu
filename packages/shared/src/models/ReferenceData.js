@@ -44,6 +44,12 @@ export class ReferenceData extends Model {
   }
 
   static initRelations(models) {
+    this.belongsToMany(models.Encounter, {
+      through: models.EncounterDiet,
+      as: 'diet',
+      foreignKey: 'dietId',
+    });
+
     this.belongsToMany(models.ImagingRequest, {
       through: models.ImagingRequestArea,
       as: 'area',

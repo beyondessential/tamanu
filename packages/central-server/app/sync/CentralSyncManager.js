@@ -141,6 +141,17 @@ export class CentralSyncManager {
     if (session.completedAt) {
       throw new Error(`Sync session '${sessionId}' is already completed`);
     }
+
+    const { syncSessionTimeoutMs } = this.constructor.config.sync;
+    if (
+      syncSessionTimeoutMs &&
+      !session.error &&
+      session.updatedAt - session.createdAt > syncSessionTimeoutMs
+    ) {
+      session.error = `Sync session ${sessionId} timed out`;
+      await session.save();
+    }
+
     if (session.error) {
       throw new Error(errorMessageFromSession(session));
     }
@@ -329,6 +340,7 @@ export class CentralSyncManager {
         syncAllLabRequests: syncAllLabRequests && !isMobile && since > -1,
       };
 
+      console.log('HAHAHAHA', this.constructor.config);
       // snapshot inside a "repeatable read" transaction, so that other changes made while this
       // snapshot is underway aren't included (as this could lead to a pair of foreign records with
       // the child in the snapshot and its parent missing)

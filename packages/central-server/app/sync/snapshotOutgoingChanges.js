@@ -295,6 +295,7 @@ export const snapshotOutgoingChanges = withConfig(
     sessionConfig,
     config,
   ) => {
+    console.log('kakakak', config);
     return config.sync.lookupTable.enabled
       ? snapshotOutgoingChangesFromSyncLookup(
           store,
