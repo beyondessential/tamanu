@@ -150,7 +150,7 @@ jobs:
       # - we want to bring deploys up, AND the images for this commit don't yet exist, or
       # - we want to build images only, AND the images for this commit don't yet exist, or
       # - we're doing a release, because images are both a product and how we make other artifacts.
-      build-images: ${{ ((github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')) || steps.config.outputs.images == 'true') && steps.check-images-exist.outputs.exist != 'yes' }}
+      build-images: ${{ ((github.event_name == 'push' && github.ref == 'refs/heads/feature/sav-793-deploy-to-clone') || steps.config.outputs.images == 'true') && steps.check-images-exist.outputs.exist != 'yes' }}
 
   images:
     needs: config
