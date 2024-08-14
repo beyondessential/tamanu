@@ -137,17 +137,8 @@ export async function importSheet({ errors, log, models }, { loader, sheetName, 
           idCache.add(values.id);
         }
 
-        // TODO: find more suitable place for this logic
-        if (model === 'User') {
-          const { deletedCount } = await models.UserFacility.deleteOtherFacilitiesForUser(
-            options.allowedFacilityIds,
-            values.id,
-          );
-          updateStat(stats, 'UserFacility', 'deleted', deletedCount);
-        }
-
         updateStat(stats, statkey(model, sheetName), 'created', 0);
-        tableRows.push({ model, sheetRow, values });
+        tableRows.push({ model, sheetRow, values, ...options });
       }
     } catch (err) {
       errors.push(new DataLoaderError(sheetName, sheetRow, err));
