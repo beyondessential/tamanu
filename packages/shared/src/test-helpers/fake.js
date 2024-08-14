@@ -334,7 +334,7 @@ const MODEL_SPECIFIC_OVERRIDES = {
       emergencyContactName: chance.name(),
       emergencyContactNumber: chance.phone(),
       secondaryVillageId: null,
-      updatedAtByField: {},
+      updatedAtByField: null,
     };
   },
   PatientFacility: ({ patientId = fakeUUID(), facilityId = fakeUUID() }) => {
