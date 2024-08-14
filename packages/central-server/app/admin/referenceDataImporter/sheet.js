@@ -107,7 +107,11 @@ export async function importSheet({ errors, log, models }, { loader, sheetName, 
       for (const { model, values, ...options } of loader(trimmed, models, FOREIGN_KEY_SCHEMATA)) {
         if (!models[model]) throw new Error(`No such type of data: ${model}`);
         if (model === 'User') {
-          await models.UserFacility.deleteOtherFacilitiesForUser(options.allowedFacilityIds, values.id);
+          const { deletedCount } = await models.UserFacility.deleteOtherFacilitiesForUser(
+            options.allowedFacilityIds,
+            values.id,
+          );
+          updateStat(stats, 'UserFacility', 'deleted', deletedCount);
         }
         if (model === 'PatientFieldValue') {
           const existingDefinition =

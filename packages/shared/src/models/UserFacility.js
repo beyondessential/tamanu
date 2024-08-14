@@ -43,7 +43,7 @@ export class UserFacility extends Model {
   }
 
   static async deleteOtherFacilitiesForUser(validFacilityIds, userId) {
-    await this.update(
+    const response = await this.update(
       {
         deletedAt: Sequelize.fn('now'),
       },
@@ -54,6 +54,7 @@ export class UserFacility extends Model {
         },
       },
     );
+    return { deletedCount: response[0] }
   }
 
   static buildSyncFilter() {
