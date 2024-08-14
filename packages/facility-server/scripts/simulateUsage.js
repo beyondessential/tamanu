@@ -77,7 +77,9 @@ async function updateRecord(model) {
 async function createPatient(models) {
   const { Patient, PatientAdditionalData } = models;
   const patient = await Patient.create(fake(Patient, { displayId: uuidv4() }));
-  await PatientAdditionalData.create(fake(PatientAdditionalData, { patientId: patient.id }));
+  await PatientAdditionalData.create(
+    fake(PatientAdditionalData, { patientId: patient.id, updatedAtByField: null }),
+  );
 
   return patient;
 }
