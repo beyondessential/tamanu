@@ -8,6 +8,7 @@ export const REFERENCE_TYPES = {
   CATCHMENT: 'catchment',
   DRUG: 'drug',
   DIET: 'diet',
+  DESIGNATION: 'designation',
   TRIAGE_REASON: 'triageReason',
   PROCEDURE_TYPE: 'procedureType',
   IMAGING_TYPE: 'imagingType',
