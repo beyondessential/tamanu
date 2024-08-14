@@ -35,7 +35,7 @@ export const StyledTextInput = styled.TextInput<StyledViewProps>`
       return theme.colors.DEFAULT_OFF;
     }};
   border-radius: 5px;
-  font-size: font-size: ${({ fieldFontSize }) =>
+  font-size: ${({ fieldFontSize }) =>
     fieldFontSize || screenPercentageToDP(2.18, Orientation.Height)};
   line-height: ${screenPercentageToDP(2.58, Orientation.Height)};
   font-weight: 400;

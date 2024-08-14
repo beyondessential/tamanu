@@ -59,7 +59,7 @@ export const ProgramRegistrySection = (): ReactElement => {
           />
           }
           localisationPath="fields.programRegistry"
-          labelFontSize={screenPercentageToDP(2, Orientation.Height)}
+          labelFontSize={screenPercentageToDP(2, Orientation.Height)  }
           fieldFontSize={screenPercentageToDP(2, Orientation.Height)}
           component={AutocompleteModalField}
           placeholder="Search"
@@ -76,7 +76,7 @@ export const ProgramRegistrySection = (): ReactElement => {
           />
           }
           localisationPath="fields.programRegistry"
-          labelFontSize={14}
+          labelFontSize={screenPercentageToDP(2, Orientation.Height)}
           component={Dropdown}
           options={programRegistries}
           selectPlaceholderText="Select"
