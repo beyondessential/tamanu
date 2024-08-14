@@ -210,21 +210,23 @@ export async function importRows(
         include: [{ model: models.Facility, as: 'facilities' }],
       });
 
-      const idsToBeDeleted = userEntity.facilities
-        .map(f => f.id)
-        .filter(id => !allowedFacilityIds.includes(id));
+      if (userEntity) {
+        const idsToBeDeleted = userEntity.facilities
+          .map(f => f.id)
+          .filter(id => !allowedFacilityIds.includes(id));
 
-      idsToBeDeleted.forEach(facilityId => {
-        validRows.push({
-          model: 'UserFacility',
-          values: {
-            id: `${values.id};${facilityId}`,
-            userId: values.id,
-            facilityId: facilityId,
-            deletedAt: new Date(),
-          },
+        idsToBeDeleted.forEach(facilityId => {
+          validRows.push({
+            model: 'UserFacility',
+            values: {
+              id: `${values.id};${facilityId}`,
+              userId: values.id,
+              facilityId: facilityId,
+              deletedAt: new Date(),
+            },
+          });
         });
-      });
+      }
     }),
   );
 
