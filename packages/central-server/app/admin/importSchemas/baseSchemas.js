@@ -356,3 +356,8 @@ export const InvoiceProduct = yup.object().shape({
   discountable: yup.boolean().required(),
   visibilityStatus
 });
+
+export const UserDesignation = yup.object().shape({
+  userId: yup.string().required(),
+  designationId: yup.string().required(),
+});

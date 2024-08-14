@@ -103,7 +103,11 @@ export async function importSheet({ errors, log, models }, { loader, sheetName, 
       Object.entries(data).map(([key, value]) => [key.trim(), value]),
     );
     try {
-      for (const { model, values } of loader(trimmed, models, FOREIGN_KEY_SCHEMATA)) {
+      for (const { model, values } of await loader(trimmed, {
+        models,
+        foreignKeySchemata: FOREIGN_KEY_SCHEMATA,
+        pushError: (message) => errors.push(new ValidationError(sheetName, sheetRow, message)),
+      })) {
         if (!models[model]) throw new Error(`No such type of data: ${model}`);
         if (model === 'PatientFieldValue') {
           const existingDefinition =

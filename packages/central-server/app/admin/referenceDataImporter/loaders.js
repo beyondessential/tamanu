@@ -1,6 +1,7 @@
 import { endOfDay, startOfDay } from 'date-fns';
 import { getJsDateFromExcel } from 'excel-date-to-js';
 import { ENCOUNTER_TYPES } from '@tamanu/constants';
+import { VISIBILITY_STATUSES } from '@tamanu/constants';
 
 function stripNotes(fields) {
   const values = { ...fields };
@@ -105,7 +106,7 @@ export function translatedStringLoader({ stringId, ...languages }) {
     }));
 }
 
-export function patientDataLoader(item, models, foreignKeySchemata) {
+export function patientDataLoader(item, { models, foreignKeySchemata }) {
   const { dateOfBirth, id: patientId, patientAdditionalData, ...otherFields } = item;
 
   const rows = [];
@@ -209,6 +210,43 @@ export function labTestPanelLoader(item) {
         },
       });
     });
+
+  return rows;
+}
+
+export async function userLoader(item, { models, pushError, updateStat }) {
+  const { id, designations, ...otherFields } = item;
+  const rows = [];
+
+  rows.push({
+    model: 'User',
+    values: {
+      id,
+      ...otherFields,
+    },
+  });
+
+  await models.UserDesignation.destroy({ where: { userId: id } });
+
+  for (const designation of (designations || '').split(',').map(d => d.trim())) {
+    if (!designation) continue;
+    const existingData = await models.ReferenceData.findByPk(designation);
+    if (!existingData) {
+      pushError(`Designation "${designation}" does not exist`);
+      continue;
+    }
+    if (existingData.visibilityStatus !== VISIBILITY_STATUSES.CURRENT) {
+      pushError(`Designation "${designation}" doesn't has visibilityStatus of current`);
+      continue;
+    }
+    rows.push({
+      model: 'UserDesignation',
+      values: {
+        userId: id,
+        designationId: designation,
+      },
+    });
+  }
 
   return rows;
 }
