@@ -88,27 +88,27 @@ jobs:
           if-no-files-found: error
           compression-level: 0
 
-      - name: Configure AWS Credentials (upload)
-        if: github.event_name != 'workflow_dispatch'
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-region: ap-southeast-2
-          role-to-assume: arn:aws:iam::143295493206:role/gha-server-s3
-          role-session-name: GHA@Tamanu=ServerPackage
+      # - name: Configure AWS Credentials (upload)
+      #   if: github.event_name != 'workflow_dispatch'
+      #   uses: aws-actions/configure-aws-credentials@v4
+      #   with:
+      #     aws-region: ap-southeast-2
+      #     role-to-assume: arn:aws:iam::143295493206:role/gha-server-s3
+      #     role-session-name: GHA@Tamanu=ServerPackage
 
-      - name: Push to S3
-        if: github.event_name != 'workflow_dispatch'
-        run: |
-          set -exu
-          for file in *.tar.zst*; do
-            aws s3 cp $file s3://bes-tamanu-release-servers/${{ steps.version.outputs.version }}/$file --no-progress
-          done
+      # - name: Push to S3
+      #   if: github.event_name != 'workflow_dispatch'
+      #   run: |
+      #     set -exu
+      #     for file in *.tar.zst*; do
+      #       aws s3 cp $file s3://bes-tamanu-release-servers/${{ steps.version.outputs.version }}/$file --no-progress
+      #     done
 
-      - name: Upload to release
-        if: startsWith(github.ref, 'refs/tags/v')
-        uses: softprops/action-gh-release@v2
-        with:
-          files: '*.tar.zst*'
+      # - name: Upload to release
+      #   if: startsWith(github.ref, 'refs/tags/v')
+      #   uses: softprops/action-gh-release@v2
+      #   with:
+      #     files: '*.tar.zst*'
 
     outputs:
       version: ${{ steps.version.outputs.version }}
@@ -167,25 +167,25 @@ jobs:
           if-no-files-found: error
           compression-level: 0
 
-      - name: Configure AWS Credentials (upload)
-        if: github.event_name != 'workflow_dispatch'
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-region: ap-southeast-2
-          role-to-assume: arn:aws:iam::143295493206:role/gha-server-s3
-          role-session-name: GHA@Tamanu=ServerPackage
+      # - name: Configure AWS Credentials (upload)
+      #   if: github.event_name != 'workflow_dispatch'
+      #   uses: aws-actions/configure-aws-credentials@v4
+      #   with:
+      #     aws-region: ap-southeast-2
+      #     role-to-assume: arn:aws:iam::143295493206:role/gha-server-s3
+      #     role-session-name: GHA@Tamanu=ServerPackage
 
-      - name: Push to S3
-        if: github.event_name != 'workflow_dispatch'
-        shell: bash
-        run: |
-          set -x
-          for file in *.tar.zst*; do
-            aws s3 cp $file s3://bes-tamanu-release-servers/${{ needs.linux.outputs.version }}/$file --no-progress
-          done
+      # - name: Push to S3
+      #   if: github.event_name != 'workflow_dispatch'
+      #   shell: bash
+      #   run: |
+      #     set -x
+      #     for file in *.tar.zst*; do
+      #       aws s3 cp $file s3://bes-tamanu-release-servers/${{ needs.linux.outputs.version }}/$file --no-progress
+      #     done
 
-      - name: Upload to release
-        if: github.ref == 'refs/heads/feature/sav-793-deploy-to-clone'
-        uses: softprops/action-gh-release@v2
-        with:
-          files: '*.tar.zst*'
+      # - name: Upload to release
+      #   if: github.ref == 'refs/heads/feature/sav-793-deploy-to-clone'
+      #   uses: softprops/action-gh-release@v2
+      #   with:
+      #     files: '*.tar.zst*'
