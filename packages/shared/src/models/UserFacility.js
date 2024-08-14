@@ -42,21 +42,6 @@ export class UserFacility extends Model {
     return super.create(values, options);
   }
 
-  static async deleteOtherFacilitiesForUser(validFacilityIds, userId) {
-    const response = await this.update(
-      {
-        deletedAt: Sequelize.fn('now'),
-      },
-      {
-        where: {
-          facilityId: { [Op.notIn]: validFacilityIds },
-          userId,
-        },
-      },
-    );
-    return { deletedCount: response[0] }
-  }
-
   static buildSyncFilter() {
     return null; // syncs everywhere
   }
