@@ -106,14 +106,6 @@ export async function importSheet({ errors, log, models }, { loader, sheetName, 
     try {
       for (const { model, values, ...options } of loader(trimmed, models, FOREIGN_KEY_SCHEMATA)) {
         if (!models[model]) throw new Error(`No such type of data: ${model}`);
-        // TODO: find more suitable place for this logic
-        if (model === 'User') {
-          const { deletedCount } = await models.UserFacility.deleteOtherFacilitiesForUser(
-            options.allowedFacilityIds,
-            values.id,
-          );
-          updateStat(stats, 'UserFacility', 'deleted', deletedCount);
-        }
         if (model === 'PatientFieldValue') {
           const existingDefinition =
             values?.definitionId &&
@@ -143,6 +135,15 @@ export async function importSheet({ errors, log, models }, { loader, sheetName, 
           continue;
         } else {
           idCache.add(values.id);
+        }
+
+        // TODO: find more suitable place for this logic
+        if (model === 'User') {
+          const { deletedCount } = await models.UserFacility.deleteOtherFacilitiesForUser(
+            options.allowedFacilityIds,
+            values.id,
+          );
+          updateStat(stats, 'UserFacility', 'deleted', deletedCount);
         }
 
         updateStat(stats, statkey(model, sheetName), 'created', 0);
