@@ -23,7 +23,7 @@ export class UserDesignation extends Model {
 
     this.belongsTo(models.ReferenceData, {
       foreignKey: 'designationId',
-      as: 'designation',
+      as: 'referenceData',
     });
   }
 
