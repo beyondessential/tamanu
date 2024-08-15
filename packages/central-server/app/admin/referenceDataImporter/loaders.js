@@ -217,10 +217,9 @@ export async function userLoader(item, models) {
   const { id, allowedFacilities, ...otherFields } = item;
   const rows = [];
 
-  let allowedFacilityIds = [];
-  if (allowedFacilities) {
-    allowedFacilityIds = allowedFacilities.split(',').map(t => t.trim());
-  }
+  const allowedFacilityIds = allowedFacilities
+    ? allowedFacilities.split(',').map(t => t.trim())
+    : [];
 
   rows.push({
     model: 'User',
