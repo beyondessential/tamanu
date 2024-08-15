@@ -9,6 +9,7 @@
 
 import { screen } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
+import Chance from 'chance';
 import * as React from 'react';
 import { assert, describe, it, vi } from 'vitest';
 import { getCurrentDateString } from '@tamanu/shared/utils/dateTime';
@@ -90,7 +91,8 @@ describe('DownloadDataButton', () => {
 
   it('does attempt to save a spreadsheet', async () => {
     const user = userEvent.setup();
-    render(<DownloadDataButton exportName="test-export-name" columns={columns} data={data} />);
+    const exportName = new Chance().string();
+    render(<DownloadDataButton exportName={exportName} columns={columns} data={data} />);
 
     const button = screen.getByTestId('download-data-button');
     await user.click(button);
@@ -98,7 +100,7 @@ describe('DownloadDataButton', () => {
     expect(saveFileSpy).toHaveBeenCalledTimes(1);
     expect(saveFileSpy).toHaveBeenLastCalledWith(
       expect.objectContaining({
-        defaultFileName: `test-export-name-${getCurrentDateString()}`,
+        defaultFileName: `${exportName}-${getCurrentDateString()}`,
         extension: 'xlsx',
       }),
     );
