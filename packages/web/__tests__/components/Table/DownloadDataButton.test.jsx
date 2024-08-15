@@ -90,7 +90,7 @@ describe('DownloadDataButton', () => {
 
   it('does attempt to save a spreadsheet', async () => {
     const user = userEvent.setup();
-    render(<DownloadDataButton exportName="Export" columns={columns} data={data} />);
+    render(<DownloadDataButton exportName="test-export-name" columns={columns} data={data} />);
 
     const button = screen.getByTestId('download-data-button');
     await user.click(button);
@@ -98,7 +98,7 @@ describe('DownloadDataButton', () => {
     expect(saveFileSpy).toHaveBeenCalledTimes(1);
     expect(saveFileSpy).toHaveBeenLastCalledWith(
       expect.objectContaining({
-        defaultFileName: `🌐 Export 🌐-${getCurrentDateString()}`,
+        defaultFileName: `test-export-name-${getCurrentDateString()}`,
         extension: 'xlsx',
       }),
     );
