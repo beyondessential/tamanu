@@ -1,7 +1,7 @@
 import { endOfDay, startOfDay } from 'date-fns';
 import { getJsDateFromExcel } from 'excel-date-to-js';
-import { ENCOUNTER_TYPES } from '@tamanu/constants';
-import { VISIBILITY_STATUSES } from '@tamanu/constants';
+import { ENCOUNTER_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
+import { v4 as uuidv4 } from 'uuid';
 
 function stripNotes(fields) {
   const values = { ...fields };
@@ -228,19 +228,25 @@ export async function userLoader(item, { models, pushError }) {
 
   await models.UserDesignation.destroy({ where: { userId: id } });
 
-  for (const designation of (designations || '').split(',').map(d => d.trim()).filter(Boolean)) {
+  const designationIds = (designations || '')
+    .split(',')
+    .map(d => d.trim())
+    .filter(Boolean);
+
+  for (const designation of designationIds) {
     const existingData = await models.ReferenceData.findByPk(designation);
     if (!existingData) {
       pushError(`Designation "${designation}" does not exist`);
       continue;
     }
     if (existingData.visibilityStatus !== VISIBILITY_STATUSES.CURRENT) {
-      pushError(`Designation "${designation}" doesn't has visibilityStatus of current`);
+      pushError(`Designation "${designation}" doesn't have visibilityStatus of current`);
       continue;
     }
     rows.push({
       model: 'UserDesignation',
       values: {
+        id: uuidv4(),
         userId: id,
         designationId: designation,
       },
