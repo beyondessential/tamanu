@@ -1,14 +1,16 @@
 const { spawn } = require('node:child_process');
 const { once } = require('node:events');
+const config = require('config');
 const { isEqual, zip, difference, uniq, sortedUniq } = require('lodash');
 const { injectReplacements } = require('sequelize/lib/utils/sql');
 const { program } = require('commander');
 const hashObject = require('object-hash');
 const { astVisitor, parseFirst } = require('pgsql-ast-parser');
+
 const { createMigrationInterface } = require('@tamanu/shared/services/migrations');
 const { initDatabase } = require('@tamanu/shared/services/database');
+const { SYNC_DIRECTIONS } = require('@tamanu/constants');
 const { log } = require('@tamanu/shared/services/logging');
-const config = require('config');
 
 // retrieves table names from a list of SQL queries
 function tableNamesFromQueries(queries) {
@@ -124,6 +126,9 @@ async function getHashesForTables(sequelize, tables) {
     if (UNHASHED_TABLES.includes(table)) continue;
 
     const model = sequelize.modelManager.findModel(m => m.tableName === table);
+
+    // No need for determinism test when data is not shared between central and facility
+    if (model.syncDirection === SYNC_DIRECTIONS.DO_NOT_SYNC) continue;
 
     // get columns
     const allColumns = await getColumnsForModel(model);

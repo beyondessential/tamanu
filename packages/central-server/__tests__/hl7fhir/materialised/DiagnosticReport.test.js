@@ -24,30 +24,32 @@ describe('Create DiagnosticReport', () => {
   const INTEGRATION_ROUTE = 'fhir/mat';
   const endpoint = `/v1/integration/${INTEGRATION_ROUTE}/DiagnosticReport`;
   const postBody = serviceRequestId => ({
-    resourceType: "DiagnosticReport",
-    basedOn: [{
-      type: "ServiceRequest",
-      reference: `ServiceRequest/${serviceRequestId}`
-    }],
+    resourceType: 'DiagnosticReport',
+    basedOn: [
+      {
+        type: 'ServiceRequest',
+        reference: `ServiceRequest/${serviceRequestId}`,
+      },
+    ],
     status: FHIR_DIAGNOSTIC_REPORT_STATUS.FINAL,
     category: [
       {
         coding: [
           {
-            code: "108252007",
-            system: "http://snomed.info/sct"
-          }
-        ]
-      }
+            code: '108252007',
+            system: 'http://snomed.info/sct',
+          },
+        ],
+      },
     ],
     code: {
       coding: [
         {
-          system: "http://loinc.org",
-          code: "42191-7",
-          display: "Hepatitis Panel"
-        }
-      ]
+          system: 'http://loinc.org',
+          code: '42191-7',
+          display: 'Hepatitis Panel',
+        },
+      ],
     },
   });
 
@@ -92,6 +94,7 @@ describe('Create DiagnosticReport', () => {
         FHIR_DIAGNOSTIC_REPORT_STATUS.PARTIAL.PRELIMINARY,
         FHIR_DIAGNOSTIC_REPORT_STATUS.FINAL,
         FHIR_DIAGNOSTIC_REPORT_STATUS.CANCELLED,
+        FHIR_DIAGNOSTIC_REPORT_STATUS.AMENDED._,
         FHIR_DIAGNOSTIC_REPORT_STATUS.ENTERED_IN_ERROR,
       ];
       const { FhirServiceRequest } = ctx.store.models;
@@ -102,8 +105,8 @@ describe('Create DiagnosticReport', () => {
           isWithPanels: true,
         },
         {
-          status: LAB_REQUEST_STATUSES.TO_BE_VERIFIED
-        }
+          status: LAB_REQUEST_STATUSES.TO_BE_VERIFIED,
+        },
       );
       const mat = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
       const serviceRequestId = mat.id;
@@ -111,7 +114,7 @@ describe('Create DiagnosticReport', () => {
 
       const body = postBody(serviceRequestId);
       // Look I know this is pretty oldskool
-      // and we like to be more declarative these days 
+      // and we like to be more declarative these days
       // but a mapping to Promise.all will likely
       // create some bad time race conditions
       // sometimes the old ways are the best
@@ -123,27 +126,71 @@ describe('Create DiagnosticReport', () => {
           body.status === FHIR_DIAGNOSTIC_REPORT_STATUS.PARTIAL._
         ) {
           expectedLabRequestStatus = LAB_REQUEST_STATUSES.TO_BE_VERIFIED;
-        } else if (
-          body.status === FHIR_DIAGNOSTIC_REPORT_STATUS.PARTIAL.PRELIMINARY
-        ) {
+        } else if (body.status === FHIR_DIAGNOSTIC_REPORT_STATUS.PARTIAL.PRELIMINARY) {
           expectedLabRequestStatus = LAB_REQUEST_STATUSES.VERIFIED;
-        } else if (
-          body.status === FHIR_DIAGNOSTIC_REPORT_STATUS.FINAL
-        ) {
+        } else if (body.status === FHIR_DIAGNOSTIC_REPORT_STATUS.FINAL) {
           expectedLabRequestStatus = LAB_REQUEST_STATUSES.PUBLISHED;
-        } else if (
-          body.status === FHIR_DIAGNOSTIC_REPORT_STATUS.CANCELLED
-        ) {
+        } else if (body.status === FHIR_DIAGNOSTIC_REPORT_STATUS.CANCELLED) {
           expectedLabRequestStatus = LAB_REQUEST_STATUSES.CANCELLED;
-        } else if (
-          body.status === FHIR_DIAGNOSTIC_REPORT_STATUS.ENTERED_IN_ERROR
-        ) {
+        } else if (body.status === FHIR_DIAGNOSTIC_REPORT_STATUS.AMENDED._) {
+          expectedLabRequestStatus = LAB_REQUEST_STATUSES.INVALIDATED;
+        } else if (body.status === FHIR_DIAGNOSTIC_REPORT_STATUS.ENTERED_IN_ERROR) {
           expectedLabRequestStatus = LAB_REQUEST_STATUSES.ENTERED_IN_ERROR;
         }
         const response = await app.post(endpoint).send(body);
         await labRequest.reload();
         expect(labRequest.status).toBe(expectedLabRequestStatus);
         expect(response).toHaveSucceeded();
+
+        // Reset the labRequest status
+        labRequest.set({ status: LAB_REQUEST_STATUSES.TO_BE_VERIFIED });
+        await labRequest.save();
+      }
+    });
+
+    it('post a DiagnosticReport to a completed ServiceRequest (published Lab Request)', async () => {
+      const statuses = [
+        FHIR_DIAGNOSTIC_REPORT_STATUS.REGISTERED,
+        FHIR_DIAGNOSTIC_REPORT_STATUS.PARTIAL._,
+        FHIR_DIAGNOSTIC_REPORT_STATUS.PARTIAL.PRELIMINARY,
+        FHIR_DIAGNOSTIC_REPORT_STATUS.FINAL,
+        FHIR_DIAGNOSTIC_REPORT_STATUS.CANCELLED,
+        FHIR_DIAGNOSTIC_REPORT_STATUS.AMENDED._,
+        FHIR_DIAGNOSTIC_REPORT_STATUS.ENTERED_IN_ERROR,
+      ];
+      const { FhirServiceRequest } = ctx.store.models;
+      const { labRequest } = await fakeResourcesOfFhirServiceRequestWithLabRequest(
+        ctx.store.models,
+        resources,
+        {
+          isWithPanels: true,
+        },
+        {
+          status: LAB_REQUEST_STATUSES.PUBLISHED,
+        },
+      );
+      const mat = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
+      const serviceRequestId = mat.id;
+      await FhirServiceRequest.resolveUpstreams();
+
+      const body = postBody(serviceRequestId);
+      for (let index = 0; index < statuses.length; index++) {
+        body.status = statuses[index];
+        let expectedLabRequestStatus;
+        // Once in a published state, a Lab Request can only transition to invalidated (ignore all other changes to the status)
+        if (body.status === FHIR_DIAGNOSTIC_REPORT_STATUS.AMENDED._) {
+          expectedLabRequestStatus = LAB_REQUEST_STATUSES.INVALIDATED;
+        } else {
+          expectedLabRequestStatus = LAB_REQUEST_STATUSES.PUBLISHED;
+        }
+        const response = await app.post(endpoint).send(body);
+        await labRequest.reload();
+        expect(labRequest.status).toBe(expectedLabRequestStatus);
+        expect(response).toHaveSucceeded();
+
+        // Reset the labRequest status
+        labRequest.set({ status: LAB_REQUEST_STATUSES.PUBLISHED });
+        await labRequest.save();
       }
     });
 
@@ -157,7 +204,7 @@ describe('Create DiagnosticReport', () => {
         },
         {
           status: LAB_REQUEST_STATUSES.PUBLISHED,
-        }
+        },
       );
       const mat = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
       const serviceRequestId = mat.id;
@@ -168,13 +215,16 @@ describe('Create DiagnosticReport', () => {
       const testAttachment = {
         contentType: 'application/pdf',
         data: base64pdf,
-        title: 'LAB ID: P73456090 MAX JONES Biopsy without Microscopic Description (1 Site/Lesion)-Standard'
+        title:
+          'LAB ID: P73456090 MAX JONES Biopsy without Microscopic Description (1 Site/Lesion)-Standard',
       };
       const body = {
         ...postBody(serviceRequestId),
-        presentedForm: [{
-          ...testAttachment,
-        }],
+        presentedForm: [
+          {
+            ...testAttachment,
+          },
+        ],
       };
       const response = await app.post(endpoint).send(body);
       await labRequest.reload();
@@ -227,8 +277,8 @@ describe('Create DiagnosticReport', () => {
             isWithPanels: true,
           },
           {
-            status: LAB_REQUEST_STATUSES.TO_BE_VERIFIED
-          }
+            status: LAB_REQUEST_STATUSES.TO_BE_VERIFIED,
+          },
         );
         const mat = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
         const serviceRequestId = mat.id;
@@ -254,50 +304,6 @@ describe('Create DiagnosticReport', () => {
         expect(response.status).toBe(400);
       });
 
-      it('reports invalid if using unsupported statuses', async () => {
-        const statuses = [
-          FHIR_DIAGNOSTIC_REPORT_STATUS.AMENDED._,
-          FHIR_DIAGNOSTIC_REPORT_STATUS.AMENDED.CORRECTED,
-          FHIR_DIAGNOSTIC_REPORT_STATUS.AMENDED.APPENDED,
-        ];
-        const { FhirServiceRequest } = ctx.store.models;
-        const { labRequest } = await fakeResourcesOfFhirServiceRequestWithLabRequest(
-          ctx.store.models,
-          resources,
-          {
-            isWithPanels: true,
-          },
-          {
-            status: LAB_REQUEST_STATUSES.TO_BE_VERIFIED
-          }
-        );
-        const mat = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
-        const serviceRequestId = mat.id;
-        await FhirServiceRequest.resolveUpstreams();
-        const body = postBody(serviceRequestId);
-
-        for (let index = 0; index < statuses.length; index++) {
-          body.status = statuses[index];
-          const response = await app.post(endpoint).send(body);
-          await labRequest.reload();
-          expect(response.body).toMatchObject({
-            resourceType: 'OperationOutcome',
-            id: expect.any(String),
-            issue: [
-              {
-                severity: 'error',
-                code: 'invalid',
-                diagnostics: expect.any(String),
-                details: {
-                  text: "Amend workflow unsupported",
-                },
-              },
-            ],
-          });
-          expect(response.status).toBe(400);
-        }
-      });
-
       it('reports invalid if using invalid statuses', async () => {
         const { FhirServiceRequest } = ctx.store.models;
         const { labRequest } = await fakeResourcesOfFhirServiceRequestWithLabRequest(
@@ -307,14 +313,13 @@ describe('Create DiagnosticReport', () => {
             isWithPanels: true,
           },
           {
-            status: LAB_REQUEST_STATUSES.TO_BE_VERIFIED
-          }
+            status: LAB_REQUEST_STATUSES.TO_BE_VERIFIED,
+          },
         );
         const mat = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
         const serviceRequestId = mat.id;
         await FhirServiceRequest.resolveUpstreams();
         const body = postBody(serviceRequestId);
-
 
         body.status = 'unstatus';
         const response = await app.post(endpoint).send(body);
@@ -336,6 +341,50 @@ describe('Create DiagnosticReport', () => {
         expect(response.status).toBe(400);
       });
 
+      it('reports invalid if using unsupported statuses', async () => {
+        const statuses = [
+          FHIR_DIAGNOSTIC_REPORT_STATUS.AMENDED.CORRECTED,
+          FHIR_DIAGNOSTIC_REPORT_STATUS.AMENDED.APPENDED,
+        ];
+        const { FhirServiceRequest } = ctx.store.models;
+        const { labRequest } = await fakeResourcesOfFhirServiceRequestWithLabRequest(
+          ctx.store.models,
+          resources,
+          {
+            isWithPanels: true,
+          },
+          {
+            status: LAB_REQUEST_STATUSES.TO_BE_VERIFIED,
+          },
+        );
+        const mat = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
+        const serviceRequestId = mat.id;
+        await FhirServiceRequest.resolveUpstreams();
+        const body = postBody(serviceRequestId);
+
+        for (let index = 0; index < statuses.length; index++) {
+          const status = statuses[index];
+          body.status = status;
+          const response = await app.post(endpoint).send(body);
+          await labRequest.reload();
+          expect(response.body).toMatchObject({
+            resourceType: 'OperationOutcome',
+            id: expect.any(String),
+            issue: [
+              {
+                severity: 'error',
+                code: 'invalid',
+                diagnostics: expect.any(String),
+                details: {
+                  text: `${status} workflow unsupported`,
+                },
+              },
+            ],
+          });
+          expect(response.status).toBe(400);
+        }
+      });
+
       it('returns invalid structure if the service request id is missing', async () => {
         const { FhirServiceRequest } = ctx.store.models;
         const { labRequest } = await fakeResourcesOfFhirServiceRequestWithLabRequest(
@@ -345,8 +394,8 @@ describe('Create DiagnosticReport', () => {
             isWithPanels: true,
           },
           {
-            status: LAB_REQUEST_STATUSES.TO_BE_VERIFIED
-          }
+            status: LAB_REQUEST_STATUSES.TO_BE_VERIFIED,
+          },
         );
         const mat = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
         const serviceRequestId = mat.id;
@@ -381,7 +430,7 @@ describe('Create DiagnosticReport', () => {
           },
           {
             status: LAB_REQUEST_STATUSES.PUBLISHED,
-          }
+          },
         );
         const mat = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
         const serviceRequestId = mat.id;
@@ -389,13 +438,16 @@ describe('Create DiagnosticReport', () => {
         const testAttachment = {
           contentType: 'application/jpeg',
           data: base64pdf,
-          title: 'LAB ID: P73456090 MAX JONES Biopsy without Microscopic Description (1 Site/Lesion)-Standard'
+          title:
+            'LAB ID: P73456090 MAX JONES Biopsy without Microscopic Description (1 Site/Lesion)-Standard',
         };
         const body = {
           ...postBody(serviceRequestId),
-          presentedForm: [{
-            ...testAttachment,
-          }],
+          presentedForm: [
+            {
+              ...testAttachment,
+            },
+          ],
         };
         const response = await app.post(endpoint).send(body);
         expect(response.body).toMatchObject({
@@ -407,7 +459,9 @@ describe('Create DiagnosticReport', () => {
               code: 'invalid',
               diagnostics: expect.any(String),
               details: {
-                text: `presentedForm must be one of the supported values: ${Object.values(SUPPORTED_CONTENT_TYPES)}`,
+                text: `presentedForm must be one of the supported values: ${Object.values(
+                  SUPPORTED_CONTENT_TYPES,
+                )}`,
               },
             },
           ],
@@ -416,5 +470,4 @@ describe('Create DiagnosticReport', () => {
       });
     });
   });
-
 });
