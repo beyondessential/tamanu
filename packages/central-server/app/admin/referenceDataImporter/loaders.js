@@ -214,7 +214,7 @@ export function labTestPanelLoader(item) {
   return rows;
 }
 
-export async function userLoader(item, { models, pushError, updateStat }) {
+export async function userLoader(item, { models, pushError }) {
   const { id, designations, ...otherFields } = item;
   const rows = [];
 
