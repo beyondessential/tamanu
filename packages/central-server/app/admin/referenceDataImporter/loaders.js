@@ -216,7 +216,7 @@ export function labTestPanelLoader(item) {
 export async function userLoader(item, models) {
   const { id, allowedFacilities, ...otherFields } = item;
   const rows = [];
-  
+
   let allowedFacilityIds = [];
   if (allowedFacilities) {
     allowedFacilityIds = allowedFacilities.split(',').map(t => t.trim());
@@ -231,11 +231,11 @@ export async function userLoader(item, models) {
     allowedFacilityIds,
   });
 
-  const userEntity = await models.User.findByPk(id, {
+  const existingUser = await models.User.findByPk(id, {
     include: [{ model: models.Facility, as: 'facilities' }],
   });
 
-  const idsToBeDeleted = userEntity.facilities
+  const idsToBeDeleted = existingUser.facilities
     .map(f => f.id)
     .filter(id => !allowedFacilityIds.includes(id));
 
