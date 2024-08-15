@@ -164,6 +164,9 @@ export class User extends Model {
     this.belongsToMany(models.Facility, {
       through: 'UserFacility',
       as: 'facilities',
+      where: {
+        deletedAt: null,
+      },
     });
   }
 

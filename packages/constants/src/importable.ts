@@ -76,7 +76,6 @@ const CLINCAL_DATA_TYPES = {
   PATIENT: 'patient',
   ADMINISTERED_VACCINE: 'administeredVaccine',
   USER: 'user',
-  USER_FACILITY: 'userFacility',
 };
 const CLINICAL_DATA_TYPES_VALUES = Object.values(CLINCAL_DATA_TYPES);
 
