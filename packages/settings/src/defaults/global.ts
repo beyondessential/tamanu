@@ -59,8 +59,8 @@ export const globalSettings = {
         .array()
         .of(
           yup.object({
-            threshold: yup.number(),
-            status: yup.string(),
+            threshold: yup.number().required(),
+            status: yup.string().required(),
           }),
         )
         .required(),

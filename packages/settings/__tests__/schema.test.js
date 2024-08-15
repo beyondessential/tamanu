@@ -1,4 +1,5 @@
-import { validateSettings } from '../dist/mjs';
+import { validateSettings, globalDefaults, centralDefaults, facilityDefaults } from '../dist/mjs';
+import * as yup from 'yup';
 
 describe('Schemas', () => {
   let warnSpy;
@@ -103,11 +104,23 @@ describe('Schemas', () => {
       expect(warnSpy).toHaveBeenCalledWith('Unknown setting: a.b.c');
       expect(warnSpy).toHaveBeenCalledWith('Unknown setting: d');
     });
+
+    it('Should validate itself', async () => {
+      await expect(
+        validateSettings({ settings: globalDefaults, scope: 'global' }),
+      ).resolves.not.toThrow();
+    });
   });
 
   describe('Central settings', () => {
     it('Should validate valid settings', () => {
       // No current validation for central settings
+    });
+
+    it('Should validate itself', async () => {
+      await expect(
+        validateSettings({ settings: centralDefaults, scope: 'central' }),
+      ).resolves.not.toThrow();
     });
   });
 
@@ -159,5 +172,64 @@ describe('Schemas', () => {
       );
       expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('Unknown setting: a.b.c'));
     });
+
+    it('Should validate itself', async () => {
+      await expect(
+        validateSettings({ settings: facilityDefaults, scope: 'facility' }),
+      ).resolves.not.toThrow();
+    });
+  });
+
+  describe('Edge cases', () => {
+    it('Should prevent null values for non-nullable fields', async () => {
+      const schema = {
+        a: {
+          schema: yup.string().required(),
+          default: 'a',
+        },
+      };
+
+      const settings = {
+        a: null,
+      };
+
+      await expect(validateSettings({ settings, schema })).rejects.toThrow(
+        /Validation failed for the following fields/,
+      );
+    });
+  });
+
+  it('Should work with simple arrays', async () => {
+    const schema = {
+      a: {
+        schema: yup.array().of(yup.string()),
+        default: ['a'],
+      },
+    };
+
+    const settings = {
+      a: ['b', 'c'],
+    };
+
+    await expect(validateSettings({ settings, schema })).resolves.not.toThrow();
+  });
+
+  it('Should work with arrays of objects', async () => {
+    const schema = {
+      a: {
+        schema: yup.array().of(
+          yup.object().shape({
+            b: yup.string().required(),
+          }),
+        ),
+        default: [{ b: 'a' }],
+      },
+    };
+
+    const settings = {
+      a: [{ b: 'c' }, { b: 'd' }],
+    };
+
+    await expect(validateSettings({ settings, schema })).resolves.not.toThrow();
   });
 });
