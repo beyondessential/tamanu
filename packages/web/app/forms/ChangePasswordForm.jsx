@@ -111,6 +111,7 @@ const ChangePasswordFormComponent = ({
       </FormTitleSection>
       <FieldContainer>
         <Field
+          autoComplete="one-time-code"
           name="token"
           type="text"
           label={<TranslatedText stringId="resetPassword.resetCode.label" fallback="Reset code" />}
@@ -122,7 +123,6 @@ const ChangePasswordFormComponent = ({
               setFieldError('token', '');
             }
           }}
-          autoComplete="off"
         />
         <HorizontalDivider />
         <Field
