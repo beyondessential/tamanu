@@ -228,8 +228,7 @@ export async function userLoader(item, { models, pushError, updateStat }) {
 
   await models.UserDesignation.destroy({ where: { userId: id } });
 
-  for (const designation of (designations || '').split(',').map(d => d.trim())) {
-    if (!designation) continue;
+  for (const designation of (designations || '').split(',').map(d => d.trim()).filter(Boolean)) {
     const existingData = await models.ReferenceData.findByPk(designation);
     if (!existingData) {
       pushError(`Designation "${designation}" does not exist`);
