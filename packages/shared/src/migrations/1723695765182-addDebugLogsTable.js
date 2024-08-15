@@ -15,7 +15,7 @@ export async function up(query) {
       allowNull: false,
     },
     info: {
-      type: DataTypes.JSONB,
+      type: DataTypes.JSON,
       allowNull: false,
     },
   });
