@@ -7,7 +7,12 @@ import { fake, fakeUser } from '@tamanu/shared/test-helpers/fake';
 import { createDummyEncounter, createDummyPatient } from '@tamanu/shared/demoData/patients';
 import { randomLabRequest } from '@tamanu/shared/demoData';
 import { sleepAsync } from '@tamanu/shared/utils/sleepAsync';
-import { LAB_REQUEST_STATUSES, SETTINGS_SCOPES, SYNC_DIRECTIONS } from '@tamanu/constants';
+import {
+  LAB_REQUEST_STATUSES,
+  SETTINGS_SCOPES,
+  SYNC_DIRECTIONS,
+  DEBUG_LOG_TYPES,
+} from '@tamanu/constants';
 import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
 
 import { createTestContext } from '../utilities';
@@ -1091,6 +1096,7 @@ describe('CentralSyncManager', () => {
     beforeEach(async () => {
       jest.resetModules();
       await models.SyncLookup.truncate({ force: true });
+      await models.DebugLog.truncate({ force: true });
       await models.LocalSystemFact.set(LOOKUP_UP_TO_TICK_KEY, null);
     });
 
@@ -1488,6 +1494,64 @@ describe('CentralSyncManager', () => {
 
       // only expect 3 records as it should not include the 3 records inserted from another sync session
       expect(lookupData).toHaveLength(3);
+    });
+
+    it('records info about updating sync_lookup in debug log', async () => {
+      await models.Patient.create(fake(models.Patient));
+
+      await models.LocalSystemFact.set(LOOKUP_UP_TO_TICK_KEY, 6);
+
+      const centralSyncManager = initializeCentralSyncManager({
+        sync: {
+          lookupTable: {
+            enabled: true,
+          },
+          maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
+        },
+      });
+
+      await centralSyncManager.updateLookupTable();
+
+      const debugLogs = await models.DebugLog.findAll({});
+      expect(debugLogs).toHaveLength(1);
+      expect(debugLogs[0]).toMatchObject({
+        id: expect.anything(),
+        type: DEBUG_LOG_TYPES.SYNC_LOOKUP_UPDATE,
+        info: {
+          since: '6',
+          changesCount: 0,
+          startedAt: expect.anything(),
+          completedAt: expect.anything(),
+        },
+      });
+    });
+
+    it('records error thrown when updating sync_lookup in debug log', async () => {
+      const centralSyncManager = initializeCentralSyncManager({
+        sync: {
+          lookupTable: {
+            enabled: true,
+          },
+          maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
+        },
+      });
+
+      centralSyncManager.tickTockGlobalClock = jest.fn().mockImplementation(() => {
+        throw new Error('Test error');
+      });
+      await centralSyncManager.updateLookupTable();
+
+      const debugLogs = await models.DebugLog.findAll({});
+      expect(debugLogs).toHaveLength(1);
+      expect(debugLogs[0]).toMatchObject({
+        id: expect.anything(),
+        type: DEBUG_LOG_TYPES.SYNC_LOOKUP_UPDATE,
+        info: {
+          error: 'Test error',
+          startedAt: expect.anything(),
+          completedAt: expect.anything(),
+        },
+      });
     });
   });
 });
