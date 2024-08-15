@@ -1,8 +1,9 @@
 import * as XLSX from 'xlsx';
+
 const stringifyIfNonDateObject = val =>
   typeof val === 'object' && !(val instanceof Date) && val !== null ? JSON.stringify(val) : val;
 
-export function prepareExcelFile({ data, metadata, defaultFileName = '', bookType }) {
+export function prepareExcelFile({ data = [], metadata, defaultFileName = '', bookType }) {
   const stringifiedData = data.map(row => row.map(stringifyIfNonDateObject));
 
   const book = XLSX.utils.book_new();
