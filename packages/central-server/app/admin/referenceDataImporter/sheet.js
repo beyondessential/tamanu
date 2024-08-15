@@ -104,7 +104,7 @@ export async function importSheet({ errors, log, models }, { loader, sheetName, 
       Object.entries(data).map(([key, value]) => [key.trim(), value]),
     );
     try {
-      for (const { model, values, ...options } of loader(trimmed, models, FOREIGN_KEY_SCHEMATA)) {
+      for (const { model, values } of await loader(trimmed, models, FOREIGN_KEY_SCHEMATA)) {
         if (!models[model]) throw new Error(`No such type of data: ${model}`);
         if (model === 'PatientFieldValue') {
           const existingDefinition =
@@ -138,7 +138,7 @@ export async function importSheet({ errors, log, models }, { loader, sheetName, 
         }
 
         updateStat(stats, statkey(model, sheetName), 'created', 0);
-        tableRows.push({ model, sheetRow, values, ...options });
+        tableRows.push({ model, sheetRow, values });
       }
     } catch (err) {
       errors.push(new DataLoaderError(sheetName, sheetRow, err));

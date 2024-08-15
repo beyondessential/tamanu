@@ -213,10 +213,10 @@ export function labTestPanelLoader(item) {
   return rows;
 }
 
-export function userLoader(item) {
+export async function userLoader(item, models) {
   const { id, allowedFacilities, ...otherFields } = item;
   const rows = [];
-
+  
   let allowedFacilityIds = [];
   if (allowedFacilities) {
     allowedFacilityIds = allowedFacilities.split(',').map(t => t.trim());
@@ -229,6 +229,26 @@ export function userLoader(item) {
       ...otherFields,
     },
     allowedFacilityIds,
+  });
+
+  const userEntity = await models.User.findByPk(id, {
+    include: [{ model: models.Facility, as: 'facilities' }],
+  });
+
+  const idsToBeDeleted = userEntity.facilities
+    .map(f => f.id)
+    .filter(id => !allowedFacilityIds.includes(id));
+
+  idsToBeDeleted.forEach(facilityId => {
+    rows.push({
+      model: 'UserFacility',
+      values: {
+        id: `${id};${facilityId}`,
+        userId: id,
+        facilityId: facilityId,
+        deletedAt: new Date(),
+      },
+    });
   });
 
   allowedFacilityIds.forEach(facilityId => {

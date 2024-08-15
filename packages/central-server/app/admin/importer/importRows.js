@@ -82,7 +82,7 @@ export async function importRows(
 
   log.debug('Resolving foreign keys', { rows: rows.length });
   const resolvedRows = [];
-  for (const { model, sheetRow, values, ...options } of rows) {
+  for (const { model, sheetRow, values } of rows) {
     try {
       for (const fkSchema of foreignKeySchemata[model] ?? []) {
         const fkFieldName = findFieldName(values, fkSchema.field);
@@ -136,7 +136,7 @@ export async function importRows(
         }
       }
 
-      resolvedRows.push({ model, sheetRow, values, ...options });
+      resolvedRows.push({ model, sheetRow, values });
     } catch (err) {
       updateStat(stats, statkey(model, sheetName), 'errored');
       errors.push(new ForeignkeyResolutionError(sheetName, sheetRow, err));
@@ -150,7 +150,7 @@ export async function importRows(
 
   log.debug('Validating data', { rows: resolvedRows.length });
   const validRows = [];
-  for (const { model, sheetRow, values, ...options } of resolvedRows) {
+  for (const { model, sheetRow, values } of resolvedRows) {
     try {
       let schemaName;
       if (model === 'ReferenceData') {
@@ -185,7 +185,6 @@ export async function importRows(
         model,
         sheetRow,
         values: await schema.validate(values, { abortEarly: false, context: validationContext }),
-        ...options,
       });
     } catch (err) {
       updateStat(stats, statkey(model, sheetName), 'errored');
@@ -201,34 +200,6 @@ export async function importRows(
     log.debug('Nothing left, skipping');
     return stats;
   }
-
-  // Custom deletion logic for user_facilities join table
-  const userRecords = validRows.filter(r => r.model === 'User');
-  await Promise.all(
-    userRecords.map(async ({ values, allowedFacilityIds }) => {
-      const userEntity = await models.User.findByPk(values.id, {
-        include: [{ model: models.Facility, as: 'facilities' }],
-      });
-
-      if (userEntity) {
-        const idsToBeDeleted = userEntity.facilities
-          .map(f => f.id)
-          .filter(id => !allowedFacilityIds.includes(id));
-
-        idsToBeDeleted.forEach(facilityId => {
-          validRows.push({
-            model: 'UserFacility',
-            values: {
-              id: `${values.id};${facilityId}`,
-              userId: values.id,
-              facilityId: facilityId,
-              deletedAt: new Date(),
-            },
-          });
-        });
-      }
-    }),
-  );
 
   log.debug('Upserting database rows', { rows: validRows.length });
   const translationRecordsForSheet = [];
