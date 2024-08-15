@@ -34,7 +34,16 @@ export async function exportProgram(context, programId) {
       ['country', country],
       ['homeServer', country ? 'true' : ''],
       [],
-      ['code', 'name', 'surveyType', 'targetLocationId', 'targetDepartmentId', 'status', 'isSensitive', 'visibilityStatus'],
+      [
+        'code',
+        'name',
+        'surveyType',
+        'targetLocationId',
+        'targetDepartmentId',
+        'status',
+        'isSensitive',
+        'visibilityStatus',
+      ],
       ...surveys.map(survey => [
         survey.code,
         survey.name.replace(`(${country}) `, ''),
@@ -43,7 +52,7 @@ export async function exportProgram(context, programId) {
         '',
         'publish',
         survey.isSensitive,
-        survey.visibilityStatus
+        survey.visibilityStatus,
       ]),
     ],
   };
@@ -66,7 +75,7 @@ export async function exportProgram(context, programId) {
           pde.code,
           pde.type,
           pde.name,
-          pde.default_text text,
+          pde.default_text "text",
           pde.default_options options
         FROM survey_screen_components ssc
         JOIN program_data_elements pde ON concat(:surveyId, '-', pde.code) = ssc.id
@@ -98,7 +107,7 @@ export async function exportProgram(context, programId) {
             'detailLabel',
             'calculation',
             'config',
-            'visibilityStatus'
+            'visibilityStatus',
           ],
           ...surveyRecords.map(it => [
             it.code,
@@ -117,7 +126,7 @@ export async function exportProgram(context, programId) {
             '',
             it.calculation,
             it.config,
-            it.visibility_status
+            it.visibility_status,
           ]),
         ],
       });
