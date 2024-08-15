@@ -81,7 +81,7 @@ const PatientTable = ({ columns, fetchOptions, searchParameters }) => {
   const fetchOptionsWithSearchParameters = {
     ...searchParameters,
     ...fetchOptions,
-    markedForSyncFacility: facilityId,
+    facilityId,
   };
 
   const handleViewPatient = async row => {
@@ -151,6 +151,8 @@ const NewPatientButton = ({ onCreateNewPatient }) => {
 export const PatientListingView = ({ onViewPatient }) => {
   const [searchParameters, setSearchParameters] = useState({});
 
+  const { facilityId } = useAuth();
+
   return (
     <PageContainer>
       <TopBar
@@ -167,7 +169,7 @@ export const PatientListingView = ({ onViewPatient }) => {
         <PatientTable
           onViewPatient={onViewPatient}
           fetchOptions={{ matchSecondaryIds: true }}
-          searchParameters={{ isAllPatientsListing: true, ...searchParameters }}
+          searchParameters={{ isAllPatientsListing: true, facilityId, ...searchParameters }}
           columns={LISTING_COLUMNS}
         />
       </ContentPane>
@@ -196,7 +198,11 @@ export const AdmittedPatientsView = () => {
         <SearchTableTitle>
           <TranslatedText stringId="patientList.search.title" fallback="Patient search" />
         </SearchTableTitle>
-        <PatientSearchBar onSearch={setSearchParameters} searchParameters={searchParameters} isInpatient />
+        <PatientSearchBar
+          onSearch={setSearchParameters}
+          searchParameters={searchParameters}
+          isInpatient
+        />
         <PatientTable
           fetchOptions={{ inpatient: 1 }}
           searchParameters={{ facilityId, ...searchParameters }}

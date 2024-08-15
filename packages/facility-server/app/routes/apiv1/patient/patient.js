@@ -34,7 +34,7 @@ patientRoute.get(
     const {
       models: { Patient },
       params,
-      facilityId,
+      query: { facilityId },
     } = req;
     req.checkPermission('read', 'Patient');
     const patient = await Patient.findByPk(params.id, {
@@ -237,7 +237,6 @@ patientRoute.get(
     const {
       models: { Patient },
       query,
-      facilityId,
     } = req;
 
     req.checkPermission('list', 'Patient');
@@ -247,7 +246,6 @@ patientRoute.get(
       order = 'asc',
       rowsPerPage = 10,
       page = 0,
-      markedForSyncFacility,
       ...filterParams
     } = query;
 
@@ -346,7 +344,7 @@ patientRoute.get(
         ) psi
           ON (patients.id = psi.patient_id)
         LEFT JOIN patient_facilities
-          ON (patient_facilities.patient_id = patients.id AND patient_facilities.facility_id = :markedForSyncFacility)
+          ON (patient_facilities.patient_id = patients.id AND patient_facilities.facility_id = :facilityId)
       ${whereClauses && `WHERE ${whereClauses}`}
       `
       : `
@@ -375,7 +373,7 @@ patientRoute.get(
         LEFT JOIN (
             SELECT ed.encounter_id, jsonb_agg(json_build_object('id', rd.id, 'name', rd.name, 'code', rd.code)) diets
             FROM encounter_diets ed
-            JOIN reference_data rd ON rd.id = ed.diet_id AND rd."type" = 'diet' AND rd.visibility_status = 'current' 
+            JOIN reference_data rd ON rd.id = ed.diet_id AND rd."type" = 'diet' AND rd.visibility_status = 'current'
             WHERE ed.deleted_at is NULL
             GROUP BY ed.encounter_id
         ) diets ON diets.encounter_id = encounters.id
@@ -388,12 +386,11 @@ patientRoute.get(
         ) psi
           ON (patients.id = psi.patient_id)
         LEFT JOIN patient_facilities
-          ON (patient_facilities.patient_id = patients.id AND patient_facilities.facility_id = :markedForSyncFacility)
+          ON (patient_facilities.patient_id = patients.id AND patient_facilities.facility_id = :facilityId)
       ${whereClauses && `WHERE ${whereClauses}`}
     `;
 
-    filterReplacements.markedForSyncFacility = markedForSyncFacility;
-    filterReplacements.facilityId = facilityId;
+    filterReplacements.facilityId = filterParams.facilityId;
 
     const countResult = await req.db.query(`SELECT COUNT(1) AS count ${from}`, {
       replacements: filterReplacements,
@@ -498,7 +495,8 @@ patientRoute.post(
     req.checkPermission('read', 'Patient');
     req.checkPermission('create', 'IPSRequest');
 
-    const { models, params, facilityId } = req;
+    const { models, params, body } = req;
+    const { facilityId } = body;
     const { IPSRequest } = models;
 
     if (!req.body.email) {
