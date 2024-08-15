@@ -84,7 +84,7 @@ export const SelectFacilityForm = ({ onSubmitForm }) => {
               name="facilityId"
               component={FacilitySelectField}
               label={<TranslatedText stringId="general.facility.label" fallback="Facility" />}
-              options={facilityOptions || []}
+              options={facilityOptions}
               placeholder={
                 <TranslatedText stringId="login.facility.placeholder" fallback="Select facility" />
               }

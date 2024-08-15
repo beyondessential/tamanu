@@ -16,9 +16,6 @@
       }
     }
   },
-  "auth": {
-    "restrictUsersToFacilities": true,
-  },
   "log": {
     "consoleLevel": null,
     "enableAuditLog": true

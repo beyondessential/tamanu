@@ -110,12 +110,6 @@
     "tokenDuration": "1h",
     "reportNoUserError": false,
     "useHardcodedPermissions": true,
-
-    // Enables the use of the user_facility table to restrict users from logging
-    // into facilities they are not associated with. Ensure this is set on both
-    // central and facility configs.
-    "restrictUsersToFacilities": false,
-
     "refreshToken": {
       "secret": null,
       "tokenDuration": "30d",

@@ -1,5 +1,4 @@
 import { hash } from 'bcrypt';
-import config from 'config';
 import { Sequelize } from 'sequelize';
 
 import {
@@ -200,7 +199,10 @@ export class User extends Model {
   }
 
   async checkCanAccessAllFacilities() {
-    if (!config.auth.restrictUsersToFacilities) return true;
+    const restrictUsersToFacilities = await this.sequelize.models.Setting.get(
+      'auth.restrictUsersToFacilities',
+    );
+    if (!restrictUsersToFacilities) return true;
     if (this.isSuperUser()) return true;
     // Allow for roles that have access to all facilities configured via permissions
     // (e.g. a custom "AdminICT" role)
