@@ -3,7 +3,7 @@ import { validateSettings } from '../dist/mjs';
 describe('Schemas', () => {
   let warnSpy;
 
-  beforeAll(() => {
+  beforeEach(() => {
     warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
   });
 

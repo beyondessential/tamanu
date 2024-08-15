@@ -20,7 +20,10 @@ const flattenObject = (obj: any, parentKey: string = ''): any => {
   return Object.entries(obj).reduce((acc, [key, value]) => {
     const fullKey = parentKey ? `${parentKey}.${key}` : key;
 
-    if (_.isObject(value) && !(value as { schema?: any }).schema) {
+    if (Array.isArray(value)) {
+      // Prevent flattening of arrays
+      acc[fullKey] = value;
+    } else if (_.isObject(value) && !(value as { schema?: any }).schema) {
       // Check if the object is empty
       if (Object.keys(value).length === 0) {
         acc[fullKey] = value;
@@ -58,6 +61,9 @@ export const validateSettings = async ({
 
   const flattenedSettings = flattenObject(settings);
   const flattenedSchema = flattenObject(schema);
+
+  console.log(flattenedSettings);
+  console.log(flattenedSchema);
 
   const errors: ErrorMessage[] = [];
 
