@@ -1,4 +1,4 @@
-import { ValidationError, Sequelize, Op } from 'sequelize';
+import { ValidationError } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
 
