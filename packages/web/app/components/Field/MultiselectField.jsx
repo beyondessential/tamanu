@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import Select, { components } from 'react-select';
+import Select, { components, createFilter } from 'react-select';
 import styled from 'styled-components';
 import FormControl from '@material-ui/core/FormControl';
 import FormHelperText from '@material-ui/core/FormHelperText';
@@ -159,6 +159,12 @@ const getValues = value => {
   return Array.isArray(value) ? value : JSON.parse(value);
 };
 
+// Match only by label unless that label is not readable
+const searchByLabel = option => {
+  if (typeof option.label === 'string') return option.label;
+  return option.value;
+};
+
 export const MultiselectInput = ({
   options,
   value,
@@ -237,6 +243,10 @@ export const MultiselectInput = ({
           menuShouldBlockScroll="true"
           closeMenuOnSelect={false}
           hideSelectedOptions={false}
+          filterOption={createFilter({
+            matchFrom: 'any',
+            stringify: searchByLabel,
+          })}
           components={{ DropdownIndicator, MultiValueRemove }}
           {...props}
         />
