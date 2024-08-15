@@ -235,21 +235,23 @@ export async function userLoader(item, models) {
     include: [{ model: models.Facility, as: 'facilities' }],
   });
 
-  const idsToBeDeleted = existingUser.facilities
-    .map(f => f.id)
-    .filter(id => !allowedFacilityIds.includes(id));
+  if (existingUser) {
+    const idsToBeDeleted = existingUser.facilities
+      .map(f => f.id)
+      .filter(id => !allowedFacilityIds.includes(id));
 
-  idsToBeDeleted.forEach(facilityId => {
-    rows.push({
-      model: 'UserFacility',
-      values: {
-        id: `${id};${facilityId}`,
-        userId: id,
-        facilityId: facilityId,
-        deletedAt: new Date(),
-      },
+    idsToBeDeleted.forEach(facilityId => {
+      rows.push({
+        model: 'UserFacility',
+        values: {
+          id: `${id};${facilityId}`,
+          userId: id,
+          facilityId: facilityId,
+          deletedAt: new Date(),
+        },
+      });
     });
-  });
+  }
 
   allowedFacilityIds.forEach(facilityId => {
     rows.push({
