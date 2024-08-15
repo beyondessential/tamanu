@@ -34,7 +34,7 @@ export class TaskTemplate extends Model {
       as: 'referenceData',
     });
     this.hasMany(models.TaskTemplateDesignation, {
-      foreignKey: 'id',
+      foreignKey: 'taskTemplateId',
       as: 'designations',
     });
   }
