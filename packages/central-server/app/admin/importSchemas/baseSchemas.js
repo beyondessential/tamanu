@@ -9,6 +9,7 @@ import {
   VISIBILITY_STATUSES,
   REFERENCE_DATA_RELATION_TYPES,
   INJECTION_SITE_VALUES,
+  TASK_FREQUENCY_UNITS,
 } from '@tamanu/constants';
 import config from 'config';
 import {
@@ -354,5 +355,21 @@ export const InvoiceProduct = yup.object().shape({
   name: yup.string().required(),
   price: yup.number().required(),
   discountable: yup.boolean().required(),
-  visibilityStatus
+  visibilityStatus,
+});
+
+export const TaskTemplate = yup.object().shape({
+  highPriority: yup
+    .boolean()
+    .nullable()
+    .default(null),
+  frequencyValue: yup
+    .number()
+    .nullable()
+    .default(null),
+  frequencyUnit: yup
+    .string()
+    .nullable()
+    .oneOf([...Object.values(TASK_FREQUENCY_UNITS), null])
+    .default(null),
 });

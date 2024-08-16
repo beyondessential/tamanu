@@ -1,4 +1,4 @@
-import { REFERENCE_TYPE_VALUES } from '@tamanu/constants';
+import { REFERENCE_TYPES, REFERENCE_TYPE_VALUES } from '@tamanu/constants';
 import { AdministeredVaccineExporter } from './AdministeredVaccineExporter';
 import { DefaultDataExporter } from './DefaultDataExporter';
 import { PatientExporter } from './PatientExporter';
@@ -8,6 +8,7 @@ import { PatientFieldDefinitionExporter } from './PatientFieldDefinitionExporter
 import { ReferenceDataExporter } from './ReferenceDataExporter';
 import { TranslatedStringExporter } from './TranslatedStringExporter';
 import { UserExporter } from './UserExporter';
+import { TaskExporter } from './TaskExporter';
 
 const CustomExportersByDataType = {
   permission: PermissionExporter,
@@ -16,8 +17,10 @@ const CustomExportersByDataType = {
   labTestPanel: LabTestPanelExporter,
   patientFieldDefinition: PatientFieldDefinitionExporter,
   translatedString: TranslatedStringExporter,
-  user: UserExporter
+  user: UserExporter,
+  [REFERENCE_TYPES.TASK]: TaskExporter
 };
+
 export const createModelExporter = (context, dataType) => {
   const referenceDataTypes = [...REFERENCE_TYPE_VALUES, 'diagnosis'];
   const CustomExporterClass = CustomExportersByDataType[dataType];

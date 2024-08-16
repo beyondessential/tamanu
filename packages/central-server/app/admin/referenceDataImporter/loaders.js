@@ -1,7 +1,8 @@
 import { endOfDay, startOfDay } from 'date-fns';
 import { getJsDateFromExcel } from 'excel-date-to-js';
-import { ENCOUNTER_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
+import { ENCOUNTER_TYPES, VISIBILITY_STATUSES, REFERENCE_TYPES } from '@tamanu/constants';
 import { v4 as uuidv4 } from 'uuid';
+import ms from 'ms';
 
 function stripNotes(fields) {
   const values = { ...fields };
@@ -11,19 +12,84 @@ function stripNotes(fields) {
 
 export const loaderFactory = model => fields => [{ model, values: stripNotes(fields) }];
 
+export const customReferenceDataLoader = {
+  [REFERENCE_TYPES.TASK]: taskLoader,
+};
+
 export function referenceDataLoaderFactory(refType) {
-  return ({ id, code, name, visibilityStatus }) => [
-    {
-      model: 'ReferenceData',
-      values: {
-        id,
-        type: refType === 'diagnosis' ? 'icd10' : refType,
-        code: typeof code === 'number' ? `${code}` : code,
-        name,
-        visibilityStatus,
+  return (
+    customReferenceDataLoader[refType] ||
+    (({ id, code, name, visibilityStatus }) => [
+      {
+        model: 'ReferenceData',
+        values: {
+          id,
+          type: refType === 'diagnosis' ? 'icd10' : refType,
+          code: typeof code === 'number' ? `${code}` : code,
+          name,
+          visibilityStatus,
+        },
       },
+    ])
+  );
+}
+
+export async function taskLoader(item, { models, pushError }) {
+  const { id, assignedTo, taskFrequency } = item;
+  const rows = [];
+
+  rows.push({
+    model: 'ReferenceData',
+    values: {
+      ...item,
+      type: REFERENCE_TYPES.TASK,
     },
-  ];
+  });
+
+  let frequencyValue, frequencyUnit;
+  if (taskFrequency?.trim()) {
+    try {
+      const result = ms(ms(taskFrequency), { long: true });
+      frequencyValue = result.split(' ')[0];
+      frequencyUnit = result.split(' ')[1];
+    } catch (e) {
+      pushError(`Invalid task frequency ${taskFrequency}: ${e.message}`);
+    }
+  }
+
+  rows.push({
+    model: 'TaskTemplate',
+    values: {
+      ...item,
+      frequencyValue,
+      frequencyUnit,
+    },
+  });
+
+  await models.TaskTemplateDesignation.destroy({ where: { taskTemplateId: id } });
+
+  const designationIds = (assignedTo || '')
+    .split(',')
+    .map(d => d.trim())
+    .filter(Boolean);
+
+  for (const designation of designationIds) {
+    const existingData = await models.ReferenceData.findByPk(designation);
+    if (!existingData) {
+      pushError(`Designation "${designation}" does not exist`);
+      continue;
+    }
+    rows.push({
+      model: 'TaskTemplateDesignation',
+      values: {
+        id: uuidv4(),
+        taskTemplateId: id,
+        designationId: designation,
+      },
+    });
+  }
+
+  return rows;
 }
 
 export function patientFieldDefinitionLoader(values) {

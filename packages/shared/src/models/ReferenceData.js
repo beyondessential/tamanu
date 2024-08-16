@@ -72,6 +72,11 @@ export class ReferenceData extends Model {
       as: 'facility',
       foreignKey: 'catchmentId',
     });
+
+    this.hasOne(models.TaskTemplate, {
+      as: 'taskTemplate',
+      foreignKey: 'id',
+    });
   }
 
   static async create(values) {
