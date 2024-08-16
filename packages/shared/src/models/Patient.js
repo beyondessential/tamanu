@@ -125,7 +125,18 @@ export class Patient extends Model {
         {
           model: models.Encounter,
           as: 'encounter',
-          include: models.Encounter.getFullReferenceAssociations(),
+          include: [
+            {
+              model: models.Location,
+              as: 'location',
+              include: [
+                {
+                  model: models.Facility,
+                  as: 'facility',
+                },
+              ],
+            },
+          ],
         },
         {
           model: models.Location,
