@@ -5,12 +5,13 @@ import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { useApi } from '../../../api';
 import { AutocompleteField, Field, Form } from '../../../components/Field';
 import { FormGrid } from '../../../components/FormGrid';
-import { ButtonRow } from '../../../components/ButtonRow';
+import { ButtonRow, TranslatedText } from '../../../components';
 import { FormSubmitButton } from '../../../components/Button';
 import { saveFile } from '../../../utils/fileSystemAccess';
 import { FORM_TYPES } from '../../../constants';
 import { useQuery } from '@tanstack/react-query';
-import { TranslatedText } from '../../../components/Translation';
+import { useTranslation } from '../../../contexts/Translation.jsx';
+import { notifySuccess } from '../../../utils';
 
 const ExportForm = ({ options = [] }) => (
   <FormGrid columns={1}>
@@ -34,6 +35,7 @@ const ExportForm = ({ options = [] }) => (
 
 export const ProgramExporterView = memo(({ setIsLoading }) => {
   const api = useApi();
+  const { getTranslation } = useTranslation();
 
   const { data: programs } = useQuery(['programs'], () => api.get('admin/programs'));
 
@@ -56,6 +58,9 @@ export const ProgramExporterView = memo(({ setIsLoading }) => {
           getData: async () => await api.download(`admin/export/program/${programId}`),
           extension: 'xlsx',
         });
+        notifySuccess(
+          getTranslation('document.notification.downloadSuccess', 'Successfully downloaded file'),
+        );
       } finally {
         setIsLoading(false);
       }
