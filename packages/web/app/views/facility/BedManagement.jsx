@@ -236,8 +236,8 @@ export const BedManagement = () => {
         title={<TranslatedText stringId="bedManagement.title" fallback="Bed management" />}
         subTitle={
           <TranslatedReferenceData
-            fallback={facility.name}
-            value={facility.id}
+            fallback={facility?.name}
+            value={facility?.id}
             category="facility"
           />
         }
