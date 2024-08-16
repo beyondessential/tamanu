@@ -7,11 +7,12 @@ import { useApi } from '../../../api';
 import { Field, Form } from '../../../components/Field';
 import { ExpandedMultiSelectField } from '../../../components/Field/ExpandedMultiSelectField';
 import { FormGrid } from '../../../components/FormGrid';
-import { ButtonRow } from '../../../components/ButtonRow';
+import { ButtonRow, TranslatedText } from '../../../components';
 import { FormSubmitButton } from '../../../components/Button';
 import { saveFile } from '../../../utils/fileSystemAccess';
 import { FORM_TYPES } from '../../../constants';
-import { TranslatedText } from '../../../components/Translation/TranslatedText';
+import { useTranslation } from '../../../contexts/Translation';
+import { notifySuccess } from '../../../utils';
 
 const ExportForm = ({ dataTypes, dataTypesSelectable }) => (
   <FormGrid columns={1}>
@@ -38,6 +39,7 @@ const ExportForm = ({ dataTypes, dataTypesSelectable }) => (
 
 export const ExporterView = memo(({ title, endpoint, dataTypes, dataTypesSelectable }) => {
   const api = useApi();
+  const { getTranslation } = useTranslation();
 
   const onSubmit = useCallback(
     async ({ includedDataTypes }) => {
@@ -46,6 +48,9 @@ export const ExporterView = memo(({ title, endpoint, dataTypes, dataTypesSelecta
         getData: async () => api.download(`admin/export/${endpoint}`, { includedDataTypes }),
         extension: 'xlsx',
       });
+      notifySuccess(
+        getTranslation('document.notification.downloadSuccess', 'Successfully downloaded file'),
+      );
     },
     [api, title, endpoint],
   );

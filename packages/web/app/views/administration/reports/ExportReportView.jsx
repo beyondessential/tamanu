@@ -3,13 +3,20 @@ import * as yup from 'yup';
 import styled from 'styled-components';
 import { toast } from 'react-toastify';
 import { REPORT_VERSION_EXPORT_FORMATS } from '@tamanu/constants/reports';
-import { Field, Form, FormGrid, OutlinedButton, RadioField } from '../../../components';
+import {
+  Field,
+  Form,
+  FormGrid,
+  OutlinedButton,
+  RadioField,
+  TranslatedText,
+} from '../../../components';
 import { ReportSelectField, VersionSelectField } from './ReportsSelectFields';
 import { Colors, FORM_TYPES } from '../../../constants';
 import { saveFile } from '../../../utils/fileSystemAccess';
 import { useApi } from '../../../api/useApi';
-import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { useTranslation } from '../../../contexts/Translation';
+import { notifySuccess } from '../../../utils';
 
 const StyledButton = styled(OutlinedButton)`
   margin-top: 30px;
@@ -55,6 +62,9 @@ export const ExportReportView = () => {
         getData: async () => data,
         extension: format,
       });
+      notifySuccess(
+        getTranslation('document.notification.downloadSuccess', 'Successfully downloaded file'),
+      );
     } catch (err) {
       toast.error(
         <TranslatedText

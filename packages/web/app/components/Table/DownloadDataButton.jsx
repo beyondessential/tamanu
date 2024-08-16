@@ -5,7 +5,7 @@ import * as XLSX from 'xlsx';
 import { QueryClientProvider, useQueryClient } from '@tanstack/react-query';
 
 import { ApiContext, useApi } from '../../api';
-import { renderToText } from '../../utils';
+import { notifySuccess, renderToText } from '../../utils';
 import { saveFile } from '../../utils/fileSystemAccess';
 import { TranslationContext, useTranslation } from '../../contexts/Translation';
 import { GreyOutlinedButton } from '../Button';
@@ -36,6 +36,7 @@ export function DownloadDataButton({ exportName, columns, data }) {
   const queryClient = useQueryClient();
   const api = useApi();
   const translationContext = useTranslation();
+  const { getTranslation } = translationContext;
 
   const safelyRenderToText = element => {
     /**
@@ -137,6 +138,9 @@ export function DownloadDataButton({ exportName, columns, data }) {
       getData: prepareData,
       extension: 'xlsx',
     });
+    notifySuccess(
+      getTranslation('document.notification.downloadSuccess', 'Successfully downloaded file'),
+    );
   };
 
   return (
