@@ -193,6 +193,10 @@ export const ReportGeneratorForm = () => {
 
     try {
       if (dataSource === REPORT_DATA_SOURCES.THIS_FACILITY) {
+        const excelData = await api.post(`reports/${reportId}`, {
+          parameters: updatedFilters,
+        });
+
         const filterString = Object.entries(filterValues)
           .map(([key, value]) => `${key}: ${value}`)
           .join(', ');
@@ -210,8 +214,7 @@ export const ReportGeneratorForm = () => {
 
         setDataReadyForSaving(
           prepareExcelFile({
-            getData: async () =>
-              await api.post(`reports/${reportId}`, { parameters: updatedFilters }),
+            data: excelData,
             metadata,
             defaultFileName: getFileName(reportName),
             bookType,
@@ -428,7 +431,8 @@ export const ReportGeneratorForm = () => {
               <Button onClick={onDownload} startIcon={<GetAppIcon />}>
                 <TranslatedText stringId="report.generate.action.download" fallback="Download" /> (
                 {(
-                  (dataReadyForSaving.data.byteLength ?? dataReadyForSaving.data.length) / 1024
+                  (dataReadyForSaving.getData().byteLength ?? dataReadyForSaving.getData().length) /
+                  1024
                 ).toFixed(0)}{' '}
                 KB)
               </Button>
