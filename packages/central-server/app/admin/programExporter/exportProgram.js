@@ -75,8 +75,8 @@ export async function exportProgram(context, programId) {
           pde.code,
           pde.type,
           pde.name,
-          pde.default_text "text",
-          pde.default_options options
+          pde.default_text as text,
+          pde.default_options as options
         FROM survey_screen_components ssc
         JOIN program_data_elements pde ON concat(:surveyId, '-', pde.code) = ssc.id
         WHERE ssc.survey_id = :surveyId
