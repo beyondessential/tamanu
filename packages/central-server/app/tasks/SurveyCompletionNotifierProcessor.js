@@ -9,7 +9,12 @@ export class SurveyCompletionNotifierProcessor extends ScheduledTask {
    * @param {import('../ApplicationContext').ApplicationContext} context
    */
   constructor(context) {
-    const conf = config.schedules.surveyCompletionNotifierProcessor;
+    const conf = config.schedules.surveyCompletionNotifierProcessor ?? {
+      enabled: true,
+      // every 30seconds /!\
+      schedule: '*/30 * * * * *',
+      limit: 100,
+    };
     const { schedule, jitterTime, enabled } = conf;
     super(schedule, log, jitterTime, enabled);
     this.config = conf;
