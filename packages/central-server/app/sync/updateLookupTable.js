@@ -63,7 +63,7 @@ export const updateLookupTableForModel = async (model, config, since, sessionCon
           ${fromId ? `AND ${table}.id > :fromId` : ''}
           ORDER BY ${table}.id
           LIMIT :limit
-          ON CONFLICT (record_id) 
+          ON CONFLICT (record_id, record_type)
           DO UPDATE SET 
             data = EXCLUDED.data,
             updated_at_sync_tick = EXCLUDED.updated_at_sync_tick,
