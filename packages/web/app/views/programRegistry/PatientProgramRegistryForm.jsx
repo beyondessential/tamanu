@@ -8,14 +8,14 @@ import { useQuery } from '@tanstack/react-query';
 import { useSelector } from 'react-redux';
 import {
   AutocompleteField,
+  BaseMultiselectField,
   DateField,
   Field,
   FieldWithTooltip,
   Form,
-  MultiselectField,
 } from '../../components/Field';
 import { FormGrid } from '../../components/FormGrid';
-import { ConfirmCancelRow, TranslatedReferenceData, TranslatedText } from '../../components';
+import { ConfirmCancelRow, getReferenceDataStringId, TranslatedText } from '../../components';
 import { foreignKey, optionalForeignKey } from '../../utils/validation';
 import { useSuggester } from '../../api';
 import { useAuth } from '../../contexts/Auth';
@@ -164,14 +164,11 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
                     />
                   }
                   placeholder={getTranslation('general.placeholder.select', 'Select')}
-                  component={MultiselectField}
+                  component={BaseMultiselectField}
                   options={conditions?.map?.(condition => ({
-                    label: (
-                      <TranslatedReferenceData
-                        fallback={condition.name}
-                        value={condition.id}
-                        category="condition"
-                      />
+                    label: getTranslation(
+                      getReferenceDataStringId(condition.id, 'condition'),
+                      condition.name,
                     ),
                     value: condition.id,
                   }))}
@@ -219,7 +216,7 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
         ),
         registeringFacilityId: foreignKey().translatedLabel(
           <TranslatedText
-            stringId="patientProgramRegistry.registeredBy.label"
+            stringId="patientProgramRegistry.registeringFacility.label"
             fallback="Registering facility"
           />,
         ),
