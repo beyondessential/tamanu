@@ -148,6 +148,7 @@ export class SurveyResponse extends Model {
         endTime: dateTimeType('endTime', { allowNull: true }),
         result: { type: Sequelize.FLOAT, allowNull: true },
         resultText: { type: Sequelize.TEXT, allowNull: true },
+        notified: { type: Sequelize.BOOLEAN, allowNull: true }, // null is not notified, false is notified but not yet processed, true is processed
       },
       {
         syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
@@ -186,7 +187,10 @@ export class SurveyResponse extends Model {
     if (patientCount === 0) {
       return null;
     }
-    return buildEncounterLinkedSyncFilter([this.tableName, 'encounters'], markedForSyncPatientsTable);
+    return buildEncounterLinkedSyncFilter(
+      [this.tableName, 'encounters'],
+      markedForSyncPatientsTable,
+    );
   }
 
   static async getSurveyEncounter({

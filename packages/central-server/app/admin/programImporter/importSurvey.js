@@ -47,6 +47,11 @@ export async function importSurvey(context, workbook, surveyInfo) {
   if (surveyType === SURVEY_TYPES.VITALS) {
     await validateVitalsSurvey(context, surveyInfo);
   }
+  for (const info of surveyInfo) {
+    info.notifyEmailAddresses = (info.notifyEmailAddresses ?? '')
+      .split(',')
+      .map(email => email.trim());
+  }
 
   const records = readSurveyInfo(workbook, surveyInfo);
   const stats = validateProgramDataElementRecords(records, { context, sheetName });
