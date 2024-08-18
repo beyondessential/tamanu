@@ -42,6 +42,7 @@ const SuggestionsList = styled(Paper)`
 
     .MuiButtonBase-root {
       padding: ${props => (props.size === 'small' ? '8px 12px 8px 20px' : '12px 12px 12px 20px')};
+      ${props => props.multiSection ? 'padding-left: 28px;' : ''}
       white-space: normal;
 
       .MuiTypography-root {
@@ -98,6 +99,13 @@ const StyledClearIcon = styled(ClearIcon)`
   cursor: pointer;
 `;
 
+const SectionTitle = styled.div`
+  font-weight: 500;
+  font-size: 14px;
+  padding-top: 10px;
+  padding-left: 14px;
+`;
+
 export class AutocompleteInput extends Component {
   static contextType = TranslationContext;
 
@@ -128,11 +136,12 @@ export class AutocompleteInput extends Component {
   }
 
   updateValue = async (allowFreeTextForExistingValue = false) => {
-    const { value, suggester } = this.props;
-
-    if (!suggester) {
+    const { value, suggester, suggesters, multiSection } = this.props;
+    const { suggestions } = this.state;
+    if (!suggester && !suggesters) {
       return;
     }
+
     if (value === '') {
       this.setState({ selectedOption: { value: '', tag: null } });
       this.attemptAutoFill();
@@ -140,7 +149,18 @@ export class AutocompleteInput extends Component {
     }
 
     if (!allowFreeTextForExistingValue) {
-      const currentOption = await suggester.fetchCurrentOption(value);
+      let currentOption;
+      if (!multiSection) {
+        currentOption = await suggester.fetchCurrentOption(value);
+      } else {
+        const selectedSuggestion = suggestions.find(({ data }) =>
+          data.some(item => item.value === value),
+        );
+        const { suggester } = suggesters.find(
+          ({ suggester }) => suggester.endpoint === selectedSuggestion.endpoint,
+        );
+        currentOption = await suggester.fetchCurrentOption(value);
+      }
       if (currentOption) {
         this.setState({
           selectedOption: {
@@ -158,7 +178,7 @@ export class AutocompleteInput extends Component {
   };
 
   handleSuggestionChange = option => {
-    const { onChange, name, suggester } = this.props;
+    const { onChange, name, suggester, suggesters } = this.props;
     if (!option.isCustomizedOption) {
       onChange({ target: { ...option, name } });
     } else if (suggester) {
@@ -170,19 +190,47 @@ export class AutocompleteInput extends Component {
           notifyError(e.message);
           onChange({ target: { value: undefined, name } });
         });
+    } else if (suggesters) {
+      const payload = { name: option.label };
+      suggesters.forEach(({ suggester }) => {
+        if (suggester.endpoint === option.endpoint) {
+          suggester
+            .createSuggestion(payload)
+            .then(result => onChange({ target: { ...result, name } }))
+            .catch(e => {
+              notifyError(e.message);
+              onChange({ target: { value: undefined, name } });
+            });
+        }
+      });
     }
     return option.label;
   };
 
   fetchAllOptions = async (searchValue = '') => {
-    const { suggester, options } = this.props;
-    return suggester
-      ? suggester.fetchSuggestions(searchValue)
-      : options.filter(x => x.label.toLowerCase().includes(searchValue.toLowerCase()));
+    const { suggester, suggesters, options, multiSection } = this.props;
+    if (multiSection && suggesters?.length > 0) {
+      const allSuggestions = await Promise.all(
+        suggesters.map(async ({ suggester, title, allowCreatingCustomValue }) => {
+          const data = await suggester.fetchSuggestions(searchValue);
+          return {
+            title,
+            data,
+            allowCreatingCustomValue,
+            endpoint: suggester.endpoint,
+          };
+        }),
+      );
+      return allSuggestions;
+    } else {
+      return suggester
+        ? suggester.fetchSuggestions(searchValue)
+        : options.filter(x => x.label.toLowerCase().includes(searchValue.toLowerCase()));
+    }
   };
 
   fetchOptions = async ({ value, reason }) => {
-    const { value: formValue, allowCreatingCustomValue } = this.props;
+    const { value: formValue, allowCreatingCustomValue, multiSection } = this.props;
 
     if (reason === 'suggestion-selected') {
       this.clearOptions();
@@ -201,7 +249,10 @@ export class AutocompleteInput extends Component {
     let suggestions = [];
     if (fieldClickedWithOptionSelected) {
       suggestions = await this.fetchAllOptions();
-    } else {
+      this.setState({ suggestions });
+      return;
+    }
+    if (!multiSection) {
       const trimmedValue = value.trim();
       suggestions = await this.fetchAllOptions(trimmedValue);
       const isValueInOptions = suggestions.some(
@@ -210,6 +261,23 @@ export class AutocompleteInput extends Component {
       if (allowCreatingCustomValue && trimmedValue && !isValueInOptions) {
         suggestions.push({ label: trimmedValue, value: trimmedValue, isCustomizedOption: true });
       }
+    } else {
+      const trimmedValue = value.trim();
+      suggestions = await this.fetchAllOptions(trimmedValue);
+      suggestions.forEach(suggestion => {
+        const isValueInOptions = suggestion.data.some(
+          suggest => suggest.label.toLowerCase() === trimmedValue.toLowerCase(),
+        );
+        if (suggestion.allowCreatingCustomValue && trimmedValue && !isValueInOptions) {
+          suggestion.data.push({
+            label: trimmedValue,
+            value: trimmedValue,
+            isCustomizedOption: true,
+            endpoint: suggestion.endpoint,
+          });
+        }
+      });
+      suggestions = suggestions.filter(section => section.data.length > 0);
     }
     this.setState({ suggestions });
   };
@@ -223,7 +291,7 @@ export class AutocompleteInput extends Component {
     if (suggestions.length !== 1) {
       return false;
     }
-    const autoSelectOption = suggestions[0];
+    const autoSelectOption = !multiSection ? suggestions[0] : suggestions[0].data[0];
     this.setState({
       selectedOption: {
         value: autoSelectOption.label,
@@ -292,7 +360,7 @@ export class AutocompleteInput extends Component {
   };
 
   renderContainer = option => {
-    const { size = 'medium' } = this.props;
+    const { size = 'medium', multiSection } = this.props;
     const { suggestions } = this.state;
     const hasCustomizeItem = suggestions[suggestions.length - 1]?.isCustomizedOption;
 
@@ -305,6 +373,7 @@ export class AutocompleteInput extends Component {
         <SuggestionsList
           {...option.containerProps}
           size={size}
+          multiSection={multiSection}
           $onlyOneItem={suggestions.length === 1}
           $hasCustomizeItem={hasCustomizeItem}
         >
@@ -377,6 +446,14 @@ export class AutocompleteInput extends Component {
     );
   };
 
+  getSectionSuggestions = section => {
+    return section.data;
+  };
+
+  renderSectionTitle = section => {
+    return <SectionTitle>{section.title}</SectionTitle>;
+  };
+
   render() {
     const { selectedOption, suggestions } = this.state;
     const {
@@ -391,12 +468,16 @@ export class AutocompleteInput extends Component {
       helperText,
       placeholder = this.context.getTranslation('general.placeholder.search...', 'Search...'),
       inputRef,
+      multiSection,
     } = this.props;
 
     return (
       <>
         <Autosuggest
+          multiSection={multiSection}
           alwaysRenderSuggestions
+          getSectionSuggestions={this.getSectionSuggestions}
+          renderSectionTitle={this.renderSectionTitle}
           suggestions={suggestions}
           onSuggestionsFetchRequested={this.debouncedFetchOptions}
           onSuggestionsClearRequested={this.clearOptions}
@@ -437,11 +518,24 @@ AutocompleteInput.propTypes = {
   className: PropTypes.string,
   onChange: PropTypes.func.isRequired,
   value: PropTypes.string,
+  multiSection: PropTypes.bool,
 
   suggester: PropTypes.shape({
     fetchCurrentOption: PropTypes.func.isRequired,
     fetchSuggestions: PropTypes.func.isRequired,
+    createSuggestion: PropTypes.func,
   }),
+  suggesters: PropTypes.arrayOf(
+    PropTypes.shape({
+      title: PropTypes.string.isRequired,
+      suggester: PropTypes.shape({
+        fetchCurrentOption: PropTypes.func.isRequired,
+        fetchSuggestions: PropTypes.func.isRequired,
+        createSuggestion: PropTypes.func,
+      }),
+      allowCreatingCustomValue: PropTypes.bool,
+    }),
+  ),
   options: PropTypes.arrayOf(
     PropTypes.shape({
       label: PropTypes.string,
@@ -465,6 +559,7 @@ AutocompleteInput.defaultProps = {
   suggester: null,
   autofill: false,
   allowCreatingCustomValue: false,
+  multiSection: false,
 };
 
 export const AutocompleteField = ({ field, ...props }) => (

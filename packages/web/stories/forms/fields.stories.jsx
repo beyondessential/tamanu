@@ -34,6 +34,19 @@ const FRUITS = [
   { value: 'fruit salad, 250g', label: 'Fruit salad, 250g' },
 ];
 
+const VEGETABLES = [
+  { value: 'carrots', label: 'Carrots' },
+  { value: 'spinach', label: 'Spinach' },
+  { value: 'broccoli', label: 'Broccoli' },
+  { value: 'cauliflower', label: 'Cauliflower' },
+  { value: 'kale', label: 'Kale' },
+  { value: 'lettuce', label: 'Lettuce' },
+  { value: 'potatoes', label: 'Potatoes' },
+  { value: 'beets', label: 'Beets' },
+  { value: 'vegetable mix, 500g', label: 'Vegetable mix, 500g' },
+  { value: 'vegetable mix, 250g', label: 'Vegetable mix, 250g' },
+];
+
 const Container = styled.div`
   padding: 1rem;
   max-width: 500px;
@@ -241,7 +254,7 @@ addStories('MultiselectInput', props => (
   <StoryControlWrapper Component={MultiselectInput} label="Fruit" options={FRUITS} {...props} />
 ));
 
-const dummySuggester = {
+const dummyFruitSuggester = {
   fetchSuggestions: async search => {
     await new Promise(resolve => {
       setTimeout(resolve, 1000);
@@ -254,6 +267,37 @@ const dummySuggester = {
     });
     return FRUITS.find(x => x.value === value);
   },
+  createSuggestion: async ({ name }) => {
+    await new Promise(resolve => {
+      setTimeout(resolve, 1000);
+    });
+
+    FRUITS.push({ value: name, label: name });
+    return FRUITS;
+  },
+};
+
+const dummyVegetableSuggester = {
+  fetchSuggestions: async search => {
+    await new Promise(resolve => {
+      setTimeout(resolve, 1000);
+    });
+    return VEGETABLES.filter(x => x.label.toLowerCase().includes(search.toLowerCase()));
+  },
+  fetchCurrentOption: async value => {
+    await new Promise(resolve => {
+      setTimeout(resolve, 1000);
+    });
+    return VEGETABLES.find(x => x.value === value);
+  },
+  createSuggestion: async ({ name }) => {
+    await new Promise(resolve => {
+      setTimeout(resolve, 1000);
+    });
+
+    VEGETABLES.push({ value: name, label: name });
+    return VEGETABLES;
+  },
 };
 
 addStories('Autocomplete', props => (
@@ -265,18 +309,22 @@ addStories('Autocomplete', props => (
       value="pomegranates"
       label="Fruit"
       size="small"
-      suggester={dummySuggester}
+      suggester={dummyFruitSuggester}
     />
   ))
   .add('Asynchronous options', () => (
-    <StoryControlWrapper Component={AutocompleteInput} label="Fruit" suggester={dummySuggester} />
+    <StoryControlWrapper
+      Component={AutocompleteInput}
+      label="Fruit"
+      suggester={dummyFruitSuggester}
+    />
   ))
   .add('Async with existing value', () => (
     <StoryControlWrapper
       Component={AutocompleteInput}
       value="pomegranates"
       label="Fruit"
-      suggester={dummySuggester}
+      suggester={dummyFruitSuggester}
     />
   ))
   .add('Inside a Modal', props => (
@@ -292,9 +340,8 @@ addStories('Autocomplete', props => (
     () => (
       <StoryControlWrapper
         Component={AutocompleteInput}
-        value="not a fruit"
         label="Fruit"
-        suggester={dummySuggester}
+        suggester={dummyFruitSuggester}
       />
     ),
     {
@@ -303,7 +350,25 @@ addStories('Autocomplete', props => (
     is invalid, it will dispatch an onChange event setting its value to null.
   `,
     },
-  );
+  )
+  .add('Async with sections', () => (
+    <StoryControlWrapper
+      Component={AutocompleteInput}
+      label="Fruit and vegetables"
+      suggesters={[
+        {
+          title: 'Fruits',
+          suggester: dummyFruitSuggester,
+        },
+        {
+          title: 'Vegetables',
+          suggester: dummyVegetableSuggester,
+          allowCreatingCustomValue: true,
+        },
+      ]}
+      multiSection
+    />
+  ));
 
 addStories('IdInput', props => (
   <StoryControlWrapper Component={IdInput} regenerateId={shortid.generate} {...props} />
