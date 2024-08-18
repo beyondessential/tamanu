@@ -4,7 +4,7 @@ import { Settings } from '@material-ui/icons';
 import { useQuery } from '@tanstack/react-query';
 
 import { SETTINGS_SCOPES } from '@tamanu/constants';
-import { validateSettings } from '@tamanu/settings/defaults';
+import { validateSettings } from '@tamanu/settings/schema';
 
 import { LargeButton, TextButton, ContentPane, ButtonRow, TopBar } from '../../../components';
 import { AdminViewContainer } from '../components/AdminViewContainer';
@@ -87,7 +87,7 @@ export const SettingsView = React.memo(() => {
     console.log(scope);
 
     try {
-      await validateSettings({settings: settingsObject, scope});
+      await validateSettings({ settings: settingsObject, scope });
       await api.put('admin/settings', {
         settings: settingsObject,
         facilityId,

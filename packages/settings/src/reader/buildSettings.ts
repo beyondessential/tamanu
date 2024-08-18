@@ -1,7 +1,7 @@
 import { SETTINGS_SCOPES } from '@tamanu/constants';
 import { merge } from 'lodash';
 
-import { centralDefaults, facilityDefaults, globalDefaults } from '../defaults';
+import { centralDefaults, facilityDefaults, globalDefaults } from '../schema';
 import { Models, SettingsDBReader } from './readers/SettingsDBReader';
 import { SettingsJSONReader } from './readers/SettingsJSONReader';
 
