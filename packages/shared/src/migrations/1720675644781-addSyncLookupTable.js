@@ -11,7 +11,6 @@ export async function up(query) {
     record_id: {
       type: DataTypes.STRING,
       allowNull: false,
-      unique: true,
     },
     record_type: {
       type: DataTypes.STRING,
@@ -49,6 +48,11 @@ export async function up(query) {
       type: DataTypes.BIGINT,
       allowNull: true,
     }
+  });
+
+  await query.addConstraint('sync_lookup', {
+    fields: ['record_id', 'record_type'],
+    type: 'unique',
   });
 }
 
