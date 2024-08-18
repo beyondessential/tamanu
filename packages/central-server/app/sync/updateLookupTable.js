@@ -12,6 +12,7 @@ export const updateLookupTableForModel = async (model, config, since, sessionCon
   const attributes = model.getAttributes();
   const { select, joins } = model.buildSyncLookupQueryDetails(sessionConfig) || {};
   const useUpdatedAtByFieldSum = !!attributes.updatedAtByField;
+  console.log('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@');
 
   while (fromId != null) {
     const [[{ maxId, count }]] = await model.sequelize.query(
