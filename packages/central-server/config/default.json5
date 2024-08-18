@@ -1131,33 +1131,6 @@
       // The time zone setting is currently only used for Vaccine Certificates
       // Todo: remove this timeZone once all date fields have been migrated to date_time_strings
       "timeZone": null,
-      "triageCategories": [
-        {
-          "level": 1,
-          "label": "Emergency",
-          "color": "#F76853"
-        },
-        {
-          "level": 2,
-          "label": "Very Urgent",
-          "color": "#F17F16"
-        },
-        {
-          "level": 3,
-          "label": "Urgent",
-          "color": "#FFCC24"
-        },
-        {
-          "level": 4,
-          "label": "Non-urgent",
-          "color": "#47CA80"
-        },
-        {
-          "level": 5,
-          "label": "Deceased",
-          "color": "#67A6E3"
-        }
-      ],
       // UVCI format for vaccine certificate *previews* on Web.
       // This should match whichever of integrations.euDcc or .vdsNc is enabled, and
       // does *not* affect which format is used for the actual PDF certificate when

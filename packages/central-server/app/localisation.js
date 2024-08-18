@@ -563,16 +563,6 @@ const rootLocalisationSchema = yup
           return true;
         },
       }),
-    triageCategories: yup
-      .array(
-        yup.object({
-          level: yup.number().required(),
-          label: yup.string().required(),
-          color: yup.string().required(),
-        }),
-      )
-      .min(3)
-      .max(5),
     layouts: layoutsSchema,
     previewUvciFormat: yup
       .string()

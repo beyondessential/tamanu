@@ -100,7 +100,8 @@ export const globalSettings = {
           color: yup.string().required(),
         }),
       )
-      .required(),
+      .min(3)
+      .max(5),
     defaultValue: [
       {
         level: 1,

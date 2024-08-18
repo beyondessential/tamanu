@@ -6,16 +6,16 @@ import { useEncounter } from '../contexts/Encounter';
 import { DateDisplay } from './DateDisplay';
 import { LocationCell, LocationGroupCell } from './LocationCell';
 import { TriageWaitTimeCell } from './TriageWaitTimeCell';
-import { useLocalisation } from '../contexts/Localisation';
 import { reloadPatient } from '../store';
 import { TranslatedReferenceData, TranslatedSex, TranslatedText } from './Translation';
 import { DataFetchingTableWithPermissionCheck } from './Table/DataFetchingTable';
+import { useSettings } from '../contexts/Settings';
 
 const ADMITTED_PRIORITY_COLOR = '#bdbdbd';
 
 const useColumns = () => {
-  const { getLocalisation } = useLocalisation();
-  const triageCategories = getLocalisation('triageCategories');
+  const { getSettings } = useSettings();
+  const triageCategories = getSettings('triageCategories');
 
   return [
     {
