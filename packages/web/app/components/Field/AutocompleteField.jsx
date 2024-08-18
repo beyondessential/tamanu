@@ -153,11 +153,11 @@ export class AutocompleteInput extends Component {
       if (!multiSection) {
         currentOption = await suggester.fetchCurrentOption(value);
       } else {
-        const selectedSuggestion = suggestions.find(({ data }) =>
+        const selectedSection = suggestions.find(({ data }) =>
           data.some(item => item.value === value),
         );
         const { suggester } = suggesters.find(
-          ({ suggester }) => suggester.endpoint === selectedSuggestion.endpoint,
+          ({ suggester }) => suggester.endpoint === selectedSection.endpoint,
         );
         currentOption = await suggester.fetchCurrentOption(value);
       }
@@ -264,16 +264,16 @@ export class AutocompleteInput extends Component {
     } else {
       const trimmedValue = value.trim();
       suggestions = await this.fetchAllOptions(trimmedValue);
-      suggestions.forEach(suggestion => {
-        const isValueInOptions = suggestion.data.some(
+      suggestions.forEach(section => {
+        const isValueInOptions = section.data.some(
           suggest => suggest.label.toLowerCase() === trimmedValue.toLowerCase(),
         );
-        if (suggestion.allowCreatingCustomValue && trimmedValue && !isValueInOptions) {
-          suggestion.data.push({
+        if (section.allowCreatingCustomValue && trimmedValue && !isValueInOptions) {
+          section.data.push({
             label: trimmedValue,
             value: trimmedValue,
             isCustomizedOption: true,
-            endpoint: suggestion.endpoint,
+            endpoint: section.endpoint,
           });
         }
       });
@@ -283,7 +283,7 @@ export class AutocompleteInput extends Component {
   };
 
   attemptAutoFill = async () => {
-    const { autofill, name } = this.props;
+    const { autofill, name, multiSection } = this.props;
     if (!autofill) {
       return false;
     }
