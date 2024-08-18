@@ -8,7 +8,7 @@ export const globalSettings = {
       name: 'Mandate specimen type',
       description: '_',
       schema: yup.boolean().required(),
-      default: false,
+      defaultValue: false,
     },
   },
   customisations: {
@@ -16,7 +16,7 @@ export const globalSettings = {
       name: 'Component versions',
       description: '_',
       schema: yup.object().required(),
-      default: {},
+      defaultValue: {},
     },
   },
   fhir: {
@@ -25,13 +25,13 @@ export const globalSettings = {
         name: 'Heartbeat interval',
         description: '_',
         schema: yup.string().required(),
-        default: '1 minute',
+        defaultValue: '1 minute',
       },
       assumeDroppedAfter: {
         name: 'Assume dropped after',
         description: '_',
         schema: yup.string().required(),
-        default: '10 minutes',
+        defaultValue: '10 minutes',
       },
     },
   },
@@ -41,7 +41,7 @@ export const globalSettings = {
         name: 'Imaging integration enabled',
         description: '_',
         schema: yup.boolean().required(),
-        default: false,
+        defaultValue: false,
       },
     },
   },
@@ -50,7 +50,7 @@ export const globalSettings = {
       name: 'Upcoming vaccination age limit',
       description: '_',
       schema: yup.number().required(),
-      default: 15,
+      defaultValue: 15,
     },
     thresholds: {
       name: 'Upcoming vaccination thresholds',
@@ -64,7 +64,7 @@ export const globalSettings = {
           }),
         )
         .required(),
-      default: [
+      defaultValue: [
         {
           threshold: 28,
           status: VACCINE_STATUS.SCHEDULED,
@@ -101,7 +101,7 @@ export const globalSettings = {
         }),
       )
       .required(),
-    default: [
+    defaultValue: [
       {
         level: 1,
         label: 'Emergency',
@@ -130,8 +130,6 @@ export const globalSettings = {
     ],
   },
 };
-
-// export const globalDefaults = extractDefaults(globalSettings);
 
 export const validateGlobalSettings = async (settings: any, schema = globalSettings) => {
   for (const [key, value] of Object.entries(settings)) {
