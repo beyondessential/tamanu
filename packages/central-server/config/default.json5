@@ -794,7 +794,6 @@
         }
       },
       "features": {
-        "patientPlannedMove": false,
         "idleTimeout": {
           "enabled": true,
           // All values in seconds
