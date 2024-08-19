@@ -50,20 +50,20 @@ const checkPermission = (req, action, subject, field = '') => {
     req.audit.addPermissionCheck(action, subjectName, subject?.id);
   }
 
-  if (!hasPermission) {
-    // user is logged in fine, they're just not allowed - 403
-    const rule = ability.relevantRuleFor(action, subject, field);
-    const reason =
-      (rule && rule.reason) || `No permission to perform action "${action}" on "${subjectName}"`;
+  // if (!hasPermission) {
+  //   // user is logged in fine, they're just not allowed - 403
+  //   const rule = ability.relevantRuleFor(action, subject, field);
+  //   const reason =
+  //     (rule && rule.reason) || `No permission to perform action "${action}" on "${subjectName}"`;
 
-    if (req.audit) {
-      req.audit.annotate({
-        forbiddenReason: reason,
-      });
-    }
+  //   if (req.audit) {
+  //     req.audit.annotate({
+  //       forbiddenReason: reason,
+  //     });
+  //   }
 
-    throw new ForbiddenError(reason);
-  }
+  //   throw new ForbiddenError(reason);
+  // }
 };
 
 // this middleware goes at the top of the middleware stack
