@@ -2,7 +2,6 @@ import React from 'react';
 
 import { PATIENT_REGISTRY_TYPES } from '@tamanu/constants';
 
-import { useLocalisation } from '../../../../../contexts/Localisation';
 import { AutocompleteField, DisplayIdField, TextField } from '../../../../../components';
 import { ConfiguredMandatoryPatientFields } from '../../../ConfiguredMandatoryPatientFields';
 import { TranslatedText } from '../../../../../components/Translation/TranslatedText';
@@ -10,11 +9,10 @@ import { useSuggester } from '../../../../../api';
 import { useSettings } from '../../../../../contexts/Settings';
 
 export const GenericIdentificationFields = ({ isEdit, patientRegistryType, filterByMandatory }) => {
-  const { getLocalisation } = useLocalisation();
   const { getSetting } = useSettings()
   const insurerSuggester = useSuggester('insurer');
   const canEditDisplayId = isEdit && getSetting('features.editPatientDisplayId');
-  const enablePatientInsurer = getLocalisation('features.enablePatientInsurer');
+  const enablePatientInsurer = getSetting('features.enablePatientInsurer');
 
   const IDENTIFICATION_FIELDS = {
     displayId: {
