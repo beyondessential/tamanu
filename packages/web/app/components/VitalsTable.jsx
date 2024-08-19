@@ -18,7 +18,6 @@ import { DateDisplay, formatShortest, formatTimeWithSeconds } from './DateDispla
 import { EditVitalCellModal } from './EditVitalCellModal';
 import { VitalVectorIcon } from './Icons/VitalVectorIcon';
 import { useVitalChartData } from '../contexts/VitalChartData';
-import { useLocalisation } from '../contexts/Localisation';
 import { getNormalRangeByAge } from '../utils';
 import { useVitalsVisualisationConfigsQuery } from '../api/queries/useVitalsVisualisationConfigsQuery';
 import { useUserPreferencesQuery } from '../api/queries/useUserPreferencesQuery';
