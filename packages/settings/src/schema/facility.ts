@@ -19,7 +19,8 @@ export const facilitySettings = {
   survey: {
     defaultCodes: {
       name: 'Default codes',
-      description: '_',
+      description:
+        'Default reference data codes to use when creating a survey encounter (includes vitals) when none are explicitly specified',
       schema: yup.object().shape({
         department: yup.string().required(),
         location: yup.string().required(),
