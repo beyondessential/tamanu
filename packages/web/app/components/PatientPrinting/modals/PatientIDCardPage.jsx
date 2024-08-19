@@ -11,6 +11,7 @@ const cardDimensions = {
 };
 
 export const PatientIDCardPage = React.memo(({ patient, imageData }) => {
+  const { getSetting } = useSettings()
   const { getLocalisation } = useLocalisation();
   const measures = getSetting('printMeasures.idCardPage');
   const [open, setOpen] = useState(true);
