@@ -21,6 +21,7 @@ import { TestCertificateCovid19Icon } from '../icons/TestCertificateCovid19Icon'
 import { ClearenceCertificateCovid19Icon } from '../icons/ClearenceCertificateCovid19Icon';
 import { BirthNotificationIcon } from '../icons/BirthNotificationIcon';
 import { InternationPatientSummaryIcon } from '../icons/InternationPatientSummaryIcon';
+import { useSettings } from '../../../contexts/Settings';
 
 const PRINT_OPTIONS = {
   barcode: {
@@ -81,7 +82,7 @@ const PRINT_OPTIONS = {
     ),
     icon: ClearenceCertificateCovid19Icon,
     component: CovidClearanceCertificateModal,
-    condition: getLocalisation => getLocalisation('features.enableCovidClearanceCertificate'),
+    condition: getSetting => getSetting('features.enableCovidClearanceCertificate'),
   },
   birthNotification: {
     label: (
@@ -119,10 +120,10 @@ const PRINT_OPTIONS = {
 };
 
 const PrintOptionList = ({ className, setCurrentlyPrinting }) => {
-  const { getLocalisation } = useLocalisation();
+  const { getSetting } = useSettings();
   const { ability } = useAuth();
 
-  const isVisible = condition => !condition || condition(getLocalisation, ability);
+  const isVisible = condition => !condition || condition(getSetting, ability);
 
   return (
     <div className={className}>
