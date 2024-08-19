@@ -63,9 +63,9 @@ export const TriageForm = ({
 }) => {
   const api = useApi();
   const dispatch = useDispatch();
-  const { getSettings } = useSettings();
+  const { getSetting } = useSettings();
   const { getTranslation } = useTranslation();
-  const triageCategories = getSettings('triageCategories');
+  const triageCategories = getSetting('triageCategories');
   const practitionerSuggester = useSuggester('practitioner');
   const triageReasonSuggester = useSuggester('triageReason');
 

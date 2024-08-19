@@ -14,8 +14,8 @@ import { useSettings } from '../contexts/Settings';
 const ADMITTED_PRIORITY_COLOR = '#bdbdbd';
 
 const useColumns = () => {
-  const { getSettings } = useSettings();
-  const triageCategories = getSettings('triageCategories');
+  const { getSetting } = useSettings();
+  const triageCategories = getSetting('triageCategories');
 
   return [
     {
