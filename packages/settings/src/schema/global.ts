@@ -90,7 +90,7 @@ export const globalSettings = {
   },
   triageCategories: {
     name: 'Triage categories',
-    description: 'Custom triage scale',
+    description: 'Customise triage scale',
     schema: yup
       .array()
       .of(
@@ -132,7 +132,7 @@ export const globalSettings = {
   },
   imagingPriorities: {
     name: 'Imaging priorities',
-    description: '_',
+    description: 'Customise imaging priority options',
     schema: yup
       .array()
       .of(
