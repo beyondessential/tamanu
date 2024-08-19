@@ -69,6 +69,11 @@ const StyledTable = styled(Table)`
   .MuiCheckbox-root {
     padding: 0 8px 0 0;
   }
+  tr:last-child {
+    td {
+      border-bottom: 0px solid #fff;
+    }
+  }
 `;
 
 const StatusTodo = styled.div`
@@ -117,6 +122,19 @@ const StyledCancelIcon = styled(CancelIcon)`
 const StyledCheckCircleIcon = styled(CheckCircleIcon)`
   font-size: 20px;
   color: ${Colors.green};
+`;
+
+const NoDataContainer = styled.div`
+  height: 354px;
+  font-weight: 500;
+  margin: 20px 0 20px 0;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 148px;
+  background: ${Colors.hoverGrey};
+  color: ${Colors.primary};
 `;
 
 const getStatus = () => {
@@ -209,6 +227,15 @@ const getTask = ({ task, requestedBy, requestedDate }) => (
   >
     <span>{task}</span>
   </ThemedTooltip>
+);
+
+const NoDataMessage = () => (
+  <NoDataContainer>
+    <TranslatedText
+      stringId="encounter.tasks.table.noData"
+      fallback="No upcoming tasks to display. Please click '+ New task' to add a task to this patient."
+    />
+  </NoDataContainer>
 );
 
 export const TasksTable = ({ data }) => {
@@ -314,12 +341,7 @@ export const TasksTable = ({ data }) => {
       <StyledTable
         data={data}
         columns={[selectableColumn, ...COLUMNS]}
-        noDataMessage={
-          <TranslatedText
-            stringId="encounter.tasks.table.noData"
-            fallback="No upcoming tasks to display. Please click '+ New task' to add a task to this patient."
-          />
-        }
+        noDataMessage={<NoDataMessage />}
         allowExport={false}
         onMouseEnterRow={(_, data) => setHoveredRow(data)}
         onMouseLeaveRow={() => setHoveredRow(null)}
