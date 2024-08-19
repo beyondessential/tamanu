@@ -1,3 +1,4 @@
+import config from 'config';
 import Chance from 'chance';
 import { fake } from '@tamanu/shared/test-helpers/fake';
 import {
@@ -163,6 +164,7 @@ describe('SurveyResponseAnswer', () => {
           id: 'test-department-id',
           code: 'test-department-code',
           name: 'Test Department',
+          facilityId: config.serverFacilityId,
         });
         await Setting.set(
           'survey.defaultCodes.department',

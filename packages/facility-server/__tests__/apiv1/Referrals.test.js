@@ -121,7 +121,7 @@ describe('Referrals', () => {
   });
 
   it('should use the default department if one is not provided', async () => {
-    const { department: departmentCode } = config.survey.defaultCodes;
+    const { department: departmentCode } = await ctx.settings.get('survey.defaultCodes');
     const department = await findOneOrCreate(ctx.models, ctx.models.Department, {
       code: departmentCode,
     });
@@ -144,7 +144,7 @@ describe('Referrals', () => {
   });
 
   it('should use the default location if one is not provided', async () => {
-    const { location: locationCode } = config.survey.defaultCodes;
+    const { location: locationCode } = await ctx.settings.get('survey.defaultCodes');
     const location = await findOneOrCreate(ctx.models, ctx.models.Location, { code: locationCode });
 
     const { departmentId } = encounter;
