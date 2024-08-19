@@ -16,6 +16,20 @@ export const facilitySettings = {
     schema: yup.object().required(),
     default: {},
   },
+  survey: {
+    defaultCodes: {
+      name: 'Default codes',
+      description: '_',
+      schema: yup.object().shape({
+        department: yup.string().required(),
+        location: yup.string().required(),
+      }),
+      default: {
+        department: 'GeneralClinic',
+        location: 'GeneralClinic',
+      },
+    },
+  },
 };
 
 export const facilityDefaults = extractDefaults(facilitySettings);

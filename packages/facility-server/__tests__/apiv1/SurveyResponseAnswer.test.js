@@ -7,6 +7,7 @@ import {
 } from '@tamanu/constants/surveys';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { createTestContext } from '../utilities';
+import { SETTINGS_SCOPES } from '@tamanu/constants';
 
 const chance = new Chance();
 const TEST_VITALS_SURVEY_ID = 'vitals-survey-id-for-testing-purposes';
@@ -155,6 +156,34 @@ describe('SurveyResponseAnswer', () => {
       });
     });
 
+    describe('getDefaultId', () => {
+      beforeAll(async () => {
+        const { Setting, Department } = models;
+        await Department.create({
+          id: 'test-department-id',
+          code: 'test-department-code',
+          name: 'Test Department',
+        });
+        await Setting.set(
+          'survey.defaultCodes.department',
+          'test-department-code',
+          SETTINGS_SCOPES.FACILITY,
+        );
+      });
+      afterAll(async () => {
+        const { Setting } = models;
+        await Setting.truncate();
+      });
+
+      it('should return the default id for a resource from settings', async () => {
+        const departmentId = await models.SurveyResponseAnswer.getDefaultId(
+          'department',
+          ctx.settings,
+        );
+        expect(departmentId).toEqual('test-department-id');
+      });
+    });
+
     describe('write', () => {
       it('should modify a survey response answer', async () => {
         const response = await createNewVitalsSurveyResponse();
@@ -280,11 +309,13 @@ describe('SurveyResponseAnswer', () => {
           answer => answer.dataElementId === dataElements[2].id,
         );
 
-        const result = await app.put(`/api/surveyResponseAnswer/vital/${calculatedAnswer.id}`).send({
-          reasonForChange: 'test5',
-          newValue: chance.integer({ min: 0, max: 100 }),
-          date: getCurrentDateTimeString(),
-        });
+        const result = await app
+          .put(`/api/surveyResponseAnswer/vital/${calculatedAnswer.id}`)
+          .send({
+            reasonForChange: 'test5',
+            newValue: chance.integer({ min: 0, max: 100 }),
+            date: getCurrentDateTimeString(),
+          });
         expect(result).not.toHaveSucceeded();
         expect(result.status).toBe(404);
       });
