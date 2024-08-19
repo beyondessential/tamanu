@@ -39,9 +39,10 @@ export class TaskTemplate extends Model {
     });
   }
 
-  static buildPatientSyncFilter() {
+  static buildSyncFilter() {
     return null; // syncs everywhere
   }
+
   static getFullReferenceAssociations() {
     const { models } = this.sequelize;
 
