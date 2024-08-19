@@ -801,8 +801,7 @@
           "warningPromptDuration": 30,
           "refreshInterval": 150
         },
-        "fhirNewZealandEthnicity": false,
-        "onlyAllowLabPanels": false,
+        "fhirNewZealandEthnicity": false, // TODO: tricky
         "displayProcedureCodesInDischargeSummary": true,
         "displayIcd10CodesInDischargeSummary": true,
         "tableAutoRefresh": {

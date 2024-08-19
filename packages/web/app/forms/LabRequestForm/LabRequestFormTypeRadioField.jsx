@@ -8,12 +8,11 @@ import { useApi } from '../../api';
 import { useLocalisation } from '../../contexts/Localisation';
 import { Colors } from '../../constants';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
+import { useSettings } from '../../contexts/Settings';
 
 const OPTIONS = {
   INDIVIDUAL: {
-    label: (
-      <TranslatedText stringId="lab.formType.option.individual.label" fallback="Individual" />
-    ),
+    label: <TranslatedText stringId="lab.formType.option.individual.label" fallback="Individual" />,
     description: (
       <TranslatedText
         stringId="lab.formType.option.individual.description"
@@ -33,9 +32,7 @@ const OPTIONS = {
     value: LAB_REQUEST_FORM_TYPES.PANEL,
   },
   SUPERSET: {
-    label: (
-      <TranslatedText stringId="lab.formType.option.superset.label" fallback="Superset" />
-    ),
+    label: <TranslatedText stringId="lab.formType.option.superset.label" fallback="Superset" />,
     description: (
       <TranslatedText
         stringId="lab.formType.option.superset.description"
@@ -73,8 +70,8 @@ const RadioItemSkeleton = ({ itemsLength }) => (
 
 const useLabRequestFormTypeOptions = () => {
   const api = useApi();
-  const { getLocalisation } = useLocalisation();
-  const { onlyAllowLabPanels } = getLocalisation('features') || {};
+  const { getSetting } = useSettings();
+  const onlyAllowLabPanels = getSetting('features.onlyAllowLabPanels');
 
   const { data, isSuccess, isLoading, isFetching } = useQuery(
     ['suggestions/labTestPanel/all'],
@@ -105,9 +102,7 @@ export const LabRequestFormTypeRadioField = ({ value, setFieldValue }) => {
   return (
     <div style={{ gridColumn: '1 / -1' }}>
       <OuterLabelFieldWrapper
-        label={
-          <TranslatedText stringId="lab.formType.label" fallback="Select your request type" />
-        }
+        label={<TranslatedText stringId="lab.formType.label" fallback="Select your request type" />}
         required
       >
         {isLoading ? (
