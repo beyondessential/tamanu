@@ -10,7 +10,6 @@ export const globalSettings = {
       schema: yup.boolean().required(),
       default: false,
     },
-    // TODO: implement + test all features below
     enableVaccineConsent: {
       name: 'Enable vaccine consent',
       description: 'Display a required vaccine consent box on the vaccine given form',
@@ -125,18 +124,45 @@ export const globalSettings = {
       schema: yup.boolean().required(),
       default: false,
     },
-    // TODO: figure out nested feature settings
     idleTimeout: {
-      enabled: true,
-      // All values in seconds
-      timeoutDuration: 600,
-      warningPromptDuration: 30,
-      refreshInterval: 150,
+      enabled: {
+        name: 'Enabled',
+        description: '_',
+        schema: yup.boolean().required(),
+        default: true,
+      },
+      timeoutDuration: {
+        name: 'Timeout duration',
+        description: '_',
+        schema: yup.number().required(),
+        default: 600, // In Seconds
+      },
+      warningPromptDuration: {
+        name: 'Warning prompt duration',
+        description: '_',
+        schema: yup.number().required(),
+        default: 30, // In Seconds
+      },
+      refreshInterval: {
+        name: 'Refresh interval',
+        description: '_',
+        schema: yup.number().required(),
+        default: 150, // In Seconds
+      },
     },
     tableAutoRefresh: {
-      enabled: false,
-      // In Seconds
-      interval: 300,
+      enabled: {
+        name: 'Enabled',
+        description: '_',
+        schema: yup.boolean().required(),
+        default: true,
+      },
+      interval: {
+        name: 'Interval',
+        description: '_',
+        schema: yup.number().required(),
+        default: 300, // In Seconds
+      },
     },
   },
   customisations: {
