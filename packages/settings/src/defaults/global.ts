@@ -10,6 +10,140 @@ export const globalSettings = {
       schema: yup.boolean().required(),
       default: false,
     },
+    // TODO: implement + test all features below
+    enableVaccineConsent: {
+      name: 'Enable vaccine consent',
+      description: '_',
+      schema: yup.boolean().required(),
+      default: true,
+    },
+    filterDischargeDispositions: {
+      name: 'Filter discharge dispositions',
+      description: '_',
+      schema: yup.boolean().required(),
+      default: false,
+    },
+    editPatientDetailsOnMobile: {
+      name: 'Edit patient details on mobile',
+      description: '_',
+      schema: yup.boolean().required(),
+      default: true,
+    },
+    quickPatientGenerator: {
+      name: 'Quick patient generator',
+      description: '_',
+      schema: yup.boolean().required(),
+      default: false,
+    },
+    enableInvoicing: {
+      name: 'Enable invoicing',
+      description: '_',
+      schema: yup.boolean().required(),
+      default: false,
+    },
+    registerNewPatient: {
+      name: 'Register new patient',
+      description: '_',
+      schema: yup.boolean().required(),
+      default: true,
+    },
+    hideOtherSex: {
+      name: 'Hide other sex',
+      description: '_',
+      schema: yup.boolean().required(),
+      default: true,
+    },
+    enablePatientDeaths: {
+      name: 'Enable patient deaths',
+      description: '_',
+      schema: yup.boolean().required(),
+      default: false,
+    },
+    mergePopulatedPADRecords: {
+      name: 'Merge populated PAD records',
+      description: '_',
+      schema: yup.boolean().required(),
+      default: true,
+    },
+    enableNoteBackdating: {
+      name: 'Enable note backdating',
+      description: '_',
+      schema: yup.boolean().required(),
+      default: true,
+    },
+    enableCovidClearanceCertificate: {
+      name: 'Enable covid clearance certificate',
+      description: '_',
+      schema: yup.boolean().required(),
+      default: false,
+    },
+    editPatientDisplayId: {
+      name: 'Edit patient displayId',
+      description: '_',
+      schema: yup.boolean().required(),
+      default: true,
+    },
+    enablePatientInsurer: {
+      name: 'Enable patient insurer',
+      description: '_',
+      schema: yup.boolean().required(),
+      default: false,
+    },
+    patientPlannedMove: {
+      name: 'Patient planned move',
+      description: '_',
+      schema: yup.boolean().required(),
+      default: false,
+    },
+    fhirNewZealandEthnicity: {
+      name: 'Fhir New Zealand ethnicity',
+      description: '_',
+      schema: yup.boolean().required(),
+      default: false,
+    },
+    onlyAllowLabPanels: {
+      name: 'Only allow lab panels',
+      description: '_',
+      schema: yup.boolean().required(),
+      default: false,
+    },
+    displayProcedureCodesInDischargeSummary: {
+      name: 'Display procedure codes in discarge summary',
+      description: '_',
+      schema: yup.boolean().required(),
+      default: true,
+    },
+    displayIcd10CodesInDischargeSummary: {
+      name: 'Display icd10 codes in discharge summary',
+      description: '_',
+      schema: yup.boolean().required(),
+      default: true,
+    },
+    mandatoryVitalEditReason: {
+      name: 'Mandatory vital edit reason',
+      description: '_',
+      schema: yup.boolean().required(),
+      default: false,
+    },
+    enableVitalEdit: {
+      name: 'Enable vital edit',
+      description: '_',
+      schema: yup.boolean().required(),
+      default: false,
+    },
+    // TODO: figure out nested feature settings
+    idleTimeout: {
+      enabled: true,
+      // All values in seconds
+      timeoutDuration: 600,
+      warningPromptDuration: 30,
+      refreshInterval: 150,
+    },
+    tableAutoRefresh: {
+      enabled: false,
+      // In Seconds
+      interval: 300,
+    },
   },
   customisations: {
     componentVersions: {
