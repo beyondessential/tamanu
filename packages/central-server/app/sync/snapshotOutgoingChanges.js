@@ -185,6 +185,7 @@ const snapshotOutgoingChangesFromModels = withConfig(
 const snapshotOutgoingChangesFromSyncLookup = withConfig(
   async (
     store,
+    outgoingModels,
     since,
     patientCount,
     markedForSyncPatientsTable,
@@ -198,7 +199,7 @@ const snapshotOutgoingChangesFromSyncLookup = withConfig(
     const snapshotTableName = getSnapshotTableName(sessionId);
     const CHUNK_SIZE = config.sync.maxRecordsPerSnapshotChunk;
     const { syncAllLabRequests } = sessionConfig;
-
+    const recordTypes = Object.values(outgoingModels).map(m => m.tableName);
     while (fromId != null) {
       const [[{ maxId, count }]] = await store.sequelize.query(
         `
@@ -242,10 +243,15 @@ const snapshotOutgoingChangesFromSyncLookup = withConfig(
             facility_id = :facilityId
           )
           --- if syncAllLabRequests is on then sync all records with is_lab_request IS TRUE
-          ${syncAllLabRequests ? `
+          ${
+            syncAllLabRequests
+              ? `
             OR is_lab_request IS TRUE
-          ` : ''}
+          `
+              : ''
+          }
         )
+        AND record_type IN (:recordTypes)
         ORDER BY record_id
         LIMIT :limit
         RETURNING record_id
@@ -263,6 +269,7 @@ const snapshotOutgoingChangesFromSyncLookup = withConfig(
             facilityId,
             limit: CHUNK_SIZE,
             fromId,
+            recordTypes,
           },
         },
       );
@@ -298,6 +305,7 @@ export const snapshotOutgoingChanges = withConfig(
     return config.sync.lookupTable.enabled
       ? snapshotOutgoingChangesFromSyncLookup(
           store,
+          outgoingModels,
           since,
           patientCount,
           markedForSyncPatientsTable,

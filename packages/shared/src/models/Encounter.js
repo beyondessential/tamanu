@@ -280,7 +280,6 @@ export class Encounter extends Model {
     return {
       select: buildSyncLookupSelect(this, {
         patientId: 'encounters.patient_id',
-        facilityId: 'locations.facility_id',
         encounterId: 'encounters.id',
         isLabRequest: 'labs.encounter_id IS NOT NULL',
       }),

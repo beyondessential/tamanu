@@ -337,7 +337,7 @@ describe('snapshotOutgoingChanges', () => {
 
     await snapshotOutgoingChanges(
       ctx.store,
-      { ImagingRequest: models.ImagingRequest },
+      { Setting: models.Setting },
       9,
       1,
       fullSyncPatientsTable,
@@ -567,7 +567,11 @@ describe('snapshotOutgoingChanges', () => {
 
     await snapshotOutgoingChanges(
       ctx.store,
-      { LabRequest: models.LabRequest },
+      {
+        LabRequest: models.LabRequest,
+        ImagingRequest: models.ImagingRequest,
+        Setting: models.Setting,
+      },
       9,
       1,
       fullSyncPatientsTable,
