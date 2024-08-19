@@ -14,7 +14,6 @@ import { createDummyPatient } from '@tamanu/shared/demoData/patients';
 import { createTestContext } from '../utilities';
 import { createMarkedForSyncPatientsTable } from '../../dist/sync/createMarkedForSyncPatientsTable';
 import { snapshotOutgoingChanges } from '../../dist/sync/snapshotOutgoingChanges';
-import { ImagingRequest } from '@tamanu/shared/models/ImagingRequest';
 
 describe('snapshotOutgoingChanges', () => {
   let ctx;
