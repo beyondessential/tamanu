@@ -10,13 +10,13 @@ export const globalSettings = {
       schema: yup.boolean().required(),
       default: false,
     },
-    // TODO: implement + test all features below
     enableVaccineConsent: {
       name: 'Enable vaccine consent',
-      description: '_',
+      description: 'Display a required vaccine consent box on the vaccine given form',
       schema: yup.boolean().required(),
       default: true,
     },
+    // TODO: implement + test all features below
     filterDischargeDispositions: {
       name: 'Filter discharge dispositions',
       description: '_',
