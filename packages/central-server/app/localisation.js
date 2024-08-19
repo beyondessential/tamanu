@@ -580,15 +580,6 @@ const rootLocalisationSchema = yup
       .oneOf(['tamanu', 'eudcc', 'icao']),
     features: yup
       .object({
-        idleTimeout: yup
-          .object()
-          .shape({
-            enabled: yup.boolean().required(),
-            timeoutDuration: yup.number().required(),
-            warningPromptDuration: yup.number().required(),
-            refreshInterval: yup.number().required(),
-          })
-          .required(),
         fhirNewZealandEthnicity: yup.boolean().required(),
       })
       .required()

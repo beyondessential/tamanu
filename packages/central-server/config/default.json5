@@ -794,13 +794,6 @@
         }
       },
       "features": {
-        "idleTimeout": {
-          "enabled": true,
-          // All values in seconds
-          "timeoutDuration": 600,
-          "warningPromptDuration": 30,
-          "refreshInterval": 150
-        },
         "fhirNewZealandEthnicity": false, // TODO: tricky
       },
       "templates": {
