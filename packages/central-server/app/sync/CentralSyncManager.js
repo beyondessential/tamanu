@@ -1,5 +1,5 @@
 import { trace } from '@opentelemetry/api';
-import { Op, Transaction } from 'sequelize';
+import { Op } from 'sequelize';
 import _config from 'config';
 
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
@@ -28,6 +28,7 @@ import { filterModelsFromName } from './filterModelsFromName';
 import { startSnapshotWhenCapacityAvailable } from './startSnapshotWhenCapacityAvailable';
 import { createMarkedForSyncPatientsTable } from './createMarkedForSyncPatientsTable';
 import { updateLookupTable } from './updateLookupTable';
+import { repeatableReadTransaction } from './repeatableReadTransaction';
 
 const errorMessageFromSession = session =>
   `Sync session '${session.id}' encountered an error: ${session.error}`;
@@ -239,24 +240,21 @@ export class CentralSyncManager {
     const previouslyUpToTick =
       (await this.store.models.LocalSystemFact.get(LOOKUP_UP_TO_TICK_KEY)) || -1;
 
-    await this.store.sequelize.transaction(
-      { isolationLevel: Transaction.ISOLATION_LEVELS.REPEATABLE_READ },
-      async () => {
-        await updateLookupTable(
-          getModelsForDirection(this.store.models, SYNC_DIRECTIONS.PULL_FROM_CENTRAL),
-          previouslyUpToTick,
-          this.constructor.config,
-        );
+    await repeatableReadTransaction(this.store.sequelize, async () => {
+      await updateLookupTable(
+        getModelsForDirection(this.store.models, SYNC_DIRECTIONS.PULL_FROM_CENTRAL),
+        previouslyUpToTick,
+        this.constructor.config,
+      );
 
-        // update the last successful lookup table in the same transaction - if updating the cursor fails,
-        // we want to roll back the rest of the saves so that the next update can still detect the records that failed
-        // to be updated last time
-        log.debug('CentralSyncManager.updateLookupTable()', {
-          lastSuccessfulLookupTableUpdate: tick,
-        });
-        await this.store.models.LocalSystemFact.set(LOOKUP_UP_TO_TICK_KEY, tick);
-      },
-    );
+      // update the last successful lookup table in the same transaction - if updating the cursor fails,
+      // we want to roll back the rest of the saves so that the next update can still detect the records that failed
+      // to be updated last time
+      log.debug('CentralSyncManager.updateLookupTable()', {
+        lastSuccessfulLookupTableUpdate: tick,
+      });
+      await this.store.models.LocalSystemFact.set(LOOKUP_UP_TO_TICK_KEY, tick);
+    });
   }
 
   async waitForPendingEdits(tick) {
@@ -347,59 +345,63 @@ export class CentralSyncManager {
       // the child in the snapshot and its parent missing)
       // as the snapshot only contains read queries plus writes to the specific sync snapshot table
       // that it controls, there should be no concurrent update issues :)
-      await this.store.sequelize.transaction(
-        { isolationLevel: Transaction.ISOLATION_LEVELS.REPEATABLE_READ },
-        async () => {
-          // full changes
+      await repeatableReadTransaction(this.store.sequelize, async () => {
+        const { snapshotTransactionTimeoutMs } = this.constructor.config.sync;
+        if (snapshotTransactionTimeoutMs) {
+          transactionTimeout = setTimeout(() => {
+            throw new Error(`Snapshot for session ${sessionId} timed out`);
+          }, snapshotTransactionTimeoutMs);
+        }
+
+        // full changes
+        await snapshotOutgoingChanges(
+          this.store,
+          getPatientLinkedModels(modelsToInclude),
+          -1, // for all time, i.e. 0 onwards
+          newPatientFacilitiesCount,
+          fullSyncPatientsTable,
+          sessionId,
+          facilityId,
+          {}, // sending empty session config because this snapshot attempt is only for syncing new marked for sync patients
+        );
+
+        // get changes since the last successful sync for all other synced patients and independent
+        // record types
+        const patientFacilitiesCount = await models.PatientFacility.count({
+          where: { facilityId },
+        });
+
+        // regular changes
+        await snapshotOutgoingChanges(
+          this.store,
+          getModelsForDirection(modelsToInclude, SYNC_DIRECTIONS.PULL_FROM_CENTRAL),
+          since,
+          patientFacilitiesCount,
+          incrementalSyncPatientsTable,
+          sessionId,
+          facilityId,
+          sessionConfig,
+        );
+
+        // any tables for full resync from (used when mobile needs to wipe and resync tables as
+        // part of the upgrade process)
+        if (tablesForFullResync) {
+          const modelsForFullResync = filterModelsFromName(models, tablesForFullResync);
           await snapshotOutgoingChanges(
             this.store,
-            getPatientLinkedModels(modelsToInclude),
-            -1, // for all time, i.e. 0 onwards
-            newPatientFacilitiesCount,
-            fullSyncPatientsTable,
-            sessionId,
-            facilityId,
-            {}, // sending empty session config because this snapshot attempt is only for syncing new marked for sync patients
-          );
-
-          // get changes since the last successful sync for all other synced patients and independent
-          // record types
-          const patientFacilitiesCount = await models.PatientFacility.count({
-            where: { facilityId },
-          });
-
-          // regular changes
-          await snapshotOutgoingChanges(
-            this.store,
-            getModelsForDirection(modelsToInclude, SYNC_DIRECTIONS.PULL_FROM_CENTRAL),
-            since,
+            getModelsForDirection(modelsForFullResync, SYNC_DIRECTIONS.PULL_FROM_CENTRAL),
+            -1,
             patientFacilitiesCount,
             incrementalSyncPatientsTable,
             sessionId,
             facilityId,
             sessionConfig,
           );
+        }
 
-          // any tables for full resync from (used when mobile needs to wipe and resync tables as
-          // part of the upgrade process)
-          if (tablesForFullResync) {
-            const modelsForFullResync = filterModelsFromName(models, tablesForFullResync);
-            await snapshotOutgoingChanges(
-              this.store,
-              getModelsForDirection(modelsForFullResync, SYNC_DIRECTIONS.PULL_FROM_CENTRAL),
-              -1,
-              patientFacilitiesCount,
-              incrementalSyncPatientsTable,
-              sessionId,
-              facilityId,
-              sessionConfig,
-            );
-          }
-
-          // delete any outgoing changes that were just pushed in during the same session
-          await removeEchoedChanges(this.store, sessionId);
-        },
-      );
+        // delete any outgoing changes that were just pushed in during the same session
+        await removeEchoedChanges(this.store, sessionId);
+      });
       // this update to the session needs to happen outside of the transaction, as the repeatable
       // read isolation level can suffer serialization failures if a record is updated inside and
       // outside the transaction, and the session is being updated to show the last connection
