@@ -793,9 +793,6 @@
           "longLabel": "kg"
         }
       },
-      "features": {
-        "fhirNewZealandEthnicity": false, // TODO: tricky
-      },
       "templates": {
         "letterhead": {
           "title": "TAMANU MINISTRY OF HEALTH & MEDICAL SERVICES",

@@ -15,8 +15,11 @@ function getEthnicity(ethnicityId) {
   }
 }
 
-export const nzEthnicity = withConfig((patient, config) => {
-  if (!config.localisation.data.features.fhirNewZealandEthnicity) return [];
+export const nzEthnicity = withConfig(async (patient, settings, config) => {
+  const fhirNewZealandEthnicity = await settings.get('features.fhirNewZealandEthnicity');
+  if (!fhirNewZealandEthnicity) {
+    return [];
+  }
   const { code, display } = getEthnicity(patient?.additionalData?.ethnicityId);
 
   return [

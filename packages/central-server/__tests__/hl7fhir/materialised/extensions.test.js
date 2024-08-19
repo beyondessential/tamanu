@@ -1,25 +1,32 @@
-import config from 'config';
 import { nzEthnicity } from '@tamanu/shared/models/fhir/extensions';
+import { createTestContext } from '../../utilities';
 
 describe('New Zealand ethnicity extension', () => {
+  let settings;
+  let ctx;
   const patient = {
     additionalData: {
       ethnicityId: null,
     },
   };
 
-  it('returns empty array when feature flag is off', () => {
-    const extension = nzEthnicity(patient);
+  beforeEach(async () => {
+    ctx = await createTestContext();
+    settings = ctx.settings;
+  });
+
+  afterEach(() => ctx.close());
+
+  it('returns empty array when feature flag is off', async () => {
+    const extension = await nzEthnicity(patient, settings);
     expect(extension).toMatchObject([]);
     expect(extension.length).toBe(0);
   });
 
-  it('returns a fhir extension when feature flag is on', () => {
-    const mockConfig = {
-      hl7: config.hl7,
-      localisation: { data: { features: { fhirNewZealandEthnicity: true } } },
-    };
-    const extension = nzEthnicity.overrideConfig(patient, mockConfig);
+  it('returns a fhir extension when feature flag is on', async () => {
+    await ctx.store.models.Setting.set('features.fhirNewZealandEthnicity', true);
+
+    const extension = await nzEthnicity(patient, settings);
     expect(extension).toMatchObject([
       {
         url: 'http://hl7.org.nz/fhir/StructureDefinition/nz-ethnicity',
