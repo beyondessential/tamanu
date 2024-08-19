@@ -580,7 +580,6 @@ const rootLocalisationSchema = yup
       .oneOf(['tamanu', 'eudcc', 'icao']),
     features: yup
       .object({
-        mergePopulatedPADRecords: yup.boolean().required(),
         enableNoteBackdating: yup.boolean().required(),
         enableCovidClearanceCertificate: yup.boolean().required(),
         editPatientDisplayId: yup.boolean().required(),

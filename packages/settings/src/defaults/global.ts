@@ -59,12 +59,6 @@ export const globalSettings = {
       schema: yup.boolean().required(),
       default: false,
     },
-    mergePopulatedPADRecords: {
-      name: 'Merge populated PAD records',
-      description: '_',
-      schema: yup.boolean().required(),
-      default: true,
-    },
     enableNoteBackdating: {
       name: 'Enable note backdating',
       description: '_',
