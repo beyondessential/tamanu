@@ -449,12 +449,6 @@ const validCssAbsoluteLength = yup
 
 const printMeasuresSchema = yup
   .object({
-    labRequestPrintLabel: yup.object({
-      width: yup
-        .number()
-        .required()
-        .positive(),
-    }),
     stickerLabelPage: yup.object({
       pageWidth: validCssAbsoluteLength,
       pageHeight: validCssAbsoluteLength,

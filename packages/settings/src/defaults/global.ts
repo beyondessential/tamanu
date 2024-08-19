@@ -242,6 +242,19 @@ export const globalSettings = {
       ],
     },
   },
+  printMeasures: {
+    labRequestPrintLabel: {
+      width: {
+        name: 'Width',
+        description: '_',
+        schema: yup
+          .number()
+          .required()
+          .positive(),
+        default: 50.8,
+      },
+    },
+  },
 };
 
 // export const globalDefaults = extractDefaults(globalSettings);
