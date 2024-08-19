@@ -581,7 +581,6 @@ const rootLocalisationSchema = yup
     features: yup
       .object({
         hideOtherSex: yup.boolean().required(),
-        registerNewPatient: yup.boolean().required(),
         enablePatientDeaths: yup.boolean().required(),
         mergePopulatedPADRecords: yup.boolean().required(),
         enableNoteBackdating: yup.boolean().required(),

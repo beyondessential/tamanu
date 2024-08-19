@@ -794,7 +794,6 @@
         }
       },
       "features": {
-        "registerNewPatient": true,
         "hideOtherSex": true,
         "enablePatientDeaths": false,
         "mergePopulatedPADRecords": true,
