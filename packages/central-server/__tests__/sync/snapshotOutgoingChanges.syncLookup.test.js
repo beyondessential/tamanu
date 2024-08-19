@@ -14,6 +14,7 @@ import { createDummyPatient } from '@tamanu/shared/demoData/patients';
 import { createTestContext } from '../utilities';
 import { createMarkedForSyncPatientsTable } from '../../dist/sync/createMarkedForSyncPatientsTable';
 import { snapshotOutgoingChanges } from '../../dist/sync/snapshotOutgoingChanges';
+import { ImagingRequest } from '@tamanu/shared/models/ImagingRequest';
 
 describe('snapshotOutgoingChanges', () => {
   let ctx;
@@ -337,7 +338,7 @@ describe('snapshotOutgoingChanges', () => {
 
     await snapshotOutgoingChanges(
       ctx.store,
-      { ImagingRequest: models.ImagingRequest },
+      { Setting: models.Setting },
       9,
       1,
       fullSyncPatientsTable,
@@ -567,7 +568,11 @@ describe('snapshotOutgoingChanges', () => {
 
     await snapshotOutgoingChanges(
       ctx.store,
-      { LabRequest: models.LabRequest },
+      {
+        LabRequest: models.LabRequest,
+        ImagingRequest: models.ImagingRequest,
+        Setting: models.Setting,
+      },
       9,
       1,
       fullSyncPatientsTable,
