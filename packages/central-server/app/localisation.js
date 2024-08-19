@@ -590,7 +590,6 @@ const rootLocalisationSchema = yup
           })
           .required(),
         fhirNewZealandEthnicity: yup.boolean().required(),
-        displayIcd10CodesInDischargeSummary: yup.boolean().required(),
         tableAutoRefresh: yup.object().shape({
           enabled: yup.boolean().required(),
           interval: yup.number().required(),

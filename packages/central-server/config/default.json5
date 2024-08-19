@@ -802,7 +802,6 @@
           "refreshInterval": 150
         },
         "fhirNewZealandEthnicity": false, // TODO: tricky
-        "displayIcd10CodesInDischargeSummary": true,
         "tableAutoRefresh": {
           "enabled": false,
           // In Seconds

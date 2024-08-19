@@ -106,8 +106,8 @@ const notesSectionStyles = StyleSheet.create({
 const extractOngoingConditions = patientConditions =>
   patientConditions.map(item => item?.diagnosis?.name);
 
-const extractDiagnosesInfo = ({ diagnoses, getLocalisation }) => {
-  const displayIcd10Codes = getLocalisation('features.displayIcd10CodesInDischargeSummary');
+const extractDiagnosesInfo = ({ diagnoses, getSetting }) => {
+  const displayIcd10Codes = getSetting('features.displayIcd10CodesInDischargeSummary');
   if (!displayIcd10Codes) {
     return diagnoses.map(item => item?.diagnosis?.name);
   } else {
@@ -141,8 +141,8 @@ const InfoBox = ({ label, info }) => (
   </InfoBoxRow>
 );
 
-const DiagnosesTable = ({ title, diagnoses, getLocalisation }) => (
-  <InfoBox label={title} info={extractDiagnosesInfo({ diagnoses, getLocalisation })} />
+const DiagnosesTable = ({ title, diagnoses, getSetting }) => (
+  <InfoBox label={title} info={extractDiagnosesInfo({ diagnoses, getSetting })} />
 );
 
 const ProceduresTable = ({ procedures, getSetting }) => (
@@ -267,7 +267,7 @@ const DischargeSummaryPrintoutComponent = ({
               <DiagnosesTable
                 title="Primary diagnoses"
                 diagnoses={primaryDiagnoses}
-                getLocalisation={getLocalisation}
+                getSetting={getSetting}
               />
             </TableContainer>
           )}
@@ -276,7 +276,7 @@ const DischargeSummaryPrintoutComponent = ({
               <DiagnosesTable
                 title="Secondary diagnoses"
                 diagnoses={secondaryDiagnoses}
-                getLocalisation={getLocalisation}
+                getSetting={getSetting}
               />
             </TableContainer>
           )}
