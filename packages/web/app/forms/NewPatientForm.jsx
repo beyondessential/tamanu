@@ -24,6 +24,7 @@ import { useLayoutComponents } from './PatientDetailsForm';
 import { usePatientFieldDefinitionQuery } from '../api/queries/usePatientFieldDefinitionQuery';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useTranslation } from '../contexts/Translation';
+import { useSettings } from '../contexts/Settings';
 
 const StyledImageButton = styled(Button)`
   min-width: 30px;
@@ -77,6 +78,7 @@ export const NewPatientForm = memo(
     );
     const { data: fieldDefinitions, error, isLoading } = usePatientFieldDefinitionQuery();
 
+    const { getSetting } = useSettings();
     const { getLocalisation } = useLocalisation();
     const { getTranslation } = useTranslation();
     const { PrimaryDetails, SecondaryDetails, PatientFields } = useLayoutComponents();
@@ -195,6 +197,7 @@ export const NewPatientForm = memo(
           patientRegistryType,
           getLocalisation,
           getTranslation,
+          getSetting,
         )}
       />
     );

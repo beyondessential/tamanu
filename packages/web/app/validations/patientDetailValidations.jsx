@@ -52,6 +52,7 @@ export const getPatientDetailsValidation = (
   patientRegistryType,
   getLocalisation,
   getTranslation,
+  getSetting,
 ) => {
   const patientDetailsValidationSchema = yup.object().shape({
     firstName: yup
@@ -107,7 +108,7 @@ export const getPatientDetailsValidation = (
       .string()
       .oneOf(
         Object.values(SEX_VALUES).filter(value =>
-          getLocalisation('features.hideOtherSex') === true ? value !== SEX_VALUES.OTHER : true,
+          getSetting('features.hideOtherSex') === true ? value !== SEX_VALUES.OTHER : true,
         ),
       )
       .required()

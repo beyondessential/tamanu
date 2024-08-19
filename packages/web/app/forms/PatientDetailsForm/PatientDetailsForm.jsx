@@ -13,6 +13,7 @@ import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { useLayoutComponents } from './useLayoutComponents';
 import { usePatientFieldDefinitionQuery } from '../../api/queries/usePatientFieldDefinitionQuery';
 import { useTranslation } from '../../contexts/Translation';
+import { useSettings } from '../../contexts/Settings';
 
 const StyledPatientDetailSecondaryDetailsGroupWrapper = styled.div`
   margin-top: 70px;
@@ -68,6 +69,7 @@ function stripPatientData(patient, additionalData, birthData) {
 
 export const PatientDetailsForm = ({ patient, additionalData, birthData, onSubmit }) => {
   const { getTranslation } = useTranslation();
+  const { getSetting } = useSettings()
   const patientRegistryType = !isEmpty(birthData)
     ? PATIENT_REGISTRY_TYPES.BIRTH_REGISTRY
     : PATIENT_REGISTRY_TYPES.NEW_PATIENT;
@@ -151,6 +153,7 @@ export const PatientDetailsForm = ({ patient, additionalData, birthData, onSubmi
         patientRegistryType,
         getLocalisation,
         getTranslation,
+        getSetting,
       )}
     />
   );
