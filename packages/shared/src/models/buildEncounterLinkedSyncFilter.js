@@ -22,3 +22,12 @@ export function buildEncounterLinkedSyncFilter(
     AND ${tablesToTraverse[0]}.updated_at_sync_tick > :since
   `;
 }
+
+export function buildEncounterLinkedJoin() {
+  return `
+    JOIN
+      encounters
+    ON
+      encounter_id = encounters.id
+  `;
+}

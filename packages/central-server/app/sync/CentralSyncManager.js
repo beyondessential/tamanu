@@ -3,10 +3,7 @@ import { Op, Transaction } from 'sequelize';
 import _config from 'config';
 
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
-import {
-  CURRENT_SYNC_TIME_KEY,
-  LOOKUP_UP_TO_TICK_KEY,
-} from '@tamanu/shared/sync/constants';
+import { CURRENT_SYNC_TIME_KEY, LOOKUP_UP_TO_TICK_KEY } from '@tamanu/shared/sync/constants';
 import { log } from '@tamanu/shared/services/logging';
 import {
   adjustDataPostSyncPush,
@@ -246,7 +243,7 @@ export class CentralSyncManager {
       { isolationLevel: Transaction.ISOLATION_LEVELS.REPEATABLE_READ },
       async () => {
         await updateLookupTable(
-          [this.store.models.Encounter], //TODO: Will be changed to all models later
+          getModelsForDirection(this.store.models, SYNC_DIRECTIONS.PULL_FROM_CENTRAL),
           previouslyUpToTick,
           this.constructor.config,
         );

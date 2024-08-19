@@ -4,11 +4,7 @@ import { NOTE_RECORD_TYPE_VALUES, NOTE_RECORD_TYPES } from '@tamanu/constants';
 
 const recordTypesWithPatientViaEncounter = ['Triage', 'LabRequest', 'ImagingRequest'];
 
-export function buildNoteLinkedSyncFilter(patientCount, markedForSyncPatientsTable, sessionConfig) {
-  if (patientCount === 0) {
-    return null;
-  }
-
+export function buildNoteLinkedJoins() {
   const recordTypesToTables = {};
   NOTE_RECORD_TYPE_VALUES.forEach(r => {
     recordTypesToTables[r] = Utils.pluralize(snake(r));
@@ -24,6 +20,21 @@ export function buildNoteLinkedSyncFilter(patientCount, markedForSyncPatientsTab
         `LEFT JOIN encounters AS ${recordTypesToTables[r]}_encounters ON ${recordTypesToTables[r]}.encounter_id = ${recordTypesToTables[r]}_encounters.id`,
     ),
   );
+
+  return joins;
+}
+
+export function buildNoteLinkedSyncFilter(patientCount, markedForSyncPatientsTable, sessionConfig) {
+  if (patientCount === 0) {
+    return null;
+  }
+
+  const recordTypesToTables = {};
+  NOTE_RECORD_TYPE_VALUES.forEach(r => {
+    recordTypesToTables[r] = Utils.pluralize(snake(r));
+  });
+
+  const joins = buildNoteLinkedJoins();
 
   const whereOrs = [
     `

@@ -12,7 +12,7 @@ import { dateTimeType } from './dateTimeTypes';
 import { Model } from './Model';
 import { onSaveMarkPatientForSync } from './onSaveMarkPatientForSync';
 import { dischargeOutpatientEncounters } from '../utils/dischargeOutpatientEncounters';
-import { buildExtraFilterColumnSelect } from './buildExtraFilterColumnSelect';
+import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
 
 export class Encounter extends Model {
   static init({ primaryKey, hackToSkipEncounterValidation, ...options }) {
@@ -276,11 +276,10 @@ export class Encounter extends Model {
     `;
   }
 
-  static buildSyncLookupFilter() {
+  static buildSyncLookupQueryDetails() {
     return {
-      extraFilterColumnSelect: buildExtraFilterColumnSelect({
+      select: buildSyncLookupSelect(this, {
         patientId: 'encounters.patient_id',
-        facilityId: 'locations.facility_id',
         encounterId: 'encounters.id',
         isLabRequest: 'labs.encounter_id IS NOT NULL',
       }),

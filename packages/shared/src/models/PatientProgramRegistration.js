@@ -138,4 +138,8 @@ export class PatientProgramRegistration extends Model {
   static buildSyncFilter() {
     return null;
   }
+
+  static buildSyncLookupQueryDetails() {
+    return null; // syncs everywhere
+  }
 }

@@ -1,6 +1,7 @@
 import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
+import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
 
 export class PatientFacility extends Model {
   static init(options) {
@@ -51,5 +52,14 @@ export class PatientFacility extends Model {
 
   static buildSyncFilter() {
     return `WHERE facility_id = :facilityId AND ${this.tableName}.updated_at_sync_tick > :since`;
+  }
+
+  static buildSyncLookupQueryDetails() {
+    return {
+      select: buildSyncLookupSelect(this, {
+        patientId: `${this.tableName}.patient_id`,
+        facilityId: `${this.tableName}.facility_id`,
+      }),
+    };
   }
 }
