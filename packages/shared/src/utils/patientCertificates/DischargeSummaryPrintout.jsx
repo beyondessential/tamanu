@@ -115,8 +115,8 @@ const extractDiagnosesInfo = ({ diagnoses, getLocalisation }) => {
   }
 };
 
-const extractProceduresInfo = ({ procedures, getLocalisation }) => {
-  const displayProcedureCodes = getLocalisation('features.displayProcedureCodesInDischargeSummary');
+const extractProceduresInfo = ({ procedures, getSetting }) => {
+  const displayProcedureCodes = getSetting('features.displayProcedureCodesInDischargeSummary');
   if (!displayProcedureCodes) {
     return procedures.map(item => item?.procedureType?.name);
   } else {
@@ -145,8 +145,8 @@ const DiagnosesTable = ({ title, diagnoses, getLocalisation }) => (
   <InfoBox label={title} info={extractDiagnosesInfo({ diagnoses, getLocalisation })} />
 );
 
-const ProceduresTable = ({ procedures, getLocalisation }) => (
-  <InfoBox label="Procedures" info={extractProceduresInfo({ procedures, getLocalisation })} />
+const ProceduresTable = ({ procedures, getSetting }) => (
+  <InfoBox label="Procedures" info={extractProceduresInfo({ procedures, getSetting })} />
 );
 
 const NotesSection = ({ notes }) => (
@@ -210,6 +210,7 @@ const DischargeSummaryPrintoutComponent = ({
   certificateData,
   getLocalisation,
   getTranslation,
+  getSetting,
 }) => {
   const { logo } = certificateData;
   const clinicianText = getTranslation('general.localisedField.clinician.label.short', 'Clinician');
@@ -281,7 +282,7 @@ const DischargeSummaryPrintoutComponent = ({
           )}
           {procedures.length > 0 && (
             <TableContainer>
-              <ProceduresTable procedures={procedures} getLocalisation={getLocalisation} />
+              <ProceduresTable procedures={procedures} getSetting={getSetting} />
             </TableContainer>
           )}
           {medications.length > 0 && (
