@@ -6,7 +6,6 @@ import { NOTE_TYPES, NOTE_TYPE_LABELS } from '@tamanu/constants';
 
 import { InfoCard, InfoCardItem } from './InfoCard';
 import { AutocompleteField, DateTimeField, Field, TextField, TranslatedSelectField } from './Field';
-import { useLocalisation } from '../contexts/Localisation';
 
 import { useSuggester } from '../api';
 import { DateDisplay } from './DateDisplay';

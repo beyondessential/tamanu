@@ -27,7 +27,7 @@ async function getValuesFromPatient(upstream) {
   upstream.additionalData = first;
 
   return {
-    extension: await extension(upstream),
+    extension: extension(upstream),
     identifier: identifiers(upstream),
     active: activeFromVisibility(upstream),
     name: names(upstream),
@@ -45,8 +45,8 @@ function compactBy(array, access = identity) {
   return array.filter(access);
 }
 
-async function extension(patient) {
-  return [...(await nzEthnicity(patient))];
+function extension(patient) {
+  return [...nzEthnicity(patient)];
 }
 
 function identifiers(patient) {

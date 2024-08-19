@@ -5,7 +5,6 @@ import { Modal } from '../../Modal';
 import { Button } from '../../Button';
 import { Colors } from '../../../constants';
 import { isErrorUnknownAllow404s, useApi } from '../../../api';
-import { useLocalisation } from '../../../contexts/Localisation';
 import { useAuth } from '../../../contexts/Auth';
 
 import { PatientIDCardPage } from './PatientIDCardPage';

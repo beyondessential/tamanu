@@ -26,7 +26,6 @@ import { PatientFieldsGroup } from '../../PatientFields';
 import { TranslatedText } from '../../../../components/Translation/TranslatedText';
 import { ReminderContactSection } from '../../../../components/ReminderContact/ReminderContactSection';
 import { useSettings } from '../../../../contexts/Settings';
-import { useLocalisation } from '../../../../contexts/Localisation';
 
 export const GenericPrimaryDetailsLayout = ({
   patientRegistryType,
