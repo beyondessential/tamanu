@@ -13,6 +13,7 @@ import { DateDisplay } from './DateDisplay';
 import { Colors } from '../constants';
 import { FormGrid } from './FormGrid';
 import { TranslatedText } from './Translation/TranslatedText';
+import { useSettings } from '../contexts/Settings';
 
 export const StyledDivider = styled(Divider)`
   margin-top: 30px;
@@ -84,7 +85,7 @@ export const WrittenByField = ({
 };
 
 export const NoteDateTimeField = ({ required, disabled }) => {
-  const { getLocalisation } = useLocalisation();
+  const { getSetting } = useSettings()
 
   return (
     <Field
@@ -92,7 +93,7 @@ export const NoteDateTimeField = ({ required, disabled }) => {
       label={<TranslatedText stringId="note.dateTime.label" fallback="Date & time" />}
       component={DateTimeField}
       required={required}
-      disabled={!getLocalisation('features.enableNoteBackdating') || disabled}
+      disabled={!getSetting('features.enableNoteBackdating') || disabled}
       saveDateAsString
     />
   );
