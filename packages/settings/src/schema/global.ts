@@ -90,7 +90,7 @@ export const globalSettings = {
   },
   triageCategories: {
     name: 'Triage categories',
-    description: '_',
+    description: 'Custom triage scale',
     schema: yup
       .array()
       .of(
@@ -127,6 +127,37 @@ export const globalSettings = {
         level: 5,
         label: 'Deceased',
         color: '#67A6E3',
+      },
+    ],
+  },
+  imagingPriorities: {
+    name: 'Imaging priorities',
+    description: '_',
+    schema: yup
+      .array()
+      .of(
+        yup.object({
+          priority: yup.number().required(),
+          label: yup.string().required(),
+        }),
+      )
+      .required(),
+    defaultValue: [
+      {
+        value: 'routine',
+        label: 'Routine',
+      },
+      {
+        value: 'urgent',
+        label: 'Urgent',
+      },
+      {
+        value: 'asap',
+        label: 'ASAP',
+      },
+      {
+        value: 'stat',
+        label: 'STAT',
       },
     ],
   },
