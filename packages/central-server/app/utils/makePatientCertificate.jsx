@@ -75,7 +75,7 @@ export const makeCovidVaccineCertificate = async (
   language,
 ) => {
   const localisation = await getLocalisation();
-  const getSetting = key => '#TODO settings';
+  const getSetting = key => get(localisation, key);
   const getLocalisationData = key => get(localisation, key);
 
   const fileName = `covid-vaccine-certificate-${patient.id}.pdf`;
