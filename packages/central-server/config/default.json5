@@ -794,7 +794,6 @@
         }
       },
       "features": {
-        "editPatientDisplayId": false,
         "enablePatientInsurer": false,
         "patientPlannedMove": false,
         "idleTimeout": {
