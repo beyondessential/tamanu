@@ -212,3 +212,20 @@ export function labTestPanelLoader(item) {
 
   return rows;
 }
+
+export const taskSetLoader = item => {
+  const { id, tasks } = item;
+
+  const rows = (tasks || '')
+    .split(',')
+    .map(taskId => taskId.trim())
+    .map(taskId => ({
+      model: 'ReferenceDataRelation',
+      values: {
+        referenceDataId: taskId,
+        referenceDataParentId: id,
+      },
+    }));
+
+  return rows;
+};
