@@ -802,11 +802,6 @@
           "refreshInterval": 150
         },
         "fhirNewZealandEthnicity": false, // TODO: tricky
-        "tableAutoRefresh": {
-          "enabled": false,
-          // In Seconds
-          "interval": 300
-        },
       },
       "templates": {
         "letterhead": {
