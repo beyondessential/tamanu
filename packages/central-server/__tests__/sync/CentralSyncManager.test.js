@@ -31,6 +31,14 @@ describe('CentralSyncManager', () => {
 
   const DEFAULT_CURRENT_SYNC_TIME_VALUE = 2;
   const DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS = 100000000;
+  const DEFAULT_CONFIG = {
+    sync: {
+      lookupTable: {
+        enabled: false,
+      },
+      maxRecordsPerSnapshotChunk: 1000000000,
+    },
+  };
 
   const initializeCentralSyncManager = config => {
     // Have to load test function within test scope so that we can mock dependencies per test case
@@ -38,9 +46,7 @@ describe('CentralSyncManager', () => {
       CentralSyncManager: TestCentralSyncManager,
     } = require('../../dist/sync/CentralSyncManager');
 
-    if (config) {
-      TestCentralSyncManager.overrideConfig(config);
-    }
+    TestCentralSyncManager.overrideConfig(config || DEFAULT_CONFIG);
 
     return new TestCentralSyncManager(ctx);
   };
@@ -199,6 +205,9 @@ describe('CentralSyncManager', () => {
     it("does not throw an error when connecting to a session that has not taken longer than configured 'syncSessionTimeoutMs'", async () => {
       const centralSyncManager = initializeCentralSyncManager({
         sync: {
+          lookupTable: {
+            enabled: false,
+          },
           syncSessionTimeoutMs: 1000,
           maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
         },
@@ -217,6 +226,9 @@ describe('CentralSyncManager', () => {
     it("throws an error when connecting to a session that has taken longer than configured 'syncSessionTimeoutMs'", async () => {
       const centralSyncManager = initializeCentralSyncManager({
         sync: {
+          lookupTable: {
+            enabled: false,
+          },
           syncSessionTimeoutMs: 200,
           maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
         },
@@ -1092,7 +1104,9 @@ describe('CentralSyncManager', () => {
 
       const centralSyncManager = initializeCentralSyncManager({
         sync: {
-          useLookupTable: true,
+          lookupTable: {
+            enabled: true,
+          },
           maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
         },
       });
@@ -1127,6 +1141,163 @@ describe('CentralSyncManager', () => {
       );
     });
 
+    it('updates new changes from records into sync lookup table', async () => {
+      const patient1 = await models.Patient.create(fake(models.Patient));
+
+      const centralSyncManager = initializeCentralSyncManager({
+        sync: {
+          lookupTable: {
+            enabled: true,
+          },
+          maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
+        },
+      });
+
+      await centralSyncManager.updateLookupTable();
+
+      const lookupData = await models.SyncLookup.findAll({});
+
+      expect(lookupData).toHaveLength(1);
+      expect(lookupData[0]).toEqual(
+        expect.objectContaining({
+          recordId: patient1.id,
+          recordType: 'patients',
+          data: expect.objectContaining({
+            id: patient1.id,
+            displayId: patient1.displayId,
+            firstName: patient1.firstName,
+            middleName: patient1.middleName,
+            lastName: patient1.lastName,
+            culturalName: patient1.culturalName,
+            dateOfBirth: patient1.dateOfBirth,
+            dateOfDeath: null,
+            sex: patient1.sex,
+            email: patient1.email,
+            visibilityStatus: patient1.visibilityStatus,
+            villageId: null,
+            mergedIntoId: null,
+          }),
+          isLabRequest: false,
+          isDeleted: false,
+          updatedAtSyncTick: DEFAULT_CURRENT_SYNC_TIME_VALUE.toString(),
+        }),
+      );
+
+      patient1.firstName = 'New First Name';
+      await patient1.save();
+
+      await centralSyncManager.updateLookupTable();
+      const lookupData2 = await models.SyncLookup.findAll({});
+
+      const newUpdatedAtSyncTick = DEFAULT_CURRENT_SYNC_TIME_VALUE + 2;
+
+      expect(lookupData2).toHaveLength(1);
+      expect(lookupData2[0]).toEqual(
+        expect.objectContaining({
+          recordId: patient1.id,
+          recordType: 'patients',
+          data: expect.objectContaining({
+            id: patient1.id,
+            displayId: patient1.displayId,
+            firstName: 'New First Name',
+            middleName: patient1.middleName,
+            lastName: patient1.lastName,
+            culturalName: patient1.culturalName,
+            dateOfBirth: patient1.dateOfBirth,
+            dateOfDeath: null,
+            sex: patient1.sex,
+            email: patient1.email,
+            visibilityStatus: patient1.visibilityStatus,
+            villageId: null,
+            mergedIntoId: null,
+          }),
+          isLabRequest: false,
+          isDeleted: false,
+          updatedAtSyncTick: newUpdatedAtSyncTick.toString(),
+        }),
+      );
+    });
+
+    it('allows having the same record_id but different record_type in sync lookup table', async () => {
+      const patient1 = await models.Patient.create(fake(models.Patient));
+      await models.ReferenceData.create(
+        fake(models.ReferenceData, { id: patient1.id }), // use the same id between patient and reference_data
+      );
+
+      const centralSyncManager = initializeCentralSyncManager({
+        sync: {
+          lookupTable: {
+            enabled: true,
+          },
+          maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
+        },
+      });
+
+      await centralSyncManager.updateLookupTable();
+
+      const lookupData = await models.SyncLookup.findAll({});
+
+      expect(lookupData).toHaveLength(2);
+      expect(lookupData.find(d => d.recordType === 'patients')).toEqual(
+        expect.objectContaining({
+          recordId: patient1.id,
+          recordType: 'patients',
+          data: expect.objectContaining({
+            id: patient1.id,
+            displayId: patient1.displayId,
+            firstName: patient1.firstName,
+            middleName: patient1.middleName,
+            lastName: patient1.lastName,
+            culturalName: patient1.culturalName,
+            dateOfBirth: patient1.dateOfBirth,
+            dateOfDeath: null,
+            sex: patient1.sex,
+            email: patient1.email,
+            visibilityStatus: patient1.visibilityStatus,
+            villageId: null,
+            mergedIntoId: null,
+          }),
+          isLabRequest: false,
+          isDeleted: false,
+          updatedAtSyncTick: DEFAULT_CURRENT_SYNC_TIME_VALUE.toString(),
+        }),
+      );
+
+      patient1.firstName = 'New First Name';
+      await patient1.save();
+
+      await centralSyncManager.updateLookupTable();
+      const lookupData2 = await models.SyncLookup.findAll({});
+
+      const newUpdatedAtSyncTick = DEFAULT_CURRENT_SYNC_TIME_VALUE + 2;
+
+      expect(lookupData2).toHaveLength(2);
+      expect(lookupData2.find(d => d.recordType === 'patients')).toEqual(
+        expect.objectContaining({
+          recordId: patient1.id,
+          recordType: 'patients',
+          data: expect.objectContaining({
+            id: patient1.id,
+            displayId: patient1.displayId,
+            firstName: 'New First Name',
+            middleName: patient1.middleName,
+            lastName: patient1.lastName,
+            culturalName: patient1.culturalName,
+            dateOfBirth: patient1.dateOfBirth,
+            dateOfDeath: null,
+            sex: patient1.sex,
+            email: patient1.email,
+            visibilityStatus: patient1.visibilityStatus,
+            villageId: null,
+            mergedIntoId: null,
+          }),
+          isLabRequest: false,
+          isDeleted: false,
+          updatedAtSyncTick: newUpdatedAtSyncTick.toString(),
+        }),
+      );
+    });
+
     it('does not include records inserted when updating lookup table already started', async () => {
       const records = await prepareRecordsForSync();
       const program = records[1];
@@ -1146,7 +1317,9 @@ describe('CentralSyncManager', () => {
 
       const centralSyncManager = initializeCentralSyncManager({
         sync: {
-          useLookupTable: true,
+          lookupTable: {
+            enabled: true,
+          },
           maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
         },
       });
@@ -1209,7 +1382,9 @@ describe('CentralSyncManager', () => {
 
       const centralSyncManager = initializeCentralSyncManager({
         sync: {
-          useLookupTable: true,
+          lookupTable: {
+            enabled: true,
+          },
           maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
         },
       });

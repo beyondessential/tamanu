@@ -5,6 +5,8 @@ import { buildSyncLookupSelect } from '@tamanu/shared/sync';
 
 export const updateLookupTableForModel = async (model, config, since, sessionConfig) => {
   const CHUNK_SIZE = config.sync.maxRecordsPerSnapshotChunk;
+  const { perModelUpdateTimeoutMs } = config.sync.lookupTable;
+
   const { tableName: table } = model;
 
   let fromId = '';
@@ -16,6 +18,14 @@ export const updateLookupTableForModel = async (model, config, since, sessionCon
   while (fromId != null) {
     const [[{ maxId, count }]] = await model.sequelize.query(
       `
+        ${
+          perModelUpdateTimeoutMs
+            ? `
+              --- Set timeout duration for a single query that updates sync_lookup table for a model
+              SET LOCAL statement_timeout = :perModelUpdateTimeoutMs;`
+            : ''
+        }
+
         WITH inserted AS (
           INSERT INTO sync_lookup (
             record_id,
@@ -74,6 +84,7 @@ export const updateLookupTableForModel = async (model, config, since, sessionCon
           since,
           limit: CHUNK_SIZE,
           fromId,
+          perModelUpdateTimeoutMs,
         },
       },
     );
