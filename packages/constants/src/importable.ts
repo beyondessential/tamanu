@@ -48,6 +48,7 @@ export const REFERENCE_TYPES = {
   SPECIMEN_TYPE: 'specimenType',
   INSURER: 'insurer',
   PAYMENT_METHOD: 'paymentMethod',
+  TASK_NOT_COMPLETED_REASON: 'taskNotCompletedReason',
   TASK_DELETION_REASON: 'taskDeletionReason',
   ...IMAGING_AREA_TYPES,
 };
