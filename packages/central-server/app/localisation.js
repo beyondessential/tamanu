@@ -447,24 +447,6 @@ const validCssAbsoluteLength = yup
     return /(^\d+$)|(^\d+\.\d+$)/.test(numberString);
   });
 
-const printMeasuresSchema = yup
-  .object({
-    stickerLabelPage: yup.object({
-      pageWidth: validCssAbsoluteLength,
-      pageHeight: validCssAbsoluteLength,
-      pageMarginTop: validCssAbsoluteLength,
-      pageMarginLeft: validCssAbsoluteLength,
-      columnTotal: yup.number().required(),
-      columnWidth: validCssAbsoluteLength,
-      columnGap: validCssAbsoluteLength,
-      rowTotal: yup.number().required(),
-      rowHeight: validCssAbsoluteLength,
-      rowGap: validCssAbsoluteLength,
-    }),
-  })
-  .required()
-  .noUnknown();
-
 const rootLocalisationSchema = yup
   .object({
     units: yup.object({
@@ -568,7 +550,6 @@ const rootLocalisationSchema = yup
       .string()
       .required()
       .oneOf(['tamanu', 'eudcc', 'icao']),
-    printMeasures: printMeasuresSchema,
     disabledReports: yup.array(yup.string().required()).defined(),
     supportDeskUrl: yup.string().required(),
     ageDisplayFormat: yup
