@@ -1,27 +1,29 @@
 import { useMemo } from 'react';
-import { useLocalisation } from '../../contexts/Localisation';
 import { isBoolean } from 'lodash';
+import { useSettings } from '../../contexts/Settings';
 
 export const useFilterPatientFields = ({ fields, filterByMandatory }) => {
-  const { getLocalisation } = useLocalisation();
+  const { getSetting } = useSettings();
 
   const fieldsToShow = useMemo(() => {
     const checkCondition = fieldName =>
       !fields[fieldName].condition || fields[fieldName].condition();
     const checkMandatory = fieldName => {
-      const requiredConfiguration = getLocalisation(`fields.${fieldName}.requiredPatientData`);
+      const requiredConfiguration = getSetting(
+        `localisation.fields.${fieldName}.requiredPatientData`,
+      );
       return (
         !isBoolean(filterByMandatory) ||
         !isBoolean(requiredConfiguration) ||
         requiredConfiguration === filterByMandatory
-      ); 
+      );
     };
 
     return Object.keys(fields)
       .filter(fieldName => checkMandatory(fieldName) && checkCondition(fieldName))
       .map(fieldName => ({
         ...fields[fieldName],
-        required: !!getLocalisation(`fields.${fieldName}.requiredPatientData`),
+        required: !!getSetting(`localisation.fields.${fieldName}.requiredPatientData`),
         name: fieldName,
       }));
     // We only need to work out which fields to show if either fields or filterByMandatory are changed

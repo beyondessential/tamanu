@@ -437,7 +437,7 @@ export const DischargeForm = ({
               fallback="Discharge disposition"
             />
           }
-          path="fields.dischargeDisposition"
+          path="localisation.fields.dischargeDisposition"
           component={AutocompleteField}
           suggester={dispositionSuggester}
         />

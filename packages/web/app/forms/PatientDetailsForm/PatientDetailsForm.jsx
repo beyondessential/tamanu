@@ -5,7 +5,6 @@ import { useQuery } from '@tanstack/react-query';
 
 import { PATIENT_REGISTRY_TYPES, PLACE_OF_BIRTH_TYPES } from '@tamanu/constants';
 
-import { useLocalisation } from '../../contexts/Localisation';
 import { useApi } from '../../api';
 import { getPatientDetailsValidation } from '../../validations';
 import { ButtonRow, Form, FormSubmitButton } from '../../components';
@@ -13,6 +12,7 @@ import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { useLayoutComponents } from './useLayoutComponents';
 import { usePatientFieldDefinitionQuery } from '../../api/queries/usePatientFieldDefinitionQuery';
 import { useTranslation } from '../../contexts/Translation';
+import { useSettings } from '../../contexts/Settings';
 
 const StyledPatientDetailSecondaryDetailsGroupWrapper = styled.div`
   margin-top: 70px;
@@ -82,11 +82,11 @@ export const PatientDetailsForm = ({ patient, additionalData, birthData, onSubmi
     await onSubmit(newData);
   };
 
-  const { getLocalisation } = useLocalisation();
+  const { getSetting } = useSettings();
   const { PrimaryDetails, SecondaryDetails, PatientFields } = useLayoutComponents();
 
   const isRequiredPatientData = fieldName =>
-    getLocalisation(`fields.${fieldName}.requiredPatientData`);
+    getSetting(`localisation.fields.${fieldName}.requiredPatientData`);
 
   const api = useApi();
   const {
@@ -149,7 +149,7 @@ export const PatientDetailsForm = ({ patient, additionalData, birthData, onSubmi
       onSubmit={handleSubmit}
       validationSchema={getPatientDetailsValidation(
         patientRegistryType,
-        getLocalisation,
+        getSetting,
         getTranslation,
       )}
     />

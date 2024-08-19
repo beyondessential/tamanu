@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 
 import * as yup from 'yup';
 import { Field } from './Field';
-import { useLocalisation } from '../../contexts/Localisation';
+import { useSettings } from '../../contexts/Settings';
 import { useFormikContext } from 'formik';
 import { FORM_TYPES } from '../../constants';
 
@@ -14,10 +14,10 @@ const shouldPrefillDefaultValue = ({ initialValue, formType, hidden, defaultValu
   return !hidden && formType === FORM_TYPES.CREATE_FORM && !initialValue && defaultValue;
 };
 
-export const LocalisedField = ({ name, path = `fields.${name}`, label, ...props }) => {
-  const { getLocalisation } = useLocalisation();
+export const LocalisedField = ({ name, path = `localisation.fields.${name}`, label, ...props }) => {
+  const { getSetting } = useSettings();
 
-  const { hidden, defaultValue, required = false } = getLocalisation(path) || {};
+  const { hidden, defaultValue, required = false } = getSetting(path) || {};
   const { initialValues, status = {}, setFieldValue } = useFormikContext();
 
   const { formType } = status;
@@ -42,10 +42,10 @@ export const LocalisedField = ({ name, path = `fields.${name}`, label, ...props 
 };
 
 export const useLocalisedSchema = () => {
-  const { getLocalisation } = useLocalisation();
+  const { getSetting } = useSettings();
   return {
-    getLocalisedSchema: ({ name, path = `fields.${name}` }) => {
-      const { hidden, required = false } = getLocalisation(`${path}`) || {};
+    getLocalisedSchema: ({ name, path = `localisation.fields.${name}` }) => {
+      const { hidden, required = false } = getSetting(path) || {};
       if (hidden) return yup.string().nullable();
       if (required) return yup.string().required('Required');
       return yup.string();
