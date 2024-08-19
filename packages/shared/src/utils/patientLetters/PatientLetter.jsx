@@ -33,7 +33,7 @@ const detailsSectionStyle = {
   marginBottom: 10,
 };
 
-const DetailsSection = ({ getLocalisation, data }) => {
+const DetailsSection = ({ getLocalisation, getSetting, data }) => {
   return (
     <View style={{ marginTop: 10 }}>
       <H3 style={{ marginBottom: 5 }}>Details</H3>
@@ -42,7 +42,7 @@ const DetailsSection = ({ getLocalisation, data }) => {
           <Row>
             {DETAIL_FIELDS.map(({ key, label: defaultLabel, accessor }) => {
               const value = (accessor ? accessor(data, getLocalisation) : data[key]) || '';
-              const label = getLocalisation(`fields.${key}.shortLabel`) || defaultLabel;
+              const label = getSetting(`localisation.fields.${key}.shortLabel`) || defaultLabel;
 
               return (
                 <Col style={{ width: '50%' }} key={key}>
@@ -59,7 +59,13 @@ const DetailsSection = ({ getLocalisation, data }) => {
   );
 };
 
-const PatientLetterComponent = ({ getLocalisation, data, logoSrc, letterheadConfig }) => {
+const PatientLetterComponent = ({
+  getLocalisation,
+  getSetting,
+  data,
+  logoSrc,
+  letterheadConfig,
+}) => {
   const { title: certificateTitle, body, patient = {}, clinician, documentCreatedAt } = data;
 
   return (
@@ -75,6 +81,7 @@ const PatientLetterComponent = ({ getLocalisation, data, logoSrc, letterheadConf
           <DetailsSection
             data={{ ...patient, clinicianName: clinician.displayName, documentCreatedAt }}
             getLocalisation={getLocalisation}
+            getSetting={getSetting}
           />
         </CertificateHeader>
         <View style={{ margin: '18px' }}>

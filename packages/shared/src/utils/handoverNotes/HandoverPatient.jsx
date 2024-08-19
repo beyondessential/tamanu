@@ -35,11 +35,13 @@ export const HandoverPatient = ({
   diagnosis,
   notes,
   getLocalisation,
+  getSetting,
+  getTranslation,
   createdAt,
   isEdited,
 }) => {
   const detailsToDisplay = PATIENT_FIELDS.filter(
-    ({ key }) => !getLocalisation(`fields.${key}.hidden`),
+    ({ key }) => !getSetting(`localisation.fields.${key}.hidden`),
   );
   return (
     <>
@@ -49,7 +51,10 @@ export const HandoverPatient = ({
             {detailsToDisplay.map(
               ({ key, label: defaultLabel, accessor, percentageWidth = 33 }) => {
                 const value = (accessor ? accessor(patient, getLocalisation) : patient[key]) || '';
-                const label = defaultLabel || getLocalisation(`fields.${key}.shortLabel`);
+                const label =
+                  defaultLabel ||
+                  getTranslation(`general.localisedFields.${key}.label.short`) ||
+                  getTranslation(`general.localisedFields.${key}.label`);
 
                 return (
                   <ValueDisplay

@@ -37,12 +37,13 @@ const patientFields = getTranslation => [
 export const PatientDetailsSection = ({
   patient,
   getLocalisation,
+  getSetting,
   extraFields = [],
 }) => {
   const { getTranslation } = useLanguageContext();
 
   const detailsToDisplay = [...patientFields(getTranslation), ...extraFields].filter(
-    ({ key }) => !getLocalisation(`fields.${key}.hidden`),
+    ({ key }) => !getSetting(`localisation.fields.${key}.hidden`),
   );
   return (
     <>
@@ -55,7 +56,7 @@ export const PatientDetailsSection = ({
           <Row>
             {detailsToDisplay.map(({ key, label: defaultLabel, accessor }) => {
               const value = (accessor ? accessor(patient, getLocalisation) : patient[key]) || '';
-              const label = getLocalisation(`fields.${key}.shortLabel`) || defaultLabel;
+              const label = getSetting(`localisation.fields.${key}.shortLabel`) || defaultLabel;
 
               return (
                 <Col style={{ width: '50%' }} key={key}>
