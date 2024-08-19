@@ -17,10 +17,10 @@ describe('FhirMissingResources task', () => {
     const { FhirEncounter, FhirPractitioner } = ctx.store.models;
 
     fhirMissingResourcesWorker = new FhirMissingResources(ctx);
-    resources = await fakeResourcesOfFhirServiceRequest(ctx.store.models, ctx.settings);
+    resources = await fakeResourcesOfFhirServiceRequest(ctx.store.models);
 
-    await FhirEncounter.materialiseFromUpstream(resources.encounter.id, ctx.settings);
-    await FhirPractitioner.materialiseFromUpstream(resources.practitioner.id, ctx.settings);
+    await FhirEncounter.materialiseFromUpstream(resources.encounter.id);
+    await FhirPractitioner.materialiseFromUpstream(resources.practitioner.id);
   });
 
   beforeEach(async () => {
@@ -40,7 +40,7 @@ describe('FhirMissingResources task', () => {
       ctx.store.models,
       resources,
     );
-    await FhirServiceRequest.materialiseFromUpstream(imagingRequest.id, ctx.settings);
+    await FhirServiceRequest.materialiseFromUpstream(imagingRequest.id);
     await FhirServiceRequest.resolveUpstreams();
 
     const fhirServiceRequest = await FhirServiceRequest.findOne({

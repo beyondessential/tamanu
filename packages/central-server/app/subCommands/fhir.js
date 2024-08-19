@@ -103,7 +103,7 @@ async function doRefresh(resource, { existing, missing, since }) {
   let done = 0;
   log.info(`Going to refresh ${recordsToDo.length} records...`);
   for (const upstreamId of recordsToDo) {
-    await Resource.materialiseFromUpstream(upstreamId, app.settings);
+    await Resource.materialiseFromUpstream(upstreamId);
     done += 1;
     if (done % 100 === 0) log.info(`Refreshed ${done} out of ${recordsToDo.length}`);
   }

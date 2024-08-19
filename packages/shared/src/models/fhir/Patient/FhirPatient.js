@@ -42,9 +42,9 @@ export class FhirPatient extends FhirResource {
     FHIR_INTERACTIONS.INTERNAL.MATERIALISE,
   ]);
 
-  async updateMaterialisation(settings) {
+  async updateMaterialisation() {
     const upstream = await this.getUpstream(getQueryOptions(this.sequelize.models));
-    const values = await getValues(upstream, this.sequelize.models, settings);
+    const values = await getValues(upstream, this.sequelize.models);
     this.set(values);
   }
 

@@ -14,21 +14,20 @@ import {
 import { nzEthnicity } from '../extensions';
 import { formatFhirDate } from '../../../utils/fhir';
 
-export async function getValues(upstream, models, settings) {
+export async function getValues(upstream, models) {
   const { Patient } = models;
 
-
-  if (upstream instanceof Patient) return getValuesFromPatient(upstream, settings);
+  if (upstream instanceof Patient) return getValuesFromPatient(upstream);
   throw new Error(`Invalid upstream type for patient ${upstream.constructor.name}`);
 }
 
-async function getValuesFromPatient(upstream, settings) {
+async function getValuesFromPatient(upstream) {
   const [first] = upstream.additionalData || [];
   // eslint-disable-next-line no-param-reassign
   upstream.additionalData = first;
 
   return {
-    extension: await extension(upstream, settings),
+    extension: await extension(upstream),
     identifier: identifiers(upstream),
     active: activeFromVisibility(upstream),
     name: names(upstream),
@@ -46,8 +45,8 @@ function compactBy(array, access = identity) {
   return array.filter(access);
 }
 
-async function extension(patient, settings) {
-  return [...(await nzEthnicity(patient, settings))];
+async function extension(patient) {
+  return [...(await nzEthnicity(patient))];
 }
 
 function identifiers(patient) {
