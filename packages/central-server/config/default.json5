@@ -807,7 +807,6 @@
           // In Seconds
           "interval": 300
         },
-        "mandatoryVitalEditReason": false,
         "enableVitalEdit": false
       },
       "templates": {
