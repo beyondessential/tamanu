@@ -170,6 +170,7 @@ describe('SurveyResponseAnswer', () => {
           'survey.defaultCodes.department',
           'test-department-code',
           SETTINGS_SCOPES.FACILITY,
+          config.serverFacilityId,
         );
       });
       afterAll(async () => {
