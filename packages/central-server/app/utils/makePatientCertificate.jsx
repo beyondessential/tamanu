@@ -72,9 +72,10 @@ export const makeCovidVaccineCertificate = async (
   models,
   uvci,
   qrData = null,
-  language
+  language,
 ) => {
   const localisation = await getLocalisation();
+  const getSetting = key => '#TODO settings';
   const getLocalisationData = key => get(localisation, key);
 
   const fileName = `covid-vaccine-certificate-${patient.id}.pdf`;
@@ -97,6 +98,7 @@ export const makeCovidVaccineCertificate = async (
       logoSrc={logo}
       vdsSrc={vds}
       getLocalisation={getLocalisationData}
+      getSetting={getSetting}
       language={language}
     />,
     fileName,
@@ -145,7 +147,7 @@ export const makeCovidCertificate = async (
   printedBy,
   models,
   vdsData = null,
-  language
+  language,
 ) => {
   const localisation = await getLocalisation();
   const getLocalisationData = key => get(localisation, key);
