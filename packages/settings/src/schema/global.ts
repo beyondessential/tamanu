@@ -1,6 +1,7 @@
 import { VACCINE_STATUS } from '@tamanu/constants';
 import * as yup from 'yup';
 import { extractDefaults } from './utils';
+import { localisedFieldSchema } from './localisationValidation';
 
 export const globalSettings = {
   features: {
@@ -134,7 +135,7 @@ export const globalSettings = {
     fields: {
       name: 'Localisation fields',
       description: 'Customise localisation fields',
-      schema: yup.object(),
+      schema: localisedFieldSchema,
       defaultValue: {
         countryName: {
           hidden: false,
@@ -148,6 +149,7 @@ export const globalSettings = {
         displayId: {
           pattern: '[\\s\\S]*',
         },
+        markedForSync: {},
         firstName: {
           requiredPatientData: false,
         },
