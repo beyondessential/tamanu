@@ -209,13 +209,12 @@ const MultiAutocompleteInput = ({
   );
 
   const handleInputChange = (value, { action }) => {
-    let newValue = value;
-    if (action !== 'input-change' && action !== 'set-value') return;
-    if (action === 'set-value') {
-      newValue = '';
+    if (action === 'menu-close') {
+      return setOptions([]);
     }
-    setInputValue(newValue);
-    handleLoadOption(newValue);
+    if (action !== 'input-change' && action !== 'set-value') return;
+    setInputValue(value);
+    handleLoadOption(value);
   };
 
   return (
