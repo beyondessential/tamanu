@@ -794,8 +794,6 @@
         }
       },
       "features": {
-        "quickPatientGenerator": false,
-        "enableInvoicing": false,
         "registerNewPatient": true,
         "hideOtherSex": true,
         "enablePatientDeaths": false,
