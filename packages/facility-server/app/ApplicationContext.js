@@ -3,6 +3,7 @@ import { omit } from 'lodash';
 import { initBugsnag } from '@tamanu/shared/services/logging';
 import { closeDatabase, initDatabase, initReporting } from './database';
 import { VERSION } from './middleware/versionCompatibility.js';
+import { ReadSettings } from '../../settings/dist/mjs/reader/ReadSettings.js';
 
 export class ApplicationContext {
   /** @type {import('sequelize').Sequelize | null} */
@@ -29,6 +30,7 @@ export class ApplicationContext {
     const database = await initDatabase();
     this.sequelize = database.sequelize;
     this.models = database.models;
+    this.settings = new ReadSettings(this.models, config.serverFacilityId);
 
     if (config.db.reportSchemas?.enabled) {
       this.reportSchemaStores = await initReporting();

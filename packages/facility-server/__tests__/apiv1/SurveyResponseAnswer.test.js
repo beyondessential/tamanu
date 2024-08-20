@@ -16,12 +16,14 @@ describe('SurveyResponseAnswer', () => {
   let app;
   let baseApp;
   let models;
+  let settings;
   let ctx;
 
   beforeAll(async () => {
     ctx = await createTestContext();
     baseApp = ctx.baseApp;
     models = ctx.models;
+    settings = ctx.settings;
     app = await baseApp.asRole('practitioner');
   });
   afterAll(() => ctx.close());
@@ -179,10 +181,7 @@ describe('SurveyResponseAnswer', () => {
       });
 
       it('should return the default id for a resource from settings', async () => {
-        const departmentId = await models.SurveyResponseAnswer.getDefaultId(
-          'department',
-          ctx.settings,
-        );
+        const departmentId = await models.SurveyResponseAnswer.getDefaultId('department', settings);
         expect(departmentId).toEqual('test-department-id');
       });
     });
