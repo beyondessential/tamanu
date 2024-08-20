@@ -179,7 +179,7 @@ export async function up(query) {
       defaultValue: Sequelize.fn('uuid_generate_v4'),
     },
     task_template_id: {
-      type: DataTypes.STRING,
+      type: DataTypes.UUID,
       allowNull: false,
       references: {
         model: 'task_templates',
