@@ -78,16 +78,16 @@ export const SettingsView = React.memo(() => {
     try {
       JSON.parse(settingsEditString);
     } catch (error) {
-      notifyError(`Invalid JSON: ${error.message}`);
+      notifyError(`Invalid JSON: ${error}`);
+      console.log(error);
       setJsonError(error);
       return;
     }
+
     const settingsObject = JSON.parse(settingsEditString);
 
-    console.log(scope);
-
     try {
-      await validateSettings({settings: settingsObject, scope});
+      await validateSettings({ settings: settingsObject, scope });
       await api.put('admin/settings', {
         settings: settingsObject,
         facilityId,
