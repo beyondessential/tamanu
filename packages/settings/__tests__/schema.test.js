@@ -1,4 +1,5 @@
 import { validateSettings, globalDefaults, centralDefaults, facilityDefaults } from '../dist/mjs';
+import { extractDefaults } from '../dist/cjs/defaults/utils';
 import * as yup from 'yup';
 
 describe('Schemas', () => {
@@ -10,6 +11,75 @@ describe('Schemas', () => {
 
   afterEach(() => {
     jest.restoreAllMocks();
+  });
+
+  describe('Extracting settings from schema', () => {
+    it('Should extract settings from a schema', () => {
+      const schema = {
+        a: {
+          b: {
+            name: 'Setting a.b',
+            description: '_',
+            schema: yup.boolean().required(),
+            default: false,
+          },
+        },
+        c: {
+          name: 'Setting c',
+          schema: yup.string().required(),
+          default: 'c',
+        },
+        d: {
+          e: {
+            f: {
+              name: 'Setting d.e.f',
+              schema: yup
+                .array()
+                .of(
+                  yup.object({
+                    threshold: yup.number().required(),
+                    status: yup.string().required(),
+                  }),
+                )
+                .required(),
+              default: [
+                {
+                  threshold: 28,
+                  status: 'scheduled',
+                },
+                {
+                  threshold: 7,
+                  status: 'upcoming',
+                },
+              ],
+            },
+          },
+        },
+      };
+
+      const expectedSettings = {
+        a: {
+          b: false,
+        },
+        c: 'c',
+        d: {
+          e: {
+            f: [
+              {
+                threshold: 28,
+                status: 'scheduled',
+              },
+              {
+                threshold: 7,
+                status: 'upcoming',
+              },
+            ],
+          },
+        },
+      };
+
+      expect(extractDefaults(schema)).toEqual(expectedSettings);
+    });
   });
 
   describe('Global settings', () => {
