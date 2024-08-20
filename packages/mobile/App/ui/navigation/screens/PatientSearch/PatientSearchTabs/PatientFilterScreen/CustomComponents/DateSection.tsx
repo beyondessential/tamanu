@@ -13,7 +13,6 @@ export const DateSection = (): ReactElement => (
           fallback="Date of birth"
         />
       }
-      localisationPath="fields.dateOfBirth"
       labelFontSize={14}
       component={DateField}
       max={new Date()}

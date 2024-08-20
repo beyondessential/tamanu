@@ -38,7 +38,7 @@ export const ProgramRegistrySection = (): ReactElement => {
             fallback="Program registry"
           />
         }
-        localisationPath="fields.programRegistry"
+        path="programRegistry"
         labelFontSize={14}
         component={AutocompleteModalField}
         placeholder={`Search`}

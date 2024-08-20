@@ -28,7 +28,6 @@ export const VillageSection = (): ReactElement => {
         label={
           <TranslatedText stringId="general.localisedField.villageId.label" fallback="Village" />
         }
-        localisationPath="fields.villageId"
         labelFontSize={14}
         component={AutocompleteModalField}
         placeholder={`Search`}
