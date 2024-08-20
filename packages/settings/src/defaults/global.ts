@@ -156,16 +156,7 @@ export const globalSettings = {
         schema: yup.string().required(),
         default: '10 minutes',
       },
-    },
-    extensions: {
-      Patient: {
-        newZealandEthnicity: {
-          description: '_',
-          schema: yup.boolean().required(),
-          default: false,
-        },
-      },
-    },
+    }
   },
   integrations: {
     imaging: {
