@@ -2,6 +2,9 @@ import { VACCINE_STATUS } from '@tamanu/constants';
 import * as yup from 'yup';
 import { extractDefaults } from './utils';
 
+// TODO: discuss possilby making all strings same validation
+const trimmedString = yup.string().trim().min(1).required()
+
 export const globalSettings = {
   features: {
     mandateSpecimenType: {
