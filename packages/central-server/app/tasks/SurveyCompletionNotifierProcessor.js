@@ -2,6 +2,7 @@ import config from 'config';
 import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
 import { Op } from 'sequelize';
+import { COMMUNICATION_STATUSES } from '@tamanu/constants';
 
 export class SurveyCompletionNotifierProcessor extends ScheduledTask {
   /**
@@ -63,32 +64,34 @@ export class SurveyCompletionNotifierProcessor extends ScheduledTask {
       ['surveyCompletionNotifier'],
     );
     for (const surveyResponse of surveyResponses) {
-      await this.context.emailService
-        .sendEmail({
-          to: surveyResponse.survey.notifyEmailAddresses,
-          subject: getTranslation(
-            'surveyCompletionNotifier.emailSubject',
-            `Notification of :surveyName form submission in Tamanu`,
-            { surveyName: surveyResponse.survey.name },
-          ),
-          body: getTranslation(
-            'surveyCompletionNotifier.emailBody',
-            `A form has been submitted in Tamanu that may require your attention! This is an automated email to notify you that a response to a form has been submitted in Tamanu. Please login to Tamanu desktop to view details of this form response. Do not respond to this email. <br />
+      const result = await this.context.emailService.sendEmail({
+        from: config.mailgun.from,
+        to: surveyResponse.survey.notifyEmailAddresses,
+        subject: getTranslation(
+          'surveyCompletionNotifier.emailSubject',
+          `Notification of :surveyName form submission in Tamanu`,
+          { surveyName: surveyResponse.survey.name },
+        ),
+        html: getTranslation(
+          'surveyCompletionNotifier.emailBody',
+          `A form has been submitted in Tamanu that may require your attention! This is an automated email to notify you that a response to a form has been submitted in Tamanu. Please login to Tamanu desktop to view details of this form response. Do not respond to this email. <br />
             Form: :surveyName<br />
             Date/Time: :endTime<br />
             Patient: :patientDisplayId<br />`,
-            {
-              surveyName: surveyResponse.survey.name,
-              endTime: surveyResponse.endTime,
-              patientDisplayId: surveyResponse.encounter.patient.displayId,
-            },
-          ),
-        })
-        .catch(error => {
-          log.error('Failed to send email notification', { error });
-        });
-      surveyResponse.notified = true;
-      await surveyResponse.save();
+          {
+            surveyName: surveyResponse.survey.name,
+            endTime: surveyResponse.endTime,
+            patientDisplayId: surveyResponse.encounter.patient.displayId,
+          },
+        ),
+      });
+      if (result.status === COMMUNICATION_STATUSES.SENT) {
+        surveyResponse.notified = true;
+        await surveyResponse.save();
+        continue;
+      }
+
+      log.error('Failed to send email notification', { error: result.error });
     }
   }
 }
