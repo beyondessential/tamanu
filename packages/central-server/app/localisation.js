@@ -506,35 +506,6 @@ const rootLocalisationSchema = yup
         label: yup.string().required(),
       }),
     ),
-    imagingCancellationReasons: yup
-      .array(
-        yup.object({
-          value: yup
-            .string()
-            .required()
-            .max(31),
-          label: yup.string().required(),
-          hidden: yup.boolean(),
-        }),
-      )
-      .test({
-        name: 'imagingCancellationReasons',
-        test(conf, ctx) {
-          const values = conf.map(x => x.value);
-          if (!values.includes('duplicate')) {
-            return ctx.createError({
-              message: 'imagingCancellationReasons must include an option with value = duplicate',
-            });
-          }
-          if (!values.includes('entered-in-error')) {
-            return ctx.createError({
-              message:
-                'imagingCancellationReasons must include an option with value = entered-in-error',
-            });
-          }
-          return true;
-        },
-      }),
     labsCancellationReasons: yup
       .array(
         yup.object({
