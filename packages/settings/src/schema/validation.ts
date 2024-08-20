@@ -62,7 +62,6 @@ export const validateSettings = async ({
 
   const flattenedSettings = flattenObject(settings);
   const flattenedSchema = flattenObject(schema);
-
   const errors: ErrorMessage[] = [];
 
   for (const [key, value] of Object.entries(flattenedSettings)) {
@@ -77,16 +76,15 @@ export const validateSettings = async ({
       await schemaEntry.validate(value);
     } catch (error) {
       if (error instanceof yup.ValidationError) {
-        console.log(error);
         errors.push({ field: key, message: error.message });
+        continue;
       } else {
         throw error;
       }
     }
+  }
 
-    if (errors.length > 0) {
-      const errorMessage = constructErrorMessage(errors);
-      throw new Error(errorMessage);
-    }
+  if (errors.length) {
+    throw new Error(constructErrorMessage(errors));
   }
 };
