@@ -12,84 +12,19 @@ function stripNotes(fields) {
 
 export const loaderFactory = model => fields => [{ model, values: stripNotes(fields) }];
 
-export const customReferenceDataLoader = {
-  [REFERENCE_TYPES.TASK]: taskLoader,
-};
-
 export function referenceDataLoaderFactory(refType) {
-  return (
-    customReferenceDataLoader[refType] ||
-    (({ id, code, name, visibilityStatus }) => [
-      {
-        model: 'ReferenceData',
-        values: {
-          id,
-          type: refType === 'diagnosis' ? 'icd10' : refType,
-          code: typeof code === 'number' ? `${code}` : code,
-          name,
-          visibilityStatus,
-        },
-      },
-    ])
-  );
-}
-
-export async function taskLoader(item, { models, pushError }) {
-  const { id, assignedTo, taskFrequency } = item;
-  const rows = [];
-
-  rows.push({
-    model: 'ReferenceData',
-    values: {
-      ...item,
-      type: REFERENCE_TYPES.TASK,
-    },
-  });
-
-  let frequencyValue, frequencyUnit;
-  if (taskFrequency?.trim()) {
-    try {
-      const result = ms(ms(taskFrequency), { long: true });
-      frequencyValue = result.split(' ')[0];
-      frequencyUnit = result.split(' ')[1];
-    } catch (e) {
-      pushError(`Invalid task frequency ${taskFrequency}: ${e.message}`);
-    }
-  }
-
-  rows.push({
-    model: 'TaskTemplate',
-    values: {
-      ...item,
-      frequencyValue,
-      frequencyUnit,
-    },
-  });
-
-  await models.TaskTemplateDesignation.destroy({ where: { taskTemplateId: id } });
-
-  const designationIds = (assignedTo || '')
-    .split(',')
-    .map(d => d.trim())
-    .filter(Boolean);
-
-  for (const designation of designationIds) {
-    const existingData = await models.ReferenceData.findByPk(designation);
-    if (!existingData) {
-      pushError(`Designation "${designation}" does not exist`);
-      continue;
-    }
-    rows.push({
-      model: 'TaskTemplateDesignation',
+  return ({ id, code, name, visibilityStatus }) => [
+    {
+      model: 'ReferenceData',
       values: {
-        id: uuidv4(),
-        taskTemplateId: id,
-        designationId: designation,
+        id,
+        type: refType === 'diagnosis' ? 'icd10' : refType,
+        code: typeof code === 'number' ? `${code}` : code,
+        name,
+        visibilityStatus,
       },
-    });
-  }
-
-  return rows;
+    },
+  ];
 }
 
 export function patientFieldDefinitionLoader(values) {
@@ -314,6 +249,65 @@ export async function userLoader(item, { models, pushError }) {
       values: {
         id: uuidv4(),
         userId: id,
+        designationId: designation,
+      },
+    });
+  }
+
+  return rows;
+}
+
+export async function taskLoader(item, { models, pushError }) {
+  const { id, assignedTo, taskFrequency, highPriority } = item;
+  const rows = [];
+
+  let frequencyValue, frequencyUnit;
+  if (taskFrequency?.trim()) {
+    try {
+      const result = ms(ms(taskFrequency), { long: true });
+      frequencyValue = result.split(' ')[0];
+      frequencyUnit = result.split(' ')[1];
+    } catch (e) {
+      pushError(`Invalid task frequency ${taskFrequency}: ${e.message}`);
+    }
+  }
+
+  const existingTaskTemplate = await models.TaskTemplate.findOne({
+    where: { referenceDataId: id },
+  });
+
+  const newTaskTemplate = {
+    id: existingTaskTemplate?.id || uuidv4(),
+    referenceDataId: id,
+    frequencyValue,
+    frequencyUnit,
+    highPriority,
+  };
+  rows.push({
+    model: 'TaskTemplate',
+    values: newTaskTemplate,
+  });
+
+  await models.TaskTemplateDesignation.destroy({
+    where: { taskTemplateId: newTaskTemplate.id },
+  });
+
+  const designationIds = (assignedTo || '')
+    .split(',')
+    .map(d => d.trim())
+    .filter(Boolean);
+
+  for (const designation of designationIds) {
+    const existingData = await models.ReferenceData.findByPk(designation);
+    if (!existingData) {
+      pushError(`Designation "${designation}" does not exist`);
+      continue;
+    }
+    rows.push({
+      model: 'TaskTemplateDesignation',
+      values: {
+        id: uuidv4(),
+        taskTemplateId: newTaskTemplate.id,
         designationId: designation,
       },
     });

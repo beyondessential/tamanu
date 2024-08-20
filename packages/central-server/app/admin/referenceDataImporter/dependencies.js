@@ -1,9 +1,11 @@
+import { REFERENCE_TYPES } from '@tamanu/constants';
 import {
   administeredVaccineLoader,
   labTestPanelLoader,
   patientDataLoader,
   patientFieldDefinitionLoader,
   permissionLoader,
+  taskLoader,
   translatedStringLoader,
   userLoader,
 } from './loaders';
@@ -73,4 +75,8 @@ export default {
   },
 
   referenceDataRelation: {},
+
+  [REFERENCE_TYPES.TASK]: {
+    loader: taskLoader
+  }
 };
