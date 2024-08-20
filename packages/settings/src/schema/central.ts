@@ -8,7 +8,7 @@ export const centralSettings = {
         name: 'Gigabytes for uploading documents',
         description: 'The minimum gigabytes required to upload documents',
         schema: yup.number().required(),
-        defaultValue: 16,
+        default: 16,
       },
     },
   },

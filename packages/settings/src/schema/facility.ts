@@ -7,14 +7,14 @@ export const facilitySettings = {
       name: 'Letterhead',
       description: '_',
       schema: yup.object().required(),
-      defaultValue: {},
+      default: {},
     },
   },
   vaccinations: {
     name: 'Vaccinations',
     description: '_',
     schema: yup.object().required(),
-    defaultValue: {},
+    default: {},
   },
   survey: {
     defaultCodes: {
@@ -25,7 +25,7 @@ export const facilitySettings = {
         department: yup.string().required(),
         location: yup.string().required(),
       }),
-      defaultValue: {
+      default: {
         department: 'GeneralClinic',
         location: 'GeneralClinic',
       },

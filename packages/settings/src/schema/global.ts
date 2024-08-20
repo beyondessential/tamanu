@@ -9,7 +9,7 @@ export const globalSettings = {
       name: 'Mandate specimen type',
       description: '_',
       schema: yup.boolean().required(),
-      defaultValue: false,
+      default: false,
     },
   },
   customisations: {
@@ -17,7 +17,7 @@ export const globalSettings = {
       name: 'Component versions',
       description: '_',
       schema: yup.object().required(),
-      defaultValue: {},
+      default: {},
     },
   },
   fhir: {
@@ -26,13 +26,13 @@ export const globalSettings = {
         name: 'Heartbeat interval',
         description: '_',
         schema: yup.string().required(),
-        defaultValue: '1 minute',
+        default: '1 minute',
       },
       assumeDroppedAfter: {
         name: 'Assume dropped after',
         description: '_',
         schema: yup.string().required(),
-        defaultValue: '10 minutes',
+        default: '10 minutes',
       },
     },
   },
@@ -42,7 +42,7 @@ export const globalSettings = {
         name: 'Imaging integration enabled',
         description: '_',
         schema: yup.boolean().required(),
-        defaultValue: false,
+        default: false,
       },
     },
   },
@@ -51,7 +51,7 @@ export const globalSettings = {
       name: 'Upcoming vaccination age limit',
       description: '_',
       schema: yup.number().required(),
-      defaultValue: 15,
+      default: 15,
     },
     thresholds: {
       name: 'Upcoming vaccination thresholds',
@@ -65,7 +65,7 @@ export const globalSettings = {
           }),
         )
         .required(),
-      defaultValue: [
+      default: [
         {
           threshold: 28,
           status: VACCINE_STATUS.SCHEDULED,
@@ -103,7 +103,7 @@ export const globalSettings = {
       )
       .min(3)
       .max(5),
-    defaultValue: [
+    default: [
       {
         level: 1,
         label: 'Emergency',
@@ -136,7 +136,7 @@ export const globalSettings = {
       name: 'Localisation fields',
       description: 'Customise localisation fields',
       schema: localisedFieldSchema,
-      defaultValue: {
+      default: {
         countryName: {
           hidden: false,
         },
@@ -410,7 +410,7 @@ export const globalSettings = {
         }),
       )
       .required(),
-    defaultValue: [
+    default: [
       {
         value: 'routine',
         label: 'Routine',
