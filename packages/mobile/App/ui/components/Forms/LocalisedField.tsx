@@ -11,20 +11,20 @@ type LocalisedFieldProps = FieldProps & {
 export const LocalisedField = ({
   name,
   label,
-  path,
+  path = name,
   ...props
 }: LocalisedFieldProps): JSX.Element => {
   const { getSetting } = useSettings();
   const { getTranslation } = useTranslation();
 
-  const isHidden = getSetting<boolean>(`localisation.fields.${path || name}.hidden`);
+  const isHidden = getSetting<boolean>(`localisation.fields.${path}.hidden`);
   if (isHidden) {
     return null;
   }
   return (
     <Field
       {...props}
-      label={label || getTranslation(`general.localisedField.${path || name}.label`)}
+      label={label || getTranslation(`general.localisedField.${path}.label`)}
       name={name}
     />
   );
