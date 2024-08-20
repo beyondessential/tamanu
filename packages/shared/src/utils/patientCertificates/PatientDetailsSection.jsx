@@ -56,7 +56,10 @@ export const PatientDetailsSection = ({
           <Row>
             {detailsToDisplay.map(({ key, label: defaultLabel, accessor }) => {
               const value = (accessor ? accessor(patient, getLocalisation) : patient[key]) || '';
-              const label = getSetting(`localisation.fields.${key}.shortLabel`) || defaultLabel;
+              const label =
+                getTranslation(`general.localisedField.fields.${key}.label.short`) ||
+                getTranslation(`general.localisedField.fields.${key}.label`) ||
+                defaultLabel;
 
               return (
                 <Col style={{ width: '50%' }} key={key}>

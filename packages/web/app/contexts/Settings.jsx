@@ -19,7 +19,10 @@ export const SettingsProvider = ({ children }) => {
   return (
     <SettingsContext.Provider
       value={{
-        getSetting: path => get(settings, path),
+        getSetting: path => {
+          
+          return get(settings, path);
+        }
       }}
     >
       {children}

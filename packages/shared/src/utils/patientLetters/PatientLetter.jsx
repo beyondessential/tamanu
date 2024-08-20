@@ -6,7 +6,7 @@ import { H3, P } from '../patientCertificates/Typography';
 import { LetterheadSection } from '../patientCertificates/LetterheadSection';
 import { getDOB, getName, getSex } from '../patientAccessors';
 import { format as formatDate } from '../dateTime';
-import { withLanguageContext } from '../pdf/languageContext';
+import { useLanguageContext, withLanguageContext } from '../pdf/languageContext';
 import { Page } from '../pdf/Page';
 
 export const getCreatedAtDate = ({ documentCreatedAt }) =>
@@ -33,7 +33,8 @@ const detailsSectionStyle = {
   marginBottom: 10,
 };
 
-const DetailsSection = ({ getLocalisation, getSetting, data }) => {
+const DetailsSection = ({ getLocalisation, data }) => {
+  const { getTranslation } = useLanguageContext();
   return (
     <View style={{ marginTop: 10 }}>
       <H3 style={{ marginBottom: 5 }}>Details</H3>
@@ -42,7 +43,10 @@ const DetailsSection = ({ getLocalisation, getSetting, data }) => {
           <Row>
             {DETAIL_FIELDS.map(({ key, label: defaultLabel, accessor }) => {
               const value = (accessor ? accessor(data, getLocalisation) : data[key]) || '';
-              const label = getSetting(`localisation.fields.${key}.shortLabel`) || defaultLabel;
+              const label =
+                getTranslation(`general.localisedFields.${key}.label.short`) ||
+                getTranslation(`general.localisedFields.${key}.label`) ||
+                defaultLabel;
 
               return (
                 <Col style={{ width: '50%' }} key={key}>
@@ -59,13 +63,7 @@ const DetailsSection = ({ getLocalisation, getSetting, data }) => {
   );
 };
 
-const PatientLetterComponent = ({
-  getLocalisation,
-  getSetting,
-  data,
-  logoSrc,
-  letterheadConfig,
-}) => {
+const PatientLetterComponent = ({ getLocalisation, data, logoSrc, letterheadConfig }) => {
   const { title: certificateTitle, body, patient = {}, clinician, documentCreatedAt } = data;
 
   return (
@@ -81,7 +79,6 @@ const PatientLetterComponent = ({
           <DetailsSection
             data={{ ...patient, clinicianName: clinician.displayName, documentCreatedAt }}
             getLocalisation={getLocalisation}
-            getSetting={getSetting}
           />
         </CertificateHeader>
         <View style={{ margin: '18px' }}>

@@ -64,7 +64,9 @@ export const TriageModal = React.memo(
       ([name]) => getSetting(`localisation.fields.${name}.hidden`) !== true,
     ).map(([name, accessor]) => (
       <React.Fragment key={name}>
-        <DetailLabel>{getSetting(`localisation.fields.${name}.longLabel`)}:</DetailLabel>
+        <DetailLabel>
+          <TranslatedText stringId={`general.localisedFields.${name}.label`} fallback={name} />:
+        </DetailLabel>
         <DetailValue>{accessor ? accessor(patient) : patient[name]}</DetailValue>
       </React.Fragment>
     ));

@@ -2,6 +2,7 @@ import React from 'react';
 import { Col, Row, VDSImage } from './Layout';
 import { P } from './Typography';
 import { getDOB, getNationality, getPassportNumber } from '../patientAccessors';
+import { useLanguageContext } from '../pdf/languageContext';
 
 const PATIENT_FIELDS = [
   { key: 'firstName', label: 'First name' },
@@ -25,6 +26,7 @@ export const CovidPatientDetailsSection = ({
   extraFields = [],
   uvci,
 }) => {
+  const { getTranslation } = useLanguageContext();
   const detailsToDisplay = [...PATIENT_FIELDS, ...extraFields].filter(
     ({ key }) => !getSetting(`localisation.fields.${key}.hidden`),
   );
@@ -38,7 +40,10 @@ export const CovidPatientDetailsSection = ({
         <Row>
           {detailsToDisplay.map(({ key, label: defaultLabel, accessor }) => {
             const value = (accessor ? accessor(patient, getLocalisation) : patient[key]) || '';
-            const label = getSetting(`localisation.fields.${key}.shortLabel`) || defaultLabel;
+            const label =
+              getTranslation(`general.localisedFields.${key}.label.short`) ||
+              getTranslation(`general.localisedFields.${key}.label`) ||
+              defaultLabel;
 
             return (
               <Col key={key}>
