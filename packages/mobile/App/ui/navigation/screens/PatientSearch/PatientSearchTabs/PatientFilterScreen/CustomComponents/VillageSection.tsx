@@ -10,6 +10,7 @@ import { ReferenceDataType } from '~/types';
 import { Suggester } from '~/ui/helpers/suggester';
 import { useBackend } from '~/ui/hooks';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
+import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
 
 export const VillageSection = (): ReactElement => {
   const navigation = useNavigation();
@@ -29,7 +30,8 @@ export const VillageSection = (): ReactElement => {
           <TranslatedText stringId="general.localisedField.villageId.label" fallback="Village" />
         }
         localisationPath="fields.villageId"
-        labelFontSize={14}
+        labelFontSize={screenPercentageToDP(2, Orientation.Height)}
+        fieldFontSize={screenPercentageToDP(2, Orientation.Height)}
         component={AutocompleteModalField}
         placeholder={`Search`}
         navigation={navigation}

@@ -57,7 +57,24 @@ const TabScreenIcon = (Icon: FC<SvgProps>) => (props: {
 
 const tabLabelFontSize = screenPercentageToDP(1.47, Orientation.Height);
 
+function getActiveRouteName(navigationState) {
+  if (!navigationState) {
+    return null;
+  }
+  const route = navigationState.routes[navigationState.index];
+  // Nested navigators
+  if (route.state) {
+    return getActiveRouteName(route.state);
+  }
+  return route;
+}
+
 function MyTabBar({ state, descriptors, navigation }: BottomTabBarProps): ReactElement {
+  const currentRoute = getActiveRouteName(state);
+  const shouldHideTabBar = !!currentRoute?.params?.hideTabBar;
+
+  if (shouldHideTabBar) return null;
+
   return (
     <StyledSafeAreaView background={theme.colors.PRIMARY_MAIN}>
       <RowView
