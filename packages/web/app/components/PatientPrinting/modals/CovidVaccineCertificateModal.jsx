@@ -9,6 +9,7 @@ import { useApi } from '../../../api';
 import { EmailButton } from '../../Email/EmailButton';
 import { useCertificate } from '../../../utils/useCertificate';
 import { useLocalisation } from '../../../contexts/Localisation';
+import { useSettings } from '../../../contexts/Settings';
 import { useAdministeredVaccines, usePatientAdditionalDataQuery } from '../../../api/queries';
 
 import { PDFLoader, printPDF } from '../PDFLoader';
@@ -16,7 +17,7 @@ import { PDFLoader, printPDF } from '../PDFLoader';
 export const CovidVaccineCertificateModal = React.memo(({ open, onClose, patient }) => {
   const api = useApi();
   const { getLocalisation } = useLocalisation();
-  const { getSetting } = useLocalisation();
+  const { getSetting } = useSettings();
   const { data: certificateData, isFetching: isCertificateFetching } = useCertificate({
     footerAssetName: ASSET_NAMES.COVID_VACCINATION_CERTIFICATE_FOOTER,
   });
