@@ -23,6 +23,7 @@ import { LoadingScreen } from '~/ui/components/LoadingScreen';
 import { getInitialAdditionalValues } from '../../PatientAdditionalDataForm/helpers';
 import { PatientFieldValue } from '~/models/PatientFieldValue';
 import { PatientFieldDefinition } from '~/models/PatientFieldDefinition';
+import { useSettings } from '~/ui/contexts/SettingsContext';
 
 export type FormSection = {
   scrollToField: (fieldName: string) => () => void;
@@ -39,7 +40,7 @@ const getPatientInitialValues = (
   patient: Patient,
   patientAdditionalData: PatientAdditionalData,
   customPatientFieldValues: CustomPatientFieldValues,
-  getLocalisation: (key: string) => any,
+  getSetting: <T>(key: string) => T,
 ): {} => {
   if (!isEdit || !patient) {
     return {};
@@ -60,7 +61,7 @@ const getPatientInitialValues = (
   const requiredPADFields = getConfiguredPatientAdditionalDataFields(
     ALL_ADDITIONAL_DATA_FIELDS,
     true,
-    getLocalisation,
+    getSetting,
   );
 
   const initialPatientAdditionalDataValues = getInitialAdditionalValues(
@@ -179,7 +180,8 @@ const FormComponent = ({ selectedPatient, setSelectedPatient, isEdit, children }
     [navigation, selectedPatient, setSelectedPatient, createOrUpdateOtherPatientData],
   );
 
-  const { getBool, getLocalisation } = useLocalisation();
+  const { getLocalisation } = useLocalisation();
+  const { getSetting } = useSettings();
 
   return loading ? (
     <LoadingScreen />
@@ -187,7 +189,7 @@ const FormComponent = ({ selectedPatient, setSelectedPatient, isEdit, children }
     <FullView padding={10}>
       <Formik
         onSubmit={isEdit ? onEditPatient : onCreateNewPatient}
-        validationSchema={getPatientDetailsValidation(getBool)}
+        validationSchema={getPatientDetailsValidation(getSetting)}
         initialValues={getPatientInitialValues(
           isEdit,
           selectedPatient,

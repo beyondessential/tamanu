@@ -7,9 +7,11 @@ import { RadioButtonGroup } from '~/ui/components/RadioButtonGroup';
 import { DateField } from '~/ui/components/DateField/DateField';
 import { TextField } from '../../../TextField/TextField';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
+import { useSettings } from '~/ui/contexts/SettingsContext';
 
 export const KeyInformationSection = (): ReactElement => {
   const { getBool } = useLocalisation();
+  const { getSetting } = useSettings();
   let filteredGenderOptions = GenderOptions;
   if (getBool('features.hideOtherSex') === true) {
     filteredGenderOptions = filteredGenderOptions.filter(({ value }) => value !== Gender.Other);
@@ -41,7 +43,7 @@ export const KeyInformationSection = (): ReactElement => {
         }
         name="email"
         component={TextField}
-        required={getBool('fields.email.requiredPatientData')}
+        required={getSetting<boolean>('localisation.fields.email.requiredPatientData')}
       />
     </>
   );
