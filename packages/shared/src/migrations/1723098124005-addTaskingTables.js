@@ -138,6 +138,7 @@ export async function up(query) {
     reference_data_id: {
       type: DataTypes.STRING,
       allowNull: false,
+      unique: true,
       references: {
         model: 'reference_data',
         key: 'id',

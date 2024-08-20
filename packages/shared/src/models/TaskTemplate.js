@@ -7,6 +7,15 @@ export class TaskTemplate extends Model {
     super.init(
       {
         id: primaryKey,
+        referenceDataId: {
+          type: DataTypes.INTEGER,
+          allowNull: false,
+          unique: true,
+          references: {
+            model: 'referenceData',
+            key: 'id',
+          },
+        },
         frequencyValue: {
           type: DataTypes.DECIMAL,
           allowNull: true,
