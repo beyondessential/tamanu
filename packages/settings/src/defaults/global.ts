@@ -2,11 +2,16 @@ import { VACCINE_STATUS } from '@tamanu/constants';
 import * as yup from 'yup';
 import { extractDefaults } from './utils';
 
+const NONNEGATIVE_INTEGER = yup
+  .number()
+  .integer()
+  .min(0);
+
 const ageDurationSchema = yup
   .object({
-    years: yup.number(),
-    months: yup.number(),
-    days: yup.number(),
+    years: NONNEGATIVE_INTEGER,
+    months: NONNEGATIVE_INTEGER,
+    days: NONNEGATIVE_INTEGER,
   })
   .noUnknown();
 
@@ -206,6 +211,25 @@ export const globalSettings = {
         default: false,
       },
     },
+  },
+  reportProcess: {
+    timeOutDurationSeconds: {
+      schema: yup
+        .number()
+        .integer()
+        .positive(),
+      default: 7200, // 2 hours
+    },
+    runInChildProcess: {
+      description: 'Should spawn a child process to run the report generation in',
+      schema: yup.boolean(),
+      default: true,
+    },
+    /** Provide an array if you want to override the options. e.g. ['--max-old-space-size=4096'] */
+    processOptions: {
+      default: null,
+    },
+    sleepAfterReport: {},
   },
   upcomingVaccinations: {
     ageLimit: {
