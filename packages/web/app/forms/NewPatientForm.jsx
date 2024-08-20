@@ -81,7 +81,7 @@ export const NewPatientForm = memo(
     const { PrimaryDetails, SecondaryDetails, PatientFields } = useLayoutComponents();
 
     const isRequiredPatientData = fieldName =>
-      getSetting(`localisation.fields.${fieldName}.requiredPatientData`);
+      getSetting(`fields.${fieldName}.requiredPatientData`);
 
     if (error) {
       return <pre>{error.stack}</pre>;

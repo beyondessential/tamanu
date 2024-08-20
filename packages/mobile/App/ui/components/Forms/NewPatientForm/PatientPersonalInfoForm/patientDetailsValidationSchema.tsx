@@ -9,7 +9,7 @@ const requiredWhenConfiguredMandatory = (
   baseType,
 ) => {
   return baseType.when([], {
-    is: () => !!getSetting<boolean>(`localisation.fields.${name}.requiredPatientData`),
+    is: () => !!getSetting<boolean>(`fields.${name}.requiredPatientData`),
     then: baseType.required(),
     otherwise: baseType.nullable(),
   });

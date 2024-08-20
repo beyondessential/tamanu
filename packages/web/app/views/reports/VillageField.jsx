@@ -13,7 +13,7 @@ export const VillageField = ({ name = 'village', label, required }) => {
           <TranslatedText stringId="general.localisedField.villageId.label" fallback="Village" />
         )
       }
-      path="localisation.fields.villageId"
+      path="fields.villageId"
       component={AutocompleteField}
       suggester={villageSuggester}
       required={required}

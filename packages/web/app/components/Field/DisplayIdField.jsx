@@ -8,7 +8,7 @@ import { useSettings } from '../../contexts/Settings';
 const useDisplayIdValidation = (label, fieldName = 'displayId') => {
   const { initialValues } = useFormikContext();
   const { getSetting } = useSettings();
-  const pattern = getSetting('localisation.fields.displayId.pattern');
+  const pattern = getSetting('fields.displayId.pattern');
   const regex = pattern ? new RegExp(pattern) : null;
   return value =>
     value !== initialValues[fieldName] && regex && !regex.test(value)

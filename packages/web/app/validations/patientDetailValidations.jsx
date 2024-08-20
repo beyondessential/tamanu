@@ -20,7 +20,7 @@ const requiredWhenConfiguredMandatory = (
   fallbackLabel, // this fallback label is a bit of a temporary workaround for now. Once the yup validation card is merged, validation text will all be handled through that work
 ) => {
   return baseType.when([], {
-    is: () => !!getSetting(`localisation.fields.${name}.requiredPatientData`),
+    is: () => !!getSetting(`fields.${name}.requiredPatientData`),
     then: baseType.required(
       `${getTranslation(`general.localisedField.${name}.label.short`, fallbackLabel)} is required`,
     ),
@@ -791,7 +791,7 @@ export const getPatientDetailsValidation = (patientRegistryType, getSetting, get
   });
 
   const validatedProperties = Object.keys(patientDetailsValidationSchema.describe().fields);
-  const localisedFields = getSetting('localisation.fields');
+  const localisedFields = getSetting('fields');
   const localisedPatientFields = Object.keys(localisedFields).filter(fieldName =>
     Object.prototype.hasOwnProperty.call(localisedFields[fieldName], 'requiredPatientData'),
   );

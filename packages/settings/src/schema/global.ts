@@ -131,271 +131,269 @@ export const globalSettings = {
       },
     ],
   },
-  localisation: {
-    fields: {
-      name: 'Localisation fields',
-      description: 'Customise localisation fields',
-      schema: localisedFieldSchema,
-      default: {
-        countryName: {
-          hidden: false,
-        },
-        emergencyContactName: {
-          requiredPatientData: false,
-        },
-        emergencyContactNumber: {
-          requiredPatientData: false,
-        },
-        displayId: {
-          pattern: '[\\s\\S]*',
-        },
-        markedForSync: {},
-        firstName: {
-          requiredPatientData: false,
-        },
-        middleName: {
-          hidden: false,
-          requiredPatientData: false,
-        },
-        lastName: {
-          requiredPatientData: false,
-        },
-        culturalName: {
-          hidden: false,
-          requiredPatientData: false,
-        },
-        sex: {
-          hidden: false,
-          requiredPatientData: false,
-        },
-        email: {
-          hidden: false,
-          requiredPatientData: false,
-        },
-        dateOfBirth: {
-          requiredPatientData: false,
-        },
-        dateOfBirthFrom: {},
-        dateOfBirthTo: {},
-        dateOfBirthExact: {},
-        dateOfDeath: {},
-        bloodType: {
-          hidden: false,
-          requiredPatientData: false,
-        },
-        title: {
-          hidden: false,
-          requiredPatientData: false,
-        },
-        placeOfBirth: {
-          hidden: false,
-          requiredPatientData: false,
-        },
-        countryOfBirthId: {
-          hidden: false,
-          requiredPatientData: false,
-        },
-        maritalStatus: {
-          hidden: false,
-          requiredPatientData: false,
-        },
-        primaryContactNumber: {
-          hidden: false,
-          requiredPatientData: false,
-        },
-        secondaryContactNumber: {
-          hidden: false,
-          requiredPatientData: false,
-        },
-        socialMedia: {
-          hidden: false,
-          requiredPatientData: false,
-        },
-        settlementId: {
-          hidden: false,
-          requiredPatientData: false,
-        },
-        streetVillage: {
-          hidden: false,
-          requiredPatientData: false,
-        },
-        cityTown: {
-          hidden: false,
-          requiredPatientData: false,
-        },
-        subdivisionId: {
-          hidden: false,
-          requiredPatientData: false,
-        },
-        divisionId: {
-          hidden: false,
-          requiredPatientData: false,
-        },
-        countryId: {
-          hidden: false,
-          requiredPatientData: false,
-        },
-        medicalAreaId: {
-          hidden: false,
-          requiredPatientData: false,
-        },
-        nursingZoneId: {
-          hidden: false,
-          requiredPatientData: false,
-        },
-        nationalityId: {
-          hidden: false,
-          requiredPatientData: false,
-        },
-        ethnicityId: {
-          hidden: false,
-          requiredPatientData: false,
-        },
-        occupationId: {
-          hidden: false,
-          requiredPatientData: false,
-        },
-        educationalLevel: {
-          hidden: false,
-          requiredPatientData: false,
-        },
-        villageName: {
-          hidden: false,
-        },
-        villageId: {
-          hidden: false,
-          requiredPatientData: false,
-        },
-        birthCertificate: {
-          hidden: false,
-          requiredPatientData: false,
-        },
-        insurerId: {
-          hidden: false,
-          requiredPatientData: false,
-        },
-        insurerPolicyNumber: {
-          hidden: false,
-          requiredPatientData: false,
-        },
-        drivingLicense: {
-          hidden: false,
-          requiredPatientData: false,
-        },
-        passport: {
-          hidden: false,
-          requiredPatientData: false,
-        },
-        religionId: {
-          hidden: false,
-          requiredPatientData: false,
-        },
-        patientBillingTypeId: {
-          hidden: false,
-          requiredPatientData: false,
-        },
-        ageRange: {},
-        age: {},
-        motherId: {
-          hidden: false,
-          requiredPatientData: false,
-        },
-        fatherId: {
-          hidden: false,
-          requiredPatientData: false,
-        },
-        birthWeight: {
-          hidden: false,
-          requiredPatientData: false,
-        },
-        birthLength: {
-          hidden: false,
-          requiredPatientData: false,
-        },
-        birthDeliveryType: {
-          hidden: false,
-          requiredPatientData: false,
-        },
-        gestationalAgeEstimate: {
-          hidden: false,
-          requiredPatientData: false,
-        },
-        apgarScoreOneMinute: {
-          hidden: false,
-          requiredPatientData: false,
-        },
-        apgarScoreFiveMinutes: {
-          hidden: false,
-          requiredPatientData: false,
-        },
-        apgarScoreTenMinutes: {
-          hidden: false,
-          requiredPatientData: false,
-        },
-        timeOfBirth: {
-          hidden: false,
-          requiredPatientData: false,
-        },
-        attendantAtBirth: {
-          hidden: false,
-          requiredPatientData: false,
-        },
-        nameOfAttendantAtBirth: {
-          hidden: false,
-          requiredPatientData: false,
-        },
-        birthType: {
-          hidden: false,
-          requiredPatientData: false,
-        },
-        birthFacilityId: {
-          hidden: false,
-          requiredPatientData: false,
-        },
-        healthCenterId: {
-          hidden: false,
-          requiredPatientData: false,
-        },
-        registeredBirthPlace: {
-          hidden: false,
-          requiredPatientData: false,
-        },
-        referralSourceId: {
-          hidden: false,
-        },
-        arrivalModeId: {
-          hidden: false,
-        },
-        prescriber: {
-          hidden: false,
-        },
-        prescriberId: {
-          hidden: false,
-        },
-        facility: {
-          hidden: false,
-        },
-        locationId: {},
-        locationGroupId: {},
-        dischargeDisposition: {
-          hidden: true,
-        },
-        clinician: {},
-        diagnosis: {},
-        userDisplayId: {},
-        notGivenReasonId: {
-          hidden: false,
-        },
-        circumstanceIds: {},
-        date: {},
-        registeredBy: {},
-        status: {},
-        conditions: {},
-        programRegistry: {},
-        reminderContactName: {},
-        reminderContactRelationship: {},
-        weightUnit: {},
+  fields: {
+    name: 'Fields',
+    description: 'Customise fields',
+    schema: localisedFieldSchema,
+    default: {
+      countryName: {
+        hidden: false,
       },
+      emergencyContactName: {
+        requiredPatientData: false,
+      },
+      emergencyContactNumber: {
+        requiredPatientData: false,
+      },
+      displayId: {
+        pattern: '[\\s\\S]*',
+      },
+      markedForSync: {},
+      firstName: {
+        requiredPatientData: false,
+      },
+      middleName: {
+        hidden: false,
+        requiredPatientData: false,
+      },
+      lastName: {
+        requiredPatientData: false,
+      },
+      culturalName: {
+        hidden: false,
+        requiredPatientData: false,
+      },
+      sex: {
+        hidden: false,
+        requiredPatientData: false,
+      },
+      email: {
+        hidden: false,
+        requiredPatientData: false,
+      },
+      dateOfBirth: {
+        requiredPatientData: false,
+      },
+      dateOfBirthFrom: {},
+      dateOfBirthTo: {},
+      dateOfBirthExact: {},
+      dateOfDeath: {},
+      bloodType: {
+        hidden: false,
+        requiredPatientData: false,
+      },
+      title: {
+        hidden: false,
+        requiredPatientData: false,
+      },
+      placeOfBirth: {
+        hidden: false,
+        requiredPatientData: false,
+      },
+      countryOfBirthId: {
+        hidden: false,
+        requiredPatientData: false,
+      },
+      maritalStatus: {
+        hidden: false,
+        requiredPatientData: false,
+      },
+      primaryContactNumber: {
+        hidden: false,
+        requiredPatientData: false,
+      },
+      secondaryContactNumber: {
+        hidden: false,
+        requiredPatientData: false,
+      },
+      socialMedia: {
+        hidden: false,
+        requiredPatientData: false,
+      },
+      settlementId: {
+        hidden: false,
+        requiredPatientData: false,
+      },
+      streetVillage: {
+        hidden: false,
+        requiredPatientData: false,
+      },
+      cityTown: {
+        hidden: false,
+        requiredPatientData: false,
+      },
+      subdivisionId: {
+        hidden: false,
+        requiredPatientData: false,
+      },
+      divisionId: {
+        hidden: false,
+        requiredPatientData: false,
+      },
+      countryId: {
+        hidden: false,
+        requiredPatientData: false,
+      },
+      medicalAreaId: {
+        hidden: false,
+        requiredPatientData: false,
+      },
+      nursingZoneId: {
+        hidden: false,
+        requiredPatientData: false,
+      },
+      nationalityId: {
+        hidden: false,
+        requiredPatientData: false,
+      },
+      ethnicityId: {
+        hidden: false,
+        requiredPatientData: false,
+      },
+      occupationId: {
+        hidden: false,
+        requiredPatientData: false,
+      },
+      educationalLevel: {
+        hidden: false,
+        requiredPatientData: false,
+      },
+      villageName: {
+        hidden: false,
+      },
+      villageId: {
+        hidden: false,
+        requiredPatientData: false,
+      },
+      birthCertificate: {
+        hidden: false,
+        requiredPatientData: false,
+      },
+      insurerId: {
+        hidden: false,
+        requiredPatientData: false,
+      },
+      insurerPolicyNumber: {
+        hidden: false,
+        requiredPatientData: false,
+      },
+      drivingLicense: {
+        hidden: false,
+        requiredPatientData: false,
+      },
+      passport: {
+        hidden: false,
+        requiredPatientData: false,
+      },
+      religionId: {
+        hidden: false,
+        requiredPatientData: false,
+      },
+      patientBillingTypeId: {
+        hidden: false,
+        requiredPatientData: false,
+      },
+      ageRange: {},
+      age: {},
+      motherId: {
+        hidden: false,
+        requiredPatientData: false,
+      },
+      fatherId: {
+        hidden: false,
+        requiredPatientData: false,
+      },
+      birthWeight: {
+        hidden: false,
+        requiredPatientData: false,
+      },
+      birthLength: {
+        hidden: false,
+        requiredPatientData: false,
+      },
+      birthDeliveryType: {
+        hidden: false,
+        requiredPatientData: false,
+      },
+      gestationalAgeEstimate: {
+        hidden: false,
+        requiredPatientData: false,
+      },
+      apgarScoreOneMinute: {
+        hidden: false,
+        requiredPatientData: false,
+      },
+      apgarScoreFiveMinutes: {
+        hidden: false,
+        requiredPatientData: false,
+      },
+      apgarScoreTenMinutes: {
+        hidden: false,
+        requiredPatientData: false,
+      },
+      timeOfBirth: {
+        hidden: false,
+        requiredPatientData: false,
+      },
+      attendantAtBirth: {
+        hidden: false,
+        requiredPatientData: false,
+      },
+      nameOfAttendantAtBirth: {
+        hidden: false,
+        requiredPatientData: false,
+      },
+      birthType: {
+        hidden: false,
+        requiredPatientData: false,
+      },
+      birthFacilityId: {
+        hidden: false,
+        requiredPatientData: false,
+      },
+      healthCenterId: {
+        hidden: false,
+        requiredPatientData: false,
+      },
+      registeredBirthPlace: {
+        hidden: false,
+        requiredPatientData: false,
+      },
+      referralSourceId: {
+        hidden: false,
+      },
+      arrivalModeId: {
+        hidden: false,
+      },
+      prescriber: {
+        hidden: false,
+      },
+      prescriberId: {
+        hidden: false,
+      },
+      facility: {
+        hidden: false,
+      },
+      locationId: {},
+      locationGroupId: {},
+      dischargeDisposition: {
+        hidden: true,
+      },
+      clinician: {},
+      diagnosis: {},
+      userDisplayId: {},
+      notGivenReasonId: {
+        hidden: false,
+      },
+      circumstanceIds: {},
+      date: {},
+      registeredBy: {},
+      status: {},
+      conditions: {},
+      programRegistry: {},
+      reminderContactName: {},
+      reminderContactRelationship: {},
+      weightUnit: {},
     },
   },
   imagingPriorities: {

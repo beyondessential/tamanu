@@ -13,7 +13,7 @@ const KEYS_EXPOSED_TO_FRONT_END = [
   'triageCategories',
   'upcomingVaccinations',
   'vaccinations',
-  'localisation',
+  'fields',
 ];
 
 export class ReadSettings {

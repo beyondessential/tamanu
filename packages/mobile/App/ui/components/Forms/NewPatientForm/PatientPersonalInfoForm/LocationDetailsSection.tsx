@@ -35,7 +35,7 @@ export const LocationDetailsSection = (): ReactElement => {
       navigation={navigation}
       suggester={villageSuggester}
       name="villageId"
-      required={getSetting<boolean>('localisation.fields.villageId.requiredPatientData')}
+      required={getSetting<boolean>('fields.villageId.requiredPatientData')}
     />
   );
 };

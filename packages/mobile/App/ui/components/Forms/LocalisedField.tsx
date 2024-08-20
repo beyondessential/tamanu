@@ -17,7 +17,7 @@ export const LocalisedField = ({
   const { getSetting } = useSettings();
   const { getTranslation } = useTranslation();
 
-  const isHidden = getSetting<boolean>(`localisation.fields.${path}.hidden`);
+  const isHidden = getSetting<boolean>(`fields.${path}.hidden`);
   if (isHidden) {
     return null;
   }

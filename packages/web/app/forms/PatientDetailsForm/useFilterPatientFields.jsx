@@ -9,9 +9,7 @@ export const useFilterPatientFields = ({ fields, filterByMandatory }) => {
     const checkCondition = fieldName =>
       !fields[fieldName].condition || fields[fieldName].condition();
     const checkMandatory = fieldName => {
-      const requiredConfiguration = getSetting(
-        `localisation.fields.${fieldName}.requiredPatientData`,
-      );
+      const requiredConfiguration = getSetting(`fields.${fieldName}.requiredPatientData`);
       return (
         !isBoolean(filterByMandatory) ||
         !isBoolean(requiredConfiguration) ||
@@ -23,7 +21,7 @@ export const useFilterPatientFields = ({ fields, filterByMandatory }) => {
       .filter(fieldName => checkMandatory(fieldName) && checkCondition(fieldName))
       .map(fieldName => ({
         ...fields[fieldName],
-        required: !!getSetting(`localisation.fields.${fieldName}.requiredPatientData`),
+        required: !!getSetting(`fields.${fieldName}.requiredPatientData`),
         name: fieldName,
       }));
     // We only need to work out which fields to show if either fields or filterByMandatory are changed

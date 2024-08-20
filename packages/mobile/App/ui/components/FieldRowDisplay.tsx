@@ -18,17 +18,14 @@ export const FieldRowDisplay = ({
   customFieldDefinitions,
 }: FieldRowDisplayProps): ReactElement => {
   const { getSetting } = useSettings();
-  const localisedFields = Object.keys(getSetting('localisation.fields'));
+  const localisedFields = Object.keys(getSetting('fields'));
   const fieldsPerRow = isTablet() ? 2 : 1;
   const rows = chunk(fields, fieldsPerRow);
   const customFieldsById = keyBy(customFieldDefinitions, 'id');
 
   const getLabel = (name: string) => {
     // Check if it is localised and apply localisation logic
-    if (
-      localisedFields.includes(name) &&
-      getSetting<boolean>(`localisation.fields.${name}.hidden`)
-    ) {
+    if (localisedFields.includes(name) && getSetting<boolean>(`fields.${name}.hidden`)) {
       return null;
     }
 

@@ -61,7 +61,7 @@ export const TriageModal = React.memo(
     const { getSetting } = useSettings();
 
     const detailsFields = DETAILS_FIELD_DEFINITIONS.filter(
-      ([name]) => getSetting(`localisation.fields.${name}.hidden`) !== true,
+      ([name]) => getSetting(`fields.${name}.hidden`) !== true,
     ).map(([name, accessor]) => (
       <React.Fragment key={name}>
         <DetailLabel>

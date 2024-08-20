@@ -153,7 +153,7 @@ export const PatientAdditionalDataFields = ({
 
   return padFields.map((field: string) => {
     const Component = getComponentForField(field, customFieldIds);
-    const isRequired = getSetting<boolean>(`localisation.fields.${field}.requiredPatientData`);
+    const isRequired = getSetting<boolean>(`fields.${field}.requiredPatientData`);
     return <Component fieldName={field} key={field} required={isRequired} isEdit={isEdit} />;
   });
 };

@@ -85,8 +85,7 @@ export const PatientDetailsForm = ({ patient, additionalData, birthData, onSubmi
   const { getSetting } = useSettings();
   const { PrimaryDetails, SecondaryDetails, PatientFields } = useLayoutComponents();
 
-  const isRequiredPatientData = fieldName =>
-    getSetting(`localisation.fields.${fieldName}.requiredPatientData`);
+  const isRequiredPatientData = fieldName => getSetting(`fields.${fieldName}.requiredPatientData`);
 
   const api = useApi();
   const {

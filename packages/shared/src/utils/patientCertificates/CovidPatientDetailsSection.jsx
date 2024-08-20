@@ -28,7 +28,7 @@ export const CovidPatientDetailsSection = ({
 }) => {
   const { getTranslation } = useLanguageContext();
   const detailsToDisplay = [...PATIENT_FIELDS, ...extraFields].filter(
-    ({ key }) => !getSetting(`localisation.fields.${key}.hidden`),
+    ({ key }) => !getSetting(`fields.${key}.hidden`),
   );
 
   const leftWidth = vdsSrc ? 68 : 80;

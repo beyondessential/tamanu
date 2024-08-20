@@ -41,9 +41,7 @@ export const HandoverPatient = ({
   isEdited,
 }) => {
   const { getTranslation } = useLanguageContext();
-  const detailsToDisplay = PATIENT_FIELDS.filter(
-    ({ key }) => !getSetting(`localisation.fields.${key}.hidden`),
-  );
+  const detailsToDisplay = PATIENT_FIELDS.filter(({ key }) => !getSetting(`fields.${key}.hidden`));
   return (
     <>
       <Row style={{ width: '100%', marginBottom: 40 }}>

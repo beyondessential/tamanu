@@ -86,7 +86,7 @@ const getDiet = ({ diets }) => {
 export const getEncounterType = ({ encounterType }) =>
   encounterType ? ENCOUNTER_OPTIONS_BY_VALUE[encounterType]?.label : 'Unknown';
 
-const referralSourcePath = 'localisation.fields.referralSourceId';
+const referralSourcePath = 'referralSourceId';
 
 export const EncounterInfoPane = React.memo(({ encounter, getSetting, patientBillingType }) => (
   <InfoCard

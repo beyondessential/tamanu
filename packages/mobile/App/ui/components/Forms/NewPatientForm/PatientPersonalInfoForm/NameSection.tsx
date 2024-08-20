@@ -26,7 +26,7 @@ export const NameSection = (): ReactElement => {
           />
         }
         component={TextField}
-        required={getSetting<boolean>('localisation.fields.middleName.requiredPatientData')}
+        required={getSetting<boolean>('fields.middleName.requiredPatientData')}
       />
       <LocalisedField
         name="lastName"
@@ -45,7 +45,7 @@ export const NameSection = (): ReactElement => {
           />
         }
         component={TextField}
-        required={getSetting<boolean>('localisation.fields.culturalName.requiredPatientData')}
+        required={getSetting<boolean>('fields.culturalName.requiredPatientData')}
       />
     </>
   );

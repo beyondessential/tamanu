@@ -43,7 +43,7 @@ export const PatientDetailsSection = ({
   const { getTranslation } = useLanguageContext();
 
   const detailsToDisplay = [...patientFields(getTranslation), ...extraFields].filter(
-    ({ key }) => !getSetting(`localisation.fields.${key}.hidden`),
+    ({ key }) => !getSetting(`fields.${key}.hidden`),
   );
   return (
     <>

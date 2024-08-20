@@ -15,7 +15,7 @@ const shouldPrefillDefaultValue = ({ initialValue, formType, hidden, defaultValu
   return !hidden && formType === FORM_TYPES.CREATE_FORM && !initialValue && defaultValue;
 };
 
-export const LocalisedField = ({ name, path = `localisation.fields.${name}`, label, ...props }) => {
+export const LocalisedField = ({ name, path = `fields.${name}`, label, ...props }) => {
   const { getSetting } = useSettings();
 
   const { hidden, defaultValue, required = false } = getSetting(path) || {};
@@ -45,7 +45,7 @@ export const LocalisedField = ({ name, path = `localisation.fields.${name}`, lab
 export const useLocalisedSchema = () => {
   const { getSetting } = useSettings();
   return {
-    getLocalisedSchema: ({ name, path = `localisation.fields.${name}` }) => {
+    getLocalisedSchema: ({ name, path = `fields.${name}` }) => {
       const { hidden, required = false } = getSetting(path) || {};
       if (hidden) return yup.string().nullable();
       if (required) return yup.string().required('Required');

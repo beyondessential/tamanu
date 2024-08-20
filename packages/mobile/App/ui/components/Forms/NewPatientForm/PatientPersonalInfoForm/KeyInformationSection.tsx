@@ -43,7 +43,7 @@ export const KeyInformationSection = (): ReactElement => {
         }
         name="email"
         component={TextField}
-        required={getSetting<boolean>('localisation.fields.email.requiredPatientData')}
+        required={getSetting<boolean>('fields.email.requiredPatientData')}
       />
     </>
   );

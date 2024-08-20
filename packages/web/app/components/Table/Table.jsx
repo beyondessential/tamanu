@@ -605,9 +605,7 @@ export const Table = React.forwardRef(
   ({ columns: allColumns, data, exportName, ...props }, ref) => {
     const { getTranslation } = useTranslation();
     const { getSetting } = useSettings();
-    const columns = allColumns.filter(
-      ({ key }) => getSetting(`localisation.fields.${key}.hidden`) !== true,
-    );
+    const columns = allColumns.filter(({ key }) => getSetting(`fields.${key}.hidden`) !== true);
 
     return (
       <TableComponent
