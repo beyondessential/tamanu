@@ -27,7 +27,7 @@ export class UserDesignation extends Model {
     });
   }
 
-  static buildPatientSyncFilter() {
+  static buildSyncFilter() {
     return null; // syncs everywhere
   }
 }

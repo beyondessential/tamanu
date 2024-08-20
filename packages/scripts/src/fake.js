@@ -52,6 +52,11 @@ async function generateData(models) {
     InvoiceItem,
     InvoiceItemDiscount,
     InvoiceProduct,
+    Task,
+    TaskDesignation,
+    TaskTemplate,
+    TaskTemplateDesignation,
+    UserDesignation,
   } = models;
 
   const examiner = await User.create(fake(User));
@@ -294,6 +299,31 @@ async function generateData(models) {
   await InvoiceItemDiscount.create(
     fake(InvoiceItemDiscount, {
       invoiceItemId: invoiceItem.id,
+    }),
+  );
+
+  const task = await Task.create(
+    fake(Task, {
+      encounterId: encounter.id,
+    }),
+  );
+  await TaskDesignation.create(
+    fake(TaskDesignation, {
+      taskId: task.id,
+      designationId: referenceData.id,
+    }),
+  );
+  const taskTemplate = await TaskTemplate.create(fake(TaskTemplate, { id: referenceData.id }));
+  await TaskTemplateDesignation.create(
+    fake(TaskTemplateDesignation, {
+      taskTemplateId: taskTemplate.id,
+      designationId: referenceData.id,
+    }),
+  );
+  await UserDesignation.create(
+    fake(UserDesignation, {
+      userId: examiner.id,
+      designationId: referenceData.id,
     }),
   );
 }

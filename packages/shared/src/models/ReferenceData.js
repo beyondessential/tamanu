@@ -75,7 +75,7 @@ export class ReferenceData extends Model {
 
     this.hasOne(models.TaskTemplate, {
       as: 'taskTemplate',
-      foreignKey: 'id',
+      foreignKey: 'referenceDataId',
     });
   }
 
