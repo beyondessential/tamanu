@@ -9,8 +9,7 @@ import { useIdleTimer } from 'react-idle-timer';
 import Typography from '@material-ui/core/Typography';
 import styled from 'styled-components';
 
-import { useLocalisation } from '../contexts/Localisation';
-import { useSettings } from '../context/Settings';
+import { useSettings } from '../contexts/Settings';
 import { useAuth } from '../contexts/Auth';
 import { checkIsLoggedIn } from '../store/auth';
 
