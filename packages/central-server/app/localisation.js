@@ -554,12 +554,6 @@ const rootLocalisationSchema = yup
     printMeasures: printMeasuresSchema,
     disabledReports: yup.array(yup.string().required()).defined(),
     supportDeskUrl: yup.string().required(),
-    vitalEditReasons: yup.array(
-      yup.object({
-        value: yup.string().required(),
-        label: yup.string().required(),
-      }),
-    ),
   })
   .required()
   .noUnknown();

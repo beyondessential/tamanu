@@ -5,18 +5,16 @@ import DeleteOutlineIcon from '@material-ui/icons/DeleteOutline';
 import { useQueryClient } from '@tanstack/react-query';
 import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
-import { FormSubmitCancelRow } from '../components/ButtonRow';
-import { Field, Form, OuterLabelFieldWrapper, BaseSelectField } from '../components/Field';
+import { DateDisplay, FormSeparatorLine, FormSubmitCancelRow, TranslatedText } from '../components';
+import { BaseSelectField, Field, Form, OuterLabelFieldWrapper } from '../components/Field';
 import { useLocalisation } from '../contexts/Localisation';
 import { FormGrid } from '../components/FormGrid';
-import { FormSeparatorLine } from '../components/FormSeparatorLine';
 import { SurveyQuestion } from '../components/Surveys';
 import { getValidationSchema } from '../utils';
 import { Colors, FORM_TYPES } from '../constants';
 import { useApi } from '../api';
 import { useEncounter } from '../contexts/Encounter';
-import { DateDisplay } from '../components/DateDisplay';
-import { TranslatedText } from '../components/Translation/TranslatedText';
+import { useSettings } from '../contexts/Settings';
 import { useTranslation } from '../contexts/Translation';
 
 const Text = styled(Typography)`
@@ -97,8 +95,9 @@ export const EditVitalCellForm = ({ vitalLabel, dataPoint, handleClose }) => {
   const api = useApi();
   const queryClient = useQueryClient();
   const { encounter } = useEncounter();
+  const { getSetting } = useSettings();
+  const vitalEditReasons = getSetting('vitalEditReasons');
   const { getLocalisation } = useLocalisation();
-  const vitalEditReasons = getLocalisation('vitalEditReasons') || [];
   const mandatoryVitalEditReason = getLocalisation('features.mandatoryVitalEditReason');
   const initialValue = dataPoint.value;
   const showDeleteEntryButton = ['', undefined].includes(initialValue) === false;

@@ -47,34 +47,34 @@ export const globalSettings = {
       .required(),
     default: [
       {
-        "as": "days",
-        "range": {
-          "min": { "duration": { "days": 0 },  "exclusive": false  },
-          "max": { "duration": { "days": 8 }, "exclusive": true }
-        }
+        as: 'days',
+        range: {
+          min: { duration: { days: 0 }, exclusive: false },
+          max: { duration: { days: 8 }, exclusive: true },
+        },
       },
       {
-        "as": "weeks",
-        "range": {
-          "min": { "duration": { "days": 8 } },
-          "max": { "duration": { "months": 1 }, "exclusive": true }
-        }
+        as: 'weeks',
+        range: {
+          min: { duration: { days: 8 } },
+          max: { duration: { months: 1 }, exclusive: true },
+        },
       },
       {
-        "as": "months",
-        "range": {
-          "min": { "duration": { "months": 1 } },
-          "max": { "duration": { "years": 2 }, "exclusive": true }
-        }
+        as: 'months',
+        range: {
+          min: { duration: { months: 1 } },
+          max: { duration: { years: 2 }, exclusive: true },
+        },
       },
       {
-        "as": "years",
-        "range": {
-          "min": { "duration": { "years": 2 } }
-        }
-      }
-    ]
-  }
+        as: 'years',
+        range: {
+          min: { duration: { years: 2 } },
+        },
+      },
+    ],
+  },
   features: {
     mandateSpecimenType: {
       name: 'Mandate specimen type',
@@ -249,6 +249,16 @@ export const globalSettings = {
         },
       ],
     },
+  },
+  vitalEditReasons: {
+    description: 'Customise the options available for vital reason for edit',
+    schema: yup.array(
+      yup.object({
+        value: yup.string().required(),
+        label: yup.string().required(),
+      }),
+    ),
+    default: [],
   },
 };
 
