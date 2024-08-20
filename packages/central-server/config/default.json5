@@ -70,7 +70,7 @@
     // can be turned on by lowering to some amount that seems appropriate if snapshot performance is an issue
     "maxRecordsPerSnapshotChunk": 1000000000,
     "syncSessionTimeoutMs": null,
-    "useLookupTable": false,
+    "useLookupTable": true,
   },
   "loadshedder": {
     // paths are checked sequentially until a path matches a prefix
@@ -233,7 +233,7 @@
       "schedule": "* * * * *"
     },
     "syncLookupRefresher": {
-      "enabled": false,
+      "enabled": true,
       "schedule": "*/1 * * * *"
     }
   },
