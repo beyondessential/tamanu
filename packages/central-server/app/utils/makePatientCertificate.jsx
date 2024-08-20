@@ -70,13 +70,16 @@ export const makeCovidVaccineCertificate = async (
   printedBy,
   printedDate,
   models,
+  settings,
   uvci,
   qrData = null,
   language,
 ) => {
   const localisation = await getLocalisation();
-  const getSetting = key => get(localisation, key);
+  const settingsObj = await settings.getAll();
+
   const getLocalisationData = key => get(localisation, key);
+  const getSettingData = key => get(settingsObj, key);
 
   const fileName = `covid-vaccine-certificate-${patient.id}.pdf`;
   const { logo, signingImage, watermark } = await getCertificateAssets(
@@ -98,7 +101,7 @@ export const makeCovidVaccineCertificate = async (
       logoSrc={logo}
       vdsSrc={vds}
       getLocalisation={getLocalisationData}
-      getSetting={getSetting}
+      getSetting={getSettingData}
       language={language}
     />,
     fileName,
@@ -146,11 +149,14 @@ export const makeCovidCertificate = async (
   patient,
   printedBy,
   models,
+  settings,
   vdsData = null,
   language,
 ) => {
+  const settingsObj = await settings.getAll();
   const localisation = await getLocalisation();
   const getLocalisationData = key => get(localisation, key);
+  const getSettingData = key => get(settingsObj, key);
 
   const fileName = `covid-${certType}-certificate-${patient.id}.pdf`;
   const footerAssetName =
@@ -204,6 +210,7 @@ export const makeCovidCertificate = async (
       printedBy={printedBy}
       vdsSrc={vds}
       getLocalisation={getLocalisationData}
+      getSetting={getSettingData}
       certType={certType}
       language={language}
     />,
