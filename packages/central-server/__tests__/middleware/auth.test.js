@@ -162,6 +162,21 @@ describe('Auth', () => {
       expect(response.body).not.toHaveProperty('user.hashedPassword');
     });
 
+    it('Should return localised field settings in the login response', async () => {
+      const response = await baseApp.post('/api/login').send({
+        email: TEST_EMAIL,
+        password: TEST_PASSWORD,
+        deviceId: TEST_DEVICE_ID,
+      });
+
+      expect(response).toHaveSucceeded();
+      expect(response.body).toHaveProperty('settings.localisation.fields.displayId', {
+        shortLabel: 'NHN',
+        longLabel: 'National Health Number',
+        pattern: '[\\s\\S]*',
+      });
+    });
+
     it('Should reject an empty credential', async () => {
       const response = await baseApp.post('/api/login').send({
         email: TEST_EMAIL,

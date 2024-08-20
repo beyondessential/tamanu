@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import { mapValues } from 'lodash';
 import { SettingsSchema, Setting } from './types';
 
 const isSetting = (value: Setting | SettingsSchema): value is Setting => {
@@ -6,7 +6,7 @@ const isSetting = (value: Setting | SettingsSchema): value is Setting => {
 };
 
 export const extractDefaults = (settings: SettingsSchema) => {
-  return _.mapValues(settings, value => {
+  return mapValues(settings, value => {
     if (isSetting(value)) {
       return value.default;
     }
