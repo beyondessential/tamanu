@@ -348,59 +348,137 @@ export const globalSettings = {
       },
     },
   },
+  // TODO: ensure we have noUnkown() equivalent with new schema
   templates: {
     letterhead: {
-      title: { default: 'TAMANU MINISTRY OF HEALTH & MEDICAL SERVICES' },
-      subTitle: { default: 'PO Box 12345, Melbourne, Australia' },
+      title: { schema: yup.string(), default: 'TAMANU MINISTRY OF HEALTH & MEDICAL SERVICES' },
+      subTitle: { schema: yup.string(), default: 'PO Box 12345, Melbourne, Australia' },
     },
     signerRenewalEmail: {
-      subject: { default: 'Tamanu ICAO Certificate Signing Request' },
+      subject: {
+        schema: yup
+          .string()
+          .trim()
+          .min(1)
+          .required(),
+        default: 'Tamanu ICAO Certificate Signing Request',
+      },
       body: {
+        schema: yup
+          .string()
+          .trim()
+          .min(1)
+          .required(),
         default:
           'Please sign the following certificate signing request (CSR) with the Country Signing Certificate Authority (CSCA), and return it to the Tamanu team or Tamanu deployment administration team.',
       },
     },
     vaccineCertificateEmail: {
-      subject: { default: 'Medical Certificate now available' },
+      subject: {
+        schema: yup
+          .string()
+          .trim()
+          .min(1)
+          .required(),
+        default: 'Medical Certificate now available',
+      },
       body: {
+        schema: yup
+          .string()
+          .trim()
+          .min(1)
+          .required(),
         default:
           'A medical certificate has been generated for you.\nYour certificate is available attached to this email.',
       },
     },
     covidVaccineCertificateEmail: {
-      subject: { default: 'Medical Certificate now available' },
+      subject: {
+        schema: yup
+          .string()
+          .trim()
+          .min(1)
+          .required(),
+        default: 'Medical Certificate now available',
+      },
       body: {
+        schema: yup
+          .string()
+          .trim()
+          .min(1)
+          .required(),
         default:
           'A medical certificate has been generated for you.\nYour certificate is available attached to this email.',
       },
     },
     covidTestCertificateEmail: {
-      subject: { default: 'Medical Certificate now available' },
+      subject: {
+        schema: yup
+          .string()
+          .trim()
+          .min(1)
+          .required(),
+        default: 'Medical Certificate now available',
+      },
       body: {
+        schema: yup
+          .string()
+          .trim()
+          .min(1)
+          .required(),
         default:
           'A medical certificate has been generated for you.\nYour certificate is attached to this email.',
       },
     },
     covidClearanceCertificateEmail: {
-      subject: { default: 'COVID-19 Clearance Certificate now available' },
+      subject: {
+        schema: yup
+          .string()
+          .trim()
+          .min(1)
+          .required(),
+        default: 'COVID-19 Clearance Certificate now available',
+      },
       body: {
+        schema: yup
+          .string()
+          .trim()
+          .min(1)
+          .required(),
         default:
           'A COVID-19 clearance certificate has been generated for you.\nYour certificate is attached to this email.',
       },
     },
     vaccineCertificate: {
-      emailAddress: { default: 'tamanu@health.gov' },
-      contactNumber: { default: '12345' },
-      healthFacility: { default: 'State level' },
+      emailAddress: { schema: yup.string().trim(), default: 'tamanu@health.gov' },
+      contactNumber: { schema: yup.string().trim(), default: '12345' },
+      healthFacility: {
+        schema: yup
+          .string()
+          .trim()
+          .min(1)
+          .required(),
+        default: 'State level',
+      },
     },
     covidTestCertificate: {
-      laboratoryName: { default: 'Approved test provider' },
+      laboratoryName: {
+        schema: yup
+          .string()
+          .trim()
+          .required(),
+        default: 'Approved test provider',
+      },
       clearanceCertRemark: {
+        schema: yup
+          .string()
+          .trim()
+          .required(),
         default:
           'This notice certifies that $firstName$ $lastName$ is no longer considered infectious following 13 days of self-isolation from the date of their first positive SARS-CoV-2 test and are medically cleared from COVID-19. This certificate is valid for 3 months from the date of issue.',
       },
     },
-    plannedMoveTimeoutHours: { default: 24 },
+    plannedMoveTimeoutHours: { schema: yup.number().required(), default: 24 },
   },
 };
 
