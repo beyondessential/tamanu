@@ -245,13 +245,112 @@ export const globalSettings = {
   printMeasures: {
     labRequestPrintLabel: {
       width: {
-        name: 'Width',
         description: '_',
         schema: yup
           .number()
           .required()
           .positive(),
         default: 50.8,
+      },
+    },
+    stickerLabelPage: {
+      pageWidth: {
+        description: '_',
+        schema: yup
+          .number()
+          .required()
+          .positive(),
+        default: 210,
+      },
+      pageHeight: {
+        description: '_',
+        schema: yup
+          .number()
+          .required()
+          .positive(),
+        default: 297,
+      },
+      pageMarginTop: {
+        description: '_',
+        schema: yup
+          .number()
+          .required()
+          .positive(),
+        default: 15.09,
+      },
+      pageMarginLeft: {
+        description: '_',
+        schema: yup
+          .number()
+          .required()
+          .positive(),
+        default: 6.4,
+      },
+      columnTotal: {
+        description: '_',
+        schema: yup
+          .number()
+          .required()
+          .positive(),
+        default: 3,
+      },
+      columnWidth: {
+        description: '_',
+        schema: yup
+          .number()
+          .required()
+          .positive(),
+        default: 64,
+      },
+      columnGap: {
+        description: '_',
+        schema: yup
+          .number()
+          .required()
+          .positive(),
+        default: 3.01,
+      },
+      rowTotal: {
+        description: '_',
+        schema: yup
+          .number()
+          .required()
+          .positive(),
+        default: 10,
+      },
+      rowHeight: {
+        description: '_',
+        schema: yup
+          .number()
+          .required()
+          .positive(),
+        default: 26.7,
+      },
+      rowGap: {
+        description: '_',
+        schema: yup
+          .number()
+          .required()
+          .positive(),
+        default: 0,
+      },
+    },
+    idCardPage: {
+      cardMarginTop: {
+        description: '_',
+        schema: yup
+          .number()
+          .required()
+          .positive(),
+        default: 1,
+      },
+      cardMarginLeft: {
+        description: '_',
+        schema: yup
+          .number()
+          .required()
+          .positive(),
+        default: 5,
       },
     },
   },

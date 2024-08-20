@@ -18,12 +18,7 @@ const CustomBarcode = ({ id, width, height }) => {
   return <Image source={barcode} style={{ height, maxWidth: width, objectFit: 'cover' }} />;
 };
 
-const convertToPt = mm => {
-  // remove 'mm' etc from strings
-  if (typeof mm === 'string') return parseFloat(mm.replace(/[^0-9.]/i, '')) * 2.835;
-
-  return mm * 2.835;
-};
+const mmToPt = mm => mm * 2.835;
 
 const styles = StyleSheet.create({
   mainContainer: {
@@ -113,8 +108,8 @@ const IDCardPrintoutComponent = ({
     card: {
       width: cardDimensions.width,
       height: cardDimensions.height,
-      marginTop: convertToPt(measures.cardMarginTop),
-      marginLeft: convertToPt(measures.cardMarginLeft),
+      marginTop: mmToPt(measures.cardMarginTop),
+      marginLeft: mmToPt(measures.cardMarginLeft),
       display: 'flex',
       flexDirection: 'column',
     },
@@ -124,7 +119,7 @@ const IDCardPrintoutComponent = ({
 
   return (
     <Document>
-      <Page size="A4" style={{ paddingTop: convertToPt('10.6mm') }}>
+      <Page size="A4" style={{ paddingTop: mmToPt(10.6) }}>
         <Card>
           <MainContainer>
             <PatientPhoto patientImageData={patientImageData} />

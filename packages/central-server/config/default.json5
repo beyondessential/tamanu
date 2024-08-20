@@ -313,6 +313,11 @@
           "default": 20,
           "max": 20
         }
+      },
+      "extensions": {
+        "Patient": {
+          "newZealandEthnicity":
+        }
       }
     },
     "omniLab": {
@@ -792,9 +797,6 @@
           "shortLabel": "kg",
           "longLabel": "kg"
         }
-      },
-      "features": {
-        "fhirNewZealandEthnicity": false, // TODO: tricky
       },
       "templates": {
         "letterhead": {
