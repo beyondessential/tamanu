@@ -52,7 +52,7 @@ export const getVillageName = ({ village }) => village?.name;
 
 export const getPatientWeight = ({ patientWeight }, getTranslation) =>
   patientWeight
-    ? `${patientWeight}${getTranslation('general.localisedField.weightUnit.label')}`
+    ? `${patientWeight}${getTranslation('general.localisedField.weightUnit.label', 'kg')}`
     : '';
 
 export const getEthnicity = ({ additionalData }) => additionalData?.ethnicity?.name;
