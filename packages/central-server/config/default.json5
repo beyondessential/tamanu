@@ -798,43 +798,6 @@
           "longLabel": "kg"
         }
       },
-      // TODO: remove
-      "templates": {
-        "letterhead": {
-          "title": "TAMANU MINISTRY OF HEALTH & MEDICAL SERVICES",
-          "subTitle": "PO Box 12345, Melbourne, Australia"
-        },
-        "signerRenewalEmail": {
-          "subject": "Tamanu ICAO Certificate Signing Request",
-          "body": "Please sign the following certificate signing request (CSR) with the Country Signing Certificate Authority (CSCA), and return it to the Tamanu team or Tamanu deployment administration team."
-        },
-        "vaccineCertificateEmail": {
-          "subject": "Medical Certificate now available",
-          "body": "A medical certificate has been generated for you.\nYour certificate is available attached to this email."
-        },
-        "covidVaccineCertificateEmail": {
-          "subject": "Medical Certificate now available",
-          "body": "A medical certificate has been generated for you.\nYour certificate is available attached to this email."
-        },
-        "covidTestCertificateEmail": {
-          "subject": "Medical Certificate now available",
-          "body": "A medical certificate has been generated for you.\nYour certificate is attached to this email."
-        },
-        "covidClearanceCertificateEmail": {
-          "subject": "COVID-19 Clearance Certificate now available",
-          "body": "A COVID-19 clearance certificate has been generated for you.\nYour certificate is attached to this email."
-        },
-        "vaccineCertificate": {
-          "emailAddress": "tamanu@health.gov",
-          "contactNumber": "12345",
-          "healthFacility": "State level"
-        },
-        "covidTestCertificate": {
-          "laboratoryName": "Approved test provider",
-          "clearanceCertRemark": "This notice certifies that $firstName$ $lastName$ is no longer considered infectious following 13 days of self-isolation from the date of their first positive SARS-CoV-2 test and are medically cleared from COVID-19. This certificate is valid for 3 months from the date of issue."
-        },
-        "plannedMoveTimeoutHours": 24
-      },
       "imagingTypes": {
         // keys are taken from IMAGING_TYPES in shared/constants/imaging
         // e.g.

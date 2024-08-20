@@ -348,6 +348,60 @@ export const globalSettings = {
       },
     },
   },
+  templates: {
+    letterhead: {
+      title: { default: 'TAMANU MINISTRY OF HEALTH & MEDICAL SERVICES' },
+      subTitle: { default: 'PO Box 12345, Melbourne, Australia' },
+    },
+    signerRenewalEmail: {
+      subject: { default: 'Tamanu ICAO Certificate Signing Request' },
+      body: {
+        default:
+          'Please sign the following certificate signing request (CSR) with the Country Signing Certificate Authority (CSCA), and return it to the Tamanu team or Tamanu deployment administration team.',
+      },
+    },
+    vaccineCertificateEmail: {
+      subject: { default: 'Medical Certificate now available' },
+      body: {
+        default:
+          'A medical certificate has been generated for you.\nYour certificate is available attached to this email.',
+      },
+    },
+    covidVaccineCertificateEmail: {
+      subject: { default: 'Medical Certificate now available' },
+      body: {
+        default:
+          'A medical certificate has been generated for you.\nYour certificate is available attached to this email.',
+      },
+    },
+    covidTestCertificateEmail: {
+      subject: { default: 'Medical Certificate now available' },
+      body: {
+        default:
+          'A medical certificate has been generated for you.\nYour certificate is attached to this email.',
+      },
+    },
+    covidClearanceCertificateEmail: {
+      subject: { default: 'COVID-19 Clearance Certificate now available' },
+      body: {
+        default:
+          'A COVID-19 clearance certificate has been generated for you.\nYour certificate is attached to this email.',
+      },
+    },
+    vaccineCertificate: {
+      emailAddress: { default: 'tamanu@health.gov' },
+      contactNumber: { default: '12345' },
+      healthFacility: { default: 'State level' },
+    },
+    covidTestCertificate: {
+      laboratoryName: { default: 'Approved test provider' },
+      clearanceCertRemark: {
+        default:
+          'This notice certifies that $firstName$ $lastName$ is no longer considered infectious following 13 days of self-isolation from the date of their first positive SARS-CoV-2 test and are medically cleared from COVID-19. This certificate is valid for 3 months from the date of issue.',
+      },
+    },
+    plannedMoveTimeoutHours: { default: 24 },
+  },
 };
 
 // export const globalDefaults = extractDefaults(globalSettings);
