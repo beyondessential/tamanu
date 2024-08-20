@@ -209,6 +209,25 @@ export class CentralSyncManager {
   // set pull filter begins creating a snapshot of changes to pull at this point in time
   async initiatePull(sessionId, params) {
     try {
+      if (this.constructor.config.sync.lookupTable.enabled) {
+        const { since } = params;
+        const previouslyUpToTick = await this.store.models.LocalSystemFact.get(
+          LOOKUP_UP_TO_TICK_KEY,
+        );
+
+        // When since is not larger than previouslyUpToTick,
+        // it means that the client has already got all the latest data pulled down,
+        // and we do not need to continue the pull process.
+        //
+        // This also helps with the scenario if for some reasons the sync lookup refresh fails,
+        // the client should not saves the latest tick as lastSuccessfulSyncTick.
+        // This is because the client has not actually pulled the latest data down since
+        // sync lookup refresh table has not actually got the latest data yet (because of its' failure)
+        if (previouslyUpToTick && since >= previouslyUpToTick) {
+          throw new Error('Sync lookup table is not up to date');
+        }
+      }
+
       await this.connectToSession(sessionId);
 
       // first check if the snapshot is already being processed, to throw a sane error if (for some
