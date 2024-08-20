@@ -29,8 +29,8 @@ export class TaskTemplate extends Model {
    * @param {import('./')} models
    */
   static initRelations(models) {
-    this.hasOne(models.ReferenceData, {
-      foreignKey: 'id',
+    this.belongsTo(models.ReferenceData, {
+      foreignKey: 'referenceDataId',
       as: 'referenceData',
     });
     this.hasMany(models.TaskTemplateDesignation, {
@@ -39,9 +39,10 @@ export class TaskTemplate extends Model {
     });
   }
 
-  static buildPatientSyncFilter() {
+  static buildSyncFilter() {
     return null; // syncs everywhere
   }
+
   static getFullReferenceAssociations() {
     const { models } = this.sequelize;
 

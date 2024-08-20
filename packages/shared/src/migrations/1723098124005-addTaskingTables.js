@@ -130,9 +130,14 @@ export async function up(query) {
 
   await query.createTable('task_templates', {
     id: {
-      type: DataTypes.STRING,
+      type: DataTypes.UUID,
       allowNull: false,
       primaryKey: true,
+      defaultValue: Sequelize.fn('uuid_generate_v4'),
+    },
+    reference_data_id: {
+      type: DataTypes.STRING,
+      allowNull: false,
       references: {
         model: 'reference_data',
         key: 'id',
@@ -174,7 +179,7 @@ export async function up(query) {
       defaultValue: Sequelize.fn('uuid_generate_v4'),
     },
     task_template_id: {
-      type: DataTypes.STRING,
+      type: DataTypes.UUID,
       allowNull: false,
       references: {
         model: 'task_templates',
@@ -282,5 +287,5 @@ export async function down(query) {
   await query.dropTable('task_template_designations');
   await query.dropTable('task_templates');
   await query.dropTable('task_designations');
-  await query.dropTable('tasks');
+  await query.dropTable('tasks', {});
 }
