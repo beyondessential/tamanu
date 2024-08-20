@@ -528,12 +528,6 @@ const rootLocalisationSchema = yup
       .string()
       .required()
       .oneOf(['tamanu', 'eudcc', 'icao']),
-    features: yup
-      .object({
-        fhirNewZealandEthnicity: yup.boolean().required(),
-      })
-      .required()
-      .noUnknown(),
     disabledReports: yup.array(yup.string().required()).defined(),
     supportDeskUrl: yup.string().required(),
     ageDisplayFormat: yup

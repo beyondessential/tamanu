@@ -88,12 +88,6 @@ export const globalSettings = {
       schema: yup.boolean().required(),
       default: false,
     },
-    fhirNewZealandEthnicity: {
-      name: 'Fhir New Zealand ethnicity',
-      description: '_',
-      schema: yup.boolean().required(),
-      default: false,
-    },
     onlyAllowLabPanels: {
       name: 'Only allow lab panels',
       description: '_',
