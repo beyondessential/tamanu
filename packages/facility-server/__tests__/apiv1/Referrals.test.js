@@ -61,6 +61,7 @@ function getRandomAnswer(dataElement) {
 
 describe('Referrals', () => {
   let ctx = null;
+  let settings = null;
   let app = null;
   let patient = null;
   let encounter = null;
@@ -72,6 +73,7 @@ describe('Referrals', () => {
     ctx = await createTestContext();
     baseApp = ctx.baseApp;
     models = ctx.models;
+    settings = ctx.settings;
     app = await baseApp.asRole('practitioner');
     patient = await models.Patient.create(await createDummyPatient(models));
     encounter = await models.Encounter.create({
@@ -120,7 +122,7 @@ describe('Referrals', () => {
   });
 
   it('should use the default department if one is not provided', async () => {
-    const { department: departmentCode } = await ctx.settings.get('survey.defaultCodes');
+    const { department: departmentCode } = await settings.get('survey.defaultCodes');
     const department = await findOneOrCreate(ctx.models, ctx.models.Department, {
       code: departmentCode,
     });
@@ -143,7 +145,7 @@ describe('Referrals', () => {
   });
 
   it('should use the default location if one is not provided', async () => {
-    const { location: locationCode } = await ctx.settings.get('survey.defaultCodes');
+    const { location: locationCode } = await settings.get('survey.defaultCodes');
     const location = await findOneOrCreate(ctx.models, ctx.models.Location, { code: locationCode });
 
     const { departmentId } = encounter;
