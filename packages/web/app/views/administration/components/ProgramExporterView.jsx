@@ -19,7 +19,7 @@ const ExportForm = ({ options = [] }) => (
       name="programId"
       label={
         <TranslatedText
-          stringId="admin.program.export.program.selectLabel"
+          stringId="admin.export.selectProgram.label"
           fallback="Select program to export"
         />
       }
