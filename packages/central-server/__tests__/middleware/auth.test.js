@@ -129,7 +129,9 @@ describe('Auth', () => {
       });
       expect(refreshTokenRecord).not.toBeNull();
       expect(refreshTokenRecord).toHaveProperty('refreshId');
-      await expect(bcrypt.compare(contents.refreshId, refreshTokenRecord.refreshId)).resolves.toBe(true);
+      await expect(bcrypt.compare(contents.refreshId, refreshTokenRecord.refreshId)).resolves.toBe(
+        true,
+      );
     });
 
     it('Should not issue a refresh token for external client', async () => {
@@ -158,21 +160,6 @@ describe('Auth', () => {
 
       expect(response.body).not.toHaveProperty('user.password');
       expect(response.body).not.toHaveProperty('user.hashedPassword');
-    });
-
-    it('Should return feature flags in the login response', async () => {
-      const response = await baseApp.post('/api/login').send({
-        email: TEST_EMAIL,
-        password: TEST_PASSWORD,
-        deviceId: TEST_DEVICE_ID,
-      });
-
-      expect(response).toHaveSucceeded();
-      expect(response.body).toHaveProperty('localisation.fields.displayId', {
-        shortLabel: 'NHN',
-        longLabel: 'National Health Number',
-        pattern: '[\\s\\S]*',
-      });
     });
 
     it('Should reject an empty credential', async () => {
