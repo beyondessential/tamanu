@@ -4,6 +4,7 @@ import { centralSettings } from './central';
 import { facilitySettings } from './facility';
 import * as yup from 'yup';
 import _ from 'lodash';
+import { SettingsSchema } from './types';
 
 interface ErrorMessage {
   field: string;
@@ -51,7 +52,7 @@ export const validateSettings = async ({
 }: {
   settings: Record<string, any>;
   scope?: string;
-  schema?: Record<string, any>;
+  schema?: SettingsSchema;
 }) => {
   schema = scope ? SCOPE_TO_SCHEMA[scope] : schema;
 
@@ -61,9 +62,6 @@ export const validateSettings = async ({
 
   const flattenedSettings = flattenObject(settings);
   const flattenedSchema = flattenObject(schema);
-
-  console.log(flattenedSettings);
-  console.log(flattenedSchema);
 
   const errors: ErrorMessage[] = [];
 

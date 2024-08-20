@@ -1,13 +1,16 @@
 import _ from 'lodash';
-import * as yup from 'yup';
+import { SettingsSchema, Setting } from './types';
 
-export const extractDefaults = settings => {
-  return _.mapValues(settings, (value: { schema: yup.SchemaOf<any>; default: any }) => {
-    if (_.isObject(value) && value.schema) {
+const isSetting = (value: Setting | SettingsSchema): value is Setting => {
+  return value && typeof value === 'object' && 'schema' in value && 'default' in value;
+};
+
+export const extractDefaults = (settings: SettingsSchema) => {
+  return _.mapValues(settings, value => {
+    if (isSetting(value)) {
       return value.default;
-    } else if (_.isObject(value)) {
-      return extractDefaults(value);
     }
-    return value;
+
+    return extractDefaults(value);
   });
 };
