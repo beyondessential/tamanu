@@ -13,11 +13,13 @@ export interface FormField {
 
 export interface RadioOption extends FormField {
   label: string;
+  width?: string | number;
 }
 
 export interface RadioOptionProps extends RadioOption {
   onPress: Function;
   value: string;
+  width?: string | number;
 }
 
 export const RadioButton = (props: RadioOptionProps): JSX.Element => {
@@ -35,14 +37,15 @@ export const RadioButton = (props: RadioOptionProps): JSX.Element => {
         marginRight={screenPercentageToDP(1.21, Orientation.Width)}
         background={theme.colors.WHITE}
         alignItems="center"
-        justifyContent="center"
+        justifyContent="flex-start"
         height={screenPercentageToDP(6, Orientation.Height)}
         borderColor={getBorderColor(props)}
-        paddingLeft={12}
+        paddingLeft={screenPercentageToDP(2.14, Orientation.Width)}
         paddingRight={25}
         borderWidth={1}
         borderRadius={5}
         borderLeftWidth={1}
+        width={props.width ?? 'auto'}
       >
         <StyledView
           borderRadius={50}
@@ -53,7 +56,7 @@ export const RadioButton = (props: RadioOptionProps): JSX.Element => {
           borderColor={theme.colors.TEXT_MID}
           justifyContent="center"
           alignItems="center"
-          marginRight={5}
+          marginRight={screenPercentageToDP(1.29, Orientation.Width)}
         >
           <StyledView
             height={6}
