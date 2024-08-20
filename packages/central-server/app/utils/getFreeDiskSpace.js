@@ -19,6 +19,7 @@ export const canUploadAttachment = async settings => {
   const gigabytesForUploadingDocuments = await settings.get(
     'disk.freeSpaceRequired.gigabytesForUploadingDocuments',
   );
+  // Convert value in settings to bytes (prefer decimal over binary conversion)
   const freeSpaceRequired = parseInt(gigabytesForUploadingDocuments, 10) * 1000000000;
   const freeDiskSpace = await getFreeDiskSpace();
 
