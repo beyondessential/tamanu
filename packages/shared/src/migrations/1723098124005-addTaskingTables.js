@@ -287,5 +287,5 @@ export async function down(query) {
   await query.dropTable('task_template_designations');
   await query.dropTable('task_templates');
   await query.dropTable('task_designations');
-  await query.dropTable('tasks');
+  await query.dropTable('tasks', {});
 }
