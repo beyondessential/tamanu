@@ -1,5 +1,6 @@
 import React from 'react';
 import { getDisplayDate } from '../patientCertificates/getDisplayDate';
+import { useLanguageContext } from '../pdf/languageContext';
 import { Divider } from './Divider';
 import { Col, Row } from '../patientCertificates/Layout';
 import { P } from '../patientCertificates/Typography';
@@ -36,10 +37,10 @@ export const HandoverPatient = ({
   notes,
   getLocalisation,
   getSetting,
-  getTranslation,
   createdAt,
   isEdited,
 }) => {
+  const { getTranslation } = useLanguageContext();
   const detailsToDisplay = PATIENT_FIELDS.filter(
     ({ key }) => !getSetting(`localisation.fields.${key}.hidden`),
   );
