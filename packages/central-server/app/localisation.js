@@ -506,34 +506,6 @@ const rootLocalisationSchema = yup
         label: yup.string().required(),
       }),
     ),
-    labsCancellationReasons: yup
-      .array(
-        yup.object({
-          value: yup
-            .string()
-            .required()
-            .max(31),
-          label: yup.string().required(),
-        }),
-      )
-      .test({
-        name: 'labsCancellationReasons',
-        test(conf, ctx) {
-          const values = conf.map(x => x.value);
-          if (!values.includes('duplicate')) {
-            return ctx.createError({
-              message: 'labsCancellationReasons must include an option with value = duplicate',
-            });
-          }
-          if (!values.includes('entered-in-error')) {
-            return ctx.createError({
-              message:
-                'labsCancellationReasons must include an option with value = entered-in-error',
-            });
-          }
-          return true;
-        },
-      }),
     triageCategories: yup
       .array(
         yup.object({

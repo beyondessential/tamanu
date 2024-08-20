@@ -68,6 +68,63 @@ export const globalSettings = {
       }),
     default: [],
   },
+  labsCancellationReasons: {
+    description: 'Customise the options available for lab request cancellation reason',
+    schema: yup
+      .array(
+        yup.object({
+          value: yup
+            .string()
+            .required()
+            .max(31),
+          label: yup.string().required(),
+        }),
+      )
+      .test({
+        name: 'labsCancellationReasons',
+        test(conf, ctx) {
+          const values = conf.map(x => x.value);
+          if (!values.includes('duplicate')) {
+            return ctx.createError({
+              message: 'labsCancellationReasons must include an option with value = duplicate',
+            });
+          }
+          if (!values.includes('entered-in-error')) {
+            return ctx.createError({
+              message:
+                'labsCancellationReasons must include an option with value = entered-in-error',
+            });
+          }
+          return true;
+        },
+      }),
+    default: [
+      {
+        value: 'clinical',
+        label: 'Clinical reason',
+      },
+      {
+        value: 'duplicate',
+        label: 'Duplicate',
+      },
+      {
+        value: 'entered-in-error',
+        label: 'Entered in error',
+      },
+      {
+        value: 'patient-discharged',
+        label: 'Patient discharged',
+      },
+      {
+        value: 'patient-refused',
+        label: 'Patient refused',
+      },
+      {
+        value: 'other',
+        label: 'Other',
+      },
+    ],
+  },
   integrations: {
     imaging: {
       enabled: {

@@ -923,32 +923,6 @@
           "hidden": false
         }
       ],
-      "labsCancellationReasons": [
-        {
-          "value": "clinical",
-          "label": "Clinical reason"
-        },
-        {
-          "value": "duplicate",
-          "label": "Duplicate"
-        },
-        {
-          "value": "entered-in-error",
-          "label": "Entered in error"
-        },
-        {
-          "value": "patient-discharged",
-          "label": "Patient discharged"
-        },
-        {
-          "value": "patient-refused",
-          "label": "Patient refused"
-        },
-        {
-          "value": "other",
-          "label": "Other"
-        }
-      ],
       "layouts": {
         "patientDetails": "generic",
         "mobilePatientModules": {
