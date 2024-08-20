@@ -57,8 +57,8 @@ export const PatientDetailsSection = ({
             {detailsToDisplay.map(({ key, label: defaultLabel, accessor }) => {
               const value = (accessor ? accessor(patient, getLocalisation) : patient[key]) || '';
               const label =
-                getTranslation(`general.localisedField.fields.${key}.label.short`) ||
-                getTranslation(`general.localisedField.fields.${key}.label`) ||
+                getTranslation(`general.localisedField.${key}.label.short`) ||
+                getTranslation(`general.localisedField.${key}.label`) ||
                 defaultLabel;
 
               return (
