@@ -50,6 +50,7 @@ export async function importSurvey(context, workbook, surveyInfo) {
 
   surveyInfo.notifyEmailAddresses = (surveyInfo.notifyEmailAddresses ?? '')
     .split(',')
+    .filter(Boolean)
     .map(email => email.trim());
 
   const records = readSurveyInfo(workbook, surveyInfo);
