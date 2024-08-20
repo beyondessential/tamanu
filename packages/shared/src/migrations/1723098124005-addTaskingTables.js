@@ -130,9 +130,14 @@ export async function up(query) {
 
   await query.createTable('task_templates', {
     id: {
-      type: DataTypes.STRING,
+      type: DataTypes.UUID,
       allowNull: false,
       primaryKey: true,
+      defaultValue: Sequelize.fn('uuid_generate_v4'),
+    },
+    reference_data_id: {
+      type: DataTypes.STRING,
+      allowNull: false,
       references: {
         model: 'reference_data',
         key: 'id',
