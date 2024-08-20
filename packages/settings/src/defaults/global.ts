@@ -90,26 +90,4 @@ export const globalSettings = {
   },
 };
 
-// export const globalDefaults = extractDefaults(globalSettings);
-
-export const validateGlobalSettings = async (settings: any, schema = globalSettings) => {
-  for (const [key, value] of Object.entries(settings)) {
-    if (schema[key]) {
-      if (schema[key].schema) {
-        try {
-          await schema[key].schema.validate(value);
-        } catch (error) {
-          if (error instanceof yup.ValidationError)
-            throw new Error(`Invalid value for ${key}: ${error.message}`);
-          throw error;
-        }
-      } else {
-        await validateGlobalSettings(value, schema[key]);
-      }
-    } else {
-      console.warn(`Unknown setting: ${key}`);
-    }
-  }
-};
-
 export const globalDefaults = extractDefaults(globalSettings);
