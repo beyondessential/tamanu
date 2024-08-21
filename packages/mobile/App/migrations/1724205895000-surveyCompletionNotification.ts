@@ -13,16 +13,6 @@ export class surveyCompletionNotification1724205895000 implements MigrationInter
         default: false,
       }),
     );
-    await queryRunner.addColumn(
-      surveyTable,
-      new TableColumn({
-        name: 'notify_email_addresses',
-        type: 'varchar',
-        isNullable: false,
-        isArray: true,
-        default: [],
-      }),
-    );
 
     const surveyResponseTable = await getTable(queryRunner, 'survey_response');
     await queryRunner.addColumn(
@@ -38,7 +28,6 @@ export class surveyCompletionNotification1724205895000 implements MigrationInter
   async down(queryRunner: QueryRunner): Promise<void> {
     const surveyTable = await getTable(queryRunner, 'survey');
     await queryRunner.dropColumn(surveyTable, 'notifiable');
-    await queryRunner.dropColumn(surveyTable, 'notify_email_addresses');
 
     const surveyResponseTable = await getTable(queryRunner, 'survey_response');
     await queryRunner.dropColumn(surveyResponseTable, 'notified');
