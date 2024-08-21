@@ -43,7 +43,7 @@ export class Task extends Model {
           type: DataTypes.BOOLEAN,
           allowNull: true,
         },
-        parent_task_id: {
+        parentTaskId: {
           type: DataTypes.UUID,
           allowNull: true,
           references: {
@@ -51,6 +51,30 @@ export class Task extends Model {
             key: 'id',
           },
         },
+        completedTime: dateTimeType('completedTime', {
+          allowNull: true,
+        }),
+        completedNote: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        notCompletedTime: dateTimeType('notCompletedTime', {
+          allowNull: true,
+        }),
+        notCompletedNote: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        todoTime: dateTimeType('todoTime', {
+          allowNull: true,
+        }),
+        todoNote: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        deletedTime: dateTimeType('deletedTime', {
+          allowNull: true,
+        }),
       },
       { syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL, ...options },
     );
@@ -72,6 +96,26 @@ export class Task extends Model {
     this.hasMany(models.TaskDesignation, {
       foreignKey: 'taskId',
       as: 'designations',
+    });
+    this.belongsTo(models.User, {
+      foreignKey: 'completedByUserId',
+      as: 'completedBy',
+    });
+    this.belongsTo(models.User, {
+      foreignKey: 'notCompletedByUserId',
+      as: 'notCompletedBy',
+    });
+    this.belongsTo(models.User, {
+      foreignKey: 'todoByUserId',
+      as: 'todoBy',
+    });
+    this.belongsTo(models.User, {
+      foreignKey: 'deletedByUserId',
+      as: 'deletedBy',
+    });
+    this.belongsTo(models.ReferenceData, {
+      foreignKey: 'deletedReasonId',
+      as: 'deletedReason',
     });
   }
 

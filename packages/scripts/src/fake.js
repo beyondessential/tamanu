@@ -305,6 +305,12 @@ async function generateData(models) {
   const task = await Task.create(
     fake(Task, {
       encounterId: encounter.id,
+      requestedByUserId: examiner.id,
+      completedByUserId: examiner.id,
+      notCompletedByUserId: examiner.id,
+      todoByUserId: examiner.id,
+      deletedByUserId: examiner.id,
+      deletedReasonId: referenceData.id,
     }),
   );
   await TaskDesignation.create(
@@ -313,7 +319,9 @@ async function generateData(models) {
       designationId: referenceData.id,
     }),
   );
-  const taskTemplate = await TaskTemplate.create(fake(TaskTemplate, { id: referenceData.id }));
+  const taskTemplate = await TaskTemplate.create(
+    fake(TaskTemplate, { referenceDataId: referenceData.id }),
+  );
   await TaskTemplateDesignation.create(
     fake(TaskTemplateDesignation, {
       taskTemplateId: taskTemplate.id,
