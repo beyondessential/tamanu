@@ -3,6 +3,7 @@ import { Box, Logo } from './Layout';
 import { H1, H2 } from './Typography';
 
 export const CovidLetterheadSection = ({ getSetting, logoSrc }) => {
+  // TODO: maybe make this the same as LetterheadSection for consistency
   const { title, subTitle } = getSetting('templates.letterhead');
   return (
     <>
