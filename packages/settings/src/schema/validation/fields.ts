@@ -1,22 +1,29 @@
 import * as yup from 'yup';
 
+const hideable = {
+  hidden: {
+    description: 'Field should be hidden',
+    schema: yup.boolean(),
+    default: false,
+  },
+};
+
 export const baseFieldSchema = {
   defaultValue: {
     description: 'Default value for field',
     schema: yup.mixed(),
     default: '',
   },
-};
-
-const hiddenSchema = {
-  description: 'Field should be hidden',
-  schema: yup.boolean(),
-  default: false,
+  required: {
+    description: 'Field is required',
+    schema: yup.boolean(),
+    default: false,
+  },
 };
 
 export const hideableFieldSchema = {
   ...baseFieldSchema,
-  hidden: hiddenSchema,
+  ...hideable,
 };
 
 export const patientDetailsFieldSchema = {
@@ -30,7 +37,7 @@ export const patientDetailsFieldSchema = {
 
 export const hideablePatientFieldSchema = {
   ...patientDetailsFieldSchema,
-  hidden: hiddenSchema,
+  ...hideable,
 };
 
 export const displayIdFieldSchema = {
