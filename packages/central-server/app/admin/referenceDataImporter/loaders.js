@@ -1,6 +1,6 @@
 import { endOfDay, startOfDay } from 'date-fns';
 import { getJsDateFromExcel } from 'excel-date-to-js';
-import { ENCOUNTER_TYPES } from '@tamanu/constants';
+import { ENCOUNTER_TYPES, REFERENCE_TYPES } from '@tamanu/constants';
 
 function stripNotes(fields) {
   const values = { ...fields };
@@ -225,6 +225,7 @@ export const taskSetLoader = item => {
       values: {
         referenceDataId: taskId,
         referenceDataParentId: id,
+        type: REFERENCE_TYPES.TASK,
       },
     }));
 
