@@ -99,19 +99,19 @@ export class Task extends Model {
     });
     this.belongsTo(models.User, {
       foreignKey: 'completedByUserId',
-      as: 'requestedBy',
+      as: 'completedBy',
     });
     this.belongsTo(models.User, {
       foreignKey: 'notCompletedByUserId',
-      as: 'requestedBy',
+      as: 'notCompletedBy',
     });
     this.belongsTo(models.User, {
       foreignKey: 'todoByUserId',
-      as: 'requestedBy',
+      as: 'todoBy',
     });
     this.belongsTo(models.User, {
       foreignKey: 'deletedByUserId',
-      as: 'requestedBy',
+      as: 'deletedBy',
     });
     this.belongsTo(models.ReferenceData, {
       foreignKey: 'deletedReasonId',
