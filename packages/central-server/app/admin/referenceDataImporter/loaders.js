@@ -227,7 +227,9 @@ export async function userLoader(item, { models, pushError }) {
     },
   });
 
-  await models.UserDesignation.destroy({ where: { userId: id } });
+  if (id) {
+    await models.UserDesignation.destroy({ where: { userId: id } });
+  }
 
   const designationIds = (designations || '')
     .split(',')
@@ -272,9 +274,12 @@ export async function taskLoader(item, { models, pushError }) {
     }
   }
 
-  const existingTaskTemplate = await models.TaskTemplate.findOne({
-    where: { referenceDataId: id },
-  });
+  let existingTaskTemplate;
+  if (id) {
+    existingTaskTemplate = await models.TaskTemplate.findOne({
+      where: { referenceDataId: id },
+    });
+  }
 
   const newTaskTemplate = {
     id: existingTaskTemplate?.id || uuidv4(),
