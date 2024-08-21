@@ -1,6 +1,6 @@
 import { endOfDay, startOfDay } from 'date-fns';
 import { getJsDateFromExcel } from 'excel-date-to-js';
-import { ENCOUNTER_TYPES, VISIBILITY_STATUSES, REFERENCE_TYPES } from '@tamanu/constants';
+import { ENCOUNTER_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { v4 as uuidv4 } from 'uuid';
 import ms from 'ms';
 
