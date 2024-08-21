@@ -1,6 +1,7 @@
 import { endOfDay, startOfDay } from 'date-fns';
 import { getJsDateFromExcel } from 'excel-date-to-js';
 import { ENCOUNTER_TYPES, REFERENCE_TYPES } from '@tamanu/constants';
+import { Op } from 'sequelize';
 
 function stripNotes(fields) {
   const values = { ...fields };
@@ -213,21 +214,31 @@ export function labTestPanelLoader(item) {
   return rows;
 }
 
-export const taskSetLoader = item => {
+export const taskSetLoader = async (item, models) => {
   const { id, tasks } = item;
-
-  const rows = (tasks || '')
+  const taskIds = tasks
     .split(',')
-    .map(taskId => taskId.trim())
-    .filter(Boolean)
-    .map(taskId => ({
-      model: 'ReferenceDataRelation',
-      values: {
-        referenceDataId: taskId,
-        referenceDataParentId: id,
-        type: REFERENCE_TYPES.TASK,
-      },
-    }));
+    .map(task => task.trim())
+    .filter(Boolean);
+
+  // Remove any tasks that are not in taskset
+  await models.ReferenceDataRelation.destroy({
+    where: {
+      referenceDataParentId: id,
+      type: REFERENCE_TYPES.TASK,
+      referenceDataId: { [Op.notIn]: tasks },
+    },
+  });
+
+  // upsert tasks that are in taskset
+  const rows = taskIds.map(taskId => ({
+    model: 'ReferenceDataRelation',
+    values: {
+      referenceDataId: taskId,
+      referenceDataParentId: id,
+      type: REFERENCE_TYPES.TASK,
+    },
+  }));
 
   return rows;
 };
