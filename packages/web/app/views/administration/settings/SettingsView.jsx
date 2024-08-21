@@ -4,7 +4,7 @@ import { Settings } from '@material-ui/icons';
 import { useQuery } from '@tanstack/react-query';
 
 import { SETTINGS_SCOPES } from '@tamanu/constants';
-import { validateSettings } from '@tamanu/settings/schema';
+import { validateSettings } from '@tamanu/settings/schema/validation';
 
 import { LargeButton, TextButton, ContentPane, ButtonRow, TopBar } from '../../../components';
 import { AdminViewContainer } from '../components/AdminViewContainer';

@@ -1,10 +1,10 @@
 import { SETTINGS_SCOPES } from '@tamanu/constants';
-import { globalSettings } from './global';
-import { centralSettings } from './central';
-import { facilitySettings } from './facility';
+import { globalSettings } from '../global';
+import { centralSettings } from '../central';
+import { facilitySettings } from '../facility';
 import * as yup from 'yup';
 import _ from 'lodash';
-import { SettingsSchema } from './types';
+import { SettingsSchema } from '../types';
 
 interface ErrorMessage {
   field: string;
