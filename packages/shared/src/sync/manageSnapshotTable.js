@@ -30,7 +30,7 @@ export const createSnapshotTable = async (sequelize, sessionId) => {
   const tableName = getSnapshotTableName(sessionId);
   await sequelize.query(`
     CREATE TABLE ${tableName} (
-      id uuid DEFAULT uuid_generate_v4() PRIMARY KEY,
+      id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
       direction character varying(255) NOT NULL,
       record_type character varying(255) NOT NULL,
       record_id character varying(255) NOT NULL,
