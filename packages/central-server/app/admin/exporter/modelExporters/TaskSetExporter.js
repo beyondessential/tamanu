@@ -5,7 +5,6 @@ import { Op } from 'sequelize';
 export class TaskSetExporter extends DefaultDataExporter {
   async getData() {
     const taskSets = await this.models.ReferenceData.findAll({
-      attributes: ['id', 'code', 'name', 'visibilityStatus'],
       where: {
         type: REFERENCE_TYPES.TASK_SET,
       },
@@ -25,9 +24,5 @@ export class TaskSetExporter extends DefaultDataExporter {
         .map(({ referenceDataId }) => referenceDataId)
         .join(','),
     }));
-  }
-
-  getHeadersFromData(data) {
-    return Object.keys(data[0]);
   }
 }
