@@ -70,6 +70,10 @@ export class ProgramRegistry extends BaseModel implements IProgramRegistry {
     return filteredProgramRegistries.getMany();
   }
 
+  static async getAllProgramRegistries() {
+    return this.getRepository().find();
+  }
+
   static getTableNameForSync(): string {
     return 'program_registries';
   }
