@@ -92,14 +92,6 @@ const HIDEABLE_FIELDS = [
 
 const fieldSchema = yup
   .object({
-    shortLabel: yup.string().when('hidden', {
-      is: false,
-      then: yup.string().required(),
-    }),
-    longLabel: yup.string().when('hidden', {
-      is: false,
-      then: yup.string().required(),
-    }),
     hidden: yup.boolean().required(),
     required: yup.boolean(),
     defaultValue: yup.mixed(),
@@ -112,8 +104,6 @@ const fieldSchema = yup
 
 const unhideableFieldSchema = yup
   .object({
-    shortLabel: yup.string().required(),
-    longLabel: yup.string().required(),
     required: yup.boolean(),
     defaultValue: yup.mixed(),
     requiredPatientData: yup.boolean(),
