@@ -230,31 +230,34 @@ export const globalSettings = {
     mandateSpecimenType: {
       name: 'Mandate specimen type',
       description: '_',
-      schema: yup.boolean().required(),
-      default: false,
+      schema: yup.boolean(),
+      defaultValue: false,
     },
   },
   customisations: {
     componentVersions: {
       name: 'Component versions',
       description: '_',
-      schema: yup.object().required(),
-      default: {},
+      schema: yup.object(),
+      defaultValue: {},
     },
   },
   fhir: {
     worker: {
-      heartbeat: {
-        name: 'Heartbeat interval',
-        description: '_',
-        schema: yup.string().required(),
-        default: '1 minute',
-      },
-      assumeDroppedAfter: {
-        name: 'Assume dropped after',
-        description: '_',
-        schema: yup.string().required(),
-        default: '10 minutes',
+      description: 'FHIR worker settings',
+      values: {
+        heartbeat: {
+          name: 'Heartbeat interval',
+          description: '_',
+          schema: yup.string(),
+          defaultValue: '1 minute',
+        },
+        assumeDroppedAfter: {
+          name: 'Assume dropped after',
+          description: '_',
+          schema: yup.string(),
+          defaultValue: '10 minutes',
+        },
       },
     },
   },
@@ -270,11 +273,14 @@ export const globalSettings = {
   },
   integrations: {
     imaging: {
-      enabled: {
-        name: 'Imaging integration enabled',
-        description: '_',
-        schema: yup.boolean().required(),
-        default: false,
+      description: 'Imaging integration settings',
+      values: {
+        enabled: {
+          name: 'Imaging integration enabled',
+          description: '_',
+          schema: yup.boolean(),
+          defaultValue: false,
+        },
       },
     },
   },
@@ -301,22 +307,19 @@ export const globalSettings = {
     ageLimit: {
       name: 'Upcoming vaccination age limit',
       description: '_',
-      schema: yup.number().required(),
-      default: 15,
+      schema: yup.number(),
+      defaultValue: 15,
     },
     thresholds: {
       name: 'Upcoming vaccination thresholds',
       description: '_',
-      schema: yup
-        .array()
-        .of(
-          yup.object({
-            threshold: yup.number().required(),
-            status: yup.string().required(),
-          }),
-        )
-        .required(),
-      default: [
+      schema: yup.array().of(
+        yup.object({
+          threshold: yup.number(),
+          status: yup.string(),
+        }),
+      ),
+      defaultValue: [
         {
           threshold: 28,
           status: VACCINE_STATUS.SCHEDULED,

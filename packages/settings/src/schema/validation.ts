@@ -17,14 +17,14 @@ const SCOPE_TO_SCHEMA = {
   [SETTINGS_SCOPES.FACILITY]: facilitySettings,
 };
 
-const flattenObject = (obj: any, parentKey: string = ''): any => {
+const flattenObject = (obj: unknown, parentKey: string = ''): unknown => {
   return Object.entries(obj).reduce((acc, [key, value]) => {
     const fullKey = parentKey ? `${parentKey}.${key}` : key;
 
     if (Array.isArray(value)) {
       // Prevent flattening of arrays
       acc[fullKey] = value;
-    } else if (_.isObject(value) && !(value as { schema?: any }).schema) {
+    } else if (_.isObject(value) && !(value as { schema?: unknown }).schema) {
       // Check if the object is empty
       if (Object.keys(value).length === 0) {
         acc[fullKey] = value;
@@ -50,7 +50,7 @@ export const validateSettings = async ({
   scope,
   schema,
 }: {
-  settings: Record<string, any>;
+  settings: Record<string, unknown>;
   scope?: string;
   schema?: SettingsSchema;
 }) => {
