@@ -21,7 +21,10 @@ const ageRangeLimitSchema = yup.object({
 const ageDisplayFormatSchema = yup
   .array(
     yup.object({
-      as: yup.string().required(),
+      as: yup
+        .string()
+        .oneOf(['days', 'weeks', 'months', 'years'])
+        .required(),
       range: yup
         .object({
           min: ageRangeLimitSchema,
