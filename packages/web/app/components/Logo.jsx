@@ -4,18 +4,9 @@ import { BRAND_IDS } from '@tamanu/constants';
 import tamanuLogoWhite from '../assets/images/tamanu_logo_white.svg';
 import tamanuLogoWhiteNoText from '../assets/images/tamanu_logo_white_no_text.svg';
 import tamanuLogoDark from '../assets/images/tamanu_logo_blue.svg';
-import cambodiaLogoWhite from '../assets/cambodia/cambodia-logo-light.png';
-import cambodiaLogoWhiteNoText from '../assets/cambodia/cambodia-logo-light-no-text.png';
-import cambodiaLogoDark from '../assets/cambodia/cambodia-logo-dark.png';
 import { getBrandId } from '../utils';
 
-const TamanuLogoImage = styled.img`
-  display: inline-block;
-  width: ${p => p.size || 'auto'};
-  height: ${p => p.height || 'auto'};
-`;
-
-const CambodiaLogoImage = styled.img`
+const LogoImage = styled.img`
   display: inline-block;
   width: ${p => p.size || 'auto'};
   height: ${p => p.height || 'auto'};
@@ -27,19 +18,15 @@ const logos = {
     dark: tamanuLogoDark,
     lightNoText: tamanuLogoWhiteNoText,
   },
-  [BRAND_IDS.CAMBODIA]: {
-    light: cambodiaLogoWhite,
-    dark: cambodiaLogoDark,
-    lightNoText: cambodiaLogoWhiteNoText,
-  },
 };
 
 const Logo = ({ size, height, className, onClick, type = 'dark' }) => {
   const brandId = getBrandId();
-  const Component = brandId === BRAND_IDS.TAMANU ? TamanuLogoImage : CambodiaLogoImage;
-  const src = logos[brandId][type];
+  
+  const src = logos[brandId]?.[type] ?? logos[BRAND_IDS.TAMANU][type];
+  
   return (
-    <Component
+    <LogoImage
       src={src}
       size={size}
       height={height}
