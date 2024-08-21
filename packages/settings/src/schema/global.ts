@@ -2,8 +2,9 @@ import { VACCINE_STATUS } from '@tamanu/constants';
 import * as yup from 'yup';
 import { extractDefaults } from './utils';
 import {
+  displayIdFieldSchema,
+  hideableFieldSchema,
   hideablePatientFieldSchema,
-  localisedFieldSchema,
   patientDetailsFieldSchema,
 } from './validation/fields';
 
@@ -135,278 +136,66 @@ export const globalSettings = {
   fields: {
     countryName: hideablePatientFieldSchema,
     emergencyContactName: patientDetailsFieldSchema,
-    displayId: {
-      ...patientDetailsFieldSchema,
-      pattern: {
-        description: 'Regex pattern for display ID',
-        schema: yup.string(),
-        default: '[\\s\\S]*',
-        },
-      },
-    },
-    // name: 'Fields',
-    // description: 'Customise fields',
-    // schema: localisedFieldSchema,
-    // default: {
-    //   countryName: {
-    //     hidden: false,
-    //   },
-    //   emergencyContactName: {
-    //     requiredPatientData: false,
-    //   },
-    //   emergencyContactNumber: {
-    //     requiredPatientData: false,
-    //   },
-    //   displayId: {
-    //     pattern: '[\\s\\S]*',
-    //   },
-    //   markedForSync: {},
-    //   firstName: {
-    //     requiredPatientData: false,
-    //   },
-    //   middleName: {
-    //     hidden: false,
-    //     requiredPatientData: false,
-    //   },
-    //   lastName: {
-    //     requiredPatientData: false,
-    //   },
-    //   culturalName: {
-    //     hidden: false,
-    //     requiredPatientData: false,
-    //   },
-    //   sex: {
-    //     hidden: false,
-    //     requiredPatientData: false,
-    //   },
-    //   email: {
-    //     hidden: false,
-    //     requiredPatientData: false,
-    //   },
-    //   dateOfBirth: {
-    //     requiredPatientData: false,
-    //   },
-    //   dateOfBirthFrom: {},
-    //   dateOfBirthTo: {},
-    //   dateOfBirthExact: {},
-    //   dateOfDeath: {},
-    //   bloodType: {
-    //     hidden: false,
-    //     requiredPatientData: false,
-    //   },
-    //   title: {
-    //     hidden: false,
-    //     requiredPatientData: false,
-    //   },
-    //   placeOfBirth: {
-    //     hidden: false,
-    //     requiredPatientData: false,
-    //   },
-    //   countryOfBirthId: {
-    //     hidden: false,
-    //     requiredPatientData: false,
-    //   },
-    //   maritalStatus: {
-    //     hidden: false,
-    //     requiredPatientData: false,
-    //   },
-    //   primaryContactNumber: {
-    //     hidden: false,
-    //     requiredPatientData: false,
-    //   },
-    //   secondaryContactNumber: {
-    //     hidden: false,
-    //     requiredPatientData: false,
-    //   },
-    //   socialMedia: {
-    //     hidden: false,
-    //     requiredPatientData: false,
-    //   },
-    //   settlementId: {
-    //     hidden: false,
-    //     requiredPatientData: false,
-    //   },
-    //   streetVillage: {
-    //     hidden: false,
-    //     requiredPatientData: false,
-    //   },
-    //   cityTown: {
-    //     hidden: false,
-    //     requiredPatientData: false,
-    //   },
-    //   subdivisionId: {
-    //     hidden: false,
-    //     requiredPatientData: false,
-    //   },
-    //   divisionId: {
-    //     hidden: false,
-    //     requiredPatientData: false,
-    //   },
-    //   countryId: {
-    //     hidden: false,
-    //     requiredPatientData: false,
-    //   },
-    //   medicalAreaId: {
-    //     hidden: false,
-    //     requiredPatientData: false,
-    //   },
-    //   nursingZoneId: {
-    //     hidden: false,
-    //     requiredPatientData: false,
-    //   },
-    //   nationalityId: {
-    //     hidden: false,
-    //     requiredPatientData: false,
-    //   },
-    //   ethnicityId: {
-    //     hidden: false,
-    //     requiredPatientData: false,
-    //   },
-    //   occupationId: {
-    //     hidden: false,
-    //     requiredPatientData: false,
-    //   },
-    //   educationalLevel: {
-    //     hidden: false,
-    //     requiredPatientData: false,
-    //   },
-    //   villageName: {
-    //     hidden: false,
-    //   },
-    //   villageId: {
-    //     hidden: false,
-    //     requiredPatientData: false,
-    //   },
-    //   birthCertificate: {
-    //     hidden: false,
-    //     requiredPatientData: false,
-    //   },
-    //   insurerId: {
-    //     hidden: false,
-    //     requiredPatientData: false,
-    //   },
-    //   insurerPolicyNumber: {
-    //     hidden: false,
-    //     requiredPatientData: false,
-    //   },
-    //   drivingLicense: {
-    //     hidden: false,
-    //     requiredPatientData: false,
-    //   },
-    //   passport: {
-    //     hidden: false,
-    //     requiredPatientData: false,
-    //   },
-    //   religionId: {
-    //     hidden: false,
-    //     requiredPatientData: false,
-    //   },
-    //   patientBillingTypeId: {
-    //     hidden: false,
-    //     requiredPatientData: false,
-    //   },
-    //   ageRange: {},
-    //   age: {},
-    //   motherId: {
-    //     hidden: false,
-    //     requiredPatientData: false,
-    //   },
-    //   fatherId: {
-    //     hidden: false,
-    //     requiredPatientData: false,
-    //   },
-    //   birthWeight: {
-    //     hidden: false,
-    //     requiredPatientData: false,
-    //   },
-    //   birthLength: {
-    //     hidden: false,
-    //     requiredPatientData: false,
-    //   },
-    //   birthDeliveryType: {
-    //     hidden: false,
-    //     requiredPatientData: false,
-    //   },
-    //   gestationalAgeEstimate: {
-    //     hidden: false,
-    //     requiredPatientData: false,
-    //   },
-    //   apgarScoreOneMinute: {
-    //     hidden: false,
-    //     requiredPatientData: false,
-    //   },
-    //   apgarScoreFiveMinutes: {
-    //     hidden: false,
-    //     requiredPatientData: false,
-    //   },
-    //   apgarScoreTenMinutes: {
-    //     hidden: false,
-    //     requiredPatientData: false,
-    //   },
-    //   timeOfBirth: {
-    //     hidden: false,
-    //     requiredPatientData: false,
-    //   },
-    //   attendantAtBirth: {
-    //     hidden: false,
-    //     requiredPatientData: false,
-    //   },
-    //   nameOfAttendantAtBirth: {
-    //     hidden: false,
-    //     requiredPatientData: false,
-    //   },
-    //   birthType: {
-    //     hidden: false,
-    //     requiredPatientData: false,
-    //   },
-    //   birthFacilityId: {
-    //     hidden: false,
-    //     requiredPatientData: false,
-    //   },
-    //   healthCenterId: {
-    //     hidden: false,
-    //     requiredPatientData: false,
-    //   },
-    //   registeredBirthPlace: {
-    //     hidden: false,
-    //     requiredPatientData: false,
-    //   },
-    //   referralSourceId: {
-    //     hidden: false,
-    //   },
-    //   arrivalModeId: {
-    //     hidden: false,
-    //   },
-    //   prescriber: {
-    //     hidden: false,
-    //   },
-    //   prescriberId: {
-    //     hidden: false,
-    //   },
-    //   facility: {
-    //     hidden: false,
-    //   },
-    //   locationId: {},
-    //   locationGroupId: {},
-    //   dischargeDisposition: {
-    //     hidden: true,
-    //   },
-    //   clinician: {},
-    //   diagnosis: {},
-    //   userDisplayId: {},
-    //   notGivenReasonId: {
-    //     hidden: false,
-    //   },
-    //   circumstanceIds: {},
-    //   date: {},
-    //   registeredBy: {},
-    //   status: {},
-    //   conditions: {},
-    //   programRegistry: {},
-    //   reminderContactName: {},
-    //   reminderContactRelationship: {},
-    //   weightUnit: {},
-    // },
+    displayId: displayIdFieldSchema,
+    firstName: patientDetailsFieldSchema,
+    middleName: hideablePatientFieldSchema,
+    lastName: patientDetailsFieldSchema,
+    culturalName: hideablePatientFieldSchema,
+    sex: hideablePatientFieldSchema,
+    email: hideablePatientFieldSchema,
+    dateOfBirth: patientDetailsFieldSchema,
+    bloodType: hideablePatientFieldSchema,
+    title: hideablePatientFieldSchema,
+    placeOfBirth: hideablePatientFieldSchema,
+    countryOfBirthId: hideablePatientFieldSchema,
+    maritalStatus: hideablePatientFieldSchema,
+    primaryContactNumber: hideablePatientFieldSchema,
+    secondaryContactNumber: hideablePatientFieldSchema,
+    socialMedia: hideablePatientFieldSchema,
+    settlementId: hideablePatientFieldSchema,
+    streetVillage: hideablePatientFieldSchema,
+    cityTown: hideablePatientFieldSchema,
+    subdivisionId: hideablePatientFieldSchema,
+    divisionId: hideablePatientFieldSchema,
+    countryId: hideablePatientFieldSchema,
+    medicalAreaId: hideablePatientFieldSchema,
+    nursingZoneId: hideablePatientFieldSchema,
+    nationalityId: hideablePatientFieldSchema,
+    ethnicityId: hideablePatientFieldSchema,
+    occupationId: hideablePatientFieldSchema,
+    educationalLevel: hideablePatientFieldSchema,
+    villageName: hideableFieldSchema,
+    villageId: hideablePatientFieldSchema,
+    birthCertificate: hideablePatientFieldSchema,
+    insurerId: hideablePatientFieldSchema,
+    insurerPolicyNumber: hideablePatientFieldSchema,
+    drivingLicense: hideablePatientFieldSchema,
+    passport: hideablePatientFieldSchema,
+    religionId: hideablePatientFieldSchema,
+    patientBillingTypeId: hideablePatientFieldSchema,
+    motherId: hideablePatientFieldSchema,
+    fatherId: hideablePatientFieldSchema,
+    birthWeight: hideablePatientFieldSchema,
+    birthLength: hideablePatientFieldSchema,
+    birthDeliveryType: hideablePatientFieldSchema,
+    gestationalAgeEstimate: hideablePatientFieldSchema,
+    apgarScoreOneMinute: hideablePatientFieldSchema,
+    apgarScoreFiveMinutes: hideablePatientFieldSchema,
+    apgarScoreTenMinutes: hideablePatientFieldSchema,
+    timeOfBirth: hideablePatientFieldSchema,
+    attendantAtBirth: hideablePatientFieldSchema,
+    nameOfAttendantAtBirth: hideablePatientFieldSchema,
+    birthType: hideablePatientFieldSchema,
+    birthFacilityId: hideablePatientFieldSchema,
+    healthCenterId: hideablePatientFieldSchema,
+    registeredBirthPlace: hideablePatientFieldSchema,
+    referralSourceId: hideableFieldSchema,
+    arrivalModeId: hideableFieldSchema,
+    prescriber: hideableFieldSchema,
+    prescriberId: hideableFieldSchema,
+    facility: hideableFieldSchema,
+    dischargeDisposition: hideableFieldSchema,
+    notGivenReasonId: hideableFieldSchema,
   },
   imagingPriorities: {
     name: 'Imaging priorities',
