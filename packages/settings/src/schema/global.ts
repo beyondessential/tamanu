@@ -224,7 +224,7 @@ const vitalEditReasonsDefault = [
 export const globalSettings = {
   ageDisplayFormat: {
     schema: ageDisplayFormatSchema,
-    default: ageDisplayFormatDefault,
+    defaultValue: ageDisplayFormatDefault,
   },
   features: {
     mandateSpecimenType: {
@@ -264,12 +264,12 @@ export const globalSettings = {
   imagingCancellationReasons: {
     description: 'Customise the options available for imaging request cancellation reason',
     schema: imagingCancellationReasonsSchema,
-    default: imagingCancellationReasonsDefault,
+    defaultValue: imagingCancellationReasonsDefault,
   },
   labsCancellationReasons: {
     description: 'Customise the options available for lab request cancellation reason',
     schema: labsCancellationReasonsSchema,
-    default: labsCancellationReasonsDefault,
+    defaultValue: labsCancellationReasonsDefault,
   },
   integrations: {
     imaging: {
@@ -290,16 +290,16 @@ export const globalSettings = {
         .number()
         .integer()
         .positive(),
-      default: 7200, // 2 hours
+      defaultValue: 7200, // 2 hours
     },
     runInChildProcess: {
       description: 'Should spawn a child process to run the report generation in',
       schema: yup.boolean(),
-      default: true,
+      defaultValue: true,
     },
     /** Provide an array if you want to override the options. e.g. ['--max-old-space-size=4096'] */
     processOptions: {
-      default: null,
+      defaultValue: null,
     },
     sleepAfterReport: {},
   },
@@ -351,7 +351,7 @@ export const globalSettings = {
         label: yup.string().required(),
       }),
     ),
-    default: vitalEditReasonsDefault,
+    defaultValue: vitalEditReasonsDefault,
   },
 };
 
