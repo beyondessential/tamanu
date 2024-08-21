@@ -1,4 +1,4 @@
-import { ConfigFile } from './types';
+ import { ConfigFile } from './types';
 import * as yup from 'yup';
 
 const SCHEMA = yup.object({

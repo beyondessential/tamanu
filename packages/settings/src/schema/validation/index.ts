@@ -1,2 +1,2 @@
 export * from './validateSettings';
-export * from './localisation';
+export * from './fields';
