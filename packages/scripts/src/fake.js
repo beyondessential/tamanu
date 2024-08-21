@@ -305,6 +305,12 @@ async function generateData(models) {
   const task = await Task.create(
     fake(Task, {
       encounterId: encounter.id,
+      requestedByUserId: examiner.id,
+      completedByUserId: examiner.id,
+      notCompletedByUserId: examiner.id,
+      todoByUserId: examiner.id,
+      deletedByUserId: examiner.id,
+      deletedReasonId: referenceData.id,
     }),
   );
   await TaskDesignation.create(
