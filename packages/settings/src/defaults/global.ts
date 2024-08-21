@@ -79,7 +79,7 @@ const ageDisplayFormatDefault = [
   },
 ];
 
-const imageCancellationReasonsSchema = yup
+const imagingCancellationReasonsSchema = yup
   .array(
     yup.object({
       value: yup
@@ -108,6 +108,44 @@ const imageCancellationReasonsSchema = yup
       return true;
     },
   });
+
+const imagingCancellationReasonsDefault = [
+  {
+    value: 'clinical',
+    label: 'Clinical reason',
+    hidden: false,
+  },
+  {
+    value: 'duplicate',
+    label: 'Duplicate',
+    hidden: false,
+  },
+  {
+    value: 'entered-in-error',
+    label: 'Entered in error',
+    hidden: false,
+  },
+  {
+    value: 'patient-discharged',
+    label: 'Patient discharged',
+    hidden: false,
+  },
+  {
+    value: 'patient-refused',
+    label: 'Patient refused',
+    hidden: false,
+  },
+  {
+    value: 'cancelled-externally',
+    label: 'Cancelled externally via API',
+    hidden: true,
+  },
+  {
+    value: 'other',
+    label: 'Other',
+    hidden: false,
+  },
+];
 
 const labsCancellationReasonsSchema = yup
   .array(
@@ -164,6 +202,25 @@ const labsCancellationReasonsDefault = [
   },
 ];
 
+const vitalEditReasonsDefault = [
+  {
+    value: 'incorrect-patient',
+    label: 'Incorrect patient',
+  },
+  {
+    value: 'incorrect-value',
+    label: 'Incorrect value recorded',
+  },
+  {
+    value: 'recorded-in-error',
+    label: 'Recorded in error',
+  },
+  {
+    value: 'other',
+    label: 'Other',
+  },
+];
+
 export const globalSettings = {
   ageDisplayFormat: {
     schema: ageDisplayFormatSchema,
@@ -203,8 +260,8 @@ export const globalSettings = {
   },
   imagingCancellationReasons: {
     description: 'Customise the options available for imaging request cancellation reason',
-    schema: imageCancellationReasonsSchema,
-    default: [],
+    schema: imagingCancellationReasonsSchema,
+    default: imagingCancellationReasonsDefault,
   },
   labsCancellationReasons: {
     description: 'Customise the options available for lab request cancellation reason',
@@ -291,7 +348,7 @@ export const globalSettings = {
         label: yup.string().required(),
       }),
     ),
-    default: [],
+    default: vitalEditReasonsDefault,
   },
 };
 

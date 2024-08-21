@@ -886,43 +886,6 @@
           "label": "STAT"
         }
       ],
-      "imagingCancellationReasons": [
-        {
-          "value": "clinical",
-          "label": "Clinical reason",
-          "hidden": false
-        },
-        {
-          "value": "duplicate",
-          "label": "Duplicate",
-          "hidden": false
-        },
-        {
-          "value": "entered-in-error",
-          "label": "Entered in error",
-          "hidden": false
-        },
-        {
-          "value": "patient-discharged",
-          "label": "Patient discharged",
-          "hidden": false
-        },
-        {
-          "value": "patient-refused",
-          "label": "Patient refused",
-          "hidden": false
-        },
-        {
-          "value": "cancelled-externally",
-          "label": "Cancelled externally via API",
-          "hidden": true
-        },
-        {
-          "value": "other",
-          "label": "Other",
-          "hidden": false
-        }
-      ],
       "layouts": {
         "patientDetails": "generic",
         "mobilePatientModules": {
@@ -1139,24 +1102,6 @@
       // `tamanu` implies that the signing integrations are not enabled.
       "previewUvciFormat": "tamanu",
       "disabledReports": [],
-      "vitalEditReasons": [
-        {
-          "value": "incorrect-patient",
-          "label": "Incorrect patient"
-        },
-        {
-          "value": "incorrect-value",
-          "label": "Incorrect value recorded"
-        },
-        {
-          "value": "recorded-in-error",
-          "label": "Recorded in error"
-        },
-        {
-          "value": "other",
-          "label": "Other"
-        }
-      ],
       "supportDeskUrl": "https://bes-support.zendesk.com/hc/en-us"
     }
   },
