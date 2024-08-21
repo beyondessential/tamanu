@@ -6,6 +6,7 @@ import {
   PATIENT_FIELD_DEFINITION_TYPES,
 } from '@tamanu/constants';
 import { v4 as uuidv4 } from 'uuid';
+import { ValidationError } from '../errors';
 
 function stripNotes(fields) {
   const values = { ...fields };
@@ -110,7 +111,7 @@ export function translatedStringLoader({ stringId, ...languages }) {
     }));
 }
 
-export async function patientDataLoader(item, { models, foreignKeySchemata }) {
+export async function patientDataLoader(item, { models, foreignKeySchemata, pushError }) {
   const { dateOfBirth, id: patientId, patientAdditionalData, ...otherFields } = item;
 
   const rows = [];
@@ -155,23 +156,22 @@ export async function patientDataLoader(item, { models, foreignKeySchemata }) {
       where: { id: definitionId },
     });
     if (!existingDefinition) {
-      pushError(`No such patient field definition: ${definitionId}`);
-      continue;
+      throw new ValidationError(`No such patient field definition: ${definitionId}`);
     }
     if (existingDefinition.fieldType === PATIENT_FIELD_DEFINITION_TYPES.NUMBER && isNaN(value)) {
-      pushError(`Field Type mismatch: expected field type is a number value for "${definitionId}"`);
-      continue;
+      throw new ValidationError(
+        `Field Type mismatch: expected field type is a number value for "${definitionId}"`,
+      );
     }
     if (
       existingDefinition.fieldType === PATIENT_FIELD_DEFINITION_TYPES.SELECT &&
       !existingDefinition.options.includes(value)
     ) {
-      pushError(
+      throw new ValidationError(
         `Field Type mismatch: expected value to be one of "${existingDefinition.options.join(
           ', ',
         )}" for ${definitionId}`,
       );
-      continue;
     }
 
     rows.push({
@@ -256,7 +256,9 @@ export async function userLoader(item, { models, pushError }) {
     },
   });
 
-  await models.UserDesignation.destroy({ where: { userId: id } });
+  if (id) {
+    await models.UserDesignation.destroy({ where: { userId: id } });
+  }
 
   const designationIds = (designations || '')
     .split(',')
