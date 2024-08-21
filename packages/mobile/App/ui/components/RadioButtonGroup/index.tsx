@@ -1,8 +1,6 @@
-import React, { FC } from 'react';
-import styled from 'styled-components/native';
+import React, { FC, useEffect } from 'react';
 import { RowView, StyledText } from '/styled/common';
 import { theme } from '/styled/theme';
-import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { RadioButton, RadioOption } from '../RadioButton';
 import { TextFieldErrorMessage } from '/components/TextField/TextFieldErrorMessage';
 import { RequiredIndicator } from '../RequiredIndicator';
@@ -16,15 +14,10 @@ export interface RadioButtonGroupProps {
   label?: string;
   required?: boolean;
   CustomComponent?: FC<any>;
+  labelFontSize?: string | number;
+  optionComponentWidth?: string | number;
+  initialValue?: string;
 }
-
-const Label = styled(StyledText)`
-  color: ${theme.colors.TEXT_SUPER_DARK};
-  font-size: ${screenPercentageToDP(2.1, Orientation.Height)};
-  font-weight: 500;
-  padding-left: ${screenPercentageToDP(1, Orientation.Width)};
-  margin-bottom: ${screenPercentageToDP(0.5, Orientation.Width)};
-`;
 
 export const RadioButtonGroup = ({
   options,
@@ -34,16 +27,30 @@ export const RadioButtonGroup = ({
   label,
   required = false,
   CustomComponent,
+  labelFontSize,
+  optionComponentWidth: componentWidth,
+  initialValue,
 }: RadioButtonGroupProps): JSX.Element => {
   const RadioComponent = CustomComponent || RadioButton;
 
+  useEffect(() => {
+    if (initialValue && !value) {
+      onChange(initialValue);
+    }
+  }, []);
+
   return (
     <>
-      {Boolean(label) && (
-        <Label fontSize={14} fontWeight={500}>
+      {!!label && (
+        <StyledText
+          fontSize={labelFontSize}
+          fontWeight={600}
+          marginBottom={2}
+          color={theme.colors.TEXT_SUPER_DARK}
+        >
           {label}
           {required && <RequiredIndicator />}
-        </Label>
+        </StyledText>
       )}
       <RowView marginBottom={10}>
         {options.map((option, index) => (
@@ -55,6 +62,7 @@ export const RadioButtonGroup = ({
             selected={option.value === value}
             error={error}
             onPress={onChange}
+            width={componentWidth}
           />
         ))}
       </RowView>
