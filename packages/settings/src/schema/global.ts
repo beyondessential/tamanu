@@ -11,85 +11,111 @@ import {
 
 export const globalSettings = {
   features: {
-    mandateSpecimenType: {
-      name: 'Mandate specimen type',
-      description: '_',
-      schema: yup.boolean(),
-      default: false,
+    name: 'Features',
+    description: 'Feature flags',
+    values: {
+      mandateSpecimenType: {
+        name: 'Mandate specimen type',
+        description: '_',
+        schema: yup.boolean(),
+        defaultValue: false,
+      },
     },
   },
   customisations: {
-    componentVersions: {
-      name: 'Component versions',
-      description: '_',
-      schema: yup.object(),
-      default: {},
+    name: 'Customisations',
+    description: 'Customisation of the application',
+    values: {
+      componentVersions: {
+        name: 'Component versions',
+        description: '_',
+        schema: yup.object(),
+        defaultValue: {},
+      },
     },
   },
   fhir: {
-    worker: {
-      heartbeat: {
-        name: 'Heartbeat interval',
-        description: '_',
-        schema: yup.string(),
-        default: '1 minute',
-      },
-      assumeDroppedAfter: {
-        name: 'Assume dropped after',
-        description: '_',
-        schema: yup.string(),
-        default: '10 minutes',
+    name: 'FHIR',
+    description: 'FHIR integration settings',
+    values: {
+      worker: {
+        description: 'FHIR worker settings',
+        values: {
+          heartbeat: {
+            name: 'Heartbeat interval',
+            description: '_',
+            schema: yup.string(),
+            defaultValue: '1 minute',
+          },
+          assumeDroppedAfter: {
+            name: 'Assume dropped after',
+            description: '_',
+            schema: yup.string(),
+            defaultValue: '10 minutes',
+          },
+        },
       },
     },
   },
   integrations: {
-    imaging: {
-      enabled: {
-        name: 'Imaging integration enabled',
-        description: '_',
-        schema: yup.boolean(),
-        default: false,
+    name: 'Integrations',
+    description: 'Integration settings',
+    values: {
+      imaging: {
+        description: 'Imaging integration settings',
+        values: {
+          enabled: {
+            name: 'Imaging integration enabled',
+            description: '_',
+            schema: yup.boolean(),
+            defaultValue: false,
+          },
+        },
       },
     },
   },
   upcomingVaccinations: {
-    ageLimit: {
-      name: 'Upcoming vaccination age limit',
-      description: '_',
-      schema: yup.number(),
-      default: 15,
-    },
-    thresholds: {
-      name: 'Upcoming vaccination thresholds',
-      description: '_',
-      schema: yup.array().of(
-        yup.object({
-          threshold: yup.number(),
-          status: yup.string(),
-        }),
-      ),
-      default: [
-        {
-          threshold: 28,
-          status: VACCINE_STATUS.SCHEDULED,
-        },
-        {
-          threshold: 7,
-          status: VACCINE_STATUS.UPCOMING,
-        },
-        {
-          threshold: -7,
-          status: VACCINE_STATUS.DUE,
-        },
-        {
-          threshold: -55,
-          status: VACCINE_STATUS.OVERDUE,
-        },
-        {
-          threshold: '-Infinity',
-          status: VACCINE_STATUS.MISSED,
-        },
-      ],
+    name: 'Upcoming vaccinations',
+    description: 'Settings related to upcoming vaccinations',
+    values: {
+      ageLimit: {
+        name: 'Upcoming vaccination age limit',
+        description: '_',
+        schema: yup.number(),
+        defaultValue: 15,
+      },
+      thresholds: {
+        name: 'Upcoming vaccination thresholds',
+        description: '_',
+        schema: yup.array().of(
+          yup.object({
+            threshold: yup.number(),
+            status: yup.string(),
+          }),
+        ),
+        defaultValue: [
+          {
+            threshold: 28,
+            status: VACCINE_STATUS.SCHEDULED,
+          },
+          {
+            threshold: 7,
+            status: VACCINE_STATUS.UPCOMING,
+          },
+          {
+            threshold: -7,
+            status: VACCINE_STATUS.DUE,
+          },
+          {
+            threshold: -55,
+            status: VACCINE_STATUS.OVERDUE,
+          },
+          {
+            threshold: '-Infinity',
+            status: VACCINE_STATUS.MISSED,
+          },
+        ],
+      },
     },
   },
   triageCategories: {
@@ -135,8 +161,16 @@ export const globalSettings = {
     ],
   },
   fields: {
-    countryName: hideablePatientFieldSchema,
-    emergencyContactName: patientDetailsFieldSchema,
+    countryName: {
+      name: 'Country name',
+      description: '_',
+      schema: hideablePatientFieldSchema,
+    },
+    emergencyContactName: {
+      name: 'Emergency contact name',
+      description: '_',
+      schema: patientDetailsFieldSchema,
+    },
     emergencyContactNumber: patientDetailsFieldSchema,
     displayId: displayIdFieldSchema,
     firstName: patientDetailsFieldSchema,
@@ -228,7 +262,7 @@ export const globalSettings = {
         label: yup.string(),
       }),
     ),
-    default: [
+    defaultValue: [
       {
         value: 'routine',
         label: 'Routine',

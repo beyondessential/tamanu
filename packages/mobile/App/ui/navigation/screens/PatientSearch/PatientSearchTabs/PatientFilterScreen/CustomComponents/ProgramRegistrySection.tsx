@@ -8,10 +8,14 @@ import { LocalisedField } from '~/ui/components/Forms/LocalisedField';
 import { AutocompleteModalField } from '~/ui/components/AutocompleteModal/AutocompleteModalField';
 // Helpers
 import { Suggester } from '~/ui/helpers/suggester';
-import { useBackend } from '~/ui/hooks';
+import { useBackend, useBackendEffect } from '~/ui/hooks';
 import { useAuth } from '~/ui/contexts/AuthContext';
 import { VisibilityStatus } from '~/visibilityStatuses';
+import { Dropdown } from '~/ui/components/Dropdown';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
+import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
+
+const REGISTRY_COUNT_THRESHOLD = 10;
 
 export const ProgramRegistrySection = (): ReactElement => {
   const navigation = useNavigation();
@@ -29,23 +33,57 @@ export const ProgramRegistrySection = (): ReactElement => {
     ({ id }) => ability.can('read', subject('ProgramRegistry', { id })),
   );
 
+  const [programRegistries, programRegistryError, isProgramRegistryLoading] = useBackendEffect(
+    async ({ models }) => {
+      const rawData = await models.ProgramRegistry.getAllProgramRegistries();
+      return rawData.map(({ name, id }) => ({
+        label: name,
+        value: id,
+      }));
+    },
+    [],
+  );
+
+  if (isProgramRegistryLoading || programRegistryError) return;
+
+  const doesRegistryCountExceedThreshold = programRegistries.length > REGISTRY_COUNT_THRESHOLD;
+
   return (
     <StyledView marginLeft={20} marginRight={20}>
-      <LocalisedField
-        label={
-          <TranslatedText
-            stringId="general.localisedField.programRegistry.label"
-            fallback="Program registry"
-          />
-        }
-        path="programRegistry"
-        labelFontSize={14}
-        component={AutocompleteModalField}
-        placeholder={`Search`}
-        navigation={navigation}
-        suggester={ProgramRegistrySuggester}
-        name="programRegistryId"
-      />
+      {doesRegistryCountExceedThreshold ? (
+        <LocalisedField
+          label={
+            <TranslatedText
+              stringId="general.localisedField.programRegistry.label"
+              fallback="Program registry"
+            />
+          }
+          path="fields.programRegistry"
+          labelFontSize={screenPercentageToDP(2, Orientation.Height)}
+          fieldFontSize={screenPercentageToDP(2, Orientation.Height)}
+          component={AutocompleteModalField}
+          placeholder="Search"
+          suggester={ProgramRegistrySuggester}
+          navigation={navigation}
+          name="programRegistryId"
+        />
+      ) : (
+        <LocalisedField
+          label={
+            <TranslatedText
+              stringId="general.localisedField.programRegistry.label"
+              fallback="Program registry"
+            />
+          }
+          path="fields.programRegistry"
+          labelFontSize={screenPercentageToDP(2, Orientation.Height)}
+          component={Dropdown}
+          options={programRegistries}
+          selectPlaceholderText="Select"
+          navigation={navigation}
+          name="programRegistryId"
+        />
+      )}
     </StyledView>
   );
 };

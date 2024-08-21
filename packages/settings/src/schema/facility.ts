@@ -3,31 +3,39 @@ import { extractDefaults } from './utils';
 
 export const facilitySettings = {
   templates: {
-    letterhead: {
-      name: 'Letterhead',
-      description: '_',
-      schema: yup.object().required(),
-      default: {},
+    name: 'Templates',
+    description: 'Settings related to templates',
+    values: {
+      letterhead: {
+        name: 'Letterhead',
+        description: '_',
+        schema: yup.object(),
+        defaultValue: {},
+      },
     },
   },
   vaccinations: {
     name: 'Vaccinations',
     description: '_',
-    schema: yup.object().required(),
-    default: {},
+    schema: yup.object(),
+    defaultValue: {},
   },
   survey: {
-    defaultCodes: {
-      name: 'Default codes',
-      description:
-        'Default reference data codes to use when creating a survey encounter (includes vitals) when none are explicitly specified',
-      schema: yup.object().shape({
-        department: yup.string().required(),
-        location: yup.string().required(),
-      }),
-      default: {
-        department: 'GeneralClinic',
-        location: 'GeneralClinic',
+    name: 'Survey settings',
+    description: '_',
+    values: {
+      defaultCodes: {
+        name: 'Default codes',
+        description:
+          'Default reference data codes to use when creating a survey encounter (includes vitals) when none are explicitly specified',
+        schema: yup.object().shape({
+          department: yup.string().required(),
+          location: yup.string().required(),
+        }),
+        defaultVlaue: {
+          department: 'GeneralClinic',
+          location: 'GeneralClinic',
+        },
       },
     },
   },

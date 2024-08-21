@@ -5,7 +5,10 @@ import { RadioButtonGroup } from '/components/RadioButtonGroup';
 import { StyledView } from '~/ui/styled/common';
 import { LocalisedField } from '~/ui/components/Forms/LocalisedField';
 import { FemaleGender, MaleGender } from '/helpers/constants';
+import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
+
+const buttonWidth = screenPercentageToDP(26, Orientation.Width);
 
 const options = [
   MaleGender,
@@ -23,6 +26,9 @@ export const SexSection = (): ReactElement => (
       component={RadioButtonGroup}
       name="sex"
       options={options}
+      labelFontSize={screenPercentageToDP(2, Orientation.Height)}
+      optionComponentWidth={buttonWidth}
+      initialValue="all"
     />
   </StyledView>
 );
