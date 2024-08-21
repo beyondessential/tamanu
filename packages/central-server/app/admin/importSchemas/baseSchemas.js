@@ -359,6 +359,11 @@ export const InvoiceProduct = yup.object().shape({
   visibilityStatus,
 });
 
+export const UserDesignation = yup.object().shape({
+  userId: yup.string().required(),
+  designationId: yup.string().required(),
+});
+
 export const TaskTemplate = yup.object().shape({
   id: yup.string().required(),
   referenceDataId: yup.string().required(),
@@ -377,4 +382,9 @@ export const TaskTemplate = yup.object().shape({
     .transform(value => (value ? TASK_FREQUENCY_ACCEPTED_UNITS_TO_VALUE[value] : value))
     .oneOf([...Object.values(TASK_FREQUENCY_ACCEPTED_UNITS), null])
     .default(null),
+});
+
+export const TaskTemplateDesignation = yup.object().shape({
+  taskTemplateId: yup.string().required(),
+  designationId: yup.string().required(),
 });

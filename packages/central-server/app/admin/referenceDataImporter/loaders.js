@@ -7,6 +7,7 @@ import {
 } from '@tamanu/constants';
 import { v4 as uuidv4 } from 'uuid';
 import ms from 'ms';
+import { Op } from 'sequelize';
 
 function stripNotes(fields) {
   const values = { ...fields };
@@ -257,14 +258,16 @@ export async function userLoader(item, { models, pushError }) {
     },
   });
 
-  if (id) {
-    await models.UserDesignation.destroy({ where: { userId: id } });
-  }
-
   const designationIds = (designations || '')
     .split(',')
     .map(d => d.trim())
     .filter(Boolean);
+
+  if (id) {
+    await models.UserDesignation.destroy({
+      where: { userId: id, designationId: { [Op.notIn]: designationIds } },
+    });
+  }
 
   for (const designation of designationIds) {
     const existingData = await models.ReferenceData.findByPk(designation);
@@ -279,7 +282,6 @@ export async function userLoader(item, { models, pushError }) {
     rows.push({
       model: 'UserDesignation',
       values: {
-        id: uuidv4(),
         userId: id,
         designationId: designation,
       },
@@ -323,14 +325,14 @@ export async function taskLoader(item, { models, pushError }) {
     values: newTaskTemplate,
   });
 
-  await models.TaskTemplateDesignation.destroy({
-    where: { taskTemplateId: newTaskTemplate.id },
-  });
-
   const designationIds = (assignedTo || '')
     .split(',')
     .map(d => d.trim())
     .filter(Boolean);
+
+  await models.TaskTemplateDesignation.destroy({
+    where: { taskTemplateId: newTaskTemplate.id, designationId: { [Op.notIn]: designationIds } },
+  });
 
   for (const designation of designationIds) {
     const existingData = await models.ReferenceData.findByPk(designation);
@@ -341,7 +343,6 @@ export async function taskLoader(item, { models, pushError }) {
     rows.push({
       model: 'TaskTemplateDesignation',
       values: {
-        id: uuidv4(),
         taskTemplateId: newTaskTemplate.id,
         designationId: designation,
       },

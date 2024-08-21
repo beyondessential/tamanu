@@ -43,6 +43,10 @@ const existingRecordLoaders = {
     TS.findOne({ where: { stringId, language } }, { paranoid: false }),
   ReferenceDataRelation: (RDR, { referenceDataId, type }) =>
     RDR.findOne({ where: { referenceDataId, type } }, { paranoid: false }),
+  TaskTemplateDesignation: (TTD, { taskTemplateId, designationId }) =>
+    TTD.findOne({ where: { taskTemplateId, designationId } }, { paranoid: false }),
+  UserDesignation: (UD, { userId, designationId }) =>
+    UD.findOne({ where: { userId, designationId } }, { paranoid: false }),
 };
 
 function loadExisting(Model, values) {
@@ -231,9 +235,8 @@ export async function importRows(
         sheetName === 'diagnosis'
           ? 'icd10' // diagnosis is a special case where the datatype isnt the same as sheet name
           : normaliseSheetName(sheetName);
-      const isValidTable = 
-        model === 'ReferenceData' || // All records in the reference data table are translatable
-        camelCase(model) === dataType; // This prevents join tables from being translated - unsure about this
+      const isValidTable =
+        model === 'ReferenceData' || camelCase(model) === dataType; // All records in the reference data table are translatable // This prevents join tables from being translated - unsure about this
       const isTranslatable = TRANSLATABLE_REFERENCE_TYPES.includes(dataType);
       if (isTranslatable && isValidTable) {
         translationRecordsForSheet.push({
@@ -253,7 +256,6 @@ export async function importRows(
     fields: ['stringId', 'text', 'language'],
     ignoreDuplicates: true,
   });
-
 
   log.debug('Done with these rows');
   return stats;
