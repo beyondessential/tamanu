@@ -1,7 +1,13 @@
 import { endOfDay, startOfDay } from 'date-fns';
 import { getJsDateFromExcel } from 'excel-date-to-js';
-import { ENCOUNTER_TYPES, REFERENCE_TYPES } from '@tamanu/constants';
 import { Op } from 'sequelize';
+import {
+  ENCOUNTER_TYPES,
+  VISIBILITY_STATUSES,
+  PATIENT_FIELD_DEFINITION_TYPES,
+  REFERENCE_TYPES
+} from '@tamanu/constants';
+import { v4 as uuidv4 } from 'uuid';
 
 function stripNotes(fields) {
   const values = { ...fields };
@@ -107,7 +113,7 @@ export function translatedStringLoader(item) {
     }));
 }
 
-export function patientDataLoader(item, models, foreignKeySchemata) {
+export async function patientDataLoader(item, { models, foreignKeySchemata }) {
   const { dateOfBirth, id: patientId, patientAdditionalData, ...otherFields } = item;
 
   const rows = [];
@@ -137,20 +143,45 @@ export function patientDataLoader(item, models, foreignKeySchemata) {
   ];
 
   for (const definitionId of Object.keys(otherFields)) {
+    const value = otherFields[definitionId];
+
     // Filter only custom fields that have a value assigned to them
     // Foreign keys will not appear as they are under rawAttributes (i.e: village -> villageId)
     if (
       predefinedPatientFields.includes(definitionId) ||
       foreignKeySchemata.Patient.find(schema => schema.field === definitionId) ||
-      !otherFields[definitionId]
+      !value
     )
       continue;
+
+    const existingDefinition = await models.PatientFieldDefinition.findOne({
+      where: { id: definitionId },
+    });
+    if (!existingDefinition) {
+      throw new Error(`No such patient field definition: ${definitionId}`);
+    }
+    if (existingDefinition.fieldType === PATIENT_FIELD_DEFINITION_TYPES.NUMBER && isNaN(value)) {
+      throw new Error(
+        `Field Type mismatch: expected field type is a number value for "${definitionId}"`,
+      );
+    }
+    if (
+      existingDefinition.fieldType === PATIENT_FIELD_DEFINITION_TYPES.SELECT &&
+      !existingDefinition.options.includes(value)
+    ) {
+      throw new Error(
+        `Field Type mismatch: expected value to be one of "${existingDefinition.options.join(
+          ', ',
+        )}" for ${definitionId}`,
+      );
+    }
+
     rows.push({
       model: 'PatientFieldValue',
       values: {
         patientId,
         definitionId,
-        value: otherFields[definitionId],
+        value,
       },
     });
   }
@@ -215,7 +246,7 @@ export function labTestPanelLoader(item) {
   return rows;
 }
 
-export const taskSetLoader = async (item, models) => {
+export const taskSetLoader = async (item, { models }) => {
   const { id, tasks } = item;
   const taskIds = tasks
     .split(',')
@@ -243,3 +274,47 @@ export const taskSetLoader = async (item, models) => {
 
   return rows;
 };
+
+export async function userLoader(item, { models, pushError }) {
+  const { id, designations, ...otherFields } = item;
+  const rows = [];
+
+  rows.push({
+    model: 'User',
+    values: {
+      id,
+      ...otherFields,
+    },
+  });
+
+  if (id) {
+    await models.UserDesignation.destroy({ where: { userId: id } });
+  }
+
+  const designationIds = (designations || '')
+    .split(',')
+    .map(d => d.trim())
+    .filter(Boolean);
+
+  for (const designation of designationIds) {
+    const existingData = await models.ReferenceData.findByPk(designation);
+    if (!existingData) {
+      pushError(`Designation "${designation}" does not exist`);
+      continue;
+    }
+    if (existingData.visibilityStatus !== VISIBILITY_STATUSES.CURRENT) {
+      pushError(`Designation "${designation}" doesn't have visibilityStatus of current`);
+      continue;
+    }
+    rows.push({
+      model: 'UserDesignation',
+      values: {
+        id: uuidv4(),
+        userId: id,
+        designationId: designation,
+      },
+    });
+  }
+
+  return rows;
+}
