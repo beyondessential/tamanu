@@ -1,6 +1,10 @@
 import { endOfDay, startOfDay } from 'date-fns';
 import { getJsDateFromExcel } from 'excel-date-to-js';
-import { ENCOUNTER_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
+import {
+  ENCOUNTER_TYPES,
+  VISIBILITY_STATUSES,
+  PATIENT_FIELD_DEFINITION_TYPES,
+} from '@tamanu/constants';
 import { v4 as uuidv4 } from 'uuid';
 
 function stripNotes(fields) {
@@ -106,7 +110,7 @@ export function translatedStringLoader({ stringId, ...languages }) {
     }));
 }
 
-export function patientDataLoader(item, { models, foreignKeySchemata }) {
+export async function patientDataLoader(item, { models, foreignKeySchemata }) {
   const { dateOfBirth, id: patientId, patientAdditionalData, ...otherFields } = item;
 
   const rows = [];
@@ -136,20 +140,46 @@ export function patientDataLoader(item, { models, foreignKeySchemata }) {
   ];
 
   for (const definitionId of Object.keys(otherFields)) {
+    const value = otherFields[definitionId];
+
     // Filter only custom fields that have a value assigned to them
     // Foreign keys will not appear as they are under rawAttributes (i.e: village -> villageId)
     if (
       predefinedPatientFields.includes(definitionId) ||
       foreignKeySchemata.Patient.find(schema => schema.field === definitionId) ||
-      !otherFields[definitionId]
+      !value
     )
       continue;
+
+    const existingDefinition = await models.PatientFieldDefinition.findOne({
+      where: { id: definitionId },
+    });
+    if (!existingDefinition) {
+      pushError(`No such patient field definition: ${definitionId}`);
+      continue;
+    }
+    if (existingDefinition.fieldType === PATIENT_FIELD_DEFINITION_TYPES.NUMBER && isNaN(value)) {
+      pushError(`Field Type mismatch: expected field type is a number value`);
+      continue;
+    }
+    if (
+      existingDefinition.fieldType === PATIENT_FIELD_DEFINITION_TYPES.SELECT &&
+      !existingDefinition.options.includes(value)
+    ) {
+      pushError(
+        `Field Type mismatch: expected value to be one of "${existingDefinition.options.join(
+          ', ',
+        )}"`,
+      );
+      continue;
+    }
+
     rows.push({
       model: 'PatientFieldValue',
       values: {
         patientId,
         definitionId,
-        value: otherFields[definitionId],
+        value,
       },
     });
   }
