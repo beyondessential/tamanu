@@ -29,6 +29,8 @@ interface AutocompleteModalFieldProps {
   required?: boolean;
   disabled?: boolean;
   readOnly?: boolean;
+  labelFontSize?: string | number;
+  fieldFontSize?: string | number;
 }
 
 export const AutocompleteModalField = ({
@@ -43,6 +45,8 @@ export const AutocompleteModalField = ({
   marginTop = 0,
   disabled = false,
   readOnly = false,
+  labelFontSize,
+  fieldFontSize = screenPercentageToDP(2.1, Orientation.Height),
 }: AutocompleteModalFieldProps): ReactElement => {
   const navigation = useNavigation();
   const [label, setLabel] = useState(null);
@@ -76,8 +80,6 @@ export const AutocompleteModalField = ({
     })();
   }, [value]);
 
-  const fontSize = screenPercentageToDP(2.1, Orientation.Height);
-
   if (readOnly) {
     return <ReadOnlyField value={label} />;
   }
@@ -86,7 +88,7 @@ export const AutocompleteModalField = ({
     <StyledView marginBottom={screenPercentageToDP('2.24', Orientation.Height)} width="100%">
       {!!fieldLabel && (
         <StyledText
-          fontSize={fontSize}
+          fontSize={labelFontSize}
           fontWeight={600}
           marginBottom={2}
           color={theme.colors.TEXT_SUPER_DARK}
@@ -110,7 +112,7 @@ export const AutocompleteModalField = ({
         borderColor={error ? theme.colors.ERROR : '#EBEBEB'}
         borderWidth={1}
         fontWeight={400}
-        fontSize={fontSize}
+        fontSize={fieldFontSize}
         padding={10}
         onPress={openModal}
         disabled={disabled}
