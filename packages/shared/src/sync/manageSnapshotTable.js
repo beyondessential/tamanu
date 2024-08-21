@@ -30,17 +30,21 @@ export const createSnapshotTable = async (sequelize, sessionId) => {
   const tableName = getSnapshotTableName(sessionId);
   await sequelize.query(`
     CREATE TABLE ${tableName} (
-      id uuid DEFAULT uuid_generate_v4(),
-      direction character varying(255),
-      record_type character varying(255),
-      record_id character varying(255),
-      is_deleted boolean,
-      data json,
+      id uuid DEFAULT uuid_generate_v4() PRIMARY KEY,
+      direction character varying(255) NOT NULL,
+      record_type character varying(255) NOT NULL,
+      record_id character varying(255) NOT NULL,
+      is_deleted boolean NOT NULL,
+      data json NOT NULL,
       saved_at_sync_tick bigint, -- saved_at_sync_tick is used to check whether record has been updated between incoming and outgoing phase of a single session
       updated_at_by_field_sum bigint -- updated_at_by_field_sum is used to check whether record has had changes to field during merge and save component of push phase
     ) WITH (
       autovacuum_enabled = off
     );
+    CREATE INDEX ${tableName
+      .replaceAll('.', '_')
+      .replaceAll('"', '')
+      .replaceAll('-', '')}_direction_index ON ${tableName}(direction);
   `);
 };
 
