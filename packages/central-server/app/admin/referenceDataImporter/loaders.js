@@ -219,6 +219,7 @@ export const taskSetLoader = item => {
   const rows = (tasks || '')
     .split(',')
     .map(taskId => taskId.trim())
+    .filter(Boolean)
     .map(taskId => ({
       model: 'ReferenceDataRelation',
       values: {
