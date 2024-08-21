@@ -7,78 +7,109 @@ const NONNEGATIVE_INTEGER = yup
   .integer()
   .min(0);
 
-const ageDurationSchema = yup
-  .object({
-    years: NONNEGATIVE_INTEGER,
-    months: NONNEGATIVE_INTEGER,
-    days: NONNEGATIVE_INTEGER,
-  })
-  .noUnknown();
+const ageRangeLimitSchema = yup.object({
+  duration: yup
+    .object({
+      years: NONNEGATIVE_INTEGER,
+      months: NONNEGATIVE_INTEGER,
+      days: NONNEGATIVE_INTEGER,
+    })
+    .noUnknown(),
+  exclusive: yup.boolean(),
+});
+
+const ageDisplayFormatSchema = yup
+  .array(
+    yup.object({
+      as: yup.string().required(),
+      range: yup
+        .object({
+          min: ageRangeLimitSchema,
+          max: ageRangeLimitSchema,
+        })
+        .required()
+        .test({
+          name: 'ageDisplayFormat',
+          test(range, ctx) {
+            if (!range.min && !range.max) {
+              return ctx.createError({
+                message: `range in ageDisplayFormat must include either min or max, or both, got ${JSON.stringify(
+                  range,
+                )}`,
+              });
+            }
+
+            return true;
+          },
+        }),
+    }),
+  )
+  .required();
+
+const ageDisplayFormatDefault = [
+  {
+    as: 'days',
+    range: {
+      min: { duration: { days: 0 }, exclusive: false },
+      max: { duration: { days: 8 }, exclusive: true },
+    },
+  },
+  {
+    as: 'weeks',
+    range: {
+      min: { duration: { days: 8 } },
+      max: { duration: { months: 1 }, exclusive: true },
+    },
+  },
+  {
+    as: 'months',
+    range: {
+      min: { duration: { months: 1 } },
+      max: { duration: { years: 2 }, exclusive: true },
+    },
+  },
+  {
+    as: 'years',
+    range: {
+      min: { duration: { years: 2 } },
+    },
+  },
+];
+
+const imageCancellationReasonsSchema = yup
+  .array(
+    yup.object({
+      value: yup
+        .string()
+        .required()
+        .max(31),
+      label: yup.string().required(),
+      hidden: yup.boolean(),
+    }),
+  )
+  .test({
+    name: 'imagingCancellationReasons',
+    test(conf, ctx) {
+      const values = conf.map(x => x.value);
+      if (!values.includes('duplicate')) {
+        return ctx.createError({
+          message: 'imagingCancellationReasons must include an option with value = duplicate',
+        });
+      }
+      if (!values.includes('entered-in-error')) {
+        return ctx.createError({
+          message:
+            'imagingCancellationReasons must include an option with value = entered-in-error',
+        });
+      }
+      return true;
+    },
+  });
 
 export const globalSettings = {
   ageDisplayFormat: {
-    schema: yup
-      .array(
-        yup.object({
-          as: yup.string().required(),
-          range: yup
-            .object({
-              min: yup.object({
-                duration: ageDurationSchema,
-                exclusive: yup.boolean(),
-              }),
-              max: yup.object({
-                duration: ageDurationSchema,
-                exclusive: yup.boolean(),
-              }),
-            })
-            .required()
-            .test({
-              name: 'ageDisplayFormat',
-              test(range, ctx) {
-                if (!range.min && !range.max) {
-                  return ctx.createError({
-                    message: `range in ageDisplayFormat must include either min or max, or both, got ${JSON.stringify(
-                      range,
-                    )}`,
-                  });
-                }
-
-                return true;
-              },
-            }),
-        }),
-      )
-      .required(),
-    default: [
-      {
-        as: 'days',
-        range: {
-          min: { duration: { days: 0 }, exclusive: false },
-          max: { duration: { days: 8 }, exclusive: true },
-        },
-      },
-      {
-        as: 'weeks',
-        range: {
-          min: { duration: { days: 8 } },
-          max: { duration: { months: 1 }, exclusive: true },
-        },
-      },
-      {
-        as: 'months',
-        range: {
-          min: { duration: { months: 1 } },
-          max: { duration: { years: 2 }, exclusive: true },
-        },
-      },
-      {
-        as: 'years',
-        range: {
-          min: { duration: { years: 2 } },
-        },
-      },
-    ],
+    schema: ageDisplayFormatSchema,
+    default: ageDisplayFormatDefault,
   },
   features: {
     mandateSpecimenType: {
@@ -114,35 +145,7 @@ export const globalSettings = {
   },
   imagingCancellationReasons: {
     description: 'Customise the options available for imaging request cancellation reason',
-    schema: yup
-      .array(
-        yup.object({
-          value: yup
-            .string()
-            .required()
-            .max(31),
-          label: yup.string().required(),
-          hidden: yup.boolean(),
-        }),
-      )
-      .test({
-        name: 'imagingCancellationReasons',
-        test(conf, ctx) {
-          const values = conf.map(x => x.value);
-          if (!values.includes('duplicate')) {
-            return ctx.createError({
-              message: 'imagingCancellationReasons must include an option with value = duplicate',
-            });
-          }
-          if (!values.includes('entered-in-error')) {
-            return ctx.createError({
-              message:
-                'imagingCancellationReasons must include an option with value = entered-in-error',
-            });
-          }
-          return true;
-        },
-      }),
+    schema: imageCancellationReasonsSchema,
     default: [],
   },
   labsCancellationReasons: {
