@@ -111,7 +111,7 @@ export function translatedStringLoader({ stringId, ...languages }) {
     }));
 }
 
-export async function patientDataLoader(item, { models, foreignKeySchemata, pushError }) {
+export async function patientDataLoader(item, { models, foreignKeySchemata }) {
   const { dateOfBirth, id: patientId, patientAdditionalData, ...otherFields } = item;
 
   const rows = [];
