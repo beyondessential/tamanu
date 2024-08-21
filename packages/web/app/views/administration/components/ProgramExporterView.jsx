@@ -19,7 +19,7 @@ const ExportForm = ({ options = [] }) => (
       name="programId"
       label={
         <TranslatedText
-          stringId="admin.program.export.program.selectLabel"
+          stringId="admin.export.selectProgram.label"
           fallback="Select program to export"
         />
       }
@@ -81,7 +81,7 @@ export const ProgramExporterView = memo(({ setIsLoading }) => {
             .string()
             .required()
             .translatedLabel(
-              <TranslatedText stringId="admin.program.export.program.label" fallback="Program" />,
+              <TranslatedText stringId="admin.export.validation.program.path" fallback="Program" />,
             ),
         })}
         formType={FORM_TYPES.CREATE_FORM}

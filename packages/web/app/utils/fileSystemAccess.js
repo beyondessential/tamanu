@@ -36,12 +36,12 @@ const createFileSystemHandle = ({ defaultFileName, filetype }) =>
     types: [filetype],
   });
 
+/**
+ * @param getData {Function} - Async function which returns the file data to write (ArrayBuffer,
+ * TypedArray, DataView, Blob, or string)
+ */
 export const saveFile = async ({
   defaultFileName,
-  /**
-   * Async function which returns the file data to write (ArrayBuffer, TypedArray, DataView, Blob,
-   * or string)
-   */
   getData,
   extension = null, // The file extension.
   mimetype = null,
