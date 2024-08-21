@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 import PropTypes from 'prop-types';
 import Autosuggest from 'react-autosuggest';
-import { debounce } from 'lodash';
+import { debounce, map, groupBy } from 'lodash';
 import { IconButton, MenuItem, Paper, Popper, Typography } from '@material-ui/core';
 import { ClearIcon } from '../Icons/ClearIcon';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
@@ -42,6 +42,7 @@ const SuggestionsList = styled(Paper)`
 
     .MuiButtonBase-root {
       padding: ${props => (props.size === 'small' ? '8px 12px 8px 20px' : '12px 12px 12px 20px')};
+      ${props => (props.multiSection ? 'padding-left: 28px;' : '')}
       white-space: normal;
 
       .MuiTypography-root {
@@ -97,6 +98,18 @@ const StyledIconButton = styled(IconButton)`
 const StyledClearIcon = styled(ClearIcon)`
   cursor: pointer;
 `;
+
+const SectionTitle = styled.div`
+  font-weight: 500;
+  font-size: 14px;
+  padding-top: 10px;
+  padding-left: 14px;
+`;
+
+const REFERENCE_DATA_TYPE_TO_LABEL = {
+  task: <TranslatedText stringId="encounter.task.task.label" fallback="Task" />,
+  taskSet: <TranslatedText stringId="encounter.task.taskSet.label" fallback="Task set" />,
+};
 
 export class AutocompleteInput extends Component {
   static contextType = TranslationContext;
@@ -182,7 +195,7 @@ export class AutocompleteInput extends Component {
   };
 
   fetchOptions = async ({ value, reason }) => {
-    const { value: formValue, allowCreatingCustomValue } = this.props;
+    const { value: formValue, allowCreatingCustomValue, multiSection, suggester } = this.props;
 
     if (reason === 'suggestion-selected') {
       this.clearOptions();
@@ -210,12 +223,45 @@ export class AutocompleteInput extends Component {
       if (allowCreatingCustomValue && trimmedValue && !isValueInOptions) {
         suggestions.push({ label: trimmedValue, value: trimmedValue, isCustomizedOption: true });
       }
+      if (multiSection) {
+        suggestions = map(groupBy(suggestions, 'type'), (data, type) => ({
+          type,
+          data: data.map(({ label, value }) => ({ label, value })),
+        }));
+
+        const customOption = {
+          label: trimmedValue,
+          value: trimmedValue,
+          isCustomizedOption: true,
+        };
+
+        const allowedCustomValueSection = suggestions.find(
+          section => section.type === suggester.allowedCustomValueType,
+        );
+
+        if (allowedCustomValueSection) {
+          const isValueInOptions = allowedCustomValueSection.data.some(
+            suggest => suggest.label.toLowerCase() === trimmedValue.toLowerCase(),
+          );
+          if (trimmedValue && !isValueInOptions) {
+            allowedCustomValueSection.data.push(customOption);
+          }
+        } else {
+          if (trimmedValue) {
+            suggestions.push({
+              type: suggester.allowedCustomValueType,
+              data: [customOption],
+            });
+          }
+        }
+      }
     }
+
     this.setState({ suggestions });
   };
 
   attemptAutoFill = async () => {
-    const { autofill, name, multiSection } = this.props;
+    const { autofill, name } = this.props;
     if (!autofill) {
       return false;
     }
@@ -292,7 +338,7 @@ export class AutocompleteInput extends Component {
   };
 
   renderContainer = option => {
-    const { size = 'medium' } = this.props;
+    const { size = 'medium', multiSection } = this.props;
     const { suggestions } = this.state;
     const hasCustomizeItem = suggestions[suggestions.length - 1]?.isCustomizedOption;
 
@@ -305,6 +351,7 @@ export class AutocompleteInput extends Component {
         <SuggestionsList
           {...option.containerProps}
           size={size}
+          multiSection={multiSection}
           $onlyOneItem={suggestions.length === 1}
           $hasCustomizeItem={hasCustomizeItem}
         >
@@ -377,6 +424,14 @@ export class AutocompleteInput extends Component {
     );
   };
 
+  getSectionSuggestions = section => {
+    return section.data;
+  };
+
+  renderSectionTitle = section => {
+    return <SectionTitle>{REFERENCE_DATA_TYPE_TO_LABEL[section.type]}</SectionTitle>;
+  };
+
   render() {
     const { selectedOption, suggestions } = this.state;
     const {
@@ -391,12 +446,16 @@ export class AutocompleteInput extends Component {
       helperText,
       placeholder = this.context.getTranslation('general.placeholder.search...', 'Search...'),
       inputRef,
+      multiSection,
     } = this.props;
 
     return (
       <>
         <Autosuggest
+          multiSection={multiSection}
           alwaysRenderSuggestions
+          getSectionSuggestions={this.getSectionSuggestions}
+          renderSectionTitle={this.renderSectionTitle}
           suggestions={suggestions}
           onSuggestionsFetchRequested={this.debouncedFetchOptions}
           onSuggestionsClearRequested={this.clearOptions}
@@ -437,10 +496,12 @@ AutocompleteInput.propTypes = {
   className: PropTypes.string,
   onChange: PropTypes.func.isRequired,
   value: PropTypes.string,
+  multiSection: PropTypes.bool,
 
   suggester: PropTypes.shape({
     fetchCurrentOption: PropTypes.func.isRequired,
     fetchSuggestions: PropTypes.func.isRequired,
+    createSuggestion: PropTypes.func,
   }),
   options: PropTypes.arrayOf(
     PropTypes.shape({
@@ -465,6 +526,7 @@ AutocompleteInput.defaultProps = {
   suggester: null,
   autofill: false,
   allowCreatingCustomValue: false,
+  multiSection: false,
 };
 
 export const AutocompleteField = ({ field, ...props }) => (

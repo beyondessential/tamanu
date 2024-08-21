@@ -11,6 +11,7 @@ export class Suggester {
       filterer = () => true,
       baseQueryParameters = {},
       enable = true,
+      allowedCustomValueType = null,
     } = {},
   ) {
     this.api = api;
@@ -19,6 +20,7 @@ export class Suggester {
     this.filterer = filterer;
     this.baseQueryParameters = baseQueryParameters;
     this.enable = enable;
+    this.allowedCustomValueType = allowedCustomValueType;
   }
 
   async fetch(suffix, queryParameters) {
@@ -53,7 +55,10 @@ export class Suggester {
 
   createSuggestion = async body => {
     if (!this.enable) throw new Error('Suggester is disabled');
-    const data = await this.api.post(`${this.endpoint}/create`, body);
+    const endpoint = this.allowedCustomValueType
+      ? `suggestions/${this.allowedCustomValueType}`
+      : this.endpoint;
+    const data = await this.api.post(`${endpoint}/create`, body);
     return this.formatter(data);
   };
 }
