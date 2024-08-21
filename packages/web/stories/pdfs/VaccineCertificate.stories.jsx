@@ -33,8 +33,6 @@ const vdsData = {
 };
 
 const localisation = {
-  'templates.letterhead.title': 'TAMANU MINISTRY OF HEALTH & MEDICAL SERVICES',
-  'templates.letterhead.subTitle': 'PO Box 12345, Melbourne, Australia',
   'templates.vaccineCertificate.emailAddress': 'tamanu@health.govt',
   'templates.vaccineCertificate.contactNumber': '123456',
   'fields.firstName.longLabel': 'First Name',
