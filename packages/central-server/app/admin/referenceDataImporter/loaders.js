@@ -6,7 +6,6 @@ import {
   PATIENT_FIELD_DEFINITION_TYPES,
 } from '@tamanu/constants';
 import { v4 as uuidv4 } from 'uuid';
-import { ValidationError } from '../errors';
 
 function stripNotes(fields) {
   const values = { ...fields };
@@ -156,10 +155,10 @@ export async function patientDataLoader(item, { models, foreignKeySchemata }) {
       where: { id: definitionId },
     });
     if (!existingDefinition) {
-      throw new ValidationError(`No such patient field definition: ${definitionId}`);
+      throw new Error(`No such patient field definition: ${definitionId}`);
     }
     if (existingDefinition.fieldType === PATIENT_FIELD_DEFINITION_TYPES.NUMBER && isNaN(value)) {
-      throw new ValidationError(
+      throw new Error(
         `Field Type mismatch: expected field type is a number value for "${definitionId}"`,
       );
     }
@@ -167,7 +166,7 @@ export async function patientDataLoader(item, { models, foreignKeySchemata }) {
       existingDefinition.fieldType === PATIENT_FIELD_DEFINITION_TYPES.SELECT &&
       !existingDefinition.options.includes(value)
     ) {
-      throw new ValidationError(
+      throw new Error(
         `Field Type mismatch: expected value to be one of "${existingDefinition.options.join(
           ', ',
         )}" for ${definitionId}`,
