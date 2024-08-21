@@ -1,5 +1,5 @@
 import { validateSettings, globalDefaults, centralDefaults, facilityDefaults } from '../dist/mjs';
-import { extractDefaults } from '../dist/cjs/defaults/utils';
+import { extractDefaults } from '../dist/cjs/schema/utils';
 import * as yup from 'yup';
 
 describe('Schemas', () => {
@@ -21,13 +21,13 @@ describe('Schemas', () => {
             name: 'Setting a.b',
             description: '_',
             schema: yup.boolean().required(),
-            default: false,
+            defaultValue: false,
           },
         },
         c: {
           name: 'Setting c',
           schema: yup.string().required(),
-          default: 'c',
+          defaultValue: 'c',
         },
         d: {
           e: {
@@ -42,7 +42,7 @@ describe('Schemas', () => {
                   }),
                 )
                 .required(),
-              default: [
+              defaultValue: [
                 {
                   threshold: 28,
                   status: 'scheduled',
@@ -77,6 +77,8 @@ describe('Schemas', () => {
           },
         },
       };
+
+      console.log(extractDefaults(schema));
 
       expect(extractDefaults(schema)).toEqual(expectedSettings);
     });
@@ -255,7 +257,7 @@ describe('Schemas', () => {
       const schema = {
         a: {
           schema: yup.string().required(),
-          default: 'a',
+          defaultValue: 'a',
         },
       };
 
@@ -273,7 +275,7 @@ describe('Schemas', () => {
     const schema = {
       a: {
         schema: yup.array().of(yup.string()),
-        default: ['a'],
+        defaultValue: ['a'],
       },
     };
 
@@ -292,7 +294,7 @@ describe('Schemas', () => {
             b: yup.string().required(),
           }),
         ),
-        default: [{ b: 'a' }],
+        defaultValue: [{ b: 'a' }],
       },
     };
 
