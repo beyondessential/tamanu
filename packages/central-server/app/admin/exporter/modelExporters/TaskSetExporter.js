@@ -4,7 +4,7 @@ import { Op } from 'sequelize';
 
 export class TaskSetExporter extends DefaultDataExporter {
   async getData() {
-    const taskSet = await this.models.ReferenceData.findAll({
+    const taskSets = await this.models.ReferenceData.findAll({
       attributes: ['id', 'code', 'name', 'visibilityStatus'],
       where: {
         type: REFERENCE_TYPES.TASK_SET,
@@ -14,19 +14,16 @@ export class TaskSetExporter extends DefaultDataExporter {
     const tasks = await this.models.ReferenceDataRelation.findAll({
       attributes: ['referenceDataId', 'referenceDataParentId'],
       where: {
-        referenceDataParentId: { [Op.in]: taskSet.map(({ id }) => id) },
+        referenceDataParentId: { [Op.in]: taskSets.map(({ id }) => id) },
       },
     });
 
-    return taskSet.map(({ id, code, name, visibilityStatus }) => ({
-      id,
-      code,
-      name,
+    return taskSets.map(taskSet => ({
+      ...taskSet.dataValues,
       tasks: tasks
-        .filter(({ referenceDataParentId }) => referenceDataParentId === id)
+        .filter(({ referenceDataParentId }) => referenceDataParentId === taskSet.id)
         .map(({ referenceDataId }) => referenceDataId)
         .join(','),
-      visibilityStatus,
     }));
   }
 
