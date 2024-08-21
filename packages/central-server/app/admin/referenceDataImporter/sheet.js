@@ -1,6 +1,6 @@
 import { utils } from 'xlsx';
 
-import { PATIENT_FIELD_DEFINITION_TYPES, REFERENCE_TYPE_VALUES } from '@tamanu/constants';
+import { REFERENCE_TYPE_VALUES } from '@tamanu/constants';
 import { DataLoaderError, ValidationError, WorkSheetError } from '../errors';
 import { statkey, updateStat } from '../stats';
 import { importRows } from '../importRows';
@@ -109,29 +109,6 @@ export async function importSheet({ errors, log, models }, { loader, sheetName, 
         pushError: message => errors.push(new ValidationError(sheetName, sheetRow, message)),
       })) {
         if (!models[model]) throw new Error(`No such type of data: ${model}`);
-        if (model === 'PatientFieldValue') {
-          const existingDefinition =
-            values?.definitionId &&
-            (await models.PatientFieldDefinition.findOne({ where: { id: values.definitionId } }));
-          if (!existingDefinition)
-            throw new Error(`No such patient field definition: ${values?.definitionId}`);
-          if (
-            existingDefinition.fieldType === PATIENT_FIELD_DEFINITION_TYPES.NUMBER &&
-            values.value &&
-            isNaN(values.value)
-          )
-            throw new Error(`Field Type mismatch: expected field type is a number value`);
-          if (
-            existingDefinition.fieldType === PATIENT_FIELD_DEFINITION_TYPES.SELECT &&
-            values.value &&
-            !existingDefinition.options.includes(values.value)
-          )
-            throw new Error(
-              `Field Type mismatch: expected value to be one of "${existingDefinition.options.join(
-                ', ',
-              )}"`,
-            );
-        }
 
         if (values.id && idCache.has(`${model}|${values.id}`)) {
           errors.push(new ValidationError(sheetName, sheetRow, `duplicate id: ${values.id}`));
