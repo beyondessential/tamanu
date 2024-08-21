@@ -351,7 +351,6 @@ export const globalSettings = {
       },
     },
   },
-  // TODO: ensure we have noUnkown() equivalent with new schema
   templates: {
     letterhead: {
       title: { schema: yup.string(), default: 'TAMANU MINISTRY OF HEALTH & MEDICAL SERVICES' },
