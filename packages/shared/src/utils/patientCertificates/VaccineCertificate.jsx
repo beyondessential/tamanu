@@ -139,6 +139,7 @@ const VaccineCertificateComponent = ({
   logoSrc,
   localisation,
   extraPatientFields,
+  certificateData
 }) => {
   const { getTranslation } = useLanguageContext();
   const getLocalisation = key => get(localisation, key);
@@ -187,12 +188,12 @@ const VaccineCertificateComponent = ({
         {watermarkSrc && <Watermark src={watermarkSrc} />}
         <CertificateHeader>
           <LetterheadSection
-            getLocalisation={getLocalisation}
             logoSrc={logoSrc}
             certificateTitle={getTranslation(
               'pdf.vaccineCertificate.title',
               'Immunisation Certificate',
             )}
+            letterheadConfig={certificateData}
           />
           <PatientDetailsSection
             patient={patient}

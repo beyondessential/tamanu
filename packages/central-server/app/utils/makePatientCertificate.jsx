@@ -70,12 +70,15 @@ export const makeCovidVaccineCertificate = async (
   printedBy,
   printedDate,
   models,
+  settings,
   uvci,
   qrData = null,
-  language
+  language,
 ) => {
   const localisation = await getLocalisation();
   const getLocalisationData = key => get(localisation, key);
+  const settingsObj = await settings.getAll();
+  const getSettingData = key => get(settingsObj, key);
 
   const fileName = `covid-vaccine-certificate-${patient.id}.pdf`;
   const { logo, signingImage, watermark } = await getCertificateAssets(
@@ -97,6 +100,7 @@ export const makeCovidVaccineCertificate = async (
       logoSrc={logo}
       vdsSrc={vds}
       getLocalisation={getLocalisationData}
+      getSetting={getSettingData}
       language={language}
     />,
     fileName,
@@ -109,10 +113,13 @@ export const makeVaccineCertificate = async (
   printedDate,
   facilityName,
   models,
+  settings,
   language,
   translations,
 ) => {
   const localisation = await getLocalisation();
+
+  const { title, subtitle } = await settings.get('templates.letterhead');
 
   const fileName = `vaccine-certificate-${patient.id}.pdf`;
   const { logo, signingImage, watermark } = await getCertificateAssets(
@@ -134,6 +141,7 @@ export const makeVaccineCertificate = async (
       translations={translations}
       localisation={localisation}
       language={language}
+      certificateData={{ title, subtitle }}
     />,
     fileName,
   );
@@ -144,11 +152,14 @@ export const makeCovidCertificate = async (
   patient,
   printedBy,
   models,
+  settings,
   vdsData = null,
-  language
+  language,
 ) => {
   const localisation = await getLocalisation();
   const getLocalisationData = key => get(localisation, key);
+  const settingsObj = await settings.getAll();
+  const getSettingData = key => get(settingsObj, key);
 
   const fileName = `covid-${certType}-certificate-${patient.id}.pdf`;
   const footerAssetName =
@@ -202,6 +213,7 @@ export const makeCovidCertificate = async (
       printedBy={printedBy}
       vdsSrc={vds}
       getLocalisation={getLocalisationData}
+      getSetting={getSettingData}
       certType={certType}
       language={language}
     />,

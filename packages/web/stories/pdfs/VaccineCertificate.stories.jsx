@@ -111,6 +111,11 @@ const vaccinations = [
   },
 ];
 
+const certificateData = {
+  title: 'TAMANU MINISTRY OF HEALTH & MEDICAL SERVICES',
+  subTitle: 'PO Box 12345, Melbourne, Australia',
+};
+
 export const VaccineCertificate = () => {
   const [vdsSrc, setVdsSrc] = useState();
 
@@ -131,6 +136,7 @@ export const VaccineCertificate = () => {
         logoSrc={Logo}
         vdsSrc={vdsSrc}
         localisation={localisation}
+        certificateData={certificateData}
       />
     </PDFViewer>
   );

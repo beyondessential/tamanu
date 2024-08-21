@@ -88,13 +88,14 @@ const CovidLabCertificateComponent = ({
   vdsSrc,
   logoSrc,
   getLocalisation,
+  getSetting,
   printedBy,
   certType,
 }) => (
   <Document>
     <Page size="A4" style={styles.page}>
       {watermarkSrc && <Watermark src={watermarkSrc} />}
-      <CovidLetterheadSection getLocalisation={getLocalisation} logoSrc={logoSrc} />
+      <CovidLetterheadSection getSetting={getSetting} logoSrc={logoSrc} />
       <Box mb={0}>
         <H3>{CertificateTitle[certType] || ''}</H3>
         <CovidPatientDetailsSection

@@ -119,7 +119,6 @@ const PrescriptionPrintoutComponent = ({
         <CertificateHeader>
           <LetterheadSection
             letterheadConfig={certificateData}
-            getLocalisation={getLocalisation}
             logoSrc={certificateData.logo}
             certificateTitle="Prescription"
           />

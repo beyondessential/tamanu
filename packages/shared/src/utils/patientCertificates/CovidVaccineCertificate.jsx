@@ -66,6 +66,7 @@ const CovidVaccineCertificateComponent = ({
   logoSrc,
   uvci,
   getLocalisation,
+  getSetting,
   extraPatientFields,
   printedDate,
 }) => {
@@ -86,7 +87,7 @@ const CovidVaccineCertificateComponent = ({
     <Document>
       <Page size="A4" style={styles.page}>
         {watermarkSrc && <Watermark src={watermarkSrc} />}
-        <CovidLetterheadSection getLocalisation={getLocalisation} logoSrc={logoSrc} />
+        <CovidLetterheadSection getSetting={getSetting} logoSrc={logoSrc} />
         <H3>COVID-19 Vaccine Certificate</H3>
         <CovidPatientDetailsSection
           patient={patient}

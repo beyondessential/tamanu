@@ -237,7 +237,6 @@ const DischargeSummaryPrintoutComponent = ({
       <Page size="A4" style={styles.page}>
         <CertificateHeader>
           <LetterheadSection
-            getLocalisation={getLocalisation}
             certificateTitle="Patient discharge summary"
             letterheadConfig={certificateData}
             logoSrc={logo}
