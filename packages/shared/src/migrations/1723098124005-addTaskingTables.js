@@ -1,5 +1,5 @@
 /** @typedef {import('sequelize').QueryInterface} QueryInterface */
-import { DataTypes, Sequelize, Op } from 'sequelize';
+import { DataTypes, Sequelize } from 'sequelize';
 
 /**
  * @param {QueryInterface} query
