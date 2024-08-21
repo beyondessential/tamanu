@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
 import { toast } from 'react-toastify';
@@ -13,10 +13,10 @@ import {
 } from '../../../components';
 import { ReportSelectField, VersionSelectField } from './ReportsSelectFields';
 import { Colors, FORM_TYPES } from '../../../constants';
+import { notifySuccess, sanitizeFileName } from '../../../utils';
 import { saveFile } from '../../../utils/fileSystemAccess';
 import { useApi } from '../../../api/useApi';
 import { useTranslation } from '../../../contexts/Translation';
-import { notifySuccess } from '../../../utils';
 
 const StyledButton = styled(OutlinedButton)`
   margin-top: 30px;
@@ -50,16 +50,25 @@ const schema = yup.object().shape({
 export const ExportReportView = () => {
   const api = useApi();
   const { getTranslation } = useTranslation();
+  const [selectedReportName, setSelectedReportName] = useState(null);
+  const [selectedVersionNumber, setSelectedVersionNumber] = useState(null);
 
   const handleSubmit = async ({ reportId, versionId, format }) => {
     try {
-      // TODO: Determine filename synchronously, and fetch data within getData
-      const { filename, data } = await api.get(
-        `admin/reports/${reportId}/versions/${versionId}/export/${format}`,
-      );
+      const reportName =
+        selectedReportName ?? getTranslation('admin.report.export.report.label', 'Report');
+      const defaultFileName = sanitizeFileName(`${reportName}-v${selectedVersionNumber}.${format}`);
+
+      const getData = async () => {
+        const { data } = await api.get(
+          `admin/reports/${reportId}/versions/${versionId}/export/${format}`,
+        );
+        return data;
+      };
+
       await saveFile({
-        defaultFileName: filename,
-        getData: async () => data,
+        defaultFileName,
+        getData,
         extension: format,
       });
       notifySuccess(
@@ -99,6 +108,7 @@ export const ExportReportView = () => {
                 'admin.report.export.report.placeholder',
                 'Select a report definition',
               )}
+              setSelectedReportName={setSelectedReportName}
             />
             {values.reportId && (
               <Field
@@ -112,6 +122,7 @@ export const ExportReportView = () => {
                   'admin.report.export.version.placeholder',
                   'Select a report version',
                 )}
+                setSelectedVersionNumber={setSelectedVersionNumber}
               />
             )}
             {values.versionId && (
