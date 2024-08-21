@@ -136,6 +136,7 @@ export const globalSettings = {
   fields: {
     countryName: hideablePatientFieldSchema,
     emergencyContactName: patientDetailsFieldSchema,
+    emergencyContactNumber: patientDetailsFieldSchema,
     displayId: displayIdFieldSchema,
     firstName: patientDetailsFieldSchema,
     middleName: hideablePatientFieldSchema,
