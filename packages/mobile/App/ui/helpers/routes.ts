@@ -138,10 +138,6 @@ export const Routes = {
         EditPatient: '',
         EditPatientAdditionalData: '',
       },
-      Cambodia: {
-        EditPatient: '',
-        EditPatientAdditionalData: '',
-      },
     },
     PatientActions: '',
     ExportDataScreen: '',

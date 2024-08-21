@@ -31,7 +31,6 @@ on:
         default: tamanu
         options:
           - tamanu
-          - cambodia
       server:
         description: Central server override
         type: string
@@ -58,7 +57,7 @@ jobs:
       - name: Update branding app title
         if: ${{ inputs.branding != 'tamanu' }}
         env:
-          appnames: '{"cambodia": "KhmEIR"}'
+          appnames: '{}'
         working-directory: packages/mobile/android/app/src/main/res/values
         run: sed -i "s/Tamanu Mobile/${{fromjson(env.appnames)[inputs.branding]}}/g" strings.xml
 
