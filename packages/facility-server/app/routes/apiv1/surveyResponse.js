@@ -100,15 +100,12 @@ surveyResponse.post(
     const noun = await models.Survey.getResponsePermissionCheck(body.surveyId);
     req.checkPermission('create', noun);
 
-    const survey = await models.Survey.findByPk(body.surveyId);
-
     const getDefaultId = async type => models.SurveyResponseAnswer.getDefaultId(type);
     const updatedBody = {
       locationId: body.locationId || (await getDefaultId('location')),
       departmentId: body.departmentId || (await getDefaultId('department')),
       userId: req.user.id,
       ...body,
-      notified: body?.endTime && survey?.notifiable ? false : null,
     };
 
     const responseRecord = await db.transaction(async () => {

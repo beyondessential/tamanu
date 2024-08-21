@@ -301,6 +301,7 @@ export class SurveyResponse extends Model {
       // this is used by reports test where the resultText
       // is included in the payload
       ...responseData,
+      notified: responseData?.endTime && survey?.notifiable ? false : null,
     });
 
     const findDataElement = id => {
