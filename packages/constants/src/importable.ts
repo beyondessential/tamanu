@@ -49,6 +49,8 @@ export const REFERENCE_TYPES = {
   INSURER: 'insurer',
   PAYMENT_METHOD: 'paymentMethod',
   TASK: 'task',
+  TASK_NOT_COMPLETED_REASON: 'taskNotCompletedReason',
+  TASK_DELETION_REASON: 'taskDeletionReason',
   ...IMAGING_AREA_TYPES,
 };
 export const REFERENCE_TYPE_VALUES = Object.values(REFERENCE_TYPES);
