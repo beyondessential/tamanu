@@ -159,7 +159,7 @@ export async function patientDataLoader(item, { models, foreignKeySchemata }) {
       continue;
     }
     if (existingDefinition.fieldType === PATIENT_FIELD_DEFINITION_TYPES.NUMBER && isNaN(value)) {
-      pushError(`Field Type mismatch: expected field type is a number value`);
+      pushError(`Field Type mismatch: expected field type is a number value for "${definitionId}"`);
       continue;
     }
     if (
@@ -169,7 +169,7 @@ export async function patientDataLoader(item, { models, foreignKeySchemata }) {
       pushError(
         `Field Type mismatch: expected value to be one of "${existingDefinition.options.join(
           ', ',
-        )}"`,
+        )}" for ${definitionId}`,
       );
       continue;
     }
