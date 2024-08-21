@@ -1,9 +1,11 @@
 import { endOfDay, startOfDay } from 'date-fns';
 import { getJsDateFromExcel } from 'excel-date-to-js';
+import { Op } from 'sequelize';
 import {
   ENCOUNTER_TYPES,
   VISIBILITY_STATUSES,
   PATIENT_FIELD_DEFINITION_TYPES,
+  REFERENCE_TYPES
 } from '@tamanu/constants';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -243,6 +245,35 @@ export function labTestPanelLoader(item) {
 
   return rows;
 }
+
+export const taskSetLoader = async (item, { models }) => {
+  const { id, tasks } = item;
+  const taskIds = tasks
+    .split(',')
+    .map(task => task.trim())
+    .filter(Boolean);
+
+  // Remove any tasks that are not in taskset
+  await models.ReferenceDataRelation.destroy({
+    where: {
+      referenceDataParentId: id,
+      type: REFERENCE_TYPES.TASK,
+      referenceDataId: { [Op.notIn]: tasks },
+    },
+  });
+
+  // upsert tasks that are in taskset
+  const rows = taskIds.map(taskId => ({
+    model: 'ReferenceDataRelation',
+    values: {
+      referenceDataId: taskId,
+      referenceDataParentId: id,
+      type: REFERENCE_TYPES.TASK,
+    },
+  }));
+
+  return rows;
+};
 
 export async function userLoader(item, { models, pushError }) {
   const { id, designations, ...otherFields } = item;
