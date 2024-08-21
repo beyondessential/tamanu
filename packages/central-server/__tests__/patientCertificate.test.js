@@ -195,6 +195,7 @@ describe('Certificate', () => {
       printedAt,
       'test facility',
       models,
+      settings,
     );
     expect(result.status).toEqual('success');
   });

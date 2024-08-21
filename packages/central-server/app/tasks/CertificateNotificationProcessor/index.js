@@ -211,6 +211,7 @@ export class CertificateNotificationProcessor extends ScheduledTask {
               printedDate,
               facilityName,
               models,
+              settings,
               language,
               translations,
             );
