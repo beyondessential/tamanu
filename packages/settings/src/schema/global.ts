@@ -133,7 +133,7 @@ export const globalSettings = {
       )
       .min(3)
       .max(5),
-    default: [
+    defaulValue: [
       {
         level: 1,
         label: 'Emergency',

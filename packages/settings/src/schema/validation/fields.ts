@@ -12,7 +12,7 @@ export const baseFieldSchema = {
   defaultValue: {
     description: 'Default value for field',
     schema: yup.mixed(),
-    default: '',
+    defaultValue: '',
   },
   required: {
     description: 'Field is required',
@@ -45,6 +45,6 @@ export const displayIdFieldSchema = {
   pattern: {
     description: 'Regex pattern for display ID',
     schema: yup.string(),
-    default: '[\\s\\S]*',
+    defaultValue: '[\\s\\S]*',
   },
 };
