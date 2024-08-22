@@ -223,9 +223,15 @@ describe('Schemas', () => {
     it('Should throw error for invald settings', async () => {
       const invalidSettings = {
         templates: {
-          letterhead: {},
+          letterhead: {
+            title: 'Title',
+          },
         },
-        vaccinations: false,
+        vaccinations: {
+          defaults: {
+            locationGroupId: false,
+          },
+        },
       };
 
       await expect(

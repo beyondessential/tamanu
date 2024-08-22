@@ -140,10 +140,7 @@ export const VaccineForm = ({
       )
       .test(
         'max',
-        <TranslatedText
-          stringId="vaccine.maxDateError"
-          fallback="Date cannot be in the future"
-        />,
+        <TranslatedText stringId="vaccine.maxDateError" fallback="Date cannot be in the future" />,
         value => {
           if (!value) return true;
           const maxDate = new Date();

@@ -8,16 +8,61 @@ export const facilitySettings = {
         letterhead: {
           name: 'Letterhead',
           description: '_',
-          schema: yup.object(),
-          defaultValue: {},
+          values: {
+            title: {
+              name: 'Letterhead title',
+              description: '_',
+              schema: yup.string().nullable(),
+              defaultValue: null,
+            },
+            subTitle: {
+              name: 'Letterhead subtitle',
+              description: '_',
+              schema: yup.string().nullable(),
+              defaultValue: null,
+            },
+          },
         },
       },
     },
     vaccinations: {
       name: 'Vaccinations',
       description: '_',
-      schema: yup.object(),
-      defaultValue: {},
+      values: {
+        defaults: {
+          name: 'Defaults',
+          description: '_',
+          values: {
+            locationGroupId: {
+              name: 'Location group',
+              description: '_',
+              schema: yup
+                .string()
+                .nullable()
+                .strict(true),
+              defaultValue: null,
+            },
+            locationId: {
+              name: 'Location',
+              description: '_',
+              schema: yup
+                .string()
+                .nullable()
+                .strict(true),
+              defaultValue: null,
+            },
+            departmentId: {
+              name: 'Department',
+              description: '_',
+              schema: yup
+                .string()
+                .nullable()
+                .strict(true),
+              defaultValue: null,
+            },
+          },
+        },
+      },
     },
   },
 };
