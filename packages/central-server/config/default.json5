@@ -1105,19 +1105,6 @@
       "supportDeskUrl": "https://bes-support.zendesk.com/hc/en-us"
     }
   },
-  "reportProcess": {
-    // Report process timeout in 2 hours.
-    "timeOutDurationSeconds": 7200,
-    "runInChildProcess": true,
-    // provide an array [] if you want to override the options, eg: ['--max-old-space-size=4096']
-    "processOptions": null,
-    // Provide an object {} for the env of child process
-    "childProcessEnv": null,
-    "sleepAfterReport": {
-      "duration": "5m",
-      "ifRunAtLeast": "5m",
-    },
-  },
   "hl7": {
     "nullLastNameValue": "NoLastName",
     "assigners": {

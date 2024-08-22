@@ -301,7 +301,16 @@ export const globalSettings = {
     processOptions: {
       defaultValue: null,
     },
-    sleepAfterReport: {},
+    childProcessEnv: {
+      defaultValue: null,
+    },
+    /** Provide an object {} for the env of child process */
+    sleepAfterReport: {
+      defaultValue: {
+        duration: '5m',
+        ifRunAtLeast: '5m',
+      },
+    },
   },
   upcomingVaccinations: {
     ageLimit: {
