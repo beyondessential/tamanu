@@ -230,101 +230,87 @@ export const globalSettings = {
     },
   },
   printMeasures: {
-    labRequestPrintLabel: {
-      width: {
+    description: '_',
+    values: {
+      labRequestPrintLabel: {
         description: '_',
-        schema: yup
-          .number()
-          .positive(),
-        defaultValue: 50.8,
+        values: {
+          width: {
+            description: '_',
+            schema: yup.number().positive(),
+            defaultValue: 50.8,
+          },
+        },
       },
-    },
-    stickerLabelPage: {
-      pageWidth: {
+      stickerLabelPage: {
         description: '_',
-        schema: yup
-          .number()
-          .positive(),
-        defaultValue: 210,
+        values: {
+          pageWidth: {
+            description: '_',
+            schema: yup.number().positive(),
+            defaultValue: 210,
+          },
+          pageHeight: {
+            description: '_',
+            schema: yup.number().positive(),
+            defaultValue: 297,
+          },
+          pageMarginTop: {
+            description: '_',
+            schema: yup.number().positive(),
+            defaultValue: 15.09,
+          },
+          pageMarginLeft: {
+            description: '_',
+            schema: yup.number().positive(),
+            defaultValue: 6.4,
+          },
+          columnTotal: {
+            description: '_',
+            schema: yup.number().positive(),
+            defaultValue: 3,
+          },
+          columnWidth: {
+            description: '_',
+            schema: yup.number().positive(),
+            defaultValue: 64,
+          },
+          columnGap: {
+            description: '_',
+            schema: yup.number().positive(),
+            defaultValue: 3.01,
+          },
+          rowTotal: {
+            description: '_',
+            schema: yup.number().positive(),
+            defaultValue: 10,
+          },
+          rowHeight: {
+            description: '_',
+            schema: yup.number().positive(),
+            defaultValue: 26.7,
+          },
+          rowGap: {
+            description: '_',
+            schema: yup.number().positive(),
+            defaultValue: 0,
+          },
+        },
       },
-      pageHeight: {
+      idCardPage: {
         description: '_',
-        schema: yup
-          .number()
-          .positive(),
-        defaultValue: 297,
-      },
-      pageMarginTop: {
-        description: '_',
-        schema: yup
-          .number()
-          .positive(),
-        defaultValue: 15.09,
-      },
-      pageMarginLeft: {
-        description: '_',
-        schema: yup
-          .number()
-          .positive(),
-        defaultValue: 6.4,
-      },
-      columnTotal: {
-        description: '_',
-        schema: yup
-          .number()
-          .positive(),
-        defaultValue: 3,
-      },
-      columnWidth: {
-        description: '_',
-        schema: yup
-          .number()
-          .positive(),
-        defaultValue: 64,
-      },
-      columnGap: {
-        description: '_',
-        schema: yup
-          .number()
-          .positive(),
-        defaultValue: 3.01,
-      },
-      rowTotal: {
-        description: '_',
-        schema: yup
-          .number()
-          .positive(),
-        defaultValue: 10,
-      },
-      rowHeight: {
-        description: '_',
-        schema: yup
-          .number()
-          .positive(),
-        defaultValue: 26.7,
-      },
-      rowGap: {
-        description: '_',
-        schema: yup
-          .number()
-          .positive(),
-        defaultValue: 0,
-      },
-    },
-    idCardPage: {
-      cardMarginTop: {
-        description: '_',
-        schema: yup
-          .number()
-          .positive(),
-        defaultValue: 1,
-      },
-      cardMarginLeft: {
-        description: '_',
-        schema: yup
-          .number()
-          .positive(),
-        defaultValue: 5,
+        values: {
+          cardMarginTop: {
+            description: '_',
+            schema: yup.number().positive(),
+            defaultValue: 1,
+          },
+          cardMarginLeft: {
+            description: '_',
+            schema: yup.number().positive(),
+            defaultValue: 5,
+          },
+        },
       },
     },
   },
