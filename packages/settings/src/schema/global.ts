@@ -7,7 +7,7 @@ const NONNEGATIVE_INTEGER = yup
   .integer()
   .min(0);
 
-/** Pattern from ms package, which ReportRequestProcessor uses to parse sleepAfterReport values. */
+/** Pattern from ms package, which is used to parse sleepAfterReport values. */
 const DURATION_STRING = yup
   .string()
   .matches(
