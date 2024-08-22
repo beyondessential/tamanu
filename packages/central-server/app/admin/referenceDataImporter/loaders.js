@@ -9,7 +9,6 @@ import {
 } from '@tamanu/constants';
 import { v4 as uuidv4 } from 'uuid';
 import ms from 'ms';
-import { Op } from 'sequelize';
 
 function stripNotes(fields) {
   const values = { ...fields };
@@ -323,7 +322,7 @@ export async function userLoader(item, { models, pushError }) {
 }
 
 export async function taskLoader(item, { models, pushError }) {
-  const { id, assignedTo, taskFrequency, highPriority } = item;
+  const { id: taskId, assignedTo, taskFrequency, highPriority } = item;
   const rows = [];
 
   let frequencyValue, frequencyUnit;
@@ -338,15 +337,15 @@ export async function taskLoader(item, { models, pushError }) {
   }
 
   let existingTaskTemplate;
-  if (id) {
+  if (taskId) {
     existingTaskTemplate = await models.TaskTemplate.findOne({
-      where: { referenceDataId: id },
+      where: { referenceDataId: taskId },
     });
   }
 
   const newTaskTemplate = {
     id: existingTaskTemplate?.id || uuidv4(),
-    referenceDataId: id,
+    referenceDataId: taskId,
     frequencyValue,
     frequencyUnit,
     highPriority,
@@ -365,17 +364,19 @@ export async function taskLoader(item, { models, pushError }) {
     where: { taskTemplateId: newTaskTemplate.id, designationId: { [Op.notIn]: designationIds } },
   });
 
-  for (const designation of designationIds) {
-    const existingData = await models.ReferenceData.findByPk(designation);
-    if (!existingData) {
-      pushError(`Designation "${designation}" does not exist`);
+  const existingDesignationIds = await models.ReferenceData.findByIds(
+    designationIds,
+  ).then(designations => designations.map(d => d.id));
+  for (const designationId of designationIds) {
+    if (!existingDesignationIds.includes(designationId)) {
+      pushError(`Designation "${designationId}" does not exist`);
       continue;
     }
     rows.push({
       model: 'TaskTemplateDesignation',
       values: {
         taskTemplateId: newTaskTemplate.id,
-        designationId: designation,
+        designationId,
       },
     });
   }
