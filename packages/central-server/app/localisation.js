@@ -154,35 +154,6 @@ const fieldsSchema = yup
   .required()
   .noUnknown();
 
-const sidebarItemSchema = yup
-  .object({
-    sortPriority: yup.number().required(),
-    hidden: yup.boolean(),
-  })
-  .required()
-  .noUnknown();
-
-// patients and patientsAll are intentionally not configurable
-const sidebarSchema = yup
-  .object(
-    mapValues(SIDEBAR_ITEMS, (children, topItem) => {
-      const childSchema = yup
-        .object(
-          children.reduce(
-            (obj, childItem) =>
-              childItem === 'patientsAll' ? obj : { ...obj, [childItem]: sidebarItemSchema },
-            {},
-          ),
-        )
-        .required()
-        .noUnknown();
-
-      return topItem === 'patients' ? childSchema : sidebarItemSchema.concat(childSchema);
-    }),
-  )
-  .required()
-  .noUnknown();
-
 const imagingTypeSchema = yup
   .object({
     label: yup.string().required(),
