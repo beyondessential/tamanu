@@ -7,6 +7,13 @@ const NONNEGATIVE_INTEGER = yup
   .integer()
   .min(0);
 
+/** Pattern from ms package, which ReportRequestProcessor uses to parse sleepAfterReport values. */
+const DURATION_STRING = yup
+  .string()
+  .matches(
+    /^(-?(?:\d+)?\.?\d+) *(milliseconds?|msecs?|ms|seconds?|secs?|s|minutes?|mins?|m|hours?|hrs?|h|days?|d|weeks?|w|years?|yrs?|y)?$/i,
+  );
+
 const ageRangeLimitSchema = yup.object({
   duration: yup
     .object({
@@ -361,16 +368,19 @@ export const globalSettings = {
         },
         /** Provide an array if you want to override the options. e.g. ['--max-old-space-size=4096'] */
         processOptions: {
-          schema: yup.object(), // TODO
+          schema: yup.array().of(yup.string()),
           defaultValue: null,
         },
         /** Provide an object {} for the env of child process */
         childProcessEnv: {
-          schema: yup.object(), // TODO
+          schema: yup.object(), // Should be Record<string, string>, but Yup has poor support for dictionaries
           defaultValue: null,
         },
         sleepAfterReport: {
-          schema: yup.object(), // TODO
+          schema: yup.object().shape({
+            duration: DURATION_STRING,
+            ifRunAtLeast: DURATION_STRING,
+          }),
           defaultValue: {
             duration: '5m',
             ifRunAtLeast: '5m',
