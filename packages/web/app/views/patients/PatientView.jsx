@@ -6,7 +6,6 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { TabDisplay } from '../../components/TabDisplay';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { PatientAlert } from '../../components/PatientAlert';
-import { useLocalisation } from '../../contexts/Localisation';
 import { useApi } from '../../api';
 import {
   DocumentsPane,
@@ -29,6 +28,7 @@ import { invalidatePatientDataQueries } from '../../utils';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
 import { useSyncState } from '../../contexts/SyncState';
 import { useAuth } from '../../contexts/Auth';
+import { useSettings } from '../../contexts/Settings';
 
 const StyledDisplayTabs = styled(TabDisplay)`
   overflow: initial;
@@ -108,8 +108,8 @@ const tabCompare = ({ firstTab, secondTab, patientTabLocalisation }) => {
 
 const usePatientTabs = () => {
   const { ability } = useAuth();
-  const { getLocalisation } = useLocalisation();
-  const patientTabLocalisation = getLocalisation('layouts.patientTabs');
+  const { getSetting } = useSettings()
+  const patientTabLocalisation = getSetting('layouts.patientTabs');
   return TABS.filter(
     tab =>
       patientTabLocalisation?.[tab.key]?.hidden === false &&
