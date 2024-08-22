@@ -33,8 +33,6 @@ const vdsData = {
 };
 
 const localisation = {
-  'templates.vaccineCertificate.emailAddress': 'tamanu@health.govt',
-  'templates.vaccineCertificate.contactNumber': '123456',
   'fields.firstName.longLabel': 'First Name',
   'fields.lastName.longLabel': 'Last Name',
   'fields.dateOfBirth.longLabel': 'Date of Birth',
@@ -114,6 +112,8 @@ const certificateData = {
   subTitle: 'PO Box 12345, Melbourne, Australia',
 };
 
+const healthFacility = 'State level'
+
 export const VaccineCertificate = () => {
   const [vdsSrc, setVdsSrc] = useState();
 
@@ -135,6 +135,7 @@ export const VaccineCertificate = () => {
         vdsSrc={vdsSrc}
         localisation={localisation}
         certificateData={certificateData}
+        healthFacility={healthFacility}
       />
     </PDFViewer>
   );

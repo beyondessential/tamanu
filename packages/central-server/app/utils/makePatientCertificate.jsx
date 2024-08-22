@@ -120,6 +120,7 @@ export const makeVaccineCertificate = async (
   const localisation = await getLocalisation();
 
   const { title, subtitle } = await settings.get('templates.letterhead');
+  const { healthFacility } = await settings.get('templates.vaccineCertificate');
 
   const fileName = `vaccine-certificate-${patient.id}.pdf`;
   const { logo, signingImage, watermark } = await getCertificateAssets(
@@ -142,6 +143,7 @@ export const makeVaccineCertificate = async (
       localisation={localisation}
       language={language}
       certificateData={{ title, subtitle }}
+      healthFacility={healthFacility}
     />,
     fileName,
   );

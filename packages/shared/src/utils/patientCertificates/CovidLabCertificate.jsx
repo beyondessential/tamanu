@@ -72,10 +72,10 @@ const CertificateTitle = {
   clearance: 'Covid-19 Clearance Certificate',
 };
 
-const getCertificateRemark = (patient, getLocalisation) => ({
+const getCertificateRemark = (patient, getSetting) => ({
   test: '',
   clearance: replaceInTemplate(
-    getLocalisation('templates.covidTestCertificate.clearanceCertRemark') ?? '',
+    getSetting('templates.covidTestCertificate.clearanceCertRemark') ?? '',
     patient,
   ),
 });
@@ -105,9 +105,14 @@ const CovidLabCertificateComponent = ({
         />
       </Box>
       <Box mb={30}>
-        <Table data={labs} columns={columns} getLocalisation={getLocalisation} />
+        <Table
+          data={labs}
+          columns={columns}
+          getLocalisation={getLocalisation}
+          getSetting={getSetting}
+        />
       </Box>
-      <P>{getCertificateRemark(patient, getLocalisation)[certType] || ''}</P>
+      <P>{getCertificateRemark(patient, getSetting)[certType] || ''}</P>
       <Box />
       <Box>
         <Row>

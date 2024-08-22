@@ -38,7 +38,7 @@ const TD = ({ customStyles, ...props }) => (
   <Text wrap={false} {...props} style={[tableStyles.td, customStyles]} />
 );
 
-export const Table = ({ data, columns, getLocalisation, columnStyle }) => {
+export const Table = ({ data, columns, getLocalisation, getSetting, columnStyle }) => {
   const leftColumnStyle = {
     ...columnStyle,
     borderLeft: basicBorder,
@@ -66,7 +66,7 @@ export const Table = ({ data, columns, getLocalisation, columnStyle }) => {
               key={key}
               customStyles={[customStyles, columnIndex === 0 ? leftColumnStyle : columnStyle]}
             >
-              {accessor ? accessor(row, getLocalisation) : row[key]}
+              {accessor ? accessor(row, getLocalisation, getSetting) : row[key]}
             </TD>
           ))}
         </TR>

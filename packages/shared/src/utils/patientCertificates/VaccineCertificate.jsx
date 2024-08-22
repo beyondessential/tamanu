@@ -139,11 +139,11 @@ const VaccineCertificateComponent = ({
   logoSrc,
   localisation,
   extraPatientFields,
-  certificateData
+  certificateData,
+  healthFacility
 }) => {
   const { getTranslation } = useLanguageContext();
   const getLocalisation = key => get(localisation, key);
-  const healthFacility = getLocalisation('templates.vaccineCertificate.healthFacility');
   const countryName = getLocalisation('country.name');
 
   const data = vaccinations.map(vaccination => ({ ...vaccination, countryName, healthFacility }));

@@ -11,8 +11,6 @@ export default {
 
 const getLocalisation = key => {
   const config = {
-    'templates.vaccineCertificate.emailAddress': 'tamanu@health.govt',
-    'templates.vaccineCertificate.contactNumber': '123456',
     'fields.firstName.longLabel': 'First Name',
     'fields.lastName.longLabel': 'Last Name',
     'fields.dateOfBirth.longLabel': 'Date of Birth',

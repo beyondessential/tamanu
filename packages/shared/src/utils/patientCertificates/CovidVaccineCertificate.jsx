@@ -70,9 +70,9 @@ const CovidVaccineCertificateComponent = ({
   extraPatientFields,
   printedDate,
 }) => {
-  const contactEmail = getLocalisation('templates.vaccineCertificate.emailAddress');
-  const contactNumber = getLocalisation('templates.vaccineCertificate.contactNumber');
-  const healthFacility = getLocalisation('templates.vaccineCertificate.healthFacility');
+  const { emailAddress: contactEmail, contactNumber, healthFacility } = getSetting(
+    'templates.vaccineCertificate',
+  );
   const countryCode = getLocalisation('country.alpha-2');
   const countryName = getLocalisation('country.name');
   const uvciFormat = getLocalisation('previewUvciFormat');
