@@ -2,6 +2,32 @@ import { VACCINE_STATUS } from '@tamanu/constants';
 import * as yup from 'yup';
 import { extractDefaults } from './utils';
 
+const MOBILE_PATIENT_MODULES = [
+  'diagnosisAndTreatment',
+  'vitals',
+  'programs',
+  'referral',
+  'vaccine',
+  'tests',
+];
+
+const UNHIDEABLE_PATIENT_TABS = ['history', 'details'];
+
+const HIDEABLE_PATIENT_TABS = [
+  'results',
+  'referrals',
+  'programs',
+  'documents',
+  'vaccines',
+  'medication',
+  'invoices',
+];
+
+const layoutModuleSchema = (defaultSortPriority = 0) => ({
+  sortPriority: { schema: yup.number(), defaultValue: defaultSortPriority },
+  hidden: { schema: yup.boolean(), defaultValue: false },
+});
+
 export const globalSettings = {
   features: {
     description: 'Toggle features on/off',
@@ -427,6 +453,81 @@ export const globalSettings = {
       },
     },
     plannedMoveTimeoutHours: { schema: yup.number(), defaultValue: 24 },
+  },
+  layouts: {
+    description: '_',
+    values: {
+      patientDetails: { default: 'generic' },
+      mobilePatientModules: {
+        description: '_',
+        values: {
+          programRegistries: layoutModuleSchema(),
+          diagnosisAndTreatment: layoutModuleSchema(),
+          vitals: layoutModuleSchema(),
+          programs: layoutModuleSchema(),
+          referral: layoutModuleSchema(),
+          vaccine: layoutModuleSchema(),
+          tests: layoutModuleSchema(),
+        },
+      },
+      patientTabs: {
+        description: '_',
+        values: {
+          history: layoutModuleSchema(-100),
+          details: layoutModuleSchema(-50),
+          results: layoutModuleSchema(),
+          referrals: layoutModuleSchema(),
+          programs: layoutModuleSchema(),
+          documents: layoutModuleSchema(),
+          vaccines: layoutModuleSchema(),
+          medication: layoutModuleSchema(),
+          invoices: layoutModuleSchema(),
+        },
+      },
+      sidebar: {
+        description: '_',
+        values: {
+          patients: {
+            description: '_',
+            values: {
+              patientsInpatients: layoutModuleSchema(),
+              patientsEmergency: layoutModuleSchema(),
+              patientsOutpatients: layoutModuleSchema(),
+            },
+          },
+          scheduling: {
+            ...layoutModuleSchema(),
+            schedulingAppointments: layoutModuleSchema(),
+            schedulingCalendar: layoutModuleSchema(),
+            schedulingNew: layoutModuleSchema(),
+          },
+          medication: {
+            ...layoutModuleSchema(),
+            medicationAll: layoutModuleSchema(),
+          },
+          imaging: {
+            ...layoutModuleSchema(),
+            imagingActive: layoutModuleSchema(),
+            imagingCompleted: layoutModuleSchema(),
+          },
+          labs: {
+            ...layoutModuleSchema(),
+            labsAll: layoutModuleSchema(),
+            labsPublished: layoutModuleSchema(),
+          },
+          immunisations: {
+            ...layoutModuleSchema(),
+            immunisationsAll: layoutModuleSchema(),
+          },
+          programRegistry: layoutModuleSchema(),
+          facilityAdmin: {
+            ...layoutModuleSchema(),
+            reports: layoutModuleSchema(),
+            bedManagement: layoutModuleSchema(),
+          },
+        },
+      },
+    },
   },
 };
 

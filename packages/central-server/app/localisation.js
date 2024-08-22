@@ -201,34 +201,6 @@ const fieldsSchema = yup
   .required()
   .noUnknown();
 
-const mobilePatientModulesSchema = yup.object({
-  programRegistries: yup.object({ hidden: yup.boolean() }),
-  ...MOBILE_PATIENT_MODULES.reduce(
-    (modules, module) => ({
-      ...modules,
-      [module]: mobilePatientModuleSchema,
-    }),
-    {},
-  ),
-});
-
-const patientTabsSchema = yup.object({
-  ...UNHIDEABLE_PATIENT_TABS.reduce(
-    (tabs, tab) => ({
-      ...tabs,
-      [tab]: unhideablePatientTabSchema,
-    }),
-    {},
-  ),
-  ...HIDEABLE_PATIENT_TABS.reduce(
-    (tabs, tab) => ({
-      ...tabs,
-      [tab]: patientTabSchema,
-    }),
-    {},
-  ),
-});
-
 const SIDEBAR_ITEMS = {
   patients: ['patientsAll', 'patientsInpatients', 'patientsEmergency', 'patientsOutpatients'],
   scheduling: ['schedulingAppointments', 'schedulingCalendar', 'schedulingNew'],
@@ -286,16 +258,6 @@ const imagingTypesSchema = yup
     ),
   })
   .required();
-
-const layoutsSchema = yup.object({
-  patientDetails: yup
-    .string()
-    .required()
-    .oneOf(Object.values(PATIENT_DETAIL_LAYOUTS)),
-  mobilePatientModules: mobilePatientModulesSchema,
-  patientTabs: patientTabsSchema,
-  sidebar: sidebarSchema,
-});
 
 const rootLocalisationSchema = yup
   .object({
@@ -394,7 +356,6 @@ const rootLocalisationSchema = yup
       )
       .min(3)
       .max(5),
-    layouts: layoutsSchema,
     previewUvciFormat: yup
       .string()
       .required()
