@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 import PropTypes from 'prop-types';
 import Autosuggest from 'react-autosuggest';
-import { debounce, map, groupBy } from 'lodash';
+import { debounce } from 'lodash';
 import { IconButton, MenuItem, Paper, Popper, Typography } from '@material-ui/core';
 import { ClearIcon } from '../Icons/ClearIcon';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
@@ -214,45 +214,43 @@ export class AutocompleteInput extends Component {
     let suggestions = [];
     if (fieldClickedWithOptionSelected) {
       suggestions = await this.fetchAllOptions();
-    } else {
-      const trimmedValue = value.trim();
-      suggestions = await this.fetchAllOptions(trimmedValue);
+      this.setState({ suggestions });
+      return;
+    }
+
+    const trimmedValue = value.trim();
+    suggestions = await this.fetchAllOptions(trimmedValue);
+    if (!multiSection) {
       const isValueInOptions = suggestions.some(
         suggest => suggest.label.toLowerCase() === trimmedValue.toLowerCase(),
       );
       if (allowCreatingCustomValue && trimmedValue && !isValueInOptions) {
         suggestions.push({ label: trimmedValue, value: trimmedValue, isCustomizedOption: true });
       }
-      if (multiSection) {
-        suggestions = map(groupBy(suggestions, 'type'), (data, type) => ({
-          type,
-          data: data.map(({ label, value }) => ({ label, value })),
-        }));
+    } else {
+      const customOption = {
+        label: trimmedValue,
+        value: trimmedValue,
+        isCustomizedOption: true,
+      };
 
-        const customOption = {
-          label: trimmedValue,
-          value: trimmedValue,
-          isCustomizedOption: true,
-        };
+      const allowedCustomValueSection = suggestions.find(
+        section => section.type === suggester.allowedCustomValueType,
+      );
 
-        const allowedCustomValueSection = suggestions.find(
-          section => section.type === suggester.allowedCustomValueType,
+      if (allowedCustomValueSection) {
+        const isValueInOptions = allowedCustomValueSection.data.some(
+          suggest => suggest.label.toLowerCase() === trimmedValue.toLowerCase(),
         );
-
-        if (allowedCustomValueSection) {
-          const isValueInOptions = allowedCustomValueSection.data.some(
-            suggest => suggest.label.toLowerCase() === trimmedValue.toLowerCase(),
-          );
-          if (trimmedValue && !isValueInOptions) {
-            allowedCustomValueSection.data.push(customOption);
-          }
-        } else {
-          if (trimmedValue) {
-            suggestions.push({
-              type: suggester.allowedCustomValueType,
-              data: [customOption],
-            });
-          }
+        if (trimmedValue && !isValueInOptions) {
+          allowedCustomValueSection.data.push(customOption);
+        }
+      } else {
+        if (trimmedValue && suggester.allowedCustomValueType) {
+          suggestions.push({
+            type: suggester.allowedCustomValueType,
+            data: [customOption],
+          });
         }
       }
     }
@@ -425,7 +423,7 @@ export class AutocompleteInput extends Component {
   };
 
   getSectionSuggestions = section => {
-    return section.data;
+    return section?.data;
   };
 
   renderSectionTitle = section => {

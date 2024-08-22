@@ -1,3 +1,4 @@
+import { groupBy, map } from 'lodash';
 import { getCurrentLanguageCode } from './translation';
 
 const defaultFormatter = ({ name, id }) => ({ label: name, value: id });
@@ -47,6 +48,14 @@ export class Suggester {
         q: search,
         language: getCurrentLanguageCode(),
       });
+      if (this.endpoint === 'suggestions/multiReferenceData') {
+        const groupedData = map(groupBy(data, 'type'), (data, type) => ({
+          type,
+          data: data.filter(this.filterer).map(this.formatter)
+        }));
+        return groupedData;
+      }
+      
       return data.filter(this.filterer).map(this.formatter);
     } catch (e) {
       return [];
