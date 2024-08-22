@@ -2,7 +2,7 @@ import config from 'config';
 import * as yup from 'yup';
 import { defaultsDeep, mapValues } from 'lodash';
 import { log } from '@tamanu/shared/services/logging';
-import { IMAGING_TYPES, PATIENT_DETAIL_LAYOUTS } from '@tamanu/constants';
+import { IMAGING_TYPES } from '@tamanu/constants';
 
 const fieldSchema = yup
   .object({
@@ -35,32 +35,6 @@ const unhideableFieldSchema = yup
   })
   .required()
   .noUnknown();
-
-const mobilePatientModuleSchema = yup
-  .object({
-    sortPriority: yup.number().required(),
-    hidden: yup.boolean(),
-  })
-  .required()
-  .noUnknown();
-
-const patientTabSchema = yup
-  .object({
-    sortPriority: yup.number().required(),
-    hidden: yup.boolean(),
-  })
-  .required()
-  .noUnknown();
-
-const unhideablePatientTabSchema = yup
-  .object({
-    sortPriority: yup.number().required(),
-    hidden: yup
-      .boolean()
-      .oneOf([false], 'unhideable tabs must not be hidden')
-      .required(),
-  })
-  .required();
 
 const UNHIDEABLE_FIELDS = [
   'markedForSync',
