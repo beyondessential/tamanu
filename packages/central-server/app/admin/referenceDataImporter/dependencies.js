@@ -6,6 +6,7 @@ import {
   patientFieldDefinitionLoader,
   permissionLoader,
   taskLoader,
+  taskSetLoader,
   translatedStringLoader,
   userLoader,
 } from './loaders';
@@ -78,5 +79,9 @@ export default {
 
   [REFERENCE_TYPES.TASK]: {
     loader: taskLoader
-  }
+  },
+
+  [REFERENCE_TYPES.TASK_SET]: {
+    loader: taskSetLoader,
+  },
 };

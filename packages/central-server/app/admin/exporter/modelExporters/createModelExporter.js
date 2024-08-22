@@ -7,6 +7,7 @@ import { PermissionExporter } from './PermissionExporter';
 import { PatientFieldDefinitionExporter } from './PatientFieldDefinitionExporter';
 import { ReferenceDataExporter } from './ReferenceDataExporter';
 import { TranslatedStringExporter } from './TranslatedStringExporter';
+import { TaskSetExporter } from './TaskSetExporter';
 import { UserExporter } from './UserExporter';
 import { TaskExporter } from './TaskExporter';
 
@@ -18,7 +19,8 @@ const CustomExportersByDataType = {
   patientFieldDefinition: PatientFieldDefinitionExporter,
   translatedString: TranslatedStringExporter,
   user: UserExporter,
-  [REFERENCE_TYPES.TASK]: TaskExporter
+  [REFERENCE_TYPES.TASK]: TaskExporter,
+  [REFERENCE_TYPES.TASK_SET]: TaskSetExporter,
 };
 
 export const createModelExporter = (context, dataType) => {
