@@ -13,7 +13,7 @@ export const KeyInformationSection = (): ReactElement => {
   const { getSetting } = useSettings();
   const { getBool } = useLocalisation();
   let filteredGenderOptions = GenderOptions;
-  if (getSetting('features.hideOtherSex') === true) {
+  if (getSetting<boolean>('features.hideOtherSex') === true) {
     filteredGenderOptions = filteredGenderOptions.filter(({ value }) => value !== Gender.Other);
   }
   return (
