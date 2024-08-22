@@ -29,12 +29,18 @@ export const getMarkedForSyncPatientsTableName = (sessionId, isFullSync) => {
 
 export const createSnapshotTable = async (sequelize, sessionId) => {
   const tableName = getSnapshotTableName(sessionId);
-  const useNewUUIDV4Generator = config.sync?.newUUIDV4;
+  const useSerial = config.sync?.useSerial;
+  const useNewUUIDV4Generator = config.sync?.useNewUUIDV4Generator;
+
   await sequelize.query(`
     CREATE TABLE ${tableName} (
-      id uuid DEFAULT ${
-        useNewUUIDV4Generator ? 'gen_random_uuid()' : 'uuid_generate_v4()'
-      } PRIMARY KEY,
+      ${
+        useSerial
+          ? 'id BIGSERIAL PRIMARY KEY,'
+          : `id uuid DEFAULT ${
+              useNewUUIDV4Generator ? 'gen_random_uuid()' : 'uuid_generate_v4()'
+            } PRIMARY KEY,`
+      }
       direction character varying(255) NOT NULL,
       record_type character varying(255) NOT NULL,
       record_id character varying(255) NOT NULL,
