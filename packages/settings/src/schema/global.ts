@@ -12,130 +12,132 @@ export const globalSettings = {
         defaultValue: false,
       },
       enableVaccineConsent: {
-        description: 'Display a required vaccine consent box on the vaccine given form',
+        description: 'Show consent given by field on vaccine forms',
         schema: yup.boolean(),
         defaultValue: true,
       },
       filterDischargeDispositions: {
-        description: '_',
+        description:
+          'Filter the discharge disposition autocomplete options by prefix corresponding to patients status (AE, IN, OP)',
         schema: yup.boolean(),
         defaultValue: false,
       },
       editPatientDetailsOnMobile: {
-        description: '_',
+        description: 'Allow the editing of patient details from mobile',
         schema: yup.boolean(),
         defaultValue: true,
       },
       quickPatientGenerator: {
-        description: '_',
+        description: 'Dev tool to show a button to create a random patient',
         schema: yup.boolean(),
         defaultValue: false,
       },
       enableInvoicing: {
-        description: '_',
+        description: 'Enable invoice tab/module on encounter view',
         schema: yup.boolean(),
         defaultValue: false,
       },
       registerNewPatient: {
-        description: '_',
+        description: 'Allow the creation of new patient on mobile',
         schema: yup.boolean(),
         defaultValue: true,
       },
       hideOtherSex: {
-        description: '_',
+        description: 'Remove option to record sex as "Other"',
         schema: yup.boolean(),
         defaultValue: true,
       },
       enablePatientDeaths: {
-        description: '_',
+        description: 'Enable death module',
         schema: yup.boolean(),
         defaultValue: false,
       },
       enableNoteBackdating: {
-        description: '_',
+        description:
+          'Allow notes to have date explicitly recorded, allowing notes to be recorded in the past',
         schema: yup.boolean(),
         defaultValue: true,
       },
       enableCovidClearanceCertificate: {
-        description: '_',
+        description: 'Enable covid certificate printout',
         schema: yup.boolean(),
         defaultValue: false,
       },
       editPatientDisplayId: {
-        description: '_',
+        description: 'Allow the editing of an existing patients display id',
         schema: yup.boolean(),
         defaultValue: true,
       },
       enablePatientInsurer: {
-        description: '_',
+        description:
+          'Include insurer and policy number as fields in patient details identification section',
         schema: yup.boolean(),
         defaultValue: false,
       },
       patientPlannedMove: {
-        description: '_',
+        description: 'Enable patient planned move encounter actions',
         schema: yup.boolean(),
         defaultValue: false,
       },
       onlyAllowLabPanels: {
-        description: '_',
+        description: 'Only allow lab tests to be created via panels and not individual tests',
         schema: yup.boolean(),
         defaultValue: false,
       },
       displayProcedureCodesInDischargeSummary: {
-        description: '_',
         schema: yup.boolean(),
         defaultValue: true,
       },
       displayIcd10CodesInDischargeSummary: {
-        description: '_',
         schema: yup.boolean(),
         defaultValue: true,
       },
       mandatoryVitalEditReason: {
-        description: '_',
+        description: 'Require a reason for change text field to be filled out on vital edit',
         schema: yup.boolean(),
         defaultValue: false,
       },
       enableVitalEdit: {
-        description: '_',
+        description: 'Allow existing vitals records to be edited',
         schema: yup.boolean(),
         defaultValue: false,
       },
       idleTimeout: {
-        description: '_',
+        description: 'Automatically logout idle users / inactive sessions after a certain time',
         values: {
           enabled: {
-            description: '_',
             schema: yup.boolean(),
             defaultValue: true,
           },
           timeoutDuration: {
-            description: '_',
+            description: 'The idle time in seconds before a user is logged out',
             schema: yup.number(),
-            defaultValue: 600, // In Seconds
+            defaultValue: 600,
           },
           warningPromptDuration: {
-            description: '_',
+            description:
+              'The time in seconds the warning prompt should be visible before idle logout',
             schema: yup.number(),
-            defaultValue: 30, // In Seconds
+            defaultValue: 30,
           },
           refreshInterval: {
-            description: '_',
+            description:
+              'Technical really should not be changed - The interval in which to throttle the idle check by for performance',
             schema: yup.number(),
             defaultValue: 150, // In Seconds
           },
         },
       },
       tableAutoRefresh: {
-        description: '_',
+        description:
+          'Enable the auto refresh feature on tables where it is implemented: Currently supports imaging and lab listing views',
         values: {
           enabled: {
-            description: '_',
             schema: yup.boolean(),
             defaultValue: true,
           },
           interval: {
-            description: '_',
+            description: 'Interval in seconds between check for new records.',
             schema: yup.number(),
             defaultValue: 300, // In Seconds
           },
