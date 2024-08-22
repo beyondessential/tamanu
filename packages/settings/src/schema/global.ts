@@ -25,36 +25,34 @@ const ageRangeLimitSchema = yup.object({
   exclusive: yup.boolean(),
 });
 
-const ageDisplayFormatSchema = yup
-  .array(
-    yup.object({
-      as: yup
-        .string()
-        .oneOf(['days', 'weeks', 'months', 'years'])
-        .required(),
-      range: yup
-        .object({
-          min: ageRangeLimitSchema,
-          max: ageRangeLimitSchema,
-        })
-        .required()
-        .test({
-          name: 'ageDisplayFormat',
-          test(range, ctx) {
-            if (!range.min && !range.max) {
-              return ctx.createError({
-                message: `range in ageDisplayFormat must include either min or max, or both, got ${JSON.stringify(
-                  range,
-                )}`,
-              });
-            }
+const ageDisplayFormatSchema = yup.array(
+  yup.object({
+    as: yup
+      .string()
+      .oneOf(['days', 'weeks', 'months', 'years'])
+      .required(),
+    range: yup
+      .object({
+        min: ageRangeLimitSchema,
+        max: ageRangeLimitSchema,
+      })
+      .required()
+      .test({
+        name: 'ageDisplayFormat',
+        test(range, ctx) {
+          if (!range.min && !range.max) {
+            return ctx.createError({
+              message: `range in ageDisplayFormat must include either min or max, or both, got ${JSON.stringify(
+                range,
+              )}`,
+            });
+          }
 
-            return true;
-          },
-        }),
-    }),
-  )
-  .required();
+          return true;
+        },
+      }),
+  }),
+);
 
 const ageDisplayFormatDefault = [
   {
@@ -159,6 +157,8 @@ const labsCancellationReasonsSchema = yup
     yup.object({
       value: yup
         .string()
+        .lowercase()
+        .strict()
         .required()
         .max(31),
       label: yup.string().required(),
@@ -378,7 +378,7 @@ export const globalSettings = {
           defaultValue: null,
         },
         sleepAfterReport: {
-          schema: yup.object().shape({
+          schema: yup.object({
             duration: DURATION_STRING,
             ifRunAtLeast: DURATION_STRING,
           }),
