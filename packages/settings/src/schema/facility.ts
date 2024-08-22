@@ -28,13 +28,19 @@ export const facilitySettings = {
         name: 'Default codes',
         description:
           'Default reference data codes to use when creating a survey encounter (includes vitals) when none are explicitly specified',
-        schema: yup.object().shape({
-          department: yup.string().required(),
-          location: yup.string().required(),
-        }),
-        defaultVlaue: {
-          department: 'GeneralClinic',
-          location: 'GeneralClinic',
+        values: {
+          department: {
+            name: 'Department',
+            description: 'Default department code',
+            schema: yup.string(),
+            defaultValue: 'GeneralClinic',
+          },
+          location: {
+            name: 'Location',
+            description: 'Default location code',
+            schema: yup.string(),
+            defaultValue: 'GeneralClinic',
+          },
         },
       },
     },

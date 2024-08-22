@@ -39,6 +39,7 @@ export const globalSettings = {
     description: 'FHIR integration settings',
     values: {
       worker: {
+        name: 'FHIR worker',
         description: 'FHIR worker settings',
         values: {
           heartbeat: {
