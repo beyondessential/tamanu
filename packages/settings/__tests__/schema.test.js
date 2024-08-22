@@ -16,42 +16,50 @@ describe('Schemas', () => {
   describe('Extracting settings from schema', () => {
     it('Should extract settings from a schema', () => {
       const schema = {
-        a: {
-          b: {
-            name: 'Setting a.b',
-            description: '_',
-            schema: yup.boolean().required(),
-            defaultValue: false,
+        values: {
+          a: {
+            values: {
+              b: {
+                name: 'Setting a.b',
+                description: '_',
+                schema: yup.boolean().required(),
+                defaultValue: false,
+              },
+            },
           },
-        },
-        c: {
-          name: 'Setting c',
-          schema: yup.string().required(),
-          defaultValue: 'c',
-        },
-        d: {
-          e: {
-            f: {
-              name: 'Setting d.e.f',
-              schema: yup
-                .array()
-                .of(
-                  yup.object({
-                    threshold: yup.number().required(),
-                    status: yup.string().required(),
-                  }),
-                )
-                .required(),
-              defaultValue: [
-                {
-                  threshold: 28,
-                  status: 'scheduled',
+          c: {
+            name: 'Setting c',
+            schema: yup.string().required(),
+            defaultValue: 'c',
+          },
+          d: {
+            values: {
+              e: {
+                values: {
+                  f: {
+                    name: 'Setting d.e.f',
+                    schema: yup
+                      .array()
+                      .of(
+                        yup.object({
+                          threshold: yup.number().required(),
+                          status: yup.string().required(),
+                        }),
+                      )
+                      .required(),
+                    defaultValue: [
+                      {
+                        threshold: 28,
+                        status: 'scheduled',
+                      },
+                      {
+                        threshold: 7,
+                        status: 'upcoming',
+                      },
+                    ],
+                  },
                 },
-                {
-                  threshold: 7,
-                  status: 'upcoming',
-                },
-              ],
+              },
             },
           },
         },
@@ -77,9 +85,6 @@ describe('Schemas', () => {
           },
         },
       };
-
-      console.log(extractDefaults(schema));
-
       expect(extractDefaults(schema)).toEqual(expectedSettings);
     });
   });
@@ -134,6 +139,7 @@ describe('Schemas', () => {
       await expect(
         validateSettings({ settings: validSettings, scope: 'global' }),
       ).resolves.not.toThrow();
+      expect(warnSpy).not.toHaveBeenCalled();
     });
 
     it('Should throw error for invalid settings', async () => {
@@ -151,6 +157,7 @@ describe('Schemas', () => {
       await expect(
         validateSettings({ settings: invalidSettings, scope: 'global' }),
       ).rejects.toThrow(/Validation failed for the following fields/);
+      expect(warnSpy).not.toHaveBeenCalled();
     });
 
     it('Should warn for unknown fields', async () => {
@@ -181,6 +188,7 @@ describe('Schemas', () => {
       await expect(
         validateSettings({ settings: globalDefaults, scope: 'global' }),
       ).resolves.not.toThrow();
+      expect(warnSpy).not.toHaveBeenCalled();
     });
   });
 
@@ -193,6 +201,7 @@ describe('Schemas', () => {
       await expect(
         validateSettings({ settings: centralDefaults, scope: 'central' }),
       ).resolves.not.toThrow();
+      expect(warnSpy).not.toHaveBeenCalled();
     });
   });
 
@@ -208,6 +217,7 @@ describe('Schemas', () => {
       await expect(
         validateSettings({ settings: validSettings, scope: 'facility' }),
       ).resolves.not.toThrow();
+      expect(warnSpy).not.toHaveBeenCalled();
     });
 
     it('Should throw error for invald settings', async () => {
@@ -221,6 +231,7 @@ describe('Schemas', () => {
       await expect(
         validateSettings({ settings: invalidSettings, scope: 'facility' }),
       ).rejects.toThrow(/Validation failed for the following fields/);
+      expect(warnSpy).not.toHaveBeenCalled();
     });
 
     it('Should warn for unknown fields', async () => {
@@ -249,15 +260,18 @@ describe('Schemas', () => {
       await expect(
         validateSettings({ settings: facilityDefaults, scope: 'facility' }),
       ).resolves.not.toThrow();
+      expect(warnSpy).not.toHaveBeenCalled();
     });
   });
 
   describe('Edge cases', () => {
     it('Should prevent null values for non-nullable fields', async () => {
       const schema = {
-        a: {
-          schema: yup.string().required(),
-          defaultValue: 'a',
+        values: {
+          a: {
+            schema: yup.string().required(),
+            defaultValue: 'a',
+          },
         },
       };
 
@@ -268,14 +282,17 @@ describe('Schemas', () => {
       await expect(validateSettings({ settings, schema })).rejects.toThrow(
         /Validation failed for the following fields/,
       );
+      expect(warnSpy).not.toHaveBeenCalled();
     });
   });
 
   it('Should work with simple arrays', async () => {
     const schema = {
-      a: {
-        schema: yup.array().of(yup.string()),
-        defaultValue: ['a'],
+      values: {
+        a: {
+          schema: yup.array().of(yup.string()),
+          defaultValue: ['a'],
+        },
       },
     };
 
@@ -284,17 +301,20 @@ describe('Schemas', () => {
     };
 
     await expect(validateSettings({ settings, schema })).resolves.not.toThrow();
+    expect(warnSpy).not.toHaveBeenCalled();
   });
 
   it('Should work with arrays of objects', async () => {
     const schema = {
-      a: {
-        schema: yup.array().of(
-          yup.object().shape({
-            b: yup.string().required(),
-          }),
-        ),
-        defaultValue: [{ b: 'a' }],
+      values: {
+        a: {
+          schema: yup.array().of(
+            yup.object().shape({
+              b: yup.string().required(),
+            }),
+          ),
+          defaultValue: [{ b: 'a' }],
+        },
       },
     };
 
@@ -303,5 +323,6 @@ describe('Schemas', () => {
     };
 
     await expect(validateSettings({ settings, schema })).resolves.not.toThrow();
+    expect(warnSpy).not.toHaveBeenCalled();
   });
 });
