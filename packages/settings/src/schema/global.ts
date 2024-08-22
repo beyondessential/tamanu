@@ -379,8 +379,8 @@ export const globalSettings = {
         },
         sleepAfterReport: {
           schema: yup.object({
-            duration: DURATION_STRING,
-            ifRunAtLeast: DURATION_STRING,
+            duration: DURATION_STRING.required(),
+            ifRunAtLeast: DURATION_STRING.required(),
           }),
           defaultValue: {
             duration: '5m',
