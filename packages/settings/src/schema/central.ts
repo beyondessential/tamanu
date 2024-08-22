@@ -1,5 +1,5 @@
-import { extractDefaults } from "./utils";
+import { extractDefaults } from './utils';
 
-export const centralSettings = {};
+export const centralSettings = { values: {} };
 
-export const centralDefaults = (extractDefaults(centralSettings));
+export const centralDefaults = extractDefaults(centralSettings);
