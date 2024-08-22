@@ -271,11 +271,6 @@ function createMultiSuggesterRoute(endpoint, modelName, whereBuilder, { mapper, 
   );
 }
 
-// Add a new suggester for a particular model at the given endpoint.
-// Records will be filtered based on the whereSql parameter. The user's search term
-// will be passed to the sql query as ":search" - see the existing suggestion
-// endpoints for usage examples.
-
 function createMultiSuggester(
   endpoint,
   modelName,
@@ -292,6 +287,10 @@ function createMultiSuggester(
   createMultiSuggesterRoute(endpoint, modelName, whereBuilder, options);
 }
 
+// Add a new suggester for a particular model at the given endpoint.
+// Records will be filtered based on the whereSql parameter. The user's search term
+// will be passed to the sql query as ":search" - see the existing suggestion
+// endpoints for usage examples.
 function createSuggester(
   endpoint,
   modelName,
