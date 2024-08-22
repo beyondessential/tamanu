@@ -238,87 +238,76 @@ export const globalSettings = {
         },
       },
     },
-  },
-  printMeasures: {
-    description: '_',
-    values: {
-      labRequestPrintLabel: {
-        description: '_',
-        values: {
-          width: {
-            description: '_',
-            schema: yup.number().positive(),
-            defaultValue: 50.8,
+    printMeasures: {
+      description: 'Custom dimensions for PDFs',
+      values: {
+        labRequestPrintLabel: {
+          description: 'Lab request label with basic info + barcode',
+          values: {
+            width: {
+              schema: yup.number().positive(),
+              defaultValue: 50.8,
+            },
           },
         },
-      },
-      stickerLabelPage: {
-        description: '_',
-        values: {
-          pageWidth: {
-            description: '_',
-            schema: yup.number().positive(),
-            defaultValue: 210,
-          },
-          pageHeight: {
-            description: '_',
-            schema: yup.number().positive(),
-            defaultValue: 297,
-          },
-          pageMarginTop: {
-            description: '_',
-            schema: yup.number().positive(),
-            defaultValue: 15.09,
-          },
-          pageMarginLeft: {
-            description: '_',
-            schema: yup.number().positive(),
-            defaultValue: 6.4,
-          },
-          columnTotal: {
-            description: '_',
-            schema: yup.number().positive(),
-            defaultValue: 3,
-          },
-          columnWidth: {
-            description: '_',
-            schema: yup.number().positive(),
-            defaultValue: 64,
-          },
-          columnGap: {
-            description: '_',
-            schema: yup.number().positive(),
-            defaultValue: 3.01,
-          },
-          rowTotal: {
-            description: '_',
-            schema: yup.number().positive(),
-            defaultValue: 10,
-          },
-          rowHeight: {
-            description: '_',
-            schema: yup.number().positive(),
-            defaultValue: 26.7,
-          },
-          rowGap: {
-            description: '_',
-            schema: yup.number().positive(),
-            defaultValue: 0,
+        stickerLabelPage: {
+          description: 'The multiple ID labels printout on the patient view',
+          values: {
+            pageWidth: {
+              schema: yup.number().positive(),
+              defaultValue: 210,
+            },
+            pageHeight: {
+              schema: yup.number().positive(),
+              defaultValue: 297,
+            },
+            pageMarginTop: {
+              schema: yup.number().positive(),
+              defaultValue: 15.09,
+            },
+            pageMarginLeft: {
+              schema: yup.number().positive(),
+              defaultValue: 6.4,
+            },
+            columnTotal: {
+              description: 'Number of columns',
+              schema: yup.number().positive(),
+              defaultValue: 3,
+            },
+            columnWidth: {
+              schema: yup.number().positive(),
+              defaultValue: 64,
+            },
+            columnGap: {
+              schema: yup.number().positive(),
+              defaultValue: 3.01,
+            },
+            rowTotal: {
+              description: 'Number of rows',
+              schema: yup.number().positive(),
+              defaultValue: 10,
+            },
+            rowHeight: {
+              schema: yup.number().positive(),
+              defaultValue: 26.7,
+            },
+            rowGap: {
+              schema: yup.number().positive(),
+              defaultValue: 0,
+            },
           },
         },
-      },
-      idCardPage: {
-        description: '_',
-        values: {
-          cardMarginTop: {
-            description: '_',
-            schema: yup.number().positive(),
-            defaultValue: 1,
-          },
-          cardMarginLeft: {
-            description: '_',
-            schema: yup.number().positive(),
-            defaultValue: 5,
+        idCardPage: {
+          description: 'The ID card found on the patient view',
+          values: {
+            cardMarginTop: {
+              schema: yup.number().positive(),
+              defaultValue: 1,
+            },
+            cardMarginLeft: {
+              schema: yup.number().positive(),
+              defaultValue: 5,
+            },
           },
         },
       },
