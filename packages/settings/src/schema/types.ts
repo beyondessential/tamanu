@@ -8,6 +8,7 @@ export interface Setting<T = any> {
 }
 
 export interface SettingsSchema {
+  name?: string;
   description?: string;
-  [key: string]: Setting | SettingsSchema | string;
+  values: Record<string, Setting | SettingsSchema>;
 }
