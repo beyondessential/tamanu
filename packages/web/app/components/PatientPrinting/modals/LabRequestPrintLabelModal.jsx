@@ -5,7 +5,6 @@ import { useSelector } from 'react-redux';
 import { Box } from '@material-ui/core';
 import { Modal } from '../../Modal';
 import { LabRequestPrintLabel } from '../printouts/LabRequestPrintLabel';
-import { useLocalisation } from '../../../contexts/Localisation';
 import { getPatientNameAsString } from '../../PatientNameDisplay';
 import { TranslatedText, TranslatedReferenceData } from '../../Translation';
 import { useSettings } from '../../../contexts/Settings';

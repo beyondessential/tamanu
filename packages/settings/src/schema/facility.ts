@@ -5,8 +5,8 @@ export const facilitySettings = {
   vaccinations: {
     name: 'Vaccinations',
     description: '_',
-    schema: yup.object().required(),
-    default: {},
+    schema: yup.object(),
+    defaultValue: {},
   },
 };
 

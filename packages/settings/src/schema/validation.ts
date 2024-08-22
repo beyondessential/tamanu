@@ -4,6 +4,7 @@ import { centralSettings } from './central';
 import { facilitySettings } from './facility';
 import * as yup from 'yup';
 import _ from 'lodash';
+import { SettingsSchema } from './types';
 
 interface ErrorMessage {
   field: string;
@@ -16,14 +17,14 @@ const SCOPE_TO_SCHEMA = {
   [SETTINGS_SCOPES.FACILITY]: facilitySettings,
 };
 
-const flattenObject = (obj: any, parentKey: string = ''): any => {
+const flattenObject = (obj: unknown, parentKey: string = ''): unknown => {
   return Object.entries(obj).reduce((acc, [key, value]) => {
     const fullKey = parentKey ? `${parentKey}.${key}` : key;
 
     if (Array.isArray(value)) {
       // Prevent flattening of arrays
       acc[fullKey] = value;
-    } else if (_.isObject(value) && !(value as { schema?: any }).schema) {
+    } else if (_.isObject(value) && !(value as { schema?: unknown }).schema) {
       // Check if the object is empty
       if (Object.keys(value).length === 0) {
         acc[fullKey] = value;
@@ -49,9 +50,9 @@ export const validateSettings = async ({
   scope,
   schema,
 }: {
-  settings: Record<string, any>;
+  settings: Record<string, unknown>;
   scope?: string;
-  schema?: Record<string, any>;
+  schema?: SettingsSchema;
 }) => {
   schema = scope ? SCOPE_TO_SCHEMA[scope] : schema;
 
@@ -61,10 +62,6 @@ export const validateSettings = async ({
 
   const flattenedSettings = flattenObject(settings);
   const flattenedSchema = flattenObject(schema);
-
-  console.log(flattenedSettings);
-  console.log(flattenedSchema);
-
   const errors: ErrorMessage[] = [];
 
   for (const [key, value] of Object.entries(flattenedSettings)) {
@@ -79,16 +76,15 @@ export const validateSettings = async ({
       await schemaEntry.validate(value);
     } catch (error) {
       if (error instanceof yup.ValidationError) {
-        console.log(error);
         errors.push({ field: key, message: error.message });
+        continue;
       } else {
         throw error;
       }
     }
+  }
 
-    if (errors.length > 0) {
-      const errorMessage = constructErrorMessage(errors);
-      throw new Error(errorMessage);
-    }
+  if (errors.length) {
+    throw new Error(constructErrorMessage(errors));
   }
 };
