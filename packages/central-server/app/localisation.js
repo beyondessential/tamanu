@@ -152,27 +152,6 @@ const HIDEABLE_FIELDS = [
   'healthCenterId',
 ];
 
-const MOBILE_PATIENT_MODULES = [
-  'diagnosisAndTreatment',
-  'vitals',
-  'programs',
-  'referral',
-  'vaccine',
-  'tests',
-];
-
-const UNHIDEABLE_PATIENT_TABS = ['history', 'details'];
-
-const HIDEABLE_PATIENT_TABS = [
-  'results',
-  'referrals',
-  'programs',
-  'documents',
-  'vaccines',
-  'medication',
-  'invoices',
-];
-
 const ageDurationSchema = yup
   .object({
     years: yup.number(),
