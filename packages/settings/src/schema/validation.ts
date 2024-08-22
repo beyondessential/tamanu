@@ -5,6 +5,7 @@ import { facilitySettings } from './facility';
 import * as yup from 'yup';
 import _ from 'lodash';
 import { SettingsSchema } from './types';
+import { isSetting } from './utils';
 
 interface ErrorMessage {
   field: string;
@@ -17,26 +18,32 @@ const SCOPE_TO_SCHEMA = {
   [SETTINGS_SCOPES.FACILITY]: facilitySettings,
 };
 
-const flattenObject = (obj: unknown, parentKey: string = ''): unknown => {
+const flattenSettings = (obj: Record<string, any>, parentKey: string = ''): Record<string, any> => {
   return Object.entries(obj).reduce((acc, [key, value]) => {
     const fullKey = parentKey ? `${parentKey}.${key}` : key;
 
-    if (Array.isArray(value)) {
-      // Prevent flattening of arrays
-      acc[fullKey] = value;
-    } else if (_.isObject(value) && !(value as { schema?: unknown }).schema) {
-      // Check if the object is empty
-      if (Object.keys(value).length === 0) {
-        acc[fullKey] = value;
-      } else {
-        Object.assign(acc, flattenObject(value, fullKey));
-      }
+    if (_.isObject(value) && !Array.isArray(value)) {
+      Object.assign(acc, flattenSettings(value, fullKey));
     } else {
       acc[fullKey] = value;
     }
 
     return acc;
-  }, {});
+  }, {} as Record<string, any>);
+};
+
+const flattenSchema = (schema: SettingsSchema, parentKey: string = ''): Record<string, any> => {
+  return Object.entries(schema.values).reduce((acc, [key, value]) => {
+    const fullKey = parentKey ? `${parentKey}.${key}` : key;
+
+    if (isSetting(value)) {
+      acc[fullKey] = { schema: value.schema };
+    } else {
+      Object.assign(acc, flattenSchema(value as SettingsSchema, fullKey));
+    }
+
+    return acc;
+  }, {} as Record<string, any>);
 };
 
 const constructErrorMessage = (errors: ErrorMessage[]) => {
@@ -60,8 +67,9 @@ export const validateSettings = async ({
     throw new Error(`No schema found for scope: ${scope}`);
   }
 
-  const flattenedSettings = flattenObject(settings);
-  const flattenedSchema = flattenObject(schema);
+  const flattenedSettings = flattenSettings(settings);
+  const flattenedSchema = flattenSchema(schema);
+
   const errors: ErrorMessage[] = [];
 
   for (const [key, value] of Object.entries(flattenedSettings)) {
