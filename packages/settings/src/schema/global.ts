@@ -166,16 +166,16 @@ export const globalSettings = {
     },
     fields: {
       name: 'Fields (Previously localised fields)',
-      description: 'Customise fields',
+      description: 'Customise form fields behavior across the application',
       values: {
         countryName: {
           name: 'Country name',
-          description: '_',
+          description: 'Patients country name',
           values: hideablePatientFieldSchema,
         },
         emergencyContactName: {
           name: 'Emergency contact name',
-          description: '_',
+          description: 'Patients emergency contact name',
           values: patientDetailsFieldSchema,
         },
         emergencyContactNumber: {
@@ -587,7 +587,7 @@ export const globalSettings = {
     },
     imagingPriorities: {
       name: 'Imaging priorities',
-      description: 'Customise imaging priority options',
+      description: 'List with each entry being an available imaging priority option',
       schema: yup.array().of(
         yup.object({
           priority: yup.number(),

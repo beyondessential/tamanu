@@ -2,7 +2,7 @@ import * as yup from 'yup';
 
 const hideable = {
   hidden: {
-    description: 'Field should be hidden',
+    description: 'Field should not display on forms',
     schema: yup.boolean(),
     defaultValue: false,
   },
@@ -29,7 +29,7 @@ export const hideableFieldSchema = {
 export const patientDetailsFieldSchema = {
   ...baseFieldSchema,
   requiredPatientData: {
-    description: 'Field is required for patient data',
+    description: 'Field must be filled out when creating a patient',
     schema: yup.boolean(),
     defaultValue: false,
   },
@@ -43,7 +43,7 @@ export const hideablePatientFieldSchema = {
 export const displayIdFieldSchema = {
   ...baseFieldSchema,
   pattern: {
-    description: 'Regex pattern for display ID',
+    description: 'Regex to enforce the format of field input',
     schema: yup.string(),
     defaultValue: '[\\s\\S]*',
   },
