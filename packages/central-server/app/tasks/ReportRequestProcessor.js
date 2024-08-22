@@ -40,9 +40,11 @@ export class ReportRequestProcessor extends ScheduledTask {
 
   spawnReportProcess = async request => {
     const [node, scriptPath] = process.argv;
-    const { childProcessEnv, processOptions, timeOutDurationSeconds } = await this.settings.get(
-      'reportProcess',
-    );
+    const {
+      childProcessEnv,
+      processOptions,
+      timeOutDurationSeconds,
+    } = await this.context.settings.get('reportProcess');
     const parameters = processOptions || process.execArgv;
 
     log.info(
@@ -210,7 +212,9 @@ export class ReportRequestProcessor extends ScheduledTask {
           processStartedTime: new Date(),
         });
 
-        const runInChildProcess = await this.settings.get('reportProcess.runInChildProcess');
+        const runInChildProcess = await this.context.settings.get(
+          'reportProcess.runInChildProcess',
+        );
         if (runInChildProcess) {
           await this.spawnReportProcess(request);
         } else {
@@ -232,7 +236,7 @@ export class ReportRequestProcessor extends ScheduledTask {
 
   async validateTimeoutReports() {
     try {
-      const timeOutDurationSeconds = await this.settings.get(
+      const timeOutDurationSeconds = await this.context.settings.get(
         'reportProcess.timeOutDurationSeconds',
       );
       const requests = await this.context.store.models.ReportRequest.findAll({
