@@ -147,7 +147,6 @@ export const globalSettings = {
       },
     },
     customisations: {
-      description: '_',
       values: {
         componentVersions: {
           description: '_',
@@ -157,7 +156,6 @@ export const globalSettings = {
       },
     },
     fhir: {
-      description: '_',
       values: {
         worker: {
           description: 'FHIR worker settings',
@@ -177,7 +175,6 @@ export const globalSettings = {
       },
     },
     integrations: {
-      description: '_',
       values: {
         imaging: {
           description: 'Imaging integration settings',
@@ -192,7 +189,6 @@ export const globalSettings = {
       },
     },
     upcomingVaccinations: {
-      description: '_',
       values: {
         ageLimit: {
           description: '_',
