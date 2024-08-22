@@ -245,9 +245,8 @@ export const globalSettings = {
         description: '_',
         schema: yup
           .number()
-          .required()
           .positive(),
-        default: 50.8,
+        defaultValue: 50.8,
       },
     },
     stickerLabelPage: {
@@ -255,81 +254,71 @@ export const globalSettings = {
         description: '_',
         schema: yup
           .number()
-          .required()
           .positive(),
-        default: 210,
+        defaultValue: 210,
       },
       pageHeight: {
         description: '_',
         schema: yup
           .number()
-          .required()
           .positive(),
-        default: 297,
+        defaultValue: 297,
       },
       pageMarginTop: {
         description: '_',
         schema: yup
           .number()
-          .required()
           .positive(),
-        default: 15.09,
+        defaultValue: 15.09,
       },
       pageMarginLeft: {
         description: '_',
         schema: yup
           .number()
-          .required()
           .positive(),
-        default: 6.4,
+        defaultValue: 6.4,
       },
       columnTotal: {
         description: '_',
         schema: yup
           .number()
-          .required()
           .positive(),
-        default: 3,
+        defaultValue: 3,
       },
       columnWidth: {
         description: '_',
         schema: yup
           .number()
-          .required()
           .positive(),
-        default: 64,
+        defaultValue: 64,
       },
       columnGap: {
         description: '_',
         schema: yup
           .number()
-          .required()
           .positive(),
-        default: 3.01,
+        defaultValue: 3.01,
       },
       rowTotal: {
         description: '_',
         schema: yup
           .number()
-          .required()
           .positive(),
-        default: 10,
+        defaultValue: 10,
       },
       rowHeight: {
         description: '_',
         schema: yup
           .number()
-          .required()
           .positive(),
-        default: 26.7,
+        defaultValue: 26.7,
       },
       rowGap: {
         description: '_',
         schema: yup
           .number()
-          .required()
           .positive(),
-        default: 0,
+        defaultValue: 0,
       },
     },
     idCardPage: {
@@ -337,17 +326,15 @@ export const globalSettings = {
         description: '_',
         schema: yup
           .number()
-          .required()
           .positive(),
-        default: 1,
+        defaultValue: 1,
       },
       cardMarginLeft: {
         description: '_',
         schema: yup
           .number()
-          .required()
           .positive(),
-        default: 5,
+        defaultValue: 5,
       },
     },
   },
