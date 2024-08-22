@@ -243,122 +243,94 @@ export const globalSettings = {
     labRequestPrintLabel: {
       width: {
         description: '_',
-        schema: yup
-          .number()
-          .positive(),
+        schema: yup.number().positive(),
         defaultValue: 50.8,
       },
     },
     stickerLabelPage: {
       pageWidth: {
         description: '_',
-        schema: yup
-          .number()
-          .positive(),
+        schema: yup.number().positive(),
         defaultValue: 210,
       },
       pageHeight: {
         description: '_',
-        schema: yup
-          .number()
-          .positive(),
+        schema: yup.number().positive(),
         defaultValue: 297,
       },
       pageMarginTop: {
         description: '_',
-        schema: yup
-          .number()
-          .positive(),
+        schema: yup.number().positive(),
         defaultValue: 15.09,
       },
       pageMarginLeft: {
         description: '_',
-        schema: yup
-          .number()
-          .positive(),
+        schema: yup.number().positive(),
         defaultValue: 6.4,
       },
       columnTotal: {
         description: '_',
-        schema: yup
-          .number()
-          .positive(),
+        schema: yup.number().positive(),
         defaultValue: 3,
       },
       columnWidth: {
         description: '_',
-        schema: yup
-          .number()
-          .positive(),
+        schema: yup.number().positive(),
         defaultValue: 64,
       },
       columnGap: {
         description: '_',
-        schema: yup
-          .number()
-          .positive(),
+        schema: yup.number().positive(),
         defaultValue: 3.01,
       },
       rowTotal: {
         description: '_',
-        schema: yup
-          .number()
-          .positive(),
+        schema: yup.number().positive(),
         defaultValue: 10,
       },
       rowHeight: {
         description: '_',
-        schema: yup
-          .number()
-          .positive(),
+        schema: yup.number().positive(),
         defaultValue: 26.7,
       },
       rowGap: {
         description: '_',
-        schema: yup
-          .number()
-          .positive(),
+        schema: yup.number().positive(),
         defaultValue: 0,
       },
     },
     idCardPage: {
       cardMarginTop: {
         description: '_',
-        schema: yup
-          .number()
-          .positive(),
+        schema: yup.number().positive(),
         defaultValue: 1,
       },
       cardMarginLeft: {
         description: '_',
-        schema: yup
-          .number()
-          .positive(),
+        schema: yup.number().positive(),
         defaultValue: 5,
       },
     },
   },
   templates: {
     letterhead: {
-      title: { schema: yup.string(), default: 'TAMANU MINISTRY OF HEALTH & MEDICAL SERVICES' },
-      subTitle: { schema: yup.string(), default: 'PO Box 12345, Melbourne, Australia' },
+      title: { schema: yup.string(), defaultValue: 'TAMANU MINISTRY OF HEALTH & MEDICAL SERVICES' },
+      subTitle: { schema: yup.string(), defaultValue: 'PO Box 12345, Melbourne, Australia' },
     },
     signerRenewalEmail: {
       subject: {
         schema: yup
           .string()
           .trim()
-          .min(1)
-          .required(),
-        default: 'Tamanu ICAO Certificate Signing Request',
+          .min(1),
+        defaultValue: 'Tamanu ICAO Certificate Signing Request',
       },
       body: {
         schema: yup
           .string()
           .trim()
-          .min(1)
-          .required(),
-        default:
+          .min(1),
+        defaultValue:
           'Please sign the following certificate signing request (CSR) with the Country Signing Certificate Authority (CSCA), and return it to the Tamanu team or Tamanu deployment administration team.',
       },
     },
@@ -367,17 +339,15 @@ export const globalSettings = {
         schema: yup
           .string()
           .trim()
-          .min(1)
-          .required(),
-        default: 'Medical Certificate now available',
+          .min(1),
+        defaultValue: 'Medical Certificate now available',
       },
       body: {
         schema: yup
           .string()
           .trim()
-          .min(1)
-          .required(),
-        default:
+          .min(1),
+        defaultValue:
           'A medical certificate has been generated for you.\nYour certificate is available attached to this email.',
       },
     },
@@ -386,17 +356,15 @@ export const globalSettings = {
         schema: yup
           .string()
           .trim()
-          .min(1)
-          .required(),
-        default: 'Medical Certificate now available',
+          .min(1),
+        defaultValue: 'Medical Certificate now available',
       },
       body: {
         schema: yup
           .string()
           .trim()
-          .min(1)
-          .required(),
-        default:
+          .min(1),
+        defaultValue:
           'A medical certificate has been generated for you.\nYour certificate is available attached to this email.',
       },
     },
@@ -405,17 +373,15 @@ export const globalSettings = {
         schema: yup
           .string()
           .trim()
-          .min(1)
-          .required(),
-        default: 'Medical Certificate now available',
+          .min(1),
+        defaultValue: 'Medical Certificate now available',
       },
       body: {
         schema: yup
           .string()
           .trim()
-          .min(1)
-          .required(),
-        default:
+          .min(1),
+        defaultValue:
           'A medical certificate has been generated for you.\nYour certificate is attached to this email.',
       },
     },
@@ -424,50 +390,41 @@ export const globalSettings = {
         schema: yup
           .string()
           .trim()
-          .min(1)
-          .required(),
-        default: 'COVID-19 Clearance Certificate now available',
+          .min(1),
+        defaultValue: 'COVID-19 Clearance Certificate now available',
       },
       body: {
         schema: yup
           .string()
           .trim()
-          .min(1)
-          .required(),
-        default:
+          .min(1),
+        defaultValue:
           'A COVID-19 clearance certificate has been generated for you.\nYour certificate is attached to this email.',
       },
     },
     vaccineCertificate: {
-      emailAddress: { schema: yup.string().trim(), default: 'tamanu@health.gov' },
-      contactNumber: { schema: yup.string().trim(), default: '12345' },
+      emailAddress: { schema: yup.string().trim(), defaultValue: 'tamanu@health.gov' },
+      contactNumber: { schema: yup.string().trim(), defaultValue: '12345' },
       healthFacility: {
         schema: yup
           .string()
           .trim()
-          .min(1)
-          .required(),
-        default: 'State level',
+          .min(1),
+        defaultValue: 'State level',
       },
     },
     covidTestCertificate: {
       laboratoryName: {
-        schema: yup
-          .string()
-          .trim()
-          .required(),
-        default: 'Approved test provider',
+        schema: yup.string().trim(),
+        defaultValue: 'Approved test provider',
       },
       clearanceCertRemark: {
-        schema: yup
-          .string()
-          .trim()
-          .required(),
-        default:
+        schema: yup.string().trim(),
+        defaultValue:
           'This notice certifies that $firstName$ $lastName$ is no longer considered infectious following 13 days of self-isolation from the date of their first positive SARS-CoV-2 test and are medically cleared from COVID-19. This certificate is valid for 3 months from the date of issue.',
       },
     },
-    plannedMoveTimeoutHours: { schema: yup.number().required(), default: 24 },
+    plannedMoveTimeoutHours: { schema: yup.number(), defaultValue: 24 },
   },
 };
 
