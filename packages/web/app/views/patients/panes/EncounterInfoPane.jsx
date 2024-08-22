@@ -169,7 +169,7 @@ export const EncounterInfoPane = React.memo(({ encounter, getSetting, patientBil
             {encounter.endDate && (
               <>
                 <CardLabel>
-                  {' - '}
+                  {' – '} // en dash to indicate range
                   <TranslatedText
                     stringId="encounter.summary.dischargeDate.label"
                     fallback="Discharge date"
