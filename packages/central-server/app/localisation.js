@@ -154,17 +154,6 @@ const fieldsSchema = yup
   .required()
   .noUnknown();
 
-const SIDEBAR_ITEMS = {
-  patients: ['patientsAll', 'patientsInpatients', 'patientsEmergency', 'patientsOutpatients'],
-  scheduling: ['schedulingAppointments', 'schedulingCalendar', 'schedulingNew'],
-  medication: ['medicationAll'],
-  imaging: ['imagingActive', 'imagingCompleted'],
-  labs: ['labsAll', 'labsPublished'],
-  immunisations: ['immunisationsAll'],
-  programRegistry: [],
-  facilityAdmin: ['reports', 'bedManagement'],
-};
-
 const sidebarItemSchema = yup
   .object({
     sortPriority: yup.number().required(),
