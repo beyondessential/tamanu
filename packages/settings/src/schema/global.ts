@@ -222,145 +222,172 @@ const vitalEditReasonsDefault = [
 ];
 
 export const globalSettings = {
-  ageDisplayFormat: {
-    schema: ageDisplayFormatSchema,
-    defaultValue: ageDisplayFormatDefault,
-  },
-  features: {
-    mandateSpecimenType: {
-      name: 'Mandate specimen type',
-      description: '_',
-      schema: yup.boolean(),
-      defaultValue: false,
+  values: {
+    ageDisplayFormat: {
+      schema: ageDisplayFormatSchema,
+      defaultValue: ageDisplayFormatDefault,
     },
-  },
-  customisations: {
-    componentVersions: {
-      name: 'Component versions',
-      description: '_',
-      schema: yup.object(),
-      defaultValue: {},
-    },
-  },
-  fhir: {
-    worker: {
-      description: 'FHIR worker settings',
+    customisations: {
       values: {
-        heartbeat: {
-          name: 'Heartbeat interval',
+        componentVersions: {
+          name: 'Component versions',
           description: '_',
-          schema: yup.string(),
-          defaultValue: '1 minute',
-        },
-        assumeDroppedAfter: {
-          name: 'Assume dropped after',
-          description: '_',
-          schema: yup.string(),
-          defaultValue: '10 minutes',
+          schema: yup.object(),
+          defaultValue: {},
         },
       },
     },
-  },
-  imagingCancellationReasons: {
-    description: 'Customise the options available for imaging request cancellation reason',
-    schema: imagingCancellationReasonsSchema,
-    defaultValue: imagingCancellationReasonsDefault,
-  },
-  labsCancellationReasons: {
-    description: 'Customise the options available for lab request cancellation reason',
-    schema: labsCancellationReasonsSchema,
-    defaultValue: labsCancellationReasonsDefault,
-  },
-  integrations: {
-    imaging: {
-      description: 'Imaging integration settings',
+    features: {
       values: {
-        enabled: {
-          name: 'Imaging integration enabled',
+        mandateSpecimenType: {
+          name: 'Mandate specimen type',
           description: '_',
           schema: yup.boolean(),
           defaultValue: false,
         },
       },
     },
-  },
-  reportProcess: {
-    timeOutDurationSeconds: {
-      schema: yup
-        .number()
-        .integer()
-        .positive(),
-      defaultValue: 7200, // 2 hours
-    },
-    runInChildProcess: {
-      description: 'Should spawn a child process to run the report generation in',
-      schema: yup.boolean(),
-      defaultValue: true,
-    },
-    /** Provide an array if you want to override the options. e.g. ['--max-old-space-size=4096'] */
-    processOptions: {
-      defaultValue: null,
-    },
-    childProcessEnv: {
-      defaultValue: null,
-    },
-    /** Provide an object {} for the env of child process */
-    sleepAfterReport: {
-      defaultValue: {
-        duration: '5m',
-        ifRunAtLeast: '5m',
+    fhir: {
+      values: {
+        worker: {
+          description: 'FHIR worker settings',
+          values: {
+            heartbeat: {
+              name: 'Heartbeat interval',
+              description: '_',
+              schema: yup.string(),
+              defaultValue: '1 minute',
+            },
+            assumeDroppedAfter: {
+              name: 'Assume dropped after',
+              description: '_',
+              schema: yup.string(),
+              defaultValue: '10 minutes',
+            },
+          },
+        },
       },
     },
-  },
-  upcomingVaccinations: {
-    ageLimit: {
-      name: 'Upcoming vaccination age limit',
-      description: '_',
-      schema: yup.number(),
-      defaultValue: 15,
+    imagingCancellationReasons: {
+      description: 'Customise the options available for imaging request cancellation reason',
+      schema: imagingCancellationReasonsSchema,
+      defaultValue: imagingCancellationReasonsDefault,
     },
-    thresholds: {
-      name: 'Upcoming vaccination thresholds',
-      description: '_',
-      schema: yup.array().of(
+    labsCancellationReasons: {
+      description: 'Customise the options available for lab request cancellation reason',
+      schema: labsCancellationReasonsSchema,
+      defaultValue: labsCancellationReasonsDefault,
+    },
+    integrations: {
+      values: {
+        imaging: {
+          description: 'Imaging integration settings',
+          values: {
+            enabled: {
+              name: 'Imaging integration enabled',
+              description: '_',
+              schema: yup.boolean(),
+              defaultValue: false,
+            },
+          },
+        },
+      },
+    },
+    invoice: {
+      values: {
+        slidingFeeScale: {
+          name: 'Sliding fee scale',
+          description: '_',
+          schema: yup.array().of(yup.array().of(yup.number())),
+          defaultValue: {},
+        },
+      },
+    },
+    upcomingVaccinations: {
+      values: {
+        ageLimit: {
+          name: 'Upcoming vaccination age limit',
+          description: '_',
+          schema: yup.number(),
+          defaultValue: 15,
+        },
+        thresholds: {
+          name: 'Upcoming vaccination thresholds',
+          description: '_',
+          schema: yup.array().of(
+            yup.object({
+              threshold: yup.number(),
+              status: yup.string(),
+            }),
+          ),
+          defaultValue: [
+            {
+              threshold: 28,
+              status: VACCINE_STATUS.SCHEDULED,
+            },
+            {
+              threshold: 7,
+              status: VACCINE_STATUS.UPCOMING,
+            },
+            {
+              threshold: -7,
+              status: VACCINE_STATUS.DUE,
+            },
+            {
+              threshold: -55,
+              status: VACCINE_STATUS.OVERDUE,
+            },
+            {
+              threshold: '-Infinity',
+              status: VACCINE_STATUS.MISSED,
+            },
+          ],
+        },
+      },
+    },
+    reportProcess: {
+      values: {
+        timeOutDurationSeconds: {
+          schema: yup
+            .number()
+            .integer()
+            .positive(),
+          defaultValue: 7200, // 2 hours
+        },
+        runInChildProcess: {
+          description: 'Should spawn a child process to run the report generation in',
+          schema: yup.boolean(),
+          defaultValue: true,
+        },
+        /** Provide an array if you want to override the options. e.g. ['--max-old-space-size=4096'] */
+        processOptions: {
+          schema: yup.object(), // TODO
+          defaultValue: null,
+        },
+        /** Provide an object {} for the env of child process */
+        childProcessEnv: {
+          schema: yup.object(), // TODO
+          defaultValue: null,
+        },
+        sleepAfterReport: {
+          schema: yup.object(), // TODO
+          defaultValue: {
+            duration: '5m',
+            ifRunAtLeast: '5m',
+          },
+        },
+      },
+    },
+    vitalEditReasons: {
+      description: 'Customise the options available for vital reason for edit',
+      schema: yup.array(
         yup.object({
-          threshold: yup.number(),
-          status: yup.string(),
+          value: yup.string().required(),
+          label: yup.string().required(),
         }),
       ),
-      defaultValue: [
-        {
-          threshold: 28,
-          status: VACCINE_STATUS.SCHEDULED,
-        },
-        {
-          threshold: 7,
-          status: VACCINE_STATUS.UPCOMING,
-        },
-        {
-          threshold: -7,
-          status: VACCINE_STATUS.DUE,
-        },
-        {
-          threshold: -55,
-          status: VACCINE_STATUS.OVERDUE,
-        },
-        {
-          threshold: '-Infinity',
-          status: VACCINE_STATUS.MISSED,
-        },
-      ],
+      defaultValue: vitalEditReasonsDefault,
     },
-  },
-  vitalEditReasons: {
-    description: 'Customise the options available for vital reason for edit',
-    schema: yup.array(
-      yup.object({
-        value: yup.string().required(),
-        label: yup.string().required(),
-      }),
-    ),
-    defaultValue: vitalEditReasonsDefault,
   },
 };
 
