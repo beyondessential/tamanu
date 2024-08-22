@@ -30,3 +30,6 @@
 #
 /packages/central-server/config/default.json5  @beyondessential/tamanu-deployment-team
 /packages/facility-server/config/default.json5  @beyondessential/tamanu-deployment-team
+/packages/settings/schema/facility.ts  @beyondessential/tamanu-deployment-team
+/packages/settings/schema/central.ts  @beyondessential/tamanu-deployment-team
+/packages/settings/schema/global.ts  @beyondessential/tamanu-deployment-team
