@@ -3,6 +3,9 @@ import { StyledView } from '~/ui/styled/common';
 import { LocalisedField } from '~/ui/components/Forms/LocalisedField';
 import { TextField } from '~/ui/components/TextField/TextField';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
+import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
+
+const fontSize = screenPercentageToDP(2, Orientation.Height)
 
 export const NameSection = (): ReactElement => (
   <StyledView marginTop={30}>
@@ -11,7 +14,14 @@ export const NameSection = (): ReactElement => (
         label={
           <TranslatedText stringId="general.localisedField.firstName.label" fallback="First name" />
         }
-        labelFontSize={14}
+        placeholder={
+          <TranslatedText
+            stringId="general.localisedField.firstName.placeholder"
+            fallback="First name"
+          />
+        }
+        labelFontSize={fontSize}
+        fieldFontSize={fontSize}
         component={TextField}
         name="firstName"
       />
@@ -21,7 +31,14 @@ export const NameSection = (): ReactElement => (
         label={
           <TranslatedText stringId="general.localisedField.lastName.label" fallback="Last name" />
         }
-        labelFontSize={14}
+        placeholder={
+          <TranslatedText
+            stringId="general.localisedField.lastName.placeholder"
+            fallback="Last name"
+          />
+        }
+        labelFontSize={fontSize}
+        fieldFontSize={fontSize}
         component={TextField}
         name="lastName"
       />

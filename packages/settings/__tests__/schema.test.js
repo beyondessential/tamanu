@@ -1,4 +1,5 @@
 import { validateSettings, globalDefaults, centralDefaults, facilityDefaults } from '../dist/mjs';
+import { extractDefaults } from '../dist/cjs/schema/utils';
 import * as yup from 'yup';
 
 describe('Schemas', () => {
@@ -10,6 +11,77 @@ describe('Schemas', () => {
 
   afterEach(() => {
     jest.restoreAllMocks();
+  });
+
+  describe('Extracting settings from schema', () => {
+    it('Should extract settings from a schema', () => {
+      const schema = {
+        a: {
+          b: {
+            name: 'Setting a.b',
+            description: '_',
+            schema: yup.boolean().required(),
+            defaultValue: false,
+          },
+        },
+        c: {
+          name: 'Setting c',
+          schema: yup.string().required(),
+          defaultValue: 'c',
+        },
+        d: {
+          e: {
+            f: {
+              name: 'Setting d.e.f',
+              schema: yup
+                .array()
+                .of(
+                  yup.object({
+                    threshold: yup.number().required(),
+                    status: yup.string().required(),
+                  }),
+                )
+                .required(),
+              defaultValue: [
+                {
+                  threshold: 28,
+                  status: 'scheduled',
+                },
+                {
+                  threshold: 7,
+                  status: 'upcoming',
+                },
+              ],
+            },
+          },
+        },
+      };
+
+      const expectedSettings = {
+        a: {
+          b: false,
+        },
+        c: 'c',
+        d: {
+          e: {
+            f: [
+              {
+                threshold: 28,
+                status: 'scheduled',
+              },
+              {
+                threshold: 7,
+                status: 'upcoming',
+              },
+            ],
+          },
+        },
+      };
+
+      console.log(extractDefaults(schema));
+
+      expect(extractDefaults(schema)).toEqual(expectedSettings);
+    });
   });
 
   describe('Global settings', () => {
@@ -185,7 +257,7 @@ describe('Schemas', () => {
       const schema = {
         a: {
           schema: yup.string().required(),
-          default: 'a',
+          defaultValue: 'a',
         },
       };
 
@@ -203,7 +275,7 @@ describe('Schemas', () => {
     const schema = {
       a: {
         schema: yup.array().of(yup.string()),
-        default: ['a'],
+        defaultValue: ['a'],
       },
     };
 
@@ -222,7 +294,7 @@ describe('Schemas', () => {
             b: yup.string().required(),
           }),
         ),
-        default: [{ b: 'a' }],
+        defaultValue: [{ b: 'a' }],
       },
     };
 

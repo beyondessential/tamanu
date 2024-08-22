@@ -7,155 +7,155 @@ export const globalSettings = {
     mandateSpecimenType: {
       name: 'Mandate specimen type',
       description: '_',
-      schema: yup.boolean().required(),
-      default: false,
+      schema: yup.boolean(),
+      defaultValue: false,
     },
     enableVaccineConsent: {
       name: 'Enable vaccine consent',
       description: 'Display a required vaccine consent box on the vaccine given form',
-      schema: yup.boolean().required(),
-      default: true,
+      schema: yup.boolean(),
+      defaultValue: true,
     },
     filterDischargeDispositions: {
       name: 'Filter discharge dispositions',
       description: '_',
-      schema: yup.boolean().required(),
-      default: false,
+      schema: yup.boolean(),
+      defaultValue: false,
     },
     editPatientDetailsOnMobile: {
       name: 'Edit patient details on mobile',
       description: '_',
-      schema: yup.boolean().required(),
-      default: true,
+      schema: yup.boolean(),
+      defaultValue: true,
     },
     quickPatientGenerator: {
       name: 'Quick patient generator',
       description: '_',
-      schema: yup.boolean().required(),
-      default: false,
+      schema: yup.boolean(),
+      defaultValue: false,
     },
     enableInvoicing: {
       name: 'Enable invoicing',
       description: '_',
-      schema: yup.boolean().required(),
-      default: false,
+      schema: yup.boolean(),
+      defaultValue: false,
     },
     registerNewPatient: {
       name: 'Register new patient',
       description: '_',
-      schema: yup.boolean().required(),
-      default: true,
+      schema: yup.boolean(),
+      defaultValue: true,
     },
     hideOtherSex: {
       name: 'Hide other sex',
       description: '_',
-      schema: yup.boolean().required(),
-      default: true,
+      schema: yup.boolean(),
+      defaultValue: true,
     },
     enablePatientDeaths: {
       name: 'Enable patient deaths',
       description: '_',
-      schema: yup.boolean().required(),
-      default: false,
+      schema: yup.boolean(),
+      defaultValue: false,
     },
     enableNoteBackdating: {
       name: 'Enable note backdating',
       description: '_',
-      schema: yup.boolean().required(),
-      default: true,
+      schema: yup.boolean(),
+      defaultValue: true,
     },
     enableCovidClearanceCertificate: {
       name: 'Enable covid clearance certificate',
       description: '_',
-      schema: yup.boolean().required(),
-      default: false,
+      schema: yup.boolean(),
+      defaultValue: false,
     },
     editPatientDisplayId: {
       name: 'Edit patient displayId',
       description: '_',
-      schema: yup.boolean().required(),
-      default: true,
+      schema: yup.boolean(),
+      defaultValue: true,
     },
     enablePatientInsurer: {
       name: 'Enable patient insurer',
       description: '_',
-      schema: yup.boolean().required(),
-      default: false,
+      schema: yup.boolean(),
+      defaultValue: false,
     },
     patientPlannedMove: {
       name: 'Patient planned move',
       description: '_',
-      schema: yup.boolean().required(),
-      default: false,
+      schema: yup.boolean(),
+      defaultValue: false,
     },
     onlyAllowLabPanels: {
       name: 'Only allow lab panels',
       description: '_',
-      schema: yup.boolean().required(),
-      default: false,
+      schema: yup.boolean(),
+      defaultValue: false,
     },
     displayProcedureCodesInDischargeSummary: {
       name: 'Display procedure codes in discarge summary',
       description: '_',
-      schema: yup.boolean().required(),
-      default: true,
+      schema: yup.boolean(),
+      defaultValue: true,
     },
     displayIcd10CodesInDischargeSummary: {
       name: 'Display icd10 codes in discharge summary',
       description: '_',
-      schema: yup.boolean().required(),
-      default: true,
+      schema: yup.boolean(),
+      defaultValue: true,
     },
     mandatoryVitalEditReason: {
       name: 'Mandatory vital edit reason',
       description: '_',
-      schema: yup.boolean().required(),
-      default: false,
+      schema: yup.boolean(),
+      defaultValue: false,
     },
     enableVitalEdit: {
       name: 'Enable vital edit',
       description: '_',
-      schema: yup.boolean().required(),
-      default: false,
+      schema: yup.boolean(),
+      defaultValue: false,
     },
     idleTimeout: {
       enabled: {
         name: 'Enabled',
         description: '_',
-        schema: yup.boolean().required(),
-        default: true,
+        schema: yup.boolean(),
+        defaultValue: true,
       },
       timeoutDuration: {
         name: 'Timeout duration',
         description: '_',
-        schema: yup.number().required(),
-        default: 600, // In Seconds
+        schema: yup.number(),
+        defaultValue: 600, // In Seconds
       },
       warningPromptDuration: {
         name: 'Warning prompt duration',
         description: '_',
-        schema: yup.number().required(),
-        default: 30, // In Seconds
+        schema: yup.number(),
+        defaultValue: 30, // In Seconds
       },
       refreshInterval: {
         name: 'Refresh interval',
         description: '_',
-        schema: yup.number().required(),
-        default: 150, // In Seconds
+        schema: yup.number(),
+        defaultValue: 150, // In Seconds
       },
     },
     tableAutoRefresh: {
       enabled: {
         name: 'Enabled',
         description: '_',
-        schema: yup.boolean().required(),
-        default: true,
+        schema: yup.boolean(),
+        defaultValue: true,
       },
       interval: {
         name: 'Interval',
         description: '_',
-        schema: yup.number().required(),
-        default: 300, // In Seconds
+        schema: yup.number(),
+        defaultValue: 300, // In Seconds
       },
     },
   },
@@ -163,33 +163,39 @@ export const globalSettings = {
     componentVersions: {
       name: 'Component versions',
       description: '_',
-      schema: yup.object().required(),
-      default: {},
+      schema: yup.object(),
+      defaultValue: {},
     },
   },
   fhir: {
     worker: {
-      heartbeat: {
-        name: 'Heartbeat interval',
-        description: '_',
-        schema: yup.string().required(),
-        default: '1 minute',
-      },
-      assumeDroppedAfter: {
-        name: 'Assume dropped after',
-        description: '_',
-        schema: yup.string().required(),
-        default: '10 minutes',
+      description: 'FHIR worker settings',
+      values: {
+        heartbeat: {
+          name: 'Heartbeat interval',
+          description: '_',
+          schema: yup.string(),
+          defaultValue: '1 minute',
+        },
+        assumeDroppedAfter: {
+          name: 'Assume dropped after',
+          description: '_',
+          schema: yup.string(),
+          defaultValue: '10 minutes',
+        },
       },
     },
   },
   integrations: {
     imaging: {
-      enabled: {
-        name: 'Imaging integration enabled',
-        description: '_',
-        schema: yup.boolean().required(),
-        default: false,
+      description: 'Imaging integration settings',
+      values: {
+        enabled: {
+          name: 'Imaging integration enabled',
+          description: '_',
+          schema: yup.boolean(),
+          defaultValue: false,
+        },
       },
     },
   },
@@ -197,22 +203,19 @@ export const globalSettings = {
     ageLimit: {
       name: 'Upcoming vaccination age limit',
       description: '_',
-      schema: yup.number().required(),
-      default: 15,
+      schema: yup.number(),
+      defaultValue: 15,
     },
     thresholds: {
       name: 'Upcoming vaccination thresholds',
       description: '_',
-      schema: yup
-        .array()
-        .of(
-          yup.object({
-            threshold: yup.number().required(),
-            status: yup.string().required(),
-          }),
-        )
-        .required(),
-      default: [
+      schema: yup.array().of(
+        yup.object({
+          threshold: yup.number(),
+          status: yup.string(),
+        }),
+      ),
+      defaultValue: [
         {
           threshold: 28,
           status: VACCINE_STATUS.SCHEDULED,
@@ -348,28 +351,6 @@ export const globalSettings = {
       },
     },
   },
-};
-
-// export const globalDefaults = extractDefaults(globalSettings);
-
-export const validateGlobalSettings = async (settings: any, schema = globalSettings) => {
-  for (const [key, value] of Object.entries(settings)) {
-    if (schema[key]) {
-      if (schema[key].schema) {
-        try {
-          await schema[key].schema.validate(value);
-        } catch (error) {
-          if (error instanceof yup.ValidationError)
-            throw new Error(`Invalid value for ${key}: ${error.message}`);
-          throw error;
-        }
-      } else {
-        await validateGlobalSettings(value, schema[key]);
-      }
-    } else {
-      console.warn(`Unknown setting: ${key}`);
-    }
-  }
 };
 
 export const globalDefaults = extractDefaults(globalSettings);
