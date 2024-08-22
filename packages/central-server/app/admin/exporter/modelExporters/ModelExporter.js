@@ -1,4 +1,5 @@
 import { startCase } from 'lodash';
+import { Model } from '@tamanu/shared/models/Model';
 
 const METADATA_COLUMNS = [
   'createdAt',
@@ -47,7 +48,7 @@ export class ModelExporter {
   }
 
   getHeadersFromData(data) {
-    return Object.keys(data[0].dataValues);
+    return Object.keys(data instanceof Model ? data[0].dataValues : data[0]);
   }
 
   customHiddenColumns() {

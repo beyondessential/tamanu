@@ -1,9 +1,9 @@
 import { REFERENCE_TYPES } from '@tamanu/constants';
 import { ReferenceDataExporter } from './ReferenceDataExporter';
-
+import ms from 'ms';
 export class TaskExporter extends ReferenceDataExporter {
   async getData() {
-    const data = await this.models.ReferenceData.findAll({
+    const tasks = await this.models.ReferenceData.findAll({
       where: {
         type: REFERENCE_TYPES.TASK,
       },
@@ -22,26 +22,17 @@ export class TaskExporter extends ReferenceDataExporter {
       },
     });
 
-    return data;
-  }
-
-  getHeaders(data) {
-    return super.getHeaders(data).concat(['highPriority', 'assignedTo', 'taskFrequency']);
-  }
-
-  formatedCell(header, value, row) {
-    switch (header) {
-      case 'highPriority':
-        return row.taskTemplate?.highPriority;
-      case 'assignedTo':
-        return row.taskTemplate?.designations.map(it => it.referenceData.id).join(', ');
-      case 'taskFrequency':
-        return row.taskTemplate?.frequencyValue
-          ? `${row.taskTemplate.frequencyValue} ${row.taskTemplate.frequencyUnit}`
-          : '';
-      default:
-        return super.formatedCell(header, value);
-    }
+    return tasks.map(task => ({
+      ...task.dataValues,
+      highPriority: task.taskTemplate?.highPriority,
+      assignedTo: task.taskTemplate?.designations.map(it => it.referenceData.id).join(', '),
+      taskFrequency:
+        task.taskTemplate?.frequencyValue && task.taskTemplate?.frequencyUnit
+          ? ms(ms(`${task.taskTemplate.frequencyValue} ${task.taskTemplate.frequencyUnit}`), {
+              long: true,
+            })
+          : '',
+    }));
   }
 
   customHiddenColumns() {
