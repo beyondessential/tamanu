@@ -7,7 +7,7 @@ export const getSyncSnapshotRecordIds = async (
   direction,
   recordType,
   limit,
-  fromId = '00000000-0000-0000-0000-000000000000',
+  fromId = 0,
 ) => {
   const tableName = getSnapshotTableName(sessionId);
 
