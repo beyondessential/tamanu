@@ -12,7 +12,7 @@ export const baseFieldSchema = {
   defaultValue: {
     description: 'Default value for field',
     schema: yup.mixed(),
-    defaultValue: '',
+    defaultValue: null,
   },
   required: {
     description: 'Field is required',
@@ -41,7 +41,7 @@ export const hideablePatientFieldSchema = {
 };
 
 export const displayIdFieldSchema = {
-  ...patientDetailsFieldSchema,
+  ...baseFieldSchema,
   pattern: {
     description: 'Regex pattern for display ID',
     schema: yup.string(),
