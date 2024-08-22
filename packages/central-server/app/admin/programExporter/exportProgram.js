@@ -61,7 +61,7 @@ export async function exportProgram(context, programId) {
 
   const surveySheets = [];
   await Promise.all(
-    surveys.map(async survey => {
+    surveys.map(async (survey, index) => {
       const surveyRecords = await sequelize.query(
         `
         SELECT
@@ -72,6 +72,8 @@ export async function exportProgram(context, programId) {
           ssc.calculation,
           ssc.config,
           ssc.visibility_status,
+          ssc.screen_index,
+          ssc.component_index,
           pde.code,
           pde.type,
           pde.name,
@@ -80,6 +82,7 @@ export async function exportProgram(context, programId) {
         FROM survey_screen_components ssc
         JOIN program_data_elements pde ON concat(:surveyId, '-', pde.code) = ssc.id
         WHERE ssc.survey_id = :surveyId
+        ORDER BY ssc.screen_index, ssc.component_index
       `,
         {
           replacements: { surveyId: survey.id },
@@ -87,7 +90,7 @@ export async function exportProgram(context, programId) {
         },
       );
 
-      surveySheets.push({
+      surveySheets[index] = {
         name: survey.code,
         data: [
           [
@@ -109,27 +112,27 @@ export async function exportProgram(context, programId) {
             'config',
             'visibilityStatus',
           ],
-          ...surveyRecords.map(it => [
-            it.code,
-            it.type,
-            it.name,
-            it.text,
-            it.detail,
-            '',
-            it.options,
-            '',
-            '',
-            it.visibility_criteria,
-            it.validation_criteria,
+          ...surveyRecords.map((s, i, a) => [
+            s.code,
+            s.type,
+            s.name,
+            s.text,
+            s.detail,
+            a[i - 1] && s.screen_index !== a[i - 1].screen_index ? 'yes' : '',
+            s.options,
             '',
             '',
+            s.visibility_criteria,
+            s.validation_criteria,
             '',
-            it.calculation,
-            it.config,
-            it.visibility_status,
+            '',
+            '',
+            s.calculation,
+            s.config,
+            s.visibility_status,
           ]),
         ],
-      });
+      };
     }),
   );
 
