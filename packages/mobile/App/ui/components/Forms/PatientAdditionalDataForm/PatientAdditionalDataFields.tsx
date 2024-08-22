@@ -132,7 +132,6 @@ export const PatientAdditionalDataFields = ({
   isEdit = true,
 }: PatientAdditionalDataFieldsProps): ReactElement[] => {
   const { getLocalisation } = useLocalisation();
-  const isHardCodedLayout = getLocalisation('layouts.patientDetails') !== 'generic';
   const [customFieldDefinitions, _, loading] = useBackendEffect(({ models }) =>
     models.PatientFieldDefinition.getRepository().find({
       select: ['id'],
@@ -140,9 +139,11 @@ export const PatientAdditionalDataFields = ({
   );
   const customFieldIds = customFieldDefinitions?.map(({ id }) => id);
 
-  const padFields = isHardCodedLayout
-    ? fields
-    : getConfiguredPatientAdditionalDataFields(fields as string[], showMandatory, getLocalisation);
+  const padFields = getConfiguredPatientAdditionalDataFields(
+    fields as string[],
+    showMandatory,
+    getLocalisation,
+  );
 
   if (isCustomSection)
     return fields.map(field => getCustomFieldComponent(field as PatientFieldDefinition));

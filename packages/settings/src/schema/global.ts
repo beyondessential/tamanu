@@ -457,7 +457,6 @@ export const globalSettings = {
   layouts: {
     description: '_',
     values: {
-      patientDetails: { schema: yup.string(), defaultValue: 'generic' },
       mobilePatientModules: {
         description: '_',
         values: {

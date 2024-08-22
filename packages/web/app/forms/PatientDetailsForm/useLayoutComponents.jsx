@@ -5,7 +5,8 @@ import {
   GenericPrimaryDetailsLayout,
   GenericSecondaryDetailsLayout,
 } from './layouts/generic/GenericLayout';
-import { useLocalisation } from '../../contexts/Localisation';
+
+// This file is leftover from a hardcoded patient details layout implementation.
 
 const LAYOUT_COMPONENTS = {
   [PATIENT_DETAIL_LAYOUTS.GENERIC]: {
@@ -16,7 +17,6 @@ const LAYOUT_COMPONENTS = {
 };
 
 export const useLayoutComponents = () => {
-  const { getLocalisation } = useLocalisation();
-  const layout = getLocalisation('layouts.patientDetails') || PATIENT_DETAIL_LAYOUTS.GENERIC;
+  const layout = PATIENT_DETAIL_LAYOUTS.GENERIC;
   return LAYOUT_COMPONENTS[layout] ?? LAYOUT_COMPONENTS[PATIENT_DETAIL_LAYOUTS.GENERIC];
 };

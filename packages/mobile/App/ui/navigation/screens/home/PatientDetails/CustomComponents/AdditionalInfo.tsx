@@ -44,7 +44,6 @@ export const AdditionalInfo = ({
   onEdit,
   dataSections,
 }: AdditionalInfoProps): ReactElement => {
-  const { getLocalisation } = useLocalisation();
   const { getSetting } = useSettings()
   const {
     customPatientSections,
@@ -54,7 +53,6 @@ export const AdditionalInfo = ({
     loading,
     error,
   } = usePatientAdditionalData(patient.id);
-  const isHardCodedLayout = getLocalisation('layouts.patientDetails') !== 'generic';
 
   const customDataById = mapValues(customPatientFieldValues, nestedObject => nestedObject[0].value);
 
@@ -97,9 +95,7 @@ export const AdditionalInfo = ({
     return { title, fields: mappedFields, onEditCallback, isCustomSection: true };
   });
 
-  const sections = isHardCodedLayout
-    ? additionalSections
-    : [...additionalSections, ...customSections];
+  const sections = [...additionalSections, ...customSections];
 
   return (
     <>
