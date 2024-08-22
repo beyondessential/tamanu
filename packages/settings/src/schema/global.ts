@@ -4,239 +4,229 @@ import { extractDefaults } from './utils';
 
 export const globalSettings = {
   features: {
-    mandateSpecimenType: {
-      name: 'Mandate specimen type',
-      description: '_',
-      schema: yup.boolean(),
-      defaultValue: false,
-    },
-    enableVaccineConsent: {
-      name: 'Enable vaccine consent',
-      description: 'Display a required vaccine consent box on the vaccine given form',
-      schema: yup.boolean(),
-      defaultValue: true,
-    },
-    filterDischargeDispositions: {
-      name: 'Filter discharge dispositions',
-      description: '_',
-      schema: yup.boolean(),
-      defaultValue: false,
-    },
-    editPatientDetailsOnMobile: {
-      name: 'Edit patient details on mobile',
-      description: '_',
-      schema: yup.boolean(),
-      defaultValue: true,
-    },
-    quickPatientGenerator: {
-      name: 'Quick patient generator',
-      description: '_',
-      schema: yup.boolean(),
-      defaultValue: false,
-    },
-    enableInvoicing: {
-      name: 'Enable invoicing',
-      description: '_',
-      schema: yup.boolean(),
-      defaultValue: false,
-    },
-    registerNewPatient: {
-      name: 'Register new patient',
-      description: '_',
-      schema: yup.boolean(),
-      defaultValue: true,
-    },
-    hideOtherSex: {
-      name: 'Hide other sex',
-      description: '_',
-      schema: yup.boolean(),
-      defaultValue: true,
-    },
-    enablePatientDeaths: {
-      name: 'Enable patient deaths',
-      description: '_',
-      schema: yup.boolean(),
-      defaultValue: false,
-    },
-    enableNoteBackdating: {
-      name: 'Enable note backdating',
-      description: '_',
-      schema: yup.boolean(),
-      defaultValue: true,
-    },
-    enableCovidClearanceCertificate: {
-      name: 'Enable covid clearance certificate',
-      description: '_',
-      schema: yup.boolean(),
-      defaultValue: false,
-    },
-    editPatientDisplayId: {
-      name: 'Edit patient displayId',
-      description: '_',
-      schema: yup.boolean(),
-      defaultValue: true,
-    },
-    enablePatientInsurer: {
-      name: 'Enable patient insurer',
-      description: '_',
-      schema: yup.boolean(),
-      defaultValue: false,
-    },
-    patientPlannedMove: {
-      name: 'Patient planned move',
-      description: '_',
-      schema: yup.boolean(),
-      defaultValue: false,
-    },
-    onlyAllowLabPanels: {
-      name: 'Only allow lab panels',
-      description: '_',
-      schema: yup.boolean(),
-      defaultValue: false,
-    },
-    displayProcedureCodesInDischargeSummary: {
-      name: 'Display procedure codes in discarge summary',
-      description: '_',
-      schema: yup.boolean(),
-      defaultValue: true,
-    },
-    displayIcd10CodesInDischargeSummary: {
-      name: 'Display icd10 codes in discharge summary',
-      description: '_',
-      schema: yup.boolean(),
-      defaultValue: true,
-    },
-    mandatoryVitalEditReason: {
-      name: 'Mandatory vital edit reason',
-      description: '_',
-      schema: yup.boolean(),
-      defaultValue: false,
-    },
-    enableVitalEdit: {
-      name: 'Enable vital edit',
-      description: '_',
-      schema: yup.boolean(),
-      defaultValue: false,
-    },
-    idleTimeout: {
-      enabled: {
-        name: 'Enabled',
+    description: 'Toggle features on/off',
+    values: {
+      mandateSpecimenType: {
+        description: '_',
+        schema: yup.boolean(),
+        defaultValue: false,
+      },
+      enableVaccineConsent: {
+        description: 'Display a required vaccine consent box on the vaccine given form',
+        schema: yup.boolean(),
+        defaultValue: true,
+      },
+      filterDischargeDispositions: {
+        description: '_',
+        schema: yup.boolean(),
+        defaultValue: false,
+      },
+      editPatientDetailsOnMobile: {
         description: '_',
         schema: yup.boolean(),
         defaultValue: true,
       },
-      timeoutDuration: {
-        name: 'Timeout duration',
+      quickPatientGenerator: {
         description: '_',
-        schema: yup.number(),
-        defaultValue: 600, // In Seconds
+        schema: yup.boolean(),
+        defaultValue: false,
       },
-      warningPromptDuration: {
-        name: 'Warning prompt duration',
+      enableInvoicing: {
         description: '_',
-        schema: yup.number(),
-        defaultValue: 30, // In Seconds
+        schema: yup.boolean(),
+        defaultValue: false,
       },
-      refreshInterval: {
-        name: 'Refresh interval',
-        description: '_',
-        schema: yup.number(),
-        defaultValue: 150, // In Seconds
-      },
-    },
-    tableAutoRefresh: {
-      enabled: {
-        name: 'Enabled',
+      registerNewPatient: {
         description: '_',
         schema: yup.boolean(),
         defaultValue: true,
       },
-      interval: {
-        name: 'Interval',
+      hideOtherSex: {
         description: '_',
-        schema: yup.number(),
-        defaultValue: 300, // In Seconds
+        schema: yup.boolean(),
+        defaultValue: true,
+      },
+      enablePatientDeaths: {
+        description: '_',
+        schema: yup.boolean(),
+        defaultValue: false,
+      },
+      enableNoteBackdating: {
+        description: '_',
+        schema: yup.boolean(),
+        defaultValue: true,
+      },
+      enableCovidClearanceCertificate: {
+        description: '_',
+        schema: yup.boolean(),
+        defaultValue: false,
+      },
+      editPatientDisplayId: {
+        description: '_',
+        schema: yup.boolean(),
+        defaultValue: true,
+      },
+      enablePatientInsurer: {
+        description: '_',
+        schema: yup.boolean(),
+        defaultValue: false,
+      },
+      patientPlannedMove: {
+        description: '_',
+        schema: yup.boolean(),
+        defaultValue: false,
+      },
+      onlyAllowLabPanels: {
+        description: '_',
+        schema: yup.boolean(),
+        defaultValue: false,
+      },
+      displayProcedureCodesInDischargeSummary: {
+        description: '_',
+        schema: yup.boolean(),
+        defaultValue: true,
+      },
+      displayIcd10CodesInDischargeSummary: {
+        description: '_',
+        schema: yup.boolean(),
+        defaultValue: true,
+      },
+      mandatoryVitalEditReason: {
+        description: '_',
+        schema: yup.boolean(),
+        defaultValue: false,
+      },
+      enableVitalEdit: {
+        description: '_',
+        schema: yup.boolean(),
+        defaultValue: false,
+      },
+      idleTimeout: {
+        description: '_',
+        values: {
+          enabled: {
+            description: '_',
+            schema: yup.boolean(),
+            defaultValue: true,
+          },
+          timeoutDuration: {
+            description: '_',
+            schema: yup.number(),
+            defaultValue: 600, // In Seconds
+          },
+          warningPromptDuration: {
+            description: '_',
+            schema: yup.number(),
+            defaultValue: 30, // In Seconds
+          },
+          refreshInterval: {
+            description: '_',
+            schema: yup.number(),
+            defaultValue: 150, // In Seconds
+          },
+        },
+      },
+      tableAutoRefresh: {
+        description: '_',
+        values: {
+          enabled: {
+            description: '_',
+            schema: yup.boolean(),
+            defaultValue: true,
+          },
+          interval: {
+            description: '_',
+            schema: yup.number(),
+            defaultValue: 300, // In Seconds
+          },
+        },
       },
     },
   },
   customisations: {
-    componentVersions: {
-      name: 'Component versions',
-      description: '_',
-      schema: yup.object(),
-      defaultValue: {},
+    description: '_',
+    values: {
+      componentVersions: {
+        description: '_',
+        schema: yup.object(),
+        defaultValue: {},
+      },
     },
   },
   fhir: {
-    worker: {
-      description: 'FHIR worker settings',
-      values: {
-        heartbeat: {
-          name: 'Heartbeat interval',
-          description: '_',
-          schema: yup.string(),
-          defaultValue: '1 minute',
-        },
-        assumeDroppedAfter: {
-          name: 'Assume dropped after',
-          description: '_',
-          schema: yup.string(),
-          defaultValue: '10 minutes',
+    description: '_',
+    values: {
+      worker: {
+        description: 'FHIR worker settings',
+        values: {
+          heartbeat: {
+            description: '_',
+            schema: yup.string(),
+            defaultValue: '1 minute',
+          },
+          assumeDroppedAfter: {
+            description: '_',
+            schema: yup.string(),
+            defaultValue: '10 minutes',
+          },
         },
       },
     },
   },
   integrations: {
-    imaging: {
-      description: 'Imaging integration settings',
-      values: {
-        enabled: {
-          name: 'Imaging integration enabled',
-          description: '_',
-          schema: yup.boolean(),
-          defaultValue: false,
+    description: '_',
+    values: {
+      imaging: {
+        description: 'Imaging integration settings',
+        values: {
+          enabled: {
+            description: '_',
+            schema: yup.boolean(),
+            defaultValue: false,
+          },
         },
       },
     },
   },
   upcomingVaccinations: {
-    ageLimit: {
-      name: 'Upcoming vaccination age limit',
-      description: '_',
-      schema: yup.number(),
-      defaultValue: 15,
-    },
-    thresholds: {
-      name: 'Upcoming vaccination thresholds',
-      description: '_',
-      schema: yup.array().of(
-        yup.object({
-          threshold: yup.number(),
-          status: yup.string(),
-        }),
-      ),
-      defaultValue: [
-        {
-          threshold: 28,
-          status: VACCINE_STATUS.SCHEDULED,
-        },
-        {
-          threshold: 7,
-          status: VACCINE_STATUS.UPCOMING,
-        },
-        {
-          threshold: -7,
-          status: VACCINE_STATUS.DUE,
-        },
-        {
-          threshold: -55,
-          status: VACCINE_STATUS.OVERDUE,
-        },
-        {
-          threshold: '-Infinity',
-          status: VACCINE_STATUS.MISSED,
-        },
-      ],
+    description: '_',
+    values: {
+      ageLimit: {
+        description: '_',
+        schema: yup.number(),
+        defaultValue: 15,
+      },
+      thresholds: {
+        description: '_',
+        schema: yup.array().of(
+          yup.object({
+            threshold: yup.number(),
+            status: yup.string(),
+          }),
+        ),
+        defaultValue: [
+          {
+            threshold: 28,
+            status: VACCINE_STATUS.SCHEDULED,
+          },
+          {
+            threshold: 7,
+            status: VACCINE_STATUS.UPCOMING,
+          },
+          {
+            threshold: -7,
+            status: VACCINE_STATUS.DUE,
+          },
+          {
+            threshold: -55,
+            status: VACCINE_STATUS.OVERDUE,
+          },
+          {
+            threshold: '-Infinity',
+            status: VACCINE_STATUS.MISSED,
+          },
+        ],
+      },
     },
   },
   printMeasures: {
