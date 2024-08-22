@@ -1,6 +1,21 @@
 import { VACCINE_STATUS } from '@tamanu/constants';
 import * as yup from 'yup';
 import { extractDefaults } from './utils';
+import { mapValues } from 'lodash';
+
+// LAYOUTS
+const unhideableLayoutModuleSchema = {
+  sortPriority: { schema: yup.number(), defaultValue: -100 },
+  hidden: {
+    schema: yup.boolean().oneOf([false], 'unhideable tabs must not be hidden'),
+    defaultValue: false,
+  },
+};
+
+const layoutModuleSchema = {
+  sortPriority: { schema: yup.number(), defaultValue: 0 },
+  hidden: { schema: yup.boolean(), defaultValue: false },
+};
 
 const MOBILE_PATIENT_MODULES = [
   'diagnosisAndTreatment',
@@ -11,8 +26,18 @@ const MOBILE_PATIENT_MODULES = [
   'tests',
 ];
 
-const UNHIDEABLE_PATIENT_TABS = ['history', 'details'];
+const mobilePatientModulesValues = {
+  programRegistries: { hidden: { schema: yup.boolean(), defaultValue: false } },
+  ...MOBILE_PATIENT_MODULES.reduce(
+    (modules: object, module: string) => ({
+      ...modules,
+      [module]: layoutModuleSchema,
+    }),
+    {},
+  ),
+};
 
+const UNHIDEABLE_PATIENT_TABS = ['history', 'details'];
 const HIDEABLE_PATIENT_TABS = [
   'results',
   'referrals',
@@ -23,9 +48,47 @@ const HIDEABLE_PATIENT_TABS = [
   'invoices',
 ];
 
-const layoutModuleSchema = (defaultSortPriority = 0) => ({
-  sortPriority: { schema: yup.number(), defaultValue: defaultSortPriority },
-  hidden: { schema: yup.boolean(), defaultValue: false },
+const patientTabValues = {
+  ...UNHIDEABLE_PATIENT_TABS.reduce(
+    (tabs: object, tab: string) => ({
+      ...tabs,
+      [tab]: unhideableLayoutModuleSchema,
+    }),
+    {},
+  ),
+  ...HIDEABLE_PATIENT_TABS.reduce(
+    (tabs: object, tab: string) => ({
+      ...tabs,
+      [tab]: layoutModuleSchema,
+    }),
+    {},
+  ),
+};
+
+const SIDEBAR_ITEMS = {
+  patients: ['patientsAll', 'patientsInpatients', 'patientsEmergency', 'patientsOutpatients'],
+  scheduling: ['schedulingAppointments', 'schedulingCalendar', 'schedulingNew'],
+  medication: ['medicationAll'],
+  imaging: ['imagingActive', 'imagingCompleted'],
+  labs: ['labsAll', 'labsPublished'],
+  immunisations: ['immunisationsAll'],
+  programRegistry: [],
+  facilityAdmin: ['reports', 'bedManagement'],
+};
+
+// patients and patientsAll are intentionally not configurable
+const sidebarValues = mapValues(SIDEBAR_ITEMS, (children: string[], topItem: string) => {
+  const childSchema = children.reduce(
+    (obj: object, childItem: string) =>
+      childItem === 'patientsAll'
+        ? obj
+        : { ...obj, [childItem]: { description: '_', values: layoutModuleSchema } },
+    {},
+  );
+
+  return topItem === 'patients'
+    ? { description: '_', values: childSchema }
+    : { description: '_', values: { ...layoutModuleSchema, ...childSchema } };
 });
 
 export const globalSettings = {
@@ -459,73 +522,15 @@ export const globalSettings = {
     values: {
       mobilePatientModules: {
         description: '_',
-        values: {
-          programRegistries: layoutModuleSchema(),
-          diagnosisAndTreatment: layoutModuleSchema(),
-          vitals: layoutModuleSchema(),
-          programs: layoutModuleSchema(),
-          referral: layoutModuleSchema(),
-          vaccine: layoutModuleSchema(),
-          tests: layoutModuleSchema(),
-        },
+        values: mobilePatientModulesValues,
       },
-      // TODO: add hidablel logic from above
       patientTabs: {
         description: '_',
-        values: {
-          history: layoutModuleSchema(-100),
-          details: layoutModuleSchema(-50),
-          results: layoutModuleSchema(),
-          referrals: layoutModuleSchema(),
-          programs: layoutModuleSchema(),
-          documents: layoutModuleSchema(),
-          vaccines: layoutModuleSchema(),
-          medication: layoutModuleSchema(),
-          invoices: layoutModuleSchema(),
-        },
+        values: patientTabValues,
       },
       sidebar: {
         description: '_',
-        values: {
-          patients: {
-            description: '_',
-            values: {
-              patientsInpatients: layoutModuleSchema(),
-              patientsEmergency: layoutModuleSchema(),
-              patientsOutpatients: layoutModuleSchema(),
-            },
-          },
-          scheduling: {
-            ...layoutModuleSchema(),
-            schedulingAppointments: layoutModuleSchema(),
-            schedulingCalendar: layoutModuleSchema(),
-            schedulingNew: layoutModuleSchema(),
-          },
-          medication: {
-            ...layoutModuleSchema(),
-            medicationAll: layoutModuleSchema(),
-          },
-          imaging: {
-            ...layoutModuleSchema(),
-            imagingActive: layoutModuleSchema(),
-            imagingCompleted: layoutModuleSchema(),
-          },
-          labs: {
-            ...layoutModuleSchema(),
-            labsAll: layoutModuleSchema(),
-            labsPublished: layoutModuleSchema(),
-          },
-          immunisations: {
-            ...layoutModuleSchema(),
-            immunisationsAll: layoutModuleSchema(),
-          },
-          programRegistry: layoutModuleSchema(),
-          facilityAdmin: {
-            ...layoutModuleSchema(),
-            reports: layoutModuleSchema(),
-            bedManagement: layoutModuleSchema(),
-          },
-        },
+        values: sidebarValues,
       },
     },
   },
