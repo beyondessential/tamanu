@@ -10,6 +10,154 @@ export const globalSettings = {
       schema: yup.boolean(),
       defaultValue: false,
     },
+    enableVaccineConsent: {
+      name: 'Enable vaccine consent',
+      description: 'Display a required vaccine consent box on the vaccine given form',
+      schema: yup.boolean(),
+      defaultValue: true,
+    },
+    filterDischargeDispositions: {
+      name: 'Filter discharge dispositions',
+      description: '_',
+      schema: yup.boolean(),
+      defaultValue: false,
+    },
+    editPatientDetailsOnMobile: {
+      name: 'Edit patient details on mobile',
+      description: '_',
+      schema: yup.boolean(),
+      defaultValue: true,
+    },
+    quickPatientGenerator: {
+      name: 'Quick patient generator',
+      description: '_',
+      schema: yup.boolean(),
+      defaultValue: false,
+    },
+    enableInvoicing: {
+      name: 'Enable invoicing',
+      description: '_',
+      schema: yup.boolean(),
+      defaultValue: false,
+    },
+    registerNewPatient: {
+      name: 'Register new patient',
+      description: '_',
+      schema: yup.boolean(),
+      defaultValue: true,
+    },
+    hideOtherSex: {
+      name: 'Hide other sex',
+      description: '_',
+      schema: yup.boolean(),
+      defaultValue: true,
+    },
+    enablePatientDeaths: {
+      name: 'Enable patient deaths',
+      description: '_',
+      schema: yup.boolean(),
+      defaultValue: false,
+    },
+    enableNoteBackdating: {
+      name: 'Enable note backdating',
+      description: '_',
+      schema: yup.boolean(),
+      defaultValue: true,
+    },
+    enableCovidClearanceCertificate: {
+      name: 'Enable covid clearance certificate',
+      description: '_',
+      schema: yup.boolean(),
+      defaultValue: false,
+    },
+    editPatientDisplayId: {
+      name: 'Edit patient displayId',
+      description: '_',
+      schema: yup.boolean(),
+      defaultValue: true,
+    },
+    enablePatientInsurer: {
+      name: 'Enable patient insurer',
+      description: '_',
+      schema: yup.boolean(),
+      defaultValue: false,
+    },
+    patientPlannedMove: {
+      name: 'Patient planned move',
+      description: '_',
+      schema: yup.boolean(),
+      defaultValue: false,
+    },
+    onlyAllowLabPanels: {
+      name: 'Only allow lab panels',
+      description: '_',
+      schema: yup.boolean(),
+      defaultValue: false,
+    },
+    displayProcedureCodesInDischargeSummary: {
+      name: 'Display procedure codes in discarge summary',
+      description: '_',
+      schema: yup.boolean(),
+      defaultValue: true,
+    },
+    displayIcd10CodesInDischargeSummary: {
+      name: 'Display icd10 codes in discharge summary',
+      description: '_',
+      schema: yup.boolean(),
+      defaultValue: true,
+    },
+    mandatoryVitalEditReason: {
+      name: 'Mandatory vital edit reason',
+      description: '_',
+      schema: yup.boolean(),
+      defaultValue: false,
+    },
+    enableVitalEdit: {
+      name: 'Enable vital edit',
+      description: '_',
+      schema: yup.boolean(),
+      defaultValue: false,
+    },
+    idleTimeout: {
+      enabled: {
+        name: 'Enabled',
+        description: '_',
+        schema: yup.boolean(),
+        defaultValue: true,
+      },
+      timeoutDuration: {
+        name: 'Timeout duration',
+        description: '_',
+        schema: yup.number(),
+        defaultValue: 600, // In Seconds
+      },
+      warningPromptDuration: {
+        name: 'Warning prompt duration',
+        description: '_',
+        schema: yup.number(),
+        defaultValue: 30, // In Seconds
+      },
+      refreshInterval: {
+        name: 'Refresh interval',
+        description: '_',
+        schema: yup.number(),
+        defaultValue: 150, // In Seconds
+      },
+    },
+    tableAutoRefresh: {
+      enabled: {
+        name: 'Enabled',
+        description: '_',
+        schema: yup.boolean(),
+        defaultValue: true,
+      },
+      interval: {
+        name: 'Interval',
+        description: '_',
+        schema: yup.number(),
+        defaultValue: 300, // In Seconds
+      },
+    },
   },
   customisations: {
     componentVersions: {
