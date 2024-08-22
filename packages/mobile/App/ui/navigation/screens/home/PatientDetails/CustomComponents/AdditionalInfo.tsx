@@ -4,7 +4,6 @@ import { FieldRowDisplay } from '../../../../../components/FieldRowDisplay';
 import { ErrorScreen } from '../../../../../components/ErrorScreen';
 import { LoadingScreen } from '../../../../../components/LoadingScreen';
 import { PatientSection } from './PatientSection';
-import { useLocalisation } from '../../../../../contexts/LocalisationContext';
 import {
   CustomPatientFieldValues,
   usePatientAdditionalData,

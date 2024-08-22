@@ -1,6 +1,6 @@
 import config from 'config';
 import * as yup from 'yup';
-import { defaultsDeep, mapValues } from 'lodash';
+import { defaultsDeep } from 'lodash';
 import { log } from '@tamanu/shared/services/logging';
 import { IMAGING_TYPES } from '@tamanu/constants';
 
