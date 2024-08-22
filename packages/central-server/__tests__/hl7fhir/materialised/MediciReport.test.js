@@ -340,4 +340,94 @@ describe(`Materialised - MediciReport`, () => {
       });
     });
   });
+
+  describe('materialise Location History in Medici Report', () => {
+    it('returns all locations for an encounter', async () => {
+      const { Location } = ctx.store.models;
+      const oldLocation = await Location.create(
+        fake(Location, {
+          facilityId: resources.facility.id,
+          locationGroupId: resources.locationGroup.id,
+        }),
+      );
+      const newLocation = await Location.create(
+        fake(Location, {
+          facilityId: resources.facility.id,
+          locationGroupId: resources.locationGroup.id,
+        }),
+      );
+
+      const { encounter } = await makeEncounter({
+        encounterType: 'emergency',
+        locationId: oldLocation.id,
+      });
+
+      await encounter.update({ locationId: newLocation.id });
+
+      const { MediciReport } = ctx.store.models;
+
+      await MediciReport.materialiseFromUpstream(encounter.id);
+      await MediciReport.resolveUpstreams();
+
+      const mediciReport = await MediciReport.findOne();
+
+      expect(mediciReport.dataValues).toMatchObject({
+        locations: [
+          {
+            facility: resources.facility.name,
+            location: oldLocation.name,
+            locationGroup: resources.locationGroup.name,
+          },
+          {
+            facility: resources.facility.name,
+            location: newLocation.name,
+            locationGroup: resources.locationGroup.name,
+          },
+        ],
+      });
+    });
+  });
+
+  describe('materialise Department History in Medici Report', () => {
+    it('returns all departments for an encounter', async () => {
+      const { Department } = ctx.store.models;
+      const oldDepartment = await Department.create(
+        fake(Department, {
+          facilityId: resources.facility.id,
+          locationId: resources.location.id,
+        }),
+      );
+      const newDepartment = await Department.create(
+        fake(Department, {
+          facilityId: resources.facility.id,
+          locationId: resources.location.id,
+        }),
+      );
+
+      const { encounter } = await makeEncounter({
+        encounterType: 'emergency',
+        departmentId: oldDepartment.id,
+      });
+
+      await encounter.update({ departmentId: newDepartment.id });
+
+      const { MediciReport } = ctx.store.models;
+
+      await MediciReport.materialiseFromUpstream(encounter.id);
+      await MediciReport.resolveUpstreams();
+
+      const mediciReport = await MediciReport.findOne();
+
+      expect(mediciReport.dataValues).toMatchObject({
+        departments: [
+          {
+            department: oldDepartment.name,
+          },
+          {
+            department: newDepartment.name,
+          },
+        ],
+      });
+    });
+  });
 });
