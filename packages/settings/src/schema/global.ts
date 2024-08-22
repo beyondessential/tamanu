@@ -366,13 +366,14 @@ export const globalSettings = {
           schema: yup.boolean(),
           defaultValue: true,
         },
-        /** Provide an array if you want to override the options. e.g. ['--max-old-space-size=4096'] */
         processOptions: {
+          description:
+            "Provide an array if you want to override the options. e.g. ['--max-old-space-size=4096']",
           schema: yup.array().of(yup.string()),
           defaultValue: null,
         },
-        /** Provide an object {} for the env of child process */
         childProcessEnv: {
+          description: 'Provide an object {} for the env of child process',
           schema: yup.object(), // Should be Record<string, string>, but Yup has poor support for dictionaries
           defaultValue: null,
         },
