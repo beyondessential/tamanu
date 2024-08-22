@@ -77,18 +77,19 @@ const SIDEBAR_ITEMS = {
 };
 
 // patients and patientsAll are intentionally not configurable
+// TODO: add descriptions to logic if not too complicated
 const sidebarValues = mapValues(SIDEBAR_ITEMS, (children: string[], topItem: string) => {
   const childSchema = children.reduce(
     (obj: object, childItem: string) =>
       childItem === 'patientsAll'
         ? obj
-        : { ...obj, [childItem]: { description: '_', values: layoutModuleSchema } },
+        : { ...obj, [childItem]: { values: layoutModuleSchema } },
     {},
   );
 
   return topItem === 'patients'
-    ? { description: '_', values: childSchema }
-    : { description: '_', values: { ...layoutModuleSchema, ...childSchema } };
+    ? { values: childSchema }
+    : { values: { ...layoutModuleSchema, ...childSchema } };
 });
 
 export const globalSettings = {
