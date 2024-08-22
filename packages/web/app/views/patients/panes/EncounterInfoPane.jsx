@@ -131,7 +131,7 @@ export const EncounterInfoPane = React.memo(({ encounter, getSetting, patientBil
               fallback="Triage score"
             />
           }
-          value={encounter.triages?.[0]?.score || '-'}
+          value={encounter.triages?.[0]?.score || '—'} // em dash
           icon={triageScoreIcon}
         />
       )}
