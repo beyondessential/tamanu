@@ -39,7 +39,7 @@ export const CovidPatientDetailsSection = ({
       <Col style={{ width: `${leftWidth}%` }}>
         <Row>
           {detailsToDisplay.map(({ key, label: defaultLabel, accessor }) => {
-            const value = (accessor ? accessor(patient, getLocalisation) : patient[key]) || '';
+            const value = accessor?.(patient, getLocalisation) ?? (patient[key] || '');
             const label =
               getTranslation(`general.localisedFields.${key}.label.short`) ||
               getTranslation(`general.localisedFields.${key}.label`) ||
