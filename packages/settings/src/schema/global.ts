@@ -457,7 +457,7 @@ export const globalSettings = {
   layouts: {
     description: '_',
     values: {
-      patientDetails: { default: 'generic' },
+      patientDetails: { schema: yup.string(), defaultValue: 'generic' },
       mobilePatientModules: {
         description: '_',
         values: {
@@ -470,6 +470,7 @@ export const globalSettings = {
           tests: layoutModuleSchema(),
         },
       },
+      // TODO: add hidablel logic from above
       patientTabs: {
         description: '_',
         values: {
