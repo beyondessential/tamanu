@@ -33,7 +33,7 @@ const flattenSettings = (obj: Record<string, any>, parentKey: string = ''): Reco
 };
 
 const flattenSchema = (schema: SettingsSchema, parentKey: string = ''): Record<string, any> => {
-  return Object.entries(schema.values).reduce((acc, [key, value]) => {
+  return Object.entries(schema.properties).reduce((acc, [key, value]) => {
     const fullKey = parentKey ? `${parentKey}.${key}` : key;
 
     if (isSetting(value)) {
