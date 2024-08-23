@@ -229,7 +229,7 @@ function createSuggesterCreateRoute(endpoint, modelName, { creatingBodyBuilder, 
     }),
   );
 }
- 
+
 // Add a new suggester for a particular model at the given endpoint.
 // Records will be filtered based on the whereSql parameter. The user's search term
 // will be passed to the sql query as ":search" - see the existing suggestion
@@ -274,7 +274,6 @@ createSuggester(
   {
     mapper: ({ name, code, id, type }) => ({ name, code, id, type }),
   },
-  true
 );
 
 REFERENCE_TYPE_VALUES.forEach(typeName => {
