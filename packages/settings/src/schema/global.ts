@@ -12,11 +12,11 @@ import {
 export const globalSettings = {
   title: 'Global settings',
   description: 'Settings that apply to all servers',
-  values: {
+  properties: {
     features: {
       name: 'Features',
       description: 'Feature flags',
-      values: {
+      properties: {
         mandateSpecimenType: {
           name: 'Mandate specimen type',
           description: '_',
@@ -28,7 +28,7 @@ export const globalSettings = {
     customisations: {
       name: 'Customisations',
       description: 'Customisation of the application',
-      values: {
+      properties: {
         componentVersions: {
           name: 'Component versions',
           description: '_',
@@ -40,11 +40,11 @@ export const globalSettings = {
     fhir: {
       name: 'FHIR',
       description: 'FHIR integration settings',
-      values: {
+      properties: {
         worker: {
           name: 'FHIR worker',
           description: 'FHIR worker settings',
-          values: {
+          properties: {
             heartbeat: {
               name: 'Heartbeat interval',
               description: '_',
@@ -64,10 +64,10 @@ export const globalSettings = {
     integrations: {
       name: 'Integrations',
       description: 'Integration settings',
-      values: {
+      properties: {
         imaging: {
           description: 'Imaging integration settings',
-          values: {
+          properties: {
             enabled: {
               name: 'Imaging integration enabled',
               description: '_',
@@ -81,7 +81,7 @@ export const globalSettings = {
     upcomingVaccinations: {
       name: 'Upcoming vaccinations',
       description: 'Settings related to upcoming vaccinations',
-      values: {
+      properties: {
         ageLimit: {
           name: 'Upcoming vaccination age limit',
           description: '_',
@@ -167,433 +167,428 @@ export const globalSettings = {
     fields: {
       name: 'Fields (Previously localised fields)',
       description: 'Customise form fields behavior across the application',
-      values: {
+      properties: {
         countryName: {
           name: 'Country name',
           description: 'Patients country name',
-          values: hideablePatientFieldSchema,
+          properties: hideablePatientFieldSchema,
         },
         emergencyContactName: {
           name: 'Emergency contact name',
           description: 'Patients emergency contact name',
-          values: patientDetailsFieldSchema,
+          properties: patientDetailsFieldSchema,
         },
         emergencyContactNumber: {
           name: 'Emergency contact number',
           description: '_',
-          values: patientDetailsFieldSchema,
+          properties: patientDetailsFieldSchema,
         },
         displayId: {
           name: 'Display ID',
           description: '_',
-          values: displayIdFieldSchema,
+          properties: displayIdFieldSchema,
         },
         firstName: {
           name: 'First name',
           description: '_',
-          values: patientDetailsFieldSchema,
+          properties: patientDetailsFieldSchema,
         },
         middleName: {
           name: 'Middle name',
           description: '_',
-          values: hideablePatientFieldSchema,
+          properties: hideablePatientFieldSchema,
         },
         lastName: {
           name: 'Last name',
           description: '_',
-          values: patientDetailsFieldSchema,
+          properties: patientDetailsFieldSchema,
         },
         culturalName: {
           name: 'Cultural name',
           description: '_',
-          values: hideablePatientFieldSchema,
+          properties: hideablePatientFieldSchema,
         },
         sex: {
           name: 'Sex',
           description: '_',
-          values: hideableFieldSchema,
+          properties: hideableFieldSchema,
         },
         email: {
           name: 'Email',
           description: '_',
-          values: hideablePatientFieldSchema,
+          properties: hideablePatientFieldSchema,
         },
         dateOfBirth: {
           name: 'Date of birth',
           description: '_',
-          values: patientDetailsFieldSchema,
+          properties: patientDetailsFieldSchema,
         },
         bloodType: {
           name: 'Blood type',
           description: '_',
-          values: hideablePatientFieldSchema,
+          properties: hideablePatientFieldSchema,
         },
         title: {
           name: 'Title',
           description: '_',
-          values: hideablePatientFieldSchema,
+          properties: hideablePatientFieldSchema,
         },
         placeOfBirth: {
           name: 'Place of birth',
           description: '_',
-          values: hideablePatientFieldSchema,
+          properties: hideablePatientFieldSchema,
         },
         countryOfBirthId: {
           name: 'Country of birth',
           description: '_',
-          values: hideablePatientFieldSchema,
+          properties: hideablePatientFieldSchema,
         },
         maritalStatus: {
           name: 'Marital status',
           description: '_',
-          values: hideablePatientFieldSchema,
+          properties: hideablePatientFieldSchema,
         },
         primaryContactNumber: {
           name: 'Primary contact number',
           description: '_',
-          values: hideablePatientFieldSchema,
+          properties: hideablePatientFieldSchema,
         },
         secondaryContactNumber: {
           name: 'Secondary contact number',
           description: '_',
-          values: hideablePatientFieldSchema,
+          properties: hideablePatientFieldSchema,
         },
         socialMedia: {
           name: 'Social media',
           description: '_',
-          values: hideablePatientFieldSchema,
+          properties: hideablePatientFieldSchema,
         },
         settlementId: {
           name: 'Settlement',
           description: '_',
-          values: hideablePatientFieldSchema,
+          properties: hideablePatientFieldSchema,
         },
         streetVillage: {
           name: 'Street village',
           description: '_',
-          values: hideablePatientFieldSchema,
+          properties: hideablePatientFieldSchema,
         },
         cityTown: {
           name: 'City town',
           description: '_',
-          values: hideablePatientFieldSchema,
+          properties: hideablePatientFieldSchema,
         },
         subdivisionId: {
           name: 'Subdivision',
           description: '_',
-          values: hideablePatientFieldSchema,
+          properties: hideablePatientFieldSchema,
         },
         divisionId: {
           name: 'Division',
           description: '_',
-          values: hideablePatientFieldSchema,
+          properties: hideablePatientFieldSchema,
         },
         countryId: {
           name: 'Country',
           description: '_',
-          values: hideablePatientFieldSchema,
+          properties: hideablePatientFieldSchema,
         },
         medicalAreaId: {
           name: 'Medical area',
           description: '_',
-          values: hideablePatientFieldSchema,
+          properties: hideablePatientFieldSchema,
         },
         nursingZoneId: {
           name: 'Nursing zone',
           description: '_',
-          values: hideablePatientFieldSchema,
+          properties: hideablePatientFieldSchema,
         },
         nationalityId: {
           name: 'Nationality',
           description: '_',
-          values: hideablePatientFieldSchema,
+          properties: hideablePatientFieldSchema,
         },
         ethnicityId: {
           name: 'Ethnicity',
           description: '_',
-          values: hideablePatientFieldSchema,
+          properties: hideablePatientFieldSchema,
         },
         occupationId: {
           name: 'Occupation',
           description: '_',
-          values: hideablePatientFieldSchema,
+          properties: hideablePatientFieldSchema,
         },
         educationalLevel: {
           name: 'Educational level',
           description: '_',
-          values: hideablePatientFieldSchema,
+          properties: hideablePatientFieldSchema,
         },
         villageName: {
           name: 'Village name',
           description: '_',
-          values: hideablePatientFieldSchema,
+          properties: hideablePatientFieldSchema,
         },
         villageId: {
           name: 'Village',
           description: '_',
-          values: hideablePatientFieldSchema,
+          properties: hideablePatientFieldSchema,
         },
         birthCertificate: {
           name: 'Birth certificate',
           description: '_',
-          values: hideablePatientFieldSchema,
+          properties: hideablePatientFieldSchema,
         },
         insurerId: {
           name: 'Insurer',
           description: '_',
-          values: hideablePatientFieldSchema,
+          properties: hideablePatientFieldSchema,
         },
         insurerPolicyNumber: {
           name: 'Insurer policy number',
           description: '_',
-          values: hideablePatientFieldSchema,
+          properties: hideablePatientFieldSchema,
         },
         drivingLicense: {
           name: 'Driving license',
           description: '_',
-          values: hideablePatientFieldSchema,
+          properties: hideablePatientFieldSchema,
         },
         passport: {
           name: 'Passport',
           description: '_',
-          values: hideablePatientFieldSchema,
+          properties: hideablePatientFieldSchema,
         },
         religionId: {
           name: 'Religion',
           description: '_',
-          values: hideablePatientFieldSchema,
+          properties: hideablePatientFieldSchema,
         },
         patientBillingTypeId: {
           name: 'Patient billing type',
           description: '_',
-          values: hideablePatientFieldSchema,
+          properties: hideablePatientFieldSchema,
         },
         motherId: {
           name: 'Mother',
           description: '_',
-          values: hideablePatientFieldSchema,
+          properties: hideablePatientFieldSchema,
         },
         fatherId: {
           name: 'Father',
           description: '_',
-          values: hideablePatientFieldSchema,
+          properties: hideablePatientFieldSchema,
         },
         birthWeight: {
           name: 'Birth weight',
           description: '_',
-          values: hideablePatientFieldSchema,
+          properties: hideablePatientFieldSchema,
         },
         birthLength: {
           name: 'Birth length',
           description: '_',
-          values: hideablePatientFieldSchema,
+          properties: hideablePatientFieldSchema,
         },
         birthDeliveryType: {
           name: 'Birth delivery type',
           description: '_',
-          values: hideablePatientFieldSchema,
+          properties: hideablePatientFieldSchema,
         },
         gestationalAgeEstimate: {
           name: 'Gestational age estimate',
           description: '_',
-          values: hideablePatientFieldSchema,
+          properties: hideablePatientFieldSchema,
         },
         apgarScoreOneMinute: {
           name: 'Apgar score after one minute',
           description: '_',
-          values: hideablePatientFieldSchema,
+          properties: hideablePatientFieldSchema,
         },
         apgarScoreFiveMinutes: {
           name: 'Apgar score after five minutes',
           description: '_',
-          values: hideablePatientFieldSchema,
+          properties: hideablePatientFieldSchema,
         },
         apgarScoreTenMinutes: {
           name: 'Apgar score after ten minutes',
           description: '_',
-          values: hideablePatientFieldSchema,
+          properties: hideablePatientFieldSchema,
         },
         timeOfBirth: {
           name: 'Time of birth',
           description: '_',
-          values: hideablePatientFieldSchema,
+          properties: hideablePatientFieldSchema,
         },
         attendantAtBirth: {
           name: 'Attendant at birth',
           description: '_',
-          values: hideablePatientFieldSchema,
+          properties: hideablePatientFieldSchema,
         },
         nameOfAttendantAtBirth: {
           name: 'Name of attendant at birth',
           description: '_',
-          values: hideablePatientFieldSchema,
+          properties: hideablePatientFieldSchema,
         },
         birthType: {
           name: 'Birth type',
           description: '_',
-          values: hideablePatientFieldSchema,
+          properties: hideablePatientFieldSchema,
         },
         birthFacilityId: {
           name: 'Birth facility',
           description: '_',
-          values: hideablePatientFieldSchema,
+          properties: hideablePatientFieldSchema,
         },
         healthCenterId: {
           name: 'Health center',
           description: '_',
-          values: hideablePatientFieldSchema,
+          properties: hideablePatientFieldSchema,
         },
         registeredBirthPlace: {
           name: 'Registered birth place',
           description: '_',
-          values: hideablePatientFieldSchema,
+          properties: hideablePatientFieldSchema,
         },
         referralSourceId: {
           name: 'Referral source',
           description: '_',
-          values: hideableFieldSchema,
+          properties: hideableFieldSchema,
         },
         arrivalModeId: {
           name: 'Arrival mode',
           description: '_',
-          values: hideableFieldSchema,
+          properties: hideableFieldSchema,
         },
         prescriber: {
           name: 'Prescriber',
           description: '_',
-          values: hideableFieldSchema,
+          properties: hideableFieldSchema,
         },
         prescriberId: {
           name: 'Prescriber',
           description: '_',
-          values: hideableFieldSchema,
+          properties: hideableFieldSchema,
         },
         facility: {
           name: 'Facility',
           description: '_',
-          values: hideableFieldSchema,
+          properties: hideableFieldSchema,
         },
         dischargeDisposition: {
           name: 'Discharge disposition',
           description: '_',
-          values: hideableFieldSchema,
+          properties: hideableFieldSchema,
         },
         notGivenReasonId: {
           name: 'Not given reason',
           description: '_',
-          values: hideableFieldSchema,
+          properties: hideableFieldSchema,
         },
         markedForSync: {
           name: 'Marked for sync',
           description: '_',
-          values: baseFieldSchema,
+          properties: baseFieldSchema,
         },
         dateOfBirthFrom: {
           name: 'Date of birth from',
           description: '_',
-          values: baseFieldSchema,
+          properties: baseFieldSchema,
         },
         dateOfBirthTo: {
           name: 'Date of birth to',
           description: '_',
-          values: baseFieldSchema,
+          properties: baseFieldSchema,
         },
         dateOfBirthExact: {
           name: 'Date of birth exact',
           description: '_',
-          values: baseFieldSchema,
+          properties: baseFieldSchema,
         },
         dateOfDeath: {
           name: 'Date of death',
           description: '_',
-          values: baseFieldSchema,
+          properties: baseFieldSchema,
         },
         age: {
           name: 'Age',
           description: '_',
-          values: baseFieldSchema,
+          properties: baseFieldSchema,
         },
         ageRange: {
           name: 'Age range',
           description: '_',
-          values: baseFieldSchema,
+          properties: baseFieldSchema,
         },
         clinician: {
           name: 'Clinician',
           description: '_',
-          values: hideableFieldSchema,
+          properties: hideableFieldSchema,
         },
         diagnosis: {
           name: 'Diagnosis',
           description: '_',
-          values: hideableFieldSchema,
+          properties: hideableFieldSchema,
         },
         userDisplayId: {
           name: 'User display ID',
           description: '_',
-          values: hideableFieldSchema,
+          properties: hideableFieldSchema,
         },
         locationId: {
           name: 'Location',
           description: '_',
-          values: hideableFieldSchema,
+          properties: hideableFieldSchema,
         },
         locationGroupId: {
           name: 'Location group (Area)',
           description: '_',
-          values: hideableFieldSchema,
+          properties: hideableFieldSchema,
         },
         circumstanceId: {
           name: 'Circumstance',
           description: '_',
-          values: hideableFieldSchema,
+          properties: hideableFieldSchema,
         },
         date: {
           name: 'Date',
           description: '_',
-          values: baseFieldSchema,
+          properties: baseFieldSchema,
         },
         registeredBy: {
           name: 'Registered by',
           description: '_',
-          values: hideableFieldSchema,
+          properties: hideableFieldSchema,
         },
         status: {
           name: 'Status',
           description: '_',
-          values: hideableFieldSchema,
+          properties: hideableFieldSchema,
         },
         conditions: {
           name: 'Conditions',
           description: '_',
-          values: hideableFieldSchema,
+          properties: hideableFieldSchema,
         },
         programRegistry: {
           name: 'Program registry',
           description: '_',
-          values: hideableFieldSchema,
+          properties: hideableFieldSchema,
         },
         reminderContactName: {
           name: 'Reminder contact name',
           description: '_',
-          values: hideableFieldSchema,
+          properties: hideableFieldSchema,
         },
         reminderContactNumber: {
           name: 'Reminder contact number',
           description: '_',
-          values: hideableFieldSchema,
+          properties: hideableFieldSchema,
         },
       },
     },
     imagingPriorities: {
       name: 'Imaging priorities',
       description: 'List with each entry being an available imaging priority option',
-      schema: yup.array().of(
-        yup.object({
-          priority: yup.number(),
-          label: yup.string(),
-        }),
-      ),
+      schema: yup.array(),
       defaultValue: [
         {
           value: 'routine',

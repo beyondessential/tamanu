@@ -4,11 +4,11 @@ import { extractDefaults } from './utils';
 export const facilitySettings = {
   name: 'Facility server settings',
   description: 'Settings that apply only to a facility server',
-  values: {
+  properties: {
     templates: {
       name: 'Templates',
       description: 'Settings related to templates',
-      values: {
+      properties: {
         letterhead: {
           name: 'Letterhead',
           description: '_',
@@ -26,12 +26,12 @@ export const facilitySettings = {
     survey: {
       name: 'Survey settings',
       description: '_',
-      values: {
+      properties: {
         defaultCodes: {
           name: 'Default codes',
           description:
             'Default reference data codes to use when creating a survey encounter (includes vitals) when none are explicitly specified',
-          values: {
+          properties: {
             department: {
               name: 'Department',
               description: 'Default department code',
