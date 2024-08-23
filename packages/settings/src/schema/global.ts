@@ -111,21 +111,24 @@ export const globalSettings = {
               defaultValue: true,
             },
             timeoutDuration: {
-              description: 'The idle time in seconds before a user is logged out',
+              description: 'The idle time before a user is logged out',
               schema: yup.number(),
               defaultValue: 600,
+              unit: 'seconds'
             },
             warningPromptDuration: {
               description:
-                'The time in seconds the warning prompt should be visible before idle logout',
+                'The time the warning prompt should be visible before idle logout',
               schema: yup.number(),
               defaultValue: 30,
+              unit: 'seconds'
             },
             refreshInterval: {
               description:
                 'Technical really should not be changed - The interval in which to throttle the idle check by for performance',
               schema: yup.number(),
-              defaultValue: 150, // In Seconds
+              defaultValue: 150,
+              unit: 'seconds'
             },
           },
         },
@@ -136,11 +139,13 @@ export const globalSettings = {
             enabled: {
               schema: yup.boolean(),
               defaultValue: true,
+              unit: 'seconds'
             },
             interval: {
               description: 'Interval in seconds between check for new records.',
               schema: yup.number(),
-              defaultValue: 300, // In Seconds
+              defaultValue: 300,
+              unit: 'seconds'
             },
           },
         },

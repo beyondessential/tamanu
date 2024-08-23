@@ -59,7 +59,7 @@ const RegisterPatientButton = (): ReactElement => {
 
 export const ConditionalRegisterPatientButton = (): ReactElement => {
   const { getSetting } = useSettings();
-  const allowRegisterPatient = getSetting('features.registerNewPatient');
+  const allowRegisterPatient = getSetting<boolean>('features.registerNewPatient');
   if (allowRegisterPatient) {
     return <RegisterPatientButton />;
   }
