@@ -1,10 +1,13 @@
+import { REFERENCE_TYPES } from '@tamanu/constants';
 import {
   administeredVaccineLoader,
   labTestPanelLoader,
   patientDataLoader,
   patientFieldDefinitionLoader,
   permissionLoader,
+  taskSetLoader,
   translatedStringLoader,
+  userLoader,
 } from './loaders';
 
 // All reference data is imported first, so that can be assumed for ordering.
@@ -19,7 +22,9 @@ import {
 //
 // creating dependency cycles will (intentionally) crash the importer
 export default {
-  user: {},
+  user: {
+    loader: userLoader,
+  },
 
   patient: {
     loader: patientDataLoader,
@@ -70,4 +75,8 @@ export default {
   },
 
   referenceDataRelation: {},
+
+  [REFERENCE_TYPES.TASK_SET]: {
+    loader: taskSetLoader,
+  },
 };

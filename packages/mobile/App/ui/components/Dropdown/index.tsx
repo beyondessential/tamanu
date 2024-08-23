@@ -24,6 +24,8 @@ export interface DropdownProps extends BaseInputProps {
   multiselect?: boolean;
   label?: string;
   labelColor?: string;
+  labelFontSize?: string | number;
+  fieldFontSize?: number
   fixedHeight: boolean;
   searchPlaceholderText?: string;
   selectPlaceholderText?: string;
@@ -83,6 +85,8 @@ export const Dropdown = React.memo(
     multiselect = false,
     label = 'Select',
     labelColor,
+    labelFontSize,
+    fieldFontSize = screenPercentageToDP(2.1, Orientation.Height),
     fixedHeight = false,
     searchPlaceholderText = 'Search Items...',
     selectPlaceholderText,
@@ -108,12 +112,12 @@ export const Dropdown = React.memo(
       [selectedItems],
     );
     const filterable = options.length >= MIN_COUNT_FILTERABLE_BY_DEFAULT;
-    const fontSize = screenPercentageToDP(2.1, Orientation.Height);
+    const fontSize = fieldFontSize ?? screenPercentageToDP(2.1, Orientation.Height);
     return (
       <StyledView width="100%" marginBottom={screenPercentageToDP(2.24, Orientation.Height)}>
         {!!label && (
           <StyledText
-            fontSize={fontSize}
+            fontSize={labelFontSize ?? fontSize}
             fontWeight={600}
             marginBottom={screenPercentageToDP(0.5, Orientation.Width)}
             color={labelColor || theme.colors.TEXT_SUPER_DARK}
@@ -181,7 +185,7 @@ export const Dropdown = React.memo(
           searchIcon={filterable ? undefined : null}
           disabled={disabled}
           clearable={clearable}
-          fontSize={fontSize}
+          fontSize={fieldFontSize}
           {...getStyleProps(error, disabled)}
         />
         {error && <TextFieldErrorMessage>{error}</TextFieldErrorMessage>}
