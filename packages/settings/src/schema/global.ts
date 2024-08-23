@@ -261,18 +261,22 @@ export const globalSettings = {
             pageWidth: {
               schema: yup.number().positive(),
               defaultValue: 210,
+              unit: 'mm'
             },
             pageHeight: {
               schema: yup.number().positive(),
               defaultValue: 297,
+              unit: 'mm'
             },
             pageMarginTop: {
               schema: yup.number().positive(),
               defaultValue: 15.09,
+              unit: 'mm'
             },
             pageMarginLeft: {
               schema: yup.number().positive(),
               defaultValue: 6.4,
+              unit: 'mm'
             },
             columnTotal: {
               description: 'Number of columns',
@@ -282,10 +286,12 @@ export const globalSettings = {
             columnWidth: {
               schema: yup.number().positive(),
               defaultValue: 64,
+              unit: 'mm'
             },
             columnGap: {
               schema: yup.number().positive(),
               defaultValue: 3.01,
+              unit: 'mm'
             },
             rowTotal: {
               description: 'Number of rows',
@@ -295,10 +301,12 @@ export const globalSettings = {
             rowHeight: {
               schema: yup.number().positive(),
               defaultValue: 26.7,
+              unit: 'mm'
             },
             rowGap: {
               schema: yup.number().positive(),
               defaultValue: 0,
+              unit: 'mm'
             },
           },
         },
@@ -308,10 +316,12 @@ export const globalSettings = {
             cardMarginTop: {
               schema: yup.number().positive(),
               defaultValue: 1,
+              unit: 'mm'
             },
             cardMarginLeft: {
               schema: yup.number().positive(),
               defaultValue: 5,
+              unit: 'mm'
             },
           },
         },
