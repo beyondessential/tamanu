@@ -114,21 +114,20 @@ export const globalSettings = {
               description: 'The idle time before a user is logged out',
               schema: yup.number(),
               defaultValue: 600,
-              unit: 'seconds'
+              unit: 'seconds',
             },
             warningPromptDuration: {
-              description:
-                'The time the warning prompt should be visible before idle logout',
+              description: 'The time the warning prompt should be visible before idle logout',
               schema: yup.number(),
               defaultValue: 30,
-              unit: 'seconds'
+              unit: 'seconds',
             },
             refreshInterval: {
               description:
                 'Technical really should not be changed - The interval in which to throttle the idle check by for performance',
               schema: yup.number(),
               defaultValue: 150,
-              unit: 'seconds'
+              unit: 'seconds',
             },
           },
         },
@@ -139,13 +138,13 @@ export const globalSettings = {
             enabled: {
               schema: yup.boolean(),
               defaultValue: true,
-              unit: 'seconds'
+              unit: 'seconds',
             },
             interval: {
               description: 'Interval in seconds between check for new records.',
               schema: yup.number(),
               defaultValue: 300,
-              unit: 'seconds'
+              unit: 'seconds',
             },
           },
         },
@@ -261,22 +260,22 @@ export const globalSettings = {
             pageWidth: {
               schema: yup.number().positive(),
               defaultValue: 210,
-              unit: 'mm'
+              unit: 'mm',
             },
             pageHeight: {
               schema: yup.number().positive(),
               defaultValue: 297,
-              unit: 'mm'
+              unit: 'mm',
             },
             pageMarginTop: {
               schema: yup.number().positive(),
               defaultValue: 15.09,
-              unit: 'mm'
+              unit: 'mm',
             },
             pageMarginLeft: {
               schema: yup.number().positive(),
               defaultValue: 6.4,
-              unit: 'mm'
+              unit: 'mm',
             },
             columnTotal: {
               description: 'Number of columns',
@@ -286,12 +285,12 @@ export const globalSettings = {
             columnWidth: {
               schema: yup.number().positive(),
               defaultValue: 64,
-              unit: 'mm'
+              unit: 'mm',
             },
             columnGap: {
               schema: yup.number().positive(),
               defaultValue: 3.01,
-              unit: 'mm'
+              unit: 'mm',
             },
             rowTotal: {
               description: 'Number of rows',
@@ -301,12 +300,12 @@ export const globalSettings = {
             rowHeight: {
               schema: yup.number().positive(),
               defaultValue: 26.7,
-              unit: 'mm'
+              unit: 'mm',
             },
             rowGap: {
               schema: yup.number().positive(),
               defaultValue: 0,
-              unit: 'mm'
+              unit: 'mm',
             },
           },
         },
@@ -316,131 +315,168 @@ export const globalSettings = {
             cardMarginTop: {
               schema: yup.number().positive(),
               defaultValue: 1,
-              unit: 'mm'
+              unit: 'mm',
             },
             cardMarginLeft: {
               schema: yup.number().positive(),
               defaultValue: 5,
-              unit: 'mm'
+              unit: 'mm',
             },
           },
         },
       },
     },
-  },
-  templates: {
-    letterhead: {
-      title: { schema: yup.string(), defaultValue: 'TAMANU MINISTRY OF HEALTH & MEDICAL SERVICES' },
-      subTitle: { schema: yup.string(), defaultValue: 'PO Box 12345, Melbourne, Australia' },
+    templates: {
+      description: 'Strings to be inserted into emails/pdfs',
+      values: {
+        letterhead: {
+          description: 'The text at the top of most patient pdfs',
+          values: {
+            title: {
+              schema: yup.string(),
+              defaultValue: 'TAMANU MINISTRY OF HEALTH & MEDICAL SERVICES',
+            },
+            subTitle: { schema: yup.string(), defaultValue: 'PO Box 12345, Melbourne, Australia' },
+          },
+        },
+        signerRenewalEmail: {
+          description: 'The email sent when the signer runs out',
+          values: {
+            subject: {
+              schema: yup
+                .string()
+                .trim()
+                .min(1),
+              defaultValue: 'Tamanu ICAO Certificate Signing Request',
+            },
+            body: {
+              schema: yup
+                .string()
+                .trim()
+                .min(1),
+              defaultValue:
+                'Please sign the following certificate signing request (CSR) with the Country Signing Certificate Authority (CSCA), and return it to the Tamanu team or Tamanu deployment administration team.',
+            },
+          },
+        },
+        vaccineCertificateEmail: {
+          description: 'The patient vaccine certificate',
+          values: {
+            subject: {
+              schema: yup
+                .string()
+                .trim()
+                .min(1),
+              defaultValue: 'Medical Certificate now available',
+            },
+            body: {
+              schema: yup
+                .string()
+                .trim()
+                .min(1),
+              defaultValue:
+                'A medical certificate has been generated for you.\nYour certificate is available attached to this email.',
+            },
+          },
+        },
+        covidVaccineCertificateEmail: {
+          description: 'The covid patient vaccine certificate',
+          values: {
+            subject: {
+              schema: yup
+                .string()
+                .trim()
+                .min(1),
+              defaultValue: 'Medical Certificate now available',
+            },
+            body: {
+              schema: yup
+                .string()
+                .trim()
+                .min(1),
+              defaultValue:
+                'A medical certificate has been generated for you.\nYour certificate is available attached to this email.',
+            },
+          },
+        },
+        covidTestCertificateEmail: {
+          description: '_',
+          values: {
+            subject: {
+              schema: yup
+                .string()
+                .trim()
+                .min(1),
+              defaultValue: 'Medical Certificate now available',
+            },
+            body: {
+              schema: yup
+                .string()
+                .trim()
+                .min(1),
+              defaultValue:
+                'A medical certificate has been generated for you.\nYour certificate is attached to this email.',
+            },
+          },
+        },
+        covidClearanceCertificateEmail: {
+          description: '_',
+          values: {
+            subject: {
+              schema: yup
+                .string()
+                .trim()
+                .min(1),
+              defaultValue: 'COVID-19 Clearance Certificate now available',
+            },
+            body: {
+              schema: yup
+                .string()
+                .trim()
+                .min(1),
+              defaultValue:
+                'A COVID-19 clearance certificate has been generated for you.\nYour certificate is attached to this email.',
+            },
+          },
+        },
+        vaccineCertificate: {
+          description: '_',
+          values: {
+            emailAddress: {
+              description: '_',
+              schema: yup.string().trim(),
+              defaultValue: 'tamanu@health.gov',
+            },
+            contactNumber: { description: '_', schema: yup.string().trim(), defaultValue: '12345' },
+            healthFacility: {
+              description: '_',
+              schema: yup
+                .string()
+                .trim()
+                .min(1),
+              defaultValue: 'State level',
+            },
+          },
+        },
+        covidTestCertificate: {
+          description: '_',
+          values: {
+            laboratoryName: {
+              description: '_',
+              schema: yup.string().trim(),
+              defaultValue: 'Approved test provider',
+            },
+            clearanceCertRemark: {
+              description: '_',
+              schema: yup.string().trim(),
+              defaultValue:
+                'This notice certifies that $firstName$ $lastName$ is no longer considered infectious following 13 days of self-isolation from the date of their first positive SARS-CoV-2 test and are medically cleared from COVID-19. This certificate is valid for 3 months from the date of issue.',
+            },
+          },
+        },
+        plannedMoveTimeoutHours: { description: '_', schema: yup.number(), defaultValue: 24 },
+      },
     },
-    signerRenewalEmail: {
-      subject: {
-        schema: yup
-          .string()
-          .trim()
-          .min(1),
-        defaultValue: 'Tamanu ICAO Certificate Signing Request',
-      },
-      body: {
-        schema: yup
-          .string()
-          .trim()
-          .min(1),
-        defaultValue:
-          'Please sign the following certificate signing request (CSR) with the Country Signing Certificate Authority (CSCA), and return it to the Tamanu team or Tamanu deployment administration team.',
-      },
-    },
-    vaccineCertificateEmail: {
-      subject: {
-        schema: yup
-          .string()
-          .trim()
-          .min(1),
-        defaultValue: 'Medical Certificate now available',
-      },
-      body: {
-        schema: yup
-          .string()
-          .trim()
-          .min(1),
-        defaultValue:
-          'A medical certificate has been generated for you.\nYour certificate is available attached to this email.',
-      },
-    },
-    covidVaccineCertificateEmail: {
-      subject: {
-        schema: yup
-          .string()
-          .trim()
-          .min(1),
-        defaultValue: 'Medical Certificate now available',
-      },
-      body: {
-        schema: yup
-          .string()
-          .trim()
-          .min(1),
-        defaultValue:
-          'A medical certificate has been generated for you.\nYour certificate is available attached to this email.',
-      },
-    },
-    covidTestCertificateEmail: {
-      subject: {
-        schema: yup
-          .string()
-          .trim()
-          .min(1),
-        defaultValue: 'Medical Certificate now available',
-      },
-      body: {
-        schema: yup
-          .string()
-          .trim()
-          .min(1),
-        defaultValue:
-          'A medical certificate has been generated for you.\nYour certificate is attached to this email.',
-      },
-    },
-    covidClearanceCertificateEmail: {
-      subject: {
-        schema: yup
-          .string()
-          .trim()
-          .min(1),
-        defaultValue: 'COVID-19 Clearance Certificate now available',
-      },
-      body: {
-        schema: yup
-          .string()
-          .trim()
-          .min(1),
-        defaultValue:
-          'A COVID-19 clearance certificate has been generated for you.\nYour certificate is attached to this email.',
-      },
-    },
-    vaccineCertificate: {
-      emailAddress: { schema: yup.string().trim(), defaultValue: 'tamanu@health.gov' },
-      contactNumber: { schema: yup.string().trim(), defaultValue: '12345' },
-      healthFacility: {
-        schema: yup
-          .string()
-          .trim()
-          .min(1),
-        defaultValue: 'State level',
-      },
-    },
-    covidTestCertificate: {
-      laboratoryName: {
-        schema: yup.string().trim(),
-        defaultValue: 'Approved test provider',
-      },
-      clearanceCertRemark: {
-        schema: yup.string().trim(),
-        defaultValue:
-          'This notice certifies that $firstName$ $lastName$ is no longer considered infectious following 13 days of self-isolation from the date of their first positive SARS-CoV-2 test and are medically cleared from COVID-19. This certificate is valid for 3 months from the date of issue.',
-      },
-    },
-    plannedMoveTimeoutHours: { schema: yup.number(), defaultValue: 24 },
   },
 };
 
