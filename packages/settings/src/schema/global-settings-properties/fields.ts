@@ -8,40 +8,40 @@ const hideable = {
   },
 };
 
-export const baseFieldSchema = {
+export const baseFieldProperties = {
   defaultValue: {
     description: 'Default value for field',
-    schema: yup.mixed(),
+    Properties: yup.mixed(),
     defaultValue: null,
   },
   required: {
     description: 'Field is required',
-    schema: yup.boolean(),
+    Properties: yup.boolean(),
     defaultValue: false,
   },
 };
 
-export const hideableFieldSchema = {
-  ...baseFieldSchema,
+export const hideableFieldProperties = {
+  ...baseFieldProperties,
   ...hideable,
 };
 
-export const patientDetailsFieldSchema = {
-  ...baseFieldSchema,
+export const patientDetailsFieldProperties = {
+  ...baseFieldProperties,
   requiredPatientData: {
     description: 'Field must be filled out when creating a patient',
-    schema: yup.boolean(),
+    Properties: yup.boolean(),
     defaultValue: false,
   },
 };
 
-export const hideablePatientFieldSchema = {
-  ...patientDetailsFieldSchema,
+export const hideablePatientFieldProperties = {
+  ...patientDetailsFieldProperties,
   ...hideable,
 };
 
-export const displayIdFieldSchema = {
-  ...baseFieldSchema,
+export const displayIdFieldProperties = {
+  ...baseFieldProperties,
   pattern: {
     description: 'Regex to enforce the format of field input',
     schema: yup.string(),
