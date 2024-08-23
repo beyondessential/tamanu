@@ -211,7 +211,7 @@ export const globalSettings = {
         sex: {
           name: 'Sex',
           description: '_',
-          properties: hideableFieldProperties,
+          properties: hideablePatientFieldProperties,
         },
         email: {
           name: 'Email',
