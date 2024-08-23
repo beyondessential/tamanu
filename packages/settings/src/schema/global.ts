@@ -611,5 +611,3 @@ export const globalSettings = {
   },
 };
 export const globalDefaults = extractDefaults(globalSettings);
-
-console.log(globalDefaults);
