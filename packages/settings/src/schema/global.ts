@@ -4,6 +4,7 @@ import { extractDefaults } from './utils';
 import { mapValues } from 'lodash';
 
 // LAYOUTS
+// TODO: ensure layouts are layered with values properly
 const unhideableLayoutModuleSchema = {
   sortPriority: { schema: yup.number(), defaultValue: -100 },
   hidden: {
@@ -27,7 +28,7 @@ const MOBILE_PATIENT_MODULES = [
 ];
 
 const mobilePatientModulesValues = {
-  programRegistries: { hidden: { schema: yup.boolean(), defaultValue: false } },
+  programRegistries: { values: { hidden: { schema: yup.boolean(), defaultValue: false } } },
   ...MOBILE_PATIENT_MODULES.reduce(
     (modules: object, module: string) => ({
       ...modules,
@@ -81,9 +82,7 @@ const SIDEBAR_ITEMS = {
 const sidebarValues = mapValues(SIDEBAR_ITEMS, (children: string[], topItem: string) => {
   const childSchema = children.reduce(
     (obj: object, childItem: string) =>
-      childItem === 'patientsAll'
-        ? obj
-        : { ...obj, [childItem]: { values: layoutModuleSchema } },
+      childItem === 'patientsAll' ? obj : { ...obj, [childItem]: { values: layoutModuleSchema } },
     {},
   );
 
@@ -567,21 +566,21 @@ export const globalSettings = {
         plannedMoveTimeoutHours: { description: '_', schema: yup.number(), defaultValue: 24 },
       },
     },
-  },
-  layouts: {
-    description: '_',
-    values: {
-      mobilePatientModules: {
-        description: '_',
-        values: mobilePatientModulesValues,
-      },
-      patientTabs: {
-        description: '_',
-        values: patientTabValues,
-      },
-      sidebar: {
-        description: '_',
-        values: sidebarValues,
+    layouts: {
+      description: 'Customise the order of tabs/buttons',
+      values: {
+        mobilePatientModules: {
+          description: 'The homepage modules on mobile',
+          values: mobilePatientModulesValues,
+        },
+        patientTabs: {
+          description: 'The tabs on patient view',
+          values: patientTabValues,
+        },
+        sidebar: {
+          description: 'The sidebar tabs in the faci',
+          values: sidebarValues,
+        },
       },
     },
   },
