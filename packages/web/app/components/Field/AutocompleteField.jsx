@@ -13,6 +13,7 @@ import { TranslationContext } from '../../contexts/Translation';
 import { Icon, StyledExpandLess, StyledExpandMore } from './FieldCommonComponents';
 import { TranslatedText } from '../Translation/TranslatedText';
 import { notifyError } from '../../utils';
+import { REFERENCE_DATA_TYPE_TO_LABEL } from '../../constants/task';
 
 const SuggestionsContainer = styled(Popper)`
   z-index: 9999;
@@ -105,11 +106,6 @@ const SectionTitle = styled.div`
   padding-top: 10px;
   padding-left: 14px;
 `;
-
-const REFERENCE_DATA_TYPE_TO_LABEL = {
-  task: <TranslatedText stringId="encounter.task.task.label" fallback="Task" />,
-  taskSet: <TranslatedText stringId="encounter.task.taskSet.label" fallback="Task set" />,
-};
 
 export class AutocompleteInput extends Component {
   static contextType = TranslationContext;

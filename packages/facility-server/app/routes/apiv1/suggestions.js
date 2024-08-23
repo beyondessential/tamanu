@@ -229,64 +229,7 @@ function createSuggesterCreateRoute(endpoint, modelName, { creatingBodyBuilder, 
     }),
   );
 }
-
-function createMultiSuggesterRoute(endpoint, modelName, whereBuilder, { mapper, searchColumn }) {
-  suggestions.get(
-    `/${endpoint}$`,
-    asyncHandler(async (req, res) => {
-      req.checkPermission('list', modelName);
-      const { models, query } = req;
-      const { q, language, types } = query;
-
-      const searchQuery = (q || '').trim().toLowerCase();
-      const whereClause = whereBuilder(`${searchQuery}%`, types);
-
-      const isTranslatable = TRANSLATABLE_REFERENCE_TYPES.some(type => types.includes(type));
-
-      const results = await models[modelName].findAll({
-        where: whereClause,
-        order: [[Sequelize.literal(searchColumn), 'ASC']],
-        limit: defaultLimit,
-      });
-
-      let mappedResults = results.map(mapper);
-
-      if (isTranslatable) {
-        types.forEach(async type => {
-          const translations = await models.TranslatedString.getReferenceDataTranslationsByDataType(
-            {
-              language,
-              refDataType: type,
-            },
-          );
-          mappedResults = replaceDataLabelsWithTranslations({
-            data: mappedResults,
-            translations,
-          });
-        });
-      }
-
-      res.send(mappedResults);
-    }),
-  );
-}
-
-function createMultiSuggester(
-  endpoint,
-  modelName,
-  whereBuilder,
-  optionOverrides,
-) {
-  const options = {
-    mapper: ({ name, code, id, type }) => ({ name, code, id, type }),
-    searchColumn: 'name',
-    extraReplacementsBuilder: () => {},
-    ...optionOverrides,
-  };
-  createSuggesterLookupRoute(endpoint, modelName, options);
-  createMultiSuggesterRoute(endpoint, modelName, whereBuilder, options);
-}
-
+ 
 // Add a new suggester for a particular model at the given endpoint.
 // Records will be filtered based on the whereSql parameter. The user's search term
 // will be passed to the sql query as ":search" - see the existing suggestion
@@ -320,14 +263,18 @@ const VISIBILITY_CRITERIA = {
   visibilityStatus: VISIBILITY_STATUSES.CURRENT,
 };
 
-createMultiSuggester(
+createSuggester(
   'multiReferenceData',
   'ReferenceData',
-  (search, types) => ({
+  (search, { types }) => ({
     type: { [Op.in]: types },
     name: { [Op.iLike]: search },
     ...VISIBILITY_CRITERIA,
   }),
+  {
+    mapper: ({ name, code, id, type }) => ({ name, code, id, type }),
+  },
+  true
 );
 
 REFERENCE_TYPE_VALUES.forEach(typeName => {
