@@ -28,7 +28,6 @@ export const getMarkedForSyncPatientsTableName = (sessionId, isFullSync) => {
 
 export const createSnapshotTable = async (sequelize, sessionId) => {
   const tableName = getSnapshotTableName(sessionId);
-
   await sequelize.query(`
     CREATE TABLE ${tableName} (
       id BIGSERIAL PRIMARY KEY,
