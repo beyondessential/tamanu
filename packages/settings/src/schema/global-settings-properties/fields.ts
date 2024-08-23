@@ -11,12 +11,12 @@ const hideable = {
 export const baseFieldProperties = {
   defaultValue: {
     description: 'Default value for field',
-    Properties: yup.mixed(),
+    schema: yup.mixed(),
     defaultValue: null,
   },
   required: {
     description: 'Field is required',
-    Properties: yup.boolean(),
+    schema: yup.boolean(),
     defaultValue: false,
   },
 };
@@ -30,7 +30,7 @@ export const patientDetailsFieldProperties = {
   ...baseFieldProperties,
   requiredPatientData: {
     description: 'Field must be filled out when creating a patient',
-    Properties: yup.boolean(),
+    schema: yup.boolean(),
     defaultValue: false,
   },
 };
