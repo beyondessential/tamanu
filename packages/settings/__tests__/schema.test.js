@@ -16,9 +16,9 @@ describe('Schemas', () => {
   describe('Extracting settings from schema', () => {
     it('Should extract settings from a schema', () => {
       const schema = {
-        values: {
+        properties: {
           a: {
-            values: {
+            properties: {
               b: {
                 name: 'Setting a.b',
                 description: '_',
@@ -33,9 +33,9 @@ describe('Schemas', () => {
             defaultValue: 'c',
           },
           d: {
-            values: {
+            properties: {
               e: {
-                values: {
+                properties: {
                   f: {
                     name: 'Setting d.e.f',
                     schema: yup
@@ -267,7 +267,7 @@ describe('Schemas', () => {
   describe('Edge cases', () => {
     it('Should prevent null values for non-nullable fields', async () => {
       const schema = {
-        values: {
+        properties: {
           a: {
             schema: yup.string().required(),
             defaultValue: 'a',
@@ -288,7 +288,7 @@ describe('Schemas', () => {
 
   it('Should work with simple arrays', async () => {
     const schema = {
-      values: {
+      properties: {
         a: {
           schema: yup.array().of(yup.string()),
           defaultValue: ['a'],
@@ -306,7 +306,7 @@ describe('Schemas', () => {
 
   it('Should work with arrays of objects', async () => {
     const schema = {
-      values: {
+      properties: {
         a: {
           schema: yup.array().of(
             yup.object().shape({
