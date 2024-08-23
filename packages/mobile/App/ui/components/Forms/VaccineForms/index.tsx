@@ -84,7 +84,7 @@ export const VaccineForm = ({
   const { getTranslation } = useTranslation();
   const { getSetting } = useSettings();
 
-  const vaccineConsentEnabled = getSetting('features.enableVaccineConsent');
+  const vaccineConsentEnabled = getSetting<boolean>('features.enableVaccineConsent');
 
   const [locationAndDepartment, error, isLoading] = useBackendEffect(
     async ({ models }) => {

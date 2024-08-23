@@ -26,7 +26,7 @@ export const VaccineFormGiven = ({ navigation }: VaccineFormProps): JSX.Element 
   const { values } = useFormikContext();
   const { getSetting } = useSettings()
 
-  const vaccineConsentEnabled = getSetting('features.enableVaccineConsent');
+  const vaccineConsentEnabled = getSetting<boolean>('features.enableVaccineConsent');
 
   const { selectedPatient } = useSelector(
     (state: ReduxStoreProps): PatientStateProps => state.patient,

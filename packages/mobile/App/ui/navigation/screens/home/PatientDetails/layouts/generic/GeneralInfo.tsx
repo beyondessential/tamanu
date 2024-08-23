@@ -43,7 +43,7 @@ export const GeneralInfo = ({ onEdit, patient }: GeneralInfoProps): ReactElement
   // Check if patient information should be editable
   const { getBool } = useLocalisation();
   const { getSetting } = useSettings();
-  const isEditable = getSetting('features.editPatientDetailsOnMobile');
+  const isEditable = getSetting<boolean>('features.editPatientDetailsOnMobile');
 
   const { patientAdditionalData, loading, error } = usePatientAdditionalData(patient.id);
 
