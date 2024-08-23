@@ -50,13 +50,13 @@ const ResetPasswordFormComponent = ({ errorMessage, onNavToLogin }) => {
         {!!errorMessage && <FormSubtext>{errorMessage}</FormSubtext>}
       </div>
       <Field
+        autoComplete="email"
         name="email"
         type="email"
         label={<TranslatedText stringId="forgotPassword.email.label" fallback="Email" />}
         required
         component={TextField}
         placeholder={getTranslation('forgotPassword.email.placeholder', 'Enter your email address')}
-        autoComplete="off"
       />
       <ResetPasswordButton
         text={

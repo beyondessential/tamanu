@@ -92,7 +92,8 @@ export function administeredVaccineLoader(item) {
   ];
 }
 
-export function translatedStringLoader({ stringId, ...languages }) {
+export function translatedStringLoader(item) {
+  const { stringId, ...languages } = stripNotes(item);
   return Object.entries(languages)
     .filter(([, text]) => text.trim())
     .map(([language, text]) => ({
