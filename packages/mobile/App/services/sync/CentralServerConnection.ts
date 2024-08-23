@@ -156,7 +156,7 @@ export class CentralServerConnection {
       {
         urgent,
         lastSyncedTick,
-        facilityId,
+        facilityIds: [facilityId],
         deviceId: this.deviceId,
       },
     );
@@ -190,7 +190,7 @@ export class CentralServerConnection {
     const facilityId = await readConfig('facilityId', '');
     const body = {
       since,
-      facilityId,
+      facilityIds: [facilityId],
       tablesToInclude: tableNames,
       tablesForFullResync,
       isMobile: true,
