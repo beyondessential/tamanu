@@ -1,4 +1,4 @@
-import { REFERENCE_TYPES, REFERENCE_TYPE_VALUES } from '@tamanu/constants';
+import { REFERENCE_TYPE_VALUES, REFERENCE_TYPES } from '@tamanu/constants';
 import { AdministeredVaccineExporter } from './AdministeredVaccineExporter';
 import { DefaultDataExporter } from './DefaultDataExporter';
 import { PatientExporter } from './PatientExporter';
