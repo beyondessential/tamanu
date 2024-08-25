@@ -91,15 +91,15 @@ const SIDEBAR_ITEMS = {
 
 // patients and patientsAll are intentionally not configurable
 const sidebarValues = mapValues(SIDEBAR_ITEMS, (children: string[], topItem: string) => {
-  const childSchema = children.reduce(
+  const childValues = children.reduce(
     (obj: object, childItem: string) =>
       childItem === 'patientsAll' ? obj : { ...obj, [childItem]: { values: layoutModuleValues } },
     {},
   );
 
   return topItem === 'patients'
-    ? { values: childSchema }
-    : { ...layoutModuleValues, values: childSchema };
+    ? { values: childValues }
+    : { values: { ...layoutModuleValues, ...childValues } };
 });
 
 export const globalSettings = {
