@@ -4,5 +4,6 @@ export * from './survey';
 export { flattenObject } from './flattenObject';
 export * from './getVisibleQuestions';
 export * from './invalidatePatientDataQueries';
-export { getBrandName, getBrandId } from './cambodiaMode.js';
+export { getBrandName, getBrandId } from './brandMode.js';
+export { sanitizeFileName } from './sanitizeFileName';
 export { yupAttemptTransformToNumber } from './validation.js';

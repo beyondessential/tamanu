@@ -70,7 +70,7 @@
     // at its very large default, maxRecordsPerPullSnapshotChunk is essentially "off"
     // can be turned on by lowering to some amount that seems appropriate if snapshot performance is an issue
     "maxRecordsPerPullSnapshotChunk": 1000000000,
-    snapshotTransactionTimeoutMs: null,
+    syncSessionTimeoutMs: null,
   },
   "loadshedder": {
     // paths are checked sequentially until a path matches a prefix
@@ -141,6 +141,12 @@
       "schedule": "0 2 * * *",
       "batchSize": 1000,
       "batchSleepAsyncDurationInMilliseconds": 50
+    },
+    "surveyCompletionNotifierProcessor": {
+      "enabled": true,
+      // every 30seconds /!\
+      "schedule": "*/30 * * * * *",
+      "limit": 100
     },
     "patientEmailCommunicationProcessor": {
       // every 30seconds /!\
@@ -777,8 +783,8 @@
           "longLabel": "Conditions"
         },
         "programRegistry": {
-          "shortLabel": "Program Registry",
-          "longLabel": "Program Registry"
+          "shortLabel": "Program registry",
+          "longLabel": "Program registry"
         },
         "reminderContactName":{
           "shortLabel": "Contact name",

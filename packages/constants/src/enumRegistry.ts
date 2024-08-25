@@ -12,7 +12,7 @@ import {
   APPOINTMENT_STATUSES,
   IMAGING_REQUEST_STATUS_LABELS,
 } from './statuses';
-import { VACCINE_STATUS_LABELS, INJECTION_SITE_LABELS, VACCINE_CATEGORIES } from './vaccines';
+import { VACCINE_STATUS_LABELS, INJECTION_SITE_LABELS, VACCINE_CATEGORY_LABELS } from './vaccines';
 import { BIRTH_DELIVERY_TYPE_LABELS, BIRTH_TYPE_LABELS } from './births';
 import { IMAGING_TYPES } from './imaging';
 import {
@@ -67,7 +67,7 @@ export const registeredEnums = {
   REPORT_STATUS_LABELS,
   SEX_LABELS,
   TEMPLATE_TYPE_LABELS,
-  VACCINE_CATEGORIES,
+  VACCINE_CATEGORY_LABELS,
   VACCINE_STATUS_LABELS,
 };
 
@@ -106,7 +106,7 @@ export const translationPrefixes: Record<EnumKeys, string> = {
   REPORT_STATUS_LABELS: 'report.property.status',
   SEX_LABELS: 'patient.property.sex',
   TEMPLATE_TYPE_LABELS: 'template.property.type',
-  VACCINE_CATEGORIES: 'vaccine.property.category',
+  VACCINE_CATEGORY_LABELS: 'vaccine.property.category',
   VACCINE_STATUS_LABELS: 'vaccine.property.status',
 };
 

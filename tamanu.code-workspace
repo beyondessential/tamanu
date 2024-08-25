@@ -35,7 +35,11 @@
     {
       "name": "central-server",
       "path": "packages/central-server"
-    }
+    },
+    {
+      "name": "constants",
+      "path": "packages/constants"
+    },
   ],
   "settings": {
     "files.exclude": {

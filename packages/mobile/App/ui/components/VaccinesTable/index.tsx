@@ -1,4 +1,5 @@
 import React, { useMemo, useRef } from 'react';
+import { NativeScrollEvent, NativeSyntheticEvent } from 'react-native';
 import { uniqBy } from 'lodash';
 import { useBackendEffect } from '~/ui/hooks';
 import { Table } from '../Table';
@@ -16,6 +17,7 @@ import { VisibilityStatus } from '~/visibilityStatuses';
 import { useSettings } from '~/ui/contexts/SettingsContext';
 import { getVaccineStatus, parseThresholdsSetting } from '~/ui/helpers/getVaccineStatus';
 import { SETTING_KEYS } from '~/constants';
+import { TranslatedReferenceData } from '../Translations/TranslatedReferenceData';
 import { useIsFocused } from '@react-navigation/native';
 
 type VaccineTableCells = Record<string, VaccineTableCellData[]>;
@@ -33,7 +35,7 @@ export const VaccinesTable = ({
 }: VaccinesTableProps): JSX.Element => {
   const { getSetting } = useSettings();
   const thresholds = useMemo(
-    () => parseThresholdsSetting(getSetting<any>(SETTING_KEYS.UPCOMING_VACCINATION_THRESHOLDS)),
+    () => parseThresholdsSetting(getSetting(SETTING_KEYS.UPCOMING_VACCINATION_THRESHOLDS)),
     [],
   );
 
@@ -43,7 +45,7 @@ export const VaccinesTable = ({
   // This manages the horizontal scroll of the header. This handler is passed down
   // to the scrollview in the generic table. That gets the horizontal scroll coordinate
   // of the table and feeds this back up to position the header appropriately.
-  const handleScroll = (event: any) => {
+  const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
     scrollViewRef.current.scrollTo({ x: event.nativeEvent.contentOffset.x, animated: false });
   };
 
@@ -106,16 +108,15 @@ export const VaccinesTable = ({
   }, [patientAdministeredVaccines, thresholds]);
 
   const error = scheduledVaccineError || administeredError;
+  if (error) return <ErrorScreen error={error} />;
+
   const isLoading =
     !scheduledVaccines ||
     !patientAdministeredVaccines ||
     !nonHistoricalOrAdministeredScheduledVaccines;
-
-  const uniqueByVaccine = uniqBy(nonHistoricalOrAdministeredScheduledVaccines, 'label');
-
-  if (error) return <ErrorScreen error={error} />;
   if (isLoading) return <LoadingScreen />;
 
+  const uniqueByVaccine = uniqBy(nonHistoricalOrAdministeredScheduledVaccines, 'label');
   uniqueByVaccine.sort(
     (a, b) =>
       a.sortIndex - b.sortIndex ||
@@ -129,8 +130,22 @@ export const VaccinesTable = ({
     rowHeader: () => (
       <VaccineRowHeader
         key={scheduledVaccine.id}
-        title={scheduledVaccine.label}
-        subtitle={scheduledVaccine.vaccine && scheduledVaccine.vaccine.name}
+        title={
+          <TranslatedReferenceData
+            fallback={scheduledVaccine.label}
+            value={scheduledVaccine.id}
+            category="scheduledVaccine"
+          />
+        }
+        subtitle={
+          scheduledVaccine.vaccine && (
+            <TranslatedReferenceData
+              fallback={scheduledVaccine.vaccine.name}
+              value={scheduledVaccine.vaccine.id}
+              category="drug"
+            />
+          )
+        }
       />
     ),
     cell: (cellData: VaccineTableCellData) => {

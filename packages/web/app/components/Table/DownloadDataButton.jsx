@@ -5,7 +5,7 @@ import * as XLSX from 'xlsx';
 import { QueryClientProvider, useQueryClient } from '@tanstack/react-query';
 
 import { ApiContext, useApi } from '../../api';
-import { renderToText } from '../../utils';
+import { notifySuccess, renderToText } from '../../utils';
 import { saveFile } from '../../utils/fileSystemAccess';
 import { TranslationContext, useTranslation } from '../../contexts/Translation';
 import { GreyOutlinedButton } from '../Button';
@@ -26,7 +26,9 @@ const normalizeRecursively = (element, normalizeFn) => {
   if (!children) return normalizeFn(element);
 
   return cloneElement(element, {
-    children: Children.map(children, child => normalizeRecursively(child, normalizeFn)),
+    children: Array.isArray(children)
+      ? Children.map(children, child => normalizeRecursively(child, normalizeFn))
+      : normalizeRecursively(children, normalizeFn),
   });
 };
 
@@ -34,6 +36,7 @@ export function DownloadDataButton({ exportName, columns, data }) {
   const queryClient = useQueryClient();
   const api = useApi();
   const translationContext = useTranslation();
+  const { getTranslation } = translationContext;
 
   const safelyRenderToText = element => {
     /**
@@ -78,7 +81,7 @@ export function DownloadDataButton({ exportName, columns, data }) {
       return { ...rest, ...exportOverrides };
     });
 
-  const onDownloadData = async () => {
+  const prepareData = async () => {
     const header = exportableColumnsWithOverrides.map(getHeaderValue);
     const rows = await Promise.all(
       data.map(async d => {
@@ -126,12 +129,18 @@ export function DownloadDataButton({ exportName, columns, data }) {
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, exportName);
 
-    const xlsxDataArray = XLSX.write(wb, { bookType: 'xlsx', type: 'buffer' });
+    return XLSX.write(wb, { bookType: 'xlsx', type: 'buffer' });
+  };
+
+  const onDownloadData = async () => {
     await saveFile({
       defaultFileName: `${exportName}-${getCurrentDateString()}`,
-      data: xlsxDataArray,
+      getData: prepareData,
       extension: 'xlsx',
     });
+    notifySuccess(
+      getTranslation('document.notification.downloadSuccess', 'Successfully downloaded file'),
+    );
   };
 
   return (

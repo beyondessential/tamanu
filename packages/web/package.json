@@ -1,7 +1,7 @@
 {
   "name": "@tamanu/web-frontend",
   "productName": "Tamanu",
-  "version": "2.14.0",
+  "version": "2.16.0",
   "description": "Tamanu Web application",
   "private": true,
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
@@ -14,6 +14,7 @@
     "start-dev": "vite",
     "test": "NODE_ENV=test vitest run",
     "test-watch": "NODE_ENV=test vitest watch",
+    "storybook": "storybook dev",
     "test-storybook": "yarn build-storybook --test",
     "build-storybook": "NODE_ENV=development STORYBOOK=true storybook build"
   },
@@ -36,7 +37,7 @@
     "react-test-renderer": "^16.4.1",
     "rimraf": "^2.6.2",
     "sinon": "^6.1.4",
-    "storybook": "^7.6.6",
+    "storybook": "^7.6.20",
     "vitest": "^1.1.0"
   },
   "dependencies": {
