@@ -34,10 +34,7 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps): ReactElement => 
   const canReadReminderContacts = ability.can('read', 'Patient');
 
   const [isReminderContactEnabled] = useBackendEffect(async ({ models }) => {
-    const isReminderContactEnabled = await models.Setting.getByKey(
-      SETTING_KEYS.FEATURES_REMINDER_CONTACT_ENABLED,
-    );
-    return isReminderContactEnabled;
+    return await models.Setting.getByKey(SETTING_KEYS.FEATURES_REMINDER_CONTACT_ENABLED);
   }, []);
 
   const onNavigateBack = useCallback(() => {
