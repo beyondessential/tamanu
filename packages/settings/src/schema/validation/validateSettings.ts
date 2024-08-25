@@ -68,7 +68,7 @@ export const validateSettings = async ({
   }
 
   const flattenedSettings = flattenSettings(settings);
-  const flattenedSchema = flattenSchema(schema);
+  const flattenedSchema = flattenSchema(schemaValue);
 
   const errors: ErrorMessage[] = [];
 
