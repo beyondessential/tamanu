@@ -5,6 +5,7 @@ export interface Setting<T = any> {
   description?: string;
   schema: yup.SchemaOf<T>;
   defaultValue: T;
+  deprecated?: boolean;
 }
 
 export interface SettingsSchema {
