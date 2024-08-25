@@ -1,8 +1,17 @@
 import * as yup from 'yup';
 import { extractDefaults } from './utils';
+import { questionCodeIdsSchema } from './definitions';
 
 export const facilitySettings = {
   values: {
+    questionCodeIds: {
+      deprecated: true,
+      schema: questionCodeIdsSchema,
+      defaultValue: {
+        passport: 'pde-FijCOVRDT005',
+        nationalityId: 'pde-PalauCOVSamp7',
+      },
+    },
     templates: {
       values: {
         letterhead: {

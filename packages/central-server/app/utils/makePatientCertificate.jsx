@@ -3,7 +3,6 @@ import ReactPDF from '@react-pdf/renderer';
 import path from 'path';
 import QRCode from 'qrcode';
 import { get } from 'lodash';
-import config from 'config';
 import { ASSET_FALLBACK_NAMES, ASSET_NAMES } from '@tamanu/constants';
 
 import {
@@ -72,7 +71,7 @@ export const makeCovidVaccineCertificate = async (
   models,
   uvci,
   qrData = null,
-  language
+  language,
 ) => {
   const localisation = await getLocalisation();
   const getLocalisationData = key => get(localisation, key);
@@ -144,11 +143,14 @@ export const makeCovidCertificate = async (
   patient,
   printedBy,
   models,
+  settings,
   vdsData = null,
-  language
+  language,
 ) => {
   const localisation = await getLocalisation();
   const getLocalisationData = key => get(localisation, key);
+  const settingsObj = await settings.getAll();
+  const getSettingData = key => get(settingsObj, key);
 
   const fileName = `covid-${certType}-certificate-${patient.id}.pdf`;
   const footerAssetName =
@@ -164,13 +166,13 @@ export const makeCovidCertificate = async (
   const passportFromSurveyResponse = await getPatientSurveyResponseAnswer(
     models,
     patient.id,
-    config?.questionCodeIds?.passport,
+    getSettingData('questionCodeIds.passport'),
   );
 
   const nationalityId = await getPatientSurveyResponseAnswer(
     models,
     patient.id,
-    config?.questionCodeIds?.nationalityId,
+    getSettingData('questionCodeIds.nationalityId'),
   );
 
   const nationalityRecord = await models.ReferenceData.findByPk(nationalityId);
@@ -202,6 +204,7 @@ export const makeCovidCertificate = async (
       printedBy={printedBy}
       vdsSrc={vds}
       getLocalisation={getLocalisationData}
+      getSetting={getSettingData}
       certType={certType}
       language={language}
     />,

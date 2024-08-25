@@ -10,7 +10,7 @@ import {
   labsCancellationReasonsSchema,
   vitalEditReasonsDefault,
   vitalEditReasonsSchema,
-} from './global-schemas';
+} from './definitions';
 
 /** Pattern from ms package, which is used to parse sleepAfterReport values. */
 const DURATION_STRING = yup
