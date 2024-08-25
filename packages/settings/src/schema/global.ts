@@ -4,18 +4,30 @@ import { extractDefaults } from './utils';
 import { mapValues } from 'lodash';
 
 // LAYOUTS
-// TODO: ensure layouts are layered with values properly
-const unhideableLayoutModuleSchema = {
-  sortPriority: { schema: yup.number(), defaultValue: -100 },
+const unhideableLayoutModuleValues = {
+  sortPriority: {
+    description: 'Modules are ordered based on this value from lowest to highest',
+    schema: yup.number(),
+    defaultValue: -100,
+  },
   hidden: {
+    description: 'Hide this module from the ui',
     schema: yup.boolean().oneOf([false], 'unhideable tabs must not be hidden'),
     defaultValue: false,
   },
 };
 
-const layoutModuleSchema = {
-  sortPriority: { schema: yup.number(), defaultValue: 0 },
-  hidden: { schema: yup.boolean(), defaultValue: false },
+const layoutModuleValues = {
+  sortPriority: {
+    description: 'Modules are ordered based on this value from lowest to highest',
+    schema: yup.number(),
+    defaultValue: 0,
+  },
+  hidden: {
+    description: 'Hide this module from the ui',
+    schema: yup.boolean(),
+    defaultValue: false,
+  },
 };
 
 const MOBILE_PATIENT_MODULES = [
@@ -32,7 +44,7 @@ const mobilePatientModulesValues = {
   ...MOBILE_PATIENT_MODULES.reduce(
     (modules: object, module: string) => ({
       ...modules,
-      [module]: layoutModuleSchema,
+      [module]: { values: layoutModuleValues },
     }),
     {},
   ),
@@ -53,14 +65,14 @@ const patientTabValues = {
   ...UNHIDEABLE_PATIENT_TABS.reduce(
     (tabs: object, tab: string) => ({
       ...tabs,
-      [tab]: unhideableLayoutModuleSchema,
+      [tab]: { values: unhideableLayoutModuleValues },
     }),
     {},
   ),
   ...HIDEABLE_PATIENT_TABS.reduce(
     (tabs: object, tab: string) => ({
       ...tabs,
-      [tab]: layoutModuleSchema,
+      [tab]: { values: layoutModuleValues },
     }),
     {},
   ),
@@ -78,17 +90,16 @@ const SIDEBAR_ITEMS = {
 };
 
 // patients and patientsAll are intentionally not configurable
-// TODO: add descriptions to logic if not too complicated
 const sidebarValues = mapValues(SIDEBAR_ITEMS, (children: string[], topItem: string) => {
   const childSchema = children.reduce(
     (obj: object, childItem: string) =>
-      childItem === 'patientsAll' ? obj : { ...obj, [childItem]: { values: layoutModuleSchema } },
+      childItem === 'patientsAll' ? obj : { ...obj, [childItem]: { values: layoutModuleValues } },
     {},
   );
 
   return topItem === 'patients'
     ? { values: childSchema }
-    : { values: { ...layoutModuleSchema, ...childSchema } };
+    : { ...layoutModuleValues, values: childSchema };
 });
 
 export const globalSettings = {
