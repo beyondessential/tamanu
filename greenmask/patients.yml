@@ -1,0 +1,62 @@
+---
+schema: public
+name: patients
+transformers:
+  - name: RandomString
+    params:
+      column: display_id
+      min_length: 10
+      max_length: 10
+      symbols: 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ
+
+  - name: RandomFirstName
+    params:
+      column: first_name
+
+  - name: RandomLastName
+    params:
+      column: last_name
+
+  - name: RandomFirstName
+    params:
+      column: middle_name
+
+  - name: RandomFirstName
+    params:
+      column: cultural_name
+
+  - name: RandomEmail
+    params:
+      column: email
+
+  - name: Template
+    params:
+      column: date_of_death
+      template: >
+        {{- if isNull .GetValue -}}
+          {{- null -}}
+        {{- else -}}
+          {{- fakerDate -}}
+        {{- end -}}
+
+  - name: Template
+    params:
+      column: date_of_birth
+      template: >
+        {{- if isNull .GetValue -}}
+          {{- null -}}
+        {{- else -}}
+          {{- fakerDate -}}
+        {{- end -}}
+
+  - name: Masking
+    params:
+      column: additional_details
+
+  - name: SetNull
+    params:
+      column: date_of_birth_legacy
+  - name: SetNull
+    params:
+      column: date_of_death_legacy
+
