@@ -1,0 +1,16 @@
+---
+schema: public
+name: patient_death_data
+transformers:
+  - name: RandomName
+    params:
+      column: name_of_attendant_at_birth
+      keep_null: true
+
+  - name: RandomDate
+    params:
+      column: time_of_birth
+      min: '1900-01-01'
+      max: '2100-12-31'
+      truncate: day
+      keep_null: true
