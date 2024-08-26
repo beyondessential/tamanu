@@ -1,34 +1,31 @@
 import * as yup from 'yup';
 
-export const imagingCancellationReasonsSchema = yup
-  .array(
-    yup.object({
-      value: yup
-        .string()
-        .required()
-        .max(31),
-      label: yup.string().required(),
-      hidden: yup.boolean(),
-    }),
-  )
-  .test({
-    name: 'imagingCancellationReasons',
-    test(conf, ctx) {
-      const values = conf.map(x => x.value);
-      if (!values.includes('duplicate')) {
-        return ctx.createError({
-          message: 'imagingCancellationReasons must include an option with value = duplicate',
-        });
-      }
-      if (!values.includes('entered-in-error')) {
-        return ctx.createError({
-          message:
-            'imagingCancellationReasons must include an option with value = entered-in-error',
-        });
-      }
-      return true;
-    },
-  });
+const imagingCancellationReasonSchema = yup.object({
+  value: yup
+    .string()
+    .required()
+    .max(31),
+  label: yup.string().required(),
+  hidden: yup.boolean(),
+});
+
+export const imagingCancellationReasonsSchema = yup.array(imagingCancellationReasonSchema).test({
+  name: 'imagingCancellationReasons',
+  test(conf, ctx) {
+    const values = conf.map(x => x.value);
+    if (!values.includes('duplicate')) {
+      return ctx.createError({
+        message: 'imagingCancellationReasons must include an option with value = duplicate',
+      });
+    }
+    if (!values.includes('entered-in-error')) {
+      return ctx.createError({
+        message: 'imagingCancellationReasons must include an option with value = entered-in-error',
+      });
+    }
+    return true;
+  },
+});
 
 export const imagingCancellationReasonsDefault = [
   {
