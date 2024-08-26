@@ -30,7 +30,7 @@ patientProgramRegistration.post(
   asyncHandler(async (req, res) => {
     const { db, models, params, body } = req;
     const { patientId } = params;
-    const { programRegistryId, facilityId } = body;
+    const { programRegistryId, registeringFacilityId } = body;
 
     req.checkPermission('read', 'Patient');
     const patient = await models.Patient.findByPk(patientId);
@@ -79,7 +79,7 @@ patientProgramRegistration.post(
         // as a side effect, mark for sync in the current facility
         models.PatientFacility.upsert({
           patientId,
-          facilityId,
+          facilityId: registeringFacilityId,
         }),
       ]);
     });
