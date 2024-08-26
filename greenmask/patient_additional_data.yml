@@ -22,10 +22,10 @@ transformers:
     params:
       columns:
         - name: city_town
-          template: {{.City}}
+          template: '{{.City}}'
           keep_null: true
         - name: street_village
-          template: {{.Address}}
+          template: '{{.Address}}'
           keep_null: true
 
   - name: RandomUsername
