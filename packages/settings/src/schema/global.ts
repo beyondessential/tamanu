@@ -3,10 +3,10 @@ import * as yup from 'yup';
 import { extractDefaults } from './utils';
 
 export const globalSettings = {
-  values: {
+  properties: {
     features: {
       description: 'Toggle features on/off',
-      values: {
+      properties: {
         mandateSpecimenType: {
           description: '_',
           schema: yup.boolean(),
@@ -103,9 +103,17 @@ export const globalSettings = {
           schema: yup.boolean(),
           defaultValue: false,
         },
+        reminderContactModule: {
+          properties: {
+            enabled: {
+              schema: yup.boolean(),
+              defaultValue: false,
+            },
+          },
+        },
         idleTimeout: {
           description: 'Automatically logout idle users / inactive sessions after a certain time',
-          values: {
+          properties: {
             enabled: {
               schema: yup.boolean(),
               defaultValue: true,
@@ -134,7 +142,7 @@ export const globalSettings = {
         tableAutoRefresh: {
           description:
             'Enable the auto refresh feature on tables where it is implemented: Currently supports imaging and lab listing views',
-          values: {
+          properties: {
             enabled: {
               schema: yup.boolean(),
               defaultValue: true,
@@ -151,7 +159,7 @@ export const globalSettings = {
       },
     },
     customisations: {
-      values: {
+      properties: {
         componentVersions: {
           description: '_',
           schema: yup.object(),
@@ -160,10 +168,10 @@ export const globalSettings = {
       },
     },
     fhir: {
-      values: {
+      properties: {
         worker: {
           description: 'FHIR worker settings',
-          values: {
+          properties: {
             heartbeat: {
               description: '_',
               schema: yup.string(),
@@ -179,10 +187,10 @@ export const globalSettings = {
       },
     },
     integrations: {
-      values: {
+      properties: {
         imaging: {
           description: 'Imaging integration settings',
-          values: {
+          properties: {
             enabled: {
               description: '_',
               schema: yup.boolean(),
@@ -193,7 +201,7 @@ export const globalSettings = {
       },
     },
     upcomingVaccinations: {
-      values: {
+      properties: {
         ageLimit: {
           description: '_',
           schema: yup.number(),
@@ -233,7 +241,7 @@ export const globalSettings = {
       },
     },
     invoice: {
-      values: {
+      properties: {
         slidingFeeScale: {
           name: 'Sliding fee scale',
           description: '_',
@@ -244,10 +252,10 @@ export const globalSettings = {
     },
     printMeasures: {
       description: 'Custom dimensions for PDFs',
-      values: {
+      properties: {
         labRequestPrintLabel: {
           description: 'Lab request label with basic info + barcode',
-          values: {
+          properties: {
             width: {
               schema: yup.number().positive(),
               defaultValue: 50.8,
@@ -256,7 +264,7 @@ export const globalSettings = {
         },
         stickerLabelPage: {
           description: 'The multiple ID labels printout on the patient view',
-          values: {
+          properties: {
             pageWidth: {
               schema: yup.number().positive(),
               defaultValue: 210,
@@ -311,7 +319,7 @@ export const globalSettings = {
         },
         idCardPage: {
           description: 'The ID card found on the patient view',
-          values: {
+          properties: {
             cardMarginTop: {
               schema: yup.number().positive(),
               defaultValue: 1,
