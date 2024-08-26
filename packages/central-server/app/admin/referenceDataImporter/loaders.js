@@ -273,7 +273,7 @@ export const taskSetLoader = async (item, { models, pushError }) => {
   });
 
   // Upsert tasks that are in task set
-  const rows = taskIds.map(taskId => ({
+  const rows = existingTaskIds.map(taskId => ({
     model: 'ReferenceDataRelation',
     values: {
       referenceDataId: taskId,
