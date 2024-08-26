@@ -46,7 +46,7 @@ jobs:
       id: currentv
       run: |
         version=$(jq -r .version package.json)
-        echo "current_version=2.16.0" >> $GITHUB_OUTPUT
+        echo "current_version=2.14.0" >> $GITHUB_OUTPUT
 
     - name: get closest previous version
       id: previousv
