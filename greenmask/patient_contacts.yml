@@ -1,0 +1,12 @@
+---
+schema: public
+name: patient_contacts
+transformers:
+  - name: RandomName
+    params:
+      column: name
+
+  - name: Masking
+    params:
+      column: method
+
