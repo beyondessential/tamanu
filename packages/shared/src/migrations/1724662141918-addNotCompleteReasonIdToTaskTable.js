@@ -6,7 +6,7 @@ import { DataTypes } from 'sequelize';
  */
 export async function up(query) {
   await query.renameColumn('tasks', 'not_completed_note', 'not_completed_reason_id');
-  await query.update('tasks', { not_completed_reason_id: null });
+  await query.sequelize.query(`UPDATE tasks SET not_completed_reason_id = NULL`);
   await query.changeColumn('tasks', 'not_completed_reason_id', {
     type: DataTypes.TEXT,
     allowNull: true,
