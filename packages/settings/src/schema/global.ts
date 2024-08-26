@@ -2,8 +2,8 @@ import { VACCINE_STATUS } from '@tamanu/constants';
 import * as yup from 'yup';
 import { extractDefaults } from './utils';
 import {
-  unhideableLayoutModuleValues,
-  layoutModuleValues,
+  unhideableLayoutModuleProperties,
+  layoutModuleProperties,
 } from './global-settings-properties/layouts';
 
 export const globalSettings = {
@@ -501,27 +501,27 @@ export const globalSettings = {
             },
             diagnosisAndTreatment: {
               description: '_',
-              properties: layoutModuleValues,
+              properties: layoutModuleProperties,
             },
             vitals: {
               description: '_',
-              properties: layoutModuleValues,
+              properties: layoutModuleProperties,
             },
             programs: {
               description: '_',
-              properties: layoutModuleValues,
+              properties: layoutModuleProperties,
             },
             referral: {
               description: '_',
-              properties: layoutModuleValues,
+              properties: layoutModuleProperties,
             },
             vaccine: {
               description: '_',
-              properties: layoutModuleValues,
+              properties: layoutModuleProperties,
             },
             tests: {
               description: '_',
-              properties: layoutModuleValues,
+              properties: layoutModuleProperties,
             },
           },
         },
@@ -530,39 +530,39 @@ export const globalSettings = {
           properties: {
             history: {
               description: '_',
-              properties: unhideableLayoutModuleValues,
+              properties: unhideableLayoutModuleProperties,
             },
             details: {
               description: '_',
-              properties: unhideableLayoutModuleValues,
+              properties: unhideableLayoutModuleProperties,
             },
             results: {
               description: '_',
-              properties: layoutModuleValues,
+              properties: layoutModuleProperties,
             },
             referrals: {
               description: '_',
-              properties: layoutModuleValues,
+              properties: layoutModuleProperties,
             },
             programs: {
               description: '_',
-              properties: layoutModuleValues,
+              properties: layoutModuleProperties,
             },
             documents: {
               description: '_',
-              properties: layoutModuleValues,
+              properties: layoutModuleProperties,
             },
             vaccines: {
               description: '_',
-              properties: layoutModuleValues,
+              properties: layoutModuleProperties,
             },
             medication: {
               description: '_',
-              properties: layoutModuleValues,
+              properties: layoutModuleProperties,
             },
             invoices: {
               description: '_',
-              properties: layoutModuleValues,
+              properties: layoutModuleProperties,
             },
           },
         },
@@ -572,46 +572,46 @@ export const globalSettings = {
             patients: {
               description: '_',
               properties: {
-                patientsInpatients: { properties: layoutModuleValues },
-                patientsEmergency: { properties: layoutModuleValues },
-                patientsOutpatients: { properties: layoutModuleValues },
+                patientsInpatients: { properties: layoutModuleProperties },
+                patientsEmergency: { properties: layoutModuleProperties },
+                patientsOutpatients: { properties: layoutModuleProperties },
               },
             },
             scheduling: {
               description: '_',
               properties: {
-                schedulingAppointments: { properties: layoutModuleValues },
-                schedulingCalendar: { properties: layoutModuleValues },
-                schedulingNew: { properties: layoutModuleValues },
+                schedulingAppointments: { properties: layoutModuleProperties },
+                schedulingCalendar: { properties: layoutModuleProperties },
+                schedulingNew: { properties: layoutModuleProperties },
               },
             },
             medication: {
               description: '_',
-              properties: { medicationAll: { properties: layoutModuleValues } },
+              properties: { medicationAll: { properties: layoutModuleProperties } },
             },
             imaging: {
               description: '_',
               properties: {
-                imagingActive: { properties: layoutModuleValues },
-                imagingCompleted: { properties: layoutModuleValues },
+                imagingActive: { properties: layoutModuleProperties },
+                imagingCompleted: { properties: layoutModuleProperties },
               },
             },
             labs: {
               description: '_',
               properties: {
-                labsAll: { properties: layoutModuleValues },
-                labsPublished: { properties: layoutModuleValues },
+                labsAll: { properties: layoutModuleProperties },
+                labsPublished: { properties: layoutModuleProperties },
               },
             },
             immunisations: {
               description: '_',
-              properties: { immunisationsAll: { properties: layoutModuleValues } },
+              properties: { immunisationsAll: { properties: layoutModuleProperties } },
             },
             facilityAdmin: {
               description: '_',
               properties: {
-                reports: { properties: layoutModuleValues },
-                bedManagement: { properties: layoutModuleValues },
+                reports: { properties: layoutModuleProperties },
+                bedManagement: { properties: layoutModuleProperties },
               },
             },
           },

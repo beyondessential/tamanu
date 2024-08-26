@@ -1,6 +1,6 @@
 import * as yup from 'yup';
 
-export const unhideableLayoutModuleValues = {
+export const unhideableLayoutModuleProperties = {
   sortPriority: {
     description: 'Modules are ordered based on this value from lowest to highest',
     schema: yup.number(),
@@ -14,7 +14,7 @@ export const unhideableLayoutModuleValues = {
   },
 };
 
-export const layoutModuleValues = {
+export const layoutModuleProperties = {
   sortPriority: {
     description: 'Modules are ordered based on this value from lowest to highest',
     schema: yup.number(),
