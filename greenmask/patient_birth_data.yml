@@ -1,6 +1,6 @@
 ---
 schema: public
-name: patient_death_data
+name: patient_birth_data
 transformers:
   - name: RandomName
     params:

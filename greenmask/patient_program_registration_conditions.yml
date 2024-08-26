@@ -1,6 +1,6 @@
 ---
 schema: public
-name: patient_program_registrations
+name: patient_program_registration_conditions
 transformers:
   - name: Template
     params:
