@@ -336,10 +336,10 @@ export const globalSettings = {
     },
     templates: {
       description: 'Strings to be inserted into emails/pdfs',
-      values: {
+      properties: {
         letterhead: {
           description: 'The text at the top of most patient pdfs',
-          values: {
+          properties: {
             title: {
               schema: yup.string(),
               defaultValue: 'TAMANU MINISTRY OF HEALTH & MEDICAL SERVICES',
@@ -349,7 +349,7 @@ export const globalSettings = {
         },
         signerRenewalEmail: {
           description: 'The email sent when the signer runs out',
-          values: {
+          properties: {
             subject: {
               schema: yup
                 .string()
@@ -369,7 +369,7 @@ export const globalSettings = {
         },
         vaccineCertificateEmail: {
           description: 'The patient vaccine certificate',
-          values: {
+          properties: {
             subject: {
               schema: yup
                 .string()
@@ -389,7 +389,7 @@ export const globalSettings = {
         },
         covidVaccineCertificateEmail: {
           description: 'The covid patient vaccine certificate',
-          values: {
+          properties: {
             subject: {
               schema: yup
                 .string()
@@ -409,7 +409,7 @@ export const globalSettings = {
         },
         covidTestCertificateEmail: {
           description: '_',
-          values: {
+          properties: {
             subject: {
               schema: yup
                 .string()
@@ -429,7 +429,7 @@ export const globalSettings = {
         },
         covidClearanceCertificateEmail: {
           description: '_',
-          values: {
+          properties: {
             subject: {
               schema: yup
                 .string()
@@ -449,7 +449,7 @@ export const globalSettings = {
         },
         vaccineCertificate: {
           description: '_',
-          values: {
+          properties: {
             emailAddress: {
               description: '_',
               schema: yup.string().trim(),
@@ -468,7 +468,7 @@ export const globalSettings = {
         },
         covidTestCertificate: {
           description: '_',
-          values: {
+          properties: {
             laboratoryName: {
               description: '_',
               schema: yup.string().trim(),
