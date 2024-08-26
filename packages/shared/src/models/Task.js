@@ -114,6 +114,10 @@ export class Task extends Model {
       as: 'deletedBy',
     });
     this.belongsTo(models.ReferenceData, {
+      foreignKey: 'notCompletedReasonId',
+      as: 'notCompletedReason',
+    });
+    this.belongsTo(models.ReferenceData, {
       foreignKey: 'deletedReasonId',
       as: 'deletedReason',
     });
