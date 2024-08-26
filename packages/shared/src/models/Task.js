@@ -61,10 +61,6 @@ export class Task extends Model {
         notCompletedTime: dateTimeType('notCompletedTime', {
           allowNull: true,
         }),
-        notCompletedNote: {
-          type: DataTypes.TEXT,
-          allowNull: true,
-        },
         todoTime: dateTimeType('todoTime', {
           allowNull: true,
         }),
