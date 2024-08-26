@@ -64,4 +64,3 @@ transformers:
   - name: SetNull
     params:
       column: date_of_death_legacy
-

@@ -9,4 +9,3 @@ transformers:
   - name: Masking
     params:
       column: method
-
