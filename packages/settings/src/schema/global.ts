@@ -96,7 +96,7 @@ export const globalSettings = {
         slidingFeeScale: {
           name: 'Sliding fee scale',
           description: '_',
-          schema: yup.array().of(yup.array().of(yup.number())),
+          schema: yup.array(yup.array(yup.number())),
           defaultValue: {},
         },
       },
