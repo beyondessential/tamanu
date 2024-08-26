@@ -164,7 +164,7 @@ describe('PatientProgramRegistration', () => {
         patientId: patient.id,
         date: '2023-09-02 08:00:00',
         conditionIds: [programRegistryCondition.id],
-        facilityId,
+        registeringFacilityId: facilityId,
       });
 
       expect(result).toHaveSucceeded();
@@ -218,7 +218,7 @@ describe('PatientProgramRegistration', () => {
         programRegistryId: programRegistry1.id,
         registrationStatus: REGISTRATION_STATUSES.INACTIVE,
         date: '2023-09-02 09:00:00',
-        facilityId,
+        registeringFacilityId: facilityId,
       });
 
       expect(result).toHaveSucceeded();
@@ -262,7 +262,6 @@ describe('PatientProgramRegistration', () => {
           registeringFacilityId: facility.id,
           registrationStatus: REGISTRATION_STATUSES.ACTIVE,
           date: '2023-09-02 08:00:00',
-          facilityId,
         },
         {
           clinicianId: clinician.id,
@@ -272,7 +271,6 @@ describe('PatientProgramRegistration', () => {
           registeringFacilityId: facility.id,
           registrationStatus: REGISTRATION_STATUSES.INACTIVE,
           date: '2023-09-02 09:00:00',
-          facilityId,
         },
         {
           // Note this record won't show up as the status hasn't changed
@@ -281,25 +279,25 @@ describe('PatientProgramRegistration', () => {
           programRegistryId: registry.id,
           clinicalStatusId: status2.id,
           villageId: village.id,
+          registeringFacilityId: facility.id,
           registrationStatus: REGISTRATION_STATUSES.ACTIVE,
           date: '2023-09-02 10:00:00',
-          facilityId,
         },
         {
           patientId: patient.id,
           clinicalStatusId: status1.id,
           programRegistryId: registry.id,
+          registeringFacilityId: facility.id,
           registrationStatus: REGISTRATION_STATUSES.ACTIVE,
           date: '2023-09-02 11:00:00',
-          facilityId,
         },
         {
           patientId: patient.id,
           clinicalStatusId: status2.id,
           programRegistryId: registry.id,
+          registeringFacilityId: facility.id,
           registrationStatus: REGISTRATION_STATUSES.INACTIVE,
           date: '2023-09-02 11:30:00',
-          facilityId,
         },
       ];
 
@@ -563,7 +561,7 @@ describe('PatientProgramRegistration', () => {
             clinicianId: app.user.id,
             patientId: patient.id,
             date: TEST_DATE_EARLY,
-            facilityId,
+            registeringFacilityId: facilityId,
           });
 
         expect(result).toBeForbidden();
@@ -588,7 +586,7 @@ describe('PatientProgramRegistration', () => {
             clinicianId: app.user.id,
             patientId: patient.id,
             date: TEST_DATE_EARLY,
-            facilityId,
+            registeringFacilityId: facilityId,
           });
 
         expect(result).toHaveSucceeded();
