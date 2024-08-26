@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 import PropTypes from 'prop-types';
 import Autosuggest from 'react-autosuggest';
-import { debounce, groupBy, map } from 'lodash';
+import { debounce, groupBy, map, sortBy } from 'lodash';
 import { IconButton, MenuItem, Paper, Popper, Typography } from '@material-ui/core';
 import { ClearIcon } from '../Icons/ClearIcon';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
@@ -42,7 +42,7 @@ const SuggestionsList = styled(Paper)`
 
     .MuiButtonBase-root {
       padding: ${props => (props.size === 'small' ? '8px 12px 8px 20px' : '12px 12px 12px 20px')};
-      ${props => (props.multiSection ? 'padding-left: 28px;' : '')}
+      ${props => (props.$multiSection ? 'padding-left: 28px;' : '')}
       white-space: normal;
 
       .MuiTypography-root {
@@ -72,6 +72,24 @@ const SuggestionsList = styled(Paper)`
         border-color: ${Colors.outline};
         margin: 2px 10px;
       }`}
+    }
+  
+    .react-autosuggest__section-container {
+      &:not(:last-child) {
+        li:last-child {
+          position: static;
+          &::before {
+            border-top: none;
+            margin: 0;
+          }
+        }
+      }
+      &:last-child {
+        display: contents;
+        ul {
+          display: contents;
+        }
+      }
     }
   `}
 `;
@@ -318,7 +336,7 @@ export class AutocompleteInput extends Component {
         <SuggestionsList
           {...option.containerProps}
           size={size}
-          multiSection={multiSection}
+          $multiSection={multiSection}
           $onlyOneItem={suggestions.length === 1}
           $hasCustomizeItem={hasCustomizeItem}
         >
@@ -392,11 +410,18 @@ export class AutocompleteInput extends Component {
   };
 
   groupSuggestionsByKey = suggestions => {
-    const { groupByKey } = this.props;
+    const { groupByKey, orderByValues } = this.props;
     const groupedSuggestions = map(groupBy(suggestions, groupByKey), (data, groupByKey) => ({
       [this.props.groupByKey]: groupByKey,
       data,
     }));
+    if (orderByValues) {
+      const orderedSuggestions = sortBy(groupedSuggestions, item =>
+        orderByValues.indexOf(item[groupByKey]),
+      );
+      return orderedSuggestions;
+    }
+
     return groupedSuggestions;
   };
 
@@ -490,6 +515,7 @@ AutocompleteInput.propTypes = {
   allowCreatingCustomValue: PropTypes.bool,
   groupByKey: PropTypes.string,
   getSectionTitle: PropTypes.func,
+  orderByValues: PropTypes.arrayOf(PropTypes.string),
 };
 
 AutocompleteInput.defaultProps = {
