@@ -5,6 +5,11 @@ on:
     tags:
       - 'v*'
 
+  pull_request:
+    types:
+      - opened
+      - edited
+      - synchronize
 jobs:
   run:
     name: Diff Translations
@@ -31,11 +36,17 @@ jobs:
        curl -LO https://github.com/BurntSushi/ripgrep/releases/download/14.1.0/ripgrep_14.1.0-1_amd64.deb
        sudo dpkg -i ripgrep_14.1.0-1_amd64.deb
 
+    # - name: get current version
+    #   id: currentv
+    #   run: |
+    #     version=$(jq -r .version package.json)
+    #     echo "current_version=$version" >> $GITHUB_OUTPUT
+
     - name: get current version
       id: currentv
       run: |
         version=$(jq -r .version package.json)
-        echo "current_version=$version" >> $GITHUB_OUTPUT
+        echo "current_version=2.16.0" >> $GITHUB_OUTPUT
 
     - name: get closest previous version
       id: previousv
@@ -60,25 +71,25 @@ jobs:
           echo "Scrape translations script failed with exit code $?"
         fi
 
-    - name: Configure AWS Credentials (upload)
-      uses: aws-actions/configure-aws-credentials@v4
-      with:
-        aws-region: ap-southeast-2
-        role-to-assume: arn:aws:iam::143295493206:role/gha-tamanu-translations-upload
-        role-session-name: GHA@Tamanu=DiffTranslations
+    # - name: Configure AWS Credentials (upload)
+    #   uses: aws-actions/configure-aws-credentials@v4
+    #   with:
+    #     aws-region: ap-southeast-2
+    #     role-to-assume: arn:aws:iam::143295493206:role/gha-tamanu-translations-upload
+    #     role-session-name: GHA@Tamanu=DiffTranslations
 
-    - name: Upload translations to S3
-      env:
-        version: ${{ steps.currentv.outputs.current_version }}
-      run: |
-        aws s3 --no-progress cp current-translations.csv s3://bes-tamanu-translations/v$version.csv
+    # - name: Upload translations to S3
+    #   env:
+    #     version: ${{ steps.currentv.outputs.current_version }}
+    #   run: |
+    #     aws s3 --no-progress cp current-translations.csv s3://bes-tamanu-translations/v$version.csv
 
-    - name: Download previous versions translations from s3
-      continue-on-error: true
-      env:
-        pversion: ${{ steps.previousv.outputs.previous_version }}
-      run: |
-        aws s3 --no-progress cp s3://bes-tamanu-translations/v$pversion.csv previous-translations.csv
+    # - name: Download previous versions translations from s3
+    #   continue-on-error: true
+    #   env:
+    #     pversion: ${{ steps.previousv.outputs.previous_version }}
+    #   run: |
+    #     aws s3 --no-progress cp s3://bes-tamanu-translations/v$pversion.csv previous-translations.csv
 
     - name: Create empty csv if no previous translations
       if:
