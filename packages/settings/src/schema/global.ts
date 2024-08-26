@@ -252,10 +252,10 @@ export const globalSettings = {
     },
     printMeasures: {
       description: 'Custom dimensions for PDFs',
-      values: {
+      properties: {
         labRequestPrintLabel: {
           description: 'Lab request label with basic info + barcode',
-          values: {
+          properties: {
             width: {
               schema: yup.number().positive(),
               defaultValue: 50.8,
@@ -264,7 +264,7 @@ export const globalSettings = {
         },
         stickerLabelPage: {
           description: 'The multiple ID labels printout on the patient view',
-          values: {
+          properties: {
             pageWidth: {
               schema: yup.number().positive(),
               defaultValue: 210,
@@ -319,7 +319,7 @@ export const globalSettings = {
         },
         idCardPage: {
           description: 'The ID card found on the patient view',
-          values: {
+          properties: {
             cardMarginTop: {
               schema: yup.number().positive(),
               defaultValue: 1,
