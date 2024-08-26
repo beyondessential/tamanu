@@ -1,0 +1,34 @@
+---
+schema: public
+name: patient_death_data
+transformers:
+  - name: RandomDate
+    params:
+      column: external_cause_date
+      min: '1900-01-01'
+      max: '2100-12-31'
+      truncate: day
+      keep_null: true
+
+  - name: RandomDate
+    params:
+      column: last_surgery_date
+      min: '1900-01-01'
+      max: '2100-12-31'
+      truncate: day
+      keep_null: true
+
+  - name: RealAddress
+    params:
+      columns:
+        - name: external_cause_location
+          template: '{{.Address}} {{.City}}'
+          keep_null: true
+
+  - name: Masking
+    params:
+      column: external_cause_notes
+
+  - name: Masking
+    params:
+      column: manner
