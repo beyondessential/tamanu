@@ -273,7 +273,31 @@ createSuggester(
   }),
   {
     mapper: ({ name, code, id, type }) => ({ name, code, id, type }),
+    creatingBodyBuilder: req => {
+      const { body } = req;
+      const { type, name } = body;
+      if (!name) {
+        throw new ValidationError('Name is required');
+      }
+
+      if (!type) {
+        throw new ValidationError('Type is required');
+      }
+
+      const code = `${camelCase(body.name)}-${customAlphabet(
+        '1234567890ABCDEFGHIJKLMNPQRSTUVWXYZ',
+        3,
+      )()}`;
+
+      return {
+        id: uuidv4(),
+        code,
+        type,
+        name,
+      };
+    },
   },
+  true,
 );
 
 REFERENCE_TYPE_VALUES.forEach(typeName => {

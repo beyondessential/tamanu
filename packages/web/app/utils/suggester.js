@@ -11,8 +11,8 @@ export class Suggester {
       formatter = defaultFormatter,
       filterer = () => true,
       baseQueryParameters = {},
+      createSuggestionPayload = {},
       enable = true,
-      allowedCustomValueType = null,
     } = {},
   ) {
     this.api = api;
@@ -20,8 +20,8 @@ export class Suggester {
     this.formatter = formatter;
     this.filterer = filterer;
     this.baseQueryParameters = baseQueryParameters;
+    this.createSuggestionPayload = createSuggestionPayload;
     this.enable = enable;
-    this.allowedCustomValueType = allowedCustomValueType;
   }
 
   async fetch(suffix, queryParameters) {
@@ -48,14 +48,6 @@ export class Suggester {
         q: search,
         language: getCurrentLanguageCode(),
       });
-      if (this.endpoint === 'suggestions/multiReferenceData') {
-        const groupedData = map(groupBy(data, 'type'), (data, type) => ({
-          type,
-          data: data.filter(this.filterer).map(this.formatter)
-        }));
-        return groupedData;
-      }
-      
       return data.filter(this.filterer).map(this.formatter);
     } catch (e) {
       return [];
@@ -64,10 +56,11 @@ export class Suggester {
 
   createSuggestion = async body => {
     if (!this.enable) throw new Error('Suggester is disabled');
-    const endpoint = this.allowedCustomValueType
-      ? `suggestions/${this.allowedCustomValueType}`
-      : this.endpoint;
-    const data = await this.api.post(`${endpoint}/create`, body);
+
+    const data = await this.api.post(`${this.endpoint}/create`, {
+      ...body,
+      ...this.createSuggestionPayload,
+    });
     return this.formatter(data);
   };
 }
