@@ -6,7 +6,7 @@ export const isSetting = (value: Setting | SettingsSchema): value is Setting => 
 };
 
 export const extractDefaults = (settings: SettingsSchema): Record<string, any> => {
-  const result = _.mapValues(settings.values, value => {
+  const result = _.mapValues(settings.properties, value => {
     if (isSetting(value)) {
       return value.defaultValue;
     }
