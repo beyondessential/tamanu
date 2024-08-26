@@ -10,7 +10,7 @@ export class Suggester {
       formatter = defaultFormatter,
       filterer = () => true,
       baseQueryParameters = {},
-      createSuggestionPayload = {},
+      baseBodyParameters = {},
       enable = true,
     } = {},
   ) {
@@ -19,7 +19,7 @@ export class Suggester {
     this.formatter = formatter;
     this.filterer = filterer;
     this.baseQueryParameters = baseQueryParameters;
-    this.createSuggestionPayload = createSuggestionPayload;
+    this.baseBodyParameters = baseBodyParameters;
     this.enable = enable;
   }
 
@@ -58,7 +58,7 @@ export class Suggester {
 
     const data = await this.api.post(`${this.endpoint}/create`, {
       ...body,
-      ...this.createSuggestionPayload,
+      ...this.baseBodyParameters,
     });
     return this.formatter(data);
   };

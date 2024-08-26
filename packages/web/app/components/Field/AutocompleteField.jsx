@@ -220,7 +220,7 @@ export class AutocompleteInput extends Component {
           label: trimmedValue,
           value: trimmedValue,
           isCustomizedOption: true,
-          ...(multiSection && { type: suggester?.createSuggestionPayload?.type }),
+          ...(multiSection && { type: suggester?.baseBodyParameters?.type }),
         });
       }
     }
