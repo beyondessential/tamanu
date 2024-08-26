@@ -84,6 +84,7 @@ async function prepopulate(models) {
 describe('Certificate', () => {
   let ctx;
   let models;
+  let settings;
   let createLabTests;
   let createVaccines;
   let patient;
@@ -91,6 +92,7 @@ describe('Certificate', () => {
   beforeAll(async () => {
     ctx = await createTestContext();
     models = ctx.store.models;
+    settings = ctx.settings;
 
     const {
       method,
@@ -176,7 +178,7 @@ describe('Certificate', () => {
     await createLabTests();
     const patientRecord = await models.Patient.findByPk(patient.id);
     const printedBy = 'Initial Admin';
-    const result = await makeCovidCertificate('test', patientRecord, printedBy, models, [
+    const result = await makeCovidCertificate('test', patientRecord, printedBy, models, settings, [
       { foo: 'bar' },
     ]);
     expect(result.status).toEqual('success');
@@ -193,6 +195,7 @@ describe('Certificate', () => {
       printedAt,
       'test facility',
       models,
+      settings,
     );
     expect(result.status).toEqual('success');
   });

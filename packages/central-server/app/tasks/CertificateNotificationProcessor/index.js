@@ -48,7 +48,8 @@ export class CertificateNotificationProcessor extends ScheduledTask {
   }
 
   async run() {
-    const { models, sequelize } = this.context.store;
+    const { settings, store } = this.context;
+    const { models, sequelize } = store;
     const {
       CertificateNotification,
       CertifiableVaccine,
@@ -152,6 +153,7 @@ export class CertificateNotificationProcessor extends ScheduledTask {
               printedBy,
               printedDate,
               models,
+              settings,
               uvci,
               qrData,
               language,
@@ -179,6 +181,7 @@ export class CertificateNotificationProcessor extends ScheduledTask {
               patient,
               printedBy,
               models,
+              settings,
               qrData,
               language,
             );
@@ -194,6 +197,7 @@ export class CertificateNotificationProcessor extends ScheduledTask {
               patient,
               printedBy,
               models,
+              settings,
               qrData,
               language,
             );
