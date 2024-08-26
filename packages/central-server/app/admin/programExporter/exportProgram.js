@@ -1,5 +1,6 @@
 import { QueryTypes } from 'sequelize';
 import { writeExcelFile } from '../../utils/excelUtils';
+import { groupBy } from 'lodash';
 
 export async function exportProgram(context, programId) {
   const { models, sequelize } = context;
@@ -60,35 +61,38 @@ export async function exportProgram(context, programId) {
   sheets.push(metadataSheet);
 
   const surveySheets = [];
-  await Promise.all(
-    surveys.map(async (survey, index) => {
-      const surveyRecords = await sequelize.query(
-        `
-        SELECT
-          ssc.id,
-          ssc.detail,
-          ssc.visibility_criteria,
-          ssc.validation_criteria,
-          ssc.calculation,
-          ssc.config,
-          ssc.visibility_status,
-          ssc.screen_index,
-          ssc.component_index,
-          pde.code,
-          pde.type,
-          pde.name,
-          pde.default_text as text,
-          pde.default_options as options
-        FROM survey_screen_components ssc
-        JOIN program_data_elements pde ON concat(:surveyId, '-', pde.code) = ssc.id
-        WHERE ssc.survey_id = :surveyId
-        ORDER BY ssc.screen_index, ssc.component_index
-      `,
-        {
-          replacements: { surveyId: survey.id },
-          type: QueryTypes.SELECT,
-        },
-      );
+  if (surveys.length) {
+    const surveyRecords = await sequelize.query(
+      `
+      SELECT
+        ssc.id,
+        ssc.detail,
+        ssc.visibility_criteria,
+        ssc.validation_criteria,
+        ssc.calculation,
+        ssc.config,
+        ssc.visibility_status,
+        ssc.screen_index,
+        ssc.component_index,
+        ssc.survey_id,
+        pde.code,
+        pde.type,
+        pde.name,
+        pde.default_text as text,
+        pde.default_options as options
+      FROM survey_screen_components ssc
+      JOIN program_data_elements pde ON concat(ssc.survey_id, '-', pde.code) = ssc.id
+      WHERE ssc.survey_id IN (:surveyIds)
+      ORDER BY ssc.screen_index, ssc.component_index
+    `,
+      {
+        replacements: { surveyIds: surveys.map(({ id }) => id) },
+        type: QueryTypes.SELECT,
+      },
+    );
+
+    surveys.map((survey, index) => {
+      const groupedSurveyRecords = groupBy(surveyRecords, 'survey_id');
 
       surveySheets[index] = {
         name: survey.code,
@@ -112,7 +116,7 @@ export async function exportProgram(context, programId) {
             'config',
             'visibilityStatus',
           ],
-          ...surveyRecords.map((s, i, a) => [
+          ...groupedSurveyRecords[survey.id].map((s, i, a) => [
             s.code,
             s.type,
             s.name,
@@ -133,8 +137,8 @@ export async function exportProgram(context, programId) {
           ]),
         ],
       };
-    }),
-  );
+    });
+  }
 
   sheets.push(...surveySheets);
 
