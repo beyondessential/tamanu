@@ -100,8 +100,15 @@ jobs:
 
     - name: Diff translations
       run: |
+        set -euxo pipefail
         git diff --no-index --output=translations.diff previous-translations.csv current-translations.csv
         exit 0
+
+    - name: Upload diff to artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: translations.diff
+        path: translations.diff
 
     # - uses: softprops/action-gh-release@v2
     #   with:
