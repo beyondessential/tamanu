@@ -1,4 +1,3 @@
-import { groupBy, map } from 'lodash';
 import { getCurrentLanguageCode } from './translation';
 
 const defaultFormatter = ({ name, id }) => ({ label: name, value: id });
