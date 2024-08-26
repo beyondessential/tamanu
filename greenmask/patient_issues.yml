@@ -1,0 +1,19 @@
+---
+schema: public
+name: patient_issues
+transformers:
+  - name: Masking
+    params:
+      column: note
+
+  - name: RandomDate
+    params:
+      column: recorded_date
+      min: '1900-01-01'
+      max: '2100-12-31'
+      truncate: second
+      keep_null: true
+
+  - name: SetNull
+    params:
+      column: recorded_date_legacy
