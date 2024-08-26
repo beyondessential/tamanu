@@ -1,112 +1,134 @@
 import { VACCINE_STATUS } from '@tamanu/constants';
 import * as yup from 'yup';
 import { extractDefaults } from './utils';
-import { mapValues } from 'lodash';
+import {
+  unhideableLayoutModuleValues,
+  layoutModuleValues,
+} from './global-settings-properties/layouts';
 
-// LAYOUTS
-const unhideableLayoutModuleValues = {
-  sortPriority: {
-    description: 'Modules are ordered based on this value from lowest to highest',
-    schema: yup.number(),
-    defaultValue: -100,
+const mobilePatientModulesProperties = {
+  programRegistries: {
+    description: '_',
+    properties: { hidden: { schema: yup.boolean(), defaultValue: false } },
   },
-  hidden: {
-    description: 'Hide this module from the ui',
-    schema: yup.boolean().oneOf([false], 'unhideable tabs must not be hidden'),
-    defaultValue: false,
+  diagnosisAndTreatment: {
+    description: '_',
+    properties: layoutModuleValues,
+  },
+  vitals: {
+    description: '_',
+    properties: layoutModuleValues,
+  },
+  programs: {
+    description: '_',
+    properties: layoutModuleValues,
+  },
+  referral: {
+    description: '_',
+    properties: layoutModuleValues,
+  },
+  vaccine: {
+    description: '_',
+    properties: layoutModuleValues,
+  },
+  tests: {
+    description: '_',
+    properties: layoutModuleValues,
   },
 };
 
-const layoutModuleValues = {
-  sortPriority: {
-    description: 'Modules are ordered based on this value from lowest to highest',
-    schema: yup.number(),
-    defaultValue: 0,
+const patientTabProperties = {
+  history: {
+    description: '_',
+    properties: unhideableLayoutModuleValues,
   },
-  hidden: {
-    description: 'Hide this module from the ui',
-    schema: yup.boolean(),
-    defaultValue: false,
+  details: {
+    description: '_',
+    properties: unhideableLayoutModuleValues,
+  },
+  results: {
+    description: '_',
+    properties: layoutModuleValues,
+  },
+  referrals: {
+    description: '_',
+    properties: layoutModuleValues,
+  },
+  programs: {
+    description: '_',
+    properties: layoutModuleValues,
+  },
+  documents: {
+    description: '_',
+    properties: layoutModuleValues,
+  },
+  vaccines: {
+    description: '_',
+    properties: layoutModuleValues,
+  },
+  medication: {
+    description: '_',
+    properties: layoutModuleValues,
+  },
+  invoices: {
+    description: '_',
+    properties: layoutModuleValues,
   },
 };
 
-const MOBILE_PATIENT_MODULES = [
-  'diagnosisAndTreatment',
-  'vitals',
-  'programs',
-  'referral',
-  'vaccine',
-  'tests',
-];
-
-const mobilePatientModulesValues = {
-  programRegistries: { values: { hidden: { schema: yup.boolean(), defaultValue: false } } },
-  ...MOBILE_PATIENT_MODULES.reduce(
-    (modules: object, module: string) => ({
-      ...modules,
-      [module]: { values: layoutModuleValues },
-    }),
-    {},
-  ),
+const sidebarProperties = {
+  patients: {
+    description: '_',
+    properties: {
+      patientsInpatients: { properties: layoutModuleValues },
+      patientsEmergency: { properties: layoutModuleValues },
+      patientsOutpatients: { properties: layoutModuleValues },
+    },
+  },
+  scheduling: {
+    description: '_',
+    properties: {
+      schedulingAppointments: { properties: layoutModuleValues },
+      schedulingCalendar: { properties: layoutModuleValues },
+      schedulingNew: { properties: layoutModuleValues },
+    },
+  },
+  medication: {
+    description: '_',
+    properties: { medicationAll: { properties: layoutModuleValues } },
+  },
+  imaging: {
+    description: '_',
+    properties: {
+      imagingActive: { properties: layoutModuleValues },
+      imagingCompleted: { properties: layoutModuleValues },
+    },
+  },
+  labs: {
+    description: '_',
+    properties: {
+      labsAll: { properties: layoutModuleValues },
+      labsPublished: { properties: layoutModuleValues },
+    },
+  },
+  immunisations: {
+    description: '_',
+    properties: { immunisationsAll: { properties: layoutModuleValues } },
+  },
+  facilityAdmin: {
+    description: '_',
+    properties: {
+      reports: { properties: layoutModuleValues },
+      bedManagement: { properties: layoutModuleValues },
+    },
+  },
 };
-
-const UNHIDEABLE_PATIENT_TABS = ['history', 'details'];
-const HIDEABLE_PATIENT_TABS = [
-  'results',
-  'referrals',
-  'programs',
-  'documents',
-  'vaccines',
-  'medication',
-  'invoices',
-];
-
-const patientTabValues = {
-  ...UNHIDEABLE_PATIENT_TABS.reduce(
-    (tabs: object, tab: string) => ({
-      ...tabs,
-      [tab]: { values: unhideableLayoutModuleValues },
-    }),
-    {},
-  ),
-  ...HIDEABLE_PATIENT_TABS.reduce(
-    (tabs: object, tab: string) => ({
-      ...tabs,
-      [tab]: { values: layoutModuleValues },
-    }),
-    {},
-  ),
-};
-
-const SIDEBAR_ITEMS = {
-  patients: ['patientsAll', 'patientsInpatients', 'patientsEmergency', 'patientsOutpatients'],
-  scheduling: ['schedulingAppointments', 'schedulingCalendar', 'schedulingNew'],
-  medication: ['medicationAll'],
-  imaging: ['imagingActive', 'imagingCompleted'],
-  labs: ['labsAll', 'labsPublished'],
-  immunisations: ['immunisationsAll'],
-  programRegistry: [],
-  facilityAdmin: ['reports', 'bedManagement'],
-};
-
-// patients and patientsAll are intentionally not configurable
-const sidebarValues = mapValues(SIDEBAR_ITEMS, (children: string[], topItem: string) => {
-  const childValues = children.reduce(
-    (obj: object, childItem: string) =>
-      childItem === 'patientsAll' ? obj : { ...obj, [childItem]: { values: layoutModuleValues } },
-    {},
-  );
-
-  return topItem === 'patients'
-    ? { values: childValues }
-    : { values: { ...layoutModuleValues, ...childValues } };
-});
 
 export const globalSettings = {
-  values: {
+  properties: {
     features: {
       description: 'Toggle features on/off',
-      values: {
+      properties: {
         mandateSpecimenType: {
           description: '_',
           schema: yup.boolean(),
@@ -205,7 +227,7 @@ export const globalSettings = {
         },
         idleTimeout: {
           description: 'Automatically logout idle users / inactive sessions after a certain time',
-          values: {
+          properties: {
             enabled: {
               schema: yup.boolean(),
               defaultValue: true,
@@ -234,7 +256,7 @@ export const globalSettings = {
         tableAutoRefresh: {
           description:
             'Enable the auto refresh feature on tables where it is implemented: Currently supports imaging and lab listing views',
-          values: {
+          properties: {
             enabled: {
               schema: yup.boolean(),
               defaultValue: true,
@@ -251,7 +273,7 @@ export const globalSettings = {
       },
     },
     customisations: {
-      values: {
+      properties: {
         componentVersions: {
           description: '_',
           schema: yup.object(),
@@ -260,10 +282,10 @@ export const globalSettings = {
       },
     },
     fhir: {
-      values: {
+      properties: {
         worker: {
           description: 'FHIR worker settings',
-          values: {
+          properties: {
             heartbeat: {
               description: '_',
               schema: yup.string(),
@@ -279,10 +301,10 @@ export const globalSettings = {
       },
     },
     integrations: {
-      values: {
+      properties: {
         imaging: {
           description: 'Imaging integration settings',
-          values: {
+          properties: {
             enabled: {
               description: '_',
               schema: yup.boolean(),
@@ -293,7 +315,7 @@ export const globalSettings = {
       },
     },
     upcomingVaccinations: {
-      values: {
+      properties: {
         ageLimit: {
           description: '_',
           schema: yup.number(),
@@ -333,7 +355,7 @@ export const globalSettings = {
       },
     },
     invoice: {
-      values: {
+      properties: {
         slidingFeeScale: {
           name: 'Sliding fee scale',
           description: '_',
@@ -344,10 +366,10 @@ export const globalSettings = {
     },
     printMeasures: {
       description: 'Custom dimensions for PDFs',
-      values: {
+      properties: {
         labRequestPrintLabel: {
           description: 'Lab request label with basic info + barcode',
-          values: {
+          properties: {
             width: {
               schema: yup.number().positive(),
               defaultValue: 50.8,
@@ -356,7 +378,7 @@ export const globalSettings = {
         },
         stickerLabelPage: {
           description: 'The multiple ID labels printout on the patient view',
-          values: {
+          properties: {
             pageWidth: {
               schema: yup.number().positive(),
               defaultValue: 210,
@@ -411,7 +433,7 @@ export const globalSettings = {
         },
         idCardPage: {
           description: 'The ID card found on the patient view',
-          values: {
+          properties: {
             cardMarginTop: {
               schema: yup.number().positive(),
               defaultValue: 1,
@@ -428,10 +450,10 @@ export const globalSettings = {
     },
     templates: {
       description: 'Strings to be inserted into emails/pdfs',
-      values: {
+      properties: {
         letterhead: {
           description: 'The text at the top of most patient pdfs',
-          values: {
+          properties: {
             title: {
               schema: yup.string(),
               defaultValue: 'TAMANU MINISTRY OF HEALTH & MEDICAL SERVICES',
@@ -441,7 +463,7 @@ export const globalSettings = {
         },
         signerRenewalEmail: {
           description: 'The email sent when the signer runs out',
-          values: {
+          properties: {
             subject: {
               schema: yup
                 .string()
@@ -461,7 +483,7 @@ export const globalSettings = {
         },
         vaccineCertificateEmail: {
           description: 'The patient vaccine certificate',
-          values: {
+          properties: {
             subject: {
               schema: yup
                 .string()
@@ -481,7 +503,7 @@ export const globalSettings = {
         },
         covidVaccineCertificateEmail: {
           description: 'The covid patient vaccine certificate',
-          values: {
+          properties: {
             subject: {
               schema: yup
                 .string()
@@ -501,7 +523,7 @@ export const globalSettings = {
         },
         covidTestCertificateEmail: {
           description: '_',
-          values: {
+          properties: {
             subject: {
               schema: yup
                 .string()
@@ -521,7 +543,7 @@ export const globalSettings = {
         },
         covidClearanceCertificateEmail: {
           description: '_',
-          values: {
+          properties: {
             subject: {
               schema: yup
                 .string()
@@ -541,7 +563,7 @@ export const globalSettings = {
         },
         vaccineCertificate: {
           description: '_',
-          values: {
+          properties: {
             emailAddress: {
               description: '_',
               schema: yup.string().trim(),
@@ -560,7 +582,7 @@ export const globalSettings = {
         },
         covidTestCertificate: {
           description: '_',
-          values: {
+          properties: {
             laboratoryName: {
               description: '_',
               schema: yup.string().trim(),
@@ -579,18 +601,18 @@ export const globalSettings = {
     },
     layouts: {
       description: 'Customise the order of tabs/buttons',
-      values: {
+      properties: {
         mobilePatientModules: {
           description: 'The homepage modules on mobile',
-          values: mobilePatientModulesValues,
+          properties: mobilePatientModulesProperties,
         },
         patientTabs: {
           description: 'The tabs on patient view',
-          values: patientTabValues,
+          properties: patientTabProperties,
         },
         sidebar: {
           description: 'The sidebar tabs in the faci',
-          values: sidebarValues,
+          properties: sidebarProperties,
         },
       },
     },
