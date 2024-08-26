@@ -101,9 +101,7 @@ jobs:
     - name: Diff translations
       run: |
         set -euxo pipefail
-        git diff --no-index --output=translations.diff previous-translations.csv current-translations.csv
-        exit 0
-      continue-on-error: true
+        git diff --no-index --output=translations.diff previous-translations.csv current-translations.csv || true
 
     - name: Upload diff to artifacts
       uses: actions/upload-artifact@v4
