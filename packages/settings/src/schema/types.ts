@@ -11,5 +11,5 @@ export interface Setting<T = any> {
 export interface SettingsSchema {
   name?: string;
   description?: string;
-  values: Record<string, Setting | SettingsSchema>;
+  properties: Record<string, Setting | SettingsSchema>;
 }
