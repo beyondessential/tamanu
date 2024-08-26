@@ -107,6 +107,14 @@ export const globalSettings = {
           schema: yup.boolean(),
           defaultValue: false,
         },
+        reminderContactModule: {
+          properties: {
+            enabled: {
+              schema: yup.boolean(),
+              defaultValue: false,
+            },
+          },
+        },
         idleTimeout: {
           description: 'Automatically logout idle users / inactive sessions after a certain time',
           properties: {
