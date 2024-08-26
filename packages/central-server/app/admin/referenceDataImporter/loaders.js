@@ -5,7 +5,6 @@ import {
   ENCOUNTER_TYPES,
   VISIBILITY_STATUSES,
   PATIENT_FIELD_DEFINITION_TYPES,
-  REFERENCE_TYPES,
   REFERENCE_DATA_RELATION_TYPES,
 } from '@tamanu/constants';
 import { v4 as uuidv4 } from 'uuid';
