@@ -559,7 +559,7 @@ export const globalSettings = {
           },
         },
         sidebar: {
-          description: 'The sidebar tabs in the faci',
+          description: 'The sidebar tabs in the facility',
           properties: {
             patients: {
               description: '_',

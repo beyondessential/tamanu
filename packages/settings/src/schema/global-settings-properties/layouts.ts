@@ -6,6 +6,7 @@ export const unhideableLayoutModuleValues = {
     schema: yup.number(),
     defaultValue: -100,
   },
+//   TODO: possibly just remove this
   hidden: {
     description: 'Hide this module from the ui',
     schema: yup.boolean().oneOf([false], 'unhideable tabs must not be hidden'),
