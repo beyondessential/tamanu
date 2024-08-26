@@ -62,6 +62,7 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
           conditionIds: data.conditionIds ? JSON.parse(data.conditionIds) : [],
           registrationStatus: REGISTRATION_STATUSES.ACTIVE,
           patientId: patient.id,
+          facilityId,
         });
       }}
       render={({ submitForm, values, setValues }) => {
