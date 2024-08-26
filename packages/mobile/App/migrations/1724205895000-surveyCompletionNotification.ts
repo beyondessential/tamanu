@@ -10,7 +10,7 @@ export class surveyCompletionNotification1724205895000 implements MigrationInter
         name: 'notifiable',
         type: 'boolean',
         isNullable: false,
-        default: false,
+        default: 0,
       }),
     );
 
