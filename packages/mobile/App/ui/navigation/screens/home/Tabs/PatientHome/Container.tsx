@@ -25,6 +25,11 @@ interface IPopup {
   textBody: string;
 }
 
+// TODO: declare this
+type PatientModule = {
+
+}
+
 const showPopupChain = (popups: IPopup[]): void => {
   if (popups.length === 0) return;
   const [currentPopup, ...restOfChain] = popups;
@@ -66,7 +71,7 @@ const showPatientWarningPopups = (issues: IPatientIssue[]): void =>
 
 const usePatientModules = navigation => {
   const { getSetting } = useSettings();
-  const config = getSetting('layouts.mobilePatientModules');
+  const config = getSetting<PatientModule>('layouts.mobilePatientModules');
 
   return useMemo(() => {
     return [
