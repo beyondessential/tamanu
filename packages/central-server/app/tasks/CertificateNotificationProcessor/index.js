@@ -61,15 +61,16 @@ export class CertificateNotificationProcessor extends ScheduledTask {
     const euDccEnabled = config.integrations.euDcc.enabled;
     const localisation = await getLocalisation();
 
-    const certifiableVaccineIds = await CertifiableVaccine.allVaccineIds(euDccEnabled);
-
-    const queuedNotifications = await CertificateNotification.findAll({
-      where: {
-        status: CERTIFICATE_NOTIFICATION_STATUSES.QUEUED,
-      },
-      order: [['createdAt', 'ASC']], // process in order received
-      limit: this.config.limit,
-    });
+    const [certifiableVaccineIds, queuedNotifications] = await Promise.all([
+      CertifiableVaccine.allVaccineIds(euDccEnabled),
+      CertificateNotification.findAll({
+        where: {
+          status: CERTIFICATE_NOTIFICATION_STATUSES.QUEUED,
+        },
+        order: [['createdAt', 'ASC']], // process in order received
+        limit: this.config.limit,
+      }),
+    ]);
 
     let processed = 0;
     for (const notification of queuedNotifications) {
