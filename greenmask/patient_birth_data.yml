@@ -7,10 +7,12 @@ transformers:
       column: name_of_attendant_at_birth
       keep_null: true
 
-  - name: RandomDate
+  - name: Template
     params:
       column: time_of_birth
-      min: '1900-01-01'
-      max: '2100-12-31'
-      truncate: day
-      keep_null: true
+      template: >
+        {{- if isNull .GetValue -}}
+          {{- null -}}
+        {{- else -}}
+          {{- fakerTimestamp -}}
+        {{- end -}}

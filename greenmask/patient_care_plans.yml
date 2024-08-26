@@ -2,12 +2,10 @@
 schema: public
 name: patient_care_plans
 transformers:
-  - name: RandomDate
+  - name: Template
     params:
       column: date
-      min: '1900-01-01 00:00:00'
-      max: '2100-12-31 00:00:00'
-      truncate: second
+      template: '{{- fakerTimestamp -}}'
 
   - name: SetNull
     params:

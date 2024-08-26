@@ -2,21 +2,25 @@
 schema: public
 name: patient_death_data
 transformers:
-  - name: RandomDate
+  - name: Template
     params:
       column: external_cause_date
-      min: '1900-01-01'
-      max: '2100-12-31'
-      truncate: day
-      keep_null: true
+      template: >
+        {{- if isNull .GetValue -}}
+          {{- null -}}
+        {{- else -}}
+          {{- fakerDate -}}
+        {{- end -}}
 
-  - name: RandomDate
+  - name: Template
     params:
       column: last_surgery_date
-      min: '1900-01-01'
-      max: '2100-12-31'
-      truncate: day
-      keep_null: true
+      template: >
+        {{- if isNull .GetValue -}}
+          {{- null -}}
+        {{- else -}}
+          {{- fakerDate -}}
+        {{- end -}}
 
   - name: RealAddress
     params:
