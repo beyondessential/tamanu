@@ -103,13 +103,13 @@ jobs:
         git diff --no-index --output=translations.diff previous-translations.csv current-translations.csv
         exit 0
 
-    - uses: softprops/action-gh-release@v2
-      with:
-        tag: ${{ github.ref_name }}
-        append_body: true
-        body: |
-          ## Translation Changes
-          *Changes compared to previous version: v${{ steps.previousv.outputs.previous_version }}*
-          \`\`\`diff
-          $(cat translations.diff)
-          \`\`\`
+    # - uses: softprops/action-gh-release@v2
+    #   with:
+    #     tag: ${{ github.ref_name }}
+    #     append_body: true
+    #     body: |
+    #       ## Translation Changes
+    #       *Changes compared to previous version: v${{ steps.previousv.outputs.previous_version }}*
+    #       \`\`\`diff
+    #       $(cat translations.diff)
+    #       \`\`\`
