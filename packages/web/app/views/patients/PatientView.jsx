@@ -100,21 +100,21 @@ const TABS = [
   },
 ];
 
-const tabCompare = ({ firstTab, secondTab, patientTabLocalisation }) => {
-  const firstTabSortPriority = patientTabLocalisation?.[firstTab.key]?.sortPriority || 0;
-  const secondTabSortPriority = patientTabLocalisation?.[secondTab.key]?.sortPriority || 0;
+const tabCompare = ({ firstTab, secondTab, patientTabSettings }) => {
+  const firstTabSortPriority = patientTabSettings?.[firstTab.key]?.sortPriority || 0;
+  const secondTabSortPriority = patientTabSettings?.[secondTab.key]?.sortPriority || 0;
   return firstTabSortPriority - secondTabSortPriority;
 };
 
 const usePatientTabs = () => {
   const { ability } = useAuth();
   const { getSetting } = useSettings()
-  const patientTabLocalisation = getSetting('layouts.patientTabs');
+  const patientTabSettings = getSetting('layouts.patientTabs');
   return TABS.filter(
     tab =>
-      patientTabLocalisation?.[tab.key]?.hidden === false &&
+      patientTabSettings?.[tab.key]?.hidden === false &&
       (!tab.condition || tab.condition(ability)),
-  ).sort((firstTab, secondTab) => tabCompare({ firstTab, secondTab, patientTabLocalisation }));
+  ).sort((firstTab, secondTab) => tabCompare({ firstTab, secondTab, patientTabSettings }));
 };
 
 export const PatientView = () => {
