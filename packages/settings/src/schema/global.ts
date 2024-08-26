@@ -482,7 +482,7 @@ export const globalSettings = {
       },
     },
     layouts: {
-      description: 'Customise the order of tabs/buttons',
+      description: 'Customise the layout of modules',
       properties: {
         mobilePatientModules: {
           description: 'The homepage modules on mobile',
