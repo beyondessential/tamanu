@@ -4,7 +4,7 @@ import { ForbiddenError, NotFoundError } from '@tamanu/shared/errors';
 import { REFERENCE_TYPES, TASK_STATUSES } from '@tamanu/constants';
 import { z } from 'zod';
 
-export const taskRoutes = express.Router();
+const taskRoutes = express.Router();
 export { taskRoutes as tasks };
 
 /**
