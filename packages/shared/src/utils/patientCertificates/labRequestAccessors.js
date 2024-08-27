@@ -11,7 +11,7 @@ export const getTimeOfSwab = ({ sampleTime }) => {
 };
 
 export const getLaboratory = ({ laboratory }, _, getSetting) =>
-  (laboratory || {}).name || getSetting('templates.covidTestCertificate.laboratoryName');
+  laboratory?.name || getSetting('templates.covidTestCertificate.laboratoryName');
 
 export const getLabMethod = ({ labTestMethod }) => (labTestMethod || {}).name || 'Unknown';
 

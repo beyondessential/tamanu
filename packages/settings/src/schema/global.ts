@@ -6,6 +6,19 @@ import {
   layoutModuleProperties,
 } from './global-settings-properties/layouts';
 
+const thresholdsSchema = yup.array().of(
+  yup.object({
+    threshold: yup
+      .mixed()
+      .test(
+        'is-number-or-infinity',
+        'Threshold must be a number or -Infinity',
+        value => typeof value === 'number' || value === '-Infinity',
+      ),
+    status: yup.string().oneOf(Object.values(VACCINE_STATUS)),
+  }),
+);
+
 export const globalSettings = {
   properties: {
     features: {
@@ -213,12 +226,7 @@ export const globalSettings = {
         },
         thresholds: {
           description: '_',
-          schema: yup.array().of(
-            yup.object({
-              threshold: yup.number(),
-              status: yup.string(),
-            }),
-          ),
+          schema: thresholdsSchema,
           defaultValue: [
             {
               threshold: 28,
@@ -339,10 +347,10 @@ export const globalSettings = {
       },
     },
     templates: {
-      description: 'Strings to be inserted into emails/pdfs',
+      description: 'Strings to be inserted into emails/PDFs',
       properties: {
         letterhead: {
-          description: 'The text at the top of most patient pdfs',
+          description: 'The text at the top of most patient PDFs',
           properties: {
             title: {
               schema: yup.string(),
@@ -486,7 +494,12 @@ export const globalSettings = {
             },
           },
         },
-        plannedMoveTimeoutHours: { description: '_', schema: yup.number(), defaultValue: 24 },
+        plannedMoveTimeoutHours: {
+          description: '_',
+          schema: yup.number().positive(),
+          defaultValue: 24,
+          unit: 'hours',
+        },
       },
     },
     layouts: {
