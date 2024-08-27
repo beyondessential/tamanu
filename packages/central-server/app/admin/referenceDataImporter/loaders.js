@@ -5,7 +5,7 @@ import {
   ENCOUNTER_TYPES,
   VISIBILITY_STATUSES,
   PATIENT_FIELD_DEFINITION_TYPES,
-  REFERENCE_TYPES
+  REFERENCE_DATA_RELATION_TYPES,
 } from '@tamanu/constants';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -246,29 +246,39 @@ export function labTestPanelLoader(item) {
   return rows;
 }
 
-export const taskSetLoader = async (item, { models }) => {
-  const { id, tasks } = item;
-  const taskIds = tasks
+export const taskSetLoader = async (item, { models, pushError }) => {
+  const { id: taskSetId, tasks: taskIdsString } = item;
+  const taskIds = taskIdsString
     .split(',')
-    .map(task => task.trim())
+    .map(taskId => taskId.trim())
     .filter(Boolean);
 
-  // Remove any tasks that are not in taskset
+  const existingTaskIds = await models.ReferenceData.findAll({
+    where: { id: { [Op.in]: taskIds } },
+  }).then(tasks => tasks.map(({ id }) => id));
+  const nonExistentTaskIds = taskIds.filter(taskId => !existingTaskIds.includes(taskId));
+  if (nonExistentTaskIds.length > 0) {
+    pushError(`Tasks ${nonExistentTaskIds.join(', ')} not found`);
+  }
+
+  if (!existingTaskIds.length) return [];
+
+  // Remove any tasks that are not in task set
   await models.ReferenceDataRelation.destroy({
     where: {
-      referenceDataParentId: id,
-      type: REFERENCE_TYPES.TASK,
-      referenceDataId: { [Op.notIn]: tasks },
+      referenceDataParentId: taskSetId,
+      type: REFERENCE_DATA_RELATION_TYPES.TASK,
+      referenceDataId: { [Op.notIn]: taskIds },
     },
   });
 
-  // upsert tasks that are in taskset
-  const rows = taskIds.map(taskId => ({
+  // Upsert tasks that are in task set
+  const rows = existingTaskIds.map(taskId => ({
     model: 'ReferenceDataRelation',
     values: {
       referenceDataId: taskId,
-      referenceDataParentId: id,
-      type: REFERENCE_TYPES.TASK,
+      referenceDataParentId: taskSetId,
+      type: REFERENCE_DATA_RELATION_TYPES.TASK,
     },
   }));
 

@@ -63,6 +63,13 @@ export class ReferenceData extends Model {
       otherKey: 'referenceDataParentId',
     });
 
+    this.belongsToMany(this, {
+      as: 'children',
+      through: 'reference_data_relations',
+      foreignKey: 'referenceDataParentId',
+      otherKey: 'referenceDataId',
+    });
+
     this.hasOne(models.ImagingAreaExternalCode, {
       as: 'imagingAreaExternalCode',
       foreignKey: 'areaId',
