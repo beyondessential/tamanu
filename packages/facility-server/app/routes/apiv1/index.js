@@ -50,6 +50,7 @@ import { translation } from './translation';
 import { vaccinationSettings } from './vaccinationSettings';
 import { upcomingVaccinations } from './upcomingVaccinations';
 import { telegramRoutes } from './telegram/telegramRoutes';
+import { tasks } from './task/tasks';
 
 export const apiv1 = express.Router();
 const patientDataRoutes = express.Router();
@@ -138,6 +139,7 @@ patientDataRoutes.use('/surveyResponse', surveyResponse);
 patientDataRoutes.use('/surveyResponseAnswer', surveyResponseAnswer);
 patientDataRoutes.use('/triage', triage);
 patientDataRoutes.use('/vitals', vitals);
+patientDataRoutes.use('/tasks', tasks);
 
 // reference data endpoints
 referenceDataRoutes.use('/asset', asset);

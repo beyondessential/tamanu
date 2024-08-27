@@ -11,7 +11,7 @@ import { ISO9075_SQLITE_DEFAULT } from './columnDefaults';
 import { DateTimeStringColumn } from './DateColumns';
 import { Department } from './Department';
 
-const HIDDEN_STATUSES = ['deleted', 'entered-in-error', 'cancelled'];
+const HIDDEN_STATUSES = ['deleted', 'entered-in-error', 'cancelled', 'invalidated'];
 
 @Entity('labRequest')
 export class LabRequest extends BaseModel implements ILabRequest {
@@ -126,10 +126,12 @@ export class LabRequest extends BaseModel implements ILabRequest {
 
     // then create tests
     await Promise.all(
-      labTestTypeIds.map(labTestTypeId => LabTest.createAndSaveOne({
-        labTestType: labTestTypeId,
-        labRequest: labRequest.id,
-      })),
+      labTestTypeIds.map(labTestTypeId =>
+        LabTest.createAndSaveOne({
+          labTestType: labTestTypeId,
+          labRequest: labRequest.id,
+        }),
+      ),
     );
 
     return labRequest;

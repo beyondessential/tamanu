@@ -36,3 +36,4 @@ export * from './webSocket.js';
 export * from './enumRegistry.js';
 export * from './materializedView.js';
 export * from './database.js';
+export * from './tasks.js';

@@ -117,3 +117,9 @@ export * from './fhir';
 export * from './TranslatedString';
 
 export * from './IPSRequest';
+
+export * from './Task';
+export * from './TaskDesignation';
+export * from './TaskTemplate';
+export * from './TaskTemplateDesignation';
+export * from './UserDesignation';

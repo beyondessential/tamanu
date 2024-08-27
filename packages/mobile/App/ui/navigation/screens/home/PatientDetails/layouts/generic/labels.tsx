@@ -2,7 +2,6 @@ import React from 'react';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 import { ADDITIONAL_DATA_FIELDS } from '~/ui/helpers/additionalData';
 import { PATIENT_DATA_FIELDS } from '~/ui/helpers/patient';
-import { CAMBODIA_CUSTOM_FIELDS } from '../cambodia/fields';
 
 export const labels = {
   [PATIENT_DATA_FIELDS.FIRST_NAME]: (
@@ -143,32 +142,14 @@ export const labels = {
   [ADDITIONAL_DATA_FIELDS.NURSING_ZONE_ID]: (
     <TranslatedText stringId="general.localisedField.nursingZoneId.label" fallback="Nursing zone" />
   ),
-  [CAMBODIA_CUSTOM_FIELDS.NATIONAL_ID]: (
-    <TranslatedText stringId="cambodiaPatientDetails.nationalId" fallback="National ID" />
-  ),
-  [CAMBODIA_CUSTOM_FIELDS.ID_POOR_CARD_NUMBER]: (
-    <TranslatedText
-      stringId="cambodiaPatientDetails.idPoorCardNumber.label"
-      fallback="ID Poor Card Number"
-    />
-  ),
-  [CAMBODIA_CUSTOM_FIELDS.PMRS_NUMBER]: (
-    <TranslatedText stringId="cambodiaPatientDetails.pmrsNumber.label" fallback="PMRS Number" />
-  ),
-  [CAMBODIA_CUSTOM_FIELDS.FATHERS_FIRST_NAME]: (
-    <TranslatedText
-      stringId="cambodiaPatientDetails.fathersFirstName.label"
-      fallback="Father's first name"
-    />
-  ),
   secondaryDivisionId: (
-    <TranslatedText stringId="cambodiaPatientDetails.province.label" fallback="Province" />
+    <TranslatedText stringId="general.localisedField.province.label" fallback="Province" />
   ),
   secondarySubdivisionId: (
-    <TranslatedText stringId="cambodiaPatientDetails.district.label" fallback="District" />
+    <TranslatedText stringId="general.localisedField.district.label" fallback="District" />
   ),
   secondarySettlementId: (
-    <TranslatedText stringId="cambodiaPatientDetails.commune.label" fallback="Commune" />
+    <TranslatedText stringId="general.localisedField.commune.label" fallback="Commune" />
   ),
   secondaryVillageId: (
     <TranslatedText stringId="general.localisedField.villageId.label" fallback="Village" />
