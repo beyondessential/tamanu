@@ -263,6 +263,43 @@ const VISIBILITY_CRITERIA = {
   visibilityStatus: VISIBILITY_STATUSES.CURRENT,
 };
 
+createSuggester(
+  'multiReferenceData',
+  'ReferenceData',
+  (search, { types }) => ({
+    type: { [Op.in]: types },
+    name: { [Op.iLike]: search },
+    ...VISIBILITY_CRITERIA,
+  }),
+  {
+    mapper: ({ name, code, id, type }) => ({ name, code, id, type }),
+    creatingBodyBuilder: req => {
+      const { body } = req;
+      const { type, name } = body;
+      if (!name) {
+        throw new ValidationError('Name is required');
+      }
+
+      if (!type) {
+        throw new ValidationError('Type is required');
+      }
+
+      const code = `${camelCase(body.name)}-${customAlphabet(
+        '1234567890ABCDEFGHIJKLMNPQRSTUVWXYZ',
+        3,
+      )()}`;
+
+      return {
+        id: uuidv4(),
+        code,
+        type,
+        name,
+      };
+    },
+  },
+  true,
+);
+
 REFERENCE_TYPE_VALUES.forEach(typeName => {
   createSuggester(
     typeName,
