@@ -258,7 +258,7 @@ export const taskSetLoader = async (item, { models }) => {
   await models.ReferenceDataRelation.destroy({
     where: {
       referenceDataParentId: id,
-      type: REFERENCE_TYPES.TASK,
+      type: REFERENCE_TYPES.TASK_TEMPLATE,
       referenceDataId: { [Op.notIn]: tasks },
     },
   });
@@ -269,7 +269,7 @@ export const taskSetLoader = async (item, { models }) => {
     values: {
       referenceDataId: taskId,
       referenceDataParentId: id,
-      type: REFERENCE_TYPES.TASK,
+      type: REFERENCE_TYPES.TASK_TEMPLATE,
     },
   }));
 
@@ -321,7 +321,7 @@ export async function userLoader(item, { models, pushError }) {
   return rows;
 }
 
-export async function taskLoader(item, { models, pushError }) {
+export async function taskTemplateLoader(item, { models, pushError }) {
   const { id: taskId, assignedTo, taskFrequency, highPriority } = item;
   const rows = [];
 

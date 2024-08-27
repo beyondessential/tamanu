@@ -5,7 +5,7 @@ import {
   patientDataLoader,
   patientFieldDefinitionLoader,
   permissionLoader,
-  taskLoader,
+  taskTemplateLoader,
   taskSetLoader,
   translatedStringLoader,
   userLoader,
@@ -77,8 +77,8 @@ export default {
 
   referenceDataRelation: {},
 
-  [REFERENCE_TYPES.TASK]: {
-    loader: taskLoader
+  [REFERENCE_TYPES.TASK_TEMPLATE]: {
+    loader: taskTemplateLoader
   },
 
   [REFERENCE_TYPES.TASK_SET]: {

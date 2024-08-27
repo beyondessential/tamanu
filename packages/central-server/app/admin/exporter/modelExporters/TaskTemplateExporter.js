@@ -1,11 +1,12 @@
 import { REFERENCE_TYPES } from '@tamanu/constants';
 import { ReferenceDataExporter } from './ReferenceDataExporter';
 import ms from 'ms';
-export class TaskExporter extends ReferenceDataExporter {
+
+export class TaskTemplateExporter extends ReferenceDataExporter {
   async getData() {
     const tasks = await this.models.ReferenceData.findAll({
       where: {
-        type: REFERENCE_TYPES.TASK,
+        type: REFERENCE_TYPES.TASK_TEMPLATE,
       },
       include: {
         model: this.models.TaskTemplate,

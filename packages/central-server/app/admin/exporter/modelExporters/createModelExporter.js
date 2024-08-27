@@ -9,7 +9,7 @@ import { ReferenceDataExporter } from './ReferenceDataExporter';
 import { TranslatedStringExporter } from './TranslatedStringExporter';
 import { TaskSetExporter } from './TaskSetExporter';
 import { UserExporter } from './UserExporter';
-import { TaskExporter } from './TaskExporter';
+import { TaskTemplateExporter } from './TaskTemplateExporter';
 
 const CustomExportersByDataType = {
   permission: PermissionExporter,
@@ -19,7 +19,7 @@ const CustomExportersByDataType = {
   patientFieldDefinition: PatientFieldDefinitionExporter,
   translatedString: TranslatedStringExporter,
   user: UserExporter,
-  [REFERENCE_TYPES.TASK]: TaskExporter,
+  [REFERENCE_TYPES.TASK_TEMPLATE]: TaskTemplateExporter,
   [REFERENCE_TYPES.TASK_SET]: TaskSetExporter,
 };
 
