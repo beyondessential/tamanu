@@ -64,7 +64,7 @@ export async function exportProgram(context, programId) {
 
   sheets.push(metadataSheet);
 
-  const surveySheets = [];
+  let surveySheets = [];
   if (surveys.length) {
     const surveyRecords = await sequelize.query(
       `
@@ -96,51 +96,49 @@ export async function exportProgram(context, programId) {
     );
 
     const groupedSurveyRecords = groupBy(surveyRecords, 'survey_id');
-    surveys.forEach((survey, index) => {
-      surveySheets[index] = {
-        name: survey.code,
-        data: [
-          [
-            'code',
-            'type',
-            'name',
-            'text',
-            'detail',
-            'newScreen',
-            'options',
-            'optionLabels',
-            'optionColors',
-            'visibilityCriteria',
-            'validationCriteria',
-            'optionSet',
-            'questionLabel',
-            'detailLabel',
-            'calculation',
-            'config',
-            'visibilityStatus',
-          ],
-          ...groupedSurveyRecords[survey.id].map((s, i, a) => [
-            s.code,
-            s.type,
-            s.name,
-            s.text,
-            s.detail,
-            a[i - 1] && s.screen_index !== a[i - 1].screen_index ? 'yes' : '',
-            s.options,
-            '',
-            '',
-            s.visibility_criteria,
-            s.validation_criteria,
-            '',
-            '',
-            '',
-            s.calculation,
-            s.config,
-            s.visibility_status,
-          ]),
+    surveySheets = surveys.map(survey => ({
+      name: survey.code,
+      data: [
+        [
+          'code',
+          'type',
+          'name',
+          'text',
+          'detail',
+          'newScreen',
+          'options',
+          'optionLabels',
+          'optionColors',
+          'visibilityCriteria',
+          'validationCriteria',
+          'optionSet',
+          'questionLabel',
+          'detailLabel',
+          'calculation',
+          'config',
+          'visibilityStatus',
         ],
-      };
-    });
+        ...groupedSurveyRecords[survey.id].map((s, i, a) => [
+          s.code,
+          s.type,
+          s.name,
+          s.text,
+          s.detail,
+          a[i - 1] && s.screen_index !== a[i - 1].screen_index ? 'yes' : '',
+          s.options,
+          '',
+          '',
+          s.visibility_criteria,
+          s.validation_criteria,
+          '',
+          '',
+          '',
+          s.calculation,
+          s.config,
+          s.visibility_status,
+        ]),
+      ],
+    }));
   }
 
   sheets.push(...surveySheets);
