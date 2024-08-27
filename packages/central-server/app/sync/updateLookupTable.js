@@ -3,7 +3,7 @@ import { log } from '@tamanu/shared/services/logging/log';
 import { withConfig } from '@tamanu/shared/utils/withConfig';
 import { buildSyncLookupSelect } from '@tamanu/shared/sync';
 
-export const updateLookupTableForModel = async (model, config, since, sessionConfig) => {
+export const updateLookupTableForModel = async (model, config, since, sessionConfig, currentTick) => {
   const CHUNK_SIZE = config.sync.maxRecordsPerSnapshotChunk;
   const { perModelUpdateTimeoutMs } = config.sync.lookupTable;
 
@@ -85,6 +85,7 @@ export const updateLookupTableForModel = async (model, config, since, sessionCon
           limit: CHUNK_SIZE,
           fromId,
           perModelUpdateTimeoutMs,
+          updatedAtSyncTick: currentTick
         },
       },
     );
@@ -97,7 +98,7 @@ export const updateLookupTableForModel = async (model, config, since, sessionCon
   return totalCount;
 };
 
-export const updateLookupTable = withConfig(async (outgoingModels, since, config) => {
+export const updateLookupTable = withConfig(async (outgoingModels, since, config, currentTick) => {
   const invalidModelNames = Object.values(outgoingModels)
     .filter(
       m =>
@@ -124,6 +125,7 @@ export const updateLookupTable = withConfig(async (outgoingModels, since, config
         config,
         since,
         sessionConfig,
+        currentTick,
       );
 
       changesCount += modelChangesCount || 0;
