@@ -169,7 +169,7 @@ export const PatientLabTestsTable = React.memo(
         ),
         accessor: row => {
           const range = row.normalRanges[patient?.sex];
-          const value = !range.min ? '-' : `${range.min}-${range.max}`;
+          const value = !range.min ? '–' : `${range.min}–${range.max}`; // en dash
           return <CategoryCell>{value}</CategoryCell>;
         },
         sortable: false,
@@ -199,11 +199,11 @@ export const PatientLabTestsTable = React.memo(
               );
             }
 
-            return <StyledButton disabled>-</StyledButton>;
+            return <StyledButton disabled>&mdash;</StyledButton>;
           },
           exportOverrides: {
             title: `${getTitle(date)}`,
-            accessor: row => row.results[date]?.result || '-',
+            accessor: row => row.results[date]?.result || '—', // em dash
           },
         })),
     ];
