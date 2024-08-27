@@ -2,9 +2,9 @@ import * as yup from 'yup';
 import { extractDefaults } from './utils';
 
 export const facilitySettings = {
-  values: {
+  properties: {
     templates: {
-      values: {
+      properties: {
         letterhead: {
           name: 'Letterhead',
           description: '_',
