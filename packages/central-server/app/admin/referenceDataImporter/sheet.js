@@ -106,15 +106,15 @@ export async function importSheet({ errors, log, models }, { loader, sheetName, 
       for (const { model, values } of await loader(trimmed, {
         models,
         foreignKeySchemata: FOREIGN_KEY_SCHEMATA,
-        pushError: (message) => errors.push(new ValidationError(sheetName, sheetRow, message)),
+        pushError: message => errors.push(new ValidationError(sheetName, sheetRow, message)),
       })) {
         if (!models[model]) throw new Error(`No such type of data: ${model}`);
 
-        if (values.id && idCache.has(values.id)) {
+        if (values.id && idCache.has(`${model}|${values.id}`)) {
           errors.push(new ValidationError(sheetName, sheetRow, `duplicate id: ${values.id}`));
           continue;
         } else {
-          idCache.add(values.id);
+          idCache.add(`${model}|${values.id}`);
         }
 
         updateStat(stats, statkey(model, sheetName), 'created', 0);

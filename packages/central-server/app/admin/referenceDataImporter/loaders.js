@@ -8,6 +8,7 @@ import {
   REFERENCE_DATA_RELATION_TYPES,
 } from '@tamanu/constants';
 import { v4 as uuidv4 } from 'uuid';
+import ms from 'ms';
 
 function stripNotes(fields) {
   const values = { ...fields };
@@ -297,14 +298,16 @@ export async function userLoader(item, { models, pushError }) {
     },
   });
 
-  if (id) {
-    await models.UserDesignation.destroy({ where: { userId: id } });
-  }
-
   const designationIds = (designations || '')
     .split(',')
     .map(d => d.trim())
     .filter(Boolean);
+
+  if (id) {
+    await models.UserDesignation.destroy({
+      where: { userId: id, designationId: { [Op.notIn]: designationIds } },
+    });
+  }
 
   for (const designation of designationIds) {
     const existingData = await models.ReferenceData.findByPk(designation);
@@ -319,9 +322,71 @@ export async function userLoader(item, { models, pushError }) {
     rows.push({
       model: 'UserDesignation',
       values: {
-        id: uuidv4(),
         userId: id,
         designationId: designation,
+      },
+    });
+  }
+
+  return rows;
+}
+
+export async function taskTemplateLoader(item, { models, pushError }) {
+  const { id: taskId, assignedTo, taskFrequency, highPriority } = item;
+  const rows = [];
+
+  let frequencyValue, frequencyUnit;
+  if (taskFrequency?.trim()) {
+    try {
+      const result = ms(ms(taskFrequency), { long: true });
+      frequencyValue = result.split(' ')[0];
+      frequencyUnit = result.split(' ')[1];
+    } catch (e) {
+      pushError(`Invalid task frequency ${taskFrequency}: ${e.message}`);
+    }
+  }
+
+  let existingTaskTemplate;
+  if (taskId) {
+    existingTaskTemplate = await models.TaskTemplate.findOne({
+      where: { referenceDataId: taskId },
+    });
+  }
+
+  const newTaskTemplate = {
+    id: existingTaskTemplate?.id || uuidv4(),
+    referenceDataId: taskId,
+    frequencyValue,
+    frequencyUnit,
+    highPriority,
+  };
+  rows.push({
+    model: 'TaskTemplate',
+    values: newTaskTemplate,
+  });
+
+  const designationIds = (assignedTo || '')
+    .split(',')
+    .map(d => d.trim())
+    .filter(Boolean);
+
+  await models.TaskTemplateDesignation.destroy({
+    where: { taskTemplateId: newTaskTemplate.id, designationId: { [Op.notIn]: designationIds } },
+  });
+
+  const existingDesignationIds = await models.ReferenceData.findByIds(
+    designationIds,
+  ).then(designations => designations.map(d => d.id));
+  for (const designationId of designationIds) {
+    if (!existingDesignationIds.includes(designationId)) {
+      pushError(`Designation "${designationId}" does not exist`);
+      continue;
+    }
+    rows.push({
+      model: 'TaskTemplateDesignation',
+      values: {
+        taskTemplateId: newTaskTemplate.id,
+        designationId,
       },
     });
   }
