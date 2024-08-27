@@ -1,0 +1,16 @@
+---
+schema: public
+name: patient_issues
+transformers:
+  - name: Masking
+    params:
+      column: note
+
+  - name: Template
+    params:
+      column: recorded_date
+      template: '{{- fakerTimestamp -}}'
+
+  - name: SetNull
+    params:
+      column: recorded_date_legacy

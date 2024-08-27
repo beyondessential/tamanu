@@ -1,0 +1,30 @@
+---
+schema: public
+name: patient_conditions
+transformers:
+  - name: Masking
+    params:
+      column: note
+
+  - name: Template
+    params:
+      column: recorded_date
+      template: '{{- fakerTimestamp -}}'
+
+  - name: Template
+    params:
+      column: resolution_date
+      template: >
+        {{- if isNull .GetValue -}}
+          {{- null -}}
+        {{- else -}}
+          {{- fakerTimestamp -}}
+        {{- end -}}
+
+  - name: Masking
+    params:
+      column: resolution_note
+
+  - name: SetNull
+    params:
+      column: recorded_date_legacy

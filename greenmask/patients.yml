@@ -12,22 +12,27 @@ transformers:
   - name: RandomFirstName
     params:
       column: first_name
+      keep_null: true
 
   - name: RandomLastName
     params:
       column: last_name
+      keep_null: true
 
   - name: RandomFirstName
     params:
       column: middle_name
+      keep_null: true
 
   - name: RandomFirstName
     params:
       column: cultural_name
+      keep_null: true
 
   - name: RandomEmail
     params:
       column: email
+      keep_null: true
 
   - name: Template
     params:
@@ -59,4 +64,3 @@ transformers:
   - name: SetNull
     params:
       column: date_of_death_legacy
-

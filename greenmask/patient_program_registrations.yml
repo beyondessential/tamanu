@@ -1,0 +1,13 @@
+---
+schema: public
+name: patient_program_registrations
+transformers:
+  - name: Template
+    params:
+      column: date
+      template: >
+        {{- if isNull .GetValue -}}
+          {{- null -}}
+        {{- else -}}
+          {{- fakerTimestamp -}}
+        {{- end -}}
