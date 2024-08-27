@@ -593,4 +593,125 @@ describe('snapshotOutgoingChanges', () => {
       [imagingRequest1Id, labRequest1Id, labRequest2Id, settings1Id].sort(),
     );
   });
+
+  it('returns only the records of the specified model type', async () => {
+    const patientData = createDummyPatient(models);
+    const patient = await models.Patient.create(patientData);
+    await models.PatientFacility.create({
+      patientId: patient.id,
+      facilityId: facility.id,
+    });
+
+    const fullSyncPatientsTable = await createMarkedForSyncPatientsTable(
+      ctx.store.sequelize,
+      sessionId,
+      true,
+      facility.id,
+      tock - 1,
+    );
+
+    const imagingRequest1Id = fakeUUID();
+    const imagingRequest2Id = fakeUUID();
+    const labRequest1Id = fakeUUID();
+    const labRequest2Id = fakeUUID();
+    const settings1Id = fakeUUID();
+    const settings2Id = fakeUUID();
+
+    await models.SyncLookup.bulkCreate([
+      fake(models.SyncLookup, {
+        recordId: imagingRequest1Id,
+        recordType: 'imaging_requests',
+        patientId: patient.id,
+        facilityId: null,
+        encounterId: null,
+        isLabRequest: false,
+        data: { test: 'test' },
+        updatedAtByFieldSum: 1,
+        updatedAtSyncTick: 10,
+      }),
+      fake(models.SyncLookup, {
+        recordId: imagingRequest2Id,
+        recordType: 'imaging_requests',
+        patientId: 'some other patients', // should not return
+        facilityId: null,
+        encounterId: null,
+        isLabRequest: false,
+        data: { test: 'test' },
+        updatedAtByFieldSum: 1,
+        updatedAtSyncTick: 10,
+      }),
+      fake(models.SyncLookup, {
+        recordId: labRequest1Id,
+        recordType: 'lab_requests',
+        patientId: null,
+        facilityId: null,
+        encounterId: null,
+        isLabRequest: true,
+        data: { test: 'test' },
+        updatedAtByFieldSum: 1,
+        updatedAtSyncTick: 10,
+      }),
+      fake(models.SyncLookup, {
+        recordId: labRequest2Id,
+        recordType: 'lab_requests',
+        patientId: null,
+        facilityId: null,
+        encounterId: null,
+        isLabRequest: true,
+        data: { test: 'test' },
+        updatedAtByFieldSum: 1,
+        updatedAtSyncTick: 10,
+      }),
+      fake(models.SyncLookup, {
+        recordId: settings1Id,
+        recordType: 'settings',
+        patientId: null,
+        facilityId: facility.id,
+        encounterId: null,
+        isLabRequest: false,
+        data: { test: 'test' },
+        updatedAtByFieldSum: 1,
+        updatedAtSyncTick: 10,
+      }),
+      fake(models.SyncLookup, {
+        recordId: settings2Id,
+        recordType: 'settings',
+        patientId: null,
+        facilityId: 'some other facility', // should not return
+        encounterId: null,
+        isLabRequest: false,
+        data: { test: 'test' },
+        updatedAtByFieldSum: 1,
+        updatedAtSyncTick: 10,
+      }),
+    ]);
+
+    await snapshotOutgoingChanges(
+      ctx.store,
+      {
+        ImagingRequest: models.ImagingRequest,
+        Setting: models.Setting,
+        // No LabRequest here
+      },
+      1,
+      1,
+      fullSyncPatientsTable,
+      sessionId,
+      facility.id,
+      {
+        syncAllLabRequests: true,
+        isMobile: false,
+      },
+      simplestConfig,
+    );
+
+    const outgoingSnapshotRecords = await findSyncSnapshotRecords(
+      ctx.store.sequelize,
+      sessionId,
+      SYNC_SESSION_DIRECTION.OUTGOING,
+    );
+    expect(outgoingSnapshotRecords.map(r => r.recordId).sort()).toEqual(
+      [imagingRequest1Id, settings1Id].sort(),
+    );
+  });
 });

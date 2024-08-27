@@ -152,6 +152,7 @@ export class SurveyResponse extends Model {
         endTime: dateTimeType('endTime', { allowNull: true }),
         result: { type: Sequelize.FLOAT, allowNull: true },
         resultText: { type: Sequelize.TEXT, allowNull: true },
+        notified: { type: Sequelize.BOOLEAN, allowNull: true }, // null is not notified, false is notified but not yet processed, true is processed
       },
       {
         syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
@@ -311,6 +312,7 @@ export class SurveyResponse extends Model {
       // this is used by reports test where the resultText
       // is included in the payload
       ...responseData,
+      notified: responseData?.endTime && survey?.notifiable ? false : null,
     });
 
     const findDataElement = id => {

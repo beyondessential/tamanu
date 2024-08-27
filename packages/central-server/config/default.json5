@@ -145,6 +145,12 @@
       "batchSize": 1000,
       "batchSleepAsyncDurationInMilliseconds": 50
     },
+    "surveyCompletionNotifierProcessor": {
+      "enabled": true,
+      // every 30seconds /!\
+      "schedule": "*/30 * * * * *",
+      "limit": 100
+    },
     "patientEmailCommunicationProcessor": {
       // every 30seconds /!\
       "schedule": "*/30 * * * * *",
@@ -784,8 +790,8 @@
           "longLabel": "Conditions"
         },
         "programRegistry": {
-          "shortLabel": "Program Registry",
-          "longLabel": "Program Registry"
+          "shortLabel": "Program registry",
+          "longLabel": "Program registry"
         },
         "reminderContactName":{
           "shortLabel": "Contact name",
