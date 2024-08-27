@@ -334,7 +334,7 @@ const MODEL_SPECIFIC_OVERRIDES = {
       emergencyContactName: chance.name(),
       emergencyContactNumber: chance.phone(),
       secondaryVillageId: null,
-      updatedAtByField: {},
+      updatedAtByField: null, // this is to allow the trigger to properly populate it
     };
   },
   PatientFacility: ({ patientId = fakeUUID(), facilityId = fakeUUID() }) => {
@@ -370,6 +370,7 @@ const MODEL_SPECIFIC_OVERRIDES = {
   }),
   Survey: () => ({
     isSensitive: false,
+    notifyEmailAddresses: [],
   }),
   SurveyScreenComponent: () => ({
     calculation: null,

@@ -1,4 +1,5 @@
 import * as XLSX from 'xlsx';
+
 const stringifyIfNonDateObject = val =>
   typeof val === 'object' && !(val instanceof Date) && val !== null ? JSON.stringify(val) : val;
 
@@ -18,7 +19,7 @@ export function prepareExcelFile({ data, metadata, defaultFileName = '', bookTyp
   const xlsxDataArray = XLSX.write(book, { bookType, type: 'buffer' });
   return {
     defaultFileName,
-    data: xlsxDataArray,
+    getData: () => xlsxDataArray,
     extension: bookType,
   };
 }
