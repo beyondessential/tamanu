@@ -9,6 +9,19 @@ import {
   patientDetailsFieldProperties,
 } from './global-settings-properties/fields';
 
+const thresholdsSchema = yup.array().of(
+  yup.object({
+    threshold: yup
+      .mixed()
+      .test(
+        'is-number-or-infinity',
+        'Threshold must be a number or -Infinity',
+        value => typeof value === 'number' || value === '-Infinity',
+      ),
+    status: yup.string().oneOf(Object.values(VACCINE_STATUS)),
+  }),
+);
+
 export const globalSettings = {
   title: 'Global settings',
   description: 'Settings that apply to all servers',
@@ -91,12 +104,7 @@ export const globalSettings = {
         thresholds: {
           name: 'Upcoming vaccination thresholds',
           description: '_',
-          schema: yup.array().of(
-            yup.object({
-              threshold: yup.number(),
-              status: yup.string(),
-            }),
-          ),
+          schema: thresholdsSchema,
           defaultValue: [
             {
               threshold: 28,

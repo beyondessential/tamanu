@@ -15,6 +15,7 @@ import { useApi } from '../../../api';
 import { notifySuccess, notifyError } from '../../../utils';
 import { ErrorMessage } from '../../../components/ErrorMessage';
 import { TranslatedText } from '../../../components/Translation';
+import { ValidationError } from 'yup';
 
 const StyledTopBar = styled(TopBar)`
   padding: 0;
@@ -79,7 +80,6 @@ export const SettingsView = React.memo(() => {
       JSON.parse(settingsEditString);
     } catch (error) {
       notifyError(`Invalid JSON: ${error}`);
-      console.log(error);
       setJsonError(error);
       return;
     }
@@ -97,7 +97,13 @@ export const SettingsView = React.memo(() => {
       await refetchSettings();
       turnOffEditMode();
     } catch (error) {
-      notifyError(`Error while saving settings: ${error.message}`);
+      if (error instanceof ValidationError) {
+        error?.inner?.forEach(e => {
+          notifyError(e.message);
+        });
+      } else {
+        notifyError(`Error while saving settings: ${error.message}`);
+      }
     }
   };
 
