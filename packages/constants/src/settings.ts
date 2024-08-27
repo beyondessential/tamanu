@@ -7,6 +7,10 @@ export const SETTING_KEYS = {
   SLIDING_FEE_SCALE: 'invoice.slidingFeeScale',
   INSURER_DEFAUlT_CONTRIBUTION: 'insurer.defaultContribution',
   CUSTOMISATIONS_COMPONENTS: 'customisations.componentVersions',
+  SYNC_ALL_LAB_REQUESTS: 'sync.syncAllLabRequests',
+  SYNC_THESE_PROGRAM_REGISTRIES: 'sync.syncTheseProgramRegistries',
+  SYNC_URGENT_INTERVAL_IN_SECONDS: 'sync.urgentIntervalInSeconds',
+  INTEGRATIONS_IMAGING: 'integrations.imaging',
 };
 
 export const SETTINGS_SCOPES = {

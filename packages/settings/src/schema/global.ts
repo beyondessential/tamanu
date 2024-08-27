@@ -69,6 +69,12 @@ export const globalSettings = {
               schema: yup.boolean(),
               defaultValue: false,
             },
+            provider: {
+              name: 'Imaging provider',
+              description: '_',
+              schema: yup.string(),
+              defaultValue: '',
+            },
           },
         },
       },
