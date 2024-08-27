@@ -335,10 +335,10 @@ export const globalSettings = {
       },
     },
     templates: {
-      description: 'Strings to be inserted into emails/pdfs',
+      description: 'Strings to be inserted into emails/PDFs',
       properties: {
         letterhead: {
-          description: 'The text at the top of most patient pdfs',
+          description: 'The text at the top of most patient PDFs',
           properties: {
             title: {
               schema: yup.string(),
