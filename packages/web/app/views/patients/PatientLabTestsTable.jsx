@@ -169,7 +169,9 @@ export const PatientLabTestsTable = React.memo(
         ),
         accessor: row => {
           const range = row.normalRanges[patient?.sex];
-          const value = !range.min ? '—' /* em dash */ : `${range.min}–${range.max}`; /* en dash */
+          const value = !range.min
+            ? '—' // em dash
+            : `${range.min}–${range.max}`; // en dash
           return <CategoryCell>{value}</CategoryCell>;
         },
         sortable: false,
