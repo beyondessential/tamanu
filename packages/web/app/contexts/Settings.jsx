@@ -13,7 +13,7 @@ export const useSettings = () => {
 };
 
 export const SettingsProvider = ({ children }) => {
-  const [settings, setSettings] = useState(null);
+  const [settings, setSettings] = useState({});
   const reduxSettings = useSelector(state => state.auth.settings);
 
   useEffect(() => {
