@@ -19,6 +19,19 @@ const DURATION_STRING = yup
     /^(-?(?:\d+)?\.?\d+) *(milliseconds?|msecs?|ms|seconds?|secs?|s|minutes?|mins?|m|hours?|hrs?|h|days?|d|weeks?|w|years?|yrs?|y)?$/i,
   );
 
+const thresholdsSchema = yup.array().of(
+  yup.object({
+    threshold: yup
+      .mixed()
+      .test(
+        'is-number-or-infinity',
+        'Threshold must be a number or -Infinity',
+        value => typeof value === 'number' || value === '-Infinity',
+      ),
+    status: yup.string().oneOf(Object.values(VACCINE_STATUS)),
+  }),
+);
+
 export const globalSettings = {
   values: {
     ageDisplayFormat: {
@@ -112,12 +125,7 @@ export const globalSettings = {
         thresholds: {
           name: 'Upcoming vaccination thresholds',
           description: '_',
-          schema: yup.array().of(
-            yup.object({
-              threshold: yup.number(),
-              status: yup.string(),
-            }),
-          ),
+          schema: thresholdsSchema,
           defaultValue: [
             {
               threshold: 28,

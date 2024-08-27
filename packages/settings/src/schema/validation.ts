@@ -7,11 +7,6 @@ import _ from 'lodash';
 import { SettingsSchema } from './types';
 import { isSetting } from './utils';
 
-interface ErrorMessage {
-  field: string;
-  message: string;
-}
-
 const SCOPE_TO_SCHEMA = {
   [SETTINGS_SCOPES.GLOBAL]: globalSettings,
   [SETTINGS_SCOPES.CENTRAL]: centralSettings,
@@ -32,24 +27,21 @@ const flattenSettings = (obj: Record<string, any>, parentKey: string = ''): Reco
   }, {} as Record<string, any>);
 };
 
-const flattenSchema = (schema: SettingsSchema, parentKey: string = ''): Record<string, any> => {
+const flattenSchema = (
+  schema: SettingsSchema,
+  parentKey: string = '',
+): Record<string, yup.AnySchema> => {
   return Object.entries(schema.values).reduce((acc, [key, value]) => {
     const fullKey = parentKey ? `${parentKey}.${key}` : key;
 
     if (isSetting(value)) {
-      acc[fullKey] = { schema: value.schema };
+      acc[fullKey] = value.schema;
     } else {
       Object.assign(acc, flattenSchema(value as SettingsSchema, fullKey));
     }
 
     return acc;
-  }, {} as Record<string, any>);
-};
-
-const constructErrorMessage = (errors: ErrorMessage[]) => {
-  return `Validation failed for the following fields: ${errors.map(
-    e => `${e.field}: ${e.message}`,
-  )}`;
+  }, {} as Record<string, yup.AnySchema>);
 };
 
 export const validateSettings = async ({
@@ -69,30 +61,10 @@ export const validateSettings = async ({
 
   const flattenedSettings = flattenSettings(settings);
   const flattenedSchema = flattenSchema(schema);
+  const yupSchema = yup
+    .object()
+    .shape(flattenedSchema)
+    .noUnknown();
 
-  const errors: ErrorMessage[] = [];
-
-  for (const [key, value] of Object.entries(flattenedSettings)) {
-    const schemaEntry = flattenedSchema[key]?.schema;
-
-    if (!schemaEntry) {
-      console.warn(`Unknown setting: ${key}`);
-      continue;
-    }
-
-    try {
-      await schemaEntry.validate(value);
-    } catch (error) {
-      if (error instanceof yup.ValidationError) {
-        errors.push({ field: key, message: error.message });
-        continue;
-      } else {
-        throw error;
-      }
-    }
-  }
-
-  if (errors.length) {
-    throw new Error(constructErrorMessage(errors));
-  }
+  await yupSchema.validate(flattenedSettings, { abortEarly: false, strict: true });
 };
