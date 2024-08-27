@@ -1,18 +1,10 @@
 import { validateSettings, globalDefaults, centralDefaults, facilityDefaults } from '../dist/mjs';
 import { extractDefaults } from '../dist/cjs/schema/utils';
 import * as yup from 'yup';
+import { fail } from 'assert';
+import { VACCINE_STATUS } from '@tamanu/constants';
 
 describe('Schemas', () => {
-  let warnSpy;
-
-  beforeEach(() => {
-    warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
-  });
-
-  afterEach(() => {
-    jest.restoreAllMocks();
-  });
-
   describe('Extracting settings from schema', () => {
     it('Should extract settings from a schema', () => {
       const schema = {
@@ -111,23 +103,23 @@ describe('Schemas', () => {
           thresholds: [
             {
               threshold: 28,
-              status: 'scheduled',
+              status: VACCINE_STATUS.SCHEDULED,
             },
             {
               threshold: 7,
-              status: 'upcoming',
+              status: VACCINE_STATUS.UPCOMING,
             },
             {
               threshold: -7,
-              status: 'due',
+              status: VACCINE_STATUS.DUE,
             },
             {
               threshold: -55,
-              status: 'overdue',
+              status: VACCINE_STATUS.OVERDUE,
             },
             {
               threshold: '-Infinity',
-              status: 'missed',
+              status: VACCINE_STATUS.MISSED,
             },
           ],
         },
@@ -139,7 +131,6 @@ describe('Schemas', () => {
       await expect(
         validateSettings({ settings: validSettings, scope: 'global' }),
       ).resolves.not.toThrow();
-      expect(warnSpy).not.toHaveBeenCalled();
     });
 
     it('Should throw error for invalid settings', async () => {
@@ -156,8 +147,7 @@ describe('Schemas', () => {
 
       await expect(
         validateSettings({ settings: invalidSettings, scope: 'global' }),
-      ).rejects.toThrow(/Validation failed for the following fields/);
-      expect(warnSpy).not.toHaveBeenCalled();
+      ).rejects.toThrow(yup.ValidationError);
     });
 
     it('Should warn for unknown fields', async () => {
@@ -178,17 +168,24 @@ describe('Schemas', () => {
         d: 'value',
       };
 
-      await validateSettings({ settings: unknownSettings, scope: 'global' });
+      try {
+        await validateSettings({ settings: unknownSettings, scope: 'global' });
+        fail('Expected validation to throw an error');
+      } catch (error) {
+        expect(error).toBeInstanceOf(yup.ValidationError);
 
-      expect(warnSpy).toHaveBeenCalledWith('Unknown setting: a.b.c');
-      expect(warnSpy).toHaveBeenCalledWith('Unknown setting: d');
+        if (error instanceof yup.ValidationError) {
+          const errorTypes = error.inner.map(err => err.type);
+          expect(errorTypes.length).toBe(1);
+          expect(errorTypes).toContain('noUnknown');
+        }
+      }
     });
 
     it('Should validate itself', async () => {
       await expect(
         validateSettings({ settings: globalDefaults, scope: 'global' }),
       ).resolves.not.toThrow();
-      expect(warnSpy).not.toHaveBeenCalled();
     });
   });
 
@@ -201,7 +198,6 @@ describe('Schemas', () => {
       await expect(
         validateSettings({ settings: centralDefaults, scope: 'central' }),
       ).resolves.not.toThrow();
-      expect(warnSpy).not.toHaveBeenCalled();
     });
   });
 
@@ -217,7 +213,6 @@ describe('Schemas', () => {
       await expect(
         validateSettings({ settings: validSettings, scope: 'facility' }),
       ).resolves.not.toThrow();
-      expect(warnSpy).not.toHaveBeenCalled();
     });
 
     it('Should throw error for invald settings', async () => {
@@ -236,8 +231,7 @@ describe('Schemas', () => {
 
       await expect(
         validateSettings({ settings: invalidSettings, scope: 'facility' }),
-      ).rejects.toThrow(/Validation failed for the following fields/);
-      expect(warnSpy).not.toHaveBeenCalled();
+      ).rejects.toThrow(yup.ValidationError);
     });
 
     it('Should warn for unknown fields', async () => {
@@ -254,19 +248,24 @@ describe('Schemas', () => {
         unknownField: 'value',
       };
 
-      await validateSettings({ settings: unknownSettings, scope: 'facility' });
+      try {
+        await validateSettings({ settings: unknownSettings, scope: 'facility' });
+        fail('Expected validation to throw an error');
+      } catch (error) {
+        expect(error).toBeInstanceOf(yup.ValidationError);
 
-      expect(warnSpy).toHaveBeenCalledWith(
-        expect.stringContaining('Unknown setting: unknownField'),
-      );
-      expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('Unknown setting: a.b.c'));
+        if (error instanceof yup.ValidationError) {
+          const errorTypes = error.inner.map(err => err.type);
+          expect(errorTypes.length).toBe(1);
+          expect(errorTypes).toContain('noUnknown');
+        }
+      }
     });
 
     it('Should validate itself', async () => {
       await expect(
         validateSettings({ settings: facilityDefaults, scope: 'facility' }),
       ).resolves.not.toThrow();
-      expect(warnSpy).not.toHaveBeenCalled();
     });
   });
 
@@ -285,10 +284,7 @@ describe('Schemas', () => {
         a: null,
       };
 
-      await expect(validateSettings({ settings, schema })).rejects.toThrow(
-        /Validation failed for the following fields/,
-      );
-      expect(warnSpy).not.toHaveBeenCalled();
+      await expect(validateSettings({ settings, schema })).rejects.toThrow(yup.ValidationError);
     });
   });
 
@@ -307,7 +303,6 @@ describe('Schemas', () => {
     };
 
     await expect(validateSettings({ settings, schema })).resolves.not.toThrow();
-    expect(warnSpy).not.toHaveBeenCalled();
   });
 
   it('Should work with arrays of objects', async () => {
@@ -329,6 +324,5 @@ describe('Schemas', () => {
     };
 
     await expect(validateSettings({ settings, schema })).resolves.not.toThrow();
-    expect(warnSpy).not.toHaveBeenCalled();
   });
 });
