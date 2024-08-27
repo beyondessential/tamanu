@@ -117,6 +117,9 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
   @Column({ default: '', nullable: true })
   resultText?: string;
 
+  @Column({ nullable: true })
+  notified?: boolean;
+
   @ManyToOne(
     () => Survey,
     survey => survey.responses,
@@ -177,6 +180,9 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
     return getConnection().transaction(async () => {
       const { surveyId, encounterReason, components, ...otherData } = surveyData;
 
+      const survey = await Survey.findOne({ id: surveyId });
+      if (!survey) throw new Error(`Survey with id ${surveyId} not found`);
+
       try {
         setNote('Creating encounter...');
         const encounter = await Encounter.getOrCreateCurrentEncounter(patientId, userId, {
@@ -200,6 +206,7 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
           result,
           resultText,
           ...otherData,
+          notified: survey.notifiable ? false : undefined,
         });
 
         setNote('Attaching answers...');

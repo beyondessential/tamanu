@@ -33,6 +33,10 @@ export class EmailService {
       apiKey && domain ? mailgun.client({ username: 'api', key: apiKey }) : null;
   }
 
+  /**
+   *
+   * @param {import('mailgun.js/interfaces/Messages').MailgunMessageData} param0
+   */
   async sendEmail({ attachment: untypedAttachment, ...email }) {
     // no mailgun service, unable to send email
     if (!this.mailgunService) {
