@@ -16,7 +16,7 @@ const taskCompletionInputSchema = z.object({
   completedTime: z.string().datetime(),
   completedNote: z.string().optional(),
 });
-taskRoutes.post(
+taskRoutes.put(
   '/:taskId/completed',
   asyncHandler(async (req, res) => {
     req.checkPermission('write', 'Task');
@@ -46,7 +46,7 @@ const taskNonCompletionInputSchema = z.object({
   notCompletedTime: z.string().datetime(),
   notCompletedReasonId: z.string().optional(),
 });
-taskRoutes.post(
+taskRoutes.put(
   '/:taskId/notCompleted',
   asyncHandler(async (req, res) => {
     req.checkPermission('write', 'Task');
