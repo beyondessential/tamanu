@@ -1,0 +1,12 @@
+---
+schema: public
+name: invoice_items
+transformers:
+  - name: Template
+    params:
+      column: order_date
+      template: '{{- fakerDate -}}'
+
+  - name: Masking
+    params:
+      column: note

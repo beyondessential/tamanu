@@ -1,0 +1,8 @@
+---
+schema: public
+name: invoice_payments
+transformers:
+  - name: Template
+    params:
+      column: date
+      template: '{{- fakerDate -}}'
