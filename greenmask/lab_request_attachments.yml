@@ -1,0 +1,7 @@
+---
+schema: public
+name: lab_request_attachments
+transformers:
+  - name: Masking
+    params:
+      column: title
