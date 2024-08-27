@@ -5,7 +5,7 @@ set -euxo pipefail
 ttregex='stringId="([^"]*)"\s*?fallback="([^"]*)'
 gtregex="getTranslation\(\s*?[\"'](.*?)[\"'],.*?[\"'](.*?)[\"'].*?\)"
 
-# Get all translated string data from TranslatedText, getTranslatedString and enums.
+# Get all translated string data from registered enums, TranslatedText and getTranslatedString.
 teoutput=$(npx tsx packages/constants/scripts/printTranslatedEnums.ts)
 ttoutput=$(rg -PINU --multiline-dotall "$ttregex" -or '"$1","$2"' -g "*.{ts,tsx,js,jsx}" ./packages \
     | rg --multiline-dotall --passthru -U '\n\s*\b' -r '' )
