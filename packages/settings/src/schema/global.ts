@@ -380,7 +380,7 @@ export const globalSettings = {
           },
         },
         vaccineCertificateEmail: {
-          description: 'The patient vaccine certificate',
+          description: 'The email containing patient vaccine certificate',
           properties: {
             subject: {
               schema: yup
@@ -400,7 +400,7 @@ export const globalSettings = {
           },
         },
         covidVaccineCertificateEmail: {
-          description: 'The covid patient vaccine certificate',
+          description: 'The email containing covid patient vaccine certificate',
           properties: {
             subject: {
               schema: yup
@@ -420,7 +420,7 @@ export const globalSettings = {
           },
         },
         covidTestCertificateEmail: {
-          description: '_',
+          description: 'Email with certificate containing the list of covid tests for this patient',
           properties: {
             subject: {
               schema: yup
@@ -440,7 +440,7 @@ export const globalSettings = {
           },
         },
         covidClearanceCertificateEmail: {
-          description: '_',
+          description: 'Certificate containing the list of covid tests for this patient used for proof of over 13 days since infection',
           properties: {
             subject: {
               schema: yup
@@ -460,7 +460,7 @@ export const globalSettings = {
           },
         },
         vaccineCertificate: {
-          description: '_',
+          description: 'Certificate containing the list of vaccines for this patient',
           properties: {
             emailAddress: {
               description: '_',
@@ -479,7 +479,7 @@ export const globalSettings = {
           },
         },
         covidTestCertificate: {
-          description: '_',
+          description: 'Certificate containing the list of covid vaccines for this patient',
           properties: {
             laboratoryName: {
               description: '_',
@@ -495,7 +495,7 @@ export const globalSettings = {
           },
         },
         plannedMoveTimeoutHours: {
-          description: '_',
+          description: 'Should match the config value "plannedMoveTimeout.timeoutHours"',
           schema: yup.number().positive(),
           defaultValue: 24,
           unit: 'hours',
