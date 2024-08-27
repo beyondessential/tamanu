@@ -96,7 +96,7 @@ export async function exportProgram(context, programId) {
     );
 
     const groupedSurveyRecords = groupBy(surveyRecords, 'survey_id');
-    surveys.map((survey, index) => {
+    surveys.forEach((survey, index) => {
       surveySheets[index] = {
         name: survey.code,
         data: [
