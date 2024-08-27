@@ -5,12 +5,7 @@ transformers:
   - name: Template
     params:
       column: date
-      template: >
-        {{- if isNull .GetValue -}}
-          {{- null -}}
-        {{- else -}}
-          {{- fakerDate -}}
-        {{- end -}}
+      template: '{{- fakerDate -}}'
 
   - name: Masking
     params:
