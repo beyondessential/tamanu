@@ -1,12 +1,11 @@
-import { camelCase } from 'lodash';
-import { SEX_LABELS } from './patientFields';
+import { SEX_LABELS } from './patientFields.js';
 import {
-  INVOICE_ITEMS_CATEGORY_LABELS,
   INVOICE_STATUS_LABELS,
-  INVOICE_PATIENT_PAYMENT_STATUSES_LABELS,
   INVOICE_INSURER_PAYMENT_STATUS_LABELS,
-} from './invoices';
-import { NOTE_TYPE_LABELS } from './notes';
+  INVOICE_ITEMS_CATEGORY_LABELS,
+  INVOICE_PATIENT_PAYMENT_STATUSES_LABELS,
+} from './invoices.js';
+import { NOTE_TYPE_LABELS } from './notes.js';
 import {
   REFERRAL_STATUS_LABELS,
   APPOINTMENT_TYPES,
@@ -126,7 +125,9 @@ export const enumTranslations = (Object.entries(
   registeredEnums,
 ) as EnumEntries).flatMap(([key, value]) =>
   Object.entries(value).map(([enumKey, enumValue]) => [
-    `${translationPrefixes[key]}.${camelCase(enumKey)}`,
+    `${translationPrefixes[key]}.${enumKey
+      .toLowerCase()
+      .replace(/[^a-zA-Z0-9]+(.)/g, (_, char) => char.toUpperCase())}`,
     enumValue,
   ]),
 );
