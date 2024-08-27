@@ -238,7 +238,6 @@ export class AutocompleteInput extends Component {
           label: trimmedValue,
           value: trimmedValue,
           isCustomizedOption: true,
-          ...(multiSection && { type: suggester?.baseBodyParameters?.type }),
         });
       }
     }
@@ -416,9 +415,10 @@ export class AutocompleteInput extends Component {
       data,
     }));
     if (orderByValues) {
-      const orderedSuggestions = sortBy(groupedSuggestions, item =>
-        orderByValues.indexOf(item[groupByKey]),
-      );
+      const orderedSuggestions = sortBy(groupedSuggestions, item => {
+        const index = orderByValues.indexOf(item.type);
+        return index === -1 ? Infinity : index;
+      });
       return orderedSuggestions;
     }
 

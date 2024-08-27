@@ -57,8 +57,8 @@ export class Suggester {
     if (!this.enable) throw new Error('Suggester is disabled');
 
     const data = await this.api.post(`${this.endpoint}/create`, {
-      ...body,
       ...this.baseBodyParameters,
+      ...body,
     });
     return this.formatter(data);
   };
