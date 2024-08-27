@@ -6,7 +6,7 @@ export const isSetting = (value: Setting | SettingsSchema): value is Setting => 
 };
 
 const isSettingsSchema = (value: Setting | SettingsSchema): value is SettingsSchema => {
-  return value && _.isObject(value) && _.has(value, 'values');
+  return value && _.isObject(value) && _.has(value, 'properties');
 };
 
 export const extractDefaults = (settings: SettingsSchema): Record<string, any> => {
