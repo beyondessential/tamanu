@@ -5,6 +5,9 @@ on:
     tags:
       - 'v*'
 
+env:
+  RG_VERSION: 14.1.0
+
 jobs:
   run:
     name: Diff Translations
@@ -23,12 +26,10 @@ jobs:
         node-version: 20.x
         cache: yarn
 
-      # We have to install specific version of ripgrep
-      # due to pcre2 not being enabled in apt-get version
-    - name: install ripgrep
+    - name: install rg
       run: |
-       curl -LO https://github.com/BurntSushi/ripgrep/releases/download/14.1.0/ripgrep_14.1.0-1_amd64.deb
-       sudo dpkg -i ripgrep_14.1.0-1_amd64.deb
+        curl -Lo rg.deb https://github.com/BurntSushi/ripgrep/releases/download/$RG_VERSION/ripgrep_${RG_VERSION}-1_amd64.deb
+        sudo dpkg -i rg.deb
 
     - name: get current version
       id: currentv
