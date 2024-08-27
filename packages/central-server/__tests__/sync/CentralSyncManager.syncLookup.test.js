@@ -55,7 +55,6 @@ describe('Sync Lookup data', () => {
         recordType: 'encounters',
         patientId: patient.id,
         encounterId: encounter.id,
-        facilityId: facility.id,
         isLabRequest: false,
         isDeleted: false,
       }),
