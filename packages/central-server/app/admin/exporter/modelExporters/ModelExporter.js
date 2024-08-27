@@ -48,7 +48,7 @@ export class ModelExporter {
   }
 
   getHeadersFromData(data) {
-    return Object.keys(data instanceof Model ? data[0].dataValues : data[0]);
+    return Object.keys(data[0].dataValues);
   }
 
   customHiddenColumns() {
