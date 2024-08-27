@@ -2,6 +2,19 @@ import { VACCINE_STATUS } from '@tamanu/constants';
 import * as yup from 'yup';
 import { extractDefaults } from './utils';
 
+const thresholdsSchema = yup.array().of(
+  yup.object({
+    threshold: yup
+      .mixed()
+      .test(
+        'is-number-or-infinity',
+        'Threshold must be a number or -Infinity',
+        value => typeof value === 'number' || value === '-Infinity',
+      ),
+    status: yup.string().oneOf(Object.values(VACCINE_STATUS)),
+  }),
+);
+
 export const globalSettings = {
   values: {
     features: {
@@ -71,12 +84,7 @@ export const globalSettings = {
         thresholds: {
           name: 'Upcoming vaccination thresholds',
           description: '_',
-          schema: yup.array().of(
-            yup.object({
-              threshold: yup.number(),
-              status: yup.string(),
-            }),
-          ),
+          schema: thresholdsSchema,
           defaultValue: [
             {
               threshold: 28,
