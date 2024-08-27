@@ -1,6 +1,9 @@
+import { REFERENCE_TYPES } from './importable';
+
 export const REFERENCE_DATA_RELATION_TYPES = {
   ADDRESS_HIERARCHY: 'address_hierarchy',
   FACILITY_CATCHMENT: 'facility_catchment',
+  TASK: REFERENCE_TYPES.TASK,
 };
 
 export const DEFAULT_HIERARCHY_TYPE = REFERENCE_DATA_RELATION_TYPES.ADDRESS_HIERARCHY;
