@@ -482,7 +482,12 @@ export const globalSettings = {
             },
           },
         },
-        plannedMoveTimeoutHours: { description: '_', schema: yup.number(), defaultValue: 24 },
+        plannedMoveTimeoutHours: {
+          description: '_',
+          schema: yup.number().positive(),
+          defaultValue: 24,
+          unit: 'hours',
+        },
       },
     },
   },
