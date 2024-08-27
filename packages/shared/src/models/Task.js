@@ -61,10 +61,6 @@ export class Task extends Model {
         notCompletedTime: dateTimeType('notCompletedTime', {
           allowNull: true,
         }),
-        notCompletedNote: {
-          type: DataTypes.TEXT,
-          allowNull: true,
-        },
         todoTime: dateTimeType('todoTime', {
           allowNull: true,
         }),
@@ -112,6 +108,10 @@ export class Task extends Model {
     this.belongsTo(models.User, {
       foreignKey: 'deletedByUserId',
       as: 'deletedBy',
+    });
+    this.belongsTo(models.ReferenceData, {
+      foreignKey: 'notCompletedReasonId',
+      as: 'notCompletedReason',
     });
     this.belongsTo(models.ReferenceData, {
       foreignKey: 'deletedReasonId',
