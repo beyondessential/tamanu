@@ -2,7 +2,7 @@ import { omitBy, isUndefined, isObject, mapValues, has } from 'lodash';
 import { SettingsSchema, Setting } from './types';
 
 export const isSetting = (value: Setting | SettingsSchema): value is Setting => {
-  return value && isObject(value) && has(value, 'schema') && _.has(value, 'defaultValue');
+  return value && isObject(value) && has(value, 'schema') && has(value, 'defaultValue');
 };
 
 const isSettingsSchema = (value: Setting | SettingsSchema): value is SettingsSchema => {

@@ -52,3 +52,4 @@ export const facilitySettings = {
 };
 
 export const facilityDefaults = extractDefaults(facilitySettings);
+console.log(facilityDefaults);
