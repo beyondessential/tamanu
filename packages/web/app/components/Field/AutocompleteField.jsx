@@ -208,7 +208,7 @@ export class AutocompleteInput extends Component {
   };
 
   fetchOptions = async ({ value, reason }) => {
-    const { value: formValue, allowCreatingCustomValue, suggester, multiSection } = this.props;
+    const { value: formValue, allowCreatingCustomValue } = this.props;
 
     if (reason === 'suggestion-selected') {
       this.clearOptions();
