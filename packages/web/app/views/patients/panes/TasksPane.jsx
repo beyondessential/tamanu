@@ -5,6 +5,7 @@ import { Colors } from '../../../constants';
 import { AutocompleteInput, Button, Heading4, TranslatedText } from '../../../components';
 import { useSuggester } from '../../../api';
 import { TasksTable } from '../../../components/Tasks/TasksTable';
+import { AddTaskModal } from '../../../components/NewTaskModal';
 
 const mockData = [
   {
@@ -95,6 +96,7 @@ const ActionRow = styled.div`
 export const TasksPane = React.memo(() => {
   const designationSuggester = useSuggester('designation');
   const [data, setData] = useState(mockData);
+  const [addTaskModalOpen, setAddTaskModalOpen] = useState(false);
 
   const onFilterByDesignation = e => {
     if (!e.target.value) {
@@ -141,12 +143,16 @@ export const TasksPane = React.memo(() => {
             suggester={designationSuggester}
             onChange={onFilterByDesignation}
           />
-          <Button onClick={() => {}} variant="outlined" color="primary">
+          <Button onClick={() => setAddTaskModalOpen(true)} variant="outlined" color="primary">
             <TranslatedText stringId="encounter.tasks.action.newTask" fallback="+ New task" />
           </Button>
         </ActionRow>
       </TitleContainer>
       <TasksTable data={data}/>
+      <AddTaskModal 
+        open={addTaskModalOpen}
+        onClose={() => setAddTaskModalOpen(false)}
+      />
     </TabPane>
   );
 });
