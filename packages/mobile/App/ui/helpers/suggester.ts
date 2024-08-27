@@ -99,9 +99,11 @@ export class Suggester<ModelType extends BaseModelSubclass> {
         .createQueryBuilder('entity')
         .where(
           new Brackets(qb => {
-            qb.where(`${column} LIKE :search`, {
-              search: `%${search}%`,
-            }).orWhere('entity.id IN (:...suggestedIds)', { suggestedIds });
+            if (search) {
+              qb.where(`${column} LIKE :search`, {
+                search: `%${search}%`,
+              }).orWhere('entity.id IN (:...suggestedIds)', { suggestedIds });
+            }
           }),
         )
         .andWhere(
@@ -111,7 +113,8 @@ export class Suggester<ModelType extends BaseModelSubclass> {
             });
           }),
         )
-        .orderBy(`entity.${column}`, 'ASC');
+        .orderBy(`entity.${column}`, 'ASC')
+        .limit(25);
 
       if (relations) {
         relations.forEach(relation => {
