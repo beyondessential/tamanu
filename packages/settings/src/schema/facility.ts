@@ -2,7 +2,7 @@ import * as yup from 'yup';
 import { extractDefaults } from './utils';
 
 export const facilitySettings = {
-  values: {
+properties: {
     vaccinations: {
       name: 'Vaccinations',
       description: '_',
