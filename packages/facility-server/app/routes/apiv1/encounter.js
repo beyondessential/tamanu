@@ -1,7 +1,9 @@
 import asyncHandler from 'express-async-handler';
-import { Op, QueryTypes } from 'sequelize';
+import { Op, QueryTypes, literal } from 'sequelize';
 import { NotFoundError, InvalidParameterError, InvalidOperationError } from '@tamanu/shared/errors';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
+import config from 'config';
+import { toCountryDateTimeString } from '@tamanu/shared/utils/countryDateTime';
 import {
   LAB_REQUEST_STATUSES,
   DOCUMENT_SIZE_LIMIT,
@@ -9,6 +11,7 @@ import {
   NOTE_RECORD_TYPES,
   VITALS_DATA_ELEMENT_IDS,
   IMAGING_REQUEST_STATUS_TYPES,
+  TASK_STATUSES,
 } from '@tamanu/constants';
 
 import {
@@ -20,6 +23,7 @@ import {
   paginatedGetList,
   softDeletionCheckingRouter,
 } from '@tamanu/shared/utils/crudHelpers';
+import { add } from 'date-fns';
 import { uploadAttachment } from '../../utils/uploadAttachment';
 import { noteChangelogsHandler, noteListHandler } from '../../routeHandlers';
 import { createPatientLetter } from '../../routeHandlers/createPatientLetter';
@@ -41,7 +45,7 @@ encounter.post(
     const { models, body, user } = req;
     req.checkPermission('create', 'Encounter');
     const encounterObject = await models.Encounter.create({ ...body, actorId: user.id });
-    
+
     if (body.dietIds) {
       const dietIds = JSON.parse(body.dietIds);
       await encounterObject.addDiets(dietIds);
@@ -310,7 +314,7 @@ encounterRelations.get(
           survey_responses.encounter_id = :encounterId
         AND
           surveys.survey_type = :surveyType
-        AND 
+        AND
           surveys.id IN (:surveyIds)
         AND
           encounters.deleted_at IS NULL
@@ -339,7 +343,7 @@ encounterRelations.get(
           survey_responses.encounter_id = :encounterId
         AND
           surveys.survey_type = :surveyType
-        AND 
+        AND
           surveys.id IN (:surveyIds)
         AND
           survey_responses.deleted_at IS NULL
@@ -519,6 +523,54 @@ encounterRelations.get(
       count: data.length,
       data,
     });
+  }),
+);
+
+encounterRelations.get(
+  '/:id/tasks',
+  asyncHandler(async (req, res) => {
+    const { models, params, query } = req;
+    const { Task } = models;
+    const { id: encounterId } = params;
+    const {
+      order = 'ASC',
+      orderBy = 'dueTime',
+      assignedTo,
+      statuses = [TASK_STATUSES.TODO],
+    } = query;
+
+    req.checkPermission('list', 'Task');
+
+    const upcomingTasksTimeFrame = config.upcomingTasksTimeFrame || 8;
+    const queryResults = await Task.findAll({
+      where: {
+        encounterId,
+        status: { [Op.in]: statuses },
+        dueTime: {
+          [Op.lt]: toCountryDateTimeString(add(new Date(), { hours: upcomingTasksTimeFrame })),
+        },
+        ...(assignedTo && {
+          [Op.and]: literal(`
+            EXISTS (
+              SELECT 1 FROM "task_designations" AS td
+              WHERE (
+                "td"."designation_id" = '${assignedTo}'
+                AND "td"."task_id" = "Task"."id"
+              )
+            )
+          `),
+        }),
+      },
+      order: [
+        [orderBy, order.toUpperCase()],
+        ['highPriority', 'DESC'],
+        ['name', 'ASC'],
+      ],
+      include: Task.getFullReferenceAssociations(),
+    });
+    const results = queryResults.map(x => x.forResponse());
+
+    res.send(results);
   }),
 );
 
