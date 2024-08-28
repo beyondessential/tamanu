@@ -36,6 +36,12 @@ export const Appointment = ({ appointment, onUpdated }) => {
 
   const closeDetail = () => setDetailOpen(false);
 
+  const statusIcons = {
+    [APPOINTMENT_STATUSES.CONFIRMED]: <RadioButtonUncheckedIcon />,
+    [APPOINTMENT_STATUSES.ARRIVED]: <CheckCircleIcon />,
+    [APPOINTMENT_STATUSES.NO_SHOW]: <CancelIcon />,
+  };
+
   return (
     <StyledTooltip
       arrow
@@ -59,11 +65,7 @@ export const Appointment = ({ appointment, onUpdated }) => {
           </Box>
           <DateDisplay date={startTime} showDate={false} showTime />
         </div>
-        <div className="icon">
-          {status === APPOINTMENT_STATUSES.CONFIRMED && <RadioButtonUncheckedIcon />}
-          {status === APPOINTMENT_STATUSES.ARRIVED && <CheckCircleIcon />}
-          {status === APPOINTMENT_STATUSES.NO_SHOW && <CancelIcon />}
-        </div>
+        <div className="icon">{statusIcons[status]}</div>
       </StyledAppointment>
     </StyledTooltip>
   );
