@@ -203,6 +203,8 @@ const snapshotOutgoingChangesFromSyncLookup = withConfig(
     while (fromId != null) {
       const [[{ maxId, count }]] = await store.sequelize.query(
         `
+      SELECT pg_sleep(10);
+
       WITH inserted AS (
         INSERT INTO ${snapshotTableName} (
           direction,
@@ -235,7 +237,7 @@ const snapshotOutgoingChangesFromSyncLookup = withConfig(
               ? `OR patient_id IN (SELECT patient_id FROM ${markedForSyncPatientsTable})`
               : ''
           })
-          --- either no facility_id (meaning we don't care if the record is associate to a facility, , eg: reference_data) 
+          --- either no facility_id (meaning we don't care if the record is associate to a facility, eg: reference_data) 
           --- or facility_id has to match the current facility, eg: patient_facilities
           AND (
             facility_id IS NULL

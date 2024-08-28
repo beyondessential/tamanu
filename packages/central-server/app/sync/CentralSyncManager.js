@@ -233,9 +233,9 @@ export class CentralSyncManager {
     // get a sync tick that we can safely consider the snapshot to be up to (because we use the
     // "tick" of the tick-tock, so we know any more changes on the server, even while the snapshot
     // process is ongoing, will have a later updated_at_sync_tick)
-    const { tick } = await this.tickTockGlobalClock();
+    const { tick: currentTick } = await this.tickTockGlobalClock();
 
-    await this.waitForPendingEdits(tick);
+    await this.waitForPendingEdits(currentTick);
 
     const previouslyUpToTick =
       (await this.store.models.LocalSystemFact.get(LOOKUP_UP_TO_TICK_KEY)) || -1;
@@ -245,15 +245,16 @@ export class CentralSyncManager {
         getModelsForDirection(this.store.models, SYNC_DIRECTIONS.PULL_FROM_CENTRAL),
         previouslyUpToTick,
         this.constructor.config,
+        currentTick
       );
 
       // update the last successful lookup table in the same transaction - if updating the cursor fails,
       // we want to roll back the rest of the saves so that the next update can still detect the records that failed
       // to be updated last time
       log.debug('CentralSyncManager.updateLookupTable()', {
-        lastSuccessfulLookupTableUpdate: tick,
+        lastSuccessfulLookupTableUpdate: currentTick,
       });
-      await this.store.models.LocalSystemFact.set(LOOKUP_UP_TO_TICK_KEY, tick);
+      await this.store.models.LocalSystemFact.set(LOOKUP_UP_TO_TICK_KEY, currentTick);
     });
   }
 

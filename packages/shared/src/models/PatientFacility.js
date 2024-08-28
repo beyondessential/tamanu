@@ -57,7 +57,6 @@ export class PatientFacility extends Model {
   static buildSyncLookupQueryDetails() {
     return {
       select: buildSyncLookupSelect(this, {
-        patientId: `${this.tableName}.patient_id`,
         facilityId: `${this.tableName}.facility_id`,
       }),
     };

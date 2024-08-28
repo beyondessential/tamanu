@@ -111,6 +111,7 @@ const ChangePasswordFormComponent = ({
       </FormTitleSection>
       <FieldContainer>
         <Field
+          autoComplete="one-time-code"
           name="token"
           type="text"
           label={<TranslatedText stringId="resetPassword.resetCode.label" fallback="Reset code" />}
@@ -122,7 +123,6 @@ const ChangePasswordFormComponent = ({
               setFieldError('token', '');
             }
           }}
-          autoComplete="off"
         />
         <HorizontalDivider />
         <Field
@@ -142,6 +142,7 @@ const ChangePasswordFormComponent = ({
           autoComplete="new-password"
         />
         <Field
+          autoComplete="new-password"
           name="confirmNewPassword"
           type="password"
           label={
@@ -276,7 +277,7 @@ export const ChangePasswordForm = React.memo(
             )
             .oneOf(
               [yup.ref('confirmNewPassword'), null],
-              getTranslation('validation.rule.passwordMatch', `Passwords don't match`),
+              getTranslation('validation.rule.passwordMatch', 'Passwords don’t match'),
             )
             .required(getTranslation('validation.required.inline', '*Required')),
           confirmNewPassword: yup
@@ -287,7 +288,7 @@ export const ChangePasswordForm = React.memo(
             )
             .oneOf(
               [yup.ref('newPassword'), null],
-              getTranslation('validation.rule.passwordMatch', `Passwords don't match`),
+              getTranslation('validation.rule.passwordMatch', 'Passwords don’t match'),
             )
             .required(getTranslation('validation.required.inline', '*Required')),
         })}

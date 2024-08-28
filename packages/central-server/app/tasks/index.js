@@ -21,6 +21,7 @@ import { StaleSyncSessionCleaner } from './StaleSyncSessionCleaner';
 import { FhirMissingResources } from './FhirMissingResources';
 import { PatientTelegramCommunicationProcessor } from './PatientTelegramCommunicationProcessor';
 import { VaccinationReminderProcessor } from './VaccinationReminderProcessor';
+import { SurveyCompletionNotifierProcessor } from './SurveyCompletionNotifierProcessor';
 import { SyncLookupRefresher } from './SyncLookupRefresher';
 
 export { startFhirWorkerTasks } from './fhir';
@@ -41,6 +42,7 @@ export async function startScheduledTasks(context) {
     CovidClearanceCertificatePublisher,
     StaleSyncSessionCleaner,
     PlannedMoveTimeout,
+    SurveyCompletionNotifierProcessor,
     SyncLookupRefresher,
   ];
 

@@ -13,7 +13,7 @@ export function buildSyncLookupSelect(model, columns = {}) {
       ${table}.id,
       '${table}',
       ${table}.deleted_at IS NOT NULL,
-      ${table}.updated_at_sync_tick,
+      :updatedAtSyncTick,
       json_build_object(
         ${Object.keys(attributes)
           .filter(a => !COLUMNS_EXCLUDED_FROM_SYNC.includes(a))
