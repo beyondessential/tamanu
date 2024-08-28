@@ -210,6 +210,7 @@ export class LabRequest extends Model {
     return {
       select: buildSyncLookupSelect(this, {
         patientId: 'encounters.patient_id',
+        encounterId: `${this.tableName}.encounter_id`,
         isLabRequestValue: 'TRUE',
       }),
       joins: buildEncounterLinkedSyncFilterJoins([this.tableName, 'encounters']),

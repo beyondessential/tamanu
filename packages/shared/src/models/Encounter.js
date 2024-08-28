@@ -281,14 +281,13 @@ export class Encounter extends Model {
       select: buildSyncLookupSelect(this, {
         patientId: 'encounters.patient_id',
         encounterId: 'encounters.id',
-        isLabRequest: 'labs.encounter_id IS NOT NULL',
+        isLabRequestValue: 'labs.encounter_id IS NOT NULL',
       }),
       joins: `
         LEFT JOIN (
           SELECT DISTINCT encounter_id
           FROM lab_requests
         ) AS labs ON labs.encounter_id = encounters.id
-        LEFT JOIN locations on locations.id = encounters.location_id
       `,
     };
   }
