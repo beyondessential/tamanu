@@ -30,17 +30,17 @@ const StyledTooltip = styled(({ className, ...props }) => (
   }
 `;
 
+const statusIcons = {
+  [APPOINTMENT_STATUSES.CONFIRMED]: <RadioButtonUncheckedIcon />,
+  [APPOINTMENT_STATUSES.ARRIVED]: <CheckCircleIcon />,
+  [APPOINTMENT_STATUSES.NO_SHOW]: <CancelIcon />,
+};
+
 export const Appointment = ({ appointment, onUpdated }) => {
   const { startTime, patient, status } = appointment;
   const [detailOpen, setDetailOpen] = useState(false);
 
   const closeDetail = () => setDetailOpen(false);
-
-  const statusIcons = {
-    [APPOINTMENT_STATUSES.CONFIRMED]: <RadioButtonUncheckedIcon />,
-    [APPOINTMENT_STATUSES.ARRIVED]: <CheckCircleIcon />,
-    [APPOINTMENT_STATUSES.NO_SHOW]: <CancelIcon />,
-  };
 
   return (
     <StyledTooltip
