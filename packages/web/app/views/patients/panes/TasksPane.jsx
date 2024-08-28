@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
 import { Colors } from '../../../constants';
-import { AutocompleteInput, Button, Heading4, TranslatedText } from '../../../components';
+import { AutocompleteInput, Button, CheckInput, TranslatedText } from '../../../components';
 import { useSuggester } from '../../../api';
 import { TasksTable } from '../../../components/Tasks/TasksTable';
 
@@ -66,21 +66,37 @@ const TabPane = styled.div`
   min-height: 460px;
 `;
 
-const TitleContainer = styled.div`
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-`;
-
 const ActionRow = styled.div`
   display: flex;
   gap: 10px;
   align-items: flex-end;
+  justify-content: flex-end;
+`;
+
+const StyledCheckInput = styled(CheckInput)`
+  label {
+    display: flex;
+    align-items: center;
+  }
+
+  .MuiTypography-root {
+    font-size: 11px;
+    line-height: 15px;
+    margin-left: -3px;
+  }
+`;
+
+const CheckInputGroup = styled.div`
+  display: flex;
+  gap: 10px;
+  flex-direction: column;
 `;
 
 export const TasksPane = React.memo(() => {
   const designationSuggester = useSuggester('designation');
   const [data, setData] = useState(mockData);
+  const [showCompleted, setShowCompleted] = useState(false);
+  const [showNotCompleted, setShowNotCompleted] = useState(false);
 
   const onFilterByDesignation = e => {
     if (!e.target.value) {
@@ -97,28 +113,48 @@ export const TasksPane = React.memo(() => {
 
   return (
     <TabPane>
-      <TitleContainer>
-        <ActionRow>
-          <AutocompleteInput
-            name="designationId"
+      <ActionRow>
+        <CheckInputGroup>
+          <StyledCheckInput
             label={
-              <Box marginBottom="-4px">
-                <TranslatedText
-                  stringId="general.localisedField.assignedTo.label"
-                  fallback="Assigned to"
-                />
-              </Box>
+              <TranslatedText
+                stringId="encounter.tasks.showCompleted.label"
+                fallback="Show completed"
+              />
             }
-            size="small"
-            suggester={designationSuggester}
-            onChange={onFilterByDesignation}
+            onChange={() => setShowCompleted(!showCompleted)}
+            value={showCompleted}
           />
-          <Button onClick={() => {}} variant="outlined" color="primary">
-            <TranslatedText stringId="encounter.tasks.action.newTask" fallback="+ New task" />
-          </Button>
-        </ActionRow>
-      </TitleContainer>
-      <TasksTable data={data}/>
+          <StyledCheckInput
+            label={
+              <TranslatedText
+                stringId="encounter.tasks.showNotCompleted.label"
+                fallback="Show not completed"
+              />
+            }
+            onChange={() => setShowNotCompleted(!showNotCompleted)}
+            value={showNotCompleted}
+          />
+        </CheckInputGroup>
+        <AutocompleteInput
+          name="designationId"
+          label={
+            <Box marginBottom="-4px">
+              <TranslatedText
+                stringId="general.localisedField.assignedTo.label"
+                fallback="Assigned to"
+              />
+            </Box>
+          }
+          size="small"
+          suggester={designationSuggester}
+          onChange={onFilterByDesignation}
+        />
+        <Button onClick={() => {}} variant="outlined" color="primary">
+          <TranslatedText stringId="encounter.tasks.action.newTask" fallback="+ New task" />
+        </Button>
+      </ActionRow>
+      <TasksTable data={data} />
     </TabPane>
   );
 });
