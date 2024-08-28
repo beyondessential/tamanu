@@ -57,9 +57,9 @@ const PatientInfoValue = styled.td`
   text-transform: capitalize;
 `;
 
-const APPOINTMENT_STATUS_OPTIONS = Object.entries(APPOINTMENT_STATUSES).map(([value, label]) => ({
-  value,
-  label,
+const APPOINTMENT_STATUS_OPTIONS = Object.values(APPOINTMENT_STATUSES).map(status => ({
+  value: status,
+  label: status,
 }));
 
 const PatientInfo = ({ patient }) => {
