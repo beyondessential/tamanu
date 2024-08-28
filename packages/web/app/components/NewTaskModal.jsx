@@ -11,7 +11,7 @@ export const AddTaskModal = ({ open, onClose, onConfirmed }) => {
       open={open}
       onClose={onClose}
     >
-      <TaskForm />
+      <TaskForm onClose={onClose} />
     </FormModal>
   );
 };
