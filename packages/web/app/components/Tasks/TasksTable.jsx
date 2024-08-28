@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { Box, Divider } from '@material-ui/core';
 import CheckCircleIcon from '@material-ui/icons/CheckCircle';
@@ -7,7 +7,6 @@ import DeleteOutlineIcon from '@material-ui/icons/DeleteOutline';
 import {
   BodyText,
   SmallBodyText,
-  Table,
   formatShortest,
   formatTime,
   TranslatedText,
@@ -169,7 +168,8 @@ const AssignedToCell = ({ designations }) => {
   );
 };
 
-const getFrequency = ({ frequencyValue, frequencyUnit }) => `${frequencyValue} ${frequencyUnit}`;
+const getFrequency = ({ frequencyValue, frequencyUnit }) =>
+  frequencyValue && frequencyUnit ? `${frequencyValue} ${frequencyUnit}` : '';
 
 const NotesCell = ({ row, hoveredRow }) => {
   const [ref, isOverflowing] = useOverflow();
@@ -247,13 +247,13 @@ const NoDataMessage = () => (
   </NoDataContainer>
 );
 
-export const TasksTable = ({ encounterId, searchParameters }) => {
+export const TasksTable = ({ encounterId, searchParameters, refreshCount }) => {
   const [hoveredRow, setHoveredRow] = useState();
   const [data, setData] = useState([]);
 
-  const onDataFetched = ({ data }) => {
+  const onDataFetched = useCallback(({ data }) => {
     setData(data);
-  };
+  }, []);
 
   const { selectedRows, selectableColumn } = useSelectableColumn(data, {
     bulkDeselectOnly: true,
@@ -356,8 +356,9 @@ export const TasksTable = ({ encounterId, searchParameters }) => {
         onMouseEnterRow={(_, data) => setHoveredRow(data)}
         onMouseLeaveRow={() => setHoveredRow(null)}
         hideHeader={data.length === 0}
-        searchParameters={searchParameters}
+        fetchOptions={searchParameters}
         onDataFetched={onDataFetched}
+        refreshCount={refreshCount}
       />
     </div>
   );

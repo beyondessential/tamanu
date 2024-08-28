@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
+import { omit } from 'lodash';
 import { Box } from '@material-ui/core';
+import { TASK_STATUSES } from '@tamanu/constants';
 import { Colors } from '../../../constants';
 import { AutocompleteInput, Button, CheckInput, TranslatedText } from '../../../components';
 import { useSuggester } from '../../../api';
 import { TasksTable } from '../../../components/Tasks/TasksTable';
-import { TASK_STATUSES } from '@tamanu/constants';
 
 const TabPane = styled.div`
   margin: 20px 24px 24px;
@@ -46,21 +47,18 @@ export const TasksPane = React.memo(({ encounter }) => {
   const [showCompleted, setShowCompleted] = useState(false);
   const [showNotCompleted, setShowNotCompleted] = useState(false);
   const [searchParameters, setSearchParameters] = useState({});
-
-  const updateSearchParameters = newSearchParameters => {
-    setSearchParameters({ ...searchParameters, ...newSearchParameters });
-  };
+  const [refreshCount, setRefreshCount] = useState(0);
 
   const onFilterByDesignation = e => {
-    const designationId = e.target.value;
-    if (!designationId) {
-      const newSearchParameters = { ...searchParameters };
-      delete newSearchParameters.assignedTo;
-      updateSearchParameters(newSearchParameters);
-      return;
-    }
-    updateSearchParameters({ assignedTo: designationId });
+    const { value: designationId } = e.target;
+    setSearchParameters(prevParams =>
+      designationId ? { ...prevParams, assignedTo: designationId } : omit(prevParams, 'assignedTo'),
+    );
   };
+
+  useEffect(() => {
+    setRefreshCount(prev => prev + 1);
+  }, [searchParameters]);
 
   useEffect(() => {
     const statuses = [TASK_STATUSES.TODO];
@@ -70,10 +68,10 @@ export const TasksPane = React.memo(({ encounter }) => {
     }
 
     if (showNotCompleted) {
-      statuses.push(TASK_STATUSES.NOT_COMPLETED);
+      statuses.push(TASK_STATUSES.NON_COMPLETED);
     }
 
-    updateSearchParameters({ statuses });
+    setSearchParameters({ ...searchParameters, statuses });
   }, [showCompleted, showNotCompleted]);
 
   return (
@@ -119,7 +117,11 @@ export const TasksPane = React.memo(({ encounter }) => {
           <TranslatedText stringId="encounter.tasks.action.newTask" fallback="+ New task" />
         </Button>
       </ActionRow>
-      <TasksTable encounterId={encounter.id} searchParameters={searchParameters} />
+      <TasksTable
+        encounterId={encounter.id}
+        searchParameters={searchParameters}
+        refreshCount={refreshCount}
+      />
     </TabPane>
   );
 });

@@ -570,7 +570,7 @@ encounterRelations.get(
     });
     const results = queryResults.map(x => x.forResponse());
 
-    res.send(results);
+    res.send({ data: results, count: results.length });
   }),
 );
 
