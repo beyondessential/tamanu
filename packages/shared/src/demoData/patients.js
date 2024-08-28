@@ -149,7 +149,7 @@ export async function createDummyEncounterDiagnosis(models, overrides = {}) {
     date,
     certainty: chance.bool() ? 'suspected' : 'confirmed',
     isPrimary: chance.bool(),
-    diagnosisId: await randomReferenceId(models, 'icd10'),
+    diagnosisId: await randomReferenceId(models, 'diagnosis'),
     ...overrides,
   };
 }

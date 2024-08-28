@@ -3,7 +3,7 @@ import { useSuggester } from '../../api';
 import { AutocompleteField, Field } from '../../components';
 
 export const DiagnosisField = ({ required, name, label }) => {
-  const icd10Suggester = useSuggester('icd10');
+  const icd10Suggester = useSuggester('diagnosis');
   return (
     <Field
       name={name}

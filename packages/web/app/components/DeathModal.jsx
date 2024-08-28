@@ -14,7 +14,7 @@ export const DeathModal = React.memo(({ open, onClose, deathData }) => {
   const { navigateToPatient } = usePatientNavigation();
   const patient = useSelector(state => state.patient);
   const queryClient = useQueryClient();
-  const icd10Suggester = useSuggester('icd10');
+  const icd10Suggester = useSuggester('diagnosis');
   const practitionerSuggester = useSuggester('practitioner');
   const facilitySuggester = useSuggester('facility');
 

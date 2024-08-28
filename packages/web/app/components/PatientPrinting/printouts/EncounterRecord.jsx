@@ -147,7 +147,7 @@ const COLUMNS = {
               <TranslatedReferenceData
                 fallback={diagnosis.name}
                 value={diagnosis.id}
-                category="icd10"
+                category="diagnosis"
               />
             </span>
             <span> {diagnosis.code}</span>

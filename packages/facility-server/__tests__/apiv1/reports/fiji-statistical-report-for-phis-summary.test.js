@@ -96,15 +96,15 @@ describe('Fiji statistical report for phis summary', () => {
     app = await baseApp.asRole('practitioner');
 
     const diabetesDiagnosis = await models.ReferenceData.create({
-      type: 'icd10',
+      type: 'diagnosis',
       name: 'Diabetes',
-      code: 'icd10-E11',
+      code: 'diagnosis-E11',
     });
 
     const hypertensionDiagnosis = await models.ReferenceData.create({
-      type: 'icd10',
+      type: 'diagnosis',
       name: 'Hypertension',
-      code: 'icd10-I10',
+      code: 'diagnosis-I10',
     });
 
     await setupProgramAndSurvey(models);
@@ -340,11 +340,14 @@ describe('Fiji statistical report for phis summary', () => {
   describe('checks permissions', () => {
     it('should reject creating a report with insufficient permissions', async () => {
       const noPermsApp = await baseApp.asRole('base');
-      const result = await noPermsApp.post(`/api/reports/fiji-statistical-report-for-phis-summary`, {
-        parameters: {
-          fromDate: '1960-01-01',
+      const result = await noPermsApp.post(
+        `/api/reports/fiji-statistical-report-for-phis-summary`,
+        {
+          parameters: {
+            fromDate: '1960-01-01',
+          },
         },
-      });
+      );
       expect(result).toBeForbidden();
     });
   });

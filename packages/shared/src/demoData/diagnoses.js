@@ -2,7 +2,7 @@ import { splitIds } from './utilities';
 
 export const buildDiagnosis = ({ id, name: nameAndCode }) => {
   const [name, code] = nameAndCode.split(/\t/);
-  return { id, name, code, type: 'icd10' };
+  return { id, name, code, type: 'diagnosis' };
 };
 
 export const DIAGNOSES = splitIds(`

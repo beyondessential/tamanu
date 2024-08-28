@@ -31,7 +31,7 @@ const visitsHistoryRows = {
           {i > 0 && '\n\n'}
           <TranslatedReferenceData
             key={d.id}
-            category="icd10"
+            category="diagnosis"
             value={d.diagnosis.id}
             fallback={d.diagnosis.name}
           />
