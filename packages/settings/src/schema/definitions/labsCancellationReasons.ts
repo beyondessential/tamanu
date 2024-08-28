@@ -1,5 +1,7 @@
 import * as yup from 'yup';
 
+const REQUIRED_VALUES = ['duplicate', 'entered-in-error'];
+
 const reasonSchema = yup.object({
   value: yup
     .string()
@@ -14,15 +16,12 @@ export const labsCancellationReasonsSchema = yup.array(reasonSchema).test({
   name: 'labsCancellationReasons',
   test(conf, ctx) {
     const values = conf.map(x => x.value);
-    if (!values.includes('duplicate')) {
-      return ctx.createError({
-        message: 'labsCancellationReasons must include an option with value = duplicate',
-      });
-    }
-    if (!values.includes('entered-in-error')) {
-      return ctx.createError({
-        message: 'labsCancellationReasons must include an option with value = entered-in-error',
-      });
+    for (const v of REQUIRED_VALUES) {
+      if (!values.includes(v)) {
+        return ctx.createError({
+          message: `labsCancellationReasons must include an option with value = ${v}`,
+        });
+      }
     }
     return true;
   },
