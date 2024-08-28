@@ -1,4 +1,4 @@
-import { VISIBILITY_STATUSES } from './importable';
+import { VISIBILITY_STATUSES } from './importable.js';
 
 export const LAB_REQUEST_STATUSES = {
   RECEPTION_PENDING: 'reception_pending',

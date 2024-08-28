@@ -25,7 +25,7 @@ async function run() {
 
   for (const [key, command] of Object.entries(cmd).filter(([k]) => /^\w+Command$/.test(k))) {
     const hidden = hiddenCommands.includes(key);
-    program.addCommand(command, { hidden, isDefault: key === 'serveAllCommand' });
+    program.addCommand(command, { hidden, isDefault: key === 'startAllCommand' });
   }
 
   setupEnv();
