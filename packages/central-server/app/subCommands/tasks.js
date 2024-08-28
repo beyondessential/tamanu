@@ -18,13 +18,13 @@ export const tasks = async ({ skipMigrationCheck, provisioning }) => {
   await context.store.sequelize.assertUpToDate({ skipMigrationCheck });
 
   const stopScheduledTasks = await startScheduledTasks(context);
-  const worker = await startFhirWorkerTasks(context);
+  const workers = await startFhirWorkerTasks(context);
 
   for (const sig of ['SIGINT', 'SIGTERM']) {
     process.once(sig, async () => {
       log.info(`Received ${sig}, stopping scheduled tasks`);
       stopScheduledTasks();
-      await worker.stop();
+      await Promise.all(workers.map(worker => worker.stop()));
       context.close();
     });
   }
