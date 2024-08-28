@@ -97,6 +97,7 @@ export const SettingsView = React.memo(() => {
       await refetchSettings();
       turnOffEditMode();
     } catch (error) {
+      console.error(error);
       if (error instanceof ValidationError) {
         error?.inner?.forEach(e => {
           notifyError(e.message);
