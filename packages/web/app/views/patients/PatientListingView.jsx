@@ -145,7 +145,7 @@ const NewPatientButton = ({ onCreateNewPatient }) => {
 
 export const PatientListingView = ({ onViewPatient }) => {
   const [searchParameters, setSearchParameters] = useState({});
-
+  console.log('searchParameters', searchParameters);
   return (
     <PageContainer>
       <TopBar

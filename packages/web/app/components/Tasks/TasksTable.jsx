@@ -12,13 +12,13 @@ import {
   formatTime,
   TranslatedText,
   useSelectableColumn,
+  DataFetchingTable,
 } from '../.';
 import { Colors } from '../../constants';
 import useOverflow from '../../hooks/useOverflow';
 import { ConditionalTooltip, ThemedTooltip } from '../Tooltip';
-import { useTableSorting } from '../Table/useTableSorting';
 
-const StyledTable = styled(Table)`
+const StyledTable = styled(DataFetchingTable)`
   margin-top: 6px;
   box-shadow: none;
   border-left: none;
@@ -74,6 +74,12 @@ const StyledTable = styled(Table)`
       border-bottom: 0px solid #fff;
     }
   }
+  td {
+    &:last-child {
+      max-width: 200px;
+      white-space: nowrap;
+    }
+  }
 `;
 
 const StatusTodo = styled.div`
@@ -87,6 +93,7 @@ const BulkActions = styled.div`
   display: flex;
   gap: 10px;
   padding-top: 5px;
+  padding-right: 10px;
 `;
 
 const NotesDisplay = styled.div`
@@ -141,26 +148,28 @@ const getStatus = () => {
   return <StatusTodo />;
 };
 
-const getDueAt = ({ dueAt }) => {
+const getDueTime = ({ dueTime }) => {
   return (
     <div>
-      <BodyText sx={{ textTransform: 'lowercase' }}>{formatTime(dueAt)}</BodyText>
-      <SmallBodyText color={Colors.midText}>{formatShortest(dueAt)}</SmallBodyText>
+      <BodyText sx={{ textTransform: 'lowercase' }}>{formatTime(dueTime)}</BodyText>
+      <SmallBodyText color={Colors.midText}>{formatShortest(dueTime)}</SmallBodyText>
     </div>
   );
 };
 
-const AssignedToCell = ({ assignedTo }) => {
+const AssignedToCell = ({ designations }) => {
   const [ref, isOverflowing] = useOverflow();
-  if (!assignedTo?.length) return '';
+  if (!designations?.length) return '';
 
-  const assignedToNames = assignedTo.map(assigned => assigned.name);
+  const designationNames = designations.map(assigned => assigned.referenceData.name);
   return (
-    <ConditionalTooltip visible={isOverflowing} title={assignedToNames.join(', ')}>
-      <OverflowedBox ref={ref}>{assignedToNames.join(', ')}</OverflowedBox>
+    <ConditionalTooltip visible={isOverflowing} title={designationNames.join(', ')}>
+      <OverflowedBox ref={ref}>{designationNames.join(', ')}</OverflowedBox>
     </ConditionalTooltip>
   );
 };
+
+const getFrequency = ({ frequencyValue, frequencyUnit }) => `${frequencyValue} ${frequencyUnit}`;
 
 const NotesCell = ({ row, hoveredRow }) => {
   const [ref, isOverflowing] = useOverflow();
@@ -168,8 +177,8 @@ const NotesCell = ({ row, hoveredRow }) => {
   return (
     <Box display="flex" alignItems="center">
       <NotesDisplay>
-        <ConditionalTooltip visible={isOverflowing} title={row.notes}>
-          <OverflowedBox ref={ref}>{row.notes}</OverflowedBox>
+        <ConditionalTooltip visible={isOverflowing} title={row.note}>
+          <OverflowedBox ref={ref}>{row.note}</OverflowedBox>
         </ConditionalTooltip>
       </NotesDisplay>
       {hoveredRow?.id === row?.id && (
@@ -213,19 +222,19 @@ const NotesCell = ({ row, hoveredRow }) => {
   );
 };
 
-const getTask = ({ task, requestedBy, requestedDate }) => (
+const getTask = ({ name, requestedBy, requestTime }) => (
   <ThemedTooltip
     title={
       <TooltipContainer>
-        <div>{task}</div>
-        <div>{requestedBy}</div>
+        <div>{name}</div>
+        <div>{requestedBy.displayName}</div>
         <Box sx={{ textTransform: 'lowercase' }}>
-          {`${formatShortest(requestedDate)} ${formatTime(requestedDate)}`}
+          {`${formatShortest(requestTime)} ${formatTime(requestTime)}`}
         </Box>
       </TooltipContainer>
     }
   >
-    <span>{task}</span>
+    <span>{name}</span>
   </ThemedTooltip>
 );
 
@@ -238,15 +247,16 @@ const NoDataMessage = () => (
   </NoDataContainer>
 );
 
-export const TasksTable = ({ data }) => {
+export const TasksTable = ({ encounterId, searchParameters }) => {
+  const [hoveredRow, setHoveredRow] = useState();
+  const [data, setData] = useState([]);
+
+  const onDataFetched = ({ data }) => {
+    setData(data);
+  };
+
   const { selectedRows, selectableColumn } = useSelectableColumn(data, {
     bulkDeselectOnly: true,
-  });
-  const [hoveredRow, setHoveredRow] = useState();
-
-  const { orderBy, order, onChangeOrderBy, customSort } = useTableSorting({
-    initialSortKey: '',
-    initialSortDirection: 'asc',
   });
 
   const COLUMNS = [
@@ -262,9 +272,9 @@ export const TasksTable = ({ data }) => {
       accessor: getTask,
     },
     {
-      key: 'dueAt',
+      key: 'dueTime',
       title: <TranslatedText stringId="encounter.tasks.table.column.task" fallback="Due at" />,
-      accessor: getDueAt,
+      accessor: getDueTime,
       maxWidth: 60,
     },
     {
@@ -274,7 +284,7 @@ export const TasksTable = ({ data }) => {
       ),
       maxWidth: 100,
       sortable: false,
-      accessor: ({ assignedTo }) => <AssignedToCell assignedTo={assignedTo} />,
+      accessor: ({ designations }) => <AssignedToCell designations={designations} />,
     },
     {
       key: 'frequency',
@@ -282,12 +292,12 @@ export const TasksTable = ({ data }) => {
         <TranslatedText stringId="encounter.tasks.table.column.frequency" fallback="Frequency" />
       ),
       maxWidth: 90,
+      accessor: getFrequency,
       sortable: false,
     },
     {
-      key: 'notes',
+      key: 'note',
       title: <TranslatedText stringId="encounter.tasks.table.column.notes" fallback="Notes" />,
-      maxWidth: 155,
       accessor: row => <NotesCell row={row} hoveredRow={hoveredRow} />,
       sortable: false,
     },
@@ -339,17 +349,15 @@ export const TasksTable = ({ data }) => {
         </div>
       )}
       <StyledTable
-        data={data}
+        endpoint={`encounter/${encounterId}/tasks`}
         columns={[selectableColumn, ...COLUMNS]}
         noDataMessage={<NoDataMessage />}
         allowExport={false}
         onMouseEnterRow={(_, data) => setHoveredRow(data)}
         onMouseLeaveRow={() => setHoveredRow(null)}
-        orderBy={orderBy}
-        order={order}
-        onChangeOrderBy={onChangeOrderBy}
-        customSort={customSort}
         hideHeader={data.length === 0}
+        searchParameters={searchParameters}
+        onDataFetched={onDataFetched}
       />
     </div>
   );

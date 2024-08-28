@@ -1,62 +1,11 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
 import { Colors } from '../../../constants';
 import { AutocompleteInput, Button, CheckInput, TranslatedText } from '../../../components';
 import { useSuggester } from '../../../api';
 import { TasksTable } from '../../../components/Tasks/TasksTable';
-
-const mockData = [
-  {
-    id: 1,
-    task: 'Change bedpan',
-    dueAt: '2024-08-12 10:00:29.563+07',
-    assignedTo: [
-      {
-        id: 'designation-Nurse',
-        name: 'Nurse',
-      },
-    ],
-    frequency: '2 hours',
-    notes: '',
-    requestedBy: 'Catherine Jennings',
-    requestedDate: '2024-08-11 10:00:29.563+07',
-  },
-  {
-    id: 2,
-    task: 'Contact patient family/caretaker',
-    dueAt: '2024-08-11 11:00:29.563+07',
-    assignedTo: [
-      {
-        id: 'designation-Nurse',
-        name: 'Nurse',
-      },
-      {
-        id: 'designation-SeniorNurse',
-        name: 'Senior Nurse',
-      },
-    ],
-    frequency: 'Once',
-    notes: 'Lorem ipsum dolor sit',
-    requestedBy: 'Catherine Jennings',
-    requestedDate: '2024-08-11 10:00:29.563+07',
-  },
-  {
-    id: 3,
-    task: 'Contact patient family/caretaker',
-    dueAt: '2024-08-11 10:00:29.563+07',
-    assignedTo: [
-      {
-        id: 'designation-Admin',
-        name: 'Admin',
-      },
-    ],
-    frequency: 'Once',
-    notes: 'Lorem ipsum dolor sit ipsum dolor sit ',
-    requestedBy: 'Catherine Jennings',
-    requestedDate: '2024-08-11 10:00:29.563+07',
-  },
-];
+import { TASK_STATUSES } from '@tamanu/constants';
 
 const TabPane = styled.div`
   margin: 20px 24px 24px;
@@ -92,24 +41,40 @@ const CheckInputGroup = styled.div`
   flex-direction: column;
 `;
 
-export const TasksPane = React.memo(() => {
+export const TasksPane = React.memo(({ encounter }) => {
   const designationSuggester = useSuggester('designation');
-  const [data, setData] = useState(mockData);
   const [showCompleted, setShowCompleted] = useState(false);
   const [showNotCompleted, setShowNotCompleted] = useState(false);
+  const [searchParameters, setSearchParameters] = useState({});
+
+  const updateSearchParameters = newSearchParameters => {
+    setSearchParameters({ ...searchParameters, ...newSearchParameters });
+  };
 
   const onFilterByDesignation = e => {
-    if (!e.target.value) {
-      setData(mockData);
+    const designationId = e.target.value;
+    if (!designationId) {
+      const newSearchParameters = { ...searchParameters };
+      delete newSearchParameters.assignedTo;
+      updateSearchParameters(newSearchParameters);
       return;
     }
-
-    const designationId = e.target.value;
-    const filteredData = data.filter(item =>
-      item.assignedTo.some(assignee => assignee.id === designationId),
-    );
-    setData(filteredData);
+    updateSearchParameters({ assignedTo: designationId });
   };
+
+  useEffect(() => {
+    const statuses = [TASK_STATUSES.TODO];
+
+    if (showCompleted) {
+      statuses.push(TASK_STATUSES.COMPLETED);
+    }
+
+    if (showNotCompleted) {
+      statuses.push(TASK_STATUSES.NOT_COMPLETED);
+    }
+
+    updateSearchParameters({ statuses });
+  }, [showCompleted, showNotCompleted]);
 
   return (
     <TabPane>
@@ -154,7 +119,7 @@ export const TasksPane = React.memo(() => {
           <TranslatedText stringId="encounter.tasks.action.newTask" fallback="+ New task" />
         </Button>
       </ActionRow>
-      <TasksTable data={data} />
+      <TasksTable encounterId={encounter.id} searchParameters={searchParameters} />
     </TabPane>
   );
 });
