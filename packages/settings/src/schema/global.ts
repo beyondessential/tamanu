@@ -33,7 +33,7 @@ export const globalSettings = {
         mandateSpecimenType: {
           name: 'Mandate specimen type',
           description: '_',
-          schema: yup.boolean(),
+          type: yup.boolean(),
           defaultValue: false,
         },
       },
@@ -45,7 +45,7 @@ export const globalSettings = {
         componentVersions: {
           name: 'Component versions',
           description: '_',
-          schema: yup.object(),
+          type: yup.object(),
           defaultValue: {},
         },
       },
@@ -61,13 +61,13 @@ export const globalSettings = {
             heartbeat: {
               name: 'Heartbeat interval',
               description: '_',
-              schema: yup.string(),
+              type: yup.string(),
               defaultValue: '1 minute',
             },
             assumeDroppedAfter: {
               name: 'Assume dropped after',
               description: '_',
-              schema: yup.string(),
+              type: yup.string(),
               defaultValue: '10 minutes',
             },
           },
@@ -84,7 +84,7 @@ export const globalSettings = {
             enabled: {
               name: 'Imaging integration enabled',
               description: '_',
-              schema: yup.boolean(),
+              type: yup.boolean(),
               defaultValue: false,
             },
           },
@@ -98,13 +98,13 @@ export const globalSettings = {
         ageLimit: {
           name: 'Upcoming vaccination age limit',
           description: '_',
-          schema: yup.number(),
+          type: yup.number(),
           defaultValue: 15,
         },
         thresholds: {
           name: 'Upcoming vaccination thresholds',
           description: '_',
-          schema: thresholdsSchema,
+          type: thresholdsSchema,
           defaultValue: [
             {
               threshold: 28,
@@ -133,7 +133,7 @@ export const globalSettings = {
     triageCategories: {
       name: 'Triage categories',
       description: 'Customise triage scale',
-      schema: yup
+      type: yup
         .array()
         .of(
           yup.object({
@@ -596,7 +596,7 @@ export const globalSettings = {
     imagingPriorities: {
       name: 'Imaging priorities',
       description: 'List with each entry being an available imaging priority option',
-      schema: yup.array(),
+      type: yup.array(),
       defaultValue: [
         {
           value: 'routine',

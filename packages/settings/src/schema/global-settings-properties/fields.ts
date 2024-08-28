@@ -3,7 +3,7 @@ import * as yup from 'yup';
 const hideable = {
   hidden: {
     description: 'Field should not display on forms',
-    schema: yup.boolean(),
+    type: yup.boolean(),
     defaultValue: false,
   },
 };
@@ -11,12 +11,12 @@ const hideable = {
 export const baseFieldProperties = {
   defaultValue: {
     description: 'Default value for field',
-    schema: yup.mixed(),
+    type: yup.mixed(),
     defaultValue: null,
   },
   required: {
     description: 'Field is required',
-    schema: yup.boolean(),
+    type: yup.boolean(),
     defaultValue: false,
   },
 };
@@ -30,7 +30,7 @@ export const patientDetailsFieldProperties = {
   ...baseFieldProperties,
   requiredPatientData: {
     description: 'Field must be filled out when creating a patient',
-    schema: yup.boolean(),
+    type: yup.boolean(),
     defaultValue: false,
   },
 };
@@ -44,7 +44,7 @@ export const displayIdFieldProperties = {
   ...baseFieldProperties,
   pattern: {
     description: 'Regex to enforce the format of field input',
-    schema: yup.string(),
+    type: yup.string(),
     defaultValue: '[\\s\\S]*',
   },
 };

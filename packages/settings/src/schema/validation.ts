@@ -1,11 +1,11 @@
 import { SETTINGS_SCOPES } from '@tamanu/constants';
-import { globalSettings } from '../global';
-import { centralSettings } from '../central';
-import { facilitySettings } from '../facility';
+import { globalSettings } from './global';
+import { centralSettings } from './central';
+import { facilitySettings } from './facility';
 import * as yup from 'yup';
 import _ from 'lodash';
-import { SettingsSchema } from '../types';
-import { isSetting } from '../utils';
+import { SettingsSchema } from './types';
+import { isSetting } from './utils';
 
 const SCOPE_TO_SCHEMA = {
   [SETTINGS_SCOPES.GLOBAL]: globalSettings,
@@ -35,7 +35,7 @@ const flattenSchema = (
     const fullKey = parentKey ? `${parentKey}.${key}` : key;
 
     if (isSetting(value)) {
-      acc[fullKey] = value.schema;
+      acc[fullKey] = value.type;
     } else {
       Object.assign(acc, flattenSchema(value as SettingsSchema, fullKey));
     }

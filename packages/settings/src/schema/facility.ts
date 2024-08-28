@@ -12,7 +12,7 @@ export const facilitySettings = {
         letterhead: {
           name: 'Letterhead',
           description: '_',
-          schema: yup.object(),
+          type: yup.object(),
           defaultValue: {},
         },
       },
@@ -20,7 +20,7 @@ export const facilitySettings = {
     vaccinations: {
       name: 'Vaccinations',
       description: '_',
-      schema: yup.object(),
+      type: yup.object(),
       defaultValue: {},
     },
     survey: {
@@ -35,13 +35,13 @@ export const facilitySettings = {
             department: {
               name: 'Department',
               description: 'Default department code',
-              schema: yup.string(),
+              type: yup.string(),
               defaultValue: 'GeneralClinic',
             },
             location: {
               name: 'Location',
               description: 'Default location code',
-              schema: yup.string(),
+              type: yup.string(),
               defaultValue: 'GeneralClinic',
             },
           },

@@ -14,14 +14,14 @@ describe('Schemas', () => {
               b: {
                 name: 'Setting a.b',
                 description: '_',
-                schema: yup.boolean().required(),
+                type: yup.boolean().required(),
                 defaultValue: false,
               },
             },
           },
           c: {
             name: 'Setting c',
-            schema: yup.string().required(),
+            type: yup.string().required(),
             defaultValue: 'c',
           },
           d: {
@@ -30,7 +30,7 @@ describe('Schemas', () => {
                 properties: {
                   f: {
                     name: 'Setting d.e.f',
-                    schema: yup
+                    type: yup
                       .array()
                       .of(
                         yup.object({
@@ -268,7 +268,7 @@ describe('Schemas', () => {
       const schema = {
         properties: {
           a: {
-            schema: yup.string().required(),
+            type: yup.string().required(),
             defaultValue: 'a',
           },
         },
@@ -286,7 +286,7 @@ describe('Schemas', () => {
     const schema = {
       properties: {
         a: {
-          schema: yup.array().of(yup.string()),
+          type: yup.array().of(yup.string()),
           defaultValue: ['a'],
         },
       },
@@ -303,7 +303,7 @@ describe('Schemas', () => {
     const schema = {
       properties: {
         a: {
-          schema: yup.array().of(
+          type: yup.array().of(
             yup.object().shape({
               b: yup.string().required(),
             }),
