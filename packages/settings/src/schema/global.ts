@@ -16,42 +16,44 @@ const thresholdsSchema = yup.array().of(
 );
 
 export const globalSettings = {
-  values: {
+  name: 'Global settings',
+  description: 'Settings that apply to all servers',
+  properties: {
     features: {
-      values: {
+      properties: {
         mandateSpecimenType: {
           name: 'Mandate specimen type',
           description: '_',
-          schema: yup.boolean(),
+          type: yup.boolean(),
           defaultValue: false,
         },
       },
     },
     customisations: {
-      values: {
+      properties: {
         componentVersions: {
           name: 'Component versions',
           description: '_',
-          schema: yup.object(),
+          type: yup.object(),
           defaultValue: {},
         },
       },
     },
     fhir: {
-      values: {
+      properties: {
         worker: {
           description: 'FHIR worker settings',
-          values: {
+          properties: {
             heartbeat: {
               name: 'Heartbeat interval',
               description: '_',
-              schema: yup.string(),
+              type: yup.string(),
               defaultValue: '1 minute',
             },
             assumeDroppedAfter: {
               name: 'Assume dropped after',
               description: '_',
-              schema: yup.string(),
+              type: yup.string(),
               defaultValue: '10 minutes',
             },
           },
@@ -59,14 +61,14 @@ export const globalSettings = {
       },
     },
     integrations: {
-      values: {
+      properties: {
         imaging: {
           description: 'Imaging integration settings',
-          values: {
+          properties: {
             enabled: {
               name: 'Imaging integration enabled',
               description: '_',
-              schema: yup.boolean(),
+              type: yup.boolean(),
               defaultValue: false,
             },
           },
@@ -74,17 +76,17 @@ export const globalSettings = {
       },
     },
     upcomingVaccinations: {
-      values: {
+      properties: {
         ageLimit: {
           name: 'Upcoming vaccination age limit',
           description: '_',
-          schema: yup.number(),
+          type: yup.number(),
           defaultValue: 15,
         },
         thresholds: {
           name: 'Upcoming vaccination thresholds',
           description: '_',
-          schema: thresholdsSchema,
+          type: thresholdsSchema,
           defaultValue: [
             {
               threshold: 28,
@@ -111,11 +113,11 @@ export const globalSettings = {
       },
     },
     invoice: {
-      values: {
+      properties: {
         slidingFeeScale: {
           name: 'Sliding fee scale',
           description: '_',
-          schema: yup.array().of(yup.array().of(yup.number())),
+          type: yup.array().of(yup.array().of(yup.number())),
           defaultValue: {},
         },
       },
