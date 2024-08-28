@@ -15,6 +15,7 @@ export class ApplicationContext {
 
   reportSchemaStores = null;
 
+  /** @type {import('./services/EmailService').EmailService | null} */
   emailService = null;
 
   /** @type {Awaited<ReturnType<typeof defineSingletonTelegramBotService>>|null} */

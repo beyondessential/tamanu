@@ -77,8 +77,8 @@ export class FacilitySyncManager {
       return { enabled: false };
     }
 
-    // if there is a currently running sync, and already another one 
-    // queued up to run after that, just wait for that next sync run 
+    // if there is a currently running sync, and already another one
+    // queued up to run after that, just wait for that next sync run
     // (which will definitely sync any changes made up until the time this sync was requested)
     if (this.nextSyncPromise) {
       const result = await this.nextSyncPromise;
@@ -118,7 +118,10 @@ export class FacilitySyncManager {
       );
     }
 
-    log.info('FacilitySyncManager.attemptStart', { reason: this.reason });
+    const startTime = new Date().getTime();
+    this.currentStartTime = startTime;
+
+    log.info('FacilitySyncManager.attemptStart', { reason: this.reason, startTime });
 
     const pullSince = (await this.models.LocalSystemFact.get(LAST_SUCCESSFUL_SYNC_PULL_KEY)) || -1;
 
@@ -142,9 +145,6 @@ export class FacilitySyncManager {
 
     // clear previous temp data, in case last session errored out or server was restarted
     await dropAllSnapshotTables(this.sequelize);
-
-    const startTime = new Date().getTime();
-    this.currentStartTime = startTime;
 
     log.info('FacilitySyncManager.receivedSessionInfo', {
       sessionId,
