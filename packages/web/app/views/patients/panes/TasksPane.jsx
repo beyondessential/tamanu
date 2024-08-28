@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { Box, Typography } from '@material-ui/core';
+import { Box } from '@material-ui/core';
 import { Colors } from '../../../constants';
 import { AutocompleteInput, Button, Heading4, TranslatedText } from '../../../components';
 import { useSuggester } from '../../../api';
@@ -13,14 +13,14 @@ const mockData = [
     dueAt: '2024-08-12 10:00:29.563+07',
     assignedTo: [
       {
-        id: "designation-Nurse",
+        id: 'designation-Nurse',
         name: 'Nurse',
       },
     ],
     frequency: '2 hours',
     notes: '',
     requestedBy: 'Catherine Jennings',
-    requestedDate: '2024-08-11 10:00:29.563+07'
+    requestedDate: '2024-08-11 10:00:29.563+07',
   },
   {
     id: 2,
@@ -28,18 +28,18 @@ const mockData = [
     dueAt: '2024-08-11 11:00:29.563+07',
     assignedTo: [
       {
-        id: "designation-Nurse",
+        id: 'designation-Nurse',
         name: 'Nurse',
       },
       {
-        id: "designation-SeniorNurse",
+        id: 'designation-SeniorNurse',
         name: 'Senior Nurse',
       },
     ],
     frequency: 'Once',
     notes: 'Lorem ipsum dolor sit',
     requestedBy: 'Catherine Jennings',
-    requestedDate: '2024-08-11 10:00:29.563+07'
+    requestedDate: '2024-08-11 10:00:29.563+07',
   },
   {
     id: 3,
@@ -54,7 +54,7 @@ const mockData = [
     frequency: 'Once',
     notes: 'Lorem ipsum dolor sit ipsum dolor sit ',
     requestedBy: 'Catherine Jennings',
-    requestedDate: '2024-08-11 10:00:29.563+07'
+    requestedDate: '2024-08-11 10:00:29.563+07',
   },
 ];
 
@@ -68,22 +68,8 @@ const TabPane = styled.div`
 
 const TitleContainer = styled.div`
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: center;
-`;
-
-const LinkButton = styled(Typography)`
-  font-weight: 400;
-  font-size: 11px;
-  text-decoration: underline;
-  cursor: pointer;
-  color: ${Colors.primary};
-`;
-
-const Title = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 20px;
 `;
 
 const ActionRow = styled.div`
@@ -101,7 +87,7 @@ export const TasksPane = React.memo(() => {
       setData(mockData);
       return;
     }
-    
+
     const designationId = e.target.value;
     const filteredData = data.filter(item =>
       item.assignedTo.some(assignee => assignee.id === designationId),
@@ -112,20 +98,6 @@ export const TasksPane = React.memo(() => {
   return (
     <TabPane>
       <TitleContainer>
-        <Title>
-          <Heading4>
-            <TranslatedText
-              stringId="encounter.tasks.title.upcomingTasks"
-              fallback="Upcoming tasks"
-            />
-          </Heading4>
-          <LinkButton>
-            <TranslatedText
-              stringId="encounter.tasks.action.viewPrevious"
-              fallback="View previous"
-            />
-          </LinkButton>
-        </Title>
         <ActionRow>
           <AutocompleteInput
             name="designationId"
