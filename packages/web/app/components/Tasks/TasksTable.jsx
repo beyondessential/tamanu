@@ -349,6 +349,7 @@ export const TasksTable = ({ data }) => {
         order={order}
         onChangeOrderBy={onChangeOrderBy}
         customSort={customSort}
+        hideHeader={data.length === 0}
       />
     </div>
   );
