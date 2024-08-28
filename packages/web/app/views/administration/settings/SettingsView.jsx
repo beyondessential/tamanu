@@ -4,6 +4,7 @@ import { Settings } from '@material-ui/icons';
 import { useQuery } from '@tanstack/react-query';
 
 import { SETTINGS_SCOPES } from '@tamanu/constants';
+import { validateSettings } from '@tamanu/settings/schema';
 
 import { LargeButton, TextButton, ContentPane, ButtonRow, TopBar } from '../../../components';
 import { AdminViewContainer } from '../components/AdminViewContainer';
@@ -14,6 +15,7 @@ import { useApi } from '../../../api';
 import { notifySuccess, notifyError } from '../../../utils';
 import { ErrorMessage } from '../../../components/ErrorMessage';
 import { TranslatedText } from '../../../components/Translation';
+import { ValidationError } from 'yup';
 
 const StyledTopBar = styled(TopBar)`
   padding: 0;
@@ -77,13 +79,15 @@ export const SettingsView = React.memo(() => {
     try {
       JSON.parse(settingsEditString);
     } catch (error) {
-      notifyError(`Invalid JSON: ${error.message}`);
+      notifyError(`Invalid JSON: ${error}`);
       setJsonError(error);
       return;
     }
+
     const settingsObject = JSON.parse(settingsEditString);
 
     try {
+      await validateSettings({ settings: settingsObject, scope });
       await api.put('admin/settings', {
         settings: settingsObject,
         facilityId,
@@ -93,7 +97,13 @@ export const SettingsView = React.memo(() => {
       await refetchSettings();
       turnOffEditMode();
     } catch (error) {
-      notifyError(`Error while saving settings: ${error.message}`);
+      if (error instanceof ValidationError) {
+        error?.inner?.forEach(e => {
+          notifyError(e.message);
+        });
+      } else {
+        notifyError(`Error while saving settings: ${error.message}`);
+      }
     }
   };
 

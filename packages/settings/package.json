@@ -14,9 +14,9 @@
       "import": "./dist/mjs/cache/index.js",
       "require": "./dist/cjs/cache/index.js"
     },
-    "./defaults": {
-      "import": "./dist/mjs/defaults/index.js",
-      "require": "./dist/cjs/defaults/index.js"
+    "./schema": {
+      "import": "./dist/mjs/schema/index.js",
+      "require": "./dist/cjs/schema/index.js"
     },
     "./reader": {
       "import": "./dist/mjs/reader/index.js",
