@@ -321,6 +321,10 @@ export const AppointmentDetail = ({ appointment, onUpdated, onClose }) => {
             await updateAppointmentStatus(selectedOption.value);
           }}
           styles={{
+            placeholder: baseStyles => ({
+              ...baseStyles,
+              color: Colors.white,
+            }),
             valueContainer: baseStyles => ({
               ...baseStyles,
               color: Colors.white,
