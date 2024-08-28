@@ -6,7 +6,7 @@ module.exports = {
       name: 'tamanu-api-server',
       cwd: '.', // IMPORTANT: Leave this as-is, for production build
       script: './dist/index.js',
-      args: 'serve',
+      args: 'startServe',
       interpreter_args: `--max_old_space_size=${memory}`,
       instances: 'max',
       exec_mode: 'cluster',
@@ -18,7 +18,18 @@ module.exports = {
       name: 'tamanu-tasks-runner',
       cwd: '.', // IMPORTANT: Leave this as-is, for production build
       script: './dist/index.js',
-      args: 'tasks',
+      args: 'startTasks',
+      interpreter_args: `--max_old_space_size=${memory}`,
+      instances: 1,
+      env: {
+        NODE_ENV: 'production',
+      },
+    },
+    {
+      name: 'tamanu-fhir-worker',
+      cwd: '.', // IMPORTANT: Leave this as-is, for production build
+      script: './dist/index.js',
+      args: 'startFhirWorker',
       interpreter_args: `--max_old_space_size=${memory}`,
       instances: 1,
       env: {
