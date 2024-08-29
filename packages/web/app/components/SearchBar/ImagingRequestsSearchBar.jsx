@@ -22,6 +22,7 @@ import { useSuggester } from '../../api';
 import { useImagingRequests } from '../../contexts/ImagingRequests';
 import { useAdvancedFields } from './useAdvancedFields';
 import { TranslatedText } from '../Translation/TranslatedText';
+import { camelCase } from 'lodash';
 
 const FacilityCheckbox = styled.div`
   display: flex;
