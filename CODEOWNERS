@@ -35,12 +35,12 @@
 # Kamaka needs to be across changes to the PM2 config files, as they're critical
 # to the deployment process on Windows.
 #
-pm2*.config.js  @passcod
+pm2*.config.js  @kamaka
 
 #
 # Kamaka owns the Github Actions workflows, for verification as breakage affects
 # the deployment processes and may have non-local effects.
 #
-/.github/actions/    @passcod
-/.github/scripts/    @passcod
-/.github/workflows/  @passcod
+/.github/actions/    @kamaka
+/.github/scripts/    @kamaka
+/.github/workflows/  @kamaka
