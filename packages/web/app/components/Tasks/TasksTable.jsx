@@ -281,7 +281,7 @@ export const TasksTable = ({ encounterId, searchParameters, refreshCount }) => {
       sortable: false,
     },
     {
-      key: 'task',
+      key: 'name',
       title: <TranslatedText stringId="encounter.tasks.table.column.task" fallback="Task" />,
       maxWidth: 160,
       accessor: getTask,
