@@ -98,13 +98,13 @@ describe('Fiji statistical report for phis summary', () => {
     const diabetesDiagnosis = await models.ReferenceData.create({
       type: 'diagnosis',
       name: 'Diabetes',
-      code: 'diagnosis-E11',
+      code: 'icd10-E11',
     });
 
     const hypertensionDiagnosis = await models.ReferenceData.create({
       type: 'diagnosis',
       name: 'Hypertension',
-      code: 'diagnosis-I10',
+      code: 'icd10-I10',
     });
 
     await setupProgramAndSurvey(models);
