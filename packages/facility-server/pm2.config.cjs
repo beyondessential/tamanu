@@ -5,7 +5,7 @@ const cwd = '.'; // IMPORTANT: Leave this as-is, for production build
 module.exports = {
   apps: [
     {
-      name: 'tamanu-api-server',
+      name: 'tamanu-api',
       cwd,
       script: './dist/index.js',
       args: 'startAll',

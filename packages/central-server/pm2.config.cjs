@@ -11,7 +11,7 @@ const cwd = '.'; // IMPORTANT: Leave this as-is, for production build
 module.exports = {
   apps: [
     {
-      name: 'tamanu-api-server',
+      name: 'tamanu-api',
       cwd,
       script: './dist/index.js',
       args: 'startApi',
@@ -23,7 +23,7 @@ module.exports = {
       },
     },
     {
-      name: 'tamanu-tasks-runner',
+      name: 'tamanu-tasks',
       cwd,
       script: './dist/index.js',
       args: 'startTasks',
