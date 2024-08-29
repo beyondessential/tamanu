@@ -24,104 +24,104 @@ export const globalSettings = {
       properties: {
         mandateSpecimenType: {
           description: '_',
-          schema: yup.boolean(),
+          type: yup.boolean(),
           defaultValue: false,
         },
         enableVaccineConsent: {
           description: 'Show consent given by field on vaccine forms',
-          schema: yup.boolean(),
+          type: yup.boolean(),
           defaultValue: true,
         },
         filterDischargeDispositions: {
           description:
             'Filter the discharge disposition autocomplete options by prefix corresponding to patients status (AE, IN, OP)',
-          schema: yup.boolean(),
+          type: yup.boolean(),
           defaultValue: false,
         },
         editPatientDetailsOnMobile: {
           description: 'Allow the editing of patient details from mobile',
-          schema: yup.boolean(),
+          type: yup.boolean(),
           defaultValue: true,
         },
         quickPatientGenerator: {
           description: 'Dev tool to show a button to create a random patient',
-          schema: yup.boolean(),
+          type: yup.boolean(),
           defaultValue: false,
         },
         enableInvoicing: {
           description: 'Enable invoice tab/module on encounter view',
-          schema: yup.boolean(),
+          type: yup.boolean(),
           defaultValue: false,
         },
         registerNewPatient: {
           description: 'Allow the creation of new patient on mobile',
-          schema: yup.boolean(),
+          type: yup.boolean(),
           defaultValue: true,
         },
         hideOtherSex: {
           description: 'Remove option to record sex as "Other"',
-          schema: yup.boolean(),
+          type: yup.boolean(),
           defaultValue: true,
         },
         enablePatientDeaths: {
           description: 'Enable death module',
-          schema: yup.boolean(),
+          type: yup.boolean(),
           defaultValue: false,
         },
         enableNoteBackdating: {
           description:
             'Allow notes to have date explicitly recorded, allowing notes to be recorded in the past',
-          schema: yup.boolean(),
+          type: yup.boolean(),
           defaultValue: true,
         },
         enableCovidClearanceCertificate: {
           description: 'Enable covid certificate printout',
-          schema: yup.boolean(),
+          type: yup.boolean(),
           defaultValue: false,
         },
         editPatientDisplayId: {
           description: 'Allow the editing of an existing patients display id',
-          schema: yup.boolean(),
+          type: yup.boolean(),
           defaultValue: true,
         },
         enablePatientInsurer: {
           description:
             'Include insurer and policy number as fields in patient details identification section',
-          schema: yup.boolean(),
+          type: yup.boolean(),
           defaultValue: false,
         },
         patientPlannedMove: {
           description: 'Enable patient planned move encounter actions',
-          schema: yup.boolean(),
+          type: yup.boolean(),
           defaultValue: false,
         },
         onlyAllowLabPanels: {
           description: 'Only allow lab tests to be created via panels and not individual tests',
-          schema: yup.boolean(),
+          type: yup.boolean(),
           defaultValue: false,
         },
         displayProcedureCodesInDischargeSummary: {
-          schema: yup.boolean(),
+          type: yup.boolean(),
           defaultValue: true,
         },
         displayIcd10CodesInDischargeSummary: {
-          schema: yup.boolean(),
+          type: yup.boolean(),
           defaultValue: true,
         },
         mandatoryVitalEditReason: {
           description: 'Require a reason for change text field to be filled out on vital edit',
-          schema: yup.boolean(),
+          type: yup.boolean(),
           defaultValue: false,
         },
         enableVitalEdit: {
           description: 'Allow existing vitals records to be edited',
-          schema: yup.boolean(),
+          type: yup.boolean(),
           defaultValue: false,
         },
         reminderContactModule: {
           properties: {
             enabled: {
-              schema: yup.boolean(),
+              type: yup.boolean(),
               defaultValue: false,
             },
           },
@@ -130,25 +130,25 @@ export const globalSettings = {
           description: 'Automatically logout idle users / inactive sessions after a certain time',
           properties: {
             enabled: {
-              schema: yup.boolean(),
+              type: yup.boolean(),
               defaultValue: true,
             },
             timeoutDuration: {
               description: 'The idle time before a user is logged out',
-              schema: yup.number(),
+              type: yup.number(),
               defaultValue: 600,
               unit: 'seconds',
             },
             warningPromptDuration: {
               description: 'The time the warning prompt should be visible before idle logout',
-              schema: yup.number(),
+              type: yup.number(),
               defaultValue: 30,
               unit: 'seconds',
             },
             refreshInterval: {
               description:
                 'Technical really should not be changed - The interval in which to throttle the idle check by for performance',
-              schema: yup.number(),
+              type: yup.number(),
               defaultValue: 150,
               unit: 'seconds',
             },
@@ -159,13 +159,13 @@ export const globalSettings = {
             'Enable the auto refresh feature on tables where it is implemented: Currently supports imaging and lab listing views',
           properties: {
             enabled: {
-              schema: yup.boolean(),
+              type: yup.boolean(),
               defaultValue: true,
               unit: 'seconds',
             },
             interval: {
               description: 'Interval in seconds between check for new records.',
-              schema: yup.number(),
+              type: yup.number(),
               defaultValue: 300,
               unit: 'seconds',
             },
