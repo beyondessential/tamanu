@@ -1,10 +1,12 @@
 const memory = process.env.TAMANU_MEMORY_ALLOCATION || 8192;
 
+const cwd = '.'; // IMPORTANT: Leave this as-is, for production build
+
 module.exports = {
   apps: [
     {
       name: 'tamanu-api-server',
-      cwd: '.', // IMPORTANT: Leave this as-is, for production build
+      cwd,
       script: './dist/index.js',
       args: 'startAll',
       interpreter_args: `--max_old_space_size=${memory}`,

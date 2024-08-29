@@ -6,11 +6,13 @@ const memory = process.env.TAMANU_MEMORY_ALLOCATION || (totalMemoryMB * 0.6);
 const availableThreads = os.availableParallelism();
 const defaultApiScale = Math.max(2, Math.floor(availableThreads / 2));
 
+const cwd = '.'; // IMPORTANT: Leave this as-is, for production build
+
 module.exports = {
   apps: [
     {
       name: 'tamanu-api-server',
-      cwd: '.', // IMPORTANT: Leave this as-is, for production build
+      cwd,
       script: './dist/index.js',
       args: 'startServe',
       interpreter_args: `--max_old_space_size=${memory}`,
@@ -22,7 +24,7 @@ module.exports = {
     },
     {
       name: 'tamanu-tasks-runner',
-      cwd: '.', // IMPORTANT: Leave this as-is, for production build
+      cwd,
       script: './dist/index.js',
       args: 'startTasks',
       interpreter_args: `--max_old_space_size=${memory}`,
@@ -33,7 +35,7 @@ module.exports = {
     },
     {
       name: 'tamanu-fhir-worker',
-      cwd: '.', // IMPORTANT: Leave this as-is, for production build
+      cwd,
       script: './dist/index.js',
       args: 'startFhirWorker',
       interpreter_args: `--max_old_space_size=${memory}`,

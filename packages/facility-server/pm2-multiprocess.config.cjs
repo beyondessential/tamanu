@@ -1,10 +1,12 @@
 const memory = process.env.TAMANU_MEMORY_ALLOCATION || 8192;
 
+const cwd = '.'; // IMPORTANT: Leave this as-is, for production build
+
 module.exports = {
   apps: [
     {
       name: 'tamanu-api-server',
-      cwd: '.', // IMPORTANT: Leave this as-is, for production build
+      cwd,
       script: './dist/index.js',
       args: 'startApi',
       interpreter_args: `--max_old_space_size=${memory}`,
@@ -16,7 +18,7 @@ module.exports = {
     },
     {
       name: 'tamanu-tasks-runner',
-      cwd: '.', // IMPORTANT: Leave this as-is, for production build
+      cwd,
       script: './dist/index.js',
       args: 'startTasks',
       interpreter_args: `--max_old_space_size=${memory}`,
@@ -27,7 +29,7 @@ module.exports = {
     },
     {
       name: 'tamanu-sync-server',
-      cwd: '.', // IMPORTANT: Leave this as-is, for production build
+      cwd,
       script: './dist/index.js',
       args: 'startSync',
       interpreter_args: `--max_old_space_size=${memory}`,
