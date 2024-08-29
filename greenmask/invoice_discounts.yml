@@ -1,0 +1,12 @@
+---
+schema: public
+name: invoice_discounts
+transformers:
+  - name: Masking
+    params:
+      column: reason
+
+  - name: Template
+    params:
+      column: applied_time
+      template: '{{- fakerTimestamp -}}'
