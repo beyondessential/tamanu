@@ -40,7 +40,7 @@ taskRoutes.put(
 
 /**
  * Mark task as not completed
- * Only tasks in TODO status can be marked as not completed
+ * Only tasks in TODO & COMPLETED status can be marked as not completed
  */
 const taskNonCompletionInputSchema = z.object({
   taskIds: z
