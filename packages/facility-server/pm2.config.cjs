@@ -1,4 +1,7 @@
-const memory = process.env.TAMANU_MEMORY_ALLOCATION || 8192;
+const os = require('node:os');
+
+const totalMemoryMB = os.totalmem() / (1024**2);
+const memory = process.env.TAMANU_MEMORY_ALLOCATION || (totalMemoryMB * 0.6);
 
 const cwd = '.'; // IMPORTANT: Leave this as-is, for production build
 

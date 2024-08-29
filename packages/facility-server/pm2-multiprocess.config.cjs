@@ -1,4 +1,10 @@
-const memory = process.env.TAMANU_MEMORY_ALLOCATION || 8192;
+const os = require('node:os');
+
+const totalMemoryMB = os.totalmem() / (1024**2);
+const memory = process.env.TAMANU_MEMORY_ALLOCATION || (totalMemoryMB * 0.6);
+
+const availableThreads = os.availableParallelism();
+const defaultApiScale = Math.max(2, Math.floor(availableThreads / 2));
 
 const cwd = '.'; // IMPORTANT: Leave this as-is, for production build
 
@@ -10,7 +16,7 @@ module.exports = {
       script: './dist/index.js',
       args: 'startApi',
       interpreter_args: `--max_old_space_size=${memory}`,
-      instances: 'max',
+      instances: +process.env.TAMANU_API_SCALE || defaultApiScale,
       exec_mode: 'cluster',
       env: {
         NODE_ENV: 'production',
