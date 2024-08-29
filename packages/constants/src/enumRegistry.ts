@@ -24,7 +24,7 @@ import {
 } from './reports';
 import { TEMPLATE_TYPE_LABELS } from './templates';
 import { LAB_REQUEST_STATUS_LABELS } from './labs';
-import { ASSET_NAMES } from './importable';
+import { ASSET_NAME_LABELS } from './importable';
 import { DIAGNOSIS_CERTAINTY_LABELS, PATIENT_ISSUE_LABELS } from './diagnoses';
 import { DRUG_ROUTE_LABELS, REPEATS_LABELS } from './medications';
 import { PLACE_OF_DEATHS, MANNER_OF_DEATHS } from './deaths';
@@ -42,7 +42,7 @@ type EnumEntries = [EnumKeys, EnumValues][];
 export const registeredEnums = {
   APPOINTMENT_STATUSES,
   APPOINTMENT_TYPES,
-  ASSET_NAMES,
+  ASSET_NAME_LABELS,
   BIRTH_DELIVERY_TYPE_LABELS,
   BIRTH_TYPE_LABELS,
   DIAGNOSIS_CERTAINTY_LABELS,
@@ -81,7 +81,7 @@ export const registeredEnums = {
 export const translationPrefixes: Record<EnumKeys, string> = {
   APPOINTMENT_STATUSES: 'appointment.property.status',
   APPOINTMENT_TYPES: 'appointment.property.types',
-  ASSET_NAMES: 'asset.property.name',
+  ASSET_NAME_LABELS: 'asset.property.name',
   BIRTH_DELIVERY_TYPE_LABELS: 'birth.property.birthDeliveryType',
   BIRTH_TYPE_LABELS: 'birth.property.birthType',
   DIAGNOSIS_CERTAINTY_LABELS: 'diagnosis.property.certainty',
