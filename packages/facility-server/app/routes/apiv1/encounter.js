@@ -24,6 +24,7 @@ import {
 } from '@tamanu/shared/utils/crudHelpers';
 import { add } from 'date-fns';
 import { z } from 'zod';
+import { query } from 'express-validator/check';
 
 import { uploadAttachment } from '../../utils/uploadAttachment';
 import { noteChangelogsHandler, noteListHandler } from '../../routeHandlers';
@@ -544,6 +545,11 @@ const encounterTasksQuerySchema = z.object({
 });
 encounterRelations.get(
   '/:id/tasks',
+  [
+    query('assignedTo')
+      .trim()
+      .escape(),
+  ],
   asyncHandler(async (req, res) => {
     const { models, params } = req;
     const { Task } = models;
