@@ -4,6 +4,7 @@ import { Box, Divider } from '@material-ui/core';
 import CheckCircleIcon from '@material-ui/icons/CheckCircle';
 import CancelIcon from '@material-ui/icons/Cancel';
 import DeleteOutlineIcon from '@material-ui/icons/DeleteOutline';
+import { TASK_STATUSES } from '@tamanu/constants';
 import {
   BodyText,
   SmallBodyText,
@@ -37,7 +38,10 @@ const StyledTable = styled(DataFetchingTable)`
     &:last-child {
       padding-right: 20px;
     }
-    &:first-child,
+    &:first-child {
+      padding-left: 0px;
+      width: 15px;
+    }
     &:nth-child(2) {
       padding-left: 0px;
     }
@@ -90,7 +94,7 @@ const StatusTodo = styled.div`
 
 const BulkActions = styled.div`
   display: flex;
-  gap: 10px;
+  gap: 15px;
   padding-top: 5px;
   padding-right: 10px;
 `;
@@ -116,18 +120,20 @@ const TooltipContainer = styled.div`
 `;
 
 const StyledDeleteOutlineIcon = styled(DeleteOutlineIcon)`
-  font-size: 20px;
+  font-size: 18px;
   color: ${Colors.primary};
 `;
 
 const StyledCancelIcon = styled(CancelIcon)`
-  font-size: 20px;
+  font-size: 18px;
   color: ${Colors.alert};
+  vertical-align: middle;
 `;
 
 const StyledCheckCircleIcon = styled(CheckCircleIcon)`
-  font-size: 20px;
+  font-size: 18px;
   color: ${Colors.green};
+  vertical-align: middle;
 `;
 
 const NoDataContainer = styled.div`
@@ -143,8 +149,17 @@ const NoDataContainer = styled.div`
   color: ${Colors.primary};
 `;
 
-const getStatus = () => {
-  return <StatusTodo />;
+const getStatus = ({ status }) => {
+  switch (status) {
+    case TASK_STATUSES.TODO:
+      return <Box marginLeft='1.5px'><StatusTodo /></Box>;
+    case TASK_STATUSES.COMPLETED:
+      return <StyledCheckCircleIcon />;
+    case TASK_STATUSES.NON_COMPLETED:
+      return <StyledCancelIcon />;
+    default:
+      break;
+  }
 };
 
 const getDueTime = ({ dueTime }) => {
@@ -262,7 +277,7 @@ export const TasksTable = ({ encounterId, searchParameters, refreshCount }) => {
   const COLUMNS = [
     {
       accessor: getStatus,
-      maxWidth: 15,
+      maxWidth: 20,
       sortable: false,
     },
     {
@@ -359,6 +374,7 @@ export const TasksTable = ({ encounterId, searchParameters, refreshCount }) => {
         fetchOptions={searchParameters}
         onDataFetched={onDataFetched}
         refreshCount={refreshCount}
+        disablePagination
       />
     </div>
   );
