@@ -14,12 +14,18 @@ export const imagingCancellationReasonsSchema = yup
   .test({
     name: 'imagingCancellationReasons-dupe',
     message: 'labsCancellationReasons must include an option with value = duplicate',
-    test: reasons => reasons.some(r => r.value === 'duplicate'),
+    test: reasons => {
+      if (reasons === undefined) return true; // Don’t fail validation if falling back to default value
+      return reasons.some(r => r.value === 'duplicate');
+    },
   })
   .test({
     name: 'imagingCancellationReasons-err',
     message: 'labsCancellationReasons must include an option with value = entered-in-error',
-    test: reasons => reasons.some(r => r.value === 'entered-in-error'),
+    test: reasons => {
+      if (reasons === undefined) return true; // Don’t fail validation if falling back to default value
+      return reasons.some(r => r.value === 'entered-in-error');
+    },
   });
 
 export const imagingCancellationReasonsDefault = [
