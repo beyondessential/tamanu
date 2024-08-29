@@ -33,46 +33,46 @@ const thresholdsSchema = yup.array().of(
 );
 
 export const globalSettings = {
-  values: {
+  properties: {
     ageDisplayFormat: {
-      schema: ageDisplayFormatSchema,
+      type: ageDisplayFormatSchema,
       defaultValue: ageDisplayFormatDefault,
     },
     customisations: {
-      values: {
+      properties: {
         componentVersions: {
           name: 'Component versions',
           description: '_',
-          schema: yup.object(),
+          type: yup.object(),
           defaultValue: {},
         },
       },
     },
     features: {
-      values: {
+      properties: {
         mandateSpecimenType: {
           name: 'Mandate specimen type',
           description: '_',
-          schema: yup.boolean(),
+          type: yup.boolean(),
           defaultValue: false,
         },
       },
     },
     fhir: {
-      values: {
+      properties: {
         worker: {
           description: 'FHIR worker settings',
-          values: {
+          properties: {
             heartbeat: {
               name: 'Heartbeat interval',
               description: '_',
-              schema: yup.string(),
+              type: yup.string(),
               defaultValue: '1 minute',
             },
             assumeDroppedAfter: {
               name: 'Assume dropped after',
               description: '_',
-              schema: yup.string(),
+              type: yup.string(),
               defaultValue: '10 minutes',
             },
           },
@@ -81,23 +81,23 @@ export const globalSettings = {
     },
     imagingCancellationReasons: {
       description: 'Customise the options available for imaging request cancellation reason',
-      schema: imagingCancellationReasonsSchema,
+      type: imagingCancellationReasonsSchema,
       defaultValue: imagingCancellationReasonsDefault,
     },
     labsCancellationReasons: {
       description: 'Customise the options available for lab request cancellation reason',
-      schema: labsCancellationReasonsSchema,
+      type: labsCancellationReasonsSchema,
       defaultValue: labsCancellationReasonsDefault,
     },
     integrations: {
-      values: {
+      properties: {
         imaging: {
           description: 'Imaging integration settings',
-          values: {
+          properties: {
             enabled: {
               name: 'Imaging integration enabled',
               description: '_',
-              schema: yup.boolean(),
+              type: yup.boolean(),
               defaultValue: false,
             },
           },
@@ -105,27 +105,27 @@ export const globalSettings = {
       },
     },
     invoice: {
-      values: {
+      properties: {
         slidingFeeScale: {
           name: 'Sliding fee scale',
           description: '_',
-          schema: yup.array(yup.array(yup.number())),
+          type: yup.array(yup.array(yup.number())),
           defaultValue: {},
         },
       },
     },
     upcomingVaccinations: {
-      values: {
+      properties: {
         ageLimit: {
           name: 'Upcoming vaccination age limit',
           description: '_',
-          schema: yup.number(),
+          type: yup.number(),
           defaultValue: 15,
         },
         thresholds: {
           name: 'Upcoming vaccination thresholds',
           description: '_',
-          schema: thresholdsSchema,
+          type: thresholdsSchema,
           defaultValue: [
             {
               threshold: 28,
@@ -152,9 +152,9 @@ export const globalSettings = {
       },
     },
     reportProcess: {
-      values: {
+      properties: {
         timeOutDurationSeconds: {
-          schema: yup
+          type: yup
             .number()
             .integer()
             .positive(),
@@ -162,22 +162,22 @@ export const globalSettings = {
         },
         runInChildProcess: {
           description: 'Should spawn a child process to run the report generation in',
-          schema: yup.boolean(),
+          type: yup.boolean(),
           defaultValue: true,
         },
         processOptions: {
           description:
             "Provide an array if you want to override the options. e.g. ['--max-old-space-size=4096']",
-          schema: yup.array().of(yup.string()),
+          type: yup.array().of(yup.string()),
           defaultValue: null,
         },
         childProcessEnv: {
           description: 'Provide an object {} for the env of child process',
-          schema: yup.object(), // Should be Record<string, string>, but Yup has poor support for dictionaries
+          type: yup.object(), // Should be Record<string, string>, but Yup has poor support for dictionaries
           defaultValue: null,
         },
         sleepAfterReport: {
-          schema: yup.object({
+          type: yup.object({
             duration: DURATION_STRING.required(),
             ifRunAtLeast: DURATION_STRING.required(),
           }),
@@ -190,7 +190,7 @@ export const globalSettings = {
     },
     vitalEditReasons: {
       description: 'Customise the options available for vital reason for edit',
-      schema: vitalEditReasonsSchema,
+      type: vitalEditReasonsSchema,
       defaultValue: vitalEditReasonsDefault,
     },
   },

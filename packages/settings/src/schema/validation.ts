@@ -31,11 +31,11 @@ const flattenSchema = (
   schema: SettingsSchema,
   parentKey: string = '',
 ): Record<string, yup.AnySchema> => {
-  return Object.entries(schema.values).reduce((acc, [key, value]) => {
+  return Object.entries(schema.properties).reduce((acc, [key, value]) => {
     const fullKey = parentKey ? `${parentKey}.${key}` : key;
 
     if (isSetting(value)) {
-      acc[fullKey] = value.schema;
+      acc[fullKey] = value.type;
     } else {
       Object.assign(acc, flattenSchema(value as SettingsSchema, fullKey));
     }

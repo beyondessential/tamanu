@@ -3,22 +3,22 @@ import { extractDefaults } from './utils';
 import { questionCodeIdsDescription, questionCodeIdsSchema } from './definitions';
 
 export const facilitySettings = {
-  values: {
+  properties: {
     questionCodeIds: {
       deprecated: true,
       description: questionCodeIdsDescription,
-      schema: questionCodeIdsSchema,
+      type: questionCodeIdsSchema,
       defaultValue: {
         passport: 'pde-FijCOVRDT005',
         nationalityId: 'pde-PalauCOVSamp7',
       },
     },
     templates: {
-      values: {
+      properties: {
         letterhead: {
           name: 'Letterhead',
           description: '_',
-          schema: yup.object(),
+          type: yup.object(),
           defaultValue: {},
         },
       },
@@ -26,7 +26,7 @@ export const facilitySettings = {
     vaccinations: {
       name: 'Vaccinations',
       description: '_',
-      schema: yup.object(),
+      type: yup.object(),
       defaultValue: {},
     },
   },

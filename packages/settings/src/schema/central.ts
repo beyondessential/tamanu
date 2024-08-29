@@ -2,11 +2,11 @@ import { extractDefaults } from './utils';
 import { questionCodeIdsDescription, questionCodeIdsSchema } from './definitions';
 
 export const centralSettings = {
-  values: {
+  properties: {
     questionCodeIds: {
       deprecated: true,
       description: questionCodeIdsDescription,
-      schema: questionCodeIdsSchema,
+      type: questionCodeIdsSchema,
       defaultValue: {
         passport: null,
         nationalityId: null,
