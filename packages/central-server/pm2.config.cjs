@@ -14,7 +14,7 @@ module.exports = {
       name: 'tamanu-api-server',
       cwd,
       script: './dist/index.js',
-      args: 'startServe',
+      args: 'startApi',
       interpreter_args: `--max_old_space_size=${memory}`,
       instances: +process.env.TAMANU_API_SCALE || defaultApiScale,
       exec_mode: 'cluster',
