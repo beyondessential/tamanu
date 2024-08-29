@@ -24,7 +24,6 @@ import {
 } from '@tamanu/shared/utils/crudHelpers';
 import { add } from 'date-fns';
 import { z } from 'zod';
-import { escape } from 'sequelize/lib/sql-string';
 
 import { uploadAttachment } from '../../utils/uploadAttachment';
 import { noteChangelogsHandler, noteListHandler } from '../../routeHandlers';
@@ -544,7 +543,6 @@ const encounterTasksQuerySchema = z.object({
   assignedTo: z
     .string()
     .optional()
-    .transform(v => (v ? escape(v) : null)),
 });
 encounterRelations.get(
   '/:id/tasks',
@@ -571,13 +569,14 @@ encounterRelations.get(
             EXISTS (
               SELECT 1 FROM "task_designations" AS td
               WHERE (
-                "td"."designation_id" = ${assignedTo}
+                "td"."designation_id" = :assignedTo
                 AND "td"."task_id" = "Task"."id"
               )
             )
           `),
         }),
       },
+      replacements: { assignedTo },
       order: [
         [orderBy, order],
         ['highPriority', 'DESC'],
