@@ -16,6 +16,8 @@ const thresholdsSchema = yup.array().of(
 );
 
 export const globalSettings = {
+  name: 'Global settings',
+  description: 'Settings that apply to all servers',
   properties: {
     features: {
       description: 'Toggle features on/off',
@@ -175,7 +177,7 @@ export const globalSettings = {
       properties: {
         componentVersions: {
           description: '_',
-          schema: yup.object(),
+          type: yup.object(),
           defaultValue: {},
         },
       },
@@ -186,13 +188,14 @@ export const globalSettings = {
           description: 'FHIR worker settings',
           properties: {
             heartbeat: {
+              name: 'Heartbeat interval',
               description: '_',
-              schema: yup.string(),
+              type: yup.string(),
               defaultValue: '1 minute',
             },
             assumeDroppedAfter: {
               description: '_',
-              schema: yup.string(),
+              type: yup.string(),
               defaultValue: '10 minutes',
             },
           },
@@ -206,7 +209,7 @@ export const globalSettings = {
           properties: {
             enabled: {
               description: '_',
-              schema: yup.boolean(),
+              type: yup.boolean(),
               defaultValue: false,
             },
           },
@@ -216,13 +219,15 @@ export const globalSettings = {
     upcomingVaccinations: {
       properties: {
         ageLimit: {
+          name: 'Upcoming vaccination age limit',
           description: '_',
-          schema: yup.number(),
+          type: yup.number(),
           defaultValue: 15,
         },
         thresholds: {
+          name: 'Upcoming vaccination thresholds',
           description: '_',
-          schema: thresholdsSchema,
+          type: thresholdsSchema,
           defaultValue: [
             {
               threshold: 28,
@@ -253,7 +258,7 @@ export const globalSettings = {
         slidingFeeScale: {
           name: 'Sliding fee scale',
           description: '_',
-          schema: yup.array().of(yup.array().of(yup.number())),
+          type: yup.array().of(yup.array().of(yup.number())),
           defaultValue: {},
         },
       },

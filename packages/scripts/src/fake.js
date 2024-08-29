@@ -4,6 +4,10 @@ const { initDatabase } = require('@tamanu/shared/services/database');
 const config = require('config');
 
 // generate fake data enough to test recent migrations
+/**
+ *
+ * @param {import('@tamanu/shared/models')} models
+ */
 async function generateData(models) {
   const {
     Department,
@@ -52,6 +56,7 @@ async function generateData(models) {
     InvoiceItem,
     InvoiceItemDiscount,
     InvoiceProduct,
+    SurveyResponse,
   } = models;
 
   const examiner = await User.create(fake(User));
@@ -115,6 +120,12 @@ async function generateData(models) {
       surveyId: survey.id,
       option: '{"foo":"bar"}',
       config: '{"source": "ReferenceData", "where": {"type": "facility"}}',
+    }),
+  );
+  await SurveyResponse.create(
+    fake(SurveyResponse, {
+      surveyId: survey.id,
+      encounterId: encounter.id,
     }),
   );
   const reportDefinition = await ReportDefinition.create(
