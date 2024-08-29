@@ -5,6 +5,7 @@ import {
   IMAGING_REQUEST_STATUS_TYPES,
   IMAGING_TABLE_VERSIONS,
   IMAGING_TYPES,
+  IMAGING_TYPE_LABELS,
 } from '@tamanu/constants';
 import {
   AutocompleteField,
@@ -22,7 +23,6 @@ import { useSuggester } from '../../api';
 import { useImagingRequests } from '../../contexts/ImagingRequests';
 import { useAdvancedFields } from './useAdvancedFields';
 import { TranslatedText } from '../Translation/TranslatedText';
-import { useTranslation } from '../../contexts/Translation';
 import { camelCase } from 'lodash';
 
 const FacilityCheckbox = styled.div`
@@ -37,7 +37,6 @@ const Spacer = styled.div`
 
 export const ImagingRequestsSearchBar = ({ memoryKey, statuses = [], advancedFields }) => {
   const { getLocalisation } = useLocalisation();
-  const { getTranslation } = useTranslation();
   const imagingTypes = getLocalisation('imagingTypes') || {};
   const imagingPriorities = getLocalisation('imagingPriorities') || [];
   const areaSuggester = useSuggester('locationGroup');
@@ -182,18 +181,16 @@ export const ImagingRequestsSearchBar = ({ memoryKey, statuses = [], advancedFie
         transformOptions={options => {
           const availableTypes = Object.keys(imagingTypes);
           return options
-            .filter(option => availableTypes.includes(camelCase(option.value)))
+            .filter(option => availableTypes.includes(option.value))
             .map(option => {
-              const imagingTypeKey = camelCase(option.value);
-              const { label } = imagingTypes[imagingTypeKey];
+              const { label } = imagingTypes[option.value];
               return {
                 ...option,
-                value: imagingTypeKey,
-                label: getTranslation(option.label.stringId, label),
+                label,
               };
             });
         }}
-        enumValues={IMAGING_TYPES}
+        enumValues={IMAGING_TYPE_LABELS}
         size="small"
       />
       <LocalisedField
