@@ -142,13 +142,15 @@ export const globalSettings = {
           defaultValue: null,
         },
         sleepAfterReport: {
-          type: yup.object({
-            duration: DURATION_STRING.required(),
-            ifRunAtLeast: DURATION_STRING.required(),
-          }),
-          defaultValue: {
-            duration: '5m',
-            ifRunAtLeast: '5m',
+          properties: {
+            duration: {
+              type: DURATION_STRING.required(),
+              defaultValue: '5m',
+            },
+            ifRunAtLeast: {
+              type: DURATION_STRING.required(),
+              defaultValue: '5m',
+            },
           },
         },
       },
