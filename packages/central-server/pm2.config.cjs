@@ -29,6 +29,7 @@ module.exports = {
       args: 'startTasks',
       interpreter_args: `--max_old_space_size=${memory}`,
       instances: 1,
+      exec_mode: 'fork',
       env: {
         NODE_ENV: 'production',
       },
@@ -40,6 +41,7 @@ module.exports = {
       args: 'startFhirWorker',
       interpreter_args: `--max_old_space_size=${memory}`,
       instances: 1,
+      exec_mode: 'fork',
       env: {
         NODE_ENV: 'production',
       },
