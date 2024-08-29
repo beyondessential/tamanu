@@ -77,7 +77,7 @@ export const globalSettings = {
           defaultValue: true,
         },
         enableCovidClearanceCertificate: {
-          description: 'Enable covid certificate printout',
+          description: 'Enable COVID certificate printout',
           schema: yup.boolean(),
           defaultValue: false,
         },
@@ -400,7 +400,7 @@ export const globalSettings = {
           },
         },
         covidVaccineCertificateEmail: {
-          description: 'The email containing covid patient vaccine certificate',
+          description: 'The email containing COVID patient vaccine certificate',
           properties: {
             subject: {
               schema: yup
@@ -420,7 +420,7 @@ export const globalSettings = {
           },
         },
         covidTestCertificateEmail: {
-          description: 'Email with certificate containing the list of covid tests for this patient',
+          description: 'Email with certificate containing the list of COVID tests for this patient',
           properties: {
             subject: {
               schema: yup
@@ -440,7 +440,7 @@ export const globalSettings = {
           },
         },
         covidClearanceCertificateEmail: {
-          description: 'Certificate containing the list of covid tests for this patient used for proof of over 13 days since infection',
+          description: 'Certificate containing the list of COVID tests for this patient used for proof of over 13 days since infection',
           properties: {
             subject: {
               schema: yup
@@ -479,7 +479,7 @@ export const globalSettings = {
           },
         },
         covidTestCertificate: {
-          description: 'Certificate containing the list of covid vaccines for this patient',
+          description: 'Certificate containing the list of COVID vaccines for this patient',
           properties: {
             laboratoryName: {
               description: '_',
