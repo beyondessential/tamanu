@@ -1,6 +1,6 @@
 import React, { memo, useCallback, useState } from 'react';
 import * as yup from 'yup';
-import { ASSET_NAMES, ASSET_NAME_LABELS } from '@tamanu/constants/importable';
+import { ASSET_NAME_LABELS } from '@tamanu/constants/importable';
 import { useApi } from '../../api';
 import { Field, Form, TranslatedSelectField } from '../../components/Field';
 import { FileChooserField, FILTER_IMAGES } from '../../components/Field/FileChooserField';
