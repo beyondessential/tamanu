@@ -5,7 +5,7 @@ import { COLUMNS_EXCLUDED_FROM_SYNC } from '@tamanu/shared/sync';
 export function buildSyncLookupSelect(model, columns = {}) {
   const attributes = model.getAttributes();
   const useUpdatedAtByFieldSum = !!attributes.updatedAtByField;
-  const { patientId, facilityId, encounterId, isLabRequest } = columns;
+  const { patientId, facilityId, encounterId, isLabRequestValue } = columns;
   const table = model.tableName;
 
   return `
@@ -22,7 +22,7 @@ export function buildSyncLookupSelect(model, columns = {}) {
       ${patientId || 'NULL'},
       ${facilityId || 'NULL'},
       ${encounterId || 'NULL'},
-      ${isLabRequest || 'FALSE'},
+      ${isLabRequestValue || 'FALSE'},
       ${useUpdatedAtByFieldSum ? 'updated_at_by_field_summary.sum' : 'NULL'}
   `;
 }

@@ -203,8 +203,6 @@ const snapshotOutgoingChangesFromSyncLookup = withConfig(
     while (fromId != null) {
       const [[{ maxId, count }]] = await store.sequelize.query(
         `
-      SELECT pg_sleep(10);
-
       WITH inserted AS (
         INSERT INTO ${snapshotTableName} (
           direction,
