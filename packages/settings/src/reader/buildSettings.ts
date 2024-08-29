@@ -1,5 +1,5 @@
 import { SETTINGS_SCOPES } from '@tamanu/constants';
-import { merge } from 'lodash';
+import { isArray, mergeWith } from 'lodash';
 
 import { centralDefaults, facilityDefaults, globalDefaults } from '../schema';
 import { Models, SettingsDBReader } from './readers/SettingsDBReader';
@@ -28,7 +28,11 @@ export async function buildSettings(models: Models, facilityId?: string) {
     const value = await reader.getSettings();
     if (value) {
       // Prioritize the previous one
-      settings = merge(value, settings);
+      settings = mergeWith(
+        value,
+        settings,
+        (_, settingValue) => (isArray(settingValue) ? settingValue : undefined), // Replace, don’t merge arrays
+      );
     }
   }
   return settings;
