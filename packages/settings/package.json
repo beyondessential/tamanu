@@ -1,6 +1,6 @@
 {
   "name": "@tamanu/settings",
-  "version": "2.15.0",
+  "version": "2.16.0",
   "private": true,
   "description": "BES - Settings",
   "main": "dist/cjs/index.js",
@@ -17,10 +17,6 @@
     "./schema": {
       "import": "./dist/mjs/schema/index.js",
       "require": "./dist/cjs/schema/index.js"
-    },
-    "./schema/validation": {
-      "import": "./dist/mjs/schema/validation/index.js",
-      "require": "./dist/cjs/schema/validation/index.js"
     },
     "./reader": {
       "import": "./dist/mjs/reader/index.js",

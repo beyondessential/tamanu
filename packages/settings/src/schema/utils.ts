@@ -1,16 +1,16 @@
-import { omitBy, isUndefined, isObject, mapValues, has } from 'lodash';
+import _ from 'lodash';
 import { SettingsSchema, Setting } from './types';
 
 export const isSetting = (value: Setting | SettingsSchema): value is Setting => {
-  return value && isObject(value) && has(value, 'schema') && has(value, 'defaultValue');
+  return value && _.isObject(value) && _.has(value, 'type') && _.has(value, 'defaultValue');
 };
 
 const isSettingsSchema = (value: Setting | SettingsSchema): value is SettingsSchema => {
-  return value && isObject(value) && has(value, 'values');
+  return value && _.isObject(value) && _.has(value, 'properties');
 };
 
 export const extractDefaults = (settings: SettingsSchema): Record<string, any> => {
-  const result = mapValues(settings.properties, value => {
+  const result = _.mapValues(settings.properties, value => {
     if (isSetting(value)) {
       return value.defaultValue;
     }
@@ -23,5 +23,5 @@ export const extractDefaults = (settings: SettingsSchema): Record<string, any> =
     return undefined;
   });
 
-  return omitBy(result, isUndefined);
+  return _.omitBy(result, _.isUndefined);
 };
