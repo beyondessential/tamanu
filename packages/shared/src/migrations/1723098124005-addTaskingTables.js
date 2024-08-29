@@ -24,7 +24,7 @@ export async function up(query) {
       type: DataTypes.TEXT,
       allowNull: false,
     },
-    start_time: {
+    due_time: {
       type: DataTypes.DATETIMESTRING,
       allowNull: false,
     },
