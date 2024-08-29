@@ -22,6 +22,8 @@ import { useSuggester } from '../../api';
 import { useImagingRequests } from '../../contexts/ImagingRequests';
 import { useAdvancedFields } from './useAdvancedFields';
 import { TranslatedText } from '../Translation/TranslatedText';
+import { useTranslation } from '../../contexts/Translation';
+import { camelCase } from 'lodash';
 
 const FacilityCheckbox = styled.div`
   display: flex;
@@ -35,6 +37,7 @@ const Spacer = styled.div`
 
 export const ImagingRequestsSearchBar = ({ memoryKey, statuses = [], advancedFields }) => {
   const { getLocalisation } = useLocalisation();
+  const { getTranslation } = useTranslation();
   const imagingTypes = getLocalisation('imagingTypes') || {};
   const imagingPriorities = getLocalisation('imagingPriorities') || [];
   const areaSuggester = useSuggester('locationGroup');
@@ -176,14 +179,20 @@ export const ImagingRequestsSearchBar = ({ memoryKey, statuses = [], advancedFie
           <TranslatedText stringId="general.localisedField.imagingType.label" fallback="Type" />
         }
         component={TranslatedSelectField}
-        transformOptions={options =>
-          options
-            .filter(option => !!imagingTypes[option.value])
-            .map(option => ({
-              ...option,
-              label: imagingTypes[option.value],
-            }))
-        }
+        transformOptions={options => {
+          const availableTypes = Object.keys(imagingTypes);
+          return options
+            .filter(option => availableTypes.includes(camelCase(option.value)))
+            .map(option => {
+              const imagingTypeKey = camelCase(option.value);
+              const { label } = imagingTypes[imagingTypeKey];
+              return {
+                ...option,
+                value: imagingTypeKey,
+                label: getTranslation(option.label.stringId, label),
+              };
+            });
+        }}
         enumValues={IMAGING_TYPES}
         size="small"
       />
