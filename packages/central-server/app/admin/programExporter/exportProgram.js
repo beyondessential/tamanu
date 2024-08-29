@@ -80,7 +80,8 @@ export async function exportProgram(context, programId) {
           pde.type,
           pde.name,
           pde.default_text as text,
-          pde.default_options as options
+          pde.default_options as options,
+          pde.visualisation_config
         FROM survey_screen_components ssc
         JOIN program_data_elements pde ON concat(:surveyId, '-', pde.code) = ssc.id
         WHERE ssc.survey_id = :surveyId
@@ -106,6 +107,7 @@ export async function exportProgram(context, programId) {
             'optionColors',
             'visibilityCriteria',
             'validationCriteria',
+            'visualisationConfig',
             'optionSet',
             'questionLabel',
             'detailLabel',
@@ -125,6 +127,7 @@ export async function exportProgram(context, programId) {
             '',
             it.visibility_criteria,
             it.validation_criteria,
+            it.visualisation_config,
             '',
             '',
             '',
