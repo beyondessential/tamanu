@@ -5,7 +5,8 @@ import { centralDefaults, facilityDefaults, globalDefaults } from '../schema';
 import { Models, SettingsDBReader } from './readers/SettingsDBReader';
 import { SettingsJSONReader } from './readers/SettingsJSONReader';
 
-function getReaders(models: Models, facilityId?: string) {
+/** Returns the cascade of applicable settings readers, in descending order of priority */
+function getReaderCascade(models: Models, facilityId?: string) {
   return facilityId
     ? [
         new SettingsDBReader(models, SETTINGS_SCOPES.FACILITY, facilityId),
@@ -22,15 +23,14 @@ function getReaders(models: Models, facilityId?: string) {
 }
 
 export async function buildSettings(models: Models, facilityId?: string) {
-  const readers = getReaders(models, facilityId);
+  const readers = getReaderCascade(models, facilityId);
   let settings = {};
   for (const reader of readers) {
     const value = await reader.getSettings();
     if (value) {
-      // Prioritize the previous one
       settings = mergeWith(
         value,
-        settings,
+        settings, // Prioritise previous value
         (_, settingValue) => (isArray(settingValue) ? settingValue : undefined), // Replace, don’t merge arrays
       );
     }
