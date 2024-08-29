@@ -1,12 +1,19 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Settings } from '@material-ui/icons';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { SETTINGS_SCOPES } from '@tamanu/constants';
 import { validateSettings } from '@tamanu/settings/schema';
 
-import { LargeButton, TextButton, ContentPane, ButtonRow, TopBar } from '../../../components';
+import {
+  ButtonRow,
+  ContentPane,
+  LargeButton,
+  TextButton,
+  TopBar,
+  TranslatedText,
+} from '../../../components';
 import { AdminViewContainer } from '../components/AdminViewContainer';
 import { JSONEditor } from './JSONEditor';
 import { ScopeSelector } from './ScopeSelector';
@@ -14,7 +21,6 @@ import { DefaultSettingsModal } from './DefaultSettingsModal';
 import { useApi } from '../../../api';
 import { notifySuccess, notifyError } from '../../../utils';
 import { ErrorMessage } from '../../../components/ErrorMessage';
-import { TranslatedText } from '../../../components/Translation';
 import { ValidationError } from 'yup';
 
 const StyledTopBar = styled(TopBar)`
@@ -41,13 +47,14 @@ const buildSettingsString = settings => {
 
 export const SettingsView = React.memo(() => {
   const api = useApi();
+  const queryClient = useQueryClient();
   const [settingsEditString, setSettingsEditString] = useState('');
   const [scope, setScope] = useState(SETTINGS_SCOPES.GLOBAL);
   const [facilityId, setFacilityId] = useState(null);
   const [jsonError, setJsonError] = useState(null);
   const [isDefaultModalOpen, setIsDefaultModalOpen] = useState(false);
 
-  const { data: settings = {}, refetch: refetchSettings, error: settingsFetchError } = useQuery(
+  const { data: settings = {}, error: settingsFetchError } = useQuery(
     ['scopedSettings', scope, facilityId],
     () => api.get('admin/settings', { scope, facilityId }),
   );
@@ -94,7 +101,7 @@ export const SettingsView = React.memo(() => {
         scope,
       });
       notifySuccess('Settings saved');
-      await refetchSettings();
+      queryClient.invalidateQueries(['scopedSettings', scope, facilityId]);
       turnOffEditMode();
     } catch (error) {
       console.error(error);
