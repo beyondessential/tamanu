@@ -270,7 +270,7 @@ export const globalSettings = {
           description: 'Lab request label with basic info + barcode',
           properties: {
             width: {
-              schema: yup.number().min(0),
+              type: yup.number().min(0),
               defaultValue: 50.8,
             },
           },
@@ -279,52 +279,52 @@ export const globalSettings = {
           description: 'The multiple ID labels printout on the patient view',
           properties: {
             pageWidth: {
-              schema: yup.number().min(0),
+              type: yup.number().min(0),
               defaultValue: 210,
               unit: 'mm'
             },
             pageHeight: {
-              schema: yup.number().min(0),
+              type: yup.number().min(0),
               defaultValue: 297,
               unit: 'mm'
             },
             pageMarginTop: {
-              schema: yup.number().min(0),
+              type: yup.number().min(0),
               defaultValue: 15.09,
               unit: 'mm'
             },
             pageMarginLeft: {
-              schema: yup.number().min(0),
+              type: yup.number().min(0),
               defaultValue: 6.4,
               unit: 'mm'
             },
             columnTotal: {
               description: 'Number of columns',
-              schema: yup.number().min(0),
+              type: yup.number().min(0),
               defaultValue: 3,
             },
             columnWidth: {
-              schema: yup.number().min(0),
+              type: yup.number().min(0),
               defaultValue: 64,
               unit: 'mm'
             },
             columnGap: {
-              schema: yup.number().min(0),
+              type: yup.number().min(0),
               defaultValue: 3.01,
               unit: 'mm'
             },
             rowTotal: {
               description: 'Number of rows',
-              schema: yup.number().min(0),
+              type: yup.number().min(0),
               defaultValue: 10,
             },
             rowHeight: {
-              schema: yup.number().min(0),
+              type: yup.number().min(0),
               defaultValue: 26.7,
               unit: 'mm'
             },
             rowGap: {
-              schema: yup.number().min(0),
+              type: yup.number().min(0),
               defaultValue: 0,
               unit: 'mm'
             },
@@ -334,12 +334,12 @@ export const globalSettings = {
           description: 'The ID card found on the patient view',
           properties: {
             cardMarginTop: {
-              schema: yup.number().min(0),
+              type: yup.number().min(0),
               defaultValue: 1,
               unit: 'mm'
             },
             cardMarginLeft: {
-              schema: yup.number().min(0),
+              type: yup.number().min(0),
               defaultValue: 5,
               unit: 'mm'
             },
