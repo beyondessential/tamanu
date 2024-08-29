@@ -15,7 +15,6 @@ import {
 } from './statuses';
 import { VACCINE_STATUS_LABELS, INJECTION_SITE_LABELS, VACCINE_CATEGORY_LABELS } from './vaccines';
 import { BIRTH_DELIVERY_TYPE_LABELS, BIRTH_TYPE_LABELS } from './births';
-import { IMAGING_TYPES } from './imaging';
 import {
   REPORT_DATA_SOURCE_LABELS,
   REPORT_DEFAULT_DATE_RANGES_LABELS,
