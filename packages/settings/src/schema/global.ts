@@ -33,6 +33,8 @@ const thresholdsSchema = yup.array().of(
 );
 
 export const globalSettings = {
+  name: 'Global settings',
+  description: 'Settings that apply to all servers',
   properties: {
     ageDisplayFormat: {
       type: ageDisplayFormatSchema,
@@ -84,11 +86,6 @@ export const globalSettings = {
       type: imagingCancellationReasonsSchema,
       defaultValue: imagingCancellationReasonsDefault,
     },
-    labsCancellationReasons: {
-      description: 'Customise the options available for lab request cancellation reason',
-      type: labsCancellationReasonsSchema,
-      defaultValue: labsCancellationReasonsDefault,
-    },
     integrations: {
       properties: {
         imaging: {
@@ -111,6 +108,48 @@ export const globalSettings = {
           description: '_',
           type: yup.array(yup.array(yup.number())),
           defaultValue: {},
+        },
+      },
+    },
+    labsCancellationReasons: {
+      description: 'Customise the options available for lab request cancellation reason',
+      type: labsCancellationReasonsSchema,
+      defaultValue: labsCancellationReasonsDefault,
+    },
+    reportProcess: {
+      properties: {
+        timeOutDurationSeconds: {
+          type: yup
+            .number()
+            .integer()
+            .positive(),
+          defaultValue: 7200, // 2 hours
+        },
+        runInChildProcess: {
+          description: 'Should spawn a child process to run the report generation in',
+          type: yup.boolean(),
+          defaultValue: true,
+        },
+        processOptions: {
+          description:
+            "Provide an array if you want to override the options. e.g. ['--max-old-space-size=4096']",
+          type: yup.array().of(yup.string()),
+          defaultValue: null,
+        },
+        childProcessEnv: {
+          description: 'Provide an object {} for the env of child process',
+          type: yup.object(), // Should be Record<string, string>, but Yup has poor support for dictionaries
+          defaultValue: null,
+        },
+        sleepAfterReport: {
+          type: yup.object({
+            duration: DURATION_STRING.required(),
+            ifRunAtLeast: DURATION_STRING.required(),
+          }),
+          defaultValue: {
+            duration: '5m',
+            ifRunAtLeast: '5m',
+          },
         },
       },
     },
@@ -148,43 +187,6 @@ export const globalSettings = {
               status: VACCINE_STATUS.MISSED,
             },
           ],
-        },
-      },
-    },
-    reportProcess: {
-      properties: {
-        timeOutDurationSeconds: {
-          type: yup
-            .number()
-            .integer()
-            .positive(),
-          defaultValue: 7200, // 2 hours
-        },
-        runInChildProcess: {
-          description: 'Should spawn a child process to run the report generation in',
-          type: yup.boolean(),
-          defaultValue: true,
-        },
-        processOptions: {
-          description:
-            "Provide an array if you want to override the options. e.g. ['--max-old-space-size=4096']",
-          type: yup.array().of(yup.string()),
-          defaultValue: null,
-        },
-        childProcessEnv: {
-          description: 'Provide an object {} for the env of child process',
-          type: yup.object(), // Should be Record<string, string>, but Yup has poor support for dictionaries
-          defaultValue: null,
-        },
-        sleepAfterReport: {
-          type: yup.object({
-            duration: DURATION_STRING.required(),
-            ifRunAtLeast: DURATION_STRING.required(),
-          }),
-          defaultValue: {
-            duration: '5m',
-            ifRunAtLeast: '5m',
-          },
         },
       },
     },

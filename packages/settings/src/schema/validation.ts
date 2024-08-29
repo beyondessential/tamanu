@@ -53,14 +53,14 @@ export const validateSettings = async ({
   scope?: string;
   schema?: SettingsSchema;
 }) => {
-  schema = scope ? SCOPE_TO_SCHEMA[scope] : schema;
+  const schemaValue = scope ? SCOPE_TO_SCHEMA[scope] : schema;
 
-  if (!schema) {
+  if (!schemaValue) {
     throw new Error(`No schema found for scope: ${scope}`);
   }
 
   const flattenedSettings = flattenSettings(settings);
-  const flattenedSchema = flattenSchema(schema);
+  const flattenedSchema = flattenSchema(schemaValue);
   const yupSchema = yup
     .object()
     .shape(flattenedSchema)
