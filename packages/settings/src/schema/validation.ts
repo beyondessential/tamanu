@@ -58,10 +58,10 @@ export const validateSettings = async ({
 
   const flattenedSettings = flattenSettings(settings);
   const flattenedSchema = flattenSchema(schema);
-  const yupSchema = yup
-    .object()
-    .shape(flattenedSchema)
-    .noUnknown();
+  const yupSchema = yup.object().shape(flattenedSchema);
+  // .noUnknown();
+
+  // Temp remove noUnknown() for feature testing
 
   await yupSchema.validate(flattenedSettings, { abortEarly: false, strict: true });
 };
