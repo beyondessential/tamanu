@@ -18,10 +18,10 @@
 # Kamaka currently owns VDS-NC/EU-DCC/Signer and CSCA.
 # Same reasoning, but it's not core to Tamanu.
 #
-/packages/csca/src/                                          @kamaka
-/packages/central-server/integrations/EuDcc                  @kamaka
-/packages/central-server/integrations/Signer                 @kamaka
-/packages/central-server/integrations/VdsNc                  @kamaka
+/packages/csca/src/                                          @beyondessential/kamaka
+/packages/central-server/integrations/EuDcc                  @beyondessential/kamaka
+/packages/central-server/integrations/Signer                 @beyondessential/kamaka
+/packages/central-server/integrations/VdsNc                  @beyondessential/kamaka
 
 #
 # The deployment team are code owner of the default config files to make sure
@@ -35,12 +35,12 @@
 # Kamaka needs to be across changes to the PM2 config files, as they're critical
 # to the deployment process on Windows.
 #
-pm2*.config.js  @kamaka
+pm2*.config.js  @beyondessential/kamaka
 
 #
 # Kamaka owns the Github Actions workflows, for verification as breakage affects
 # the deployment processes and may have non-local effects.
 #
-/.github/actions/    @kamaka
-/.github/scripts/    @kamaka
-/.github/workflows/  @kamaka
+/.github/actions/    @beyondessential/kamaka
+/.github/scripts/    @beyondessential/kamaka
+/.github/workflows/  @beyondessential/kamaka
