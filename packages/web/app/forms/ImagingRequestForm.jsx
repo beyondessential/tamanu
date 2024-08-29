@@ -29,8 +29,9 @@ import { ButtonRow, DateDisplay, FormSeparatorLine } from '../components';
 import { FormSubmitDropdownButton } from '../components/DropdownButton';
 import { TranslatedReferenceData, TranslatedText } from '../components/Translation';
 import { useTranslation } from '../contexts/Translation';
-import { IMAGING_TYPE_LABELS } from '@tamanu/constants';
+import { IMAGING_TYPES } from '@tamanu/constants';
 import { renderToText } from '../utils';
+import { camelCase } from 'lodash';
 
 function getEncounterTypeLabel(type) {
   return ENCOUNTER_OPTIONS.find(x => x.value === type).label;
@@ -223,17 +224,19 @@ export const ImagingRequestForm = React.memo(
                   />
                 }
                 required
-                enumValues={IMAGING_TYPE_LABELS}
+                enumValues={IMAGING_TYPES}
                 component={TranslatedSelectField}
                 transformOptions={options => {
                   const availableTypes = Object.keys(imagingTypes);
                   return options
-                    .filter(option => availableTypes.includes(option.value))
+                    .filter(option => availableTypes.includes(camelCase(option.value)))
                     .map(option => {
-                      const { label } = imagingTypes[option.value];
+                      const imagingTypeKey = camelCase(option.value);
+                      const { label } = imagingTypes[imagingTypeKey];
                       return {
                         ...option,
-                        label,
+                        value: imagingTypeKey,
+                        label: getTranslation(option.label.stringId, label),
                       };
                     });
                 }}

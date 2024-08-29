@@ -15,7 +15,7 @@ import {
 } from './statuses';
 import { VACCINE_STATUS_LABELS, INJECTION_SITE_LABELS, VACCINE_CATEGORY_LABELS } from './vaccines';
 import { BIRTH_DELIVERY_TYPE_LABELS, BIRTH_TYPE_LABELS } from './births';
-import { IMAGING_TYPE_LABELS } from './imaging';
+import { IMAGING_TYPES } from './imaging';
 import {
   REPORT_DATA_SOURCE_LABELS,
   REPORT_DEFAULT_DATE_RANGES_LABELS,
@@ -48,7 +48,7 @@ export const registeredEnums = {
   DIAGNOSIS_CERTAINTY_LABELS,
   DRUG_ROUTE_LABELS,
   IMAGING_REQUEST_STATUS_LABELS,
-  IMAGING_TYPE_LABELS,
+  IMAGING_TYPES,
   INJECTION_SITE_LABELS,
   INVOICE_INSURER_PAYMENT_STATUS_LABELS,
   INVOICE_ITEMS_CATEGORY_LABELS,
@@ -87,7 +87,7 @@ export const translationPrefixes: Record<EnumKeys, string> = {
   DIAGNOSIS_CERTAINTY_LABELS: 'diagnosis.property.certainty',
   DRUG_ROUTE_LABELS: 'medication.property.route',
   IMAGING_REQUEST_STATUS_LABELS: 'imaging.property.status',
-  IMAGING_TYPE_LABELS: 'imaging.property.type',
+  IMAGING_TYPES: 'imaging.property.type',
   INJECTION_SITE_LABELS: 'vaccine.property.injectionSite',
   INVOICE_INSURER_PAYMENT_STATUS_LABELS: 'invoice.property.insurerPaymentStatus',
   INVOICE_ITEMS_CATEGORY_LABELS: 'invoice.property.itemCategory',
