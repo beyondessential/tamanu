@@ -10,9 +10,7 @@ import { useProgramRegistryContext } from '../../contexts/ProgramRegistry';
 const getSuggesterEndpointForConfig = config => {
   if (config?.source === 'ReferenceData') {
     const type = config.where?.type;
-    // Support deprecated ICD10 naming which now refers to diagnosis
-    if (type === 'icd10') return 'diagnosis';
-    return type;
+    return type === 'icd10' ? 'diagnosis' : type;
   }
   if (config?.source === 'Facility') return 'facility';
   if (config?.source === 'Location') return 'location';
