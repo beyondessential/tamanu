@@ -77,7 +77,7 @@ export const DumbAddIllnessScreen = ({ selectedPatient, navigation }): ReactElem
     navigateToHistory();
   }, []);
 
-  const icd10Suggester = new Suggester(models.ReferenceData, {
+  const diagnosisSuggester = new Suggester(models.ReferenceData, {
     where: {
       type: ReferenceDataType.Diagnosis,
     },
@@ -132,7 +132,7 @@ export const DumbAddIllnessScreen = ({ selectedPatient, navigation }): ReactElem
                       />
                     }
                     navigation={navigation}
-                    suggester={icd10Suggester}
+                    suggester={diagnosisSuggester}
                     name="diagnosis"
                   />
                   <Spacer height="24px" />
