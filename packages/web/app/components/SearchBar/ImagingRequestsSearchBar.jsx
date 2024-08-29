@@ -4,7 +4,6 @@ import {
   IMAGING_REQUEST_STATUS_LABELS,
   IMAGING_REQUEST_STATUS_TYPES,
   IMAGING_TABLE_VERSIONS,
-  IMAGING_TYPES,
 } from '@tamanu/constants';
 import {
   AutocompleteField,
@@ -49,6 +48,11 @@ export const ImagingRequestsSearchBar = ({ memoryKey, statuses = [], advancedFie
     searchParameters,
   );
   const statusFilter = statuses ? { status: statuses } : {};
+
+  const imagingTypeOptions = Object.entries(imagingTypes).map(([key, val]) => ({
+    label: val.label,
+    value: key,
+  }));
 
   return (
     <CustomisableSearchBarWithPermissionCheck
@@ -175,16 +179,8 @@ export const ImagingRequestsSearchBar = ({ memoryKey, statuses = [], advancedFie
         label={
           <TranslatedText stringId="general.localisedField.imagingType.label" fallback="Type" />
         }
-        component={TranslatedSelectField}
-        transformOptions={options =>
-          options
-            .filter(option => !!imagingTypes[option.value])
-            .map(option => ({
-              ...option,
-              label: imagingTypes[option.value],
-            }))
-        }
-        enumValues={IMAGING_TYPES}
+        component={SelectField}
+        options={imagingTypeOptions}
         size="small"
       />
       <LocalisedField

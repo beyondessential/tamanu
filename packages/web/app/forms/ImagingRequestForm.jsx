@@ -19,9 +19,9 @@ import {
   Form,
   ImagingPriorityField,
   MultiselectField,
+  SelectField,
   TextField,
   TextInput,
-  TranslatedSelectField,
 } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
 import { FormCancelButton } from '../components/Button';
@@ -29,9 +29,7 @@ import { ButtonRow, DateDisplay, FormSeparatorLine } from '../components';
 import { FormSubmitDropdownButton } from '../components/DropdownButton';
 import { TranslatedReferenceData, TranslatedText } from '../components/Translation';
 import { useTranslation } from '../contexts/Translation';
-import { IMAGING_TYPES } from '@tamanu/constants';
 import { renderToText } from '../utils';
-import { camelCase } from 'lodash';
 
 function getEncounterTypeLabel(type) {
   return ENCOUNTER_OPTIONS.find(x => x.value === type).label;
@@ -98,6 +96,10 @@ export const ImagingRequestForm = React.memo(
     const { getTranslation } = useTranslation();
     const { getLocalisation } = useLocalisation();
     const imagingTypes = getLocalisation('imagingTypes') || {};
+    const imagingTypeOptions = Object.entries(imagingTypes).map(([key, val]) => ({
+      label: val.label,
+      value: key,
+    }));
 
     const { examiner = {} } = encounter;
     const examinerLabel = examiner.displayName;
@@ -224,22 +226,8 @@ export const ImagingRequestForm = React.memo(
                   />
                 }
                 required
-                enumValues={IMAGING_TYPES}
-                component={TranslatedSelectField}
-                transformOptions={options => {
-                  const availableTypes = Object.keys(imagingTypes);
-                  return options
-                    .filter(option => availableTypes.includes(camelCase(option.value)))
-                    .map(option => {
-                      const imagingTypeKey = camelCase(option.value);
-                      const { label } = imagingTypes[imagingTypeKey];
-                      return {
-                        ...option,
-                        value: imagingTypeKey,
-                        label: getTranslation(option.label.stringId, label),
-                      };
-                    });
-                }}
+                component={SelectField}
+                options={imagingTypeOptions}
               />
               {imagingAreas.length > 0 ? (
                 <Field
