@@ -30,3 +30,17 @@
 #
 /packages/central-server/config/default.json5  @beyondessential/tamanu-deployment-team
 /packages/facility-server/config/default.json5  @beyondessential/tamanu-deployment-team
+
+#
+# Kamaka needs to be across changes to the PM2 config files, as they're critical
+# to the deployment process on Windows.
+#
+pm2*.config.js  @passcod
+
+#
+# Kamaka owns the Github Actions workflows, for verification as breakage affects
+# the deployment processes and may have non-local effects.
+#
+/.github/actions/    @passcod
+/.github/scripts/    @passcod
+/.github/workflows/  @passcod
