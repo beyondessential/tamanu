@@ -13,7 +13,6 @@ import {
   IMAGING_REQUEST_STATUS_TYPES,
   TASK_STATUSES,
 } from '@tamanu/constants';
-
 import {
   simpleGet,
   simpleGetHasOne,
@@ -24,6 +23,8 @@ import {
   softDeletionCheckingRouter,
 } from '@tamanu/shared/utils/crudHelpers';
 import { add } from 'date-fns';
+import { z } from 'zod';
+
 import { uploadAttachment } from '../../utils/uploadAttachment';
 import { noteChangelogsHandler, noteListHandler } from '../../routeHandlers';
 import { createPatientLetter } from '../../routeHandlers/createPatientLetter';
@@ -526,18 +527,32 @@ encounterRelations.get(
   }),
 );
 
+const encounterTasksQuerySchema = z.object({
+  order: z
+    .enum(['ASC', 'DESC'])
+    .optional()
+    .default('ASC'),
+  orderBy: z
+    .enum(['dueTime', 'name'])
+    .optional()
+    .default('dueTime'),
+  statuses: z
+    .array(z.enum(Object.values(TASK_STATUSES)))
+    .optional()
+    .default([TASK_STATUSES.TODO]),
+  assignedTo: z
+    .string()
+    .optional()
+});
 encounterRelations.get(
   '/:id/tasks',
   asyncHandler(async (req, res) => {
-    const { models, params, query } = req;
+    const { models, params } = req;
     const { Task } = models;
     const { id: encounterId } = params;
-    const {
-      order = 'ASC',
-      orderBy = 'dueTime',
-      assignedTo,
-      statuses = [TASK_STATUSES.TODO],
-    } = query;
+
+    const query = await encounterTasksQuerySchema.parseAsync(req.query);
+    const { order, orderBy, assignedTo, statuses } = query;
 
     req.checkPermission('list', 'Task');
 
@@ -554,15 +569,16 @@ encounterRelations.get(
             EXISTS (
               SELECT 1 FROM "task_designations" AS td
               WHERE (
-                "td"."designation_id" = '${assignedTo}'
+                "td"."designation_id" = :assignedTo
                 AND "td"."task_id" = "Task"."id"
               )
             )
           `),
         }),
       },
+      replacements: { assignedTo },
       order: [
-        [orderBy, order.toUpperCase()],
+        [orderBy, order],
         ['highPriority', 'DESC'],
         ['name', 'ASC'],
       ],
