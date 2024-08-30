@@ -344,24 +344,24 @@ export const globalSettings = {
           description: 'The text at the top of most patient PDFs',
           properties: {
             title: {
-              schema: yup.string(),
+              type: yup.string(),
               defaultValue: 'TAMANU MINISTRY OF HEALTH & MEDICAL SERVICES',
             },
-            subTitle: { schema: yup.string(), defaultValue: 'PO Box 12345, Melbourne, Australia' },
+            subTitle: { type: yup.string(), defaultValue: 'PO Box 12345, Melbourne, Australia' },
           },
         },
         signerRenewalEmail: {
           description: 'The email sent when the signer runs out',
           properties: {
             subject: {
-              schema: yup
+              type: yup
                 .string()
                 .trim()
                 .min(1),
               defaultValue: 'Tamanu ICAO Certificate Signing Request',
             },
             body: {
-              schema: yup
+              type: yup
                 .string()
                 .trim()
                 .min(1),
@@ -374,14 +374,14 @@ export const globalSettings = {
           description: 'The email containing patient vaccine certificate',
           properties: {
             subject: {
-              schema: yup
+              type: yup
                 .string()
                 .trim()
                 .min(1),
               defaultValue: 'Medical Certificate now available',
             },
             body: {
-              schema: yup
+              type: yup
                 .string()
                 .trim()
                 .min(1),
@@ -394,14 +394,14 @@ export const globalSettings = {
           description: 'The email containing COVID patient vaccine certificate',
           properties: {
             subject: {
-              schema: yup
+              type: yup
                 .string()
                 .trim()
                 .min(1),
               defaultValue: 'Medical Certificate now available',
             },
             body: {
-              schema: yup
+              type: yup
                 .string()
                 .trim()
                 .min(1),
@@ -414,14 +414,14 @@ export const globalSettings = {
           description: 'Email with certificate containing the list of COVID tests for this patient',
           properties: {
             subject: {
-              schema: yup
+              type: yup
                 .string()
                 .trim()
                 .min(1),
               defaultValue: 'Medical Certificate now available',
             },
             body: {
-              schema: yup
+              type: yup
                 .string()
                 .trim()
                 .min(1),
@@ -434,14 +434,14 @@ export const globalSettings = {
           description: 'Certificate containing the list of COVID tests for this patient used for proof of over 13 days since infection',
           properties: {
             subject: {
-              schema: yup
+              type: yup
                 .string()
                 .trim()
                 .min(1),
               defaultValue: 'COVID-19 Clearance Certificate now available',
             },
             body: {
-              schema: yup
+              type: yup
                 .string()
                 .trim()
                 .min(1),
@@ -455,13 +455,13 @@ export const globalSettings = {
           properties: {
             emailAddress: {
               description: '_',
-              schema: yup.string().trim(),
+              type: yup.string().trim(),
               defaultValue: 'tamanu@health.gov',
             },
-            contactNumber: { description: '_', schema: yup.string().trim(), defaultValue: '12345' },
+            contactNumber: { description: '_', type: yup.string().trim(), defaultValue: '12345' },
             healthFacility: {
               description: '_',
-              schema: yup
+              type: yup
                 .string()
                 .trim()
                 .min(1),
@@ -474,12 +474,12 @@ export const globalSettings = {
           properties: {
             laboratoryName: {
               description: '_',
-              schema: yup.string().trim(),
+              type: yup.string().trim(),
               defaultValue: 'Approved test provider',
             },
             clearanceCertRemark: {
               description: '_',
-              schema: yup.string().trim(),
+              type: yup.string().trim(),
               defaultValue:
                 'This notice certifies that $firstName$ $lastName$ is no longer considered infectious following 13 days of self-isolation from the date of their first positive SARS-CoV-2 test and are medically cleared from COVID-19. This certificate is valid for 3 months from the date of issue.',
             },
@@ -487,7 +487,7 @@ export const globalSettings = {
         },
         plannedMoveTimeoutHours: {
           description: 'Should match the config value "plannedMoveTimeout.timeoutHours"',
-          schema: yup.number().positive(),
+          type: yup.number().positive(),
           defaultValue: 24,
           unit: 'hours',
         },
