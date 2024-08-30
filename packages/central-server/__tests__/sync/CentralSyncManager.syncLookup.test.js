@@ -674,7 +674,7 @@ describe('Sync Lookup data', () => {
       );
     });
     describe('Settings', () => {
-      it('Snapshots setting links with current facility', async () => {
+      it('Snapshots settings links with current facility', async () => {
         const facility = await models.Facility.create({
           ...fake(models.Facility),
           name: 'Utopia HQ',
@@ -725,7 +725,7 @@ describe('Sync Lookup data', () => {
         expect(outgoingSnapshotRecords.find(r => r.recordId === setting.id)).toBeDefined();
       });
 
-      it('Does not snapshot setting linked to a facility other than the current facility', async () => {
+      it('Does not snapshot settings linked to a facility other than the current facility', async () => {
         const facility2 = await models.Facility.create({
           ...fake(models.Facility),
           name: 'Utopia HQ',
@@ -776,7 +776,7 @@ describe('Sync Lookup data', () => {
         expect(outgoingSnapshotRecords.find(r => r.recordId === setting.id)).not.toBeDefined();
       });
 
-      it('Snapshots setting with global scope', async () => {
+      it('Snapshots settings with global scope', async () => {
         const setting = await models.Setting.create({
           key: 'test',
           value: { test: 'test' },
