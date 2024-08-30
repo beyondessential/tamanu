@@ -38,7 +38,7 @@ export const VaccineCertificateModal = React.memo(({ open, onClose, patient }) =
     isFetching: isAdditionalDataFetching,
   } = usePatientAdditionalDataQuery(patient.id);
 
-  const { title, subtitle } = getSetting('templates.letterhead');
+  const { title, subTitle } = getSetting('templates.letterhead');
   const { healthFacility } = getSetting('templates.vaccineCertificate');
 
   const { data: vaccineData, isFetching: isVaccineFetching } = useAdministeredVaccines(patient.id, {
@@ -96,7 +96,7 @@ export const VaccineCertificateModal = React.memo(({ open, onClose, patient }) =
           printedDate={getCurrentDateString()}
           localisation={localisation}
           translations={translations}
-          certificateData={{ title, subtitle }}
+          certificateData={{ title, subTitle }}
           healthFacility={healthFacility}
         />
       )}
