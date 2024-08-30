@@ -2,11 +2,13 @@ import * as yup from 'yup';
 import { extractDefaults } from './utils';
 
 export const facilitySettings = {
-properties: {
+  name: 'Facility server settings',
+  description: 'Settings that apply only to a facility server',
+  properties: {
     vaccinations: {
       name: 'Vaccinations',
       description: '_',
-      schema: yup.object(),
+      type: yup.object(),
       defaultValue: {},
     },
   },

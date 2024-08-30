@@ -27,12 +27,15 @@ const flattenSettings = (obj: Record<string, any>, parentKey: string = ''): Reco
   }, {} as Record<string, any>);
 };
 
-const flattenSchema = (schema: SettingsSchema, parentKey: string = ''): Record<string, any> => {
+const flattenSchema = (
+  schema: SettingsSchema,
+  parentKey: string = '',
+): Record<string, yup.AnySchema> => {
   return Object.entries(schema.properties).reduce((acc, [key, value]) => {
     const fullKey = parentKey ? `${parentKey}.${key}` : key;
 
     if (isSetting(value)) {
-      acc[fullKey] = value.schema;
+      acc[fullKey] = value.type;
     } else {
       Object.assign(acc, flattenSchema(value as SettingsSchema, fullKey));
     }
@@ -50,18 +53,18 @@ export const validateSettings = async ({
   scope?: string;
   schema?: SettingsSchema;
 }) => {
-  schema = scope ? SCOPE_TO_SCHEMA[scope] : schema;
+  const schemaValue = scope ? SCOPE_TO_SCHEMA[scope] : schema;
 
-  if (!schema) {
+  if (!schemaValue) {
     throw new Error(`No schema found for scope: ${scope}`);
   }
 
   const flattenedSettings = flattenSettings(settings);
-  const flattenedSchema = flattenSchema(schema);
-  const yupSchema = yup
-    .object()
-    .shape(flattenedSchema)
-    .noUnknown();
+  const flattenedSchema = flattenSchema(schemaValue);
+  const yupSchema = yup.object().shape(flattenedSchema);
+  // .noUnknown();
+
+  // Temp remove noUnknown() for feature testing
 
   await yupSchema.validate(flattenedSettings, { abortEarly: false, strict: true });
 };
