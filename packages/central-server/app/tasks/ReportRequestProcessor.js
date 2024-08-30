@@ -221,11 +221,10 @@ export class ReportRequestProcessor extends ScheduledTask {
         const runInChildProcess = await this.context.settings.get(
           'reportProcess.runInChildProcess',
         );
-        if (runInChildProcess) {
-          await this.spawnReportProcess(request);
-        } else {
-          await this.runReportInTheSameProcess(request);
-        }
+        const runReport = runInChildProcess
+          ? this.spawnReportProcess
+          : this.runReportInTheSameProcess;
+        await runReport(request);
 
         await request.update({
           status: REPORT_REQUEST_STATUSES.PROCESSED,
