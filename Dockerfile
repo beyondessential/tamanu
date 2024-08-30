@@ -54,6 +54,9 @@ WORKDIR /app/packages/${PACKAGE_PATH}
 ENV PORT=3000
 EXPOSE 3000
 
+# read configuration from source and from /config
+ENV NODE_CONFIG_DIR=/config:/app/packages/${PACKAGE_PATH}/config
+
 
 ## Build the frontend
 FROM build-base as build-frontend
