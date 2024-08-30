@@ -14,8 +14,9 @@ module.exports = {
       args: 'startAll',
       interpreter_args: `--max_old_space_size=${memory}`,
       instances: 1,
-      exec_mode: 'cluster',
+      exec_mode: 'fork',
       env: {
+        PORT: +process.env.TAMANU_SYNC_PORT || 4000,
         NODE_ENV: 'production',
       },
     },

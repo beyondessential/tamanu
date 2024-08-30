@@ -17,8 +17,10 @@ module.exports = {
       args: 'startApi',
       interpreter_args: `--max_old_space_size=${memory}`,
       instances: +process.env.TAMANU_API_SCALE || defaultApiScale,
-      exec_mode: 'cluster',
+      exec_mode: 'fork',
+      increment_var: 'PORT',
       env: {
+        PORT: +process.env.TAMANU_API_PORT || 3000,
         NODE_ENV: 'production',
       },
     },
