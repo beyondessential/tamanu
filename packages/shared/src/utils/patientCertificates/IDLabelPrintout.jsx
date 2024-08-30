@@ -65,7 +65,7 @@ const IDLabel = ({ patient }) => {
             {patient.displayId}
           </P>
         </BarcodeContainer>
-        <Col style={{ marginLeft: '3mm' }}>
+        <Col style={{ marginLeft: mmToPt(3) }}>
           <P mb={2} fontSize={fontSize} style={styles.text}>
             {getSex(patient)}
           </P>

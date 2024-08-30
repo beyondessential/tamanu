@@ -4,7 +4,7 @@ export interface Setting<T = any> {
   name?: string;
   description?: string;
   unit?: string;
-  schema: yup.SchemaOf<T>;
+  type: yup.SchemaOf<T>;
   defaultValue: T;
 }
 
