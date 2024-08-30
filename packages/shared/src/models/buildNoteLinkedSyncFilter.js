@@ -2,13 +2,32 @@ import { snake } from 'case';
 import { Utils } from 'sequelize';
 import { NOTE_RECORD_TYPE_VALUES, NOTE_RECORD_TYPES } from '@tamanu/constants';
 
-const recordTypesWithPatientViaEncounter = ['Triage', 'LabRequest', 'ImagingRequest'];
+export const recordTypesWithPatientViaEncounter = ['Triage', 'LabRequest', 'ImagingRequest'];
+
+export function getRecordTypesToTables() {
+  return NOTE_RECORD_TYPE_VALUES.reduce((acc, recordType) => {
+    acc[recordType] = Utils.pluralize(snake(recordType));
+    return acc;
+  }, {});
+}
+
+export function getPatientIdColumnOfNotes() {
+  const recordTypesToTables = getRecordTypesToTables();
+
+  const nonEncounterLinkedRecordTypeTables = NOTE_RECORD_TYPE_VALUES.filter(
+    r => r !== NOTE_RECORD_TYPES.PATIENT && !recordTypesWithPatientViaEncounter.includes(r),
+  ).map(r => recordTypesToTables[r]);
+  const encounterTables = recordTypesWithPatientViaEncounter.map(
+    r => `${recordTypesToTables[r]}_encounters`,
+  );
+
+  const patientTablesFromNotes = [...nonEncounterLinkedRecordTypeTables, ...encounterTables];
+  const patientIdColumns = patientTablesFromNotes.map(t => `${t}.patient_id`);
+  return `coalesce(${patientIdColumns.join(', ')})`;
+}
 
 export function buildNoteLinkedJoins() {
-  const recordTypesToTables = {};
-  NOTE_RECORD_TYPE_VALUES.forEach(r => {
-    recordTypesToTables[r] = Utils.pluralize(snake(r));
-  });
+  const recordTypesToTables = getRecordTypesToTables();
 
   let joins = NOTE_RECORD_TYPE_VALUES.filter(r => r !== NOTE_RECORD_TYPES.PATIENT).map(
     r =>

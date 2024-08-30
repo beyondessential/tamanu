@@ -79,7 +79,7 @@ export class Appointment extends Model {
   static buildSyncLookupQueryDetails() {
     return {
       select: buildSyncLookupSelect(this, {
-        patientId: 'appointments.patient_id',
+        patientId: `${this.tableName}.patient_id`,
       }),
     };
   }
