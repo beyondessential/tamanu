@@ -147,7 +147,7 @@ export async function createDummyEncounterDiagnosis(models, overrides = {}) {
   const date = toDateTimeString(new Date(new Date().getTime() - duration));
   return {
     date,
-    certainty: chance.bool() ? 'suspected' : 'confirmed',
+    certainty: chance.pickone(['suspected', 'confirmed']),
     isPrimary: chance.bool(),
     diagnosisId: await randomReferenceId(models, 'diagnosis'),
     ...overrides,
