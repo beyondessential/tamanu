@@ -8,6 +8,7 @@ import { useApi } from '../../../api';
 import { EmailButton } from '../../Email/EmailButton';
 import { useCertificate } from '../../../utils/useCertificate';
 import { useLocalisation } from '../../../contexts/Localisation';
+import { useSettings } from '../../../contexts/Settings';
 import {
   usePatientAdditionalDataQuery,
   useAdministeredVaccines,
@@ -27,6 +28,7 @@ export const VaccineCertificateModal = React.memo(({ open, onClose, patient }) =
   const { facility } = useAuth();
   const { localisation } = useLocalisation();
   const { translations } = useTranslation();
+  const { getSetting } = useSettings()
   const { data: certificateData, isFetching: isCertificateFetching } = useCertificate({
     footerAssetName: ASSET_NAMES.VACCINATION_CERTIFICATE_FOOTER,
   });
@@ -35,6 +37,9 @@ export const VaccineCertificateModal = React.memo(({ open, onClose, patient }) =
     data: additionalData,
     isFetching: isAdditionalDataFetching,
   } = usePatientAdditionalDataQuery(patient.id);
+
+  const { title, subtitle } = getSetting('templates.letterhead');
+  const { healthFacility } = getSetting('templates.vaccineCertificate');
 
   const { data: vaccineData, isFetching: isVaccineFetching } = useAdministeredVaccines(patient.id, {
     orderBy: 'date',
@@ -91,6 +96,8 @@ export const VaccineCertificateModal = React.memo(({ open, onClose, patient }) =
           printedDate={getCurrentDateString()}
           localisation={localisation}
           translations={translations}
+          certificateData={{ title, subtitle }}
+          healthFacility={healthFacility}
         />
       )}
     </Modal>
