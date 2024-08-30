@@ -528,10 +528,13 @@ encounterRelations.get(
 );
 
 const encounterTasksQuerySchema = z.object({
-  order: z
-    .enum(['ASC', 'DESC'])
-    .optional()
-    .default('ASC'),
+  order: z.preprocess(
+    value => (typeof value === 'string' ? value.toUpperCase() : value),
+    z
+      .enum(['ASC', 'DESC'])
+      .optional()
+      .default('ASC'),
+  ),
   orderBy: z
     .enum(['dueTime', 'name'])
     .optional()
@@ -540,9 +543,7 @@ const encounterTasksQuerySchema = z.object({
     .array(z.enum(Object.values(TASK_STATUSES)))
     .optional()
     .default([TASK_STATUSES.TODO]),
-  assignedTo: z
-    .string()
-    .optional()
+  assignedTo: z.string().optional(),
 });
 encounterRelations.get(
   '/:id/tasks',
@@ -578,7 +579,7 @@ encounterRelations.get(
       },
       replacements: { assignedTo },
       order: [
-        [orderBy, order],
+        [orderBy, order.toUpperCase()],
         ['highPriority', 'DESC'],
         ['name', 'ASC'],
       ],
@@ -586,7 +587,7 @@ encounterRelations.get(
     });
     const results = queryResults.map(x => x.forResponse());
 
-    res.send(results);
+    res.send({ data: results, count: results.length });
   }),
 );
 
