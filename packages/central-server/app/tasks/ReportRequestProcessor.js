@@ -60,6 +60,7 @@ export class ReportRequestProcessor extends ScheduledTask {
       pm2_env: JSON.stringify(process.env),
     };
 
+    const sleepAfterReport = await this.context.settings.get('reportProcess.sleepAfterReport');
     const childProcess = spawn(
       node,
       [
@@ -76,6 +77,8 @@ export class ReportRequestProcessor extends ScheduledTask {
         request.requestedByUserId,
         '--format',
         request.exportFormat,
+        '--sleepAfterReport',
+        JSON.stringify(sleepAfterReport),
       ],
       {
         // Time out and kill the report process if it takes too long to run (default 2 hours)
@@ -139,6 +142,8 @@ export class ReportRequestProcessor extends ScheduledTask {
         request.id
       }" for report "${request.getReportId()}" in main process.`,
     );
+
+    const sleepAfterReport = await this.context.settings.get('reportProcess.sleepAfterReport');
     const reportRunner = new ReportRunner(
       request.getReportId(),
       request.getParameters(),
@@ -148,6 +153,7 @@ export class ReportRequestProcessor extends ScheduledTask {
       this.context.emailService,
       request.requestedByUserId,
       request.exportFormat,
+      sleepAfterReport,
     );
 
     await reportRunner.run();

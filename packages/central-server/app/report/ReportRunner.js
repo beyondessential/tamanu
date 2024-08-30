@@ -26,6 +26,7 @@ export class ReportRunner {
     emailService,
     userId,
     exportFormat,
+    sleepAfterReport,
   ) {
     this.reportId = reportId;
     this.parameters = parameters;
@@ -38,6 +39,18 @@ export class ReportRunner {
     // Export format is only used for emailed recipients. Local reports have the export format
     // defined in the recipients object and reports sent to s3 are always csv.
     this.exportFormat = exportFormat;
+
+    if (typeof sleepAfterReport === 'object') {
+      this.sleepAfterReport = sleepAfterReport;
+    } else {
+      try {
+        this.sleepAfterReport = JSON.parse(sleepAfterReport);
+      } catch (e) {
+        throw new SyntaxError(
+          'Invalid format for sleepAfterReport. Must be valid JSON with duration and ifRunAtLeast string values. Supported units: ms, s, min, h.',
+        );
+      }
+    }
   }
 
   async validate(reportModule, reportDataGenerator) {
@@ -97,10 +110,7 @@ export class ReportRunner {
     let metadata = [];
     let reportDuration = 0;
 
-    const {
-      duration,
-      ifRunAtLeast,
-    } = config.reportProcess.sleepAfterReport;
+    const { duration, ifRunAtLeast } = this.sleepAfterReport;
 
     const startTime = Date.now();
 
