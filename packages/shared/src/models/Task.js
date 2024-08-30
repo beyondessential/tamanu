@@ -13,7 +13,7 @@ export class Task extends Model {
           type: DataTypes.TEXT,
           allowNull: false,
         },
-        startTime: dateTimeType('startTime', {
+        dueTime: dateTimeType('dueTime', {
           allowNull: false,
         }),
         endTime: dateTimeType('endTime', {
@@ -133,7 +133,11 @@ export class Task extends Model {
     const { models } = this.sequelize;
 
     return [
-      'encounter',
+      {
+        model: models.Encounter,
+        as: 'encounter',
+        attributes: ['id'],
+      },
       {
         model: models.User,
         as: 'requestedBy',
@@ -142,6 +146,7 @@ export class Task extends Model {
       {
         model: models.TaskDesignation,
         as: 'designations',
+        attributes: ['designationId'],
         include: [
           {
             model: models.ReferenceData,
@@ -149,6 +154,36 @@ export class Task extends Model {
             attributes: ['name'],
           },
         ],
+      },
+      {
+        model: models.User,
+        as: 'completedBy',
+        attributes: ['displayName'],
+      },
+      {
+        model: models.User,
+        as: 'notCompletedBy',
+        attributes: ['displayName'],
+      },
+      {
+        model: models.User,
+        as: 'todoBy',
+        attributes: ['displayName'],
+      },
+      {
+        model: models.User,
+        as: 'deletedBy',
+        attributes: ['displayName'],
+      },
+      {
+        model: models.ReferenceData,
+        as: 'notCompletedReason',
+        attributes: ['name'],
+      },
+      {
+        model: models.ReferenceData,
+        as: 'deletedReason',
+        attributes: ['name'],
       },
     ];
   }
