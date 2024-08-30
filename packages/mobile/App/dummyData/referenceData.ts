@@ -17,8 +17,7 @@ const dummyPatients = new Array(DUMMY_PATIENT_COUNT)
     lastModified: generator.date({ year: 1971, month: 0, day: 0 }),
   }));
 
-const sortByModified = (a: SyncRecord, b: SyncRecord): any =>
-  a.data.lastModified - b.data.lastModified;
+const sortByModified = (a: SyncRecord, b: SyncRecord) => a.data.lastModified - b.data.lastModified;
 
 const dummyPatientRecords: SyncRecord[] = dummyPatients.map(p => ({
   data: p,
