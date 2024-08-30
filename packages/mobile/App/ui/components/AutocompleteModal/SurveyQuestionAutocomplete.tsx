@@ -32,7 +32,7 @@ const useWhere = ({
   return where;
 };
 
-const useSurveyAutocompleteWhere = (config: SurveyScreenConfig): object => {
+const useSurveyAutocompleteWhere = (config: SurveyScreenConfig) => {
   const where = useWhere(config);
   const filter = useFilterByResource(config);
   return { ...where, ...filter };
