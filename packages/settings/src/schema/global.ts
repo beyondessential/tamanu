@@ -133,7 +133,7 @@ export const globalSettings = {
         processOptions: {
           description:
             "Provide an array if you want to override the options. e.g. ['--max-old-space-size=4096']",
-          type: yup.array().of(yup.string()),
+          type: yup.array(yup.string()),
           defaultValue: null,
         },
         childProcessEnv: {
