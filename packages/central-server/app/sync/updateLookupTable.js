@@ -95,10 +95,15 @@ export const updateLookupTableForModel = async (model, config, since, sessionCon
     totalCount += chunkCount;
   }
 
+  log.info('updateLookupTable.updateLookupTableForModel', {
+    model: model.tableName,
+    totalCount: totalCount,
+  });
+
   return totalCount;
 };
 
-export const updateLookupTable = withConfig(async (outgoingModels, since, config, currentTick) => {
+export const updateLookupTable = withConfig(async (outgoingModels, since, config, currentTick, debugObject) => {
   const invalidModelNames = Object.values(outgoingModels)
     .filter(
       m =>
@@ -136,7 +141,8 @@ export const updateLookupTable = withConfig(async (outgoingModels, since, config
     }
   }
 
-  log.debug('updateLookupTable.countedAll', { count: changesCount, since });
+  await debugObject.addInfo({ changesCount });
+  log.info('updateLookupTable.countedAll', { count: changesCount, since });
 
   return changesCount;
 });
