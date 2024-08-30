@@ -14,8 +14,9 @@ import {
   SyncView,
   TemplateView,
   TranslationAdminView,
-  SettingsView,
+  // SettingsView,
 } from '../views';
+import { SettingsViewNew } from '../views/administration/settings/SettingsViewNew';
 
 export const AdministrationRoutes = React.memo(({ match }) => (
   <Switch>
@@ -29,7 +30,7 @@ export const AdministrationRoutes = React.memo(({ match }) => (
     <Route path={`${match.path}/sync`} component={SyncView} />
     <Route path={`${match.path}/reports`} component={ReportAdminRoutes} />
     <Route path={`${match.path}/translation`} component={TranslationAdminView} />
-    <Route path={`${match.path}/settings`} component={SettingsView} />
+    <Route path={`${match.path}/settings`} component={SettingsViewNew} />
     <Route path={`${match.path}/fhir`} component={FhirAdminRoutes} />
     <Route path={`${match.path}/insurerPayments`} component={InsurerPaymentsAdminView} />
     <Redirect to={`${match.path}/referenceData`} />
