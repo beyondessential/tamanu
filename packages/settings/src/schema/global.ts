@@ -298,11 +298,6 @@ export const globalSettings = {
               defaultValue: 6.4,
               unit: 'mm'
             },
-            columnTotal: {
-              description: 'Number of columns',
-              type: yup.number().min(0),
-              defaultValue: 3,
-            },
             columnWidth: {
               type: yup.number().min(0),
               defaultValue: 64,
@@ -312,11 +307,6 @@ export const globalSettings = {
               type: yup.number().min(0),
               defaultValue: 3.01,
               unit: 'mm'
-            },
-            rowTotal: {
-              description: 'Number of rows',
-              type: yup.number().min(0),
-              defaultValue: 10,
             },
             rowHeight: {
               type: yup.number().min(0),
