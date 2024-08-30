@@ -25,6 +25,7 @@ const useWhere = ({
   };
 }) => {
   if (source === 'ReferenceData' && where?.type === 'icd10')
+    // Continue to support existing surveys with deprecated icd10 type by treating as diagnosis
     return {
       ...where,
       type: 'diagnosis',
