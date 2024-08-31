@@ -2,7 +2,7 @@ import { trace } from '@opentelemetry/api';
 import { Op } from 'sequelize';
 import _config from 'config';
 
-import { SYNC_DIRECTIONS } from '@tamanu/constants';
+import { SYNC_DIRECTIONS, DEBUG_LOG_TYPES } from '@tamanu/constants';
 import { CURRENT_SYNC_TIME_KEY, LOOKUP_UP_TO_TICK_KEY } from '@tamanu/shared/sync/constants';
 import { log } from '@tamanu/shared/services/logging';
 import {
@@ -230,32 +230,56 @@ export class CentralSyncManager {
   }
 
   async updateLookupTable() {
-    // get a sync tick that we can safely consider the snapshot to be up to (because we use the
-    // "tick" of the tick-tock, so we know any more changes on the server, even while the snapshot
-    // process is ongoing, will have a later updated_at_sync_tick)
-    const { tick: currentTick } = await this.tickTockGlobalClock();
-
-    await this.waitForPendingEdits(currentTick);
-
-    const previouslyUpToTick =
-      (await this.store.models.LocalSystemFact.get(LOOKUP_UP_TO_TICK_KEY)) || -1;
-
-    await repeatableReadTransaction(this.store.sequelize, async () => {
-      await updateLookupTable(
-        getModelsForDirection(this.store.models, SYNC_DIRECTIONS.PULL_FROM_CENTRAL),
-        previouslyUpToTick,
-        this.constructor.config,
-        currentTick
-      );
-
-      // update the last successful lookup table in the same transaction - if updating the cursor fails,
-      // we want to roll back the rest of the saves so that the next update can still detect the records that failed
-      // to be updated last time
-      log.debug('CentralSyncManager.updateLookupTable()', {
-        lastSuccessfulLookupTableUpdate: currentTick,
-      });
-      await this.store.models.LocalSystemFact.set(LOOKUP_UP_TO_TICK_KEY, currentTick);
+    const debugObject = await this.store.models.DebugLog.create({
+      type: DEBUG_LOG_TYPES.SYNC_LOOKUP_UPDATE,
+      info: {
+        startedAt: new Date(),
+      },
     });
+
+    try {
+      // get a sync tick that we can safely consider the snapshot to be up to (because we use the
+      // "tick" of the tick-tock, so we know any more changes on the server, even while the snapshot
+      // process is ongoing, will have a later updated_at_sync_tick)
+      const { tick: currentTick } = await this.tickTockGlobalClock();
+
+      await this.waitForPendingEdits(currentTick);
+
+      const previouslyUpToTick =
+        (await this.store.models.LocalSystemFact.get(LOOKUP_UP_TO_TICK_KEY)) || -1;
+
+      await debugObject.addInfo({ since: previouslyUpToTick });
+
+      await repeatableReadTransaction(this.store.sequelize, async () => {
+        await updateLookupTable(
+          getModelsForDirection(this.store.models, SYNC_DIRECTIONS.PULL_FROM_CENTRAL),
+          previouslyUpToTick,
+          this.constructor.config,
+          currentTick,
+          debugObject,
+        );
+
+        // update the last successful lookup table in the same transaction - if updating the cursor fails,
+        // we want to roll back the rest of the saves so that the next update can still detect the records that failed
+        // to be updated last time
+        log.debug('CentralSyncManager.updateLookupTable()', {
+          lastSuccessfulLookupTableUpdate: currentTick,
+        });
+        await this.store.models.LocalSystemFact.set(LOOKUP_UP_TO_TICK_KEY, currentTick);
+      });
+    } catch (error) {
+      log.error('CentralSyncManager.updateLookupTable encountered an error', {
+        ...error,
+      });
+
+      await debugObject.addInfo({
+        error: error.message,
+      });
+    } finally {
+      await debugObject.addInfo({
+        completedAt: new Date(),
+      });
+    }
   }
 
   async waitForPendingEdits(tick) {
