@@ -1,0 +1,39 @@
+---
+schema: public
+name: patients
+transformers:
+  - name: Template
+    params:
+      column: start_date
+      template: '{{- fakerTimestamp -}}'
+
+  - name: Template
+    params:
+      column: end_date
+      template: >
+        {{- if isNull .GetValue -}}
+          {{- null -}}
+        {{- else -}}
+          {{- fakerTimestamp -}}
+        {{- end -}}
+
+  - name: Template
+    params:
+      column: planned_location_start_time
+      template: >
+        {{- if isNull .GetValue -}}
+          {{- null -}}
+        {{- else -}}
+          {{- fakerTimestamp -}}
+        {{- end -}}
+
+  - name: Masking
+    params:
+      column: reason_for_encounter
+
+  - name: SetNull
+    params:
+      column: start_date_legacy
+  - name: SetNull
+    params:
+      column: end_date_legacy
