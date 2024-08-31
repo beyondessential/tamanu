@@ -1,0 +1,20 @@
+---
+schema: public
+name: notes
+transformers:
+  - name: Template
+    params:
+      column: date
+      template: '{{- fakerTimestamp -}}'
+
+  - name: Masking
+    params:
+      column: content
+
+  - name: Masking
+    params:
+      column: legacy_results
+
+  - name: SetNull
+    params:
+      column: date_legacy
