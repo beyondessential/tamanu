@@ -3,10 +3,10 @@ import Sequelize, { DataTypes } from 'sequelize';
 export async function up(query) {
   await query.createTable('sync_lookup', {
     id: {
-      type: DataTypes.UUID,
+      type: DataTypes.BIGINT,
       allowNull: false,
       primaryKey: true,
-      defaultValue: Sequelize.fn('uuid_generate_v4'),
+      autoIncrement: true,
     },
     record_id: {
       type: DataTypes.STRING,
@@ -47,7 +47,7 @@ export async function up(query) {
     updated_at_by_field_sum: {
       type: DataTypes.BIGINT,
       allowNull: true,
-    }
+    },
   });
 
   await query.addConstraint('sync_lookup', {
