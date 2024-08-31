@@ -11,10 +11,6 @@ transformers:
     params:
       column: content
 
-  - name: Masking
-    params:
-      column: legacy_results
-
   - name: SetNull
     params:
       column: date_legacy
