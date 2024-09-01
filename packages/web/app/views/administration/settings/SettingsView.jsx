@@ -1,23 +1,25 @@
 import React, { useState } from 'react';
+import { useQueryClient, useQuery } from '@tanstack/react-query';
 import styled from 'styled-components';
+import { ValidationError } from 'yup';
+
+import { SETTINGS_SCOPES } from '@tamanu/constants';
+import { validateSettings } from '@tamanu/settings';
 
 import { TabDisplay } from '../../../components/TabDisplay';
 import { AdminViewContainer } from '../components/AdminViewContainer';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { JSONEditorView } from './JSONEditorView';
 import { useAuth } from '../../../contexts/Auth';
-import { SETTINGS_SCOPES } from '@tamanu/constants';
-import { useQueryClient, useQuery } from '@tanstack/react-query';
 import { Form } from '../../../components';
 import { useApi } from '../../../api';
 import { ErrorMessage } from '../../../components/ErrorMessage';
-import { validateSettings } from '@tamanu/settings';
 import { notifyError, notifySuccess } from '../../../utils';
-import { ValidationError } from 'yup';
+import { Colors } from '../../../constants';
 
 const StyledTabDisplay = styled(TabDisplay)`
   margin-top: 20px;
-  border-top: 1px solid #dededede;
+  border-top: 1px solid ${Colors.outline};
 `;
 
 const TabContainer = styled.div`
@@ -26,7 +28,7 @@ const TabContainer = styled.div`
 
 const tabs = [
   {
-    label: <TranslatedText stringId="admin.settings.settings.title" fallback="Editor" />,
+    label: <TranslatedText stringId="admin.settings.tab.editor.title" fallback="Editor" />,
     key: 'editor',
     icon: 'fa fa-cog',
     render: () => (
@@ -36,7 +38,7 @@ const tabs = [
     ),
   },
   {
-    label: <TranslatedText stringId="admin.settings.jsonEditor.title" fallback="JSON editor" />,
+    label: <TranslatedText stringId="admin.settings.tab.json.title" fallback="JSON editor" />,
     key: 'json',
     icon: 'fa fa-code',
     render: props => (
