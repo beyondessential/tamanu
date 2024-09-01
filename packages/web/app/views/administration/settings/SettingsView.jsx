@@ -60,7 +60,7 @@ export const SettingsView = () => {
       });
       notifySuccess('Settings saved');
       queryClient.invalidateQueries(['scopedSettings', scope, facilityId]);
-      // turnOffEditMode();
+      return true;
     } catch (error) {
       if (error instanceof ValidationError) {
         error?.inner?.forEach(e => {
@@ -69,6 +69,7 @@ export const SettingsView = () => {
       } else {
         notifyError(`Error while saving settings: ${error.message}`);
       }
+      return false;
     }
   };
 
@@ -85,7 +86,7 @@ export const SettingsView = () => {
   );
 };
 
-const SettingsForm = ({ values, setFieldValue, submitForm }) => {
+const SettingsForm = ({ values, setValues, setFieldValue, submitForm, status }) => {
   const [currentTab, setCurrentTab] = useState('editor');
   const api = useApi();
   const { ability } = useAuth();
@@ -109,8 +110,10 @@ const SettingsForm = ({ values, setFieldValue, submitForm }) => {
       scrollable={false}
       settings={settings}
       setFieldValue={setFieldValue}
+      setValues={setValues}
       values={values}
       submitForm={submitForm}
+      status={status}
     />
   ) : (
     <p>GUI starts here</p>
