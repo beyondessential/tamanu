@@ -37,6 +37,7 @@ export const globalSettings = {
   description: 'Settings that apply to all servers',
   properties: {
     ageDisplayFormat: {
+      description: 'Defines the unit with which to display patient ages, depending on their age',
       type: ageDisplayFormatSchema,
       defaultValue: ageDisplayFormatDefault,
     },
@@ -124,10 +125,11 @@ export const globalSettings = {
             .integer()
             .positive(),
           defaultValue: 7200, // 2 hours
-          unit: 'seconds'
+          unit: 'seconds',
         },
         runInChildProcess: {
-          description: 'Should spawn a child process to run the report generation in',
+          description:
+            'TRUE report generation should be run in a child process, or FALSE if it should run in the main process',
           type: yup.boolean(),
           defaultValue: true,
         },
@@ -143,12 +145,18 @@ export const globalSettings = {
           defaultValue: null,
         },
         sleepAfterReport: {
+          description:
+            'To mitigate resource-hungry reports affecting operational use of Tamanu, if a report takes too long, then report generation can be suspended for a some time',
           properties: {
             duration: {
+              description:
+                'If generating a report takes longer than ifRunAtLeast, then suspend subsequent report generation for this long',
               type: DURATION_STRING.required(),
               defaultValue: '5m',
             },
             ifRunAtLeast: {
+              description:
+                'If a report takes longer than this, then temporarily suspend subsequent report generation',
               type: DURATION_STRING.required(),
               defaultValue: '5m',
             },
