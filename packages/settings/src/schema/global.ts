@@ -54,7 +54,6 @@ export const globalSettings = {
     features: {
       properties: {
         mandateSpecimenType: {
-          name: 'Mandate specimen type',
           description: '_',
           type: yup.boolean(),
           defaultValue: false,
@@ -73,7 +72,6 @@ export const globalSettings = {
               defaultValue: '1 minute',
             },
             assumeDroppedAfter: {
-              name: 'Assume dropped after',
               description: '_',
               type: yup.string(),
               defaultValue: '10 minutes',
