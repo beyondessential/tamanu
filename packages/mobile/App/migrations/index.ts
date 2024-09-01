@@ -53,6 +53,7 @@ import { addSecondaryVillageIdToPatientAdditionalData1718236579000 } from './171
 import { addMissedDeletedAtToTranslatedStringTable1718045677000 } from './1718045677000-addMissedDeletedAtToTranslatedStringTable';
 import { addClinicianToEncounterDiagnosis1721636585000 } from './1721636585000-addClinicianToEncounterDiagnosis';
 import { surveyCompletionNotification1724205895000 } from './1724205895000-surveyCompletionNotification';
+import { removeSettingsValueNotNullConstraint1724900789000 } from './1724900789000-removeSettingsValueNotNullConstraint';
 
 export const migrationList = [
   databaseSetup1661160427226,
@@ -109,4 +110,5 @@ export const migrationList = [
   addMissedDeletedAtToTranslatedStringTable1718045677000,
   addClinicianToEncounterDiagnosis1721636585000,
   surveyCompletionNotification1724205895000,
+  removeSettingsValueNotNullConstraint1724900789000,
 ];
