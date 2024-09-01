@@ -149,16 +149,15 @@ export class CertificateNotificationProcessor extends ScheduledTask {
             }
 
             sublog.info('Generating vax certificate PDF', { uvci });
-            pdf = await makeCovidVaccineCertificate(
+            pdf = await makeCovidVaccineCertificate({
+              models,
+              language,
               patient,
               printedBy,
               printedDate,
-              models,
-              settings,
-              uvci,
               qrData,
-              language,
-            );
+              uvci,
+            });
             break;
           }
 
@@ -177,15 +176,15 @@ export class CertificateNotificationProcessor extends ScheduledTask {
             }
 
             sublog.info('Generating test certificate PDF');
-            pdf = await makeCovidCertificate(
-              CertificateTypes.test,
-              patient,
-              printedBy,
+            pdf = await makeCovidCertificate({
               models,
               settings,
-              qrData,
+              certType: CertificateTypes.test,
               language,
-            );
+              patient,
+              printedBy,
+              vdsData: qrData,
+            });
             break;
           }
 
@@ -193,28 +192,28 @@ export class CertificateNotificationProcessor extends ScheduledTask {
             template = 'covidClearanceCertificateEmail';
 
             sublog.info('Generating clearance certificate PDF');
-            pdf = await makeCovidCertificate(
-              CertificateTypes.clearance,
-              patient,
-              printedBy,
+            pdf = await makeCovidCertificate({
               models,
               settings,
-              qrData,
+              certType: CertificateTypes.clearance,
               language,
-            );
+              patient,
+              printedBy,
+              vdsData: qrData,
+            });
             break;
 
           case VACCINATION_CERTIFICATE:
             template = 'vaccineCertificateEmail';
-            pdf = await makeVaccineCertificate(
+            pdf = await makeVaccineCertificate({
+              models,
+              facilityName,
+              language,
               patient,
               printedBy,
               printedDate,
-              facilityName,
-              models,
-              language,
               translations,
-            );
+            });
             break;
 
           default:
