@@ -12,6 +12,15 @@ import { objectAsFhir } from './utils';
 import { formatFhirDate } from '../../utils/fhir';
 import { Model } from '../Model';
 
+// Sequelize converts TIMESTAMP into UTC, so we convert it back to local time
+const getLocalDate = utcDate => {
+  if (!(utcDate instanceof Date)) {
+    return utcDate;
+  }
+  const localOffsetMinutes = new Date().getTimezoneOffset();
+  return subMinutes(utcDate, localOffsetMinutes);
+};
+
 export class FhirResource extends Model {
   static init(attributes, options) {
     super.init(
@@ -36,13 +45,17 @@ export class FhirResource extends Model {
           allowNull: false,
           defaultValue: Sequelize.NOW,
           set(utcDate) {
-            // Sequelize converts TIMESTAMP into UTC, so we convert it back to local time
-            if (!(utcDate instanceof Date)) {
-              return utcDate;
-            }
-            const localOffsetMinutes = new Date().getTimezoneOffset();
-            this.setDataValue('lastUpdated', subMinutes(utcDate, localOffsetMinutes));
+            this.setDataValue('lastUpdated', getLocalDate(utcDate));
             return this.lastUpdated;
+          },
+        },
+        materializedAt: {
+          type: DataTypes.TIMESTAMP,
+          allowNull: false,
+          defaultValue: Sequelize.NOW,
+          set(utcDate) {
+            this.setDataValue('materializedAt', getLocalDate(utcDate));
+            return this.materializedAt;
           },
         },
         ...attributes,
@@ -193,7 +206,8 @@ export class FhirResource extends Model {
   asFhir() {
     const fields = {};
     for (const name of Object.keys(this.constructor.getAttributes())) {
-      if (['id', 'versionId', 'upstreamId', 'lastUpdated'].includes(name)) continue;
+      if (['id', 'versionId', 'upstreamId', 'lastUpdated', 'materializedAt'].includes(name))
+        continue;
       fields[name] = this.get(name);
     }
 
