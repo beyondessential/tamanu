@@ -8,6 +8,7 @@ import {
   imagingCancellationReasonsSchema,
   labsCancellationReasonsDefault,
   labsCancellationReasonsSchema,
+  slidingFeeScaleDefault,
   vitalEditReasonsDefault,
   vitalEditReasonsSchema,
 } from './definitions';
@@ -103,10 +104,9 @@ export const globalSettings = {
     invoice: {
       properties: {
         slidingFeeScale: {
-          name: 'Sliding fee scale',
           description: '_',
           type: yup.array(yup.array(yup.number())),
-          defaultValue: {},
+          defaultValue: slidingFeeScaleDefault,
         },
       },
     },

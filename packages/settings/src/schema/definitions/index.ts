@@ -13,4 +13,5 @@ export {
   passportSchema,
   questionCodeIdsDescription,
 } from './questionCodeIds';
+export { slidingFeeScaleDefault } from './slidingFeeScale';
 export { vitalEditReasonsDefault, vitalEditReasonsSchema } from './vitalEditReasons';
