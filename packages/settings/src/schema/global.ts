@@ -151,13 +151,13 @@ export const globalSettings = {
             duration: {
               description:
                 'If generating a report takes longer than ifRunAtLeast, then suspend subsequent report generation for this long',
-              type: durationStringSchema.required(),
+              type: durationStringSchema,
               defaultValue: '5m',
             },
             ifRunAtLeast: {
               description:
                 'If a report takes longer than this, then temporarily suspend subsequent report generation',
-              type: durationStringSchema.required(),
+              type: durationStringSchema,
               defaultValue: '5m',
             },
           },
