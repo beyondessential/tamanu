@@ -13,7 +13,7 @@ import {
 } from './definitions';
 
 /** Pattern from ms package, which is used to parse sleepAfterReport values. */
-const DURATION_STRING = yup
+const durationStringSchema = yup
   .string()
   .matches(
     /^(-?(?:\d+)?\.?\d+) *(milliseconds?|msecs?|ms|seconds?|secs?|s|minutes?|mins?|m|hours?|hrs?|h|days?|d|weeks?|w|years?|yrs?|y)?$/i,
@@ -151,13 +151,13 @@ export const globalSettings = {
             duration: {
               description:
                 'If generating a report takes longer than ifRunAtLeast, then suspend subsequent report generation for this long',
-              type: DURATION_STRING.required(),
+              type: durationStringSchema.required(),
               defaultValue: '5m',
             },
             ifRunAtLeast: {
               description:
                 'If a report takes longer than this, then temporarily suspend subsequent report generation',
-              type: DURATION_STRING.required(),
+              type: durationStringSchema.required(),
               defaultValue: '5m',
             },
           },
