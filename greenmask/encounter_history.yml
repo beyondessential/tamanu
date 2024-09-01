@@ -1,0 +1,8 @@
+---
+schema: public
+name: encounter_history
+transformers:
+  - name: Template
+    params:
+      column: date
+      template: '{{- fakerTimestamp -}}'
