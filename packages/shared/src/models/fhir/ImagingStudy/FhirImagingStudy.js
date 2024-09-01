@@ -49,7 +49,7 @@ export class FhirImagingStudy extends FhirResource {
 
   // This is currently very hardcoded for Aspen's use case.
   // We'll need to make it more generic at some point, but not today!
-  async pushUpstream({ requesterId }, settings) {
+  async pushUpstream({ settings, requesterId }) {
     const { FhirServiceRequest, ImagingRequest } = this.sequelize.models;
     const serviceRequestFhirId = this.basedOn
       .map(ref => ref.fhirTypeAndId())
