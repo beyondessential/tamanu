@@ -43,11 +43,14 @@ export class ReportRunner {
     if (typeof sleepAfterReport === 'object') {
       this.sleepAfterReport = sleepAfterReport;
     } else {
+      // ReportRunner is running in a child Node process spawned via the custom ‘report’ CLI
+      // command. In this case, sleepAfterReport is passed as a stringified object.
+      // @see ../subCommands/report.js
       try {
         this.sleepAfterReport = JSON.parse(sleepAfterReport);
       } catch (e) {
         throw new SyntaxError(
-          'Invalid format for sleepAfterReport. Must be valid JSON with duration and ifRunAtLeast string values. Supported units: ms, s, min, h.',
+          'Invalid format for sleepAfterReport. Must be valid JSON with duration and ifRunAtLeast string values. Supported units: ms, s, min, h',
         );
       }
     }
