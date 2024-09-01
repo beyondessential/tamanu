@@ -3,8 +3,11 @@ import * as yup from 'yup';
 export const questionCodeIdsDescription =
   'Avoid using questionCodeIds. The PatientData question type has made this setting redundant.';
 
-export const questionCodeIdsSchema = yup.object({
-  passport: yup.string(),
-  nationalityId: yup.string(),
-  email: yup.string().email(),
-});
+export const passportSchema = yup.string().nullable();
+
+export const nationalityIdSchema = yup.string().nullable();
+
+export const emailSchema = yup
+  .string()
+  .email()
+  .nullable();

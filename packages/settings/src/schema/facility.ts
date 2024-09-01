@@ -1,6 +1,11 @@
 import * as yup from 'yup';
 import { extractDefaults } from './utils';
-import { questionCodeIdsDescription, questionCodeIdsSchema } from './definitions';
+import {
+  emailSchema,
+  nationalityIdSchema,
+  passportSchema,
+  questionCodeIdsDescription,
+} from './definitions';
 
 export const facilitySettings = {
   name: 'Facility server settings',
@@ -9,10 +14,19 @@ export const facilitySettings = {
     questionCodeIds: {
       deprecated: true,
       description: questionCodeIdsDescription,
-      type: questionCodeIdsSchema,
-      defaultValue: {
-        passport: 'pde-FijCOVRDT005',
-        nationalityId: 'pde-PalauCOVSamp7',
+      properties: {
+        passport: {
+          type: passportSchema,
+          defaultValue: 'pde-FijCOVRDT005',
+        },
+        nationalityId: {
+          type: nationalityIdSchema,
+          defaultValue: 'pde-PalauCOVSamp7',
+        },
+        email: {
+          type: emailSchema,
+          defaultValue: null,
+        },
       },
     },
     templates: {

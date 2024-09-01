@@ -7,5 +7,10 @@ export {
   labsCancellationReasonsSchema,
   labsCancellationReasonsDefault,
 } from './labsCancellationReasons';
-export { questionCodeIdsDescription, questionCodeIdsSchema } from './questionCodeIds';
+export {
+  emailSchema,
+  nationalityIdSchema,
+  passportSchema,
+  questionCodeIdsDescription,
+} from './questionCodeIds';
 export { vitalEditReasonsDefault, vitalEditReasonsSchema } from './vitalEditReasons';

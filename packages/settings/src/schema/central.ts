@@ -1,5 +1,10 @@
 import { extractDefaults } from './utils';
-import { questionCodeIdsDescription, questionCodeIdsSchema } from './definitions';
+import {
+  emailSchema,
+  nationalityIdSchema,
+  passportSchema,
+  questionCodeIdsDescription,
+} from './definitions';
 
 export const centralSettings = {
   name: 'Central server settings',
@@ -8,11 +13,19 @@ export const centralSettings = {
     questionCodeIds: {
       deprecated: true,
       description: questionCodeIdsDescription,
-      type: questionCodeIdsSchema,
-      defaultValue: {
-        passport: null,
-        nationalityId: null,
-        email: null,
+      properties: {
+        passport: {
+          type: passportSchema,
+          defaultValue: null,
+        },
+        nationalityId: {
+          type: nationalityIdSchema,
+          defaultValue: null,
+        },
+        email: {
+          type: emailSchema,
+          defaultValue: null,
+        },
       },
     },
   },
