@@ -93,7 +93,7 @@ const SettingsForm = ({ values, setValues, setFieldValue, submitForm, status }) 
   const api = useApi();
   const { ability } = useAuth();
   const { scope, facilityId } = values;
-  const canViewJSONEditor = ability.can('write', 'Settings');
+  const canViewJSONEditor = ability.can('write', 'Setting');
 
   const { data: settings = {}, error: settingsFetchError } = useQuery(
     ['scopedSettings', scope, facilityId],
