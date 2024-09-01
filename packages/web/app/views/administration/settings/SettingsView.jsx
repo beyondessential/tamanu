@@ -6,6 +6,14 @@ import { AdminViewContainer } from '../components/AdminViewContainer';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { JSONEditorView } from './JSONEditorView';
 import { useAuth } from '../../../contexts/Auth';
+import { SETTINGS_SCOPES } from '@tamanu/constants';
+import { useQueryClient, useQuery } from '@tanstack/react-query';
+import { Form } from '../../../components';
+import { useApi } from '../../../api';
+import { ErrorMessage } from '../../../components/ErrorMessage';
+import { validateSettings } from '@tamanu/settings';
+import { notifyError, notifySuccess } from '../../../utils';
+import { ValidationError } from 'yup';
 
 const StyledTabDisplay = styled(TabDisplay)`
   margin-top: 20px;
@@ -31,34 +39,80 @@ const tabs = [
     label: <TranslatedText stringId="admin.settings.jsonEditor.title" fallback="JSON editor" />,
     key: 'json',
     icon: 'fa fa-code',
-    render: () => (
+    render: props => (
       <TabContainer>
-        <JSONEditorView />
+        <JSONEditorView {...props} />
       </TabContainer>
     ),
   },
 ];
 
 export const SettingsView = () => {
-  const [currentTab, setCurrentTab] = useState('editor');
-  const { ability } = useAuth();
-  // Placeholder for permissions
-  const canViewJSONEditor = ability.can('write', 'Settings');
+  const queryClient = useQueryClient();
+  const api = useApi();
+  const handleSubmit = async ({ settings, scope, facilityId }) => {
+    try {
+      await validateSettings({ settings, scope });
+      await api.put('admin/settings', {
+        settings,
+        facilityId,
+        scope,
+      });
+      notifySuccess('Settings saved');
+      queryClient.invalidateQueries(['scopedSettings', scope, facilityId]);
+      // turnOffEditMode();
+    } catch (error) {
+      if (error instanceof ValidationError) {
+        error?.inner?.forEach(e => {
+          notifyError(e.message);
+        });
+      } else {
+        notifyError(`Error while saving settings: ${error.message}`);
+      }
+    }
+  };
 
   return (
     <AdminViewContainer
       title={<TranslatedText stringId="admin.settings.title" fallback="Settings" />}
     >
-      {canViewJSONEditor ? (
-        <StyledTabDisplay
-          tabs={tabs}
-          currentTab={currentTab}
-          onTabSelect={setCurrentTab}
-          scrollable={false}
-        />
-      ) : (
-        <p>GUI starts here</p>
-      )}
+      <Form
+        initialValues={{ scope: SETTINGS_SCOPES.GLOBAL, facilityId: null }}
+        onSubmit={handleSubmit}
+        render={SettingsForm}
+      />
     </AdminViewContainer>
+  );
+};
+
+const SettingsForm = ({ values, setFieldValue, submitForm }) => {
+  const [currentTab, setCurrentTab] = useState('editor');
+  const api = useApi();
+  const { ability } = useAuth();
+  const { scope, facilityId } = values;
+  const canViewJSONEditor = ability.can('write', 'Settings');
+
+  const { data: settings = {}, error: settingsFetchError } = useQuery(
+    ['scopedSettings', scope, facilityId],
+    () => api.get('admin/settings', { scope, facilityId }),
+  );
+
+  if (settingsFetchError) {
+    return <ErrorMessage title="Settings fetch error" errorMessage={settingsFetchError.message} />;
+  }
+
+  return canViewJSONEditor ? (
+    <StyledTabDisplay
+      tabs={tabs}
+      currentTab={currentTab}
+      onTabSelect={setCurrentTab}
+      scrollable={false}
+      settings={settings}
+      setFieldValue={setFieldValue}
+      values={values}
+      submitForm={submitForm}
+    />
+  ) : (
+    <p>GUI starts here</p>
   );
 };

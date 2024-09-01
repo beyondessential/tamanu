@@ -1,20 +1,15 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Settings } from '@material-ui/icons';
-import { useQuery } from '@tanstack/react-query';
 
 import { SETTINGS_SCOPES } from '@tamanu/constants';
-import { validateSettings } from '@tamanu/settings/schema';
 
 import { LargeButton, TextButton, ContentPane, ButtonRow, TopBar } from '../../../components';
 import { JSONEditor } from './JSONEditor';
-import { ScopeSelector } from './ScopeSelector';
+import { ScopeSelectorFields } from './ScopeSelectorFields';
 import { DefaultSettingsModal } from './DefaultSettingsModal';
-import { useApi } from '../../../api';
-import { notifySuccess, notifyError } from '../../../utils';
-import { ErrorMessage } from '../../../components/ErrorMessage';
+import { notifyError } from '../../../utils';
 import { TranslatedText } from '../../../components/Translation';
-import { ValidationError } from 'yup';
 
 const StyledTopBar = styled(TopBar)`
   padding: 0;
@@ -38,18 +33,11 @@ const buildSettingsString = settings => {
   return JSON.stringify(settings, null, 2);
 };
 
-export const JSONEditorView = React.memo(() => {
-  const api = useApi();
+export const JSONEditorView = React.memo(({ settings, values, setFieldValue, submitForm }) => {
+  const { scope, facilityId } = values;
   const [settingsEditString, setSettingsEditString] = useState('');
-  const [scope, setScope] = useState(SETTINGS_SCOPES.GLOBAL);
-  const [facilityId, setFacilityId] = useState(null);
   const [jsonError, setJsonError] = useState(null);
   const [isDefaultModalOpen, setIsDefaultModalOpen] = useState(false);
-
-  const { data: settings = {}, refetch: refetchSettings, error: settingsFetchError } = useQuery(
-    ['scopedSettings', scope, facilityId],
-    () => api.get('admin/settings', { scope, facilityId }),
-  );
 
   const settingsViewString = buildSettingsString(settings);
   const hasSettingsChanged = settingsViewString !== settingsEditString;
@@ -61,15 +49,11 @@ export const JSONEditorView = React.memo(() => {
 
   const turnOnEditMode = () => updateSettingsEditString(buildSettingsString(settings) || '{}');
   const turnOffEditMode = () => updateSettingsEditString(null);
+
   const onChangeSettings = newValue => updateSettingsEditString(newValue);
-  const onChangeScope = event => {
-    setScope(event.target.value || null);
-    setFacilityId(null);
-    updateSettingsEditString(null);
-  };
-  const onChangeFacility = event => {
-    setFacilityId(event.target.value || null);
-    updateSettingsEditString(null);
+  const onChangeScope = () => {
+    setFieldValue('facilityId', null);
+    turnOffEditMode();
   };
 
   // Convert settings string from editor into object and post to backend
@@ -84,26 +68,9 @@ export const JSONEditorView = React.memo(() => {
     }
 
     const settingsObject = JSON.parse(settingsEditString);
-
-    try {
-      await validateSettings({ settings: settingsObject, scope });
-      await api.put('admin/settings', {
-        settings: settingsObject,
-        facilityId,
-        scope,
-      });
-      notifySuccess('Settings saved');
-      await refetchSettings();
-      turnOffEditMode();
-    } catch (error) {
-      if (error instanceof ValidationError) {
-        error?.inner?.forEach(e => {
-          notifyError(e.message);
-        });
-      } else {
-        notifyError(`Error while saving settings: ${error.message}`);
-      }
-    }
+    setFieldValue('settings', settingsObject);
+    await submitForm();
+    turnOffEditMode();
   };
 
   const editMode = !!settingsEditString;
@@ -112,11 +79,10 @@ export const JSONEditorView = React.memo(() => {
   return (
     <>
       <StyledTopBar>
-        <ScopeSelector
+        <ScopeSelectorFields
           selectedScope={scope}
+          onChangeFacility={turnOffEditMode}
           onChangeScope={onChangeScope}
-          selectedFacility={facilityId}
-          onChangeFacility={onChangeFacility}
         />
         <DefaultSettingsButton onClick={() => setIsDefaultModalOpen(true)}>
           <Settings />
@@ -143,9 +109,6 @@ export const JSONEditorView = React.memo(() => {
         </ButtonRow>
       </StyledTopBar>
       <ContentPane>
-        {settingsFetchError && (
-          <ErrorMessage title="Settings fetch error" errorMessage={settingsFetchError.message} />
-        )}
         {isEditorVisible && (
           <JSONEditor
             onChange={onChangeSettings}

@@ -4,10 +4,10 @@ import { useQuery } from '@tanstack/react-query';
 import { SETTINGS_SCOPES } from '@tamanu/constants';
 
 import { useApi } from '../../../api';
-import { SelectInput } from '../../../components';
+import { Field, SelectField } from '../../../components';
 import { TranslatedText } from '../../../components/Translation';
 
-const ScopeSelectorInput = styled(SelectInput)`
+const ScopeSelectorField = styled(SelectField)`
   width: 300px;
   margin-right: 5px;
   div:first-child {
@@ -30,8 +30,8 @@ const SCOPE_OPTIONS = [
   },
 ];
 
-export const ScopeSelector = React.memo(
-  ({ selectedScope, onChangeScope, selectedFacility, onChangeFacility }) => {
+export const ScopeSelectorFields = React.memo(
+  ({ selectedScope, onChangeScope, onChangeFacility }) => {
     const api = useApi();
 
     const { data: facilitiesArray = [], error } = useQuery(['facilitiesList'], () =>
@@ -45,21 +45,23 @@ export const ScopeSelector = React.memo(
 
     return (
       <>
-        <ScopeSelectorInput
-          value={selectedScope}
-          onChange={onChangeScope}
-          options={SCOPE_OPTIONS}
+        <Field
+          name="scope"
           label={<TranslatedText stringId="admin.settings.scope.label" fallback="Scope" />}
+          component={ScopeSelectorField}
+          options={SCOPE_OPTIONS}
+          onChange={onChangeScope}
           isClearable={false}
           error={!!error}
         />
         {selectedScope === SETTINGS_SCOPES.FACILITY && (
-          <ScopeSelectorInput
-            value={selectedFacility}
-            onChange={onChangeFacility}
+          <Field
+            name="facilityId"
             options={facilityOptions}
             label={<TranslatedText stringId="general.facility.label" fallback="Facility" />}
             isClearable={false}
+            onChange={onChangeFacility}
+            component={ScopeSelectorField}
             error={!!error}
           />
         )}
