@@ -124,6 +124,7 @@ export const globalSettings = {
             .integer()
             .positive(),
           defaultValue: 7200, // 2 hours
+          unit: 'seconds'
         },
         runInChildProcess: {
           description: 'Should spawn a child process to run the report generation in',
