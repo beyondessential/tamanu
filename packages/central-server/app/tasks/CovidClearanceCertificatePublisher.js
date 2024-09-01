@@ -25,7 +25,7 @@ export class CovidClearanceCertificatePublisher extends ScheduledTask {
 
   async run() {
     const { LabRequest, LabTest, CertificateNotification, Encounter } = this.models;
-    const questionId = this.settings.get('questionCodeIds.email');
+    const questionId = await this.settings.get('questionCodeIds.email');
 
     const labRequestsWhere = {
       ...(await getCovidClearanceCertificateFilter(this.models)),
