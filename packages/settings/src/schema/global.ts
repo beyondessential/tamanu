@@ -139,7 +139,7 @@ export const globalSettings = {
         },
         childProcessEnv: {
           description: 'Provide an object {} for the env of child process',
-          type: yup.object(), // Should be Record<string, string>, but Yup has poor support for dictionaries
+          type: yup.object().nullable(), // Should be Record<string, string>, but Yup has poor support for dictionaries
           defaultValue: null,
         },
         sleepAfterReport: {
