@@ -33,7 +33,6 @@ const StyledList = styled.div`
 
 export const Category = ({ values, path = '' }) => {
   const title = values.title || capitalize(startCase(path));
-  console.log(title);
   return (
     <>
       {title && (
@@ -66,23 +65,21 @@ export const EditorView = memo(({ values, setFieldValue }) => {
   const [category, setCategory] = useState(null);
   const scopedSchema = useMemo(() => getScopedSchema(scope), [scope]);
 
+  const categoryOptions = useMemo(() => {
+    const nestedProperties = _.pickBy(scopedSchema.properties, value => !value.type);
+    const options = Object.entries(nestedProperties).map(([key, value]) => ({
+      value: key,
+      label: value.title || capitalize(startCase(key)),
+    }));
+    if (options.length !== Object.keys(scopedSchema.properties).length) {
+      options.unshift({ label: 'General', value: 'general' });
+    }
+  }, [scopedSchema]);
+
   const onChangeScope = () => {
     setFieldValue('facilityId', null);
   };
-  const options = Object.entries(_.pickBy(scopedSchema.properties, value => value.properties)).map(
-    ([key, value]) => ({
-      value: key,
-      label: value.title || capitalize(startCase(key)),
-    }),
-  );
-  const categoryOptions = [
-    ...(options.length !== Object.keys(scopedSchema.properties).length
-      ? [{ label: 'General', value: 'general' }]
-      : []),
-    ...options,
-  ];
 
-  console.log(_.pickBy(scopedSchema.properties, value => value.type));
   return (
     <>
       <StyledTopBar>
