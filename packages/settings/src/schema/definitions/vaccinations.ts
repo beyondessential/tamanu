@@ -4,15 +4,15 @@ import * as yup from 'yup';
 export const vaccinationsSchema: SettingsSchema = {
   name: 'Vaccinations',
   description: '_',
-  values: {
+  properties: {
     defaults: {
       name: 'Defaults',
       description: '_',
-      values: {
+      properties: {
         locationGroupId: {
           name: 'Location group',
           description: '_',
-          schema: yup
+          type: yup
             .string()
             .nullable()
             .strict(true),
@@ -21,7 +21,7 @@ export const vaccinationsSchema: SettingsSchema = {
         locationId: {
           name: 'Location',
           description: '_',
-          schema: yup
+          type: yup
             .string()
             .nullable()
             .strict(true),
@@ -30,7 +30,7 @@ export const vaccinationsSchema: SettingsSchema = {
         departmentId: {
           name: 'Department',
           description: '_',
-          schema: yup
+          type: yup
             .string()
             .nullable()
             .strict(true),
@@ -39,13 +39,13 @@ export const vaccinationsSchema: SettingsSchema = {
       },
     },
     givenElsewhere: {
-      values: {
+      properties: {
         defaults: {
-          values: {
+          properties: {
             locationGroupId: {
               name: 'Location group',
               description: '_',
-              schema: yup
+              type: yup
                 .string()
                 .nullable()
                 .strict(true),
@@ -54,7 +54,7 @@ export const vaccinationsSchema: SettingsSchema = {
             locationId: {
               name: 'Location',
               description: '_',
-              schema: yup
+              type: yup
                 .string()
                 .nullable()
                 .strict(true),
@@ -63,7 +63,7 @@ export const vaccinationsSchema: SettingsSchema = {
             departmentId: {
               name: 'Department',
               description: '_',
-              schema: yup
+              type: yup
                 .string()
                 .nullable()
                 .strict(true),

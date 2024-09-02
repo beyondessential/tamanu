@@ -13,7 +13,7 @@ export const facilitySettings = {
             after: {
               name: 'After date',
               description: 'The date after which the test is valid',
-              properties: yup
+              type: yup
                 .string()
                 .matches(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in the format YYYY-MM-DD'),
               defaultValue: '2022-09-01',
@@ -21,7 +21,7 @@ export const facilitySettings = {
             daysSinceSampleTime: {
               name: 'Days since sample time',
               description: '-',
-              properties: yup
+              type: yup
                 .number()
                 .integer()
                 .positive(),
@@ -30,19 +30,19 @@ export const facilitySettings = {
             labTestCategories: {
               name: 'Lab test categories',
               description: 'List of valid lab test categories',
-              properties: yup.array().of(yup.string()),
+              type: yup.array().of(yup.string()),
               defaultValue: [],
             },
             labTestTypes: {
               name: 'Lab test types',
               description: 'List of valid lab test types',
-              properties: yup.array().of(yup.string()),
+              type: yup.array().of(yup.string()),
               defaultValue: [],
             },
             labTestResults: {
               name: 'Lab test results',
               description: 'List of valid lab test results',
-              properties: yup.array().of(yup.string()),
+              type: yup.array().of(yup.string()),
               defaultValue: ['Positive'],
             },
           },
@@ -60,13 +60,13 @@ export const facilitySettings = {
             title: {
               name: 'Letterhead title',
               description: '_',
-              properties: yup.string().nullable(),
+              type: yup.string().nullable(),
               defaultValue: null,
             },
             subTitle: {
               name: 'Letterhead subtitle',
               description: '_',
-              properties: yup.string().nullable(),
+              type: yup.string().nullable(),
               defaultValue: null,
             },
           },
@@ -79,19 +79,19 @@ export const facilitySettings = {
         syncAllLabRequests: {
           name: 'Sync all lab requests',
           description: '_',
-          properties: yup.boolean(),
+          type: yup.boolean(),
           defaultValue: false,
         },
         syncTheseProgramRegistries: {
           name: 'Sync these program registries',
           description: '_',
-          properties: yup.array().of(yup.string()),
+          type: yup.array().of(yup.string()),
           defaultValue: [],
         },
         syncUrgentIntevalInSeconds: {
           name: 'Sync urgent interval in seconds',
           description: 'Mobile urgent sunc interval',
-          properties: yup
+          type: yup
             .number()
             .integer()
             .positive(),

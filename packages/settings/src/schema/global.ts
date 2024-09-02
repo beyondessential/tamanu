@@ -90,7 +90,7 @@ export const globalSettings = {
             provider: {
               name: 'Imaging provider',
               description: '_',
-              schema: yup.string(),
+              type: yup.string(),
               defaultValue: '',
             },
           },

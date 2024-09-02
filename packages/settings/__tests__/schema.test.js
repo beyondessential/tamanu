@@ -220,7 +220,9 @@ describe('Schemas', () => {
         templates: {
           letterhead: {},
         },
-        vaccinations: false,
+        sync: {
+          syncAllLabRequests: 'a',
+        },
       };
 
       await expect(
