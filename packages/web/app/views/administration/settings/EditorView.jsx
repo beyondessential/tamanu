@@ -9,7 +9,6 @@ import {
   SelectInput,
   TranslatedText,
   LargeBodyText,
-  CheckInput,
   TextInput,
   NumberInput,
 } from '../../../components';
@@ -58,6 +57,8 @@ const CategoryContainer = styled.div`
     border-top: 1px solid ${Colors.outline};
   }
 `;
+
+const INDENT_NESTED_CATEGORY_BY = 20;
 
 const sortProperties = ([a0, a1], [b0, b1]) => {
   const aName = a1.name || a0;
@@ -135,57 +136,43 @@ const SettingName = ({ path, name, description }) => (
 );
 
 export const Category = ({ values, path = '', getCurrentSettingValue, handleChangeSetting }) => {
-  const categoryTitle = values.name || capitalize(startCase(path));
   const WrapperComponent = path ? CategoryContainer : React.Fragment;
-  const nestedLevel = path.split('.').length;
+  const levelNested = path.split('.').length;
+  const sortedProperties = Object.entries(values.properties).sort(sortProperties);
   return (
-    <WrapperComponent {...(path && { $nestedLevel: nestedLevel })}>
-      {categoryTitle && (
-        <ThemedTooltip placement="top" arrow title={values.description}>
-          <Heading4 width="fit-content" mt={0} mb={2}>
-            {categoryTitle}
-          </Heading4>
-        </ThemedTooltip>
-      )}
+    <WrapperComponent {...(path && { $levelNested: levelNested })}>
+      <CategoryTitle name={values.name} path={path} description={values.description} />
       <StyledList>
-        {Object.entries(values.properties)
-          .sort(([, value]) => (value.properties ? 1 : -1)) // Sort categories last
-          .map(([key, value]) => {
-            const newPath = path ? `${path}.${key}` : key;
-            const { name, description, type, defaultValue } = value;
-            const settingName = name || capitalize(startCase(key));
-            if (type) {
-              return (
-                <SettingLine key={newPath}>
-                  <ThemedTooltip arrow placement="top" title={description}>
-                    <LargeBodyText width="fit-content">{settingName}</LargeBodyText>
-                  </ThemedTooltip>
-                  <SettingInput
-                    type={type.type}
-                    value={getCurrentSettingValue(newPath)}
-                    placeholder={JSON.stringify(defaultValue, null, 2)}
-                    path={newPath}
-                    handleChangeSetting={handleChangeSetting}
-                  />
-                </SettingLine>
-              );
-            }
-            return (
-              <Category
-                key={newPath}
+        {sortedProperties.map(([key, value]) => {
+          const newPath = path ? `${path}.${key}` : key;
+          const { name, description, type, defaultValue } = value;
+          return value.type ? (
+            <SettingLine key={newPath}>
+              <SettingName path={newPath} name={name} description={description} />
+              <SettingInput
+                type={type.type}
+                value={getCurrentSettingValue(newPath)}
+                placeholder={JSON.stringify(defaultValue, null, 2)}
                 path={newPath}
-                values={value}
-                getCurrentSettingValue={getCurrentSettingValue}
                 handleChangeSetting={handleChangeSetting}
               />
-            );
-          })}
+            </SettingLine>
+          ) : (
+            <Category
+              key={newPath}
+              path={newPath}
+              values={value}
+              getCurrentSettingValue={getCurrentSettingValue}
+              handleChangeSetting={handleChangeSetting}
+            />
+          );
+        })}
       </StyledList>
     </WrapperComponent>
   );
 };
 
-export const EditorView = memo(({ values, setFieldValue, settings }) => {
+export const EditorView = memo(({ values, setValues, settings }) => {
   const { scope } = values;
   const [category, setCategory] = useState(null);
 
@@ -199,13 +186,11 @@ export const EditorView = memo(({ values, setFieldValue, settings }) => {
   const handleChangeCategory = e => setCategory(e.target.value);
   const handleChangeSetting = (path, value) => {
     const updatedSettings = set(settings, `${category}.${path}`, value);
-    setFieldValue('settings', updatedSettings);
+    setValues({ ...values, settings: updatedSettings });
   };
   const getCurrentSettingValue = path => {
     return get(settings, `${category}.${path}`);
   };
-
-  console.log(settings);
 
   return (
     <>
