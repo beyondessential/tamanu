@@ -57,6 +57,10 @@ const sortProperties = ([a0, a1], [b0, b1]) => {
   return aName.localeCompare(bName);
 };
 
+const getName = (name, path) => {
+  return name || capitalize(startCase(path.split('.').pop()));
+};
+
 const getCategoryOptions = schema =>
   Object.entries(schema.properties).map(([key, value]) => ({
     value: key,
@@ -80,7 +84,7 @@ const prepareSchema = scope => {
 };
 
 const CategoryTitle = ({ name, path, description }) => {
-  const categoryTitle = name || capitalize(startCase(path));
+  const categoryTitle = getName(name, path);
   if (!categoryTitle) return null;
   return (
     <ThemedTooltip placement="top" arrow title={description}>
@@ -91,16 +95,13 @@ const CategoryTitle = ({ name, path, description }) => {
   );
 };
 
-const SettingName = ({ path, name, description }) => {
-  const settingName = name || capitalize(startCase(path));
-  return (
-    <ThemedTooltip arrow placement="top" title={description}>
-      <LargeBodyText ml={1} width="fit-content">
-        {settingName}
-      </LargeBodyText>
-    </ThemedTooltip>
-  );
-};
+const SettingName = ({ path, name, description }) => (
+  <ThemedTooltip arrow placement="top" title={description}>
+    <LargeBodyText ml={1} width="fit-content">
+      {getName(name, path)}
+    </LargeBodyText>
+  </ThemedTooltip>
+);
 
 export const Category = ({ values, path = '' }) => {
   const WrapperComponent = path ? CategoryContainer : React.Fragment;
