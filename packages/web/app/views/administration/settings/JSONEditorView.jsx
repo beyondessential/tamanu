@@ -33,7 +33,7 @@ const buildSettingsString = settings => {
   return JSON.stringify(settings, null, 2);
 };
 
-export const JSONEditorView = React.memo(({ settings, values, submitForm, setValues }) => {
+export const JSONEditorView = React.memo(({ settings, values, setValues, submitForm }) => {
   const { scope, facilityId } = values;
   const [settingsEditString, setSettingsEditString] = useState('');
   const [jsonError, setJsonError] = useState(null);

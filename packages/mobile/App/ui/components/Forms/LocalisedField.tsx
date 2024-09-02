@@ -1,25 +1,30 @@
 import React from 'react';
 
-import { useLocalisation } from '~/ui/contexts/LocalisationContext';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
 import { Field, FieldProps } from './FormField';
+import { useSettings } from '~/ui/contexts/SettingsContext';
 
 type LocalisedFieldProps = FieldProps & {
-  localisationPath?: string;
+  path?: string;
 };
 
-export const LocalisedField = ({ name, label, ...props }: LocalisedFieldProps): JSX.Element => {
-  const { getBool } = useLocalisation();
+export const LocalisedField = ({
+  name,
+  label,
+  path = name,
+  ...props
+}: LocalisedFieldProps): JSX.Element => {
+  const { getSetting } = useSettings();
   const { getTranslation } = useTranslation();
 
-  const isHidden = getBool(`fields.${name}.hidden`);
+  const isHidden = getSetting<boolean>(`fields.${path}.hidden`);
   if (isHidden) {
     return null;
   }
   return (
     <Field
       {...props}
-      label={label || getTranslation(`general.localisedField.${name}.label`)}
+      label={label || getTranslation(`general.localisedField.${path}.label`)}
       name={name}
     />
   );
