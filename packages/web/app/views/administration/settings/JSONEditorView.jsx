@@ -120,7 +120,7 @@ export const JSONEditorView = React.memo(
               value={editMode ? settingsEditString : settingsViewString}
               editMode={editMode}
               error={jsonError}
-              placeholderText="No settings found for this server/facility"
+              placeholder="No settings found for this server/facility"
               fontSize={14}
             />
           )}

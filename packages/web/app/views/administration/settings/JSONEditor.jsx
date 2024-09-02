@@ -47,7 +47,7 @@ const generateAnnotationFromJSONError = (errorMessage, json) => {
 };
 
 export const JSONEditor = React.memo(
-  ({ value, onChange, editMode, error, placeholderText, fontSize }) => {
+  ({ value, onChange, editMode, error, placeholder, fontSize }) => {
     const [errorAnnotation, setErrorAnnotation] = useState(null);
     const [marker, setMarker] = useState(null);
 
@@ -84,7 +84,7 @@ export const JSONEditor = React.memo(
         width="100%"
         mode="json"
         showPrintMargin={false}
-        placeholder={placeholderText}
+        placeholder={placeholder}
         fontSize={fontSize}
         theme={editMode ? THEMES.EDIT : THEMES.VIEW}
         onChange={onChange}
