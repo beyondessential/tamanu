@@ -2,11 +2,11 @@ import React, { ReactElement } from 'react';
 import { chunk, keyBy } from 'lodash';
 import { isTablet } from 'react-native-device-info';
 
-import { useLocalisation } from '../contexts/LocalisationContext';
 import { RowView, StyledView } from '../styled/common';
 import { InformationBox } from '../navigation/screens/home/PatientDetails/CustomComponents';
 import { PatientFieldDefinition } from '~/models/PatientFieldDefinition';
 import { labels } from '../navigation/screens/home/PatientDetails/layouts/generic/labels';
+import { useSettings } from '../contexts/SettingsContext';
 
 interface FieldRowDisplayProps {
   fields: string[][];
@@ -17,15 +17,15 @@ export const FieldRowDisplay = ({
   fields,
   customFieldDefinitions,
 }: FieldRowDisplayProps): ReactElement => {
-  const { getBool, getLocalisation } = useLocalisation();
-  const localisedFields = Object.keys(getLocalisation('fields'));
+  const { getSetting } = useSettings();
+  const localisedFields = Object.keys(getSetting('fields'));
   const fieldsPerRow = isTablet() ? 2 : 1;
   const rows = chunk(fields, fieldsPerRow);
   const customFieldsById = keyBy(customFieldDefinitions, 'id');
 
   const getLabel = (name: string) => {
     // Check if it is localised and apply localisation logic
-    if (localisedFields.includes(name) && getBool(`fields.${name}.hidden`)) {
+    if (localisedFields.includes(name) && getSetting<boolean>(`fields.${name}.hidden`)) {
       return null;
     }
 
