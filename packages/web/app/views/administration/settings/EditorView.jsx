@@ -1,5 +1,5 @@
 import React, { memo, useMemo, useState } from 'react';
-import { capitalize, startCase, set, get } from 'lodash';
+import { capitalize, pickBy, startCase, set, get } from 'lodash';
 
 import { getScopedSchema } from '@tamanu/settings';
 
@@ -7,43 +7,38 @@ import {
   Heading4,
   SelectInput,
   TranslatedText,
-  BodyText,
+  LargeBodyText,
   CheckInput,
   TextInput,
   NumberInput,
 } from '../../../components';
 import { ScopeSelectorFields } from './ScopeSelectorFields';
 import styled from 'styled-components';
-import { Box } from '@material-ui/core';
 import { Colors } from '../../../constants';
 import { ThemedTooltip } from '../../../components/Tooltip';
 import { JSONEditor } from './JSONEditor';
+import { Box, Divider } from '@material-ui/core';
 
 const CategoriesContainer = styled.div`
-  padding: 20px;
   background-color: ${Colors.white};
   border: 1px solid ${Colors.outline};
   width: 500px;
+  margin-top: 20px;
 `;
 
 const StyledTopBar = styled.div`
   padding: 0;
+  display: flex;
 `;
 
 const StyledSelectInput = styled(SelectInput)`
   width: 300px;
 `;
 
-const SettingLine = styled(BodyText)`
-  display: flex;
-  justify-content: space-between;
-  width: 100%;
-`;
-
-const SettingName = styled(BodyText)`
-  display: flex;
-  align-items: center;
-  margin-right: 15px;
+const StyledList = styled.div`
+  & :not(:last-child) {
+    margin-bottom: 10px;
+  }
 `;
 
 const ComponentForType = {
@@ -54,92 +49,90 @@ const ComponentForType = {
   array: JSONEditor, // Doesnt work
 };
 
-export const Category = ({ values, path = '', onChangeSettings }) => {
-  const title = values.title || capitalize(startCase(path));
-  console.log(values.settings)
+const getCategoryOptions = schema => {
+  const nestedProperties = pickBy(schema.properties, value => !value.type);
+  const options = Object.entries(nestedProperties).map(([key, value]) => ({
+    value: key,
+    label: value.title || capitalize(startCase(key)),
+  }));
+  if (options.length !== Object.keys(schema.properties).length) {
+    options.unshift({ label: 'General', value: 'general' });
+  }
+  return options;
+};
+
+const getInitialValues = (schema, category) => {
+  if (category === 'general') {
+    return {
+      ...schema,
+      properties: pickBy(schema.properties, value => value.type),
+    };
+  }
+  return schema.properties[category];
+};
+
+export const Category = ({ values, path = '' }) => {
+  const categoryTitle = values.name || capitalize(startCase(path));
   return (
     <>
-      {title && (
+      {categoryTitle && (
         <ThemedTooltip placement="top" arrow title={values.description}>
-          <Heading4 width="fit-content" mt={0} mb={1}>
-            {values.title || capitalize(startCase(path))}
+          <Heading4 width="fit-content" mt={0} mb={2}>
+            {categoryTitle}
           </Heading4>
         </ThemedTooltip>
       )}
-      {Object.entries(values.properties).map(([key, value]) => {
-        const { name, description, type, defaultValue } = value;
-        if (type) {
-          const SettingInput = ComponentForType[type.type];
-          const isJsonEditor = type.type === 'object';
-          return (
-            <SettingLine key={Math.random()} width="fit-content">
-              <ThemedTooltip arrow placement="top" title={description}>
-                <SettingName>{name}</SettingName>
+      <StyledList>
+        {Object.entries(values.properties).map(([key, value]) => {
+          const newPath = path ? `${path}.${key}` : key;
+          const settingName = value.name || capitalize(startCase(key));
+          if (value.type) {
+            return (
+              <ThemedTooltip arrow placement="top" title={value.description} key={newPath}>
+                <LargeBodyText width="fit-content">{settingName}</LargeBodyText>
               </ThemedTooltip>
-              <SettingInput
-                onChange={e => onChangeSettings(`${path}.${key}`, e.target.value)}
-                placeholder={isJsonEditor ? JSON.stringify(defaultValue) : defaultValue}
-              />
-            </SettingLine>
-          );
-        }
-        return (
-          <Category
-            onChangeSettings={onChangeSettings}
-            key={Math.random()}
-            path={!path ? key : `${path}.${key}`}
-            values={value}
-          />
-        );
-      })}
+            );
+          }
+          return <Category key={Math.random()} path={newPath} values={value} />;
+        })}
+      </StyledList>
     </>
   );
 };
 
-export const EditorView = memo(({ values, setFieldValue, settings }) => {
+export const EditorView = memo(({ values, setFieldValue }) => {
   const { scope } = values;
   const [category, setCategory] = useState(null);
-  const [settingsEditObject, setSettingsEditObject] = useState(settings);
+
   const scopedSchema = useMemo(() => getScopedSchema(scope), [scope]);
+  const categoryOptions = useMemo(() => getCategoryOptions(scopedSchema), [scopedSchema]);
+  const initialValues = useMemo(() => getInitialValues(scopedSchema, category), [
+    category,
+    scopedSchema,
+  ]);
 
-  const onChangeScope = () => {
-    setFieldValue('facilityId', null);
-  };
-
-
-  // TODO: not really working
-  const onChangeSettings = (path, value) => {
-    const updatedSettingsObject = set(values.settings || settings, path, JSON.parse(value));
-    setSettingsEditObject(updatedSettingsObject);
-    setFieldValue('settings', updatedSettingsObject);
-  };
-
+  const handleChangeScope = () => setFieldValue('facilityId', null);
+  const handleChangeCategory = e => setCategory(e.target.value);
 
   return (
     <>
       <StyledTopBar>
-        <ScopeSelectorFields scope={scope} onChangeScope={onChangeScope} />
-        <Box pt={2} pb={2}>
+        <ScopeSelectorFields onChangeScope={handleChangeScope} />
+      </StyledTopBar>
+      <CategoriesContainer>
+        <Box p={2}>
           <StyledSelectInput
             label={<TranslatedText stringId="admin.settings.category" fallback="Category" />}
             value={category}
-            onChange={e => setCategory(e.target.value)}
-            options={Object.entries(scopedSchema.properties).map(([key, value]) => ({
-              value: key,
-              label: value.title || capitalize(startCase(key)),
-            }))}
+            onChange={handleChangeCategory}
+            options={categoryOptions}
           />
         </Box>
-      </StyledTopBar>
-      {category && (
-        <CategoriesContainer>
-          <Category
-            onChangeSettings={onChangeSettings}
-            values={scopedSchema.properties[category]}
-            path={category}
-          />
-        </CategoriesContainer>
-      )}
+        <Divider />
+        <Box p={2} pl={3}>
+          {category && <Category values={initialValues} />}
+        </Box>
+      </CategoriesContainer>
     </>
   );
 });

@@ -84,11 +84,7 @@ export const JSONEditorView = React.memo(
     return (
       <>
         <StyledTopBar>
-          <ScopeSelectorFields
-            selectedScope={scope}
-            onChangeFacility={turnOffEditMode}
-            onChangeScope={onChangeScope}
-          />
+          <ScopeSelectorFields onChangeFacility={turnOffEditMode} onChangeScope={onChangeScope} />
           <DefaultSettingsButton onClick={() => setIsDefaultModalOpen(true)}>
             <Settings />
             <TranslatedText

@@ -6,6 +6,7 @@ import { SETTINGS_SCOPES } from '@tamanu/constants';
 import { useApi } from '../../../api';
 import { Field, SelectField } from '../../../components';
 import { TranslatedText } from '../../../components/Translation';
+import { useField } from 'formik';
 
 const ScopeSelectorField = styled(SelectField)`
   width: 300px;
@@ -30,42 +31,41 @@ const SCOPE_OPTIONS = [
   },
 ];
 
-export const ScopeSelectorFields = React.memo(
-  ({ selectedScope, onChangeScope, onChangeFacility }) => {
-    const api = useApi();
+export const ScopeSelectorFields = React.memo(({ onChangeScope, onChangeFacility }) => {
+  const [{ value: scopeValue }] = useField('scope');
+  const api = useApi();
 
-    const { data: facilitiesArray = [], error } = useQuery(['facilitiesList'], () =>
-      api.get('admin/facilities'),
-    );
+  const { data: facilitiesArray = [], error } = useQuery(['facilitiesList'], () =>
+    api.get('admin/facilities'),
+  );
 
-    const facilityOptions = facilitiesArray.map(facility => ({
-      label: facility.name,
-      value: facility.id,
-    }));
+  const facilityOptions = facilitiesArray.map(facility => ({
+    label: facility.name,
+    value: facility.id,
+  }));
 
-    return (
-      <>
+  return (
+    <>
+      <Field
+        name="scope"
+        label={<TranslatedText stringId="admin.settings.scope.label" fallback="Scope" />}
+        component={ScopeSelectorField}
+        options={SCOPE_OPTIONS}
+        onChange={onChangeScope}
+        isClearable={false}
+        error={!!error}
+      />
+      {scopeValue === SETTINGS_SCOPES.FACILITY && (
         <Field
-          name="scope"
-          label={<TranslatedText stringId="admin.settings.scope.label" fallback="Scope" />}
-          component={ScopeSelectorField}
-          options={SCOPE_OPTIONS}
-          onChange={onChangeScope}
+          name="facilityId"
+          options={facilityOptions}
+          label={<TranslatedText stringId="general.facility.label" fallback="Facility" />}
           isClearable={false}
+          onChange={onChangeFacility}
+          component={ScopeSelectorField}
           error={!!error}
         />
-        {selectedScope === SETTINGS_SCOPES.FACILITY && (
-          <Field
-            name="facilityId"
-            options={facilityOptions}
-            label={<TranslatedText stringId="general.facility.label" fallback="Facility" />}
-            isClearable={false}
-            onChange={onChangeFacility}
-            component={ScopeSelectorField}
-            error={!!error}
-          />
-        )}
-      </>
-    );
-  },
-);
+      )}
+    </>
+  );
+});
