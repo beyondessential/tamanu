@@ -1,3 +1,12 @@
+import * as yup from 'yup';
+
+export const imagingPrioritiesSchema = yup.array(
+  yup.object({
+    value: yup.string().required(),
+    label: yup.string().required(),
+  }),
+);
+
 export const imagingPrioritiesDefault = [
   {
     value: 'routine',

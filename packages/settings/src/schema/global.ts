@@ -2,6 +2,7 @@ import * as yup from 'yup';
 import { extractDefaults } from './utils';
 import {
   imagingPrioritiesDefault,
+  imagingPrioritiesSchema,
   thresholdsDefault,
   thresholdsSchema,
   triageCategoriesDefault,
@@ -532,7 +533,7 @@ export const globalSettings = {
     imagingPriorities: {
       name: 'Imaging priorities',
       description: 'List with each entry being an available imaging priority option',
-      type: yup.array(),
+      type: imagingPrioritiesSchema,
       defaultValue: imagingPrioritiesDefault,
     },
   },

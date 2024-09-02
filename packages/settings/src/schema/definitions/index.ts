@@ -1,3 +1,3 @@
-export { imagingPrioritiesDefault } from './imagingPriorities';
+export { imagingPrioritiesDefault, imagingPrioritiesSchema } from './imagingPriorities';
 export { triageCategoriesDefault, triageCategoriesSchema } from './triageCategories';
 export { thresholdsDefault, thresholdsSchema } from './upcomingVaccinations';
