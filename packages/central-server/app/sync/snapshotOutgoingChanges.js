@@ -205,6 +205,7 @@ const snapshotOutgoingChangesFromSyncLookup = withConfig(
         `
       WITH inserted AS (
         INSERT INTO ${snapshotTableName} (
+          sync_lookup_id,
           direction,
           is_deleted,
           record_type,
@@ -214,6 +215,7 @@ const snapshotOutgoingChangesFromSyncLookup = withConfig(
           data
         )
         SELECT
+          id,
           '${SYNC_SESSION_DIRECTION.OUTGOING}',
           is_deleted,
           record_type,
@@ -224,7 +226,7 @@ const snapshotOutgoingChangesFromSyncLookup = withConfig(
         FROM
           sync_lookup
         WHERE updated_at_sync_tick > :since
-        ${fromId ? `AND record_id > :fromId` : ''}
+        ${fromId ? `AND id > :fromId` : ''}
         AND (
           --- either no patient_id (meaning we don't care if the record is associate to a patient, eg: reference_data) 
           --- or patient_id has to match the marked for sync patient_ids, eg: encounters
@@ -252,11 +254,11 @@ const snapshotOutgoingChangesFromSyncLookup = withConfig(
           }
         )
         AND record_type IN (:recordTypes)
-        ORDER BY record_id
+        ORDER BY id
         LIMIT :limit
-        RETURNING record_id
+        RETURNING sync_lookup_id
       )
-      SELECT MAX(record_id) as "maxId",
+      SELECT MAX(sync_lookup_id) as "maxId",
         count(*) as "count"
       FROM inserted;
     `,

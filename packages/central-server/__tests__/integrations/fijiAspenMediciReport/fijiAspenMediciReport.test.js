@@ -491,6 +491,12 @@ describe('fijiAspenMediciReport', () => {
         // Location/Department
         locations: [
           {
+            assignedTime: '2022-06-09T00:02:54+00:00',
+            facility: 'Ba Hospital',
+            location: 'Emergency room 1',
+            locationGroup: 'Emergency Department',
+          },
+          {
             facility: 'Ba Hospital',
             location: 'Emergency room 2',
             locationGroup: 'Emergency Department',
