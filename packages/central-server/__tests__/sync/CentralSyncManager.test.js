@@ -132,9 +132,9 @@ describe('CentralSyncManager', () => {
       await waitForSession(centralSyncManager, sessionId);
 
       const session = await models.SyncSession.findByPk(sessionId);
-      session.error =
-        'Snapshot processing incomplete, likely because the central server restarted during the snapshot';
-      await session.save();
+      await session.markErrored(
+        'Snapshot processing incomplete, likely because the central server restarted during the snapshot',
+      );
 
       await expect(centralSyncManager.connectToSession(sessionId)).rejects.toThrow(
         `Sync session '${sessionId}' encountered an error: Snapshot processing incomplete, likely because the central server restarted during the snapshot`,
@@ -171,6 +171,18 @@ describe('CentralSyncManager', () => {
       await expect(centralSyncManager.connectToSession(sessionId)).rejects.toThrow(
         `Sync session '${sessionId}' encountered an error: Sync session ${sessionId} timed out`,
       );
+    });
+
+    it('append error if sync session already encounters an error before', async () => {
+      const centralSyncManager = initializeCentralSyncManager();
+      const { sessionId } = await centralSyncManager.startSession();
+      await waitForSession(centralSyncManager, sessionId);
+
+      const session = await models.SyncSession.findByPk(sessionId);
+      await session.markErrored('Error 1');
+      await session.markErrored('Error 2');
+
+      expect(session.errors).toEqual(['Error 1', 'Error 2'])
     });
   });
 
