@@ -92,7 +92,7 @@ describe('Certificate', () => {
   beforeAll(async () => {
     ctx = await createTestContext();
     models = ctx.store.models;
-    settings = ctx.settings
+    settings = ctx.settings;
 
     const {
       method,
@@ -178,9 +178,14 @@ describe('Certificate', () => {
     await createLabTests();
     const patientRecord = await models.Patient.findByPk(patient.id);
     const printedBy = 'Initial Admin';
-    const result = await makeCovidCertificate('test', patientRecord, printedBy, models, settings, [
-      { foo: 'bar' },
-    ]);
+    const result = await makeCovidCertificate({
+      models,
+      settings,
+      certType: 'test',
+      patient: patientRecord,
+      printedBy,
+      translations: [{ foo: 'bar' }],
+    });
     expect(result.status).toEqual('success');
   });
 
@@ -189,14 +194,14 @@ describe('Certificate', () => {
     const patientRecord = await models.Patient.findByPk(patient.id);
     const printedBy = 'Initial Admin';
     const printedAt = new Date();
-    const result = await makeVaccineCertificate(
-      patientRecord,
-      printedBy,
-      printedAt,
-      'test facility',
+    const result = await makeVaccineCertificate({
       models,
       settings,
-    );
+      patient: patientRecord,
+      printedBy,
+      printedAt,
+      facilityName: 'test facility',
+    });
     expect(result.status).toEqual('success');
   });
 });
