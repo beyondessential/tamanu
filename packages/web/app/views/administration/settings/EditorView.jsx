@@ -34,16 +34,13 @@ const StyledSelectInput = styled(SelectInput)`
   width: 300px;
 `;
 
-const StyledList = styled.div`
-  & :not(:last-child) {
-    margin-bottom: 20px;
-  }
-`;
-
 const SettingLine = styled(LargeBodyText)`
   display: flex;
   justify-content: space-between;
   align-items: center;
+  &:not(:last-child) {
+    margin-bottom: 10px;
+  }
 `;
 
 const CategoriesContainer = styled.div`
@@ -135,14 +132,14 @@ const SettingName = ({ path, name, description }) => (
   </ThemedTooltip>
 );
 
-export const Category = ({ values, path = '', getCurrentSettingValue, handleChangeSetting }) => {
+export const Category = ({ values, path = '', getSettingValue, handleChangeSetting }) => {
   const WrapperComponent = path ? CategoryContainer : React.Fragment;
   const levelNested = path.split('.').length;
   const sortedProperties = Object.entries(values.properties).sort(sortProperties);
   return (
     <WrapperComponent {...(path && { $levelNested: levelNested })}>
       <CategoryTitle name={values.name} path={path} description={values.description} />
-      <StyledList>
+      <div>
         {sortedProperties.map(([key, value]) => {
           const newPath = path ? `${path}.${key}` : key;
           const { name, description, type, defaultValue } = value;
@@ -151,7 +148,7 @@ export const Category = ({ values, path = '', getCurrentSettingValue, handleChan
               <SettingName path={newPath} name={name} description={description} />
               <SettingInput
                 type={type.type}
-                value={getCurrentSettingValue(newPath)}
+                value={getSettingValue(newPath)}
                 placeholder={JSON.stringify(defaultValue, null, 2)}
                 path={newPath}
                 handleChangeSetting={handleChangeSetting}
@@ -162,12 +159,12 @@ export const Category = ({ values, path = '', getCurrentSettingValue, handleChan
               key={newPath}
               path={newPath}
               values={value}
-              getCurrentSettingValue={getCurrentSettingValue}
+              getSettingValue={getSettingValue}
               handleChangeSetting={handleChangeSetting}
             />
           );
         })}
-      </StyledList>
+      </div>
     </WrapperComponent>
   );
 };
@@ -188,7 +185,7 @@ export const EditorView = memo(({ values, setValues, settings }) => {
     const updatedSettings = set(settings, `${category}.${path}`, value);
     setValues({ ...values, settings: updatedSettings });
   };
-  const getCurrentSettingValue = path => get(settings, `${category}.${path}`);
+  const getSettingValue = path => get(settings, `${category}.${path}`);
 
   return (
     <>
@@ -210,7 +207,7 @@ export const EditorView = memo(({ values, setValues, settings }) => {
           {category && (
             <Category
               values={initialValues}
-              getCurrentSettingValue={getCurrentSettingValue}
+              getSettingValue={getSettingValue}
               handleChangeSetting={handleChangeSetting}
             />
           )}
