@@ -66,6 +66,7 @@ async function getPatientVaccines(models, patient) {
 
 export const makeCovidVaccineCertificate = async ({
   models,
+  settings,
   language,
   patient,
   printedBy,
@@ -73,8 +74,9 @@ export const makeCovidVaccineCertificate = async ({
   qrData = null,
   uvci,
 }) => {
-  const localisation = await getLocalisation();
+  const [localisation, settingsObj] = await Promise.all([getLocalisation(), settings.getAll()]);
   const getLocalisationData = key => get(localisation, key);
+  const getSettingData = key => get(settingsObj, key);
 
   const fileName = `covid-vaccine-certificate-${patient.id}.pdf`;
   const { logo, signingImage, watermark } = await getCertificateAssets(
@@ -96,6 +98,7 @@ export const makeCovidVaccineCertificate = async ({
       logoSrc={logo}
       vdsSrc={vds}
       getLocalisation={getLocalisationData}
+      getSetting={getSettingData}
       language={language}
     />,
     fileName,
@@ -147,9 +150,8 @@ export const makeCovidCertificate = async ({
   printedBy,
   vdsData = null,
 }) => {
-  const localisation = await getLocalisation();
+  const [localisation, settingsObj] = await Promise.all([getLocalisation(), settings.getAll()]);
   const getLocalisationData = key => get(localisation, key);
-  const settingsObj = await settings.getAll();
   const getSettingData = key => get(settingsObj, key);
 
   const fileName = `covid-${certType}-certificate-${patient.id}.pdf`;

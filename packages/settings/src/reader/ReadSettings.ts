@@ -5,17 +5,20 @@ import { Models } from './readers/SettingsDBReader';
 
 const KEYS_EXPOSED_TO_FRONT_END = [
   'ageDisplayFormat',
+  'customisations',
+  'features',
+  'fields',
   'imagingCancellationReasons',
+  'imagingPriorities',
+  'insurer',
+  'invoice',
   'labsCancellationReasons',
+  'templates',
+  'triageCategories',
+  'upcomingVaccinations',
   'vaccinations',
   'vitalEditReasons',
-  'upcomingVaccinations',
-  'templates',
-  'features',
-  'invoice',
-  'insurer',
-  'customisations',
-];
+] as const;
 
 export class ReadSettings {
   models: Models;

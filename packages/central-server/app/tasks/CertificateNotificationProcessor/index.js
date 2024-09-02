@@ -151,6 +151,7 @@ export class CertificateNotificationProcessor extends ScheduledTask {
             sublog.info('Generating vax certificate PDF', { uvci });
             pdf = await makeCovidVaccineCertificate({
               models,
+              settings,
               language,
               patient,
               printedBy,
