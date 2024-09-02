@@ -18,13 +18,29 @@ import { notifyError, notifySuccess } from '../../../utils';
 import { Colors } from '../../../constants';
 import { EditorView } from './EditorView';
 
+const StyledAdminViewContainer = styled(AdminViewContainer)`
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  > div {
+    display: flex;
+    flex-direction: column;
+  }
+`;
+
 const StyledTabDisplay = styled(TabDisplay)`
   margin-top: 20px;
+  height: 100%;
   border-top: 1px solid ${Colors.outline};
+  > div:last-child {
+    flex: 1;
+  }
 `;
 
 const TabContainer = styled.div`
+  height: 100%;
   padding: 20px;
+  background-color: ${Colors.background};
 `;
 
 const tabs = [
@@ -77,15 +93,16 @@ export const SettingsView = () => {
   };
 
   return (
-    <AdminViewContainer
+    <StyledAdminViewContainer
       title={<TranslatedText stringId="admin.settings.title" fallback="Settings" />}
     >
       <Form
         initialValues={{ scope: SETTINGS_SCOPES.GLOBAL, facilityId: null }}
         onSubmit={handleSubmit}
         render={SettingsForm}
+        style={{ flex: 1 }}
       />
-    </AdminViewContainer>
+    </StyledAdminViewContainer>
   );
 };
 

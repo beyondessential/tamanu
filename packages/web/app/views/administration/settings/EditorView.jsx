@@ -7,6 +7,7 @@ import { BodyText, Heading4, SelectInput, TranslatedText } from '../../../compon
 import { ScopeSelectorFields } from './ScopeSelectorFields';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
+import { Colors } from '../../../constants';
 
 const StyledTopBar = styled.div`
   padding: 0;
@@ -60,7 +61,9 @@ export const EditorView = memo(({ values, setFieldValue, settings }) => {
           />
         </Box>
       </StyledTopBar>
-      <Box pt={2}>{category && <Category values={scopedSchema.properties[category]} />}</Box>
+      <Box backgroundColor={Colors.background}>
+        <Box p={1}>{category && <Category values={scopedSchema.properties[category]} />}</Box>
+      </Box>
     </>
   );
 });
