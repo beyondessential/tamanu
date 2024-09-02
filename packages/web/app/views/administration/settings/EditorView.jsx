@@ -104,7 +104,7 @@ const SettingName = ({ path, name, description }) => (
 );
 
 export const Category = ({ values, path = '' }) => {
-  const WrapperComponent = path ? CategoryContainer : React.Fragment;
+  const WrapperComponent = path ? CategoryContainer : Box;
   const levelNested = path.split('.').length;
   const sortedProperties = Object.entries(values.properties).sort(sortProperties);
   return (
