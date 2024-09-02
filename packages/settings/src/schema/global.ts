@@ -712,16 +712,6 @@ export const globalSettings = {
       defaultValue: vitalEditReasonsDefault,
     },
   },
-  invoice: {
-    properties: {
-      slidingFeeScale: {
-        name: 'Sliding fee scale',
-        description: '_',
-        type: yup.array().of(yup.array().of(yup.number())),
-        defaultValue: {},
-      },
-    },
-  },
 };
 
 export const globalDefaults = extractDefaults(globalSettings);
