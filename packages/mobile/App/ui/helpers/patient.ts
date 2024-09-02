@@ -60,13 +60,13 @@ export const getFieldData = (data: IPatientAdditionalData, fieldName: string): s
 export const getConfiguredPatientAdditionalDataFields = (
   fields: string[],
   showMandatory: boolean,
-  getLocalisation,
+  getSetting: <T>(key: string) => T,
 ) => {
-  const localisedFields = Object.keys(getLocalisation('fields'));
+  const localisedFields = Object.keys(getSetting('fields'));
 
   return fields.filter(fieldName => {
     if (localisedFields.includes(fieldName)) {
-      const requiredPatientData = getLocalisation(`fields.${fieldName}.requiredPatientData`);
+      const requiredPatientData = getSetting<boolean>(`fields.${fieldName}.requiredPatientData`);
       return !!requiredPatientData === showMandatory;
     }
     return true;
