@@ -40,7 +40,7 @@ const StyledTabDisplay = styled(TabDisplay)`
 const TabContainer = styled.div`
   height: 100%;
   padding: 20px;
-  background-color: ${Colors.background};
+  background-color: ${props => props.$backgroundColor || Colors.white};
 `;
 
 const tabs = [
@@ -49,7 +49,7 @@ const tabs = [
     key: 'editor',
     icon: 'fa fa-cog',
     render: props => (
-      <TabContainer>
+      <TabContainer $backgroundColor={Colors.background}>
         <EditorView {...props} />
       </TabContainer>
     ),
