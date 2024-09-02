@@ -188,9 +188,7 @@ export const EditorView = memo(({ values, setValues, settings }) => {
     const updatedSettings = set(settings, `${category}.${path}`, value);
     setValues({ ...values, settings: updatedSettings });
   };
-  const getCurrentSettingValue = path => {
-    return get(settings, `${category}.${path}`);
-  };
+  const getCurrentSettingValue = path => get(settings, `${category}.${path}`);
 
   return (
     <>
