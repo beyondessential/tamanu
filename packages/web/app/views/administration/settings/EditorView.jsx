@@ -95,7 +95,7 @@ const CategoryTitle = ({ name, path, description }) => {
   );
 };
 
-const SettingName = ({ path, name, description }) => (
+const SettingName = ({ name, path, description }) => (
   <ThemedTooltip arrow placement="top" title={description}>
     <LargeBodyText ml={1} width="fit-content">
       {getName(name, path)}
