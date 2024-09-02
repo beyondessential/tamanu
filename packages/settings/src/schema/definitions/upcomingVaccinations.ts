@@ -1,5 +1,5 @@
-import { VACCINE_STATUS } from '@tamanu/constants';
 import * as yup from 'yup';
+import { VACCINE_STATUS } from '@tamanu/constants';
 
 export const thresholdsSchema = yup.array(
   yup.object({
