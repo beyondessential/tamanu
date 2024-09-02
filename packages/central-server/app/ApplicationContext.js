@@ -7,6 +7,7 @@ import { initIntegrations } from './integrations';
 import { defineSingletonTelegramBotService } from './services/TelegramBotService';
 import { log, initBugsnag } from '@tamanu/shared/services/logging';
 import { VERSION } from './middleware/versionCompatibility';
+import { ReadSettings } from '@tamanu/settings'
 
 export class ApplicationContext {
   /** @type {Awaited<ReturnType<typeof initDatabase>>|null} */
@@ -41,6 +42,8 @@ export class ApplicationContext {
     if (config.db.reportSchemas?.enabled) {
       this.reportSchemaStores = await initReporting();
     }
+
+    this.settings = new ReadSettings(this.store.models)
 
     this.telegramBotService = await defineSingletonTelegramBotService({
       config,
