@@ -1,8 +1,7 @@
 import * as yup from 'yup';
 
 export const triageCategoriesSchema = yup
-  .array()
-  .of(
+  .array(
     yup.object({
       level: yup.number(),
       label: yup.string(),
