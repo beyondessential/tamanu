@@ -27,7 +27,7 @@ const flattenSettings = (obj: unknown, parentKey = '') => {
   }, {} as Record<string, unknown>);
 };
 
-const flattenSchema = (schema: SettingsSchema, parentKey: string = '') => {
+const flattenSchema = (schema: SettingsSchema, parentKey = '') => {
   return Object.entries(schema.properties).reduce((acc, [key, value]) => {
     const fullKey = parentKey ? `${parentKey}.${key}` : key;
 
