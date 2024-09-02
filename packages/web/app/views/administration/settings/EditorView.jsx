@@ -9,6 +9,12 @@ import styled from 'styled-components';
 import { Box } from '@material-ui/core';
 import { Colors } from '../../../constants';
 
+const CategoriesContainer = styled.div`
+  padding: 20px;
+  background-color: ${Colors.white};
+  border: 1px solid ${Colors.outline};
+`;
+
 const StyledTopBar = styled.div`
   padding: 0;
 `;
@@ -18,9 +24,10 @@ const StyledSelectInput = styled(SelectInput)`
 `;
 
 export const Category = ({ values, path = '' }) => {
+  const title = values.title || capitalize(startCase(path));
   return (
     <>
-      <Heading4>{values.title || capitalize(startCase(path))}</Heading4>
+      {title && <Heading4 mt={0}>{values.title || capitalize(startCase(path))}</Heading4>}
       {Object.entries(values.properties).map(([key, value]) => {
         if (value.type) {
           return (
@@ -49,7 +56,7 @@ export const EditorView = memo(({ values, setFieldValue, settings }) => {
     <>
       <StyledTopBar>
         <ScopeSelectorFields scope={scope} onChangeScope={onChangeScope} />
-        <Box pt={2}>
+        <Box pt={2} pb={2}>
           <StyledSelectInput
             label={<TranslatedText stringId="admin.settings.category" fallback="Category" />}
             value={category}
@@ -61,9 +68,9 @@ export const EditorView = memo(({ values, setFieldValue, settings }) => {
           />
         </Box>
       </StyledTopBar>
-      <Box backgroundColor={Colors.background}>
-        <Box p={1}>{category && <Category values={scopedSchema.properties[category]} />}</Box>
-      </Box>
+      <CategoriesContainer>
+        {category && <Category values={scopedSchema.properties[category]} />}
+      </CategoriesContainer>
     </>
   );
 });
