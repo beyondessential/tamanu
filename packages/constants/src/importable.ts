@@ -123,6 +123,17 @@ export const ASSET_NAMES = {
   VACCINATION_CERTIFICATE_FOOTER: 'vaccination-certificate-footer-img',
 };
 
+export const ASSET_NAME_LABELS = {
+  [ASSET_NAMES.LETTERHEAD_LOGO]: 'letterhead-logo',
+  [ASSET_NAMES.VACCINE_CERTIFICATE_WATERMARK]: 'vaccine-certificate-watermark',
+  [ASSET_NAMES.CERTIFICATE_BOTTOM_HALF_IMG]: 'certificate-bottom-half-img',
+  [ASSET_NAMES.DEATH_CERTIFICATE_BOTTOM_HALF_IMG]: 'death-certificate-bottom-half-img',
+  [ASSET_NAMES.COVID_VACCINATION_CERTIFICATE_FOOTER]: 'covid-vaccination-certificate-footer-img',
+  [ASSET_NAMES.COVID_CLEARANCE_CERTIFICATE_FOOTER]: 'covid-clearance-certificate-footer-img',
+  [ASSET_NAMES.COVID_TEST_CERTIFICATE_FOOTER]: 'covid-test-certificate-footer-img',
+  [ASSET_NAMES.VACCINATION_CERTIFICATE_FOOTER]: 'vaccination-certificate-footer-img',
+};
+
 export const ASSET_FALLBACK_NAMES = {
   [ASSET_NAMES.COVID_VACCINATION_CERTIFICATE_FOOTER]: ASSET_NAMES.CERTIFICATE_BOTTOM_HALF_IMG,
   [ASSET_NAMES.COVID_CLEARANCE_CERTIFICATE_FOOTER]: ASSET_NAMES.CERTIFICATE_BOTTOM_HALF_IMG,
