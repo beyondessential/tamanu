@@ -44,6 +44,12 @@ const CategoryContainer = styled.div`
   }
 `;
 
+const getCategoryOptions = schema =>
+  Object.entries(schema.properties).map(([key, value]) => ({
+    value: key,
+    label: value.name || capitalize(startCase(key)),
+  }));
+
 const prepareSchema = scope => {
   const schema = getScopedSchema(scope);
   const uncategorised = pickBy(schema.properties, isSetting);
@@ -75,7 +81,7 @@ export const Category = ({ values, path = '' }) => {
       )}
       <StyledList>
         {Object.entries(values.properties)
-          .sort(([, value]) => (value.properties ? 1 : -1))
+          .sort(([, value]) => (value.properties ? 1 : -1)) // Sort categories last
           .map(([key, value]) => {
             const newPath = path ? `${path}.${key}` : key;
             const settingName = value.name || capitalize(startCase(key));
@@ -95,22 +101,17 @@ export const Category = ({ values, path = '' }) => {
   );
 };
 
-export const EditorView = memo(({ values, setFieldValue }) => {
+export const EditorView = memo(({ values }) => {
   const { scope } = values;
   const [category, setCategory] = useState(null);
 
   const scopedSchema = useMemo(() => prepareSchema(scope), [scope]);
-  const categoryOptions = useMemo(
-    () =>
-      Object.entries(scopedSchema.properties).map(([key, value]) => ({
-        value: key,
-        label: value.name || capitalize(startCase(key)),
-      })),
-    [scopedSchema],
-  );
+  const categoryOptions = useMemo(() => getCategoryOptions(scopedSchema), [scopedSchema]);
   const initialValues = useMemo(() => scopedSchema.properties[category], [category, scopedSchema]);
 
-  const handleChangeScope = () => setFieldValue('facilityId', null);
+  const handleChangeScope = () => {
+    setCategory(null);
+  };
   const handleChangeCategory = e => setCategory(e.target.value);
 
   return (
