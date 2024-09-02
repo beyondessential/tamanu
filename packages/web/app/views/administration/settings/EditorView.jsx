@@ -93,21 +93,20 @@ export const EditorView = memo(({ values, setFieldValue }) => {
     scopedSchema,
   ]);
 
-  const onChangeScope = () => {
-    setFieldValue('facilityId', null);
-  };
+  const handleChangeScope = () => setFieldValue('facilityId', null);
+  const handleChangeCategory = e => setCategory(e.target.value);
 
   return (
     <>
       <StyledTopBar>
-        <ScopeSelectorFields onChangeScope={onChangeScope} />
+        <ScopeSelectorFields onChangeScope={handleChangeScope} />
       </StyledTopBar>
       <CategoriesContainer>
         <Box p={2}>
           <StyledSelectInput
             label={<TranslatedText stringId="admin.settings.category" fallback="Category" />}
             value={category}
-            onChange={e => setCategory(e.target.value)}
+            onChange={handleChangeCategory}
             options={categoryOptions}
           />
         </Box>
