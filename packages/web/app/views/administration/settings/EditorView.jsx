@@ -41,12 +41,27 @@ const StyledList = styled.div`
   }
 `;
 
-const ComponentForType = {
-  boolean: CheckInput,
-  string: TextInput,
-  number: NumberInput,
-  object: JSONEditor, // Doesnt work
-  array: JSONEditor, // Doesnt work
+const SettingLine = styled(LargeBodyText)`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+`;
+
+const SettingInput = ({ type, ...props }) => {
+  switch (type) {
+    case 'boolean':
+      return <CheckInput {...props} />;
+    case 'string':
+      return <TextInput {...props} />;
+    case 'number':
+      return <NumberInput {...props} />;
+    // below doesnt really work
+    case 'object':
+    case 'array':
+      return <JSONEditor editMode {...props} />;
+    default:
+      return <LargeBodyText>No input for this type: {type}</LargeBodyText>;
+  }
 };
 
 const getCategoryOptions = schema => {
@@ -71,7 +86,7 @@ const getInitialValues = (schema, category) => {
   return schema.properties[category];
 };
 
-export const Category = ({ values, path = '' }) => {
+export const Category = ({ values, path = '', getCurrentSettingValue, handleChangeSetting }) => {
   const categoryTitle = values.name || capitalize(startCase(path));
   return (
     <>
@@ -85,22 +100,39 @@ export const Category = ({ values, path = '' }) => {
       <StyledList>
         {Object.entries(values.properties).map(([key, value]) => {
           const newPath = path ? `${path}.${key}` : key;
-          const settingName = value.name || capitalize(startCase(key));
-          if (value.type) {
+          const { name, description, type, defaultValue } = value;
+          const settingName = name || capitalize(startCase(key));
+          if (type) {
             return (
-              <ThemedTooltip arrow placement="top" title={value.description} key={newPath}>
-                <LargeBodyText width="fit-content">{settingName}</LargeBodyText>
-              </ThemedTooltip>
+              <SettingLine key={newPath}>
+                <ThemedTooltip arrow placement="top" title={description}>
+                  <LargeBodyText width="fit-content">{settingName}</LargeBodyText>
+                </ThemedTooltip>
+                <SettingInput
+                  type={type.type}
+                  value={getCurrentSettingValue(newPath)}
+                  onChange={e => handleChangeSetting(newPath, e.target.value)}
+                  placeholder={JSON.stringify(defaultValue)}
+                />
+              </SettingLine>
             );
           }
-          return <Category key={Math.random()} path={newPath} values={value} />;
+          return (
+            <Category
+              key={Math.random()}
+              path={newPath}
+              values={value}
+              getCurrentSettingValue={getCurrentSettingValue}
+              handleChangeSetting={handleChangeSetting}
+            />
+          );
         })}
       </StyledList>
     </>
   );
 };
 
-export const EditorView = memo(({ values, setFieldValue }) => {
+export const EditorView = memo(({ values, setFieldValue, settings }) => {
   const { scope } = values;
   const [category, setCategory] = useState(null);
 
@@ -113,6 +145,13 @@ export const EditorView = memo(({ values, setFieldValue }) => {
 
   const handleChangeScope = () => setFieldValue('facilityId', null);
   const handleChangeCategory = e => setCategory(e.target.value);
+  const handleChangeSetting = (path, value) => {
+    const updatedSettings = set(settings, `${category}.${path}`, value);
+    setFieldValue('settings', updatedSettings);
+  };
+  const getCurrentSettingValue = path => {
+    return get(settings, `${category}.${path}`);
+  };
 
   return (
     <>
@@ -129,9 +168,15 @@ export const EditorView = memo(({ values, setFieldValue }) => {
           />
         </Box>
         <Divider />
-        <Box p={2} pl={3}>
-          {category && <Category values={initialValues} />}
-        </Box>
+        {category && (
+          <Box p={2} pl={3}>
+            <Category
+              values={initialValues}
+              getCurrentSettingValue={getCurrentSettingValue}
+              handleChangeSetting={handleChangeSetting}
+            />
+          </Box>
+        )}
       </CategoriesContainer>
     </>
   );
