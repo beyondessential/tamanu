@@ -1,12 +1,12 @@
 import React from 'react';
 import styled from 'styled-components';
+import { useField } from 'formik';
 import { useQuery } from '@tanstack/react-query';
 import { SETTINGS_SCOPES } from '@tamanu/constants';
 
 import { useApi } from '../../../api';
 import { Field, SelectField } from '../../../components';
 import { TranslatedText } from '../../../components/Translation';
-import { useField } from 'formik';
 
 const ScopeSelectorField = styled(SelectField)`
   width: 300px;
