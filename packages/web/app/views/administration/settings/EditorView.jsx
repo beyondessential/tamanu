@@ -1,14 +1,14 @@
 import React, { memo, useMemo, useState } from 'react';
 import { capitalize, omitBy, pickBy, startCase } from 'lodash';
+import styled from 'styled-components';
+import { Box, Divider } from '@material-ui/core';
 
 import { getScopedSchema, isSetting } from '@tamanu/settings';
 
 import { LargeBodyText, Heading4, SelectInput, TranslatedText } from '../../../components';
 import { ScopeSelectorFields } from './ScopeSelectorFields';
-import styled from 'styled-components';
 import { Colors } from '../../../constants';
 import { ThemedTooltip } from '../../../components/Tooltip';
-import { Box, Divider } from '@material-ui/core';
 
 const INDENT_NESTED_CATEGORY_BY = 20;
 
