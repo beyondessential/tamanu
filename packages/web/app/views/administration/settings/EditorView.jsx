@@ -105,33 +105,32 @@ const SettingName = ({ path, name, description }) => {
 export const Category = ({ values, path = '' }) => {
   const WrapperComponent = path ? CategoryContainer : React.Fragment;
   const levelNested = path.split('.').length;
+  const sortedProperties = Object.entries(values.properties).sort(sortProperties);
   return (
     <WrapperComponent $levelNested={levelNested}>
       <CategoryTitle name={values.name} path={path} description={values.description} />
       <StyledList>
-        {Object.entries(values.properties)
-          .sort(sortProperties)
-          .map(([key, value]) => {
-            const newPath = path ? `${path}.${key}` : key;
-            return value.type ? (
-              <SettingName
-                key={newPath}
-                path={newPath}
-                name={value.name}
-                description={value.description}
-              />
-            ) : (
-              <Category key={newPath} path={newPath} values={value} />
-            );
-          })}
+        {sortedProperties.map(([key, value]) => {
+          const newPath = path ? `${path}.${key}` : key;
+          return value.type ? (
+            <SettingName
+              key={newPath}
+              path={newPath}
+              name={value.name}
+              description={value.description}
+            />
+          ) : (
+            <Category key={newPath} path={newPath} values={value} />
+          );
+        })}
       </StyledList>
     </WrapperComponent>
   );
 };
 
 export const EditorView = memo(({ values }) => {
-  const { scope } = values;
   const [category, setCategory] = useState(null);
+  const { scope } = values;
 
   const scopedSchema = useMemo(() => prepareSchema(scope), [scope]);
   const categoryOptions = useMemo(() => getCategoryOptions(scopedSchema), [scopedSchema]);
