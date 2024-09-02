@@ -10,6 +10,7 @@ export enum ReferenceDataType {
   Division = 'division',
   Diet = 'diet',
   Drug = 'drug',
+  DiseaseCoding = 'diseaseCoding',
   ICD10 = 'icd10',
   ImagingType = 'imagingType',
   LabTestCategory = 'labTestCategory',

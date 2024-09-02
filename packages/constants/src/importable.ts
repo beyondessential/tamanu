@@ -24,6 +24,7 @@ export const REFERENCE_TYPES = {
   COUNTRY: 'country',
   CONTACT_RELATIONSHIP: 'contactRelationship',
   DIVISION: 'division',
+  DISEASE_CODING: 'diseaseCoding',
   SUBDIVISION: 'subdivision',
   MEDICAL_AREA: 'medicalArea',
   NURSING_ZONE: 'nursingZone',
