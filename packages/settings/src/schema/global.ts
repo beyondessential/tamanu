@@ -27,7 +27,7 @@ const durationStringSchema = yup
     /^(-?(?:\d+)?\.?\d+) *(milliseconds?|msecs?|ms|seconds?|secs?|s|minutes?|mins?|m|hours?|hrs?|h|days?|d|weeks?|w|years?|yrs?|y)?$/i,
   );
 
-const thresholdsSchema = yup.array().of(
+const thresholdsSchema = yup.array(
   yup.object({
     threshold: yup
       .mixed()
@@ -629,8 +629,7 @@ export const globalSettings = {
       name: 'Triage categories',
       description: 'Customise triage scale',
       type: yup
-        .array()
-        .of(
+        .array(
           yup.object({
             level: yup.number(),
             label: yup.string(),
