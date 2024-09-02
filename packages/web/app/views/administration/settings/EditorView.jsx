@@ -10,6 +10,8 @@ import { Colors } from '../../../constants';
 import { ThemedTooltip } from '../../../components/Tooltip';
 import { Box, Divider } from '@material-ui/core';
 
+const INDENT_NESTED_CATEGORY_BY = 20;
+
 const SettingsContainer = styled.div`
   background-color: ${Colors.white};
   border: 1px solid ${Colors.outline};
@@ -36,13 +38,24 @@ const CategoriesContainer = styled.div`
 `;
 
 const CategoryContainer = styled.div`
-  margin-left: ${({ $nestedLevel }) => $nestedLevel * 20}px;
-  margin-right: ${({ $nestedLevel }) => $nestedLevel * 20}px;
+  margin-left: ${({ $levelNested }) => $levelNested * INDENT_NESTED_CATEGORY_BY}px;
   :not(:first-child) {
     padding-top: 20px;
     border-top: 1px solid ${Colors.outline};
   }
 `;
+
+const sortProperties = ([a0, a1], [b0, b1]) => {
+  const aName = a1.name || a0;
+  const bName = b1.name || b0;
+  const isTopLevelA = isSetting(a1);
+  const isTopLevelB = isSetting(b1);
+  // Sort top level settings first
+  if (isTopLevelA && !isTopLevelB) return -1;
+  if (!isTopLevelA && isTopLevelB) return 1;
+  // Alphabetical sort
+  return aName.localeCompare(bName);
+};
 
 const getCategoryOptions = schema =>
   Object.entries(schema.properties).map(([key, value]) => ({
@@ -66,35 +79,50 @@ const prepareSchema = scope => {
   return schema;
 };
 
-export const Category = ({ values, path = '' }) => {
-  const categoryTitle = values.name || capitalize(startCase(path));
-  const WrapperComponent = path ? CategoryContainer : React.Fragment;
-  const nestedLevel = path.split('.').length;
+const CategoryTitle = ({ name, path, description }) => {
+  const categoryTitle = name || capitalize(startCase(path));
+  if (!categoryTitle) return null;
   return (
-    <WrapperComponent $nestedLevel={nestedLevel}>
-      {categoryTitle && (
-        <ThemedTooltip placement="top" arrow title={values.description}>
-          <Heading4 width="fit-content" mt={0} mb={2}>
-            {categoryTitle}
-          </Heading4>
-        </ThemedTooltip>
-      )}
+    <ThemedTooltip placement="top" arrow title={description}>
+      <Heading4 width="fit-content" mt={0} mb={2}>
+        {categoryTitle}
+      </Heading4>
+    </ThemedTooltip>
+  );
+};
+
+const SettingName = ({ path, name, description }) => {
+  const settingName = name || capitalize(startCase(path));
+  return (
+    <ThemedTooltip arrow placement="top" title={description}>
+      <LargeBodyText ml={1} width="fit-content">
+        {settingName}
+      </LargeBodyText>
+    </ThemedTooltip>
+  );
+};
+
+export const Category = ({ values, path = '' }) => {
+  const WrapperComponent = path ? CategoryContainer : React.Fragment;
+  const levelNested = path.split('.').length;
+  return (
+    <WrapperComponent $levelNested={levelNested}>
+      <CategoryTitle name={values.name} path={path} description={values.description} />
       <StyledList>
         {Object.entries(values.properties)
-          .sort(([, value]) => (value.properties ? 1 : -1)) // Sort categories last
+          .sort(sortProperties)
           .map(([key, value]) => {
             const newPath = path ? `${path}.${key}` : key;
-            const settingName = value.name || capitalize(startCase(key));
-            if (value.type) {
-              return (
-                <ThemedTooltip arrow placement="top" title={value.description} key={newPath}>
-                  <LargeBodyText ml={1} width="fit-content">
-                    {settingName}
-                  </LargeBodyText>
-                </ThemedTooltip>
-              );
-            }
-            return <Category key={newPath} path={newPath} values={value} />;
+            return value.type ? (
+              <SettingName
+                key={newPath}
+                path={newPath}
+                name={value.name}
+                description={value.description}
+              />
+            ) : (
+              <Category key={newPath} path={newPath} values={value} />
+            );
           })}
       </StyledList>
     </WrapperComponent>
