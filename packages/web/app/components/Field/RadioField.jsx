@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { Fragment, useEffect } from 'react';
 import styled from 'styled-components';
 import PropTypes from 'prop-types';
 import Radio from '@material-ui/core/Radio';
@@ -138,8 +138,8 @@ export const RadioInput = ({
           {...props}
         >
           {options.map(option => (
-            <>
-              {option.leftOptionalElement ? option.leftOptionalElement : null}
+            <Fragment key={option.value}>
+              {option.leftOptionalElement ?? null}
               <ControlLabel
                 key={option.value}
                 labelPlacement={option.description ? 'start' : 'end'}
@@ -178,7 +178,7 @@ export const RadioInput = ({
                     : DEFAULT_LABEL_THEME
                 }
               />
-            </>
+            </Fragment>
           ))}
         </StyledRadioGroup>
         {helperText && <FormHelperText>{helperText}</FormHelperText>}
