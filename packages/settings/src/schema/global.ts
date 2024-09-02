@@ -118,6 +118,8 @@ export const globalSettings = {
     reportProcess: {
       properties: {
         timeOutDurationSeconds: {
+          description:
+            'If generating a report takes longer than this, it will be cancelled and marked as timed out',
           type: yup
             .number()
             .integer()
