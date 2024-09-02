@@ -1,59 +1,67 @@
 import React, { memo, useMemo, useState } from 'react';
-import { capitalize, startCase } from 'lodash';
+import _, { capitalize, startCase } from 'lodash';
 
 import { getScopedSchema } from '@tamanu/settings';
 
 import { LargeBodyText, Heading4, SelectInput, TranslatedText } from '../../../components';
 import { ScopeSelectorFields } from './ScopeSelectorFields';
 import styled from 'styled-components';
-import { Box } from '@material-ui/core';
 import { Colors } from '../../../constants';
 import { ThemedTooltip } from '../../../components/Tooltip';
+import { Box, Divider } from '@material-ui/core';
 
 const CategoriesContainer = styled.div`
-  padding: 20px;
   background-color: ${Colors.white};
   border: 1px solid ${Colors.outline};
+  margin-top: 20px;
 `;
 
 const StyledTopBar = styled.div`
   padding: 0;
+  display: flex;
 `;
 
 const StyledSelectInput = styled(SelectInput)`
   width: 300px;
 `;
 
+const StyledList = styled.div`
+  & :not(:last-child) {
+    margin-bottom: 10px;
+  }
+`;
+
 export const Category = ({ values, path = '' }) => {
   const title = values.title || capitalize(startCase(path));
+  console.log(title);
   return (
     <>
       {title && (
         <ThemedTooltip placement="top" arrow title={values.description}>
-          <Heading4 width="fit-content" mt={0} mb={1}>
+          <Heading4 width="fit-content" mt={0} mb={2}>
             {values.title || capitalize(startCase(path))}
           </Heading4>
         </ThemedTooltip>
       )}
-      {Object.entries(values.properties).map(([key, value]) => {
-        if (value.type) {
+      <StyledList>
+        {Object.entries(values.properties).map(([key, value]) => {
+          if (value.type) {
+            return (
+              <ThemedTooltip arrow placement="top" title={value.description} key={Math.random()}>
+                <LargeBodyText width="fit-content">{value.name}</LargeBodyText>
+              </ThemedTooltip>
+            );
+          }
           return (
-            <ThemedTooltip arrow placement="top" title={value.description} key={Math.random()}>
-              <LargeBodyText mt={1} width="fit-content">
-                {value.name}
-              </LargeBodyText>
-            </ThemedTooltip>
+            <Category key={Math.random()} path={!path ? key : `${path}.${key}`} values={value} />
           );
-        }
-        return (
-          <Category key={Math.random()} path={!path ? key : `${path}.${key}`} values={value} />
-        );
-      })}
+        })}
+      </StyledList>
     </>
   );
 };
 
-export const EditorView = memo(({ values, setFieldValue, settings }) => {
+export const EditorView = memo(({ values, setFieldValue }) => {
   const { scope } = values;
   const [category, setCategory] = useState(null);
   const scopedSchema = useMemo(() => getScopedSchema(scope), [scope]);
@@ -61,27 +69,50 @@ export const EditorView = memo(({ values, setFieldValue, settings }) => {
   const onChangeScope = () => {
     setFieldValue('facilityId', null);
   };
+  const options = Object.entries(_.pickBy(scopedSchema.properties, value => value.properties)).map(
+    ([key, value]) => ({
+      value: key,
+      label: value.title || capitalize(startCase(key)),
+    }),
+  );
+  const categoryOptions = [
+    ...(options.length !== Object.keys(scopedSchema.properties).length
+      ? [{ label: 'General', value: 'general' }]
+      : []),
+    ...options,
+  ];
+
+  console.log(_.pickBy(scopedSchema.properties, value => value.type));
   return (
     <>
       <StyledTopBar>
-        <ScopeSelectorFields scope={scope} onChangeScope={onChangeScope} />
-        <Box pt={2} pb={2}>
+        <ScopeSelectorFields onChangeScope={onChangeScope} />
+      </StyledTopBar>
+      <CategoriesContainer>
+        <Box p={2}>
           <StyledSelectInput
             label={<TranslatedText stringId="admin.settings.category" fallback="Category" />}
             value={category}
             onChange={e => setCategory(e.target.value)}
-            options={Object.entries(scopedSchema.properties).map(([key, value]) => ({
-              value: key,
-              label: value.title || capitalize(startCase(key)),
-            }))}
+            options={categoryOptions}
           />
         </Box>
-      </StyledTopBar>
-      {category && (
-        <CategoriesContainer>
-          <Category values={scopedSchema.properties[category]} />
-        </CategoriesContainer>
-      )}
+        <Divider />
+        <Box p={2} pl={3}>
+          {category && (
+            <Category
+              values={
+                category === 'general'
+                  ? {
+                      ...scopedSchema,
+                      properties: _.pickBy(scopedSchema.properties, value => value.type),
+                    }
+                  : scopedSchema.properties[category]
+              }
+            />
+          )}
+        </Box>
+      </CategoriesContainer>
     </>
   );
 });
