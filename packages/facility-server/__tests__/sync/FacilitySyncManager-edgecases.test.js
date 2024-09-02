@@ -163,7 +163,7 @@ describe('FacilitySyncManager edge cases', () => {
           push: jest.fn(),
           pull: jest.fn().mockImplementation(async () => [
             {
-              id: encounter.id,
+              id: 1,
               recordId: encounter.id,
               isDeleted: false,
               recordType: models.Encounter.tableName,
