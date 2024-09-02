@@ -48,7 +48,7 @@ const formatItemSchema = yup.object({
 export const ageDisplayFormatSchema = yup.array(formatItemSchema).test({
   name: 'ageDisplayFormat-fallback',
   message:
-    'One of formats in ‘ageDisplayFormat’ must have no maximum set. (It should be an open interval)',
+    'One of ranges in ‘ageDisplayFormat’ must have no maximum set. (It should be an open interval)',
   test: formats => formats.some(f => f.range.max === undefined),
 });
 
