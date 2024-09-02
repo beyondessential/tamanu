@@ -1,7 +1,7 @@
 import React, { memo, useMemo, useState } from 'react';
-import { capitalize, pickBy, startCase } from 'lodash';
+import { capitalize, omitBy, pickBy, startCase } from 'lodash';
 
-import { getScopedSchema } from '@tamanu/settings';
+import { getScopedSchema, isSetting } from '@tamanu/settings';
 
 import { LargeBodyText, Heading4, SelectInput, TranslatedText } from '../../../components';
 import { ScopeSelectorFields } from './ScopeSelectorFields';
@@ -44,31 +44,25 @@ const CategoryContainer = styled.div`
   }
 `;
 
-const getCategoryOptions = schema => {
-  const nestedProperties = pickBy(schema.properties, value => !value.type);
-  const options = Object.entries(nestedProperties).map(([key, value]) => ({
-    value: key,
-    label: value.title || capitalize(startCase(key)),
-  }));
-  if (options.length !== Object.keys(schema.properties).length) {
-    options.unshift({ label: 'General', value: 'general' });
-  }
-  return options;
-};
-
-const getInitialValues = (schema, category) => {
-  if (category === 'general') {
-    return {
-      ...schema,
-      properties: pickBy(schema.properties, value => value.type),
+const prepareSchema = scope => {
+  const schema = getScopedSchema(scope);
+  const uncategorised = pickBy(schema.properties, isSetting);
+  // If there are any top-level settings, move them to an uncategorised category
+  if (Object.keys(uncategorised).length) {
+    const categories = omitBy(schema.properties, isSetting);
+    schema.properties = {
+      ...categories,
+      uncategorised: {
+        properties: uncategorised,
+      },
     };
   }
-  return schema.properties[category];
+  return schema;
 };
 
 export const Category = ({ values, path = '' }) => {
   const categoryTitle = values.name || capitalize(startCase(path));
-  const WrapperComponent = path ? CategoryContainer : styled.div``;
+  const WrapperComponent = path ? CategoryContainer : React.Fragment;
   const nestedLevel = path.split('.').length;
   return (
     <WrapperComponent $nestedLevel={nestedLevel}>
@@ -105,12 +99,16 @@ export const EditorView = memo(({ values, setFieldValue }) => {
   const { scope } = values;
   const [category, setCategory] = useState(null);
 
-  const scopedSchema = useMemo(() => getScopedSchema(scope), [scope]);
-  const categoryOptions = useMemo(() => getCategoryOptions(scopedSchema), [scopedSchema]);
-  const initialValues = useMemo(() => getInitialValues(scopedSchema, category), [
-    category,
-    scopedSchema,
-  ]);
+  const scopedSchema = useMemo(() => prepareSchema(scope), [scope]);
+  const categoryOptions = useMemo(
+    () =>
+      Object.entries(scopedSchema.properties).map(([key, value]) => ({
+        value: key,
+        label: value.name || capitalize(startCase(key)),
+      })),
+    [scopedSchema],
+  );
+  const initialValues = useMemo(() => scopedSchema.properties[category], [category, scopedSchema]);
 
   const handleChangeScope = () => setFieldValue('facilityId', null);
   const handleChangeCategory = e => setCategory(e.target.value);
