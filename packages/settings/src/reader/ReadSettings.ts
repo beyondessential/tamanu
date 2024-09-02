@@ -4,13 +4,16 @@ import { settingsCache } from '../cache';
 import { Models } from './readers/SettingsDBReader';
 
 const KEYS_EXPOSED_TO_FRONT_END = [
-  'vaccinations',
-  'upcomingVaccinations',
-  'templates',
+  'customisations',
   'features',
-  'invoice',
+  'imagingPriorities',
   'insurer',
-  'customisations'
+  'invoice',
+  'templates',
+  'triageCategories',
+  'upcomingVaccinations',
+  'vaccinations',
+  'fields',
 ];
 
 export class ReadSettings {

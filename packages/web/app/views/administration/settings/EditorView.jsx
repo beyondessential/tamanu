@@ -1,5 +1,6 @@
 import React, { memo, useMemo, useState } from 'react';
 import { capitalize, omitBy, pickBy, startCase, set, get } from 'lodash';
+import styled from 'styled-components';
 
 import { getScopedSchema, isSetting } from '@tamanu/settings';
 
@@ -13,7 +14,6 @@ import {
   NumberInput,
 } from '../../../components';
 import { ScopeSelectorFields } from './ScopeSelectorFields';
-import styled from 'styled-components';
 import { Colors } from '../../../constants';
 import { ThemedTooltip } from '../../../components/Tooltip';
 import { JSONEditor } from './JSONEditor';
@@ -52,13 +52,28 @@ const CategoriesContainer = styled.div`
 `;
 
 const CategoryContainer = styled.div`
-  margin-left: ${({ $nestedLevel }) => $nestedLevel * 20}px;
-  margin-right: ${({ $nestedLevel }) => $nestedLevel * 20}px;
+  margin-left: ${({ $levelNested }) => $levelNested * INDENT_NESTED_CATEGORY_BY}px;
   :not(:first-child) {
     padding-top: 20px;
     border-top: 1px solid ${Colors.outline};
   }
 `;
+
+const sortProperties = ([a0, a1], [b0, b1]) => {
+  const aName = a1.name || a0;
+  const bName = b1.name || b0;
+  const isTopLevelA = isSetting(a1);
+  const isTopLevelB = isSetting(b1);
+  // Sort top level settings first
+  if (isTopLevelA && !isTopLevelB) return -1;
+  if (!isTopLevelA && isTopLevelB) return 1;
+  // Alphabetical sort
+  return aName.localeCompare(bName);
+};
+
+const getName = (name, path) => {
+  return name || capitalize(startCase(path.split('.').pop()));
+};
 
 const getCategoryOptions = schema =>
   Object.entries(schema.properties).map(([key, value]) => ({
@@ -98,6 +113,26 @@ const SettingInput = ({ type, handleChangeSetting, path, ...props }) => {
       return <LargeBodyText>No input for this type: {type}</LargeBodyText>;
   }
 };
+
+const CategoryTitle = ({ name, path, description }) => {
+  const categoryTitle = getName(name, path);
+  if (!categoryTitle) return null;
+  return (
+    <ThemedTooltip placement="top" arrow title={description}>
+      <Heading4 width="fit-content" mt={0} mb={2}>
+        {categoryTitle}
+      </Heading4>
+    </ThemedTooltip>
+  );
+};
+
+const SettingName = ({ path, name, description }) => (
+  <ThemedTooltip arrow placement="top" title={description}>
+    <LargeBodyText ml={1} width="fit-content">
+      {getName(name, path)}
+    </LargeBodyText>
+  </ThemedTooltip>
+);
 
 export const Category = ({ values, path = '', getCurrentSettingValue, handleChangeSetting }) => {
   const categoryTitle = values.name || capitalize(startCase(path));

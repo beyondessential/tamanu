@@ -106,7 +106,7 @@ export const SettingsView = () => {
   );
 };
 
-const SettingsForm = ({ values, setValues, setFieldValue, submitForm, status }) => {
+const SettingsForm = ({ values, setValues, submitForm }) => {
   const [currentTab, setCurrentTab] = useState('editor');
   const api = useApi();
   const { ability } = useAuth();
@@ -129,13 +129,11 @@ const SettingsForm = ({ values, setValues, setFieldValue, submitForm, status }) 
       onTabSelect={setCurrentTab}
       scrollable={false}
       settings={settings}
-      setFieldValue={setFieldValue}
       setValues={setValues}
       values={values}
       submitForm={submitForm}
-      status={status}
     />
   ) : (
-    <p>GUI starts here</p>
+    <EditorView settings={settings} values={values} />
   );
 };
