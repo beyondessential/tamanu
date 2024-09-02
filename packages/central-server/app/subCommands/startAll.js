@@ -21,6 +21,7 @@ export const serveAll = async ({ skipMigrationCheck }) => {
   return Promise.race([
     startApi({ skipMigrationCheck }),
     startFhirWorker({
+      name: 'refresh',
       skipMigrationCheck,
       topics: [
         JOB_TOPICS.FHIR.REFRESH.ALL_FROM_UPSTREAM,
@@ -29,7 +30,11 @@ export const serveAll = async ({ skipMigrationCheck }) => {
       ].join(','),
     }),
     // Run the fhir.resolver topic in a separate worker, as currently it can take a long time and may block the queue (SAV-813)
-    startFhirWorker({ skipMigrationCheck, topics: JOB_TOPICS.FHIR.RESOLVER }),
+    startFhirWorker({
+      name: 'resolver',
+      skipMigrationCheck,
+      topics: JOB_TOPICS.FHIR.RESOLVER,
+    }),
     startTasks({ skipMigrationCheck }),
   ]);
 };
