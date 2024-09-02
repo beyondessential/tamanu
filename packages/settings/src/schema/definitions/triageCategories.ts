@@ -3,9 +3,9 @@ import * as yup from 'yup';
 export const triageCategoriesSchema = yup
   .array(
     yup.object({
-      level: yup.number(),
-      label: yup.string(),
-      color: yup.string(),
+      level: yup.number().required(),
+      label: yup.string().required(),
+      color: yup.string().required(),
     }),
   )
   .min(3)

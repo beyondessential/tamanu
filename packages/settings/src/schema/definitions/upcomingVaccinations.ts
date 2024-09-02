@@ -9,8 +9,12 @@ export const thresholdsSchema = yup.array(
         'is-number-or-infinity',
         'Threshold must be a number or -Infinity',
         value => typeof value === 'number' || value === '-Infinity',
-      ),
-    status: yup.string().oneOf(Object.values(VACCINE_STATUS)),
+      )
+      .required(),
+    status: yup
+      .string()
+      .oneOf(Object.values(VACCINE_STATUS))
+      .required(),
   }),
 );
 
