@@ -54,23 +54,24 @@ const getInitialValues = (schema, category) => {
 };
 
 export const Category = ({ values, path = '' }) => {
-  const title = values.title || capitalize(startCase(path));
+  const categoryTitle = values.name || capitalize(startCase(path));
   return (
     <>
-      {title && (
+      {categoryTitle && (
         <ThemedTooltip placement="top" arrow title={values.description}>
           <Heading4 width="fit-content" mt={0} mb={2}>
-            {title}
+            {categoryTitle}
           </Heading4>
         </ThemedTooltip>
       )}
       <StyledList>
         {Object.entries(values.properties).map(([key, value]) => {
           const newPath = path ? `${path}.${key}` : key;
+          const settingName = value.name || capitalize(startCase(key));
           if (value.type) {
             return (
               <ThemedTooltip arrow placement="top" title={value.description} key={newPath}>
-                <LargeBodyText width="fit-content">{value.name}</LargeBodyText>
+                <LargeBodyText width="fit-content">{settingName}</LargeBodyText>
               </ThemedTooltip>
             );
           }
@@ -84,9 +85,9 @@ export const Category = ({ values, path = '' }) => {
 export const EditorView = memo(({ values, setFieldValue }) => {
   const { scope } = values;
   const [category, setCategory] = useState(null);
+
   const scopedSchema = useMemo(() => getScopedSchema(scope), [scope]);
   const categoryOptions = useMemo(() => getCategoryOptions(scopedSchema), [scopedSchema]);
-
   const initialValues = useMemo(() => getInitialValues(scopedSchema, category), [
     category,
     scopedSchema,
