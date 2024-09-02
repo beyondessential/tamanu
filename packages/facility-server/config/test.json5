@@ -20,12 +20,6 @@
     "consoleLevel": null,
     "enableAuditLog": true
   },
-  "survey": {
-    "defaultCodes": {
-      "department": "Emergency",
-      "location": "Bed 1"
-    }
-  },
   "schedules": {
     "refreshMaterializedView": {
       "upcomingVaccinations": {

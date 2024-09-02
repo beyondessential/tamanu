@@ -2,6 +2,7 @@ import React from 'react';
 import { DataSection } from './DataSection';
 import { Col } from '../Layout';
 import { getDOBWithAge, getSex, getVillageName } from '../../patientAccessors';
+import { useLanguageContext } from '../../pdf/languageContext';
 import { renderDataItems } from './renderDataItems';
 
 const PATIENT_FIELDS = {
@@ -18,10 +19,13 @@ const PATIENT_FIELDS = {
 };
 
 export const PatientDetails = ({ patient, getLocalisation }) => {
+  const { getTranslation } = useLanguageContext();
   return (
     <DataSection title="Patient details">
-      <Col>{renderDataItems(PATIENT_FIELDS.leftCol, patient, getLocalisation)}</Col>
-      <Col>{renderDataItems(PATIENT_FIELDS.rightCol, patient, getLocalisation)}</Col>
+      <Col>{renderDataItems(PATIENT_FIELDS.leftCol, patient, getLocalisation, getTranslation)}</Col>
+      <Col>
+        {renderDataItems(PATIENT_FIELDS.rightCol, patient, getLocalisation, getTranslation)}
+      </Col>
     </DataSection>
   );
 };
