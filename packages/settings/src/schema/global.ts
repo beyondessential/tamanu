@@ -78,13 +78,11 @@ export const globalSettings = {
     upcomingVaccinations: {
       properties: {
         ageLimit: {
-          name: 'Upcoming vaccination age limit',
           description: '_',
           type: yup.number(),
           defaultValue: 15,
         },
         thresholds: {
-          name: 'Upcoming vaccination thresholds',
           description: '_',
           type: thresholdsSchema,
           defaultValue: [

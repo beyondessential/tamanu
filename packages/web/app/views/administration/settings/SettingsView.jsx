@@ -16,6 +16,7 @@ import { useApi } from '../../../api';
 import { ErrorMessage } from '../../../components/ErrorMessage';
 import { notifyError, notifySuccess } from '../../../utils';
 import { Colors } from '../../../constants';
+import { EditorView } from './EditorView';
 
 const StyledTabDisplay = styled(TabDisplay)`
   margin-top: 20px;
@@ -31,9 +32,9 @@ const tabs = [
     label: <TranslatedText stringId="admin.settings.tab.editor.title" fallback="Editor" />,
     key: 'editor',
     icon: 'fa fa-cog',
-    render: () => (
+    render: props => (
       <TabContainer>
-        <p>GUI starts here</p>
+        <EditorView {...props} />
       </TabContainer>
     ),
   },
