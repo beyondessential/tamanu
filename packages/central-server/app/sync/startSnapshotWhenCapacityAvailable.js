@@ -9,7 +9,7 @@ const startSnapshotIfCapacityAvailable = async (sequelize, sessionId) => {
       SELECT COUNT(*) AS count FROM sync_sessions
       WHERE snapshot_started_at IS NOT NULL
       AND snapshot_completed_at IS NULL
-      AND error IS NULL
+      AND errors IS NULL
       AND completed_at IS NULL
     )
     UPDATE sync_sessions
