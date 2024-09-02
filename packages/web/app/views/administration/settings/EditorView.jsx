@@ -66,16 +66,15 @@ export const Category = ({ values, path = '' }) => {
       )}
       <StyledList>
         {Object.entries(values.properties).map(([key, value]) => {
+          const newPath = path ? `${path}.${key}` : key;
           if (value.type) {
             return (
-              <ThemedTooltip arrow placement="top" title={value.description} key={Math.random()}>
+              <ThemedTooltip arrow placement="top" title={value.description} key={newPath}>
                 <LargeBodyText width="fit-content">{value.name}</LargeBodyText>
               </ThemedTooltip>
             );
           }
-          return (
-            <Category key={Math.random()} path={!path ? key : `${path}.${key}`} values={value} />
-          );
+          return <Category key={Math.random()} path={newPath} values={value} />;
         })}
       </StyledList>
     </>
