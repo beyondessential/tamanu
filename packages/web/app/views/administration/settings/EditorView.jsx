@@ -17,7 +17,7 @@ import styled from 'styled-components';
 import { Colors } from '../../../constants';
 import { ThemedTooltip } from '../../../components/Tooltip';
 import { JSONEditor } from './JSONEditor';
-import { Box, Divider } from '@material-ui/core';
+import { Box, Divider, Switch } from '@material-ui/core';
 
 const SettingsContainer = styled.div`
   background-color: ${Colors.white};
@@ -47,22 +47,6 @@ const SettingLine = styled(LargeBodyText)`
   align-items: center;
 `;
 
-const SettingInput = ({ type, ...props }) => {
-  switch (type) {
-    case 'boolean':
-      return <CheckInput {...props} />;
-    case 'string':
-      return <TextInput {...props} />;
-    case 'number':
-      return <NumberInput {...props} />;
-    // below doesnt really work
-    case 'object':
-    case 'array':
-      return <JSONEditor editMode {...props} />;
-    default:
-      return <LargeBodyText>No input for this type: {type}</LargeBodyText>;
-  }
-};
 const CategoriesContainer = styled.div`
   padding: 20px;
 `;
@@ -98,12 +82,29 @@ const prepareSchema = scope => {
   return schema;
 };
 
+const SettingInput = ({ type, handleChangeSetting, path, ...props }) => {
+  switch (type) {
+    case 'boolean':
+      return <Switch {...props} onChange={e => handleChangeSetting(path, e.target.checked)} />;
+    case 'string':
+      return <TextInput {...props} onChange={e => handleChangeSetting(path, e.target.value)} />;
+    case 'number':
+      return <NumberInput {...props} onChange={e => handleChangeSetting(path, e.target.value)} />;
+    // below doesnt really work
+    case 'object':
+    case 'array':
+      return <JSONEditor editMode {...props} />;
+    default:
+      return <LargeBodyText>No input for this type: {type}</LargeBodyText>;
+  }
+};
+
 export const Category = ({ values, path = '', getCurrentSettingValue, handleChangeSetting }) => {
   const categoryTitle = values.name || capitalize(startCase(path));
   const WrapperComponent = path ? CategoryContainer : React.Fragment;
   const nestedLevel = path.split('.').length;
   return (
-    <WrapperComponent $nestedLevel={nestedLevel}>
+    <WrapperComponent {...(path && { $nestedLevel: nestedLevel })}>
       {categoryTitle && (
         <ThemedTooltip placement="top" arrow title={values.description}>
           <Heading4 width="fit-content" mt={0} mb={2}>
@@ -121,20 +122,28 @@ export const Category = ({ values, path = '', getCurrentSettingValue, handleChan
             if (type) {
               return (
                 <SettingLine key={newPath}>
-                <ThemedTooltip arrow placement="top" title={description}>
-                  <LargeBodyText width="fit-content">{settingName}</LargeBodyText>
-                </ThemedTooltip>
-                <SettingInput
-                  type={type.type}
-                  value={getCurrentSettingValue(newPath)}
-                  onChange={e => handleChangeSetting(newPath, e.target.value)}
-                  placeholder={JSON.stringify(defaultValue)}
-                />
-              </SettingLine>
+                  <ThemedTooltip arrow placement="top" title={description}>
+                    <LargeBodyText width="fit-content">{settingName}</LargeBodyText>
+                  </ThemedTooltip>
+                  <SettingInput
+                    type={type.type}
+                    value={getCurrentSettingValue(newPath)}
+                    placeholder={JSON.stringify(defaultValue, null, 2)}
+                    path={newPath}
+                    handleChangeSetting={handleChangeSetting}
+                  />
+                </SettingLine>
               );
             }
-            return <Category key={newPath} path={newPath} values={value} getCurrentSettingValue={getCurrentSettingValue}
-            handleChangeSetting={handleChangeSetting} />;
+            return (
+              <Category
+                key={newPath}
+                path={newPath}
+                values={value}
+                getCurrentSettingValue={getCurrentSettingValue}
+                handleChangeSetting={handleChangeSetting}
+              />
+            );
           })}
       </StyledList>
     </WrapperComponent>
@@ -161,6 +170,8 @@ export const EditorView = memo(({ values, setFieldValue, settings }) => {
     return get(settings, `${category}.${path}`);
   };
 
+  console.log(settings);
+
   return (
     <>
       <StyledTopBar>
@@ -178,8 +189,13 @@ export const EditorView = memo(({ values, setFieldValue, settings }) => {
         </Box>
         <Divider />
         <CategoriesContainer p={2}>
-          {category && <Category values={initialValues} getCurrentSettingValue={getCurrentSettingValue}
-              handleChangeSetting={handleChangeSetting} />}
+          {category && (
+            <Category
+              values={initialValues}
+              getCurrentSettingValue={getCurrentSettingValue}
+              handleChangeSetting={handleChangeSetting}
+            />
+          )}
         </CategoriesContainer>
       </SettingsContainer>
     </>
