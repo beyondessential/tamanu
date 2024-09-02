@@ -11,7 +11,14 @@ import { FORM_TYPES } from '../constants';
 
 import { FormSubmitCancelRow } from '../components/ButtonRow';
 import { FormGrid } from '../components/FormGrid';
-import { AutocompleteField, CheckField, DateField, Field, Form, TranslatedSelectField } from '../components/Field';
+import {
+  AutocompleteField,
+  CheckField,
+  DateField,
+  Field,
+  Form,
+  TranslatedSelectField,
+} from '../components/Field';
 import { useSuggester } from '../api';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useAuth } from '../contexts/Auth';

@@ -411,7 +411,7 @@ export const ReportGeneratorForm = () => {
                 setRequestError(null);
               }}
             >
-              {`Error: ${requestError}`}
+              Error: {requestError}
             </Alert>
           )}
           {successMessage && (
@@ -431,7 +431,8 @@ export const ReportGeneratorForm = () => {
               <Button onClick={onDownload} startIcon={<GetAppIcon />}>
                 <TranslatedText stringId="report.generate.action.download" fallback="Download" /> (
                 {(
-                  (dataReadyForSaving.data.byteLength ?? dataReadyForSaving.data.length) / 1024
+                  (dataReadyForSaving.getData().byteLength ?? dataReadyForSaving.getData().length) /
+                  1024
                 ).toFixed(0)}{' '}
                 KB)
               </Button>

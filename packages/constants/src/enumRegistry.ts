@@ -1,19 +1,18 @@
-import { camelCase } from 'lodash';
-import { SEX_LABELS } from './patientFields';
+import { SEX_LABELS } from './patientFields.js';
 import {
-  INVOICE_ITEMS_CATEGORY_LABELS,
   INVOICE_STATUS_LABELS,
-  INVOICE_PATIENT_PAYMENT_STATUSES_LABELS,
   INVOICE_INSURER_PAYMENT_STATUS_LABELS,
-} from './invoices';
-import { NOTE_TYPE_LABELS } from './notes';
+  INVOICE_ITEMS_CATEGORY_LABELS,
+  INVOICE_PATIENT_PAYMENT_STATUSES_LABELS,
+} from './invoices.js';
+import { NOTE_TYPE_LABELS } from './notes.js';
 import {
   REFERRAL_STATUS_LABELS,
   APPOINTMENT_TYPES,
   APPOINTMENT_STATUSES,
   IMAGING_REQUEST_STATUS_LABELS,
 } from './statuses';
-import { VACCINE_STATUS_LABELS, INJECTION_SITE_LABELS, VACCINE_CATEGORIES } from './vaccines';
+import { VACCINE_STATUS_LABELS, INJECTION_SITE_LABELS, VACCINE_CATEGORY_LABELS } from './vaccines';
 import { BIRTH_DELIVERY_TYPE_LABELS, BIRTH_TYPE_LABELS } from './births';
 import { IMAGING_TYPES } from './imaging';
 import {
@@ -68,7 +67,7 @@ export const registeredEnums = {
   REPORT_STATUS_LABELS,
   SEX_LABELS,
   TEMPLATE_TYPE_LABELS,
-  VACCINE_CATEGORIES,
+  VACCINE_CATEGORY_LABELS,
   VACCINE_STATUS_LABELS,
 };
 
@@ -107,7 +106,7 @@ export const translationPrefixes: Record<EnumKeys, string> = {
   REPORT_STATUS_LABELS: 'report.property.status',
   SEX_LABELS: 'patient.property.sex',
   TEMPLATE_TYPE_LABELS: 'template.property.type',
-  VACCINE_CATEGORIES: 'vaccine.property.category',
+  VACCINE_CATEGORY_LABELS: 'vaccine.property.category',
   VACCINE_STATUS_LABELS: 'vaccine.property.status',
 };
 
@@ -126,7 +125,9 @@ export const enumTranslations = (Object.entries(
   registeredEnums,
 ) as EnumEntries).flatMap(([key, value]) =>
   Object.entries(value).map(([enumKey, enumValue]) => [
-    `${translationPrefixes[key]}.${camelCase(enumKey)}`,
+    `${translationPrefixes[key]}.${enumKey
+      .toLowerCase()
+      .replace(/[^a-zA-Z0-9]+(.)/g, (_, char) => char.toUpperCase())}`,
     enumValue,
   ]),
 );

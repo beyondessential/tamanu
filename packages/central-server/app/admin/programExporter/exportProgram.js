@@ -34,7 +34,18 @@ export async function exportProgram(context, programId) {
       ['country', country],
       ['homeServer', country ? 'true' : ''],
       [],
-      ['code', 'name', 'surveyType', 'targetLocationId', 'targetDepartmentId', 'status', 'isSensitive', 'visibilityStatus'],
+      [
+        'code',
+        'name',
+        'surveyType',
+        'targetLocationId',
+        'targetDepartmentId',
+        'status',
+        'isSensitive',
+        'visibilityStatus',
+        'notifiable',
+        'notifyEmailAddresses',
+      ],
       ...surveys.map(survey => [
         survey.code,
         survey.name.replace(`(${country}) `, ''),
@@ -43,7 +54,9 @@ export async function exportProgram(context, programId) {
         '',
         'publish',
         survey.isSensitive,
-        survey.visibilityStatus
+        survey.visibilityStatus,
+        survey.notifiable,
+        survey.notifyEmailAddresses.join(','),
       ]),
     ],
   };
@@ -66,8 +79,9 @@ export async function exportProgram(context, programId) {
           pde.code,
           pde.type,
           pde.name,
-          pde.default_text text,
-          pde.default_options options
+          pde.default_text as text,
+          pde.default_options as options,
+          pde.visualisation_config
         FROM survey_screen_components ssc
         JOIN program_data_elements pde ON concat(:surveyId, '-', pde.code) = ssc.id
         WHERE ssc.survey_id = :surveyId
@@ -93,12 +107,13 @@ export async function exportProgram(context, programId) {
             'optionColors',
             'visibilityCriteria',
             'validationCriteria',
+            'visualisationConfig',
             'optionSet',
             'questionLabel',
             'detailLabel',
             'calculation',
             'config',
-            'visibilityStatus'
+            'visibilityStatus',
           ],
           ...surveyRecords.map(it => [
             it.code,
@@ -112,12 +127,13 @@ export async function exportProgram(context, programId) {
             '',
             it.visibility_criteria,
             it.validation_criteria,
+            it.visualisation_config,
             '',
             '',
             '',
             it.calculation,
             it.config,
-            it.visibility_status
+            it.visibility_status,
           ]),
         ],
       });
