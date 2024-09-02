@@ -10,7 +10,7 @@ import { Colors } from '../../../constants';
 import { ThemedTooltip } from '../../../components/Tooltip';
 import { Box, Divider } from '@material-ui/core';
 
-const CategoriesContainer = styled.div`
+const SettingsContainer = styled.div`
   background-color: ${Colors.white};
   border: 1px solid ${Colors.outline};
   margin-top: 20px;
@@ -27,7 +27,20 @@ const StyledSelectInput = styled(SelectInput)`
 
 const StyledList = styled.div`
   & :not(:last-child) {
-    margin-bottom: 10px;
+    margin-bottom: 20px;
+  }
+`;
+
+const CategoriesContainer = styled.div`
+  padding: 20px;
+`;
+
+const CategoryContainer = styled.div`
+  margin-left: ${({ $nestedLevel }) => $nestedLevel * 20}px;
+  margin-right: ${({ $nestedLevel }) => $nestedLevel * 20}px;
+  :not(:first-child) {
+    padding-top: 20px;
+    border-top: 1px solid ${Colors.outline};
   }
 `;
 
@@ -55,8 +68,10 @@ const getInitialValues = (schema, category) => {
 
 export const Category = ({ values, path = '' }) => {
   const categoryTitle = values.name || capitalize(startCase(path));
+  const WrapperComponent = path ? CategoryContainer : styled.div``;
+  const nestedLevel = path.split('.').length;
   return (
-    <>
+    <WrapperComponent $nestedLevel={nestedLevel}>
       {categoryTitle && (
         <ThemedTooltip placement="top" arrow title={values.description}>
           <Heading4 width="fit-content" mt={0} mb={2}>
@@ -65,20 +80,24 @@ export const Category = ({ values, path = '' }) => {
         </ThemedTooltip>
       )}
       <StyledList>
-        {Object.entries(values.properties).map(([key, value]) => {
-          const newPath = path ? `${path}.${key}` : key;
-          const settingName = value.name || capitalize(startCase(key));
-          if (value.type) {
-            return (
-              <ThemedTooltip arrow placement="top" title={value.description} key={newPath}>
-                <LargeBodyText width="fit-content">{settingName}</LargeBodyText>
-              </ThemedTooltip>
-            );
-          }
-          return <Category key={Math.random()} path={newPath} values={value} />;
-        })}
+        {Object.entries(values.properties)
+          .sort(([, value]) => (value.properties ? 1 : -1))
+          .map(([key, value]) => {
+            const newPath = path ? `${path}.${key}` : key;
+            const settingName = value.name || capitalize(startCase(key));
+            if (value.type) {
+              return (
+                <ThemedTooltip arrow placement="top" title={value.description} key={newPath}>
+                  <LargeBodyText ml={1} width="fit-content">
+                    {settingName}
+                  </LargeBodyText>
+                </ThemedTooltip>
+              );
+            }
+            return <Category key={newPath} path={newPath} values={value} />;
+          })}
       </StyledList>
-    </>
+    </WrapperComponent>
   );
 };
 
@@ -101,9 +120,10 @@ export const EditorView = memo(({ values, setFieldValue }) => {
       <StyledTopBar>
         <ScopeSelectorFields onChangeScope={handleChangeScope} />
       </StyledTopBar>
-      <CategoriesContainer>
+      <SettingsContainer>
         <Box p={2}>
           <StyledSelectInput
+            required
             label={<TranslatedText stringId="admin.settings.category" fallback="Category" />}
             value={category}
             onChange={handleChangeCategory}
@@ -111,10 +131,10 @@ export const EditorView = memo(({ values, setFieldValue }) => {
           />
         </Box>
         <Divider />
-        <Box p={2} pl={3}>
+        <CategoriesContainer p={2}>
           {category && <Category values={initialValues} />}
-        </Box>
-      </CategoriesContainer>
+        </CategoriesContainer>
+      </SettingsContainer>
     </>
   );
 });
