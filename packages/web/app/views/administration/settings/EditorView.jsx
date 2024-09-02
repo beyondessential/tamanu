@@ -1,5 +1,5 @@
 import React, { memo, useMemo, useState } from 'react';
-import _, { capitalize, startCase } from 'lodash';
+import { capitalize, pickBy, startCase } from 'lodash';
 
 import { getScopedSchema } from '@tamanu/settings';
 
@@ -31,6 +31,28 @@ const StyledList = styled.div`
   }
 `;
 
+const getCategoryOptions = schema => {
+  const nestedProperties = pickBy(schema.properties, value => !value.type);
+  const options = Object.entries(nestedProperties).map(([key, value]) => ({
+    value: key,
+    label: value.title || capitalize(startCase(key)),
+  }));
+  if (options.length !== Object.keys(schema.properties).length) {
+    options.unshift({ label: 'General', value: 'general' });
+  }
+  return options;
+};
+
+const getInitialValues = (schema, category) => {
+  if (category === 'general') {
+    return {
+      ...schema,
+      properties: pickBy(schema.properties, value => value.type),
+    };
+  }
+  return schema.properties[category];
+};
+
 export const Category = ({ values, path = '' }) => {
   const title = values.title || capitalize(startCase(path));
   return (
@@ -38,7 +60,7 @@ export const Category = ({ values, path = '' }) => {
       {title && (
         <ThemedTooltip placement="top" arrow title={values.description}>
           <Heading4 width="fit-content" mt={0} mb={2}>
-            {values.title || capitalize(startCase(path))}
+            {title}
           </Heading4>
         </ThemedTooltip>
       )}
@@ -64,17 +86,12 @@ export const EditorView = memo(({ values, setFieldValue }) => {
   const { scope } = values;
   const [category, setCategory] = useState(null);
   const scopedSchema = useMemo(() => getScopedSchema(scope), [scope]);
+  const categoryOptions = useMemo(() => getCategoryOptions(scopedSchema), [scopedSchema]);
 
-  const categoryOptions = useMemo(() => {
-    const nestedProperties = _.pickBy(scopedSchema.properties, value => !value.type);
-    const options = Object.entries(nestedProperties).map(([key, value]) => ({
-      value: key,
-      label: value.title || capitalize(startCase(key)),
-    }));
-    if (options.length !== Object.keys(scopedSchema.properties).length) {
-      options.unshift({ label: 'General', value: 'general' });
-    }
-  }, [scopedSchema]);
+  const initialValues = useMemo(() => getInitialValues(scopedSchema, category), [
+    category,
+    scopedSchema,
+  ]);
 
   const onChangeScope = () => {
     setFieldValue('facilityId', null);
@@ -96,18 +113,7 @@ export const EditorView = memo(({ values, setFieldValue }) => {
         </Box>
         <Divider />
         <Box p={2} pl={3}>
-          {category && (
-            <Category
-              values={
-                category === 'general'
-                  ? {
-                      ...scopedSchema,
-                      properties: _.pickBy(scopedSchema.properties, value => value.type),
-                    }
-                  : scopedSchema.properties[category]
-              }
-            />
-          )}
+          {category && <Category values={initialValues} />}
         </Box>
       </CategoriesContainer>
     </>
