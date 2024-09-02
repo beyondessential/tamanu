@@ -1,5 +1,5 @@
 import React, { memo, useMemo, useState } from 'react';
-import { capitalize, startCase } from 'lodash';
+import { capitalize, startCase, set, get } from 'lodash';
 
 import { getScopedSchema } from '@tamanu/settings';
 
@@ -10,6 +10,7 @@ import {
   BodyText,
   CheckInput,
   TextInput,
+  NumberInput,
 } from '../../../components';
 import { ScopeSelectorFields } from './ScopeSelectorFields';
 import styled from 'styled-components';
@@ -22,7 +23,7 @@ const CategoriesContainer = styled.div`
   padding: 20px;
   background-color: ${Colors.white};
   border: 1px solid ${Colors.outline};
-  width: 40%;
+  width: 500px;
 `;
 
 const StyledTopBar = styled.div`
@@ -48,12 +49,14 @@ const SettingName = styled(BodyText)`
 const ComponentForType = {
   boolean: CheckInput,
   string: TextInput,
+  number: NumberInput,
   object: JSONEditor, // Doesnt work
-  array: JSONEditor
+  array: JSONEditor, // Doesnt work
 };
 
-export const Category = ({ values, path = '' }) => {
+export const Category = ({ values, path = '', onChangeSettings }) => {
   const title = values.title || capitalize(startCase(path));
+  console.log(values.settings)
   return (
     <>
       {title && (
@@ -64,20 +67,29 @@ export const Category = ({ values, path = '' }) => {
         </ThemedTooltip>
       )}
       {Object.entries(values.properties).map(([key, value]) => {
-        const { name, type, defaultValue } = value;
+        const { name, description, type, defaultValue } = value;
         if (type) {
           const SettingInput = ComponentForType[type.type];
+          const isJsonEditor = type.type === 'object';
           return (
-            <ThemedTooltip arrow placement="top" title={value.description} key={Math.random()}>
-              <SettingLine width="fit-content">
+            <SettingLine key={Math.random()} width="fit-content">
+              <ThemedTooltip arrow placement="top" title={description}>
                 <SettingName>{name}</SettingName>
-                <SettingInput placeholder={JSON.stringify(defaultValue)} />
-              </SettingLine>
-            </ThemedTooltip>
+              </ThemedTooltip>
+              <SettingInput
+                onChange={e => onChangeSettings(`${path}.${key}`, e.target.value)}
+                placeholder={isJsonEditor ? JSON.stringify(defaultValue) : defaultValue}
+              />
+            </SettingLine>
           );
         }
         return (
-          <Category key={Math.random()} path={!path ? key : `${path}.${key}`} values={value} />
+          <Category
+            onChangeSettings={onChangeSettings}
+            key={Math.random()}
+            path={!path ? key : `${path}.${key}`}
+            values={value}
+          />
         );
       })}
     </>
@@ -87,11 +99,22 @@ export const Category = ({ values, path = '' }) => {
 export const EditorView = memo(({ values, setFieldValue, settings }) => {
   const { scope } = values;
   const [category, setCategory] = useState(null);
+  const [settingsEditObject, setSettingsEditObject] = useState(settings);
   const scopedSchema = useMemo(() => getScopedSchema(scope), [scope]);
 
   const onChangeScope = () => {
     setFieldValue('facilityId', null);
   };
+
+
+  // TODO: not really working
+  const onChangeSettings = (path, value) => {
+    const updatedSettingsObject = set(values.settings || settings, path, JSON.parse(value));
+    setSettingsEditObject(updatedSettingsObject);
+    setFieldValue('settings', updatedSettingsObject);
+  };
+
+
   return (
     <>
       <StyledTopBar>
@@ -110,7 +133,11 @@ export const EditorView = memo(({ values, setFieldValue, settings }) => {
       </StyledTopBar>
       {category && (
         <CategoriesContainer>
-          <Category values={scopedSchema.properties[category]} />
+          <Category
+            onChangeSettings={onChangeSettings}
+            values={scopedSchema.properties[category]}
+            path={category}
+          />
         </CategoriesContainer>
       )}
     </>
