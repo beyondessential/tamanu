@@ -3,11 +3,12 @@ import { capitalize, startCase } from 'lodash';
 
 import { getScopedSchema } from '@tamanu/settings';
 
-import { BodyText, Heading4, SelectInput, TranslatedText } from '../../../components';
+import { LargeBodyText, Heading4, SelectInput, TranslatedText } from '../../../components';
 import { ScopeSelectorFields } from './ScopeSelectorFields';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
 import { Colors } from '../../../constants';
+import { ThemedTooltip } from '../../../components/Tooltip';
 
 const CategoriesContainer = styled.div`
   padding: 20px;
@@ -27,13 +28,21 @@ export const Category = ({ values, path = '' }) => {
   const title = values.title || capitalize(startCase(path));
   return (
     <>
-      {title && <Heading4 mt={0}>{values.title || capitalize(startCase(path))}</Heading4>}
+      {title && (
+        <ThemedTooltip placement="top" arrow title={values.description}>
+          <Heading4 width="fit-content" mt={0} mb={1}>
+            {values.title || capitalize(startCase(path))}
+          </Heading4>
+        </ThemedTooltip>
+      )}
       {Object.entries(values.properties).map(([key, value]) => {
         if (value.type) {
           return (
-            <BodyText mt={2} key={Math.random()}>
-              {value.name}
-            </BodyText>
+            <ThemedTooltip arrow placement="top" title={value.description} key={Math.random()}>
+              <LargeBodyText mt={1} width="fit-content">
+                {value.name}
+              </LargeBodyText>
+            </ThemedTooltip>
           );
         }
         return (
@@ -68,9 +77,11 @@ export const EditorView = memo(({ values, setFieldValue, settings }) => {
           />
         </Box>
       </StyledTopBar>
-      <CategoriesContainer>
-        {category && <Category values={scopedSchema.properties[category]} />}
-      </CategoriesContainer>
+      {category && (
+        <CategoriesContainer>
+          <Category values={scopedSchema.properties[category]} />
+        </CategoriesContainer>
+      )}
     </>
   );
 });
