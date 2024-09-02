@@ -162,7 +162,7 @@ jobs:
           - arch: amd64
             runs-on: ubuntu-latest
           - arch: arm64
-            runs-on: Linux-ARM64
+            runs-on: Linux-ARM64-Ubuntu-24.04
         package:
           - name: central
             path: central-server
