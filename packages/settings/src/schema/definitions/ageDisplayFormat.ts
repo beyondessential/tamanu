@@ -16,34 +16,41 @@ const ageRangeLimitSchema = yup.object({
   exclusive: yup.boolean(),
 });
 
-export const ageDisplayFormatSchema = yup.array(
-  yup.object({
-    as: yup
-      .string()
-      .oneOf(['days', 'weeks', 'months', 'years'])
-      .required(),
-    range: yup
-      .object({
-        min: ageRangeLimitSchema,
-        max: ageRangeLimitSchema,
-      })
-      .required()
-      .test({
-        name: 'ageDisplayFormat',
-        test(range, ctx) {
-          if (!range.min && !range.max) {
-            return ctx.createError({
-              message: `range in ageDisplayFormat must include either min or max, or both, got ${JSON.stringify(
-                range,
-              )}`,
-            });
-          }
+const formatRangeSchema = yup
+  .object({
+    min: ageRangeLimitSchema,
+    max: ageRangeLimitSchema,
+  })
+  .required()
+  .test({
+    name: 'ageDisplayFormat-range',
+    test(range, ctx) {
+      if (!range.min && !range.max) {
+        return ctx.createError({
+          message: `range in ageDisplayFormat must include either min or max, or both, got ${JSON.stringify(
+            range,
+          )}`,
+        });
+      }
 
-          return true;
-        },
-      }),
-  }),
-);
+      return true;
+    },
+  });
+
+const formatItemSchema = yup.object({
+  as: yup
+    .string()
+    .oneOf(['days', 'weeks', 'months', 'years'])
+    .required(),
+  range: formatRangeSchema,
+});
+
+export const ageDisplayFormatSchema = yup.array(formatItemSchema).test({
+  name: 'ageDisplayFormat-fallback',
+  message:
+    'One of formats in ‘ageDisplayFormat’ must have no maximum set. (It should be an open interval)',
+  test: formats => formats.some(f => f.range.max === undefined),
+});
 
 export const ageDisplayFormatDefault = [
   {
