@@ -60,12 +60,6 @@ const SubmitButton = styled(Button)`
   margin-left: 15px;
 `;
 
-const StyledList = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-`;
-
 const CategoriesWrapper = styled.div`
   padding: 20px;
 `;
@@ -77,8 +71,6 @@ const CategoryWrapper = styled.div`
     border-top: 1px solid ${Colors.outline};
   }
 `;
-
-const INDENT_NESTED_CATEGORY_BY = 20;
 
 const sortProperties = ([a0, a1], [b0, b1]) => {
   const aName = a1.name || a0;
@@ -119,8 +111,6 @@ const prepareSchema = scope => {
 };
 
 const SettingInput = ({ type, handleChangeSetting, path, ...props }) => {
-  // let InputComponent = null;
-  // let eventAccessor = null;
   switch (type) {
     case 'boolean':
       return <Switch onChange={e => handleChangeSetting(path, e.target.checked)} {...props} />;
