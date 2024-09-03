@@ -19,7 +19,9 @@ import { ScopeSelectorFields } from './ScopeSelectorFields';
 import { Colors } from '../../../constants';
 import { ThemedTooltip } from '../../../components/Tooltip';
 import { JSONEditor } from './JSONEditor';
-import { Box, Divider, Switch } from '@material-ui/core';
+import { Box, Collapse, Divider, IconButton, Switch } from '@material-ui/core';
+import ArrowUpIcon from '@material-ui/icons/KeyboardArrowUp';
+import ArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
 
 const INDENT_WIDTH_PX = 20;
 
@@ -40,7 +42,6 @@ const StyledSelectInput = styled(SelectInput)`
 const SettingLine = styled(LargeBodyText)`
   display: flex;
   justify-content: space-between;
-  align-items: center;
   &:not(:last-child) {
     margin-bottom: 10px;
   }
@@ -76,6 +77,18 @@ const CategoryWrapper = styled.div`
     padding-top: 20px;
     border-top: 1px solid ${Colors.outline};
   }
+`;
+
+const ExpandButton = styled(IconButton)`
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  padding: 2px;
+`;
+
+const JSONContainer = styled.div`
+  position: relative;
+  border-bottom: 1px solid ${Colors.outline};
 `;
 
 const sortProperties = ([a0, a1], [b0, b1]) => {
@@ -117,13 +130,15 @@ const prepareSchema = scope => {
 };
 
 const SettingInput = ({ type, path, value, defaultValue, handleChangeSetting }) => {
+  const [error, setError] = useState(null);
+  const [isCollapsed, setIsCollapsed] = useState(true);
+
   switch (type) {
     case 'boolean':
       return (
         <Switch
           color="primary"
           checked={value}
-          defaultChecked={defaultValue}
           onChange={e => handleChangeSetting(path, e.target.checked)}
         />
       );
@@ -154,18 +169,41 @@ const SettingInput = ({ type, path, value, defaultValue, handleChangeSetting }) 
     // below doesnt really work
     case 'object':
     case 'array':
+    case 'mixed':
       return (
-        <JSONEditor
-          height="300px"
-          width="500px"
-          editMode
-          value={value}
-          placeholder={JSON.stringify(defaultValue, null, 2)}
-          onChange={e => handleChangeSetting(path, e)}
-        />
+        <JSONContainer>
+          <Collapse collapsedSize={40} in={!isCollapsed}>
+            <JSONEditor
+              height="300px"
+              width="300px"
+              editMode
+              showGutter={false}
+              // This breks on reload as value is not a string anymore
+              value={value}
+              defaultValue={JSON.stringify(defaultValue, null, 2)}
+              onChange={e => {
+                handleChangeSetting(path, e);
+                try {
+                  JSON.parse(e);
+                  setError(null);
+                } catch (err) {
+                  setError(err);
+                }
+              }}
+              error={error}
+            />
+          </Collapse>
+          <ExpandButton onClick={() => setIsCollapsed(!isCollapsed)}>
+            {isCollapsed ? <ArrowDownIcon /> : <ArrowUpIcon />}
+          </ExpandButton>
+        </JSONContainer>
       );
     default:
-      return <LargeBodyText>No component for this type: {type}</LargeBodyText>;
+      return (
+        <LargeBodyText>
+          No component for this type: {type} (default: {defaultValue})
+        </LargeBodyText>
+      );
   }
 };
 
@@ -231,6 +269,26 @@ export const Category = ({ values, path = '', getSettingValue, handleChangeSetti
   );
 };
 
+function parseJsonStrings(obj) {
+  if (typeof obj === 'string') {
+    try {
+      const parsed = JSON.parse(obj);
+      return parseJsonStrings(parsed);
+    } catch (e) {
+      return obj; // Return the string if it is not a valid JSON
+    }
+  } else if (Array.isArray(obj)) {
+    return obj.map(parseJsonStrings);
+  } else if (typeof obj === 'object' && obj !== null) {
+    return Object.keys(obj).reduce((acc, key) => {
+      acc[key] = parseJsonStrings(obj[key]);
+      return acc;
+    }, {});
+  } else {
+    return obj; // Return the value if it is neither an object nor a string
+  }
+}
+
 export const EditorView = memo(({ values, setValues, submitForm, settings }) => {
   const { scope } = values;
   const [category, setCategory] = useState(null);
@@ -240,6 +298,7 @@ export const EditorView = memo(({ values, setValues, submitForm, settings }) => 
   const initialValues = useMemo(() => scopedSchema.properties[category], [category, scopedSchema]);
 
   const handleChangeScope = () => setCategory(null);
+  // TODO: are you sure if they change category without saving settings
   const handleChangeCategory = e => setCategory(e.target.value);
 
   const handleChangeSetting = (path, value) => {
@@ -249,6 +308,14 @@ export const EditorView = memo(({ values, setValues, submitForm, settings }) => 
   const getSettingValue = path => get(settings, `${category}.${path}`);
 
   // TODO: reverse whole category
+
+  console.log(settings);
+
+  const saveSettings = async event => {
+    const parsedObject = parseJsonStrings(settings)
+    setValues({ ...values, settings: parsedObject });
+    await submitForm(event);
+  };
 
   return (
     <>
@@ -266,7 +333,7 @@ export const EditorView = memo(({ values, setValues, submitForm, settings }) => 
           />
           <div>
             <OutlinedButton disabled={!values.settings}>Clear changes</OutlinedButton>
-            <SubmitButton onClick={submitForm} disabled={!values.settings}>
+            <SubmitButton onClick={saveSettings} disabled={!values.settings}>
               Save changes
             </SubmitButton>
           </div>
