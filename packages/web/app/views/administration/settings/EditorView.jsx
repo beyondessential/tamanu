@@ -10,9 +10,9 @@ import { ScopeSelectorFields } from './ScopeSelectorFields';
 import { Colors } from '../../../constants';
 import { ThemedTooltip } from '../../../components/Tooltip';
 
-const INDENT_NESTED_CATEGORY_BY = 20;
+const INDENT_WIDTH_PX = 20;
 
-const SettingsContainer = styled.div`
+const SettingsWrapper = styled.div`
   background-color: ${Colors.white};
   border: 1px solid ${Colors.outline};
   margin-top: 20px;
@@ -28,17 +28,17 @@ const StyledSelectInput = styled(SelectInput)`
 `;
 
 const StyledList = styled.div`
-  & :not(:last-child) {
-    margin-bottom: 20px;
-  }
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 `;
 
-const CategoriesContainer = styled.div`
+const CategoriesWrapper = styled.div`
   padding: 20px;
 `;
 
-const CategoryContainer = styled.div`
-  margin-left: ${({ $levelNested }) => $levelNested * INDENT_NESTED_CATEGORY_BY}px;
+const CategoryWrapper = styled.div`
+  margin-left: ${({ $nestLevel }) => $nestLevel * INDENT_WIDTH_PX}px;
   :not(:first-child) {
     padding-top: 20px;
     border-top: 1px solid ${Colors.outline};
@@ -104,11 +104,11 @@ const SettingName = ({ name, path, description }) => (
 );
 
 export const Category = ({ values, path = '' }) => {
-  const WrapperComponent = path ? CategoryContainer : Box;
-  const levelNested = path.split('.').length;
+  const Wrapper = path ? CategoryWrapper : Box;
+  const nestLevel = path.split('.').length;
   const sortedProperties = Object.entries(values.properties).sort(sortProperties);
   return (
-    <WrapperComponent $levelNested={levelNested}>
+    <Wrapper $nestLevel={nestLevel}>
       <CategoryTitle name={values.name} path={path} description={values.description} />
       <StyledList>
         {sortedProperties.map(([key, value]) => {
@@ -125,7 +125,7 @@ export const Category = ({ values, path = '' }) => {
           );
         })}
       </StyledList>
-    </WrapperComponent>
+    </Wrapper>
   );
 };
 
@@ -147,7 +147,7 @@ export const EditorView = memo(({ values }) => {
       <StyledTopBar>
         <ScopeSelectorFields onChangeScope={handleChangeScope} />
       </StyledTopBar>
-      <SettingsContainer>
+      <SettingsWrapper>
         <Box p={2}>
           <StyledSelectInput
             required
@@ -158,10 +158,10 @@ export const EditorView = memo(({ values }) => {
           />
         </Box>
         <Divider />
-        <CategoriesContainer p={2}>
+        <CategoriesWrapper p={2}>
           {category && <Category values={initialValues} />}
-        </CategoriesContainer>
-      </SettingsContainer>
+        </CategoriesWrapper>
+      </SettingsWrapper>
     </>
   );
 });
