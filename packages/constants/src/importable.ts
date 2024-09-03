@@ -89,8 +89,16 @@ const SYSTEM_DATA_TYPES = {
 };
 const SYSTEM_DATA_TYPES_VALUES = Object.values(SYSTEM_DATA_TYPES);
 
+const OBSOLETE_REFERENCE_DATA_TYPES = [
+  REFERENCE_TYPES.MARITAL_STATUS,
+  REFERENCE_TYPES.IMAGING_TYPE,
+  REFERENCE_TYPES.VACCINE,
+];
+
 export const GENERAL_IMPORTABLE_DATA_TYPES = [
-  ...REFERENCE_TYPE_VALUES.filter(type => type !== REFERENCE_TYPES.ICD10),
+  ...REFERENCE_TYPE_VALUES.filter(
+    type => type !== REFERENCE_TYPES.ICD10 && !OBSOLETE_REFERENCE_DATA_TYPES.includes(type),
+  ),
   'diagnosis', // Weird edge case where we sometimes call diagnosis icd10 so we have to account for this in a bunch of places
   ...OTHER_REFERENCE_TYPE_VALUES,
   ...CLINICAL_DATA_TYPES_VALUES,
