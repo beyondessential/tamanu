@@ -1,0 +1,8 @@
+---
+schema: public
+name: patient_birth_data
+transformers:
+  - name: RandomName
+    params:
+      column: name_of_attendant_at_birth
+      keep_null: true

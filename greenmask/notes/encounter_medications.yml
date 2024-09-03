@@ -1,0 +1,7 @@
+---
+schema: public
+name: encounter_medications
+transformers:
+  - name: Masking
+    params:
+      column: note

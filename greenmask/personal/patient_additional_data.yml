@@ -1,0 +1,54 @@
+---
+schema: public
+name: patient_additional_data
+transformers:
+  - name: RandomPhoneNumber
+    params:
+      column: primary_contact_number
+      keep_null: true
+
+  - name: RandomPhoneNumber
+    params:
+      column: secondary_contact_number
+      keep_null: true
+
+  - name: RealAddress
+    params:
+      columns:
+        - name: city_town
+          template: '{{.City}}'
+          keep_null: true
+        - name: street_village
+          template: '{{.Address}}'
+          keep_null: true
+
+  - name: RandomUsername
+    params:
+      column: social_media
+      keep_null: true
+
+  - name: Masking
+    params:
+      column: birth_certificate
+
+  - name: Masking
+    params:
+      column: driving_license
+
+  - name: Masking
+    params:
+      column: passport
+
+  - name: RandomName
+    params:
+      column: emergency_contact_name
+      keep_null: true
+
+  - name: RandomPhoneNumber
+    params:
+      column: emergency_contact_number
+      keep_null: true
+
+  - name: Masking
+    params:
+      column: insurer_policy_number

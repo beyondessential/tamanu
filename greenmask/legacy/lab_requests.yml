@@ -1,0 +1,10 @@
+---
+schema: public
+name: lab_requests
+transformers:
+  - name: SetNull
+    params:
+      column: sample_time_legacy
+  - name: SetNull
+    params:
+      column: requested_date_legacy

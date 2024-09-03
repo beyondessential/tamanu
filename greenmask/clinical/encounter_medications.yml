@@ -1,0 +1,15 @@
+---
+schema: public
+name: encounter_medications
+transformers:
+  - name: Masking
+    params:
+      column: prescription
+
+  - name: Masking
+    params:
+      column: indication
+
+  - name: Masking
+    params:
+      column: discontinuing_reason

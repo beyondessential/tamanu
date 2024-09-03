@@ -1,0 +1,7 @@
+---
+schema: public
+name: notes
+transformers:
+  - name: SetNull
+    params:
+      column: date_legacy
