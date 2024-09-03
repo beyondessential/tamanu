@@ -16,7 +16,7 @@ import {
   scheduleIcon,
   settingsIcon,
   translateIcon,
-  uploadIcon2,
+  upload2Icon,
   vaccineIcon,
   workspacesIcon,
 } from '../../constants/images';
@@ -260,7 +260,7 @@ export const CENTRAL_MENU_ITEMS = [
     key: 'assets',
     label: <TranslatedText stringId="adminSidebar.assetUpload" fallback="Asset upload" />,
     path: '/admin/assets',
-    icon: uploadIcon2,
+    icon: upload2Icon,
   },
   {
     key: 'sync',

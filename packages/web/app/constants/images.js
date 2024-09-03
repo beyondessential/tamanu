@@ -29,7 +29,7 @@ export { default as languageIcon } from '../assets/images/material_language.svg'
 export { default as newsIcon } from '../assets/images/material_news.svg';
 export { default as settingsIcon } from '../assets/images/material_settings.svg';
 export { default as translateIcon } from '../assets/images/material_translate.svg';
-export { default as uploadIcon2 } from '../assets/images/material_upload_2.svg';
+export { default as upload2Icon } from '../assets/images/material_upload_2.svg';
 export { default as workspacesIcon } from '../assets/images/material_workspaces.svg';
 
 export { default as reportLine } from '../assets/images/report_line.png';
