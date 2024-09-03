@@ -44,6 +44,10 @@ const flattenSchema = (
   }, {} as Record<string, yup.AnySchema>);
 };
 
+export const getScopedSchema = (scope: string) => {
+  return SCOPE_TO_SCHEMA[scope];
+};
+
 export const validateSettings = async ({
   settings,
   scope,
@@ -53,7 +57,7 @@ export const validateSettings = async ({
   scope?: string;
   schema?: SettingsSchema;
 }) => {
-  const schemaValue = scope ? SCOPE_TO_SCHEMA[scope] : schema;
+  const schemaValue = scope ? getScopedSchema(scope) : schema;
 
   if (!schemaValue) {
     throw new Error(`No schema found for scope: ${scope}`);

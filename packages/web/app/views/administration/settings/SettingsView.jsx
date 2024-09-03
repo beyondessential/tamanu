@@ -16,14 +16,31 @@ import { useApi } from '../../../api';
 import { ErrorMessage } from '../../../components/ErrorMessage';
 import { notifyError, notifySuccess } from '../../../utils';
 import { Colors } from '../../../constants';
+import { EditorView } from './EditorView';
+
+const StyledAdminViewContainer = styled(AdminViewContainer)`
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  > div {
+    display: flex;
+    flex-direction: column;
+  }
+`;
 
 const StyledTabDisplay = styled(TabDisplay)`
   margin-top: 20px;
+  height: 100%;
   border-top: 1px solid ${Colors.outline};
+  > div:last-child {
+    flex: 1;
+  }
 `;
 
 const TabContainer = styled.div`
+  height: 100%;
   padding: 20px;
+  background-color: ${props => props.$backgroundColor || Colors.white};
 `;
 
 const tabs = [
@@ -31,9 +48,9 @@ const tabs = [
     label: <TranslatedText stringId="admin.settings.tab.editor.title" fallback="Editor" />,
     key: 'editor',
     icon: 'fa fa-cog',
-    render: () => (
-      <TabContainer>
-        <p>GUI starts here</p>
+    render: props => (
+      <TabContainer $backgroundColor={Colors.background}>
+        <EditorView {...props} />
       </TabContainer>
     ),
   },
@@ -76,19 +93,20 @@ export const SettingsView = () => {
   };
 
   return (
-    <AdminViewContainer
+    <StyledAdminViewContainer
       title={<TranslatedText stringId="admin.settings.title" fallback="Settings" />}
     >
       <Form
         initialValues={{ scope: SETTINGS_SCOPES.GLOBAL, facilityId: null }}
         onSubmit={handleSubmit}
         render={SettingsForm}
+        style={{ flex: 1 }}
       />
-    </AdminViewContainer>
+    </StyledAdminViewContainer>
   );
 };
 
-const SettingsForm = ({ values, setValues, setFieldValue, submitForm, status }) => {
+const SettingsForm = ({ values, setValues, submitForm }) => {
   const [currentTab, setCurrentTab] = useState('editor');
   const api = useApi();
   const { ability } = useAuth();
@@ -111,13 +129,11 @@ const SettingsForm = ({ values, setValues, setFieldValue, submitForm, status }) 
       onTabSelect={setCurrentTab}
       scrollable={false}
       settings={settings}
-      setFieldValue={setFieldValue}
       setValues={setValues}
       values={values}
       submitForm={submitForm}
-      status={status}
     />
   ) : (
-    <p>GUI starts here</p>
+    <EditorView settings={settings} values={values} />
   );
 };

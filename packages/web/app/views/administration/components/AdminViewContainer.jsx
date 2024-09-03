@@ -25,8 +25,8 @@ const Title = styled.h1`
   margin: 0px;
 `;
 
-export const AdminViewContainer = ({ title, showLoadingIndicator, children }) => (
-  <OuterContainer>
+export const AdminViewContainer = ({ title, showLoadingIndicator, children, className }) => (
+  <OuterContainer className={className}>
     {showLoadingIndicator && (
       <LoadingContainer>
         <LoadingIndicator />

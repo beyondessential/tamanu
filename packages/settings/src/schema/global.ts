@@ -65,7 +65,6 @@ export const globalSettings = {
               defaultValue: '1 minute',
             },
             assumeDroppedAfter: {
-              name: 'Assume dropped after',
               description: '_',
               type: yup.string(),
               defaultValue: '10 minutes',
@@ -82,7 +81,6 @@ export const globalSettings = {
           description: 'Imaging integration settings',
           properties: {
             enabled: {
-              name: 'Imaging integration enabled',
               description: '_',
               type: yup.boolean(),
               defaultValue: false,
@@ -96,13 +94,11 @@ export const globalSettings = {
       description: 'Settings related to upcoming vaccinations',
       properties: {
         ageLimit: {
-          name: 'Upcoming vaccination age limit',
           description: '_',
           type: yup.number(),
           defaultValue: 15,
         },
         thresholds: {
-          name: 'Upcoming vaccination thresholds',
           description: '_',
           type: thresholdsSchema,
           defaultValue: [
