@@ -2,9 +2,10 @@ import { centralSettings } from "../central";
 import { facilitySettings } from "../facility";
 import { globalSettings } from "../global";
 
+// Type to generate the dot prefix
 type DotPrefix<T extends string> = T extends '' ? '' : `.${T}`;
 
-// Utility type to concatenate keys, skipping `.properties`
+// Utility type to join keys
 type Join<K, P> = K extends string | number
   ? P extends string | number
     ? `${Extract<K, string>}${DotPrefix<Extract<P, string>>}`
@@ -14,11 +15,12 @@ type Join<K, P> = K extends string | number
 // Utility type to check if an object is a leaf node
 type IsLeafNode<T> = T extends { type: any; defaultValue: any } ? true : false;
 
+// Extended utility type to exclude 'properties', 'description', 'name', and other ignored keys
 type RemovePropertiesKey<T> = T extends object
   ? IsLeafNode<T> extends true
     ? ''
     : {
-        [K in keyof T]: K extends 'properties'
+        [K in keyof T]: K extends 'properties' | 'description' | 'name'
           ? RemovePropertiesKey<T[K]>
           : K extends string | number
           ? Join<K, RemovePropertiesKey<T[K]>>
@@ -29,3 +31,5 @@ type RemovePropertiesKey<T> = T extends object
 type SchemaProperties = typeof globalSettings.properties | typeof facilitySettings.properties | typeof centralSettings.properties;
 
 export type SettingPath = RemovePropertiesKey<SchemaProperties>;
+
+const getSetting = (path: SettingPath) => path
