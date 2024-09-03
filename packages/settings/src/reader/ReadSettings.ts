@@ -1,5 +1,5 @@
 import { get as lodashGet, pick } from 'lodash';
-import { buildSettings } from '../index';
+import { buildSettings, SettingPath } from '../index';
 import { settingsCache } from '../cache';
 import { Models } from './readers/SettingsDBReader';
 
@@ -24,7 +24,7 @@ export class ReadSettings {
     this.facilityId = facilityId;
   }
 
-  async get(key: string) {
+  async get(key: SettingPath) {
     const settings = await this.getAll();
     return lodashGet(settings, key);
   }

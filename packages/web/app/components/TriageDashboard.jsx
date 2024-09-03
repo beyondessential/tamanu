@@ -24,6 +24,7 @@ const useTriageData = () => {
   const api = useApi();
   const [data, setData] = useState([]);
   const { getSetting } = useSettings();
+
   const triageCategories = getSetting('triageCategories');
 
   useEffect(() => {

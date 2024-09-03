@@ -8,6 +8,7 @@ export {
   facilityDefaults,
   validateSettings,
   getScopedSchema,
+  SettingPath,
   isSetting,
 } from './schema';
 export { ReadSettings, buildSettings } from './reader';

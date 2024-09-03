@@ -2,7 +2,17 @@ import React, { useContext, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { get } from 'lodash';
 
-const SettingsContext = React.createContext(null);
+/**
+ * @typedef {import("@tamanu/settings").SettingPath} SettingPath
+ */
+
+/**
+ * @typedef {Object} SettingsContextType
+ * @property {(path: SettingPath) => any} getSetting - Function to retrieve a setting by path.
+ */
+
+/** @type {React.Context<SettingsContextType | undefined>} */
+const SettingsContext = React.createContext();
 
 export const useSettings = () => {
   const context = useContext(SettingsContext);
