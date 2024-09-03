@@ -21,14 +21,15 @@ import { ThemedTooltip } from '../../../components/Tooltip';
 import { JSONEditor } from './JSONEditor';
 import { Box, Divider, Switch } from '@material-ui/core';
 
-const SettingsContainer = styled.div`
+const INDENT_WIDTH_PX = 20;
+
+const SettingsWrapper = styled.div`
   background-color: ${Colors.white};
   border: 1px solid ${Colors.outline};
   margin-top: 20px;
 `;
 
 const StyledTopBar = styled.div`
-  padding: 0;
   display: flex;
 `;
 
@@ -59,12 +60,18 @@ const SubmitButton = styled(Button)`
   margin-left: 15px;
 `;
 
-const CategoriesContainer = styled.div`
+const StyledList = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+`;
+
+const CategoriesWrapper = styled.div`
   padding: 20px;
 `;
 
-const CategoryContainer = styled.div`
-  margin-left: ${({ $levelNested }) => $levelNested * INDENT_NESTED_CATEGORY_BY}px;
+const CategoryWrapper = styled.div`
+  margin-left: ${({ $nestLevel }) => $nestLevel * INDENT_WIDTH_PX}px;
   :not(:first-child) {
     padding-top: 20px;
     border-top: 1px solid ${Colors.outline};
@@ -144,7 +151,7 @@ const CategoryTitle = ({ name, path, description }) => {
   );
 };
 
-const SettingName = ({ path, name, description }) => (
+const SettingName = ({ name, path, description }) => (
   <ThemedTooltip arrow placement="top" title={description}>
     <LargeBodyText ml={1} mr={5} width="fit-content">
       {getName(name, path)}
@@ -153,11 +160,11 @@ const SettingName = ({ path, name, description }) => (
 );
 
 export const Category = ({ values, path = '', getSettingValue, handleChangeSetting }) => {
-  const WrapperComponent = path ? CategoryContainer : React.Fragment;
-  const levelNested = path.split('.').length;
+  const Wrapper = path ? CategoryWrapper : Box;
+  const nestLevel = path.split('.').length;
   const sortedProperties = Object.entries(values.properties).sort(sortProperties);
   return (
-    <WrapperComponent {...(path && { $levelNested: levelNested })}>
+    <Wrapper $nestLevel={nestLevel}>
       <CategoryTitle name={values.name} path={path} description={values.description} />
       <div>
         {sortedProperties.map(([key, value]) => {
@@ -191,7 +198,7 @@ export const Category = ({ values, path = '', getSettingValue, handleChangeSetti
           );
         })}
       </div>
-    </WrapperComponent>
+    </Wrapper>
   );
 };
 
@@ -219,7 +226,7 @@ export const EditorView = memo(({ values, setValues, submitForm, settings }) => 
       <StyledTopBar>
         <ScopeSelectorFields onChangeScope={handleChangeScope} />
       </StyledTopBar>
-      <SettingsContainer>
+      <SettingsWrapper>
         <CategoryOptions p={2}>
           <StyledSelectInput
             required
@@ -236,7 +243,7 @@ export const EditorView = memo(({ values, setValues, submitForm, settings }) => 
           </div>
         </CategoryOptions>
         <Divider />
-        <CategoriesContainer p={2}>
+        <CategoriesWrapper p={2}>
           {category && (
             <Category
               values={initialValues}
@@ -244,8 +251,8 @@ export const EditorView = memo(({ values, setValues, submitForm, settings }) => 
               handleChangeSetting={handleChangeSetting}
             />
           )}
-        </CategoriesContainer>
-      </SettingsContainer>
+        </CategoriesWrapper>
+      </SettingsWrapper>
     </>
   );
 });
