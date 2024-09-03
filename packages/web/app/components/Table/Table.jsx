@@ -604,8 +604,10 @@ TableComponent.defaultProps = {
 export const Table = React.forwardRef(
   ({ columns: allColumns, data, exportName, ...props }, ref) => {
     const { getTranslation } = useTranslation();
-    const { getSetting } = useSettings();
-    const columns = allColumns.filter(({ key }) => getSetting(`fields.${key}.hidden`) !== true);
+    const { getSetting, getSettingExists } = useSettings();
+    const columns = allColumns.filter(
+      ({ key }) => !getSettingExists(`fields.${key}`) || !getSetting(`fields.${key}`)?.hidden,
+    );
 
     return (
       <TableComponent
