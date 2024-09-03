@@ -19,7 +19,6 @@ const SettingsWrapper = styled.div`
 `;
 
 const StyledTopBar = styled.div`
-  padding: 0;
   display: flex;
 `;
 
