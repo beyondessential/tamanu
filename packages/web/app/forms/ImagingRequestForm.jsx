@@ -97,7 +97,7 @@ export const ImagingRequestForm = React.memo(
   }) => {
     const { getTranslation } = useTranslation();
     const { getLocalisation } = useLocalisation();
-    const imagingTypes = getLocalisation('imagingTypes') || {};
+    const imagingTypes = { xRay: { label: 'X-Ray' } };
 
     const { examiner = {} } = encounter;
     const examinerLabel = examiner.displayName;

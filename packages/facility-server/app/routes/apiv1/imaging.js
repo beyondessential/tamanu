@@ -17,13 +17,13 @@ import { getNoteWithType } from '@tamanu/shared/utils/notes';
 import { mapQueryFilters } from '../../database/utils';
 import { getImagingProvider } from '../../integrations/imaging';
 
-async function renderResults(models, imagingRequest) {
+async function renderResults(models, settings, imagingRequest) {
   const results = imagingRequest.results
     ?.filter(result => !result.deletedAt)
     .map(result => result.get({ plain: true }));
   if (!results || results.length === 0) return results;
 
-  const imagingProvider = await getImagingProvider(models);
+  const imagingProvider = await getImagingProvider(models, settings);
   if (imagingProvider) {
     const urls = await Promise.all(
       imagingRequest.results.map(async result => {
@@ -136,7 +136,7 @@ imagingRequest.get(
     res.send({
       ...imagingRequestObject.get({ plain: true }),
       ...(await imagingRequestObject.extractNotes()),
-      results: await renderResults(req.models, imagingRequestObject),
+      results: await renderResults(req.models, req.settings, imagingRequestObject),
     });
   }),
 );
@@ -223,7 +223,7 @@ imagingRequest.put(
     res.send({
       ...imagingRequestObject.get({ plain: true }),
       ...notes,
-      results: await renderResults(req.models, imagingRequestObject),
+      results: await renderResults(req.models, req.settings, imagingRequestObject),
     });
   }),
 );

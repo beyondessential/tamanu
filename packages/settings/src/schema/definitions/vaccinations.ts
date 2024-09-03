@@ -12,28 +12,19 @@ export const vaccinationsSchema: SettingsSchema = {
         locationGroupId: {
           name: 'Location group',
           description: '_',
-          type: yup
-            .string()
-            .nullable()
-            .strict(true),
+          type: yup.string().nullable(),
           defaultValue: null,
         },
         locationId: {
           name: 'Location',
           description: '_',
-          type: yup
-            .string()
-            .nullable()
-            .strict(true),
+          type: yup.string().nullable(),
           defaultValue: null,
         },
         departmentId: {
           name: 'Department',
           description: '_',
-          type: yup
-            .string()
-            .nullable()
-            .strict(true),
+          type: yup.string().nullable(),
           defaultValue: null,
         },
       },
@@ -45,28 +36,19 @@ export const vaccinationsSchema: SettingsSchema = {
             locationGroupId: {
               name: 'Location group',
               description: '_',
-              type: yup
-                .string()
-                .nullable()
-                .strict(true),
+              type: yup.string().nullable(),
               defaultValue: null,
             },
             locationId: {
               name: 'Location',
               description: '_',
-              type: yup
-                .string()
-                .nullable()
-                .strict(true),
+              type: yup.string().nullable(),
               defaultValue: null,
             },
             departmentId: {
               name: 'Department',
               description: '_',
-              type: yup
-                .string()
-                .nullable()
-                .strict(true),
+              type: yup.string().nullable(),
               defaultValue: null,
             },
           },
