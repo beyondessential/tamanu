@@ -11,6 +11,9 @@ import {
   LargeBodyText,
   TextInput,
   NumberInput,
+  TextButton,
+  Button,
+  OutlinedButton
 } from '../../../components';
 import { ScopeSelectorFields } from './ScopeSelectorFields';
 import { Colors } from '../../../constants';
@@ -21,7 +24,6 @@ import { Box, Divider, Switch } from '@material-ui/core';
 const SettingsContainer = styled.div`
   background-color: ${Colors.white};
   border: 1px solid ${Colors.outline};
-  width: 500px;
   margin-top: 20px;
 `;
 
@@ -42,6 +44,20 @@ const SettingLine = styled(LargeBodyText)`
     margin-bottom: 10px;
   }
 `;
+
+const SettingButtons = styled.div`
+  display: flex;
+`;
+
+const CategoryOptions = styled(Box)`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+`;
+
+const SubmitButton = styled(Button)`
+  margin-left: 15px;
+`
 
 const CategoriesContainer = styled.div`
   padding: 20px;
@@ -96,20 +112,37 @@ const prepareSchema = scope => {
 };
 
 const SettingInput = ({ type, handleChangeSetting, path, ...props }) => {
+  let InputComponent = null;
+  let eventAccessor = null;
   switch (type) {
     case 'boolean':
-      return <Switch {...props} onChange={e => handleChangeSetting(path, e.target.checked)} />;
+      InputComponent = Switch;
+      eventAccessor = e => e.target.checked;
+      break;
     case 'string':
-      return <TextInput {...props} onChange={e => handleChangeSetting(path, e.target.value)} />;
+      InputComponent = TextInput;
+      eventAccessor = e => e.target.value;
+      break;
     case 'number':
-      return <NumberInput {...props} onChange={e => handleChangeSetting(path, e.target.value)} />;
+      InputComponent = NumberInput;
+      eventAccessor = e => Number(e.target.value);
+      break;
     // below doesnt really work
     case 'object':
     case 'array':
-      return <JSONEditor editMode {...props} />;
+      InputComponent = JSONEditor;
+      eventAccessor = e => e;
+      break;
     default:
-      return <LargeBodyText>No input for this type: {type}</LargeBodyText>;
+      break;
   }
+  return (
+    <InputComponent
+      editMode
+      {...props}
+      onChange={e => handleChangeSetting(path, eventAccessor(e))}
+    />
+  );
 };
 
 const CategoryTitle = ({ name, path, description }) => {
@@ -126,7 +159,7 @@ const CategoryTitle = ({ name, path, description }) => {
 
 const SettingName = ({ path, name, description }) => (
   <ThemedTooltip arrow placement="top" title={description}>
-    <LargeBodyText ml={1} width="fit-content">
+    <LargeBodyText ml={1} mr={5} width="fit-content">
       {getName(name, path)}
     </LargeBodyText>
   </ThemedTooltip>
@@ -143,16 +176,22 @@ export const Category = ({ values, path = '', getSettingValue, handleChangeSetti
         {sortedProperties.map(([key, value]) => {
           const newPath = path ? `${path}.${key}` : key;
           const { name, description, type, defaultValue } = value;
-          return value.type ? (
+          return type ? (
             <SettingLine key={newPath}>
               <SettingName path={newPath} name={name} description={description} />
-              <SettingInput
-                type={type.type}
-                value={getSettingValue(newPath)}
-                placeholder={JSON.stringify(defaultValue, null, 2)}
-                path={newPath}
-                handleChangeSetting={handleChangeSetting}
-              />
+              <SettingButtons>
+                <SettingInput
+                  type={type.type}
+                  value={getSettingValue(newPath)}
+                  checked={getSettingValue(newPath)}
+                  placeholder={JSON.stringify(defaultValue, null, 2)}
+                  path={newPath}
+                  handleChangeSetting={handleChangeSetting}
+                />
+                <TextButton onClick={() => handleChangeSetting(newPath, defaultValue)}>
+                  Return to default
+                </TextButton>
+              </SettingButtons>
             </SettingLine>
           ) : (
             <Category
@@ -169,7 +208,7 @@ export const Category = ({ values, path = '', getSettingValue, handleChangeSetti
   );
 };
 
-export const EditorView = memo(({ values, setValues, settings }) => {
+export const EditorView = memo(({ values, setValues, submitForm, settings }) => {
   const { scope } = values;
   const [category, setCategory] = useState(null);
 
@@ -177,15 +216,16 @@ export const EditorView = memo(({ values, setValues, settings }) => {
   const categoryOptions = useMemo(() => getCategoryOptions(scopedSchema), [scopedSchema]);
   const initialValues = useMemo(() => scopedSchema.properties[category], [category, scopedSchema]);
 
-  const handleChangeScope = () => {
-    setCategory(null);
-  };
+  const handleChangeScope = () => setCategory(null);
   const handleChangeCategory = e => setCategory(e.target.value);
+
   const handleChangeSetting = (path, value) => {
     const updatedSettings = set(settings, `${category}.${path}`, value);
     setValues({ ...values, settings: updatedSettings });
   };
   const getSettingValue = path => get(settings, `${category}.${path}`);
+
+  // TODO: reverse whole category
 
   return (
     <>
@@ -193,7 +233,7 @@ export const EditorView = memo(({ values, setValues, settings }) => {
         <ScopeSelectorFields onChangeScope={handleChangeScope} />
       </StyledTopBar>
       <SettingsContainer>
-        <Box p={2}>
+        <CategoryOptions p={2}>
           <StyledSelectInput
             required
             label={<TranslatedText stringId="admin.settings.category" fallback="Category" />}
@@ -201,7 +241,15 @@ export const EditorView = memo(({ values, setValues, settings }) => {
             onChange={handleChangeCategory}
             options={categoryOptions}
           />
-        </Box>
+          <div>
+            <OutlinedButton disabled={!values.settings}>
+              Clear changes
+            </OutlinedButton>
+            <SubmitButton onClick={submitForm} disabled={!values.settings}>
+              Save changes
+            </SubmitButton>
+          </div>
+        </CategoryOptions>
         <Divider />
         <CategoriesContainer p={2}>
           {category && (
