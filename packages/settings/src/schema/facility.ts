@@ -90,7 +90,7 @@ export const facilitySettings = {
         },
         syncUrgentIntevalInSeconds: {
           name: 'Sync urgent interval in seconds',
-          description: 'Mobile urgent sunc interval',
+          description: 'Mobile urgent sync interval',
           type: yup
             .number()
             .integer()
