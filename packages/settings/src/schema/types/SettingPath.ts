@@ -31,5 +31,3 @@ type RemovePropertiesKey<T> = T extends object
 type SchemaProperties = typeof globalSettings.properties | typeof facilitySettings.properties | typeof centralSettings.properties;
 
 export type SettingPath = RemovePropertiesKey<SchemaProperties>;
-
-const getSetting = (path: SettingPath) => path
