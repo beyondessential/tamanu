@@ -1,0 +1,39 @@
+---
+schema: public
+name: patients
+transformers:
+  - name: RandomString
+    params:
+      column: display_id
+      min_length: 10
+      max_length: 10
+      symbols: 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ
+
+  - name: RandomFirstName
+    params:
+      column: first_name
+      keep_null: true
+
+  - name: RandomLastName
+    params:
+      column: last_name
+      keep_null: true
+
+  - name: RandomFirstName
+    params:
+      column: middle_name
+      keep_null: true
+
+  - name: RandomFirstName
+    params:
+      column: cultural_name
+      keep_null: true
+
+  - name: RandomEmail
+    params:
+      column: email
+      keep_null: true
+
+  - name: Masking
+    params:
+      column: additional_details

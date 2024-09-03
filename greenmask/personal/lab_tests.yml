@@ -1,0 +1,7 @@
+---
+schema: public
+name: lab_tests
+transformers:
+  - name: Masking
+    params:
+      column: laboratory_officer

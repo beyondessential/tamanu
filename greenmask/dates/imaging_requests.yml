@@ -1,0 +1,8 @@
+---
+schema: public
+name: imaging_requests
+transformers:
+  - name: Template
+    params:
+      column: requested_date
+      template: '{{- fakerTimestamp -}}'

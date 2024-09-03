@@ -1,0 +1,13 @@
+---
+schema: public
+name: patient_birth_data
+transformers:
+  - name: Template
+    params:
+      column: time_of_birth
+      template: >
+        {{- if isNull .GetValue -}}
+          {{- null -}}
+        {{- else -}}
+          {{- fakerTimestamp -}}
+        {{- end -}}

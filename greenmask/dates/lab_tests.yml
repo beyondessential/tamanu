@@ -1,0 +1,18 @@
+---
+schema: public
+name: lab_tests
+transformers:
+  - name: Template
+    params:
+      column: date
+      template: '{{- fakerDate -}}'
+
+  - name: Template
+    params:
+      column: completed_date
+      template: >
+        {{- if isNull .GetValue -}}
+          {{- null -}}
+        {{- else -}}
+          {{- fakerTimestamp -}}
+        {{- end -}}

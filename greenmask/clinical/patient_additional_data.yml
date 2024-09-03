@@ -1,0 +1,10 @@
+---
+schema: public
+name: patient_additional_data
+transformers:
+  - name: RandomChoice
+    params:
+      column: blood_type
+      values: [A+, A-, AB-, AB+, B+, B-, O+, O-]
+      keep_null: true
+

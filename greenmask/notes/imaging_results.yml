@@ -1,0 +1,7 @@
+---
+schema: public
+name: imaging_results
+transformers:
+  - name: Masking
+    params:
+      column: description
