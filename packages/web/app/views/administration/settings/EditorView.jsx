@@ -13,7 +13,7 @@ import {
   NumberInput,
   TextButton,
   Button,
-  OutlinedButton
+  OutlinedButton,
 } from '../../../components';
 import { ScopeSelectorFields } from './ScopeSelectorFields';
 import { Colors } from '../../../constants';
@@ -57,7 +57,7 @@ const CategoryOptions = styled(Box)`
 
 const SubmitButton = styled(Button)`
   margin-left: 15px;
-`
+`;
 
 const CategoriesContainer = styled.div`
   padding: 20px;
@@ -112,37 +112,24 @@ const prepareSchema = scope => {
 };
 
 const SettingInput = ({ type, handleChangeSetting, path, ...props }) => {
-  let InputComponent = null;
-  let eventAccessor = null;
+  // let InputComponent = null;
+  // let eventAccessor = null;
   switch (type) {
     case 'boolean':
-      InputComponent = Switch;
-      eventAccessor = e => e.target.checked;
-      break;
+      return <Switch onChange={e => handleChangeSetting(path, e.target.checked)} {...props} />;
     case 'string':
-      InputComponent = TextInput;
-      eventAccessor = e => e.target.value;
-      break;
+      return <TextInput onChange={e => handleChangeSetting(path, e.target.value)} {...props} />;
     case 'number':
-      InputComponent = NumberInput;
-      eventAccessor = e => Number(e.target.value);
-      break;
+      return (
+        <NumberInput onChange={e => handleChangeSetting(path, Number(e.target.value))} {...props} />
+      );
     // below doesnt really work
     case 'object':
     case 'array':
-      InputComponent = JSONEditor;
-      eventAccessor = e => e;
-      break;
+      return <JSONEditor editMode onChange={e => handleChangeSetting(path, e)} {...props} />;
     default:
-      break;
+      return <LargeBodyText>No component for this type: {type}</LargeBodyText>
   }
-  return (
-    <InputComponent
-      editMode
-      {...props}
-      onChange={e => handleChangeSetting(path, eventAccessor(e))}
-    />
-  );
 };
 
 const CategoryTitle = ({ name, path, description }) => {
@@ -242,9 +229,7 @@ export const EditorView = memo(({ values, setValues, submitForm, settings }) => 
             options={categoryOptions}
           />
           <div>
-            <OutlinedButton disabled={!values.settings}>
-              Clear changes
-            </OutlinedButton>
+            <OutlinedButton disabled={!values.settings}>Clear changes</OutlinedButton>
             <SubmitButton onClick={submitForm} disabled={!values.settings}>
               Save changes
             </SubmitButton>
