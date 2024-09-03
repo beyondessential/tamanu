@@ -25,7 +25,7 @@ export const CancelModalButton = ({ imagingRequest, onCancel }) => {
 
   const api = useApi();
   const { getSetting } = useSettings();
-  const allCancellationReasons = getSetting('imagingCancellationReasons') || [];
+  const allCancellationReasons = getSetting('imagingCancellationReasons');
   const cancellationReasonOptions = allCancellationReasons.filter(reason => !reason.hidden);
 
   const onConfirmCancel = async ({ reasonForCancellation }) => {
