@@ -17,19 +17,19 @@ type Join<K, P> = K extends string | number
 type IsSetting<T> = T extends Setting ? true : false;
 
 // Extended utility type to exclude 'properties', 'description', 'name', and other ignored keys
-type RemovePropertiesKey<T> = T extends object
+type RemoveSchemaKeys<T> = T extends object
   ? IsSetting<T> extends true
     ? ''
     : {
         [K in keyof T]: K extends 'properties' | 'description' | 'name'
-          ? RemovePropertiesKey<T[K]>
+          ? RemoveSchemaKeys<T[K]>
           : K extends string | number
-          ? Join<K, RemovePropertiesKey<T[K]>>
+          ? Join<K, RemoveSchemaKeys<T[K]>>
           : never;
       }[keyof T]
   : '';
 
 type SchemaProperties = typeof globalSettings.properties | typeof facilitySettings.properties | typeof centralSettings.properties;
 
-export type SettingPath = RemovePropertiesKey<SchemaProperties>;
+export type SettingPath = RemoveSchemaKeys<SchemaProperties>;
 
