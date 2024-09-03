@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { isValidElement } from 'react';
 import styled from 'styled-components';
 import { Divider, ListItem, ListItemText } from '@material-ui/core';
 import { administrationIcon } from '../../constants/images';
@@ -75,11 +75,7 @@ export const TopLevelSidebarItem = ({
         disabled={disabled}
         data-test-class="toplevel-sidebar-item"
       >
-        {React.isValidElement(icon) ? (
-          icon
-        ) : (
-          <SidebarTopLevelIcon src={icon || administrationIcon} />
-        )}
+        {isValidElement(icon) ? icon : <SidebarTopLevelIcon src={icon || administrationIcon} />}
         <TopLevelItemText disableTypography primary={label} $invisible={retracted} />
       </TopLevelListItem>
     </StyledTooltip>
