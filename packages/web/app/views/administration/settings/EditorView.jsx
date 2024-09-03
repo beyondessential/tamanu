@@ -44,6 +44,7 @@ const SettingLine = styled(LargeBodyText)`
   &:not(:last-child) {
     margin-bottom: 10px;
   }
+  padding-right: 55%;
 `;
 
 const SettingButtons = styled.div`
@@ -58,6 +59,11 @@ const CategoryOptions = styled(Box)`
 
 const SubmitButton = styled(Button)`
   margin-left: 15px;
+`;
+
+const DefaultSettingButton = styled(TextButton)`
+  margin-left: 15px;
+  font-size: 14px;
 `;
 
 const CategoriesWrapper = styled.div`
@@ -110,22 +116,56 @@ const prepareSchema = scope => {
   return schema;
 };
 
-const SettingInput = ({ type, handleChangeSetting, path, ...props }) => {
+const SettingInput = ({ type, path, value, defaultValue, handleChangeSetting }) => {
   switch (type) {
     case 'boolean':
-      return <Switch onChange={e => handleChangeSetting(path, e.target.checked)} {...props} />;
+      return (
+        <Switch
+          color="primary"
+          checked={value}
+          defaultChecked={defaultValue}
+          onChange={e => handleChangeSetting(path, e.target.checked)}
+        />
+      );
     case 'string':
-      return <TextInput onChange={e => handleChangeSetting(path, e.target.value)} {...props} />;
+      return (
+        <>
+          <TextInput
+            value={value}
+            placeholder={defaultValue}
+            onChange={e => handleChangeSetting(path, e.target.value)}
+          />
+          <DefaultSettingButton onClick={() => handleChangeSetting(path, defaultValue)}>
+            Return to default
+          </DefaultSettingButton>
+        </>
+      );
     case 'number':
       return (
-        <NumberInput onChange={e => handleChangeSetting(path, Number(e.target.value))} {...props} />
+        <>
+          <NumberInput
+            value={value}
+            placeholder={defaultValue}
+            onChange={e => handleChangeSetting(path, Number(e.target.value))}
+          />{' '}
+          UNIT
+        </>
       );
     // below doesnt really work
     case 'object':
     case 'array':
-      return <JSONEditor editMode onChange={e => handleChangeSetting(path, e)} {...props} />;
+      return (
+        <JSONEditor
+          height="300px"
+          width="500px"
+          editMode
+          value={value}
+          placeholder={JSON.stringify(defaultValue, null, 2)}
+          onChange={e => handleChangeSetting(path, e)}
+        />
+      );
     default:
-      return <LargeBodyText>No component for this type: {type}</LargeBodyText>
+      return <LargeBodyText>No component for this type: {type}</LargeBodyText>;
   }
 };
 
@@ -167,14 +207,13 @@ export const Category = ({ values, path = '', getSettingValue, handleChangeSetti
                 <SettingInput
                   type={type.type}
                   value={getSettingValue(newPath)}
-                  checked={getSettingValue(newPath)}
-                  placeholder={JSON.stringify(defaultValue, null, 2)}
+                  defaultValue={defaultValue}
                   path={newPath}
                   handleChangeSetting={handleChangeSetting}
                 />
-                <TextButton onClick={() => handleChangeSetting(newPath, defaultValue)}>
+                {/* <TextButton onClick={() => handleChangeSetting(newPath, defaultValue)}>
                   Return to default
-                </TextButton>
+                </TextButton> */}
               </SettingButtons>
             </SettingLine>
           ) : (
