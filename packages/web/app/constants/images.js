@@ -20,15 +20,7 @@ export { default as scheduleIcon } from '../assets/images/schedule.svg';
 export { default as vaccineIcon } from '../assets/images/vaccine.svg';
 
 export { default as autoAwesomeMotionIcon } from '../assets/images/material_auto_awesome_motion.svg';
-export { default as assignmentIcon } from '../assets/images/material_assignment.svg';
-export { default as barChartIcon } from '../assets/images/material_bar_chart.svg';
-export { default as callMergeIcon } from '../assets/images/material_call_merge.svg';
-export { default as cloudIcon } from '../assets/images/material_cloud.svg';
-export { default as groupIcon } from '../assets/images/material_group.svg';
-export { default as languageIcon } from '../assets/images/material_language.svg';
 export { default as newsIcon } from '../assets/images/material_news.svg';
-export { default as settingsIcon } from '../assets/images/material_settings.svg';
-export { default as translateIcon } from '../assets/images/material_translate.svg';
 export { default as upload2Icon } from '../assets/images/material_upload_2.svg';
 export { default as workspacesIcon } from '../assets/images/material_workspaces.svg';
 

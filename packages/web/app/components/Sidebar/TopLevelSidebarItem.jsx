@@ -11,8 +11,6 @@ const TopLevelListItem = styled(ListItem)`
   padding-inline-end: 10px;
 
   .MuiSvgIcon-root {
-    position: relative;
-    top: -1px;
     opacity: 0.9;
     font-size: 22px;
   }
@@ -77,7 +75,11 @@ export const TopLevelSidebarItem = ({
         disabled={disabled}
         data-test-class="toplevel-sidebar-item"
       >
-        <SidebarTopLevelIcon src={icon || administrationIcon} />
+        {React.isValidElement(icon) ? (
+          icon
+        ) : (
+          <SidebarTopLevelIcon src={icon || administrationIcon} />
+        )}
         <TopLevelItemText disableTypography primary={label} $invisible={retracted} />
       </TopLevelListItem>
     </StyledTooltip>

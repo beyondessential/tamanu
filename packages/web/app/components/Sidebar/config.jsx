@@ -1,25 +1,27 @@
 import React from 'react';
 import {
-  assignmentIcon,
   autoAwesomeMotionIcon,
-  barChartIcon,
-  callMergeIcon,
-  cloudIcon,
-  groupIcon,
   labsIcon,
-  languageIcon,
   medicationIcon,
   newsIcon,
   patientIcon,
   programsIcon,
   radiologyIcon,
   scheduleIcon,
-  settingsIcon,
-  translateIcon,
   upload2Icon,
   vaccineIcon,
   workspacesIcon,
 } from '../../constants/images';
+import {
+  Assignment as AssignmentIcon,
+  BarChart as BarChartIcon,
+  CallMerge as CallMergeIcon,
+  Cloud as CloudIcon,
+  Group as GroupIcon,
+  Language as LanguageIcon,
+  Settings as SettingsIcon,
+  Translate as TranslateIcon,
+} from '@material-ui/icons';
 import { Colors } from '../../constants';
 import { TranslatedText } from '../Translation';
 import { ProgramRegistrySidebarItem } from '../../views/programRegistry/ProgramRegistrySidebarItem';
@@ -216,14 +218,14 @@ export const CENTRAL_MENU_ITEMS = [
     key: 'referenceData',
     label: <TranslatedText stringId="adminSidebar.referenceData" fallback="Reference data" />,
     path: '/admin/referenceData',
-    icon: languageIcon,
+    icon: <LanguageIcon color="secondary" />,
   },
   {
     key: 'permissions',
     label: <TranslatedText stringId="adminSidebar.permissions" fallback="Permissions" />,
     path: '/admin/permissions',
     ability: { action: 'read', subject: 'userRole' },
-    icon: groupIcon,
+    icon: <GroupIcon color="secondary" />,
   },
   {
     key: 'programs',
@@ -235,13 +237,13 @@ export const CENTRAL_MENU_ITEMS = [
     key: 'surveyResponses',
     label: 'Survey Responses',
     path: '/admin/surveyResponses',
-    icon: assignmentIcon,
+    icon: <AssignmentIcon color="secondary" />,
   },
   {
     key: 'patientMerge',
     label: <TranslatedText stringId="adminSidebar.patientMerge" fallback="Patient merge" />,
     path: '/admin/patientMerge',
-    icon: callMergeIcon,
+    icon: <CallMergeIcon color="secondary" />,
   },
   {
     key: 'templates',
@@ -254,7 +256,7 @@ export const CENTRAL_MENU_ITEMS = [
     label: <TranslatedText stringId="adminSidebar.translation" fallback="Translation" />,
     path: '/admin/translation',
     ability: { action: 'write', subject: 'translation' },
-    icon: translateIcon,
+    icon: <TranslateIcon color="secondary" />,
   },
   {
     key: 'assets',
@@ -266,20 +268,20 @@ export const CENTRAL_MENU_ITEMS = [
     key: 'sync',
     label: <TranslatedText stringId="adminSidebar.syncStatus" fallback="Sync status" />,
     path: '/admin/sync',
-    icon: cloudIcon,
+    icon: <CloudIcon color="secondary" />,
   },
   {
     key: 'settings',
     label: <TranslatedText stringId="adminSidebar.settings" fallback="Settings" />,
     path: '/admin/settings',
     ability: { action: 'write', subject: 'settings' },
-    icon: settingsIcon,
+    icon: <SettingsIcon color="secondary" />,
   },
   {
     key: 'fhirJobStats',
     label: <TranslatedText stringId="adminSidebar.fhirJobStats" fallback="FHIR job stats" />,
     path: '/admin/fhir/jobStats',
-    icon: barChartIcon,
+    icon: <BarChartIcon color="secondary" />,
   },
   {
     key: 'reports',
