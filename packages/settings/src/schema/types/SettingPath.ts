@@ -13,12 +13,12 @@ type Join<K, P> = K extends string | number
     : never
   : never;
 
-// Utility type to check if an object is a leaf node
-type IsLeafNode<T> = T extends Setting ? true : false;
+// Utility type to check if an object is a setting
+type IsSetting<T> = T extends Setting ? true : false;
 
 // Extended utility type to exclude 'properties', 'description', 'name', and other ignored keys
 type RemovePropertiesKey<T> = T extends object
-  ? IsLeafNode<T> extends true
+  ? IsSetting<T> extends true
     ? ''
     : {
         [K in keyof T]: K extends 'properties' | 'description' | 'name'
