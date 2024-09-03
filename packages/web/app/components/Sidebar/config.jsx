@@ -1,15 +1,27 @@
 import React from 'react';
 import {
+  assignmentIcon,
+  autoAwesomeMotionIcon,
+  barChartIcon,
+  callMergeIcon,
+  cloudIcon,
+  groupIcon,
   labsIcon,
+  languageIcon,
   medicationIcon,
+  newsIcon,
   patientIcon,
   programsIcon,
   radiologyIcon,
   scheduleIcon,
+  settingsIcon,
+  translateIcon,
+  uploadIcon2,
   vaccineIcon,
+  workspacesIcon,
 } from '../../constants/images';
 import { Colors } from '../../constants';
-import { TranslatedText } from '../Translation/TranslatedText';
+import { TranslatedText } from '../Translation';
 import { ProgramRegistrySidebarItem } from '../../views/programRegistry/ProgramRegistrySidebarItem';
 
 export const FACILITY_MENU_ITEMS = [
@@ -199,69 +211,81 @@ export const FACILITY_MENU_ITEMS = [
   },
 ];
 
-export const SYNC_MENU_ITEMS = [
+export const CENTRAL_MENU_ITEMS = [
   {
     key: 'referenceData',
     label: <TranslatedText stringId="adminSidebar.referenceData" fallback="Reference data" />,
     path: '/admin/referenceData',
+    icon: languageIcon,
   },
   {
     key: 'permissions',
     label: <TranslatedText stringId="adminSidebar.permissions" fallback="Permissions" />,
     path: '/admin/permissions',
     ability: { action: 'read', subject: 'userRole' },
+    icon: groupIcon,
   },
   {
     key: 'programs',
     label: <TranslatedText stringId="adminSidebar.programs" fallback="Programs" />,
     path: '/admin/programs',
+    icon: workspacesIcon,
   },
   {
     key: 'surveyResponses',
     label: 'Survey Responses',
     path: '/admin/surveyResponses',
+    icon: assignmentIcon,
   },
   {
     key: 'patientMerge',
     label: <TranslatedText stringId="adminSidebar.patientMerge" fallback="Patient merge" />,
     path: '/admin/patientMerge',
+    icon: callMergeIcon,
   },
   {
     key: 'templates',
     label: <TranslatedText stringId="adminSidebar.templates" fallback="Templates" />,
     path: '/admin/templates',
+    icon: autoAwesomeMotionIcon,
   },
   {
     key: 'translation',
     label: <TranslatedText stringId="adminSidebar.translation" fallback="Translation" />,
     path: '/admin/translation',
     ability: { action: 'write', subject: 'translation' },
+    icon: translateIcon,
   },
   {
     key: 'assets',
     label: <TranslatedText stringId="adminSidebar.assetUpload" fallback="Asset upload" />,
     path: '/admin/assets',
+    icon: uploadIcon2,
   },
   {
     key: 'sync',
     label: <TranslatedText stringId="adminSidebar.syncStatus" fallback="Sync status" />,
     path: '/admin/sync',
+    icon: cloudIcon,
   },
   {
     key: 'settings',
     label: <TranslatedText stringId="adminSidebar.settings" fallback="Settings" />,
     path: '/admin/settings',
     ability: { action: 'write', subject: 'settings' },
+    icon: settingsIcon,
   },
   {
     key: 'fhirJobStats',
     label: <TranslatedText stringId="adminSidebar.fhirJobStats" fallback="FHIR job stats" />,
     path: '/admin/fhir/jobStats',
+    icon: barChartIcon,
   },
   {
     key: 'reports',
     label: <TranslatedText stringId="adminSidebar.reports" fallback="Reports" />,
     path: '/admin/reports',
+    icon: newsIcon,
   },
   {
     key: 'Insurer payments',
