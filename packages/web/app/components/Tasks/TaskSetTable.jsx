@@ -1,7 +1,6 @@
 import React from 'react';
 import PriorityHighIcon from '@material-ui/icons/PriorityHigh';
 import styled from 'styled-components';
-import { useReferenceDataChildren } from '../../api/queries/useReferenceDataChildren';
 import { Table } from '../Table';
 import { TranslatedText } from '../Translation';
 import { Colors } from '../../constants';
@@ -98,7 +97,6 @@ const COLUMNS = [
   },
 ];
 
-export const TaskSetTable = ({ taskSetId }) => {
-  const { data: taskSets = [] } = useReferenceDataChildren(taskSetId, { relationType: 'task'});
-  return <StyledTable data={taskSets} columns={[...COLUMNS]} allowExport={false} disablePagination />;
+export const TaskSetTable = ({ tasks }) => {
+  return <StyledTable data={tasks} columns={[...COLUMNS]} allowExport={false} disablePagination />;
 };

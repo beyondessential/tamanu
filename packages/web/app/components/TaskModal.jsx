@@ -3,7 +3,7 @@ import { FormModal } from './FormModal';
 import { TranslatedText } from './Translation/TranslatedText';
 import { TaskForm } from '../forms/TaskForm';
 
-export const NewTaskModal = ({ open, onClose, onConfirmed }) => {
+export const TaskModal = ({ open, onClose, onCreateTaskSuccess }) => {
   return (
     <FormModal
       width="md"
@@ -11,7 +11,7 @@ export const NewTaskModal = ({ open, onClose, onConfirmed }) => {
       open={open}
       onClose={onClose}
     >
-      <TaskForm onClose={onClose} />
+      <TaskForm onClose={onClose} onCreateTaskSuccess={onCreateTaskSuccess} />
     </FormModal>
   );
 };

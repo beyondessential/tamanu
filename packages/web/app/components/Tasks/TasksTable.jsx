@@ -175,7 +175,7 @@ const AssignedToCell = ({ designations }) => {
   const [ref, isOverflowing] = useOverflow();
   if (!designations?.length) return '';
 
-  const designationNames = designations.map(assigned => assigned.referenceData.name);
+  const designationNames = designations.map(assigned => assigned.name);
   return (
     <ConditionalTooltip visible={isOverflowing} title={designationNames.join(', ')}>
       <OverflowedBox ref={ref}>{designationNames.join(', ')}</OverflowedBox>

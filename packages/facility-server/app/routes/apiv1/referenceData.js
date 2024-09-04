@@ -53,41 +53,6 @@ referenceData.get(
 );
 
 referenceData.get(
-  '/:id/children',
-  asyncHandler(async (req, res) => {
-    req.flagPermissionChecked();
-    const {
-      models: { ReferenceData, TaskTemplate },
-      params: { id },
-      query: { relationType = 'task' },
-    } = req;
-
-    const record = await ReferenceData.findOne({
-      where: { id },
-      include: {
-        model: ReferenceData,
-        as: 'children',
-        through: {
-          attributes: [],
-          where: {
-            type: relationType,
-          },
-        },
-        include: {
-          model: TaskTemplate,
-          as: 'taskTemplate',
-          include: TaskTemplate.getFullReferenceAssociations(),
-        }
-      },
-    });
-
-    if (!record) throw new NotFoundError();
-
-    res.send(record.children);
-  }),
-);
-
-referenceData.get(
   '/facilityCatchment/:id/facility',
   asyncHandler(async (req, res) => {
     req.flagPermissionChecked();

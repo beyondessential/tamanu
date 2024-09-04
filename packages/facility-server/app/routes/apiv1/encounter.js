@@ -590,5 +590,34 @@ encounterRelations.get(
     res.send({ data: results, count: results.length });
   }),
 );
+encounterRelations.post(
+  '/tasks',
+  asyncHandler(async (req, res) => {
+    const { models } = req;
+    const { Task } = models;
+
+    req.checkPermission('create', 'Task');
+
+    const existingObject = await Task.findByPk(req.body.id, {
+      paranoid: false,
+    });
+    if (existingObject) {
+      throw new InvalidOperationError(
+        `Cannot create object with id (${req.body.id}), it already exists`,
+      );
+    }
+
+    const { startTime, designations, ...other } = req.body;
+
+    const upcomingTasksTimeFrame = config.upcomingTasksTimeFrame || 8;
+    const dueTime = toCountryDateTimeString(add(new Date(), { hours: upcomingTasksTimeFrame }));
+
+    const object = await Task.create({ dueTime, ...other });
+    if (designations) {
+      object.setDesignations(JSON.parse(designations));
+    }
+    res.send(object);
+  }),
+);
 
 encounter.use(encounterRelations);

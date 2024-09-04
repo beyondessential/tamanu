@@ -7,7 +7,7 @@ import { Colors } from '../../../constants';
 import { AutocompleteInput, Button, CheckInput, TranslatedText } from '../../../components';
 import { useSuggester } from '../../../api';
 import { TasksTable } from '../../../components/Tasks/TasksTable';
-import { NewTaskModal } from '../../../components/NewTaskModal';
+import { TaskModal } from '../../../components/TaskModal';
 
 const TabPane = styled.div`
   margin: 20px 24px 24px;
@@ -56,6 +56,11 @@ export const TasksPane = React.memo(({ encounter }) => {
     setSearchParameters(prevParams =>
       designationId ? { ...prevParams, assignedTo: designationId } : omit(prevParams, 'assignedTo'),
     );
+  };
+
+  const onCreateTaskSuccess = () => {
+    setNewTaskModalOpen(false);
+    setRefreshCount(prev => prev + 1);
   };
 
   useEffect(() => {
@@ -124,9 +129,10 @@ export const TasksPane = React.memo(({ encounter }) => {
         searchParameters={searchParameters}
         refreshCount={refreshCount}
       />
-      <NewTaskModal
+      <TaskModal
         open={newTaskModalOpen}
         onClose={() => setNewTaskModalOpen(false)}
+        onCreateTaskSuccess={onCreateTaskSuccess}
       />
     </TabPane>
   );

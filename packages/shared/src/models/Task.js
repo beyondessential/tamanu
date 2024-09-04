@@ -89,10 +89,6 @@ export class Task extends Model {
       foreignKey: 'requestedByUserId',
       as: 'requestedBy',
     });
-    this.hasMany(models.TaskDesignation, {
-      foreignKey: 'taskId',
-      as: 'designations',
-    });
     this.belongsTo(models.User, {
       foreignKey: 'completedByUserId',
       as: 'completedBy',
@@ -116,6 +112,11 @@ export class Task extends Model {
     this.belongsTo(models.ReferenceData, {
       foreignKey: 'deletedReasonId',
       as: 'deletedReason',
+    });
+    this.belongsToMany(models.ReferenceData, {
+      through: models.TaskDesignation,
+      foreignKey: 'taskId',
+      as: 'designations',
     });
   }
 
@@ -142,18 +143,6 @@ export class Task extends Model {
         model: models.User,
         as: 'requestedBy',
         attributes: ['displayName'],
-      },
-      {
-        model: models.TaskDesignation,
-        as: 'designations',
-        attributes: ['designationId'],
-        include: [
-          {
-            model: models.ReferenceData,
-            as: 'referenceData',
-            attributes: ['name'],
-          },
-        ],
       },
       {
         model: models.User,
@@ -184,6 +173,14 @@ export class Task extends Model {
         model: models.ReferenceData,
         as: 'deletedReason',
         attributes: ['name'],
+      },
+      {
+        model: models.ReferenceData,
+        as: 'designations',
+        attributes: ['name'],
+        through: {
+          attributes: [],
+        },
       },
     ];
   }

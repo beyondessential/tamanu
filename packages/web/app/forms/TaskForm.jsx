@@ -5,6 +5,7 @@ import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import styled from 'styled-components';
 import PriorityHighIcon from '@material-ui/icons/PriorityHigh';
 import { Divider } from '@material-ui/core';
+import { add } from 'date-fns';
 import {
   AutocompleteField,
   CheckField,
@@ -12,6 +13,7 @@ import {
   Field,
   Form,
   NumberField,
+  SuggesterSelectField,
   TextField,
 } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
@@ -24,6 +26,8 @@ import { Colors, FORM_TYPES } from '../constants';
 import { foreignKey } from '../utils/validation';
 import { preventInvalidNumber } from '../utils';
 import { TaskSetTable } from '../components/Tasks/TaskSetTable';
+import { useCreateTask } from '../api/mutations/useTaskMutation';
+import { useEncounter } from '../contexts/Encounter';
 
 const NestedFormGrid = styled.div`
   display: flex;
@@ -54,17 +58,31 @@ const StyledPriorityHighIcon = styled(PriorityHighIcon)`
   vertical-align: sub;
 `;
 
-export const TaskForm = React.memo(({ onClose, onSubmit = () => {} }) => {
+export const TaskForm = React.memo(({ onClose, onCreateTaskSuccess }) => {
   const practitionerSuggester = useSuggester('practitioner');
-  const designationSuggester = useSuggester('designation');
+  const { mutate: createTask } = useCreateTask();
+  const { encounter } = useEncounter();
 
   const combinedTaskSuggester = useSuggester('multiReferenceData', {
     baseQueryParameters: { types: ['taskTemplate', 'taskSet'], relationType: 'task' },
-    formatter: ({ id, name, type }) => ({ label: name, value: id, type }),
+    formatter: ({ id, name, ...other }) => ({ label: name, value: id, ...other }),
     baseBodyParameters: { type: 'taskTemplate' },
   });
 
   const [selectedTask, setSelectedTask] = useState('');
+  const onSubmit = values => {
+    const { taskId, ...payload } = values;
+    createTask(
+      {
+        ...payload,
+        encounterId: encounter.id,
+        name: selectedTask.label,
+      },
+      {
+        onSuccess: onCreateTaskSuccess,
+      },
+    );
+  };
 
   const handleTaskChange = e => {
     setSelectedTask(e.target);
@@ -94,10 +112,10 @@ export const TaskForm = React.memo(({ onClose, onSubmit = () => {} }) => {
                   onChange={handleTaskChange}
                 />
                 <Field
-                  name="startDatetime"
+                  name="startTime"
                   label={
                     <TranslatedText
-                      stringId="encounter.task.startDatetime.label"
+                      stringId="encounter.task.startTime.label"
                       fallback="Start date & time"
                     />
                   }
@@ -109,7 +127,7 @@ export const TaskForm = React.memo(({ onClose, onSubmit = () => {} }) => {
               </FormGrid>
               <FormGrid style={{ gridColumn: 'span 2' }}>
                 <Field
-                  name="clinicianId"
+                  name="requestedByUserId"
                   label={
                     <TranslatedText
                       stringId="encounter.task.requestedBy.label"
@@ -121,10 +139,10 @@ export const TaskForm = React.memo(({ onClose, onSubmit = () => {} }) => {
                   suggester={practitionerSuggester}
                 />
                 <Field
-                  name="requestDatetime"
+                  name="requestTime"
                   label={
                     <TranslatedText
-                      stringId="encounter.task.requestDatetime.label"
+                      stringId="encounter.task.requestTime.label"
                       fallback="Request date & time"
                     />
                   }
@@ -142,19 +160,20 @@ export const TaskForm = React.memo(({ onClose, onSubmit = () => {} }) => {
                 style={{ gridColumn: 'span 2' }}
               />
             </FormGrid>
-            <Divider style={{ margin: '20px 0 20px 0' }} />
+            {selectedTask && <Divider style={{ margin: '20px 0 20px 0' }} />}
             {selectedTask.type === 'taskTemplate' && (
               <FormGrid style={{ gridColumn: 'span 2' }}>
                 <Field
-                  name="designationId"
+                  name="designations"
                   label={
                     <TranslatedText
                       stringId="general.localisedField.assignedTo.label"
                       fallback="Assigned to"
                     />
                   }
-                  component={AutocompleteField}
-                  suggester={designationSuggester}
+                  component={SuggesterSelectField}
+                  endpoint="designation"
+                  isMulti
                 />
                 <NestedFormGrid>
                   <Field
@@ -191,7 +210,7 @@ export const TaskForm = React.memo(({ onClose, onSubmit = () => {} }) => {
                 />
               </FormGrid>
             )}
-            {selectedTask.type === 'taskSet' && <TaskSetTable taskSetId={selectedTask.value} />}
+            {selectedTask.type === 'taskSet' && <TaskSetTable tasks={selectedTask.children} />}
 
             <Divider style={{ margin: '28px -32px 20px -32px' }} />
             <FormSubmitCancelRow
@@ -207,26 +226,26 @@ export const TaskForm = React.memo(({ onClose, onSubmit = () => {} }) => {
         taskId: foreignKey()
           .required()
           .translatedLabel(<TranslatedText stringId="encounter.task.task.label" fallback="Task" />),
-        startDatetime: yup
+        startTime: yup
           .date()
           .required()
           .translatedLabel(
             <TranslatedText
-              stringId="encounter.task.startDatetime.label"
+              stringId="encounter.task.startTime.label"
               fallback="Start date & time"
             />,
           ),
-        clinicianId: foreignKey()
+        requestedByUserId: foreignKey()
           .required()
           .translatedLabel(
             <TranslatedText stringId="encounter.task.requestedBy.label" fallback="Requested by" />,
           ),
-        requestDatetime: yup
+        requestTime: yup
           .date()
           .required()
           .translatedLabel(
             <TranslatedText
-              stringId="encounter.task.requestDatetime.label"
+              stringId="encounter.task.requestTime.label"
               fallback="Request date & time"
             />,
           ),
