@@ -14,6 +14,7 @@ import {
 } from '../../constants/images';
 import {
   Assignment as AssignmentIcon,
+  AttachMoney as AttachMoneyIcon,
   BarChart as BarChartIcon,
   CallMerge as CallMergeIcon,
   Cloud as CloudIcon,
@@ -293,5 +294,6 @@ export const CENTRAL_MENU_ITEMS = [
     key: 'Insurer payments',
     label: <TranslatedText stringId="adminSidebar.insurerPayments" fallback="Insurer payments" />,
     path: '/admin/insurerPayments',
+    icon: <AttachMoneyIcon color="secondary" />,
   },
 ];
