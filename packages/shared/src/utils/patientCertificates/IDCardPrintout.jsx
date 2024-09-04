@@ -82,8 +82,10 @@ const DetailsKey = props => <Text style={styles.detailsKey} {...props} />;
 const DetailsValue = props => <Text style={styles.detailsValue} {...props} />;
 const BarcodeRow = props => <View style={styles.barcodeRow} {...props} />;
 
-const DetailsRow = ({ name, value, getLocalisation }) => {
-  const label = getLocalisation(`fields.${name}.shortLabel`);
+const DetailsRow = ({ name, value, getTranslation }) => {
+  const label =
+    getTranslation(`general.localisedField.${name}.label.short`) ||
+    getTranslation(`general.localisedField.${name}.label`);
   return (
     <InfoRow>
       <DetailsKey>{`${label}: `}</DetailsKey>
