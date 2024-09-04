@@ -5,8 +5,6 @@ import Button from '@material-ui/core/Button';
 
 import { PATIENT_REGISTRY_TYPES, PLACE_OF_BIRTH_TYPES } from '@tamanu/constants';
 
-import { useLocalisation } from '../contexts/Localisation';
-
 import { Field, Form } from '../components/Field';
 import { IdField } from '../components/Field/IdField';
 import { ModalFormActionRow } from '../components/ModalActionRow';
@@ -79,12 +77,11 @@ export const NewPatientForm = memo(
     const { data: fieldDefinitions, error, isLoading } = usePatientFieldDefinitionQuery();
 
     const { getSetting } = useSettings();
-    const { getLocalisation } = useLocalisation();
     const { getTranslation } = useTranslation();
     const { PrimaryDetails, SecondaryDetails, PatientFields } = useLayoutComponents();
 
     const isRequiredPatientData = fieldName =>
-      getLocalisation(`fields.${fieldName}.requiredPatientData`);
+      getSetting(`fields.${fieldName}.requiredPatientData`);
 
     if (error) {
       return <pre>{error.stack}</pre>;
@@ -195,7 +192,7 @@ export const NewPatientForm = memo(
         }}
         validationSchema={getPatientDetailsValidation(
           patientRegistryType,
-          getLocalisation,
+          getSetting,
           getTranslation,
           getSetting,
         )}

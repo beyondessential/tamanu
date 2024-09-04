@@ -1,3 +1,4 @@
+import config from 'config';
 import Chance from 'chance';
 import { fake } from '@tamanu/shared/test-helpers/fake';
 import {
@@ -7,6 +8,7 @@ import {
 } from '@tamanu/constants/surveys';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { createTestContext } from '../utilities';
+import { SETTINGS_SCOPES } from '@tamanu/constants';
 
 const chance = new Chance();
 const TEST_VITALS_SURVEY_ID = 'vitals-survey-id-for-testing-purposes';
@@ -14,12 +16,14 @@ describe('SurveyResponseAnswer', () => {
   let app;
   let baseApp;
   let models;
+  let settings;
   let ctx;
 
   beforeAll(async () => {
     ctx = await createTestContext();
     baseApp = ctx.baseApp;
     models = ctx.models;
+    settings = ctx.settings;
     app = await baseApp.asRole('practitioner');
   });
   afterAll(() => ctx.close());
@@ -147,6 +151,33 @@ describe('SurveyResponseAnswer', () => {
       };
 
       await models.Setting.set('features.enableVitalEdit', true);
+    });
+
+    describe('getDefaultId', () => {
+      beforeAll(async () => {
+        const { Setting, Department } = models;
+        await Department.create({
+          id: 'test-department-id',
+          code: 'test-department-code',
+          name: 'Test Department',
+          facilityId: config.serverFacilityId,
+        });
+        await Setting.set(
+          'survey.defaultCodes.department',
+          'test-department-code',
+          SETTINGS_SCOPES.FACILITY,
+          config.serverFacilityId,
+        );
+      });
+      afterAll(async () => {
+        const { Setting } = models;
+        await Setting.truncate();
+      });
+
+      it('should return the default id for a resource from settings', async () => {
+        const departmentId = await models.SurveyResponseAnswer.getDefaultId('department', settings);
+        expect(departmentId).toEqual('test-department-id');
+      });
     });
 
     describe('write', () => {

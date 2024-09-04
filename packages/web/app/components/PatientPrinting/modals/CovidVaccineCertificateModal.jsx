@@ -9,6 +9,7 @@ import { useApi } from '../../../api';
 import { EmailButton } from '../../Email/EmailButton';
 import { useCertificate } from '../../../utils/useCertificate';
 import { useLocalisation } from '../../../contexts/Localisation';
+import { useSettings } from '../../../contexts/Settings';
 import { useAdministeredVaccines, usePatientAdditionalDataQuery } from '../../../api/queries';
 
 import { PDFLoader, printPDF } from '../PDFLoader';

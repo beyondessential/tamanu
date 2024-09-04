@@ -12,6 +12,7 @@ import { useSettings } from '~/ui/contexts/SettingsContext';
 export const KeyInformationSection = (): ReactElement => {
   const { getSetting } = useSettings();
   const { getBool } = useLocalisation();
+  const { getSetting } = useSettings();
   let filteredGenderOptions = GenderOptions;
   if (getSetting<boolean>('features.hideOtherSex') === true) {
     filteredGenderOptions = filteredGenderOptions.filter(({ value }) => value !== Gender.Other);
@@ -43,7 +44,7 @@ export const KeyInformationSection = (): ReactElement => {
         }
         name="email"
         component={TextField}
-        required={getBool('fields.email.requiredPatientData')}
+        required={getSetting<boolean>('fields.email.requiredPatientData')}
       />
     </>
   );

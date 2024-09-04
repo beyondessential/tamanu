@@ -172,7 +172,7 @@ export const EncounterView = () => {
       </EncounterTopBar>
       <EncounterInfoPane
         encounter={encounter}
-        getLocalisation={getLocalisation}
+        getSetting={getSetting}
         patientBillingType={
           patientBillingTypeData && (
             <TranslatedReferenceData

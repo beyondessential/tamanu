@@ -125,7 +125,7 @@ jobs:
         if: (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')) || steps.config.outputs.images == 'true'
         run: |
           echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $ --password-stdin
-          for repo in central facility frontend meta; do
+          for repo in central facility frontend; do
             if skopeo inspect docker://ghcr.io/beyondessential/tamanu-$repo:sha-${{ steps.sha.outputs.sha }} 2>&1 >/dev/null; then
               jq -c . <<< "$desc" # check that it's valid JSON
               echo $repo image found, assuming existence
@@ -162,7 +162,7 @@ jobs:
           - arch: amd64
             runs-on: ubuntu-latest
           - arch: arm64
-            runs-on: Linux-ARM64
+            runs-on: Linux-ARM64-Ubuntu-24.04
         package:
           - name: central
             path: central-server
@@ -173,9 +173,6 @@ jobs:
           - name: frontend
             path: web
             target: frontend
-          - name: meta
-            path: meta-server
-            target: server
 
     name: Image for ${{ matrix.package.name }} on ${{ matrix.platform.arch }}
     runs-on: ${{ matrix.platform.runs-on }}
@@ -252,7 +249,6 @@ jobs:
           - central
           - facility
           - frontend
-          - meta
 
     runs-on: ubuntu-latest
     name: Multi-arch for ${{ matrix.repo }}

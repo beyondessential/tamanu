@@ -31,7 +31,7 @@ async function startTasks({ skipMigrationCheck }) {
   }
 
   await initDeviceId(context);
-  await checkConfig(config, context);
+  await checkConfig(context);
   await performDatabaseIntegrityChecks(context);
 
   context.centralServer = new CentralServerConnection(context);

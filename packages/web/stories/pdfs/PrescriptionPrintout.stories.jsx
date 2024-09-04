@@ -222,11 +222,6 @@ const facility = {
 
 const getLocalisation = key => {
   const config = {
-    'fields.firstName.longLabel': 'First Name',
-    'fields.lastName.longLabel': 'Last Name',
-    'fields.dateOfBirth.longLabel': 'Date of Birth',
-    'fields.sex.longLabel': 'Sex',
-    'fields.clinician.shortLabel': 'Clinician',
     previewUvciFormat: 'tamanu',
   };
   return config[key];

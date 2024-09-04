@@ -102,6 +102,7 @@ const CovidLabCertificateComponent = ({
           patient={patient}
           vdsSrc={vdsSrc}
           getLocalisation={getLocalisation}
+          getSetting={getSetting}
         />
       </Box>
       <Box mb={30}>
