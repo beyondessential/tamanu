@@ -34,7 +34,5 @@ type StartsWith<T extends string, U extends string> = T extends `${U}.${string}`
 type SchemaProperties = typeof globalSettings.properties | typeof facilitySettings.properties | typeof centralSettings.properties;
 
 export type SettingPath = RemoveSchemaKeys<SchemaProperties>
-
-// Filters paths based on KEYS_EXPOSED_TO_FRONT_END
 export type FrontEndExposedSettingPath = StartsWith<SettingPath, typeof KEYS_EXPOSED_TO_FRONT_END[number]>;
 
