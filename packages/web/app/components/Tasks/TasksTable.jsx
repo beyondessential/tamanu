@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { Box, Divider } from '@material-ui/core';
 import CheckCircleIcon from '@material-ui/icons/CheckCircle';
@@ -262,13 +262,19 @@ const NoDataMessage = () => (
   </NoDataContainer>
 );
 
-export const TasksTable = ({ encounterId, searchParameters, refreshCount }) => {
+export const TasksTable = ({ encounterId, searchParameters, refreshCount, onCreateTaskSuccess }) => {
   const [hoveredRow, setHoveredRow] = useState();
   const [data, setData] = useState([]);
 
   const onDataFetched = useCallback(({ data }) => {
     setData(data);
   }, []);
+
+  useEffect(() => {
+    if (data) {
+      onCreateTaskSuccess();
+    }
+  }, [data.length]);
 
   const { selectedRows, selectableColumn } = useSelectableColumn(data, {
     bulkDeselectOnly: true,

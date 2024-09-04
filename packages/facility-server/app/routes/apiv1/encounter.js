@@ -612,11 +612,11 @@ encounterRelations.post(
     const upcomingTasksTimeFrame = config.upcomingTasksTimeFrame || 8;
     const dueTime = toCountryDateTimeString(add(new Date(), { hours: upcomingTasksTimeFrame }));
 
-    const object = await Task.create({ dueTime, ...other });
+    const task = await Task.create({ dueTime, ...other });
     if (designations) {
-      object.setDesignations(JSON.parse(designations));
+      task.setDesignations(designations);
     }
-    res.send(object);
+    res.send(task);
   }),
 );
 

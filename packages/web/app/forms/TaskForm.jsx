@@ -5,7 +5,6 @@ import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import styled from 'styled-components';
 import PriorityHighIcon from '@material-ui/icons/PriorityHigh';
 import { Divider } from '@material-ui/core';
-import { add } from 'date-fns';
 import {
   AutocompleteField,
   CheckField,
@@ -13,6 +12,7 @@ import {
   Field,
   Form,
   NumberField,
+  SelectField,
   SuggesterSelectField,
   TextField,
 } from '../components/Field';
@@ -21,13 +21,18 @@ import { FormSubmitCancelRow } from '../components/ButtonRow';
 
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useSuggester } from '../api';
-import { REFERENCE_DATA_TYPE_TO_LABEL } from '../constants/task';
+import {
+  REFERENCE_DATA_TYPE_TO_LABEL,
+  TASK_FREQUENCY_UNIT_OPTIONS,
+  TASK_FREQUENCY_UNIT_TO_VALUE,
+} from '../constants/task';
 import { Colors, FORM_TYPES } from '../constants';
 import { foreignKey } from '../utils/validation';
 import { preventInvalidNumber } from '../utils';
 import { TaskSetTable } from '../components/Tasks/TaskSetTable';
 import { useCreateTask } from '../api/mutations/useTaskMutation';
 import { useEncounter } from '../contexts/Encounter';
+import { useAuth } from '../contexts/Auth';
 
 const NestedFormGrid = styled.div`
   display: flex;
@@ -58,10 +63,18 @@ const StyledPriorityHighIcon = styled(PriorityHighIcon)`
   vertical-align: sub;
 `;
 
+const taskFrequencyUnitOptions = Object.entries(TASK_FREQUENCY_UNIT_OPTIONS).map(
+  ([key, label]) => ({
+    label,
+    value: TASK_FREQUENCY_UNIT_TO_VALUE[label],
+  }),
+);
+
 export const TaskForm = React.memo(({ onClose, onCreateTaskSuccess }) => {
   const practitionerSuggester = useSuggester('practitioner');
   const { mutate: createTask } = useCreateTask();
   const { encounter } = useEncounter();
+  const { currentUser } = useAuth();
 
   const combinedTaskSuggester = useSuggester('multiReferenceData', {
     baseQueryParameters: { types: ['taskTemplate', 'taskSet'], relationType: 'task' },
@@ -71,12 +84,15 @@ export const TaskForm = React.memo(({ onClose, onCreateTaskSuccess }) => {
 
   const [selectedTask, setSelectedTask] = useState('');
   const onSubmit = values => {
-    const { taskId, ...payload } = values;
+    const { taskId, designations, ...payload } = values;
     createTask(
       {
         ...payload,
         encounterId: encounter.id,
         name: selectedTask.label,
+        ...(typeof designations === 'string'
+          ? { designations: JSON.parse(designations) }
+          : { designations }),
       },
       {
         onSuccess: onCreateTaskSuccess,
@@ -177,7 +193,7 @@ export const TaskForm = React.memo(({ onClose, onCreateTaskSuccess }) => {
                 />
                 <NestedFormGrid>
                   <Field
-                    name="frequencyNumber"
+                    name="frequencyValue"
                     label={
                       <TranslatedText
                         stringId="task.frequency.label"
@@ -191,8 +207,8 @@ export const TaskForm = React.memo(({ onClose, onCreateTaskSuccess }) => {
                   <Field
                     name="frequencyUnit"
                     required
-                    component={AutocompleteField}
-                    suggester={practitionerSuggester}
+                    component={SelectField}
+                    options={taskFrequencyUnitOptions}
                   />
                 </NestedFormGrid>
                 <StyledCheckField
@@ -252,6 +268,17 @@ export const TaskForm = React.memo(({ onClose, onCreateTaskSuccess }) => {
         note: yup.string(),
         highPriority: yup.boolean(),
       })}
+      initialValues={{
+        taskId: selectedTask?.value,
+        startTime: getCurrentDateTimeString(),
+        requestTime: getCurrentDateTimeString(),
+        requestedByUserId: currentUser?.id,
+        designations: selectedTask?.taskTemplate?.designations?.map(item => item.designationId),
+        highPriority: selectedTask?.taskTemplate?.highPriority,
+        frequencyValue: selectedTask?.taskTemplate?.frequencyValue,
+        frequencyUnit: selectedTask?.taskTemplate?.frequencyUnit,
+      }}
+      enableReinitialize
     />
   );
 });
