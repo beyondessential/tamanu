@@ -612,7 +612,7 @@ encounterRelations.post(
     const { startTime, designations, ...other } = req.body;
 
     const upcomingTasksTimeFrame = config.upcomingTasksTimeFrame || 8;
-    const dueTime = toCountryDateTimeString(add(new Date(), { hours: upcomingTasksTimeFrame }));
+    const dueTime = toCountryDateTimeString(add(new Date(startTime), { hours: upcomingTasksTimeFrame }));
 
     const task = await Task.create({ dueTime, ...other });
     if (designations) {
@@ -625,23 +625,27 @@ encounterRelations.post(
 encounterRelations.post(
   '/taskSet',
   asyncHandler(async (req, res) => {
-    const { startTime, requestedByUserId, requestTime, encounterId, tasks } = req.body;
+    const { startTime, requestedByUserId, requestTime, encounterId, note, tasks } = req.body;
     const { models } = req;
+    const { Task, TaskDesignation } = models;
+
+    req.checkPermission('create', 'Task');
     const upcomingTasksTimeFrame = config.upcomingTasksTimeFrame || 8;
-    const dueTime = toCountryDateTimeString(add(new Date(), { hours: upcomingTasksTimeFrame }));
+  
     const tasksList = tasks.map(task => {
+      const dueTime = toCountryDateTimeString(add(new Date(startTime), { hours: upcomingTasksTimeFrame }));
       return {
         ...task,
         id: uuidv4(),
         dueTime,
-        startTime,
         requestedByUserId,
         requestTime,
         encounterId,
+        note,
       };
     });
 
-    const taskSet = await models.Task.bulkCreate(tasksList);
+    const taskSet = await Task.bulkCreate(tasksList);
 
     const taskDesignationAssociations = tasksList.flatMap(task => {
       return task.designations.map(designationId => ({
@@ -649,7 +653,7 @@ encounterRelations.post(
         designationId: designationId,
       }));
     });
-    await models.TaskDesignation.bulkCreate(taskDesignationAssociations);
+    await TaskDesignation.bulkCreate(taskDesignationAssociations);
     res.send(taskSet);
   }),
 );

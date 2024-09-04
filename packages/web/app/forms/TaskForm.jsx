@@ -64,7 +64,7 @@ const StyledPriorityHighIcon = styled(PriorityHighIcon)`
 `;
 
 const taskFrequencyUnitOptions = Object.entries(TASK_FREQUENCY_UNIT_OPTIONS).map(
-  ([key, label]) => ({
+  ([_, label]) => ({
     label,
     value: TASK_FREQUENCY_UNIT_TO_VALUE[label],
   }),
@@ -127,7 +127,7 @@ export const TaskForm = React.memo(({ onClose, onCreateTaskSuccess }) => {
   return (
     <Form
       onSubmit={onSubmit}
-      render={({ submitForm, values }) => {
+      render={({ submitForm }) => {
         const handleCancel = () => onClose && onClose();
 
         return (
