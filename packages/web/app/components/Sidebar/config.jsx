@@ -24,7 +24,7 @@ import {
   Translate as TranslateIcon,
 } from '@material-ui/icons';
 import { Colors } from '../../constants';
-import { TranslatedText } from '../Translation';
+import { TranslatedText } from '../Translation/TranslatedText';
 import { ProgramRegistrySidebarItem } from '../../views/programRegistry/ProgramRegistrySidebarItem';
 
 export const FACILITY_MENU_ITEMS = [
