@@ -14,3 +14,17 @@ export const useCreateTask = () => {
     onError: error => notifyError(error.message),
   });
 };
+
+export const useCreateTaskSet = () => {
+  const api = useApi();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async body => {
+      const result = await api.post('encounter/taskSet', body);
+      await queryClient.invalidateQueries([`encounter/${body?.encounterId}/taskSet`]);
+      return result;
+    },
+    onError: error => notifyError(error.message),
+  });
+};

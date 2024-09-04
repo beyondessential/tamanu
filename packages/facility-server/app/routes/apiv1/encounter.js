@@ -24,6 +24,7 @@ import {
 } from '@tamanu/shared/utils/crudHelpers';
 import { add } from 'date-fns';
 import { z } from 'zod';
+import { v4 as uuidv4 } from 'uuid';
 
 import { uploadAttachment } from '../../utils/uploadAttachment';
 import { noteChangelogsHandler, noteListHandler } from '../../routeHandlers';
@@ -590,6 +591,7 @@ encounterRelations.get(
     res.send({ data: results, count: results.length });
   }),
 );
+
 encounterRelations.post(
   '/tasks',
   asyncHandler(async (req, res) => {
@@ -617,6 +619,38 @@ encounterRelations.post(
       task.setDesignations(designations);
     }
     res.send(task);
+  }),
+);
+
+encounterRelations.post(
+  '/taskSet',
+  asyncHandler(async (req, res) => {
+    const { startTime, requestedByUserId, requestTime, encounterId, tasks } = req.body;
+    const { models } = req;
+    const upcomingTasksTimeFrame = config.upcomingTasksTimeFrame || 8;
+    const dueTime = toCountryDateTimeString(add(new Date(), { hours: upcomingTasksTimeFrame }));
+    const tasksList = tasks.map(task => {
+      return {
+        ...task,
+        id: uuidv4(),
+        dueTime,
+        startTime,
+        requestedByUserId,
+        requestTime,
+        encounterId,
+      };
+    });
+
+    const taskSet = await models.Task.bulkCreate(tasksList);
+
+    const taskDesignationAssociations = tasksList.flatMap(task => {
+      return task.designations.map(designationId => ({
+        taskId: task.id,
+        designationId: designationId,
+      }));
+    });
+    await models.TaskDesignation.bulkCreate(taskDesignationAssociations);
+    res.send(taskSet);
   }),
 );
 

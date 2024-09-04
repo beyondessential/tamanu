@@ -30,7 +30,7 @@ import { Colors, FORM_TYPES } from '../constants';
 import { foreignKey } from '../utils/validation';
 import { preventInvalidNumber } from '../utils';
 import { TaskSetTable } from '../components/Tasks/TaskSetTable';
-import { useCreateTask } from '../api/mutations/useTaskMutation';
+import { useCreateTask, useCreateTaskSet } from '../api/mutations/useTaskMutation';
 import { useEncounter } from '../contexts/Encounter';
 import { useAuth } from '../contexts/Auth';
 
@@ -73,6 +73,7 @@ const taskFrequencyUnitOptions = Object.entries(TASK_FREQUENCY_UNIT_OPTIONS).map
 export const TaskForm = React.memo(({ onClose, onCreateTaskSuccess }) => {
   const practitionerSuggester = useSuggester('practitioner');
   const { mutate: createTask } = useCreateTask();
+  const { mutate: createTaskSet } = useCreateTaskSet();
   const { encounter } = useEncounter();
   const { currentUser } = useAuth();
 
@@ -83,21 +84,40 @@ export const TaskForm = React.memo(({ onClose, onCreateTaskSuccess }) => {
   });
 
   const [selectedTask, setSelectedTask] = useState('');
+
   const onSubmit = values => {
-    const { taskId, designations, ...payload } = values;
-    createTask(
-      {
-        ...payload,
-        encounterId: encounter.id,
-        name: selectedTask.label,
-        ...(typeof designations === 'string'
-          ? { designations: JSON.parse(designations) }
-          : { designations }),
-      },
-      {
-        onSuccess: onCreateTaskSuccess,
-      },
-    );
+    if (selectedTask.type === 'taskTemplate') {
+      createTask(
+        {
+          ...values,
+          encounterId: encounter.id,
+          name: selectedTask.label,
+        },
+        {
+          onSuccess: onCreateTaskSuccess,
+        },
+      );
+    } else if (selectedTask.type === 'taskSet') {
+      const tasks = selectedTask.children.map(({ name, taskTemplate }) => ({
+        name,
+        frequencyValue: taskTemplate.frequencyValue,
+        frequencyUnit: taskTemplate.frequencyUnit,
+        highPriority: taskTemplate.highPriority,
+        designations: taskTemplate.designations.map(item => item.designationId),
+      }));
+
+      createTaskSet(
+        {
+          ...values,
+          tasks,
+          encounterId: encounter.id,
+        },
+        {
+          onSuccess: onCreateTaskSuccess,
+        },
+      );
+    }
+    
   };
 
   const handleTaskChange = e => {
