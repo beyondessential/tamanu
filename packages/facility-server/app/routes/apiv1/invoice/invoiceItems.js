@@ -17,7 +17,7 @@ invoiceItemsRoute.get(
     const data = await getPotentialInvoiceItems(
       req.db,
       req.params.id,
-      localisation?.imagingTypes ?? [],
+      Object.keys(localisation?.imagingTypes ?? {}),
     );
     const transformedData = data.map(it =>
       transform(
