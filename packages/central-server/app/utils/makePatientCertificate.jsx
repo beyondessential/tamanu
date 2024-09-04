@@ -65,19 +65,20 @@ async function getPatientVaccines(models, patient) {
   return { certifiableVaccines, vaccines: vaccineData, patientData };
 }
 
-export const makeCovidVaccineCertificate = async (
+export const makeCovidVaccineCertificate = async ({
+  models,
+  settings,
+  language,
   patient,
   printedBy,
   printedDate,
-  models,
-  settings,
-  uvci,
   qrData = null,
-  language,
-) => {
+  uvci,
+}) => {
   const localisation = await getLocalisation();
-  const getLocalisationData = key => get(localisation, key);
   const settingsObj = await settings.getAll();
+
+  const getLocalisationData = key => get(localisation, key);
   const getSettingData = key => get(settingsObj, key);
 
   const fileName = `covid-vaccine-certificate-${patient.id}.pdf`;
@@ -107,16 +108,16 @@ export const makeCovidVaccineCertificate = async (
   );
 };
 
-export const makeVaccineCertificate = async (
+export const makeVaccineCertificate = async ({
+  models,
+  settings,
+  language,
   patient,
   printedBy,
   printedDate,
   facilityName,
-  models,
-  settings,
-  language,
   translations,
-) => {
+}) => {
   const localisation = await getLocalisation();
 
   const { title, subTitle } = await settings.get('templates.letterhead');
@@ -149,15 +150,15 @@ export const makeVaccineCertificate = async (
   );
 };
 
-export const makeCovidCertificate = async (
+export const makeCovidCertificate = async ({
+  models,
+  settings,
   certType,
   patient,
   printedBy,
-  models,
-  settings,
   vdsData = null,
   language,
-) => {
+}) => {
   const localisation = await getLocalisation();
   const getLocalisationData = key => get(localisation, key);
   const settingsObj = await settings.getAll();

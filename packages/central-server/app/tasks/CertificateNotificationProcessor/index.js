@@ -146,16 +146,16 @@ export class CertificateNotificationProcessor extends ScheduledTask {
             }
 
             sublog.info('Generating vax certificate PDF', { uvci });
-            pdf = await makeCovidVaccineCertificate(
+            pdf = await makeCovidVaccineCertificate({
+              models,
+              settings,
+              language,
               patient,
               printedBy,
               printedDate,
-              models,
-              settings,
-              uvci,
               qrData,
-              language,
-            );
+              uvci,
+            });
             break;
           }
 
@@ -174,15 +174,15 @@ export class CertificateNotificationProcessor extends ScheduledTask {
             }
 
             sublog.info('Generating test certificate PDF');
-            pdf = await makeCovidCertificate(
-              CertificateTypes.test,
-              patient,
-              printedBy,
+            pdf = await makeCovidCertificate({
               models,
               settings,
+              certType: CertificateTypes.test,
+              patient,
+              printedBy,
               qrData,
               language,
-            );
+            });
             break;
           }
 
@@ -190,29 +190,29 @@ export class CertificateNotificationProcessor extends ScheduledTask {
             template = 'covidClearanceCertificateEmail';
 
             sublog.info('Generating clearance certificate PDF');
-            pdf = await makeCovidCertificate(
-              CertificateTypes.clearance,
-              patient,
-              printedBy,
+            pdf = await makeCovidCertificate({
               models,
               settings,
+              certType: CertificateTypes.clearance,
+              patient,
+              printedBy,
               qrData,
               language,
-            );
+            });
             break;
 
           case VACCINATION_CERTIFICATE:
             template = 'vaccineCertificateEmail';
-            pdf = await makeVaccineCertificate(
+            pdf = await makeVaccineCertificate({
+              models,
+              settings,
               patient,
               printedBy,
               printedDate,
               facilityName,
-              models,
-              settings,
               language,
               translations,
-            );
+            });
             break;
 
           default:
@@ -221,7 +221,7 @@ export class CertificateNotificationProcessor extends ScheduledTask {
 
         sublog.debug('Creating communication record');
 
-        const { subject, body: content } = await settings.get(`templates.${template}`)
+        const { subject, body: content } = await settings.get(`templates.${template}`);
 
         // eslint-disable-next-line no-loop-func
         const [comm] = await sequelize.transaction(() =>

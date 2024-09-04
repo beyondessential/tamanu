@@ -22,6 +22,7 @@ import { ActivityIndicator } from 'react-native';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
 import { labels } from '~/ui/navigation/screens/home/PatientDetails/layouts/generic/labels';
 import { PatientFieldDefinition } from '~/models/PatientFieldDefinition';
+import { useSettings } from '~/ui/contexts/SettingsContext';
 
 const PlainField = ({ fieldName, required }): ReactElement => (
   // Outter styled view to momentarily add distance between fields
@@ -131,7 +132,7 @@ export const PatientAdditionalDataFields = ({
   showMandatory = true,
   isEdit = true,
 }: PatientAdditionalDataFieldsProps): ReactElement[] => {
-  const { getLocalisation } = useLocalisation();
+  const { getSetting } = useSettings();
   const [customFieldDefinitions, _, loading] = useBackendEffect(({ models }) =>
     models.PatientFieldDefinition.getRepository().find({
       select: ['id'],
@@ -142,7 +143,7 @@ export const PatientAdditionalDataFields = ({
   const padFields = getConfiguredPatientAdditionalDataFields(
     fields as string[],
     showMandatory,
-    getLocalisation,
+    getSetting,
   );
 
   if (isCustomSection)
@@ -152,7 +153,7 @@ export const PatientAdditionalDataFields = ({
 
   return padFields.map((field: string) => {
     const Component = getComponentForField(field, customFieldIds);
-    const isRequired = getLocalisation(`fields.${field}.requiredPatientData`);
+    const isRequired = getSetting<boolean>(`fields.${field}.requiredPatientData`);
     return <Component fieldName={field} key={field} required={isRequired} isEdit={isEdit} />;
   });
 };

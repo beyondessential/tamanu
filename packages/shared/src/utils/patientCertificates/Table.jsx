@@ -43,9 +43,7 @@ export const Table = ({ data, columns, getLocalisation, getSetting, columnStyle 
     ...columnStyle,
     borderLeft: basicBorder,
   };
-  const visibleColumns = columns.filter(
-    ({ key }) => getLocalisation(`fields.${key}.hidden`) !== true,
-  );
+  const visibleColumns = columns.filter(({ key }) => getSetting(`fields.${key}.hidden`) !== true);
   return (
     <View style={tableStyles.table}>
       <TR fixed>

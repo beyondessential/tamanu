@@ -4,38 +4,6 @@ import { defaultsDeep } from 'lodash';
 import { log } from '@tamanu/shared/services/logging';
 import { IMAGING_TYPES } from '@tamanu/constants';
 
-const fieldSchema = yup
-  .object({
-    shortLabel: yup.string().when('hidden', {
-      is: false,
-      then: yup.string().required(),
-    }),
-    longLabel: yup.string().when('hidden', {
-      is: false,
-      then: yup.string().required(),
-    }),
-    hidden: yup.boolean().required(),
-    required: yup.boolean(),
-    defaultValue: yup.mixed(),
-    requiredPatientData: yup.boolean(),
-    pattern: yup.string(),
-  })
-  .default({}) // necessary to stop yup throwing hard-to-debug errors
-  .required()
-  .noUnknown();
-
-const unhideableFieldSchema = yup
-  .object({
-    shortLabel: yup.string().required(),
-    longLabel: yup.string().required(),
-    required: yup.boolean(),
-    defaultValue: yup.mixed(),
-    requiredPatientData: yup.boolean(),
-    pattern: yup.string(),
-  })
-  .required()
-  .noUnknown();
-
 const UNHIDEABLE_FIELDS = [
   'markedForSync',
   'displayId',
@@ -134,26 +102,6 @@ const ageDurationSchema = yup
   })
   .noUnknown();
 
-const fieldsSchema = yup
-  .object({
-    ...UNHIDEABLE_FIELDS.reduce(
-      (fields, field) => ({
-        ...fields,
-        [field]: unhideableFieldSchema,
-      }),
-      {},
-    ),
-    ...HIDEABLE_FIELDS.reduce(
-      (fields, field) => ({
-        ...fields,
-        [field]: fieldSchema,
-      }),
-      {},
-    ),
-  })
-  .required()
-  .noUnknown();
-
 const imagingTypeSchema = yup
   .object({
     label: yup.string().required(),
@@ -193,15 +141,8 @@ const rootLocalisationSchema = yup
         .length(3)
         .required(),
     },
-    fields: fieldsSchema,
     timeZone: yup.string().nullable(),
     imagingTypes: imagingTypesSchema,
-    imagingPriorities: yup.array(
-      yup.object({
-        value: yup.string().required(),
-        label: yup.string().required(),
-      }),
-    ),
     imagingCancellationReasons: yup
       .array(
         yup.object({
@@ -259,16 +200,6 @@ const rootLocalisationSchema = yup
           return true;
         },
       }),
-    triageCategories: yup
-      .array(
-        yup.object({
-          level: yup.number().required(),
-          label: yup.string().required(),
-          color: yup.string().required(),
-        }),
-      )
-      .min(3)
-      .max(5),
     previewUvciFormat: yup
       .string()
       .required()
