@@ -8,7 +8,7 @@ import { get } from 'lodash';
 
 /**
  * @typedef {Object} SettingsContextType
- * @property {(path: SettingPath) => any} getSetting
+ * @property {(path: SettingPath) => ?} getSetting
  */
 
 /** @type {React.Context<SettingsContextType | undefined>} */

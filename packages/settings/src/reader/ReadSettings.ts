@@ -1,5 +1,5 @@
 import { get as lodashGet, pick } from 'lodash';
-import { buildSettings, SettingPath } from '../index';
+import { buildSettings, SettingPath } from '..';
 import { settingsCache } from '../cache';
 import { Models } from './readers/SettingsDBReader';
 

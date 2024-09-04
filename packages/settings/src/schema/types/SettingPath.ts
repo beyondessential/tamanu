@@ -1,16 +1,16 @@
-import { centralSettings } from "../central";
-import { facilitySettings } from "../facility";
-import { globalSettings } from "../global";
-import { Setting } from "./Setting";
-import { SettingsSchema } from "./SettingsSchema";
+import { centralSettings } from '../central';
+import { facilitySettings } from '../facility';
+import { globalSettings } from '../global';
+import { Setting } from './Setting';
+import { SettingsSchema } from './SettingsSchema';
 
 // Type to generate the dot prefix
-type DotPrefix<T extends string> = T extends '' ? '' : `.${T}`;
+type Subscript<T extends string> = T extends '' ? '' : `.${T}`;
 
 // Utility type to join keys
 type Join<K, P> = K extends string
   ? P extends string
-    ? `${Extract<K, string>}${DotPrefix<Extract<P, string>>}`
+    ? `${Extract<K, string>}${Subscript<Extract<P, string>>}`
     : never
   : never;
 
