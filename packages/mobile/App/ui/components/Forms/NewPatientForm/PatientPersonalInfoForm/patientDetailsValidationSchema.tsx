@@ -188,7 +188,13 @@ export const getPatientDetailsValidation = getBool => {
         />,
       ),
     ),
-    ethnicityId: requiredWhenConfiguredMandatory(getBool, 'ethnicityId', Yup.string()),
+    ethnicityId: requiredWhenConfiguredMandatory(
+      getBool,
+      'ethnicityId',
+      Yup.string().translatedLabel(
+        <TranslatedText stringId="general.localisedField.ethnicityId.label" fallback="Ethnicity" />,
+      ),
+    ),
     patientBillingTypeId: requiredWhenConfiguredMandatory(
       getBool,
       'patientBillingTypeId',

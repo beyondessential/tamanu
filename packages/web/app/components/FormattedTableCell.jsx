@@ -72,10 +72,10 @@ function getTooltip(float, config = {}, visibilityCriteria = {}) {
 
 export const formatValue = (value, config) => {
   const { rounding = 0, unit = '' } = config || {};
-  const float = parseFloat(value);
+  const float = Number.parseFloat(value);
 
   if (isNaN(float)) {
-    return value || '-';
+    return value || '—'; // em dash
   }
 
   const unitSuffix = unit && unit.length <= 2 ? unit : '';
