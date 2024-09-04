@@ -14,12 +14,9 @@ type Join<K, P> = K extends string
     : never
   : never;
 
-// Utility type to check if an object is a setting
-type IsSetting<T> = T extends Setting ? true : false;
-
-// Extended utility type to exclude 'properties', 'description', 'name', and other ignored keys
+// Extended utility type to exclude settings schema keys like 'properties', 'description', 'name'
 type RemoveSchemaKeys<T> = T extends object
-  ? IsSetting<T> extends true
+  ? T extends Setting
     ? ''
     : {
         [K in keyof T]: K extends keyof SettingsSchema
