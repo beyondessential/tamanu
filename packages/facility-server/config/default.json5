@@ -90,12 +90,6 @@
     "tokenDuration": "1h",
     "useHardcodedPermissions": true
   },
-  "survey": {
-    "defaultCodes": {
-      "department": "GeneralClinic",
-      "location": "GeneralClinic"
-    }
-  },
   "serverFacilityId": "",
   "debugging": {
     "requestFailureRate": 0
