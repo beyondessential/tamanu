@@ -3,7 +3,7 @@ import { buildSettings, SettingPath } from '..';
 import { settingsCache } from '../cache';
 import { Models } from './readers/SettingsDBReader';
 
-const KEYS_EXPOSED_TO_FRONT_END = [
+export const KEYS_EXPOSED_TO_FRONT_END = [
   'customisations',
   'features',
   'imagingPriorities',
@@ -14,7 +14,7 @@ const KEYS_EXPOSED_TO_FRONT_END = [
   'upcomingVaccinations',
   'vaccinations',
   'fields',
-];
+] as const;
 
 export class ReadSettings {
   models: Models;

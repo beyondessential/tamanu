@@ -3,7 +3,7 @@ import { useSelector } from 'react-redux';
 import { get } from 'lodash';
 
 /**
- * @typedef {import("@tamanu/settings").SettingPath} SettingPath
+ * @typedef {import("@tamanu/settings").FrontEndExposedSettingPath} SettingPath
  */
 
 /**
