@@ -88,7 +88,6 @@ const fakeAllData = async (models, ctx) => {
   );
   const { id: scheduledVaccineId } = await models.ScheduledVaccine.create(
     fake(models.ScheduledVaccine, {
-      type: REFERENCE_TYPES.VACCINE,
       label: 'Covid Schedule Label',
       doseLabel: 'Dose 1',
       vaccineId: vaccineDrugId,

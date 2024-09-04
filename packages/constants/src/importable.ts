@@ -10,13 +10,11 @@ export const REFERENCE_TYPES = {
   DIET: 'diet',
   TRIAGE_REASON: 'triageReason',
   PROCEDURE_TYPE: 'procedureType',
-  IMAGING_TYPE: 'imagingType',
   LAB_SAMPLE_SITE: 'labSampleSite',
   LAB_TEST_CATEGORY: 'labTestCategory',
   LAB_TEST_PRIORITY: 'labTestPriority',
   LAB_TEST_LABORATORY: 'labTestLaboratory',
   LAB_TEST_METHOD: 'labTestMethod',
-  VACCINE: 'vaccine',
   VILLAGE: 'village',
   CARE_PLAN: 'carePlan',
   ETHNICITY: 'ethnicity',
@@ -31,7 +29,6 @@ export const REFERENCE_TYPES = {
   SETTLEMENT: 'settlement',
   OCCUPATION: 'occupation',
   PLACE_OF_BIRTH: 'placeOfBirth',
-  MARITAL_STATUS: 'maritalStatus',
   RELIGION: 'religion',
   REACTION: 'reaction',
   FAMILY_RELATION: 'familyRelation',
@@ -89,16 +86,8 @@ const SYSTEM_DATA_TYPES = {
 };
 const SYSTEM_DATA_TYPES_VALUES = Object.values(SYSTEM_DATA_TYPES);
 
-const OBSOLETE_REFERENCE_DATA_TYPES = [
-  REFERENCE_TYPES.MARITAL_STATUS,
-  REFERENCE_TYPES.IMAGING_TYPE,
-  REFERENCE_TYPES.VACCINE,
-];
-
 export const GENERAL_IMPORTABLE_DATA_TYPES = [
-  ...REFERENCE_TYPE_VALUES.filter(
-    type => type !== REFERENCE_TYPES.ICD10 && !OBSOLETE_REFERENCE_DATA_TYPES.includes(type),
-  ),
+  ...REFERENCE_TYPE_VALUES.filter(type => type !== REFERENCE_TYPES.ICD10),
   'diagnosis', // Weird edge case where we sometimes call diagnosis icd10 so we have to account for this in a bunch of places
   ...OTHER_REFERENCE_TYPE_VALUES,
   ...CLINICAL_DATA_TYPES_VALUES,
