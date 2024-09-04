@@ -1,6 +1,5 @@
 import {
   IMAGING_REQUEST_STATUS_TYPES,
-  IMAGING_TYPES_VALUES,
   LAB_REQUEST_STATUSES,
   OTHER_REFERENCE_TYPES,
   REFERENCE_TYPES,
@@ -16,7 +15,7 @@ import { QueryTypes } from 'sequelize';
  * @param {import('sequelize').Sequelize} db
  * @param {string} invoiceId
  */
-export const getPotentialInvoiceItems = async (db, invoiceId) => {
+export const getPotentialInvoiceItems = async (db, invoiceId, imagingTypes) => {
   const encounterId = await db
     .query(
       `SELECT i."encounter_id" as "encounterId" from invoices i where i.id = :invoiceId and i.deleted_at is null`,
@@ -113,7 +112,7 @@ join users u on u.deleted_at is null and coalesce(fpc."orderedByUserId",fi."orde
       replacements: {
         encounterId,
         imagingType: REFERENCE_TYPES.IMAGING_TYPE,
-        imagingTypes: IMAGING_TYPES_VALUES,
+        imagingTypes,
         excludedLabRequestStatuses: [
           LAB_REQUEST_STATUSES.RECEPTION_PENDING,
           LAB_REQUEST_STATUSES.CANCELLED,

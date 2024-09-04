@@ -13,7 +13,12 @@ invoiceItemsRoute.get(
 invoiceItemsRoute.get(
   '/:id/potentialInvoiceItems',
   asyncHandler(async (req, res) => {
-    const data = await getPotentialInvoiceItems(req.db, req.params.id);
+    const localisation = await req.getLocalisation();
+    const data = await getPotentialInvoiceItems(
+      req.db,
+      req.params.id,
+      localisation?.imagingTypes ?? [],
+    );
     const transformedData = data.map(it =>
       transform(
         it,
