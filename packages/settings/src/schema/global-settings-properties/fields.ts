@@ -7,7 +7,8 @@ export const LOCALISED_FIELD_TYPES = {
 };
 
 export const generateFieldSchema = ({ isPatientDetails = false, hideable = true, type }) => {
-  const schema = {
+  // TODO: bad
+  const schema: any = {
     required: {
       description: 'Field is required',
       type: yup.boolean(),
