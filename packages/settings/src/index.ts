@@ -1,3 +1,4 @@
+export { settingsCache } from './cache';
 export {
   centralSettings,
   globalSettings,

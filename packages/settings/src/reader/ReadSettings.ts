@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 import { CentralSettingPath, FacilitySettingPath } from 'schema';
 import { get as lodashGet, pick } from 'lodash';
 import { buildSettings, SettingPath } from '..';
@@ -54,6 +53,7 @@ export class ReadSettings {
 }
 
 export type FacilityReadSettings = ReadSettings & {
+  // eslint-disable-next-line no-unused-vars
   get(key: FacilitySettingPath): Promise<unknown>;
 };
 export type CentralReadSettings = ReadSettings & {
