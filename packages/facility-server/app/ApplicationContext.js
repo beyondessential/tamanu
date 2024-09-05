@@ -5,12 +5,29 @@ import { closeDatabase, initDatabase, initReporting } from './database';
 import { VERSION } from './middleware/versionCompatibility.js';
 import { ReadSettings } from '@tamanu/settings/reader';
 
+/**
+ * @typedef {import('@tamanu/settings/reader').ReadSettings} ReadSettings
+ * @typedef {import('@tamanu/settings').FacilitySettingPath} FacilitySettingPath
+ * @typedef {import('sequelize').Sequelize} Sequelize
+ * @typedef {import('@tamanu/shared/models')} Models
+ *
+ * @typedef {Object} FacilityScopedReadSettings
+ * @property {(path: FacilitySettingPath) => ?} get
+ *
+ * @typedef {FacilityScopedReadSettings & ReadSettings} SettingsReader
+ */
+
 export class ApplicationContext {
-  /** @type {import('sequelize').Sequelize | null} */
+  /** @type {Sequelize | null} */
   sequelize = null;
 
-  /** @type {import('@tamanu/shared/models') | null} */
+  /** @type {Models | null} */
   models = null;
+
+  /**
+   * @type {SettingsReader | null}
+   */
+  settings = null;
 
   reportSchemaStores = null;
 

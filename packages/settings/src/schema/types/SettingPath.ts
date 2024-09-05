@@ -32,7 +32,12 @@ type RemoveSchemaKeys<T> = T extends object
 type StartsWith<T extends string, U extends string> = T extends `${U}${Subscript<string>}` ? T : never;
 
 type SchemaProperties = typeof globalSettings.properties | typeof facilitySettings.properties | typeof centralSettings.properties;
+type FacilityScopedProperties = typeof facilitySettings.properties | typeof globalSettings.properties;
+type CentralScopedProperties = typeof centralSettings.properties | typeof globalSettings.properties;
 
 export type SettingPath = RemoveSchemaKeys<SchemaProperties>
-export type FrontEndExposedSettingPath = StartsWith<SettingPath, typeof KEYS_EXPOSED_TO_FRONT_END[number]>;
+export type FacilitySettingPath = RemoveSchemaKeys<FacilityScopedProperties>
+export type CentralSettingPath = RemoveSchemaKeys<CentralScopedProperties>
+
+export type FrontEndExposedSettingPath = StartsWith<FacilitySettingPath, typeof KEYS_EXPOSED_TO_FRONT_END[number]>;
 

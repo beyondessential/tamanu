@@ -1,12 +1,26 @@
 import config from 'config';
 import { omit } from 'lodash';
-import { isSyncTriggerDisabled } from '@tamanu/shared/dataMigrations';
+
 import { EmailService } from './services/EmailService';
 import { closeDatabase, initDatabase, initReporting } from './database';
 import { initIntegrations } from './integrations';
 import { defineSingletonTelegramBotService } from './services/TelegramBotService';
-import { log, initBugsnag } from '@tamanu/shared/services/logging';
 import { VERSION } from './middleware/versionCompatibility';
+
+import { isSyncTriggerDisabled } from '@tamanu/shared/dataMigrations';
+import { log, initBugsnag } from '@tamanu/shared/services/logging';
+import { ReadSettings } from '@tamanu/settings/reader';
+
+/**
+ * @typedef {import('@tamanu/settings/reader').ReadSettings} ReadSettings
+ * @typedef {import('@tamanu/settings').CentralSettingPath} CentralSettingPath
+ * @typedef {import('./services/EmailService').EmailService} EmailService
+ *
+ * @typedef {Object} CentralScopedReadSettings
+ * @property {(path: CentralScopedReadSettings) => ?} get
+ *
+ * @typedef {CentralScopedReadSettings & ReadSettings} SettingsReader
+ */
 
 export class ApplicationContext {
   /** @type {Awaited<ReturnType<typeof initDatabase>>|null} */
@@ -14,13 +28,16 @@ export class ApplicationContext {
 
   reportSchemaStores = null;
 
-  /** @type {import('./services/EmailService').EmailService | null} */
+  /** @type {EmailService | null} */
   emailService = null;
 
   /** @type {Awaited<ReturnType<typeof defineSingletonTelegramBotService>>|null} */
   telegramBotService = null;
 
   integrations = null;
+
+  /** @type {SettingsReader | null} */
+  settings = null;
 
   closeHooks = [];
 
@@ -41,6 +58,8 @@ export class ApplicationContext {
     if (config.db.reportSchemas?.enabled) {
       this.reportSchemaStores = await initReporting();
     }
+
+    this.settings = new ReadSettings(this.store.models);
 
     this.telegramBotService = await defineSingletonTelegramBotService({
       config,
