@@ -72,6 +72,12 @@ const CategoryWrapper = styled.div`
   }
 `;
 
+const Unit = styled.div`
+  display: flex;
+  align-items: center;
+  padding-left: 5px;
+`
+
 const sortProperties = ([a0, a1], [b0, b1]) => {
   const aName = a1.name || a0;
   const bName = b1.name || b0;
@@ -111,7 +117,7 @@ const prepareSchema = scope => {
 };
 
 const DefaultButton = ({resetToDefault}) => {
-  return <DefaultSettingButton onClick={resetToDefault}>Return to default</DefaultSettingButton>;
+  return <DefaultSettingButton onClick={resetToDefault}>Reset to default</DefaultSettingButton>;
 };
 const SettingInput = ({ type, path, value, defaultValue, handleChangeSetting, unit }) => {
   const [error, setError] = useState(null);
@@ -146,7 +152,7 @@ const SettingInput = ({ type, path, value, defaultValue, handleChangeSetting, un
             onChange={e => handleChangeSetting(path, Number(e.target.value))}
             style={{ width: '80px' }}
           />
-          {unit}
+          <Unit>{unit}</Unit>
           <DefaultButton resetToDefault={() => handleChangeSetting(path, defaultValue)} />
         </>
       );
