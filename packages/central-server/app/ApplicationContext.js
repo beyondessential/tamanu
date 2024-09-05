@@ -12,14 +12,8 @@ import { log, initBugsnag } from '@tamanu/shared/services/logging';
 import { ReadSettings } from '@tamanu/settings/reader';
 
 /**
- * @typedef {import('@tamanu/settings/reader').ReadSettings} ReadSettings
- * @typedef {import('@tamanu/settings').CentralSettingPath} CentralSettingPath
  * @typedef {import('./services/EmailService').EmailService} EmailService
- *
- * @typedef {Object} CentralScopedReadSettings
- * @property {(path: CentralScopedReadSettings) => ?} get
- *
- * @typedef {CentralScopedReadSettings & ReadSettings} SettingsReader
+ * @typedef {import('@tamanu/settings').CentralReadSettings} SettingsReader
  */
 
 export class ApplicationContext {
@@ -61,6 +55,7 @@ export class ApplicationContext {
 
     this.settings = new ReadSettings(this.store.models);
 
+    this.settings.get('')
     this.telegramBotService = await defineSingletonTelegramBotService({
       config,
       models: this.store.models,

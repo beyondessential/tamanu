@@ -6,15 +6,9 @@ import { VERSION } from './middleware/versionCompatibility.js';
 import { ReadSettings } from '@tamanu/settings/reader';
 
 /**
- * @typedef {import('@tamanu/settings/reader').ReadSettings} ReadSettings
- * @typedef {import('@tamanu/settings').FacilitySettingPath} FacilitySettingPath
+ * @typedef {import('@tamanu/settings').FacilityReadSettings} SettingsReader
  * @typedef {import('sequelize').Sequelize} Sequelize
  * @typedef {import('@tamanu/shared/models')} Models
- *
- * @typedef {Object} FacilityScopedReadSettings
- * @property {(path: FacilitySettingPath) => ?} get
- *
- * @typedef {FacilityScopedReadSettings & ReadSettings} SettingsReader
  */
 
 export class ApplicationContext {
@@ -48,7 +42,7 @@ export class ApplicationContext {
     this.sequelize = database.sequelize;
     this.models = database.models;
     this.settings = new ReadSettings(this.models, config.serverFacilityId);
-
+    this.settings.get(''
     if (config.db.reportSchemas?.enabled) {
       this.reportSchemaStores = await initReporting();
     }

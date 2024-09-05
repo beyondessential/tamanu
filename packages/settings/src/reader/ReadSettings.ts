@@ -1,3 +1,5 @@
+/* eslint-disable no-unused-vars */
+import { CentralSettingPath, FacilitySettingPath } from 'schema';
 import { get as lodashGet, pick } from 'lodash';
 import { buildSettings, SettingPath } from '..';
 import { settingsCache } from '../cache';
@@ -26,7 +28,7 @@ export class ReadSettings {
 
   async get(key: SettingPath) {
     const settings = await this.getAll();
-    return lodashGet(settings, key);
+    return lodashGet(settings, key as string);
   }
 
   // This is what is called on login. This gets only settings relevant to
@@ -50,3 +52,10 @@ export class ReadSettings {
     return settings;
   }
 }
+
+export type FacilityReadSettings = ReadSettings & {
+  get(key: FacilitySettingPath): Promise<unknown>;
+};
+export type CentralReadSettings = ReadSettings & {
+  get(key: CentralSettingPath): Promise<unknown>;
+};
