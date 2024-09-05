@@ -10,7 +10,11 @@ const PillShape = styled.button`
   ${props =>
     css`
       color: ${props.$hexColor};
-      background-color: ${props.$hexColor}1a; // 10% opacity
+      background-color: oklch(from ${props.$hexColor} l c h / 10%);
+
+      @supports not (color: oklch(from black l c h)) {
+        background-color: ${props.$hexColor}1a; // Works only with six-digit hex colour
+      }
     `}
 
   border-radius: calc(infinity * 1px);
