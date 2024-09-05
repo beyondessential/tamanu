@@ -17,7 +17,7 @@ export const KEYS_EXPOSED_TO_FRONT_END = [
   'fields',
 ] as const;
 
-export class ReadSettings<Paths = SettingPath> {
+export class ReadSettings<Path = SettingPath> {
   models: Models;
   facilityId?: string;
   constructor(models: Models, facilityId?: string) {
@@ -25,7 +25,7 @@ export class ReadSettings<Paths = SettingPath> {
     this.facilityId = facilityId;
   }
 
-  async get(key: Paths) {
+  async get(key: Path) {
     const settings = await this.getAll();
     return lodashGet(settings, key as string);
   }
