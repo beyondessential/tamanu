@@ -42,7 +42,6 @@ export class ApplicationContext {
     this.sequelize = database.sequelize;
     this.models = database.models;
     this.settings = new ReadSettings(this.models, config.serverFacilityId);
-    this.settings.get(''
     if (config.db.reportSchemas?.enabled) {
       this.reportSchemaStores = await initReporting();
     }
