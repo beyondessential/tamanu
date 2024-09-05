@@ -21,10 +21,10 @@ const fetchServers = async (): Promise<SelectOption[]> => {
   // return [{ label: 'Local', value: 'http://192.168.0.1:3000' }];
 
   // allows overriding the central server list or meta server in builds
-  const { metaServer: metaServerOverride, centralServers: centralServerOverrides } = overrides;
-  if (centralServerOverrides) {
-    return centralServerOverrides;
-  }
+  // const { metaServer: metaServerOverride, centralServers: centralServerOverrides } = overrides;
+  // if (centralServerOverrides) {
+  //   return centralServerOverrides;
+  // }
 
   const defaultMetaServer = 'https://meta-dev.internal.tamanu.io';
   const metaServer = metaServerOverride || defaultMetaServer;
