@@ -1,19 +1,10 @@
 import React from 'react';
 import styled, { css } from 'styled-components';
 
-import { APPOINTMENT_STATUSES } from '@tamanu/constants';
-
 import { Colors } from '../../constants';
+import { APPOINTMENT_STATUS_COLORS } from './statusColors';
 
 const inactiveSelector = 'inactive';
-
-const statusColors = {
-  [APPOINTMENT_STATUSES.ARRIVED]: Colors.purple,
-  [APPOINTMENT_STATUSES.ASSESSED]: Colors.darkOrange,
-  [APPOINTMENT_STATUSES.CONFIRMED]: Colors.blue,
-  [APPOINTMENT_STATUSES.NO_SHOW]: Colors.pink,
-  [APPOINTMENT_STATUSES.SEEN]: Colors.green,
-};
 
 const PillShape = styled.button`
   ${props =>
@@ -66,7 +57,7 @@ export const AppointmentStatusToken = ({ className, appointmentStatus, disabled,
     <Token
       className={classes}
       disabled={disabled}
-      hexColor={statusColors[appointmentStatus]}
+      hexColor={APPOINTMENT_STATUS_COLORS[appointmentStatus]}
       deselected={deselected}
     >
       {appointmentStatus ?? <>&mdash;</>}
