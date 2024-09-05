@@ -4,9 +4,6 @@ import { get } from 'lodash';
 
 /**
  * @typedef {import("@tamanu/settings").FrontEndExposedSettingPath} SettingPath
- */
-
-/**
  * @typedef {Object} SettingsContextType
  * @property {(path: SettingPath) => ?} getSetting
  */
