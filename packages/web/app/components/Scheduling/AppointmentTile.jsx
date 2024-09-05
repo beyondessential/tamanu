@@ -6,22 +6,29 @@ import { APPOINTMENT_STATUSES } from '@tamanu/constants';
 import { Colors } from '../../constants';
 import { APPOINTMENT_STATUS_COLORS } from './statusColors';
 
+const selectedSelector = 'selected';
+
 const Wrapper = styled.div`
   ${props =>
     css`
-      border-color: ${props.$color};
-      border-width: ${props.$selected ? '1px' : '0'};
-
-      background-color: oklch(from ${props.$color} l c h / 10%);
-      &:hover {
-        background-color: oklch(from ${props.$color} l c h / 20%);
-      }
+      --bg-lighter: oklch(from ${props.$color} l c h / 10%);
+      --bg-darker: oklch(from ${props.$color} l c h / 20%);
       @supports not (color: oklch(from black l c h)) {
         // These work only with six-digit hex colours
-        background-color: ${props.$color}1a;
-        &:hover {
-          background-color: ${props.$color}33;
-        }
+        --bg-lighter: ${props.$color}1a;
+        --bg-darker: ${props.$color}33;
+      }
+
+      background-color: var(--bg-lighter);
+      border-color: ${props.$color};
+
+      &:hover {
+        background-color: var(--bg-darker);
+      }
+
+      &.${selectedSelector} {
+        border-width: 1px;
+        background-color: var(--bg-darker);
       }
     `}
 
