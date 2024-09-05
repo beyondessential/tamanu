@@ -45,10 +45,6 @@ export const generateFieldSchema = ({ isPatientDetails = false, hideable = true,
     case LOCALISED_FIELD_TYPES.NUMBER:
       schema.defaultValue.type = yup.number();
       break;
-
-    case LOCALISED_FIELD_TYPES.DATE:
-      schema.defaultValue.type = yup.date();
-      break;
   }
 
   return schema;
