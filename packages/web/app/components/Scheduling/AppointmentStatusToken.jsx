@@ -54,21 +54,20 @@ const PillShape = styled.button`
   }
 `;
 
-const Token = ({ hexColor = Colors.blue, inactive, children, ...props }) => (
-  <PillShape $hexColor={hexColor} $inactive={inactive} {...props}>
+const Token = ({ hexColor = Colors.blue, children, ...props }) => (
+  <PillShape $hexColor={hexColor} {...props}>
     {children}
   </PillShape>
 );
 
-export const AppointmentStatusToken = ({ className, appointmentStatus, disabled, inactive }) => {
-  const classes = inactive ? [className, inactiveSelector].join('') : className;
+export const AppointmentStatusToken = ({ className, appointmentStatus, disabled, deselected }) => {
+  const classes = deselected ? [className, inactiveSelector].join('') : className;
   return (
     <Token
-      aria-disabled={disabled}
       className={classes}
       disabled={disabled}
       hexColor={statusColors[appointmentStatus]}
-      inactive={inactive}
+      deselected={deselected}
     >
       {appointmentStatus ?? <>&mdash;</>}
     </Token>

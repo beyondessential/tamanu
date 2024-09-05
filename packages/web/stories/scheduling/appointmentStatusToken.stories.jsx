@@ -28,7 +28,7 @@ export const NoShow = () => (
 );
 
 export const Deselected = () => (
-  <AppointmentStatusToken appointmentStatus={APPOINTMENT_STATUSES.CONFIRMED} inactive />
+  <AppointmentStatusToken appointmentStatus={APPOINTMENT_STATUSES.CONFIRMED} deselected />
 );
 
 export const Disabled = () => (
