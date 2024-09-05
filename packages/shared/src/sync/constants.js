@@ -14,3 +14,5 @@ export const COLUMNS_EXCLUDED_FROM_SYNC = [
   'deletedAt',
   'updatedAtSyncTick',
 ];
+
+export const SYNC_LOOKUP_PENDING_UPDATE_FLAG = -1;

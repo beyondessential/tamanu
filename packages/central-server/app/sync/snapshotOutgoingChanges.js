@@ -304,7 +304,13 @@ export const snapshotOutgoingChanges = withConfig(
     sessionConfig,
     config,
   ) => {
-    return config.sync.lookupTable.enabled
+    const useSyncLookup = config.sync.lookupTable.enabled;
+
+    if (useSyncLookup) {
+      await store.models.SyncSession.addDebugInfo(sessionId, { useSyncLookup: true });
+    }
+
+    return useSyncLookup
       ? snapshotOutgoingChangesFromSyncLookup(
           store,
           outgoingModels,

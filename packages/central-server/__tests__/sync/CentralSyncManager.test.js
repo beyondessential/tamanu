@@ -260,7 +260,7 @@ describe('CentralSyncManager', () => {
       await session.markErrored('Error 1');
       await session.markErrored('Error 2');
 
-      expect(session.errors).toEqual(['Error 1', 'Error 2'])
+      expect(session.errors).toEqual(['Error 1', 'Error 2']);
     });
   });
 
@@ -1171,6 +1171,8 @@ describe('CentralSyncManager', () => {
         },
       });
 
+      const currentSyncTime = await models.LocalSystemFact.get(CURRENT_SYNC_TIME_KEY);
+
       await centralSyncManager.updateLookupTable();
 
       const lookupData = await models.SyncLookup.findAll({});
@@ -1197,7 +1199,7 @@ describe('CentralSyncManager', () => {
           }),
           isLabRequest: false,
           isDeleted: false,
-          updatedAtSyncTick: DEFAULT_CURRENT_SYNC_TIME_VALUE.toString(),
+          updatedAtSyncTick: currentSyncTime,
         }),
       );
 
@@ -1207,7 +1209,7 @@ describe('CentralSyncManager', () => {
       await centralSyncManager.updateLookupTable();
       const lookupData2 = await models.SyncLookup.findAll({});
 
-      const newUpdatedAtSyncTick = DEFAULT_CURRENT_SYNC_TIME_VALUE + 2;
+      const newCurrentSyncTime = (await models.LocalSystemFact.get(CURRENT_SYNC_TIME_KEY)) - 1;
 
       expect(lookupData2).toHaveLength(1);
       expect(lookupData2[0]).toEqual(
@@ -1231,7 +1233,7 @@ describe('CentralSyncManager', () => {
           }),
           isLabRequest: false,
           isDeleted: false,
-          updatedAtSyncTick: newUpdatedAtSyncTick.toString(),
+          updatedAtSyncTick: newCurrentSyncTime.toString(), // we take the tick for this
         }),
       );
     });
@@ -1250,6 +1252,8 @@ describe('CentralSyncManager', () => {
           maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
         },
       });
+
+      const currentSyncTime = await models.LocalSystemFact.get(CURRENT_SYNC_TIME_KEY);
 
       await centralSyncManager.updateLookupTable();
 
@@ -1277,7 +1281,7 @@ describe('CentralSyncManager', () => {
           }),
           isLabRequest: false,
           isDeleted: false,
-          updatedAtSyncTick: DEFAULT_CURRENT_SYNC_TIME_VALUE.toString(),
+          updatedAtSyncTick: currentSyncTime,
         }),
       );
 
@@ -1287,7 +1291,7 @@ describe('CentralSyncManager', () => {
       await centralSyncManager.updateLookupTable();
       const lookupData2 = await models.SyncLookup.findAll({});
 
-      const newUpdatedAtSyncTick = DEFAULT_CURRENT_SYNC_TIME_VALUE + 2;
+      const newCurrentSyncTime = (await models.LocalSystemFact.get(CURRENT_SYNC_TIME_KEY)) - 1;
 
       expect(lookupData2).toHaveLength(2);
       expect(lookupData2.find(d => d.recordType === 'patients')).toEqual(
@@ -1311,7 +1315,7 @@ describe('CentralSyncManager', () => {
           }),
           isLabRequest: false,
           isDeleted: false,
-          updatedAtSyncTick: newUpdatedAtSyncTick.toString(),
+          updatedAtSyncTick: newCurrentSyncTime.toString(),
         }),
       );
     });
@@ -1551,7 +1555,12 @@ describe('CentralSyncManager', () => {
       centralSyncManager.tickTockGlobalClock = jest.fn().mockImplementation(() => {
         throw new Error('Test error');
       });
-      await centralSyncManager.updateLookupTable();
+
+      try {
+        await centralSyncManager.updateLookupTable();
+      } catch (e) {
+        //swallow error
+      }
 
       const debugLogs = await models.DebugLog.findAll({});
       expect(debugLogs).toHaveLength(1);

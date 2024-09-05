@@ -523,8 +523,17 @@ describe('Sync Lookup data', () => {
     await centralSyncManager.updateLookupTable();
   });
 
+  afterAll(() => ctx.close());
+
   beforeEach(async () => {
     sessionId = fakeUUID();
+    const startTime = new Date();
+    await models.SyncSession.create({
+      id: sessionId,
+      startTime,
+      lastConnectionTime: startTime,
+      debugInfo: {},
+    });
     await createSnapshotTable(ctx.store.sequelize, sessionId);
     await models.PatientFacility.truncate({ force: true });
     await models.PatientFacility.create({
@@ -548,12 +557,14 @@ describe('Sync Lookup data', () => {
       0,
     );
 
+    const since = -1;
+    const patientCount = 1;
     const outgoingModels = getModelsForDirection(models, SYNC_DIRECTIONS.PULL_FROM_CENTRAL);
     await snapshotOutgoingChanges(
       ctx.store,
       outgoingModels,
-      SINCE,
-      1,
+      since,
+      patientCount,
       fullSyncPatientsTable,
       sessionId,
       '',
@@ -631,11 +642,13 @@ describe('Sync Lookup data', () => {
       Object.entries(outgoingModels).filter(([, model]) => !model.buildPatientSyncFilter),
     );
 
+    const since = -1;
+    const patientCount = 1;
     await snapshotOutgoingChanges(
       ctx.store,
       patientLinkedModels,
-      SINCE,
-      1,
+      since,
+      patientCount,
       fullSyncPatientsTable,
       sessionId,
       facility.id,
@@ -704,11 +717,12 @@ describe('Sync Lookup data', () => {
           }),
         );
 
+        const patientCount = 1;
         await snapshotOutgoingChanges(
           ctx.store,
           { Setting: models.Setting },
           SINCE,
-          1,
+          patientCount,
           regularSyncPatientsTable,
           sessionId,
           facility.id,
@@ -755,11 +769,12 @@ describe('Sync Lookup data', () => {
           }),
         );
 
+        const patientCount = 1;
         await snapshotOutgoingChanges(
           ctx.store,
           { Setting: models.Setting },
           SINCE,
-          1,
+          patientCount,
           regularSyncPatientsTable,
           sessionId,
           facility.id,
@@ -801,11 +816,12 @@ describe('Sync Lookup data', () => {
           }),
         );
 
+        const patientCount = 1
         await snapshotOutgoingChanges(
           ctx.store,
           { Setting: models.Setting },
           SINCE,
-          1,
+          patientCount,
           regularSyncPatientsTable,
           sessionId,
           facility.id,
@@ -859,11 +875,12 @@ describe('Sync Lookup data', () => {
       }),
     );
 
+    const patientCount = 1
     await snapshotOutgoingChanges(
       ctx.store,
       { Setting: models.Setting },
       SINCE,
-      1,
+      patientCount,
       regularSyncPatientsTable,
       sessionId,
       facility.id,
@@ -974,11 +991,12 @@ describe('Sync Lookup data', () => {
         isMobile: false,
       };
 
+      const patientCount = 1
       await snapshotOutgoingChanges(
         ctx.store,
         labRequestModels,
         SINCE,
-        1,
+        patientCount,
         regularSyncPatientsTable,
         sessionId,
         facility.id,
@@ -1058,11 +1076,12 @@ describe('Sync Lookup data', () => {
         isMobile: false,
       };
 
+      const patientCount = 1
       await snapshotOutgoingChanges(
         ctx.store,
         labRequestModels,
         SINCE,
-        1,
+        patientCount,
         regularSyncPatientsTable,
         sessionId,
         facility.id,
