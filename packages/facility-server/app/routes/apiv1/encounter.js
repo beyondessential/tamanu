@@ -611,13 +611,17 @@ encounterRelations.post(
 
     const { startTime, designations, ...other } = req.body;
 
-    const upcomingTasksTimeFrame = config.upcomingTasksTimeFrame || 8;
+    const upcomingTasksTimeFrame = config.tasking?.upcomingTasksTimeFrame || 8;
     const dueTime = toCountryDateTimeString(add(new Date(startTime), { hours: upcomingTasksTimeFrame }));
 
-    const task = await Task.create({ dueTime, ...other });
+    const taskData = { dueTime, facilityId: config.serverFacilityId, ...other };
+
+    const task = await Task.create(taskData);
     if (designations) {
-      task.setDesignations(designations);
+      await task.setDesignations(designations);
     }
+
+    await Task.generateRepeatingTasks(task.dataValues);
     res.send(task);
   }),
 );
@@ -630,7 +634,7 @@ encounterRelations.post(
     const { Task, TaskDesignation } = models;
 
     req.checkPermission('create', 'Task');
-    const upcomingTasksTimeFrame = config.upcomingTasksTimeFrame || 8;
+    const upcomingTasksTimeFrame = config.tasking?.upcomingTasksTimeFrame || 8;
   
     const tasksList = tasks.map(task => {
       const dueTime = toCountryDateTimeString(add(new Date(startTime), { hours: upcomingTasksTimeFrame }));
@@ -642,10 +646,11 @@ encounterRelations.post(
         requestTime,
         encounterId,
         note,
+        facilityId: config.serverFacilityId
       };
     });
 
-    const taskSet = await Task.bulkCreate(tasksList);
+    const createdTaskSet = await Task.bulkCreate(tasksList, { returning: true });
 
     const taskDesignationAssociations = tasksList.flatMap(task => {
       return task.designations.map(designationId => ({
@@ -653,8 +658,14 @@ encounterRelations.post(
         designationId: designationId,
       }));
     });
+
     await TaskDesignation.bulkCreate(taskDesignationAssociations);
-    res.send(taskSet);
+
+    for (const task of createdTaskSet) {
+      await Task.generateRepeatingTasks(task.dataValues);
+    }
+
+    res.send(createdTaskSet);
   }),
 );
 

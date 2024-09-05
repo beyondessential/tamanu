@@ -50,6 +50,7 @@ const StyledTable = styled(Table)`
 `;
 
 const getDesignations = ({ taskTemplate }) => {
+  if (!taskTemplate?.designations) return '';
   const designations = taskTemplate.designations.map((designation) => designation.referenceData.name);
   return designations.join(', ');
 };
@@ -79,7 +80,7 @@ const COLUMNS = [
       <TranslatedText stringId="addTask.taskSet.table.column.frequency" fallback="Frequency" />
     ),
     accessor: ({ taskTemplate }) => {
-      const { frequencyValue, frequencyUnit } = taskTemplate;
+      const { frequencyValue, frequencyUnit } = taskTemplate ?? {};
       return frequencyValue && frequencyUnit ? `${frequencyValue} ${frequencyUnit}` : '';
     },
     sortable: false,
@@ -92,7 +93,7 @@ const COLUMNS = [
         fallback="High priority"
       />
     ),
-    accessor: ({ taskTemplate }) => taskTemplate.highPriority ? <StyledPriorityHighIcon /> : '',
+    accessor: ({ taskTemplate }) => taskTemplate?.highPriority ? <StyledPriorityHighIcon /> : '',
     sortable: false,
   },
 ];

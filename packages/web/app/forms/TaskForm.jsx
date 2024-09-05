@@ -63,12 +63,10 @@ const StyledPriorityHighIcon = styled(PriorityHighIcon)`
   vertical-align: sub;
 `;
 
-const taskFrequencyUnitOptions = Object.entries(TASK_FREQUENCY_UNIT_OPTIONS).map(
-  ([_, label]) => ({
-    label,
-    value: TASK_FREQUENCY_UNIT_TO_VALUE[label],
-  }),
-);
+const taskFrequencyUnitOptions = Object.entries(TASK_FREQUENCY_UNIT_OPTIONS).map(([, label]) => ({
+  label,
+  value: TASK_FREQUENCY_UNIT_TO_VALUE[label],
+}));
 
 export const TaskForm = React.memo(({ onClose, onCreateTaskSuccess }) => {
   const practitionerSuggester = useSuggester('practitioner');
@@ -86,12 +84,14 @@ export const TaskForm = React.memo(({ onClose, onCreateTaskSuccess }) => {
   const [selectedTask, setSelectedTask] = useState('');
 
   const onSubmit = values => {
+    const { designations, ...other } = values;
     if (selectedTask.type === 'taskTemplate') {
       createTask(
         {
-          ...values,
+          ...other,
           encounterId: encounter.id,
           name: selectedTask.label,
+          designations: typeof designations === 'string' ? JSON.parse(designations) : designations,
         },
         {
           onSuccess: onCreateTaskSuccess,
@@ -117,7 +117,6 @@ export const TaskForm = React.memo(({ onClose, onCreateTaskSuccess }) => {
         },
       );
     }
-    
   };
 
   const handleTaskChange = e => {
