@@ -3,7 +3,11 @@ import { Op } from 'sequelize';
 import _config from 'config';
 
 import { SYNC_DIRECTIONS, DEBUG_LOG_TYPES } from '@tamanu/constants';
-import { CURRENT_SYNC_TIME_KEY, LOOKUP_UP_TO_TICK_KEY } from '@tamanu/shared/sync/constants';
+import {
+  CURRENT_SYNC_TIME_KEY,
+  LOOKUP_UP_TO_TICK_KEY,
+  SYNC_LOOKUP_PENDING_UPDATE_FLAG,
+} from '@tamanu/shared/sync/constants';
 import { log } from '@tamanu/shared/services/logging';
 import {
   adjustDataPostSyncPush,
@@ -27,7 +31,7 @@ import { snapshotOutgoingChanges } from './snapshotOutgoingChanges';
 import { filterModelsFromName } from './filterModelsFromName';
 import { startSnapshotWhenCapacityAvailable } from './startSnapshotWhenCapacityAvailable';
 import { createMarkedForSyncPatientsTable } from './createMarkedForSyncPatientsTable';
-import { updateLookupTable } from './updateLookupTable';
+import { updateLookupTable, updateSyncLookupPendingRecords } from './updateLookupTable';
 import { repeatableReadTransaction } from './repeatableReadTransaction';
 
 const errorMessageFromSession = session =>
@@ -226,7 +230,9 @@ export class CentralSyncManager {
   }
 
   async updateLookupTable() {
-    const debugObject = await this.store.models.DebugLog.create({
+    const { store } = this;
+
+    const debugObject = await store.models.DebugLog.create({
       type: DEBUG_LOG_TYPES.SYNC_LOOKUP_UPDATE,
       info: {
         startedAt: new Date(),
@@ -241,17 +247,38 @@ export class CentralSyncManager {
 
       await this.waitForPendingEdits(currentTick);
 
-      const previouslyUpToTick =
-        (await this.store.models.LocalSystemFact.get(LOOKUP_UP_TO_TICK_KEY)) || -1;
+      const previouslyUpToTick = (await store.models.LocalSystemFact.get(LOOKUP_UP_TO_TICK_KEY)) || -1;
 
       await debugObject.addInfo({ since: previouslyUpToTick });
 
-      await repeatableReadTransaction(this.store.sequelize, async () => {
+      const isInitialBuildOfLookupTable = previouslyUpToTick === -1;
+
+      await repeatableReadTransaction(store.sequelize, async transaction => {
+        // do not need to update pending records when it is initial build
+        // because it uses ticks from the actual tables for updated_at_sync_tick
+        if (!isInitialBuildOfLookupTable) {
+          transaction.afterCommit(async () => {
+            // Wrap inside transaction so that any writes to currentSyncTick
+            // will have to wait until this transaction is committed
+            await store.sequelize.transaction(async () => {
+              const { tick: currentTick } = await this.tickTockGlobalClock();
+              await updateSyncLookupPendingRecords(store, currentTick);
+            });
+          });
+        }
+
+        // When it is initial build of sync lookup table, by setting it to null,
+        // it will get the updated_at_sync_tick from the actual tables.
+        // Otherwise, update it to SYNC_LOOKUP_PENDING_UPDATE_FLAG so that
+        // it can update the flagged ones post transaction commit to the latest sync tick,
+        // avoiding sync sessions missing records while sync lookup is being refreshed
+        const syncLookupTick = isInitialBuildOfLookupTable ? null : SYNC_LOOKUP_PENDING_UPDATE_FLAG;
+
         await updateLookupTable(
           getModelsForDirection(this.store.models, SYNC_DIRECTIONS.PULL_FROM_CENTRAL),
           previouslyUpToTick,
           this.constructor.config,
-          currentTick,
+          syncLookupTick,
           debugObject,
         );
 
@@ -261,16 +288,18 @@ export class CentralSyncManager {
         log.debug('CentralSyncManager.updateLookupTable()', {
           lastSuccessfulLookupTableUpdate: currentTick,
         });
-        await this.store.models.LocalSystemFact.set(LOOKUP_UP_TO_TICK_KEY, currentTick);
+        await store.models.LocalSystemFact.set(LOOKUP_UP_TO_TICK_KEY, currentTick);
       });
     } catch (error) {
       log.error('CentralSyncManager.updateLookupTable encountered an error', {
-        ...error,
+        error: error.message,
       });
 
       await debugObject.addInfo({
         error: error.message,
       });
+
+      throw error;
     } finally {
       await debugObject.addInfo({
         completedAt: new Date(),

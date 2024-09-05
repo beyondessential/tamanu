@@ -523,8 +523,17 @@ describe('Sync Lookup data', () => {
     await centralSyncManager.updateLookupTable();
   });
 
+  afterAll(() => ctx.close());
+
   beforeEach(async () => {
     sessionId = fakeUUID();
+    const startTime = new Date();
+    await models.SyncSession.create({
+      id: sessionId,
+      startTime,
+      lastConnectionTime: startTime,
+      debugInfo: {},
+    });
     await createSnapshotTable(ctx.store.sequelize, sessionId);
     await models.PatientFacility.truncate({ force: true });
     await models.PatientFacility.create({

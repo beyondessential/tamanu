@@ -1,6 +1,6 @@
 import { snake } from 'case';
 
-import { COLUMNS_EXCLUDED_FROM_SYNC } from '@tamanu/shared/sync';
+import { COLUMNS_EXCLUDED_FROM_SYNC } from './constants';
 
 export function buildSyncLookupSelect(model, columns = {}) {
   const attributes = model.getAttributes();
@@ -13,7 +13,7 @@ export function buildSyncLookupSelect(model, columns = {}) {
       ${table}.id,
       '${table}',
       ${table}.deleted_at IS NOT NULL,
-      :updatedAtSyncTick,
+      COALESCE(:updatedAtSyncTick, ${table}.updated_at_sync_tick),
       json_build_object(
         ${Object.keys(attributes)
           .filter(a => !COLUMNS_EXCLUDED_FROM_SYNC.includes(a))

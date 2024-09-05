@@ -43,9 +43,18 @@ describe('snapshotOutgoingChanges', () => {
     outgoingModels = getModelsForDirection(models, SYNC_DIRECTIONS.PULL_FROM_CENTRAL);
   });
 
+  afterAll(() => ctx.close());
+
   beforeEach(async () => {
     await models.SyncLookup.truncate({ force: true });
     sessionId = fakeUUID();
+    const startTime = new Date();
+    await models.SyncSession.create({
+      id: sessionId,
+      startTime,
+      lastConnectionTime: startTime,
+      debugInfo: {},
+    });
     await createSnapshotTable(ctx.store.sequelize, sessionId);
     tock = await models.LocalSystemFact.increment('currentSyncTick', 2);
     facility = await models.Facility.create({
@@ -68,6 +77,7 @@ describe('snapshotOutgoingChanges', () => {
 
     await models.SyncLookup.bulkCreate([
       fake(models.SyncLookup, {
+        id: 1,
         recordId: refData1Id,
         recordType: 'reference_data',
         patientId: null,
@@ -79,6 +89,7 @@ describe('snapshotOutgoingChanges', () => {
         updatedAtSyncTick: 1,
       }),
       fake(models.SyncLookup, {
+        id: 2,
         recordId: refData2Id,
         recordType: 'reference_data',
         patientId: null,
@@ -127,6 +138,7 @@ describe('snapshotOutgoingChanges', () => {
 
     await models.SyncLookup.bulkCreate([
       fake(models.SyncLookup, {
+        id: 1,
         recordId: refData1Id,
         recordType: 'reference_data',
         patientId: null,
@@ -138,6 +150,7 @@ describe('snapshotOutgoingChanges', () => {
         updatedAtSyncTick: 10,
       }),
       fake(models.SyncLookup, {
+        id: 2,
         recordId: refData2Id,
         recordType: 'reference_data',
         patientId: null,
@@ -194,6 +207,7 @@ describe('snapshotOutgoingChanges', () => {
 
     await models.SyncLookup.bulkCreate([
       fake(models.SyncLookup, {
+        id: 1,
         recordId: imagingRequest1Id,
         recordType: 'imaging_requests',
         patientId: patient.id,
@@ -205,6 +219,7 @@ describe('snapshotOutgoingChanges', () => {
         updatedAtSyncTick: 10,
       }),
       fake(models.SyncLookup, {
+        id: 2,
         recordId: imagingRequest2Id,
         recordType: 'imaging_requests',
         patientId: patient.id,
@@ -260,6 +275,7 @@ describe('snapshotOutgoingChanges', () => {
 
     await models.SyncLookup.bulkCreate([
       fake(models.SyncLookup, {
+        id: 1,
         recordId: imagingRequest1Id,
         recordType: 'imaging_requests',
         patientId: 'some other patients',
@@ -271,6 +287,7 @@ describe('snapshotOutgoingChanges', () => {
         updatedAtSyncTick: 10,
       }),
       fake(models.SyncLookup, {
+        id: 2,
         recordId: imagingRequest2Id,
         recordType: 'imaging_requests',
         patientId: 'some other patients',
@@ -312,6 +329,7 @@ describe('snapshotOutgoingChanges', () => {
 
     await models.SyncLookup.bulkCreate([
       fake(models.SyncLookup, {
+        id: 1,
         recordId: settings1Id,
         recordType: 'settings',
         patientId: null,
@@ -323,6 +341,7 @@ describe('snapshotOutgoingChanges', () => {
         updatedAtSyncTick: 10,
       }),
       fake(models.SyncLookup, {
+        id: 2,
         recordId: settings2Id,
         recordType: 'settings',
         patientId: null,
@@ -371,6 +390,7 @@ describe('snapshotOutgoingChanges', () => {
 
     await models.SyncLookup.bulkCreate([
       fake(models.SyncLookup, {
+        id: 1,
         recordId: settings1Id,
         recordType: 'settings',
         patientId: null,
@@ -382,6 +402,7 @@ describe('snapshotOutgoingChanges', () => {
         updatedAtSyncTick: 10,
       }),
       fake(models.SyncLookup, {
+        id: 2,
         recordId: settings2Id,
         recordType: 'settings',
         patientId: null,
@@ -423,6 +444,7 @@ describe('snapshotOutgoingChanges', () => {
 
     await models.SyncLookup.bulkCreate([
       fake(models.SyncLookup, {
+        id: 1,
         recordId: labRecord1Id,
         recordType: 'lab_requests',
         patientId: null,
@@ -434,6 +456,7 @@ describe('snapshotOutgoingChanges', () => {
         updatedAtSyncTick: 10,
       }),
       fake(models.SyncLookup, {
+        id: 2,
         recordId: labRecord2Id,
         recordType: 'lab_requests',
         patientId: null,
@@ -498,6 +521,7 @@ describe('snapshotOutgoingChanges', () => {
 
     await models.SyncLookup.bulkCreate([
       fake(models.SyncLookup, {
+        id: 1,
         recordId: imagingRequest1Id,
         recordType: 'imaging_requests',
         patientId: patient.id,
@@ -509,6 +533,7 @@ describe('snapshotOutgoingChanges', () => {
         updatedAtSyncTick: 10,
       }),
       fake(models.SyncLookup, {
+        id: 2,
         recordId: imagingRequest2Id,
         recordType: 'imaging_requests',
         patientId: 'some other patients', // should not return
@@ -520,6 +545,7 @@ describe('snapshotOutgoingChanges', () => {
         updatedAtSyncTick: 10,
       }),
       fake(models.SyncLookup, {
+        id: 3,
         recordId: labRequest1Id,
         recordType: 'lab_requests',
         patientId: null,
@@ -531,6 +557,7 @@ describe('snapshotOutgoingChanges', () => {
         updatedAtSyncTick: 10,
       }),
       fake(models.SyncLookup, {
+        id: 4,
         recordId: labRequest2Id,
         recordType: 'lab_requests',
         patientId: null,
@@ -542,6 +569,7 @@ describe('snapshotOutgoingChanges', () => {
         updatedAtSyncTick: 10,
       }),
       fake(models.SyncLookup, {
+        id: 5,
         recordId: settings1Id,
         recordType: 'settings',
         patientId: null,
@@ -553,6 +581,7 @@ describe('snapshotOutgoingChanges', () => {
         updatedAtSyncTick: 10,
       }),
       fake(models.SyncLookup, {
+        id: 6,
         recordId: settings2Id,
         recordType: 'settings',
         patientId: null,
@@ -619,6 +648,7 @@ describe('snapshotOutgoingChanges', () => {
 
     await models.SyncLookup.bulkCreate([
       fake(models.SyncLookup, {
+        id: 1,
         recordId: imagingRequest1Id,
         recordType: 'imaging_requests',
         patientId: patient.id,
@@ -630,6 +660,7 @@ describe('snapshotOutgoingChanges', () => {
         updatedAtSyncTick: 10,
       }),
       fake(models.SyncLookup, {
+        id: 2,
         recordId: imagingRequest2Id,
         recordType: 'imaging_requests',
         patientId: 'some other patients', // should not return
@@ -641,6 +672,7 @@ describe('snapshotOutgoingChanges', () => {
         updatedAtSyncTick: 10,
       }),
       fake(models.SyncLookup, {
+        id: 3,
         recordId: labRequest1Id,
         recordType: 'lab_requests',
         patientId: null,
@@ -652,6 +684,7 @@ describe('snapshotOutgoingChanges', () => {
         updatedAtSyncTick: 10,
       }),
       fake(models.SyncLookup, {
+        id: 4,
         recordId: labRequest2Id,
         recordType: 'lab_requests',
         patientId: null,
@@ -663,6 +696,7 @@ describe('snapshotOutgoingChanges', () => {
         updatedAtSyncTick: 10,
       }),
       fake(models.SyncLookup, {
+        id: 5,
         recordId: settings1Id,
         recordType: 'settings',
         patientId: null,
@@ -674,6 +708,7 @@ describe('snapshotOutgoingChanges', () => {
         updatedAtSyncTick: 10,
       }),
       fake(models.SyncLookup, {
+        id: 6,
         recordId: settings2Id,
         recordType: 'settings',
         patientId: null,
