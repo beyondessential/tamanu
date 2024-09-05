@@ -3,7 +3,13 @@ import { log } from '@tamanu/shared/services/logging/log';
 import { withConfig } from '@tamanu/shared/utils/withConfig';
 import { buildSyncLookupSelect } from '@tamanu/shared/sync';
 
-export const updateLookupTableForModel = async (model, config, since, sessionConfig, currentTick) => {
+export const updateLookupTableForModel = async (
+  model,
+  config,
+  since,
+  sessionConfig,
+  currentTick,
+) => {
   const CHUNK_SIZE = config.sync.maxRecordsPerSnapshotChunk;
   const { perModelUpdateTimeoutMs } = config.sync.lookupTable;
 
@@ -14,6 +20,7 @@ export const updateLookupTableForModel = async (model, config, since, sessionCon
   const attributes = model.getAttributes();
   const { select, joins } = model.buildSyncLookupQueryDetails(sessionConfig) || {};
   const useUpdatedAtByFieldSum = !!attributes.updatedAtByField;
+  const isInitialBuildOfLookupTable = since === -1;
 
   while (fromId != null) {
     const [[{ maxId, count }]] = await model.sequelize.query(
@@ -66,7 +73,7 @@ export const updateLookupTableForModel = async (model, config, since, sessionCon
           ON CONFLICT (record_id, record_type)
           DO UPDATE SET 
             data = EXCLUDED.data,
-            updated_at_sync_tick = EXCLUDED.updated_at_sync_tick,
+            updated_at_sync_tick = :currentTick, -- use currentTick here as it must not be initial build
             is_lab_request = EXCLUDED.is_lab_request,
             patient_id = EXCLUDED.patient_id,
             encounter_id = EXCLUDED.encounter_id,
@@ -85,7 +92,8 @@ export const updateLookupTableForModel = async (model, config, since, sessionCon
           limit: CHUNK_SIZE,
           fromId,
           perModelUpdateTimeoutMs,
-          updatedAtSyncTick: currentTick
+          updatedAtSyncTick: isInitialBuildOfLookupTable ? null : currentTick,
+          currentTick,
         },
       },
     );
@@ -103,46 +111,48 @@ export const updateLookupTableForModel = async (model, config, since, sessionCon
   return totalCount;
 };
 
-export const updateLookupTable = withConfig(async (outgoingModels, since, config, currentTick, debugObject) => {
-  const invalidModelNames = Object.values(outgoingModels)
-    .filter(
-      m =>
-        ![SYNC_DIRECTIONS.BIDIRECTIONAL, SYNC_DIRECTIONS.PULL_FROM_CENTRAL].includes(
-          m.syncDirection,
-        ),
-    )
-    .map(m => m.tableName);
+export const updateLookupTable = withConfig(
+  async (outgoingModels, since, config, currentTick, debugObject) => {
+    const invalidModelNames = Object.values(outgoingModels)
+      .filter(
+        m =>
+          ![SYNC_DIRECTIONS.BIDIRECTIONAL, SYNC_DIRECTIONS.PULL_FROM_CENTRAL].includes(
+            m.syncDirection,
+          ),
+      )
+      .map(m => m.tableName);
 
-  if (invalidModelNames.length) {
-    throw new Error(
-      `Invalid sync direction(s) when pulling these models from central: ${invalidModelNames}`,
-    );
-  }
-
-  const sessionConfig = {};
-
-  let changesCount = 0;
-
-  for (const model of Object.values(outgoingModels)) {
-    try {
-      const modelChangesCount = await updateLookupTableForModel(
-        model,
-        config,
-        since,
-        sessionConfig,
-        currentTick,
+    if (invalidModelNames.length) {
+      throw new Error(
+        `Invalid sync direction(s) when pulling these models from central: ${invalidModelNames}`,
       );
-
-      changesCount += modelChangesCount || 0;
-    } catch (e) {
-      log.error(`Failed to update ${model.name} for lookup table`);
-      log.debug(e);
-      throw new Error(`Failed to update ${model.name} for lookup table: ${e.message}`);
     }
-  }
 
-  await debugObject.addInfo({ changesCount });
-  log.info('updateLookupTable.countedAll', { count: changesCount, since });
+    const sessionConfig = {};
 
-  return changesCount;
-});
+    let changesCount = 0;
+
+    for (const model of Object.values(outgoingModels)) {
+      try {
+        const modelChangesCount = await updateLookupTableForModel(
+          model,
+          config,
+          since,
+          sessionConfig,
+          currentTick,
+        );
+
+        changesCount += modelChangesCount || 0;
+      } catch (e) {
+        log.error(`Failed to update ${model.name} for lookup table`);
+        log.debug(e);
+        throw new Error(`Failed to update ${model.name} for lookup table: ${e.message}`);
+      }
+    }
+
+    await debugObject.addInfo({ changesCount });
+    log.info('updateLookupTable.countedAll', { count: changesCount, since });
+
+    return changesCount;
+  },
+);
