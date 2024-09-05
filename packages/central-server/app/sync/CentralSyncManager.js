@@ -265,12 +265,14 @@ export class CentralSyncManager {
       });
     } catch (error) {
       log.error('CentralSyncManager.updateLookupTable encountered an error', {
-        ...error,
+        error: error.message,
       });
 
       await debugObject.addInfo({
         error: error.message,
       });
+
+      throw error;
     } finally {
       await debugObject.addInfo({
         completedAt: new Date(),
