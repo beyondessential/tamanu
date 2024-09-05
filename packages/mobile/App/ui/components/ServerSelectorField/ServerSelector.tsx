@@ -26,8 +26,7 @@ const fetchServers = async (): Promise<SelectOption[]> => {
   //   return centralServerOverrides;
   // }
 
-  const defaultMetaServer = 'https://meta-dev.internal.tamanu.io';
-  const metaServer = metaServerOverride || defaultMetaServer;
+  const metaServer = 'https://meta-dev.internal.tamanu.io';
   const response = await fetch(`${metaServer}/servers`);
   const servers: Server[] = await response.json();
 
