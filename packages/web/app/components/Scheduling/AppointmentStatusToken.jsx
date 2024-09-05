@@ -24,6 +24,7 @@ const PillShape = styled.button`
   padding-inline: 0.6875rem;
   text-align: center;
   touch-action: manipulation;
+  transition: background-color 150ms ease;
 
   &:hover:not(:disabled) {
     background-color: ${Colors.veryLightBlue};
