@@ -9,24 +9,12 @@ describe('VDS: Proof of Vaccination', () => {
 
   beforeAll(async () => {
     ctx = await createTestContext();
-    const { ReferenceData, CertifiableVaccine } = ctx.store.models;
+    const { CertifiableVaccine } = ctx.store.models;
 
     /* eslint-disable require-atomic-updates */
-    data.azVaxDrug = await ReferenceData.create({
-      ...fake(ReferenceData),
-      type: 'vaccine',
-      name: 'ChAdOx1-S',
-    });
-
-    data.pfVaxDrug = await ReferenceData.create({
-      ...fake(ReferenceData),
-      type: 'vaccine',
-      name: 'Comirnaty',
-    });
 
     data.azCertVax = await CertifiableVaccine.create({
       ...fake(CertifiableVaccine),
-      vaccineId: data.azVaxDrug.id,
       icd11DrugCode: 'XM68M6',
       icd11DiseaseCode: 'RA01.0',
       maximumDosage: 3,
@@ -34,7 +22,6 @@ describe('VDS: Proof of Vaccination', () => {
 
     data.pfCertVax = await CertifiableVaccine.create({
       ...fake(CertifiableVaccine),
-      vaccineId: data.pfVaxDrug.id,
       icd11DrugCode: 'XM68M6',
       icd11DiseaseCode: 'RA01.0',
       maximumDosage: 3,
@@ -43,17 +30,11 @@ describe('VDS: Proof of Vaccination', () => {
   });
 
   afterAll(async () => {
-    const { ReferenceData, CertifiableVaccine } = ctx.store.models;
+    const { CertifiableVaccine } = ctx.store.models;
 
     await CertifiableVaccine.destroy({
       where: {
         id: [data.azCertVax.id, data.pfCertVax.id],
-      },
-    });
-
-    await ReferenceData.destroy({
-      where: {
-        id: [data.azVaxDrug.id, data.pfVaxDrug.id],
       },
     });
 
@@ -123,7 +104,6 @@ describe('VDS: Proof of Vaccination', () => {
       ...fake(ScheduledVaccine),
       label: 'COVID-19 AZ',
       doseLabel: 'Dose 1',
-      vaccineId: data.azVaxDrug.id,
     });
 
     const facility = await Facility.create({
@@ -227,21 +207,18 @@ describe('VDS: Proof of Vaccination', () => {
       ...fake(ScheduledVaccine),
       label: 'COVID-19 Pfizer',
       doseLabel: 'Dose 1',
-      vaccineId: data.pfVaxDrug.id,
     });
 
     const scheduledPf2 = await ScheduledVaccine.create({
       ...fake(ScheduledVaccine),
       label: 'COVID-19 Pfizer',
       doseLabel: 'Dose 2',
-      vaccineId: data.pfVaxDrug.id,
     });
 
     const scheduledAz3 = await ScheduledVaccine.create({
       ...fake(ScheduledVaccine),
       label: 'COVID-19 AZ',
       doseLabel: 'Dose 3',
-      vaccineId: data.azVaxDrug.id,
     });
 
     const facility1 = await Facility.create({

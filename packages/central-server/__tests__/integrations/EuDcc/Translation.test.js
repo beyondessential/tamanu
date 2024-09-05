@@ -9,7 +9,7 @@ describe('EU DCC: Vaccination', () => {
 
   beforeAll(async () => {
     ctx = await createTestContext();
-    const { ReferenceData, CertifiableVaccine } = ctx.store.models;
+    const { ReferenceData, CertifiableVaccine, ScheduledVaccine } = ctx.store.models;
 
     /* eslint-disable require-atomic-updates */
     data.vaxManu = await ReferenceData.create({
@@ -19,8 +19,15 @@ describe('EU DCC: Vaccination', () => {
       code: 'ORG-100030215',
     });
 
+    data.scheduledVax = await ScheduledVaccine.create({
+      ...fake(ScheduledVaccine),
+      label: 'COVID-19 AZ',
+      doseLabel: 'Dose 1',
+    });
+
     data.certVax = await CertifiableVaccine.create({
       ...fake(CertifiableVaccine),
+      vaccineId: data.scheduledVax.id,
       manufacturerId: data.vaxManu.id,
       icd11DrugCode: 'XM68M6',
       icd11DiseaseCode: 'RA01.0',
@@ -34,6 +41,7 @@ describe('EU DCC: Vaccination', () => {
 
   afterAll(async () => {
     await data.certVax.destroy();
+    await data.scheduledVax.destroy();
     await data.vaxManu.destroy();
 
     await ctx.close();
@@ -48,7 +56,6 @@ describe('EU DCC: Vaccination', () => {
       Facility,
       Location,
       Patient,
-      ScheduledVaccine,
       User,
     } = ctx.store.models;
 
@@ -58,12 +65,6 @@ describe('EU DCC: Vaccination', () => {
       lastName: 'Mataʻafa',
       dateOfBirth: '1957-04-29',
       sex: 'female',
-    });
-
-    const scheduledVax = await ScheduledVaccine.create({
-      ...fake(ScheduledVaccine),
-      label: 'COVID-19 AZ',
-      doseLabel: 'Dose 1',
     });
 
     const facility = await Facility.create({
@@ -95,7 +96,7 @@ describe('EU DCC: Vaccination', () => {
       ...fake(AdministeredVaccine),
       id: '2038d060-25a7-4db1-aa33-5c7e0307b0d4',
       status: 'GIVEN',
-      scheduledVaccineId: scheduledVax.id,
+      scheduledVaccineId: data.scheduledVax.id,
       encounterId: vaccineEncounter.id,
       batch: '1234-567-890',
       date: new Date(Date.parse('22 February 2022, UTC')),
