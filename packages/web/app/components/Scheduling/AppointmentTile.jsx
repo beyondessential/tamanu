@@ -42,6 +42,12 @@ const Label = styled.span`
     `}
 `;
 
+const Timestamp = ({ date }) => (
+  <time dateTime={date.toISOString()}>
+    {date.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}
+  </time>
+);
+
 export const AppointmentTile = ({
   appointment: { appointmentStatus, startTime, patient },
   selected = false,
@@ -51,10 +57,7 @@ export const AppointmentTile = ({
     $selected={selected}
   >
     <Label $strikethrough={appointmentStatus === APPOINTMENT_STATUSES.NO_SHOW}>
-      <time dateTime={startTime.toISOString()}>
-        {startTime.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}
-      </time>
-      {patient}
+      <Timestamp date={startTime} /> {patient}
     </Label>
   </Wrapper>
 );
