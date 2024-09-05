@@ -9,12 +9,19 @@ import { APPOINTMENT_STATUS_COLORS } from './statusColors';
 const Wrapper = styled.div`
   ${props =>
     css`
-      background-color: ${props.$hexColor}1a; // 10% opacity
       border-color: ${props.$hexColor};
       border-width: ${props.$selected ? '1px' : '0'};
 
+      background-color: oklch(from ${props.$hexColor} l c h / 10%);
       &:hover {
-        background-color: ${props.$hexColor}33; // 20% opacity
+        background-color: oklch(from ${props.$hexColor} l c h / 20%);
+      }
+      @supports not (color: oklch(from black l c h)) {
+        // These work only with six-digit hex colours
+        background-color: ${props.$hexColor}1a;
+        &:hover {
+          background-color: ${props.$hexColor}33;
+        }
       }
     `}
 
