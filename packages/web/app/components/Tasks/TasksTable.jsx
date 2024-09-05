@@ -262,19 +262,13 @@ const NoDataMessage = () => (
   </NoDataContainer>
 );
 
-export const TasksTable = ({ encounterId, searchParameters, refreshCount, onCreateTaskSuccess }) => {
+export const TasksTable = ({ encounterId, searchParameters, refreshCount }) => {
   const [hoveredRow, setHoveredRow] = useState();
   const [data, setData] = useState([]);
 
   const onDataFetched = useCallback(({ data }) => {
     setData(data);
   }, []);
-
-  useEffect(() => {
-    if (data) {
-      onCreateTaskSuccess();
-    }
-  }, [data.length]);
 
   const { selectedRows, selectableColumn } = useSelectableColumn(data, {
     bulkDeselectOnly: true,

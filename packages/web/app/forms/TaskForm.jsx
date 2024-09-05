@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import * as yup from 'yup';
 
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
@@ -81,7 +81,7 @@ export const TaskForm = React.memo(({ onClose, onCreateTaskSuccess }) => {
     baseBodyParameters: { type: 'taskTemplate' },
   });
 
-  const [selectedTask, setSelectedTask] = useState('');
+  const [selectedTask, setSelectedTask] = useState({});
 
   const onSubmit = values => {
     const { designations, ...other } = values;
@@ -126,8 +126,21 @@ export const TaskForm = React.memo(({ onClose, onCreateTaskSuccess }) => {
   return (
     <Form
       onSubmit={onSubmit}
-      render={({ submitForm }) => {
-        const handleCancel = () => onClose && onClose();
+      render={({ submitForm, setFieldValue }) => {
+        useEffect(() => {
+          if (selectedTask?.type === 'taskTemplate') {
+            const { taskTemplate = {} } = selectedTask;
+            const { designations, highPriority, frequencyValue, frequencyUnit } = taskTemplate;
+
+            setFieldValue(
+              'designations',
+              designations?.map(item => item.designationId),
+            );
+            setFieldValue('highPriority', highPriority);
+            setFieldValue('frequencyValue', frequencyValue);
+            setFieldValue('frequencyUnit', frequencyUnit);
+          }
+        }, [selectedTask]);
 
         return (
           <div>
@@ -195,7 +208,7 @@ export const TaskForm = React.memo(({ onClose, onCreateTaskSuccess }) => {
                 style={{ gridColumn: 'span 2' }}
               />
             </FormGrid>
-            {selectedTask && <Divider style={{ margin: '20px 0 20px 0' }} />}
+            {selectedTask?.value && <Divider style={{ margin: '20px 0 20px 0' }} />}
             {selectedTask.type === 'taskTemplate' && (
               <FormGrid style={{ gridColumn: 'span 2' }}>
                 <Field
@@ -249,7 +262,7 @@ export const TaskForm = React.memo(({ onClose, onCreateTaskSuccess }) => {
 
             <Divider style={{ margin: '28px -32px 20px -32px' }} />
             <FormSubmitCancelRow
-              onCancel={handleCancel}
+              onCancel={onClose}
               onConfirm={submitForm}
               confirmText={<TranslatedText stringId="general.action.confirm" fallback="Confirm" />}
             />
@@ -257,47 +270,65 @@ export const TaskForm = React.memo(({ onClose, onCreateTaskSuccess }) => {
         );
       }}
       formType={FORM_TYPES.CREATE_FORM}
-      validationSchema={yup.object().shape({
-        taskId: foreignKey()
-          .required()
-          .translatedLabel(<TranslatedText stringId="encounter.task.task.label" fallback="Task" />),
-        startTime: yup
-          .date()
-          .required()
-          .translatedLabel(
-            <TranslatedText
-              stringId="encounter.task.startTime.label"
-              fallback="Start date & time"
-            />,
-          ),
-        requestedByUserId: foreignKey()
-          .required()
-          .translatedLabel(
-            <TranslatedText stringId="encounter.task.requestedBy.label" fallback="Requested by" />,
-          ),
-        requestTime: yup
-          .date()
-          .required()
-          .translatedLabel(
-            <TranslatedText
-              stringId="encounter.task.requestTime.label"
-              fallback="Request date & time"
-            />,
-          ),
-        note: yup.string(),
-        highPriority: yup.boolean(),
-      })}
+      validationSchema={yup.object().shape(
+        {
+          taskId: foreignKey()
+            .required()
+            .translatedLabel(
+              <TranslatedText stringId="encounter.task.task.label" fallback="Task" />,
+            ),
+          startTime: yup
+            .date()
+            .required()
+            .translatedLabel(
+              <TranslatedText
+                stringId="encounter.task.startTime.label"
+                fallback="Start date & time"
+              />,
+            ),
+          requestedByUserId: foreignKey()
+            .required()
+            .translatedLabel(
+              <TranslatedText
+                stringId="encounter.task.requestedBy.label"
+                fallback="Requested by"
+              />,
+            ),
+          requestTime: yup
+            .date()
+            .required()
+            .translatedLabel(
+              <TranslatedText
+                stringId="encounter.task.requestTime.label"
+                fallback="Request date & time"
+              />,
+            ),
+          note: yup.string(),
+          highPriority: yup.boolean(),
+          frequencyValue: yup.number().when('frequencyUnit', {
+            is: unit => !!unit,
+            then: yup
+              .number()
+              .required(
+                <TranslatedText stringId="task.frequency.label.short" fallback="Frequency" />,
+              ),
+          }),
+          frequencyUnit: yup.string().when('frequencyValue', {
+            is: value => !!value,
+            then: yup
+              .string()
+              .required(
+                <TranslatedText stringId="task.frequencyUnit.label" fallback="Frequency unit" />,
+              ),
+          }),
+        },
+        ['frequencyValue', 'frequencyUnit'],
+      )}
       initialValues={{
-        taskId: selectedTask?.value,
         startTime: getCurrentDateTimeString(),
         requestTime: getCurrentDateTimeString(),
         requestedByUserId: currentUser?.id,
-        designations: selectedTask?.taskTemplate?.designations?.map(item => item.designationId),
-        highPriority: selectedTask?.taskTemplate?.highPriority,
-        frequencyValue: selectedTask?.taskTemplate?.frequencyValue,
-        frequencyUnit: selectedTask?.taskTemplate?.frequencyUnit,
       }}
-      enableReinitialize
     />
   );
 });

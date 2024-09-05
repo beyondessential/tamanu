@@ -128,7 +128,6 @@ export const TasksPane = React.memo(({ encounter }) => {
         encounterId={encounter.id}
         searchParameters={searchParameters}
         refreshCount={refreshCount}
-        onCreateTaskSuccess={onCreateTaskSuccess}
       />
       <TaskModal
         open={taskModalOpen}
