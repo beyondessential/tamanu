@@ -9,11 +9,11 @@ const inactiveSelector = 'inactive';
 const PillShape = styled.button`
   ${props =>
     css`
-      color: ${props.$hexColor};
-      background-color: oklch(from ${props.$hexColor} l c h / 10%);
+      color: ${props.$color};
+      background-color: oklch(from ${props.$color} l c h / 10%);
 
       @supports not (color: oklch(from black l c h)) {
-        background-color: ${props.$hexColor}1a; // Works only with six-digit hex colour
+        background-color: ${props.$color}1a; // Works only with six-digit hex colour
       }
     `}
 
@@ -50,8 +50,8 @@ const PillShape = styled.button`
   }
 `;
 
-const Token = ({ hexColor = Colors.blue, children, ...props }) => (
-  <PillShape $hexColor={hexColor} {...props}>
+const Token = ({ color = Colors.blue, children, ...props }) => (
+  <PillShape $color={color} {...props}>
     {children}
   </PillShape>
 );
@@ -62,7 +62,7 @@ export const AppointmentStatusToken = ({ className, appointmentStatus, disabled,
     <Token
       className={classes}
       disabled={disabled}
-      hexColor={APPOINTMENT_STATUS_COLORS[appointmentStatus]}
+      color={APPOINTMENT_STATUS_COLORS[appointmentStatus]}
       deselected={deselected}
     >
       {appointmentStatus ?? <>&mdash;</>}

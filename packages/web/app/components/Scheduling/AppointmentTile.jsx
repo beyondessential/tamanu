@@ -9,18 +9,18 @@ import { APPOINTMENT_STATUS_COLORS } from './statusColors';
 const Wrapper = styled.div`
   ${props =>
     css`
-      border-color: ${props.$hexColor};
+      border-color: ${props.$color};
       border-width: ${props.$selected ? '1px' : '0'};
 
-      background-color: oklch(from ${props.$hexColor} l c h / 10%);
+      background-color: oklch(from ${props.$color} l c h / 10%);
       &:hover {
-        background-color: oklch(from ${props.$hexColor} l c h / 20%);
+        background-color: oklch(from ${props.$color} l c h / 20%);
       }
       @supports not (color: oklch(from black l c h)) {
         // These work only with six-digit hex colours
-        background-color: ${props.$hexColor}1a;
+        background-color: ${props.$color}1a;
         &:hover {
-          background-color: ${props.$hexColor}33;
+          background-color: ${props.$color}33;
         }
       }
     `}
@@ -60,7 +60,7 @@ export const AppointmentTile = ({
   selected = false,
 }) => (
   <Wrapper
-    $hexColor={APPOINTMENT_STATUS_COLORS[appointmentStatus] ?? Colors.blue}
+    $color={APPOINTMENT_STATUS_COLORS[appointmentStatus] ?? Colors.blue}
     $selected={selected}
   >
     <Label $strikethrough={appointmentStatus === APPOINTMENT_STATUSES.NO_SHOW}>
