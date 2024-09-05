@@ -54,11 +54,7 @@ triage.post(
     const encounter = await models.Encounter.findOne({
       where: { id: triageRecord.encounterId },
     });
-    await encounter.addSystemNote(
-      `Emergency Department triage score – ${triageRecord.score}`,
-      Date.now(),
-      user,
-    );
+    await encounter.addTriageScoreNote(triageRecord, Date.now(), user);
 
     res.send(triageRecord);
   }),

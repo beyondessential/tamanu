@@ -197,7 +197,7 @@ export class Encounter extends Model {
       foreignKey: 'referralSourceId',
       as: 'referralSource',
     });
-    
+
     this.belongsToMany(models.ReferenceData, {
       through: models.EncounterDiet,
       as: 'diets',
@@ -366,6 +366,17 @@ export class Encounter extends Model {
     }
     await this.addSystemNote(
       `Changed department from ${oldDepartment.name} to ${newDepartment.name}`,
+      submittedTime,
+      user,
+    );
+  }
+
+  async addTriageScoreNote(triageRecord, submittedTime, user) {
+    const { name: departmentName } = await this.sequelize.models.Department.findOne({
+      where: { id: this.departmentId },
+    });
+    await this.addSystemNote(
+      `${departmentName} triage score – ${triageRecord.score}`,
       submittedTime,
       user,
     );
