@@ -3,6 +3,10 @@ import { SYNC_DIRECTIONS, TASK_STATUSES } from '@tamanu/constants';
 import { Model } from './Model';
 import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
 import { dateTimeType } from './dateTimeTypes';
+import config from 'config';
+import ms from 'ms';
+import { addMilliseconds, isBefore } from 'date-fns';
+import { toDateTimeString } from '../utils/dateTime';
 
 export class Task extends Model {
   static init({ primaryKey, ...options }) {
@@ -81,6 +85,10 @@ export class Task extends Model {
    * @param {import('./')} models
    */
   static initRelations(models) {
+    this.belongsTo(models.Facility, {
+      foreignKey: 'facilityId',
+      as: 'facility',
+    });
     this.belongsTo(models.Encounter, {
       foreignKey: 'encounterId',
       as: 'encounter',
@@ -183,5 +191,62 @@ export class Task extends Model {
         },
       },
     ];
+  }
+
+  static async generateRepeatingTasks(task) {
+    let lastGeneratedTask = await this.findOne({
+      where: {
+        parentTaskId: task.id,
+      },
+      order: [['dueTime', 'DESC']],
+    });
+    if (!lastGeneratedTask) {
+      // no tasks have been generated yet
+      lastGeneratedTask = task;
+    }
+
+    const upcomingTasksShouldBeGeneratedTimeFrame =
+      config.tasking?.upcomingTasksShouldBeGeneratedTimeFrame || 48;
+    const { frequencyValue, frequencyUnit } = task;
+    const frequency = ms(`${frequencyValue} ${frequencyUnit}`);
+
+    const maxDueTime = addMilliseconds(
+      new Date(),
+      ms(`${upcomingTasksShouldBeGeneratedTimeFrame} hours`),
+    );
+    let nextDueTime = addMilliseconds(new Date(lastGeneratedTask.dueTime), frequency);
+    const generatedTasks = [];
+
+    while (isBefore(nextDueTime, maxDueTime)) {
+      const nextTask = {
+        facilityId: task.facilityId,
+        encounterId: task.encounterId,
+        requestedByUserId: task.requestedByUserId,
+        name: task.name,
+        dueTime: toDateTimeString(nextDueTime),
+        requestTime: task.requestTime,
+        status: TASK_STATUSES.TODO,
+        note: task.note,
+        frequencyValue: task.frequencyValue,
+        frequencyUnit: task.frequencyUnit,
+        highPriority: task.highPriority,
+        parentTaskId: task.id,
+      };
+      generatedTasks.push(nextTask);
+      nextDueTime = addMilliseconds(nextDueTime, frequency);
+    }
+
+    const createdTasks = await this.bulkCreate(generatedTasks, { returning: true });
+    const clonedDesignations = [];
+
+    for (const createdTask of createdTasks) {
+      clonedDesignations.push(
+        ...task.designations.map(designation => ({
+          taskId: createdTask.id,
+          designationId: designation.designationId,
+        })),
+      );
+    }
+    await this.sequelize.models.TaskDesignation.bulkCreate(clonedDesignations);
   }
 }

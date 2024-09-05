@@ -558,7 +558,7 @@ encounterRelations.get(
 
     req.checkPermission('list', 'Task');
 
-    const upcomingTasksTimeFrame = config.upcomingTasksTimeFrame || 8;
+    const upcomingTasksTimeFrame = config.tasking?.upcomingTasksTimeFrame || 8;
     const queryResults = await Task.findAll({
       where: {
         encounterId,
