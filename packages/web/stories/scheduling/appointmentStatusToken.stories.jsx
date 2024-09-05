@@ -2,7 +2,7 @@ import React from 'react';
 
 import { APPOINTMENT_STATUSES } from '@tamanu/constants';
 
-import { AppointmentStatusToken } from '../../app/components/Scheduling/StatusToken';
+import { AppointmentStatusToken } from '../../app/components/Scheduling/AppointmentStatusToken';
 
 export default {
   title: 'Scheduling/Appointment Status Token',
