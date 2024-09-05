@@ -361,6 +361,7 @@ export async function importSurveyResponses(workbook, { errors, log, models }) {
         ...(dateSubmittedString && {
           startTime: dateSubmittedString,
           endTime: dateSubmittedString,
+          notified: survey.notifiable ? false : null,
         }),
         forceNewEncounter: true,
       });
