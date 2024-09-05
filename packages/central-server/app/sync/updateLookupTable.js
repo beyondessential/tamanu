@@ -1,15 +1,10 @@
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
+import { SYNC_LOOKUP_PENDING_UPDATE_FLAG } from '@tamanu/shared/sync/constants';
 import { log } from '@tamanu/shared/services/logging/log';
 import { withConfig } from '@tamanu/shared/utils/withConfig';
 import { buildSyncLookupSelect } from '@tamanu/shared/sync';
 
-export const updateLookupTableForModel = async (
-  model,
-  config,
-  since,
-  sessionConfig,
-  currentTick,
-) => {
+const updateLookupTableForModel = async (model, config, since, sessionConfig, syncLookupTick) => {
   const CHUNK_SIZE = config.sync.maxRecordsPerSnapshotChunk;
   const { perModelUpdateTimeoutMs } = config.sync.lookupTable;
 
@@ -20,7 +15,6 @@ export const updateLookupTableForModel = async (
   const attributes = model.getAttributes();
   const { select, joins } = model.buildSyncLookupQueryDetails(sessionConfig) || {};
   const useUpdatedAtByFieldSum = !!attributes.updatedAtByField;
-  const isInitialBuildOfLookupTable = since === -1;
 
   while (fromId != null) {
     const [[{ maxId, count }]] = await model.sequelize.query(
@@ -73,7 +67,7 @@ export const updateLookupTableForModel = async (
           ON CONFLICT (record_id, record_type)
           DO UPDATE SET 
             data = EXCLUDED.data,
-            updated_at_sync_tick = :currentTick, -- use currentTick here as it must not be initial build
+            updated_at_sync_tick = EXCLUDED.updated_at_sync_tick,
             is_lab_request = EXCLUDED.is_lab_request,
             patient_id = EXCLUDED.patient_id,
             encounter_id = EXCLUDED.encounter_id,
@@ -92,8 +86,7 @@ export const updateLookupTableForModel = async (
           limit: CHUNK_SIZE,
           fromId,
           perModelUpdateTimeoutMs,
-          updatedAtSyncTick: isInitialBuildOfLookupTable ? null : currentTick,
-          currentTick,
+          updatedAtSyncTick: syncLookupTick,
         },
       },
     );
@@ -112,7 +105,7 @@ export const updateLookupTableForModel = async (
 };
 
 export const updateLookupTable = withConfig(
-  async (outgoingModels, since, config, currentTick, debugObject) => {
+  async (outgoingModels, since, config, syncLookupTick, debugObject) => {
     const invalidModelNames = Object.values(outgoingModels)
       .filter(
         m =>
@@ -139,7 +132,7 @@ export const updateLookupTable = withConfig(
           config,
           since,
           sessionConfig,
-          currentTick,
+          syncLookupTick,
         );
 
         changesCount += modelChangesCount || 0;
@@ -156,3 +149,19 @@ export const updateLookupTable = withConfig(
     return changesCount;
   },
 );
+
+export const updateSyncLookupPendingRecords = withConfig(async (store, currentTick) => {
+  await store.sequelize.query(
+    `
+      UPDATE sync_lookup
+      SET updated_at_sync_tick = :currentTick
+      WHERE updated_at_sync_tick = :pendingTick;
+    `,
+    {
+      replacements: {
+        currentTick,
+        pendingTick: SYNC_LOOKUP_PENDING_UPDATE_FLAG,
+      },
+    },
+  );
+});
