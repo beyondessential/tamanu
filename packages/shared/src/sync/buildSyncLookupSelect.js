@@ -1,6 +1,6 @@
 import { snake } from 'case';
 
-import { COLUMNS_EXCLUDED_FROM_SYNC } from '@tamanu/shared/sync';
+import { COLUMNS_EXCLUDED_FROM_SYNC } from './constants';
 
 export function buildSyncLookupSelect(model, columns = {}) {
   const attributes = model.getAttributes();
