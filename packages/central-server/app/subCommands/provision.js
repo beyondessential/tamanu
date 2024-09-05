@@ -119,22 +119,20 @@ export async function provision(provisioningFile, { skipIfNotNeeded }) {
   /// ////////
   /// SETTINGS
 
+  if (settings.global) {
+    await store.models.Setting.set('', settings.global);
+    log.info('Set global settings');
+  }
   if (settings.facilities) {
-    for (const [facilityId, facilitySettings] of Object.entries(settings.facility)) {
-      console.log(`Setting facility settings for ${facilityId}`);
+    for (const [facilityId, facilitySettings] of Object.entries(settings.facilities)) {
       await store.models.Setting.set('', facilitySettings, SETTINGS_SCOPES.FACILITY, facilityId);
+      log.info(`Set facility settings for ${facilityId}`);
     }
   }
-  if (settings.global) {
-    console.log('Setting global settings');
-    await store.models.Setting.set('', settings.global);
-  }
   if (settings.central) {
-    console.log('Setting central settings');
     await store.models.Setting.set('', settings.central, SETTINGS_SCOPES.CENTRAL);
+    log.info('Set central settings');
   }
-
-  console.log('Settings set');
 
   /// /////
   /// USERS
