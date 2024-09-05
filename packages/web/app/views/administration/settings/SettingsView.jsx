@@ -92,6 +92,8 @@ export const SettingsView = () => {
     }
   };
 
+  console.log('settings view')
+
   return (
     <StyledAdminViewContainer
       title={<TranslatedText stringId="admin.settings.title" fallback="Settings" />}
@@ -106,7 +108,7 @@ export const SettingsView = () => {
   );
 };
 
-const SettingsForm = ({ values, setValues, submitForm }) => {
+const SettingsForm = ({ values, setValues, submitForm, dirty, resetForm }) => {
   const [currentTab, setCurrentTab] = useState('editor');
   const api = useApi();
   const { ability } = useAuth();
@@ -132,6 +134,8 @@ const SettingsForm = ({ values, setValues, submitForm }) => {
       setValues={setValues}
       values={values}
       submitForm={submitForm}
+      dirty={dirty}
+      resetForm={resetForm}
     />
   ) : (
     <EditorView settings={settings} values={values} />

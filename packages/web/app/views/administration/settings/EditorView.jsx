@@ -9,17 +9,15 @@ import {
   SelectInput,
   TranslatedText,
   LargeBodyText,
-  TextInput,
-  NumberInput,
-  TextButton,
   Button,
   OutlinedButton,
 } from '../../../components';
 import { ScopeSelectorFields } from './ScopeSelectorFields';
 import { Colors } from '../../../constants';
 import { ThemedTooltip } from '../../../components/Tooltip';
-import { JSONEditor } from './JSONEditor';
-import { Box, Divider, Switch } from '@material-ui/core';
+import { Box, Divider } from '@material-ui/core';
+import { SettingInput } from './SettingInput';
+import { ConfirmModal } from '../../../components/ConfirmModal';
 
 const INDENT_WIDTH_PX = 20;
 const LONG_TEXT_KEYS = ['body'];
@@ -42,7 +40,7 @@ const SettingLine = styled(LargeBodyText)`
   display: flex;
   justify-content: flex-end;
   margin-bottom: 10px;
-  padding-right: 45%;
+  padding-right: 40%;
 `;
 
 const CategoryOptions = styled(Box)`
@@ -53,11 +51,6 @@ const CategoryOptions = styled(Box)`
 
 const SubmitButton = styled(Button)`
   margin-left: 15px;
-`;
-
-const DefaultSettingButton = styled(TextButton)`
-  margin-left: 15px;
-  font-size: 14px;
 `;
 
 const CategoriesWrapper = styled.div`
@@ -72,141 +65,7 @@ const CategoryWrapper = styled.div`
   }
 `;
 
-const Unit = styled.div`
-  display: flex;
-  align-items: center;
-  padding-left: 5px;
-`
-
-const sortProperties = ([a0, a1], [b0, b1]) => {
-  const aName = a1.name || a0;
-  const bName = b1.name || b0;
-  const isTopLevelA = isSetting(a1);
-  const isTopLevelB = isSetting(b1);
-  // Sort top level settings first
-  if (isTopLevelA && !isTopLevelB) return -1;
-  if (!isTopLevelA && isTopLevelB) return 1;
-  // Alphabetical sort
-  return aName.localeCompare(bName);
-};
-
-const getName = (name, path) => {
-  return name || capitalize(startCase(path.split('.').pop()));
-};
-
-const getCategoryOptions = schema =>
-  Object.entries(schema.properties).map(([key, value]) => ({
-    value: key,
-    label: value.name || capitalize(startCase(key)),
-  }));
-
-const prepareSchema = scope => {
-  const schema = getScopedSchema(scope);
-  const uncategorised = pickBy(schema.properties, isSetting);
-  // If there are any top-level settings, move them to an uncategorised category
-  if (Object.keys(uncategorised).length) {
-    const categories = omitBy(schema.properties, isSetting);
-    schema.properties = {
-      ...categories,
-      uncategorised: {
-        properties: uncategorised,
-      },
-    };
-  }
-  return schema;
-};
-
-const DefaultButton = ({resetToDefault}) => {
-  return <DefaultSettingButton onClick={resetToDefault}>Reset to default</DefaultSettingButton>;
-};
-const SettingInput = ({ type, path, value, defaultValue, handleChangeSetting, unit }) => {
-  const [error, setError] = useState(null);
-
-  switch (type) {
-    case 'boolean':
-      return (
-        <Switch
-          color="primary"
-          checked={value}
-          onChange={e => handleChangeSetting(path, e.target.checked)}
-        />
-      );
-    case 'string':
-      return (
-        <>
-          <TextInput
-            value={value}
-            placeholder={defaultValue}
-            onChange={e => handleChangeSetting(path, e.target.value)}
-            style={{ width: '353px' }}
-          />
-          <DefaultButton resetToDefault={() => handleChangeSetting(path, defaultValue)} />
-        </>
-      );
-    case 'number':
-      return (
-        <>
-          <NumberInput
-            value={value}
-            placeholder={defaultValue}
-            onChange={e => handleChangeSetting(path, Number(e.target.value))}
-            style={{ width: '80px' }}
-          />
-          <Unit>{unit}</Unit>
-          <DefaultButton resetToDefault={() => handleChangeSetting(path, defaultValue)} />
-        </>
-      );
-    case 'longText':
-      return (
-        <>
-          <TextInput
-            value={value}
-            onChange={e => handleChangeSetting(path, e.target.value)}
-            placeholder={defaultValue}
-            style={{ width: '353px', minHeight: '156px' }}
-            multiline
-          />
-          <DefaultButton resetToDefault={() => handleChangeSetting(path, defaultValue)} />
-        </>
-      );
-
-    // below doesnt really work
-    case 'object':
-    case 'array':
-    case 'mixed':
-      return (
-        <>
-          <JSONEditor
-            height="156px"
-            width="353px"
-            editMode
-            showGutter={false}
-            // TODO: This breks on reload as value is not a string anymore
-            value={value}
-            defaultValue={JSON.stringify(defaultValue, null, 2)}
-            onChange={e => {
-              handleChangeSetting(path, e);
-              try {
-                JSON.parse(e);
-                setError(null);
-              } catch (err) {
-                setError(err);
-              }
-            }}
-            error={error}
-          />
-          {/* TODO: broken also */}
-          <DefaultButton resetToDefault={() => handleChangeSetting(path, defaultValue)} />
-        </>
-      );
-    default:
-      return (
-        <LargeBodyText>
-          No component for this type: {type} (default: {defaultValue})
-        </LargeBodyText>
-      );
-  }
-};
+const getName = (name, path) => name || capitalize(startCase(path.split('.').pop()));
 
 const CategoryTitle = ({ name, path, description }) => {
   const categoryTitle = getName(name, path);
@@ -227,6 +86,18 @@ const SettingName = ({ name, path, description }) => (
     </LargeBodyText>
   </ThemedTooltip>
 );
+
+const sortProperties = ([a0, a1], [b0, b1]) => {
+  const aName = a1.name || a0;
+  const bName = b1.name || b0;
+  const isTopLevelA = isSetting(a1);
+  const isTopLevelB = isSetting(b1);
+  // Sort top level settings first
+  if (isTopLevelA && !isTopLevelB) return -1;
+  if (!isTopLevelA && isTopLevelB) return 1;
+  // Alphabetical sort
+  return aName.localeCompare(bName);
+};
 
 export const Category = ({ values, path = '', getSettingValue, handleChangeSetting }) => {
   const Wrapper = path ? CategoryWrapper : Box;
@@ -286,7 +157,29 @@ function parseJsonStrings(obj) {
   }
 }
 
-export const EditorView = memo(({ values, setValues, submitForm, settings }) => {
+const getCategoryOptions = schema =>
+  Object.entries(schema.properties).map(([key, value]) => ({
+    value: key,
+    label: value.name || capitalize(startCase(key)),
+  }));
+
+const prepareSchema = scope => {
+  const schema = getScopedSchema(scope);
+  const uncategorised = pickBy(schema.properties, isSetting);
+  // If there are any top-level settings, move them to an uncategorised category
+  if (Object.keys(uncategorised).length) {
+    const categories = omitBy(schema.properties, isSetting);
+    schema.properties = {
+      ...categories,
+      uncategorised: {
+        properties: uncategorised,
+      },
+    };
+  }
+  return schema;
+};
+
+export const EditorView = memo(({ values, setValues, submitForm, settings, dirty, resetForm }) => {
   const { scope } = values;
   const [category, setCategory] = useState(null);
 
@@ -294,9 +187,25 @@ export const EditorView = memo(({ values, setValues, submitForm, settings }) => 
   const categoryOptions = useMemo(() => getCategoryOptions(scopedSchema), [scopedSchema]);
   const initialValues = useMemo(() => scopedSchema.properties[category], [category, scopedSchema]);
 
+  console.log(settings)
+
   const handleChangeScope = () => setCategory(null);
-  // TODO: are you sure if they change category without saving settings
-  const handleChangeCategory = e => setCategory(e.target.value);
+  const handleChangeCategory = async e => {
+    if (category && dirty) {
+      const confirmed = await new Promise((resolve) => {
+        // TODO: use <ConfirmModal> with promise
+        const userConfirmed = window.confirm("You have unsaved changes. Do you want to proceed?");
+        resolve(userConfirmed);
+      });
+
+      if (!confirmed) {
+        return;
+      }
+
+      // TODO: discard changes
+    }
+    setCategory(e.target.value);
+  };
 
   const handleChangeSetting = (path, value) => {
     const updatedSettings = set(settings, `${category}.${path}`, value);
@@ -310,6 +219,7 @@ export const EditorView = memo(({ values, setValues, submitForm, settings }) => 
     const parsedObject = parseJsonStrings(settings);
     setValues({ ...values, settings: parsedObject });
     await submitForm(event);
+    await resetForm()
   };
 
   return (
@@ -327,22 +237,24 @@ export const EditorView = memo(({ values, setValues, submitForm, settings }) => 
             options={categoryOptions}
           />
           <div>
-            <OutlinedButton disabled={!values.settings}>Clear changes</OutlinedButton>
-            <SubmitButton onClick={saveSettings} disabled={!values.settings}>
+            <OutlinedButton disabled={!dirty}>
+              Clear changes
+            </OutlinedButton>
+            <SubmitButton onClick={saveSettings} disabled={!dirty}>
               Save changes
             </SubmitButton>
           </div>
         </CategoryOptions>
         <Divider />
-        <CategoriesWrapper p={2}>
-          {category && (
+        {category && (
+          <CategoriesWrapper p={2}>
             <Category
               values={initialValues}
               getSettingValue={getSettingValue}
               handleChangeSetting={handleChangeSetting}
             />
-          )}
-        </CategoriesWrapper>
+          </CategoriesWrapper>
+        )}
       </SettingsWrapper>
     </>
   );
