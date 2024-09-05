@@ -6,7 +6,8 @@ import { VERSION } from './middleware/versionCompatibility.js';
 import { ReadSettings } from '@tamanu/settings/reader';
 
 /**
- * @typedef {import('@tamanu/settings').FacilityReadSettings} SettingsReader
+ * @typedef {import('@tamanu/settings').FacilitySettingPath} FacilitySettingPath
+ * @typedef {import('@tamanu/settings').ReadSettings} ReadSettings
  * @typedef {import('sequelize').Sequelize} Sequelize
  * @typedef {import('@tamanu/shared/models')} Models
  */
@@ -19,7 +20,7 @@ export class ApplicationContext {
   models = null;
 
   /**
-   * @type {SettingsReader | null}
+   * @type {ReadSettings<FacilitySettingPath> | null}
    */
   settings = null;
 

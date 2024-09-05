@@ -38,6 +38,5 @@ type CentralScopedProperties = typeof centralSettings.properties | typeof global
 export type SettingPath = RemoveSchemaKeys<SchemaProperties>
 export type FacilitySettingPath = RemoveSchemaKeys<FacilityScopedProperties>
 export type CentralSettingPath = RemoveSchemaKeys<CentralScopedProperties>
-
 export type FrontEndExposedSettingPath = StartsWith<FacilitySettingPath, typeof KEYS_EXPOSED_TO_FRONT_END[number]>;
 

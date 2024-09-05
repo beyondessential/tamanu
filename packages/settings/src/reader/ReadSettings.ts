@@ -1,5 +1,4 @@
 /* eslint-disable no-unused-vars */
-import { CentralSettingPath, FacilitySettingPath } from 'schema';
 import { get as lodashGet, pick } from 'lodash';
 import { buildSettings, SettingPath } from '..';
 import { settingsCache } from '../cache';
@@ -18,7 +17,7 @@ export const KEYS_EXPOSED_TO_FRONT_END = [
   'fields',
 ] as const;
 
-export class ReadSettings {
+export class ReadSettings<Paths = SettingPath> {
   models: Models;
   facilityId?: string;
   constructor(models: Models, facilityId?: string) {
@@ -26,7 +25,7 @@ export class ReadSettings {
     this.facilityId = facilityId;
   }
 
-  async get(key: SettingPath) {
+  async get(key: Paths) {
     const settings = await this.getAll();
     return lodashGet(settings, key as string);
   }
@@ -52,10 +51,3 @@ export class ReadSettings {
     return settings;
   }
 }
-
-export type FacilityReadSettings = ReadSettings & {
-  get(key: FacilitySettingPath): Promise<unknown>;
-};
-export type CentralReadSettings = ReadSettings & {
-  get(key: CentralSettingPath): Promise<unknown>;
-};
