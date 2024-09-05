@@ -372,11 +372,18 @@ export class Encounter extends Model {
   }
 
   async addTriageScoreNote(triageRecord, submittedTime, user) {
-    const { name: departmentName } = await this.sequelize.models.Department.findOne({
+    const department = await this.sequelize.models.Department.findOne({
       where: { id: this.departmentId },
     });
+
+    if (!department) {
+      throw new InvalidOperationError(
+        `Couldn’t record triage score as system note; no department found with with ID ‘${this.departmentId}’`,
+      );
+    }
+
     await this.addSystemNote(
-      `${departmentName} triage score – ${triageRecord.score}`,
+      `${department.name} triage score – ${triageRecord.score}`,
       submittedTime,
       user,
     );
