@@ -13,7 +13,10 @@ import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 import { TranslatedReferenceData } from '~/ui/components/Translations/TranslatedReferenceData';
 
 const DEFAULT_FIELD_VAL = (
-  <TranslatedText stringId="general.fallback.notApplicable" fallback="N/A" uppercase />
+  <TranslatedText
+    stringId="note.clinicalNote.default"
+    fallback="Please note: Clinical notes may only be visible on desktop devices and the mobile device where the encounter occurred"
+  />
 );
 
 const displayNotes = (notes: INote[]): string | Element =>

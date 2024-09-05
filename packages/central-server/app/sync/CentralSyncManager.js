@@ -247,11 +247,12 @@ export class CentralSyncManager {
 
       await this.waitForPendingEdits(currentTick);
 
-      const previouslyUpToTick = (await store.models.LocalSystemFact.get(LOOKUP_UP_TO_TICK_KEY)) || -1;
+      const previouslyUpToTick =
+        (await store.models.LocalSystemFact.get(LOOKUP_UP_TO_TICK_KEY)) || -1;
 
       await debugObject.addInfo({ since: previouslyUpToTick });
 
-      const isInitialBuildOfLookupTable = previouslyUpToTick === -1;
+      const isInitialBuildOfLookupTable = parseInt(previouslyUpToTick, 10) === -1;
 
       await repeatableReadTransaction(store.sequelize, async transaction => {
         // do not need to update pending records when it is initial build

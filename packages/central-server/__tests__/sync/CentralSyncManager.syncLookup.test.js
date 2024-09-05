@@ -519,6 +519,8 @@ describe('Sync Lookup data', () => {
     ({ models } = ctx.store);
     centralSyncManager = new CentralSyncManager(ctx);
 
+    await models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, 4);
+
     await prepareData();
     await centralSyncManager.updateLookupTable();
   });
@@ -542,6 +544,8 @@ describe('Sync Lookup data', () => {
     });
     await models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, 4);
     await models.LocalSystemFact.set(LOOKUP_UP_TO_TICK_KEY, -1);
+
+    jest.clearAllMocks();
   });
 
   afterEach(async () => {
@@ -673,6 +677,62 @@ describe('Sync Lookup data', () => {
         );
       }
     }
+  });
+
+  it('Populates updated_at_sync_tick with ticks from actual tables when first build sync_lookup table', async () => {
+    await models.LocalSystemFact.set(LOOKUP_UP_TO_TICK_KEY, -1); // -1 means first build
+
+    await centralSyncManager.updateLookupTable();
+
+    const patientLookupData = await models.SyncLookup.findOne({
+      where: { recordId: patient.id, recordType: 'patients' },
+    });
+
+    expect(patientLookupData).toEqual(
+      expect.objectContaining({
+        recordId: patient.id,
+        recordType: 'patients',
+        updatedAtSyncTick: patient.updatedAtSyncTick,
+      }),
+    );
+  });
+
+  it('Populates updated_at_sync_tick with the current tick when incrementally update the sync_lookup table', async () => {
+    const CURRENT_SYNC_TICK = 7;
+    await models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, CURRENT_SYNC_TICK);
+    await models.LocalSystemFact.set(LOOKUP_UP_TO_TICK_KEY, 1);
+
+    await patient.update({ firstName: 'Test Patient 2' });
+    await models.Patient.create(fake(models.Patient));
+
+    const expectedTick = CURRENT_SYNC_TICK + 3; // + 3 because tickTocked twice
+    const expectedTock = CURRENT_SYNC_TICK + 4; // + 4 becaused tickTocked twice
+    const originalTickTockImplementation = centralSyncManager.tickTockGlobalClock;
+
+    const spy = jest
+      .spyOn(centralSyncManager, 'tickTockGlobalClock')
+      .mockImplementationOnce(originalTickTockImplementation)
+      .mockImplementationOnce(async () => ({
+        tick: expectedTick,
+        tock: expectedTock,
+      }));
+
+    await centralSyncManager.updateLookupTable();
+
+    const patientLookupData = await models.SyncLookup.findAll({
+      where: { recordType: 'patients' },
+    });
+
+    expect(patientLookupData.length).toEqual(2);
+
+    patientLookupData.forEach(p => {
+      expect.objectContaining({
+        recordType: 'patients',
+        updatedAtSyncTick: expectedTick.toString(),
+      });
+    });
+
+    spy.mockRestore();
   });
 
   describe('Snapshots facility linked records', () => {
@@ -816,7 +876,7 @@ describe('Sync Lookup data', () => {
           }),
         );
 
-        const patientCount = 1
+        const patientCount = 1;
         await snapshotOutgoingChanges(
           ctx.store,
           { Setting: models.Setting },
@@ -875,7 +935,7 @@ describe('Sync Lookup data', () => {
       }),
     );
 
-    const patientCount = 1
+    const patientCount = 1;
     await snapshotOutgoingChanges(
       ctx.store,
       { Setting: models.Setting },
@@ -991,7 +1051,7 @@ describe('Sync Lookup data', () => {
         isMobile: false,
       };
 
-      const patientCount = 1
+      const patientCount = 1;
       await snapshotOutgoingChanges(
         ctx.store,
         labRequestModels,
@@ -1005,6 +1065,7 @@ describe('Sync Lookup data', () => {
       );
 
       const syncLookupData = await models.SyncLookup.findAll({});
+      
       for (const model of Object.values(labRequestModels)) {
         const syncLookupRecord = syncLookupData.find(
           d => d.dataValues.recordType === model.tableName,
@@ -1076,7 +1137,7 @@ describe('Sync Lookup data', () => {
         isMobile: false,
       };
 
-      const patientCount = 1
+      const patientCount = 1;
       await snapshotOutgoingChanges(
         ctx.store,
         labRequestModels,
