@@ -37,7 +37,7 @@ export async function provision(provisioningFile, { skipIfNotNeeded }) {
     facilities = {},
     programs = [],
     referenceData = [],
-    settings: globalSettings = {},
+    settings = {},
   } = await loadSettingFile(provisioningFile);
 
   /// //////////////
@@ -119,17 +119,22 @@ export async function provision(provisioningFile, { skipIfNotNeeded }) {
   /// ////////
   /// SETTINGS
 
-  for (const [key, value] of Object.entries(globalSettings)) {
-    log.info('Installing global setting', { key });
-    await store.models.Setting.set(key, value, SETTINGS_SCOPES.GLOBAL);
-  }
-
-  for (const [id, { settings = {} }] of Object.entries(facilities)) {
-    for (const [key, value] of Object.entries(settings)) {
-      log.info('Installing facility setting', { key, facility: id });
-      await store.models.Setting.set(key, value, SETTINGS_SCOPES.FACILITY, id);
+  if (settings.facilities) {
+    for (const [facilityId, facilitySettings] of Object.entries(settings.facility)) {
+      console.log(`Setting facility settings for ${facilityId}`);
+      await store.models.Setting.set('', facilitySettings, SETTINGS_SCOPES.FACILITY, facilityId);
     }
   }
+  if (settings.global) {
+    console.log('Setting global settings');
+    await store.models.Setting.set('', settings.global);
+  }
+  if (settings.central) {
+    console.log('Setting central settings');
+    await store.models.Setting.set('', settings.central, SETTINGS_SCOPES.CENTRAL);
+  }
+
+  console.log('Settings set');
 
   /// /////
   /// USERS
