@@ -55,8 +55,13 @@ const Timestamp = ({ date }) => (
   </time>
 );
 
+const getPatientFullName = ({ firstName, middleName, lastName }) => {
+  const names = [firstName, middleName, lastName].map(n => n ?? '');
+  return names.join(' ');
+};
+
 export const AppointmentTile = ({
-  appointment: { appointmentStatus, startTime, patient },
+  appointment: { patient, startTime, status: appointmentStatus },
   selected = false,
 }) => (
   <Wrapper
@@ -64,7 +69,7 @@ export const AppointmentTile = ({
     $selected={selected}
   >
     <Label $strikethrough={appointmentStatus === APPOINTMENT_STATUSES.NO_SHOW}>
-      <Timestamp date={startTime} /> {patient}
+      <Timestamp date={new Date(startTime)} /> {getPatientFullName(patient)}
     </Label>
   </Wrapper>
 );
