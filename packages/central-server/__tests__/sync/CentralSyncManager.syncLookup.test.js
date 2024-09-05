@@ -523,6 +523,8 @@ describe('Sync Lookup data', () => {
     await centralSyncManager.updateLookupTable();
   });
 
+  afterAll(() => ctx.close());
+
   beforeEach(async () => {
     sessionId = fakeUUID();
     const startTime = new Date();

@@ -43,6 +43,8 @@ describe('snapshotOutgoingChanges', () => {
     outgoingModels = getModelsForDirection(models, SYNC_DIRECTIONS.PULL_FROM_CENTRAL);
   });
 
+  afterAll(() => ctx.close());
+
   beforeEach(async () => {
     await models.SyncLookup.truncate({ force: true });
     sessionId = fakeUUID();
