@@ -83,7 +83,6 @@ export const PatientDetailsForm = ({ patient, additionalData, birthData, onSubmi
     await onSubmit(newData);
   };
 
-  const { getSetting } = useSettings();
   const { PrimaryDetails, SecondaryDetails, PatientFields } = useLayoutComponents();
 
   const isRequiredPatientData = fieldName => getSetting(`fields.${fieldName}.requiredPatientData`);

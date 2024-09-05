@@ -1,6 +1,5 @@
 import React, { ReactElement } from 'react';
 
-import { useLocalisation } from '~/ui/contexts/LocalisationContext';
 import { LocalisedField } from '~/ui/components/Forms/LocalisedField';
 import { Gender, GenderOptions } from '~/ui/helpers/constants';
 import { RadioButtonGroup } from '~/ui/components/RadioButtonGroup';
@@ -11,7 +10,6 @@ import { useSettings } from '~/ui/contexts/SettingsContext';
 
 export const KeyInformationSection = (): ReactElement => {
   const { getSetting } = useSettings();
-  const { getBool } = useLocalisation();
   const { getSetting } = useSettings();
   let filteredGenderOptions = GenderOptions;
   if (getSetting<boolean>('features.hideOtherSex') === true) {
