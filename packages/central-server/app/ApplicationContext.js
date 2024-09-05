@@ -55,7 +55,6 @@ export class ApplicationContext {
 
     this.settings = new ReadSettings(this.store.models);
 
-    this.settings.get('')
     this.telegramBotService = await defineSingletonTelegramBotService({
       config,
       models: this.store.models,
