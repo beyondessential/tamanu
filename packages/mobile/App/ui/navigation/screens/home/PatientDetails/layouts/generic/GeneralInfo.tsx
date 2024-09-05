@@ -4,7 +4,6 @@ import { formatStringDate } from '/helpers/date';
 import { DateFormats } from '/helpers/constants';
 import { FieldRowDisplay } from '~/ui/components/FieldRowDisplay';
 import { PatientSection } from '../../CustomComponents/PatientSection';
-import { useLocalisation } from '~/ui/contexts/LocalisationContext';
 import { getGender } from '~/ui/helpers/user';
 import { IPatient } from '~/types';
 import { ALL_ADDITIONAL_DATA_FIELDS } from '/helpers/additionalData';

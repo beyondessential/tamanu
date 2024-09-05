@@ -3,7 +3,6 @@ import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { ENCOUNTER_TYPES } from '@tamanu/constants';
 import { useEncounter } from '../../contexts/Encounter';
-import { useLocalisation } from '../../contexts/Localisation';
 import { useUrlSearchParams } from '../../utils/useUrlSearchParams';
 import { ContentPane, EncounterTopBar } from '../../components';
 import { DiagnosisView } from '../../components/DiagnosisView';
@@ -130,7 +129,6 @@ const StyledTabDisplay = styled(TabDisplay)`
 export const EncounterView = () => {
   const api = useApi();
   const query = useUrlSearchParams();
-  const { getLocalisation } = useLocalisation();
   const { getSetting } = useSettings();
   const { facility, ability } = useAuth();
   const patient = useSelector(state => state.patient);
