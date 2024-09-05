@@ -19,11 +19,10 @@ import { ScopeSelectorFields } from './ScopeSelectorFields';
 import { Colors } from '../../../constants';
 import { ThemedTooltip } from '../../../components/Tooltip';
 import { JSONEditor } from './JSONEditor';
-import { Box, Collapse, Divider, IconButton, Switch } from '@material-ui/core';
-import ArrowUpIcon from '@material-ui/icons/KeyboardArrowUp';
-import ArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
+import { Box, Divider, Switch } from '@material-ui/core';
 
 const INDENT_WIDTH_PX = 20;
+const LONG_TEXT_KEYS = ['body'];
 
 const SettingsWrapper = styled.div`
   background-color: ${Colors.white};
@@ -41,15 +40,9 @@ const StyledSelectInput = styled(SelectInput)`
 
 const SettingLine = styled(LargeBodyText)`
   display: flex;
-  justify-content: space-between;
-  &:not(:last-child) {
-    margin-bottom: 10px;
-  }
-  padding-right: 55%;
-`;
-
-const SettingButtons = styled.div`
-  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 10px;
+  padding-right: 45%;
 `;
 
 const CategoryOptions = styled(Box)`
@@ -72,23 +65,11 @@ const CategoriesWrapper = styled.div`
 `;
 
 const CategoryWrapper = styled.div`
-  margin-left: ${({ $nestLevel }) => $nestLevel * INDENT_WIDTH_PX}px;
+  // margin-left: ${({ $nestLevel }) => $nestLevel * INDENT_WIDTH_PX}px;
   :not(:first-child) {
     padding-top: 20px;
     border-top: 1px solid ${Colors.outline};
   }
-`;
-
-const ExpandButton = styled(IconButton)`
-  position: absolute;
-  top: 5px;
-  right: 5px;
-  padding: 2px;
-`;
-
-const JSONContainer = styled.div`
-  position: relative;
-  border-bottom: 1px solid ${Colors.outline};
 `;
 
 const sortProperties = ([a0, a1], [b0, b1]) => {
@@ -129,9 +110,11 @@ const prepareSchema = scope => {
   return schema;
 };
 
-const SettingInput = ({ type, path, value, defaultValue, handleChangeSetting }) => {
+const DefaultButton = ({resetToDefault}) => {
+  return <DefaultSettingButton onClick={resetToDefault}>Return to default</DefaultSettingButton>;
+};
+const SettingInput = ({ type, path, value, defaultValue, handleChangeSetting, unit }) => {
   const [error, setError] = useState(null);
-  const [isCollapsed, setIsCollapsed] = useState(true);
 
   switch (type) {
     case 'boolean':
@@ -149,10 +132,9 @@ const SettingInput = ({ type, path, value, defaultValue, handleChangeSetting }) 
             value={value}
             placeholder={defaultValue}
             onChange={e => handleChangeSetting(path, e.target.value)}
+            style={{ width: '353px' }}
           />
-          <DefaultSettingButton onClick={() => handleChangeSetting(path, defaultValue)}>
-            Return to default
-          </DefaultSettingButton>
+          <DefaultButton resetToDefault={() => handleChangeSetting(path, defaultValue)} />
         </>
       );
     case 'number':
@@ -162,41 +144,54 @@ const SettingInput = ({ type, path, value, defaultValue, handleChangeSetting }) 
             value={value}
             placeholder={defaultValue}
             onChange={e => handleChangeSetting(path, Number(e.target.value))}
-          />{' '}
-          UNIT
+            style={{ width: '80px' }}
+          />
+          {unit}
+          <DefaultButton resetToDefault={() => handleChangeSetting(path, defaultValue)} />
         </>
       );
+    case 'longText':
+      return (
+        <>
+          <TextInput
+            value={value}
+            onChange={e => handleChangeSetting(path, e.target.value)}
+            placeholder={defaultValue}
+            style={{ width: '353px', minHeight: '156px' }}
+            multiline
+          />
+          <DefaultButton resetToDefault={() => handleChangeSetting(path, defaultValue)} />
+        </>
+      );
+
     // below doesnt really work
     case 'object':
     case 'array':
     case 'mixed':
       return (
-        <JSONContainer>
-          <Collapse collapsedSize={40} in={!isCollapsed}>
-            <JSONEditor
-              height="300px"
-              width="300px"
-              editMode
-              showGutter={false}
-              // This breks on reload as value is not a string anymore
-              value={value}
-              defaultValue={JSON.stringify(defaultValue, null, 2)}
-              onChange={e => {
-                handleChangeSetting(path, e);
-                try {
-                  JSON.parse(e);
-                  setError(null);
-                } catch (err) {
-                  setError(err);
-                }
-              }}
-              error={error}
-            />
-          </Collapse>
-          <ExpandButton onClick={() => setIsCollapsed(!isCollapsed)}>
-            {isCollapsed ? <ArrowDownIcon /> : <ArrowUpIcon />}
-          </ExpandButton>
-        </JSONContainer>
+        <>
+          <JSONEditor
+            height="156px"
+            width="353px"
+            editMode
+            showGutter={false}
+            // TODO: This breks on reload as value is not a string anymore
+            value={value}
+            defaultValue={JSON.stringify(defaultValue, null, 2)}
+            onChange={e => {
+              handleChangeSetting(path, e);
+              try {
+                JSON.parse(e);
+                setError(null);
+              } catch (err) {
+                setError(err);
+              }
+            }}
+            error={error}
+          />
+          {/* TODO: broken also */}
+          <DefaultButton resetToDefault={() => handleChangeSetting(path, defaultValue)} />
+        </>
       );
     default:
       return (
@@ -221,7 +216,7 @@ const CategoryTitle = ({ name, path, description }) => {
 
 const SettingName = ({ name, path, description }) => (
   <ThemedTooltip arrow placement="top" title={description}>
-    <LargeBodyText ml={1} mr={5} width="fit-content">
+    <LargeBodyText ml={1} mr="auto" width="fit-content">
       {getName(name, path)}
     </LargeBodyText>
   </ThemedTooltip>
@@ -237,22 +232,18 @@ export const Category = ({ values, path = '', getSettingValue, handleChangeSetti
       <div>
         {sortedProperties.map(([key, value]) => {
           const newPath = path ? `${path}.${key}` : key;
-          const { name, description, type, defaultValue } = value;
+          const { name, description, type, defaultValue, unit } = value;
           return type ? (
             <SettingLine key={newPath}>
               <SettingName path={newPath} name={name} description={description} />
-              <SettingButtons>
-                <SettingInput
-                  type={type.type}
-                  value={getSettingValue(newPath)}
-                  defaultValue={defaultValue}
-                  path={newPath}
-                  handleChangeSetting={handleChangeSetting}
-                />
-                {/* <TextButton onClick={() => handleChangeSetting(newPath, defaultValue)}>
-                  Return to default
-                </TextButton> */}
-              </SettingButtons>
+              <SettingInput
+                type={LONG_TEXT_KEYS.includes(key) ? 'longText' : type.type}
+                value={getSettingValue(newPath)}
+                defaultValue={defaultValue}
+                path={newPath}
+                handleChangeSetting={handleChangeSetting}
+                unit={unit}
+              />
             </SettingLine>
           ) : (
             <Category
@@ -309,10 +300,8 @@ export const EditorView = memo(({ values, setValues, submitForm, settings }) => 
 
   // TODO: reverse whole category
 
-  console.log(settings);
-
   const saveSettings = async event => {
-    const parsedObject = parseJsonStrings(settings)
+    const parsedObject = parseJsonStrings(settings);
     setValues({ ...values, settings: parsedObject });
     await submitForm(event);
   };
