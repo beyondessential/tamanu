@@ -5,6 +5,9 @@ import { mergeRecord } from './mergeRecord';
 
 const { persistUpdateWorkerPoolSize } = config.sync;
 
+console.log('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@');
+console.log(persistUpdateWorkerPoolSize);
+
 export const saveCreates = async (model, records) => {
   // can end up with duplicate create records, e.g. if syncAllLabRequests is turned on, an
   // encounter may turn up twice, once because it is for a marked-for-sync patient, and once more
