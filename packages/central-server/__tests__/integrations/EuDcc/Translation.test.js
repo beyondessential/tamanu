@@ -12,12 +12,6 @@ describe('EU DCC: Vaccination', () => {
     const { ReferenceData, CertifiableVaccine } = ctx.store.models;
 
     /* eslint-disable require-atomic-updates */
-    data.vaxDrug = await ReferenceData.create({
-      ...fake(ReferenceData),
-      type: 'vaccine',
-      name: 'Comirnaty',
-    });
-
     data.vaxManu = await ReferenceData.create({
       ...fake(ReferenceData),
       type: 'manufacturer',
@@ -27,7 +21,6 @@ describe('EU DCC: Vaccination', () => {
 
     data.certVax = await CertifiableVaccine.create({
       ...fake(CertifiableVaccine),
-      vaccineId: data.vaxDrug.id,
       manufacturerId: data.vaxManu.id,
       icd11DrugCode: 'XM68M6',
       icd11DiseaseCode: 'RA01.0',
@@ -42,7 +35,6 @@ describe('EU DCC: Vaccination', () => {
   afterAll(async () => {
     await data.certVax.destroy();
     await data.vaxManu.destroy();
-    await data.vaxDrug.destroy();
 
     await ctx.close();
   });
@@ -72,7 +64,6 @@ describe('EU DCC: Vaccination', () => {
       ...fake(ScheduledVaccine),
       label: 'COVID-19 AZ',
       doseLabel: 'Dose 1',
-      vaccineId: data.vaxDrug.id,
     });
 
     const facility = await Facility.create({

@@ -97,7 +97,6 @@ describe('VDS-NC: Document cryptography', () => {
       AdministeredVaccine,
       Encounter,
       Patient,
-      ReferenceData,
       ScheduledVaccine,
       Location,
       Department,
@@ -114,17 +113,10 @@ describe('VDS-NC: Document cryptography', () => {
       sex: 'female',
     });
 
-    const azVaxDrug = await ReferenceData.create({
-      ...fake(ReferenceData),
-      type: 'vaccine',
-      name: 'ChAdOx1-S',
-    });
-
     const scheduledAz = await ScheduledVaccine.create({
       ...fake(ScheduledVaccine),
       label: 'COVID-19 AZ',
       doseLabel: 'Dose 1',
-      vaccineId: azVaxDrug.id,
     });
 
     const facility = await Facility.create({

@@ -63,7 +63,6 @@ async function prepopulate(models) {
 
   const pfVaxDrug = await models.ReferenceData.create({
     ...fake(models.ReferenceData),
-    type: 'vaccine',
     name: 'Comirnaty',
   });
 
@@ -100,7 +99,6 @@ describe('Certificate', () => {
       lab,
       department,
       location,
-      pfVaxDrug,
     } = await prepopulate(models);
 
     const patientData = createDummyPatient(models);
@@ -123,7 +121,6 @@ describe('Certificate', () => {
         ...fake(models.ScheduledVaccine),
         label: 'COVID-19 Pfizer',
         doseLabel: 'Dose 1',
-        vaccineId: pfVaxDrug.id,
       });
 
       await models.AdministeredVaccine.create({
