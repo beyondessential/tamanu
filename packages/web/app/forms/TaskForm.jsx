@@ -5,6 +5,8 @@ import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import styled from 'styled-components';
 import PriorityHighIcon from '@material-ui/icons/PriorityHigh';
 import { Divider } from '@material-ui/core';
+import { REFERENCE_DATA_RELATION_TYPES, REFERENCE_TYPES } from '@tamanu/constants';
+
 import {
   AutocompleteField,
   CheckField,
@@ -76,16 +78,19 @@ export const TaskForm = React.memo(({ onClose, onCreateTaskSuccess }) => {
   const { currentUser } = useAuth();
 
   const combinedTaskSuggester = useSuggester('multiReferenceData', {
-    baseQueryParameters: { types: ['taskTemplate', 'taskSet'], relationType: 'task' },
+    baseQueryParameters: {
+      types: [REFERENCE_TYPES.TASK_TEMPLATE, REFERENCE_TYPES.TASK_SET],
+      relationType: REFERENCE_DATA_RELATION_TYPES.TASK,
+    },
     formatter: ({ id, name, ...other }) => ({ label: name, value: id, ...other }),
-    baseBodyParameters: { type: 'taskTemplate' },
+    baseBodyParameters: { type: REFERENCE_TYPES.TASK_TEMPLATE },
   });
 
   const [selectedTask, setSelectedTask] = useState({});
 
   const onSubmit = values => {
     const { designations, ...other } = values;
-    if (selectedTask.type === 'taskTemplate') {
+    if (selectedTask.type === REFERENCE_TYPES.TASK_TEMPLATE) {
       createTask(
         {
           ...other,
@@ -97,7 +102,7 @@ export const TaskForm = React.memo(({ onClose, onCreateTaskSuccess }) => {
           onSuccess: onCreateTaskSuccess,
         },
       );
-    } else if (selectedTask.type === 'taskSet') {
+    } else if (selectedTask.type === REFERENCE_TYPES.TASK_SET) {
       const tasks = selectedTask.children.map(({ name, taskTemplate }) => ({
         name,
         frequencyValue: taskTemplate.frequencyValue,
@@ -128,7 +133,7 @@ export const TaskForm = React.memo(({ onClose, onCreateTaskSuccess }) => {
       onSubmit={onSubmit}
       render={({ submitForm, setFieldValue }) => {
         useEffect(() => {
-          if (selectedTask?.type === 'taskTemplate') {
+          if (selectedTask?.type === REFERENCE_TYPES.TASK_TEMPLATE) {
             const { taskTemplate = {} } = selectedTask;
             const { designations, highPriority, frequencyValue, frequencyUnit } = taskTemplate;
 
@@ -155,7 +160,7 @@ export const TaskForm = React.memo(({ onClose, onCreateTaskSuccess }) => {
                   allowCreatingCustomValue
                   groupByKey="type"
                   getSectionTitle={section => REFERENCE_DATA_TYPE_TO_LABEL[section.type]}
-                  orderByValues={['taskSet', 'taskTemplate']}
+                  orderByValues={[REFERENCE_TYPES.TASK_SET, REFERENCE_TYPES.TASK_TEMPLATE]}
                   required
                   onChange={handleTaskChange}
                 />
@@ -209,7 +214,7 @@ export const TaskForm = React.memo(({ onClose, onCreateTaskSuccess }) => {
               />
             </FormGrid>
             {selectedTask?.value && <Divider style={{ margin: '20px 0 20px 0' }} />}
-            {selectedTask.type === 'taskTemplate' && (
+            {selectedTask.type === REFERENCE_TYPES.TASK_TEMPLATE && (
               <FormGrid style={{ gridColumn: 'span 2' }}>
                 <Field
                   name="designations"
@@ -258,7 +263,9 @@ export const TaskForm = React.memo(({ onClose, onCreateTaskSuccess }) => {
                 />
               </FormGrid>
             )}
-            {selectedTask.type === 'taskSet' && <TaskSetTable tasks={selectedTask.children} />}
+            {selectedTask.type === REFERENCE_TYPES.TASK_SET && (
+              <TaskSetTable tasks={selectedTask.children} />
+            )}
 
             <Divider style={{ margin: '28px -32px 20px -32px' }} />
             <FormSubmitCancelRow
