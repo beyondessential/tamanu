@@ -725,7 +725,7 @@ describe('Sync Lookup data', () => {
 
     expect(patientLookupData.length).toEqual(2);
 
-    patientLookupData.forEach(p => {
+    patientLookupData.forEach(() => {
       expect.objectContaining({
         recordType: 'patients',
         updatedAtSyncTick: expectedTick.toString(),
@@ -1065,7 +1065,7 @@ describe('Sync Lookup data', () => {
       );
 
       const syncLookupData = await models.SyncLookup.findAll({});
-      
+
       for (const model of Object.values(labRequestModels)) {
         const syncLookupRecord = syncLookupData.find(
           d => d.dataValues.recordType === model.tableName,
