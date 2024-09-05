@@ -268,6 +268,7 @@ export class CentralSyncManager {
         error: error.message,
       });
 
+      await debugObject.addInfo(error.debugInfo);
       await debugObject.addInfo({
         error: error.message,
       });

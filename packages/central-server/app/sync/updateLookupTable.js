@@ -3,14 +3,21 @@ import { log } from '@tamanu/shared/services/logging/log';
 import { withConfig } from '@tamanu/shared/utils/withConfig';
 import { buildSyncLookupSelect } from '@tamanu/shared/sync';
 
-export const updateLookupTableForModel = async (model, config, since, sessionConfig, currentTick) => {
+export const updateLookupTableForModel = async (
+  model,
+  config,
+  since,
+  sessionConfig,
+  currentTick,
+  statementTimeout,
+) => {
   const CHUNK_SIZE = config.sync.maxRecordsPerSnapshotChunk;
-  const { perModelUpdateTimeoutMs } = config.sync.lookupTable;
 
   const { tableName: table } = model;
 
   let fromId = '';
   let totalCount = 0;
+  const start = Date.now();
   const attributes = model.getAttributes();
   const { select, joins } = model.buildSyncLookupQueryDetails(sessionConfig) || {};
   const useUpdatedAtByFieldSum = !!attributes.updatedAtByField;
@@ -19,10 +26,10 @@ export const updateLookupTableForModel = async (model, config, since, sessionCon
     const [[{ maxId, count }]] = await model.sequelize.query(
       `
         ${
-          perModelUpdateTimeoutMs
+          statementTimeout !== null
             ? `
               --- Set timeout duration for a single query that updates sync_lookup table for a model
-              SET LOCAL statement_timeout = :perModelUpdateTimeoutMs;`
+              SET LOCAL statement_timeout = :statementTimeout;`
             : ''
         }
 
@@ -84,8 +91,8 @@ export const updateLookupTableForModel = async (model, config, since, sessionCon
           since,
           limit: CHUNK_SIZE,
           fromId,
-          perModelUpdateTimeoutMs,
-          updatedAtSyncTick: currentTick
+          statementTimeout,
+          updatedAtSyncTick: currentTick,
         },
       },
     );
@@ -95,54 +102,71 @@ export const updateLookupTableForModel = async (model, config, since, sessionCon
     totalCount += chunkCount;
   }
 
+  const end = Date.now();
+  const duration = end - start;
+
   log.info('updateLookupTable.updateLookupTableForModel', {
     model: model.tableName,
-    totalCount: totalCount,
+    count: totalCount,
+    durationMs: duration,
   });
 
-  return totalCount;
+  return { count: totalCount, duration };
 };
 
-export const updateLookupTable = withConfig(async (outgoingModels, since, config, currentTick, debugObject) => {
-  const invalidModelNames = Object.values(outgoingModels)
-    .filter(
-      m =>
-        ![SYNC_DIRECTIONS.BIDIRECTIONAL, SYNC_DIRECTIONS.PULL_FROM_CENTRAL].includes(
-          m.syncDirection,
-        ),
-    )
-    .map(m => m.tableName);
+export const updateLookupTable = withConfig(
+  async (outgoingModels, since, config, currentTick, debugObject) => {
+    const invalidModelNames = Object.values(outgoingModels)
+      .filter(
+        m =>
+          ![SYNC_DIRECTIONS.BIDIRECTIONAL, SYNC_DIRECTIONS.PULL_FROM_CENTRAL].includes(
+            m.syncDirection,
+          ),
+      )
+      .map(m => m.tableName);
 
-  if (invalidModelNames.length) {
-    throw new Error(
-      `Invalid sync direction(s) when pulling these models from central: ${invalidModelNames}`,
-    );
-  }
-
-  const sessionConfig = {};
-
-  let changesCount = 0;
-
-  for (const model of Object.values(outgoingModels)) {
-    try {
-      const modelChangesCount = await updateLookupTableForModel(
-        model,
-        config,
-        since,
-        sessionConfig,
-        currentTick,
+    if (invalidModelNames.length) {
+      throw new Error(
+        `Invalid sync direction(s) when pulling these models from central: ${invalidModelNames}`,
       );
-
-      changesCount += modelChangesCount || 0;
-    } catch (e) {
-      log.error(`Failed to update ${model.name} for lookup table`);
-      log.debug(e);
-      throw new Error(`Failed to update ${model.name} for lookup table: ${e.message}`);
     }
-  }
 
-  await debugObject.addInfo({ changesCount });
-  log.info('updateLookupTable.countedAll', { count: changesCount, since });
+    const sessionConfig = {};
 
-  return changesCount;
-});
+    let changesCount = 0;
+    const { updateTimeoutMs = null } = config.sync.lookupTable;
+    let remainingTimeout = updateTimeoutMs;
+    const updateResultsByModel = {};
+
+    for (const model of Object.values(outgoingModels)) {
+      try {
+        const { count, duration } = await updateLookupTableForModel(
+          model,
+          config,
+          since,
+          sessionConfig,
+          currentTick,
+          remainingTimeout,
+        );
+
+        updateResultsByModel[model.tableName] = { count, durationMs: duration };
+        if (remainingTimeout !== null) {
+          remainingTimeout = Math.max(remainingTimeout - duration, 1); // Can't allow this to be 0, as that disables the timeout
+        }
+        changesCount += count || 0;
+      } catch (e) {
+        log.error(`Failed to update ${model.name} for lookup table`);
+        log.debug(e);
+        const error = new Error(`Failed to update ${model.name} for lookup table: ${e.message}`);
+        error.debugInfo = { results: updateResultsByModel };
+        throw error;
+      }
+    }
+
+    await debugObject.addInfo({ results: updateResultsByModel });
+    await debugObject.addInfo({ changesCount });
+    log.info('updateLookupTable.countedAll', { count: changesCount, since });
+
+    return changesCount;
+  },
+);

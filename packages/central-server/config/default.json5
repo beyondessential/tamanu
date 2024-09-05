@@ -72,7 +72,7 @@
     "syncSessionTimeoutMs": null,
     "lookupTable": {
       "enabled": false,
-      "perModelUpdateTimeoutMs": null
+      "updateTimeoutMs": null
     }
   },
   "loadshedder": {
