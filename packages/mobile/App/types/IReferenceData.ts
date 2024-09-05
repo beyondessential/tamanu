@@ -11,6 +11,7 @@ export enum ReferenceDataType {
   Diet = 'diet',
   Drug = 'drug',
   Diagnosis = 'diagnosis',
+  DiseaseCoding = 'diseaseCoding',
   ImagingType = 'imagingType',
   LabTestCategory = 'labTestCategory',
   LabSampleSite = 'labSampleSite',
