@@ -95,7 +95,7 @@ const fakeAllData = async (models, ctx) => {
   );
   const { id: diagnosisId } = await models.ReferenceData.create(
     fake(models.ReferenceData, {
-      type: REFERENCE_TYPES.ICD10,
+      type: REFERENCE_TYPES.DIAGNOSIS,
       name: 'Acute subdural hematoma',
       code: 'S06.5',
     }),

@@ -2,7 +2,6 @@ import { IMAGING_AREA_TYPES } from './imaging.js';
 
 // Reference data stored IN the "reference_data" table
 export const REFERENCE_TYPES = {
-  ICD10: 'icd10',
   ALLERGY: 'allergy',
   CONDITION: 'condition',
   CATCHMENT: 'catchment',
@@ -23,6 +22,7 @@ export const REFERENCE_TYPES = {
   COUNTRY: 'country',
   CONTACT_RELATIONSHIP: 'contactRelationship',
   DIVISION: 'division',
+  DIAGNOSIS: 'diagnosis',
   DISEASE_CODING: 'diseaseCoding',
   SUBDIVISION: 'subdivision',
   MEDICAL_AREA: 'medicalArea',
@@ -88,8 +88,7 @@ const SYSTEM_DATA_TYPES = {
 const SYSTEM_DATA_TYPES_VALUES = Object.values(SYSTEM_DATA_TYPES);
 
 export const GENERAL_IMPORTABLE_DATA_TYPES = [
-  ...REFERENCE_TYPE_VALUES.filter(type => type !== REFERENCE_TYPES.ICD10),
-  'diagnosis', // Weird edge case where we sometimes call diagnosis icd10 so we have to account for this in a bunch of places
+  ...REFERENCE_TYPE_VALUES,
   ...OTHER_REFERENCE_TYPE_VALUES,
   ...CLINICAL_DATA_TYPES_VALUES,
   ...SYSTEM_DATA_TYPES_VALUES,
