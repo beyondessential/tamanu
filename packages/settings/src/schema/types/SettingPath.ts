@@ -3,7 +3,7 @@ import { facilitySettings } from '../facility';
 import { globalSettings } from '../global';
 import { Setting } from './Setting';
 import { SettingsSchema } from './SettingsSchema';
-import {KEYS_EXPOSED_TO_FRONT_END} from '../../reader/ReadSettings'
+import { KEYS_EXPOSED_TO_FRONT_END } from '../../reader/ReadSettings'
 
 // Type to generate the dot prefix
 type Subscript<T extends string> = T extends '' ? '' : `.${T}`;
@@ -29,7 +29,7 @@ type RemoveSchemaKeys<T> = T extends object
   : '';
 
 // Extract paths that start with a specific key
-type StartsWith<T extends string, U extends string> = T extends `${U}.${string}` ? T : never;
+type StartsWith<T extends string, U extends string> = T extends `${U}${Subscript<string>}` ? T : never;
 
 type SchemaProperties = typeof globalSettings.properties | typeof facilitySettings.properties | typeof centralSettings.properties;
 
