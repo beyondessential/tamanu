@@ -8,11 +8,11 @@ import { Colors } from '../../constants';
 const inactiveSelector = 'inactive';
 
 const statusColors = {
-  [APPOINTMENT_STATUSES.CONFIRMED]: Colors.blue,
   [APPOINTMENT_STATUSES.ARRIVED]: Colors.purple,
+  [APPOINTMENT_STATUSES.ASSESSED]: Colors.darkOrange,
+  [APPOINTMENT_STATUSES.CONFIRMED]: Colors.blue,
   [APPOINTMENT_STATUSES.NO_SHOW]: Colors.pink,
   [APPOINTMENT_STATUSES.SEEN]: Colors.green,
-  [APPOINTMENT_STATUSES.ASSESSED]: Colors.darkOrange,
 };
 
 const PillShape = styled.button`
