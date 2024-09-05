@@ -1,5 +1,5 @@
 import React, { memo, useMemo, useState } from 'react';
-import { capitalize, omitBy, pickBy, startCase, set, get } from 'lodash';
+import { capitalize, omitBy, pickBy, startCase, set, get, cloneDeep } from 'lodash';
 import styled from 'styled-components';
 
 import { getScopedSchema, isSetting } from '@tamanu/settings';
@@ -179,7 +179,7 @@ const prepareSchema = scope => {
   return schema;
 };
 
-export const EditorView = memo(({ values, setValues, submitForm, settings, dirty, resetForm }) => {
+export const EditorView = memo(({ values, setValues, submitForm, settingsSnapshot, dirty, resetForm }) => {
   const { scope } = values;
   const [category, setCategory] = useState(null);
 
@@ -187,39 +187,36 @@ export const EditorView = memo(({ values, setValues, submitForm, settings, dirty
   const categoryOptions = useMemo(() => getCategoryOptions(scopedSchema), [scopedSchema]);
   const initialValues = useMemo(() => scopedSchema.properties[category], [category, scopedSchema]);
 
-  console.log(settings)
-
   const handleChangeScope = () => setCategory(null);
   const handleChangeCategory = async e => {
     if (category && dirty) {
-      const confirmed = await new Promise((resolve) => {
+      const confirmed = await new Promise(resolve => {
         // TODO: use <ConfirmModal> with promise
-        const userConfirmed = window.confirm("You have unsaved changes. Do you want to proceed?");
+        const userConfirmed = window.confirm('You have unsaved changes. Do you want to discard these?');
         resolve(userConfirmed);
       });
 
       if (!confirmed) {
         return;
       }
-
-      // TODO: discard changes
+      await resetForm();
     }
     setCategory(e.target.value);
   };
 
   const handleChangeSetting = (path, value) => {
-    const updatedSettings = set(settings, `${category}.${path}`, value);
-    setValues({ ...values, settings: updatedSettings });
+    const settingObject = cloneDeep(values.settings || settingsSnapshot);
+    const updatedSettings = set(settingObject, `${category}.${path}`, value);
+    setValues({ ...values, settings: { ...updatedSettings } });
   };
-  const getSettingValue = path => get(settings, `${category}.${path}`);
-
-  // TODO: reverse whole category
+  const getSettingValue = path => get(values.settings || settingsSnapshot, `${category}.${path}`);
 
   const saveSettings = async event => {
-    const parsedObject = parseJsonStrings(settings);
+    const parsedObject = parseJsonStrings(values.settings);
     setValues({ ...values, settings: parsedObject });
     await submitForm(event);
-    await resetForm()
+    // TODO: this causes flashing when reseting to the same value
+    await resetForm();
   };
 
   return (
@@ -237,9 +234,7 @@ export const EditorView = memo(({ values, setValues, submitForm, settings, dirty
             options={categoryOptions}
           />
           <div>
-            <OutlinedButton disabled={!dirty}>
-              Clear changes
-            </OutlinedButton>
+            <OutlinedButton onClick={resetForm} disabled={!dirty}>Clear changes</OutlinedButton>
             <SubmitButton onClick={saveSettings} disabled={!dirty}>
               Save changes
             </SubmitButton>

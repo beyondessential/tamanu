@@ -33,13 +33,13 @@ const buildSettingsString = settings => {
   return JSON.stringify(settings, null, 2);
 };
 
-export const JSONEditorView = React.memo(({ settings, values, setValues, submitForm }) => {
+export const JSONEditorView = React.memo(({ settingsSnapshot, values, setValues, submitForm }) => {
   const { scope, facilityId } = values;
   const [settingsEditString, setSettingsEditString] = useState('');
   const [jsonError, setJsonError] = useState(null);
   const [isDefaultModalOpen, setIsDefaultModalOpen] = useState(false);
 
-  const settingsViewString = buildSettingsString(settings);
+  const settingsViewString = buildSettingsString(settingsSnapshot);
   const hasSettingsChanged = settingsViewString !== settingsEditString;
 
   const updateSettingsEditString = value => {
@@ -47,7 +47,7 @@ export const JSONEditorView = React.memo(({ settings, values, setValues, submitF
     setJsonError(null);
   };
 
-  const turnOnEditMode = () => updateSettingsEditString(buildSettingsString(settings) || '{}');
+  const turnOnEditMode = () => updateSettingsEditString(buildSettingsString(settingsSnapshot) || '{}');
   const turnOffEditMode = () => updateSettingsEditString(null);
 
   const onChangeSettings = newValue => updateSettingsEditString(newValue);

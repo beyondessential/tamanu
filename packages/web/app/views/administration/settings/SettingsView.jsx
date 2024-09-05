@@ -92,8 +92,6 @@ export const SettingsView = () => {
     }
   };
 
-  console.log('settings view')
-
   return (
     <StyledAdminViewContainer
       title={<TranslatedText stringId="admin.settings.title" fallback="Settings" />}
@@ -115,7 +113,7 @@ const SettingsForm = ({ values, setValues, submitForm, dirty, resetForm }) => {
   const { scope, facilityId } = values;
   const canViewJSONEditor = ability.can('write', 'Setting');
 
-  const { data: settings = {}, error: settingsFetchError } = useQuery(
+  const { data: settingsSnapshot = {}, error: settingsFetchError } = useQuery(
     ['scopedSettings', scope, facilityId],
     () => api.get('admin/settings', { scope, facilityId }),
   );
@@ -130,7 +128,7 @@ const SettingsForm = ({ values, setValues, submitForm, dirty, resetForm }) => {
       currentTab={currentTab}
       onTabSelect={setCurrentTab}
       scrollable={false}
-      settings={settings}
+      settingsSnapshot={settingsSnapshot}
       setValues={setValues}
       values={values}
       submitForm={submitForm}
@@ -138,6 +136,6 @@ const SettingsForm = ({ values, setValues, submitForm, dirty, resetForm }) => {
       resetForm={resetForm}
     />
   ) : (
-    <EditorView settings={settings} values={values} />
+    <EditorView settingsSnapshot={settingsSnapshot} values={values} />
   );
 };
