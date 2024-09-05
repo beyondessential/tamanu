@@ -4,8 +4,9 @@ import config from 'config';
 import { MedicationDiscontinuer } from './MedicationDiscontinuer';
 import { SyncTask } from './SyncTask';
 import { RefreshUpcomingVaccinations } from './RefreshMaterializedView';
+import { GenerateRepeatingTasks } from './GenerateRepeatingTasks';
 
-const TASK_CLASSES = [SyncTask, MedicationDiscontinuer, RefreshUpcomingVaccinations];
+const TASK_CLASSES = [SyncTask, MedicationDiscontinuer, RefreshUpcomingVaccinations, GenerateRepeatingTasks];
 
 export function startScheduledTasks(context) {
   if (config.senaite.enabled) {
