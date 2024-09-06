@@ -185,4 +185,8 @@ export class User extends Model {
       },
     ];
   }
+
+  static buildSyncLookupQueryDetails() {
+    return null; // syncs everywhere
+  }
 }

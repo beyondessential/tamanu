@@ -1,6 +1,10 @@
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
-import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
+import {
+  buildEncounterLinkedSyncFilter,
+  buildEncounterLinkedSyncFilterJoins,
+} from './buildEncounterLinkedSyncFilter';
+import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
 
 export class LabTestPanelRequest extends Model {
   static init({ primaryKey, ...options }) {
@@ -37,5 +41,15 @@ export class LabTestPanelRequest extends Model {
       [this.tableName, 'encounters'],
       markedForSyncPatientsTable,
     );
+  }
+
+  static buildSyncLookupQueryDetails() {
+    return {
+      select: buildSyncLookupSelect(this, {
+        patientId: 'encounters.patient_id',
+        isLabRequestValue: 'TRUE',
+      }),
+      joins: buildEncounterLinkedSyncFilterJoins([this.tableName, 'encounters']),
+    };
   }
 }

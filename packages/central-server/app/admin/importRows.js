@@ -231,11 +231,10 @@ export async function importRows(
         updateStat(stats, statkey(model, sheetName), 'created');
       }
 
-      const dataType =
-        sheetName === 'diagnosis'
-          ? 'icd10' // diagnosis is a special case where the datatype isnt the same as sheet name
-          : normaliseSheetName(sheetName);
-      const isValidTable = model === 'ReferenceData' || camelCase(model) === dataType; // All records in the reference data table are translatable // This prevents join tables from being translated - unsure about this
+      const dataType = normaliseSheetName(sheetName);
+      const isValidTable =
+        model === 'ReferenceData' || // All records in the reference data table are translatable
+        camelCase(model) === dataType; // This prevents join tables from being translated - unsure about this
       const isTranslatable = TRANSLATABLE_REFERENCE_TYPES.includes(dataType);
       if (isTranslatable && isValidTable) {
         translationRecordsForSheet.push({
