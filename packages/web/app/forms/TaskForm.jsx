@@ -65,10 +65,10 @@ const StyledPriorityHighIcon = styled(PriorityHighIcon)`
   vertical-align: sub;
 `;
 
-const taskFrequencyUnitOptions = Object.entries(TASK_FREQUENCY_UNIT_OPTIONS).map(([, label]) => ({
+const taskFrequencyUnitOptions = Object.values(TASK_FREQUENCY_UNIT_OPTIONS).map(label => ({
   label,
   value: TASK_FREQUENCY_UNIT_TO_VALUE[label],
-}));
+});
 
 export const TaskForm = React.memo(({ onClose, onCreateTaskSuccess }) => {
   const practitionerSuggester = useSuggester('practitioner');
