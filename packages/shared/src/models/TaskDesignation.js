@@ -37,4 +37,13 @@ export class TaskDesignation extends Model {
       markedForSyncPatientsTable,
     );
   }
+
+  static buildSyncLookupQueryDetails() {
+    return {
+      select: buildSyncLookupSelect(this, {
+        patientId: 'encounters.patient_id',
+      }),
+      joins: buildEncounterLinkedSyncFilterJoins([this.tableName, 'tasks', 'encounters']),
+    };
+  }
 }

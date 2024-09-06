@@ -52,6 +52,10 @@ export class TaskTemplate extends Model {
     return null; // syncs everywhere
   }
 
+  static buildSyncLookupQueryDetails() {
+    return null; // syncs everywhere
+  }
+
   static getFullReferenceAssociations() {
     const { models } = this.sequelize;
 
