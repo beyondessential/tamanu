@@ -72,11 +72,7 @@ export const SettingsView = () => {
   const handleSubmit = async ({ settings, scope, facilityId }) => {
     try {
       await validateSettings({ settings, scope });
-      await api.put('admin/settings', {
-        settings,
-        facilityId,
-        scope,
-      });
+      await api.put('admin/settings', { settings, facilityId, scope });
       notifySuccess('Settings saved');
       queryClient.invalidateQueries(['scopedSettings', scope, facilityId]);
       return true;
@@ -110,6 +106,7 @@ const SettingsForm = ({ values, setValues, submitForm, resetForm, dirty }) => {
   const [currentTab, setCurrentTab] = useState('editor');
   const api = useApi();
   const { ability } = useAuth();
+  // TODO: maybe move these into state so they dont get reset with other form values
   const { scope, facilityId } = values;
   const canViewJSONEditor = ability.can('write', 'Setting');
 

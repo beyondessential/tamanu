@@ -1,15 +1,5 @@
 import React, { memo, useMemo, useState } from 'react';
-import {
-  capitalize,
-  omitBy,
-  pickBy,
-  startCase,
-  set,
-  get,
-  cloneDeep,
-  isEqual,
-  isMatch,
-} from 'lodash';
+import { capitalize, omitBy, pickBy, startCase, set, get, cloneDeep, has } from 'lodash';
 import styled from 'styled-components';
 
 import { getScopedSchema, isSetting } from '@tamanu/settings';
@@ -128,16 +118,21 @@ export const Category = ({ values, path = '', getSettingValue, handleChangeSetti
         {sortedProperties.map(([key, value]) => {
           const newPath = path ? `${path}.${key}` : key;
           const { name, description, type, defaultValue, unit } = value;
+          // const parentObject = getSettingValue(path);
+          // console.log('parent object for:', newPath, parentObject);
+          // const partOfEnabledGroup = has(parentObject, 'enabled');
           return type ? (
             <SettingLine key={newPath}>
               <SettingName path={newPath} name={name} description={description} />
               <SettingInput
+                // TODO: better solution for this
                 type={LONG_TEXT_KEYS.includes(key) ? 'longText' : type.type}
                 value={getSettingValue(newPath)}
                 defaultValue={defaultValue}
                 path={newPath}
                 handleChangeSetting={handleChangeSetting}
                 unit={unit}
+                // TODO: disabled logic
               />
             </SettingLine>
           ) : (
@@ -204,6 +199,13 @@ export const EditorView = memo(
     const [modalOpen, setModalOpen] = useState(false);
     const [resolveFn, setResolveFn] = useState(null);
 
+    // Warning modal
+    const showWarningModal = async () =>
+      new Promise(resolve => {
+        setResolveFn(() => resolve); // Save resolve to use in onConfirm/onCancel
+        setModalOpen(true);
+      });
+
     // TODO: would be nice to replace dirty with something like this so that we only show warning/enable buttons when changes present
     // const hasPendingEdits = values.settings && !isEqual(settingsSnapshot, values.settings);
     // const hasPendingEdits = values.settings && !isMatch(values.settings, settingsSnapshot);
@@ -215,25 +217,25 @@ export const EditorView = memo(
       scopedSchema,
     ]);
 
+    // Scope/Category dropdown management
     const handleChangeScope = () => setCategory(null);
     const handleChangeCategory = async e => {
-      if (dirty) {
-        const confirmed = await new Promise(resolve => {
-          setResolveFn(() => resolve); // Save resolve to use in onConfirm/onCancel
-          setModalOpen(true); // Open modal
-        });
-
-        if (!confirmed) return;
+      const newCategory = e.target.value;
+      if (newCategory !== category && dirty) {
+        const dismissChanges = await showWarningModal();
+        if (!dismissChanges) return;
         await resetForm();
       }
-      setCategory(e.target.value);
+      setCategory(newCategory);
     };
 
+    // Setting state management
     const handleChangeSetting = (path, value) => {
       const settingObject = cloneDeep(values.settings || settingsSnapshot);
       const updatedSettings = set(settingObject, `${category}.${path}`, value);
       setValues({ ...values, settings: updatedSettings });
     };
+
     const getSettingValue = path => get(values.settings || settingsSnapshot, `${category}.${path}`);
 
     const saveSettings = async event => {
@@ -246,6 +248,7 @@ export const EditorView = memo(
     return (
       <>
         {/* TODO: translations */}
+        {/* TODO: extract out modal? */}
         <ConfirmModal
           title="Unsaved changes"
           subText="You have unsaved changes. Are you sure you would like to discard those changes?"

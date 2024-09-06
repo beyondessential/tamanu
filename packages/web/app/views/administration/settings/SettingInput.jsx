@@ -19,7 +19,7 @@ const DefaultSettingButton = styled(TextButton)`
 const DefaultButton = ({ resetToDefault }) => {
   return <DefaultSettingButton onClick={resetToDefault}>Reset to default</DefaultSettingButton>;
 };
-export const SettingInput = ({ type, path, value, defaultValue, handleChangeSetting, unit }) => {
+export const SettingInput = ({ type, path, value, defaultValue, handleChangeSetting, unit, disabled }) => {
   const [error, setError] = useState(null);
 
   const displayValue = value !== undefined ? value : defaultValue;

@@ -46,10 +46,10 @@ export const ScopeSelectorFields = React.memo(({ onChangeScope, onChangeFacility
   }));
 
   const handleChangeScope = value => {
-    setFacilityId(null);
     if (onChangeScope) {
       onChangeScope(value);
     }
+    setFacilityId(null);
   };
 
   return (
