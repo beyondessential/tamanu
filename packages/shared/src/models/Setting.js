@@ -161,7 +161,6 @@ export class Setting extends Model {
   static async set(key, value, scope = SETTINGS_SCOPES.GLOBAL, facilityId = null) {
     const records = buildSettingsRecords(key, value, facilityId);
 
-    this.set('customisations', '');
     // create or update records
     await Promise.all(
       records.map(async record => {
