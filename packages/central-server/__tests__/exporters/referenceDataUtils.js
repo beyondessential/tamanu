@@ -8,15 +8,15 @@ import { VACCINE_CATEGORIES } from '@tamanu/constants';
 
 export async function createDiagnosis(models) {
   await models.ReferenceData.create({
-    type: 'icd10',
+    type: 'diagnosis',
     code: 'M79.7',
-    id: 'icd10-M79-7',
+    id: 'diagnosis-M79-7',
     name: 'Myofibrosis',
   });
   await models.ReferenceData.create({
-    type: 'icd10',
+    type: 'diagnosis',
     code: 'S79.9',
-    id: 'icd10-S79-9',
+    id: 'diagnosis-S79-9',
     name: 'Thigh injury',
   });
 }
@@ -94,10 +94,7 @@ export async function createAllergy(models) {
   });
 }
 
-export async function createPermission(
-  models,
-  { verb, noun, objectId, roleId },
-) {
+export async function createPermission(models, { verb, noun, objectId, roleId }) {
   await models.Permission.create({
     verb,
     noun,
