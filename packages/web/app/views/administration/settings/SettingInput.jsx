@@ -13,6 +13,7 @@ const Unit = styled.div`
 const DefaultSettingButton = styled(TextButton)`
   margin-left: 15px;
   font-size: 14px;
+  text-decoration: underline;
 `;
 
 const DefaultButton = ({ resetToDefault }) => {
@@ -49,7 +50,7 @@ export const SettingInput = ({ type, path, value, defaultValue, handleChangeSett
           <NumberInput
             value={displayValue}
             onChange={e => handleChangeSetting(path, Number(e.target.value))}
-            style={{ width: '80px' }}
+            style={{ width: '75px' }}
           />
           <Unit>{unit}</Unit>
           <DefaultButton resetToDefault={() => handleChangeSetting(path, defaultValue)} />
