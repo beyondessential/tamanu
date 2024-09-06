@@ -57,7 +57,6 @@ const CategoryOptions = styled(Box)`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  z-index: 2;
 `;
 
 const SubmitButton = styled(Button)`
@@ -103,13 +102,6 @@ const SettingName = ({ name, path, description }) => {
     </ThemedTooltip>
   ) : (
     nameText
-  );
-  return (
-    <ThemedTooltip arrow placement="top" title={description}>
-      <BodyText ml={1} mr="auto" width="fit-content">
-        {getName(name, path)}
-      </BodyText>
-    </ThemedTooltip>
   );
 };
 

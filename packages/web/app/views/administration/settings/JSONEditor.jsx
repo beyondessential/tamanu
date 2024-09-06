@@ -15,6 +15,7 @@ const THEMES = {
 const StyledJSONEditor = styled(AceEditor)`
   border: 1px solid ${p => (p.$hasError ? Colors.alert : Colors.outline)};
   border-radius: 4px;
+  z-index: 0;
   .error-marker {
     position: absolute;
     background-color: ${Colors.alert};
