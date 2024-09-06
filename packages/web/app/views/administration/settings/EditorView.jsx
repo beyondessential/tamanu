@@ -1,5 +1,15 @@
 import React, { memo, useMemo, useState } from 'react';
-import { capitalize, omitBy, pickBy, startCase, set, get, cloneDeep, isEqual } from 'lodash';
+import {
+  capitalize,
+  omitBy,
+  pickBy,
+  startCase,
+  set,
+  get,
+  cloneDeep,
+  isEqual,
+  isMatch,
+} from 'lodash';
 import styled from 'styled-components';
 
 import { getScopedSchema, isSetting } from '@tamanu/settings';
@@ -8,9 +18,9 @@ import {
   Heading4,
   SelectInput,
   TranslatedText,
-  LargeBodyText,
   Button,
   OutlinedButton,
+  BodyText,
 } from '../../../components';
 import { ScopeSelectorFields } from './ScopeSelectorFields';
 import { Colors } from '../../../constants';
@@ -36,17 +46,18 @@ const StyledSelectInput = styled(SelectInput)`
   width: 300px;
 `;
 
-const SettingLine = styled(LargeBodyText)`
+const SettingLine = styled(BodyText)`
   display: flex;
   justify-content: flex-end;
   margin-bottom: 10px;
-  width: 600px;
+  width: 650px;
 `;
 
 const CategoryOptions = styled(Box)`
   display: flex;
   justify-content: space-between;
   align-items: center;
+  z-index: 2;
 `;
 
 const SubmitButton = styled(Button)`
@@ -79,13 +90,28 @@ const CategoryTitle = ({ name, path, description }) => {
   );
 };
 
-const SettingName = ({ name, path, description }) => (
-  <ThemedTooltip arrow placement="top" title={description}>
-    <LargeBodyText ml={1} mr="auto" width="fit-content">
+const SettingName = ({ name, path, description }) => {
+  const nameText = (
+    <BodyText ml={1} mr="auto" width="fit-content">
       {getName(name, path)}
-    </LargeBodyText>
-  </ThemedTooltip>
-);
+    </BodyText>
+  );
+
+  return description ? (
+    <ThemedTooltip arrow placement="top" title={description}>
+      {nameText}
+    </ThemedTooltip>
+  ) : (
+    nameText
+  );
+  return (
+    <ThemedTooltip arrow placement="top" title={description}>
+      <BodyText ml={1} mr="auto" width="fit-content">
+        {getName(name, path)}
+      </BodyText>
+    </ThemedTooltip>
+  );
+};
 
 const sortProperties = ([a0, a1], [b0, b1]) => {
   const aName = a1.name || a0;
@@ -179,97 +205,103 @@ const prepareSchema = scope => {
   return schema;
 };
 
-export const EditorView = memo(({ values, setValues, submitForm, settingsSnapshot, resetForm }) => {
-  const { scope } = values;
-  const [category, setCategory] = useState(null);
-  const [modalOpen, setModalOpen] = useState(false); // Control modal visibility
-  const [resolveFn, setResolveFn] = useState(null);
+export const EditorView = memo(
+  ({ values, setValues, submitForm, settingsSnapshot, resetForm, dirty }) => {
+    const { scope } = values;
+    const [category, setCategory] = useState(null);
+    const [modalOpen, setModalOpen] = useState(false);
+    const [resolveFn, setResolveFn] = useState(null);
 
-  const hasPendingEdits = values.settings && !isEqual(settingsSnapshot, values.settings);
+    // TODO: would be nice to replace dirty with something like this so that we only show warning/enable buttons when changes present
+    // const hasPendingEdits = values.settings && !isEqual(settingsSnapshot, values.settings);
+    // const hasPendingEdits = values.settings && !isMatch(values.settings, settingsSnapshot);
 
-  const scopedSchema = useMemo(() => prepareSchema(scope), [scope]);
-  const categoryOptions = useMemo(() => getCategoryOptions(scopedSchema), [scopedSchema]);
-  const initialValues = useMemo(() => scopedSchema.properties[category], [category, scopedSchema]);
+    const scopedSchema = useMemo(() => prepareSchema(scope), [scope]);
+    const categoryOptions = useMemo(() => getCategoryOptions(scopedSchema), [scopedSchema]);
+    const initialValues = useMemo(() => scopedSchema.properties[category], [
+      category,
+      scopedSchema,
+    ]);
 
-  const handleChangeScope = () => setCategory(null);
-  const handleChangeCategory = async e => {
-    if (hasPendingEdits) {
-      const confirmed = await new Promise(resolve => {
-        setResolveFn(() => resolve); // Save resolve to use in onConfirm/onCancel
-        setModalOpen(true); // Open modal
-      });
+    const handleChangeScope = () => setCategory(null);
+    const handleChangeCategory = async e => {
+      if (dirty) {
+        const confirmed = await new Promise(resolve => {
+          setResolveFn(() => resolve); // Save resolve to use in onConfirm/onCancel
+          setModalOpen(true); // Open modal
+        });
 
-      if (!confirmed) return;
-      await resetForm();
-    }
-    setCategory(e.target.value);
-  };
+        if (!confirmed) return;
+        await resetForm();
+      }
+      setCategory(e.target.value);
+    };
 
-  const handleChangeSetting = (path, value) => {
-    const settingObject = cloneDeep(values.settings || settingsSnapshot);
-    const updatedSettings = set(settingObject, `${category}.${path}`, value);
-    setValues({ ...values, settings: updatedSettings });
-  };
-  const getSettingValue = path => get(values.settings || settingsSnapshot, `${category}.${path}`);
+    const handleChangeSetting = (path, value) => {
+      const settingObject = cloneDeep(values.settings || settingsSnapshot);
+      const updatedSettings = set(settingObject, `${category}.${path}`, value);
+      setValues({ ...values, settings: updatedSettings });
+    };
+    const getSettingValue = path => get(values.settings || settingsSnapshot, `${category}.${path}`);
 
-  const saveSettings = async event => {
-    const parsedObject = parseJsonStrings(values.settings);
-    setValues({ ...values, settings: parsedObject });
-    await submitForm(event);
-    // TODO: this causes flashing when reseting to the same value
-    await resetForm();
-  };
+    const saveSettings = async event => {
+      const parsedObject = parseJsonStrings(values.settings);
+      setValues({ ...values, settings: parsedObject });
+      await submitForm(event);
+      await resetForm(); // TODO: this causes flashing when reseting to the same value
+    };
 
-  return (
-    <>
-      {/* TODO: translations */}
-      <ConfirmModal
-        title="Unsaved changes"
-        subText="You have unsaved changes. Are you sure you would like to discard those changes?"
-        open={modalOpen}
-        onConfirm={() => {
-          setModalOpen(false);
-          resolveFn(true);
-        }}
-        confirmButtonText="Discard changes"
-        onCancel={() => {
-          setModalOpen(false);
-          resolveFn(false);
-        }}
-        cancelButtonText="Go back"
-      />
-      <StyledTopBar>
-        <ScopeSelectorFields onChangeScope={handleChangeScope} />
-      </StyledTopBar>
-      <SettingsWrapper>
-        <CategoryOptions p={2}>
-          <StyledSelectInput
-            required
-            label={<TranslatedText stringId="admin.settings.category" fallback="Category" />}
-            value={category}
-            onChange={handleChangeCategory}
-            options={categoryOptions}
-          />
-          <div>
-            <OutlinedButton onClick={resetForm} disabled={!hasPendingEdits}>
-              Clear changes
-            </OutlinedButton>
-            <SubmitButton onClick={saveSettings} disabled={!hasPendingEdits}>
-              Save changes
-            </SubmitButton>
-          </div>
-        </CategoryOptions>
-        <Divider />
-        {category && (
-          <CategoriesWrapper p={2}>
-            <Category
-              values={initialValues}
-              getSettingValue={getSettingValue}
-              handleChangeSetting={handleChangeSetting}
+    return (
+      <>
+        {/* TODO: translations */}
+        <ConfirmModal
+          title="Unsaved changes"
+          subText="You have unsaved changes. Are you sure you would like to discard those changes?"
+          open={modalOpen}
+          onConfirm={() => {
+            setModalOpen(false);
+            resolveFn(true);
+          }}
+          confirmButtonText="Discard changes"
+          onCancel={() => {
+            setModalOpen(false);
+            resolveFn(false);
+          }}
+          cancelButtonText="Go back"
+        />
+        <StyledTopBar>
+          <ScopeSelectorFields onChangeScope={handleChangeScope} />
+        </StyledTopBar>
+        <SettingsWrapper>
+          <CategoryOptions p={2}>
+            <StyledSelectInput
+              required
+              label={<TranslatedText stringId="admin.settings.category" fallback="Category" />}
+              value={category}
+              onChange={handleChangeCategory}
+              options={categoryOptions}
             />
-          </CategoriesWrapper>
-        )}
-      </SettingsWrapper>
-    </>
-  );
-});
+            <div>
+              <OutlinedButton onClick={resetForm} disabled={!dirty}>
+                Clear changes
+              </OutlinedButton>
+              <SubmitButton onClick={saveSettings} disabled={!dirty}>
+                Save changes
+              </SubmitButton>
+            </div>
+          </CategoryOptions>
+          <Divider />
+          {category && (
+            <CategoriesWrapper p={2}>
+              <Category
+                values={initialValues}
+                getSettingValue={getSettingValue}
+                handleChangeSetting={handleChangeSetting}
+              />
+            </CategoriesWrapper>
+          )}
+        </SettingsWrapper>
+      </>
+    );
+  },
+);

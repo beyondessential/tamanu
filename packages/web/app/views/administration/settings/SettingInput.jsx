@@ -21,12 +21,14 @@ const DefaultButton = ({ resetToDefault }) => {
 export const SettingInput = ({ type, path, value, defaultValue, handleChangeSetting, unit }) => {
   const [error, setError] = useState(null);
 
+  const displayValue = value !== undefined ? value : defaultValue;
+
   switch (type) {
     case 'boolean':
       return (
         <Switch
           color="primary"
-          checked={value}
+          checked={displayValue}
           onChange={e => handleChangeSetting(path, e.target.checked)}
         />
       );
@@ -34,8 +36,7 @@ export const SettingInput = ({ type, path, value, defaultValue, handleChangeSett
       return (
         <>
           <TextInput
-            value={value}
-            placeholder={defaultValue}
+            value={displayValue}
             onChange={e => handleChangeSetting(path, e.target.value)}
             style={{ width: '353px' }}
           />
@@ -46,8 +47,7 @@ export const SettingInput = ({ type, path, value, defaultValue, handleChangeSett
       return (
         <>
           <NumberInput
-            value={value}
-            placeholder={defaultValue}
+            value={displayValue}
             onChange={e => handleChangeSetting(path, Number(e.target.value))}
             style={{ width: '80px' }}
           />
@@ -59,9 +59,8 @@ export const SettingInput = ({ type, path, value, defaultValue, handleChangeSett
       return (
         <>
           <TextInput
-            value={value}
+            value={displayValue}
             onChange={e => handleChangeSetting(path, e.target.value)}
-            placeholder={defaultValue}
             style={{ width: '353px', minHeight: '156px' }}
             multiline
           />

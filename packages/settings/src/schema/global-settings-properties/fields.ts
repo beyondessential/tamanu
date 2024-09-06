@@ -39,11 +39,11 @@ export const generateFieldSchema = ({ isPatientDetails = false, hideable = true,
 
   switch (type) {
     case LOCALISED_FIELD_TYPES.STRING:
-      schema.defaultValue.type = yup.string();
+      schema.defaultValue.type = yup.string().nullable();
       break;
 
     case LOCALISED_FIELD_TYPES.NUMBER:
-      schema.defaultValue.type = yup.number();
+      schema.defaultValue.type = yup.number().nullable();
       break;
   }
 
