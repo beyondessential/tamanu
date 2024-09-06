@@ -1,6 +1,10 @@
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
-import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
+import {
+  buildEncounterLinkedSyncFilter,
+  buildEncounterLinkedSyncFilterJoins,
+} from './buildEncounterLinkedSyncFilter';
+import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
 
 export class TaskDesignation extends Model {
   static init({ primaryKey, ...options }) {
