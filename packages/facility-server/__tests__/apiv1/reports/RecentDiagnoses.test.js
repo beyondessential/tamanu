@@ -29,7 +29,7 @@ describe('Recent Diagnoses report', () => {
     app = await baseApp.asRole('practitioner');
     const villageId = await randomReferenceId(models, 'village');
     patient1 = await models.Patient.create(await createDummyPatient(models, { villageId }));
-    [expectedDiagnosis, wrongDiagnosis] = await randomReferenceIds(models, 'icd10', 2);
+    [expectedDiagnosis, wrongDiagnosis] = await randomReferenceIds(models, 'diagnosis', 2);
     expectedLocation = await randomRecordId(models, 'Location');
   });
   afterAll(() => ctx.close());
@@ -93,7 +93,7 @@ describe('Recent Diagnoses report', () => {
         }),
       );
 
-      const firstDiagnosis = await randomReferenceData(models, 'icd10');
+      const firstDiagnosis = await randomReferenceData(models, 'diagnosis');
 
       // first diagnosis
       await models.EncounterDiagnosis.create(
@@ -104,7 +104,7 @@ describe('Recent Diagnoses report', () => {
         }),
       );
 
-      const secondDiagnosis = await randomReferenceData(models, 'icd10');
+      const secondDiagnosis = await randomReferenceData(models, 'diagnosis');
       // second diagnosis
       await models.EncounterDiagnosis.create(
         await createDummyEncounterDiagnosis(models, {

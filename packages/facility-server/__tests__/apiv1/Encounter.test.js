@@ -959,7 +959,7 @@ describe('Encounter', () => {
         });
 
         testDiagnosis = await models.ReferenceData.create({
-          type: 'icd10',
+          type: 'diagnosis',
           name: 'Malady',
           code: 'malady',
         });

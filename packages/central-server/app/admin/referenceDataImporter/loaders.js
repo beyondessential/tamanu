@@ -18,13 +18,13 @@ function stripNotes(fields) {
 
 export const loaderFactory = model => fields => [{ model, values: stripNotes(fields) }];
 
-export function referenceDataLoaderFactory(refType) {
+export function referenceDataLoaderFactory(type) {
   return ({ id, code, name, visibilityStatus }) => [
     {
       model: 'ReferenceData',
       values: {
         id,
-        type: refType === 'diagnosis' ? 'icd10' : refType,
+        type,
         code: typeof code === 'number' ? `${code}` : code,
         name,
         visibilityStatus,
