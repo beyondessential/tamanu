@@ -4,7 +4,7 @@ import styled, { css } from 'styled-components';
 import { Colors } from '../../constants';
 import { APPOINTMENT_STATUS_COLORS } from './statusColors';
 
-const inactiveSelector = 'inactive';
+const deselectedSelector = 'inactive';
 
 const PillShape = styled.button`
   ${props =>
@@ -35,12 +35,12 @@ const PillShape = styled.button`
   }
 
   &:disabled,
-  &.${inactiveSelector} {
+  &.${deselectedSelector} {
     border: 1px solid ${Colors.softText};
     color: ${Colors.softText};
   }
 
-  &.${inactiveSelector} {
+  &.${deselectedSelector} {
     background-color: ${Colors.white};
   }
 
@@ -57,7 +57,7 @@ const Token = ({ color = Colors.blue, children, ...props }) => (
 );
 
 export const AppointmentStatusToken = ({ className, appointmentStatus, disabled, deselected }) => {
-  const classes = deselected ? [className, inactiveSelector].join('') : className;
+  const classes = deselected ? [className, deselectedSelector].join('') : className;
   return (
     <Token
       className={classes}
