@@ -206,7 +206,7 @@ export const TaskForm = React.memo(({ onClose, onCreateTaskSuccess }) => {
               </FormGrid>
               <Field
                 name="note"
-                label={<TranslatedText stringId="encounter.task.notes.label" fallback="Notes" />}
+                label={<TranslatedText stringId="general.notes.label" fallback="Notes" />}
                 component={TextField}
                 multiline
                 minRows={4}
