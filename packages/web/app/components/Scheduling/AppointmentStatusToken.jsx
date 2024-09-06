@@ -2,7 +2,7 @@ import React from 'react';
 import styled, { css } from 'styled-components';
 
 import { Colors } from '../../constants';
-import { APPOINTMENT_STATUS_COLORS } from './statusColors';
+import { APPOINTMENT_STATUS_COLORS } from './appointmentStatusIndicators';
 
 const deselectedSelector = 'inactive';
 

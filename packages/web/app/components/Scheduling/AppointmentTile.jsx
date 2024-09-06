@@ -4,7 +4,8 @@ import styled, { css } from 'styled-components';
 import { APPOINTMENT_STATUSES } from '@tamanu/constants';
 
 import { Colors } from '../../constants';
-import { APPOINTMENT_STATUS_COLORS } from './statusColors';
+import { APPOINTMENT_STATUS_COLORS } from './appointmentStatusIndicators';
+import { AppointmentStatusIcon as StatusIcon } from '../Icons';
 
 const selectedSelector = 'selected';
 
@@ -80,6 +81,7 @@ export const AppointmentTile = ({
       <Label $strikethrough={appointmentStatus === APPOINTMENT_STATUSES.NO_SHOW}>
         <Timestamp date={new Date(startTime)} /> {getPatientFullName(patient)}
       </Label>
+      <StatusIcon appointmentStatus={appointmentStatus} aria-hidden width={10} height={10} />
     </Wrapper>
   );
 };
