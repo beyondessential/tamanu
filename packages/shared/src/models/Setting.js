@@ -150,10 +150,7 @@ export class Setting extends Model {
     return getAtPath(settingsObject, key);
   }
 
-  static async set(key, value, scope = SETTINGS_SCOPES.GLOBAL, facilityId = null) {
-    const records = buildSettingsRecords(key, value, facilityId);
-
-    // create or update records
+  static async #upsertRecords(records, scope) {
     await Promise.all(
       records.map(async record => {
         // can't use upsert as sequelize can't parse our triple-index unique constraint
@@ -168,6 +165,20 @@ export class Setting extends Model {
         }
       }),
     );
+  }
+
+  /**
+   * Sets all settings for a given scope and facility, does not delete any existing settings
+   */
+  static async setAllToScope(settings, scope = SETTINGS_SCOPES.GLOBAL, facilityId = null) {
+    const records = buildSettingsRecords('', settings, facilityId, scope);
+    await this.#upsertRecords(records, scope);
+  }
+
+  static async set(key, value, scope = SETTINGS_SCOPES.GLOBAL, facilityId = null) {
+    const records = buildSettingsRecords(key, value, facilityId);
+
+    await this.#upsertRecords(records, scope);
 
     const keyWhere = key
       ? {
