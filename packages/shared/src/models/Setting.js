@@ -5,6 +5,10 @@ import { SYNC_DIRECTIONS, SETTINGS_SCOPES } from '@tamanu/constants';
 import { Model } from './Model';
 
 /**
+ * @typedef {import("@tamanu/settings").SettingPath} SettingPath
+ */
+
+/**
  * Stores nested settings data, where each leaf node in the nested object has a record in the table,
  * with a key based on the full path of keys to get there, joined by dots
  * The model is responsible for providing a nice interface, so that consumers don't have to think
@@ -92,6 +96,7 @@ export class Setting extends Model {
   /**
    * IMPORTANT: Duplicated from mobile/models/Setting.ts
    * Please update both places when modify
+   * @param {SettingPath} key
    */
   static async get(key = '', facilityId = null, scopeOverride = null) {
     const determineScope = () => {
@@ -150,9 +155,13 @@ export class Setting extends Model {
     return getAtPath(settingsObject, key);
   }
 
+  /**
+   * @param {SettingPath} key
+   */
   static async set(key, value, scope = SETTINGS_SCOPES.GLOBAL, facilityId = null) {
     const records = buildSettingsRecords(key, value, facilityId);
 
+    this.set('customisations', '');
     // create or update records
     await Promise.all(
       records.map(async record => {
