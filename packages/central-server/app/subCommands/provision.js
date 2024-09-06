@@ -15,6 +15,9 @@ import { loadSettingFile } from '../utils/loadSettingFile';
 import { referenceDataImporter } from '../admin/referenceDataImporter';
 import { getRandomBase64String } from '../auth/utils';
 import { programImporter } from '../admin/programImporter/programImporter';
+import { merge } from 'lodash';
+import { mergeWith } from 'lodash';
+import { isArray } from 'lodash';
 
 export async function provision(provisioningFile, { skipIfNotNeeded }) {
   const store = await initDatabase({ testMode: false });
@@ -119,18 +122,32 @@ export async function provision(provisioningFile, { skipIfNotNeeded }) {
   /// ////////
   /// SETTINGS
 
+  const mergeSettings = (existing, settings) =>
+    mergeWith(
+      existing,
+      settings,
+      (_, settingValue) => (isArray(settingValue) ? settingValue : undefined), // Replace, don’t merge arrays
+    );
   if (settings.global) {
-    await store.models.Setting.set('', settings.global);
+    const existing = await store.models.Setting.get('');
+    await store.models.Setting.set('', mergeSettings(existing, settings.global));
     log.info('Set global settings');
   }
   if (settings.facilities) {
     for (const [facilityId, facilitySettings] of Object.entries(settings.facilities)) {
-      await store.models.Setting.set('', facilitySettings, SETTINGS_SCOPES.FACILITY, facilityId);
+      const existing = await store.models.Setting.get('', facilityId);
+      await store.models.Setting.set(
+        '',
+        mergeSettings(existing, facilitySettings),
+        SETTINGS_SCOPES.FACILITY,
+        facilityId,
+      );
       log.info(`Set facility settings for ${facilityId}`);
     }
   }
   if (settings.central) {
-    await store.models.Setting.set('', settings.central, SETTINGS_SCOPES.CENTRAL);
+    const existing = await store.models.Setting.get('', null, SETTINGS_SCOPES.CENTRAL);
+    await store.models.Setting.set('', merge(existing, settings.central), SETTINGS_SCOPES.CENTRAL);
     log.info('Set central settings');
   }
 
