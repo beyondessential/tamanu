@@ -99,4 +99,8 @@ export class LabTestType extends Model {
   static buildSyncFilter() {
     return null; // syncs everywhere
   }
+
+  static buildSyncLookupQueryDetails() {
+    return null; // syncs everywhere
+  }
 }
