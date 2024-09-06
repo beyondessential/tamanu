@@ -3,6 +3,7 @@ import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { InvalidOperationError } from '../errors';
 import { Model } from './Model';
 import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
+import { buildEncounterLinkedLookupFilter } from '../sync/buildEncounterLinkedLookupFilter';
 
 export class Discharge extends Model {
   static init({ primaryKey, ...options }) {
@@ -64,5 +65,9 @@ export class Discharge extends Model {
       [this.tableName, 'encounters'],
       markedForSyncPatientsTable,
     );
+  }
+
+  static buildSyncLookupQueryDetails() {
+    return buildEncounterLinkedLookupFilter(this);
   }
 }

@@ -86,4 +86,8 @@ export class CertifiableVaccine extends Model {
   static buildSyncFilter() {
     return null; // syncs everywhere
   }
+
+  static buildSyncLookupQueryDetails() {
+    return null; // syncs everywhere
+  }
 }
