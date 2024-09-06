@@ -1,5 +1,5 @@
 import React, { memo, useMemo, useState } from 'react';
-import { capitalize, omitBy, pickBy, startCase, set, get, cloneDeep } from 'lodash';
+import { capitalize, omitBy, pickBy, startCase, set, get, cloneDeep, isEqual } from 'lodash';
 import styled from 'styled-components';
 
 import { getScopedSchema, isSetting } from '@tamanu/settings';
@@ -40,7 +40,7 @@ const SettingLine = styled(LargeBodyText)`
   display: flex;
   justify-content: flex-end;
   margin-bottom: 10px;
-  padding-right: 40%;
+  width: 600px;
 `;
 
 const CategoryOptions = styled(Box)`
@@ -179,9 +179,13 @@ const prepareSchema = scope => {
   return schema;
 };
 
-export const EditorView = memo(({ values, setValues, submitForm, settingsSnapshot, dirty, resetForm }) => {
+export const EditorView = memo(({ values, setValues, submitForm, settingsSnapshot, resetForm }) => {
   const { scope } = values;
   const [category, setCategory] = useState(null);
+  const [modalOpen, setModalOpen] = useState(false); // Control modal visibility
+  const [resolveFn, setResolveFn] = useState(null);
+
+  const hasPendingEdits = values.settings && !isEqual(settingsSnapshot, values.settings);
 
   const scopedSchema = useMemo(() => prepareSchema(scope), [scope]);
   const categoryOptions = useMemo(() => getCategoryOptions(scopedSchema), [scopedSchema]);
@@ -189,16 +193,13 @@ export const EditorView = memo(({ values, setValues, submitForm, settingsSnapsho
 
   const handleChangeScope = () => setCategory(null);
   const handleChangeCategory = async e => {
-    if (category && dirty) {
+    if (hasPendingEdits) {
       const confirmed = await new Promise(resolve => {
-        // TODO: use <ConfirmModal> with promise
-        const userConfirmed = window.confirm('You have unsaved changes. Do you want to discard these?');
-        resolve(userConfirmed);
+        setResolveFn(() => resolve); // Save resolve to use in onConfirm/onCancel
+        setModalOpen(true); // Open modal
       });
 
-      if (!confirmed) {
-        return;
-      }
+      if (!confirmed) return;
       await resetForm();
     }
     setCategory(e.target.value);
@@ -207,7 +208,7 @@ export const EditorView = memo(({ values, setValues, submitForm, settingsSnapsho
   const handleChangeSetting = (path, value) => {
     const settingObject = cloneDeep(values.settings || settingsSnapshot);
     const updatedSettings = set(settingObject, `${category}.${path}`, value);
-    setValues({ ...values, settings: { ...updatedSettings } });
+    setValues({ ...values, settings: updatedSettings });
   };
   const getSettingValue = path => get(values.settings || settingsSnapshot, `${category}.${path}`);
 
@@ -221,6 +222,22 @@ export const EditorView = memo(({ values, setValues, submitForm, settingsSnapsho
 
   return (
     <>
+      {/* TODO: translations */}
+      <ConfirmModal
+        title="Unsaved changes"
+        subText="You have unsaved changes. Are you sure you would like to discard those changes?"
+        open={modalOpen}
+        onConfirm={() => {
+          setModalOpen(false);
+          resolveFn(true);
+        }}
+        confirmButtonText="Discard changes"
+        onCancel={() => {
+          setModalOpen(false);
+          resolveFn(false);
+        }}
+        cancelButtonText="Go back"
+      />
       <StyledTopBar>
         <ScopeSelectorFields onChangeScope={handleChangeScope} />
       </StyledTopBar>
@@ -234,8 +251,10 @@ export const EditorView = memo(({ values, setValues, submitForm, settingsSnapsho
             options={categoryOptions}
           />
           <div>
-            <OutlinedButton onClick={resetForm} disabled={!dirty}>Clear changes</OutlinedButton>
-            <SubmitButton onClick={saveSettings} disabled={!dirty}>
+            <OutlinedButton onClick={resetForm} disabled={!hasPendingEdits}>
+              Clear changes
+            </OutlinedButton>
+            <SubmitButton onClick={saveSettings} disabled={!hasPendingEdits}>
               Save changes
             </SubmitButton>
           </div>

@@ -79,11 +79,9 @@ export const SettingInput = ({ type, path, value, defaultValue, handleChangeSett
             height="156px"
             width="353px"
             editMode
-            // TODO: This breks on reload as value is not a string anymore
             value={typeof value !== 'string' ? JSON.stringify(value, null, 2) : value}
             defaultValue={JSON.stringify(defaultValue, null, 2)}
             onChange={e => {
-                console.log(e)
               handleChangeSetting(path, e);
               try {
                 JSON.parse(e);
@@ -94,7 +92,6 @@ export const SettingInput = ({ type, path, value, defaultValue, handleChangeSett
             }}
             error={error}
           />
-          {/* TODO: broken also */}
           <DefaultButton resetToDefault={() => handleChangeSetting(path, defaultValue)} />
         </>
       );

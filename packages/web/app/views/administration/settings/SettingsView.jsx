@@ -106,7 +106,7 @@ export const SettingsView = () => {
   );
 };
 
-const SettingsForm = ({ values, setValues, submitForm, dirty, resetForm }) => {
+const SettingsForm = ({ values, setValues, submitForm, resetForm }) => {
   const [currentTab, setCurrentTab] = useState('editor');
   const api = useApi();
   const { ability } = useAuth();
@@ -132,7 +132,6 @@ const SettingsForm = ({ values, setValues, submitForm, dirty, resetForm }) => {
       setValues={setValues}
       values={values}
       submitForm={submitForm}
-      dirty={dirty}
       resetForm={resetForm}
     />
   ) : (
