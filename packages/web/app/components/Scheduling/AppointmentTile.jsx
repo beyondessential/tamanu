@@ -27,13 +27,12 @@ const Wrapper = styled.div`
       }
 
       &.${selectedSelector} {
-        border-width: 1px;
+        border: 1px solid ${props.$color};
         background-color: var(--bg-darker);
       }
     `}
 
   border-radius: 0.3125rem;
-  border-style: solid;
   color: ${Colors.darkestText};
   cursor: pointer;
   display: grid;
@@ -69,14 +68,18 @@ const getPatientFullName = ({ firstName, middleName, lastName }) => {
 
 export const AppointmentTile = ({
   appointment: { patient, startTime, status: appointmentStatus },
+  className,
   selected = false,
-}) => (
-  <Wrapper
-    $color={APPOINTMENT_STATUS_COLORS[appointmentStatus] ?? Colors.blue}
-    $selected={selected}
-  >
-    <Label $strikethrough={appointmentStatus === APPOINTMENT_STATUSES.NO_SHOW}>
-      <Timestamp date={new Date(startTime)} /> {getPatientFullName(patient)}
-    </Label>
-  </Wrapper>
-);
+}) => {
+  const classes = selected ? [className, selectedSelector].join('') : className;
+  return (
+    <Wrapper
+      className={classes}
+      $color={APPOINTMENT_STATUS_COLORS[appointmentStatus] ?? Colors.blue}
+    >
+      <Label $strikethrough={appointmentStatus === APPOINTMENT_STATUSES.NO_SHOW}>
+        <Timestamp date={new Date(startTime)} /> {getPatientFullName(patient)}
+      </Label>
+    </Wrapper>
+  );
+};
