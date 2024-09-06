@@ -124,14 +124,10 @@ export async function provision(provisioningFile, { skipIfNotNeeded }) {
     log.info('Set global settings');
   }
   if (settings.facilities) {
-    for (const [facilityId, facilitySettings] of Object.entries(settings.facilities)) {
-      await store.models.Setting.setAllToScope(
-        facilitySettings,
-        SETTINGS_SCOPES.FACILITY,
-        facilityId,
-      );
-      log.info(`Set facility settings for ${facilityId}`);
-    }
+    await Object.entries(settings.facilities).map(([facilityId, facilitySettings]) =>
+      store.models.Setting.setAllToScope(facilitySettings, SETTINGS_SCOPES.FACILITY, facilityId),
+    );
+    log.info('Set facility settings');
   }
   if (settings.central) {
     await store.models.Setting.setAllToScope(settings.central, SETTINGS_SCOPES.CENTRAL);

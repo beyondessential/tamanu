@@ -9,7 +9,7 @@ const seedForScope = async (models, settings, serverFacilityId, scopeOverride) =
     return serverFacilityId ? SETTINGS_SCOPES.FACILITY : SETTINGS_SCOPES.GLOBAL;
   };
   const scope = getScope();
-  return Setting.setAllForScope(settings, scope, serverFacilityId);
+  return Setting.setAllToScope(settings, scope, serverFacilityId);
 };
 
 export async function seedSettings(models) {
