@@ -99,5 +99,5 @@ const COLUMNS = [
 ];
 
 export const TaskSetTable = ({ tasks }) => {
-  return <StyledTable data={tasks} columns={[...COLUMNS]} allowExport={false} disablePagination />;
+  return <StyledTable data={tasks} columns={COLUMNS} allowExport={false} disablePagination />;
 };
