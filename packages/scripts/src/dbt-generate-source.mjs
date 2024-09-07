@@ -41,9 +41,9 @@ async function generate_source({
     version: 2,
     sources: [
       {
-        name: name.toLowerCase(),
-        database: database.toLowerCase(),
-        schema_name: schemaName ? schemaName.toLowerCase() : undefined, // TODO: what happens when undefined?
+        name,
+        database,
+        schema_name: schemaName === name ? undefined : schemaName,
         tables: await Promise.all(
           (await get_tables_in_schema(client, schemaName, tablePattern, exclude)).map(
             async table => {
@@ -70,14 +70,31 @@ async function generate_source({
 }
 
 program
-  .option('password')
-  .requiredOption('--name <string>')
-  .requiredOption('--database <string>')
-  .option('--schema-name <string>')
-  .option('--generate-columns')
-  .option('--exclude-data-types')
-  .option('--table-pattern <string>', '', '%')
-  .option('--exclude <string>', '', '');
+  .description('generates a Source model in dbt')
+  .option('--password')
+  .requiredOption('--name <string>', 'The name of your source', value => value.toLowerCase())
+  .requiredOption('--database <string>', 'The database that your source data is in', value =>
+    value.toLowerCase(),
+  )
+  .option(
+    '--schema-name <string>',
+    'The schema name that contains your source data (default: the same as `name`)',
+    value => value.toLowerCase(),
+  )
+  .option(
+    '--generate-columns',
+    'Whether you want to add the column names to your source definition',
+  )
+  .option(
+    '--exclude-data-types',
+    'Whether you want to add data types to your source columns definitions',
+  )
+  .option(
+    '--table-pattern <string>',
+    'A table prefix / postfix that you want to subselect from all available tables within a given schema',
+    '%',
+  )
+  .option('--exclude <string>', 'A string you want to exclude from the selection criteria', '');
 
 program.parse();
 const opts = program.opts();
