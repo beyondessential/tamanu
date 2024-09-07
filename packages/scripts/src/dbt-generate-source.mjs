@@ -1,3 +1,5 @@
+// This is a port of `generate_source` from https://github.com/dbt-labs/dbt-codegen.
+
 import { program } from 'commander';
 import YAML from 'yaml';
 import pg from 'pg';
