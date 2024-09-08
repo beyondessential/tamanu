@@ -1,11 +1,15 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import * as yup from 'yup';
 
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import styled from 'styled-components';
 import PriorityHighIcon from '@material-ui/icons/PriorityHigh';
 import { Divider } from '@material-ui/core';
-import { REFERENCE_DATA_RELATION_TYPES, REFERENCE_TYPES } from '@tamanu/constants';
+import {
+  REFERENCE_DATA_RELATION_TYPES,
+  REFERENCE_TYPES,
+  TASK_FREQUENCY_UNIT_LABELS,
+} from '@tamanu/constants';
 
 import {
   AutocompleteField,
@@ -14,20 +18,16 @@ import {
   Field,
   Form,
   NumberField,
-  SelectField,
   SuggesterSelectField,
   TextField,
+  TranslatedSelectField,
 } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
 import { FormSubmitCancelRow } from '../components/ButtonRow';
 
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useSuggester } from '../api';
-import {
-  REFERENCE_DATA_TYPE_TO_LABEL,
-  TASK_FREQUENCY_UNIT_OPTIONS,
-  TASK_FREQUENCY_UNIT_TO_VALUE,
-} from '../constants/task';
+import { REFERENCE_DATA_TYPE_TO_LABEL } from '../constants/task';
 import { Colors, FORM_TYPES } from '../constants';
 import { foreignKey } from '../utils/validation';
 import { preventInvalidNumber } from '../utils';
@@ -64,11 +64,6 @@ const StyledPriorityHighIcon = styled(PriorityHighIcon)`
   font-size: 16px;
   vertical-align: sub;
 `;
-
-const taskFrequencyUnitOptions = Object.values(TASK_FREQUENCY_UNIT_OPTIONS).map(label => ({
-  label,
-  value: TASK_FREQUENCY_UNIT_TO_VALUE[label],
-});
 
 export const TaskForm = React.memo(({ onClose, onCreateTaskSuccess }) => {
   const practitionerSuggester = useSuggester('practitioner');
@@ -124,29 +119,28 @@ export const TaskForm = React.memo(({ onClose, onCreateTaskSuccess }) => {
     }
   };
 
-  const handleTaskChange = e => {
-    setSelectedTask(e.target);
+  const handleTaskChange = (e, { setFieldValue }) => {
+    const selectedTask = e.target;
+    setSelectedTask(selectedTask);
+
+    if (selectedTask?.type === REFERENCE_TYPES.TASK_TEMPLATE) {
+      const { taskTemplate = {} } = selectedTask;
+      const { designations, highPriority, frequencyValue, frequencyUnit } = taskTemplate;
+
+      setFieldValue(
+        'designations',
+        designations?.map(item => item.designationId),
+      );
+      setFieldValue('highPriority', highPriority);
+      setFieldValue('frequencyValue', frequencyValue);
+      setFieldValue('frequencyUnit', frequencyUnit);
+    }
   };
 
   return (
     <Form
       onSubmit={onSubmit}
       render={({ submitForm, setFieldValue }) => {
-        useEffect(() => {
-          if (selectedTask?.type === REFERENCE_TYPES.TASK_TEMPLATE) {
-            const { taskTemplate = {} } = selectedTask;
-            const { designations, highPriority, frequencyValue, frequencyUnit } = taskTemplate;
-
-            setFieldValue(
-              'designations',
-              designations?.map(item => item.designationId),
-            );
-            setFieldValue('highPriority', highPriority);
-            setFieldValue('frequencyValue', frequencyValue);
-            setFieldValue('frequencyUnit', frequencyUnit);
-          }
-        }, [selectedTask]);
-
         return (
           <div>
             <FormGrid>
@@ -162,7 +156,7 @@ export const TaskForm = React.memo(({ onClose, onCreateTaskSuccess }) => {
                   getSectionTitle={section => REFERENCE_DATA_TYPE_TO_LABEL[section.type]}
                   orderByValues={[REFERENCE_TYPES.TASK_SET, REFERENCE_TYPES.TASK_TEMPLATE]}
                   required
-                  onChange={handleTaskChange}
+                  onChange={e => handleTaskChange(e, { setFieldValue })}
                 />
                 <Field
                   name="startTime"
@@ -244,8 +238,8 @@ export const TaskForm = React.memo(({ onClose, onCreateTaskSuccess }) => {
                   <Field
                     name="frequencyUnit"
                     required
-                    component={SelectField}
-                    options={taskFrequencyUnitOptions}
+                    component={TranslatedSelectField}
+                    enumValues={TASK_FREQUENCY_UNIT_LABELS}
                   />
                 </NestedFormGrid>
                 <StyledCheckField
@@ -280,53 +274,55 @@ export const TaskForm = React.memo(({ onClose, onCreateTaskSuccess }) => {
       validationSchema={yup.object().shape(
         {
           taskId: foreignKey()
-            .required()
             .translatedLabel(
               <TranslatedText stringId="encounter.task.task.label" fallback="Task" />,
-            ),
+            )
+            .required(),
           startTime: yup
             .date()
-            .required()
             .translatedLabel(
               <TranslatedText
                 stringId="encounter.task.startTime.label"
                 fallback="Start date & time"
               />,
-            ),
+            )
+            .required(),
           requestedByUserId: foreignKey()
-            .required()
             .translatedLabel(
               <TranslatedText
                 stringId="encounter.task.requestedBy.label"
                 fallback="Requested by"
               />,
-            ),
+            )
+            .required(),
           requestTime: yup
             .date()
-            .required()
             .translatedLabel(
               <TranslatedText
                 stringId="encounter.task.requestTime.label"
                 fallback="Request date & time"
               />,
-            ),
+            )
+            .required(),
           note: yup.string(),
           highPriority: yup.boolean(),
           frequencyValue: yup.number().when('frequencyUnit', {
             is: unit => !!unit,
             then: yup
               .number()
-              .required(
+              .translatedLabel(
                 <TranslatedText stringId="task.frequency.label.short" fallback="Frequency" />,
-              ),
+              )
+              .required(),
           }),
           frequencyUnit: yup.string().when('frequencyValue', {
             is: value => !!value,
             then: yup
               .string()
-              .required(
+              .translatedLabel(
                 <TranslatedText stringId="task.frequencyUnit.label" fallback="Frequency unit" />,
-              ),
+              )
+              .required(),
           }),
         },
         ['frequencyValue', 'frequencyUnit'],

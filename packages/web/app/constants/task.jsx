@@ -6,14 +6,3 @@ export const REFERENCE_DATA_TYPE_TO_LABEL = {
   taskSet: <TranslatedText stringId="encounter.task.taskSet.label" fallback="Task set" />,
 };
 
-export const TASK_FREQUENCY_UNIT_OPTIONS = {
-  MINUTE: 'minute (s)',
-  HOUR: 'hour (s)',
-  DAY: 'day (s)',
-};
-
-export const TASK_FREQUENCY_UNIT_TO_VALUE = {
-  [TASK_FREQUENCY_UNIT_OPTIONS.MINUTE]: 'minute',
-  [TASK_FREQUENCY_UNIT_OPTIONS.HOUR]: 'hour',
-  [TASK_FREQUENCY_UNIT_OPTIONS.DAY]: 'day',
-};

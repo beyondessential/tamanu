@@ -240,9 +240,6 @@ export class Task extends Model {
     const clonedDesignations = [];
 
     for (const createdTask of createdTasks) {
-      if (!task.designations) {
-        continue;
-      }
       clonedDesignations.push(
         ...task.designations.map(designation => ({
           taskId: createdTask.id,
@@ -250,6 +247,7 @@ export class Task extends Model {
         })),
       );
     }
+
     await this.sequelize.models.TaskDesignation.bulkCreate(clonedDesignations);
   }
 }
