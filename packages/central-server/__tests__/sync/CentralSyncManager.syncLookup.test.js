@@ -557,7 +557,7 @@ describe('Sync Lookup data', () => {
       ctx.store.sequelize,
       sessionId,
       true,
-      facility.id,
+      [facility.id],
       0,
     );
 
@@ -636,7 +636,7 @@ describe('Sync Lookup data', () => {
       ctx.store.sequelize,
       sessionId,
       true,
-      facility.id,
+      [facility.id],
       0,
     );
 
@@ -742,7 +742,7 @@ describe('Sync Lookup data', () => {
         ctx.store.sequelize,
         sessionId,
         false,
-        facility.id,
+        [facility.id],
         10,
       );
     });
@@ -913,7 +913,7 @@ describe('Sync Lookup data', () => {
       ctx.store.sequelize,
       sessionId,
       false,
-      facility.id,
+      [facility.id],
       10,
     );
 
@@ -1040,7 +1040,7 @@ describe('Sync Lookup data', () => {
         ctx.store.sequelize,
         sessionId,
         false,
-        facility.id,
+        [facility.id],
         10,
       );
     });

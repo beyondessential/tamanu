@@ -68,7 +68,7 @@ describe('snapshotOutgoingChanges', () => {
       ctx.store.sequelize,
       sessionId,
       true,
-      facility.id,
+      [facility.id],
       tock - 1,
     );
 
@@ -129,7 +129,7 @@ describe('snapshotOutgoingChanges', () => {
       ctx.store.sequelize,
       sessionId,
       true,
-      facility.id,
+      [facility.id],
       tock - 1,
     );
 
@@ -198,7 +198,7 @@ describe('snapshotOutgoingChanges', () => {
       ctx.store.sequelize,
       sessionId,
       true,
-      facility.id,
+      [facility.id],
       tock - 1,
     );
 
@@ -266,7 +266,7 @@ describe('snapshotOutgoingChanges', () => {
       ctx.store.sequelize,
       sessionId,
       true,
-      facility.id,
+      [facility.id],
       tock - 1,
     );
 
@@ -320,7 +320,7 @@ describe('snapshotOutgoingChanges', () => {
       ctx.store.sequelize,
       sessionId,
       true,
-      facility.id,
+      [facility.id],
       tock - 1,
     );
 
@@ -381,7 +381,7 @@ describe('snapshotOutgoingChanges', () => {
       ctx.store.sequelize,
       sessionId,
       true,
-      facility.id,
+      [facility.id],
       tock - 1,
     );
 
@@ -435,7 +435,7 @@ describe('snapshotOutgoingChanges', () => {
       ctx.store.sequelize,
       sessionId,
       true,
-      facility.id,
+      [facility.id],
       tock - 1,
     );
 
@@ -508,7 +508,7 @@ describe('snapshotOutgoingChanges', () => {
       ctx.store.sequelize,
       sessionId,
       true,
-      facility.id,
+      [facility.id],
       tock - 1,
     );
 
@@ -635,7 +635,7 @@ describe('snapshotOutgoingChanges', () => {
       ctx.store.sequelize,
       sessionId,
       true,
-      facility.id,
+      [facility.id],
       tock - 1,
     );
 
