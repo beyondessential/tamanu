@@ -47,7 +47,7 @@ describe('snapshotOutgoingChanges', () => {
         ctx.store.sequelize,
         sessionId,
         true,
-        '',
+        [''],
         tock - 1,
       );
 
