@@ -428,14 +428,14 @@ export class CentralSyncManager {
           newPatientFacilitiesCount,
           fullSyncPatientsTable,
           sessionId,
-          facilityId,
+          facilityIds,
           {}, // sending empty session config because this snapshot attempt is only for syncing new marked for sync patients
         );
 
         // get changes since the last successful sync for all other synced patients and independent
         // record types
         const patientFacilitiesCount = await models.PatientFacility.count({
-          where: { facilityId },
+          where: { facilityId: facilityIds },
         });
 
         // regular changes
@@ -446,7 +446,7 @@ export class CentralSyncManager {
           patientFacilitiesCount,
           incrementalSyncPatientsTable,
           sessionId,
-          facilityId,
+          facilityIds,
           sessionConfig,
         );
 
