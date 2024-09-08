@@ -8,9 +8,3 @@ export interface Setting<T = any> {
   defaultValue: T;
   deprecated?: boolean;
 }
-
-export interface SettingsSchema {
-  name?: string;
-  description?: string;
-  properties: Record<string, Setting | SettingsSchema>;
-}
