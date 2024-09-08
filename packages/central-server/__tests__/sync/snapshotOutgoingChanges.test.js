@@ -58,7 +58,7 @@ describe('snapshotOutgoingChanges', () => {
         0,
         fullSyncPatientsTable,
         sessionId,
-        '',
+        [''],
         simplestSessionConfig,
       );
       expect(result).toEqual(0);

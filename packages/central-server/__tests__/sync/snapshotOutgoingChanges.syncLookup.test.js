@@ -109,7 +109,7 @@ describe('snapshotOutgoingChanges', () => {
       0,
       fullSyncPatientsTable,
       sessionId,
-      '',
+      [''],
       simplestSessionConfig,
       simplestConfig,
     );
@@ -172,7 +172,7 @@ describe('snapshotOutgoingChanges', () => {
       0,
       fullSyncPatientsTable,
       sessionId,
-      '',
+      [''],
       simplestSessionConfig,
       simplestConfig,
     );
@@ -239,7 +239,7 @@ describe('snapshotOutgoingChanges', () => {
       1,
       fullSyncPatientsTable,
       sessionId,
-      facility.id,
+      [facility.id],
       simplestSessionConfig,
       simplestConfig,
     );
@@ -307,7 +307,7 @@ describe('snapshotOutgoingChanges', () => {
       1,
       fullSyncPatientsTable,
       sessionId,
-      facility.id,
+      [facility.id],
       simplestSessionConfig,
       simplestConfig,
     );
@@ -361,7 +361,7 @@ describe('snapshotOutgoingChanges', () => {
       1,
       fullSyncPatientsTable,
       sessionId,
-      facility.id,
+      [facility.id],
       simplestSessionConfig,
       simplestConfig,
     );
@@ -422,7 +422,7 @@ describe('snapshotOutgoingChanges', () => {
       1,
       fullSyncPatientsTable,
       sessionId,
-      facility.id,
+      [facility.id],
       simplestSessionConfig,
       simplestConfig,
     );
@@ -476,7 +476,7 @@ describe('snapshotOutgoingChanges', () => {
       1,
       fullSyncPatientsTable,
       sessionId,
-      facility.id,
+      [facility.id],
       {
         syncAllLabRequests: true,
         isMobile: false,
@@ -605,7 +605,7 @@ describe('snapshotOutgoingChanges', () => {
       1,
       fullSyncPatientsTable,
       sessionId,
-      facility.id,
+      [facility.id],
       {
         syncAllLabRequests: true,
         isMobile: false,
@@ -732,7 +732,7 @@ describe('snapshotOutgoingChanges', () => {
       1,
       fullSyncPatientsTable,
       sessionId,
-      facility.id,
+      [facility.id],
       {
         syncAllLabRequests: true,
         isMobile: false,
