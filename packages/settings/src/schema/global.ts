@@ -16,6 +16,13 @@ import {
   patientDetailsFieldProperties,
 } from './global-settings-properties/fields';
 
+/** Pattern from ms package, which is used to parse sleepAfterReport values. */
+export const durationStringSchema = yup
+  .string()
+  .matches(
+    /^(-?(?:\d+)?\.?\d+) *(milliseconds?|msecs?|ms|seconds?|secs?|s|minutes?|mins?|m|hours?|hrs?|h|days?|d|weeks?|w|years?|yrs?|y)?$/i,
+  );
+
 export const globalSettings = {
   title: 'Global settings',
   description: 'Settings that apply to all servers',
