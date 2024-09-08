@@ -33,94 +33,111 @@ const buildSettingsString = settings => {
   return JSON.stringify(settings, null, 2);
 };
 
-export const JSONEditorView = React.memo(({ settingsSnapshot, values, setValues, submitForm }) => {
-  const { scope, facilityId } = values;
-  const [settingsEditString, setSettingsEditString] = useState('');
-  const [jsonError, setJsonError] = useState(null);
-  const [isDefaultModalOpen, setIsDefaultModalOpen] = useState(false);
+export const JSONEditorView = React.memo(
+  ({
+    settingsSnapshot,
+    values,
+    setValues,
+    submitForm,
+    scope,
+    setScope,
+    facilityId,
+    setFacilityId,
+  }) => {
+    // const { scope, facilityId } = values;
+    const [settingsEditString, setSettingsEditString] = useState('');
+    const [jsonError, setJsonError] = useState(null);
+    const [isDefaultModalOpen, setIsDefaultModalOpen] = useState(false);
 
-  const settingsViewString = buildSettingsString(settingsSnapshot);
-  const hasSettingsChanged = settingsViewString !== settingsEditString;
+    const settingsViewString = buildSettingsString(settingsSnapshot);
+    const hasSettingsChanged = settingsViewString !== settingsEditString;
 
-  const updateSettingsEditString = value => {
-    setSettingsEditString(value);
-    setJsonError(null);
-  };
+    const updateSettingsEditString = value => {
+      setSettingsEditString(value);
+      setJsonError(null);
+    };
 
-  const turnOnEditMode = () => updateSettingsEditString(buildSettingsString(settingsSnapshot) || '{}');
-  const turnOffEditMode = () => updateSettingsEditString(null);
+    const turnOnEditMode = () =>
+      updateSettingsEditString(buildSettingsString(settingsSnapshot) || '{}');
+    const turnOffEditMode = () => updateSettingsEditString(null);
 
-  const onChangeSettings = newValue => updateSettingsEditString(newValue);
+    const onChangeSettings = newValue => updateSettingsEditString(newValue);
 
-  // Convert settings string from editor into object and post to backend
-  const saveSettings = async event => {
-    // Check if the JSON is valid and notify if not
-    try {
-      JSON.parse(settingsEditString);
-    } catch (error) {
-      notifyError(`Invalid JSON: ${error}`);
-      setJsonError(error);
-      return;
-    }
+    // Convert settings string from editor into object and post to backend
+    const saveSettings = async event => {
+      // Check if the JSON is valid and notify if not
+      try {
+        JSON.parse(settingsEditString);
+      } catch (error) {
+        notifyError(`Invalid JSON: ${error}`);
+        setJsonError(error);
+        return;
+      }
 
-    // Pass the parsed settings object to the form submit function
-    const settingsObject = JSON.parse(settingsEditString);
-    setValues({ ...values, settings: settingsObject });
+      // Pass the parsed settings object to the form submit function
+      const settingsObject = JSON.parse(settingsEditString);
+      setValues({ ...values, settings: settingsObject });
 
-    const submitted = await submitForm(event);
-    if (submitted) {
-      turnOffEditMode();
-    }
-  };
+      const submitted = await submitForm(event);
+      if (submitted) {
+        turnOffEditMode();
+      }
+    };
 
-  const editMode = !!settingsEditString;
-  const isEditorVisible = scope !== SETTINGS_SCOPES.FACILITY || facilityId;
+    const editMode = !!settingsEditString;
+    const isEditorVisible = scope !== SETTINGS_SCOPES.FACILITY || facilityId;
 
-  return (
-    <>
-      <StyledTopBar>
-        <ScopeSelectorFields onChangeFacility={turnOffEditMode} onChangeScope={turnOffEditMode} />
-        <DefaultSettingsButton onClick={() => setIsDefaultModalOpen(true)}>
-          <Settings />
-          <TranslatedText
-            stringId="admin.settings.viewDefaultScope.message"
-            fallback="View default {scope} settings"
+    return (
+      <>
+        <StyledTopBar>
+          <ScopeSelectorFields
+            handleChangeFacilityId={e => setFacilityId(e.target.value)}
+            facilityId={facilityId}
+            handleChangeScope={e => setScope(e.target.value)}
+            scope={scope}
           />
-        </DefaultSettingsButton>
-        <ButtonRow>
-          {editMode ? (
-            <>
-              <LargeButton variant="outlined" onClick={turnOffEditMode}>
-                <TranslatedText stringId="general.action.cancel" fallback="Cancel" />
+          <DefaultSettingsButton onClick={() => setIsDefaultModalOpen(true)}>
+            <Settings />
+            <TranslatedText
+              stringId="admin.settings.viewDefaultScope.message"
+              fallback="View default {scope} settings"
+            />
+          </DefaultSettingsButton>
+          <ButtonRow>
+            {editMode ? (
+              <>
+                <LargeButton variant="outlined" onClick={turnOffEditMode}>
+                  <TranslatedText stringId="general.action.cancel" fallback="Cancel" />
+                </LargeButton>
+                <LargeButton onClick={saveSettings} disabled={!hasSettingsChanged}>
+                  <TranslatedText stringId="general.action.save" fallback="Save" />
+                </LargeButton>
+              </>
+            ) : (
+              <LargeButton onClick={turnOnEditMode} disabled={!isEditorVisible}>
+                <TranslatedText stringId="general.action.edit" fallback="Edit" />
               </LargeButton>
-              <LargeButton onClick={saveSettings} disabled={!hasSettingsChanged}>
-                <TranslatedText stringId="general.action.save" fallback="Save" />
-              </LargeButton>
-            </>
-          ) : (
-            <LargeButton onClick={turnOnEditMode} disabled={!isEditorVisible}>
-              <TranslatedText stringId="general.action.edit" fallback="Edit" />
-            </LargeButton>
+            )}
+          </ButtonRow>
+        </StyledTopBar>
+        <ContentPane>
+          {isEditorVisible && (
+            <JSONEditor
+              onChange={onChangeSettings}
+              value={editMode ? settingsEditString : settingsViewString}
+              editMode={editMode}
+              error={jsonError}
+              placeholder="No settings found for this server/facility"
+              fontSize={14}
+            />
           )}
-        </ButtonRow>
-      </StyledTopBar>
-      <ContentPane>
-        {isEditorVisible && (
-          <JSONEditor
-            onChange={onChangeSettings}
-            value={editMode ? settingsEditString : settingsViewString}
-            editMode={editMode}
-            error={jsonError}
-            placeholder="No settings found for this server/facility"
-            fontSize={14}
-          />
-        )}
-      </ContentPane>
-      <DefaultSettingsModal
-        open={isDefaultModalOpen}
-        onClose={() => setIsDefaultModalOpen(false)}
-        scope={scope}
-      />
-    </>
-  );
-});
+        </ContentPane>
+        <DefaultSettingsModal
+          open={isDefaultModalOpen}
+          onClose={() => setIsDefaultModalOpen(false)}
+          scope={scope}
+        />
+      </>
+    );
+  },
+);

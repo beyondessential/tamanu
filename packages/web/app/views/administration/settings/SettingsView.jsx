@@ -69,7 +69,13 @@ const tabs = [
 export const SettingsView = () => {
   const queryClient = useQueryClient();
   const api = useApi();
-  const handleSubmit = async ({ settings, scope, facilityId }) => {
+
+  const [scope, setScope] = useState(SETTINGS_SCOPES.GLOBAL);
+  const [facilityId, setFacilityId] = useState(null);
+
+  console.log(scope);
+
+  const handleSubmit = async ({ settings }) => {
     try {
       await validateSettings({ settings, scope });
       await api.put('admin/settings', { settings, facilityId, scope });
@@ -93,21 +99,42 @@ export const SettingsView = () => {
       title={<TranslatedText stringId="admin.settings.title" fallback="Settings" />}
     >
       <Form
-        initialValues={{ scope: SETTINGS_SCOPES.GLOBAL, facilityId: null }}
+        // initialValues={{ scope: SETTINGS_SCOPES.GLOBAL, facilityId: null }}
         onSubmit={handleSubmit}
-        render={SettingsForm}
+        render={formProps => (
+          <SettingsForm
+            {...formProps}
+            scope={scope}
+            setScope={setScope}
+            facilityId={facilityId}
+            setFacilityId={setFacilityId}
+          />
+        )}
         style={{ flex: 1 }}
       />
     </StyledAdminViewContainer>
   );
 };
 
-const SettingsForm = ({ values, setValues, submitForm, resetForm, dirty }) => {
+const SettingsForm = ({
+  values,
+  setValues,
+  submitForm,
+  resetForm,
+  dirty,
+  scope,
+  setScope,
+  facilityId,
+  setFacilityId,
+}) => {
+  console.log(scope);
   const [currentTab, setCurrentTab] = useState('editor');
+  // const [scope, setCurrentScope] = useState(SETTINGS_SCOPES.GLOBAL)
+  // const [facilityId, setFacilityId] = useState(null)
   const api = useApi();
   const { ability } = useAuth();
   // TODO: maybe move these into state so they dont get reset with other form values
-  const { scope, facilityId } = values;
+  // const { scope, facilityId } = values;
   const canViewJSONEditor = ability.can('write', 'Setting');
 
   const { data: settingsSnapshot = {}, error: settingsFetchError } = useQuery(
@@ -131,6 +158,10 @@ const SettingsForm = ({ values, setValues, submitForm, resetForm, dirty }) => {
       submitForm={submitForm}
       resetForm={resetForm}
       dirty={dirty}
+      scope={scope}
+      setScope={setScope}
+      facilityId={facilityId}
+      setFacilityId={setFacilityId}
     />
   ) : (
     <EditorView settingsSnapshot={settingsSnapshot} values={values} />

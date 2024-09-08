@@ -209,8 +209,18 @@ export const WarningModal = ({ open, setWarningModalOpen, resolveFn }) => (
 );
 
 export const EditorView = memo(
-  ({ values, setValues, submitForm, settingsSnapshot, resetForm, dirty }) => {
-    const { scope } = values;
+  ({
+    values,
+    setValues,
+    submitForm,
+    settingsSnapshot,
+    resetForm,
+    dirty,
+    scope,
+    setScope,
+    facilityId,
+    setFacilityId,
+  }) => {
     const [category, setCategory] = useState(null);
     const [warningModalOpen, setWarningModalOpen] = useState(false);
     const [resolveFn, setResolveFn] = useState(null);
@@ -234,7 +244,18 @@ export const EditorView = memo(
     ]);
 
     // Scope/Category dropdown management
-    const handleChangeScope = () => setCategory(null);
+    const handleChangeScope = async e => {
+      const newScope = e.target.value;
+      if (newScope !== scope && dirty) {
+        const dismissChanges = await showWarningModal();
+        if (!dismissChanges) return;
+        await resetForm();
+      }
+      setScope(newScope);
+      setFacilityId(null);
+      setCategory(null);
+    };
+
     const handleChangeCategory = async e => {
       const newCategory = e.target.value;
       if (newCategory !== category && dirty) {
@@ -264,7 +285,12 @@ export const EditorView = memo(
     return (
       <>
         <StyledTopBar>
-          <ScopeSelectorFields onChangeScope={handleChangeScope} />
+          <ScopeSelectorFields
+            handleChangeScope={handleChangeScope}
+            scope={scope}
+            handleChangeFacilityId={setFacilityId}
+            facilityId={facilityId}
+          />
         </StyledTopBar>
         <SettingsWrapper>
           <CategoryOptions p={2}>
