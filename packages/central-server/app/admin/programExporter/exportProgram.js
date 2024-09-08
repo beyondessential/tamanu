@@ -1,5 +1,6 @@
 import { QueryTypes } from 'sequelize';
 import { writeExcelFile } from '../../utils/excelUtils';
+import { groupBy } from 'lodash';
 
 export async function exportProgram(context, programId) {
   const { models, sequelize } = context;
@@ -63,82 +64,85 @@ export async function exportProgram(context, programId) {
 
   sheets.push(metadataSheet);
 
-  const surveySheets = [];
-  await Promise.all(
-    surveys.map(async survey => {
-      const surveyRecords = await sequelize.query(
-        `
-        SELECT
-          ssc.id,
-          ssc.detail,
-          ssc.visibility_criteria,
-          ssc.validation_criteria,
-          ssc.calculation,
-          ssc.config,
-          ssc.visibility_status,
-          pde.code,
-          pde.type,
-          pde.name,
-          pde.default_text as text,
-          pde.default_options as options,
-          pde.visualisation_config
-        FROM survey_screen_components ssc
-        JOIN program_data_elements pde ON concat(:surveyId, '-', pde.code) = ssc.id
-        WHERE ssc.survey_id = :surveyId
-      `,
-        {
-          replacements: { surveyId: survey.id },
-          type: QueryTypes.SELECT,
-        },
-      );
+  let surveySheets = [];
+  if (surveys.length) {
+    const surveyRecords = await sequelize.query(
+      `
+      SELECT
+        ssc.id,
+        ssc.detail,
+        ssc.visibility_criteria,
+        ssc.validation_criteria,
+        ssc.calculation,
+        ssc.config,
+        ssc.visibility_status,
+        ssc.screen_index,
+        ssc.component_index,
+        ssc.survey_id,
+        pde.code,
+        pde.type,
+        pde.name,
+        pde.default_text as text,
+        pde.default_options as options,
+        pde.visualisation_config
+      FROM survey_screen_components ssc
+      JOIN program_data_elements pde ON concat(ssc.survey_id, '-', pde.code) = ssc.id
+      WHERE ssc.survey_id IN (:surveyIds)
+      ORDER BY ssc.screen_index, ssc.component_index
+    `,
+      {
+        replacements: { surveyIds: surveys.map(({ id }) => id) },
+        type: QueryTypes.SELECT,
+      },
+    );
 
-      surveySheets.push({
-        name: survey.code,
-        data: [
-          [
-            'code',
-            'type',
-            'name',
-            'text',
-            'detail',
-            'newScreen',
-            'options',
-            'optionLabels',
-            'optionColors',
-            'visibilityCriteria',
-            'validationCriteria',
-            'visualisationConfig',
-            'optionSet',
-            'questionLabel',
-            'detailLabel',
-            'calculation',
-            'config',
-            'visibilityStatus',
-          ],
-          ...surveyRecords.map(it => [
-            it.code,
-            it.type,
-            it.name,
-            it.text,
-            it.detail,
-            '',
-            it.options,
-            '',
-            '',
-            it.visibility_criteria,
-            it.validation_criteria,
-            it.visualisation_config,
-            '',
-            '',
-            '',
-            it.calculation,
-            it.config,
-            it.visibility_status,
-          ]),
+    const groupedSurveyRecords = groupBy(surveyRecords, 'survey_id');
+    surveySheets = surveys.map(survey => ({
+      name: survey.code,
+      data: [
+        [
+          'code',
+          'type',
+          'name',
+          'text',
+          'detail',
+          'newScreen',
+          'options',
+          'optionLabels',
+          'optionColors',
+          'visibilityCriteria',
+          'validationCriteria',
+          'visualisationConfig',
+          'optionSet',
+          'questionLabel',
+          'detailLabel',
+          'calculation',
+          'config',
+          'visibilityStatus',
         ],
-      });
-    }),
-  );
+        ...groupedSurveyRecords[survey.id].map((s, i, a) => [
+          s.code,
+          s.type,
+          s.name,
+          s.text,
+          s.detail,
+          a[i - 1] && s.screen_index !== a[i - 1].screen_index ? 'yes' : '',
+          s.options,
+          '',
+          '',
+          s.visibility_criteria,
+          s.validation_criteria,
+          s.visualisation_config,
+          '',
+          '',
+          '',
+          s.calculation,
+          s.config,
+          s.visibility_status,
+        ]),
+      ],
+    }));
+  }
 
   sheets.push(...surveySheets);
 

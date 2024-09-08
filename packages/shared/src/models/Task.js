@@ -7,6 +7,7 @@ import config from 'config';
 import ms from 'ms';
 import { addMilliseconds, isBefore } from 'date-fns';
 import { toDateTimeString } from '../utils/dateTime';
+import { buildEncounterLinkedLookupFilter } from '../sync/buildEncounterLinkedLookupFilter';
 
 export class Task extends Model {
   static init({ primaryKey, ...options }) {
@@ -135,6 +136,10 @@ export class Task extends Model {
       [this.tableName, 'encounters'],
       markedForSyncPatientsTable,
     );
+  }
+
+  static buildSyncLookupQueryDetails() {
+    return buildEncounterLinkedLookupFilter(this);
   }
 
   static getFullReferenceAssociations() {

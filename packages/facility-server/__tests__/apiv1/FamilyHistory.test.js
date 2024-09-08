@@ -5,7 +5,6 @@ import {
 } from '@tamanu/shared/demoData/patients';
 import { createTestContext } from '../utilities';
 
-
 describe('Family history', () => {
   let patient = null;
   let app = null;
@@ -24,7 +23,7 @@ describe('Family history', () => {
 
   it('should record family history', async () => {
     const result = await app.post('/api/familyHistory').send({
-      diagnosisId: await randomReferenceId(models, 'icd10'),
+      diagnosisId: await randomReferenceId(models, 'diagnosis'),
       patientId: patient.id,
       practitionerId: await randomUser(models),
       relationship: 'mother',
