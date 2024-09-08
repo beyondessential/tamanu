@@ -46,7 +46,7 @@ const practitionerSuggester = createDummySuggester([
 const locationSuggester = createDummySuggester(mapToSuggestions(LOCATIONS));
 const dispositionSuggester = createDummySuggester(mapToSuggestions(DISPOSITIONS));
 const facilitySuggester = createDummySuggester(mapToSuggestions(FACILITIES));
-const icd10Suggester = createDummySuggester(mapToSuggestions(DIAGNOSES));
+const diagnosisSuggester = createDummySuggester(mapToSuggestions(DIAGNOSES));
 const patientSuggester = createDummySuggester(
   PATIENTS.map(({ firstName, lastName, id }) => ({
     label: `${firstName} ${lastName}`,
@@ -71,7 +71,7 @@ storiesOf('Forms', module).add('DeathForm', () => {
         onSubmit={onSubmit}
         patient={PATIENTS[0]}
         practitionerSuggester={practitionerSuggester}
-        icd10Suggester={icd10Suggester}
+        diagnosisSuggester={diagnosisSuggester}
         facilitySuggester={facilitySuggester}
       />
     </Modal>
@@ -192,7 +192,7 @@ storiesOf('Forms', module).add('FamilyHistoryForm', () => (
     onSubmit={action('submit')}
     onCancel={action('cancel')}
     practitionerSuggester={practitionerSuggester}
-    icd10Suggester={icd10Suggester}
+    diagnosisSuggester={diagnosisSuggester}
   />
 ));
 

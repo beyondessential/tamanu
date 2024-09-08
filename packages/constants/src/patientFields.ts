@@ -1,5 +1,3 @@
-import keyBy from 'lodash/keyBy';
-
 export const PATIENT_FIELD_DEFINITION_TYPES = {
   STRING: 'string',
   NUMBER: 'number',
@@ -74,4 +72,10 @@ export const SEX_OPTIONS = [
   { value: SEX_VALUES.OTHER, label: SEX_LABELS[SEX_VALUES.OTHER] },
 ];
 
-export const SEX_VALUE_INDEX = keyBy(SEX_OPTIONS, 'value');
+export const SEX_VALUE_INDEX = SEX_OPTIONS.reduce(
+  (dict, option) => ({
+    ...dict,
+    [option.value]: option,
+  }),
+  {},
+);

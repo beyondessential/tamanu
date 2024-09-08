@@ -1,21 +1,19 @@
-import { camelCase } from 'lodash';
-import { SEX_LABELS } from './patientFields';
+import { SEX_LABELS } from './patientFields.js';
 import {
-  INVOICE_ITEMS_CATEGORY_LABELS,
   INVOICE_STATUS_LABELS,
-  INVOICE_PATIENT_PAYMENT_STATUSES_LABELS,
   INVOICE_INSURER_PAYMENT_STATUS_LABELS,
-} from './invoices';
-import { NOTE_TYPE_LABELS } from './notes';
+  INVOICE_ITEMS_CATEGORY_LABELS,
+  INVOICE_PATIENT_PAYMENT_STATUSES_LABELS,
+} from './invoices.js';
+import { NOTE_TYPE_LABELS } from './notes.js';
 import {
   REFERRAL_STATUS_LABELS,
-  APPOINTMENT_TYPES,
+  APPOINTMENT_TYPE_LABELS,
   APPOINTMENT_STATUSES,
   IMAGING_REQUEST_STATUS_LABELS,
 } from './statuses';
 import { VACCINE_STATUS_LABELS, INJECTION_SITE_LABELS, VACCINE_CATEGORY_LABELS } from './vaccines';
 import { BIRTH_DELIVERY_TYPE_LABELS, BIRTH_TYPE_LABELS } from './births';
-import { IMAGING_TYPES } from './imaging';
 import {
   REPORT_DATA_SOURCE_LABELS,
   REPORT_DEFAULT_DATE_RANGES_LABELS,
@@ -24,7 +22,7 @@ import {
 } from './reports';
 import { TEMPLATE_TYPE_LABELS } from './templates';
 import { LAB_REQUEST_STATUS_LABELS } from './labs';
-import { ASSET_NAMES } from './importable';
+import { ASSET_NAME_LABELS } from './importable';
 import { DIAGNOSIS_CERTAINTY_LABELS, PATIENT_ISSUE_LABELS } from './diagnoses';
 import { DRUG_ROUTE_LABELS, REPEATS_LABELS } from './medications';
 import { PLACE_OF_DEATHS, MANNER_OF_DEATHS } from './deaths';
@@ -41,14 +39,13 @@ type EnumEntries = [EnumKeys, EnumValues][];
  */
 export const registeredEnums = {
   APPOINTMENT_STATUSES,
-  APPOINTMENT_TYPES,
-  ASSET_NAMES,
+  APPOINTMENT_TYPE_LABELS,
+  ASSET_NAME_LABELS,
   BIRTH_DELIVERY_TYPE_LABELS,
   BIRTH_TYPE_LABELS,
   DIAGNOSIS_CERTAINTY_LABELS,
   DRUG_ROUTE_LABELS,
   IMAGING_REQUEST_STATUS_LABELS,
-  IMAGING_TYPES,
   INJECTION_SITE_LABELS,
   INVOICE_INSURER_PAYMENT_STATUS_LABELS,
   INVOICE_ITEMS_CATEGORY_LABELS,
@@ -80,14 +77,13 @@ export const registeredEnums = {
  */
 export const translationPrefixes: Record<EnumKeys, string> = {
   APPOINTMENT_STATUSES: 'appointment.property.status',
-  APPOINTMENT_TYPES: 'appointment.property.types',
-  ASSET_NAMES: 'asset.property.name',
+  APPOINTMENT_TYPE_LABELS: 'appointment.property.types',
+  ASSET_NAME_LABELS: 'asset.property.name',
   BIRTH_DELIVERY_TYPE_LABELS: 'birth.property.birthDeliveryType',
   BIRTH_TYPE_LABELS: 'birth.property.birthType',
   DIAGNOSIS_CERTAINTY_LABELS: 'diagnosis.property.certainty',
   DRUG_ROUTE_LABELS: 'medication.property.route',
   IMAGING_REQUEST_STATUS_LABELS: 'imaging.property.status',
-  IMAGING_TYPES: 'imaging.property.type',
   INJECTION_SITE_LABELS: 'vaccine.property.injectionSite',
   INVOICE_INSURER_PAYMENT_STATUS_LABELS: 'invoice.property.insurerPaymentStatus',
   INVOICE_ITEMS_CATEGORY_LABELS: 'invoice.property.itemCategory',
@@ -126,7 +122,9 @@ export const enumTranslations = (Object.entries(
   registeredEnums,
 ) as EnumEntries).flatMap(([key, value]) =>
   Object.entries(value).map(([enumKey, enumValue]) => [
-    `${translationPrefixes[key]}.${camelCase(enumKey)}`,
+    `${translationPrefixes[key]}.${enumKey
+      .toLowerCase()
+      .replace(/[^a-zA-Z0-9]+(.)/g, (_, char) => char.toUpperCase())}`,
     enumValue,
   ]),
 );

@@ -61,7 +61,8 @@ EOF
 
     # specify ports for consistency
     yarn workspace @tamanu/central-server start migrate
-    nohup yarn workspace @tamanu/central-server start --provisioning provisioning.json5 > central-server.out &
+    yarn workspace @tamanu/central-server start provision provisioning.json5
+    nohup yarn workspace @tamanu/central-server start > central-server.out &
     echo "CENTRAL_SERVER_PID=$!" >> $GITHUB_ENV
     curl --retry 8 --retry-connrefused localhost:3000
 }

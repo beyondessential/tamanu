@@ -76,11 +76,9 @@ export async function referenceDataImporter({
     models,
   });
 
-  const refDataTypes = ['diagnosis', ...REFERENCE_TYPE_VALUES];
-
-  log.debug('Import all reference data', { types: refDataTypes });
+  log.debug('Import all reference data', { types: REFERENCE_TYPE_VALUES });
   const importedRef = [];
-  for (const refType of refDataTypes) {
+  for (const refType of REFERENCE_TYPE_VALUES) {
     log.debug('Look for reference data in sheets', { refType });
     const sheet = sheets.get(refType);
     if (!sheet) continue;

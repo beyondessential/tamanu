@@ -174,6 +174,10 @@ export class User extends Model {
     return null; // syncs everywhere
   }
 
+  static buildSyncLookupQueryDetails() {
+    return null; // syncs everywhere
+  }
+
   isSuperUser() {
     return this.role === 'admin' || this.id === SYSTEM_USER_UUID;
   }

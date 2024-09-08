@@ -24,7 +24,7 @@ const snapshotChangesForModel = async (
     sessionId,
   });
 
-  const CHUNK_SIZE = config.sync.maxRecordsPerPullSnapshotChunk;
+  const CHUNK_SIZE = config.sync.maxRecordsPerSnapshotChunk;
   const modelHasPatientSyncFilter = !!model.buildPatientSyncFilter;
   const patientSyncFilter = modelHasPatientSyncFilter
     ? model.buildPatientSyncFilter(patientCount, markedForSyncPatientsTable, sessionConfig)
@@ -127,7 +127,7 @@ const snapshotChangesForModel = async (
   return totalCount;
 };
 
-export const snapshotOutgoingChanges = withConfig(
+const snapshotOutgoingChangesFromModels = withConfig(
   async (
     outgoingModels,
     since,
@@ -179,5 +179,158 @@ export const snapshotOutgoingChanges = withConfig(
     log.debug('snapshotOutgoingChanges.countedAll', { count: changesCount, since, sessionId });
 
     return changesCount;
+  },
+);
+
+const snapshotOutgoingChangesFromSyncLookup = withConfig(
+  async (
+    store,
+    outgoingModels,
+    since,
+    patientCount,
+    markedForSyncPatientsTable,
+    sessionId,
+    facilityId,
+    sessionConfig,
+    config,
+  ) => {
+    let fromId = '';
+    let totalCount = 0;
+    const snapshotTableName = getSnapshotTableName(sessionId);
+    const CHUNK_SIZE = config.sync.maxRecordsPerSnapshotChunk;
+    const { syncAllLabRequests } = sessionConfig;
+    const recordTypes = Object.values(outgoingModels).map(m => m.tableName);
+    while (fromId != null) {
+      const [[{ maxId, count }]] = await store.sequelize.query(
+        `
+      WITH inserted AS (
+        INSERT INTO ${snapshotTableName} (
+          sync_lookup_id,
+          direction,
+          is_deleted,
+          record_type,
+          record_id,
+          saved_at_sync_tick,
+          updated_at_by_field_sum,
+          data
+        )
+        SELECT
+          id,
+          '${SYNC_SESSION_DIRECTION.OUTGOING}',
+          is_deleted,
+          record_type,
+          record_id,
+          updated_at_sync_tick,
+          updated_at_by_field_sum,
+          data
+        FROM
+          sync_lookup
+        WHERE updated_at_sync_tick > :since
+        ${fromId ? `AND id > :fromId` : ''}
+        AND (
+          --- either no patient_id (meaning we don't care if the record is associate to a patient, eg: reference_data) 
+          --- or patient_id has to match the marked for sync patient_ids, eg: encounters
+          (
+            patient_id IS NULL
+          ${
+            patientCount
+              ? `OR patient_id IN (SELECT patient_id FROM ${markedForSyncPatientsTable})`
+              : ''
+          })
+          --- either no facility_id (meaning we don't care if the record is associate to a facility, eg: reference_data) 
+          --- or facility_id has to match the current facility, eg: patient_facilities
+          AND (
+            facility_id IS NULL
+            OR
+            facility_id = :facilityId
+          )
+          --- if syncAllLabRequests is on then sync all records with is_lab_request IS TRUE
+          ${
+            syncAllLabRequests
+              ? `
+            OR is_lab_request IS TRUE
+          `
+              : ''
+          }
+        )
+        AND record_type IN (:recordTypes)
+        ORDER BY id
+        LIMIT :limit
+        RETURNING sync_lookup_id
+      )
+      SELECT MAX(sync_lookup_id) as "maxId",
+        count(*) as "count"
+      FROM inserted;
+    `,
+        {
+          replacements: {
+            sessionId,
+            since,
+            // include replacement params used in some model specific sync filters outside of this file
+            // see e.g. Referral.buildSyncFilter
+            facilityId,
+            limit: CHUNK_SIZE,
+            fromId,
+            recordTypes,
+          },
+        },
+      );
+
+      const chunkCount = parseInt(count, 10); // count should always be default to '0'
+
+      fromId = maxId;
+      totalCount += chunkCount;
+    }
+
+    log.info('snapshotOutgoingChangesFromSyncLookup.countedAll', {
+      count: totalCount,
+      since,
+      sessionId,
+    });
+
+    return totalCount;
+  },
+);
+
+export const snapshotOutgoingChanges = withConfig(
+  async (
+    store,
+    outgoingModels,
+    since,
+    patientCount,
+    markedForSyncPatientsTable,
+    sessionId,
+    facilityId,
+    sessionConfig,
+    config,
+  ) => {
+    const useSyncLookup = config.sync.lookupTable.enabled;
+
+    if (useSyncLookup) {
+      await store.models.SyncSession.addDebugInfo(sessionId, { useSyncLookup: true });
+    }
+
+    return useSyncLookup
+      ? snapshotOutgoingChangesFromSyncLookup(
+          store,
+          outgoingModels,
+          since,
+          patientCount,
+          markedForSyncPatientsTable,
+          sessionId,
+          facilityId,
+          sessionConfig,
+          config,
+        )
+      : snapshotOutgoingChangesFromModels(
+          outgoingModels,
+          since,
+          patientCount,
+          markedForSyncPatientsTable,
+          sessionId,
+          facilityId,
+          sessionConfig,
+          config,
+        );
   },
 );

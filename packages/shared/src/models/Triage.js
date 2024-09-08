@@ -4,8 +4,12 @@ import { ENCOUNTER_TYPES, SYNC_DIRECTIONS } from '@tamanu/constants';
 import { InvalidOperationError } from '../errors';
 
 import { Model } from './Model';
-import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
+import {
+  buildEncounterLinkedSyncFilter,
+  buildEncounterLinkedSyncFilterJoins,
+} from './buildEncounterLinkedSyncFilter';
 import { dateTimeType } from './dateTimeTypes';
+import { buildEncounterPatientIdSelect } from './buildPatientLinkedLookupFilter';
 
 export class Triage extends Model {
   static init({ primaryKey, ...options }) {
@@ -59,7 +63,17 @@ export class Triage extends Model {
     if (patientCount === 0) {
       return null;
     }
-    return buildEncounterLinkedSyncFilter([this.tableName, 'encounters'], markedForSyncPatientsTable);
+    return buildEncounterLinkedSyncFilter(
+      [this.tableName, 'encounters'],
+      markedForSyncPatientsTable,
+    );
+  }
+
+  static buildSyncLookupQueryDetails() {
+    return {
+      select: buildEncounterPatientIdSelect(this),
+      joins: buildEncounterLinkedSyncFilterJoins([this.tableName, 'encounters']),
+    };
   }
 
   static async create(data) {

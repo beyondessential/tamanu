@@ -1,9 +1,13 @@
 import { trace } from '@opentelemetry/api';
-import { Op, QueryTypes, Transaction } from 'sequelize';
+import { Op, QueryTypes } from 'sequelize';
 import _config from 'config';
 
-import { SETTINGS_SCOPES, SYNC_DIRECTIONS } from '@tamanu/constants';
-import { CURRENT_SYNC_TIME_KEY } from '@tamanu/shared/sync/constants';
+import { SYNC_DIRECTIONS, DEBUG_LOG_TYPES, SETTINGS_SCOPES } from '@tamanu/constants';
+import {
+  CURRENT_SYNC_TIME_KEY,
+  LOOKUP_UP_TO_TICK_KEY,
+  SYNC_LOOKUP_PENDING_UPDATE_FLAG,
+} from '@tamanu/shared/sync/constants';
 import { log } from '@tamanu/shared/services/logging';
 import {
   adjustDataPostSyncPush,
@@ -27,9 +31,11 @@ import { snapshotOutgoingChanges } from './snapshotOutgoingChanges';
 import { filterModelsFromName } from './filterModelsFromName';
 import { startSnapshotWhenCapacityAvailable } from './startSnapshotWhenCapacityAvailable';
 import { createMarkedForSyncPatientsTable } from './createMarkedForSyncPatientsTable';
+import { updateLookupTable, updateSyncLookupPendingRecords } from './updateLookupTable';
+import { repeatableReadTransaction } from './repeatableReadTransaction';
 
 const errorMessageFromSession = session =>
-  `Sync session '${session.id}' encountered an error: ${session.error}`;
+  `Sync session '${session.id}' encountered an error: ${session.errors[session.errors.length - 1]}`;
 
 // about variables lapsedSessionSeconds and lapsedSessionCheckFrequencySeconds:
 // after x minutes of no activity, consider a session lapsed and wipe it to avoid holding invalid
@@ -64,7 +70,7 @@ export class CentralSyncManager {
     const activeSyncs = await this.store.models.SyncSession.findAll({
       where: {
         completedAt: null,
-        error: null,
+        errors: null,
       },
     });
     return activeSyncs.length >= maxConcurrentSessions;
@@ -136,22 +142,21 @@ export class CentralSyncManager {
     if (!session) {
       throw new Error(`Sync session '${sessionId}' not found`);
     }
-    if (session.completedAt) {
-      throw new Error(`Sync session '${sessionId}' is already completed`);
-    }
 
     const { syncSessionTimeoutMs } = this.constructor.config.sync;
     if (
       syncSessionTimeoutMs &&
-      !session.error &&
+      !session.errors &&
       session.updatedAt - session.createdAt > syncSessionTimeoutMs
     ) {
-      session.error = `Sync session ${sessionId} timed out`;
-      await session.save();
+      await session.markErrored(`Sync session ${sessionId} timed out`);
     }
 
-    if (session.error) {
+    if (session.errors) {
       throw new Error(errorMessageFromSession(session));
+    }
+    if (session.completedAt) {
+      throw new Error(`Sync session '${sessionId}' is already completed`);
     }
     await session.update({ lastConnectionTime: Date.now() });
 
@@ -220,11 +225,100 @@ export class CentralSyncManager {
       this.setupSnapshotForPull(sessionId, params, unmarkSnapshotAsProcessing); // don't await, as it takes a while - the sync client will poll for it to finish
     } catch (error) {
       log.error('CentralSyncManager.initiatePull encountered an error', error);
-      await this.store.models.SyncSession.update(
-        { error: error.message },
-        { where: { id: sessionId } },
-      );
+      await this.store.models.SyncSession.markSessionErrored(sessionId, error.message);
     }
+  }
+
+  async updateLookupTable() {
+    const { store } = this;
+
+    const debugObject = await store.models.DebugLog.create({
+      type: DEBUG_LOG_TYPES.SYNC_LOOKUP_UPDATE,
+      info: {
+        startedAt: new Date(),
+      },
+    });
+
+    try {
+      // get a sync tick that we can safely consider the snapshot to be up to (because we use the
+      // "tick" of the tick-tock, so we know any more changes on the server, even while the snapshot
+      // process is ongoing, will have a later updated_at_sync_tick)
+      const { tick: currentTick } = await this.tickTockGlobalClock();
+
+      await this.waitForPendingEdits(currentTick);
+
+      const previouslyUpToTick =
+        (await store.models.LocalSystemFact.get(LOOKUP_UP_TO_TICK_KEY)) || -1;
+
+      await debugObject.addInfo({ since: previouslyUpToTick });
+
+      const isInitialBuildOfLookupTable = parseInt(previouslyUpToTick, 10) === -1;
+
+      await repeatableReadTransaction(store.sequelize, async transaction => {
+        // do not need to update pending records when it is initial build
+        // because it uses ticks from the actual tables for updated_at_sync_tick
+        if (!isInitialBuildOfLookupTable) {
+          transaction.afterCommit(async () => {
+            // Wrap inside transaction so that any writes to currentSyncTick
+            // will have to wait until this transaction is committed
+            await store.sequelize.transaction(async () => {
+              const { tick: currentTick } = await this.tickTockGlobalClock();
+              await updateSyncLookupPendingRecords(store, currentTick);
+            });
+          });
+        }
+
+        // When it is initial build of sync lookup table, by setting it to null,
+        // it will get the updated_at_sync_tick from the actual tables.
+        // Otherwise, update it to SYNC_LOOKUP_PENDING_UPDATE_FLAG so that
+        // it can update the flagged ones post transaction commit to the latest sync tick,
+        // avoiding sync sessions missing records while sync lookup is being refreshed
+        const syncLookupTick = isInitialBuildOfLookupTable ? null : SYNC_LOOKUP_PENDING_UPDATE_FLAG;
+
+        await updateLookupTable(
+          getModelsForDirection(this.store.models, SYNC_DIRECTIONS.PULL_FROM_CENTRAL),
+          previouslyUpToTick,
+          this.constructor.config,
+          syncLookupTick,
+          debugObject,
+        );
+
+        // update the last successful lookup table in the same transaction - if updating the cursor fails,
+        // we want to roll back the rest of the saves so that the next update can still detect the records that failed
+        // to be updated last time
+        log.debug('CentralSyncManager.updateLookupTable()', {
+          lastSuccessfulLookupTableUpdate: currentTick,
+        });
+        await store.models.LocalSystemFact.set(LOOKUP_UP_TO_TICK_KEY, currentTick);
+      });
+    } catch (error) {
+      log.error('CentralSyncManager.updateLookupTable encountered an error', {
+        error: error.message,
+      });
+
+      await debugObject.addInfo({
+        error: error.message,
+      });
+
+      throw error;
+    } finally {
+      await debugObject.addInfo({
+        completedAt: new Date(),
+      });
+    }
+  }
+
+  async waitForPendingEdits(tick) {
+    // get all the ticks (ie: keys of in-flight transaction advisory locks) of previously pending edits
+    const pendingSyncTicks = (await getSyncTicksOfPendingEdits(this.store.sequelize)).filter(
+      t => t < tick,
+    );
+
+    // wait for any in-flight transactions of pending edits
+    // that we don't miss any changes that are in progress
+    await Promise.all(
+      pendingSyncTicks.map(t => waitForPendingEditsUsingSyncTick(this.store.sequelize, t)),
+    );
   }
 
   async setupSnapshotForPull(
@@ -247,12 +341,7 @@ export class CentralSyncManager {
       // process is ongoing, will have a later updated_at_sync_tick)
       const { tick } = await this.tickTockGlobalClock();
 
-      // get all the ticks (ie: keys of in-flight transaction advisory locks) of previously pending edits
-      const pendingSyncTicks = (await getSyncTicksOfPendingEdits(sequelize)).filter(t => t < tick);
-
-      // wait for any in-flight transactions of pending edits
-      // that we don't miss any changes that are in progress
-      await Promise.all(pendingSyncTicks.map(t => waitForPendingEditsUsingSyncTick(sequelize, t)));
+      await this.waitForPendingEdits(tick);
 
       await models.SyncSession.update(
         { pullSince: since, pullUntil: tick },
@@ -312,33 +401,10 @@ export class CentralSyncManager {
         },
       );
 
-      // query settings table and return unique concatenated array of each facilities program registries to sync
-      const [{ syncTheseProgramRegistries }] = await sequelize.query(
-        `
-        SELECT ARRAY_AGG(DISTINCT elem::text) as "syncTheseProgramRegistries"
-        FROM (
-          SELECT jsonb_array_elements_text(value) AS elem
-          FROM settings
-          WHERE key = 'syncTheseProgramRegistries'
-            AND scope = :scope
-            AND facility_id IN (:facilityIds)
-        ) sq;
-         `,
-        {
-          replacements: { facilityIds, scope: SETTINGS_SCOPES.FACILITY },
-          type: QueryTypes.SELECT,
-        },
-      );
-
       const sessionConfig = {
         // for facilities with a lab, need ongoing lab requests
         // no need for historical ones on initial sync, and no need on mobile
         syncAllLabRequests: syncAllLabRequests && !isMobile && since > -1,
-        syncAllEncountersForTheseVaccines: isMobile
-          ? this.constructor.config.sync.syncAllEncountersForTheseVaccines
-          : [],
-        isMobile,
-        syncTheseProgramRegistries: isMobile ? [] : syncTheseProgramRegistries || [],
       };
 
       // snapshot inside a "repeatable read" transaction, so that other changes made while this
@@ -346,56 +412,63 @@ export class CentralSyncManager {
       // the child in the snapshot and its parent missing)
       // as the snapshot only contains read queries plus writes to the specific sync snapshot table
       // that it controls, there should be no concurrent update issues :)
-      await this.store.sequelize.transaction(
-        { isolationLevel: Transaction.ISOLATION_LEVELS.REPEATABLE_READ },
-        async () => {
-          // full changes
-          await snapshotOutgoingChanges(
-            getPatientLinkedModels(modelsToInclude),
-            -1, // for all time, i.e. 0 onwards
-            newPatientFacilitiesCount,
-            fullSyncPatientsTable,
-            sessionId,
-            facilityIds,
-            {}, // sending empty session config because this snapshot attempt is only for syncing new marked for sync patients
-          );
+      await repeatableReadTransaction(this.store.sequelize, async () => {
+        const { snapshotTransactionTimeoutMs } = this.constructor.config.sync;
+        if (snapshotTransactionTimeoutMs) {
+          transactionTimeout = setTimeout(() => {
+            throw new Error(`Snapshot for session ${sessionId} timed out`);
+          }, snapshotTransactionTimeoutMs);
+        }
 
-          // get changes since the last successful sync for all other synced patients and independent
-          // record types
-          const patientFacilitiesCount = await models.PatientFacility.count({
-            where: { facilityId: { [Op.in]: facilityIds } },
-          });
+        // full changes
+        await snapshotOutgoingChanges(
+          this.store,
+          getPatientLinkedModels(modelsToInclude),
+          -1, // for all time, i.e. 0 onwards
+          newPatientFacilitiesCount,
+          fullSyncPatientsTable,
+          sessionId,
+          facilityId,
+          {}, // sending empty session config because this snapshot attempt is only for syncing new marked for sync patients
+        );
 
-          // regular changes
+        // get changes since the last successful sync for all other synced patients and independent
+        // record types
+        const patientFacilitiesCount = await models.PatientFacility.count({
+          where: { facilityId },
+        });
+
+        // regular changes
+        await snapshotOutgoingChanges(
+          this.store,
+          getModelsForDirection(modelsToInclude, SYNC_DIRECTIONS.PULL_FROM_CENTRAL),
+          since,
+          patientFacilitiesCount,
+          incrementalSyncPatientsTable,
+          sessionId,
+          facilityId,
+          sessionConfig,
+        );
+
+        // any tables for full resync from (used when mobile needs to wipe and resync tables as
+        // part of the upgrade process)
+        if (tablesForFullResync) {
+          const modelsForFullResync = filterModelsFromName(models, tablesForFullResync);
           await snapshotOutgoingChanges(
-            getModelsForDirection(modelsToInclude, SYNC_DIRECTIONS.PULL_FROM_CENTRAL),
-            since,
+            this.store,
+            getModelsForDirection(modelsForFullResync, SYNC_DIRECTIONS.PULL_FROM_CENTRAL),
+            -1,
             patientFacilitiesCount,
             incrementalSyncPatientsTable,
             sessionId,
             facilityIds,
             sessionConfig,
           );
+        }
 
-          // any tables for full resync from (used when mobile needs to wipe and resync tables as
-          // part of the upgrade process)
-          if (tablesForFullResync) {
-            const modelsForFullResync = filterModelsFromName(models, tablesForFullResync);
-            await snapshotOutgoingChanges(
-              getModelsForDirection(modelsForFullResync, SYNC_DIRECTIONS.PULL_FROM_CENTRAL),
-              -1,
-              patientFacilitiesCount,
-              incrementalSyncPatientsTable,
-              sessionId,
-              facilityIds,
-              sessionConfig,
-            );
-          }
-
-          // delete any outgoing changes that were just pushed in during the same session
-          await removeEchoedChanges(this.store, sessionId);
-        },
-      );
+        // delete any outgoing changes that were just pushed in during the same session
+        await removeEchoedChanges(this.store, sessionId);
+      });
       // this update to the session needs to happen outside of the transaction, as the repeatable
       // read isolation level can suffer serialization failures if a record is updated inside and
       // outside the transaction, and the session is being updated to show the last connection
@@ -406,10 +479,7 @@ export class CentralSyncManager {
         sessionId,
         ...error,
       });
-      await this.store.models.SyncSession.update(
-        { error: error.message },
-        { where: { id: sessionId } },
-      );
+      await this.store.models.SyncSession.markSessionErrored(sessionId, error.message);
     } finally {
       if (transactionTimeout) clearTimeout(transactionTimeout);
       await unmarkSnapshotAsProcessing();
@@ -438,9 +508,9 @@ export class CentralSyncManager {
     // if this snapshot is not marked as processing, but also never completed, record an error
     const session = await this.connectToSession(sessionId);
     if (session.snapshotCompletedAt === null) {
-      session.error =
-        'Snapshot processing incomplete, likely because the central server restarted during the snapshot';
-      await session.save();
+      await session.markErrored(
+        'Snapshot processing incomplete, likely because the central server restarted during the snapshot',
+      );
       throw new Error(errorMessageFromSession(session));
     }
 
@@ -522,7 +592,7 @@ export class CentralSyncManager {
       );
     } catch (error) {
       log.error('CentralSyncManager.persistIncomingChanges encountered an error', error);
-      await models.SyncSession.update({ error: error.message }, { where: { id: sessionId } });
+      await models.SyncSession.markSessionErrored(sessionId, error.message);
     }
   }
 

@@ -4,6 +4,7 @@ import { Model } from './Model';
 import { buildPatientSyncFilterViaPatientId } from './buildPatientSyncFilterViaPatientId';
 import { dateTimeType } from './dateTimeTypes';
 import { getCurrentDateTimeString } from '../utils/dateTime';
+import { buildPatientLinkedLookupFilter } from './buildPatientLinkedLookupFilter';
 
 export class PatientAllergy extends Model {
   static init({ primaryKey, ...options }) {
@@ -32,6 +33,10 @@ export class PatientAllergy extends Model {
 
   static getListReferenceAssociations() {
     return ['allergy', 'reaction'];
+  }
+
+  static buildSyncLookupQueryDetails() {
+    return buildPatientLinkedLookupFilter(this);
   }
 
   static buildPatientSyncFilter = buildPatientSyncFilterViaPatientId;

@@ -6,6 +6,7 @@ import { dateTimeType } from './dateTimeTypes';
 
 import { Model } from './Model';
 import { buildPatientSyncFilterViaPatientId } from './buildPatientSyncFilterViaPatientId';
+import { buildPatientLinkedLookupFilter } from './buildPatientLinkedLookupFilter';
 
 export class PatientBirthData extends Model {
   static init(options) {
@@ -85,6 +86,10 @@ export class PatientBirthData extends Model {
     'birthFacilityId',
     'registeredBirthPlace',
   ];
+
+  static buildSyncLookupQueryDetails() {
+    return buildPatientLinkedLookupFilter(this);
+  }
 
   static buildPatientSyncFilter = buildPatientSyncFilterViaPatientId;
 }

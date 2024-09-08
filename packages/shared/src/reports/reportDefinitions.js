@@ -430,19 +430,19 @@ export const REPORT_DEFINITIONS = [
         parameterField: 'ParameterAutocompleteField',
         label: 'Cause of death',
         name: 'causeOfDeath',
-        suggesterEndpoint: 'icd10',
+        suggesterEndpoint: 'diagnosis',
       },
       {
         parameterField: 'ParameterAutocompleteField',
         label: 'Due to (or as a consequence of)',
         name: 'antecedentCause',
-        suggesterEndpoint: 'icd10',
+        suggesterEndpoint: 'diagnosis',
       },
       {
         parameterField: 'ParameterAutocompleteField',
         label: 'Other contributing condition',
         name: 'otherContributingCondition',
-        suggesterEndpoint: 'icd10',
+        suggesterEndpoint: 'diagnosis',
       },
       {
         parameterField: 'ParameterSelectField',
