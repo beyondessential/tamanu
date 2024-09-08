@@ -107,20 +107,17 @@ const sortProperties = ([a0, a1], [b0, b1]) => {
   return aName.localeCompare(bName);
 };
 
-export const Category = ({ values, path = '', getSettingValue, handleChangeSetting }) => {
+export const Category = ({ schema, path = '', getSettingValue, handleChangeSetting }) => {
   const Wrapper = path ? CategoryWrapper : Box;
   const nestLevel = path.split('.').length;
-  const sortedProperties = Object.entries(values.properties).sort(sortProperties);
+  const sortedProperties = Object.entries(schema.properties).sort(sortProperties);
   return (
     <Wrapper $nestLevel={nestLevel}>
-      <CategoryTitle name={values.name} path={path} description={values.description} />
-      <div>
-        {sortedProperties.map(([key, value]) => {
+      <CategoryTitle name={schema.name} path={path} description={schema.description} />
+      <>
+        {sortedProperties.map(([key, schema]) => {
           const newPath = path ? `${path}.${key}` : key;
-          const { name, description, type, defaultValue, unit } = value;
-          // const parentObject = getSettingValue(path);
-          // console.log('parent object for:', newPath, parentObject);
-          // const partOfEnabledGroup = has(parentObject, 'enabled');
+          const { name, description, type, defaultValue, unit } = schema;
           return type ? (
             <SettingLine key={newPath}>
               <SettingName path={newPath} name={name} description={description} />
@@ -139,18 +136,18 @@ export const Category = ({ values, path = '', getSettingValue, handleChangeSetti
             <Category
               key={newPath}
               path={newPath}
-              values={value}
+              schema={schema}
               getSettingValue={getSettingValue}
               handleChangeSetting={handleChangeSetting}
             />
           );
         })}
-      </div>
+      </>
     </Wrapper>
   );
 };
 
-function parseJsonStrings(obj) {
+const parseJsonStrings = obj => {
   if (typeof obj === 'string') {
     try {
       const parsed = JSON.parse(obj);
@@ -168,7 +165,7 @@ function parseJsonStrings(obj) {
   } else {
     return obj; // Return the value if it is neither an object nor a string
   }
-}
+};
 
 const getCategoryOptions = schema =>
   Object.entries(schema.properties).map(([key, value]) => ({
@@ -192,18 +189,37 @@ const prepareSchema = scope => {
   return schema;
 };
 
+/* TODO: translations */
+export const WarningModal = ({ open, setWarningModalOpen, resolveFn }) => (
+  <ConfirmModal
+    title="Unsaved changes"
+    subText="You have unsaved changes. Are you sure you would like to discard those changes?"
+    open={open}
+    onConfirm={() => {
+      setWarningModalOpen(false);
+      resolveFn(true);
+    }}
+    confirmButtonText="Discard changes"
+    onCancel={() => {
+      setWarningModalOpen(false);
+      resolveFn(false);
+    }}
+    cancelButtonText="Go back"
+  />
+);
+
 export const EditorView = memo(
   ({ values, setValues, submitForm, settingsSnapshot, resetForm, dirty }) => {
     const { scope } = values;
     const [category, setCategory] = useState(null);
-    const [modalOpen, setModalOpen] = useState(false);
+    const [warningModalOpen, setWarningModalOpen] = useState(false);
     const [resolveFn, setResolveFn] = useState(null);
 
     // Warning modal
     const showWarningModal = async () =>
       new Promise(resolve => {
         setResolveFn(() => resolve); // Save resolve to use in onConfirm/onCancel
-        setModalOpen(true);
+        setWarningModalOpen(true);
       });
 
     // TODO: would be nice to replace dirty with something like this so that we only show warning/enable buttons when changes present
@@ -212,7 +228,7 @@ export const EditorView = memo(
 
     const scopedSchema = useMemo(() => prepareSchema(scope), [scope]);
     const categoryOptions = useMemo(() => getCategoryOptions(scopedSchema), [scopedSchema]);
-    const initialValues = useMemo(() => scopedSchema.properties[category], [
+    const schemaForCategory = useMemo(() => scopedSchema.properties[category], [
       category,
       scopedSchema,
     ]);
@@ -247,23 +263,6 @@ export const EditorView = memo(
 
     return (
       <>
-        {/* TODO: translations */}
-        {/* TODO: extract out modal? */}
-        <ConfirmModal
-          title="Unsaved changes"
-          subText="You have unsaved changes. Are you sure you would like to discard those changes?"
-          open={modalOpen}
-          onConfirm={() => {
-            setModalOpen(false);
-            resolveFn(true);
-          }}
-          confirmButtonText="Discard changes"
-          onCancel={() => {
-            setModalOpen(false);
-            resolveFn(false);
-          }}
-          cancelButtonText="Go back"
-        />
         <StyledTopBar>
           <ScopeSelectorFields onChangeScope={handleChangeScope} />
         </StyledTopBar>
@@ -289,13 +288,18 @@ export const EditorView = memo(
           {category && (
             <CategoriesWrapper p={2}>
               <Category
-                values={initialValues}
+                schema={schemaForCategory}
                 getSettingValue={getSettingValue}
                 handleChangeSetting={handleChangeSetting}
               />
             </CategoriesWrapper>
           )}
         </SettingsWrapper>
+        <WarningModal
+          open={warningModalOpen}
+          setWarningModalOpen={setWarningModalOpen}
+          resolveFn={resolveFn}
+        />
       </>
     );
   },

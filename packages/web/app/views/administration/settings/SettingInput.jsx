@@ -19,8 +19,19 @@ const DefaultSettingButton = styled(TextButton)`
 const DefaultButton = ({ resetToDefault }) => {
   return <DefaultSettingButton onClick={resetToDefault}>Reset to default</DefaultSettingButton>;
 };
-export const SettingInput = ({ type, path, value, defaultValue, handleChangeSetting, unit, disabled }) => {
+
+export const SettingInput = ({
+  type,
+  path,
+  value,
+  defaultValue,
+  handleChangeSetting,
+  unit,
+  disabled,
+}) => {
   const [error, setError] = useState(null);
+
+  const resetToDefault = () => handleChangeSetting(path, defaultValue);
 
   const displayValue = value !== undefined ? value : defaultValue;
 
@@ -41,7 +52,7 @@ export const SettingInput = ({ type, path, value, defaultValue, handleChangeSett
             onChange={e => handleChangeSetting(path, e.target.value)}
             style={{ width: '353px' }}
           />
-          <DefaultButton resetToDefault={() => handleChangeSetting(path, defaultValue)} />
+          <DefaultButton resetToDefault={resetToDefault} />
         </>
       );
     case 'number':
@@ -53,7 +64,7 @@ export const SettingInput = ({ type, path, value, defaultValue, handleChangeSett
             style={{ width: '75px' }}
           />
           <Unit>{unit}</Unit>
-          <DefaultButton resetToDefault={() => handleChangeSetting(path, defaultValue)} />
+          <DefaultButton resetToDefault={resetToDefault} />
         </>
       );
     case 'longText':
@@ -65,11 +76,9 @@ export const SettingInput = ({ type, path, value, defaultValue, handleChangeSett
             style={{ width: '353px', minHeight: '156px' }}
             multiline
           />
-          <DefaultButton resetToDefault={() => handleChangeSetting(path, defaultValue)} />
+          <DefaultButton resetToDefault={resetToDefault} />
         </>
       );
-
-    // below doesnt really work
     case 'object':
     case 'array':
     case 'mixed':
@@ -92,7 +101,7 @@ export const SettingInput = ({ type, path, value, defaultValue, handleChangeSett
             }}
             error={error}
           />
-          <DefaultButton resetToDefault={() => handleChangeSetting(path, defaultValue)} />
+          <DefaultButton resetToDefault={resetToDefault} />
         </>
       );
     default:
