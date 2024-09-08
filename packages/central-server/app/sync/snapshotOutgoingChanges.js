@@ -242,7 +242,7 @@ const snapshotOutgoingChangesFromSyncLookup = withConfig(
           AND (
             facility_id IS NULL
             OR
-            facility_id in :facilityIds
+            facility_id in (:facilityIds)
           )
           --- if syncAllLabRequests is on then sync all records with is_lab_request IS TRUE
           ${
