@@ -1,4 +1,5 @@
 import * as yup from 'yup';
+import { datelessTimeStringSchema } from './definitions';
 import { durationStringSchema } from './global';
 import { extractDefaults } from './utils';
 
@@ -12,13 +13,13 @@ export const facilitySettings = {
         startTime: {
           description:
             'The time when bookings open for the day. (The earliest start time for a booking.)',
-          type: null, // TODO
+          type: datelessTimeStringSchema,
           defaultValue: '09:00',
         },
         endTime: {
           description:
             'The time when bookings close for the day. (The latest booking must end by this time.)',
-          type: null, // TODO
+          type: datelessTimeStringSchema,
           defaultValue: '17:00',
         },
         slotDuration: {
