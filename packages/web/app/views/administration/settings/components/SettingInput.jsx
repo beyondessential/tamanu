@@ -3,8 +3,7 @@ import styled from 'styled-components';
 import { Switch } from '@material-ui/core';
 import { TextInput, NumberInput, TextButton, LargeBodyText } from '../../../../components';
 import { JSONEditor } from './JSONEditor';
-
-const LONG_TEXT_KEYS = ['body'];
+import { isString } from 'lodash';
 
 const Unit = styled.div`
   display: flex;
@@ -20,6 +19,19 @@ const DefaultSettingButton = styled(TextButton)`
 
 const DefaultButton = ({ resetToDefault }) => {
   return <DefaultSettingButton onClick={resetToDefault}>Reset to default</DefaultSettingButton>;
+};
+
+const SETTING_TYPES = {
+  BOOLEAN: 'boolean',
+  STRING: 'string',
+  NUMBER: 'number',
+  LONG_TEXT: 'longText',
+  OBJECT: 'object',
+  ARRAY: 'array',
+};
+
+const TYPE_OVERRIDES_BY_KEY = {
+  ['body']: SETTING_TYPES.LONG_TEXT,
 };
 
 export const SettingInput = ({
@@ -46,10 +58,11 @@ export const SettingInput = ({
 
   const displayValue = value !== undefined ? value : defaultValue;
 
-  const typeKey = LONG_TEXT_KEYS.includes(path.split('.').pop()) ? 'longText' : type;
+  const key = path.split('.').pop();
+  const typeKey = TYPE_OVERRIDES_BY_KEY[key] || type;
 
   switch (typeKey) {
-    case 'boolean':
+    case SETTING_TYPES.BOOLEAN:
       return (
         <Switch
           color="primary"
@@ -57,7 +70,7 @@ export const SettingInput = ({
           onChange={e => handleChangeSetting(path, e.target.checked)}
         />
       );
-    case 'string':
+    case SETTING_TYPES.STRING:
       return (
         <>
           <TextInput
@@ -70,7 +83,7 @@ export const SettingInput = ({
           <DefaultButton resetToDefault={resetToDefault} />
         </>
       );
-    case 'number':
+    case SETTING_TYPES.NUMBER:
       return (
         <>
           <NumberInput
@@ -84,7 +97,7 @@ export const SettingInput = ({
           <DefaultButton resetToDefault={resetToDefault} />
         </>
       );
-    case 'longText':
+    case SETTING_TYPES.LONG_TEXT:
       return (
         <>
           <TextInput
@@ -98,26 +111,16 @@ export const SettingInput = ({
           <DefaultButton resetToDefault={resetToDefault} />
         </>
       );
-    case 'object':
-    case 'array':
-    case 'mixed':
+    case SETTING_TYPES.OBJECT:
+    case SETTING_TYPES.ARRAY:
       return (
         <>
           <JSONEditor
             height="156px"
             width="353px"
             editMode
-            value={typeof value !== 'string' ? JSON.stringify(value, null, 2) : value}
-            defaultValue={JSON.stringify(defaultValue, null, 2)}
-            onChange={e => {
-              handleChangeSetting(path, e);
-              try {
-                JSON.parse(e);
-                setError(null);
-              } catch (err) {
-                setError(err);
-              }
-            }}
+            value={isString(displayValue) ? displayValue : JSON.stringify(displayValue, null, 2)}
+            onChange={e => handleChangeSetting(path, e)}
             error={error}
           />
           <DefaultButton resetToDefault={resetToDefault} />
