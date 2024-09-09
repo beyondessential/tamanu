@@ -7,6 +7,7 @@ import config from 'config';
 import ms from 'ms';
 import { addMilliseconds, isBefore } from 'date-fns';
 import { toDateTimeString } from '../utils/dateTime';
+import { buildEncounterLinkedLookupFilter } from '../sync/buildEncounterLinkedLookupFilter';
 
 export class Task extends Model {
   static init({ primaryKey, ...options }) {
@@ -85,10 +86,6 @@ export class Task extends Model {
    * @param {import('./')} models
    */
   static initRelations(models) {
-    this.belongsTo(models.Facility, {
-      foreignKey: 'facilityId',
-      as: 'facility',
-    });
     this.belongsTo(models.Encounter, {
       foreignKey: 'encounterId',
       as: 'encounter',
@@ -136,6 +133,10 @@ export class Task extends Model {
       [this.tableName, 'encounters'],
       markedForSyncPatientsTable,
     );
+  }
+
+  static buildSyncLookupQueryDetails() {
+    return buildEncounterLinkedLookupFilter(this);
   }
 
   static getFullReferenceAssociations() {
@@ -206,7 +207,7 @@ export class Task extends Model {
     }
 
     const upcomingTasksShouldBeGeneratedTimeFrame =
-      config.tasking?.upcomingTasksShouldBeGeneratedTimeFrame || 48;
+      config.tasking?.upcomingTasksShouldBeGeneratedTimeFrame || 72;
     const { frequencyValue, frequencyUnit } = task;
     const frequency = ms(`${frequencyValue} ${frequencyUnit}`);
 
@@ -219,7 +220,6 @@ export class Task extends Model {
 
     while (isBefore(nextDueTime, maxDueTime)) {
       const nextTask = {
-        facilityId: task.facilityId,
         encounterId: task.encounterId,
         requestedByUserId: task.requestedByUserId,
         name: task.name,

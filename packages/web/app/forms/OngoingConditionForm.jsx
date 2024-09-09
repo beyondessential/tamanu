@@ -22,7 +22,7 @@ export const OngoingConditionForm = ({
   editedObject,
   onCancel,
   practitionerSuggester,
-  icd10Suggester,
+  diagnosisSuggester,
 }) => {
   const RenderForm = ({ submitForm, values }) => {
     const resolving = values.resolved;
@@ -39,7 +39,7 @@ export const OngoingConditionForm = ({
             <TranslatedText stringId="conditions.conditionName.label" fallback="Condition name" />
           }
           component={AutocompleteField}
-          suggester={icd10Suggester}
+          suggester={diagnosisSuggester}
           disabled={resolving}
           required
         />

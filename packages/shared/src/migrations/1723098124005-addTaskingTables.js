@@ -20,14 +20,6 @@ export async function up(query) {
         key: 'id',
       },
     },
-    facility_id: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      references: {
-        model: 'facilities',
-        key: 'id',
-      },
-    },
     name: {
       type: DataTypes.TEXT,
       allowNull: false,

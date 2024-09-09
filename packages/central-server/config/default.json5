@@ -64,13 +64,16 @@
     "persistedCacheBatchSize": 20000,
     "pauseBetweenPersistedCacheBatchesInMilliseconds": 50,
     "adjustDataBatchSize": 20000,
-    "syncAllEncountersForTheseVaccines": [],
     "numberConcurrentPullSnapshots": 4,
     "persistUpdateWorkerPoolSize": 5,
-    // at its very large default, maxRecordsPerPullSnapshotChunk is essentially "off"
+    // at its very large default, maxRecordsPerSnapshotChunk is essentially "off"
     // can be turned on by lowering to some amount that seems appropriate if snapshot performance is an issue
-    "maxRecordsPerPullSnapshotChunk": 1000000000,
-    syncSessionTimeoutMs: null,
+    "maxRecordsPerSnapshotChunk": 1000000000,
+    "syncSessionTimeoutMs": null,
+    "lookupTable": {
+      "enabled": false,
+      "perModelUpdateTimeoutMs": null
+    }
   },
   "loadshedder": {
     // paths are checked sequentially until a path matches a prefix
@@ -237,6 +240,14 @@
     "processSyncQueue": {
       "enabled": true,
       "schedule": "* * * * *"
+    },
+    "syncLookupRefresher": {
+      "enabled": false,
+      "schedule": "*/1 * * * *"
+    },
+    "generateRepeatingTasks": {
+      // every day at 1 AM
+      "schedule": "0 1 * * *",
     }
   },
   "integrations": {
@@ -1338,5 +1349,8 @@
   "patientCommunication": {
     "retryThreshold": 20
   },
-  "language": "en"
+  "language": "en",
+  "tasking": {
+    "upcomingTasksShouldBeGeneratedTimeFrame": 72, // hours
+  }
 }

@@ -30,15 +30,13 @@ describe('Incomplete Referrals report', () => {
     patient1 = await models.Patient.create(
       await createDummyPatient(models, { villageId: village1 }),
     );
-    await models.Patient.create(
-      await createDummyPatient(models, { villageId: village2 }),
-    );
+    await models.Patient.create(await createDummyPatient(models, { villageId: village2 }));
     await randomUser(models);
     await randomUser(models);
     await randomRecordId(models, 'Department');
     await randomRecordId(models, 'Facility');
-    expectedDiagnosis1 = await randomReferenceId(models, 'icd10');
-    expectedDiagnosis2 = await randomReferenceId(models, 'icd10');
+    expectedDiagnosis1 = await randomReferenceId(models, 'diagnosis');
+    expectedDiagnosis2 = await randomReferenceId(models, 'diagnosis');
     encounter = await models.Encounter.create({
       ...(await createDummyEncounter(models)),
       patientId: patient1.id,
