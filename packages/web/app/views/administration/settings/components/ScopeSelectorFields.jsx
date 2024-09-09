@@ -3,9 +3,9 @@ import styled from 'styled-components';
 import { useQuery } from '@tanstack/react-query';
 import { SETTINGS_SCOPES } from '@tamanu/constants';
 
-import { useApi } from '../../../api';
-import { SelectField } from '../../../components';
-import { TranslatedText } from '../../../components/Translation';
+import { useApi } from '../../../../api';
+import { SelectField } from '../../../../components';
+import { TranslatedText } from '../../../../components/Translation';
 
 const ScopeSelectorField = styled(SelectField)`
   width: 300px;

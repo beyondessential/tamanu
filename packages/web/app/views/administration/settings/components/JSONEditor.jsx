@@ -5,7 +5,7 @@ import 'ace-builds/src-noconflict/mode-json';
 import 'ace-builds/src-noconflict/theme-eclipse';
 import 'ace-builds/src-noconflict/theme-dawn';
 
-import { Colors } from '../../../constants';
+import { Colors } from '../../../../constants';
 
 const THEMES = {
   VIEW: 'dawn',

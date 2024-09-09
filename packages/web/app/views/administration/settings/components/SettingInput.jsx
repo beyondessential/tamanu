@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { Switch } from '@material-ui/core';
-import { TextInput, NumberInput, TextButton, LargeBodyText } from '../../../components';
+import { TextInput, NumberInput, TextButton, LargeBodyText } from '../../../../components';
 import { JSONEditor } from './JSONEditor';
+
+const LONG_TEXT_KEYS = ['body'];
 
 const Unit = styled.div`
   display: flex;
@@ -21,21 +23,32 @@ const DefaultButton = ({ resetToDefault }) => {
 };
 
 export const SettingInput = ({
-  type,
   path,
   value,
   defaultValue,
   handleChangeSetting,
   unit,
-  disabled,
+  typeSchema,
 }) => {
   const [error, setError] = useState(null);
+  const { type } = typeSchema;
+
+  useEffect(() => {
+    try {
+      typeSchema.validateSync(value);
+      setError(null);
+    } catch (err) {
+      setError(err);
+    }
+  }, [value, typeSchema]);
 
   const resetToDefault = () => handleChangeSetting(path, defaultValue);
 
   const displayValue = value !== undefined ? value : defaultValue;
 
-  switch (type) {
+  const typeKey = LONG_TEXT_KEYS.includes(path.split('.').pop()) ? 'longText' : type;
+
+  switch (typeKey) {
     case 'boolean':
       return (
         <Switch
@@ -51,6 +64,8 @@ export const SettingInput = ({
             value={displayValue}
             onChange={e => handleChangeSetting(path, e.target.value)}
             style={{ width: '353px' }}
+            error={error}
+            helperText={error?.message}
           />
           <DefaultButton resetToDefault={resetToDefault} />
         </>
@@ -62,6 +77,8 @@ export const SettingInput = ({
             value={displayValue}
             onChange={e => handleChangeSetting(path, Number(e.target.value))}
             style={{ width: '75px' }}
+            error={error}
+            helperText={error?.message}
           />
           <Unit>{unit}</Unit>
           <DefaultButton resetToDefault={resetToDefault} />
@@ -75,6 +92,8 @@ export const SettingInput = ({
             onChange={e => handleChangeSetting(path, e.target.value)}
             style={{ width: '353px', minHeight: '156px' }}
             multiline
+            error={error}
+            helperText={error?.message}
           />
           <DefaultButton resetToDefault={resetToDefault} />
         </>

@@ -5,8 +5,8 @@ import { Settings } from '@material-ui/icons';
 import { SETTINGS_SCOPES } from '@tamanu/constants';
 
 import { TextButton, ContentPane, ButtonRow, Button } from '../../../components';
-import { JSONEditor } from './JSONEditor';
-import { DefaultSettingsModal } from './DefaultSettingsModal';
+import { JSONEditor } from './components/JSONEditor';
+import { DefaultSettingsModal } from './components/DefaultSettingsModal';
 import { notifyError } from '../../../utils';
 import { TranslatedText } from '../../../components/Translation';
 import { Colors } from '../../../constants';

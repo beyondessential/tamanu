@@ -17,13 +17,13 @@ import { ErrorMessage } from '../../../components/ErrorMessage';
 import { notifyError, notifySuccess } from '../../../utils';
 import { Colors } from '../../../constants';
 import { EditorView } from './EditorView';
-import { ScopeSelectorFields } from './ScopeSelectorFields';
-import { ConfirmModal } from '../../../components/ConfirmModal';
+import { ScopeSelectorFields } from './components/ScopeSelectorFields';
+import { WarningModal } from './components/WarningModal';
 
 const SETTING_TABS = {
   EDITOR: 'editor',
-  JSON: 'JSON'
-}
+  JSON: 'JSON',
+};
 
 const StyledAdminViewContainer = styled(AdminViewContainer)`
   display: flex;
@@ -49,25 +49,6 @@ const TabContainer = styled.div`
   padding: 20px;
   background-color: ${props => props.$backgroundColor || Colors.white};
 `;
-
-/* TODO: translations */
-export const WarningModal = ({ open, setWarningModalOpen, resolveFn }) => (
-  <ConfirmModal
-    title="Unsaved changes"
-    subText="You have unsaved changes. Are you sure you would like to discard those changes?"
-    open={open}
-    onConfirm={() => {
-      setWarningModalOpen(false);
-      resolveFn(true);
-    }}
-    confirmButtonText="Discard changes"
-    onCancel={() => {
-      setWarningModalOpen(false);
-      resolveFn(false);
-    }}
-    cancelButtonText="Go back"
-  />
-);
 
 const tabs = [
   {
@@ -193,7 +174,9 @@ const SettingsForm = ({
   }
 
   const canViewJSONEditor = ability.can('write', 'Setting');
-  const filteredTabs = canViewJSONEditor ? tabs : tabs.filter(({ key }) => key !== SETTING_TABS.JSON);
+  const filteredTabs = canViewJSONEditor
+    ? tabs
+    : tabs.filter(({ key }) => key !== SETTING_TABS.JSON);
 
   return (
     <>
