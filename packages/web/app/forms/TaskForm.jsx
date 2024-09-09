@@ -84,14 +84,21 @@ export const TaskForm = React.memo(({ onClose, onCreateTaskSuccess }) => {
   const [selectedTask, setSelectedTask] = useState({});
 
   const onSubmit = values => {
-    const { designations, ...other } = values;
+    const { designationIds, requestTime, startTime, highPriority, ...other } = values;
+    const requestTimeString = new Date(requestTime).toISOString();
+    const startTimeString = new Date(startTime).toISOString();
+
     if (selectedTask.type === REFERENCE_TYPES.TASK_TEMPLATE) {
       createTask(
         {
           ...other,
+          requestTime: requestTimeString,
+          startTime: startTimeString,
           encounterId: encounter.id,
           name: selectedTask.label,
-          designations: typeof designations === 'string' ? JSON.parse(designations) : designations,
+          highPriority: !!highPriority,
+          designationIds:
+            typeof designationIds === 'string' ? JSON.parse(designationIds) : designationIds,
         },
         {
           onSuccess: onCreateTaskSuccess,
@@ -100,15 +107,17 @@ export const TaskForm = React.memo(({ onClose, onCreateTaskSuccess }) => {
     } else if (selectedTask.type === REFERENCE_TYPES.TASK_SET) {
       const tasks = selectedTask.children.map(({ name, taskTemplate }) => ({
         name,
-        frequencyValue: taskTemplate.frequencyValue,
+        ...(taskTemplate.frequencyValue && { frequencyValue: Number(taskTemplate.frequencyValue) }),
         frequencyUnit: taskTemplate.frequencyUnit,
-        highPriority: taskTemplate.highPriority,
-        designations: taskTemplate.designations.map(item => item.designationId),
+        highPriority: !!taskTemplate.highPriority,
+        designationIds: taskTemplate.designations.map(item => item.designationId),
       }));
 
       createTaskSet(
         {
           ...values,
+          requestTime: requestTimeString,
+          startTime: startTimeString,
           tasks,
           encounterId: encounter.id,
         },
@@ -128,7 +137,7 @@ export const TaskForm = React.memo(({ onClose, onCreateTaskSuccess }) => {
       const { designations, highPriority, frequencyValue, frequencyUnit } = taskTemplate;
 
       setFieldValue(
-        'designations',
+        'designationIds',
         designations?.map(item => item.designationId),
       );
       setFieldValue('highPriority', highPriority);
@@ -211,7 +220,7 @@ export const TaskForm = React.memo(({ onClose, onCreateTaskSuccess }) => {
             {selectedTask.type === REFERENCE_TYPES.TASK_TEMPLATE && (
               <FormGrid style={{ gridColumn: 'span 2' }}>
                 <Field
-                  name="designations"
+                  name="designationIds"
                   label={
                     <TranslatedText
                       stringId="general.localisedField.assignedTo.label"

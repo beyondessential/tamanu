@@ -24,7 +24,6 @@ import {
 } from '@tamanu/shared/utils/crudHelpers';
 import { add } from 'date-fns';
 import { z } from 'zod';
-import { v4 as uuidv4 } from 'uuid';
 
 import { uploadAttachment } from '../../utils/uploadAttachment';
 import { noteChangelogsHandler, noteListHandler } from '../../routeHandlers';
@@ -589,92 +588,6 @@ encounterRelations.get(
     const results = queryResults.map(x => x.forResponse());
 
     res.send({ data: results, count: results.length });
-  }),
-);
-
-encounterRelations.post(
-  '/tasks',
-  asyncHandler(async (req, res) => {
-    const { models, db } = req;
-    const { Task } = models;
-
-    await db.transaction(async () => {
-      req.checkPermission('create', 'Task');
-
-      const existingObject = await Task.findByPk(req.body.id, {
-        paranoid: false,
-      });
-      if (existingObject) {
-        throw new InvalidOperationError(
-          `Cannot create object with id (${req.body.id}), it already exists`,
-        );
-      }
-
-      const { startTime, designations, ...other } = req.body;
-
-      const upcomingTasksTimeFrame = config.tasking?.upcomingTasksTimeFrame;
-      const dueTime = toCountryDateTimeString(
-        add(new Date(startTime), { hours: upcomingTasksTimeFrame }),
-      );
-
-      const taskData = { dueTime, facilityId: config.serverFacilityId, ...other };
-
-      const task = await Task.create(taskData);
-      if (designations) {
-        await task.setDesignations(designations);
-      }
-
-      const mappedDesignations = designations.map(designation => ({ designationId: designation }));
-      await Task.generateRepeatingTasks({ ...task.dataValues, designations: mappedDesignations });
-      res.send(task);
-    });
-  }),
-);
-
-encounterRelations.post(
-  '/taskSet',
-  asyncHandler(async (req, res) => {
-    const { startTime, requestedByUserId, requestTime, encounterId, note, tasks } = req.body;
-    const { models, db } = req;
-    const { Task, TaskDesignation } = models;
-
-    await db.transaction(async () => {
-      const upcomingTasksTimeFrame = config.tasking?.upcomingTasksTimeFrame;
-
-      const tasksData = tasks.map(task => {
-        const dueTime = toCountryDateTimeString(
-          add(new Date(startTime), { hours: upcomingTasksTimeFrame }),
-        );
-        const designations = task.designations.map(designation => ({ designationId: designation }));
-
-        return {
-          ...task,
-          id: uuidv4(),
-          designations,
-          dueTime,
-          requestedByUserId,
-          requestTime,
-          encounterId,
-          note,
-          facilityId: config.serverFacilityId,
-        };
-      });
-
-      const createdTaskSet = await Task.bulkCreate(tasksData);
-
-      const taskDesignationAssociations = tasksData.flatMap(task => {
-        return task.designations.map(designation => ({
-          taskId: task.id,
-          designationId: designation.designationId,
-        }));
-      });
-
-      await TaskDesignation.bulkCreate(taskDesignationAssociations);
-
-      await Promise.all(tasksData.map(task => Task.generateRepeatingTasks(task)));
-
-      res.send(createdTaskSet);
-    });
   }),
 );
 

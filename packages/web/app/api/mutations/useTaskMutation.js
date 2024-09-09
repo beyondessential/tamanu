@@ -8,8 +8,8 @@ export const useCreateTask = () => {
 
   return useMutation({
     mutationFn: async body => {
-      const result = await api.post('encounter/tasks', body);
-      await queryClient.invalidateQueries([`encounter/${body?.encounterId}/tasks`]);
+      const result = await api.post('tasks', body);
+      await queryClient.invalidateQueries([`${body?.encounterId}/tasks`]);
       return result;
     },
     onError: error => notifyError(error.message),
@@ -22,8 +22,8 @@ export const useCreateTaskSet = () => {
 
   return useMutation({
     mutationFn: async body => {
-      const result = await api.post('encounter/taskSet', body);
-      await queryClient.invalidateQueries([`encounter/${body?.encounterId}/tasks`]);
+      const result = await api.post('tasks/taskSet', body);
+      await queryClient.invalidateQueries([`${body?.encounterId}/tasks`]);
       return result;
     },
     onError: error => notifyError(error.message),
