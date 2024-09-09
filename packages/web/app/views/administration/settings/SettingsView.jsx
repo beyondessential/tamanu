@@ -17,6 +17,8 @@ import { ErrorMessage } from '../../../components/ErrorMessage';
 import { notifyError, notifySuccess } from '../../../utils';
 import { Colors } from '../../../constants';
 import { EditorView } from './EditorView';
+import { ScopeSelectorFields } from './ScopeSelectorFields';
+import { ConfirmModal } from '../../../components/ConfirmModal';
 
 const StyledAdminViewContainer = styled(AdminViewContainer)`
   display: flex;
@@ -43,6 +45,25 @@ const TabContainer = styled.div`
   background-color: ${props => props.$backgroundColor || Colors.white};
 `;
 
+/* TODO: translations */
+export const WarningModal = ({ open, setWarningModalOpen, resolveFn }) => (
+  <ConfirmModal
+    title="Unsaved changes"
+    subText="You have unsaved changes. Are you sure you would like to discard those changes?"
+    open={open}
+    onConfirm={() => {
+      setWarningModalOpen(false);
+      resolveFn(true);
+    }}
+    confirmButtonText="Discard changes"
+    onCancel={() => {
+      setWarningModalOpen(false);
+      resolveFn(false);
+    }}
+    cancelButtonText="Go back"
+  />
+);
+
 const tabs = [
   {
     label: <TranslatedText stringId="admin.settings.tab.editor.title" fallback="Editor" />,
@@ -50,6 +71,7 @@ const tabs = [
     icon: 'fa fa-cog',
     render: props => (
       <TabContainer $backgroundColor={Colors.background}>
+        <ScopeSelectorFields {...props} />
         <EditorView {...props} />
       </TabContainer>
     ),
@@ -59,7 +81,8 @@ const tabs = [
     key: 'json',
     icon: 'fa fa-code',
     render: props => (
-      <TabContainer>
+      <TabContainer $backgroundColor={Colors.background}>
+        <ScopeSelectorFields {...props} />
         <JSONEditorView {...props} />
       </TabContainer>
     ),
@@ -72,8 +95,6 @@ export const SettingsView = () => {
 
   const [scope, setScope] = useState(SETTINGS_SCOPES.GLOBAL);
   const [facilityId, setFacilityId] = useState(null);
-
-  console.log(scope);
 
   const handleSubmit = async ({ settings }) => {
     try {
@@ -127,15 +148,36 @@ const SettingsForm = ({
   facilityId,
   setFacilityId,
 }) => {
-  console.log(scope);
-  const [currentTab, setCurrentTab] = useState('editor');
-  // const [scope, setCurrentScope] = useState(SETTINGS_SCOPES.GLOBAL)
-  // const [facilityId, setFacilityId] = useState(null)
   const api = useApi();
   const { ability } = useAuth();
-  // TODO: maybe move these into state so they dont get reset with other form values
-  // const { scope, facilityId } = values;
-  const canViewJSONEditor = ability.can('write', 'Setting');
+  const [currentTab, setCurrentTab] = useState('editor');
+  const [warningModalOpen, setWarningModalOpen] = useState(false);
+  const [resolveFn, setResolveFn] = useState(null);
+
+  const showWarningModal = async () =>
+    new Promise(resolve => {
+      setResolveFn(() => resolve); // Save resolve to use in onConfirm/onCancel
+      setWarningModalOpen(true);
+    });
+
+  const handleChangeTab = async newTab => {
+    if (newTab !== currentTab && dirty) {
+      const dismissChanges = await showWarningModal();
+      if (!dismissChanges) return;
+      await resetForm();
+    }
+    setCurrentTab(newTab);
+  };
+
+  const handleChangeScope = async e => {
+    const newScope = e.target.value;
+    if (newScope !== scope && dirty) {
+      const dismissChanges = await showWarningModal();
+      if (!dismissChanges) return;
+      await resetForm();
+    }
+    setScope(newScope);
+  };
 
   const { data: settingsSnapshot = {}, error: settingsFetchError } = useQuery(
     ['scopedSettings', scope, facilityId],
@@ -146,24 +188,33 @@ const SettingsForm = ({
     return <ErrorMessage title="Settings fetch error" errorMessage={settingsFetchError.message} />;
   }
 
-  return canViewJSONEditor ? (
-    <StyledTabDisplay
-      tabs={tabs}
-      currentTab={currentTab}
-      onTabSelect={setCurrentTab}
-      scrollable={false}
-      settingsSnapshot={settingsSnapshot}
-      setValues={setValues}
-      values={values}
-      submitForm={submitForm}
-      resetForm={resetForm}
-      dirty={dirty}
-      scope={scope}
-      setScope={setScope}
-      facilityId={facilityId}
-      setFacilityId={setFacilityId}
-    />
-  ) : (
-    <EditorView settingsSnapshot={settingsSnapshot} values={values} />
+  const canViewJSONEditor = ability.can('write', 'Setting');
+  const filteredTabs = canViewJSONEditor ? tabs : tabs.filter(({ key }) => key !== 'json');
+
+  return (
+    <>
+      <StyledTabDisplay
+        tabs={filteredTabs}
+        currentTab={currentTab}
+        onTabSelect={handleChangeTab}
+        scrollable={false}
+        settingsSnapshot={settingsSnapshot}
+        setValues={setValues}
+        values={values}
+        submitForm={submitForm}
+        resetForm={resetForm}
+        dirty={dirty}
+        handleChangeScope={handleChangeScope}
+        scope={scope}
+        handleChangeFacilityId={e => setFacilityId(e.target.value)}
+        facilityId={facilityId}
+        showWarningModal={showWarningModal}
+      />
+      <WarningModal
+        open={warningModalOpen}
+        setWarningModalOpen={setWarningModalOpen}
+        resolveFn={resolveFn}
+      />
+    </>
   );
 };

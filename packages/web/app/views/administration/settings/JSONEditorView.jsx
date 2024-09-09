@@ -40,11 +40,8 @@ export const JSONEditorView = React.memo(
     setValues,
     submitForm,
     scope,
-    setScope,
     facilityId,
-    setFacilityId,
   }) => {
-    // const { scope, facilityId } = values;
     const [settingsEditString, setSettingsEditString] = useState('');
     const [jsonError, setJsonError] = useState(null);
     const [isDefaultModalOpen, setIsDefaultModalOpen] = useState(false);
@@ -90,12 +87,6 @@ export const JSONEditorView = React.memo(
     return (
       <>
         <StyledTopBar>
-          <ScopeSelectorFields
-            handleChangeFacilityId={e => setFacilityId(e.target.value)}
-            facilityId={facilityId}
-            handleChangeScope={e => setScope(e.target.value)}
-            scope={scope}
-          />
           <DefaultSettingsButton onClick={() => setIsDefaultModalOpen(true)}>
             <Settings />
             <TranslatedText

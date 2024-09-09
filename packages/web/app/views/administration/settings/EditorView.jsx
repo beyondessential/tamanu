@@ -1,4 +1,4 @@
-import React, { memo, useMemo, useState } from 'react';
+import React, { memo, useEffect, useMemo, useState } from 'react';
 import { capitalize, omitBy, pickBy, startCase, set, get, cloneDeep, has } from 'lodash';
 import styled from 'styled-components';
 
@@ -108,6 +108,7 @@ const sortProperties = ([a0, a1], [b0, b1]) => {
 };
 
 export const Category = ({ schema, path = '', getSettingValue, handleChangeSetting }) => {
+  if (!schema) return null;
   const Wrapper = path ? CategoryWrapper : Box;
   const nestLevel = path.split('.').length;
   const sortedProperties = Object.entries(schema.properties).sort(sortProperties);
@@ -122,7 +123,7 @@ export const Category = ({ schema, path = '', getSettingValue, handleChangeSetti
             <SettingLine key={newPath}>
               <SettingName path={newPath} name={name} description={description} />
               <SettingInput
-                // TODO: better solution for this
+                // TODO: better solution for this override object
                 type={LONG_TEXT_KEYS.includes(key) ? 'longText' : type.type}
                 value={getSettingValue(newPath)}
                 defaultValue={defaultValue}
@@ -217,24 +218,9 @@ export const EditorView = memo(
     resetForm,
     dirty,
     scope,
-    setScope,
-    facilityId,
-    setFacilityId,
+    showWarningModal,
   }) => {
     const [category, setCategory] = useState(null);
-    const [warningModalOpen, setWarningModalOpen] = useState(false);
-    const [resolveFn, setResolveFn] = useState(null);
-
-    // Warning modal
-    const showWarningModal = async () =>
-      new Promise(resolve => {
-        setResolveFn(() => resolve); // Save resolve to use in onConfirm/onCancel
-        setWarningModalOpen(true);
-      });
-
-    // TODO: would be nice to replace dirty with something like this so that we only show warning/enable buttons when changes present
-    // const hasPendingEdits = values.settings && !isEqual(settingsSnapshot, values.settings);
-    // const hasPendingEdits = values.settings && !isMatch(values.settings, settingsSnapshot);
 
     const scopedSchema = useMemo(() => prepareSchema(scope), [scope]);
     const categoryOptions = useMemo(() => getCategoryOptions(scopedSchema), [scopedSchema]);
@@ -243,18 +229,7 @@ export const EditorView = memo(
       scopedSchema,
     ]);
 
-    // Scope/Category dropdown management
-    const handleChangeScope = async e => {
-      const newScope = e.target.value;
-      if (newScope !== scope && dirty) {
-        const dismissChanges = await showWarningModal();
-        if (!dismissChanges) return;
-        await resetForm();
-      }
-      setScope(newScope);
-      setFacilityId(null);
-      setCategory(null);
-    };
+    useEffect(() => setCategory(null), [scope]);
 
     const handleChangeCategory = async e => {
       const newCategory = e.target.value;
@@ -279,19 +254,12 @@ export const EditorView = memo(
       const parsedObject = parseJsonStrings(values.settings);
       setValues({ ...values, settings: parsedObject });
       await submitForm(event);
-      await resetForm(); // TODO: this causes flashing when reseting to the same value
+      setCategory(null); // Prevents flashing on form reset
+      await resetForm();
     };
 
     return (
       <>
-        <StyledTopBar>
-          <ScopeSelectorFields
-            handleChangeScope={handleChangeScope}
-            scope={scope}
-            handleChangeFacilityId={setFacilityId}
-            facilityId={facilityId}
-          />
-        </StyledTopBar>
         <SettingsWrapper>
           <CategoryOptions p={2}>
             <StyledSelectInput
@@ -321,11 +289,6 @@ export const EditorView = memo(
             </CategoriesWrapper>
           )}
         </SettingsWrapper>
-        <WarningModal
-          open={warningModalOpen}
-          setWarningModalOpen={setWarningModalOpen}
-          resolveFn={resolveFn}
-        />
       </>
     );
   },
