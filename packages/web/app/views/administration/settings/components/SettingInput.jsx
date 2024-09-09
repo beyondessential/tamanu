@@ -4,17 +4,26 @@ import { Switch } from '@material-ui/core';
 import { TextInput, NumberInput, TextButton, LargeBodyText } from '../../../../components';
 import { JSONEditor } from './JSONEditor';
 import { isString, isUndefined } from 'lodash';
+import { Colors } from '../../../../constants';
 
 const Unit = styled.div`
   display: flex;
   align-items: center;
   padding-left: 5px;
+  font-size: 12px;
 `;
 
 const DefaultSettingButton = styled(TextButton)`
-  margin-left: 15px;
-  font-size: 14px;
+  margin-left: 20px;
+  font-size: 12px;
   text-decoration: underline;
+  color: ${Colors.darkestText};
+  font-weight: 400;
+  &:hover {
+    text-decoration: underline;
+    color: ${Colors.primary};
+    font-weight: 500;
+  }
 `;
 
 const DefaultButton = ({ resetToDefault }) => {
