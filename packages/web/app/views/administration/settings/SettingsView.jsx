@@ -20,6 +20,11 @@ import { EditorView } from './EditorView';
 import { ScopeSelectorFields } from './ScopeSelectorFields';
 import { ConfirmModal } from '../../../components/ConfirmModal';
 
+const SETTING_TABS = {
+  EDITOR: 'editor',
+  JSON: 'JSON'
+}
+
 const StyledAdminViewContainer = styled(AdminViewContainer)`
   display: flex;
   flex-direction: column;
@@ -67,7 +72,7 @@ export const WarningModal = ({ open, setWarningModalOpen, resolveFn }) => (
 const tabs = [
   {
     label: <TranslatedText stringId="admin.settings.tab.editor.title" fallback="Editor" />,
-    key: 'editor',
+    key: SETTING_TABS.EDITOR,
     icon: 'fa fa-cog',
     render: props => (
       <TabContainer $backgroundColor={Colors.background}>
@@ -78,7 +83,7 @@ const tabs = [
   },
   {
     label: <TranslatedText stringId="admin.settings.tab.json.title" fallback="JSON editor" />,
-    key: 'json',
+    key: SETTING_TABS.JSON,
     icon: 'fa fa-code',
     render: props => (
       <TabContainer $backgroundColor={Colors.background}>
@@ -120,7 +125,6 @@ export const SettingsView = () => {
       title={<TranslatedText stringId="admin.settings.title" fallback="Settings" />}
     >
       <Form
-        // initialValues={{ scope: SETTINGS_SCOPES.GLOBAL, facilityId: null }}
         onSubmit={handleSubmit}
         render={formProps => (
           <SettingsForm
@@ -150,7 +154,7 @@ const SettingsForm = ({
 }) => {
   const api = useApi();
   const { ability } = useAuth();
-  const [currentTab, setCurrentTab] = useState('editor');
+  const [currentTab, setCurrentTab] = useState(SETTING_TABS.EDITOR);
   const [warningModalOpen, setWarningModalOpen] = useState(false);
   const [resolveFn, setResolveFn] = useState(null);
 
@@ -189,7 +193,7 @@ const SettingsForm = ({
   }
 
   const canViewJSONEditor = ability.can('write', 'Setting');
-  const filteredTabs = canViewJSONEditor ? tabs : tabs.filter(({ key }) => key !== 'json');
+  const filteredTabs = canViewJSONEditor ? tabs : tabs.filter(({ key }) => key !== SETTING_TABS.JSON);
 
   return (
     <>
