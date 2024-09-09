@@ -192,7 +192,13 @@ export const getPatientDetailsValidation = (getSetting: <T>(key: string) => T) =
         />,
       ),
     ),
-    ethnicityId: requiredWhenConfiguredMandatory(getSetting, 'ethnicityId', Yup.string()),
+    ethnicityId: requiredWhenConfiguredMandatory(
+      getSetting,
+      'ethnicityId',
+      Yup.string().translatedLabel(
+        <TranslatedText stringId="general.localisedField.ethnicityId.label" fallback="Ethnicity" />,
+      ),
+    ),
     patientBillingTypeId: requiredWhenConfiguredMandatory(
       getSetting,
       'patientBillingTypeId',

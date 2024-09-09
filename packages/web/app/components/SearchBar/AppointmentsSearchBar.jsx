@@ -11,7 +11,7 @@ import {
 } from '../Field';
 import { TranslatedText } from '../Translation/TranslatedText';
 import { useSuggester } from '../../api';
-import { APPOINTMENT_STATUSES, APPOINTMENT_TYPES } from '@tamanu/constants';
+import { APPOINTMENT_STATUSES, APPOINTMENT_TYPE_LABELS } from '@tamanu/constants';
 
 export const AppointmentsSearchBar = ({ onSearch }) => {
   const practitionerSuggester = useSuggester('practitioner');
@@ -70,7 +70,7 @@ export const AppointmentsSearchBar = ({ onSearch }) => {
         name="type"
         label={<TranslatedText stringId="appointment.type.label" fallback="Appointment type" />}
         component={TranslatedSelectField}
-        enumValues={APPOINTMENT_TYPES}
+        enumValues={APPOINTMENT_TYPE_LABELS}
         size="small"
       />
       <LocalisedField
