@@ -8,7 +8,7 @@ export class GenerateRepeatingTasks extends ScheduledTask {
     const conf = config.schedules.generateRepeatingTasks;
     const { schedule, jitterTime, enabled } = conf;
     super(schedule, log, jitterTime, enabled);
-    this.models = context.models;
+    this.models = context.store.models;
   }
 
   getName() {
@@ -22,7 +22,6 @@ export class GenerateRepeatingTasks extends ScheduledTask {
         frequencyValue: { [Op.ne]: null },
         frequencyUnit: { [Op.ne]: null },
         parentTaskId: null,
-        facilityId: config.serverFacilityId,
       },
     };
   }

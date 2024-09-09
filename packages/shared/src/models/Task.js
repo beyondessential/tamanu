@@ -86,10 +86,6 @@ export class Task extends Model {
    * @param {import('./')} models
    */
   static initRelations(models) {
-    this.belongsTo(models.Facility, {
-      foreignKey: 'facilityId',
-      as: 'facility',
-    });
     this.belongsTo(models.Encounter, {
       foreignKey: 'encounterId',
       as: 'encounter',
@@ -227,7 +223,6 @@ export class Task extends Model {
 
     while (isBefore(nextDueTime, maxDueTime)) {
       const nextTask = {
-        facilityId: task.facilityId,
         encounterId: task.encounterId,
         requestedByUserId: task.requestedByUserId,
         name: task.name,

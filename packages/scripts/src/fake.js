@@ -315,7 +315,6 @@ async function generateData(models) {
 
   const task = await Task.create(
     fake(Task, {
-      facility: facility.id,
       encounterId: encounter.id,
       requestedByUserId: examiner.id,
       completedByUserId: examiner.id,

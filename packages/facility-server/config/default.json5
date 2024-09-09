@@ -144,6 +144,5 @@
   "allowMismatchedTimeZones": false,
   "tasking": {
     "upcomingTasksTimeFrame": 8, // hours
-    "upcomingTasksShouldBeGeneratedTimeFrame": 48, // hours
   }
 }
