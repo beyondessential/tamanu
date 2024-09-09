@@ -87,6 +87,7 @@ export const EditorView = memo(
     showWarningModal,
   }) => {
     const [category, setCategory] = useState(null);
+    // const [subCategory, setSubCategory] = useState(null);
 
     const scopedSchema = useMemo(() => prepareSchema(scope), [scope]);
     const categoryOptions = useMemo(() => getCategoryOptions(scopedSchema), [scopedSchema]);
@@ -94,6 +95,14 @@ export const EditorView = memo(
       category,
       scopedSchema,
     ]);
+    // const subCategoryOptions = useMemo(
+    //   () => (schemaForCategory?.properties ? getCategoryOptions(schemaForCategory) : null),
+    //   [schemaForCategory],
+    // );
+    // const schemaForSubCategory = useMemo(() => schemaForCategory?.properties[subCategory], [
+    //   subCategory,
+    //   schemaForCategory,
+    // ]);
 
     // Clear category when scope changes
     useEffect(() => setCategory(null), [scope]);
@@ -108,6 +117,16 @@ export const EditorView = memo(
       setCategory(newCategory);
     };
 
+    // const handleChangeSubcategory = async e => {
+    //   const newCategory = e.target.value;
+    //   if (newCategory !== category && dirty) {
+    //     const dismissChanges = await showWarningModal();
+    //     if (!dismissChanges) return;
+    //     await resetForm();
+    //   }
+    //   setSubCategory(newCategory);
+    // };
+
     const handleChangeSetting = (path, value) => {
       const settingObject = cloneDeep(values.settings || settingsSnapshot);
       const updatedSettings = set(settingObject, `${category}.${path}`, value);
@@ -121,9 +140,8 @@ export const EditorView = memo(
       // Need to parse json string objects stored in keys
       setValues({ ...values, settings: recursiveJsonParse(values.settings) });
       const success = await submitForm(event);
-      console.log('success:', success)
       if (success) {
-        setCategory(null)
+        setCategory(null);
         await resetForm();
       }
     };
@@ -138,6 +156,16 @@ export const EditorView = memo(
               onChange={handleChangeCategory}
               options={categoryOptions}
             />
+            {/* {subCategoryOptions && (
+              <StyledSelectInput
+                label={
+                  <TranslatedText stringId="admin.settings.subCategory" fallback="Sub category" />
+                }
+                value={subCategory}
+                onChange={handleChangeSubcategory}
+                options={subCategoryOptions}
+              />
+            )} */}
             <div>
               <OutlinedButton onClick={resetForm} disabled={!dirty}>
                 Clear changes
