@@ -10,7 +10,7 @@ import { version } from '../serverInfo';
 import { ApplicationContext } from '../ApplicationContext';
 
 export const shell = async ({ skipMigrationCheck }) => {
-  log.info(`Starting shell in Facility Server ${version} ${config.serverFacilityId}`);
+  log.info(`Starting shell in Facility Server ${version} ${config.serverFacilityIds.join(', ')}`);
 
   const context = await new ApplicationContext().init();
 
