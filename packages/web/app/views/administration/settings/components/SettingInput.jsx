@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { Switch } from '@material-ui/core';
 import { TextInput, NumberInput, TextButton, LargeBodyText } from '../../../../components';
 import { JSONEditor } from './JSONEditor';
-import { isString } from 'lodash';
+import { isString, isUndefined } from 'lodash';
 
 const Unit = styled.div`
   display: flex;
@@ -41,6 +41,7 @@ export const SettingInput = ({
   handleChangeSetting,
   unit,
   typeSchema,
+  disabled
 }) => {
   const [error, setError] = useState(null);
   const { type } = typeSchema;
@@ -56,7 +57,7 @@ export const SettingInput = ({
 
   const resetToDefault = () => handleChangeSetting(path, defaultValue);
 
-  const displayValue = value !== undefined ? value : defaultValue;
+  const displayValue = isUndefined(value) ? defaultValue : value;
 
   const key = path.split('.').pop();
   const typeKey = TYPE_OVERRIDES_BY_KEY[key] || type;
@@ -68,6 +69,7 @@ export const SettingInput = ({
           color="primary"
           checked={displayValue}
           onChange={e => handleChangeSetting(path, e.target.checked)}
+          disabled={disabled}
         />
       );
     case SETTING_TYPES.STRING:
@@ -79,6 +81,7 @@ export const SettingInput = ({
             style={{ width: '353px' }}
             error={error}
             helperText={error?.message}
+            disabled={disabled}
           />
           <DefaultButton resetToDefault={resetToDefault} />
         </>
@@ -92,6 +95,7 @@ export const SettingInput = ({
             style={{ width: '75px' }}
             error={error}
             helperText={error?.message}
+            disabled={disabled}
           />
           <Unit>{unit}</Unit>
           <DefaultButton resetToDefault={resetToDefault} />
@@ -107,6 +111,7 @@ export const SettingInput = ({
             multiline
             error={error}
             helperText={error?.message}
+            disabled={disabled}
           />
           <DefaultButton resetToDefault={resetToDefault} />
         </>
@@ -122,6 +127,7 @@ export const SettingInput = ({
             value={isString(displayValue) ? displayValue : JSON.stringify(displayValue, null, 2)}
             onChange={e => handleChangeSetting(path, e)}
             error={error}
+            readOnly={disabled}
           />
           <DefaultButton resetToDefault={resetToDefault} />
         </>
