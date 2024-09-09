@@ -371,7 +371,7 @@ function startOrAdd(key, obj) {
 }
 
 async function simulateUsage(models, sequelize, hours = 1) {
-  const facilityId = config.serverFacilityId;
+  const [facilityId] = config.serverFacilityIds;
   const totalLoops = (hours * 60 * 60 * 1000) / INSERT_INTERVAL_MS;
   const actionsTaken = {};
 
