@@ -17,7 +17,7 @@ import { getNoteWithType } from '@tamanu/shared/utils/notes';
 import { mapQueryFilters } from '../../database/utils';
 import { getImagingProvider } from '../../integrations/imaging';
 
-async function renderResults(models, settings, imagingRequest) {
+async function renderResults({ models, settings }, imagingRequest) {
   const results = imagingRequest.results
     ?.filter(result => !result.deletedAt)
     .map(result => result.get({ plain: true }));
@@ -136,7 +136,7 @@ imagingRequest.get(
     res.send({
       ...imagingRequestObject.get({ plain: true }),
       ...(await imagingRequestObject.extractNotes()),
-      results: await renderResults(req.models, req.settings, imagingRequestObject),
+      results: await renderResults(req, imagingRequestObject),
     });
   }),
 );
@@ -223,7 +223,7 @@ imagingRequest.put(
     res.send({
       ...imagingRequestObject.get({ plain: true }),
       ...notes,
-      results: await renderResults(req.models, req.settings, imagingRequestObject),
+      results: await renderResults(req, imagingRequestObject),
     });
   }),
 );

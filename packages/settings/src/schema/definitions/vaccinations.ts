@@ -6,7 +6,6 @@ export const vaccinationsSchema: SettingsSchema = {
   description: '_',
   properties: {
     defaults: {
-      name: 'Defaults',
       description: '_',
       properties: {
         locationGroupId: {

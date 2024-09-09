@@ -19,7 +19,6 @@ export const facilitySettings = {
               defaultValue: '2022-09-01',
             },
             daysSinceSampleTime: {
-              name: 'Days since sample time',
               description: '-',
               type: yup
                 .number()
@@ -28,19 +27,16 @@ export const facilitySettings = {
               defaultValue: 13,
             },
             labTestCategories: {
-              name: 'Lab test categories',
               description: 'List of valid lab test categories',
               type: yup.array().of(yup.string()),
               defaultValue: [],
             },
             labTestTypes: {
-              name: 'Lab test types',
               description: 'List of valid lab test types',
               type: yup.array().of(yup.string()),
               defaultValue: [],
             },
             labTestResults: {
-              name: 'Lab test results',
               description: 'List of valid lab test results',
               type: yup.array().of(yup.string()),
               defaultValue: ['Positive'],
@@ -50,11 +46,9 @@ export const facilitySettings = {
       },
     },
     templates: {
-      name: 'Templates',
       description: 'Settings related to templates',
       properties: {
         letterhead: {
-          name: 'Letterhead',
           description: '_',
           properties: {
             title: {
@@ -77,13 +71,11 @@ export const facilitySettings = {
       description: 'Facility sync settings',
       properties: {
         syncAllLabRequests: {
-          name: 'Sync all lab requests',
           description: '_',
           type: yup.boolean(),
           defaultValue: false,
         },
         syncTheseProgramRegistries: {
-          name: 'Sync these program registries',
           description: '_',
           type: yup.array().of(yup.string()),
           defaultValue: [],
@@ -106,18 +98,15 @@ export const facilitySettings = {
       description: '_',
       properties: {
         defaultCodes: {
-          name: 'Default codes',
           description:
             'Default reference data codes to use when creating a survey encounter (includes vitals) when none are explicitly specified',
           properties: {
             department: {
-              name: 'Department',
               description: 'Default department code',
               type: yup.string(),
               defaultValue: 'GeneralClinic',
             },
             location: {
-              name: 'Location',
               description: 'Default location code',
               type: yup.string(),
               defaultValue: 'GeneralClinic',
