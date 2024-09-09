@@ -4,28 +4,35 @@ import { Settings } from '@material-ui/icons';
 
 import { SETTINGS_SCOPES } from '@tamanu/constants';
 
-import { LargeButton, TextButton, ContentPane, ButtonRow, TopBar } from '../../../components';
+import { TextButton, ContentPane, ButtonRow, Button } from '../../../components';
 import { JSONEditor } from './JSONEditor';
-import { ScopeSelectorFields } from './ScopeSelectorFields';
 import { DefaultSettingsModal } from './DefaultSettingsModal';
 import { notifyError } from '../../../utils';
 import { TranslatedText } from '../../../components/Translation';
+import { Colors } from '../../../constants';
 
-const StyledTopBar = styled(TopBar)`
-  padding: 0;
-  .MuiToolbar-root {
-    align-items: flex-end;
-  }
+const SettingsWrapper = styled.div`
+  background-color: ${Colors.white};
+  border: 1px solid ${Colors.outline};
+  margin-top: 20px;
+`;
+
+const StyledTopBar = styled.div`
+  display: flex;
+  justify-content: space-between;
+  padding: 20px;
+`;
+
+const StyledButtonRow = styled(ButtonRow)`
+  margin: 0;
+  width: intial;
 `;
 
 const DefaultSettingsButton = styled(TextButton)`
-  font-size: 14px;
   white-space: nowrap;
-  margin-left: 5px;
   .MuiSvgIcon-root {
     margin-right: 5px;
   }
-  margin-bottom: 12px;
 `;
 
 const buildSettingsString = settings => {
@@ -34,14 +41,7 @@ const buildSettingsString = settings => {
 };
 
 export const JSONEditorView = React.memo(
-  ({
-    settingsSnapshot,
-    values,
-    setValues,
-    submitForm,
-    scope,
-    facilityId,
-  }) => {
+  ({ settingsSnapshot, values, setValues, submitForm, scope, facilityId }) => {
     const [settingsEditString, setSettingsEditString] = useState('');
     const [jsonError, setJsonError] = useState(null);
     const [isDefaultModalOpen, setIsDefaultModalOpen] = useState(false);
@@ -85,7 +85,7 @@ export const JSONEditorView = React.memo(
     const isEditorVisible = scope !== SETTINGS_SCOPES.FACILITY || facilityId;
 
     return (
-      <>
+      <SettingsWrapper>
         <StyledTopBar>
           <DefaultSettingsButton onClick={() => setIsDefaultModalOpen(true)}>
             <Settings />
@@ -94,22 +94,22 @@ export const JSONEditorView = React.memo(
               fallback="View default {scope} settings"
             />
           </DefaultSettingsButton>
-          <ButtonRow>
+          <StyledButtonRow>
             {editMode ? (
               <>
-                <LargeButton variant="outlined" onClick={turnOffEditMode}>
+                <Button variant="outlined" onClick={turnOffEditMode}>
                   <TranslatedText stringId="general.action.cancel" fallback="Cancel" />
-                </LargeButton>
-                <LargeButton onClick={saveSettings} disabled={!hasSettingsChanged}>
+                </Button>
+                <Button onClick={saveSettings} disabled={!hasSettingsChanged}>
                   <TranslatedText stringId="general.action.save" fallback="Save" />
-                </LargeButton>
+                </Button>
               </>
             ) : (
-              <LargeButton onClick={turnOnEditMode} disabled={!isEditorVisible}>
+              <Button onClick={turnOnEditMode} disabled={!isEditorVisible}>
                 <TranslatedText stringId="general.action.edit" fallback="Edit" />
-              </LargeButton>
+              </Button>
             )}
-          </ButtonRow>
+          </StyledButtonRow>
         </StyledTopBar>
         <ContentPane>
           {isEditorVisible && (
@@ -128,7 +128,7 @@ export const JSONEditorView = React.memo(
           onClose={() => setIsDefaultModalOpen(false)}
           scope={scope}
         />
-      </>
+      </SettingsWrapper>
     );
   },
 );
