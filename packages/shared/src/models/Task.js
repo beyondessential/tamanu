@@ -210,7 +210,7 @@ export class Task extends Model {
     }
 
     const upcomingTasksShouldBeGeneratedTimeFrame =
-      config.tasking?.upcomingTasksShouldBeGeneratedTimeFrame || 48;
+      config.tasking?.upcomingTasksShouldBeGeneratedTimeFrame || 72;
     const { frequencyValue, frequencyUnit } = task;
     const frequency = ms(`${frequencyValue} ${frequencyUnit}`);
 
