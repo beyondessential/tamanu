@@ -11,7 +11,14 @@ import { FORM_TYPES } from '../constants';
 
 import { FormSubmitCancelRow } from '../components/ButtonRow';
 import { FormGrid } from '../components/FormGrid';
-import { AutocompleteField, CheckField, DateField, Field, Form, TranslatedSelectField } from '../components/Field';
+import {
+  AutocompleteField,
+  CheckField,
+  DateField,
+  Field,
+  Form,
+  TranslatedSelectField,
+} from '../components/Field';
 import { useSuggester } from '../api';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useAuth } from '../contexts/Auth';
@@ -37,7 +44,7 @@ export const DiagnosisForm = React.memo(
     const hasDiagnosis = Boolean(diagnosis?.id);
     const { currentUser } = useAuth();
 
-    const icd10Suggester = useSuggester('icd10', {
+    const diagnosisSuggester = useSuggester('diagnosis', {
       filterer: icd => !excludeDiagnoses.some(d => d.diagnosisId === icd.id),
     });
     const practitionerSuggester = useSuggester('practitioner');
@@ -84,7 +91,7 @@ export const DiagnosisForm = React.memo(
                   />
                 }
                 component={AutocompleteField}
-                suggester={icd10Suggester}
+                suggester={diagnosisSuggester}
                 required
               />
             </div>
