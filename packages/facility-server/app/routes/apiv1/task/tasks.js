@@ -114,7 +114,7 @@ const taskCreationSchema = z.object({
   frequencyValue: z.number().optional(),
   frequencyUnit: z.string().optional(),
   encounterId: z.string().uuid(),
-  requestedByUserId: z.string().uuid(),
+  requestedByUserId: z.string(),
   requestTime: z.string().datetime(),
   note: z.string().optional(),
   highPriority: z.boolean(),
@@ -154,7 +154,7 @@ taskRoutes.post(
 const taskSetCreationSchema = z.object({
   startTime: z.string().datetime(),
   encounterId: z.string().uuid(),
-  requestedByUserId: z.string().uuid(),
+  requestedByUserId: z.string(),
   requestTime: z.string().datetime(),
   note: z.string().optional(),
   tasks: z
