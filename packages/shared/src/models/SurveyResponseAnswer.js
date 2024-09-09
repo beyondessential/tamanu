@@ -1,4 +1,3 @@
-import config from 'config';
 import { upperFirst } from 'lodash';
 import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
@@ -80,10 +79,12 @@ export class SurveyResponseAnswer extends Model {
     };
   }
 
-  static getDefaultId = async resource => {
-    const code = config.survey.defaultCodes[resource];
+  static getDefaultId = async (resource, settings) => {
+    const { models } = this.sequelize;
+    const code = await settings.get(`survey.defaultCodes.${resource}`);
+
     const modelName = upperFirst(resource);
-    const model = this.sequelize.models[modelName];
+    const model = models[modelName];
     if (!model) {
       throw new Error(`Model not found: ${modelName}`);
     }
@@ -91,7 +92,7 @@ export class SurveyResponseAnswer extends Model {
     const record = await model.findOne({ where: { code } });
     if (!record) {
       throw new Error(
-        `Could not find default answer for '${resource}': code '${code}' not found (check survey.defaultCodes.${resource} in the config)`,
+        `Could not find default answer for '${resource}': code '${code}' not found (check survey.defaultCodes.${resource} in the settings)`,
       );
     }
     return record.id;

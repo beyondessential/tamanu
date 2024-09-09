@@ -14,6 +14,7 @@ import { ErrorScreen } from '../../../../../../components/ErrorScreen';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
 import { TranslatedText } from '/components/Translations/TranslatedText';
 import { TranslatedReferenceData } from '~/ui/components/Translations/TranslatedReferenceData';
+import { useSettings } from '~/ui/contexts/SettingsContext';
 
 interface GeneralInfoProps {
   onEdit: () => void;
@@ -41,12 +42,13 @@ export const GeneralInfo = ({ onEdit, patient }: GeneralInfoProps): ReactElement
 
   // Check if patient information should be editable
   const { getBool } = useLocalisation();
+  const { getSetting } = useSettings();
   const isEditable = getBool('features.editPatientDetailsOnMobile');
 
   const { patientAdditionalData, loading, error } = usePatientAdditionalData(patient.id);
 
   const patientAdditionalDataFields = ALL_ADDITIONAL_DATA_FIELDS.filter(fieldName =>
-    getBool(`fields.${fieldName}.requiredPatientData`),
+    getSetting<boolean>(`fields.${fieldName}.requiredPatientData`),
   ).map(fieldName => [fieldName, getFieldData(patientAdditionalData, fieldName)]);
   if (error) {
     return <ErrorScreen error={error} />;

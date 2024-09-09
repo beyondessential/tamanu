@@ -88,6 +88,7 @@ const CovidLabCertificateComponent = ({
   vdsSrc,
   logoSrc,
   getLocalisation,
+  getSetting,
   printedBy,
   certType,
 }) => (
@@ -101,10 +102,16 @@ const CovidLabCertificateComponent = ({
           patient={patient}
           vdsSrc={vdsSrc}
           getLocalisation={getLocalisation}
+          getSetting={getSetting}
         />
       </Box>
       <Box mb={30}>
-        <Table data={labs} columns={columns} getLocalisation={getLocalisation} />
+        <Table
+          data={labs}
+          columns={columns}
+          getLocalisation={getLocalisation}
+          getSetting={getSetting}
+        />
       </Box>
       <P>{getCertificateRemark(patient, getLocalisation)[certType] || ''}</P>
       <Box />
