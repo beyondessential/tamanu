@@ -53,7 +53,7 @@ const recursiveJsonParse = obj => {
   }
 };
 
-const getCategoryOptions = schema =>
+const getCategoryOptions = (schema) =>
   Object.entries(schema.properties).map(([key, value]) => ({
     value: key,
     label: value.name || capitalize(startCase(key)),
@@ -138,7 +138,20 @@ export const EditorView = memo(
 
     const saveSettings = async event => {
       // Need to parse json string objects stored in keys
-      setValues({ ...values, settings: recursiveJsonParse(values.settings) });
+      const parsedSettings = recursiveJsonParse(values.settings)
+
+      // TODO: figure out how to not save as uncategorised
+      // const transformedSettings = {
+      //   ...parsedSettings,
+      //   ...parsedSettings.uncategorised
+      // }
+
+      // console.log(transformedSettings)
+      // delete transformedSettings.uncategorised
+
+      // console.log(transformedSettings)
+      // TODO: move values.
+      setValues({ ...values, settings: parsedSettings });
       const success = await submitForm(event);
       if (success) {
         setCategory(null);
