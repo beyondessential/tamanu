@@ -1,4 +1,8 @@
-import { createDummyPatient, randomReferenceId, randomUser } from '@tamanu/shared/demoData/patients';
+import {
+  createDummyPatient,
+  randomReferenceId,
+  randomUser,
+} from '@tamanu/shared/demoData/patients';
 import { createTestContext } from '../utilities';
 
 describe('Ongoing conditions', () => {
@@ -19,7 +23,7 @@ describe('Ongoing conditions', () => {
 
   it('should record an ongoing condition', async () => {
     const result = await app.post('/api/ongoingCondition').send({
-      conditionId: await randomReferenceId(models, 'icd10'),
+      conditionId: await randomReferenceId(models, 'diagnosis'),
       patientId: patient.id,
       examinerId: await randomUser(models),
     });
@@ -34,7 +38,7 @@ describe('Ongoing conditions', () => {
       resolved: true,
       patientId: patient.id,
       examinerId: await randomUser(models),
-      conditionId: await randomReferenceId(models, 'icd10'),
+      conditionId: await randomReferenceId(models, 'diagnosis'),
       resolutionDate: '2023-02-18 00:00:00',
       resolutionPractitionerId: await randomUser(models),
       resolutionNote: 'Resolution Note',

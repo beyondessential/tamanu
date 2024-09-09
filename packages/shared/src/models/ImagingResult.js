@@ -4,9 +4,13 @@ import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { InvalidOperationError } from '../errors';
 
 import { Model } from './Model';
-import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
+import {
+  buildEncounterLinkedSyncFilter,
+  buildEncounterLinkedSyncFilterJoins,
+} from './buildEncounterLinkedSyncFilter';
 import { dateTimeType } from './dateTimeTypes';
 import { getCurrentDateTimeString } from '../utils/dateTime';
+import { buildEncounterPatientIdSelect } from './buildPatientLinkedLookupFilter';
 
 export class ImagingResult extends Model {
   static init(options) {
@@ -72,5 +76,16 @@ export class ImagingResult extends Model {
       [this.tableName, 'imaging_requests', 'encounters'],
       markedForSyncPatientsTable,
     );
+  }
+
+  static buildSyncLookupQueryDetails() {
+    return {
+      select: buildEncounterPatientIdSelect(this),
+      joins: buildEncounterLinkedSyncFilterJoins([
+        this.tableName,
+        'imaging_requests',
+        'encounters',
+      ]),
+    };
   }
 }

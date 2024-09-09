@@ -6,10 +6,11 @@ import { ApplicationContext } from '../ApplicationContext';
 import { startFhirWorkerTasks } from '../tasks';
 import pkg from '../../package.json';
 
-export const startFhirWorker = async ({ skipMigrationCheck, topics }) => {
+export const startFhirWorker = async ({ name, skipMigrationCheck, topics }) => {
   log.info(`Starting Central FHIR worker version ${pkg.version}`);
 
-  const context = await new ApplicationContext().init();
+  const appType = name ? `fhir-worker(${name})` : 'fhir-worker';
+  const context = await new ApplicationContext().init({ appType });
   await context.store.sequelize.assertUpToDate({ skipMigrationCheck });
 
   if (!topics || topics === 'all') {

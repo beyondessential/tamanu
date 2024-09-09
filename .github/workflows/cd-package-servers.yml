@@ -47,7 +47,7 @@ jobs:
         run: |
           set -x
           sed -E \
-            "s|cwd: '.',( //.*)?|cwd: 'packages/${{ matrix.package }}-server',|" \
+            "s|const cwd =.+|const cwd = 'packages/${{ matrix.package }}-server';|" \
             packages/${{ matrix.package }}-server/pm2.config.cjs \
           > release-v${{ steps.version.outputs.version }}/pm2.config.cjs
 
