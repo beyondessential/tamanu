@@ -5,12 +5,11 @@ import { ThemedTooltip } from '../../../../components/Tooltip';
 import { Box } from '@material-ui/core';
 import { SettingInput } from './SettingInput';
 import styled from 'styled-components';
-import { capitalize, has, startCase } from 'lodash';
+import { capitalize, startCase } from 'lodash';
 
 import { isSetting } from '@tamanu/settings';
 
 const INDENT_WIDTH_PX = 20;
-// const LONG_TEXT_KEYS = ['body'];
 
 const CategoryWrapper = styled.div`
   // margin-left: ${({ $nestLevel }) => $nestLevel * INDENT_WIDTH_PX}px;
@@ -50,7 +49,7 @@ const CategoryTitle = ({ name, path, description }) => {
 
 const SettingName = ({ name, path, description }) => {
   const nameText = (
-    <BodyText ml={1} mr="auto" width="fit-content">
+    <BodyText ml={1} mt={1} mr="auto" width="fit-content">
       {getName(name, path)}
     </BodyText>
   );
@@ -88,7 +87,10 @@ export const Category = ({ schema, path = '', getSettingValue, handleChangeSetti
       <>
         {sortedProperties.map(([key, schema]) => {
           const newPath = path ? `${path}.${key}` : key;
-          const { name, description, type, defaultValue, unit } = schema;
+          const { name, description, type, defaultValue, unit, highRisk } = schema;
+
+          // TODO: get this working on schema
+          if (highRisk) return null;
 
           // TODO: no good
           const isCategoryEnabled = getSettingValue(`${path}.enabled`);

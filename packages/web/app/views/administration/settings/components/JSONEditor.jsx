@@ -25,7 +25,7 @@ const StyledJSONEditor = styled(AceEditor)`
 const generateAnnotationFromJSONError = (errorMessage, json) => {
   const rows = json.split('\n');
   let charCount = 0;
-  let row;
+  let row = 0;
   let column;
 
   const positionString = errorMessage.match(/position (\d+)/)?.[1];
