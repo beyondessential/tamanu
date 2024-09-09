@@ -1,8 +1,12 @@
 import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
-import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
+import {
+  buildEncounterLinkedSyncFilter,
+  buildEncounterLinkedSyncFilterJoins,
+} from './buildEncounterLinkedSyncFilter';
 import { dateTimeType } from './dateTimeTypes';
+import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
 
 export class InvoiceDiscount extends Model {
   static init({ primaryKey, ...options }) {
@@ -50,5 +54,14 @@ export class InvoiceDiscount extends Model {
       [this.tableName, 'invoices', 'encounters'],
       markedForSyncPatientsTable,
     );
+  }
+
+  static buildSyncLookupQueryDetails() {
+    return {
+      select: buildSyncLookupSelect(this, {
+        patientId: 'encounters.patient_id',
+      }),
+      joins: buildEncounterLinkedSyncFilterJoins([this.tableName, 'invoices', 'encounters']),
+    };
   }
 }

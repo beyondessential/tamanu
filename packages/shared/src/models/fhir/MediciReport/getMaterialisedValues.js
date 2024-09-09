@@ -213,15 +213,14 @@ department_info as (
 
 location_info as (
   select
-    distinct on(eh.encounter_id)
     eh.encounter_id,
-    json_build_array(
+    json_agg(
       json_build_object('location', l.name, 
                         'locationGroup', lg.name,
                         'facility', f.name,
                         'assignedTime', ((case when eh.change_type is null 
                                             then e.start_date::timestamp at time zone $timezone_string 
-                                            else eh.date::timestamp at time zone $timezone_string end)))) 
+                                            else eh.date::timestamp at time zone $timezone_string end))) order by eh.change_type nulls first, eh.date) 
     as location_history
   from encounters e
   join encounter_history eh on eh.encounter_id = e.id
@@ -232,7 +231,7 @@ location_info as (
   where change_type isnull or change_type = 'location'
   and e.id = $encounter_id
   and e.deleted_at isnull
-  order by eh.encounter_id, eh.change_type nulls last, eh.date desc
+  group by eh.encounter_id
 ),
 
 triage_info as (

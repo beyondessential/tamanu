@@ -7,9 +7,14 @@ import {
 } from '@tamanu/constants';
 
 import { Model } from './Model';
-import { buildNoteLinkedSyncFilter } from './buildNoteLinkedSyncFilter';
+import {
+  buildNoteLinkedJoins,
+  buildNoteLinkedSyncFilter,
+  getPatientIdColumnOfNotes,
+} from './buildNoteLinkedSyncFilter';
 import { dateTimeType } from './dateTimeTypes';
 import { getCurrentDateTimeString } from '../utils/dateTime';
+import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
 
 export class Note extends Model {
   static init({ primaryKey, ...options }) {
@@ -103,6 +108,15 @@ export class Note extends Model {
     }
     const parentGetter = `get${this.recordType}`;
     return this[parentGetter](options);
+  }
+
+  static buildSyncLookupQueryDetails() {
+    return {
+      select: buildSyncLookupSelect(this, {
+        patientId: getPatientIdColumnOfNotes(),
+      }),
+      joins: buildNoteLinkedJoins().join('\n'),
+    };
   }
 
   static buildPatientSyncFilter = buildNoteLinkedSyncFilter;

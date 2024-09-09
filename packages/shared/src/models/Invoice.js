@@ -7,6 +7,7 @@ import {
 import { Model } from './Model';
 import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
 import { dateTimeType } from './dateTimeTypes';
+import { buildEncounterLinkedLookupFilter } from '../sync/buildEncounterLinkedLookupFilter';
 
 export class Invoice extends Model {
   static init({ primaryKey, ...options }) {
@@ -78,6 +79,10 @@ export class Invoice extends Model {
       [this.tableName, 'encounters'],
       markedForSyncPatientsTable,
     );
+  }
+
+  static buildSyncLookupQueryDetails() {
+    return buildEncounterLinkedLookupFilter(this);
   }
 
   static getFullReferenceAssociations() {
