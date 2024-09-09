@@ -5,10 +5,9 @@ import { ThemedTooltip } from '../../../../components/Tooltip';
 import { Box } from '@material-ui/core';
 import { SettingInput } from './SettingInput';
 import styled from 'styled-components';
-import { capitalize, startCase,  } from 'lodash';
+import { capitalize, has, startCase } from 'lodash';
 
 import { isSetting } from '@tamanu/settings';
-
 
 const INDENT_WIDTH_PX = 20;
 // const LONG_TEXT_KEYS = ['body'];
@@ -33,12 +32,19 @@ const getName = (name, path) => name || capitalize(startCase(path.split('.').pop
 const CategoryTitle = ({ name, path, description }) => {
   const categoryTitle = getName(name, path);
   if (!categoryTitle) return null;
-  return (
-    <ThemedTooltip placement="top" arrow title={description}>
-      <Heading4 width="fit-content" mt={0} mb={2}>
-        {categoryTitle}
-      </Heading4>
+
+  const titleText = (
+    <Heading4 width="fit-content" mt={0} mb={2}>
+      {categoryTitle}
+    </Heading4>
+  );
+
+  return description ? (
+    <ThemedTooltip arrow placement="top" title={description}>
+      {titleText}
     </ThemedTooltip>
+  ) : (
+    titleText
   );
 };
 
@@ -75,6 +81,7 @@ export const Category = ({ schema, path = '', getSettingValue, handleChangeSetti
   const Wrapper = path ? CategoryWrapper : Box;
   const nestLevel = path.split('.').length;
   const sortedProperties = Object.entries(schema.properties).sort(sortProperties);
+
   return (
     <Wrapper $nestLevel={nestLevel}>
       <CategoryTitle name={schema.name} path={path} description={schema.description} />
@@ -82,18 +89,22 @@ export const Category = ({ schema, path = '', getSettingValue, handleChangeSetti
         {sortedProperties.map(([key, schema]) => {
           const newPath = path ? `${path}.${key}` : key;
           const { name, description, type, defaultValue, unit } = schema;
+
+          // TODO: no good
+          const isCategoryEnabled = getSettingValue(`${path}.enabled`);
+          const isEnabledKey = key === 'enabled';
+
           return type ? (
             <SettingLine key={newPath}>
               <SettingName path={newPath} name={name} description={description} />
               <SettingInput
-                // TODO: better solution for this override object
                 typeSchema={type}
                 value={getSettingValue(newPath)}
                 defaultValue={defaultValue}
                 path={newPath}
                 handleChangeSetting={handleChangeSetting}
                 unit={unit}
-                // TODO: disabled logic
+                // disabled={!isEnabledKey && !isCategoryEnabled}
               />
             </SettingLine>
           ) : (
