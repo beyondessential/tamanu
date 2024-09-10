@@ -65,9 +65,9 @@ const StyledPriorityHighIcon = styled(PriorityHighIcon)`
   vertical-align: sub;
 `;
 
-export const TaskForm = React.memo(({ onClose, onCreateTaskSuccess }) => {
+export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
   const practitionerSuggester = useSuggester('practitioner');
-  const { mutate: createTasks } = useCreateTasks();
+  const { mutate: createTasks, isLoading: isCreatingTasks } = useCreateTasks();
   const { encounter } = useEncounter();
   const { currentUser } = useAuth();
 
@@ -131,7 +131,12 @@ export const TaskForm = React.memo(({ onClose, onCreateTaskSuccess }) => {
         encounterId: encounter.id,
       };
     }
-    createTasks(payload, { onSuccess: onCreateTaskSuccess });
+    createTasks(payload, {
+      onSuccess: () => {
+        refreshTaskTable();
+        onClose();
+      },
+    });
   };
 
   const handleTaskChange = (e, { setFieldValue }) => {
@@ -281,6 +286,7 @@ export const TaskForm = React.memo(({ onClose, onCreateTaskSuccess }) => {
               onCancel={onClose}
               onConfirm={submitForm}
               confirmText={<TranslatedText stringId="general.action.confirm" fallback="Confirm" />}
+              confirmDisabled={isCreatingTasks}
             />
           </div>
         );

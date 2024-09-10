@@ -58,8 +58,7 @@ export const TasksPane = React.memo(({ encounter }) => {
     );
   };
 
-  const onCreateTaskSuccess = useCallback(() => {
-    setTaskModalOpen(false);
+  const refreshTaskTable = useCallback(() => {
     setRefreshCount(prev => prev + 1);
   }, []);
 
@@ -132,7 +131,7 @@ export const TasksPane = React.memo(({ encounter }) => {
       <TaskModal
         open={taskModalOpen}
         onClose={() => setTaskModalOpen(false)}
-        onCreateTaskSuccess={onCreateTaskSuccess}
+        refreshTaskTable={refreshTaskTable}
       />
     </TabPane>
   );

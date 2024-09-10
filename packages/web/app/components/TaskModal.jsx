@@ -3,7 +3,7 @@ import { FormModal } from './FormModal';
 import { TranslatedText } from './Translation/TranslatedText';
 import { TaskForm } from '../forms/TaskForm';
 
-export const TaskModal = ({ open, onClose, onCreateTaskSuccess }) => {
+export const TaskModal = ({ open, onClose, refreshTaskTable }) => {
   return (
     <FormModal
       width="md"
@@ -11,7 +11,7 @@ export const TaskModal = ({ open, onClose, onCreateTaskSuccess }) => {
       open={open}
       onClose={onClose}
     >
-      <TaskForm onClose={onClose} onCreateTaskSuccess={onCreateTaskSuccess} />
+      <TaskForm onClose={onClose} refreshTaskTable={refreshTaskTable} />
     </FormModal>
   );
 };
