@@ -1,7 +1,7 @@
 import React from 'react';
-import { FormModal } from './FormModal';
-import { TranslatedText } from './Translation/TranslatedText';
-import { TaskForm } from '../forms/TaskForm';
+import { FormModal } from '../FormModal';
+import { TranslatedText } from '../Translation/TranslatedText';
+import { TaskForm } from '../../forms/TaskForm';
 
 export const TaskModal = ({ open, onClose, refreshTaskTable }) => {
   return (

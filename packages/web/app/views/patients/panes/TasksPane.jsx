@@ -7,7 +7,7 @@ import { Colors } from '../../../constants';
 import { AutocompleteInput, Button, CheckInput, TranslatedText } from '../../../components';
 import { useSuggester } from '../../../api';
 import { TasksTable } from '../../../components/Tasks/TasksTable';
-import { TaskModal } from '../../../components/TaskModal';
+import { TaskModal } from '../../../components/Tasks/TaskModal';
 
 const TabPane = styled.div`
   margin: 20px 24px 24px;
