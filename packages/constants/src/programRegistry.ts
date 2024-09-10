@@ -1,3 +1,5 @@
+import { COLORS } from './colors.js';
+
 export const CURRENTLY_AT_TYPES = {
   VILLAGE: 'village',
   FACILITY: 'facility',
@@ -10,14 +12,7 @@ export const REGISTRATION_STATUSES = {
 };
 
 export const STATUS_COLOR = {
-  purple: '#4101C9',
-  pink: '#D10580',
-  orange: '#CB6100',
-  yellow: '#BD9503',
-  blue: '#1172D1',
-  green: '#19934E',
-  grey: '#444444',
-  red: '#F76853',
+  ...COLORS,
   brown: '#7A492E',
   teal: '#125E7E',
 };
