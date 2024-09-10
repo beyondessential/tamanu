@@ -1,12 +1,12 @@
 import { IMAGING_AREA_TYPES } from '@tamanu/constants';
-import { CARE_PLANS, DRUGS, ICD10_DIAGNOSES, splitIds, TRIAGE_DIAGNOSES } from '@tamanu/shared/demoData';
+import { CARE_PLANS, DRUGS, DIAGNOSES, splitIds, TRIAGE_DIAGNOSES } from '@tamanu/shared/demoData';
 import {
   CT_SCAN_IMAGING_AREAS,
   ULTRASOUND_IMAGING_AREAS,
   X_RAY_IMAGING_AREAS,
 } from '@tamanu/shared/demoData/imagingAreas';
 
-export const testDiagnoses = ICD10_DIAGNOSES.slice(0, 50);
+export const testDiagnoses = DIAGNOSES.slice(0, 50);
 export const testDrugs = DRUGS.slice(0, 50);
 export const testTriageReasons = TRIAGE_DIAGNOSES.map(x => ({ ...x, type: 'triageReason' }));
 

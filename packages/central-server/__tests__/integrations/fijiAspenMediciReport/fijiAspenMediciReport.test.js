@@ -96,7 +96,7 @@ const fakeAllData = async (models, ctx) => {
   );
   const { id: diagnosisId } = await models.ReferenceData.create(
     fake(models.ReferenceData, {
-      type: REFERENCE_TYPES.ICD10,
+      type: REFERENCE_TYPES.DIAGNOSIS,
       name: 'Acute subdural hematoma',
       code: 'S06.5',
     }),
@@ -490,6 +490,12 @@ describe('fijiAspenMediciReport', () => {
 
         // Location/Department
         locations: [
+          {
+            assignedTime: '2022-06-09T00:02:54+00:00',
+            facility: 'Ba Hospital',
+            location: 'Emergency room 1',
+            locationGroup: 'Emergency Department',
+          },
           {
             facility: 'Ba Hospital',
             location: 'Emergency room 2',
