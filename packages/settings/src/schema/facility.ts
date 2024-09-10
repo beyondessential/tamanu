@@ -12,19 +12,19 @@ export const facilitySettings = {
       properties: {
         startTime: {
           description:
-            'The time when bookings open for the day. (The earliest start time for a booking.)',
+            'The time when bookings open for the day. (The earliest start time for a booking.) Uses 24-hour time, e.g. 13:30.',
           type: datelessTimeStringSchema,
           defaultValue: '09:00',
         },
         endTime: {
           description:
-            'The time when bookings close for the day. (The latest booking must end by this time.)',
+            'The time when bookings close for the day. (The latest booking must end by this time.) Uses 24-hour time, e.g. 13:30.',
           type: datelessTimeStringSchema,
           defaultValue: '17:00',
         },
         slotDuration: {
           description:
-            'The length of each time slot. A single booking may span multiple consecutive slots.',
+            'The length of each time slot. A single booking may span multiple consecutive slots. Supported units: ‘min’, ‘h’',
           type: durationStringSchema,
           defaultValue: '30min',
         },
