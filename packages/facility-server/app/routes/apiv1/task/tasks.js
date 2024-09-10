@@ -17,9 +17,8 @@ const taskCompletionInputSchema = z.object({
   taskIds: z
     .string()
     .uuid()
-    .array()
-    .length(1),
-  completedBy: z.string().uuid(),
+    .array(),
+  completedBy: z.string(),
   completedTime: z.string().datetime(),
   completedNote: z.string().optional(),
 });
@@ -46,7 +45,7 @@ taskRoutes.post(
       { ...completedInfo, status: TASK_STATUSES.COMPLETED },
       { where: { id: { [Op.in]: taskIds } } },
     );
-    res.json();
+    res.json({});
   }),
 );
 
