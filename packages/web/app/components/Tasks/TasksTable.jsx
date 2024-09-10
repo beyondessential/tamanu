@@ -81,6 +81,7 @@ const StyledTable = styled(DataFetchingTable)`
     &:last-child {
       max-width: 200px;
       white-space: nowrap;
+      width: 200px;
     }
   }
 `;
@@ -152,7 +153,11 @@ const NoDataContainer = styled.div`
 const getStatus = ({ status }) => {
   switch (status) {
     case TASK_STATUSES.TODO:
-      return <Box marginLeft='1.5px'><StatusTodo /></Box>;
+      return (
+        <Box marginLeft="1.5px">
+          <StatusTodo />
+        </Box>
+      );
     case TASK_STATUSES.COMPLETED:
       return <StyledCheckCircleIcon />;
     case TASK_STATUSES.NON_COMPLETED:
@@ -173,7 +178,7 @@ const getDueTime = ({ dueTime }) => {
 
 const AssignedToCell = ({ designations }) => {
   const [ref, isOverflowing] = useOverflow();
-  if (!designations?.length) return '';
+  if (!designations?.length) return '-';
 
   const designationNames = designations.map(assigned => assigned.name);
   return (
@@ -184,7 +189,11 @@ const AssignedToCell = ({ designations }) => {
 };
 
 const getFrequency = ({ frequencyValue, frequencyUnit }) =>
-  frequencyValue && frequencyUnit ? `${frequencyValue} ${frequencyUnit}` : '';
+  frequencyValue && frequencyUnit ? (
+    `${frequencyValue} ${frequencyUnit}`
+  ) : (
+    <TranslatedText stringId="encounter.tasks.table.once" fallback="Once" />
+  );
 
 const NotesCell = ({ row, hoveredRow }) => {
   const [ref, isOverflowing] = useOverflow();
@@ -192,9 +201,13 @@ const NotesCell = ({ row, hoveredRow }) => {
   return (
     <Box display="flex" alignItems="center">
       <NotesDisplay>
-        <ConditionalTooltip visible={isOverflowing} title={row.note}>
-          <OverflowedBox ref={ref}>{row.note}</OverflowedBox>
-        </ConditionalTooltip>
+        {row.note ? (
+          <ConditionalTooltip visible={isOverflowing} title={row.note}>
+            <OverflowedBox ref={ref}>{row.note}</OverflowedBox>
+          </ConditionalTooltip>
+        ) : (
+          '-'
+        )}
       </NotesDisplay>
       {hoveredRow?.id === row?.id && (
         <BulkActions>
