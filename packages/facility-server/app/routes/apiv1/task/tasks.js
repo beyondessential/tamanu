@@ -104,54 +104,7 @@ taskRoutes.put(
   }),
 );
 
-const taskCreationSchema = z.object({
-  startTime: z.string().datetime(),
-  designationIds: z
-    .string()
-    .array()
-    .optional(),
-  name: z.string(),
-  frequencyValue: z.number().optional(),
-  frequencyUnit: z.string().optional(),
-  encounterId: z.string().uuid(),
-  requestedByUserId: z.string(),
-  requestTime: z.string().datetime(),
-  note: z.string().optional(),
-  highPriority: z.boolean(),
-});
-taskRoutes.post(
-  '/',
-  asyncHandler(async (req, res) => {
-    req.checkPermission('create', 'Task');
-    const { models, db } = req;
-    const { Task } = models;
-
-    const { startTime, designationIds, ...other } = await taskCreationSchema.parseAsync(req.body);
-
-    await db.transaction(async () => {
-      const taskData = { dueTime: startTime, ...other };
-
-      const task = await Task.create(taskData);
-      if (designationIds) {
-        await task.setDesignations(designationIds);
-      }
-
-      const mappedDesignations = designationIds.map(designation => ({
-        designationId: designation,
-      }));
-
-      if (task.frequencyValue && task.frequencyUnit) {
-        await Task.generateRepeatingTasks([
-          { ...task.dataValues, designations: mappedDesignations },
-        ]);
-      }
-
-      res.send(task);
-    });
-  }),
-);
-
-const taskSetCreationSchema = z.object({
+const tasksCreationSchema = z.object({
   startTime: z.string().datetime(),
   encounterId: z.string().uuid(),
   requestedByUserId: z.string(),
@@ -171,7 +124,7 @@ const taskSetCreationSchema = z.object({
     .array(),
 });
 taskRoutes.post(
-  '/taskSet',
+  '/',
   asyncHandler(async (req, res) => {
     req.checkPermission('create', 'Task');
     const {
@@ -181,7 +134,7 @@ taskRoutes.post(
       encounterId,
       note,
       tasks,
-    } = await taskSetCreationSchema.parseAsync(req.body);
+    } = await tasksCreationSchema.parseAsync(req.body);
     const { models, db } = req;
     const { Task, TaskDesignation } = models;
 
@@ -203,7 +156,7 @@ taskRoutes.post(
         };
       });
 
-      const createdTaskSet = await Task.bulkCreate(tasksData);
+      const createdTasks = await Task.bulkCreate(tasksData);
 
       const taskDesignationAssociations = tasksData.flatMap(task => {
         return task.designations.map(designation => ({
@@ -219,7 +172,7 @@ taskRoutes.post(
         await Task.generateRepeatingTasks(tasksData);
       }
 
-      res.send(createdTaskSet);
+      res.send(createdTasks);
     });
   }),
 );

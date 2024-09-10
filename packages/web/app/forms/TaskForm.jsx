@@ -32,7 +32,7 @@ import { Colors, FORM_TYPES } from '../constants';
 import { foreignKey } from '../utils/validation';
 import { preventInvalidNumber } from '../utils';
 import { TaskSetTable } from '../components/Tasks/TaskSetTable';
-import { useCreateTask, useCreateTaskSet } from '../api/mutations/useTaskMutation';
+import { useCreateTasks } from '../api/mutations/useTaskMutation';
 import { useEncounter } from '../contexts/Encounter';
 import { useAuth } from '../contexts/Auth';
 
@@ -67,8 +67,7 @@ const StyledPriorityHighIcon = styled(PriorityHighIcon)`
 
 export const TaskForm = React.memo(({ onClose, onCreateTaskSuccess }) => {
   const practitionerSuggester = useSuggester('practitioner');
-  const { mutate: createTask } = useCreateTask();
-  const { mutate: createTaskSet } = useCreateTaskSet();
+  const { mutate: createTasks } = useCreateTasks();
   const { encounter } = useEncounter();
   const { currentUser } = useAuth();
 
@@ -84,26 +83,37 @@ export const TaskForm = React.memo(({ onClose, onCreateTaskSuccess }) => {
   const [selectedTask, setSelectedTask] = useState({});
 
   const onSubmit = values => {
-    const { designationIds, requestTime, startTime, highPriority, ...other } = values;
+    const {
+      designationIds,
+      requestTime,
+      startTime,
+      highPriority,
+      frequencyValue,
+      frequencyUnit,
+      ...other
+    } = values;
     const requestTimeString = new Date(requestTime).toISOString();
     const startTimeString = new Date(startTime).toISOString();
 
+    let payload;
+
     if (selectedTask.type === REFERENCE_TYPES.TASK_TEMPLATE) {
-      createTask(
-        {
-          ...other,
-          requestTime: requestTimeString,
-          startTime: startTimeString,
-          encounterId: encounter.id,
-          name: selectedTask.label,
-          highPriority: !!highPriority,
-          designationIds:
-            typeof designationIds === 'string' ? JSON.parse(designationIds) : designationIds,
-        },
-        {
-          onSuccess: onCreateTaskSuccess,
-        },
-      );
+      payload = {
+        ...other,
+        requestTime: requestTimeString,
+        startTime: startTimeString,
+        encounterId: encounter.id,
+        tasks: [
+          {
+            name: selectedTask.label,
+            highPriority: !!highPriority,
+            frequencyValue,
+            frequencyUnit,
+            designationIds:
+              typeof designationIds === 'string' ? JSON.parse(designationIds) : designationIds,
+          },
+        ],
+      };
     } else if (selectedTask.type === REFERENCE_TYPES.TASK_SET) {
       const tasks = selectedTask.children.map(({ name, taskTemplate }) => ({
         name,
@@ -113,19 +123,15 @@ export const TaskForm = React.memo(({ onClose, onCreateTaskSuccess }) => {
         designationIds: taskTemplate.designations.map(item => item.designationId),
       }));
 
-      createTaskSet(
-        {
-          ...values,
-          requestTime: requestTimeString,
-          startTime: startTimeString,
-          tasks,
-          encounterId: encounter.id,
-        },
-        {
-          onSuccess: onCreateTaskSuccess,
-        },
-      );
+      payload = {
+        ...values,
+        requestTime: requestTimeString,
+        startTime: startTimeString,
+        tasks,
+        encounterId: encounter.id,
+      };
     }
+    createTasks(payload, { onSuccess: onCreateTaskSuccess });
   };
 
   const handleTaskChange = (e, { setFieldValue }) => {
