@@ -12,7 +12,7 @@ import { TranslatedText } from '../components/Translation/TranslatedText';
 
 export const FamilyHistoryForm = ({
   onCancel,
-  icd10Suggester,
+  diagnosisSuggester,
   practitionerSuggester,
   editedObject,
   onSubmit,
@@ -26,7 +26,7 @@ export const FamilyHistoryForm = ({
           label={<TranslatedText stringId="general.diagnosis.label" fallback="Diagnosis" />}
           required
           component={AutocompleteField}
-          suggester={icd10Suggester}
+          suggester={diagnosisSuggester}
         />
         <Field
           name="recordedDate"

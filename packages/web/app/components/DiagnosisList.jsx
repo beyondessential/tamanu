@@ -46,13 +46,15 @@ const DiagnosisItem = React.memo(({ diagnosis, isPrimary, onClick }) => (
         <TranslatedText stringId="encounter.diagnosis.type.secondary" fallback="S" />
       )}
     </Category>
-    {diagnosis?.name && diagnosis?.id && <DiagnosisName isPrimary={isPrimary}>
-      <TranslatedReferenceData
-        fallback={diagnosis.name}
-        value={diagnosis.id}
-        category="icd10"
-      />
-    </DiagnosisName>}
+    {diagnosis?.name && diagnosis?.id && (
+      <DiagnosisName isPrimary={isPrimary}>
+        <TranslatedReferenceData
+          fallback={diagnosis.name}
+          value={diagnosis.id}
+          category="diagnosis"
+        />
+      </DiagnosisName>
+    )}
   </DiagnosisChip>
 ));
 

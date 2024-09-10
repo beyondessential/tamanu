@@ -484,17 +484,17 @@ describe('Patient relations', () => {
       const otherPatient = await models.Patient.create(await createDummyPatient(models));
 
       await models.PatientFamilyHistory.create({
-        diagnosisId: await randomReferenceId(models, 'icd10'),
+        diagnosisId: await randomReferenceId(models, 'diagnosis'),
         patientId: patient.id,
         note: 'include',
       });
       await models.PatientFamilyHistory.create({
-        diagnosisId: await randomReferenceId(models, 'icd10'),
+        diagnosisId: await randomReferenceId(models, 'diagnosis'),
         patientId: patient.id,
         note: 'include 2',
       });
       await models.PatientFamilyHistory.create({
-        diagnosisId: await randomReferenceId(models, 'icd10'),
+        diagnosisId: await randomReferenceId(models, 'diagnosis'),
         patientId: otherPatient.id,
         note: 'fail',
       });
@@ -509,7 +509,7 @@ describe('Patient relations', () => {
       const patient = await models.Patient.create(await createDummyPatient(models));
 
       await models.PatientFamilyHistory.create({
-        diagnosisId: await randomReferenceId(models, 'icd10'),
+        diagnosisId: await randomReferenceId(models, 'diagnosis'),
         patientId: patient.id,
       });
 
@@ -533,17 +533,17 @@ describe('Patient relations', () => {
       const otherPatient = await models.Patient.create(await createDummyPatient(models));
 
       await models.PatientCondition.create({
-        conditionId: await randomReferenceId(models, 'icd10'),
+        conditionId: await randomReferenceId(models, 'diagnosis'),
         patientId: patient.id,
         note: 'include',
       });
       await models.PatientCondition.create({
-        conditionId: await randomReferenceId(models, 'icd10'),
+        conditionId: await randomReferenceId(models, 'diagnosis'),
         patientId: patient.id,
         note: 'include 2',
       });
       await models.PatientCondition.create({
-        conditionId: await randomReferenceId(models, 'icd10'),
+        conditionId: await randomReferenceId(models, 'diagnosis'),
         patientId: otherPatient.id,
         note: 'fail',
       });
@@ -558,7 +558,7 @@ describe('Patient relations', () => {
       const patient = await models.Patient.create(await createDummyPatient(models));
 
       await models.PatientCondition.create({
-        conditionId: await randomReferenceId(models, 'icd10'),
+        conditionId: await randomReferenceId(models, 'diagnosis'),
         patientId: patient.id,
       });
 

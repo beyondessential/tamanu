@@ -1,9 +1,13 @@
 import { Sequelize } from 'sequelize';
 import { LAB_TEST_STATUSES, SYNC_DIRECTIONS } from '@tamanu/constants';
-import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
+import {
+  buildEncounterLinkedSyncFilter,
+  buildEncounterLinkedSyncFilterJoins,
+} from './buildEncounterLinkedSyncFilter';
 import { Model } from './Model';
 import { dateTimeType, dateType } from './dateTimeTypes';
 import { getCurrentDateString } from '../utils/dateTime';
+import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
 
 const LAB_TEST_STATUS_VALUES = Object.values(LAB_TEST_STATUSES);
 
@@ -73,5 +77,15 @@ export class LabTest extends Model {
       [this.tableName, 'lab_requests', 'encounters'],
       markedForSyncPatientsTable,
     );
+  }
+
+  static buildSyncLookupQueryDetails() {
+    return {
+      select: buildSyncLookupSelect(this, {
+        patientId: 'encounters.patient_id',
+        isLabRequestValue: 'TRUE',
+      }),
+      joins: buildEncounterLinkedSyncFilterJoins([this.tableName, 'lab_requests', 'encounters']),
+    };
   }
 }
