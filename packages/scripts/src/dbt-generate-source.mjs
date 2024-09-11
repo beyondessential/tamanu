@@ -4,14 +4,14 @@ import { program } from 'commander';
 import YAML from 'yaml';
 import pg from 'pg';
 
-async function get_tables_in_schema(client, schemaName, tablePattern, exclude) {
+async function get_tables_in_schema(client, schemaName) {
   return (
     await client.query(
       `SELECT DISTINCT lower(table_name) as table_name
       FROM information_schema.tables
-      WHERE table_schema ilike $1 and table_name ilike $2 and table_name not ilike $3
+      WHERE table_schema ilike $1
       ORDER BY lower(table_name)`,
-      [schemaName, tablePattern, exclude],
+      [schemaName],
     )
   ).rows.map(table => table.table_name);
 }
@@ -27,16 +27,7 @@ async function get_columns_in_relation(client, schemaName, table) {
   ).rows;
 }
 
-async function generate_source({
-  password,
-  name,
-  database,
-  schemaName = name,
-  generateColumns,
-  excludeDataTypes,
-  tablePattern,
-  exclude,
-}) {
+async function generate_source({ password, name, database, schemaName = name }) {
   const client = new pg.Client({ database, password });
   await client.connect();
   const sources = {
@@ -47,22 +38,18 @@ async function generate_source({
         database,
         schema_name: schemaName === name ? undefined : schemaName,
         tables: await Promise.all(
-          (await get_tables_in_schema(client, schemaName, tablePattern, exclude)).map(
-            async table => {
-              return {
-                name: table,
-                columns: generateColumns
-                  ? (await get_columns_in_relation(client, schemaName, table)).map(column => {
-                      return {
-                        name: column.column_name,
-                        // TODO: data_type_format_source
-                        data_type: !excludeDataTypes ? column.data_type : undefined,
-                      };
-                    })
-                  : undefined,
-              };
-            },
-          ),
+          (await get_tables_in_schema(client, schemaName)).map(async table => {
+            return {
+              name: table,
+              columns: (await get_columns_in_relation(client, schemaName, table)).map(column => {
+                return {
+                  name: column.column_name,
+                  // TODO: data_type_format_source
+                  data_type: column.data_type,
+                };
+              }),
+            };
+          }),
         ),
       },
     ],
@@ -72,7 +59,7 @@ async function generate_source({
 }
 
 program
-  .description('generates a Source model in dbt')
+  .description('generates a Source model in dbt.')
   .option('--password')
   .requiredOption('--name <string>', 'The name of your source', value => value.toLowerCase())
   .requiredOption('--database <string>', 'The database that your source data is in', value =>
@@ -82,21 +69,7 @@ program
     '--schema-name <string>',
     'The schema name that contains your source data (default: the same as `name`)',
     value => value.toLowerCase(),
-  )
-  .option(
-    '--generate-columns',
-    'Whether you want to add the column names to your source definition',
-  )
-  .option(
-    '--exclude-data-types',
-    'Whether you want to add data types to your source columns definitions',
-  )
-  .option(
-    '--table-pattern <string>',
-    'A table prefix / postfix that you want to subselect from all available tables within a given schema',
-    '%',
-  )
-  .option('--exclude <string>', 'A string you want to exclude from the selection criteria', '');
+  );
 
 program.parse();
 const opts = program.opts();
