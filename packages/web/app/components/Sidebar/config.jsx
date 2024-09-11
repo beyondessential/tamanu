@@ -67,6 +67,14 @@ export const FACILITY_MENU_ITEMS = [
         key: 'schedulingCalendar',
         ability: { action: 'read' },
       },
+      {
+        key: 'locationBookings',
+        label: (
+          <TranslatedText stringId="sidebar.scheduling.locations" fallback="Location bookings" />
+        ),
+        path: '/appointments/locations',
+        ability: { action: 'read' },
+      },
     ],
   },
   {
@@ -164,7 +172,7 @@ export const FACILITY_MENU_ITEMS = [
       {
         label: <TranslatedText stringId="sidebar.facilityAdmin.reports" fallback="Reports" />,
         key: 'reports',
-        path: `/facility-admin/reports`,
+        path: '/facility-admin/reports',
       },
       {
         label: (
@@ -174,7 +182,7 @@ export const FACILITY_MENU_ITEMS = [
           />
         ),
         key: 'bedManagement',
-        path: `/facility-admin/bed-management`,
+        path: '/facility-admin/bed-management',
       },
     ],
   },
