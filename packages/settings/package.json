@@ -18,9 +18,9 @@
       "import": "./dist/mjs/schema/index.js",
       "require": "./dist/cjs/schema/index.js"
     },
-    "./schema/types": {
-      "import": "./dist/mjs/schema/types/index.js",
-      "require": "./dist/cjs/schema/types/index.js"
+    "./types": {
+      "import": "./dist/mjs/types/index.js",
+      "require": "./dist/cjs/types/index.js"
     },
     "./reader": {
       "import": "./dist/mjs/reader/index.js",
