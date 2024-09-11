@@ -57,9 +57,8 @@ const taskNonCompletionInputSchema = z.object({
   taskIds: z
     .string()
     .uuid()
-    .array()
-    .length(1),
-  notCompletedBy: z.string().uuid(),
+    .array(),
+  notCompletedBy: z.string(),
   notCompletedTime: z.string().datetime(),
   notCompletedReasonId: z.string().optional(),
 });
@@ -99,7 +98,7 @@ taskRoutes.put(
       { ...notCompletedInfo, status: TASK_STATUSES.NON_COMPLETED },
       { where: { id: { [Op.in]: taskIds } } },
     );
-    res.json();
+    res.json({});
   }),
 );
 

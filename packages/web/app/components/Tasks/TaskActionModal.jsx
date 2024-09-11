@@ -6,6 +6,7 @@ import { FormModal } from '../FormModal';
 import { TranslatedText } from '../Translation';
 import { BodyText } from '../Typography';
 import { MarkTaskCompletedForm } from '../../forms/MarkTaskCompletedForm';
+import { MarkTaskNotCompletedForm } from '../../forms/MarkTaskNotCompletedForm';
 
 const ModalDescription = styled(BodyText)`
   margin-bottom: 34px;
@@ -18,6 +19,14 @@ export const TaskActionModal = ({ open, onClose, action, refreshTaskTable, taskI
       case TASK_STATUSES.COMPLETED:
         return (
           <MarkTaskCompletedForm
+            onClose={onClose}
+            refreshTaskTable={refreshTaskTable}
+            taskIds={taskIds}
+          />
+        );
+      case TASK_STATUSES.NON_COMPLETED:
+        return (
+          <MarkTaskNotCompletedForm
             onClose={onClose}
             refreshTaskTable={refreshTaskTable}
             taskIds={taskIds}
