@@ -218,6 +218,8 @@ jobs:
     name: Test the facility server with the central server being down
     runs-on: ubuntu-latest
     steps:
+      - name: List in-use ports
+        run: sudo netstat -lpn
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
