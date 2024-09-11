@@ -44,7 +44,6 @@ async function generateSource({ password, name, database, schemaName = name }) {
               columns: (await getColumnsInRelation(client, schemaName, table)).map(column => {
                 return {
                   name: column.column_name,
-                  // TODO: data_type_format_source
                   data_type: column.data_type,
                 };
               }),
