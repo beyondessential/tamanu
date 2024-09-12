@@ -1,0 +1,300 @@
+import React, { useEffect, useState } from 'react';
+import { useGeolocation } from '~/hooks/useGeolocation';
+import { TextField } from '../../TextField/TextField';
+import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
+import {
+  CenterView,
+  RowView,
+  StyledText,
+  StyledTouchableOpacity,
+  StyledView,
+} from '~/ui/styled/common';
+import { ActivityIndicator, Dimensions, Text } from 'react-native';
+import { Button } from '../../Button';
+import { theme } from '~/ui/styled/theme';
+import { LocationSearching } from '../../Icons/LocationSearching';
+import styled from 'styled-components';
+import { CrossIcon } from '../../Icons';
+import Modal from 'react-native-modal';
+import { RECOMMENDED_ACCURACY } from '~/constants/comms';
+import { TranslatedText } from '../../Translations/TranslatedText';
+import { useTranslation } from '~/ui/contexts/TranslationContext';
+
+const EndAdornmentContainer = styled(StyledView)`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  position: absolute;
+  right: ${screenPercentageToDP('1', Orientation.Height)};
+  bottom: ${screenPercentageToDP('2', Orientation.Height)};
+  min-height: ${screenPercentageToDP('2.8', Orientation.Height)};
+`;
+
+const buttonCommonStyles = {
+  height: screenPercentageToDP('4.6', Orientation.Height),
+  fontSize: screenPercentageToDP('1.45', Orientation.Height),
+  fontWeight: 500,
+  alignSelf: 'flex-end',
+};
+
+export const SurveyGeolocateQuestion = ({ value, onChange, setDisabledSubmit }) => {
+  const {
+    coords,
+    error,
+    isWatching,
+    cancelWatchGeolocation,
+    requestGeolocationPermission,
+  } = useGeolocation({
+    watch: true,
+  });
+  const { getTranslation } = useTranslation();
+  const [tempValue, setTempValue] = useState('');
+  const [showModal, setShowModal] = useState(false);
+
+  useEffect(() => {
+    if (!coords) {
+      setTempValue('');
+      return;
+    }
+    setTempValue(
+      // {}: a hack to remove the empty space
+      getTranslation('program.survey.geolocate.value', ':lat, :long (:accuracy{}m accuracy)', {
+        lat: coords.latitude.toFixed(6),
+        long: coords.longitude.toFixed(6),
+        accuracy: coords.accuracy,
+      }).replace('{}', ''),
+    );
+  }, [coords]);
+
+  useEffect(() => {
+    setDisabledSubmit(isWatching);
+  }, [isWatching]);
+
+  useEffect(() => {
+    return () => {
+      setDisabledSubmit(false);
+    };
+  }, []);
+
+  const onOpenModal = () => setShowModal(true);
+  const onCloseModal = () => setShowModal(false);
+
+  const onClickRemoveLocation = () => {
+    if (value) {
+      onOpenModal();
+    } else {
+      cancelWatchGeolocation();
+    }
+  };
+
+  const handleRemoveLocation = () => {
+    onChange('');
+    cancelWatchGeolocation();
+    onCloseModal();
+  };
+
+  const handleSaveLocation = () => {
+    onChange(tempValue);
+    cancelWatchGeolocation();
+  };
+
+  const handleCancelLocationSearch = () => {
+    cancelWatchGeolocation();
+  };
+
+  return (
+    <>
+      <StyledView>
+        <TextField
+          label={
+            <TranslatedText
+              stringId="program.survey.geolocate.label"
+              fallback="Latitude, longitude"
+            />
+          }
+          placeholder={getTranslation(
+            'program.survey.geolocate.placeholder',
+            'Tap to detect current location',
+          )}
+          readOnly
+          labelFontSize={screenPercentageToDP('1.59', Orientation.Height)}
+          fieldFontSize={screenPercentageToDP('1.82', Orientation.Height)}
+          value={value || tempValue}
+          onChange={() => {}}
+          endAdornment={
+            <EndAdornmentContainer>
+              {(tempValue || value) && (
+                <StyledTouchableOpacity
+                  onPress={onClickRemoveLocation}
+                  marginRight={screenPercentageToDP('8', Orientation.Width)}
+                >
+                  <CrossIcon
+                    size={screenPercentageToDP('2', Orientation.Height)}
+                    fill={theme.colors.TEXT_SUPER_DARK}
+                  />
+                </StyledTouchableOpacity>
+              )}
+              {isWatching && (
+                <ActivityIndicator
+                  size={screenPercentageToDP('2.8', Orientation.Height)}
+                  color={theme.colors.PRIMARY_MAIN}
+                />
+              )}
+              {!value && !isWatching && (
+                <StyledTouchableOpacity onPress={requestGeolocationPermission}>
+                  <LocationSearching size={screenPercentageToDP('2.6', Orientation.Height)} />
+                </StyledTouchableOpacity>
+              )}
+            </EndAdornmentContainer>
+          }
+        />
+        {coords && coords.accuracy < RECOMMENDED_ACCURACY && (
+          <Button
+            buttonText={
+              <TranslatedText
+                stringId="program.survey.geolocate.action.saveLocation"
+                fallback="Save location"
+              />
+            }
+            backgroundColor={theme.colors.PRIMARY_MAIN}
+            marginTop={screenPercentageToDP(-0.5, Orientation.Height)}
+            marginBottom={screenPercentageToDP('1', Orientation.Height)}
+            width={screenPercentageToDP('12', Orientation.Height)}
+            onPress={handleSaveLocation}
+            {...buttonCommonStyles}
+          />
+        )}
+        <StyledView>
+          {error && (
+            <>
+              <StyledText
+                fontSize={screenPercentageToDP('1.33', Orientation.Height)}
+                fontWeight={500}
+                color={theme.colors.TEXT_SUPER_DARK}
+              >
+                <TranslatedText
+                  stringId="program.survey.geolocate.error.title"
+                  fallback="Location not detectable."
+                />
+              </StyledText>
+              <StyledText
+                fontSize={screenPercentageToDP('1.33', Orientation.Height)}
+                color={theme.colors.TEXT_SUPER_DARK}
+              >
+                <TranslatedText
+                  stringId="program.survey.geolocate.error.description"
+                  fallback="Your location is not detectable. Please stand outside in an open area or check your GPS settings and try again."
+                />
+              </StyledText>
+              <Button
+                buttonText={
+                  <TranslatedText
+                    stringId="program.survey.geolocate.action.cancelLocationSearch"
+                    fallback="Cancel location search"
+                  />
+                }
+                outline
+                borderColor={theme.colors.PRIMARY_MAIN}
+                borderWidth={0.1}
+                marginTop={screenPercentageToDP(1, Orientation.Height)}
+                width={screenPercentageToDP('20', Orientation.Height)}
+                onPress={handleCancelLocationSearch}
+                {...buttonCommonStyles}
+              />
+            </>
+          )}
+          {coords?.accuracy && coords.accuracy >= RECOMMENDED_ACCURACY && (
+            <>
+              <StyledText
+                fontSize={screenPercentageToDP('1.33', Orientation.Height)}
+                fontWeight={500}
+                color={theme.colors.TEXT_SUPER_DARK}
+              >
+                <TranslatedText
+                  stringId="program.survey.geolocate.lowAccuracy.title"
+                  fallback="Accuracy is low."
+                />
+              </StyledText>
+              <StyledText
+                fontSize={screenPercentageToDP('1.33', Orientation.Height)}
+                color={theme.colors.TEXT_SUPER_DARK}
+              >
+                <TranslatedText
+                  stringId="program.survey.geolocate.lowAccuracy.description"
+                  fallback="Your location accuracy is low and cannot be recorded. To improve accuracy, please stand outside in an open area and retry detecting current location."
+                />
+              </StyledText>
+            </>
+          )}
+        </StyledView>
+      </StyledView>
+      <Modal
+        isVisible={showModal}
+        onBackdropPress={onCloseModal}
+        deviceHeight={Dimensions.get('window').height}
+      >
+        <CenterView
+          style={{
+            backgroundColor: theme.colors.BACKGROUND_GREY,
+            borderRadius: 5,
+            maxHeight: screenPercentageToDP('24', Orientation.Height),
+            width: screenPercentageToDP('66', Orientation.Width),
+            padding: 20,
+            marginLeft: screenPercentageToDP('10', Orientation.Width),
+          }}
+        >
+          <Text
+            style={{
+              fontSize: screenPercentageToDP('1.45', Orientation.Height),
+              color: theme.colors.BLACK,
+              fontWeight: 'bold',
+              marginBottom: 10,
+            }}
+          >
+            <TranslatedText
+              stringId="program.survey.geolocate.removeLocation.title"
+              fallback="Remove tagged location?"
+            />
+          </Text>
+          <Text
+            style={{
+              fontSize: screenPercentageToDP('1.45', Orientation.Height),
+              textAlign: 'center',
+              color: theme.colors.BLACK,
+              marginBottom: 4,
+            }}
+          >
+            <TranslatedText
+              stringId="program.survey.geolocate.removeLocation.description"
+              fallback="Are you sure you want to remove the currently selected location?"
+            />
+          </Text>
+          <RowView
+            flexDirection="row"
+            justifyContent="center"
+            gap={screenPercentageToDP('1.5', Orientation.Height)}
+            width="95%"
+            marginTop={10}
+          >
+            <Button
+              outline
+              borderColor={theme.colors.PRIMARY_MAIN}
+              borderWidth={0.1}
+              buttonText={<TranslatedText stringId="general.action.cancel" fallback="Cancel" />}
+              width={screenPercentageToDP('12', Orientation.Height)}
+              onPress={onCloseModal}
+              {...buttonCommonStyles}
+            />
+            <Button
+              buttonText={<TranslatedText stringId="general.action.confirm" fallback="Confirm" />}
+              backgroundColor={theme.colors.PRIMARY_MAIN}
+              width={screenPercentageToDP('12', Orientation.Height)}
+              onPress={handleRemoveLocation}
+              {...buttonCommonStyles}
+            />
+          </RowView>
+        </CenterView>
+      </Modal>
+    </>
+  );
+};
