@@ -1,9 +1,9 @@
-import { centralSettings } from '../central';
-import { facilitySettings } from '../facility';
-import { globalSettings } from '../global';
+import { centralSettings } from '../schema/central';
+import { facilitySettings } from '../schema/facility';
+import { globalSettings } from '../schema/global';
 import { Setting } from './Setting';
 import { SettingsSchema } from './SettingsSchema';
-import { KEYS_EXPOSED_TO_FRONT_END } from '../../reader/ReadSettings'
+import { KEYS_EXPOSED_TO_FRONT_END } from '../reader/ReadSettings'
 
 // Type to generate the dot prefix
 type Subscript<T extends string> = T extends '' ? '' : `.${T}`;

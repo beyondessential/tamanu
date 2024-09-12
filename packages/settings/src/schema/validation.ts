@@ -4,7 +4,7 @@ import { centralSettings } from './central';
 import { facilitySettings } from './facility';
 import * as yup from 'yup';
 import _ from 'lodash';
-import { SettingsSchema } from './types';
+import { SettingsSchema } from '../types';
 import { isSetting } from './utils';
 
 const SCOPE_TO_SCHEMA = {

@@ -13,7 +13,7 @@ import { ReadSettings } from '@tamanu/settings/reader';
 
 /**
  * @typedef {import('./services/EmailService').EmailService} EmailService
- * @typedef {import('@tamanu/settings').CentralSettingPath} CentralSettingPath
+ * @typedef {import('@tamanu/settings/types').CentralSettingPath} CentralSettingPath
  * @typedef {import('@tamanu/settings').ReadSettings} ReadSettings
  */
 

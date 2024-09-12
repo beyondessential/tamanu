@@ -6,7 +6,7 @@ import { VERSION } from './middleware/versionCompatibility.js';
 import { ReadSettings } from '@tamanu/settings/reader';
 
 /**
- * @typedef {import('@tamanu/settings').FacilitySettingPath} FacilitySettingPath
+ * @typedef {import('@tamanu/settings/types').FacilitySettingPath} FacilitySettingPath
  * @typedef {import('@tamanu/settings').ReadSettings} ReadSettings
  * @typedef {import('sequelize').Sequelize} Sequelize
  * @typedef {import('@tamanu/shared/models')} Models
