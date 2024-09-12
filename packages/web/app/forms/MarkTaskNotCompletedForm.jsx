@@ -22,12 +22,10 @@ export const MarkTaskNotCompletedForm = ({ onClose, refreshTaskTable, taskIds })
   const { mutate: markTaskNotCompleted } = useMarkTaskNotCompleted();
 
   const onSubmit = async values => {
-    const { notCompletedTime, ...others } = values;
     markTaskNotCompleted(
       {
-        ...others,
+        ...values,
         taskIds,
-        notCompletedTime: new Date(notCompletedTime).toISOString(),
       },
       {
         onSuccess: () => {
@@ -62,7 +60,6 @@ export const MarkTaskNotCompletedForm = ({ onClose, refreshTaskTable, taskIds })
                   fallback="Record date & time"
                 />
               }
-              saveDateAsString
               required
               component={DateTimeField}
             />
