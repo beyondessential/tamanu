@@ -7,30 +7,29 @@ import { Colors } from '../../constants';
 import { APPOINTMENT_STATUS_COLORS } from './appointmentStatusIndicators';
 import { AppointmentStatusIcon as StatusIcon } from '../Icons';
 
-const selectedSelector = 'selected';
-
 const Wrapper = styled.div`
-  ${props =>
+  ${({ $color, $selected }) =>
     css`
-      --bg-lighter: oklch(from ${props.$color} l c h / 10%);
-      --bg-darker: oklch(from ${props.$color} l c h / 20%);
+      --bg-lighter: oklch(from ${$color} l c h / 10%);
+      --bg-darker: oklch(from ${$color} l c h / 20%);
       @supports not (color: oklch(from black l c h)) {
         // These work only with six-digit hex colours
-        --bg-lighter: ${props.$color}1a;
-        --bg-darker: ${props.$color}33;
+        --bg-lighter: ${$color}1a;
+        --bg-darker: ${$color}33;
       }
 
       background-color: var(--bg-lighter);
-      border-color: ${props.$color};
+      border-color: ${$color};
 
       &:hover {
         background-color: var(--bg-darker);
       }
 
-      &.${selectedSelector} {
-        border: 1px solid ${props.$color};
-        background-color: var(--bg-darker);
-      }
+      ${$selected &&
+        css`
+          border: 1px solid ${$color};
+          background-color: var(--bg-darker);
+        `}
     `}
 
   border-radius: 0.3125rem;
@@ -69,19 +68,17 @@ const getPatientFullName = ({ firstName, middleName, lastName }) => {
 
 export const AppointmentTile = ({
   appointment: { patient, startTime, status: appointmentStatus },
-  className,
   selected = false,
-}) => {
-  const classes = selected ? [className, selectedSelector].join('') : className;
-  return (
-    <Wrapper
-      className={classes}
-      $color={APPOINTMENT_STATUS_COLORS[appointmentStatus] ?? Colors.blue}
-    >
-      <Label $strikethrough={appointmentStatus === APPOINTMENT_STATUSES.NO_SHOW}>
-        <Timestamp date={new Date(startTime)} /> {getPatientFullName(patient)}
-      </Label>
-      <StatusIcon appointmentStatus={appointmentStatus} aria-hidden width={10} height={10} />
-    </Wrapper>
-  );
-};
+  ...props
+}) => (
+  <Wrapper
+    $color={APPOINTMENT_STATUS_COLORS[appointmentStatus] ?? Colors.blue}
+    $selected={selected}
+    {...props}
+  >
+    <Label $strikethrough={appointmentStatus === APPOINTMENT_STATUSES.NO_SHOW}>
+      <Timestamp date={new Date(startTime)} /> {getPatientFullName(patient)}
+    </Label>
+    <StatusIcon appointmentStatus={appointmentStatus} aria-hidden width={10} height={10} />
+  </Wrapper>
+);
