@@ -21,12 +21,10 @@ export const MarkTaskCompletedForm = ({ onClose, refreshTaskTable, taskIds }) =>
   const { mutate: markTaskCompleted, isLoading } = useMarkTaskCompleted();
 
   const onSubmit = async values => {
-    const { completedTime, ...others } = values;
     markTaskCompleted(
       {
-        ...others,
+        ...values,
         taskIds,
-        completedTime: new Date(completedTime).toISOString(),
       },
       {
         onSuccess: () => {
@@ -61,7 +59,6 @@ export const MarkTaskCompletedForm = ({ onClose, refreshTaskTable, taskIds }) =>
                   fallback="Completed date & time"
                 />
               }
-              saveDateAsString
               required
               component={DateTimeField}
             />
