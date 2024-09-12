@@ -87,8 +87,18 @@ export const MarkTaskNotCompletedForm = ({ onClose, refreshTaskTable, taskIds })
         </div>
       )}
       validationSchema={yup.object().shape({
-        notCompletedBy: yup.string().required(),
-        notCompletedTime: yup.date().required(),
+        notCompletedBy: yup
+          .string()
+          .required()
+          .translatedLabel(
+            <TranslatedText stringId="task.form.recordedBy.label" fallback="Recorded by" />,
+          ),
+        notCompletedTime: yup
+          .date()
+          .required()
+          .translatedLabel(
+            <TranslatedText stringId="task.form.recordTime.label" fallback="Record date & time" />,
+          ),
         notCompletedReasonId: yup.string(),
       })}
     />
