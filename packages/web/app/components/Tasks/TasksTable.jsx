@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { Box, Divider } from '@material-ui/core';
 import CheckCircleIcon from '@material-ui/icons/CheckCircle';
@@ -299,7 +299,7 @@ export const TasksTable = ({ encounterId, searchParameters, refreshCount, refres
   const { selectedRows, selectableColumn } = useSelectableColumn(data, {
     bulkDeselectOnly: true,
   });
-  const selectedRowIds = selectedRows.map(row => row.id);
+  const selectedRowIds = useMemo(() => selectedRows.map(row => row.id), [selectedRows]);
 
   const COLUMNS = [
     {
@@ -353,15 +353,13 @@ export const TasksTable = ({ encounterId, searchParameters, refreshCount, refres
 
   return (
     <div>
-      {actionModal && (
-        <TaskActionModal
-          open={true}
-          onClose={handleActionModalClose}
-          action={actionModal}
-          refreshTaskTable={refreshTaskTable}
-          taskIds={selectedTaskId ? [selectedTaskId] : selectedRowIds}
-        />
-      )}
+      <TaskActionModal
+        open={!!actionModal}
+        onClose={handleActionModalClose}
+        action={actionModal}
+        refreshTaskTable={refreshTaskTable}
+        taskIds={selectedTaskId ? [selectedTaskId] : selectedRowIds}
+      />
       {selectedRows.length > 0 && (
         <div>
           <Divider style={{ marginTop: '5px' }} />

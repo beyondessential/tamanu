@@ -19,7 +19,6 @@ export const useMarkTaskCompleted = () => {
 
   return useMutation({
     mutationFn: body => api.post('tasks/completed', body),
-    },
     onError: error => notifyError(error.message),
   });
 };
