@@ -3,10 +3,10 @@ import React from 'react';
 
 import { APPOINTMENT_STATUSES } from '@tamanu/constants';
 
-import { AppointmentTile } from '../../app/components/Scheduling/AppointmentTile';
+import { AppointmentTile } from '../../app/components/Appointments/AppointmentTile';
 
 export default {
-  title: 'Scheduling/Appointment Tile',
+  title: 'Appointments/Appointment Tile',
   component: AppointmentTile,
 };
 

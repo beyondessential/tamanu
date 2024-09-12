@@ -2,10 +2,10 @@ import React from 'react';
 
 import { APPOINTMENT_STATUSES } from '@tamanu/constants';
 
-import { AppointmentStatusChip } from '../../app/components/Scheduling/AppointmentStatusChip';
+import { AppointmentStatusChip } from '../../app/components/Appointments/AppointmentStatusChip';
 
 export default {
-  title: 'Scheduling/Appointment Status Token',
+  title: 'Appointments/Appointment Status Token',
   component: AppointmentStatusChip,
   argTypes: {
     appointmentStatus: {
