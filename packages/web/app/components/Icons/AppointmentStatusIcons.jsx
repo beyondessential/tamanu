@@ -5,7 +5,7 @@ import { Colors } from '../../constants';
 import {
   APPOINTMENT_STATUS_COLORS,
   APPOINTMENT_STATUS_ICONS,
-} from '../Scheduling/appointmentStatusIndicators';
+} from '../Appointments/appointmentStatusIndicators';
 
 const Svg = styled.svg.attrs({
   width: 10,
