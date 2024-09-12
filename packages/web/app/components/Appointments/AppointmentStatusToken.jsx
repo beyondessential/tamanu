@@ -4,16 +4,14 @@ import styled, { css } from 'styled-components';
 import { Colors } from '../../constants';
 import { APPOINTMENT_STATUS_COLORS } from './appointmentStatusIndicators';
 
-const deselectedSelector = 'inactive';
-
-const PillShape = styled.button`
-  ${props =>
+const PillShapedButton = styled.button`
+  ${({ $color }) =>
     css`
-      color: ${props.$color};
-      background-color: oklch(from ${props.$color} l c h / 10%);
+      color: ${$color};
+      background-color: oklch(from ${$color} l c h / 10%);
 
       @supports not (color: oklch(from black l c h)) {
-        background-color: ${props.$color}1a; // Works only with six-digit hex colour
+        background-color: ${$color}1a; // Works only with six-digit hex colour
       }
     `}
 
@@ -34,38 +32,37 @@ const PillShape = styled.button`
     background-color: ${Colors.veryLightBlue};
   }
 
-  &:disabled,
-  &.${deselectedSelector} {
-    border: 1px solid ${Colors.softText};
-    color: ${Colors.softText};
-  }
-
-  &.${deselectedSelector} {
-    background-color: ${Colors.white};
-  }
+  ${({ $deselected }) =>
+    $deselected &&
+    css`
+      border: 1px solid ${Colors.softText};
+      color: ${Colors.softText};
+      background-color: ${Colors.white};
+    `}
 
   &:disabled {
+    border: 1px solid ${Colors.softText};
+    color: ${Colors.softText};
     background-color: ${Colors.softOutline};
     cursor: not-allowed;
   }
 `;
 
-const Token = ({ color = Colors.blue, children, ...props }) => (
-  <PillShape $color={color} {...props}>
+const Chip = ({ color = Colors.blue, children, deselected, ...props }) => (
+  <PillShapedButton $color={color} $deselected={deselected} {...props}>
     {children}
-  </PillShape>
+  </PillShapedButton>
 );
 
-export const AppointmentStatusToken = ({ className, appointmentStatus, disabled, deselected }) => {
-  const classes = deselected ? [className, deselectedSelector].join('') : className;
+export const AppointmentStatusChip = ({ appointmentStatus, disabled, deselected, ...props }) => {
   return (
-    <Token
-      className={classes}
+    <Chip
       disabled={disabled}
       color={APPOINTMENT_STATUS_COLORS[appointmentStatus]}
       deselected={deselected}
+      {...props}
     >
       {appointmentStatus ?? <>&mdash;</>}
-    </Token>
+    </Chip>
   );
 };
