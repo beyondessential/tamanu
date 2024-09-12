@@ -29,10 +29,8 @@ transformations:
 ```
 
 This folder has subfolders, which can be used to either apply the full suite of
-masking, or only some subsections:
+masking, or only up to a set sensitivity level:
 
-- `personal`: person names, IDs, addresses, contacts
-- `clinical`: clinical patient data (like vitals, blood type, etc)
-- `dates`: clinically-relevant dates
-- `notes`: free-form text content and uploads
-- `legacy`: legacy fields that are outright nulled
+- `high`: masking for data that should never leave a production environment
+- `medium`: data masked to this level can be used for analytics purposes
+- `low`: data masked to this level can be used for simulation or testing
