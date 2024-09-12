@@ -1,0 +1,11 @@
+---
+schema: public
+name: encounters
+transformers:
+  - name: SetNull
+    params:
+      column: start_date_legacy
+
+  - name: SetNull
+    params:
+      column: end_date_legacy

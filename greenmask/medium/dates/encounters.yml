@@ -1,10 +1,10 @@
 ---
 schema: public
-name: encounter_medications
+name: encounters
 transformers:
   - name: Template
     params:
-      column: date
+      column: start_date
       template: '{{- fakerTimestamp -}}'
 
   - name: Template
@@ -19,17 +19,10 @@ transformers:
 
   - name: Template
     params:
-      column: discontinued_date
+      column: planned_location_start_time
       template: >
         {{- if isNull .GetValue -}}
           {{- null -}}
         {{- else -}}
           {{- fakerTimestamp -}}
         {{- end -}}
-
-  - name: SetNull
-    params:
-      column: date_legacy
-  - name: SetNull
-    params:
-      column: end_date_legacy

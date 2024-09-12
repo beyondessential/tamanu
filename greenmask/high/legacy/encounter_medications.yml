@@ -1,0 +1,11 @@
+---
+schema: public
+name: encounter_medications
+transformers:
+  - name: SetNull
+    params:
+      column: date_legacy
+
+  - name: SetNull
+    params:
+      column: end_date_legacy

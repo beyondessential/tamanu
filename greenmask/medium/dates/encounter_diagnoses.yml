@@ -6,7 +6,3 @@ transformers:
     params:
       column: date
       template: '{{- fakerTimestamp -}}'
-
-  - name: SetNull
-    params:
-      column: date_legacy

@@ -28,9 +28,14 @@ transformations:
     column: column_name
 ```
 
-This folder has subfolders, which can be used to either apply the full suite of
-masking, or only up to a set sensitivity level:
+Subfolders are used to control down to which sensitivity level data should be masked:
 
-- `high`: masking for data that should never leave a production environment
-- `medium`: data masked to this level can be used for analytics purposes
-- `low`: data masked to this level can be used for simulation or testing
+- `high/`: masks high-sensitivity data that should never leave production
+  - Data masked to this level becomes medium-sensitivity, and can be used for analytics purposes.
+  - `high/legacy/`: legacy, deprecated, and obsolete fields which are always nulled
+  - `high/notes/`: freeform contents of notes; nulls are preserved so presence/absence can be used for analytics
+  - `high/personal/`: personally-identifiable information
+- `medium/`: masks medium-sensitivity data that should be handled with care
+  - Data masked to this level becomes low-sensitivity, and can be used for simulation or testing.
+  - `medium/high/`: symlink to `high/`
+  - `medium/dates/`: clinically-relevant dates
