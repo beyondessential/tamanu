@@ -13,6 +13,45 @@ const ModalDescription = styled(BodyText)`
   margin-top: 20px;
 `;
 
+const getModalTitle = action => {
+  switch (action) {
+    case TASK_STATUSES.COMPLETED:
+      return (
+        <TranslatedText stringId="task.markAsCompleted.modal.title" fallback="Mark as completed" />
+      );
+    case TASK_STATUSES.NON_COMPLETED:
+      return (
+        <TranslatedText
+          stringId="task.markAsNotCompleted.modal.title"
+          fallback="Mark as not completed"
+        />
+      );
+    default:
+      return '';
+  }
+};
+
+const getModalDescription = action => {
+  switch (action) {
+    case TASK_STATUSES.COMPLETED:
+      return (
+        <TranslatedText
+          stringId="task.action.modal.description"
+          fallback="Complete details below to mark the task/s as completed."
+        />
+      );
+    case TASK_STATUSES.NON_COMPLETED:
+      return (
+        <TranslatedText
+          stringId="task.action.modal.description"
+          fallback="Complete details below to mark the task/s as not completed."
+        />
+      );
+    default:
+      return '';
+  }
+};
+
 export const TaskActionModal = ({ open, onClose, action, refreshTaskTable, taskIds }) => {
   const taskActionForm = useMemo(() => {
     switch (action) {
@@ -38,20 +77,8 @@ export const TaskActionModal = ({ open, onClose, action, refreshTaskTable, taskI
   }, [action]);
 
   return (
-    <FormModal
-      width="md"
-      title={
-        <TranslatedText stringId="task.markAsCompleted.modal.title" fallback="Mark as completed" />
-      }
-      open={open}
-      onClose={onClose}
-    >
-      <ModalDescription>
-        <TranslatedText
-          stringId="task.action.modal.description"
-          fallback="Complete details below to mark the task/s as not completed."
-        />
-      </ModalDescription>
+    <FormModal width="md" title={getModalTitle(action)} open={open} onClose={onClose}>
+      <ModalDescription>{getModalDescription(action)}</ModalDescription>
       {taskActionForm}
     </FormModal>
   );
