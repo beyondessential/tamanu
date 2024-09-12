@@ -970,7 +970,7 @@ describe('Sync Lookup data', () => {
 
     let regularSyncPatientsTable;
 
-    beforeAll(async () => {      
+    beforeAll(async () => {
       // This patient is not marked for sync because there's no patient_facilities created
       // so all attached lab requests should not be synced unless syncAllLabRequest = true
       const patient2 = await models.Patient.create(fake(models.Patient));
