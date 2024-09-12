@@ -18,12 +18,7 @@ const Wrapper = styled.div`
         --bg-darker: ${$color}33;
       }
 
-      background-color: var(--bg-lighter);
       border-color: ${$color};
-
-      &:hover {
-        background-color: var(--bg-darker);
-      }
 
       ${$selected &&
         css`
@@ -32,6 +27,7 @@ const Wrapper = styled.div`
         `}
     `}
 
+  background-color: var(--bg-lighter);
   border-radius: 0.3125rem;
   color: ${Colors.darkestText};
   cursor: pointer;
@@ -43,6 +39,10 @@ const Wrapper = styled.div`
   text-decoration-thickness: from-font;
   transition: background-color 150ms ease;
   touch-action: manipulation;
+
+  &:hover {
+    background-color: var(--bg-darker);
+  }
 `;
 
 const Label = styled.span`
