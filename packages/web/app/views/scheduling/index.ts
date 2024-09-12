@@ -1,2 +1,2 @@
 export { AppointmentsCalendar } from './AppointmentsCalendar';
-export { LocationBookingsView } from './LocationBookingsView';
+export { AppointmentsCalendar as AppointmentsCalendarOld } from './AppointmentsCalendarOld';
