@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import styled from 'styled-components';
 import { TASK_STATUSES } from '@tamanu/constants';
 
@@ -14,7 +14,7 @@ const ModalDescription = styled(BodyText)`
 `;
 
 export const TaskActionModal = ({ open, onClose, action, refreshTaskTable, taskIds }) => {
-  const getTaskActionForm = () => {
+  const taskActionForm = useMemo(() => {
     switch (action) {
       case TASK_STATUSES.COMPLETED:
         return (
@@ -35,7 +35,7 @@ export const TaskActionModal = ({ open, onClose, action, refreshTaskTable, taskI
       default:
         return null;
     }
-  };
+  }, [action]);
 
   return (
     <FormModal
@@ -52,7 +52,7 @@ export const TaskActionModal = ({ open, onClose, action, refreshTaskTable, taskI
           fallback="Complete details below to mark the task/s as not completed."
         />
       </ModalDescription>
-      {getTaskActionForm()}
+      {taskActionForm}
     </FormModal>
   );
 };
