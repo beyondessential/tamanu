@@ -970,7 +970,7 @@ describe('Sync Lookup data', () => {
 
     let regularSyncPatientsTable;
 
-    beforeAll(async () => {
+    beforeAll(async () => {      
       // This patient is not marked for sync because there's no patient_facilities created
       // so all attached lab requests should not be synced unless syncAllLabRequest = true
       const patient2 = await models.Patient.create(fake(models.Patient));
@@ -1201,6 +1201,48 @@ describe('Sync Lookup data', () => {
       expect(labRequestLogIds).toEqual([labRequestLog1.id]);
       expect(labTestIds).toEqual([labTest1.id]);
       expect(labTestPanelRequests).toEqual([labTestPanelRequest1.id]);
+    });
+
+    it("Updates existing encounter's isLabRequest to be TRUE when encounter got lab request attached to it ", async () => {
+      const patient3 = await models.Patient.create(fake(models.Patient));
+
+      const encounter3 = await models.Encounter.create(
+        fake(models.Encounter, {
+          patientId: patient3.id,
+          departmentId: department.id,
+          locationId: location.id,
+          examinerId: examiner.id,
+          startDate: '2023-12-21T04:59:51.851Z',
+        }),
+      );
+
+      await centralSyncManager.updateLookupTable();
+
+      const nonLabRequestEncounterLookupData = await models.SyncLookup.findOne({
+        where: { recordId: encounter3.id },
+      });
+
+      expect(nonLabRequestEncounterLookupData.isLabRequest).toBeFalse();
+
+      const labRequest = await models.LabRequest.create(
+        fake(models.LabRequest, {
+          departmentId: department.id,
+          collectedById: examiner.id,
+          encounterId: encounter3.id,
+        }),
+      );
+
+      await centralSyncManager.updateLookupTable();
+
+      const labRequestLookupData = await models.SyncLookup.findOne({
+        where: { recordId: labRequest.id },
+      });
+      const labRequestEncounterLookupData = await models.SyncLookup.findOne({
+        where: { recordId: encounter3.id },
+      });
+
+      expect(labRequestLookupData).toBeDefined();
+      expect(labRequestEncounterLookupData.isLabRequest).toBeTrue();
     });
   });
 });

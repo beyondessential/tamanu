@@ -80,7 +80,7 @@ export class Encounter extends Model {
         include: ['facility', 'locationGroup'],
       },
       'referralSource',
-      'diets'
+      'diets',
     ];
   }
 
@@ -198,7 +198,7 @@ export class Encounter extends Model {
       foreignKey: 'referralSourceId',
       as: 'referralSource',
     });
-    
+
     this.belongsToMany(models.ReferenceData, {
       through: models.EncounterDiet,
       as: 'diets',
@@ -287,7 +287,13 @@ export class Encounter extends Model {
         LEFT JOIN (
           SELECT DISTINCT encounter_id
           FROM lab_requests
+          WHERE updated_at_sync_tick > :since
         ) AS labs ON labs.encounter_id = encounters.id
+      `,
+      where: `
+        encounters.updated_at_sync_tick > :since
+        OR
+        labs.encounter_id IS NOT NULL
       `,
     };
   }
