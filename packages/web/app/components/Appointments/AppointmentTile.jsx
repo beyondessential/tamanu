@@ -1,11 +1,13 @@
 import React from 'react';
 import styled, { css } from 'styled-components';
+import { parseISO } from 'date-fns';
 
 import { APPOINTMENT_STATUSES } from '@tamanu/constants';
 
 import { Colors } from '../../constants';
 import { APPOINTMENT_STATUS_COLORS } from './appointmentStatusIndicators';
 import { AppointmentStatusIcon as StatusIcon } from '../Icons';
+import { formatTime } from '../DateDisplay';
 
 const Wrapper = styled.div`
   ${({ $color, $selected }) =>
@@ -55,11 +57,7 @@ const Label = styled.span`
     `}
 `;
 
-const Timestamp = ({ date }) => (
-  <time dateTime={date.toISOString()}>
-    {date.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}
-  </time>
-);
+const Timestamp = ({ date }) => <time dateTime={date.toISOString()}>{formatTime(date)}</time>;
 
 const getPatientFullName = ({ firstName, middleName, lastName }) => {
   const names = [firstName, middleName, lastName].map(n => n ?? '');
@@ -77,7 +75,7 @@ export const AppointmentTile = ({
     {...props}
   >
     <Label $strikethrough={appointmentStatus === APPOINTMENT_STATUSES.NO_SHOW}>
-      <Timestamp date={new Date(startTime)} /> {getPatientFullName(patient)}
+      <Timestamp date={parseISO(startTime)} /> {getPatientFullName(patient)}
     </Label>
     <StatusIcon appointmentStatus={appointmentStatus} aria-hidden width={10} height={10} />
   </Wrapper>
