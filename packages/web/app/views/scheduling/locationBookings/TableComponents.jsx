@@ -26,17 +26,23 @@ const CalendarHeaderCell = styled.th`
   --border: max(0.0625rem, 1px) solid ${Colors.outline};
   border-block-end: var(--border);
   border-inline-end: var(--border);
+  font-weight: 400;
   padding-block: 0.25rem;
   padding-inline: 1rem;
   position: sticky;
   transition: background-color 100ms ease;
 `;
-export const CalendarRowHeader = styled(CalendarHeaderCell).attrs({ scope: 'col' })``;
-export const CalendarColumnHeader = styled(CalendarHeaderCell).attrs({ scope: 'row' })``;
+export const CalendarRowHeader = styled(CalendarHeaderCell).attrs({ scope: 'col' })`
+  text-align: center;
+`;
+export const CalendarColumnHeader = styled(CalendarHeaderCell).attrs({ scope: 'row' })`
+  text-align: start;
+`;
 
 export const CalendarCell = styled.td`
   cursor: pointer;
-  inline-size: max(40rem, var(--target-col-width));
+  inline-size: var(--target-col-width);
+  min-inline-size: 10rem;
   padding-block: 0.25rem;
   padding-inline: 0.5rem;
   transition: background-color 100ms ease;

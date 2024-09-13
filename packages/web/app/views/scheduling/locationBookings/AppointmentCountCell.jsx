@@ -7,7 +7,6 @@ import { CalendarRowHeader } from './TableComponents';
 
 const StyledHead = styled(CalendarRowHeader)`
   color: ${Colors.midText};
-  font-weight: 400;
   text-align: end;
 `;
 

@@ -2,11 +2,16 @@ import Chance from 'chance';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
-import { useAppointments } from '../../../api/queries';
+import { useAppointments, useLocations } from '../../../api/queries';
 import { Colors } from '../../../constants';
 import { PageContainer, TopBar, TranslatedText } from '../../../components';
 import { AppointmentCountCell } from './AppointmentCountCell';
-import { CalendarCell, CalendarTable, CalendarRowHeader } from './TableComponents';
+import {
+  CalendarCell,
+  CalendarTable,
+  CalendarRowHeader,
+  CalendarColumnHeader,
+} from './TableComponents';
 
 // BEGIN PLACEHOLDERS
 
@@ -20,7 +25,6 @@ const Placeholder = styled.div`
   color: oklch(0% 0 0 / 55%);
   display: grid;
   font-size: 1rem;
-  inline-size: 100%;
   padding: 0.5rem;
   place-items: center;
   text-align: center;
@@ -59,9 +63,10 @@ export const LocationBookingsView = () => {
   const [weekCount, setWeekCount] = useState(6);
   const [dayCount, setDayCount] = useState(weekCount * 7);
   const { data: appointments } = useAppointments();
+  const { data: locations } = useLocations();
 
   console.log('locations', locations);
-  console.log('locations', appointments);
+  console.log('appointments', appointments);
 
   return (
     <Wrapper>
@@ -76,27 +81,32 @@ export const LocationBookingsView = () => {
       <Carousel>
         <CalendarTable
           style={{
-            '--location-count': locations.length,
+            '--location-count': locations?.length ?? 0,
             '--week-count': weekCount,
           }}
         >
           <thead>
             <tr>
+              <CalendarColumnHeader>
+                <Placeholder>Month Selector</Placeholder>
+              </CalendarColumnHeader>
               {Array.from({ length: dayCount }).map(() => (
-                <CalendarRowHeader key={chance.syllable()}>{chance.syllable()}</CalendarRowHeader>
+                <CalendarRowHeader key={chance.last()}>{chance.last()}</CalendarRowHeader>
               ))}
             </tr>
             <tr>
+              <CalendarColumnHeader />
               {Array.from({ length: dayCount }).map(() => (
                 <AppointmentCountCell count={0} />
               ))}
             </tr>
           </thead>
           <tbody>
-            {Array.from({ length: locations.length * 10 }).map(() => (
-              <tr>
+            {locations?.map(({ name: locationName, code }) => (
+              <tr key={code}>
+                <CalendarColumnHeader>{locationName}</CalendarColumnHeader>
                 {Array.from({ length: dayCount }).map(() => (
-                  <CalendarCell>{chance.syllable()}</CalendarCell>
+                  <CalendarCell />
                 ))}
               </tr>
             ))}
