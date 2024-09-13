@@ -12,13 +12,6 @@ import { CalendarCell, CalendarTable, CalendarRowHeader } from './TableComponent
 
 const chance = new Chance();
 
-const locations = Array.from({ length: 8 }, () => ({
-  id: chance.guid(),
-  code: chance.syllable(),
-  name: chance.sentence({ words: 3 }).slice(0, -1),
-  locationGroupId: chance.guid(),
-}));
-
 const Placeholder = styled.div`
   background-color: oklch(0% 0 0 / 3%);
   block-size: 100%;
