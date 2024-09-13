@@ -14,6 +14,7 @@ const StyledHeader = styled(CalendarColumnHeader)`
 
 const Weekday = styled.div`
   color: ${Colors.midText};
+  display: contents;
   font-variant-caps: all-small-caps;
   font-weight: 500;
   letter-spacing: 0.1em;
