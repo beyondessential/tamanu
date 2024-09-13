@@ -1,3 +1,4 @@
+export { useAppointments } from './useAppointments';
 export * from './useHierarchyTypesQuery';
 export * from './useVitalsSurveyQuery';
 export * from './useReferenceData';
