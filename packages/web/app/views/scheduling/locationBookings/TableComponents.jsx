@@ -26,8 +26,8 @@ export const CalendarTable = styled.table`
 `;
 
 export const CalendarTableRow = styled.tr`
-  > :is(th[scope='col'], td):nth-child(7n),
-  > :is(th[scope='col'], td):nth-child(7n + 1) {
+  > :is(th[scope='col'], td):not(:hover):nth-child(7n),
+  > :is(th[scope='col'], td):not(:hover):nth-child(7n + 1) {
     background-color: oklch(from ${Colors.softOutline} l c h / 30%);
     @supports not (color: oklch(from black l c h)) {
       background-color: ${Colors.softOutline}4d; // Works only with six-digit hex colour
