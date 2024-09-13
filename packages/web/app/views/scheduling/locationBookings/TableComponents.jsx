@@ -21,6 +21,7 @@ export const CalendarTable = styled.table`
 
   tbody th {
     inline-size: var(--header-col-width);
+    min-inline-size: var(--header-col-width);
     padding-inline-end: 1rem;
   }
 `;
