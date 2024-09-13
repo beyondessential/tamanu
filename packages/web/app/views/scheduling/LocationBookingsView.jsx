@@ -46,11 +46,12 @@ const Filters = styled('search')`
 `;
 
 const GridCarousel = styled.div`
-  block-size: 100%;
-  inline-size: 100%;
-  overflow: auto;
   background-color: ${Colors.white};
+  border: max(0.0625rem, 1px) solid ${Colors.outline};
+  border-radius: 0.2rem;
   margin: 1rem;
+  overflow: auto;
+  scroll-snap-type: inline mandatory;
 `;
 
 const CalendarGrid = styled.div`
@@ -62,13 +63,12 @@ const CalendarGrid = styled.div`
   --target-col-width: calc((100% - var(--header-col-width)) / 7.5);
   --col-width: max(10rem, var(--target-col-width));
 
-  border: max(0.0625rem, 1px) solid ${Colors.outline};
-  border-radius: 0.2rem;
   display: grid;
   grid-auto-flow: column;
   grid-template-columns: 1rem repeat(calc(var(--day-count)), var(--col-width));
   grid-template-rows: repeat(var(--location-count), minmax(2.25rem, max-content));
-  scroll-snap-type: inline mandatory;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
 `;
 
 const TableCarousel = styled.table`
@@ -257,7 +257,7 @@ export const LocationBookingsView = () => {
           }}
         >
           {Array.from({ length: locations.length * 6 * 7 }, (_, i) => (
-            <CalendarCell key={i} />
+            <CalendarCell key={i}>{chance.name()}</CalendarCell>
           ))}
         </CalendarGrid>
       </GridCarousel>
