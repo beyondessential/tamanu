@@ -37,7 +37,8 @@ export interface TextFieldProps extends BaseInputProps {
   label?: TranslatedTextElement
   labelColor?: string;
   labelFontWeight?: string;
-  labelFontSize?: string;
+  labelFontSize?: string | number;
+  fieldFontSize?: string | number;
   required?: boolean;
 }
 
@@ -72,6 +73,7 @@ export const TextField = React.memo(
     inputRef,
     onSubmitEditing,
     labelFontSize,
+    fieldFontSize,
   }: TextFieldProps): JSX.Element => {
     const [focused, setFocus] = useState(false);
     const defaultRef: RefObject<any> = useRef(null);
@@ -121,6 +123,7 @@ export const TextField = React.memo(
             testID={label?.props?.fallback || label}
             value={!hideValue && value}
             height={inputHeight}
+            fieldFontSize={fieldFontSize}
             ref={ref}
             autoCapitalize={keyboardType === 'email-address' ? 'none' : autoCapitalize}
             autoFocus={autoFocus}

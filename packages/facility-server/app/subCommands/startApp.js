@@ -58,10 +58,21 @@ const startApp = appType => async ({ skipMigrationCheck }) => {
     config,
   });
 
-  const { server } =
-    appType === APP_TYPES.SYNC ? await createSyncApp(context) : await createApiApp(context);
+  let server, port;
+  switch (appType) {
+    case APP_TYPES.API:
+      ({ server } = await createApiApp(context));
+      ({ port } = config);
+      break;
+    case APP_TYPES.SYNC:
+      ({ server } = await createSyncApp(context));
+      ({ port } = config.sync.syncApiConnection);
+      break;
+    default:
+      throw new Error(`Unknown app type: ${appType}`);
+  }
 
-  const { port } = config;
+  if (+process.env.PORT) { port = +process.env.PORT; }
   server.listen(port, () => {
     log.info(`Server is running on port ${port}!`);
   });

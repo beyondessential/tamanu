@@ -6,12 +6,16 @@ import {
 } from '@tamanu/constants';
 import { InvalidOperationError } from '../errors';
 import { Model } from './Model';
-import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
+import {
+  buildEncounterLinkedSyncFilter,
+  buildEncounterLinkedSyncFilterJoins,
+} from './buildEncounterLinkedSyncFilter';
 import { runCalculations } from '../utils/calculations';
 import { getActiveActionComponents, getResultValue, getStringValue } from '../utils/fields';
 import { getPatientDataDbLocation } from '../utils/getPatientDataDbLocation';
 import { dateTimeType } from './dateTimeTypes';
 import { getCurrentDateTimeString } from '../utils/dateTime';
+import { buildEncounterPatientIdSelect } from './buildPatientLinkedLookupFilter';
 
 async function createPatientIssues(models, questions, patientId) {
   const issueQuestions = questions.filter(
@@ -148,6 +152,7 @@ export class SurveyResponse extends Model {
         endTime: dateTimeType('endTime', { allowNull: true }),
         result: { type: Sequelize.FLOAT, allowNull: true },
         resultText: { type: Sequelize.TEXT, allowNull: true },
+        notified: { type: Sequelize.BOOLEAN, allowNull: true }, // null is not notified, false is notified but not yet processed, true is processed
       },
       {
         syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
@@ -186,7 +191,17 @@ export class SurveyResponse extends Model {
     if (patientCount === 0) {
       return null;
     }
-    return buildEncounterLinkedSyncFilter([this.tableName, 'encounters'], markedForSyncPatientsTable);
+    return buildEncounterLinkedSyncFilter(
+      [this.tableName, 'encounters'],
+      markedForSyncPatientsTable,
+    );
+  }
+
+  static buildSyncLookupQueryDetails() {
+    return {
+      select: buildEncounterPatientIdSelect(this),
+      joins: buildEncounterLinkedSyncFilterJoins([this.tableName, 'encounters']),
+    };
   }
 
   static async getSurveyEncounter({
@@ -297,6 +312,7 @@ export class SurveyResponse extends Model {
       // this is used by reports test where the resultText
       // is included in the payload
       ...responseData,
+      notified: responseData?.endTime && survey?.notifiable ? false : null,
     });
 
     const findDataElement = id => {

@@ -19,9 +19,9 @@ import {
   Form,
   ImagingPriorityField,
   MultiselectField,
+  SelectField,
   TextField,
   TextInput,
-  TranslatedSelectField,
 } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
 import { FormCancelButton } from '../components/Button';
@@ -29,9 +29,7 @@ import { ButtonRow, DateDisplay, FormSeparatorLine } from '../components';
 import { FormSubmitDropdownButton } from '../components/DropdownButton';
 import { TranslatedReferenceData, TranslatedText } from '../components/Translation';
 import { useTranslation } from '../contexts/Translation';
-import { IMAGING_TYPES } from '@tamanu/constants';
 import { renderToText } from '../utils';
-import { camelCase } from 'lodash';
 
 function getEncounterTypeLabel(type) {
   return ENCOUNTER_OPTIONS.find(x => x.value === type).label;
@@ -98,11 +96,16 @@ export const ImagingRequestForm = React.memo(
     const { getTranslation } = useTranslation();
     const { getLocalisation } = useLocalisation();
     const imagingTypes = getLocalisation('imagingTypes') || {};
+    const imagingTypeOptions = Object.entries(imagingTypes).map(([key, val]) => ({
+      label: val.label,
+      value: key,
+    }));
 
     const { examiner = {} } = encounter;
     const examinerLabel = examiner.displayName;
     const encounterLabel = getEncounterLabel(encounter);
     const { getAreasForImagingType } = useImagingRequestAreas();
+    const requiredValidationMessage = getTranslation('validation.required.inline', '*Required');
     return (
       <Form
         onSubmit={onSubmit}
@@ -113,11 +116,29 @@ export const ImagingRequestForm = React.memo(
         }}
         formType={editedObject ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
         validationSchema={yup.object().shape({
-          requestedById: foreignKey(getTranslation('validation.required.inline', '*Required')),
-          requestedDate: yup
-            .date()
-            .required(getTranslation('validation.required.inline', '*Required')),
-          imagingType: foreignKey(getTranslation('validation.required.inline', '*Required')),
+          requestedById: foreignKey(requiredValidationMessage),
+          requestedDate: yup.date().required(requiredValidationMessage),
+          imagingType: foreignKey(requiredValidationMessage),
+          areas: yup.string().when('imagingType', {
+            is: imagingType => {
+              const imagingAreas = getAreasForImagingType(imagingType);
+              return imagingAreas.length > 0;
+            },
+            then: yup
+              .string()
+              .min(3, requiredValidationMessage) // Empty input is '[]', so validating that it's got at least one value in the array
+              .required(requiredValidationMessage),
+          }),
+          areaNote: yup.string().when('imagingType', {
+            is: imagingType => {
+              const imagingAreas = getAreasForImagingType(imagingType);
+              return imagingAreas.length === 0;
+            },
+            then: yup
+              .string()
+              .trim()
+              .required(requiredValidationMessage),
+          }),
         })}
         showInlineErrorsOnly
         render={({ submitForm, values }) => {
@@ -205,22 +226,8 @@ export const ImagingRequestForm = React.memo(
                   />
                 }
                 required
-                enumValues={IMAGING_TYPES}
-                component={TranslatedSelectField}
-                transformOptions={options => {
-                  const availableTypes = Object.keys(imagingTypes);
-                  return options
-                    .filter(option => availableTypes.includes(camelCase(option.value)))
-                    .map(option => {
-                      const imagingTypeKey = camelCase(option.value);
-                      const { label } = imagingTypes[imagingTypeKey];
-                      return {
-                        ...option,
-                        value: imagingTypeKey,
-                        label: getTranslation(option.label.stringId, label),
-                      };
-                    });
-                }}
+                component={SelectField}
+                options={imagingTypeOptions}
               />
               {imagingAreas.length > 0 ? (
                 <Field
@@ -239,6 +246,7 @@ export const ImagingRequestForm = React.memo(
                     <TranslatedText stringId="imaging.areas.label" fallback="Areas to be imaged" />
                   }
                   component={MultiselectField}
+                  required
                 />
               ) : (
                 <Field
@@ -253,6 +261,7 @@ export const ImagingRequestForm = React.memo(
                   multiline
                   style={{ gridColumn: '1 / -1' }}
                   minRows={3}
+                  required
                 />
               )}
               <Field

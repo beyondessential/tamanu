@@ -9,10 +9,12 @@
 
 import { screen } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
+import Chance from 'chance';
 import * as React from 'react';
 import { assert, describe, it, vi } from 'vitest';
-import * as XLSX from 'xlsx';
+import { getCurrentDateString } from '@tamanu/shared/utils/dateTime';
 import { DownloadDataButton } from '../../../app/components/Table/DownloadDataButton';
+import * as fileSystemAccess from '../../../app/utils/fileSystemAccess';
 import {
   culturalName,
   dateOfBirth,
@@ -47,7 +49,7 @@ const mockTranslationContext = {
 };
 
 const getTranslationSpy = vi.spyOn(mockTranslationContext, 'getTranslation');
-const sheetToJsonSpy = vi.spyOn(XLSX.utils, 'json_to_sheet');
+const saveFileSpy = vi.spyOn(fileSystemAccess, 'saveFile');
 
 /** {@link DownloadDataButton} must be rendered within a translation context */
 const render = element => renderElementWithTranslatedText(element, null, mockTranslationContext);
@@ -87,15 +89,20 @@ describe('DownloadDataButton', () => {
     expect(button.textContent).toBe('🌐 Export 🌐');
   });
 
-  it('does attempt to generate a spreadsheet', async () => {
+  it('does attempt to save a spreadsheet', async () => {
     const user = userEvent.setup();
-    render(<DownloadDataButton exportName="Export" columns={columns} data={data} />);
+    const exportName = new Chance().string();
+    render(<DownloadDataButton exportName={exportName} columns={columns} data={data} />);
 
     const button = screen.getByTestId('download-data-button');
     await user.click(button);
 
-    // Ideally this would check the arguments with which the spy is called, but those objects depend
-    // on `renderToText` working in this testing environment
-    expect(sheetToJsonSpy).toHaveBeenCalledTimes(1);
+    expect(saveFileSpy).toHaveBeenCalledTimes(1);
+    expect(saveFileSpy).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        defaultFileName: `${exportName}-${getCurrentDateString()}`,
+        extension: 'xlsx',
+      }),
+    );
   });
 });

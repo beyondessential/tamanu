@@ -9,6 +9,7 @@ import { Colors } from '../../constants';
 import { PatientNameDisplay } from '../PatientNameDisplay';
 import { AppointmentDetail } from './AppointmentDetail';
 import { DateDisplay } from '../DateDisplay';
+import { APPOINTMENT_STATUSES } from '@tamanu/constants';
 
 const StyledTooltip = styled(({ className, ...props }) => (
   <Tooltip {...props} classes={{ popper: className }} />
@@ -28,6 +29,12 @@ const StyledTooltip = styled(({ className, ...props }) => (
     color: ${Colors.outline};
   }
 `;
+
+const statusIcons = {
+  [APPOINTMENT_STATUSES.CONFIRMED]: <RadioButtonUncheckedIcon />,
+  [APPOINTMENT_STATUSES.ARRIVED]: <CheckCircleIcon />,
+  [APPOINTMENT_STATUSES.NO_SHOW]: <CancelIcon />,
+};
 
 export const Appointment = ({ appointment, onUpdated }) => {
   const { startTime, patient, status } = appointment;
@@ -58,11 +65,7 @@ export const Appointment = ({ appointment, onUpdated }) => {
           </Box>
           <DateDisplay date={startTime} showDate={false} showTime />
         </div>
-        <div className="icon">
-          {status === 'Confirmed' && <RadioButtonUncheckedIcon />}
-          {status === 'Arrived' && <CheckCircleIcon />}
-          {status === 'No-show' && <CancelIcon />}
-        </div>
+        <div className="icon">{statusIcons[status]}</div>
       </StyledAppointment>
     </StyledTooltip>
   );
