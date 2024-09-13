@@ -120,7 +120,7 @@ export async function exportProgram(context, programId) {
           'config',
           'visibilityStatus',
         ],
-        ...groupedSurveyRecords[survey.id].map((s, i, a) => [
+        ...(groupedSurveyRecords[survey.id] || []).map((s, i, a) => [
           s.code,
           s.type,
           s.name,
