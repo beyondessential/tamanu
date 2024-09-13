@@ -1,4 +1,10 @@
-import { OTHER_REFERENCE_TYPES, REFERENCE_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
+import {
+  IMAGING_REQUEST_STATUS_TYPES,
+  LAB_REQUEST_STATUSES,
+  OTHER_REFERENCE_TYPES,
+  REFERENCE_TYPES,
+  VISIBILITY_STATUSES,
+} from '@tamanu/constants';
 import { NotFoundError } from '@tamanu/shared/errors';
 import { QueryTypes } from 'sequelize';
 
@@ -8,7 +14,6 @@ import { QueryTypes } from 'sequelize';
  * and return the dummy potential invoice line items for the ones that have not been created yet.
  * @param {import('sequelize').Sequelize} db
  * @param {string} invoiceId
- * @param {string[]} imagingTypes
  */
 export const getPotentialInvoiceItems = async (db, invoiceId, imagingTypes) => {
   const encounterId = await db
@@ -27,7 +32,16 @@ export const getPotentialInvoiceItems = async (db, invoiceId, imagingTypes) => {
   if (!encounterId) throw new NotFoundError(`invoice ${invoiceId} not found`);
 
   return await db.query(
-    `with filtered_procedures as (
+    `with filtered_products as (
+	select
+		ip.id,
+		ip.name,
+		ip.price,
+    ip.discountable
+	from invoice_products ip
+	where ip.deleted_at is null and ip.visibility_status = :visibilityStatus
+),
+filtered_procedures as (
 	select
 		rd.type as "sourceType",
 		p.id as "sourceId",
@@ -44,9 +58,9 @@ filtered_imagings as (
 	select
 		:imagingType as "sourceType",
 		ir.id as "sourceId",
-		ir.imaging_type as "productId",
+		coalesce(fpa.id, fp.id) as "productId", --priority imaging area price over imaging type price
 		ir."requested_date" as "date",
-		rd.code as "productCode",
+		irt.code as "productCode",
 		ir.requested_by_id as "orderedByUserId"
 	from imaging_requests ir
 	join (
@@ -54,8 +68,13 @@ filtered_imagings as (
 			"unnest" as "id",
 			"unnest" as "code"
 		from unnest(array[:imagingTypes])
-	) as rd on rd.id = ir.imaging_type
-	where ir.deleted_at is null
+	) as irt on irt.id = ir.imaging_type
+	left join imaging_request_areas ira on ira.imaging_request_id = ir.id and ira.deleted_at is null
+	left join reference_data rd on rd.deleted_at is null and rd.visibility_status = :visibilityStatus and rd.id = ira.area_id
+	left join filtered_products fpa on fpa.id = rd.id
+	left join filtered_products fp on fp.id = ir.imaging_type
+	where ir.status NOT IN (:excludedImagingRequestStatuses)
+	and ir.deleted_at is null
 	and ir.encounter_id = :encounterId
 ),
 filtered_labtests as (
@@ -69,17 +88,9 @@ filtered_labtests as (
 	from lab_tests lt
 	join lab_requests lr on lr.deleted_at is null and lr.id = lt.lab_request_id
 	join lab_test_types ltt on ltt.deleted_at is null and ltt.visibility_status = :visibilityStatus and ltt.id = lt.lab_test_type_id
-	where lt.deleted_at is null
+	where lr.status NOT IN (:excludedLabRequestStatuses)
+	and lt.deleted_at is null
 	and lr.encounter_id = :encounterId
-),
-filtered_products as (
-	select
-		ip.id,
-		ip.name,
-		ip.price,
-    ip.discountable
-	from invoice_products ip
-	where ip.deleted_at is null and ip.visibility_status = :visibilityStatus
 )
 select
 	fpd.id as "productId",
@@ -102,6 +113,14 @@ join users u on u.deleted_at is null and coalesce(fpc."orderedByUserId",fi."orde
         encounterId,
         imagingType: REFERENCE_TYPES.IMAGING_TYPE,
         imagingTypes,
+        excludedLabRequestStatuses: [
+          LAB_REQUEST_STATUSES.RECEPTION_PENDING,
+          LAB_REQUEST_STATUSES.CANCELLED,
+          LAB_REQUEST_STATUSES.DELETED,
+          LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED,
+          LAB_REQUEST_STATUSES.ENTERED_IN_ERROR,
+        ],
+        excludedImagingRequestStatuses: [IMAGING_REQUEST_STATUS_TYPES.PENDING],
         labtestType: OTHER_REFERENCE_TYPES.LAB_TEST_TYPE,
         visibilityStatus: VISIBILITY_STATUSES.CURRENT,
       },

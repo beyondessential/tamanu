@@ -49,6 +49,7 @@ sync.get(
     ).map(num => parseInt(num));
     const lastCompletedDurationMs = syncManager.lastDurationMs;
     const { lastCompletedAt } = syncManager;
+    const lastCompletedAgo = lastCompletedAt ? new Date() - new Date(lastCompletedAt) : 0;
 
     const isSyncRunning = syncManager.isSyncRunning();
     const currentDuration = isSyncRunning ? new Date().getTime() - syncManager.currentStartTime : 0;
@@ -57,6 +58,7 @@ sync.get(
       lastCompletedPull,
       lastCompletedPush,
       lastCompletedAt,
+      lastCompletedAgo,
       lastCompletedDurationMs,
       currentDuration,
       isSyncRunning,

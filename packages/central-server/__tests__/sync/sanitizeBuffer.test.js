@@ -43,6 +43,7 @@ describe('sanitize binary data', () => {
 
             await createSnapshotTable(ctx.store.sequelize, syncSession.id);
             const result = await snapshotOutgoingChanges(
+              ctx.store,
               { Asset },
               tock - 1,
               0,
@@ -51,7 +52,6 @@ describe('sanitize binary data', () => {
               '',
               {
                 syncAllLabRequests: false,
-                syncAllEncountersForTheseVaccines: [],
                 isMobile: false,
               },
             );

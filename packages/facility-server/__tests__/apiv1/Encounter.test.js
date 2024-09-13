@@ -314,6 +314,13 @@ describe('Encounter', () => {
         ...(await randomLabRequest(models, {
           patientId: patient.id,
           encounterId: encounter.id,
+          status: LAB_REQUEST_STATUSES.INVALIDATED,
+        })),
+      });
+      await models.LabRequest.create({
+        ...(await randomLabRequest(models, {
+          patientId: patient.id,
+          encounterId: encounter.id,
           status: LAB_REQUEST_STATUSES.DELETED,
         })),
       });
@@ -327,8 +334,8 @@ describe('Encounter', () => {
 
       const result = await app.get(`/api/encounter/${encounter.id}/labRequests`);
       expect(result).toHaveSucceeded();
-      expect(result.body.count).toEqual(3);
-      expect(result.body.data.length).toEqual(3);
+      expect(result.body.count).toEqual(4);
+      expect(result.body.data.length).toEqual(4);
     });
 
     it('should get the correct count for a list of lab requests', async () => {
@@ -952,7 +959,7 @@ describe('Encounter', () => {
         });
 
         testDiagnosis = await models.ReferenceData.create({
-          type: 'icd10',
+          type: 'diagnosis',
           name: 'Malady',
           code: 'malady',
         });

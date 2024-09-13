@@ -25,4 +25,8 @@ export class LabTestPanelLabTestTypes extends Model {
   static buildSyncFilter() {
     return null; // syncs everywhere
   }
+
+  static buildSyncLookupQueryDetails() {
+    return null; // syncs everywhere
+  }
 }

@@ -1,4 +1,4 @@
-import { VISIBILITY_STATUSES } from './importable';
+import { VISIBILITY_STATUSES } from './importable.js';
 
 export const LAB_REQUEST_STATUSES = {
   RECEPTION_PENDING: 'reception_pending',
@@ -7,6 +7,7 @@ export const LAB_REQUEST_STATUSES = {
   VERIFIED: 'verified',
   PUBLISHED: 'published',
   CANCELLED: 'cancelled',
+  INVALIDATED: 'invalidated',
   DELETED: 'deleted',
   SAMPLE_NOT_COLLECTED: 'sample-not-collected',
   ENTERED_IN_ERROR: 'entered-in-error',
@@ -20,6 +21,7 @@ export const LAB_REQUEST_STATUS_LABELS = {
   [LAB_REQUEST_STATUSES.PUBLISHED]: 'Published',
   [LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED]: 'Sample not collected',
   [LAB_REQUEST_STATUSES.CANCELLED]: 'Cancelled',
+  [LAB_REQUEST_STATUSES.INVALIDATED]: 'Invalidated',
   [LAB_REQUEST_STATUSES.DELETED]: 'Deleted',
   [LAB_REQUEST_STATUSES.ENTERED_IN_ERROR]: 'Entered in error',
 };
@@ -51,6 +53,10 @@ export const LAB_REQUEST_STATUS_CONFIG = {
   },
   [LAB_REQUEST_STATUSES.CANCELLED]: {
     label: LAB_REQUEST_STATUS_LABELS[LAB_REQUEST_STATUSES.CANCELLED],
+    color: '#444444',
+  },
+  [LAB_REQUEST_STATUSES.INVALIDATED]: {
+    label: LAB_REQUEST_STATUS_LABELS[LAB_REQUEST_STATUSES.INVALIDATED],
     color: '#444444',
   },
   [LAB_REQUEST_STATUSES.DELETED]: {

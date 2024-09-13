@@ -6,7 +6,7 @@ export const findSyncSnapshotRecords = async (
   sequelize,
   sessionId,
   direction,
-  fromId = '00000000-0000-0000-0000-000000000000',
+  fromId = 0,
   limit = Number.MAX_SAFE_INTEGER,
   recordType,
 ) => {

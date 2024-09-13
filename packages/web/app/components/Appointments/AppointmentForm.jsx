@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 import * as yup from 'yup';
-import { APPOINTMENT_STATUSES, APPOINTMENT_TYPES } from '@tamanu/constants';
+import { APPOINTMENT_STATUSES, APPOINTMENT_TYPE_LABELS } from '@tamanu/constants';
 import { FormGrid } from '../FormGrid';
 import { AutocompleteField, DateTimeField, Field, Form, TranslatedSelectField } from '../Field';
 import { FormSubmitCancelRow } from '../ButtonRow';
@@ -102,7 +102,7 @@ export const AppointmentForm = props => {
               }
               name="type"
               component={TranslatedSelectField}
-              enumValues={APPOINTMENT_TYPES}
+              enumValues={APPOINTMENT_TYPE_LABELS}
               required
             />
           </FormGrid>
@@ -149,7 +149,7 @@ export const AppointmentForm = props => {
                   isUpdating ? (
                     <TranslatedText
                       stringId="scheduling.newAppointment.action.updateAppointment"
-                      fallback="'Update appointment'"
+                      fallback="Update appointment"
                     />
                   ) : (
                     <TranslatedText
