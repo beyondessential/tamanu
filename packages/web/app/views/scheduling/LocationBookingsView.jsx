@@ -65,7 +65,7 @@ const CalendarGrid = styled.div`
 
   display: grid;
   grid-auto-flow: column;
-  grid-template-columns: 1rem repeat(calc(var(--day-count)), var(--col-width));
+  grid-template-columns: var(--header-col-width) repeat(calc(var(--day-count)), var(--col-width));
   grid-template-rows: repeat(var(--location-count), minmax(2.25rem, max-content));
   scroll-snap-align: start;
   scroll-snap-stop: always;
