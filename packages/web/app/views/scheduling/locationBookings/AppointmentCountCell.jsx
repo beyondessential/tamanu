@@ -3,9 +3,9 @@ import styled from 'styled-components';
 
 import { Colors } from '../../../constants';
 import { TranslatedText } from '../../../components';
-import { CalendarRowHeader } from './TableComponents';
+import { CalendarColumnHeader } from './TableComponents';
 
-const StyledHead = styled(CalendarRowHeader)`
+const StyledHead = styled(CalendarColumnHeader)`
   color: ${Colors.midText};
   text-align: end;
 `;

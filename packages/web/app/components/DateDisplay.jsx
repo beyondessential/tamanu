@@ -74,6 +74,9 @@ export const formatLong = date =>
     'Date information not available',
   ); // "Thursday, 14 July 2022, 03:44 pm"
 
+/** "Thu" */
+export const formatWeekdayShort = date => intlFormatDate(date, { weekday: 'short' });
+
 // Diagnostic info for debugging
 const DiagnosticInfo = ({ date: rawDate }) => {
   const date = new Date(rawDate);

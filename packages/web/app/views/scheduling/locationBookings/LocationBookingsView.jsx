@@ -6,16 +6,10 @@ import { useAppointments, useLocations } from '../../../api/queries';
 import { Colors } from '../../../constants';
 import { PageContainer, TopBar, TranslatedText } from '../../../components';
 import { AppointmentCountCell } from './AppointmentCountCell';
-import {
-  CalendarCell,
-  CalendarTable,
-  CalendarRowHeader,
-  CalendarColumnHeader,
-} from './TableComponents';
+import { DayHeaderCell } from './DayHeaderCell';
+import { CalendarCell, CalendarTable, CalendarRowHeader } from './TableComponents';
 
 // BEGIN PLACEHOLDERS
-
-const chance = new Chance();
 
 const Placeholder = styled.div`
   background-color: oklch(0% 0 0 / 3%);
@@ -87,15 +81,15 @@ export const LocationBookingsView = () => {
         >
           <thead>
             <tr>
-              <CalendarColumnHeader>
+              <CalendarRowHeader>
                 <Placeholder>Month Selector</Placeholder>
-              </CalendarColumnHeader>
+              </CalendarRowHeader>
               {Array.from({ length: dayCount }).map(() => (
-                <CalendarRowHeader key={chance.last()}>{chance.last()}</CalendarRowHeader>
+                <DayHeaderCell date={new Date()} key={new Date().toISOString()} />
               ))}
             </tr>
             <tr>
-              <CalendarColumnHeader />
+              <CalendarRowHeader />
               {Array.from({ length: dayCount }).map(() => (
                 <AppointmentCountCell count={0} />
               ))}
@@ -104,7 +98,7 @@ export const LocationBookingsView = () => {
           <tbody>
             {locations?.map(({ name: locationName, code }) => (
               <tr key={code}>
-                <CalendarColumnHeader>{locationName}</CalendarColumnHeader>
+                <CalendarRowHeader>{locationName}</CalendarRowHeader>
                 {Array.from({ length: dayCount }).map(() => (
                   <CalendarCell />
                 ))}
