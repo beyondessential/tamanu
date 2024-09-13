@@ -17,12 +17,12 @@ const getModalTitle = action => {
   switch (action) {
     case TASK_STATUSES.COMPLETED:
       return (
-        <TranslatedText stringId="task.markAsCompleted.modal.title" fallback="Mark as completed" />
+        <TranslatedText stringId="task.modal.markAsCompleted.title" fallback="Mark as completed" />
       );
     case TASK_STATUSES.NON_COMPLETED:
       return (
         <TranslatedText
-          stringId="task.markAsNotCompleted.modal.title"
+          stringId="task.modal.markAsNotCompleted.title"
           fallback="Mark as not completed"
         />
       );
@@ -36,14 +36,14 @@ const getModalDescription = action => {
     case TASK_STATUSES.COMPLETED:
       return (
         <TranslatedText
-          stringId="task.action.modal.description"
+          stringId="task.modal.completed.description"
           fallback="Complete details below to mark the task/s as completed."
         />
       );
     case TASK_STATUSES.NON_COMPLETED:
       return (
         <TranslatedText
-          stringId="task.action.modal.description"
+          stringId="task.modal.notCompleted.description"
           fallback="Complete details below to mark the task/s as not completed."
         />
       );
