@@ -15,7 +15,8 @@
     "object-hash": "^3.0.0",
     "pgsql-ast-parser": "^11.1.0",
     "yaml": "^2.2.1",
-    "pg": "^8.5.1"
+    "pg": "^8.5.1",
+    "config": "^3.3.9"
   },
   "devDependencies": {
     "tape": "^5.7.5"

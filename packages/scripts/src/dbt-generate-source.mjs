@@ -1,5 +1,4 @@
-// This is a port of `generateSource` from https://github.com/dbt-labs/dbt-codegen.
-
+import path from 'node:path';
 import { program } from 'commander';
 import YAML from 'yaml';
 import pg from 'pg';
@@ -27,16 +26,16 @@ async function getColumnsInRelation(client, schemaName, table) {
   ).rows;
 }
 
-async function generateSource({ password, name, database, schemaName = name }) {
-  const client = new pg.Client({ database, password });
+async function generateSource({ host, port, name: database, username, password }) {
+  const client = new pg.Client({ host, port, user: username, database, password });
   await client.connect();
+  const schemaName = 'public';
   const sources = {
     version: 2,
     sources: [
       {
-        name,
-        database,
-        schema_name: schemaName === name ? undefined : schemaName,
+        name: 'public',
+        database: database.toLowerCase(),
         tables: await Promise.all(
           (await getTablesInSchema(client, schemaName)).map(async table => {
             return {
@@ -59,18 +58,13 @@ async function generateSource({ password, name, database, schemaName = name }) {
 
 program
   .description('generates a Source model in dbt.')
-  .option('--password')
-  .requiredOption('--name <string>', 'The name of your source', value => value.toLowerCase())
-  .requiredOption('--database <string>', 'The database that your source data is in', value =>
-    value.toLowerCase(),
-  )
-  .option(
-    '--schema-name <string>',
-    'The schema name that contains your source data (default: the same as `name`)',
-    value => value.toLowerCase(),
-  );
+  .requiredOption('--package <string>', 'The path to the package to look at. If undefined, values are read from env vars.');
 
 program.parse();
 const opts = program.opts();
-const sources = await generateSource(opts);
+
+process.env['NODE_CONFIG_DIR'] = path.join(opts.package, 'config');
+const { default: config } = await import('config');
+
+const sources = await generateSource(config.db);
 console.log(YAML.stringify(sources));
