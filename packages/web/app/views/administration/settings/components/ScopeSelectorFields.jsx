@@ -10,8 +10,10 @@ import { TranslatedText } from '../../../../components/Translation';
 const ScopeSelectorField = styled(SelectField)`
   width: 300px;
   margin-right: 5px;
+  margin-bottom: 10px;
   div:first-child {
     overflow: visible;
+    margin-bottom: 0;
   }
 `;
 
