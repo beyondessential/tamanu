@@ -1,7 +1,8 @@
+import fs from 'node:fs/promises';
 import path from 'node:path';
+import pg from 'pg';
 import { program } from 'commander';
 import YAML from 'yaml';
-import pg from 'pg';
 
 async function getTablesInSchema(client, schemaName) {
   return (
@@ -72,4 +73,4 @@ process.env['NODE_CONFIG_DIR'] = path.join(opts.package, 'config');
 const { default: config } = await import('config');
 
 const sources = await generateSource(config.db);
-console.log(YAML.stringify(sources));
+await fs.writeFile('database/model/sources.yml', YAML.stringify(sources));
