@@ -262,6 +262,46 @@ jobs:
         working-directory: ${{ matrix.workdir }}
       - run: git diff --exit-code
 
+  check-db-model:
+    needs: node_modules_cache
+    name: Check the DB Source Model Files are up to Date
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: yarn
+      - uses: actions/cache/restore@v3
+        with:
+          key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
+          path: ${{ env.NODE_MODULES_PATHS }}
+
+      - name: Install and start postgres
+        run: |
+          source .github/scripts/install-postgres-ubuntu.sh 16
+          .github/scripts/test-facility-offline.sh setup-postgres
+
+      - name: Build
+        run: .github/scripts/test-facility-offline.sh build
+      - name: Configure Tamanu
+        run: |
+          cat '{"db":{"host":"localhost","name":"central","username":"tamanu","password":"tamanu"}}' > packages/central-server/config/local.json5
+          cat '{"db":{"host":"localhost","name":"facility","username":"tamanu","password":"tamanu"}}' > packages/facility-server/config/local.json5
+
+      - name: Run Migrations
+        run: |
+          yarn workspace @tamanu/central-server run start migrate up
+          yarn workspace @tamanu/facility-server run start migrate up
+
+      - run: |
+          yarn dbt-generate-source --fail-on-missing-config
+          if [[ -n $(git status --porcelain=v2) ]]; then
+              echo "The source model is behind the Tamanu database."
+              exit 1
+          fi
+      # TODO: turn test=facility-offline.sh script into more general setup script for ci
+
   # Dummy job to have a stable name for PR requirements
   tests-pass:
     if: always() # always run even if dependencies fail
@@ -274,6 +314,7 @@ jobs:
       - test-mobile
       - test-facility-offline
       - test-yarn-lock
+      - check-db-model
     runs-on: ubuntu-latest
     steps:
       - uses: re-actors/alls-green@release/v1
