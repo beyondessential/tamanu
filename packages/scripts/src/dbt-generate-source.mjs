@@ -29,28 +29,30 @@ async function getColumnsInRelation(client, schemaName, table) {
 async function generateSource({ host, port, name: database, username, password }) {
   const client = new pg.Client({ host, port, user: username, database, password });
   await client.connect();
-  const schemaName = 'public';
+
   const sources = {
     version: 2,
-    sources: [
-      {
-        name: 'public',
-        database: database.toLowerCase(),
-        tables: await Promise.all(
-          (await getTablesInSchema(client, schemaName)).map(async table => {
-            return {
-              name: table,
-              columns: (await getColumnsInRelation(client, schemaName, table)).map(column => {
-                return {
-                  name: column.column_name,
-                  data_type: column.data_type,
-                };
-              }),
-            };
-          }),
-        ),
-      },
-    ],
+    sources: await Promise.all(
+      ['public', 'fhir', 'logs'].map(async schemaName => {
+        return {
+          name: schemaName,
+          database: database.toLowerCase(),
+          tables: await Promise.all(
+            (await getTablesInSchema(client, schemaName)).map(async table => {
+              return {
+                name: table,
+                columns: (await getColumnsInRelation(client, schemaName, table)).map(column => {
+                  return {
+                    name: column.column_name,
+                    data_type: column.data_type,
+                  };
+                }),
+              };
+            }),
+          ),
+        };
+      }),
+    ),
   };
   await client.end();
   return sources;
@@ -58,7 +60,10 @@ async function generateSource({ host, port, name: database, username, password }
 
 program
   .description('generates a Source model in dbt.')
-  .requiredOption('--package <string>', 'The path to the package to look at. If undefined, values are read from env vars.');
+  .requiredOption(
+    '--package <string>',
+    'The path to the package to look at. If undefined, values are read from env vars.',
+  );
 
 program.parse();
 const opts = program.opts();
