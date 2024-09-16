@@ -125,6 +125,7 @@ export const SettingsView = () => {
 const SettingsForm = ({
   values,
   setValues,
+  setFieldValue,
   submitForm,
   resetForm,
   dirty,
@@ -192,6 +193,7 @@ const SettingsForm = ({
         scrollable={false}
         settingsSnapshot={settingsSnapshot}
         setValues={setValues}
+        setFieldValue={setFieldValue}
         values={values}
         submitForm={submitForm}
         resetForm={resetForm}

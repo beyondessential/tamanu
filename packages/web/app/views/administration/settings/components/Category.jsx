@@ -78,11 +78,11 @@ const sortProperties = ([a0, a1], [b0, b1]) => {
 export const Category = ({ schema, path = '', getSettingValue, handleChangeSetting }) => {
   if (!schema) return null;
   const Wrapper = path ? CategoryWrapper : Box;
-  const nestLevel = path.split('.').length;
+  // const nestLevel = path.split('.').length;
   const sortedProperties = Object.entries(schema.properties).sort(sortProperties);
 
   return (
-    <Wrapper $nestLevel={nestLevel}>
+    <Wrapper>
       <CategoryTitle name={schema.name} path={path} description={schema.description} />
       <>
         {sortedProperties.map(([key, schema]) => {

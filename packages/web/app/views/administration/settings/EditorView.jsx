@@ -72,6 +72,7 @@ export const EditorView = memo(
   ({
     values,
     setValues,
+    setFieldValue,
     submitForm,
     settingsSnapshot,
     resetForm,
@@ -79,6 +80,7 @@ export const EditorView = memo(
     scope,
     handleShowWarningModal,
   }) => {
+    const currentSettings = values.settings || settingsSnapshot;
     const [category, setCategory] = useState(null);
     // const [subCategory, setSubCategory] = useState(null);
 
@@ -121,19 +123,17 @@ export const EditorView = memo(
     // };
 
     const handleChangeSetting = (path, value) => {
-      const settingObject = cloneDeep(values.settings || settingsSnapshot);
+      const settingObject = cloneDeep(currentSettings);
       const updatedSettings = set(settingObject, `${category}.${path}`, value);
-      setValues({ ...values, settings: updatedSettings });
+      setFieldValue('settings', updatedSettings);
     };
 
     // Get initial value from snapshot, otherwise grab from current formik state once it exists
-    const getSettingValue = path => get(values.settings || settingsSnapshot, `${category}.${path}`);
+    const getSettingValue = path => get(currentSettings, `${category}.${path}`);
 
     const saveSettings = async event => {
       // Need to parse json string objects stored in keys
       const parsedSettings = recursiveJsonParse(values.settings);
-
-      console.log('result of recursive json parse', parsedSettings);
 
       // TODO: figure out how to not save as uncategorised
       // const transformedSettings = {
@@ -146,7 +146,7 @@ export const EditorView = memo(
 
       // console.log(transformedSettings)
       // TODO: move values.
-      setValues({ ...values, settings: parsedSettings });
+      setFieldValue('settings', parsedSettings);
       const success = await submitForm(event);
       if (success) {
         setCategory(null);
