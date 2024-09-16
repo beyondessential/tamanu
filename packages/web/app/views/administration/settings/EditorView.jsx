@@ -47,8 +47,9 @@ const recursiveJsonParse = obj => {
 };
 
 const getSubCategoryOptions = (schema, category) => {
-  if (!category) return null;
-  const subCategories = omitBy(schema.properties[category].properties, isSetting);
+  const categorySchema = schema.properties[category];
+  if (!categorySchema) return null;
+  const subCategories = omitBy(categorySchema.properties, isSetting);
   return Object.keys(subCategories).length > 1
     ? getCategoryOptions({ properties: subCategories })
     : null;
@@ -77,8 +78,8 @@ const prepareSchema = scope => {
 };
 
 const getSchemaForCategory = (schema, category, subCategory) => {
-  if (!category) return null;
   const categorySchema = schema.properties[category];
+  if (!categorySchema) return null;
   if (subCategory) {
     // Pass down highRisk from parent category to now top level subcategory
     const { highRisk } = categorySchema;
@@ -107,6 +108,7 @@ export const EditorView = memo(
     const scopedSchema = useMemo(() => prepareSchema(scope), [scope]);
 
     const categoryOptions = useMemo(() => getCategoryOptions(scopedSchema), [scopedSchema]);
+
     const subCategoryOptions = useMemo(() => getSubCategoryOptions(scopedSchema, category), [
       category,
       scopedSchema,
@@ -118,8 +120,8 @@ export const EditorView = memo(
     );
 
     const handleChangeScope = () => {
-      setCategory(null);
       setSubCategory(null);
+      setCategory(null);
     };
 
     useEffect(handleChangeScope, [scope]);
