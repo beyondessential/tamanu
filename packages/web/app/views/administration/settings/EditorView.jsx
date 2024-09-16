@@ -34,26 +34,19 @@ const CategoriesWrapper = styled.div`
 `;
 
 const recursiveJsonParse = obj => {
-  if (typeof obj === 'string') {
+  if (typeof obj !== 'object') return obj;
+  if (Array.isArray(obj)) return obj.map(recursiveJsonParse);
+  return Object.entries(obj).reduce((acc, [key, value]) => {
     try {
-      const parsed = JSON.parse(obj);
-      return recursiveJsonParse(parsed);
-    } catch (e) {
-      return obj; // Return the string if it is not a valid JSON
+      acc[key] = JSON.parse(value);
+    } catch {
+      acc[key] = recursiveJsonParse(value);
     }
-  } else if (Array.isArray(obj)) {
-    return obj.map(recursiveJsonParse);
-  } else if (typeof obj === 'object' && obj !== null) {
-    return Object.keys(obj).reduce((acc, key) => {
-      acc[key] = recursiveJsonParse(obj[key]);
-      return acc;
-    }, {});
-  } else {
-    return obj; // Return the value if it is neither an object nor a string
-  }
+    return acc;
+  }, {});
 };
 
-const getCategoryOptions = (schema) =>
+const getCategoryOptions = schema =>
   Object.entries(schema.properties).map(([key, value]) => ({
     value: key,
     label: value.name || capitalize(startCase(key)),
@@ -138,7 +131,9 @@ export const EditorView = memo(
 
     const saveSettings = async event => {
       // Need to parse json string objects stored in keys
-      const parsedSettings = recursiveJsonParse(values.settings)
+      const parsedSettings = recursiveJsonParse(values.settings);
+
+      console.log('result of recursive json parse', parsedSettings);
 
       // TODO: figure out how to not save as uncategorised
       // const transformedSettings = {
