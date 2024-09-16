@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useGeolocation } from '~/hooks/useGeolocation';
 import { TextField } from '../../TextField/TextField';
 import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
@@ -12,7 +12,7 @@ import {
 import { ActivityIndicator, Dimensions, Text } from 'react-native';
 import { Button } from '../../Button';
 import { theme } from '~/ui/styled/theme';
-import { LocationSearching } from '../../Icons/LocationSearching';
+import { Geolocate } from '../../Icons/Geolocate';
 import styled from 'styled-components';
 import { CrossIcon } from '../../Icons';
 import Modal from 'react-native-modal';
@@ -30,6 +30,29 @@ const EndAdornmentContainer = styled(StyledView)`
   min-height: ${screenPercentageToDP('2.8', Orientation.Height)};
 `;
 
+const ModalContainer = styled(CenterView)`
+  background-color: ${theme.colors.BACKGROUND_GREY};
+  border-radius: 5;
+  max-height: ${screenPercentageToDP('24', Orientation.Height)};
+  width: ${screenPercentageToDP('66', Orientation.Width)};
+  padding: 20;
+  margin-left: ${screenPercentageToDP('10', Orientation.Width)};
+`;
+
+const ModalTitle = styled(Text)`
+  font-size: ${screenPercentageToDP('1.45', Orientation.Height)};
+  color: ${theme.colors.BLACK};
+  font-weight: bold;
+  margin-bottom: 10;
+`;
+
+const ModalDescription = styled(Text)`
+  font-size: ${screenPercentageToDP('1.45', Orientation.Height)};
+  text-align: center;
+  color: ${theme.colors.BLACK};
+  margin-bottom: 4;
+`;
+
 const buttonCommonStyles = {
   height: screenPercentageToDP('4.6', Orientation.Height),
   fontSize: screenPercentageToDP('1.45', Orientation.Height),
@@ -37,7 +60,7 @@ const buttonCommonStyles = {
   alignSelf: 'flex-end',
 };
 
-export const SurveyGeolocateQuestion = ({ value, onChange, setDisabledSubmit }) => {
+export const SurveyGeolocationField = ({ value, onChange, setDisableSubmit }) => {
   const {
     coords,
     error,
@@ -48,31 +71,25 @@ export const SurveyGeolocateQuestion = ({ value, onChange, setDisabledSubmit }) 
     watch: true,
   });
   const { getTranslation } = useTranslation();
-  const [tempValue, setTempValue] = useState('');
   const [showModal, setShowModal] = useState(false);
 
-  useEffect(() => {
-    if (!coords) {
-      setTempValue('');
-      return;
-    }
-    setTempValue(
-      // {}: a hack to remove the empty space
-      getTranslation('program.survey.geolocate.value', ':lat, :long (:accuracy{}m accuracy)', {
-        lat: coords.latitude.toFixed(6),
-        long: coords.longitude.toFixed(6),
-        accuracy: coords.accuracy,
-      }).replace('{}', ''),
-    );
+  const tempValue = useMemo(() => {
+    if (!coords) return '';
+    // {}: a hack to remove the empty space
+    return getTranslation('program.survey.geolocate.value', ':lat, :long (:accuracy{}m accuracy)', {
+      lat: coords.latitude.toFixed(6),
+      long: coords.longitude.toFixed(6),
+      accuracy: coords.accuracy,
+    }).replace('{}', '');
   }, [coords]);
 
   useEffect(() => {
-    setDisabledSubmit(isWatching);
+    setDisableSubmit(isWatching);
   }, [isWatching]);
 
   useEffect(() => {
     return () => {
-      setDisabledSubmit(false);
+      setDisableSubmit(false);
     };
   }, []);
 
@@ -142,7 +159,7 @@ export const SurveyGeolocateQuestion = ({ value, onChange, setDisabledSubmit }) 
               )}
               {!value && !isWatching && (
                 <StyledTouchableOpacity onPress={requestGeolocationPermission}>
-                  <LocationSearching size={screenPercentageToDP('2.6', Orientation.Height)} />
+                  <Geolocate size={screenPercentageToDP('2.6', Orientation.Height)} />
                 </StyledTouchableOpacity>
               )}
             </EndAdornmentContainer>
@@ -233,42 +250,19 @@ export const SurveyGeolocateQuestion = ({ value, onChange, setDisabledSubmit }) 
         onBackdropPress={onCloseModal}
         deviceHeight={Dimensions.get('window').height}
       >
-        <CenterView
-          style={{
-            backgroundColor: theme.colors.BACKGROUND_GREY,
-            borderRadius: 5,
-            maxHeight: screenPercentageToDP('24', Orientation.Height),
-            width: screenPercentageToDP('66', Orientation.Width),
-            padding: 20,
-            marginLeft: screenPercentageToDP('10', Orientation.Width),
-          }}
-        >
-          <Text
-            style={{
-              fontSize: screenPercentageToDP('1.45', Orientation.Height),
-              color: theme.colors.BLACK,
-              fontWeight: 'bold',
-              marginBottom: 10,
-            }}
-          >
+        <ModalContainer>
+          <ModalTitle>
             <TranslatedText
               stringId="program.survey.geolocate.removeLocation.title"
               fallback="Remove tagged location?"
             />
-          </Text>
-          <Text
-            style={{
-              fontSize: screenPercentageToDP('1.45', Orientation.Height),
-              textAlign: 'center',
-              color: theme.colors.BLACK,
-              marginBottom: 4,
-            }}
-          >
+          </ModalTitle>
+          <ModalDescription>
             <TranslatedText
               stringId="program.survey.geolocate.removeLocation.description"
               fallback="Are you sure you want to remove the currently selected location?"
             />
-          </Text>
+          </ModalDescription>
           <RowView
             flexDirection="row"
             justifyContent="center"
@@ -293,7 +287,7 @@ export const SurveyGeolocateQuestion = ({ value, onChange, setDisabledSubmit }) 
               {...buttonCommonStyles}
             />
           </RowView>
-        </CenterView>
+        </ModalContainer>
       </Modal>
     </>
   );

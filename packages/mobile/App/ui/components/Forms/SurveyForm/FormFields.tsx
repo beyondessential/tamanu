@@ -98,7 +98,7 @@ export const FormFields = ({
     [patient.id],
   );
 
-  const [disabledSubmit, setDisabledSubmit] = useState(false);
+  const [disableSubmit, setDisableSubmit] = useState(false);
 
   const shouldShow = useCallback(
     (component: ISurveyScreenComponent) => checkVisibilityCriteria(component, components, values),
@@ -230,7 +230,7 @@ export const FormFields = ({
                       patient={patient}
                       zIndex={components.length - index}
                       setPosition={setQuestionPosition(component.dataElement.code)}
-                      setDisabledSubmit={setDisabledSubmit}
+                      setDisableSubmit={setDisableSubmit}
                     />
                   </ErrorBoundary>
                 </Fragment>
@@ -258,10 +258,10 @@ export const FormFields = ({
               margin={5}
               buttonText={<TranslatedText stringId="general.action.next" fallback="Next" />}
               onPress={onNavigateNext}
-              disabled={disabledSubmit}
+              disabled={disableSubmit}
             />
           ) : (
-            <SubmitButton margin={5} onSubmit={onSubmit} disabled={disabledSubmit} />
+            <SubmitButton margin={5} onSubmit={onSubmit} disabled={disableSubmit} />
           )}
         </RowView>
       </FormScreenView>
