@@ -20,7 +20,7 @@ import { reportsRouter } from './reports/reportRoutes';
 import { templateRoutes } from './template';
 import { assetRoutes } from './asset';
 import { translationRouter } from './translation';
-import { exportProgram } from './programExporter/exportProgram';
+import { exportProgram } from './programExporter';
 import { simpleGetList } from '@tamanu/shared/utils/crudHelpers';
 import { insurerPaymentImporter } from './invoice/insurerPaymentImporter';
 
