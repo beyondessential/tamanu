@@ -95,7 +95,7 @@ const getSchemaForCategory = (schema, category, subCategory) => {
 export const EditorView = memo(
   ({
     values,
-    setFieldValue,
+    setValues,
     submitForm,
     settingsSnapshot,
     resetForm,
@@ -151,7 +151,7 @@ export const EditorView = memo(
     const handleChangeSetting = (path, value) => {
       const settingObject = cloneDeep(currentSettings);
       const updatedSettings = set(settingObject, `${category}.${path}`, value);
-      setFieldValue('settings', updatedSettings);
+      setValues({ ...values, settings: updatedSettings });
     };
 
     // Get initial value from snapshot, otherwise grab from current formik state once it exists
@@ -167,7 +167,8 @@ export const EditorView = memo(
       };
 
       delete settingsPayload.uncategorised;
-      setFieldValue('settings', settingsPayload);
+
+      setValues({ ...values, settings: settingsPayload });
       const success = await submitForm(event);
       if (success) {
         setCategory(null);
