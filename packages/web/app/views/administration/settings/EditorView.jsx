@@ -22,7 +22,7 @@ const StyledSelectInput = styled(SelectInput)`
 const CategoryOptions = styled(Box)`
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: end;
 `;
 
 const SubmitButton = styled(Button)`
