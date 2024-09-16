@@ -281,13 +281,19 @@ export class Encounter extends Model {
       select: buildSyncLookupSelect(this, {
         patientId: 'encounters.patient_id',
         encounterId: 'encounters.id',
-        isLabRequestValue: 'labs.encounter_id IS NOT NULL',
+        isLabRequestValue: 'new_labs.encounter_id IS NOT NULL',
       }),
       joins: `
         LEFT JOIN (
           SELECT DISTINCT encounter_id
           FROM lab_requests
-        ) AS labs ON labs.encounter_id = encounters.id
+          WHERE updated_at_sync_tick > :since -- to only include lab requests that recently got attached to the encounters
+        ) AS new_labs ON new_labs.encounter_id = encounters.id 
+      `,
+      where: `
+        encounters.updated_at_sync_tick > :since -- to include including normal encounters
+        OR
+        new_labs.encounter_id IS NOT NULL -- to include encounters that got lab requests recently attached to it
       `,
     };
   }
