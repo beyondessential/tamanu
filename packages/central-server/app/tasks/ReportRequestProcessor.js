@@ -136,7 +136,7 @@ export class ReportRequestProcessor extends ScheduledTask {
     });
   };
 
-  async runReportInTheSameProcess(request) {
+  runReportInTheSameProcess = async request => {
     log.info(
       `Running report request "${
         request.id
@@ -157,7 +157,7 @@ export class ReportRequestProcessor extends ScheduledTask {
     );
 
     await reportRunner.run();
-  }
+  };
 
   async countQueue() {
     return this.context.store.models.ReportRequest.count({
