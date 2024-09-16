@@ -76,18 +76,24 @@ async function generateSource({ host, port, name: database, username, password }
   await client.end();
 }
 
-async function run(packageName) {
+async function run(packageName, opts) {
   const serverConfig = config.util.loadFileConfigs(path.join('packages', packageName, 'config'));
   const db = config.util.extendDeep(serverConfig.db, config.db); // merge with NODE_CONFIG
   if (['host', 'port', 'name', 'username', 'password'].some(key => db[key] === undefined)) {
+    if (opts.failOnMissingConfig) {
+      throw `There's no config for ${packageName}.`;
+    }
     return;
   }
   await generateSource(db, packageName);
 }
 
-program.description('generates a Source model in dbt.');
+program.description(`Generates a Source model in dbt.
+This reads Postgres database based on the config files. The search path is \`packages/<server-name>/config\`. \
+You can override the config for both by supplying \`NODE_CONFIG\` or the \`config\` directory at the current directory.
+`).option('--fail-on-missing-config');
 
 program.parse();
 const opts = program.opts();
 
-await Promise.all([run('central-server'), run('facility-server')]);
+await Promise.all([run('central-server', opts), run('facility-server', opts)]);
