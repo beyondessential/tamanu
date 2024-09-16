@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useQueryClient, useQuery } from '@tanstack/react-query';
 import styled from 'styled-components';
 import { ValidationError } from 'yup';
@@ -169,14 +169,15 @@ const SettingsForm = ({
     () => api.get('admin/settings', { scope, facilityId }),
   );
 
+  const canViewJSONEditor = ability.can('write', 'Setting');
+  const filteredTabs = useMemo(
+    () => (canViewJSONEditor ? tabs : tabs.filter(({ key }) => key !== SETTING_TABS.JSON)),
+    [canViewJSONEditor],
+  );
+
   if (settingsFetchError) {
     return <ErrorMessage title="Settings fetch error" errorMessage={settingsFetchError.message} />;
   }
-
-  const canViewJSONEditor = ability.can('write', 'Setting');
-  const filteredTabs = canViewJSONEditor
-    ? tabs
-    : tabs.filter(({ key }) => key !== SETTING_TABS.JSON);
 
   return (
     <>
