@@ -155,7 +155,11 @@ export const SettingInput = ({
     default:
       return (
         <LargeBodyText>
-          No component for this type: {type} (default: {defaultValue})
+          <TranslatedText
+            stringId="admin.settings.error.noComponent"
+            fallback="No component for this type: :type (default: :defaultValue)"
+            replacements={{ type, defaultValue }}
+          />
         </LargeBodyText>
       );
   }
