@@ -99,10 +99,10 @@ export const EditorView = memo(
       scopedSchema,
     ]);
 
-    const schemaForCategory = useMemo(() => scopedSchema.properties[category], [
-      category,
-      scopedSchema,
-    ]);
+    const schemaForCategory = useMemo(() => {
+      const categorySchema = scopedSchema.properties[category];
+      return subCategory ? categorySchema.properties[subCategory] : categorySchema;
+    }, [category, subCategory, scopedSchema]);
 
     const handleChangeScope = () => {
       setCategory(null);
