@@ -1,3 +1,5 @@
+process.env.SUPPRESS_NO_CONFIG_WARNING = 'y';
+const { default: config } = await import('config');
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import pg from 'pg';
@@ -38,12 +40,13 @@ async function getColumnsInRelation(client, schemaName, table) {
   ).rows;
 }
 
-async function generateSource({ host, port, name: database, username, password }) {
+async function generateSource({ host, port, name: database, username, password }, packageName) {
   const client = new pg.Client({ host, port, user: username, database, password });
   await client.connect();
 
   const tasks = (await getSchemas(client)).map(async schemaName => {
-    await fs.mkdir(`database/model/${schemaName}`, { recursive: true });
+    const schemaPath = path.join('database/model', packageName, schemaName);
+    await fs.mkdir(schemaPath, { recursive: true });
     const tasks = (await getTablesInSchema(client, schemaName)).map(async table => {
       const sources = {
         version: 2,
@@ -65,7 +68,7 @@ async function generateSource({ host, port, name: database, username, password }
           },
         ],
       };
-      await fs.writeFile(`database/model/${schemaName}/${table}.yml`, YAML.stringify(sources));
+      await fs.writeFile(path.join(schemaPath, `${table}.yml`), YAML.stringify(sources));
     });
     await Promise.all(tasks);
   });
@@ -73,17 +76,18 @@ async function generateSource({ host, port, name: database, username, password }
   await client.end();
 }
 
-program
-  .description('generates a Source model in dbt.')
-  .requiredOption(
-    '--package <string>',
-    'The path to the package to look at. If undefined, values are read from env vars.',
-  );
+async function run(packageName) {
+  const serverConfig = config.util.loadFileConfigs(path.join('packages', packageName, 'config'));
+  const db = config.util.extendDeep(serverConfig.db, config.db); // merge with NODE_CONFIG
+  if (['host', 'port', 'name', 'username', 'password'].some(key => db[key] === undefined)) {
+    return;
+  }
+  await generateSource(db, packageName);
+}
+
+program.description('generates a Source model in dbt.');
 
 program.parse();
 const opts = program.opts();
 
-process.env['NODE_CONFIG_DIR'] = path.join(opts.package, 'config');
-const { default: config } = await import('config');
-
-await generateSource(config.db);
+await Promise.all([run('central-server'), run('facility-server')]);
