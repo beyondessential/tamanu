@@ -1,7 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { Switch } from '@material-ui/core';
-import { TextInput, NumberInput, TextButton, LargeBodyText } from '../../../../components';
+import {
+  TextInput,
+  NumberInput,
+  TextButton,
+  LargeBodyText,
+  TranslatedText,
+} from '../../../../components';
 import { JSONEditor } from './JSONEditor';
 import { isString, isUndefined } from 'lodash';
 import { Colors } from '../../../../constants';
@@ -26,10 +32,6 @@ const DefaultSettingButton = styled(TextButton)`
   }
 `;
 
-const DefaultButton = ({ resetToDefault }) => {
-  return <DefaultSettingButton onClick={resetToDefault}>Reset to default</DefaultSettingButton>;
-};
-
 const SETTING_TYPES = {
   BOOLEAN: 'boolean',
   STRING: 'string',
@@ -50,7 +52,7 @@ export const SettingInput = ({
   handleChangeSetting,
   unit,
   typeSchema,
-  disabled
+  disabled,
 }) => {
   const [error, setError] = useState(null);
   const { type } = typeSchema;
@@ -64,7 +66,16 @@ export const SettingInput = ({
     }
   }, [value, typeSchema]);
 
-  const resetToDefault = () => handleChangeSetting(path, defaultValue);
+  const DefaultButton = () => (
+    <DefaultSettingButton onClick={() => handleChangeSetting(path, defaultValue)}>
+      <TranslatedText stringId="admin.settings.action.resetToDefault" fallback="Reset to default" />
+    </DefaultSettingButton>
+  );
+
+  const handleChangeSwitch = e => handleChangeSetting(path, e.target.checked);
+  const handleChangeText = e => handleChangeSetting(path, e.target.value);
+  const handleChangeNumber = e => handleChangeSetting(path, Number(e.target.value));
+  const handleChangeJSON = e => handleChangeSetting(path, e);
 
   const displayValue = isUndefined(value) ? defaultValue : value;
 
@@ -77,7 +88,7 @@ export const SettingInput = ({
         <Switch
           color="primary"
           checked={displayValue}
-          onChange={e => handleChangeSetting(path, e.target.checked)}
+          onChange={handleChangeSwitch}
           disabled={disabled}
         />
       );
@@ -86,13 +97,13 @@ export const SettingInput = ({
         <>
           <TextInput
             value={displayValue}
-            onChange={e => handleChangeSetting(path, e.target.value)}
+            onChange={handleChangeText}
             style={{ width: '353px' }}
             error={error}
             helperText={error?.message}
             disabled={disabled}
           />
-          <DefaultButton resetToDefault={resetToDefault} />
+          <DefaultButton />
         </>
       );
     case SETTING_TYPES.NUMBER:
@@ -100,14 +111,14 @@ export const SettingInput = ({
         <>
           <NumberInput
             value={displayValue}
-            onChange={e => handleChangeSetting(path, Number(e.target.value))}
+            onChange={handleChangeNumber}
             style={{ width: '75px' }}
             error={error}
             helperText={error?.message}
             disabled={disabled}
           />
           <Unit>{unit}</Unit>
-          <DefaultButton resetToDefault={resetToDefault} />
+          <DefaultButton />
         </>
       );
     case SETTING_TYPES.LONG_TEXT:
@@ -115,14 +126,14 @@ export const SettingInput = ({
         <>
           <TextInput
             value={displayValue}
-            onChange={e => handleChangeSetting(path, e.target.value)}
+            onChange={handleChangeText}
             style={{ width: '353px', minHeight: '156px' }}
             multiline
             error={error}
             helperText={error?.message}
             disabled={disabled}
           />
-          <DefaultButton resetToDefault={resetToDefault} />
+          <DefaultButton />
         </>
       );
     case SETTING_TYPES.OBJECT:
@@ -134,11 +145,11 @@ export const SettingInput = ({
             width="353px"
             editMode
             value={isString(displayValue) ? displayValue : JSON.stringify(displayValue, null, 2)}
-            onChange={e => handleChangeSetting(path, e)}
+            onChange={handleChangeJSON}
             error={error}
             readOnly={disabled}
           />
-          <DefaultButton resetToDefault={resetToDefault} />
+          <DefaultButton />
         </>
       );
     default:
