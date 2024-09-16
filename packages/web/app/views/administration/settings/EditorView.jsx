@@ -112,6 +112,7 @@ export const EditorView = memo(
     useEffect(handleChangeScope, [scope]);
 
     const handleChangeCategory = async e => {
+      setSubCategory(null);
       const newCategory = e.target.value;
       if (newCategory !== category && dirty) {
         const dismissChanges = await handleShowWarningModal();
