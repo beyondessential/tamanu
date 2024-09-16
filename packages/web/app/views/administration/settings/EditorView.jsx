@@ -77,7 +77,7 @@ export const EditorView = memo(
     resetForm,
     dirty,
     scope,
-    showWarningModal,
+    handleShowWarningModal,
   }) => {
     const [category, setCategory] = useState(null);
     // const [subCategory, setSubCategory] = useState(null);
@@ -103,7 +103,7 @@ export const EditorView = memo(
     const handleChangeCategory = async e => {
       const newCategory = e.target.value;
       if (newCategory !== category && dirty) {
-        const dismissChanges = await showWarningModal();
+        const dismissChanges = await handleShowWarningModal();
         if (!dismissChanges) return;
         await resetForm();
       }
@@ -113,7 +113,7 @@ export const EditorView = memo(
     // const handleChangeSubcategory = async e => {
     //   const newCategory = e.target.value;
     //   if (newCategory !== category && dirty) {
-    //     const dismissChanges = await showWarningModal();
+    //     const dismissChanges = await handleShowWarningModal();
     //     if (!dismissChanges) return;
     //     await resetForm();
     //   }

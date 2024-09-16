@@ -136,18 +136,18 @@ const SettingsForm = ({
   const api = useApi();
   const { ability } = useAuth();
   const [currentTab, setCurrentTab] = useState(SETTING_TABS.EDITOR);
-  const [warningModalOpen, setWarningModalOpen] = useState(false);
+  const [warningModalOpen, setShowWarningModal] = useState(false);
   const [resolveFn, setResolveFn] = useState(null);
 
-  const showWarningModal = async () =>
+  const handleShowWarningModal = async () =>
     new Promise(resolve => {
       setResolveFn(() => resolve); // Save resolve to use in onConfirm/onCancel
-      setWarningModalOpen(true);
+      setShowWarningModal(true);
     });
 
   const handleChangeTab = async newTab => {
     if (newTab !== currentTab && dirty) {
-      const dismissChanges = await showWarningModal();
+      const dismissChanges = await handleShowWarningModal();
       if (!dismissChanges) return;
       await resetForm();
     }
@@ -157,11 +157,15 @@ const SettingsForm = ({
   const handleChangeScope = async e => {
     const newScope = e.target.value;
     if (newScope !== scope && dirty) {
-      const dismissChanges = await showWarningModal();
+      const dismissChanges = await handleShowWarningModal();
       if (!dismissChanges) return;
       await resetForm();
     }
     setScope(newScope);
+  };
+
+  const handleChangeFacilityId = e => {
+    setFacilityId(e.target.value);
   };
 
   const { data: settingsSnapshot = {}, error: settingsFetchError } = useQuery(
@@ -193,14 +197,14 @@ const SettingsForm = ({
         resetForm={resetForm}
         dirty={dirty}
         handleChangeScope={handleChangeScope}
+        handleChangeFacilityId={handleChangeFacilityId}
         scope={scope}
-        handleChangeFacilityId={e => setFacilityId(e.target.value)}
         facilityId={facilityId}
-        showWarningModal={showWarningModal}
+        handleShowWarningModal={handleShowWarningModal}
       />
       <WarningModal
         open={warningModalOpen}
-        setWarningModalOpen={setWarningModalOpen}
+        setShowWarningModal={setShowWarningModal}
         resolveFn={resolveFn}
       />
     </>
