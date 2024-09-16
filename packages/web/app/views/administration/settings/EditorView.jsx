@@ -92,7 +92,6 @@ export const EditorView = memo(
 
     const subCategoryOptions = useMemo(() => {
       const subCategories = omitBy(schemaForCategory?.properties, isSetting);
-      console.log(subCategories);
       return Object.keys(subCategories).length > 1
         ? getCategoryOptions({ properties: subCategories })
         : null;
@@ -115,17 +114,15 @@ export const EditorView = memo(
       setCategory(newCategory);
     };
 
-    console.log(subCategoryOptions);
-
-    // const handleChangeSubcategory = async e => {
-    //   const newCategory = e.target.value;
-    //   if (newCategory !== category && dirty) {
-    //     const dismissChanges = await handleShowWarningModal();
-    //     if (!dismissChanges) return;
-    //     await resetForm();
-    //   }
-    //   setSubCategory(newCategory);
-    // };
+    const handleChangeSubcategory = async e => {
+      const newCategory = e.target.value;
+      if (newCategory !== category && dirty) {
+        const dismissChanges = await handleShowWarningModal();
+        if (!dismissChanges) return;
+        await resetForm();
+      }
+      setSubCategory(newCategory);
+    };
 
     const handleChangeSetting = (path, value) => {
       const settingObject = cloneDeep(currentSettings);
@@ -180,7 +177,7 @@ export const EditorView = memo(
                       />
                     }
                     value={subCategory}
-                    // onChange={h}
+                    onChange={handleChangeSubcategory}
                     options={subCategoryOptions}
                   />
                 </Box>
