@@ -108,14 +108,11 @@ export const EditorView = memo(
     const [subCategory, setSubCategory] = useState(null);
 
     const scopedSchema = useMemo(() => prepareSchema(scope), [scope]);
-
     const categoryOptions = useMemo(() => getCategoryOptions(scopedSchema), [scopedSchema]);
-
     const subCategoryOptions = useMemo(() => getSubCategoryOptions(scopedSchema, category), [
       category,
       scopedSchema,
     ]);
-
     const schemaForCategory = useMemo(
       () => getSchemaForCategory(scopedSchema, category, subCategory),
       [scopedSchema, category, subCategory],
