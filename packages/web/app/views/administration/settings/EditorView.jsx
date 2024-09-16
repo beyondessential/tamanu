@@ -161,17 +161,12 @@ export const EditorView = memo(
       // Need to parse json string objects stored in keys
       const parsedSettings = recursiveJsonParse(values.settings);
 
-      // TODO: figure out how to not save as uncategorised
-      // const transformedSettings = {
-      //   ...parsedSettings,
-      //   ...parsedSettings.uncategorised
-      // }
+      const settingsPayload = {
+        ...parsedSettings,
+        ...parsedSettings.uncategorised,
+      };
 
-      // console.log(transformedSettings)
-      // delete transformedSettings.uncategorised
-
-      // console.log(transformedSettings)
-      // TODO: move values.
+      delete settingsPayload.uncategorised;
       setFieldValue('settings', parsedSettings);
       const success = await submitForm(event);
       if (success) {
