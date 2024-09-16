@@ -19,6 +19,18 @@ const Unit = styled.div`
   font-size: 12px;
 `;
 
+const StyledTextInput = styled(TextInput)`
+  .MuiInputBase-root.Mui-disabled {
+    background: ${Colors.background};
+  }
+`;
+
+const StyledNumberInput = styled(NumberInput)`
+  .MuiInputBase-root.Mui-disabled {
+    background: ${Colors.background};
+  }
+`;
+
 const DefaultSettingButton = styled(TextButton)`
   margin-left: 20px;
   font-size: 12px;
@@ -95,7 +107,7 @@ export const SettingInput = ({
     case SETTING_TYPES.STRING:
       return (
         <>
-          <TextInput
+          <StyledTextInput
             value={displayValue}
             onChange={handleChangeText}
             style={{ width: '353px' }}
@@ -109,7 +121,7 @@ export const SettingInput = ({
     case SETTING_TYPES.NUMBER:
       return (
         <>
-          <NumberInput
+          <StyledNumberInput
             value={displayValue}
             onChange={handleChangeNumber}
             style={{ width: '75px' }}
@@ -124,7 +136,7 @@ export const SettingInput = ({
     case SETTING_TYPES.LONG_TEXT:
       return (
         <>
-          <TextInput
+          <StyledTextInput
             value={displayValue}
             onChange={handleChangeText}
             style={{ width: '353px', minHeight: '156px' }}
@@ -143,11 +155,10 @@ export const SettingInput = ({
           <JSONEditor
             height="156px"
             width="353px"
-            editMode
+            editMode={!disabled}
             value={isString(displayValue) ? displayValue : JSON.stringify(displayValue, null, 2)}
             onChange={handleChangeJSON}
             error={error}
-            readOnly={disabled}
           />
           <DefaultButton />
         </>
