@@ -176,10 +176,16 @@ export const EditorView = memo(
             )} */}
             <div>
               <OutlinedButton onClick={resetForm} disabled={!dirty}>
-                Clear changes
+                <TranslatedText
+                  stringId="admin.settings.action.clearChanges"
+                  fallback="Clear changes"
+                />
               </OutlinedButton>
               <SubmitButton onClick={saveSettings} disabled={!dirty}>
-                Save changes
+                <TranslatedText
+                  stringId="admin.settings.action.saveChanges"
+                  fallback="Save changes"
+                />
               </SubmitButton>
             </div>
           </CategoryOptions>
