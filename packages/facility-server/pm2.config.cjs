@@ -45,7 +45,7 @@ module.exports = {
       instances: 1,
       exec_mode: 'fork',
       env: {
-        PORT: +process.env.TAMANU_SYNC_PORT || 4000,
+        PORT: +process.env.TAMANU_SYNC_PORT || 5000,
         NODE_ENV: 'production',
       },
     },
