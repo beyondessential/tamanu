@@ -18,10 +18,10 @@ async function getSchemas(client) {
 async function getTablesInSchema(client, schemaName) {
   return (
     await client.query(
-      `SELECT DISTINCT lower(table_name) as table_name
+      `SELECT DISTINCT table_name
       FROM information_schema.tables
-      WHERE table_schema ilike $1
-      ORDER BY lower(table_name)`,
+      WHERE table_schema = $1
+      ORDER BY table_name`,
       [schemaName],
     )
   ).rows.map(table => table.table_name);
@@ -30,9 +30,9 @@ async function getTablesInSchema(client, schemaName) {
 async function getColumnsInRelation(client, schemaName, table) {
   return (
     await client.query(
-      `SELECT lower(column_name) as column_name, lower(data_type) as data_type
+      `SELECT column_name, data_type
       FROM information_schema.columns
-      WHERE table_schema ilike $1 and table_name = $2`,
+      WHERE table_schema = $1 and table_name = $2`,
       [schemaName, table],
     )
   ).rows;
@@ -43,7 +43,7 @@ async function generateSource({ host, port, name: database, username, password }
   await client.connect();
 
   const tasks = (await getSchemas(client)).map(async schemaName => {
-    await fs.mkdir(`database/model/${schemaName}`);
+    await fs.mkdir(`database/model/${schemaName}`, { recursive: true });
     const tasks = (await getTablesInSchema(client, schemaName)).map(async table => {
       const sources = {
         version: 2,
