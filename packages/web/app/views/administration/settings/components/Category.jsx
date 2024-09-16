@@ -2,6 +2,7 @@ import React from 'react';
 import { Heading4, BodyText } from '../../../../components';
 import { Colors } from '../../../../constants';
 import { ThemedTooltip } from '../../../../components/Tooltip';
+import LockIcon from '@material-ui/icons/Lock';
 import { Box } from '@material-ui/core';
 import { SettingInput } from './SettingInput';
 import styled from 'styled-components';
@@ -10,10 +11,12 @@ import { capitalize, startCase } from 'lodash';
 import { isSetting } from '@tamanu/settings';
 import { useAuth } from '../../../../contexts/Auth';
 
-const INDENT_WIDTH_PX = 20;
+const StyledLockIcon = styled(LockIcon)`
+  font-size: 18px;
+  margin-left: 5px;
+`;
 
 const CategoryWrapper = styled.div`
-  // margin-left: ${({ $nestLevel }) => $nestLevel * INDENT_WIDTH_PX}px;
   :not(:first-child) {
     padding-top: 20px;
     border-top: 1px solid ${Colors.outline};
@@ -48,10 +51,19 @@ const CategoryTitle = ({ name, path, description }) => {
   );
 };
 
-const SettingName = ({ name, path, description }) => {
+const SettingName = ({ name, path, description, disabled }) => {
   const nameText = (
-    <BodyText ml={1} mt={1} mr="auto" width="fit-content">
+    <BodyText
+      color={disabled && 'textTertiary'}
+      display="flex"
+      alignItems="center"
+      width="fit-content"
+      mr="auto"
+      ml={1}
+      mt={1}
+    >
       {getName(name, path)}
+      {disabled && <StyledLockIcon />}
     </BodyText>
   );
 
@@ -78,8 +90,7 @@ const sortProperties = ([a0, a1], [b0, b1]) => {
 
 export const Category = ({ schema, path = '', getSettingValue, handleChangeSetting }) => {
   const { ability } = useAuth();
-  // Is system admin
-  const canWriteHighRisk = ability.can('manage', 'all');
+  const canWriteHighRisk = ability.can('manage', 'all'); // is system admin
   if (!schema) return null;
   const Wrapper = path ? CategoryWrapper : Box;
   const sortedProperties = Object.entries(schema.properties).sort(sortProperties);
@@ -92,9 +103,16 @@ export const Category = ({ schema, path = '', getSettingValue, handleChangeSetti
           const newPath = path ? `${path}.${key}` : key;
           const { name, description, type, defaultValue, unit, highRisk } = propertySchema;
 
+          const disabled = !canWriteHighRisk && (schema.highRisk || highRisk);
+
           return type ? (
             <SettingLine key={newPath}>
-              <SettingName path={newPath} name={name} description={description} />
+              <SettingName
+                disabled={disabled}
+                path={newPath}
+                name={name}
+                description={description}
+              />
               <SettingInput
                 typeSchema={type}
                 value={getSettingValue(newPath)}
@@ -102,7 +120,7 @@ export const Category = ({ schema, path = '', getSettingValue, handleChangeSetti
                 path={newPath}
                 handleChangeSetting={handleChangeSetting}
                 unit={unit}
-                disabled={!canWriteHighRisk && (schema.highRisk || highRisk)}
+                disabled={disabled}
               />
             </SettingLine>
           ) : (
