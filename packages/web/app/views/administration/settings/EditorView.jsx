@@ -92,7 +92,10 @@ export const EditorView = memo(
 
     const subCategoryOptions = useMemo(() => {
       const subCategories = omitBy(schemaForCategory?.properties, isSetting);
-      return subCategories.length > 1 ? getCategoryOptions({ properties: subCategories }) : null;
+      console.log(subCategories);
+      return Object.keys(subCategories).length > 1
+        ? getCategoryOptions({ properties: subCategories })
+        : null;
     }, [schemaForCategory]);
 
     const handleChangeScope = () => {
@@ -111,6 +114,8 @@ export const EditorView = memo(
       }
       setCategory(newCategory);
     };
+
+    console.log(subCategoryOptions);
 
     // const handleChangeSubcategory = async e => {
     //   const newCategory = e.target.value;
@@ -158,22 +163,29 @@ export const EditorView = memo(
       <>
         <SettingsWrapper>
           <CategoryOptions p={2}>
-            <StyledSelectInput
-              label={<TranslatedText stringId="admin.settings.category" fallback="Category" />}
-              value={category}
-              onChange={handleChangeCategory}
-              options={categoryOptions}
-            />
-            {subCategoryOptions && (
+            <Box display="flex" alignItems="center">
               <StyledSelectInput
-                label={
-                  <TranslatedText stringId="admin.settings.subCategory" fallback="Sub category" />
-                }
-                value={subCategory}
-                // onChange={h}
-                options={subCategoryOptions}
+                label={<TranslatedText stringId="admin.settings.category" fallback="Category" />}
+                value={category}
+                onChange={handleChangeCategory}
+                options={categoryOptions}
               />
-            )}
+              {subCategoryOptions && (
+                <Box ml={2}>
+                  <StyledSelectInput
+                    label={
+                      <TranslatedText
+                        stringId="admin.settings.subCategory"
+                        fallback="Sub category"
+                      />
+                    }
+                    value={subCategory}
+                    // onChange={h}
+                    options={subCategoryOptions}
+                  />
+                </Box>
+              )}
+            </Box>
             <div>
               <OutlinedButton onClick={resetForm} disabled={!dirty}>
                 <TranslatedText
