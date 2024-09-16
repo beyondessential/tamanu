@@ -91,11 +91,12 @@ export const EditorView = memo(
     ]);
 
     const subCategoryOptions = useMemo(() => {
-      const subCategories = omitBy(schemaForCategory?.properties, isSetting);
+      if (!category) return null;
+      const subCategories = omitBy(scopedSchema.properties[category].properties, isSetting);
       return Object.keys(subCategories).length > 1
         ? getCategoryOptions({ properties: subCategories })
         : null;
-    }, [schemaForCategory]);
+    }, [category, scopedSchema.properties]);
 
     const handleChangeScope = () => {
       setCategory(null);
