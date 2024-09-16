@@ -78,11 +78,15 @@ export const SettingInput = ({
     }
   }, [value, typeSchema]);
 
-  const DefaultButton = () => (
-    <DefaultSettingButton onClick={() => handleChangeSetting(path, defaultValue)}>
-      <TranslatedText stringId="admin.settings.action.resetToDefault" fallback="Reset to default" />
-    </DefaultSettingButton>
-  );
+  const DefaultButton = () =>
+    disabled ? null : (
+      <DefaultSettingButton onClick={() => handleChangeSetting(path, defaultValue)}>
+        <TranslatedText
+          stringId="admin.settings.action.resetToDefault"
+          fallback="Reset to default"
+        />
+      </DefaultSettingButton>
+    );
 
   const handleChangeSwitch = e => handleChangeSetting(path, e.target.checked);
   const handleChangeText = e => handleChangeSetting(path, e.target.value);
