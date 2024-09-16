@@ -159,7 +159,7 @@ export const EditorView = memo(
     // Get initial value from snapshot, otherwise grab from current formik state once it exists
     const getSettingValue = path => {
       const prefix = category === UNCATEGORISED_KEY ? '' : `${category}.`;
-      return get(settingsSnapshot, `${prefix}${path}`);
+      return get(currentSettings, `${prefix}${path}`);
     };
 
     const saveSettings = async event => {
