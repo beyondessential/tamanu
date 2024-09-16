@@ -1,7 +1,7 @@
 const os = require('node:os');
 
-const totalMemoryMB = os.totalmem() / (1024**2);
-const memory = process.env.TAMANU_MEMORY_ALLOCATION || (totalMemoryMB * 0.6);
+const totalMemoryMB = Math.round(os.totalmem() / (1024**2));
+const memory = process.env.TAMANU_MEMORY_ALLOCATION || (totalMemoryMB * 0.6).toFixed(0);
 
 const availableThreads = os.availableParallelism();
 const defaultApiScale = Math.max(2, Math.floor(availableThreads / 2));
