@@ -90,7 +90,7 @@ const sortProperties = ([a0, a1], [b0, b1]) => {
 
 export const Category = ({ schema, path = '', getSettingValue, handleChangeSetting }) => {
   const { ability } = useAuth();
-  const canWriteHighRisk = ability.can('manage', 'all'); // is system admin
+  const canWriteHighRisk = ability.can('manage', 'all');
   if (!schema) return null;
   const Wrapper = path ? CategoryWrapper : Box;
   const sortedProperties = Object.entries(schema.properties).sort(sortProperties);
@@ -127,7 +127,10 @@ export const Category = ({ schema, path = '', getSettingValue, handleChangeSetti
             <Category
               key={newPath}
               path={newPath}
-              schema={propertySchema}
+              schema={
+                // If the category is high risk, pass that down to the subcategory
+                schema.highRisk ? { ...propertySchema, highRisk: schema.highRisk } : propertySchema
+              }
               getSettingValue={getSettingValue}
               handleChangeSetting={handleChangeSetting}
             />
