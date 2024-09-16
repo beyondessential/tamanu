@@ -76,6 +76,19 @@ const prepareSchema = scope => {
   return schema;
 };
 
+const getSchemaForCategory = (schema, category, subCategory) => {
+  if (!category) return null;
+  const categorySchema = schema.properties[category];
+  if (subCategory) {
+    // Pass down highRisk from parent category to now top level subcategory
+    const { highRisk } = categorySchema;
+    const subCategorySchema = categorySchema.properties[subCategory];
+    subCategorySchema.highRisk = highRisk || subCategorySchema.highRisk;
+    return subCategorySchema;
+  }
+  return categorySchema;
+};
+
 export const EditorView = memo(
   ({
     values,
@@ -99,10 +112,10 @@ export const EditorView = memo(
       scopedSchema,
     ]);
 
-    const schemaForCategory = useMemo(() => {
-      const categorySchema = scopedSchema.properties[category];
-      return subCategory ? categorySchema.properties[subCategory] : categorySchema;
-    }, [category, subCategory, scopedSchema]);
+    const schemaForCategory = useMemo(
+      () => getSchemaForCategory(scopedSchema, category, subCategory),
+      [scopedSchema, category, subCategory],
+    );
 
     const handleChangeScope = () => {
       setCategory(null);
