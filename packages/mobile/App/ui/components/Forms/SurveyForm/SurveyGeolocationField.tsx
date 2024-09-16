@@ -35,7 +35,7 @@ const ModalContainer = styled(CenterView)`
   border-radius: 5;
   max-height: ${screenPercentageToDP('24', Orientation.Height)};
   width: ${screenPercentageToDP('66', Orientation.Width)};
-  padding: 20;
+  padding: 20px;
   margin-left: ${screenPercentageToDP('10', Orientation.Width)};
 `;
 
