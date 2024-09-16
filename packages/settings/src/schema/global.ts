@@ -1,6 +1,13 @@
-import { VACCINE_STATUS } from '@tamanu/constants';
 import * as yup from 'yup';
 import { extractDefaults } from './utils';
+import {
+  imagingPrioritiesDefault,
+  imagingPrioritiesSchema,
+  thresholdsDefault,
+  thresholdsSchema,
+  triageCategoriesDefault,
+  triageCategoriesSchema,
+} from './definitions';
 import {
   baseFieldProperties,
   displayIdFieldProperties,
@@ -8,19 +15,6 @@ import {
   hideablePatientFieldProperties,
   patientDetailsFieldProperties,
 } from './global-settings-properties/fields';
-
-const thresholdsSchema = yup.array().of(
-  yup.object({
-    threshold: yup
-      .mixed()
-      .test(
-        'is-number-or-infinity',
-        'Threshold must be a number or -Infinity',
-        value => typeof value === 'number' || value === '-Infinity',
-      ),
-    status: yup.string().oneOf(Object.values(VACCINE_STATUS)),
-  }),
-);
 
 export const globalSettings = {
   title: 'Global settings',
@@ -65,7 +59,6 @@ export const globalSettings = {
               defaultValue: '1 minute',
             },
             assumeDroppedAfter: {
-              name: 'Assume dropped after',
               description: '_',
               type: yup.string(),
               defaultValue: '10 minutes',
@@ -82,7 +75,6 @@ export const globalSettings = {
           description: 'Imaging integration settings',
           properties: {
             enabled: {
-              name: 'Imaging integration enabled',
               description: '_',
               type: yup.boolean(),
               defaultValue: false,
@@ -102,81 +94,22 @@ export const globalSettings = {
       description: 'Settings related to upcoming vaccinations',
       properties: {
         ageLimit: {
-          name: 'Upcoming vaccination age limit',
           description: '_',
           type: yup.number(),
           defaultValue: 15,
         },
         thresholds: {
-          name: 'Upcoming vaccination thresholds',
           description: '_',
           type: thresholdsSchema,
-          defaultValue: [
-            {
-              threshold: 28,
-              status: VACCINE_STATUS.SCHEDULED,
-            },
-            {
-              threshold: 7,
-              status: VACCINE_STATUS.UPCOMING,
-            },
-            {
-              threshold: -7,
-              status: VACCINE_STATUS.DUE,
-            },
-            {
-              threshold: -55,
-              status: VACCINE_STATUS.OVERDUE,
-            },
-            {
-              threshold: '-Infinity',
-              status: VACCINE_STATUS.MISSED,
-            },
-          ],
+          defaultValue: thresholdsDefault,
         },
       },
     },
     triageCategories: {
       name: 'Triage categories',
       description: 'Customise triage scale',
-      type: yup
-        .array()
-        .of(
-          yup.object({
-            level: yup.number(),
-            label: yup.string(),
-            color: yup.string(),
-          }),
-        )
-        .min(3)
-        .max(5),
-      defaultValue: [
-        {
-          level: 1,
-          label: 'Emergency',
-          color: '#F76853',
-        },
-        {
-          level: 2,
-          label: 'Very Urgent',
-          color: '#F17F16',
-        },
-        {
-          level: 3,
-          label: 'Urgent',
-          color: '#FFCC24',
-        },
-        {
-          level: 4,
-          label: 'Non-urgent',
-          color: '#47CA80',
-        },
-        {
-          level: 5,
-          label: 'Deceased',
-          color: '#67A6E3',
-        },
-      ],
+      type: triageCategoriesSchema,
+      defaultValue: triageCategoriesDefault,
     },
     fields: {
       name: 'Fields (Previously localised fields)',
@@ -602,25 +535,8 @@ export const globalSettings = {
     imagingPriorities: {
       name: 'Imaging priorities',
       description: 'List with each entry being an available imaging priority option',
-      type: yup.array(),
-      defaultValue: [
-        {
-          value: 'routine',
-          label: 'Routine',
-        },
-        {
-          value: 'urgent',
-          label: 'Urgent',
-        },
-        {
-          value: 'asap',
-          label: 'ASAP',
-        },
-        {
-          value: 'stat',
-          label: 'STAT',
-        },
-      ],
+      type: imagingPrioritiesSchema,
+      defaultValue: imagingPrioritiesDefault,
     },
   },
   invoice: {

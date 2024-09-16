@@ -4,7 +4,7 @@ import { centralSettings } from './central';
 import { facilitySettings } from './facility';
 import * as yup from 'yup';
 import _ from 'lodash';
-import { SettingsSchema } from './types';
+import { SettingsSchema } from '../types';
 import { isSetting } from './utils';
 
 const SCOPE_TO_SCHEMA = {
@@ -13,7 +13,7 @@ const SCOPE_TO_SCHEMA = {
   [SETTINGS_SCOPES.FACILITY]: facilitySettings,
 };
 
-const flattenSettings = (obj: Record<string, any>, parentKey: string = ''): Record<string, any> => {
+const flattenSettings = (obj: unknown, parentKey = '') => {
   return Object.entries(obj).reduce((acc, [key, value]) => {
     const fullKey = parentKey ? `${parentKey}.${key}` : key;
 
@@ -24,24 +24,25 @@ const flattenSettings = (obj: Record<string, any>, parentKey: string = ''): Reco
     }
 
     return acc;
-  }, {} as Record<string, any>);
+  }, {} as Record<string, unknown>);
 };
 
-const flattenSchema = (
-  schema: SettingsSchema,
-  parentKey: string = '',
-): Record<string, yup.AnySchema> => {
+const flattenSchema = (schema: SettingsSchema, parentKey = '') => {
   return Object.entries(schema.properties).reduce((acc, [key, value]) => {
     const fullKey = parentKey ? `${parentKey}.${key}` : key;
 
     if (isSetting(value)) {
       acc[fullKey] = value.type;
     } else {
-      Object.assign(acc, flattenSchema(value as SettingsSchema, fullKey));
+      Object.assign(acc, flattenSchema(value, fullKey));
     }
 
     return acc;
   }, {} as Record<string, yup.AnySchema>);
+};
+
+export const getScopedSchema = (scope: string) => {
+  return SCOPE_TO_SCHEMA[scope];
 };
 
 export const validateSettings = async ({
@@ -53,7 +54,7 @@ export const validateSettings = async ({
   scope?: string;
   schema?: SettingsSchema;
 }) => {
-  const schemaValue = scope ? SCOPE_TO_SCHEMA[scope] : schema;
+  const schemaValue = scope ? getScopedSchema(scope) : schema;
 
   if (!schemaValue) {
     throw new Error(`No schema found for scope: ${scope}`);

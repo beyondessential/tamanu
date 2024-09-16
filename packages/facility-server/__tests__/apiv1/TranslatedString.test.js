@@ -1,7 +1,7 @@
 import { fake } from '@tamanu/shared/test-helpers/fake';
 import Chance from 'chance';
 import { createTestContext } from '../utilities';
-import { REFERENCE_DATA_TRANSLATION_PREFIX } from '@tamanu/constants'
+import { REFERENCE_DATA_TRANSLATION_PREFIX } from '@tamanu/constants';
 
 const chance = new Chance();
 
@@ -107,7 +107,7 @@ describe('TranslatedString', () => {
     it('should return all translations for a given reference data endpoint in a given language', async () => {
       const { TranslatedString } = models;
 
-      const EXPECTED_REFDATA_TYPE = 'icd10';
+      const EXPECTED_REFDATA_TYPE = 'diagnosis';
 
       const expectedTranslation = await TranslatedString.create({
         stringId: `${REFERENCE_DATA_TRANSLATION_PREFIX}.${EXPECTED_REFDATA_TYPE}.testDisease`,

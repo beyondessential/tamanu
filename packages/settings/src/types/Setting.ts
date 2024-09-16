@@ -7,9 +7,3 @@ export interface Setting<T = any> {
   unit?: string;
   defaultValue: T;
 }
-
-export interface SettingsSchema {
-  name?: string;
-  description?: string;
-  properties: Record<string, Setting | SettingsSchema>;
-}
