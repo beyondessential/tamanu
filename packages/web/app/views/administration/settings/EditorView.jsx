@@ -56,10 +56,12 @@ const getSubCategoryOptions = (schema, category) => {
 };
 
 const getCategoryOptions = schema =>
-  Object.entries(schema.properties).map(([key, value]) => ({
-    value: key,
-    label: value.name || capitalize(startCase(key)),
-  }));
+  Object.entries(schema.properties)
+    .map(([key, value]) => ({
+      value: key,
+      label: value.name || capitalize(startCase(key)),
+    }))
+    .sort((a, b) => a.label.localeCompare(b.label));
 
 const prepareSchema = scope => {
   const schema = getScopedSchema(scope);
