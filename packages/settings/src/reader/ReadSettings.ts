@@ -1,6 +1,7 @@
 /* eslint-disable no-unused-vars */
 import { get as lodashGet, pick } from 'lodash';
-import { buildSettings, SettingPath } from '..';
+import { SettingPath } from '../types';
+import { buildSettings } from '..';
 import { settingsCache } from '../cache';
 import { Models } from './readers/SettingsDBReader';
 
