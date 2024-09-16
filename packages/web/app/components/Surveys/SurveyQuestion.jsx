@@ -17,6 +17,27 @@ const Text = styled.div`
   margin-bottom: 10px;
 `;
 
+const GeolocateQuestion = () => {
+  return (
+    <Box>
+      <Typography style={{ fontSize: '14px', color: Colors.darkestText, fontWeight: 500 }}>
+        {text}
+      </Typography>
+      <Typography style={{ fontSize: '14px', color: Colors.darkText }}>
+        {component.detail}
+      </Typography>
+      <Typography
+        style={{ fontSize: '14px', color: Colors.darkestText, fontStyle: 'italic', marginTop: 8 }}
+      >
+        <TranslatedText
+          stringId="program.modal.surveyResponse.geolocateNotSupported"
+          fallback="The Geolocate question type is not supported by Tamanu Desktop. Please complete the form on Tamanu Mobile if required."
+        />
+      </Typography>
+    </Box>
+  );
+};
+
 export const SurveyQuestion = ({ component, patient, inputRef, disabled, encounterType }) => {
   const {
     dataElement,
@@ -40,24 +61,7 @@ export const SurveyQuestion = ({ component, patient, inputRef, disabled, encount
 
   if (component.dataElement.type === 'Result') return <Text>{`${text} ${component.detail}`}</Text>;
   if (component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.GEOLOCATE) {
-    return (
-      <Box>
-        <Typography style={{ fontSize: '14px', color: Colors.darkestText, fontWeight: 500 }}>
-          {text}
-        </Typography>
-        <Typography style={{ fontSize: '14px', color: Colors.darkText }}>
-          {component.detail}
-        </Typography>
-        <Typography
-          style={{ fontSize: '14px', color: Colors.darkestText, fontStyle: 'italic', marginTop: 8 }}
-        >
-          <TranslatedText
-            stringId="program.modal.surveyResponse.geolocateNotSupported"
-            fallback="The Geolocate question type is not supported by Tamanu Desktop. Please complete the form on Tamanu Mobile if required."
-          />
-        </Typography>
-      </Box>
-    );
+    return <GeolocateQuestion />;
   }
   if (!FieldComponent) return <Text>{text}</Text>;
 
