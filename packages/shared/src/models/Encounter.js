@@ -80,7 +80,7 @@ export class Encounter extends Model {
         include: ['facility', 'locationGroup'],
       },
       'referralSource',
-      'diets'
+      'diets',
     ];
   }
 
@@ -198,7 +198,7 @@ export class Encounter extends Model {
       foreignKey: 'referralSourceId',
       as: 'referralSource',
     });
-    
+
     this.belongsToMany(models.ReferenceData, {
       through: models.EncounterDiet,
       as: 'diets',
@@ -345,6 +345,24 @@ export class Encounter extends Model {
     }
     await this.addSystemNote(
       `Changed department from ${oldDepartment.name} to ${newDepartment.name}`,
+      submittedTime,
+      user,
+    );
+  }
+
+  async addTriageScoreNote(triageRecord, submittedTime, user) {
+    const department = await this.sequelize.models.Department.findOne({
+      where: { id: this.departmentId },
+    });
+
+    if (!department) {
+      throw new InvalidOperationError(
+        `Couldn’t record triage score as system note; no department found with with ID ‘${this.departmentId}’`,
+      );
+    }
+
+    await this.addSystemNote(
+      `${department.name} triage score – ${triageRecord.score}`,
       submittedTime,
       user,
     );
