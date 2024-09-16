@@ -71,7 +71,6 @@ const prepareSchema = scope => {
 export const EditorView = memo(
   ({
     values,
-    setValues,
     setFieldValue,
     submitForm,
     settingsSnapshot,

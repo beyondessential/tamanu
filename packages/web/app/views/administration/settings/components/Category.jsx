@@ -8,6 +8,7 @@ import styled from 'styled-components';
 import { capitalize, startCase } from 'lodash';
 
 import { isSetting } from '@tamanu/settings';
+import { useAuth } from '../../../../contexts/Auth';
 
 const INDENT_WIDTH_PX = 20;
 
@@ -76,25 +77,20 @@ const sortProperties = ([a0, a1], [b0, b1]) => {
 };
 
 export const Category = ({ schema, path = '', getSettingValue, handleChangeSetting }) => {
+  const { ability } = useAuth();
+  // Is system admin
+  const canWriteHighRisk = ability.can('manage', 'all');
   if (!schema) return null;
   const Wrapper = path ? CategoryWrapper : Box;
-  // const nestLevel = path.split('.').length;
   const sortedProperties = Object.entries(schema.properties).sort(sortProperties);
 
   return (
     <Wrapper>
       <CategoryTitle name={schema.name} path={path} description={schema.description} />
       <>
-        {sortedProperties.map(([key, schema]) => {
+        {sortedProperties.map(([key, propertySchema]) => {
           const newPath = path ? `${path}.${key}` : key;
-          const { name, description, type, defaultValue, unit, highRisk } = schema;
-
-          // TODO: get this working on schema
-          if (highRisk) return null;
-
-          // TODO: no good
-          const isCategoryEnabled = getSettingValue(`${path}.enabled`);
-          const isEnabledKey = key === 'enabled';
+          const { name, description, type, defaultValue, unit, highRisk } = propertySchema;
 
           return type ? (
             <SettingLine key={newPath}>
@@ -106,14 +102,14 @@ export const Category = ({ schema, path = '', getSettingValue, handleChangeSetti
                 path={newPath}
                 handleChangeSetting={handleChangeSetting}
                 unit={unit}
-                // disabled={!isEnabledKey && !isCategoryEnabled}
+                disabled={!canWriteHighRisk && (schema.highRisk || highRisk)}
               />
             </SettingLine>
           ) : (
             <Category
               key={newPath}
               path={newPath}
-              schema={schema}
+              schema={propertySchema}
               getSettingValue={getSettingValue}
               handleChangeSetting={handleChangeSetting}
             />
