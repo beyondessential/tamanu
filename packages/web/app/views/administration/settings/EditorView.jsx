@@ -4,7 +4,7 @@ import styled from 'styled-components';
 
 import { getScopedSchema, isSetting } from '@tamanu/settings';
 
-import { SelectInput, TranslatedText, Button, OutlinedButton } from '../../../components';
+import { TranslatedText, Button, OutlinedButton, DynamicSelectField } from '../../../components';
 import { Colors } from '../../../constants';
 import { Box, Divider } from '@material-ui/core';
 import { Category } from './components/Category';
@@ -15,7 +15,7 @@ const SettingsWrapper = styled.div`
   margin-top: 20px;
 `;
 
-const StyledSelectInput = styled(SelectInput)`
+const StyledDynamicSelectField = styled(DynamicSelectField)`
   width: 300px;
 `;
 
@@ -186,7 +186,7 @@ export const EditorView = memo(
         <SettingsWrapper>
           <CategoryOptions p={2}>
             <Box display="flex" alignItems="center">
-              <StyledSelectInput
+              <StyledDynamicSelectField
                 label={<TranslatedText stringId="admin.settings.category" fallback="Category" />}
                 value={category}
                 onChange={handleChangeCategory}
@@ -194,7 +194,7 @@ export const EditorView = memo(
               />
               {subCategoryOptions && (
                 <Box ml={2}>
-                  <StyledSelectInput
+                  <StyledDynamicSelectField
                     label={
                       <TranslatedText
                         stringId="admin.settings.subCategory"
