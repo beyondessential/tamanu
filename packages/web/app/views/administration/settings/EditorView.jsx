@@ -128,25 +128,27 @@ export const EditorView = memo(
 
     useEffect(handleChangeScope, [scope]);
 
+    const checkDismissChanges = async () => {
+      const dismissChanges = await handleShowWarningModal();
+      if (!dismissChanges) return;
+      await resetForm();
+    };
+
     const handleChangeCategory = async e => {
       setSubCategory(null);
       const newCategory = e.target.value;
       if (newCategory !== category && dirty) {
-        const dismissChanges = await handleShowWarningModal();
-        if (!dismissChanges) return;
-        await resetForm();
+        await checkDismissChanges();
       }
       setCategory(newCategory);
     };
 
     const handleChangeSubcategory = async e => {
-      const newCategory = e.target.value;
-      if (newCategory !== category && dirty) {
-        const dismissChanges = await handleShowWarningModal();
-        if (!dismissChanges) return;
-        await resetForm();
+      const newSubCategory = e.target.value;
+      if (newSubCategory !== subCategory && dirty) {
+        await checkDismissChanges();
       }
-      setSubCategory(newCategory);
+      setSubCategory(newSubCategory);
     };
 
     const handleChangeSetting = (path, value) => {
