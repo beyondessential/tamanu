@@ -31,16 +31,17 @@ async function generateSource({ host, port, name: database, username, password }
   const client = new pg.Client({ host, port, user: username, database, password });
   await client.connect();
 
-  const sources = {
-    version: 2,
-    sources: await Promise.all(
-      ['public', 'fhir', 'logs'].map(async schemaName => {
-        return {
-          name: schemaName,
-          database: database.toLowerCase(),
-          tables: await Promise.all(
-            (await getTablesInSchema(client, schemaName)).map(async table => {
-              return {
+  const tasks = ['public', 'fhir', 'logs'].map(async schemaName => {
+    await fs.mkdir(`database/model/${schemaName}`);
+    const tasks = (await getTablesInSchema(client, schemaName)).map(async table => {
+      const sources = {
+        version: 2,
+        sources: [
+          {
+            name: schemaName,
+            database: database.toLowerCase(),
+            tables: [
+              {
                 name: table,
                 columns: (await getColumnsInRelation(client, schemaName, table)).map(column => {
                   return {
@@ -48,15 +49,17 @@ async function generateSource({ host, port, name: database, username, password }
                     data_type: column.data_type,
                   };
                 }),
-              };
-            }),
-          ),
-        };
-      }),
-    ),
-  };
+              },
+            ],
+          },
+        ],
+      };
+      await fs.writeFile(`database/model/${schemaName}/${table}.yml`, YAML.stringify(sources));
+    });
+    await Promise.all(tasks);
+  });
+  await Promise.all(tasks);
   await client.end();
-  return sources;
 }
 
 program
@@ -72,5 +75,4 @@ const opts = program.opts();
 process.env['NODE_CONFIG_DIR'] = path.join(opts.package, 'config');
 const { default: config } = await import('config');
 
-const sources = await generateSource(config.db);
-await fs.writeFile('database/model/sources.yml', YAML.stringify(sources));
+await generateSource(config.db);
