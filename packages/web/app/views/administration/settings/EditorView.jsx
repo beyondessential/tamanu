@@ -33,6 +33,8 @@ const CategoriesWrapper = styled.div`
   padding: 20px;
 `;
 
+const UNCATEGORISED_KEY = 'uncategorised';
+
 const recursiveJsonParse = obj => {
   if (typeof obj !== 'object') return obj;
   if (Array.isArray(obj)) return obj.map(recursiveJsonParse);
@@ -71,7 +73,7 @@ const prepareSchema = scope => {
     const categories = omitBy(schema.properties, isSetting);
     schema.properties = {
       ...categories,
-      uncategorised: {
+      [UNCATEGORISED_KEY]: {
         properties: uncategorised,
       },
     };
@@ -155,7 +157,10 @@ export const EditorView = memo(
     };
 
     // Get initial value from snapshot, otherwise grab from current formik state once it exists
-    const getSettingValue = path => get(currentSettings, `${category}.${path}`);
+    const getSettingValue = path => {
+      const prefix = category === UNCATEGORISED_KEY ? '' : `${category}.`;
+      return get(settingsSnapshot, `${prefix}${path}`);
+    };
 
     const saveSettings = async event => {
       // Need to parse json string objects stored in keys
@@ -163,10 +168,9 @@ export const EditorView = memo(
 
       const settingsPayload = {
         ...parsedSettings,
-        ...parsedSettings.uncategorised,
+        ...parsedSettings[UNCATEGORISED_KEY],
       };
-
-      delete settingsPayload.uncategorised;
+      delete settingsPayload[UNCATEGORISED_KEY];
 
       setValues({ ...values, settings: settingsPayload });
       const success = await submitForm(event);
