@@ -167,7 +167,7 @@ export const EditorView = memo(
       };
 
       delete settingsPayload.uncategorised;
-      setFieldValue('settings', parsedSettings);
+      setFieldValue('settings', settingsPayload);
       const success = await submitForm(event);
       if (success) {
         setCategory(null);
