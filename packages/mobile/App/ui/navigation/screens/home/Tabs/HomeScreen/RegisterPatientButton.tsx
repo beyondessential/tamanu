@@ -1,12 +1,12 @@
 import React, { ReactElement, useCallback } from 'react';
 import { useNavigation } from '@react-navigation/native';
-import { useLocalisation } from '~/ui/contexts/LocalisationContext';
 import { theme } from '/styled/theme';
 import { ProfileIcon } from '/components/Icons';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { RowView, StyledText, StyledTouchableOpacity, StyledView } from '/styled/common';
 import { Routes } from '/helpers/routes';
 import { TranslatedText } from '/components/Translations/TranslatedText';
+import { useSettings } from '~/ui/contexts/SettingsContext';
 
 const RegisterPatientButton = (): ReactElement => {
   const navigation = useNavigation();
@@ -58,8 +58,8 @@ const RegisterPatientButton = (): ReactElement => {
 };
 
 export const ConditionalRegisterPatientButton = (): ReactElement => {
-  const { getBool } = useLocalisation();
-  const allowRegisterPatient = getBool('features.registerNewPatient');
+  const { getSetting } = useSettings();
+  const allowRegisterPatient = getSetting<boolean>('features.registerNewPatient');
   if (allowRegisterPatient) {
     return <RegisterPatientButton />;
   }

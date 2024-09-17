@@ -13,12 +13,12 @@ export const surveyResponseAnswer = express.Router();
 surveyResponseAnswer.put(
   '/vital/:id',
   asyncHandler(async (req, res) => {
-    const { db, models, user, params, getLocalisation } = req;
+    const { db, models, user, params, settings } = req;
     const { SurveyResponseAnswer, SurveyResponse, Survey, VitalLog, ProgramDataElement } = models;
     const { id } = params;
 
-    const localisation = await getLocalisation();
-    if (!localisation?.features?.enableVitalEdit) {
+    const enableVitalEdit = await settings.get('features.enableVitalEdit');
+    if (!enableVitalEdit) {
       throw new InvalidOperationError('Editing vitals is disabled.');
     }
 
@@ -71,14 +71,14 @@ surveyResponseAnswer.put(
 surveyResponseAnswer.post(
   '/vital',
   asyncHandler(async (req, res) => {
-    const { db, models, user, getLocalisation } = req;
+    const { db, models, user, settings } = req;
     const { SurveyResponseAnswer, SurveyResponse, Survey, VitalLog, ProgramDataElement } = models;
     req.checkPermission('create', 'Vitals');
 
     // Even though this wouldn't technically be editing a vital
     // we will not allow the creation of a single vital answer if its not enabled
-    const localisation = await getLocalisation();
-    if (!localisation?.features?.enableVitalEdit) {
+    const enableVitalEdit = await settings.get('features.enableVitalEdit');
+    if (!enableVitalEdit) {
       throw new InvalidOperationError('Editing vitals is disabled.');
     }
 

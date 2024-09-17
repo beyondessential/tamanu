@@ -21,14 +21,156 @@ export const globalSettings = {
   description: 'Settings that apply to all servers',
   properties: {
     features: {
-      name: 'Features',
-      description: 'Feature flags',
+      description: 'Toggle features on/off',
       properties: {
         mandateSpecimenType: {
-          name: 'Mandate specimen type',
           description: '_',
           type: yup.boolean(),
           defaultValue: false,
+        },
+        enableVaccineConsent: {
+          description: 'Show consent given by field on vaccine forms',
+          type: yup.boolean(),
+          defaultValue: true,
+        },
+        filterDischargeDispositions: {
+          description:
+            'Filter the discharge disposition autocomplete options by prefix corresponding to patients status (AE, IN, OP)',
+          type: yup.boolean(),
+          defaultValue: false,
+        },
+        editPatientDetailsOnMobile: {
+          description: 'Allow the editing of patient details from mobile',
+          type: yup.boolean(),
+          defaultValue: true,
+        },
+        quickPatientGenerator: {
+          description: 'Dev tool to show a button to create a random patient',
+          type: yup.boolean(),
+          defaultValue: false,
+        },
+        enableInvoicing: {
+          description: 'Enable invoice tab/module on encounter view',
+          type: yup.boolean(),
+          defaultValue: false,
+        },
+        registerNewPatient: {
+          description: 'Allow the creation of new patient on mobile',
+          type: yup.boolean(),
+          defaultValue: true,
+        },
+        hideOtherSex: {
+          description: 'Remove option to record sex as "Other"',
+          type: yup.boolean(),
+          defaultValue: true,
+        },
+        enablePatientDeaths: {
+          description: 'Enable death module',
+          type: yup.boolean(),
+          defaultValue: false,
+        },
+        enableNoteBackdating: {
+          description:
+            'Allow notes to have date explicitly recorded, allowing notes to be recorded in the past',
+          type: yup.boolean(),
+          defaultValue: true,
+        },
+        enableCovidClearanceCertificate: {
+          description: 'Enable covid certificate printout',
+          type: yup.boolean(),
+          defaultValue: false,
+        },
+        editPatientDisplayId: {
+          description: 'Allow the editing of an existing patients display id',
+          type: yup.boolean(),
+          defaultValue: true,
+        },
+        enablePatientInsurer: {
+          description:
+            'Include insurer and policy number as fields in patient details identification section',
+          type: yup.boolean(),
+          defaultValue: false,
+        },
+        patientPlannedMove: {
+          description: 'Enable patient planned move encounter actions',
+          type: yup.boolean(),
+          defaultValue: false,
+        },
+        onlyAllowLabPanels: {
+          description: 'Only allow lab tests to be created via panels and not individual tests',
+          type: yup.boolean(),
+          defaultValue: false,
+        },
+        displayProcedureCodesInDischargeSummary: {
+          type: yup.boolean(),
+          defaultValue: true,
+        },
+        displayIcd10CodesInDischargeSummary: {
+          type: yup.boolean(),
+          defaultValue: true,
+        },
+        mandatoryVitalEditReason: {
+          description: 'Require a reason for change text field to be filled out on vital edit',
+          type: yup.boolean(),
+          defaultValue: false,
+        },
+        enableVitalEdit: {
+          description: 'Allow existing vitals records to be edited',
+          type: yup.boolean(),
+          defaultValue: false,
+        },
+        reminderContactModule: {
+          properties: {
+            enabled: {
+              type: yup.boolean(),
+              defaultValue: false,
+            },
+          },
+        },
+        idleTimeout: {
+          description: 'Automatically logout idle users / inactive sessions after a certain time',
+          properties: {
+            enabled: {
+              type: yup.boolean(),
+              defaultValue: true,
+            },
+            timeoutDuration: {
+              description: 'The idle time before a user is logged out',
+              type: yup.number(),
+              defaultValue: 600,
+              unit: 'seconds',
+            },
+            warningPromptDuration: {
+              description: 'The time the warning prompt should be visible before idle logout',
+              type: yup.number(),
+              defaultValue: 30,
+              unit: 'seconds',
+            },
+            refreshInterval: {
+              description:
+                'Technical really should not be changed - The interval in which to throttle the idle check by for performance',
+              type: yup.number(),
+              defaultValue: 150,
+              unit: 'seconds',
+            },
+          },
+        },
+        tableAutoRefresh: {
+          description:
+            'Enable the auto refresh feature on tables where it is implemented: Currently supports imaging and lab listing views',
+          properties: {
+            enabled: {
+              type: yup.boolean(),
+              defaultValue: true,
+              unit: 'seconds',
+            },
+            interval: {
+              description: 'Interval in seconds between check for new records.',
+              type: yup.number(),
+              defaultValue: 300,
+              unit: 'seconds',
+            },
+          },
         },
       },
     },
@@ -37,7 +179,6 @@ export const globalSettings = {
       description: 'Customisation of the application',
       properties: {
         componentVersions: {
-          name: 'Component versions',
           description: '_',
           type: yup.object(),
           defaultValue: {},

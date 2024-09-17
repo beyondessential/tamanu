@@ -150,6 +150,7 @@ describe('Schemas', () => {
       ).rejects.toThrow(yup.ValidationError);
     });
 
+    // Temporarily skip test for feature testing
     it.skip('Should warn for unknown fields', async () => {
       const unknownSettings = {
         integrations: {
@@ -228,6 +229,7 @@ describe('Schemas', () => {
       ).rejects.toThrow(yup.ValidationError);
     });
 
+    // Temporarily skip test for feature testing
     it.skip('Should warn for unknown fields', async () => {
       const unknownSettings = {
         templates: {

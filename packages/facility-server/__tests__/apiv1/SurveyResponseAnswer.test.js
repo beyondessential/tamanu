@@ -150,13 +150,7 @@ describe('SurveyResponseAnswer', () => {
         return response;
       };
 
-      // Currently we don't have a way of accessing the central server config
-      // from facility server tests. This feature needs to read that config.
-      const mockLocalisation = { features: { enableVitalEdit: true } };
-      await models.UserLocalisationCache.create({
-        userId: app.user.id,
-        localisation: JSON.stringify(mockLocalisation),
-      });
+      await models.Setting.set('features.enableVitalEdit', true);
     });
 
     describe('getDefaultId', () => {
@@ -336,28 +330,10 @@ describe('SurveyResponseAnswer', () => {
       });
 
       it('should return error if feature flag is off', async () => {
-        const localisationCache = await models.UserLocalisationCache.findOne({
-          where: {
-            userId: app.user.id,
-          },
-        });
-        await localisationCache.update({
-          localisation: JSON.stringify({ features: { enableVitalEdit: false } }),
-        });
+        await models.Setting.set('features.enableVitalEdit', false);
 
         const result = await app.put(`/api/surveyResponseAnswer/vital/nonImportantID`).send({
           reasonForChange: 'test7',
-          newValue: chance.integer({ min: 0, max: 100 }),
-        });
-        expect(result).not.toHaveSucceeded();
-        expect(result.status).toBe(422);
-      });
-
-      it('should return error if feature flag does not exist', async () => {
-        await models.UserLocalisationCache.truncate({ cascade: true });
-
-        const result = await app.put(`/api/surveyResponseAnswer/vital/nonImportantID`).send({
-          reasonForChange: 'test8',
           newValue: chance.integer({ min: 0, max: 100 }),
         });
         expect(result).not.toHaveSucceeded();
@@ -383,14 +359,7 @@ describe('SurveyResponseAnswer', () => {
           config: '',
         });
 
-        // Currently we don't have a way of accessing the central server config
-        // from facility server tests. This feature needs to read that config.
-        const mockLocalisation = { features: { enableVitalEdit: true } };
-        await models.UserLocalisationCache.upsert({
-          userId: app.user.id,
-          localisation: JSON.stringify(mockLocalisation),
-          deletedAt: null,
-        });
+        await models.Setting.set('features.enableVitalEdit', true)
       });
 
       it('should create a survey response answer', async () => {
@@ -438,28 +407,10 @@ describe('SurveyResponseAnswer', () => {
       });
 
       it('should return error if feature flag is off', async () => {
-        const localisationCache = await models.UserLocalisationCache.findOne({
-          where: {
-            userId: app.user.id,
-          },
-        });
-        await localisationCache.update({
-          localisation: JSON.stringify({ features: { enableVitalEdit: false } }),
-        });
+        await models.Setting.set('features.enableVitalEdit', false)
 
         const result = await app.post('/api/surveyResponseAnswer/vital').send({
           reasonForChange: 'another-test3',
-          newValue: chance.integer({ min: 0, max: 100 }),
-        });
-        expect(result).not.toHaveSucceeded();
-        expect(result.status).toBe(422);
-      });
-
-      it('should return error if feature flag does not exist', async () => {
-        await models.UserLocalisationCache.truncate({ cascade: true, force: true });
-
-        const result = await app.post('/api/surveyResponseAnswer/vital').send({
-          reasonForChange: 'another-test4',
           newValue: chance.integer({ min: 0, max: 100 }),
         });
         expect(result).not.toHaveSucceeded();
