@@ -28,26 +28,26 @@ describe('PatientDeath', () => {
       facilityId,
     });
     const cond1 = await ReferenceData.create({
-      id: 'ref/icd10/K07.9',
-      type: 'icd10',
+      id: 'ref/diagnosis/K07.9',
+      type: 'diagnosis',
       code: 'K07.9',
       name: 'Dentofacial anomaly',
     });
     const cond2 = await ReferenceData.create({
-      id: 'ref/icd10/A51.3',
-      type: 'icd10',
+      id: 'ref/diagnosis/A51.3',
+      type: 'diagnosis',
       code: 'A51.3',
       name: 'Secondary syphilis of skin',
     });
     const cond3 = await ReferenceData.create({
-      id: 'ref/icd10/R41.0',
-      type: 'icd10',
+      id: 'ref/diagnosis/R41.0',
+      type: 'diagnosis',
       code: 'R41.0',
       name: 'Confusion',
     });
     const cond4 = await ReferenceData.create({
-      id: 'ref/icd10/R42.0',
-      type: 'icd10',
+      id: 'ref/diagnosis/R42.0',
+      type: 'diagnosis',
       code: 'R42.0',
       name: 'Test',
     });

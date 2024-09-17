@@ -119,7 +119,7 @@ with
   cte_diabetes_diagnoses as (
     select 1 as exist, diagnosis_encounter.start_date::date as diagnosis_date, patient_id from encounter_diagnoses ed
       join reference_data rd
-      on rd."type" = 'icd10' and rd.id = ed.diagnosis_id
+      on rd."type" = 'diagnosis' and rd.id = ed.diagnosis_id
       join encounters diagnosis_encounter
       on ed.encounter_id = diagnosis_encounter.id
       WHERE rd.code IN ('icd10-E11') and certainty not in ('disproven','error')
@@ -127,7 +127,7 @@ with
   cte_hypertension_diagnoses as (
     select 1 as exist, diagnosis_encounter.start_date::date as diagnosis_date, patient_id from encounter_diagnoses ed
       join reference_data rd
-      on rd."type" = 'icd10' and rd.id = ed.diagnosis_id
+      on rd."type" = 'diagnosis' and rd.id = ed.diagnosis_id
       join encounters diagnosis_encounter
       on ed.encounter_id = diagnosis_encounter.id
       WHERE rd.code in ('icd10-I10') and certainty not in ('disproven','error')

@@ -24,7 +24,7 @@ const sampleResponse = {
       'referenceData:allergy': 10,
       'referenceData:department': 10,
       'referenceData:location': 10,
-      'referenceData:icd10': 10,
+      'referenceData:diagnosis': 10,
       'referenceData:triageReason': 10,
       'referenceData:imagingType': 4,
       'referenceData:procedureType': 10,

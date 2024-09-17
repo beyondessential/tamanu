@@ -59,7 +59,7 @@ export const DeathForm = React.memo(
     patient,
     deathData,
     practitionerSuggester,
-    icd10Suggester,
+    diagnosisSuggester,
     facilitySuggester,
   }) => {
     const { getTranslation } = useTranslation();
@@ -176,7 +176,7 @@ export const DeathForm = React.memo(
             name="causeOfDeath"
             label={<TranslatedText stringId="death.causeOfDeath.label" fallback="Cause Of Death" />}
             component={AutocompleteField}
-            suggester={icd10Suggester}
+            suggester={diagnosisSuggester}
             tooltipText={
               <TranslatedText
                 stringId="death.causeOfDeath.tooltip"
@@ -205,7 +205,7 @@ export const DeathForm = React.memo(
               />
             }
             component={AutocompleteField}
-            suggester={icd10Suggester}
+            suggester={diagnosisSuggester}
           />
           <Field
             name="antecedentCause1Interval"
@@ -226,7 +226,7 @@ export const DeathForm = React.memo(
               />
             }
             component={AutocompleteField}
-            suggester={icd10Suggester}
+            suggester={diagnosisSuggester}
           />
           <Field
             name="antecedentCause2Interval"
@@ -247,7 +247,7 @@ export const DeathForm = React.memo(
               />
             }
             component={AutocompleteField}
-            suggester={icd10Suggester}
+            suggester={diagnosisSuggester}
           />
           <Field
             name="antecedentCause3Interval"
@@ -274,7 +274,7 @@ export const DeathForm = React.memo(
                     />
                   }
                   component={AutocompleteField}
-                  suggester={icd10Suggester}
+                  suggester={diagnosisSuggester}
                 />
                 <MuiBox display="flex" alignItems="center">
                   <Field
@@ -344,7 +344,7 @@ export const DeathForm = React.memo(
               />
             }
             component={AutocompleteField}
-            suggester={icd10Suggester}
+            suggester={diagnosisSuggester}
             visibilityCriteria={{ surgeryInLast4Weeks: 'yes' }}
           />
         </StyledFormGrid>
@@ -474,7 +474,7 @@ export const DeathForm = React.memo(
                 />
               }
               component={AutocompleteField}
-              suggester={icd10Suggester}
+              suggester={diagnosisSuggester}
             />
             <Field
               name="deathWithin24HoursOfBirth"

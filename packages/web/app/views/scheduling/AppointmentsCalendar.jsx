@@ -18,7 +18,7 @@ import { useApi, useSuggester } from '../../api';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
 import { useAuth } from '../../contexts/Auth';
 import { ErrorMessage } from '../../components/ErrorMessage';
-import { APPOINTMENT_TYPES } from '@tamanu/constants';
+import { APPOINTMENT_TYPE_LABELS } from '@tamanu/constants';
 
 const LeftContainer = styled.div`
   min-height: 100%;
@@ -192,7 +192,7 @@ export const AppointmentsCalendar = () => {
               }}
               value={appointmentType}
               name="appointmentType"
-              enumValues={APPOINTMENT_TYPES}
+              enumValues={APPOINTMENT_TYPE_LABELS}
             />
           </Section>
         </LeftContainer>
