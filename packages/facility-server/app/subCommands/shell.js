@@ -8,9 +8,11 @@ import { log } from '@tamanu/shared/services/logging';
 
 import { version } from '../serverInfo';
 import { ApplicationContext } from '../ApplicationContext';
+import { selectFacilityIds } from '@tamanu/shared/utils/configSelectors';
 
 export const shell = async ({ skipMigrationCheck }) => {
-  log.info(`Starting shell in Facility Server ${version} ${config.serverFacilityIds.join(', ')}`);
+  const facilityIds = selectFacilityIds(config);
+  log.info(`Starting shell in Facility Server ${version} ${facilityIds.join(', ')}`);
 
   const context = await new ApplicationContext().init();
 
