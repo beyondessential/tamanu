@@ -5,10 +5,10 @@ import { join } from 'path';
 import { Command } from 'commander';
 
 import { log } from '@tamanu/shared/services/logging';
+import { selectFacilityIds } from '@tamanu/shared/utils/configSelectors';
 
 import { version } from '../serverInfo';
 import { ApplicationContext } from '../ApplicationContext';
-import { selectFacilityIds } from '@tamanu/shared/utils/configSelectors';
 
 export const shell = async ({ skipMigrationCheck }) => {
   const facilityIds = selectFacilityIds(config);
