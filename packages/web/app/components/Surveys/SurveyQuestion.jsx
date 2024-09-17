@@ -17,7 +17,7 @@ const Text = styled.div`
   margin-bottom: 10px;
 `;
 
-const GeolocateQuestion = () => {
+const GeolocateQuestion = ({ text, component }) => {
   return (
     <Box>
       <Typography style={{ fontSize: '14px', color: Colors.darkestText, fontWeight: 500 }}>
@@ -61,7 +61,7 @@ export const SurveyQuestion = ({ component, patient, inputRef, disabled, encount
 
   if (component.dataElement.type === 'Result') return <Text>{`${text} ${component.detail}`}</Text>;
   if (component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.GEOLOCATE) {
-    return <GeolocateQuestion />;
+    return <GeolocateQuestion text={text} component={component} />;
   }
   if (!FieldComponent) return <Text>{text}</Text>;
 
