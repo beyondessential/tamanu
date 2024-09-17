@@ -217,7 +217,6 @@ export const EditorView = memo(
             </div>
           </CategoryOptions>
           <Divider />
-
           {category && (
             <CategoriesWrapper p={2}>
               <Category
