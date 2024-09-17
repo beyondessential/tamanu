@@ -135,10 +135,7 @@ export class CentralSyncManager {
       return { sessionId: syncSession.id, tick };
     } catch (error) {
       log.error('CentralSyncManager.prepareSession encountered an error', error);
-      await this.store.models.SyncSession.update(
-        { error: error.message },
-        { where: { id: syncSession.id } },
-      );
+      await this.store.models.SyncSession.markSessionErrored(syncSession.id, error.message);
     }
   }
 
@@ -488,9 +485,9 @@ export class CentralSyncManager {
     // if this session is not marked as processing, but also never set startedAtTick, record an error
     const session = await this.connectToSession(sessionId);
     if (session.startedAtTick === null) {
-      session.error =
-        'Session initiation incomplete, likely because the central server restarted during the process';
-      await session.save();
+      await session.markErrored(
+        'Session initiation incomplete, likely because the central server restarted during the process',
+      );
       throw new Error(errorMessageFromSession(session));
     }
 
@@ -638,9 +635,9 @@ export class CentralSyncManager {
     // if this session is not marked as processing, but also never set persistCompletedAt, record an error
     const session = await this.connectToSession(sessionId);
     if (session.persistCompletedAt === null) {
-      session.error =
-        'Push persist incomplete, likely because the central server restarted during the process';
-      await session.save();
+      await session.markErrored(
+        'Push persist incomplete, likely because the central server restarted during the process',
+      );
       throw new Error(errorMessageFromSession(session));
     }
 
