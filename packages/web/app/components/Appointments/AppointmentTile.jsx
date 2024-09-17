@@ -72,6 +72,7 @@ export const AppointmentTile = ({
   <Wrapper
     $color={APPOINTMENT_STATUS_COLORS[appointmentStatus] ?? Colors.blue}
     $selected={selected}
+    tabIndex={0}
     {...props}
   >
     <Label $strikethrough={appointmentStatus === APPOINTMENT_STATUSES.NO_SHOW}>
