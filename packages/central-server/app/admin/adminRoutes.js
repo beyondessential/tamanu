@@ -3,6 +3,8 @@ import asyncHandler from 'express-async-handler';
 
 import { ensurePermissionCheck } from '@tamanu/shared/permissions/middleware';
 import { NotFoundError } from '@tamanu/shared/errors';
+import { simpleGetList } from '@tamanu/shared/utils/crudHelpers';
+import { settingsCache } from '@tamanu/settings';
 
 import { exporterRouter } from './exporter';
 import { importerRouter } from './importer';
@@ -14,7 +16,6 @@ import { templateRoutes } from './template';
 import { reportsRouter } from './reports/reportRoutes';
 import { syncLastCompleted } from './sync';
 import { translationRouter } from './translation';
-import { settingsCache } from '@tamanu/settings';
 import { usersRouter } from './users';
 
 export const adminRoutes = express.Router();
@@ -49,6 +50,8 @@ adminRoutes.get(
 
 adminRoutes.use('/import', importerRouter);
 adminRoutes.use('/export', exporterRouter);
+
+adminRoutes.get('/programs', simpleGetList('Program'));
 
 adminRoutes.get('/sync/lastCompleted', syncLastCompleted);
 
