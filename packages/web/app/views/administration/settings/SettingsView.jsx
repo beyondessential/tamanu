@@ -58,7 +58,9 @@ const tabs = [
     render: props => (
       <TabContainer $backgroundColor={Colors.background}>
         <ScopeSelectorFields {...props} />
-        <EditorView {...props} />
+        {(props.scope !== SETTINGS_SCOPES.FACILITY || props.facilityId) && (
+          <EditorView {...props} />
+        )}
       </TabContainer>
     ),
   },

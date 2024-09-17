@@ -65,6 +65,7 @@ export const ScopeSelectorFields = React.memo(
             onChange={handleChangeFacilityId}
             value={facilityId}
             error={!!error}
+            required
           />
         )}
       </>
