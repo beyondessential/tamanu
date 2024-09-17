@@ -201,7 +201,9 @@ describe('PatientProgramRegistration', () => {
       );
 
       // Add a small delay so the registrations are definitely created at distinctly different times.
-      await new Promise(resolve => { setTimeout(resolve, 100) });
+      await new Promise(resolve => {
+        setTimeout(resolve, 100);
+      });
 
       const result = await app.post(`/api/patient/${patient.id}/programRegistration`).send({
         // clinicianId: Should come from existing registration
@@ -461,12 +463,11 @@ describe('PatientProgramRegistration', () => {
         );
         const result = await app
           .delete(
-            `/api/patient/${patient.id}/programRegistration/${programRegistry1.id}/condition/${createdCondition.id}`,
+            `/api/patient/${patient.id}/programRegistration/${programRegistry1.id}/condition/${createdCondition.id}?deletionDate="2023-09-02 08:00:00"`,
           )
           .send({
             programRegistryConditionId: programRegistryCondition.id,
             deletionClinicianId: clinician.id,
-            deletionDate: '2023-09-02 08:00:00',
           });
 
         expect(result).toHaveSucceeded();
@@ -541,14 +542,14 @@ describe('PatientProgramRegistration', () => {
           ['create', 'PatientProgramRegistrationCondition'],
         ];
         const appWithPermissions = await ctx.baseApp.asNewRole(permissions);
-        const result = await appWithPermissions.post(
-          `/api/patient/${patient.id}/programRegistration`,
-        ).send({
-          programRegistryId: programRegistry.id,
-          clinicianId: app.user.id,
-          patientId: patient.id,
-          date: TEST_DATE_EARLY,
-        });
+        const result = await appWithPermissions
+          .post(`/api/patient/${patient.id}/programRegistration`)
+          .send({
+            programRegistryId: programRegistry.id,
+            clinicianId: app.user.id,
+            patientId: patient.id,
+            date: TEST_DATE_EARLY,
+          });
 
         expect(result).toBeForbidden();
       });
@@ -565,14 +566,14 @@ describe('PatientProgramRegistration', () => {
           ['create', 'PatientProgramRegistrationCondition'],
         ];
         const appWithPermissions = await ctx.baseApp.asNewRole(permissions);
-        const result = await appWithPermissions.post(
-          `/api/patient/${patient.id}/programRegistration`,
-        ).send({
-          programRegistryId: programRegistry.id,
-          clinicianId: app.user.id,
-          patientId: patient.id,
-          date: TEST_DATE_EARLY,
-        });
+        const result = await appWithPermissions
+          .post(`/api/patient/${patient.id}/programRegistration`)
+          .send({
+            programRegistryId: programRegistry.id,
+            clinicianId: app.user.id,
+            patientId: patient.id,
+            date: TEST_DATE_EARLY,
+          });
 
         expect(result).toHaveSucceeded();
         expect(result.body.programRegistryId).toBe(programRegistry.id);
