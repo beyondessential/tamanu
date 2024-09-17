@@ -17,7 +17,7 @@ const Svg = styled.svg.attrs({
   fill: transparent;
 `;
 
-export const CheckIconFilled = ({ htmlColor, ...props }) => (
+export const CheckIconFilled = ({ htmlColor = 'currentColor', ...props }) => (
   <Svg {...props}>
     <path
       d="M5.10158 0C2.3795 0 0.152344 2.25 0.152344 5C0.152344 7.75 2.3795 10 5.10158 10C7.82366 10 10.0508 7.75 10.0508 5C10.0508 2.25 7.82366 0 5.10158 0ZM7.86491 3.625L4.56541 6.95833C4.48293 7.04167 4.40044 7.08333 4.27671 7.08333C4.15298 7.08333 4.07049 7.04167 3.988 6.95833L2.33826 5.29167C2.17328 5.125 2.17328 4.875 2.33826 4.70833C2.50323 4.54167 2.75069 4.54167 2.91567 4.70833L4.27671 6.08333L7.2875 3.04167C7.45247 2.875 7.69993 2.875 7.86491 3.04167C8.02988 3.20833 8.02988 3.45833 7.86491 3.625Z"
@@ -26,7 +26,7 @@ export const CheckIconFilled = ({ htmlColor, ...props }) => (
   </Svg>
 );
 
-export const CheckIconOutlined = ({ htmlColor, ...props }) => (
+export const CheckIconOutlined = ({ htmlColor = 'currentColor', ...props }) => (
   <Svg {...props}>
     <path
       fillRule="evenodd"
@@ -38,19 +38,19 @@ export const CheckIconOutlined = ({ htmlColor, ...props }) => (
   </Svg>
 );
 
-export const CircleIconDashed = ({ htmlColor, ...props }) => (
+export const CircleIconDashed = ({ htmlColor = 'currentColor', ...props }) => (
   <Svg {...props}>
     <circle cx="5" cy="5" r="4.5" stroke={htmlColor} strokeDasharray="2 2" />
   </Svg>
 );
 
-export const CircleIconOutlined = ({ htmlColor, ...props }) => (
+export const CircleIconOutlined = ({ htmlColor = 'currentColor', ...props }) => (
   <Svg {...props}>
     <circle cx="5" cy="5" r="4.5" stroke={htmlColor} />
   </Svg>
 );
 
-export const CrossIconFilled = ({ htmlColor, ...props }) => (
+export const CrossIconFilled = ({ htmlColor = 'currentColor', ...props }) => (
   <Svg {...props}>
     <circle cx="5" cy="5" r="5" fill={htmlColor} />
     <path
@@ -63,5 +63,5 @@ export const CrossIconFilled = ({ htmlColor, ...props }) => (
 export const AppointmentStatusIcon = ({ appointmentStatus, ...props }) => {
   const IconComponent = APPOINTMENT_STATUS_ICONS[appointmentStatus] ?? CircleIconOutlined;
   const fill = APPOINTMENT_STATUS_COLORS[appointmentStatus] ?? Colors.blue;
-  return <IconComponent htmlColor={fill} {...props} />;
+  return <IconComponent aria-label={appointmentStatus} htmlColor={fill} {...props} />;
 };
