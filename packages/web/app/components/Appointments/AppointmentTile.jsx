@@ -10,7 +10,7 @@ import { AppointmentStatusIcon as StatusIcon } from '../Icons';
 import { formatTime } from '../DateDisplay';
 
 const Wrapper = styled.div`
-  ${({ $color, $selected }) =>
+  ${({ $color = Colors.blue, $selected }) =>
     css`
       --bg-lighter: oklch(from ${$color} l c h / 10%);
       --bg-darker: oklch(from ${$color} l c h / 20%);
@@ -70,7 +70,7 @@ export const AppointmentTile = ({
   ...props
 }) => (
   <Wrapper
-    $color={APPOINTMENT_STATUS_COLORS[appointmentStatus] ?? Colors.blue}
+    $color={APPOINTMENT_STATUS_COLORS[appointmentStatus]}
     $selected={selected}
     tabIndex={0}
     {...props}
