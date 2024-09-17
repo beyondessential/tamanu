@@ -15,8 +15,14 @@ export class UserPreference extends Model {
             // any sets of the convenience generated "id" field can be ignored, so do nothing here
           },
         },
-        preferenceKey: Sequelize.STRING,
-        preferenceValue: Sequelize.JSONB,
+        key: {
+          type: DataTypes.STRING,
+          allowNull: false,
+        },
+        value: {
+          type: Sequelize.JSONB,
+          allowNull: false,
+        },
         userId: {
           type: DataTypes.STRING,
           primaryKey: true,
