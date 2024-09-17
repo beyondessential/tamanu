@@ -7,7 +7,7 @@ import { LOCAL_STORAGE_KEYS } from '../constants';
 import { getDeviceId, notifyError } from '../utils';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 
-const { TOKEN, LOCALISATION, SERVER, PERMISSIONS, ROLE, SETTINGS } = LOCAL_STORAGE_KEYS;
+const { TOKEN, LOCALISATION, SERVER, PERMISSIONS, ROLE, SETTINGS, LANGUAGE } = LOCAL_STORAGE_KEYS;
 
 function safeGetStoredJSON(key) {
   try {
@@ -74,6 +74,12 @@ export class TamanuApi extends ApiClient {
       agentName: SERVER_TYPES.WEBAPP,
       agentVersion: appVersion,
       deviceId: getDeviceId(),
+    });
+
+    this.interceptors.request.use(config => {
+      const language = localStorage.getItem(LANGUAGE);
+      config.headers['language'] = language;
+      return config;
     });
   }
 

@@ -5,7 +5,7 @@ import { TranslatedText } from '../Translation';
 import styled from 'styled-components';
 import { Colors } from '../../constants';
 import { useParsedCronExpression } from '../../utils/useParsedCronExpression';
-import { formatDistanceToNow, parseISO } from 'date-fns';
+import { formatDistanceToNow } from 'date-fns';
 import { useTranslation } from '../../contexts/Translation';
 
 const SmallText = styled(BodyText)`
@@ -37,7 +37,7 @@ export const UpdateStatsDisplay = ({
 
   const dateAsDistanceToNow = useCallback(
     date =>
-      formatDistanceToNow(parseISO(date), {
+      formatDistanceToNow(new Date(date), {
         addSuffix: getTranslation('schedule.distanceFromNow.suffix', 'ago'),
       }),
     [getTranslation],

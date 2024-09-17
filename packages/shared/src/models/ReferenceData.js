@@ -44,6 +44,12 @@ export class ReferenceData extends Model {
   }
 
   static initRelations(models) {
+    this.belongsToMany(models.Encounter, {
+      through: models.EncounterDiet,
+      as: 'diet',
+      foreignKey: 'dietId',
+    });
+
     this.belongsToMany(models.ImagingRequest, {
       through: models.ImagingRequestArea,
       as: 'area',
@@ -134,6 +140,10 @@ export class ReferenceData extends Model {
   }
 
   static buildSyncFilter() {
+    return null; // syncs everywhere
+  }
+
+  static buildSyncLookupQueryDetails() {
     return null; // syncs everywhere
   }
 }

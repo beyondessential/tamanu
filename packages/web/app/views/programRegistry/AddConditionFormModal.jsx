@@ -16,6 +16,7 @@ import { useApi } from '../../api';
 import { foreignKey } from '../../utils/validation';
 import { FORM_TYPES } from '../../constants';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
+import { useAuth } from '../../contexts/Auth';
 
 const StyledFormGrid = styled(FormGrid)`
   grid-column: 1 / -1;
@@ -34,6 +35,7 @@ export const AddConditionFormModal = ({
 }) => {
   const api = useApi();
   const queryClient = useQueryClient();
+  const { currentUser } = useAuth();
 
   const submit = async data => {
     await api.post(
@@ -42,7 +44,10 @@ export const AddConditionFormModal = ({
       )}/programRegistration/${encodeURIComponent(
         patientProgramRegistration.programRegistryId,
       )}/condition`,
-      data,
+      {
+        ...data,
+        clinicianId: currentUser.id,
+      },
     );
     queryClient.invalidateQueries(['PatientProgramRegistryConditions']);
     onClose();

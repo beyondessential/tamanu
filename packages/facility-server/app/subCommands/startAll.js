@@ -7,12 +7,13 @@ import { performTimeZoneChecks } from '@tamanu/shared/utils/timeZoneCheck';
 import { checkConfig } from '../checkConfig';
 import { initDeviceId } from '../sync/initDeviceId';
 import { performDatabaseIntegrityChecks } from '../database';
-import { CentralServerConnection, FacilitySyncManager } from '../sync';
-import { createApp } from '../createApp';
+import { CentralServerConnection, FacilitySyncManager, FacilitySyncConnection } from '../sync';
+import { createApiApp } from '../createApiApp';
 import { startScheduledTasks } from '../tasks';
 
 import { version } from '../serverInfo';
 import { ApplicationContext } from '../ApplicationContext';
+import { createSyncApp } from '../createSyncApp';
 
 async function startAll({ skipMigrationCheck }) {
   log.info(`Starting facility server version ${version}`, {
@@ -37,6 +38,7 @@ async function startAll({ skipMigrationCheck }) {
 
   context.centralServer = new CentralServerConnection(context);
   context.syncManager = new FacilitySyncManager(context);
+  context.syncConnection = new FacilitySyncConnection();
 
   await performTimeZoneChecks({
     remote: context.centralServer,
@@ -44,11 +46,21 @@ async function startAll({ skipMigrationCheck }) {
     config,
   });
 
-  const { server } = await createApp(context);
+  const { server } = await createApiApp(context);
 
-  const { port } = config;
+  let { port } = config;
+  if (+process.env.PORT) { port = +process.env.PORT; }
   server.listen(port, () => {
-    log.info(`Server is running on port ${port}!`);
+    log.info(`API Server is running on port ${port}!`);
+  });
+
+  const { server: syncServer } = await createSyncApp(context);
+
+  let { port: syncPort } = config.sync.syncApiConnection;
+  if (+process.env.PORT) { syncPort = +process.env.PORT; }
+  if (syncPort === port) { syncPort += 1; }
+  syncServer.listen(syncPort, () => {
+    log.info(`SYNC server is running on port ${syncPort}!`);
   });
 
   const cancelTasks = startScheduledTasks(context);
@@ -57,10 +69,11 @@ async function startAll({ skipMigrationCheck }) {
     log.info('Received SIGTERM, closing HTTP server');
     cancelTasks();
     server.close();
+    syncServer.close();
   });
 }
 
 export const startAllCommand = new Command('startAll')
-  .description('Start both the Tamanu Facility API server and tasks runner')
+  .description('Start both the Tamanu Facility API server, sync server, and tasks runner')
   .option('--skipMigrationCheck', 'skip the migration check on startup')
   .action(startAll);

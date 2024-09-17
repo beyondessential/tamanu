@@ -1,14 +1,21 @@
-import React from 'react';
+import React, { useState } from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
 import { toast } from 'react-toastify';
 import { REPORT_VERSION_EXPORT_FORMATS } from '@tamanu/constants/reports';
-import { Field, Form, FormGrid, OutlinedButton, RadioField } from '../../../components';
+import {
+  Field,
+  Form,
+  FormGrid,
+  OutlinedButton,
+  RadioField,
+  TranslatedText,
+} from '../../../components';
 import { ReportSelectField, VersionSelectField } from './ReportsSelectFields';
 import { Colors, FORM_TYPES } from '../../../constants';
+import { notifySuccess, sanitizeFileName } from '../../../utils';
 import { saveFile } from '../../../utils/fileSystemAccess';
 import { useApi } from '../../../api/useApi';
-import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { useTranslation } from '../../../contexts/Translation';
 
 const StyledButton = styled(OutlinedButton)`
@@ -43,24 +50,37 @@ const schema = yup.object().shape({
 export const ExportReportView = () => {
   const api = useApi();
   const { getTranslation } = useTranslation();
+  const [selectedReportName, setSelectedReportName] = useState(null);
+  const [selectedVersionNumber, setSelectedVersionNumber] = useState(null);
 
   const handleSubmit = async ({ reportId, versionId, format }) => {
     try {
-      const { filename, data } = await api.get(
-        `admin/reports/${reportId}/versions/${versionId}/export/${format}`,
-      );
+      const reportName =
+        selectedReportName ?? getTranslation('admin.report.export.report.label', 'Report');
+      const defaultFileName = sanitizeFileName(`${reportName}-v${selectedVersionNumber}.${format}`);
+
+      const getData = async () => {
+        const { data } = await api.get(
+          `admin/reports/${reportId}/versions/${versionId}/export/${format}`,
+        );
+        return data;
+      };
+
       await saveFile({
-        defaultFileName: filename,
-        data,
+        defaultFileName,
+        getData,
         extension: format,
       });
+      notifySuccess(
+        getTranslation('document.notification.downloadSuccess', 'Successfully downloaded file'),
+      );
     } catch (err) {
       toast.error(
         <TranslatedText
           stringId="admin.report.notification.exportFailed"
           fallback={`Failed to export: ${err.message}`}
           replacements={{ message: err.message }}
-        />  
+        />,
       );
     }
   };
@@ -88,6 +108,7 @@ export const ExportReportView = () => {
                 'admin.report.export.report.placeholder',
                 'Select a report definition',
               )}
+              setSelectedReportName={setSelectedReportName}
             />
             {values.reportId && (
               <Field
@@ -101,6 +122,7 @@ export const ExportReportView = () => {
                   'admin.report.export.version.placeholder',
                   'Select a report version',
                 )}
+                setSelectedVersionNumber={setSelectedVersionNumber}
               />
             )}
             {values.versionId && (

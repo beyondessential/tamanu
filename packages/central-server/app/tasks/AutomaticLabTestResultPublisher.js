@@ -10,9 +10,9 @@ export class AutomaticLabTestResultPublisher extends ScheduledTask {
   }
 
   constructor(context, overrideConfig = null) {
-    const { schedule, results, jitterTime } =
+    const { schedule, results, jitterTime, enabled } =
       overrideConfig || config.schedules.automaticLabTestResultPublisher;
-    super(schedule, log, jitterTime);
+    super(schedule, log, jitterTime, enabled);
     this.results = results;
     this.limit = config.limit;
     this.models = context.store.models;

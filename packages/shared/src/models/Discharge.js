@@ -3,6 +3,7 @@ import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { InvalidOperationError } from '../errors';
 import { Model } from './Model';
 import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
+import { buildEncounterLinkedLookupFilter } from '../sync/buildEncounterLinkedLookupFilter';
 
 export class Discharge extends Model {
   static init({ primaryKey, ...options }) {
@@ -18,6 +19,18 @@ export class Discharge extends Model {
         id: primaryKey,
         note: {
           type: Sequelize.TEXT,
+          allowNull: true,
+        },
+        facilityName: {
+          type: Sequelize.STRING,
+          allowNull: true,
+        },
+        facilityAddress: {
+          type: Sequelize.STRING,
+          allowNull: true,
+        },
+        facilityTown: {
+          type: Sequelize.STRING,
           allowNull: true,
         },
       },
@@ -48,6 +61,13 @@ export class Discharge extends Model {
     if (patientCount === 0) {
       return null;
     }
-    return buildEncounterLinkedSyncFilter([this.tableName, 'encounters'], markedForSyncPatientsTable);
+    return buildEncounterLinkedSyncFilter(
+      [this.tableName, 'encounters'],
+      markedForSyncPatientsTable,
+    );
+  }
+
+  static buildSyncLookupQueryDetails() {
+    return buildEncounterLinkedLookupFilter(this);
   }
 }

@@ -23,6 +23,7 @@ export interface IAdministeredVaccine {
   batch?: string;
   status: VaccineStatus;
   date: string;
+  notGivenReasonId?: string;
 }
 
 export enum InjectionSiteType {
@@ -34,4 +35,6 @@ export enum InjectionSiteType {
   Other = 'Other',
 }
 
-export const INJECTION_SITE_OPTIONS = Object.keys(InjectionSiteType).map(k => InjectionSiteType[k as string] as InjectionSiteType);
+export const INJECTION_SITE_OPTIONS = Object.keys(InjectionSiteType).map(
+  k => InjectionSiteType[k as string] as InjectionSiteType,
+);

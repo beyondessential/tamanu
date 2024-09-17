@@ -1,7 +1,6 @@
 import { useCallback, useState } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 import { groupBy } from 'lodash';
-
 import { useBackend } from '.';
 import { PatientFieldDefinition } from '~/models/PatientFieldDefinition';
 import { PatientFieldValue } from '~/models/PatientFieldValue';
@@ -47,7 +46,7 @@ export const usePatientAdditionalData = patientId => {
                 where: { patient: { id: patientId } },
               }),
             ]);
-            const result = record && record[0];
+            const padData = record && record[0];
             if (!mounted) {
               return;
             }
@@ -63,7 +62,7 @@ export const usePatientAdditionalData = patientId => {
             );
             setCustomPatientFieldDefinitions(fieldDefinitions);
             setCustomPatientFieldValues(groupBy(fieldValues, 'definitionId'));
-            setPatientAdditionalData(result);
+            setPatientAdditionalData(padData);
           }
         } catch (err) {
           if (!mounted) {

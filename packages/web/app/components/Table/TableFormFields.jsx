@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import MaterialTable from '@material-ui/core/Table';
@@ -6,8 +6,14 @@ import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
+import { TableFooter } from '@material-ui/core';
 
 import { Colors } from '../../constants';
+import { Paginator } from './Paginator.jsx';
+
+import { TranslatedText } from '../../components/Translation';
+
+const ROWS_PER_PAGE_OPTIONS = [10, 25, 50];
 
 const StyledFixedTable = styled(MaterialTable)`
   border: 1px solid ${Colors.outline};
@@ -19,7 +25,7 @@ const StyledFixedTable = styled(MaterialTable)`
   width: 100%;
 
   &:last-child {
-    border-bottom: none;
+    border-bottom: ${props => (props.$pagination ? 'auto' : 'none')};
   }
 `;
 
@@ -37,6 +43,20 @@ const StyledTableDataCell = styled(TableCell)`
   padding: 1.5%;
 `;
 
+const StyledTableFooter = styled(TableFooter)`
+  background: ${Colors.background};
+  width: 100%;
+
+  tr:last-child td {
+    border-bottom: none;
+  }
+`;
+
+const NoDataTableCell = styled(TableCell)`
+  text-align: center;
+  padding: 60px;
+`;
+
 /*
 Component created to display form fields shaped as a table.
 This component borrows heavily from the Table component but
@@ -50,28 +70,79 @@ In order to properly manage form state and fields you should use
 Formik's Field component and provide a special naming scheme to avoid
 namespace collisions.
 */
-export const TableFormFields = React.memo(({ columns, data, className = '' }) => (
-  <StyledFixedTable className={className}>
-    <StyledTableHead>
-      <TableRow>
-        {columns.map(({ key, title, width }) => (
-          <StyledTableHeaderCell key={key} width={width}>
-            {title}
-          </StyledTableHeaderCell>
-        ))}
-      </TableRow>
-    </StyledTableHead>
-    <TableBody>
-      {data.map((rowData, i) => (
-        <TableRow key={rowData.id || i}>
-          {columns.map(({ key, accessor }) => (
-            <StyledTableDataCell key={key}>{accessor(rowData, i)}</StyledTableDataCell>
-          ))}
-        </TableRow>
-      ))}
-    </TableBody>
-  </StyledFixedTable>
-));
+export const TableFormFields = React.memo(
+  ({ columns, data, className = '', pagination = false }) => {
+    const [page, setPage] = useState(0);
+    const [rowsPerPage, setRowsPerPage] = useState(ROWS_PER_PAGE_OPTIONS[0]);
+    const [pageRows, setPageRows] = useState(pagination ? data.slice(page, rowsPerPage) : data);
+
+    // When the data to be displayed is changed (e.g. by search), update the rows and set to page 1
+    useEffect(() => {
+      setPageRows(data.slice(0, rowsPerPage));
+      setPage(0);
+    }, [data]);
+
+    // Display the relevant page's rows when the table page is changed
+    const handlePageChange = (event, newPage) => {
+      setPage(newPage - 1);
+      setPageRows(data.slice(rowsPerPage * (newPage - 1), rowsPerPage * newPage));
+    };
+
+    // Display the new amount of rows per page and set to page 1
+    const handleRowsPerPageChange = event => {
+      const newRowsPerPage = event.target.value;
+      setRowsPerPage(newRowsPerPage);
+      setPage(0);
+      setPageRows(data.slice(0, newRowsPerPage));
+    };
+
+    return (
+      <StyledFixedTable className={className} $pagination={pagination}>
+        <StyledTableHead>
+          <TableRow>
+            {columns.map(({ key, title, width }) => (
+              <StyledTableHeaderCell key={key} width={width}>
+                {title}
+              </StyledTableHeaderCell>
+            ))}
+          </TableRow>
+        </StyledTableHead>
+        <TableBody>
+          {pageRows && pageRows.length > 0 ? (
+            pageRows.map((rowData, i) => (
+              <TableRow key={rowData.id || i}>
+                {columns.map(({ key, accessor }) => (
+                  <StyledTableDataCell key={key}>{accessor(rowData, i)}</StyledTableDataCell>
+                ))}
+              </TableRow>
+            ))
+          ) : (
+            <TableRow>
+              <NoDataTableCell colSpan={columns.length}>
+                <TranslatedText stringId="general.table.noData" fallback="No data found" />
+              </NoDataTableCell>
+            </TableRow>
+          )}
+        </TableBody>
+        {pagination && (
+          <StyledTableFooter>
+            <TableRow>
+              <Paginator
+                rowsPerPageOptions={ROWS_PER_PAGE_OPTIONS}
+                colSpan={columns.length}
+                page={page}
+                count={data.length}
+                rowsPerPage={rowsPerPage}
+                onPageChange={handlePageChange}
+                onRowsPerPageChange={handleRowsPerPageChange}
+              />
+            </TableRow>
+          </StyledTableFooter>
+        )}
+      </StyledFixedTable>
+    );
+  },
+);
 
 TableFormFields.propTypes = {
   columns: PropTypes.arrayOf(

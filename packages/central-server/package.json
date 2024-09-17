@@ -1,6 +1,6 @@
 {
   "name": "@tamanu/central-server",
-  "version": "2.11.0",
+  "version": "2.17.0",
   "private": true,
   "description": "Central server for Tamanu",
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
@@ -107,6 +107,8 @@
     "winston": "^3.2.1",
     "winston-transport": "^4.5.0",
     "xlsx": "^0.18.5",
-    "yup": "^0.32.9"
+    "yup": "^0.32.9",
+    "zod": "^3.23.8",
+    "decimal.js": "^10.4.3"
   }
 }

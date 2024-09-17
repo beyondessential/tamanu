@@ -1,4 +1,4 @@
-import { useQueryClient, useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import * as yup from 'yup';
 import { has, omit, sortBy } from 'lodash';
 import React, { useCallback, useMemo, useState } from 'react';
@@ -6,7 +6,7 @@ import styled from 'styled-components';
 import { Box, IconButton, Tooltip } from '@material-ui/core';
 import { Add as AddIcon, Delete as DeleteIcon } from '@material-ui/icons';
 import shortid from 'shortid';
-import { Alert, AlertTitle } from '@material-ui/lab';
+import { Alert } from '@material-ui/lab';
 import { toast } from 'react-toastify';
 import HelpIcon from '@material-ui/icons/HelpOutlined';
 import { useApi } from '../../../api';
@@ -22,6 +22,7 @@ import { AccessorField } from '../../patients/components/AccessorField';
 import { LoadingIndicator } from '../../../components/LoadingIndicator';
 import { Colors } from '../../../constants';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
+import { ErrorMessage } from '../../../components/ErrorMessage';
 
 const StyledTableFormFields = styled(TableFormFields)`
   thead tr th {
@@ -108,22 +109,6 @@ const useTranslationMutation = () => {
       />
     },
   });
-};
-
-const ErrorMessage = ({ error }) => {
-  return (
-    <Box p={5}>
-      <Alert severity="error">
-        <AlertTitle>
-          <TranslatedText
-            stringId="admin.translation.error.loadTranslations"
-            fallback="Error: Could not load translations:"
-          />
-        </AlertTitle>
-        {error}
-      </Alert>
-    </Box>
-  );
 };
 
 const TranslationField = ({ placeholderId, stringId, code }) => (
@@ -248,13 +233,17 @@ export const FormContents = ({
     <>
       <Box display="flex" alignItems="flex-end" mb={2}>
         <Box mr={2} width="250px">
-          <Field label={<TranslatedText stringId="general.action.search" fallback="Search" />} name="search" component={SearchField} />
+          <Field
+            label={<TranslatedText stringId="general.action.search" fallback="Search" />}
+            name="search"
+            component={SearchField}
+          />
         </Box>
         <OutlinedButton disabled={isSaving || !dirty} onClick={handleSave}>
           <TranslatedText stringId="general.action.save" fallback="Save" />
         </OutlinedButton>
       </Box>
-      <StyledTableFormFields columns={columns} data={tableRows} />
+      <StyledTableFormFields columns={columns} data={tableRows} pagination />
     </>
   );
 };
@@ -265,17 +254,13 @@ export const TranslationForm = () => {
   const { translations = [], languageNames = {} } = data;
   const { mutate: saveTranslations, isLoading: isSaving } = useTranslationMutation();
 
-  const initialValues = useMemo(
-    () =>
-      translations.reduce(
-        (acc, { stringId, ...rest }) => ({
-          ...acc,
-          [stringId]: rest,
-        }),
-        { search: '' },
-      ),
-    [translations],
-  );
+  const initialValues = useMemo(() => {
+    const values = { search: '' };
+    for (const { stringId, ...rest } of translations) {
+      values[stringId] = rest;
+    }
+    return values;
+  }, [translations]);
 
   const handleSubmit = async payload => {
     // Swap temporary id out for stringId
@@ -288,7 +273,17 @@ export const TranslationForm = () => {
   };
 
   if (isLoading) return <LoadingIndicator />;
-  if (error) return <ErrorMessage error={error} />;
+  if (error) return (
+    <ErrorMessage
+      title={
+        <TranslatedText
+          stringId="admin.translation.error.loadTranslations"
+          fallback="Error: Could not load translations:"
+        />
+      }
+      error={error}
+    />
+  );
 
   const sortedTranslations = sortBy(translations, obj => obj.stringId !== 'languageName'); // Ensure languageName key stays on top
 

@@ -1,7 +1,6 @@
 import * as yup from 'yup';
 import {
   ENCOUNTER_TYPES,
-  INJECTION_SITE_OPTIONS,
   LAB_TEST_RESULT_TYPES,
   LAB_TEST_TYPE_VISIBILITY_STATUSES,
   PROGRAM_DATA_ELEMENT_TYPE_VALUES,
@@ -10,6 +9,7 @@ import {
   VISIBILITY_STATUSES,
   REFERENCE_DATA_RELATION_TYPES,
   SURVEY_TYPES,
+  INJECTION_SITE_VALUES,
 } from '@tamanu/constants';
 import config from 'config';
 import {
@@ -321,7 +321,7 @@ export const AdministeredVaccine = Base.shape({
     .oneOf(Object.values(VACCINE_STATUS))
     .required(),
   reason: yup.string(),
-  injectionSite: yup.string().oneOf(Object.values(INJECTION_SITE_OPTIONS)),
+  injectionSite: yup.string().oneOf(Object.values(INJECTION_SITE_VALUES)),
   date: yup.date().required(),
   scheduledVaccineId: fieldTypes.id.required(),
   encounterId: fieldTypes.id.required(),
@@ -349,4 +349,11 @@ export const ReferenceDataRelation = yup.object().shape({
   referenceDataParentId: yup.string().required(),
   referenceDataId: yup.string().required(),
   type: yup.string().oneOf(Object.values(REFERENCE_DATA_RELATION_TYPES)),
+});
+
+export const InvoiceProduct = yup.object().shape({
+  name: yup.string().required(),
+  price: yup.number().required(),
+  discountable: yup.boolean().required(),
+  visibilityStatus,
 });

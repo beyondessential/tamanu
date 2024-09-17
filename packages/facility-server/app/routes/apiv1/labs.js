@@ -68,6 +68,9 @@ labRequest.put(
         });
       }
 
+      if (labRequestData.specimenTypeId !== undefined) {
+        labRequestData.specimenAttached = !!labRequestData.specimenTypeId;
+      }
       await labRequestRecord.update(labRequestData);
     });
 
@@ -119,6 +122,9 @@ labRequest.get(
       })),
       makeFilter(true, `lab_requests.status != :cancelled`, () => ({
         cancelled: LAB_REQUEST_STATUSES.CANCELLED,
+      })),
+      makeFilter(true, `lab_requests.status != :invalidated`, () => ({
+        invalidated: LAB_REQUEST_STATUSES.INVALIDATED,
       })),
       makeDeletedAtIsNullFilter('lab_requests'),
       makeFilter(true, `lab_requests.status != :enteredInError`, () => ({
@@ -507,7 +513,7 @@ async function createLabRequest(
   const labRequestData = {
     ...labRequestBody,
     ...requestSampleDetails,
-    specimenAttached: requestSampleDetails.specimenTypeId ? 'yes' : 'no',
+    specimenAttached: !!requestSampleDetails.specimenTypeId,
     status: requestSampleDetails.sampleTime
       ? LAB_REQUEST_STATUSES.RECEPTION_PENDING
       : LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED,

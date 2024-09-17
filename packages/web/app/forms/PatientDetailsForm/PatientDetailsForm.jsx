@@ -5,7 +5,6 @@ import { useQuery } from '@tanstack/react-query';
 
 import { PATIENT_REGISTRY_TYPES, PLACE_OF_BIRTH_TYPES } from '@tamanu/constants';
 
-import { useSexOptions, useSexValues } from '../../hooks';
 import { useLocalisation } from '../../contexts/Localisation';
 import { useApi } from '../../api';
 import { getPatientDetailsValidation } from '../../validations';
@@ -14,7 +13,6 @@ import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { useLayoutComponents } from './useLayoutComponents';
 import { usePatientFieldDefinitionQuery } from '../../api/queries/usePatientFieldDefinitionQuery';
 import { useTranslation } from '../../contexts/Translation';
-import { useCambodiaSecondaryAddressInitialData } from './useCambodiaSecondaryAddressInitialData';
 
 const StyledPatientDetailSecondaryDetailsGroupWrapper = styled.div`
   margin-top: 70px;
@@ -84,12 +82,8 @@ export const PatientDetailsForm = ({ patient, additionalData, birthData, onSubmi
     await onSubmit(newData);
   };
 
-  const sexValues = useSexValues();
-
   const { getLocalisation } = useLocalisation();
   const { PrimaryDetails, SecondaryDetails, PatientFields } = useLayoutComponents();
-
-  const sexOptions = useSexOptions();
 
   const isRequiredPatientData = fieldName =>
     getLocalisation(`fields.${fieldName}.requiredPatientData`);
@@ -109,17 +103,11 @@ export const PatientDetailsForm = ({ patient, additionalData, birthData, onSubmi
     enabled: Boolean(patient.id),
   });
 
-  const {
-    data: computedInitialValues,
-    isLoading: isLoadingComputedInitialValues,
-  } = useCambodiaSecondaryAddressInitialData(additionalData?.secondaryVillageId);
-
   const errors = [fieldDefError, fieldValError].filter(e => Boolean(e));
   if (errors.length > 0) {
     return <pre>{errors.map(e => e.stack).join('\n')}</pre>;
   }
-  const isLoading =
-    isLoadingFieldDefinitions || isLoadingFieldValues || isLoadingComputedInitialValues;
+  const isLoading = isLoadingFieldDefinitions || isLoadingFieldValues;
 
   if (isLoading) {
     return <LoadingIndicator />;
@@ -133,7 +121,6 @@ export const PatientDetailsForm = ({ patient, additionalData, birthData, onSubmi
             registeredBirthPlace={values.registeredBirthPlace}
             patientRegistryType={patientRegistryType}
             isRequiredPatientData={isRequiredPatientData}
-            sexOptions={sexOptions}
             isDetailsForm
           />
           <StyledPatientDetailSecondaryDetailsGroupWrapper>
@@ -158,12 +145,10 @@ export const PatientDetailsForm = ({ patient, additionalData, birthData, onSubmi
           fieldDefinitionsResponse.data,
           fieldValuesResponse?.data,
         ),
-        ...computedInitialValues,
       }}
       onSubmit={handleSubmit}
       validationSchema={getPatientDetailsValidation(
         patientRegistryType,
-        sexValues,
         getLocalisation,
         getTranslation,
       )}

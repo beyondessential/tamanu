@@ -9,6 +9,7 @@ import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
 import { TextFieldErrorMessage } from '../TextField/TextFieldErrorMessage';
 import { useBackend } from '~/ui/hooks';
 import { TranslatedTextElement } from '../Translations/TranslatedText';
+import { TranslatedReferenceData } from '../Translations/TranslatedReferenceData';
 
 const MIN_COUNT_FILTERABLE_BY_DEFAULT = 8;
 
@@ -23,6 +24,8 @@ export interface DropdownProps extends BaseInputProps {
   multiselect?: boolean;
   label?: string;
   labelColor?: string;
+  labelFontSize?: string | number;
+  fieldFontSize?: number
   fixedHeight: boolean;
   searchPlaceholderText?: string;
   selectPlaceholderText?: string;
@@ -39,7 +42,7 @@ const baseStyleDropdownMenuSubsection = {
   paddingBottom: 9,
   paddingLeft: screenPercentageToDP(3, Orientation.Width),
   borderRadius: 5,
-  height: '100%'
+  height: '100%',
 };
 
 const STYLE_PROPS: Record<string, Partial<MultiSelectProps>> = {
@@ -82,6 +85,8 @@ export const Dropdown = React.memo(
     multiselect = false,
     label = 'Select',
     labelColor,
+    labelFontSize,
+    fieldFontSize = screenPercentageToDP(2.1, Orientation.Height),
     fixedHeight = false,
     searchPlaceholderText = 'Search Items...',
     selectPlaceholderText,
@@ -107,12 +112,12 @@ export const Dropdown = React.memo(
       [selectedItems],
     );
     const filterable = options.length >= MIN_COUNT_FILTERABLE_BY_DEFAULT;
-    const fontSize = screenPercentageToDP(2.1, Orientation.Height);
+    const fontSize = fieldFontSize ?? screenPercentageToDP(2.1, Orientation.Height);
     return (
       <StyledView width="100%" marginBottom={screenPercentageToDP(2.24, Orientation.Height)}>
         {!!label && (
           <StyledText
-            fontSize={fontSize}
+            fontSize={labelFontSize ?? fontSize}
             fontWeight={600}
             marginBottom={screenPercentageToDP(0.5, Orientation.Width)}
             color={labelColor || theme.colors.TEXT_SUPER_DARK}
@@ -180,7 +185,7 @@ export const Dropdown = React.memo(
           searchIcon={filterable ? undefined : null}
           disabled={disabled}
           clearable={clearable}
-          fontSize={fontSize}
+          fontSize={fieldFontSize}
           {...getStyleProps(error, disabled)}
         />
         {error && <TextFieldErrorMessage>{error}</TextFieldErrorMessage>}
@@ -200,7 +205,17 @@ export const SuggesterDropdown = ({ referenceDataType, ...props }): ReactElement
   useEffect(() => {
     (async (): Promise<void> => {
       const results = await models.ReferenceData.getSelectOptionsForType(referenceDataType);
-      setOptions(results);
+      const translatedResults = results.map(option => ({
+        label: (
+          <TranslatedReferenceData
+            category={referenceDataType}
+            value={option.value}
+            fallback={option.label}
+          />
+        ),
+        value: option.value,
+      }));
+      setOptions(translatedResults);
     })();
   }, []);
 

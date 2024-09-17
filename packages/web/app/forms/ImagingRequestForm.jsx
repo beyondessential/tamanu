@@ -18,19 +18,18 @@ import {
   Field,
   Form,
   ImagingPriorityField,
+  MultiselectField,
   SelectField,
   TextField,
   TextInput,
-  MultiselectField,
 } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
 import { FormCancelButton } from '../components/Button';
-import { ButtonRow } from '../components/ButtonRow';
-import { DateDisplay } from '../components/DateDisplay';
-import { FormSeparatorLine } from '../components/FormSeparatorLine';
+import { ButtonRow, DateDisplay, FormSeparatorLine } from '../components';
 import { FormSubmitDropdownButton } from '../components/DropdownButton';
-import { TranslatedText, TranslatedReferenceData } from '../components/Translation';
+import { TranslatedReferenceData, TranslatedText } from '../components/Translation';
 import { useTranslation } from '../contexts/Translation';
+import { renderToText } from '../utils';
 
 function getEncounterTypeLabel(type) {
   return ENCOUNTER_OPTIONS.find(x => x.value === type).label;
@@ -106,6 +105,7 @@ export const ImagingRequestForm = React.memo(
     const examinerLabel = examiner.displayName;
     const encounterLabel = getEncounterLabel(encounter);
     const { getAreasForImagingType } = useImagingRequestAreas();
+    const requiredValidationMessage = getTranslation('validation.required.inline', '*Required');
     return (
       <Form
         onSubmit={onSubmit}
@@ -116,11 +116,29 @@ export const ImagingRequestForm = React.memo(
         }}
         formType={editedObject ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
         validationSchema={yup.object().shape({
-          requestedById: foreignKey(getTranslation('validation.required.inline', '*Required')),
-          requestedDate: yup
-            .date()
-            .required(getTranslation('validation.required.inline', '*Required')),
-          imagingType: foreignKey(getTranslation('validation.required.inline', '*Required')),
+          requestedById: foreignKey(requiredValidationMessage),
+          requestedDate: yup.date().required(requiredValidationMessage),
+          imagingType: foreignKey(requiredValidationMessage),
+          areas: yup.string().when('imagingType', {
+            is: imagingType => {
+              const imagingAreas = getAreasForImagingType(imagingType);
+              return imagingAreas.length > 0;
+            },
+            then: yup
+              .string()
+              .min(3, requiredValidationMessage) // Empty input is '[]', so validating that it's got at least one value in the array
+              .required(requiredValidationMessage),
+          }),
+          areaNote: yup.string().when('imagingType', {
+            is: imagingType => {
+              const imagingAreas = getAreasForImagingType(imagingType);
+              return imagingAreas.length === 0;
+            },
+            then: yup
+              .string()
+              .trim()
+              .required(requiredValidationMessage),
+          }),
         })}
         showInlineErrorsOnly
         render={({ submitForm, values }) => {
@@ -210,20 +228,25 @@ export const ImagingRequestForm = React.memo(
                 required
                 component={SelectField}
                 options={imagingTypeOptions}
-                prefix="imaging.property.type"
               />
-              {imagingAreas.length ? (
+              {imagingAreas.length > 0 ? (
                 <Field
-                  options={imagingAreas.map(area => ({
-                    label: <TranslatedReferenceData fallback={area.name} value={area.id} category={area.type} />,
-                    value: area.id,
-                  }))}
+                  options={imagingAreas
+                    .map(({ id, name, type }) => ({
+                      label: <TranslatedReferenceData fallback={name} value={id} category={type} />,
+                      value: id,
+                    }))
+                    .sort((area1, area2) => {
+                      const str1 = renderToText(area1.label);
+                      const str2 = renderToText(area2.label);
+                      return str1.localeCompare(str2);
+                    })}
                   name="areas"
                   label={
                     <TranslatedText stringId="imaging.areas.label" fallback="Areas to be imaged" />
                   }
                   component={MultiselectField}
-                  prefix="imaging.property.area"
+                  required
                 />
               ) : (
                 <Field
@@ -238,6 +261,7 @@ export const ImagingRequestForm = React.memo(
                   multiline
                   style={{ gridColumn: '1 / -1' }}
                   minRows={3}
+                  required
                 />
               )}
               <Field

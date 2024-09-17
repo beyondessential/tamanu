@@ -3,6 +3,7 @@ import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
 import { buildPatientSyncFilterViaPatientId } from './buildPatientSyncFilterViaPatientId';
 import { onSaveMarkPatientForSync } from './onSaveMarkPatientForSync';
+import { buildPatientLinkedLookupFilter } from './buildPatientLinkedLookupFilter';
 
 export class PatientAdditionalData extends Model {
   static init(options) {
@@ -50,6 +51,7 @@ export class PatientAdditionalData extends Model {
           },
         },
         updatedAtByField: DataTypes.JSON,
+        insurerPolicyNumber: DataTypes.STRING,
       },
       {
         ...options,
@@ -103,12 +105,16 @@ export class PatientAdditionalData extends Model {
     referenceRelation('religion');
     referenceRelation('patientBillingType');
     referenceRelation('countryOfBirth');
+    referenceRelation('insurer');
   }
 
   static getFullReferenceAssociations() {
-    return ['countryOfBirth', 'nationality'];
+    return ['countryOfBirth', 'nationality', 'ethnicity'];
   }
 
+  static buildSyncLookupQueryDetails() {
+    return buildPatientLinkedLookupFilter(this);
+  }
   static buildPatientSyncFilter = buildPatientSyncFilterViaPatientId;
 
   static async getForPatient(patientId) {

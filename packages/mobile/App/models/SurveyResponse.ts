@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToOne, OneToMany, RelationId } from 'typeorm/browser';
+import { Column, Entity, ManyToOne, OneToMany, RelationId, getConnection } from 'typeorm/browser';
 
 import { EncounterType, ICreateSurveyResponse, ISurveyResponse } from '~/types';
 
@@ -117,6 +117,9 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
   @Column({ default: '', nullable: true })
   resultText?: string;
 
+  @Column({ nullable: true })
+  notified?: boolean;
+
   @ManyToOne(
     () => Survey,
     survey => survey.responses,
@@ -174,98 +177,103 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
     values: object,
     setNote: (note: string) => void = () => null,
   ): Promise<SurveyResponse> {
-    const { surveyId, encounterReason, components, ...otherData } = surveyData;
+    return getConnection().transaction(async () => {
+      const { surveyId, encounterReason, components, ...otherData } = surveyData;
 
-    try {
-      setNote('Creating encounter...');
-      const encounter = await Encounter.getOrCreateCurrentEncounter(patientId, userId, {
-        startDate: getCurrentDateTimeString(),
-        endDate: getCurrentDateTimeString(),
-        encounterType: EncounterType.SurveyResponse,
-        reasonForEncounter: encounterReason,
-      });
+      const survey = await Survey.findOne({ id: surveyId });
+      if (!survey) throw new Error(`Survey with id ${surveyId} not found`);
 
-      const calculatedValues = runCalculations(components, values);
-      const finalValues = { ...values, ...calculatedValues };
-
-      const { result, resultText } = getResultValue(components, finalValues);
-
-      setNote('Creating response object...');
-      const responseRecord: SurveyResponse = await SurveyResponse.createAndSaveOne({
-        encounter: encounter.id,
-        survey: surveyId,
-        startTime: getCurrentDateTimeString(),
-        endTime: getCurrentDateTimeString(),
-        result,
-        resultText,
-        ...otherData,
-      });
-
-      setNote('Attaching answers...');
-
-      // figure out if its a vital survey response
-      let vitalsSurvey;
       try {
-        vitalsSurvey = await Survey.getVitalsSurvey({ includeAllVitals: false });
+        setNote('Creating encounter...');
+        const encounter = await Encounter.getOrCreateCurrentEncounter(patientId, userId, {
+          startDate: getCurrentDateTimeString(),
+          endDate: getCurrentDateTimeString(),
+          encounterType: EncounterType.SurveyResponse,
+          reasonForEncounter: encounterReason,
+        });
+
+        const calculatedValues = runCalculations(components, values);
+        const finalValues = { ...values, ...calculatedValues };
+
+        const { result, resultText } = getResultValue(components, finalValues);
+
+        setNote('Creating response object...');
+        const responseRecord: SurveyResponse = await SurveyResponse.createAndSaveOne({
+          encounter: encounter.id,
+          survey: surveyId,
+          startTime: getCurrentDateTimeString(),
+          endTime: getCurrentDateTimeString(),
+          result,
+          resultText,
+          ...otherData,
+          notified: survey.notifiable ? false : undefined,
+        });
+
+        setNote('Attaching answers...');
+
+        // figure out if its a vital survey response
+        let vitalsSurvey;
+        try {
+          vitalsSurvey = await Survey.getVitalsSurvey({ includeAllVitals: false });
+        } catch (e) {
+          console.error(`Errored while trying to get vitals survey: ${e}`);
+        }
+
+        // use optional chaining because vitals survey might not exist
+        const isVitalSurvey = surveyId === vitalsSurvey?.id;
+
+        for (const a of Object.entries(finalValues)) {
+          const [dataElementCode, value] = a;
+          const component = components.find(c => c.dataElement.code === dataElementCode);
+          if (!component) {
+            // better to fail entirely than save partial data
+            throw new Error(
+              `no screen component for code: ${dataElementCode}, cannot match to data element`,
+            );
+          }
+          const { dataElement } = component;
+
+          const body = getStringValue(dataElement.type, value);
+          // Don't create null answers
+          if (body === null) {
+            continue;
+          }
+
+          setNote(`Attaching answer for ${dataElement.id}...`);
+          const answerRecord = await SurveyResponseAnswer.createAndSaveOne({
+            dataElement: dataElement.id,
+            body,
+            response: responseRecord.id,
+          });
+
+          if (!isVitalSurvey || body === '') continue;
+          setNote(`Attaching initial vital log for ${answerRecord.id}...`);
+          await VitalLog.createAndSaveOne({
+            date: responseRecord.endTime,
+            newValue: body,
+            recordedBy: userId,
+            answer: answerRecord.id,
+          });
+        }
+        setNote('Writing patient data');
+
+        await writeToPatientFields(
+          components,
+          finalValues,
+          patientId,
+          surveyId,
+          userId,
+          responseRecord.endTime,
+        );
+
+        setNote('Done');
+
+        return responseRecord;
       } catch (e) {
-        console.error(`Errored while trying to get vitals survey: ${e}`);
+        setNote(`Error: ${e.message} (${JSON.stringify(e)})`);
+        return null;
       }
-
-      // use optional chaining because vitals survey might not exist
-      const isVitalSurvey = surveyId === vitalsSurvey?.id;
-
-      for (const a of Object.entries(finalValues)) {
-        const [dataElementCode, value] = a;
-        const component = components.find(c => c.dataElement.code === dataElementCode);
-        if (!component) {
-          // better to fail entirely than save partial data
-          throw new Error(
-            `no screen component for code: ${dataElementCode}, cannot match to data element`,
-          );
-        }
-        const { dataElement } = component;
-
-        const body = getStringValue(dataElement.type, value);
-        // Don't create null answers
-        if (body === null) {
-          continue;
-        }
-
-        setNote(`Attaching answer for ${dataElement.id}...`);
-        const answerRecord = await SurveyResponseAnswer.createAndSaveOne({
-          dataElement: dataElement.id,
-          body,
-          response: responseRecord.id,
-        });
-
-        if (!isVitalSurvey || body === '') continue;
-        setNote(`Attaching initial vital log for ${answerRecord.id}...`);
-        await VitalLog.createAndSaveOne({
-          date: responseRecord.endTime,
-          newValue: body,
-          recordedBy: userId,
-          answer: answerRecord.id,
-        });
-      }
-      setNote('Writing patient data');
-
-      await writeToPatientFields(
-        components,
-        finalValues,
-        patientId,
-        surveyId,
-        userId,
-        responseRecord.endTime,
-      );
-
-      setNote('Done');
-
-      return responseRecord;
-    } catch (e) {
-      setNote(`Error: ${e.message} (${JSON.stringify(e)})`);
-
-      return null;
-    }
+    });
   }
 
   static async getForPatient(patientId: string, surveyId?: string): Promise<SurveyResponse[]> {

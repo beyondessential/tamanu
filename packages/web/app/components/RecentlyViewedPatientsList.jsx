@@ -10,8 +10,7 @@ import { useApi } from '../api';
 import { Colors } from '../constants';
 import { DateDisplay } from './DateDisplay';
 import { ThemedTooltip } from './Tooltip';
-import { TranslatedText } from './Translation/TranslatedText';
-import { SexDisplay } from './Translation/SexDisplay';
+import { TranslatedSex, TranslatedText } from './Translation';
 
 const colorFromEncounterType = {
   admission: Colors.green,
@@ -145,7 +144,7 @@ const Card = ({ patient, handleClick }) => {
         </ThemedTooltip>
         <CardText>{patient.displayId}</CardText>
         <CapitalizedCardText>
-          <SexDisplay sex={patient.sex} />
+          <TranslatedSex sex={patient.sex} />
         </CapitalizedCardText>
         <CardText>
           <TranslatedText stringId="general.dateOfBirth.label" fallback="DOB" />
