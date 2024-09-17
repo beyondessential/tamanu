@@ -1,4 +1,8 @@
-import { LAB_REQUEST_STATUSES, LAB_TEST_TYPE_VISIBILITY_STATUSES, VISIBILITY_STATUSES } from '@tamanu/constants';
+import {
+  LAB_REQUEST_STATUSES,
+  LAB_TEST_TYPE_VISIBILITY_STATUSES,
+  VISIBILITY_STATUSES,
+} from '@tamanu/constants';
 import config from 'config';
 import {
   createDummyEncounter,
@@ -223,11 +227,11 @@ describe('Labs', () => {
     const sampleTime = '2023-06-09 00:00:00';
 
     const specimenType = await models.ReferenceData.create(
-        fake(models.ReferenceData, {
-          type: 'specimenType',
-          visibilityStatus: VISIBILITY_STATUSES.CURRENT,
-        }),
-      );
+      fake(models.ReferenceData, {
+        type: 'specimenType',
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+      }),
+    );
     const sampleDetails = {
       [labTestPanel.id]: {
         sampleTime,
@@ -462,6 +466,7 @@ describe('Labs', () => {
     // when no specific argument is included.
     const VALID_LISTING_LAB_REQUEST_STATUSES = [
       LAB_REQUEST_STATUSES.RECEPTION_PENDING,
+      LAB_REQUEST_STATUSES.INTERIM_RESULTS,
       LAB_REQUEST_STATUSES.RESULTS_PENDING,
       LAB_REQUEST_STATUSES.TO_BE_VERIFIED,
       LAB_REQUEST_STATUSES.VERIFIED,
