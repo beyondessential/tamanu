@@ -5,7 +5,7 @@ import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter
 import { dateTimeType } from './dateTimeTypes';
 import config from 'config';
 import ms from 'ms';
-import { addMilliseconds, isBefore } from 'date-fns';
+import { addMilliseconds } from 'date-fns';
 import { toDateTimeString } from '../utils/dateTime';
 import { buildEncounterLinkedLookupFilter } from '../sync/buildEncounterLinkedLookupFilter';
 import { v4 as uuidv4 } from 'uuid';
