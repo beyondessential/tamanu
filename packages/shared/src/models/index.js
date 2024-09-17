@@ -37,6 +37,7 @@ export * from './Vitals';
 export * from './Procedure';
 export * from './EncounterDiagnosis';
 export * from './EncounterMedication';
+export * from './EncounterDiet';
 export * from './LabRequest';
 export * from './LabRequestAttachment';
 export * from './LabTest';
@@ -93,17 +94,19 @@ export * from './Permission';
 export * from './Role';
 
 export * from './Invoice';
-export * from './InvoiceLineType';
-export * from './InvoiceLineItem';
-export * from './InvoicePriceChangeItem';
-export * from './InvoicePriceChangeType';
+export * from './InvoiceProduct';
+export * from './InvoiceDiscount';
+export * from './InvoiceInsurer';
+export * from './InvoiceItem';
+export * from './InvoiceItemDiscount';
+export * from './InvoicePayment';
+export * from './InvoicePatientPayment';
+export * from './InvoiceInsurerPayment';
 
 export * from './Signer';
 
 export * from './CertificateNotification';
 
-export * from './LegacyNotePage';
-export * from './LegacyNoteItem';
 export * from './Note';
 
 export * from './SyncSession';
@@ -114,3 +117,5 @@ export * from './fhir';
 export * from './TranslatedString';
 
 export * from './IPSRequest';
+export * from './SyncLookup';
+export * from './DebugLog';

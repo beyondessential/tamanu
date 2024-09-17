@@ -1,4 +1,4 @@
-export const ICD10_DIAGNOSES = `
+export const DIAGNOSES = `
   Acute axillary lymphadenitis	L04.2
   Acute bacterial infection	A49.9
   Acute bacterial otitis externa	H60.5

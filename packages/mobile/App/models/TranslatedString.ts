@@ -1,4 +1,4 @@
-import { BeforeInsert, Entity, PrimaryColumn, BeforeUpdate, Column } from 'typeorm/browser';
+import { BeforeInsert, Entity, PrimaryColumn, BeforeUpdate, Column, Like } from 'typeorm/browser';
 import { BaseModel } from './BaseModel';
 import { SYNC_DIRECTIONS } from './types';
 
@@ -53,5 +53,26 @@ export class TranslatedString extends BaseModel {
     return Object.fromEntries(
       translatedStrings.map(translatedString => [translatedString.stringId, translatedString.text]),
     );
+  }
+
+  static async getReferenceDataTranslationsByDataType(
+    language: string,
+    refDataType: string,
+    queryString: string,
+  ): Promise<{ stringId: string; text: string }[]> {
+    const referenceDataTranslations = await this.getRepository().find({
+      where: {
+        language,
+        stringId: Like(`refData.${refDataType}%`),
+        text: Like(`%${queryString}%`),
+      },
+      select: ['stringId', 'text'],
+      order: {
+        text: 'ASC'
+      },
+      take: 25
+    });
+
+    return referenceDataTranslations;
   }
 }

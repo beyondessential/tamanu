@@ -56,6 +56,13 @@ export const APPOINTMENT_TYPES = {
   OTHER: 'Other',
 };
 
+export const APPOINTMENT_TYPE_LABELS = {
+  [APPOINTMENT_TYPES.STANDARD]: 'Standard',
+  [APPOINTMENT_TYPES.EMERGENCY]: 'Emergency',
+  [APPOINTMENT_TYPES.SPECIALIST]: 'Specialist',
+  [APPOINTMENT_TYPES.OTHER]: 'Other',
+};
+
 export const APPOINTMENT_STATUSES = {
   CONFIRMED: 'Confirmed',
   ARRIVED: 'Arrived',
@@ -67,6 +74,12 @@ export const REFERRAL_STATUSES = {
   PENDING: 'pending',
   CANCELLED: 'cancelled',
   COMPLETED: 'completed',
+};
+
+export const REFERRAL_STATUS_LABELS = {
+  [REFERRAL_STATUSES.PENDING]: 'Pending',
+  [REFERRAL_STATUSES.CANCELLED]: 'Cancelled',
+  [REFERRAL_STATUSES.COMPLETED]: 'Completed',
 };
 
 export const COMMUNICATION_STATUSES = {

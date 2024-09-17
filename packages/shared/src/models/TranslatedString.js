@@ -78,6 +78,10 @@ export class TranslatedString extends Model {
     return null; // syncs everywhere
   }
 
+  static buildSyncLookupQueryDetails() {
+    return null; // syncs everywhere
+  }
+
   static getPossibleLanguages = async () => {
     const languagesInDb = await TranslatedString.findAll({
       attributes: ['language'],
@@ -109,12 +113,7 @@ export class TranslatedString extends Model {
     });
   };
 
-  /**
-   *
-   * @param {string} language
-   * @param {string[]} prefixIds
-   */
-  static getTranslationFunction = async (language, prefixIds = []) => {
+  static getTranslations = async (language, prefixIds) => {
     const translatedStringRecords = await TranslatedString.findAll({
       where: {
         language,
@@ -129,15 +128,15 @@ export class TranslatedString extends Model {
     });
 
     const translations = mapValues(keyBy(translatedStringRecords, 'stringId'), 'text');
+    return translations;
+  };
 
-    /**
-     * @param {string} stringId
-     * @param {string} fallback
-     * @param {Record<string, unknown} replacements
-     */
-    return (stringId, fallback, replacements) => {
+  static getTranslationFunction = async (language, prefixIds = []) => {
+    const translations = await TranslatedString.getTranslations(language, prefixIds);
+
+    return (stringId, fallback, replacements, uppercase, lowercase) => {
       const translationFunc = translationFactory(translations);
-      const value = translationFunc(stringId, fallback, replacements);
+      const { value } = translationFunc(stringId, fallback, replacements, uppercase, lowercase);
       return value;
     };
   };

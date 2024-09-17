@@ -32,7 +32,7 @@ export class Model extends sequelize.Model {
         }),
       },
     });
-    this.defaultIdValue = attributes.id.defaultValue;
+    this.defaultIdValue = attributes.id?.defaultValue;
     if (!syncDirection) {
       throw new Error(
         `Every model must specify a sync direction, even if that is "DO_NOT_SYNC". Check the model definition for ${this.name}`,
@@ -45,6 +45,14 @@ export class Model extends sequelize.Model {
 
   static generateId() {
     return Utils.toDefaultValue(this.defaultIdValue);
+  }
+
+  /**
+   * Generates a uuid via the database
+   */
+  static async generateDbUuid() {
+    const [[{ uuid_generate_v4: uuid }]] = await this.sequelize.query(`SELECT uuid_generate_v4();`);
+    return uuid;
   }
 
   static validateSync(timestamps) {

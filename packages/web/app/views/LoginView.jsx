@@ -23,6 +23,7 @@ import { Typography } from '@material-ui/core';
 import { getBrandId } from '../utils';
 
 import { TranslatedText } from '../components/Translation/TranslatedText';
+import { BRAND_IDS } from '@tamanu/constants';
 const { REMEMBER_EMAIL } = LOCAL_STORAGE_KEYS;
 
 const Container = styled.div`
@@ -36,7 +37,7 @@ const LoginSplashImage = styled.div`
   max-width: 50vw;
   width: 50vw;
   height: inherit;
-  background-image: url(${props => splashImages[props.brandId]});
+  background-image: url(${props => splashImages[props.brandId] ?? splashImages[BRAND_IDS.TAMANU]});
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center right;

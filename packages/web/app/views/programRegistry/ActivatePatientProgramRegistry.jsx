@@ -28,6 +28,7 @@ import {
 import { useTranslation } from '../../contexts/Translation';
 import { FORM_TYPES } from '../../constants';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
+import { TranslatedReferenceData } from '../../components';
 
 export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistration, open }) => {
   const api = useApi();
@@ -149,7 +150,7 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
                     name="registeringFacilityId"
                     label={
                       <TranslatedText
-                        stringId="patientProgramRegistry.registeredBy.label"
+                        stringId="patientProgramRegistry.registeringFacility.label"
                         fallback="Registering facility"
                       />
                     }
@@ -180,9 +181,17 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
                     }
                     placeholder={getTranslation('general.placeholder.select', 'Select')}
                     component={MultiselectField}
-                    options={conditions}
+                    options={conditions?.map(condition => ({
+                      label: (
+                        <TranslatedReferenceData
+                          fallback={condition.name}
+                          value={condition.id}
+                          category="condition"
+                        />
+                      ),
+                      value: condition.id,
+                    }))}
                     disabled={!conditions || conditions.length === 0}
-                    prefix="programRegistry.property.relatedCondition"
                   />
                 </FormGrid>
               </FormGrid>
@@ -233,7 +242,7 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
             .required()
             .translatedLabel(
               <TranslatedText
-                stringId="patientProgramRegistry.registeredBy.label"
+                stringId="patientProgramRegistry.registeringFacility.label"
                 fallback="Registering facility"
               />,
             ),

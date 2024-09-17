@@ -28,6 +28,10 @@
     "email": "",
     "password": "",
     "timeout": 10000,
+    "syncApiConnection": {
+      "host": "http://localhost",
+      "port": 5000,
+    },
     "persistedCacheBatchSize": 10000,
     "pauseBetweenPersistedCacheBatchesInMilliseconds": 50,
     "pauseBetweenCacheBatchInMilliseconds": 50,

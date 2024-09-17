@@ -1,4 +1,8 @@
-import { LAB_REQUEST_STATUSES, LAB_TEST_TYPE_VISIBILITY_STATUSES } from '@tamanu/constants';
+import {
+  LAB_REQUEST_STATUSES,
+  LAB_TEST_TYPE_VISIBILITY_STATUSES,
+  VISIBILITY_STATUSES,
+} from '@tamanu/constants';
 import config from 'config';
 import {
   createDummyEncounter,
@@ -221,9 +225,17 @@ describe('Labs', () => {
     });
 
     const sampleTime = '2023-06-09 00:00:00';
+
+    const specimenType = await models.ReferenceData.create(
+      fake(models.ReferenceData, {
+        type: 'specimenType',
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+      }),
+    );
     const sampleDetails = {
       [labTestPanel.id]: {
         sampleTime,
+        specimenTypeId: specimenType.id,
       },
     };
     const response = await app.post('/api/labRequest').send({
@@ -235,6 +247,7 @@ describe('Labs', () => {
 
     const createdRequest = await models.LabRequest.findByPk(response.body[0].id);
     expect(createdRequest).toBeTruthy();
+    expect(createdRequest.specimenAttached).toBe(true);
     expect(createdRequest.status).toEqual(LAB_REQUEST_STATUSES.RECEPTION_PENDING);
 
     const createdTests = await models.LabTest.findAll({
@@ -281,6 +294,26 @@ describe('Labs', () => {
 
     const labRequest = await models.LabRequest.findByPk(requestId);
     expect(labRequest).toHaveProperty('status', status);
+  });
+
+  it('should update the specimen attached', async () => {
+    const { id: requestId } = await models.LabRequest.createWithTests(
+      await randomLabRequest(models, { patientId }),
+    );
+    const specimenType = await models.ReferenceData.create(
+      fake(models.ReferenceData, {
+        type: 'specimenType',
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+      }),
+    );
+    const user = await app.get('/api/user/me');
+    const response = await app
+      .put(`/api/labRequest/${requestId}`)
+      .send({ specimenTypeId: specimenType.id, userId: user.body.id });
+    expect(response).toHaveSucceeded();
+
+    const labRequest = await models.LabRequest.findByPk(requestId);
+    expect(labRequest).toHaveProperty('specimenAttached', true);
   });
 
   it('should publish a lab request', async () => {
@@ -433,6 +466,7 @@ describe('Labs', () => {
     // when no specific argument is included.
     const VALID_LISTING_LAB_REQUEST_STATUSES = [
       LAB_REQUEST_STATUSES.RECEPTION_PENDING,
+      LAB_REQUEST_STATUSES.INTERIM_RESULTS,
       LAB_REQUEST_STATUSES.RESULTS_PENDING,
       LAB_REQUEST_STATUSES.TO_BE_VERIFIED,
       LAB_REQUEST_STATUSES.VERIFIED,

@@ -1,8 +1,12 @@
 import { Sequelize } from 'sequelize';
 import { INVOICE_PRICE_CHANGE_ITEM_STATUSES, SYNC_DIRECTIONS } from '@tamanu/constants';
-import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
+import {
+  buildEncounterLinkedSyncFilter,
+  buildEncounterLinkedSyncFilterJoins,
+} from './buildEncounterLinkedSyncFilter';
 import { Model } from './Model';
 import { dateType } from './dateTimeTypes';
+import { buildEncounterPatientIdSelect } from './buildPatientLinkedLookupFilter';
 
 export class InvoicePriceChangeItem extends Model {
   static init({ primaryKey, ...options }) {
@@ -61,5 +65,12 @@ export class InvoicePriceChangeItem extends Model {
       [this.tableName, 'invoices', 'encounters'],
       markedForSyncPatientsTable,
     );
+  }
+
+  static buildSyncLookupQueryDetails() {
+    return {
+      select: buildEncounterPatientIdSelect(this),
+      joins: buildEncounterLinkedSyncFilterJoins([this.tableName, 'invoices', 'encounters']),
+    };
   }
 }

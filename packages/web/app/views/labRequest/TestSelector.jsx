@@ -11,7 +11,11 @@ import { SearchField, SuggesterSelectField } from '../../components/Field';
 import { TextButton } from '../../components/Button';
 import { BodyText } from '../../components/Typography';
 import { SelectableTestItem, TestItem } from './TestItem';
-import { TranslatedReferenceData, getReferenceDataStringId, TranslatedText } from '../../components/Translation';
+import {
+  getReferenceDataStringId,
+  TranslatedReferenceData,
+  TranslatedText,
+} from '../../components/Translation';
 import { useTranslation } from '../../contexts/Translation';
 
 const SELECTABLE_DATA_ENDPOINTS = {
@@ -138,10 +142,10 @@ const queryBySearch = (formType, data, { search, labTestCategoryId }, getTransla
   return data.filter(result => {
     const nameMatch = subStrSearch(search, result.name);
     if (formType === LAB_REQUEST_FORM_TYPES.PANEL) {
-      const categoryName = getTranslation(getReferenceDataStringId(
-        result.category?.id,
-        result.category?.type
-      ), result.category?.name);
+      const categoryName = getTranslation(
+        getReferenceDataStringId(result.category?.id, result.category?.type),
+        result.category?.name,
+      );
       return nameMatch || subStrSearch(search, categoryName);
     }
     return nameMatch && (!labTestCategoryId || result.category.id === labTestCategoryId);
@@ -169,7 +173,9 @@ export const TestSelectorInput = ({
   });
 
   const { data, isFetching } = useSelectable(requestFormType);
-  const queriedData = queryBySearch(requestFormType, data, searchQuery, getTranslation).sort(sortByCategoryAndName);
+  const queriedData = queryBySearch(requestFormType, data, searchQuery, getTranslation).sort(
+    sortByCategoryAndName,
+  );
 
   const showLoadingText = isLoading || isFetching;
   const selected = useMemo(() => data.filter(({ id }) => value.includes(id)), [data, value]);
@@ -266,10 +272,26 @@ export const TestSelectorInput = ({
                 queriedData.map(selectable => (
                   <SelectableTestItem
                     key={`${selectable.id}-checkbox`}
-                    label={selectable.name}
+                    label={
+                      <TranslatedReferenceData
+                        category={
+                          requestFormType === LAB_REQUEST_FORM_TYPES.INDIVIDUAL
+                            ? 'labTestType'
+                            : 'labTestPanel'
+                        }
+                        fallback={selectable.name}
+                        value={selectable.id}
+                      />
+                    }
                     name={selectable.id}
-                    category={selectable.category?.name
-                      && <TranslatedReferenceData fallback={selectable.category.name} value={selectable.category.id} category={selectable.category.type} />
+                    category={
+                      selectable.category?.name && (
+                        <TranslatedReferenceData
+                          fallback={selectable.category.name}
+                          value={selectable.category.id}
+                          category={selectable.category.type}
+                        />
+                      )
                     }
                     checked={isSelected(selectable)}
                     onChange={handleSelect}
@@ -296,10 +318,26 @@ export const TestSelectorInput = ({
               return (
                 <TestItem
                   key={`${option.id}-selected`}
-                  label={option.name}
+                  label={
+                    <TranslatedReferenceData
+                      category={
+                        requestFormType === LAB_REQUEST_FORM_TYPES.INDIVIDUAL
+                          ? 'labTestType'
+                          : 'labTestPanel'
+                      }
+                      fallback={option.name}
+                      value={option.id}
+                    />
+                  }
                   name={option.id}
-                  category={option.category?.name
-                    && <TranslatedReferenceData fallback={option.category.name} value={option.category.id} category={option.category.type} />
+                  category={
+                    option.category?.name && (
+                      <TranslatedReferenceData
+                        fallback={option.category.name}
+                        value={option.category.id}
+                        category={option.category.type}
+                      />
+                    )
                   }
                   onRemove={handleSelect}
                 />

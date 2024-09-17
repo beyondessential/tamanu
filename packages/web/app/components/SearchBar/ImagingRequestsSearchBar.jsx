@@ -1,7 +1,10 @@
 import React from 'react';
 import styled from 'styled-components';
-import { IMAGING_REQUEST_STATUS_TYPES, IMAGING_TABLE_VERSIONS } from '@tamanu/constants';
-import { IMAGING_REQUEST_STATUS_OPTIONS } from '../../constants';
+import {
+  IMAGING_REQUEST_STATUS_LABELS,
+  IMAGING_REQUEST_STATUS_TYPES,
+  IMAGING_TABLE_VERSIONS,
+} from '@tamanu/constants';
 import {
   AutocompleteField,
   CheckField,
@@ -10,10 +13,9 @@ import {
   LocalisedField,
   SearchField,
   SelectField,
+  TranslatedSelectField,
 } from '../Field';
-import {
-  CustomisableSearchBarWithPermissionCheck,
-} from './CustomisableSearchBar';
+import { CustomisableSearchBarWithPermissionCheck } from './CustomisableSearchBar';
 import { useLocalisation } from '../../contexts/Localisation';
 import { useSuggester } from '../../api';
 import { useImagingRequests } from '../../contexts/ImagingRequests';
@@ -155,12 +157,20 @@ export const ImagingRequestsSearchBar = ({ memoryKey, statuses = [], advancedFie
           label={
             <TranslatedText stringId="general.localisedField.status.label" fallback="Status" />
           }
-          component={SelectField}
-          options={IMAGING_REQUEST_STATUS_OPTIONS.filter(
-            ({ value }) => value !== IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
-          )}
+          component={TranslatedSelectField}
+          enumValues={IMAGING_REQUEST_STATUS_LABELS}
+          transformOptions={options =>
+            options.filter(
+              option =>
+                ![
+                  IMAGING_REQUEST_STATUS_TYPES.DELETED,
+                  IMAGING_REQUEST_STATUS_TYPES.ENTERED_IN_ERROR,
+                  IMAGING_REQUEST_STATUS_TYPES.CANCELLED,
+                  IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
+                ].includes(option.value),
+            )
+          }
           size="small"
-          prefix="imaging.property.status"
         />
       )}
       {isCompletedTable && <Spacer />}
@@ -172,7 +182,6 @@ export const ImagingRequestsSearchBar = ({ memoryKey, statuses = [], advancedFie
         component={SelectField}
         options={imagingTypeOptions}
         size="small"
-        prefix="imaging.property.type"
       />
       <LocalisedField
         name="requestedDateFrom"

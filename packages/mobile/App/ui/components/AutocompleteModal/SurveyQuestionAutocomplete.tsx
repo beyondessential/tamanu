@@ -16,15 +16,38 @@ const useFilterByResource = ({ source, scope }: SurveyScreenConfig): object => {
   return {};
 };
 
+const useWhere = ({
+  where,
+  source,
+}: SurveyScreenConfig & {
+  where?: {
+    type: string;
+  };
+}) => {
+  if (source === 'ReferenceData' && where?.type === 'icd10')
+    // Continue to support existing surveys with deprecated icd10 type by treating as diagnosis
+    return {
+      ...where,
+      type: 'diagnosis',
+    };
+  return where;
+};
+
+const useSurveyAutocompleteWhere = (config: SurveyScreenConfig) => {
+  const where = useWhere(config);
+  const filter = useFilterByResource(config);
+  return { ...where, ...filter };
+};
+
 export const SurveyQuestionAutocomplete = (props): JSX.Element => {
   const { models } = useBackend();
-  const filter = useFilterByResource(props.config);
-  const { source, where } = props.config;
+  const where = useSurveyAutocompleteWhere(props.config);
+  const { source } = props.config;
 
   const suggester = new Suggester(
     models[source],
     {
-      where: { ...where, ...filter },
+      where,
       column: getNameColumnForModel(source),
     },
     val => ({

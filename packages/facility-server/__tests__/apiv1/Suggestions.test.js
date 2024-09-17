@@ -323,7 +323,7 @@ describe('Suggestions', () => {
     const limit = 25;
 
     it('should get a default list of suggestions with an empty query', async () => {
-      const result = await userApp.get('/api/suggestions/icd10');
+      const result = await userApp.get('/api/suggestions/diagnosis');
       expect(result).toHaveSucceeded();
       const { body } = result;
       expect(body).toBeInstanceOf(Array);
@@ -331,7 +331,7 @@ describe('Suggestions', () => {
     });
 
     it('should get a full list of diagnoses with a general query', async () => {
-      const result = await userApp.get('/api/suggestions/icd10?q=A');
+      const result = await userApp.get('/api/suggestions/diagnosis?q=A');
       expect(result).toHaveSucceeded();
       const { body } = result;
       expect(body).toBeInstanceOf(Array);
@@ -341,7 +341,7 @@ describe('Suggestions', () => {
     it('should get a partial list of diagnoses with a specific query', async () => {
       const count = testDiagnoses.filter(td => td.name.toLowerCase().includes('bacterial')).length;
       expect(count).toBeLessThan(limit); // ensure we're actually testing filtering!
-      const result = await userApp.get('/api/suggestions/icd10?q=bacterial');
+      const result = await userApp.get('/api/suggestions/diagnosis?q=bacterial');
       expect(result).toHaveSucceeded();
       const { body } = result;
       expect(body).toBeInstanceOf(Array);
@@ -349,7 +349,7 @@ describe('Suggestions', () => {
     });
 
     it('should not be case sensitive', async () => {
-      const result = await userApp.get('/api/suggestions/icd10?q=pNeUmOnIa');
+      const result = await userApp.get('/api/suggestions/diagnosis?q=pNeUmOnIa');
       expect(result).toHaveSucceeded();
       const { body } = result;
       expect(body).toBeInstanceOf(Array);
@@ -358,7 +358,9 @@ describe('Suggestions', () => {
 
     it('should look up a specific suggestion', async () => {
       const record = await models.ReferenceData.findOne();
-      const result = await userApp.get(`/api/suggestions/icd10/${record.id}`, { language: 'en' });
+      const result = await userApp.get(`/api/suggestions/diagnosis/${record.id}`, {
+        language: 'en',
+      });
       expect(result).toHaveSucceeded();
       const { body } = result;
       expect(body).toHaveProperty('name', record.name);
@@ -446,7 +448,7 @@ describe('Suggestions', () => {
 
       await models.ReferenceData.bulkCreate(testData);
 
-      const result = await userApp.get('/api/suggestions/icd10?q=cons');
+      const result = await userApp.get('/api/suggestions/diagnosis?q=cons');
       expect(result).toHaveSucceeded();
       const { body } = result;
       const firstResult = body[0];
@@ -475,7 +477,7 @@ describe('Suggestions', () => {
 
       await models.ReferenceData.bulkCreate(testData);
 
-      const result = await userApp.get('/api/suggestions/icd10?q=acute');
+      const result = await userApp.get('/api/suggestions/diagnosis?q=acute');
       expect(result).toHaveSucceeded();
       const { body } = result;
 
@@ -487,7 +489,7 @@ describe('Suggestions', () => {
   it('should return translated labels for current language if present in the db', async () => {
     const { TranslatedString, ReferenceData } = models;
 
-    const DATA_TYPE = 'icd10';
+    const DATA_TYPE = 'diagnosis';
     const DATA_ID = 'test-diagnosis';
     const ORIGINAL_LABEL = 'AAAOrignal label'; // A's are to ensure it comes first in the list
     const ENGLISH_LABEL = 'AAAEnglish label';
@@ -524,6 +526,50 @@ describe('Suggestions', () => {
     expect(khmerRecord.name).toEqual(KHMER_LABEL);
   });
 
+  it.skip('should return translated labels for the correct facility', async () => {
+    const { TranslatedString } = models;
+
+    const facility1 = await findOneOrCreate(models, models.Facility, {
+      id: 'facility-1',
+    });
+
+    const facility2 = await findOneOrCreate(models, models.Facility, {
+      id: 'facility-2',
+    });
+    await findOneOrCreate(models, models.LocationGroup, {
+      id: 'f1-test-area',
+      name: 'F1 Test Area',
+      facilityId: facility1.id,
+    });
+
+    await findOneOrCreate(models, models.LocationGroup, {
+      id: 'f2-test-area',
+      name: 'F2 Test Area',
+      facilityId: facility2.id,
+    });
+
+    const DATA_TYPE = 'locationGroup';
+    const ENGLISH_CODE = 'en';
+    const KHMER_CODE = 'km';
+
+    await TranslatedString.create({
+      stringId: `${REFERENCE_DATA_TRANSLATION_PREFIX}.${DATA_TYPE}.f1-test-area`,
+      text: 'Facility 1 Test Area',
+      language: ENGLISH_CODE,
+    });
+
+    await TranslatedString.create({
+      stringId: `${REFERENCE_DATA_TRANSLATION_PREFIX}.${DATA_TYPE}.f2-test-area`,
+      text: 'Facility 1 Test Area',
+      language: KHMER_CODE,
+    });
+
+    const englishResults = await userApp.get(`/api/suggestions/facilityLocationGroup?language=en`);
+    const khmerResults = await userApp.get(`/api/suggestions/facilityLocationGroup?language=km`);
+    expect(englishResults.body.length).toEqual(1);
+    expect(khmerResults.body.length).toEqual(1);
+  });
+
   it('should respect visibility status', async () => {
     const visible = await models.ReferenceData.create({
       type: 'allergy',
@@ -550,13 +596,13 @@ describe('Suggestions', () => {
     await models.ReferenceData.truncate({ cascade: true, force: true });
     const dummyRecords = new Array(30).fill(0).map((_, i) => ({
       id: `diag-${i}`,
-      type: 'icd10',
+      type: 'diagnosis',
       name: `Diag ${i}`,
       code: `diag-${i}`,
     }));
 
     await models.ReferenceData.bulkCreate(dummyRecords);
-    const result = await userApp.get('/api/suggestions/icd10/all');
+    const result = await userApp.get('/api/suggestions/diagnosis/all');
     expect(result).toHaveSucceeded();
     expect(result.body).toHaveLength(30);
   });

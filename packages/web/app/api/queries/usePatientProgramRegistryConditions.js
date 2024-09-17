@@ -25,6 +25,6 @@ export const useProgramRegistryConditionsQuery = programRegistryId => {
         orderBy: 'name',
         order: 'ASC',
       })
-      .then(response => response.data.map(x => ({ label: x.name, value: x.id }))),
+      .then(response => response.data),
   );
 };

@@ -25,6 +25,11 @@ const InjectionSiteDropdown = ({ value, label, onChange, selectPlaceholderText }
   />
 );
 
+interface DateGivenFieldProps {
+  min?: Date;
+  max?: Date;
+}
+
 interface LabelledFieldProps {
   label?: TranslatedTextElement;
   required?: boolean;
@@ -37,9 +42,10 @@ interface NavigationFieldProps {
 export const DateGivenField = ({
   label = <TranslatedText stringId="vaccine.form.dateGiven.label" fallback="Date given" />,
   required = true,
-  min
-}: LabelledFieldProps): JSX.Element => (
-  <Field component={DateField} name="date" label={label} required={required} min={min} />
+  min,
+  max,
+}: LabelledFieldProps & DateGivenFieldProps): JSX.Element => (
+  <Field component={DateField} name="date" label={label} required={required} min={min} max={max} />
 );
 
 export const BatchField = (): JSX.Element => (

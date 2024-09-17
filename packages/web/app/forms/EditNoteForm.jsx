@@ -26,18 +26,11 @@ export const EditNoteForm = ({ note, onNoteContentChange, onSubmit, onCancel }) 
     <>
       <NoteInfoSection
         numberOfColumns={3}
-        noteType={
-          <TranslatedEnum
-            prefix="note.property.type"
-            value={note.noteType}
-            enumValues={NOTE_TYPE_LABELS}
-          />
-        }
+        noteType={<TranslatedEnum value={note.noteType} enumValues={NOTE_TYPE_LABELS} />}
         date={note.revisedBy ? note.revisedBy.date : note.date}
-        writtenByLabel={<TranslatedText
-          stringId="note.writtenBy.label"
-          fallback="Written by (or on behalf of)"
-        />}
+        writtenByLabel={
+          <TranslatedText stringId="note.writtenBy.label" fallback="Written by (or on behalf of)" />
+        }
         writtenBy={writtenBy}
         dateLabel={<TranslatedText stringId="note.dateTime.label" fallback="Date & time" />}
       />

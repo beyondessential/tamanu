@@ -51,6 +51,11 @@ triage.post(
       });
     }
 
+    const encounter = await models.Encounter.findOne({
+      where: { id: triageRecord.encounterId },
+    });
+    await encounter.addTriageScoreNote(triageRecord, Date.now(), user);
+
     res.send(triageRecord);
   }),
 );
@@ -106,7 +111,9 @@ triage.get(
           location_group.name AS location_group_name,
           complaint.name AS chief_complaint,
           planned_location_group.name AS planned_location_group_name,
-          planned_location.name AS planned_location_name
+          planned_location.name AS planned_location_name,
+          planned_location.id AS planned_location_id,
+          planned_location_group.id AS planned_location_group_id
         FROM triages
           LEFT JOIN encounters
            ON (encounters.id = triages.encounter_id)
@@ -127,7 +134,7 @@ triage.get(
           AND location.facility_id = :facility
           AND encounters.encounter_type IN (:triageEncounterTypes)
           AND encounters.deleted_at is null
-        ORDER BY encounter_type IN (:seenEncounterTypes) ASC, ${sortKey} ${sortDirection} NULLS LAST, Coalesce(arrival_time,triage_time) ASC 
+        ORDER BY encounter_type IN (:seenEncounterTypes) ASC, ${sortKey} ${sortDirection} NULLS LAST, Coalesce(arrival_time,triage_time) ASC
       `,
       {
         model: Triage,

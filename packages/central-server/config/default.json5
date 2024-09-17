@@ -64,12 +64,16 @@
     "persistedCacheBatchSize": 20000,
     "pauseBetweenPersistedCacheBatchesInMilliseconds": 50,
     "adjustDataBatchSize": 20000,
-    "syncAllEncountersForTheseVaccines": [],
     "numberConcurrentPullSnapshots": 4,
     "persistUpdateWorkerPoolSize": 5,
-    // at its very large default, maxRecordsPerPullSnapshotChunk is essentially "off"
+    // at its very large default, maxRecordsPerSnapshotChunk is essentially "off"
     // can be turned on by lowering to some amount that seems appropriate if snapshot performance is an issue
-    "maxRecordsPerPullSnapshotChunk": 1000000000
+    "maxRecordsPerSnapshotChunk": 1000000000,
+    "syncSessionTimeoutMs": null,
+    "lookupTable": {
+      "enabled": false,
+      "perModelUpdateTimeoutMs": null
+    }
   },
   "loadshedder": {
     // paths are checked sequentially until a path matches a prefix
@@ -140,6 +144,12 @@
       "schedule": "0 2 * * *",
       "batchSize": 1000,
       "batchSleepAsyncDurationInMilliseconds": 50
+    },
+    "surveyCompletionNotifierProcessor": {
+      "enabled": true,
+      // every 30seconds /!\
+      "schedule": "*/30 * * * * *",
+      "limit": 100
     },
     "patientEmailCommunicationProcessor": {
       // every 30seconds /!\
@@ -230,6 +240,10 @@
     "processSyncQueue": {
       "enabled": true,
       "schedule": "* * * * *"
+    },
+    "syncLookupRefresher": {
+      "enabled": false,
+      "schedule": "*/1 * * * *"
     }
   },
   "integrations": {
@@ -560,6 +574,18 @@
           "hidden": false,
           "requiredPatientData": false
         },
+        "insurerId": {
+          "shortLabel": "Insurer",
+          "longLabel": "Insurer",
+          "hidden": false,
+          "requiredPatientData": false
+        },
+        "insurerPolicyNumber": {
+          "shortLabel": "Insurance policy",
+          "longLabel": "Insurance policy number",
+          "hidden": false,
+          "requiredPatientData": false
+        },
         "drivingLicense": {
           "shortLabel": "Driving license",
           "longLabel": "Driving license number",
@@ -764,8 +790,8 @@
           "longLabel": "Conditions"
         },
         "programRegistry": {
-          "shortLabel": "Program Registry",
-          "longLabel": "Program Registry"
+          "shortLabel": "Program registry",
+          "longLabel": "Program registry"
         },
         "reminderContactName":{
           "shortLabel": "Contact name",
@@ -793,6 +819,7 @@
         "enableNoteBackdating": true,
         "enableCovidClearanceCertificate": false,
         "editPatientDisplayId": false,
+        "enablePatientInsurer": false,
         "patientPlannedMove": false,
         "idleTimeout": {
           "enabled": true,

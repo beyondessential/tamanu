@@ -2,7 +2,6 @@ import React from 'react';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 import { ADDITIONAL_DATA_FIELDS } from '~/ui/helpers/additionalData';
 import { PATIENT_DATA_FIELDS } from '~/ui/helpers/patient';
-import { CAMBODIA_CUSTOM_FIELDS } from '../cambodia/fields';
 
 export const labels = {
   [PATIENT_DATA_FIELDS.FIRST_NAME]: (
@@ -12,7 +11,7 @@ export const labels = {
     <TranslatedText stringId="general.localisedField.middleName.label" fallback="Middle name" />
   ),
   [PATIENT_DATA_FIELDS.LAST_NAME]: (
-    <TranslatedText stringId="general.localisedField.middleName.label" fallback="Middle name" />
+    <TranslatedText stringId="general.localisedField.lastName.label" fallback="Last name" />
   ),
   [PATIENT_DATA_FIELDS.DATE_OF_BIRTH]: (
     <TranslatedText stringId="general.localisedField.dateOfBirth.label" fallback="Date of birth" />
@@ -143,22 +142,16 @@ export const labels = {
   [ADDITIONAL_DATA_FIELDS.NURSING_ZONE_ID]: (
     <TranslatedText stringId="general.localisedField.nursingZoneId.label" fallback="Nursing zone" />
   ),
-  [CAMBODIA_CUSTOM_FIELDS.NATIONAL_ID]: (
-    <TranslatedText stringId="cambodiaPatientDetails.nationalId" fallback="National ID" />
+  secondaryDivisionId: (
+    <TranslatedText stringId="general.localisedField.province.label" fallback="Province" />
   ),
-  [CAMBODIA_CUSTOM_FIELDS.ID_POOR_CARD_NUMBER]: (
-    <TranslatedText
-      stringId="cambodiaPatientDetails.idPoorCardNumber.label"
-      fallback="ID Poor Card Number"
-    />
+  secondarySubdivisionId: (
+    <TranslatedText stringId="general.localisedField.district.label" fallback="District" />
   ),
-  [CAMBODIA_CUSTOM_FIELDS.PMRS_NUMBER]: (
-    <TranslatedText stringId="cambodiaPatientDetails.pmrsNumber.label" fallback="PMRS Number" />
+  secondarySettlementId: (
+    <TranslatedText stringId="general.localisedField.commune.label" fallback="Commune" />
   ),
-  [CAMBODIA_CUSTOM_FIELDS.FATHERS_FIRST_NAME]: (
-    <TranslatedText
-      stringId="cambodiaPatientDetails.fathersFirstName.label"
-      fallback="Father's first name"
-    />
+  secondaryVillageId: (
+    <TranslatedText stringId="general.localisedField.villageId.label" fallback="Village" />
   ),
 };

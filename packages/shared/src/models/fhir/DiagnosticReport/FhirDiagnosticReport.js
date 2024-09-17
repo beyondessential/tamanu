@@ -32,7 +32,7 @@ export class FhirDiagnosticReport extends FhirResource {
         },
         presentedForm: {
           type: DataTypes.JSONB,
-        }
+        },
       },
       options,
     );
@@ -50,7 +50,10 @@ export class FhirDiagnosticReport extends FhirResource {
 
   static get INTAKE_SCHEMA() {
     return yup.object({
-      basedOn: yup.array().of(FhirReference.asYup()).required(),
+      basedOn: yup
+        .array()
+        .of(FhirReference.asYup())
+        .required(),
       status: yup.string().required(),
       code: FhirCodeableConcept.asYup().required(),
       presentedForm: yup.array().of(
@@ -63,10 +66,7 @@ export class FhirDiagnosticReport extends FhirResource {
     });
   }
 
-
-
-
-  // This is beginning very modestly - can extend to handle full 
+  // This is beginning very modestly - can extend to handle full
   // results soon.
   async pushUpstream({ requesterId }) {
     const { FhirServiceRequest, LabRequest } = this.sequelize.models;
@@ -85,7 +85,9 @@ export class FhirDiagnosticReport extends FhirResource {
     }
     const serviceRequestFhirId = ref[1];
 
-    const serviceRequest = await FhirServiceRequest.findOne({ where: { id: serviceRequestFhirId } });
+    const serviceRequest = await FhirServiceRequest.findOne({
+      where: { id: serviceRequestFhirId },
+    });
 
     if (!serviceRequest) {
       throw new Invalid(`ServiceRequest '${serviceRequestFhirId}' does not exist in Tamanu`, {
@@ -100,15 +102,19 @@ export class FhirDiagnosticReport extends FhirResource {
 
     const labRequest = await LabRequest.findByPk(serviceRequest.upstreamId);
     if (!labRequest) {
-      throw new Invalid(`No LabRequest with id: '${serviceRequest.upstreamId}', might be ImagingRequest id`);
+      throw new Invalid(
+        `No LabRequest with id: '${serviceRequest.upstreamId}', might be ImagingRequest id`,
+      );
     }
     await this.sequelize.transaction(async () => {
       const newStatus = this.getLabRequestStatus();
-      if (labRequest.status && labRequest.status !== newStatus) {
+
+      if (this.shouldUpdateLabRequestStatus(labRequest, newStatus)) {
         labRequest.set({ status: newStatus });
         await labRequest.save();
 
-        if (!requesterId) throw new InvalidOperationError('No user found for LabRequest status change.');
+        if (!requesterId)
+          throw new InvalidOperationError('No user found for LabRequest status change.');
         await this.sequelize.models.LabRequestLog.create({
           status: newStatus,
           labRequestId: labRequest.id,
@@ -126,8 +132,9 @@ export class FhirDiagnosticReport extends FhirResource {
   getLabRequestStatus() {
     switch (this.status) {
       case FHIR_DIAGNOSTIC_REPORT_STATUS.REGISTERED:
-      case FHIR_DIAGNOSTIC_REPORT_STATUS.PARTIAL._:
         return LAB_REQUEST_STATUSES.TO_BE_VERIFIED;
+      case FHIR_DIAGNOSTIC_REPORT_STATUS.PARTIAL._:
+        return LAB_REQUEST_STATUSES.INTERIM_RESULTS;
       case FHIR_DIAGNOSTIC_REPORT_STATUS.PARTIAL.PRELIMINARY:
         return LAB_REQUEST_STATUSES.VERIFIED;
       case FHIR_DIAGNOSTIC_REPORT_STATUS.FINAL:
@@ -137,13 +144,39 @@ export class FhirDiagnosticReport extends FhirResource {
       case FHIR_DIAGNOSTIC_REPORT_STATUS.ENTERED_IN_ERROR:
         return LAB_REQUEST_STATUSES.ENTERED_IN_ERROR;
       case FHIR_DIAGNOSTIC_REPORT_STATUS.AMENDED._:
+        return LAB_REQUEST_STATUSES.INVALIDATED;
       case FHIR_DIAGNOSTIC_REPORT_STATUS.AMENDED.CORRECTED:
       case FHIR_DIAGNOSTIC_REPORT_STATUS.AMENDED.APPENDED:
         // no workflow for these yet
-        throw new Invalid('Amend workflow unsupported');
+        throw new Invalid(`${this.status} workflow unsupported`);
       default:
         throw new Invalid(`'${this.status}' is an invalid ServiceRequest status`);
     }
+  }
+
+  /**
+   * @param {LabRequest} labRequest
+   * @param {LabRequest.status} newStatus
+   */
+  shouldUpdateLabRequestStatus(labRequest, newStatus) {
+    if (!labRequest.status) {
+      return false; // Don't update a status for a labRequest that doesn't support it
+    }
+
+    if (labRequest.status === newStatus) {
+      return false; // No need to update if not changing the status
+    }
+
+    if (labRequest.status === LAB_REQUEST_STATUSES.PUBLISHED) {
+      // Once a labRequest has been published, we can only change the status to INVALIDATED. Ignore all other status changes
+      if (newStatus === LAB_REQUEST_STATUSES.INVALIDATED) {
+        return true;
+      }
+
+      return false;
+    }
+
+    return true;
   }
 
   async saveAttachment(labRequest) {
@@ -153,16 +186,22 @@ export class FhirDiagnosticReport extends FhirResource {
 
     const form = this.presentedForm[0];
     if (!Object.values(SUPPORTED_CONTENT_TYPES).includes(form.contentType)) {
-      throw new Invalid(`presentedForm must be one of the supported values: ${Object.values(SUPPORTED_CONTENT_TYPES)}`);
+      throw new Invalid(
+        `presentedForm must be one of the supported values: ${Object.values(
+          SUPPORTED_CONTENT_TYPES,
+        )}`,
+      );
     }
     if (form.data.length > MAX_ATTACHMENT_SIZE_BYTES) {
-      throw new Invalid(`Maximum length of for attachment is ${MAX_ATTACHMENT_SIZE_BYTES / 1024}k characters`);
+      throw new Invalid(
+        `Maximum length of for attachment is ${MAX_ATTACHMENT_SIZE_BYTES / 1024}k characters`,
+      );
     }
     const { Attachment, LabRequestAttachment } = this.sequelize.models;
     const { data, type } = Attachment.sanitizeForDatabase({
       data: form.data,
       type: form.contentType,
-    })
+    });
     const attachment = await Attachment.create({ data, type });
     const lastAttachment = await labRequest.getLatestAttachment();
     const labRequestAttachment = await LabRequestAttachment.create({

@@ -1,8 +1,10 @@
 import React from 'react';
-import { Page, StyleSheet, View, Document } from '@react-pdf/renderer';
+import { StyleSheet, View, Document } from '@react-pdf/renderer';
 import { getDOB, getName, getSex } from '../patientAccessors';
 import { PrintableBarcode } from './printComponents/PrintableBarcode';
 import { P } from './Typography';
+import { withLanguageContext } from '../pdf/languageContext';
+import { Page } from '../pdf/Page';
 
 const fontSize = 11;
 
@@ -30,6 +32,7 @@ const styles = StyleSheet.create({
   text: {
     color: '#444444',
     fontFamily: 'Courier',
+    lineHeight: 1.2,
   },
   barcodeContainer: {
     flexDirection: 'column',
@@ -37,6 +40,7 @@ const styles = StyleSheet.create({
   barcodeText: {
     fontFamily: 'Courier-Bold',
     color: '#444444',
+    lineHeight: 1.2,
   },
   barcode: {
     margin: 0,
@@ -84,7 +88,7 @@ const IDLabel = ({ patient }) => {
   );
 };
 
-export const IDLabelPrintout = ({ patient, measures }) => {
+const IDLabelPrintoutComponent = ({ patient, measures }) => {
   const pageStyles = StyleSheet.create({
     grid: {
       display: 'flex',
@@ -122,3 +126,5 @@ export const IDLabelPrintout = ({ patient, measures }) => {
     </Document>
   );
 };
+
+export const IDLabelPrintout = withLanguageContext(IDLabelPrintoutComponent);
