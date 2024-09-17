@@ -73,7 +73,6 @@ export const MonthYearInput = ({
   const [open, setOpen] = useState(false);
   const minDate = useMemo(() => propMinDate || getMinDate(), [propMinDate]);
   const maxDate = useMemo(() => propMaxDate || getMaxDate(), [propMaxDate]);
-  console.log(onChange);
   return (
     <DatePicker
       onOpen={() => setOpen(true)}
