@@ -230,6 +230,7 @@ export class Task extends Model {
 
       for (; nextDueTime.getTime() < maxDueTime.getTime(); nextDueTime = addMilliseconds(nextDueTime, frequency)) {
         const nextTask = {
+          id: uuidv4(),
           encounterId: task.encounterId,
           requestedByUserId: task.requestedByUserId,
           name: task.name,
@@ -241,7 +242,6 @@ export class Task extends Model {
           frequencyUnit: task.frequencyUnit,
           highPriority: task.highPriority,
           parentTaskId: task.id,
-          id: uuidv4(),
         };
         generatedTasks.push(nextTask);
       }
