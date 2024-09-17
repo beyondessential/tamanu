@@ -13,6 +13,11 @@ const getMinDate = () => {
   return startOfYear(add(new Date(), { years: -3 }));
 };
 
+// In rem units
+const calendarButtonHeight = 1.4375;
+const calendarButtonYMargin = 0.25;
+const calendarButtonTotalHeight = calendarButtonHeight + calendarButtonYMargin * 2;
+
 const popperStyles = {
   '& .MuiPaper-root': {
     border: `1px solid ${Colors.outline}`,
@@ -20,23 +25,23 @@ const popperStyles = {
   },
   '& .MuiDateCalendar-root': {
     height: 'auto',
-    maxHeight: '93px', // Prevent calendar from flickering when switching between month and year views
-    maxWidth: '210px',
-    marginBottom: '12px',
+    maxHeight: `${calendarButtonTotalHeight * 3}rem`, // Prevent calendar from flickering when switching between month and year views
+    maxWidth: '13.125rem',
+    marginBottom: '0.75rem',
   },
   '& .MuiMonthCalendar-root, .MuiYearCalendar-root': {
     width: 'auto',
-    maxHeight: '62px',
+    maxHeight: `${calendarButtonTotalHeight * 2}rem`,
     overflowY: 'auto',
-    paddingX: '10px',
+    paddingX: '0.625rem',
   },
   '& .MuiPickersYear-yearButton, .MuiPickersMonth-monthButton': {
     color: `${Colors.darkestText}`,
     fontWeight: 500,
-    fontSize: '11px',
-    width: '46px',
-    height: '23px',
-    marginY: '4px',
+    fontSize: '0.6875rem',
+    width: '2.875rem',
+    height: `${calendarButtonHeight}rem`,
+    marginY: `${calendarButtonYMargin}rem`,
   },
   '& .MuiPickersYear-yearButton.Mui-selected, .MuiPickersMonth-monthButton.Mui-selected': {
     backgroundColor: `${Colors.primary}`,
@@ -52,10 +57,10 @@ const popperStyles = {
 };
 
 const calendarHeaderStyles = {
-  minHeight: '15px', // Overrides default
+  minHeight: '0.9375rem', // Overrides default
   '& .MuiPickersCalendarHeader-labelContainer': {
-    fontSize: '11px',
-    lineHeight: '15px',
+    fontSize: '0.6875rem',
+    lineHeight: '0.9375rem',
   },
 };
 
