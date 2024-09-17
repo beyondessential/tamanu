@@ -85,7 +85,7 @@ describe('CentralSyncManager', () => {
 
     expect(cleanedSessionData1).toEqual(cleanedSessionData2);
   };
-  
+
   const prepareRecordsForSync = async () => {
     // Pre insert the records below for snapshotting later
     const facility = await models.Facility.create(fake(models.Facility));
