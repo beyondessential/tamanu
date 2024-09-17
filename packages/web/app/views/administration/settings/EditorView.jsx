@@ -152,7 +152,8 @@ export const EditorView = memo(
 
     const handleChangeSetting = (path, value) => {
       const settingObject = cloneDeep(currentSettings);
-      const updatedSettings = set(settingObject, `${category}.${path}`, value);
+      const prefix = category === UNCATEGORISED_KEY ? '' : `${category}.`;
+      const updatedSettings = set(settingObject, `${prefix}${path}`, value);
       setValues({ ...values, settings: updatedSettings });
     };
 
@@ -165,14 +166,7 @@ export const EditorView = memo(
     const saveSettings = async event => {
       // Need to parse json string objects stored in keys
       const parsedSettings = recursiveJsonParse(values.settings);
-
-      const settingsPayload = {
-        ...parsedSettings,
-        ...parsedSettings[UNCATEGORISED_KEY],
-      };
-      delete settingsPayload[UNCATEGORISED_KEY];
-
-      setValues({ ...values, settings: settingsPayload });
+      setValues({ ...values, settings: parsedSettings });
       const success = await submitForm(event);
       if (success) {
         setCategory(null);
