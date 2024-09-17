@@ -5,7 +5,8 @@ import { ReadSettings } from '../reader';
 export const settingsReaderMiddleware = (req, _res, next) => {
   const { models } = req;
   const { serverFacilityId, serverFacilityIds } = config as any;
-  const facilityIds = serverFacilityId ? [serverFacilityId] : serverFacilityIds;
+  const isFacility = serverFacilityId || serverFacilityIds;
+  const facilityIds = isFacility && serverFacilityId ? [serverFacilityId] : serverFacilityIds;
   try {
     // n.b. facilityId will not be defined if
     // - this is a central server; or
