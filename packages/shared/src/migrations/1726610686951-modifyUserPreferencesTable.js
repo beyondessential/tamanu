@@ -5,12 +5,12 @@ const SELECTED_GRAPHED_VITALS_ON_FILTER_KEY = 'selectedGraphedVitalsOnFilter';
 export async function up(query) {
   await query.addColumn('user_preferences', 'preference_key', {
     type: DataTypes.STRING,
-    allowNull: false,
+    allowNull: true,
   });
 
   await query.addColumn('user_preferences', 'preference_value', {
     type: DataTypes.JSONB,
-    allowNull: false,
+    allowNull: true,
   });
 
   await query.sequelize.query(`
@@ -20,6 +20,16 @@ export async function up(query) {
   `);
 
   await query.removeColumn('user_preferences', 'selected_graphed_vitals_on_filter');
+
+  await query.changeColumn('user_preferences', 'preference_key', {
+    type: DataTypes.STRING,
+    allowNull: false,
+  });
+
+  await query.addColumn('user_preferences', 'preference_value', {
+    type: DataTypes.JSONB,
+    allowNull: false,
+  });
 }
 
 export async function down(query) {
