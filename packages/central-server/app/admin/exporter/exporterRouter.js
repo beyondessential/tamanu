@@ -4,6 +4,7 @@ import { upperFirst } from 'lodash';
 import { REFERENCE_TYPE_VALUES } from '@tamanu/constants';
 
 import { exporter } from './exporter';
+import { exportProgram } from '../programExporter/exportProgram';
 
 export const exporterRouter = express.Router();
 
@@ -27,6 +28,19 @@ exporterRouter.get(
     }
 
     const filename = await exporter(store, query.includedDataTypes);
+    res.download(filename);
+  }),
+);
+
+exporterRouter.get(
+  '/program/:programId',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('list', 'Program');
+
+    const { store } = req;
+    const { programId } = req.params;
+
+    const filename = await exportProgram(store, programId);
     res.download(filename);
   }),
 );
