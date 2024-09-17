@@ -2,6 +2,7 @@ import config from 'config';
 import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
 import { Op } from 'sequelize';
+import { sleepAsync } from '@tamanu/shared/utils';
 
 export class GenerateRepeatingTasks extends ScheduledTask {
   constructor(context) {
@@ -9,6 +10,7 @@ export class GenerateRepeatingTasks extends ScheduledTask {
     const { schedule, jitterTime, enabled } = conf;
     super(schedule, log, jitterTime, enabled);
     this.models = context.store.models;
+    this.config = conf;
   }
 
   getName() {
@@ -19,8 +21,8 @@ export class GenerateRepeatingTasks extends ScheduledTask {
     return {
       where: {
         endTime: null,
-        frequencyValue: { [Op.ne]: null },
-        frequencyUnit: { [Op.ne]: null },
+        frequencyValue: { [Op.not]: null },
+        frequencyUnit: { [Op.not]: null },
         parentTaskId: null,
       },
     };
@@ -38,10 +40,32 @@ export class GenerateRepeatingTasks extends ScheduledTask {
     const toProcess = await this.countQueue();
     if (toProcess === 0) return;
 
-    const tasks = await Task.findAll({ ...this.getQuery(), include: ['designations'] });
+    const { batchSize, batchSleepAsyncDurationInMilliseconds } = this.config;
 
-    for (const task of tasks) {
-      await Task.generateRepeatingTasks(task);
+    if (!batchSize || !batchSleepAsyncDurationInMilliseconds) {
+      throw new InvalidConfigError(
+        'batchSize and batchSleepAsyncDurationInMilliseconds must be set for GenerateRepeatingTasks',
+      );
+    }
+
+    const batchCount = Math.ceil(toProcess / batchSize);
+
+    log.info('Running batched generating repeating tasks', {
+      recordCount: toProcess,
+      batchCount,
+      batchSize,
+    });
+
+    for (let i = 0; i < batchCount; i++) {
+      const tasks = await Task.findAll({
+        ...this.getQuery(),
+        include: ['designations'],
+        limit: batchSize,
+      });
+
+      await Task.generateRepeatingTasks(tasks);
+
+      await sleepAsync(batchSleepAsyncDurationInMilliseconds);
     }
   }
 }

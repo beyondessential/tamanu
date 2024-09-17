@@ -8,6 +8,7 @@ import ms from 'ms';
 import { addMilliseconds, isBefore } from 'date-fns';
 import { toDateTimeString } from '../utils/dateTime';
 import { buildEncounterLinkedLookupFilter } from '../sync/buildEncounterLinkedLookupFilter';
+import { v4 as uuidv4 } from 'uuid';
 
 export class Task extends Model {
   static init({ primaryKey, ...options }) {
@@ -197,59 +198,73 @@ export class Task extends Model {
     ];
   }
 
-  static async generateRepeatingTasks(task) {
-    let lastGeneratedTask = await this.findOne({
-      where: {
-        parentTaskId: task.id,
-      },
-      order: [['dueTime', 'DESC']],
-    });
-    if (!lastGeneratedTask) {
-      // no tasks have been generated yet
-      lastGeneratedTask = task;
-    }
+  static async generateRepeatingTasks(tasks) {
+    const allGeneratedTasks = [];
+    const allClonedDesignations = [];
 
-    const upcomingTasksShouldBeGeneratedTimeFrame =
-      config.tasking?.upcomingTasksShouldBeGeneratedTimeFrame || 48;
-    const { frequencyValue, frequencyUnit } = task;
-    const frequency = ms(`${frequencyValue} ${frequencyUnit}`);
+    const repeatingTasks = tasks.filter(task => task.frequencyValue && task.frequencyUnit);
 
-    const maxDueTime = addMilliseconds(
-      new Date(),
-      ms(`${upcomingTasksShouldBeGeneratedTimeFrame} hours`),
-    );
-    let nextDueTime = addMilliseconds(new Date(lastGeneratedTask.dueTime), frequency);
-    const generatedTasks = [];
+    for (const task of repeatingTasks) {
+      let lastGeneratedTask = await this.findOne({
+        where: {
+          parentTaskId: task.id,
+        },
+        order: [['dueTime', 'DESC']],
+      });
+      if (!lastGeneratedTask) {
+        // no tasks have been generated yet
+        lastGeneratedTask = task;
+      }
 
-    while (isBefore(nextDueTime, maxDueTime)) {
-      const nextTask = {
-        encounterId: task.encounterId,
-        requestedByUserId: task.requestedByUserId,
-        name: task.name,
-        dueTime: toDateTimeString(nextDueTime),
-        requestTime: task.requestTime,
-        status: TASK_STATUSES.TODO,
-        note: task.note,
-        frequencyValue: task.frequencyValue,
-        frequencyUnit: task.frequencyUnit,
-        highPriority: task.highPriority,
-        parentTaskId: task.id,
-      };
-      generatedTasks.push(nextTask);
-      nextDueTime = addMilliseconds(nextDueTime, frequency);
-    }
+      const upcomingTasksShouldBeGeneratedTimeFrame =
+        config.tasking?.upcomingTasksShouldBeGeneratedTimeFrame || 72;
+      const { frequencyValue, frequencyUnit } = task;
+      const frequency = ms(`${frequencyValue} ${frequencyUnit}`);
 
-    const createdTasks = await this.bulkCreate(generatedTasks, { returning: true });
-    const clonedDesignations = [];
-
-    for (const createdTask of createdTasks) {
-      clonedDesignations.push(
-        ...task.designations.map(designation => ({
-          taskId: createdTask.id,
-          designationId: designation.designationId,
-        })),
+      const maxDueTime = addMilliseconds(
+        new Date(),
+        ms(`${upcomingTasksShouldBeGeneratedTimeFrame} hours`),
       );
+      let nextDueTime = addMilliseconds(new Date(lastGeneratedTask.dueTime), frequency);
+      const generatedTasks = [];
+
+      for (; nextDueTime.getTime() < maxDueTime.getTime(); nextDueTime = addMilliseconds(nextDueTime, frequency)) {
+        const nextTask = {
+          encounterId: task.encounterId,
+          requestedByUserId: task.requestedByUserId,
+          name: task.name,
+          dueTime: toDateTimeString(nextDueTime),
+          requestTime: task.requestTime,
+          status: TASK_STATUSES.TODO,
+          note: task.note,
+          frequencyValue: task.frequencyValue,
+          frequencyUnit: task.frequencyUnit,
+          highPriority: task.highPriority,
+          parentTaskId: task.id,
+          id: uuidv4(),
+        };
+        generatedTasks.push(nextTask);
+      }
+
+      const clonedDesignations = [];
+
+      for (const generatedTask of generatedTasks) {
+        clonedDesignations.push(
+          ...task.designations.map(designation => ({
+            taskId: generatedTask.id,
+            designationId: designation.designationId,
+          })),
+        );
+      }
+      allGeneratedTasks.push(...generatedTasks);
+      allClonedDesignations.push(...clonedDesignations);
     }
-    await this.sequelize.models.TaskDesignation.bulkCreate(clonedDesignations);
+
+    if (allGeneratedTasks.length) {
+      await this.bulkCreate(allGeneratedTasks);
+    }
+    if (allClonedDesignations.length) {
+      await this.sequelize.models.TaskDesignation.bulkCreate(allClonedDesignations);
+    }
   }
 }
