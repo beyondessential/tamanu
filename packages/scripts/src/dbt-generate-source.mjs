@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 process.env.SUPPRESS_NO_CONFIG_WARNING = 'y';
 const { default: config } = await import('config');
 import fs from 'node:fs/promises';
@@ -41,9 +42,20 @@ async function getColumnsInRelation(client, schemaName, table) {
 }
 
 async function generateSource({ host, port, name: database, username, password }, packageName) {
+  console.log('Connecting to database for', packageName);
   const client = new pg.Client({ host, port, user: username, database, password });
-  await client.connect();
+  try {
+    await client.connect();
+  } catch (err) {
+    console.error(err);
+    if (opts.failOnMissingConfig) {
+      throw `Invalid database config for ${packageName}, cannot proceed.`;
+    }
 
+    return;
+  }
+
+  console.log('Generating database models for', packageName);
   const tasks = (await getSchemas(client)).map(async schemaName => {
     const schemaPath = path.join('database/model', packageName, schemaName);
     await fs.mkdir(schemaPath, { recursive: true });
@@ -57,12 +69,10 @@ async function generateSource({ host, port, name: database, username, password }
             tables: [
               {
                 name: table,
-                columns: (await getColumnsInRelation(client, schemaName, table)).map(column => {
-                  return {
-                    name: column.column_name,
-                    data_type: column.data_type,
-                  };
-                }),
+                columns: (await getColumnsInRelation(client, schemaName, table)).map(column => ({
+                  name: column.column_name,
+                  data_type: column.data_type,
+                })),
               },
             ],
           },
@@ -79,13 +89,7 @@ async function generateSource({ host, port, name: database, username, password }
 async function run(packageName, opts) {
   const serverConfig = config.util.loadFileConfigs(path.join('packages', packageName, 'config'));
   const db = config.util.extendDeep(serverConfig.db, config.db); // merge with NODE_CONFIG
-  if (['host', 'port', 'name', 'username', 'password'].some(key => db[key] === undefined)) {
-    if (opts.failOnMissingConfig) {
-      throw `There's no config for ${packageName}.`;
-    }
-    return;
-  }
-  await generateSource(db, packageName);
+  await generateSource(db, packageName, opts);
 }
 
 program.description(`Generates a Source model in dbt.
