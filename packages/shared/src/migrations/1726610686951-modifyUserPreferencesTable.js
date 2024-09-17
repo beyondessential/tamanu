@@ -26,7 +26,7 @@ export async function up(query) {
     allowNull: false,
   });
 
-  await query.addColumn('user_preferences', 'value', {
+  await query.changeColumn('user_preferences', 'value', {
     type: DataTypes.JSONB,
     allowNull: false,
   });
