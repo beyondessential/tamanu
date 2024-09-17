@@ -2,9 +2,23 @@ import config from 'config';
 
 import { ReadSettings } from '../reader';
 
+/**
+ * Copied from @tamanu/shared/src/utils/configSelectors.js
+ * As we currently have build issues with shared package in settings
+ */
+const selectFacilityIds = config => {
+  const { serverFacilityId, serverFacilityIds } = config;
+  if (serverFacilityId && serverFacilityIds) {
+    throw new Error(
+      'Both serverFacilityId and serverFacilityIds are set in config, a facility server should either have a single facility or multiple facilities, not both.',
+    );
+  }
+  return serverFacilityId ? [serverFacilityId] : serverFacilityIds;
+};
+
 export const settingsReaderMiddleware = (req, _res, next) => {
   const { models } = req;
-  const facilityIds = (config as any).serverFacilityIds || [(config as any).serverFacilityId];
+  const facilityIds = selectFacilityIds(config);
   try {
     // n.b. facilityId will not be defined if
     // - this is a central server; or
