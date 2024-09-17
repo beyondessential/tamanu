@@ -59,6 +59,7 @@
   },
   "dependencies": {
     "@tamanu/constants": "*",
+    "@tamanu/shared": "*",
     "@types/lodash": "^4.14.197",
     "lodash": "^4.17.21"
   }
