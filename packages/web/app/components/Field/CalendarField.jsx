@@ -94,6 +94,7 @@ export const MonthYearInput = ({
         },
         textField: {
           size: 'small', // Manually set size to small for appropriate text size
+          ...props,
         },
       }}
       minDate={minDate}
