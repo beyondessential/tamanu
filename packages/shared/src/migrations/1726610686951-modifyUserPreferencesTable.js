@@ -1,5 +1,7 @@
 import { DataTypes } from 'sequelize';
 
+const SELECTED_GRAPHED_VITALS_ON_FILTER_KEY = 'selectedGraphedVitalsOnFilter';
+
 export async function up(query) {
   await query.addColumn('user_preferences', 'preference_key', {
     type: DataTypes.STRING,
@@ -29,7 +31,7 @@ export async function down(query) {
   await query.sequelize.query(`
     UPDATE user_preferences
     SET selected_graphed_vitals_on_filter = preference_value
-    WHERE key = 'selectedGraphedVitalsOnFilter'
+    WHERE key = '${SELECTED_GRAPHED_VITALS_ON_FILTER_KEY}'
   `);
 
   await query.dropColumn('user_preferences', 'preference_key');
