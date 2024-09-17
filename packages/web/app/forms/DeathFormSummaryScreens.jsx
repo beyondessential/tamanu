@@ -55,40 +55,6 @@ const BaseSummaryScreen = ({
   </FormGrid>
 );
 
-const TEXT_COPY_ONE = (
-  <TranslatedText
-    stringId="death.summary.warning1.text"
-    fallback="If this patient has an active encounter they will be auto-discharged. Please ensure that all encounter details are up-to-date and correct before proceeding."
-  />
-);
-const TEXT_COPY_TWO = (
-  <TranslatedText
-    stringId="death.summary.save.text"
-    fallback="The record of this patient's death will be saved but not finalised. Please return at a later time or date to enter the complete cause of death details and finalise."
-  />
-);
-const TEXT_COPY_THREE = (
-  <TranslatedText
-    stringId="death.summary.warning2.text"
-    fallback="This action is irreversible. This should only be done under the direction of the responsible clinician. Do you wish to record the death of this patient?"
-  />
-);
-const CONFIRM_MESSAGE_ONE = (
-  <TranslatedText
-    stringId="death.summary.confirm1.text"
-    fallback=":textOne \n\n :textTwo"
-    replacements={{ textOne: TEXT_COPY_ONE, textTwo: TEXT_COPY_TWO }}
-  />
-);
-const CONFIRM_MESSAGE_TWO = TEXT_COPY_THREE;
-const CONFIRM_MESSAGE_THREE = (
-  <TranslatedText
-    stringId="death.summary.confirm3.text"
-    fallback=":textOne \n\n :textThree"
-    replacements={{ textOne: TEXT_COPY_ONE, textThree: TEXT_COPY_THREE }}
-  />
-);
-
 export const SummaryScreenOne = ({ onStepBack, submitForm, onCancel }) => (
   <BaseSummaryScreen
     heading={
@@ -97,7 +63,20 @@ export const SummaryScreenOne = ({ onStepBack, submitForm, onCancel }) => (
         fallback="Patient will be auto-discharged and locked"
       />
     }
-    text={CONFIRM_MESSAGE_ONE}
+    text={
+      <>
+        <TranslatedText
+          stringId="death.summary.warning1.text"
+          fallback="If this patient has an active encounter they will be auto-discharged. Please ensure that all encounter details are up-to-date and correct before proceeding."
+        />
+        <br />
+        <br />
+        <TranslatedText
+          stringId="death.summary.save.text"
+          fallback='The record of this patient’s death will be saved but not finalised. Please return at a later time or date to enter the complete cause of death details and finalise.'
+        />
+      </>
+    }
     continueButtonText={<TranslatedText stringId="general.action.confirm" fallback="Confirm" />}
     onStepBack={onStepBack}
     onContinue={submitForm}
@@ -113,7 +92,12 @@ export const SummaryScreenTwo = ({ onStepBack, submitForm, onCancel }) => (
         fallback="Confirm death record"
       />
     }
-    text={CONFIRM_MESSAGE_TWO}
+    text={
+      <TranslatedText
+        stringId="death.summary.warning2.text"
+        fallback="This action is irreversible. This should only be done under the direction of the responsible clinician. Do you wish to record the death of this patient?"
+      />
+    }
     continueButtonText={
       <TranslatedText stringId="death.action.recordDeath" fallback="Record death" />
     }
@@ -131,7 +115,20 @@ export const SummaryScreenThree = ({ onStepBack, submitForm, onCancel }) => (
         fallback="Confirm death record"
       />
     }
-    text={CONFIRM_MESSAGE_THREE}
+    text={
+      <>
+        <TranslatedText
+          stringId="death.summary.warning1.text"
+          fallback="If this patient has an active encounter they will be auto-discharged. Please ensure that all encounter details are up-to-date and correct before proceeding."
+        />
+        <br />
+        <br />
+        <TranslatedText
+          stringId="death.summary.warning2.text"
+          fallback="This action is irreversible. This should only be done under the direction of the responsible clinician. Do you wish to record the death of this patient?"
+        />
+      </>
+    }
     continueButtonText={
       <TranslatedText stringId="death.action.recordDeath" fallback="Record death" />
     }

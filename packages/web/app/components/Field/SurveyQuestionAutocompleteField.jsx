@@ -8,7 +8,10 @@ import { useProgramRegistryContext } from '../../contexts/ProgramRegistry';
 // suggesters (due to using different db's). Mobile has the more generic
 // approach already, so do the extra step here.
 const getSuggesterEndpointForConfig = config => {
-  if (config?.source === 'ReferenceData') return config?.where?.type;
+  if (config?.source === 'ReferenceData') {
+    const type = config.where?.type;
+    return type === 'icd10' ? 'diagnosis' : type;
+  }
   if (config?.source === 'Facility') return 'facility';
   if (config?.source === 'Location') return 'location';
   if (config?.source === 'Department') return 'department';

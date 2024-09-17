@@ -4,6 +4,7 @@ import { Model } from './Model';
 import { buildPatientSyncFilterViaPatientId } from './buildPatientSyncFilterViaPatientId';
 import { dateTimeType } from './dateTimeTypes';
 import { getCurrentDateTimeString } from '../utils/dateTime';
+import { buildPatientLinkedLookupFilter } from './buildPatientLinkedLookupFilter';
 
 export class PatientIssue extends Model {
   static init({ primaryKey, ...options }) {
@@ -30,6 +31,10 @@ export class PatientIssue extends Model {
 
   static initRelations(models) {
     this.belongsTo(models.Patient, { foreignKey: 'patientId' });
+  }
+
+  static buildSyncLookupQueryDetails() {
+    return buildPatientLinkedLookupFilter(this);
   }
 
   static buildPatientSyncFilter = buildPatientSyncFilterViaPatientId;

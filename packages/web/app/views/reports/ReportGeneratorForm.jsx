@@ -412,7 +412,7 @@ export const ReportGeneratorForm = () => {
                 setRequestError(null);
               }}
             >
-              {`Error: ${requestError}`}
+              Error: {requestError}
             </Alert>
           )}
           {successMessage && (

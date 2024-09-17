@@ -12,6 +12,7 @@ import { dateTimeType } from './dateTimeTypes';
 import { Model } from './Model';
 import { onCreateEncounterMarkPatientForSync } from './onCreateEncounterMarkPatientForSync';
 import { dischargeOutpatientEncounters } from '../utils/dischargeOutpatientEncounters';
+import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
 
 export class Encounter extends Model {
   static init({ primaryKey, hackToSkipEncounterValidation, ...options }) {
@@ -79,7 +80,7 @@ export class Encounter extends Model {
         include: ['facility', 'locationGroup'],
       },
       'referralSource',
-      'diets'
+      'diets',
     ];
   }
 
@@ -197,7 +198,7 @@ export class Encounter extends Model {
       foreignKey: 'referralSourceId',
       as: 'referralSource',
     });
-    
+
     this.belongsToMany(models.ReferenceData, {
       through: models.EncounterDiet,
       as: 'diets',
@@ -223,7 +224,7 @@ export class Encounter extends Model {
   }
 
   static buildPatientSyncFilter(patientCount, markedForSyncPatientsTable, sessionConfig) {
-    const { syncAllLabRequests, syncAllEncountersForTheseVaccines } = sessionConfig;
+    const { syncAllLabRequests } = sessionConfig;
     const joins = [];
     const encountersToIncludeClauses = [];
     const updatedAtSyncTickClauses = ['encounters.updated_at_sync_tick > :since'];
@@ -260,44 +261,6 @@ export class Encounter extends Model {
       `);
     }
 
-    // for mobile, add any encounters with a vaccine in the list of scheduled vaccines that sync everywhere
-    if (syncAllEncountersForTheseVaccines?.length > 0) {
-      const escapedVaccineIds = syncAllEncountersForTheseVaccines
-        .map(id => this.sequelize.escape(id))
-        .join(',');
-      joins.push(`
-        LEFT JOIN (
-          SELECT e.id, MAX(av.updated_at_sync_tick) AS av_updated_at_sync_tick
-          FROM encounters e
-          INNER JOIN administered_vaccines av ON av.encounter_id = e.id
-          INNER JOIN scheduled_vaccines sv ON sv.id = av.scheduled_vaccine_id
-          WHERE
-            sv.vaccine_id IN (${escapedVaccineIds})
-          AND
-            (
-              e.updated_at_sync_tick > :since
-            OR
-              av.updated_at_sync_tick > :since
-            )
-          ${
-            patientCount > 0
-              ? `AND e.patient_id NOT IN (SELECT patient_id FROM ${markedForSyncPatientsTable}) -- no need to sync if it would be synced anyway`
-              : ''
-          }
-          GROUP BY e.id
-        ) AS encounters_with_scheduled_vaccines
-        ON encounters_with_scheduled_vaccines.id = encounters.id
-      `);
-
-      encountersToIncludeClauses.push(`
-        encounters_with_scheduled_vaccines.id IS NOT NULL
-      `);
-
-      updatedAtSyncTickClauses.push(`
-        encounters_with_scheduled_vaccines.av_updated_at_sync_tick > :since
-      `);
-    }
-
     if (encountersToIncludeClauses.length === 0) {
       return null;
     }
@@ -311,6 +274,22 @@ export class Encounter extends Model {
         ${updatedAtSyncTickClauses.join('\nOR')}
       )
     `;
+  }
+
+  static buildSyncLookupQueryDetails() {
+    return {
+      select: buildSyncLookupSelect(this, {
+        patientId: 'encounters.patient_id',
+        encounterId: 'encounters.id',
+        isLabRequestValue: 'labs.encounter_id IS NOT NULL',
+      }),
+      joins: `
+        LEFT JOIN (
+          SELECT DISTINCT encounter_id
+          FROM lab_requests
+        ) AS labs ON labs.encounter_id = encounters.id
+      `,
+    };
   }
 
   static async adjustDataPostSyncPush(recordIds) {
@@ -366,6 +345,24 @@ export class Encounter extends Model {
     }
     await this.addSystemNote(
       `Changed department from ${oldDepartment.name} to ${newDepartment.name}`,
+      submittedTime,
+      user,
+    );
+  }
+
+  async addTriageScoreNote(triageRecord, submittedTime, user) {
+    const department = await this.sequelize.models.Department.findOne({
+      where: { id: this.departmentId },
+    });
+
+    if (!department) {
+      throw new InvalidOperationError(
+        `Couldn’t record triage score as system note; no department found with with ID ‘${this.departmentId}’`,
+      );
+    }
+
+    await this.addSystemNote(
+      `${department.name} triage score – ${triageRecord.score}`,
       submittedTime,
       user,
     );

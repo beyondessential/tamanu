@@ -193,7 +193,7 @@ export const BedManagement = () => {
       countOnly: true,
       currentPatient: true,
       inpatient: true,
-      facilityId
+      facilityId,
     }),
   );
 

@@ -120,7 +120,7 @@ async function createProgramSurveyResponse(models, facilityId) {
     .filter(ssc => ssc.dataElement.type in SIMPLE_PDE_TYPES_HANDLERS)
     .forEach(ssc => {
       answers[ssc.dataElement.id] = SIMPLE_PDE_TYPES_HANDLERS[ssc.dataElement.type]();
-  });
+    });
 
   const patientFacility = await PatientFacility.findOne({ where: { facilityId } });
   const encounter = await Encounter.findOne({ where: { patientId: patientFacility.patientId } });
@@ -215,8 +215,10 @@ async function createLabTest(models, facilityId) {
   const labTestLaboratory = await randomReferenceData(models, REFERENCE_TYPES.LAB_TEST_LABORATORY);
   const labTestCategory = await randomReferenceData(models, REFERENCE_TYPES.LAB_TEST_CATEGORY);
   const labTestMethod = await randomReferenceData(models, REFERENCE_TYPES.LAB_TEST_METHOD);
-  const labTestType = await LabTestType.findOne({ where: {
-    labTestCategoryId: labTestCategory.id },
+  const labTestType = await LabTestType.findOne({
+    where: {
+      labTestCategoryId: labTestCategory.id,
+    },
   });
 
   const labRequest = await LabRequest.create(
@@ -246,7 +248,7 @@ async function createImagingRequest(models, facilityId) {
   const patientFacility = await PatientFacility.findOne({ where: { facilityId } });
   const encounter = await Encounter.findOne({ where: { patientId: patientFacility.patientId } });
   const location = await Location.findOne({ where: { facilityId } });
-  const clinician =  await randomRecord(models, 'User');
+  const clinician = await randomRecord(models, 'User');
 
   const imagingRequest = await ImagingRequest.create(
     fake(ImagingRequest, {
@@ -273,7 +275,7 @@ async function createImagingRequest(models, facilityId) {
 async function createPatientCondition(models, facilityId) {
   const { PatientFacility, PatientCondition } = models;
   const patientFacility = await PatientFacility.findOne({ where: { facilityId } });
-  const condition = await randomReferenceData(models, REFERENCE_TYPES.ICD10);
+  const condition = await randomReferenceData(models, REFERENCE_TYPES.DIAGNOSIS);
 
   const patientCondition = await PatientCondition.create({
     conditionId: condition.id,
@@ -369,8 +371,8 @@ function startOrAdd(key, obj) {
 }
 
 async function simulateUsage(models, sequelize, hours = 1) {
-  const facilityId = config.serverFacilityId;
-  const totalLoops = hours * 60 * 60 * 1000 / INSERT_INTERVAL_MS;
+  const [facilityId] = config.serverFacilityIds;
+  const totalLoops = (hours * 60 * 60 * 1000) / INSERT_INTERVAL_MS;
   const actionsTaken = {};
 
   for (let i = 0; i < totalLoops; i++) {
