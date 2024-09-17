@@ -169,7 +169,6 @@ export const EditorView = memo(
       setValues({ ...values, settings: parsedSettings });
       const success = await submitForm(event);
       if (success) {
-        setCategory(null);
         await resetForm();
       }
     };
@@ -217,6 +216,7 @@ export const EditorView = memo(
             </div>
           </CategoryOptions>
           <Divider />
+
           {category && (
             <CategoriesWrapper p={2}>
               <Category

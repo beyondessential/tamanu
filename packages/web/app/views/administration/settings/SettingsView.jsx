@@ -165,6 +165,12 @@ const SettingsForm = ({
     setScope(newScope);
   };
 
+  const handleResetForm = async () => {
+    await resetForm({
+      values,
+    });
+  };
+
   const handleChangeFacilityId = e => {
     setFacilityId(e.target.value);
   };
@@ -172,6 +178,7 @@ const SettingsForm = ({
   const { data: settingsSnapshot = {}, error: settingsFetchError } = useQuery(
     ['scopedSettings', scope, facilityId],
     () => api.get('admin/settings', { scope, facilityId }),
+    {},
   );
 
   const canViewJSONEditor = ability.can('write', 'Setting');
@@ -196,7 +203,7 @@ const SettingsForm = ({
         setFieldValue={setFieldValue}
         values={values}
         submitForm={submitForm}
-        resetForm={resetForm}
+        resetForm={handleResetForm}
         dirty={dirty}
         handleChangeScope={handleChangeScope}
         handleChangeFacilityId={handleChangeFacilityId}
