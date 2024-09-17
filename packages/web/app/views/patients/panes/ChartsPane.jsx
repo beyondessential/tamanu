@@ -34,8 +34,8 @@ const ChartDropDown = () => {
 
     setSelectedChartType(newSelectedChartType);
     userPreferencesMutation.mutate({
-      preferenceKey: 'selectedChartType',
-      preferenceValue: newSelectedChartType,
+      key: 'selectedChartType',
+      value: newSelectedChartType,
     });
   };
 

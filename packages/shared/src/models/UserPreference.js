@@ -44,7 +44,7 @@ export class UserPreference extends Model {
     const allPreferences = {};
 
     for (const userPreference of userPreferences) {
-      allPreferences[userPreference.preferenceKey] = userPreference.preferenceValue;
+      allPreferences[userPreference.key] = userPreference.value;
     }
 
     return allPreferences;

@@ -164,10 +164,10 @@ user.post(
 
     req.checkPermission('write', currentUser);
 
-    const { preferenceKey, preferenceValue } = body;
+    const { key, value } = body;
     const [userPreferences] = await UserPreference.upsert({
-      preferenceKey,
-      preferenceValue,
+      key,
+      value,
       userId: currentUser.id,
       deletedAt: null,
     });
