@@ -37,6 +37,7 @@ const ModalContainer = styled(CenterView)`
   width: ${screenPercentageToDP('66', Orientation.Width)};
   padding: 20px;
   margin-left: ${screenPercentageToDP('10', Orientation.Width)};
+  position: relative;
 `;
 
 const ModalTitle = styled(Text)`
@@ -51,6 +52,20 @@ const ModalDescription = styled(Text)`
   text-align: center;
   color: ${theme.colors.BLACK};
   margin-bottom: 4;
+`;
+
+const ModalCloseButton = styled(StyledTouchableOpacity)`
+  position: absolute;
+  top: ${screenPercentageToDP('1.6', Orientation.Height)};
+  right: ${screenPercentageToDP('1.6', Orientation.Height)};
+`;
+
+const RequestGeolocationArea = styled(StyledTouchableOpacity)`
+  position: absolute;
+  width: 100%;
+  height: 68%;
+  bottom: 0;
+  left: 0;
 `;
 
 const buttonCommonStyles = {
@@ -129,40 +144,47 @@ export const SurveyGeolocationField = ({ value, onChange, setDisableSubmit }) =>
               fallback="Latitude, longitude"
             />
           }
-          placeholder={getTranslation(
-            'program.survey.geolocate.placeholder',
-            'Tap to detect current location',
-          )}
+          placeholder={
+            isWatching
+              ? ''
+              : getTranslation(
+                  'program.survey.geolocate.placeholder',
+                  'Tap to detect current location',
+                )
+          }
           readOnly
           labelFontSize={screenPercentageToDP('1.59', Orientation.Height)}
           fieldFontSize={screenPercentageToDP('1.82', Orientation.Height)}
           value={value || tempValue}
           onChange={() => {}}
           endAdornment={
-            <EndAdornmentContainer>
-              {(tempValue || value) && (
-                <StyledTouchableOpacity
-                  onPress={onClickRemoveLocation}
-                  marginRight={screenPercentageToDP('8', Orientation.Width)}
-                >
-                  <CrossIcon
-                    size={screenPercentageToDP('2', Orientation.Height)}
-                    fill={theme.colors.TEXT_SUPER_DARK}
+            <>
+              <EndAdornmentContainer>
+                {(tempValue || value) && (
+                  <StyledTouchableOpacity
+                    onPress={onClickRemoveLocation}
+                    marginRight={screenPercentageToDP('8', Orientation.Width)}
+                  >
+                    <CrossIcon
+                      size={screenPercentageToDP('1.6', Orientation.Height)}
+                      fill={theme.colors.TEXT_SUPER_DARK}
+                    />
+                  </StyledTouchableOpacity>
+                )}
+                {isWatching && (
+                  <ActivityIndicator
+                    size={screenPercentageToDP('2.8', Orientation.Height)}
+                    color={theme.colors.PRIMARY_MAIN}
                   />
-                </StyledTouchableOpacity>
-              )}
-              {isWatching && (
-                <ActivityIndicator
-                  size={screenPercentageToDP('2.8', Orientation.Height)}
-                  color={theme.colors.PRIMARY_MAIN}
-                />
-              )}
-              {!value && !isWatching && (
-                <StyledTouchableOpacity onPress={requestGeolocationPermission}>
+                )}
+                {!value && !isWatching && (
                   <Geolocate size={screenPercentageToDP('2.6', Orientation.Height)} />
-                </StyledTouchableOpacity>
+                )}
+              </EndAdornmentContainer>
+              {!value && !isWatching && (
+                <RequestGeolocationArea onPress={requestGeolocationPermission} />
               )}
-            </EndAdornmentContainer>
+            </>
           }
         />
         {coords && coords.accuracy < RECOMMENDED_ACCURACY && (
@@ -263,6 +285,12 @@ export const SurveyGeolocationField = ({ value, onChange, setDisableSubmit }) =>
               fallback="Are you sure you want to remove the currently selected location?"
             />
           </ModalDescription>
+          <ModalCloseButton onPress={onCloseModal}>
+            <CrossIcon
+              size={screenPercentageToDP('1.6', Orientation.Height)}
+              fill={theme.colors.TEXT_SUPER_DARK}
+            />
+          </ModalCloseButton>
           <RowView
             flexDirection="row"
             justifyContent="center"
