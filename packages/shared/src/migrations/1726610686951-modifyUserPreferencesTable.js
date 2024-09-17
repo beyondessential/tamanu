@@ -17,10 +17,7 @@ export async function up(query) {
     WHERE selected_graphed_vitals_on_filter IS NOT NULL;
   `);
 
-  await query.sequelize.query(`
-    ALTER TABLE user_preferences 
-    DROP COLUMN selected_graphed_vitals_on_filter;
-  `);
+  await query.removeColumn('user_preferences', 'selected_graphed_vitals_on_filter');
 }
 
 export async function down(query) {
