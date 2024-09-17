@@ -16,4 +16,6 @@ const CrescentMoonIcon = ({ htmlColor = 'currentColor', width = 15, height = 15,
   </svg>
 );
 
-export const OvernightIcon = props => <CrescentMoonIcon aria-label="Overnight" {...props} />;
+export const OvernightIcon = props => (
+  <CrescentMoonIcon aria-label="Overnight" htmlColor="#326699" {...props} />
+);
