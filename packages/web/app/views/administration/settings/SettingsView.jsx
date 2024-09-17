@@ -128,6 +128,7 @@ const SettingsForm = ({
   setFieldValue,
   submitForm,
   resetForm,
+  isSubmitting,
   dirty,
   scope,
   setScope,
@@ -203,6 +204,7 @@ const SettingsForm = ({
         setFieldValue={setFieldValue}
         values={values}
         submitForm={submitForm}
+        isSubmitting={isSubmitting}
         resetForm={handleResetForm}
         dirty={dirty}
         handleChangeScope={handleChangeScope}

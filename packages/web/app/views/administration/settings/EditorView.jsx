@@ -101,6 +101,7 @@ export const EditorView = memo(
     submitForm,
     settingsSnapshot,
     resetForm,
+    isSubmitting,
     dirty,
     scope,
     handleShowWarningModal,
@@ -207,7 +208,7 @@ export const EditorView = memo(
                   fallback="Clear changes"
                 />
               </OutlinedButton>
-              <SubmitButton onClick={saveSettings} disabled={!dirty}>
+              <SubmitButton onClick={saveSettings} disabled={!dirty || isSubmitting}>
                 <TranslatedText
                   stringId="admin.settings.action.saveChanges"
                   fallback="Save changes"
