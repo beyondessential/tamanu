@@ -78,6 +78,6 @@ export const AppointmentTile = ({
     <Label $strikethrough={appointmentStatus === APPOINTMENT_STATUSES.NO_SHOW}>
       <Timestamp date={parseISO(startTime)} /> {getPatientFullName(patient)}
     </Label>
-    <StatusIcon appointmentStatus={appointmentStatus} aria-hidden width={10} height={10} />
+    <StatusIcon appointmentStatus={appointmentStatus} width={10} height={10} />
   </Wrapper>
 );
