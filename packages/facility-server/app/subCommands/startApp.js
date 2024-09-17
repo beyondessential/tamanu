@@ -7,11 +7,7 @@ import { performTimeZoneChecks } from '@tamanu/shared/utils/timeZoneCheck';
 import { checkConfig } from '../checkConfig';
 import { initDeviceId } from '../sync/initDeviceId';
 import { performDatabaseIntegrityChecks } from '../database';
-import {
-  FacilitySyncConnection,
-  CentralServerConnection,
-  FacilitySyncManager,
-} from '../sync';
+import { FacilitySyncConnection, CentralServerConnection, FacilitySyncManager } from '../sync';
 
 import { createApiApp } from '../createApiApp';
 
@@ -42,7 +38,7 @@ const startApp = appType => async ({ skipMigrationCheck }) => {
   }
 
   await initDeviceId(context);
-  await checkConfig(config, context);
+  await checkConfig(context);
   await performDatabaseIntegrityChecks(context);
 
   if (appType === APP_TYPES.API) {

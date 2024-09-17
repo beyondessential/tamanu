@@ -3,13 +3,26 @@ import { omit } from 'lodash';
 import { initBugsnag } from '@tamanu/shared/services/logging';
 import { closeDatabase, initDatabase, initReporting } from './database';
 import { VERSION } from './middleware/versionCompatibility.js';
+import { ReadSettings } from '@tamanu/settings/reader';
+
+/**
+ * @typedef {import('@tamanu/settings/types').FacilitySettingPath} FacilitySettingPath
+ * @typedef {import('@tamanu/settings').ReadSettings} ReadSettings
+ * @typedef {import('sequelize').Sequelize} Sequelize
+ * @typedef {import('@tamanu/shared/models')} Models
+ */
 
 export class ApplicationContext {
-  /** @type {import('sequelize').Sequelize | null} */
+  /** @type {Sequelize | null} */
   sequelize = null;
 
-  /** @type {import('@tamanu/shared/models') | null} */
+  /** @type {Models | null} */
   models = null;
+
+  /**
+   * @type {ReadSettings<FacilitySettingPath> | null}
+   */
+  settings = null;
 
   reportSchemaStores = null;
 
@@ -29,7 +42,7 @@ export class ApplicationContext {
     const database = await initDatabase();
     this.sequelize = database.sequelize;
     this.models = database.models;
-
+    this.settings = new ReadSettings(this.models, config.serverFacilityId);
     if (config.db.reportSchemas?.enabled) {
       this.reportSchemaStores = await initReporting();
     }
