@@ -95,24 +95,22 @@ const MeasureCell = React.memo(({ value, data }) => {
       : visualisationConfig?.key;
 
   return (
-    <>
-      <Box flexDirection="row" display="flex" alignItems="center" justifyContent="space-between">
-        {value}
-        {hasVitalChart && (
-          <IconButton
-            size="small"
-            onClick={() => {
-              setChartKeys([chartKey]);
-              setIsInMultiChartsView(false);
-              setModalTitle(value);
-              setVitalChartModalOpen(true);
-            }}
-          >
-            <VitalVectorIcon />
-          </IconButton>
-        )}
-      </Box>
-    </>
+    <Box flexDirection="row" display="flex" alignItems="center" justifyContent="space-between">
+      {value}
+      {hasVitalChart && (
+        <IconButton
+          size="small"
+          onClick={() => {
+            setChartKeys([chartKey]);
+            setIsInMultiChartsView(false);
+            setModalTitle(value);
+            setVitalChartModalOpen(true);
+          }}
+        >
+          <VitalVectorIcon />
+        </IconButton>
+      )}
+    </Box>
   );
 });
 
@@ -145,27 +143,23 @@ const TitleCell = React.memo(({ value }) => {
   }
 
   return (
-    <>
-      <Box flexDirection="row" display="flex" alignItems="center" justifyContent="space-between">
-        {value}
-        {isSuccess &&
-          vitalsVisualisationConfigs &&
-          vitalsVisualisationConfigs.allGraphedChartKeys.length > 0 && (
-            <IconButton
-              size="small"
-              onClick={() => {
-                setChartKeys(chartKeys);
-                setIsInMultiChartsView(true);
-                setModalTitle('Vitals');
-                setVitalChartModalOpen(true);
-              }}
-            >
-              <VitalVectorIcon />
-            </IconButton>
-          )}
-        {isLoading && <CircularProgress size={14} />}
-      </Box>
-    </>
+    <Box flexDirection="row" display="flex" alignItems="center" justifyContent="space-between">
+      {value}
+      {isSuccess && vitalsVisualisationConfigs?.allGraphedChartKeys.length > 0 && (
+        <IconButton
+          size="small"
+          onClick={() => {
+            setChartKeys(chartKeys);
+            setIsInMultiChartsView(true);
+            setModalTitle('Vitals');
+            setVitalChartModalOpen(true);
+          }}
+        >
+          <VitalVectorIcon />
+        </IconButton>
+      )}
+      {isLoading && <CircularProgress size={14} />}
+    </Box>
   );
 });
 

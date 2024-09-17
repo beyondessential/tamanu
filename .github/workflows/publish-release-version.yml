@@ -34,7 +34,7 @@ jobs:
 
     - uses: actions/setup-node@v4
       with:
-        node-version: 20.x
+        node-version-file: '.nvmrc'
 
     - name: Push tag for current version
       id: tagged

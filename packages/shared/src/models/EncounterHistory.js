@@ -5,6 +5,7 @@ import { Model } from './Model';
 import { dateTimeType } from './dateTimeTypes';
 import { getCurrentDateTimeString } from '../utils/dateTime';
 import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
+import { buildEncounterLinkedLookupFilter } from '../sync/buildEncounterLinkedLookupFilter';
 
 export class EncounterHistory extends Model {
   static init({ primaryKey, ...options }) {
@@ -78,6 +79,13 @@ export class EncounterHistory extends Model {
     if (patientCount === 0) {
       return null;
     }
-    return buildEncounterLinkedSyncFilter([this.tableName, 'encounters'], markedForSyncPatientsTable);
+    return buildEncounterLinkedSyncFilter(
+      [this.tableName, 'encounters'],
+      markedForSyncPatientsTable,
+    );
+  }
+
+  static buildSyncLookupQueryDetails() {
+    return buildEncounterLinkedLookupFilter(this);
   }
 }
