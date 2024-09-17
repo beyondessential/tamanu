@@ -218,10 +218,10 @@ export class ReportRequestProcessor extends ScheduledTask {
           processStartedTime: new Date(),
         });
 
-        const runInChildProcess = await this.context.settings.get(
+        const shouldRunInChildProcess = await this.context.settings.get(
           'reportProcess.runInChildProcess',
         );
-        const runReport = runInChildProcess
+        const runReport = shouldRunInChildProcess
           ? this.spawnReportProcess
           : this.runReportInTheSameProcess;
         await runReport(request);
