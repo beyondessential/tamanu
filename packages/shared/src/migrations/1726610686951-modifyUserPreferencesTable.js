@@ -15,7 +15,7 @@ export async function up(query) {
 
   await query.sequelize.query(`
     UPDATE user_preferences
-    SET preference_value = (to_json(selected_graphed_vitals_on_filter::text)::jsonb)
+    SET preference_key = '${SELECTED_GRAPHED_VITALS_ON_FILTER_KEY}', preference_value = (to_json(selected_graphed_vitals_on_filter::text)::jsonb)
     WHERE selected_graphed_vitals_on_filter IS NOT NULL;
   `);
 
