@@ -17,11 +17,17 @@ const Text = styled.div`
   margin-bottom: 10px;
 `;
 
-const GeolocateQuestion = ({ text, component }) => {
+const OuterLabelRequired = styled.span`
+  color: ${Colors.alert};
+  padding-left: 3px;
+`;
+
+const GeolocateQuestion = ({ text, component, required }) => {
   return (
     <Box>
       <Typography style={{ fontSize: '14px', color: Colors.darkestText, fontWeight: 500 }}>
         {text}
+        {required && <OuterLabelRequired>*</OuterLabelRequired>}
       </Typography>
       <Typography style={{ fontSize: '14px', color: Colors.darkText }}>
         {component.detail}
@@ -61,7 +67,7 @@ export const SurveyQuestion = ({ component, patient, inputRef, disabled, encount
 
   if (component.dataElement.type === 'Result') return <Text>{`${text} ${component.detail}`}</Text>;
   if (component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.GEOLOCATE) {
-    return <GeolocateQuestion text={text} component={component} />;
+    return <GeolocateQuestion text={text} component={component} required={required} />;
   }
   if (!FieldComponent) return <Text>{text}</Text>;
 
