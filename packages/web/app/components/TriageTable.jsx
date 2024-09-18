@@ -48,7 +48,7 @@ const useColumns = () => {
       accessor: row => (
         <TranslatedReferenceData
           value={row.chiefComplaintId}
-          fallback={row.chiefCompaint}
+          fallback={row.chiefComplaint}
           category="triageReason"
         />
       ),

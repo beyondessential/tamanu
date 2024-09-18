@@ -296,7 +296,7 @@ patientProgramRegistration.get(
 patientProgramRegistration.delete(
   '/:patientId/programRegistration/:programRegistryId/condition/:conditionId',
   asyncHandler(async (req, res) => {
-    const { models, params, body } = req;
+    const { models, params, query } = req;
     const { patientId, programRegistryId, conditionId } = params;
 
     req.checkPermission('read', 'Patient');
@@ -315,7 +315,7 @@ patientProgramRegistration.delete(
     if (!existingCondition) throw new NotFoundError();
     const condition = await existingCondition.update({
       deletionClinicianId: req.user.id,
-      deletionDate: body.deletionDate,
+      deletionDate: query.deletionDate,
     });
     await condition.destroy();
     res.send(condition);
