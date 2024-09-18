@@ -44,6 +44,6 @@ export async function down(query) {
     WHERE key = '${SELECTED_GRAPHED_VITALS_ON_FILTER_KEY}'
   `);
 
-  await query.dropColumn('user_preferences', 'key');
-  await query.dropColumn('user_preferences', 'value');
+  await query.removeColumn('user_preferences', 'key');
+  await query.removeColumn('user_preferences', 'value');
 }
