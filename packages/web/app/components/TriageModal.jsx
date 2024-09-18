@@ -1,11 +1,12 @@
 import React from 'react';
 import styled from 'styled-components';
-import { useLocalisation } from '../contexts/Localisation';
+
 import { FormModal } from './FormModal';
 import { Colors } from '../constants';
 import { TriageForm } from '../forms/TriageForm';
 import { DateDisplay } from './DateDisplay';
 import { TranslatedSex, TranslatedText } from './Translation';
+import { useSettings } from '../contexts/Settings';
 
 const Header = styled.div`
   font-weight: 500;
@@ -57,13 +58,15 @@ const DETAILS_FIELD_DEFINITIONS = [
 export const TriageModal = React.memo(
   ({ open, patient, onClose, onSubmitEncounter, noRedirectOnSubmit }) => {
     const { displayId } = patient;
-    const { getLocalisation } = useLocalisation();
+    const { getSetting } = useSettings();
 
     const detailsFields = DETAILS_FIELD_DEFINITIONS.filter(
-      ([name]) => getLocalisation(`fields.${name}.hidden`) !== true,
+      ([name]) => getSetting(`fields.${name}.hidden`) !== true,
     ).map(([name, accessor]) => (
       <React.Fragment key={name}>
-        <DetailLabel>{getLocalisation(`fields.${name}.longLabel`)}:</DetailLabel>
+        <DetailLabel>
+          <TranslatedText stringId={`general.localisedFields.${name}.label`} fallback={name} />:
+        </DetailLabel>
         <DetailValue>{accessor ? accessor(patient) : patient[name]}</DetailValue>
       </React.Fragment>
     ));
