@@ -19,7 +19,6 @@ import {
   Form,
   ImagingPriorityField,
   MultiselectField,
-  SelectField,
   TextField,
   TextInput,
   TranslatedSelectField,
@@ -99,10 +98,6 @@ export const ImagingRequestForm = React.memo(
     const { getTranslation } = useTranslation();
     const { getLocalisation } = useLocalisation();
     const imagingTypes = getLocalisation('imagingTypes') || {};
-    const imagingTypeOptions = Object.entries(imagingTypes).map(([key, val]) => ({
-      label: val.label,
-      value: key,
-    }));
 
     const { examiner = {} } = encounter;
     const examinerLabel = examiner.displayName;
