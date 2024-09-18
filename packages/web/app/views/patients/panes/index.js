@@ -15,4 +15,5 @@ export { ReferralPane } from './ReferralPane';
 export { EncounterInvoicingPane } from './EncounterInvoicingPane';
 export { InvoicesPane } from './InvoicesPane';
 export { VitalsPane } from './VitalsPane';
+export { ChartsPane } from './ChartsPane';
 export { PatientResultsPane } from './PatientResultsPane';
