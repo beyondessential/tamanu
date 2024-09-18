@@ -51,6 +51,7 @@ const ChartDropDown = () => {
   );
 };
 
+// eslint-disable-next-line no-unused-vars
 export const ChartsPane = React.memo(({ patient, encounter }) => {
   return (
     <TabPane>
