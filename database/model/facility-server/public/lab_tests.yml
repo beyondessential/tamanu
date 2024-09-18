@@ -1,0 +1,65 @@
+version: 2
+
+sources:
+  - name: tamanu
+    schema: public
+    description: "Tamanu database"
+    tables:
+      - name: lab_tests
+        description: ""
+        tags: ['clinical']
+        columns:
+          - name: id
+            data_type: character varying
+            description: ""
+          - name: created_at
+            data_type: timestamp with time zone
+            description: ""
+          - name: updated_at
+            data_type: timestamp with time zone
+            description: ""
+          - name: deleted_at
+            data_type: timestamp with time zone
+            description: ""
+          - name: code
+            data_type: character varying
+            description: ""
+          - name: name
+            data_type: character varying
+            description: ""
+          - name: unit
+            data_type: character varying
+            description: ""
+          - name: male_min
+            data_type: double precision
+            description: ""
+          - name: male_max
+            data_type: double precision
+            description: ""
+          - name: female_min
+            data_type: double precision
+            description: ""
+          - name: female_max
+            data_type: double precision
+            description: ""
+          - name: range_text
+            data_type: character varying
+            description: ""
+          - name: result_type
+            data_type: character varying
+            description: ""
+          - name: options
+            data_type: text
+            description: ""
+          - name: lab_test_category_id
+            data_type: character varying
+            description: ""
+          - name: visibility_status
+            data_type: text
+            description: ""
+          - name: updated_at_sync_tick
+            data_type: bigint
+            description: ""
+          - name: external_code
+            data_type: text
+            description: ""

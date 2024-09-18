@@ -1,0 +1,92 @@
+version: 2
+
+sources:
+  - name: tamanu
+    schema: public
+    description: "Tamanu database"
+    tables:
+      - name: lab_requests
+        description: ""
+        tags: ['clinical']
+        columns:
+          - name: id
+            data_type: character varying
+            description: ""
+          - name: created_at
+            data_type: timestamp with time zone
+            description: ""
+          - name: updated_at
+            data_type: timestamp with time zone
+            description: ""
+          - name: deleted_at
+            data_type: timestamp with time zone
+            description: ""
+          - name: sample_time
+            data_type: character
+            description: ""
+          - name: requested_date
+            data_type: character
+            description: ""
+          - name: urgent
+            data_type: boolean
+            description: "[Deprecated]"
+          - name: specimen_attached
+            data_type: boolean
+            description: ""
+          - name: status
+            data_type: character varying
+            description: ""
+          - name: senaite_id
+            data_type: character varying
+            description: ""
+          - name: sample_id
+            data_type: character varying
+            description: "[Deprecated]"
+          - name: requested_by_id
+            data_type: character varying
+            description: ""
+          - name: encounter_id
+            data_type: character varying
+            description: ""
+          - name: lab_test_category_id
+            data_type: character varying
+            description: ""
+          - name: display_id
+            data_type: character varying
+            description: ""
+          - name: lab_test_priority_id
+            data_type: character varying
+            description: ""
+          - name: lab_test_laboratory_id
+            data_type: character varying
+            description: ""
+          - name: sample_time_legacy
+            data_type: timestamp with time zone
+            description: ""
+          - name: requested_date_legacy
+            data_type: timestamp with time zone
+            description: ""
+          - name: updated_at_sync_tick
+            data_type: bigint
+            description: ""
+          - name: reason_for_cancellation
+            data_type: character varying
+            description: ""
+          - name: published_date
+            data_type: character
+            description: ""
+          - name: department_id
+            data_type: character varying
+            description: ""
+          - name: lab_test_panel_request_id
+            data_type: uuid
+            description: ""
+          - name: lab_sample_site_id
+            data_type: character varying
+            description: ""
+          - name: specimen_type_id
+            data_type: character varying
+            description: ""
+          - name: collected_by_id
+            data_type: character varying
+            description: ""

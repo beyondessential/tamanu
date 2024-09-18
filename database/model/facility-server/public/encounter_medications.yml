@@ -1,0 +1,92 @@
+version: 2
+
+sources:
+  - name: tamanu
+    schema: public
+    description: "Tamanu database"
+    tables:
+      - name: encounter_medications
+        description: ""
+        tags: ['clinical']
+        columns:
+          - name: id
+            data_type: character varying
+            description: ""
+          - name: created_at
+            data_type: timestamp with time zone
+            description: ""
+          - name: updated_at
+            data_type: timestamp with time zone
+            description: ""
+          - name: deleted_at
+            data_type: timestamp with time zone
+            description: ""
+          - name: date
+            data_type: character
+            description: ""
+          - name: end_date
+            data_type: character
+            description: ""
+          - name: prescription
+            data_type: character varying
+            description: ""
+          - name: note
+            data_type: character varying
+            description: ""
+          - name: indication
+            data_type: character varying
+            description: ""
+          - name: route
+            data_type: character varying
+            description: ""
+          - name: qty_morning
+            data_type: integer
+            description: ""
+          - name: qty_lunch
+            data_type: integer
+            description: ""
+          - name: qty_evening
+            data_type: integer
+            description: ""
+          - name: qty_night
+            data_type: integer
+            description: ""
+          - name: encounter_id
+            data_type: character varying
+            description: ""
+          - name: medication_id
+            data_type: character varying
+            description: ""
+          - name: prescriber_id
+            data_type: character varying
+            description: ""
+          - name: quantity
+            data_type: integer
+            description: ""
+          - name: discontinued
+            data_type: boolean
+            description: ""
+          - name: discontinuing_clinician_id
+            data_type: character varying
+            description: ""
+          - name: discontinuing_reason
+            data_type: character varying
+            description: ""
+          - name: repeats
+            data_type: integer
+            description: ""
+          - name: is_discharge
+            data_type: boolean
+            description: ""
+          - name: discontinued_date
+            data_type: character varying
+            description: ""
+          - name: date_legacy
+            data_type: timestamp with time zone
+            description: ""
+          - name: end_date_legacy
+            data_type: timestamp with time zone
+            description: ""
+          - name: updated_at_sync_tick
+            data_type: bigint
+            description: ""

@@ -1,0 +1,69 @@
+version: 2
+
+sources:
+  - name: tamanu
+    schema: public
+    description: "Tamanu database"
+    tables:
+      - name: locations
+        description: "{{ doc('table__locations') }}"
+        tags: ['reference']
+        columns:
+          - name: id
+            data_type: character varying
+            description: "{{ doc('locations__id') }}"
+            data-tests:
+              - unique
+              - not_null
+          - name: created_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__created_at') }} in locations"
+            data-tests:
+              - not_null
+          - name: updated_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__updated_at') }} in locations"
+            data-tests:
+              - not_null
+          - name: deleted_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__deleted_at') }} in locations"
+          - name: code
+            data_type: character varying
+            description: "{{ doc('locations__code') }}"
+            data-tests:
+              - not_null
+          - name: name
+            data_type: character varying
+            description: "{{ doc('locations__name') }}"
+            data-tests:
+              - not_null
+          - name: facility_id
+            data_type: character varying
+            description: "{{ doc('facilities__id') }}"
+            data-tests:
+              - relationships:
+                  to: source('tamanu', 'facilities')
+                  field: id
+          - name: visibility_status
+            data_type: text
+            description: "{{ doc('generic__visibility_status') }} in locations, default value is 'current'"
+            data-tests:
+              - not_null
+              - accepted_values:
+                  values: ["current", "historical"]
+          - name: location_group_id
+            data_type: character varying
+            description: "{{ doc('location_groups__id') }}"
+            data-tests:
+              - relationships:
+                  to: source('tamanu', 'location_groups')
+                  field: id
+          - name: max_occupancy
+            data_type: integer
+            description: "{{ doc('locations__max_occupancy') }}"
+          - name: updated_at_sync_tick
+            data_type: bigint
+            description: "{{ doc('generic__updated_at_sync_tick') }} locations"
+            data-tests:
+              - not_null

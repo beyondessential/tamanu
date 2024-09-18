@@ -1,0 +1,56 @@
+version: 2
+
+sources:
+  - name: tamanu
+    schema: public
+    description: "Tamanu database"
+    tables:
+      - name: report_requests
+        description: ""
+        tags: ['system']
+        columns:
+          - name: id
+            data_type: character varying
+            description: ""
+          - name: created_at
+            data_type: timestamp with time zone
+            description: ""
+          - name: updated_at
+            data_type: timestamp with time zone
+            description: ""
+          - name: deleted_at
+            data_type: timestamp with time zone
+            description: ""
+          - name: report_type
+            data_type: character varying
+            description: ""
+          - name: recipients
+            data_type: text
+            description: ""
+          - name: parameters
+            data_type: text
+            description: ""
+          - name: status
+            data_type: character varying
+            description: ""
+          - name: requested_by_user_id
+            data_type: character varying
+            description: ""
+          - name: error
+            data_type: text
+            description: ""
+          - name: process_started_time
+            data_type: timestamp with time zone
+            description: ""
+          - name: facility_id
+            data_type: character varying
+            description: ""
+          - name: export_format
+            data_type: character varying
+            description: ""
+          - name: report_definition_version_id
+            data_type: character varying
+            description: ""
+          - name: updated_at_sync_tick
+            data_type: bigint
+            description: ""

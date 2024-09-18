@@ -1,0 +1,44 @@
+version: 2
+
+sources:
+  - name: tamanu
+    schema: public
+    description: "Tamanu database"
+    tables:
+      - name: note_pages
+        description: ""
+        tags: ['clinical', 'deprecated']
+        columns:
+          - name: id
+            data_type: uuid
+            description: ""
+          - name: created_at
+            data_type: timestamp with time zone
+            description: ""
+          - name: updated_at
+            data_type: timestamp with time zone
+            description: ""
+          - name: deleted_at
+            data_type: timestamp with time zone
+            description: ""
+          - name: note_type
+            data_type: character varying
+            description: ""
+          - name: record_id
+            data_type: character varying
+            description: ""
+          - name: record_type
+            data_type: character varying
+            description: ""
+          - name: date
+            data_type: character
+            description: ""
+          - name: date_legacy
+            data_type: timestamp with time zone
+            description: ""
+          - name: updated_at_sync_tick
+            data_type: bigint
+            description: ""
+          - name: visibility_status
+            data_type: text
+            description: ""

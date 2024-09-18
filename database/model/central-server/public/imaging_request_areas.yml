@@ -1,0 +1,33 @@
+version: 2
+
+sources:
+  - name: tamanu
+    schema: public
+    description: "Tamanu database"
+    tables:
+      - name: imaging_request_areas
+        description: ""
+        tags: ['clinical']
+        columns:
+          - name: id
+            data_type: character varying
+            description: ""
+          - name: created_at
+            data_type: timestamp with time zone
+            description: ""
+          - name: updated_at
+            data_type: timestamp with time zone
+            description: ""
+          - name: deleted_at
+            data_type: timestamp with time zone
+            description: ""
+          - name: imaging_request_id
+            data_type: character varying
+            description: ""
+          - name: area_id
+            data_type: character varying
+            description: ""
+          - name: updated_at_sync_tick
+            data_type: bigint
+            description: ""
+

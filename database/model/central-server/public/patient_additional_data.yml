@@ -1,0 +1,134 @@
+version: 2
+
+sources:
+  - name: tamanu
+    schema: public
+    description: "Tamanu database"
+    tables:
+      - name: patient_additional_data
+        description: ""
+        tags: ['patient']
+        columns:
+          - name: created_at
+            data_type: timestamp with time zone
+            description: ""
+          - name: updated_at
+            data_type: timestamp with time zone
+            description: ""
+          - name: deleted_at
+            data_type: timestamp with time zone
+            description: ""
+          - name: place_of_birth
+            data_type: character varying
+            description: ""
+          - name: primary_contact_number
+            data_type: character varying
+            description: ""
+          - name: secondary_contact_number
+            data_type: character varying
+            description: ""
+          - name: marital_status
+            data_type: character varying
+            description: ""
+          - name: city_town
+            data_type: character varying
+            description: ""
+          - name: street_village
+            data_type: character varying
+            description: ""
+          - name: educational_level
+            data_type: character varying
+            description: ""
+          - name: social_media
+            data_type: character varying
+            description: ""
+          - name: blood_type
+            data_type: character varying
+            description: ""
+          - name: title
+            data_type: character varying
+            description: ""
+          - name: ethnicity_id
+            data_type: character varying
+            description: ""
+          - name: nationality_id
+            data_type: character varying
+            description: ""
+          - name: country_id
+            data_type: character varying
+            description: ""
+          - name: division_id
+            data_type: character varying
+            description: ""
+          - name: subdivision_id
+            data_type: character varying
+            description: ""
+          - name: medical_area_id
+            data_type: character varying
+            description: ""
+          - name: nursing_zone_id
+            data_type: character varying
+            description: ""
+          - name: settlement_id
+            data_type: character varying
+            description: ""
+          - name: occupation_id
+            data_type: character varying
+            description: ""
+          - name: patient_id
+            data_type: character varying
+            description: ""
+          - name: birth_certificate
+            data_type: character varying
+            description: ""
+          - name: driving_license
+            data_type: character varying
+            description: ""
+          - name: passport
+            data_type: character varying
+            description: ""
+          - name: religion_id
+            data_type: character varying
+            description: ""
+          - name: patient_billing_type_id
+            data_type: character varying
+            description: ""
+          - name: country_of_birth_id
+            data_type: character varying
+            description: ""
+          - name: registered_by_id
+            data_type: character varying
+            description: ""
+          - name: emergency_contact_name
+            data_type: character varying
+            description: ""
+          - name: emergency_contact_number
+            data_type: character varying
+            description: ""
+          - name: mother_id
+            data_type: character varying
+            description: ""
+          - name: father_id
+            data_type: character varying
+            description: ""
+          - name: id
+            data_type: text
+            description: ""
+          - name: updated_at_by_field
+            data_type: json
+            description: ""
+          - name: updated_at_sync_tick
+            data_type: bigint
+            description: ""
+          - name: health_center_id
+            data_type: text
+            description: ""
+          - name: secondary_village_id
+            data_type: text
+            description: ""
+          - name: insurer_id
+            data_type: character varying
+            description: ""
+          - name: insurer_policy_number
+            data_type: character varying
+            description: ""

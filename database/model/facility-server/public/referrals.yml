@@ -1,0 +1,41 @@
+version: 2
+
+sources:
+  - name: tamanu
+    schema: public
+    description: "Tamanu database"
+    tables:
+      - name: referrals
+        description: ""
+        tags: ['clinical']
+        columns:
+          - name: id
+            data_type: character varying
+            description: ""
+          - name: created_at
+            data_type: timestamp with time zone
+            description: ""
+          - name: updated_at
+            data_type: timestamp with time zone
+            description: ""
+          - name: deleted_at
+            data_type: timestamp with time zone
+            description: ""
+          - name: referred_facility
+            data_type: character varying
+            description: ""
+          - name: initiating_encounter_id
+            data_type: character varying
+            description: ""
+          - name: completing_encounter_id
+            data_type: character varying
+            description: ""
+          - name: survey_response_id
+            data_type: character varying
+            description: ""
+          - name: status
+            data_type: character varying
+            description: ""
+          - name: updated_at_sync_tick
+            data_type: bigint
+            description: ""

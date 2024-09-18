@@ -1,0 +1,70 @@
+version: 2
+
+sources:
+  - name: tamanu
+    schema: public
+    description: "Tamanu database"
+    tables:
+      - name: patient_program_registration_conditions
+        description: "{{ doc('table__patient_program_registration_conditions') }}"
+        tags: ['clinical']
+        columns:
+          - name: id
+            data_type: character varying
+            description: "{{ doc('patient_program_registration_conditions__id') }}"
+            data-tests:
+              - unique
+              - not_null
+          - name: created_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__created_at') }} in patient_program_registration_conditions."
+          - name: updated_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__updated_at') }} in patient_program_registration_conditions."
+          - name: deleted_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__deleted_at') }} in patient_program_registration_conditions."
+          - name: date
+            data_type: character
+            description: "{{ doc('generic__date') }} in patient_program_registration_conditions."
+          - name: deletion_date
+            data_type: character
+            description: "{{ doc('generic__deletion_date') }} in patient_program_registration_conditions."
+          - name: patient_id
+            data_type: character varying
+            description: "{{ doc('patients__id') }}"
+            data-tests:
+              - relationships:
+                  to: source('tamanu', 'patients')
+                  field: id
+          - name: program_registry_id
+            data_type: character varying
+            description: "{{ doc('program_registries__id') }}"
+            data-tests:
+              - relationships:
+                  to: source('tamanu', 'program_registries')
+                  field: id
+          - name: program_registry_condition_id
+            data_type: character varying
+            description: "{{ doc('program_registry_conditions__id') }}"
+            data-tests:
+              - relationships:
+                  to: source('tamanu', 'program_registry_conditions')
+                  field: id
+          - name: clinician_id
+            data_type: character varying
+            description: "{{ doc('users__id') }}"
+            data-tests:
+              - relationships:
+                  to: source('tamanu', 'users')
+                  field: id
+          - name: deletion_clinician_id
+            data_type: character varying
+            description: "{{ doc('users__id') }} that deleted the patient_program_registration_conditions record."
+            data-tests:
+              - relationships:
+                  to: source('tamanu', 'users')
+                  field: id
+          - name: updated_at_sync_tick
+            data_type: bigint
+            description: "{{ doc('generic__updated_at_sync_tick') }} in patient_program_registration_conditions."

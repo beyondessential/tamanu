@@ -1,0 +1,57 @@
+version: 2
+
+sources:
+  - name: tamanu
+    schema: public
+    description: "Tamanu database"
+    tables:
+      - name: departments
+        description: "{{ doc('table__departments') }}"
+        tags: ['reference']
+        columns:
+          - name: id
+            data_type: character varying
+            description: "{{ doc('departments__id') }}"
+            data_tests:
+              - unique
+              - not_null
+          - name: created_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__created_at') }} in departments"
+            data_tests:
+              - not_null
+          - name: updated_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__updated_at') }} in departments"
+            data_tests:
+              - not_null
+          - name: deleted_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__deleted_at') }} in departments"
+          - name: code
+            data_type: character varying
+            description: "{{ doc('departments__code') }}"
+            data_tests:
+              - unique
+              - not_null
+          - name: name
+            data_type: character varying
+            description: "{{ doc('departments__name') }}"
+          - name: facility_id
+            data_type: character varying
+            description: "{{ doc('facilities__id') }}"
+            data_tests:
+              - relationships:
+                  to: source('tamanu', 'facilities')
+                  field: id
+          - name: visibility_status
+            data_type: text
+            description: "{{ doc('generic__visibility_status') }} in departments"
+            data_tests:
+              - not_null
+              - valid_visibility_status
+          - name: updated_at_sync_tick
+            data_type: bigint
+            description: "{{ doc('generic__updated_at_sync_tick') }} in departments"
+            data_tests:
+              - not_null

@@ -1,0 +1,56 @@
+version: 2
+
+sources:
+  - name: tamanu
+    schema: public
+    description: "Tamanu database"
+    tables:
+      - name: signers
+        description: ""
+        tags: ['system']
+        columns:
+          - name: id
+            data_type: character varying
+            description: ""
+          - name: created_at
+            data_type: timestamp with time zone
+            description: ""
+          - name: updated_at
+            data_type: timestamp with time zone
+            description: ""
+          - name: deleted_at
+            data_type: timestamp with time zone
+            description: ""
+          - name: country_code
+            data_type: character varying
+            description: ""
+          - name: private_key
+            data_type: bytea
+            description: ""
+          - name: public_key
+            data_type: bytea
+            description: ""
+          - name: request
+            data_type: text
+            description: ""
+          - name: certificate
+            data_type: text
+            description: ""
+          - name: validity_period_start
+            data_type: timestamp with time zone
+            description: ""
+          - name: validity_period_end
+            data_type: timestamp with time zone
+            description: ""
+          - name: signatures_issued
+            data_type: integer
+            description: ""
+          - name: request_sent_at
+            data_type: timestamp with time zone
+            description: ""
+          - name: working_period_start
+            data_type: timestamp with time zone
+            description: ""
+          - name: working_period_end
+            data_type: timestamp with time zone
+            description: ""

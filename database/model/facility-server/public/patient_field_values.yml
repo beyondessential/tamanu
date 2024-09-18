@@ -1,0 +1,35 @@
+version: 2
+
+sources:
+  - name: tamanu
+    schema: public
+    description: "Tamanu database"
+    tables:
+      - name: patient_field_values
+        description: ""
+        tags: ['patient']
+        columns:
+          - name: created_at
+            data_type: timestamp with time zone
+            description: ""
+          - name: updated_at
+            data_type: timestamp with time zone
+            description: ""
+          - name: deleted_at
+            data_type: timestamp with time zone
+            description: ""
+          - name: value
+            data_type: text
+            description: ""
+          - name: definition_id
+            data_type: character varying
+            description: ""
+          - name: patient_id
+            data_type: character varying
+            description: ""
+          - name: updated_at_sync_tick
+            data_type: bigint
+            description: ""
+          - name: id
+            data_type: text
+            description: ""

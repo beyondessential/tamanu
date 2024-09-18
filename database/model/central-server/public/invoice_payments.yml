@@ -1,0 +1,38 @@
+version: 2
+
+sources:
+  - name: tamanu
+    schema: public
+    description: "Tamanu database"
+    tables:
+      - name: invoice_payments
+        description: ""
+        tags: ['administration']
+        columns:
+          - name: id
+            data_type: uuid
+            description: ""
+          - name: invoice_id
+            data_type: uuid
+            description: ""
+          - name: date
+            data_type: character
+            description: ""
+          - name: receipt_number
+            data_type: character varying
+            description: ""
+          - name: amount
+            data_type: numeric
+            description: ""
+          - name: created_at
+            data_type: timestamp with time zone
+            description: ""
+          - name: updated_at
+            data_type: timestamp with time zone
+            description: ""
+          - name: deleted_at
+            data_type: timestamp with time zone
+            description: ""
+          - name: updated_at_sync_tick
+            data_type: bigint
+            description: ""

@@ -1,0 +1,47 @@
+version: 2
+
+sources:
+  - name: tamanu
+    schema: public
+    description: "Tamanu database"
+    tables:
+      - name: patient_family_histories
+        description: ""
+        tags: ['clinical']
+        columns:
+          - name: id
+            data_type: character varying
+            description: ""
+          - name: created_at
+            data_type: timestamp with time zone
+            description: ""
+          - name: updated_at
+            data_type: timestamp with time zone
+            description: ""
+          - name: deleted_at
+            data_type: timestamp with time zone
+            description: ""
+          - name: note
+            data_type: character varying
+            description: ""
+          - name: recorded_date
+            data_type: character
+            description: ""
+          - name: relationship
+            data_type: character varying
+            description: ""
+          - name: patient_id
+            data_type: character varying
+            description: ""
+          - name: practitioner_id
+            data_type: character varying
+            description: ""
+          - name: diagnosis_id
+            data_type: character varying
+            description: ""
+          - name: recorded_date_legacy
+            data_type: timestamp with time zone
+            description: ""
+          - name: updated_at_sync_tick
+            data_type: bigint
+            description: ""

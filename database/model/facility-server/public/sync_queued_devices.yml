@@ -1,0 +1,35 @@
+version: 2
+
+sources:
+  - name: tamanu
+    schema: public
+    description: "Tamanu database"
+    tables:
+      - name: sync_queued_devices
+        description: ""
+        tags: ['system']
+        columns:
+          - name: id
+            data_type: text
+            description: ""
+          - name: last_seen_time
+            data_type: timestamp with time zone
+            description: ""
+          - name: facility_id
+            data_type: text
+            description: ""
+          - name: last_synced_tick
+            data_type: bigint
+            description: ""
+          - name: urgent
+            data_type: boolean
+            description: ""
+          - name: created_at
+            data_type: timestamp with time zone
+            description: ""
+          - name: updated_at
+            data_type: timestamp with time zone
+            description: ""
+          - name: deleted_at
+            data_type: timestamp with time zone
+            description: ""

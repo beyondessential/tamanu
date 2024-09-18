@@ -1,0 +1,46 @@
+version: 2
+
+sources:
+  - name: tamanu
+    schema: public
+    description: "Tamanu database"
+    tables:
+      - name: attachments
+        description: "{{ doc('table__attachments') }}"
+        tags: ['clinical']
+        columns:
+          - name: id
+            data_type: character varying
+            description: "{{ doc('attachments__id') }}"
+            data_tests:
+              - unique
+              - not_null
+          - name: type
+            data_type: text
+            description: "{{ doc('attachments__type') }}"
+            data_tests:
+              - not_null
+              - accepted_values:
+                  values: ["application/pdf", "image/jpeg", "image/png"]
+          - name: size
+            data_type: integer
+            description: "{{ doc('attachments__size') }}"
+          - name: data
+            data_type: bytea
+            description: "{{ doc('attachments__data') }}"
+            data_tests:
+              - not_null
+          - name: created_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__created_at') }}"
+          - name: updated_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__updated_at') }}"
+          - name: deleted_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__deleted_at') }}"
+          - name: updated_at_sync_tick
+            data_type: bigint
+            description: "{{ doc('generic__updated_at_sync_tick') }}"
+            data_tests:
+              - not_null

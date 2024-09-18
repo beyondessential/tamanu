@@ -1,0 +1,91 @@
+version: 2
+
+sources:
+  - name: tamanu
+    schema: public
+    description: "Tamanu database"
+    tables:
+      - name: appointments
+        description: "{{ doc('table__appointments') }}"
+        tags: ['clinical']
+        columns:
+          - name: id
+            data_type: character varying
+            description: "{{ doc('appointments__id') }}"
+            data_tests:
+              - unique
+              - not_null
+          - name: created_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__created_at') }} in appointments"
+            data_tests:
+              - not_null
+          - name: updated_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__updated_at') }} in appointments"
+            data_tests:
+              - not_null
+          - name: deleted_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__deleted_at') }} in appointments"
+          - name: start_time
+            data_type: character
+            description: "{{ doc('appointments__start_datetime') }}"
+          - name: end_time
+            data_type: character
+            description: "{{ doc('appointments__end_datetime') }}"
+          - name: patient_id
+            data_type: character varying
+            description: "{{ doc('patients__id') }}"
+            data_tests:
+              - not_null
+              - relationships:
+                  to: source('tamanu', 'patients')
+                  field: id
+          - name: clinician_id
+            data_type: character varying
+            description: "{{ doc('users__id') }} running the appointment"
+            data_tests:
+              - not_null
+              - relationships:
+                  to: source('tamanu', 'users')
+                  field: id
+          - name: location_id
+            data_type: character varying
+            description: "{{ doc('locations__id') }} of the appointment."
+            data_tests:
+              - relationships:
+                  to: source('tamanu', 'locations')
+                  field: id
+          - name: type
+            data_type: character varying
+            description: "{{ doc('appointments__type') }}. Default value is 'Standard'"
+            data_tests:
+              - not_null
+              - accepted_values:
+                  values: ["Standard", "Emergency", "Specialist", "Other"]
+          - name: status
+            data_type: character varying
+            description: "{{ doc('appointments__status') }}. Default value is 'Confirmed'"
+            data_tests:
+              - not_null
+              - accepted_values:
+                  values: ["Confirmed", "Arrived", "No-show", "Cancelled"]
+          - name: start_time_legacy
+            data_type: timestamp with time zone
+            description: "{{ doc('appointments__start_time_legacy') }}"
+          - name: end_time_legacy
+            data_type: timestamp with time zone
+            description: "{{ doc('appointments__end_time_legacy') }}"
+          - name: location_group_id
+            data_type: character varying
+            description: "{{ doc('location_groups__id') }} of the appointment"
+            data_tests:
+              - relationships:
+                  to: source('tamanu', 'location_groups')
+                  field: id
+          - name: updated_at_sync_tick
+            data_type: bigint
+            description: "{{ doc('generic__updated_at_sync_tick') }} in appointments"
+            data_tests:
+              - not_null

@@ -1,0 +1,62 @@
+version: 2
+
+sources:
+  - name: tamanu
+    schema: public
+    description: "Tamanu database"
+    tables:
+      - name: certificate_notifications
+        description: ""
+        tags: ['clinical']
+        columns:
+          - name: id
+            data_type: character varying
+            description: ""
+          - name: created_at
+            data_type: timestamp with time zone
+            description: ""
+          - name: updated_at
+            data_type: timestamp with time zone
+            description: ""
+          - name: deleted_at
+            data_type: timestamp with time zone
+            description: ""
+          - name: type
+            data_type: character varying
+            description: ""
+          - name: require_signing
+            data_type: boolean
+            description: ""
+          - name: patient_id
+            data_type: character varying
+            description: ""
+          - name: forward_address
+            data_type: character varying
+            description: ""
+          - name: lab_test_id
+            data_type: character varying
+            description: ""
+          - name: status
+            data_type: character varying
+            description: ""
+          - name: error
+            data_type: text
+            description: ""
+          - name: created_by
+            data_type: character varying
+            description: ""
+          - name: lab_request_id
+            data_type: character varying
+            description: ""
+          - name: updated_at_sync_tick
+            data_type: bigint
+            description: ""
+          - name: printed_date
+            data_type: character
+            description: ""
+          - name: facility_name
+            data_type: character varying
+            description: ""
+          - name: language
+            data_type: character varying
+            description: ""

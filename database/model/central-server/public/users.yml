@@ -1,0 +1,63 @@
+version: 2
+
+sources:
+  - name: tamanu
+    schema: public
+    description: "Tamanu database"
+    tables:
+      - name: users
+        description: "{{ doc('table__users') }}"
+        tags: ['administration']
+        columns:
+          - name: id
+            data_type: character varying
+            description: "{{ doc('users__id') }}"
+            data_tests:
+              - unique
+              - not_null
+          - name: created_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__created_at') }} in users"
+            data_tests:
+              - not_null
+          - name: updated_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__updated_at') }} in users"
+            data_tests:
+              - not_null
+          - name: deleted_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__deleted_at') }} in users"
+          - name: email
+            data_type:  character varying
+            description: "{{ doc('users__email') }}"
+            data_tests:
+              - not_null
+          - name: password
+            data_type:  character varying
+            description: "{{ doc('users__password') }}"
+            data_tests:
+              - not_null
+          - name: display_name
+            data_type:  character varying
+            description: "{{ doc('users__display_name') }}"
+          - name: role
+            data_type:  character varying
+            description: "{{ doc('roles__id') }}, default value is 'practitioner'"
+          - name: updated_at_sync_tick
+            data_type: BIGINT
+            description: "{{ doc('generic__updated_at_sync_tick') }} in users"
+            data_tests:
+              - not_null
+          - name: display_id
+            data_type:  character varying
+            description: "{{ doc('users__display_id') }}"
+          - name: visibility_status
+            data_type:  character varying
+            description: "{{ doc('generic__visibility_status') }} in users"
+            data_tests:
+              - not_null
+              - valid_visibility_status
+          - name: phone_number
+            data_type:  character varying
+            description: "{{ doc('users__phone_number') }}"

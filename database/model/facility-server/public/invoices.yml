@@ -1,0 +1,44 @@
+version: 2
+
+sources:
+  - name: tamanu
+    schema: public
+    description: "Tamanu database"
+    tables:
+      - name: invoices
+        description: ""
+        tags: ['administration']
+        columns:
+          - name: id
+            data_type: uuid
+            description: ""
+          - name: display_id
+            data_type: character varying
+            description: ""
+          - name: date
+            data_type: character
+            description: ""
+          - name: status
+            data_type: character varying
+            description: ""
+          - name: encounter_id
+            data_type: character varying
+            description: ""
+          - name: created_at
+            data_type: timestamp with time zone
+            description: ""
+          - name: updated_at
+            data_type: timestamp with time zone
+            description: ""
+          - name: deleted_at
+            data_type: timestamp with time zone
+            description: ""
+          - name: patient_payment_status
+            data_type: character varying
+            description: ""
+          - name: insurer_payment_status
+            data_type: character varying
+            description: ""
+          - name: updated_at_sync_tick
+            data_type: bigint
+            description: ""

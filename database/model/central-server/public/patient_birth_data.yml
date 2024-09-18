@@ -1,0 +1,71 @@
+version: 2
+
+sources:
+  - name: tamanu
+    schema: public
+    description: "Tamanu database"
+    tables:
+      - name: patient_birth_data
+        description: ""
+        tags: ['clinical']
+        columns:
+          - name: created_at
+            data_type: timestamp with time zone
+            description: ""
+          - name: updated_at
+            data_type: timestamp with time zone
+            description: ""
+          - name: deleted_at
+            data_type: timestamp with time zone
+            description: ""
+          - name: patient_id
+            data_type: character varying
+            description: ""
+          - name: birth_weight
+            data_type: numeric
+            description: ""
+          - name: birth_length
+            data_type: numeric
+            description: ""
+          - name: birth_delivery_type
+            data_type: character varying
+            description: ""
+          - name: gestational_age_estimate
+            data_type: double precision
+            description: ""
+          - name: apgar_score_one_minute
+            data_type: integer
+            description: ""
+          - name: apgar_score_five_minutes
+            data_type: integer
+            description: ""
+          - name: apgar_score_ten_minutes
+            data_type: integer
+            description: ""
+          - name: time_of_birth
+            data_type: character
+            description: ""
+          - name: birth_type
+            data_type: character varying
+            description: ""
+          - name: attendant_at_birth
+            data_type: character varying
+            description: ""
+          - name: name_of_attendant_at_birth
+            data_type: character varying
+            description: ""
+          - name: birth_facility_id
+            data_type: character varying
+            description: ""
+          - name: registered_birth_place
+            data_type: character varying
+            description: ""
+          - name: time_of_birth_legacy
+            data_type: character varying
+            description: ""
+          - name: updated_at_sync_tick
+            data_type: bigint
+            description: ""
+          - name: id
+            data_type: text
+            description: ""
