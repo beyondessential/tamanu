@@ -75,7 +75,7 @@ const buttonCommonStyles = {
   alignSelf: 'flex-end',
 };
 
-export const SurveyGeolocationField = ({ value, onChange, setDisableSubmit }) => {
+export const SurveyGeolocationField = ({ value, onChange, setDisableSubmit, error: formError }) => {
   const {
     coords,
     error,
@@ -157,6 +157,7 @@ export const SurveyGeolocationField = ({ value, onChange, setDisableSubmit }) =>
           fieldFontSize={screenPercentageToDP('1.82', Orientation.Height)}
           value={value || tempValue}
           onChange={() => {}}
+          error={formError}
           endAdornment={
             <>
               <EndAdornmentContainer>
