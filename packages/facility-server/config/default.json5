@@ -30,7 +30,7 @@
     "timeout": 10000,
     "syncApiConnection": {
       "host": "http://localhost",
-      "port": 5000,
+      "port": 4100,
     },
     "persistedCacheBatchSize": 10000,
     "pauseBetweenPersistedCacheBatchesInMilliseconds": 50,

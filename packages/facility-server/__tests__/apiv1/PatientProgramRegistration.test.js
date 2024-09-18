@@ -474,12 +474,11 @@ describe('PatientProgramRegistration', () => {
         );
         const result = await app
           .delete(
-            `/api/patient/${patient.id}/programRegistration/${programRegistry1.id}/condition/${createdCondition.id}`,
+            `/api/patient/${patient.id}/programRegistration/${programRegistry1.id}/condition/${createdCondition.id}?deletionDate=2023-09-02%2008%3A00%3A00`,
           )
           .send({
             programRegistryConditionId: programRegistryCondition.id,
             deletionClinicianId: clinician.id,
-            deletionDate: '2023-09-02 08:00:00',
           });
 
         expect(result).toHaveSucceeded();

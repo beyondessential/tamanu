@@ -18,6 +18,7 @@ import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { createTestContext } from '../utilities';
 import { importerTransaction } from '../../dist/admin/importer/importerEndpoint';
 import { referenceDataImporter } from '../../dist/admin/referenceDataImporter';
+import { cloneDeep } from 'lodash';
 
 const doImport = (options, models) => {
   const { file, ...opts } = options;
@@ -70,6 +71,19 @@ describe('CentralSyncManager', () => {
       complete = await centralSyncManager.checkPushComplete(sessionId);
       await sleepAsync(100);
     }
+  };
+
+  const expectMatchingSessionData = (sessionData1, sessionData2) => {
+    const cleanedSessionData1 = { ...sessionData1 };
+    const cleanedSessionData2 = { ...sessionData2 };
+
+    // Remove updatedAt and lastConnectionTime as these fields change on every connect, so they return false negatives when comparing session data
+    delete cleanedSessionData1.updatedAt;
+    delete cleanedSessionData2.updatedAt;
+    delete cleanedSessionData1.lastConnectionTime;
+    delete cleanedSessionData2.lastConnectionTime;
+
+    expect(cleanedSessionData1).toEqual(cleanedSessionData2);
   };
 
   const prepareRecordsForSync = async () => {
@@ -179,6 +193,78 @@ describe('CentralSyncManager', () => {
 
       expect(syncSession1).not.toBeUndefined();
       expect(syncSession2).not.toBeUndefined();
+    });
+
+    it('throws an error when checking a session is ready if it failed to start', async () => {
+      const errorMessage = "I'm a sleepy session, I don't want to start";
+      const fakeMarkAsStartedAt = () => {
+        throw new Error(errorMessage);
+      };
+
+      const spyMarkAsStartedAt = jest
+        .spyOn(models.SyncSession.prototype, 'markAsStartedAt')
+        .mockImplementation(fakeMarkAsStartedAt);
+
+      const centralSyncManager = initializeCentralSyncManager();
+      const { sessionId } = await centralSyncManager.startSession();
+
+      await expect(waitForSession(centralSyncManager, sessionId))
+        .rejects.toThrow(`Sync session '${sessionId}' encountered an error: ${errorMessage}`)
+        .finally(() => spyMarkAsStartedAt.mockRestore());
+    });
+
+    it('throws an error when checking a session is ready if it never assigned a started_at_tick', async () => {
+      const fakeMarkAsStartedAt = () => {
+        // Do nothing and ensure we error out when the client starts polling
+      };
+
+      const spyMarkAsStartedAt = jest
+        .spyOn(models.SyncSession.prototype, 'markAsStartedAt')
+        .mockImplementation(fakeMarkAsStartedAt);
+
+      const centralSyncManager = initializeCentralSyncManager();
+      const { sessionId } = await centralSyncManager.startSession();
+
+      await expect(waitForSession(centralSyncManager, sessionId))
+        .rejects.toThrow(
+          new RegExp(
+            `Sync session '${sessionId}' encountered an error: Session initiation incomplete, likely because the central server restarted during the process`,
+          ),
+        )
+        .finally(() => spyMarkAsStartedAt.mockRestore());
+    });
+
+    /**
+     * Since the client is polling to see if the session has started, its important we only mark as started once everything is complete
+     */
+    it('performs no further operations after flagging the session as started', async () => {
+      const centralSyncManager = initializeCentralSyncManager();
+      const originalPrepareSession = centralSyncManager.prepareSession.bind(centralSyncManager);
+      let dataValuesAtStartTime = null;
+
+      const fakeCentralSyncManagerPrepareSession = session => {
+        const originalMarkAsStartedAt = session.markAsStartedAt.bind(session);
+        const fakeSessionMarkAsStartedAt = async tick => {
+          const result = await originalMarkAsStartedAt(tick);
+          await session.reload();
+          dataValuesAtStartTime = cloneDeep(session.dataValues); // Save dataValues immediately after marking session as started
+          return result;
+        };
+        jest.spyOn(session, 'markAsStartedAt').mockImplementation(fakeSessionMarkAsStartedAt);
+        return originalPrepareSession(session);
+      };
+
+      jest
+        .spyOn(centralSyncManager, 'prepareSession')
+        .mockImplementation(fakeCentralSyncManagerPrepareSession);
+
+      const { sessionId } = await centralSyncManager.startSession();
+
+      await waitForSession(centralSyncManager, sessionId);
+      const latestValues = (await models.SyncSession.findOne({ where: { id: sessionId } }))
+        .dataValues;
+
+      expectMatchingSessionData(latestValues, dataValuesAtStartTime);
     });
   });
 

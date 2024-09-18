@@ -58,8 +58,6 @@ async function startAll({ skipMigrationCheck }) {
   const { server: syncServer } = await createSyncApp(context);
 
   let { port: syncPort } = config.sync.syncApiConnection;
-  if (+process.env.PORT) { syncPort = +process.env.PORT; }
-  if (syncPort === port) { syncPort += 1; }
   syncServer.listen(syncPort, () => {
     log.info(`SYNC server is running on port ${syncPort}!`);
   });

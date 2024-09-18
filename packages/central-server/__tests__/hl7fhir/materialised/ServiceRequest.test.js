@@ -9,6 +9,8 @@ import {
   NOTE_TYPES,
   VISIBILITY_STATUSES,
   FHIR_REQUEST_PRIORITY,
+  LAB_REQUEST_STATUSES,
+  FHIR_REQUEST_STATUS,
 } from '@tamanu/constants';
 import { fakeUUID } from '@tamanu/shared/utils/generateId';
 import { formatFhirDate } from '@tamanu/shared/utils/fhir/datetime';
@@ -209,11 +211,11 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
     it('fetches a service request by materialised ID (lab request with panel)', async () => {
       // arrange
       const { FhirServiceRequest } = ctx.store.models;
-      const { labTestPanel, labRequest, panelTestTypes } = await fakeResourcesOfFhirServiceRequestWithLabRequest(
-        ctx.store.models,
-        resources,
-        true,
-      );
+      const {
+        labTestPanel,
+        labRequest,
+        panelTestTypes,
+      } = await fakeResourcesOfFhirServiceRequestWithLabRequest(ctx.store.models, resources, true);
       const mat = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
       await FhirServiceRequest.resolveUpstreams();
 
@@ -260,14 +262,12 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
             {
               code: labTestPanel.code,
               display: labTestPanel.name,
-              system:
-                'https://www.senaite.com/profileCodes.html',
+              system: 'https://www.senaite.com/profileCodes.html',
             },
             {
               code: labTestPanel.externalCode,
               display: labTestPanel.name,
-              system:
-                'http://loinc.org',
+              system: 'http://loinc.org',
             },
           ],
         },
@@ -351,7 +351,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
       expect(response).toHaveSucceeded();
     });
 
-    // Noting here that LabRequests have a priority in reference data 
+    // Noting here that LabRequests have a priority in reference data
     // while ImageRequests have a priority that is a string
     it('will materialise LabRequests into ServiceRequest with correct priority', async () => {
       // arrange
@@ -373,8 +373,8 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
           resources,
           true,
           {
-            labTestPriorityId: allPriorities[currentKey].id
-          }
+            labTestPriorityId: allPriorities[currentKey].id,
+          },
         );
         const mat = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
         await FhirServiceRequest.resolveUpstreams();
@@ -388,7 +388,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
         expect(response.body).toMatchObject({
           resourceType: 'ServiceRequest',
           id: expect.any(String),
-          priority: allPriorities[currentKey].name
+          priority: allPriorities[currentKey].name,
         });
         expect(response).toHaveSucceeded();
       }
@@ -876,7 +876,9 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
 
         expect(response.body.total).toBe(2);
         expect(response.body.entry.length).toBe(3);
-        expect(response.body.entry.filter(({ search: { mode } }) => mode === 'match').length).toBe(2);
+        expect(response.body.entry.filter(({ search: { mode } }) => mode === 'match').length).toBe(
+          2,
+        );
         expect(
           response.body.entry.find(({ search: { mode } }) => mode === 'include')?.resource.id,
         ).toBe(resources.fhirPatient.id);
@@ -890,7 +892,9 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
 
         expect(response.body.total).toBe(2);
         expect(response.body.entry.length).toBe(3);
-        expect(response.body.entry.filter(({ search: { mode } }) => mode === 'match').length).toBe(2);
+        expect(response.body.entry.filter(({ search: { mode } }) => mode === 'match').length).toBe(
+          2,
+        );
         expect(
           response.body.entry.find(({ search: { mode } }) => mode === 'include')?.resource.id,
         ).toBe(resources.fhirPatient.id);
@@ -904,7 +908,9 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
 
         expect(response.body.total).toBe(2);
         expect(response.body.entry.length).toBe(2);
-        expect(response.body.entry.filter(({ search: { mode } }) => mode === 'match').length).toBe(2);
+        expect(response.body.entry.filter(({ search: { mode } }) => mode === 'match').length).toBe(
+          2,
+        );
         expect(response).toHaveSucceeded();
       });
 
@@ -914,7 +920,9 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
         );
         expect(response.body.total).toBe(2);
         expect(response.body.entry.length).toBe(3);
-        expect(response.body.entry.filter(({ search: { mode } }) => mode === 'match').length).toBe(2);
+        expect(response.body.entry.filter(({ search: { mode } }) => mode === 'match').length).toBe(
+          2,
+        );
         expect(
           response.body.entry.find(({ search: { mode } }) => mode === 'include')?.resource.id,
         ).toBe(fhirResources.fhirEncounter.id);
@@ -935,17 +943,12 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
         );
         expect(response).toHaveSucceeded();
       });
-
-
-
-
     });
 
     describe('Lab Requests as ServiceRequests', () => {
       test.todo('Need to complete rigorous testing for aspects of Lab Requests searching here');
 
       describe('including', () => {
-
         beforeEach(async () => {
           const { models } = ctx.store;
           const { FhirSpecimen, FhirServiceRequest, LabRequest } = models;
@@ -958,7 +961,9 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
           const { models } = ctx.store;
           const { FhirSpecimen, FhirServiceRequest } = models;
           const { labRequest } = await fakeResourcesOfFhirSpecimen(models, resources);
-          const materialisedServiceRequest = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
+          const materialisedServiceRequest = await FhirServiceRequest.materialiseFromUpstream(
+            labRequest.id,
+          );
           const materialiseSpecimen = await FhirSpecimen.materialiseFromUpstream(labRequest.id);
 
           await FhirServiceRequest.resolveUpstreams();
@@ -967,21 +972,71 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
           const path = `/v1/integration/${INTEGRATION_ROUTE}/ServiceRequest?_include=Specimen:specimen`;
           const response = await app.get(path);
           const { entry } = response.body;
-          const fetchedServiceRequest = entry.find(
-            ({ search: { mode } }) => mode === 'match',
-          );
+          const fetchedServiceRequest = entry.find(({ search: { mode } }) => mode === 'match');
 
-          const includedSpecimen = entry.find(
-            ({ search: { mode } }) => mode === 'include',
-          );
+          const includedSpecimen = entry.find(({ search: { mode } }) => mode === 'include');
           expect(response).toHaveSucceeded();
           expect(includedSpecimen).toBeDefined();
           expect(fetchedServiceRequest.resource.id).toBe(materialisedServiceRequest.id);
           expect(includedSpecimen.resource.id).toBe(materialiseSpecimen.id);
           expect(response.body.entry.length).toBe(2);
         });
-      });
 
+        it('correctly maps LabRequest statuses to ServiceRequest statuses', async () => {
+          const { models } = ctx.store;
+          const { FhirSpecimen, FhirServiceRequest, LabRequest } = models;
+
+          for (const status of Object.values(LAB_REQUEST_STATUSES)) {
+            let expectedServiceRequestStatus;
+            if (
+              [
+                LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED,
+                LAB_REQUEST_STATUSES.RECEPTION_PENDING,
+              ].includes(status)
+            ) {
+              expectedServiceRequestStatus = FHIR_REQUEST_STATUS.DRAFT;
+            } else if (
+              [
+                LAB_REQUEST_STATUSES.RESULTS_PENDING,
+                LAB_REQUEST_STATUSES.INTERIM_RESULTS,
+                LAB_REQUEST_STATUSES.TO_BE_VERIFIED,
+                LAB_REQUEST_STATUSES.VERIFIED,
+              ].includes(status)
+            ) {
+              expectedServiceRequestStatus = FHIR_REQUEST_STATUS.ACTIVE;
+            } else if ([LAB_REQUEST_STATUSES.PUBLISHED].includes(status)) {
+              expectedServiceRequestStatus = FHIR_REQUEST_STATUS.COMPLETED;
+            } else if (
+              [
+                LAB_REQUEST_STATUSES.CANCELLED,
+                LAB_REQUEST_STATUSES.INVALIDATED,
+                LAB_REQUEST_STATUSES.DELETED,
+              ].includes(status)
+            ) {
+              expectedServiceRequestStatus = FHIR_REQUEST_STATUS.REVOKED;
+            } else if ([LAB_REQUEST_STATUSES.ENTERED_IN_ERROR].includes(status)) {
+              expectedServiceRequestStatus = FHIR_REQUEST_STATUS.ENTERED_IN_ERROR;
+            } else {
+              expectedServiceRequestStatus = FHIR_REQUEST_STATUS.UNKNOWN;
+            }
+
+            const { labRequest } = await fakeResourcesOfFhirSpecimen(models, resources, { status });
+            await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
+
+            const path = `/v1/integration/${INTEGRATION_ROUTE}/ServiceRequest`;
+            const response = await app.get(path);
+            const { entry } = response.body;
+            const fetchedServiceRequest = entry.find(({ search: { mode } }) => mode === 'match');
+
+            expect(response).toHaveSucceeded();
+            expect(fetchedServiceRequest.resource.status).toBe(expectedServiceRequestStatus);
+
+            await FhirSpecimen.destroy({ where: {} });
+            await FhirServiceRequest.destroy({ where: {} });
+            await LabRequest.destroy({ where: {} });
+          }
+        });
+      });
     });
   });
 
