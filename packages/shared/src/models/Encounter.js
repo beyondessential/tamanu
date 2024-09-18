@@ -10,7 +10,7 @@ import { InvalidOperationError } from '../errors';
 import { dateTimeType } from './dateTimeTypes';
 
 import { Model } from './Model';
-import { onSaveMarkPatientForSync } from './onSaveMarkPatientForSync';
+import { onCreateEncounterMarkPatientForSync } from './onCreateEncounterMarkPatientForSync';
 import { dischargeOutpatientEncounters } from '../utils/dischargeOutpatientEncounters';
 import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
 
@@ -64,7 +64,7 @@ export class Encounter extends Model {
         syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
       },
     );
-    onSaveMarkPatientForSync(this);
+    onCreateEncounterMarkPatientForSync(this);
   }
 
   static getFullReferenceAssociations() {

@@ -2,16 +2,13 @@ import config from 'config';
 import { Command } from 'commander';
 
 import { log } from '@tamanu/shared/services/logging';
-
 import { performTimeZoneChecks } from '@tamanu/shared/utils/timeZoneCheck';
+import { selectFacilityIds } from '@tamanu/shared/utils/configSelectors';
+
 import { checkConfig } from '../checkConfig';
 import { initDeviceId } from '../sync/initDeviceId';
 import { performDatabaseIntegrityChecks } from '../database';
-import {
-  FacilitySyncConnection,
-  CentralServerConnection,
-  FacilitySyncManager,
-} from '../sync';
+import { FacilitySyncConnection, CentralServerConnection, FacilitySyncManager } from '../sync';
 
 import { createApiApp } from '../createApiApp';
 
@@ -26,7 +23,7 @@ const APP_TYPES = {
 
 const startApp = appType => async ({ skipMigrationCheck }) => {
   log.info(`Starting facility ${appType} server version ${version}`, {
-    serverFacilityId: config.serverFacilityId,
+    serverFacilityIds: selectFacilityIds(config),
   });
 
   log.info(`Process info`, {

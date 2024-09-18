@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { customAlphabet } from 'nanoid';
 
-import { useApi } from '../api';
-import { Suggester } from '../utils/suggester';
+import { useApi, useSuggester } from '../api';
 
 import { FormModal } from './FormModal';
 import { ImagingRequestForm } from '../forms/ImagingRequestForm';
@@ -15,7 +14,7 @@ const configureCustomRequestId = () => customAlphabet(ALPHABET_FOR_ID, 8);
 
 export const ImagingRequestModal = ({ open, onClose, encounter }) => {
   const api = useApi();
-  const practitionerSuggester = new Suggester(api, 'practitioner');
+  const practitionerSuggester = useSuggester('practitioner');
   const generateDisplayId = configureCustomRequestId();
   const [requestId, setRequestId] = useState();
 
