@@ -32,6 +32,15 @@ const SettingLine = styled(BodyText)`
   width: 650px;
 `;
 
+const SettingNameText = styled(LargeBodyText)`
+  margin-right: auto;
+  margin-left: 5px;
+  margin-top: 14px;
+  width: fit-content;
+  display: flex;
+  align-items: center;
+`;
+
 const getName = (name, path) => name || capitalize(startCase(path.split('.').pop()));
 
 const CategoryTitle = memo(({ name, path, description }) => {
@@ -49,18 +58,10 @@ const CategoryTitle = memo(({ name, path, description }) => {
 
 const SettingName = memo(({ name, path, description, disabled }) => (
   <ThemedTooltip disableHoverListener={!description} arrow placement="top" title={description}>
-    <LargeBodyText
-      color={disabled && 'textTertiary'}
-      display="flex"
-      alignItems="center"
-      width="fit-content"
-      mr="auto"
-      ml={1}
-      mt="14px"
-    >
+    <SettingNameText color={disabled && 'textTertiary'}>
       {getName(name, path)}
       {disabled && <StyledLockIcon />}
-    </LargeBodyText>
+    </SettingNameText>
   </ThemedTooltip>
 ));
 
@@ -91,7 +92,8 @@ export const Category = ({ schema, path = '', getSettingValue, handleChangeSetti
           const newPath = path ? `${path}.${key}` : key;
           const { name, description, type, defaultValue, unit, highRisk } = propertySchema;
 
-          const disabled = !canWriteHighRisk && (schema.highRisk || highRisk);
+          const isHighRisk = schema.highRisk || highRisk;
+          const disabled = !canWriteHighRisk && isHighRisk;
 
           return type ? (
             <SettingLine key={newPath}>
@@ -116,7 +118,7 @@ export const Category = ({ schema, path = '', getSettingValue, handleChangeSetti
               key={newPath}
               path={newPath}
               // Pass down highRisk from parent category to now top level subcategory
-              schema={{ ...propertySchema, highRisk: schema.highRisk || highRisk }}
+              schema={{ ...propertySchema, highRisk: isHighRisk }}
               getSettingValue={getSettingValue}
               handleChangeSetting={handleChangeSetting}
             />
