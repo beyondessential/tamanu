@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { isString, isUndefined } from 'lodash';
+import React, { useEffect, useMemo, useState } from 'react';
+import { isEqual, isString, isUndefined } from 'lodash';
 import styled from 'styled-components';
 import { Switch } from '@material-ui/core';
 
@@ -12,6 +12,7 @@ import {
 } from '../../../../components';
 import { JSONEditor } from './JSONEditor';
 import { Colors } from '../../../../constants';
+import { ThemedTooltip } from '../../../../components/Tooltip';
 
 const Unit = styled.div`
   display: flex;
@@ -70,6 +71,7 @@ export const SettingInput = ({
   disabled,
 }) => {
   const [error, setError] = useState(null);
+  const isUnchangedFromDefault = useMemo(() => isEqual(value, defaultValue), [value, defaultValue]);
   const { type } = typeSchema;
 
   useEffect(() => {
@@ -81,15 +83,34 @@ export const SettingInput = ({
     }
   }, [value, typeSchema]);
 
-  const DefaultButton = () =>
-    disabled ? null : (
-      <DefaultSettingButton onClick={() => handleChangeSetting(path, defaultValue)}>
-        <TranslatedText
-          stringId="admin.settings.action.resetToDefault"
-          fallback="Reset to default"
-        />
-      </DefaultSettingButton>
+  const DefaultButton = () => {
+    if (disabled) return null;
+    return (
+      <ThemedTooltip
+        disableHoverListener={!isUnchangedFromDefault}
+        title={
+          isUnchangedFromDefault && (
+            <TranslatedText
+              stringId="admin.settings.action.resetToDefault.unchangedTooltip"
+              fallback="This setting is already at its default value"
+            />
+          )
+        }
+      >
+        <div>
+          <DefaultSettingButton
+            disabled={isUnchangedFromDefault}
+            onClick={() => handleChangeSetting(path, defaultValue)}
+          >
+            <TranslatedText
+              stringId="admin.settings.action.resetToDefault"
+              fallback="Reset to default"
+            />
+          </DefaultSettingButton>
+        </div>
+      </ThemedTooltip>
     );
+  };
 
   const handleChangeSwitch = e => handleChangeSetting(path, e.target.checked);
   const handleChangeText = e => handleChangeSetting(path, e.target.value);

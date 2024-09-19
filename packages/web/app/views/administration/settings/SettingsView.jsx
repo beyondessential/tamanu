@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { ValidationError } from 'yup';
 
 import { SETTINGS_SCOPES } from '@tamanu/constants';
-import { validateSettings } from '@tamanu/settings';
+import { applyDefaults, validateSettings } from '@tamanu/settings';
 
 import { TabDisplay } from '../../../components/TabDisplay';
 import { AdminViewContainer } from '../components/AdminViewContainer';
@@ -87,7 +87,6 @@ export const SettingsView = () => {
   const handleSubmit = async ({ settings, scope, facilityId }) => {
     try {
       await validateSettings({ settings, scope });
-      console.log('what', settings, facilityId, scope);
       await api.put('admin/settings', { settings, facilityId, scope });
       notifySuccess('Settings saved');
       queryClient.invalidateQueries(['scopedSettings', scope, facilityId]);
@@ -138,7 +137,9 @@ const SettingsForm = ({
   const { data: settingsSnapshot = {}, error: settingsFetchError } = useQuery(
     ['scopedSettings', scope, facilityId],
     () => api.get('admin/settings', { scope, facilityId }),
-    {},
+    {
+      select: data => applyDefaults(data, scope),
+    },
   );
 
   const canViewJSONEditor = ability.can('write', 'Setting');

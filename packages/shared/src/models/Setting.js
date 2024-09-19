@@ -1,5 +1,5 @@
 import { Sequelize, Op } from 'sequelize';
-import { isPlainObject, get as getAtPath, set as setAtPath } from 'lodash';
+import { isPlainObject, get as getAtPath, set as setAtPath, isEqual } from 'lodash';
 import { settingsCache } from '@tamanu/settings/cache';
 import { SYNC_DIRECTIONS, SETTINGS_SCOPES } from '@tamanu/constants';
 import { Model } from './Model';
@@ -163,9 +163,11 @@ export class Setting extends Model {
         });
 
         if (existing) {
-          await this.update({ value: record.value }, { where: { id: existing.id } });
-        } else {
-          await this.create({ ...record, scope });
+          if (!isEqual(existing.value, record.value)) {
+            await this.update({ value: record.value }, { where: { id: existing.id } });
+          } else {
+            await this.create({ ...record, scope });
+          }
         }
       }),
     );

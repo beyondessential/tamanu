@@ -39,7 +39,7 @@ const CategoryTitle = memo(({ name, path, description }) => {
   if (!categoryTitle) return null;
 
   return (
-    <ThemedTooltip arrow placement="top" title={description}>
+    <ThemedTooltip disableHoverListener={!description} arrow placement="top" title={description}>
       <Heading4 width="fit-content" mt={0} mb={2}>
         {categoryTitle}
       </Heading4>
@@ -48,7 +48,7 @@ const CategoryTitle = memo(({ name, path, description }) => {
 });
 
 const SettingName = memo(({ name, path, description, disabled }) => (
-  <ThemedTooltip arrow placement="top" title={description}>
+  <ThemedTooltip disableHoverListener={!description} arrow placement="top" title={description}>
     <LargeBodyText
       color={disabled && 'textTertiary'}
       display="flex"
