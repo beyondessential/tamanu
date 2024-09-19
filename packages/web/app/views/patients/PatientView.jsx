@@ -69,8 +69,8 @@ const TABS = [
     label: <TranslatedText stringId="patient.tab.forms" fallback="Forms" />,
     key: PATIENT_TABS.PROGRAMS,
     icon: 'fa fa-hospital',
-    render: ({ patient, ...props }) => (
-      <PatientProgramsPane endpoint={`patient/${patient.id}/programResponses`} {...props} />
+    render: props => (
+      <PatientProgramsPane endpoint={`patient/${props.patient.id}/programResponses`} {...props} />
     ),
   },
   {

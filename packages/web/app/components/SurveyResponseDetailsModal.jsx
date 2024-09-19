@@ -9,6 +9,7 @@ import { ViewPhotoLink } from './ViewPhotoLink';
 import { useApi } from '../api';
 import { Button } from './Button';
 import { TranslatedText } from './Translation/TranslatedText';
+import { useSurveyResponse } from '../api/queries/useSurveyResponse';
 
 const convertBinaryToYesNo = value => {
   switch (value) {
@@ -89,13 +90,7 @@ function shouldShow(component) {
 }
 
 export const SurveyResponseDetailsModal = ({ surveyResponseId, onClose }) => {
-  const api = useApi();
-  const { data: surveyDetails, isLoading, error } = useQuery(
-    ['surveyResponse', surveyResponseId],
-    () => api.get(`surveyResponse/${surveyResponseId}`),
-    { enabled: !!surveyResponseId },
-  );
-
+  const { data: surveyDetails, isLoading, error } = useSurveyResponse(surveyResponseId);
   if (error) {
     return (
       <Modal
