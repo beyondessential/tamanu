@@ -624,27 +624,6 @@
           }
         },
       },
-      "printMeasures": {
-        "labRequestPrintLabel": {
-          "width": 50.8
-        },
-        "stickerLabelPage": {
-          "pageWidth": "210mm",
-          "pageHeight": "297mm",
-          "pageMarginTop": "15.09mm",
-          "pageMarginLeft": "6.4mm",
-          "columnTotal": 3,
-          "columnWidth": "64mm",
-          "columnGap": "3.01mm",
-          "rowTotal": 10,
-          "rowHeight": "26.7mm",
-          "rowGap": "0"
-        },
-        "idCardPage": {
-          "cardMarginTop": "1mm",
-          "cardMarginLeft": "5mm"
-        }
-      },
       // The time zone setting is currently only used for Vaccine Certificates
       // Todo: remove this timeZone once all date fields have been migrated to date_time_strings
       "timeZone": null,

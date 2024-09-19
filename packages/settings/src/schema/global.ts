@@ -673,14 +673,88 @@ export const globalSettings = {
       type: imagingPrioritiesSchema,
       defaultValue: imagingPrioritiesDefault,
     },
-  },
-  invoice: {
-    properties: {
-      slidingFeeScale: {
-        name: 'Sliding fee scale',
-        description: '_',
-        type: yup.array().of(yup.array().of(yup.number())),
-        defaultValue: {},
+    printMeasures: {
+      description: 'Custom dimensions for PDFs',
+      properties: {
+        labRequestPrintLabel: {
+          description: 'Lab request label with basic info + barcode',
+          properties: {
+            width: {
+              type: yup.number().min(0),
+              defaultValue: 50.8,
+            },
+          },
+        },
+        stickerLabelPage: {
+          description: 'The multiple ID labels printout on the patient view',
+          properties: {
+            pageWidth: {
+              type: yup.number().min(0),
+              defaultValue: 210,
+              unit: 'mm'
+            },
+            pageHeight: {
+              type: yup.number().min(0),
+              defaultValue: 297,
+              unit: 'mm'
+            },
+            pageMarginTop: {
+              type: yup.number().min(0),
+              defaultValue: 15.09,
+              unit: 'mm'
+            },
+            pageMarginLeft: {
+              type: yup.number().min(0),
+              defaultValue: 6.4,
+              unit: 'mm'
+            },
+            columnWidth: {
+              type: yup.number().min(0),
+              defaultValue: 64,
+              unit: 'mm'
+            },
+            columnGap: {
+              type: yup.number().min(0),
+              defaultValue: 3.01,
+              unit: 'mm'
+            },
+            rowHeight: {
+              type: yup.number().min(0),
+              defaultValue: 26.7,
+              unit: 'mm'
+            },
+            rowGap: {
+              type: yup.number().min(0),
+              defaultValue: 0,
+              unit: 'mm'
+            },
+          },
+        },
+        idCardPage: {
+          description: 'The ID card found on the patient view',
+          properties: {
+            cardMarginTop: {
+              type: yup.number().min(0),
+              defaultValue: 1,
+              unit: 'mm'
+            },
+            cardMarginLeft: {
+              type: yup.number().min(0),
+              defaultValue: 5,
+              unit: 'mm'
+            },
+          },
+        },
+      },
+    },
+    invoice: {
+      properties: {
+        slidingFeeScale: {
+          name: 'Sliding fee scale',
+          description: '_',
+          type: yup.array().of(yup.array().of(yup.number())),
+          defaultValue: {},
+        },
       },
     },
   },
