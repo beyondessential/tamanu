@@ -419,44 +419,6 @@ const rootLocalisationSchema = yup
       .string()
       .required()
       .oneOf(['tamanu', 'eudcc', 'icao']),
-    features: yup
-      .object({
-        enableVaccineConsent: yup.boolean().required(),
-        filterDischargeDispositions: yup.boolean().required(),
-        editPatientDetailsOnMobile: yup.boolean().required(),
-        quickPatientGenerator: yup.boolean().required(),
-        enableInvoicing: yup.boolean().required(),
-        hideOtherSex: yup.boolean().required(),
-        registerNewPatient: yup.boolean().required(),
-        enablePatientDeaths: yup.boolean().required(),
-        mergePopulatedPADRecords: yup.boolean().required(),
-        enableNoteBackdating: yup.boolean().required(),
-        enableCovidClearanceCertificate: yup.boolean().required(),
-        editPatientDisplayId: yup.boolean().required(),
-        enablePatientInsurer: yup.boolean().required(),
-        patientPlannedMove: yup.boolean().required(),
-        idleTimeout: yup
-          .object()
-          .shape({
-            enabled: yup.boolean().required(),
-            timeoutDuration: yup.number().required(),
-            warningPromptDuration: yup.number().required(),
-            refreshInterval: yup.number().required(),
-          })
-          .required(),
-        fhirNewZealandEthnicity: yup.boolean().required(),
-        onlyAllowLabPanels: yup.boolean().required(),
-        displayProcedureCodesInDischargeSummary: yup.boolean().required(),
-        displayIcd10CodesInDischargeSummary: yup.boolean().required(),
-        tableAutoRefresh: yup.object().shape({
-          enabled: yup.boolean().required(),
-          interval: yup.number().required(),
-        }),
-        mandatoryVitalEditReason: yup.boolean().required(),
-        enableVitalEdit: yup.boolean().required(),
-      })
-      .required()
-      .noUnknown(),
     printMeasures: printMeasuresSchema,
     disabledReports: yup.array(yup.string().required()).defined(),
     supportDeskUrl: yup.string().required(),

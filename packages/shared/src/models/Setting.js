@@ -3,6 +3,7 @@ import { isPlainObject, get as getAtPath, set as setAtPath } from 'lodash';
 import { settingsCache } from '@tamanu/settings/cache';
 import { SYNC_DIRECTIONS, SETTINGS_SCOPES } from '@tamanu/constants';
 import { Model } from './Model';
+import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
 
 /**
  * Stores nested settings data, where each leaf node in the nested object has a record in the table,
@@ -151,7 +152,7 @@ export class Setting extends Model {
   }
 
   static async set(key, value, scope = SETTINGS_SCOPES.GLOBAL, facilityId = null) {
-    const records = buildSettingsRecords(key, value, facilityId);
+    const records = buildSettingsRecords(key, value, facilityId, scope);
 
     // create or update records
     await Promise.all(
@@ -200,6 +201,14 @@ export class Setting extends Model {
 
   static buildSyncFilter() {
     return `WHERE (facility_id = :facilityId OR scope = '${SETTINGS_SCOPES.GLOBAL}') AND ${this.tableName}.updated_at_sync_tick > :since`;
+  }
+
+  static buildSyncLookupQueryDetails() {
+    return {
+      select: buildSyncLookupSelect(this, {
+        facilityId: 'settings.facility_id',
+      }),
+    };
   }
 }
 

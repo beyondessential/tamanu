@@ -204,6 +204,7 @@ export const authMiddleware = async (req, res, next) => {
   try {
     // eslint-disable-next-line require-atomic-updates
     req.user = await getUserFromToken(req);
+    // TODO: delete this once all localisation moved to settings
     req.getLocalisation = async () =>
       req.models.UserLocalisationCache.getLocalisation({
         where: { userId: req.user.id },

@@ -64,13 +64,16 @@
     "persistedCacheBatchSize": 20000,
     "pauseBetweenPersistedCacheBatchesInMilliseconds": 50,
     "adjustDataBatchSize": 20000,
-    "syncAllEncountersForTheseVaccines": [],
     "numberConcurrentPullSnapshots": 4,
     "persistUpdateWorkerPoolSize": 5,
-    // at its very large default, maxRecordsPerPullSnapshotChunk is essentially "off"
+    // at its very large default, maxRecordsPerSnapshotChunk is essentially "off"
     // can be turned on by lowering to some amount that seems appropriate if snapshot performance is an issue
-    "maxRecordsPerPullSnapshotChunk": 1000000000,
-    syncSessionTimeoutMs: null,
+    "maxRecordsPerSnapshotChunk": 1000000000,
+    "syncSessionTimeoutMs": null,
+    "lookupTable": {
+      "enabled": false,
+      "perModelUpdateTimeoutMs": null
+    }
   },
   "loadshedder": {
     // paths are checked sequentially until a path matches a prefix
@@ -237,6 +240,10 @@
     "processSyncQueue": {
       "enabled": true,
       "schedule": "* * * * *"
+    },
+    "syncLookupRefresher": {
+      "enabled": false,
+      "schedule": "*/1 * * * *"
     }
   },
   "integrations": {
@@ -319,6 +326,11 @@
           "default": 20,
           "max": 20
         }
+      },
+      "extensions": {
+        "Patient": {
+          "newZealandEthnicity": false
+        }
       }
     },
     "omniLab": {
@@ -349,40 +361,6 @@
         "name": "",
         "alpha-2": "",
         "alpha-3": ""
-      },
-      "features": {
-        "enableVaccineConsent": true,
-        "filterDischargeDispositions": false,
-        "editPatientDetailsOnMobile": true,
-        "quickPatientGenerator": false,
-        "enableInvoicing": false,
-        "registerNewPatient": true,
-        "hideOtherSex": true,
-        "enablePatientDeaths": false,
-        "mergePopulatedPADRecords": true,
-        "enableNoteBackdating": true,
-        "enableCovidClearanceCertificate": false,
-        "editPatientDisplayId": false,
-        "enablePatientInsurer": false,
-        "patientPlannedMove": false,
-        "idleTimeout": {
-          "enabled": true,
-          // All values in seconds
-          "timeoutDuration": 600,
-          "warningPromptDuration": 30,
-          "refreshInterval": 150
-        },
-        "fhirNewZealandEthnicity": false,
-        "onlyAllowLabPanels": false,
-        "displayProcedureCodesInDischargeSummary": true,
-        "displayIcd10CodesInDischargeSummary": true,
-        "tableAutoRefresh": {
-          "enabled": false,
-          // In Seconds
-          "interval": 300
-        },
-        "mandatoryVitalEditReason": false,
-        "enableVitalEdit": false
       },
       "templates": {
         "letterhead": {

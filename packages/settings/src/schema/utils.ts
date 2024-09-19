@@ -1,27 +1,18 @@
-import _ from 'lodash';
-import { SettingsSchema, Setting } from './types';
+import { isObject, isUndefined, mapValues, omitBy } from 'lodash';
+import { Setting, SettingsSchema } from '../types';
 
 export const isSetting = (value: Setting | SettingsSchema): value is Setting => {
-  return value && _.isObject(value) && _.has(value, 'type') && _.has(value, 'defaultValue');
+  return value && isObject(value) && 'type' in value && 'defaultValue' in value;
 };
 
-const isSettingsSchema = (value: Setting | SettingsSchema): value is SettingsSchema => {
-  return value && _.isObject(value) && _.has(value, 'properties');
+export const isSettingsSchema = (value: Setting | SettingsSchema): value is SettingsSchema => {
+  return value && isObject(value) && 'properties' in value;
 };
 
-export const extractDefaults = (settings: SettingsSchema): Record<string, any> => {
-  const result = _.mapValues(settings.properties, value => {
-    if (isSetting(value)) {
-      return value.defaultValue;
-    }
+export const extractDefaults = (settings: SettingsSchema) => {
+  const result = mapValues(settings.properties, value =>
+    isSetting(value) ? value.defaultValue : extractDefaults(value),
+  );
 
-    // If it's a SettingsSchema, process recursively
-    if (isSettingsSchema(value)) {
-      return extractDefaults(value as SettingsSchema);
-    }
-
-    return undefined;
-  });
-
-  return _.omitBy(result, _.isUndefined);
+  return omitBy(result, isUndefined);
 };

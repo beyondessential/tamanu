@@ -18,6 +18,7 @@ import { useEncounter } from '../contexts/Encounter';
 import { DateDisplay } from '../components/DateDisplay';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useTranslation } from '../contexts/Translation';
+import { useSettings } from '../contexts/Settings';
 
 const Text = styled(Typography)`
   font-size: 14px;
@@ -98,8 +99,9 @@ export const EditVitalCellForm = ({ vitalLabel, dataPoint, handleClose }) => {
   const queryClient = useQueryClient();
   const { encounter } = useEncounter();
   const { getLocalisation } = useLocalisation();
+  const { getSetting } = useSettings()
   const vitalEditReasons = getLocalisation('vitalEditReasons') || [];
-  const mandatoryVitalEditReason = getLocalisation('features.mandatoryVitalEditReason');
+  const mandatoryVitalEditReason = getSetting('features.mandatoryVitalEditReason');
   const initialValue = dataPoint.value;
   const showDeleteEntryButton = ['', undefined].includes(initialValue) === false;
   const valueName = dataPoint.component.dataElement.id;

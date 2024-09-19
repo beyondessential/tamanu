@@ -16,7 +16,7 @@ export class SyncSession extends Model {
         startedAtTick: { type: DataTypes.BIGINT },
         pullSince: { type: DataTypes.BIGINT },
         pullUntil: { type: DataTypes.BIGINT },
-        error: { type: DataTypes.TEXT },
+        errors: { type: DataTypes.ARRAY(DataTypes.TEXT) },
         debugInfo: { type: DataTypes.JSON },
       },
       { ...options, syncDirection: SYNC_DIRECTIONS.DO_NOT_SYNC },
@@ -28,5 +28,18 @@ export class SyncSession extends Model {
     await session.update({
       debugInfo: { ...session.debugInfo, ...info },
     });
+  }
+
+  async markErrored(error) {
+    const errors = this.errors || [];
+    await this.update({
+      errors: [...errors, error],
+      completedAt: new Date(),
+    });
+  }
+
+  static async markSessionErrored(id, error) {
+    const session = await this.findByPk(id);
+    await session.markErrored(error);
   }
 }

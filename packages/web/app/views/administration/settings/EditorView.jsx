@@ -103,9 +103,9 @@ export const EditorView = memo(
     resetForm,
     isSubmitting,
     dirty,
-    scope,
     handleShowWarningModal,
   }) => {
+    const { scope } = values;
     const currentSettings = values.settings || settingsSnapshot;
     const [category, setCategory] = useState(null);
     const [subCategory, setSubCategory] = useState(null);

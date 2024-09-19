@@ -57,7 +57,8 @@ const tabs = [
     icon: 'fa fa-cog',
     render: props => {
       // Don't show the editor if the scope is facility and no facility is selected
-      const shouldShowEditor = props.scope !== SETTINGS_SCOPES.FACILITY || props.facilityId;
+      const { facilityId, scope } = props.values;
+      const shouldShowEditor = scope !== SETTINGS_SCOPES.FACILITY || facilityId;
       return (
         <TabContainer $backgroundColor={Colors.background}>
           <ScopeSelectorFields {...props} />
@@ -83,12 +84,10 @@ export const SettingsView = () => {
   const queryClient = useQueryClient();
   const api = useApi();
 
-  const [scope, setScope] = useState(SETTINGS_SCOPES.GLOBAL);
-  const [facilityId, setFacilityId] = useState(null);
-
-  const handleSubmit = async ({ settings }) => {
+  const handleSubmit = async ({ settings, scope, facilityId }) => {
     try {
       await validateSettings({ settings, scope });
+      console.log('what', settings, facilityId, scope);
       await api.put('admin/settings', { settings, facilityId, scope });
       notifySuccess('Settings saved');
       queryClient.invalidateQueries(['scopedSettings', scope, facilityId]);
@@ -110,16 +109,9 @@ export const SettingsView = () => {
       title={<TranslatedText stringId="admin.settings.title" fallback="Settings" />}
     >
       <Form
+        initialValues={{ scope: SETTINGS_SCOPES.GLOBAL }}
         onSubmit={handleSubmit}
-        render={formProps => (
-          <SettingsForm
-            {...formProps}
-            scope={scope}
-            setScope={setScope}
-            facilityId={facilityId}
-            setFacilityId={setFacilityId}
-          />
-        )}
+        render={SettingsForm}
         style={{ flex: 1 }}
       />
     </StyledAdminViewContainer>
@@ -214,8 +206,6 @@ const SettingsForm = ({
         isSubmitting={isSubmitting}
         resetForm={handleResetForm}
         dirty={dirty}
-        scope={scope}
-        facilityId={facilityId}
       />
       <WarningModal
         open={warningModalOpen}
