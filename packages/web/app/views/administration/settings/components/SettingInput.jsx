@@ -17,7 +17,8 @@ import { ThemedTooltip } from '../../../../components/Tooltip';
 const Unit = styled.div`
   display: flex;
   align-items: center;
-  padding-left: 5px;
+  margin-top: 14px;
+  margin-left: 8px;
   font-size: 12px;
 `;
 
@@ -35,7 +36,7 @@ const StyledNumberInput = styled(NumberInput)`
 
 const DefaultSettingButton = styled(TextButton)`
   margin-left: 20px;
-  margin-top: 8px;
+  margin-top: 14px;
   font-size: 12px;
   text-decoration: underline;
   text-transform: none;

@@ -98,15 +98,14 @@ export const EditorView = memo(
   ({
     values,
     setValues,
+    setFieldValue,
     submitForm,
-    settingsSnapshot,
     resetForm,
     isSubmitting,
     dirty,
     handleShowWarningModal,
+    scope,
   }) => {
-    const { scope } = values;
-    const currentSettings = values.settings || settingsSnapshot;
     const [category, setCategory] = useState(null);
     const [subCategory, setSubCategory] = useState(null);
 
@@ -152,16 +151,16 @@ export const EditorView = memo(
     };
 
     const handleChangeSetting = (path, value) => {
-      const settingObject = cloneDeep(currentSettings);
+      const settingObject = cloneDeep(values.settings);
       const prefix = category === UNCATEGORISED_KEY ? '' : `${category}.`;
       const updatedSettings = set(settingObject, `${prefix}${path}`, value);
-      setValues({ ...values, settings: updatedSettings });
+      setFieldValue('settings', updatedSettings);
     };
 
     // Get initial value from snapshot, otherwise grab from current formik state once it exists
     const getSettingValue = path => {
       const prefix = category === UNCATEGORISED_KEY ? '' : `${category}.`;
-      return get(currentSettings, `${prefix}${path}`);
+      return get(values.settings, `${prefix}${path}`);
     };
 
     const saveSettings = async event => {
@@ -170,7 +169,7 @@ export const EditorView = memo(
       setValues({ ...values, settings: parsedSettings });
       const success = await submitForm(event);
       if (success) {
-        await resetForm(values);
+        await resetForm({ values });
       }
     };
 
@@ -180,7 +179,14 @@ export const EditorView = memo(
           <CategoryOptions p={2}>
             <Box display="flex" alignItems="center">
               <StyledDynamicSelectField
-                label={<TranslatedText stringId="admin.settings.category" fallback="Category" />}
+                required
+                placeholder=""
+                label={
+                  <TranslatedText
+                    stringId="admin.settings.category.label"
+                    fallback="Select category"
+                  />
+                }
                 value={category}
                 onChange={handleChangeCategory}
                 options={categoryOptions}
@@ -190,10 +196,11 @@ export const EditorView = memo(
                   <StyledDynamicSelectField
                     label={
                       <TranslatedText
-                        stringId="admin.settings.subCategory"
-                        fallback="Sub category"
+                        stringId="admin.settings.subCategory.label"
+                        fallback="Select sub-category"
                       />
                     }
+                    placeholder=""
                     value={subCategory}
                     onChange={handleChangeSubcategory}
                     options={subCategoryOptions}

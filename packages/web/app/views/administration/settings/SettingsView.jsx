@@ -81,10 +81,24 @@ const tabs = [
 ];
 
 export const SettingsView = () => {
-  const queryClient = useQueryClient();
   const api = useApi();
+  const [scope, setScope] = useState(SETTINGS_SCOPES.GLOBAL);
+  const [facilityId, setFacilityId] = useState(null);
 
-  const handleSubmit = async ({ settings, scope, facilityId }) => {
+  const { data: settingsSnapshot = {}, error: settingsFetchError } = useQuery(
+    ['scopedSettings', scope, facilityId],
+    async () => {
+      const data = await api.get('admin/settings', { scope, facilityId });
+      return applyDefaults(data, scope);
+    },
+    {
+      enabled: scope !== SETTINGS_SCOPES.FACILITY || !!facilityId,
+    },
+  );
+
+  const queryClient = useQueryClient();
+
+  const handleSubmit = async ({ settings }) => {
     try {
       await validateSettings({ settings, scope });
       await api.put('admin/settings', { settings, facilityId, scope });
@@ -107,12 +121,25 @@ export const SettingsView = () => {
     <StyledAdminViewContainer
       title={<TranslatedText stringId="admin.settings.title" fallback="Settings" />}
     >
-      <Form
-        initialValues={{ scope: SETTINGS_SCOPES.GLOBAL }}
-        onSubmit={handleSubmit}
-        render={SettingsForm}
-        style={{ flex: 1 }}
-      />
+      {settingsFetchError ? (
+        <ErrorMessage error={settingsFetchError} />
+      ) : (
+        <Form
+          enableReinitialize
+          initialValues={{ scope, facilityId, settings: settingsSnapshot }}
+          onSubmit={handleSubmit}
+          render={props => (
+            <SettingsForm
+              {...props}
+              scope={scope}
+              setScope={setScope}
+              facilityId={facilityId}
+              setFacilityId={setFacilityId}
+            />
+          )}
+          style={{ flex: 1 }}
+        />
+      )}
     </StyledAdminViewContainer>
   );
 };
@@ -125,30 +152,15 @@ const SettingsForm = ({
   resetForm,
   isSubmitting,
   dirty,
+  scope,
+  setScope,
+  facilityId,
+  setFacilityId,
 }) => {
-  const { scope, facilityId } = values;
-  const api = useApi();
   const { ability } = useAuth();
   const [currentTab, setCurrentTab] = useState(SETTING_TABS.EDITOR);
   const [warningModalOpen, setShowWarningModal] = useState(false);
   const [resolveFn, setResolveFn] = useState(null);
-
-  const { data: settingsSnapshot = {}, error: settingsFetchError } = useQuery(
-    ['scopedSettings', scope, facilityId],
-    async () => {
-      const data = await api.get('admin/settings', { scope, facilityId });
-      const withDefaults = applyDefaults(data, scope);
-      if (!values.settings) {
-        await resetForm({
-          values: { ...values, settings: withDefaults },
-        });
-      }
-      return withDefaults;
-    },
-    {
-      enabled: scope !== SETTINGS_SCOPES.FACILITY || !!facilityId,
-    },
-  );
 
   const canViewJSONEditor = ability.can('write', 'Setting');
   const filteredTabs = useMemo(
@@ -177,20 +189,18 @@ const SettingsForm = ({
       const dismissChanges = await handleShowWarningModal();
       if (!dismissChanges) return;
     }
-    await resetForm({
-      values: { scope: newScope, facilityId: null },
-    });
+    setScope(newScope);
+    setFacilityId(null);
   };
 
-  const handleResetForm = async initialValues => {
-    await resetForm({
-      values: initialValues || { scope, facilityId },
-    });
+  const handleFacilityChange = async e => {
+    const newFacilityId = e.target.value;
+    if (newFacilityId !== facilityId && dirty) {
+      const dismissChanges = await handleShowWarningModal();
+      if (!dismissChanges) return;
+    }
+    setFacilityId(newFacilityId);
   };
-
-  if (settingsFetchError) {
-    return <ErrorMessage title="Settings fetch error" errorMessage={settingsFetchError.message} />;
-  }
 
   return (
     <>
@@ -199,7 +209,7 @@ const SettingsForm = ({
         currentTab={currentTab}
         onTabSelect={handleChangeTab}
         scrollable={false}
-        settingsSnapshot={settingsSnapshot}
+        settingsSnapshot={values.settings}
         setValues={setValues}
         setFieldValue={setFieldValue}
         onChangeScope={handleChangeScope}
@@ -207,8 +217,12 @@ const SettingsForm = ({
         values={values}
         submitForm={submitForm}
         isSubmitting={isSubmitting}
-        resetForm={handleResetForm}
+        resetForm={resetForm}
         dirty={dirty}
+        scope={scope}
+        onScopeChange={handleChangeScope}
+        facilityId={facilityId}
+        onFacilityChange={handleFacilityChange}
       />
       <WarningModal
         open={warningModalOpen}

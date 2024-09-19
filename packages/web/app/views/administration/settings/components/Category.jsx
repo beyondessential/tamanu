@@ -56,7 +56,7 @@ const SettingName = memo(({ name, path, description, disabled }) => (
       width="fit-content"
       mr="auto"
       ml={1}
-      mt={1}
+      mt="14px"
     >
       {getName(name, path)}
       {disabled && <StyledLockIcon />}

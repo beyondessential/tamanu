@@ -1,22 +1,20 @@
 import React from 'react';
 import styled from 'styled-components';
-import { useField } from 'formik';
 import { useQuery } from '@tanstack/react-query';
 
 import { SETTINGS_SCOPES } from '@tamanu/constants';
 
 import { useApi } from '../../../../api';
-import { Field, SelectField } from '../../../../components';
+import { DynamicSelectField, SelectInput } from '../../../../components';
 import { TranslatedText } from '../../../../components/Translation';
 
-const ScopeSelectorField = styled(SelectField)`
+const ScopeSelectInput = styled(SelectInput)`
   width: 300px;
-  margin-right: 5px;
   margin-bottom: 10px;
-  div:first-child {
-    overflow: visible;
-    margin-bottom: 0;
-  }
+`;
+
+const ScopeDynamicSelectInput = styled(DynamicSelectField)`
+  width: 300px;
 `;
 
 const SCOPE_OPTIONS = [
@@ -34,48 +32,46 @@ const SCOPE_OPTIONS = [
   },
 ];
 
-export const ScopeSelectorFields = React.memo(({ onChangeScope, onChangeFacility }) => {
-  const api = useApi();
-  const { value: scopeValue } = useField('scope')[0];
+export const ScopeSelectorFields = React.memo(
+  ({ scope, onScopeChange, facilityId, onFacilityChange }) => {
+    const api = useApi();
+    const { data: facilitiesArray = [], error } = useQuery(
+      ['facilitiesList'],
+      () => api.get('admin/facilities'),
+      {
+        enabled: scope === SETTINGS_SCOPES.FACILITY,
+      },
+    );
 
-  const { data: facilitiesArray = [], error } = useQuery(['facilitiesList'], () =>
-    api.get('admin/facilities'),
-  );
+    const facilityOptions = facilitiesArray.map(facility => ({
+      label: facility.name,
+      value: facility.id,
+    }));
 
-  const facilityOptions = facilitiesArray.map(facility => ({
-    label: facility.name,
-    value: facility.id,
-  }));
-
-  const handleChangeScope = e => {
-    console.log('calling');
-    if (onChangeScope) {
-      onChangeScope(e);
-    }
-  };
-
-  return (
-    <>
-      <Field
-        name="scope"
-        label={<TranslatedText stringId="admin.settings.scope.label" fallback="Scope" />}
-        component={ScopeSelectorField}
-        options={SCOPE_OPTIONS}
-        onChange={handleChangeScope}
-        isClearable={false}
-        error={!!error}
-      />
-      {scopeValue === SETTINGS_SCOPES.FACILITY && (
-        <Field
-          name="facilityId"
-          options={facilityOptions}
-          label={<TranslatedText stringId="general.facility.label" fallback="Facility" />}
+    return (
+      <>
+        <ScopeSelectInput
+          name="scope"
+          label={<TranslatedText stringId="admin.settings.scope.label" fallback="Scope" />}
+          options={SCOPE_OPTIONS}
+          value={scope}
+          onChange={onScopeChange}
           isClearable={false}
-          onChange={onChangeFacility}
-          component={ScopeSelectorField}
           error={!!error}
         />
-      )}
-    </>
-  );
-});
+        {scope === SETTINGS_SCOPES.FACILITY && (
+          <ScopeDynamicSelectInput
+            name="facilityId"
+            options={facilityOptions}
+            label={<TranslatedText stringId="general.facility.label" fallback="Facility" />}
+            value={facilityId}
+            onChange={onFacilityChange}
+            required
+            isClearable={false}
+            error={!!error}
+          />
+        )}
+      </>
+    );
+  },
+);
