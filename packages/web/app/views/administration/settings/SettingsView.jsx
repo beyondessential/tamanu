@@ -126,11 +126,9 @@ const SettingsForm = ({
   resetForm,
   isSubmitting,
   dirty,
-  scope,
   setScope,
-  facilityId,
-  setFacilityId,
 }) => {
+  const { scope, facilityId } = values;
   const api = useApi();
   const { ability } = useAuth();
   const [currentTab, setCurrentTab] = useState(SETTING_TABS.EDITOR);
@@ -176,12 +174,12 @@ const SettingsForm = ({
 
   const handleResetForm = async initialValues => {
     await resetForm({
-      values: initialValues,
+      values: initialValues || { scope },
     });
   };
 
   const handleChangeFacilityId = e => {
-    setFacilityId(e.target.value);
+    setFieldValue(e.target.value);
   };
 
   if (settingsFetchError) {

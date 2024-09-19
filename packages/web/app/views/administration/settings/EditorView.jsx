@@ -202,7 +202,7 @@ export const EditorView = memo(
               )}
             </Box>
             <div>
-              <OutlinedButton onClick={resetForm} disabled={!dirty}>
+              <OutlinedButton onClick={() => resetForm()} disabled={!dirty}>
                 <TranslatedText
                   stringId="admin.settings.action.clearChanges"
                   fallback="Clear changes"
