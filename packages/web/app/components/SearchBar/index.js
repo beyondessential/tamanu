@@ -1,4 +1,5 @@
 export * from './AllPatientsSearchBar';
+export * from './AppointmentsSearchBar';
 export * from './CovidPatientsSearchBar';
 export * from './CustomisableSearchBar';
 export * from './ImagingRequestsSearchBar';

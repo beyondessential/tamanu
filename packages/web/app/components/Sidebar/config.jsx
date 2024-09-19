@@ -61,11 +61,30 @@ export const FACILITY_MENU_ITEMS = [
     children: [
       {
         label: (
+          <TranslatedText
+            stringId="sidebar.scheduling.upcomingAppointments"
+            fallback="Upcoming appointments"
+          />
+        ),
+        path: '/appointments/all',
+        key: 'schedulingAppointments',
+        ability: { action: 'read' },
+      },
+      {
+        label: (
           <TranslatedText stringId="sidebar.scheduling.calendar" fallback="Appointments calendar" />
         ),
         path: '/appointments/calendar',
         key: 'schedulingCalendar',
         ability: { action: 'read' },
+      },
+      {
+        label: (
+          <TranslatedText stringId="sidebar.scheduling.newAppointment" fallback="New appointment" />
+        ),
+        path: '/appointments/new',
+        key: 'schedulingNew',
+        ability: { action: 'create' },
       },
     ],
   },
