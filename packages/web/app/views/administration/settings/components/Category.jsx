@@ -1,5 +1,5 @@
-import React from 'react';
-import { Heading4, BodyText } from '../../../../components';
+import React, { memo, useMemo } from 'react';
+import { Heading4, BodyText, LargeBodyText } from '../../../../components';
 import { Colors } from '../../../../constants';
 import { ThemedTooltip } from '../../../../components/Tooltip';
 import LockIcon from '@material-ui/icons/Lock';
@@ -26,34 +26,29 @@ const CategoryWrapper = styled.div`
 const SettingLine = styled(BodyText)`
   display: flex;
   justify-content: flex-end;
+  align-items: flex-start;
   margin-bottom: 10px;
   width: 650px;
 `;
 
 const getName = (name, path) => name || capitalize(startCase(path.split('.').pop()));
 
-const CategoryTitle = ({ name, path, description }) => {
-  const categoryTitle = getName(name, path);
+const CategoryTitle = memo(({ name, path, description }) => {
+  const categoryTitle = useMemo(() => getName(name, path), [name, path]);
   if (!categoryTitle) return null;
 
-  const titleText = (
-    <Heading4 width="fit-content" mt={0} mb={2}>
-      {categoryTitle}
-    </Heading4>
-  );
-
-  return description ? (
+  return (
     <ThemedTooltip arrow placement="top" title={description}>
-      {titleText}
+      <Heading4 width="fit-content" mt={0} mb={2}>
+        {categoryTitle}
+      </Heading4>
     </ThemedTooltip>
-  ) : (
-    titleText
   );
-};
+});
 
-const SettingName = ({ name, path, description, disabled }) => {
-  const nameText = (
-    <BodyText
+const SettingName = memo(({ name, path, description, disabled }) => (
+  <ThemedTooltip arrow placement="top" title={description}>
+    <LargeBodyText
       color={disabled && 'textTertiary'}
       display="flex"
       alignItems="center"
@@ -64,17 +59,9 @@ const SettingName = ({ name, path, description, disabled }) => {
     >
       {getName(name, path)}
       {disabled && <StyledLockIcon />}
-    </BodyText>
-  );
-
-  return description ? (
-    <ThemedTooltip arrow placement="top" title={description}>
-      {nameText}
-    </ThemedTooltip>
-  ) : (
-    nameText
-  );
-};
+    </LargeBodyText>
+  </ThemedTooltip>
+));
 
 const sortProperties = ([a0, a1], [b0, b1]) => {
   const aName = a1.name || a0;

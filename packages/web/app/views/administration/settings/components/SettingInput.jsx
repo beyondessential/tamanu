@@ -33,8 +33,10 @@ const StyledNumberInput = styled(NumberInput)`
 
 const DefaultSettingButton = styled(TextButton)`
   margin-left: 20px;
+  margin-top: 8px;
   font-size: 12px;
   text-decoration: underline;
+  text-transform: none;
   color: ${Colors.darkestText};
   font-weight: 400;
   &:hover {
