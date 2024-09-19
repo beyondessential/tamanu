@@ -37,7 +37,6 @@ const SCOPE_OPTIONS = [
 export const ScopeSelectorFields = React.memo(({ onChangeScope, onChangeFacility }) => {
   const api = useApi();
   const { value: scopeValue } = useField('scope')[0];
-  const { setValue: setFacilityId } = useField('facilityId')[2];
 
   const { data: facilitiesArray = [], error } = useQuery(['facilitiesList'], () =>
     api.get('admin/facilities'),
@@ -48,10 +47,10 @@ export const ScopeSelectorFields = React.memo(({ onChangeScope, onChangeFacility
     value: facility.id,
   }));
 
-  const handleChangeScope = value => {
-    setFacilityId(null);
+  const handleChangeScope = e => {
+    console.log('calling');
     if (onChangeScope) {
-      onChangeScope(value);
+      onChangeScope(e);
     }
   };
 

@@ -125,7 +125,6 @@ const SettingsForm = ({
   resetForm,
   isSubmitting,
   dirty,
-  setScope,
 }) => {
   const { scope, facilityId } = values;
   const api = useApi();
@@ -138,7 +137,17 @@ const SettingsForm = ({
     ['scopedSettings', scope, facilityId],
     () => api.get('admin/settings', { scope, facilityId }),
     {
-      select: data => applyDefaults(data, scope),
+      enabled: scope !== SETTINGS_SCOPES.FACILITY || !!facilityId,
+      select: async data => {
+        const newValues = applyDefaults(data, scope);
+        if (!values.settings) {
+          // Initialise form with settings
+          await resetForm({
+            values: { ...values, settings: newValues },
+          });
+        }
+        return newValues;
+      },
     },
   );
 
@@ -168,19 +177,16 @@ const SettingsForm = ({
     if (newScope !== scope && dirty) {
       const dismissChanges = await handleShowWarningModal();
       if (!dismissChanges) return;
-      await resetForm();
     }
-    setScope(newScope);
+    await resetForm({
+      values: { scope: newScope, facilityId: null },
+    });
   };
 
   const handleResetForm = async initialValues => {
     await resetForm({
-      values: initialValues || { scope },
+      values: initialValues || { scope, facilityId },
     });
-  };
-
-  const handleChangeFacilityId = e => {
-    setFieldValue(e.target.value);
   };
 
   if (settingsFetchError) {
@@ -197,8 +203,7 @@ const SettingsForm = ({
         settingsSnapshot={settingsSnapshot}
         setValues={setValues}
         setFieldValue={setFieldValue}
-        handleChangeScope={handleChangeScope}
-        handleChangeFacilityId={handleChangeFacilityId}
+        onChangeScope={handleChangeScope}
         handleShowWarningModal={handleShowWarningModal}
         values={values}
         submitForm={submitForm}
