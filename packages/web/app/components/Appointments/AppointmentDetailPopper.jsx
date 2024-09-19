@@ -103,9 +103,9 @@ const AppointDetailsDisplay = ({ appointment }) => {
   );
 };
 
-export const AppointmentDetailPopper = ({ open, setOpen, anchorEl, appointment }) => {
+export const AppointmentDetailPopper = ({ open, handleClose, anchorEl, appointment }) => {
   return (
-    <ClickAwayListener>
+    <ClickAwayListener onClickAway={handleClose}>
       <StyledPopper open={open} anchorEl={anchorEl} placement="bottom-start">
         <StyledPaper elevation={0}>
           <PatientDetailsDisplay patient={appointment.patient} />

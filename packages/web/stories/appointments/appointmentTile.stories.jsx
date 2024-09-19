@@ -16,6 +16,7 @@ const patientId = chance.guid();
 const partialAppointment = {
   id: chance.guid(),
   startTime: '2024-09-05 13:57:00',
+  endTime: '2024-09-05 14:57:00',
   patientId,
   patient: {
     id: patientId,

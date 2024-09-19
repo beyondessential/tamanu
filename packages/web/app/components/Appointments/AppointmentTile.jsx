@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useState } from 'react';
 import styled, { css } from 'styled-components';
 import { parseISO } from 'date-fns';
 
@@ -9,6 +9,7 @@ import { APPOINTMENT_STATUS_COLORS } from './appointmentStatusIndicators';
 import { AppointmentStatusIcon as StatusIcon, OvernightIcon } from '../Icons';
 import { formatTime } from '../DateDisplay';
 import { areSameDay } from '@tamanu/shared/utils/dateTime';
+import { AppointmentDetailPopper } from '.';
 
 const Wrapper = styled.div`
   ${({ $color = Colors.blue, $selected }) =>
@@ -74,15 +75,30 @@ const getPatientFullName = ({ firstName, middleName, lastName }) => {
 
 export const AppointmentTile = ({ appointment, selected = false, ...props }) => {
   const { patient, startTime, endTime, status: appointmentStatus } = appointment;
-  console.log(appointment);
+  const ref = useRef();
+  const [open, setOpen] = useState(false);
 
-  const isOvernight = !areSameDay(startTime, endTime);
+  const handleClick = () => {
+    setOpen(prevOpen => !prevOpen);
+  };
+
+  const handleClose = event => {
+    if (ref.current && ref.current.contains(event.target)) {
+      return;
+    }
+
+    setOpen(false);
+  };
+
+  const isOvernight = !areSameDay(parseISO(startTime), parseISO(endTime));
 
   return (
     <Wrapper
       $color={APPOINTMENT_STATUS_COLORS[appointmentStatus]}
       $selected={selected}
       tabIndex={0}
+      ref={ref}
+      onClick={handleClick}
       {...props}
     >
       <Label $strikethrough={appointmentStatus === APPOINTMENT_STATUSES.NO_SHOW}>
@@ -93,6 +109,12 @@ export const AppointmentTile = ({ appointment, selected = false, ...props }) => 
         {isOvernight && <OvernightIcon width={10} height={10} />}
         <StatusIcon appointmentStatus={appointmentStatus} width={10} height={10} />
       </IconGroup>
+      <AppointmentDetailPopper
+        open={open}
+        handleClose={handleClose}
+        anchorEl={ref.current}
+        appointment={appointment}
+      />
     </Wrapper>
   );
 };
