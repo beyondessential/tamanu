@@ -11,7 +11,7 @@ export const KEYS_EXPOSED_TO_FRONT_END = [
   'imagingPriorities',
   'insurer',
   'customisations',
-  'printMeasures'
+  'printMeasures',
   'invoice',
   'templates',
   'triageCategories',
