@@ -39,14 +39,11 @@ function getEndDate(dateRange, fromDate) {
 }
 
 export const getReportQueryReplacements = async (
-  { models },
   paramDefinitions,
+  facilityId,
   params = {},
   dateRange = REPORT_DEFAULT_DATE_RANGES.TWENTY_FOUR_HOURS,
 ) => {
-  const { LocalSystemFact } = models;
-  const currentFacilityId = (await LocalSystemFact.get('facilityId')) || null;
-
   let toDate;
   if (params.toDate) {
     toDate = new Date(params.toDate);
@@ -59,7 +56,7 @@ export const getReportQueryReplacements = async (
   return {
     ...paramDefaults,
     ...params,
-    currentFacilityId,
+    currentFacilityId: facilityId,
     fromDate,
     toDate,
   };

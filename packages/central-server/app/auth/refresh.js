@@ -9,7 +9,7 @@ import { BadAuthenticationError } from '@tamanu/shared/errors';
 import {
   getRandomBase64String,
   getRandomU32,
-  getToken,
+  buildToken,
   isInternalClient,
   verifyToken,
 } from './utils';
@@ -73,7 +73,7 @@ export const refresh = ({ secret, refreshSecret }) =>
 
     // issue new access token
     const accessTokenJwtId = getRandomU32();
-    const token = await getToken(
+    const token = await buildToken(
       {
         userId: user.id,
         deviceId,
@@ -92,7 +92,7 @@ export const refresh = ({ secret, refreshSecret }) =>
     const refreshTokenJwtId = getRandomU32();
     const hashedRefreshId = await bcrypt.hash(newRefreshId, saltRounds);
 
-    const newRefreshToken = await getToken(
+    const newRefreshToken = await buildToken(
       {
         userId: user.id,
         refreshId: newRefreshId,
