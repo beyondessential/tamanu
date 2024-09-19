@@ -13,7 +13,6 @@ import { useSettings } from '../../../contexts/Settings';
 import { useAdministeredVaccines, usePatientAdditionalDataQuery } from '../../../api/queries';
 
 import { PDFLoader, printPDF } from '../PDFLoader';
-import { useSettings } from '../../../contexts/Settings';
 
 export const CovidVaccineCertificateModal = React.memo(({ open, onClose, patient }) => {
   const api = useApi();

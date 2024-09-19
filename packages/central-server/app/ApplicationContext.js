@@ -10,7 +10,6 @@ import { ReadSettings } from '@tamanu/settings'
 
 import { isSyncTriggerDisabled } from '@tamanu/shared/dataMigrations';
 import { log, initBugsnag } from '@tamanu/shared/services/logging';
-import { ReadSettings } from '@tamanu/settings/reader';
 
 /**
  * @typedef {import('./services/EmailService').EmailService} EmailService
