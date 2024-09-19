@@ -70,7 +70,9 @@ export const FACILITY_MENU_ITEMS = [
       {
         key: 'locationBookings',
         path: '/appointments/locations',
-        label: <TranslatedText stringId="sidebar.scheduling.locations" fallback="Old calendar" />,
+        label: (
+          <TranslatedText stringId="sidebar.scheduling.locations" fallback="Location bookings" />
+        ),
         ability: { action: 'read' },
       },
     ],
