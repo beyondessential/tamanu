@@ -1,4 +1,5 @@
 import React from 'react';
+
 import { ConfirmModal } from '../../../../components/ConfirmModal';
 import { TranslatedText } from '../../../../components';
 

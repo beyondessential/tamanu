@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { useQuery } from '@tanstack/react-query';
+
 import { SETTINGS_SCOPES } from '@tamanu/constants';
 
 import { useApi } from '../../../../api';

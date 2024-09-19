@@ -1,15 +1,16 @@
 import React, { memo, useMemo } from 'react';
+import styled from 'styled-components';
+import { Box } from '@material-ui/core';
+import LockIcon from '@material-ui/icons/Lock';
+import { capitalize, startCase } from 'lodash';
+
 import { Heading4, BodyText, LargeBodyText } from '../../../../components';
 import { Colors } from '../../../../constants';
 import { ThemedTooltip } from '../../../../components/Tooltip';
-import LockIcon from '@material-ui/icons/Lock';
-import { Box } from '@material-ui/core';
 import { SettingInput } from './SettingInput';
-import styled from 'styled-components';
-import { capitalize, startCase } from 'lodash';
+import { useAuth } from '../../../../contexts/Auth';
 
 import { isSetting } from '@tamanu/settings';
-import { useAuth } from '../../../../contexts/Auth';
 
 const StyledLockIcon = styled(LockIcon)`
   font-size: 18px;

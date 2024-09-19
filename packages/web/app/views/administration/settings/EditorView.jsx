@@ -1,12 +1,12 @@
 import React, { memo, useEffect, useMemo, useState } from 'react';
 import { capitalize, omitBy, pickBy, startCase, set, get, cloneDeep } from 'lodash';
 import styled from 'styled-components';
+import { Box, Divider } from '@material-ui/core';
 
 import { getScopedSchema, isSetting } from '@tamanu/settings';
 
 import { TranslatedText, Button, OutlinedButton, DynamicSelectField } from '../../../components';
 import { Colors } from '../../../constants';
-import { Box, Divider } from '@material-ui/core';
 import { Category } from './components/Category';
 
 const SettingsWrapper = styled.div`

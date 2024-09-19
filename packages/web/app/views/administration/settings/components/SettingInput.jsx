@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
+import { isString, isUndefined } from 'lodash';
 import styled from 'styled-components';
 import { Switch } from '@material-ui/core';
+
 import {
   TextInput,
   NumberInput,
@@ -9,7 +11,6 @@ import {
   TranslatedText,
 } from '../../../../components';
 import { JSONEditor } from './JSONEditor';
-import { isString, isUndefined } from 'lodash';
 import { Colors } from '../../../../constants';
 
 const Unit = styled.div`
