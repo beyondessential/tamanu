@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import * as yup from 'yup';
-import { has, omit, sortBy } from 'lodash';
+import { omit, sortBy } from 'lodash';
 import React, { useCallback, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { Box, IconButton, Tooltip } from '@material-ui/core';
