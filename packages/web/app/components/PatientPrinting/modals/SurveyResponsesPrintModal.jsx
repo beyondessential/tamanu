@@ -1,11 +1,7 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useApi } from '../../../api';
-import {
-  useEncounterData,
-  useLabRequestNotes,
-  usePatientAdditionalDataQuery,
-} from '../../../api/queries';
+import { usePatientAdditionalDataQuery } from '../../../api/queries';
 import { useCertificate } from '../../../utils/useCertificate';
 
 import { Modal, TranslatedText } from '../..';
@@ -70,7 +66,11 @@ export const SurveyResponsesPrintModal = React.memo(
         <PDFLoader isLoading={isLoading} id="survey-responses-printout">
           <SurveyResponsesPrintout
             patientData={{ ...patient, additionalData, village }}
-            surveyResponse={{ ...surveyResponseData, user, programName: surveyResponse?.programName }}
+            surveyResponse={{
+              ...surveyResponseData,
+              user,
+              programName: surveyResponse?.programName,
+            }}
             certificateData={certificateData}
             getLocalisation={getLocalisation}
             getTranslation={getTranslation}

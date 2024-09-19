@@ -88,9 +88,9 @@ const ResultBox = ({ resultText, resultName }) => (
 );
 
 const ResponseColumn = ({ row, showBoldBorder }) => {
-  const { id, name, answer, type } = row;
+  const { name, answer, type } = row;
   return (
-    <View style={pageStyles.item} key={id}>
+    <View style={pageStyles.item}>
       <Text style={pageStyles.itemText}>{name}</Text>
       <View style={pageStyles.answerContainer}>
         <Text style={[pageStyles.itemText, pageStyles.boldText]}>
@@ -124,6 +124,7 @@ const ColumnsContainer = ({ answerRows, itemsPerColumn, hasResult }) => {
         {firstAnswerRows.map((row, index) =>
           index === firstAnswerRows.length - 1 ? null : (
             <ResponseColumn
+              key={row.id}
               row={row}
               showBoldBorder={row.screenIndex !== firstAnswerRows[index + 1]?.screenIndex}
             />
@@ -135,6 +136,7 @@ const ColumnsContainer = ({ answerRows, itemsPerColumn, hasResult }) => {
         {secondAnswerRows.map((row, index) =>
           index === secondAnswerRows.length - 1 ? null : (
             <ResponseColumn
+              key={row.id}
               row={row}
               showBoldBorder={row.screenIndex !== secondAnswerRows[index + 1]?.screenIndex}
             />
@@ -206,6 +208,7 @@ const SurveyResponsesPrintoutComponent = ({
         />
         {Array.from({ length: restColumnsPages }).map((_, index) => (
           <ColumnsContainer
+            key={index}
             answerRows={restAnswerRows.slice(
               index * (ITEMS_PER_COLUMN * 2),
               (index + 1) * (ITEMS_PER_COLUMN * 2) + 1,

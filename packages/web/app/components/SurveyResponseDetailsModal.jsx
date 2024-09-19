@@ -1,12 +1,10 @@
 import React, { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
 
 import { Modal } from './Modal';
 import { DateDisplay } from './DateDisplay';
 import { Table } from './Table';
 import { SurveyResultBadge } from './SurveyResultBadge';
 import { ViewPhotoLink } from './ViewPhotoLink';
-import { useApi } from '../api';
 import { Button } from './Button';
 import { TranslatedText } from './Translation/TranslatedText';
 import { useSurveyResponse } from '../api/queries/useSurveyResponse';
