@@ -50,23 +50,6 @@ const recursiveJsonParse = obj => {
   }, {});
 };
 
-const getSubCategoryOptions = (schema, category) => {
-  const categorySchema = schema.properties[category];
-  if (!categorySchema) return null;
-  const subCategories = omitBy(categorySchema.properties, isSetting);
-  return Object.keys(subCategories).length > 1
-    ? getCategoryOptions({ properties: subCategories })
-    : null;
-};
-
-const getCategoryOptions = schema =>
-  Object.entries(schema.properties)
-    .map(([key, value]) => ({
-      value: key,
-      label: formatSettingName(value.name, key),
-    }))
-    .sort((a, b) => a.label.localeCompare(b.label));
-
 const prepareSchema = scope => {
   const schema = getScopedSchema(scope);
   const uncategorised = pickBy(schema.properties, isSetting);
@@ -88,13 +71,33 @@ const getSchemaForCategory = (schema, category, subCategory) => {
   if (!categorySchema) return null;
   if (subCategory) {
     // Pass down highRisk from parent category to now top level subcategory
-    const { highRisk } = categorySchema;
+
     const subCategorySchema = categorySchema.properties[subCategory];
-    subCategorySchema.highRisk = highRisk || subCategorySchema.highRisk;
-    return subCategorySchema;
+    const isHighRisk = categorySchema.highRisk || subCategorySchema.highRisk;
+    return {
+      ...subCategorySchema,
+      highRisk: isHighRisk,
+    };
   }
   return categorySchema;
 };
+
+const getSubCategoryOptions = (schema, category) => {
+  const categorySchema = schema.properties[category];
+  if (!categorySchema) return null;
+  const subCategories = omitBy(categorySchema.properties, isSetting);
+  return Object.keys(subCategories).length > 1
+    ? getCategoryOptions({ properties: subCategories })
+    : null;
+};
+
+const getCategoryOptions = schema =>
+  Object.entries(schema.properties)
+    .map(([key, value]) => ({
+      value: key,
+      label: formatSettingName(value.name, key),
+    }))
+    .sort((a, b) => a.label.localeCompare(b.label));
 
 export const EditorView = memo(
   ({

@@ -47,7 +47,7 @@ const StyledTabDisplay = styled(TabDisplay)`
 const TabContainer = styled.div`
   height: 100%;
   padding: 20px;
-  background-color: ${({ $backgroundColor = Colors.white }) => $backgroundColor};
+  background-color: ${Colors.background};
 `;
 
 const tabs = [
@@ -58,9 +58,9 @@ const tabs = [
     render: props => {
       // Don't show the editor if the scope is facility and no facility is selected
       const { facilityId, scope } = props.values;
-      const shouldShowEditor = scope !== SETTINGS_SCOPES.FACILITY || facilityId;
+      const shouldShowEditor = scope !== SETTINGS_SCOPES.FACILITY || !!facilityId;
       return (
-        <TabContainer $backgroundColor={Colors.background}>
+        <TabContainer>
           <ScopeSelectorFields {...props} />
           {shouldShowEditor && <EditorView {...props} />}
         </TabContainer>
@@ -72,7 +72,7 @@ const tabs = [
     key: SETTING_TABS.JSON,
     icon: 'fa fa-code',
     render: props => (
-      <TabContainer $backgroundColor={Colors.background}>
+      <TabContainer>
         <ScopeSelectorFields {...props} />
         <JSONEditorView {...props} />
       </TabContainer>
