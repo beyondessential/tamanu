@@ -25,7 +25,7 @@ const StyledTopBar = styled.div`
 
 const StyledButtonRow = styled(ButtonRow)`
   margin: 0;
-  width: intial;
+  width: initial;
 `;
 
 const DefaultSettingsButton = styled(TextButton)`
