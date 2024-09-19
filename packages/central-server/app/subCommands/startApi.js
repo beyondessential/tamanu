@@ -8,8 +8,6 @@ import { createApp } from '../createApp';
 import { ApplicationContext } from '../ApplicationContext';
 import { version } from '../serverInfo';
 
-const { port } = config;
-
 export const startApi = async ({ skipMigrationCheck }) => {
   log.info(`Starting central server version ${version}`);
 
@@ -43,6 +41,8 @@ export const startApi = async ({ skipMigrationCheck }) => {
     );
   }
 
+  let { port } = config;
+  if (+process.env.PORT) { port = +process.env.PORT; }
   server.listen(port, () => {
     log.info(`Server is running on port ${port}!`);
   });
