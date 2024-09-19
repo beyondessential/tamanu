@@ -65,7 +65,7 @@ const tabs = [
     ),
   },
   {
-    label: <TranslatedText stringId="admin.settings.tab.json.title" fallback="JSON editor" />,
+    label: <TranslatedText stringId="admin.settings.tab.jsonEditor.title" fallback="JSON editor" />,
     key: SETTING_TABS.JSON,
     icon: 'fa fa-code',
     render: props => (
@@ -168,9 +168,9 @@ const SettingsForm = ({
     setScope(newScope);
   };
 
-  const handleResetForm = async () => {
+  const handleResetForm = async initialValues => {
     await resetForm({
-      values,
+      values: initialValues,
     });
   };
 

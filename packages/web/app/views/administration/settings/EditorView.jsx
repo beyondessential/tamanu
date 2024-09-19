@@ -170,7 +170,7 @@ export const EditorView = memo(
       setValues({ ...values, settings: parsedSettings });
       const success = await submitForm(event);
       if (success) {
-        await resetForm();
+        await resetForm(values);
       }
     };
 

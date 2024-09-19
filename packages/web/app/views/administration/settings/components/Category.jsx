@@ -127,10 +127,8 @@ export const Category = ({ schema, path = '', getSettingValue, handleChangeSetti
             <Category
               key={newPath}
               path={newPath}
-              schema={
-                // If the category is high risk, pass that down to the subcategory
-                schema.highRisk ? { ...propertySchema, highRisk: schema.highRisk } : propertySchema
-              }
+              // Pass down highRisk from parent category to now top level subcategory
+              schema={{ ...propertySchema, highRisk: schema.highRisk || highRisk }}
               getSettingValue={getSettingValue}
               handleChangeSetting={handleChangeSetting}
             />
