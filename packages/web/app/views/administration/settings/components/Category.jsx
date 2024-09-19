@@ -1,16 +1,16 @@
-import React, { memo, useMemo } from 'react';
+import React, { memo } from 'react';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
 import LockIcon from '@material-ui/icons/Lock';
-import { capitalize, startCase } from 'lodash';
+
+import { isSetting } from '@tamanu/settings';
 
 import { Heading4, BodyText, LargeBodyText } from '../../../../components';
 import { Colors } from '../../../../constants';
 import { ThemedTooltip } from '../../../../components/Tooltip';
 import { SettingInput } from './SettingInput';
 import { useAuth } from '../../../../contexts/Auth';
-
-import { isSetting } from '@tamanu/settings';
+import { formatSettingName } from '../EditorView';
 
 const StyledLockIcon = styled(LockIcon)`
   font-size: 18px;
@@ -41,12 +41,9 @@ const SettingNameText = styled(LargeBodyText)`
   align-items: center;
 `;
 
-const getName = (name, path) => name || capitalize(startCase(path.split('.').pop()));
-
 const CategoryTitle = memo(({ name, path, description }) => {
-  const categoryTitle = useMemo(() => getName(name, path), [name, path]);
+  const categoryTitle = formatSettingName(name, path.split('.').pop());
   if (!categoryTitle) return null;
-
   return (
     <ThemedTooltip disableHoverListener={!description} arrow placement="top" title={description}>
       <Heading4 width="fit-content" mt={0} mb={2}>
@@ -59,7 +56,7 @@ const CategoryTitle = memo(({ name, path, description }) => {
 const SettingName = memo(({ name, path, description, disabled }) => (
   <ThemedTooltip disableHoverListener={!description} arrow placement="top" title={description}>
     <SettingNameText color={disabled && 'textTertiary'}>
-      {getName(name, path)}
+      {formatSettingName(name, path.split('.').pop())}
       {disabled && <StyledLockIcon />}
     </SettingNameText>
   </ThemedTooltip>

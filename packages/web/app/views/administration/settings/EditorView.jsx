@@ -35,6 +35,8 @@ const CategoriesWrapper = styled.div`
 
 const UNCATEGORISED_KEY = 'uncategorised';
 
+export const formatSettingName = (name, path) => name || capitalize(startCase(path));
+
 const recursiveJsonParse = obj => {
   if (typeof obj !== 'object') return obj;
   if (Array.isArray(obj)) return obj.map(recursiveJsonParse);
@@ -61,7 +63,7 @@ const getCategoryOptions = schema =>
   Object.entries(schema.properties)
     .map(([key, value]) => ({
       value: key,
-      label: value.name || capitalize(startCase(key)),
+      label: formatSettingName(value.name, key),
     }))
     .sort((a, b) => a.label.localeCompare(b.label));
 
