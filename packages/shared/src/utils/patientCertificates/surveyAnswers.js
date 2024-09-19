@@ -2,6 +2,8 @@ const shouldShow = component => {
   switch (component.dataElement.type) {
     case 'Instruction':
       return false;
+    case 'SurveyLink':
+      return false;
     default:
       return true;
   }

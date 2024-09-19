@@ -87,15 +87,20 @@ const ResultBox = ({ resultText, resultName }) => (
   </View>
 );
 
-const ResponseColumn = ({ id, name, answer, showBoldBorder }) => (
-  <View style={pageStyles.item} key={id}>
-    <Text style={pageStyles.itemText}>{name}</Text>
-    <View style={pageStyles.answerContainer}>
-      <Text style={[pageStyles.itemText, pageStyles.boldText]}>{answer}</Text>
-      {showBoldBorder && <View style={pageStyles.boldDivider} />}
+const ResponseColumn = ({ row, showBoldBorder }) => {
+  const { id, name, answer, type } = row;
+  return (
+    <View style={pageStyles.item} key={id}>
+      <Text style={pageStyles.itemText}>{name}</Text>
+      <View style={pageStyles.answerContainer}>
+        <Text style={[pageStyles.itemText, pageStyles.boldText]}>
+          {type.toLowerCase() === 'photo' ? 'Image file - Refer to Tamanu to view' : answer}
+        </Text>
+        {showBoldBorder && <View style={pageStyles.boldDivider} />}
+      </View>
     </View>
-  </View>
-);
+  );
+};
 
 const ColumnsContainer = ({ answerRows, itemsPerColumn, hasResult }) => {
   let columnHeight;
@@ -107,7 +112,7 @@ const ColumnsContainer = ({ answerRows, itemsPerColumn, hasResult }) => {
       columnHeight = '61vh';
     }
   } else {
-    columnHeight = '90vh';
+    columnHeight = '88vh';
   }
 
   const firstAnswerRows = answerRows.slice(0, itemsPerColumn + 1);
@@ -116,26 +121,22 @@ const ColumnsContainer = ({ answerRows, itemsPerColumn, hasResult }) => {
   return (
     <View style={pageStyles.container} wrap={false}>
       <View style={[pageStyles.column, { height: columnHeight }]}>
-        {firstAnswerRows.map(({ id, name, answer, screenIndex }, index) =>
+        {firstAnswerRows.map((row, index) =>
           index === firstAnswerRows.length - 1 ? null : (
             <ResponseColumn
-              id={id}
-              name={name}
-              answer={answer}
-              showBoldBorder={screenIndex !== firstAnswerRows[index + 1]?.screenIndex}
+              row={row}
+              showBoldBorder={row.screenIndex !== firstAnswerRows[index + 1]?.screenIndex}
             />
           ),
         )}
       </View>
       <View style={pageStyles.verticalDivider} />
       <View style={[pageStyles.column, { height: columnHeight }]}>
-        {secondAnswerRows.map(({ id, name, answer, screenIndex }, index) =>
+        {secondAnswerRows.map((row, index) =>
           index === secondAnswerRows.length - 1 ? null : (
             <ResponseColumn
-              id={id}
-              name={name}
-              answer={answer}
-              showBoldBorder={screenIndex !== secondAnswerRows[index + 1]?.screenIndex}
+              row={row}
+              showBoldBorder={row.screenIndex !== secondAnswerRows[index + 1]?.screenIndex}
             />
           ),
         )}
@@ -181,7 +182,7 @@ const SurveyResponsesPrintoutComponent = ({
             getLocalisation={getLocalisation}
             logoSrc={logo}
             certificateTitle="Program form"
-            certificateSubtitle={surveyResponse.surveyName}
+            certificateSubtitle={surveyResponse.programName}
             letterheadConfig={certificateData}
           />
         </CertificateHeader>
@@ -191,21 +192,19 @@ const SurveyResponsesPrintoutComponent = ({
         <SurveyResponseDetails surveyResponse={surveyResponse} />
         <SectionSpacing height={16} />
 
-        {strippedResultText && <ResultBox
-          resultText={strippedResultText}
-          resultName={getResultName(surveyResponse.components)}
-        />}
+        {strippedResultText && (
+          <ResultBox
+            resultText={strippedResultText}
+            resultName={getResultName(surveyResponse.components)}
+          />
+        )}
 
         <ColumnsContainer
           answerRows={initialAnswerRows}
           itemsPerColumn={initialItemsPerColumn}
           hasResult={!!surveyResponse.resultText}
         />
-
-        <Footer />
-      </Page>
-      {Array.from({ length: restColumnsPages }).map((_, index) => (
-        <Page size="A4" style={pageStyles.body}>
+        {Array.from({ length: restColumnsPages }).map((_, index) => (
           <ColumnsContainer
             answerRows={restAnswerRows.slice(
               index * (ITEMS_PER_COLUMN * 2),
@@ -213,9 +212,9 @@ const SurveyResponsesPrintoutComponent = ({
             )}
             itemsPerColumn={ITEMS_PER_COLUMN}
           />
-          <Footer />
-        </Page>
-      ))}
+        ))}
+        <Footer />
+      </Page>
     </Document>
   );
 };

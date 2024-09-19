@@ -70,7 +70,7 @@ export const SurveyResponsesPrintModal = React.memo(
         <PDFLoader isLoading={isLoading} id="survey-responses-printout">
           <SurveyResponsesPrintout
             patientData={{ ...patient, additionalData, village }}
-            surveyResponse={{ ...surveyResponseData, user, surveyName: surveyResponse?.surveyName }}
+            surveyResponse={{ ...surveyResponseData, user, programName: surveyResponse?.programName }}
             certificateData={certificateData}
             getLocalisation={getLocalisation}
             getTranslation={getTranslation}
