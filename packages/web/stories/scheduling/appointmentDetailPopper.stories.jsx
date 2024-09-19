@@ -8,7 +8,8 @@ const patientId = chance.guid();
 
 const partialAppointment = {
   id: chance.guid(),
-  startTime: '2024-09-05 13:57:00',
+  startTime: '2024-09-05 13:30:00',
+  endTime: '2024-09-05 14:30:00',
   patientId,
   patient: {
     id: patientId,
@@ -29,12 +30,12 @@ export default {
 
 export const Default = () => {
   const [anchorEl, setAnchorEl] = useState(null);
+  const [open, setOpen] = useState(false);
 
   const handleClick = event => {
     setAnchorEl(anchorEl ? null : event.currentTarget);
+    setOpen(!open);
   };
-
-  const open = Boolean(anchorEl);
 
   return (
     <Container>
@@ -42,7 +43,12 @@ export const Default = () => {
         Toggle Appointment Details
       </Button>
 
-      <AppointmentDetailPopper open={open} anchorEl={anchorEl} appointment={partialAppointment} />
+      <AppointmentDetailPopper
+        open={open}
+        setOpen={setOpen}
+        anchorEl={anchorEl}
+        appointment={partialAppointment}
+      />
     </Container>
   );
 };

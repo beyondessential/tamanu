@@ -1,8 +1,17 @@
-import { Divider, Paper, Popper, styled } from '@mui/material';
+import { Box, ClickAwayListener, Divider, Paper, Popper, styled } from '@mui/material';
 import React from 'react';
 import { PatientNameDisplay } from '../PatientNameDisplay';
 import { TranslatedText } from '../Translation';
 import { Colors } from '../../constants';
+import { format } from 'date-fns';
+import { DateDisplay } from '../DateDisplay';
+
+const formatDateRange = (start, end) => {
+  const formattedStart = format(new Date(start), 'MM/dd/yyyy h:mma');
+  const formattedEnd = format(new Date(end), 'h:mma');
+
+  return `${formattedStart} - ${formattedEnd}`;
+};
 
 const Title = styled(`span`)({
   fontWeight: 500,
@@ -34,6 +43,21 @@ const PatientDetailsContainer = styled(`div`)`
   gap: 0.1875rem;
 `;
 
+const AppointmentDetailsContainer = styled(Box)({
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '0.5rem',
+});
+
+const DetailsField = ({ label, value }) => {
+  return (
+    <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+      <Label>{label}</Label>
+      <span>{value ?? 'N/A'}</span>
+    </Box>
+  );
+};
+
 const DetailDivider = ({ props }) => {
   return <Divider sx={{ color: Colors.outline }} {...props} />;
 };
@@ -55,7 +79,7 @@ const PatientDetailsDisplay = ({ patient }) => {
           {' | '}
           <TranslatedText stringId="general.dateOfBirth.label" fallback="DOB" />:
         </Label>{' '}
-        {dateOfBirth || 'N/A'}
+        <DateDisplay date={dateOfBirth} />
       </span>
       <Label color={Colors.primary}>{displayId}</Label>
     </PatientDetailsContainer>
@@ -64,15 +88,31 @@ const PatientDetailsDisplay = ({ patient }) => {
 
 const AppointDetailsDisplay = ({ appointment }) => {
   const { startTime, endTime, clinicianId, locationGroupId, type } = appointment;
+
+  return (
+    <AppointmentDetailsContainer>
+      <DetailsField
+        label={<TranslatedText stringId="general.time.label" fallback="Time" />}
+        value={formatDateRange(startTime, endTime)}
+      />
+      <DetailsField label="Clinician" value={clinicianId} />
+      <DetailsField label="Area" value={locationGroupId} />
+      <DetailsField label="Location" value={locationGroupId} />
+      <DetailsField label="Type" value={type} />
+    </AppointmentDetailsContainer>
+  );
 };
 
-export const AppointmentDetailPopper = ({ open, anchorEl, appointment }) => {
+export const AppointmentDetailPopper = ({ open, setOpen, anchorEl, appointment }) => {
   return (
-    <StyledPopper open={open} anchorEl={anchorEl} placement="bottom-start">
-      <StyledPaper elevation={0}>
-        <PatientDetailsDisplay patient={appointment.patient} />
-        <DetailDivider />
-      </StyledPaper>
-    </StyledPopper>
+    <ClickAwayListener>
+      <StyledPopper open={open} anchorEl={anchorEl} placement="bottom-start">
+        <StyledPaper elevation={0}>
+          <PatientDetailsDisplay patient={appointment.patient} />
+          <DetailDivider />
+          <AppointDetailsDisplay appointment={appointment} />
+        </StyledPaper>
+      </StyledPopper>
+    </ClickAwayListener>
   );
 };
