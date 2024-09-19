@@ -135,19 +135,18 @@ const SettingsForm = ({
 
   const { data: settingsSnapshot = {}, error: settingsFetchError } = useQuery(
     ['scopedSettings', scope, facilityId],
-    () => api.get('admin/settings', { scope, facilityId }),
+    async () => {
+      const data = await api.get('admin/settings', { scope, facilityId });
+      const withDefaults = applyDefaults(data, scope);
+      if (!values.settings) {
+        await resetForm({
+          values: { ...values, settings: withDefaults },
+        });
+      }
+      return withDefaults;
+    },
     {
       enabled: scope !== SETTINGS_SCOPES.FACILITY || !!facilityId,
-      select: async data => {
-        const newValues = applyDefaults(data, scope);
-        if (!values.settings) {
-          // Initialise form with settings
-          await resetForm({
-            values: { ...values, settings: newValues },
-          });
-        }
-        return newValues;
-      },
     },
   );
 
