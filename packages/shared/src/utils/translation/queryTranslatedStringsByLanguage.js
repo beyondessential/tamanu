@@ -20,7 +20,7 @@ export const queryTranslatedStringsByLanguage = async ({ sequelize, models }) =>
           string_id as "stringId",
           ${languagesInDb
             .map(
-              ({ language }) => `MAX(text) FILTER(WHERE language = '${language}') AS ${language}`,
+              (_, index) => `MAX(text) FILTER(WHERE language = $lang${index}) AS "lang${index}"`,
             )
             .join(',')}
       FROM
@@ -31,8 +31,25 @@ export const queryTranslatedStringsByLanguage = async ({ sequelize, models }) =>
           string_id
       `,
     {
+      bind: {
+        ...Object.fromEntries(
+          languagesInDb.map(({ language }, index) => [`lang${index}`, language]),
+        ),
+      },
       type: QueryTypes.SELECT,
     },
   );
-  return translations;
+
+  // Because there is no way to escape the alias above, we need update the resulting
+  // object to switch the dynamic alias to the expected alias which should exactly
+  // match the language column from the translated string.
+  const mappedTranslations = translations.map(row => {
+    const newRow = { stringId: row.stringId };
+    languagesInDb.forEach(({ language }, index) => {
+      newRow[language] = row[`lang${index}`];
+    });
+    return newRow;
+  });
+
+  return mappedTranslations;
 };

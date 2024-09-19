@@ -56,14 +56,15 @@ const getDaysUntilDue = (
 ) => {
   const { weeksFromBirthDue, weeksFromLastVaccinationDue } = scheduledVaccine;
   const { dateOfBirth } = patient;
-  const weeksFromDue = weeksFromBirthDue || weeksFromLastVaccinationDue;
-  const baselineDate = weeksFromBirthDue ? dateOfBirth : lastDose?.date;
+  const hasWeeksFromBirthDue = Number.isInteger(weeksFromBirthDue);
+  const weeksFromDue = hasWeeksFromBirthDue ? weeksFromBirthDue : weeksFromLastVaccinationDue;
+  const baselineDate = hasWeeksFromBirthDue ? dateOfBirth : lastDose?.date;
   return weeksFromDue * 7 - differenceInDays(new Date(), parseISO(baselineDate));
 };
 
 export const getLastDose = ({ scheduledVaccine, patientAdministeredVaccines }: VaccineData) => {
   const { vaccine, index, weeksFromLastVaccinationDue } = scheduledVaccine;
-  if (!weeksFromLastVaccinationDue) return null;
+  if (!Number.isInteger(weeksFromLastVaccinationDue)) return null;
   return patientAdministeredVaccines?.find(administeredVaccine => {
     const scheduledVaccine = administeredVaccine.scheduledVaccine as IScheduledVaccine;
     return scheduledVaccine.index === index - 1 && scheduledVaccine.vaccine.id === vaccine.id;

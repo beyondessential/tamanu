@@ -6,7 +6,6 @@ import {
   LAB_REQUEST_STATUSES,
   DOCUMENT_SIZE_LIMIT,
   DOCUMENT_SOURCES,
-  INVOICE_STATUSES,
   NOTE_RECORD_TYPES,
   VITALS_DATA_ELEMENT_IDS,
   IMAGING_REQUEST_STATUS_TYPES,
@@ -26,7 +25,12 @@ import { noteChangelogsHandler, noteListHandler } from '../../routeHandlers';
 import { createPatientLetter } from '../../routeHandlers/createPatientLetter';
 
 import { getLabRequestList } from '../../routeHandlers/labs';
-import { deleteDocumentMetadata, deleteEncounter, deleteSurveyResponse } from '../../routeHandlers/deleteModel';
+import {
+  deleteDocumentMetadata,
+  deleteEncounter,
+  deleteSurveyResponse,
+} from '../../routeHandlers/deleteModel';
+import { getPermittedSurveyIds } from '../../utils/getPermittedSurveyIds';
 
 export const encounter = softDeletionCheckingRouter('Encounter');
 
@@ -36,8 +40,13 @@ encounter.post(
   asyncHandler(async (req, res) => {
     const { models, body, user } = req;
     req.checkPermission('create', 'Encounter');
-    const object = await models.Encounter.create({ ...body, actorId: user.id });
-    res.send(object);
+    const encounterObject = await models.Encounter.create({ ...body, actorId: user.id });
+    
+    if (body.dietIds) {
+      const dietIds = JSON.parse(body.dietIds);
+      await encounterObject.addDiets(dietIds);
+    }
+    res.send(encounterObject);
   }),
 );
 
@@ -86,6 +95,12 @@ encounter.put(
           throw new InvalidOperationError('Cannot update a deleted referral.');
         await referral.update({ encounterId: id });
       }
+
+      if (req.body.dietIds) {
+        const dietIds = JSON.parse(req.body.dietIds);
+        await encounterObject.setDiets(dietIds);
+      }
+
       await encounterObject.update({ ...req.body, systemNote }, user);
     });
 
@@ -250,14 +265,7 @@ encounterRelations.get(
   noteChangelogsHandler(NOTE_RECORD_TYPES.ENCOUNTER),
 );
 
-encounterRelations.get(
-  '/:id/invoice',
-  simpleGetHasOne('Invoice', 'encounterId', {
-    additionalFilters: {
-      status: { [Op.ne]: INVOICE_STATUSES.CANCELLED },
-    },
-  }),
-);
+encounterRelations.get('/:id/invoice', simpleGetHasOne('Invoice', 'encounterId', {}));
 
 const PROGRAM_RESPONSE_SORT_KEYS = {
   endTime: 'end_time',
@@ -277,6 +285,16 @@ encounterRelations.get(
     const { order = 'asc', orderBy = 'endTime' } = query;
     const sortKey = PROGRAM_RESPONSE_SORT_KEYS[orderBy] || PROGRAM_RESPONSE_SORT_KEYS.endTime;
     const sortDirection = order.toLowerCase() === 'asc' ? 'ASC' : 'DESC';
+
+    const permittedSurveyIds = await getPermittedSurveyIds(req, models);
+
+    if (!permittedSurveyIds.length) {
+      res.send({
+        data: [],
+        count: 0,
+      });
+    }
+
     const { count, data } = await runPaginatedQuery(
       db,
       models.SurveyResponse,
@@ -292,6 +310,8 @@ encounterRelations.get(
           survey_responses.encounter_id = :encounterId
         AND
           surveys.survey_type = :surveyType
+        AND 
+          surveys.id IN (:surveyIds)
         AND
           encounters.deleted_at IS NULL
         AND
@@ -319,13 +339,15 @@ encounterRelations.get(
           survey_responses.encounter_id = :encounterId
         AND
           surveys.survey_type = :surveyType
+        AND 
+          surveys.id IN (:surveyIds)
         AND
           survey_responses.deleted_at IS NULL
         AND
           encounters.deleted_at is null
         ORDER BY ${sortKey} ${sortDirection}
       `,
-      { encounterId, surveyType },
+      { encounterId, surveyType, surveyIds: permittedSurveyIds },
       query,
     );
 

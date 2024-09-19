@@ -4,6 +4,7 @@ import { dateTimeType } from './dateTimeTypes';
 import { buildPatientSyncFilterViaPatientId } from './buildPatientSyncFilterViaPatientId';
 import { getCurrentDateTimeString } from '../utils/dateTime';
 import { onSaveMarkPatientForSync } from './onSaveMarkPatientForSync';
+import { buildPatientLinkedLookupFilter } from './buildPatientLinkedLookupFilter';
 
 export class PatientCarePlan extends Model {
   static init({ primaryKey, ...options }) {
@@ -40,6 +41,10 @@ export class PatientCarePlan extends Model {
 
   static getListReferenceAssociations() {
     return ['carePlan', 'examiner'];
+  }
+
+  static buildSyncLookupQueryDetails() {
+    return buildPatientLinkedLookupFilter(this);
   }
 
   static buildPatientSyncFilter = buildPatientSyncFilterViaPatientId;

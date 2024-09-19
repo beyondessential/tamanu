@@ -48,12 +48,23 @@ export const PatientProgramRegistryView = () => {
   const title = queryParams.get('title');
   const { patientId, programRegistryId } = useParams();
   const { data, isLoading, isError } = usePatientProgramRegistration(patientId, programRegistryId);
-  const { data: programRegistryConditions, isLoading: conditionsLoading } = useProgramRegistryConditionsQuery(
-    data?.programRegistryId,
-  );
+  const {
+    data: programRegistryConditions = [],
+    isLoading: conditionsLoading,
+  } = useProgramRegistryConditionsQuery(data?.programRegistryId);
 
-  if (isLoading || conditionsLoading) return <LoadingIndicator />;
-  if (isError) return <p>Program registry &apos;{title || 'Unknown'}&apos; not found.</p>;
+  if (isLoading || conditionsLoading) {
+    return <LoadingIndicator />;
+  }
+
+  if (isError) {
+    return <p>Program registry &apos;{title || 'Unknown'}&apos; not found.</p>;
+  }
+
+  const conditionOptions = programRegistryConditions.map(x => ({
+    label: x.name,
+    value: x.id,
+  }));
 
   return (
     <Fragment key={data.id}>
@@ -71,11 +82,11 @@ export const PatientProgramRegistryView = () => {
         <ProgramStatusAndConditionContainer>
           <ProgramRegistryStatusHistory
             patientProgramRegistration={data}
-            programRegistryConditions={programRegistryConditions}
+            programRegistryConditions={conditionOptions}
           />
           <ConditionSection
             patientProgramRegistration={data}
-            programRegistryConditions={programRegistryConditions}
+            programRegistryConditions={conditionOptions}
           />
         </ProgramStatusAndConditionContainer>
 

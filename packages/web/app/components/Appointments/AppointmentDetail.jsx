@@ -12,7 +12,7 @@ import { useQuery } from '@tanstack/react-query';
 import { PatientNameDisplay } from '../PatientNameDisplay';
 import { TextDisplayIdLabel } from '../DisplayIdLabel';
 import { DateDisplay } from '../DateDisplay';
-import { APPOINTMENT_STATUS_OPTIONS, Colors } from '../../constants';
+import { Colors } from '../../constants';
 import { useApi } from '../../api';
 import { reloadPatient } from '../../store/patient';
 import { AppointmentModal } from './AppointmentModal';
@@ -20,7 +20,7 @@ import { Button, DeleteButton } from '../Button';
 import { EncounterModal } from '../EncounterModal';
 import { usePatientCurrentEncounter } from '../../api/queries';
 import { Modal } from '../Modal';
-import { TranslatedText, TranslatedReferenceData } from '../Translation';
+import { TranslatedReferenceData, TranslatedSex, TranslatedText } from '../Translation';
 
 const Heading = styled.div`
   font-weight: 700;
@@ -57,6 +57,11 @@ const PatientInfoValue = styled.td`
   text-transform: capitalize;
 `;
 
+const APPOINTMENT_STATUS_OPTIONS = Object.values(APPOINTMENT_STATUSES).map(status => ({
+  value: status,
+  label: status,
+}));
+
 const PatientInfo = ({ patient }) => {
   const api = useApi();
   const dispatch = useDispatch();
@@ -88,7 +93,9 @@ const PatientInfo = ({ patient }) => {
             <PatientInfoLabel>
               <TranslatedText stringId="general.sex.label" fallback="Sex" />
             </PatientInfoLabel>
-            <PatientInfoValue>{sex}</PatientInfoValue>
+            <PatientInfoValue>
+              <TranslatedSex sex={sex} />
+            </PatientInfoValue>
           </tr>
           <tr>
             <PatientInfoLabel>
@@ -314,6 +321,10 @@ export const AppointmentDetail = ({ appointment, onUpdated, onClose }) => {
             await updateAppointmentStatus(selectedOption.value);
           }}
           styles={{
+            placeholder: baseStyles => ({
+              ...baseStyles,
+              color: Colors.white,
+            }),
             valueContainer: baseStyles => ({
               ...baseStyles,
               color: Colors.white,

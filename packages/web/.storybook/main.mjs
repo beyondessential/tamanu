@@ -1,8 +1,13 @@
+import { dirname, join, resolve } from 'path';
 import { mergeConfig } from 'vite';
-import path from 'path';
 
+function getAbsolutePath(packageName) {
+  return dirname(require.resolve(join(packageName, 'package.json')));
+}
+
+/** @type { import('@storybook/react-vite').StorybookConfig } */
 export default {
-  framework: '@storybook/react-vite',
+  framework: getAbsolutePath('@storybook/react-vite'),
   stories: ['../**/*.stories.@(js|jsx|mjs|ts|tsx)'],
   typescript: {
     reactDocgen: false,
@@ -12,7 +17,7 @@ export default {
   },
   addons: [
     {
-      name: '@storybook/addon-essentials',
+      name: getAbsolutePath('@storybook/addon-links'),
       options: { docs: false }, // no mdx
     },
     '@storybook/addon-links',
@@ -32,12 +37,11 @@ export default {
       },
       resolve: {
         alias: {
-          '/@react-refresh': path.resolve(__dirname, './__mocks__/react-refresh.js'),
-          buffer: path.resolve(__dirname, './__mocks__/buffer.js'),
-          sequelize: path.resolve(__dirname, './__mocks__/sequelize.js'),
-          config: path.resolve(__dirname, './__mocks__/config.js'),
-          yargs: path.resolve(__dirname, './__mocks__/module.js'),
-          child_process: path.resolve(__dirname, './__mocks__/module.js'),
+          buffer: resolve(__dirname, './__mocks__/buffer.js'),
+          sequelize: resolve(__dirname, './__mocks__/sequelize.js'),
+          config: resolve(__dirname, './__mocks__/config.js'),
+          yargs: resolve(__dirname, './__mocks__/module.js'),
+          child_process: resolve(__dirname, './__mocks__/module.js'),
         },
       },
     });

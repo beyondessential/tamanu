@@ -13,8 +13,8 @@ const maskEmail = email => email.replace(/[^@]*/g, maskMiddle);
 export class PatientEmailCommunicationProcessor extends ScheduledTask {
   constructor(context) {
     const conf = config.schedules.patientEmailCommunicationProcessor;
-    const { schedule, jitterTime } = conf;
-    super(schedule, log, jitterTime);
+    const { schedule, jitterTime, enabled } = conf;
+    super(schedule, log, jitterTime, enabled);
     this.config = conf;
     this.context = context;
   }

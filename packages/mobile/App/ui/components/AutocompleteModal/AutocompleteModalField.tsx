@@ -2,7 +2,11 @@ import React, { ReactElement, useEffect, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { StyledText, StyledView } from '/styled/common';
 import { Orientation, screenPercentageToDP } from '../../helpers/screen';
-import { BaseModelSubclass, Suggester } from '../../helpers/suggester';
+import {
+  BaseModelSubclass,
+  getReferenceDataTypeFromSuggester,
+  Suggester,
+} from '../../helpers/suggester';
 import { theme } from '../../styled/theme';
 import { Button } from '../Button';
 import { Routes } from '~/ui/helpers/routes';
@@ -11,6 +15,7 @@ import { RequiredIndicator } from '../RequiredIndicator';
 import { TranslatedTextElement, TranslatedText } from '../Translations/TranslatedText';
 import { SearchIcon } from '../Icons';
 import { ReadOnlyField } from '../ReadOnlyField/index';
+import { getReferenceDataStringId } from '../Translations/TranslatedReferenceData';
 
 interface AutocompleteModalFieldProps {
   value?: string;
@@ -24,6 +29,8 @@ interface AutocompleteModalFieldProps {
   required?: boolean;
   disabled?: boolean;
   readOnly?: boolean;
+  labelFontSize?: string | number;
+  fieldFontSize?: string | number;
 }
 
 export const AutocompleteModalField = ({
@@ -38,9 +45,13 @@ export const AutocompleteModalField = ({
   marginTop = 0,
   disabled = false,
   readOnly = false,
+  labelFontSize,
+  fieldFontSize = screenPercentageToDP(2.1, Orientation.Height),
 }: AutocompleteModalFieldProps): ReactElement => {
   const navigation = useNavigation();
   const [label, setLabel] = useState(null);
+  const refDataType = getReferenceDataTypeFromSuggester(suggester);
+
   const onPress = (selectedItem): void => {
     onChange(selectedItem.value);
     setLabel(selectedItem.label);
@@ -57,14 +68,17 @@ export const AutocompleteModalField = ({
     (async (): Promise<void> => {
       const data = await suggester.fetchCurrentOption(value);
       if (data) {
-        setLabel(data.label);
+        setLabel(
+          <TranslatedText
+            stringId={getReferenceDataStringId(data.value, refDataType)}
+            fallback={data.label}
+          />,
+        );
       } else {
         setLabel(null);
       }
     })();
   }, [value]);
-
-  const fontSize = screenPercentageToDP(2.1, Orientation.Height);
 
   if (readOnly) {
     return <ReadOnlyField value={label} />;
@@ -74,7 +88,7 @@ export const AutocompleteModalField = ({
     <StyledView marginBottom={screenPercentageToDP('2.24', Orientation.Height)} width="100%">
       {!!fieldLabel && (
         <StyledText
-          fontSize={fontSize}
+          fontSize={labelFontSize}
           fontWeight={600}
           marginBottom={2}
           color={theme.colors.TEXT_SUPER_DARK}
@@ -98,7 +112,7 @@ export const AutocompleteModalField = ({
         borderColor={error ? theme.colors.ERROR : '#EBEBEB'}
         borderWidth={1}
         fontWeight={400}
-        fontSize={fontSize}
+        fontSize={fieldFontSize}
         padding={10}
         onPress={openModal}
         disabled={disabled}

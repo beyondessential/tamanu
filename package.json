@@ -1,6 +1,6 @@
 {
   "name": "tamanu",
-  "version": "2.11.0",
+  "version": "2.17.0",
   "description": "This repo contains all the packages for Tamanu",
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
   "repository": "git@github.com:beyondessential/tamanu.git",
@@ -36,10 +36,6 @@
     "central-start": "yarn run central-start-dev",
     "central-migrate": "yarn run build-shared && TAMANU_ARGS=\"migrate\" yarn run central-start-dev",
     "central-migrate-down": "yarn run build-shared && TAMANU_ARGS=\"migrate down\" yarn run central-start-dev",
-    "meta-test": "yarn run build-shared && yarn workspace @tamanu/meta-server run test",
-    "meta-start-dev": "yarn run watch-shared-and @tamanu/meta-server start-dev",
-    "meta-test-watch": "yarn run watch-shared-and @tamanu/meta-server test-watch",
-    "meta-start": "yarn run meta-start-dev",
     "build-report": "yarn build-shared && yarn workspace @tamanu/central-server build && yarn workspace @tamanu/central-server start report"
   },
   "engines": {
@@ -56,7 +52,6 @@
       "packages/web",
       "packages/facility-server",
       "packages/central-server",
-      "packages/meta-server",
       "packages/shared",
       "packages/constants",
       "packages/settings",

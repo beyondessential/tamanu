@@ -16,7 +16,7 @@ export const PatientMenuButtons = ({ list }: PatientMenuListProps): ReactElement
       scrollEnabled={false}
       showsVerticalScrollIndicator={false}
       data={list}
-      keyExtractor={(item): string => item.title}
+      keyExtractor={(item): string => item.key}
       renderItem={({ item }): ReactElement => <MenuOptionButton {...item} />}
       ItemSeparatorComponent={Separator}
     />

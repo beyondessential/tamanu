@@ -8,6 +8,7 @@ import { Model } from './Model';
 import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
 import { dateTimeType } from './dateTimeTypes';
 import { getCurrentDateTimeString } from '../utils/dateTime';
+import { buildEncounterLinkedLookupFilter } from '../sync/buildEncounterLinkedLookupFilter';
 
 export class EncounterDiagnosis extends Model {
   static init({ primaryKey, ...options }) {
@@ -54,6 +55,10 @@ export class EncounterDiagnosis extends Model {
       foreignKey: 'diagnosisId',
       as: 'Diagnosis',
     });
+    this.belongsTo(models.User, {
+      foreignKey: 'clinicianId',
+      as: 'clinician',
+    });
   }
 
   static getListReferenceAssociations() {
@@ -68,5 +73,9 @@ export class EncounterDiagnosis extends Model {
       [this.tableName, 'encounters'],
       markedForSyncPatientsTable,
     );
+  }
+
+  static buildSyncLookupQueryDetails() {
+    return buildEncounterLinkedLookupFilter(this);
   }
 }

@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { Fragment, useEffect } from 'react';
 import styled from 'styled-components';
 import PropTypes from 'prop-types';
 import Radio from '@material-ui/core/Radio';
@@ -8,6 +8,7 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import FormHelperText from '@material-ui/core/FormHelperText';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 import { Colors } from '../../constants';
+import { TranslatedEnumField } from '../Translation/TranslatedEnumIInput';
 
 const DEFAULT_LABEL_THEME = {
   color: { default: Colors.outline, selected: Colors.primary },
@@ -137,8 +138,8 @@ export const RadioInput = ({
           {...props}
         >
           {options.map(option => (
-            <>
-              {option.leftOptionalElement ? option.leftOptionalElement : null}
+            <Fragment key={option.value}>
+              {option.leftOptionalElement ?? null}
               <ControlLabel
                 key={option.value}
                 labelPlacement={option.description ? 'start' : 'end'}
@@ -177,7 +178,7 @@ export const RadioInput = ({
                     : DEFAULT_LABEL_THEME
                 }
               />
-            </>
+            </Fragment>
           ))}
         </StyledRadioGroup>
         {helperText && <FormHelperText>{helperText}</FormHelperText>}
@@ -208,3 +209,7 @@ export const RadioField = ({ field, error, ...props }) => (
     {...props}
   />
 );
+
+export const TranslatedRadioField = props => {
+  return <TranslatedEnumField {...props} component={RadioInput} />;
+};

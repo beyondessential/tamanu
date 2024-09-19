@@ -10,12 +10,16 @@ import { ErrorScreen } from '~/ui/components/ErrorScreen';
 import { withPatient } from '~/ui/containers/Patient';
 import { IDiagnosis, INote } from '~/types';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
+import { TranslatedReferenceData } from '~/ui/components/Translations/TranslatedReferenceData';
 
 const DEFAULT_FIELD_VAL = (
-  <TranslatedText stringId="general.fallback.notApplicable" fallback="N/A" uppercase />
+  <TranslatedText
+    stringId="note.clinicalNote.default"
+    fallback="Please note: Clinical notes may only be visible on desktop devices and the mobile device where the encounter occurred"
+  />
 );
 
-const displayNotes = (notes: INote[]): string =>
+const displayNotes = (notes: INote[]): string | Element =>
   notes
     .filter(note => note.noteType === NOTE_TYPES.CLINICAL_MOBILE)
     .map(note => note.content)
@@ -24,8 +28,19 @@ const displayNotes = (notes: INote[]): string =>
 const visitsHistoryRows = {
   diagnoses: {
     name: <TranslatedText stringId="general.form.diagnosis.label" fallback="Diagnosis" />,
-    accessor: (diagnoses: IDiagnosis[]): string =>
-      diagnoses.map(d => `${d.diagnosis?.name} (${d.certainty})`).join('\n\n') || DEFAULT_FIELD_VAL,
+    accessor: (diagnoses: IDiagnosis[]) =>
+      diagnoses.map((d, i) => (
+        <>
+          {i > 0 && '\n\n'}
+          <TranslatedReferenceData
+            key={d.id}
+            category="diagnosis"
+            value={d.diagnosis.id}
+            fallback={d.diagnosis.name}
+          />
+          {` (${d.certainty})`} {/* TODO: translated enum */}
+        </>
+      )) || DEFAULT_FIELD_VAL,
   },
   notes: {
     name: <TranslatedText stringId="note.property.type.clinicalNote" fallback="Clinical Note" />,

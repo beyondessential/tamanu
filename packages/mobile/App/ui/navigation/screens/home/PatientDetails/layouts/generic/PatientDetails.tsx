@@ -16,14 +16,20 @@ export const PatientDetails = ({ patient, navigation }): ReactElement => {
     (
       additionalData,
       sectionTitle,
+      isCustomSection,
+      customSectionFields,
       customPatientFieldValues,
+      sectionKey
     ) => {
       navigation.navigate(Routes.HomeStack.PatientDetailsStack.Generic.EditPatientAdditionalData, {
         patientName: joinNames(patient),
         patient,
         additionalDataJSON: JSON.stringify(additionalData),
         sectionTitle,
+        isCustomSection,
+        customSectionFields,
         customPatientFieldValues,
+        sectionKey
       });
     },
     [navigation, patient],
@@ -32,7 +38,11 @@ export const PatientDetails = ({ patient, navigation }): ReactElement => {
   return (
     <>
       <GeneralInfo patient={patient} onEdit={onEditGeneralInfo} />
-      <AdditionalInfo patient={patient} onEdit={editPatientAdditionalData} dataSections={GENERIC_ADDITIONAL_DATA_SECTIONS} />
+      <AdditionalInfo
+        patient={patient}
+        onEdit={editPatientAdditionalData}
+        dataSections={GENERIC_ADDITIONAL_DATA_SECTIONS}
+      />
     </>
   );
 };

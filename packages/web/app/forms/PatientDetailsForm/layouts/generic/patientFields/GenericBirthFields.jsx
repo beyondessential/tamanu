@@ -2,12 +2,18 @@ import React from 'react';
 
 import {
   ATTENDANT_OF_BIRTH_OPTIONS,
-  BIRTH_DELIVERY_TYPE_OPTIONS,
-  BIRTH_TYPE_OPTIONS,
+  BIRTH_DELIVERY_TYPE_LABELS,
+  BIRTH_TYPE_LABELS,
   PLACE_OF_BIRTH_OPTIONS,
   PLACE_OF_BIRTH_TYPES,
 } from '@tamanu/constants';
-import { AutocompleteField, SelectField, TextField, TimeField } from '../../../../../components';
+import {
+  AutocompleteField,
+  SelectField,
+  TextField,
+  TimeField,
+  TranslatedSelectField,
+} from '../../../../../components';
 import { ConfiguredMandatoryPatientFields } from '../../../ConfiguredMandatoryPatientFields';
 import { useSuggester } from '../../../../../api';
 import { TranslatedText } from '../../../../../components/Translation/TranslatedText';
@@ -80,19 +86,18 @@ export const GenericBirthFields = ({ filterByMandatory, registeredBirthPlace }) 
       ),
     },
     birthDeliveryType: {
-      component: SelectField,
-      options: BIRTH_DELIVERY_TYPE_OPTIONS,
+      component: TranslatedSelectField,
+      enumValues: BIRTH_DELIVERY_TYPE_LABELS,
       label: (
         <TranslatedText
           stringId="general.localisedField.birthDeliveryType.label"
           fallback="Delivery type"
         />
       ),
-      prefix: 'localisedField.property.birthDeliveryType',
     },
     birthType: {
-      component: SelectField,
-      options: BIRTH_TYPE_OPTIONS,
+      component: TranslatedSelectField,
+      enumValues: BIRTH_TYPE_LABELS,
       label: (
         <TranslatedText
           stringId="general.localisedField.birthType.label"

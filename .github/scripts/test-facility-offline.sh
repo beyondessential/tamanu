@@ -61,9 +61,10 @@ EOF
 
     # specify ports for consistency
     yarn workspace @tamanu/central-server start migrate
-    nohup yarn workspace @tamanu/central-server start --provisioning provisioning.json5 > central-server.out &
+    yarn workspace @tamanu/central-server start provision provisioning.json5
+    nohup yarn workspace @tamanu/central-server start > central-server.out &
     echo "CENTRAL_SERVER_PID=$!" >> $GITHUB_ENV
-    curl --retry 8 --retry-connrefused localhost:3000
+    curl --retry 8 --retry-all-errors localhost:3000
 }
 
 # Start the facility server, to initialise it.
@@ -91,7 +92,7 @@ test_facility_offline_facility_start() {
 	EOF
 	nohup yarn workspace @tamanu/facility-server start > facility-server.out &
 	echo "FACILITY_SERVER_PID=$!" >> $GITHUB_ENV
-	curl --retry 8 --retry-connrefused localhost:4000
+	curl --retry 8 --retry-all-errors localhost:4000
 }
 
 test_facility_offline_stop_and_print() {
@@ -103,7 +104,7 @@ test_facility_offline_stop_and_print() {
 
 test_facility_offline_facility_start_again() {
 	yarn workspace @tamanu/facility-server start &
-	curl --retry 8 --retry-connrefused localhost:4000
+	curl --retry 8 --retry-all-errors localhost:4000
 	kill -INT -$!
 }
 

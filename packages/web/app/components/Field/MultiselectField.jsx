@@ -1,14 +1,15 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import Select, { components } from 'react-select';
+import { createFilter } from 'react-select';
 import styled from 'styled-components';
 import FormControl from '@material-ui/core/FormControl';
 import FormHelperText from '@material-ui/core/FormHelperText';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 import { StyledTextField } from './TextField';
 import { Colors } from '../../constants';
-import { getTranslatedOptions } from '../Translation/getTranslatedOptions';
 import { Icon, StyledExpandMore } from './FieldCommonComponents';
+import { TranslatedEnumField } from '../Translation/TranslatedEnumIInput';
+import { SelectDropdownIndicator, SelectMultiValueRemove, Select } from '../Select';
 
 const StyledFormControl = styled(FormControl)`
   display: flex;
@@ -82,74 +83,7 @@ const StyledSelect = styled(props => <Select classNamePrefix="react-select" {...
       cursor: pointer;
     }
   }
-
-  /* This does not seem to be working on electron (although it works on Chrome) */
-  /* Scrollbar styling (for windows) */
-  /* scrollbar total width */
-  .react-select__menu::-webkit-scrollbar {
-    background-color: rgba(0, 0, 0, 0);
-    width: 16px;
-    height: 16px;
-    z-index: 999999;
-  }
-  /* background of the scrollbar except button or resizer */
-  .react-select__menu::-webkit-scrollbar-track {
-    background-color: rgba(0, 0, 0, 0);
-  }
-  /* scrollbar itself */
-  .react-select__menu::-webkit-scrollbar-thumb {
-    background-color: rgba(0, 0, 0, 0);
-    border-radius: 16px;
-    border: 0px solid #fff;
-  }
-  /* set button(top and bottom of the scrollbar) */
-  .react-select__menu::-webkit-scrollbar-button {
-    display: none;
-  }
-  /* scrollbar when element is hovered */
-  .react-select__menu:hover::-webkit-scrollbar-thumb {
-    background-color: #a0a0a5;
-    border: 4px solid #fff;
-  }
-  /* scrollbar when scrollbar is hovered */
-  .react-select__menu::-webkit-scrollbar-thumb:hover {
-    background-color: #a0a0a5;
-    border: 4px solid #f4f4f4;
-  }
 `;
-
-const StyledIndicator = styled.svg`
-  ${props => (props.$focused ? '' : 'transform: rotate(180deg);')}
-`;
-
-const DropdownIndicator = props => (
-  <components.DropdownIndicator {...props}>
-    <StyledIndicator
-      width="10"
-      height="6"
-      viewBox="0 0 10 6"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      $focused={props?.isFocused}
-    >
-      <path
-        d="M5.00008 0.144765C5.15633 0.144765 5.30602 0.207578 5.41633 0.320077L9.8282 4.79445C10.0573 5.02758 10.0573 5.40477 9.8282 5.63758C9.59852 5.87039 9.22477 5.87039 8.99633 5.63758L5.00008 1.58445L1.00477 5.63789C0.774766 5.8707 0.401641 5.8707 0.172266 5.63789C-0.0571088 5.40539 -0.0571088 5.02758 0.172266 4.79445L4.58383 0.319452C4.69477 0.207577 4.84445 0.144765 5.00008 0.144765Z"
-        fill={Colors.darkText}
-      />
-    </StyledIndicator>
-  </components.DropdownIndicator>
-);
-
-const MultiValueRemove = props => (
-  <components.MultiValueRemove {...props}>
-    <svg width="8" height="8" viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path
-        d="M7.85 0.15C7.65 -0.0499999 7.35 -0.0499999 7.15 0.15L4 3.3L0.85 0.15C0.65 -0.0499999 0.35 -0.0499999 0.15 0.15C-0.0499999 0.35 -0.0499999 0.65 0.15 0.85L3.3 4L0.15 7.15C-0.0499999 7.35 -0.0499999 7.65 0.15 7.85C0.25 7.95 0.35 8 0.5 8C0.65 8 0.75 7.95 0.85 7.85L4 4.7L7.15 7.85C7.25 7.95 7.4 8 7.5 8C7.6 8 7.75 7.95 7.85 7.85C8.05 7.65 8.05 7.35 7.85 7.15L4.7 4L7.85 0.85C8.05 0.65 8.05 0.35 7.85 0.15Z"
-        fill={Colors.darkText}
-      />
-    </svg>
-  </components.MultiValueRemove>
-);
 
 const getValues = value => {
   if (!value?.length) {
@@ -157,6 +91,12 @@ const getValues = value => {
   }
 
   return Array.isArray(value) ? value : JSON.parse(value);
+};
+
+// Match only by label unless that label is not readable
+const searchByLabel = option => {
+  if (typeof option.label === 'string') return option.label;
+  return option.value;
 };
 
 export const MultiselectInput = ({
@@ -237,7 +177,14 @@ export const MultiselectInput = ({
           menuShouldBlockScroll="true"
           closeMenuOnSelect={false}
           hideSelectedOptions={false}
-          components={{ DropdownIndicator, MultiValueRemove }}
+          filterOption={createFilter({
+            matchFrom: 'any',
+            stringify: searchByLabel,
+          })}
+          components={{
+            DropdownIndicator: SelectDropdownIndicator,
+            MultiValueRemove: SelectMultiValueRemove,
+          }}
           {...props}
         />
         {helperText && <FormHelperText>{helperText}</FormHelperText>}
@@ -249,6 +196,10 @@ export const MultiselectInput = ({
 export const BaseMultiselectField = ({ field, ...props }) => (
   <MultiselectInput name={field.name} onChange={field.onChange} value={field.value} {...props} />
 );
+
+export const TranslatedMultiSelectField = props => {
+  return <TranslatedEnumField {...props} component={MultiselectInput} />;
+};
 
 MultiselectInput.propTypes = {
   name: PropTypes.string.isRequired,
@@ -270,9 +221,8 @@ MultiselectInput.defaultProps = {
   },
 };
 
-export const MultiselectField = ({ field, options, prefix, value, name, ...props }) => (
+export const MultiselectField = ({ field, value, name, ...props }) => (
   <MultiselectInput
-    options={getTranslatedOptions(options, prefix)}
     value={field ? field.value : value}
     name={field ? field.name : name}
     {...props}
@@ -281,7 +231,7 @@ export const MultiselectField = ({ field, options, prefix, value, name, ...props
 
 MultiselectField.propTypes = {
   options: PropTypes.array.isRequired,
-  prefix: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
   value: PropTypes.any.isRequired,
+  prefix: PropTypes.string,
 };

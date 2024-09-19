@@ -1,4 +1,4 @@
-import { Sequelize } from 'sequelize';
+import { Sequelize, Op} from 'sequelize';
 import { SURVEY_TYPES, SYNC_DIRECTIONS, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { Model } from './Model';
 
@@ -22,6 +22,16 @@ export class Survey extends Model {
           type: Sequelize.STRING,
           defaultValue: VISIBILITY_STATUSES.CURRENT,
           allowNull: false,
+        },
+        notifiable: {
+          type: Sequelize.BOOLEAN,
+          defaultValue: false,
+          allowNull: false,
+        },
+        notifyEmailAddresses: {
+          type: Sequelize.ARRAY(Sequelize.STRING),
+          allowNull: false,
+          defaultValue: [],
         },
       },
       {
@@ -55,6 +65,13 @@ export class Survey extends Model {
     });
   }
 
+  static getChartSurveys() {
+    return this.findAll({
+      where: { surveyType: { [Op.in]: [SURVEY_TYPES.SIMPLE_CHART, SURVEY_TYPES.COMPLEX_CHART] } },
+      order: [['name', 'ASC']],
+    });
+  }
+
   static async getResponsePermissionCheck(id) {
     const vitalsSurvey = await this.getVitalsSurvey();
     if (vitalsSurvey && id === vitalsSurvey.id) {
@@ -64,6 +81,10 @@ export class Survey extends Model {
   }
 
   static buildSyncFilter() {
+    return null; // syncs everywhere
+  }
+
+  static buildSyncLookupQueryDetails() {
     return null; // syncs everywhere
   }
 }

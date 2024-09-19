@@ -12,6 +12,12 @@ export const defineTelegramBotService = async injector => {
     ? null
     : new TelegramBot(injector.config.telegramBot.apiToken, {
         polling: !injector.config.telegramBot?.webhook?.url,
+        request: {
+          agentOptions: {
+            keepAlive: true,
+            family: 4,
+          },
+        },
       });
 
   /** @type {ReturnType<import('./websocketService.js').defineWebsocketService>|null} */

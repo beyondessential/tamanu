@@ -1,8 +1,8 @@
 import React, { useMemo, useState } from 'react';
 import styled from 'styled-components';
-import { TranslatedText, CheckInput, DataFetchingTable, Heading4 } from '../../components';
+import { CheckInput, DataFetchingTable, Heading4, TranslatedText } from '../../components';
 import { Colors } from '../../constants';
-import { getVaccineName, getDate, getGiver, getFacility, getActionButtons } from './accessors';
+import { getActionButtons, getDate, getFacility, getGiver, getVaccineName } from './accessors';
 
 const Container = styled.div`
   padding: 0.9rem 1.2rem 0.8rem;
@@ -18,14 +18,17 @@ const Title = styled(Heading4)`
 
 const TableHeaderCheckbox = styled(CheckInput)`
   color: ${Colors.darkText};
+
   label {
     display: flex;
     align-items: center;
   }
+
   .MuiTypography-root {
     font-size: 11px;
     line-height: 15px;
   }
+
   .MuiButtonBase-root {
     padding: 0 6px;
   }
@@ -51,7 +54,7 @@ const TableHeader = ({ includeNotGiven, setIncludeNotGiven }) => {
   );
 };
 
-const getSchedule = ({ scheduledVaccine }) => scheduledVaccine.schedule;
+const getSchedule = ({ scheduledVaccine }) => scheduledVaccine.doseLabel;
 
 export const ImmunisationsTable = React.memo(
   ({ patient, onItemClick, onItemEditClick, onItemDeleteClick, viewOnly, disablePagination }) => {

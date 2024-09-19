@@ -21,7 +21,7 @@ const Screen = ({ navigation, selectedPatient }: NewPatientScreenProps): ReactEl
     navigation.navigate(Routes.HomeStack.Index, {
       screen: Routes.HomeStack.RegisterPatientStack.Index,
       params: {
-        screen: Routes.HomeStack.RegisterPatientStackRegisterPatientStack.Index,
+        screen: Routes.HomeStack.RegisterPatientStack.PatientPersonalInfo,
       },
     });
   }, []);

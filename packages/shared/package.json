@@ -1,6 +1,6 @@
 {
   "name": "@tamanu/shared",
-  "version": "2.11.0",
+  "version": "2.17.0",
   "description": "Common code across Tamanu packages",
   "main": "dist/cjs/index.js",
   "module": "dist/mjs/index.js",
@@ -122,6 +122,7 @@
     "semver-diff": "^3.1.1",
     "shortid": "^2.2.14",
     "tiny-async-pool": "^1.2.0",
-    "khmer-unicode-converter": "^0.0.6"
+    "khmer-unicode-converter": "^0.0.6",
+    "decimal.js": "^10.4.3"
   }
 }

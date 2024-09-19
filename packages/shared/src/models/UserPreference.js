@@ -15,7 +15,14 @@ export class UserPreference extends Model {
             // any sets of the convenience generated "id" field can be ignored, so do nothing here
           },
         },
-        selectedGraphedVitalsOnFilter: Sequelize.STRING,
+        key: {
+          type: DataTypes.STRING,
+          allowNull: false,
+        },
+        value: {
+          type: Sequelize.JSONB,
+          allowNull: false,
+        },
         userId: {
           type: DataTypes.STRING,
           primaryKey: true,
@@ -29,6 +36,20 @@ export class UserPreference extends Model {
     );
   }
 
+  static async getAllPreferences(userId) {
+    const userPreferences = await UserPreference.findAll({
+      where: { userId },
+    });
+
+    const allPreferences = {};
+
+    for (const userPreference of userPreferences) {
+      allPreferences[userPreference.key] = userPreference.value;
+    }
+
+    return allPreferences;
+  }
+
   static initRelations(models) {
     this.belongsTo(models.User, {
       foreignKey: 'userId',
@@ -38,5 +59,9 @@ export class UserPreference extends Model {
 
   static buildSyncFilter() {
     return null;
+  }
+
+  static buildSyncLookupQueryDetails() {
+    return null; // syncs everywhere
   }
 }

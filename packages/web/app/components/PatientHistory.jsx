@@ -14,6 +14,7 @@ import { MenuButton } from './MenuButton';
 import { useSyncState } from '../contexts/SyncState';
 import { useRefreshCount } from '../hooks/useRefreshCount';
 import { useAuth } from '../contexts/Auth';
+import { TranslatedReferenceData } from './Translation/index.js';
 
 const DateWrapper = styled.div`
   min-width: 90px;
@@ -36,7 +37,15 @@ const getDate = ({ startDate, endDate }) => (
 );
 const getType = ({ encounterType }) => ENCOUNTER_OPTIONS_BY_VALUE[encounterType].label;
 const getReasonForEncounter = ({ reasonForEncounter }) => <div>{reasonForEncounter}</div>;
-const getFacility = ({ facilityName }) => <FacilityWrapper>{facilityName}</FacilityWrapper>;
+const getFacility = ({ facilityName, facilityId }) => (
+  <FacilityWrapper>
+    {facilityId ? (
+      <TranslatedReferenceData category="facility" fallback={facilityName} value={facilityId} />
+    ) : (
+      { facilityName }
+    )}
+  </FacilityWrapper>
+);
 
 const SyncWarning = styled.p`
   margin: 1rem;
@@ -92,7 +101,9 @@ export const PatientHistory = ({ patient, onItemClick }) => {
     },
     {
       key: 'encounterType',
-      title: <TranslatedText stringId="patientHistory.table.column.encounterType" fallback="Type" />,
+      title: (
+        <TranslatedText stringId="patientHistory.table.column.encounterType" fallback="Type" />
+      ),
       accessor: getType,
       sortable: false,
     },
