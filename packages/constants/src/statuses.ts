@@ -56,6 +56,13 @@ export const APPOINTMENT_TYPES = {
   OTHER: 'Other',
 };
 
+export const APPOINTMENT_TYPE_LABELS = {
+  [APPOINTMENT_TYPES.STANDARD]: 'Standard',
+  [APPOINTMENT_TYPES.EMERGENCY]: 'Emergency',
+  [APPOINTMENT_TYPES.SPECIALIST]: 'Specialist',
+  [APPOINTMENT_TYPES.OTHER]: 'Other',
+};
+
 export const APPOINTMENT_STATUSES = {
   CONFIRMED: 'Confirmed',
   ARRIVED: 'Arrived',

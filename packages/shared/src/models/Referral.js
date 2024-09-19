@@ -1,6 +1,7 @@
 import { Sequelize } from 'sequelize';
 import { REFERRAL_STATUSES, SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
+import { buildEncounterPatientIdSelect } from './buildPatientLinkedLookupFilter';
 
 export class Referral extends Model {
   static init({ primaryKey, ...options }) {
@@ -46,5 +47,12 @@ export class Referral extends Model {
       WHERE encounters.patient_id IN (SELECT patient_id FROM ${markedForSyncPatientsTable})
       AND ${this.tableName}.updated_at_sync_tick > :since
     `;
+  }
+
+  static buildSyncLookupQueryDetails() {
+    return {
+      select: buildEncounterPatientIdSelect(this),
+      joins: 'JOIN encounters ON referrals.initiating_encounter_id = encounters.id',
+    };
   }
 }

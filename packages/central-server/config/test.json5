@@ -39,6 +39,12 @@
   "cors": {
     "allowedOrigin": "https://fake-place-xxx-yyy.com"
   },
+  "sync": {
+    "lookupTable": {
+      "enabled": false,
+      "perModelUpdateTimeoutMs": null
+    }
+  },
   "localisation": {
     "data": {
       "timeZone": "UTC",

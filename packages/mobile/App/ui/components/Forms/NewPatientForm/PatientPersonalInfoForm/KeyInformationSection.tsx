@@ -10,7 +10,6 @@ import { useSettings } from '~/ui/contexts/SettingsContext';
 
 export const KeyInformationSection = (): ReactElement => {
   const { getSetting } = useSettings();
-  const { getSetting } = useSettings();
   let filteredGenderOptions = GenderOptions;
   if (getSetting<boolean>('features.hideOtherSex') === true) {
     filteredGenderOptions = filteredGenderOptions.filter(({ value }) => value !== Gender.Other);

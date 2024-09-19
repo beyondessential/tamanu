@@ -71,12 +71,12 @@ describe('Admissions report', () => {
     });
     expectedExaminer = await randomRecord(models, 'User');
     expectedDiagnosis1 = await findOneOrCreate(ctx.models, models.ReferenceData, {
-      type: 'icd10',
+      type: 'diagnosis',
       code: 'H60.5',
       name: 'Acute bacterial otitis externa',
     });
     expectedDiagnosis2 = await findOneOrCreate(ctx.models, models.ReferenceData, {
-      type: 'icd10',
+      type: 'diagnosis',
       code: 'L74.4',
       name: 'Anhidrosis',
     });
