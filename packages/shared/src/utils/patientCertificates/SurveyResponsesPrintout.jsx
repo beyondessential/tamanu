@@ -33,7 +33,6 @@ const pageStyles = StyleSheet.create({
   column: {
     width: '50%',
     flexDirection: 'column',
-    height: '57vh',
   },
   item: {
     paddingTop: 8,
@@ -103,9 +102,9 @@ const ColumnsContainer = ({ answerRows, itemsPerColumn, hasResult }) => {
 
   if (itemsPerColumn !== ITEMS_PER_COLUMN) {
     if (hasResult) {
-      columnHeight = '57vh';
+      columnHeight = '54vh';
     } else {
-      columnHeight = '64vh';
+      columnHeight = '61vh';
     }
   } else {
     columnHeight = '90vh';
@@ -153,7 +152,7 @@ const SurveyResponsesPrintoutComponent = ({
 }) => {
   const { watermark, logo } = certificateData;
 
-  const surveyAnswerRows = getSurveyAnswerRows(surveyResponse);
+  const surveyAnswerRows = getSurveyAnswerRows(surveyResponse).filter(({ answer }) => !!answer);
 
   let initialItemsPerColumn;
   if (surveyResponse.resultText) {
@@ -182,6 +181,7 @@ const SurveyResponsesPrintoutComponent = ({
             getLocalisation={getLocalisation}
             logoSrc={logo}
             certificateTitle="Program form"
+            certificateSubtitle={surveyResponse.surveyName}
             letterheadConfig={certificateData}
           />
         </CertificateHeader>
