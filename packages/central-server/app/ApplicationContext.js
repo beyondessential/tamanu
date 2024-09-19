@@ -1,13 +1,22 @@
 import config from 'config';
 import { omit } from 'lodash';
-import { isSyncTriggerDisabled } from '@tamanu/shared/dataMigrations';
+
 import { EmailService } from './services/EmailService';
 import { closeDatabase, initDatabase, initReporting } from './database';
 import { initIntegrations } from './integrations';
 import { defineSingletonTelegramBotService } from './services/TelegramBotService';
-import { log, initBugsnag } from '@tamanu/shared/services/logging';
 import { VERSION } from './middleware/versionCompatibility';
 import { ReadSettings } from '@tamanu/settings'
+
+import { isSyncTriggerDisabled } from '@tamanu/shared/dataMigrations';
+import { log, initBugsnag } from '@tamanu/shared/services/logging';
+import { ReadSettings } from '@tamanu/settings/reader';
+
+/**
+ * @typedef {import('./services/EmailService').EmailService} EmailService
+ * @typedef {import('@tamanu/settings/types').CentralSettingPath} CentralSettingPath
+ * @typedef {import('@tamanu/settings').ReadSettings} ReadSettings
+ */
 
 export class ApplicationContext {
   /** @type {Awaited<ReturnType<typeof initDatabase>>|null} */
@@ -15,13 +24,16 @@ export class ApplicationContext {
 
   reportSchemaStores = null;
 
-  /** @type {import('./services/EmailService').EmailService | null} */
+  /** @type {EmailService | null} */
   emailService = null;
 
   /** @type {Awaited<ReturnType<typeof defineSingletonTelegramBotService>>|null} */
   telegramBotService = null;
 
   integrations = null;
+
+  /**@type {ReadSettings<CentralSettingPath> | null} */
+  settings = null;
 
   closeHooks = [];
 
