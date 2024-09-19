@@ -19,7 +19,6 @@ import {
   Form,
   ImagingPriorityField,
   MultiselectField,
-  SelectField,
   TextField,
   TextInput,
   TranslatedSelectField,
@@ -32,6 +31,7 @@ import { TranslatedReferenceData, TranslatedText } from '../components/Translati
 import { useTranslation } from '../contexts/Translation';
 import { IMAGING_TYPES } from '@tamanu/constants';
 import { renderToText } from '../utils';
+import { useAuth } from '../contexts/Auth';
 import { camelCase } from 'lodash';
 
 function getEncounterTypeLabel(type) {
@@ -46,6 +46,7 @@ function getEncounterLabel(encounter) {
 
 const FormSubmitActionDropdown = React.memo(({ requestId, encounter, submitForm }) => {
   const dispatch = useDispatch();
+  const { facilityId } = useAuth();
   const { loadEncounter } = useEncounter();
   const { navigateToImagingRequest } = usePatientNavigation();
   const [awaitingPrintRedirect, setAwaitingPrintRedirect] = useState();
@@ -54,7 +55,7 @@ const FormSubmitActionDropdown = React.memo(({ requestId, encounter, submitForm 
   useEffect(() => {
     (async () => {
       if (awaitingPrintRedirect && requestId) {
-        await dispatch(reloadImagingRequest(requestId));
+        await dispatch(reloadImagingRequest(requestId, facilityId));
         navigateToImagingRequest(requestId, 'print');
       }
     })();
@@ -99,10 +100,6 @@ export const ImagingRequestForm = React.memo(
     const { getTranslation } = useTranslation();
     const { getLocalisation } = useLocalisation();
     const imagingTypes = getLocalisation('imagingTypes') || {};
-    const imagingTypeOptions = Object.entries(imagingTypes).map(([key, val]) => ({
-      label: val.label,
-      value: key,
-    }));
 
     const { examiner = {} } = encounter;
     const examinerLabel = examiner.displayName;
