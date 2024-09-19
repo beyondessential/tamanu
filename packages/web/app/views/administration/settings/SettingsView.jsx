@@ -47,7 +47,7 @@ const StyledTabDisplay = styled(TabDisplay)`
 const TabContainer = styled.div`
   height: 100%;
   padding: 20px;
-  background-color: ${props => props.$backgroundColor || Colors.white};
+  background-color: ${({ $backgroundColor = Colors.white }) => $backgroundColor};
 `;
 
 const tabs = [
@@ -55,14 +55,16 @@ const tabs = [
     label: <TranslatedText stringId="admin.settings.tab.editor.title" fallback="Editor" />,
     key: SETTING_TABS.EDITOR,
     icon: 'fa fa-cog',
-    render: props => (
-      <TabContainer $backgroundColor={Colors.background}>
-        <ScopeSelectorFields {...props} />
-        {(props.scope !== SETTINGS_SCOPES.FACILITY || props.facilityId) && (
-          <EditorView {...props} />
-        )}
-      </TabContainer>
-    ),
+    render: props => {
+      // Don't show the editor if the scope is facility and no facility is selected
+      const shouldShowEditor = props.scope !== SETTINGS_SCOPES.FACILITY || props.facilityId;
+      return (
+        <TabContainer $backgroundColor={Colors.background}>
+          <ScopeSelectorFields {...props} />
+          {shouldShowEditor && <EditorView {...props} />}
+        </TabContainer>
+      );
+    },
   },
   {
     label: <TranslatedText stringId="admin.settings.tab.jsonEditor.title" fallback="JSON editor" />,
@@ -143,6 +145,18 @@ const SettingsForm = ({
   const [warningModalOpen, setShowWarningModal] = useState(false);
   const [resolveFn, setResolveFn] = useState(null);
 
+  const { data: settingsSnapshot = {}, error: settingsFetchError } = useQuery(
+    ['scopedSettings', scope, facilityId],
+    () => api.get('admin/settings', { scope, facilityId }),
+    {},
+  );
+
+  const canViewJSONEditor = ability.can('write', 'Setting');
+  const filteredTabs = useMemo(
+    () => (canViewJSONEditor ? tabs : tabs.filter(({ key }) => key !== SETTING_TABS.JSON)),
+    [canViewJSONEditor],
+  );
+
   const handleShowWarningModal = async () =>
     new Promise(resolve => {
       setResolveFn(() => resolve); // Save resolve to use in onConfirm/onCancel
@@ -178,18 +192,6 @@ const SettingsForm = ({
     setFacilityId(e.target.value);
   };
 
-  const { data: settingsSnapshot = {}, error: settingsFetchError } = useQuery(
-    ['scopedSettings', scope, facilityId],
-    () => api.get('admin/settings', { scope, facilityId }),
-    {},
-  );
-
-  const canViewJSONEditor = ability.can('write', 'Setting');
-  const filteredTabs = useMemo(
-    () => (canViewJSONEditor ? tabs : tabs.filter(({ key }) => key !== SETTING_TABS.JSON)),
-    [canViewJSONEditor],
-  );
-
   if (settingsFetchError) {
     return <ErrorMessage title="Settings fetch error" errorMessage={settingsFetchError.message} />;
   }
@@ -204,16 +206,16 @@ const SettingsForm = ({
         settingsSnapshot={settingsSnapshot}
         setValues={setValues}
         setFieldValue={setFieldValue}
+        handleChangeScope={handleChangeScope}
+        handleChangeFacilityId={handleChangeFacilityId}
+        handleShowWarningModal={handleShowWarningModal}
         values={values}
         submitForm={submitForm}
         isSubmitting={isSubmitting}
         resetForm={handleResetForm}
         dirty={dirty}
-        handleChangeScope={handleChangeScope}
-        handleChangeFacilityId={handleChangeFacilityId}
         scope={scope}
         facilityId={facilityId}
-        handleShowWarningModal={handleShowWarningModal}
       />
       <WarningModal
         open={warningModalOpen}
