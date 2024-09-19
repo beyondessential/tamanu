@@ -1,5 +1,5 @@
 import React, { memo } from 'react';
-import { SvgXml } from 'react-native-svg';
+import SvgXml from 'react-native-svg';
 
 interface Props {
   fill: string;
