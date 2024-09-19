@@ -71,10 +71,11 @@ export const SettingInput = ({
   typeSchema,
   disabled,
 }) => {
+  const { type } = typeSchema;
   const [error, setError] = useState(null);
   const isUnchangedFromDefault = useMemo(() => isEqual(value, defaultValue), [value, defaultValue]);
-  const { type } = typeSchema;
 
+  // Todo look into this
   useEffect(() => {
     try {
       typeSchema.validateSync(value);

@@ -129,15 +129,18 @@ export const EditorView = memo(
 
     const checkDismissChanges = async () => {
       const dismissChanges = await handleShowWarningModal();
-      if (!dismissChanges) return;
-      await resetForm();
+      if (dismissChanges) {
+        await resetForm();
+      }
+      return dismissChanges;
     };
 
     const handleChangeCategory = async e => {
       setSubCategory(null);
       const newCategory = e.target.value;
       if (newCategory !== category && dirty) {
-        await checkDismissChanges();
+        const dismissed = await checkDismissChanges();
+        if (!dismissed) return;
       }
       setCategory(newCategory);
     };
@@ -145,23 +148,24 @@ export const EditorView = memo(
     const handleChangeSubcategory = async e => {
       const newSubCategory = e.target.value;
       if (newSubCategory !== subCategory && dirty) {
-        await checkDismissChanges();
+        const dismissed = await checkDismissChanges();
+        if (!dismissed) return;
       }
       setSubCategory(newSubCategory);
     };
 
+    const getSettingPath = path =>
+      `${category === UNCATEGORISED_KEY ? '' : `${category}.`}${
+        subCategory ? `${subCategory}.` : ''
+      }${path}`;
+
     const handleChangeSetting = (path, value) => {
       const settingObject = cloneDeep(values.settings);
-      const prefix = category === UNCATEGORISED_KEY ? '' : `${category}.`;
-      const updatedSettings = set(settingObject, `${prefix}${path}`, value);
+      const updatedSettings = set(settingObject, getSettingPath(path), value);
       setFieldValue('settings', updatedSettings);
     };
 
-    // Get initial value from snapshot, otherwise grab from current formik state once it exists
-    const getSettingValue = path => {
-      const prefix = category === UNCATEGORISED_KEY ? '' : `${category}.`;
-      return get(values.settings, `${prefix}${path}`);
-    };
+    const getSettingValue = path => get(values.settings, getSettingPath(path));
 
     const saveSettings = async event => {
       // Need to parse json string objects stored in keys
