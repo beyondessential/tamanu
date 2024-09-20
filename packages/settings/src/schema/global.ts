@@ -920,15 +920,6 @@ export const globalSettings = {
             slidingFeeScale: {
               name: 'Sliding fee scale',
               description: '_',
-              type: yup.array().of(yup.array().of(yup.number())),
-              defaultValue: {},
-            },
-          },
-        },
-        invoice: {
-          properties: {
-            slidingFeeScale: {
-              description: '_',
               type: yup.array(yup.array(yup.number())),
               defaultValue: slidingFeeScaleDefault,
             },
