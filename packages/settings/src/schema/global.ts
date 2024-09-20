@@ -20,6 +20,16 @@ export const globalSettings = {
   title: 'Global settings',
   description: 'Settings that apply to all servers',
   properties: {
+    auth: {
+      description: 'Authentication settings',
+      properties: {
+        restrictUsersToFacilities: {
+          description: 'Restrict users to facilities',
+          type: yup.boolean(),
+          defaultValue: false,
+        },
+      },
+    },
     features: {
       description: 'Toggle features on/off',
       properties: {
