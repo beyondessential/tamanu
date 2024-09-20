@@ -5,18 +5,6 @@ export const facilitySettings = {
   name: 'Facility server settings',
   description: 'Settings that apply only to a facility server',
   properties: {
-    templates: {
-      name: 'Templates',
-      description: 'Settings related to templates',
-      properties: {
-        letterhead: {
-          name: 'Letterhead',
-          description: '_',
-          type: yup.object(),
-          defaultValue: {},
-        },
-      },
-    },
     vaccinations: {
       name: 'Vaccinations',
       description: '_',

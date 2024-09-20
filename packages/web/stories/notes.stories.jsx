@@ -14,8 +14,6 @@ const Container = styled.div`
 
 const getLocalisation = key => {
   const config = {
-    'templates.vaccineCertificate.emailAddress': 'tamanu@health.govt',
-    'templates.vaccineCertificate.contactNumber': '123456',
     previewUvciFormat: 'tamanu',
   };
   return config[key];

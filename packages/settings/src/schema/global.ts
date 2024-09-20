@@ -74,7 +74,7 @@ export const globalSettings = {
           defaultValue: true,
         },
         enableCovidClearanceCertificate: {
-          description: 'Enable covid certificate printout',
+          description: 'Enable COVID certificate printout',
           type: yup.boolean(),
           defaultValue: false,
         },
@@ -828,14 +828,245 @@ export const globalSettings = {
       type: imagingPrioritiesSchema,
       defaultValue: imagingPrioritiesDefault,
     },
-  },
-  invoice: {
-    properties: {
-      slidingFeeScale: {
-        name: 'Sliding fee scale',
-        description: '_',
-        type: yup.array().of(yup.array().of(yup.number())),
-        defaultValue: {},
+    templates: {
+      description: 'Strings to be inserted into emails/PDFs',
+      properties: {
+        letterhead: {
+          description: 'The text at the top of most patient PDFs',
+          properties: {
+            title: {
+              type: yup.string(),
+              defaultValue: 'TAMANU MINISTRY OF HEALTH & MEDICAL SERVICES',
+            },
+            subTitle: { type: yup.string(), defaultValue: 'PO Box 12345, Melbourne, Australia' },
+          },
+        },
+        signerRenewalEmail: {
+          description: 'The email sent when the signer runs out',
+          properties: {
+            subject: {
+              type: yup
+                .string()
+                .trim()
+                .min(1),
+              defaultValue: 'Tamanu ICAO Certificate Signing Request',
+            },
+            body: {
+              type: yup
+                .string()
+                .trim()
+                .min(1),
+              defaultValue:
+                'Please sign the following certificate signing request (CSR) with the Country Signing Certificate Authority (CSCA), and return it to the Tamanu team or Tamanu deployment administration team.',
+            },
+          },
+        },
+        vaccineCertificateEmail: {
+          description: 'The email containing patient vaccine certificate',
+          properties: {
+            subject: {
+              type: yup
+                .string()
+                .trim()
+                .min(1),
+              defaultValue: 'Medical Certificate now available',
+            },
+            body: {
+              type: yup
+                .string()
+                .trim()
+                .min(1),
+              defaultValue:
+                'A medical certificate has been generated for you.\nYour certificate is available attached to this email.',
+            },
+          },
+        },
+        covidVaccineCertificateEmail: {
+          description: 'The email containing COVID patient vaccine certificate',
+          properties: {
+            subject: {
+              type: yup
+                .string()
+                .trim()
+                .min(1),
+              defaultValue: 'Medical Certificate now available',
+            },
+            body: {
+              type: yup
+                .string()
+                .trim()
+                .min(1),
+              defaultValue:
+                'A medical certificate has been generated for you.\nYour certificate is available attached to this email.',
+            },
+          },
+        },
+        covidTestCertificateEmail: {
+          description: 'Email with certificate containing the list of COVID tests for this patient',
+          properties: {
+            subject: {
+              type: yup
+                .string()
+                .trim()
+                .min(1),
+              defaultValue: 'Medical Certificate now available',
+            },
+            body: {
+              type: yup
+                .string()
+                .trim()
+                .min(1),
+              defaultValue:
+                'A medical certificate has been generated for you.\nYour certificate is attached to this email.',
+            },
+          },
+        },
+        covidClearanceCertificateEmail: {
+          description:
+            'Certificate containing the list of COVID tests for this patient used for proof of over 13 days since infection',
+          properties: {
+            subject: {
+              type: yup
+                .string()
+                .trim()
+                .min(1),
+              defaultValue: 'COVID-19 Clearance Certificate now available',
+            },
+            body: {
+              type: yup
+                .string()
+                .trim()
+                .min(1),
+              defaultValue:
+                'A COVID-19 clearance certificate has been generated for you.\nYour certificate is attached to this email.',
+            },
+          },
+        },
+        vaccineCertificate: {
+          description: 'Certificate containing the list of vaccines for this patient',
+          properties: {
+            emailAddress: {
+              description: '_',
+              type: yup.string().trim(),
+              defaultValue: 'tamanu@health.gov',
+            },
+            contactNumber: { description: '_', type: yup.string().trim(), defaultValue: '12345' },
+            healthFacility: {
+              description: '_',
+              type: yup
+                .string()
+                .trim()
+                .min(1),
+              defaultValue: 'State level',
+            },
+          },
+        },
+        covidTestCertificate: {
+          description: 'Certificate containing the list of COVID vaccines for this patient',
+          properties: {
+            laboratoryName: {
+              description: '_',
+              type: yup.string().trim(),
+              defaultValue: 'Approved test provider',
+            },
+            clearanceCertRemark: {
+              description: '_',
+              type: yup.string().trim(),
+              defaultValue:
+                'This notice certifies that $firstName$ $lastName$ is no longer considered infectious following 13 days of self-isolation from the date of their first positive SARS-CoV-2 test and are medically cleared from COVID-19. This certificate is valid for 3 months from the date of issue.',
+            },
+          },
+        },
+        plannedMoveTimeoutHours: {
+          description: 'Should match the config value "plannedMoveTimeout.timeoutHours"',
+          type: yup.number().positive(),
+          defaultValue: 24,
+          unit: 'hours',
+        },
+      },
+    },
+    printMeasures: {
+      description: 'Custom dimensions for PDFs',
+      properties: {
+        labRequestPrintLabel: {
+          description: 'Lab request label with basic info + barcode',
+          properties: {
+            width: {
+              type: yup.number().min(0),
+              defaultValue: 50.8,
+            },
+          },
+        },
+        stickerLabelPage: {
+          description: 'The multiple ID labels printout on the patient view',
+          properties: {
+            pageWidth: {
+              type: yup.number().min(0),
+              defaultValue: 210,
+              unit: 'mm',
+            },
+            pageHeight: {
+              type: yup.number().min(0),
+              defaultValue: 297,
+              unit: 'mm',
+            },
+            pageMarginTop: {
+              type: yup.number().min(0),
+              defaultValue: 15.09,
+              unit: 'mm',
+            },
+            pageMarginLeft: {
+              type: yup.number().min(0),
+              defaultValue: 6.4,
+              unit: 'mm',
+            },
+            columnWidth: {
+              type: yup.number().min(0),
+              defaultValue: 64,
+              unit: 'mm',
+            },
+            columnGap: {
+              type: yup.number().min(0),
+              defaultValue: 3.01,
+              unit: 'mm',
+            },
+            rowHeight: {
+              type: yup.number().min(0),
+              defaultValue: 26.7,
+              unit: 'mm',
+            },
+            rowGap: {
+              type: yup.number().min(0),
+              defaultValue: 0,
+              unit: 'mm',
+            },
+          },
+        },
+        idCardPage: {
+          description: 'The ID card found on the patient view',
+          properties: {
+            cardMarginTop: {
+              type: yup.number().min(0),
+              defaultValue: 1,
+              unit: 'mm',
+            },
+            cardMarginLeft: {
+              type: yup.number().min(0),
+              defaultValue: 5,
+              unit: 'mm',
+            },
+          },
+        },
+      },
+    },
+    invoice: {
+      properties: {
+        slidingFeeScale: {
+          name: 'Sliding fee scale',
+          description: '_',
+          type: yup.array().of(yup.array().of(yup.number())),
+          defaultValue: {},
+        },
       },
     },
   },
