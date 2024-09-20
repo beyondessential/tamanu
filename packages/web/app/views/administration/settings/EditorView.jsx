@@ -71,7 +71,6 @@ const getSchemaForCategory = (schema, category, subCategory) => {
   if (!categorySchema) return null;
   if (subCategory) {
     // Pass down highRisk from parent category to now top level subcategory
-
     const subCategorySchema = categorySchema.properties[subCategory];
     const isHighRisk = categorySchema.highRisk || subCategorySchema.highRisk;
     return {

@@ -209,7 +209,6 @@ const SettingsForm = ({
         currentTab={currentTab}
         onTabSelect={handleChangeTab}
         scrollable={false}
-        settingsSnapshot={values.settings}
         setValues={setValues}
         setFieldValue={setFieldValue}
         onChangeScope={handleChangeScope}
