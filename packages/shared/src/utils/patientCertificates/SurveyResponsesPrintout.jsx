@@ -176,6 +176,7 @@ const SurveyResponsesPrintoutComponent = ({
         {watermark && <Watermark src={watermark} />}
         <MultiPageHeader
           documentName="Program form"
+          documentSubname={surveyResponse.programName}
           patientId={patientData.displayId}
           patientName={getName(patientData)}
         />
