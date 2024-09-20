@@ -64,18 +64,20 @@ export const validateSettings = async ({
   const flattenedSchema = flattenSchema(schemaValue);
   const yupSchema = yup.object().shape(flattenedSchema);
   // .noUnknown();
-
   // Temp remove noUnknown()
 
   await yupSchema.validate(flattenedSettings, { abortEarly: false, strict: true });
 };
 
-export const applyDefaults = (settings: Record<any, any>, scope: string) => {
+/**
+ * Applies default values to all settings in the given scope that are not already set.
+ */
+export const applyDefaults = (settings: Record<string, unknown>, scope: string) => {
   const schema = getScopedSchema(scope);
   const defaults = extractDefaults(schema);
   return mergeWith(
     defaults,
-    settings, // Prioritise previous value
+    settings,
     (_, settingValue) => (isArray(settingValue) ? settingValue : undefined), // Replace, don’t merge arrays
   );
 };

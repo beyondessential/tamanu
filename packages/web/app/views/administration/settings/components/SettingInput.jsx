@@ -36,7 +36,7 @@ const StyledNumberInput = styled(NumberInput)`
 
 const DefaultSettingButton = styled(TextButton)`
   margin-left: 20px;
-  margin-top: 14px;
+  margin-top: 15px;
   font-size: 12px;
   text-decoration: underline;
   text-transform: none;

@@ -174,10 +174,11 @@ export const EditorView = memo(
     const saveSettings = async event => {
       // Need to parse json string objects stored in keys
       const parsedSettings = recursiveJsonParse(values.settings);
+      delete parsedSettings.uncategorised;
       setValues({ ...values, settings: parsedSettings });
       const success = await submitForm(event);
       if (success) {
-        await resetForm({ values });
+        resetForm({ values });
       }
     };
 
