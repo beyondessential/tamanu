@@ -51,134 +51,6 @@ const HIDEABLE_PATIENT_TABS = [
   'invoices',
 ];
 
-const templatesSchema = yup
-  .object({
-    plannedMoveTimeoutHours: yup.number().required(),
-
-    letterhead: yup
-      .object({
-        title: yup.string(),
-        subTitle: yup.string(),
-      })
-      .default({})
-      .required()
-      .noUnknown(),
-
-    signerRenewalEmail: yup
-      .object()
-      .shape({
-        subject: yup
-          .string()
-          .trim()
-          .min(1)
-          .required(),
-        body: yup
-          .string()
-          .trim()
-          .min(1)
-          .required(),
-      })
-      .required()
-      .noUnknown(),
-
-    vaccineCertificateEmail: yup
-      .object()
-      .shape({
-        subject: yup
-          .string()
-          .trim()
-          .min(1)
-          .required(),
-        body: yup
-          .string()
-          .trim()
-          .min(1)
-          .required(),
-      })
-      .required()
-      .noUnknown(),
-
-    covidVaccineCertificateEmail: yup
-      .object()
-      .shape({
-        subject: yup
-          .string()
-          .trim()
-          .min(1)
-          .required(),
-        body: yup
-          .string()
-          .trim()
-          .min(1)
-          .required(),
-      })
-      .required()
-      .noUnknown(),
-
-    covidTestCertificateEmail: yup
-      .object()
-      .shape({
-        subject: yup
-          .string()
-          .trim()
-          .min(1)
-          .required(),
-        body: yup
-          .string()
-          .trim()
-          .min(1)
-          .required(),
-      })
-      .required()
-      .noUnknown(),
-
-    covidClearanceCertificateEmail: yup
-      .object()
-      .shape({
-        subject: yup
-          .string()
-          .trim()
-          .min(1)
-          .required(),
-        body: yup
-          .string()
-          .trim()
-          .min(1)
-          .required(),
-      })
-      .required()
-      .noUnknown(),
-
-    vaccineCertificate: yup
-      .object({
-        emailAddress: yup.string().trim(),
-        contactNumber: yup.string().trim(),
-        healthFacility: yup
-          .string()
-          .trim()
-          .min(1)
-          .required(),
-      })
-      .required()
-      .noUnknown(),
-
-    covidTestCertificate: yup
-      .object({
-        laboratoryName: yup
-          .string()
-          .trim()
-          .required(),
-        clearanceCertRemark: yup
-          .string()
-          .trim()
-          .required(),
-      })
-      .required()
-      .noUnknown(),
-  })
-  .required()
-  .noUnknown();
-
 const mobilePatientModulesSchema = yup.object({
   programRegistries: yup.object({ hidden: yup.boolean() }),
   ...MOBILE_PATIENT_MODULES.reduce(
@@ -275,56 +147,6 @@ const layoutsSchema = yup.object({
   sidebar: sidebarSchema,
 });
 
-const validCssAbsoluteLength = yup
-  .string()
-  .required()
-  // eslint-disable-next-line no-template-curly-in-string
-  .test('is-valid-css-absolute-length', '${path} is not a valid CSS absolute length', value => {
-    if (value === '0') {
-      return true;
-    }
-
-    // Make sure unit is a valid CSS absolute unit
-    const unitCharLength = value.slice(-1) === 'Q' ? 1 : 2;
-    const unit = value.slice(-unitCharLength);
-    if (['cm', 'mm', 'Q', 'in', 'pc', 'pt', 'px'].includes(unit) === false) {
-      return false;
-    }
-
-    // Make sure the rest of the string is actually a valid CSS number
-    // only integers or floats with no extra characters.
-    const numberString = value.slice(0, -unitCharLength);
-    return /(^\d+$)|(^\d+\.\d+$)/.test(numberString);
-  });
-
-const printMeasuresSchema = yup
-  .object({
-    labRequestPrintLabel: yup.object({
-      width: yup
-        .number()
-        .required()
-        .positive(),
-    }),
-    stickerLabelPage: yup.object({
-      pageWidth: validCssAbsoluteLength,
-      pageHeight: validCssAbsoluteLength,
-      pageMarginTop: validCssAbsoluteLength,
-      pageMarginLeft: validCssAbsoluteLength,
-      columnTotal: yup.number().required(),
-      columnWidth: validCssAbsoluteLength,
-      columnGap: validCssAbsoluteLength,
-      rowTotal: yup.number().required(),
-      rowHeight: validCssAbsoluteLength,
-      rowGap: validCssAbsoluteLength,
-    }),
-    idCardPage: yup.object({
-      cardMarginTop: validCssAbsoluteLength,
-      cardMarginLeft: validCssAbsoluteLength,
-    }),
-  })
-  .required()
-  .noUnknown();
-
 const rootLocalisationSchema = yup
   .object({
     units: yup.object({
@@ -346,7 +168,6 @@ const rootLocalisationSchema = yup
         .length(3)
         .required(),
     },
-    templates: templatesSchema,
     timeZone: yup.string().nullable(),
     imagingTypes: imagingTypesSchema,
     layouts: layoutsSchema,
@@ -354,7 +175,6 @@ const rootLocalisationSchema = yup
       .string()
       .required()
       .oneOf(['tamanu', 'eudcc', 'icao']),
-    printMeasures: printMeasuresSchema,
     disabledReports: yup.array(yup.string().required()).defined(),
     supportDeskUrl: yup.string().required(),
   })

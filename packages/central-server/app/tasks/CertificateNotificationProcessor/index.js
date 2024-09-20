@@ -1,5 +1,4 @@
 import config from 'config';
-import { get } from 'lodash';
 
 import {
   CERTIFICATE_NOTIFICATION_STATUSES,
@@ -59,7 +58,6 @@ export class CertificateNotificationProcessor extends ScheduledTask {
     } = models;
     const vdsEnabled = config.integrations.vdsNc.enabled;
     const euDccEnabled = config.integrations.euDcc.enabled;
-    const localisation = await getLocalisation();
 
     const [certifiableVaccineIds, queuedNotifications] = await Promise.all([
       CertifiableVaccine.allVaccineIds(euDccEnabled),
@@ -208,6 +206,7 @@ export class CertificateNotificationProcessor extends ScheduledTask {
             template = 'vaccineCertificateEmail';
             pdf = await makeVaccineCertificate({
               models,
+              settings,
               facilityName,
               language,
               patient,
@@ -222,6 +221,9 @@ export class CertificateNotificationProcessor extends ScheduledTask {
         }
 
         sublog.debug('Creating communication record');
+
+        const { subject, body: content } = await settings.get(`templates.${template}`);
+
         // eslint-disable-next-line no-loop-func
         const [comm] = await sequelize.transaction(() =>
           // queue the email to be sent and mark this notification as processed
@@ -229,8 +231,8 @@ export class CertificateNotificationProcessor extends ScheduledTask {
             PatientCommunication.create({
               type: PATIENT_COMMUNICATION_TYPES.CERTIFICATE,
               channel: PATIENT_COMMUNICATION_CHANNELS.EMAIL,
-              subject: get(localisation, `templates.${template}.subject`),
-              content: get(localisation, `templates.${template}.body`),
+              subject,
+              content,
               status: COMMUNICATION_STATUSES.QUEUED,
               patientId,
               destination: notification.get('forwardAddress'),

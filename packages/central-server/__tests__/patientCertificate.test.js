@@ -184,7 +184,7 @@ describe('Certificate', () => {
       certType: chance.pickone(Object.values(CertificateTypes)),
       patient: patientRecord,
       printedBy: chance.name(),
-      vdsData: [{ foo: 'bar' }],
+      translations: [{ foo: 'bar' }],
     });
     expect(result.status).toEqual('success');
   });
@@ -195,10 +195,10 @@ describe('Certificate', () => {
     const result = await makeVaccineCertificate({
       models,
       settings,
-      facilityName: 'test facility',
       patient: patientRecord,
       printedAt: new Date(),
       printedBy: chance.name(),
+      facilityName: 'test facility',
     });
     expect(result.status).toEqual('success');
   });

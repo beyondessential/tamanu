@@ -13,6 +13,8 @@ export const KEYS_EXPOSED_TO_FRONT_END = [
   'imagingCancellationReasons',
   'imagingPriorities',
   'insurer',
+  'customisations',
+  'printMeasures',
   'invoice',
   'labsCancellationReasons',
   'templates',
