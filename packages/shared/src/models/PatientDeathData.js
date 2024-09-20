@@ -4,7 +4,6 @@ import { InvalidOperationError } from '../errors';
 import { dateType } from './dateTimeTypes';
 import { Model } from './Model';
 import { buildPatientSyncFilterViaPatientId } from './buildPatientSyncFilterViaPatientId';
-import { onSaveMarkPatientForSync } from './onSaveMarkPatientForSync';
 import { buildPatientLinkedLookupFilter } from './buildPatientLinkedLookupFilter';
 
 export class PatientDeathData extends Model {
@@ -71,7 +70,6 @@ export class PatientDeathData extends Model {
         },
       },
     );
-    onSaveMarkPatientForSync(this);
   }
 
   static initRelations(models) {
@@ -123,7 +121,7 @@ export class PatientDeathData extends Model {
       as: 'contributingCauses',
     });
   }
-  
+
   static buildSyncLookupQueryDetails() {
     return buildPatientLinkedLookupFilter(this);
   }
