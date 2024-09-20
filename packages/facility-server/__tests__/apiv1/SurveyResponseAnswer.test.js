@@ -154,7 +154,7 @@ describe('SurveyResponseAnswer', () => {
     });
 
     describe('getDefaultId', () => {
-      beforeAll(async () => {
+      it('should return the default id for a resource from settings', async () => {
         const { Setting, Department } = models;
         await Department.create({
           id: 'test-department-id',
@@ -168,13 +168,6 @@ describe('SurveyResponseAnswer', () => {
           SETTINGS_SCOPES.FACILITY,
           config.serverFacilityId,
         );
-      });
-      afterAll(async () => {
-        const { Setting } = models;
-        await Setting.truncate();
-      });
-
-      it('should return the default id for a resource from settings', async () => {
         const departmentId = await models.SurveyResponseAnswer.getDefaultId('department', settings);
         expect(departmentId).toEqual('test-department-id');
       });
