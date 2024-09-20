@@ -1,3 +1,4 @@
+import config from 'config';
 import { createDummyEncounter, createDummyPatient } from '@tamanu/shared/demoData';
 import { chance, findOneOrCreate } from '@tamanu/shared/test-helpers';
 import { createTestContext } from '../utilities';
