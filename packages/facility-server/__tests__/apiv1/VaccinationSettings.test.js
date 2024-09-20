@@ -50,7 +50,7 @@ describe('Vaccination Settings', () => {
       const TEST_KEY = 'vaccinations.test.key2';
       const TEST_VALUE = 'test-value';
 
-      await Setting.set(TEST_KEY, TEST_VALUE, anotherFacility.id);
+      await Setting.set(TEST_KEY, TEST_VALUE, SETTINGS_SCOPES.FACILITY, anotherFacility.id);
 
       const result = await app.get(`/api/vaccinationSettings/${TEST_KEY}`).send({});
 
