@@ -152,6 +152,7 @@ const SurveyResponsesPrintoutComponent = ({
   certificateData,
   getLocalisation,
   surveyResponse,
+  isReferral,
 }) => {
   const { watermark, logo } = certificateData;
 
@@ -175,8 +176,8 @@ const SurveyResponsesPrintoutComponent = ({
       <Page size="A4" style={pageStyles.body}>
         {watermark && <Watermark src={watermark} />}
         <MultiPageHeader
-          documentName="Program form"
-          documentSubname={surveyResponse.programName}
+          documentName={!isReferral ? "Program form" : "Referral"}
+          documentSubname={surveyResponse.title}
           patientId={patientData.displayId}
           patientName={getName(patientData)}
         />
@@ -184,8 +185,8 @@ const SurveyResponsesPrintoutComponent = ({
           <LetterheadSection
             getLocalisation={getLocalisation}
             logoSrc={logo}
-            certificateTitle="Program form"
-            certificateSubtitle={surveyResponse.programName}
+            certificateTitle={!isReferral ? "Program form" : "Referral"}
+            certificateSubtitle={surveyResponse.title}
             letterheadConfig={certificateData}
           />
         </CertificateHeader>

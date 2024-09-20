@@ -13,7 +13,7 @@ import { SurveyResponsesPrintout } from '@tamanu/shared/utils/patientCertificate
 import { useSurveyResponse } from '../../../api/queries/useSurveyResponse';
 
 export const SurveyResponsesPrintModal = React.memo(
-  ({ patient, open, onClose, surveyResponse }) => {
+  ({ patient, open, onClose, surveyResponseId, title, isReferral }) => {
     const { getLocalisation } = useLocalisation();
     const { getTranslation } = useTranslation();
     const api = useApi();
@@ -32,15 +32,13 @@ export const SurveyResponsesPrintModal = React.memo(
       },
     );
 
-    const { data: surveyResponseData, isLoading: surveyResponseLoading } = useSurveyResponse(
-      surveyResponse?.id,
-    );
+    const { data: surveyResponse, isLoading: surveyResponseLoading } = useSurveyResponse(surveyResponseId);
 
     const { data: user, isLoading: isUserLoading } = useQuery(
-      ['user', surveyResponseData?.userId],
-      () => api.get(`user/${surveyResponseData?.userId}`),
+      ['user', surveyResponse?.userId],
+      () => api.get(`user/${surveyResponse?.userId}`),
       {
-        enabled: !!surveyResponseData?.userId,
+        enabled: !!surveyResponse?.userId,
       },
     );
 
@@ -67,13 +65,14 @@ export const SurveyResponsesPrintModal = React.memo(
           <SurveyResponsesPrintout
             patientData={{ ...patient, additionalData, village }}
             surveyResponse={{
-              ...surveyResponseData,
+              ...surveyResponse,
               user,
-              programName: surveyResponse?.programName,
+              title,
             }}
             certificateData={certificateData}
             getLocalisation={getLocalisation}
             getTranslation={getTranslation}
+            isReferral
           />
         </PDFLoader>
       </Modal>

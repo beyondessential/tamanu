@@ -17,6 +17,7 @@ import { useAuth } from '../contexts/Auth';
 import { MenuButton } from './MenuButton';
 import { DeleteReferralModal } from '../views/patients/components/DeleteReferralModal';
 import { useRefreshCount } from '../hooks/useRefreshCount';
+import { SurveyResponsesPrintModal } from './PatientPrinting/modals/SurveyResponsesPrintModal';
 
 const fieldNames = ['Referring doctor', 'Referral completed by'];
 const ReferralBy = ({ surveyResponse: { survey, answers } }) => {
@@ -71,6 +72,7 @@ const getStatus = ({ status }) => (
 );
 
 const MODAL_IDS = {
+  PRINT: 'print',
   ADMIT: 'admit',
   COMPLETE: 'complete',
   CANCEL: 'cancel',
@@ -114,6 +116,10 @@ export const ReferralTable = React.memo(({ patientId }) => {
   };
 
   const actions = [
+    {
+      label: <TranslatedText stringId="general.action.print" fallback="Print" />,
+      action: () => handleChangeModalId(MODAL_IDS.PRINT),
+    },
     {
       label: <TranslatedText stringId="patient.referral.action.admit" fallback="Admit" />,
       action: () => handleChangeModalId(MODAL_IDS.ADMIT),
@@ -193,11 +199,20 @@ export const ReferralTable = React.memo(({ patientId }) => {
       },
     },
   ];
-
+  console.log('selectedReferral', selectedReferral);
   const ActiveModal = useMemo(() => {
     const MODALS = {
-      [MODAL_IDS.ADMIT]: ({ referralToDelete, ...props }) => (
-        <EncounterModal {...props} patient={patient} referral={referralToDelete} />
+      [MODAL_IDS.PRINT]: ({ selectedReferral, ...props }) => (
+        <SurveyResponsesPrintModal
+          {...props}
+          patient={patient}
+          surveyResponseId={selectedReferral?.surveyResponseId}
+          title={selectedReferral?.surveyResponse?.survey?.name}
+          isReferral
+        />
+      ),
+      [MODAL_IDS.ADMIT]: ({ selectedReferral, ...props }) => (
+        <EncounterModal {...props} patient={patient} referral={selectedReferral} />
       ),
       [MODAL_IDS.CANCEL]: props => (
         <ConfirmModal
@@ -250,7 +265,7 @@ export const ReferralTable = React.memo(({ patientId }) => {
       {ActiveModal && (
         <ActiveModal
           open={modalOpen}
-          referralToDelete={selectedReferral}
+          selectedReferral={selectedReferral}
           endpoint={endpoint}
           onClose={() => {
             setModalOpen(false);
