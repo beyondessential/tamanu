@@ -120,7 +120,7 @@ const ColumnsContainer = ({ answerRows, itemsPerColumn, hasResult }) => {
 
   return (
     <View style={pageStyles.container} wrap={false}>
-      <View style={[pageStyles.column, { height: columnHeight }]}>
+      <View style={[pageStyles.column, { maxHeight: columnHeight }]}>
         {firstAnswerRows.map((row, index) =>
           index === firstAnswerRows.length - 1 ? null : (
             <ResponseColumn
@@ -132,7 +132,7 @@ const ColumnsContainer = ({ answerRows, itemsPerColumn, hasResult }) => {
         )}
       </View>
       <View style={pageStyles.verticalDivider} />
-      <View style={[pageStyles.column, { height: columnHeight }]}>
+      <View style={[pageStyles.column, { maxHeight: columnHeight }]}>
         {secondAnswerRows.map((row, index) =>
           index === secondAnswerRows.length - 1 ? null : (
             <ResponseColumn
