@@ -22,3 +22,15 @@ export const useMarkTaskCompleted = () => {
     onError: error => notifyError(error.message),
   });
 };
+
+export const useDeleteTask = () => {
+  const api = useApi();
+
+  return useMutation({
+    mutationFn: async body => {
+      const result = await api.put('tasks/deleted', body);
+      return result;
+    },
+    onError: error => notifyError(error.message),
+  });
+};
