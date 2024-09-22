@@ -244,6 +244,12 @@
     "syncLookupRefresher": {
       "enabled": false,
       "schedule": "*/1 * * * *"
+    },
+    "generateRepeatingTasks": {
+      // every day at 1 AM
+      "schedule": "0 1 * * *",
+      "batchSize": 50,
+      "batchSleepAsyncDurationInMilliseconds": 50
     }
   },
   "integrations": {
@@ -1345,5 +1351,8 @@
   "patientCommunication": {
     "retryThreshold": 20
   },
-  "language": "en"
+  "language": "en",
+  "tasking": {
+    "upcomingTasksShouldBeGeneratedTimeFrame": 72, // hours
+  }
 }
