@@ -130,7 +130,7 @@ export const EncounterView = () => {
   const api = useApi();
   const query = useUrlSearchParams();
   const { getSetting } = useSettings();
-  const { facility, ability } = useAuth();
+  const { facilityId, ability } = useAuth();
   const patient = useSelector(state => state.patient);
   const { encounter, isLoadingEncounter } = useEncounter();
   const { data: patientBillingTypeData } = useReferenceData(encounter?.patientBillingTypeId);
@@ -160,7 +160,7 @@ export const EncounterView = () => {
         }
         encounter={encounter}
       >
-        {(facility.id === encounter.location.facilityId || encounter.endDate) &&
+        {(facilityId === encounter.location.facilityId || encounter.endDate) &&
           // Hide all actions if encounter type is Vaccination or Survey Response,
           // as they should only contain 1 survey response or vaccination and discharged automatically,
           // no need to show any summaries or actions
