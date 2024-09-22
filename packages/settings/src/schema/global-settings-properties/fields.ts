@@ -1,3 +1,4 @@
+import { Setting } from 'types';
 import * as yup from 'yup';
 
 export const LOCALISED_FIELD_TYPES = {
@@ -7,8 +8,7 @@ export const LOCALISED_FIELD_TYPES = {
 };
 
 export const generateFieldSchema = ({ isPatientDetails = false, hideable = true, type }) => {
-  // TODO: bad
-  const schema: any = {
+  const schema: Record<string, Setting> = {
     required: {
       description: 'Field is required',
       type: yup.boolean(),
