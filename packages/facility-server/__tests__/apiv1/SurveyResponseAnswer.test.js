@@ -21,10 +21,11 @@ describe('SurveyResponseAnswer', () => {
   let ctx;
 
   beforeAll(async () => {
+    const [facilityId] = selectFacilityIds(config);
     ctx = await createTestContext();
     baseApp = ctx.baseApp;
     models = ctx.models;
-    settings = ctx.settings;
+    settings = ctx.settings[facilityId];
     app = await baseApp.asRole('practitioner');
   });
   afterAll(() => ctx.close());

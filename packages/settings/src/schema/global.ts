@@ -800,7 +800,11 @@ export const globalSettings = {
               type: yup.string().trim(),
               defaultValue: 'tamanu@health.gov',
             },
-            contactNumber: { description: '_', type: yup.string().trim(), defaultValue: '12345' },
+            contactNumber: {
+              description: '_',
+              type: yup.string().trim(),
+              defaultValue: '12345',
+            },
             healthFacility: {
               description: '_',
               type: yup
