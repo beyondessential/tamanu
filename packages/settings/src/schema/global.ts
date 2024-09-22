@@ -9,9 +9,11 @@ import {
   triageCategoriesSchema,
 } from './definitions';
 import {
+  baseFieldProperties,
   displayIdFieldProperties,
-  generateFieldSchema,
-  LOCALISED_FIELD_TYPES,
+  hideableFieldProperties,
+  hideablePatientFieldProperties,
+  patientDetailsFieldProperties,
 } from './global-settings-properties/fields';
 
 export const globalSettings = {
@@ -251,28 +253,17 @@ export const globalSettings = {
         countryName: {
           name: 'Country name',
           description: 'Patients country name',
-          properties: generateFieldSchema({
-            isPatientDetails: true,
-            type: LOCALISED_FIELD_TYPES.STRING,
-          }),
+          properties: hideableFieldProperties,
         },
         emergencyContactName: {
           name: 'Emergency contact name',
           description: 'Patients emergency contact name',
-          properties: generateFieldSchema({
-            isPatientDetails: true,
-            hideable: false,
-            type: LOCALISED_FIELD_TYPES.STRING,
-          }),
+          properties: patientDetailsFieldProperties,
         },
         emergencyContactNumber: {
           name: 'Emergency contact number',
           description: '_',
-          properties: generateFieldSchema({
-            isPatientDetails: true,
-            hideable: false,
-            type: LOCALISED_FIELD_TYPES.STRING,
-          }),
+          properties: patientDetailsFieldProperties,
         },
         displayId: {
           name: 'Display ID',
@@ -282,543 +273,397 @@ export const globalSettings = {
         firstName: {
           name: 'First name',
           description: '_',
-          properties: generateFieldSchema({
-            isPatientDetails: true,
-            hideable: false,
-            type: LOCALISED_FIELD_TYPES.STRING,
-          }),
+          properties: patientDetailsFieldProperties,
         },
         middleName: {
           name: 'Middle name',
           description: '_',
-          properties: generateFieldSchema({
-            isPatientDetails: true,
-            type: LOCALISED_FIELD_TYPES.STRING,
-          }),
+          properties: hideablePatientFieldProperties,
         },
         lastName: {
           name: 'Last name',
           description: '_',
-          properties: generateFieldSchema({
-            isPatientDetails: true,
-            hideable: false,
-            type: LOCALISED_FIELD_TYPES.STRING,
-          }),
+          properties: patientDetailsFieldProperties,
         },
         culturalName: {
           name: 'Cultural name',
           description: '_',
-          properties: generateFieldSchema({
-            isPatientDetails: true,
-            type: LOCALISED_FIELD_TYPES.STRING,
-          }),
+          properties: hideablePatientFieldProperties,
         },
         sex: {
           name: 'Sex',
           description: '_',
-          properties: generateFieldSchema({
-            isPatientDetails: true,
-            type: LOCALISED_FIELD_TYPES.STRING,
-          }),
+          properties: hideablePatientFieldProperties,
         },
         email: {
           name: 'Email',
           description: '_',
-          properties: generateFieldSchema({
-            isPatientDetails: true,
-            type: LOCALISED_FIELD_TYPES.STRING,
-          }),
+          properties: hideablePatientFieldProperties,
         },
         dateOfBirth: {
           name: 'Date of birth',
           description: '_',
-          properties: generateFieldSchema({
-            isPatientDetails: true,
-            hideable: false,
-            type: LOCALISED_FIELD_TYPES.STRING,
-          }),
+          properties: patientDetailsFieldProperties,
         },
         bloodType: {
           name: 'Blood type',
           description: '_',
-          properties: generateFieldSchema({
-            isPatientDetails: true,
-            type: LOCALISED_FIELD_TYPES.STRING,
-          }),
+          properties: hideablePatientFieldProperties,
         },
         title: {
           name: 'Title',
           description: '_',
-          properties: generateFieldSchema({
-            isPatientDetails: true,
-            type: LOCALISED_FIELD_TYPES.STRING,
-          }),
+          properties: hideablePatientFieldProperties,
         },
         placeOfBirth: {
           name: 'Place of birth',
           description: '_',
-          properties: generateFieldSchema({
-            isPatientDetails: true,
-            type: LOCALISED_FIELD_TYPES.STRING,
-          }),
+          properties: hideablePatientFieldProperties,
         },
         countryOfBirthId: {
           name: 'Country of birth',
           description: '_',
-          properties: generateFieldSchema({
-            isPatientDetails: true,
-            type: LOCALISED_FIELD_TYPES.STRING,
-          }),
+          properties: hideablePatientFieldProperties,
         },
         maritalStatus: {
           name: 'Marital status',
           description: '_',
-          properties: generateFieldSchema({
-            isPatientDetails: true,
-            type: LOCALISED_FIELD_TYPES.STRING,
-          }),
+          properties: hideablePatientFieldProperties,
         },
         primaryContactNumber: {
           name: 'Primary contact number',
           description: '_',
-          properties: generateFieldSchema({
-            isPatientDetails: true,
-            type: LOCALISED_FIELD_TYPES.STRING,
-          }),
+          properties: hideablePatientFieldProperties,
         },
         secondaryContactNumber: {
           name: 'Secondary contact number',
           description: '_',
-          properties: generateFieldSchema({
-            isPatientDetails: true,
-            type: LOCALISED_FIELD_TYPES.STRING,
-          }),
+          properties: hideablePatientFieldProperties,
         },
         socialMedia: {
           name: 'Social media',
           description: '_',
-          properties: generateFieldSchema({
-            isPatientDetails: true,
-            type: LOCALISED_FIELD_TYPES.STRING,
-          }),
+          properties: hideablePatientFieldProperties,
         },
         settlementId: {
           name: 'Settlement',
           description: '_',
-          properties: generateFieldSchema({
-            isPatientDetails: true,
-            type: LOCALISED_FIELD_TYPES.STRING,
-          }),
+          properties: hideablePatientFieldProperties,
         },
         streetVillage: {
           name: 'Street village',
           description: '_',
-          properties: generateFieldSchema({
-            isPatientDetails: true,
-            type: LOCALISED_FIELD_TYPES.STRING,
-          }),
+          properties: hideablePatientFieldProperties,
         },
         cityTown: {
           name: 'City town',
           description: '_',
-          properties: generateFieldSchema({
-            isPatientDetails: true,
-            type: LOCALISED_FIELD_TYPES.STRING,
-          }),
+          properties: hideablePatientFieldProperties,
         },
         subdivisionId: {
           name: 'Subdivision',
           description: '_',
-          properties: generateFieldSchema({
-            isPatientDetails: true,
-            type: LOCALISED_FIELD_TYPES.STRING,
-          }),
+          properties: hideablePatientFieldProperties,
         },
         divisionId: {
           name: 'Division',
           description: '_',
-          properties: generateFieldSchema({
-            isPatientDetails: true,
-            type: LOCALISED_FIELD_TYPES.STRING,
-          }),
+          properties: hideablePatientFieldProperties,
         },
         countryId: {
           name: 'Country',
           description: '_',
-          properties: generateFieldSchema({
-            isPatientDetails: true,
-            type: LOCALISED_FIELD_TYPES.STRING,
-          }),
+          properties: hideablePatientFieldProperties,
         },
         medicalAreaId: {
           name: 'Medical area',
           description: '_',
-          properties: generateFieldSchema({
-            isPatientDetails: true,
-            type: LOCALISED_FIELD_TYPES.STRING,
-          }),
+          properties: hideablePatientFieldProperties,
         },
         nursingZoneId: {
           name: 'Nursing zone',
           description: '_',
-          properties: generateFieldSchema({
-            isPatientDetails: true,
-            type: LOCALISED_FIELD_TYPES.STRING,
-          }),
+          properties: hideablePatientFieldProperties,
         },
         nationalityId: {
           name: 'Nationality',
           description: '_',
-          properties: generateFieldSchema({
-            isPatientDetails: true,
-            type: LOCALISED_FIELD_TYPES.STRING,
-          }),
+          properties: hideablePatientFieldProperties,
         },
         ethnicityId: {
           name: 'Ethnicity',
           description: '_',
-          properties: generateFieldSchema({
-            isPatientDetails: true,
-            type: LOCALISED_FIELD_TYPES.STRING,
-          }),
+          properties: hideablePatientFieldProperties,
         },
         occupationId: {
           name: 'Occupation',
           description: '_',
-          properties: generateFieldSchema({
-            isPatientDetails: true,
-            type: LOCALISED_FIELD_TYPES.STRING,
-          }),
+          properties: hideablePatientFieldProperties,
         },
         educationalLevel: {
           name: 'Educational level',
           description: '_',
-          properties: generateFieldSchema({
-            isPatientDetails: true,
-            type: LOCALISED_FIELD_TYPES.STRING,
-          }),
+          properties: hideablePatientFieldProperties,
         },
         villageName: {
           name: 'Village name',
           description: '_',
-          properties: generateFieldSchema({ type: LOCALISED_FIELD_TYPES.STRING }),
+          properties: hideableFieldProperties,
         },
         villageId: {
           name: 'Village',
           description: '_',
-          properties: generateFieldSchema({
-            isPatientDetails: true,
-            type: LOCALISED_FIELD_TYPES.STRING,
-          }),
+          properties: hideablePatientFieldProperties,
         },
         birthCertificate: {
           name: 'Birth certificate',
           description: '_',
-          properties: generateFieldSchema({
-            isPatientDetails: true,
-            type: LOCALISED_FIELD_TYPES.STRING,
-          }),
+          properties: hideablePatientFieldProperties,
         },
         insurerId: {
           name: 'Insurer',
           description: '_',
-          properties: generateFieldSchema({
-            isPatientDetails: true,
-            type: LOCALISED_FIELD_TYPES.STRING,
-          }),
+          properties: hideablePatientFieldProperties,
         },
         insurerPolicyNumber: {
           name: 'Insurer policy number',
           description: '_',
-          properties: generateFieldSchema({
-            isPatientDetails: true,
-            type: LOCALISED_FIELD_TYPES.STRING,
-          }),
+          properties: hideablePatientFieldProperties,
         },
         drivingLicense: {
           name: 'Driving license',
           description: '_',
-          properties: generateFieldSchema({
-            isPatientDetails: true,
-            type: LOCALISED_FIELD_TYPES.STRING,
-          }),
+          properties: hideablePatientFieldProperties,
         },
         passport: {
           name: 'Passport',
           description: '_',
-          properties: generateFieldSchema({
-            isPatientDetails: true,
-            type: LOCALISED_FIELD_TYPES.STRING,
-          }),
+          properties: hideablePatientFieldProperties,
         },
         religionId: {
           name: 'Religion',
           description: '_',
-          properties: generateFieldSchema({
-            isPatientDetails: true,
-            type: LOCALISED_FIELD_TYPES.STRING,
-          }),
+          properties: hideablePatientFieldProperties,
         },
         patientBillingTypeId: {
           name: 'Patient billing type',
           description: '_',
-          properties: generateFieldSchema({
-            isPatientDetails: true,
-            type: LOCALISED_FIELD_TYPES.STRING,
-          }),
+          properties: hideablePatientFieldProperties,
         },
         motherId: {
           name: 'Mother',
           description: '_',
-          properties: generateFieldSchema({
-            isPatientDetails: true,
-            type: LOCALISED_FIELD_TYPES.STRING,
-          }),
+          properties: hideablePatientFieldProperties,
         },
         fatherId: {
           name: 'Father',
           description: '_',
-          properties: generateFieldSchema({
-            isPatientDetails: true,
-            type: LOCALISED_FIELD_TYPES.STRING,
-          }),
+          properties: hideablePatientFieldProperties,
         },
         birthWeight: {
           name: 'Birth weight',
           description: '_',
-          properties: generateFieldSchema({
-            isPatientDetails: true,
-            type: LOCALISED_FIELD_TYPES.STRING,
-          }),
+          properties: hideablePatientFieldProperties,
         },
         birthLength: {
           name: 'Birth length',
           description: '_',
-          properties: generateFieldSchema({
-            isPatientDetails: true,
-            type: LOCALISED_FIELD_TYPES.STRING,
-          }),
+          properties: hideablePatientFieldProperties,
         },
         birthDeliveryType: {
           name: 'Birth delivery type',
           description: '_',
-          properties: generateFieldSchema({
-            isPatientDetails: true,
-            type: LOCALISED_FIELD_TYPES.STRING,
-          }),
+          properties: hideablePatientFieldProperties,
         },
         gestationalAgeEstimate: {
           name: 'Gestational age estimate',
           description: '_',
-          properties: generateFieldSchema({
-            isPatientDetails: true,
-            type: LOCALISED_FIELD_TYPES.STRING,
-          }),
+          properties: hideablePatientFieldProperties,
         },
         apgarScoreOneMinute: {
           name: 'Apgar score after one minute',
           description: '_',
-          properties: generateFieldSchema({
-            isPatientDetails: true,
-            type: LOCALISED_FIELD_TYPES.STRING,
-          }),
+          properties: hideablePatientFieldProperties,
         },
         apgarScoreFiveMinutes: {
           name: 'Apgar score after five minutes',
           description: '_',
-          properties: generateFieldSchema({
-            isPatientDetails: true,
-            type: LOCALISED_FIELD_TYPES.STRING,
-          }),
+          properties: hideablePatientFieldProperties,
         },
         apgarScoreTenMinutes: {
           name: 'Apgar score after ten minutes',
           description: '_',
-          properties: generateFieldSchema({
-            isPatientDetails: true,
-            type: LOCALISED_FIELD_TYPES.STRING,
-          }),
+          properties: hideablePatientFieldProperties,
         },
         timeOfBirth: {
           name: 'Time of birth',
           description: '_',
-          properties: generateFieldSchema({
-            isPatientDetails: true,
-            type: LOCALISED_FIELD_TYPES.STRING,
-          }),
+          properties: hideablePatientFieldProperties,
         },
         attendantAtBirth: {
           name: 'Attendant at birth',
           description: '_',
-          properties: generateFieldSchema({
-            isPatientDetails: true,
-            type: LOCALISED_FIELD_TYPES.STRING,
-          }),
+          properties: hideablePatientFieldProperties,
         },
         nameOfAttendantAtBirth: {
           name: 'Name of attendant at birth',
           description: '_',
-          properties: generateFieldSchema({
-            isPatientDetails: true,
-            type: LOCALISED_FIELD_TYPES.STRING,
-          }),
+          properties: hideablePatientFieldProperties,
         },
         birthType: {
           name: 'Birth type',
           description: '_',
-          properties: generateFieldSchema({
-            isPatientDetails: true,
-            type: LOCALISED_FIELD_TYPES.STRING,
-          }),
+          properties: hideablePatientFieldProperties,
         },
         birthFacilityId: {
           name: 'Birth facility',
           description: '_',
-          properties: generateFieldSchema({
-            isPatientDetails: true,
-            type: LOCALISED_FIELD_TYPES.STRING,
-          }),
+          properties: hideablePatientFieldProperties,
         },
         healthCenterId: {
           name: 'Health center',
           description: '_',
-          properties: generateFieldSchema({
-            isPatientDetails: true,
-            type: LOCALISED_FIELD_TYPES.STRING,
-          }),
+          properties: hideablePatientFieldProperties,
         },
         registeredBirthPlace: {
           name: 'Registered birth place',
           description: '_',
-          properties: generateFieldSchema({
-            isPatientDetails: true,
-            type: LOCALISED_FIELD_TYPES.STRING,
-          }),
+          properties: hideablePatientFieldProperties,
         },
         referralSourceId: {
           name: 'Referral source',
           description: '_',
-          properties: generateFieldSchema({ type: LOCALISED_FIELD_TYPES.STRING }),
+          properties: hideableFieldProperties,
         },
         arrivalModeId: {
           name: 'Arrival mode',
           description: '_',
-          properties: generateFieldSchema({ type: LOCALISED_FIELD_TYPES.STRING }),
+          properties: hideableFieldProperties,
         },
         prescriber: {
           name: 'Prescriber',
           description: '_',
-          properties: generateFieldSchema({ type: LOCALISED_FIELD_TYPES.STRING }),
+          properties: hideableFieldProperties,
         },
         prescriberId: {
           name: 'Prescriber',
           description: '_',
-          properties: generateFieldSchema({ type: LOCALISED_FIELD_TYPES.STRING }),
+          properties: hideableFieldProperties,
         },
         facility: {
           name: 'Facility',
           description: '_',
-          properties: generateFieldSchema({ type: LOCALISED_FIELD_TYPES.STRING }),
+          properties: hideableFieldProperties,
         },
         dischargeDisposition: {
           name: 'Discharge disposition',
           description: '_',
-          properties: generateFieldSchema({ type: LOCALISED_FIELD_TYPES.STRING }),
+          properties: hideableFieldProperties,
         },
         notGivenReasonId: {
           name: 'Not given reason',
           description: '_',
-          properties: generateFieldSchema({ type: LOCALISED_FIELD_TYPES.STRING }),
+          properties: hideableFieldProperties,
         },
         markedForSync: {
           name: 'Marked for sync',
           description: '_',
-          properties: generateFieldSchema({ hideable: false, type: LOCALISED_FIELD_TYPES.STRING }),
+          properties: baseFieldProperties,
         },
         dateOfBirthFrom: {
           name: 'Date of birth from',
           description: '_',
-          properties: generateFieldSchema({ hideable: false, type: LOCALISED_FIELD_TYPES.STRING }),
+          properties: baseFieldProperties,
         },
         dateOfBirthTo: {
           name: 'Date of birth to',
           description: '_',
-          properties: generateFieldSchema({ hideable: false, type: LOCALISED_FIELD_TYPES.STRING }),
+          properties: baseFieldProperties,
         },
         dateOfBirthExact: {
           name: 'Date of birth exact',
           description: '_',
-          properties: generateFieldSchema({ hideable: false, type: LOCALISED_FIELD_TYPES.STRING }),
+          properties: baseFieldProperties,
         },
         dateOfDeath: {
           name: 'Date of death',
           description: '_',
-          properties: generateFieldSchema({ hideable: false, type: LOCALISED_FIELD_TYPES.STRING }),
+          properties: baseFieldProperties,
         },
         age: {
           name: 'Age',
           description: '_',
-          properties: generateFieldSchema({ hideable: false, type: LOCALISED_FIELD_TYPES.STRING }),
+          properties: baseFieldProperties,
+        },
+        ageRange: {
+          name: 'Age range',
+          description: '_',
+          properties: baseFieldProperties,
         },
         clinician: {
           name: 'Clinician',
           description: '_',
-          properties: generateFieldSchema({ type: LOCALISED_FIELD_TYPES.STRING }),
+          properties: hideableFieldProperties,
         },
         diagnosis: {
           name: 'Diagnosis',
           description: '_',
-          properties: generateFieldSchema({ type: LOCALISED_FIELD_TYPES.STRING }),
+          properties: hideableFieldProperties,
+        },
+        userDisplayId: {
+          name: 'User display ID',
+          description: '_',
+          properties: hideableFieldProperties,
         },
         locationId: {
           name: 'Location',
           description: '_',
-          properties: generateFieldSchema({ type: LOCALISED_FIELD_TYPES.STRING }),
+          properties: hideableFieldProperties,
         },
         locationGroupId: {
           name: 'Location group (Area)',
           description: '_',
-          properties: generateFieldSchema({ type: LOCALISED_FIELD_TYPES.STRING }),
+          properties: hideableFieldProperties,
         },
         circumstanceId: {
           name: 'Circumstance',
           description: '_',
-          properties: generateFieldSchema({ type: LOCALISED_FIELD_TYPES.STRING }),
+          properties: hideableFieldProperties,
         },
         date: {
           name: 'Date',
           description: '_',
-          properties: generateFieldSchema({ hideable: false, type: LOCALISED_FIELD_TYPES.STRING }),
+          properties: baseFieldProperties,
         },
         registeredBy: {
           name: 'Registered by',
           description: '_',
-          properties: generateFieldSchema({ type: LOCALISED_FIELD_TYPES.STRING }),
+          properties: hideableFieldProperties,
         },
         status: {
           name: 'Status',
           description: '_',
-          properties: generateFieldSchema({ type: LOCALISED_FIELD_TYPES.STRING }),
+          properties: hideableFieldProperties,
         },
         conditions: {
           name: 'Conditions',
           description: '_',
-          properties: generateFieldSchema({ type: LOCALISED_FIELD_TYPES.STRING }),
+          properties: hideableFieldProperties,
         },
         programRegistry: {
           name: 'Program registry',
           description: '_',
-          properties: generateFieldSchema({ type: LOCALISED_FIELD_TYPES.STRING }),
+          properties: hideableFieldProperties,
         },
         reminderContactName: {
           name: 'Reminder contact name',
           description: '_',
-          properties: generateFieldSchema({ type: LOCALISED_FIELD_TYPES.STRING }),
+          properties: hideableFieldProperties,
         },
         reminderContactNumber: {
           name: 'Reminder contact number',
           description: '_',
-          properties: generateFieldSchema({ type: LOCALISED_FIELD_TYPES.STRING }),
+          properties: hideableFieldProperties,
         },
       },
     },
