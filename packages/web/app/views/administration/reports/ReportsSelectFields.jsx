@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useApi } from '../../../api';
 import { BaseSelectField } from '../../../components';
 
-export const ReportSelectField = ({ includeNameChangeEvent, setSelectedReportName, ...props }) => {
+export const ReportSelectField = ({ includeNameChangeEvent, setSelectedReportName = null, ...props }) => {
   delete props.error;
   delete props.helperText;
 
@@ -22,7 +22,7 @@ export const ReportSelectField = ({ includeNameChangeEvent, setSelectedReportNam
       onChange={event => {
         const { value } = event.target;
         const name = reportData.find(report => report.id === value)?.name;
-        setSelectedReportName(name);
+        if (setSelectedReportName) setSelectedReportName(name);
 
         if (includeNameChangeEvent) {
           props.field.onChange({ target: { name: 'name', value: name } });
