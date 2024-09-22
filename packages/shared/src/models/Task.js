@@ -9,6 +9,7 @@ import ms from 'ms';
 import { addMilliseconds } from 'date-fns';
 import { toDateTimeString } from '../utils/dateTime';
 import { buildEncounterLinkedLookupFilter } from '../sync/buildEncounterLinkedLookupFilter';
+import { v4 as uuidv4 } from 'uuid';
 
 export class Task extends Model {
   static init({ primaryKey, ...options }) {
