@@ -9,7 +9,6 @@ import ms from 'ms';
 import { addMilliseconds } from 'date-fns';
 import { toDateTimeString } from '../utils/dateTime';
 import { buildEncounterLinkedLookupFilter } from '../sync/buildEncounterLinkedLookupFilter';
-import { v4 as uuidv4 } from 'uuid';
 
 export class Task extends Model {
   static init({ primaryKey, ...options }) {
@@ -226,7 +225,11 @@ export class Task extends Model {
       let nextDueTime = addMilliseconds(new Date(lastGeneratedTask.dueTime), frequency);
       const generatedTasks = [];
 
-      for (; nextDueTime.getTime() < maxDueTime.getTime(); nextDueTime = addMilliseconds(nextDueTime, frequency)) {
+      for (
+        ;
+        nextDueTime.getTime() < maxDueTime.getTime();
+        nextDueTime = addMilliseconds(nextDueTime, frequency)
+      ) {
         const nextTask = {
           id: uuidv4(),
           encounterId: task.encounterId,
