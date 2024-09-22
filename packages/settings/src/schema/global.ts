@@ -49,7 +49,6 @@ export const globalSettings = {
           type: yup.boolean(),
           defaultValue: true,
         },
-
         quickPatientGenerator: {
           description: 'Dev tool to show a button to create a random patient',
           type: yup.boolean(),
