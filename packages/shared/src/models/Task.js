@@ -6,7 +6,12 @@ import { dateTimeType } from './dateTimeTypes';
 import { buildEncounterLinkedLookupFilter } from '../sync/buildEncounterLinkedLookupFilter';
 
 export class Task extends Model {
-  static init({ primaryKey, ...options }) {
+  /**
+   *
+   * @param {any} arg0
+   * @param {import('./')} models
+   */
+  static init({ primaryKey, ...options }, models) {
     super.init(
       {
         id: primaryKey,
@@ -73,7 +78,18 @@ export class Task extends Model {
           allowNull: true,
         }),
       },
-      { syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL, ...options },
+      {
+        syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
+        ...options,
+        hooks: {
+          async beforeDestroy(task, opts) {
+            await models.TaskDesignation.destroy({
+              where: { taskId: task.id },
+              transaction: opts.transaction,
+            });
+          },
+        },
+      },
     );
   }
 
