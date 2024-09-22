@@ -2,10 +2,15 @@ import React, { useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { OuterLabelFieldWrapper } from '../Field';
 import { Colors } from '../../constants';
-import { addMinutes, parse, format, differenceInMinutes } from 'date-fns';
+import { addMinutes, parse, format, differenceInMinutes, startOfDay, endOfDay } from 'date-fns';
 import ms from 'ms';
 import { ConditionalTooltip, ThemedTooltip } from '../Tooltip';
 import { Button } from '../Button';
+import { useSettings } from '../../contexts/Settings';
+import { times, uniqueId } from 'lodash';
+import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { useApi } from '../../api';
+import { useAppointments } from '../../api/queries/useAppointments';
 
 // TODO: disabled logic
 const CellContainer = styled.div`
@@ -45,7 +50,7 @@ const BookedCell = styled(Cell)`
 
 const TimeCell = ({ timeSlot, onClick, selected }) => {
   const { startTime, endTime, available } = timeSlot;
-  const text = `${startTime} - ${endTime}`;
+  const text = `${format(startTime, 'hh:mm a')} - ${format(endTime, 'hh:mm a')}`;
 
   if (!available)
     return (
@@ -61,58 +66,67 @@ const TimeCell = ({ timeSlot, onClick, selected }) => {
   );
 };
 
-// TODO: should fetch settings directly rather than get supplied
-export const BookingTimeField = ({ settings, disabled = false }) => {
+export const BookingTimeField = ({ disabled = false, date }) => {
+  const { getSetting } = useSettings();
   const [selectedTimeSlots, setSelectedTimeSlots] = useState([]);
-  const { startTime, endTime, slotDuration } = settings;
+  const [selectedStartTime, setSelectedStartTime] = useState(null);
+  const [selectedEndTime, setSelectedEndTime] = useState(null);
+  // TODO: remove defaults here and use proper state storybook wrapper
+  const { startTime, endTime, slotDuration } = getSetting('appointments.bookingSlots');
+
+  const { data: appointmentData } = useAppointments();
 
   const timeSlots = useMemo(() => {
-    const start = parse(startTime, 'HH:mm', new Date());
-    const end = parse(endTime, 'HH:mm', new Date());
+    const startOfDay = parse(startTime, 'HH:mm', new Date());
+    const endOfDay = parse(endTime, 'HH:mm', new Date());
     const duration = ms(slotDuration) / 60000; // In minutes
 
-    const totalSlots = differenceInMinutes(end, start) / duration;
+    const totalSlots = differenceInMinutes(endOfDay, startOfDay) / duration;
     const slots = [];
     for (let i = 0; i < totalSlots; i++) {
-      const current = addMinutes(start, i * duration);
-      const next = addMinutes(current, duration);
+      const start = addMinutes(startOfDay, i * duration);
+      const end = addMinutes(start, duration);
+
+      // TODO: needs to handle wide range of appointments
+      const isAppointmentBooked = appointmentData?.data.some(
+        appointment => appointment.startTime === toDateTimeString(start),
+      );
 
       slots.push({
-        id: i,
-        startTime: format(current, 'hh:mm a'),
-        endTime: format(next, 'hh:mm a'),
-        available: Math.random() < 0.5,
+        id: uniqueId('timeslot-'),
+        startTime: start,
+        endTime: end,
+        available: !isAppointmentBooked,
         selected: false,
       });
     }
 
     return slots;
-  }, [startTime, endTime, slotDuration]);
+  }, [startTime, endTime, slotDuration, appointmentData]);
+
+  // TODO: feels a bit hacky
+  const toggleSelectedTimeSlot = id => {
+    setSelectedTimeSlots(prevSelections => {
+      return prevSelections.includes(id)
+        ? prevSelections.filter(selection => selection !== id)
+        : [...prevSelections, id];
+    });
+  };
 
   return (
-    <OuterLabelFieldWrapper label="Booking time" required>
-      <CellContainer $disabled={disabled}>
-        {timeSlots.map((timeSlot, i) => {
-          // TODO: bit hacky
-          const isSelected = selectedTimeSlots.includes(i);
-          const onSelectSlot = () => {
-            setSelectedTimeSlots(prevSelections => {
-              return isSelected
-                ? prevSelections.filter(selection => selection !== i)
-                : [...prevSelections, i];
-            });
-          };
-
-          return (
+    <>
+      <OuterLabelFieldWrapper label="Booking time" required>
+        <CellContainer $disabled={disabled}>
+          {timeSlots.map(timeSlot => (
             <TimeCell
-              key={`timeslot-${i}`}
+              key={timeSlot.id}
               timeSlot={timeSlot}
-              selected={isSelected}
-              onClick={onSelectSlot}
+              selected={selectedTimeSlots.includes(timeSlot.id)}
+              onClick={() => toggleSelectedTimeSlot(timeSlot.id)}
             />
-          );
-        })}
-      </CellContainer>
-    </OuterLabelFieldWrapper>
+          ))}
+        </CellContainer>
+      </OuterLabelFieldWrapper>
+    </>
   );
 };
