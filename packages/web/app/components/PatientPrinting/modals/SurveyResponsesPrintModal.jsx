@@ -72,7 +72,7 @@ export const SurveyResponsesPrintModal = React.memo(
             certificateData={certificateData}
             getLocalisation={getLocalisation}
             getTranslation={getTranslation}
-            isReferral
+            isReferral={isReferral}
           />
         </PDFLoader>
       </Modal>
