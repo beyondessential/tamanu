@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { BookingTimeField } from '../../app/components/Appointments/BookingTimeField';
 import { MockedApi } from '../utils/mockedApi';
