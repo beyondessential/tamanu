@@ -28,6 +28,11 @@ export const globalSettings = {
           type: yup.boolean(),
           defaultValue: false,
         },
+        enableAppointmentsExtentions: {
+          description: 'Enable the appointment extensions feature',
+          type: yup.boolean(),
+          defaultValue: false,
+        },
         enableVaccineConsent: {
           description: 'Show consent given by field on vaccine forms',
           type: yup.boolean(),
@@ -44,6 +49,7 @@ export const globalSettings = {
           type: yup.boolean(),
           defaultValue: true,
         },
+
         quickPatientGenerator: {
           description: 'Dev tool to show a button to create a random patient',
           type: yup.boolean(),
