@@ -84,7 +84,7 @@ export const VITALS_DATA_ELEMENT_IDS = {
   avpu: PDE_AVPU,
 };
 
-export const CHARTS_DATA_ELEMENT_IDS = {
+export const CHARTING_DATA_ELEMENT_IDS = {
   dateRecorded: 'pde-PatientChartingDate',
 }
 
