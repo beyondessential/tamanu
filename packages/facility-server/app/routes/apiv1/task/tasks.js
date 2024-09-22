@@ -4,7 +4,6 @@ import { ForbiddenError, NotFoundError } from '@tamanu/shared/errors';
 import { REFERENCE_TYPES, TASK_STATUSES } from '@tamanu/constants';
 import { z } from 'zod';
 import { Op } from 'sequelize';
-import _ from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 
 const taskRoutes = express.Router();
