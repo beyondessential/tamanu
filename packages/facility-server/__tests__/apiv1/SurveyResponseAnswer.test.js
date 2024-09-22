@@ -53,20 +53,15 @@ describe('SurveyResponseAnswer', () => {
     });
 
     it('should return the default id for a resource from settings', async () => {
-      const departmentId = await models.SurveyResponseAnswer.getDefaultId(
-        'department',
-        ctx.settings[facilityId],
-      );
+      const departmentId = await models.SurveyResponseAnswer.getDefaultId('department', settings);
       expect(departmentId).toEqual('test-department-id');
     });
     it('should return the default id from config if no settings facility override defined', async () => {
-      const locationId = await models.SurveyResponseAnswer.getDefaultId(
-        'location',
-        ctx.settings[facilityId],
-      );
+      const locationId = await models.SurveyResponseAnswer.getDefaultId('location', settings);
+      const locationCode = await settings.get('survey.defaultCodes.location');
       const location = await models.Location.findOne({
         where: {
-          code: config.survey.defaultCodes.location,
+          code: locationCode,
         },
         attributes: ['id'],
       });
