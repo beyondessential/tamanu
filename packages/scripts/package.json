@@ -16,7 +16,9 @@
     "pgsql-ast-parser": "^11.1.0",
     "yaml": "^2.2.1",
     "pg": "^8.5.1",
-    "config": "^3.3.9"
+    "config": "^3.3.9",
+    "inflection": "^1.13.4",
+    "lodash": "^4.17.5"
   },
   "devDependencies": {
     "tape": "^5.7.5"
