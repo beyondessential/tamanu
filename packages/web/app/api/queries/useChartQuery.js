@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { VISIBILITY_STATUSES } from '@tamanu/constants';
+import { CHARTING_DATA_ELEMENT_IDS, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { isErrorUnknownAllow404s, useApi } from '../index';
 import { getConfigObject } from '../../utils';
 import { useChartSurveyQuery } from './useChartSurveyQuery';
@@ -87,7 +87,7 @@ export const useChartQuery = (encounterId, surveyId) => {
   const { recordedDates, records } = getDatesAndRecords(
     chartData,
     surveyData,
-    'ChartDate', // TODO: Make actual constant
+    CHARTING_DATA_ELEMENT_IDS.dateRecorded,
   );
 
   return {
