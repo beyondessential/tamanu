@@ -40,6 +40,10 @@
       "name": "constants",
       "path": "packages/constants"
     },
+    {
+      "name": "settings",
+      "path": "packages/settings"
+    },
   ],
   "settings": {
     "files.exclude": {
