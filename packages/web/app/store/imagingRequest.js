@@ -5,7 +5,7 @@ const IMAGING_LOAD_START = 'IMAGING_LOAD_START';
 const IMAGING_LOAD_ERROR = 'IMAGING_LOAD_ERROR';
 const IMAGING_LOAD_FINISH = 'IMAGING_LOAD_FINISH';
 
-export const reloadImagingRequest = id => async (dispatch, getState, { api }) => {
+export const reloadImagingRequest = id => async (dispatch, _getState, { api }) => {
   dispatch({ type: IMAGING_LOAD_START, id });
   try {
     const imagingRequest = await api.get(`imagingRequest/${id}`);
