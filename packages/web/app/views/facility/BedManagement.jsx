@@ -113,13 +113,17 @@ const DetailedDashboardItemNumber = ({ loading, value }) => {
   return <DetailedDashboardItemTitle>{value || 0}</DetailedDashboardItemTitle>;
 };
 
-const DetailedDashboardItem = ({ api }) => {
+const DetailedDashboardItem = ({ api, facilityId }) => {
   const {
     data: {
       data: { availableLocationCount, reservedLocationCount, occupiedLocationCount } = {},
     } = {},
     isLoading: patientLocationsLoading,
-  } = useQuery(['patientLocations'], () => api.get('patient/locations/stats'));
+  } = useQuery(['patientLocations'], () =>
+    api.get('patient/locations/stats', {
+      facilityId,
+    }),
+  );
 
   return (
     <DetailedDashboardItemContainer color={Colors.brightBlue}>
@@ -298,9 +302,9 @@ export const BedManagement = () => {
                   fallback="Readmission in\nlast 30 days"
                 />
               }
-            />
+            />y
           </DashboardItemListContainer>
-          <DetailedDashboardItem api={api} />
+          <DetailedDashboardItem api={api} facilityId={facilityId} />
         </DashboardContainer>
       </ContentPane>
       <ContentPane>
