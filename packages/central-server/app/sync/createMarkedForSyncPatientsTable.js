@@ -4,7 +4,7 @@ export const createMarkedForSyncPatientsTable = async (
   sequelize,
   sessionId,
   isFullSync,
-  facilityId,
+  facilityIds,
   since,
 ) => {
   const tableName = getMarkedForSyncPatientsTableName(sessionId, isFullSync);
@@ -14,7 +14,7 @@ export const createMarkedForSyncPatientsTable = async (
     CREATE TABLE ${tableName} AS
     SELECT patient_id
     FROM patient_facilities
-    WHERE facility_id = :facilityId
+    WHERE facility_id in (:facilityIds)
     ${
       isFullSync
         ? 'AND updated_at_sync_tick > :since' // get all the NEW marked for sync patients if it is FULL sync
@@ -23,7 +23,7 @@ export const createMarkedForSyncPatientsTable = async (
   `,
     {
       replacements: {
-        facilityId,
+        facilityIds,
         since,
       },
       type: sequelize.QueryTypes.SELECT,

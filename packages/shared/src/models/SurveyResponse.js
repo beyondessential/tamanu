@@ -105,15 +105,15 @@ async function writeToPatientFields(
 
   if (valuesByModel.PatientProgramRegistration) {
     const { programId } = await models.Survey.findByPk(surveyId);
-    const { id: programRegistryId } = await models.ProgramRegistry.findOne({
+    const programRegistryDetail = await models.ProgramRegistry.findOne({
       where: { programId, visibilityStatus: VISIBILITY_STATUSES.CURRENT },
     });
-    if (!programRegistryId) {
+    if (!programRegistryDetail?.id) {
       throw new Error('No program registry configured for the current form');
     }
     await models.PatientProgramRegistration.create({
       patientId,
-      programRegistryId,
+      programRegistryId: programRegistryDetail.id,
       date: submittedTime,
       ...valuesByModel.PatientProgramRegistration,
       clinicianId: valuesByModel.PatientProgramRegistration.clinicianId || userId,

@@ -287,8 +287,12 @@ export const taskSetLoader = async (item, { models, pushError }) => {
 };
 
 export async function userLoader(item, { models, pushError }) {
-  const { id, designations, ...otherFields } = item;
+  const { id, allowedFacilities, designations, ...otherFields } = item;
   const rows = [];
+
+  const allowedFacilityIds = allowedFacilities
+    ? allowedFacilities.split(',').map(t => t.trim())
+    : [];
 
   rows.push({
     model: 'User',
@@ -296,6 +300,40 @@ export async function userLoader(item, { models, pushError }) {
       id,
       ...otherFields,
     },
+    allowedFacilityIds,
+  });
+
+  const existingUser = await models.User.findByPk(id, {
+    include: [{ model: models.Facility, as: 'facilities' }],
+  });
+
+  if (existingUser) {
+    const idsToBeDeleted = existingUser.facilities
+      .map(f => f.id)
+      .filter(id => !allowedFacilityIds.includes(id));
+
+    idsToBeDeleted.forEach(facilityId => {
+      rows.push({
+        model: 'UserFacility',
+        values: {
+          id: `${id};${facilityId}`,
+          userId: id,
+          facilityId: facilityId,
+          deletedAt: new Date(),
+        },
+      });
+    });
+  }
+
+  allowedFacilityIds.forEach(facilityId => {
+    rows.push({
+      model: 'UserFacility',
+      values: {
+        id: `${id};${facilityId}`,
+        userId: id,
+        facilityId: facilityId,
+      },
+    });
   });
 
   const designationIds = (designations || '')
