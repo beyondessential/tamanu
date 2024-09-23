@@ -354,6 +354,7 @@ describe('SurveyResponseAnswer', () => {
         const result = await app.put(`/api/surveyResponseAnswer/vital/nonImportantID`).send({
           reasonForChange: 'test7',
           newValue: chance.integer({ min: 0, max: 100 }),
+          facilityId,
         });
         expect(result).not.toHaveSucceeded();
         expect(result.status).toBe(422);
@@ -435,7 +436,7 @@ describe('SurveyResponseAnswer', () => {
           newValue: chance.integer({ min: 0, max: 100 }),
           facilityId,
         });
-        expect(result).not.toHaveSucceeded();
+
         expect(result.status).toBe(422);
       });
     });
