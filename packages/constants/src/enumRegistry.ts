@@ -1,11 +1,11 @@
-import { SEX_LABELS } from './patientFields.js';
+import { SEX_LABELS } from './patientFields';
 import {
   INVOICE_STATUS_LABELS,
   INVOICE_INSURER_PAYMENT_STATUS_LABELS,
   INVOICE_ITEMS_CATEGORY_LABELS,
   INVOICE_PATIENT_PAYMENT_STATUSES_LABELS,
-} from './invoices.js';
-import { NOTE_TYPE_LABELS } from './notes.js';
+} from './invoices';
+import { NOTE_TYPE_LABELS } from './notes';
 import {
   REFERRAL_STATUS_LABELS,
   APPOINTMENT_TYPE_LABELS,
@@ -27,7 +27,7 @@ import { DIAGNOSIS_CERTAINTY_LABELS, PATIENT_ISSUE_LABELS } from './diagnoses';
 import { DRUG_ROUTE_LABELS, REPEATS_LABELS } from './medications';
 import { PLACE_OF_DEATHS, MANNER_OF_DEATHS } from './deaths';
 import { LOCATION_AVAILABILITY_STATUS_LABELS } from './locations';
-import { IMAGING_TYPES } from './imaging.js';
+import { IMAGING_TYPES } from './imaging';
 
 type EnumKeys = keyof typeof registeredEnums;
 type EnumValues = typeof registeredEnums[EnumKeys];
