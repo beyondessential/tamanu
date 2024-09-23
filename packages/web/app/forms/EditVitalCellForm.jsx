@@ -14,6 +14,7 @@ import { SurveyQuestion } from '../components/Surveys';
 import { getValidationSchema } from '../utils';
 import { Colors, FORM_TYPES } from '../constants';
 import { useApi } from '../api';
+import { useAuth } from '../contexts/Auth';
 import { useEncounter } from '../contexts/Encounter';
 import { DateDisplay } from '../components/DateDisplay';
 import { TranslatedText } from '../components/Translation/TranslatedText';
@@ -94,12 +95,13 @@ const HistoryLog = ({ logData, vitalLabel, vitalEditReasons }) => {
 
 export const EditVitalCellForm = ({ vitalLabel, dataPoint, handleClose }) => {
   const { getTranslation } = useTranslation();
+  const { facilityId } = useAuth();
   const [isDeleted, setIsDeleted] = useState(false);
   const api = useApi();
   const queryClient = useQueryClient();
   const { encounter } = useEncounter();
   const { getLocalisation } = useLocalisation();
-  const { getSetting } = useSettings()
+  const { getSetting } = useSettings();
   const vitalEditReasons = getLocalisation('vitalEditReasons') || [];
   const mandatoryVitalEditReason = getSetting('features.mandatoryVitalEditReason');
   const initialValue = dataPoint.value;
@@ -127,13 +129,17 @@ export const EditVitalCellForm = ({ vitalLabel, dataPoint, handleClose }) => {
 
     // The survey response answer might not exist
     if (dataPoint.answerId) {
-      await api.put(`surveyResponseAnswer/vital/${dataPoint.answerId}`, newShapeData);
+      await api.put(`surveyResponseAnswer/vital/${dataPoint.answerId}`, {
+        ...newShapeData,
+        facilityId,
+      });
     } else {
       const newVitalData = {
         ...newShapeData,
         dataElementId: valueName,
         encounterId: encounter.id,
         recordedDate: dataPoint.recordedDate,
+        facilityId,
       };
       await api.post('surveyResponseAnswer/vital', newVitalData);
     }
