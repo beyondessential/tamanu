@@ -13,3 +13,12 @@ export const useCreateTasks = () => {
     onError: error => notifyError(error.message),
   });
 };
+
+export const useMarkTaskCompleted = () => {
+  const api = useApi();
+
+  return useMutation({
+    mutationFn: body => api.post('tasks/completed', body),
+    onError: error => notifyError(error.message),
+  });
+};
