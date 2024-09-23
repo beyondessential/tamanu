@@ -69,7 +69,9 @@ const startApp = appType => async ({ skipMigrationCheck }) => {
       throw new Error(`Unknown app type: ${appType}`);
   }
 
-  if (+process.env.PORT) { port = +process.env.PORT; }
+  if (+process.env.PORT) {
+    port = +process.env.PORT;
+  }
   server.listen(port, () => {
     log.info(`Server is running on port ${port}!`);
   });
