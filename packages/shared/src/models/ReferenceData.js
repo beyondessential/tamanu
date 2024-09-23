@@ -56,6 +56,12 @@ export class ReferenceData extends Model {
       foreignKey: 'areaId',
     });
 
+    this.belongsToMany(models.Task, {
+      through: models.TaskDesignation,
+      as: 'designation',
+      foreignKey: 'designationId',
+    });
+
     this.belongsToMany(this, {
       as: 'parent',
       through: 'reference_data_relations',

@@ -272,7 +272,38 @@ createSuggester(
     ...VISIBILITY_CRITERIA,
   }),
   {
-    mapper: ({ name, code, id, type }) => ({ name, code, id, type }),
+    includeBuilder: req => {
+      const {
+        models: { ReferenceData, TaskTemplate },
+        query: { relationType },
+      } = req;
+
+      if (!relationType) return undefined;
+
+      return [
+        {
+          model: TaskTemplate,
+          as: 'taskTemplate',
+          include: TaskTemplate.getFullReferenceAssociations(),
+        },
+        {
+          model: ReferenceData,
+          as: 'children',
+          through: {
+            attributes: [],
+            where: {
+              type: relationType,
+            },
+          },
+          include: {
+            model: TaskTemplate,
+            as: 'taskTemplate',
+            include: TaskTemplate.getFullReferenceAssociations(),
+          },
+        },
+      ];
+    },
+    mapper: ({ name, code, id, type, children, taskTemplate }) => ({ name, code, id, type, children, taskTemplate }),
     creatingBodyBuilder: req => {
       const { body } = req;
       const { type, name } = body;
@@ -315,7 +346,6 @@ REFERENCE_TYPE_VALUES.forEach(typeName => {
           models: { ReferenceData },
           query: { parentId, relationType = DEFAULT_HIERARCHY_TYPE },
         } = req;
-
         if (!parentId) return undefined;
 
         return {
