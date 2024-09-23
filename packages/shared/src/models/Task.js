@@ -6,7 +6,7 @@ import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter
 import { dateTimeType } from './dateTimeTypes';
 import config from 'config';
 import ms from 'ms';
-import { addMilliseconds, isBefore } from 'date-fns';
+import { addMilliseconds } from 'date-fns';
 import { toDateTimeString } from '../utils/dateTime';
 import { buildEncounterLinkedLookupFilter } from '../sync/buildEncounterLinkedLookupFilter';
 
@@ -225,8 +225,13 @@ export class Task extends Model {
       let nextDueTime = addMilliseconds(new Date(lastGeneratedTask.dueTime), frequency);
       const generatedTasks = [];
 
-      while (isBefore(nextDueTime, maxDueTime)) {
+      for (
+        ;
+        nextDueTime.getTime() < maxDueTime.getTime();
+        nextDueTime = addMilliseconds(nextDueTime, frequency)
+      ) {
         const nextTask = {
+          id: uuidv4(),
           encounterId: task.encounterId,
           requestedByUserId: task.requestedByUserId,
           name: task.name,
@@ -238,10 +243,8 @@ export class Task extends Model {
           frequencyUnit: task.frequencyUnit,
           highPriority: task.highPriority,
           parentTaskId: task.id,
-          id: uuidv4(),
         };
         generatedTasks.push(nextTask);
-        nextDueTime = addMilliseconds(nextDueTime, frequency);
       }
 
       const clonedDesignations = [];
@@ -259,7 +262,7 @@ export class Task extends Model {
     }
 
     if (allGeneratedTasks.length) {
-      await this.bulkCreate(allGeneratedTasks, { returning: true });
+      await this.bulkCreate(allGeneratedTasks);
     }
     if (allClonedDesignations.length) {
       await this.sequelize.models.TaskDesignation.bulkCreate(allClonedDesignations);

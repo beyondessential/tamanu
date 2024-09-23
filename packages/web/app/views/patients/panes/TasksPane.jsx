@@ -134,6 +134,11 @@ export const TasksPane = React.memo(({ encounter }) => {
         onClose={() => setTaskModalOpen(false)}
         refreshTaskTable={refreshTaskTable}
       />
+      <TaskModal
+        open={taskModalOpen}
+        onClose={() => setTaskModalOpen(false)}
+        refreshTaskTable={refreshTaskTable}
+      />
     </TabPane>
   );
 });
