@@ -179,7 +179,7 @@ taskRoutes.put(
       }
     });
 
-    res.json();
+    res.status(204).json();
   }),
 );
 
