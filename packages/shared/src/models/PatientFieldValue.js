@@ -2,7 +2,6 @@ import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
 import { buildPatientSyncFilterViaPatientId } from './buildPatientSyncFilterViaPatientId';
-import { onSaveMarkPatientForSync } from './onSaveMarkPatientForSync';
 import { buildPatientLinkedLookupFilter } from './buildPatientLinkedLookupFilter';
 
 export class PatientFieldValue extends Model {
@@ -59,7 +58,6 @@ export class PatientFieldValue extends Model {
         ],
       },
     );
-    onSaveMarkPatientForSync(this);
   }
 
   static initRelations(models) {

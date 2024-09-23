@@ -25,6 +25,7 @@ import {
 export default {
   user: {
     loader: userLoader,
+    needs: ['facility'],
   },
 
   patient: {
@@ -41,6 +42,10 @@ export default {
   },
   location: {
     needs: ['facility', 'locationGroup'],
+  },
+
+  userFacility: {
+    needs: ['facility', 'user'],
   },
 
   certifiableVaccine: {},
