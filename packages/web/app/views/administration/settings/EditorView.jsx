@@ -1,22 +1,22 @@
 import React, { memo, useEffect, useMemo, useState } from 'react';
-import { capitalize, omitBy, pickBy, startCase, set, get, cloneDeep } from 'lodash';
+import { capitalize, cloneDeep, get, omitBy, pickBy, set, startCase } from 'lodash';
 import styled from 'styled-components';
 import { Box, Divider } from '@material-ui/core';
 
 import { getScopedSchema, isSetting } from '@tamanu/settings';
 
-import { TranslatedText, Button, OutlinedButton, DynamicSelectField } from '../../../components';
+import { Button, DynamicSelectField, OutlinedButton, TranslatedText } from '../../../components';
 import { Colors } from '../../../constants';
 import { Category } from './components/Category';
 
 const SettingsWrapper = styled.div`
   background-color: ${Colors.white};
   border: 1px solid ${Colors.outline};
-  margin-top: 20px;
+  margin-top: 1.25rem;
 `;
 
 const StyledDynamicSelectField = styled(DynamicSelectField)`
-  width: 300px;
+  width: 18.75rem;
 `;
 
 const CategoryOptions = styled(Box)`
@@ -25,12 +25,16 @@ const CategoryOptions = styled(Box)`
   align-items: end;
 `;
 
-const SubmitButton = styled(Button)`
-  margin-left: 15px;
+const CategoriesWrapper = styled.div`
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: minmax(min-content, 30rem) minmax(min-content, max-content);
+  padding: 1.25rem;
 `;
 
-const CategoriesWrapper = styled.div`
-  padding: 20px;
+const ButtonGroup = styled.div`
+  display: flex;
+  gap: 1rem;
 `;
 
 const UNCATEGORISED_KEY = 'uncategorised';
@@ -217,20 +221,20 @@ export const EditorView = memo(
                 </Box>
               )}
             </Box>
-            <div>
+            <ButtonGroup>
               <OutlinedButton onClick={() => resetForm()} disabled={!dirty}>
                 <TranslatedText
                   stringId="admin.settings.action.clearChanges"
                   fallback="Clear changes"
                 />
               </OutlinedButton>
-              <SubmitButton onClick={saveSettings} disabled={!dirty || isSubmitting}>
+              <Button onClick={saveSettings} disabled={!dirty || isSubmitting}>
                 <TranslatedText
                   stringId="admin.settings.action.saveChanges"
                   fallback="Save changes"
                 />
-              </SubmitButton>
-            </div>
+              </Button>
+            </ButtonGroup>
           </CategoryOptions>
           <Divider />
           {category && (

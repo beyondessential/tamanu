@@ -1,11 +1,10 @@
 import React, { memo } from 'react';
 import styled from 'styled-components';
-import { Box } from '@material-ui/core';
 import LockIcon from '@material-ui/icons/Lock';
 
 import { isSetting } from '@tamanu/settings';
 
-import { Heading4, BodyText, LargeBodyText } from '../../../../components';
+import { BodyText, Heading4, LargeBodyText } from '../../../../components';
 import { Colors } from '../../../../constants';
 import { ThemedTooltip } from '../../../../components/Tooltip';
 import { SettingInput } from './SettingInput';
@@ -13,53 +12,55 @@ import { useAuth } from '../../../../contexts/Auth';
 import { formatSettingName } from '../EditorView';
 
 const StyledLockIcon = styled(LockIcon)`
-  font-size: 18px;
-  margin-left: 5px;
+  font-size: 1.125rem;
+  margin-inline-start: 0.25rem;
 `;
 
-const CategoryWrapper = styled.div`
+const Wrapper = styled.div`
+  display: grid;
+  gap: 1rem;
+  grid-column: 1 / -1;
+  grid-template-columns: subgrid;
+
   :not(:first-child) {
-    padding-top: 20px;
     border-top: 1px solid ${Colors.outline};
   }
 `;
 
 const SettingLine = styled(BodyText)`
-  display: flex;
-  justify-content: flex-end;
-  align-items: flex-start;
-  margin-bottom: 10px;
-  width: 650px;
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: subgrid;
 `;
 
-const SettingNameText = styled(LargeBodyText)`
-  margin-right: auto;
-  margin-left: 5px;
-  margin-top: 14px;
-  width: fit-content;
-  display: flex;
-  align-items: center;
+const SettingNameLabel = styled(LargeBodyText)`
+  // Match TextField for baseline alignment
+  // Cannot use ‘align-items: baseline’ on parent flexbox because InputText has incorrect semantics
+  padding-block: 13px;
+  font-size: 15px;
 `;
+
+const Tooltip = styled(ThemedTooltip).attrs({ as: 'span', arrow: true, placement: 'top' })``;
 
 const CategoryTitle = memo(({ name, path, description }) => {
   const categoryTitle = formatSettingName(name, path.split('.').pop());
   if (!categoryTitle) return null;
   return (
-    <ThemedTooltip disableHoverListener={!description} arrow placement="top" title={description}>
-      <Heading4 width="fit-content" mt={0} mb={2}>
+    <Heading4>
+      <Tooltip disableHoverListener={!description} title={description}>
         {categoryTitle}
-      </Heading4>
-    </ThemedTooltip>
+      </Tooltip>
+    </Heading4>
   );
 });
 
 const SettingName = memo(({ name, path, description, disabled }) => (
-  <ThemedTooltip disableHoverListener={!description} arrow placement="top" title={description}>
-    <SettingNameText color={disabled && 'textTertiary'}>
+  <SettingNameLabel color={disabled && 'textTertiary'}>
+    <Tooltip disableHoverListener={!description} title={description}>
       {formatSettingName(name, path.split('.').pop())}
       {disabled && <StyledLockIcon />}
-    </SettingNameText>
-  </ThemedTooltip>
+    </Tooltip>
+  </SettingNameLabel>
 ));
 
 const sortProperties = ([a0, a1], [b0, b1]) => {
@@ -78,50 +79,42 @@ export const Category = ({ schema, path = '', getSettingValue, handleChangeSetti
   const { ability } = useAuth();
   const canWriteHighRisk = ability.can('manage', 'all');
   if (!schema) return null;
-  const Wrapper = path ? CategoryWrapper : Box;
   const sortedProperties = Object.entries(schema.properties).sort(sortProperties);
 
   return (
     <Wrapper>
       <CategoryTitle name={schema.name} path={path} description={schema.description} />
-      <>
-        {sortedProperties.map(([key, propertySchema]) => {
-          const newPath = path ? `${path}.${key}` : key;
-          const { name, description, type, defaultValue, unit, highRisk } = propertySchema;
+      {sortedProperties.map(([key, propertySchema]) => {
+        const newPath = path ? `${path}.${key}` : key;
+        const { name, description, type, defaultValue, unit, highRisk } = propertySchema;
 
-          const isHighRisk = schema.highRisk || highRisk;
-          const disabled = !canWriteHighRisk && isHighRisk;
+        const isHighRisk = schema.highRisk || highRisk;
+        const disabled = !canWriteHighRisk && isHighRisk;
 
-          return type ? (
-            <SettingLine key={newPath}>
-              <SettingName
-                disabled={disabled}
-                path={newPath}
-                name={name}
-                description={description}
-              />
-              <SettingInput
-                typeSchema={type}
-                value={getSettingValue(newPath)}
-                defaultValue={defaultValue}
-                path={newPath}
-                handleChangeSetting={handleChangeSetting}
-                unit={unit}
-                disabled={disabled}
-              />
-            </SettingLine>
-          ) : (
-            <Category
-              key={newPath}
+        return type ? (
+          <SettingLine key={newPath}>
+            <SettingName disabled={disabled} path={newPath} name={name} description={description} />
+            <SettingInput
+              typeSchema={type}
+              value={getSettingValue(newPath)}
+              defaultValue={defaultValue}
               path={newPath}
-              // Pass down highRisk from parent category to now top level subcategory
-              schema={{ ...propertySchema, highRisk: isHighRisk }}
-              getSettingValue={getSettingValue}
               handleChangeSetting={handleChangeSetting}
+              unit={unit}
+              disabled={disabled}
             />
-          );
-        })}
-      </>
+          </SettingLine>
+        ) : (
+          <Category
+            key={newPath}
+            path={newPath}
+            // Pass down highRisk from parent category to now top level subcategory
+            schema={{ ...propertySchema, highRisk: isHighRisk }}
+            getSettingValue={getSettingValue}
+            handleChangeSetting={handleChangeSetting}
+          />
+        );
+      })}
     </Wrapper>
   );
 };

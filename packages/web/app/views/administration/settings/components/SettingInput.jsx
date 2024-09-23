@@ -4,10 +4,10 @@ import styled from 'styled-components';
 import { Switch } from '@material-ui/core';
 
 import {
-  TextInput,
+  LargeBodyText,
   NumberInput,
   TextButton,
-  LargeBodyText,
+  TextInput,
   TranslatedText,
 } from '../../../../components';
 import { JSONEditor } from './JSONEditor';
@@ -15,11 +15,7 @@ import { Colors } from '../../../../constants';
 import { ThemedTooltip } from '../../../../components/Tooltip';
 
 const Unit = styled.div`
-  display: flex;
-  align-items: center;
-  margin-top: 14px;
-  margin-left: 8px;
-  font-size: 12px;
+  font-size: 15px; // Match TextField
 `;
 
 const StyledTextInput = styled(TextInput)`
@@ -35,18 +31,26 @@ const StyledNumberInput = styled(NumberInput)`
 `;
 
 const DefaultSettingButton = styled(TextButton)`
-  margin-left: 20px;
-  margin-top: 15px;
-  font-size: 12px;
-  text-decoration: underline;
-  text-transform: none;
   color: ${Colors.darkestText};
-  font-weight: 400;
+  font-size: 15px; // Match TextField
+  font-weight: 500;
+  line-height: 18px; // Match TextField
+  padding-block: 13px; // Match TextField
+  text-decoration-line: underline;
+  text-decoration-thickness: from-font;
+  text-transform: none;
+  transition: color 200ms ease;
+
   &:hover {
-    text-decoration: underline;
     color: ${Colors.primary};
-    font-weight: 500;
+    text-decoration-line: underline;
   }
+`;
+
+const Flexbox = styled.div`
+  align-items: center;
+  display: flex;
+  gap: 0.5rem;
 `;
 
 const SETTING_TYPES = {
@@ -98,17 +102,15 @@ export const SettingInput = ({
           )
         }
       >
-        <div>
-          <DefaultSettingButton
-            disabled={isUnchangedFromDefault}
-            onClick={() => handleChangeSetting(path, defaultValue)}
-          >
-            <TranslatedText
-              stringId="admin.settings.action.resetToDefault"
-              fallback="Reset to default"
-            />
-          </DefaultSettingButton>
-        </div>
+        <DefaultSettingButton
+          disabled={isUnchangedFromDefault}
+          onClick={() => handleChangeSetting(path, defaultValue)}
+        >
+          <TranslatedText
+            stringId="admin.settings.action.resetToDefault"
+            fallback="Reset to default"
+          />
+        </DefaultSettingButton>
       </ThemedTooltip>
     );
   };
@@ -135,7 +137,7 @@ export const SettingInput = ({
       );
     case SETTING_TYPES.STRING:
       return (
-        <>
+        <Flexbox>
           <StyledTextInput
             value={displayValue}
             onChange={handleChangeText}
@@ -145,26 +147,26 @@ export const SettingInput = ({
             disabled={disabled}
           />
           <DefaultButton />
-        </>
+        </Flexbox>
       );
     case SETTING_TYPES.NUMBER:
       return (
-        <>
+        <Flexbox>
           <StyledNumberInput
             value={displayValue}
             onChange={handleChangeNumber}
-            style={{ width: '75px' }}
+            style={{ width: '4.6875rem' }}
             error={error}
             helperText={error?.message}
             disabled={disabled}
           />
           <Unit>{unit}</Unit>
           <DefaultButton />
-        </>
+        </Flexbox>
       );
     case SETTING_TYPES.LONG_TEXT:
       return (
-        <>
+        <Flexbox>
           <StyledTextInput
             value={displayValue}
             onChange={handleChangeText}
@@ -175,12 +177,12 @@ export const SettingInput = ({
             disabled={disabled}
           />
           <DefaultButton />
-        </>
+        </Flexbox>
       );
     case SETTING_TYPES.OBJECT:
     case SETTING_TYPES.ARRAY:
       return (
-        <>
+        <Flexbox>
           <JSONEditor
             height="156px"
             width="353px"
@@ -190,7 +192,7 @@ export const SettingInput = ({
             error={error}
           />
           <DefaultButton />
-        </>
+        </Flexbox>
       );
     default:
       return (
