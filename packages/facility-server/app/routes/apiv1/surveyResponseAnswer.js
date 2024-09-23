@@ -13,11 +13,18 @@ export const surveyResponseAnswer = express.Router();
 surveyResponseAnswer.put(
   '/vital/:id',
   asyncHandler(async (req, res) => {
-    const { db, models, user, params, settings } = req;
+    const {
+      db,
+      models,
+      user,
+      params,
+      body: { facilityId, ...body },
+      settings,
+    } = req;
     const { SurveyResponseAnswer, SurveyResponse, Survey, VitalLog, ProgramDataElement } = models;
     const { id } = params;
 
-    const enableVitalEdit = await settings.get('features.enableVitalEdit');
+    const enableVitalEdit = await settings[facilityId].get('features.enableVitalEdit');
     if (!enableVitalEdit) {
       throw new InvalidOperationError('Editing vitals is disabled.');
     }
@@ -46,12 +53,12 @@ surveyResponseAnswer.put(
       ],
     });
     if (!answerObject) throw new NotFoundError();
-    if (answerObject.body === req.body.newValue) {
+    if (answerObject.body === body.newValue) {
       throw new InvalidParameterError('New value is the same as previous value.');
     }
 
     await db.transaction(async () => {
-      const { newValue = '', reasonForChange, date } = req.body;
+      const { newValue = '', reasonForChange, date } = body;
       await VitalLog.create({
         date,
         reasonForChange,
@@ -71,13 +78,19 @@ surveyResponseAnswer.put(
 surveyResponseAnswer.post(
   '/vital',
   asyncHandler(async (req, res) => {
-    const { db, models, user, settings } = req;
+    const {
+      db,
+      models,
+      user,
+      settings,
+      body: { facilityId, ...body },
+    } = req;
     const { SurveyResponseAnswer, SurveyResponse, Survey, VitalLog, ProgramDataElement } = models;
     req.checkPermission('create', 'Vitals');
 
     // Even though this wouldn't technically be editing a vital
     // we will not allow the creation of a single vital answer if its not enabled
-    const enableVitalEdit = await settings.get('features.enableVitalEdit');
+    const enableVitalEdit = await settings[facilityId].get('features.enableVitalEdit');
     if (!enableVitalEdit) {
       throw new InvalidOperationError('Editing vitals is disabled.');
     }
@@ -90,7 +103,7 @@ surveyResponseAnswer.post(
 
     const responseObject = await SurveyResponse.findAll({
       where: {
-        encounterId: req.body.encounterId,
+        encounterId: body.encounterId,
       },
       include: [
         {
@@ -104,7 +117,7 @@ surveyResponseAnswer.post(
           model: SurveyResponseAnswer,
           as: 'answers',
           where: {
-            body: req.body.recordedDate,
+            body: body.recordedDate,
             dataElementId: VITALS_DATA_ELEMENT_IDS.dateRecorded,
           },
         },

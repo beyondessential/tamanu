@@ -14,6 +14,7 @@ import { SETTINGS_SCOPES } from '@tamanu/constants';
 const chance = new Chance();
 const TEST_VITALS_SURVEY_ID = 'vitals-survey-id-for-testing-purposes';
 describe('SurveyResponseAnswer', () => {
+  const [facilityId] = selectFacilityIds(config);
   let app;
   let baseApp;
   let models;
@@ -21,7 +22,6 @@ describe('SurveyResponseAnswer', () => {
   let ctx;
 
   beforeAll(async () => {
-    const [facilityId] = selectFacilityIds(config);
     ctx = await createTestContext();
     baseApp = ctx.baseApp;
     models = ctx.models;
@@ -31,7 +31,6 @@ describe('SurveyResponseAnswer', () => {
   afterAll(() => ctx.close());
 
   describe('getDefaultId', () => {
-    const [facilityId] = selectFacilityIds(config);
     beforeAll(async () => {
       const { Setting, Department } = models;
       await Department.create({
@@ -194,26 +193,6 @@ describe('SurveyResponseAnswer', () => {
       await models.Setting.set('features.enableVitalEdit', true);
     });
 
-    describe('getDefaultId', () => {
-      it('should return the default id for a resource from settings', async () => {
-        const { Setting, Department } = models;
-        await Department.create({
-          id: 'test-department-id',
-          code: 'test-department-code',
-          name: 'Test Department',
-          facilityId: config.serverFacilityId,
-        });
-        await Setting.set(
-          'survey.defaultCodes.department',
-          'test-department-code',
-          SETTINGS_SCOPES.FACILITY,
-          config.serverFacilityId,
-        );
-        const departmentId = await models.SurveyResponseAnswer.getDefaultId('department', settings);
-        expect(departmentId).toEqual('test-department-id');
-      });
-    });
-
     describe('write', () => {
       it('should modify a survey response answer', async () => {
         const response = await createNewVitalsSurveyResponse();
@@ -224,6 +203,7 @@ describe('SurveyResponseAnswer', () => {
           reasonForChange: 'test',
           newValue,
           date: getCurrentDateTimeString(),
+          facilityId,
         });
         expect(result).toHaveSucceeded();
         await singleAnswer.reload();
@@ -241,6 +221,7 @@ describe('SurveyResponseAnswer', () => {
           reasonForChange,
           newValue,
           date: getCurrentDateTimeString(),
+          facilityId,
         });
         expect(result).toHaveSucceeded();
 
@@ -271,6 +252,7 @@ describe('SurveyResponseAnswer', () => {
           reasonForChange,
           newValue,
           date: getCurrentDateTimeString(),
+          facilityId,
         });
         expect(result).toHaveSucceeded();
         await calculatedAnswer.reload();
@@ -327,6 +309,7 @@ describe('SurveyResponseAnswer', () => {
           reasonForChange: 'test4',
           newValue: chance.string(),
           date: getCurrentDateTimeString(),
+          facilityId,
         });
         expect(result).not.toHaveSucceeded();
         expect(result.status).toBe(404);
@@ -345,6 +328,7 @@ describe('SurveyResponseAnswer', () => {
             reasonForChange: 'test5',
             newValue: chance.integer({ min: 0, max: 100 }),
             date: getCurrentDateTimeString(),
+            facilityId,
           });
         expect(result).not.toHaveSucceeded();
         expect(result.status).toBe(404);
@@ -358,6 +342,7 @@ describe('SurveyResponseAnswer', () => {
         const result = await app.put(`/api/surveyResponseAnswer/vital/${singleAnswer.id}`).send({
           reasonForChange: 'test6',
           newValue,
+          facilityId,
         });
         expect(result).not.toHaveSucceeded();
         expect(result.status).toBe(422);
@@ -408,6 +393,7 @@ describe('SurveyResponseAnswer', () => {
           recordedDate: dateAnswer.body,
           dataElementId: extraDataElement.id,
           encounterId: response.encounterId,
+          facilityId,
         });
         expect(result).toHaveSucceeded();
         const createdAnswer = await models.SurveyResponseAnswer.findOne({
@@ -430,6 +416,7 @@ describe('SurveyResponseAnswer', () => {
           recordedDate: dateAnswer.body,
           dataElementId: extraDataElement.id,
           encounterId: response.encounterId,
+          facilityId,
         });
         expect(result).toHaveSucceeded();
         const log = await models.VitalLog.findOne({
@@ -446,6 +433,7 @@ describe('SurveyResponseAnswer', () => {
         const result = await app.post('/api/surveyResponseAnswer/vital').send({
           reasonForChange: 'another-test3',
           newValue: chance.integer({ min: 0, max: 100 }),
+          facilityId,
         });
         expect(result).not.toHaveSucceeded();
         expect(result.status).toBe(422);
