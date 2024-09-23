@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { Box, Divider } from '@material-ui/core';
 import CheckCircleIcon from '@material-ui/icons/CheckCircle';
@@ -17,6 +17,7 @@ import {
 import { Colors } from '../../constants';
 import useOverflow from '../../hooks/useOverflow';
 import { ConditionalTooltip, ThemedTooltip } from '../Tooltip';
+import { TaskActionModal } from './TaskActionModal';
 
 const StyledTable = styled(DataFetchingTable)`
   margin-top: 6px;
@@ -81,6 +82,7 @@ const StyledTable = styled(DataFetchingTable)`
     &:last-child {
       max-width: 200px;
       white-space: nowrap;
+      width: 200px;
     }
   }
 `;
@@ -152,7 +154,11 @@ const NoDataContainer = styled.div`
 const getStatus = ({ status }) => {
   switch (status) {
     case TASK_STATUSES.TODO:
-      return <Box marginLeft='1.5px'><StatusTodo /></Box>;
+      return (
+        <Box marginLeft="1.5px">
+          <StatusTodo />
+        </Box>
+      );
     case TASK_STATUSES.COMPLETED:
       return <StyledCheckCircleIcon />;
     case TASK_STATUSES.NON_COMPLETED:
@@ -173,9 +179,9 @@ const getDueTime = ({ dueTime }) => {
 
 const AssignedToCell = ({ designations }) => {
   const [ref, isOverflowing] = useOverflow();
-  if (!designations?.length) return '';
+  if (!designations?.length) return '-';
 
-  const designationNames = designations.map(assigned => assigned.referenceData.name);
+  const designationNames = designations.map(assigned => assigned.name);
   return (
     <ConditionalTooltip visible={isOverflowing} title={designationNames.join(', ')}>
       <OverflowedBox ref={ref}>{designationNames.join(', ')}</OverflowedBox>
@@ -184,17 +190,25 @@ const AssignedToCell = ({ designations }) => {
 };
 
 const getFrequency = ({ frequencyValue, frequencyUnit }) =>
-  frequencyValue && frequencyUnit ? `${frequencyValue} ${frequencyUnit}` : '';
+  frequencyValue && frequencyUnit ? (
+    `${frequencyValue} ${frequencyUnit}`
+  ) : (
+    <TranslatedText stringId="encounter.tasks.table.once" fallback="Once" />
+  );
 
-const NotesCell = ({ row, hoveredRow }) => {
+const NotesCell = ({ row, hoveredRow, handleActionModalOpen }) => {
   const [ref, isOverflowing] = useOverflow();
 
   return (
     <Box display="flex" alignItems="center">
       <NotesDisplay>
-        <ConditionalTooltip visible={isOverflowing} title={row.note}>
-          <OverflowedBox ref={ref}>{row.note}</OverflowedBox>
-        </ConditionalTooltip>
+        {row.note ? (
+          <ConditionalTooltip visible={isOverflowing} title={row.note}>
+            <OverflowedBox ref={ref}>{row.note}</OverflowedBox>
+          </ConditionalTooltip>
+        ) : (
+          '-'
+        )}
       </NotesDisplay>
       {hoveredRow?.id === row?.id && (
         <BulkActions>
@@ -227,7 +241,7 @@ const NotesCell = ({ row, hoveredRow }) => {
               />
             }
           >
-            <IconButton>
+            <IconButton onClick={() => handleActionModalOpen(TASK_STATUSES.COMPLETED, row.id)}>
               <StyledCheckCircleIcon />
             </IconButton>
           </ThemedTooltip>
@@ -262,17 +276,30 @@ const NoDataMessage = () => (
   </NoDataContainer>
 );
 
-export const TasksTable = ({ encounterId, searchParameters, refreshCount }) => {
+export const TasksTable = ({ encounterId, searchParameters, refreshCount, refreshTaskTable }) => {
   const [hoveredRow, setHoveredRow] = useState();
   const [data, setData] = useState([]);
+  const [actionModal, setActionModal] = useState('');
+  const [selectedTaskId, setSelectedTaskId] = useState(null);
 
   const onDataFetched = useCallback(({ data }) => {
     setData(data);
   }, []);
 
+  const handleActionModalOpen = (action, taskId) => {
+    setActionModal(action);
+    setSelectedTaskId(taskId);
+  };
+
+  const handleActionModalClose = () => {
+    setActionModal('');
+    setSelectedTaskId(null);
+  };
+
   const { selectedRows, selectableColumn } = useSelectableColumn(data, {
     bulkDeselectOnly: true,
   });
+  const selectedRowIds = useMemo(() => selectedRows.map(row => row.id), [selectedRows]);
 
   const COLUMNS = [
     {
@@ -313,13 +340,26 @@ export const TasksTable = ({ encounterId, searchParameters, refreshCount }) => {
     {
       key: 'note',
       title: <TranslatedText stringId="encounter.tasks.table.column.notes" fallback="Notes" />,
-      accessor: row => <NotesCell row={row} hoveredRow={hoveredRow} />,
+      accessor: row => (
+        <NotesCell
+          row={row}
+          hoveredRow={hoveredRow}
+          handleActionModalOpen={handleActionModalOpen}
+        />
+      ),
       sortable: false,
     },
   ];
 
   return (
     <div>
+      <TaskActionModal
+        open={!!actionModal}
+        onClose={handleActionModalClose}
+        action={actionModal}
+        refreshTaskTable={refreshTaskTable}
+        taskIds={selectedTaskId ? [selectedTaskId] : selectedRowIds}
+      />
       {selectedRows.length > 0 && (
         <div>
           <Divider style={{ marginTop: '5px' }} />
@@ -344,7 +384,7 @@ export const TasksTable = ({ encounterId, searchParameters, refreshCount }) => {
                 />
               }
             >
-              <IconButton>
+              <IconButton onClick={() => handleActionModalOpen(TASK_STATUSES.COMPLETED)}>
                 <StyledCheckCircleIcon />
               </IconButton>
             </ThemedTooltip>

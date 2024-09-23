@@ -1,8 +1,13 @@
 import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS, TASK_STATUSES } from '@tamanu/constants';
+import { v4 as uuidv4 } from 'uuid';
 import { Model } from './Model';
 import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
 import { dateTimeType } from './dateTimeTypes';
+import config from 'config';
+import ms from 'ms';
+import { addMilliseconds } from 'date-fns';
+import { toDateTimeString } from '../utils/dateTime';
 import { buildEncounterLinkedLookupFilter } from '../sync/buildEncounterLinkedLookupFilter';
 
 export class Task extends Model {
@@ -106,10 +111,6 @@ export class Task extends Model {
       foreignKey: 'requestedByUserId',
       as: 'requestedBy',
     });
-    this.hasMany(models.TaskDesignation, {
-      foreignKey: 'taskId',
-      as: 'designations',
-    });
     this.belongsTo(models.User, {
       foreignKey: 'completedByUserId',
       as: 'completedBy',
@@ -133,6 +134,11 @@ export class Task extends Model {
     this.belongsTo(models.ReferenceData, {
       foreignKey: 'deletedReasonId',
       as: 'deletedReason',
+    });
+    this.belongsToMany(models.ReferenceData, {
+      through: models.TaskDesignation,
+      foreignKey: 'taskId',
+      as: 'designations',
     });
   }
 
@@ -165,18 +171,6 @@ export class Task extends Model {
         attributes: ['displayName'],
       },
       {
-        model: models.TaskDesignation,
-        as: 'designations',
-        attributes: ['designationId'],
-        include: [
-          {
-            model: models.ReferenceData,
-            as: 'referenceData',
-            attributes: ['name'],
-          },
-        ],
-      },
-      {
         model: models.User,
         as: 'completedBy',
         attributes: ['displayName'],
@@ -206,6 +200,88 @@ export class Task extends Model {
         as: 'deletedReason',
         attributes: ['name'],
       },
+      {
+        model: models.ReferenceData,
+        as: 'designations',
+        attributes: ['name'],
+        through: {
+          attributes: [],
+        },
+      },
     ];
+  }
+
+  static async generateRepeatingTasks(tasks) {
+    const allGeneratedTasks = [];
+    const allClonedDesignations = [];
+
+    const repeatingTasks = tasks.filter(task => task.frequencyValue && task.frequencyUnit);
+
+    for (const task of repeatingTasks) {
+      let lastGeneratedTask = await this.findOne({
+        where: {
+          parentTaskId: task.id,
+        },
+        order: [['dueTime', 'DESC']],
+      });
+      if (!lastGeneratedTask) {
+        // no tasks have been generated yet
+        lastGeneratedTask = task;
+      }
+
+      const upcomingTasksShouldBeGeneratedTimeFrame =
+        config.tasking?.upcomingTasksShouldBeGeneratedTimeFrame || 72;
+      const { frequencyValue, frequencyUnit } = task;
+      const frequency = ms(`${frequencyValue} ${frequencyUnit}`);
+
+      const maxDueTime = addMilliseconds(
+        new Date(),
+        ms(`${upcomingTasksShouldBeGeneratedTimeFrame} hours`),
+      );
+      let nextDueTime = addMilliseconds(new Date(lastGeneratedTask.dueTime), frequency);
+      const generatedTasks = [];
+
+      for (
+        ;
+        nextDueTime.getTime() < maxDueTime.getTime();
+        nextDueTime = addMilliseconds(nextDueTime, frequency)
+      ) {
+        const nextTask = {
+          id: uuidv4(),
+          encounterId: task.encounterId,
+          requestedByUserId: task.requestedByUserId,
+          name: task.name,
+          dueTime: toDateTimeString(nextDueTime),
+          requestTime: task.requestTime,
+          status: TASK_STATUSES.TODO,
+          note: task.note,
+          frequencyValue: task.frequencyValue,
+          frequencyUnit: task.frequencyUnit,
+          highPriority: task.highPriority,
+          parentTaskId: task.id,
+        };
+        generatedTasks.push(nextTask);
+      }
+
+      const clonedDesignations = [];
+
+      for (const generatedTask of generatedTasks) {
+        clonedDesignations.push(
+          ...task.designations.map(designation => ({
+            taskId: generatedTask.id,
+            designationId: designation.designationId,
+          })),
+        );
+      }
+      allGeneratedTasks.push(...generatedTasks);
+      allClonedDesignations.push(...clonedDesignations);
+    }
+
+    if (allGeneratedTasks.length) {
+      await this.bulkCreate(allGeneratedTasks);
+    }
+    if (allClonedDesignations.length) {
+      await this.sequelize.models.TaskDesignation.bulkCreate(allClonedDesignations);
+    }
   }
 }

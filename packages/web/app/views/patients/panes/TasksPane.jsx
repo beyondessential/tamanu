@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { omit } from 'lodash';
 import { Box } from '@material-ui/core';
@@ -7,6 +7,7 @@ import { Colors } from '../../../constants';
 import { AutocompleteInput, Button, CheckInput, TranslatedText } from '../../../components';
 import { useSuggester } from '../../../api';
 import { TasksTable } from '../../../components/Tasks/TasksTable';
+import { TaskModal } from '../../../components/Tasks/TaskModal';
 
 const TabPane = styled.div`
   margin: 20px 24px 24px;
@@ -48,6 +49,7 @@ export const TasksPane = React.memo(({ encounter }) => {
   const [showNotCompleted, setShowNotCompleted] = useState(false);
   const [searchParameters, setSearchParameters] = useState({});
   const [refreshCount, setRefreshCount] = useState(0);
+  const [taskModalOpen, setTaskModalOpen] = useState(false);
 
   const onFilterByDesignation = e => {
     const { value: designationId } = e.target;
@@ -55,6 +57,10 @@ export const TasksPane = React.memo(({ encounter }) => {
       designationId ? { ...prevParams, assignedTo: designationId } : omit(prevParams, 'assignedTo'),
     );
   };
+
+  const refreshTaskTable = useCallback(() => {
+    setRefreshCount(prev => prev + 1);
+  }, []);
 
   useEffect(() => {
     setRefreshCount(prev => prev + 1);
@@ -113,7 +119,7 @@ export const TasksPane = React.memo(({ encounter }) => {
           suggester={designationSuggester}
           onChange={onFilterByDesignation}
         />
-        <Button onClick={() => {}} variant="outlined" color="primary">
+        <Button onClick={() => setTaskModalOpen(true)} variant="outlined" color="primary">
           <TranslatedText stringId="encounter.tasks.action.newTask" fallback="+ New task" />
         </Button>
       </ActionRow>
@@ -121,6 +127,17 @@ export const TasksPane = React.memo(({ encounter }) => {
         encounterId={encounter.id}
         searchParameters={searchParameters}
         refreshCount={refreshCount}
+        refreshTaskTable={refreshTaskTable}
+      />
+      <TaskModal
+        open={taskModalOpen}
+        onClose={() => setTaskModalOpen(false)}
+        refreshTaskTable={refreshTaskTable}
+      />
+      <TaskModal
+        open={taskModalOpen}
+        onClose={() => setTaskModalOpen(false)}
+        refreshTaskTable={refreshTaskTable}
       />
     </TabPane>
   );
