@@ -14,6 +14,7 @@ import { startScheduledTasks } from '../tasks';
 import { version } from '../serverInfo';
 import { ApplicationContext } from '../ApplicationContext';
 import { createSyncApp } from '../createSyncApp';
+import { SyncTask } from '../tasks/SyncTask';
 
 async function startAll({ skipMigrationCheck }) {
   log.info(`Starting facility server version ${version}`, {
@@ -61,11 +62,14 @@ async function startAll({ skipMigrationCheck }) {
     log.info(`SYNC server is running on port ${syncPort}!`);
   });
 
+  const syncTaskClass = [SyncTask];
   const cancelTasks = startScheduledTasks(context);
+  const cancelSyncTask = startScheduledTasks(context, syncTaskClass);
 
   process.once('SIGTERM', () => {
     log.info('Received SIGTERM, closing HTTP server');
     cancelTasks();
+    cancelSyncTask();
     server.close();
     syncServer.close();
   });
