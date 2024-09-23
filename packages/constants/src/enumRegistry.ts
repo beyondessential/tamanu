@@ -27,6 +27,7 @@ import { DIAGNOSIS_CERTAINTY_LABELS, PATIENT_ISSUE_LABELS } from './diagnoses';
 import { DRUG_ROUTE_LABELS, REPEATS_LABELS } from './medications';
 import { PLACE_OF_DEATHS, MANNER_OF_DEATHS } from './deaths';
 import { LOCATION_AVAILABILITY_STATUS_LABELS } from './locations';
+import { TASK_FREQUENCY_UNIT_LABELS } from './tasks.js';
 
 type EnumKeys = keyof typeof registeredEnums;
 type EnumValues = typeof registeredEnums[EnumKeys];
@@ -64,6 +65,7 @@ export const registeredEnums = {
   REPORT_DEFAULT_DATE_RANGES_LABELS,
   REPORT_STATUS_LABELS,
   SEX_LABELS,
+  TASK_FREQUENCY_UNIT_LABELS,
   TEMPLATE_TYPE_LABELS,
   VACCINE_CATEGORY_LABELS,
   VACCINE_STATUS_LABELS,
@@ -102,6 +104,7 @@ export const translationPrefixes: Record<EnumKeys, string> = {
   REPORT_DEFAULT_DATE_RANGES_LABELS: 'report.property.defaultDateRange',
   REPORT_STATUS_LABELS: 'report.property.status',
   SEX_LABELS: 'patient.property.sex',
+  TASK_FREQUENCY_UNIT_LABELS: 'task.property.frequencyUnit',
   TEMPLATE_TYPE_LABELS: 'template.property.type',
   VACCINE_CATEGORY_LABELS: 'vaccine.property.category',
   VACCINE_STATUS_LABELS: 'vaccine.property.status',

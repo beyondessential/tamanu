@@ -4,7 +4,7 @@ import { ForbiddenError, NotFoundError } from '@tamanu/shared/errors';
 import { REFERENCE_TYPES, TASK_STATUSES } from '@tamanu/constants';
 import { z } from 'zod';
 import { Op } from 'sequelize';
-import { parseDate, toDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { v4 as uuidv4 } from 'uuid';
 
 const taskRoutes = express.Router();
 export { taskRoutes as tasks };
@@ -17,9 +17,8 @@ const taskCompletionInputSchema = z.object({
   taskIds: z
     .string()
     .uuid()
-    .array()
-    .length(1),
-  completedBy: z.string().uuid(),
+    .array(),
+  completedBy: z.string(),
   completedTime: z.string().datetime(),
   completedNote: z.string().optional(),
 });
@@ -46,7 +45,7 @@ taskRoutes.post(
       { ...completedInfo, status: TASK_STATUSES.COMPLETED },
       { where: { id: { [Op.in]: taskIds } } },
     );
-    res.json();
+    res.json({});
   }),
 );
 
@@ -173,5 +172,78 @@ taskRoutes.delete(
     });
 
     res.status(204).json();
+  }),
+);
+
+const tasksCreationSchema = z.object({
+  startTime: z.string().datetime(),
+  encounterId: z.string().uuid(),
+  requestedByUserId: z.string(),
+  requestTime: z.string().datetime(),
+  note: z.string().optional(),
+  tasks: z
+    .object({
+      name: z.string(),
+      frequencyValue: z.number().optional(),
+      frequencyUnit: z.string().optional(),
+      designationIds: z
+        .string()
+        .array()
+        .optional(),
+      highPriority: z.boolean(),
+    })
+    .array(),
+});
+taskRoutes.post(
+  '/',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('create', 'Task');
+    const {
+      startTime,
+      requestedByUserId,
+      requestTime,
+      encounterId,
+      note,
+      tasks,
+    } = await tasksCreationSchema.parseAsync(req.body);
+    const { models, db } = req;
+    const { Task, TaskDesignation } = models;
+
+    await db.transaction(async () => {
+      const tasksData = tasks.map(task => {
+        const designations = task.designationIds.map(designation => ({
+          designationId: designation,
+        }));
+
+        return {
+          ...task,
+          id: uuidv4(),
+          designations,
+          dueTime: startTime,
+          requestedByUserId,
+          requestTime,
+          encounterId,
+          note,
+        };
+      });
+
+      const createdTasks = await Task.bulkCreate(tasksData);
+
+      const taskDesignationAssociations = tasksData.flatMap(task => {
+        return task.designations.map(designation => ({
+          taskId: task.id,
+          designationId: designation.designationId,
+        }));
+      });
+
+      await TaskDesignation.bulkCreate(taskDesignationAssociations);
+
+      const hasRepeatedTasks = tasksData.some(task => task.frequencyValue && task.frequencyUnit);
+      if (hasRepeatedTasks) {
+        await Task.generateRepeatingTasks(tasksData);
+      }
+
+      res.send(createdTasks);
+    });
   }),
 );

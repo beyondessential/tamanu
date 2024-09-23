@@ -106,3 +106,9 @@ export const renderToText = element => {
   root.unmount();
   return renderedText;
 };
+
+export const preventInvalidNumber = event => {
+  if (!event.target.validity.valid) {
+    event.target.value = '';
+  }
+};

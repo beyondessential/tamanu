@@ -1,5 +1,6 @@
 import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS, TASK_STATUSES } from '@tamanu/constants';
+import { v4 as uuidv4 } from 'uuid';
 import { Model } from './Model';
 import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
 import { dateTimeType } from './dateTimeTypes';
@@ -8,7 +9,6 @@ import ms from 'ms';
 import { addMilliseconds } from 'date-fns';
 import { toDateTimeString } from '../utils/dateTime';
 import { buildEncounterLinkedLookupFilter } from '../sync/buildEncounterLinkedLookupFilter';
-import { v4 as uuidv4 } from 'uuid';
 
 export class Task extends Model {
   static init({ primaryKey, ...options }) {
@@ -99,10 +99,6 @@ export class Task extends Model {
       foreignKey: 'requestedByUserId',
       as: 'requestedBy',
     });
-    this.hasMany(models.TaskDesignation, {
-      foreignKey: 'taskId',
-      as: 'designations',
-    });
     this.belongsTo(models.User, {
       foreignKey: 'completedByUserId',
       as: 'completedBy',
@@ -126,6 +122,11 @@ export class Task extends Model {
     this.belongsTo(models.ReferenceData, {
       foreignKey: 'deletedReasonId',
       as: 'deletedReason',
+    });
+    this.belongsToMany(models.ReferenceData, {
+      through: models.TaskDesignation,
+      foreignKey: 'taskId',
+      as: 'designations',
     });
   }
 
@@ -158,18 +159,6 @@ export class Task extends Model {
         attributes: ['displayName'],
       },
       {
-        model: models.TaskDesignation,
-        as: 'designations',
-        attributes: ['designationId'],
-        include: [
-          {
-            model: models.ReferenceData,
-            as: 'referenceData',
-            attributes: ['name'],
-          },
-        ],
-      },
-      {
         model: models.User,
         as: 'completedBy',
         attributes: ['displayName'],
@@ -198,6 +187,14 @@ export class Task extends Model {
         model: models.ReferenceData,
         as: 'deletedReason',
         attributes: ['name'],
+      },
+      {
+        model: models.ReferenceData,
+        as: 'designations',
+        attributes: ['name'],
+        through: {
+          attributes: [],
+        },
       },
     ];
   }
