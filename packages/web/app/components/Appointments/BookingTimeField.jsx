@@ -1,16 +1,13 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { OuterLabelFieldWrapper } from '../Field';
 import { Colors } from '../../constants';
-import { addMinutes, parse, format, differenceInMinutes, startOfDay, endOfDay } from 'date-fns';
+import { addMinutes, parse, format, differenceInMinutes } from 'date-fns';
 import ms from 'ms';
-import { ConditionalTooltip, ThemedTooltip } from '../Tooltip';
-import { Button } from '../Button';
 import { useSettings } from '../../contexts/Settings';
-import { times, uniqueId } from 'lodash';
-import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
-import { useApi } from '../../api';
+import { first, last, range } from 'lodash';
 import { useAppointments } from '../../api/queries/useAppointments';
+import { BookingTimeCell } from './BookingTimeCell';
 
 // TODO: disabled logic
 const CellContainer = styled.div`
@@ -23,59 +20,33 @@ const CellContainer = styled.div`
   gap: 10px;
 `;
 
-const Cell = styled.div`
-  border: 1px solid ${({ $selected }) => ($selected ? Colors.primary : Colors.outline)};
-  background-color: ${({ $selected }) => ($selected ? `${Colors.primary}1A` : 'white')};
-  height: 30px;
-  width: 125px;
-  border-radius: 50px;
-  font-size: 12px;
-  line-height: 12px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-`;
-
-const AvailableCell = styled(Cell)`
-  &:hover {
-    cursor: pointer;
-    background-color: ${Colors.veryLightBlue};
-  }
-`;
-
-const BookedCell = styled(Cell)`
-  background-color: ${Colors.alert}1A;
-  color: ${Colors.midText};
-`;
-
-const TimeCell = ({ timeSlot, onClick, selected }) => {
-  const { startTime, endTime, available } = timeSlot;
-  const text = `${format(startTime, 'hh:mm a')} - ${format(endTime, 'hh:mm a')}`;
-
-  if (!available)
-    return (
-      <ThemedTooltip arrow placement="top" title="Not available">
-        <BookedCell>{text}</BookedCell>
-      </ThemedTooltip>
-    );
-
-  return (
-    <AvailableCell $selected={selected} onClick={onClick}>
-      {text}
-    </AvailableCell>
-  );
+const checkIfLocationAvailable = (appointments, startTime) => {
+  return !appointments.some(appointment => {
+    const apppontmentStartMs = new Date(appointment.startTime).getTime();
+    const apppontmentEndMs = new Date(appointment.endTime).getTime();
+    const slotStartMs = startTime.getTime();
+    return apppontmentStartMs <= slotStartMs && slotStartMs < apppontmentEndMs;
+  });
 };
 
-export const BookingTimeField = ({ disabled = false, date }) => {
+export const BookingTimeField = ({ disabled = false }) => {
   const { getSetting } = useSettings();
-  const [selectedTimeSlots, setSelectedTimeSlots] = useState([]);
-  const [selectedStartTime, setSelectedStartTime] = useState(null);
-  const [selectedEndTime, setSelectedEndTime] = useState(null);
-  // TODO: remove defaults here and use proper state storybook wrapper
-  const { startTime, endTime, slotDuration } = getSetting('appointments.bookingSlots');
 
+  const [selectedTimeSlots, setSelectedTimeSlots] = useState([]);
+  const removeSelectedTimeSlotId = id =>
+    setSelectedTimeSlots(prevSelections =>
+      prevSelections.filter(selection => selection !== id).sort((a, b) => a - b),
+    );
+  const addSelectedTimeSlotIds = idsToAdd =>
+    setSelectedTimeSlots(prevSelections => [...prevSelections, ...idsToAdd].sort((a, b) => a - b));
+
+  const earliestSelection = useMemo(() => first(selectedTimeSlots), [selectedTimeSlots]);
+  const latestSelection = useMemo(() => last(selectedTimeSlots), [selectedTimeSlots]);
+
+  // TODO: this should take location and date
   const { data: appointmentData } = useAppointments();
 
+  const { startTime, endTime, slotDuration } = getSetting('appointments.bookingSlots');
   const timeSlots = useMemo(() => {
     const startOfDay = parse(startTime, 'HH:mm', new Date());
     const endOfDay = parse(endTime, 'HH:mm', new Date());
@@ -87,16 +58,11 @@ export const BookingTimeField = ({ disabled = false, date }) => {
       const start = addMinutes(startOfDay, i * duration);
       const end = addMinutes(start, duration);
 
-      // TODO: needs to handle wide range of appointments
-      const isAppointmentBooked = appointmentData?.data.some(
-        appointment => appointment.startTime === toDateTimeString(start),
-      );
-
       slots.push({
-        id: uniqueId('timeslot-'),
+        id: i,
         startTime: start,
         endTime: end,
-        available: !isAppointmentBooked,
+        available: checkIfLocationAvailable(appointmentData?.data, start),
         selected: false,
       });
     }
@@ -104,27 +70,61 @@ export const BookingTimeField = ({ disabled = false, date }) => {
     return slots;
   }, [startTime, endTime, slotDuration, appointmentData]);
 
-  // TODO: feels a bit hacky
-  const toggleSelectedTimeSlot = id => {
-    setSelectedTimeSlots(prevSelections => {
-      return prevSelections.includes(id)
-        ? prevSelections.filter(selection => selection !== id)
-        : [...prevSelections, id];
-    });
+  const reservedTimeSlots = timeSlots.filter(({ available }) => !available).map(slot => slot.id);
+
+  const checkIfContainsBookedTime = ids => {
+    return ids.some(item => reservedTimeSlots.includes(item));
   };
+
+  const calculateIdsToAdd = id => {
+    const idsToAdd = [id];
+    const shouldPopulateUp = id > latestSelection;
+    const shouldPopulateDown = id < earliestSelection;
+    // Autofill any numbers between the ends of current range and new selection
+    if (shouldPopulateDown) idsToAdd.push(...range(earliestSelection - 1, id));
+    if (shouldPopulateUp) idsToAdd.push(...range(latestSelection + 1, id));
+    return idsToAdd;
+  };
+
+  const toggleSelectedTimeSlot = id => {
+    if (selectedTimeSlots.length === 0) return addSelectedTimeSlotIds([id]);
+
+    const idsToAdd = calculateIdsToAdd(id);
+    // Check that the autopopulation hasnt tried to add a booked time
+    const isAddingReservedId = checkIfContainsBookedTime(idsToAdd);
+    // Cant unselect a time in the middle of the range
+    const withinSelectedRange = id < latestSelection && id > earliestSelection;
+    // Do nothing if operation not allowed
+    if (isAddingReservedId || withinSelectedRange) return;
+
+    if (selectedTimeSlots.includes(id)) {
+      removeSelectedTimeSlotId(id);
+    } else {
+      addSelectedTimeSlotIds(idsToAdd);
+    }
+  };
+
+  const overallStartTime = timeSlots[earliestSelection]?.startTime;
+  const overallEndTime = timeSlots[latestSelection]?.endTime;
 
   return (
     <>
+      {selectedTimeSlots.length > 0 &&
+        `Start: ${format(overallStartTime, 'hh:mm a')} End: ${format(overallEndTime, 'hh:mm a')}`}
       <OuterLabelFieldWrapper label="Booking time" required>
         <CellContainer $disabled={disabled}>
-          {timeSlots.map(timeSlot => (
-            <TimeCell
-              key={timeSlot.id}
-              timeSlot={timeSlot}
-              selected={selectedTimeSlots.includes(timeSlot.id)}
-              onClick={() => toggleSelectedTimeSlot(timeSlot.id)}
-            />
-          ))}
+          {timeSlots.map(timeSlot => {
+            return (
+              <BookingTimeCell
+                key={timeSlot.id}
+                timeSlot={timeSlot}
+                selected={selectedTimeSlots.includes(timeSlot.id)}
+                onClick={() => toggleSelectedTimeSlot(timeSlot.id)}
+                middleOfRange={earliestSelection < timeSlot.id && timeSlot.id < latestSelection}
+                invalidTarget={checkIfContainsBookedTime(calculateIdsToAdd(timeSlot.id))}
+              />
+            );
+          })}
         </CellContainer>
       </OuterLabelFieldWrapper>
     </>
