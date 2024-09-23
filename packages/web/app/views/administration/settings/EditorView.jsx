@@ -42,7 +42,12 @@ const recursiveJsonParse = obj => {
   if (Array.isArray(obj)) return obj.map(recursiveJsonParse);
   return Object.entries(obj).reduce((acc, [key, value]) => {
     try {
-      acc[key] = JSON.parse(value);
+      const parsed = JSON.parse(value);
+      if (typeof parsed === 'object') {
+        acc[key] = parsed;
+      } else {
+        acc[key] = value;
+      }
     } catch {
       acc[key] = recursiveJsonParse(value);
     }
