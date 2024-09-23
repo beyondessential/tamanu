@@ -302,7 +302,7 @@ export const BedManagement = () => {
                   fallback="Readmission in\nlast 30 days"
                 />
               }
-            />y
+            />
           </DashboardItemListContainer>
           <DetailedDashboardItem api={api} facilityId={facilityId} />
         </DashboardContainer>
