@@ -82,6 +82,10 @@ export class Task extends Model {
     );
   }
 
+  isRepeatingTask() {
+    return this.frequencyValue && this.frequencyUnit;
+  }
+
   /**
    *
    * @param {import('./')} models
@@ -228,7 +232,11 @@ export class Task extends Model {
       let nextDueTime = addMilliseconds(new Date(lastGeneratedTask.dueTime), frequency);
       const generatedTasks = [];
 
-      for (; nextDueTime.getTime() < maxDueTime.getTime(); nextDueTime = addMilliseconds(nextDueTime, frequency)) {
+      for (
+        ;
+        nextDueTime.getTime() < maxDueTime.getTime();
+        nextDueTime = addMilliseconds(nextDueTime, frequency)
+      ) {
         const nextTask = {
           id: uuidv4(),
           encounterId: task.encounterId,
