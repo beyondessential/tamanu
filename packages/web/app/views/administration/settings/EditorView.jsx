@@ -27,7 +27,7 @@ const CategoryOptions = styled(Box)`
 
 const CategoriesWrapper = styled.div`
   display: grid;
-  gap: 1rem;
+  column-gap: 1rem;
   grid-template-columns: minmax(min-content, 30rem) minmax(min-content, max-content);
   padding: 1.25rem;
 `;

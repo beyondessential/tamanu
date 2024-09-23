@@ -18,11 +18,11 @@ const StyledLockIcon = styled(LockIcon)`
 
 const Wrapper = styled.div`
   display: grid;
-  gap: 1rem;
+  row-gap: 0.5rem;
   grid-column: 1 / -1;
   grid-template-columns: subgrid;
 
-  :not(:first-child) {
+  &:not(:first-child) {
     border-top: 1px solid ${Colors.outline};
   }
 `;
@@ -42,15 +42,20 @@ const SettingNameLabel = styled(LargeBodyText)`
 
 const Tooltip = styled(ThemedTooltip).attrs({ as: 'span', arrow: true, placement: 'top' })``;
 
+const StyledHeading = styled(Heading4)`
+  grid-column: 1 / -1;
+  margin-block: 1rem;
+`;
+
 const CategoryTitle = memo(({ name, path, description }) => {
   const categoryTitle = formatSettingName(name, path.split('.').pop());
   if (!categoryTitle) return null;
   return (
-    <Heading4>
+    <StyledHeading>
       <Tooltip disableHoverListener={!description} title={description}>
         {categoryTitle}
       </Tooltip>
-    </Heading4>
+    </StyledHeading>
   );
 });
 
