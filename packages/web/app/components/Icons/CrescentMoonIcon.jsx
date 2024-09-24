@@ -1,6 +1,11 @@
 import React from 'react';
 
-const CrescentMoonIcon = ({ htmlColor = 'currentColor', width = 15, height = 15, ...props }) => (
+export const CrescentMoonIcon = ({
+  htmlColor = 'currentColor',
+  width = 15,
+  height = 15,
+  ...props
+}) => (
   <svg
     width={width}
     height={height}
@@ -14,8 +19,4 @@ const CrescentMoonIcon = ({ htmlColor = 'currentColor', width = 15, height = 15,
       fill={htmlColor}
     />
   </svg>
-);
-
-export const OvernightIcon = props => (
-  <CrescentMoonIcon aria-label="Overnight" htmlColor="#326699" {...props} />
 );

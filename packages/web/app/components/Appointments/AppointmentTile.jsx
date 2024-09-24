@@ -7,7 +7,11 @@ import { areSameDay } from '@tamanu/shared/utils/dateTime';
 
 import { Colors } from '../../constants';
 import { APPOINTMENT_STATUS_COLORS } from './appointmentStatusIndicators';
-import { AppointmentStatusIcon as StatusIcon, OvernightIcon } from '../Icons';
+import {
+  AppointmentStatusIcon as StatusIcon,
+  CrescentMoonIcon as OvernightIcon,
+  ExclamationMarkIcon as HighPriorityIcon,
+} from '../Icons';
 import { formatTime } from '../DateDisplay';
 
 const Wrapper = styled.div`
@@ -83,6 +87,7 @@ export const AppointmentTile = ({ appointment, selected = false, ...props }) => 
   const endTime = parseISO(endTimeStr);
   console.log(appointment);
 
+  const isHighPriority = true; // TODO
   const isOvernight = !areSameDay(startTime, endTime);
 
   return (
@@ -96,8 +101,17 @@ export const AppointmentTile = ({ appointment, selected = false, ...props }) => 
         <Timestamp date={startTime} /> {getPatientFullName(patient)}
       </Label>
       <IconGroup>
-        {/* {isHighPriority && <HighPriorityIcon width={10} height={10} />} */}
-        {isOvernight && <OvernightIcon width={10} height={10} />}
+        {isHighPriority && (
+          <HighPriorityIcon
+            aria-label="High priority"
+            htmlColor={Colors.alert}
+            width={10}
+            height={10}
+          />
+        )}
+        {isOvernight && (
+          <OvernightIcon aria-label="Overnight" htmlColor="#326699" width={10} height={10} />
+        )}
         <StatusIcon appointmentStatus={appointmentStatus} width={10} height={10} />
       </IconGroup>
     </Wrapper>
