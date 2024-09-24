@@ -1,6 +1,11 @@
 import React from 'react';
 
-const ExclamationMarkIcon = ({ htmlColor = 'currentColor', width = 24, height = 24, ...props }) => (
+export const ExclamationMarkIcon = ({
+  htmlColor = 'currentColor',
+  width = 24,
+  height = 24,
+  ...props
+}) => (
   <svg
     width={width}
     height={height}
