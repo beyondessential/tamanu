@@ -61,8 +61,8 @@ export const BookingTimeField = ({ disabled = false }) => {
 
   const { locationId, date } = values;
   const { data: existingLocationBookings, isFetched } = useAppointments({
-    after: toDateTimeString(startOfDay(date)),
-    before: toDateTimeString(endOfDay(date)),
+    after: toDateTimeString(startOfDay(new Date(date))),
+    before: toDateTimeString(endOfDay(new Date(date))),
     all: true,
     locationId,
   });
