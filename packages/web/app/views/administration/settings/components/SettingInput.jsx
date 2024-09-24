@@ -102,15 +102,17 @@ export const SettingInput = ({
           )
         }
       >
-        <DefaultSettingButton
-          disabled={isUnchangedFromDefault}
-          onClick={() => handleChangeSetting(path, defaultValue)}
-        >
-          <TranslatedText
-            stringId="admin.settings.action.resetToDefault"
-            fallback="Reset to default"
-          />
-        </DefaultSettingButton>
+        <div>
+          <DefaultSettingButton
+            disabled={isUnchangedFromDefault}
+            onClick={() => handleChangeSetting(path, defaultValue)}
+          >
+            <TranslatedText
+              stringId="admin.settings.action.resetToDefault"
+              fallback="Reset to default"
+            />
+          </DefaultSettingButton>
+        </div>
       </ThemedTooltip>
     );
   };

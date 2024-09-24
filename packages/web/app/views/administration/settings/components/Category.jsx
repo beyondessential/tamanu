@@ -38,34 +38,32 @@ const SettingNameLabel = styled(LargeBodyText)`
   // Cannot use ‘align-items: baseline’ on parent flexbox because InputText has incorrect semantics
   padding-block: 13px;
   font-size: 15px;
+  inline-size: fit-content;
 `;
-
-const Tooltip = styled(ThemedTooltip).attrs({ as: 'span', arrow: true, placement: 'top' })``;
 
 const StyledHeading = styled(Heading4)`
   grid-column: 1 / -1;
   margin-block: 1rem;
+  inline-size: fit-content;
 `;
 
 const CategoryTitle = memo(({ name, path, description }) => {
   const categoryTitle = formatSettingName(name, path.split('.').pop());
   if (!categoryTitle) return null;
   return (
-    <StyledHeading>
-      <Tooltip disableHoverListener={!description} title={description}>
-        {categoryTitle}
-      </Tooltip>
-    </StyledHeading>
+    <ThemedTooltip disableHoverListener={!description} title={description}>
+      <StyledHeading>{categoryTitle}</StyledHeading>
+    </ThemedTooltip>
   );
 });
 
 const SettingName = memo(({ name, path, description, disabled }) => (
-  <SettingNameLabel color={disabled && 'textTertiary'}>
-    <Tooltip disableHoverListener={!description} title={description}>
+  <ThemedTooltip disableHoverListener={!description} title={description}>
+    <SettingNameLabel color={disabled && 'textTertiary'}>
       {formatSettingName(name, path.split('.').pop())}
       {disabled && <StyledLockIcon />}
-    </Tooltip>
-  </SettingNameLabel>
+    </SettingNameLabel>
+  </ThemedTooltip>
 ));
 
 const sortProperties = ([a0, a1], [b0, b1]) => {
