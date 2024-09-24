@@ -8,7 +8,5 @@ export {
 } from './AppointmentStatusIcons';
 export { ChevronIcon } from './ChevronIcon';
 export { ClearIcon } from './ClearIcon';
-export { CrescentMoonIcon } from './CrescentMoonIcon';
-export { ExclamationMarkIcon } from './ExclamationMarkIcon';
 export { RefreshIcon } from './RefreshIcon';
 export { VitalVectorIcon } from './VitalVectorIcon';

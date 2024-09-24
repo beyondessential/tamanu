@@ -2,16 +2,14 @@ import React from 'react';
 import styled, { css } from 'styled-components';
 import { parseISO } from 'date-fns';
 
+import { PriorityHigh as HighPriorityIcon } from '@material-ui/icons';
+import OvernightIcon from '@material-ui/icons/Brightness2';
 import { APPOINTMENT_STATUSES } from '@tamanu/constants';
 import { areSameDay } from '@tamanu/shared/utils/dateTime';
 
 import { Colors } from '../../constants';
 import { APPOINTMENT_STATUS_COLORS } from './appointmentStatusIndicators';
-import {
-  AppointmentStatusIcon as StatusIcon,
-  CrescentMoonIcon as OvernightIcon,
-  ExclamationMarkIcon as HighPriorityIcon,
-} from '../Icons';
+import { AppointmentStatusIcon as StatusIcon } from '../Icons';
 import { formatTime } from '../DateDisplay';
 
 const Wrapper = styled.div`
@@ -67,7 +65,6 @@ const Timestamp = ({ date }) => <time dateTime={date.toISOString()}>{formatTime(
 const IconGroup = styled.div`
   align-items: center;
   display: flex;
-  gap: 0.125rem;
   justify-content: end;
 `;
 
@@ -104,15 +101,20 @@ export const AppointmentTile = ({ appointment, selected = false, ...props }) => 
         {isHighPriority && (
           <HighPriorityIcon
             aria-label="High priority"
+            aria-hidden={undefined}
             htmlColor={Colors.alert}
-            width={15}
-            height={15}
+            style={{ fontSize: 15 }}
           />
         )}
         {isOvernight && (
-          <OvernightIcon aria-label="Overnight" htmlColor="#326699" width={10} height={10} />
+          <OvernightIcon
+            aria-label="Overnight"
+            aria-hidden={undefined}
+            htmlColor="#326699"
+            style={{ fontSize: 15 }}
+          />
         )}
-        <StatusIcon appointmentStatus={appointmentStatus} width={10} height={10} />
+        <StatusIcon appointmentStatus={appointmentStatus} width={15} height={15} />
       </IconGroup>
     </Wrapper>
   );
