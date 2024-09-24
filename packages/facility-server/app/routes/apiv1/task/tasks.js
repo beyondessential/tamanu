@@ -141,7 +141,7 @@ taskRoutes.post(
     await db.transaction(async () => {
       const tasksData = tasks.map(task => {
         const designations = task.designationIds.map(designation => ({
-          designationId: designation,
+          id: designation,
         }));
 
         return {
@@ -161,7 +161,7 @@ taskRoutes.post(
       const taskDesignationAssociations = tasksData.flatMap(task => {
         return task.designations.map(designation => ({
           taskId: task.id,
-          designationId: designation.designationId,
+          designationId: designation.id,
         }));
       });
 
