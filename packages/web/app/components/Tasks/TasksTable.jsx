@@ -217,7 +217,7 @@ const NotesCell = ({ row, hoveredRow, handleActionModalOpen }) => {
           '-'
         )}
       </NotesDisplay>
-      {true && (
+      {hoveredRow?.id === row?.id && (
         <BulkActions>
           {status === TASK_STATUSES.TODO && (
             <ThemedTooltip
