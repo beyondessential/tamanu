@@ -144,6 +144,7 @@
   "countryTimeZone": "Australia/Melbourne",
   "allowMismatchedTimeZones": false,
   "tasking": {
-    "upcomingTasksTimeFrame": 8, // hours
+    "upcomingTasksTimeFrame": 8, // hours,
+    "upcomingTasksShouldBeGeneratedTimeFrame": 72, // hours
   }
 }
