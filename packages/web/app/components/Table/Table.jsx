@@ -192,16 +192,20 @@ const HeaderContainer = React.memo(({ children, numeric }) => (
   <StyledTableCell align={numeric ? 'right' : 'left'}>{children}</StyledTableCell>
 ));
 
-const RowContainer = React.memo(({ children, lazyLoading, rowStyle, onClick, className }) => (
-  <StyledTableRow
-    className={className}
-    onClick={onClick}
-    $rowStyle={rowStyle}
-    $lazyLoading={lazyLoading}
-  >
-    {children}
-  </StyledTableRow>
-));
+const RowContainer = React.memo(
+  ({ children, lazyLoading, rowStyle, onClick, className, onMouseEnter, onMouseLeave }) => (
+    <StyledTableRow
+      className={className}
+      onClick={onClick}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+      $rowStyle={rowStyle}
+      $lazyLoading={lazyLoading}
+    >
+      {children}
+    </StyledTableRow>
+  ),
+);
 
 const StatusTableCell = styled(StyledTableCell)`
   &.MuiTableCell-body {
@@ -224,8 +228,8 @@ const Row = React.memo(
     refreshTable,
     cellStyle,
     onClickRow,
-    onMouseEnterRow,
-    onMouseLeaveRow
+    onMouseEnter,
+    onMouseLeave,
   }) => {
     const cells = columns.map(
       ({ key, accessor, CellComponent, numeric, maxWidth, cellColor, dontCallRowInput }) => {
@@ -238,8 +242,6 @@ const Row = React.memo(
           <StyledTableCell
             key={key}
             onClick={dontCallRowInput ? preventInputCallback : e => onClickRow?.(e, passingData)}
-            onMouseEnter={e => onMouseEnterRow?.(e, passingData)}
-            onMouseLeave={e => onMouseLeaveRow?.(e, passingData)}
             background={backgroundColor}
             $cellStyle={cellStyle}
             align={numeric ? 'right' : 'left'}
@@ -261,6 +263,8 @@ const Row = React.memo(
         onClick={onClick && (() => onClick(data))}
         rowStyle={rowStyle ? rowStyle(data) : ''}
         lazyLoading={lazyLoading}
+        onMouseEnter={onMouseEnter && (() => onMouseEnter(data))}
+        onMouseLeave={onMouseLeave && (() => onMouseLeave(data))}
       >
         {cells}
       </RowContainer>
@@ -389,7 +393,7 @@ class TableComponent extends React.Component {
       statusCellStyle,
       onClickRow,
       onMouseEnterRow,
-      onMouseLeaveRow
+      onMouseLeaveRow,
     } = this.props;
 
     const status = this.getStatusMessage();
@@ -420,8 +424,8 @@ class TableComponent extends React.Component {
                 lazyLoading={lazyLoading}
                 cellStyle={cellStyle}
                 onClickRow={onClickRow}
-                onMouseEnterRow={onMouseEnterRow}
-                onMouseLeaveRow={onMouseLeaveRow}
+                onMouseEnter={onMouseEnterRow}
+                onMouseLeave={onMouseLeaveRow}
               />
             );
           })}
@@ -561,6 +565,8 @@ TableComponent.propTypes = {
   page: PropTypes.number,
   rowsPerPage: PropTypes.number,
   onRowClick: PropTypes.func,
+  onMouseEnterRow: PropTypes.func,
+  onMouseLeaveRow: PropTypes.func,
   cellOnChange: PropTypes.func,
   headerOnChange: PropTypes.func,
   rowsPerPageOptions: PropTypes.arrayOf(PropTypes.number),
@@ -592,6 +598,8 @@ TableComponent.defaultProps = {
   page: null,
   elevated: true,
   onRowClick: null,
+  onMouseEnterRow: null,
+  onMouseLeaveRow: null,
   cellOnChange: null,
   headerOnChange: null,
   rowsPerPage: DEFAULT_ROWS_PER_PAGE_OPTIONS[0],
