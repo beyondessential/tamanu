@@ -46,7 +46,7 @@ export class InvoicePayment extends Model {
       foreignKey: 'invoicePaymentId',
       as: 'insurerPayment',
     });
-    this.hasOne(models.User, {
+    this.belongsTo(models.User, {
       foreignKey: 'updatedByUserId',
       as: 'updatedByUser',
     });
