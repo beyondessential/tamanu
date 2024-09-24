@@ -18,6 +18,10 @@ export class SyncQueuedDevice extends Model {
           allowNull: false,
           primaryKey: true,
         },
+        facilityIds: {
+          type: DataTypes.JSONB,
+          allowNull: false,
+        },
         lastSeenTime: { type: DataTypes.DATE },
         lastSyncedTick: { type: DataTypes.BIGINT },
         urgent: { type: DataTypes.BOOLEAN },
@@ -29,14 +33,6 @@ export class SyncQueuedDevice extends Model {
       },
     );
   }
-
-  static initRelations(models) {
-    this.belongsTo(models.Facility, {
-      foreignKey: 'facilityId',
-      as: 'facility',
-    });
-  }
-
   static getReadyDevicesWhereClause() {
     return {
       lastSeenTime: {
@@ -55,7 +51,7 @@ export class SyncQueuedDevice extends Model {
     });
   }
 
-  static async checkSyncRequest({ facilityId, deviceId, urgent, lastSyncedTick }) {
+  static async checkSyncRequest({ facilityIds, deviceId, urgent, lastSyncedTick }) {
     // first, update our own entry in the sync queue
     const queueRecord = await this.findByPk(deviceId);
 
@@ -63,7 +59,7 @@ export class SyncQueuedDevice extends Model {
       // new entry in sync queue
       await this.create({
         id: deviceId,
-        facilityId,
+        facilityIds: JSON.stringify(facilityIds),
         lastSeenTime: getCurrentDateTimeString(),
         urgent,
         lastSyncedTick,

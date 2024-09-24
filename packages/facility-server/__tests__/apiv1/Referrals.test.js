@@ -1,6 +1,8 @@
+import config from 'config';
 import { createDummyEncounter, createDummyPatient } from '@tamanu/shared/demoData';
 import { chance, findOneOrCreate } from '@tamanu/shared/test-helpers';
 import { createTestContext } from '../utilities';
+import { selectFacilityIds } from '@tamanu/shared/utils/configSelectors';
 
 let baseApp = null;
 let models = null;
@@ -60,6 +62,7 @@ function getRandomAnswer(dataElement) {
 }
 
 describe('Referrals', () => {
+  const [facilityId] = selectFacilityIds(config);
   let ctx = null;
   let settings = null;
   let app = null;
@@ -99,6 +102,7 @@ describe('Referrals', () => {
       surveyId: testSurvey.id,
       departmentId,
       locationId,
+      facilityId,
     });
     expect(result).toHaveSucceeded();
   });
@@ -114,6 +118,7 @@ describe('Referrals', () => {
       surveyId: testSurvey.id,
       departmentId,
       locationId,
+      facilityId,
     });
 
     const result = await app.get(`/api/patient/${patient.id}/referrals`);
@@ -135,6 +140,7 @@ describe('Referrals', () => {
       patientId: patient.id,
       surveyId: testSurvey.id,
       locationId,
+      facilityId,
     });
 
     expect(result).toHaveSucceeded();
@@ -156,6 +162,7 @@ describe('Referrals', () => {
       patientId: patient.id,
       surveyId: testSurvey.id,
       departmentId,
+      facilityId,
     });
 
     expect(result).toHaveSucceeded();
