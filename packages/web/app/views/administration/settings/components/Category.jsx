@@ -36,7 +36,8 @@ const SettingLine = styled(BodyText)`
 const SettingNameLabel = styled(LargeBodyText)`
   // Match TextField for baseline alignment
   // Cannot use ‘align-items: baseline’ on parent flexbox because InputText has incorrect semantics
-  padding-block: 13px;
+  margin-block: 13px;
+  padding-block: 0;
   font-size: 15px;
   inline-size: fit-content;
 `;

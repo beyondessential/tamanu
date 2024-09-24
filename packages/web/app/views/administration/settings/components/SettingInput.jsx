@@ -35,7 +35,7 @@ const DefaultSettingButton = styled(TextButton)`
   font-size: 15px; // Match TextField
   font-weight: 500;
   line-height: 18px; // Match TextField
-  padding-block: 13px; // Match TextField
+  padding-block: 0;
   text-decoration-line: underline;
   text-decoration-thickness: from-font;
   text-transform: none;
