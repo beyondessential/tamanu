@@ -18,7 +18,7 @@ const taskCompletionInputSchema = z.object({
     .string()
     .uuid()
     .array(),
-  completedBy: z.string(),
+  completedByUserId: z.string(),
   completedTime: z.string().datetime(),
   completedNote: z.string().optional(),
 });
@@ -29,15 +29,16 @@ taskRoutes.post(
     const { taskIds, ...completedInfo } = await taskCompletionInputSchema.parseAsync(req.body);
 
     //validate task
+    const allowedStatuses = [TASK_STATUSES.TODO, TASK_STATUSES.NON_COMPLETED];
     const tasks = await req.models.Task.findAll({
-      where: { id: { [Op.in]: taskIds } },
+      where: { id: { [Op.in]: taskIds }, status: { [Op.in]: allowedStatuses } },
       attributes: ['id', 'status'],
     });
-    if (!tasks?.length) throw new NotFoundError('No tasks not found');
 
-    const allowedStatuses = [TASK_STATUSES.TODO, TASK_STATUSES.NON_COMPLETED];
-    if (!tasks.every(task => allowedStatuses.includes(task.status))) {
-      throw new ForbiddenError('Tasks are not in TODO or NON_COMPLETED status');
+    if (tasks?.length !== taskIds.length) {
+      throw new ForbiddenError(
+        `Some of selected tasks are not in ${allowedStatuses.join(', ')} status`,
+      );
     }
 
     //update task
@@ -45,7 +46,7 @@ taskRoutes.post(
       { ...completedInfo, status: TASK_STATUSES.COMPLETED },
       { where: { id: { [Op.in]: taskIds } } },
     );
-    res.json({});
+    res.status(204).json();
   }),
 );
 
@@ -59,7 +60,7 @@ const taskNonCompletionInputSchema = z.object({
     .uuid()
     .array()
     .length(1),
-  notCompletedBy: z.string().uuid(),
+  notCompletedByUserId: z.string().uuid(),
   notCompletedTime: z.string().datetime(),
   notCompletedReasonId: z.string().optional(),
 });
@@ -83,15 +84,15 @@ taskRoutes.put(
     }
 
     //validate task
+    const allowedStatuses = [TASK_STATUSES.TODO, TASK_STATUSES.COMPLETED];
     const tasks = await req.models.Task.findAll({
-      where: { id: { [Op.in]: taskIds } },
+      where: { id: { [Op.in]: taskIds }, status: { [Op.in]: allowedStatuses } },
       attributes: ['id', 'status'],
     });
-    if (!tasks?.length) throw new NotFoundError('No tasks not found');
-
-    const allowedStatuses = [TASK_STATUSES.TODO, TASK_STATUSES.COMPLETED];
-    if (!tasks.every(task => allowedStatuses.includes(task.status))) {
-      throw new ForbiddenError('Task is not in TODO or COMPLETED status');
+    if (tasks?.length !== taskIds.length) {
+      throw new ForbiddenError(
+        `Some of selected tasks are not in ${allowedStatuses.join(', ')} status`,
+      );
     }
 
     //update tasks
@@ -99,7 +100,7 @@ taskRoutes.put(
       { ...notCompletedInfo, status: TASK_STATUSES.NON_COMPLETED },
       { where: { id: { [Op.in]: taskIds } } },
     );
-    res.json();
+    res.status(204).json();
   }),
 );
 
