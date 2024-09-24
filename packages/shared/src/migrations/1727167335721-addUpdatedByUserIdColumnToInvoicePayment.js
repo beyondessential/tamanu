@@ -6,7 +6,7 @@ import { DataTypes } from 'sequelize';
  */
 export async function up(query) {
   await query.addColumn('invoice_payments', 'updated_by_user_id', {
-    type: DataTypes.UUID,
+    type: DataTypes.STRING,
     allowNull: true,
     references: {
       model: 'users',
