@@ -319,6 +319,7 @@ async function generateData(models) {
       requestedByUserId: examiner.id,
       completedByUserId: examiner.id,
       notCompletedByUserId: examiner.id,
+      notCompletedReasonId: referenceData.id,
       todoByUserId: examiner.id,
       deletedByUserId: examiner.id,
       deletedReasonId: referenceData.id,

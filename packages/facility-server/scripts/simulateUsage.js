@@ -13,6 +13,7 @@ const {
   PROGRAM_DATA_ELEMENT_TYPES,
 } = require('@tamanu/constants');
 const { getCurrentDateTimeString } = require('@tamanu/shared/utils/dateTime');
+const { selectFacilityIds } = require('@tamanu/shared/utils/configSelectors');
 
 // These stats were gathered by the data team from three different deployments,
 // then, we grabbed the max on each model.
@@ -371,7 +372,7 @@ function startOrAdd(key, obj) {
 }
 
 async function simulateUsage(models, sequelize, hours = 1) {
-  const facilityId = config.serverFacilityId;
+  const [facilityId] = selectFacilityIds(config);
   const totalLoops = (hours * 60 * 60 * 1000) / INSERT_INTERVAL_MS;
   const actionsTaken = {};
 
