@@ -3,12 +3,12 @@ import styled, { css } from 'styled-components';
 import { parseISO } from 'date-fns';
 
 import { APPOINTMENT_STATUSES } from '@tamanu/constants';
+import { areSameDay } from '@tamanu/shared/utils/dateTime';
 
 import { Colors } from '../../constants';
 import { APPOINTMENT_STATUS_COLORS } from './appointmentStatusIndicators';
 import { AppointmentStatusIcon as StatusIcon, OvernightIcon } from '../Icons';
 import { formatTime } from '../DateDisplay';
-import { areSameDay } from '@tamanu/shared/utils/dateTime';
 
 const Wrapper = styled.div`
   ${({ $color = Colors.blue, $selected }) =>
@@ -73,7 +73,14 @@ const getPatientFullName = ({ firstName, middleName, lastName }) => {
 };
 
 export const AppointmentTile = ({ appointment, selected = false, ...props }) => {
-  const { patient, startTime, endTime, status: appointmentStatus } = appointment;
+  const {
+    patient,
+    startTime: startTimeStr,
+    endTime: endTimeStr,
+    status: appointmentStatus,
+  } = appointment;
+  const startTime = parseISO(startTimeStr);
+  const endTime = parseISO(endTimeStr);
   console.log(appointment);
 
   const isOvernight = !areSameDay(startTime, endTime);
@@ -86,7 +93,7 @@ export const AppointmentTile = ({ appointment, selected = false, ...props }) => 
       {...props}
     >
       <Label $strikethrough={appointmentStatus === APPOINTMENT_STATUSES.NO_SHOW}>
-        <Timestamp date={parseISO(startTime)} /> {getPatientFullName(patient)}
+        <Timestamp date={startTime} /> {getPatientFullName(patient)}
       </Label>
       <IconGroup>
         {/* {isHighPriority && <HighPriorityIcon width={10} height={10} />} */}
