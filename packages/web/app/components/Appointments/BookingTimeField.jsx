@@ -42,11 +42,9 @@ const calculateTimeSlots = (bookingSlotSettings, existingLocationBookings) => {
     const end = addMinutes(start, duration);
 
     slots.push({
-      id: i,
       startTime: start,
       endTime: end,
       available: checkIfLocationAvailable(existingLocationBookings, start),
-      selected: false,
     });
   }
 
@@ -58,11 +56,10 @@ export const BookingTimeField = ({ disabled = false }) => {
   const { setFieldValue, values } = useFormikContext();
 
   const [selectedTimeSlots, setSelectedTimeSlots] = useState([]);
-  const earliestSelection = useMemo(() => min(selectedTimeSlots), [selectedTimeSlots]);
-  const latestSelection = useMemo(() => max(selectedTimeSlots), [selectedTimeSlots]);
+  const lowestSelectedIndex = useMemo(() => min(selectedTimeSlots), [selectedTimeSlots]);
+  const highestSelectedIndex = useMemo(() => max(selectedTimeSlots), [selectedTimeSlots]);
 
   const { locationId, date } = values;
-
   const { data: existingLocationBookings, isFetched } = useAppointments({
     after: toDateTimeString(startOfDay(date)),
     before: toDateTimeString(endOfDay(date)),
@@ -77,52 +74,52 @@ export const BookingTimeField = ({ disabled = false }) => {
   }, [bookingSlotSettings, existingLocationBookings, isFetched]);
 
   useEffect(() => {
-    setFieldValue('startTime', toDateTimeString(timeSlots[earliestSelection]?.startTime));
-    setFieldValue('endTime', toDateTimeString(timeSlots[latestSelection]?.endTime));
-  }, [earliestSelection, latestSelection, timeSlots, setFieldValue]);
+    setFieldValue('startTime', toDateTimeString(timeSlots[lowestSelectedIndex]?.startTime));
+    setFieldValue('endTime', toDateTimeString(timeSlots[highestSelectedIndex]?.endTime));
+  }, [lowestSelectedIndex, highestSelectedIndex, timeSlots, setFieldValue]);
 
-  const calculateIdsToAdd = id => {
-    const idsToAdd = [id];
-    const shouldPopulateUp = id > latestSelection;
-    const shouldPopulateDown = id < earliestSelection;
+  const calculateIndexRangeToAdd = index => {
+    const indexesToAdd = [index];
+    const shouldPopulateUp = index > highestSelectedIndex;
+    const shouldPopulateDown = index < lowestSelectedIndex;
     // Autofill any numbers between the ends of current range and new selection
-    if (shouldPopulateDown) idsToAdd.push(...range(earliestSelection - 1, id));
-    if (shouldPopulateUp) idsToAdd.push(...range(latestSelection + 1, id));
-    return idsToAdd;
+    if (shouldPopulateDown) indexesToAdd.push(...range(lowestSelectedIndex - 1, index));
+    if (shouldPopulateUp) indexesToAdd.push(...range(highestSelectedIndex + 1, index));
+    return indexesToAdd;
   };
 
-  const checkIfContainsBookedTime = ids =>
-    ids.some(item =>
-      timeSlots
-        .filter(({ available }) => !available)
-        .map(slot => slot.id)
-        .includes(item),
+  const checkIfIndexRangeContainsBookedTime = indexes =>
+    indexes.some(
+      item =>
+        timeSlots
+          .map((slot, index) => (!slot.available ? index : null)) // Map unavailable slots to their index, others to null
+          .includes(item), // Check if any of the unavailable indexes matches one of the index range supplied
     );
 
-  const removeSelectedId = id =>
-    setSelectedTimeSlots(prevSelections => prevSelections.filter(selection => selection !== id));
-  const addSelectedIds = idsToAdd =>
-    setSelectedTimeSlots(prevSelections => [...prevSelections, ...idsToAdd]);
+  const removeSelectedIndex = index =>
+    setSelectedTimeSlots(prevSelections => prevSelections.filter(selection => selection !== index));
+  const addSelectedIndexes = indexesToAdd =>
+    setSelectedTimeSlots(prevSelections => [...prevSelections, ...indexesToAdd]);
 
-  const toggleSelectedTimeSlot = id => {
-    if (selectedTimeSlots.length === 0) return addSelectedIds([id]);
-    if (selectedTimeSlots.includes(id)) return removeSelectedId(id);
-    return addSelectedIds(calculateIdsToAdd(id));
+  const toggleSelectedTimeSlot = index => {
+    if (selectedTimeSlots.length === 0) return addSelectedIndexes([index]);
+    if (selectedTimeSlots.includes(index)) return removeSelectedIndex(index);
+    return addSelectedIndexes(calculateIndexRangeToAdd(index));
   };
 
   return (
     <OuterLabelFieldWrapper label="Booking time" required>
       <CellContainer $disabled={disabled}>
-        {timeSlots.map(timeSlot => {
+        {timeSlots.map((timeSlot, index) => {
           return (
             <BookingTimeCell
-              key={timeSlot.id}
+              key={index}
               timeSlot={timeSlot}
-              selected={selectedTimeSlots.includes(timeSlot.id)}
+              selected={selectedTimeSlots.includes(index)}
               disabled={disabled}
-              onClick={() => toggleSelectedTimeSlot(timeSlot.id)}
-              isMiddleOfRange={earliestSelection < timeSlot.id && timeSlot.id < latestSelection}
-              invalidTarget={checkIfContainsBookedTime(calculateIdsToAdd(timeSlot.id))}
+              onClick={() => toggleSelectedTimeSlot(index)}
+              isMiddleOfRange={lowestSelectedIndex < index && index < highestSelectedIndex}
+              invalidTarget={checkIfIndexRangeContainsBookedTime(calculateIndexRangeToAdd(index))}
             />
           );
         })}
