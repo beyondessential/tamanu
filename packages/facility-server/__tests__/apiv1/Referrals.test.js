@@ -2,6 +2,7 @@ import config from 'config';
 import { createDummyEncounter, createDummyPatient } from '@tamanu/shared/demoData';
 import { chance, findOneOrCreate } from '@tamanu/shared/test-helpers';
 import { createTestContext } from '../utilities';
+import { selectFacilityIds } from '@tamanu/shared/utils/configSelectors';
 
 let baseApp = null;
 let models = null;
@@ -61,6 +62,7 @@ function getRandomAnswer(dataElement) {
 }
 
 describe('Referrals', () => {
+  const [facilityId] = selectFacilityIds(config);
   let ctx = null;
   let app = null;
   let patient = null;
@@ -98,6 +100,7 @@ describe('Referrals', () => {
       surveyId: testSurvey.id,
       departmentId,
       locationId,
+      facilityId,
     });
     expect(result).toHaveSucceeded();
   });
@@ -113,6 +116,7 @@ describe('Referrals', () => {
       surveyId: testSurvey.id,
       departmentId,
       locationId,
+      facilityId,
     });
 
     const result = await app.get(`/api/patient/${patient.id}/referrals`);
@@ -122,7 +126,9 @@ describe('Referrals', () => {
 
   it('should use the default department if one is not provided', async () => {
     const { department: departmentCode } = config.survey.defaultCodes;
-    const department = await findOneOrCreate(ctx.models, ctx.models.Department, { code: departmentCode });
+    const department = await findOneOrCreate(ctx.models, ctx.models.Department, {
+      code: departmentCode,
+    });
 
     const { locationId } = encounter;
     const result = await app.post('/api/referral').send({
@@ -132,6 +138,7 @@ describe('Referrals', () => {
       patientId: patient.id,
       surveyId: testSurvey.id,
       locationId,
+      facilityId,
     });
 
     expect(result).toHaveSucceeded();
@@ -153,6 +160,7 @@ describe('Referrals', () => {
       patientId: patient.id,
       surveyId: testSurvey.id,
       departmentId,
+      facilityId,
     });
 
     expect(result).toHaveSucceeded();

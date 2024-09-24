@@ -1,5 +1,6 @@
 import { addHours, formatISO9075, sub, subWeeks } from 'date-fns';
 import { isEqual } from 'lodash';
+import config from 'config';
 
 import {
   createDummyEncounter,
@@ -20,12 +21,14 @@ import { setupSurveyFromObject } from '@tamanu/shared/demoData/surveys';
 import { fake, fakeUser } from '@tamanu/shared/test-helpers/fake';
 import { getCurrentDateTimeString, toDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
+import { selectFacilityIds } from '@tamanu/shared/utils/configSelectors';
 
 import { uploadAttachment } from '../../dist/utils/uploadAttachment';
 import { createTestContext } from '../utilities';
 import { setupSurvey } from '../setupSurvey';
 
 describe('Encounter', () => {
+  const [facilityId] = selectFacilityIds(config);
   let patient = null;
   let user = null;
   let app = null;
@@ -1102,6 +1105,7 @@ describe('Encounter', () => {
               'pde-PatientVitalsDate': submissionDate,
               'pde-PatientVitalsHeartRate': 1234,
             },
+            facilityId,
           });
           expect(result).toHaveSucceeded();
           const saved = await models.SurveyResponseAnswer.findOne({
@@ -1124,6 +1128,7 @@ describe('Encounter', () => {
             startTime: submissionDate,
             endTime: submissionDate,
             answers,
+            facilityId,
           });
           const result = await app.get(`/api/encounter/${vitalsEncounter.id}/vitals`);
           expect(result).toHaveSucceeded();
@@ -1195,6 +1200,7 @@ describe('Encounter', () => {
               startTime: submissionDate,
               endTime: submissionDate,
               answers: surveyResponseAnswersBody,
+              facilityId,
             });
           }
 

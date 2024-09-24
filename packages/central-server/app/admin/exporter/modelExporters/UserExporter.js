@@ -10,6 +10,11 @@ export class UserExporter extends ModelExporter {
     return users.map(user => ({
       ...user.dataValues,
       designations: user.designations.map(it => it.referenceData.id).join(', '),
+      allowedFacilities: user.facilities.map(({ id }) => id).join(','),
     }));
+  }
+
+  customHiddenColumns() {
+    return ['type', 'allowedFacilities'];
   }
 }
