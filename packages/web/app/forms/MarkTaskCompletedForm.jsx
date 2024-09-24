@@ -43,7 +43,7 @@ export const MarkTaskCompletedForm = ({ onClose, refreshTaskTable, taskIds }) =>
         <div>
           <FormGrid>
             <Field
-              name="completedBy"
+              name="completedByUserId"
               label={
                 <TranslatedText stringId="task.form.completedBy.label" fallback="Completed by" />
               }
@@ -78,7 +78,7 @@ export const MarkTaskCompletedForm = ({ onClose, refreshTaskTable, taskIds }) =>
         </div>
       )}
       validationSchema={yup.object().shape({
-        completedBy: yup
+        completedByUserId: yup
           .string()
           .required()
           .translatedLabel(
