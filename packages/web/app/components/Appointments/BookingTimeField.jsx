@@ -113,24 +113,22 @@ export const BookingTimeField = ({ disabled = false }) => {
   };
 
   return (
-    <>
-      <OuterLabelFieldWrapper label="Booking time" required>
-        <CellContainer $disabled={disabled}>
-          {timeSlots.map(timeSlot => {
-            return (
-              <BookingTimeCell
-                key={timeSlot.id}
-                timeSlot={timeSlot}
-                selected={selectedTimeSlots.includes(timeSlot.id)}
-                disabled={disabled}
-                onClick={() => toggleSelectedTimeSlot(timeSlot.id)}
-                isMiddleOfRange={earliestSelection < timeSlot.id && timeSlot.id < latestSelection}
-                invalidTarget={checkIfContainsBookedTime(calculateIdsToAdd(timeSlot.id))}
-              />
-            );
-          })}
-        </CellContainer>
-      </OuterLabelFieldWrapper>
-    </>
+    <OuterLabelFieldWrapper label="Booking time" required>
+      <CellContainer $disabled={disabled}>
+        {timeSlots.map(timeSlot => {
+          return (
+            <BookingTimeCell
+              key={timeSlot.id}
+              timeSlot={timeSlot}
+              selected={selectedTimeSlots.includes(timeSlot.id)}
+              disabled={disabled}
+              onClick={() => toggleSelectedTimeSlot(timeSlot.id)}
+              isMiddleOfRange={earliestSelection < timeSlot.id && timeSlot.id < latestSelection}
+              invalidTarget={checkIfContainsBookedTime(calculateIdsToAdd(timeSlot.id))}
+            />
+          );
+        })}
+      </CellContainer>
+    </OuterLabelFieldWrapper>
   );
 };

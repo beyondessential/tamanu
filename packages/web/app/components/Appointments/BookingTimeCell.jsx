@@ -5,8 +5,6 @@ import { format } from 'date-fns';
 import { ConditionalTooltip } from '../Tooltip';
 
 const Cell = styled.div`
-  border: 1px solid ${({ $selected }) => ($selected ? Colors.primary : Colors.outline)};
-  background-color: ${({ $selected }) => ($selected ? `${Colors.primary}1A` : 'white')};
   height: 30px;
   width: 125px;
   border-radius: 50px;
@@ -19,6 +17,8 @@ const Cell = styled.div`
 `;
 
 const AvailableCell = styled(Cell)`
+  border: 1px solid ${({ $selected }) => ($selected ? Colors.primary : Colors.outline)};
+  background-color: ${({ $selected }) => ($selected ? `${Colors.primary}1A` : 'white')};
   &:hover {
     cursor: pointer;
     background-color: ${Colors.veryLightBlue};
