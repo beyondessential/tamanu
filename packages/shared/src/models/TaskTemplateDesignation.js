@@ -23,7 +23,7 @@ export class TaskTemplateDesignation extends Model {
 
     this.belongsTo(models.ReferenceData, {
       foreignKey: 'designationId',
-      as: 'referenceData',
+      as: 'designation',
     });
   }
 
