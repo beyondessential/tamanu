@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useRef, useLayoutEffect } from 'react';
 
 const useOverflow = () => {
   const [isOverflowing, setIsOverflowing] = useState(false);
@@ -13,11 +13,9 @@ const useOverflow = () => {
     }
   };
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     checkOverflow();
-    window.addEventListener('resize', checkOverflow);
-    return () => window.removeEventListener('resize', checkOverflow);
-  }, []);
+  }, [ref]);
 
   return [ref, isOverflowing];
 };
