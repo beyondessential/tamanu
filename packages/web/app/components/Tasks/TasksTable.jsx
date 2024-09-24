@@ -97,8 +97,8 @@ const StatusTodo = styled.div`
 const BulkActions = styled.div`
   display: flex;
   gap: 15px;
-  padding-top: 5px;
   padding-right: 10px;
+  align-items: center;
 `;
 
 const NotesDisplay = styled.div`
@@ -124,6 +124,7 @@ const TooltipContainer = styled.div`
 const StyledDeleteOutlineIcon = styled(DeleteOutlineIcon)`
   font-size: 18px;
   color: ${Colors.primary};
+  vertical-align: middle;
 `;
 
 const StyledCancelIcon = styled(CancelIcon)`
@@ -149,6 +150,11 @@ const NoDataContainer = styled.div`
   padding: 0 148px;
   background: ${Colors.hoverGrey};
   color: ${Colors.primary};
+`;
+
+const StyledDivider = styled(Divider)`
+  margin-top: 5px;
+  margin-bottom: 5px;
 `;
 
 const getStatus = ({ status }) => {
@@ -198,53 +204,77 @@ const getFrequency = ({ frequencyValue, frequencyUnit }) =>
 
 const NotesCell = ({ row, hoveredRow, handleActionModalOpen }) => {
   const [ref, isOverflowing] = useOverflow();
+  const { note, status } = row;
 
   return (
     <Box display="flex" alignItems="center">
       <NotesDisplay>
-        {row.note ? (
-          <ConditionalTooltip visible={isOverflowing} title={row.note}>
-            <OverflowedBox ref={ref}>{row.note}</OverflowedBox>
+        {note ? (
+          <ConditionalTooltip visible={isOverflowing} title={note}>
+            <OverflowedBox ref={ref}>{note}</OverflowedBox>
           </ConditionalTooltip>
         ) : (
           '-'
         )}
       </NotesDisplay>
-      {hoveredRow?.id === row?.id && (
+      {true && (
         <BulkActions>
-          <ThemedTooltip
-            title={
-              <TranslatedText stringId="encounter.tasks.action.tooltip.delete" fallback="Delete" />
-            }
-          >
-            <IconButton>
-              <StyledDeleteOutlineIcon />
-            </IconButton>
-          </ThemedTooltip>
-          <ThemedTooltip
-            title={
-              <TranslatedText
-                stringId="encounter.tasks.action.tooltip.notCompleted"
-                fallback="Mark as not complete"
-              />
-            }
-          >
-            <IconButton>
-              <StyledCancelIcon />
-            </IconButton>
-          </ThemedTooltip>
-          <ThemedTooltip
-            title={
-              <TranslatedText
-                stringId="encounter.tasks.action.tooltip.completed"
-                fallback="Mark as complete"
-              />
-            }
-          >
-            <IconButton onClick={() => handleActionModalOpen(TASK_STATUSES.COMPLETED, row.id)}>
-              <StyledCheckCircleIcon />
-            </IconButton>
-          </ThemedTooltip>
+          {status === TASK_STATUSES.TODO && (
+            <ThemedTooltip
+              title={
+                <TranslatedText
+                  stringId="encounter.tasks.action.tooltip.delete"
+                  fallback="Delete"
+                />
+              }
+            >
+              <IconButton>
+                <StyledDeleteOutlineIcon />
+              </IconButton>
+            </ThemedTooltip>
+          )}
+          {status !== TASK_STATUSES.NON_COMPLETED && (
+            <ThemedTooltip
+              title={
+                <TranslatedText
+                  stringId="encounter.tasks.action.tooltip.notCompleted"
+                  fallback="Mark as not complete"
+                />
+              }
+            >
+              <IconButton>
+                <StyledCancelIcon />
+              </IconButton>
+            </ThemedTooltip>
+          )}
+          {status !== TASK_STATUSES.COMPLETED && (
+            <ThemedTooltip
+              title={
+                <TranslatedText
+                  stringId="encounter.tasks.action.tooltip.completed"
+                  fallback="Mark as complete"
+                />
+              }
+            >
+              <IconButton onClick={() => handleActionModalOpen(TASK_STATUSES.COMPLETED, row.id)}>
+                <StyledCheckCircleIcon />
+              </IconButton>
+            </ThemedTooltip>
+          )}
+          {status !== TASK_STATUSES.TODO && (
+            <ThemedTooltip
+              title={
+                <TranslatedText
+                  stringId="encounter.tasks.action.tooltip.toDo"
+                  fallback="Mark as to-do"
+                />
+              }
+            >
+              <IconButton>
+                <StatusTodo />
+              </IconButton>
+            </ThemedTooltip>
+          )}
         </BulkActions>
       )}
     </Box>
@@ -351,6 +381,14 @@ export const TasksTable = ({ encounterId, searchParameters, refreshCount, refres
     },
   ];
 
+  const handleMouseEnterRow = data => {
+    setHoveredRow(data);
+  };
+
+  const handleMouseLeaveRow = () => {
+    setHoveredRow(null);
+  };
+
   return (
     <div>
       <TaskActionModal
@@ -362,7 +400,7 @@ export const TasksTable = ({ encounterId, searchParameters, refreshCount, refres
       />
       {selectedRows.length > 0 && (
         <div>
-          <Divider style={{ marginTop: '5px' }} />
+          <StyledDivider />
           <BulkActions>
             <ThemedTooltip
               title={
@@ -408,8 +446,8 @@ export const TasksTable = ({ encounterId, searchParameters, refreshCount, refres
         columns={[selectableColumn, ...COLUMNS]}
         noDataMessage={<NoDataMessage />}
         allowExport={false}
-        onMouseEnterRow={(_, data) => setHoveredRow(data)}
-        onMouseLeaveRow={() => setHoveredRow(null)}
+        onMouseEnterRow={handleMouseEnterRow}
+        onMouseLeaveRow={handleMouseLeaveRow}
         hideHeader={data.length === 0}
         fetchOptions={searchParameters}
         onDataFetched={onDataFetched}
