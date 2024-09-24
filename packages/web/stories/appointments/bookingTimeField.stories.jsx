@@ -3,47 +3,52 @@ import React from 'react';
 import { BookingTimeField } from '../../app/components/Appointments/BookingTimeField';
 import { MockedApi } from '../utils/mockedApi';
 import { MockSettingsProvider } from '../utils/mockSettingsProvider';
+import { Form } from '../../app/components';
+import { toDateString } from '@tamanu/shared/utils/dateTime';
+
+const todaysDate = toDateString(new Date());
+
+const mockAppointments = [
+  {
+    startTime: `${todaysDate} 09:00:00`,
+    endTime: `${todaysDate} 09:30:00`,
+    type: 'Standard',
+    status: 'Confirmed',
+    locationGroupId: 'locationGroup-a',
+    locationId: 'location-a',
+  },
+  {
+    startTime: `${todaysDate} 11:30:00`,
+    endTime: `${todaysDate} 12:00:00`,
+    type: 'Standard',
+    status: 'Confirmed',
+    locationGroupId: 'locationGroup-a',
+    locationId: 'location-a',
+  },
+  {
+    startTime: `${todaysDate} 15:00:00`,
+    endTime: `${todaysDate} 16:30:00`,
+    type: 'Standard',
+    status: 'Confirmed',
+    locationGroupId: 'locationGroup-a',
+    locationId: 'location-a',
+  },
+];
+
+const mockSettings = {
+  appointments: {
+    bookingSlots: {
+      startTime: '09:00',
+      endTime: '19:00',
+      slotDuration: '30min',
+    },
+  },
+};
 
 const endpoints = {
   appointments: () => {
     return {
-      count: 2,
-      // Not all data just the stuff i think ill need
-      data: [
-        {
-          id: '1c47b441-7485-4dca-93c6-fef78747afd4',
-          startTime: '2024-09-23 09:00:00',
-          endTime: '2024-09-23 09:30:00',
-          type: 'Standard',
-          status: 'Confirmed',
-          deletedAt: null,
-          clinicianId: 'bb6512d9-4f94-47ef-8e1b-954bcb820fa7',
-          locationGroupId: 'locationgroup-EDBed-tamanu',
-          locationId: null,
-        },
-        {
-          id: '1c47b441-7485-4dca-93c6-fef7874dafd4',
-          startTime: '2024-09-23 11:30:00',
-          endTime: '2024-09-23 12:00:00',
-          type: 'Standard',
-          status: 'Confirmed',
-          deletedAt: null,
-          clinicianId: 'bb6512d9-4f94-47ef-8e1b-954bcb820fa7',
-          locationGroupId: 'locationgroup-EDBed-tamanu',
-          locationId: null,
-        },
-        {
-          id: '1c47b441-7485-4dca-93c6-gef7874dafd4',
-          startTime: '2024-09-23 15:00:00',
-          endTime: '2024-09-23 16:30:00',
-          type: 'Standard',
-          status: 'Confirmed',
-          deletedAt: null,
-          clinicianId: 'bb6512d9-4f94-47ef-8e1b-954bcb820fa7',
-          locationGroupId: 'locationgroup-EDBed-tamanu',
-          locationId: null,
-        },
-      ],
+      data: mockAppointments,
     };
   },
 };
@@ -54,24 +59,30 @@ export default {
   decorators: [
     Story => (
       <MockedApi endpoints={endpoints}>
-        <MockSettingsProvider
-          mockSettings={{
-            appointments: {
-              bookingSlots: {
-                startTime: '09:00',
-                endTime: '17:00',
-                slotDuration: '30min',
-              },
-            },
-          }}
-        >
-          <Story />
+        <MockSettingsProvider mockSettings={mockSettings}>
+          <Form
+            onSubmit={async () => {}}
+            initialValues={{
+              date: new Date(),
+              locationId: 'location-a',
+            }}
+            render={({ values }) => {
+              return (
+                <>
+                  <Story />
+                  <b>Debug form state</b>
+                  <div>
+                    Selected time range: {values.startTime} - {values.endTime}
+                  </div>
+                </>
+              );
+            }}
+          />
         </MockSettingsProvider>
       </MockedApi>
     ),
   ],
 };
 
-// TODO: args?
 export const Disabled = () => <BookingTimeField disabled />;
-export const RandomAvailability30Mins = () => <BookingTimeField />;
+export const Basic30Mins = () => <BookingTimeField />;
