@@ -44,7 +44,7 @@ export const DeleteTaskForm = ({ onClose, refreshTaskTable, taskIds }) => {
         <div>
           <FormGrid>
             <Field
-              name="deleteBy"
+              name="deletedByUserId"
               label={
                 <TranslatedText stringId="task.form.recordedBy.label" fallback="Recorded by" />
               }
@@ -53,7 +53,7 @@ export const DeleteTaskForm = ({ onClose, refreshTaskTable, taskIds }) => {
               suggester={practitionerSuggester}
             />
             <Field
-              name="deleteTime"
+              name="deletedTime"
               label={
                 <TranslatedText
                   stringId="task.form.recordTime.label"
@@ -64,7 +64,7 @@ export const DeleteTaskForm = ({ onClose, refreshTaskTable, taskIds }) => {
               component={DateTimeField}
             />
             <Field
-              name="deleteReasonId"
+              name="deletedReasonId"
               label={
                 <TranslatedText
                   stringId="task.form.reasonForDeletion.label"
@@ -84,19 +84,19 @@ export const DeleteTaskForm = ({ onClose, refreshTaskTable, taskIds }) => {
         </div>
       )}
       validationSchema={yup.object().shape({
-        deleteBy: yup
+        deletedByUserId: yup
           .string()
           .required()
           .translatedLabel(
             <TranslatedText stringId="task.form.recordedBy.label" fallback="Recorded by" />,
           ),
-        deleteTime: yup
+        deletedTime: yup
           .date()
           .required()
           .translatedLabel(
             <TranslatedText stringId="task.form.recordTime.label" fallback="Record date & time" />,
           ),
-        deleteReasonId: yup.string(),
+        deletedReasonId: yup.string(),
       })}
     />
   );

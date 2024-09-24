@@ -112,9 +112,8 @@ const taskDeletionInputSchema = z.object({
   taskIds: z
     .string()
     .uuid()
-    .array()
-    .length(1),
-  deletedByUserId: z.string().uuid(),
+    .array(),
+  deletedByUserId: z.string(),
   deletedTime: z.string().datetime(),
   deletedReasonId: z.string().optional(),
 });
@@ -122,7 +121,7 @@ taskRoutes.delete(
   '/',
   asyncHandler(async (req, res) => {
     req.checkPermission('delete', 'Task');
-    const { taskIds, ...deletedInfo } = await taskDeletionInputSchema.parseAsync(req.body);
+    const { taskIds, ...deletedInfo } = await taskDeletionInputSchema.parseAsync(req.query);
 
     //validate deleted reason
     if (deletedInfo.deletedReasonId) {

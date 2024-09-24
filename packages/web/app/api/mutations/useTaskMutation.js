@@ -28,7 +28,7 @@ export const useDeleteTask = () => {
 
   return useMutation({
     mutationFn: async body => {
-      const result = await api.put('tasks/deleted', body);
+      const result = await api.delete('tasks', body);
       return result;
     },
     onError: error => notifyError(error.message),
