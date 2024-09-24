@@ -8,16 +8,15 @@ import { Models } from './readers/SettingsDBReader';
 export const KEYS_EXPOSED_TO_FRONT_END = [
   'customisations',
   'features',
+  'fields',
   'imagingPriorities',
   'insurer',
-  'customisations',
-  'printMeasures',
   'invoice',
+  'printMeasures',
   'templates',
   'triageCategories',
   'upcomingVaccinations',
   'vaccinations',
-  'fields',
 ] as const;
 
 export class ReadSettings<Path = SettingPath> {

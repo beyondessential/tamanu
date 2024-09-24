@@ -12,10 +12,10 @@ import { useApi } from '../../api';
 import {
   DocumentsPane,
   EncounterInfoPane,
+  EncounterInvoicingPane,
   EncounterMedicationPane,
   EncounterProgramsPane,
   ImagingPane,
-  EncounterInvoicingPane,
   LabsPane,
   NotesPane,
   ProcedurePane,
@@ -27,7 +27,7 @@ import { EncounterActions } from './components';
 import { useReferenceData } from '../../api/queries';
 import { useAuth } from '../../contexts/Auth';
 import { VitalChartDataProvider } from '../../contexts/VitalChartData';
-import { TranslatedText, TranslatedReferenceData } from '../../components/Translation';
+import { TranslatedReferenceData, TranslatedText } from '../../components/Translation';
 import { useSettings } from '../../contexts/Settings';
 
 const getIsTriage = encounter => ENCOUNTER_OPTIONS_BY_VALUE[encounter.encounterType].triageFlowOnly;
