@@ -40,6 +40,7 @@ const DefaultSettingButton = styled(TextButton)`
   text-decoration-thickness: from-font;
   text-transform: none;
   transition: color 200ms ease;
+  margin-inline-start: 0.5rem;
 
   &:hover {
     color: ${Colors.primary};
