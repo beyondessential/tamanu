@@ -16,7 +16,7 @@ export class TaskTemplateExporter extends ReferenceDataExporter {
           as: 'designations',
           include: {
             model: this.models.ReferenceData,
-            as: 'referenceData',
+            as: 'designation',
             attributes: ['id'],
           },
         },
@@ -26,7 +26,7 @@ export class TaskTemplateExporter extends ReferenceDataExporter {
     return tasks.map(task => ({
       ...task.dataValues,
       highPriority: task.taskTemplate?.highPriority,
-      assignedTo: task.taskTemplate?.designations.map(it => it.referenceData.id).join(', '),
+      assignedTo: task.taskTemplate?.designations.map(it => it.designation.id).join(', '),
       taskFrequency:
         task.taskTemplate?.frequencyValue && task.taskTemplate?.frequencyUnit
           ? ms(ms(`${task.taskTemplate.frequencyValue} ${task.taskTemplate.frequencyUnit}`), {

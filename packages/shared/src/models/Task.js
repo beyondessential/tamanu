@@ -187,7 +187,7 @@ export class Task extends Model {
       {
         model: models.ReferenceData,
         as: 'designations',
-        attributes: ['name'],
+        attributes: ['id', 'name'],
         through: {
           attributes: [],
         },
@@ -253,7 +253,7 @@ export class Task extends Model {
         clonedDesignations.push(
           ...task.designations.map(designation => ({
             taskId: generatedTask.id,
-            designationId: designation.designationId,
+            designationId: designation.id,
           })),
         );
       }
