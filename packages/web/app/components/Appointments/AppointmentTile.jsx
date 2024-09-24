@@ -40,7 +40,7 @@ const Wrapper = styled.div`
   cursor: pointer;
   display: grid;
   gap: 0.3125rem;
-  grid-template-columns: 1fr 0.625rem;
+  grid-template-columns: 1fr auto;
   padding-block: 0.5rem;
   padding-inline: 0.3125rem;
   text-decoration-thickness: from-font;
@@ -105,8 +105,8 @@ export const AppointmentTile = ({ appointment, selected = false, ...props }) => 
           <HighPriorityIcon
             aria-label="High priority"
             htmlColor={Colors.alert}
-            width={10}
-            height={10}
+            width={15}
+            height={15}
           />
         )}
         {isOvernight && (
