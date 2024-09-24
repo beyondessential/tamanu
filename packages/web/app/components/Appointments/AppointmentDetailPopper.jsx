@@ -2,7 +2,7 @@ import { Box, ClickAwayListener, IconButton, Paper, Popper, styled } from '@mui/
 import { MoreVert, Close } from '@mui/icons-material';
 import React from 'react';
 import { PatientNameDisplay } from '../PatientNameDisplay';
-import { TranslatedReferenceData, TranslatedText } from '../Translation';
+import { TranslatedReferenceData, TranslatedSex, TranslatedText } from '../Translation';
 import { Colors } from '../../constants';
 import { format } from 'date-fns';
 import { DateDisplay } from '../DateDisplay';
@@ -84,8 +84,8 @@ const ControlsRow = ({ handleClose }) => {
       <StyledIconButton>
         <MoreVert sx={{ fontSize: '0.875rem' }} />
       </StyledIconButton>
-      <StyledIconButton>
-        <Close onClick={handleClose} sx={{ fontSize: '0.875rem' }} />
+      <StyledIconButton onClick={handleClose}>
+        <Close sx={{ fontSize: '0.875rem' }} />
       </StyledIconButton>
     </ControlsContainer>
   );
@@ -95,7 +95,7 @@ const DetailsField = ({ label, value }) => {
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column' }}>
       <Label>{label}</Label>
-      <span>{value ?? 'N/A'}</span>
+      <span>{value ?? '—'}</span>
     </Box>
   );
 };
@@ -112,7 +112,7 @@ const PatientDetailsDisplay = ({ patient }) => {
         <Label>
           <TranslatedText stringId="general.sex.label" fallback="Sex" />:
         </Label>{' '}
-        {sex || 'N/A'}
+        <TranslatedSex sex={sex} />
         <Label>
           {' | '}
           <TranslatedText stringId="general.dateOfBirth.label" fallback="DOB" />:
@@ -126,7 +126,6 @@ const PatientDetailsDisplay = ({ patient }) => {
 
 const AppointDetailsDisplay = ({ appointment }) => {
   const { startTime, endTime, clinician, locationGroup, location, type } = appointment;
-
   return (
     <AppointmentDetailsContainer>
       <DetailsField
@@ -170,12 +169,8 @@ const AppointDetailsDisplay = ({ appointment }) => {
   );
 };
 
-const AppointmentStatusDisplay = ({ appointment }) => {
-  return (
-    <AppointmentStatusContainer>
-      <DetailsField label="Status" value={appointment?.status} />
-    </AppointmentStatusContainer>
-  );
+const AppointmentStatusDisplay = () => {
+  return <AppointmentStatusContainer></AppointmentStatusContainer>;
 };
 
 export const AppointmentDetailPopper = ({ open, handleClose, anchorEl, appointment }) => {
@@ -185,7 +180,7 @@ export const AppointmentDetailPopper = ({ open, handleClose, anchorEl, appointme
         open={open}
         anchorEl={anchorEl}
         placement="bottom-start"
-        onClick={e => e.stopPropagation()}
+        onClick={e => e.stopPropagation()} // Prevent the popper from closing when clicked
         modifiers={[
           {
             name: 'offset',
