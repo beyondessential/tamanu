@@ -16,8 +16,8 @@ export { taskRoutes as tasks };
 const taskCompletionInputSchema = z.object({
   taskIds: z
     .string()
-    .uuid()
-    .array(),
+    .array()
+    .min(1),
   completedByUserId: z.string(),
   completedTime: z.string().datetime(),
   completedNote: z.string().optional(),
@@ -57,10 +57,9 @@ taskRoutes.post(
 const taskNonCompletionInputSchema = z.object({
   taskIds: z
     .string()
-    .uuid()
     .array()
-    .length(1),
-  notCompletedByUserId: z.string().uuid(),
+    .min(1),
+  notCompletedByUserId: z.string(),
   notCompletedTime: z.string().datetime(),
   notCompletedReasonId: z.string().optional(),
 });
@@ -111,10 +110,9 @@ taskRoutes.put(
 const taskDeletionInputSchema = z.object({
   taskIds: z
     .string()
-    .uuid()
     .array()
-    .length(1),
-  deletedByUserId: z.string().uuid(),
+    .min(1),
+  deletedByUserId: z.string(),
   deletedTime: z.string().datetime(),
   deletedReasonId: z.string().optional(),
 });
@@ -185,10 +183,9 @@ taskRoutes.delete(
 const taskTodoInputSchema = z.object({
   taskIds: z
     .string()
-    .uuid()
     .array()
-    .length(1),
-  todoByUserId: z.string().uuid(),
+    .min(1),
+  todoByUserId: z.string(),
   todoTime: z.string().datetime(),
   completedNote: z.string().optional(),
 });
