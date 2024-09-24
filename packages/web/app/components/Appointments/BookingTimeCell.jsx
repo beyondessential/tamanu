@@ -2,9 +2,10 @@ import React from 'react';
 import styled from 'styled-components';
 import { Colors } from '../../constants';
 import { format } from 'date-fns';
-import { ConditionalTooltip } from '../Tooltip';
+import { ConditionalTooltip, ThemedTooltip } from '../Tooltip';
 
 const Cell = styled.div`
+  border: 1px solid ${Colors.outline};
   height: 30px;
   width: 125px;
   border-radius: 50px;
@@ -16,9 +17,13 @@ const Cell = styled.div`
   user-select: none;
 `;
 
+const DisabledCell = styled(Cell)`
+  background-color: ${Colors.background};
+`;
+
 const AvailableCell = styled(Cell)`
-  border: 1px solid ${({ $selected }) => ($selected ? Colors.primary : Colors.outline)};
-  background-color: ${({ $selected }) => ($selected ? `${Colors.primary}1A` : 'white')};
+  ${({ $selected }) => $selected && `border: 1px solid ${Colors.primary}`};
+  ${({ $selected }) => $selected && `background-color: ${Colors.primary}1A`};
   &:hover {
     cursor: pointer;
     background-color: ${Colors.veryLightBlue};
@@ -30,41 +35,38 @@ const BookedCell = styled(Cell)`
   color: ${Colors.midText};
 `;
 
-const DisabledCell = styled(Cell)`
-  background-color: initial;
-`;
-
-const getTooltipText = (available, selected, middleOfRange, invalidTarget) => {
-  if (!available) return 'Not available';
-  if (selected && middleOfRange) return 'Cannot unselect from middle of range';
-  if (available && invalidTarget)
-    return 'All times must be available when booking over multiple times';
-};
-
 export const BookingTimeCell = ({
-  timeSlot,
+  timeSlot: { startTime, endTime, available },
   onClick,
   selected,
   isMiddleOfRange,
   invalidTarget,
   disabled,
 }) => {
-  const { startTime, endTime, available } = timeSlot;
   const text = `${format(startTime, 'hh:mm a')} - ${format(endTime, 'hh:mm a')}`;
 
-  if (disabled) return <DisabledCell>{text}</DisabledCell>;
+  if (disabled) {
+    return <DisabledCell>{text}</DisabledCell>;
+  }
 
-  const DisplayCell = available ? AvailableCell : BookedCell;
+  if (!available) {
+    return (
+      <ThemedTooltip title="Not available">
+        <BookedCell>{text}</BookedCell>
+      </ThemedTooltip>
+    );
+  }
 
-  let tooltipText = getTooltipText(available, selected, isMiddleOfRange, invalidTarget);
-
-  const valid = available && !isMiddleOfRange && !invalidTarget;
+  let tooltipText;
+  if (isMiddleOfRange) tooltipText = 'Cannot unselect from middle of range';
+  if (invalidTarget) tooltipText = 'All times must be available when booking over multiple times';
+  const validTarget = !isMiddleOfRange && !invalidTarget;
 
   return (
-    <ConditionalTooltip visible={tooltipText} title={tooltipText}>
-      <DisplayCell $selected={selected} onClick={valid ? onClick : null}>
+    <ConditionalTooltip visible={!validTarget} title={tooltipText}>
+      <AvailableCell $selected={selected} onClick={validTarget ? onClick : null}>
         {text}
-      </DisplayCell>
+      </AvailableCell>
     </ConditionalTooltip>
   );
 };

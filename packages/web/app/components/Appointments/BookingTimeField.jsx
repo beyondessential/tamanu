@@ -5,7 +5,7 @@ import { Colors } from '../../constants';
 import { addMinutes, parse, differenceInMinutes, startOfDay, endOfDay } from 'date-fns';
 import ms from 'ms';
 import { useSettings } from '../../contexts/Settings';
-import { first, last, range } from 'lodash';
+import { max, min, range } from 'lodash';
 import { useAppointments } from '../../api/queries/useAppointments';
 import { BookingTimeCell } from './BookingTimeCell';
 import { useFormikContext } from 'formik';
@@ -58,8 +58,8 @@ export const BookingTimeField = ({ disabled = false }) => {
   const { setFieldValue, values } = useFormikContext();
 
   const [selectedTimeSlots, setSelectedTimeSlots] = useState([]);
-  const earliestSelection = useMemo(() => first(selectedTimeSlots), [selectedTimeSlots]);
-  const latestSelection = useMemo(() => last(selectedTimeSlots), [selectedTimeSlots]);
+  const earliestSelection = useMemo(() => min(selectedTimeSlots), [selectedTimeSlots]);
+  const latestSelection = useMemo(() => max(selectedTimeSlots), [selectedTimeSlots]);
 
   const { locationId, date } = values;
 
@@ -100,11 +100,9 @@ export const BookingTimeField = ({ disabled = false }) => {
     );
 
   const removeSelectedId = id =>
-    setSelectedTimeSlots(prevSelections =>
-      prevSelections.filter(selection => selection !== id).sort((a, b) => a - b),
-    );
+    setSelectedTimeSlots(prevSelections => prevSelections.filter(selection => selection !== id));
   const addSelectedIds = idsToAdd =>
-    setSelectedTimeSlots(prevSelections => [...prevSelections, ...idsToAdd].sort((a, b) => a - b));
+    setSelectedTimeSlots(prevSelections => [...prevSelections, ...idsToAdd]);
 
   const toggleSelectedTimeSlot = id => {
     if (selectedTimeSlots.length === 0) return addSelectedIds([id]);
