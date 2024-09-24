@@ -4,6 +4,8 @@ import React from 'react';
 import { APPOINTMENT_STATUSES } from '@tamanu/constants';
 
 import { AppointmentTile } from '../../app/components/Appointments/AppointmentTile';
+import { fakePractitioner } from '../../.storybook/__mocks__/defaultEndpoints';
+import { createDummyPatient } from '@tamanu/shared/demoData/patients';
 
 export default {
   title: 'Appointments/Appointment Tile',
@@ -17,15 +19,10 @@ const partialAppointment = {
   id: chance.guid(),
   startTime: '2024-09-05 13:57:00',
   endTime: '2024-09-05 14:57:00',
-  patientId,
-  patient: {
-    id: patientId,
-    displayId: 'RQLN820387',
-    firstName: chance.first(),
-    middleName: chance.first(),
-    lastName: chance.last(),
-    culturalName: chance.last(),
-  },
+  patient: createDummyPatient(patientId),
+  clinician: fakePractitioner(),
+  location: { name: 'Bed 1' },
+  LocationGroup: { name: 'Ward 1' },
 };
 
 const partialConfirmedAppt = { ...partialAppointment, status: APPOINTMENT_STATUSES.CONFIRMED };

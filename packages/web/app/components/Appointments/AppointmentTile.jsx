@@ -73,13 +73,13 @@ const getPatientFullName = ({ firstName, middleName, lastName }) => {
   return names.join(' ');
 };
 
-export const AppointmentTile = ({ appointment, selected = false, ...props }) => {
+export const AppointmentTile = ({ appointment, ...props }) => {
   const { patient, startTime, endTime, status: appointmentStatus } = appointment;
-  const ref = useRef();
+  const ref = useRef(null);
   const [open, setOpen] = useState(false);
 
   const handleClick = () => {
-    setOpen(prevOpen => !prevOpen);
+    setOpen(!open);
   };
 
   const handleClose = event => {
@@ -95,7 +95,7 @@ export const AppointmentTile = ({ appointment, selected = false, ...props }) => 
   return (
     <Wrapper
       $color={APPOINTMENT_STATUS_COLORS[appointmentStatus]}
-      $selected={selected}
+      $selected={open}
       tabIndex={0}
       ref={ref}
       onClick={handleClick}
@@ -109,12 +109,14 @@ export const AppointmentTile = ({ appointment, selected = false, ...props }) => 
         {isOvernight && <OvernightIcon width={10} height={10} />}
         <StatusIcon appointmentStatus={appointmentStatus} width={10} height={10} />
       </IconGroup>
-      <AppointmentDetailPopper
-        open={open}
-        handleClose={handleClose}
-        anchorEl={ref.current}
-        appointment={appointment}
-      />
+      {open && (
+        <AppointmentDetailPopper
+          open={open}
+          handleClose={handleClose}
+          anchorEl={ref.current}
+          appointment={appointment}
+        />
+      )}
     </Wrapper>
   );
 };
