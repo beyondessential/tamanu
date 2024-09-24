@@ -19,51 +19,56 @@ const calendarButtonHeight = 1.4375;
 const calendarButtonYMargin = 0.25;
 const calendarButtonTotalHeight = calendarButtonHeight + calendarButtonYMargin * 2;
 
-const StyledPopper = styled(Popper)({
-  '& .MuiPaper-root': {
-    border: `1px solid ${Colors.outline}`,
-    boxShadow: 'none',
-  },
-  '& .MuiDateCalendar-root': {
-    height: 'auto',
-    maxHeight: `${calendarButtonTotalHeight * 3}rem`, // Prevent calendar from flickering when switching between month and year views
-    maxWidth: '13.125rem',
-    marginBottom: '0.75rem',
-  },
-  '& .MuiMonthCalendar-root, & .MuiYearCalendar-root': {
-    width: 'auto',
-    maxHeight: `${calendarButtonTotalHeight * 2}rem`,
-    overflowY: 'auto',
-    paddingInline: '0.625rem',
-  },
-  '& .MuiPickersYear-yearButton, & .MuiPickersMonth-monthButton': {
-    color: `${Colors.darkestText}`,
-    fontWeight: 500,
-    fontSize: '0.6875rem',
-    width: '2.875rem',
-    height: `${calendarButtonHeight}rem`,
-    marginTop: `${calendarButtonYMargin}rem`,
-    marginBottom: `${calendarButtonYMargin}rem`,
-  },
-  '& .MuiPickersYear-yearButton.Mui-selected, & .MuiPickersMonth-monthButton.Mui-selected': {
-    backgroundColor: `${Colors.primary}`,
-    color: 'white',
-    '&:hover, &:focus': {
-      backgroundColor: `${Colors.primary}`,
-    },
-  },
-  '& .MuiPickersArrowSwitcher-root': {
-    width: '0px',
-    height: '0px',
-  },
-  '& .MuiPickersCalendarHeader-root': {
-    minHeight: '0.9375rem',
-  },
-  '& .MuiPickersCalendarHeader-labelContainer': {
-    fontSize: '0.6875rem',
-    lineHeight: '0.9375rem',
-  },
-});
+const StyledPopper = styled(Popper)`
+  & .MuiPaper-root {
+    border: 1px solid ${Colors.outline};
+    box-shadow: none;
+  }
+  & .MuiDateCalendar-root {
+    height: auto;
+    max-height: ${calendarButtonTotalHeight *
+      3}rem; // Prevent calendar from flickering when switching between month and year views
+    max-width: 13.125rem;
+    margin-bottom: 0.75rem;
+  }
+  & .MuiMonthCalendar-root,
+  & .MuiYearCalendar-root {
+    width: auto;
+    max-height: ${calendarButtonTotalHeight * 2}rem;
+    overflow-y: auto;
+    padding-inline: 0.625rem;
+  }
+  & .MuiPickersYear-yearButton,
+  & .MuiPickersMonth-monthButton {
+    color: ${Colors.darkestText};
+    font-weight: 500;
+    font-size: 0.6875rem;
+    width: 2.875rem;
+    height: ${calendarButtonHeight}rem;
+    margin-top: ${calendarButtonYMargin}rem;
+    margin-bottom: ${calendarButtonYMargin}rem;
+  }
+  & .MuiPickersYear-yearButton.Mui-selected,
+  & .MuiPickersMonth-monthButton.Mui-selected {
+    background-color: ${Colors.primary};
+    color: white;
+    &:hover,
+    &:focus {
+      background-color: ${Colors.primary};
+    }
+  }
+  & .MuiPickersArrowSwitcher-root {
+    width: 0px;
+    height: 0px;
+  }
+  & .MuiPickersCalendarHeader-root {
+    min-height: 0.9375rem;
+  }
+  & .MuiPickersCalendarHeader-labelContainer {
+    font-size: 0.6875rem;
+    line-height: 0.9375rem;
+  }
+`;
 
 export const MonthYearInput = ({
   minDate: propMinDate,
