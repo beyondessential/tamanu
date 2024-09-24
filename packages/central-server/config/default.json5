@@ -70,6 +70,7 @@
     // can be turned on by lowering to some amount that seems appropriate if snapshot performance is an issue
     "maxRecordsPerSnapshotChunk": 1000000000,
     "syncSessionTimeoutMs": null,
+    snapshotTransactionTimeoutMs: null,
     "lookupTable": {
       "enabled": false,
       "perModelUpdateTimeoutMs": null
@@ -248,6 +249,8 @@
     "generateRepeatingTasks": {
       // every day at 1 AM
       "schedule": "0 1 * * *",
+      "batchSize": 50,
+      "batchSleepAsyncDurationInMilliseconds": 50
     }
   },
   "integrations": {
