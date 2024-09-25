@@ -211,14 +211,9 @@ taskRoutes.put(
         'highPriority',
         'parentTaskId',
         'encounterId',
-        'requestByUserId',
+        'requestedByUserId',
       ],
-      include: [
-        {
-          model: req.models.TaskDesignation,
-          as: 'designations',
-        },
-      ],
+      include: ['designations']
     });
 
     if (!tasks?.length) throw new NotFoundError('No tasks not found');
@@ -239,7 +234,7 @@ taskRoutes.put(
         });
         await req.models.TaskDesignation.bulkCreate(
           task.dataValues.designations.map(designation => ({
-            designationId: designation.designationId,
+            designationId: designation.id,
             taskId: newId,
           })),
         );
