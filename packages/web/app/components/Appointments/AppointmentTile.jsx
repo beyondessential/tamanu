@@ -68,10 +68,8 @@ const IconGroup = styled.div`
   justify-content: end;
 `;
 
-const getPatientFullName = ({ firstName, middleName, lastName }) => {
-  const names = [firstName, middleName, lastName].map(n => n ?? '');
-  return names.join(' ');
-};
+const getPatientFullName = ({ firstName, middleName, lastName }) =>
+  [firstName, middleName, lastName].filter(Boolean).join(' ');
 
 export const AppointmentTile = ({ appointment, selected = false, ...props }) => {
   const {
@@ -84,7 +82,7 @@ export const AppointmentTile = ({ appointment, selected = false, ...props }) => 
   const endTime = parseISO(endTimeStr);
   console.log(appointment);
 
-  const isHighPriority = true; // TODO
+  const isHighPriority = false; // TODO
   const isOvernight = !areSameDay(startTime, endTime);
 
   return (
