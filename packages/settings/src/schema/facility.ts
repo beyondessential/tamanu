@@ -40,7 +40,10 @@ export const facilitySettings = {
     templates: {
       description: 'Strings to be inserted into emails/PDFs',
       properties: {
-        letterhead: letterheadProperties,
+        letterhead: {
+          description: 'The text at the top of most patient PDFs',
+          properties: letterheadProperties,
+        },
       },
     },
   },
