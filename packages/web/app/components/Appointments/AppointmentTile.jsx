@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import styled, { css } from 'styled-components';
 import { parseISO } from 'date-fns';
 
@@ -73,22 +73,14 @@ const getPatientFullName = ({ firstName, middleName, lastName }) => {
   return names.join(' ');
 };
 
-export const AppointmentTile = ({ appointment, ...props }) => {
+export const AppointmentTile = ({ appointment, selected = false, handleClose, ...props }) => {
   const { patient, startTime, endTime, status: appointmentStatus } = appointment;
   const ref = useRef(null);
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState();
 
-  const handleClick = () => {
-    setOpen(!open);
-  };
-
-  const handleClose = event => {
-    if (ref.current && ref.current.contains(event.target)) {
-      return;
-    }
-
-    setOpen(false);
-  };
+  useEffect(() => {
+    setOpen(selected);
+  }, [selected]);
 
   const isOvernight = !areSameDay(parseISO(startTime), parseISO(endTime));
 
@@ -98,7 +90,6 @@ export const AppointmentTile = ({ appointment, ...props }) => {
       $selected={open}
       tabIndex={0}
       ref={ref}
-      onClick={handleClick}
       {...props}
     >
       <Label $strikethrough={appointmentStatus === APPOINTMENT_STATUSES.NO_SHOW}>

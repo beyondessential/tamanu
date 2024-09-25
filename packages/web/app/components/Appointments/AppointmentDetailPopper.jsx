@@ -1,4 +1,4 @@
-import { Box, ClickAwayListener, IconButton, Paper, Popper, styled } from '@mui/material';
+import { Box, IconButton, Paper, Popper, styled } from '@mui/material';
 import { MoreVert, Close } from '@mui/icons-material';
 import React from 'react';
 import { PatientNameDisplay } from '../PatientNameDisplay';
@@ -175,28 +175,26 @@ const AppointmentStatusDisplay = () => {
 
 export const AppointmentDetailPopper = ({ open, handleClose, anchorEl, appointment }) => {
   return (
-    <ClickAwayListener onClickAway={handleClose}>
-      <Popper
-        open={open}
-        anchorEl={anchorEl}
-        placement="bottom-start"
-        onClick={e => e.stopPropagation()} // Prevent the popper from closing when clicked
-        modifiers={[
-          {
-            name: 'offset',
-            options: {
-              offset: [0, 2],
-            },
+    <Popper
+      open={open}
+      anchorEl={anchorEl}
+      placement="bottom-start"
+      onClick={e => e.stopPropagation()} // Prevent the popper from closing when clicked
+      modifiers={[
+        {
+          name: 'offset',
+          options: {
+            offset: [0, 2],
           },
-        ]}
-      >
-        <ControlsRow handleClose={handleClose} />
-        <StyledPaper elevation={0}>
-          <PatientDetailsDisplay patient={appointment.patient} />
-          <AppointDetailsDisplay appointment={appointment} />
-          <AppointmentStatusDisplay />
-        </StyledPaper>
-      </Popper>
-    </ClickAwayListener>
+        },
+      ]}
+    >
+      <ControlsRow handleClose={handleClose} />
+      <StyledPaper elevation={0}>
+        <PatientDetailsDisplay patient={appointment.patient} />
+        <AppointDetailsDisplay appointment={appointment} />
+        <AppointmentStatusDisplay />
+      </StyledPaper>
+    </Popper>
   );
 };
