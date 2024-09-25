@@ -1,6 +1,6 @@
 import React from 'react';
-import * as yup from 'yup';
 import { Divider } from '@material-ui/core';
+import * as yup from 'yup';
 
 import {
   AutocompleteField,
@@ -9,19 +9,20 @@ import {
   Form,
   FormGrid,
   FormSubmitCancelRow,
-  TextField,
   TranslatedText,
 } from '../components';
 import { useSuggester } from '../api';
-import { useMarkTaskCompleted } from '../api/mutations/useTaskMutation';
+import { useMarkTaskNotCompleted } from '../api/mutations/useTaskMutation';
 import { FORM_TYPES } from '../constants';
 
-export const MarkTaskCompletedForm = ({ onClose, refreshTaskTable, taskIds }) => {
+export const MarkTaskNotCompletedForm = ({ onClose, refreshTaskTable, taskIds }) => {
   const practitionerSuggester = useSuggester('practitioner');
-  const { mutate: markTaskCompleted, isLoading } = useMarkTaskCompleted();
+  const taskNotCompletedReasonSuggester = useSuggester('taskNotCompletedReason');
+
+  const { mutate: markTaskNotCompleted } = useMarkTaskNotCompleted();
 
   const onSubmit = async values => {
-    markTaskCompleted(
+    markTaskNotCompleted(
       {
         ...values,
         taskIds,
@@ -43,29 +44,35 @@ export const MarkTaskCompletedForm = ({ onClose, refreshTaskTable, taskIds }) =>
         <div>
           <FormGrid>
             <Field
-              name="completedByUserId"
+              name="notCompletedByUserId"
               label={
-                <TranslatedText stringId="task.form.completedBy.label" fallback="Completed by" />
+                <TranslatedText stringId="task.form.recordedBy.label" fallback="Recorded by" />
               }
               required
               component={AutocompleteField}
               suggester={practitionerSuggester}
             />
             <Field
-              name="completedTime"
+              name="notCompletedTime"
               label={
                 <TranslatedText
-                  stringId="task.form.completedTime.label"
-                  fallback="Completed date & time"
+                  stringId="task.form.recordTime.label"
+                  fallback="Record date & time"
                 />
               }
               required
               component={DateTimeField}
             />
             <Field
-              name="completedNote"
-              label={<TranslatedText stringId="general.notes.label" fallback="Notes" />}
-              component={TextField}
+              name="notCompletedReasonId"
+              label={
+                <TranslatedText
+                  stringId="task.form.reasonNotCompleted.label"
+                  fallback="Reason not completed"
+                />
+              }
+              component={AutocompleteField}
+              suggester={taskNotCompletedReasonSuggester}
             />
           </FormGrid>
           <Divider style={{ margin: '32px -32px 30px -32px' }} />
@@ -73,27 +80,23 @@ export const MarkTaskCompletedForm = ({ onClose, refreshTaskTable, taskIds }) =>
             onCancel={onClose}
             onConfirm={submitForm}
             confirmText={<TranslatedText stringId="general.action.confirm" fallback="Confirm" />}
-            confirmDisabled={isLoading}
           />
         </div>
       )}
       validationSchema={yup.object().shape({
-        completedByUserId: yup
+        notCompletedByUserId: yup
           .string()
           .required()
           .translatedLabel(
-            <TranslatedText stringId="task.form.completedBy.label" fallback="Completed by" />,
+            <TranslatedText stringId="task.form.recordedBy.label" fallback="Recorded by" />,
           ),
-        completedTime: yup
+        notCompletedTime: yup
           .date()
           .required()
           .translatedLabel(
-            <TranslatedText
-              stringId="task.form.completedTime.label"
-              fallback="Completed date & time"
-            />,
+            <TranslatedText stringId="task.form.recordTime.label" fallback="Record date & time" />,
           ),
-        completedNote: yup.string(),
+        notCompletedReasonId: yup.string(),
       })}
     />
   );

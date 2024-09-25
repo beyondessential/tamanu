@@ -23,6 +23,18 @@ export const useMarkTaskCompleted = () => {
   });
 };
 
+export const useMarkTaskNotCompleted = () => {
+  const api = useApi();
+
+  return useMutation({
+    mutationFn: async body => {
+      const result = await api.put('tasks/notCompleted', body);
+      return result;
+    },
+    onError: error => notifyError(error.message),
+  });
+};
+
 export const useMarkTaskTodo = () => {
   const api = useApi();
 
