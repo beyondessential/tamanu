@@ -4,7 +4,6 @@ import styled from 'styled-components';
 import { useAppointments, useLocations } from '../../../api/queries';
 import { Colors } from '../../../constants';
 import { PageContainer, TopBar, TranslatedText } from '../../../components';
-import { AppointmentCountCell } from './AppointmentCountCell';
 import { DayHeaderCell } from './DayHeaderCell';
 import {
   CalendarCell,
@@ -29,6 +28,8 @@ const Placeholder = styled.div`
 `;
 
 // END PLACEHOLDERS
+
+const MS_PER_DAY = 86_400_000;
 
 const LocationBookingsTopBar = styled(TopBar).attrs({
   title: (
@@ -92,12 +93,6 @@ export const LocationBookingsView = () => {
                 const date = new Date(Date.now() + 86_400_000 * i);
                 return <DayHeaderCell date={date} key={date} />;
               })}
-            </CalendarTableRow>
-            <CalendarTableRow>
-              <CalendarRowHeader />
-              {Array.from({ length: dayCount }).map(() => (
-                <AppointmentCountCell count={0} />
-              ))}
             </CalendarTableRow>
           </thead>
           <tbody>
