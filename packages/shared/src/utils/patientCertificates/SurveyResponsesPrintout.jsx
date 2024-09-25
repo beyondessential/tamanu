@@ -1,5 +1,6 @@
 import React from 'react';
 import { Document, StyleSheet, View } from '@react-pdf/renderer';
+import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 
 import { CertificateHeader, Watermark } from './Layout';
 import { LetterheadSection } from './LetterheadSection';
@@ -94,7 +95,9 @@ const ResponseColumn = ({ row, showBoldBorder }) => {
       <Text style={pageStyles.itemText}>{name}</Text>
       <View style={pageStyles.answerContainer}>
         <Text style={[pageStyles.itemText, pageStyles.boldText]}>
-          {type.toLowerCase() === 'photo' ? 'Image file - Refer to Tamanu to view' : answer}
+          {type === PROGRAM_DATA_ELEMENT_TYPES.PHOTO
+            ? 'Image file - Refer to Tamanu to view'
+            : answer}
         </Text>
         {showBoldBorder && <View style={pageStyles.boldDivider} />}
       </View>
@@ -103,7 +106,7 @@ const ResponseColumn = ({ row, showBoldBorder }) => {
 };
 
 const ColumnsContainer = ({ answerRows, itemsPerColumn, hasResult }) => {
-  let columnHeight;
+  let columnHeight = '87vh';
 
   if (itemsPerColumn !== ITEMS_PER_COLUMN) {
     if (hasResult) {
@@ -111,8 +114,6 @@ const ColumnsContainer = ({ answerRows, itemsPerColumn, hasResult }) => {
     } else {
       columnHeight = '61vh';
     }
-  } else {
-    columnHeight = '88vh';
   }
 
   const firstAnswerRows = answerRows.slice(0, itemsPerColumn + 1);
@@ -120,29 +121,20 @@ const ColumnsContainer = ({ answerRows, itemsPerColumn, hasResult }) => {
 
   return (
     <View style={pageStyles.container} wrap={false}>
-      <View style={[pageStyles.column, { maxHeight: columnHeight }]}>
-        {firstAnswerRows.map((row, index) =>
-          index === firstAnswerRows.length - 1 ? null : (
-            <ResponseColumn
-              key={row.id}
-              row={row}
-              showBoldBorder={row.screenIndex !== firstAnswerRows[index + 1]?.screenIndex}
-            />
-          ),
-        )}
-      </View>
+      {[firstAnswerRows, secondAnswerRows].map((rows, index) => (
+        <View style={[pageStyles.column, { maxHeight: columnHeight }]} key={index}>
+          {rows.map((row, index) =>
+            index === rows.length - 1 ? null : (
+              <ResponseColumn
+                key={row.id}
+                row={row}
+                showBoldBorder={row.screenIndex !== rows[index + 1]?.screenIndex}
+              />
+            ),
+          )}
+        </View>
+      ))}
       <View style={pageStyles.verticalDivider} />
-      <View style={[pageStyles.column, { maxHeight: columnHeight }]}>
-        {secondAnswerRows.map((row, index) =>
-          index === secondAnswerRows.length - 1 ? null : (
-            <ResponseColumn
-              key={row.id}
-              row={row}
-              showBoldBorder={row.screenIndex !== secondAnswerRows[index + 1]?.screenIndex}
-            />
-          ),
-        )}
-      </View>
     </View>
   );
 };
@@ -156,14 +148,11 @@ const SurveyResponsesPrintoutComponent = ({
 }) => {
   const { watermark, logo } = certificateData;
 
-  const surveyAnswerRows = getSurveyAnswerRows(surveyResponse).filter(({ answer }) => !!answer);
+  const surveyAnswerRows = getSurveyAnswerRows(surveyResponse).filter(({ answer }) => answer);
 
-  let initialItemsPerColumn;
-  if (surveyResponse.resultText) {
-    initialItemsPerColumn = INITAL_ITEMS_PER_COLUMN_WITH_RESULT;
-  } else {
-    initialItemsPerColumn = INITAL_ITEMS_PER_COLUMN;
-  }
+  const initialItemsPerColumn = surveyResponse.resultText
+    ? INITAL_ITEMS_PER_COLUMN_WITH_RESULT
+    : INITAL_ITEMS_PER_COLUMN;
 
   const initialAnswerRows = surveyAnswerRows.slice(0, initialItemsPerColumn * 2 + 1);
   const restAnswerRows = surveyAnswerRows.slice(initialItemsPerColumn * 2);

@@ -1,8 +1,10 @@
+import { PROGRAM_DATA_ELEMENT_TYPES, RESULT_COLORS } from "@tamanu/constants";
+
 const shouldShow = component => {
   switch (component.dataElement.type) {
-    case 'Instruction':
+    case PROGRAM_DATA_ELEMENT_TYPES.INSTRUCTION:
       return false;
-    case 'SurveyLink':
+    case PROGRAM_DATA_ELEMENT_TYPES.SURVEY_LINK:
       return false;
     default:
       return true;
@@ -27,17 +29,8 @@ export const getSurveyAnswerRows = ({ components, answers }) =>
     })
     .filter(r => r.answer !== undefined);
 
-const COLORS = {
-  green: '#83d452',
-  yellow: '#ffea5a',
-  orange: '#fe8c00',
-  red: '#ff2222',
-  deepred: '#971a1a',
-  purple: '#971a1a',
-};
-
 export const separateColorText = resultText => {
-  for (const [key, color] of Object.entries(COLORS)) {
+  for (const [key, color] of Object.entries(RESULT_COLORS)) {
     // only match colors at the end that follow a result
     // "90% GREEN" -> "90%"
     // "blue ribbon" -> "blue ribbon"
