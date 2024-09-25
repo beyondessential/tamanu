@@ -1,5 +1,9 @@
+import { config } from '@tamanu/shared/config';
 import { createDummyEncounter, createDummyPatient } from '@tamanu/shared/demoData/patients';
 import { createTestContext } from '../utilities';
+import { selectFacilityIds } from '@tamanu/shared/utils/configSelectors';
+
+const [facilityId] = selectFacilityIds(config);
 
 async function uploadDummyProfilePicture(models, patientId) {
   const program = await models.Program.create({ name: 'pfp-program' });
@@ -34,6 +38,7 @@ async function uploadDummyProfilePicture(models, patientId) {
       patientId,
       encounterId: encounter.id,
       surveyId: survey.id,
+      facilityId,
       answers: {
         [dataElement.id]: '12345',
       },

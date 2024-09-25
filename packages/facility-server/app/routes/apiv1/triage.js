@@ -58,6 +58,7 @@ triage.post(
         locationId: vitals.locationId || (await getDefaultId('location')),
         departmentId: vitals.departmentId || (await getDefaultId('department')),
         encounterId: triageRecord.encounterId,
+        facilityId,
         userId: req.user.id,
         ...vitals,
       };

@@ -7,6 +7,8 @@ import { chance } from '@tamanu/shared/test-helpers';
 
 import { createTestContext } from '../utilities';
 
+const [facilityId] = selectFacilityIds(config);
+
 let baseApp = null;
 let models = null;
 
@@ -81,6 +83,7 @@ async function submitMultipleSurveyResponses(survey, overrides, amount = 7) {
     Promise.all(
       new Array(amount).fill(0).map(() =>
         models.SurveyResponse.createWithAnswers({
+          facilityId,
           ...createDummySurveyResponse(survey),
           ...overrides,
         }),
@@ -90,7 +93,6 @@ async function submitMultipleSurveyResponses(survey, overrides, amount = 7) {
 }
 
 describe('Programs', () => {
-  const [facilityId] = selectFacilityIds(config);
   let app;
 
   let testPatient;

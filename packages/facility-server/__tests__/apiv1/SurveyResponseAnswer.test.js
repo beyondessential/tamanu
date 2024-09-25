@@ -14,6 +14,7 @@ import { SETTINGS_SCOPES } from '@tamanu/constants';
 const chance = new Chance();
 const TEST_VITALS_SURVEY_ID = 'vitals-survey-id-for-testing-purposes';
 describe('SurveyResponseAnswer', () => {
+  const [facilityId] = selectFacilityIds(config);
   let app;
   let baseApp;
   let models;
@@ -28,7 +29,6 @@ describe('SurveyResponseAnswer', () => {
   afterAll(() => ctx.close());
 
   describe('getDefaultId', () => {
-    const [facilityId] = selectFacilityIds(config);
     beforeAll(async () => {
       const { Setting, Department } = models;
       await Department.create({
@@ -179,6 +179,7 @@ describe('SurveyResponseAnswer', () => {
           encounterId: randomEncounter.id,
           surveyId: TEST_VITALS_SURVEY_ID,
           userId: app.user.id,
+          facilityId,
           answers: {
             [dataElementOne.id]: chance.integer({ min: 0, max: 100 }),
             [dataElementTwo.id]: randomNumber,
@@ -302,6 +303,7 @@ describe('SurveyResponseAnswer', () => {
           patientId: randomPatient.id,
           encounterId: randomEncounter.id,
           surveyId: survey.id,
+          facilityId,
           answers: {
             [pde.id]: chance.string(),
           },

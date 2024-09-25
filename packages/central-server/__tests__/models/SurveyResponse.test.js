@@ -1,4 +1,5 @@
 import { fake } from '@tamanu/shared/test-helpers/fake';
+import config from 'config';
 import { PATIENT_FIELD_DEFINITION_TYPES } from '@tamanu/constants/patientFields';
 import { findOneOrCreate } from '@tamanu/shared/test-helpers/factory';
 import {
@@ -8,6 +9,7 @@ import {
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
 import { createTestContext } from '../utilities';
+import { selectFacilityIds } from '@tamanu/shared/utils/configSelectors';
 
 async function createDummySurvey(models) {
   const program = await models.Program.create(fake(models.Program));
@@ -33,6 +35,8 @@ async function createDummyDataElement(models, survey, { config, ...dataElementOv
 
   return { dataElement };
 }
+
+const [facilityId] = selectFacilityIds(config);
 
 describe('SurveyResponse.createWithAnswers Patient Fields', () => {
   let ctx, models, patientId, encounterId, surveyId, dataElementId, patientFieldDefinitionId;
@@ -94,6 +98,7 @@ describe('SurveyResponse.createWithAnswers Patient Fields', () => {
         patientId,
         encounterId,
         surveyId: surveyId,
+        facilityId,
         answers: {
           [dataElementId]: 'alastair',
         },
@@ -137,6 +142,7 @@ describe('SurveyResponse.createWithAnswers Patient Fields', () => {
         patientId,
         encounterId,
         surveyId: surveyId,
+        facilityId,
         answers: {
           [dataElementId]: 'James Smith',
         },
@@ -197,6 +203,7 @@ describe('SurveyResponse.createWithAnswers', () => {
         patientId,
         encounterId,
         surveyId: survey.id,
+        facilityId,
         answers: {
           [dataElement.id]: 12,
         },
@@ -215,6 +222,7 @@ describe('SurveyResponse.createWithAnswers', () => {
         patientId,
         encounterId,
         surveyId: survey.id,
+        facilityId,
         answers: {
           [dataElement.id]: 12,
         },
@@ -249,6 +257,7 @@ describe('SurveyResponse.createWithAnswers', () => {
         patientId,
         encounterId,
         surveyId: survey.id,
+        facilityId,
         answers: {
           [dataElement.id]: 'alastair@bes.au',
         },
@@ -302,6 +311,7 @@ describe('SurveyResponse.createWithAnswers', () => {
         encounterId,
         userId,
         surveyId: survey.id,
+        facilityId,
         answers: {
           [dataElement.id]: clinicalStatus.id,
         },

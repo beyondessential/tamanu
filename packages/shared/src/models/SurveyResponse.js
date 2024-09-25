@@ -79,6 +79,7 @@ const getFieldsToWrite = async (models, questions, answers) => {
  */
 async function writeToPatientFields(
   models,
+  facilityId,
   questions,
   answers,
   patientId,
@@ -113,6 +114,7 @@ async function writeToPatientFields(
     }
     await models.PatientProgramRegistration.create({
       patientId,
+      facilityId,
       programRegistryId: programRegistryDetail.id,
       date: submittedTime,
       ...valuesByModel.PatientProgramRegistration,
@@ -123,6 +125,7 @@ async function writeToPatientFields(
 
 async function handleSurveyResponseActions(
   models,
+  facilityId,
   questions,
   answers,
   patientId,
@@ -134,6 +137,7 @@ async function handleSurveyResponseActions(
   await createPatientIssues(models, activeQuestions, patientId);
   await writeToPatientFields(
     models,
+    facilityId,
     activeQuestions,
     answers,
     patientId,
@@ -270,7 +274,15 @@ export class SurveyResponse extends Model {
       throw new Error('SurveyResponse.createWithAnswers must always run inside a transaction!');
     }
     const { models } = this.sequelize;
-    const { answers, surveyId, patientId, encounterId, forceNewEncounter, ...responseData } = data;
+    const {
+      answers,
+      surveyId,
+      patientId,
+      encounterId,
+      forceNewEncounter,
+      facilityId,
+      ...responseData
+    } = data;
 
     // ensure survey exists
     const survey = await models.Survey.findByPk(surveyId);
@@ -351,6 +363,7 @@ export class SurveyResponse extends Model {
 
     await handleSurveyResponseActions(
       models,
+      facilityId,
       questions,
       finalAnswers,
       encounter.patientId,
