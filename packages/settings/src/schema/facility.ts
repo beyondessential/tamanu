@@ -1,5 +1,6 @@
 import * as yup from 'yup';
 import { extractDefaults } from './utils';
+import { letterheadProperties } from './definitions';
 
 export const facilitySettings = {
   name: 'Facility server settings',
@@ -33,6 +34,15 @@ export const facilitySettings = {
               defaultValue: 'GeneralClinic',
             },
           },
+        },
+      },
+    },
+    templates: {
+      description: 'Text to be inserted into emails/PDFs',
+      properties: {
+        letterhead: {
+          description: 'The text at the top of most patient PDFs',
+          properties: letterheadProperties,
         },
       },
     },
