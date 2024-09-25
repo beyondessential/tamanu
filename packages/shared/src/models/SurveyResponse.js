@@ -114,7 +114,7 @@ async function writeToPatientFields(
     }
     await models.PatientProgramRegistration.create({
       patientId,
-      facilityId,
+      registeringFacilityId: facilityId,
       programRegistryId: programRegistryDetail.id,
       date: submittedTime,
       ...valuesByModel.PatientProgramRegistration,

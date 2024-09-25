@@ -73,6 +73,7 @@ function createDummySurveyResponse(survey) {
     answers[q.id] = getRandomAnswer(q);
   });
   return {
+    facilityId,
     surveyId: survey.id,
     answers,
   };
@@ -83,7 +84,6 @@ async function submitMultipleSurveyResponses(survey, overrides, amount = 7) {
     Promise.all(
       new Array(amount).fill(0).map(() =>
         models.SurveyResponse.createWithAnswers({
-          facilityId,
           ...createDummySurveyResponse(survey),
           ...overrides,
         }),
