@@ -63,7 +63,6 @@ export default {
           <Form
             onSubmit={async () => {}}
             initialValues={{
-              date: new Date(),
               locationId: 'location-a',
             }}
             render={() => <Story />}

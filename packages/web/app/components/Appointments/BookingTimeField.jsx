@@ -10,6 +10,7 @@ import { useAppointments } from '../../api/queries/useAppointments';
 import { BookingTimeCell } from './BookingTimeCell';
 import { useFormikContext } from 'formik';
 import { toDateTimeString } from '../../utils/dateTime';
+import { LoadingIndicator } from '../LoadingIndicator';
 
 const CellContainer = styled.div`
   border: 1px solid ${Colors.outline};
@@ -61,8 +62,8 @@ export const BookingTimeField = ({ disabled = false }) => {
 
   const { locationId, date } = values;
   const { data: existingLocationBookings, isFetched } = useAppointments({
-    after: toDateTimeString(startOfDay(new Date(date))),
-    before: toDateTimeString(endOfDay(new Date(date))),
+    after: date ? toDateTimeString(startOfDay(new Date(date))) : null,
+    before: date ? toDateTimeString(endOfDay(new Date(date))) : null,
     all: true,
     locationId,
   });
@@ -110,19 +111,23 @@ export const BookingTimeField = ({ disabled = false }) => {
   return (
     <OuterLabelFieldWrapper label="Booking time" required>
       <CellContainer $disabled={disabled}>
-        {timeSlots.map((timeSlot, index) => {
-          return (
-            <BookingTimeCell
-              key={index}
-              timeSlot={timeSlot}
-              selected={selectedTimeSlots.includes(index)}
-              disabled={disabled}
-              onClick={() => toggleSelectedTimeSlot(index)}
-              isMiddleOfRange={lowestSelectedIndex < index && index < highestSelectedIndex}
-              invalidTarget={checkIfIndexRangeContainsBookedTime(calculateIndexRangeToAdd(index))}
-            />
-          );
-        })}
+        {timeSlots.length > 0 ? (
+          timeSlots.map((timeSlot, index) => {
+            return (
+              <BookingTimeCell
+                key={index}
+                timeSlot={timeSlot}
+                selected={selectedTimeSlots.includes(index)}
+                disabled={disabled}
+                onClick={() => toggleSelectedTimeSlot(index)}
+                isMiddleOfRange={lowestSelectedIndex < index && index < highestSelectedIndex}
+                invalidTarget={checkIfIndexRangeContainsBookedTime(calculateIndexRangeToAdd(index))}
+              />
+            );
+          })
+        ) : (
+          <LoadingIndicator backgroundColor="white" height="100px" width="100%" />
+        )}
       </CellContainer>
     </OuterLabelFieldWrapper>
   );
