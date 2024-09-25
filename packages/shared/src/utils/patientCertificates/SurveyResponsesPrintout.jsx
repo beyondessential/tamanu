@@ -121,8 +121,8 @@ const ColumnsContainer = ({ answerRows, itemsPerColumn, hasResult }) => {
 
   return (
     <View style={pageStyles.container} wrap={false}>
-      {[firstAnswerRows, secondAnswerRows].map(rows => (
-        <View style={[pageStyles.column, { maxHeight: columnHeight }]}>
+      {[firstAnswerRows, secondAnswerRows].map((rows, index) => (
+        <View style={[pageStyles.column, { maxHeight: columnHeight }]} key={index}>
           {rows.map((row, index) =>
             index === rows.length - 1 ? null : (
               <ResponseColumn
