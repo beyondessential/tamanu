@@ -7,6 +7,7 @@ import { TranslatedText } from '../Translation';
 import { BodyText } from '../Typography';
 import { MarkTaskCompletedForm } from '../../forms/MarkTaskCompletedForm';
 import { DeleteTaskForm } from '../../forms/DeleteTaskForm.jsx';
+import { MarkTaskNotCompletedForm } from '../../forms/MarkTaskNotCompletedForm';
 
 const ModalDescription = styled(BodyText)`
   margin-bottom: 34px;
@@ -18,6 +19,13 @@ const getModalTitle = (action, isRepeatingTask) => {
     case TASK_ACTIONS.COMPLETED:
       return (
         <TranslatedText stringId="task.modal.markAsCompleted.title" fallback="Mark as completed" />
+      );
+    case TASK_ACTIONS.NON_COMPLETED:
+      return (
+        <TranslatedText
+          stringId="task.modal.markAsNotCompleted.title"
+          fallback="Mark as not completed"
+        />
       );
     case TASK_ACTIONS.DELETED:
       if (isRepeatingTask) {
@@ -36,6 +44,13 @@ const getModalDescription = (action, isRepeatingTask) => {
         <TranslatedText
           stringId="task.modal.completed.description"
           fallback="Complete details below to mark the task/s as completed."
+        />
+      );
+    case TASK_ACTIONS.NON_COMPLETED:
+      return (
+        <TranslatedText
+          stringId="task.modal.notCompleted.description"
+          fallback="Complete details below to mark the task/s as not completed."
         />
       );
     case TASK_ACTIONS.DELETED:
@@ -76,13 +91,17 @@ export const TaskActionModal = ({
             taskIds={taskIds}
           />
         );
-      case TASK_ACTIONS.DELETED:
+      case TASK_ACTIONS.NON_COMPLETED:
         return (
-          <DeleteTaskForm
+          <MarkTaskNotCompletedForm
             onClose={onClose}
             refreshTaskTable={refreshTaskTable}
             taskIds={taskIds}
           />
+        );
+      case TASK_ACTIONS.DELETED:
+        return (
+          <DeleteTaskForm onClose={onClose} refreshTaskTable={refreshTaskTable} taskIds={taskIds} />
         );
       default:
         return null;

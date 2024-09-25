@@ -242,7 +242,7 @@ const NotesCell = ({ row, hoveredRow, handleActionModalOpen }) => {
                 />
               }
             >
-              <IconButton>
+              <IconButton onClick={() => handleActionModalOpen(TASK_STATUSES.NON_COMPLETED, row.id)}>
                 <StyledCancelIcon />
               </IconButton>
             </ThemedTooltip>
@@ -418,7 +418,7 @@ export const TasksTable = ({ encounterId, searchParameters, refreshCount, refres
                 />
               }
             >
-              <IconButton>
+              <IconButton onClick={() => handleActionModalOpen(TASK_STATUSES.NON_COMPLETED)}>
                 <StyledCancelIcon />
               </IconButton>
             </ThemedTooltip>
