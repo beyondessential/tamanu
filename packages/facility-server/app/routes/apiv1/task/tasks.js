@@ -58,7 +58,8 @@ const taskNonCompletionInputSchema = z.object({
   taskIds: z
     .string()
     .uuid()
-    .array(),
+    .array()
+    .min(1),
   notCompletedByUserId: z.string(),
   notCompletedTime: z.string().datetime(),
   notCompletedReasonId: z.string().optional(),
