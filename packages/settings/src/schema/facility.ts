@@ -2,6 +2,7 @@ import * as yup from 'yup';
 import { extractDefaults } from './utils';
 import {
   emailSchema,
+  letterheadProperties,
   nationalityIdSchema,
   passportSchema,
   questionCodeIdsDescription,
@@ -29,24 +30,6 @@ export const facilitySettings = {
         },
       },
     },
-    templates: {
-      name: 'Templates',
-      description: 'Settings related to templates',
-      properties: {
-        letterhead: {
-          name: 'Letterhead',
-          description: '_',
-          type: yup.object(),
-          defaultValue: {},
-        },
-      },
-    },
-    vaccinations: {
-      name: 'Vaccinations',
-      description: '_',
-      type: yup.object(),
-      defaultValue: {},
-    },
     survey: {
       name: 'Survey settings',
       description: '_',
@@ -71,6 +54,21 @@ export const facilitySettings = {
           },
         },
       },
+    },
+    templates: {
+      description: 'Text to be inserted into emails/PDFs',
+      properties: {
+        letterhead: {
+          description: 'The text at the top of most patient PDFs',
+          properties: letterheadProperties,
+        },
+      },
+    },
+    vaccinations: {
+      name: 'Vaccinations',
+      description: '_',
+      type: yup.object(),
+      defaultValue: {},
     },
   },
 };

@@ -8,6 +8,7 @@ export {
   labsCancellationReasonsSchema,
   labsCancellationReasonsDefault,
 } from './labsCancellationReasons';
+export { letterheadProperties } from './letterheadTemplate';
 export {
   emailSchema,
   nationalityIdSchema,
