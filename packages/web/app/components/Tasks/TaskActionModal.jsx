@@ -7,6 +7,7 @@ import { TranslatedText } from '../Translation';
 import { BodyText } from '../Typography';
 import { MarkTaskCompletedForm } from '../../forms/MarkTaskCompletedForm';
 import { MarkTaskNotCompletedForm } from '../../forms/MarkTaskNotCompletedForm';
+import { MarkTaskTodoForm } from '../../forms/MarkTaskTodoForm';
 
 const ModalDescription = styled(BodyText)`
   margin-bottom: 34px;
@@ -26,6 +27,8 @@ const getModalTitle = action => {
           fallback="Mark as not completed"
         />
       );
+    case TASK_STATUSES.TODO:
+      return <TranslatedText stringId="task.modal.toDo.title" fallback="Mark as to-do" />;
     default:
       return '';
   }
@@ -47,6 +50,13 @@ const getModalDescription = action => {
           fallback="Complete details below to mark the task/s as not completed."
         />
       );
+    case TASK_STATUSES.TODO:
+      return (
+        <TranslatedText
+          stringId="task.modal.toDo.description"
+          fallback="Complete details below to mark task/s as to-do."
+        />
+      );
     default:
       return '';
   }
@@ -66,6 +76,14 @@ export const TaskActionModal = ({ open, onClose, action, refreshTaskTable, taskI
       case TASK_STATUSES.NON_COMPLETED:
         return (
           <MarkTaskNotCompletedForm
+            onClose={onClose}
+            refreshTaskTable={refreshTaskTable}
+            taskIds={taskIds}
+          />
+        );
+      case TASK_STATUSES.TODO:
+        return (
+          <MarkTaskTodoForm
             onClose={onClose}
             refreshTaskTable={refreshTaskTable}
             taskIds={taskIds}
