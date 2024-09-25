@@ -1,5 +1,6 @@
 import * as yup from 'yup';
 import { extractDefaults } from './utils';
+import { letterheadProperties } from './definitions';
 
 export const facilitySettings = {
   name: 'Facility server settings',
@@ -34,6 +35,12 @@ export const facilitySettings = {
             },
           },
         },
+      },
+    },
+    templates: {
+      description: 'Strings to be inserted into emails/PDFs',
+      properties: {
+        letterhead: letterheadProperties,
       },
     },
   },
