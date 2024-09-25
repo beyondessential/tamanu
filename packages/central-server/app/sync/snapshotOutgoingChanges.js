@@ -7,6 +7,7 @@ import {
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging/log';
 import { withConfig } from '@tamanu/shared/utils/withConfig';
+import { getPatientLinkedModels } from './getPatientLinkedModels';
 
 const snapshotChangesForModel = async (
   model,
@@ -199,7 +200,13 @@ const snapshotOutgoingChangesFromSyncLookup = withConfig(
     const snapshotTableName = getSnapshotTableName(sessionId);
     const CHUNK_SIZE = config.sync.maxRecordsPerSnapshotChunk;
     const { syncAllLabRequests } = sessionConfig;
+    const recordTypesLinkedToPatients = Object.values(getPatientLinkedModels(store.models)).map(
+      m => m.tableName,
+    );
     const recordTypes = Object.values(outgoingModels).map(m => m.tableName);
+    const queryingForRecordsNotLinkedToPatients = recordTypes.some(
+      recordType => !recordTypesLinkedToPatients.includes(recordType),
+    );
     while (fromId != null) {
       const [[{ maxId, count }]] = await store.sequelize.query(
         `
@@ -231,13 +238,20 @@ const snapshotOutgoingChangesFromSyncLookup = withConfig(
           --- either no patient_id (meaning we don't care if the record is associate to a patient, eg: reference_data) 
           --- or patient_id has to match the marked for sync patient_ids, eg: encounters
           (
-            patient_id IS NULL
-          ${
-            patientCount
-              ? `OR patient_id IN (SELECT patient_id FROM ${markedForSyncPatientsTable})`
-              : ''
-          })
-          --- either no facility_id (meaning we don't care if the record is associate to a facility, eg: reference_data) 
+            ${queryingForRecordsNotLinkedToPatients ? 'patient_id IS NULL' : ''}
+			      ${
+              queryingForRecordsNotLinkedToPatients && patientCount
+                ? ' OR '
+                : !queryingForRecordsNotLinkedToPatients && !patientCount
+                ? ' FALSE '
+                : ''
+            }
+            ${
+              patientCount
+                ? `patient_id IN (SELECT patient_id FROM ${markedForSyncPatientsTable})`
+                : ''
+            })
+          --- either no facility_id (meaning we don't care if the record is associate to a facility, eg: reference_data)
           --- or facility_id has to match the current facility, eg: patient_facilities
           AND (
             facility_id IS NULL
