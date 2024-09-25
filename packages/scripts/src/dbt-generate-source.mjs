@@ -105,43 +105,36 @@ async function generateMissingModel(schemaName, table) {
   };
 }
 
-async function handleColumns(existingColumns, newColumns) {
+async function handleColumns(tableName, existingColumns, newColumns) {
   // This is expensive yet the most straightforward implementation.
   // Algorithms that rely on sorted lists are out because we want preserve the original order of columns.
   // May be able to use Map, but it doesn't have convinient set operations.
   const removedColumns = _.differenceBy(existingColumns, newColumns, 'name');
-  removedColumns.forEach(t => console.log(`removed ${t.name}`));
+  removedColumns.forEach(t => console.log(`removed ${t.name} in ${tableName}`));
   const missingColumns = _.differenceBy(newColumns, existingColumns, 'name');
-  missingColumns.forEach(t => console.log(`missing ${t.name}`));
+  missingColumns.forEach(t => console.log(`missing ${t.name} in ${tableName}`));
   {
     const existingColumnsIntersection = _.intersectionBy(existingColumns, newColumns, 'name');
-    const newColumnsIntersection = _.intersectionBy(
-      newColumns,
-      existingColumnsIntersection,
-      'name',
-    );
-    for (const [existingColumn, newColumn] of _.zip(
-      existingColumnsIntersection,
-      newColumnsIntersection,
-    )) {
-      // TODO: check changes in data_type
+    for (const existingColumn of existingColumnsIntersection) {
+      const newColumn = newColumns.find(c => c.name === existingColumn.name);
+      if (existingColumn.data_type.toLowerCase() === newColumn.data_type.toLowerCase()) continue;
+      console.log(
+        `${existingColumn.data_type} vs ${newColumn.data_type} in ${existingColumn.name} --- ${tableName}`,
+      );
     }
   }
 }
 
 async function handleTables(existingTables, newTables) {
   const removedTables = _.differenceBy(existingTables, newTables, 'name');
-  removedTables.forEach(t => `removed ${t.name}`);
+  removedTables.forEach(t => console.log(`removed ${t.name}`));
   const missingTables = _.differenceBy(newTables, existingTables, 'name');
   missingTables.forEach(t => console.log(`missing ${t.name}`));
   {
     const existingTablesIntersection = _.intersectionBy(existingTables, newTables, 'name');
-    const newTablesIntersection = _.intersectionBy(newTables, existingTablesIntersection, 'name');
-    for (const [existingTable, newTable] of _.zip(
-      existingTablesIntersection,
-      newTablesIntersection,
-    )) {
-      handleColumns(existingTable.column, newTable.column);
+    for (const existingTable of existingTablesIntersection) {
+      const newTable = newTables.find(t => t.name === existingTable.name);
+      handleColumns(existingTable.name, existingTable.columns, newTable.columns);
     }
   }
 }
