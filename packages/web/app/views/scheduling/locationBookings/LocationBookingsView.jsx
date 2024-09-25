@@ -90,7 +90,7 @@ export const LocationBookingsView = () => {
                 <Placeholder>Month Selector</Placeholder>
               </CalendarRowHeader>
               {Array.from({ length: dayCount }).map((_, i) => {
-                const date = new Date(Date.now() + 86_400_000 * i);
+                const date = new Date(Date.now() + MS_PER_DAY * i);
                 return <DayHeaderCell date={date} key={date} />;
               })}
             </CalendarTableRow>
