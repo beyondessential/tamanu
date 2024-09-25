@@ -199,7 +199,7 @@ export const ReferralTable = React.memo(({ patientId }) => {
       },
     },
   ];
-  console.log('selectedReferral', selectedReferral);
+
   const ActiveModal = useMemo(() => {
     const MODALS = {
       [MODAL_IDS.PRINT]: ({ selectedReferral, ...props }) => (
@@ -239,7 +239,9 @@ export const ReferralTable = React.memo(({ patientId }) => {
           onCancel={() => setModalOpen(false)}
         />
       ),
-      [MODAL_IDS.DELETE]: DeleteReferralModal,
+      [MODAL_IDS.DELETE]: ({ selectedReferral, ...props }) => (
+        <DeleteReferralModal {...props} referralToDelete={selectedReferral} />
+      ),
     };
 
     return MODALS[modalId] || null;
