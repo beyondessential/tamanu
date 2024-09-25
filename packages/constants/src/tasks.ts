@@ -5,7 +5,9 @@ export const TASK_STATUSES = {
 };
 
 export const TASK_ACTIONS = {
-  ...TASK_STATUSES,
+  TODO: 'todo',
+  COMPLETED: 'completed',
+  NON_COMPLETED: 'non_completed',
   DELETED: 'deleted',
 };
 
