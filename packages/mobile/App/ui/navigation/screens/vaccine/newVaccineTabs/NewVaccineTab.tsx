@@ -45,7 +45,6 @@ export const NewVaccineTabComponent = ({
   selectedPatient,
 }: NewVaccineTabProps): ReactElement => {
   const { vaccine } = route;
-  console.log('route, NewVaccineTabComponent', route);
   const { administeredVaccine } = vaccine;
   const navigation = useNavigation();
   const [isSubmitting, setSubmitting] = useState(false);
@@ -136,6 +135,7 @@ export const NewVaccineTabComponent = ({
         navigation.navigate(Routes.HomeStack.VaccineStack.VaccineModalScreen, {
           vaccine: {
             ...vaccine,
+            scheduledVaccine: scheduledVaccineRecord,
             administeredVaccine: {
               ...updatedVaccine,
               encounter,
@@ -166,7 +166,6 @@ export const NewVaccineTabComponent = ({
         patientId={selectedPatient.id}
         initialValues={{
           ...vaccineObject,
-          scheduledVaccineId: vaccineObject.scheduledVaccineId || vaccineObject.scheduledVaccine.id,
           date: vaccineObject.date ? parseISO(vaccineObject.date) : null,
         }}
         status={route.key as VaccineStatus}
