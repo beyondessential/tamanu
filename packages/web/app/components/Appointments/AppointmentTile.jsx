@@ -1,15 +1,16 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React from 'react';
 import styled, { css } from 'styled-components';
 import { parseISO } from 'date-fns';
 
+import { PriorityHigh as HighPriorityIcon } from '@material-ui/icons';
+import OvernightIcon from '@material-ui/icons/Brightness2';
 import { APPOINTMENT_STATUSES } from '@tamanu/constants';
+import { areSameDay } from '@tamanu/shared/utils/dateTime';
 
 import { Colors } from '../../constants';
 import { APPOINTMENT_STATUS_COLORS } from './appointmentStatusIndicators';
-import { AppointmentStatusIcon as StatusIcon, OvernightIcon } from '../Icons';
+import { AppointmentStatusIcon as StatusIcon } from '../Icons';
 import { formatTime } from '../DateDisplay';
-import { areSameDay } from '@tamanu/shared/utils/dateTime';
-import { AppointmentDetailPopper } from '.';
 
 const Wrapper = styled.div`
   ${({ $color = Colors.blue, $selected }) =>
@@ -37,7 +38,7 @@ const Wrapper = styled.div`
   cursor: pointer;
   display: grid;
   gap: 0.3125rem;
-  grid-template-columns: 1fr 0.625rem;
+  grid-template-columns: 1fr auto;
   padding-block: 0.5rem;
   padding-inline: 0.3125rem;
   text-decoration-thickness: from-font;
@@ -64,50 +65,55 @@ const Timestamp = ({ date }) => <time dateTime={date.toISOString()}>{formatTime(
 const IconGroup = styled.div`
   align-items: center;
   display: flex;
-  gap: 0.125rem;
   justify-content: end;
 `;
 
-const getPatientFullName = ({ firstName, middleName, lastName }) => {
-  const names = [firstName, middleName, lastName].map(n => n ?? '');
-  return names.join(' ');
-};
+const getPatientFullName = ({ firstName, middleName, lastName }) =>
+  [firstName, middleName, lastName].filter(Boolean).join(' ');
 
-export const AppointmentTile = ({ appointment, selected = false, handleClose, ...props }) => {
-  const { patient, startTime, endTime, status: appointmentStatus } = appointment;
-  const ref = useRef(null);
-  const [open, setOpen] = useState();
+export const AppointmentTile = ({ appointment, selected = false, ...props }) => {
+  const {
+    patient,
+    startTime: startTimeStr,
+    endTime: endTimeStr,
+    status: appointmentStatus,
+  } = appointment;
+  const startTime = parseISO(startTimeStr);
+  const endTime = parseISO(endTimeStr);
+  console.log(appointment);
 
-  useEffect(() => {
-    setOpen(selected);
-  }, [selected]);
-
-  const isOvernight = !areSameDay(parseISO(startTime), parseISO(endTime));
+  const isHighPriority = false; // TODO
+  const isOvernight = !areSameDay(startTime, endTime);
 
   return (
     <Wrapper
       $color={APPOINTMENT_STATUS_COLORS[appointmentStatus]}
-      $selected={open}
+      $selected={selected}
       tabIndex={0}
-      ref={ref}
       {...props}
     >
       <Label $strikethrough={appointmentStatus === APPOINTMENT_STATUSES.NO_SHOW}>
-        <Timestamp date={parseISO(startTime)} /> {getPatientFullName(patient)}
+        <Timestamp date={startTime} /> {getPatientFullName(patient)}
       </Label>
       <IconGroup>
-        {/* {isHighPriority && <HighPriorityIcon width={10} height={10} />} */}
-        {isOvernight && <OvernightIcon width={10} height={10} />}
-        <StatusIcon appointmentStatus={appointmentStatus} width={10} height={10} />
+        {isHighPriority && (
+          <HighPriorityIcon
+            aria-label="High priority"
+            aria-hidden={undefined}
+            htmlColor={Colors.alert}
+            style={{ fontSize: 15 }}
+          />
+        )}
+        {isOvernight && (
+          <OvernightIcon
+            aria-label="Overnight"
+            aria-hidden={undefined}
+            htmlColor="#326699"
+            style={{ fontSize: 15 }}
+          />
+        )}
+        <StatusIcon appointmentStatus={appointmentStatus} width={15} height={15} />
       </IconGroup>
-      {open && (
-        <AppointmentDetailPopper
-          open={open}
-          handleClose={handleClose}
-          anchorEl={ref.current}
-          appointment={appointment}
-        />
-      )}
     </Wrapper>
   );
 };
