@@ -270,7 +270,7 @@ const NotesCell = ({ row, hoveredRow, handleActionModalOpen }) => {
                 />
               }
             >
-              <IconButton>
+              <IconButton onClick={() => handleActionModalOpen(TASK_STATUSES.TODO, row.id)}>
                 <StatusTodo />
               </IconButton>
             </ThemedTooltip>
