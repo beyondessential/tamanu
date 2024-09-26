@@ -61,7 +61,7 @@ patientProgramRegistration.post(
 
     // Run in a transaction so it either fails or succeeds together
     const [registration, conditions] = await db.transaction(async () => {
-      return Promise.all([
+      const promises = [
         models.PatientProgramRegistration.create({
           patientId,
           programRegistryId,
@@ -76,12 +76,16 @@ patientProgramRegistration.post(
             programRegistryConditionId: conditionId,
           })),
         ),
-        // as a side effect, mark for sync in the current facility
-        models.PatientFacility.upsert({
-          patientId,
-          facilityId: registeringFacilityId,
-        }),
-      ]);
+      ];
+      if (registeringFacilityId) {
+        promises.push(
+          models.PatientFacility.upsert({
+            patientId,
+            facilityId: registeringFacilityId,
+          }),
+        );
+      }
+      return Promise.all(promises);
     });
 
     // Convert Sequelize model to use a custom object as response
