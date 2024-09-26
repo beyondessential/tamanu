@@ -192,16 +192,41 @@ const HeaderContainer = React.memo(({ children, numeric }) => (
   <StyledTableCell align={numeric ? 'right' : 'left'}>{children}</StyledTableCell>
 ));
 
-const RowContainer = React.memo(({ children, lazyLoading, rowStyle, onClick, className }) => (
-  <StyledTableRow
-    className={className}
-    onClick={onClick}
-    $rowStyle={rowStyle}
-    $lazyLoading={lazyLoading}
-  >
-    {children}
-  </StyledTableRow>
-));
+const RowContainer = React.memo(
+  ({ children, lazyLoading, rowStyle, onClick, className, rowTooltip }) => {
+    const getTableRow = () => (
+      <StyledTableRow
+        className={className}
+        onClick={onClick}
+        $rowStyle={rowStyle}
+        $lazyLoading={lazyLoading}
+      >
+        {children}
+      </StyledTableRow>
+    );
+
+    return rowTooltip ? (
+      <ThemedTooltip
+        title={rowTooltip}
+        PopperProps={{
+          modifiers: {
+            flip: {
+              enabled: false,
+            },
+            offset: {
+              enabled: true,
+              offset: '0, -10'
+            },
+          },
+        }}
+      >
+        {getTableRow()}
+      </ThemedTooltip>
+    ) : (
+      getTableRow()
+    );
+  },
+);
 
 const StatusTableCell = styled(StyledTableCell)`
   &.MuiTableCell-body {
@@ -224,6 +249,7 @@ const Row = React.memo(
     refreshTable,
     cellStyle,
     onClickRow,
+    getRowTooltip,
   }) => {
     const cells = columns.map(
       ({ key, accessor, CellComponent, numeric, maxWidth, cellColor, dontCallRowInput }) => {
@@ -257,6 +283,7 @@ const Row = React.memo(
         onClick={onClick && (() => onClick(data))}
         rowStyle={rowStyle ? rowStyle(data) : ''}
         lazyLoading={lazyLoading}
+        rowTooltip={getRowTooltip && getRowTooltip(data)}
       >
         {cells}
       </RowContainer>
@@ -384,6 +411,7 @@ class TableComponent extends React.Component {
       cellStyle,
       statusCellStyle,
       onClickRow,
+      getRowTooltip,
     } = this.props;
 
     const status = this.getStatusMessage();
@@ -414,6 +442,7 @@ class TableComponent extends React.Component {
                 lazyLoading={lazyLoading}
                 cellStyle={cellStyle}
                 onClickRow={onClickRow}
+                getRowTooltip={getRowTooltip}
               />
             );
           })}
@@ -568,6 +597,7 @@ TableComponent.propTypes = {
   isLoadingMore: PropTypes.bool,
   noDataBackgroundColor: PropTypes.string,
   isBodyScrollable: PropTypes.bool,
+  getRowTooltip: PropTypes.func,
 };
 
 TableComponent.defaultProps = {
@@ -599,6 +629,7 @@ TableComponent.defaultProps = {
   isLoadingMore: false,
   noDataBackgroundColor: Colors.white,
   isBodyScrollable: false,
+  getRowTooltip: null,
 };
 
 export const Table = React.forwardRef(
