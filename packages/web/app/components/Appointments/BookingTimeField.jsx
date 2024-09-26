@@ -32,14 +32,13 @@ const calculateTimeSlots = bookingSlotSettings => {
   const { startTime, endTime, slotDuration } = bookingSlotSettings;
   const startOfDay = parse(startTime, 'HH:mm', new Date());
   const endOfDay = parse(endTime, 'HH:mm', new Date());
-  const duration = ms(slotDuration) / 60000; // In minutes
+  const durationMinutes = ms(slotDuration) / 60_000; // In minutes
 
-  const totalSlots = differenceInMinutes(endOfDay, startOfDay) / duration;
+  const totalSlots = differenceInMinutes(endOfDay, startOfDay) / durationMinutes;
   const slots = [];
   for (let i = 0; i < totalSlots; i++) {
-    const start = addMinutes(startOfDay, i * duration);
-    const end = addMinutes(start, duration);
-
+    const start = addMinutes(startOfDay, i * durationMinutes);
+    const end = addMinutes(start, durationMinutes);
     slots.push({
       start,
       end,
@@ -57,7 +56,7 @@ const isTimeSlotWithinRange = (timeSlot, range) => {
 // logic calculated through time ranges in the format { start: DATE, end: DATE }
 export const BookingTimeField = ({ disabled = false }) => {
   const { getSetting } = useSettings();
-  const { setFieldValue, values } = useFormikContext();
+  const { setValues, values } = useFormikContext();
 
   const [selectedTimeRange, setSelectedTimeRange] = useState(null);
   const [hoverTimeRange, setHoverTimeRange] = useState(null);
@@ -83,14 +82,12 @@ export const BookingTimeField = ({ disabled = false }) => {
   }, [bookingSlotSettings, isFetched]);
 
   useEffect(() => {
-    if (selectedTimeRange) {
-      setFieldValue('startTime', toDateTimeString(selectedTimeRange.start));
-      setFieldValue('endTime', toDateTimeString(selectedTimeRange.end));
-    } else {
-      setFieldValue('startTime', null);
-      setFieldValue('endTime', null);
-    }
-  }, [selectedTimeRange, setFieldValue]);
+    setValues({
+      ...values,
+      startTime: selectedTimeRange ? toDateTimeString(selectedTimeRange.start) : null,
+      endTime: selectedTimeRange ? toDateTimeString(selectedTimeRange.end) : null,
+    });
+  }, [selectedTimeRange, setValues, values]);
 
   const updateTimeRangeStart = start =>
     setSelectedTimeRange(prevRange => ({

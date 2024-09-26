@@ -3,14 +3,15 @@ import styled from 'styled-components';
 import { Colors } from '../../constants';
 import { ConditionalTooltip, ThemedTooltip } from '../Tooltip';
 import { TimeRangeDisplay } from '../DateDisplay';
+import { alpha } from '@material-ui/core';
 
 const Cell = styled.div`
   border: 1px solid ${Colors.outline};
-  height: 30px;
-  width: 125px;
-  border-radius: 50px;
-  font-size: 12px;
-  line-height: 12px;
+  block-size: 1.875rem;
+  border-radius: 3.125rem;
+  font-size: 0.75rem;
+  inline-size: 7.8125rem;
+  line-height: 1;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -22,16 +23,16 @@ const DisabledCell = styled(Cell)`
 `;
 
 const AvailableCell = styled(Cell)`
-  ${({ $selected }) => $selected && `border: 1px solid ${Colors.primary}`};
   ${({ $inHoverRange }) => $inHoverRange && `background-color: ${Colors.veryLightBlue}`};
-  ${({ $selected }) => $selected && `background-color: ${Colors.primary}1A`};
+  ${({ $selected }) => $selected && `background-color: ${alpha(Colors.primary, 0.1)}`};
+  ${({ $selected }) => $selected && `border: 1px solid ${Colors.primary}`};
   &:hover {
     cursor: ${({ $selectable }) => ($selectable ? `pointer` : 'cursor')};
   }
 `;
 
 const BookedCell = styled(Cell)`
-  background-color: ${Colors.alert}1A;
+  background-color: ${alpha(Colors.alert, 0.1)};
   color: ${Colors.midText};
 `;
 
