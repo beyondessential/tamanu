@@ -1,4 +1,4 @@
-import { SettingsSchema } from 'schema/types';
+import { SettingsSchema } from '../../types';
 import * as yup from 'yup';
 
 export const vaccinationsSchema: SettingsSchema = {

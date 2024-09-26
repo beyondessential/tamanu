@@ -1,7 +1,6 @@
 import * as yup from 'yup';
 import { extractDefaults } from './utils';
-import { vaccinationsSchema } from './definitions';
-import { letterheadProperties } from './definitions';
+import { vaccinationsSchema, letterheadProperties } from './definitions';
 
 export const facilitySettings = {
   name: 'Facility server settings',
