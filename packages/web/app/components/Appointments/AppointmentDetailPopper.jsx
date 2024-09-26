@@ -1,18 +1,27 @@
 import { Box, IconButton, Paper, Popper, styled } from '@mui/material';
-import { MoreVert, Close } from '@mui/icons-material';
+import { MoreVert, Close, Brightness2 as Overnight } from '@mui/icons-material';
 import React from 'react';
 import { PatientNameDisplay } from '../PatientNameDisplay';
 import { TranslatedReferenceData, TranslatedSex, TranslatedText } from '../Translation';
 import { Colors } from '../../constants';
-import { format } from 'date-fns';
-import { DateDisplay } from '../DateDisplay';
+import { DateDisplay, getDateDisplay } from '../DateDisplay';
 
-const formatDateRange = (start, end) => {
-  const formattedStart = format(new Date(start), 'MM/dd/yyyy h:mma');
-  const formattedEnd = format(new Date(end), 'h:mma');
+const formatDateRange = (start, end, isOvernight) => {
+  const formattedStart = getDateDisplay(start, { showDate: true, showTime: true });
+  const formattedEnd = getDateDisplay(end, { showDate: isOvernight, showTime: true });
 
   return `${formattedStart} - ${formattedEnd}`;
 };
+
+const FlexRow = styled(Box)`
+  display: flex;
+  flex-direction: row;
+`;
+
+const FlexCol = styled(Box)`
+  display: flex;
+  flex-direction: column;
+`;
 
 const Title = styled(`span`)`
   font-weight: 500;
@@ -30,7 +39,7 @@ const StyledPaper = styled(Paper)`
   flex-direction: column;
   width: 16rem;
   box-shadow: 0px 8px 32px 0px #00000026;
-  border-radius: 5;
+  border-radius: 5px;
   font-size: 0.6875rem;
 `;
 
@@ -38,35 +47,29 @@ const StyledIconButton = styled(IconButton)`
   padding: 0px;
 `;
 
-const ControlsContainer = styled(Box)`
+const ControlsContainer = styled(FlexRow)`
   position: fixed;
-  display: flex;
-  flex-direction: row;
   top: 8px;
   right: 8px;
   gap: 0.125rem;
 `;
 
-const PatientDetailsContainer = styled(Box)`
+const PatientDetailsContainer = styled(FlexCol)`
   padding-inline: 0.75rem;
   padding-block-start: 0.75rem;
   padding-block-end: 0.5rem;
-  display: flex;
-  flex-direction: column;
   gap: 0.1875rem;
   :hover {
     background-color: ${Colors.veryLightBlue};
     cursor: pointer;
   }
-  border-top-left-radius: 5;
-  border-top-right-radius: 5;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
 `;
 
-const AppointmentDetailsContainer = styled(Box)`
+const AppointmentDetailsContainer = styled(FlexCol)`
   padding-inline: 0.75rem;
   padding-block: 0.75rem;
-  display: flex;
-  flex-direction: column;
   gap: 0.5rem;
   border-top: 1px solid ${Colors.outline};
   border-bottom: 1px solid ${Colors.outline};
@@ -78,27 +81,40 @@ const AppointmentStatusContainer = styled(Box)`
   padding-block-end: 0.75rem;
 `;
 
-const ControlsRow = ({ handleClose }) => {
-  return (
-    <ControlsContainer>
-      <StyledIconButton>
-        <MoreVert sx={{ fontSize: '0.875rem' }} />
-      </StyledIconButton>
-      <StyledIconButton onClick={handleClose}>
-        <Close sx={{ fontSize: '0.875rem' }} />
-      </StyledIconButton>
-    </ControlsContainer>
-  );
-};
+const ControlsRow = ({ onClose }) => (
+  <ControlsContainer>
+    <StyledIconButton>
+      <MoreVert sx={{ fontSize: '0.875rem' }} />
+    </StyledIconButton>
+    <StyledIconButton onClick={onClose}>
+      <Close sx={{ fontSize: '0.875rem' }} />
+    </StyledIconButton>
+  </ControlsContainer>
+);
 
-const DetailsField = ({ label, value }) => {
-  return (
-    <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-      <Label>{label}</Label>
-      <span>{value ?? '—'}</span>
-    </Box>
-  );
-};
+const DetailsField = ({ label, value }) => (
+  <FlexCol>
+    <Label>{label}</Label>
+    <span>{value ?? '—'}</span>
+  </FlexCol>
+);
+
+const BookingTypeField = ({ type, isOvernight }) => (
+  <DetailsField
+    label={<TranslatedText stringId="scheduling.bookingType.label" fallback="Booking type" />}
+    value={
+      <FlexRow sx={{ alignItems: 'center', justifyContent: 'space-between' }}>
+        <span>{type ?? '-'}</span>
+        {isOvernight && (
+          <FlexRow sx={{ gap: '2px' }}>
+            <Overnight sx={{ fontSize: 15, color: Colors.primary }} />
+            <TranslatedText stringId="scheduling.bookingType.overnight" fallback="Overnight" />
+          </FlexRow>
+        )}
+      </FlexRow>
+    }
+  />
+);
 
 const PatientDetailsDisplay = ({ patient }) => {
   const { displayId, sex, dateOfBirth } = patient;
@@ -124,13 +140,13 @@ const PatientDetailsDisplay = ({ patient }) => {
   );
 };
 
-const AppointDetailsDisplay = ({ appointment }) => {
+const AppointDetailsDisplay = ({ appointment, isOvernight }) => {
   const { startTime, endTime, clinician, locationGroup, location, type } = appointment;
   return (
     <AppointmentDetailsContainer>
       <DetailsField
         label={<TranslatedText stringId="general.time.label" fallback="Time" />}
-        value={formatDateRange(startTime, endTime)}
+        value={formatDateRange(startTime, endTime, isOvernight)}
       />
       <DetailsField
         label={
@@ -161,10 +177,7 @@ const AppointDetailsDisplay = ({ appointment }) => {
           />
         }
       />
-      <DetailsField
-        label={<TranslatedText stringId="scheduling.bookingType.label" fallback="Booking type" />}
-        value={type}
-      />
+      <BookingTypeField type={type} isOvernight={isOvernight} />
     </AppointmentDetailsContainer>
   );
 };
@@ -173,7 +186,7 @@ const AppointmentStatusDisplay = () => {
   return <AppointmentStatusContainer></AppointmentStatusContainer>;
 };
 
-export const AppointmentDetailPopper = ({ open, handleClose, anchorEl, appointment }) => {
+export const AppointmentDetailPopper = ({ open, onClose, anchorEl, appointment, isOvernight }) => {
   return (
     <Popper
       open={open}
@@ -189,10 +202,10 @@ export const AppointmentDetailPopper = ({ open, handleClose, anchorEl, appointme
         },
       ]}
     >
-      <ControlsRow handleClose={handleClose} />
+      <ControlsRow onClose={onClose} />
       <StyledPaper elevation={0}>
         <PatientDetailsDisplay patient={appointment.patient} />
-        <AppointDetailsDisplay appointment={appointment} />
+        <AppointDetailsDisplay appointment={appointment} isOvernight={isOvernight} />
         <AppointmentStatusDisplay />
       </StyledPaper>
     </Popper>

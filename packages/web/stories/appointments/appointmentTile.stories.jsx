@@ -10,14 +10,11 @@ import { createDummyPatient } from '@tamanu/shared/demoData/patients';
 const SelectableAppointmentStory = ({ appointment }) => {
   const [selected, setSelected] = useState(true);
 
-  const handleClose = () => {
-    console.log('closing');
+  const onClose = () => {
     setSelected(false);
   };
 
-  return (
-    <AppointmentTile appointment={appointment} selected={selected} handleClose={handleClose} />
-  );
+  return <AppointmentTile appointment={appointment} selected={selected} onClose={onClose} />;
 };
 
 export default {
