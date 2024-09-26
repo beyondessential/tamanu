@@ -6,11 +6,11 @@ import { TimeRangeDisplay } from '../DateDisplay';
 
 const Cell = styled.div`
   border: 1px solid ${Colors.outline};
-  height: 30px;
-  width: 125px;
-  border-radius: 50px;
-  font-size: 12px;
-  line-height: 12px;
+  block-size: 1.875rem;
+  border-radius: 3.125rem;
+  font-size: 0.75rem;
+  inline-size: 7.8125rem;
+  line-height: 1;
   display: flex;
   justify-content: center;
   align-items: center;
