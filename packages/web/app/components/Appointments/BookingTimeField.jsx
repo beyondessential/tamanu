@@ -64,8 +64,8 @@ export const BookingTimeField = ({ disabled = false }) => {
 
   const { locationId, date } = values;
   const { data: existingLocationBookings, isFetched } = useAppointments({
-    after: toDateTimeString(startOfDay(date)),
-    before: toDateTimeString(endOfDay(date)),
+    after: date ? toDateTimeString(startOfDay(new Date(date))) : null,
+    before: date ? toDateTimeString(endOfDay(new Date(date))) : null,
     all: true,
     locationId,
   });
@@ -208,7 +208,7 @@ export const BookingTimeField = ({ disabled = false }) => {
               selected={isSelected}
               selectable={checkIfSelectableTimeSlot(timeSlot)}
               booked={isBooked}
-              disabled={disabled}
+              disabled={!isFetched || disabled}
               onClick={() =>
                 isSelected ? removeSelectedTimeSlot(timeSlot) : addSelectedTimeSlot(timeSlot)
               }
