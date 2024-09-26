@@ -2,34 +2,26 @@
 
 // TODO:
 // - [x] read a list of tables and clumns from existing `database/model`
-// - [ ] For every missing table, add a new model and markdown file:
-//  - a logic to singularise and pascal case table names (sequelize?)
-// - [ ] For every missing column, add an entry to the model and markdown file:
-//   - nicely edit markdown? It's not really a markdown but a bunch of Jinja template
-// - [ ] For columns that have changed type, change the data_type in the model file.
-//   - are we checking changes in constrains (UNIQUE and NONNULL) for data_tests?
-// - [ ] For columns that are missing in the database but do exist in the model file, delete the section in the model file and markdown file and print a warning.
-// - [ ] For tables that are missing in the database but do have a model file, delete the model file and markdown file and print a warning.
-
-// Pipeline: make a collection of tables for old and new -> fill gaps -> apply to fs
+// - [ ] If the yml file exists but the table schema/name within doesn't match, discard the existing and create a new file.
 
 process.env.SUPPRESS_NO_CONFIG_WARNING = 'y';
 const { default: config } = await import('config');
 import fs from 'node:fs/promises';
-import inflection from 'inflection'; // TODO: use callsify or camelize -> singulirise. No guarantee it's the same but should work. I can use camelize code copy pasted from sequelize that may make it more consistent?
+import inflection from 'inflection';
 import path from 'node:path';
 import pg from 'pg';
 import { program } from 'commander';
 import YAML from 'yaml';
 import _ from 'lodash';
 
-async function readTablesFromFile(root, schemaName) {
-  const schemaPath = path.join(root, schemaName);
+async function readTablesFromFile(schemaName) {
+  const schemaPath = path.join(modelRoot, schemaName);
   const tablePromises = (await fs.readdir(schemaPath))
     .filter(tablePath => tablePath.endsWith('.yml'))
     .sort()
     .map(async tablePath => {
       const table = await fs.readFile(path.join(schemaPath, tablePath), { encoding: 'utf-8' });
+      // TODO: detect incorrect schema names and report
       return YAML.parse(table).sources[0].tables[0];
     });
   return await Promise.all(tablePromises);
@@ -58,13 +50,24 @@ async function getTablesInSchema(client, schemaName) {
   ).rows.map(table => table.table_name);
 }
 
-async function getColumnsInRelation(client, schemaName, table) {
+async function getColumnsInRelation(client, schemaName, tableName) {
   return (
     await client.query(
-      `SELECT column_name, data_type
+      `SELECT column_name, data_type, is_nullable
       FROM information_schema.columns
       WHERE table_schema = $1 and table_name = $2`,
-      [schemaName, table],
+      [schemaName, tableName],
+    )
+  ).rows;
+}
+
+async function getConstraintsForColumn(schemaName, tableName, columnName) {
+  return (
+    await client.query(
+      `SELECT constraint_type
+      FROM information_schema.table_constraints NATURAL JOIN information_schema.constraint_column_usage
+      WHERE table_schema = $1 and table_name = $2 and column_name = $3`,
+      [schemaName, tableName, columnName],
     )
   ).rows;
 }
@@ -76,14 +79,41 @@ async function readTablesFromDB(client, schemaName) {
       columns: (await getColumnsInRelation(client, schemaName, table)).map(column => ({
         name: column.column_name,
         data_type: column.data_type,
+        is_nullable: column.is_nullable === 'YES' ? true : false,
       })),
     };
   });
-  return Promise.all(tablePromises);
+  return await Promise.all(tablePromises);
 }
 
-async function generateMissingModel(schemaName, table) {
-  const table2 = {
+async function generateDataTests(schemaName, tableName, column) {
+  const data_tests = [];
+  const isUnique = (await getConstraintsForColumn(schemaName, tableName, column.name)).some(
+    c => c.constraint_type === 'UNIQUE' || c.constraint_type === 'PRIMARY KEY',
+  );
+  if (isUnique) data_tests.push('unique');
+  if (!column.is_nullable) data_tests.push('not_null');
+  return data_tests.length === 0 ? undefined : data_tests;
+}
+
+async function generateColumnModel(schemaName, tableName, column) {
+  return {
+    name: column.name,
+    // TODO: get numbers for data type from Postgres
+    data_type: column.data_type,
+    description: `{{ doc('${tableName}__${column.name}') }}`,
+    data_tests: await generateDataTests(schemaName, tableName, column),
+  };
+}
+
+function generateColumnDoc(tableName, column) {
+  return `{% docs ${tableName}__${column.name} %}
+TODO
+{% enddocs %}`;
+}
+
+async function generateTableModel(schemaName, table) {
+  return {
     version: 2,
     sources: [
       {
@@ -94,10 +124,11 @@ async function generateMissingModel(schemaName, table) {
         tables: [
           {
             name: table.name,
-            description: "{{ doc('table__table-name') }}",
+            description: `{{ doc('table__${table.name}') }}`,
             tags: [],
-            columns: table.columns,
-            // TODO: data_tests and descriptions
+            columns: await Promise.all(
+              table.columns.map(c => generateColumnModel(schemaName, table.name, c)),
+            ),
           },
         ],
       },
@@ -105,38 +136,99 @@ async function generateMissingModel(schemaName, table) {
   };
 }
 
+function generateTableDoc(table) {
+  return `{% docs table__${table.name} %}
+TODO
+{% enddocs %}
+
+${table.columns.map(c => generateColumnDoc(table.name, c)).join('\n\n')}`;
+}
+
+async function fillMissingDoc(schemaName, table) {
+  let file;
+  try {
+    file = await fs.open(path.join(modelRoot, schemaName, `${table.name}.md`), 'wx');
+    await file.write(generateTableDoc(table));
+  } catch (err) {
+    if (err.code !== 'EEXIST') throw err;
+  } finally {
+    await file?.close();
+  }
+}
+
+async function handleDataTypeChange(tableName, existingColumn, newColumn) {
+  // TODO: For columns that have changed type, change the data_type in the model file.
+  // are we checking changes in constrains (UNIQUE and NONNULL) for data_tests?
+  console.log(
+    `${existingColumn.data_type} vs ${newColumn.data_type} in ${existingColumn.name} --- ${tableName}`,
+  );
+}
+
+async function handleRemovedColumn(tableName, column) {
+  console.log(`removed ${column.name} in ${tableName}`);
+  // TODO: For column that are missing in the database but do exist in the model file, delete the section in the model file and markdown file and print a warning.
+}
+
+async function handleMissingColumn(tableName, column) {
+  // TODO: For every missing column, add an entry to the model and markdown file:
+  // nicely edit markdown? It's not really a markdown but a bunch of Jinja template
+  console.log(`missing ${column.name} in ${tableName}`);
+}
+
+async function handleRemovedTable(schemaName, table) {
+  const tablePath = path.join(modelRoot, schemaName, table.name);
+  await Promise.all([fs.rm(tablePath + '.yml'), fs.rm(tablePath + '.md', { force: true })]);
+  console.warn(`removed ${table.name}`);
+}
+
+async function handleMissingTable(schemaName, table) {
+  const genModelPromise = (async () => {
+    const model = await generateTableModel(schemaName, table);
+    await fs.writeFile(
+      path.join(modelRoot, schemaName, `${table.name}.yml`),
+      YAML.stringify(model),
+    );
+  })();
+  const docPromise = fillMissingDoc(schemaName, table);
+  await Promise.all([genModelPromise, docPromise]);
+}
+
 async function handleColumns(tableName, existingColumns, newColumns) {
   // This is expensive yet the most straightforward implementation.
   // Algorithms that rely on sorted lists are out because we want preserve the original order of columns.
   // May be able to use Map, but it doesn't have convinient set operations.
-  const removedColumns = _.differenceBy(existingColumns, newColumns, 'name');
-  removedColumns.forEach(t => console.log(`removed ${t.name} in ${tableName}`));
-  const missingColumns = _.differenceBy(newColumns, existingColumns, 'name');
-  missingColumns.forEach(t => console.log(`missing ${t.name} in ${tableName}`));
-  {
-    const existingColumnsIntersection = _.intersectionBy(existingColumns, newColumns, 'name');
-    for (const existingColumn of existingColumnsIntersection) {
-      const newColumn = newColumns.find(c => c.name === existingColumn.name);
-      if (existingColumn.data_type.toLowerCase() === newColumn.data_type.toLowerCase()) continue;
-      console.log(
-        `${existingColumn.data_type} vs ${newColumn.data_type} in ${existingColumn.name} --- ${tableName}`,
-      );
-    }
-  }
+  const removedPromises = _.differenceBy(existingColumns, newColumns, 'name').map(column =>
+    handleRemovedColumn(tableName, column),
+  );
+  const missingPromises = _.differenceBy(newColumns, existingColumns, 'name').map(column =>
+    handleMissingColumn(tableName, column),
+  );
+
+  // TODO:
+  _.intersectionBy(existingColumns, newColumns, 'name').map(async existingColumn => {
+    const newColumn = newColumns.find(c => c.name === existingColumn.name);
+    if (existingColumn.data_type.toLowerCase() === newColumn.data_type.toLowerCase()) return;
+
+    await handleDataTypeChange(tableName, existingColumn, newColumn);
+  });
 }
 
-async function handleTables(existingTables, newTables) {
-  const removedTables = _.differenceBy(existingTables, newTables, 'name');
-  removedTables.forEach(t => console.log(`removed ${t.name}`));
-  const missingTables = _.differenceBy(newTables, existingTables, 'name');
-  missingTables.forEach(t => console.log(`missing ${t.name}`));
-  {
-    const existingTablesIntersection = _.intersectionBy(existingTables, newTables, 'name');
-    for (const existingTable of existingTablesIntersection) {
+async function handleTables(dbName, schemaName, existingTables, newTables) {
+  const removedPromises = _.differenceBy(existingTables, newTables, 'name').map(table =>
+    handleRemovedTable(schemaName, table),
+  );
+  const missingPromises = _.differenceBy(newTables, existingTables, 'name').map(table =>
+    handleMissingTable(schemaName, table),
+  );
+
+  const existingPromises = _.intersectionBy(existingTables, newTables, 'name').map(
+    async existingTable => {
       const newTable = newTables.find(t => t.name === existingTable.name);
-      handleColumns(existingTable.name, existingTable.columns, newTable.columns);
-    }
-  }
+      // await fillMissingDoc(schemaName, newTable);
+      await handleColumns(existingTable.name, existingTable.columns, newTable.columns);
+    },
+  );
+  await Promise.all([...removedPromises, ...missingPromises, ...existingPromises]);
 }
 
 async function generateSource({ host, port, name: database, username, password }, packageName) {
@@ -200,9 +292,11 @@ async function run(packageName, opts) {
 
 // await Promise.all([run('central-server', opts), run('facility-server', opts)]);
 
-const oldTables = await readTablesFromFile('database/model/central-server', 'public');
+const modelRoot = 'database/model/central-server';
+const oldTablesPromise = readTablesFromFile('public');
 const client = new pg.Client({ database: 'tamanu-central' });
 await client.connect();
-const newTables = await readTablesFromDB(client, 'public');
-await handleTables(oldTables, newTables);
+const newTablesPromise = readTablesFromDB(client, 'public');
+const [oldTables, newTables] = await Promise.all([oldTablesPromise, newTablesPromise]);
+await handleTables('tamanu-central', 'public', oldTables, newTables);
 await client.end();
