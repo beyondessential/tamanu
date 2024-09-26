@@ -1,10 +1,13 @@
 import { Box, IconButton, Paper, Popper, styled } from '@mui/material';
 import { MoreVert, Close, Brightness2 as Overnight } from '@mui/icons-material';
-import React from 'react';
+import React, { useCallback } from 'react';
 import { PatientNameDisplay } from '../PatientNameDisplay';
 import { TranslatedReferenceData, TranslatedSex, TranslatedText } from '../Translation';
 import { Colors } from '../../constants';
 import { DateDisplay, getDateDisplay } from '../DateDisplay';
+import { useDispatch } from 'react-redux';
+import { push } from 'connected-react-router';
+import { reloadPatient } from '../../store';
 
 const formatDateRange = (start, end, isOvernight) => {
   const formattedStart = getDateDisplay(start, { showDate: true, showTime: true });
@@ -116,11 +119,11 @@ const BookingTypeField = ({ type, isOvernight }) => (
   />
 );
 
-const PatientDetailsDisplay = ({ patient }) => {
+const PatientDetailsDisplay = ({ patient, onClick }) => {
   const { displayId, sex, dateOfBirth } = patient;
 
   return (
-    <PatientDetailsContainer>
+    <PatientDetailsContainer onClick={onClick}>
       <Title>
         <PatientNameDisplay patient={patient} />
       </Title>
@@ -187,6 +190,14 @@ const AppointmentStatusDisplay = () => {
 };
 
 export const AppointmentDetailPopper = ({ open, onClose, anchorEl, appointment, isOvernight }) => {
+  const dispatch = useDispatch();
+  const patientId = appointment.patient.id;
+
+  const handlePatientDetailsClick = useCallback(async () => {
+    await dispatch(reloadPatient(patientId));
+    dispatch(push(`/patients/all/${patientId}`));
+  }, [dispatch, patientId]);
+
   return (
     <Popper
       open={open}
@@ -204,7 +215,7 @@ export const AppointmentDetailPopper = ({ open, onClose, anchorEl, appointment, 
     >
       <ControlsRow onClose={onClose} />
       <StyledPaper elevation={0}>
-        <PatientDetailsDisplay patient={appointment.patient} />
+        <PatientDetailsDisplay patient={appointment.patient} onClick={handlePatientDetailsClick} />
         <AppointDetailsDisplay appointment={appointment} isOvernight={isOvernight} />
         <AppointmentStatusDisplay />
       </StyledPaper>
