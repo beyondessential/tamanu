@@ -1,6 +1,7 @@
 import * as yup from 'yup';
 import { extractDefaults } from './utils';
 import { vaccinationsSchema } from './definitions';
+import { letterheadProperties } from './definitions';
 
 export const facilitySettings = {
   name: 'Facility server settings',
@@ -40,28 +41,6 @@ export const facilitySettings = {
               description: 'List of valid lab test results',
               type: yup.array().of(yup.string()),
               defaultValue: ['Positive'],
-            },
-          },
-        },
-      },
-    },
-    templates: {
-      description: 'Settings related to templates',
-      properties: {
-        letterhead: {
-          description: '_',
-          properties: {
-            title: {
-              name: 'Letterhead title',
-              description: '_',
-              type: yup.string().nullable(),
-              defaultValue: null,
-            },
-            subTitle: {
-              name: 'Letterhead subtitle',
-              description: '_',
-              type: yup.string().nullable(),
-              defaultValue: null,
             },
           },
         },
@@ -112,6 +91,15 @@ export const facilitySettings = {
               defaultValue: 'GeneralClinic',
             },
           },
+        },
+      },
+    },
+    templates: {
+      description: 'Text to be inserted into emails/PDFs',
+      properties: {
+        letterhead: {
+          description: 'The text at the top of most patient PDFs',
+          properties: letterheadProperties,
         },
       },
     },
