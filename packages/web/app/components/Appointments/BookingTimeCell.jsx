@@ -1,7 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Colors } from '../../constants';
-import { format } from 'date-fns';
 import { ConditionalTooltip, ThemedTooltip } from '../Tooltip';
 import { TimeRangeDisplay } from '../DateDisplay';
 
