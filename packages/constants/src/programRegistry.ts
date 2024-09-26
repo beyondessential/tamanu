@@ -12,7 +12,14 @@ export const REGISTRATION_STATUSES = {
 };
 
 export const STATUS_COLOR = {
-  ...COLORS,
+  purple: COLORS.purple,
+  pink: COLORS.pink,
+  orange: COLORS.darkOrange,
+  yellow: COLORS.metallicYellow,
+  blue: COLORS.blue,
+  green: COLORS.green,
+  grey: COLORS.grey,
+  red: COLORS.red,
   brown: '#7A492E',
   teal: '#125E7E',
 };
