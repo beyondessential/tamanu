@@ -1,16 +1,17 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Colors } from '../../constants';
-import { format } from 'date-fns';
 import { ConditionalTooltip, ThemedTooltip } from '../Tooltip';
+import { TimeRangeDisplay } from '../DateDisplay';
+import { alpha } from '@material-ui/core';
 
 const Cell = styled.div`
   border: 1px solid ${Colors.outline};
-  height: 30px;
-  width: 125px;
-  border-radius: 50px;
-  font-size: 12px;
-  line-height: 12px;
+  block-size: 1.875rem;
+  border-radius: 3.125rem;
+  font-size: 0.75rem;
+  inline-size: 7.8125rem;
+  line-height: 1;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -22,50 +23,67 @@ const DisabledCell = styled(Cell)`
 `;
 
 const AvailableCell = styled(Cell)`
+  ${({ $inHoverRange }) => $inHoverRange && `background-color: ${Colors.veryLightBlue}`};
+  ${({ $selected }) => $selected && `background-color: ${alpha(Colors.primary, 0.1)}`};
   ${({ $selected }) => $selected && `border: 1px solid ${Colors.primary}`};
-  ${({ $selected }) => $selected && `background-color: ${Colors.primary}1A`};
   &:hover {
-    cursor: pointer;
-    background-color: ${Colors.veryLightBlue};
+    cursor: ${({ $selectable }) => ($selectable ? `pointer` : 'cursor')};
   }
 `;
 
 const BookedCell = styled(Cell)`
-  background-color: ${Colors.alert}1A;
+  background-color: ${alpha(Colors.alert, 0.1)};
   color: ${Colors.midText};
 `;
 
 export const BookingTimeCell = ({
-  timeSlot: { startTime, endTime, available },
+  timeSlot,
   onClick,
   selected,
-  isMiddleOfRange,
-  invalidTarget,
+  booked,
+  selectable,
   disabled,
+  onMouseEnter,
+  onMouseLeave,
+  inHoverRange,
 }) => {
-  const text = `${format(startTime, 'hh:mm a')} - ${format(endTime, 'hh:mm a')}`;
-
   if (disabled) {
-    return <DisabledCell>{text}</DisabledCell>;
+    return (
+      <DisabledCell>
+        <TimeRangeDisplay range={timeSlot} />
+      </DisabledCell>
+    );
   }
 
-  if (!available) {
+  if (booked) {
     return (
       <ThemedTooltip title="Not available">
-        <BookedCell>{text}</BookedCell>
+        <BookedCell>
+          <TimeRangeDisplay range={timeSlot} />
+        </BookedCell>
       </ThemedTooltip>
     );
   }
 
-  let tooltipText;
-  if (isMiddleOfRange) tooltipText = 'Cannot unselect from middle of range';
-  if (invalidTarget) tooltipText = 'All times must be available when booking over multiple times';
-  const validTarget = !isMiddleOfRange && !invalidTarget;
-
   return (
-    <ConditionalTooltip visible={!validTarget} title={tooltipText}>
-      <AvailableCell $selected={selected} onClick={validTarget ? onClick : null}>
-        {text}
+    <ConditionalTooltip
+      visible={!selectable}
+      // TODO: wont work with translations
+      title={
+        <>
+          All times must be available when <br /> booking over multiple times
+        </>
+      }
+    >
+      <AvailableCell
+        $inHoverRange={inHoverRange && selectable}
+        $selected={selected}
+        $selectable={selectable}
+        onMouseEnter={selectable ? onMouseEnter : null}
+        onMouseLeave={selectable ? onMouseLeave : null}
+        onClick={selectable ? onClick : null}
+      >
+        <TimeRangeDisplay range={timeSlot} />
       </AvailableCell>
     </ConditionalTooltip>
   );
