@@ -1,7 +1,6 @@
-import { SettingsSchema } from '../../types';
 import * as yup from 'yup';
 
-export const vaccinationsSchema: SettingsSchema = {
+export const vaccinationsSchema = {
   name: 'Vaccinations',
   description: '_',
   properties: {
