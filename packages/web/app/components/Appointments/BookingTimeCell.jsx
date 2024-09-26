@@ -23,10 +23,10 @@ const DisabledCell = styled(Cell)`
 
 const AvailableCell = styled(Cell)`
   ${({ $selected }) => $selected && `border: 1px solid ${Colors.primary}`};
+  ${({ $withinHoverRange }) => $withinHoverRange && `background-color: ${Colors.veryLightBlue};`};
   ${({ $selected }) => $selected && `background-color: ${Colors.primary}1A`};
   &:hover {
     cursor: pointer;
-    background-color: ${Colors.veryLightBlue};
   }
 `;
 
@@ -36,20 +36,23 @@ const BookedCell = styled(Cell)`
 `;
 
 export const BookingTimeCell = ({
-  timeSlot: { startTime, endTime, available },
+  timeSlot: { start, end },
   onClick,
   selected,
-  isMiddleOfRange,
+  booked,
   invalidTarget,
   disabled,
+  onMouseEnter,
+  onMouseLeave,
+  withinHoverRange,
 }) => {
-  const text = `${format(startTime, 'hh:mm a')} - ${format(endTime, 'hh:mm a')}`;
+  const text = `${format(start, 'hh:mm a')} - ${format(end, 'hh:mm a')}`;
 
   if (disabled) {
     return <DisabledCell>{text}</DisabledCell>;
   }
 
-  if (!available) {
+  if (booked) {
     return (
       <ThemedTooltip title="Not available">
         <BookedCell>{text}</BookedCell>
@@ -57,14 +60,18 @@ export const BookingTimeCell = ({
     );
   }
 
-  let tooltipText;
-  if (isMiddleOfRange) tooltipText = 'Cannot unselect from middle of range';
-  if (invalidTarget) tooltipText = 'All times must be available when booking over multiple times';
-  const validTarget = !isMiddleOfRange && !invalidTarget;
-
   return (
-    <ConditionalTooltip visible={!validTarget} title={tooltipText}>
-      <AvailableCell $selected={selected} onClick={validTarget ? onClick : null}>
+    <ConditionalTooltip
+      visible={invalidTarget}
+      title="All times must be available when booking over multiple times"
+    >
+      <AvailableCell
+        $withinHoverRange={withinHoverRange && !invalidTarget}
+        $selected={selected}
+        onMouseEnter={onMouseEnter}
+        onMouseLeave={onMouseLeave}
+        onClick={!invalidTarget ? onClick : null}
+      >
         {text}
       </AvailableCell>
     </ConditionalTooltip>

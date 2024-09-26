@@ -1,11 +1,18 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { OuterLabelFieldWrapper } from '../Field';
 import { Colors } from '../../constants';
-import { addMinutes, parse, differenceInMinutes, startOfDay, endOfDay } from 'date-fns';
+import {
+  addMinutes,
+  parse,
+  differenceInMinutes,
+  startOfDay,
+  endOfDay,
+  isWithinInterval,
+} from 'date-fns';
 import ms from 'ms';
 import { useSettings } from '../../contexts/Settings';
-import { max, min, range } from 'lodash';
+import { isUndefined, max, min, range } from 'lodash';
 import { useAppointments } from '../../api/queries/useAppointments';
 import { BookingTimeCell } from './BookingTimeCell';
 import { useFormikContext } from 'formik';
@@ -21,15 +28,7 @@ const CellContainer = styled.div`
   gap: 10px;
 `;
 
-const checkIfLocationAvailable = (existingLocationBookings, startTime) =>
-  !existingLocationBookings.some(appointment => {
-    const appointmentStartMs = new Date(appointment.startTime).getTime();
-    const appointmentEndMs = new Date(appointment.endTime).getTime();
-    const slotStartMs = startTime.getTime();
-    return appointmentStartMs <= slotStartMs && slotStartMs < appointmentEndMs;
-  });
-
-const calculateTimeSlots = (bookingSlotSettings, existingLocationBookings) => {
+const calculateTimeSlots = bookingSlotSettings => {
   const { startTime, endTime, slotDuration } = bookingSlotSettings;
   const startOfDay = parse(startTime, 'HH:mm', new Date());
   const endOfDay = parse(endTime, 'HH:mm', new Date());
@@ -42,22 +41,25 @@ const calculateTimeSlots = (bookingSlotSettings, existingLocationBookings) => {
     const end = addMinutes(start, duration);
 
     slots.push({
-      startTime: start,
-      endTime: end,
-      available: checkIfLocationAvailable(existingLocationBookings, start),
+      start,
+      end,
     });
   }
 
   return slots;
 };
 
+const isTimeSlotWithinRange = (timeSlot, range) =>
+  isWithinInterval(timeSlot.start, range) && isWithinInterval(timeSlot.end, range);
+
+// logic calculated through time ranges in the format { start: DATE, end: DATE }
+
 export const BookingTimeField = ({ disabled = false }) => {
   const { getSetting } = useSettings();
   const { setFieldValue, values } = useFormikContext();
 
-  const [selectedTimeSlots, setSelectedTimeSlots] = useState([]);
-  const lowestSelectedIndex = useMemo(() => min(selectedTimeSlots), [selectedTimeSlots]);
-  const highestSelectedIndex = useMemo(() => max(selectedTimeSlots), [selectedTimeSlots]);
+  const [selectedTimeRange, setSelectedTimeRange] = useState(null);
+  const [hoverTimeRange, setHoverTimeRange] = useState(null);
 
   const { locationId, date } = values;
   const { data: existingLocationBookings, isFetched } = useAppointments({
@@ -67,59 +69,120 @@ export const BookingTimeField = ({ disabled = false }) => {
     locationId,
   });
 
+  // Convert existing bookings into timeslots
+  const bookedTimeSlots = existingLocationBookings?.data.map(booking => ({
+    start: new Date(booking.startTime),
+    end: new Date(booking.endTime),
+  }));
+
   const bookingSlotSettings = getSetting('appointments.bookingSlots');
 
   const timeSlots = useMemo(() => {
-    return isFetched ? calculateTimeSlots(bookingSlotSettings, existingLocationBookings.data) : [];
-  }, [bookingSlotSettings, existingLocationBookings, isFetched]);
+    return isFetched ? calculateTimeSlots(bookingSlotSettings) : [];
+  }, [bookingSlotSettings, isFetched]);
 
   useEffect(() => {
-    setFieldValue('startTime', toDateTimeString(timeSlots[lowestSelectedIndex]?.startTime));
-    setFieldValue('endTime', toDateTimeString(timeSlots[highestSelectedIndex]?.endTime));
-  }, [lowestSelectedIndex, highestSelectedIndex, timeSlots, setFieldValue]);
+    if (selectedTimeRange) {
+      setFieldValue('startTime', toDateTimeString(selectedTimeRange.start));
+      setFieldValue('endTime', toDateTimeString(selectedTimeRange.end));
+    }
+  }, [selectedTimeRange, setFieldValue]);
 
-  const calculateIndexRangeToAdd = index => {
-    const indexesToAdd = [index];
-    const shouldPopulateUp = index > highestSelectedIndex;
-    const shouldPopulateDown = index < lowestSelectedIndex;
-    // Autofill any numbers between the ends of current range and new selection
-    if (shouldPopulateDown) indexesToAdd.push(...range(lowestSelectedIndex - 1, index));
-    if (shouldPopulateUp) indexesToAdd.push(...range(highestSelectedIndex + 1, index));
-    return indexesToAdd;
-  };
+  const updateTimeRangeStart = start =>
+    setSelectedTimeRange(prevRange => ({
+      ...prevRange,
+      start,
+    }));
 
-  const checkIfIndexRangeContainsBookedTime = indexes =>
-    indexes.some(
-      item =>
-        timeSlots
-          .map((slot, index) => (!slot.available ? index : null)) // Map unavailable slots to their index, others to null
-          .includes(item), // Check if any of the unavailable indexes matches one of the index range supplied
-    );
+  const updateTimeRangeEnd = end =>
+    setSelectedTimeRange(prevRange => ({
+      ...prevRange,
+      end,
+    }));
 
-  const removeSelectedIndex = index =>
-    setSelectedTimeSlots(prevSelections => prevSelections.filter(selection => selection !== index));
-  const addSelectedIndexes = indexesToAdd =>
-    setSelectedTimeSlots(prevSelections => [...prevSelections, ...indexesToAdd]);
+  const addSelectedTimeSlot = useCallback(
+    timeSlot => {
+      if (!selectedTimeRange) {
+        setSelectedTimeRange(timeSlot);
+        return;
+      }
+      if (timeSlot.start < selectedTimeRange.start) {
+        updateTimeRangeStart(timeSlot.start);
+        return;
+      }
+      if (timeSlot.end > selectedTimeRange.end) {
+        updateTimeRangeEnd(timeSlot.end);
+        return;
+      }
+    },
+    [selectedTimeRange],
+  );
 
-  const toggleSelectedTimeSlot = index => {
-    if (selectedTimeSlots.length === 0) return addSelectedIndexes([index]);
-    if (selectedTimeSlots.includes(index)) return removeSelectedIndex(index);
-    return addSelectedIndexes(calculateIndexRangeToAdd(index));
-  };
+  const removeSelectedTimeSlot = useCallback(
+    timeSlot => {
+      if (timeSlot.start === selectedTimeRange.start) {
+        updateTimeRangeStart(timeSlot.end);
+        return;
+      }
+      if (timeSlot.end === selectedTimeRange.end) {
+        updateTimeRangeEnd(timeSlot.start);
+        return;
+      }
+      // If not extending range, reset
+      setSelectedTimeRange(null);
+      setHoverTimeRange(timeSlot);
+    },
+    [selectedTimeRange],
+  );
 
   return (
     <OuterLabelFieldWrapper label="Booking time" required>
       <CellContainer $disabled={disabled}>
         {timeSlots.map((timeSlot, index) => {
+          const isSelected =
+            selectedTimeRange && isTimeSlotWithinRange(timeSlot, selectedTimeRange);
+          const isBooked = bookedTimeSlots.some(bookedTimeSlot =>
+            isTimeSlotWithinRange(timeSlot, bookedTimeSlot),
+          );
+          const onMouseEnter = () => {
+            if (!selectedTimeRange) {
+              return setHoverTimeRange(timeSlot);
+            }
+            if (timeSlot.start <= selectedTimeRange.start) {
+              return setHoverTimeRange({
+                start: timeSlot.start,
+                end: selectedTimeRange.end,
+              });
+            }
+            if (timeSlot.end >= selectedTimeRange.end) {
+              return setHoverTimeRange({
+                start: selectedTimeRange.start,
+                end: timeSlot.end,
+              });
+            }
+          };
+
           return (
             <BookingTimeCell
               key={index}
               timeSlot={timeSlot}
-              selected={selectedTimeSlots.includes(index)}
+              selected={isSelected}
+              booked={isBooked}
               disabled={disabled}
-              onClick={() => toggleSelectedTimeSlot(index)}
-              isMiddleOfRange={lowestSelectedIndex < index && index < highestSelectedIndex}
-              invalidTarget={checkIfIndexRangeContainsBookedTime(calculateIndexRangeToAdd(index))}
+              onClick={() =>
+                isSelected ? removeSelectedTimeSlot(timeSlot) : addSelectedTimeSlot(timeSlot)
+              }
+              onMouseEnter={onMouseEnter}
+              onMouseLeave={() => setHoverTimeRange(null)}
+              withinHoverRange={
+                hoverTimeRange ? isTimeSlotWithinRange(timeSlot, hoverTimeRange) : null
+              }
+              invalidTarget={
+                hoverTimeRange &&
+                bookedTimeSlots.some(bookedslot =>
+                  isTimeSlotWithinRange(bookedslot, hoverTimeRange),
+                )
+              }
             />
           );
         })}
