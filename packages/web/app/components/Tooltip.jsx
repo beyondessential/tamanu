@@ -10,7 +10,7 @@ export const ThemedTooltip = styled(props => (
     background-color: ${Colors.primaryDark};
     padding: 8px;
     font-size: 11px;
-    text-align: center;
+    text-align: center;    
   }
   .MuiTooltip-arrow {
     color: ${Colors.primaryDark};

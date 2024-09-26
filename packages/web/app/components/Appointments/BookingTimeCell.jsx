@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { Colors } from '../../constants';
 import { format } from 'date-fns';
 import { ConditionalTooltip, ThemedTooltip } from '../Tooltip';
+import { TimeRangeDisplay } from '../DateDisplay';
 
 const Cell = styled.div`
   border: 1px solid ${Colors.outline};
@@ -23,10 +24,10 @@ const DisabledCell = styled(Cell)`
 
 const AvailableCell = styled(Cell)`
   ${({ $selected }) => $selected && `border: 1px solid ${Colors.primary}`};
-  ${({ $withinHoverRange }) => $withinHoverRange && `background-color: ${Colors.veryLightBlue};`};
+  ${({ $inHoverRange }) => $inHoverRange && `background-color: ${Colors.veryLightBlue}`};
   ${({ $selected }) => $selected && `background-color: ${Colors.primary}1A`};
   &:hover {
-    cursor: pointer;
+    cursor: ${({ $selectable }) => ($selectable ? `pointer` : 'cursor')};
   }
 `;
 
@@ -36,43 +37,53 @@ const BookedCell = styled(Cell)`
 `;
 
 export const BookingTimeCell = ({
-  timeSlot: { start, end },
+  timeSlot,
   onClick,
   selected,
   booked,
-  invalidTarget,
+  selectable,
   disabled,
   onMouseEnter,
   onMouseLeave,
-  withinHoverRange,
+  inHoverRange,
 }) => {
-  const text = `${format(start, 'hh:mm a')} - ${format(end, 'hh:mm a')}`;
-
   if (disabled) {
-    return <DisabledCell>{text}</DisabledCell>;
+    return (
+      <DisabledCell>
+        <TimeRangeDisplay range={timeSlot} />
+      </DisabledCell>
+    );
   }
 
   if (booked) {
     return (
       <ThemedTooltip title="Not available">
-        <BookedCell>{text}</BookedCell>
+        <BookedCell>
+          <TimeRangeDisplay range={timeSlot} />
+        </BookedCell>
       </ThemedTooltip>
     );
   }
 
   return (
     <ConditionalTooltip
-      visible={invalidTarget}
-      title="All times must be available when booking over multiple times"
+      visible={!selectable}
+      // TODO: wont work with translations
+      title={
+        <>
+          All times must be available when <br /> booking over multiple times
+        </>
+      }
     >
       <AvailableCell
-        $withinHoverRange={withinHoverRange && !invalidTarget}
+        $inHoverRange={inHoverRange && selectable}
         $selected={selected}
-        onMouseEnter={onMouseEnter}
-        onMouseLeave={onMouseLeave}
-        onClick={!invalidTarget ? onClick : null}
+        $selectable={selectable}
+        onMouseEnter={selectable ? onMouseEnter : null}
+        onMouseLeave={selectable ? onMouseLeave : null}
+        onClick={selectable ? onClick : null}
       >
-        {text}
+        <TimeRangeDisplay range={timeSlot} />
       </AvailableCell>
     </ConditionalTooltip>
   );
