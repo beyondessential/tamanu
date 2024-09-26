@@ -3,6 +3,7 @@ import IndeterminateCheckBoxOutlinedIcon from '@material-ui/icons/IndeterminateC
 import styled from 'styled-components';
 import { CheckInput } from '../Field';
 import { Colors } from '../../constants';
+import { uniqBy } from 'lodash';
 
 const IconButton = styled.div`
   cursor: pointer;
@@ -12,50 +13,68 @@ export const useSelectableColumn = (
   rows,
   { columnKey = 'selected', selectionKey = 'id', bulkDeselectOnly = false } = {},
 ) => {
-  const [selectedKeys, setSelectedKeys] = useState(new Set());
+  const [selectedRows, setSelectedRows] = useState([]);
 
-  const selectedRows = useMemo(() => {
+  const isSelected = row => !!selectedRows.some(sr => sr[selectionKey] === row[selectionKey]);
+
+  const currentSelectedRows = useMemo(() => {
+    if (bulkDeselectOnly) return selectedRows;
     if (!rows) {
       return [];
     }
-    return rows.filter(row => selectedKeys.has(row[selectionKey]));
-  }, [rows, selectedKeys, selectionKey]);
+    return rows.filter(isSelected);
+  }, [rows, selectedRows, selectionKey]);
 
   const cellOnChange = useCallback(
     (event, rowIndex) => {
-      const rowKey = rows[rowIndex][selectionKey];
+      const row = rows[rowIndex];
       const newSelection = event.target.checked
-        ? [...selectedKeys, rowKey]
-        : [...selectedKeys].filter(k => k !== rowKey);
-      setSelectedKeys(new Set(newSelection));
+        ? [...selectedRows, row]
+        : [...selectedRows].filter(sr => sr[selectionKey] !== row[selectionKey]);
+      setSelectedRows(newSelection);
     },
-    [rows, selectionKey, selectedKeys],
+    [rows, selectionKey, selectedRows],
   );
   const cellAccessor = useCallback(
     ({ rowIndex }) => (
       <CheckInput
-        value={selectedKeys.has(rows[rowIndex][selectionKey])}
+        value={isSelected(rows[rowIndex])}
         name="selected"
         onChange={event => cellOnChange(event, rowIndex)}
         style={{ margin: 'auto' }}
       />
     ),
-    [rows, selectionKey, selectedKeys, cellOnChange],
+    [rows, selectionKey, selectedRows, cellOnChange],
   );
 
   const titleOnChange = useCallback(
     event => {
-      const newSelection = event.target.checked ? rows.map(row => row[selectionKey]) : [];
-      setSelectedKeys(new Set(newSelection));
+      let newSelection = event.target.checked ? rows : [];
+      if (bulkDeselectOnly) {
+        newSelection = event.target.checked
+          ? uniqBy([...newSelection, ...selectedRows], selectionKey)
+          : selectedRows.filter(sr => !rows.some(r => r[selectionKey] === sr[selectionKey]));
+      }
+      setSelectedRows(newSelection);
     },
     [rows, selectionKey],
   );
 
+  const selectAll = () => {
+    let newSelection = rows;
+    if (bulkDeselectOnly) {
+      newSelection = uniqBy([...newSelection, ...selectedRows], selectionKey);
+    }
+    setSelectedRows(newSelection);
+  };
+
   const titleAccessor = useCallback(() => {
-    const isEveryRowSelected = rows?.length > 0 && selectedRows.length === rows.length;
-    if (bulkDeselectOnly && selectedRows.length > 0) {
+    const isEveryRowSelected = rows?.length > 0 && rows.every(isSelected);
+    const isSomeRowSelected = rows?.length > 0 && rows.some(isSelected);
+
+    if (bulkDeselectOnly && selectedRows.length > 0 && !isEveryRowSelected && isSomeRowSelected) {
       return (
-        <IconButton onClick={titleOnChange}>
+        <IconButton onClick={selectAll}>
           <IndeterminateCheckBoxOutlinedIcon style={{ color: Colors.primary, fontSize: '20px' }} />
         </IconButton>
       );
@@ -72,7 +91,7 @@ export const useSelectableColumn = (
   }, [rows, selectedRows, titleOnChange]);
 
   return {
-    selectedRows,
+    selectedRows: currentSelectedRows,
     selectableColumn: {
       key: columnKey,
       title: '',

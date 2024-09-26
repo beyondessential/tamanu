@@ -544,6 +544,14 @@ const encounterTasksQuerySchema = z.object({
     .optional()
     .default([TASK_STATUSES.TODO]),
   assignedTo: z.string().optional(),
+  page: z.coerce
+    .number()
+    .optional()
+    .default(0),
+  rowsPerPage: z.coerce
+    .number()
+    .optional()
+    .default(10),
 });
 encounterRelations.get(
   '/:id/tasks',
@@ -553,12 +561,12 @@ encounterRelations.get(
     const { id: encounterId } = params;
 
     const query = await encounterTasksQuerySchema.parseAsync(req.query);
-    const { order, orderBy, assignedTo, statuses } = query;
+    const { order, orderBy, assignedTo, statuses, page, rowsPerPage } = query;
 
     req.checkPermission('list', 'Task');
 
     const upcomingTasksTimeFrame = config.tasking?.upcomingTasksTimeFrame || 8;
-    const queryResults = await Task.findAll({
+    const baseQueryOptions = {
       where: {
         encounterId,
         status: { [Op.in]: statuses },
@@ -578,16 +586,24 @@ encounterRelations.get(
         }),
       },
       replacements: { assignedTo },
+    };
+    const queryResults = await Task.findAll({
+      ...baseQueryOptions,
       order: [
         [orderBy, order.toUpperCase()],
         ['highPriority', 'DESC'],
         ['name', 'ASC'],
       ],
+      limit: rowsPerPage,
+      offset: page * rowsPerPage,
       include: Task.getFullReferenceAssociations(),
     });
     const results = queryResults.map(x => x.forResponse());
 
-    res.send({ data: results, count: results.length });
+    const count = await Task.count({
+      ...baseQueryOptions,
+    });
+    res.send({ data: results, count });
   }),
 );
 
