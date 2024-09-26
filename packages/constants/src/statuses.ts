@@ -66,6 +66,8 @@ export const APPOINTMENT_TYPE_LABELS = {
 export const APPOINTMENT_STATUSES = {
   CONFIRMED: 'Confirmed',
   ARRIVED: 'Arrived',
+  ASSESSED: 'Assessed',
+  SEEN: 'Seen',
   NO_SHOW: 'No-show',
   CANCELLED: 'Cancelled',
 };
