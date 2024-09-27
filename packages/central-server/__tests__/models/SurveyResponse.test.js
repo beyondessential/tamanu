@@ -36,8 +36,6 @@ async function createDummyDataElement(models, survey, { config, ...dataElementOv
   return { dataElement };
 }
 
-const [facilityId] = selectFacilityIds(config);
-
 describe('SurveyResponse.createWithAnswers Patient Fields', () => {
   let ctx, models, patientId, encounterId, surveyId, dataElementId, patientFieldDefinitionId;
 
@@ -98,7 +96,6 @@ describe('SurveyResponse.createWithAnswers Patient Fields', () => {
         patientId,
         encounterId,
         surveyId: surveyId,
-        facilityId,
         answers: {
           [dataElementId]: 'alastair',
         },
@@ -142,7 +139,6 @@ describe('SurveyResponse.createWithAnswers Patient Fields', () => {
         patientId,
         encounterId,
         surveyId: surveyId,
-        facilityId,
         answers: {
           [dataElementId]: 'James Smith',
         },
@@ -203,7 +199,6 @@ describe('SurveyResponse.createWithAnswers', () => {
         patientId,
         encounterId,
         surveyId: survey.id,
-        facilityId,
         answers: {
           [dataElement.id]: 12,
         },
@@ -222,7 +217,6 @@ describe('SurveyResponse.createWithAnswers', () => {
         patientId,
         encounterId,
         surveyId: survey.id,
-        facilityId,
         answers: {
           [dataElement.id]: 12,
         },
@@ -257,7 +251,6 @@ describe('SurveyResponse.createWithAnswers', () => {
         patientId,
         encounterId,
         surveyId: survey.id,
-        facilityId,
         answers: {
           [dataElement.id]: 'alastair@bes.au',
         },
@@ -311,7 +304,6 @@ describe('SurveyResponse.createWithAnswers', () => {
         encounterId,
         userId,
         surveyId: survey.id,
-        facilityId,
         answers: {
           [dataElement.id]: clinicalStatus.id,
         },
