@@ -129,7 +129,6 @@ async function createProgramSurveyResponse(models, facilityId) {
     patientId: patientFacility.patientId,
     encounterId: encounter.id,
     surveyId: survey.id,
-    facilityId,
     answers,
   });
 
