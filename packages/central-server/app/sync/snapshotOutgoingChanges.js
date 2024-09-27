@@ -183,6 +183,33 @@ const snapshotOutgoingChangesFromModels = withConfig(
   },
 );
 
+function getPatientRelatedWhereClause(
+  models,
+  recordTypes,
+  patientCount,
+  markedForSyncPatientsTable,
+) {
+  const recordTypesLinkedToPatients = Object.values(getPatientLinkedModels(models)).map(
+    m => m.tableName,
+  );
+  const allRecordTypesAreForPatients = recordTypes.every(
+    recordType => recordTypesLinkedToPatients.includes(recordType),
+  );
+
+  if (allRecordTypesAreForPatients) {
+    if (patientCount) {
+      return `patient_id IN (SELECT patient_id FROM ${markedForSyncPatientsTable})`;
+    }
+    return 'FALSE';
+  }
+  if (!allRecordTypesAreForPatients) {
+    if (patientCount) {
+      return `(patient_id IS NULL OR patient_id IN (SELECT patient_id FROM ${markedForSyncPatientsTable}))`;
+    }
+    return 'patient_id IS NULL';
+  }
+}
+
 const snapshotOutgoingChangesFromSyncLookup = withConfig(
   async (
     store,
@@ -200,13 +227,7 @@ const snapshotOutgoingChangesFromSyncLookup = withConfig(
     const snapshotTableName = getSnapshotTableName(sessionId);
     const CHUNK_SIZE = config.sync.maxRecordsPerSnapshotChunk;
     const { syncAllLabRequests } = sessionConfig;
-    const recordTypesLinkedToPatients = Object.values(getPatientLinkedModels(store.models)).map(
-      m => m.tableName,
-    );
     const recordTypes = Object.values(outgoingModels).map(m => m.tableName);
-    const queryingForRecordsNotLinkedToPatients = recordTypes.some(
-      recordType => !recordTypesLinkedToPatients.includes(recordType),
-    );
     while (fromId != null) {
       const [[{ maxId, count }]] = await store.sequelize.query(
         `
@@ -237,20 +258,12 @@ const snapshotOutgoingChangesFromSyncLookup = withConfig(
         AND (
           --- either no patient_id (meaning we don't care if the record is associate to a patient, eg: reference_data) 
           --- or patient_id has to match the marked for sync patient_ids, eg: encounters
-          (
-            ${queryingForRecordsNotLinkedToPatients ? 'patient_id IS NULL' : ''}
-			      ${
-              queryingForRecordsNotLinkedToPatients && patientCount
-                ? ' OR '
-                : !queryingForRecordsNotLinkedToPatients && !patientCount
-                ? ' FALSE '
-                : ''
-            }
-            ${
-              patientCount
-                ? `patient_id IN (SELECT patient_id FROM ${markedForSyncPatientsTable})`
-                : ''
-            })
+          ${getPatientRelatedWhereClause(
+              store.models,
+              recordTypes,
+              patientCount,
+              markedForSyncPatientsTable,
+          )}
           --- either no facility_id (meaning we don't care if the record is associate to a facility, eg: reference_data)
           --- or facility_id has to match the current facility, eg: patient_facilities
           AND (
