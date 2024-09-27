@@ -150,6 +150,7 @@ describe('Schemas', () => {
       ).rejects.toThrow(yup.ValidationError);
     });
 
+    // Temporarily skip test for feature testing
     it.skip('Should warn for unknown fields', async () => {
       const unknownSettings = {
         integrations: {
@@ -204,9 +205,6 @@ describe('Schemas', () => {
   describe('Facility settings', () => {
     it('Should validate valid settings', async () => {
       const validSettings = {
-        templates: {
-          letterhead: {},
-        },
         vaccinations: {},
       };
 
@@ -217,9 +215,6 @@ describe('Schemas', () => {
 
     it('Should throw error for invald settings', async () => {
       const invalidSettings = {
-        templates: {
-          letterhead: {},
-        },
         vaccinations: false,
       };
 
@@ -228,11 +223,9 @@ describe('Schemas', () => {
       ).rejects.toThrow(yup.ValidationError);
     });
 
+    // Temporarily skip test for feature testing
     it.skip('Should warn for unknown fields', async () => {
       const unknownSettings = {
-        templates: {
-          letterhead: {},
-        },
         vaccinations: {},
         a: {
           b: {

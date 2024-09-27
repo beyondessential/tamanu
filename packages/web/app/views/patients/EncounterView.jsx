@@ -3,7 +3,6 @@ import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { ENCOUNTER_TYPES } from '@tamanu/constants';
 import { useEncounter } from '../../contexts/Encounter';
-import { useLocalisation } from '../../contexts/Localisation';
 import { useUrlSearchParams } from '../../utils/useUrlSearchParams';
 import { ContentPane, EncounterTopBar } from '../../components';
 import { DiagnosisView } from '../../components/DiagnosisView';
@@ -81,9 +80,9 @@ const TABS = [
   {
     label: <TranslatedText stringId="encounter.tabs.invoicing" fallback="Invoicing" />,
     key: ENCOUNTER_TAB_NAMES.INVOICING,
-    render: EncounterInvoicingPane,
-    condition: (getLocalisation, ability) =>
-      getLocalisation('features.enableInvoicing') && ability.can('read', 'Invoice'),
+    render: props => <EncounterInvoicingPane {...props} />,
+    condition: (getSetting, ability) =>
+      getSetting('features.enableInvoicing') && ability.can('read', 'Invoice'),
   },
 ];
 
@@ -130,9 +129,8 @@ const StyledTabDisplay = styled(TabDisplay)`
 export const EncounterView = () => {
   const api = useApi();
   const query = useUrlSearchParams();
-  const { getLocalisation } = useLocalisation();
   const { getSetting } = useSettings();
-  const { facility, ability } = useAuth();
+  const { facilityId, ability } = useAuth();
   const patient = useSelector(state => state.patient);
   const { encounter, isLoadingEncounter } = useEncounter();
   const { data: patientBillingTypeData } = useReferenceData(encounter?.patientBillingTypeId);
@@ -145,7 +143,7 @@ export const EncounterView = () => {
 
   if (!encounter || isLoadingEncounter || patient.loading) return <LoadingIndicator />;
 
-  const visibleTabs = TABS.filter(tab => !tab.condition || tab.condition(getLocalisation, ability));
+  const visibleTabs = TABS.filter(tab => !tab.condition || tab.condition(getSetting, ability));
 
   return (
     <GridColumnContainer>
@@ -162,7 +160,7 @@ export const EncounterView = () => {
         }
         encounter={encounter}
       >
-        {(facility.id === encounter.location.facilityId || encounter.endDate) &&
+        {(facilityId === encounter.location.facilityId || encounter.endDate) &&
           // Hide all actions if encounter type is Vaccination or Survey Response,
           // as they should only contain 1 survey response or vaccination and discharged automatically,
           // no need to show any summaries or actions

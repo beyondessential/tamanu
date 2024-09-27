@@ -1,22 +1,11 @@
 import * as yup from 'yup';
 import { extractDefaults } from './utils';
+import { letterheadProperties } from './definitions';
 
 export const facilitySettings = {
   name: 'Facility server settings',
   description: 'Settings that apply only to a facility server',
   properties: {
-    templates: {
-      name: 'Templates',
-      description: 'Settings related to templates',
-      properties: {
-        letterhead: {
-          name: 'Letterhead',
-          description: '_',
-          type: yup.object(),
-          defaultValue: {},
-        },
-      },
-    },
     vaccinations: {
       name: 'Vaccinations',
       description: '_',
@@ -45,6 +34,15 @@ export const facilitySettings = {
               defaultValue: 'GeneralClinic',
             },
           },
+        },
+      },
+    },
+    templates: {
+      description: 'Text to be inserted into emails/PDFs',
+      properties: {
+        letterhead: {
+          description: 'The text at the top of most patient PDFs',
+          properties: letterheadProperties,
         },
       },
     },
