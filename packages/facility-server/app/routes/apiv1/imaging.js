@@ -101,9 +101,12 @@ imagingRequest.get(
   '/:id',
   asyncHandler(async (req, res) => {
     const {
-      models: { ImagingRequest, ImagingResult, User, ReferenceData },
+      models,
+      settings,
       params: { id },
+      query: { facilityId },
     } = req;
+    const { ImagingRequest, ImagingResult, ReferenceData, User } = models;
     req.checkPermission('read', 'ImagingRequest');
     const imagingRequestObject = await ImagingRequest.findByPk(id, {
       include: [
@@ -135,7 +138,13 @@ imagingRequest.get(
     res.send({
       ...imagingRequestObject.get({ plain: true }),
       ...(await imagingRequestObject.extractNotes()),
-      results: await renderResults(req, imagingRequestObject),
+      results: await renderResults(
+        {
+          settings: settings[facilityId],
+          models,
+        },
+        imagingRequestObject,
+      ),
     });
   }),
 );
@@ -144,11 +153,13 @@ imagingRequest.put(
   '/:id',
   asyncHandler(async (req, res) => {
     const {
-      models: { ImagingRequest, ImagingResult },
+      models,
+      settings,
       params: { id },
       user,
-      body: { areas, note, areaNote, newResult, ...imagingRequestData },
+      body: { areas, note, areaNote, newResult, facilityId, ...imagingRequestData },
     } = req;
+    const { ImagingRequest, ImagingResult } = models;
     req.checkPermission('read', 'ImagingRequest');
 
     const imagingRequestObject = await ImagingRequest.findByPk(id);
@@ -222,7 +233,13 @@ imagingRequest.put(
     res.send({
       ...imagingRequestObject.get({ plain: true }),
       ...notes,
-      results: await renderResults(req, imagingRequestObject),
+      results: await renderResults(
+        {
+          settings: settings[facilityId],
+          models,
+        },
+        imagingRequestObject,
+      ),
     });
   }),
 );
