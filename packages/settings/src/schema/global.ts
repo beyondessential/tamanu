@@ -835,16 +835,6 @@ export const globalSettings = {
       type: imagingPrioritiesSchema,
       defaultValue: imagingPrioritiesDefault,
     },
-  },
-  invoice: {
-    properties: {
-      slidingFeeScale: {
-        name: 'Sliding fee scale',
-        description: '_',
-        type: yup.array().of(yup.array().of(yup.number())),
-        defaultValue: {},
-      },
-    },
     templates: {
       description: 'Strings to be inserted into emails/PDFs',
       properties: {
@@ -1067,6 +1057,16 @@ export const globalSettings = {
               unit: 'mm',
             },
           },
+        },
+      },
+    },
+    invoice: {
+      properties: {
+        slidingFeeScale: {
+          name: 'Sliding fee scale',
+          description: '_',
+          type: yup.array().of(yup.array().of(yup.number())),
+          defaultValue: {},
         },
       },
     },
