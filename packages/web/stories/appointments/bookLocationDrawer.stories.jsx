@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 
-import { BookLocationDrawer } from '../../app/components/Appointments/BookLocationDrawer'
+import { BookLocationDrawer } from '../../app/components/Appointments/BookLocationDrawer';
 import { MockedApi } from '../utils/mockedApi';
 import { MockSettingsProvider } from '../utils/mockSettingsProvider';
-import { Form } from '../../app/components';
+import { Button, Form } from '../../app/components';
 import { toDateString } from '@tamanu/shared/utils/dateTime';
+import styled from 'styled-components';
 
 const todaysDate = toDateString(new Date());
 
@@ -73,4 +74,29 @@ export default {
   ],
 };
 
-export const Basic = () => <BookLocationDrawer />;
+const MockCalendar = styled.div`
+  width: 100%;
+  height: 96vh;
+  background-color: white;
+  border: 1px black solid;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 3px;
+  position: relative;
+  flex-direction: column;
+  overflow: hidden;
+`;
+
+export const Basic = () => {
+  const [open, setOpen] = useState(false);
+  const openDrawer = () => setOpen(true);
+  const closeDrawer = () => setOpen(false);
+
+  return (
+    <MockCalendar>
+      CALENDAR GOES HERE <Button onClick={openDrawer}>+ Book location</Button>
+      <BookLocationDrawer onCancel={closeDrawer} open={open} />
+    </MockCalendar>
+  );
+};
