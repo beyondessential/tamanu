@@ -114,10 +114,11 @@ async function writeToPatientFields(
     }
     await models.PatientProgramRegistration.create({
       patientId,
-      registeringFacilityId: facilityId,
       programRegistryId: programRegistryDetail.id,
       date: submittedTime,
       ...valuesByModel.PatientProgramRegistration,
+      registeringFacilityId:
+        valuesByModel.PatientProgramRegistration.registeringFacilityId || facilityId,
       clinicianId: valuesByModel.PatientProgramRegistration.clinicianId || userId,
     });
   }
