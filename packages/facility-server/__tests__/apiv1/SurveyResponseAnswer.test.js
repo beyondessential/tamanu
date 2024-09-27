@@ -179,7 +179,6 @@ describe('SurveyResponseAnswer', () => {
           encounterId: randomEncounter.id,
           surveyId: TEST_VITALS_SURVEY_ID,
           userId: app.user.id,
-          facilityId,
           answers: {
             [dataElementOne.id]: chance.integer({ min: 0, max: 100 }),
             [dataElementTwo.id]: randomNumber,
@@ -303,7 +302,6 @@ describe('SurveyResponseAnswer', () => {
           patientId: randomPatient.id,
           encounterId: randomEncounter.id,
           surveyId: survey.id,
-          facilityId,
           answers: {
             [pde.id]: chance.string(),
           },
