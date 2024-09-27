@@ -7,8 +7,6 @@ import { chance } from '@tamanu/shared/test-helpers';
 
 import { createTestContext } from '../utilities';
 
-const [facilityId] = selectFacilityIds(config);
-
 let baseApp = null;
 let models = null;
 
@@ -73,7 +71,6 @@ function createDummySurveyResponse(survey) {
     answers[q.id] = getRandomAnswer(q);
   });
   return {
-    facilityId,
     surveyId: survey.id,
     answers,
   };
@@ -93,6 +90,7 @@ async function submitMultipleSurveyResponses(survey, overrides, amount = 7) {
 }
 
 describe('Programs', () => {
+  const [facilityId] = selectFacilityIds(config);
   let app;
 
   let testPatient;
