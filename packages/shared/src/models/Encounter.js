@@ -288,7 +288,7 @@ export class Encounter extends Model {
           SELECT DISTINCT encounter_id
           FROM lab_requests
           WHERE updated_at_sync_tick > :since -- to only include lab requests that recently got attached to the encounters
-        ) AS new_labs ON new_labs.encounter_id = encounters.id 
+        ) AS new_labs ON new_labs.encounter_id = encounters.id
       `,
       where: `
         encounters.updated_at_sync_tick > :since -- to include including normal encounters
@@ -368,7 +368,7 @@ export class Encounter extends Model {
     }
 
     await this.addSystemNote(
-      `${department.name} triage score – ${triageRecord.score}`,
+      `${department.name} triage score: ${triageRecord.score}`,
       submittedTime,
       user,
     );
