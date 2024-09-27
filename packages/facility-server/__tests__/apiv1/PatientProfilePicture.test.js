@@ -1,4 +1,4 @@
-import { config } from '@tamanu/shared/config';
+import { config } from 'config';
 import { createDummyEncounter, createDummyPatient } from '@tamanu/shared/demoData/patients';
 import { createTestContext } from '../utilities';
 import { selectFacilityIds } from '@tamanu/shared/utils/configSelectors';
