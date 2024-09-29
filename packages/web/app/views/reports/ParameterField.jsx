@@ -45,7 +45,7 @@ const useReportSuggesterOptions = (filterBySelectedFacility, suggesterOptions) =
 };
 
 const ParameterSuggesterSelectField = ({
-  filterBySelectedFacility,
+  filterBySelectedFacility = true,
   suggesterEndpoint,
   name,
   ...props
@@ -103,7 +103,15 @@ export const PARAMETER_FIELD_COMPONENTS = {
   LabTestTypeField,
 };
 
-export const ParameterField = ({ parameterField, name, required, label, values, ...props }) => {
+export const ParameterField = ({
+  parameterField,
+  parametersFilteredByFacility,
+  name,
+  required,
+  label,
+  values,
+  ...props
+}) => {
   const ParameterFieldComponent = PARAMETER_FIELD_COMPONENTS[parameterField];
 
   return (
@@ -112,6 +120,7 @@ export const ParameterField = ({ parameterField, name, required, label, values, 
       name={name}
       label={label}
       parameterValues={values}
+      parametersFilteredByFacility={parametersFilteredByFacility}
       {...props}
     />
   );
