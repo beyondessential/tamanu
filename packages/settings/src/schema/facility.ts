@@ -53,6 +53,16 @@ export const facilitySettings = {
           type: yup.boolean(),
           defaultValue: false,
         },
+        urgentIntervalInSeconds: {
+          name: 'Sync urgent interval',
+          unit: 'seconds',
+          description: 'Mobile urgent sync interval',
+          type: yup
+            .number()
+            .integer()
+            .positive(),
+          defaultValue: 10,
+        },
       },
     },
     vaccinations: vaccinationsSchema,
