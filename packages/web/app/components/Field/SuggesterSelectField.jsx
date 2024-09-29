@@ -6,9 +6,19 @@ import { useApi } from '../../api';
 import { SelectInput } from './SelectField';
 import { MultiselectInput } from './MultiselectField';
 import { getCurrentLanguageCode } from '../../utils/translation';
+import { useAuth } from '../../contexts/Auth';
 
 export const SuggesterSelectField = React.memo(
-  ({ field, endpoint, filterByFacility, isMulti = false, initialOptions = [], ...props }) => {
+  ({
+    field,
+    endpoint,
+    selectedFacilityId,
+    filterByFacility,
+    isMulti = false,
+    initialOptions = [],
+    ...props
+  }) => {
+    const { facilityId } = useAuth();
     const api = useApi();
     const [options, setOptions] = useState(initialOptions);
 
@@ -54,22 +64,19 @@ export const SuggesterSelectField = React.memo(
     useEffect(() => {
       api
         .get(`suggestions/${encodeURIComponent(endpoint)}/all`, {
+          facilityId: selectedFacilityId || facilityId,
           filterByFacility,
           language: getCurrentLanguageCode(),
         })
         .then(resultData => {
-          setOptions(currentOptions =>
-            unionBy(
-              currentOptions,
-              resultData.map(({ id, name }) => ({
-                value: id,
-                label: name,
-              })),
-              'value',
-            ),
+          setOptions(
+            resultData.map(({ id, name }) => ({
+              value: id,
+              label: name,
+            })),
           );
         });
-    }, [api, setOptions, endpoint, filterByFacility]);
+    }, [api, setOptions, endpoint, filterByFacility, selectedFacilityId, facilityId]);
 
     const baseProps = {
       name: field.name,

@@ -35,11 +35,6 @@ export const FIELD_TYPES_WITH_PREDEFINED_OPTIONS = [
   'ParameterSelectField',
   'ParameterMultiselectField',
 ];
-
-const ParameterSuggesterSelectField = ({ suggesterEndpoint, name, ...props }) => (
-  <Field component={SuggesterSelectField} endpoint={suggesterEndpoint} name={name} {...props} />
-);
-
 const useReportSuggesterOptions = (filterBySelectedFacility, suggesterOptions) => {
   const [{ value: facilityIdValue }] = useField('facilityId') || [{}];
   if (!filterBySelectedFacility || !facilityIdValue) return suggesterOptions;
@@ -47,6 +42,25 @@ const useReportSuggesterOptions = (filterBySelectedFacility, suggesterOptions) =
     ...suggesterOptions,
     baseQueryParameters: { ...suggesterOptions?.baseQueryParameters, facilityId: facilityIdValue },
   };
+};
+
+const ParameterSuggesterSelectField = ({
+  filterBySelectedFacility,
+  suggesterEndpoint,
+  name,
+  ...props
+}) => {
+  const { baseQueryParameters } = useReportSuggesterOptions(filterBySelectedFacility, {});
+  return (
+    <Field
+      component={SuggesterSelectField}
+      endpoint={suggesterEndpoint}
+      filterByFacility={filterBySelectedFacility}
+      selectedFacilityId={baseQueryParameters?.facilityId}
+      name={name}
+      {...props}
+    />
+  );
 };
 
 const ParameterAutocompleteField = ({
