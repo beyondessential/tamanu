@@ -103,6 +103,7 @@ export const LocationBookingsView = () => {
 
   const firstDisplayedDate = getMondayOfWeekOf(firstDayOfMonthOf(monthOf));
   // const lastDisplayedDate = getSundayOfWeekOf(lastDayOfMonthOf(monthOf));
+  const displayedDates = dateRange(firstDisplayedDate, lastDayOfMonthOf(monthOf));
 
   const { data: appointments } = useAppointmentsQuery();
   const { data: locations } = useLocationsQuery();
@@ -121,29 +122,22 @@ export const LocationBookingsView = () => {
         </Filters>
       </LocationBookingsTopBar>
       <Carousel>
-        <CalendarTable
-          style={{
-            '--location-count': locations?.length ?? 0,
-            '--week-count': weekCount,
-          }}
-        >
+        <CalendarTable>
           <thead>
             <CalendarTableRow>
               <CalendarRowHeader>
                 <Placeholder>Month Selector</Placeholder>
               </CalendarRowHeader>
-              {dateRange(firstDayOfMonthOf(firstDisplayedDate), lastDayOfMonthOf(monthOf)).map(
-                d => (
-                  <DayHeaderCell date={d} key={d.valueOf()} />
-                ),
-              )}
+              {displayedDates.map(d => (
+                <DayHeaderCell date={d} key={d.valueOf()} />
+              ))}
             </CalendarTableRow>
           </thead>
           <tbody>
             {locations?.map(({ name: locationName, code }) => (
               <CalendarTableRow key={code}>
                 <CalendarRowHeader>{locationName}</CalendarRowHeader>
-                {range(dayCount).map(() => (
+                {displayedDates.map(() => (
                   <CalendarCell />
                 ))}
               </CalendarTableRow>

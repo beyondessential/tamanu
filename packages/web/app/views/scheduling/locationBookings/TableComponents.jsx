@@ -3,10 +3,6 @@ import styled from 'styled-components';
 import { Colors } from '../../../constants';
 
 export const CalendarTable = styled.table`
-  --location-count: 10;
-  --week-count: 6; // A month can span 4–6 distinct ISO weeks
-  --day-count: calc(var(--week-count) * 7);
-
   --header-col-width: 8rem;
   --target-col-width: calc((100% - var(--header-col-width)) / 7.5);
 
@@ -27,6 +23,7 @@ export const CalendarTable = styled.table`
 `;
 
 export const CalendarTableRow = styled.tr`
+  // Dim weekened columns
   > :is(th[scope='col'], td):not(:hover):nth-child(7n),
   > :is(th[scope='col'], td):not(:hover):nth-child(7n + 1) {
     background-color: oklch(from ${Colors.softOutline} l c h / 30%);

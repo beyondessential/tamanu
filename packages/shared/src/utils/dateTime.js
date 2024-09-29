@@ -260,7 +260,7 @@ export const firstDayOfMonthOf = date => new Date(date.getFullYear(), date.getMo
 export const lastDayOfMonthOf = date => new Date(date.getFullYear(), date.getMonth() + 1, 0);
 
 /**
- * Returns the number of days in the month in which the provided Date object lies. This is
+ * @returns {number} The number of days in the month in which the provided Date object lies. This is
  * equivalent to getting the date of the last day in that month.
  *
  * @example daysInMonthOf(new Date('2024-02-01')) => 29
