@@ -64,7 +64,7 @@ const getMondayOfWeekOf = date => {
   const daysSinceMonday = (day + 7 - 1) % 7;
   //                           + 7 to guarantee remainder is nonnegative
 
-  return new Date(date.getFullYear(), date.getMonth(), day - daysSinceMonday);
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate() - daysSinceMonday);
 };
 
 const LocationBookingsTopBar = styled(TopBar).attrs({
