@@ -1,5 +1,5 @@
 import React from 'react';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import { Colors } from '../../constants';
 import { ConditionalTooltip, ThemedTooltip } from '../Tooltip';
 import { TimeRangeDisplay } from '../DateDisplay';
@@ -25,8 +25,10 @@ const DisabledCell = styled(Cell)`
 
 const AvailableCell = styled(Cell)`
   ${({ $inHoverRange }) => $inHoverRange && `background-color: ${Colors.veryLightBlue}`};
-  ${({ $selected }) => $selected && `background-color: ${alpha(Colors.primary, 0.1)}`};
-  ${({ $selected }) => $selected && `border: 1px solid ${Colors.primary}`};
+   ${({ $selected }) => $selected && css`
+    background-color: ${alpha(Colors.primary, 0.1)};
+    border: 1px solid ${Colors.primary};
+  `};
   &:hover {
     cursor: ${({ $selectable }) => ($selectable ? `pointer` : 'cursor')};
   }
