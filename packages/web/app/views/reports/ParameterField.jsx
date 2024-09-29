@@ -21,6 +21,8 @@ import { VaccineCategoryField } from './VaccineCategoryField';
 import { ImagingTypeField } from './ImagingTypeField';
 import { VaccineField } from './VaccineField';
 import { useSuggester } from '../../api';
+import { FacilityField } from './FacilityField';
+import { useField } from 'formik';
 
 export const FIELD_TYPES_TO_SUGGESTER_OPTIONS = {
   ParameterSuggesterSelectField: SUGGESTER_ENDPOINTS_SUPPORTING_ALL,
@@ -38,8 +40,24 @@ const ParameterSuggesterSelectField = ({ suggesterEndpoint, name, ...props }) =>
   <Field component={SuggesterSelectField} endpoint={suggesterEndpoint} name={name} {...props} />
 );
 
-const ParameterAutocompleteField = ({ suggesterEndpoint, suggesterOptions, name, ...props }) => {
-  const suggester = useSuggester(suggesterEndpoint, suggesterOptions);
+const useReportSuggesterOptions = (filterBySelectedFacility, suggesterOptions) => {
+  const [{ value: facilityIdValue }] = useField('facilityId') || [{}];
+  if (!filterBySelectedFacility || !facilityIdValue) return suggesterOptions;
+  return {
+    ...suggesterOptions,
+    baseQueryParameters: { ...suggesterOptions?.baseQueryParameters, facilityId: facilityIdValue },
+  };
+};
+
+const ParameterAutocompleteField = ({
+  suggesterEndpoint,
+  suggesterOptions,
+  filterBySelectedFacility = true,
+  name,
+  ...props
+}) => {
+  const options = useReportSuggesterOptions(filterBySelectedFacility, suggesterOptions);
+  const suggester = useSuggester(suggesterEndpoint, options);
   return <Field component={AutocompleteField} suggester={suggester} name={name} {...props} />;
 };
 
@@ -57,6 +75,7 @@ export const PARAMETER_FIELD_COMPONENTS = {
   VillageField,
   LabTestLaboratoryField,
   PractitionerField,
+  FacilityField,
   DiagnosisField,
   VaccineCategoryField,
   VaccineField,
