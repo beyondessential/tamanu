@@ -1,10 +1,11 @@
 import {
   differenceInMilliseconds as dateFnsDifferenceInMilliseconds,
-  format as dateFnsFormat,
   differenceInMonths,
   differenceInWeeks,
   differenceInYears,
+  format as dateFnsFormat,
   formatISO9075,
+  getISOWeek,
   isMatch,
   isValid,
   parseISO,
@@ -248,3 +249,27 @@ export const formatLong = date =>
     },
     'Date information not available',
   ); // "Thursday, 14 July 2022, 03:44 pm"
+
+/**
+ * Returns the number of days in the month in which the provided Date object lies. This is
+ * equivalent to getting the date of the last day in that month.
+ *
+ * @example daysInMonthOf(new Date('2024-02-01')) => 29
+ */
+export const daysInMonthOf = date => {
+  const year = date.getYear();
+  const month = date.getMonth();
+  return new Date(year, month + 1, 0).getDate();
+};
+
+/**
+ * Returns the number if distinct ISO weeks spanned by the month of the given date. This can only be
+ * 4, 5 or 6.
+ */
+export const uniqueIsoWeeksInMonthOf = date => {
+  const year = date.getYear();
+  const month = date.getMonth();
+  const firstDayOfMonth = new Date(year, month, 1).getDate();
+  const lastDayOfMonth = new Date(year, month + 1, 0).getDate();
+  return getISOWeek(lastDayOfMonth) - getISOWeek(firstDayOfMonth) + 1;
+};

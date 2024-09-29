@@ -11,6 +11,7 @@ import {
   CalendarTable,
   CalendarTableRow,
 } from './TableComponents';
+import { uniqueIsoWeeksInMonthOf } from '@tamanu/shared/src/utils/dateTime.js';
 
 // BEGIN PLACEHOLDERS
 
@@ -60,10 +61,21 @@ const Carousel = styled.div`
   scroll-snap-type: both mandatory;
 `;
 
+const getMondayOfWeekOf = date => {
+  if (Number.isNaN(date.getTime())) {
+    throw Error('getMondayOfWeekOf() called with invalid date');
+  }
+
+  const day = date.getDay();
+  const daysSinceMonday = (day + 6) % 7;
+  return new Date(date.getYear(), date.getMonth(), day - daysSinceMonday);
+};
+
 export const LocationBookingsView = () => {
-  const [month, setMonth] = useState(new Date().getMonth());
-  const [weekCount, setWeekCount] = useState(6);
-  const [dayCount, setDayCount] = useState(weekCount * 7);
+  const [monthOf, setMonthOf] = useState(new Date());
+  const weekCount = uniqueIsoWeeksInMonthOf(monthOf);
+  const dayCount = weekCount * 7;
+
   const { data: appointments } = useAppointmentsQuery();
   const { data: locations } = useLocationsQuery();
 
