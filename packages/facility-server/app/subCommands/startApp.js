@@ -2,16 +2,13 @@ import config from 'config';
 import { Command } from 'commander';
 
 import { log } from '@tamanu/shared/services/logging';
-
 import { performTimeZoneChecks } from '@tamanu/shared/utils/timeZoneCheck';
+import { selectFacilityIds } from '@tamanu/shared/utils/configSelectors';
+
 import { checkConfig } from '../checkConfig';
 import { initDeviceId } from '../sync/initDeviceId';
 import { performDatabaseIntegrityChecks } from '../database';
-import {
-  FacilitySyncConnection,
-  CentralServerConnection,
-  FacilitySyncManager,
-} from '../sync';
+import { FacilitySyncConnection, CentralServerConnection, FacilitySyncManager } from '../sync';
 
 import { createApiApp } from '../createApiApp';
 
@@ -26,7 +23,7 @@ const APP_TYPES = {
 
 const startApp = appType => async ({ skipMigrationCheck }) => {
   log.info(`Starting facility ${appType} server version ${version}`, {
-    serverFacilityId: config.serverFacilityId,
+    serverFacilityIds: selectFacilityIds(config),
   });
 
   log.info(`Process info`, {
@@ -42,7 +39,7 @@ const startApp = appType => async ({ skipMigrationCheck }) => {
   }
 
   await initDeviceId(context);
-  await checkConfig(config, context);
+  await checkConfig(context);
   await performDatabaseIntegrityChecks(context);
 
   if (appType === APP_TYPES.API) {
@@ -58,10 +55,21 @@ const startApp = appType => async ({ skipMigrationCheck }) => {
     config,
   });
 
-  const { server } =
-    appType === APP_TYPES.SYNC ? await createSyncApp(context) : await createApiApp(context);
+  let server, port;
+  switch (appType) {
+    case APP_TYPES.API:
+      ({ server } = await createApiApp(context));
+      ({ port } = config);
+      break;
+    case APP_TYPES.SYNC:
+      ({ server } = await createSyncApp(context));
+      ({ port } = config.sync.syncApiConnection);
+      break;
+    default:
+      throw new Error(`Unknown app type: ${appType}`);
+  }
 
-  const { port } = config;
+  if (+process.env.PORT) { port = +process.env.PORT; }
   server.listen(port, () => {
     log.info(`Server is running on port ${port}!`);
   });

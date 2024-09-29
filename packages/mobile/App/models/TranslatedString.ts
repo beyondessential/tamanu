@@ -67,6 +67,10 @@ export class TranslatedString extends BaseModel {
         text: Like(`%${queryString}%`),
       },
       select: ['stringId', 'text'],
+      order: {
+        text: 'ASC'
+      },
+      take: 25
     });
 
     return referenceDataTranslations;

@@ -11,14 +11,6 @@ export default {
 
 const getLocalisation = key => {
   const config = {
-    'templates.letterhead.title': 'TAMANU MINISTRY OF HEALTH & MEDICAL SERVICES',
-    'templates.letterhead.subTitle': 'PO Box 12345, Melbourne, Australia',
-    'templates.vaccineCertificate.emailAddress': 'tamanu@health.govt',
-    'templates.vaccineCertificate.contactNumber': '123456',
-    'fields.firstName.longLabel': 'First Name',
-    'fields.lastName.longLabel': 'Last Name',
-    'fields.dateOfBirth.longLabel': 'Date of Birth',
-    'fields.sex.longLabel': 'Sex',
     previewUvciFormat: 'tamanu',
   };
   return config[key];
@@ -151,11 +143,11 @@ const encounter = {
       createdAt: '2024-01-18T00:25:51.161Z',
       updatedAt: '2024-01-18T00:25:51.161Z',
       encounterId: 'b93c70a2-510a-499d-acf6-08f94a4b9ebf',
-      diagnosisId: 'icd10-B24-aids',
+      diagnosisId: 'diagnosis-B24-aids',
       diagnosis: {
-        id: 'icd10-B24-aids',
+        id: 'diagnosis-B24-aids',
         code: 'B24',
-        type: 'icd10',
+        type: 'diagnosis',
         name: 'AIDS',
         visibilityStatus: 'current',
         updatedAtSyncTick: '-999',
@@ -173,11 +165,11 @@ const encounter = {
       createdAt: '2024-01-18T00:25:56.152Z',
       updatedAt: '2024-01-18T00:25:56.152Z',
       encounterId: 'b93c70a2-510a-499d-acf6-08f94a4b9ebf',
-      diagnosisId: 'icd10-A49-9-acute-bacterial-infection',
+      diagnosisId: 'diagnosis-A49-9-acute-bacterial-infection',
       diagnosis: {
-        id: 'icd10-A49-9-acute-bacterial-infection',
+        id: 'diagnosis-A49-9-acute-bacterial-infection',
         code: 'A49.9',
-        type: 'icd10',
+        type: 'diagnosis',
         name: 'Acute bacterial infection',
         visibilityStatus: 'current',
         updatedAtSyncTick: '-999',

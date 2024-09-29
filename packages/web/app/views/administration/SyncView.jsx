@@ -10,8 +10,8 @@ const LastSyncs = React.memo(props => (
     endpoint={SYNC_LAST_COMPLETED_ENDPOINT}
     columns={[
       {
-        key: 'facilityId',
-        title: <TranslatedText stringId="general.facility.label" fallback="Facility" />,
+        key: 'facilityIds',
+        title: <TranslatedText stringId="general.facility.label.plural" fallback="Facilities" />,
         minWidth: 100,
       },
       {

@@ -4,13 +4,8 @@ import { centralSettings } from './central';
 import { facilitySettings } from './facility';
 import * as yup from 'yup';
 import _ from 'lodash';
-import { SettingsSchema } from './types';
+import { SettingsSchema } from '../types';
 import { isSetting } from './utils';
-
-interface ErrorMessage {
-  field: string;
-  message: string;
-}
 
 const SCOPE_TO_SCHEMA = {
   [SETTINGS_SCOPES.GLOBAL]: globalSettings,
@@ -18,7 +13,7 @@ const SCOPE_TO_SCHEMA = {
   [SETTINGS_SCOPES.FACILITY]: facilitySettings,
 };
 
-const flattenSettings = (obj: Record<string, any>, parentKey: string = ''): Record<string, any> => {
+const flattenSettings = (obj: unknown, parentKey = '') => {
   return Object.entries(obj).reduce((acc, [key, value]) => {
     const fullKey = parentKey ? `${parentKey}.${key}` : key;
 
@@ -29,27 +24,25 @@ const flattenSettings = (obj: Record<string, any>, parentKey: string = ''): Reco
     }
 
     return acc;
-  }, {} as Record<string, any>);
+  }, {} as Record<string, unknown>);
 };
 
-const flattenSchema = (schema: SettingsSchema, parentKey: string = ''): Record<string, any> => {
-  return Object.entries(schema.values).reduce((acc, [key, value]) => {
+const flattenSchema = (schema: SettingsSchema, parentKey = '') => {
+  return Object.entries(schema.properties).reduce((acc, [key, value]) => {
     const fullKey = parentKey ? `${parentKey}.${key}` : key;
 
     if (isSetting(value)) {
-      acc[fullKey] = { schema: value.schema };
+      acc[fullKey] = value.type;
     } else {
-      Object.assign(acc, flattenSchema(value as SettingsSchema, fullKey));
+      Object.assign(acc, flattenSchema(value, fullKey));
     }
 
     return acc;
-  }, {} as Record<string, any>);
+  }, {} as Record<string, yup.AnySchema>);
 };
 
-const constructErrorMessage = (errors: ErrorMessage[]) => {
-  return `Validation failed for the following fields: ${errors.map(
-    e => `${e.field}: ${e.message}`,
-  )}`;
+export const getScopedSchema = (scope: string) => {
+  return SCOPE_TO_SCHEMA[scope];
 };
 
 export const validateSettings = async ({
@@ -61,38 +54,18 @@ export const validateSettings = async ({
   scope?: string;
   schema?: SettingsSchema;
 }) => {
-  schema = scope ? SCOPE_TO_SCHEMA[scope] : schema;
+  const schemaValue = scope ? getScopedSchema(scope) : schema;
 
-  if (!schema) {
+  if (!schemaValue) {
     throw new Error(`No schema found for scope: ${scope}`);
   }
 
   const flattenedSettings = flattenSettings(settings);
-  const flattenedSchema = flattenSchema(schema);
+  const flattenedSchema = flattenSchema(schemaValue);
+  const yupSchema = yup.object().shape(flattenedSchema);
+  // .noUnknown();
 
-  const errors: ErrorMessage[] = [];
+  // Temp remove noUnknown()
 
-  for (const [key, value] of Object.entries(flattenedSettings)) {
-    const schemaEntry = flattenedSchema[key]?.schema;
-
-    if (!schemaEntry) {
-      console.warn(`Unknown setting: ${key}`);
-      continue;
-    }
-
-    try {
-      await schemaEntry.validate(value);
-    } catch (error) {
-      if (error instanceof yup.ValidationError) {
-        errors.push({ field: key, message: error.message });
-        continue;
-      } else {
-        throw error;
-      }
-    }
-  }
-
-  if (errors.length) {
-    throw new Error(constructErrorMessage(errors));
-  }
+  await yupSchema.validate(flattenedSettings, { abortEarly: false, strict: true });
 };

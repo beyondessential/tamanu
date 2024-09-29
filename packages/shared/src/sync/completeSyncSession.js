@@ -2,10 +2,12 @@ import { dropSnapshotTable, dropMarkedForSyncPatientsTable } from './manageSnaps
 
 export const completeSyncSession = async (store, sessionId, error) => {
   // just drop the snapshots, leaving sessions themselves as an artefact that forms a paper trail
-  await store.models.SyncSession.update({ completedAt: new Date() }, { where: { id: sessionId } });
+  const session = await store.models.SyncSession.findByPk(sessionId);
+  session.completedAt = new Date();
+  if (error) {
+    await session.markErrored(error);
+  }
+  await session.save();
   await dropSnapshotTable(store.sequelize, sessionId);
   await dropMarkedForSyncPatientsTable(store.sequelize, sessionId);
-  if (error) {
-    await store.models.SyncSession.update({ error }, { where: { id: sessionId } });
-  }
 };

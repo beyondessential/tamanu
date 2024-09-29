@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { ENCOUNTER_TYPES } from '@tamanu/constants';
-import { useLocalisation } from '../../../contexts/Localisation';
 import { DischargeModal } from '../../../components/DischargeModal';
 import { ChangeEncounterTypeModal } from '../../../components/ChangeEncounterTypeModal';
 import { ChangeDepartmentModal } from '../../../components/ChangeDepartmentModal';
@@ -18,6 +17,7 @@ import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { ChangeReasonModal } from '../../../components/ChangeReasonModal';
 import { ChangeDietModal } from '../../../components/ChangeDietModal';
 import { isInpatient } from '../../../utils/isInpatient'; 
+import { useSettings } from '../../../contexts/Settings';
 
 const ActionsContainer = styled.div`
   display: flex;
@@ -55,7 +55,7 @@ const StyledDropdownButton = styled(DropdownButton)`
 
 const EncounterActionDropdown = ({ encounter, setOpenModal, setNewEncounterType }) => {
   const { navigateToSummary } = usePatientNavigation();
-  const { getLocalisation } = useLocalisation();
+  const { getSetting } = useSettings();
 
   const onChangeEncounterType = type => {
     setNewEncounterType(type);
@@ -102,7 +102,7 @@ const EncounterActionDropdown = ({ encounter, setOpenModal, setNewEncounterType 
   const isProgressionForward = (currentState, nextState) =>
     progression[nextState] > progression[currentState];
 
-  const enablePatientMoveActions = getLocalisation('features.patientPlannedMove');
+  const enablePatientMoveActions = getSetting('features.patientPlannedMove');
 
   const actions = [
     {

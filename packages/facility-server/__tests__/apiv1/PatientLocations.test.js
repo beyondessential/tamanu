@@ -1,12 +1,15 @@
+import { afterAll, beforeAll } from '@jest/globals';
 import config from 'config';
 import { createDummyEncounter, createDummyPatient } from '@tamanu/shared/demoData/patients';
 import { LOCATION_AVAILABILITY_STATUS, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { fake } from '@tamanu/shared/test-helpers/fake';
+import { selectFacilityIds } from '@tamanu/shared/utils/configSelectors';
 import { createTestContext } from '../utilities';
 
+const [facilityId] = selectFacilityIds(config);
 const generateFakeLocation = (LocationModel, additionalParams) => ({
   ...fake(LocationModel),
-  facilityId: config.serverFacilityId,
+  facilityId,
   maxOccupancy: 1,
   ...additionalParams,
 });
@@ -65,7 +68,9 @@ describe('PatientLocations', () => {
       endDate: null,
     });
 
-    const oneReservedTwoOccupiedStatsResponse = await app.get('/api/patient/locations/stats');
+    const oneReservedTwoOccupiedStatsResponse = await app.get(
+      `/api/patient/locations/stats?facilityId=${facilityId}`,
+    );
     expect(oneReservedTwoOccupiedStatsResponse).toHaveSucceeded();
 
     const {
@@ -82,7 +87,9 @@ describe('PatientLocations', () => {
       endDate: new Date(),
     });
 
-    const oneOccupiedStatsResponse = await app.get('/api/patient/locations/stats');
+    const oneOccupiedStatsResponse = await app.get(
+      `/api/patient/locations/stats?facilityId=${facilityId}`,
+    );
     expect(oneOccupiedStatsResponse).toHaveSucceeded();
 
     const {
@@ -101,7 +108,9 @@ describe('PatientLocations', () => {
   });
 
   it('should return accurate occupancy', async () => {
-    const oneInpatientEncounterOccupancyResponse = await app.get('/api/patient/locations/occupancy');
+    const oneInpatientEncounterOccupancyResponse = await app.get(
+      `/api/patient/locations/occupancy?facilityId=${facilityId}`,
+    );
 
     expect(oneInpatientEncounterOccupancyResponse).toHaveSucceeded();
     expect(oneInpatientEncounterOccupancyResponse.body.data).toBeGreaterThanOrEqual(
@@ -123,7 +132,7 @@ describe('PatientLocations', () => {
     });
 
     const oneOutpatientOneInpatientOccupancyResponse = await app.get(
-      '/api/patient/locations/occupancy',
+      `/api/patient/locations/occupancy?facilityId=${facilityId}`,
     );
 
     expect(oneOutpatientOneInpatientOccupancyResponse).toHaveSucceeded();
@@ -136,7 +145,9 @@ describe('PatientLocations', () => {
   });
 
   it('should return accurate readmissions', async () => {
-    const oneEncounterReadmissionsResponse = await app.get('/api/patient/locations/readmissions');
+    const oneEncounterReadmissionsResponse = await app.get(
+      `/api/patient/locations/readmissions?facilityId=${facilityId}`,
+    );
     expect(oneEncounterReadmissionsResponse).toHaveSucceeded();
     expect(oneEncounterReadmissionsResponse.body.data).toEqual(0);
 
@@ -153,11 +164,11 @@ describe('PatientLocations', () => {
       endDate: null,
     });
 
-    const oneReadmittedPatientnReadmissionsResponse = await app.get(
-      '/api/patient/locations/readmissions',
+    const oneReadmittedPatientReadmissionsResponse = await app.get(
+      `/api/patient/locations/readmissions?facilityId=${facilityId}`,
     );
-    expect(oneReadmittedPatientnReadmissionsResponse).toHaveSucceeded();
-    expect(oneReadmittedPatientnReadmissionsResponse.body.data).toEqual(1);
+    expect(oneReadmittedPatientReadmissionsResponse).toHaveSucceeded();
+    expect(oneReadmittedPatientReadmissionsResponse.body.data).toEqual(1);
   });
 
   it('should return accurate ALOS', async () => {
@@ -175,7 +186,9 @@ describe('PatientLocations', () => {
       endDate: new Date(),
     });
 
-    const oneEncounterAlosResponse = await app.get('/api/patient/locations/alos');
+    const oneEncounterAlosResponse = await app.get(
+      `/api/patient/locations/alos?facilityId=${facilityId}`,
+    );
     expect(oneEncounterAlosResponse).toHaveSucceeded();
     expect(oneEncounterAlosResponse.body.data).toEqual(2);
 
@@ -193,18 +206,22 @@ describe('PatientLocations', () => {
       endDate: new Date(),
     });
 
-    const twoEncountersAlosResponse = await app.get('/api/patient/locations/alos');
+    const twoEncountersAlosResponse = await app.get(
+      `/api/patient/locations/alos?facilityId=${facilityId}`,
+    );
     expect(twoEncountersAlosResponse).toHaveSucceeded();
     expect(twoEncountersAlosResponse.body.data).toEqual((4 + 2) / 2);
   });
 
   it('should return correct bed management table values', async () => {
-    const oneEncounterBedManagementResponse = await app.get('/api/patient/locations/bedManagement');
+    const oneEncounterBedManagementResponse = await app.get(
+      `/api/patient/locations/bedManagement?facilityId=${facilityId}`,
+    );
     expect(oneEncounterBedManagementResponse).toHaveSucceeded();
     expect(oneEncounterBedManagementResponse.body.count).toEqual(locations.length);
 
     const oneEncounterLocationBedManagementResponse = await app.get(
-      `/api/patient/locations/bedManagement?location=${maxOneOccupancyLocations[0].id}`,
+      `/api/patient/locations/bedManagement?facilityId=${facilityId}&location=${maxOneOccupancyLocations[0].id}`,
     );
     expect(oneEncounterLocationBedManagementResponse).toHaveSucceeded();
     expect(oneEncounterLocationBedManagementResponse.body.data).toHaveLength(1);
@@ -234,7 +251,7 @@ describe('PatientLocations', () => {
     });
 
     const twoEncountersLocationBedManagementResponse = await app.get(
-      `/api/patient/locations/bedManagement?location=${maxOneOccupancyLocations[0].id}`,
+      `/api/patient/locations/bedManagement?facilityId=${facilityId}&location=${maxOneOccupancyLocations[0].id}`,
     );
     expect(twoEncountersLocationBedManagementResponse).toHaveSucceeded();
     expect(twoEncountersLocationBedManagementResponse.body.data).toHaveLength(1);
@@ -264,13 +281,13 @@ describe('PatientLocations', () => {
     });
 
     const threeEncountersBedManagementResponse = await app.get(
-      '/api/patient/locations/bedManagement',
+      `/api/patient/locations/bedManagement?facilityId=${facilityId}`,
     );
     expect(threeEncountersBedManagementResponse).toHaveSucceeded();
     expect(threeEncountersBedManagementResponse.body.count).toEqual(locations.length + 1);
 
     const threeEncountersLocationBedManagementResponse = await app.get(
-      `/api/patient/locations/bedManagement?location=${maxOneOccupancyLocations[1].id}`,
+      `/api/patient/locations/bedManagement?facilityId=${facilityId}&location=${maxOneOccupancyLocations[1].id}`,
     );
     expect(threeEncountersLocationBedManagementResponse).toHaveSucceeded();
     expect(threeEncountersLocationBedManagementResponse.body.data).toHaveLength(1);
@@ -293,13 +310,13 @@ describe('PatientLocations', () => {
     const { Location } = models;
     const createdLocations = await Location.bulkCreate(
       Object.values(VISIBILITY_STATUSES).map(visibilityStatus =>
-        fake(Location, { visibilityStatus, facilityId: config.serverFacilityId }),
+        fake(Location, { visibilityStatus, facilityId }),
       ),
     );
     const locationIds = createdLocations.map(l => l.id);
 
     // Act
-    const response = await app.get('/api/patient/locations/bedManagement');
+    const response = await app.get(`/api/patient/locations/bedManagement?facilityId=${facilityId}`);
 
     // Assert
     expect(response).toHaveSucceeded();

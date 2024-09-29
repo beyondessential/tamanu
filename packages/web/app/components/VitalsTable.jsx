@@ -18,12 +18,12 @@ import { DateDisplay, formatShortest, formatTimeWithSeconds } from './DateDispla
 import { EditVitalCellModal } from './EditVitalCellModal';
 import { VitalVectorIcon } from './Icons/VitalVectorIcon';
 import { useVitalChartData } from '../contexts/VitalChartData';
-import { useLocalisation } from '../contexts/Localisation';
 import { getNormalRangeByAge } from '../utils';
 import { useVitalsVisualisationConfigsQuery } from '../api/queries/useVitalsVisualisationConfigsQuery';
 import { useUserPreferencesQuery } from '../api/queries/useUserPreferencesQuery';
 import { combineQueries } from '../api';
 import { TranslatedText } from './Translation/TranslatedText';
+import { useSettings } from '../contexts/Settings';
 
 const StyledTable = styled(Table)`
   overflow-x: auto;
@@ -95,24 +95,22 @@ const MeasureCell = React.memo(({ value, data }) => {
       : visualisationConfig?.key;
 
   return (
-    <>
-      <Box flexDirection="row" display="flex" alignItems="center" justifyContent="space-between">
-        {value}
-        {hasVitalChart && (
-          <IconButton
-            size="small"
-            onClick={() => {
-              setChartKeys([chartKey]);
-              setIsInMultiChartsView(false);
-              setModalTitle(value);
-              setVitalChartModalOpen(true);
-            }}
-          >
-            <VitalVectorIcon />
-          </IconButton>
-        )}
-      </Box>
-    </>
+    <Box flexDirection="row" display="flex" alignItems="center" justifyContent="space-between">
+      {value}
+      {hasVitalChart && (
+        <IconButton
+          size="small"
+          onClick={() => {
+            setChartKeys([chartKey]);
+            setIsInMultiChartsView(false);
+            setModalTitle(value);
+            setVitalChartModalOpen(true);
+          }}
+        >
+          <VitalVectorIcon />
+        </IconButton>
+      )}
+    </Box>
   );
 });
 
@@ -145,27 +143,23 @@ const TitleCell = React.memo(({ value }) => {
   }
 
   return (
-    <>
-      <Box flexDirection="row" display="flex" alignItems="center" justifyContent="space-between">
-        {value}
-        {isSuccess &&
-          vitalsVisualisationConfigs &&
-          vitalsVisualisationConfigs.allGraphedChartKeys.length > 0 && (
-            <IconButton
-              size="small"
-              onClick={() => {
-                setChartKeys(chartKeys);
-                setIsInMultiChartsView(true);
-                setModalTitle('Vitals');
-                setVitalChartModalOpen(true);
-              }}
-            >
-              <VitalVectorIcon />
-            </IconButton>
-          )}
-        {isLoading && <CircularProgress size={14} />}
-      </Box>
-    </>
+    <Box flexDirection="row" display="flex" alignItems="center" justifyContent="space-between">
+      {value}
+      {isSuccess && vitalsVisualisationConfigs?.allGraphedChartKeys.length > 0 && (
+        <IconButton
+          size="small"
+          onClick={() => {
+            setChartKeys(chartKeys);
+            setIsInMultiChartsView(true);
+            setModalTitle('Vitals');
+            setVitalChartModalOpen(true);
+          }}
+        >
+          <VitalVectorIcon />
+        </IconButton>
+      )}
+      {isLoading && <CircularProgress size={14} />}
+    </Box>
   );
 });
 
@@ -175,8 +169,8 @@ export const VitalsTable = React.memo(() => {
   const { data, recordedDates, error, isLoading } = useVitals(encounter.id);
   const [openEditModal, setOpenEditModal] = useState(false);
   const [selectedCell, setSelectedCell] = useState(null);
-  const { getLocalisation } = useLocalisation();
-  const isVitalEditEnabled = getLocalisation('features.enableVitalEdit');
+  const { getSetting } = useSettings();
+  const isVitalEditEnabled = getSetting('features.enableVitalEdit');
   const showFooterLegend = data.some(entry =>
     recordedDates.some(date => entry[date].historyLogs.length > 1),
   );

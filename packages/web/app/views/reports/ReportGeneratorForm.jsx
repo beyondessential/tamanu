@@ -123,7 +123,7 @@ export const ReportGeneratorForm = () => {
   const api = useApi();
   const { getTranslation } = useTranslation();
   const getFileName = useFileName();
-  const { currentUser } = useAuth();
+  const { currentUser, facilityId } = useAuth();
   const [successMessage, setSuccessMessage] = useState(null);
   const [requestError, setRequestError] = useState(null);
   const [bookType, setBookFormat] = useState(REPORT_EXPORT_FORMATS.XLSX);
@@ -195,6 +195,7 @@ export const ReportGeneratorForm = () => {
       if (dataSource === REPORT_DATA_SOURCES.THIS_FACILITY) {
         const excelData = await api.post(`reports/${reportId}`, {
           parameters: updatedFilters,
+          facilityId,
         });
 
         const filterString = Object.entries(filterValues)
@@ -411,7 +412,7 @@ export const ReportGeneratorForm = () => {
                 setRequestError(null);
               }}
             >
-              {`Error: ${requestError}`}
+              Error: {requestError}
             </Alert>
           )}
           {successMessage && (
@@ -431,7 +432,8 @@ export const ReportGeneratorForm = () => {
               <Button onClick={onDownload} startIcon={<GetAppIcon />}>
                 <TranslatedText stringId="report.generate.action.download" fallback="Download" /> (
                 {(
-                  (dataReadyForSaving.data.byteLength ?? dataReadyForSaving.data.length) / 1024
+                  (dataReadyForSaving.getData().byteLength ?? dataReadyForSaving.getData().length) /
+                  1024
                 ).toFixed(0)}{' '}
                 KB)
               </Button>

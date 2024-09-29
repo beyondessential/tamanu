@@ -4,7 +4,7 @@ import { Model } from './Model';
 import { buildPatientSyncFilterViaPatientId } from './buildPatientSyncFilterViaPatientId';
 import { dateTimeType } from './dateTimeTypes';
 import { getCurrentDateTimeString } from '../utils/dateTime';
-import { onSaveMarkPatientForSync } from './onSaveMarkPatientForSync';
+import { buildPatientLinkedLookupFilter } from './buildPatientLinkedLookupFilter';
 
 export class PatientFamilyHistory extends Model {
   static init({ primaryKey, ...options }) {
@@ -23,7 +23,6 @@ export class PatientFamilyHistory extends Model {
         syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
       },
     );
-    onSaveMarkPatientForSync(this);
   }
 
   static initRelations(models) {
@@ -34,6 +33,10 @@ export class PatientFamilyHistory extends Model {
 
   static getListReferenceAssociations() {
     return ['diagnosis'];
+  }
+
+  static buildSyncLookupQueryDetails() {
+    return buildPatientLinkedLookupFilter(this);
   }
 
   static buildPatientSyncFilter = buildPatientSyncFilterViaPatientId;

@@ -22,11 +22,12 @@ import { FormGrid } from '../components/FormGrid';
 import { ModalFormActionRow } from '../components/ModalActionRow';
 import { NestedVitalsModal } from '../components/NestedVitalsModal';
 import { useApi, useSuggester } from '../api';
-import { useLocalisation } from '../contexts/Localisation';
 import { getAnswersFromData } from '../utils';
 import { FORM_TYPES } from '../constants';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useTranslation } from '../contexts/Translation';
+import { useSettings } from '../contexts/Settings';
+import { useAuth } from '../contexts/Auth';
 
 const InfoPopupLabel = React.memo(() => (
   <span>
@@ -62,10 +63,11 @@ export const TriageForm = ({
   editedObject,
 }) => {
   const api = useApi();
+  const { facilityId } = useAuth();
   const dispatch = useDispatch();
-  const { getLocalisation } = useLocalisation();
+  const { getSetting } = useSettings();
   const { getTranslation } = useTranslation();
-  const triageCategories = getLocalisation('triageCategories');
+  const triageCategories = getSetting('triageCategories');
   const practitionerSuggester = useSuggester('practitioner');
   const triageReasonSuggester = useSuggester('triageReason');
 
@@ -199,6 +201,7 @@ export const TriageForm = ({
       ...updatedValues,
       startDate: getCurrentDateTimeString(),
       patientId: patient.id,
+      facilityId,
     };
 
     if (typeof onSubmitEncounter === 'function') {

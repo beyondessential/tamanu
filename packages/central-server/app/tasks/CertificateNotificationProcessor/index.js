@@ -1,5 +1,4 @@
 import config from 'config';
-import { get } from 'lodash';
 
 import {
   CERTIFICATE_NOTIFICATION_STATUSES,
@@ -48,7 +47,8 @@ export class CertificateNotificationProcessor extends ScheduledTask {
   }
 
   async run() {
-    const { models, sequelize } = this.context.store;
+    const { settings, store } = this.context;
+    const { models, sequelize } = store;
     const {
       CertificateNotification,
       CertifiableVaccine,
@@ -58,7 +58,6 @@ export class CertificateNotificationProcessor extends ScheduledTask {
     } = models;
     const vdsEnabled = config.integrations.vdsNc.enabled;
     const euDccEnabled = config.integrations.euDcc.enabled;
-    const localisation = await getLocalisation();
 
     const certifiableVaccineIds = await CertifiableVaccine.allVaccineIds(euDccEnabled);
 
@@ -147,15 +146,16 @@ export class CertificateNotificationProcessor extends ScheduledTask {
             }
 
             sublog.info('Generating vax certificate PDF', { uvci });
-            pdf = await makeCovidVaccineCertificate(
+            pdf = await makeCovidVaccineCertificate({
+              models,
+              settings,
+              language,
               patient,
               printedBy,
               printedDate,
-              models,
-              uvci,
               qrData,
-              language,
-            );
+              uvci,
+            });
             break;
           }
 
@@ -174,14 +174,15 @@ export class CertificateNotificationProcessor extends ScheduledTask {
             }
 
             sublog.info('Generating test certificate PDF');
-            pdf = await makeCovidCertificate(
-              CertificateTypes.test,
+            pdf = await makeCovidCertificate({
+              models,
+              settings,
+              certType: CertificateTypes.test,
               patient,
               printedBy,
-              models,
               qrData,
               language,
-            );
+            });
             break;
           }
 
@@ -189,27 +190,29 @@ export class CertificateNotificationProcessor extends ScheduledTask {
             template = 'covidClearanceCertificateEmail';
 
             sublog.info('Generating clearance certificate PDF');
-            pdf = await makeCovidCertificate(
-              CertificateTypes.clearance,
+            pdf = await makeCovidCertificate({
+              models,
+              settings,
+              certType: CertificateTypes.clearance,
               patient,
               printedBy,
-              models,
               qrData,
               language,
-            );
+            });
             break;
 
           case VACCINATION_CERTIFICATE:
             template = 'vaccineCertificateEmail';
-            pdf = await makeVaccineCertificate(
+            pdf = await makeVaccineCertificate({
+              models,
+              settings,
               patient,
               printedBy,
               printedDate,
               facilityName,
-              models,
               language,
               translations,
-            );
+            });
             break;
 
           default:
@@ -217,6 +220,9 @@ export class CertificateNotificationProcessor extends ScheduledTask {
         }
 
         sublog.debug('Creating communication record');
+
+        const { subject, body: content } = await settings.get(`templates.${template}`);
+
         // eslint-disable-next-line no-loop-func
         const [comm] = await sequelize.transaction(() =>
           // queue the email to be sent and mark this notification as processed
@@ -224,8 +230,8 @@ export class CertificateNotificationProcessor extends ScheduledTask {
             PatientCommunication.create({
               type: PATIENT_COMMUNICATION_TYPES.CERTIFICATE,
               channel: PATIENT_COMMUNICATION_CHANNELS.EMAIL,
-              subject: get(localisation, `templates.${template}.subject`),
-              content: get(localisation, `templates.${template}.body`),
+              subject,
+              content,
               status: COMMUNICATION_STATUSES.QUEUED,
               patientId,
               destination: notification.get('forwardAddress'),

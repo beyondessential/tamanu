@@ -31,6 +31,7 @@ import { TranslatedReferenceData, TranslatedText } from '../components/Translati
 import { useTranslation } from '../contexts/Translation';
 import { IMAGING_TYPES } from '@tamanu/constants';
 import { renderToText } from '../utils';
+import { useAuth } from '../contexts/Auth';
 import { camelCase } from 'lodash';
 
 function getEncounterTypeLabel(type) {
@@ -45,6 +46,7 @@ function getEncounterLabel(encounter) {
 
 const FormSubmitActionDropdown = React.memo(({ requestId, encounter, submitForm }) => {
   const dispatch = useDispatch();
+  const { facilityId } = useAuth();
   const { loadEncounter } = useEncounter();
   const { navigateToImagingRequest } = usePatientNavigation();
   const [awaitingPrintRedirect, setAwaitingPrintRedirect] = useState();
@@ -53,7 +55,7 @@ const FormSubmitActionDropdown = React.memo(({ requestId, encounter, submitForm 
   useEffect(() => {
     (async () => {
       if (awaitingPrintRedirect && requestId) {
-        await dispatch(reloadImagingRequest(requestId));
+        await dispatch(reloadImagingRequest(requestId, facilityId));
         navigateToImagingRequest(requestId, 'print');
       }
     })();
@@ -114,7 +116,7 @@ export const ImagingRequestForm = React.memo(
         }}
         formType={editedObject ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
         validationSchema={yup.object().shape({
-          requestedById: foreignKey(),
+          requestedById: foreignKey(requiredValidationMessage),
           requestedDate: yup.date().required(requiredValidationMessage),
           imagingType: foreignKey(requiredValidationMessage),
           areas: yup.string().when('imagingType', {
@@ -258,6 +260,7 @@ export const ImagingRequestForm = React.memo(
                     <TranslatedText stringId="imaging.areas.label" fallback="Areas to be imaged" />
                   }
                   component={MultiselectField}
+                  prefix="imaging.property.area"
                   required
                 />
               ) : (

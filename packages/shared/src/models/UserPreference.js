@@ -39,4 +39,8 @@ export class UserPreference extends Model {
   static buildSyncFilter() {
     return null;
   }
+
+  static buildSyncLookupQueryDetails() {
+    return null; // syncs everywhere
+  }
 }

@@ -1,12 +1,23 @@
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { get } from 'lodash';
 
-const SettingsContext = React.createContext({
-  getSetting: () => {},
-});
+/**
+ * @typedef {import("@tamanu/settings/types").FrontEndExposedSettingPath} SettingPath
+ * @typedef {Object} SettingsContextType
+ * @property {(path: SettingPath) => ?} getSetting
+ */
 
-export const useSettings = () => useContext(SettingsContext);
+/** @type {React.Context<SettingsContextType | undefined>} */
+const SettingsContext = React.createContext();
+
+export const useSettings = () => {
+  const context = useContext(SettingsContext);
+  if (!context) {
+    throw new Error('useSettings has been called outside a SettingsProvider.');
+  }
+  return context;
+};
 
 export const SettingsProvider = ({ children }) => {
   const [settings, setSettings] = useState({});

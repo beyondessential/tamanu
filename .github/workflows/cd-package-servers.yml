@@ -47,7 +47,7 @@ jobs:
         run: |
           set -x
           sed -E \
-            "s|cwd: '.',( //.*)?|cwd: 'packages/${{ matrix.package }}-server',|" \
+            "s|const cwd =.+|const cwd = 'packages/${{ matrix.package }}-server';|" \
             packages/${{ matrix.package }}-server/pm2.config.cjs \
           > release-v${{ steps.version.outputs.version }}/pm2.config.cjs
 
@@ -130,7 +130,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20.x
+          node-version-file: '.nvmrc'
           cache: yarn
 
       - name: Download artifact from build job

@@ -2,8 +2,9 @@ import config from 'config';
 import { Command } from 'commander';
 
 import { log } from '@tamanu/shared/services/logging';
-
 import { performTimeZoneChecks } from '@tamanu/shared/utils/timeZoneCheck';
+import { selectFacilityIds } from '@tamanu/shared/utils/configSelectors';
+
 import { checkConfig } from '../checkConfig';
 import { initDeviceId } from '../sync/initDeviceId';
 import { performDatabaseIntegrityChecks } from '../database';
@@ -15,7 +16,7 @@ import { ApplicationContext } from '../ApplicationContext';
 
 async function startTasks({ skipMigrationCheck }) {
   log.info(`Starting facility task runner version ${version}`, {
-    serverFacilityId: config.serverFacilityId,
+    serverFacilityIds: selectFacilityIds(config),
   });
 
   log.info(`Process info`, {
@@ -31,7 +32,7 @@ async function startTasks({ skipMigrationCheck }) {
   }
 
   await initDeviceId(context);
-  await checkConfig(config, context);
+  await checkConfig(context);
   await performDatabaseIntegrityChecks(context);
 
   context.centralServer = new CentralServerConnection(context);
