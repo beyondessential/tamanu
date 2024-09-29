@@ -248,3 +248,9 @@ export const formatLong = date =>
     },
     'Date information not available',
   ); // "Thursday, 14 July 2022, 03:44 pm"
+
+/** @returns `true` if two dates lie on the same day in local time, else `false`. */
+export const areSameDay = (date1, date2) =>
+  date1.getDate() === date2.getDate() &&
+  date1.getMonth() === date2.getMonth() &&
+  date1.getFullYear() === date2.getFullYear();
