@@ -263,7 +263,7 @@ export const areSameDay = (date1, date2) =>
  * @example daysInMonthOf(new Date('2024-02-01')) => 29
  */
 export const daysInMonthOf = date => {
-  const year = date.getYear();
+  const year = date.getFullYear();
   const month = date.getMonth();
   return new Date(year, month + 1, 0).getDate();
 };
@@ -273,7 +273,7 @@ export const daysInMonthOf = date => {
  * 4, 5 or 6.
  */
 export const uniqueIsoWeeksInMonthOf = date => {
-  const year = date.getYear();
+  const year = date.getFullYear();
   const month = date.getMonth();
   const firstDayOfMonth = new Date(year, month, 1).getDate();
   const lastDayOfMonth = new Date(year, month + 1, 0).getDate();
