@@ -6,6 +6,11 @@ import { MockSettingsProvider } from '../utils/mockSettingsProvider';
 import { Button, Form } from '../../app/components';
 import { toDateString } from '@tamanu/shared/utils/dateTime';
 import styled from 'styled-components';
+import {
+  mockLocationGroupSuggesterEndpoint,
+  mockLocationSuggesterEndpoint,
+  mockPatientSuggesterEndpoint,
+} from '../utils/mockSuggesterData';
 
 const todaysDate = toDateString(new Date());
 
@@ -52,6 +57,9 @@ const endpoints = {
       data: mockAppointments,
     };
   },
+  ...mockLocationGroupSuggesterEndpoint,
+  ...mockLocationSuggesterEndpoint,
+  ...mockPatientSuggesterEndpoint,
 };
 
 export default {
@@ -61,13 +69,7 @@ export default {
     Story => (
       <MockedApi endpoints={endpoints}>
         <MockSettingsProvider mockSettings={mockSettings}>
-          <Form
-            onSubmit={async () => {}}
-            initialValues={{
-              locationId: 'location-a',
-            }}
-            render={() => <Story />}
-          />
+          <Form onSubmit={async () => {}} render={() => <Story />} />
         </MockSettingsProvider>
       </MockedApi>
     ),

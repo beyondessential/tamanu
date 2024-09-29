@@ -39,8 +39,8 @@ const useLocationSuggestion = locationId => {
 
 export const LocationInput = React.memo(
   ({
-    locationGroupLabel,
-    label,
+    locationGroupLabel = 'Area',
+    label = 'Location',
     name,
     disabled,
     error,
