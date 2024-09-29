@@ -17,7 +17,7 @@ import { BookingTimeCell } from './BookingTimeCell';
 import { useFormikContext } from 'formik';
 import { toDateTimeString } from '../../utils/dateTime';
 import { isEqual } from 'lodash';
-import { LoadingIndicator } from '../LoadingIndicator';
+import { CircularProgress } from '@material-ui/core';
 
 const CellContainer = styled.div`
   border: 1px solid ${Colors.outline};
@@ -27,6 +27,12 @@ const CellContainer = styled.div`
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 10px;
+  margin-bottom: 16px;
+`;
+
+const LoadingIndicator = styled(CircularProgress)`
+  grid-column: 1 / -1;
+  margin: 0 auto;
 `;
 
 const calculateTimeSlots = bookingSlotSettings => {
@@ -81,7 +87,6 @@ export const BookingTimeField = ({ disabled = false }) => {
   );
 
   const bookingSlotSettings = getSetting('appointments.bookingSlots');
-
   const timeSlots = calculateTimeSlots(bookingSlotSettings);
 
   useEffect(() => {
