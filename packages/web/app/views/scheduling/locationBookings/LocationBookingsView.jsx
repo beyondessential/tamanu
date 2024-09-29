@@ -19,8 +19,6 @@ import {
 
 // BEGIN PLACEHOLDERS
 
-const range = length => Array.from({ length }, (_, i) => i);
-
 const Placeholder = styled.div`
   background-color: oklch(0% 0 0 / 3%);
   block-size: 100%;
@@ -99,11 +97,10 @@ const Carousel = styled.div`
 export const LocationBookingsView = () => {
   const [monthOf, setMonthOf] = useState(new Date());
   const weekCount = uniqueIsoWeeksInMonthOf(monthOf);
-  const dayCount = weekCount * 7;
 
   const firstDisplayedDate = getMondayOfWeekOf(firstDayOfMonthOf(monthOf));
   // const lastDisplayedDate = getSundayOfWeekOf(lastDayOfMonthOf(monthOf));
-  const displayedDates = dateRange(firstDisplayedDate, lastDayOfMonthOf(monthOf));
+  const displayedDates = dateRange(firstDisplayedDate, lastDayOfMonthOf(monthOf)); // TODO: use lastDisplayedDate
 
   const { data: appointments } = useAppointmentsQuery();
   const { data: locations } = useLocationsQuery();
@@ -137,8 +134,8 @@ export const LocationBookingsView = () => {
             {locations?.map(({ name: locationName, code }) => (
               <CalendarTableRow key={code}>
                 <CalendarRowHeader>{locationName}</CalendarRowHeader>
-                {displayedDates.map(() => (
-                  <CalendarCell />
+                {displayedDates.map(d => (
+                  <CalendarCell key={d.valueOf()} />
                 ))}
               </CalendarTableRow>
             ))}
