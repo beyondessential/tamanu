@@ -181,6 +181,10 @@ export const MultilineDatetimeDisplay = React.memo(
   },
 );
 
+export const TimeRangeDisplay = React.memo(
+  ({ range }) => `${format(range.start, 'hh:mm a')} - ${format(range.end, 'hh:mm a')}`,
+);
+
 const VALID_FORMAT_FUNCTIONS = [
   formatShortest,
   formatShort,
