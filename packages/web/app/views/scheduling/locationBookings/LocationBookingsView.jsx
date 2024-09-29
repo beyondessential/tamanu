@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
-import { useAppointments, useLocations } from '../../../api/queries';
+import { useAppointmentsQuery, useLocationsQuery } from '../../../api/queries';
 import { Colors } from '../../../constants';
 import { PageContainer, TopBar, TranslatedText } from '../../../components';
 import { DayHeaderCell } from './DayHeaderCell';
@@ -64,8 +64,8 @@ export const LocationBookingsView = () => {
   const [month, setMonth] = useState(new Date().getMonth());
   const [weekCount, setWeekCount] = useState(6);
   const [dayCount, setDayCount] = useState(weekCount * 7);
-  const { data: appointments } = useAppointments();
-  const { data: locations } = useLocations();
+  const { data: appointments } = useAppointmentsQuery();
+  const { data: locations } = useLocationsQuery();
 
   console.log('locations', locations);
   console.log('appointments', appointments);

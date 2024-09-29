@@ -1,5 +1,5 @@
-export { useAppointments } from './useAppointments';
-export { useLocations } from './useLocations';
+export { useAppointmentsQuery } from './useAppointmentsQuery';
+export { useLocationsQuery } from './useLocationsQuery';
 export * from './useHierarchyTypesQuery';
 export * from './useVitalsSurveyQuery';
 export * from './useReferenceData';
