@@ -34,6 +34,40 @@ const Placeholder = styled.div`
 
 const MS_PER_DAY = 86_400_000;
 
+/**
+ * @param start {Date} First day in range, inclusive.
+ * @param end {Date} Last day in range, inclusive(!).
+ * @returns {Date[]} Array of date objects, each one day apart. If `start` is after `end`, returns
+ * an empty array.
+ */
+const dateRange = (start, end) => {
+  start.setHours(0, 0, 0, 0);
+  end.setHours(0, 0, 0, 0);
+
+  const range = [];
+  let d = new Date(start);
+  // eslint-disable-next-line no-unmodified-loop-condition
+  while (d < end) {
+    range.push(new Date(d));
+    d.setDate(d.getDate() + 1);
+  }
+
+  return range;
+};
+
+const getMondayOfWeekOf = date => {
+  if (Number.isNaN(date.getTime())) {
+    throw Error('getMondayOfWeekOf() called with invalid date');
+  }
+
+  const day = date.getDay();
+  const daysSinceMonday = (day + 7 - 1) % 7;
+  //                                        - 1 because 1 = Monday
+  //                                    + 7 to guarantee % result is non-negative
+
+  return new Date(date.getFullYear(), date.getMonth(), day - daysSinceMonday);
+};
+
 const LocationBookingsTopBar = styled(TopBar).attrs({
   title: (
     <TranslatedText stringId="scheduling.locationBookings.title" fallback="Location bookings" />
@@ -60,16 +94,6 @@ const Carousel = styled.div`
   overscroll-behavior: contain;
   scroll-snap-type: both mandatory;
 `;
-
-const getMondayOfWeekOf = date => {
-  if (Number.isNaN(date.getTime())) {
-    throw Error('getMondayOfWeekOf() called with invalid date');
-  }
-
-  const day = date.getDay();
-  const daysSinceMonday = (day + 6) % 7;
-  return new Date(date.getFullYear(), date.getMonth(), day - daysSinceMonday);
-};
 
 export const LocationBookingsView = () => {
   const [monthOf, setMonthOf] = useState(new Date());

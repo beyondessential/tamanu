@@ -256,26 +256,23 @@ export const areSameDay = (date1, date2) =>
   date1.getMonth() === date2.getMonth() &&
   date1.getFullYear() === date2.getFullYear();
 
+export const firstDayOfMonthOf = date => new Date(date.getFullYear(), date.getMonth(), 1);
+export const lastDayOfMonthOf = date => new Date(date.getFullYear(), date.getMonth() + 1, 0);
+
 /**
  * Returns the number of days in the month in which the provided Date object lies. This is
  * equivalent to getting the date of the last day in that month.
  *
  * @example daysInMonthOf(new Date('2024-02-01')) => 29
  */
-export const daysInMonthOf = date => {
-  const year = date.getFullYear();
-  const month = date.getMonth();
-  return new Date(year, month + 1, 0).getDate();
-};
+export const daysInMonthOf = date => lastDayOfMonthOf(date).getDate();
 
 /**
  * Returns the number if distinct ISO weeks spanned by the month of the given date. This can only be
  * 4, 5 or 6.
  */
 export const uniqueIsoWeeksInMonthOf = date => {
-  const year = date.getFullYear();
-  const month = date.getMonth();
-  const firstDayOfMonth = new Date(year, month, 1).getDate();
-  const lastDayOfMonth = new Date(year, month + 1, 0).getDate();
+  const firstDayOfMonth = firstDayOfMonthOf(date);
+  const lastDayOfMonth = lastDayOfMonthOf(date);
   return getISOWeek(lastDayOfMonth) - getISOWeek(firstDayOfMonth) + 1;
 };
