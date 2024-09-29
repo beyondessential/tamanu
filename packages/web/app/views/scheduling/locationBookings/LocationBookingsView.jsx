@@ -11,7 +11,11 @@ import {
   CalendarTable,
   CalendarTableRow,
 } from './TableComponents';
-import { uniqueIsoWeeksInMonthOf } from '@tamanu/shared/src/utils/dateTime.js';
+import {
+  firstDayOfMonthOf,
+  lastDayOfMonthOf,
+  uniqueIsoWeeksInMonthOf,
+} from '@tamanu/shared/utils/dateTime';
 
 // BEGIN PLACEHOLDERS
 
@@ -31,8 +35,6 @@ const Placeholder = styled.div`
 `;
 
 // END PLACEHOLDERS
-
-const MS_PER_DAY = 86_400_000;
 
 /**
  * @param start {Date} First day in range, inclusive.
@@ -62,8 +64,7 @@ const getMondayOfWeekOf = date => {
 
   const day = date.getDay();
   const daysSinceMonday = (day + 7 - 1) % 7;
-  //                                        - 1 because 1 = Monday
-  //                                    + 7 to guarantee % result is non-negative
+  //                                    + 7 to guarantee remainder is nonnegative
 
   return new Date(date.getFullYear(), date.getMonth(), day - daysSinceMonday);
 };
@@ -100,6 +101,9 @@ export const LocationBookingsView = () => {
   const weekCount = uniqueIsoWeeksInMonthOf(monthOf);
   const dayCount = weekCount * 7;
 
+  const firstDisplayedDate = getMondayOfWeekOf(firstDayOfMonthOf(monthOf));
+  // const lastDisplayedDate = getSundayOfWeekOf(lastDayOfMonthOf(monthOf));
+
   const { data: appointments } = useAppointmentsQuery();
   const { data: locations } = useLocationsQuery();
 
@@ -128,10 +132,11 @@ export const LocationBookingsView = () => {
               <CalendarRowHeader>
                 <Placeholder>Month Selector</Placeholder>
               </CalendarRowHeader>
-              {range(dayCount).map(i => {
-                const date = new Date(Date.now() + MS_PER_DAY * i);
-                return <DayHeaderCell date={date} key={date} />;
-              })}
+              {dateRange(firstDayOfMonthOf(firstDisplayedDate), lastDayOfMonthOf(monthOf)).map(
+                d => (
+                  <DayHeaderCell date={d} key={d.valueOf()} />
+                ),
+              )}
             </CalendarTableRow>
           </thead>
           <tbody>
