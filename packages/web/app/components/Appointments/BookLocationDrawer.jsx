@@ -6,6 +6,7 @@ import {
   Field,
   LocationField,
   SelectField,
+  TranslatedSelectField,
 } from '../Field';
 import styled, { css, keyframes } from 'styled-components';
 import { BodyText, Heading4 } from '../Typography';
@@ -16,6 +17,7 @@ import { FormSubmitCancelRow } from '../ButtonRow';
 import { Colors } from '../../constants';
 import Brightness2Icon from '@material-ui/icons/Brightness2';
 import { FormGrid } from '../FormGrid';
+import { APPOINTMENT_TYPE_LABELS } from '@tamanu/constants';
 
 const slideIn = keyframes`
   from {
@@ -111,13 +113,8 @@ export const BookLocationDrawer = ({ open, onCancel }) => {
         <StyledField
           name="bookingType"
           label="Booking type"
-          component={SelectField}
-          options={[
-            { label: 'Standard', value: '1' },
-            { label: 'Emergency', value: '1' },
-            { label: 'Specialist', value: '1' },
-            { label: 'Other', value: '1' },
-          ]}
+          component={TranslatedSelectField}
+          enumValues={APPOINTMENT_TYPE_LABELS}
         />
         <StyledField
           name="clinicianId"
