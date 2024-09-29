@@ -62,7 +62,7 @@ const getMondayOfWeekOf = date => {
 
   const day = date.getDay();
   const daysSinceMonday = (day + 7 - 1) % 7;
-  //                                    + 7 to guarantee remainder is nonnegative
+  //                           + 7 to guarantee remainder is nonnegative
 
   return new Date(date.getFullYear(), date.getMonth(), day - daysSinceMonday);
 };
