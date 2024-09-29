@@ -4,6 +4,7 @@ import { Colors } from '../../constants';
 import { ConditionalTooltip, ThemedTooltip } from '../Tooltip';
 import { TimeRangeDisplay } from '../DateDisplay';
 import { alpha } from '@material-ui/core';
+import { TranslatedText } from '../Translation/TranslatedText';
 
 const Cell = styled.div`
   border: 1px solid ${Colors.outline};
@@ -57,7 +58,14 @@ export const BookingTimeCell = ({
 
   if (booked) {
     return (
-      <ThemedTooltip title="Not available">
+      <ThemedTooltip
+        title={
+          <TranslatedText
+            stringId="locationBooking.tooltip.notAvailable"
+            fallback="Not available"
+          />
+        }
+      >
         <BookedCell>
           <TimeRangeDisplay range={timeSlot} />
         </BookedCell>
@@ -68,11 +76,12 @@ export const BookingTimeCell = ({
   return (
     <ConditionalTooltip
       visible={!selectable}
-      // TODO: wont work with translations
+      $maxWidth="200px"
       title={
-        <>
-          All times must be available when <br /> booking over multiple times
-        </>
+        <TranslatedText
+          stringId="locationBooking.tooltip.unavailableTimeInRangeWarning"
+          fallback="All times must be available when booking over multiple times"
+        />
       }
     >
       <AvailableCell
