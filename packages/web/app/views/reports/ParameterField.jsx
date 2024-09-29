@@ -45,9 +45,9 @@ const useReportSuggesterOptions = (filterBySelectedFacility, suggesterOptions) =
 };
 
 const ParameterSuggesterSelectField = ({
-  filterBySelectedFacility = true,
   suggesterEndpoint,
   name,
+  filterBySelectedFacility,
   ...props
 }) => {
   const { baseQueryParameters } = useReportSuggesterOptions(filterBySelectedFacility, {});
@@ -66,8 +66,8 @@ const ParameterSuggesterSelectField = ({
 const ParameterAutocompleteField = ({
   suggesterEndpoint,
   suggesterOptions,
-  filterBySelectedFacility = true,
   name,
+  filterBySelectedFacility,
   ...props
 }) => {
   const options = useReportSuggesterOptions(filterBySelectedFacility, suggesterOptions);

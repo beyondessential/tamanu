@@ -152,6 +152,11 @@ export const ReportGeneratorForm = () => {
     filterDateRangeAsStrings = false,
   } = reportsById[selectedReportId] || {};
 
+  const parametersFilteredByFacility = useMemo(
+    () => parameters.filter(param => param.filterByFacility).map(param => param.name),
+    [parameters],
+  );
+
   const isDataSourceFieldDisabled = dataSourceOptions.length === 1;
 
   useEffect(() => {
@@ -274,10 +279,6 @@ export const ReportGeneratorForm = () => {
     return <LoadingIndicator backgroundColor="#f7f9fb" />;
   }
 
-  const parametersFilteredByFacility = parameters
-    .filter(({ filterBySelectedFacility }) => filterBySelectedFacility === true)
-    .map(({ name }) => name);
-
   return (
     <Form
       initialValues={{
@@ -301,187 +302,182 @@ export const ReportGeneratorForm = () => {
           {},
         ),
       })}
-      render={({ values, submitForm, clearForm }) => {
-        return (
-          <>
-            <FormGrid columns={2}>
-              <Field
-                name="reportId"
-                label={<TranslatedText stringId="report.generate.report.label" fallback="Report" />}
-                component={ReportIdField}
-                options={reportOptions}
-                required
-                onValueChange={reportId => {
-                  setSelectedReportId(reportId);
-                  clearForm();
-                  resetDownload();
-                }}
+      render={({ values, submitForm, clearForm }) => (
+        <>
+          <FormGrid columns={2}>
+            <Field
+              name="reportId"
+              label={<TranslatedText stringId="report.generate.report.label" fallback="Report" />}
+              component={ReportIdField}
+              options={reportOptions}
+              required
+              onValueChange={reportId => {
+                setSelectedReportId(reportId);
+                clearForm();
+                resetDownload();
+              }}
+            />
+            <Field
+              name="dataSource"
+              label=" "
+              value={dataSource}
+              onChange={e => {
+                setDataSource(e.target.value);
+                resetDownload();
+              }}
+              options={[
+                {
+                  label: (
+                    <TranslatedText
+                      stringId="report.generate.dataSource.option.thisFacility"
+                      fallback="This facility"
+                    />
+                  ),
+                  value: REPORT_DATA_SOURCES.THIS_FACILITY,
+                },
+                {
+                  label: (
+                    <TranslatedText
+                      stringId="report.generate.dataSource.option.allFacilities"
+                      fallback="All facilities"
+                    />
+                  ),
+                  value: REPORT_DATA_SOURCES.ALL_FACILITIES,
+                },
+              ]}
+              component={RadioField}
+              disabled={isDataSourceFieldDisabled}
+            />
+          </FormGrid>
+          {reportsById[selectedReportId]?.notes && (
+            <>
+              <FormGrid columns={1}>
+                <AboutReportButton onClick={() => setIsReportModalOpen(true)}>
+                  {getAboutReportString(reportsById[selectedReportId].name)}
+                </AboutReportButton>
+              </FormGrid>
+              <ReportAboutModal
+                title={getAboutReportString(reportsById[selectedReportId].name)}
+                open={isReportModalOpen}
+                onClose={() => setIsReportModalOpen(false)}
+                content={reportsById[selectedReportId].notes}
               />
-              <Field
-                name="dataSource"
-                label=" "
-                value={dataSource}
-                onChange={e => {
-                  setDataSource(e.target.value);
-                  resetDownload();
-                }}
-                options={[
+            </>
+          )}
+          {parameters.length > 0 ? (
+            <>
+              <Spacer />
+              <FormGrid columns={3}>
+                {parameters.map(({ parameterField, required, name, label, ...restOfProps }) => {
+                  return (
+                    <ParameterField
+                      key={name || parameterField}
+                      required={required}
+                      name={name}
+                      label={label}
+                      parameterValues={values}
+                      parameterField={parameterField}
+                      parametersFilteredByFacility={parametersFilteredByFacility}
+                      onChange={() => resetDownload()}
+                      {...restOfProps}
+                    />
+                  );
+                })}
+              </FormGrid>
+            </>
+          ) : null}
+          <DateRangeLabel variant="body1">{dateRangeLabel}</DateRangeLabel>
+          <FormGrid columns={2} style={{ marginBottom: 30 }}>
+            <Field
+              name="fromDate"
+              label={
+                <TranslatedText stringId="report.generate.fromDate.label" fallback="From date" />
+              }
+              onChange={() => resetDownload()}
+              component={DateField}
+              saveDateAsString={filterDateRangeAsStrings}
+            />
+            <Field
+              name="toDate"
+              label={<TranslatedText stringId="report.generate.toDate.label" fallback="To date" />}
+              onChange={() => resetDownload()}
+              component={DateField}
+              saveDateAsString={filterDateRangeAsStrings}
+            />
+          </FormGrid>
+          {dataSource === REPORT_DATA_SOURCES.ALL_FACILITIES && (
+            <EmailInputContainer>
+              <EmailField onChange={() => resetDownload()} />
+            </EmailInputContainer>
+          )}
+          {requestError && (
+            <Alert
+              severity="error"
+              style={{ marginBottom: 20 }}
+              onClose={() => {
+                setRequestError(null);
+              }}
+            >
+              Error: {requestError}
+            </Alert>
+          )}
+          {successMessage && (
+            <Alert
+              severity="success"
+              style={{ marginBottom: 20 }}
+              onClose={() => {
+                setSuccessMessage(null);
+              }}
+            >
+              <AlertTitle>Success</AlertTitle>
+              {successMessage}
+            </Alert>
+          )}
+          <Box display="flex" justifyContent="flex-end" gridGap="1em">
+            {dataReadyForSaving ? (
+              <Button onClick={onDownload} startIcon={<GetAppIcon />}>
+                <TranslatedText stringId="report.generate.action.download" fallback="Download" /> (
+                {(
+                  (dataReadyForSaving.getData().byteLength ?? dataReadyForSaving.getData().length) /
+                  1024
+                ).toFixed(0)}{' '}
+                KB)
+              </Button>
+            ) : (
+              <FormSubmitDropdownButton
+                size="large"
+                disabled={!values.reportId}
+                actions={[
                   {
                     label: (
                       <TranslatedText
-                        stringId="report.generate.dataSource.option.thisFacility"
-                        fallback="This facility"
+                        stringId="report.generate.action.generateXLSX"
+                        fallback="Generate as .XLSX"
                       />
                     ),
-                    value: REPORT_DATA_SOURCES.THIS_FACILITY,
+                    onClick: event => {
+                      setBookFormat(REPORT_EXPORT_FORMATS.XLSX);
+                      submitForm(event);
+                    },
                   },
                   {
                     label: (
                       <TranslatedText
-                        stringId="report.generate.dataSource.option.allFacilities"
-                        fallback="All facilities"
+                        stringId="report.generate.action.generateCSV"
+                        fallback="Generate as .CSV"
                       />
                     ),
-                    value: REPORT_DATA_SOURCES.ALL_FACILITIES,
+                    onClick: event => {
+                      setBookFormat(REPORT_EXPORT_FORMATS.CSV);
+                      submitForm(event);
+                    },
                   },
                 ]}
-                component={RadioField}
-                disabled={isDataSourceFieldDisabled}
               />
-            </FormGrid>
-            {reportsById[selectedReportId]?.notes && (
-              <>
-                <FormGrid columns={1}>
-                  <AboutReportButton onClick={() => setIsReportModalOpen(true)}>
-                    {getAboutReportString(reportsById[selectedReportId].name)}
-                  </AboutReportButton>
-                </FormGrid>
-                <ReportAboutModal
-                  title={getAboutReportString(reportsById[selectedReportId].name)}
-                  open={isReportModalOpen}
-                  onClose={() => setIsReportModalOpen(false)}
-                  content={reportsById[selectedReportId].notes}
-                />
-              </>
             )}
-            {parameters.length > 0 ? (
-              <>
-                <Spacer />
-                <FormGrid columns={3}>
-                  {parameters.map(({ parameterField, required, name, label, ...restOfProps }) => {
-                    return (
-                      <ParameterField
-                        key={name || parameterField}
-                        required={required}
-                        name={name}
-                        label={label}
-                        parameterValues={values}
-                        parameterField={parameterField}
-                        parametersFilteredByFacility={parametersFilteredByFacility}
-                        onChange={() => resetDownload()}
-                        {...restOfProps}
-                      />
-                    );
-                  })}
-                </FormGrid>
-              </>
-            ) : null}
-            <DateRangeLabel variant="body1">{dateRangeLabel}</DateRangeLabel>
-            <FormGrid columns={2} style={{ marginBottom: 30 }}>
-              <Field
-                name="fromDate"
-                label={
-                  <TranslatedText stringId="report.generate.fromDate.label" fallback="From date" />
-                }
-                onChange={() => resetDownload()}
-                component={DateField}
-                saveDateAsString={filterDateRangeAsStrings}
-              />
-              <Field
-                name="toDate"
-                label={
-                  <TranslatedText stringId="report.generate.toDate.label" fallback="To date" />
-                }
-                onChange={() => resetDownload()}
-                component={DateField}
-                saveDateAsString={filterDateRangeAsStrings}
-              />
-            </FormGrid>
-            {dataSource === REPORT_DATA_SOURCES.ALL_FACILITIES && (
-              <EmailInputContainer>
-                <EmailField onChange={() => resetDownload()} />
-              </EmailInputContainer>
-            )}
-            {requestError && (
-              <Alert
-                severity="error"
-                style={{ marginBottom: 20 }}
-                onClose={() => {
-                  setRequestError(null);
-                }}
-              >
-                Error: {requestError}
-              </Alert>
-            )}
-            {successMessage && (
-              <Alert
-                severity="success"
-                style={{ marginBottom: 20 }}
-                onClose={() => {
-                  setSuccessMessage(null);
-                }}
-              >
-                <AlertTitle>Success</AlertTitle>
-                {successMessage}
-              </Alert>
-            )}
-            <Box display="flex" justifyContent="flex-end" gridGap="1em">
-              {dataReadyForSaving ? (
-                <Button onClick={onDownload} startIcon={<GetAppIcon />}>
-                  <TranslatedText stringId="report.generate.action.download" fallback="Download" />{' '}
-                  (
-                  {(
-                    (dataReadyForSaving.getData().byteLength ??
-                      dataReadyForSaving.getData().length) / 1024
-                  ).toFixed(0)}{' '}
-                  KB)
-                </Button>
-              ) : (
-                <FormSubmitDropdownButton
-                  size="large"
-                  disabled={!values.reportId}
-                  actions={[
-                    {
-                      label: (
-                        <TranslatedText
-                          stringId="report.generate.action.generateXLSX"
-                          fallback="Generate as .XLSX"
-                        />
-                      ),
-                      onClick: event => {
-                        setBookFormat(REPORT_EXPORT_FORMATS.XLSX);
-                        submitForm(event);
-                      },
-                    },
-                    {
-                      label: (
-                        <TranslatedText
-                          stringId="report.generate.action.generateCSV"
-                          fallback="Generate as .CSV"
-                        />
-                      ),
-                      onClick: event => {
-                        setBookFormat(REPORT_EXPORT_FORMATS.CSV);
-                        submitForm(event);
-                      },
-                    },
-                  ]}
-                />
-              )}
-            </Box>
-          </>
-        );
-      }}
+          </Box>
+        </>
+      )}
     />
   );
 };

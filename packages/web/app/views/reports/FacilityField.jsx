@@ -12,6 +12,7 @@ export const FacilityField = ({ required, label, parametersFilteredByFacility })
     if (!parametersFilteredByFacility.length) {
       return;
     }
+    // Clear any set values that might be effected by facility filtering
     setValues(omit(values, parametersFilteredByFacility));
   };
   return (
