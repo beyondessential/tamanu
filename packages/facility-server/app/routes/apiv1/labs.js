@@ -123,14 +123,14 @@ labRequest.get(
         cancelled: LAB_REQUEST_STATUSES.CANCELLED,
       })),
       makeFilter(
-        !filterParams?.statuses?.includes(LAB_REQUEST_STATUSES.INVALIDATED),
+        !filterParams.statuses?.includes(LAB_REQUEST_STATUSES.INVALIDATED),
         `lab_requests.status != :invalidated`,
         () => ({
           invalidated: LAB_REQUEST_STATUSES.INVALIDATED,
         }),
       ),
       makeFilter(
-        !filterParams?.statuses?.includes(LAB_REQUEST_STATUSES.PUBLISHED),
+        !filterParams.statuses?.includes(LAB_REQUEST_STATUSES.PUBLISHED),
         'lab_requests.status != :published',
         () => ({
           published: LAB_REQUEST_STATUSES.PUBLISHED,
