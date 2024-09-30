@@ -11,7 +11,7 @@ export const addFacilityMiddleware = async express => {
   let errorMiddleware = null;
   if (config.errors?.enabled) {
     if (config.errors?.type === 'bugsnag') {
-      const Bugsnag = await import('@bugsnag/js');
+      const { default: Bugsnag } = await import('@bugsnag/js');
       const middleware = Bugsnag.getPlugin('express');
       express.use(middleware.requestHandler);
       errorMiddleware = middleware.errorHandler;
