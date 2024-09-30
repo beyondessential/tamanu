@@ -1,0 +1,11 @@
+---
+schema: public
+name: lab_tests
+transformers:
+  - name: SetNull
+    params:
+      column: date_legacy
+
+  - name: SetNull
+    params:
+      column: completed_date_legacy
