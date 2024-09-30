@@ -2,6 +2,7 @@ import React from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import Bowser from 'bowser';
+import Bugsnag from '@bugsnag/js';
 import 'typeface-roboto';
 import { Colors } from './constants';
 import { checkIsLoggedIn, checkIsFacilitySelected, getServerType } from './store/auth';
@@ -61,16 +62,24 @@ export function App({ sidebar, children }) {
   if (!isUserLoggedIn) return <LoginView />;
   if (serverType === SERVER_TYPES.FACILITY && !isFacilitySelected) return <FacilitySelectionView />;
 
+  let ActualErrorBoundary = ErrorBoundary;
+  if (Bugsnag.isStarted()) {
+    const BugsnagErrorBoundary = Bugsnag.getPlugin('react').createErrorBoundary(React);
+    ActualErrorBoundary = (...args) => (
+      <BugsnagErrorBoundary {...args} FallbackComponent={ErrorBoundary} />
+    );
+  }
+
   return (
     <AppContainer>
       {sidebar}
       <PromiseErrorBoundary>
-        <ErrorBoundary errorKey={currentRoute}>
+        <ActualErrorBoundary errorKey={currentRoute}>
           <AppContentsContainer>
             {children}
             <ForbiddenErrorModal />
           </AppContentsContainer>
-        </ErrorBoundary>
+        </ActualErrorBoundary>
       </PromiseErrorBoundary>
     </AppContainer>
   );
