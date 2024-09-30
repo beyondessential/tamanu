@@ -71,8 +71,8 @@ const OPTIONS = [
   },
   {
     key: 'facilityapis',
-    defaultValue: options => intBounds(options.apis, [0, 1]),
-    parse: input => intBounds(input, [0, 1]), // max:5 when split
+    defaultValue: options => intBounds(options.apis, [0, 5]),
+    parse: input => intBounds(input, [0, 5]),
   },
 
   { key: 'tasks', defaultValue: 1, parse: input => intBounds(input, [0, 1]) },
@@ -83,8 +83,8 @@ const OPTIONS = [
   },
   {
     key: 'facilitytasks',
-    defaultValue: 0, // until facility is split
-    parse: input => intBounds(input, [0, 0]), // max:1 when split
+    defaultValue: options => intBounds(options.tasks, [0, 1]),
+    parse: input => intBounds(input, [0, 1]),
   },
 
   { key: 'webs', defaultValue: 2, parse: input => intBounds(input, [0, 5]) },
