@@ -1,16 +1,16 @@
 import * as yup from 'yup';
 import { extractDefaults } from './utils';
 import {
+  displayIdFieldProperties,
+  generateFieldSchema,
   imagingPrioritiesDefault,
   imagingPrioritiesSchema,
   letterheadProperties,
+  LOCALISED_FIELD_TYPES,
   thresholdsDefault,
   thresholdsSchema,
   triageCategoriesDefault,
   triageCategoriesSchema,
-  displayIdFieldProperties,
-  generateFieldSchema,
-  LOCALISED_FIELD_TYPES,
 } from './definitions';
 
 /** Pattern from ms package. Use ms to parse these strings. */
