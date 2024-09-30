@@ -27,8 +27,8 @@ const FacilityCheckbox = styled.div`
   margin-top: 20px;
 `;
 
-export const LabRequestsSearchBar = ({ status = '' }) => {
-  const publishedStatus = status === LAB_REQUEST_STATUSES.PUBLISHED;
+export const LabRequestsSearchBar = ({ statuses }) => {
+  const publishedStatus = statuses.includes(LAB_REQUEST_STATUSES.PUBLISHED);
   const { searchParameters, setSearchParameters } = useLabRequest(
     publishedStatus ? LabRequestSearchParamKeys.Published : LabRequestSearchParamKeys.All,
   );

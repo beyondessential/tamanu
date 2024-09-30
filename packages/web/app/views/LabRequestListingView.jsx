@@ -23,7 +23,7 @@ const LabRequestListing = ({ statuses, searchParamKey = LabRequestSearchParamKey
   return (
     <StyledContentPane>
       <SearchTableTitle>Lab request search</SearchTableTitle>
-      <LabRequestsSearchBar status={status} />
+      <LabRequestsSearchBar statuses={statuses} />
       <LabRequestsTable
         loadEncounter={loadEncounter}
         loadLabRequest={loadLabRequest}

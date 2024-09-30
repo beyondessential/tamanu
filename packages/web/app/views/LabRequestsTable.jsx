@@ -74,8 +74,6 @@ export const LabRequestsTable = React.memo(
       );
     };
 
-    console.log('statuses', statuses);
-
     return (
       <SearchTableWithPermissionCheck
         verb="list"
