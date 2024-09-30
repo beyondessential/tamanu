@@ -98,6 +98,10 @@ export class Task extends Model {
     );
   }
 
+  isRepeatingTask() {
+    return this.frequencyValue && this.frequencyUnit;
+  }
+
   /**
    *
    * @param {import('./')} models
