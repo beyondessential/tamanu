@@ -65,7 +65,7 @@ const BottomContainer = styled.div`
   overflow: hidden;
   flex-direction: column;
   flex: 1;
-  max-height: 356px;
+  min-height: 356px;
 `;
 
 const LabelContainer = styled.div`

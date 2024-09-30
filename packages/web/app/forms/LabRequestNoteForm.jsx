@@ -121,7 +121,7 @@ export const LabRequestNoteForm = React.memo(({ labRequestId, isReadOnly }) => {
   return (
     <Container>
       <NotesIcon color="primary" style={{ marginTop: 4 }} />
-      <Box flex="1" ml={1} maxHeight="100%">
+      <Box flex="1" ml={1} maxHeight="100%" overflow="auto">
         <List>
           {isSuccess &&
             notes.data?.map(note => (
