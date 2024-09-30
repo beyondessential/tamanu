@@ -52,6 +52,7 @@ const OPTIONS = [
       return 'basic';
     },
   },
+  { key: 'env', defaultValue: 'staging' },
   { key: 'timezone', defaultValue: 'Pacific/Auckland' },
   { key: 'ip', defaultValue: null, parse: input => input.split(',').map(s => s.trim()) },
   { key: 'dbstorage', defaultValue: 5, parse: input => intBounds(input, [1, 100]) },
@@ -190,6 +191,7 @@ export function configMap(deployName, imageTag, options) {
       facilities: options.facilities,
       timezone: options.timezone,
       ipAllowList: options.ip,
+      nodeEnv: options.env,
       serviceAccount: options.serviceaccountarn,
 
       apiReplicas: options.apis,
