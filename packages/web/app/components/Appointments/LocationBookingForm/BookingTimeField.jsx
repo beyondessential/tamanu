@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
-import { OuterLabelFieldWrapper } from '../Field';
-import { Colors } from '../../constants';
+import { OuterLabelFieldWrapper } from '../../Field';
+import { Colors } from '../../../constants';
 import {
   addMinutes,
   parse,
@@ -11,11 +11,11 @@ import {
   isWithinInterval,
 } from 'date-fns';
 import ms from 'ms';
-import { useSettings } from '../../contexts/Settings';
-import { useAppointments } from '../../api/queries/useAppointments';
+import { useSettings } from '../../../contexts/Settings';
+import { useAppointments } from '../../../api/queries/useAppointments';
 import { BookingTimeCell } from './BookingTimeCell';
 import { useFormikContext } from 'formik';
-import { toDateTimeString } from '../../utils/dateTime';
+import { toDateTimeString } from '../../../utils/dateTime';
 import { isEqual } from 'lodash';
 import { CircularProgress } from '@material-ui/core';
 
@@ -98,6 +98,10 @@ export const BookingTimeField = ({ disabled = false }) => {
       setFieldValue('endTime', endTime);
     }
   }, [selectedTimeRange, setFieldValue, dirty]);
+
+  useEffect(() => {
+    if (!values.startTime) setSelectedTimeRange(null);
+  }, [values]);
 
   const updateTimeRangeStart = start =>
     setSelectedTimeRange(prevRange => ({
