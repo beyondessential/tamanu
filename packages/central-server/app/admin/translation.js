@@ -5,6 +5,9 @@ import { isNull } from 'lodash';
 
 export const translationRouter = express.Router();
 
+// Bump default json limit as some deployments have a large number of translations
+translationRouter.use(express.json({ limit: '2Mb' }));
+
 translationRouter.get(
   '/',
   asyncHandler(async (req, res) => {
