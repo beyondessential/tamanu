@@ -9,19 +9,11 @@ import { getCurrentLanguageCode } from '../../utils/translation';
 import { useAuth } from '../../contexts/Auth';
 
 export const SuggesterSelectField = React.memo(
-  ({
-    field,
-    endpoint,
-    selectedFacilityId,
-    filterByFacility,
-    isMulti = false,
-    initialOptions: staticInitialOptions = [],
-    ...props
-  }) => {
+  ({ field, endpoint, selectedFacilityId, filterByFacility, isMulti = false, ...props }) => {
     const { facilityId } = useAuth();
     const api = useApi();
     const [options, setOptions] = useState([]);
-    const [initialOptions, setInitialOptions] = useState(staticInitialOptions);
+    const [initialOptions, setInitialOptions] = useState([]);
 
     // We need this hook to fetch the label of the current value beside the other useEffect hooks to fetch all of the options.
     // This is because the 2nd useEffect hooks will only fetch options available in the current facility,
@@ -42,19 +34,7 @@ export const SuggesterSelectField = React.memo(
               language: getCurrentLanguageCode(),
             })
             .then(({ id, name }) => {
-              setInitialOptions(
-                unionBy(
-                  options,
-                  [
-                    {
-                      value: id,
-                      label: name,
-                    },
-                  ],
-                  'value',
-                ),
-              );
-              setOptions(initialOptions);
+              setInitialOptions(prev => [...prev, { value: id, label: name }]);
             });
         }
       }
@@ -82,7 +62,15 @@ export const SuggesterSelectField = React.memo(
             ),
           );
         });
-    }, [api, setOptions, endpoint, filterByFacility, selectedFacilityId, facilityId]);
+    }, [
+      api,
+      setOptions,
+      endpoint,
+      filterByFacility,
+      selectedFacilityId,
+      facilityId,
+      initialOptions,
+    ]);
 
     const baseProps = {
       name: field.name,
