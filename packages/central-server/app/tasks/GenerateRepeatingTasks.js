@@ -4,14 +4,20 @@ import { log } from '@tamanu/shared/services/logging';
 import { Op } from 'sequelize';
 import { sleepAsync } from '@tamanu/shared/utils';
 import { InvalidConfigError } from '@tamanu/shared/errors';
+import { TASK_STATUSES } from '@tamanu/constants';
 
 export class GenerateRepeatingTasks extends ScheduledTask {
+  /**
+   *
+   * @param {import('../ApplicationContext').ApplicationContext} context
+   */
   constructor(context) {
     const conf = config.schedules.generateRepeatingTasks;
     const { schedule, jitterTime, enabled } = conf;
     super(schedule, log, jitterTime, enabled);
     this.models = context.store.models;
     this.config = conf;
+    this.sequelize = context.store.sequelize;
   }
 
   getName() {
@@ -36,6 +42,33 @@ export class GenerateRepeatingTasks extends ScheduledTask {
   }
 
   async run() {
+    await this.removeChildTasksOverParentEndtime();
+    await this.generateChildTasks();
+  }
+
+  // remove child tasks that have dueTime over parent endtime
+  // this is a safe guard for the delayed sync from facility server to central server
+  // only need to account for tasks that have been created in the last 30 days with the status of TODO
+  async removeChildTasksOverParentEndtime() {
+    await this.sequelize.query(
+      `update tasks set deleted_at = now() where id in (SELECT childTasks.id FROM tasks as childTasks
+    JOIN tasks as parentTasks
+      ON parentTasks.id = childTasks.parent_task_id
+      AND parentTasks.end_time IS NOT NULL
+    WHERE childTasks.deleted_at is NULL
+      and childTasks.due_time > parentTasks.end_time
+      and childTasks.status IN (:statuses)
+      and childTasks.created_at > now() - interval '30' day)`,
+      {
+        replacements: {
+          statuses: [TASK_STATUSES.TODO],
+        },
+      },
+    );
+  }
+
+  //generate child tasks for repeating tasks
+  async generateChildTasks() {
     const { Task } = this.models;
 
     const toProcess = await this.countQueue();

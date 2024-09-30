@@ -16,8 +16,8 @@ export { taskRoutes as tasks };
 const taskCompletionInputSchema = z.object({
   taskIds: z
     .string()
-    .uuid()
-    .array(),
+    .array()
+    .min(1),
   completedByUserId: z.string(),
   completedTime: z.string().datetime(),
   completedNote: z.string().optional(),
@@ -57,7 +57,6 @@ taskRoutes.post(
 const taskNonCompletionInputSchema = z.object({
   taskIds: z
     .string()
-    .uuid()
     .array()
     .min(1),
   notCompletedByUserId: z.string(),
@@ -105,6 +104,77 @@ taskRoutes.put(
 );
 
 /**
+ * Delete a task
+ * Only allow to delete task with TODO status
+ */
+const taskDeletionInputSchema = z.object({
+  taskIds: z
+    .string()
+    .array()
+    .min(1),
+  deletedByUserId: z.string(),
+  deletedTime: z.string().datetime(),
+  deletedReasonId: z.string().optional(),
+});
+taskRoutes.delete(
+  '/',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('delete', 'Task');
+    const { taskIds, ...deletedInfo } = await taskDeletionInputSchema.parseAsync(req.body);
+
+    //validate deleted reason
+    if (deletedInfo.deletedReasonId) {
+      const deletedReason = await req.models.ReferenceData.findByPk(deletedInfo.deletedReasonId, {
+        where: { type: REFERENCE_TYPES.TASK_DELETION_REASON },
+      });
+      if (!deletedReason) throw new NotFoundError('Deleted reason not found');
+    }
+
+    //validate task
+    const allowedStatuses = [TASK_STATUSES.TODO];
+    const tasks = await req.models.Task.findAll({
+      where: { id: { [Op.in]: taskIds }, status: { [Op.in]: allowedStatuses } },
+      attributes: ['id', 'status', 'dueTime', 'frequencyValue', 'frequencyUnit', 'parentTaskId'],
+    });
+    if (tasks?.length !== taskIds.length)
+      throw new ForbiddenError('Some of selected tasks are not in TODO status');
+
+    await req.db.transaction(async () => {
+      //update deletion info
+      await req.models.Task.update(deletedInfo, { where: { id: { [Op.in]: taskIds } } });
+
+      //delete tasks
+      for (const task of tasks) {
+        if (task.isRepeatingTask()) {
+          const parentTask = !task.parentTaskId
+            ? task
+            : await req.models.Task.findOne({
+                where: { id: task.parentTaskId },
+              });
+          if (parentTask) {
+            parentTask.endTime = new Date(new Date(task.dueTime).getTime() - 1);
+            await parentTask.save();
+            //remove all child tasks that have dueTime over parent endtime
+            await req.models.Task.destroy({
+              where: {
+                parentTaskId: parentTask.id,
+                id: { [Op.ne]: task.id },
+                dueTime: { [Op.gt]: parentTask.endTime },
+                status: TASK_STATUSES.TODO,
+              },
+              individualHooks: true,
+            });
+          }
+        }
+        await task.destroy();
+      }
+    });
+
+    res.status(204).json();
+  }),
+);
+
+/**
  * Mark task as todo
  * Only tasks in COMPLETED & NON_COMPLETED status can be marked as todo
  * - Copy info from the selected task and set the new task status as todo, set todo info to the new task
@@ -113,7 +183,6 @@ taskRoutes.put(
 const taskTodoInputSchema = z.object({
   taskIds: z
     .string()
-    .uuid()
     .array()
     .min(1),
   todoByUserId: z.string(),
