@@ -152,11 +152,6 @@ export const ReportGeneratorForm = () => {
     filterDateRangeAsStrings = false,
   } = reportsById[selectedReportId] || {};
 
-  const parametersFilteredByFacility = useMemo(
-    () => parameters.filter(param => param.filterByFacility).map(param => param.name),
-    [parameters],
-  );
-
   const isDataSourceFieldDisabled = dataSourceOptions.length === 1;
 
   useEffect(() => {
@@ -377,7 +372,7 @@ export const ReportGeneratorForm = () => {
                       label={label}
                       parameterValues={values}
                       parameterField={parameterField}
-                      parametersFilteredByFacility={parametersFilteredByFacility}
+                      parameters={parameters}
                       onChange={() => resetDownload()}
                       {...restOfProps}
                     />

@@ -1,26 +1,29 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useSuggester } from '../../api';
 import { AutocompleteField, Field } from '../../components';
 import { useFormikContext } from 'formik';
 import { omit } from 'lodash';
 
-export const FacilityField = ({ required, label, parametersFilteredByFacility }) => {
+export const FacilityField = ({ required, label, parameters }) => {
   const { setValues, values } = useFormikContext();
   const facilitySuggester = useSuggester('facility');
+  const fieldsToClear = useMemo(
+    () => parameters.filter(param => param.filterBySelectedFacility).map(param => param.name),
+    [parameters],
+  );
 
-  const handleClearFacilityFilteredFields = () => {
-    if (!parametersFilteredByFacility.length) {
-      return;
-    }
-    // Clear any set values that might be effected by facility filtering
-    setValues(omit(values, parametersFilteredByFacility));
+  const handleClearAssociatedFields = () => {
+    if (!fieldsToClear.length) return;
+    // Clear any set values that might be effected by dynamic facility filtering
+    setValues(omit(values, fieldsToClear));
   };
+
   return (
     <Field
       name="facilityId"
       label={label}
       component={AutocompleteField}
-      onChange={handleClearFacilityFilteredFields}
+      onChange={handleClearAssociatedFields}
       suggester={facilitySuggester}
       required={required}
     />

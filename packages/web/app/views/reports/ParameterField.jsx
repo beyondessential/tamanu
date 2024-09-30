@@ -105,7 +105,7 @@ export const PARAMETER_FIELD_COMPONENTS = {
 
 export const ParameterField = ({
   parameterField,
-  parametersFilteredByFacility,
+  parameters,
   name,
   required,
   label,
@@ -120,7 +120,7 @@ export const ParameterField = ({
       name={name}
       label={label}
       parameterValues={values}
-      parametersFilteredByFacility={parametersFilteredByFacility}
+      parameters={parameters}
       {...props}
     />
   );

@@ -15,12 +15,13 @@ export const SuggesterSelectField = React.memo(
     selectedFacilityId,
     filterByFacility,
     isMulti = false,
-    initialOptions = [],
+    initialOptions: staticInitialOptions = [],
     ...props
   }) => {
     const { facilityId } = useAuth();
     const api = useApi();
-    const [options, setOptions] = useState(initialOptions);
+    const [options, setOptions] = useState([]);
+    const [initialOptions, setInitialOptions] = useState(staticInitialOptions);
 
     // We need this hook to fetch the label of the current value beside the other useEffect hooks to fetch all of the options.
     // This is because the 2nd useEffect hooks will only fetch options available in the current facility,
@@ -41,9 +42,9 @@ export const SuggesterSelectField = React.memo(
               language: getCurrentLanguageCode(),
             })
             .then(({ id, name }) => {
-              setOptions(currentOptions =>
+              setInitialOptions(
                 unionBy(
-                  currentOptions,
+                  options,
                   [
                     {
                       value: id,
@@ -53,6 +54,7 @@ export const SuggesterSelectField = React.memo(
                   'value',
                 ),
               );
+              setOptions(initialOptions);
             });
         }
       }
@@ -70,10 +72,14 @@ export const SuggesterSelectField = React.memo(
         })
         .then(resultData => {
           setOptions(
-            resultData.map(({ id, name }) => ({
-              value: id,
-              label: name,
-            })),
+            unionBy(
+              initialOptions,
+              resultData.map(({ id, name }) => ({
+                value: id,
+                label: name,
+              })),
+              'value',
+            ),
           );
         });
     }, [api, setOptions, endpoint, filterByFacility, selectedFacilityId, facilityId]);
