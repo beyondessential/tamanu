@@ -1,16 +1,15 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import IndeterminateCheckBoxOutlinedIcon from '@material-ui/icons/IndeterminateCheckBoxOutlined';
-import styled from 'styled-components';
 import { CheckInput } from '../Field';
-import { Colors } from '../../constants';
-
-const IconButton = styled.div`
-  cursor: pointer;
-`;
 
 export const useSelectableColumn = (
   rows,
-  { columnKey = 'selected', selectionKey = 'id', bulkDeselectOnly = false } = {},
+  {
+    columnKey = 'selected',
+    selectionKey = 'id',
+    getIsRowDisabled = () => false,
+    getIsTitleDisabled = () => false,
+    showIndeterminate = false,
+  } = {},
 ) => {
   const [selectedKeys, setSelectedKeys] = useState(new Set());
 
@@ -32,14 +31,18 @@ export const useSelectableColumn = (
     [rows, selectionKey, selectedKeys],
   );
   const cellAccessor = useCallback(
-    ({ rowIndex }) => (
-      <CheckInput
-        value={selectedKeys.has(rows[rowIndex][selectionKey])}
-        name="selected"
-        onChange={event => cellOnChange(event, rowIndex)}
-        style={{ margin: 'auto' }}
-      />
-    ),
+    row => {
+      const { rowIndex } = row;
+      return (
+        <CheckInput
+          value={selectedKeys.has(rows[rowIndex][selectionKey])}
+          name="selected"
+          onChange={event => cellOnChange(event, rowIndex)}
+          style={{ margin: 'auto' }}
+          disabled={getIsRowDisabled(selectedKeys, row)}
+        />
+      );
+    },
     [rows, selectionKey, selectedKeys, cellOnChange],
   );
 
@@ -53,23 +56,9 @@ export const useSelectableColumn = (
     [rows, selectionKey],
   );
 
-  const selectAll = () => {
-    const newSelection = rows.map(row => row[selectionKey]);
-    setSelectedKeys(new Set([...selectedKeys, ...newSelection]));
-  };
-
   const titleAccessor = useCallback(() => {
     const isEveryRowSelected =
       rows?.length > 0 && rows.every(r => selectedKeys.has(r[selectionKey]));
-    const isSomeRowSelected = rows?.length > 0 && rows.some(r => selectedKeys.has(r[selectionKey]));
-
-    if (bulkDeselectOnly && selectedRows.length > 0 && isSomeRowSelected && !isEveryRowSelected) {
-      return (
-        <IconButton onClick={selectAll}>
-          <IndeterminateCheckBoxOutlinedIcon style={{ color: Colors.primary, fontSize: '20px' }} />
-        </IconButton>
-      );
-    }
 
     return (
       <CheckInput
@@ -77,6 +66,8 @@ export const useSelectableColumn = (
         name="selected"
         onChange={titleOnChange}
         style={{ margin: 'auto' }}
+        indeterminate={showIndeterminate && isEveryRowSelected}
+        disabled={getIsTitleDisabled()}
       />
     );
   }, [rows, selectedRows, titleOnChange]);

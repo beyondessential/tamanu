@@ -334,7 +334,15 @@ export const TasksTable = ({ encounterId, searchParameters, refreshCount, refres
   };
 
   const { selectedRows, selectableColumn } = useSelectableColumn(data, {
-    bulkDeselectOnly: true,
+    showIndeterminate: true,
+    getIsRowDisabled: (selectedKeys, { status }) => {
+      const selectedStatus = data.find(({ id }) => selectedKeys.has(id))?.status;
+      return selectedStatus && status !== selectedStatus;
+    },
+    getIsTitleDisabled: () => {
+      const uniqueStatuses = new Set(data.map(item => item.status));
+      return uniqueStatuses.size > 1;
+    },
   });
   const selectedRowIds = useMemo(() => selectedRows.map(row => row.id), [selectedRows]);
 
