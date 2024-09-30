@@ -33,8 +33,6 @@ function task(name, args, instances = 1, env = {}) {
   return base;
 }
 
-const cwd = '.'; // IMPORTANT: Leave this as-is, for production build
-
 module.exports = {
   apps: [
     task('tamanu-api', 'startApi', +process.env.TAMANU_API_SCALE || defaultApiScale, {
