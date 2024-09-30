@@ -131,6 +131,10 @@ const OPTIONS = [
     defaultValue: 'tamanu',
     parse: input => (['tamanu'].includes(input) ? input : 'tamanu'),
   },
+  {
+    key: 'serviceaccountarn',
+    defaultValue: 'arn:aws:iam::143295493206:role/ips-bucket-role-de7b385',
+  },
 ];
 
 function stripPercent(str) {
@@ -186,6 +190,7 @@ export function configMap(deployName, imageTag, options) {
       facilities: options.facilities,
       timezone: options.timezone,
       ipAllowList: options.ip,
+      serviceAccount: options.serviceaccountarn,
 
       apiReplicas: options.apis,
       dbReplicas: options.dbs,

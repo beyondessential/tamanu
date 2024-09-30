@@ -1,12 +1,15 @@
-import config from 'config';
 import { Op, Sequelize } from 'sequelize';
 
 import { ENCOUNTER_TYPES, SYNC_DIRECTIONS } from '@tamanu/constants';
 import { InvalidOperationError } from '../errors';
 
 import { Model } from './Model';
-import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
+import {
+  buildEncounterLinkedSyncFilter,
+  buildEncounterLinkedSyncFilterJoins,
+} from './buildEncounterLinkedSyncFilter';
 import { dateTimeType } from './dateTimeTypes';
+import { buildEncounterPatientIdSelect } from './buildPatientLinkedLookupFilter';
 
 export class Triage extends Model {
   static init({ primaryKey, ...options }) {
@@ -60,11 +63,21 @@ export class Triage extends Model {
     if (patientCount === 0) {
       return null;
     }
-    return buildEncounterLinkedSyncFilter([this.tableName, 'encounters'], markedForSyncPatientsTable);
+    return buildEncounterLinkedSyncFilter(
+      [this.tableName, 'encounters'],
+      markedForSyncPatientsTable,
+    );
+  }
+
+  static buildSyncLookupQueryDetails() {
+    return {
+      select: buildEncounterPatientIdSelect(this),
+      joins: buildEncounterLinkedSyncFilterJoins([this.tableName, 'encounters']),
+    };
   }
 
   static async create(data) {
-    const { Department, Encounter, ReferenceData } = this.sequelize.models;
+    const { Encounter, ReferenceData } = this.sequelize.models;
 
     const existingEncounter = await Encounter.findOne({
       where: {
@@ -90,27 +103,13 @@ export class Triage extends Model {
       .join(' and ');
     const reasonForEncounter = `Presented at emergency department with ${reasonsText}`;
 
-    let { departmentId } = data;
-    if (!departmentId) {
-      const department = await Department.findOne({
-        where: { name: 'Emergency', facilityId: config.serverFacilityId },
-      });
-
-      if (!department) {
-        throw new Error('Cannot find Emergency department for current facility');
-      }
-
-      // eslint-disable-next-line require-atomic-updates
-      departmentId = department.id;
-    }
-
     return this.sequelize.transaction(async () => {
       const encounter = await Encounter.create({
         encounterType: ENCOUNTER_TYPES.TRIAGE,
         startDate: data.triageTime,
         reasonForEncounter,
         patientId: data.patientId,
-        departmentId,
+        departmentId: data.departmentId,
         locationId: data.locationId,
         examinerId: data.practitionerId,
         actorId: data.actorId,

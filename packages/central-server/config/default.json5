@@ -64,13 +64,17 @@
     "persistedCacheBatchSize": 20000,
     "pauseBetweenPersistedCacheBatchesInMilliseconds": 50,
     "adjustDataBatchSize": 20000,
-    "syncAllEncountersForTheseVaccines": [],
     "numberConcurrentPullSnapshots": 4,
     "persistUpdateWorkerPoolSize": 5,
-    // at its very large default, maxRecordsPerPullSnapshotChunk is essentially "off"
+    // at its very large default, maxRecordsPerSnapshotChunk is essentially "off"
     // can be turned on by lowering to some amount that seems appropriate if snapshot performance is an issue
-    "maxRecordsPerPullSnapshotChunk": 1000000000,
-    syncSessionTimeoutMs: null,
+    "maxRecordsPerSnapshotChunk": 1000000000,
+    "syncSessionTimeoutMs": null,
+    snapshotTransactionTimeoutMs: null,
+    "lookupTable": {
+      "enabled": false,
+      "perModelUpdateTimeoutMs": null
+    }
   },
   "loadshedder": {
     // paths are checked sequentially until a path matches a prefix
@@ -237,6 +241,10 @@
     "processSyncQueue": {
       "enabled": true,
       "schedule": "* * * * *"
+    },
+    "syncLookupRefresher": {
+      "enabled": false,
+      "schedule": "*/1 * * * *"
     }
   },
   "integrations": {

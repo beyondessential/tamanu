@@ -6,6 +6,7 @@ import { Model } from './Model';
 import { InvalidOperationError } from '../errors';
 import { runCalculations } from '../utils/calculations';
 import { getStringValue } from '../utils/fields';
+import { buildEncounterPatientIdSelect } from './buildPatientLinkedLookupFilter';
 
 export class SurveyResponseAnswer extends Model {
   static init({ primaryKey, ...options }) {
@@ -69,10 +70,23 @@ export class SurveyResponseAnswer extends Model {
     `;
   }
 
-  static getDefaultId = async resource => {
-    const code = config.survey.defaultCodes[resource];
+  static buildSyncLookupQueryDetails() {
+    return {
+      select: buildEncounterPatientIdSelect(this),
+      joins: `
+        JOIN survey_responses ON survey_response_answers.response_id = survey_responses.id
+        JOIN encounters ON survey_responses.encounter_id = encounters.id
+      `,
+    };
+  }
+
+  static getDefaultId = async (resource, settings) => {
+    const { models } = this.sequelize;
+    const code =
+      (await settings.get(`survey.defaultCodes.${resource}`)) ||
+      config.survey.defaultCodes[resource];
     const modelName = upperFirst(resource);
-    const model = this.sequelize.models[modelName];
+    const model = models[modelName];
     if (!model) {
       throw new Error(`Model not found: ${modelName}`);
     }

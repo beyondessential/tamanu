@@ -6,12 +6,16 @@ import {
 } from '@tamanu/constants';
 import { InvalidOperationError } from '../errors';
 import { Model } from './Model';
-import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
+import {
+  buildEncounterLinkedSyncFilter,
+  buildEncounterLinkedSyncFilterJoins,
+} from './buildEncounterLinkedSyncFilter';
 import { runCalculations } from '../utils/calculations';
 import { getActiveActionComponents, getResultValue, getStringValue } from '../utils/fields';
 import { getPatientDataDbLocation } from '../utils/getPatientDataDbLocation';
 import { dateTimeType } from './dateTimeTypes';
 import { getCurrentDateTimeString } from '../utils/dateTime';
+import { buildEncounterPatientIdSelect } from './buildPatientLinkedLookupFilter';
 
 async function createPatientIssues(models, questions, patientId) {
   const issueQuestions = questions.filter(
@@ -101,15 +105,15 @@ async function writeToPatientFields(
 
   if (valuesByModel.PatientProgramRegistration) {
     const { programId } = await models.Survey.findByPk(surveyId);
-    const { id: programRegistryId } = await models.ProgramRegistry.findOne({
+    const programRegistryDetail = await models.ProgramRegistry.findOne({
       where: { programId, visibilityStatus: VISIBILITY_STATUSES.CURRENT },
     });
-    if (!programRegistryId) {
+    if (!programRegistryDetail?.id) {
       throw new Error('No program registry configured for the current form');
     }
     await models.PatientProgramRegistration.create({
       patientId,
-      programRegistryId,
+      programRegistryId: programRegistryDetail.id,
       date: submittedTime,
       ...valuesByModel.PatientProgramRegistration,
       clinicianId: valuesByModel.PatientProgramRegistration.clinicianId || userId,
@@ -191,6 +195,13 @@ export class SurveyResponse extends Model {
       [this.tableName, 'encounters'],
       markedForSyncPatientsTable,
     );
+  }
+
+  static buildSyncLookupQueryDetails() {
+    return {
+      select: buildEncounterPatientIdSelect(this),
+      joins: buildEncounterLinkedSyncFilterJoins([this.tableName, 'encounters']),
+    };
   }
 
   static async getSurveyEncounter({
