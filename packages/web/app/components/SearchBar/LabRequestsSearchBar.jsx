@@ -213,6 +213,7 @@ export const LabRequestsSearchBar = ({ status = '' }) => {
                     LAB_REQUEST_STATUSES.DELETED,
                     LAB_REQUEST_STATUSES.ENTERED_IN_ERROR,
                     LAB_REQUEST_STATUSES.CANCELLED,
+                    LAB_REQUEST_STATUSES.INVALIDATED,
                   ].includes(option.value),
               )
             }
