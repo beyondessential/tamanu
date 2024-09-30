@@ -51,6 +51,11 @@ const Container = styled.div`
 const TopContainer = styled.div`
   padding: 18px 30px;
   background-color: ${Colors.background};
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  flex-shrink: 1;
+  flex-basis: 0;
 `;
 
 const BottomContainer = styled.div`
@@ -60,6 +65,7 @@ const BottomContainer = styled.div`
   overflow: hidden;
   flex-direction: column;
   flex: 1;
+  max-height: 356px;
 `;
 
 const LabelContainer = styled.div`

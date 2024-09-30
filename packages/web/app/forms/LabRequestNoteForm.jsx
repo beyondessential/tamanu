@@ -26,12 +26,15 @@ const Container = styled.div`
   border-radius: 3px;
   margin-bottom: 15px;
   padding: 12px;
+  overflow: auto;
+  flex-grow: 1;
+  flex-shrink: 1;
+  flex-basis: 0;
 `;
 
 const List = styled.ul`
   margin: 0;
   padding: 5px 0 0 15px;
-  max-height: 200px;
   overflow: auto;
 `;
 
@@ -118,7 +121,7 @@ export const LabRequestNoteForm = React.memo(({ labRequestId, isReadOnly }) => {
   return (
     <Container>
       <NotesIcon color="primary" style={{ marginTop: 4 }} />
-      <Box flex="1" ml={1}>
+      <Box flex="1" ml={1} maxHeight="100%">
         <List>
           {isSuccess &&
             notes.data?.map(note => (
