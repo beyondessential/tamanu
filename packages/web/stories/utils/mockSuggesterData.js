@@ -11,8 +11,10 @@ export const createDummyPatient = () => ({
   id: chance.guid(),
 });
 
+const mockPatientData = [...Array(10)].map(() => createDummyPatient());
+
 export const mockPatientSuggesterEndpoint = {
-  'suggestions/patient': () => [...Array(10)].map(() => createDummyPatient()),
+  'suggestions/patient': () => mockPatientData,
 };
 
 export const createDummySuggesterEntity = prefix => ({
@@ -20,11 +22,16 @@ export const createDummySuggesterEntity = prefix => ({
   name: `${prefix}: ${uniqueId()}`,
 });
 
+const mockLocationGroupData = [...Array(10)].map(() =>
+  createDummySuggesterEntity('Location group'),
+);
+
 export const mockLocationGroupSuggesterEndpoint = {
-  'suggestions/facilityLocationGroup': () =>
-    [...Array(10)].map(() => createDummySuggesterEntity('Location group')),
+  'suggestions/facilityLocationGroup': () => mockLocationGroupData,
 };
 
+const mockLocationData = [...Array(10)].map(() => createDummySuggesterEntity('Location'));
+
 export const mockLocationSuggesterEndpoint = {
-  'suggestions/location': () => [...Array(10)].map(() => createDummySuggesterEntity('Location')),
+  'suggestions/location': () => mockLocationData,
 };
