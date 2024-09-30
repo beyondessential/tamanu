@@ -16,7 +16,7 @@ export default async ({ mode }) => {
       // repo is dirty (has uncommited files)
       revision += '~';
     }
-  } catch (_) {}
+  } catch (_) { /* ignore */ }
 
   return defineConfig({
     assetsInclude: ['/sb-preview/runtime.js'],

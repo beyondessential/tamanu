@@ -1,5 +1,3 @@
-/* global __VERSION__ */
-
 import { createRoot } from 'react-dom/client';
 import { persistStore } from 'redux-persist';
 
