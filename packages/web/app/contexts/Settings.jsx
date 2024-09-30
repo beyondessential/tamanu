@@ -3,13 +3,13 @@ import { useSelector } from 'react-redux';
 import { get } from 'lodash';
 
 /**
- * @typedef {import("@tamanu/settings").FrontEndExposedSettingPath} SettingPath
+ * @typedef {import("@tamanu/settings/types").FrontEndExposedSettingPath} SettingPath
  * @typedef {Object} SettingsContextType
  * @property {(path: SettingPath) => ?} getSetting
  */
 
 /** @type {React.Context<SettingsContextType | undefined>} */
-const SettingsContext = React.createContext();
+export const SettingsContext = React.createContext();
 
 export const useSettings = () => {
   const context = useContext(SettingsContext);
