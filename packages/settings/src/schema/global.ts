@@ -8,12 +8,10 @@ import {
   thresholdsSchema,
   triageCategoriesDefault,
   triageCategoriesSchema,
-} from './definitions';
-import {
   displayIdFieldProperties,
   generateFieldSchema,
   LOCALISED_FIELD_TYPES,
-} from './global-settings-properties/fields';
+} from './definitions';
 
 export const globalSettings = {
   title: 'Global settings',
