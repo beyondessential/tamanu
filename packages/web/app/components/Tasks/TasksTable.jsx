@@ -101,7 +101,7 @@ const StatusTodo = styled.div`
   border-radius: 50%;
 `;
 
-const BulkActions = styled.div`
+const StyledBulkActions = styled.div`
   display: flex;
   gap: 15px;
   padding-right: 10px;
@@ -209,6 +209,61 @@ const getFrequency = ({ frequencyValue, frequencyUnit }) =>
     <TranslatedText stringId="encounter.tasks.table.once" fallback="Once" />
   );
 
+const BulkActions = ({ status, handleActionModalOpen }) => (
+  <StyledBulkActions>
+    {status !== TASK_STATUSES.NON_COMPLETED && (
+      <ThemedTooltip
+        title={
+          <TranslatedText
+            stringId="encounter.tasks.action.tooltip.notCompleted"
+            fallback="Mark as not complete"
+          />
+        }
+      >
+        <IconButton onClick={() => handleActionModalOpen(TASK_STATUSES.NON_COMPLETED, row.id)}>
+          <StyledCancelIcon />
+        </IconButton>
+      </ThemedTooltip>
+    )}
+    {status !== TASK_STATUSES.COMPLETED && (
+      <ThemedTooltip
+        title={
+          <TranslatedText
+            stringId="encounter.tasks.action.tooltip.completed"
+            fallback="Mark as complete"
+          />
+        }
+      >
+        <IconButton onClick={() => handleActionModalOpen(TASK_STATUSES.COMPLETED, row.id)}>
+          <StyledCheckCircleIcon />
+        </IconButton>
+      </ThemedTooltip>
+    )}
+    {status !== TASK_STATUSES.TODO && (
+      <ThemedTooltip
+        title={
+          <TranslatedText stringId="encounter.tasks.action.tooltip.toDo" fallback="Mark as to-do" />
+        }
+      >
+        <IconButton onClick={() => handleActionModalOpen(TASK_STATUSES.TODO, row.id)}>
+          <StatusTodo />
+        </IconButton>
+      </ThemedTooltip>
+    )}
+    {status === TASK_STATUSES.TODO && (
+      <ThemedTooltip
+        title={
+          <TranslatedText stringId="encounter.tasks.action.tooltip.delete" fallback="Delete" />
+        }
+      >
+        <IconButton>
+          <StyledDeleteOutlineIcon />
+        </IconButton>
+      </ThemedTooltip>
+    )}
+  </StyledBulkActions>
+);
+
 const NotesCell = ({ row, hoveredRow, handleActionModalOpen }) => {
   const [ref, isOverflowing] = useOverflow();
   const { note, status } = row;
@@ -225,64 +280,7 @@ const NotesCell = ({ row, hoveredRow, handleActionModalOpen }) => {
         )}
       </NotesDisplay>
       {hoveredRow?.id === row?.id && (
-        <BulkActions>
-          {status === TASK_STATUSES.TODO && (
-            <ThemedTooltip
-              title={
-                <TranslatedText
-                  stringId="encounter.tasks.action.tooltip.delete"
-                  fallback="Delete"
-                />
-              }
-            >
-              <IconButton>
-                <StyledDeleteOutlineIcon />
-              </IconButton>
-            </ThemedTooltip>
-          )}
-          {status !== TASK_STATUSES.NON_COMPLETED && (
-            <ThemedTooltip
-              title={
-                <TranslatedText
-                  stringId="encounter.tasks.action.tooltip.notCompleted"
-                  fallback="Mark as not complete"
-                />
-              }
-            >
-              <IconButton onClick={() => handleActionModalOpen(TASK_STATUSES.NON_COMPLETED, row.id)}>
-                <StyledCancelIcon />
-              </IconButton>
-            </ThemedTooltip>
-          )}
-          {status !== TASK_STATUSES.COMPLETED && (
-            <ThemedTooltip
-              title={
-                <TranslatedText
-                  stringId="encounter.tasks.action.tooltip.completed"
-                  fallback="Mark as complete"
-                />
-              }
-            >
-              <IconButton onClick={() => handleActionModalOpen(TASK_STATUSES.COMPLETED, row.id)}>
-                <StyledCheckCircleIcon />
-              </IconButton>
-            </ThemedTooltip>
-          )}
-          {status !== TASK_STATUSES.TODO && (
-            <ThemedTooltip
-              title={
-                <TranslatedText
-                  stringId="encounter.tasks.action.tooltip.toDo"
-                  fallback="Mark as to-do"
-                />
-              }
-            >
-              <IconButton onClick={() => handleActionModalOpen(TASK_STATUSES.TODO, row.id)}>
-                <StatusTodo />
-              </IconButton>
-            </ThemedTooltip>
-          )}
-        </BulkActions>
+        <BulkActions status={status} handleActionModalOpen={handleActionModalOpen} />
       )}
     </Box>
   );
@@ -416,44 +414,10 @@ export const TasksTable = ({ encounterId, searchParameters, refreshCount, refres
       {selectedRows.length > 0 && (
         <div>
           <StyledDivider />
-          <BulkActions>
-            <ThemedTooltip
-              title={
-                <TranslatedText
-                  stringId="encounter.tasks.action.tooltip.notCompleted"
-                  fallback="Mark as not complete"
-                />
-              }
-            >
-              <IconButton onClick={() => handleActionModalOpen(TASK_STATUSES.NON_COMPLETED)}>
-                <StyledCancelIcon />
-              </IconButton>
-            </ThemedTooltip>
-            <ThemedTooltip
-              title={
-                <TranslatedText
-                  stringId="encounter.tasks.action.tooltip.completed"
-                  fallback="Mark as complete"
-                />
-              }
-            >
-              <IconButton onClick={() => handleActionModalOpen(TASK_STATUSES.COMPLETED)}>
-                <StyledCheckCircleIcon />
-              </IconButton>
-            </ThemedTooltip>
-            <ThemedTooltip
-              title={
-                <TranslatedText
-                  stringId="encounter.tasks.action.tooltip.delete"
-                  fallback="Delete"
-                />
-              }
-            >
-              <IconButton>
-                <StyledDeleteOutlineIcon />
-              </IconButton>
-            </ThemedTooltip>
-          </BulkActions>
+          <BulkActions
+            status={selectedRows[0].status}
+            handleActionModalOpen={handleActionModalOpen}
+          />
         </div>
       )}
       <StyledTable
