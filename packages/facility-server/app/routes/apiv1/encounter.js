@@ -600,9 +600,7 @@ encounterRelations.get(
     });
     const results = queryResults.map(x => x.forResponse());
 
-    const count = await Task.count({
-      ...baseQueryOptions,
-    });
+    const count = await Task.count(baseQueryOptions);
     res.send({ data: results, count });
   }),
 );
