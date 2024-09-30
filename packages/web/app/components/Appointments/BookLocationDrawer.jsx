@@ -129,7 +129,7 @@ export const BookLocationDrawer = ({ open, closeDrawer }) => {
         validateOnChange
         render={({ values, resetForm, setFieldValue, dirty }) => {
           const warnAndResetForm = async () => {
-            const confirmed = dirty ? await handleShowWarningModal() : true;
+            const confirmed = !dirty || (await handleShowWarningModal());
             if (!confirmed) return;
             closeDrawer();
             resetForm();
@@ -145,7 +145,10 @@ export const BookLocationDrawer = ({ open, closeDrawer }) => {
                 component={LocationField}
                 value={values.locationId}
                 required
-                onChange={() => setFieldValue('date', null)}
+                onChange={() => {
+                  setFieldValue('overnight', null);
+                  setFieldValue('date', null);
+                }}
               />
               <OvernightStayField>
                 <Field
