@@ -7,18 +7,19 @@ import {
   Form,
   LocationField,
   TranslatedSelectField,
-} from '../Field';
+} from '../../Field';
 import styled, { css, keyframes } from 'styled-components';
-import { BodyText, Heading4 } from '../Typography';
+import { BodyText, Heading4 } from '../../Typography';
 import { BookingTimeField } from './BookingTimeField';
-import { usePatientSuggester, useSuggester } from '../../api';
-import { FormSubmitCancelRow } from '../ButtonRow';
-import { Colors } from '../../constants';
+import { useApi, usePatientSuggester, useSuggester } from '../../../api';
+import { FormSubmitCancelRow } from '../../ButtonRow';
+import { Colors } from '../../../constants';
 import Brightness2Icon from '@material-ui/icons/Brightness2';
-import { FormGrid } from '../FormGrid';
+import { FormGrid } from '../../FormGrid';
 import { APPOINTMENT_TYPE_LABELS } from '@tamanu/constants';
-import { ClearIcon } from '../Icons/ClearIcon';
-import { ConfirmModal } from '../ConfirmModal';
+import { ClearIcon } from '../../Icons/ClearIcon';
+import { ConfirmModal } from '../../ConfirmModal';
+import { notifyError, notifySuccess } from '../../../utils';
 
 const slideIn = keyframes`
   from {
@@ -109,6 +110,8 @@ export const BookLocationDrawer = ({ open, closeDrawer }) => {
   const patientSuggester = usePatientSuggester();
   const clinicianSuggester = useSuggester('practitioner');
 
+  const api = useApi();
+
   const [warningModalOpen, setShowWarningModal] = useState(false);
   const [resolveFn, setResolveFn] = useState(null);
 
@@ -118,6 +121,17 @@ export const BookLocationDrawer = ({ open, closeDrawer }) => {
       setShowWarningModal(true);
     });
 
+  const handleSubmit = async data => {
+    // TODO: post appointment to backend and then display toast based on response
+    const response = await api.post(`appointments`, data);
+
+    if (response.ok) {
+      notifySuccess('Booking successfully created');
+    } else {
+      notifyError('Booking failed. Booking time no longer available');
+    }
+  };
+
   return (
     <Container columns={1} $open={open}>
       <Heading>Book location</Heading>
@@ -125,7 +139,7 @@ export const BookLocationDrawer = ({ open, closeDrawer }) => {
         Create a new booking by completing the below details and selecting ‘Confirm’.
       </Description>
       <Form
-        onSubmit={async () => console.log('submitting')}
+        onSubmit={handleSubmit}
         validateOnChange
         render={({ values, resetForm, setFieldValue, dirty }) => {
           const warnAndResetForm = async () => {
@@ -134,6 +148,8 @@ export const BookLocationDrawer = ({ open, closeDrawer }) => {
             closeDrawer();
             resetForm();
           };
+
+          console.log(values)
 
           return (
             <FormGrid columns={1}>
@@ -148,6 +164,8 @@ export const BookLocationDrawer = ({ open, closeDrawer }) => {
                 onChange={() => {
                   setFieldValue('overnight', null);
                   setFieldValue('date', null);
+                  setFieldValue('startTime', null);
+                  setFieldValue('endTime', null);
                 }}
               />
               <OvernightStayField>

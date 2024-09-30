@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 
-import { BookingTimeField } from '../../app/components/Appointments/BookingTimeField';
+import { BookingTimeField } from '../../app/components/Appointments/LocationBookingForm/BookingTimeField';
 import { MockedApi } from '../utils/mockedApi';
 import { MockSettingsProvider } from '../utils/mockSettingsProvider';
 import { Form } from '../../app/components';

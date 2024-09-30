@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-import { BookLocationDrawer } from '../../app/components/Appointments/BookLocationDrawer';
+import { BookLocationDrawer } from '../../app/components/Appointments/LocationBookingForm/BookLocationDrawer';
 import { MockedApi } from '../utils/mockedApi';
 import { MockSettingsProvider } from '../utils/mockSettingsProvider';
 import { Button, Form } from '../../app/components';

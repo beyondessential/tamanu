@@ -1,10 +1,10 @@
 import React from 'react';
 import styled, { css } from 'styled-components';
-import { Colors } from '../../constants';
-import { ConditionalTooltip, ThemedTooltip } from '../Tooltip';
-import { TimeRangeDisplay } from '../DateDisplay';
+import { Colors } from '../../../constants';
+import { ConditionalTooltip, ThemedTooltip } from '../../Tooltip';
+import { TimeRangeDisplay } from '../../DateDisplay';
 import { alpha } from '@material-ui/core';
-import { TranslatedText } from '../Translation/TranslatedText';
+import { TranslatedText } from '../../Translation/TranslatedText';
 
 const Cell = styled.div`
   border: 1px solid ${Colors.outline};

@@ -102,6 +102,7 @@ export const LocationInput = React.memo(
         <AutocompleteInput
           label={locationGroupLabel}
           required={required}
+          name="locationGroup"
           onChange={handleChangeCategory}
           suggester={locationGroupSuggester}
           value={groupId}
