@@ -40,6 +40,7 @@ function start() {
     import('https://d2wy8f7a9ursnm.cloudfront.net/v1/bugsnag-performance.min.js')
       .then(({ default: BugsnagPerformance }) => {
         BugsnagPerformance.start({ apiKey: window.env.BUGSNAG_API_KEY });
+        console.debug('Bugsnag Performance Monitoring started');
       });
   }
 
