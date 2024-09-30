@@ -69,7 +69,7 @@ export default {
     Story => (
       <MockedApi endpoints={endpoints}>
         <MockSettingsProvider mockSettings={mockSettings}>
-          <Form onSubmit={async () => {}} render={() => <Story />} />
+          <Story />
         </MockSettingsProvider>
       </MockedApi>
     ),
@@ -98,7 +98,7 @@ export const Basic = () => {
   return (
     <MockCalendar>
       CALENDAR GOES HERE <Button onClick={openDrawer}>+ Book location</Button>
-      <BookLocationDrawer onCancel={closeDrawer} open={open} />
+      <BookLocationDrawer closeDrawer={closeDrawer} open={open} />
     </MockCalendar>
   );
 };

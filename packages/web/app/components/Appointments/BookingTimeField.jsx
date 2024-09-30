@@ -27,7 +27,6 @@ const CellContainer = styled.div`
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 10px;
-  margin-bottom: 16px;
 `;
 
 const LoadingIndicator = styled(CircularProgress)`
@@ -63,7 +62,7 @@ const isTimeSlotWithinRange = (timeSlot, range) => {
 // logic calculated through time ranges in the format { start: DATE, end: DATE }
 export const BookingTimeField = ({ disabled = false }) => {
   const { getSetting } = useSettings();
-  const { setFieldValue, values } = useFormikContext();
+  const { setFieldValue, values, dirty } = useFormikContext();
 
   const [selectedTimeRange, setSelectedTimeRange] = useState(null);
   const [hoverTimeRange, setHoverTimeRange] = useState(null);
@@ -79,22 +78,26 @@ export const BookingTimeField = ({ disabled = false }) => {
   // Convert existing bookings into timeslots
   const bookedTimeSlots = useMemo(
     () =>
-      existingLocationBookings?.data.map(booking => ({
-        start: new Date(booking.startTime),
-        end: new Date(booking.endTime),
-      })),
-    [existingLocationBookings],
+      isFetched
+        ? existingLocationBookings?.data.map(booking => ({
+            start: new Date(booking.startTime),
+            end: new Date(booking.endTime),
+          }))
+        : [],
+    [existingLocationBookings, isFetched],
   );
 
   const bookingSlotSettings = getSetting('appointments.bookingSlots');
   const timeSlots = calculateTimeSlots(bookingSlotSettings);
 
   useEffect(() => {
-    const startTime = selectedTimeRange ? toDateTimeString(selectedTimeRange.start) : null;
-    const endTime = selectedTimeRange ? toDateTimeString(selectedTimeRange.end) : null;
-    setFieldValue('startTime', startTime);
-    setFieldValue('endTime', endTime);
-  }, [selectedTimeRange, setFieldValue]);
+    if (dirty) {
+      const startTime = selectedTimeRange ? toDateTimeString(selectedTimeRange.start) : null;
+      const endTime = selectedTimeRange ? toDateTimeString(selectedTimeRange.end) : null;
+      setFieldValue('startTime', startTime);
+      setFieldValue('endTime', endTime);
+    }
+  }, [selectedTimeRange, setFieldValue, dirty]);
 
   const updateTimeRangeStart = start =>
     setSelectedTimeRange(prevRange => ({
@@ -179,7 +182,7 @@ export const BookingTimeField = ({ disabled = false }) => {
   return (
     <OuterLabelFieldWrapper label="Booking time" required>
       <CellContainer $disabled={disabled}>
-        {isFetched ? (
+        {!date || isFetched ? (
           timeSlots.map((timeSlot, index) => {
             const isSelected = isTimeSlotWithinRange(timeSlot, selectedTimeRange);
             const isBooked = bookedTimeSlots?.some(bookedTimeSlot =>
