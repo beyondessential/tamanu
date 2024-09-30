@@ -19,8 +19,8 @@ import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useAuth } from '../contexts/Auth';
 
 export const LabRequestsTable = React.memo(
-  ({ status = '', loadEncounter, loadLabRequest, searchParameters }) => {
-    const publishedStatus = status === LAB_REQUEST_STATUSES.PUBLISHED;
+  ({ statuses, loadEncounter, loadLabRequest, searchParameters }) => {
+    const publishedStatus = statuses?.includes(LAB_REQUEST_STATUSES.PUBLISHED);
 
     const { facilityId } = useAuth();
 
@@ -74,6 +74,8 @@ export const LabRequestsTable = React.memo(
       );
     };
 
+    console.log('statuses', statuses);
+
     return (
       <SearchTableWithPermissionCheck
         verb="list"
@@ -85,7 +87,7 @@ export const LabRequestsTable = React.memo(
         onRowClick={selectLab}
         fetchOptions={{
           ...searchParameters,
-          ...(status && { status }),
+          ...(statuses && { statuses }),
           facilityId,
         }}
         initialSort={{
