@@ -136,7 +136,7 @@ async function centralServerLoginWithLocalFallback(models, email, password, devi
 }
 
 export async function loginHandler(req, res, next) {
-  const { body = {}, models, deviceId } = req;
+  const { body, models, deviceId } = req;
   const { email, password } = body;
 
   // no permission needed for login
@@ -184,7 +184,7 @@ export async function loginHandler(req, res, next) {
 }
 
 export async function setFacilityHandler(req, res, next) {
-  const { user, body = {} } = req;
+  const { user, body } = req;
   const { facilityId } = body;
 
   try {
