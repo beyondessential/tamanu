@@ -133,7 +133,7 @@ const OPTIONS = [
   },
   {
     key: 'serviceaccountarn',
-    defaultValue: 'TODO',
+    defaultValue: 'arn:aws:iam::143295493206:role/ips-bucket-role-de7b385',
   },
 ];
 
