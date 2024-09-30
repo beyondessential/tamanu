@@ -155,6 +155,9 @@ taskRoutes.put(
 
     await req.db.transaction(async () => {
       for (const task of tasks) {
+        //delete the selected task
+        await task.destroy();
+
         //copy info from the selected task and set the new task as todo with todo info
         const newId = uuidv4();
         await req.models.Task.create({
@@ -162,6 +165,7 @@ taskRoutes.put(
           id: newId,
           status: TASK_STATUSES.TODO,
           ...todoInfo,
+          deletedAt: null,
         });
         await req.models.TaskDesignation.bulkCreate(
           task.dataValues.designations.map(designation => ({
@@ -169,9 +173,6 @@ taskRoutes.put(
             taskId: newId,
           })),
         );
-
-        //delete the selected task
-        await task.destroy();
       }
     });
 
