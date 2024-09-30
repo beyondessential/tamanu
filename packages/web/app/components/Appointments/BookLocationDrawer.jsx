@@ -1,23 +1,24 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   AutocompleteField,
   CheckField,
   DateField,
   Field,
+  Form,
   LocationField,
-  SelectField,
   TranslatedSelectField,
 } from '../Field';
 import styled, { css, keyframes } from 'styled-components';
 import { BodyText, Heading4 } from '../Typography';
 import { BookingTimeField } from './BookingTimeField';
-import { useFormikContext } from 'formik';
 import { usePatientSuggester, useSuggester } from '../../api';
 import { FormSubmitCancelRow } from '../ButtonRow';
 import { Colors } from '../../constants';
 import Brightness2Icon from '@material-ui/icons/Brightness2';
 import { FormGrid } from '../FormGrid';
 import { APPOINTMENT_TYPE_LABELS } from '@tamanu/constants';
+import { ClearIcon } from '../Icons/ClearIcon';
+import { ConfirmModal } from '../ConfirmModal';
 
 const slideIn = keyframes`
   from {
@@ -66,18 +67,56 @@ const Description = styled(BodyText)`
   color: ${Colors.midText};
 `;
 
-const StyledField = styled(Field)``;
+const OvernightStayField = styled.div`
+  display: flex;
+  align-items: center;
+`;
 
-export const BookLocationDrawer = ({ open, onCancel }) => {
-  // TODO: this should probably be the form and submit to the endpoint and close on submit
-  const { values, onSubmit, resetForm, setFieldValue } = useFormikContext();
+const OvernightIcon = styled(Brightness2Icon)`
+  position: absolute;
+  left: 145px;
+`;
+
+const CloseDrawerIcon = styled(ClearIcon)`
+  cursor: pointer;
+  position: absolute;
+  top: 16px;
+  right: 16px;
+`;
+
+export const WarningModal = ({ open, setShowWarningModal, resolveFn }) => {
+  const handleClose = confirmed => {
+    setShowWarningModal(false);
+    resolveFn(confirmed);
+  };
+  return (
+    <ConfirmModal
+      title="Cancel new booking"
+      subText="Are you sure you would like to cancel the new booking?"
+      open={open}
+      onConfirm={() => {
+        handleClose(true);
+      }}
+      cancelButtonText="Back to editing"
+      onCancel={() => {
+        handleClose(false);
+      }}
+    />
+  );
+};
+
+export const BookLocationDrawer = ({ open, closeDrawer }) => {
   const patientSuggester = usePatientSuggester();
   const clinicianSuggester = useSuggester('practitioner');
 
-  // TODO: make this better
-  useEffect(() => {
-    if (!values.locationId) setFieldValue('date', null);
-  }, [values.locationId, setFieldValue]);
+  const [warningModalOpen, setShowWarningModal] = useState(false);
+  const [resolveFn, setResolveFn] = useState(null);
+
+  const handleShowWarningModal = async () =>
+    new Promise(resolve => {
+      setResolveFn(() => resolve); // Save resolve to use in onConfirm/onCancel
+      setShowWarningModal(true);
+    });
 
   return (
     <Container columns={1} $open={open}>
@@ -85,52 +124,79 @@ export const BookLocationDrawer = ({ open, onCancel }) => {
       <Description>
         Create a new booking by completing the below details and selecting ‘Confirm’.
       </Description>
-      <FormGrid columns={1}>
-        <Field
-          locationGroupLabel="Area"
-          label="Location"
-          name="locationId"
-          component={LocationField}
-          value={values.locationId}
-        />
-        <div>
-          <StyledField
-            name="overnight"
-            label={'Overnight stay'}
-            component={CheckField}
-            disabled={!values.locationId}
-          />
-          <Brightness2Icon fontSize="small" />
-        </div>
-        <StyledField name="date" label="Date" component={DateField} disabled={!values.locationId} />
-        <BookingTimeField disabled={!values.date} />
-        <StyledField
-          name="patientId"
-          label="Patient"
-          component={AutocompleteField}
-          suggester={patientSuggester}
-        />
-        <StyledField
-          name="bookingType"
-          label="Booking type"
-          component={TranslatedSelectField}
-          enumValues={APPOINTMENT_TYPE_LABELS}
-        />
-        <StyledField
-          name="clinicianId"
-          label="Clinician"
-          component={AutocompleteField}
-          suggester={clinicianSuggester}
-        />
-        <FormSubmitCancelRow
-          onCancel={() => {
-            onCancel();
+      <Form
+        onSubmit={async () => console.log('submitting')}
+        validateOnChange
+        render={({ values, resetForm, setFieldValue, dirty }) => {
+          const warnAndResetForm = async () => {
+            const confirmed = dirty ? await handleShowWarningModal() : true;
+            if (!confirmed) return;
+            closeDrawer();
             resetForm();
-          }}
-          onConfirm={onSubmit}
-          confirmDisabled={!values.startTime}
-        />
-      </FormGrid>
+          };
+
+          return (
+            <FormGrid columns={1}>
+              <CloseDrawerIcon onClick={warnAndResetForm} />
+              <Field
+                locationGroupLabel="Area"
+                label="Location"
+                name="locationId"
+                component={LocationField}
+                value={values.locationId}
+                required
+                onChange={() => setFieldValue('date', null)}
+              />
+              <OvernightStayField>
+                <Field
+                  name="overnight"
+                  label="Overnight stay"
+                  component={CheckField}
+                  disabled={!values.locationId}
+                />
+                <OvernightIcon fontSize="small" />
+              </OvernightStayField>
+              <Field
+                name="date"
+                label="Date"
+                component={DateField}
+                disabled={!values.locationId}
+                required
+              />
+              <BookingTimeField disabled={!values.date} />
+              <Field
+                name="patientId"
+                label="Patient"
+                component={AutocompleteField}
+                suggester={patientSuggester}
+                required
+              />
+              <Field
+                name="bookingType"
+                label="Booking type"
+                component={TranslatedSelectField}
+                enumValues={APPOINTMENT_TYPE_LABELS}
+                required
+              />
+              <Field
+                name="clinicianId"
+                label="Clinician"
+                component={AutocompleteField}
+                suggester={clinicianSuggester}
+              />
+              <FormSubmitCancelRow
+                onCancel={warnAndResetForm}
+                confirmDisabled={!values.startTime}
+              />
+            </FormGrid>
+          );
+        }}
+      />
+      <WarningModal
+        open={warningModalOpen}
+        setShowWarningModal={setShowWarningModal}
+        resolveFn={resolveFn}
+      />
     </Container>
   );
 };
