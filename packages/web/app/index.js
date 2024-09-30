@@ -1,3 +1,5 @@
+/* global __VERSION__ */
+
 import { createRoot } from 'react-dom/client';
 import { persistStore } from 'redux-persist';
 
@@ -41,6 +43,7 @@ function start() {
       apiKey: window.env.BUGSNAG_API_KEY,
       plugins: [new BugsnagPluginReact()],
       releaseStage: window.env.NODE_ENV,
+      version: __VERSION__,
     });
   }
 
