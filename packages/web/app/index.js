@@ -1,6 +1,9 @@
 import { createRoot } from 'react-dom/client';
 import { persistStore } from 'redux-persist';
 
+import Bugsnag from '@bugsnag/js';
+import BugsnagPluginReact from '@bugsnag/plugin-react';
+
 import { renderRootInto } from './Root';
 import { API } from './api/singletons';
 import { registerYup } from './utils/errorMessages';
@@ -34,14 +37,11 @@ function start() {
   registerYup();
 
   if (window.env.BUGSNAG_API_KEY) {
-    // We do not await this import because we don't want to block the app from starting if it fails,
-    // such as when a Facility server is operating in a network without internet access. Of course,
-    // that means we won't be able to catch early errors in Bugsnag, but we can live with that.
-    import('https://d2wy8f7a9ursnm.cloudfront.net/v1/bugsnag-performance.min.js')
-      .then(({ default: BugsnagPerformance }) => {
-        BugsnagPerformance.start({ apiKey: window.env.BUGSNAG_API_KEY });
-        console.debug('Bugsnag Performance Monitoring started');
-      });
+    Bugsnag.start({
+      apiKey: window.env.BUGSNAG_API_KEY,
+      plugins: [new BugsnagPluginReact()],
+      releaseStage: window.env.NODE_ENV,
+    });
   }
 
   // TODO: Switch to use api when we get rid of API singleton
