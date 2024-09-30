@@ -29,7 +29,6 @@ export default async ({ mode }) => {
           .then(JSON.parse)
           .then(({ version }) => version),
       ),
-      NODE_ENV: JSON.stringify(process.env.NODE_ENV),
       process: JSON.stringify({
         env: {
           NODE_ENV: process.env.NODE_ENV,

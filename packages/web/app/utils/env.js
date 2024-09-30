@@ -1,3 +1,1 @@
-/* global NODE_ENV */
-
-export const IS_DEVELOPMENT = NODE_ENV === 'development';
+export const IS_DEVELOPMENT = window.env.NODE_ENV === 'development';

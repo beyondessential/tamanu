@@ -33,6 +33,16 @@ function initPersistor(api, store) {
 function start() {
   registerYup();
 
+  if (window.env.BUGSNAG_API_KEY) {
+    // We do not await this import because we don't want to block the app from starting if it fails,
+    // such as when a Facility server is operating in a network without internet access. Of course,
+    // that means we won't be able to catch early errors in Bugsnag, but we can live with that.
+    import('https://d2wy8f7a9ursnm.cloudfront.net/v1/bugsnag-performance.min.js')
+      .then(({ default: BugsnagPerformance }) => {
+        BugsnagPerformance.start({ apiKey: window.env.BUGSNAG_API_KEY });
+      });
+  }
+
   // TODO: Switch to use api when we get rid of API singleton
   // const api = new TamanuApi(version);
   const { store, history } = initStore(API);

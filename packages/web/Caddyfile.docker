@@ -11,6 +11,7 @@
 
 	header / Cache-Control no-cache
 	header /manifest.json Cache-Control no-cache
+	header /env.js Cache-Control no-cache
 
 	handle_errors {
 		@custom_err file /resources/errors/{err.status_code}.html
@@ -19,4 +20,12 @@
 			file_server
 		}
 	}
+
+	# make sure to update env.js when changing this
+	respond /env.js <<JS
+		window.env = {
+			NODE_ENV: `{$NODE_ENV}` || 'production',
+			BUGSNAG_API_KEY: `{$BUGSNAG_API_KEY}` || null,
+		}
+		JS 200
 }
