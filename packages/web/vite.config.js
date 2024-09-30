@@ -1,3 +1,4 @@
+import { execSync } from 'node:child_process';
 import { readFile } from 'node:fs/promises';
 import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react-swc';
@@ -7,6 +8,15 @@ import { nodePolyfills } from 'vite-plugin-node-polyfills';
 /** @see https://vitejs.dev/config */
 export default async ({ mode }) => {
   Object.assign(process.env, loadEnv(mode, process.cwd(), 'TAMANU_'));
+
+  let revision;
+  try {
+    revision = execSync('git log --format="%h" -n1', { timeout: 100, encoding: 'utf-8' }).trim();
+    if (execSync('git status -s', { timeout: 100, encoding: 'utf-8' }).trim()) {
+      // repo is dirty (has uncommited files)
+      revision += '~';
+    }
+  } catch (_) {}
 
   return defineConfig({
     assetsInclude: ['/sb-preview/runtime.js'],
@@ -32,6 +42,7 @@ export default async ({ mode }) => {
       process: JSON.stringify({
         env: {
           NODE_ENV: process.env.NODE_ENV,
+          REVISION: revision,
         },
         arch: 'wasm',
         platform: 'web',

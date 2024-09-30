@@ -9,6 +9,7 @@ import BugsnagPluginReact from '@bugsnag/plugin-react';
 import { renderRootInto } from './Root';
 import { API } from './api/singletons';
 import { registerYup } from './utils/errorMessages';
+import { BUGSNAG_API_KEY, NODE_ENV, FULL_VERSION } from './utils/env';
 import { authFailure, initStore, restoreSession, versionIncompatible } from './store';
 
 import '@fortawesome/fontawesome-free/css/all.css';
@@ -38,12 +39,12 @@ function initPersistor(api, store) {
 function start() {
   registerYup();
 
-  if (window.env.BUGSNAG_API_KEY) {
+  if (BUGSNAG_API_KEY) {
     Bugsnag.start({
-      apiKey: window.env.BUGSNAG_API_KEY,
+      apiKey: BUGSNAG_API_KEY,
       plugins: [new BugsnagPluginReact()],
-      releaseStage: window.env.NODE_ENV,
-      version: __VERSION__,
+      releaseStage: NODE_ENV,
+      appVersion: FULL_VERSION,
     });
   }
 
