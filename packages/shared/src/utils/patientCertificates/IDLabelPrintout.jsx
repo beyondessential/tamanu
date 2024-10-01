@@ -8,7 +8,12 @@ import { Page } from '../pdf/Page';
 
 const fontSize = 11;
 
-const mmToPt = mm => mm * 2.835;
+const convertToPt = mm => {
+  // remove 'mm' etc from strings
+  if (typeof mm === 'string') return parseFloat(mm.replace(/[^0-9.]/i, '')) * 2.835;
+
+  return mm * 2.835;
+};
 
 const styles = StyleSheet.create({
   idLabel: {
@@ -65,7 +70,7 @@ const IDLabel = ({ patient }) => {
             {patient.displayId}
           </P>
         </BarcodeContainer>
-        <Col style={{ marginLeft: mmToPt(3) }}>
+        <Col style={{ marginLeft: '3mm' }}>
           <P mb={2} fontSize={fontSize} style={styles.text}>
             {getSex(patient)}
           </P>
@@ -90,15 +95,15 @@ const IDLabelPrintoutComponent = ({ patient, measures }) => {
       flexWrap: 'wrap',
       flexDirection: 'row',
       width: '100%',
-      columnGap: mmToPt(measures.columnGap),
-      rowGap: mmToPt(measures.rowGap),
+      columnGap: measures.columnGap,
+      rowGap: measures.rowGap,
       position: 'absolute',
-      left: mmToPt(measures.pageMarginLeft),
-      top: mmToPt(measures.pageMarginTop) + mmToPt(3),
+      left: measures.pageMarginLeft,
+      top: convertToPt(measures.pageMarginTop) + convertToPt('3mm'),
     },
     gridItem: {
-      width: mmToPt(measures.columnWidth),
-      height: mmToPt(measures.rowHeight),
+      width: measures.columnWidth,
+      height: measures.rowHeight,
     },
   });
 
@@ -106,8 +111,8 @@ const IDLabelPrintoutComponent = ({ patient, measures }) => {
     <Document>
       <Page
         size={{
-          width: mmToPt(measures.pageWidth),
-          height: mmToPt(measures.pageHeight),
+          width: convertToPt(measures.pageWidth),
+          height: convertToPt(measures.pageHeight),
         }}
       >
         <View style={pageStyles.grid} wrap={false}>

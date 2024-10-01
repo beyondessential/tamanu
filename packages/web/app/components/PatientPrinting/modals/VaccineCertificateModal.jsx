@@ -1,5 +1,4 @@
 import React, { useCallback } from 'react';
-import { useQuery } from '@tanstack/react-query';
 
 import { ASSET_NAMES, VACCINATION_CERTIFICATE } from '@tamanu/constants';
 import { getCurrentDateString } from '@tamanu/shared/utils/dateTime';
@@ -9,7 +8,6 @@ import { useApi } from '../../../api';
 import { EmailButton } from '../../Email/EmailButton';
 import { useCertificate } from '../../../utils/useCertificate';
 import { useLocalisation } from '../../../contexts/Localisation';
-import { useSettings } from '../../../contexts/Settings';
 import {
   usePatientAdditionalDataQuery,
   useAdministeredVaccines,
@@ -26,10 +24,9 @@ const VACCINE_CERTIFICATE_PDF_ID = 'vaccine-certificate';
 
 export const VaccineCertificateModal = React.memo(({ open, onClose, patient }) => {
   const api = useApi();
-  const { facilityId } = useAuth();
+  const { facility } = useAuth();
   const { localisation } = useLocalisation();
   const { translations } = useTranslation();
-  const { getSetting } = useSettings()
   const { data: certificateData, isFetching: isCertificateFetching } = useCertificate({
     footerAssetName: ASSET_NAMES.VACCINATION_CERTIFICATE_FOOTER,
   });
@@ -39,9 +36,6 @@ export const VaccineCertificateModal = React.memo(({ open, onClose, patient }) =
     isFetching: isAdditionalDataFetching,
   } = usePatientAdditionalDataQuery(patient.id);
 
-  const { title, subTitle } = getSetting('templates.letterhead');
-  const { healthFacility } = getSetting('templates.vaccineCertificate');
-
   const { data: vaccineData, isFetching: isVaccineFetching } = useAdministeredVaccines(patient.id, {
     orderBy: 'date',
     order: 'ASC',
@@ -50,10 +44,6 @@ export const VaccineCertificateModal = React.memo(({ open, onClose, patient }) =
   });
   const vaccinations =
     vaccineData?.data.filter(vaccine => !vaccine.scheduledVaccine.hideFromCertificate) || [];
-
-  const { data: facility, isLoading: isFacilityLoading } = useQuery(['facility', facilityId], () =>
-    api.get(`facility/${encodeURIComponent(facilityId)}`),
-  );
 
   const createVaccineCertificateNotification = useCallback(
     data =>
@@ -66,18 +56,14 @@ export const VaccineCertificateModal = React.memo(({ open, onClose, patient }) =
         createdBy: printedBy,
         createdAt: getCurrentDateString(),
       }),
-    [api, patient.id, printedBy, facility?.name],
+    [api, patient.id, printedBy, facility.name],
   );
 
   const { data: village, isFetching: isVillageFetching } = useReferenceData(patient.villageId);
   const patientData = { ...patient, village, additionalData };
 
   const isLoading =
-    isVaccineFetching ||
-    isAdditionalDataFetching ||
-    isVillageFetching ||
-    isFacilityLoading ||
-    isCertificateFetching;
+    isVaccineFetching || isAdditionalDataFetching || isVillageFetching || isCertificateFetching;
 
   return (
     <Modal
@@ -99,14 +85,12 @@ export const VaccineCertificateModal = React.memo(({ open, onClose, patient }) =
           patient={patientData}
           watermarkSrc={watermark}
           logoSrc={logo}
-          facilityName={facility?.name}
+          facilityName={facility.name}
           signingSrc={footerImg}
           printedBy={printedBy}
           printedDate={getCurrentDateString()}
           localisation={localisation}
           translations={translations}
-          certificateData={{ title, subTitle }}
-          healthFacility={healthFacility}
         />
       )}
     </Modal>

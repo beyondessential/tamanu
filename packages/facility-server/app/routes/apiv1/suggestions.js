@@ -2,6 +2,7 @@ import { pascal } from 'case';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { literal, Op, Sequelize } from 'sequelize';
+import config from 'config';
 import { NotFoundError, ValidationError } from '@tamanu/shared/errors';
 import { camelCase, keyBy, omit } from 'lodash';
 import {
@@ -78,7 +79,7 @@ function createSuggesterRoute(
 
       const filterByFacility = !!query.filterByFacility || endpoint === 'facilityLocationGroup';
 
-      const whereQuery = whereBuilder(`%${searchQuery}%`, query, req);
+      const whereQuery = whereBuilder(`%${searchQuery}%`, query);
       const visibilityStatus = whereQuery.visibilityStatus;
 
       const where = {
@@ -94,7 +95,7 @@ function createSuggesterRoute(
                   },
                 }
               : {}),
-            ...(filterByFacility ? { facilityId: query.facilityId } : {}),
+            ...(filterByFacility ? { facilityId: config.serverFacilityId } : {}),
           },
         ],
       };
@@ -182,7 +183,7 @@ function createAllRecordsRoute(
       const { models, query } = req;
 
       const model = models[modelName];
-      const where = whereBuilder('%', query, req);
+      const where = whereBuilder('%', query);
       const results = await model.findAll({
         where,
         order: [[Sequelize.literal(searchColumn), 'ASC']],
@@ -333,7 +334,7 @@ const filterByFacilityWhereBuilder = (search, query) => {
 
   return {
     ...baseWhere,
-    facilityId: query.facilityId,
+    facilityId: config.serverFacilityId,
   };
 };
 

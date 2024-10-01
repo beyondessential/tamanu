@@ -320,6 +320,7 @@ const BirthNotificationCertificateComponent = ({
   childData,
   facility,
   certificateData,
+  getLocalisation,
 }) => {
   const { logo, watermark } = certificateData;
 
@@ -329,9 +330,9 @@ const BirthNotificationCertificateComponent = ({
         {watermark && <Watermark src={watermark} />}
         <CertificateHeader>
           <LetterheadSection
+            getLocalisation={getLocalisation}
             logoSrc={logo}
             certificateTitle="Birth Notification"
-            letterheadConfig={certificateData}
           />
         </CertificateHeader>
         <TopSection facilityName={facility?.name} childDisplayId={childData?.displayId} />

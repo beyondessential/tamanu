@@ -71,6 +71,7 @@ const PatientLetterComponent = ({ getLocalisation, data, logoSrc, letterheadConf
       <Page size="A4" style={styles.page}>
         <CertificateHeader>
           <LetterheadSection
+            getLocalisation={getLocalisation}
             logoSrc={logoSrc}
             certificateTitle={certificateTitle ?? ''}
             letterheadConfig={letterheadConfig}

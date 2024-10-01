@@ -5,6 +5,7 @@ import { Modal } from '../../Modal';
 import { Button } from '../../Button';
 import { Colors } from '../../../constants';
 import { isErrorUnknownAllow404s, useApi } from '../../../api';
+import { useLocalisation } from '../../../contexts/Localisation';
 import { useAuth } from '../../../contexts/Auth';
 
 import { PatientIDCardPage } from './PatientIDCardPage';
@@ -20,7 +21,6 @@ import { TestCertificateCovid19Icon } from '../icons/TestCertificateCovid19Icon'
 import { ClearenceCertificateCovid19Icon } from '../icons/ClearenceCertificateCovid19Icon';
 import { BirthNotificationIcon } from '../icons/BirthNotificationIcon';
 import { InternationPatientSummaryIcon } from '../icons/InternationPatientSummaryIcon';
-import { useSettings } from '../../../contexts/Settings';
 
 const PRINT_OPTIONS = {
   barcode: {
@@ -81,7 +81,7 @@ const PRINT_OPTIONS = {
     ),
     icon: ClearenceCertificateCovid19Icon,
     component: CovidClearanceCertificateModal,
-    condition: getSetting => getSetting('features.enableCovidClearanceCertificate'),
+    condition: getLocalisation => getLocalisation('features.enableCovidClearanceCertificate'),
   },
   birthNotification: {
     label: (
@@ -119,10 +119,10 @@ const PRINT_OPTIONS = {
 };
 
 const PrintOptionList = ({ className, setCurrentlyPrinting }) => {
-  const { getSetting } = useSettings();
+  const { getLocalisation } = useLocalisation();
   const { ability } = useAuth();
 
-  const isVisible = condition => !condition || condition(getSetting, ability);
+  const isVisible = condition => !condition || condition(getLocalisation, ability);
 
   return (
     <div className={className}>

@@ -68,7 +68,6 @@ function stripPatientData(patient, additionalData, birthData) {
 
 export const PatientDetailsForm = ({ patient, additionalData, birthData, onSubmit }) => {
   const { getTranslation } = useTranslation();
-  const { getSetting } = useSettings()
   const patientRegistryType = !isEmpty(birthData)
     ? PATIENT_REGISTRY_TYPES.BIRTH_REGISTRY
     : PATIENT_REGISTRY_TYPES.NEW_PATIENT;
@@ -83,6 +82,7 @@ export const PatientDetailsForm = ({ patient, additionalData, birthData, onSubmi
     await onSubmit(newData);
   };
 
+  const { getSetting } = useSettings();
   const { PrimaryDetails, SecondaryDetails, PatientFields } = useLayoutComponents();
 
   const isRequiredPatientData = fieldName => getSetting(`fields.${fieldName}.requiredPatientData`);
@@ -150,7 +150,6 @@ export const PatientDetailsForm = ({ patient, additionalData, birthData, onSubmi
         patientRegistryType,
         getSetting,
         getTranslation,
-        getSetting,
       )}
     />
   );

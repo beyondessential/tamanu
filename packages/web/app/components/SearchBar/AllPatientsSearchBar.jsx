@@ -16,7 +16,7 @@ import { DateField } from '../Field/DateField';
 import { SearchBarCheckField } from './SearchBarCheckField';
 import { TranslatedText } from '../Translation/TranslatedText';
 import { SEX_LABELS, SEX_VALUES } from '@tamanu/constants';
-import { useSettings } from '../../contexts/Settings';
+import { useLocalisation } from '../../contexts/Localisation';
 
 const TwoColumnsField = styled(Box)`
   grid-column: span 2;
@@ -34,9 +34,9 @@ const VillageLocalisedField = styled(LocalisedField)`
 `;
 
 export const AllPatientsSearchBar = React.memo(({ onSearch, searchParameters }) => {
-  const { getSetting } = useSettings()
+  const { getLocalisation } = useLocalisation();
   const villageSuggester = useSuggester('village');
-  const hideOtherSex = getSetting('features.hideOtherSex') === true;
+  const hideOtherSex = getLocalisation('features.hideOtherSex') === true;
   const [showAdvancedFields, setShowAdvancedFields] = useState(false);
 
   return (

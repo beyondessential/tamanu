@@ -1,9 +1,5 @@
-import config from 'config';
-
 import { format } from '@tamanu/shared/utils/dateTime';
 import { createDummyPatient, randomReferenceIds } from '@tamanu/shared/demoData/patients';
-import { selectFacilityIds } from '@tamanu/shared/utils/configSelectors';
-
 import { createTestContext } from '../../utilities';
 
 const PROGRAM_ID = 'program-assistivetechnologyproject';
@@ -11,7 +7,6 @@ const MOBILITY_SURVEY_ID = 'program-assistivetechnologyproject-iraqaddmobilitypr
 const REGISTRATION_FORM_SURVEY_ID = 'program-assistivetechnologyproject-iraqregistrationform';
 
 describe('Assistive technology device line list', () => {
-  const [facilityId] = selectFacilityIds(config);
   let baseApp = null;
   let app = null;
   let expectedPatient1 = null;
@@ -103,7 +98,6 @@ describe('Assistive technology device line list', () => {
       answers: {
         'pde-IrqMAReg-13': 'pde-IrqMAReg-13-on-2021-03-15 10:53:15-Patient1',
       },
-      facilityId,
     });
 
     await app.post('/api/surveyResponse').send({
@@ -116,7 +110,6 @@ describe('Assistive technology device line list', () => {
         'pde-IrqPreMob-1': 'pde-IrqPreMob-1-on-2021-03-17 10:53:15-Patient1',
         'pde-IrqPreMob-6': 'pde-IrqPreMob-6-on-2021-03-17 10:53:15-Patient1',
       },
-      facilityId,
     });
 
     await app.post('/api/surveyResponse').send({
@@ -129,7 +122,6 @@ describe('Assistive technology device line list', () => {
         'pde-IrqPreMob-8': 'pde-IrqPreMob-8-on-2021-03-17 11:53:15-Patient1',
         'pde-IrqPreMob-9': 'pde-IrqPreMob-9-on-2021-03-17 11:53:15-Patient1',
       },
-      facilityId,
     });
 
     await app.post('/api/surveyResponse').send({
@@ -142,7 +134,6 @@ describe('Assistive technology device line list', () => {
         'pde-IrqPreMob-1': 'pde-IrqPreMob-1-on-2021-03-20 10:53:15-Patient1',
         'pde-IrqPreMob-6': 'pde-IrqPreMob-6-on-2021-03-20 10:53:15-Patient1',
       },
-      facilityId,
     });
 
     await app.post('/api/surveyResponse').send({
@@ -155,7 +146,6 @@ describe('Assistive technology device line list', () => {
         'pde-IrqPreMob-8': 'pde-IrqPreMob-8-on-2021-03-20 11:53:15-Patient1',
         'pde-IrqPreMob-9': 'pde-IrqPreMob-9-on-2021-03-20 11:53:15-Patient1',
       },
-      facilityId,
     });
 
     // ----Submit answers for patient 2----
@@ -167,7 +157,6 @@ describe('Assistive technology device line list', () => {
       answers: {
         'pde-IrqMAReg-13': 'pde-IrqMAReg-13-on-2021-03-12 10:53:15-Patient2',
       },
-      facilityId,
     });
 
     await app.post('/api/surveyResponse').send({
@@ -180,7 +169,6 @@ describe('Assistive technology device line list', () => {
         'pde-IrqPreMob-1': 'pde-IrqPreMob-1-on-2021-03-17 10:53:15-Patient2',
         'pde-IrqPreMob-6': 'pde-IrqPreMob-6-on-2021-03-17 10:53:15-Patient2',
       },
-      facilityId,
     });
   });
   afterAll(() => ctx.close());

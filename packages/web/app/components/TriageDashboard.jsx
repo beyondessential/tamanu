@@ -7,7 +7,6 @@ import { StatisticsCard, StatisticsCardContainer } from './StatisticsCard';
 import { Colors } from '../constants';
 import { TranslatedText } from './Translation/TranslatedText';
 import { useSettings } from '../contexts/Settings';
-import { useAuth } from '../contexts/Auth';
 
 const getAverageWaitTime = categoryData => {
   if (categoryData.length === 0) {
@@ -23,14 +22,13 @@ const getAverageWaitTime = categoryData => {
 
 const useTriageData = () => {
   const api = useApi();
-  const { facilityId } = useAuth();
   const [data, setData] = useState([]);
   const { getSetting } = useSettings();
   const triageCategories = getSetting('triageCategories');
 
   useEffect(() => {
     const fetchTriageData = async () => {
-      const result = await api.get('triage', { facilityId });
+      const result = await api.get('triage');
       setData(result.data);
     };
 

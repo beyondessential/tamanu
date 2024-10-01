@@ -30,7 +30,7 @@
     "timeout": 10000,
     "syncApiConnection": {
       "host": "http://localhost",
-      "port": 4100,
+      "port": 5000,
     },
     "persistedCacheBatchSize": 10000,
     "pauseBetweenPersistedCacheBatchesInMilliseconds": 50,
@@ -88,14 +88,9 @@
   "auth": {
     "saltRounds": 12,
     "tokenDuration": "1h",
-    "useHardcodedPermissions": true,
-
-    // Authentication "cookie" secret. Set to a random value so sessions don't
-    // expire when the server restarts.
-    // "secret": "some long secret value",
+    "useHardcodedPermissions": true
   },
-  "serverFacilityId": null,
-  "serverFacilityIds": null,
+  "serverFacilityId": "",
   "debugging": {
     "requestFailureRate": 0
   },

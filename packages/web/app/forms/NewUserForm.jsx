@@ -11,20 +11,14 @@ export const NewUserForm = memo(({ onSubmit, onCancel }) => {
   const renderForm = ({ submitForm }) => (
     <FormGrid>
       <Field
-        name="email"
-        label={<TranslatedText stringId="user.emailAddress.label" fallback="Email address" />}
+        name="name"
+        label={<TranslatedText stringId="user.name.label" fallback="Name" />}
         component={TextField}
         required
       />
       <Field
         name="displayName"
         label={<TranslatedText stringId="user.displayName.label" fallback="Display name" />}
-        component={TextField}
-        required
-      />
-      <Field
-        name="role"
-        label={<TranslatedText stringId="user.role.label" fallback="Role ID" />}
         component={TextField}
         required
       />
@@ -36,14 +30,10 @@ export const NewUserForm = memo(({ onSubmit, onCancel }) => {
         required
       />
       <Field
-        name="displayId"
-        label={<TranslatedText stringId="user.displayId.label" fallback="Display ID" />}
+        name="email"
+        label={<TranslatedText stringId="user.emailAddress.label" fallback="Email address" />}
         component={TextField}
-      />
-      <Field
-        name="phoneNumber"
-        label={<TranslatedText stringId="user.phoneNumber.label" fallback="Phone number" />}
-        component={TextField}
+        required
       />
       <ModalFormActionRow
         confirmText={<TranslatedText stringId="general.action.confirm" fallback="confirm" />}
@@ -59,13 +49,10 @@ export const NewUserForm = memo(({ onSubmit, onCancel }) => {
       render={renderForm}
       formType={FORM_TYPES.CREATE_FORM}
       validationSchema={yup.object().shape({
-        email: yup
+        name: yup
           .string()
-          .email()
           .required()
-          .translatedLabel(
-            <TranslatedText stringId="user.emailAddress.label" fallback="Email address" />,
-          ),
+          .translatedLabel(<TranslatedText stringId="user.name.label" fallback="Name" />),
         displayName: yup
           .string()
           .required()
@@ -76,23 +63,12 @@ export const NewUserForm = memo(({ onSubmit, onCancel }) => {
           .string()
           .required()
           .translatedLabel(<TranslatedText stringId="login.password.label" fallback="Password" />),
-        name: yup
+        email: yup
           .string()
+          .email()
           .required()
-          .translatedLabel(<TranslatedText stringId="user.name.label" fallback="Name" />),
-        role: yup
-          .string()
-          .required()
-          .translatedLabel(<TranslatedText stringId="user.role.label" fallback="Role ID" />),
-        displayId: yup
-          .string()
           .translatedLabel(
-            <TranslatedText stringId="user.displayId.label" fallback="Display ID" />,
-          ),
-        phoneNumber: yup
-          .string()
-          .translatedLabel(
-            <TranslatedText stringId="user.phoneNumber.label" fallback="Phone number" />,
+            <TranslatedText stringId="user.emailAddress.label" fallback="Email address" />,
           ),
       })}
     />

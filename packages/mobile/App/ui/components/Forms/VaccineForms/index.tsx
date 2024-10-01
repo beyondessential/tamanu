@@ -21,10 +21,9 @@ import { ErrorScreen } from '/components/ErrorScreen';
 
 import { useBackendEffect } from '~/ui/hooks';
 import { SETTING_KEYS } from '../../../../constants';
-import { useSettings } from '~/ui/contexts/SettingsContext';
-import { useTranslation } from '~/ui/contexts/TranslationContext';
-
+import { useLocalisation } from '~/ui/contexts/LocalisationContext';
 import { ScheduledVaccine } from '~/models/ScheduledVaccine';
+import { useTranslation } from '~/ui/contexts/TranslationContext';
 
 const getFormType = (status: VaccineStatus): { Form: FC<any> } => {
   switch (status) {
@@ -81,10 +80,10 @@ export const VaccineForm = ({
 }: VaccineFormProps): JSX.Element => {
   const { Form: StatusForm } = useMemo(() => getFormType(status), [status]);
   const user = useSelector(authUserSelector);
+  const { getLocalisation } = useLocalisation();
   const { getTranslation } = useTranslation();
-  const { getSetting } = useSettings();
 
-  const vaccineConsentEnabled = getSetting<boolean>('features.enableVaccineConsent');
+  const vaccineConsentEnabled = getLocalisation('features.enableVaccineConsent');
 
   const [locationAndDepartment, error, isLoading] = useBackendEffect(
     async ({ models }) => {

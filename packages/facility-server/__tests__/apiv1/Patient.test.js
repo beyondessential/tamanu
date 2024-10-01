@@ -1,4 +1,3 @@
-import { afterAll, beforeAll } from '@jest/globals';
 import { startOfDay, subDays } from 'date-fns';
 import config from 'config';
 
@@ -14,11 +13,10 @@ import { randomLabRequest } from '@tamanu/shared/demoData/labRequests';
 import { LAB_REQUEST_STATUSES, REFERENCE_TYPES, SETTINGS_SCOPES } from '@tamanu/constants';
 import { getCurrentDateString, toDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { CertificateTypes } from '@tamanu/shared/utils/patientCertificates';
-import { selectFacilityIds } from '@tamanu/shared/utils/configSelectors';
+
 import { createTestContext } from '../utilities';
 
 describe('Patient', () => {
-  const [facilityId] = selectFacilityIds(config);
   let app = null;
   let baseApp = null;
   let models = null;
@@ -31,9 +29,9 @@ describe('Patient', () => {
     models = ctx.models;
     app = await baseApp.asRole('practitioner');
     await models.Facility.upsert({
-      id: facilityId,
-      name: facilityId,
-      code: facilityId,
+      id: config.serverFacilityId,
+      name: config.serverFacilityId,
+      code: config.serverFacilityId,
     });
     patient = await models.Patient.create(await createDummyPatient(models));
   });
@@ -142,7 +140,7 @@ describe('Patient', () => {
 
     it('should create a new patient', async () => {
       const newPatient = await createDummyPatient(models);
-      const result = await app.post('/api/patient').send({ ...newPatient, facilityId });
+      const result = await app.post('/api/patient').send(newPatient);
       expect(result).toHaveSucceeded();
       expect(result.body).toHaveProperty('displayId', newPatient.displayId);
       expect(result.body).toHaveProperty('firstName', newPatient.firstName);
@@ -154,7 +152,6 @@ describe('Patient', () => {
       const result = await app.post('/api/patient').send({
         ...newPatient,
         passport: 'TEST-PASSPORT',
-        facilityId,
       });
 
       expect(result).toHaveSucceeded();
@@ -184,7 +181,6 @@ describe('Patient', () => {
         patientFields: {
           [definition.id]: 'Test Field Value',
         },
-        facilityId,
       });
 
       // Assert
@@ -202,7 +198,7 @@ describe('Patient', () => {
     it('should update patient details', async () => {
       // skip middleName, to be added in PUT request
       const newPatient = await createDummyPatient(models, { middleName: '' });
-      const result = await app.post('/api/patient').send({ ...newPatient, facilityId });
+      const result = await app.post('/api/patient').send(newPatient);
       expect(result.body.middleName).toEqual('');
 
       const newVillage = await randomReferenceId(models, 'village');
@@ -241,7 +237,6 @@ describe('Patient', () => {
         patientFields: {
           [definition.id]: 'Test Field Value',
         },
-        facilityId,
       });
 
       // Act

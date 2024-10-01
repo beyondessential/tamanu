@@ -13,7 +13,7 @@ const updateLookupTableForModel = async (model, config, since, sessionConfig, sy
   let fromId = '';
   let totalCount = 0;
   const attributes = model.getAttributes();
-  const { select, joins, where } = model.buildSyncLookupQueryDetails(sessionConfig) || {};
+  const { select, joins } = model.buildSyncLookupQueryDetails(sessionConfig) || {};
   const useUpdatedAtByFieldSum = !!attributes.updatedAtByField;
 
   while (fromId != null) {
@@ -60,8 +60,7 @@ const updateLookupTableForModel = async (model, config, since, sessionConfig, sy
                : ''
            }
           ${joins || ''}
-          WHERE
-          (${where || `${table}.updated_at_sync_tick > :since`})
+          WHERE ${table}.updated_at_sync_tick > :since
           ${fromId ? `AND ${table}.id > :fromId` : ''}
           ORDER BY ${table}.id
           LIMIT :limit

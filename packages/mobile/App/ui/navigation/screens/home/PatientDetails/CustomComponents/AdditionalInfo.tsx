@@ -13,7 +13,6 @@ import { mapValues } from 'lodash';
 import { PatientAdditionalData } from '~/models/PatientAdditionalData';
 import { Patient } from '~/models/Patient';
 import { PatientFieldDefinition } from '~/models/PatientFieldDefinition';
-import { useSettings } from '~/ui/contexts/SettingsContext';
 
 interface AdditionalInfoProps {
   onEdit: (
@@ -44,8 +43,7 @@ export const AdditionalInfo = ({
   onEdit,
   dataSections,
 }: AdditionalInfoProps): ReactElement => {
-  const { getLocalisation } = useLocalisation();
-  const { getSetting } = useSettings()
+  const { getBool, getLocalisation } = useLocalisation();
   const {
     customPatientSections,
     customPatientFieldValues,
@@ -64,7 +62,7 @@ export const AdditionalInfo = ({
   }
 
   // Check if patient additional data should be editable
-  const isEditable = getSetting<boolean>('features.editPatientDetailsOnMobile');
+  const isEditable = getBool('features.editPatientDetailsOnMobile');
 
   // Add edit callback and map the inner 'fields' array
   const additionalSections = dataSections.map(({ title, dataFields, fields: displayFields, sectionKey }) => {

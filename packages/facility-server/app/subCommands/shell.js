@@ -5,14 +5,12 @@ import { join } from 'path';
 import { Command } from 'commander';
 
 import { log } from '@tamanu/shared/services/logging';
-import { selectFacilityIds } from '@tamanu/shared/utils/configSelectors';
 
 import { version } from '../serverInfo';
 import { ApplicationContext } from '../ApplicationContext';
 
 export const shell = async ({ skipMigrationCheck }) => {
-  const facilityIds = selectFacilityIds(config);
-  log.info(`Starting shell in Facility Server ${version} ${facilityIds.join(', ')}`);
+  log.info(`Starting shell in Facility Server ${version} ${config.serverFacilityId}`);
 
   const context = await new ApplicationContext().init();
 

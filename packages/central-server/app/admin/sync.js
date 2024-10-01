@@ -1,5 +1,4 @@
 import asyncHandler from 'express-async-handler';
-import { Op } from 'sequelize';
 
 export const syncLastCompleted = asyncHandler(async (req, res) => {
   req.flagPermissionChecked();
@@ -11,24 +10,21 @@ export const syncLastCompleted = asyncHandler(async (req, res) => {
 
   const [lastCompleteds] = await store.sequelize.query(`
     SELECT
-        coalesce(debug_info->>'facilityIds', debug_info->>'facilityId') AS facilities,
+        (debug_info->>'facilityId') AS facility,
         max(completed_at) AS timestamp
     FROM sync_sessions
     WHERE true
         AND completed_at IS NOT NULL
-        AND coalesce(debug_info->>'facilityIds', debug_info->>'facilityId') IS NOT NULL
-    GROUP BY facilities
+        AND debug_info->>'facilityId' IS NOT NULL
+    GROUP BY facility
   `);
 
   const sessions = await Promise.all(
-    lastCompleteds.map(async ({ facilities, timestamp }) => {
+    lastCompleteds.map(async ({ facility, timestamp }) => {
       return SyncSession.findOne({
         where: {
           completedAt: timestamp,
-          [Op.or]: [
-            { 'debugInfo.facilityId': facilities }, // support displaying legacy format of syncs limited to one facility id
-            { 'debugInfo.facilityIds': facilities },
-          ],
+          'debugInfo.facilityId': facility,
         },
       });
     }),
@@ -36,7 +32,7 @@ export const syncLastCompleted = asyncHandler(async (req, res) => {
 
   res.send({
     data: sessions.map(session => ({
-      facilityIds: session.debugInfo.facilityIds || [session.debugInfo.facilityId],
+      facilityId: session.debugInfo.facilityId,
       completedAt: session.completedAt,
       duration: session.completedAt - session.createdAt,
     })),

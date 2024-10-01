@@ -49,7 +49,7 @@ export class StaleSyncSessionCleaner extends ScheduledTask {
       log.info('StaleSyncSessionCleaner.closedStaleSession', {
         sessionId: session.id,
         durationMs,
-        facilityIds: session.debugInfo.facilityIds,
+        facilityId: session.debugInfo.facilityId,
         deviceId: session.debugInfo.deviceId,
       });
     }

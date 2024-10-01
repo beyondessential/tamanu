@@ -23,11 +23,9 @@ import { ENCOUNTER_TAB_NAMES } from '../../constants/encounterTabNames';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
 import { useApi } from '../../api';
 import { useProgramRegistryContext } from '../../contexts/ProgramRegistry';
-import { useAuth } from '../../contexts/Auth';
 
 const SurveyFlow = ({ patient, currentUser }) => {
   const api = useApi();
-  const { facilityId } = useAuth();
   const params = useParams();
   const queryClient = useQueryClient();
   const dispatch = useDispatch();
@@ -103,7 +101,6 @@ const SurveyFlow = ({ patient, currentUser }) => {
       patientId: patient.id,
       endTime: getCurrentDateTimeString(),
       answers: getAnswersFromData(data, survey),
-      facilityId,
     });
     dispatch(reloadPatient(patient.id));
     if (params?.encounterId && encounter && !encounter.endDate) {

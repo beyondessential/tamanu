@@ -6,9 +6,25 @@ import { LOCATION_AVAILABILITY_STATUS, LOCATION_AVAILABILITY_TAG_CONFIG } from '
 
 import { AutocompleteInput } from './AutocompleteField';
 import { useApi, useSuggester } from '../../api';
+import { Suggester } from '../../utils/suggester';
 import { BodyText } from '../Typography';
 import { useAuth } from '../../contexts/Auth';
 import { TranslatedText } from '../Translation/TranslatedText';
+
+const locationSuggester = (api, groupValue, enableLocationStatus) => {
+  return new Suggester(api, 'location', {
+    formatter: ({ name, id, locationGroup, availability }) => {
+      return {
+        value: id,
+        label: name,
+        locationGroup,
+        availability: enableLocationStatus ? availability : null,
+        tag: enableLocationStatus ? LOCATION_AVAILABILITY_TAG_CONFIG[availability] : null,
+      };
+    },
+    baseQueryParameters: { filterByFacility: true, locationGroupId: groupValue },
+  });
+};
 
 const useLocationSuggestion = locationId => {
   const api = useApi();
@@ -35,21 +51,11 @@ export const LocationInput = React.memo(
     onChange,
     enableLocationStatus = true,
   }) => {
-    const { facilityId } = useAuth();
+    const api = useApi();
+    const { facility } = useAuth();
     const [groupId, setGroupId] = useState('');
     const [locationId, setLocationId] = useState(value);
-    const suggester = useSuggester('location', {
-      formatter: ({ name, id, locationGroup, availability }) => {
-        return {
-          value: id,
-          label: name,
-          locationGroup,
-          availability: enableLocationStatus ? availability : null,
-          tag: enableLocationStatus ? LOCATION_AVAILABILITY_TAG_CONFIG[availability] : null,
-        };
-      },
-      baseQueryParameters: { filterByFacility: true, locationGroupId: groupId },
-    });
+    const suggester = locationSuggester(api, groupId, enableLocationStatus);
     const locationGroupSuggester = useSuggester('facilityLocationGroup');
     const { data: location } = useLocationSuggestion(locationId);
 
@@ -86,7 +92,7 @@ export const LocationInput = React.memo(
     // 2. The existing location has a different facility than the current facility
     // Disable just the location field if location group has not been chosen or pre-filled
     const existingLocationHasSameFacility =
-      value && location?.facilityId ? facilityId === location.facilityId : true;
+      value && location?.facilityId ? facility.id === location.facilityId : true;
     const locationSelectIsDisabled = !groupId || !existingLocationHasSameFacility;
     const locationGroupSelectIsDisabled = !existingLocationHasSameFacility;
 

@@ -27,7 +27,6 @@ export const FieldTypes = {
   USER_DATA: 'UserData',
   PHOTO: 'Photo',
   PATIENT_ISSUE_GENERATOR: 'PatientIssueGenerator',
-  GEOLOCATE: 'Geolocate'
 };
 
 export const PatientFieldDefinitionTypes = {

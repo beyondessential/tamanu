@@ -19,7 +19,7 @@ import { version } from './serverInfo';
 import { translationRoutes } from './translation';
 import { createServer } from 'http';
 
-import { settingsReaderMiddleware } from '@tamanu/settings/middleware';
+import { buildSettingsReaderMiddleware } from '@tamanu/settings/middleware';
 
 function api(ctx) {
   const apiRoutes = defineExpress.Router();
@@ -75,7 +75,7 @@ export async function createApi(ctx) {
     next();
   });
 
-  express.use(settingsReaderMiddleware);
+  express.use(buildSettingsReaderMiddleware());
 
   express.get('/$', (req, res) => {
     res.send({

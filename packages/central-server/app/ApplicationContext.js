@@ -6,10 +6,10 @@ import { closeDatabase, initDatabase, initReporting } from './database';
 import { initIntegrations } from './integrations';
 import { defineSingletonTelegramBotService } from './services/TelegramBotService';
 import { VERSION } from './middleware/versionCompatibility';
-import { ReadSettings } from '@tamanu/settings'
 
 import { isSyncTriggerDisabled } from '@tamanu/shared/dataMigrations';
 import { log, initBugsnag } from '@tamanu/shared/services/logging';
+import { ReadSettings } from '@tamanu/settings/reader';
 
 /**
  * @typedef {import('./services/EmailService').EmailService} EmailService
@@ -54,7 +54,7 @@ export class ApplicationContext {
       this.reportSchemaStores = await initReporting();
     }
 
-    this.settings = new ReadSettings(this.store.models)
+    this.settings = new ReadSettings(this.store.models);
 
     this.telegramBotService = await defineSingletonTelegramBotService({
       config,

@@ -9,7 +9,6 @@ import { reloadPatient } from '../store/patient';
 import { useApi } from '../api';
 import { useSyncState } from '../contexts/SyncState';
 import { TranslatedText } from './Translation/TranslatedText';
-import { useAuth } from '../contexts/Auth';
 
 const MarkPatientForSyncButton = styled(Button)`
   background: ${Colors.white};
@@ -30,15 +29,14 @@ export const MarkPatientForSync = ({ patient }) => {
   const dispatch = useDispatch();
   const api = useApi();
   const syncState = useSyncState();
-  const { facilityId } = useAuth();
 
   const patientId = patient.id;
 
   const onMarkPatientForSync = useCallback(async () => {
-    const result = await api.post(`patientFacility`, { patientId, facilityId });
+    const result = await api.post(`patientFacility`, { patientId });
     dispatch(reloadPatient(patientId));
     syncState.addSyncingPatient(patientId, result.updatedAtSyncTick);
-  }, [patientId, dispatch, api, syncState, facilityId]);
+  }, [patientId, dispatch, api, syncState]);
   return (
     <MarkPatientForSyncButton onClick={onMarkPatientForSync} variant="text" color="default">
       <MarkPatientForSyncIcon />

@@ -6,7 +6,8 @@ import { Typography } from '@material-ui/core';
 import { ForbiddenError } from '@tamanu/shared/errors';
 import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
 
-import { useApi, useSuggester } from '../api';
+import { useApi } from '../api';
+import { Suggester } from '../utils/suggester';
 import { foreignKey } from '../utils/validation';
 import { AutocompleteField, Field, Form, TextField } from '../components/Field';
 import { FileChooserField } from '../components/Field/FileChooserField';
@@ -42,23 +43,17 @@ const ErrorMessageContents = ({ error, onCancel }) => (
   <div>
     <MessageContainer>
       <MessageTitle>
-        <TranslatedText
-          stringId="document.form.error.upload.title"
-          fallback="Unable to upload file"
-        />
+        <TranslatedText stringId="document.form.error.upload.title" fallback="Unable to upload file" />
       </MessageTitle>
       <Message>
-        <TranslatedText
-          stringId="document.form.error.upload.content"
+        <TranslatedText 
+          stringId="document.form.error.upload.content" 
           fallback="File cannot be uploaded at this time. This may be due to network problems or insufficient
           storage space on your server. Please try again in a few minutes or contact your system
-          administrator."
+          administrator." 
         />
         <br />
-        <TranslatedText
-          stringId="document.form.error.messageDetails"
-          fallback="Error message details:"
-        />
+          <TranslatedText stringId="document.form.error.messageDetails" fallback="Error message details:" />
         <br />
         {error}
       </Message>
@@ -123,7 +118,7 @@ export const DocumentForm = ({ onStart, onSubmit, onError, onCancel, editedObjec
   const { getTranslation } = useTranslation();
   const [error, setError] = useState(false);
 
-  const departmentSuggester = useSuggester('department', {
+  const departmentSuggester = new Suggester(api, 'department', {
     baseQueryParameters: { filterByFacility: true },
   });
 

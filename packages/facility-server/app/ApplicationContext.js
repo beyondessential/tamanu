@@ -4,7 +4,6 @@ import { initBugsnag } from '@tamanu/shared/services/logging';
 import { closeDatabase, initDatabase, initReporting } from './database';
 import { VERSION } from './middleware/versionCompatibility.js';
 import { ReadSettings } from '@tamanu/settings/reader';
-import { selectFacilityIds } from '@tamanu/shared/utils/configSelectors';
 
 /**
  * @typedef {import('@tamanu/settings/types').FacilitySettingPath} FacilitySettingPath
@@ -40,14 +39,10 @@ export class ApplicationContext {
       }
     }
 
-    const facilityIds = selectFacilityIds(config);
     const database = await initDatabase();
     this.sequelize = database.sequelize;
     this.models = database.models;
-    this.settings = facilityIds.reduce((acc, facilityId) => {
-      acc[facilityId] = new ReadSettings(this.models, facilityId);
-      return acc;
-    }, {});
+    this.settings = new ReadSettings(this.models, config.serverFacilityId);
     if (config.db.reportSchemas?.enabled) {
       this.reportSchemaStores = await initReporting();
     }

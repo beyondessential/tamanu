@@ -194,7 +194,6 @@ export const NewPatientForm = memo(
           patientRegistryType,
           getSetting,
           getTranslation,
-          getSetting,
         )}
       />
     );

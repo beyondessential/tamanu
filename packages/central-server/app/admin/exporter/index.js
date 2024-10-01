@@ -1,2 +1,1 @@
-export { exporterRouter } from './exporterRouter';
-export { exporter } from './exporter';
+export * from './exporter';

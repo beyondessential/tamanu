@@ -10,7 +10,7 @@ import { InvalidOperationError } from '../errors';
 import { dateTimeType } from './dateTimeTypes';
 
 import { Model } from './Model';
-import { onCreateEncounterMarkPatientForSync } from './onCreateEncounterMarkPatientForSync';
+import { onSaveMarkPatientForSync } from './onSaveMarkPatientForSync';
 import { dischargeOutpatientEncounters } from '../utils/dischargeOutpatientEncounters';
 import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
 
@@ -64,7 +64,7 @@ export class Encounter extends Model {
         syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
       },
     );
-    onCreateEncounterMarkPatientForSync(this);
+    onSaveMarkPatientForSync(this);
   }
 
   static getFullReferenceAssociations() {
@@ -80,7 +80,7 @@ export class Encounter extends Model {
         include: ['facility', 'locationGroup'],
       },
       'referralSource',
-      'diets',
+      'diets'
     ];
   }
 
@@ -198,7 +198,7 @@ export class Encounter extends Model {
       foreignKey: 'referralSourceId',
       as: 'referralSource',
     });
-
+    
     this.belongsToMany(models.ReferenceData, {
       through: models.EncounterDiet,
       as: 'diets',
@@ -281,19 +281,13 @@ export class Encounter extends Model {
       select: buildSyncLookupSelect(this, {
         patientId: 'encounters.patient_id',
         encounterId: 'encounters.id',
-        isLabRequestValue: 'new_labs.encounter_id IS NOT NULL',
+        isLabRequestValue: 'labs.encounter_id IS NOT NULL',
       }),
       joins: `
         LEFT JOIN (
           SELECT DISTINCT encounter_id
           FROM lab_requests
-          WHERE updated_at_sync_tick > :since -- to only include lab requests that recently got attached to the encounters
-        ) AS new_labs ON new_labs.encounter_id = encounters.id 
-      `,
-      where: `
-        encounters.updated_at_sync_tick > :since -- to include including normal encounters
-        OR
-        new_labs.encounter_id IS NOT NULL -- to include encounters that got lab requests recently attached to it
+        ) AS labs ON labs.encounter_id = encounters.id
       `,
     };
   }
@@ -351,24 +345,6 @@ export class Encounter extends Model {
     }
     await this.addSystemNote(
       `Changed department from ${oldDepartment.name} to ${newDepartment.name}`,
-      submittedTime,
-      user,
-    );
-  }
-
-  async addTriageScoreNote(triageRecord, submittedTime, user) {
-    const department = await this.sequelize.models.Department.findOne({
-      where: { id: this.departmentId },
-    });
-
-    if (!department) {
-      throw new InvalidOperationError(
-        `Couldn’t record triage score as system note; no department found with with ID ‘${this.departmentId}’`,
-      );
-    }
-
-    await this.addSystemNote(
-      `${department.name} triage score – ${triageRecord.score}`,
       submittedTime,
       user,
     );

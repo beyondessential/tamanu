@@ -15,5 +15,5 @@
     "pauseBetweenPersistedCacheBatchesInMilliseconds": 50
   },
   "countryTimeZone": "Australia/Melbourne",
-  "serverFacilityIds": ["facility-1"]
+  "serverFacilityId": "facility-1"
 }

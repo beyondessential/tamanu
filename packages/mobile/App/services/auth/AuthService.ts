@@ -5,18 +5,11 @@ import { IUser, SyncConnectionParameters } from '~/types';
 import { compare, hash } from './bcrypt';
 import { CentralServerConnection } from '~/services/sync';
 import { readConfig, writeConfig } from '~/services/config';
-import {
-  AuthenticationError,
-  forbiddenFacilityMessage,
-  invalidUserCredentialsMessage,
-  OutdatedVersionError,
-} from '../error';
+import { AuthenticationError, invalidUserCredentialsMessage, OutdatedVersionError } from '../error';
 import { ResetPasswordFormModel } from '/interfaces/forms/ResetPasswordFormProps';
 import { ChangePasswordFormModel } from '/interfaces/forms/ChangePasswordFormProps';
 
 import { VisibilityStatus } from '../../visibilityStatuses';
-import { User } from '~/models/User';
-import { PureAbility } from '@casl/ability';
 
 export class AuthService {
   models: typeof MODELS_MAP;
@@ -24,7 +17,6 @@ export class AuthService {
   centralServer: CentralServerConnection;
 
   emitter = mitt();
-
 
   constructor(models: typeof MODELS_MAP, centralServer: CentralServerConnection) {
     this.models = models;
@@ -46,8 +38,7 @@ export class AuthService {
     // save local password to repo for later use
     let user = await this.models.User.findOne({ email: userData.email });
     if (!user) {
-      const newUser = await this.models.User.create(userData).save();
-      if (!user) user = newUser;
+      user = await this.models.User.create(userData).save();
     }
 
     // kick off a local password hash & save
@@ -63,37 +54,15 @@ export class AuthService {
     return user;
   }
 
-  async localSignIn(
-    { email, password }: SyncConnectionParameters,
-    generateAbilityForUser: (user: User) => PureAbility,
-  ): Promise<IUser> {
+  async localSignIn({ email, password }: SyncConnectionParameters): Promise<IUser> {
     console.log('Signing in locally as', email);
-    const { User, Setting } = this.models;
-    const user = await User.findOne({
+    const user = await this.models.User.findOne({
       email,
       visibilityStatus: VisibilityStatus.Current,
     });
 
-    if (!user.localPassword) {
-      throw new AuthenticationError(
-        'You need to first login when connected to internet to use your account offline.',
-      );
-    }
-
     if (!user || !(await compare(password, user.localPassword))) {
       throw new AuthenticationError(invalidUserCredentialsMessage);
-    }
-
-    const ability = generateAbilityForUser(user);
-    const restrictUsersToFacilities = await Setting.getByKey('auth.restrictUsersToFacilities');
-    const canLogIntoAllFacilities = ability.can('login', 'Facility');
-    const linkedFacility = await readConfig('facilityId', '');
-    if (
-      restrictUsersToFacilities &&
-      !canLogIntoAllFacilities &&
-      !(await user.canAccessFacility(linkedFacility))
-    ) {
-      throw new AuthenticationError(forbiddenFacilityMessage);
     }
 
     return user;

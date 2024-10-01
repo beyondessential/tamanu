@@ -1,6 +1,3 @@
-import { format, parseISO } from 'date-fns';
-import config from 'config';
-
 import {
   createDummyEncounter,
   createDummyPatient,
@@ -8,11 +5,8 @@ import {
 } from '@tamanu/shared/demoData/patients';
 import { randomLabRequest } from '@tamanu/shared/demoData';
 import { LAB_REQUEST_STATUSES } from '@tamanu/constants';
-import { selectFacilityIds } from '@tamanu/shared/utils/configSelectors';
-
+import { format, parseISO } from 'date-fns';
 import { createTestContext } from '../../../utilities';
-
-const [facilityId] = selectFacilityIds(config);
 
 const PROGRAM_ID = 'program-fijicovid19';
 const FIJI_SAMP_SURVEY_ID = 'program-fijicovid19-fijicovidsampcollection';
@@ -330,7 +324,6 @@ const createSurveys = async (models, app, expectedPatient1, expectedPatient2) =>
       'pde-FijCOVSamp10': 'pde-FijCOVSamp10-on-2021-03-13 10:53:15-Patient1',
       'pde-FijCOVSamp11': 'pde-FijCOVSamp11-on-2021-03-13 10:53:15-Patient1',
     },
-    facilityId,
   });
   await app.post('/api/surveyResponse').send({
     surveyId: FIJI_SAMP_SURVEY_ID,
@@ -345,7 +338,6 @@ const createSurveys = async (models, app, expectedPatient1, expectedPatient2) =>
       'pde-FijCOVSamp10': 'pde-FijCOVSamp10-on-2021-03-14 10:53:15-Patient1',
       'pde-FijCOVSamp11': 'pde-FijCOVSamp11-on-2021-03-14 10:53:15-Patient1',
     },
-    facilityId,
   });
   await app.post('/api/surveyResponse').send({
     surveyId: FIJI_SAMP_SURVEY_ID,
@@ -360,7 +352,6 @@ const createSurveys = async (models, app, expectedPatient1, expectedPatient2) =>
       'pde-FijCOVSamp10': 'pde-FijCOVSamp10-on-2021-03-16 10:53:15-Patient1',
       'pde-FijCOVSamp11': 'pde-FijCOVSamp11-on-2021-03-16 10:53:15-Patient1',
     },
-    facilityId,
   });
   await app.post('/api/surveyResponse').send({
     surveyId: FIJI_SAMP_SURVEY_ID,
@@ -375,7 +366,6 @@ const createSurveys = async (models, app, expectedPatient1, expectedPatient2) =>
       'pde-FijCOVSamp10': 'pde-FijCOVSamp10-on-2021-03-18 10:53:15-Patient1',
       'pde-FijCOVSamp11': 'pde-FijCOVSamp11-on-2021-03-18 10:53:15-Patient1',
     },
-    facilityId,
   });
 
   // ----Submit answers for patient 2----
@@ -392,7 +382,6 @@ const createSurveys = async (models, app, expectedPatient1, expectedPatient2) =>
       'pde-FijCOVSamp10': 'pde-FijCOVSamp10-on-2021-03-18 10:53:15-Patient2',
       'pde-FijCOVSamp11': 'pde-FijCOVSamp11-on-2021-03-18 10:53:15-Patient2',
     },
-    facilityId,
   });
   await app.post('/api/surveyResponse').send({
     surveyId: FIJI_SAMP_SURVEY_ID,
@@ -407,7 +396,6 @@ const createSurveys = async (models, app, expectedPatient1, expectedPatient2) =>
       'pde-FijCOVSamp10': 'pde-FijCOVSamp10-on-2021-03-19 10:53:15-Patient2',
       'pde-FijCOVSamp11': 'pde-FijCOVSamp11-on-2021-03-19 10:53:15-Patient2',
     },
-    facilityId,
   });
   await app.post('/api/surveyResponse').send({
     surveyId: FIJI_SAMP_SURVEY_ID,
@@ -422,7 +410,6 @@ const createSurveys = async (models, app, expectedPatient1, expectedPatient2) =>
       'pde-FijCOVSamp10': 'pde-FijCOVSamp10-on-2021-03-21 10:53:15-Patient2',
       'pde-FijCOVSamp11': 'pde-FijCOVSamp11-on-2021-03-21 10:53:15-Patient2',
     },
-    facilityId,
   });
   await app.post('/api/surveyResponse').send({
     surveyId: FIJI_SAMP_SURVEY_ID,
@@ -437,7 +424,6 @@ const createSurveys = async (models, app, expectedPatient1, expectedPatient2) =>
       'pde-FijCOVSamp10': 'pde-FijCOVSamp10-on-2021-03-23 10:53:15-Patient2',
       'pde-FijCOVSamp11': 'pde-FijCOVSamp11-on-2021-03-23 10:53:15-Patient2',
     },
-    facilityId,
   });
 };
 

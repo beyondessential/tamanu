@@ -106,8 +106,8 @@ const notesSectionStyles = StyleSheet.create({
 const extractOngoingConditions = patientConditions =>
   patientConditions.map(item => item?.diagnosis?.name);
 
-const extractDiagnosesInfo = ({ diagnoses, getSetting }) => {
-  const displayIcd10Codes = getSetting('features.displayIcd10CodesInDischargeSummary');
+const extractDiagnosesInfo = ({ diagnoses, getLocalisation }) => {
+  const displayIcd10Codes = getLocalisation('features.displayIcd10CodesInDischargeSummary');
   if (!displayIcd10Codes) {
     return diagnoses.map(item => item?.diagnosis?.name);
   } else {
@@ -115,8 +115,8 @@ const extractDiagnosesInfo = ({ diagnoses, getSetting }) => {
   }
 };
 
-const extractProceduresInfo = ({ procedures, getSetting }) => {
-  const displayProcedureCodes = getSetting('features.displayProcedureCodesInDischargeSummary');
+const extractProceduresInfo = ({ procedures, getLocalisation }) => {
+  const displayProcedureCodes = getLocalisation('features.displayProcedureCodesInDischargeSummary');
   if (!displayProcedureCodes) {
     return procedures.map(item => item?.procedureType?.name);
   } else {
@@ -141,12 +141,12 @@ const InfoBox = ({ label, info }) => (
   </InfoBoxRow>
 );
 
-const DiagnosesTable = ({ title, diagnoses, getSetting }) => (
-  <InfoBox label={title} info={extractDiagnosesInfo({ diagnoses, getSetting })} />
+const DiagnosesTable = ({ title, diagnoses, getLocalisation }) => (
+  <InfoBox label={title} info={extractDiagnosesInfo({ diagnoses, getLocalisation })} />
 );
 
-const ProceduresTable = ({ procedures, getSetting }) => (
-  <InfoBox label="Procedures" info={extractProceduresInfo({ procedures, getSetting })} />
+const ProceduresTable = ({ procedures, getLocalisation }) => (
+  <InfoBox label="Procedures" info={extractProceduresInfo({ procedures, getLocalisation })} />
 );
 
 const NotesSection = ({ notes }) => (
@@ -210,7 +210,6 @@ const DischargeSummaryPrintoutComponent = ({
   certificateData,
   getLocalisation,
   getTranslation,
-  getSetting,
 }) => {
   const { logo } = certificateData;
   const clinicianText = getTranslation('general.localisedField.clinician.label.short', 'Clinician');
@@ -237,6 +236,7 @@ const DischargeSummaryPrintoutComponent = ({
       <Page size="A4" style={styles.page}>
         <CertificateHeader>
           <LetterheadSection
+            getLocalisation={getLocalisation}
             certificateTitle="Patient discharge summary"
             letterheadConfig={certificateData}
             logoSrc={logo}
@@ -266,7 +266,7 @@ const DischargeSummaryPrintoutComponent = ({
               <DiagnosesTable
                 title="Primary diagnoses"
                 diagnoses={primaryDiagnoses}
-                getSetting={getSetting}
+                getLocalisation={getLocalisation}
               />
             </TableContainer>
           )}
@@ -275,13 +275,13 @@ const DischargeSummaryPrintoutComponent = ({
               <DiagnosesTable
                 title="Secondary diagnoses"
                 diagnoses={secondaryDiagnoses}
-                getSetting={getSetting}
+                getLocalisation={getLocalisation}
               />
             </TableContainer>
           )}
           {procedures.length > 0 && (
             <TableContainer>
-              <ProceduresTable procedures={procedures} getSetting={getSetting} />
+              <ProceduresTable procedures={procedures} getLocalisation={getLocalisation} />
             </TableContainer>
           )}
           {medications.length > 0 && (

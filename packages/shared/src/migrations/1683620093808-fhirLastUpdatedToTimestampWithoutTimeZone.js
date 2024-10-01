@@ -1,14 +1,12 @@
 import config from 'config';
 import { Sequelize } from 'sequelize';
-import { selectFacilityIds } from '../utils/configSelectors';
 
 const SCHEMA = 'fhir';
 const TABLES = ['patients', 'diagnostic_reports', 'immunizations', 'service_requests'];
 
 export async function up(query) {
   // Central only
-  const isFacilityServer = !!selectFacilityIds(config);
-  if (isFacilityServer) return;
+  if (config.serverFacilityId) return;
 
   const COUNTRY_TIMEZONE = config?.countryTimeZone;
   if (!COUNTRY_TIMEZONE) {
@@ -28,8 +26,7 @@ export async function up(query) {
 
 export async function down(query) {
   // Central only
-  const isFacilityServer = !!selectFacilityIds(config);
-  if (isFacilityServer) return;
+  if (config.serverFacilityId) return;
 
   const COUNTRY_TIMEZONE = config?.countryTimeZone;
   if (!COUNTRY_TIMEZONE) {

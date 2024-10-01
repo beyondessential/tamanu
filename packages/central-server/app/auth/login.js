@@ -11,7 +11,7 @@ import { convertFromDbRecord } from '../convertDbRecord';
 import {
   getRandomBase64String,
   getRandomU32,
-  buildToken,
+  getToken,
   isInternalClient,
   stripUser,
 } from './utils';
@@ -28,7 +28,7 @@ const getRefreshToken = async (models, { refreshSecret, userId, deviceId }) => {
   const refreshTokenJwtId = getRandomU32();
   const [hashedRefreshId, refreshToken] = await Promise.all([
     bcrypt.hash(refreshId, saltRounds),
-    buildToken(
+    getToken(
       {
         userId,
         refreshId,
@@ -67,12 +67,12 @@ export const login = ({ secret, refreshSecret }) =>
   asyncHandler(async (req, res) => {
     const { store, body, settings } = req;
     const { models } = store;
-    const { email, password, facilityIds, deviceId } = body;
+    const { email, password, facilityId, deviceId } = body;
     const tamanuClient = req.header('X-Tamanu-Client');
 
     const getSettingsForFrontEnd = async () => {
       // Only attach central scoped settings if login request is for central admin panel login
-      if ([SERVER_TYPES.WEBAPP, SERVER_TYPES.MOBILE].includes(tamanuClient) && !facilityIds) {
+      if ([SERVER_TYPES.WEBAPP, SERVER_TYPES.MOBILE].includes(tamanuClient) && !facilityId) {
         return await settings.getFrontEndSettings();
       }
     };
@@ -102,15 +102,8 @@ export const login = ({ secret, refreshSecret }) =>
     const { auth, canonicalHostName } = config;
     const { tokenDuration } = auth;
     const accessTokenJwtId = getRandomU32();
-    const [
-      token,
-      refreshToken,
-      allowedFacilities,
-      localisation,
-      permissions,
-      role,
-    ] = await Promise.all([
-      buildToken(
+    const [token, refreshToken, facility, localisation, permissions, role] = await Promise.all([
+      getToken(
         {
           userId: user.id,
           deviceId,
@@ -126,7 +119,7 @@ export const login = ({ secret, refreshSecret }) =>
       internalClient
         ? getRefreshToken(models, { refreshSecret, userId: user.id, deviceId })
         : undefined,
-      user.allowedFacilities(),
+      models.Facility.findByPk(facilityId),
       getLocalisation(),
       getPermissionsForRoles(models, user.role),
       models.Role.findByPk(user.role),
@@ -136,11 +129,10 @@ export const login = ({ secret, refreshSecret }) =>
     res.send({
       token,
       refreshToken,
-      user: convertFromDbRecord(stripUser(user.get({ plain: true }))).data,
+      user: convertFromDbRecord(stripUser(user)).data,
       permissions,
-      serverType: SERVER_TYPES.CENTRAL,
       role: role?.forResponse() ?? null,
-      allowedFacilities,
+      facility,
       localisation,
       centralHost: config.canonicalHostName,
       settings: await getSettingsForFrontEnd(),

@@ -30,7 +30,7 @@ patientProgramRegistration.post(
   asyncHandler(async (req, res) => {
     const { db, models, params, body } = req;
     const { patientId } = params;
-    const { programRegistryId, registeringFacilityId } = body;
+    const { programRegistryId } = body;
 
     req.checkPermission('read', 'Patient');
     const patient = await models.Patient.findByPk(patientId);
@@ -76,11 +76,6 @@ patientProgramRegistration.post(
             programRegistryConditionId: conditionId,
           })),
         ),
-        // as a side effect, mark for sync in the current facility
-        models.PatientFacility.upsert({
-          patientId,
-          facilityId: registeringFacilityId,
-        }),
       ]);
     });
 
@@ -163,14 +158,14 @@ patientProgramRegistration.get(
       .map(({ date, clinician }) => ({ date, clinician }))
       .reverse();
 
-    const recentDeactivationRecord = deactivationRecords.find(
+    const recentDeativationRecord = deactivationRecords.find(
       ({ date }) => !isAfter(new Date(date), new Date(registration.date)),
     );
     const deactivationData =
       registration.registrationStatus === REGISTRATION_STATUSES.INACTIVE
         ? {
-            dateRemoved: recentDeactivationRecord.date,
-            removedBy: recentDeactivationRecord.clinician,
+            dateRemoved: recentDeativationRecord.date,
+            removedBy: recentDeativationRecord.clinician,
           }
         : {};
 
@@ -296,7 +291,7 @@ patientProgramRegistration.get(
 patientProgramRegistration.delete(
   '/:patientId/programRegistration/:programRegistryId/condition/:conditionId',
   asyncHandler(async (req, res) => {
-    const { models, params, query } = req;
+    const { models, params, body } = req;
     const { patientId, programRegistryId, conditionId } = params;
 
     req.checkPermission('read', 'Patient');
@@ -315,7 +310,7 @@ patientProgramRegistration.delete(
     if (!existingCondition) throw new NotFoundError();
     const condition = await existingCondition.update({
       deletionClinicianId: req.user.id,
-      deletionDate: query.deletionDate,
+      deletionDate: body.deletionDate,
     });
     await condition.destroy();
     res.send(condition);

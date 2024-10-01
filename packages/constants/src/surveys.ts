@@ -25,7 +25,6 @@ export const PROGRAM_DATA_ELEMENT_TYPES = {
   PATIENT_DATA: 'PatientData',
   USER_DATA: 'UserData',
   PATIENT_ISSUE: 'PatientIssue',
-  GEOLOCATE: 'Geolocate',
 };
 export const PROGRAM_DATA_ELEMENT_TYPE_VALUES = Object.values(PROGRAM_DATA_ELEMENT_TYPES);
 

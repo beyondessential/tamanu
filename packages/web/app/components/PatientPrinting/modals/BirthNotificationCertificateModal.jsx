@@ -82,7 +82,7 @@ const useParent = (api, enabled, parentId) => {
 export const BirthNotificationCertificateModal = React.memo(({ patient }) => {
   const [open, setOpen] = useState(true);
   const api = useApi();
-  const { facilityId } = useAuth();
+  const { facility } = useAuth();
   const { getLocalisation } = useLocalisation();
   const { data: certificateData, isFetching: isCertificateFetching } = useCertificate();
   const {
@@ -115,16 +115,11 @@ export const BirthNotificationCertificateModal = React.memo(({ patient }) => {
       ),
   );
 
-  const { data: facility, isLoading: isFacilityLoading } = useQuery(['facility', facilityId], () =>
-    api.get(`facility/${encodeURIComponent(facilityId)}`),
-  );
-
   const isLoading =
     isMotherDataLoading ||
     isFatherDataLoading ||
     isBirthDataLoading ||
     isDeathDataLoading ||
-    isFacilityLoading ||
     isAdditionalDataLoading ||
     isCertificateFetching;
 

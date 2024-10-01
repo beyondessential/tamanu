@@ -22,7 +22,7 @@ describe('SyncQueuedDevice', () => {
   const requestSync = async (device, lastSyncedTick = 0, urgent = false) => {
     const result = await app.post('/api/sync').send({
       deviceId: `queue-${device}`,
-      facilityIds: [`facility${device}`],
+      facilityId: `facility${device}`,
       lastSyncedTick,
       urgent,
     });

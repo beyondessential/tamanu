@@ -5,7 +5,6 @@ import { fakeUUID } from '@tamanu/shared/utils/generateId';
 import { sleepAsync } from '@tamanu/shared/utils/sleepAsync';
 
 import { createTestContext } from '../utilities';
-import { JOB_PRIORITIES } from '@tamanu/constants';
 
 function makeLogger(mock, topData = {}) {
   return {
@@ -49,7 +48,7 @@ describe('Worker Jobs', () => {
         expect(job).toMatchObject({
           topic: 'topic',
           payload: { payload: 'value' },
-          priority: JOB_PRIORITIES.DEFAULT,
+          priority: 1000,
         });
         expect(job.discriminant).toMatch(
           /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/,
@@ -90,7 +89,7 @@ describe('Worker Jobs', () => {
         expect(job).toMatchObject({
           topic: 'topic',
           payload: { payload: 'first' },
-          priority: JOB_PRIORITIES.DEFAULT,
+          priority: 1000,
         });
         expect(job.discriminant).toEqual('unique');
         expect(second).toBeNull();
@@ -190,12 +189,12 @@ describe('Worker Jobs', () => {
       'jobs are processed in priority order',
       withErrorShown(async () => {
         const { FhirJob: Job } = models;
-        const id1Low = await Job.submit('test1', {}, { priority: JOB_PRIORITIES.LOW });
+        const id1Low = await Job.submit('test1', {}, { priority: 500 });
         const id1Normal = await Job.submit('test1');
-        const id1High = await Job.submit('test1', {}, { priority: JOB_PRIORITIES.HIGH });
-        const id2Low = await Job.submit('test2', {}, { priority: JOB_PRIORITIES.LOW });
+        const id1High = await Job.submit('test1', {}, { priority: 5000 });
+        const id2Low = await Job.submit('test2', {}, { priority: 500 });
         const id2Normal = await Job.submit('test2');
-        const id2High = await Job.submit('test2', {}, { priority: JOB_PRIORITIES.HIGH });
+        const id2High = await Job.submit('test2', {}, { priority: 5000 });
 
         // Act 1 (high)
         await worker.grabAndRunOne('test1');

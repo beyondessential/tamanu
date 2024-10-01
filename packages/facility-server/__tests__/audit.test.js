@@ -49,8 +49,7 @@ describe('Audit log', () => {
   });
 
   it('should leave an access record with permission failure details', async () => {
-    const baseRoleApp = await baseApp.asRole('base');
-    const result = await baseRoleApp.post('/api/allergy').send(fake(models.PatientAllergy));
+    const result = await baseApp.post('/api/allergy').send(fake(models.PatientAllergy));
     expect(result).toBeForbidden();
 
     const [log] = getRecentEntries();

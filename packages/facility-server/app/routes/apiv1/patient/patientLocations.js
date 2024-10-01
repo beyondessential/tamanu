@@ -1,10 +1,11 @@
+import config from 'config';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { QueryTypes } from 'sequelize';
 import { objectToCamelCase } from '@tamanu/shared/utils';
 import { LOCATION_AVAILABILITY_STATUS, VISIBILITY_STATUSES } from '@tamanu/constants';
 
-const patientsLocationSelect = (planned, encountersWhereAndClauses, facilityId) => `
+const patientsLocationSelect = (planned, encountersWhereAndClauses) => `
   SELECT
   	locations.id,
   	COUNT(open_encounters)
@@ -17,7 +18,7 @@ const patientsLocationSelect = (planned, encountersWhereAndClauses, facilityId) 
     ${encountersWhereAndClauses ? `AND ${encountersWhereAndClauses}` : ''}
   ) open_encounters
   ON locations.id = open_encounters.${planned ? 'planned_' : ''}location_id
-  WHERE locations.facility_id = '${facilityId}'
+  WHERE locations.facility_id = '${config.serverFacilityId}'
   AND locations.max_occupancy = 1
   AND locations.deleted_at IS NULL
   GROUP BY locations.id
@@ -29,14 +30,13 @@ patientLocations.get(
   '/locations/occupancy',
   asyncHandler(async (req, res) => {
     req.checkPermission('list', 'Patient');
-    const { facilityId } = req.query;
 
     const [{ occupancy } = {}] = await req.db.query(
       `
         SELECT
           (SUM(max_1_occupancy_locations.count) / COUNT(max_1_occupancy_locations) * 100)::float AS occupancy
         FROM (
-          ${patientsLocationSelect(false, `encounters.encounter_type = 'admission'`, facilityId)}
+          ${patientsLocationSelect(false, `encounters.encounter_type = 'admission'`)}
         ) max_1_occupancy_locations
       `,
       {
@@ -54,7 +54,6 @@ patientLocations.get(
   '/locations/alos',
   asyncHandler(async (req, res) => {
     req.checkPermission('list', 'Patient');
-    const { facilityId } = req.query;
 
     const [{ alos } = {}] = await req.db.query(
       `
@@ -72,7 +71,7 @@ patientLocations.get(
       {
         type: QueryTypes.SELECT,
         bind: {
-          facilityId,
+          facilityId: config.serverFacilityId,
         },
       },
     );
@@ -87,7 +86,6 @@ patientLocations.get(
   '/locations/readmissions',
   asyncHandler(async (req, res) => {
     req.checkPermission('list', 'Patient');
-    const { facilityId } = req.query;
 
     const [{ count: readmissionsCount } = {}] = await req.db.query(
       `
@@ -126,7 +124,7 @@ patientLocations.get(
       {
         type: QueryTypes.SELECT,
         bind: {
-          facilityId,
+          facilityId: config.serverFacilityId,
         },
       },
     );
@@ -142,8 +140,6 @@ patientLocations.get(
   asyncHandler(async (req, res) => {
     req.checkPermission('list', 'Patient');
 
-    const { facilityId } = req.query;
-
     const [
       {
         occupied_location_count: occupiedLocationCount,
@@ -155,7 +151,7 @@ patientLocations.get(
           SUM(sign(max_1_occupancy_locations.count)) AS occupied_location_count,
           COUNT(max_1_occupancy_locations) - SUM(sign(max_1_occupancy_locations.count)) AS available_location_count
         FROM (
-          ${patientsLocationSelect(undefined, undefined, facilityId)}
+          ${patientsLocationSelect()}
         ) max_1_occupancy_locations
       `,
       {
@@ -168,7 +164,7 @@ patientLocations.get(
         SELECT
           SUM(sign(max_1_occupancy_locations.count)) AS reserved_location_count
         FROM (
-          ${patientsLocationSelect(true, undefined, facilityId)}
+          ${patientsLocationSelect(true)}
         ) max_1_occupancy_locations
       `,
       {
@@ -238,7 +234,7 @@ patientLocations.get(
         FROM locations
         LEFT JOIN location_groups ON locations.location_group_id = location_groups.id
         LEFT JOIN open_encounters ON locations.id = open_encounters.location_id
-        WHERE locations.facility_id = $facilityId
+        WHERE locations.facility_id = $facilityId 
         AND locations.visibility_status = $visibilityStatusCurrent
         AND locations.deleted_at IS NULL
         GROUP BY locations.id, location_groups.id
@@ -329,7 +325,7 @@ patientLocations.get(
       ...(filterParams.status && { status: filterParams.status }),
       ...(filterParams.area && { area: filterParams.area }),
       ...(filterParams.location && { location: filterParams.location }),
-      facilityId: filterParams.facilityId,
+      facilityId: config.serverFacilityId,
       visibilityStatusCurrent: VISIBILITY_STATUSES.CURRENT,
     };
 

@@ -20,6 +20,10 @@ const patient = {
 
 const getLocalisation = key => {
   const config = {
+    'templates.letterhead.title': 'TAMANU MINISTRY OF HEALTH & MEDICAL SERVICES',
+    'templates.letterhead.subTitle': 'PO Box 12345, Melbourne, Australia',
+    'templates.vaccineCertificate.emailAddress': 'tamanu@health.govt',
+    'templates.vaccineCertificate.contactNumber': '123456',
     previewUvciFormat: 'tamanu',
   };
   return config[key];
@@ -34,11 +38,6 @@ const examiner = {
   updatedAt: '2022-02-21T01:02:40.347Z',
 };
 
-const certificateData = {
-  title: 'TAMANU MINISTRY OF HEALTH & MEDICAL SERVICES',
-  subTitle: 'PO Box 12345, Melbourne, Australia',
-};
-
 export const PatientLetter = () => {
   const patientLetterData = {
     title: 'Sick note',
@@ -51,12 +50,7 @@ export const PatientLetter = () => {
 
   return (
     <PDFViewer width={800} height={1000} showToolbar={false}>
-      <Component
-        logoSrc={Logo}
-        getLocalisation={getLocalisation}
-        letterheadConfig={certificateData}
-        data={patientLetterData}
-      />
+      <Component logoSrc={Logo} getLocalisation={getLocalisation} data={patientLetterData} />
     </PDFViewer>
   );
 };

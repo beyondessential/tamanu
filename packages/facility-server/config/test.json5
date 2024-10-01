@@ -28,7 +28,7 @@
       }
     }
   },
-  "serverFacilityIds": ["balwyn", "kerang", "lake-charm"],
+  "serverFacilityId": "balwyn",
   "sync": {
     "backoff": {
       "maxAttempts": 1,

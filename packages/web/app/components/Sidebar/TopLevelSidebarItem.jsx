@@ -1,4 +1,4 @@
-import React, { isValidElement } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import { Divider, ListItem, ListItemText } from '@material-ui/core';
 import { administrationIcon } from '../../constants/images';
@@ -6,17 +6,24 @@ import { ThemedTooltip } from '../Tooltip';
 
 const TopLevelListItem = styled(ListItem)`
   border-radius: 4px;
-  margin-block-end: 5px;
-  padding-block: 2px;
-  padding-inline-end: 10px;
+  padding-top: 2px;
+  padding-bottom: 2px;
+  padding-right: 10px;
+  margin-bottom: 5px;
 
   .MuiSvgIcon-root {
+    position: relative;
+    top: -1px;
     opacity: 0.9;
     font-size: 22px;
+    transform: rotate(0deg);
+  }
+
+  &.Mui-selected {
+    background: ${props => (props.selected ? 'rgba(255, 255, 255, 0.15)' : '')};
   }
 
   &:hover,
-  &.Mui-selected,
   &.Mui-selected:hover {
     background: rgba(255, 255, 255, 0.15);
   }
@@ -25,6 +32,7 @@ const TopLevelListItem = styled(ListItem)`
 const SidebarTopLevelIcon = styled.img`
   width: 22px;
   height: 22px;
+  border: none;
 `;
 
 const TopLevelItemText = styled(ListItemText)`
@@ -75,7 +83,7 @@ export const TopLevelSidebarItem = ({
         disabled={disabled}
         data-test-class="toplevel-sidebar-item"
       >
-        {isValidElement(icon) ? icon : <SidebarTopLevelIcon src={icon || administrationIcon} />}
+        <SidebarTopLevelIcon src={icon || administrationIcon} />
         <TopLevelItemText disableTypography primary={label} $invisible={retracted} />
       </TopLevelListItem>
     </StyledTooltip>

@@ -18,7 +18,7 @@ export const ProgramRegistrySurveyView = () => {
   const queryParams = useUrlSearchParams();
   const { navigateToProgramRegistry } = usePatientNavigation();
   const title = queryParams.get('title');
-  const { currentUser, facilityId } = useAuth();
+  const { currentUser } = useAuth();
   const { patientId, programRegistryId, surveyId } = useParams();
   const patient = useSelector(state => state.patient);
   const { data: additionalData, isLoading: additionalDataLoading } = usePatientAdditionalDataQuery(
@@ -41,7 +41,6 @@ export const ProgramRegistrySurveyView = () => {
       surveyId: survey.id,
       startTime,
       patientId: patient.id,
-      facilityId,
       endTime: getCurrentDateTimeString(),
       answers: getAnswersFromData(data, survey),
     });

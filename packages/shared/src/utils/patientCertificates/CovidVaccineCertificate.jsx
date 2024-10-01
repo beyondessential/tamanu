@@ -70,9 +70,9 @@ const CovidVaccineCertificateComponent = ({
   extraPatientFields,
   printedDate,
 }) => {
-  const { emailAddress: contactEmail, contactNumber, healthFacility } = getSetting(
-    'templates.vaccineCertificate',
-  );
+  const contactEmail = getLocalisation('templates.vaccineCertificate.emailAddress');
+  const contactNumber = getLocalisation('templates.vaccineCertificate.contactNumber');
+  const healthFacility = getLocalisation('templates.vaccineCertificate.healthFacility');
   const countryCode = getLocalisation('country.alpha-2');
   const countryName = getLocalisation('country.name');
   const uvciFormat = getLocalisation('previewUvciFormat');
@@ -87,7 +87,7 @@ const CovidVaccineCertificateComponent = ({
     <Document>
       <Page size="A4" style={styles.page}>
         {watermarkSrc && <Watermark src={watermarkSrc} />}
-        <CovidLetterheadSection getSetting={getSetting} logoSrc={logoSrc} />
+        <CovidLetterheadSection getLocalisation={getLocalisation} logoSrc={logoSrc} />
         <H3>COVID-19 Vaccine Certificate</H3>
         <CovidPatientDetailsSection
           patient={patient}

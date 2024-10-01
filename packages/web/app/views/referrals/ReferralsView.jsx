@@ -17,11 +17,9 @@ import { getCurrentUser } from '../../store';
 import { getAnswersFromData } from '../../utils';
 import { PATIENT_TABS } from '../../constants/patientPaths';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
-import { useAuth } from '../../contexts/Auth';
 
 const ReferralFlow = ({ patient, currentUser }) => {
   const api = useApi();
-  const { facilityId } = useAuth();
   const { navigateToPatient } = usePatientNavigation();
   const [referralSurvey, setReferralSurvey] = useState(null);
   const [referralSurveys, setReferralSurveys] = useState(null);
@@ -55,7 +53,6 @@ const ReferralFlow = ({ patient, currentUser }) => {
       patientId: patient.id,
       endTime: getCurrentDateTimeString(),
       answers: getAnswersFromData(data, referralSurvey),
-      facilityId,
     });
 
     navigateToPatient(patient.id, { tab: PATIENT_TABS.REFERRALS });

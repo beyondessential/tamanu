@@ -16,7 +16,7 @@ function getEthnicity(ethnicityId) {
 }
 
 export const nzEthnicity = withConfig((patient, config) => {
-  if (!config.integrations.fhir.extensions.Patient.newZealandEthnicity) return [];
+  if (!config.localisation.data.features.fhirNewZealandEthnicity) return [];
   const { code, display } = getEthnicity(patient?.additionalData?.ethnicityId);
 
   return [

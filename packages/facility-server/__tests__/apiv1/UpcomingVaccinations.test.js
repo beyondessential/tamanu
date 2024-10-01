@@ -8,7 +8,6 @@ import { VACCINE_STATUS, REFERENCE_TYPES, VACCINE_CATEGORIES } from '@tamanu/con
 import { fake } from '@tamanu/shared/test-helpers/fake';
 
 import { RefreshUpcomingVaccinations } from '../../dist/tasks/RefreshMaterializedView';
-import { selectFacilityIds } from '@tamanu/shared/utils/configSelectors';
 
 jest.mock('@tamanu/shared/utils/dateTime', () => ({
   ...jest.requireActual('@tamanu/shared/utils/dateTime'),
@@ -31,11 +30,10 @@ const setupBaseDate = async models => {
   await models.ScheduledVaccine.truncate({ cascade: true });
   await models.AdministeredVaccine.truncate({ cascade: true });
 
-  const [facilityId] = selectFacilityIds(config);
   [facility] = await models.Facility.upsert({
-    id: facilityId,
-    name: facilityId,
-    code: facilityId,
+    id: config.serverFacilityId,
+    name: config.serverFacilityId,
+    code: config.serverFacilityId,
   });
 
   await models.Department.create({

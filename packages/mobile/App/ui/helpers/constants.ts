@@ -206,7 +206,6 @@ export const EncounterTypeNames = {
 export const LabRequestStatus = {
   reception_pending: 'Reception pending',
   results_pending: 'Results pending',
-  interim_results: 'Interim results',
   to_be_verified: 'To be verified',
   verified: 'Verified',
   published: 'published',

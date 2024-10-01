@@ -5,7 +5,6 @@ import {
   patientFieldDefinitionLoader,
   permissionLoader,
   translatedStringLoader,
-  userLoader,
 } from './loaders';
 
 // All reference data is imported first, so that can be assumed for ordering.
@@ -20,10 +19,7 @@ import {
 //
 // creating dependency cycles will (intentionally) crash the importer
 export default {
-  user: {
-    loader: userLoader,
-    needs: ['facility'],
-  },
+  user: {},
 
   patient: {
     loader: patientDataLoader,
@@ -39,10 +35,6 @@ export default {
   },
   location: {
     needs: ['facility', 'locationGroup'],
-  },
-
-  userFacility: {
-    needs: ['facility', 'user'],
   },
 
   certifiableVaccine: {},

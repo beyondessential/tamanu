@@ -1,5 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
+import config from 'config';
 import { Op, QueryTypes } from 'sequelize';
 import { snakeCase } from 'lodash';
 
@@ -34,7 +35,6 @@ patientRoute.get(
     const {
       models: { Patient },
       params,
-      query: { facilityId },
     } = req;
     req.checkPermission('read', 'Patient');
     const patient = await Patient.findByPk(params.id, {
@@ -42,7 +42,7 @@ patientRoute.get(
     });
     if (!patient) throw new NotFoundError();
 
-    res.send(dbRecordToResponse(patient, facilityId));
+    res.send(dbRecordToResponse(patient));
   }),
 );
 
@@ -53,7 +53,6 @@ patientRoute.put(
       db,
       models: { Patient, PatientAdditionalData, PatientBirthData, PatientSecondaryId },
       params,
-      body: { facilityId, ...body },
     } = req;
     req.checkPermission('read', 'Patient');
     const patient = await Patient.findByPk(params.id);
@@ -66,7 +65,7 @@ patientRoute.put(
 
     await db.transaction(async () => {
       // First check if displayId changed to create a secondaryId record
-      if (body.displayId && body.displayId !== patient.displayId) {
+      if (req.body.displayId && req.body.displayId !== patient.displayId) {
         const oldDisplayIdType = isGeneratedDisplayId(patient.displayId)
           ? 'secondaryIdType-tamanu-display-id'
           : 'secondaryIdType-nhn';
@@ -78,7 +77,7 @@ patientRoute.put(
         });
       }
 
-      await patient.update(requestBodyToRecord(body));
+      await patient.update(requestBodyToRecord(req.body));
 
       const patientAdditionalData = await PatientAdditionalData.findOne({
         where: { patientId: patient.id },
@@ -86,11 +85,11 @@ patientRoute.put(
 
       if (!patientAdditionalData) {
         await PatientAdditionalData.create({
-          ...requestBodyToRecord(body),
+          ...requestBodyToRecord(req.body),
           patientId: patient.id,
         });
       } else {
-        await patientAdditionalData.update(requestBodyToRecord(body));
+        await patientAdditionalData.update(requestBodyToRecord(req.body));
       }
 
       const patientBirth = await PatientBirthData.findOne({
@@ -106,18 +105,20 @@ patientRoute.put(
       await patient.writeFieldValues(req.body.patientFields);
     });
 
-    res.send(dbRecordToResponse(patient, facilityId));
+    res.send(dbRecordToResponse(patient));
   }),
 );
 
 patientRoute.post(
   '/$',
   asyncHandler(async (req, res) => {
-    const { db, models, body } = req;
-    const { Patient, PatientAdditionalData, PatientBirthData, PatientFacility } = models;
+    const {
+      db,
+      models: { Patient, PatientAdditionalData, PatientBirthData },
+    } = req;
     req.checkPermission('create', 'Patient');
-    const requestData = requestBodyToRecord(body);
-    const { patientRegistryType, facilityId, ...patientData } = requestData;
+    const requestData = requestBodyToRecord(req.body);
+    const { patientRegistryType, ...patientData } = requestData;
 
     const patientRecord = await db.transaction(async () => {
       const createdPatient = await Patient.create(patientData);
@@ -139,14 +140,10 @@ patientRoute.post(
           patientId: createdPatient.id,
         });
       }
-
-      // mark for sync in this facility
-      await PatientFacility.create({ facilityId, patientId: createdPatient.id });
-
       return createdPatient;
     });
 
-    res.send(dbRecordToResponse(patientRecord, facilityId));
+    res.send(dbRecordToResponse(patientRecord));
   }),
 );
 
@@ -241,13 +238,7 @@ patientRoute.get(
 
     req.checkPermission('list', 'Patient');
 
-    const {
-      orderBy,
-      order = 'asc',
-      rowsPerPage = 10,
-      page = 0,
-      ...filterParams
-    } = query;
+    const { orderBy, order = 'asc', rowsPerPage = 10, page = 0, ...filterParams } = query;
 
     const sortKey = PATIENT_SORT_KEYS[orderBy] || PATIENT_SORT_KEYS.lastName;
     const sortDirection = order.toLowerCase() === 'asc' ? 'ASC' : 'DESC';
@@ -320,7 +311,10 @@ patientRoute.get(
     const filters = createPatientFilters(filterParams);
     const { whereClauses, filterReplacements } = getWhereClausesAndReplacementsFromFilters(
       filters,
-      filterParams,
+      {
+        ...filterParams,
+        facilityId: config.serverFacilityId,
+      },
     );
 
     const from = isAllPatientsListing
@@ -373,7 +367,7 @@ patientRoute.get(
         LEFT JOIN (
             SELECT ed.encounter_id, jsonb_agg(json_build_object('id', rd.id, 'name', rd.name, 'code', rd.code)) diets
             FROM encounter_diets ed
-            JOIN reference_data rd ON rd.id = ed.diet_id AND rd."type" = 'diet' AND rd.visibility_status = 'current'
+            JOIN reference_data rd ON rd.id = ed.diet_id AND rd."type" = 'diet' AND rd.visibility_status = 'current' 
             WHERE ed.deleted_at is NULL
             GROUP BY ed.encounter_id
         ) diets ON diets.encounter_id = encounters.id
@@ -390,7 +384,7 @@ patientRoute.get(
       ${whereClauses && `WHERE ${whereClauses}`}
     `;
 
-    filterReplacements.facilityId = filterParams.facilityId;
+    filterReplacements.facilityId = config.serverFacilityId;
 
     const countResult = await req.db.query(`SELECT COUNT(1) AS count ${from}`, {
       replacements: filterReplacements,
@@ -495,8 +489,7 @@ patientRoute.post(
     req.checkPermission('read', 'Patient');
     req.checkPermission('create', 'IPSRequest');
 
-    const { models, params, body } = req;
-    const { facilityId } = body;
+    const { models, params } = req;
     const { IPSRequest } = models;
 
     if (!req.body.email) {
@@ -510,7 +503,7 @@ patientRoute.post(
       status: IPS_REQUEST_STATUSES.QUEUED,
     });
 
-    res.send(dbRecordToResponse(ipsRequest, facilityId));
+    res.send(dbRecordToResponse(ipsRequest));
   }),
 );
 

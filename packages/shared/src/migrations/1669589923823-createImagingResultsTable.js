@@ -2,7 +2,6 @@ import { DataTypes, Sequelize } from 'sequelize';
 // TODO: shouldn't import config in migrations (it makes db schema state underivable without knowing config across the whole history of the deployment)
 // See SAV-77
 import config from 'config';
-import { selectFacilityIds } from '../utils/configSelectors';
 
 export async function up(query) {
   await query.createTable('imaging_results', {
@@ -66,8 +65,7 @@ export async function up(query) {
   });
 
   await query.renameColumn('imaging_requests', 'results', 'legacy_results');
-  const isFacilityServer = !!selectFacilityIds(config);
-  if (!isFacilityServer) {
+  if (!config.serverFacilityId) {
     // only insert imaging_results on the central server
     // facility servers can sync new results down
     await query.sequelize.query(`

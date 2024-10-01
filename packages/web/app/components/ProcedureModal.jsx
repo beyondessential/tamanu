@@ -1,7 +1,8 @@
 import React from 'react';
 import { addDays, parseISO } from 'date-fns';
 
-import { useApi, useSuggester } from '../api';
+import { useApi } from '../api';
+import { Suggester } from '../utils/suggester';
 
 import { FormModal } from './FormModal';
 import { ProcedureForm } from '../forms/ProcedureForm';
@@ -29,12 +30,12 @@ const getEndDateTime = ({ date, startTime, endTime }) => {
 
 export const ProcedureModal = ({ onClose, onSaved, encounterId, editedProcedure }) => {
   const api = useApi();
-  const locationSuggester = useSuggester('location', {
+  const locationSuggester = new Suggester(api, 'location', {
     baseQueryParameters: { filterByFacility: true },
   });
-  const practitionerSuggester = useSuggester('practitioner');
-  const procedureSuggester = useSuggester('procedureType');
-  const anaestheticSuggester = useSuggester('drug');
+  const practitionerSuggester = new Suggester(api, 'practitioner');
+  const procedureSuggester = new Suggester(api, 'procedureType');
+  const anaestheticSuggester = new Suggester(api, 'drug');
 
   return (
     <FormModal

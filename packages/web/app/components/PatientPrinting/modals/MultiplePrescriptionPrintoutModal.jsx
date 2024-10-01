@@ -25,7 +25,7 @@ export const MultiplePrescriptionPrintoutModal = ({
   const { getSetting } = useSettings();
   const { data: certificateData, isFetching: isCertificateFetching } = useCertificate();
   const api = useApi();
-  const { facilityId } = useAuth();
+  const { facility } = useAuth();
 
   const { data: patient, isLoading: isPatientLoading } = useQuery(
     ['patient', encounter.patientId],
@@ -53,16 +53,11 @@ export const MultiplePrescriptionPrintoutModal = ({
     },
   );
 
-  const { data: facility, isLoading: isFacilityLoading } = useQuery(['facility', facilityId], () =>
-    api.get(`facility/${encodeURIComponent(facilityId)}`),
-  );
-
   const isLoading =
     isPatientLoading ||
     isAdditionalDataLoading ||
     isPrescriberLoading ||
     (isVillageLoading && !!patient?.villageId) ||
-    isFacilityLoading ||
     isCertificateFetching;
 
   return (

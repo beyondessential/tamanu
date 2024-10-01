@@ -1,9 +1,12 @@
 import config from 'config';
 import { format } from 'date-fns';
 import { Op, Sequelize } from 'sequelize';
+import { get } from 'lodash';
 
 import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
+
+import { getLocalisation } from '../localisation';
 
 export class SignerRenewalSender extends ScheduledTask {
   constructor(context) {
@@ -19,7 +22,7 @@ export class SignerRenewalSender extends ScheduledTask {
   }
 
   async run() {
-    const { emailService, settings } = this.context;
+    const { emailService } = this.context;
     const { Signer } = this.context.store.models;
 
     const pending = await Signer.findAll({
@@ -43,7 +46,7 @@ export class SignerRenewalSender extends ScheduledTask {
       );
     }
 
-    const { subject, body: text } = await settings.get('templates.signerRenewalEmail');
+    const localisation = await getLocalisation();
 
     log.info(
       `Emailing ${pending.length} CSR(s) to ${config.integrations.signer.sendSignerRequestTo}`,
@@ -53,8 +56,8 @@ export class SignerRenewalSender extends ScheduledTask {
         await emailService.sendEmail({
           to: config.integrations.signer.sendSignerRequestTo,
           from: config.mailgun.from,
-          subject,
-          text,
+          subject: get(localisation, 'signerRenewalEmail.subject'),
+          text: get(localisation, 'signerRenewalEmail.body'),
           attachment: {
             filename: `Tamanu_${format(signer.createdAt, 'yyyy-MM-dd')}.csr`,
             data: Buffer.from(signer.request),

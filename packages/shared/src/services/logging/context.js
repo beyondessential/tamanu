@@ -2,7 +2,6 @@ import { SemanticAttributes as OpenTelSemantics } from '@opentelemetry/semantic-
 import config from 'config';
 import shortid from 'shortid';
 import os from 'os';
-import { selectFacilityIds } from '../../utils/configSelectors';
 
 export const ENV = process.env.NODE_ENV ?? 'development';
 export const PROCESS_ID = shortid();
@@ -28,13 +27,7 @@ export function serviceContext() {
   const deploymentHost = config?.canonicalHostName || config?.sync?.host;
   const deployment =
     deploymentHost && new URL(deploymentHost).hostname.replace(/[^a-z0-9]+/gi, '-');
-  const serverFacilityIds = selectFacilityIds(config);
-  const facilityLoggingKey =
-    serverFacilityIds &&
-    (serverFacilityIds.length === 1
-      ? serverFacilityIds[0]
-      : `multi-facility:${serverFacilityIds.join(';')}`);
-  const facilityId = facilityLoggingKey?.replace(/([^a-z0-9]+|^(ref\/)?facility[-/])/gi, '');
+  const facilityId = config?.serverFacilityId?.replace(/([^a-z0-9]+|^(ref\/)?facility[-/])/gi, '');
 
   const context = {
     [SemanticAttributes.NET_HOST_NAME]: HOSTNAME,

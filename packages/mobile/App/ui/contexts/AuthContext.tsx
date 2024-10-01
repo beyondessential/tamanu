@@ -70,13 +70,9 @@ const Provider = ({
 
   const isUserAuthenticated = (): boolean => props.token !== null && props.user !== null;
 
-  const generateAbilityForUser = (user: User): PureAbility => {
-    return buildAbility(user, backend.permissions.data);
-  };
-
   const setContextUserAndAbility = (userData): void => {
     setUserData(userData);
-    const abilityObject = generateAbilityForUser(userData);
+    const abilityObject = buildAbility(userData, backend.permissions.data);
     setAbility(abilityObject);
   };
 
@@ -91,7 +87,7 @@ const Provider = ({
   };
 
   const localSignIn = async (params: SyncConnectionParameters): Promise<void> => {
-    const usr = await backend.auth.localSignIn(params, generateAbilityForUser);
+    const usr = await backend.auth.localSignIn(params);
     signInAs(usr);
   };
 

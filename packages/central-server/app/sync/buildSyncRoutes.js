@@ -3,7 +3,6 @@ import asyncHandler from 'express-async-handler';
 
 import { Op } from 'sequelize';
 import { log } from '@tamanu/shared/services/logging';
-import { ForbiddenError } from '@tamanu/shared/errors';
 import { completeSyncSession } from '@tamanu/shared/sync/completeSyncSession';
 
 import { CentralSyncManager } from './CentralSyncManager';
@@ -16,24 +15,14 @@ export const buildSyncRoutes = ctx => {
   syncRoutes.post(
     '/',
     asyncHandler(async (req, res) => {
-      const {
-        store,
-        user,
-        body: { facilityIds, deviceId },
-        models: { SyncQueuedDevice, SyncSession },
-      } = req;
-
-      const userInstance = await store.models.User.findByPk(user.id);
-      if (facilityIds.some(id => !userInstance.canAccessFacility(id))) {
-        throw new ForbiddenError('User does not have access to facility');
-      }
+      const { SyncQueuedDevice, SyncSession } = req.models;
 
       // first check if our device has any stale sessions...
       const staleSessions = await SyncSession.findAll({
         where: {
           completedAt: { [Op.is]: null },
           debugInfo: {
-            deviceId,
+            deviceId: req.body.deviceId,
           },
         },
       });
@@ -42,7 +31,7 @@ export const buildSyncRoutes = ctx => {
       // (highly likely 0 or 1, but still loop as multiples are still theoretically possible)
       for (const session of staleSessions) {
         await completeSyncSession(
-          store,
+          req.store,
           session.id,
           'Session marked as completed due to its device reconnecting',
         );
@@ -50,7 +39,7 @@ export const buildSyncRoutes = ctx => {
         log.info('StaleSyncSessionCleaner.closedReconnectedSession', {
           sessionId: session.id,
           durationMs,
-          facilityIds: session.debugInfo.facilityIds,
+          facilityId: session.debugInfo.facilityId,
           deviceId: session.debugInfo.deviceId,
         });
       }
@@ -89,10 +78,12 @@ export const buildSyncRoutes = ctx => {
       // lastSyncedTick)
       queueRecord.destroy();
 
+      const { user, body } = req;
+      const { facilityId, deviceId } = body;
       const { sessionId, tick } = await syncManager.startSession({
         userId: user.id,
         deviceId,
-        facilityIds,
+        facilityId,
       });
       res.json({ sessionId, tick });
     }),
@@ -126,7 +117,7 @@ export const buildSyncRoutes = ctx => {
       const { params, body } = req;
       const {
         since: sinceString,
-        facilityIds,
+        facilityId,
         tablesToInclude,
         tablesForFullResync,
         isMobile,
@@ -137,7 +128,7 @@ export const buildSyncRoutes = ctx => {
       }
       await syncManager.initiatePull(params.sessionId, {
         since,
-        facilityIds,
+        facilityId,
         tablesToInclude,
         tablesForFullResync,
         isMobile,

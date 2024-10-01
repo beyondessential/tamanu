@@ -15,5 +15,5 @@
     "migrateOnStartup": true,
   },
   "log": {},
-  "serverFacilityIds": ["facility-BaHealthCentre"]
+  "serverFacilityId": "facility-1"
 }

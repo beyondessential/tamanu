@@ -26,7 +26,7 @@ import { FORM_TYPES } from '../../constants';
 export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject }) => {
   const api = useApi();
   const { getTranslation } = useTranslation();
-  const { currentUser, facilityId } = useAuth();
+  const { currentUser, facility } = useAuth();
   const patient = useSelector(state => state.patient);
   const [selectedProgramRegistryId, setSelectedProgramRegistryId] = useState();
 
@@ -194,7 +194,7 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
       }}
       initialValues={{
         date: getCurrentDateTimeString(),
-        registeringFacilityId: facilityId,
+        registeringFacilityId: facility.id,
         clinicianId: currentUser.id,
         ...editedObject,
       }}

@@ -97,7 +97,10 @@ export class ReportRunner {
     let metadata = [];
     let reportDuration = 0;
 
-    const { duration, ifRunAtLeast } = config.reportProcess.sleepAfterReport;
+    const {
+      duration,
+      ifRunAtLeast,
+    } = config.reportProcess.sleepAfterReport;
 
     const startTime = Date.now();
 

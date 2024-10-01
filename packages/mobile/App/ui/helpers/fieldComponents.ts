@@ -13,7 +13,6 @@ import { SurveyQuestionAutocomplete } from '../components/AutocompleteModal/Surv
 import { SurveyLink } from '../components/Forms/SurveyForm/SurveyLink';
 import { SurveyResult } from '../components/Forms/SurveyForm/SurveyResult';
 import { SurveyAnswerField } from '../components/Forms/SurveyForm/SurveyAnswerField';
-import { SurveyGeolocationField } from '../components/Forms/SurveyForm/SurveyGeolocationField';
 
 export const FieldByType = {
   [FieldTypes.TEXT]: LimitedTextField,
@@ -38,7 +37,6 @@ export const FieldByType = {
   [FieldTypes.INSTRUCTION]: null,
   [FieldTypes.RESULT]: null,
   [FieldTypes.PATIENT_ISSUE_GENERATOR]: ReadOnlyField,
-  [FieldTypes.GEOLOCATE]: SurveyGeolocationField,
 };
 
 export const PatientFieldDefinitionComponents = {

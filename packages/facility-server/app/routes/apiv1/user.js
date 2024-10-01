@@ -1,3 +1,4 @@
+import config from 'config';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { QueryTypes } from 'sequelize';
@@ -29,6 +30,24 @@ user.get(
 );
 
 user.get('/permissions', asyncHandler(getPermissions));
+
+user.get(
+  '/current-facility',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('list', 'User');
+    const userFacilities = await req.models.UserFacility.findAll({
+      where: { facilityId: config.serverFacilityId },
+      include: [
+        {
+          model: req.models.User,
+          as: 'user',
+        },
+      ],
+    });
+    const users = userFacilities.map(userFacility => userFacility.get({ plain: true }).user);
+    res.send(users);
+  }),
+);
 
 user.get(
   '/recently-viewed-patients',

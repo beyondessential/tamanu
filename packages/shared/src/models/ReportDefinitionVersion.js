@@ -118,14 +118,14 @@ export class ReportDefinitionVersion extends Model {
     return options.parameters;
   }
 
-  async dataGenerator({ sequelize, reportSchemaStores, facilityId }, parameters) {
+  async dataGenerator({ models, sequelize, reportSchemaStores }, parameters) {
     const reportQuery = this.get('query');
 
     const queryOptions = this.getQueryOptions();
 
     const replacements = await getReportQueryReplacements(
+      { models },
       queryOptions.parameters,
-      facilityId,
       parameters,
       queryOptions.defaultDateRange,
     );

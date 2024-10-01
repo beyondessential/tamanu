@@ -7,25 +7,19 @@ import { NewPatientForm } from '../../../forms';
 import { useApi } from '../../../api';
 import { notifyError } from '../../../utils';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
-import { useAuth } from '../../../contexts/Auth';
 
 export const NewPatientModal = ({ open, onCancel, onCreateNewPatient, ...formProps }) => {
   const api = useApi();
-  const { facilityId } = useAuth();
   const onSubmit = useCallback(
     async data => {
       try {
-        const newPatient = await api.post('patient', {
-          ...data,
-          registeredById: api.user.id,
-          facilityId,
-        });
+        const newPatient = await api.post('patient', { ...data, registeredById: api.user.id });
         onCreateNewPatient(newPatient);
       } catch (e) {
         notifyError(e.message);
       }
     },
-    [api, onCreateNewPatient, facilityId],
+    [api, onCreateNewPatient],
   );
   return (
     <FormModal

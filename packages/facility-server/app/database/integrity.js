@@ -1,12 +1,11 @@
 import config from 'config';
 import { log } from '@tamanu/shared/services/logging';
 import { isSyncTriggerDisabled } from '@tamanu/shared/dataMigrations';
-import { selectFacilityIds } from '@tamanu/shared/utils/configSelectors';
 import { CentralServerConnection } from '../sync';
 
 export async function performDatabaseIntegrityChecks(context) {
   if (await isSyncTriggerDisabled(context.sequelize)) {
-    throw Error('Sync Trigger is disabled in the database.');
+    throw Error("Sync Trigger is disabled in the database.");
   }
 
   // run in a transaction so any errors roll back all changes
@@ -42,22 +41,18 @@ async function ensureHostMatches(context) {
  */
 async function ensureFacilityMatches(context) {
   const { LocalSystemFact } = context.models;
-  const configuredFacilities = selectFacilityIds(config);
-  const lastFacilities = await LocalSystemFact.get('facilityIds');
+  const configuredFacility = config.serverFacilityId;
+  const lastFacility = await LocalSystemFact.get('facilityId');
 
-  if (!lastFacilities) {
+  if (!lastFacility) {
     await performInitialIntegritySetup(context);
     return;
   }
 
-  // ensure both arrays contain the same set of facility ids
-  const match = JSON.parse(lastFacilities).every(facilityId =>
-    configuredFacilities.includes(facilityId),
-  );
-  if (!match) {
+  if (lastFacility !== configuredFacility) {
     // if the facility doesn't match, error
     throw new Error(
-      `integrity check failed: serverFacilityId mismatch: read ${configuredFacilities} from config, but already registered as ${lastFacilities} (you may need to drop and recreate the database, change the config back, or if you're 100% sure, remove the "facilityIds" key from the "local_system_fact" table)`,
+      `integrity check failed: serverFacilityId mismatch: read ${configuredFacility} from config, but already registered as ${lastFacility} (you may need to drop and recreate the database, change the config back, or if you're 100% sure, remove the "facilityId" key from the "local_system_fact" table)`,
     );
   }
 }
@@ -66,16 +61,21 @@ async function performInitialIntegritySetup(context) {
   const centralServer = new CentralServerConnection(context);
   log.info(`Verifying sync connection to ${centralServer.host}...`);
 
-  const { token, serverFacilityIds } = await centralServer.connect();
+  const { token, facility } = await centralServer.connect();
 
   if (!token) {
     throw new Error('Could not obtain valid token from central server.');
   }
 
+  if (!facility) {
+    throw new Error(
+      `Configured serverFacilityId ${config.serverFacilityId} not recognised by central server`,
+    );
+  }
+
   // We've ensured that our immutable config stuff is valid -- save it!
   const { LocalSystemFact } = context.models;
-  const facilityIdsString = JSON.stringify(serverFacilityIds);
-  await LocalSystemFact.set('facilityIds', facilityIdsString);
+  await LocalSystemFact.set('facilityId', facility.id);
 
-  log.info(`Verified with central server as facilities ${facilityIdsString}`);
+  log.info(`Verified with central server as ${facility.name}`);
 }

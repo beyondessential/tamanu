@@ -2,13 +2,13 @@ import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { isEqual } from 'lodash';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { useApi } from '../../api';
+import { useLocalisation } from '../../contexts/Localisation';
 
 import { Table } from './Table';
 import { TableNotification } from './TableNotification';
 import { TableRefreshButton } from './TableRefreshButton';
 import { TranslatedText } from '../Translation/TranslatedText';
 import { withPermissionCheck } from '../withPermissionCheck';
-import { useSettings } from '../../contexts/Settings';
 
 const ROWS_PER_PAGE_OPTIONS = [10, 25, 50];
 const DEFAULT_SORT = { order: 'asc', orderBy: undefined };
@@ -53,9 +53,9 @@ export const DataFetchingTable = memo(
     const tableRef = useRef(null);
     const api = useApi();
 
-    const { getSetting } = useSettings();
+    const { getLocalisation } = useLocalisation();
     const autoRefreshConfig =
-      overrideLocalisationForStorybook || getSetting('features.tableAutoRefresh');
+      overrideLocalisationForStorybook || getLocalisation('features.tableAutoRefresh');
     const enableAutoRefresh = autoRefreshConfig && autoRefreshConfig.enabled && autoRefresh;
 
     // This callback will be passed to table cell accessors so they can force a table refresh
@@ -227,7 +227,7 @@ export const DataFetchingTable = memo(
           }
           setErrorMessage('');
           const { data, count } = await fetchData();
-
+          
           if (loadingDelay) clearTimeout(loadingDelay); // Clear the loading indicator timeout if data fetched before 1 second passes (stops flash from short loading time)
 
           const transformedData = transformData(data, count); // Transform the data before updating the table rows

@@ -254,13 +254,17 @@ export const TranslationForm = () => {
   const { translations = [], languageNames = {} } = data;
   const { mutate: saveTranslations, isLoading: isSaving } = useTranslationMutation();
 
-  const initialValues = useMemo(() => {
-    const values = { search: '' };
-    for (const { stringId, ...rest } of translations) {
-      values[stringId] = rest;
-    }
-    return values;
-  }, [translations]);
+  const initialValues = useMemo(
+    () =>
+      translations.reduce(
+        (acc, { stringId, ...rest }) => ({
+          ...acc,
+          [stringId]: rest,
+        }),
+        { search: '' },
+      ),
+    [translations],
+  );
 
   const handleSubmit = async payload => {
     // Swap temporary id out for stringId

@@ -2,15 +2,10 @@ import { Suggester } from '../utils/suggester';
 import { useApi } from './useApi';
 import { getPatientNameAsString } from '../components/PatientNameDisplay';
 import { DateDisplay } from '../components/DateDisplay';
-import { useAuth } from '../contexts/Auth';
 
 export const useSuggester = (type, options) => {
   const api = useApi();
-  const { facilityId } = useAuth();
-  return new Suggester(api, type, {
-    ...options,
-    baseQueryParameters: { facilityId, ...options?.baseQueryParameters },
-  });
+  return new Suggester(api, type, options);
 };
 
 export const usePatientSuggester = () => {

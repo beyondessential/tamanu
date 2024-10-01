@@ -4,7 +4,7 @@ import { read, readFile } from 'xlsx';
 import { log } from '@tamanu/shared/services/logging';
 import { REFERENCE_TYPE_VALUES } from '@tamanu/constants';
 
-import { normaliseSheetName } from '../importer/importerEndpoint';
+import { normaliseSheetName } from '../importerEndpoint';
 
 import { loaderFactory, referenceDataLoaderFactory } from './loaders';
 import { importSheet } from './sheet';

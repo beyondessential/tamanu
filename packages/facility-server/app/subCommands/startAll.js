@@ -2,9 +2,8 @@ import config from 'config';
 import { Command } from 'commander';
 
 import { log } from '@tamanu/shared/services/logging';
-import { performTimeZoneChecks } from '@tamanu/shared/utils/timeZoneCheck';
-import { selectFacilityIds } from '@tamanu/shared/utils/configSelectors';
 
+import { performTimeZoneChecks } from '@tamanu/shared/utils/timeZoneCheck';
 import { checkConfig } from '../checkConfig';
 import { initDeviceId } from '../sync/initDeviceId';
 import { performDatabaseIntegrityChecks } from '../database';
@@ -18,7 +17,7 @@ import { createSyncApp } from '../createSyncApp';
 
 async function startAll({ skipMigrationCheck }) {
   log.info(`Starting facility server version ${version}`, {
-    serverFacilityIds: selectFacilityIds(config),
+    serverFacilityId: config.serverFacilityId,
   });
 
   log.info(`Process info`, {
@@ -58,6 +57,8 @@ async function startAll({ skipMigrationCheck }) {
   const { server: syncServer } = await createSyncApp(context);
 
   let { port: syncPort } = config.sync.syncApiConnection;
+  if (+process.env.PORT) { syncPort = +process.env.PORT; }
+  if (syncPort === port) { syncPort += 1; }
   syncServer.listen(syncPort, () => {
     log.info(`SYNC server is running on port ${syncPort}!`);
   });

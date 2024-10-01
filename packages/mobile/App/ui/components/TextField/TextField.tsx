@@ -40,8 +40,6 @@ export interface TextFieldProps extends BaseInputProps {
   labelFontSize?: string | number;
   fieldFontSize?: string | number;
   required?: boolean;
-  readOnly?: boolean;
-  endAdornment?: React.ReactNode;
 }
 
 const styles = StyleSheet.create({
@@ -76,8 +74,6 @@ export const TextField = React.memo(
     onSubmitEditing,
     labelFontSize,
     fieldFontSize,
-    readOnly,
-    endAdornment
   }: TextFieldProps): JSX.Element => {
     const [focused, setFocus] = useState(false);
     const defaultRef: RefObject<any> = useRef(null);
@@ -139,7 +135,7 @@ export const TextField = React.memo(
             onFocus={onFocusInput}
             onBlur={onBlurInput}
             multiline={multiline}
-            editable={!readOnly && !disabled}
+            editable={!disabled}
             style={multiline ? styles.multiLineText : styles.singleLineText}
             secureTextEntry={secure}
             placeholder={placeholder?.props?.fallback || placeholder}
@@ -148,7 +144,6 @@ export const TextField = React.memo(
             onSubmitEditing={onSubmitEditing}
             placeholderTextColor={theme.colors.TEXT_SOFT}
           />
-          {endAdornment}
         </InputContainer>
         {!!error && <TextFieldErrorMessage>{error}</TextFieldErrorMessage>}
       </StyledView>

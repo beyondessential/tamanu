@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
+import { useLocalisation } from '../../../contexts/Localisation';
 import { PDFLoader, printPDF } from '../PDFLoader';
 import { IDLabelPrintout } from '@tamanu/shared/utils/patientCertificates';
 import { Modal } from '../../Modal';
-import { useSettings } from '../../../contexts/Settings';
 
 export const PatientStickerLabelPage = React.memo(({ patient }) => {
   const [open, setOpen] = useState(true);
-  const { getSetting } = useSettings()
-  const measures = getSetting('printMeasures.stickerLabelPage');
+  const { getLocalisation } = useLocalisation();
+  const measures = getLocalisation('printMeasures.stickerLabelPage');
   return (
     <Modal
       open={open}

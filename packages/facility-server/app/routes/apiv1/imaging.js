@@ -1,4 +1,5 @@
 import express from 'express';
+import config from 'config';
 import asyncHandler from 'express-async-handler';
 import { endOfDay, parseISO, startOfDay } from 'date-fns';
 import { literal, Op } from 'sequelize';
@@ -356,7 +357,7 @@ globalImagingRequests.get(
       where:
         filterParams?.allFacilities && JSON.parse(filterParams.allFacilities)
           ? {}
-          : { facilityId: { [Op.eq]: filterParams.facilityId } },
+          : { facilityId: { [Op.eq]: config.serverFacilityId } },
     };
 
     const location = {

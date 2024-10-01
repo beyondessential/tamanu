@@ -1,10 +1,6 @@
-import config from 'config';
-
 import { createDummyEncounter, createDummyPatient } from '@tamanu/shared/demoData/patients';
 import { PROGRAM_DATA_ELEMENT_TYPES, SURVEY_TYPES } from '@tamanu/constants';
-import { selectFacilityIds } from '@tamanu/shared/utils/configSelectors';
 import { chance } from '@tamanu/shared/test-helpers';
-
 import { createTestContext } from '../utilities';
 
 let baseApp = null;
@@ -90,7 +86,6 @@ async function submitMultipleSurveyResponses(survey, overrides, amount = 7) {
 }
 
 describe('Programs', () => {
-  const [facilityId] = selectFacilityIds(config);
   let app;
 
   let testPatient;
@@ -183,7 +178,6 @@ describe('Programs', () => {
         ...responseData,
         encounterId: testEncounter.id,
         surveyId: testSurvey.id,
-        facilityId,
       });
 
       expect(result).toHaveSucceeded();
@@ -307,7 +301,6 @@ describe('Programs', () => {
       const result = await app.post(`/api/surveyResponse`).send({
         ...createDummySurveyResponse(testSurvey),
         patientId: patient.id,
-        facilityId,
       });
 
       expect(result).toHaveSucceeded();
@@ -328,7 +321,6 @@ describe('Programs', () => {
         userId: examinerId,
         departmentId,
         locationId,
-        facilityId,
       });
 
       expect(result).toHaveSucceeded();
@@ -419,7 +411,6 @@ describe('Programs', () => {
           answers: { [pdeId]: true },
           surveyId,
           encounterId: testEncounter.id,
-          facilityId,
         });
         expect(result).toHaveSucceeded();
 
@@ -446,7 +437,6 @@ describe('Programs', () => {
           answers: { [pdeId]: TEST_EMAIL },
           surveyId,
           encounterId: testEncounter.id,
-          facilityId,
         });
         expect(result).toHaveSucceeded();
 
@@ -472,7 +462,6 @@ describe('Programs', () => {
           answers: { [pdeId]: TEST_PASSPORT },
           surveyId,
           encounterId: testEncounter.id,
-          facilityId,
         });
         expect(result).toHaveSucceeded();
 
@@ -500,7 +489,6 @@ describe('Programs', () => {
           answers: { [pdeId]: TEST_PASSPORT },
           surveyId,
           patientId: freshPatient.id,
-          facilityId,
         });
         expect(result).toHaveSucceeded();
 
@@ -521,7 +509,6 @@ describe('Programs', () => {
         patientId: testPatient.id,
         userId: examinerId,
         locationId,
-        facilityId,
       });
       expect(result).toHaveRequestError();
     });
@@ -537,7 +524,6 @@ describe('Programs', () => {
         patientId: testPatient.id,
         userId: examinerId,
         locationId,
-        facilityId,
       });
       expect(result).toHaveRequestError();
     });

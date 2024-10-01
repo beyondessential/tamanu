@@ -29,13 +29,10 @@ describe('Sync Lookup data', () => {
   let centralSyncManager;
   let sessionId;
   let facility;
-  let facility2;
   let patient;
   let department;
-  let department2;
   let examiner;
   let location;
-  let location2;
   let labRequest1;
   let labTestPanel1;
   let labRequestAttachment1;
@@ -186,23 +183,6 @@ describe('Sync Lookup data', () => {
       fake(Location, {
         facilityId: facility.id,
         locationGroupId: locationGroup.id,
-      }),
-    );
-    facility2 = await Facility.create(fake(Facility));
-    department2 = await Department.create(
-      fake(Department, {
-        facilityId: facility2.id,
-      }),
-    );
-    const locationGroup2 = await LocationGroup.create(
-      fake(LocationGroup, {
-        facilityId: facility2.id,
-      }),
-    );
-    location2 = await Location.create(
-      fake(Location, {
-        facilityId: facility2.id,
-        locationGroupId: locationGroup2.id,
       }),
     );
 
@@ -577,7 +557,7 @@ describe('Sync Lookup data', () => {
       ctx.store.sequelize,
       sessionId,
       true,
-      [facility.id],
+      facility.id,
       0,
     );
 
@@ -591,7 +571,7 @@ describe('Sync Lookup data', () => {
       patientCount,
       fullSyncPatientsTable,
       sessionId,
-      [''],
+      '',
       simplestSessionConfig,
       simplestConfig,
     );
@@ -656,7 +636,7 @@ describe('Sync Lookup data', () => {
       ctx.store.sequelize,
       sessionId,
       true,
-      [facility.id],
+      facility.id,
       0,
     );
 
@@ -675,7 +655,7 @@ describe('Sync Lookup data', () => {
       patientCount,
       fullSyncPatientsTable,
       sessionId,
-      [facility.id],
+      facility.id,
       simplestSessionConfig,
       simplestConfig,
     );
@@ -762,7 +742,7 @@ describe('Sync Lookup data', () => {
         ctx.store.sequelize,
         sessionId,
         false,
-        [facility.id],
+        facility.id,
         10,
       );
     });
@@ -805,7 +785,7 @@ describe('Sync Lookup data', () => {
           patientCount,
           regularSyncPatientsTable,
           sessionId,
-          [facility.id],
+          facility.id,
           simplestSessionConfig,
           simplestConfig,
         );
@@ -820,6 +800,10 @@ describe('Sync Lookup data', () => {
       });
 
       it('Does not snapshot settings linked to a facility other than the current facility', async () => {
+        const facility2 = await models.Facility.create({
+          ...fake(models.Facility),
+          name: 'Utopia HQ',
+        });
         const setting = await models.Setting.create({
           facilityId: facility2.id,
           key: 'test',
@@ -853,7 +837,7 @@ describe('Sync Lookup data', () => {
           patientCount,
           regularSyncPatientsTable,
           sessionId,
-          [facility.id],
+          facility.id,
           simplestSessionConfig,
           simplestConfig,
         );
@@ -900,7 +884,7 @@ describe('Sync Lookup data', () => {
           patientCount,
           regularSyncPatientsTable,
           sessionId,
-          [facility.id],
+          facility.id,
           simplestSessionConfig,
           simplestConfig,
         );
@@ -929,7 +913,7 @@ describe('Sync Lookup data', () => {
       ctx.store.sequelize,
       sessionId,
       false,
-      [facility.id],
+      facility.id,
       10,
     );
 
@@ -959,7 +943,7 @@ describe('Sync Lookup data', () => {
       patientCount,
       regularSyncPatientsTable,
       sessionId,
-      [facility.id],
+      facility.id,
       simplestSessionConfig,
       simplestConfig,
     );
@@ -994,8 +978,8 @@ describe('Sync Lookup data', () => {
       encounter2 = await models.Encounter.create(
         fake(models.Encounter, {
           patientId: patient2.id,
-          departmentId: department2.id,
-          locationId: location2.id,
+          departmentId: department.id,
+          locationId: location.id,
           examinerId: examiner.id,
           startDate: '2023-12-21T04:59:51.851Z',
         }),
@@ -1004,7 +988,7 @@ describe('Sync Lookup data', () => {
 
       labRequest2 = await models.LabRequest.create(
         fake(models.LabRequest, {
-          departmentId: department2.id,
+          departmentId: department.id,
           collectedById: examiner.id,
           encounterId: encounter2.id,
         }),
@@ -1056,7 +1040,7 @@ describe('Sync Lookup data', () => {
         ctx.store.sequelize,
         sessionId,
         false,
-        [facility.id],
+        facility.id,
         10,
       );
     });
@@ -1075,7 +1059,7 @@ describe('Sync Lookup data', () => {
         patientCount,
         regularSyncPatientsTable,
         sessionId,
-        [facility.id],
+        facility.id,
         sessionConfig,
         simplestConfig,
       );
@@ -1161,7 +1145,7 @@ describe('Sync Lookup data', () => {
         patientCount,
         regularSyncPatientsTable,
         sessionId,
-        [facility.id],
+        facility.id,
         sessionConfig,
         simplestConfig,
       );
@@ -1217,48 +1201,6 @@ describe('Sync Lookup data', () => {
       expect(labRequestLogIds).toEqual([labRequestLog1.id]);
       expect(labTestIds).toEqual([labTest1.id]);
       expect(labTestPanelRequests).toEqual([labTestPanelRequest1.id]);
-    });
-
-    it("Updates existing encounter's isLabRequest to be TRUE when encounter got lab request attached to it ", async () => {
-      const patient3 = await models.Patient.create(fake(models.Patient));
-
-      const encounter3 = await models.Encounter.create(
-        fake(models.Encounter, {
-          patientId: patient3.id,
-          departmentId: department.id,
-          locationId: location.id,
-          examinerId: examiner.id,
-          startDate: '2023-12-21T04:59:51.851Z',
-        }),
-      );
-
-      await centralSyncManager.updateLookupTable();
-
-      const nonLabRequestEncounterLookupData = await models.SyncLookup.findOne({
-        where: { recordId: encounter3.id },
-      });
-
-      expect(nonLabRequestEncounterLookupData.isLabRequest).toBeFalse();
-
-      const labRequest = await models.LabRequest.create(
-        fake(models.LabRequest, {
-          departmentId: department.id,
-          collectedById: examiner.id,
-          encounterId: encounter3.id,
-        }),
-      );
-
-      await centralSyncManager.updateLookupTable();
-
-      const labRequestLookupData = await models.SyncLookup.findOne({
-        where: { recordId: labRequest.id },
-      });
-      const labRequestEncounterLookupData = await models.SyncLookup.findOne({
-        where: { recordId: encounter3.id },
-      });
-
-      expect(labRequestLookupData).toBeDefined();
-      expect(labRequestEncounterLookupData.isLabRequest).toBeTrue();
     });
   });
 });

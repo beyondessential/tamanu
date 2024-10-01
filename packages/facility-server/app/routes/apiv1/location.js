@@ -1,3 +1,4 @@
+import config from 'config';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 
@@ -12,10 +13,13 @@ location.get(
   '/$',
   asyncHandler(async (req, res) => {
     req.checkPermission('list', 'Location');
-    const { facilityId } = req.query;
+    if (!config.serverFacilityId) {
+      res.send([]);
+      return;
+    }
     const locations = await req.models.Location.findAll({
       where: {
-        facilityId,
+        facilityId: config.serverFacilityId,
       },
     });
     res.send(locations);

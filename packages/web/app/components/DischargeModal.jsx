@@ -11,7 +11,7 @@ import { reloadPatient } from '../store/patient';
 import { TranslatedText } from './Translation/TranslatedText';
 import { getPatientStatus } from '../utils/getPatientStatus';
 import { PATIENT_STATUS } from '../constants';
-import { useSettings } from '../contexts/Settings';
+import { useLocalisation } from '../contexts/Localisation';
 
 const DISCHARGE_DISPOSITION_FOR_EMERGENCY_ONLY = 'AE-';
 const DISCHARGE_DISPOSITION_FOR_INPATIENTS_ONLY = 'IN-';
@@ -21,8 +21,8 @@ export const DischargeModal = React.memo(({ open, onClose }) => {
   const dispatch = useDispatch();
   const { navigateToPatient } = usePatientNavigation();
   const patient = useSelector(state => state.patient);
-  const { getSetting } = useSettings()
-  const allowFilterDischargeDisposition = getSetting('features.filterDischargeDispositions');
+  const { getLocalisation } = useLocalisation();
+  const allowFilterDischargeDisposition = getLocalisation('features.filterDischargeDispositions');
   const { encounter, writeAndViewEncounter } = useEncounter();
   const practitionerSuggester = useSuggester('practitioner');
   const { facility } = encounter.location;

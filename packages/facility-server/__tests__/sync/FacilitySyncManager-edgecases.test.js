@@ -11,7 +11,6 @@ import {
 } from '@tamanu/shared/sync/constants';
 
 import { createTestContext } from '../utilities';
-import { selectFacilityIds } from '@tamanu/shared/utils/configSelectors';
 
 describe('FacilitySyncManager edge cases', () => {
   let ctx;
@@ -69,14 +68,13 @@ describe('FacilitySyncManager edge cases', () => {
     await models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, currentSyncTick);
     await ctx.models.LocalSystemFact.set(LAST_SUCCESSFUL_SYNC_PUSH_KEY, LAST_SUCCESSFUL_SYNC_PUSH);
 
-    const [facilityId] = selectFacilityIds(config);
     // create a record that will be committed before the sync starts, so safely gets the current
     // sync tick and available in the db for snapshotting
     await models.Facility.findOrCreate({
-      where: { id: facilityId },
+      where: { id: config.serverFacilityId },
       defaults: {
         ...fake(models.Facility),
-        id: facilityId,
+        id: config.serverFacilityId,
       },
     });
     const { id: safePatientId } = await models.Patient.create(createDummyPatient());

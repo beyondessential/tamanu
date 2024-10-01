@@ -7,6 +7,7 @@ const IMAGING_LOAD_FINISH = 'IMAGING_LOAD_FINISH';
 
 export const reloadImagingRequest = id => async (dispatch, getState, { api }) => {
   dispatch({ type: IMAGING_LOAD_START, id });
+
   try {
     const imagingRequest = await api.get(`imagingRequest/${id}`);
 

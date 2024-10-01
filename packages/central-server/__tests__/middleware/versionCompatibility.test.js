@@ -125,6 +125,7 @@ describe('Version compatibility', () => {
         'packages/central-server/package.json',
         'packages/facility-server/package.json',
         'packages/shared/package.json',
+        'packages/meta-server/package.json',
         'packages/scripts/package.json',
       ];
       versions = await Promise.all(

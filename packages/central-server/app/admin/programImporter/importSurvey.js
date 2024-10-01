@@ -2,7 +2,7 @@ import { utils } from 'xlsx';
 import { SURVEY_TYPES } from '@tamanu/constants';
 
 import { ImporterMetadataError } from '../errors';
-import { importRows } from '../importer/importRows';
+import { importRows } from '../importRows';
 
 import { readSurveyQuestions } from './readSurveyQuestions';
 import { ensureRequiredQuestionsPresent, validateVitalsSurvey } from './validation';

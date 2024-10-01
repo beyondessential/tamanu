@@ -50,12 +50,13 @@ describe(`Materialised - MediciReport`, () => {
       locationGroup,
     };
   });
-
   beforeEach(async () => {
     const { MediciReport } = ctx.store.models;
     await MediciReport.destroy({ where: {} });
+    for (const upstreamModel of MediciReport.upstreams) {
+      await upstreamModel.destroy({ where: {} });
+    }
   });
-
   afterAll(() => ctx.close());
 
   async function makeEncounter(overrides = {}) {

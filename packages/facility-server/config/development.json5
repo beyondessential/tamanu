@@ -1,4 +1,5 @@
 {
+  "serverFacilityId": "tamanuFijiGenerate-facility-0",
   "auth": {
     "useHardcodedPermissions": false,
     "secret": "insecure"

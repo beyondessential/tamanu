@@ -28,7 +28,8 @@ export const useAuth = () => {
     ...useSelector(state => ({
       currentUser: state.auth.user,
       ability: state.auth.ability,
-      facilityId: state.auth.facilityId,
+      facility: state.auth.server?.facility || {},
+      centralHost: state.auth.server?.centralHost,
       currentRole: state.auth.role,
     })),
     onLogout: () => {

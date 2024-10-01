@@ -1,6 +1,3 @@
-import config from 'config';
-import { parseISO } from 'date-fns';
-
 import {
   createDummyEncounter,
   createDummyPatient,
@@ -11,16 +8,11 @@ import {
   createDummyAefiSurveyAnswers,
   createDummyAefiSurveyScreenComponent,
 } from '@tamanu/shared/demoData';
-import {
-  createAdministeredVaccine,
-  createScheduledVaccine,
-} from '@tamanu/shared/demoData/vaccines';
-import { selectFacilityIds } from '@tamanu/shared/utils/configSelectors';
-
+import { createAdministeredVaccine, createScheduledVaccine } from '@tamanu/shared/demoData/vaccines';
 import { createTestContext } from '../../utilities';
+import { parseISO } from 'date-fns';
 
 describe('AEFI report', () => {
-  const [facilityId] = selectFacilityIds(config);
   let baseApp = null;
   let app = null;
   let expectedPatient = null;
@@ -80,7 +72,6 @@ describe('AEFI report', () => {
       patientId: expectedPatient.id,
       endTime: '2021-03-17T21:53:15.708Z',
       answers: createDummyAefiSurveyAnswers(),
-      facilityId,
     });
 
     await app.post('/api/surveyResponse').send({
@@ -89,7 +80,6 @@ describe('AEFI report', () => {
       patientId: wrongVillagePatient.id,
       endTime: '2021-03-17T21:53:15.708Z',
       answers: createDummyAefiSurveyAnswers(),
-      facilityId,
     });
 
     scheduledVaccine1 = await models.ScheduledVaccine.create(

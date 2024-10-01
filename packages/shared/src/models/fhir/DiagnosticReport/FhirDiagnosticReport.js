@@ -132,9 +132,8 @@ export class FhirDiagnosticReport extends FhirResource {
   getLabRequestStatus() {
     switch (this.status) {
       case FHIR_DIAGNOSTIC_REPORT_STATUS.REGISTERED:
-        return LAB_REQUEST_STATUSES.TO_BE_VERIFIED;
       case FHIR_DIAGNOSTIC_REPORT_STATUS.PARTIAL._:
-        return LAB_REQUEST_STATUSES.INTERIM_RESULTS;
+        return LAB_REQUEST_STATUSES.TO_BE_VERIFIED;
       case FHIR_DIAGNOSTIC_REPORT_STATUS.PARTIAL.PRELIMINARY:
         return LAB_REQUEST_STATUSES.VERIFIED;
       case FHIR_DIAGNOSTIC_REPORT_STATUS.FINAL:

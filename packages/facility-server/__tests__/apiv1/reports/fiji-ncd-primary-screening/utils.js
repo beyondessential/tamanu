@@ -1,6 +1,3 @@
-import { selectFacilityIds } from '@tamanu/shared/utils/configSelectors';
-import config from 'config';
-
 const PROGRAM_ID = 'program-fijincdprimaryscreening';
 const CVD_PRIMARY_FORM_SURVEY_ID = 'program-fijincdprimaryscreening-fijicvdprimaryscreen2';
 const CVD_PRIMARY_REFERRAL_SURVEY_ID = 'program-fijincdprimaryscreening-fijicvdprimaryscreenref';
@@ -10,7 +7,6 @@ const CERVICAL_CANCER_FORM_SURVEY_ID = 'program-fijincdprimaryscreening-fijicerv
 const CERVICAL_CANCER_REFERRAL_SURVEY_ID = 'program-fijincdprimaryscreening-fijicervicalscreenref';
 
 const SNAP_FORM_SURVEY_ID = 'program-fijincdprimaryscreening-fijisnapassessform';
-const [facilityId] = selectFacilityIds(config);
 
 export const createCVDFormSurveyResponse = async (app, patient, surveyDate, overrides = {}) => {
   const { answerOverrides = {} } = overrides;
@@ -28,7 +24,6 @@ export const createCVDFormSurveyResponse = async (app, patient, surveyDate, over
       'pde-FijCVD021': `pde-FijCVD021-on-${surveyDate}-${patient.firstName}`,
       ...answerOverrides,
     },
-    facilityId,
   });
 };
 
@@ -45,7 +40,6 @@ export const createCVDReferral = async (app, patient, referralDate) => {
       'pde-FijCVDRef7': `pde-FijCVDRef7-on-${referralDate}-${patient.firstName}`,
       'pde-FijCVDRef11': `pde-FijCVDRef11-on-${referralDate}-${patient.firstName}`,
     },
-    facilityId,
   });
 };
 
@@ -70,7 +64,6 @@ export const createBreastCancerFormSurveyResponse = async (
       'pde-FijBS14': `pde-FijBS14-on-${surveyDate}-${patient.firstName}`,
       ...answerOverrides,
     },
-    facilityId,
     ...otherOverrides,
   });
 };
@@ -88,7 +81,6 @@ export const createBreastCancerReferral = async (app, patient, referralDate) => 
       'pde-FijBCRef07': `pde-FijBCRef07-on-${referralDate}-${patient.firstName}`,
       'pde-FijBCRef10': `pde-FijBCRef10-on-${referralDate}-${patient.firstName}`,
     },
-    facilityId,
   });
 };
 
@@ -100,7 +92,6 @@ export const createSNAPFormSurveyResponse = async (app, patient, surveyDate, ove
     patientId: patient.id,
     endTime: surveyDate,
     answers: answerOverrides,
-    facilityId,
     ...otherOverrides,
   });
 };
