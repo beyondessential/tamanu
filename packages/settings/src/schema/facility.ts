@@ -1,7 +1,7 @@
 import * as yup from 'yup';
 
-import { datelessTimeStringSchema } from './definitions';
-import { DURATION_PATTERN, extractDefaults } from './utils';
+import { datelessTimeStringSchema, durationStringSchema } from './definitions';
+import { extractDefaults } from './utils';
 
 export const facilitySettings = {
   name: 'Facility server settings',
@@ -28,9 +28,7 @@ export const facilitySettings = {
             slotDuration: {
               description:
                 'The length of each time slot. A single booking may span multiple consecutive slots. Supported units: ‘min’, ‘h’',
-              type: yup.string().matches(DURATION_PATTERN, {
-                message: '‘slotDuration’ should be in minutes (min) or hours (h)',
-              }),
+              type: durationStringSchema('slotDuration'),
               defaultValue: '30min',
             },
           },
