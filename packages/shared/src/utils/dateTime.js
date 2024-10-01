@@ -3,6 +3,7 @@ import {
   differenceInMonths,
   differenceInWeeks,
   differenceInYears,
+  endOfMonth,
   format as dateFnsFormat,
   formatISO9075,
   getISOWeek,
@@ -10,6 +11,7 @@ import {
   isValid,
   parseISO,
   startOfDay,
+  startOfMonth,
   sub,
 } from 'date-fns';
 import { TIME_UNIT_OPTIONS } from '@tamanu/constants';
@@ -256,23 +258,12 @@ export const areSameDay = (date1, date2) =>
   date1.getMonth() === date2.getMonth() &&
   date1.getFullYear() === date2.getFullYear();
 
-export const firstDayOfMonthOf = date => new Date(date.getFullYear(), date.getMonth(), 1);
-export const lastDayOfMonthOf = date => new Date(date.getFullYear(), date.getMonth() + 1, 0);
-
-/**
- * @returns {number} The number of days in the month in which the provided Date object lies. This is
- * equivalent to getting the date of the last day in that month.
- *
- * @example daysInMonthOf(new Date('2024-02-01')) => 29
- */
-export const daysInMonthOf = date => lastDayOfMonthOf(date).getDate();
-
 /**
  * Returns the number if distinct ISO weeks spanned by the month of the given date. This can only be
  * 4, 5 or 6.
  */
 export const uniqueIsoWeeksInMonthOf = date => {
-  const firstDayOfMonth = firstDayOfMonthOf(date);
-  const lastDayOfMonth = lastDayOfMonthOf(date);
+  const firstDayOfMonth = startOfMonth(date);
+  const lastDayOfMonth = endOfMonth(date);
   return getISOWeek(lastDayOfMonth) - getISOWeek(firstDayOfMonth) + 1;
 };

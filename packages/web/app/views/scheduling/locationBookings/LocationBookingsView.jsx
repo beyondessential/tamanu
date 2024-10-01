@@ -1,5 +1,8 @@
+import { eachDayOfInterval, endOfMonth, endOfWeek, startOfMonth, startOfWeek } from 'date-fns';
 import React, { useState } from 'react';
 import styled from 'styled-components';
+
+import { uniqueIsoWeeksInMonthOf } from '@tamanu/shared/utils/dateTime';
 
 import { useAppointmentsQuery, useLocationsQuery } from '../../../api/queries';
 import { Colors } from '../../../constants';
@@ -11,11 +14,6 @@ import {
   CalendarTable,
   CalendarTableRow,
 } from './TableComponents';
-import {
-  firstDayOfMonthOf,
-  lastDayOfMonthOf,
-  uniqueIsoWeeksInMonthOf,
-} from '@tamanu/shared/utils/dateTime';
 
 // BEGIN PLACEHOLDERS
 
@@ -33,39 +31,6 @@ const Placeholder = styled.div`
 `;
 
 // END PLACEHOLDERS
-
-/**
- * @param start {Date} First day in range, inclusive.
- * @param end {Date} Last day in range, inclusive(!).
- * @returns {Date[]} Array of date objects, each one day apart. If `start` is after `end`, returns
- * an empty array.
- */
-const dateRange = (start, end) => {
-  start.setHours(0, 0, 0, 0);
-  end.setHours(0, 0, 0, 0);
-
-  const range = [];
-  let d = new Date(start);
-  // eslint-disable-next-line no-unmodified-loop-condition
-  while (d < end) {
-    range.push(new Date(d));
-    d.setDate(d.getDate() + 1);
-  }
-
-  return range;
-};
-
-const getMondayOfWeekOf = date => {
-  if (Number.isNaN(date.getTime())) {
-    throw Error('getMondayOfWeekOf() called with invalid date');
-  }
-
-  const day = date.getDay();
-  const daysSinceMonday = (day + 7 - 1) % 7;
-  //                           + 7 to guarantee remainder is nonnegative
-
-  return new Date(date.getFullYear(), date.getMonth(), date.getDate() - daysSinceMonday);
-};
 
 const LocationBookingsTopBar = styled(TopBar).attrs({
   title: (
@@ -98,9 +63,9 @@ export const LocationBookingsView = () => {
   const [monthOf, setMonthOf] = useState(new Date());
   const weekCount = uniqueIsoWeeksInMonthOf(monthOf);
 
-  const firstDisplayedDate = getMondayOfWeekOf(firstDayOfMonthOf(monthOf));
-  // const lastDisplayedDate = getSundayOfWeekOf(lastDayOfMonthOf(monthOf));
-  const displayedDates = dateRange(firstDisplayedDate, lastDayOfMonthOf(monthOf)); // TODO: use lastDisplayedDate
+  const firstDisplayedDate = startOfWeek(startOfMonth(monthOf), { weekStartsOn: 1 });
+  const lastDisplayedDate = endOfWeek(endOfMonth(monthOf), { weekStartsOn: 1 });
+  const displayedDates = eachDayOfInterval({ start: firstDisplayedDate, end: lastDisplayedDate });
 
   const { data: appointments } = useAppointmentsQuery();
   const { data: locations } = useLocationsQuery();
