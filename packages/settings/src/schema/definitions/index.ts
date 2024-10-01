@@ -1,3 +1,4 @@
+export { datelessTimeStringSchema } from './bookingSlots';
 export { imagingPrioritiesDefault, imagingPrioritiesSchema } from './imagingPriorities';
 export { triageCategoriesDefault, triageCategoriesSchema } from './triageCategories';
 export { thresholdsDefault, thresholdsSchema } from './upcomingVaccinations';
