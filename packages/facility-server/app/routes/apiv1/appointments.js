@@ -56,6 +56,51 @@ appointments.post('/locationBooking', async (req, res) => {
   res.send({ newRecord });
 });
 
+appointments.put('/locationBooking/:id', async (req, res) => {
+  const { models, body, params } = req;
+  const { id } = params;
+  const { startTime, endTime } = body;
+  const { Appointment } = models;
+
+  const bookingTimeAlreadyTaken = await Appointment.findOne({
+    where: {
+      [Op.or]: [
+        // Partial overlap
+        {
+          startTime: {
+            [Op.gt]: startTime, // Exclude startTime
+            [Op.lt]: endTime, // Include endTime
+          },
+        },
+        {
+          endTime: {
+            [Op.gt]: startTime, // Exclude endTime
+            [Op.lt]: endTime, // Include startTime
+          },
+        },
+        // Complete overlap
+        {
+          startTime: {
+            [Op.lt]: startTime,
+          },
+          endTime: {
+            [Op.gt]: endTime,
+          },
+        },
+      ],
+    },
+  });
+
+  if (bookingTimeAlreadyTaken) {
+    return res
+      .status(409)
+      .send({ error: { message: 'Booking failed. Booking time no longer available' } });
+  }
+
+  const existingBooking = await Appointment.findByPk(id);
+  await existingBooking.update(body);
+});
+
 const searchableFields = [
   'startTime',
   'endTime',
