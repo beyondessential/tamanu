@@ -24,6 +24,7 @@ const StyledTable = styled(DataFetchingTable)`
   box-shadow: none;
   border-left: none;
   border-right: none;
+  border-bottom: none;
   border-radius: 0px;
   overflow: visible;
   .MuiTableCell-head {
@@ -73,16 +74,22 @@ const StyledTable = styled(DataFetchingTable)`
   .MuiCheckbox-root {
     padding: 0 8px 0 0;
   }
-  tr:last-child {
-    td {
-      border-bottom: 0px solid #fff;
-    }
-  }
   td {
     &:last-child {
       max-width: 200px;
       white-space: nowrap;
       width: 200px;
+    }
+  }
+  .MuiTableFooter-root {
+    background-color: ${Colors.white};
+    .MuiPagination-root {
+      padding-top: 6px;
+      padding-bottom: 6px;
+      margin-right: 0;
+    }
+    td > div:first-child {
+      padding-top: 6px;
     }
   }
 `;
@@ -270,7 +277,7 @@ const NotesCell = ({ row, hoveredRow, handleActionModalOpen }) => {
                 />
               }
             >
-              <IconButton>
+              <IconButton onClick={() => handleActionModalOpen(TASK_STATUSES.TODO, row.id)}>
                 <StatusTodo />
               </IconButton>
             </ThemedTooltip>
@@ -460,7 +467,6 @@ export const TasksTable = ({ encounterId, searchParameters, refreshCount, refres
         fetchOptions={searchParameters}
         onDataFetched={onDataFetched}
         refreshCount={refreshCount}
-        disablePagination
       />
     </div>
   );

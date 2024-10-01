@@ -67,7 +67,7 @@ export class TaskTemplate extends Model {
         include: [
           {
             model: models.ReferenceData,
-            as: 'referenceData',
+            as: 'designation',
             attributes: ['name'],
           },
         ],

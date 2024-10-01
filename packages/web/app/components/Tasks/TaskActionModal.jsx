@@ -8,6 +8,7 @@ import { BodyText } from '../Typography';
 import { MarkTaskCompletedForm } from '../../forms/MarkTaskCompletedForm';
 import { DeleteTaskForm } from '../../forms/DeleteTaskForm.jsx';
 import { MarkTaskNotCompletedForm } from '../../forms/MarkTaskNotCompletedForm';
+import { MarkTaskTodoForm } from '../../forms/MarkTaskTodoForm';
 
 const ModalDescription = styled(BodyText)`
   margin-bottom: 34px;
@@ -32,6 +33,8 @@ const getModalTitle = (action, isRepeatingTask) => {
         return <TranslatedText stringId="task.deleteTasks.modal.title" fallback="Delete tasks" />;
       }
       return <TranslatedText stringId="task.deleteTask.modal.title" fallback="Delete task" />;
+    case TASK_ACTIONS.TODO:
+      return <TranslatedText stringId="task.modal.toDo.title" fallback="Mark as to-do" />;
     default:
       return '';
   }
@@ -68,6 +71,13 @@ const getModalDescription = (action, isRepeatingTask) => {
           fallback="Complete details below to delete task. This action is irreversible."
         />
       );
+    case TASK_ACTIONS.TODO:
+      return (
+        <TranslatedText
+          stringId="task.modal.toDo.description"
+          fallback="Complete details below to mark task/s as to-do."
+        />
+      );
     default:
       return '';
   }
@@ -102,6 +112,14 @@ export const TaskActionModal = ({
       case TASK_ACTIONS.DELETED:
         return (
           <DeleteTaskForm onClose={onClose} refreshTaskTable={refreshTaskTable} taskIds={taskIds} />
+        );
+      case TASK_ACTIONS.TODO:
+        return (
+          <MarkTaskTodoForm
+            onClose={onClose}
+            refreshTaskTable={refreshTaskTable}
+            taskIds={taskIds}
+          />
         );
       default:
         return null;

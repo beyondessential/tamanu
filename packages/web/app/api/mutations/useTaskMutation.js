@@ -46,3 +46,12 @@ export const useDeleteTask = () => {
     onError: error => notifyError(error.message),
   });
 };
+
+export const useMarkTaskTodo = () => {
+  const api = useApi();
+
+  return useMutation({
+    mutationFn: body => api.put('tasks/todo', body),
+    onError: error => notifyError(error.message),
+  });
+};

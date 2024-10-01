@@ -45,17 +45,27 @@ export const useSelectableColumn = (
 
   const titleOnChange = useCallback(
     event => {
-      const newSelection = event.target.checked ? rows.map(row => row[selectionKey]) : [];
+      const newSelection = event.target.checked
+        ? [...selectedKeys, ...rows.map(row => row[selectionKey])]
+        : [...selectedKeys].filter(k => !rows.some(row => row[selectionKey] === k));
       setSelectedKeys(new Set(newSelection));
     },
     [rows, selectionKey],
   );
 
+  const selectAll = () => {
+    const newSelection = rows.map(row => row[selectionKey]);
+    setSelectedKeys(new Set([...selectedKeys, ...newSelection]));
+  };
+
   const titleAccessor = useCallback(() => {
-    const isEveryRowSelected = rows?.length > 0 && selectedRows.length === rows.length;
-    if (bulkDeselectOnly && selectedRows.length > 0) {
+    const isEveryRowSelected =
+      rows?.length > 0 && rows.every(r => selectedKeys.has(r[selectionKey]));
+    const isSomeRowSelected = rows?.length > 0 && rows.some(r => selectedKeys.has(r[selectionKey]));
+
+    if (bulkDeselectOnly && selectedRows.length > 0 && isSomeRowSelected && !isEveryRowSelected) {
       return (
-        <IconButton onClick={titleOnChange}>
+        <IconButton onClick={selectAll}>
           <IndeterminateCheckBoxOutlinedIcon style={{ color: Colors.primary, fontSize: '20px' }} />
         </IconButton>
       );
