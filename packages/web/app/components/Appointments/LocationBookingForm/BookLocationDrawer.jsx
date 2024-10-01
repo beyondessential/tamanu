@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import * as yup from 'yup';
 import {
   AutocompleteField,
   CheckField,
@@ -40,6 +41,8 @@ const slideOut = keyframes`
 `;
 
 const Container = styled.div`
+  // TODO: temoirary
+  z-index: 100;
   width: 330px;
   padding: 16px;
   background-color: ${Colors.background};
@@ -121,15 +124,14 @@ export const BookLocationDrawer = ({ open, closeDrawer }) => {
       setShowWarningModal(true);
     });
 
-  const handleSubmit = async data => {
-    // TODO: post appointment to backend and then display toast based on response
-    const response = await api.post(`appointments`, data);
+  const handleSubmit = async (values, { resetForm }) => {
+    await api.post(`appointments/locationBooking`, values, {
+      showUnknownErrorToast: true,
+    });
 
-    if (response.ok) {
-      notifySuccess('Booking successfully created');
-    } else {
-      notifyError('Booking failed. Booking time no longer available');
-    }
+    notifySuccess('Booking successfully created');
+    closeDrawer();
+    resetForm();
   };
 
   return (
@@ -140,7 +142,13 @@ export const BookLocationDrawer = ({ open, closeDrawer }) => {
       </Description>
       <Form
         onSubmit={handleSubmit}
-        validateOnChange
+        suppressErrorDialog
+        validationSchema={yup.object().shape({
+          locationId: yup.string().required(),
+          startTime: yup.string().required(),
+          endTime: yup.string().required(),
+          patientId: yup.string().required(),
+        })}
         render={({ values, resetForm, setFieldValue, dirty }) => {
           const warnAndResetForm = async () => {
             const confirmed = !dirty || (await handleShowWarningModal());
@@ -149,12 +157,11 @@ export const BookLocationDrawer = ({ open, closeDrawer }) => {
             resetForm();
           };
 
-          console.log(values)
-
           return (
             <FormGrid columns={1}>
               <CloseDrawerIcon onClick={warnAndResetForm} />
               <Field
+                enableLocationStatus={false}
                 locationGroupLabel="Area"
                 label="Location"
                 name="locationId"

@@ -35,10 +35,10 @@ const LoadingIndicator = styled(CircularProgress)`
   margin: 0 auto;
 `;
 
-const calculateTimeSlots = bookingSlotSettings => {
+const calculateTimeSlots = (bookingSlotSettings, date) => {
   const { startTime, endTime, slotDuration } = bookingSlotSettings;
-  const startOfDay = parse(startTime, 'HH:mm', new Date());
-  const endOfDay = parse(endTime, 'HH:mm', new Date());
+  const startOfDay = parse(startTime, 'HH:mm', new Date(date ? date : null));
+  const endOfDay = parse(endTime, 'HH:mm', new Date(date ? date : null));
   const durationMinutes = ms(slotDuration) / 60_000; // In minutes
 
   const totalSlots = differenceInMinutes(endOfDay, startOfDay) / durationMinutes;
@@ -82,8 +82,15 @@ export const BookingTimeField = ({ disabled = false }) => {
     end: new Date(booking.endTime),
   }));
 
-  const bookingSlotSettings = getSetting('appointments.bookingSlots');
-  const timeSlots = calculateTimeSlots(bookingSlotSettings);
+  // TODO: temporary default for dev
+  const bookingSlotSettings = getSetting('appointments.bookingSlots') || {
+    startTime: '09:00',
+    endTime: '17:00',
+    slotDuration: '30min',
+  };
+  const timeSlots = useMemo(() => calculateTimeSlots(bookingSlotSettings, values.date), [
+    values.date,
+  ]);
 
   useEffect(() => {
     const startTime = selectedTimeRange ? toDateTimeString(selectedTimeRange.start) : null;

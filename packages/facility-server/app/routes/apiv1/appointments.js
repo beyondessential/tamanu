@@ -9,6 +9,53 @@ export const appointments = express.Router();
 
 appointments.post('/$', simplePost('Appointment'));
 
+appointments.post('/locationBooking', async (req, res) => {
+  const { models, body } = req;
+  const { startTime, endTime } = body;
+  const { Appointment } = models;
+
+  req.checkPermission('create', 'Appointment');
+
+  const bookingTimeAlreadyTaken = await Appointment.findOne({
+    where: {
+      [Op.or]: [
+        // Partial overlap
+        {
+          startTime: {
+            [Op.gt]: startTime, // Exclude startTime
+            [Op.lt]: endTime, // Include endTime
+          },
+        },
+        {
+          endTime: {
+            [Op.gt]: startTime, // Exclude endTime
+            [Op.lt]: endTime, // Include startTime
+          },
+        },
+        // Complete overlap
+        {
+          startTime: {
+            [Op.lt]: startTime,
+          },
+          endTime: {
+            [Op.gt]: endTime,
+          },
+        },
+      ],
+    },
+  });
+
+  // TODO: possibly should just go on frontend for translations
+  if (bookingTimeAlreadyTaken) {
+    return res
+      .status(409)
+      .send({ error: { message: 'Booking failed. Booking time no longer available' } });
+  }
+
+  const newRecord = await Appointment.create(body);
+  res.send({ newRecord });
+});
+
 const searchableFields = [
   'startTime',
   'endTime',
