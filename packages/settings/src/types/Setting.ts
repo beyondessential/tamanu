@@ -6,4 +6,5 @@ export interface Setting<T = any> {
   type: yup.SchemaOf<T>;
   unit?: string;
   defaultValue: T;
+  deprecated?: boolean;
 }

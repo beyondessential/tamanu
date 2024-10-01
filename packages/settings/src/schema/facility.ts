@@ -1,6 +1,13 @@
 import * as yup from 'yup';
 import { extractDefaults } from './utils';
-import { vaccinationsSchema, letterheadProperties } from './definitions';
+import {
+  emailSchema,
+  letterheadProperties,
+  nationalityIdSchema,
+  passportSchema,
+  questionCodeIdsDescription,
+  vaccinationsSchema,
+} from './definitions';
 
 export const facilitySettings = {
   name: 'Facility server settings',
@@ -42,6 +49,24 @@ export const facilitySettings = {
               defaultValue: ['Positive'],
             },
           },
+        },
+      },
+    },
+    questionCodeIds: {
+      deprecated: true,
+      description: questionCodeIdsDescription,
+      properties: {
+        passport: {
+          type: passportSchema,
+          defaultValue: 'pde-FijCOVRDT005',
+        },
+        nationalityId: {
+          type: nationalityIdSchema,
+          defaultValue: 'pde-PalauCOVSamp7',
+        },
+        email: {
+          type: emailSchema,
+          defaultValue: null,
         },
       },
     },
