@@ -59,15 +59,16 @@ export class CertificateNotificationProcessor extends ScheduledTask {
     const vdsEnabled = config.integrations.vdsNc.enabled;
     const euDccEnabled = config.integrations.euDcc.enabled;
 
-    const certifiableVaccineIds = await CertifiableVaccine.allVaccineIds(euDccEnabled);
-
-    const queuedNotifications = await CertificateNotification.findAll({
-      where: {
-        status: CERTIFICATE_NOTIFICATION_STATUSES.QUEUED,
-      },
-      order: [['createdAt', 'ASC']], // process in order received
-      limit: this.config.limit,
-    });
+    const [certifiableVaccineIds, queuedNotifications] = await Promise.all([
+      CertifiableVaccine.allVaccineIds(euDccEnabled),
+      CertificateNotification.findAll({
+        where: {
+          status: CERTIFICATE_NOTIFICATION_STATUSES.QUEUED,
+        },
+        order: [['createdAt', 'ASC']], // process in order received
+        limit: this.config.limit,
+      }),
+    ]);
 
     let processed = 0;
     for (const notification of queuedNotifications) {
@@ -178,10 +179,10 @@ export class CertificateNotificationProcessor extends ScheduledTask {
               models,
               settings,
               certType: CertificateTypes.test,
+              language,
               patient,
               printedBy,
-              qrData,
-              language,
+              vdsData: qrData,
             });
             break;
           }
@@ -194,10 +195,10 @@ export class CertificateNotificationProcessor extends ScheduledTask {
               models,
               settings,
               certType: CertificateTypes.clearance,
+              language,
               patient,
               printedBy,
-              qrData,
-              language,
+              vdsData: qrData,
             });
             break;
 
@@ -206,11 +207,11 @@ export class CertificateNotificationProcessor extends ScheduledTask {
             pdf = await makeVaccineCertificate({
               models,
               settings,
+              facilityName,
+              language,
               patient,
               printedBy,
               printedDate,
-              facilityName,
-              language,
               translations,
             });
             break;
