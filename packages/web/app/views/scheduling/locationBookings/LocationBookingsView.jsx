@@ -59,13 +59,15 @@ const Carousel = styled.div`
   scroll-snap-type: both mandatory;
 `;
 
+const getDisplayableDates = date => {
+  const start = startOfWeek(startOfMonth(date), { weekStartsOn: 1 });
+  const end = endOfWeek(endOfMonth(date), { weekStartsOn: 1 });
+  return eachDayOfInterval({ start, end });
+};
+
 export const LocationBookingsView = () => {
   const [monthOf, setMonthOf] = useState(new Date());
-  const weekCount = uniqueIsoWeeksInMonthOf(monthOf);
-
-  const firstDisplayedDate = startOfWeek(startOfMonth(monthOf), { weekStartsOn: 1 });
-  const lastDisplayedDate = endOfWeek(endOfMonth(monthOf), { weekStartsOn: 1 });
-  const displayedDates = eachDayOfInterval({ start: firstDisplayedDate, end: lastDisplayedDate });
+  const displayedDates = getDisplayableDates(monthOf);
 
   const { data: appointments } = useAppointmentsQuery();
   const { data: locations } = useLocationsQuery();
