@@ -1,4 +1,5 @@
 export { ageDisplayFormatDefault, ageDisplayFormatSchema } from './ageDisplayFormat';
+export { LOCALISED_FIELD_TYPES, generateFieldSchema, displayIdFieldProperties } from './fields';
 export {
   imagingCancellationReasonsDefault,
   imagingCancellationReasonsSchema,

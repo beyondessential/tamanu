@@ -3,6 +3,8 @@ import { extractDefaults } from './utils';
 import {
   ageDisplayFormatDefault,
   ageDisplayFormatSchema,
+  displayIdFieldProperties,
+  generateFieldSchema,
   imagingCancellationReasonsDefault,
   imagingCancellationReasonsSchema,
   imagingPrioritiesDefault,
@@ -10,6 +12,7 @@ import {
   labsCancellationReasonsDefault,
   labsCancellationReasonsSchema,
   letterheadProperties,
+  LOCALISED_FIELD_TYPES,
   slidingFeeScaleDefault,
   thresholdsDefault,
   thresholdsSchema,
@@ -18,11 +21,6 @@ import {
   vitalEditReasonsDefault,
   vitalEditReasonsSchema,
 } from './definitions';
-import {
-  displayIdFieldProperties,
-  generateFieldSchema,
-  LOCALISED_FIELD_TYPES,
-} from './global-settings-properties/fields';
 
 export const globalSettings = {
   title: 'Global settings',
