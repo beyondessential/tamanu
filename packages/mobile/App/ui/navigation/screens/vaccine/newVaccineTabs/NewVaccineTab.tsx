@@ -155,7 +155,7 @@ export const NewVaccineTabComponent = ({
     [isSubmitting],
   );
 
-  const vaccineObject = { ...vaccine, ...administeredVaccine };
+  const vaccineObject = { ...administeredVaccine, ...vaccine };
 
   return (
     <StyledSafeAreaView flex={1}>
