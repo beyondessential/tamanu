@@ -51,7 +51,7 @@ const StyledTable = styled(Table)`
 
 const getDesignations = ({ taskTemplate }) => {
   if (!taskTemplate?.designations) return '';
-  const designations = taskTemplate.designations.map((designation) => designation.referenceData.name);
+  const designations = taskTemplate.designations.map(({ designation }) => designation.name);
   return designations.join(', ');
 };
 
