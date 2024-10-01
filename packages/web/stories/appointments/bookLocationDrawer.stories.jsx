@@ -90,7 +90,7 @@ const MockCalendar = styled.div`
   overflow: hidden;
 `;
 
-export const Basic = () => {
+export const NewBooking = () => {
   const [open, setOpen] = useState(false);
   const openDrawer = () => setOpen(true);
   const closeDrawer = () => setOpen(false);
@@ -99,6 +99,19 @@ export const Basic = () => {
     <MockCalendar>
       CALENDAR GOES HERE <Button onClick={openDrawer}>+ Book location</Button>
       <BookLocationDrawer closeDrawer={closeDrawer} open={open} />
+    </MockCalendar>
+  );
+};
+
+export const ModifyBooking = () => {
+  const [open, setOpen] = useState(false);
+  const openDrawer = () => setOpen(true);
+  const closeDrawer = () => setOpen(false);
+
+  return (
+    <MockCalendar>
+      CALENDAR GOES HERE <Button onClick={openDrawer}>+ Book location</Button>
+      <BookLocationDrawer editMode closeDrawer={closeDrawer} open={true} />
     </MockCalendar>
   );
 };

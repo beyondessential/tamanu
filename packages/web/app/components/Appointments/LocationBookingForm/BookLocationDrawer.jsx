@@ -109,7 +109,7 @@ export const WarningModal = ({ open, setShowWarningModal, resolveFn }) => {
   );
 };
 
-export const BookLocationDrawer = ({ open, closeDrawer }) => {
+export const BookLocationDrawer = ({ open, closeDrawer, editMode = false }) => {
   const patientSuggester = usePatientSuggester();
   const clinicianSuggester = useSuggester('practitioner');
 
@@ -125,21 +125,29 @@ export const BookLocationDrawer = ({ open, closeDrawer }) => {
     });
 
   const handleSubmit = async (values, { resetForm }) => {
-    await api.post(`appointments/locationBooking`, values, {
-      showUnknownErrorToast: true,
-    });
-
-    notifySuccess('Booking successfully created');
+    if (editMode) {
+      await api.put(`appointments/locationBooking/${values.bookingId}`, values, {
+        showUnknownErrorToast: true,
+      });
+    } else {
+      await api.post(`appointments/locationBooking`, values, {
+        showUnknownErrorToast: true,
+      });
+    }
+    notifySuccess(editMode ? 'Booking successfully edited' : 'Booking successfully created');
     closeDrawer();
     resetForm();
   };
 
+  const headingText = editMode ? 'Modify booking' : 'Book location';
+  const descriptionText = editMode
+    ? 'Modify the selected booking below.'
+    : 'Create a new booking by completing the below details and selecting ‘Confirm’.';
+
   return (
     <Container columns={1} $open={open}>
-      <Heading>Book location</Heading>
-      <Description>
-        Create a new booking by completing the below details and selecting ‘Confirm’.
-      </Description>
+      <Heading>{headingText}</Heading>
+      <Description>{descriptionText}</Description>
       <Form
         onSubmit={handleSubmit}
         suppressErrorDialog
