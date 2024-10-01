@@ -1,18 +1,13 @@
 import * as yup from 'yup';
-import { extractDefaults } from './utils';
+
 import {
+  durationStringSchema,
   emailSchema,
   nationalityIdSchema,
   passportSchema,
   questionCodeIdsDescription,
 } from './definitions';
-
-/** Pattern from ms package, which is used to parse sleepAfterReport values. */
-const durationStringSchema = yup
-  .string()
-  .matches(
-    /^(-?(?:\d+)?\.?\d+) *(milliseconds?|msecs?|ms|seconds?|secs?|s|minutes?|mins?|m|hours?|hrs?|h|days?|d|weeks?|w|years?|yrs?|y)?$/i,
-  );
+import { extractDefaults } from './utils';
 
 export const centralSettings = {
   name: 'Central server settings',
@@ -92,13 +87,13 @@ export const centralSettings = {
             duration: {
               description:
                 'If generating a report takes longer than ifRunAtLeast, then suspend subsequent report generation for this long',
-              type: durationStringSchema,
+              type: durationStringSchema('duration'),
               defaultValue: '5m',
             },
             ifRunAtLeast: {
               description:
                 'If a report takes longer than this, then temporarily suspend subsequent report generation',
-              type: durationStringSchema,
+              type: durationStringSchema('ifRunAtLeast'),
               defaultValue: '5m',
             },
           },
