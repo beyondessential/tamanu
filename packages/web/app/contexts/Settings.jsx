@@ -9,7 +9,7 @@ import { get } from 'lodash';
  */
 
 /** @type {React.Context<SettingsContextType | undefined>} */
-const SettingsContext = React.createContext();
+export const SettingsContext = React.createContext();
 
 export const useSettings = () => {
   const context = useContext(SettingsContext);
