@@ -1,6 +1,6 @@
 import { Box, IconButton, Paper, Popper, styled } from '@mui/material';
 import { MoreVert, Close, Brightness2 as Overnight } from '@mui/icons-material';
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { PatientNameDisplay } from '../PatientNameDisplay';
 import { TranslatedReferenceData, TranslatedSex, TranslatedText } from '../Translation';
 import { Colors } from '../../constants';
@@ -8,6 +8,7 @@ import { DateDisplay, getDateDisplay } from '../DateDisplay';
 import { useDispatch } from 'react-redux';
 import { push } from 'connected-react-router';
 import { reloadPatient } from '../../store';
+import { useApi } from '../../api';
 
 const formatDateRange = (start, end, isOvernight) => {
   const formattedStart = getDateDisplay(start, { showDate: true, showTime: true });
@@ -26,12 +27,12 @@ const FlexCol = styled(Box)`
   flex-direction: column;
 `;
 
-const Title = styled(`span`)`
+const Title = styled('span')`
   font-weight: 500;
   font-size: 0.875rem;
 `;
 
-const Label = styled(`span`)`
+const Label = styled('span')`
   font-weight: 500;
   color: ${props => props.color || 'inherit'};
 `;
@@ -120,7 +121,15 @@ const BookingTypeField = ({ type, isOvernight }) => (
 );
 
 const PatientDetailsDisplay = ({ patient, onClick }) => {
-  const { displayId, sex, dateOfBirth } = patient;
+  const { id, displayId, sex, dateOfBirth } = patient;
+  const api = useApi();
+  const [additionalData, setAdditionalData] = useState();
+  useEffect(() => {
+    (async () => {
+      const data = await api.get(`/patient/${id}/additionalData`);
+      setAdditionalData(data);
+    })();
+  }, [id, api]);
 
   return (
     <PatientDetailsContainer onClick={onClick}>
@@ -138,6 +147,17 @@ const PatientDetailsDisplay = ({ patient, onClick }) => {
         </Label>{' '}
         <DateDisplay date={dateOfBirth} />
       </span>
+      {additionalData?.primaryContactNumber && (
+        <DetailsField
+          label={
+            <TranslatedText
+              stringId="patient.details.reminderContacts.field.contact"
+              fallback="Contact"
+              value={additionalData.primaryContactNumber}
+            />
+          }
+        />
+      )}
       <Label color={Colors.primary}>{displayId}</Label>
     </PatientDetailsContainer>
   );
