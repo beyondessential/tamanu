@@ -22,14 +22,14 @@ appointments.post('/locationBooking', async (req, res) => {
         // Partial overlap
         {
           startTime: {
-            [Op.gt]: startTime, // Exclude startTime
+            [Op.gte]: startTime, // Exclude startTime
             [Op.lt]: endTime, // Include endTime
           },
         },
         {
           endTime: {
             [Op.gt]: startTime, // Exclude endTime
-            [Op.lt]: endTime, // Include startTime
+            [Op.lte]: endTime, // Include startTime
           },
         },
         // Complete overlap
@@ -40,6 +40,11 @@ appointments.post('/locationBooking', async (req, res) => {
           endTime: {
             [Op.gt]: endTime,
           },
+        },
+        // Same time
+        {
+          startTime: startTime,
+          endTime: endTime,
         },
       ],
     },
