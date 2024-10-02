@@ -1,6 +1,6 @@
 import ms from 'ms';
 import React from 'react';
-import { Box } from '@mater ial-ui/core';
+import { Box } from '@material-ui/core';
 
 import { DataFetchingTable, DateDisplay, PageContainer, TopBar } from '../../components';
 import { SYNC_LAST_COMPLETED_ENDPOINT } from './constants';
