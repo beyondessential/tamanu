@@ -3,6 +3,7 @@ import { add } from 'date-fns';
 import { APPOINTMENT_STATUSES, APPOINTMENT_TYPES } from '@tamanu/constants';
 import { randomRecordId } from '@tamanu/shared/demoData/utilities';
 import { createTestContext } from '../utilities';
+import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
 
 describe('Appointments', () => {
   let baseApp;
@@ -63,5 +64,34 @@ describe('Appointments', () => {
     expect(getResult).toHaveSucceeded();
     expect(getResult.body.count).toEqual(1);
     expect(getResult.body.data[0].status).toEqual(APPOINTMENT_STATUSES.CANCELLED);
+  });
+
+  describe('location bookings',() => {
+    let locationId;
+    it('should make a new booking', async () => {
+      locationId = await randomRecordId(models, 'Location');
+      const result = await userApp.post('/api/appointments/locationBooking').send({
+        patientId: patient.id,
+        startTime: toDateTimeString(add(new Date(), { days: 1 })), // create a date in the future
+        endTime: toDateTimeString(add(new Date(), { days: 1, minutes: 30 })),
+        clinicianId: userApp.user.dataValues.id,
+        locationId,
+      });
+      console.log(result.body);
+      expect(result).toHaveSucceeded();
+    });
+    it('should reject if start or end overlaps', async () => {
+      // const locationId = await randomRecordId(models, 'Location');
+      const result = await userApp.post('/api/appointments/locationBooking').send({
+        patientId: patient.id,
+        startTime: toDateTimeString(add(new Date(), { days: 1 })), // create a date in the future
+        endTime: toDateTimeString(add(new Date(), { days: 1, minutes: 30 })),
+        clinicianId: userApp.user.dataValues.id,
+        locationId,
+      });
+      console.log(result.body);
+      expect(result).toHaveSucceeded();
+    });
+    it.todo('should reject if entirely overlaps');
   });
 });
