@@ -26,6 +26,16 @@ export const globalSettings = {
   title: 'Global settings',
   description: 'Settings that apply to all servers',
   properties: {
+    auth: {
+      description: 'Authentication options',
+      properties: {
+        restrictUsersToFacilities: {
+          description: 'Restrict users to facilities',
+          type: yup.boolean(),
+          defaultValue: false,
+        },
+      },
+    },
     ageDisplayFormat: {
       description: 'Defines the unit with which to display patient ages, depending on their age',
       type: ageDisplayFormatSchema,
