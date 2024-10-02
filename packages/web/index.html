@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
+    <meta charset="UTF-8" />
+
     <!-- PWA resources -->
     <link rel="apple-touch-icon" href="/tamanu-icons/apple-icon-180.png" />
     <link
@@ -154,11 +156,12 @@
       media="(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
     />
 
-    <meta charset="UTF-8" />
     <link rel="icon" id="favicon" href="/tamanu-icons/tamanu-favicon.ico" />
     <link rel="manifest" id="manifest" href="/tamanu-manifest.json" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Tamanu</title>
+    <script src="/env.js" defer></script>
+
     <style>
       @keyframes spinner {
         to {
@@ -194,6 +197,6 @@
     <div id="root">
       <div id="temp-loading-container"></div>
     </div>
-    <script type="module" src="/app/index.js"></script>
+    <script type="module" src="/app/index.js" defer></script>
   </body>
 </html>
