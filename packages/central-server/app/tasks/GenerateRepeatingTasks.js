@@ -4,7 +4,11 @@ import { log } from '@tamanu/shared/services/logging';
 import { Op } from 'sequelize';
 import { sleepAsync } from '@tamanu/shared/utils';
 import { InvalidConfigError } from '@tamanu/shared/errors';
-import { TASK_STATUSES } from '@tamanu/constants';
+import { SYSTEM_USER_UUID, TASK_STATUSES } from '@tamanu/constants';
+import { getCurrentDateTimeString, toDateTimeString } from '@tamanu/shared/utils/dateTime';
+
+const MILLISECONDS_PER_DAY = 86400000;
+const overdueReasonId = 'tasknotcompletedreason-taskoverdue';
 
 export class GenerateRepeatingTasks extends ScheduledTask {
   /**
@@ -43,6 +47,7 @@ export class GenerateRepeatingTasks extends ScheduledTask {
 
   async run() {
     await this.removeChildTasksOverParentEndtime();
+    await this.markOldRepeatingTasksAsNotCompleted();
     await this.generateChildTasks();
   }
 
@@ -62,6 +67,37 @@ export class GenerateRepeatingTasks extends ScheduledTask {
       {
         replacements: {
           statuses: [TASK_STATUSES.TODO],
+        },
+      },
+    );
+  }
+
+  async markOldRepeatingTasksAsNotCompleted() {
+    const notCompletedReason = await this.models.ReferenceData.findOne({
+      where: { id: overdueReasonId },
+    });
+
+    // 2 days
+    const cutoffDateTime = new Date(new Date().getTime() - 2 * MILLISECONDS_PER_DAY);
+
+    await this.sequelize.query(
+      `UPDATE tasks
+      SET status = :notCompletedStatus,
+          not_completed_by_user_id = :systemUserId,
+          not_completed_time = :currentTime,
+          not_completed_reason_id = :notCompletedReasonId
+      WHERE status = :todoStatus
+        AND frequency_value IS NOT NULL
+        AND parent_task_id IS NOT NULL
+        AND due_time < :cutoffDateTime`,
+      {
+        replacements: {
+          notCompletedStatus: TASK_STATUSES.NON_COMPLETED,
+          todoStatus: TASK_STATUSES.TODO,
+          notCompletedReasonId: notCompletedReason?.id || null,
+          systemUserId: SYSTEM_USER_UUID,
+          currentTime: getCurrentDateTimeString(),
+          cutoffDateTime: toDateTimeString(cutoffDateTime),
         },
       },
     );
