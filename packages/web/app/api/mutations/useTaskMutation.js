@@ -35,6 +35,18 @@ export const useMarkTaskNotCompleted = () => {
   });
 };
 
+export const useDeleteTask = () => {
+  const api = useApi();
+
+  return useMutation({
+    mutationFn: async body => {
+      const result = await api.delete('tasks', body);
+      return result;
+    },
+    onError: error => notifyError(error.message),
+  });
+};
+
 export const useMarkTaskTodo = () => {
   const api = useApi();
 

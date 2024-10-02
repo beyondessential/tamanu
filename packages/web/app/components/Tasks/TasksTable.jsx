@@ -4,7 +4,7 @@ import { Box, Divider } from '@material-ui/core';
 import CheckCircleIcon from '@material-ui/icons/CheckCircle';
 import CancelIcon from '@material-ui/icons/Cancel';
 import DeleteOutlineIcon from '@material-ui/icons/DeleteOutline';
-import { TASK_STATUSES } from '@tamanu/constants';
+import { TASK_STATUSES, TASK_ACTIONS } from '@tamanu/constants';
 import {
   BodyText,
   SmallBodyText,
@@ -276,7 +276,7 @@ const NotesCell = ({ row, hoveredRow, handleActionModalOpen }) => {
                 />
               }
             >
-              <IconButton>
+              <IconButton onClick={() => handleActionModalOpen(TASK_ACTIONS.DELETED, row)}>
                 <StyledDeleteOutlineIcon />
               </IconButton>
             </ThemedTooltip>
@@ -360,20 +360,20 @@ export const TasksTable = ({ encounterId, searchParameters, refreshCount, refres
   const [hoveredRow, setHoveredRow] = useState();
   const [data, setData] = useState([]);
   const [actionModal, setActionModal] = useState('');
-  const [selectedTaskId, setSelectedTaskId] = useState(null);
+  const [selectedTask, setSelectedTask] = useState(null);
 
   const onDataFetched = useCallback(({ data }) => {
     setData(data);
   }, []);
 
-  const handleActionModalOpen = (action, taskId) => {
+  const handleActionModalOpen = (action, task) => {
     setActionModal(action);
-    setSelectedTaskId(taskId);
+    setSelectedTask(task);
   };
 
   const handleActionModalClose = () => {
     setActionModal('');
-    setSelectedTaskId(null);
+    setSelectedTask(null);
   };
 
   const { selectedRows, selectableColumn } = useSelectableColumn(data, {
@@ -431,6 +431,13 @@ export const TasksTable = ({ encounterId, searchParameters, refreshCount, refres
     },
   ];
 
+  const isRepeatingTask = useMemo(
+    () =>
+      selectedTask?.id
+        ? selectedTask?.frequencyValue && selectedTask?.frequencyUnit
+        : selectedRows.some(row => row.frequencyValue && row.frequencyUnit),
+    [selectedRows, selectedTask],
+  );
   const handleMouseEnterRow = data => {
     setHoveredRow(data);
   };
@@ -446,7 +453,8 @@ export const TasksTable = ({ encounterId, searchParameters, refreshCount, refres
         onClose={handleActionModalClose}
         action={actionModal}
         refreshTaskTable={refreshTaskTable}
-        taskIds={selectedTaskId ? [selectedTaskId] : selectedRowIds}
+        taskIds={selectedTask?.id ? [selectedTask.id] : selectedRowIds}
+        isRepeatingTask={isRepeatingTask}
       />
       {selectedRows.length > 0 && (
         <div>
@@ -472,7 +480,7 @@ export const TasksTable = ({ encounterId, searchParameters, refreshCount, refres
                 />
               }
             >
-              <IconButton onClick={() => handleActionModalOpen(TASK_STATUSES.COMPLETED)}>
+              <IconButton onClick={() => handleActionModalOpen(TASK_ACTIONS.COMPLETED)}>
                 <StyledCheckCircleIcon />
               </IconButton>
             </ThemedTooltip>
@@ -484,7 +492,7 @@ export const TasksTable = ({ encounterId, searchParameters, refreshCount, refres
                 />
               }
             >
-              <IconButton>
+              <IconButton onClick={() => handleActionModalOpen(TASK_ACTIONS.DELETED)}>
                 <StyledDeleteOutlineIcon />
               </IconButton>
             </ThemedTooltip>

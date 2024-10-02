@@ -4,6 +4,13 @@ export const TASK_STATUSES = {
   NON_COMPLETED: 'non_completed',
 };
 
+export const TASK_ACTIONS = {
+  TODO: 'todo',
+  COMPLETED: 'completed',
+  NON_COMPLETED: 'non_completed',
+  DELETED: 'deleted',
+};
+
 export const TASK_FREQUENCY_ACCEPTED_UNITS = {
   MINUTE: 'minute',
   MINUTES: 'minutes',
