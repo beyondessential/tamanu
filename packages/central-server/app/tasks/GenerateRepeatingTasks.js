@@ -4,7 +4,7 @@ import { log } from '@tamanu/shared/services/logging';
 import { Op } from 'sequelize';
 import { sleepAsync } from '@tamanu/shared/utils';
 import { InvalidConfigError } from '@tamanu/shared/errors';
-import { SYSTEM_USER_UUID, TASK_STATUSES } from '@tamanu/constants';
+import { REFERENCE_TYPES, SYSTEM_USER_UUID, TASK_STATUSES } from '@tamanu/constants';
 import { getCurrentDateTimeString, toDateTimeString } from '@tamanu/shared/utils/dateTime';
 
 const MILLISECONDS_PER_DAY = 86400000;
@@ -73,31 +73,27 @@ export class GenerateRepeatingTasks extends ScheduledTask {
   }
 
   async markOldRepeatingTasksAsNotCompleted() {
-    const notCompletedReason = await this.models.ReferenceData.findOne({
-      where: { id: overdueReasonId },
+    const { Task, ReferenceData } = this.models;
+    const notCompletedReason = await ReferenceData.findOne({
+      where: { id: overdueReasonId, code: REFERENCE_TYPES.TASK_NOT_COMPLETED_REASON },
     });
 
-    // 2 days
+    // 2 days ago
     const cutoffDateTime = new Date(new Date().getTime() - 2 * MILLISECONDS_PER_DAY);
 
-    await this.sequelize.query(
-      `UPDATE tasks
-      SET status = :notCompletedStatus,
-          not_completed_by_user_id = :systemUserId,
-          not_completed_time = :currentTime,
-          not_completed_reason_id = :notCompletedReasonId
-      WHERE status = :todoStatus
-        AND frequency_value IS NOT NULL
-        AND parent_task_id IS NOT NULL
-        AND due_time < :cutoffDateTime`,
+    await Task.update(
       {
-        replacements: {
-          notCompletedStatus: TASK_STATUSES.NON_COMPLETED,
-          todoStatus: TASK_STATUSES.TODO,
-          notCompletedReasonId: notCompletedReason?.id || null,
-          systemUserId: SYSTEM_USER_UUID,
-          currentTime: getCurrentDateTimeString(),
-          cutoffDateTime: toDateTimeString(cutoffDateTime),
+        status: TASK_STATUSES.NON_COMPLETED,
+        notCompletedByUserId: SYSTEM_USER_UUID,
+        notCompletedTime: getCurrentDateTimeString(),
+        notCompletedReasonId: notCompletedReason?.id || null,
+      },
+      {
+        where: {
+          status: TASK_STATUSES.TODO,
+          frequencyValue: { [Op.not]: null },
+          frequencyUnit: { [Op.not]: null },
+          dueTime: { [Op.lt]: toDateTimeString(cutoffDateTime) },
         },
       },
     );
