@@ -37,6 +37,10 @@ describe('Patient merge', () => {
     adminApp = await baseApp.asRole('admin');
   });
 
+  afterEach(async () => {
+    await models.PatientFacility.truncate();
+  });
+
   afterAll(async () => {
     await ctx.close();
   });
@@ -118,6 +122,7 @@ describe('Patient merge', () => {
     expect(updates).toEqual({
       Patient: 2,
       Encounter: 2,
+      PatientFacility: 1,
     });
 
     for (const e of [mergeEnc, mergeEnc2, keepEnc]) {
@@ -158,19 +163,25 @@ describe('Patient merge', () => {
   it('Should throw if the keep patient and merge patient are the same', async () => {
     const { Patient } = models;
     const keep = await Patient.create(fake(Patient));
-    await expect(() => mergePatient(models, keep.id, keep.id)).rejects.toThrow(InvalidParameterError);
+    await expect(() => mergePatient(models, keep.id, keep.id)).rejects.toThrow(
+      InvalidParameterError,
+    );
   });
 
   it("Should throw if the keep patient doesn't exist", async () => {
     const { Patient } = models;
     const keep = await Patient.create(fake(Patient));
-    await expect(() => mergePatient(models, keep.id, 'not real')).rejects.toThrow(InvalidParameterError);
+    await expect(() => mergePatient(models, keep.id, 'not real')).rejects.toThrow(
+      InvalidParameterError,
+    );
   });
 
   it("Should throw if the merge patient doesn't exist", async () => {
     const { Patient } = models;
     const merge = await Patient.create(fake(Patient));
-    await expect(() => mergePatient(models, 'not real', merge.id)).rejects.toThrow(InvalidParameterError);
+    await expect(() => mergePatient(models, 'not real', merge.id)).rejects.toThrow(
+      InvalidParameterError,
+    );
   });
 
   it('Should merge a page of notes across', async () => {
@@ -697,6 +708,7 @@ describe('Patient merge', () => {
       const facilityWithNone = await Facility.create(fake(Facility)); // eslint-disable-line no-unused-vars
 
       const facilityWithKeep = await Facility.create(fake(Facility));
+
       await PatientFacility.create({
         id: PatientFacility.generateId(),
         patientId: keep.id,
