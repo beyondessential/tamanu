@@ -13,6 +13,7 @@ const LastSyncs = React.memo(props => (
         key: 'facilityIds',
         title: <TranslatedText stringId="general.facility.label.plural" fallback="Facilities" />,
         minWidth: 100,
+        accessor: ({ facilityIds }) => facilityIds.join(', '),
       },
       {
         key: 'completedAt',
