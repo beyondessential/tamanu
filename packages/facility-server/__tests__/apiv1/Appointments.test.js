@@ -77,7 +77,6 @@ describe('Appointments', () => {
         clinicianId: userApp.user.dataValues.id,
         locationId,
       });
-      console.log(result.body);
       expect(result).toHaveSucceeded();
     });
     it('should reject if start or end overlaps', async () => {
@@ -89,8 +88,7 @@ describe('Appointments', () => {
         clinicianId: userApp.user.dataValues.id,
         locationId,
       });
-      console.log(result.body);
-      expect(result).toHaveSucceeded();
+      expect(result.status).toBe(409);
     });
     it.todo('should reject if entirely overlaps');
   });
