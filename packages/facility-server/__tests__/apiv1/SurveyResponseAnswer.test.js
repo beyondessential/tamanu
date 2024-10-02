@@ -1,5 +1,6 @@
 import config from 'config';
 import Chance from 'chance';
+import config from 'config';
 import { fake } from '@tamanu/shared/test-helpers/fake';
 import {
   PROGRAM_DATA_ELEMENT_TYPES,

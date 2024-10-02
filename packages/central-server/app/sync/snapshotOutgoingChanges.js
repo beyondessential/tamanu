@@ -7,6 +7,7 @@ import {
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging/log';
 import { withConfig } from '@tamanu/shared/utils/withConfig';
+import { getPatientLinkedModels } from './getPatientLinkedModels';
 
 const snapshotChangesForModel = async (
   model,
@@ -182,6 +183,33 @@ const snapshotOutgoingChangesFromModels = withConfig(
   },
 );
 
+function getPatientRelatedWhereClause(
+  models,
+  recordTypes,
+  patientCount,
+  markedForSyncPatientsTable,
+) {
+  const recordTypesLinkedToPatients = Object.values(getPatientLinkedModels(models)).map(
+    m => m.tableName,
+  );
+  const allRecordTypesAreForPatients = recordTypes.every(recordType =>
+    recordTypesLinkedToPatients.includes(recordType),
+  );
+
+  if (allRecordTypesAreForPatients) {
+    if (patientCount) {
+      return `patient_id IN (SELECT patient_id FROM ${markedForSyncPatientsTable})`;
+    }
+    return 'FALSE';
+  }
+  if (!allRecordTypesAreForPatients) {
+    if (patientCount) {
+      return `(patient_id IS NULL OR patient_id IN (SELECT patient_id FROM ${markedForSyncPatientsTable}))`;
+    }
+    return 'patient_id IS NULL';
+  }
+}
+
 const snapshotOutgoingChangesFromSyncLookup = withConfig(
   async (
     store,
@@ -230,13 +258,12 @@ const snapshotOutgoingChangesFromSyncLookup = withConfig(
         AND (
           --- either no patient_id (meaning we don't care if the record is associate to a patient, eg: reference_data)
           --- or patient_id has to match the marked for sync patient_ids, eg: encounters
-          (
-            patient_id IS NULL
-          ${
-            patientCount
-              ? `OR patient_id IN (SELECT patient_id FROM ${markedForSyncPatientsTable})`
-              : ''
-          })
+          ${getPatientRelatedWhereClause(
+            store.models,
+            recordTypes,
+            patientCount,
+            markedForSyncPatientsTable,
+          )}
           --- either no facility_id (meaning we don't care if the record is associate to a facility, eg: reference_data)
           --- or facility_id has to match the current facility, eg: patient_facilities
           AND (

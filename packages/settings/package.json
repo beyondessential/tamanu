@@ -26,6 +26,10 @@
       "import": "./dist/mjs/test/index.js",
       "require": "./dist/cjs/test/index.js"
     },
+    "./test": {
+      "import": "./dist/mjs/test/index.js",
+      "require": "./dist/cjs/test/index.js"
+    },
     "./reader": {
       "import": "./dist/mjs/reader/index.js",
       "require": "./dist/cjs/reader/index.js"

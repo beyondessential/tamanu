@@ -14,7 +14,7 @@ import { startScheduledTasks } from '../tasks';
 import { version } from '../serverInfo';
 import { ApplicationContext } from '../ApplicationContext';
 
-async function startTasks({ skipMigrationCheck }) {
+export async function startTasks({ skipMigrationCheck, taskClasses }) {
   log.info(`Starting facility task runner version ${version}`, {
     serverFacilityIds: selectFacilityIds(config),
   });
@@ -44,7 +44,7 @@ async function startTasks({ skipMigrationCheck }) {
     config,
   });
 
-  const cancelTasks = startScheduledTasks(context);
+  const cancelTasks = startScheduledTasks(context, taskClasses);
   process.once('SIGTERM', () => {
     log.info('Received SIGTERM, stopping scheduled tasks');
     cancelTasks();
