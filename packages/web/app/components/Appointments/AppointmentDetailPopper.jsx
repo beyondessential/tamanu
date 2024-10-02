@@ -1,12 +1,13 @@
+import React, { useCallback, useEffect, useState } from 'react';
+import { useDispatch } from 'react-redux';
+import { push } from 'connected-react-router';
 import { Box, IconButton, Paper, Popper, styled } from '@mui/material';
 import { MoreVert, Close, Brightness2 as Overnight } from '@mui/icons-material';
-import React, { useCallback, useEffect, useState } from 'react';
+
 import { PatientNameDisplay } from '../PatientNameDisplay';
 import { TranslatedReferenceData, TranslatedSex, TranslatedText } from '../Translation';
 import { Colors } from '../../constants';
 import { DateDisplay, getDateDisplay } from '../DateDisplay';
-import { useDispatch } from 'react-redux';
-import { push } from 'connected-react-router';
 import { reloadPatient } from '../../store';
 import { useApi } from '../../api';
 
@@ -96,15 +97,15 @@ const ControlsRow = ({ onClose }) => (
   </ControlsContainer>
 );
 
-const DetailsField = ({ label, value }) => (
+const DetailsDisplay = ({ label, value }) => (
   <FlexCol>
     <Label>{label}</Label>
     <span>{value ?? '—'}</span>
   </FlexCol>
 );
 
-const BookingTypeField = ({ type, isOvernight }) => (
-  <DetailsField
+const BookingTypeDisplay = ({ type, isOvernight }) => (
+  <DetailsDisplay
     label={<TranslatedText stringId="scheduling.bookingType.label" fallback="Booking type" />}
     value={
       <FlexRow sx={{ alignItems: 'center', justifyContent: 'space-between' }}>
@@ -138,17 +139,21 @@ const PatientDetailsDisplay = ({ patient, onClick }) => {
       </Title>
       <span>
         <Label>
-          <TranslatedText stringId="general.sex.label" fallback="Sex" />:
+          <TranslatedText stringId="general.localisedField.sex.label" fallback="Sex" />:
         </Label>{' '}
         <TranslatedSex sex={sex} />
         <Label>
           {' | '}
-          <TranslatedText stringId="general.dateOfBirth.label" fallback="DOB" />:
+          <TranslatedText
+            stringId="general.localisedField.dateOfBirth.label.short"
+            fallback="DOB"
+          />
+          :
         </Label>{' '}
         <DateDisplay date={dateOfBirth} />
       </span>
       {additionalData?.primaryContactNumber && (
-        <DetailsField
+        <DetailsDisplay
           label={
             <TranslatedText
               stringId="patient.details.reminderContacts.field.contact"
@@ -167,11 +172,11 @@ const AppointDetailsDisplay = ({ appointment, isOvernight }) => {
   const { startTime, endTime, clinician, locationGroup, location, type } = appointment;
   return (
     <AppointmentDetailsContainer>
-      <DetailsField
+      <DetailsDisplay
         label={<TranslatedText stringId="general.time.label" fallback="Time" />}
         value={formatDateRange(startTime, endTime, isOvernight)}
       />
-      <DetailsField
+      <DetailsDisplay
         label={
           <TranslatedText
             stringId="general.localisedField.clinician.label.short"
@@ -180,8 +185,10 @@ const AppointDetailsDisplay = ({ appointment, isOvernight }) => {
         }
         value={clinician?.displayName}
       />
-      <DetailsField
-        label={<TranslatedText stringId="general.form.area.label" fallback="Area" />}
+      <DetailsDisplay
+        label={
+          <TranslatedText stringId="general.localisedField.locationGroupId.label" fallback="Area" />
+        }
         value={
           <TranslatedReferenceData
             fallback={locationGroup?.name}
@@ -190,8 +197,10 @@ const AppointDetailsDisplay = ({ appointment, isOvernight }) => {
           />
         }
       />
-      <DetailsField
-        label={<TranslatedText stringId="general.form.location.label" fallback="Location" />}
+      <DetailsDisplay
+        label={
+          <TranslatedText stringId="general.localisedField.locationId.label" fallback="Location" />
+        }
         value={
           <TranslatedReferenceData
             fallback={location?.name}
@@ -200,7 +209,7 @@ const AppointDetailsDisplay = ({ appointment, isOvernight }) => {
           />
         }
       />
-      <BookingTypeField type={type} isOvernight={isOvernight} />
+      <BookingTypeDisplay type={type} isOvernight={isOvernight} />
     </AppointmentDetailsContainer>
   );
 };
