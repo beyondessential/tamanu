@@ -16,7 +16,7 @@ export const CheckControl = React.memo(({ value, ...props }) => (
   <Checkbox
     icon={props.disabled ? <i className="fas fa-square" /> : <i className="far fa-square" />}
     checkedIcon={<i className="far fa-check-square" />}
-    indeterminateIcon={<i class="far fa-minus-square"></i>}
+    indeterminateIcon={<i className="far fa-minus-square"></i>}
     {...props}
     checked={Boolean(value)}
     value="true"

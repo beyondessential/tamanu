@@ -209,7 +209,7 @@ const getFrequency = ({ frequencyValue, frequencyUnit }) =>
     <TranslatedText stringId="encounter.tasks.table.once" fallback="Once" />
   );
 
-const BulkActions = ({ status, handleActionModalOpen }) => (
+const BulkActions = ({ row, status, handleActionModalOpen }) => (
   <StyledBulkActions>
     {status !== TASK_STATUSES.NON_COMPLETED && (
       <ThemedTooltip
@@ -220,7 +220,7 @@ const BulkActions = ({ status, handleActionModalOpen }) => (
           />
         }
       >
-        <IconButton onClick={() => handleActionModalOpen(TASK_STATUSES.NON_COMPLETED, row.id)}>
+        <IconButton onClick={() => handleActionModalOpen(TASK_ACTIONS.NON_COMPLETED, row)}>
           <StyledCancelIcon />
         </IconButton>
       </ThemedTooltip>
@@ -234,7 +234,7 @@ const BulkActions = ({ status, handleActionModalOpen }) => (
           />
         }
       >
-        <IconButton onClick={() => handleActionModalOpen(TASK_STATUSES.COMPLETED, row.id)}>
+        <IconButton onClick={() => handleActionModalOpen(TASK_ACTIONS.COMPLETED, row)}>
           <StyledCheckCircleIcon />
         </IconButton>
       </ThemedTooltip>
@@ -245,7 +245,7 @@ const BulkActions = ({ status, handleActionModalOpen }) => (
           <TranslatedText stringId="encounter.tasks.action.tooltip.toDo" fallback="Mark as to-do" />
         }
       >
-        <IconButton onClick={() => handleActionModalOpen(TASK_STATUSES.TODO, row.id)}>
+        <IconButton onClick={() => handleActionModalOpen(TASK_ACTIONS.TODO, row)}>
           <StatusTodo />
         </IconButton>
       </ThemedTooltip>
@@ -256,7 +256,7 @@ const BulkActions = ({ status, handleActionModalOpen }) => (
           <TranslatedText stringId="encounter.tasks.action.tooltip.delete" fallback="Delete" />
         }
       >
-        <IconButton onClick={() => handleActionModalOpen(TASK_STATUSES.TODO, row.id)}>
+        <IconButton onClick={() => handleActionModalOpen(TASK_ACTIONS.DELETED, row)}>
           <StyledDeleteOutlineIcon />
         </IconButton>
       </ThemedTooltip>
@@ -280,7 +280,7 @@ const NotesCell = ({ row, hoveredRow, handleActionModalOpen }) => {
         )}
       </NotesDisplay>
       {hoveredRow?.id === row?.id && (
-        <BulkActions status={status} handleActionModalOpen={handleActionModalOpen} />
+        <BulkActions row={row} status={status} handleActionModalOpen={handleActionModalOpen} />
       )}
     </Box>
   );
