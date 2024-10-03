@@ -77,7 +77,7 @@ export const LocationBookingsView = () => {
   const displayedDates = getDisplayableDates(monthOf);
 
   const { data: appointments } = useAppointmentsQuery();
-  const { data: locations } = useLocationsQuery({ orderBy: 'locationGroupId' });
+  const { data: locations } = useLocationsQuery({ includeLocationGroup: true });
 
   console.log('locations', locations);
   console.log('appointments', appointments);
@@ -105,17 +105,18 @@ export const LocationBookingsView = () => {
             </CalendarTableRow>
           </thead>
           <tbody>
-            {locations?.map(l => {
-              const { name: locationName, code } = l;
-              return (
+            {locations?.map(
+              ({ code, name: locationName, locationGroup: { name: locationGroupName } }) => (
                 <CalendarTableRow key={code}>
-                  <CalendarRowHeader>{locationName}</CalendarRowHeader>
+                  <CalendarRowHeader>
+                    {locationGroupName} {locationName}
+                  </CalendarRowHeader>
                   {displayedDates.map(d => (
                     <CalendarCell key={d.valueOf()} />
                   ))}
                 </CalendarTableRow>
-              );
-            })}
+              ),
+            )}
           </tbody>
         </CalendarTable>
       </Carousel>

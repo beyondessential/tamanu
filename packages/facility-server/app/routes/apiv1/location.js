@@ -19,8 +19,8 @@ location.get(
     }
 
     const {
-      models: { Location },
-      query: { order = 'ASC', orderBy },
+      models: { Location, LocationGroup },
+      query: { includeLocationGroup = false },
     } = req;
 
     const options = {
@@ -28,7 +28,17 @@ location.get(
         facilityId: config.serverFacilityId,
       },
     };
-    if (orderBy) options.order = [[orderBy, order]];
+
+    if (includeLocationGroup) {
+      options.include = [
+        {
+          required: true,
+          model: LocationGroup,
+          as: 'locationGroup',
+        },
+      ];
+      options.order = [['locationGroup', 'name', 'ASC']];
+    }
 
     const locations = await Location.findAll(options);
     res.send(locations);
