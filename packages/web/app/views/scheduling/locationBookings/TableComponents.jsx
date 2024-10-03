@@ -14,6 +14,7 @@ export const CalendarHeaderCell = styled.th`
 
   thead & {
     block-size: var(--header-row-height);
+    inline-size: var(--col-width);
     inset-block-start: 0;
 
     // Top-left-most cell sticks in both directions
@@ -38,12 +39,11 @@ export const CalendarRowHeader = styled(CalendarHeaderCell).attrs({ scope: 'row'
 
 export const CalendarCell = styled.td`
   --border: max(0.0625rem, 1px) solid ${Colors.outline};
-  block-size: calc(1lh + 1rem);
+  block-size: var(--row-height);
   border-block-end: var(--border);
   border-inline-end: var(--border);
   cursor: pointer;
-  inline-size: var(--target-col-width);
-  min-inline-size: 12rem;
+  min-inline-size: var(--col-width);
   padding-block: 0.25rem;
   padding-inline: 0.5rem 1.5rem;
   position: relative;
@@ -66,7 +66,8 @@ export const CalendarTableRow = styled.tr`
 export const CalendarTable = styled.table`
   --header-col-width: 10rem;
   --header-row-height: 3rem;
-  //--target-col-width: calc((100% - var(--header-col-width)) / 7.5);
+  --col-width: 12rem;
+  --row-height: calc(1lh + 1rem);
   font-size: 0.875rem;
   font-variant-numeric: lining-nums tabular-nums;
 
