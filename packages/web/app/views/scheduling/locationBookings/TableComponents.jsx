@@ -13,15 +13,20 @@ export const CalendarTable = styled.table`
 
   td,
   th {
+    background-color: white;
     block-size: calc(1lh + 1rem);
     padding-block: 0.25rem;
     padding-inline: 0.5rem;
     scroll-snap-align: start;
   }
 
+  td {
+    position: relative;
+  }
+
   th {
-    background-color: white;
     position: sticky;
+    z-index: 1;
   }
 
   thead th {
@@ -30,7 +35,7 @@ export const CalendarTable = styled.table`
     &:first-child {
       // Top-left-most cell sticks in both directions
       inset-inline-start: 0;
-      z-index: 1;
+      z-index: 2;
     }
   }
 
