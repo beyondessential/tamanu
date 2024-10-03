@@ -192,41 +192,42 @@ const HeaderContainer = React.memo(({ children, numeric }) => (
   <StyledTableCell align={numeric ? 'right' : 'left'}>{children}</StyledTableCell>
 ));
 
-const RowContainer = React.memo(
-  ({ children, lazyLoading, rowStyle, onClick, className, rowTooltip }) => {
-    const getTableRow = () => (
-      <StyledTableRow
-        className={className}
-        onClick={onClick}
-        $rowStyle={rowStyle}
-        $lazyLoading={lazyLoading}
-      >
-        {children}
-      </StyledTableRow>
-    );
-
-    return rowTooltip ? (
-      <ThemedTooltip
-        title={rowTooltip}
-        PopperProps={{
-          modifiers: {
-            flip: {
-              enabled: false,
-            },
-            offset: {
-              enabled: true,
-              offset: '0, -10'
-            },
-          },
-        }}
-      >
-        {getTableRow()}
-      </ThemedTooltip>
-    ) : (
-      getTableRow()
-    );
-  },
+const getTableRow = ({ children, lazyLoading, rowStyle, onClick, className }) => (
+  <StyledTableRow
+    className={className}
+    onClick={onClick}
+    $rowStyle={rowStyle}
+    $lazyLoading={lazyLoading}
+  >
+    {children}
+  </StyledTableRow>
 );
+
+const RowTooltip = ({ title, children }) => (
+  <ThemedTooltip
+    title={title}
+    PopperProps={{
+      modifiers: {
+        flip: {
+          enabled: false,
+        },
+        offset: {
+          enabled: true,
+          offset: '0, -10',
+        },
+      },
+    }}
+  >
+    {children}
+  </ThemedTooltip>
+);
+
+const RowContainer = React.memo(({ rowTooltip, ...rowProps }) => {
+  if (rowTooltip) {
+    return <RowTooltip title={rowTooltip}>{getTableRow(rowProps)}</RowTooltip>;
+  }
+  return getTableRow(rowProps);
+});
 
 const StatusTableCell = styled(StyledTableCell)`
   &.MuiTableCell-body {
