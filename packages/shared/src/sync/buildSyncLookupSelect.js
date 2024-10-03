@@ -1,3 +1,4 @@
+import config from 'config';
 import { snake } from 'case';
 
 import { COLUMNS_EXCLUDED_FROM_SYNC } from './constants';
@@ -14,6 +15,7 @@ export function buildSyncLookupSelect(model, columns = {}) {
       '${table}',
       ${table}.deleted_at IS NOT NULL,
       COALESCE(:updatedAtSyncTick, ${table}.updated_at_sync_tick),
+      ${config.sync.lookupTable.avoidRepull ? 'sync_persisted_tick_to_device.device_id,' : ''}
       json_build_object(
         ${Object.keys(attributes)
           .filter(a => !COLUMNS_EXCLUDED_FROM_SYNC.includes(a))

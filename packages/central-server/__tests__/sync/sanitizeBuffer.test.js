@@ -50,6 +50,7 @@ describe('sanitize binary data', () => {
               true,
               syncSession.id,
               '',
+              null,
               {
                 syncAllLabRequests: false,
                 isMobile: false,

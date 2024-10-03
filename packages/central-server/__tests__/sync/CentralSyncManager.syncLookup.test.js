@@ -572,6 +572,7 @@ describe('Sync Lookup data', () => {
       fullSyncPatientsTable,
       sessionId,
       '',
+      null,
       simplestSessionConfig,
       simplestConfig,
     );
@@ -656,6 +657,7 @@ describe('Sync Lookup data', () => {
       fullSyncPatientsTable,
       sessionId,
       facility.id,
+      null,
       simplestSessionConfig,
       simplestConfig,
     );
@@ -786,6 +788,7 @@ describe('Sync Lookup data', () => {
           regularSyncPatientsTable,
           sessionId,
           facility.id,
+          null,
           simplestSessionConfig,
           simplestConfig,
         );
@@ -838,6 +841,7 @@ describe('Sync Lookup data', () => {
           regularSyncPatientsTable,
           sessionId,
           facility.id,
+          null,
           simplestSessionConfig,
           simplestConfig,
         );
@@ -885,6 +889,7 @@ describe('Sync Lookup data', () => {
           regularSyncPatientsTable,
           sessionId,
           facility.id,
+          null,
           simplestSessionConfig,
           simplestConfig,
         );
@@ -944,6 +949,7 @@ describe('Sync Lookup data', () => {
       regularSyncPatientsTable,
       sessionId,
       facility.id,
+      null,
       simplestSessionConfig,
       simplestConfig,
     );
@@ -1060,6 +1066,7 @@ describe('Sync Lookup data', () => {
         regularSyncPatientsTable,
         sessionId,
         facility.id,
+        null,
         sessionConfig,
         simplestConfig,
       );
@@ -1146,6 +1153,7 @@ describe('Sync Lookup data', () => {
         regularSyncPatientsTable,
         sessionId,
         facility.id,
+        null,
         sessionConfig,
         simplestConfig,
       );
