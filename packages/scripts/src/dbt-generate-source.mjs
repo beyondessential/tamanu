@@ -194,10 +194,9 @@ ${doc.columns.map(stringifyColumn).join('')}`;
 }
 
 function fillMissingDocColumn(index, column, doc) {
-  if (doc.columns.some(c => c.name === column.name)) return false;
+  if (doc.columns.some(c => c.name === column.name)) return;
 
   doc.columns.splice(index, 0, generateColumnDoc(column));
-  return true;
 }
 
 async function fillMissingDoc(schemaName, table) {
@@ -260,7 +259,6 @@ async function handleColumns(schemaName, tableName, dbtSrc, sqlColumns) {
     dbtColumns: dbtSrc.sources[0].tables[0].columns,
     doc: await readTableDoc(schemaName, tableName),
   };
-  let changed = false;
 
   // This is expensive yet the most straightforward implementation to detect changes.
   // Algorithms that rely on sorted lists are out because we want preserve the original order of columns.
@@ -271,23 +269,19 @@ async function handleColumns(schemaName, tableName, dbtSrc, sqlColumns) {
   const missingPromises = _.differenceBy(sqlColumns, out.dbtColumns, 'name').map(column =>
     handleMissingColumn(schemaName, tableName, sqlColumns.indexOf(column), column, out),
   );
-  changed |= (removedPromises.length != 0) | (missingPromises.length != 0);
 
   const intersectionPromises = _.intersectionBy(out.dbtColumns, sqlColumns, 'name').map(
     async dbtColumn => {
       const sqlColumnIndex = sqlColumns.findIndex(c => c.name === dbtColumn.name);
       const sqlColumn = sqlColumns[sqlColumnIndex];
 
-      changed |= fillMissingDocColumn(sqlColumnIndex, dbtColumn, out.doc);
+      fillMissingDocColumn(sqlColumnIndex, dbtColumn, out.doc);
 
       await handleColumn(schemaName, tableName, dbtColumn, sqlColumn);
-      changed = true; // TODO: ???
     },
   );
 
   await Promise.all([...removedPromises, ...missingPromises, ...intersectionPromises]);
-
-  if (!changed) return;
 
   const tablePath = path.join(modelRoot, schemaName, tableName);
   // TODO: this formats the YAML aggresively. Specifically, it makes every sequences block-styled.
