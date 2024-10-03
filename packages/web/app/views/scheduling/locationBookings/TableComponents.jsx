@@ -83,6 +83,7 @@ export const CalendarTable = styled.table`
   }
 
   & tr:not(tbody > :last-child) :is(th, td) {
+    //:not(tbody > :last-child) ← last row in <thead> still needs bottom border
     border-block-end: var(--border-style);
   }
 `;
