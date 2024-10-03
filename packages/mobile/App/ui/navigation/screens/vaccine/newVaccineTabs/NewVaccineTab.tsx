@@ -135,6 +135,7 @@ export const NewVaccineTabComponent = ({
         navigation.navigate(Routes.HomeStack.VaccineStack.VaccineModalScreen, {
           vaccine: {
             ...vaccine,
+            scheduledVaccine,
             administeredVaccine: {
               ...updatedVaccine,
               encounter,
@@ -155,7 +156,7 @@ export const NewVaccineTabComponent = ({
     [isSubmitting],
   );
 
-  const vaccineObject = { ...administeredVaccine, ...vaccine };
+  const vaccineObject = { ...vaccine, ...administeredVaccine };
 
   return (
     <StyledSafeAreaView flex={1}>
