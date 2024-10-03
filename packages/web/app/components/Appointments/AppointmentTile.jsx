@@ -80,7 +80,6 @@ export const AppointmentTile = ({ appointment, selected = false, ...props }) => 
   } = appointment;
   const startTime = parseISO(startTimeStr);
   const endTime = parseISO(endTimeStr);
-  console.log(appointment);
 
   const isHighPriority = false; // TODO
   const isOvernight = !areSameDay(startTime, endTime);
