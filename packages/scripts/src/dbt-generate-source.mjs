@@ -3,7 +3,7 @@
 // TODO:
 // - [x] read a list of tables and clumns from existing `database/model`
 // - [ ] If the yml file exists but the table schema name within doesn't match, discard the existing and create a new file.
-// - [ ] check the table names as well
+//       I don't really need to throw it away? I'm rewriting everything wrong in that file anyways.
 
 process.env.SUPPRESS_NO_CONFIG_WARNING = 'y';
 const { default: config } = await import('config');
@@ -15,8 +15,7 @@ import { program } from 'commander';
 import YAML from 'yaml';
 import _ from 'lodash';
 
-async function readTablesFromFile(schemaName) {
-  const schemaPath = path.join(modelRoot, schemaName);
+async function readTablesFromDbt(schemaPath) {
   const tablePromises = (await fs.readdir(schemaPath))
     .filter(tablePath => tablePath.endsWith('.yml'))
     .sort()
@@ -68,7 +67,7 @@ async function getColumnsInRelation(client, schemaName, tableName) {
   }));
 }
 
-async function getConstraintsForColumn(schemaName, tableName, columnName) {
+async function getConstraintsForColumn(client, schemaName, tableName, columnName) {
   return (
     await client.query(
       `SELECT constraint_type
@@ -83,16 +82,20 @@ async function readTablesFromDB(client, schemaName) {
   const tablePromises = (await getTablesInSchema(client, schemaName)).map(async table => {
     return {
       name: table,
-      columns: await getColumnsInRelation(client, schemaName, table),
+      columns: (await getColumnsInRelation(client, schemaName, table)).map(column => {
+        // Lazily evaluate constraints as it's only occasionally needed.
+        column.getConstraints = () => getConstraintsForColumn(client, schemaName, table, column.name);
+        return column;
+      }),
     };
   });
   return await Promise.all(tablePromises);
 }
 
-async function readTableDoc(schemaName, tableName) {
+async function readTableDoc(schemaPath, tableName) {
   const re = /\{%\s*docs\s+\w+?__(\w+)\s*%\}([^}]+)\{%\s+enddocs\s*%\}/g;
 
-  const text = await fs.readFile(path.join(modelRoot, schemaName, `${tableName}.md`), {
+  const text = await fs.readFile(path.join(schemaPath, `${tableName}.md`), {
     encoding: 'utf-8',
   });
 
@@ -119,18 +122,18 @@ async function readTableDoc(schemaName, tableName) {
   return doc;
 }
 
-async function generateDataTests(schemaName, tableName, column) {
-  const data_tests = [];
-  const isUnique = (await getConstraintsForColumn(schemaName, tableName, column.name)).some(
+async function generateDataTests(column) {
+  const dataTests = [];
+  const isUnique = (await column.getConstraints()).some(
     c => c.constraint_type === 'UNIQUE' || c.constraint_type === 'PRIMARY KEY',
   );
-  if (isUnique) data_tests.push('unique');
-  if (!column.is_nullable) data_tests.push('not_null');
-  return data_tests;
+  if (isUnique) dataTests.push('unique');
+  if (!column.is_nullable) dataTests.push('not_null');
+  return dataTests;
 }
 
-async function generateColumnModel(schemaName, tableName, column) {
-  const dataTests = await generateDataTests(schemaName, tableName, column);
+async function generateColumnModel(tableName, column) {
+  const dataTests = await generateDataTests(column);
   return {
     name: column.name,
     data_type: column.data_type,
@@ -161,7 +164,7 @@ async function generateTableModel(schemaName, table) {
             description: `{{ doc('table__${table.name}') }}`,
             tags: [],
             columns: await Promise.all(
-              table.columns.map(c => generateColumnModel(schemaName, table.name, c)),
+              table.columns.map(c => generateColumnModel(table.name, c)),
             ),
           },
         ],
@@ -200,10 +203,10 @@ function fillMissingDocColumn(index, column, doc) {
   doc.columns.splice(index, 0, generateColumnDoc(column));
 }
 
-async function fillMissingDoc(schemaName, table) {
+async function fillMissingDoc(schemaPath, table) {
   let file;
   try {
-    file = await fs.open(path.join(modelRoot, schemaName, `${table.name}.md`), 'wx');
+    file = await fs.open(path.join(schemaPath, `${table.name}.md`), 'wx');
     await file.write(stringifyTableDoc(generateTableDoc(table)));
   } catch (err) {
     if (err.code !== 'EEXIST') throw err;
@@ -218,34 +221,34 @@ async function handleRemovedColumn(tableName, column, out) {
   _.remove(out.doc.columns, c => c.name === column.name);
 }
 
-async function handleMissingColumn(schemaName, tableName, index, column, out) {
-  const model = await generateColumnModel(schemaName, tableName, column);
+async function handleMissingColumn(tableName, index, column, out) {
+  const model = await generateColumnModel(tableName, column);
   out.dbtColumns.splice(index, 0, model);
   fillMissingDocColumn(index, column, out.doc);
 }
 
-async function handleRemovedTable(schemaName, table) {
+async function handleRemovedTable(schemaPath, table) {
   console.warn(`Removing ${table.get('name')}`);
-  const tablePath = path.join(modelRoot, schemaName, table.name);
+  const tablePath = path.join(schemaPath, table.name);
   await Promise.all([fs.rm(tablePath + '.yml'), fs.rm(tablePath + '.md', { force: true })]);
 }
 
-async function handleMissingTable(schemaName, table) {
+async function handleMissingTable(schemaPath, schemaName, table) {
   const genModelPromise = (async () => {
     const model = await generateTableModel(schemaName, table);
     await fs.writeFile(
-      path.join(modelRoot, schemaName, `${table.name}.yml`),
+      path.join(schemaPath, `${table.name}.yml`),
       YAML.stringify(model),
     );
   })();
-  const docPromise = fillMissingDoc(schemaName, table);
+  const docPromise = fillMissingDoc(schemaPath, table);
   await Promise.all([genModelPromise, docPromise]);
 }
 
-async function handleColumn(schemaName, tableName, dbtColumn, sqlColumn) {
+async function handleColumn(dbtColumn, sqlColumn) {
   dbtColumn.data_type = sqlColumn.data_type;
 
-  const sqlDataTests = await generateDataTests(schemaName, tableName, sqlColumn);
+  const sqlDataTests = await generateDataTests(sqlColumn);
   if (!Object.hasOwn(dbtColumn, 'data_tests')) dbtColumn.data_tests = [];
 
   // Instead of computing differences while ignoring non-trivial data tests, simply replace them by the generated one.
@@ -255,10 +258,10 @@ async function handleColumn(schemaName, tableName, dbtColumn, sqlColumn) {
   if (dbtColumn.data_tests.length === 0) delete dbtColumn.data_tests;
 }
 
-async function handleColumns(schemaName, tableName, dbtSrc, sqlColumns) {
+async function handleColumns(schemaPath, tableName, dbtSrc, sqlColumns) {
   const out = {
     dbtColumns: dbtSrc.sources[0].tables[0].columns,
-    doc: await readTableDoc(schemaName, tableName),
+    doc: await readTableDoc(schemaPath, tableName),
   };
 
   // This is expensive yet the most straightforward implementation to detect changes.
@@ -268,7 +271,7 @@ async function handleColumns(schemaName, tableName, dbtSrc, sqlColumns) {
     handleRemovedColumn(tableName, column, out),
   );
   const missingPromises = _.differenceBy(sqlColumns, out.dbtColumns, 'name').map(column =>
-    handleMissingColumn(schemaName, tableName, sqlColumns.indexOf(column), column, out),
+    handleMissingColumn(tableName, sqlColumns.indexOf(column), column, out),
   );
 
   const intersectionPromises = _.intersectionBy(out.dbtColumns, sqlColumns, 'name').map(
@@ -278,13 +281,13 @@ async function handleColumns(schemaName, tableName, dbtSrc, sqlColumns) {
 
       fillMissingDocColumn(sqlColumnIndex, dbtColumn, out.doc);
 
-      await handleColumn(schemaName, tableName, dbtColumn, sqlColumn);
+      await handleColumn(dbtColumn, sqlColumn);
     },
   );
 
   await Promise.all([...removedPromises, ...missingPromises, ...intersectionPromises]);
 
-  const tablePath = path.join(modelRoot, schemaName, tableName);
+  const tablePath = path.join(schemaPath, tableName);
   // TODO: this formats the YAML aggresively. Specifically, it makes every sequences block-styled.
   // THere's no API in the library to switch the style based on the length of the content.
   // Preserving the collection style is possible (the code is git-stashed), but it adds newlines systemically.
@@ -294,90 +297,52 @@ async function handleColumns(schemaName, tableName, dbtSrc, sqlColumns) {
   await Promise.all([modelPromise, docPromise]);
 }
 
-async function handleTables(dbName, schemaName, dbtSrcs, sqlTables) {
+async function handleTables(schemaPath, schemaName, dbtSrcs, sqlTables) {
   const getName = srcOrTable =>
     srcOrTable.sources ? srcOrTable.sources[0].tables[0].name : srcOrTable.name;
   const removedPromises = _.differenceBy(dbtSrcs, sqlTables, getName).map(src =>
-    handleRemovedTable(schemaName, src.sources[0].tables[0]),
+    handleRemovedTable(schemaPath, src.sources[0].tables[0]),
   );
   const missingPromises = _.differenceBy(sqlTables, dbtSrcs, getName).map(table =>
-    handleMissingTable(schemaName, table),
+    handleMissingTable(schemaPath, schemaName, table),
   );
 
   const intersectionPromises = _.intersectionBy(dbtSrcs, sqlTables, getName).map(async dbtSrc => {
     const sqlTable = sqlTables.find(t => t.name === dbtSrc.sources[0].tables[0].name);
-    await fillMissingDoc(schemaName, sqlTable);
-    await handleColumns(schemaName, sqlTable.name, dbtSrc, sqlTable.columns);
+    await fillMissingDoc(schemaPath, sqlTable);
+    await handleColumns(schemaPath, sqlTable.name, dbtSrc, sqlTable.columns);
   });
   await Promise.all([...removedPromises, ...missingPromises, ...intersectionPromises]);
 }
 
-async function generateSource({ host, port, name: database, username, password }, packageName) {
-  console.log('Connecting to database for', packageName);
-  const client = new pg.Client({ host, port, user: username, database, password });
-  try {
-    await client.connect();
-  } catch (err) {
-    console.error(err);
-    if (opts.failOnMissingConfig) {
-      throw `Invalid database config for ${packageName}, cannot proceed.`;
-    }
+// async function run(packageName) {
+//   const serverConfig = config.util.loadFileConfigs(path.join('packages', packageName, 'config'));
+//   const db = config.util.extendDeep(serverConfig.db, config.db); // merge with NODE_CONFIG
+//   await generateSource(db, packageName, opts);
+// }
 
-    return;
-  }
-
-  console.log('Generating database models for', packageName);
-  const tasks = (await getSchemas(client)).map(async schemaName => {
-    const schemaPath = path.join('database/model', packageName, schemaName);
-    await fs.outir(schemaPath, { recursive: true });
-    const tasks = (await getTablesInSchema(client, schemaName)).map(async table => {
-      const sources = {
-        version: 2,
-        sources: [
-          {
-            name: schemaName,
-            database: database.toLowerCase(),
-            tables: [
-              {
-                name: table,
-                columns: (await getColumnsInRelation(client, schemaName, table)).map(column => ({
-                  name: column.column_name,
-                  data_type: column.data_type,
-                })),
-              },
-            ],
-          },
-        ],
-      };
-      await fs.writeFile(path.join(schemaPath, `${table}.yml`), YAML.stringify(sources));
-    });
-    await Promise.all(tasks);
-  });
-  await Promise.all(tasks);
-  await client.end();
-}
-
-async function run(packageName, opts) {
-  const serverConfig = config.util.loadFileConfigs(path.join('packages', packageName, 'config'));
-  const db = config.util.extendDeep(serverConfig.db, config.db); // merge with NODE_CONFIG
-  await generateSource(db, packageName, opts);
-}
-
-// program.description(`Generates a Source model in dbt.
+// program
+//   .description(
+//     `Generates a Source model in dbt.
 // This reads Postgres database based on the config files. The search path is \`packages/<server-name>/config\`. \
 // You can override the config for both by supplying \`NODE_CONFIG\` or the \`config\` directory at the current directory.
-// `).option('--fail-on-missing-config');
+// `,
+//   )
+//   .option('--fail-on-missing-config')
+//   .option('--allow-dirty');
 
 // program.parse();
 // const opts = program.opts();
 
-// await Promise.all([run('central-server', opts), run('facility-server', opts)]);
+// await Promise.all([run('central-server'), run('facility-server')]);
 
-const modelRoot = 'database/model/central-server';
-const oldTablesPromise = readTablesFromFile('public');
 const client = new pg.Client({ database: 'tamanu-central' });
 await client.connect();
+
+const modelRoot = 'database/model/central-server';
+const schemaPath = path.join(modelRoot, 'public');
+const oldTablesPromise = readTablesFromDbt(schemaPath);
 const sqlTablesPromise = readTablesFromDB(client, 'public');
 const [oldTables, sqlTables] = await Promise.all([oldTablesPromise, sqlTablesPromise]);
-await handleTables('tamanu-central', 'public', oldTables, sqlTables);
+await handleTables(schemaPath, 'public', oldTables, sqlTables);
 await client.end();
