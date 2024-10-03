@@ -5,7 +5,7 @@ import { Colors } from '../../../constants';
 export const CalendarTable = styled.table`
   --header-col-width: 8rem;
   --target-col-width: calc((100% - var(--header-col-width)) / 7.5);
-  table-layout: fixed;
+  font-variant-numeric: lining-nums tabular-nums;
 
   // Prevent header row’s bottom border from from scrolling away
   border-collapse: separate;
