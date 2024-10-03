@@ -3,6 +3,7 @@ import { ReferenceDataRelation } from '~/models/ReferenceDataRelation';
 
 export enum ReferenceDataType {
   Allergy = 'allergy',
+  BookingType = 'bookingType',
   Catchment = 'catchment',
   Condition = 'condition',
   ContactRelationship = 'contactRelationship',
