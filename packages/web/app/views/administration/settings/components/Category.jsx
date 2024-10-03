@@ -81,7 +81,8 @@ const sortProperties = ([a0, a1], [b0, b1]) => {
 
 export const Category = ({ schema, path = '', getSettingValue, handleChangeSetting }) => {
   const { ability } = useAuth();
-  const canWriteHighRisk = ability.can('manage', 'all');
+  // const canWriteHighRisk = ability.can('manage', 'all');
+  const canWriteHighRisk = false;
   if (!schema) return null;
   const sortedProperties = Object.entries(schema.properties).sort(sortProperties);
 

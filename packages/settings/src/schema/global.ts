@@ -191,6 +191,7 @@ export const globalSettings = {
     fhir: {
       name: 'FHIR',
       description: 'FHIR integration settings',
+      highRisk: true,
       properties: {
         worker: {
           name: 'FHIR worker',
