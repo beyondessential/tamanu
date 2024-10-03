@@ -72,7 +72,7 @@ export const useSelectableColumn = (
     const isSomeRowSelected =
       rows?.length > 0 &&
       rows.some(r => selectedKeys.has(r[selectionKey])) &&
-      !rows.every(r => selectedKeys.has(r[selectionKey]));
+      !isEveryRowSelected;
 
     return (
       <CheckInput
