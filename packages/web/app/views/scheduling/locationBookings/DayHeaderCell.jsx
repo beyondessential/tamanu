@@ -1,6 +1,6 @@
 import { formatISO } from 'date-fns';
 import React from 'react';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 
 import { Colors } from '../../../constants';
 import { formatShort, formatWeekdayShort } from '../../../components';
@@ -10,6 +10,14 @@ const StyledHeader = styled(CalendarColumnHeader)`
   color: ${Colors.darkestText};
   font-size: 1.15rem;
   line-height: 1.3;
+
+  ${({ $dim }) =>
+    $dim &&
+    css`
+      & > * {
+        opacity: 50%;
+      }
+    `}
 `;
 
 const Weekday = styled.div`
@@ -19,9 +27,9 @@ const Weekday = styled.div`
   letter-spacing: 0.1em;
 `;
 
-export const DayHeaderCell = ({ date }) => {
+export const DayHeaderCell = ({ date, dim = false }) => {
   return (
-    <StyledHeader>
+    <StyledHeader $dim={dim}>
       <time dateTime={formatISO(date, { representation: 'date' })}>
         <Weekday>{formatWeekdayShort(date)}</Weekday>
         {formatShort(date)}

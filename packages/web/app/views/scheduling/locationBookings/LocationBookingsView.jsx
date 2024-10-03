@@ -1,4 +1,11 @@
-import { eachDayOfInterval, endOfMonth, endOfWeek, startOfMonth, startOfWeek } from 'date-fns';
+import {
+  eachDayOfInterval,
+  endOfMonth,
+  endOfWeek,
+  isSameMonth,
+  startOfMonth,
+  startOfWeek,
+} from 'date-fns';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
@@ -93,7 +100,7 @@ export const LocationBookingsView = () => {
                 <Placeholder>Month Selector</Placeholder>
               </CalendarRowHeader>
               {displayedDates.map(d => (
-                <DayHeaderCell date={d} key={d.valueOf()} />
+                <DayHeaderCell date={d} dim={!isSameMonth(d, monthOf)} key={d.valueOf()} />
               ))}
             </CalendarTableRow>
           </thead>
