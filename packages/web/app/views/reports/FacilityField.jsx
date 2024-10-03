@@ -4,7 +4,7 @@ import { AutocompleteField, Field } from '../../components';
 import { useFormikContext } from 'formik';
 import { omit } from 'lodash';
 
-export const FacilityField = ({ required, label, parameters }) => {
+export const FacilityField = ({ required, label, parameters, name = 'facilityId' }) => {
   const { setValues, values } = useFormikContext();
   const facilitySuggester = useSuggester('facility');
   const fieldsToClear = useMemo(
@@ -20,7 +20,7 @@ export const FacilityField = ({ required, label, parameters }) => {
 
   return (
     <Field
-      name="facilityId"
+      name={name}
       label={label}
       component={AutocompleteField}
       onChange={handleClearAssociatedFields}

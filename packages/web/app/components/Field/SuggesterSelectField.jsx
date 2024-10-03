@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { unionBy } from 'lodash';
 
@@ -9,7 +9,7 @@ import { getCurrentLanguageCode } from '../../utils/translation';
 import { useAuth } from '../../contexts/Auth';
 
 export const SuggesterSelectField = React.memo(
-  ({ field, endpoint, selectedFacilityId, filterByFacility, isMulti = false, ...props }) => {
+  ({ field, endpoint, baseQueryParameters, filterByFacility, isMulti = false, ...props }) => {
     const { facilityId } = useAuth();
     const api = useApi();
     const [options, setOptions] = useState([]);
@@ -38,7 +38,6 @@ export const SuggesterSelectField = React.memo(
             });
         }
       }
-
       // Only do the fetch when the component first mounts
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
@@ -46,9 +45,10 @@ export const SuggesterSelectField = React.memo(
     useEffect(() => {
       api
         .get(`suggestions/${encodeURIComponent(endpoint)}/all`, {
-          facilityId: selectedFacilityId || facilityId,
+          facilityId,
           filterByFacility,
           language: getCurrentLanguageCode(),
+          ...baseQueryParameters,
         })
         .then(resultData => {
           setOptions(
@@ -67,9 +67,9 @@ export const SuggesterSelectField = React.memo(
       setOptions,
       endpoint,
       filterByFacility,
-      selectedFacilityId,
       facilityId,
       initialOptions,
+      baseQueryParameters,
     ]);
 
     const baseProps = {

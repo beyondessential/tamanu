@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import styled from 'styled-components';
 import {
   SUGGESTER_ENDPOINTS,
@@ -35,8 +35,14 @@ export const FIELD_TYPES_WITH_PREDEFINED_OPTIONS = [
   'ParameterSelectField',
   'ParameterMultiselectField',
 ];
-const useReportSuggesterOptions = (filterBySelectedFacility, suggesterOptions) => {
-  const [{ value: facilityIdValue }] = useField('facilityId') || [{}];
+
+const useReportSuggesterOptions = (parameters, filterBySelectedFacility, suggesterOptions = {}) => {
+  // Get name of facility select field if it exists
+  const facilityFieldName = useMemo(
+    () => parameters.find(param => param.parameterField === 'FacilityField')?.name || 'facilityId',
+    [parameters],
+  );
+  const [{ value: facilityIdValue }] = useField(facilityFieldName);
   if (!filterBySelectedFacility || !facilityIdValue) return suggesterOptions;
   return {
     ...suggesterOptions,
@@ -48,15 +54,16 @@ const ParameterSuggesterSelectField = ({
   suggesterEndpoint,
   name,
   filterBySelectedFacility,
+  parameters,
   ...props
 }) => {
-  const { baseQueryParameters } = useReportSuggesterOptions(filterBySelectedFacility, {});
+  const { baseQueryParameters } = useReportSuggesterOptions(parameters, filterBySelectedFacility);
   return (
     <Field
       component={SuggesterSelectField}
       endpoint={suggesterEndpoint}
       filterByFacility={filterBySelectedFacility}
-      selectedFacilityId={baseQueryParameters?.facilityId}
+      baseQueryParameters={baseQueryParameters}
       name={name}
       {...props}
     />
@@ -68,9 +75,10 @@ const ParameterAutocompleteField = ({
   suggesterOptions,
   name,
   filterBySelectedFacility,
+  parameters,
   ...props
 }) => {
-  const options = useReportSuggesterOptions(filterBySelectedFacility, suggesterOptions);
+  const options = useReportSuggesterOptions(parameters, filterBySelectedFacility, suggesterOptions);
   const suggester = useSuggester(suggesterEndpoint, options);
   return <Field component={AutocompleteField} suggester={suggester} name={name} {...props} />;
 };
