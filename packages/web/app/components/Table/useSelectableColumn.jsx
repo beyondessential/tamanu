@@ -81,10 +81,14 @@ export const useSelectableColumn = (
         onChange={titleOnChange}
         style={{ margin: 'auto' }}
         indeterminate={showIndeterminate && isSomeRowSelected}
-        disabled={getIsTitleDisabled()}
+        disabled={getIsTitleDisabled(selectedKeys)}
       />
     );
   }, [rows, selectedRows, titleOnChange]);
+
+  const resetSelection = useCallback(() => {
+    setSelectedKeys(new Set());
+  }, []);
 
   return {
     selectedRows,
@@ -95,5 +99,6 @@ export const useSelectableColumn = (
       titleAccessor,
       accessor: cellAccessor,
     },
+    resetSelection,
   };
 };

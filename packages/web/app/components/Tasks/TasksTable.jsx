@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { Box, Divider } from '@material-ui/core';
 import CheckCircleIcon from '@material-ui/icons/CheckCircle';
@@ -192,7 +192,7 @@ const getNotCompletedTooltipText = ({ notCompletedBy, notCompletedTime, notCompl
       <span color={Colors.midText}>{formatShortest(notCompletedTime)} </span>
       <LowercaseText>{formatTime(notCompletedTime)}</LowercaseText>
     </div>
-    <div>{notCompletedReason.name}</div>
+    <div>{notCompletedReason?.name}</div>
   </StatusTooltip>
 );
 
@@ -372,17 +372,22 @@ export const TasksTable = ({ encounterId, searchParameters, refreshCount, refres
     setSelectedTask(null);
   };
 
-  const { selectedRows, selectableColumn } = useSelectableColumn(data, {
+  const { selectedRows, selectableColumn, resetSelection } = useSelectableColumn(data, {
     showIndeterminate: true,
     getIsRowDisabled: (selectedKeys, { status }) => {
       const selectedStatus = data.find(({ id }) => selectedKeys.has(id))?.status;
       return selectedStatus && status !== selectedStatus;
     },
-    getIsTitleDisabled: () => {
+    getIsTitleDisabled: selectedKeys => {
       const uniqueStatuses = new Set(data.map(item => item.status));
-      return uniqueStatuses.size > 1;
+      return uniqueStatuses.size > 1 && !selectedKeys.size;
     },
   });
+
+  useEffect(() => {
+    resetSelection();
+  }, [searchParameters, resetSelection]);
+
   const selectedRowIds = useMemo(() => selectedRows.map(row => row.id), [selectedRows]);
 
   const COLUMNS = [
