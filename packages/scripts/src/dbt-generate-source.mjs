@@ -84,7 +84,8 @@ async function readTablesFromDB(client, schemaName) {
       name: table,
       columns: (await getColumnsInRelation(client, schemaName, table)).map(column => {
         // Lazily evaluate constraints as it's only occasionally needed.
-        column.getConstraints = () => getConstraintsForColumn(client, schemaName, table, column.name);
+        column.getConstraints = () =>
+          getConstraintsForColumn(client, schemaName, table, column.name);
         return column;
       }),
     };
@@ -100,12 +101,12 @@ async function readTableDoc(schemaPath, tableName) {
   });
 
   const match = re.exec(text);
-  if (match === null) return;
+  if (match === null) return null;
 
   const doc = {
     name: tableName,
     description: match[2].trim(),
-    // Make columns list to preserve the order.
+    // Make columns a list to preserve the order.
     columns: [],
   };
 
@@ -163,9 +164,7 @@ async function generateTableModel(schemaName, table) {
             name: table.name,
             description: `{{ doc('table__${table.name}') }}`,
             tags: [],
-            columns: await Promise.all(
-              table.columns.map(c => generateColumnModel(table.name, c)),
-            ),
+            columns: await Promise.all(table.columns.map(c => generateColumnModel(table.name, c))),
           },
         ],
       },
@@ -236,10 +235,7 @@ async function handleRemovedTable(schemaPath, table) {
 async function handleMissingTable(schemaPath, schemaName, table) {
   const genModelPromise = (async () => {
     const model = await generateTableModel(schemaName, table);
-    await fs.writeFile(
-      path.join(schemaPath, `${table.name}.yml`),
-      YAML.stringify(model),
-    );
+    await fs.writeFile(path.join(schemaPath, `${table.name}.yml`), YAML.stringify(model));
   })();
   const docPromise = fillMissingDoc(schemaPath, table);
   await Promise.all([genModelPromise, docPromise]);
@@ -267,10 +263,10 @@ async function handleColumns(schemaPath, tableName, dbtSrc, sqlColumns) {
   // This is expensive yet the most straightforward implementation to detect changes.
   // Algorithms that rely on sorted lists are out because we want preserve the original order of columns.
   // May be able to use Map, but it doesn't have convinient set operations.
-  const removedPromises = _.differenceBy(out.dbtColumns, sqlColumns, 'name').map(column =>
+  _.differenceBy(out.dbtColumns, sqlColumns, 'name').forEach(column =>
     handleRemovedColumn(tableName, column, out),
   );
-  const missingPromises = _.differenceBy(sqlColumns, out.dbtColumns, 'name').map(column =>
+  _.differenceBy(sqlColumns, out.dbtColumns, 'name').forEach(column =>
     handleMissingColumn(tableName, sqlColumns.indexOf(column), column, out),
   );
 
@@ -285,7 +281,7 @@ async function handleColumns(schemaPath, tableName, dbtSrc, sqlColumns) {
     },
   );
 
-  await Promise.all([...removedPromises, ...missingPromises, ...intersectionPromises]);
+  await Promise.all(intersectionPromises);
 
   const tablePath = path.join(schemaPath, tableName);
   // TODO: this formats the YAML aggresively. Specifically, it makes every sequences block-styled.
