@@ -3,9 +3,6 @@ import styled from 'styled-components';
 import { Colors } from '../../../constants';
 
 export const CalendarHeaderCell = styled.th`
-  --border: max(0.0625rem, 1px) solid ${Colors.outline};
-  border-block-end: var(--border);
-  border-inline-end: var(--border);
   font-weight: 400;
   padding: 0.5rem;
   position: sticky;
@@ -38,10 +35,7 @@ export const CalendarRowHeader = styled(CalendarHeaderCell).attrs({ scope: 'row'
 `;
 
 export const CalendarCell = styled.td`
-  --border: max(0.0625rem, 1px) solid ${Colors.outline};
   block-size: var(--row-height);
-  border-block-end: var(--border);
-  border-inline-end: var(--border);
   cursor: pointer;
   min-inline-size: var(--col-width);
   padding-block: 0.25rem;
@@ -64,6 +58,7 @@ export const CalendarTableRow = styled.tr`
 `;
 
 export const CalendarTable = styled.table`
+  --border-style: max(0.0625rem, 1px) solid ${Colors.outline};
   --header-col-width: 10rem;
   --header-row-height: 3rem;
   --col-width: 12rem;
@@ -75,11 +70,19 @@ export const CalendarTable = styled.table`
   border-collapse: separate;
   border-spacing: 0;
 
-  td,
-  th {
+  th,
+  td {
     background-color: white;
     scroll-snap-align: start;
     scroll-margin-block-start: calc(var(--header-row-height) + 1.25rem);
     scroll-margin-inline-start: calc(var(--header-col-width) + 2rem);
+  }
+
+  & :is(td, th):not(:last-child) {
+    border-inline-end: var(--border-style);
+  }
+
+  & tr:not(tbody > :last-child) :is(th, td) {
+    border-block-end: var(--border-style);
   }
 `;
