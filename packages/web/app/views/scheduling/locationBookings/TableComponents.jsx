@@ -5,31 +5,47 @@ import { Colors } from '../../../constants';
 export const CalendarTable = styled.table`
   --header-col-width: 8rem;
   --target-col-width: calc((100% - var(--header-col-width)) / 7.5);
+  table-layout: fixed;
 
-  border-collapse: collapse;
+  // Prevent header row’s bottom border from from scrolling away
+  border-collapse: separate;
+  border-spacing: 0;
 
   td,
   th {
+    block-size: calc(1lh + 1rem);
     padding-block: 0.25rem;
     padding-inline: 0.5rem;
     scroll-snap-align: start;
   }
 
+  th {
+    background-color: white;
+    position: sticky;
+  }
+
+  thead th {
+    inset-block-start: 0;
+
+    &:first-child {
+      // Top-left-most cell sticks in both directions
+      inset-inline-start: 0;
+      z-index: 1;
+    }
+  }
+
   tbody th {
     inline-size: var(--header-col-width);
+    inset-inline-start: 0;
     min-inline-size: var(--header-col-width);
     padding-inline-end: 1rem;
   }
 `;
 
 export const CalendarTableRow = styled.tr`
-  // Dim weekened columns
-  > :is(th[scope='col'], td):not(:hover):nth-child(7n),
-  > :is(th[scope='col'], td):not(:hover):nth-child(7n + 1) {
-    background-color: oklch(from ${Colors.softOutline} l c h / 30%);
-    @supports not (color: oklch(from black l c h)) {
-      background-color: ${Colors.softOutline}4d; // Works only with six-digit hex colour
-    }
+  // Dim weekend columns
+  > :is(th[scope='col'], td:not(:hover)):is(:nth-child(7n), :nth-child(7n + 1)) {
+    background-color: color-mix(in oklch, white 100%, ${Colors.softOutline} 30%);
   }
 `;
 
@@ -38,7 +54,6 @@ const CalendarHeaderCell = styled.th`
   border-block-end: var(--border);
   border-inline-end: var(--border);
   font-weight: 400;
-  position: sticky;
   transition: background-color 100ms ease;
 `;
 export const CalendarColumnHeader = styled(CalendarHeaderCell).attrs({ scope: 'col' })`
