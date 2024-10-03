@@ -164,7 +164,40 @@ const StyledDivider = styled(Divider)`
   margin-bottom: 5px;
 `;
 
-const getStatus = ({ status }) => {
+const StatusTooltip = styled.div`
+  text-align: center;
+`;
+
+const LowercaseText = styled.span`
+  text-transform: lowercase;
+`;
+
+const getCompletedTooltipText = ({ completedBy, completedTime, completedNote }) => (
+  <StatusTooltip>
+    <TranslatedText stringId="tasks.table.tooltip.completed" fallback="Completed" />
+    <div>{completedBy.displayName}</div>
+    <div>
+      <span color={Colors.midText}>{formatShortest(completedTime)} </span>
+      <LowercaseText>{formatTime(completedTime)}</LowercaseText>
+    </div>
+    <div>{completedNote}</div>
+  </StatusTooltip>
+);
+
+const getNotCompletedTooltipText = ({ notCompletedBy, notCompletedTime, notCompletedReason }) => (
+  <StatusTooltip>
+    <TranslatedText stringId="tasks.table.tooltip.notCompleted" fallback="Not completed" />
+    <div>{notCompletedBy.displayName}</div>
+    <div>
+      <span color={Colors.midText}>{formatShortest(notCompletedTime)} </span>
+      <LowercaseText>{formatTime(notCompletedTime)}</LowercaseText>
+    </div>
+    <div>{notCompletedReason.name}</div>
+  </StatusTooltip>
+);
+
+const getStatus = row => {
+  const { status } = row;
   switch (status) {
     case TASK_STATUSES.TODO:
       return (
@@ -173,9 +206,17 @@ const getStatus = ({ status }) => {
         </Box>
       );
     case TASK_STATUSES.COMPLETED:
-      return <StyledCheckCircleIcon />;
+      return (
+        <ThemedTooltip title={getCompletedTooltipText(row)}>
+          <StyledCheckCircleIcon />
+        </ThemedTooltip>
+      );
     case TASK_STATUSES.NON_COMPLETED:
-      return <StyledCancelIcon />;
+      return (
+        <ThemedTooltip title={getNotCompletedTooltipText(row)}>
+          <StyledCancelIcon />
+        </ThemedTooltip>
+      );
     default:
       break;
   }
@@ -249,7 +290,9 @@ const NotesCell = ({ row, hoveredRow, handleActionModalOpen }) => {
                 />
               }
             >
-              <IconButton onClick={() => handleActionModalOpen(TASK_STATUSES.NON_COMPLETED, row.id)}>
+              <IconButton
+                onClick={() => handleActionModalOpen(TASK_STATUSES.NON_COMPLETED, row.id)}
+              >
                 <StyledCancelIcon />
               </IconButton>
             </ThemedTooltip>
