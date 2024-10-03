@@ -4,11 +4,15 @@ import { log } from '@tamanu/shared/services/logging';
 import { Op } from 'sequelize';
 import { sleepAsync } from '@tamanu/shared/utils';
 import { InvalidConfigError } from '@tamanu/shared/errors';
-import { REFERENCE_TYPES, SYSTEM_USER_UUID, TASK_STATUSES } from '@tamanu/constants';
+import {
+  REFERENCE_TYPES,
+  SYSTEM_USER_UUID,
+  TASK_OVERDUE_REASON_ID,
+  TASK_STATUSES,
+} from '@tamanu/constants';
 import { getCurrentDateTimeString, toDateTimeString } from '@tamanu/shared/utils/dateTime';
 
 const MILLISECONDS_PER_DAY = 86400000;
-const overdueReasonId = 'tasknotcompletedreason-taskoverdue';
 
 export class GenerateRepeatingTasks extends ScheduledTask {
   /**
@@ -75,7 +79,7 @@ export class GenerateRepeatingTasks extends ScheduledTask {
   async markOldRepeatingTasksAsNotCompleted() {
     const { Task, ReferenceData } = this.models;
     const notCompletedReason = await ReferenceData.findOne({
-      where: { id: overdueReasonId, code: REFERENCE_TYPES.TASK_NOT_COMPLETED_REASON },
+      where: { id: TASK_OVERDUE_REASON_ID, code: REFERENCE_TYPES.TASK_NOT_COMPLETED_REASON },
     });
 
     // 2 days ago
