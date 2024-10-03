@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { Colors } from '../../../constants';
 
 export const CalendarHeaderCell = styled.th`
+  background-color: white;
   font-weight: 400;
   padding: 0.5rem;
   position: sticky;
@@ -53,7 +54,7 @@ export const CalendarTableRow = styled.tr`
   // Dim weekend columns
   > :is(${CalendarColumnHeader}, ${CalendarCell}:not(:hover)):is(:nth-child(7n), :nth-child(7n
         + 1)) {
-    background-color: color-mix(in oklch, white 100%, ${Colors.softOutline} 30%);
+    background-color: color-mix(in oklab, white 100%, ${Colors.softOutline} 30%);
   }
 `;
 
@@ -72,7 +73,6 @@ export const CalendarTable = styled.table`
 
   th,
   td {
-    background-color: white;
     scroll-snap-align: start;
     scroll-margin-block-start: calc(var(--header-row-height) + 1.25rem);
     scroll-margin-inline-start: calc(var(--header-col-width) + 2rem);
