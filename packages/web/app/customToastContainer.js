@@ -16,21 +16,19 @@ export const CustomToastContainer = styled(ToastContainer)`
   .Toastify__toast--info {
     background-color: #ebf0f5;
     color: ${Colors.primary};
-    position: relative;
   }
   .Toastify__toast {
     min-height: 40px;
-    height: 40px;
     border-radius: 3px;
     padding: 11px 20px;
-    line-height: 1px;
+    display: flex;
+    align-items: center;
+
     .Toastify__toast-body {
       padding: 0;
     }
     svg {
-      height: 100%;
-      display: flex;
-      align-items: center;
+      width: 24px;
     }
   }
 `;
