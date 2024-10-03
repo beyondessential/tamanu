@@ -8,7 +8,7 @@ import { CalendarColumnHeader } from './TableComponents';
 
 const StyledHeader = styled(CalendarColumnHeader)`
   color: ${Colors.darkestText};
-  font-size: 1.15rem;
+  font-size: 1.15em;
   line-height: 1.3;
 
   ${({ $dim }) =>
