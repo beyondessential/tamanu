@@ -13,6 +13,7 @@ export const CalendarHeaderCell = styled.th`
   z-index: 1;
 
   thead & {
+    block-size: var(--header-row-height);
     inset-block-start: 0;
 
     // Top-left-most cell sticks in both directions
@@ -37,13 +38,14 @@ export const CalendarRowHeader = styled(CalendarHeaderCell).attrs({ scope: 'row'
 
 export const CalendarCell = styled.td`
   --border: max(0.0625rem, 1px) solid ${Colors.outline};
+  block-size: calc(1lh + 1rem);
   border-block-end: var(--border);
   border-inline-end: var(--border);
   cursor: pointer;
   inline-size: var(--target-col-width);
   min-inline-size: 12rem;
   padding-block: 0.25rem;
-  padding-inline: 0.5rem 1.25rem;
+  padding-inline: 0.5rem 1.5rem;
   position: relative;
   transition: background-color 100ms ease;
   vertical-align: top;
@@ -63,7 +65,8 @@ export const CalendarTableRow = styled.tr`
 
 export const CalendarTable = styled.table`
   --header-col-width: 10rem;
-  --target-col-width: calc((100% - var(--header-col-width)) / 7.5);
+  --header-row-height: 3rem;
+  //--target-col-width: calc((100% - var(--header-col-width)) / 7.5);
   font-size: 0.875rem;
   font-variant-numeric: lining-nums tabular-nums;
 
@@ -74,7 +77,8 @@ export const CalendarTable = styled.table`
   td,
   th {
     background-color: white;
-    block-size: calc(1lh + 1rem);
     scroll-snap-align: start;
+    scroll-margin-block-start: calc(var(--header-row-height) + 1.25rem);
+    scroll-margin-inline-start: calc(var(--header-col-width) + 2rem);
   }
 `;
