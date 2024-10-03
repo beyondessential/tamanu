@@ -4,7 +4,13 @@ import { log } from '@tamanu/shared/services/logging';
 import { Op } from 'sequelize';
 import { sleepAsync } from '@tamanu/shared/utils';
 import { InvalidConfigError } from '@tamanu/shared/errors';
-import { TASK_STATUSES } from '@tamanu/constants';
+import {
+  REFERENCE_TYPES,
+  SYSTEM_USER_UUID,
+  TASK_DELETE_BY_SYSTEM_REASON,
+  TASK_STATUSES,
+} from '@tamanu/constants';
+import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 
 export class GenerateRepeatingTasks extends ScheduledTask {
   /**
@@ -50,8 +56,20 @@ export class GenerateRepeatingTasks extends ScheduledTask {
   // this is a safe guard for the delayed sync from facility server to central server
   // only need to account for tasks that have been created in the last 30 days with the status of TODO
   async removeChildTasksOverParentEndtime() {
+    const deletionReasonForFutureTasks = await this.models.ReferenceData.findByPk(
+      TASK_DELETE_BY_SYSTEM_REASON,
+      {
+        where: { type: REFERENCE_TYPES.TASK_DELETION_REASON },
+      },
+    );
+
     await this.sequelize.query(
-      `update tasks set deleted_at = now() where id in (SELECT childTasks.id FROM tasks as childTasks
+      `update tasks set
+        deleted_at = now(),
+        deleted_by_user_id = :deletedByUserId,
+        deleted_time = :deletedTime,
+        deleted_reason_id = :deletedReasonId
+        where id in (SELECT childTasks.id FROM tasks as childTasks
     JOIN tasks as parentTasks
       ON parentTasks.id = childTasks.parent_task_id
       AND parentTasks.end_time IS NOT NULL
@@ -62,6 +80,9 @@ export class GenerateRepeatingTasks extends ScheduledTask {
       {
         replacements: {
           statuses: [TASK_STATUSES.TODO],
+          deletedByUserId: SYSTEM_USER_UUID,
+          deletedTime: getCurrentDateTimeString(),
+          deletedReasonId: deletionReasonForFutureTasks?.id ?? null,
         },
       },
     );
