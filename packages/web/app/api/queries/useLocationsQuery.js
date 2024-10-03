@@ -1,8 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 import { useApi } from '../useApi';
 
-export const useLocationsQuery = () => {
+export const useLocationsQuery = options => {
   const api = useApi();
 
-  return useQuery(['locations'], () => api.get('location'));
+  return useQuery(['locations'], () => api.get('location', options));
 };

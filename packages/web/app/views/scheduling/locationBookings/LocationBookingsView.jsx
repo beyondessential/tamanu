@@ -77,7 +77,7 @@ export const LocationBookingsView = () => {
   const displayedDates = getDisplayableDates(monthOf);
 
   const { data: appointments } = useAppointmentsQuery();
-  const { data: locations } = useLocationsQuery();
+  const { data: locations } = useLocationsQuery({ orderBy: 'locationGroupId' });
 
   console.log('locations', locations);
   console.log('appointments', appointments);
@@ -97,7 +97,7 @@ export const LocationBookingsView = () => {
           <thead>
             <CalendarTableRow>
               <CalendarRowHeader>
-                <Placeholder>Month Selector</Placeholder>
+                <Placeholder>Picker</Placeholder>
               </CalendarRowHeader>
               {displayedDates.map(d => (
                 <DayHeaderCell date={d} dim={!isSameMonth(d, monthOf)} key={d.valueOf()} />
@@ -105,14 +105,17 @@ export const LocationBookingsView = () => {
             </CalendarTableRow>
           </thead>
           <tbody>
-            {locations?.map(({ name: locationName, code }) => (
-              <CalendarTableRow key={code}>
-                <CalendarRowHeader>{locationName}</CalendarRowHeader>
-                {displayedDates.map(d => (
-                  <CalendarCell key={d.valueOf()} />
-                ))}
-              </CalendarTableRow>
-            ))}
+            {locations?.map(l => {
+              const { name: locationName, code } = l;
+              return (
+                <CalendarTableRow key={code}>
+                  <CalendarRowHeader>{locationName}</CalendarRowHeader>
+                  {displayedDates.map(d => (
+                    <CalendarCell key={d.valueOf()} />
+                  ))}
+                </CalendarTableRow>
+              );
+            })}
           </tbody>
         </CalendarTable>
       </Carousel>

@@ -17,11 +17,20 @@ location.get(
       res.send([]);
       return;
     }
-    const locations = await req.models.Location.findAll({
+
+    const {
+      models: { Location },
+      query: { order = 'ASC', orderBy },
+    } = req;
+
+    const options = {
       where: {
         facilityId: config.serverFacilityId,
       },
-    });
+    };
+    if (orderBy) options.order = [[orderBy, order]];
+
+    const locations = await Location.findAll(options);
     res.send(locations);
   }),
 );
