@@ -25,6 +25,7 @@ export const CalendarTable = styled.table`
   }
 
   th {
+    padding-block: 0.5rem;
     position: sticky;
     z-index: 1;
   }
@@ -54,7 +55,7 @@ export const CalendarTableRow = styled.tr`
   }
 `;
 
-const CalendarHeaderCell = styled.th`
+export const CalendarHeaderCell = styled.th`
   --border: max(0.0625rem, 1px) solid ${Colors.outline};
   border-block-end: var(--border);
   border-inline-end: var(--border);
