@@ -54,12 +54,18 @@ async function getTablesInSchema(client, schemaName) {
 async function getColumnsInRelation(client, schemaName, tableName) {
   return (
     await client.query(
-      `SELECT column_name, lower(data_type) as data_type, is_nullable
+      `SELECT column_name, is_nullable, lower(data_type) as data_type, character_maximum_length
       FROM information_schema.columns
       WHERE table_schema = $1 and table_name = $2`,
       [schemaName, tableName],
     )
-  ).rows;
+  ).rows.map(row => ({
+    name: row.column_name,
+    is_nullable: row.is_nullable === 'YES' ? true : false,
+    data_type: row.character_maximum_length
+      ? `${row.data_type}(${row.character_maximum_length})`
+      : row.data_type,
+  }));
 }
 
 async function getConstraintsForColumn(schemaName, tableName, columnName) {
@@ -77,11 +83,7 @@ async function readTablesFromDB(client, schemaName) {
   const tablePromises = (await getTablesInSchema(client, schemaName)).map(async table => {
     return {
       name: table,
-      columns: (await getColumnsInRelation(client, schemaName, table)).map(column => ({
-        name: column.column_name,
-        data_type: column.data_type,
-        is_nullable: column.is_nullable === 'YES' ? true : false,
-      })),
+      columns: await getColumnsInRelation(client, schemaName, table),
     };
   });
   return await Promise.all(tablePromises);
@@ -131,7 +133,6 @@ async function generateColumnModel(schemaName, tableName, column) {
   const dataTests = await generateDataTests(schemaName, tableName, column);
   return {
     name: column.name,
-    // TODO: get numbers for data type from Postgres
     data_type: column.data_type,
     description: `{{ doc('${tableName}__${column.name}') }}`,
     data_tests: dataTests.length === 0 ? undefined : dataTests,
