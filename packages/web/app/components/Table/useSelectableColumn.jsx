@@ -48,17 +48,31 @@ export const useSelectableColumn = (
 
   const titleOnChange = useCallback(
     event => {
-      const newSelection = event.target.checked
-        ? [...selectedKeys, ...rows.map(row => row[selectionKey])]
-        : [...selectedKeys].filter(k => !rows.some(row => row[selectionKey] === k));
+      let newSelection;
+      const mappedSelectedKeys = [...selectedKeys, ...rows.map(row => row[selectionKey])];
+      const filteredSelectedKeys = [...selectedKeys].filter(
+        k => !rows.some(row => row[selectionKey] === k),
+      );
+
+      if (!showIndeterminate) {
+        newSelection = event.target.checked ? mappedSelectedKeys : filteredSelectedKeys;
+      } else {
+        newSelection = !selectedKeys.size ? mappedSelectedKeys : filteredSelectedKeys;
+      }
+
       setSelectedKeys(new Set(newSelection));
     },
-    [rows, selectionKey],
+    [rows, selectionKey, selectedKeys],
   );
 
   const titleAccessor = useCallback(() => {
     const isEveryRowSelected =
       rows?.length > 0 && rows.every(r => selectedKeys.has(r[selectionKey]));
+
+    const isSomeRowSelected =
+      rows?.length > 0 &&
+      rows.some(r => selectedKeys.has(r[selectionKey])) &&
+      !rows.every(r => selectedKeys.has(r[selectionKey]));
 
     return (
       <CheckInput
@@ -66,7 +80,7 @@ export const useSelectableColumn = (
         name="selected"
         onChange={titleOnChange}
         style={{ margin: 'auto' }}
-        indeterminate={showIndeterminate && isEveryRowSelected}
+        indeterminate={showIndeterminate && isSomeRowSelected}
         disabled={getIsTitleDisabled()}
       />
     );
