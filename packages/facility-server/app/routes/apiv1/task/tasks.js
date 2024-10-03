@@ -1,10 +1,16 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { ForbiddenError, NotFoundError } from '@tamanu/shared/errors';
-import { REFERENCE_TYPES, TASK_STATUSES } from '@tamanu/constants';
+import {
+  REFERENCE_TYPES,
+  SYSTEM_USER_UUID,
+  TASK_DELETE_BY_SYSTEM_REASON,
+  TASK_STATUSES,
+} from '@tamanu/constants';
 import { z } from 'zod';
 import { Op } from 'sequelize';
 import { v4 as uuidv4 } from 'uuid';
+import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 
 const taskRoutes = express.Router();
 export { taskRoutes as tasks };
@@ -130,6 +136,13 @@ taskRoutes.delete(
       if (!deletedReason) throw new NotFoundError('Deleted reason not found');
     }
 
+    const deletionReasonForFutureTasks = await req.models.ReferenceData.findByPk(
+      TASK_DELETE_BY_SYSTEM_REASON,
+      {
+        where: { type: REFERENCE_TYPES.TASK_DELETION_REASON },
+      },
+    );
+
     //validate task
     const allowedStatuses = [TASK_STATUSES.TODO];
     const tasks = await req.models.Task.findAll({
@@ -161,6 +174,9 @@ taskRoutes.delete(
                 id: { [Op.ne]: task.id },
                 dueTime: { [Op.gt]: parentTask.endTime },
                 status: TASK_STATUSES.TODO,
+                deletedByUserId: SYSTEM_USER_UUID,
+                deletedTime: getCurrentDateTimeString(),
+                deletedReasonId: deletionReasonForFutureTasks?.id ?? null,
               },
               individualHooks: true,
             });
@@ -213,7 +229,7 @@ taskRoutes.put(
         'encounterId',
         'requestedByUserId',
       ],
-      include: ['designations']
+      include: ['designations'],
     });
 
     if (!tasks?.length) throw new NotFoundError('No tasks not found');
