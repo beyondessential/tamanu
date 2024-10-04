@@ -233,14 +233,6 @@ export const globalSettings = {
       name: 'Fields (Previously localised fields)',
       description: 'Customise form fields behavior across the application',
       properties: {
-        countryName: {
-          name: 'Country name',
-          description: 'Patients country name',
-          properties: generateFieldSchema({
-            isPatientDetails: true,
-            type: LOCALISED_FIELD_TYPES.STRING,
-          }),
-        },
         emergencyContactName: {
           name: 'Emergency contact name',
           description: 'Patients emergency contact name',

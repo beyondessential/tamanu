@@ -97,7 +97,7 @@ patientRelations.get('/:id/carePlans', simpleGetList('PatientCarePlan', 'patient
 patientRelations.get(
   '/:id/additionalData',
   asyncHandler(async (req, res) => {
-    const { models, params, settings } = req;
+    const { models, params } = req;
 
     req.checkPermission('read', 'Patient');
 
@@ -106,31 +106,8 @@ patientRelations.get(
       include: models.PatientAdditionalData.getFullReferenceAssociations(),
     });
 
-    // Lookup survey responses for passport and nationality to fill patient additional data
-    // Todo: Remove when WAITM-243 is complete
-    const [passport, nationalityId, streetVillage, cityTown, countryId] = await Promise.all([
-      getPatientAdditionalData(models, params.id, settings, 'passport'),
-      getPatientAdditionalData(models, params.id, settings, 'nationalityId'),
-      getPatientAdditionalData(models, params.id, settings, 'streetVillage'),
-      getPatientAdditionalData(models, params.id, settings, 'cityTown'),
-      getPatientAdditionalData(models, params.id, settings, 'countryId'),
-    ]);
-
-    const nationality = nationalityId
-      ? await models.ReferenceData.findByPk(nationalityId)
-      : undefined;
-    const country = countryId ? await models.ReferenceData.findByPk(countryId) : undefined;
-
     const recordData = additionalDataRecord ? additionalDataRecord.toJSON() : {};
-    res.send({
-      ...recordData,
-      passport,
-      nationality,
-      nationalityId,
-      streetVillage,
-      cityTown,
-      country,
-    });
+    res.send(recordData);
   }),
 );
 
