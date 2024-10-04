@@ -1,23 +1,46 @@
 import * as yup from 'yup';
 import { extractDefaults } from './utils';
 import {
+  ageDisplayFormatDefault,
+  ageDisplayFormatSchema,
+  displayIdFieldProperties,
+  generateFieldSchema,
+  imagingCancellationReasonsDefault,
+  imagingCancellationReasonsSchema,
   imagingPrioritiesDefault,
   imagingPrioritiesSchema,
+  labsCancellationReasonsDefault,
+  labsCancellationReasonsSchema,
+  letterheadProperties,
+  LOCALISED_FIELD_TYPES,
+  slidingFeeScaleDefault,
   thresholdsDefault,
   thresholdsSchema,
   triageCategoriesDefault,
   triageCategoriesSchema,
+  vitalEditReasonsDefault,
+  vitalEditReasonsSchema,
 } from './definitions';
-import {
-  displayIdFieldProperties,
-  generateFieldSchema,
-  LOCALISED_FIELD_TYPES,
-} from './global-settings-properties/fields';
 
 export const globalSettings = {
   title: 'Global settings',
   description: 'Settings that apply to all servers',
   properties: {
+    auth: {
+      description: 'Authentication options',
+      properties: {
+        restrictUsersToFacilities: {
+          description: 'Restrict users to facilities',
+          type: yup.boolean(),
+          defaultValue: false,
+        },
+      },
+    },
+    ageDisplayFormat: {
+      description: 'Defines the unit with which to display patient ages, depending on their age',
+      type: ageDisplayFormatSchema,
+      defaultValue: ageDisplayFormatDefault,
+    },
     features: {
       description: 'Toggle features on/off',
       properties: {
@@ -210,44 +233,6 @@ export const globalSettings = {
           },
         },
       },
-    },
-    integrations: {
-      name: 'Integrations',
-      description: 'Integration settings',
-      properties: {
-        imaging: {
-          description: 'Imaging integration settings',
-          properties: {
-            enabled: {
-              description: '_',
-              type: yup.boolean(),
-              defaultValue: false,
-            },
-          },
-        },
-      },
-    },
-    upcomingVaccinations: {
-      name: 'Upcoming vaccinations',
-      description: 'Settings related to upcoming vaccinations',
-      properties: {
-        ageLimit: {
-          description: '_',
-          type: yup.number(),
-          defaultValue: 15,
-        },
-        thresholds: {
-          description: '_',
-          type: thresholdsSchema,
-          defaultValue: thresholdsDefault,
-        },
-      },
-    },
-    triageCategories: {
-      name: 'Triage categories',
-      description: 'Customise triage scale',
-      type: triageCategoriesSchema,
-      defaultValue: triageCategoriesDefault,
     },
     fields: {
       name: 'Fields (Previously localised fields)',
@@ -827,24 +812,128 @@ export const globalSettings = {
         },
       },
     },
+    integrations: {
+      name: 'Integrations',
+      description: 'Integration settings',
+      properties: {
+        imaging: {
+          description: 'Imaging integration settings',
+          properties: {
+            enabled: {
+              description: '_',
+              type: yup.boolean(),
+              defaultValue: false,
+            },
+          },
+        },
+      },
+    },
+    invoice: {
+      properties: {
+        slidingFeeScale: {
+          name: 'Sliding fee scale',
+          description: '_',
+          type: yup.array(yup.array(yup.number())),
+          defaultValue: slidingFeeScaleDefault,
+        },
+      },
+    },
+    imagingCancellationReasons: {
+      description: 'Customise the options available for imaging request cancellation reason',
+      type: imagingCancellationReasonsSchema,
+      defaultValue: imagingCancellationReasonsDefault,
+    },
     imagingPriorities: {
       name: 'Imaging priorities',
       description: 'List with each entry being an available imaging priority option',
       type: imagingPrioritiesSchema,
       defaultValue: imagingPrioritiesDefault,
     },
+    labsCancellationReasons: {
+      description: 'Customise the options available for lab request cancellation reasons',
+      type: labsCancellationReasonsSchema,
+      defaultValue: labsCancellationReasonsDefault,
+    },
+    printMeasures: {
+      description: 'Custom dimensions for PDFs',
+      properties: {
+        labRequestPrintLabel: {
+          description: 'Lab request label with basic info + barcode',
+          properties: {
+            width: {
+              type: yup.number().min(0),
+              defaultValue: 50.8,
+            },
+          },
+        },
+        stickerLabelPage: {
+          description: 'The multiple ID labels printout on the patient view',
+          properties: {
+            pageWidth: {
+              type: yup.number().min(0),
+              defaultValue: 210,
+              unit: 'mm',
+            },
+            pageHeight: {
+              type: yup.number().min(0),
+              defaultValue: 297,
+              unit: 'mm',
+            },
+            pageMarginTop: {
+              type: yup.number().min(0),
+              defaultValue: 15.09,
+              unit: 'mm',
+            },
+            pageMarginLeft: {
+              type: yup.number().min(0),
+              defaultValue: 6.4,
+              unit: 'mm',
+            },
+            columnWidth: {
+              type: yup.number().min(0),
+              defaultValue: 64,
+              unit: 'mm',
+            },
+            columnGap: {
+              type: yup.number().min(0),
+              defaultValue: 3.01,
+              unit: 'mm',
+            },
+            rowHeight: {
+              type: yup.number().min(0),
+              defaultValue: 26.7,
+              unit: 'mm',
+            },
+            rowGap: {
+              type: yup.number().min(0),
+              defaultValue: 0,
+              unit: 'mm',
+            },
+          },
+        },
+        idCardPage: {
+          description: 'The ID card found on the patient view',
+          properties: {
+            cardMarginTop: {
+              type: yup.number().min(0),
+              defaultValue: 1,
+              unit: 'mm',
+            },
+            cardMarginLeft: {
+              type: yup.number().min(0),
+              defaultValue: 5,
+              unit: 'mm',
+            },
+          },
+        },
+      },
+    },
     templates: {
       description: 'Strings to be inserted into emails/PDFs',
       properties: {
         letterhead: {
           description: 'The text at the top of most patient PDFs',
-          properties: {
-            title: {
-              type: yup.string(),
-              defaultValue: 'TAMANU MINISTRY OF HEALTH & MEDICAL SERVICES',
-            },
-            subTitle: { type: yup.string(), defaultValue: 'PO Box 12345, Melbourne, Australia' },
-          },
+          properties: letterheadProperties,
         },
         signerRenewalEmail: {
           description: 'The email sent when the signer runs out',
@@ -994,89 +1083,32 @@ export const globalSettings = {
         },
       },
     },
-    printMeasures: {
-      description: 'Custom dimensions for PDFs',
+    triageCategories: {
+      name: 'Triage categories',
+      description: 'Customise triage scale',
+      type: triageCategoriesSchema,
+      defaultValue: triageCategoriesDefault,
+    },
+    upcomingVaccinations: {
+      name: 'Upcoming vaccinations',
+      description: 'Settings related to upcoming vaccinations',
       properties: {
-        labRequestPrintLabel: {
-          description: 'Lab request label with basic info + barcode',
-          properties: {
-            width: {
-              type: yup.number().min(0),
-              defaultValue: 50.8,
-            },
-          },
+        ageLimit: {
+          description: '_',
+          type: yup.number(),
+          defaultValue: 15,
         },
-        stickerLabelPage: {
-          description: 'The multiple ID labels printout on the patient view',
-          properties: {
-            pageWidth: {
-              type: yup.number().min(0),
-              defaultValue: 210,
-              unit: 'mm',
-            },
-            pageHeight: {
-              type: yup.number().min(0),
-              defaultValue: 297,
-              unit: 'mm',
-            },
-            pageMarginTop: {
-              type: yup.number().min(0),
-              defaultValue: 15.09,
-              unit: 'mm',
-            },
-            pageMarginLeft: {
-              type: yup.number().min(0),
-              defaultValue: 6.4,
-              unit: 'mm',
-            },
-            columnWidth: {
-              type: yup.number().min(0),
-              defaultValue: 64,
-              unit: 'mm',
-            },
-            columnGap: {
-              type: yup.number().min(0),
-              defaultValue: 3.01,
-              unit: 'mm',
-            },
-            rowHeight: {
-              type: yup.number().min(0),
-              defaultValue: 26.7,
-              unit: 'mm',
-            },
-            rowGap: {
-              type: yup.number().min(0),
-              defaultValue: 0,
-              unit: 'mm',
-            },
-          },
-        },
-        idCardPage: {
-          description: 'The ID card found on the patient view',
-          properties: {
-            cardMarginTop: {
-              type: yup.number().min(0),
-              defaultValue: 1,
-              unit: 'mm',
-            },
-            cardMarginLeft: {
-              type: yup.number().min(0),
-              defaultValue: 5,
-              unit: 'mm',
-            },
-          },
+        thresholds: {
+          description: '_',
+          type: thresholdsSchema,
+          defaultValue: thresholdsDefault,
         },
       },
     },
-    invoice: {
-      properties: {
-        slidingFeeScale: {
-          name: 'Sliding fee scale',
-          description: '_',
-          type: yup.array().of(yup.array().of(yup.number())),
-          defaultValue: {},
-        },
-      },
+    vitalEditReasons: {
+      description: 'Customise the options available for vital reason for edit',
+      type: vitalEditReasonsSchema,
+      defaultValue: vitalEditReasonsDefault,
     },
   },
 };

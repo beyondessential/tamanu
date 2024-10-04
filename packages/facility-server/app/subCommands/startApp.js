@@ -15,6 +15,8 @@ import { createApiApp } from '../createApiApp';
 import { version } from '../serverInfo';
 import { ApplicationContext } from '../ApplicationContext';
 import { createSyncApp } from '../createSyncApp';
+import { startTasks } from './startTasks';
+import { SyncTask } from '../tasks/SyncTask';
 
 const APP_TYPES = {
   API: 'api',
@@ -64,6 +66,9 @@ const startApp = appType => async ({ skipMigrationCheck }) => {
     case APP_TYPES.SYNC:
       ({ server } = await createSyncApp(context));
       ({ port } = config.sync.syncApiConnection);
+
+      // start SyncTask as part of sync app so that it is in the same process with tamanu-sync process
+      startTasks({ skipMigrationCheck: false, taskClasses: [SyncTask] });
       break;
     default:
       throw new Error(`Unknown app type: ${appType}`);

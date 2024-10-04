@@ -7,4 +7,5 @@ export interface Setting<T = any> {
   unit?: string;
   highRisk?: boolean;
   defaultValue: T;
+  deprecated?: boolean;
 }

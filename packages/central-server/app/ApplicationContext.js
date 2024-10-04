@@ -1,15 +1,15 @@
 import config from 'config';
 import { omit } from 'lodash';
 
+import { ReadSettings } from '@tamanu/settings';
+import { isSyncTriggerDisabled } from '@tamanu/shared/dataMigrations';
+import { initBugsnag, log } from '@tamanu/shared/services/logging';
+
 import { EmailService } from './services/EmailService';
 import { closeDatabase, initDatabase, initReporting } from './database';
 import { initIntegrations } from './integrations';
 import { defineSingletonTelegramBotService } from './services/TelegramBotService';
 import { VERSION } from './middleware/versionCompatibility';
-import { ReadSettings } from '@tamanu/settings'
-
-import { isSyncTriggerDisabled } from '@tamanu/shared/dataMigrations';
-import { log, initBugsnag } from '@tamanu/shared/services/logging';
 
 /**
  * @typedef {import('./services/EmailService').EmailService} EmailService
@@ -50,11 +50,14 @@ export class ApplicationContext {
     this.emailService = new EmailService();
 
     this.store = await initDatabase({ testMode, dbKey: appType ?? 'main' });
+
+    this.settings = new ReadSettings(this.store.models);
+
     if (config.db.reportSchemas?.enabled) {
       this.reportSchemaStores = await initReporting();
     }
 
-    this.settings = new ReadSettings(this.store.models)
+    this.settings = new ReadSettings(this.store.models);
 
     this.telegramBotService = await defineSingletonTelegramBotService({
       config,

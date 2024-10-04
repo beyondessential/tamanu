@@ -8,10 +8,9 @@ import { applyDefaults, validateSettings } from '@tamanu/settings';
 
 import { TabDisplay } from '../../../components/TabDisplay';
 import { AdminViewContainer } from '../components/AdminViewContainer';
-import { TranslatedText } from '../../../components/Translation/TranslatedText';
+import { Form, TranslatedText } from '../../../components';
 import { JSONEditorView } from './JSONEditorView';
 import { useAuth } from '../../../contexts/Auth';
-import { Form } from '../../../components';
 import { useApi } from '../../../api';
 import { ErrorMessage } from '../../../components/ErrorMessage';
 import { notifyError, notifySuccess } from '../../../utils';
