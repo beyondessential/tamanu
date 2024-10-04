@@ -192,7 +192,7 @@ const getNotCompletedTooltipText = ({ notCompletedBy, notCompletedTime, notCompl
       <span color={Colors.midText}>{formatShortest(notCompletedTime)} </span>
       <LowercaseText>{formatTime(notCompletedTime)}</LowercaseText>
     </div>
-    <div>{notCompletedReason.name}</div>
+    <div>{notCompletedReason?.name}</div>
   </StatusTooltip>
 );
 
@@ -291,7 +291,7 @@ const NotesCell = ({ row, hoveredRow, handleActionModalOpen }) => {
               }
             >
               <IconButton
-                onClick={() => handleActionModalOpen(TASK_STATUSES.NON_COMPLETED, row.id)}
+                onClick={() => handleActionModalOpen(TASK_STATUSES.NON_COMPLETED, row)}
               >
                 <StyledCancelIcon />
               </IconButton>
@@ -306,7 +306,7 @@ const NotesCell = ({ row, hoveredRow, handleActionModalOpen }) => {
                 />
               }
             >
-              <IconButton onClick={() => handleActionModalOpen(TASK_STATUSES.COMPLETED, row.id)}>
+              <IconButton onClick={() => handleActionModalOpen(TASK_STATUSES.COMPLETED, row)}>
                 <StyledCheckCircleIcon />
               </IconButton>
             </ThemedTooltip>
@@ -320,7 +320,7 @@ const NotesCell = ({ row, hoveredRow, handleActionModalOpen }) => {
                 />
               }
             >
-              <IconButton onClick={() => handleActionModalOpen(TASK_STATUSES.TODO, row.id)}>
+              <IconButton onClick={() => handleActionModalOpen(TASK_STATUSES.TODO, row)}>
                 <StatusTodo />
               </IconButton>
             </ThemedTooltip>
