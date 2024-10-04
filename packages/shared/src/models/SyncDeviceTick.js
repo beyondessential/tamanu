@@ -2,7 +2,7 @@ import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
 
-export class SyncPersistedTickToDevice extends Model {
+export class SyncDeviceTick extends Model {
   static init({ primaryKey, ...options }) {
     super.init(
       {
@@ -13,7 +13,6 @@ export class SyncPersistedTickToDevice extends Model {
       },
       {
         ...options,
-        tableName: 'sync_persisted_tick_to_device',
         syncDirection: SYNC_DIRECTIONS.DO_NOT_SYNC,
         timestamps: false,
       },

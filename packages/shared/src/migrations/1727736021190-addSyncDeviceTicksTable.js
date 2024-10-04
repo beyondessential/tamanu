@@ -1,7 +1,7 @@
 import { DataTypes } from 'sequelize';
 
 export async function up(query) {
-  await query.createTable('sync_persisted_tick_to_device', {
+  await query.createTable('sync_device_ticks', {
     persisted_at_sync_tick: {
       type: DataTypes.BIGINT,
       allowNull: false,
@@ -12,11 +12,11 @@ export async function up(query) {
     },
   });
 
-  await query.addIndex('sync_persisted_tick_to_device', {
+  await query.addIndex('sync_device_ticks', {
     fields: ['persisted_at_sync_tick'],
   });
 }
 
 export async function down(query) {
-  await query.dropTable('sync_persisted_tick_to_device');
+  await query.dropTable('sync_device_ticks');
 }

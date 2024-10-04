@@ -62,7 +62,7 @@ const updateLookupTableForModel = async (model, config, since, sessionConfig, sy
            }
           ${
             avoidRepull
-              ? `LEFT JOIN sync_persisted_tick_to_device
+              ? `LEFT JOIN sync_device_ticks
                   ON persisted_at_sync_tick = ${table}.updated_at_sync_tick`
               : ''
           }

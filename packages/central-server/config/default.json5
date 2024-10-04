@@ -72,7 +72,7 @@
     "syncSessionTimeoutMs": null,
     snapshotTransactionTimeoutMs: null,
     "lookupTable": {
-      "enabled": true,
+      "enabled": false,
       "perModelUpdateTimeoutMs": null,
       "avoidRepull": true
     }
@@ -244,7 +244,7 @@
       "schedule": "* * * * *"
     },
     "syncLookupRefresher": {
-      "enabled": false,
+      "enabled": true,
       "schedule": "*/1 * * * *"
     }
   },
