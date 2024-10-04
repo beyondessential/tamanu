@@ -1,5 +1,5 @@
 import { createTestContext } from '../../utilities';
-import { importerTransaction } from '../../../app/admin/importerEndpoint';
+import { importerTransaction } from '../../../app/admin/importer/importerEndpoint';
 import { referenceDataImporter } from '../../../app/admin/referenceDataImporter';
 
 describe('Translated String import', () => {
