@@ -7,10 +7,13 @@ import { InvalidConfigError } from '@tamanu/shared/errors';
 import {
   REFERENCE_TYPES,
   SYSTEM_USER_UUID,
+  TASK_OVERDUE_REASON_ID,
   TASK_DELETE_BY_SYSTEM_REASON,
   TASK_STATUSES,
 } from '@tamanu/constants';
-import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { getCurrentDateTimeString, toDateTimeString } from '@tamanu/shared/utils/dateTime';
+
+const MILLISECONDS_PER_DAY = 86400000;
 
 export class GenerateRepeatingTasks extends ScheduledTask {
   /**
@@ -49,6 +52,7 @@ export class GenerateRepeatingTasks extends ScheduledTask {
 
   async run() {
     await this.removeChildTasksOverParentEndtime();
+    await this.markOldRepeatingTasksAsNotCompleted();
     await this.generateChildTasks();
   }
 
@@ -83,6 +87,33 @@ export class GenerateRepeatingTasks extends ScheduledTask {
           deletedByUserId: SYSTEM_USER_UUID,
           deletedTime: getCurrentDateTimeString(),
           deletedReasonId: deletionReasonForFutureTasks?.id ?? null,
+        },
+      },
+    );
+  }
+
+  async markOldRepeatingTasksAsNotCompleted() {
+    const { Task, ReferenceData } = this.models;
+    const notCompletedReason = await ReferenceData.findOne({
+      where: { id: TASK_OVERDUE_REASON_ID, code: REFERENCE_TYPES.TASK_NOT_COMPLETED_REASON },
+    });
+
+    // 2 days ago
+    const cutoffDateTime = new Date(new Date().getTime() - 2 * MILLISECONDS_PER_DAY);
+
+    await Task.update(
+      {
+        status: TASK_STATUSES.NON_COMPLETED,
+        notCompletedByUserId: SYSTEM_USER_UUID,
+        notCompletedTime: getCurrentDateTimeString(),
+        notCompletedReasonId: notCompletedReason?.id || null,
+      },
+      {
+        where: {
+          status: TASK_STATUSES.TODO,
+          frequencyValue: { [Op.not]: null },
+          frequencyUnit: { [Op.not]: null },
+          dueTime: { [Op.lt]: toDateTimeString(cutoffDateTime) },
         },
       },
     );

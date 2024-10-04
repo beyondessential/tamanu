@@ -39,6 +39,8 @@ export const TASK_FREQUENCY_UNIT_LABELS = {
   [TASK_FREQUENCY_UNIT.MINUTE]: 'minute (s)',
   [TASK_FREQUENCY_UNIT.HOUR]: 'hour (s)',
   [TASK_FREQUENCY_UNIT.DAY]: 'day (s)',
-};
+}
+
+export const TASK_OVERDUE_REASON_ID = 'tasknotcompletedreason-taskoverdue';
 
 export const TASK_DELETE_BY_SYSTEM_REASON = 'taskdeletionreason-deletedbysystem';
