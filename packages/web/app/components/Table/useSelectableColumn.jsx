@@ -9,6 +9,7 @@ export const useSelectableColumn = (
     getIsRowDisabled = () => false,
     getIsTitleDisabled = () => false,
     showIndeterminate = false,
+    getRowsFilterer = () => () => true,
   } = {},
 ) => {
   const [selectedKeys, setSelectedKeys] = useState(new Set());
@@ -48,18 +49,12 @@ export const useSelectableColumn = (
 
   const titleOnChange = useCallback(
     event => {
-      let newSelection;
-      const mappedSelectedKeys = [...selectedKeys, ...rows.map(row => row[selectionKey])];
-      const filteredSelectedKeys = [...selectedKeys].filter(
-        k => !rows.some(row => row[selectionKey] === k),
-      );
-
-      if (!showIndeterminate) {
-        newSelection = event.target.checked ? mappedSelectedKeys : filteredSelectedKeys;
-      } else {
-        newSelection = !selectedKeys.size ? mappedSelectedKeys : filteredSelectedKeys;
-      }
-
+      const newSelection = event.target.checked
+        ? [
+            ...selectedKeys,
+            ...rows.filter(getRowsFilterer(selectedKeys)).map(row => row[selectionKey]),
+          ]
+        : [...selectedKeys].filter(k => !rows.some(row => row[selectionKey] === k));
       setSelectedKeys(new Set(newSelection));
     },
     [rows, selectionKey, selectedKeys],
@@ -67,12 +62,11 @@ export const useSelectableColumn = (
 
   const titleAccessor = useCallback(() => {
     const isEveryRowSelected =
-      rows?.length > 0 && rows.every(r => selectedKeys.has(r[selectionKey]));
+      rows?.length > 0 &&
+      rows.filter(getRowsFilterer(selectedKeys)).every(r => selectedKeys.has(r[selectionKey]));
 
     const isSomeRowSelected =
-      rows?.length > 0 &&
-      rows.some(r => selectedKeys.has(r[selectionKey])) &&
-      !isEveryRowSelected;
+      rows?.length > 0 && rows.some(r => selectedKeys.has(r[selectionKey])) && !isEveryRowSelected;
 
     return (
       <CheckInput
@@ -84,7 +78,7 @@ export const useSelectableColumn = (
         disabled={getIsTitleDisabled(selectedKeys)}
       />
     );
-  }, [rows, selectedRows, titleOnChange]);
+  }, [rows, selectedRows, titleOnChange, selectedKeys]);
 
   const resetSelection = useCallback(() => {
     setSelectedKeys(new Set());

@@ -382,6 +382,10 @@ export const TasksTable = ({ encounterId, searchParameters, refreshCount, refres
       const uniqueStatuses = new Set(data.map(item => item.status));
       return uniqueStatuses.size > 1 && !selectedKeys.size;
     },
+    getRowsFilterer: (selectedKeys) => (row) => {
+      const selectedStatus = data.find(({ id }) => selectedKeys.has(id))?.status;
+      return !selectedStatus || row.status === selectedStatus;
+    },
   });
 
   useEffect(() => {
