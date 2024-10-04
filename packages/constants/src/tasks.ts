@@ -18,7 +18,7 @@ export const TASK_FREQUENCY_ACCEPTED_UNITS = {
   HOURS: 'hours',
   DAY: 'day',
   DAYS: 'days',
-}
+};
 
 export const TASK_FREQUENCY_ACCEPTED_UNITS_TO_VALUE = {
   [TASK_FREQUENCY_ACCEPTED_UNITS.MINUTE]: 'minute',
@@ -27,14 +27,13 @@ export const TASK_FREQUENCY_ACCEPTED_UNITS_TO_VALUE = {
   [TASK_FREQUENCY_ACCEPTED_UNITS.HOURS]: 'hour',
   [TASK_FREQUENCY_ACCEPTED_UNITS.DAY]: 'day',
   [TASK_FREQUENCY_ACCEPTED_UNITS.DAYS]: 'day',
-}
-
+};
 
 export const TASK_FREQUENCY_UNIT = {
   MINUTE: 'minute',
   HOUR: 'hour',
   DAY: 'day',
-}
+};
 
 export const TASK_FREQUENCY_UNIT_LABELS = {
   [TASK_FREQUENCY_UNIT.MINUTE]: 'minute (s)',
@@ -43,3 +42,5 @@ export const TASK_FREQUENCY_UNIT_LABELS = {
 }
 
 export const TASK_OVERDUE_REASON_ID = 'tasknotcompletedreason-taskoverdue';
+
+export const TASK_DELETE_BY_SYSTEM_REASON = 'taskdeletionreason-deletedbysystem';
