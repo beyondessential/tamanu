@@ -1,10 +1,13 @@
-import { Sequelize } from 'sequelize';
+import { Op, Sequelize } from 'sequelize';
 
 import {
   ENCOUNTER_TYPE_VALUES,
   EncounterChangeType,
   NOTE_TYPES,
+  REFERENCE_TYPES,
   SYNC_DIRECTIONS,
+  SYSTEM_USER_UUID,
+  TASK_DELETE_RECORDED_IN_ERROR_REASON_ID,
 } from '@tamanu/constants';
 import { InvalidOperationError } from '../errors';
 import { dateTimeType } from './dateTimeTypes';
@@ -13,9 +16,15 @@ import { Model } from './Model';
 import { onCreateEncounterMarkPatientForSync } from './onCreateEncounterMarkPatientForSync';
 import { dischargeOutpatientEncounters } from '../utils/dischargeOutpatientEncounters';
 import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
+import { getCurrentDateTimeString } from '../utils/dateTime';
 
 export class Encounter extends Model {
-  static init({ primaryKey, hackToSkipEncounterValidation, ...options }) {
+  /**
+   *
+   * @param {any} arg0
+   * @param {import('./')} models
+   */
+  static init({ primaryKey, hackToSkipEncounterValidation, ...options }, models) {
     let validate = {};
     if (!hackToSkipEncounterValidation) {
       validate = {
@@ -62,6 +71,44 @@ export class Encounter extends Model {
         ...options,
         validate,
         syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
+        hooks: {
+          async afterDestroy(encounter, opts) {
+            const deletionReason = await models.ReferenceData.findByPk(
+              TASK_DELETE_RECORDED_IN_ERROR_REASON_ID,
+              {
+                where: { type: REFERENCE_TYPES.TASK_DELETION_REASON },
+              },
+            );
+
+            // update endtime for all parent tasks of this encounter
+            await models.Task.update(
+              {
+                endTime: getCurrentDateTimeString(),
+              },
+              {
+                where: { encounterId: encounter.id, parentTaskId: { [Op.not]: null } },
+                transaction: opts.transaction,
+              },
+            );
+
+            // set deletion info for all tasks of this encounter
+            await models.Task.update(
+              {
+                deletedByUserId: SYSTEM_USER_UUID,
+                deletedReasonId: deletionReason?.id ?? null,
+                deletedTime: getCurrentDateTimeString(),
+              },
+              { where: { encounterId: encounter.id }, transaction: opts.transaction },
+            );
+
+            // delete all tasks of this encounter
+            await models.Task.destroy({
+              where: { encounterId: encounter.id },
+              transaction: opts.transaction,
+              individualHooks: true,
+            });
+          },
+        },
       },
     );
     onCreateEncounterMarkPatientForSync(this);
@@ -288,7 +335,7 @@ export class Encounter extends Model {
           SELECT DISTINCT encounter_id
           FROM lab_requests
           WHERE updated_at_sync_tick > :since -- to only include lab requests that recently got attached to the encounters
-        ) AS new_labs ON new_labs.encounter_id = encounters.id 
+        ) AS new_labs ON new_labs.encounter_id = encounters.id
       `,
       where: `
         encounters.updated_at_sync_tick > :since -- to include including normal encounters
