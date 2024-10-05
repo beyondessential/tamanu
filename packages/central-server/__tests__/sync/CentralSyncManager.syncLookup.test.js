@@ -52,6 +52,7 @@ describe('Sync Lookup data', () => {
     sync: {
       lookupTable: {
         enabled: true,
+        avoidRepull: true,
       },
       maxRecordsPerSnapshotChunk: 10000000,
     },
@@ -545,6 +546,7 @@ describe('Sync Lookup data', () => {
     await models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, 4);
     await models.LocalSystemFact.set(LOOKUP_UP_TO_TICK_KEY, -1);
 
+    jest.resetModules();
     jest.clearAllMocks();
   });
 
@@ -1251,6 +1253,114 @@ describe('Sync Lookup data', () => {
 
       expect(labRequestLookupData).toBeDefined();
       expect(labRequestEncounterLookupData.isLabRequest).toBeTrue();
+    });
+  });
+
+  describe('avoidRepull', () => {
+    const snapshotOutgoingRecordsForFacility = async avoidRepull => {
+      const deviceId = 'facility-a';
+      await models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, 4);
+      const pushedPatientFromCurrentFacility = await models.Patient.create(fake(models.Patient));
+
+      // Set new sync time so that it does not match the SyncDeviceTick record
+      // in order to have it included in the snapshot.
+      await models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, 5);
+      const patientFromAnotherFacility = await models.Patient.create(fake(models.Patient));
+
+      await models.SyncDeviceTick.create({
+        deviceId,
+        persistedAtSyncTick: pushedPatientFromCurrentFacility.updatedAtSyncTick,
+      });
+
+      const actualConfig = jest.requireActual('config');
+      const { CentralSyncManager } = require('../../dist/sync/CentralSyncManager');
+      const config = {
+        ...actualConfig,
+        sync: {
+          ...actualConfig.sync,
+          lookupTable: {
+            enabled: true,
+            perModelUpdateTimeoutMs: 40000,
+            avoidRepull,
+          },
+        },
+      };
+      CentralSyncManager.overrideConfig(config);
+
+      const centralSyncManager = new CentralSyncManager(ctx);
+      await centralSyncManager.updateLookupTable();
+
+      const regularSyncPatientsTable = await createMarkedForSyncPatientsTable(
+        ctx.store.sequelize,
+        sessionId,
+        false,
+        facility.id,
+        10,
+      );
+
+      const sessionConfig = {
+        syncAllLabRequests: true,
+        isMobile: false,
+      };
+
+      const patientCount = 1;
+      await snapshotOutgoingChanges(
+        ctx.store,
+        { Patient: models.Patient },
+        SINCE,
+        patientCount,
+        regularSyncPatientsTable,
+        sessionId,
+        facility.id,
+        deviceId,
+        sessionConfig,
+        config,
+      );
+
+      const outgoingSnapshotRecords = await findSyncSnapshotRecords(
+        ctx.store.sequelize,
+        sessionId,
+        SYNC_SESSION_DIRECTION.OUTGOING,
+      );
+
+      return {
+        outgoingSnapshotRecords,
+        pushedPatientFromCurrentFacility,
+        patientFromAnotherFacility,
+      };
+    };
+    it("Avoids repull data for a device when 'avoidRepull' feature flag is enabled", async () => {
+      const {
+        outgoingSnapshotRecords,
+        pushedPatientFromCurrentFacility,
+        patientFromAnotherFacility,
+      } = await snapshotOutgoingRecordsForFacility(true);
+      const snapshotPushedPatientFromCurrentFacility = outgoingSnapshotRecords.find(
+        r => r.recordId === pushedPatientFromCurrentFacility.id,
+      );
+      const snapshotPatientFromAnotherFacility = outgoingSnapshotRecords.find(
+        r => r.recordId === patientFromAnotherFacility.id,
+      );
+
+      expect(snapshotPushedPatientFromCurrentFacility).not.toBeDefined();
+      expect(snapshotPatientFromAnotherFacility).toBeDefined();
+    });
+
+    it("Repulls data for a device when 'avoidRepull' feature flag is disabled", async () => {
+      const {
+        outgoingSnapshotRecords,
+        pushedPatientFromCurrentFacility,
+        patientFromAnotherFacility,
+      } = await snapshotOutgoingRecordsForFacility(false);
+      const snapshotPushedPatientFromCurrentFacility = outgoingSnapshotRecords.find(
+        r => r.recordId === pushedPatientFromCurrentFacility.id,
+      );
+      const snapshotPatientFromAnotherFacility = outgoingSnapshotRecords.find(
+        r => r.recordId === patientFromAnotherFacility.id,
+      );
+
+      expect(snapshotPushedPatientFromCurrentFacility).toBeDefined();
+      expect(snapshotPatientFromAnotherFacility).toBeDefined();
     });
   });
 });

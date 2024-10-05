@@ -33,7 +33,7 @@ const updateLookupTableForModel = async (model, config, since, sessionConfig, sy
             record_type,
             is_deleted,
             updated_at_sync_tick,
-            ${avoidRepull ? 'pushed_by_device_id,' : ''}
+            pushed_by_device_id,
             data,
             
             patient_id,
@@ -64,7 +64,7 @@ const updateLookupTableForModel = async (model, config, since, sessionConfig, sy
             avoidRepull
               ? `LEFT JOIN sync_device_ticks
                   ON persisted_at_sync_tick = ${table}.updated_at_sync_tick`
-              : ''
+              : 'LEFT JOIN (select NULL as device_id) AS sync_device_ticks ON 1 = 1'
           }
           ${joins || ''}
           WHERE
