@@ -174,7 +174,6 @@ export class TamanuApi extends ApiClient {
       availableFacilities,
       permissions,
       role,
-      settings,
     } = output;
     saveToLocalStorage({
       token,
@@ -183,7 +182,6 @@ export class TamanuApi extends ApiClient {
       availableFacilities,
       permissions,
       role,
-      settings,
     });
     return output;
   }
