@@ -94,12 +94,72 @@ const HIDEABLE_FIELDS = [
   'healthCenterId',
 ];
 
-const ageDurationSchema = yup
+const mobilePatientModulesSchema = yup.object({
+  programRegistries: yup.object({ hidden: yup.boolean() }),
+  ...MOBILE_PATIENT_MODULES.reduce(
+    (modules, module) => ({
+      ...modules,
+      [module]: mobilePatientModuleSchema,
+    }),
+    {},
+  ),
+});
+
+const patientTabsSchema = yup.object({
+  ...UNHIDEABLE_PATIENT_TABS.reduce(
+    (tabs, tab) => ({
+      ...tabs,
+      [tab]: unhideablePatientTabSchema,
+    }),
+    {},
+  ),
+  ...HIDEABLE_PATIENT_TABS.reduce(
+    (tabs, tab) => ({
+      ...tabs,
+      [tab]: patientTabSchema,
+    }),
+    {},
+  ),
+});
+
+const SIDEBAR_ITEMS = {
+  patients: ['patientsAll', 'patientsInpatients', 'patientsEmergency', 'patientsOutpatients'],
+  scheduling: ['schedulingAppointments', 'schedulingCalendar', 'schedulingNew'],
+  medication: ['medicationAll'],
+  imaging: ['imagingActive', 'imagingCompleted'],
+  labs: ['labsAll', 'labsPublished'],
+  immunisations: ['immunisationsAll'],
+  programRegistry: [],
+  facilityAdmin: ['reports', 'bedManagement'],
+};
+
+const sidebarItemSchema = yup
   .object({
-    years: yup.number(),
-    months: yup.number(),
-    days: yup.number(),
+    sortPriority: yup.number().required(),
+    hidden: yup.boolean(),
   })
+  .required()
+  .noUnknown();
+
+// patients and patientsAll are intentionally not configurable
+const sidebarSchema = yup
+  .object(
+    mapValues(SIDEBAR_ITEMS, (children, topItem) => {
+      const childSchema = yup
+        .object(
+          children.reduce(
+            (obj, childItem) =>
+              childItem === 'patientsAll' ? obj : { ...obj, [childItem]: sidebarItemSchema },
+            {},
+          ),
+        )
+        .required()
+        .noUnknown();
+
+      return topItem === 'patients' ? childSchema : sidebarItemSchema.concat(childSchema);
+    }),
+  )
+  .required()
   .noUnknown();
 
 const imagingTypeSchema = yup
@@ -143,108 +203,12 @@ const rootLocalisationSchema = yup
     },
     timeZone: yup.string().nullable(),
     imagingTypes: imagingTypesSchema,
-    imagingCancellationReasons: yup
-      .array(
-        yup.object({
-          value: yup
-            .string()
-            .required()
-            .max(31),
-          label: yup.string().required(),
-          hidden: yup.boolean(),
-        }),
-      )
-      .test({
-        name: 'imagingCancellationReasons',
-        test(conf, ctx) {
-          const values = conf.map(x => x.value);
-          if (!values.includes('duplicate')) {
-            return ctx.createError({
-              message: 'imagingCancellationReasons must include an option with value = duplicate',
-            });
-          }
-          if (!values.includes('entered-in-error')) {
-            return ctx.createError({
-              message:
-                'imagingCancellationReasons must include an option with value = entered-in-error',
-            });
-          }
-          return true;
-        },
-      }),
-    labsCancellationReasons: yup
-      .array(
-        yup.object({
-          value: yup
-            .string()
-            .required()
-            .max(31),
-          label: yup.string().required(),
-        }),
-      )
-      .test({
-        name: 'labsCancellationReasons',
-        test(conf, ctx) {
-          const values = conf.map(x => x.value);
-          if (!values.includes('duplicate')) {
-            return ctx.createError({
-              message: 'labsCancellationReasons must include an option with value = duplicate',
-            });
-          }
-          if (!values.includes('entered-in-error')) {
-            return ctx.createError({
-              message:
-                'labsCancellationReasons must include an option with value = entered-in-error',
-            });
-          }
-          return true;
-        },
-      }),
     previewUvciFormat: yup
       .string()
       .required()
       .oneOf(['tamanu', 'eudcc', 'icao']),
     disabledReports: yup.array(yup.string().required()).defined(),
     supportDeskUrl: yup.string().required(),
-    ageDisplayFormat: yup
-      .array(
-        yup.object({
-          as: yup.string().required(),
-          range: yup
-            .object({
-              min: yup.object({
-                duration: ageDurationSchema,
-                exclusive: yup.boolean(),
-              }),
-              max: yup.object({
-                duration: ageDurationSchema,
-                exclusive: yup.boolean(),
-              }),
-            })
-            .required()
-            .test({
-              name: 'ageDisplayFormat',
-              test(range, ctx) {
-                if (!range.min && !range.max) {
-                  return ctx.createError({
-                    message: `range in ageDisplayFormat must include either min or max, or both, got ${JSON.stringify(
-                      range,
-                    )}`,
-                  });
-                }
-
-                return true;
-              },
-            }),
-        }),
-      )
-      .required(),
-    vitalEditReasons: yup.array(
-      yup.object({
-        value: yup.string().required(),
-        label: yup.string().required(),
-      }),
-    ),
   })
   .required()
   .noUnknown();

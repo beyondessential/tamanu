@@ -1,29 +1,47 @@
 import * as yup from 'yup';
 import { extractDefaults } from './utils';
 import {
+  ageDisplayFormatDefault,
+  ageDisplayFormatSchema,
+  displayIdFieldProperties,
+  generateFieldSchema,
+  imagingCancellationReasonsDefault,
+  imagingCancellationReasonsSchema,
   imagingPrioritiesDefault,
   imagingPrioritiesSchema,
+  labsCancellationReasonsDefault,
+  labsCancellationReasonsSchema,
+  letterheadProperties,
+  LOCALISED_FIELD_TYPES,
+  slidingFeeScaleDefault,
   thresholdsDefault,
   thresholdsSchema,
   triageCategoriesDefault,
   triageCategoriesSchema,
+  vitalEditReasonsDefault,
+  vitalEditReasonsSchema,
 } from './definitions';
-import {
-  baseFieldProperties,
-  displayIdFieldProperties,
-  hideableFieldProperties,
-  hideablePatientFieldProperties,
-  patientDetailsFieldProperties,
-} from './global-settings-properties/fields';
-import {
-  unhideableLayoutModuleProperties,
-  layoutModuleProperties,
-} from './global-settings-properties/layouts';
+import { layoutModuleProperties, unhideableLayoutModuleProperties } from './global-settings-properties/layouts';
 
 export const globalSettings = {
   title: 'Global settings',
   description: 'Settings that apply to all servers',
   properties: {
+    auth: {
+      description: 'Authentication options',
+      properties: {
+        restrictUsersToFacilities: {
+          description: 'Restrict users to facilities',
+          type: yup.boolean(),
+          defaultValue: false,
+        },
+      },
+    },
+    ageDisplayFormat: {
+      description: 'Defines the unit with which to display patient ages, depending on their age',
+      type: ageDisplayFormatSchema,
+      defaultValue: ageDisplayFormatDefault,
+    },
     features: {
       description: 'Toggle features on/off',
       properties: {
@@ -212,6 +230,584 @@ export const globalSettings = {
         },
       },
     },
+    fields: {
+      name: 'Fields (Previously localised fields)',
+      description: 'Customise form fields behavior across the application',
+      properties: {
+        countryName: {
+          name: 'Country name',
+          description: 'Patients country name',
+          properties: generateFieldSchema({
+            isPatientDetails: true,
+            type: LOCALISED_FIELD_TYPES.STRING,
+          }),
+        },
+        emergencyContactName: {
+          name: 'Emergency contact name',
+          description: 'Patients emergency contact name',
+          properties: generateFieldSchema({
+            isPatientDetails: true,
+            hideable: false,
+            type: LOCALISED_FIELD_TYPES.STRING,
+          }),
+        },
+        emergencyContactNumber: {
+          name: 'Emergency contact number',
+          description: '_',
+          properties: generateFieldSchema({
+            isPatientDetails: true,
+            hideable: false,
+            type: LOCALISED_FIELD_TYPES.STRING,
+          }),
+        },
+        displayId: {
+          name: 'Display ID',
+          description: '_',
+          properties: displayIdFieldProperties,
+        },
+        firstName: {
+          name: 'First name',
+          description: '_',
+          properties: generateFieldSchema({
+            isPatientDetails: true,
+            hideable: false,
+            type: LOCALISED_FIELD_TYPES.STRING,
+          }),
+        },
+        middleName: {
+          name: 'Middle name',
+          description: '_',
+          properties: generateFieldSchema({
+            isPatientDetails: true,
+            type: LOCALISED_FIELD_TYPES.STRING,
+          }),
+        },
+        lastName: {
+          name: 'Last name',
+          description: '_',
+          properties: generateFieldSchema({
+            isPatientDetails: true,
+            hideable: false,
+            type: LOCALISED_FIELD_TYPES.STRING,
+          }),
+        },
+        culturalName: {
+          name: 'Cultural name',
+          description: '_',
+          properties: generateFieldSchema({
+            isPatientDetails: true,
+            type: LOCALISED_FIELD_TYPES.STRING,
+          }),
+        },
+        sex: {
+          name: 'Sex',
+          description: '_',
+          properties: generateFieldSchema({
+            isPatientDetails: true,
+            type: LOCALISED_FIELD_TYPES.STRING,
+          }),
+        },
+        email: {
+          name: 'Email',
+          description: '_',
+          properties: generateFieldSchema({
+            isPatientDetails: true,
+            type: LOCALISED_FIELD_TYPES.STRING,
+          }),
+        },
+        dateOfBirth: {
+          name: 'Date of birth',
+          description: '_',
+          properties: generateFieldSchema({
+            isPatientDetails: true,
+            hideable: false,
+            type: LOCALISED_FIELD_TYPES.STRING,
+          }),
+        },
+        bloodType: {
+          name: 'Blood type',
+          description: '_',
+          properties: generateFieldSchema({
+            isPatientDetails: true,
+            type: LOCALISED_FIELD_TYPES.STRING,
+          }),
+        },
+        title: {
+          name: 'Title',
+          description: '_',
+          properties: generateFieldSchema({
+            isPatientDetails: true,
+            type: LOCALISED_FIELD_TYPES.STRING,
+          }),
+        },
+        placeOfBirth: {
+          name: 'Place of birth',
+          description: '_',
+          properties: generateFieldSchema({
+            isPatientDetails: true,
+            type: LOCALISED_FIELD_TYPES.STRING,
+          }),
+        },
+        countryOfBirthId: {
+          name: 'Country of birth',
+          description: '_',
+          properties: generateFieldSchema({
+            isPatientDetails: true,
+            type: LOCALISED_FIELD_TYPES.STRING,
+          }),
+        },
+        maritalStatus: {
+          name: 'Marital status',
+          description: '_',
+          properties: generateFieldSchema({
+            isPatientDetails: true,
+            type: LOCALISED_FIELD_TYPES.STRING,
+          }),
+        },
+        primaryContactNumber: {
+          name: 'Primary contact number',
+          description: '_',
+          properties: generateFieldSchema({
+            isPatientDetails: true,
+            type: LOCALISED_FIELD_TYPES.STRING,
+          }),
+        },
+        secondaryContactNumber: {
+          name: 'Secondary contact number',
+          description: '_',
+          properties: generateFieldSchema({
+            isPatientDetails: true,
+            type: LOCALISED_FIELD_TYPES.STRING,
+          }),
+        },
+        socialMedia: {
+          name: 'Social media',
+          description: '_',
+          properties: generateFieldSchema({
+            isPatientDetails: true,
+            type: LOCALISED_FIELD_TYPES.STRING,
+          }),
+        },
+        settlementId: {
+          name: 'Settlement',
+          description: '_',
+          properties: generateFieldSchema({
+            isPatientDetails: true,
+            type: LOCALISED_FIELD_TYPES.STRING,
+          }),
+        },
+        streetVillage: {
+          name: 'Street village',
+          description: '_',
+          properties: generateFieldSchema({
+            isPatientDetails: true,
+            type: LOCALISED_FIELD_TYPES.STRING,
+          }),
+        },
+        cityTown: {
+          name: 'City town',
+          description: '_',
+          properties: generateFieldSchema({
+            isPatientDetails: true,
+            type: LOCALISED_FIELD_TYPES.STRING,
+          }),
+        },
+        subdivisionId: {
+          name: 'Subdivision',
+          description: '_',
+          properties: generateFieldSchema({
+            isPatientDetails: true,
+            type: LOCALISED_FIELD_TYPES.STRING,
+          }),
+        },
+        divisionId: {
+          name: 'Division',
+          description: '_',
+          properties: generateFieldSchema({
+            isPatientDetails: true,
+            type: LOCALISED_FIELD_TYPES.STRING,
+          }),
+        },
+        countryId: {
+          name: 'Country',
+          description: '_',
+          properties: generateFieldSchema({
+            isPatientDetails: true,
+            type: LOCALISED_FIELD_TYPES.STRING,
+          }),
+        },
+        medicalAreaId: {
+          name: 'Medical area',
+          description: '_',
+          properties: generateFieldSchema({
+            isPatientDetails: true,
+            type: LOCALISED_FIELD_TYPES.STRING,
+          }),
+        },
+        nursingZoneId: {
+          name: 'Nursing zone',
+          description: '_',
+          properties: generateFieldSchema({
+            isPatientDetails: true,
+            type: LOCALISED_FIELD_TYPES.STRING,
+          }),
+        },
+        nationalityId: {
+          name: 'Nationality',
+          description: '_',
+          properties: generateFieldSchema({
+            isPatientDetails: true,
+            type: LOCALISED_FIELD_TYPES.STRING,
+          }),
+        },
+        ethnicityId: {
+          name: 'Ethnicity',
+          description: '_',
+          properties: generateFieldSchema({
+            isPatientDetails: true,
+            type: LOCALISED_FIELD_TYPES.STRING,
+          }),
+        },
+        occupationId: {
+          name: 'Occupation',
+          description: '_',
+          properties: generateFieldSchema({
+            isPatientDetails: true,
+            type: LOCALISED_FIELD_TYPES.STRING,
+          }),
+        },
+        educationalLevel: {
+          name: 'Educational level',
+          description: '_',
+          properties: generateFieldSchema({
+            isPatientDetails: true,
+            type: LOCALISED_FIELD_TYPES.STRING,
+          }),
+        },
+        villageName: {
+          name: 'Village name',
+          description: '_',
+          properties: generateFieldSchema({ type: LOCALISED_FIELD_TYPES.STRING }),
+        },
+        villageId: {
+          name: 'Village',
+          description: '_',
+          properties: generateFieldSchema({
+            isPatientDetails: true,
+            type: LOCALISED_FIELD_TYPES.STRING,
+          }),
+        },
+        birthCertificate: {
+          name: 'Birth certificate',
+          description: '_',
+          properties: generateFieldSchema({
+            isPatientDetails: true,
+            type: LOCALISED_FIELD_TYPES.STRING,
+          }),
+        },
+        insurerId: {
+          name: 'Insurer',
+          description: '_',
+          properties: generateFieldSchema({
+            isPatientDetails: true,
+            type: LOCALISED_FIELD_TYPES.STRING,
+          }),
+        },
+        insurerPolicyNumber: {
+          name: 'Insurer policy number',
+          description: '_',
+          properties: generateFieldSchema({
+            isPatientDetails: true,
+            type: LOCALISED_FIELD_TYPES.STRING,
+          }),
+        },
+        drivingLicense: {
+          name: 'Driving license',
+          description: '_',
+          properties: generateFieldSchema({
+            isPatientDetails: true,
+            type: LOCALISED_FIELD_TYPES.STRING,
+          }),
+        },
+        passport: {
+          name: 'Passport',
+          description: '_',
+          properties: generateFieldSchema({
+            isPatientDetails: true,
+            type: LOCALISED_FIELD_TYPES.STRING,
+          }),
+        },
+        religionId: {
+          name: 'Religion',
+          description: '_',
+          properties: generateFieldSchema({
+            isPatientDetails: true,
+            type: LOCALISED_FIELD_TYPES.STRING,
+          }),
+        },
+        patientBillingTypeId: {
+          name: 'Patient billing type',
+          description: '_',
+          properties: generateFieldSchema({
+            isPatientDetails: true,
+            type: LOCALISED_FIELD_TYPES.STRING,
+          }),
+        },
+        motherId: {
+          name: 'Mother',
+          description: '_',
+          properties: generateFieldSchema({
+            isPatientDetails: true,
+            type: LOCALISED_FIELD_TYPES.STRING,
+          }),
+        },
+        fatherId: {
+          name: 'Father',
+          description: '_',
+          properties: generateFieldSchema({
+            isPatientDetails: true,
+            type: LOCALISED_FIELD_TYPES.STRING,
+          }),
+        },
+        birthWeight: {
+          name: 'Birth weight',
+          description: '_',
+          properties: generateFieldSchema({
+            isPatientDetails: true,
+            type: LOCALISED_FIELD_TYPES.STRING,
+          }),
+        },
+        birthLength: {
+          name: 'Birth length',
+          description: '_',
+          properties: generateFieldSchema({
+            isPatientDetails: true,
+            type: LOCALISED_FIELD_TYPES.STRING,
+          }),
+        },
+        birthDeliveryType: {
+          name: 'Birth delivery type',
+          description: '_',
+          properties: generateFieldSchema({
+            isPatientDetails: true,
+            type: LOCALISED_FIELD_TYPES.STRING,
+          }),
+        },
+        gestationalAgeEstimate: {
+          name: 'Gestational age estimate',
+          description: '_',
+          properties: generateFieldSchema({
+            isPatientDetails: true,
+            type: LOCALISED_FIELD_TYPES.STRING,
+          }),
+        },
+        apgarScoreOneMinute: {
+          name: 'Apgar score after one minute',
+          description: '_',
+          properties: generateFieldSchema({
+            isPatientDetails: true,
+            type: LOCALISED_FIELD_TYPES.STRING,
+          }),
+        },
+        apgarScoreFiveMinutes: {
+          name: 'Apgar score after five minutes',
+          description: '_',
+          properties: generateFieldSchema({
+            isPatientDetails: true,
+            type: LOCALISED_FIELD_TYPES.STRING,
+          }),
+        },
+        apgarScoreTenMinutes: {
+          name: 'Apgar score after ten minutes',
+          description: '_',
+          properties: generateFieldSchema({
+            isPatientDetails: true,
+            type: LOCALISED_FIELD_TYPES.STRING,
+          }),
+        },
+        timeOfBirth: {
+          name: 'Time of birth',
+          description: '_',
+          properties: generateFieldSchema({
+            isPatientDetails: true,
+            type: LOCALISED_FIELD_TYPES.STRING,
+          }),
+        },
+        attendantAtBirth: {
+          name: 'Attendant at birth',
+          description: '_',
+          properties: generateFieldSchema({
+            isPatientDetails: true,
+            type: LOCALISED_FIELD_TYPES.STRING,
+          }),
+        },
+        nameOfAttendantAtBirth: {
+          name: 'Name of attendant at birth',
+          description: '_',
+          properties: generateFieldSchema({
+            isPatientDetails: true,
+            type: LOCALISED_FIELD_TYPES.STRING,
+          }),
+        },
+        birthType: {
+          name: 'Birth type',
+          description: '_',
+          properties: generateFieldSchema({
+            isPatientDetails: true,
+            type: LOCALISED_FIELD_TYPES.STRING,
+          }),
+        },
+        birthFacilityId: {
+          name: 'Birth facility',
+          description: '_',
+          properties: generateFieldSchema({
+            isPatientDetails: true,
+            type: LOCALISED_FIELD_TYPES.STRING,
+          }),
+        },
+        healthCenterId: {
+          name: 'Health center',
+          description: '_',
+          properties: generateFieldSchema({
+            isPatientDetails: true,
+            type: LOCALISED_FIELD_TYPES.STRING,
+          }),
+        },
+        registeredBirthPlace: {
+          name: 'Registered birth place',
+          description: '_',
+          properties: generateFieldSchema({
+            isPatientDetails: true,
+            type: LOCALISED_FIELD_TYPES.STRING,
+          }),
+        },
+        referralSourceId: {
+          name: 'Referral source',
+          description: '_',
+          properties: generateFieldSchema({ type: LOCALISED_FIELD_TYPES.STRING }),
+        },
+        arrivalModeId: {
+          name: 'Arrival mode',
+          description: '_',
+          properties: generateFieldSchema({ type: LOCALISED_FIELD_TYPES.STRING }),
+        },
+        prescriber: {
+          name: 'Prescriber',
+          description: '_',
+          properties: generateFieldSchema({ type: LOCALISED_FIELD_TYPES.STRING }),
+        },
+        prescriberId: {
+          name: 'Prescriber',
+          description: '_',
+          properties: generateFieldSchema({ type: LOCALISED_FIELD_TYPES.STRING }),
+        },
+        facility: {
+          name: 'Facility',
+          description: '_',
+          properties: generateFieldSchema({ type: LOCALISED_FIELD_TYPES.STRING }),
+        },
+        dischargeDisposition: {
+          name: 'Discharge disposition',
+          description: '_',
+          properties: generateFieldSchema({ type: LOCALISED_FIELD_TYPES.STRING }),
+        },
+        notGivenReasonId: {
+          name: 'Not given reason',
+          description: '_',
+          properties: generateFieldSchema({ type: LOCALISED_FIELD_TYPES.STRING }),
+        },
+        markedForSync: {
+          name: 'Marked for sync',
+          description: '_',
+          properties: generateFieldSchema({ hideable: false, type: LOCALISED_FIELD_TYPES.STRING }),
+        },
+        dateOfBirthFrom: {
+          name: 'Date of birth from',
+          description: '_',
+          properties: generateFieldSchema({ hideable: false, type: LOCALISED_FIELD_TYPES.STRING }),
+        },
+        dateOfBirthTo: {
+          name: 'Date of birth to',
+          description: '_',
+          properties: generateFieldSchema({ hideable: false, type: LOCALISED_FIELD_TYPES.STRING }),
+        },
+        dateOfBirthExact: {
+          name: 'Date of birth exact',
+          description: '_',
+          properties: generateFieldSchema({ hideable: false, type: LOCALISED_FIELD_TYPES.STRING }),
+        },
+        dateOfDeath: {
+          name: 'Date of death',
+          description: '_',
+          properties: generateFieldSchema({ hideable: false, type: LOCALISED_FIELD_TYPES.STRING }),
+        },
+        age: {
+          name: 'Age',
+          description: '_',
+          properties: generateFieldSchema({ hideable: false, type: LOCALISED_FIELD_TYPES.STRING }),
+        },
+        clinician: {
+          name: 'Clinician',
+          description: '_',
+          properties: generateFieldSchema({ type: LOCALISED_FIELD_TYPES.STRING }),
+        },
+        diagnosis: {
+          name: 'Diagnosis',
+          description: '_',
+          properties: generateFieldSchema({ type: LOCALISED_FIELD_TYPES.STRING }),
+        },
+        locationId: {
+          name: 'Location',
+          description: '_',
+          properties: generateFieldSchema({ type: LOCALISED_FIELD_TYPES.STRING }),
+        },
+        locationGroupId: {
+          name: 'Location group (Area)',
+          description: '_',
+          properties: generateFieldSchema({ type: LOCALISED_FIELD_TYPES.STRING }),
+        },
+        circumstanceId: {
+          name: 'Circumstance',
+          description: '_',
+          properties: generateFieldSchema({ type: LOCALISED_FIELD_TYPES.STRING }),
+        },
+        date: {
+          name: 'Date',
+          description: '_',
+          properties: generateFieldSchema({ hideable: false, type: LOCALISED_FIELD_TYPES.STRING }),
+        },
+        registeredBy: {
+          name: 'Registered by',
+          description: '_',
+          properties: generateFieldSchema({ type: LOCALISED_FIELD_TYPES.STRING }),
+        },
+        status: {
+          name: 'Status',
+          description: '_',
+          properties: generateFieldSchema({ type: LOCALISED_FIELD_TYPES.STRING }),
+        },
+        conditions: {
+          name: 'Conditions',
+          description: '_',
+          properties: generateFieldSchema({ type: LOCALISED_FIELD_TYPES.STRING }),
+        },
+        programRegistry: {
+          name: 'Program registry',
+          description: '_',
+          properties: generateFieldSchema({ type: LOCALISED_FIELD_TYPES.STRING }),
+        },
+        reminderContactName: {
+          name: 'Reminder contact name',
+          description: '_',
+          properties: generateFieldSchema({ type: LOCALISED_FIELD_TYPES.STRING }),
+        },
+        reminderContactNumber: {
+          name: 'Reminder contact number',
+          description: '_',
+          properties: generateFieldSchema({ type: LOCALISED_FIELD_TYPES.STRING }),
+        },
+      },
+    },
     integrations: {
       name: 'Integrations',
       description: 'Integration settings',
@@ -228,448 +824,20 @@ export const globalSettings = {
         },
       },
     },
-    upcomingVaccinations: {
-      name: 'Upcoming vaccinations',
-      description: 'Settings related to upcoming vaccinations',
+    invoice: {
       properties: {
-        ageLimit: {
+        slidingFeeScale: {
+          name: 'Sliding fee scale',
           description: '_',
-          type: yup.number(),
-          defaultValue: 15,
-        },
-        thresholds: {
-          description: '_',
-          type: thresholdsSchema,
-          defaultValue: thresholdsDefault,
+          type: yup.array(yup.array(yup.number())),
+          defaultValue: slidingFeeScaleDefault,
         },
       },
     },
-    triageCategories: {
-      name: 'Triage categories',
-      description: 'Customise triage scale',
-      type: triageCategoriesSchema,
-      defaultValue: triageCategoriesDefault,
-    },
-    fields: {
-      name: 'Fields (Previously localised fields)',
-      description: 'Customise form fields behavior across the application',
-      properties: {
-        countryName: {
-          name: 'Country name',
-          description: 'Patients country name',
-          properties: hideableFieldProperties,
-        },
-        emergencyContactName: {
-          name: 'Emergency contact name',
-          description: 'Patients emergency contact name',
-          properties: patientDetailsFieldProperties,
-        },
-        emergencyContactNumber: {
-          name: 'Emergency contact number',
-          description: '_',
-          properties: patientDetailsFieldProperties,
-        },
-        displayId: {
-          name: 'Display ID',
-          description: '_',
-          properties: displayIdFieldProperties,
-        },
-        firstName: {
-          name: 'First name',
-          description: '_',
-          properties: patientDetailsFieldProperties,
-        },
-        middleName: {
-          name: 'Middle name',
-          description: '_',
-          properties: hideablePatientFieldProperties,
-        },
-        lastName: {
-          name: 'Last name',
-          description: '_',
-          properties: patientDetailsFieldProperties,
-        },
-        culturalName: {
-          name: 'Cultural name',
-          description: '_',
-          properties: hideablePatientFieldProperties,
-        },
-        sex: {
-          name: 'Sex',
-          description: '_',
-          properties: hideablePatientFieldProperties,
-        },
-        email: {
-          name: 'Email',
-          description: '_',
-          properties: hideablePatientFieldProperties,
-        },
-        dateOfBirth: {
-          name: 'Date of birth',
-          description: '_',
-          properties: patientDetailsFieldProperties,
-        },
-        bloodType: {
-          name: 'Blood type',
-          description: '_',
-          properties: hideablePatientFieldProperties,
-        },
-        title: {
-          name: 'Title',
-          description: '_',
-          properties: hideablePatientFieldProperties,
-        },
-        placeOfBirth: {
-          name: 'Place of birth',
-          description: '_',
-          properties: hideablePatientFieldProperties,
-        },
-        countryOfBirthId: {
-          name: 'Country of birth',
-          description: '_',
-          properties: hideablePatientFieldProperties,
-        },
-        maritalStatus: {
-          name: 'Marital status',
-          description: '_',
-          properties: hideablePatientFieldProperties,
-        },
-        primaryContactNumber: {
-          name: 'Primary contact number',
-          description: '_',
-          properties: hideablePatientFieldProperties,
-        },
-        secondaryContactNumber: {
-          name: 'Secondary contact number',
-          description: '_',
-          properties: hideablePatientFieldProperties,
-        },
-        socialMedia: {
-          name: 'Social media',
-          description: '_',
-          properties: hideablePatientFieldProperties,
-        },
-        settlementId: {
-          name: 'Settlement',
-          description: '_',
-          properties: hideablePatientFieldProperties,
-        },
-        streetVillage: {
-          name: 'Street village',
-          description: '_',
-          properties: hideablePatientFieldProperties,
-        },
-        cityTown: {
-          name: 'City town',
-          description: '_',
-          properties: hideablePatientFieldProperties,
-        },
-        subdivisionId: {
-          name: 'Subdivision',
-          description: '_',
-          properties: hideablePatientFieldProperties,
-        },
-        divisionId: {
-          name: 'Division',
-          description: '_',
-          properties: hideablePatientFieldProperties,
-        },
-        countryId: {
-          name: 'Country',
-          description: '_',
-          properties: hideablePatientFieldProperties,
-        },
-        medicalAreaId: {
-          name: 'Medical area',
-          description: '_',
-          properties: hideablePatientFieldProperties,
-        },
-        nursingZoneId: {
-          name: 'Nursing zone',
-          description: '_',
-          properties: hideablePatientFieldProperties,
-        },
-        nationalityId: {
-          name: 'Nationality',
-          description: '_',
-          properties: hideablePatientFieldProperties,
-        },
-        ethnicityId: {
-          name: 'Ethnicity',
-          description: '_',
-          properties: hideablePatientFieldProperties,
-        },
-        occupationId: {
-          name: 'Occupation',
-          description: '_',
-          properties: hideablePatientFieldProperties,
-        },
-        educationalLevel: {
-          name: 'Educational level',
-          description: '_',
-          properties: hideablePatientFieldProperties,
-        },
-        villageName: {
-          name: 'Village name',
-          description: '_',
-          properties: hideableFieldProperties,
-        },
-        villageId: {
-          name: 'Village',
-          description: '_',
-          properties: hideablePatientFieldProperties,
-        },
-        birthCertificate: {
-          name: 'Birth certificate',
-          description: '_',
-          properties: hideablePatientFieldProperties,
-        },
-        insurerId: {
-          name: 'Insurer',
-          description: '_',
-          properties: hideablePatientFieldProperties,
-        },
-        insurerPolicyNumber: {
-          name: 'Insurer policy number',
-          description: '_',
-          properties: hideablePatientFieldProperties,
-        },
-        drivingLicense: {
-          name: 'Driving license',
-          description: '_',
-          properties: hideablePatientFieldProperties,
-        },
-        passport: {
-          name: 'Passport',
-          description: '_',
-          properties: hideablePatientFieldProperties,
-        },
-        religionId: {
-          name: 'Religion',
-          description: '_',
-          properties: hideablePatientFieldProperties,
-        },
-        patientBillingTypeId: {
-          name: 'Patient billing type',
-          description: '_',
-          properties: hideablePatientFieldProperties,
-        },
-        motherId: {
-          name: 'Mother',
-          description: '_',
-          properties: hideablePatientFieldProperties,
-        },
-        fatherId: {
-          name: 'Father',
-          description: '_',
-          properties: hideablePatientFieldProperties,
-        },
-        birthWeight: {
-          name: 'Birth weight',
-          description: '_',
-          properties: hideablePatientFieldProperties,
-        },
-        birthLength: {
-          name: 'Birth length',
-          description: '_',
-          properties: hideablePatientFieldProperties,
-        },
-        birthDeliveryType: {
-          name: 'Birth delivery type',
-          description: '_',
-          properties: hideablePatientFieldProperties,
-        },
-        gestationalAgeEstimate: {
-          name: 'Gestational age estimate',
-          description: '_',
-          properties: hideablePatientFieldProperties,
-        },
-        apgarScoreOneMinute: {
-          name: 'Apgar score after one minute',
-          description: '_',
-          properties: hideablePatientFieldProperties,
-        },
-        apgarScoreFiveMinutes: {
-          name: 'Apgar score after five minutes',
-          description: '_',
-          properties: hideablePatientFieldProperties,
-        },
-        apgarScoreTenMinutes: {
-          name: 'Apgar score after ten minutes',
-          description: '_',
-          properties: hideablePatientFieldProperties,
-        },
-        timeOfBirth: {
-          name: 'Time of birth',
-          description: '_',
-          properties: hideablePatientFieldProperties,
-        },
-        attendantAtBirth: {
-          name: 'Attendant at birth',
-          description: '_',
-          properties: hideablePatientFieldProperties,
-        },
-        nameOfAttendantAtBirth: {
-          name: 'Name of attendant at birth',
-          description: '_',
-          properties: hideablePatientFieldProperties,
-        },
-        birthType: {
-          name: 'Birth type',
-          description: '_',
-          properties: hideablePatientFieldProperties,
-        },
-        birthFacilityId: {
-          name: 'Birth facility',
-          description: '_',
-          properties: hideablePatientFieldProperties,
-        },
-        healthCenterId: {
-          name: 'Health center',
-          description: '_',
-          properties: hideablePatientFieldProperties,
-        },
-        registeredBirthPlace: {
-          name: 'Registered birth place',
-          description: '_',
-          properties: hideablePatientFieldProperties,
-        },
-        referralSourceId: {
-          name: 'Referral source',
-          description: '_',
-          properties: hideableFieldProperties,
-        },
-        arrivalModeId: {
-          name: 'Arrival mode',
-          description: '_',
-          properties: hideableFieldProperties,
-        },
-        prescriber: {
-          name: 'Prescriber',
-          description: '_',
-          properties: hideableFieldProperties,
-        },
-        prescriberId: {
-          name: 'Prescriber',
-          description: '_',
-          properties: hideableFieldProperties,
-        },
-        facility: {
-          name: 'Facility',
-          description: '_',
-          properties: hideableFieldProperties,
-        },
-        dischargeDisposition: {
-          name: 'Discharge disposition',
-          description: '_',
-          properties: hideableFieldProperties,
-        },
-        notGivenReasonId: {
-          name: 'Not given reason',
-          description: '_',
-          properties: hideableFieldProperties,
-        },
-        markedForSync: {
-          name: 'Marked for sync',
-          description: '_',
-          properties: baseFieldProperties,
-        },
-        dateOfBirthFrom: {
-          name: 'Date of birth from',
-          description: '_',
-          properties: baseFieldProperties,
-        },
-        dateOfBirthTo: {
-          name: 'Date of birth to',
-          description: '_',
-          properties: baseFieldProperties,
-        },
-        dateOfBirthExact: {
-          name: 'Date of birth exact',
-          description: '_',
-          properties: baseFieldProperties,
-        },
-        dateOfDeath: {
-          name: 'Date of death',
-          description: '_',
-          properties: baseFieldProperties,
-        },
-        age: {
-          name: 'Age',
-          description: '_',
-          properties: baseFieldProperties,
-        },
-        ageRange: {
-          name: 'Age range',
-          description: '_',
-          properties: baseFieldProperties,
-        },
-        clinician: {
-          name: 'Clinician',
-          description: '_',
-          properties: hideableFieldProperties,
-        },
-        diagnosis: {
-          name: 'Diagnosis',
-          description: '_',
-          properties: hideableFieldProperties,
-        },
-        userDisplayId: {
-          name: 'User display ID',
-          description: '_',
-          properties: hideableFieldProperties,
-        },
-        locationId: {
-          name: 'Location',
-          description: '_',
-          properties: hideableFieldProperties,
-        },
-        locationGroupId: {
-          name: 'Location group (Area)',
-          description: '_',
-          properties: hideableFieldProperties,
-        },
-        circumstanceId: {
-          name: 'Circumstance',
-          description: '_',
-          properties: hideableFieldProperties,
-        },
-        date: {
-          name: 'Date',
-          description: '_',
-          properties: baseFieldProperties,
-        },
-        registeredBy: {
-          name: 'Registered by',
-          description: '_',
-          properties: hideableFieldProperties,
-        },
-        status: {
-          name: 'Status',
-          description: '_',
-          properties: hideableFieldProperties,
-        },
-        conditions: {
-          name: 'Conditions',
-          description: '_',
-          properties: hideableFieldProperties,
-        },
-        programRegistry: {
-          name: 'Program registry',
-          description: '_',
-          properties: hideableFieldProperties,
-        },
-        reminderContactName: {
-          name: 'Reminder contact name',
-          description: '_',
-          properties: hideableFieldProperties,
-        },
-        reminderContactNumber: {
-          name: 'Reminder contact number',
-          description: '_',
-          properties: hideableFieldProperties,
-        },
-      },
+    imagingCancellationReasons: {
+      description: 'Customise the options available for imaging request cancellation reason',
+      type: imagingCancellationReasonsSchema,
+      defaultValue: imagingCancellationReasonsDefault,
     },
     imagingPriorities: {
       name: 'Imaging priorities',
@@ -677,15 +845,10 @@ export const globalSettings = {
       type: imagingPrioritiesSchema,
       defaultValue: imagingPrioritiesDefault,
     },
-  },
-  invoice: {
-    properties: {
-      slidingFeeScale: {
-        name: 'Sliding fee scale',
-        description: '_',
-        type: yup.array().of(yup.array().of(yup.number())),
-        defaultValue: {},
-      },
+    labsCancellationReasons: {
+      description: 'Customise the options available for lab request cancellation reasons',
+      type: labsCancellationReasonsSchema,
+      defaultValue: labsCancellationReasonsDefault,
     },
     printMeasures: {
       description: 'Custom dimensions for PDFs',
@@ -761,18 +924,141 @@ export const globalSettings = {
         },
       },
     },
+    layouts: {
+      description: 'Customise the layout of modules',
+      properties: {
+        mobilePatientModules: {
+          description: 'The homepage modules on mobile',
+          properties: {
+            programRegistries: {
+              description: '_',
+              properties: { hidden: { type: yup.boolean(), defaultValue: false } },
+            },
+            diagnosisAndTreatment: {
+              description: '_',
+              properties: layoutModuleProperties,
+            },
+            vitals: {
+              description: '_',
+              properties: layoutModuleProperties,
+            },
+            programs: {
+              description: '_',
+              properties: layoutModuleProperties,
+            },
+            referral: {
+              description: '_',
+              properties: layoutModuleProperties,
+            },
+            vaccine: {
+              description: '_',
+              properties: layoutModuleProperties,
+            },
+            tests: {
+              description: '_',
+              properties: layoutModuleProperties,
+            },
+          },
+        },
+        patientTabs: {
+          description: 'The tabs on patient view',
+          properties: {
+            history: {
+              description: '_',
+              properties: unhideableLayoutModuleProperties,
+            },
+            details: {
+              description: '_',
+              properties: unhideableLayoutModuleProperties,
+            },
+            results: {
+              description: '_',
+              properties: layoutModuleProperties,
+            },
+            referrals: {
+              description: '_',
+              properties: layoutModuleProperties,
+            },
+            programs: {
+              description: '_',
+              properties: layoutModuleProperties,
+            },
+            documents: {
+              description: '_',
+              properties: layoutModuleProperties,
+            },
+            vaccines: {
+              description: '_',
+              properties: layoutModuleProperties,
+            },
+            medication: {
+              description: '_',
+              properties: layoutModuleProperties,
+            },
+            invoices: {
+              description: '_',
+              properties: layoutModuleProperties,
+            },
+          },
+        },
+        sidebar: {
+          description: 'The sidebar tabs in the facility',
+          properties: {
+            patients: {
+              description: '_',
+              properties: {
+                patientsInpatients: { properties: layoutModuleProperties },
+                patientsEmergency: { properties: layoutModuleProperties },
+                patientsOutpatients: { properties: layoutModuleProperties },
+              },
+            },
+            scheduling: {
+              description: '_',
+              properties: {
+                schedulingAppointments: { properties: layoutModuleProperties },
+                schedulingCalendar: { properties: layoutModuleProperties },
+                schedulingNew: { properties: layoutModuleProperties },
+              },
+            },
+            medication: {
+              description: '_',
+              properties: { medicationAll: { properties: layoutModuleProperties } },
+            },
+            imaging: {
+              description: '_',
+              properties: {
+                imagingActive: { properties: layoutModuleProperties },
+                imagingCompleted: { properties: layoutModuleProperties },
+              },
+            },
+            labs: {
+              description: '_',
+              properties: {
+                labsAll: { properties: layoutModuleProperties },
+                labsPublished: { properties: layoutModuleProperties },
+              },
+            },
+            immunisations: {
+              description: '_',
+              properties: { immunisationsAll: { properties: layoutModuleProperties } },
+            },
+            facilityAdmin: {
+              description: '_',
+              properties: {
+                reports: { properties: layoutModuleProperties },
+                bedManagement: { properties: layoutModuleProperties },
+              },
+            },
+          },
+        },
+      },
+    },
     templates: {
       description: 'Strings to be inserted into emails/PDFs',
       properties: {
         letterhead: {
           description: 'The text at the top of most patient PDFs',
-          properties: {
-            title: {
-              type: yup.string(),
-              defaultValue: 'TAMANU MINISTRY OF HEALTH & MEDICAL SERVICES',
-            },
-            subTitle: { type: yup.string(), defaultValue: 'PO Box 12345, Melbourne, Australia' },
-          },
+          properties: letterheadProperties,
         },
         signerRenewalEmail: {
           description: 'The email sent when the signer runs out',
@@ -918,134 +1204,32 @@ export const globalSettings = {
         },
       },
     },
-    layouts: {
-      description: 'Customise the layout of modules',
+    triageCategories: {
+      name: 'Triage categories',
+      description: 'Customise triage scale',
+      type: triageCategoriesSchema,
+      defaultValue: triageCategoriesDefault,
+    },
+    upcomingVaccinations: {
+      name: 'Upcoming vaccinations',
+      description: 'Settings related to upcoming vaccinations',
       properties: {
-        mobilePatientModules: {
-          description: 'The homepage modules on mobile',
-          properties: {
-            programRegistries: {
-              description: '_',
-              properties: { hidden: { type: yup.boolean(), defaultValue: false } },
-            },
-            diagnosisAndTreatment: {
-              description: '_',
-              properties: layoutModuleProperties,
-            },
-            vitals: {
-              description: '_',
-              properties: layoutModuleProperties,
-            },
-            programs: {
-              description: '_',
-              properties: layoutModuleProperties,
-            },
-            referral: {
-              description: '_',
-              properties: layoutModuleProperties,
-            },
-            vaccine: {
-              description: '_',
-              properties: layoutModuleProperties,
-            },
-            tests: {
-              description: '_',
-              properties: layoutModuleProperties,
-            },
-          },
+        ageLimit: {
+          description: '_',
+          type: yup.number(),
+          defaultValue: 15,
         },
-        patientTabs: {
-          description: 'The tabs on patient view',
-          properties: {
-            history: {
-              description: '_',
-              properties: unhideableLayoutModuleProperties,
-            },
-            details: {
-              description: '_',
-              properties: unhideableLayoutModuleProperties,
-            },
-            results: {
-              description: '_',
-              properties: layoutModuleProperties,
-            },
-            referrals: {
-              description: '_',
-              properties: layoutModuleProperties,
-            },
-            programs: {
-              description: '_',
-              properties: layoutModuleProperties,
-            },
-            documents: {
-              description: '_',
-              properties: layoutModuleProperties,
-            },
-            vaccines: {
-              description: '_',
-              properties: layoutModuleProperties,
-            },
-            medication: {
-              description: '_',
-              properties: layoutModuleProperties,
-            },
-            invoices: {
-              description: '_',
-              properties: layoutModuleProperties,
-            },
-          },
-        },
-        sidebar: {
-          description: 'The sidebar tabs in the facility',
-          properties: {
-            patients: {
-              description: '_',
-              properties: {
-                patientsInpatients: { properties: layoutModuleProperties },
-                patientsEmergency: { properties: layoutModuleProperties },
-                patientsOutpatients: { properties: layoutModuleProperties },
-              },
-            },
-            scheduling: {
-              description: '_',
-              properties: {
-                schedulingAppointments: { properties: layoutModuleProperties },
-                schedulingCalendar: { properties: layoutModuleProperties },
-                schedulingNew: { properties: layoutModuleProperties },
-              },
-            },
-            medication: {
-              description: '_',
-              properties: { medicationAll: { properties: layoutModuleProperties } },
-            },
-            imaging: {
-              description: '_',
-              properties: {
-                imagingActive: { properties: layoutModuleProperties },
-                imagingCompleted: { properties: layoutModuleProperties },
-              },
-            },
-            labs: {
-              description: '_',
-              properties: {
-                labsAll: { properties: layoutModuleProperties },
-                labsPublished: { properties: layoutModuleProperties },
-              },
-            },
-            immunisations: {
-              description: '_',
-              properties: { immunisationsAll: { properties: layoutModuleProperties } },
-            },
-            facilityAdmin: {
-              description: '_',
-              properties: {
-                reports: { properties: layoutModuleProperties },
-                bedManagement: { properties: layoutModuleProperties },
-              },
-            },
-          },
+        thresholds: {
+          description: '_',
+          type: thresholdsSchema,
+          defaultValue: thresholdsDefault,
         },
       },
+    },
+    vitalEditReasons: {
+      description: 'Customise the options available for vital reason for edit',
+      type: vitalEditReasonsSchema,
+      defaultValue: vitalEditReasonsDefault,
     },
   },
 };

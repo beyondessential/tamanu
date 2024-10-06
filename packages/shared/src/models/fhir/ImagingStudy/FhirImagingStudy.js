@@ -49,7 +49,7 @@ export class FhirImagingStudy extends FhirResource {
 
   // This is currently very hardcoded for Aspen's use case.
   // We'll need to make it more generic at some point, but not today!
-  async pushUpstream({ requesterId }) {
+  async pushUpstream({ settings, requesterId }) {
     const { FhirServiceRequest, ImagingRequest } = this.sequelize.models;
     const serviceRequestFhirId = this.basedOn
       .map(ref => ref.fhirTypeAndId())
@@ -129,12 +129,12 @@ export class FhirImagingStudy extends FhirResource {
     }
 
     if (this.status === FHIR_IMAGING_STUDY_STATUS.CANCELLED) {
-      return await this.cancelRequest(imagingRequest, requesterId);
+      await this.cancelRequest(imagingRequest, requesterId, settings);
     }
   }
 
-  async cancelRequest(imagingRequest, requesterId) {
-    const reasons = config.localisation?.data?.imagingCancellationReasons || [];
+  async cancelRequest(imagingRequest, requesterId, settings) {
+    const reasons = await settings.get('imagingCancellationReasons');
     const cancelledReason = reasons.find(reason => reason.value === 'cancelled-externally')?.label;
     imagingRequest.set({
       status: IMAGING_REQUEST_STATUS_TYPES.CANCELLED,

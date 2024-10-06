@@ -11,7 +11,7 @@ export const labels = {
     <TranslatedText stringId="general.localisedField.middleName.label" fallback="Middle name" />
   ),
   [PATIENT_DATA_FIELDS.LAST_NAME]: (
-    <TranslatedText stringId="general.localisedField.middleName.label" fallback="Middle name" />
+    <TranslatedText stringId="general.localisedField.lastName.label" fallback="Last name" />
   ),
   [PATIENT_DATA_FIELDS.DATE_OF_BIRTH]: (
     <TranslatedText stringId="general.localisedField.dateOfBirth.label" fallback="Date of birth" />

@@ -4,9 +4,9 @@ import { Button, Typography } from '@material-ui/core';
 import { DateDisplay } from '../DateDisplay';
 import { PatientInitialsIcon } from '../PatientInitialsIcon';
 import { Colors } from '../../constants';
+import { useSettings } from '../../contexts/Settings';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
 import { getDisplayAge } from '../../utils/dateTime';
-import { useLocalisation } from '../../contexts/Localisation';
 import { TranslatedSex, TranslatedText } from '../Translation';
 
 const PatientButton = styled(Button)`
@@ -135,8 +135,8 @@ const HealthIdDisplay = ({ displayId }) => (
 
 export const CoreInfoDisplay = memo(({ patient }) => {
   const { navigateToPatient } = usePatientNavigation();
-  const { getLocalisation } = useLocalisation();
-  const ageDisplayFormat = getLocalisation('ageDisplayFormat');
+  const { getSetting } = useSettings();
+  const ageDisplayFormat = getSetting('ageDisplayFormat');
 
   return (
     <>
