@@ -65,7 +65,7 @@ export async function centralServerLogin(models, email, password, deviceId) {
   });
 
   // we've logged in as a valid central user - update local database to match
-  const { user, localisation, allowedFacilities, settings } = response;
+  const { user, localisation, allowedFacilities } = response;
   const { id, ...userDetails } = user;
 
   await models.User.sequelize.transaction(async () => {
@@ -82,7 +82,7 @@ export async function centralServerLogin(models, email, password, deviceId) {
     });
   });
 
-  return { central: true, user, localisation, allowedFacilities, settings };
+  return { central: true, user, localisation, allowedFacilities };
 }
 
 async function localLogin(models, email, password) {
@@ -148,7 +148,6 @@ export async function loginHandler(req, res, next) {
       user,
       localisation,
       allowedFacilities,
-      settings,
     } = await centralServerLoginWithLocalFallback(models, email, password, deviceId);
 
     // check if user has access to any facilities on this server
@@ -176,7 +175,6 @@ export async function loginHandler(req, res, next) {
       role: role?.forResponse() ?? null,
       serverType: SERVER_TYPES.FACILITY,
       availableFacilities,
-      settings,
     });
   } catch (e) {
     next(e);
