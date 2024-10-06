@@ -1,7 +1,6 @@
 import asyncHandler from 'express-async-handler';
 import { Op, QueryTypes, Sequelize } from 'sequelize';
 
-import { getPatientAdditionalData } from '@tamanu/shared/utils';
 import { HIDDEN_VISIBILITY_STATUSES } from '@tamanu/constants/importable';
 import { renameObjectKeys } from '@tamanu/shared/utils/renameObjectKeys';
 import {
