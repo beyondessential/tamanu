@@ -52,4 +52,5 @@ const useSidebarFactory = (ITEMS, configKey) => {
 };
 
 export const useFacilitySidebar = () => useSidebarFactory(FACILITY_MENU_ITEMS, 'layouts.sidebar');
-export const useCentralSidebar = () => useSidebarFactory(CENTRAL_MENU_ITEMS, 'layouts.centralSidebar');
+export const useCentralSidebar = () =>
+  useSidebarFactory(CENTRAL_MENU_ITEMS, 'layouts.centralSidebar');
