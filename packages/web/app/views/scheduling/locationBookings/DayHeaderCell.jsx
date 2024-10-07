@@ -4,22 +4,14 @@ import styled, { css } from 'styled-components';
 
 import { Colors } from '../../../constants';
 import { formatShort, formatWeekdayShort } from '../../../components';
-import { CalendarColumnHeader } from './TableComponents';
+import { CalendarColHeaderCell } from './LocationBookingsCalendarGrid.jsx';
 
-const StyledHeader = styled(CalendarColumnHeader)`
+const StyledHeader = styled(CalendarColHeaderCell)`
   --base-font-weight: 400;
-  color: ${Colors.darkestText};
+  color: ${({ $dim = false }) => ($dim ? Colors.midText : Colors.darkestText)};
   font-size: 1rem;
   font-weight: var(--base-font-weight);
   line-height: 1.3;
-
-  ${({ $dim = false }) =>
-    $dim &&
-    css`
-      > * {
-        opacity: 50%;
-      }
-    `}
 
   ${({ $isToday = false }) =>
     $isToday &&
@@ -32,7 +24,7 @@ const StyledHeader = styled(CalendarColumnHeader)`
 const Weekday = styled.div`
   color: ${Colors.midText};
   font-variant-caps: all-small-caps;
-  font-weight: calc(var(--font-weight) + 100);
+  font-weight: calc(var(--base-font-weight) + 100);
   letter-spacing: 0.1em;
 `;
 

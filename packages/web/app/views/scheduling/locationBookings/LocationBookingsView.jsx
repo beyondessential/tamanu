@@ -9,18 +9,20 @@ import {
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
-import { uniqueIsoWeeksInMonthOf } from '@tamanu/shared/utils/dateTime';
-
-import { useAppointmentsQuery, useLocationsQuery } from '../../../api/queries';
+import { useLocationsQuery } from '../../../api/queries';
 import { Colors } from '../../../constants';
 import { PageContainer, TopBar, TranslatedText } from '../../../components';
 import { DayHeaderCell } from './DayHeaderCell';
 import {
-  CalendarCell,
-  CalendarRowHeader,
-  CalendarTable,
-  CalendarTableRow,
-} from './TableComponents';
+  CalendarBodyCell,
+  CalendarGrid,
+  CalendarHeaderRow,
+  CalendarRow,
+  CalendarRowHeaderCell,
+  CalendarTopLeftHeaderCell,
+} from './LocationBookingsCalendarGrid.jsx';
+import { useLocationBookingsQuery } from '../../../api/queries/useAppointmentsQuery.js';
+import { AppointmentTile } from '../../../components/Appointments/AppointmentTile';
 
 // BEGIN PLACEHOLDERS
 
@@ -76,7 +78,7 @@ export const LocationBookingsView = () => {
   const [monthOf, setMonthOf] = useState(new Date());
   const displayedDates = getDisplayableDates(monthOf);
 
-  const { data: appointments } = useAppointmentsQuery();
+  const appointments = useLocationBookingsQuery().data?.data ?? [];
   const { data: locations } = useLocationsQuery({ includeLocationGroup: true });
 
   console.log('locations', locations);
@@ -93,32 +95,30 @@ export const LocationBookingsView = () => {
         </Filters>
       </LocationBookingsTopBar>
       <Carousel>
-        <CalendarTable>
-          <thead>
-            <CalendarTableRow>
-              <CalendarRowHeader>
-                <Placeholder>Picker</Placeholder>
-              </CalendarRowHeader>
-              {displayedDates.map(d => (
-                <DayHeaderCell date={d} dim={!isSameMonth(d, monthOf)} key={d.valueOf()} />
-              ))}
-            </CalendarTableRow>
-          </thead>
-          <tbody>
-            {locations?.map(
-              ({ code, name: locationName, locationGroup: { name: locationGroupName } }) => (
-                <CalendarTableRow key={code}>
-                  <CalendarRowHeader>
-                    {locationGroupName} {locationName}
-                  </CalendarRowHeader>
-                  {displayedDates.map(d => (
-                    <CalendarCell key={d.valueOf()} />
-                  ))}
-                </CalendarTableRow>
-              ),
-            )}
-          </tbody>
-        </CalendarTable>
+        <CalendarGrid $dayCount={displayedDates.length}>
+          <CalendarHeaderRow>
+            <CalendarTopLeftHeaderCell>
+              <Placeholder>Picker</Placeholder>
+            </CalendarTopLeftHeaderCell>
+            {displayedDates.map(d => (
+              <DayHeaderCell date={d} dim={!isSameMonth(d, monthOf)} key={d.valueOf()} />
+            ))}
+          </CalendarHeaderRow>
+          {locations?.map(
+            ({ code, name: locationName, locationGroup: { name: locationGroupName } }) => (
+              <CalendarRow key={code}>
+                <CalendarRowHeaderCell>
+                  {locationGroupName} {locationName}
+                </CalendarRowHeaderCell>
+                {displayedDates.map(d => (
+                  <CalendarBodyCell key={d.valueOf()}>
+                    {appointments?.[0] && <AppointmentTile appointment={appointments[0]} />}
+                  </CalendarBodyCell>
+                ))}
+              </CalendarRow>
+            ),
+          )}
+        </CalendarGrid>
       </Carousel>
     </Wrapper>
   );
