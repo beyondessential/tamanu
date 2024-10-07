@@ -1,13 +1,13 @@
 import { Skeleton } from '@material-ui/lab';
 import styled from 'styled-components';
 import React from 'react';
-import { Row, RowHeaderCell } from './LocationBookingsCalendarGrid';
+import { LocationBookingsCalendarGrid as CalendarGrid } from './LocationBookingsCalendarGrid';
 
 const SkeletonRowHeaderCell = () => (
-  <RowHeaderCell>
+  <CalendarGrid.RowHeaderCell>
     <Skeleton animation="wave" variant="text" width="8em" />
     <Skeleton animation="wave" variant="text" width="5em" />
-  </RowHeaderCell>
+  </CalendarGrid.RowHeaderCell>
 );
 
 const SkeletonBodyCell = styled(Skeleton).attrs({ animation: 'wave', variant: 'rect' })`
@@ -18,13 +18,13 @@ const SkeletonBodyCell = styled(Skeleton).attrs({ animation: 'wave', variant: 'r
 `;
 
 const SkeletonRow = ({ colCount }) => (
-  <Row>
+  <CalendarGrid.Row>
     <SkeletonRowHeaderCell />
     {Array.from({ length: colCount }).map(() => (
       // eslint-disable-next-line react/jsx-key
       <SkeletonBodyCell />
     ))}
-  </Row>
+  </CalendarGrid.Row>
 );
 
 export const SkeletonRows = ({ colCount }) => (
