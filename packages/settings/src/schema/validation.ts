@@ -3,7 +3,7 @@ import { globalSettings } from './global';
 import { centralSettings } from './central';
 import { facilitySettings } from './facility';
 import * as yup from 'yup';
-import _, { isArray, mergeWith } from 'lodash';
+import _, { cloneDeep, isArray, mergeWith } from 'lodash';
 import { SettingsSchema } from '../types';
 import { extractDefaults, isSetting } from './utils';
 
@@ -74,7 +74,7 @@ export const validateSettings = async ({
  */
 export const applyDefaults = (settings: Record<string, unknown>, scope: string) => {
   const schema = getScopedSchema(scope);
-  const defaults = extractDefaults(schema);
+  const defaults = cloneDeep(extractDefaults(schema));
   return mergeWith(
     defaults,
     settings,

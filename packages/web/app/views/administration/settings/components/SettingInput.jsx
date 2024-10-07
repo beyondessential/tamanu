@@ -12,7 +12,7 @@ import {
 } from '../../../../components';
 import { JSONEditor } from './JSONEditor';
 import { Colors } from '../../../../constants';
-import { ThemedTooltip } from '../../../../components/Tooltip';
+import { ConditionalTooltip, ThemedTooltip } from '../../../../components/Tooltip';
 
 const Unit = styled.div`
   font-size: 15px; // Match TextField
@@ -78,7 +78,8 @@ export const SettingInput = ({
 }) => {
   const { type } = typeSchema;
   const [error, setError] = useState(null);
-  const isUnchangedFromDefault = useMemo(() => isEqual(value, defaultValue), [value, defaultValue]);
+  const normalize = val => (val === null || val === '') ? '' : val;
+  const isUnchangedFromDefault = useMemo(() => isEqual(normalize(value), normalize(defaultValue)), [value, defaultValue]);
 
   useEffect(() => {
     try {
@@ -92,8 +93,8 @@ export const SettingInput = ({
   const DefaultButton = () => {
     if (disabled) return null;
     return (
-      <ThemedTooltip
-        disableHoverListener={!isUnchangedFromDefault}
+      <ConditionalTooltip
+        visible={isUnchangedFromDefault}
         title={
           isUnchangedFromDefault && (
             <TranslatedText
@@ -114,7 +115,7 @@ export const SettingInput = ({
             />
           </DefaultSettingButton>
         </div>
-      </ThemedTooltip>
+      </ConditionalTooltip>
     );
   };
 
@@ -142,7 +143,7 @@ export const SettingInput = ({
       return (
         <Flexbox>
           <StyledTextInput
-            value={displayValue}
+            value={displayValue ?? ''}
             onChange={handleChangeText}
             style={{ width: '353px' }}
             error={error}
