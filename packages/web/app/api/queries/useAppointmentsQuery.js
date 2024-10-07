@@ -7,6 +7,7 @@ export const useAppointmentsQuery = options => {
   return useQuery(['appointments'], () => api.get('appointments', options));
 };
 
+/** Queries appointments with a non-null location ID */
 export const useLocationBookingsQuery = options => {
   const api = useApi();
   return useQuery(['appointments'], () =>
