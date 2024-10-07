@@ -149,18 +149,18 @@ export const EditorView = memo(
     };
 
     const handleChangeCategory = async e => {
-      setSubCategory(null);
       const newCategory = e.target.value;
       if (newCategory !== category && dirty) {
         const dismissed = await checkDismissChanges();
         if (!dismissed) return;
       }
+      setSubCategory(null);
       setCategory(newCategory);
     };
 
     const handleChangeSubcategory = async e => {
       const newSubCategory = e.target.value;
-      if (newSubCategory !== subCategory && dirty) {
+      if (newSubCategory && newSubCategory !== subCategory && dirty) {
         const dismissed = await checkDismissChanges();
         if (!dismissed) return;
       }
