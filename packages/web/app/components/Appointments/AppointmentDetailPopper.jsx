@@ -10,6 +10,8 @@ import { Colors } from '../../constants';
 import { DateDisplay, getDateDisplay } from '../DateDisplay';
 import { reloadPatient } from '../../store';
 import { useApi } from '../../api';
+import { APPOINTMENT_STATUS_VALUES, APPOINTMENT_STATUSES } from '@tamanu/constants';
+import { AppointmentStatusChip } from './AppointmentStatusChip';
 
 const formatDateRange = (start, end, isOvernight) => {
   const formattedStart = getDateDisplay(start, { showDate: true, showTime: true });
@@ -84,6 +86,11 @@ const AppointmentStatusContainer = styled(Box)`
   padding-inline: 0.75rem;
   padding-block-start: 0.5rem;
   padding-block-end: 0.75rem;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-row-gap: 0.5rem;
+  grid-column-gap: 0.3125rem;
+  justify-items: center;
 `;
 
 const ControlsRow = ({ onClose }) => (
@@ -214,18 +221,41 @@ const AppointDetailsDisplay = ({ appointment, isOvernight }) => {
   );
 };
 
-const AppointmentStatusDisplay = () => {
-  return <AppointmentStatusContainer></AppointmentStatusContainer>;
+const AppointmentStatusDisplay = ({ selectedStatus, updateAppointmentStatus }) => {
+  return (
+    <AppointmentStatusContainer>
+      {APPOINTMENT_STATUS_VALUES.filter(status => status != APPOINTMENT_STATUSES.CANCELLED).map(
+        status => (
+          <AppointmentStatusChip
+            key={status}
+            appointmentStatus={status}
+            deselected={status != selectedStatus}
+            onClick={() => updateAppointmentStatus(status)}
+          />
+        ),
+      )}
+    </AppointmentStatusContainer>
+  );
 };
 
 export const AppointmentDetailPopper = ({ open, onClose, anchorEl, appointment, isOvernight }) => {
   const dispatch = useDispatch();
+  const api = useApi();
   const patientId = appointment.patient.id;
 
   const handlePatientDetailsClick = useCallback(async () => {
     await dispatch(reloadPatient(patientId));
     dispatch(push(`/patients/all/${patientId}`));
   }, [dispatch, patientId]);
+
+  const updateAppointmentStatus = useCallback(
+    async newValue => {
+      await api.put(`appointments/${appointment.id}`, {
+        status: newValue,
+      });
+    },
+    [api, appointment.id],
+  );
 
   return (
     <Popper
@@ -246,7 +276,10 @@ export const AppointmentDetailPopper = ({ open, onClose, anchorEl, appointment, 
       <StyledPaper elevation={0}>
         <PatientDetailsDisplay patient={appointment.patient} onClick={handlePatientDetailsClick} />
         <AppointDetailsDisplay appointment={appointment} isOvernight={isOvernight} />
-        <AppointmentStatusDisplay />
+        <AppointmentStatusDisplay
+          selectedStatus={appointment.status}
+          updateAppointmentStatus={updateAppointmentStatus}
+        />
       </StyledPaper>
     </Popper>
   );
