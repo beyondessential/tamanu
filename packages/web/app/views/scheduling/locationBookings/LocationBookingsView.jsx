@@ -13,15 +13,8 @@ import { useLocationBookingsQuery, useLocationsQuery } from '../../../api/querie
 import { Colors } from '../../../constants';
 import { PageContainer, TopBar, TranslatedText } from '../../../components';
 import { DayHeaderCell } from './DayHeaderCell';
-import {
-  CalendarBodyCell,
-  CalendarGrid,
-  CalendarHeaderRow,
-  CalendarRow,
-  CalendarRowHeaderCell,
-  CalendarTopLeftHeaderCell,
-  SkeletonRows,
-} from './LocationBookingsCalendarGrid';
+import { LocationBookingsCalendarGrid as CalendarGrid } from './LocationBookingsCalendarGrid';
+import { SkeletonRows } from './Skeletons.jsx';
 
 // BEGIN PLACEHOLDERS
 
@@ -96,34 +89,34 @@ export const LocationBookingsView = () => {
         </Filters>
       </LocationBookingsTopBar>
       <Carousel>
-        <CalendarGrid $dayCount={displayedDates.length}>
-          <CalendarHeaderRow>
-            <CalendarTopLeftHeaderCell>
+        <CalendarGrid.Root $dayCount={displayedDates.length}>
+          <CalendarGrid.HeaderRow>
+            <CalendarGrid.FirstHeaderCell>
               <Placeholder>Picker</Placeholder>
-            </CalendarTopLeftHeaderCell>
+            </CalendarGrid.FirstHeaderCell>
             {displayedDates.map(d => (
               <DayHeaderCell date={d} dim={!isSameMonth(d, monthOf)} key={d.valueOf()} />
             ))}
-          </CalendarHeaderRow>
+          </CalendarGrid.HeaderRow>
           {locationsAreLoading ? (
             <SkeletonRows colCount={displayedDates.length} />
           ) : (
             <>
               {locations?.map(
                 ({ code, name: locationName, locationGroup: { name: locationGroupName } }) => (
-                  <CalendarRow key={code}>
-                    <CalendarRowHeaderCell>
+                  <CalendarGrid.Row key={code}>
+                    <CalendarGrid.RowHeaderCell>
                       {locationGroupName} {locationName}
-                    </CalendarRowHeaderCell>
+                    </CalendarGrid.RowHeaderCell>
                     {displayedDates.map(d => (
-                      <CalendarBodyCell key={d.valueOf()} />
+                      <CalendarGrid.Cell key={d.valueOf()} />
                     ))}
-                  </CalendarRow>
+                  </CalendarGrid.Row>
                 ),
               )}
             </>
           )}
-        </CalendarGrid>
+        </CalendarGrid.Root>
       </Carousel>
     </Wrapper>
   );

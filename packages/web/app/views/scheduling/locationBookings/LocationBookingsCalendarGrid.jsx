@@ -1,9 +1,7 @@
-import { Skeleton } from '@material-ui/lab';
-import React from 'react';
 import styled from 'styled-components';
 import { Colors } from '../../../constants';
 
-export const CalendarGrid = styled.div`
+const Grid = styled.div`
   --header-col-width: 10rem;
   --header-row-height: 4rem; // Explicitly set, because scroll margins are relative to this
   --col-width: 12rem;
@@ -24,7 +22,7 @@ export const CalendarGrid = styled.div`
     );
 `;
 
-export const CalendarRow = styled.div`
+const Row = styled.div`
   display: grid;
   grid-column: 1 / -1;
   grid-template-columns: subgrid;
@@ -34,14 +32,14 @@ export const CalendarRow = styled.div`
   }
 `;
 
-export const CalendarHeaderRow = styled(CalendarRow)`
+const HeaderRow = styled(Row)`
   block-size: var(--header-row-height);
   inset-block-start: 0;
   position: sticky;
   z-index: 1;
 `;
 
-export const CalendarCell = styled.div`
+const BaseCell = styled.div`
   scroll-snap-align: start;
   scroll-margin-block-start: calc(var(--header-row-height) + 1.25rem);
   scroll-margin-inline-start: calc(var(--header-col-width) + 2rem);
@@ -56,20 +54,20 @@ export const CalendarCell = styled.div`
   }
 `;
 
-export const CalendarHeaderCell = styled(CalendarCell)`
+const HeaderCell = styled(BaseCell)`
   background-color: white;
   font-weight: 400;
   padding: 0.5rem;
   transition: background-color 100ms ease;
 `;
 
-export const CalendarTopLeftHeaderCell = styled(CalendarHeaderCell)`
+const FirstHeaderCell = styled(HeaderCell)`
   inset-inline-start: 0;
   position: sticky;
   z-index: 1;
 `;
 
-export const CalendarColHeaderCell = styled(CalendarHeaderCell)`
+const ColHeaderCell = styled(HeaderCell)`
   text-align: center;
 
   &:is(:nth-child(7n), :nth-child(7n + 1)) {
@@ -77,13 +75,13 @@ export const CalendarColHeaderCell = styled(CalendarHeaderCell)`
   }
 `;
 
-export const CalendarRowHeaderCell = styled(CalendarHeaderCell)`
+const RowHeaderCell = styled(HeaderCell)`
   inset-inline-start: 0;
   position: sticky;
   text-wrap: balance;
 `;
 
-export const CalendarBodyCell = styled(CalendarCell)`
+const BodyCell = styled(BaseCell)`
   cursor: pointer;
   min-block-size: var(--row-height);
 
@@ -97,35 +95,13 @@ export const CalendarBodyCell = styled(CalendarCell)`
   }
 `;
 
-const SkeletonRowHeaderCell = () => (
-  <CalendarRowHeaderCell>
-    <Skeleton animation="wave" variant="text" width="8em" />
-    <Skeleton animation="wave" variant="text" width="5em" />
-  </CalendarRowHeaderCell>
-);
-
-const SkeletonBodyCell = styled(Skeleton).attrs({ animation: 'wave', variant: 'rect' })`
-  block-size: 100%;
-  &:not(:last-child) {
-    border-inline-end: var(--border-style);
-  }
-`;
-
-const SkeletonRow = ({ colCount }) => (
-  <CalendarRow>
-    <SkeletonRowHeaderCell />
-    {Array.from({ length: colCount }).map(() => (
-      // eslint-disable-next-line react/jsx-key
-      <SkeletonBodyCell />
-    ))}
-  </CalendarRow>
-);
-
-export const SkeletonRows = ({ colCount }) => (
-  <>
-    {Array.from({ length: 7 }).map(() => (
-      // eslint-disable-next-line react/jsx-key
-      <SkeletonRow colCount={colCount} />
-    ))}
-  </>
-);
+export const LocationBookingsCalendarGrid = {
+  Root: Grid,
+  Row,
+  HeaderRow,
+  HeaderCell,
+  FirstHeaderCell,
+  ColHeaderCell,
+  RowHeaderCell,
+  Cell: BodyCell,
+};
