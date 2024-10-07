@@ -9,7 +9,7 @@ import {
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
-import { useLocationsQuery } from '../../../api/queries';
+import { useLocationBookingsQuery, useLocationsQuery } from '../../../api/queries';
 import { Colors } from '../../../constants';
 import { PageContainer, TopBar, TranslatedText } from '../../../components';
 import { DayHeaderCell } from './DayHeaderCell';
@@ -22,7 +22,6 @@ import {
   CalendarTopLeftHeaderCell,
   SkeletonRows,
 } from './LocationBookingsCalendarGrid';
-import { useLocationBookingsQuery } from '../../../api/queries/useAppointmentsQuery';
 
 // BEGIN PLACEHOLDERS
 
