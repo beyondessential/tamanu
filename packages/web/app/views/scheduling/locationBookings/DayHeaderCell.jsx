@@ -15,7 +15,7 @@ const StyledHeader = styled(CalendarGrid.FirstHeaderCell).attrs({ as: 'time' })`
   font-weight: var(--base-font-weight);
   line-height: 1.3;
   place-content: center;
-  place-items: center;
+  text-align: center;
 
   ${({ $isToday = false }) =>
     $isToday &&
