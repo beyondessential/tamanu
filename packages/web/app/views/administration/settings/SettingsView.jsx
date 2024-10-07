@@ -35,7 +35,6 @@ const StyledAdminViewContainer = styled(AdminViewContainer)`
 `;
 
 const StyledTabDisplay = styled(TabDisplay)`
-  margin-top: 20px;
   height: 100%;
   border-top: 1px solid ${Colors.outline};
   > div:last-child {
@@ -46,6 +45,9 @@ const StyledTabDisplay = styled(TabDisplay)`
 const TabContainer = styled.div`
   height: 100%;
   padding: 20px;
+  padding-top: 10px;
+  display: flex;
+  flex-direction: column;
   background-color: ${Colors.background};
 `;
 

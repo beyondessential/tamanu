@@ -4,7 +4,7 @@ import { Settings } from '@material-ui/icons';
 
 import { SETTINGS_SCOPES } from '@tamanu/constants';
 
-import { TextButton, ContentPane, ButtonRow, Button } from '../../../components';
+import { TextButton, ButtonRow, Button } from '../../../components';
 import { JSONEditor } from './components/JSONEditor';
 import { DefaultSettingsModal } from './components/DefaultSettingsModal';
 import { notifyError } from '../../../utils';
@@ -14,7 +14,15 @@ import { Colors } from '../../../constants';
 const SettingsWrapper = styled.div`
   background-color: ${Colors.white};
   border: 1px solid ${Colors.outline};
-  margin-top: 20px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+`;
+
+export const ContentPane = styled.div`
+  margin: 30px;
+  margin-top: 0;
+  flex: 1;
 `;
 
 const StyledTopBar = styled.div`
@@ -90,7 +98,8 @@ export const JSONEditorView = React.memo(({ values, setValues, submitForm, scope
           <Settings />
           <TranslatedText
             stringId="admin.settings.viewDefaultScope.message"
-            fallback="View default {scope} settings"
+            fallback="View default :scope settings"
+            replacements={{ scope }}
           />
         </DefaultSettingsButton>
         <StyledButtonRow>
