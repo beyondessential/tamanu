@@ -210,7 +210,6 @@ const SettingsForm = ({
         scrollable={false}
         setValues={setValues}
         setFieldValue={setFieldValue}
-        onChangeScope={handleChangeScope}
         handleShowWarningModal={handleShowWarningModal}
         values={values}
         submitForm={submitForm}
