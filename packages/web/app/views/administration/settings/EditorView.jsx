@@ -12,6 +12,7 @@ import { Category } from './components/Category';
 const SettingsWrapper = styled.div`
   background-color: ${Colors.white};
   border: 1px solid ${Colors.outline};
+  margin-top: 1.25rem;
 `;
 
 const StyledDynamicSelectField = styled(DynamicSelectField)`

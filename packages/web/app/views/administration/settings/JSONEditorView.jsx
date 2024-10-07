@@ -14,6 +14,7 @@ import { Colors } from '../../../constants';
 const SettingsWrapper = styled.div`
   background-color: ${Colors.white};
   border: 1px solid ${Colors.outline};
+  margin-top: 1.25rem;
   flex: 1;
   display: flex;
   flex-direction: column;
