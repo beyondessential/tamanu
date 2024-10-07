@@ -20,18 +20,16 @@ const SkeletonBodyCell = styled(Skeleton).attrs({ animation: 'wave', variant: 'r
 const SkeletonRow = ({ colCount }) => (
   <CalendarGrid.Row>
     <SkeletonRowHeaderCell />
-    {Array.from({ length: colCount }).map(() => (
-      // eslint-disable-next-line react/jsx-key
-      <SkeletonBodyCell />
+    {Array.from({ length: colCount }).map((_, i) => (
+      <SkeletonBodyCell key={i} />
     ))}
   </CalendarGrid.Row>
 );
 
 export const SkeletonRows = ({ colCount }) => (
   <>
-    {Array.from({ length: 7 }).map(() => (
-      // eslint-disable-next-line react/jsx-key
-      <SkeletonRow colCount={colCount} />
+    {Array.from({ length: 7 }).map((_, i) => (
+      <SkeletonRow colCount={colCount} key={i} />
     ))}
   </>
 );
