@@ -60,6 +60,23 @@ const Carousel = styled.div`
   scroll-snap-type: both mandatory;
 `;
 
+const BookingsRow = ({ dates, location }) => {
+  const {
+    name: locationName,
+    locationGroup: { name: locationGroupName },
+  } = location;
+  return (
+    <CalendarGrid.Row>
+      <CalendarGrid.RowHeaderCell>
+        {locationGroupName} {locationName}
+      </CalendarGrid.RowHeaderCell>
+      {dates.map(d => (
+        <CalendarGrid.Cell key={d.valueOf()} />
+      ))}
+    </CalendarGrid.Row>
+  );
+};
+
 const getDisplayableDates = date => {
   const start = startOfWeek(startOfMonth(date), { weekStartsOn: 1 });
   const end = endOfWeek(endOfMonth(date), { weekStartsOn: 1 });
@@ -102,18 +119,12 @@ export const LocationBookingsView = () => {
             <SkeletonRows colCount={displayedDates.length} />
           ) : (
             <>
-              {locations?.map(
-                ({ code, name: locationName, locationGroup: { name: locationGroupName } }) => (
-                  <CalendarGrid.Row key={code}>
-                    <CalendarGrid.RowHeaderCell>
-                      {locationGroupName} {locationName}
-                    </CalendarGrid.RowHeaderCell>
-                    {displayedDates.map(d => (
-                      <CalendarGrid.Cell key={d.valueOf()} />
-                    ))}
-                  </CalendarGrid.Row>
-                ),
-              )}
+              {locations?.map(location => {
+                const appointmentsAtThisLocation = appointments.filter(a => a);
+                return (
+                  <BookingsRow dates={displayedDates} key={location.code} location={location} />
+                );
+              })}
             </>
           )}
         </CalendarGrid.Root>
