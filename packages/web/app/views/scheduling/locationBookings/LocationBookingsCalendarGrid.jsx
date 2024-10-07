@@ -1,3 +1,5 @@
+import { Skeleton } from '@material-ui/lab';
+import React, { memo } from 'react';
 import styled from 'styled-components';
 import { Colors } from '../../../constants';
 
@@ -93,3 +95,36 @@ export const CalendarBodyCell = styled(CalendarCell)`
     background-color: ${Colors.veryLightBlue};
   }
 `;
+
+const SkeletonRowHeaderCell = () => (
+  <CalendarRowHeaderCell>
+    <Skeleton animation="wave" variant="text" width="8em" />
+    <Skeleton animation="wave" variant="text" width="5em" />
+  </CalendarRowHeaderCell>
+);
+
+const SkeletonBodyCell = styled(Skeleton).attrs({ animation: 'wave', variant: 'rect' })`
+  block-size: 100%;
+  &:not(:last-child) {
+    border-inline-end: var(--border-style);
+  }
+`;
+
+const SkeletonRow = memo(({ colCount }) => (
+  <CalendarRow>
+    <SkeletonRowHeaderCell />
+    {Array.from({ length: colCount }).map(() => (
+      // eslint-disable-next-line react/jsx-key
+      <SkeletonBodyCell />
+    ))}
+  </CalendarRow>
+));
+
+export const SkeletonRows = memo(({ colCount }) => (
+  <>
+    {Array.from({ length: 7 }).map(() => (
+      // eslint-disable-next-line react/jsx-key
+      <SkeletonRow colCount={colCount} />
+    ))}
+  </>
+));

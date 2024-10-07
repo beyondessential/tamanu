@@ -20,9 +20,9 @@ import {
   CalendarRow,
   CalendarRowHeaderCell,
   CalendarTopLeftHeaderCell,
+  SkeletonRows,
 } from './LocationBookingsCalendarGrid';
 import { useLocationBookingsQuery } from '../../../api/queries/useAppointmentsQuery';
-import { AppointmentTile } from '../../../components/Appointments/AppointmentTile';
 
 // BEGIN PLACEHOLDERS
 
@@ -79,7 +79,9 @@ export const LocationBookingsView = () => {
   const displayedDates = getDisplayableDates(monthOf);
 
   const appointments = useLocationBookingsQuery().data?.data ?? [];
-  const { data: locations } = useLocationsQuery({ includeLocationGroup: true });
+  const { data: locations, isLoading: locationsAreLoading } = useLocationsQuery({
+    includeLocationGroup: true,
+  });
 
   console.log('locations', locations);
   console.log('appointments', appointments);
@@ -104,18 +106,23 @@ export const LocationBookingsView = () => {
               <DayHeaderCell date={d} dim={!isSameMonth(d, monthOf)} key={d.valueOf()} />
             ))}
           </CalendarHeaderRow>
-          {locations?.map(
-            ({ code, name: locationName, locationGroup: { name: locationGroupName } }) => (
-              <CalendarRow key={code}>
-                <CalendarRowHeaderCell>
-                  {locationGroupName} {locationName}
-                </CalendarRowHeaderCell>
-                {displayedDates.map(d => (
-                  <CalendarBodyCell key={d.valueOf()}/>
-
-                ))}
-              </CalendarRow>
-            ),
+          {locationsAreLoading ? (
+            <SkeletonRows colCount={displayedDates.length} />
+          ) : (
+            <>
+              {locations?.map(
+                ({ code, name: locationName, locationGroup: { name: locationGroupName } }) => (
+                  <CalendarRow key={code}>
+                    <CalendarRowHeaderCell>
+                      {locationGroupName} {locationName}
+                    </CalendarRowHeaderCell>
+                    {displayedDates.map(d => (
+                      <CalendarBodyCell key={d.valueOf()} />
+                    ))}
+                  </CalendarRow>
+                ),
+              )}
+            </>
           )}
         </CalendarGrid>
       </Carousel>
