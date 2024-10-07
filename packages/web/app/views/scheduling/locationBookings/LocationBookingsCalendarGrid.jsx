@@ -80,6 +80,7 @@ export const CalendarColHeaderCell = styled(CalendarHeaderCell)`
 export const CalendarRowHeaderCell = styled(CalendarHeaderCell)`
   inset-inline-start: 0;
   position: sticky;
+  text-wrap: balance;
 `;
 
 export const CalendarBodyCell = styled(CalendarCell)`
