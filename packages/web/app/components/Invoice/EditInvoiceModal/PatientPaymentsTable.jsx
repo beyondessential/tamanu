@@ -28,11 +28,15 @@ const Title = styled.div`
   border-bottom: 1px solid ${Colors.outline};
 `;
 
+const TooltipContainer = styled.div`
+  text-align: center;
+`;
+
 const getRowTooltipText = updatedByUser => (
-  <div>
+  <TooltipContainer>
     <TranslatedText stringId="invoice.table.tooltip.recordedBy" fallback="Recorded by" />
     <div>{updatedByUser.displayName}</div>
-  </div>
+  </TooltipContainer>
 );
 
 export const PatientPaymentsTable = ({ invoice }) => {
