@@ -14,7 +14,7 @@ import { Colors } from '../../../constants';
 import { PageContainer, TopBar, TranslatedText } from '../../../components';
 import { DayHeaderCell } from './DayHeaderCell';
 import { LocationBookingsCalendarGrid as CalendarGrid } from './LocationBookingsCalendarGrid';
-import { SkeletonRows } from './Skeletons.jsx';
+import { SkeletonRows } from './Skeletons';
 
 // BEGIN PLACEHOLDERS
 
@@ -83,6 +83,14 @@ const getDisplayableDates = date => {
   return eachDayOfInterval({ start, end });
 };
 
+const partitionAppointmentsByLocation = appointments =>
+  appointments.reduce((acc, appt) => {
+    const locationId = appt.locationId;
+    if (!acc[locationId]) acc[locationId] = [];
+    acc[locationId].push(acc);
+    return acc;
+  }, {});
+
 export const LocationBookingsView = () => {
   const [monthOf, setMonthOf] = useState(new Date());
   const displayedDates = getDisplayableDates(monthOf);
@@ -92,8 +100,7 @@ export const LocationBookingsView = () => {
     includeLocationGroup: true,
   });
 
-  console.log('locations', locations);
-  console.log('appointments', appointments);
+  const appointmentsByLocation = partitionAppointmentsByLocation(appointments);
 
   return (
     <Wrapper>
@@ -119,12 +126,14 @@ export const LocationBookingsView = () => {
             <SkeletonRows colCount={displayedDates.length} />
           ) : (
             <>
-              {locations?.map(location => {
-                const appointmentsAtThisLocation = appointments.filter(a => a);
-                return (
-                  <BookingsRow dates={displayedDates} key={location.code} location={location} />
-                );
-              })}
+              {locations?.map(location => (
+                <BookingsRow
+                  appointments={appointmentsByLocation[location.id] ?? []}
+                  dates={displayedDates}
+                  key={location.code}
+                  location={location}
+                />
+              ))}
             </>
           )}
         </CalendarGrid.Root>
