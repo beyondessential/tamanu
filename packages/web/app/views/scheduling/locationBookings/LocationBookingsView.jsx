@@ -111,9 +111,8 @@ export const LocationBookingsView = () => {
                   {locationGroupName} {locationName}
                 </CalendarRowHeaderCell>
                 {displayedDates.map(d => (
-                  <CalendarBodyCell key={d.valueOf()}>
-                    {appointments?.[0] && <AppointmentTile appointment={appointments[0]} />}
-                  </CalendarBodyCell>
+                  <CalendarBodyCell key={d.valueOf()}/>
+
                 ))}
               </CalendarRow>
             ),
