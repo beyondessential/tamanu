@@ -20,8 +20,8 @@ import {
   CalendarRow,
   CalendarRowHeaderCell,
   CalendarTopLeftHeaderCell,
-} from './LocationBookingsCalendarGrid.jsx';
-import { useLocationBookingsQuery } from '../../../api/queries/useAppointmentsQuery.js';
+} from './LocationBookingsCalendarGrid';
+import { useLocationBookingsQuery } from '../../../api/queries/useAppointmentsQuery';
 import { AppointmentTile } from '../../../components/Appointments/AppointmentTile';
 
 // BEGIN PLACEHOLDERS

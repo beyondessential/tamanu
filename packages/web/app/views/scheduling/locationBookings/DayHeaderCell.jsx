@@ -4,7 +4,7 @@ import styled, { css } from 'styled-components';
 
 import { Colors } from '../../../constants';
 import { formatShort, formatWeekdayShort } from '../../../components';
-import { CalendarColHeaderCell } from './LocationBookingsCalendarGrid.jsx';
+import { CalendarColHeaderCell } from './LocationBookingsCalendarGrid';
 
 const StyledHeader = styled(CalendarColHeaderCell).attrs({ as: 'time' })`
   --base-font-weight: 400;
