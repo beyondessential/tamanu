@@ -1,5 +1,5 @@
 import { Skeleton } from '@material-ui/lab';
-import React, { memo } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import { Colors } from '../../../constants';
 
@@ -110,7 +110,7 @@ const SkeletonBodyCell = styled(Skeleton).attrs({ animation: 'wave', variant: 'r
   }
 `;
 
-const SkeletonRow = memo(({ colCount }) => (
+const SkeletonRow = ({ colCount }) => (
   <CalendarRow>
     <SkeletonRowHeaderCell />
     {Array.from({ length: colCount }).map(() => (
@@ -118,13 +118,13 @@ const SkeletonRow = memo(({ colCount }) => (
       <SkeletonBodyCell />
     ))}
   </CalendarRow>
-));
+);
 
-export const SkeletonRows = memo(({ colCount }) => (
+export const SkeletonRows = ({ colCount }) => (
   <>
     {Array.from({ length: 7 }).map(() => (
       // eslint-disable-next-line react/jsx-key
       <SkeletonRow colCount={colCount} />
     ))}
   </>
-));
+);
