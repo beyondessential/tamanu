@@ -158,13 +158,8 @@ export const EditorView = memo(
       setCategory(newCategory);
     };
 
-    const handleChangeSubcategory = async e => {
-      const newSubCategory = e.target.value;
-      if (newSubCategory && newSubCategory !== subCategory && dirty) {
-        const dismissed = await checkDismissChanges();
-        if (!dismissed) return;
-      }
-      setSubCategory(newSubCategory);
+    const handleChangeSubcategory = e => {
+      setSubCategory(e.target.value);
     };
 
     const getSettingPath = path =>
@@ -199,7 +194,7 @@ export const EditorView = memo(
               <StyledDynamicSelectField
                 required
                 placeholder=""
-                // Prevent the internal handling of input state as it is externally handled
+                // Only determine input state by supplied value
                 controlled
                 label={
                   <TranslatedText
@@ -220,8 +215,6 @@ export const EditorView = memo(
                         fallback="Select sub-category"
                       />
                     }
-                    // Prevent the internal handling of input state as it is externally handled
-                    controlled
                     placeholder=""
                     value={subCategory}
                     onChange={handleChangeSubcategory}
