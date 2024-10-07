@@ -14,6 +14,8 @@ export const CalendarGrid = styled.div`
   font-size: 0.875rem;
   font-variant-numeric: lining-nums tabular-nums;
   grid-auto-columns: var(--col-width);
+
+  // 42 because a month can span at most 6 distinct ISO weeks
   grid-template-columns: var(--header-col-width) repeat(
       ${({ $dayCount = 42 }) => $dayCount},
       var(--col-width)
@@ -31,9 +33,10 @@ export const CalendarRow = styled.div`
 `;
 
 export const CalendarHeaderRow = styled(CalendarRow)`
+  block-size: var(--header-row-height);
   inset-block-start: 0;
   position: sticky;
-  z-index: 1; // Above body cells
+  z-index: 1;
 `;
 
 export const CalendarCell = styled.div`
@@ -62,11 +65,10 @@ export const CalendarHeaderCell = styled(CalendarCell)`
 export const CalendarTopLeftHeaderCell = styled(CalendarHeaderCell)`
   inset-inline-start: 0;
   position: sticky;
-  z-index: 1; // Above other header cells
+  z-index: 1;
 `;
 
 export const CalendarColHeaderCell = styled(CalendarHeaderCell)`
-  block-size: var(--header-row-height);
   text-align: center;
 
   &:is(:nth-child(7n), :nth-child(7n + 1)) {

@@ -6,12 +6,15 @@ import { Colors } from '../../../constants';
 import { formatShort, formatWeekdayShort } from '../../../components';
 import { CalendarColHeaderCell } from './LocationBookingsCalendarGrid.jsx';
 
-const StyledHeader = styled(CalendarColHeaderCell)`
+const StyledHeader = styled(CalendarColHeaderCell).attrs({ as: 'time' })`
   --base-font-weight: 400;
   color: ${({ $dim = false }) => ($dim ? Colors.midText : Colors.darkestText)};
+  display: flex;
+  flex-direction: column;
   font-size: 1rem;
   font-weight: var(--base-font-weight);
   line-height: 1.3;
+  place-content: center;
 
   ${({ $isToday = false }) =>
     $isToday &&
@@ -30,11 +33,14 @@ const Weekday = styled.div`
 
 export const DayHeaderCell = ({ date, dim, ...props }) => {
   return (
-    <StyledHeader $dim={dim} $isToday={isSameDay(date, startOfToday())} {...props}>
-      <time dateTime={formatISO(date, { representation: 'date' })}>
-        <Weekday>{formatWeekdayShort(date)}</Weekday>
-        {formatShort(date)}
-      </time>
+    <StyledHeader
+      $dim={dim}
+      $isToday={isSameDay(date, startOfToday())}
+      dateTime={formatISO(date, { representation: 'date' })}
+      {...props}
+    >
+      <Weekday>{formatWeekdayShort(date)}</Weekday>
+      {formatShort(date)}
     </StyledHeader>
   );
 };
