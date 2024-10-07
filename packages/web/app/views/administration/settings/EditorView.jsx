@@ -199,6 +199,8 @@ export const EditorView = memo(
               <StyledDynamicSelectField
                 required
                 placeholder=""
+                // Prevent the internal handling of input state as it is externally handled
+                controlled
                 label={
                   <TranslatedText
                     stringId="admin.settings.category.label"
@@ -218,6 +220,8 @@ export const EditorView = memo(
                         fallback="Select sub-category"
                       />
                     }
+                    // Prevent the internal handling of input state as it is externally handled
+                    controlled
                     placeholder=""
                     value={subCategory}
                     onChange={handleChangeSubcategory}

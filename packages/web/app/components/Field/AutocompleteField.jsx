@@ -128,9 +128,17 @@ export class AutocompleteInput extends Component {
   }
 
   updateValue = async (allowFreeTextForExistingValue = false) => {
-    const { value, suggester } = this.props;
+    const { value, suggester, options, controlled } = this.props;
 
     if (!suggester) {
+      if (controlled) {
+        this.setState({
+          selectedOption: {
+            value: options?.find(option => option.value === value)?.label || '',
+            tag: null,
+          },
+        });
+      }
       return;
     }
     if (value === '') {
@@ -235,22 +243,27 @@ export class AutocompleteInput extends Component {
   };
 
   handleInputChange = (event, { newValue }) => {
+    const { controlled } = this.props;
     if (!newValue) {
       // when deleting field contents, clear the selection
       this.handleSuggestionChange({ value: undefined, label: '' });
     }
     if (typeof newValue !== 'undefined') {
-      this.setState(prevState => {
-        const newSuggestion = prevState.suggestions.find(suggest => suggest.label === newValue);
-        return { selectedOption: { value: newValue, tag: newSuggestion?.tag ?? null } };
-      });
+      if (!controlled) {
+        this.setState(prevState => {
+          const newSuggestion = prevState.suggestions.find(suggest => suggest.label === newValue);
+          return { selectedOption: { value: newValue, tag: newSuggestion?.tag ?? null } };
+        });
+      }
     }
   };
 
   handleClearValue = () => {
-    const { onChange, name } = this.props;
+    const { onChange, name, controlled } = this.props;
     onChange({ target: { value: undefined, name } });
-    this.setState({ selectedOption: { value: '', tag: null } });
+    if (!controlled) {
+      this.setState({ selectedOption: { value: '', tag: null } });
+    }
   };
 
   clearOptions = () => {
@@ -437,7 +450,7 @@ AutocompleteInput.propTypes = {
   className: PropTypes.string,
   onChange: PropTypes.func.isRequired,
   value: PropTypes.string,
-
+  controlled: PropTypes.bool,
   suggester: PropTypes.shape({
     fetchCurrentOption: PropTypes.func.isRequired,
     fetchSuggestions: PropTypes.func.isRequired,
