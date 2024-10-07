@@ -125,16 +125,14 @@ export const LocationBookingsView = () => {
           {locationsAreLoading ? (
             <SkeletonRows colCount={displayedDates.length} />
           ) : (
-            <>
-              {locations?.map(location => (
-                <BookingsRow
-                  appointments={appointmentsByLocation[location.id] ?? []}
-                  dates={displayedDates}
-                  key={location.code}
-                  location={location}
-                />
-              ))}
-            </>
+            locations?.map(location => (
+              <BookingsRow
+                appointments={appointmentsByLocation[location.id] ?? []}
+                dates={displayedDates}
+                key={location.code}
+                location={location}
+              />
+            ))
           )}
         </CalendarGrid.Root>
       </Carousel>
