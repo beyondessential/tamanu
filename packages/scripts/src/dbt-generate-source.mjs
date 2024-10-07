@@ -227,7 +227,7 @@ async function handleMissingColumn(tableName, index, column, out) {
 }
 
 async function handleRemovedTable(schemaPath, table) {
-  console.warn(`Removing ${table.get('name')}`);
+  console.warn(`Removing ${table.name}`);
   const tablePath = path.join(schemaPath, table.name);
   await Promise.all([fs.rm(tablePath + '.yml'), fs.rm(tablePath + '.md', { force: true })]);
 }
@@ -311,34 +311,56 @@ async function handleTables(schemaPath, schemaName, dbtSrcs, sqlTables) {
   await Promise.all([...removedPromises, ...missingPromises, ...intersectionPromises]);
 }
 
-// async function run(packageName) {
-//   const serverConfig = config.util.loadFileConfigs(path.join('packages', packageName, 'config'));
-//   const db = config.util.extendDeep(serverConfig.db, config.db); // merge with NODE_CONFIG
-//   await generateSource(db, packageName, opts);
-// }
+async function handleSchema(client, packageName, schemaName) {
+  const schemaPath = path.join('database/model', packageName, schemaName);
+  await fs.mkdir(schemaPath, { recursive: true });
+  const oldTablesPromise = readTablesFromDbt(schemaPath);
+  const sqlTablesPromise = readTablesFromDB(client, schemaName);
+  const [oldTables, sqlTables] = await Promise.all([oldTablesPromise, sqlTablesPromise]);
+  await handleTables(schemaPath, schemaName, oldTables, sqlTables);
+}
 
-// program
-//   .description(
-//     `Generates a Source model in dbt.
-// This reads Postgres database based on the config files. The search path is \`packages/<server-name>/config\`. \
-// You can override the config for both by supplying \`NODE_CONFIG\` or the \`config\` directory at the current directory.
-// `,
-//   )
-//   .option('--fail-on-missing-config')
-//   .option('--allow-dirty');
+async function run(packageName) {
+  const serverConfig = config.util.loadFileConfigs(path.join('packages', packageName, 'config'));
+  const db = config.util.extendDeep(serverConfig.db, config.db); // merge with NODE_CONFIG
 
-// program.parse();
-// const opts = program.opts();
+  console.log('Connecting to database for', packageName);
+  const client = new pg.Client({
+    host: db.host,
+    port: db.port,
+    user: db.username,
+    database: db.name,
+    password: db.password,
+  });
+  try {
+    await client.connect();
+  } catch (err) {
+    console.error(err);
+    if (opts.failOnMissingConfig) {
+      throw `Invalid database config for ${packageName}, cannot proceed.`;
+    }
 
-// await Promise.all([run('central-server'), run('facility-server')]);
+    return;
+  }
 
-const client = new pg.Client({ database: 'tamanu-central' });
-await client.connect();
+  console.log('Generating database models for', packageName);
+  const schemaPromises = (await getSchemas(client)).map(s => handleSchema(client, packageName, s));
+  await Promise.all(schemaPromises);
+  await client.end();
+}
 
-const modelRoot = 'database/model/central-server';
-const schemaPath = path.join(modelRoot, 'public');
-const oldTablesPromise = readTablesFromDbt(schemaPath);
-const sqlTablesPromise = readTablesFromDB(client, 'public');
-const [oldTables, sqlTables] = await Promise.all([oldTablesPromise, sqlTablesPromise]);
-await handleTables(schemaPath, 'public', oldTables, sqlTables);
-await client.end();
+program
+  .description(
+    `Generates a Source model in dbt.
+This reads Postgres database based on the config files. The search path is \`packages/<server-name>/config\`. \
+You can override the config for both by supplying \`NODE_CONFIG\` or the \`config\` directory at the current directory.
+`,
+  )
+  .option('--fail-on-missing-config')
+  .option('--allow-dirty');
+
+program.parse();
+const opts = program.opts();
+
+await Promise.all([run('central-server'), run('facility-server')]);
+
