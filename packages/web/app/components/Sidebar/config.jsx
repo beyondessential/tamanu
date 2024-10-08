@@ -7,12 +7,20 @@ import {
   radiologyIcon,
   scheduleIcon,
   vaccineIcon,
+  dashboardIcon,
 } from '../../constants/images';
 import { Colors } from '../../constants';
 import { TranslatedText } from '../Translation/TranslatedText';
 import { ProgramRegistrySidebarItem } from '../../views/programRegistry/ProgramRegistrySidebarItem';
 
 export const FACILITY_MENU_ITEMS = [
+  {
+    key: 'dashboard',
+    label: <TranslatedText stringId="sidebar.dashboard" fallback="Dashboard" />,
+    path: '/dashboard',
+    icon: dashboardIcon,
+    ability: { action: 'read' },
+  },
   {
     key: 'patients',
     label: <TranslatedText stringId="sidebar.patients" fallback="Patients" />,

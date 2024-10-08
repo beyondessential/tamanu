@@ -1019,6 +1019,10 @@
           }
         },
         "sidebar": {
+          dashboard: {
+            hidden: false,
+            sortPriority: 0,
+          },
           "patients": {
             "patientsInpatients": {
               hidden: false,

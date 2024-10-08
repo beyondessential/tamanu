@@ -20,6 +20,7 @@ export { default as programsIcon } from '../assets/images/programs.svg';
 export { default as radiologyIcon } from '../assets/images/radiology.svg';
 export { default as scheduleIcon } from '../assets/images/schedule.svg';
 export { default as vaccineIcon } from '../assets/images/vaccine.svg';
+export { default as dashboardIcon } from '../assets/images/dashboard.svg';
 
 export { default as reportLine } from '../assets/images/report_line.png';
 export { default as reportBar } from '../assets/images/report_bar.png';

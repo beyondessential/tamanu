@@ -19,6 +19,7 @@ import {
 } from './routes';
 import { Sidebar, SYNC_MENU_ITEMS, useFacilitySidebar } from './components/Sidebar';
 import { UserActivityMonitor } from './components/UserActivityMonitor';
+import { DashboardView } from './views/dashboard/DashboardView';
 
 export const RoutingApp = () => {
   const isSyncServer = useSelector(state => state.auth?.server?.type === SERVER_TYPES.CENTRAL);
@@ -31,7 +32,8 @@ export const RoutingFacilityApp = React.memo(() => {
     <App sidebar={<Sidebar items={sidebarMenuItems} />}>
       <UserActivityMonitor />
       <Switch>
-        <Redirect exact path="/" to="/patients/all" />
+        <Redirect exact path="/" to="/dashboard" />
+        <Route path="/dashboard" component={DashboardView} />
         <Route path="/patients" component={PatientsRoutes} />
         <Route path="/appointments" component={AppointmentRoutes} />
         <Route path="/imaging-requests" component={ImagingRoutes} />

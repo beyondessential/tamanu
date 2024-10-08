@@ -2,8 +2,8 @@ import { FACILITY_MENU_ITEMS } from './config';
 import { useLocalisation } from '../../contexts/Localisation';
 
 const sortTopLevelItems = (a, b) => {
-  // Always show patients first
-  if (a.key === 'patients') {
+  // Always show dashboard first
+  if (a.key === 'dashboard') {
     return -1;
   }
   return a.sortPriority - b.sortPriority;
@@ -46,6 +46,13 @@ export const useFacilitySidebar = () => {
         .sort(sortChildItems);
     }
 
-    return [...topLevelItems, { ...item, sortPriority: localisedItem.sortPriority, children }];
+    return [
+      ...topLevelItems,
+      {
+        ...item,
+        sortPriority: localisedItem.sortPriority,
+        ...(children.length > 0 && { children }),
+      },
+    ];
   }, []).sort(sortTopLevelItems);
 };
