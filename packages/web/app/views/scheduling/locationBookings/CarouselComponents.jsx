@@ -44,6 +44,11 @@ const BaseCell = styled.div`
     appearance: none;
     background-color: unset;
     border: none;
+    color: inherit;
+    font-family: inherit;
+    font-size: inherit;
+    font-style: inherit;
+    line-height: inherit;
     text-align: inherit;
   }
 
