@@ -4,10 +4,11 @@ import { Colors } from './constants';
 
 export const CustomToastContainer = styled(ToastContainer)`
   &&&.Toastify__toast-container {
-    min-width: 303px;
-    max-width: 379px;
-    width: auto;
+    min-inline-size: 20rem;
+    max-inline-size: 25rem;
+    inline-size: auto;
   }
+
   .Toastify__toast--success {
     background-color: #e9f5ee;
     color: ${Colors.green};
@@ -22,26 +23,27 @@ export const CustomToastContainer = styled(ToastContainer)`
     background-color: #ebf0f5;
     color: ${Colors.primary};
   }
+
   .Toastify__toast {
-    min-height: 40px;
-    border-radius: 3px;
-    padding: 11px 12px;
-    min-width: 303px;
-    max-width: 379px;
-    width: fit-content;
-    margin-left: auto;
+    min-block-size: 2.5rem;
+    border-radius: 0.2rem;
+    padding-block: 0.7rem;
+    padding-inline: 1rem;
+    min-inline-size: 20rem;
+    max-inline-size: 25rem;
+    inline-size: fit-content;
+    margin-inline-start: auto;
 
     .Toastify__toast-body {
       padding: 0;
-      margin-right: 54px;
-
+      margin-inline-end: 3.375rem;
     }
     svg {
-      width: 10px;
-      height: 10px;
+      inline-size: 0.625rem;
+      block-size: 0.625rem;
       position: absolute;
-      right: 16px;
-      top: 16px;
+      inset-inline-end: 1rem;
+      inset-block-start: 1rem;
     }
   }
 `;
