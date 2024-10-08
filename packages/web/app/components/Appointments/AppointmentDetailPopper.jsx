@@ -301,7 +301,6 @@ export const AppointmentDetailPopper = ({
 
   const updateAppointmentStatus = useCallback(
     (newValue, onError) => {
-      debounceAppointmentStatus.cancel();
       debounceAppointmentStatus(newValue, onError);
     },
     [debounceAppointmentStatus],
