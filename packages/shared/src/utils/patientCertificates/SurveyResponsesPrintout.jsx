@@ -124,11 +124,11 @@ const ColumnsContainer = ({ answerRows, itemsPerColumn, hasResult }) => {
       {[firstAnswerRows, secondAnswerRows].map((rows, index) => (
         <View style={[pageStyles.column, { maxHeight: columnHeight }]} key={index}>
           {rows.map((row, index) =>
-            index === rows.length - 1 ? null : (
+            rows.length === itemsPerColumn + 1 && index === rows.length - 1 ? null : (
               <ResponseColumn
                 key={row.id}
                 row={row}
-                showBoldBorder={row.screenIndex !== rows[index + 1]?.screenIndex}
+                showBoldBorder={rows[index + 1] && row.screenIndex !== rows[index + 1]?.screenIndex}
               />
             ),
           )}
