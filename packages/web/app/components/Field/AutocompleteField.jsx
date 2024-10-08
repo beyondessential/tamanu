@@ -449,6 +449,7 @@ AutocompleteInput.propTypes = {
   className: PropTypes.string,
   onChange: PropTypes.func.isRequired,
   value: PropTypes.string,
+  // Only determine input state when supplied value has changed
   controlled: PropTypes.bool,
   suggester: PropTypes.shape({
     fetchCurrentOption: PropTypes.func.isRequired,

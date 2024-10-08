@@ -140,19 +140,12 @@ export const EditorView = memo(
 
     useEffect(handleChangeScope, [scope]);
 
-    const checkDismissChanges = async () => {
-      const dismissChanges = await handleShowWarningModal();
-      if (dismissChanges) {
-        await resetForm();
-      }
-      return dismissChanges;
-    };
-
     const handleChangeCategory = async e => {
       const newCategory = e.target.value;
       if (newCategory !== category && dirty) {
-        const dismissed = await checkDismissChanges();
-        if (!dismissed) return;
+        const dismissChanges = await handleShowWarningModal();
+        if (!dismissChanges) return;
+        await resetForm();
       }
       setSubCategory(null);
       setCategory(newCategory);
@@ -194,7 +187,6 @@ export const EditorView = memo(
               <StyledDynamicSelectField
                 required
                 placeholder=""
-                // Only determine input state by supplied value
                 controlled
                 label={
                   <TranslatedText
