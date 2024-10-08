@@ -1,3 +1,4 @@
+export { vaccinationsSchema } from './vaccinations';
 export { ageDisplayFormatDefault, ageDisplayFormatSchema } from './ageDisplayFormat';
 export { durationStringSchema } from './durationStringSchema';
 export { LOCALISED_FIELD_TYPES, generateFieldSchema, displayIdFieldProperties } from './fields';
