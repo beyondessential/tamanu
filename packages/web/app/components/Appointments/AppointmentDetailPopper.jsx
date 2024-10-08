@@ -229,7 +229,7 @@ const AppointmentStatusDisplay = ({ selectedStatus, updateAppointmentStatus }) =
           <AppointmentStatusChip
             key={status}
             appointmentStatus={status}
-            deselected={status != selectedStatus}
+            deselected={status !== selectedStatus}
             onClick={() => updateAppointmentStatus(status)}
           />
         ),
@@ -238,7 +238,14 @@ const AppointmentStatusDisplay = ({ selectedStatus, updateAppointmentStatus }) =
   );
 };
 
-export const AppointmentDetailPopper = ({ open, onClose, anchorEl, appointment, isOvernight }) => {
+export const AppointmentDetailPopper = ({
+  open,
+  onClose,
+  onUpdated,
+  anchorEl,
+  appointment,
+  isOvernight,
+}) => {
   const dispatch = useDispatch();
   const api = useApi();
   const patientId = appointment.patient.id;
@@ -253,8 +260,9 @@ export const AppointmentDetailPopper = ({ open, onClose, anchorEl, appointment, 
       await api.put(`appointments/${appointment.id}`, {
         status: newValue,
       });
+      onUpdated();
     },
-    [api, appointment.id],
+    [api, appointment.id, onUpdated],
   );
 
   return (
