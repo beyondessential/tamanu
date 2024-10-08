@@ -358,6 +358,7 @@ const patientTabsSchema = yup.object({
 });
 
 const SIDEBAR_ITEMS = {
+  dashboard: [],
   patients: ['patientsAll', 'patientsInpatients', 'patientsEmergency', 'patientsOutpatients'],
   scheduling: ['schedulingAppointments', 'schedulingCalendar', 'schedulingNew'],
   medication: ['medicationAll'],
