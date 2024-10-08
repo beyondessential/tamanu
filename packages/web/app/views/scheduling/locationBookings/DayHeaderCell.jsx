@@ -6,7 +6,7 @@ import { Colors } from '../../../constants';
 import { formatShort, formatWeekdayShort } from '../../../components';
 import { LocationBookingsCalendarGrid as CalendarGrid } from './LocationBookingsCalendarGrid';
 
-const StyledHeader = styled(CalendarGrid.FirstHeaderCell).attrs({ as: 'time' })`
+const StyledHeader = styled(CalendarGrid.ColHeaderCell).attrs({ as: 'time' })`
   --base-font-weight: 400;
   color: ${({ $dim = false }) => ($dim ? Colors.midText : Colors.darkestText)};
   display: flex;
