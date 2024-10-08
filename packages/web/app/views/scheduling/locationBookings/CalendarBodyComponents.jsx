@@ -7,7 +7,6 @@ import { partitionAppointmentsByDate } from './util';
 
 export const BookingsCell = ({ appointments, date, location }) => (
   <CarouselGrid.Cell
-    as="button"
     onClick={() => {
       // Open form for creating new booking
       window.alert(`Create new booking:\n\n${location.name}\n\n${date}`);

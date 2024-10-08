@@ -40,18 +40,6 @@ const HeaderRow = styled(Row)`
 `;
 
 const BaseCell = styled.div`
-  button& {
-    appearance: none;
-    background-color: unset;
-    border: none;
-    color: inherit;
-    font-family: inherit;
-    font-size: inherit;
-    font-style: inherit;
-    line-height: inherit;
-    text-align: inherit;
-  }
-
   padding-block: 0.25rem;
   padding-inline: 0.5rem 1.5rem;
   scroll-margin-block-start: calc(var(--header-row-height) + 1.25rem);
@@ -92,7 +80,18 @@ const RowHeaderCell = styled(HeaderCell)`
   text-wrap: balance;
 `;
 
-const BodyCell = styled(BaseCell)`
+const BodyCell = styled(BaseCell).attrs({ as: 'button' })`
+  // Reset browser <button> styles
+  appearance: none;
+  background-color: unset;
+  border: none;
+  color: inherit;
+  font-family: inherit;
+  font-size: inherit;
+  font-style: inherit;
+  line-height: inherit;
+  text-align: inherit;
+
   cursor: pointer;
   min-block-size: var(--row-height);
 
