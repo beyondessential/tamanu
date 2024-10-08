@@ -18,11 +18,11 @@ const StyledModal = styled(Modal)`
     height: 100%;
     display: flex;
     flex-direction: column;
-    > :last-child {
+    > :not(.MuiDialogTitle-root) {
       flex: 1;
       display: flex;
       flex-direction: column;
-      > :first-child {
+      > :not(.MuiDialogActions-root) {
         display: flex;
         flex-direction: column;
       }
