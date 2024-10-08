@@ -37,11 +37,6 @@ export const BookingsRow = ({ appointments, dates, location }) => {
           key={d.valueOf()}
           location={location}
         />
-        // <CarouselGrid.Cell key={d.valueOf()}>
-        //   {appointmentsByDate[d.toISOString().slice(0, 10)]?.map(a => (
-        //     <AppointmentTile appointment={a} key={a.id} />
-        //   ))}
-        // </CarouselGrid.Cell>
       ))}
     </CarouselGrid.Row>
   );
