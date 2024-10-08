@@ -14,7 +14,7 @@ const ScopeSelectInput = styled(SelectInput)`
 
 const ScopeDynamicSelectInput = styled(DynamicSelectField)`
   width: 300px;
-  margin-top: 8px;
+  margin-top: 0.5rem;
 `;
 
 const SCOPE_OPTIONS = [
