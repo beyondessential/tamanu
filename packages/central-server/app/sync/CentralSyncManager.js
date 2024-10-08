@@ -569,7 +569,7 @@ export class CentralSyncManager {
         return tock;
       });
 
-      await models.SyncPersistedTickToDevice.create({
+      await models.SyncDeviceTick.create({
         deviceId,
         persistedAtSyncTick,
       });
