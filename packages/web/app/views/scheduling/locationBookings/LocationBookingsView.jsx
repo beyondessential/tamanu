@@ -81,6 +81,15 @@ const Carousel = styled.div`
 `;
 
 const MonthPicker = styled(MonthYearInput)`
+  .MuiInputBase-root,
+  .MuiInputBase-input {
+    font-size: inherit;
+  }
+
+  .MuiInputAdornment-root {
+    margin: 0;
+  }
+
   body:has(&) > .MuiPickersPopper-root {
     z-index: 1; // Above the sticky headers
   }

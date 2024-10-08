@@ -9,13 +9,9 @@ import { CarouselComponents as CalendarGrid } from './CarouselComponents';
 const StyledHeader = styled(CalendarGrid.ColHeaderCell).attrs({ as: 'time' })`
   --base-font-weight: 400;
   color: ${({ $dim = false }) => ($dim ? Colors.midText : Colors.darkestText)};
-  display: flex;
-  flex-direction: column;
   font-size: 1rem;
   font-weight: var(--base-font-weight);
   line-height: 1.3;
-  place-content: center;
-  text-align: center;
 
   ${({ $isToday = false }) =>
     $isToday &&

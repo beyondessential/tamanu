@@ -55,8 +55,11 @@ const BaseCell = styled.div`
 
 const HeaderCell = styled(BaseCell)`
   background-color: white;
+  display: flex;
+  flex-direction: column;
   font-weight: 400;
   padding: 0.5rem;
+  place-content: center;
   transition: background-color 100ms ease;
 `;
 
