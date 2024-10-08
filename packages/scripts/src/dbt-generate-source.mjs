@@ -14,6 +14,8 @@ import pg from 'pg';
 import { program } from 'commander';
 import YAML from 'yaml';
 import _ from 'lodash';
+import { spawnSync } from 'child_process';
+import { exit } from 'node:process';
 
 async function readTablesFromDbt(schemaPath) {
   const tablePromises = (await fs.readdir(schemaPath))
@@ -362,5 +364,13 @@ You can override the config for both by supplying \`NODE_CONFIG\` or the \`confi
 program.parse();
 const opts = program.opts();
 
-await Promise.all([run('central-server'), run('facility-server')]);
+// This doesn't take untracked files into account.
+if (
+  !opts.allowDirty &&
+  spawnSync('git', ['diff', '--quiet'], { stdio: 'inherit', shell: true }).status === 1
+) {
+  console.warn('The repo is dirty, terminating');
+  exit(1);
+}
 
+await Promise.all([run('central-server'), run('facility-server')]);
