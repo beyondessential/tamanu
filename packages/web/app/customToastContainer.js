@@ -26,6 +26,8 @@ export const CustomToastContainer = styled(ToastContainer)`
     min-height: 40px;
     border-radius: 3px;
     padding: 11px 12px;
+    min-width: 303px;
+    max-width: 379px;
     width: fit-content;
     margin-left: auto;
 

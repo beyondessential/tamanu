@@ -40,7 +40,7 @@ export default {
   ],
 };
 
-const singleLineMinWidth = 'Dolor sit amet, consectetur adipiscing';
+const singleLineMinWidth = 'Dolor sit amet';
 const singleLineMaxWidth =
   'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt';
 const multiLineMaxWidth = [
