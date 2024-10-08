@@ -29,7 +29,7 @@ const EditorWrapper = styled.div`
 const StyledTopBar = styled.div`
   display: flex;
   justify-content: space-between;
-  padding: 20px;
+  padding: 1.25rem;
 `;
 
 const StyledButtonRow = styled(ButtonRow)`

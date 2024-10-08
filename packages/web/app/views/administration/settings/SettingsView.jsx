@@ -44,8 +44,8 @@ const StyledTabDisplay = styled(TabDisplay)`
 
 const TabContainer = styled.div`
   height: 100%;
-  padding: 20px;
-  padding-top: 10px;
+  padding: 1.25rem;
+  padding-top: 0.75rem;
   display: flex;
   flex-direction: column;
   background-color: ${Colors.background};
