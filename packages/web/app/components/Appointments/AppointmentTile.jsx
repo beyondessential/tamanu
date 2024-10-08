@@ -1,11 +1,10 @@
 import React from 'react';
 import styled, { css } from 'styled-components';
-import { parseISO } from 'date-fns';
+import { isSameDay, parseISO } from 'date-fns';
 
 import { PriorityHigh as HighPriorityIcon } from '@material-ui/icons';
 import OvernightIcon from '@material-ui/icons/Brightness2';
 import { APPOINTMENT_STATUSES } from '@tamanu/constants';
-import { areSameDay } from '@tamanu/shared/utils/dateTime';
 
 import { Colors } from '../../constants';
 import { APPOINTMENT_STATUS_COLORS } from './appointmentStatusIndicators';
@@ -82,7 +81,7 @@ export const AppointmentTile = ({ appointment, selected = false, ...props }) => 
   const endTime = parseISO(endTimeStr);
 
   const isHighPriority = false; // TODO
-  const isOvernight = !areSameDay(startTime, endTime);
+  const isOvernight = !isSameDay(startTime, endTime);
 
   return (
     <Wrapper
