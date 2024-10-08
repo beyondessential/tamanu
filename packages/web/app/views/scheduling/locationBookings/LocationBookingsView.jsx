@@ -1,5 +1,6 @@
 import {
   eachDayOfInterval,
+  endOfDay,
   endOfMonth,
   endOfWeek,
   isSameDay,
@@ -132,7 +133,11 @@ export const LocationBookingsView = () => {
       ?.scrollIntoView({ inline: 'start' });
   }, [monthOf]);
 
-  const appointments = useLocationBookingsQuery().data?.data ?? [];
+  const appointments =
+    useLocationBookingsQuery({
+      after: displayedDates[0],
+      before: endOfDay(displayedDates[displayedDates.length - 1]),
+    }).data?.data ?? [];
   const { data: locations, isLoading: locationsAreLoading } = useLocationsQuery({
     includeLocationGroup: true,
   });
