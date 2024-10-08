@@ -2,7 +2,7 @@ import styled from 'styled-components';
 import { Colors } from '../../../constants';
 
 const Grid = styled.div`
-  --header-col-width: 10rem;
+  --header-col-width: 11.5rem;
   --header-row-height: 4rem; // Explicitly set, because scroll margins are relative to this
   --col-width: 12rem;
   --row-height: calc(1lh + 1rem);
