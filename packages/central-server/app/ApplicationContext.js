@@ -10,7 +10,6 @@ import { closeDatabase, initDatabase, initReporting } from './database';
 import { initIntegrations } from './integrations';
 import { defineSingletonTelegramBotService } from './services/TelegramBotService';
 import { VERSION } from './middleware/versionCompatibility';
-import { ReadSettings } from '@tamanu/settings'
 
 /**
  * @typedef {import('./services/EmailService').EmailService} EmailService
