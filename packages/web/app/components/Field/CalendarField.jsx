@@ -1,8 +1,8 @@
-import React, { useMemo, useState } from 'react';
+import { add, endOfYear, startOfToday, startOfYear } from 'date-fns';
+import React, { useState } from 'react';
 import { DatePicker } from '@mui/x-date-pickers';
 import { Colors } from '../../constants';
 import { StyledExpandLess, StyledExpandMore } from './FieldCommonComponents';
-import { add, endOfYear, startOfYear } from 'date-fns';
 import { TextInput } from './TextField';
 import { Popper, styled } from '@mui/material';
 
