@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import PrintIcon from '@material-ui/icons/Print';
+import styled from 'styled-components';
 
 import { Modal } from './Modal';
 import { DateDisplay } from './DateDisplay';
@@ -21,6 +23,12 @@ const convertBinaryToYesNo = value => {
       return value;
   }
 };
+
+const PrintButton = styled(Button)`
+  position: absolute;
+  right: 70px;
+  top: 21px;
+`;
 
 const COLUMNS = [
   {
@@ -87,7 +95,7 @@ function shouldShow(component) {
   }
 }
 
-export const SurveyResponseDetailsModal = ({ surveyResponseId, onClose }) => {
+export const SurveyResponseDetailsModal = ({ surveyResponseId, onClose, onPrint }) => {
   const { data: surveyDetails, isLoading, error } = useSurveyResponse(surveyResponseId);
   if (error) {
     return (
@@ -149,6 +157,15 @@ export const SurveyResponseDetailsModal = ({ surveyResponseId, onClose }) => {
       onClose={onClose}
     >
       <Table data={answerRows} columns={COLUMNS} allowExport={false} />
+      <PrintButton
+        onClick={onPrint}
+        color="primary"
+        variant="outlined"
+        startIcon={<PrintIcon />}
+        size="small"
+      >
+        <TranslatedText stringId="general.action.print" fallback="Print" />
+      </PrintButton>
     </Modal>
   );
 };
