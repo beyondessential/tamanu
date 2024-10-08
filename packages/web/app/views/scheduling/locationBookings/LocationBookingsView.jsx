@@ -13,6 +13,8 @@ import {
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 
+import { isStartOfThisWeek } from '@tamanu/shared/utils/dateTime';
+
 import { useLocationBookingsQuery, useLocationsQuery } from '../../../api/queries';
 import { Colors } from '../../../constants';
 import { MonthYearInput, PageContainer, TopBar, TranslatedText } from '../../../components';
@@ -46,11 +48,6 @@ const scrollToThisWeek = () =>
   document.getElementById(thisWeekId)?.scrollIntoView({ inline: 'start' });
 const scrollToBeginning = () =>
   document.getElementById(firstDisplayedDayId)?.scrollIntoView({ inline: 'start' });
-
-const isStartOfThisWeek = date => {
-  const startOfThisWeek = startOfWeek(new Date(), { weekStartsOn: 1 });
-  return isSameDay(date, startOfThisWeek);
-};
 
 const LocationBookingsTopBar = styled(TopBar).attrs({
   title: (

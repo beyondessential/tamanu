@@ -3,15 +3,14 @@ import {
   differenceInMonths,
   differenceInWeeks,
   differenceInYears,
-  endOfMonth,
   format as dateFnsFormat,
   formatISO9075,
-  getISOWeek,
   isMatch,
+  isSameDay,
   isValid,
   parseISO,
   startOfDay,
-  startOfMonth,
+  startOfWeek,
   sub,
 } from 'date-fns';
 import { TIME_UNIT_OPTIONS } from '@tamanu/constants';
@@ -252,12 +251,7 @@ export const formatLong = date =>
     'Date information not available',
   ); // "Thursday, 14 July 2022, 03:44 pm"
 
-/**
- * Returns the number if distinct ISO weeks spanned by the month of the given date. This can only be
- * 4, 5 or 6.
- */
-export const uniqueIsoWeeksInMonthOf = date => {
-  const firstDayOfMonth = startOfMonth(date);
-  const lastDayOfMonth = endOfMonth(date);
-  return getISOWeek(lastDayOfMonth) - getISOWeek(firstDayOfMonth) + 1;
+export const isStartOfThisWeek = date => {
+  const startOfThisWeek = startOfWeek(new Date(), { weekStartsOn: 1 });
+  return isSameDay(date, startOfThisWeek);
 };
