@@ -1,160 +1,139 @@
 import React, { useState } from 'react';
+import { useQueryClient, useQuery } from '@tanstack/react-query';
 import styled from 'styled-components';
-import { Settings } from '@material-ui/icons';
-import { useQuery } from '@tanstack/react-query';
+import { ValidationError } from 'yup';
 
 import { SETTINGS_SCOPES } from '@tamanu/constants';
+import { validateSettings } from '@tamanu/settings';
 
-import { LargeButton, TextButton, ContentPane, ButtonRow, TopBar } from '../../../components';
+import { TabDisplay } from '../../../components/TabDisplay';
 import { AdminViewContainer } from '../components/AdminViewContainer';
-import { JSONEditor } from './JSONEditor';
-import { ScopeSelector } from './ScopeSelector';
-import { DefaultSettingsModal } from './DefaultSettingsModal';
+import { TranslatedText } from '../../../components/Translation/TranslatedText';
+import { JSONEditorView } from './JSONEditorView';
+import { useAuth } from '../../../contexts/Auth';
+import { Form } from '../../../components';
 import { useApi } from '../../../api';
-import { notifySuccess, notifyError } from '../../../utils';
 import { ErrorMessage } from '../../../components/ErrorMessage';
-import { TranslatedText } from '../../../components/Translation';
+import { notifyError, notifySuccess } from '../../../utils';
+import { Colors } from '../../../constants';
+import { EditorView } from './EditorView';
 
-const StyledTopBar = styled(TopBar)`
-  padding: 0;
-  .MuiToolbar-root {
-    align-items: flex-end;
+const StyledAdminViewContainer = styled(AdminViewContainer)`
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  > div {
+    display: flex;
+    flex-direction: column;
   }
 `;
 
-const DefaultSettingsButton = styled(TextButton)`
-  font-size: 14px;
-  white-space: nowrap;
-  margin-left: 5px;
-  .MuiSvgIcon-root {
-    margin-right: 5px;
+const StyledTabDisplay = styled(TabDisplay)`
+  margin-top: 20px;
+  height: 100%;
+  border-top: 1px solid ${Colors.outline};
+  > div:last-child {
+    flex: 1;
   }
-  margin-bottom: 12px;
 `;
 
-const buildSettingsString = settings => {
-  if (Object.keys(settings).length === 0) return '';
-  return JSON.stringify(settings, null, 2);
-};
+const TabContainer = styled.div`
+  height: 100%;
+  padding: 20px;
+  background-color: ${props => props.$backgroundColor || Colors.white};
+`;
 
-export const SettingsView = React.memo(() => {
+const tabs = [
+  {
+    label: <TranslatedText stringId="admin.settings.tab.editor.title" fallback="Editor" />,
+    key: 'editor',
+    icon: 'fa fa-cog',
+    render: props => (
+      <TabContainer $backgroundColor={Colors.background}>
+        <EditorView {...props} />
+      </TabContainer>
+    ),
+  },
+  {
+    label: <TranslatedText stringId="admin.settings.tab.json.title" fallback="JSON editor" />,
+    key: 'json',
+    icon: 'fa fa-code',
+    render: props => (
+      <TabContainer>
+        <JSONEditorView {...props} />
+      </TabContainer>
+    ),
+  },
+];
+
+export const SettingsView = () => {
+  const queryClient = useQueryClient();
   const api = useApi();
-  const [settingsEditString, setSettingsEditString] = useState('');
-  const [scope, setScope] = useState(SETTINGS_SCOPES.GLOBAL);
-  const [facilityId, setFacilityId] = useState(null);
-  const [jsonError, setJsonError] = useState(null);
-  const [isDefaultModalOpen, setIsDefaultModalOpen] = useState(false);
-
-  const { data: settings = {}, refetch: refetchSettings, error: settingsFetchError } = useQuery(
-    ['scopedSettings', scope, facilityId],
-    () => api.get('admin/settings', { scope, facilityId }),
-  );
-
-  const settingsViewString = buildSettingsString(settings);
-  const hasSettingsChanged = settingsViewString !== settingsEditString;
-
-  const updateSettingsEditString = value => {
-    setSettingsEditString(value);
-    setJsonError(null);
-  };
-
-  const turnOnEditMode = () => updateSettingsEditString(buildSettingsString(settings) || '{}');
-  const turnOffEditMode = () => updateSettingsEditString(null);
-  const onChangeSettings = newValue => updateSettingsEditString(newValue);
-  const onChangeScope = event => {
-    setScope(event.target.value || null);
-    setFacilityId(null);
-    updateSettingsEditString(null);
-  };
-  const onChangeFacility = event => {
-    setFacilityId(event.target.value || null);
-    updateSettingsEditString(null);
-  };
-
-  // Convert settings string from editor into object and post to backend
-  const saveSettings = async () => {
-    // Check if the JSON is valid and notify if not
+  const handleSubmit = async ({ settings, scope, facilityId }) => {
     try {
-      JSON.parse(settingsEditString);
-    } catch (error) {
-      notifyError(`Invalid JSON: ${error.message}`);
-      setJsonError(error);
-      return;
-    }
-    const settingsObject = JSON.parse(settingsEditString);
-
-    try {
+      await validateSettings({ settings, scope });
       await api.put('admin/settings', {
-        settings: settingsObject,
+        settings,
         facilityId,
         scope,
       });
       notifySuccess('Settings saved');
-      await refetchSettings();
-      turnOffEditMode();
+      queryClient.invalidateQueries(['scopedSettings', scope, facilityId]);
+      return true;
     } catch (error) {
-      notifyError(`Error while saving settings: ${error.message}`);
+      if (error instanceof ValidationError) {
+        error?.inner?.forEach(e => {
+          notifyError(e.message);
+        });
+      } else {
+        notifyError(`Error while saving settings: ${error.message}`);
+      }
+      return false;
     }
   };
 
-  const editMode = !!settingsEditString;
-  const isEditorVisible = scope !== SETTINGS_SCOPES.FACILITY || facilityId;
-
   return (
-    <AdminViewContainer
+    <StyledAdminViewContainer
       title={<TranslatedText stringId="admin.settings.title" fallback="Settings" />}
     >
-      <StyledTopBar>
-        <ScopeSelector
-          selectedScope={scope}
-          onChangeScope={onChangeScope}
-          selectedFacility={facilityId}
-          onChangeFacility={onChangeFacility}
-        />
-        <DefaultSettingsButton onClick={() => setIsDefaultModalOpen(true)}>
-          <Settings />
-          <TranslatedText
-            stringId="admin.settings.viewDefaultScope.message"
-            fallback="View default {scope} settings"
-          />
-        </DefaultSettingsButton>
-        <ButtonRow>
-          {editMode ? (
-            <>
-              <LargeButton variant="outlined" onClick={turnOffEditMode}>
-                <TranslatedText stringId="general.action.cancel" fallback="Cancel" />
-              </LargeButton>
-              <LargeButton onClick={saveSettings} disabled={!hasSettingsChanged}>
-                <TranslatedText stringId="general.action.save" fallback="Save" />
-              </LargeButton>
-            </>
-          ) : (
-            <LargeButton onClick={turnOnEditMode} disabled={!isEditorVisible}>
-              <TranslatedText stringId="general.action.edit" fallback="Edit" />
-            </LargeButton>
-          )}
-        </ButtonRow>
-      </StyledTopBar>
-      <ContentPane>
-        {settingsFetchError && (
-          <ErrorMessage title="Settings fetch error" errorMessage={settingsFetchError.message} />
-        )}
-        {isEditorVisible && (
-          <JSONEditor
-            onChange={onChangeSettings}
-            value={editMode ? settingsEditString : settingsViewString}
-            editMode={editMode}
-            error={jsonError}
-            placeholderText="No settings found for this server/facility"
-            fontSize={14}
-          />
-        )}
-      </ContentPane>
-      <DefaultSettingsModal
-        open={isDefaultModalOpen}
-        onClose={() => setIsDefaultModalOpen(false)}
-        scope={scope}
+      <Form
+        initialValues={{ scope: SETTINGS_SCOPES.GLOBAL, facilityId: null }}
+        onSubmit={handleSubmit}
+        render={SettingsForm}
+        style={{ flex: 1 }}
       />
-    </AdminViewContainer>
+    </StyledAdminViewContainer>
   );
-});
+};
+
+const SettingsForm = ({ values, setValues, submitForm }) => {
+  const [currentTab, setCurrentTab] = useState('editor');
+  const api = useApi();
+  const { ability } = useAuth();
+  const { scope, facilityId } = values;
+  const canViewJSONEditor = ability.can('write', 'Setting');
+
+  const { data: settings = {}, error: settingsFetchError } = useQuery(
+    ['scopedSettings', scope, facilityId],
+    () => api.get('admin/settings', { scope, facilityId }),
+  );
+
+  if (settingsFetchError) {
+    return <ErrorMessage title="Settings fetch error" errorMessage={settingsFetchError.message} />;
+  }
+
+  return canViewJSONEditor ? (
+    <StyledTabDisplay
+      tabs={tabs}
+      currentTab={currentTab}
+      onTabSelect={setCurrentTab}
+      scrollable={false}
+      settings={settings}
+      setValues={setValues}
+      values={values}
+      submitForm={submitForm}
+    />
+  ) : (
+    <EditorView settings={settings} values={values} />
+  );
+};
