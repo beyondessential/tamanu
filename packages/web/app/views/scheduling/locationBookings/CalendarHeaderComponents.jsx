@@ -32,7 +32,7 @@ const Weekday = styled.div`
   letter-spacing: 0.1em;
 `;
 
-export const CalendarHeaderComponents = ({ date, dim, ...props }) => {
+export const DayHeaderCell = ({ date, dim, ...props }) => {
   return (
     <StyledHeader
       $dim={dim}

@@ -17,7 +17,7 @@ import { useLocationBookingsQuery, useLocationsQuery } from '../../../api/querie
 import { Colors } from '../../../constants';
 import { MonthYearInput, PageContainer, TopBar, TranslatedText } from '../../../components';
 import { CarouselComponents as CarouselGrid } from './CarouselComponents';
-import { CalendarHeaderComponents } from './CalendarHeaderComponents';
+import { DayHeaderCell } from './CalendarHeaderComponents';
 import { BookingsRow } from './CalendarBodyComponents';
 import { SkeletonRows } from './Skeletons';
 import { partitionAppointmentsByLocation } from './util';
@@ -137,7 +137,7 @@ export const LocationBookingsView = () => {
                 ? firstDisplayedDayId
                 : null;
               return (
-                <CalendarHeaderComponents
+                <DayHeaderCell
                   date={d}
                   dim={!isSameMonth(d, monthOf)}
                   id={elementId}
