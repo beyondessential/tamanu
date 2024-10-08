@@ -59,6 +59,7 @@ triage.post(
         departmentId: vitals.departmentId || (await getDefaultId('department')),
         encounterId: triageRecord.encounterId,
         userId: req.user.id,
+        facilityId,
         ...vitals,
       };
       await db.transaction(async () => {
