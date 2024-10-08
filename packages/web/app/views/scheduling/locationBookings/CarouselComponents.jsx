@@ -40,12 +40,18 @@ const HeaderRow = styled(Row)`
 `;
 
 const BaseCell = styled.div`
-  scroll-snap-align: start;
-  scroll-margin-block-start: calc(var(--header-row-height) + 1.25rem);
-  scroll-margin-inline-start: calc(var(--header-col-width) + 2rem);
+  button& {
+    appearance: none;
+    background-color: unset;
+    border: none;
+    text-align: inherit;
+  }
 
   padding-block: 0.25rem;
   padding-inline: 0.5rem 1.5rem;
+  scroll-margin-block-start: calc(var(--header-row-height) + 1.25rem);
+  scroll-margin-inline-start: calc(var(--header-col-width) + 2rem);
+  scroll-snap-align: start;
   transition: background-color 100ms ease;
   vertical-align: top;
 
@@ -90,12 +96,13 @@ const BodyCell = styled(BaseCell)`
   }
 
   // When hovering directly over this element, not any children of it
-  &:hover:not(:has(:hover)) {
+  &:hover:not(:has(:hover)),
+  &:focus-visible {
     background-color: ${Colors.veryLightBlue};
   }
 `;
 
-export const LocationBookingsCalendarGrid = {
+export const CarouselComponents = {
   Root: Grid,
   Row,
   HeaderRow,

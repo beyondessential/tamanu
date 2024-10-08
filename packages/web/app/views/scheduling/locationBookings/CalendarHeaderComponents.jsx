@@ -4,7 +4,7 @@ import styled, { css } from 'styled-components';
 
 import { Colors } from '../../../constants';
 import { formatShort, formatWeekdayShort } from '../../../components';
-import { LocationBookingsCalendarGrid as CalendarGrid } from './LocationBookingsCalendarGrid';
+import { CarouselComponents as CalendarGrid } from './CarouselComponents';
 
 const StyledHeader = styled(CalendarGrid.ColHeaderCell).attrs({ as: 'time' })`
   --base-font-weight: 400;
@@ -32,7 +32,7 @@ const Weekday = styled.div`
   letter-spacing: 0.1em;
 `;
 
-export const DayHeaderCell = ({ date, dim, ...props }) => {
+export const CalendarHeaderComponents = ({ date, dim, ...props }) => {
   return (
     <StyledHeader
       $dim={dim}

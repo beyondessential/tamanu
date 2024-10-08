@@ -14,12 +14,13 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 
 import { useLocationBookingsQuery, useLocationsQuery } from '../../../api/queries';
-import { AppointmentTile } from '../../../components/Appointments/AppointmentTile';
 import { Colors } from '../../../constants';
 import { PageContainer, TopBar, TranslatedText } from '../../../components';
-import { DayHeaderCell } from './DayHeaderCell';
-import { LocationBookingsCalendarGrid as CalendarGrid } from './LocationBookingsCalendarGrid';
+import { CarouselComponents as CarouselGrid } from './CarouselComponents';
+import { CalendarHeaderComponents } from './CalendarHeaderComponents';
+import { BookingsRow } from './CalendarBodyComponents';
 import { SkeletonRows } from './Skeletons';
+import { partitionAppointmentsByLocation } from './util';
 
 // BEGIN PLACEHOLDERS
 
@@ -45,22 +46,6 @@ const isStartOfThisWeek = date => {
   const startOfThisWeek = startOfWeek(new Date(), { weekStartsOn: 1 });
   return isSameDay(date, startOfThisWeek);
 };
-
-const partitionAppointmentsByLocation = appointments =>
-  appointments.reduce((acc, appt) => {
-    const locationId = appt.locationId;
-    if (!acc[locationId]) acc[locationId] = [];
-    acc[locationId].push(appt);
-    return acc;
-  }, {});
-
-const partitionAppointmentsByDate = appointments =>
-  appointments.reduce((acc, appt) => {
-    const date = appt.startTime.slice(0, 10); // Slice out ISO date, no time
-    if (!acc[date]) acc[date] = [];
-    acc[date].push(appt);
-    return acc;
-  }, {});
 
 const LocationBookingsTopBar = styled(TopBar).attrs({
   title: (
@@ -92,29 +77,6 @@ const Carousel = styled.div`
     scroll-behavior: smooth;
   }
 `;
-
-const BookingsRow = ({ appointments, dates, location }) => {
-  const {
-    name: locationName,
-    locationGroup: { name: locationGroupName },
-  } = location;
-  const appointmentsByDate = partitionAppointmentsByDate(appointments);
-
-  return (
-    <CalendarGrid.Row>
-      <CalendarGrid.RowHeaderCell>
-        {locationGroupName} {locationName}
-      </CalendarGrid.RowHeaderCell>
-      {dates.map(d => (
-        <CalendarGrid.Cell key={d.valueOf()}>
-          {appointmentsByDate[d.toISOString().slice(0, 10)]?.map(a => (
-            <AppointmentTile appointment={a} key={a.id} />
-          ))}
-        </CalendarGrid.Cell>
-      ))}
-    </CalendarGrid.Row>
-  );
-};
 
 const getDisplayableDates = date => {
   const start = startOfWeek(startOfMonth(date), { weekStartsOn: 1 });
@@ -156,11 +118,11 @@ export const LocationBookingsView = () => {
       </LocationBookingsTopBar>
       {/* TODO: Extract <Carousel> into <LocationBookingsCalendar> */}
       <Carousel>
-        <CalendarGrid.Root $dayCount={displayedDates.length}>
-          <CalendarGrid.HeaderRow>
-            <CalendarGrid.FirstHeaderCell>
+        <CarouselGrid.Root $dayCount={displayedDates.length}>
+          <CarouselGrid.HeaderRow>
+            <CarouselGrid.FirstHeaderCell>
               <Placeholder>Picker</Placeholder>
-            </CalendarGrid.FirstHeaderCell>
+            </CarouselGrid.FirstHeaderCell>
             {displayedDates.map(d => {
               const elementId = isStartOfThisWeek(d)
                 ? thisWeekId
@@ -168,7 +130,7 @@ export const LocationBookingsView = () => {
                 ? firstDisplayedDateId
                 : null;
               return (
-                <DayHeaderCell
+                <CalendarHeaderComponents
                   date={d}
                   dim={!isSameMonth(d, monthOf)}
                   id={elementId}
@@ -176,7 +138,7 @@ export const LocationBookingsView = () => {
                 />
               );
             })}
-          </CalendarGrid.HeaderRow>
+          </CarouselGrid.HeaderRow>
           {locationsAreLoading ? (
             <SkeletonRows colCount={displayedDates.length} />
           ) : (
@@ -189,7 +151,7 @@ export const LocationBookingsView = () => {
               />
             ))
           )}
-        </CalendarGrid.Root>
+        </CarouselGrid.Root>
       </Carousel>
     </Wrapper>
   );

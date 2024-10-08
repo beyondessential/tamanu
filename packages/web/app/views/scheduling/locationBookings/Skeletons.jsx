@@ -1,7 +1,8 @@
 import { Skeleton } from '@material-ui/lab';
-import styled from 'styled-components';
 import React from 'react';
-import { LocationBookingsCalendarGrid as CalendarGrid } from './LocationBookingsCalendarGrid';
+import styled from 'styled-components';
+
+import { CarouselComponents as CalendarGrid } from './CarouselComponents';
 
 const SkeletonRowHeaderCell = () => (
   <CalendarGrid.RowHeaderCell>
