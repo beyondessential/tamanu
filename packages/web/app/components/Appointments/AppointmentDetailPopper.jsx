@@ -237,10 +237,6 @@ const AppointDetailsDisplay = ({ appointment, isOvernight }) => {
 const AppointmentStatusDisplay = ({ selectedStatus, updateAppointmentStatus }) => {
   const [localStatus, setLocalStatus] = useState(selectedStatus);
 
-  useEffect(() => {
-    setLocalStatus(selectedStatus);
-  }, [selectedStatus]);
-
   const handleUpdateAppointmentStatus = useCallback(
     newValue => {
       setLocalStatus(newValue);
