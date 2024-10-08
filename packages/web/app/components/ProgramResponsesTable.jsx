@@ -26,6 +26,7 @@ export const DataFetchingProgramsTable = ({ endpoint, patient }) => {
   const [selectedResponseId, setSelectedResponseId] = useState(null);
   const onSelectResponse = useCallback(surveyResponse => {
     setSelectedResponseId(surveyResponse.id);
+    setSelectedResponse(surveyResponse);
   }, []);
   const cancelResponse = useCallback(() => setSelectedResponseId(null), []);
 
@@ -93,8 +94,12 @@ export const DataFetchingProgramsTable = ({ endpoint, patient }) => {
 
   return (
     <>
-      <SurveyResponseDetailsModal surveyResponseId={selectedResponseId} onClose={cancelResponse} />
-      <SurveyResponsesPrintModal 
+      <SurveyResponseDetailsModal
+        surveyResponseId={selectedResponseId}
+        onClose={cancelResponse}
+        onPrint={() => setPrintModalOpen(true)}
+      />
+      <SurveyResponsesPrintModal
         open={printModalOpen}
         onClose={() => setPrintModalOpen(false)}
         patient={patient}
