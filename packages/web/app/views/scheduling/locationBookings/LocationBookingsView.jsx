@@ -124,6 +124,7 @@ const getDisplayableDates = date => {
 export const LocationBookingsView = () => {
   const [monthOf, setMonthOf] = useState(startOfToday());
   const displayedDates = getDisplayableDates(monthOf);
+  const isFirstDisplayedDate = date => isSameDay(date, displayedDates[0]);
 
   useEffect(() => {
     document
@@ -158,7 +159,7 @@ export const LocationBookingsView = () => {
             {displayedDates.map(d => {
               const elementId = isStartOfThisWeek(d)
                 ? thisWeekId
-                : isSameDay(d, displayedDates[0])
+                : isFirstDisplayedDate(d)
                 ? firstDisplayedDateId
                 : null;
               return (
