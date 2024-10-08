@@ -92,6 +92,9 @@ export const JSONEditorView = React.memo(({ values, setValues, submitForm, scope
   const editMode = typeof settingsEditString === 'string';
   const isEditorVisible = scope !== SETTINGS_SCOPES.FACILITY || facilityId;
 
+  if (!isEditorVisible) {
+    return null;
+  }
   return (
     <SettingsWrapper>
       <StyledTopBar>
@@ -121,16 +124,14 @@ export const JSONEditorView = React.memo(({ values, setValues, submitForm, scope
         </StyledButtonRow>
       </StyledTopBar>
       <EditorWrapper>
-        {isEditorVisible && (
-          <JSONEditor
-            onChange={onChangeSettings}
-            value={editMode ? settingsEditString : settingsViewString}
-            editMode={editMode}
-            error={jsonError}
-            placeholder="No settings found for this server/facility"
-            fontSize={14}
-          />
-        )}
+        <JSONEditor
+          onChange={onChangeSettings}
+          value={editMode ? settingsEditString : settingsViewString}
+          editMode={editMode}
+          error={jsonError}
+          placeholder="No settings found for this server/facility"
+          fontSize={14}
+        />
       </EditorWrapper>
       <DefaultSettingsModal
         open={isDefaultModalOpen}
