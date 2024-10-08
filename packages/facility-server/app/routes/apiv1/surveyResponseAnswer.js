@@ -18,8 +18,8 @@ surveyResponseAnswer.put(
       models,
       user,
       params,
-      body: { facilityId, ...body },
       settings,
+      body: { facilityId, ...body },
     } = req;
     const { SurveyResponseAnswer, SurveyResponse, Survey, VitalLog, ProgramDataElement } = models;
     const { id } = params;
@@ -96,7 +96,7 @@ surveyResponseAnswer.post(
     }
 
     // Ensure data element exists and it's not a calculated question
-    const dataElement = await ProgramDataElement.findOne({ where: { id: req.body.dataElementId } });
+    const dataElement = await ProgramDataElement.findOne({ where: { id: body.dataElementId } });
     if (!dataElement || dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.CALCULATED) {
       throw new InvalidOperationError('Invalid data element.');
     }
@@ -131,7 +131,7 @@ surveyResponseAnswer.post(
 
     let newAnswer;
     await db.transaction(async () => {
-      const { newValue = '', reasonForChange, date, dataElementId } = req.body;
+      const { newValue = '', reasonForChange, date, dataElementId } = body;
       newAnswer = await models.SurveyResponseAnswer.create({
         dataElementId,
         body: newValue,
