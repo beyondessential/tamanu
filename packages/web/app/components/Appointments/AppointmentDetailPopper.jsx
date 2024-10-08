@@ -235,16 +235,6 @@ const AppointDetailsDisplay = ({ appointment, isOvernight }) => {
 };
 
 const AppointmentStatusDisplay = ({ selectedStatus, updateAppointmentStatus }) => {
-  const [localStatus, setLocalStatus] = useState(selectedStatus);
-
-  const handleUpdateAppointmentStatus = useCallback(
-    newValue => {
-      setLocalStatus(newValue);
-      updateAppointmentStatus(newValue, () => setLocalStatus(selectedStatus));
-    },
-    [updateAppointmentStatus, selectedStatus],
-  );
-
   return (
     <AppointmentStatusContainer>
       {APPOINTMENT_STATUS_VALUES.filter(status => status != APPOINTMENT_STATUSES.CANCELLED).map(
@@ -252,8 +242,8 @@ const AppointmentStatusDisplay = ({ selectedStatus, updateAppointmentStatus }) =
           <AppointmentStatusChip
             key={status}
             appointmentStatus={status}
-            deselected={status !== localStatus}
-            onClick={() => handleUpdateAppointmentStatus(status)}
+            deselected={status !== selectedStatus}
+            onClick={() => updateAppointmentStatus(status)}
           />
         ),
       )}
@@ -271,6 +261,7 @@ export const AppointmentDetailPopper = ({
 }) => {
   const dispatch = useDispatch();
   const api = useApi();
+  const [localStatus, setLocalStatus] = useState(appointment.status);
   const patientId = appointment.patient.id;
 
   const handlePatientDetailsClick = useCallback(async () => {
@@ -280,7 +271,7 @@ export const AppointmentDetailPopper = ({
 
   const debounceAppointmentStatus = useMemo(
     () =>
-      debounce(async (newValue, onError) => {
+      debounce(async newValue => {
         try {
           await api.put(`appointments/${appointment.id}`, {
             status: newValue,
@@ -293,15 +284,16 @@ export const AppointmentDetailPopper = ({
               fallback="Error updating appointment status"
             />,
           );
-          if (onError) onError();
+          setLocalStatus(appointment.status);
         }
       }, DEBOUNCE_DELAY),
-    [api, appointment.id, onUpdated],
+    [api, appointment.id, onUpdated, appointment.status],
   );
 
   const updateAppointmentStatus = useCallback(
-    (newValue, onError) => {
-      debounceAppointmentStatus(newValue, onError);
+    newValue => {
+      setLocalStatus(newValue);
+      debounceAppointmentStatus(newValue);
     },
     [debounceAppointmentStatus],
   );
@@ -326,7 +318,7 @@ export const AppointmentDetailPopper = ({
         <PatientDetailsDisplay patient={appointment.patient} onClick={handlePatientDetailsClick} />
         <AppointDetailsDisplay appointment={appointment} isOvernight={isOvernight} />
         <AppointmentStatusDisplay
-          selectedStatus={appointment.status}
+          selectedStatus={localStatus}
           updateAppointmentStatus={updateAppointmentStatus}
         />
       </StyledPaper>
