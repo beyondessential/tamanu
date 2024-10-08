@@ -4,23 +4,33 @@ import { Settings } from '@material-ui/icons';
 
 import { SETTINGS_SCOPES } from '@tamanu/constants';
 
-import { TextButton, ContentPane, ButtonRow, Button } from '../../../components';
+import { TextButton, ButtonRow, Button } from '../../../components';
 import { JSONEditor } from './components/JSONEditor';
 import { DefaultSettingsModal } from './components/DefaultSettingsModal';
 import { notifyError } from '../../../utils';
 import { TranslatedText } from '../../../components/Translation';
 import { Colors } from '../../../constants';
+import { isNull } from 'lodash';
 
 const SettingsWrapper = styled.div`
   background-color: ${Colors.white};
   border: 1px solid ${Colors.outline};
-  margin-top: 20px;
+  margin-top: 1.25rem;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+`;
+
+const EditorWrapper = styled.div`
+  margin: 1.25rem;
+  margin-top: 0;
+  flex: 1;
 `;
 
 const StyledTopBar = styled.div`
   display: flex;
   justify-content: space-between;
-  padding: 20px;
+  padding: 1.25rem;
 `;
 
 const StyledButtonRow = styled(ButtonRow)`
@@ -41,7 +51,7 @@ const buildSettingsString = settings => {
 };
 
 export const JSONEditorView = React.memo(({ values, setValues, submitForm, scope, facilityId }) => {
-  const [settingsEditString, setSettingsEditString] = useState('');
+  const [settingsEditString, setSettingsEditString] = useState(null);
   const [jsonError, setJsonError] = useState(null);
   const [isDefaultModalOpen, setIsDefaultModalOpen] = useState(false);
 
@@ -80,9 +90,12 @@ export const JSONEditorView = React.memo(({ values, setValues, submitForm, scope
     }
   };
 
-  const editMode = !!settingsEditString;
+  const editMode = !isNull(settingsEditString);
   const isEditorVisible = scope !== SETTINGS_SCOPES.FACILITY || facilityId;
 
+  if (!isEditorVisible) {
+    return null;
+  }
   return (
     <SettingsWrapper>
       <StyledTopBar>
@@ -90,7 +103,8 @@ export const JSONEditorView = React.memo(({ values, setValues, submitForm, scope
           <Settings />
           <TranslatedText
             stringId="admin.settings.viewDefaultScope.message"
-            fallback="View default {scope} settings"
+            fallback="View default :scope settings"
+            replacements={{ scope }}
           />
         </DefaultSettingsButton>
         <StyledButtonRow>
@@ -110,18 +124,16 @@ export const JSONEditorView = React.memo(({ values, setValues, submitForm, scope
           )}
         </StyledButtonRow>
       </StyledTopBar>
-      <ContentPane>
-        {isEditorVisible && (
-          <JSONEditor
-            onChange={onChangeSettings}
-            value={editMode ? settingsEditString : settingsViewString}
-            editMode={editMode}
-            error={jsonError}
-            placeholder="No settings found for this server/facility"
-            fontSize={14}
-          />
-        )}
-      </ContentPane>
+      <EditorWrapper>
+        <JSONEditor
+          onChange={onChangeSettings}
+          value={editMode ? settingsEditString : settingsViewString}
+          editMode={editMode}
+          error={jsonError}
+          placeholder="No settings found for this server/facility"
+          fontSize={14}
+        />
+      </EditorWrapper>
       <DefaultSettingsModal
         open={isDefaultModalOpen}
         onClose={() => setIsDefaultModalOpen(false)}

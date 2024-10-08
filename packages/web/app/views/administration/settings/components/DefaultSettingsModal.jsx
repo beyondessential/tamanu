@@ -13,6 +13,23 @@ const SCOPE_DEFAULT_SETTINGS = {
   [SETTINGS_SCOPES.FACILITY]: facilityDefaults,
 };
 
+const StyledModal = styled(Modal)`
+  .MuiPaper-root {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    > :not(.MuiDialogTitle-root) {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      > :not(.MuiDialogActions-root) {
+        display: flex;
+        flex-direction: column;
+      }
+    }
+  }
+`;
+
 const Description = styled.div`
   font-size: 14px;
   margin-bottom: 18px;
@@ -21,11 +38,11 @@ const Description = styled.div`
 export const DefaultSettingsModal = React.memo(({ scope, open, onClose }) => {
   const defaultSettingsForScope = JSON.stringify(SCOPE_DEFAULT_SETTINGS[scope], null, 2);
   return (
-    <Modal open={open} onClose={onClose} width="lg" title={`Default ${scope} settings`}>
+    <StyledModal open={open} onClose={onClose} width="lg" title={`Default ${scope} settings`}>
       <Description>
         These are the fallback values for keys not defined in {scope} settings
       </Description>
       <JSONEditor value={defaultSettingsForScope} editMode={false} />
-    </Modal>
+    </StyledModal>
   );
 });

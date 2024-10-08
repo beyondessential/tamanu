@@ -10,11 +10,11 @@ import { TranslatedText } from '../../../../components/Translation';
 
 const ScopeSelectInput = styled(SelectInput)`
   width: 300px;
-  margin-bottom: 10px;
 `;
 
 const ScopeDynamicSelectInput = styled(DynamicSelectField)`
   width: 300px;
+  margin-top: 0.5rem;
 `;
 
 const SCOPE_OPTIONS = [

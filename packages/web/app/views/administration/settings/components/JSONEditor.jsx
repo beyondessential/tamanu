@@ -81,8 +81,8 @@ export const JSONEditor = React.memo(
 
     return (
       <StyledJSONEditor
-        height="600px"
         width="100%"
+        height="100%"
         mode="json"
         showPrintMargin={false}
         placeholder={placeholder}

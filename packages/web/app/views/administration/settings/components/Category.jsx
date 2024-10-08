@@ -4,7 +4,7 @@ import LockIcon from '@material-ui/icons/Lock';
 
 import { isSetting } from '@tamanu/settings';
 
-import { BodyText, Heading4, LargeBodyText } from '../../../../components';
+import { BodyText, Heading4, LargeBodyText, TranslatedText } from '../../../../components';
 import { Colors } from '../../../../constants';
 import { ThemedTooltip } from '../../../../components/Tooltip';
 import { SettingInput } from './SettingInput';
@@ -59,7 +59,19 @@ const CategoryTitle = memo(({ name, path, description }) => {
 });
 
 const SettingName = memo(({ name, path, description, disabled }) => (
-  <ThemedTooltip disableHoverListener={!description} title={description}>
+  <ThemedTooltip
+    disableHoverListener={!description && !disabled}
+    title={
+      disabled ? (
+        <TranslatedText
+          stringId="admin.settings.highRiskSettingTooltip"
+          fallback="User does not required permissions to update this setting"
+        />
+      ) : (
+        description
+      )
+    }
+  >
     <SettingNameLabel color={disabled && 'textTertiary'}>
       {formatSettingName(name, path.split('.').pop())}
       {disabled && <StyledLockIcon />}

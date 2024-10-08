@@ -128,9 +128,16 @@ export class AutocompleteInput extends Component {
   }
 
   updateValue = async (allowFreeTextForExistingValue = false) => {
-    const { value, suggester } = this.props;
+    const { value, suggester, options } = this.props;
 
     if (!suggester) {
+      const selectedOption = options?.find(option => option.value === value);
+      this.setState({
+        selectedOption: {
+          value: selectedOption?.label || '',
+          tag: null,
+        },
+      });
       return;
     }
     if (value === '') {
@@ -215,7 +222,7 @@ export class AutocompleteInput extends Component {
   };
 
   attemptAutoFill = async () => {
-    const { autofill, name } = this.props;
+    const { autofill, controlled, name } = this.props;
     if (!autofill) {
       return false;
     }
@@ -224,33 +231,40 @@ export class AutocompleteInput extends Component {
       return false;
     }
     const autoSelectOption = suggestions[0];
-    this.setState({
-      selectedOption: {
-        value: autoSelectOption.label,
-        tag: autoSelectOption.tag,
-      },
-    });
+    if (!controlled) {
+      this.setState({
+        selectedOption: {
+          value: autoSelectOption.label,
+          tag: autoSelectOption.tag,
+        },
+      });
+    }
     this.handleSuggestionChange({ value: autoSelectOption.value, name });
     return true;
   };
 
   handleInputChange = (event, { newValue }) => {
+    const { controlled } = this.props;
     if (!newValue) {
       // when deleting field contents, clear the selection
       this.handleSuggestionChange({ value: undefined, label: '' });
     }
     if (typeof newValue !== 'undefined') {
-      this.setState(prevState => {
-        const newSuggestion = prevState.suggestions.find(suggest => suggest.label === newValue);
-        return { selectedOption: { value: newValue, tag: newSuggestion?.tag ?? null } };
-      });
+      if (!controlled) {
+        this.setState(prevState => {
+          const newSuggestion = prevState.suggestions.find(suggest => suggest.label === newValue);
+          return { selectedOption: { value: newValue, tag: newSuggestion?.tag ?? null } };
+        });
+      }
     }
   };
 
   handleClearValue = () => {
-    const { onChange, name } = this.props;
+    const { onChange, name, controlled } = this.props;
     onChange({ target: { value: undefined, name } });
-    this.setState({ selectedOption: { value: '', tag: null } });
+    if (!controlled) {
+      this.setState({ selectedOption: { value: '', tag: null } });
+    }
   };
 
   clearOptions = () => {
@@ -437,7 +451,8 @@ AutocompleteInput.propTypes = {
   className: PropTypes.string,
   onChange: PropTypes.func.isRequired,
   value: PropTypes.string,
-
+  // Only determine input state when supplied value has changed
+  controlled: PropTypes.bool,
   suggester: PropTypes.shape({
     fetchCurrentOption: PropTypes.func.isRequired,
     fetchSuggestions: PropTypes.func.isRequired,

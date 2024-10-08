@@ -140,31 +140,19 @@ export const EditorView = memo(
 
     useEffect(handleChangeScope, [scope]);
 
-    const checkDismissChanges = async () => {
-      const dismissChanges = await handleShowWarningModal();
-      if (dismissChanges) {
-        await resetForm();
-      }
-      return dismissChanges;
-    };
-
     const handleChangeCategory = async e => {
       const newCategory = e.target.value;
       if (newCategory !== category && dirty) {
-        const dismissed = await checkDismissChanges();
-        if (!dismissed) return;
+        const dismissChanges = await handleShowWarningModal();
+        if (!dismissChanges) return;
+        await resetForm();
       }
       setSubCategory(null);
       setCategory(newCategory);
     };
 
-    const handleChangeSubcategory = async e => {
-      const newSubCategory = e.target.value;
-      if (newSubCategory && newSubCategory !== subCategory && dirty) {
-        const dismissed = await checkDismissChanges();
-        if (!dismissed) return;
-      }
-      setSubCategory(newSubCategory);
+    const handleChangeSubcategory = e => {
+      setSubCategory(e.target.value);
     };
 
     const getSettingPath = path =>
@@ -199,6 +187,7 @@ export const EditorView = memo(
               <StyledDynamicSelectField
                 required
                 placeholder=""
+                controlled
                 label={
                   <TranslatedText
                     stringId="admin.settings.category.label"

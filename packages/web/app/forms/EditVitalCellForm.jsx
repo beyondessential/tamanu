@@ -22,7 +22,6 @@ import { SurveyQuestion } from '../components/Surveys';
 import { getValidationSchema } from '../utils';
 import { Colors, FORM_TYPES } from '../constants';
 import { useApi } from '../api';
-import { useAuth } from '../contexts/Auth';
 import { useEncounter } from '../contexts/Encounter';
 import { useSettings } from '../contexts/Settings';
 import { useTranslation } from '../contexts/Translation';

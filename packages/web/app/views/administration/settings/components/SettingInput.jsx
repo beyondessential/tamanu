@@ -12,7 +12,7 @@ import {
 } from '../../../../components';
 import { JSONEditor } from './JSONEditor';
 import { Colors } from '../../../../constants';
-import { ConditionalTooltip, ThemedTooltip } from '../../../../components/Tooltip';
+import { ConditionalTooltip } from '../../../../components/Tooltip';
 
 const Unit = styled.div`
   font-size: 15px; // Match TextField
@@ -78,8 +78,11 @@ export const SettingInput = ({
 }) => {
   const { type } = typeSchema;
   const [error, setError] = useState(null);
-  const normalize = val => (val === null || val === '') ? '' : val;
-  const isUnchangedFromDefault = useMemo(() => isEqual(normalize(value), normalize(defaultValue)), [value, defaultValue]);
+  const normalize = val => (val === null || val === '' ? '' : val);
+  const isUnchangedFromDefault = useMemo(() => isEqual(normalize(value), normalize(defaultValue)), [
+    value,
+    defaultValue,
+  ]);
 
   useEffect(() => {
     try {
