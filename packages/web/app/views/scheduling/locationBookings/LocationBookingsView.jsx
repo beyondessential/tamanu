@@ -40,7 +40,12 @@ const Placeholder = styled.div`
 // END PLACEHOLDERS
 
 const thisWeekId = 'location-bookings-calendar__this-week';
-const firstDisplayedDateId = 'location-bookings-calendar__beginning';
+const firstDisplayedDayId = 'location-bookings-calendar__beginning';
+
+const scrollToThisWeek = () =>
+  document.getElementById(thisWeekId)?.scrollIntoView({ inline: 'start' });
+const scrollToBeginning = () =>
+  document.getElementById(firstDisplayedDayId)?.scrollIntoView({ inline: 'start' });
 
 const isStartOfThisWeek = date => {
   const startOfThisWeek = startOfWeek(new Date(), { weekStartsOn: 1 });
@@ -95,11 +100,7 @@ export const LocationBookingsView = () => {
   const displayedDates = getDisplayableDates(monthOf);
   const isFirstDisplayedDate = date => isSameDay(date, displayedDates[0]);
 
-  useEffect(() => {
-    document
-      .getElementById(isThisMonth(monthOf) ? thisWeekId : firstDisplayedDateId)
-      ?.scrollIntoView({ inline: 'start' });
-  }, [monthOf]);
+  useEffect(() => (isThisMonth(monthOf) ? scrollToThisWeek : scrollToBeginning)(), [monthOf]);
 
   const appointments =
     useLocationBookingsQuery({
@@ -133,7 +134,7 @@ export const LocationBookingsView = () => {
               const elementId = isStartOfThisWeek(d)
                 ? thisWeekId
                 : isFirstDisplayedDate(d)
-                ? firstDisplayedDateId
+                ? firstDisplayedDayId
                 : null;
               return (
                 <CalendarHeaderComponents
