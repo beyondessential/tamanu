@@ -351,6 +351,11 @@ async function run(packageName) {
   await client.end();
 }
 
+function checkClean() {
+  const subprocess = spawnSync('git', ['status', '--porcelain=v2', 'database'], { shell: true });
+  return subprocess.stdout.length === 0;
+}
+
 program
   .description(
     `Generates a Source model in dbt.
@@ -365,11 +370,8 @@ program.parse();
 const opts = program.opts();
 
 // This doesn't take untracked files into account.
-if (
-  !opts.allowDirty &&
-  spawnSync('git', ['diff', '--quiet'], { stdio: 'inherit', shell: true }).status === 1
-) {
-  console.warn('The repo is dirty, terminating');
+if (!opts.allowDirty && !checkClean()) {
+  console.error('Error: `database/` has uncommited changes');
   exit(1);
 }
 
