@@ -37,7 +37,10 @@ location.get(
           as: 'locationGroup',
         },
       ];
-      options.order = [['locationGroup', 'name', 'ASC']];
+      options.order = [
+        ['locationGroup', 'name', 'ASC'],
+        ['name', 'ASC'],
+      ];
     }
 
     const locations = await Location.findAll(options);
