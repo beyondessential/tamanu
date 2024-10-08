@@ -1,123 +1,8 @@
 import config from 'config';
 import * as yup from 'yup';
-import { defaultsDeep, mapValues } from 'lodash';
+import { defaultsDeep } from 'lodash';
 import { log } from '@tamanu/shared/services/logging';
-import { IMAGING_TYPES, PATIENT_DETAIL_LAYOUTS } from '@tamanu/constants';
-
-const mobilePatientModuleSchema = yup
-  .object({
-    sortPriority: yup.number().required(),
-    hidden: yup.boolean(),
-  })
-  .required()
-  .noUnknown();
-
-const patientTabSchema = yup
-  .object({
-    sortPriority: yup.number().required(),
-    hidden: yup.boolean(),
-  })
-  .required()
-  .noUnknown();
-
-const unhideablePatientTabSchema = yup
-  .object({
-    sortPriority: yup.number().required(),
-    hidden: yup
-      .boolean()
-      .oneOf([false], 'unhideable tabs must not be hidden')
-      .required(),
-  })
-  .required();
-
-const MOBILE_PATIENT_MODULES = [
-  'diagnosisAndTreatment',
-  'vitals',
-  'programs',
-  'referral',
-  'vaccine',
-  'tests',
-];
-
-const UNHIDEABLE_PATIENT_TABS = ['history', 'details'];
-
-const HIDEABLE_PATIENT_TABS = [
-  'results',
-  'referrals',
-  'programs',
-  'documents',
-  'vaccines',
-  'medication',
-  'invoices',
-];
-
-const mobilePatientModulesSchema = yup.object({
-  programRegistries: yup.object({ hidden: yup.boolean() }),
-  ...MOBILE_PATIENT_MODULES.reduce(
-    (modules, module) => ({
-      ...modules,
-      [module]: mobilePatientModuleSchema,
-    }),
-    {},
-  ),
-});
-
-const patientTabsSchema = yup.object({
-  ...UNHIDEABLE_PATIENT_TABS.reduce(
-    (tabs, tab) => ({
-      ...tabs,
-      [tab]: unhideablePatientTabSchema,
-    }),
-    {},
-  ),
-  ...HIDEABLE_PATIENT_TABS.reduce(
-    (tabs, tab) => ({
-      ...tabs,
-      [tab]: patientTabSchema,
-    }),
-    {},
-  ),
-});
-
-const SIDEBAR_ITEMS = {
-  patients: ['patientsAll', 'patientsInpatients', 'patientsEmergency', 'patientsOutpatients'],
-  scheduling: ['schedulingAppointments', 'schedulingCalendar', 'schedulingNew'],
-  medication: ['medicationAll'],
-  imaging: ['imagingActive', 'imagingCompleted'],
-  labs: ['labsAll', 'labsPublished'],
-  immunisations: ['immunisationsAll'],
-  programRegistry: [],
-  facilityAdmin: ['reports', 'bedManagement'],
-};
-
-const sidebarItemSchema = yup
-  .object({
-    sortPriority: yup.number().required(),
-    hidden: yup.boolean(),
-  })
-  .required()
-  .noUnknown();
-
-// patients and patientsAll are intentionally not configurable
-const sidebarSchema = yup
-  .object(
-    mapValues(SIDEBAR_ITEMS, (children, topItem) => {
-      const childSchema = yup
-        .object(
-          children.reduce(
-            (obj, childItem) =>
-              childItem === 'patientsAll' ? obj : { ...obj, [childItem]: sidebarItemSchema },
-            {},
-          ),
-        )
-        .required()
-        .noUnknown();
-
-      return topItem === 'patients' ? childSchema : sidebarItemSchema.concat(childSchema);
-    }),
-  )
-  .required()
-  .noUnknown();
+import { IMAGING_TYPES } from '@tamanu/constants';
 
 const imagingTypeSchema = yup
   .object({
@@ -136,16 +21,6 @@ const imagingTypesSchema = yup
     ),
   })
   .required();
-
-const layoutsSchema = yup.object({
-  patientDetails: yup
-    .string()
-    .required()
-    .oneOf(Object.values(PATIENT_DETAIL_LAYOUTS)),
-  mobilePatientModules: mobilePatientModulesSchema,
-  patientTabs: patientTabsSchema,
-  sidebar: sidebarSchema,
-});
 
 const rootLocalisationSchema = yup
   .object({
@@ -170,7 +45,6 @@ const rootLocalisationSchema = yup
     },
     timeZone: yup.string().nullable(),
     imagingTypes: imagingTypesSchema,
-    layouts: layoutsSchema,
     previewUvciFormat: yup
       .string()
       .required()

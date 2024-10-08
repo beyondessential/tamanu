@@ -57,7 +57,7 @@ export class ApplicationContext {
       this.reportSchemaStores = await initReporting();
     }
 
-    this.settings = new ReadSettings(this.store.models);
+    this.settings = new ReadSettings(this.store.models)
 
     this.telegramBotService = await defineSingletonTelegramBotService({
       config,
