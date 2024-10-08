@@ -1,8 +1,10 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { push } from 'connected-react-router';
 import { Box, IconButton, Paper, Popper, styled } from '@mui/material';
 import { MoreVert, Close, Brightness2 as Overnight } from '@mui/icons-material';
+import { debounce } from 'lodash';
+import { toast } from 'react-toastify';
 
 import { PatientNameDisplay } from '../PatientNameDisplay';
 import {
@@ -15,8 +17,14 @@ import { Colors } from '../../constants';
 import { DateDisplay, getDateDisplay } from '../DateDisplay';
 import { reloadPatient } from '../../store';
 import { useApi } from '../../api';
-import { APPOINTMENT_STATUS_VALUES, APPOINTMENT_STATUSES, APPOINTMENT_TYPE_LABELS } from '@tamanu/constants';
+import {
+  APPOINTMENT_STATUS_VALUES,
+  APPOINTMENT_STATUSES,
+  APPOINTMENT_TYPE_LABELS,
+} from '@tamanu/constants';
 import { AppointmentStatusChip } from './AppointmentStatusChip';
+
+const DEBOUNCE_DELAY = 200; // ms
 
 const formatDateRange = (start, end, isOvernight) => {
   const formattedStart = getDateDisplay(start, { showDate: true, showTime: true });
@@ -227,6 +235,20 @@ const AppointDetailsDisplay = ({ appointment, isOvernight }) => {
 };
 
 const AppointmentStatusDisplay = ({ selectedStatus, updateAppointmentStatus }) => {
+  const [localStatus, setLocalStatus] = useState(selectedStatus);
+
+  useEffect(() => {
+    setLocalStatus(selectedStatus);
+  }, [selectedStatus]);
+
+  const handleUpdateAppointmentStatus = useCallback(
+    newValue => {
+      setLocalStatus(newValue);
+      updateAppointmentStatus(newValue, () => setLocalStatus(selectedStatus));
+    },
+    [updateAppointmentStatus, selectedStatus],
+  );
+
   return (
     <AppointmentStatusContainer>
       {APPOINTMENT_STATUS_VALUES.filter(status => status != APPOINTMENT_STATUSES.CANCELLED).map(
@@ -234,8 +256,8 @@ const AppointmentStatusDisplay = ({ selectedStatus, updateAppointmentStatus }) =
           <AppointmentStatusChip
             key={status}
             appointmentStatus={status}
-            deselected={status !== selectedStatus}
-            onClick={() => updateAppointmentStatus(status)}
+            deselected={status !== localStatus}
+            onClick={() => handleUpdateAppointmentStatus(status)}
           />
         ),
       )}
@@ -260,14 +282,33 @@ export const AppointmentDetailPopper = ({
     dispatch(push(`/patients/all/${patientId}`));
   }, [dispatch, patientId]);
 
-  const updateAppointmentStatus = useCallback(
-    async newValue => {
-      await api.put(`appointments/${appointment.id}`, {
-        status: newValue,
-      });
-      onUpdated();
-    },
+  const debounceAppointmentStatus = useMemo(
+    () =>
+      debounce(async (newValue, onError) => {
+        try {
+          await api.put(`appointments/${appointment.id}`, {
+            status: newValue,
+          });
+          onUpdated();
+        } catch (error) {
+          toast.error(
+            <TranslatedText
+              stringId="schedule.error.updateStatus"
+              fallback="Error updating appointment status"
+            />,
+          );
+          if (onError) onError();
+        }
+      }, DEBOUNCE_DELAY),
     [api, appointment.id, onUpdated],
+  );
+
+  const updateAppointmentStatus = useCallback(
+    (newValue, onError) => {
+      debounceAppointmentStatus.cancel();
+      debounceAppointmentStatus(newValue, onError);
+    },
+    [debounceAppointmentStatus],
   );
 
   return (
