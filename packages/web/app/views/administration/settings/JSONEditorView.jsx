@@ -20,8 +20,8 @@ const SettingsWrapper = styled.div`
   flex-direction: column;
 `;
 
-export const ContentPane = styled.div`
-  margin: 30px;
+const EditorWrapper = styled.div`
+  margin: 1.25rem;
   margin-top: 0;
   flex: 1;
 `;
@@ -120,7 +120,7 @@ export const JSONEditorView = React.memo(({ values, setValues, submitForm, scope
           )}
         </StyledButtonRow>
       </StyledTopBar>
-      <ContentPane>
+      <EditorWrapper>
         {isEditorVisible && (
           <JSONEditor
             onChange={onChangeSettings}
@@ -131,7 +131,7 @@ export const JSONEditorView = React.memo(({ values, setValues, submitForm, scope
             fontSize={14}
           />
         )}
-      </ContentPane>
+      </EditorWrapper>
       <DefaultSettingsModal
         open={isDefaultModalOpen}
         onClose={() => setIsDefaultModalOpen(false)}
