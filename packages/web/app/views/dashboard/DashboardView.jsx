@@ -19,7 +19,7 @@ const TopBar = styled.div`
   justify-content: space-between;
 `;
 
-export const DashboardView = ({}) => {
+export const DashboardView = () => {
   const { currentUser } = useAuth();
 
   return (
