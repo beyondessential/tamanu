@@ -15,7 +15,7 @@ import styled from 'styled-components';
 
 import { useLocationBookingsQuery, useLocationsQuery } from '../../../api/queries';
 import { Colors } from '../../../constants';
-import { PageContainer, TopBar, TranslatedText } from '../../../components';
+import { MonthYearInput, PageContainer, TopBar, TranslatedText } from '../../../components';
 import { CarouselComponents as CarouselGrid } from './CarouselComponents';
 import { CalendarHeaderComponents } from './CalendarHeaderComponents';
 import { BookingsRow } from './CalendarBodyComponents';
@@ -78,6 +78,12 @@ const Carousel = styled.div`
   }
 `;
 
+const MonthPicker = styled(MonthYearInput)`
+  body:has(&) > .MuiPickersPopper-root {
+    z-index: 1; // Above the sticky headers
+  }
+`;
+
 const getDisplayableDates = date => {
   const start = startOfWeek(startOfMonth(date), { weekStartsOn: 1 });
   const end = endOfWeek(endOfMonth(date), { weekStartsOn: 1 });
@@ -121,7 +127,7 @@ export const LocationBookingsView = () => {
         <CarouselGrid.Root $dayCount={displayedDates.length}>
           <CarouselGrid.HeaderRow>
             <CarouselGrid.FirstHeaderCell>
-              <Placeholder>Picker</Placeholder>
+              <MonthPicker onAccept={setMonthOf} />
             </CarouselGrid.FirstHeaderCell>
             {displayedDates.map(d => {
               const elementId = isStartOfThisWeek(d)
