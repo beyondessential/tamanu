@@ -3,6 +3,11 @@ import { ToastContainer } from 'react-toastify';
 import { Colors } from './constants';
 
 export const CustomToastContainer = styled(ToastContainer)`
+  &&&.Toastify__toast-container {
+    min-width: 303px;
+    max-width: 379px;
+    width: auto;
+  }
   .Toastify__toast--success {
     background-color: #e9f5ee;
     color: ${Colors.green};
@@ -19,21 +24,22 @@ export const CustomToastContainer = styled(ToastContainer)`
   }
   .Toastify__toast {
     min-height: 40px;
-    width: 379px;
     border-radius: 3px;
     padding: 11px 12px;
-    display: flex;
-    align-items: center;
+    width: fit-content;
+    margin-left: auto;
 
     .Toastify__toast-body {
       padding: 0;
-      border: 1px solid green;
-      max-width: 80%;
+      margin-right: 54px;
+
     }
     svg {
-      width: 12px;
-      height: 12px;
-      border: 1px red solid
+      width: 10px;
+      height: 10px;
+      position: absolute;
+      right: 16px;
+      top: 16px;
     }
   }
 `;
