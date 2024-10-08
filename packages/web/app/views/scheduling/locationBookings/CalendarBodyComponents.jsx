@@ -1,3 +1,4 @@
+import { formatISO } from 'date-fns';
 import React from 'react';
 
 import { CarouselComponents as CarouselGrid } from './CarouselComponents';
@@ -32,7 +33,7 @@ export const BookingsRow = ({ appointments, dates, location }) => {
       </CarouselGrid.RowHeaderCell>
       {dates.map(d => (
         <BookingsCell
-          appointments={appointmentsByDate[d.toISOString().slice(0, 10)]}
+          appointments={appointmentsByDate[formatISO(d, { representation: 'date' })]}
           date={d}
           key={d.valueOf()}
           location={location}
