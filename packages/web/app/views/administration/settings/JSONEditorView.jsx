@@ -10,6 +10,7 @@ import { DefaultSettingsModal } from './components/DefaultSettingsModal';
 import { notifyError } from '../../../utils';
 import { TranslatedText } from '../../../components/Translation';
 import { Colors } from '../../../constants';
+import { isNull } from 'lodash';
 
 const SettingsWrapper = styled.div`
   background-color: ${Colors.white};
@@ -89,7 +90,7 @@ export const JSONEditorView = React.memo(({ values, setValues, submitForm, scope
     }
   };
 
-  const editMode = typeof settingsEditString === 'string';
+  const editMode = !isNull(settingsEditString);
   const isEditorVisible = scope !== SETTINGS_SCOPES.FACILITY || facilityId;
 
   if (!isEditorVisible) {
