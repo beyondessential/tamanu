@@ -2,7 +2,11 @@ import { DataTypes } from 'sequelize';
 
 export async function up(query) {
   await query.createTable('sync_device_ticks', {
+    id: {
+      type: `BIGINT GENERATED ALWAYS AS ("persisted_at_sync_tick") STORED`,
+    },
     persisted_at_sync_tick: {
+      primaryKey: true,
       type: DataTypes.BIGINT,
       allowNull: false,
     },
