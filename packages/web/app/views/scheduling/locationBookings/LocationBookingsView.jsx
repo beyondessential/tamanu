@@ -2,12 +2,14 @@ import {
   eachDayOfInterval,
   endOfMonth,
   endOfWeek,
+  isSameDay,
   isSameMonth,
+  isThisMonth,
   startOfMonth,
   startOfToday,
   startOfWeek,
 } from 'date-fns';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 
 import { useLocationBookingsQuery, useLocationsQuery } from '../../../api/queries';
@@ -35,6 +37,14 @@ const Placeholder = styled.div`
 
 // END PLACEHOLDERS
 
+const thisWeekId = 'location-bookings-calendar__this-week';
+const firstDisplayedDateId = 'location-bookings-calendar__beginning';
+
+const isStartOfThisWeek = date => {
+  const startOfThisWeek = startOfWeek(new Date(), { weekStartsOn: 1 });
+  return isSameDay(date, startOfThisWeek);
+};
+
 const partitionAppointmentsByLocation = appointments =>
   appointments.reduce((acc, appt) => {
     const locationId = appt.locationId;
@@ -43,7 +53,7 @@ const partitionAppointmentsByLocation = appointments =>
     return acc;
   }, {});
 
-const partitionAppoitmentsByDate = appointments =>
+const partitionAppointmentsByDate = appointments =>
   appointments.reduce((acc, appt) => {
     const date = appt.startTime.slice(0, 10); // Slice out ISO date, no time
     if (!acc[date]) acc[date] = [];
@@ -51,13 +61,11 @@ const partitionAppoitmentsByDate = appointments =>
     return acc;
   }, {});
 
-const LocationBookingsTopBar = () => (
-  <TopBar
-    title={
-      <TranslatedText stringId="scheduling.locationBookings.title" fallback="Location bookings" />
-    }
-  />
-);
+const LocationBookingsTopBar = styled(TopBar).attrs({
+  title: (
+    <TranslatedText stringId="scheduling.locationBookings.title" fallback="Location bookings" />
+  ),
+})``;
 
 const Wrapper = styled(PageContainer)`
   max-block-size: 100%;
@@ -78,6 +86,10 @@ const Carousel = styled.div`
   overflow: scroll;
   overscroll-behavior: contain;
   scroll-snap-type: both mandatory;
+
+  @media (prefers-reduced-motion: no-preference) {
+    scroll-behavior: smooth;
+  }
 `;
 
 const BookingsRow = ({ appointments, dates, location }) => {
@@ -85,7 +97,7 @@ const BookingsRow = ({ appointments, dates, location }) => {
     name: locationName,
     locationGroup: { name: locationGroupName },
   } = location;
-  const appointmentsByDate = partitionAppoitmentsByDate(appointments);
+  const appointmentsByDate = partitionAppointmentsByDate(appointments);
 
   return (
     <CalendarGrid.Row>
@@ -113,6 +125,12 @@ export const LocationBookingsView = () => {
   const [monthOf, setMonthOf] = useState(startOfToday());
   const displayedDates = getDisplayableDates(monthOf);
 
+  useEffect(() => {
+    document
+      .getElementById(isThisMonth(monthOf) ? thisWeekId : firstDisplayedDateId)
+      ?.scrollIntoView({ inline: 'start' });
+  }, [monthOf]);
+
   const appointments = useLocationBookingsQuery().data?.data ?? [];
   const { data: locations, isLoading: locationsAreLoading } = useLocationsQuery({
     includeLocationGroup: true,
@@ -137,9 +155,21 @@ export const LocationBookingsView = () => {
             <CalendarGrid.FirstHeaderCell>
               <Placeholder>Picker</Placeholder>
             </CalendarGrid.FirstHeaderCell>
-            {displayedDates.map(d => (
-              <DayHeaderCell date={d} dim={!isSameMonth(d, monthOf)} key={d.valueOf()} />
-            ))}
+            {displayedDates.map(d => {
+              const elementId = isStartOfThisWeek(d)
+                ? thisWeekId
+                : isSameDay(d, displayedDates[0])
+                ? firstDisplayedDateId
+                : null;
+              return (
+                <DayHeaderCell
+                  date={d}
+                  dim={!isSameMonth(d, monthOf)}
+                  id={elementId}
+                  key={d.valueOf()}
+                />
+              );
+            })}
           </CalendarGrid.HeaderRow>
           {locationsAreLoading ? (
             <SkeletonRows colCount={displayedDates.length} />
