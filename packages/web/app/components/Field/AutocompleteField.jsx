@@ -222,7 +222,7 @@ export class AutocompleteInput extends Component {
   };
 
   attemptAutoFill = async () => {
-    const { autofill, name } = this.props;
+    const { autofill, controlled, name } = this.props;
     if (!autofill) {
       return false;
     }
@@ -231,12 +231,14 @@ export class AutocompleteInput extends Component {
       return false;
     }
     const autoSelectOption = suggestions[0];
-    this.setState({
-      selectedOption: {
-        value: autoSelectOption.label,
-        tag: autoSelectOption.tag,
-      },
-    });
+    if (!controlled) {
+      this.setState({
+        selectedOption: {
+          value: autoSelectOption.label,
+          tag: autoSelectOption.tag,
+        },
+      });
+    }
     this.handleSuggestionChange({ value: autoSelectOption.value, name });
     return true;
   };
