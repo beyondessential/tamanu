@@ -21,6 +21,7 @@ import {
   vitalEditReasonsDefault,
   vitalEditReasonsSchema,
 } from './definitions';
+import { layoutModuleProperties, unhideableLayoutModuleProperties } from './global-settings-properties/layouts';
 
 export const globalSettings = {
   title: 'Global settings',
@@ -916,6 +917,135 @@ export const globalSettings = {
               type: yup.number().min(0),
               defaultValue: 5,
               unit: 'mm',
+            },
+          },
+        },
+      },
+    },
+    layouts: {
+      description: 'Customise the layout of modules',
+      properties: {
+        mobilePatientModules: {
+          description: 'The homepage modules on mobile',
+          properties: {
+            programRegistries: {
+              description: '_',
+              properties: { hidden: { type: yup.boolean(), defaultValue: false } },
+            },
+            diagnosisAndTreatment: {
+              description: '_',
+              properties: layoutModuleProperties,
+            },
+            vitals: {
+              description: '_',
+              properties: layoutModuleProperties,
+            },
+            programs: {
+              description: '_',
+              properties: layoutModuleProperties,
+            },
+            referral: {
+              description: '_',
+              properties: layoutModuleProperties,
+            },
+            vaccine: {
+              description: '_',
+              properties: layoutModuleProperties,
+            },
+            tests: {
+              description: '_',
+              properties: layoutModuleProperties,
+            },
+          },
+        },
+        patientTabs: {
+          description: 'The tabs on patient view',
+          properties: {
+            history: {
+              description: '_',
+              properties: unhideableLayoutModuleProperties,
+            },
+            details: {
+              description: '_',
+              properties: unhideableLayoutModuleProperties,
+            },
+            results: {
+              description: '_',
+              properties: layoutModuleProperties,
+            },
+            referrals: {
+              description: '_',
+              properties: layoutModuleProperties,
+            },
+            programs: {
+              description: '_',
+              properties: layoutModuleProperties,
+            },
+            documents: {
+              description: '_',
+              properties: layoutModuleProperties,
+            },
+            vaccines: {
+              description: '_',
+              properties: layoutModuleProperties,
+            },
+            medication: {
+              description: '_',
+              properties: layoutModuleProperties,
+            },
+            invoices: {
+              description: '_',
+              properties: layoutModuleProperties,
+            },
+          },
+        },
+        sidebar: {
+          description: 'The sidebar tabs in the facility',
+          properties: {
+            patients: {
+              description: '_',
+              properties: {
+                patientsInpatients: { properties: layoutModuleProperties },
+                patientsEmergency: { properties: layoutModuleProperties },
+                patientsOutpatients: { properties: layoutModuleProperties },
+              },
+            },
+            scheduling: {
+              description: '_',
+              properties: {
+                schedulingAppointments: { properties: layoutModuleProperties },
+                schedulingCalendar: { properties: layoutModuleProperties },
+                schedulingNew: { properties: layoutModuleProperties },
+              },
+            },
+            medication: {
+              description: '_',
+              properties: { medicationAll: { properties: layoutModuleProperties } },
+            },
+            imaging: {
+              description: '_',
+              properties: {
+                imagingActive: { properties: layoutModuleProperties },
+                imagingCompleted: { properties: layoutModuleProperties },
+              },
+            },
+            labs: {
+              description: '_',
+              properties: {
+                labsAll: { properties: layoutModuleProperties },
+                labsPublished: { properties: layoutModuleProperties },
+              },
+            },
+            immunisations: {
+              description: '_',
+              properties: { immunisationsAll: { properties: layoutModuleProperties } },
+            },
+            facilityAdmin: {
+              description: '_',
+              properties: {
+                reports: { properties: layoutModuleProperties },
+                bedManagement: { properties: layoutModuleProperties },
+              },
             },
           },
         },
