@@ -545,6 +545,7 @@ describe('Sync Lookup data', () => {
     });
     await models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, 4);
     await models.LocalSystemFact.set(LOOKUP_UP_TO_TICK_KEY, -1);
+    await models.SyncDeviceTick.truncate({ force: true });
 
     jest.resetModules();
     jest.clearAllMocks();
