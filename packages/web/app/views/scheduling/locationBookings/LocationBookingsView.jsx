@@ -4,12 +4,14 @@ import {
   endOfWeek,
   isSameMonth,
   startOfMonth,
+  startOfToday,
   startOfWeek,
 } from 'date-fns';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
 import { useLocationBookingsQuery, useLocationsQuery } from '../../../api/queries';
+import { AppointmentTile } from '../../../components/Appointments/AppointmentTile';
 import { Colors } from '../../../constants';
 import { PageContainer, TopBar, TranslatedText } from '../../../components';
 import { DayHeaderCell } from './DayHeaderCell';
@@ -33,16 +35,34 @@ const Placeholder = styled.div`
 
 // END PLACEHOLDERS
 
-const LocationBookingsTopBar = styled(TopBar).attrs({
-  title: (
-    <TranslatedText stringId="scheduling.locationBookings.title" fallback="Location bookings" />
-  ),
-})``;
+const partitionAppointmentsByLocation = appointments =>
+  appointments.reduce((acc, appt) => {
+    const locationId = appt.locationId;
+    if (!acc[locationId]) acc[locationId] = [];
+    acc[locationId].push(appt);
+    return acc;
+  }, {});
+
+const partitionAppoitmentsByDate = appointments =>
+  appointments.reduce((acc, appt) => {
+    const date = appt.startTime.slice(0, 10); // Slice out ISO date, no time
+    if (!acc[date]) acc[date] = [];
+    acc[date].push(appt);
+    return acc;
+  }, {});
+
+const LocationBookingsTopBar = () => (
+  <TopBar
+    title={
+      <TranslatedText stringId="scheduling.locationBookings.title" fallback="Location bookings" />
+    }
+  />
+);
 
 const Wrapper = styled(PageContainer)`
   max-block-size: 100%;
   display: grid;
-  grid-template-rows: min-content 1fr;
+  grid-template-rows: auto 1fr;
 `;
 
 const Filters = styled('search')`
@@ -60,18 +80,24 @@ const Carousel = styled.div`
   scroll-snap-type: both mandatory;
 `;
 
-const BookingsRow = ({ dates, location }) => {
+const BookingsRow = ({ appointments, dates, location }) => {
   const {
     name: locationName,
     locationGroup: { name: locationGroupName },
   } = location;
+  const appointmentsByDate = partitionAppoitmentsByDate(appointments);
+
   return (
     <CalendarGrid.Row>
       <CalendarGrid.RowHeaderCell>
         {locationGroupName} {locationName}
       </CalendarGrid.RowHeaderCell>
       {dates.map(d => (
-        <CalendarGrid.Cell key={d.valueOf()} />
+        <CalendarGrid.Cell key={d.valueOf()}>
+          {appointmentsByDate[d.toISOString().slice(0, 10)]?.map(a => (
+            <AppointmentTile appointment={a} key={a.id} />
+          ))}
+        </CalendarGrid.Cell>
       ))}
     </CalendarGrid.Row>
   );
@@ -83,16 +109,8 @@ const getDisplayableDates = date => {
   return eachDayOfInterval({ start, end });
 };
 
-const partitionAppointmentsByLocation = appointments =>
-  appointments.reduce((acc, appt) => {
-    const locationId = appt.locationId;
-    if (!acc[locationId]) acc[locationId] = [];
-    acc[locationId].push(acc);
-    return acc;
-  }, {});
-
 export const LocationBookingsView = () => {
-  const [monthOf, setMonthOf] = useState(new Date());
+  const [monthOf, setMonthOf] = useState(startOfToday());
   const displayedDates = getDisplayableDates(monthOf);
 
   const appointments = useLocationBookingsQuery().data?.data ?? [];
@@ -112,6 +130,7 @@ export const LocationBookingsView = () => {
           <Placeholder>Type</Placeholder>
         </Filters>
       </LocationBookingsTopBar>
+      {/* TODO: Extract <Carousel> into <LocationBookingsCalendar> */}
       <Carousel>
         <CalendarGrid.Root $dayCount={displayedDates.length}>
           <CalendarGrid.HeaderRow>
