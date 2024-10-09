@@ -91,6 +91,7 @@ export const ReferralTable = React.memo(({ patientId }) => {
   const [selectedReferralId, setSelectedReferralId] = useState(null);
   const onSelectReferral = useCallback(referral => {
     setSelectedReferralId(referral.surveyResponseId);
+    setSelectedReferral(referral);
   }, []);
 
   const endpoint = `patient/${patientId}/referrals`;
@@ -249,7 +250,11 @@ export const ReferralTable = React.memo(({ patientId }) => {
 
   return (
     <>
-      <SurveyResponseDetailsModal surveyResponseId={selectedReferralId} onClose={onCloseReferral} />
+      <SurveyResponseDetailsModal
+        surveyResponseId={selectedReferralId}
+        onClose={onCloseReferral}
+        onPrint={() => handleChangeModalId(MODAL_IDS.PRINT)}
+      />
       <DataFetchingTable
         columns={columns}
         endpoint={endpoint}

@@ -40,7 +40,7 @@ const PrintButton = styled(Button)`
   top: 21px;
 `;
 
-const COLUMNS = [
+const getColumns = ({ onPrint }) => [
   {
     key: 'text',
     title: (
@@ -79,6 +79,7 @@ const COLUMNS = [
               <SurveyResponseDetailsModal
                 surveyResponseId={surveyLink}
                 onClose={() => setSurveyLink(null)}
+                onPrint={onPrint}
               />
             </>
           );
@@ -166,18 +167,20 @@ export const SurveyResponseDetailsModal = ({ surveyResponseId, onClose, onPrint 
       open={!!surveyResponseId}
       onClose={onClose}
     >
+      {onPrint && (
+        <PrintButton
+          onClick={onPrint}
+          color="primary"
+          variant="outlined"
+          startIcon={<PrintIcon />}
+          size="small"
+        >
+          <TranslatedText stringId="general.action.print" fallback="Print" />
+        </PrintButton>
+      )}
       <TableContainer>
-        <Table data={answerRows} columns={COLUMNS} allowExport={false} />
+        <Table data={answerRows} columns={getColumns({ onPrint })} allowExport={false} />
       </TableContainer>
-      <PrintButton
-        onClick={onPrint}
-        color="primary"
-        variant="outlined"
-        startIcon={<PrintIcon />}
-        size="small"
-      >
-        <TranslatedText stringId="general.action.print" fallback="Print" />
-      </PrintButton>
       <SectionSpacing />
       <ModalCancelRow
         onConfirm={onClose}
