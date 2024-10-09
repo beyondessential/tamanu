@@ -44,11 +44,20 @@ export const SurveyResponsesPrintModal = React.memo(
 
     const { data: surveyResponse, isLoading: surveyResponseLoading } = useSurveyResponse(surveyResponseId);
 
+    const { data: user, isLoading: isUserLoading } = useQuery(
+      ['user', surveyResponse?.userId],
+      () => api.get(`user/${surveyResponse?.userId}`),
+      {
+        enabled: !!surveyResponse?.userId,
+      },
+    );
+
     const isLoading =
       isAdditionalDataLoading ||
       isCertificateFetching ||
       isVillageQueryLoading ||
       surveyResponseLoading ||
+      (isUserLoading && surveyResponse?.userId) ||
       isFacilityLoading;
 
     return (
@@ -69,7 +78,7 @@ export const SurveyResponsesPrintModal = React.memo(
             surveyResponse={{
               ...surveyResponse,
               title,
-              submittedBy,
+              submittedBy: submittedBy || user?.displayName,
             }}
             certificateData={certificateData}
             getLocalisation={getLocalisation}
