@@ -10,6 +10,16 @@ import { ViewPhotoLink } from './ViewPhotoLink';
 import { Button } from './Button';
 import { TranslatedText } from './Translation/TranslatedText';
 import { useSurveyResponse } from '../api/queries/useSurveyResponse';
+import { ModalCancelRow } from './ModalActionRow';
+
+const SectionSpacing = styled.div`
+  height: 14px;
+`;
+
+const TableContainer = styled.div`
+  max-height: calc(100vh - 298px);
+  overflow: auto;
+`;
 
 const convertBinaryToYesNo = value => {
   switch (value) {
@@ -156,7 +166,9 @@ export const SurveyResponseDetailsModal = ({ surveyResponseId, onClose, onPrint 
       open={!!surveyResponseId}
       onClose={onClose}
     >
-      <Table data={answerRows} columns={COLUMNS} allowExport={false} />
+      <TableContainer>
+        <Table data={answerRows} columns={COLUMNS} allowExport={false} />
+      </TableContainer>
       <PrintButton
         onClick={onPrint}
         color="primary"
@@ -166,6 +178,11 @@ export const SurveyResponseDetailsModal = ({ surveyResponseId, onClose, onPrint 
       >
         <TranslatedText stringId="general.action.print" fallback="Print" />
       </PrintButton>
+      <SectionSpacing />
+      <ModalCancelRow
+        onConfirm={onClose}
+        confirmText={<TranslatedText stringId="general.action.close" fallback="Close" />}
+      />
     </Modal>
   );
 };
