@@ -153,10 +153,7 @@ async function readTableDoc(schemaPath, tableName) {
     doc.description = match[2].trim();
   }
 
-  while (true) {
-    const match = re.exec(text);
-    if (match === null) break;
-
+  for (let match = re.exec(text); match !== null; match = re.exec(text)) {
     doc.columns.push({
       name: match[1],
       description: match[2].trim(),
