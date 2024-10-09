@@ -269,15 +269,16 @@ export const AppointmentDetailPopper = ({
     dispatch(push(`/patients/all/${patientId}`));
   }, [dispatch, patientId]);
 
-  const debounceAppointmentStatus = useMemo(
+  const debouncedUpdateAppointmentSatus = useMemo(
     () =>
       debounce(async newValue => {
         try {
           await api.put(`appointments/${appointment.id}`, {
             status: newValue,
           });
-          onUpdated();
+          if (onUpdated) onUpdated();
         } catch (error) {
+          console.log(error);
           toast.error(
             <TranslatedText
               stringId="schedule.error.updateStatus"
@@ -293,9 +294,9 @@ export const AppointmentDetailPopper = ({
   const updateAppointmentStatus = useCallback(
     newValue => {
       setLocalStatus(newValue);
-      debounceAppointmentStatus(newValue);
+      debouncedUpdateAppointmentSatus(newValue);
     },
-    [debounceAppointmentStatus],
+    [debouncedUpdateAppointmentSatus],
   );
 
   return (
