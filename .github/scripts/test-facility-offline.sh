@@ -73,7 +73,7 @@ test_facility_offline_facility_start() {
 	cat <<- EOF > packages/facility-server/config/local.json5
 	{
 	    "port": "4000",
-	    "serverFacilityId": "facility-test",
+	    "serverFacilityIds": ["facility-test"],
 	    "sync": {
 	        "email": "facility-test@tamanu.io",
 	        "password": "facility-test",
