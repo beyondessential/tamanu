@@ -11,13 +11,23 @@ import { useLocalisation } from '../../../contexts/Localisation';
 import { useTranslation } from '../../../contexts/Translation';
 import { SurveyResponsesPrintout } from '@tamanu/shared/utils/patientCertificates';
 import { useSurveyResponse } from '../../../api/queries/useSurveyResponse';
+import { useAuth } from '../../../contexts/Auth';
 
 export const SurveyResponsesPrintModal = React.memo(
-  ({ patient, open, onClose, surveyResponseId, title, isReferral }) => {
+  ({ patient, open, onClose, surveyResponseId, title, isReferral, submittedBy }) => {
     const { getLocalisation } = useLocalisation();
     const { getTranslation } = useTranslation();
     const api = useApi();
     const { data: certificateData, isFetching: isCertificateFetching } = useCertificate();
+
+    const { facilityId, currentUser } = useAuth();
+    const { data: facility, isLoading: isFacilityLoading } = useQuery(
+      ['facility', facilityId],
+      async () => await api.get(`facility/${encodeURIComponent(facilityId)}`),
+      {
+        enabled: !!facilityId,
+      },
+    );
 
     const {
       data: additionalData,
@@ -34,20 +44,12 @@ export const SurveyResponsesPrintModal = React.memo(
 
     const { data: surveyResponse, isLoading: surveyResponseLoading } = useSurveyResponse(surveyResponseId);
 
-    const { data: user, isLoading: isUserLoading } = useQuery(
-      ['user', surveyResponse?.userId],
-      () => api.get(`user/${surveyResponse?.userId}`),
-      {
-        enabled: !!surveyResponse?.userId,
-      },
-    );
-
     const isLoading =
       isAdditionalDataLoading ||
       isCertificateFetching ||
       isVillageQueryLoading ||
       surveyResponseLoading ||
-      isUserLoading;
+      isFacilityLoading;
 
     return (
       <Modal
@@ -66,13 +68,15 @@ export const SurveyResponsesPrintModal = React.memo(
             patientData={{ ...patient, additionalData, village }}
             surveyResponse={{
               ...surveyResponse,
-              user,
               title,
+              submittedBy,
             }}
             certificateData={certificateData}
             getLocalisation={getLocalisation}
             getTranslation={getTranslation}
             isReferral={isReferral}
+            currentUser={currentUser}
+            facility={facility}
           />
         </PDFLoader>
       </Modal>

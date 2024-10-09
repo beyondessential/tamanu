@@ -35,9 +35,14 @@ const pageStyles = StyleSheet.create({
     width: '50%',
     flexDirection: 'column',
   },
+  firstColumn: {
+    paddingRight: 10,
+  },
+  secondColumn: {
+    paddingLeft: 10,
+  },
   item: {
     paddingTop: 8,
-    marginRight: 20,
     minHeight: 50,
     maxHeight: 50,
     position: 'relative',
@@ -56,7 +61,7 @@ const pageStyles = StyleSheet.create({
   },
   verticalDivider: {
     position: 'absolute',
-    right: '51.75%',
+    left: '50%',
     width: 1,
     backgroundColor: 'black',
     height: '100%',
@@ -122,9 +127,16 @@ const ColumnsContainer = ({ answerRows, itemsPerColumn, hasResult }) => {
   return (
     <View style={pageStyles.container} wrap={false}>
       {[firstAnswerRows, secondAnswerRows].map((rows, index) => (
-        <View style={[pageStyles.column, { maxHeight: columnHeight }]} key={index}>
+        <View
+          style={[
+            pageStyles.column,
+            { maxHeight: columnHeight },
+            !index ? pageStyles.firstColumn : pageStyles.secondColumn,
+          ]}
+          key={index}
+        >
           {rows.map((row, index) =>
-            index === rows.length - 1 ? null : (
+            rows.length === itemsPerColumn + 1 && index === rows.length - 1 ? null : (
               <ResponseColumn
                 key={row.id}
                 row={row}
@@ -145,6 +157,8 @@ const SurveyResponsesPrintoutComponent = ({
   getLocalisation,
   surveyResponse,
   isReferral,
+  facility,
+  currentUser,
 }) => {
   const { watermark, logo } = certificateData;
 
@@ -207,7 +221,7 @@ const SurveyResponsesPrintoutComponent = ({
             itemsPerColumn={ITEMS_PER_COLUMN}
           />
         ))}
-        <Footer />
+        <Footer printFacility={facility?.name} printedBy={currentUser?.displayName} />
       </Page>
     </Document>
   );

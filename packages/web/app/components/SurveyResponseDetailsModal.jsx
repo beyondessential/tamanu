@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import PrintIcon from '@material-ui/icons/Print';
+import styled from 'styled-components';
 
 import { Modal } from './Modal';
 import { DateDisplay } from './DateDisplay';
@@ -8,6 +10,16 @@ import { ViewPhotoLink } from './ViewPhotoLink';
 import { Button } from './Button';
 import { TranslatedText } from './Translation/TranslatedText';
 import { useSurveyResponse } from '../api/queries/useSurveyResponse';
+import { ModalCancelRow } from './ModalActionRow';
+
+const SectionSpacing = styled.div`
+  height: 14px;
+`;
+
+const TableContainer = styled.div`
+  max-height: calc(100vh - 298px);
+  overflow: auto;
+`;
 
 const convertBinaryToYesNo = value => {
   switch (value) {
@@ -21,6 +33,12 @@ const convertBinaryToYesNo = value => {
       return value;
   }
 };
+
+const PrintButton = styled(Button)`
+  position: absolute;
+  right: 70px;
+  top: 21px;
+`;
 
 const COLUMNS = [
   {
@@ -87,7 +105,7 @@ function shouldShow(component) {
   }
 }
 
-export const SurveyResponseDetailsModal = ({ surveyResponseId, onClose }) => {
+export const SurveyResponseDetailsModal = ({ surveyResponseId, onClose, onPrint }) => {
   const { data: surveyDetails, isLoading, error } = useSurveyResponse(surveyResponseId);
   if (error) {
     return (
@@ -148,7 +166,23 @@ export const SurveyResponseDetailsModal = ({ surveyResponseId, onClose }) => {
       open={!!surveyResponseId}
       onClose={onClose}
     >
-      <Table data={answerRows} columns={COLUMNS} allowExport={false} />
+      <TableContainer>
+        <Table data={answerRows} columns={COLUMNS} allowExport={false} />
+      </TableContainer>
+      <PrintButton
+        onClick={onPrint}
+        color="primary"
+        variant="outlined"
+        startIcon={<PrintIcon />}
+        size="small"
+      >
+        <TranslatedText stringId="general.action.print" fallback="Print" />
+      </PrintButton>
+      <SectionSpacing />
+      <ModalCancelRow
+        onConfirm={onClose}
+        confirmText={<TranslatedText stringId="general.action.close" fallback="Close" />}
+      />
     </Modal>
   );
 };
