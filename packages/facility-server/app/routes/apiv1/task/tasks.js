@@ -138,9 +138,6 @@ taskRoutes.delete(
 
     const deletionReasonForFutureTasks = await req.models.ReferenceData.findByPk(
       TASK_DELETE_BY_SYSTEM_REASON,
-      {
-        where: { type: REFERENCE_TYPES.TASK_DELETION_REASON },
-      },
     );
 
     //validate task
@@ -166,17 +163,29 @@ taskRoutes.delete(
               });
           if (parentTask) {
             parentTask.endTime = new Date(new Date(task.dueTime).getTime() - 1);
+            parentTask.deletedReasonForSyncId = deletionReasonForFutureTasks?.id ?? null;
             await parentTask.save();
-            //remove all child tasks that have dueTime over parent endtime
-            await req.models.Task.destroy({
-              where: {
-                parentTaskId: parentTask.id,
-                id: { [Op.ne]: task.id },
-                dueTime: { [Op.gt]: parentTask.endTime },
-                status: TASK_STATUSES.TODO,
+
+            await req.models.Task.update(
+              {
                 deletedByUserId: SYSTEM_USER_UUID,
                 deletedTime: getCurrentDateTimeString(),
                 deletedReasonId: deletionReasonForFutureTasks?.id ?? null,
+              },
+              {
+                where: {
+                  [Op.or]: [{ parentTaskId: parentTask.id }, { id: task.id }],
+                  dueTime: { [Op.gt]: parentTask.endTime },
+                  status: TASK_STATUSES.TODO,
+                },
+              },
+            );
+
+            await req.models.Task.destroy({
+              where: {
+                [Op.or]: [{ parentTaskId: parentTask.id }, { id: task.id }],
+                dueTime: { [Op.gt]: parentTask.endTime },
+                status: TASK_STATUSES.TODO,
               },
               individualHooks: true,
             });

@@ -4,7 +4,6 @@ import {
   ENCOUNTER_TYPE_VALUES,
   EncounterChangeType,
   NOTE_TYPES,
-  REFERENCE_TYPES,
   SYNC_DIRECTIONS,
   SYSTEM_USER_UUID,
   TASK_DELETE_RECORDED_IN_ERROR_REASON_ID,
@@ -75,18 +74,21 @@ export class Encounter extends Model {
           async afterDestroy(encounter, opts) {
             const deletionReason = await models.ReferenceData.findByPk(
               TASK_DELETE_RECORDED_IN_ERROR_REASON_ID,
-              {
-                where: { type: REFERENCE_TYPES.TASK_DELETION_REASON },
-              },
             );
 
             // update endtime for all parent tasks of this encounter
             await models.Task.update(
               {
                 endTime: getCurrentDateTimeString(),
+                deletedReasonForSyncId: deletionReason?.id ?? null,
               },
               {
-                where: { encounterId: encounter.id, parentTaskId: { [Op.not]: null } },
+                where: {
+                  encounterId: encounter.id,
+                  parentTaskId: null,
+                  frequencyValue: { [Op.not]: null },
+                  frequencyUnit: { [Op.not]: null },
+                },
                 transaction: opts.transaction,
               },
             );
