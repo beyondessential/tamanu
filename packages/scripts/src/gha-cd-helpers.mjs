@@ -52,6 +52,7 @@ const OPTIONS = [
       return 'basic';
     },
   },
+  { key: 'env', defaultValue: 'staging' },
   { key: 'timezone', defaultValue: 'Pacific/Auckland' },
   { key: 'ip', defaultValue: null, parse: input => input.split(',').map(s => s.trim()) },
   { key: 'dbstorage', defaultValue: 5, parse: input => intBounds(input, [1, 100]) },
@@ -70,8 +71,8 @@ const OPTIONS = [
   },
   {
     key: 'facilityapis',
-    defaultValue: options => intBounds(options.apis, [0, 1]),
-    parse: input => intBounds(input, [0, 1]), // max:5 when split
+    defaultValue: options => intBounds(options.apis, [0, 5]),
+    parse: input => intBounds(input, [0, 5]),
   },
 
   { key: 'tasks', defaultValue: 1, parse: input => intBounds(input, [0, 1]) },
@@ -82,8 +83,8 @@ const OPTIONS = [
   },
   {
     key: 'facilitytasks',
-    defaultValue: 0, // until facility is split
-    parse: input => intBounds(input, [0, 0]), // max:1 when split
+    defaultValue: options => intBounds(options.tasks, [0, 1]),
+    parse: input => intBounds(input, [0, 1]),
   },
 
   { key: 'webs', defaultValue: 2, parse: input => intBounds(input, [0, 5]) },
@@ -126,11 +127,14 @@ const OPTIONS = [
      * Specifies the branding to use in the mobile build.
      * Options:
      *  - 'tamanu' (default): Use the Tamanu branding.
-     *  - 'cambodia': Use the Cambodia branding.
      */
     key: 'branding',
     defaultValue: 'tamanu',
-    parse: input => (['tamanu', 'cambodia'].includes(input) ? input : 'tamanu'),
+    parse: input => (['tamanu'].includes(input) ? input : 'tamanu'),
+  },
+  {
+    key: 'serviceaccountarn',
+    defaultValue: 'arn:aws:iam::143295493206:role/ips-bucket-role-de7b385',
   },
 ];
 
@@ -187,6 +191,8 @@ export function configMap(deployName, imageTag, options) {
       facilities: options.facilities,
       timezone: options.timezone,
       ipAllowList: options.ip,
+      nodeEnv: options.env,
+      serviceAccount: options.serviceaccountarn,
 
       apiReplicas: options.apis,
       dbReplicas: options.dbs,

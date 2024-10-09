@@ -1,3 +1,5 @@
+import { COLORS } from './colors.js';
+
 export const IMAGING_REQUEST_STATUS_TYPES = {
   PENDING: 'pending',
   IN_PROGRESS: 'in_progress',
@@ -19,32 +21,32 @@ export const IMAGING_REQUEST_STATUS_LABELS = {
 export const IMAGING_REQUEST_STATUS_CONFIG = {
   [IMAGING_REQUEST_STATUS_TYPES.PENDING]: {
     label: IMAGING_REQUEST_STATUS_LABELS[IMAGING_REQUEST_STATUS_TYPES.PENDING],
-    color: '#CB6100',
+    color: COLORS.darkOrange,
     background: '#FAF0E6',
   },
   [IMAGING_REQUEST_STATUS_TYPES.COMPLETED]: {
     label: IMAGING_REQUEST_STATUS_LABELS[IMAGING_REQUEST_STATUS_TYPES.COMPLETED],
-    color: '#19934E',
+    color: COLORS.green,
     background: '#DEF0EE',
   },
   [IMAGING_REQUEST_STATUS_TYPES.IN_PROGRESS]: {
     label: IMAGING_REQUEST_STATUS_LABELS[IMAGING_REQUEST_STATUS_TYPES.IN_PROGRESS],
-    color: '#4101C9;',
+    color: COLORS.purple,
     background: '#ECE6FA',
   },
   [IMAGING_REQUEST_STATUS_TYPES.CANCELLED]: {
     label: IMAGING_REQUEST_STATUS_LABELS[IMAGING_REQUEST_STATUS_TYPES.CANCELLED],
-    color: '#444444;',
+    color: COLORS.grey,
     background: '#EDEDED',
   },
   [IMAGING_REQUEST_STATUS_TYPES.DELETED]: {
     label: IMAGING_REQUEST_STATUS_LABELS[IMAGING_REQUEST_STATUS_TYPES.DELETED],
-    color: '#444444;',
+    color: COLORS.grey,
     background: '#EDEDED',
   },
   [IMAGING_REQUEST_STATUS_TYPES.ENTERED_IN_ERROR]: {
     label: IMAGING_REQUEST_STATUS_LABELS[IMAGING_REQUEST_STATUS_TYPES.ENTERED_IN_ERROR],
-    color: '#444444;',
+    color: COLORS.grey,
     background: '#EDEDED',
   },
 };
@@ -54,6 +56,13 @@ export const APPOINTMENT_TYPES = {
   EMERGENCY: 'Emergency',
   SPECIALIST: 'Specialist',
   OTHER: 'Other',
+};
+
+export const APPOINTMENT_TYPE_LABELS = {
+  [APPOINTMENT_TYPES.STANDARD]: 'Standard',
+  [APPOINTMENT_TYPES.EMERGENCY]: 'Emergency',
+  [APPOINTMENT_TYPES.SPECIALIST]: 'Specialist',
+  [APPOINTMENT_TYPES.OTHER]: 'Other',
 };
 
 export const APPOINTMENT_STATUSES = {
@@ -67,6 +76,12 @@ export const REFERRAL_STATUSES = {
   PENDING: 'pending',
   CANCELLED: 'cancelled',
   COMPLETED: 'completed',
+};
+
+export const REFERRAL_STATUS_LABELS = {
+  [REFERRAL_STATUSES.PENDING]: 'Pending',
+  [REFERRAL_STATUSES.CANCELLED]: 'Cancelled',
+  [REFERRAL_STATUSES.COMPLETED]: 'Completed',
 };
 
 export const COMMUNICATION_STATUSES = {

@@ -25,10 +25,15 @@ export const FieldRowDisplay = ({
 
   const getLabel = (name: string) => {
     // Check if it is localised and apply localisation logic
-    if (localisedFields.includes(name)) {
-      if (getBool(`fields.${name}.hidden`)) return null;
+    if (localisedFields.includes(name) && getBool(`fields.${name}.hidden`)) {
+      return null;
+    }
+
+    // Check if there is a label and use if so
+    if (Object.keys(labels).includes(name)) {
       return labels[name];
     }
+
     // Check if this is a custom field and grab the label if so
     if (Object.keys(customFieldsById).includes(name)) {
       return customFieldsById[name]?.name;

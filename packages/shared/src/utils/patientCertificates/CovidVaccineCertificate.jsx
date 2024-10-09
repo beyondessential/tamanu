@@ -1,5 +1,5 @@
 import React from 'react';
-import { Document, Page } from '@react-pdf/renderer';
+import { Document } from '@react-pdf/renderer';
 
 import { generateUVCI } from '../uvci';
 import { Table } from './Table';
@@ -10,6 +10,8 @@ import { H3, P } from './Typography';
 import { CovidLetterheadSection } from './CovidLetterheadSection';
 import { getDisplayDate } from './getDisplayDate';
 import { compareDateStrings } from '../dateTime';
+import { withLanguageContext } from '../pdf/languageContext';
+import { Page } from '../pdf/Page';
 
 const columns = [
   {
@@ -53,7 +55,7 @@ const columns = [
   },
 ];
 
-export const CovidVaccineCertificate = ({
+const CovidVaccineCertificateComponent = ({
   patient,
   printedBy,
   vaccinations,
@@ -116,3 +118,5 @@ export const CovidVaccineCertificate = ({
     </Document>
   );
 };
+
+export const CovidVaccineCertificate = withLanguageContext(CovidVaccineCertificateComponent);

@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useApi } from '../../../api';
 import { BaseSelectField } from '../../../components';
 
-export const ReportSelectField = ({ includeNameChangeEvent, ...props }) => {
+export const ReportSelectField = ({ includeNameChangeEvent, setSelectedReportName = null, ...props }) => {
   delete props.error;
   delete props.helperText;
 
@@ -20,11 +20,14 @@ export const ReportSelectField = ({ includeNameChangeEvent, ...props }) => {
     <BaseSelectField
       {...props}
       onChange={event => {
+        const { value } = event.target;
+        const name = reportData.find(report => report.id === value)?.name;
+        if (setSelectedReportName) setSelectedReportName(name);
+
         if (includeNameChangeEvent) {
-          const { value } = event.target;
-          const name = reportData.find(report => report.id === value)?.name;
           props.field.onChange({ target: { name: 'name', value: name } });
         }
+
         props.field.onChange(event);
       }}
       options={options}
@@ -40,6 +43,7 @@ export const VersionSelectField = props => {
     form: {
       values: { reportId },
     },
+    setSelectedVersionNumber,
   } = props;
 
   const query = useQuery(
@@ -63,6 +67,13 @@ export const VersionSelectField = props => {
   return (
     <BaseSelectField
       {...props}
+      onChange={event => {
+        const { value } = event.target;
+        const { versionNumber } = versionData.find(version => version.id === value);
+        setSelectedVersionNumber(versionNumber);
+
+        props.field.onChange(event);
+      }}
       options={options}
       error={!!fetchError || props.error}
       helperText={fetchError?.message || props.helperText}

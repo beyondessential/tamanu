@@ -1,15 +1,19 @@
 import React from 'react';
-import { CloudDownload, CloudOff } from '@material-ui/icons';
-import { DateDisplay } from '../../components';
+import { CloudOff, CloudDone } from '@material-ui/icons';
+import {
+  DateDisplay,
+  TranslatedReferenceData,
+  TranslatedSex,
+  TranslatedText,
+} from '../../components';
 import { getPatientStatus } from '../../utils/getPatientStatus';
-import { SexDisplay } from '../../components/Translation/SexDisplay';
-import { TranslatedText } from '../../components/Translation/TranslatedText';
-import { TranslatedReferenceData } from '../../components/Translation';
 import { ThemedTooltip } from '../../components/Tooltip';
 
 const DateCell = React.memo(({ value }) => <DateDisplay date={value} />);
-const SexCell = React.memo(({ value }) => <SexDisplay sex={value} />);
-const SyncedCell = React.memo(({ value }) => (value === true ? <CloudDownload /> : <CloudOff />));
+export const SexCell = React.memo(({ value }) => <TranslatedSex sex={value} />);
+const SyncedCell = React.memo(({ value }) => (
+  value === true ? <CloudDone color="primary" /> : <CloudOff color="primary" />),
+);
 
 export const markedForSync = {
   key: 'markedForSync',
@@ -124,21 +128,25 @@ export const vaccinationStatus = {
 };
 
 export const diet = {
-  key: 'dietName',
+  key: 'diets',
   title: <TranslatedText stringId="general.diet.label" fallback="Diet" />,
-  accessor: (({ dietName, dietCode }) => {
-    if (!dietName || !dietCode) return null;
-    return <ThemedTooltip title={dietName}>
-      <span>{dietCode}</span>
-    </ThemedTooltip>
-  }),
+  accessor: ({ diets }) => {
+    if (!diets?.length) return null;
+    const dietNames = diets.map(diet => diet.name);
+    const dietCodes = diets.map(diet => diet.code);
+    return (
+      <ThemedTooltip title={dietNames.join(', ')}>
+        <span>{dietCodes.join(', ')}</span>
+      </ThemedTooltip>
+    );
+  },
 };
 
 export const inpatientSex = {
   key: 'sex',
   title: <TranslatedText stringId="general.localisedField.sex.label" fallback="Sex" />,
-  accessor: (({ sex }) => {
+  accessor: ({ sex }) => {
     if (!sex) return null;
     return sex.charAt(0).toUpperCase();
-  }),
+  },
 };

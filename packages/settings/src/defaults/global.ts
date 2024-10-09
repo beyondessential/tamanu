@@ -1,6 +1,12 @@
 import { VACCINE_STATUS } from '@tamanu/constants';
 
 export const globalDefaults = {
+  auth: {
+    restrictUsersToFacilities: false,
+  },
+  customisations: {
+    componentVersions: {},
+  },
   fhir: {
     worker: {
       heartbeat: '1 minute',

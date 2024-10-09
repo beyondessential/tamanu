@@ -10,13 +10,13 @@ function stripNotes(fields) {
 
 export const loaderFactory = model => fields => [{ model, values: stripNotes(fields) }];
 
-export function referenceDataLoaderFactory(refType) {
+export function referenceDataLoaderFactory(type) {
   return ({ id, code, name, visibilityStatus }) => [
     {
       model: 'ReferenceData',
       values: {
         id,
-        type: refType === 'diagnosis' ? 'icd10' : refType,
+        type,
         code: typeof code === 'number' ? `${code}` : code,
         name,
         visibilityStatus,
@@ -92,7 +92,8 @@ export function administeredVaccineLoader(item) {
   ];
 }
 
-export function translatedStringLoader({ stringId, ...languages }) {
+export function translatedStringLoader(item) {
+  const { stringId, ...languages } = stripNotes(item);
   return Object.entries(languages)
     .filter(([, text]) => text.trim())
     .map(([language, text]) => ({
@@ -209,6 +210,59 @@ export function labTestPanelLoader(item) {
         },
       });
     });
+
+  return rows;
+}
+
+export async function userLoader(item, models) {
+  const { id, allowedFacilities, ...otherFields } = item;
+  const rows = [];
+
+  const allowedFacilityIds = allowedFacilities
+    ? allowedFacilities.split(',').map(t => t.trim())
+    : [];
+
+  rows.push({
+    model: 'User',
+    values: {
+      id,
+      ...otherFields,
+    },
+    allowedFacilityIds,
+  });
+
+  const existingUser = await models.User.findByPk(id, {
+    include: [{ model: models.Facility, as: 'facilities' }],
+  });
+
+  if (existingUser) {
+    const idsToBeDeleted = existingUser.facilities
+      .map(f => f.id)
+      .filter(id => !allowedFacilityIds.includes(id));
+
+    idsToBeDeleted.forEach(facilityId => {
+      rows.push({
+        model: 'UserFacility',
+        values: {
+          id: `${id};${facilityId}`,
+          userId: id,
+          facilityId: facilityId,
+          deletedAt: new Date(),
+        },
+      });
+    });
+  }
+
+  allowedFacilityIds.forEach(facilityId => {
+    rows.push({
+      model: 'UserFacility',
+      values: {
+        id: `${id};${facilityId}`,
+        userId: id,
+        facilityId: facilityId,
+      },
+    });
+  });
 
   return rows;
 }

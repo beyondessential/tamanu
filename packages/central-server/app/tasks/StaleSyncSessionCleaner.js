@@ -11,8 +11,8 @@ export class StaleSyncSessionCleaner extends ScheduledTask {
 
   constructor(context) {
     const conf = config.schedules.staleSyncSessionCleaner;
-    const { schedule, jitterTime } = conf;
-    super(schedule, log, jitterTime);
+    const { schedule, jitterTime, enabled } = conf;
+    super(schedule, log, jitterTime, enabled);
     this.config = conf;
     this.store = context.store;
   }
@@ -49,7 +49,7 @@ export class StaleSyncSessionCleaner extends ScheduledTask {
       log.info('StaleSyncSessionCleaner.closedStaleSession', {
         sessionId: session.id,
         durationMs,
-        facilityId: session.debugInfo.facilityId,
+        facilityIds: session.debugInfo.facilityIds,
         deviceId: session.debugInfo.deviceId,
       });
     }

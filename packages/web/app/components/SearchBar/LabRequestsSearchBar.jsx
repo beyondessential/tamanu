@@ -1,7 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { LAB_REQUEST_STATUSES } from '@tamanu/constants';
-import { LAB_REQUEST_STATUS_OPTIONS } from '../../constants';
+import { LAB_REQUEST_STATUSES, LAB_REQUEST_STATUS_LABELS } from '@tamanu/constants';
 import {
   AutocompleteField,
   CheckField,
@@ -9,8 +8,8 @@ import {
   Field,
   LocalisedField,
   SearchField,
-  SelectField,
   SuggesterSelectField,
+  TranslatedSelectField,
 } from '../Field';
 import { CustomisableSearchBarWithPermissionCheck } from './CustomisableSearchBar';
 import { LabRequestSearchParamKeys, useLabRequest } from '../../contexts/LabRequest';
@@ -28,8 +27,8 @@ const FacilityCheckbox = styled.div`
   margin-top: 20px;
 `;
 
-export const LabRequestsSearchBar = ({ status = '' }) => {
-  const publishedStatus = status === LAB_REQUEST_STATUSES.PUBLISHED;
+export const LabRequestsSearchBar = ({ statuses }) => {
+  const publishedStatus = statuses?.includes(LAB_REQUEST_STATUSES.PUBLISHED);
   const { searchParameters, setSearchParameters } = useLabRequest(
     publishedStatus ? LabRequestSearchParamKeys.Published : LabRequestSearchParamKeys.All,
   );
@@ -205,12 +204,21 @@ export const LabRequestsSearchBar = ({ status = '' }) => {
             label={
               <TranslatedText stringId="general.localisedField.status.label" fallback="Status" />
             }
-            component={SelectField}
-            options={LAB_REQUEST_STATUS_OPTIONS.filter(
-              option => option.value !== LAB_REQUEST_STATUSES.PUBLISHED,
-            )}
+            component={TranslatedSelectField}
+            transformOptions={options =>
+              options.filter(
+                option =>
+                  ![
+                    LAB_REQUEST_STATUSES.PUBLISHED,
+                    LAB_REQUEST_STATUSES.DELETED,
+                    LAB_REQUEST_STATUSES.ENTERED_IN_ERROR,
+                    LAB_REQUEST_STATUSES.CANCELLED,
+                    LAB_REQUEST_STATUSES.INVALIDATED,
+                  ].includes(option.value),
+              )
+            }
+            enumValues={LAB_REQUEST_STATUS_LABELS}
             size="small"
-            prefix="labs.property.status"
           />
         )}
       </>

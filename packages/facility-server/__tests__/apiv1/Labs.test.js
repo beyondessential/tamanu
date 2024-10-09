@@ -1,4 +1,8 @@
-import { LAB_REQUEST_STATUSES, LAB_TEST_TYPE_VISIBILITY_STATUSES } from '@tamanu/constants';
+import {
+  LAB_REQUEST_STATUSES,
+  LAB_TEST_TYPE_VISIBILITY_STATUSES,
+  VISIBILITY_STATUSES,
+} from '@tamanu/constants';
 import config from 'config';
 import {
   createDummyEncounter,
@@ -7,6 +11,7 @@ import {
 } from '@tamanu/shared/demoData';
 import { chance, fake } from '@tamanu/shared/test-helpers';
 import { createLabTestTypes } from '@tamanu/shared/demoData/labRequests';
+import { selectFacilityIds } from '@tamanu/shared/utils/configSelectors';
 import { createTestContext } from '../utilities';
 
 describe('Labs', () => {
@@ -221,9 +226,17 @@ describe('Labs', () => {
     });
 
     const sampleTime = '2023-06-09 00:00:00';
+
+    const specimenType = await models.ReferenceData.create(
+      fake(models.ReferenceData, {
+        type: 'specimenType',
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+      }),
+    );
     const sampleDetails = {
       [labTestPanel.id]: {
         sampleTime,
+        specimenTypeId: specimenType.id,
       },
     };
     const response = await app.post('/api/labRequest').send({
@@ -235,6 +248,7 @@ describe('Labs', () => {
 
     const createdRequest = await models.LabRequest.findByPk(response.body[0].id);
     expect(createdRequest).toBeTruthy();
+    expect(createdRequest.specimenAttached).toBe(true);
     expect(createdRequest.status).toEqual(LAB_REQUEST_STATUSES.RECEPTION_PENDING);
 
     const createdTests = await models.LabTest.findAll({
@@ -281,6 +295,26 @@ describe('Labs', () => {
 
     const labRequest = await models.LabRequest.findByPk(requestId);
     expect(labRequest).toHaveProperty('status', status);
+  });
+
+  it('should update the specimen attached', async () => {
+    const { id: requestId } = await models.LabRequest.createWithTests(
+      await randomLabRequest(models, { patientId }),
+    );
+    const specimenType = await models.ReferenceData.create(
+      fake(models.ReferenceData, {
+        type: 'specimenType',
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+      }),
+    );
+    const user = await app.get('/api/user/me');
+    const response = await app
+      .put(`/api/labRequest/${requestId}`)
+      .send({ specimenTypeId: specimenType.id, userId: user.body.id });
+    expect(response).toHaveSucceeded();
+
+    const labRequest = await models.LabRequest.findByPk(requestId);
+    expect(labRequest).toHaveProperty('specimenAttached', true);
   });
 
   it('should publish a lab request', async () => {
@@ -433,11 +467,13 @@ describe('Labs', () => {
     // when no specific argument is included.
     const VALID_LISTING_LAB_REQUEST_STATUSES = [
       LAB_REQUEST_STATUSES.RECEPTION_PENDING,
+      LAB_REQUEST_STATUSES.INTERIM_RESULTS,
       LAB_REQUEST_STATUSES.RESULTS_PENDING,
       LAB_REQUEST_STATUSES.TO_BE_VERIFIED,
       LAB_REQUEST_STATUSES.VERIFIED,
       LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED,
     ];
+    const [facilityId] = selectFacilityIds(config);
     const otherFacilityId = 'kerang';
     const makeRequestAtFacility = async facilityId => {
       const location = await models.Location.create({
@@ -461,29 +497,28 @@ describe('Labs', () => {
       // Because of the high number of lab requests
       // the endpoint pagination doesn't return the expected results.
       await models.LabRequest.truncate({ cascade: true, force: true });
-      await makeRequestAtFacility(config.serverFacilityId);
-      await makeRequestAtFacility(config.serverFacilityId);
-      await makeRequestAtFacility(config.serverFacilityId);
+
+      await makeRequestAtFacility(facilityId);
+      await makeRequestAtFacility(facilityId);
+      await makeRequestAtFacility(facilityId);
       await makeRequestAtFacility(otherFacilityId);
       await makeRequestAtFacility(otherFacilityId);
       await makeRequestAtFacility(otherFacilityId);
     });
 
     it('should omit external requests when allFacilities is false', async () => {
-      const result = await app.get(`/api/labRequest?allFacilities=false`);
+      const result = await app.get(`/api/labRequest?allFacilities=false&facilityId=${facilityId}`);
       expect(result).toHaveSucceeded();
       result.body.data.forEach(lr => {
-        expect(lr.facilityId).toBe(config.serverFacilityId);
+        expect(lr.facilityId).toBe(facilityId);
       });
     });
 
-    it('should include all requests when allFacilities  is true', async () => {
+    it('should include all requests when allFacilities is true', async () => {
       const result = await app.get(`/api/labRequest?allFacilities=true`);
       expect(result).toHaveSucceeded();
 
-      const hasConfigFacility = result.body.data.some(
-        lr => lr.facilityId === config.serverFacilityId,
-      );
+      const hasConfigFacility = result.body.data.some(lr => lr.facilityId === facilityId);
       expect(hasConfigFacility).toBe(true);
 
       const hasOtherFacility = result.body.data.some(lr => lr.facilityId === otherFacilityId);

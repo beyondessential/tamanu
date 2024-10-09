@@ -1,4 +1,5 @@
 import React, {
+  Fragment,
   MutableRefObject,
   ReactElement,
   useCallback,
@@ -97,50 +98,7 @@ export const FormFields = ({
     [patient.id],
   );
 
-  const { encounter } = encounterResult || {};
-  const maxIndex = components
-    .map(x => x.screenIndex)
-    .reduce((max, current) => Math.max(max, current), 0);
-
-  const screenComponents = components
-    .filter(x => x.screenIndex === currentScreenIndex)
-    .sort((a, b) => a.componentIndex - b.componentIndex);
-
-  const submitScreen = async (handleSubmit: () => Promise<void>): Promise<void> => {
-    // Validate form on screen before moving to the next one
-    const formErrors = await validateForm();
-
-    // Only include components that are on this page
-    const pageErrors = Object.keys(formErrors).filter(x =>
-      screenComponents.map(c => c.dataElement.code).includes(x),
-    );
-
-    if (pageErrors.length === 0) {
-      setStatus(null);
-      await handleSubmit();
-    } else {
-      // Only show error messages once the user has attempted to submit the form
-      setStatus(FORM_STATUSES.SUBMIT_SCREEN_ATTEMPTED);
-
-      const firstErroredQuestion = components.find(({ dataElement }) =>
-        pageErrors.includes(dataElement.code),
-      );
-      scrollToQuestion(scrollViewRef, firstErroredQuestion.dataElement.code);
-    }
-  };
-
-  const onNavigateNext = async (): Promise<void> => {
-    await submitScreen(() => {
-      setCurrentScreenIndex(Math.min(currentScreenIndex + 1, maxIndex));
-    });
-  };
-
-  const onSubmit = async (): Promise<void> => {
-    await submitScreen(async () => {
-      await submitForm();
-      resetForm();
-    });
-  };
+  const [disableSubmit, setDisableSubmit] = useState(false);
 
   const shouldShow = useCallback(
     (component: ISurveyScreenComponent) => checkVisibilityCriteria(component, components, values),
@@ -170,6 +128,59 @@ export const FormFields = ({
     return <LoadingScreen />;
   }
 
+  const { encounter } = encounterResult || {};
+  const maxIndex = components
+    .map(x => x.screenIndex)
+    .reduce((max, current) => Math.max(max, current), 0);
+
+  const screenComponents = components
+    .filter(x => x.screenIndex === currentScreenIndex)
+    .sort((a, b) => a.componentIndex - b.componentIndex);
+  const visibleComponents = screenComponents.filter(shouldShow);
+
+  const emptyStateMessage = (
+    <TranslatedText
+      stringId="general.form.blankPage"
+      fallback="This page has been intentionally left blank"
+    />
+  );
+
+  const submitScreen = async (handleSubmit: () => Promise<void>): Promise<void> => {
+    // Validate form on screen before moving to the next one
+    const formErrors = await validateForm();
+
+    // Only include components that are on this page
+    const pageErrors = Object.keys(formErrors).filter(x =>
+      screenComponents.map(c => c.dataElement.code).includes(x),
+    );
+
+    if (pageErrors.length === 0) {
+      setStatus(null);
+      await handleSubmit();
+    } else {
+      // Only show error messages once the user has attempted to submit the form
+      setStatus(FORM_STATUSES.SUBMIT_SCREEN_ATTEMPTED);
+
+      const firstErroredQuestion = components.find(({ dataElement }) =>
+        pageErrors.includes(dataElement.code),
+      );
+      scrollToQuestion(scrollViewRef, firstErroredQuestion.dataElement.code);
+    }
+  };
+
+  const onNavigateNext = async (): Promise<void> => {
+    await submitScreen(async () => {
+      setCurrentScreenIndex(Math.min(currentScreenIndex + 1, maxIndex));
+    });
+  };
+
+  const onSubmit = async (): Promise<void> => {
+    await submitScreen(async () => {
+      await submitForm();
+      resetForm();
+    });
+  };
+
   // Note: we set the key on FullView so that React registers it as a whole
   // new component, rather than a component whose contents happen to have
   // changed. This means that each new page will start at the top, rather than
@@ -177,44 +188,54 @@ export const FormFields = ({
   return (
     <FullView key={currentScreenIndex}>
       <FormScreenView scrollViewRef={scrollViewRef}>
-        {screenComponents.filter(shouldShow).map((component, index) => {
-          const validationCriteria = component && component.getValidationCriteriaObject();
-          const mandatory = checkMandatory(validationCriteria.mandatory, {
-            encounterType: encounter?.encounterType,
-          });
-          return (
-            <React.Fragment key={component.id}>
-              <StyledView marginTop={index === 0 ? 0 : 20} flexDirection="row" alignItems="center">
-                <SectionHeader h3>
-                  {component.text || component.dataElement.defaultText || ''}
-                </SectionHeader>
-                {mandatory && (
-                  <StyledText
-                    marginLeft={screenPercentageToDP(0.5, Orientation.Width)}
-                    fontSize={screenPercentageToDP(1.6, Orientation.Height)}
-                    color={theme.colors.ALERT}
+        {visibleComponents.length === 0
+          ? emptyStateMessage
+          : visibleComponents.map((component, index) => {
+              const validationCriteria = component?.getValidationCriteriaObject();
+              const mandatory = checkMandatory(validationCriteria.mandatory, {
+                encounterType: encounter?.encounterType,
+              });
+              return (
+                <Fragment key={component.id}>
+                  <StyledView
+                    marginTop={index === 0 ? 0 : 20}
+                    flexDirection="row"
+                    alignItems="center"
                   >
-                    *
-                  </StyledText>
-                )}
-              </StyledView>
-              {component.detail ? (
-                <StyledText marginTop={4} fontSize={screenPercentageToDP(2.2, Orientation.Height)}>
-                  {component.detail}
-                </StyledText>
-              ) : null}
-              <ErrorBoundary errorComponent={SurveyQuestionErrorView}>
-                <SurveyQuestion
-                  key={component.id}
-                  component={component}
-                  patient={patient}
-                  zIndex={components.length - index}
-                  setPosition={setQuestionPosition(component.dataElement.code)}
-                />
-              </ErrorBoundary>
-            </React.Fragment>
-          );
-        })}
+                    <SectionHeader h3>
+                      {component.text || component.dataElement.defaultText || ''}
+                    </SectionHeader>
+                    {mandatory && (
+                      <StyledText
+                        marginLeft={screenPercentageToDP(0.5, Orientation.Width)}
+                        fontSize={screenPercentageToDP(1.6, Orientation.Height)}
+                        color={theme.colors.ALERT}
+                      >
+                        *
+                      </StyledText>
+                    )}
+                  </StyledView>
+                  {component.detail ? (
+                    <StyledText
+                      marginTop={2}
+                      fontSize={screenPercentageToDP(1.59, Orientation.Height)}
+                    >
+                      {component.detail}
+                    </StyledText>
+                  ) : null}
+                  <ErrorBoundary errorComponent={SurveyQuestionErrorView}>
+                    <SurveyQuestion
+                      key={component.id}
+                      component={component}
+                      patient={patient}
+                      zIndex={components.length - index}
+                      setPosition={setQuestionPosition(component.dataElement.code)}
+                      setDisableSubmit={setDisableSubmit}
+                    />
+                  </ErrorBoundary>
+                </Fragment>
+              );
+            })}
         {errors?.form && (
           <StyledText fontSize={16} color={theme.colors.ALERT} marginTop={20}>
             {errors.form}
@@ -237,9 +258,10 @@ export const FormFields = ({
               margin={5}
               buttonText={<TranslatedText stringId="general.action.next" fallback="Next" />}
               onPress={onNavigateNext}
+              disabled={disableSubmit}
             />
           ) : (
-            <SubmitButton margin={5} onSubmit={onSubmit} />
+            <SubmitButton margin={5} onSubmit={onSubmit} disabled={disableSubmit} />
           )}
         </RowView>
       </FormScreenView>

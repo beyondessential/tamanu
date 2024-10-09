@@ -118,14 +118,14 @@ export class ReportDefinitionVersion extends Model {
     return options.parameters;
   }
 
-  async dataGenerator({ models, sequelize, reportSchemaStores }, parameters) {
+  async dataGenerator({ sequelize, reportSchemaStores, facilityId }, parameters) {
     const reportQuery = this.get('query');
 
     const queryOptions = this.getQueryOptions();
 
     const replacements = await getReportQueryReplacements(
-      { models },
       queryOptions.parameters,
+      facilityId,
       parameters,
       queryOptions.defaultDateRange,
     );
@@ -160,6 +160,10 @@ export class ReportDefinitionVersion extends Model {
   }
 
   static buildSyncFilter() {
+    return null; // syncs everywhere
+  }
+
+  static buildSyncLookupQueryDetails() {
     return null; // syncs everywhere
   }
 }

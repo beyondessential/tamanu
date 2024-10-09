@@ -3,7 +3,6 @@ import { LAB_REQUEST_STATUSES, SYNC_DIRECTIONS, VACCINE_STATUS } from '@tamanu/c
 import { getCovidClearanceCertificateFilter, getLabTestsFromLabRequests } from '../utils';
 import { Model } from './Model';
 import { dateTimeType, dateType } from './dateTimeTypes';
-import { onSaveMarkPatientForSync } from './onSaveMarkPatientForSync';
 
 export class Patient extends Model {
   static init({ primaryKey, ...options }) {
@@ -40,7 +39,6 @@ export class Patient extends Model {
         ],
       },
     );
-    onSaveMarkPatientForSync(this, 'id', 'afterSave');
   }
 
   static initRelations(models) {
@@ -127,7 +125,18 @@ export class Patient extends Model {
         {
           model: models.Encounter,
           as: 'encounter',
-          include: models.Encounter.getFullReferenceAssociations(),
+          include: [
+            {
+              model: models.Location,
+              as: 'location',
+              include: [
+                {
+                  model: models.Facility,
+                  as: 'facility',
+                },
+              ],
+            },
+          ],
         },
         {
           model: models.Location,
@@ -301,6 +310,10 @@ export class Patient extends Model {
   }
 
   static buildSyncFilter() {
+    return null; // syncs everywhere
+  }
+
+  static buildSyncLookupQueryDetails() {
     return null; // syncs everywhere
   }
 }

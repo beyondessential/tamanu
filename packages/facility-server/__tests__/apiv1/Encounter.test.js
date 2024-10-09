@@ -1,5 +1,6 @@
 import { addHours, formatISO9075, sub, subWeeks } from 'date-fns';
 import { isEqual } from 'lodash';
+import config from 'config';
 
 import {
   createDummyEncounter,
@@ -19,11 +20,15 @@ import {
 import { setupSurveyFromObject } from '@tamanu/shared/demoData/surveys';
 import { fake, fakeUser } from '@tamanu/shared/test-helpers/fake';
 import { getCurrentDateTimeString, toDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
+import { selectFacilityIds } from '@tamanu/shared/utils/configSelectors';
 
 import { uploadAttachment } from '../../dist/utils/uploadAttachment';
 import { createTestContext } from '../utilities';
+import { setupSurvey } from '../setupSurvey';
 
 describe('Encounter', () => {
+  const [facilityId] = selectFacilityIds(config);
   let patient = null;
   let user = null;
   let app = null;
@@ -312,6 +317,13 @@ describe('Encounter', () => {
         ...(await randomLabRequest(models, {
           patientId: patient.id,
           encounterId: encounter.id,
+          status: LAB_REQUEST_STATUSES.INVALIDATED,
+        })),
+      });
+      await models.LabRequest.create({
+        ...(await randomLabRequest(models, {
+          patientId: patient.id,
+          encounterId: encounter.id,
           status: LAB_REQUEST_STATUSES.DELETED,
         })),
       });
@@ -325,8 +337,8 @@ describe('Encounter', () => {
 
       const result = await app.get(`/api/encounter/${encounter.id}/labRequests`);
       expect(result).toHaveSucceeded();
-      expect(result.body.count).toEqual(3);
-      expect(result.body.data.length).toEqual(3);
+      expect(result.body.count).toEqual(4);
+      expect(result.body.data.length).toEqual(4);
     });
 
     it('should get the correct count for a list of lab requests', async () => {
@@ -950,7 +962,7 @@ describe('Encounter', () => {
         });
 
         testDiagnosis = await models.ReferenceData.create({
-          type: 'icd10',
+          type: 'diagnosis',
           name: 'Malady',
           code: 'malady',
         });
@@ -1093,6 +1105,7 @@ describe('Encounter', () => {
               'pde-PatientVitalsDate': submissionDate,
               'pde-PatientVitalsHeartRate': 1234,
             },
+            facilityId,
           });
           expect(result).toHaveSucceeded();
           const saved = await models.SurveyResponseAnswer.findOne({
@@ -1115,6 +1128,7 @@ describe('Encounter', () => {
             startTime: submissionDate,
             endTime: submissionDate,
             answers,
+            facilityId,
           });
           const result = await app.get(`/api/encounter/${vitalsEncounter.id}/vitals`);
           expect(result).toHaveSucceeded();
@@ -1186,6 +1200,7 @@ describe('Encounter', () => {
               startTime: submissionDate,
               endTime: submissionDate,
               answers: surveyResponseAnswersBody,
+              facilityId,
             });
           }
 
@@ -1271,6 +1286,57 @@ describe('Encounter', () => {
             ]),
           );
         });
+      });
+    });
+
+    describe('program responses', () => {
+      disableHardcodedPermissionsForSuite();
+
+      let surveyEncounter = null;
+      let permissionApp;
+
+      beforeAll(async () => {
+        surveyEncounter = await models.Encounter.create({
+          ...(await createDummyEncounter(models)),
+          patientId: patient.id,
+          reasonForEncounter: 'medication test',
+        });
+      });
+
+      it('should only return survey responses that users have permission to', async () => {
+        const { patient, survey: survey1 } = await setupSurvey({
+          models,
+          surveyName: 'survey-a',
+          encounterId: surveyEncounter.id,
+        });
+
+        const { survey: survey2 } = await setupSurvey({
+          models,
+          surveyName: 'survey-b',
+          patientId: patient.id,
+          encounterId: surveyEncounter.id,
+        });
+        await setupSurvey({
+          models,
+          surveyName: 'survey-c',
+          patientId: patient.id,
+          encounterId: surveyEncounter.id,
+        });
+
+        const permissions = [
+          ['read', 'Patient'],
+          ['list', 'SurveyResponse'],
+          ['read', 'Survey', survey1.id],
+          ['read', 'Survey', survey2.id],
+          // No survey 2
+        ];
+
+        permissionApp = await baseApp.asNewRole(permissions);
+
+        const response = await permissionApp.get(`/api/patient/${patient.id}/programResponses`);
+        expect(response).toHaveSucceeded();
+        expect(response.body.count).toEqual(2);
+        expect(response.body.data).toHaveLength(2);
       });
     });
 

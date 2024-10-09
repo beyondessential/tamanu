@@ -11,13 +11,13 @@ import { TwoColumnDisplay } from '../../components/TwoColumnDisplay';
 import { DailySchedule } from '../../components/Appointments/DailySchedule';
 import { NewAppointmentButton } from '../../components/Appointments/NewAppointmentButton';
 import { Button } from '../../components/Button';
-import { AutocompleteInput, MultiselectField } from '../../components/Field';
-import { Suggester } from '../../utils/suggester';
-import { APPOINTMENT_TYPE_OPTIONS, Colors } from '../../constants';
+import { AutocompleteInput, TranslatedMultiSelectField } from '../../components/Field';
+import { Colors } from '../../constants';
 import { useApi, useSuggester } from '../../api';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
 import { useAuth } from '../../contexts/Auth';
 import { ErrorMessage } from '../../components/ErrorMessage';
+import { APPOINTMENT_TYPE_LABELS } from '@tamanu/constants';
 
 const LeftContainer = styled.div`
   min-height: 100%;
@@ -85,6 +85,7 @@ const TodayButton = styled(Button)`
 export const AppointmentsCalendar = () => {
   const api = useApi();
   const locationGroupSuggester = useSuggester('facilityLocationGroup');
+  const practitionerSuggester = useSuggester('practitioner');
   const { ability } = useAuth();
 
   const [date, setDate] = useState(new Date());
@@ -123,7 +124,7 @@ export const AppointmentsCalendar = () => {
         <AutocompleteInput
           value={filterValue}
           onChange={updateFilterValue}
-          suggester={new Suggester(api, 'practitioner')}
+          suggester={practitionerSuggester}
         />
       ),
     },
@@ -181,7 +182,7 @@ export const AppointmentsCalendar = () => {
             <SectionTitle variant="subtitle2">
               <TranslatedText stringId="appointment.type.label" fallback="Appointment type" />
             </SectionTitle>
-            <MultiselectField
+            <TranslatedMultiSelectField
               onChange={e => {
                 if (!e.target.value) {
                   setAppointmentType([]);
@@ -191,8 +192,7 @@ export const AppointmentsCalendar = () => {
               }}
               value={appointmentType}
               name="appointmentType"
-              options={APPOINTMENT_TYPE_OPTIONS}
-              prefix="appointment.property.type"
+              enumValues={APPOINTMENT_TYPE_LABELS}
             />
           </Section>
         </LeftContainer>

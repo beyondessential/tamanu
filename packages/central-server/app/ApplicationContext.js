@@ -14,6 +14,7 @@ export class ApplicationContext {
 
   reportSchemaStores = null;
 
+  /** @type {import('./services/EmailService').EmailService | null} */
   emailService = null;
 
   /** @type {Awaited<ReturnType<typeof defineSingletonTelegramBotService>>|null} */
@@ -28,7 +29,7 @@ export class ApplicationContext {
       if (config.errors.type === 'bugsnag') {
         await initBugsnag({
           ...omit(config.errors, ['enabled', 'type']),
-          appVersion: VERSION,
+          appVersion: [VERSION, process.env.REVISION].filter(Boolean).join('-'),
           appType,
         });
       }
@@ -41,7 +42,10 @@ export class ApplicationContext {
       this.reportSchemaStores = await initReporting();
     }
 
-    this.telegramBotService = await defineSingletonTelegramBotService({ config, models: this.store.models });
+    this.telegramBotService = await defineSingletonTelegramBotService({
+      config,
+      models: this.store.models,
+    });
 
     if (await isSyncTriggerDisabled(this.store.sequelize)) {
       log.warn('Sync Trigger is disabled in the database.');

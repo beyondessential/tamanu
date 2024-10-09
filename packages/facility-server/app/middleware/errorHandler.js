@@ -15,7 +15,9 @@ export default function errorHandler(error, req, res, _) {
   // we're past the point of permission checking; this just
   // makes sure the error send doesn't get intercepted by the
   // permissions middleware
-  req.flagPermissionChecked();
+  if (req.flagPermissionChecked) {
+    req.flagPermissionChecked();
+  }
 
   res.status(code).send({
     error: {

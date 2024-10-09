@@ -23,6 +23,16 @@ export class Survey extends Model {
           defaultValue: VISIBILITY_STATUSES.CURRENT,
           allowNull: false,
         },
+        notifiable: {
+          type: Sequelize.BOOLEAN,
+          defaultValue: false,
+          allowNull: false,
+        },
+        notifyEmailAddresses: {
+          type: Sequelize.ARRAY(Sequelize.STRING),
+          allowNull: false,
+          defaultValue: [],
+        },
       },
       {
         ...options,
@@ -58,6 +68,7 @@ export class Survey extends Model {
   static getChartSurveys() {
     return this.findAll({
       where: { surveyType: { [Op.in]: [SURVEY_TYPES.SIMPLE_CHART, SURVEY_TYPES.COMPLEX_CHART] } },
+      order: [['name', 'ASC']],
     });
   }
 
@@ -70,6 +81,10 @@ export class Survey extends Model {
   }
 
   static buildSyncFilter() {
+    return null; // syncs everywhere
+  }
+
+  static buildSyncLookupQueryDetails() {
     return null; // syncs everywhere
   }
 }

@@ -22,22 +22,20 @@ export const TreatmentPlanNoteChangelogForm = ({ note, onCancel }) => {
     <>
       <NoteInfoSection
         numberOfColumns={3}
-        noteType={
-          <TranslatedEnum
-            prefix="note.property.type"
-            value={note.noteType}
-            enumValues={NOTE_TYPE_LABELS}
+        noteType={<TranslatedEnum value={note.noteType} enumValues={NOTE_TYPE_LABELS} />}
+        date={note.date}
+        dateLabel={
+          <TranslatedText
+            stringId="note.lastUpdatedAt.label"
+            fallback="Last updated at date & time"
           />
         }
-        date={note.date}
-        dateLabel={<TranslatedText
-          stringId="note.lastUpdatedAt.label"
-          fallback="Last updated at date & time"
-        />}
-        writtenByLabel={<TranslatedText
-          stringId="note.lastUpdatedBy.label"
-          fallback="Last updated by (or on behalf of)"
-        />}
+        writtenByLabel={
+          <TranslatedText
+            stringId="note.lastUpdatedBy.label"
+            fallback="Last updated by (or on behalf of)"
+          />
+        }
         writtenBy={writtenBy}
       />
       <br />

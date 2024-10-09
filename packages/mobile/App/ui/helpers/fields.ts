@@ -27,6 +27,7 @@ export const FieldTypes = {
   USER_DATA: 'UserData',
   PHOTO: 'Photo',
   PATIENT_ISSUE_GENERATOR: 'PatientIssueGenerator',
+  GEOLOCATE: 'Geolocate'
   COMPLEX_CHART_INSTANCE_NAME: 'ComplexChartInstanceName',
   COMPLEX_CHART_DATE: 'ComplexChartDate',
   COMPLEX_CHART_TYPE: 'ComplexChartType',
@@ -55,7 +56,6 @@ export const getStringValue = (type: string, value: any): string => {
     case FieldTypes.TEXT:
     case FieldTypes.MULTILINE:
       return value;
-
     case FieldTypes.DATE:
     case FieldTypes.DATE_TIME:
     case FieldTypes.SUBMISSION_DATE:

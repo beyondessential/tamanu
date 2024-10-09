@@ -2,7 +2,7 @@ import { utils } from 'xlsx';
 import { SURVEY_TYPES } from '@tamanu/constants';
 
 import { ImporterMetadataError } from '../errors';
-import { importRows } from '../importRows';
+import { importRows } from '../importer/importRows';
 
 import { readSurveyQuestions } from './readSurveyQuestions';
 import {
@@ -52,13 +52,21 @@ export async function importSurvey(context, workbook, surveyInfo) {
     await validateVitalsSurvey(context, surveyInfo);
   }
 
-  if ([
-    SURVEY_TYPES.SIMPLE_CHART,
-    SURVEY_TYPES.COMPLEX_CHART,
-    SURVEY_TYPES.COMPLEX_CHART_CORE,
-  ].includes(surveyType)) {
+  if (
+    [
+      SURVEY_TYPES.SIMPLE_CHART,
+      SURVEY_TYPES.COMPLEX_CHART,
+      SURVEY_TYPES.COMPLEX_CHART_CORE,
+    ].includes(surveyType)
+  ) {
     await validateChartingSurvey(context, surveyInfo);
   }
+
+  surveyInfo.notifiable ??= false;
+  surveyInfo.notifyEmailAddresses = (surveyInfo.notifyEmailAddresses ?? '')
+    .split(',')
+    .map(email => email.trim())
+    .filter(Boolean);
 
   const records = readSurveyInfo(workbook, surveyInfo);
   const stats = validateProgramDataElementRecords(records, { context, sheetName, surveyType });

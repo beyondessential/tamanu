@@ -5,7 +5,7 @@ if (typeof WorkerGlobalScope !== 'undefined' && self instanceof DedicatedWorkerG
 }
 
 if (process.env.NODE_ENV === 'development' && !process.env.STORYBOOK) {
-  const RefreshRuntime = await import('/@react-refresh');
+  const RefreshRuntime = await import('react-refresh');
   RefreshRuntime.injectIntoGlobalHook(window);
   window.$RefreshReg$ = () => {};
   window.$RefreshSig$ = () => type => type;

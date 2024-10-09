@@ -12,8 +12,8 @@ export class MedicationDiscontinuer extends ScheduledTask {
   }
 
   constructor(context, isDebug) {
-    const { schedule, jitterTime } = config.schedules.medicationDiscontinuer;
-    super(schedule, log, jitterTime);
+    const { schedule, jitterTime, enabled } = config.schedules.medicationDiscontinuer;
+    super(schedule, log, jitterTime, enabled);
     this.models = context.models;
     this.sequelize = context.sequelize;
 
@@ -26,6 +26,22 @@ export class MedicationDiscontinuer extends ScheduledTask {
   async run() {
     // Get start of day
     const startOfToday = toDateTimeString(startOfDay(new Date()));
+
+    // // Get all encounters with the same facility ID as this facility server
+    // // (found in the config). Note that the facility ID will be read from
+    // // the department associated to each encounter.
+    // const encounters = await this.models.Encounter.findAll({
+    //   include: [
+    //     {
+    //       association: 'department',
+    //       required: true,
+    //       include: [{ model: this.models.Facility, where: { id: selectFacilityIds(config) } }],
+    //     },
+    //   ],
+    // });
+
+    // // Get all the encounter IDs
+    // const encounterIds = encounters.map(row => row.id);
 
     // Query interface expects database naming scheme
     // (snake case, table column fields)
@@ -53,7 +69,11 @@ export class MedicationDiscontinuer extends ScheduledTask {
             FROM encounters
             INNER JOIN
               departments ON encounters.department_id = departments.id
-            WHERE departments.facility_id = (SELECT value FROM local_system_facts where key = 'facilityId')
+            WHERE departments.facility_id in (
+              SELECT jsonb_array_elements_text(value::jsonb)
+              FROM local_system_facts
+              WHERE key = 'facilityIds'
+            )
           )`,
         ),
       },

@@ -16,6 +16,7 @@ import {
   MenuButton,
   MODAL_TRANSITION_DURATION,
   OutlinedButton,
+  TableButtonRow,
   Tile,
   TileContainer,
   TileTag,
@@ -56,13 +57,12 @@ const BottomContainer = styled.div`
   background-color: ${Colors.white};
   padding: 18px 30px;
   display: flex;
-  overflow: hidden;
   flex-direction: column;
   flex: 1;
 `;
 
 const LabelContainer = styled.div`
-  color: ${p => p.color || Colors.darkestText}
+  color: ${p => p.color || Colors.darkestText};
 `;
 
 const FixedTileRow = styled(TileContainer)`
@@ -72,6 +72,13 @@ const FixedTileRow = styled(TileContainer)`
 const HIDDEN_STATUSES = [
   LAB_REQUEST_STATUSES.DELETED,
   LAB_REQUEST_STATUSES.CANCELLED,
+  LAB_REQUEST_STATUSES.INVALIDATED,
+  LAB_REQUEST_STATUSES.ENTERED_IN_ERROR,
+];
+
+// These statuses are a little unique, as from a user's perspective they've just cancelled the request so they expect the status to be cancelled
+const STATUSES_TO_DISPLAY_AS_CANCELLED = [
+  LAB_REQUEST_STATUSES.DELETED,
   LAB_REQUEST_STATUSES.ENTERED_IN_ERROR,
 ];
 
@@ -168,13 +175,14 @@ export const LabRequestView = () => {
 
   const isPublished = labRequest.status === LAB_REQUEST_STATUSES.PUBLISHED;
   const isHidden = HIDDEN_STATUSES.includes(labRequest.status);
+  const displayAsCancelled = STATUSES_TO_DISPLAY_AS_CANCELLED.includes(labRequest.status);
   const areLabRequestsReadOnly = !canWriteLabRequest || isHidden;
   const areLabTestsReadOnly = !canWriteLabTest || isHidden || isPublished;
   const hasAttachment = Boolean(labRequest.latestAttachment);
-  const canEnterResults = !isPublished && !areLabTestsReadOnly && !hasAttachment;
+  const canEnterResults = !isPublished && !areLabTestsReadOnly;
 
   // If the value of status is enteredInError or deleted, it should display to the user as Cancelled
-  const displayStatus = areLabRequestsReadOnly ? LAB_REQUEST_STATUSES.CANCELLED : labRequest.status;
+  const displayStatus = displayAsCancelled ? LAB_REQUEST_STATUSES.CANCELLED : labRequest.status;
 
   const ActiveModal = MODALS[modalId] || null;
 
@@ -251,32 +259,38 @@ export const LabRequestView = () => {
             Icon={Timelapse}
             text={<TranslatedText stringId="lab.view.tile.status.label" fallback="Status" />}
             main={
-              <TileTag $color={LAB_REQUEST_STATUS_CONFIG[labRequest.status]?.color}>
+              <TileTag $color={LAB_REQUEST_STATUS_CONFIG[displayStatus]?.color}>
                 {LAB_REQUEST_STATUS_CONFIG[displayStatus]?.label || 'Unknown'}
               </TileTag>
             }
             actions={[
               !areLabRequestsReadOnly &&
-              canWriteLabRequestStatus && {
-                label: (
-                  <ConditionalTooltip
-                    visible={labRequest.status === LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED}
-                    title={<TranslatedText
-                      stringId="lab.tooltip.cannotChangeStatus"
-                      fallback="You cannot change the status of lab request without entering the sample details"
-                    />}
-                  >
-                    <LabelContainer
-                      color={
-                        labRequest.status === LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED && Colors.softText
+                canWriteLabRequestStatus && {
+                  label: (
+                    <ConditionalTooltip
+                      visible={labRequest.status === LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED}
+                      title={
+                        <TranslatedText
+                          stringId="lab.tooltip.cannotChangeStatus"
+                          fallback="You cannot change the status of lab request without entering the sample details"
+                        />
                       }
                     >
-                      <TranslatedText stringId="lab.action.changeStatus" fallback="Change status" />
-                    </LabelContainer>
-                  </ConditionalTooltip>
-                ),
-                action: handleChangeStatus
-              },
+                      <LabelContainer
+                        color={
+                          labRequest.status === LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED &&
+                          Colors.softText
+                        }
+                      >
+                        <TranslatedText
+                          stringId="lab.action.changeStatus"
+                          fallback="Change status"
+                        />
+                      </LabelContainer>
+                    </ConditionalTooltip>
+                  ),
+                  action: handleChangeStatus,
+                },
               {
                 label: (
                   <TranslatedText stringId="lab.action.viewStatusLog" fallback="View status log" />
@@ -359,20 +373,18 @@ export const LabRequestView = () => {
         </FixedTileRow>
       </TopContainer>
       <BottomContainer>
-        {canEnterResults && (
-          <Box display="flex" justifyContent="flex-end" marginBottom="20px">
-            <Button onClick={() => handleChangeModalId(MODAL_IDS.ENTER_RESULTS)}>
-              <TranslatedText stringId="lab.action.enterResults" fallback="Enter results" />
-            </Button>
-          </Box>
-        )}
-        {hasAttachment && (
-          <Box display="flex" justifyContent="flex-end" marginBottom="20px">
+        <TableButtonRow variant="small">
+          {hasAttachment && (
             <Button onClick={() => handleChangeModalId(MODAL_IDS.VIEW_REPORT)}>
               <TranslatedText stringId="lab.action.viewReport" fallback="View report" />
             </Button>
-          </Box>
-        )}
+          )}
+          {canEnterResults && (
+            <Button onClick={() => handleChangeModalId(MODAL_IDS.ENTER_RESULTS)}>
+              <TranslatedText stringId="lab.action.enterResults" fallback="Enter results" />
+            </Button>
+          )}
+        </TableButtonRow>
         <LabRequestResultsTable
           labRequest={labRequest}
           patient={patient}

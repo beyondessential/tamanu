@@ -1,46 +1,17 @@
 import React, { useContext, useState } from 'react';
 import { LOCAL_STORAGE_KEYS } from '../constants';
 import { useTranslations } from '../api/queries/useTranslations';
+import { translationFactory } from '@tamanu/shared/utils/translation/translationFactory';
 import { getCurrentLanguageCode } from '../utils/translation';
 
-export const TranslationContext = React.createContext();
+export const TranslationContext = React.createContext(null);
 
-export const useTranslation = () => useContext(TranslationContext);
-
-const applyCasing = (text, lowercase, uppercase) => {
-  if (lowercase) return text.toLowerCase();
-  if (uppercase) return text.toUpperCase();
-  return text;
-};
-
-/**
- * @param {string} templateString
- * @param {object} replacements
- * @returns {string}
- *
- * @example replaceStringVariables("there are :count users", { count: 2 }) => "there are 2 users"
- */
-export const replaceStringVariables = (
-  templateString,
-  { replacements, uppercase, lowercase },
-  translations,
-) => {
-  if (!replacements) return applyCasing(templateString, uppercase, lowercase);
-  const result = templateString
-    .split(/(:[a-zA-Z]+)/g)
-    .map((part, index) => {
-      // Even indexes are the unchanged parts of the string
-      if (index % 2 === 0) return part;
-      // Return the replacement if exists
-      let replacement = replacements[part.slice(1)] ?? part;
-      if (typeof replacement !== 'object') return replacement;
-
-      const translation = translations?.[replacement.props.stringId] || replacement.props.fallback;
-      return applyCasing(translation, replacement.props.lowercase, replacement.props.uppercase);
-    })
-    .join('');
-
-  return applyCasing(result, uppercase, lowercase);
+export const useTranslation = () => {
+  const context = useContext(TranslationContext);
+  if (!context) {
+    throw new Error('useTranslation has been called outside a TranslationProvider.');
+  }
+  return context;
 };
 
 export const TranslationProvider = ({ children }) => {
@@ -48,24 +19,11 @@ export const TranslationProvider = ({ children }) => {
 
   const { data: translations } = useTranslations(storedLanguage);
 
+  const translationFunc = translationFactory(translations);
+
   const getTranslation = (stringId, fallback, replacements, uppercase, lowercase) => {
-    const replacementConfig = {
-      replacements,
-      uppercase,
-      lowercase,
-    };
-    if (!translations) return replaceStringVariables(fallback, replacementConfig, translations);
-    if (translations[stringId])
-      return replaceStringVariables(translations[stringId], replacementConfig, translations);
-    return replaceStringVariables(
-      fallback,
-      {
-        replacements,
-        uppercase,
-        lowercase,
-      },
-      translations,
-    );
+    const { value } = translationFunc(stringId, fallback, replacements, uppercase, lowercase);
+    return value;
   };
 
   const updateStoredLanguage = newLanguage => {
@@ -81,6 +39,7 @@ export const TranslationProvider = ({ children }) => {
         getTranslation,
         updateStoredLanguage,
         storedLanguage,
+        translations,
       }}
     >
       {children}

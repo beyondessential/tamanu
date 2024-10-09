@@ -9,8 +9,10 @@ import {
   migrateAppointmentsToLocationGroupsCommand,
   migrateCommand,
   reportCommand,
+  shellCommand,
   startAllCommand,
   startApiCommand,
+  startSyncCommand,
   startTasksCommand,
   syncCommand,
 } from './subCommands';
@@ -23,11 +25,13 @@ async function run() {
 
   program.addCommand(startAllCommand, { isDefault: true });
   program.addCommand(startApiCommand);
+  program.addCommand(startSyncCommand);
   program.addCommand(startTasksCommand);
   program.addCommand(reportCommand);
   program.addCommand(syncCommand);
   program.addCommand(migrateCommand);
   program.addCommand(migrateAppointmentsToLocationGroupsCommand);
+  program.addCommand(shellCommand);
 
   await program.parseAsync(process.argv);
 }

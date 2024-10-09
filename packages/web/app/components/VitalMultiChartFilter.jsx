@@ -89,8 +89,8 @@ export const VitalMultiChartFilter = () => {
         ? 'select-all'
         : sortedSelectedChartKeys.join(',');
     userPreferencesMutation.mutate({
-      preferenceKey: 'selectedGraphedVitalsOnFilter',
-      preferenceValue: selectedGraphedVitalsOnFilter,
+      key: 'selectedGraphedVitalsOnFilter',
+      value: selectedGraphedVitalsOnFilter,
     });
   };
 

@@ -20,11 +20,11 @@ import { createTestContext } from '../utilities';
 import { exporter } from '../../dist/admin/exporter';
 import { parseDate } from '@tamanu/shared/utils/dateTime';
 import { REFERENCE_TYPES } from '@tamanu/constants';
-import { writeExcelFile } from '../../dist/admin/exporter/excelUtils';
+import { writeExcelFile } from '../../dist/utils/excelUtils';
 import { makeRoleWithPermissions } from '../permissions';
 
-jest.mock('../../dist/admin/exporter/excelUtils', () => {
-  const originalModule = jest.requireActual('../../dist/admin/exporter/excelUtils');
+jest.mock('../../dist/utils/excelUtils', () => {
+  const originalModule = jest.requireActual('../../dist/utils/excelUtils');
 
   return {
     __esModule: true,
@@ -68,6 +68,10 @@ describe('Reference data exporter', () => {
       'TranslatedString',
     ];
     for (const model of modelsToDestroy) {
+      // FK constraints on patient facility table that prevent deleting patient table
+      if (model === 'Patient') {
+        await ctx.store.models.PatientFacility.destroy({ where: {}, force: true });
+      }
       await ctx.store.models[model].destroy({ where: {}, force: true });
     }
   });
@@ -89,7 +93,9 @@ describe('Reference data exporter', () => {
         .query(qs.stringify({ includedDataTypes: ['allergy'] }));
 
       expect(result).toBeForbidden();
-      expect(result.body.error.message).toBe('No permission to perform action "list" on "ReferenceData"');
+      expect(result.body.error.message).toBe(
+        'No permission to perform action "list" on "ReferenceData"',
+      );
     });
 
     it('allows export if having sufficient permission for reference data', async () => {
@@ -115,12 +121,12 @@ describe('Reference data exporter', () => {
   });
 
   it('Should export a file with no data if there is no reference data for the selected type', async () => {
-    await exporter(store, { 1: REFERENCE_TYPES.ICD10, 2: REFERENCE_TYPES.ALLERGY });
+    await exporter(store, { 1: REFERENCE_TYPES.DIAGNOSIS, 2: REFERENCE_TYPES.ALLERGY });
     expect(writeExcelFile).toBeCalledWith(
       [
         {
           data: [],
-          name: 'Icd 10',
+          name: 'Diagnosis',
         },
         {
           data: [],
@@ -176,7 +182,7 @@ describe('Reference data exporter', () => {
     );
   });
 
-  it('Should export a tab "Diagnosis" and uses all Reference Data where type equals "icd10"', async () => {
+  it('Should export a tab "Diagnosis" and uses all Reference Data where type equals "diagnosis"', async () => {
     await createDiagnosis(models);
     await exporter(store, { 1: 'diagnosis' });
     expect(writeExcelFile).toBeCalledWith(
@@ -184,8 +190,8 @@ describe('Reference data exporter', () => {
         {
           data: [
             ['id', 'code', 'name', 'visibilityStatus'],
-            ['icd10-M79-7', 'M79.7', 'Myofibrosis', 'current'],
-            ['icd10-S79-9', 'S79.9', 'Thigh injury', 'current'],
+            ['diagnosis-M79-7', 'M79.7', 'Myofibrosis', 'current'],
+            ['diagnosis-S79-9', 'S79.9', 'Thigh injury', 'current'],
           ],
           name: 'Diagnosis',
         },
@@ -301,8 +307,8 @@ describe('Reference data exporter', () => {
         {
           data: [
             ['id', 'code', 'name', 'visibilityStatus'],
-            ['icd10-M79-7', 'M79.7', 'Myofibrosis', 'current'],
-            ['icd10-S79-9', 'S79.9', 'Thigh injury', 'current'],
+            ['diagnosis-M79-7', 'M79.7', 'Myofibrosis', 'current'],
+            ['diagnosis-S79-9', 'S79.9', 'Thigh injury', 'current'],
           ],
           name: 'Diagnosis',
         },
@@ -415,8 +421,8 @@ describe('Reference data exporter', () => {
         {
           data: [
             ['id', 'code', 'name', 'visibilityStatus'],
-            ['icd10-M79-7', 'M79.7', 'Myofibrosis', 'current'],
-            ['icd10-S79-9', 'S79.9', 'Thigh injury', 'current'],
+            ['diagnosis-M79-7', 'M79.7', 'Myofibrosis', 'current'],
+            ['diagnosis-S79-9', 'S79.9', 'Thigh injury', 'current'],
           ],
           name: 'Diagnosis',
         },

@@ -8,8 +8,8 @@ import { sleepAsync } from '@tamanu/shared/utils';
 export class PatientTelegramCommunicationProcessor extends ScheduledTask {
   constructor(context) {
     const conf = config.schedules.patientTelegramCommunicationProcessor;
-    const { schedule, jitterTime } = conf;
-    super(schedule, log, jitterTime);
+    const { schedule, jitterTime, enabled } = conf;
+    super(schedule, log, jitterTime, enabled);
     this.config = conf;
     this.context = context;
   }

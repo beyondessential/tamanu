@@ -8,10 +8,11 @@ import { VACCINE_STATUS, REFERENCE_TYPES, VACCINE_CATEGORIES } from '@tamanu/con
 import { fake } from '@tamanu/shared/test-helpers/fake';
 
 import { RefreshUpcomingVaccinations } from '../../dist/tasks/RefreshMaterializedView';
+import { selectFacilityIds } from '@tamanu/shared/utils/configSelectors';
 
 jest.mock('@tamanu/shared/utils/dateTime', () => ({
   ...jest.requireActual('@tamanu/shared/utils/dateTime'),
-  getCurrentDateTimeString: jest.fn(() => '2021-01-01 00:00:00'),
+  getCurrentISO8601DateString: jest.fn(() => '2021-01-01 00:00:00.000Z'),
 }));
 
 const createPatient = async (models, overrides) => {
@@ -30,10 +31,11 @@ const setupBaseDate = async models => {
   await models.ScheduledVaccine.truncate({ cascade: true });
   await models.AdministeredVaccine.truncate({ cascade: true });
 
+  const [facilityId] = selectFacilityIds(config);
   [facility] = await models.Facility.upsert({
-    id: config.serverFacilityId,
-    name: config.serverFacilityId,
-    code: config.serverFacilityId,
+    id: facilityId,
+    name: facilityId,
+    code: facilityId,
   });
 
   await models.Department.create({
@@ -199,7 +201,7 @@ describe('Upcoming vaccinations', () => {
       const res = await app.get('/api/upcomingVaccinations/updateStats');
       expect(res).toHaveStatus(200);
       expect(res.body).toEqual({
-        lastRefreshed: '2021-01-01 00:00:00',
+        lastRefreshed: '2021-01-01 00:00:00.000Z',
         schedule: '*/50 * * * *',
       });
     });

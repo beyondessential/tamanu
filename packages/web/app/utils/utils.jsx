@@ -1,27 +1,17 @@
 import React, { isValidElement } from 'react';
+import { createRoot } from 'react-dom/client';
+import { flushSync } from 'react-dom';
 import { each, isArray, toString } from 'lodash';
 import { toast } from 'react-toastify';
 import deepEqual from 'deep-equal';
 import shortid from 'shortid';
-
-export const concatSelf = (array, ...items) => {
-  items.forEach(item => {
-    if (isArray(item)) {
-      item.forEach(variable => array.push(variable));
-    } else {
-      array.push(item);
-    }
-  });
-};
 
 export const prepareToastMessage = msg => {
   const messages = isArray(msg) ? msg : [msg];
   return (
     <>
       {messages.map(text => (
-        <div key={`err-msg-${text}`}>
-          {isValidElement(text) ? text : toString(text)}
-        </div>
+        <div key={`err-msg-${text}`}>{isValidElement(text) ? text : toString(text)}</div>
       ))}
     </>
   );
@@ -90,4 +80,19 @@ export const hexToRgba = (hex, opacity) => {
   const g = parseInt(hx.substring(2, 4), 16);
   const b = parseInt(hx.substring(4, 6), 16);
   return `rgba(${r},${g},${b},${opacity})`;
+};
+
+export const renderToText = element => {
+  if (!isValidElement(element)) {
+    throw new Error('`renderToText` has been called with an invalid element.');
+  }
+
+  const div = document.createElement('div');
+  const root = createRoot(div);
+  flushSync(() => {
+    root.render(element); // Force DOM update before reading innerText
+  });
+  const renderedText = div.innerText;
+  root.unmount();
+  return renderedText;
 };

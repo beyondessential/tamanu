@@ -14,9 +14,9 @@ import {
 import { ReadSettings } from '@tamanu/settings';
 import { chance, asNewRole, showError } from '@tamanu/shared/test-helpers';
 
-import { createApp } from '../dist/createApp';
+import { createApiApp } from '../dist/createApiApp';
 import { initReporting } from '../dist/database';
-import { getToken } from '../dist/middleware/auth';
+import { buildToken } from '../dist/middleware/auth';
 
 import { toMatchTabularReport } from './toMatchTabularReport';
 import { allSeeds } from './seed';
@@ -25,6 +25,8 @@ import { deleteAllTestIds } from './setupUtilities';
 import { FacilitySyncManager } from '../dist/sync/FacilitySyncManager';
 import { CentralServerConnection } from '../dist/sync/CentralServerConnection';
 import { ApplicationContext } from '../dist/ApplicationContext';
+import { FacilitySyncConnection } from '../dist/sync/FacilitySyncConnection';
+import { selectFacilityIds } from '@tamanu/shared/utils/configSelectors';
 
 jest.mock('../dist/sync/CentralServerConnection');
 jest.mock('../dist/utils/uploadAttachment');
@@ -134,28 +136,37 @@ export async function createTestContext({ enableReportInstances } = {}) {
   await seedLocationGroups(models);
   await seedSettings(models);
 
-  // Create the facility for the current config if it doesn't exist
-  const [facility] = await models.Facility.findOrCreate({
-    where: {
-      id: config.serverFacilityId,
-    },
-    defaults: {
-      code: 'TEST',
-      name: 'Test Facility',
-    },
-  });
+  const facilityIds = selectFacilityIds(config);
 
+  // Create the facility for the current config if it doesn't exist
+  const facilities = await Promise.all(
+    facilityIds.map(async facilityId => {
+      const [facility] = await models.Facility.findOrCreate({
+        where: {
+          id: facilityId,
+        },
+        defaults: {
+          code: facilityId,
+          name: facilityId,
+        },
+      });
+      return facility;
+    }),
+  );
+
+  const facilityIdsString = JSON.stringify(facilities.map(facility => facility.id));
   // ensure there's a corresponding local system fact for it too
-  await models.LocalSystemFact.set('facilityId', facility.id);
+  await models.LocalSystemFact.set('facilityIds', facilityIdsString);
 
   context.syncManager = new FacilitySyncManager(context);
+  context.syncConnection = new FacilitySyncConnection();
 
-  const { express: expressApp, server: appServer } = await createApp(context);
+  const { express: expressApp, server: appServer } = await createApiApp(context);
   const baseApp = supertest(appServer);
 
   baseApp.asUser = async user => {
     const agent = supertest.agent(expressApp);
-    const token = await getToken(user, '1d');
+    const token = await buildToken(user, facilityIds[0], '1d');
     agent.set('authorization', `Bearer ${token}`);
     agent.user = user;
     return agent;
@@ -178,7 +189,13 @@ export async function createTestContext({ enableReportInstances } = {}) {
 
   jest.setTimeout(30 * 1000); // more generous than the default 5s but not crazy
 
-  const settings = new ReadSettings(models, config.serverFacilityId);
+  const settings = facilityIds.reduce(
+    (acc, facilityId) => ({
+      ...acc,
+      [facilityId]: new ReadSettings(models, facilityId),
+    }),
+    {},
+  );
   const centralServer = new CentralServerConnection({ deviceId: 'test' });
 
   context.onClose(async () => {

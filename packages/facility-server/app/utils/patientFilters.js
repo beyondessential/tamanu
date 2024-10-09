@@ -54,11 +54,21 @@ export const createPatientFilters = filterParams => {
     makeFilter(filterParams.locationId, `location.id = :locationId`),
     makeFilter(filterParams.locationGroupId, `location_group.id = :locationGroupId`),
     makeFilter(filterParams.departmentId, `department.id = :departmentId`),
-    makeFilter(filterParams.facilityId, `location.facility_id = :facilityId`),
+    makeFilter(
+      !filterParams.isAllPatientsListing && filterParams.facilityId,
+      `location.facility_id = :facilityId`,
+    ),
     makeFilter(filterParams.inpatient, `encounters.encounter_type = 'admission'`),
     makeFilter(filterParams.outpatient, `encounters.encounter_type = 'clinic'`),
     makeFilter(filterParams.clinicianId, `encounters.examiner_id = :clinicianId`),
-    makeFilter(filterParams.dietId, `diet.id = :dietId`),
+    makeFilter(
+      filterParams.dietId,
+      `EXISTS (
+    SELECT 1
+    FROM jsonb_array_elements(diets.diets) elem
+    WHERE elem->>'id' = :dietId
+)`,
+    ),
     makeFilter(filterParams.sex, `patients.sex = :sex`),
     makeFilter(
       filterParams.currentPatient,

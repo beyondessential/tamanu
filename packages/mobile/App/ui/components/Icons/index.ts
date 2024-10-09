@@ -65,7 +65,8 @@ export * from './DiagnosisAndTreatment';
 export * from './History';
 export * from './PatientDetails';
 export * from './LabRequest';
-export * from './PatientSync';
+export * from './NotMarkedForSync';
+export * from './MarkedForSync';
 
 // Home Tab Icons
 export * from './SyncData';

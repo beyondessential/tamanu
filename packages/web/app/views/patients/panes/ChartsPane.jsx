@@ -20,14 +20,29 @@ const StyledTranslatedSelectField = styled(SelectField)`
   width: 200px;
 `;
 
-const ChartDropDown = ({ selectedChart, handleSelectChartType, chartTypes }) => {
-  const userPreferencesMutation = useUserPreferencesMutation();
+const ChartDropDown = () => {
+  const [selectedChartType, setSelectedChartType] = useState('');
 
-  const handleChange = ({ target: { value: newSelectedChartType } }) => {
-    handleSelectChartType(newSelectedChartType);
+  const { data: chartSurveys = [] } = useChartSurveys();
+  const chartTypes = useMemo(
+    () =>
+      chartSurveys.map(chartSurvey => ({
+        label: chartSurvey.name,
+        value: chartSurvey.id,
+      })),
+    [chartSurveys],
+  );
+
+  const userPreferencesMutation = useUserPreferencesMutation();
+  const { data: userPreferences } = useUserPreferencesQuery();
+
+  const handleChange = newValues => {
+    const newSelectedChartType = newValues.target.value;
+
+    setSelectedChartType(newSelectedChartType);
     userPreferencesMutation.mutate({
-      preferenceKey: 'selectedChartType',
-      preferenceValue: newSelectedChartType,
+      key: 'selectedChartType',
+      value: newSelectedChartType,
     });
   };
 
@@ -35,7 +50,7 @@ const ChartDropDown = ({ selectedChart, handleSelectChartType, chartTypes }) => 
     <StyledTranslatedSelectField
       options={chartTypes}
       onChange={handleChange}
-      value={selectedChart}
+      value={selectedChartType || userPreferences?.selectedChartType}
       name="chartType"
       prefix="chart.property.type"
       isClearable={false}

@@ -26,6 +26,7 @@ import { ErrorBoundary } from '../ErrorBoundary';
 import { Paginator } from './Paginator';
 import { TranslatedText } from '../Translation/TranslatedText';
 import { get } from 'lodash';
+import { useTranslation } from '../../contexts/Translation.jsx';
 
 const preventInputCallback = e => {
   e.stopPropagation();
@@ -133,6 +134,7 @@ const StyledTableCell = styled(TableCell)`
   &:last-child {
     padding-right: 20px;
   }
+  ${props => (props.$cellStyle ? props.$cellStyle : '')}
 `;
 
 const StyledTable = styled(MaterialTable)`
@@ -167,6 +169,7 @@ const StyledTableHead = styled(TableHead)`
     background: ${props => (props.$headerColor ? props.$headerColor : Colors.background)};
     ${props => (props.$fixedHeader ? 'top: 0; position: sticky;' : '')}
   }
+  ${props => (props.$headStyle ? props.$headStyle : '')}
 `;
 
 const StyledTableFooter = styled(TableFooter)`
@@ -189,11 +192,42 @@ const HeaderContainer = React.memo(({ children, numeric }) => (
   <StyledTableCell align={numeric ? 'right' : 'left'}>{children}</StyledTableCell>
 ));
 
-const RowContainer = React.memo(({ children, lazyLoading, rowStyle, onClick }) => (
-  <StyledTableRow onClick={onClick} $rowStyle={rowStyle} $lazyLoading={lazyLoading}>
+const getTableRow = ({ children, lazyLoading, rowStyle, onClick, className }) => (
+  <StyledTableRow
+    className={className}
+    onClick={onClick}
+    $rowStyle={rowStyle}
+    $lazyLoading={lazyLoading}
+  >
     {children}
   </StyledTableRow>
-));
+);
+
+const RowTooltip = ({ title, children }) => (
+  <ThemedTooltip
+    title={title}
+    PopperProps={{
+      modifiers: {
+        flip: {
+          enabled: false,
+        },
+        offset: {
+          enabled: true,
+          offset: '0, -10',
+        },
+      },
+    }}
+  >
+    {children}
+  </ThemedTooltip>
+);
+
+const RowContainer = React.memo(({ rowTooltip, ...rowProps }) => {
+  if (rowTooltip) {
+    return <RowTooltip title={rowTooltip}>{getTableRow(rowProps)}</RowTooltip>;
+  }
+  return getTableRow(rowProps);
+});
 
 const StatusTableCell = styled(StyledTableCell)`
   &.MuiTableCell-body {
@@ -201,23 +235,36 @@ const StatusTableCell = styled(StyledTableCell)`
     ${props => (props.$color ? `color: ${props.$color};` : '')}
     border-bottom: none;
   }
+  ${props => (props.$statusCellStyle ? props.$statusCellStyle : '')}
 `;
 
 const Row = React.memo(
-  ({ rowIndex, columns, data, onClick, cellOnChange, lazyLoading, rowStyle, refreshTable }) => {
+  ({
+    rowIndex,
+    columns,
+    data,
+    onClick,
+    cellOnChange,
+    lazyLoading,
+    rowStyle,
+    refreshTable,
+    cellStyle,
+    onClickRow,
+    getRowTooltip,
+  }) => {
     const cells = columns.map(
       ({ key, accessor, CellComponent, numeric, maxWidth, cellColor, dontCallRowInput }) => {
         const onChange = cellOnChange ? event => cellOnChange(event, key, rowIndex, data) : null;
-        const value = accessor
-          ? React.createElement(accessor, { refreshTable, onChange, ...data, rowIndex })
-          : get(data, key);
+        const passingData = { refreshTable, onChange, ...data, rowIndex };
+        const value = accessor ? React.createElement(accessor, passingData) : get(data, key);
         const displayValue = value === 0 ? '0' : value;
         const backgroundColor = typeof cellColor === 'function' ? cellColor(data) : cellColor;
         return (
           <StyledTableCell
             key={key}
-            onClick={dontCallRowInput ? preventInputCallback : undefined}
+            onClick={dontCallRowInput ? preventInputCallback : e => onClickRow?.(e, passingData)}
             background={backgroundColor}
+            $cellStyle={cellStyle}
             align={numeric ? 'right' : 'left'}
             data-test-class={`table-column-${key}`}
           >
@@ -237,6 +284,7 @@ const Row = React.memo(
         onClick={onClick && (() => onClick(data))}
         rowStyle={rowStyle ? rowStyle(data) : ''}
         lazyLoading={lazyLoading}
+        rowTooltip={getRowTooltip && getRowTooltip(data)}
       >
         {cells}
       </RowContainer>
@@ -259,9 +307,14 @@ const DisplayValue = React.memo(({ maxWidth, displayValue }) => {
   );
 });
 
-const StatusRow = React.memo(({ colSpan, children, textColor }) => (
-  <RowContainer>
-    <StatusTableCell $color={textColor} colSpan={colSpan} align="center">
+const StatusRow = React.memo(({ className, colSpan, children, textColor, statusCellStyle }) => (
+  <RowContainer className={className}>
+    <StatusTableCell
+      $color={textColor}
+      colSpan={colSpan}
+      align="center"
+      $statusCellStyle={statusCellStyle}
+    >
       {children}
     </StatusTableCell>
   </RowContainer>
@@ -269,10 +322,10 @@ const StatusRow = React.memo(({ colSpan, children, textColor }) => (
 
 class TableComponent extends React.Component {
   getStatusMessage() {
-    const { isLoading, errorMessage, data, noDataMessage } = this.props;
+    const { isLoading, errorMessage, data, noDataMessage, isEmpty } = this.props;
     if (isLoading) return <TranslatedText stringId="general.table.loading" fallback="Loading..." />;
     if (errorMessage) return errorMessage;
-    if (!data.length) return noDataMessage;
+    if (isEmpty || !data.length) return noDataMessage;
     return null;
   }
 
@@ -356,12 +409,16 @@ class TableComponent extends React.Component {
       rowStyle,
       refreshTable,
       isLoadingMore,
+      cellStyle,
+      statusCellStyle,
+      onClickRow,
+      getRowTooltip,
     } = this.props;
 
     const status = this.getStatusMessage();
     if (status) {
       return (
-        <StatusRow colSpan={columns.length}>
+        <StatusRow className="statusRow" colSpan={columns.length} statusCellStyle={statusCellStyle}>
           {errorMessage ? <ErrorSpan>{status}</ErrorSpan> : status}
         </StatusRow>
       );
@@ -370,22 +427,26 @@ class TableComponent extends React.Component {
     const sortedData = customSort && !lazyLoading ? customSort(data) : data;
     return (
       <>
-        {sortedData.map((rowData, rowIndex) => {
-          const key = rowData[rowIdKey] || rowData[columns[0].key];
-          return (
-            <Row
-              rowIndex={rowIndex}
-              data={rowData}
-              key={key}
-              columns={columns}
-              onClick={onRowClick}
-              cellOnChange={cellOnChange}
-              refreshTable={refreshTable}
-              rowStyle={rowStyle}
-              lazyLoading={lazyLoading}
-            />
-          );
-        })}
+        {Array.isArray(sortedData) &&
+          sortedData.map((rowData, rowIndex) => {
+            const key = rowData[rowIdKey] || rowData[columns[0].key];
+            return (
+              <Row
+                rowIndex={rowIndex}
+                data={rowData}
+                key={key}
+                columns={columns}
+                onClick={onRowClick}
+                cellOnChange={cellOnChange}
+                refreshTable={refreshTable}
+                rowStyle={rowStyle}
+                lazyLoading={lazyLoading}
+                cellStyle={cellStyle}
+                onClickRow={onClickRow}
+                getRowTooltip={getRowTooltip}
+              />
+            );
+          })}
         {isLoadingMore && (
           <StyledTableRow $lazyLoading={lazyLoading}>
             <CenteredLoadingIndicatorContainer>
@@ -455,6 +516,7 @@ class TableComponent extends React.Component {
       tableRef,
       containerStyle,
       isBodyScrollable,
+      headStyle,
     } = this.props;
 
     return (
@@ -479,6 +541,7 @@ class TableComponent extends React.Component {
               $fixedHeader={fixedHeader}
               $lazyLoading={lazyLoading}
               $isBodyScrollable={isBodyScrollable}
+              $headStyle={headStyle}
             >
               <StyledTableRow $lazyLoading={lazyLoading}>{this.renderHeaders()}</StyledTableRow>
             </StyledTableHead>
@@ -535,6 +598,7 @@ TableComponent.propTypes = {
   isLoadingMore: PropTypes.bool,
   noDataBackgroundColor: PropTypes.string,
   isBodyScrollable: PropTypes.bool,
+  getRowTooltip: PropTypes.func,
 };
 
 TableComponent.defaultProps = {
@@ -566,11 +630,13 @@ TableComponent.defaultProps = {
   isLoadingMore: false,
   noDataBackgroundColor: Colors.white,
   isBodyScrollable: false,
+  getRowTooltip: null,
 };
 
 export const Table = React.forwardRef(
   ({ columns: allColumns, data, exportName, ...props }, ref) => {
     const { getLocalisation } = useLocalisation();
+    const { getTranslation } = useTranslation();
     const columns = allColumns.filter(
       ({ key }) => getLocalisation(`fields.${key}.hidden`) !== true,
     );
@@ -579,7 +645,7 @@ export const Table = React.forwardRef(
       <TableComponent
         columns={columns}
         data={data}
-        exportname={exportName}
+        exportName={getTranslation('general.table.action.export', exportName)}
         tableRef={ref}
         {...props}
       />

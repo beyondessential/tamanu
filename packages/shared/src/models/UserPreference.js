@@ -15,8 +15,14 @@ export class UserPreference extends Model {
             // any sets of the convenience generated "id" field can be ignored, so do nothing here
           },
         },
-        preferenceKey: Sequelize.STRING,
-        preferenceValue: Sequelize.JSONB,
+        key: {
+          type: DataTypes.STRING,
+          allowNull: false,
+        },
+        value: {
+          type: Sequelize.JSONB,
+          allowNull: false,
+        },
         userId: {
           type: DataTypes.STRING,
           primaryKey: true,
@@ -38,7 +44,7 @@ export class UserPreference extends Model {
     const allPreferences = {};
 
     for (const userPreference of userPreferences) {
-      allPreferences[userPreference.preferenceKey] = userPreference.preferenceValue;
+      allPreferences[userPreference.key] = userPreference.value;
     }
 
     return allPreferences;
@@ -53,5 +59,9 @@ export class UserPreference extends Model {
 
   static buildSyncFilter() {
     return null;
+  }
+
+  static buildSyncLookupQueryDetails() {
+    return null; // syncs everywhere
   }
 }

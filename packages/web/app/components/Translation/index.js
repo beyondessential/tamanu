@@ -1,4 +1,5 @@
-export { TranslatedReferenceData } from './TranslatedReferenceData';
-export { getReferenceDataStringId } from './TranslatedReferenceData';
-export * from './TranslatedEnum';
-export * from './TranslatedText';
+export { TranslatedEnum } from './TranslatedEnum';
+export { TranslatedReferenceData, getReferenceDataStringId } from './TranslatedReferenceData';
+export { TranslatedSex } from './TranslatedSex';
+export { TranslatedText } from './TranslatedText';
+export { isTranslatedText } from './utils';

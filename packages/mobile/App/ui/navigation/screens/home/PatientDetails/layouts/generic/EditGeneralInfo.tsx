@@ -10,6 +10,7 @@ import { KeyInformationSection } from '~/ui/components/Forms/NewPatientForm/Pati
 import { LocationDetailsSection } from '~/ui/components/Forms/NewPatientForm/PatientPersonalInfoForm/LocationDetailsSection';
 import { PatientAdditionalDataFields } from '~/ui/components/Forms/PatientAdditionalDataForm/PatientAdditionalDataFields';
 import { ALL_ADDITIONAL_DATA_FIELDS } from '~/ui/helpers/additionalData';
+import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 
 export const EditPatientScreen = ({ route, isEdit = true }): ReactElement => {
   const navigation = useNavigation();
@@ -21,7 +22,13 @@ export const EditPatientScreen = ({ route, isEdit = true }): ReactElement => {
     <FullView background={theme.colors.BACKGROUND_GREY}>
       <StatusBar barStyle="light-content" />
       <StackHeader
-        title={`${isEdit ? 'Edit' : 'New'} Patient`}
+        title={
+          isEdit ? (
+            <TranslatedText stringId="patient.details.action.edit" fallback="Edit Patient" />
+          ) : (
+            <TranslatedText stringId="patient.register.title" fallback="Register New Patient" />
+          )
+        }
         subtitle={route?.params?.patientName}
         onGoBack={onGoBack}
       />

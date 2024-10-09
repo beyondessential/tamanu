@@ -25,7 +25,8 @@ const SHL_FLAG_SINGLEFILE = 'U';
 export class IPSRequestProcessor extends ScheduledTask {
   constructor(context) {
     const conf = config.schedules.IPSRequestProcessor;
-    super(conf.schedule, log);
+    const { schedule, enabled } = conf;
+    super(schedule, log, undefined, enabled);
     this.config = conf;
     this.context = context;
   }
