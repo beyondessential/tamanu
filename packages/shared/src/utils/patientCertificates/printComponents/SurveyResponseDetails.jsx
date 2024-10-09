@@ -8,7 +8,7 @@ export const SurveyResponseDetails = ({ surveyResponse }) => {
   return (
     <DataSection hideTopRule hideBottomRule>
       <Col>
-        <DataItem label="Clinician" value={surveyResponse.user.displayName} />
+        <DataItem label="Clinician" value={surveyResponse.submittedBy} />
       </Col>
       <Col>
         <DataItem label="Date of submission" value={formatShort(surveyResponse.endTime)} />
