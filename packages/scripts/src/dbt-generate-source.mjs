@@ -407,10 +407,7 @@ async function handleColumns(schemaPath, tableName, dbtSrc, sqlColumns, genericC
   await Promise.all(intersectionPromises);
 
   const tablePath = path.join(schemaPath, tableName);
-  // TODO: this formats the YAML aggresively. Specifically, it makes every sequences block-styled.
-  // THere's no API in the library to switch the style based on the length of the content.
-  // Preserving the collection style is possible (the code is git-stashed), but it adds newlines systemically.
-  // There's no way I can preserve line-breaking style of administered_vaccines.status.data_tests.accepted_values
+  // This writes files in a preffered format ignoring the original format.
   const modelPromise = fs.writeFile(tablePath + '.yml', YAML.stringify(dbtSrc));
   const docPromise = fs.writeFile(tablePath + '.md', stringifyTableDoc(out.doc));
   await Promise.all([modelPromise, docPromise]);
