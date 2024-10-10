@@ -1,7 +1,6 @@
 import {
   BIRTH_DELIVERY_TYPES,
   BIRTH_TYPES,
-  ATTENDANT_OF_BIRTH_TYPES,
 } from '@tamanu/constants';
 
 export const BIRTH_DELIVERY_TYPE_LABELS = {
