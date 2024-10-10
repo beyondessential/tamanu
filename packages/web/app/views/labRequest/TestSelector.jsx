@@ -237,6 +237,12 @@ export const TestSelectorInput = ({
                 }
                 endpoint="labTestCategory"
                 name="labTestCategoryId"
+                baseOptions={[
+                  {
+                    label: <TranslatedText stringId="general.select.all" fallback="All" />,
+                    value: '',
+                  },
+                ]}
               />
               <FormSeparatorLine />
             </>
