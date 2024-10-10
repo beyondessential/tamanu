@@ -13,9 +13,11 @@ import {
   OuterLabelFieldWrapper,
   TextField,
   SelectField,
+  CheckField,
 } from '../../../../../components';
 import {
   FIELD_TYPES_TO_SUGGESTER_OPTIONS,
+  FIELD_TYPES_WITH_FILTER_BY_SELECTED_FACILITY,
   FIELD_TYPES_WITH_PREDEFINED_OPTIONS,
   FIELD_TYPES_WITH_SUGGESTERS,
   PARAMETER_FIELD_COMPONENTS,
@@ -157,6 +159,20 @@ export const ParameterItem = props => {
             )}
           />
         </>
+      )}
+      {FIELD_TYPES_WITH_FILTER_BY_SELECTED_FACILITY.includes(parameterField) && (
+        <Grid item xs={12}>
+          <Field
+            name={`${baseName}.filterBySelectedFacility`}
+            label={
+              <TranslatedText
+                stringId="report.editor.filterBySelectedFacility.label"
+                fallback="Filter by selected facility"
+              />
+            }
+            component={CheckField}
+          />
+        </Grid>
       )}
       <Grid item xs={12}>
         <Divider />

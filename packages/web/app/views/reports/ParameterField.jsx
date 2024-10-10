@@ -36,6 +36,11 @@ export const FIELD_TYPES_WITH_PREDEFINED_OPTIONS = [
   'ParameterMultiselectField',
 ];
 
+export const FIELD_TYPES_WITH_FILTER_BY_SELECTED_FACILITY = [
+  'ParameterSuggesterSelectField',
+  'ParameterAutocompleteField',
+];
+
 const useReportSuggesterOptions = (parameters, filterBySelectedFacility, suggesterOptions = {}) => {
   // Get name of facility select field if it exists
   const facilityFieldName = useMemo(
