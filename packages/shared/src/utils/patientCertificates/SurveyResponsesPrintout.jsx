@@ -43,8 +43,7 @@ const pageStyles = StyleSheet.create({
   },
   item: {
     paddingTop: 8,
-    minHeight: 50,
-    maxHeight: 50,
+    minHeight: 46,
     position: 'relative',
   },
   itemText: {
@@ -64,7 +63,7 @@ const pageStyles = StyleSheet.create({
     left: '50%',
     width: 1,
     backgroundColor: 'black',
-    height: '100%',
+    height: '101%',
   },
   boldDivider: {
     borderBottom: '2px solid black',
