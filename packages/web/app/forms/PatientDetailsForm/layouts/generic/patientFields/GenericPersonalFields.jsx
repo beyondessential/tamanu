@@ -1,6 +1,10 @@
 import React from 'react';
 
-import { PATIENT_REGISTRY_TYPES, MARITAL_STATUS_OPTIONS } from '@tamanu/constants';
+import {
+  PATIENT_REGISTRY_TYPES,
+  MARITAL_STATUS_OPTIONS,
+  MARTIAL_STATUS_LABELS,
+} from '@tamanu/constants';
 
 import {
   BLOOD_OPTIONS,
@@ -13,6 +17,7 @@ import {
   TextField,
   AutocompleteField,
   SuggesterSelectField,
+  TranslatedSelectField,
 } from '../../../../../components';
 import { ConfiguredMandatoryPatientFields } from '../../../ConfiguredMandatoryPatientFields';
 import { usePatientSuggester, useSuggester } from '../../../../../api';
@@ -34,8 +39,8 @@ export const GenericPersonalFields = ({ patientRegistryType, filterByMandatory, 
       prefix: 'localisedField.property.title',
     },
     maritalStatus: {
-      component: SelectField,
-      options: MARITAL_STATUS_OPTIONS,
+      component: TranslatedSelectField,
+      enumValues: MARTIAL_STATUS_LABELS,
       condition: () => patientRegistryType === PATIENT_REGISTRY_TYPES.NEW_PATIENT || isEdit,
       label: (
         <TranslatedText

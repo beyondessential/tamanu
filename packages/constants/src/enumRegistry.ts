@@ -1,4 +1,4 @@
-import { SEX_LABELS } from './patientFields';
+import { MARTIAL_STATUS_LABELS, SEX_LABELS } from './patientFields';
 import {
   INVOICE_STATUS_LABELS,
   INVOICE_INSURER_PAYMENT_STATUS_LABELS,
@@ -56,6 +56,7 @@ export const registeredEnums = {
   LAB_REQUEST_STATUS_LABELS,
   LOCATION_AVAILABILITY_STATUS_LABELS,
   MANNER_OF_DEATHS,
+  MARTIAL_STATUS_LABELS,
   NOTE_TYPE_LABELS,
   PATIENT_ISSUE_LABELS,
   PLACE_OF_DEATHS,
@@ -95,6 +96,7 @@ export const translationPrefixes: Record<EnumKeys, string> = {
   LAB_REQUEST_STATUS_LABELS: 'lab.property.status',
   LOCATION_AVAILABILITY_STATUS_LABELS: 'bedManagement.property.status',
   MANNER_OF_DEATHS: 'death.property.mannerOfDeath',
+  MARTIAL_STATUS_LABELS: 'patient.property.maritalStatus',
   NOTE_TYPE_LABELS: 'note.property.type',
   PATIENT_ISSUE_LABELS: 'patient.property.issue',
   PLACE_OF_DEATHS: 'death.property.placeOfDeath',
