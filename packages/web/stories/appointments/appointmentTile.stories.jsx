@@ -1,9 +1,21 @@
 import Chance from 'chance';
-import React from 'react';
+import React, { useState } from 'react';
 
 import { APPOINTMENT_STATUSES } from '@tamanu/constants';
 
 import { AppointmentTile } from '../../app/components/Appointments/AppointmentTile';
+import { fakePractitioner } from '../../.storybook/__mocks__/defaultEndpoints';
+import { createDummyPatient } from '@tamanu/shared/demoData/patients';
+
+const SelectableAppointmentStory = ({ appointment }) => {
+  const [selected, setSelected] = useState(true);
+
+  const onClose = () => {
+    setSelected(false);
+  };
+
+  return <AppointmentTile appointment={appointment} selected={selected} onClose={onClose} />;
+};
 
 export default {
   title: 'Appointments/Appointment Tile',
@@ -16,15 +28,11 @@ const patientId = chance.guid();
 const partialAppointment = {
   id: chance.guid(),
   startTime: '2024-09-05 13:57:00',
-  patientId,
-  patient: {
-    id: patientId,
-    displayId: 'RQLN820387',
-    firstName: chance.first(),
-    middleName: chance.first(),
-    lastName: chance.last(),
-    culturalName: chance.last(),
-  },
+  endTime: '2024-09-05 14:57:00',
+  patient: createDummyPatient(patientId),
+  clinician: fakePractitioner(),
+  location: { name: 'Bed 1' },
+  locationGroup: { name: 'Ward 1' },
 };
 
 const partialConfirmedAppt = { ...partialAppointment, status: APPOINTMENT_STATUSES.CONFIRMED };
@@ -40,11 +48,13 @@ export const Seen = () => <AppointmentTile appointment={partialSeenAppt} />;
 export const NoShow = () => <AppointmentTile appointment={partialNoShowAppt} />;
 
 export const SelectedConfirmed = () => (
-  <AppointmentTile appointment={partialAppointment} selected />
+  <SelectableAppointmentStory appointment={partialConfirmedAppt} />
 );
-export const SelectedArrived = () => <AppointmentTile appointment={partialArrivedAppt} selected />;
+export const SelectedArrived = () => (
+  <SelectableAppointmentStory appointment={partialArrivedAppt} />
+);
 export const SelectedAssessed = () => (
-  <AppointmentTile appointment={partialAssessedAppt} selected />
+  <SelectableAppointmentStory appointment={partialAssessedAppt} />
 );
-export const SelectedSeen = () => <AppointmentTile appointment={partialSeenAppt} selected />;
-export const SelectedNoShow = () => <AppointmentTile appointment={partialNoShowAppt} selected />;
+export const SelectedSeen = () => <SelectableAppointmentStory appointment={partialSeenAppt} />;
+export const SelectedNoShow = () => <SelectableAppointmentStory appointment={partialNoShowAppt} />;

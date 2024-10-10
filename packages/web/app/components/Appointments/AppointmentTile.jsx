@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import styled, { css } from 'styled-components';
 import { parseISO } from 'date-fns';
 
@@ -11,6 +11,7 @@ import { Colors } from '../../constants';
 import { APPOINTMENT_STATUS_COLORS } from './appointmentStatusIndicators';
 import { AppointmentStatusIcon as StatusIcon } from '../Icons';
 import { formatTime } from '../DateDisplay';
+import { AppointmentDetailPopper } from './AppointmentDetailPopper';
 
 const Wrapper = styled.div`
   ${({ $color = Colors.blue, $selected }) =>
@@ -71,7 +72,14 @@ const IconGroup = styled.div`
 const getPatientFullName = ({ firstName, middleName, lastName }) =>
   [firstName, middleName, lastName].filter(Boolean).join(' ');
 
-export const AppointmentTile = ({ appointment, selected = false, ...props }) => {
+export const AppointmentTile = ({ appointment, selected = false, onClose, ...props }) => {
+  const ref = useRef(null);
+  const [open, setOpen] = useState();
+
+  useEffect(() => {
+    setOpen(selected);
+  }, [selected]);
+
   const {
     patient,
     startTime: startTimeStr,
@@ -80,7 +88,6 @@ export const AppointmentTile = ({ appointment, selected = false, ...props }) => 
   } = appointment;
   const startTime = parseISO(startTimeStr);
   const endTime = parseISO(endTimeStr);
-  console.log(appointment);
 
   const isHighPriority = false; // TODO
   const isOvernight = !areSameDay(startTime, endTime);
@@ -90,6 +97,7 @@ export const AppointmentTile = ({ appointment, selected = false, ...props }) => 
       $color={APPOINTMENT_STATUS_COLORS[appointmentStatus]}
       $selected={selected}
       tabIndex={0}
+      ref={ref}
       {...props}
     >
       <Label $strikethrough={appointmentStatus === APPOINTMENT_STATUSES.NO_SHOW}>
@@ -114,6 +122,13 @@ export const AppointmentTile = ({ appointment, selected = false, ...props }) => 
         )}
         <StatusIcon appointmentStatus={appointmentStatus} width={15} height={15} />
       </IconGroup>
+      <AppointmentDetailPopper
+        open={open}
+        onClose={onClose}
+        anchorEl={ref.current}
+        appointment={appointment}
+        isOvernight={isOvernight}
+      />
     </Wrapper>
   );
 };

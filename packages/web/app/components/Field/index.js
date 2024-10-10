@@ -1,4 +1,5 @@
 // simple fields
+export * from './CalendarField';
 export * from './CheckField';
 export * from './DateField';
 export * from './Field';

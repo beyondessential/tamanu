@@ -130,7 +130,7 @@ function fakeDepartment() {
   return { id, name };
 }
 
-function fakePractitioner() {
+export function fakePractitioner() {
   const id = chance.guid();
   const firstName = chance.first();
   const lastName = chance.last();
