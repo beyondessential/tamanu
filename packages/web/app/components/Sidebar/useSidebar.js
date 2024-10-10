@@ -51,5 +51,6 @@ const useSidebarFactory = (ITEMS, configKey) => {
   }, []).sort(sortTopLevelItems);
 };
 
-export const useFacilitySidebar = () => useSidebarFactory(FACILITY_MENU_ITEMS, 'layout.sidebar');
-export const useCentralSidebar = () => useSidebarFactory(CENTRAL_MENU_ITEMS, 'layout.centralSidebar');
+export const useFacilitySidebar = () => useSidebarFactory(FACILITY_MENU_ITEMS, 'layouts.sidebar');
+export const useCentralSidebar = () =>
+  useSidebarFactory(CENTRAL_MENU_ITEMS, 'layouts.centralSidebar');

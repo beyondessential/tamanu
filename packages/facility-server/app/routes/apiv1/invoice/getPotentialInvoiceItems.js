@@ -57,7 +57,10 @@ filtered_procedures as (
 filtered_imagings as (
 	select
 		:imagingType as "sourceType",
-		ir.id as "sourceId",
+		case
+			when fpa.id is not null then ira.id
+			else ir.id
+		end as "sourceId", --priority imaging request area id over imaging request id
 		coalesce(fpa.id, fp.id) as "productId", --priority imaging area price over imaging type price
 		ir."requested_date" as "date",
 		irt.code as "productCode",

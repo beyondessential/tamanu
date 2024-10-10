@@ -47,7 +47,6 @@ const handleLoginSuccess = async (dispatch, loginInfo) => {
     facilityId,
     ability,
     role,
-    settings,
   } = loginInfo;
 
   if (facilityId) {
@@ -70,7 +69,6 @@ const handleLoginSuccess = async (dispatch, loginInfo) => {
     availableFacilities,
     ability,
     role,
-    settings,
   });
 };
 
@@ -207,7 +205,6 @@ const actionHandlers = {
     localisation: action.localisation,
     server: action.server,
     role: action.role,
-    settings: action.settings,
     resetPassword: defaultState.resetPassword,
     changePassword: defaultState.changePassword,
   }),
