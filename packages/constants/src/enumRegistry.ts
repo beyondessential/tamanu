@@ -1,4 +1,11 @@
-import { MARTIAL_STATUS_LABELS, SEX_LABELS } from './patientFields';
+import {
+  MARTIAL_STATUS_LABELS,
+  SEX_LABELS,
+  BLOOD_LABELS,
+  EDUCATIONAL_ATTAINMENT_LABELS,
+  SOCIAL_MEDIA_LABELS,
+  TITLE_LABELS,
+} from './patientFields';
 import {
   INVOICE_STATUS_LABELS,
   INVOICE_INSURER_PAYMENT_STATUS_LABELS,
@@ -44,8 +51,10 @@ export const registeredEnums = {
   ASSET_NAME_LABELS,
   BIRTH_DELIVERY_TYPE_LABELS,
   BIRTH_TYPE_LABELS,
+  BLOOD_LABELS,
   DIAGNOSIS_CERTAINTY_LABELS,
   DRUG_ROUTE_LABELS,
+  EDUCATIONAL_ATTAINMENT_LABELS,
   IMAGING_TYPES,
   IMAGING_REQUEST_STATUS_LABELS,
   INJECTION_SITE_LABELS,
@@ -67,7 +76,9 @@ export const registeredEnums = {
   REPORT_DEFAULT_DATE_RANGES_LABELS,
   REPORT_STATUS_LABELS,
   SEX_LABELS,
+  SOCIAL_MEDIA_LABELS,
   TEMPLATE_TYPE_LABELS,
+  TITLE_LABELS,
   VACCINE_CATEGORY_LABELS,
   VACCINE_STATUS_LABELS,
 };
@@ -84,8 +95,10 @@ export const translationPrefixes: Record<EnumKeys, string> = {
   ASSET_NAME_LABELS: 'asset.property.name',
   BIRTH_DELIVERY_TYPE_LABELS: 'birth.property.birthDeliveryType',
   BIRTH_TYPE_LABELS: 'birth.property.birthType',
+  BLOOD_LABELS: 'patient.property.blood',
   DIAGNOSIS_CERTAINTY_LABELS: 'diagnosis.property.certainty',
   DRUG_ROUTE_LABELS: 'medication.property.route',
+  EDUCATIONAL_ATTAINMENT_LABELS: 'patient.property.educationalAttainment',
   IMAGING_TYPES: 'imaging.property.type',
   IMAGING_REQUEST_STATUS_LABELS: 'imaging.property.status',
   INJECTION_SITE_LABELS: 'vaccine.property.injectionSite',
@@ -107,7 +120,9 @@ export const translationPrefixes: Record<EnumKeys, string> = {
   REPORT_DEFAULT_DATE_RANGES_LABELS: 'report.property.defaultDateRange',
   REPORT_STATUS_LABELS: 'report.property.status',
   SEX_LABELS: 'patient.property.sex',
+  SOCIAL_MEDIA_LABELS: 'patient.property.socialMedia',
   TEMPLATE_TYPE_LABELS: 'template.property.type',
+  TITLE_LABELS: 'patient.property.title',
   VACCINE_CATEGORY_LABELS: 'vaccine.property.category',
   VACCINE_STATUS_LABELS: 'vaccine.property.status',
 };
