@@ -7,6 +7,8 @@ import PropTypes from 'prop-types';
 import { CssBaseline } from '@material-ui/core';
 import { ThemeProvider } from 'styled-components';
 import { MuiThemeProvider, StylesProvider } from '@material-ui/core/styles';
+import { LocalizationProvider as MuiLocalisationProvider } from '@mui/x-date-pickers';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { Slide, ToastContainer } from 'react-toastify';
 import { ApiContext } from './api';
 import { RoutingApp } from './RoutingApp';
@@ -65,22 +67,24 @@ function Root({ api, store, history }) {
             <StylesProvider injectFirst>
               <MuiThemeProvider theme={theme}>
                 <ThemeProvider theme={theme}>
-                  <StateContextProviders store={store}>
-                    <ReactQueryDevtools initialIsOpen={false} />
-                    <ToastContainer
-                      hideProgressBar
-                      transition={Slide}
-                      closeOnClick
-                      pauseOnFocusLoss
-                      draggable
-                      pauseOnHover
-                      theme="colored"
-                      icon={false}
-                      limit={5}
-                    />
-                    <CssBaseline />
-                    <RoutingApp />
-                  </StateContextProviders>
+                  <MuiLocalisationProvider dateAdapter={AdapterDateFns}>
+                    <StateContextProviders store={store}>
+                      <ReactQueryDevtools initialIsOpen={false} />
+                      <ToastContainer
+                        hideProgressBar
+                        transition={Slide}
+                        closeOnClick
+                        pauseOnFocusLoss
+                        draggable
+                        pauseOnHover
+                        theme="colored"
+                        icon={false}
+                        limit={5}
+                      />
+                      <CssBaseline />
+                      <RoutingApp />
+                    </StateContextProviders>
+                  </MuiLocalisationProvider>
                 </ThemeProvider>
               </MuiThemeProvider>
             </StylesProvider>
