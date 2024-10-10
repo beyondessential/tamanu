@@ -186,12 +186,22 @@ async function generateDataTests(column) {
  * @param {boolean} hasGenericDoc If true, generates `description` to point to the generic document
  * @returns A column object, directly serialisable as dbt models.
  */
+function generateColumnModelDescription(tableName, columnName, hasGenericDoc) {
+  return `{{ doc('${hasGenericDoc ? 'generic' : tableName}__${columnName}') }}`;
+}
+
+/**
+ * @param {string} tableName
+ * @param {object} column
+ * @param {boolean} hasGenericDoc If true, generates `description` to point to the generic document
+ * @returns A column object, directly serialisable as dbt models.
+ */
 async function generateColumnModel(tableName, column, hasGenericDoc) {
   const dataTests = await generateDataTests(column);
   return {
     name: column.name,
     data_type: column.data_type,
-    description: `{{ doc('${hasGenericDoc ? 'generic' : tableName}__${column.name}') }}`,
+    description: generateColumnModelDescription(tableName, column.name, hasGenericDoc),
     data_tests: dataTests.length === 0 ? undefined : dataTests,
   };
 }
@@ -362,8 +372,11 @@ async function handleMissingTable(schemaPath, schemaName, table, genericColNames
   await Promise.all([genModelPromise, docPromise]);
 }
 
-async function handleColumn(dbtColumn, sqlColumn) {
+async function handleColumn(tableName, dbtColumn, sqlColumn, hasGenericDoc) {
   dbtColumn.data_type = sqlColumn.data_type;
+  if (dbtColumn.description === '') {
+    dbtColumn.description = generateColumnModelDescription(tableName, dbtColumn.name, hasGenericDoc);
+  }
 
   const sqlDataTests = await generateDataTests(sqlColumn);
   if (!Object.hasOwn(dbtColumn, 'data_tests')) dbtColumn.data_tests = [];
@@ -396,9 +409,9 @@ async function handleColumns(schemaPath, tableName, dbtSrc, sqlColumns, genericC
       const sqlColumnIndex = sqlColumns.findIndex(c => c.name === dbtColumn.name);
       const sqlColumn = sqlColumns[sqlColumnIndex];
 
-      fillMissingDocColumn(sqlColumnIndex, dbtColumn, genericColNames, out.doc);
-
-      await handleColumn(dbtColumn, sqlColumn);
+      const hasGenericDoc = genericColNames.includes(dbtColumn.name);
+      fillMissingDocColumn(sqlColumnIndex, dbtColumn, hasGenericDoc, out.doc);
+      await handleColumn(tableName, dbtColumn, sqlColumn, hasGenericDoc);
     },
   );
 
