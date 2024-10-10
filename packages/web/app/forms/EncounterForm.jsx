@@ -24,7 +24,7 @@ import { isInpatient } from '../utils/isInpatient';
 import { useTranslation } from '../contexts/Translation';
 
 export const EncounterForm = React.memo(
-  ({ editedObject, onSubmit, patientBillingTypeId, encounterType }) => {
+  ({ editedObject, onSubmit, patientBillingTypeId, encounterType, initialValues }) => {
     const practitionerSuggester = useSuggester('practitioner');
     const departmentSuggester = useSuggester('department', {
       baseQueryParameters: { filterByFacility: true },
@@ -162,6 +162,7 @@ export const EncounterForm = React.memo(
           encounterType,
           patientBillingTypeId,
           ...editedObject,
+          ...initialValues,
         }}
         formType={editedObject ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
         validationSchema={yup.object().shape({
@@ -199,14 +200,16 @@ export const EncounterForm = React.memo(
                 fallback="Encounter type"
               />,
             ),
-          reasonForEncounter: yup.string().max(
-            REASON_FOR_ENCOUNTER_MAX_CHARACTERS,
-            getTranslation(
-              "reasonForEncounter.validation.rule.maxNCharacters",
-              "Reason for encounter must not exceed :maxChars characters",
-              { maxChars: REASON_FOR_ENCOUNTER_MAX_CHARACTERS }
-            )
-          )
+          reasonForEncounter: yup
+            .string()
+            .max(
+              REASON_FOR_ENCOUNTER_MAX_CHARACTERS,
+              getTranslation(
+                'reasonForEncounter.validation.rule.maxNCharacters',
+                'Reason for encounter must not exceed :maxChars characters',
+                { maxChars: REASON_FOR_ENCOUNTER_MAX_CHARACTERS },
+              ),
+            ),
         })}
       />
     );

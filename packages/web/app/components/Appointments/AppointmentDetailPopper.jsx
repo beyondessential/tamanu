@@ -26,6 +26,7 @@ import { AppointmentStatusChip } from './AppointmentStatusChip';
 import { TextButton } from '../Button';
 import { EncounterModal } from '../EncounterModal';
 import { usePatientCurrentEncounter } from '../../api/queries';
+import { ConditionalTooltip } from '../Tooltip';
 
 const DEBOUNCE_DELAY = 200; // ms
 
@@ -234,10 +235,18 @@ const AppointDetailsDisplay = ({ appointment, isOvernight }) => {
   );
 };
 
+const StyledConditionalTooltip = styled(ConditionalTooltip)`
+  .MuiTooltip-tooltip {
+    padding-inline: 1rem;
+    max-width: 7.5rem;
+  }
+`;
+
 const CheckInButton = styled(TextButton)`
   color: ${Colors.primary};
   font-size: 0.6875rem;
   text-decoration: underline;
+  text-transform: none;
 `;
 
 const AppointmentStatusDisplay = ({
@@ -260,16 +269,22 @@ const AppointmentStatusDisplay = ({
           ),
         )}
       </AppointmentStatusGrid>
-      <Tooltip title={createdEncounter ? 'Already checked in' : ''} arrow placement="top">
-        <div>
-          <CheckInButton onClick={() => onOpenEncounterModal()} disabled={!!createdEncounter}>
-            <TranslatedText
-              stringId="scheduling.action.admitOrCheckIn"
-              fallback="Admit or check-in"
-            />
-          </CheckInButton>
-        </div>
-      </Tooltip>
+      <StyledConditionalTooltip
+        title={
+          <TranslatedText
+            stringId="scheduling.tooltip.alreadyAdmitted"
+            fallback="Patient already admitted"
+          />
+        }
+        visible={!!createdEncounter}
+      >
+        <CheckInButton onClick={() => onOpenEncounterModal()} disabled={!!createdEncounter}>
+          <TranslatedText
+            stringId="scheduling.action.admitOrCheckIn"
+            fallback="Admit or check-in"
+          />
+        </CheckInButton>
+      </StyledConditionalTooltip>
     </AppointmentStatusContainer>
   );
 };
@@ -381,6 +396,11 @@ export const AppointmentDetailPopper = ({
         />
       </StyledPaper>
       <EncounterModal
+        initialValues={{
+          locationId: appointment?.location?.id,
+          examinerId: appointment?.clinician?.id,
+          practitionerId: appointment?.clinician?.id,
+        }}
         open={encounterModal}
         onClose={onCloseEncounterModal}
         onSubmitEncounter={setEncounter}

@@ -23,6 +23,7 @@ export const EncounterModal = React.memo(
     referral,
     patient,
     patientBillingTypeId,
+    initialValues,
   }) => {
     const [modalStatus, setModalStatus] = useState(MODAL_STATES.SELECT_OPEN);
     const [encounterType, setEncounterType] = useState(null);
@@ -62,6 +63,7 @@ export const EncounterModal = React.memo(
           patientId={patient.id}
           patientBillingTypeId={patientBillingTypeId}
           referral={referral}
+          initialValues={initialValues}
         />
         <TriageModal
           open={modalStatus === MODAL_STATES.TRIAGE_OPEN}
@@ -69,6 +71,7 @@ export const EncounterModal = React.memo(
           noRedirectOnSubmit={noRedirectOnSubmit}
           onClose={onCloseModal}
           patient={patient}
+          initialValues={initialValues}
         />
       </>
     );

@@ -56,7 +56,7 @@ const DETAILS_FIELD_DEFINITIONS = [
 ];
 
 export const TriageModal = React.memo(
-  ({ open, patient, onClose, onSubmitEncounter, noRedirectOnSubmit }) => {
+  ({ open, patient, onClose, onSubmitEncounter, noRedirectOnSubmit, initialValues }) => {
     const { displayId } = patient;
     const { getSetting } = useSettings();
 
@@ -95,6 +95,7 @@ export const TriageModal = React.memo(
           noRedirectOnSubmit={noRedirectOnSubmit}
           onCancel={onClose}
           patient={patient}
+          initialValues={initialValues}
         />
       </FormModal>
     );
