@@ -146,7 +146,7 @@ async function readTableDoc(schemaPath, tableName) {
     columns: [],
   };
 
-  // generic.md isn't for a particular talbe and thus doesn't have a D`table_*` section.
+  // generic.md isn't for a particular table and thus doesn't have a D`table_*` section.
   if (tableName !== 'generic') {
     const match = re.exec(text);
     if (match === null) return null;
