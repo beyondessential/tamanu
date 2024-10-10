@@ -21,7 +21,7 @@ const SET_SETTINGS = 'SET_SETTINGS';
 export const restoreSession = () => async (dispatch, getState, { api }) => {
   try {
     const loginInfo = await api.restoreSession();
-    handleLoginSuccess(dispatch, loginInfo);
+    await handleLoginSuccess(dispatch, loginInfo);
   } catch (e) {
     // no action required -- this just means we haven't logged in
   }
@@ -29,16 +29,15 @@ export const restoreSession = () => async (dispatch, getState, { api }) => {
 
 export const login = (email, password) => async (dispatch, getState, { api }) => {
   dispatch({ type: LOGIN_START });
-
   try {
     const loginInfo = await api.login(email, password);
-    handleLoginSuccess(dispatch, loginInfo);
+    await handleLoginSuccess(dispatch, loginInfo);
   } catch (error) {
     dispatch({ type: LOGIN_FAILURE, error: error.message });
   }
 };
 
-const handleLoginSuccess = (dispatch, loginInfo) => {
+const handleLoginSuccess = async (dispatch, loginInfo) => {
   const {
     user,
     token,
@@ -48,17 +47,16 @@ const handleLoginSuccess = (dispatch, loginInfo) => {
     facilityId,
     ability,
     role,
-    settings,
   } = loginInfo;
 
   if (facilityId) {
-    dispatch(setFacilityId(facilityId));
+    await dispatch(setFacilityId(facilityId));
   } else {
     // if there's just one facility the user has access to, select it immediately
     // otherwise they will be prompted to select a facility after login
     const onlyFacilityId = availableFacilities?.length === 1 ? availableFacilities[0].id : null;
     if (onlyFacilityId) {
-      dispatch(setFacilityId(onlyFacilityId));
+      await dispatch(setFacilityId(onlyFacilityId));
     }
   }
 
@@ -71,7 +69,6 @@ const handleLoginSuccess = (dispatch, loginInfo) => {
     availableFacilities,
     ability,
     role,
-    settings,
   });
 };
 
@@ -203,13 +200,11 @@ const actionHandlers = {
     user: action.user,
     ability: action.ability,
     availableFacilities: action.availableFacilities,
-    facilityId: action.facilityId,
     error: defaultState.error,
     token: action.token,
     localisation: action.localisation,
     server: action.server,
     role: action.role,
-    settings: action.settings,
     resetPassword: defaultState.resetPassword,
     changePassword: defaultState.changePassword,
   }),
