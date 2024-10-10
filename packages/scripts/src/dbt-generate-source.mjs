@@ -383,7 +383,7 @@ async function handleColumns(schemaPath, tableName, dbtSrc, sqlColumns, genericC
 
   // This is expensive yet the most straightforward implementation to detect changes.
   // Algorithms that rely on sorted lists are out because we want preserve the original order of columns.
-  // May be able to use Map, but it doesn't have convinient set operations.
+  // May be able to use Map, but it doesn't have convenient set operations.
   _.differenceBy(out.dbtColumns, sqlColumns, 'name').forEach(column =>
     handleRemovedColumn(tableName, column, out),
   );
@@ -405,7 +405,7 @@ async function handleColumns(schemaPath, tableName, dbtSrc, sqlColumns, genericC
   await Promise.all(intersectionPromises);
 
   const tablePath = path.join(schemaPath, tableName);
-  // This writes files in a preffered format ignoring the original format.
+  // This writes files in a preferred format ignoring the original format.
   const modelPromise = fs.writeFile(tablePath + '.yml', YAML.stringify(dbtSrc));
   const docPromise = fs.writeFile(tablePath + '.md', stringifyTableDoc(out.doc));
   await Promise.all([modelPromise, docPromise]);
@@ -490,7 +490,7 @@ const opts = program.opts();
 
 // This doesn't take untracked files into account.
 if (!opts.allowDirty && !checkClean()) {
-  console.error('Error: `database/` has uncommited changes');
+  console.error('Error: `database/` has uncommitted changes');
   exit(1);
 }
 
