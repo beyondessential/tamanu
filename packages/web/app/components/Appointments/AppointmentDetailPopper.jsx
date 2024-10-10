@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { push } from 'connected-react-router';
-import { Box, IconButton, Paper, Popper, styled } from '@mui/material';
+import { Box, IconButton, Paper, Popper, styled, Tooltip } from '@mui/material';
 import { MoreVert, Close, Brightness2 as Overnight } from '@mui/icons-material';
 import { debounce } from 'lodash';
 import { toast } from 'react-toastify';
@@ -23,6 +23,9 @@ import {
   APPOINTMENT_TYPE_LABELS,
 } from '@tamanu/constants';
 import { AppointmentStatusChip } from './AppointmentStatusChip';
+import { TextButton } from '../Button';
+import { EncounterModal } from '../EncounterModal';
+import { usePatientCurrentEncounter } from '../../api/queries';
 
 const DEBOUNCE_DELAY = 200; // ms
 
@@ -95,10 +98,15 @@ const AppointmentDetailsContainer = styled(FlexCol)`
   border-bottom: 1px solid ${Colors.outline};
 `;
 
-const AppointmentStatusContainer = styled(Box)`
+const AppointmentStatusContainer = styled(FlexCol)`
   padding-inline: 0.75rem;
   padding-block-start: 0.5rem;
   padding-block-end: 0.75rem;
+  gap: 0.5rem;
+  align-items: center;
+`;
+
+const AppointmentStatusGrid = styled(Box)`
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   grid-row-gap: 0.5rem;
@@ -141,16 +149,8 @@ const BookingTypeDisplay = ({ type, isOvernight }) => (
   />
 );
 
-const PatientDetailsDisplay = ({ patient, onClick }) => {
-  const { id, displayId, sex, dateOfBirth } = patient;
-  const api = useApi();
-  const [additionalData, setAdditionalData] = useState();
-  useEffect(() => {
-    (async () => {
-      const data = await api.get(`/patient/${id}/additionalData`);
-      setAdditionalData(data);
-    })();
-  }, [id, api]);
+const PatientDetailsDisplay = ({ patient, additionalData, onClick }) => {
+  const { displayId, sex, dateOfBirth } = patient;
 
   return (
     <PatientDetailsContainer onClick={onClick}>
@@ -234,19 +234,42 @@ const AppointDetailsDisplay = ({ appointment, isOvernight }) => {
   );
 };
 
-const AppointmentStatusDisplay = ({ selectedStatus, updateAppointmentStatus }) => {
+const CheckInButton = styled(TextButton)`
+  color: ${Colors.primary};
+  font-size: 0.6875rem;
+  text-decoration: underline;
+`;
+
+const AppointmentStatusDisplay = ({
+  selectedStatus,
+  updateAppointmentStatus,
+  onOpenEncounterModal,
+  createdEncounter,
+}) => {
   return (
     <AppointmentStatusContainer>
-      {APPOINTMENT_STATUS_VALUES.filter(status => status != APPOINTMENT_STATUSES.CANCELLED).map(
-        status => (
-          <AppointmentStatusChip
-            key={status}
-            appointmentStatus={status}
-            deselected={status !== selectedStatus}
-            onClick={() => updateAppointmentStatus(status)}
-          />
-        ),
-      )}
+      <AppointmentStatusGrid>
+        {APPOINTMENT_STATUS_VALUES.filter(status => status != APPOINTMENT_STATUSES.CANCELLED).map(
+          status => (
+            <AppointmentStatusChip
+              key={status}
+              appointmentStatus={status}
+              deselected={status !== selectedStatus}
+              onClick={() => updateAppointmentStatus(status)}
+            />
+          ),
+        )}
+      </AppointmentStatusGrid>
+      <Tooltip title={createdEncounter ? 'Already checked in' : ''} arrow placement="top">
+        <div>
+          <CheckInButton onClick={() => onOpenEncounterModal()} disabled={!!createdEncounter}>
+            <TranslatedText
+              stringId="scheduling.action.admitOrCheckIn"
+              fallback="Admit or check-in"
+            />
+          </CheckInButton>
+        </div>
+      </Tooltip>
     </AppointmentStatusContainer>
   );
 };
@@ -261,13 +284,41 @@ export const AppointmentDetailPopper = ({
 }) => {
   const dispatch = useDispatch();
   const api = useApi();
-  const [localStatus, setLocalStatus] = useState(appointment.status);
   const patientId = appointment.patient.id;
+
+  const { data: initialEncounter } = usePatientCurrentEncounter(patientId);
+  console.log(initialEncounter);
+
+  const [localStatus, setLocalStatus] = useState(appointment.status);
+  const [encounterModal, setEncounterModal] = useState(false);
+  const [currentEncounter, setCurrentEncounter] = useState(null);
+  const [additionalData, setAdditionalData] = useState();
+
+  useEffect(() => {
+    setCurrentEncounter(initialEncounter);
+  }, [initialEncounter]);
+
+  useEffect(() => {
+    (async () => {
+      const data = await api.get(`/patient/${patientId}/additionalData`);
+      setAdditionalData(data);
+    })();
+  }, [patientId, api]);
 
   const handlePatientDetailsClick = useCallback(async () => {
     await dispatch(reloadPatient(patientId));
     dispatch(push(`/patients/all/${patientId}`));
   }, [dispatch, patientId]);
+
+  const onOpenEncounterModal = useCallback(() => setEncounterModal(true), []);
+  const onCloseEncounterModal = useCallback(() => setEncounterModal(false), []);
+  const setEncounter = useCallback(
+    async encounter => {
+      setCurrentEncounter(encounter);
+      onCloseEncounterModal();
+    },
+    [onCloseEncounterModal],
+  );
 
   const debouncedUpdateAppointmentSatus = useMemo(
     () =>
@@ -316,13 +367,27 @@ export const AppointmentDetailPopper = ({
     >
       <ControlsRow onClose={onClose} />
       <StyledPaper elevation={0}>
-        <PatientDetailsDisplay patient={appointment.patient} onClick={handlePatientDetailsClick} />
+        <PatientDetailsDisplay
+          patient={appointment.patient}
+          additionalData={additionalData}
+          onClick={handlePatientDetailsClick}
+        />
         <AppointDetailsDisplay appointment={appointment} isOvernight={isOvernight} />
         <AppointmentStatusDisplay
           selectedStatus={localStatus}
           updateAppointmentStatus={updateAppointmentStatus}
+          createdEncounter={currentEncounter}
+          onOpenEncounterModal={onOpenEncounterModal}
         />
       </StyledPaper>
+      <EncounterModal
+        open={encounterModal}
+        onClose={onCloseEncounterModal}
+        onSubmitEncounter={setEncounter}
+        noRedirectOnSubmit
+        patient={appointment.patient}
+        patientBillingTypeId={additionalData?.patientBillingTypeId}
+      />
     </Popper>
   );
 };
