@@ -21,13 +21,17 @@ import {
   vitalEditReasonsDefault,
   vitalEditReasonsSchema,
 } from './definitions';
-import { layoutModuleProperties, unhideableLayoutModuleProperties } from './global-settings-properties/layouts';
+import {
+  layoutModuleProperties,
+  unhideableLayoutModuleProperties,
+} from './global-settings-properties/layouts';
 
 export const globalSettings = {
   title: 'Global settings',
   description: 'Settings that apply to all servers',
   properties: {
     auth: {
+      highRisk: true,
       description: 'Authentication options',
       properties: {
         restrictUsersToFacilities: {
