@@ -64,8 +64,7 @@ export const validateSettings = async ({
   const flattenedSchema = flattenSchema(schemaValue);
   const yupSchema = yup
     .object()
-    .shape(flattenedSchema)
-    .noUnknown();
+    .shape(flattenedSchema);
 
   await yupSchema.validate(flattenedSettings, { abortEarly: false, strict: true });
 };
