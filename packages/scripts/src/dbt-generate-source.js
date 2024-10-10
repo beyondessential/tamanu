@@ -412,7 +412,8 @@ async function handleColumns(schemaPath, tableName, dbtSrc, sqlColumns, genericC
 }
 
 async function handleTables(schemaPath, schemaName, dbtSrcs, sqlTables) {
-  const genericColNames = (await readTableDoc(schemaPath, 'generic'))?.columns.map(c => c.name) ?? [];
+  const genericColNames =
+    (await readTableDoc(schemaPath, 'generic'))?.columns.map(c => c.name) ?? [];
 
   const getName = srcOrTable =>
     srcOrTable.sources ? srcOrTable.sources[0].tables[0].name : srcOrTable.name;
@@ -490,7 +491,9 @@ const opts = program.opts();
 
 // This doesn't take untracked files into account.
 if (!opts.allowDirty && !checkClean()) {
-  console.error('Error: `database/` has uncommitted changes');
+  console.error(
+    `Error: 'database/' has uncommitted changes. Use --allow-dirty if you're sure. You may lose work!`,
+  );
   exit(1);
 }
 
