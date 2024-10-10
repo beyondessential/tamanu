@@ -135,12 +135,15 @@ export const SettingInput = ({
   switch (typeKey) {
     case SETTING_TYPES.BOOLEAN:
       return (
-        <Switch
-          color="primary"
-          checked={displayValue}
-          onChange={handleChangeSwitch}
-          disabled={disabled}
-        />
+        <Flexbox>
+          <Switch
+            color="primary"
+            checked={displayValue}
+            onChange={handleChangeSwitch}
+            disabled={disabled}
+          />
+          <DefaultButton />
+        </Flexbox>
       );
     case SETTING_TYPES.STRING:
       return (
