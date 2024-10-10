@@ -1,16 +1,16 @@
 #!/usr/bin/env node
 
 process.env.SUPPRESS_NO_CONFIG_WARNING = 'y';
-const { default: config } = await import('config');
-import fs from 'node:fs/promises';
-import inflection from 'inflection';
-import path from 'node:path';
-import pg from 'pg';
-import { program } from 'commander';
-import YAML from 'yaml';
-import _ from 'lodash';
-import { spawnSync } from 'child_process';
-import { exit } from 'node:process';
+const config = require('config');
+const fs = require('node:fs/promises');
+const inflection = require('inflection');
+const path = require('node:path');
+const pg = require('pg');
+const { program } = require('commander');
+const YAML = require('yaml');
+const { remove, differenceBy, intersectionBy } = require('lodash');
+const { spawnSync } = require('child_process');
+const { exit } = require('node:process');
 
 /**
  * @param {string} schemaPath The path to the dir with source model files for a schema
@@ -314,8 +314,8 @@ async function fillMissingDoc(schemaPath, table, genericColNames) {
  */
 async function handleRemovedColumn(tableName, column, out) {
   console.warn(`Removing ${column.name} in ${tableName}`);
-  _.remove(out.dbtColumns, c => c.name === column.name);
-  _.remove(out.doc.columns, c => c.name === column.name);
+  remove(out.dbtColumns, c => c.name === column.name);
+  remove(out.doc.columns, c => c.name === column.name);
 }
 
 /**
@@ -369,7 +369,7 @@ async function handleColumn(dbtColumn, sqlColumn) {
   if (!Object.hasOwn(dbtColumn, 'data_tests')) dbtColumn.data_tests = [];
 
   // Instead of computing differences while ignoring non-trivial data tests, simply replace them by the generated one.
-  _.remove(dbtColumn.data_tests, t => t === 'unique' || t === 'not_null');
+  remove(dbtColumn.data_tests, t => t === 'unique' || t === 'not_null');
   dbtColumn.data_tests.splice(0, 0, ...sqlDataTests);
 
   if (dbtColumn.data_tests.length === 0) delete dbtColumn.data_tests;
@@ -384,14 +384,14 @@ async function handleColumns(schemaPath, tableName, dbtSrc, sqlColumns, genericC
   // This is expensive yet the most straightforward implementation to detect changes.
   // Algorithms that rely on sorted lists are out because we want preserve the original order of columns.
   // May be able to use Map, but it doesn't have convenient set operations.
-  _.differenceBy(out.dbtColumns, sqlColumns, 'name').forEach(column =>
+  differenceBy(out.dbtColumns, sqlColumns, 'name').forEach(column =>
     handleRemovedColumn(tableName, column, out),
   );
-  _.differenceBy(sqlColumns, out.dbtColumns, 'name').forEach(column =>
+  differenceBy(sqlColumns, out.dbtColumns, 'name').forEach(column =>
     handleMissingColumn(tableName, sqlColumns.indexOf(column), column, genericColNames, out),
   );
 
-  const intersectionPromises = _.intersectionBy(out.dbtColumns, sqlColumns, 'name').map(
+  const intersectionPromises = intersectionBy(out.dbtColumns, sqlColumns, 'name').map(
     async dbtColumn => {
       const sqlColumnIndex = sqlColumns.findIndex(c => c.name === dbtColumn.name);
       const sqlColumn = sqlColumns[sqlColumnIndex];
@@ -416,14 +416,14 @@ async function handleTables(schemaPath, schemaName, dbtSrcs, sqlTables) {
 
   const getName = srcOrTable =>
     srcOrTable.sources ? srcOrTable.sources[0].tables[0].name : srcOrTable.name;
-  const removedPromises = _.differenceBy(dbtSrcs, sqlTables, getName).map(src =>
+  const removedPromises = differenceBy(dbtSrcs, sqlTables, getName).map(src =>
     handleRemovedTable(schemaPath, src.sources[0].tables[0]),
   );
-  const missingPromises = _.differenceBy(sqlTables, dbtSrcs, getName).map(table =>
+  const missingPromises = differenceBy(sqlTables, dbtSrcs, getName).map(table =>
     handleMissingTable(schemaPath, schemaName, table, genericColNames),
   );
 
-  const intersectionPromises = _.intersectionBy(dbtSrcs, sqlTables, getName).map(async dbtSrc => {
+  const intersectionPromises = intersectionBy(dbtSrcs, sqlTables, getName).map(async dbtSrc => {
     const sqlTable = sqlTables.find(t => t.name === dbtSrc.sources[0].tables[0].name);
     dbtSrc.sources[0].schema = schemaName;
     await fillMissingDoc(schemaPath, sqlTable, genericColNames);
@@ -441,7 +441,7 @@ async function handleSchema(client, packageName, schemaName) {
   await handleTables(schemaPath, schemaName, oldTables, sqlTables);
 }
 
-async function run(packageName) {
+async function run(packageName, opts) {
   const serverConfig = config.util.loadFileConfigs(path.join('packages', packageName, 'config'));
   const db = config.util.extendDeep(serverConfig.db, config.db); // merge with NODE_CONFIG
 
@@ -494,4 +494,5 @@ if (!opts.allowDirty && !checkClean()) {
   exit(1);
 }
 
-await Promise.all([run('central-server'), run('facility-server')]);
+run('central-server', opts);
+run('facility-server', opts);
