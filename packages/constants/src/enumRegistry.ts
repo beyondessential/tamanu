@@ -20,7 +20,12 @@ import {
   IMAGING_REQUEST_STATUS_LABELS,
 } from './statuses';
 import { VACCINE_STATUS_LABELS, INJECTION_SITE_LABELS, VACCINE_CATEGORY_LABELS } from './vaccines';
-import { BIRTH_DELIVERY_TYPE_LABELS, BIRTH_TYPE_LABELS } from './births';
+import {
+  ATTENDANT_OF_BIRTH_LABELS,
+  BIRTH_DELIVERY_TYPE_LABELS,
+  BIRTH_TYPE_LABELS,
+  PLACE_OF_BIRTH_LABELS,
+} from './births';
 import {
   REPORT_DATA_SOURCE_LABELS,
   REPORT_DEFAULT_DATE_RANGES_LABELS,
@@ -48,6 +53,7 @@ type EnumEntries = [EnumKeys, EnumValues][];
 export const registeredEnums = {
   APPOINTMENT_STATUSES,
   APPOINTMENT_TYPE_LABELS,
+  ATTENDANT_OF_BIRTH_LABELS,
   ASSET_NAME_LABELS,
   BIRTH_DELIVERY_TYPE_LABELS,
   BIRTH_TYPE_LABELS,
@@ -68,6 +74,7 @@ export const registeredEnums = {
   MARTIAL_STATUS_LABELS,
   NOTE_TYPE_LABELS,
   PATIENT_ISSUE_LABELS,
+  PLACE_OF_BIRTH_LABELS,
   PLACE_OF_DEATHS,
   REFERRAL_STATUS_LABELS,
   REPEATS_LABELS,
@@ -92,6 +99,7 @@ export const registeredEnums = {
 export const translationPrefixes: Record<EnumKeys, string> = {
   APPOINTMENT_STATUSES: 'appointment.property.status',
   APPOINTMENT_TYPE_LABELS: 'appointment.property.types',
+  ATTENDANT_OF_BIRTH_LABELS: 'birth.property.attendantOfBirth',
   ASSET_NAME_LABELS: 'asset.property.name',
   BIRTH_DELIVERY_TYPE_LABELS: 'birth.property.birthDeliveryType',
   BIRTH_TYPE_LABELS: 'birth.property.birthType',
@@ -112,6 +120,7 @@ export const translationPrefixes: Record<EnumKeys, string> = {
   MARTIAL_STATUS_LABELS: 'patient.property.maritalStatus',
   NOTE_TYPE_LABELS: 'note.property.type',
   PATIENT_ISSUE_LABELS: 'patient.property.issue',
+  PLACE_OF_BIRTH_LABELS: 'birth.property.placeOfBirth',
   PLACE_OF_DEATHS: 'death.property.placeOfDeath',
   REFERRAL_STATUS_LABELS: 'referral.property.status',
   REPEATS_LABELS: 'medication.property.repeats',
