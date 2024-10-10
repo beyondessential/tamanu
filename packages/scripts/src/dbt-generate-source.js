@@ -412,7 +412,7 @@ async function handleColumns(schemaPath, tableName, dbtSrc, sqlColumns, genericC
 }
 
 async function handleTables(schemaPath, schemaName, dbtSrcs, sqlTables) {
-  let genericColNames = (await readTableDoc(schemaPath, 'generic'))?.columns.map(c => c.name) ?? [];
+  const genericColNames = (await readTableDoc(schemaPath, 'generic'))?.columns.map(c => c.name) ?? [];
 
   const getName = srcOrTable =>
     srcOrTable.sources ? srcOrTable.sources[0].tables[0].name : srcOrTable.name;
