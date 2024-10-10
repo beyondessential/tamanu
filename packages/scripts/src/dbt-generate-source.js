@@ -411,6 +411,13 @@ async function handleColumns(schemaPath, tableName, dbtSrc, sqlColumns, genericC
   await Promise.all([modelPromise, docPromise]);
 }
 
+async function handleTable(schemaPath, schemaName, dbtSrc, sqlTable, genericColNames) {
+  dbtSrc.sources[0].schema = schemaName;
+
+  await fillMissingDoc(schemaPath, sqlTable, genericColNames);
+  await handleColumns(schemaPath, sqlTable.name, dbtSrc, sqlTable.columns, genericColNames);
+}
+
 async function handleTables(schemaPath, schemaName, dbtSrcs, sqlTables) {
   const genericColNames =
     (await readTableDoc(schemaPath, 'generic'))?.columns.map(c => c.name) ?? [];
@@ -426,9 +433,7 @@ async function handleTables(schemaPath, schemaName, dbtSrcs, sqlTables) {
 
   const intersectionPromises = intersectionBy(dbtSrcs, sqlTables, getName).map(async dbtSrc => {
     const sqlTable = sqlTables.find(t => t.name === dbtSrc.sources[0].tables[0].name);
-    dbtSrc.sources[0].schema = schemaName;
-    await fillMissingDoc(schemaPath, sqlTable, genericColNames);
-    await handleColumns(schemaPath, sqlTable.name, dbtSrc, sqlTable.columns, genericColNames);
+    await handleTable(schemaPath, schemaName, dbtSrc, sqlTable, genericColNames);
   });
   await Promise.all([...removedPromises, ...missingPromises, ...intersectionPromises]);
 }
