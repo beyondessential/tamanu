@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { push } from 'connected-react-router';
-import { Box, IconButton, Paper, Popper, styled, Tooltip } from '@mui/material';
+import { Box, IconButton, Paper, Popper, styled } from '@mui/material';
 import { MoreVert, Close, Brightness2 as Overnight } from '@mui/icons-material';
 import { debounce } from 'lodash';
 import { toast } from 'react-toastify';
@@ -302,7 +302,6 @@ export const AppointmentDetailPopper = ({
   const patientId = appointment.patient.id;
 
   const { data: initialEncounter } = usePatientCurrentEncounter(patientId);
-  console.log(initialEncounter);
 
   const [localStatus, setLocalStatus] = useState(appointment.status);
   const [encounterModal, setEncounterModal] = useState(false);
