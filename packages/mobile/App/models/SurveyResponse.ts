@@ -25,6 +25,7 @@ import { SYNC_DIRECTIONS } from './types';
 import { DateTimeStringColumn } from './DateColumns';
 import { PatientProgramRegistration } from './PatientProgramRegistration';
 import { VisibilityStatus } from '../visibilityStatuses';
+import { readConfig } from '~/services/config';
 
 type RecordValuesByModel = {
   Patient?: Record<string, string>;
@@ -86,6 +87,7 @@ async function writeToPatientFields(
   }
 
   if (valuesByModel.PatientProgramRegistration) {
+    const facilityId = await readConfig('facilityId', '');
     const { programId } = await Survey.findOne({ id: surveyId });
     const programRegistryDetail = await ProgramRegistry.findOne({
       where: { program: { id: programId }, visibilityStatus: VisibilityStatus.Current },
@@ -96,6 +98,8 @@ async function writeToPatientFields(
     await PatientProgramRegistration.appendRegistration(patientId, programRegistryDetail.id, {
       date: submittedTime,
       ...valuesByModel.PatientProgramRegistration,
+      registeringFacilityId:
+        valuesByModel.PatientProgramRegistration.registeringFacilityId || facilityId,
       clinicianId: valuesByModel.PatientProgramRegistration.clinicianId || userId,
     });
   }

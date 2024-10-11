@@ -415,7 +415,7 @@ export class Encounter extends Model {
     }
 
     await this.addSystemNote(
-      `${department.name} triage score – ${triageRecord.score}`,
+      `${department.name} triage score: ${triageRecord.score}`,
       submittedTime,
       user,
     );
