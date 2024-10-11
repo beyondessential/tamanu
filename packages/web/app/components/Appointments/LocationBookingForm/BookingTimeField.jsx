@@ -64,7 +64,15 @@ export const BookingTimeField = ({ disabled = false }) => {
   const { getSetting } = useSettings();
   const { setFieldValue, values, dirty } = useFormikContext();
 
-  const [selectedTimeRange, setSelectedTimeRange] = useState(null);
+  // TODO: not sure if this is the best way to do initial population
+  const initialTimeRange = values.startTime
+    ? {
+        start: new Date(values.startTime),
+        end: new Date(values.endTime),
+      }
+    : null;
+
+  const [selectedTimeRange, setSelectedTimeRange] = useState(initialTimeRange);
   const [hoverTimeRange, setHoverTimeRange] = useState(null);
 
   const { locationId, date } = values;
