@@ -154,7 +154,8 @@ const NoDataContainer = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0 148px;
+  padding: 0 17%;
+  white-space: normal;
   background: ${Colors.hoverGrey};
   color: ${Colors.primary};
 `;
@@ -347,7 +348,7 @@ const NoDataMessage = () => (
   <NoDataContainer>
     <TranslatedText
       stringId="encounter.tasks.table.noData"
-      fallback="No upcoming tasks to display. Please click '+ New task' to add a task to this patient."
+      fallback="No patient tasks to display. Please try adjusting filters or click ‘+ New task’ to add a task to this patient."
     />
   </NoDataContainer>
 );
@@ -382,7 +383,7 @@ export const TasksTable = ({ encounterId, searchParameters, refreshCount, refres
       const uniqueStatuses = new Set(data.map(item => item.status));
       return uniqueStatuses.size > 1 && !selectedKeys.size;
     },
-    getRowsFilterer: (selectedKeys) => (row) => {
+    getRowsFilterer: selectedKeys => row => {
       const selectedStatus = data.find(({ id }) => selectedKeys.has(id))?.status;
       return !selectedStatus || row.status === selectedStatus;
     },
