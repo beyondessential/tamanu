@@ -158,18 +158,14 @@ export class Setting extends Model {
     const defaultsForScope = extractDefaults(schema);
 
     const existingByKey = keyBy(
-      await this.findAll(
-        {
-          where: {
-            key: records.map(r => r.key),
-            scope,
-            facilityId,
-          },
+      await this.findAll({
+        where: {
+          key: records.map(r => r.key),
+          scope,
+          facilityId,
         },
-        {
-          paranoid: false,
-        },
-      ),
+        paranoid: false,
+      }),
       'key',
     );
 
