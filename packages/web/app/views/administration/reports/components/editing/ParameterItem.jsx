@@ -160,14 +160,14 @@ export const ParameterItem = props => {
           />
         </>
       )}
-      {FIELD_TYPES_WITH_FILTER_BY_SELECTED_FACILITY.includes(parameterField) && (
+      {parameterField === 'FacilityField' && (
         <Grid item xs={12}>
           <Field
             name={`${baseName}.filterBySelectedFacility`}
             label={
               <TranslatedText
                 stringId="report.editor.filterBySelectedFacility.label"
-                fallback="Filter by selected facility"
+                fallback="Filter other parameter suggestions by selected facility"
               />
             }
             component={CheckField}
