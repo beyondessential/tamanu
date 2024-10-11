@@ -3,42 +3,39 @@ import React, { useState } from 'react';
 import { BookLocationDrawer } from '../../app/components/Appointments/LocationBookingForm/BookLocationDrawer';
 import { MockedApi } from '../utils/mockedApi';
 import { MockSettingsProvider } from '../utils/mockSettingsProvider';
-import { Button, Form } from '../../app/components';
+import { Button } from '../../app/components';
 import { toDateString } from '@tamanu/shared/utils/dateTime';
 import styled from 'styled-components';
 import {
   mockLocationGroupSuggesterEndpoint,
+  mockLocationGroupData,
   mockLocationSuggesterEndpoint,
+  mockLocationData,
   mockPatientSuggesterEndpoint,
+  mockPatientData,
 } from '../utils/mockSuggesterData';
+import Chance from 'chance';
+
+const chance = new Chance();
 
 const todaysDate = toDateString(new Date());
 
+// Create some fake appointments for todays date. should be enough for testing
+const generateMockLocationBooking = (startTime, endtime) => ({
+  startTime: `${todaysDate} ${startTime}`,
+  endTime: `${todaysDate} ${endtime}`,
+  status: 'Confirmed',
+  locationGroupId: chance.pickone(mockLocationGroupData).id,
+  locationId: chance.pickone(mockLocationData).id,
+  date: todaysDate,
+  bookingType: chance.pickone(['Standard', 'Emergency', 'Specialist', 'Other']),
+  patientId: chance.pickone(mockPatientData).id,
+});
+
 const mockAppointments = [
-  {
-    startTime: `${todaysDate} 09:00:00`,
-    endTime: `${todaysDate} 09:30:00`,
-    type: 'Standard',
-    status: 'Confirmed',
-    locationGroupId: 'locationGroup-a',
-    locationId: 'location-a',
-  },
-  {
-    startTime: `${todaysDate} 11:30:00`,
-    endTime: `${todaysDate} 12:00:00`,
-    type: 'Standard',
-    status: 'Confirmed',
-    locationGroupId: 'locationGroup-a',
-    locationId: 'location-a',
-  },
-  {
-    startTime: `${todaysDate} 15:00:00`,
-    endTime: `${todaysDate} 16:30:00`,
-    type: 'Standard',
-    status: 'Confirmed',
-    locationGroupId: 'locationGroup-a',
-    locationId: 'location-a',
-  },
+  generateMockLocationBooking("9:00:00", "9:30:00"),
+  generateMockLocationBooking("11:30:00", "12:00:00"),
+  generateMockLocationBooking("15:00:00", "16:30:00"),
 ];
 
 const mockSettings = {
@@ -111,7 +108,12 @@ export const ModifyBooking = () => {
   return (
     <MockCalendar>
       CALENDAR GOES HERE <Button onClick={openDrawer}>+ Book location</Button>
-      <BookLocationDrawer editMode closeDrawer={closeDrawer} open={true} />
+      <BookLocationDrawer
+        editMode
+        closeDrawer={closeDrawer}
+        open={true}
+        existingBooking={generateMockLocationBooking("10:00:00", "10:30:00")}
+      />
     </MockCalendar>
   );
 };

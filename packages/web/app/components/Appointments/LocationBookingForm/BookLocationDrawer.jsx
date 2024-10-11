@@ -21,6 +21,7 @@ import { APPOINTMENT_TYPE_LABELS } from '@tamanu/constants';
 import { ClearIcon } from '../../Icons/ClearIcon';
 import { ConfirmModal } from '../../ConfirmModal';
 import { notifyError, notifySuccess } from '../../../utils';
+import { useAppointments } from '../../../api/queries/useAppointments';
 
 const slideIn = keyframes`
   from {
@@ -109,7 +110,7 @@ export const WarningModal = ({ open, setShowWarningModal, resolveFn }) => {
   );
 };
 
-export const BookLocationDrawer = ({ open, closeDrawer, editMode = false }) => {
+export const BookLocationDrawer = ({ open, closeDrawer, editMode = false, existingBooking }) => {
   const patientSuggester = usePatientSuggester();
   const clinicianSuggester = useSuggester('practitioner');
 
@@ -159,6 +160,7 @@ export const BookLocationDrawer = ({ open, closeDrawer, editMode = false }) => {
           endTime: yup.string().required(),
           patientId: yup.string().required(),
         })}
+        initialValues={existingBooking}
         render={({ values, resetForm, setFieldValue, dirty }) => {
           const warnAndResetForm = async () => {
             const confirmed = !dirty || (await handleShowWarningModal());
@@ -201,7 +203,10 @@ export const BookLocationDrawer = ({ open, closeDrawer, editMode = false }) => {
                 disabled={!values.locationId}
                 required
               />
-              <BookingTimeField disabled={!values.date} />
+              <BookingTimeField
+                initialTimeRange={{ start: values.startTime, end: values.endTime }}
+                disabled={!values.date}
+              />
               <Field
                 name="patientId"
                 label="Patient"
