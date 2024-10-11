@@ -18,6 +18,8 @@ import { useFormikContext } from 'formik';
 import { toDateTimeString } from '../../../utils/dateTime';
 import { isEqual } from 'lodash';
 import { CircularProgress } from '@material-ui/core';
+import { BodyText } from '../../Typography';
+import { FormHelperText } from '@mui/material';
 
 const CellContainer = styled.div`
   border: 1px solid ${Colors.outline};
@@ -33,6 +35,8 @@ const LoadingIndicator = styled(CircularProgress)`
   grid-column: 1 / -1;
   margin: 0 auto;
 `;
+
+const HelperText = styled(FormHelperText)``;
 
 const calculateTimeSlots = (bookingSlotSettings, date) => {
   const { startTime, endTime, slotDuration } = bookingSlotSettings;
@@ -76,23 +80,34 @@ export const BookingTimeField = ({ disabled = false }) => {
   const [hoverTimeRange, setHoverTimeRange] = useState(null);
 
   const { locationId, date } = values;
-  const { data: existingLocationBookings, isFetched } = useAppointments({
+  const { data: existingLocationBookings, isFetched: isLocationBookingsFetched } = useAppointments({
     after: date ? toDateTimeString(startOfDay(new Date(date))) : null,
     before: date ? toDateTimeString(endOfDay(new Date(date))) : null,
     all: true,
     locationId,
   });
 
+  const { data: bookingsForThisPatient, isFetched: isPatientBookingFetched } = useAppointments({
+    after: date ? toDateTimeString(startOfDay(new Date(date))) : null,
+    before: date ? toDateTimeString(endOfDay(new Date(date))) : null,
+    all: true,
+    patientId: values.patientId,
+    // locationId TODO: Not sure if filtered by location or not
+  });
+
+  const hasBookingForThisPatientToday =
+    isPatientBookingFetched && values.patientId && bookingsForThisPatient.data.length > 0;
+
   // Convert existing bookings into timeslots
   const bookedTimeSlots = useMemo(
     () =>
-      isFetched
+      isLocationBookingsFetched
         ? existingLocationBookings?.data.map(booking => ({
             start: new Date(booking.startTime),
             end: new Date(booking.endTime),
           }))
         : [],
-    [existingLocationBookings, isFetched],
+    [existingLocationBookings, isLocationBookingsFetched],
   );
 
   // TODO: temporary default for dev
@@ -201,7 +216,7 @@ export const BookingTimeField = ({ disabled = false }) => {
   return (
     <OuterLabelFieldWrapper label="Booking time" required>
       <CellContainer $disabled={disabled}>
-        {!date || isFetched ? (
+        {!date || isLocationBookingsFetched ? (
           timeSlots.map((timeSlot, index) => {
             const isSelected = isTimeSlotWithinRange(timeSlot, selectedTimeRange);
             const isBooked = bookedTimeSlots?.some(bookedTimeSlot =>
@@ -249,6 +264,9 @@ export const BookingTimeField = ({ disabled = false }) => {
           <LoadingIndicator />
         )}
       </CellContainer>
+      {hasBookingForThisPatientToday && (
+        <HelperText>Patient already has appointment scheduled for this day</HelperText>
+      )}
     </OuterLabelFieldWrapper>
   );
 };
