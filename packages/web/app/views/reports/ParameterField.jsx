@@ -48,7 +48,7 @@ const useReportSuggesterOptions = (parameters, suggesterOptions = {}) => {
     [parameters],
   );
   const [{ value: facilityIdValue }] = useField(facilityField?.name || 'facilityId');
-  if (!facilityField || !facilityField.filterBySelectedFacility) return suggesterOptions;
+  if (!facilityField?.filterBySelectedFacility || !facilityIdValue) return suggesterOptions;
   return {
     ...suggesterOptions,
     baseQueryParameters: { ...suggesterOptions?.baseQueryParameters, facilityId: facilityIdValue },
