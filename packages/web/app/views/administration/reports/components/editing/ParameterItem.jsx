@@ -165,8 +165,8 @@ export const ParameterItem = props => {
             name={`${baseName}.filterBySelectedFacility`}
             label={
               <TranslatedText
-                stringId="report.editor.filterBySelectedFacility.label"
-                fallback="Filter other parameter suggestions by selected facility"
+                stringId="report.editor.filterOtherSuggestionsSelectedFacility.label"
+                fallback="Filter other suggestions by selected facility"
               />
             }
             component={CheckField}
