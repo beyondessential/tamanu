@@ -215,7 +215,12 @@ describe('Schemas', () => {
 
     it('Should throw error for invald settings', async () => {
       const invalidSettings = {
-        vaccinations: false,
+        templates: {
+          letterhead: {},
+        },
+        sync: {
+          syncAllLabRequests: 'a',
+        },
       };
 
       await expect(
