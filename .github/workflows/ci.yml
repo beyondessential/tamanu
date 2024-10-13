@@ -283,7 +283,10 @@ jobs:
           .github/scripts/test-facility-offline.sh setup-postgres
 
       - name: Build
-        run: .github/scripts/test-facility-offline.sh build
+        run: |
+          yarn
+          yarn build central-server
+          yarn build facility-server
       - name: Configure Tamanu
         run: |
           echo '{"db":{"host":"localhost","name":"central","username":"tamanu","password":"tamanu"}}' > packages/central-server/config/local.json5
