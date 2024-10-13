@@ -187,7 +187,9 @@ async function generateDataTests(column) {
  * @returns A column object, directly serialisable as dbt models.
  */
 function generateColumnModelDescription(tableName, columnName, hasGenericDoc) {
-  return `{{ doc('${hasGenericDoc ? 'generic' : tableName}__${columnName}') }}`;
+  return `{{ doc('${
+    hasGenericDoc ? 'generic' : tableName
+  }__${columnName}') }} in ${tableName}.`;
 }
 
 /**
