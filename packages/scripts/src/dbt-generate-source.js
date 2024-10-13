@@ -6,11 +6,9 @@ const fs = require('node:fs/promises');
 const inflection = require('inflection');
 const path = require('node:path');
 const pg = require('pg');
-const { program } = require('commander');
 const YAML = require('yaml');
 const { remove, differenceBy, intersectionBy } = require('lodash');
 const { spawnSync } = require('child_process');
-const { exit } = require('node:process');
 
 /**
  * @param {string} schemaPath The path to the dir with source model files for a schema
@@ -496,26 +494,32 @@ function checkClean() {
   return subprocess.stdout.length === 0;
 }
 
-program
-  .description(
-    `Generates a Source model in dbt.
+async function runAll() {
+  const { program } = require('commander');
+  const { exit } = require('node:process');
+
+  program
+    .description(
+      `Generates a Source model in dbt.
 This reads Postgres database based on the config files. The search path is \`packages/<server-name>/config\`. \
 You can override the config for both by supplying \`NODE_CONFIG\` or the \`config\` directory at the current directory.
 `,
-  )
-  .option('--fail-on-missing-config')
-  .option('--allow-dirty');
+    )
+    .option('--fail-on-missing-config')
+    .option('--allow-dirty');
 
-program.parse();
-const opts = program.opts();
+  program.parse();
+  const opts = program.opts();
 
-// This doesn't take untracked files into account.
-if (!opts.allowDirty && !checkClean()) {
-  console.error(
-    `Error: 'database/' has uncommitted changes. Use --allow-dirty if you're sure. You may lose work!`,
-  );
-  exit(1);
+  // This doesn't take untracked files into account.
+  if (!opts.allowDirty && !checkClean()) {
+    console.error(
+      `Error: 'database/' has uncommitted changes. Use --allow-dirty if you're sure. You may lose work!`,
+    );
+    exit(1);
+  }
+
+  await Promise.all([run('central-server', opts), run('facility-server', opts)])
 }
 
-run('central-server', opts);
-run('facility-server', opts);
+if (require.main === module) runAll();
