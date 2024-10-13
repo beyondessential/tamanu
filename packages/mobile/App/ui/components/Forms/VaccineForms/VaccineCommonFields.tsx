@@ -14,6 +14,7 @@ import { Suggester } from '~/ui/helpers/suggester';
 import { useFacility } from '~/ui/contexts/FacilityContext';
 import { useBackend } from '~/ui/hooks';
 import { TranslatedText, TranslatedTextElement } from '../../Translations/TranslatedText';
+import { useTranslation } from '~/ui/contexts/TranslationContext';
 
 const InjectionSiteDropdown = ({ value, label, onChange, selectPlaceholderText }): JSX.Element => (
   <Dropdown
@@ -67,15 +68,19 @@ export const InjectionSiteField = (): JSX.Element => (
   />
 );
 
-export const NotGivenReasonField = (): JSX.Element => (
-  <Field
-    component={SuggesterDropdown}
-    name="notGivenReasonId"
-    label={<TranslatedText stringId="vaccine.form.reason.label" fallback="Reason" />}
-    selectPlaceholderText={<TranslatedText stringId="general.action.select" fallback="Select" />}
-    referenceDataType={ReferenceDataType.VaccineNotGivenReason}
-  />
-);
+export const NotGivenReasonField = (): JSX.Element => {
+  const { getTranslation } = useTranslation();
+  console.log(getTranslation('general.action.select', 'Select'));
+  return (
+    <Field
+      component={SuggesterDropdown}
+      name="notGivenReasonId"
+      label={<TranslatedText stringId="vaccine.form.reason.label" fallback="Reason" />}
+      selectPlaceholderText={getTranslation('general.action.select', 'Select')}
+      referenceDataType={ReferenceDataType.VaccineNotGivenReason}
+    />
+  );
+};
 
 export const VaccineLocationField = ({ navigation }: NavigationFieldProps): JSX.Element => (
   <LocationField navigation={navigation} required />
