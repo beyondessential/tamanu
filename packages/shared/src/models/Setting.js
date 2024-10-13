@@ -164,6 +164,7 @@ export class Setting extends Model {
           scope,
           facilityId,
         },
+        paranoid: false,
       }),
       'key',
     );
@@ -174,7 +175,10 @@ export class Setting extends Model {
         if (existing) {
           if (!isEqual(existing.value, record.value)) {
             // only update existing records that have changed
-            await this.update({ value: record.value }, { where: { id: existing.id } });
+            await this.update(
+              { value: record.value, deletedAt: null },
+              { where: { id: existing.id } },
+            );
           }
         } else {
           // only create records for values that differ from the defaults
