@@ -286,8 +286,8 @@ jobs:
         run: .github/scripts/test-facility-offline.sh build
       - name: Configure Tamanu
         run: |
-          cat '{"db":{"host":"localhost","name":"central","username":"tamanu","password":"tamanu"}}' > packages/central-server/config/local.json5
-          cat '{"db":{"host":"localhost","name":"facility","username":"tamanu","password":"tamanu"}}' > packages/facility-server/config/local.json5
+          echo '{"db":{"host":"localhost","name":"central","username":"tamanu","password":"tamanu"}}' > packages/central-server/config/local.json5
+          echo '{"db":{"host":"localhost","name":"facility","username":"tamanu","password":"tamanu"}}' > packages/facility-server/config/local.json5
 
       - name: Run Migrations
         run: |
