@@ -295,7 +295,7 @@ jobs:
           yarn workspace @tamanu/facility-server run start migrate up
 
       - run: |
-          yarn dbt-generate-source --fail-on-missing-config
+          yarn generate-dbt-source --fail-on-missing-config
           if [[ -n $(git status --porcelain=v2) ]]; then
               echo "The source model is behind the Tamanu database."
               exit 1
