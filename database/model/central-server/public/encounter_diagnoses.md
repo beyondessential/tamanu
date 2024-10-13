@@ -18,3 +18,15 @@ A boolean indicating if this is a primary diagnosis
 {% docs encounter_diagnoses__datetime %}
 Date and time the diagnosis was recorded
 {% enddocs %}
+
+{% docs encounter_diagnoses__encounter_id %}
+TODO
+{% enddocs %}
+
+{% docs encounter_diagnoses__diagnosis_id %}
+TODO
+{% enddocs %}
+
+{% docs encounter_diagnoses__clinician_id %}
+TODO
+{% enddocs %}

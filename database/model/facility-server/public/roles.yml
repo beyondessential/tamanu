@@ -1,18 +1,21 @@
 version: 2
-
 sources:
   - name: tamanu
     schema: public
-    description: "Tamanu database"
+    description: Tamanu database
     tables:
       - name: roles
         description: "{{ doc('table__roles') }}"
-        tags: ['administration']
+        tags:
+          - administration
         columns:
           - name: id
-            data_type: character varying
+            data_type: character varying(255)
             description: "{{ doc('roles__id') }}"
             data-tests:
+              - unique
+              - not_null
+            data_tests:
               - unique
               - not_null
           - name: created_at
@@ -29,12 +32,16 @@ sources:
             data_type: timestamp with time zone
             description: "{{ doc('generic__deleted_at') }} in roles"
           - name: name
-            data_type: character varying
+            data_type: character varying(255)
             description: "{{ doc('roles__name') }}"
             data-tests:
+              - not_null
+            data_tests:
               - not_null
           - name: updated_at_sync_tick
             data_type: bigint
             description: "{{ doc('generic__updated_at_sync_tick') }} roles"
             data-tests:
+              - not_null
+            data_tests:
               - not_null

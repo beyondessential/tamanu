@@ -1,38 +1,46 @@
 version: 2
-
 sources:
   - name: tamanu
     schema: public
-    description: "Tamanu database"
+    description: Tamanu database
     tables:
       - name: sync_sessions
         description: ""
-        tags: ['system']
+        tags:
+          - system
         columns:
           - name: id
             data_type: uuid
             description: "{{ doc('sync_sessions__id') }}"
+            data_tests:
+              - unique
+              - not_null
           - name: created_at
             data_type: timestamp with time zone
             description: "{{ doc('generic__created_at') }} in sync_sessions"
+            data_tests:
+              - not_null
           - name: updated_at
             data_type: timestamp with time zone
             description: "{{ doc('generic__updated_at') }} in sync_sessions"
+            data_tests:
+              - not_null
           - name: deleted_at
             data_type: timestamp with time zone
             description: "{{ doc('generic__deleted_at') }} in sync_sessions"
           - name: start_time
             data_type: timestamp with time zone
             description: "{{ doc('sync_sessions__start_time') }}"
+            data_tests:
+              - not_null
           - name: last_connection_time
             data_type: timestamp with time zone
             description: "{{ doc('sync_sessions__last_connection_time') }}"
+            data_tests:
+              - not_null
           - name: snapshot_completed_at
             data_type: timestamp with time zone
             description: "{{ doc('sync_sessions__snapshot_completed_at') }}"
-          - name: error
-            data_type: text
-            description: "{{ doc('sync_sessions__error') }}"
           - name: debug_info
             data_type: json
             description: "{{ doc('sync_sessions__debug_info') }}"
@@ -54,3 +62,6 @@ sources:
           - name: snapshot_started_at
             data_type: timestamp with time zone
             description: "{{ doc('sync_sessions__snapshot_started_at') }}"
+          - name: errors
+            data_type: array
+            description: "{{ doc('sync_sessions__errors') }} in sync_sessions."

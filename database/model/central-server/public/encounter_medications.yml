@@ -1,92 +1,128 @@
 version: 2
-
 sources:
   - name: tamanu
     schema: public
-    description: "Tamanu database"
+    description: Tamanu database
     tables:
       - name: encounter_medications
         description: ""
-        tags: ['clinical']
+        tags:
+          - clinical
         columns:
           - name: id
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('generic__id') }} in encounter_medications."
+            data_tests:
+              - unique
+              - not_null
           - name: created_at
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('generic__created_at') }} in encounter_medications."
+            data_tests:
+              - not_null
           - name: updated_at
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('generic__updated_at') }} in encounter_medications."
+            data_tests:
+              - not_null
           - name: deleted_at
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('generic__deleted_at') }} in encounter_medications."
           - name: date
-            data_type: character
-            description: ""
+            data_type: character(19)
+            description: "{{ doc('generic__date') }} in encounter_medications."
+            data_tests:
+              - not_null
           - name: end_date
-            data_type: character
-            description: ""
+            data_type: character(19)
+            description: "{{ doc('encounter_medications__end_date') }} in
+              encounter_medications."
           - name: prescription
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('encounter_medications__prescription') }} in
+              encounter_medications."
           - name: note
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('encounter_medications__note') }} in
+              encounter_medications."
           - name: indication
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('encounter_medications__indication') }} in
+              encounter_medications."
           - name: route
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('encounter_medications__route') }} in
+              encounter_medications."
           - name: qty_morning
             data_type: integer
-            description: ""
+            description: "{{ doc('encounter_medications__qty_morning') }} in
+              encounter_medications."
           - name: qty_lunch
             data_type: integer
-            description: ""
+            description: "{{ doc('encounter_medications__qty_lunch') }} in
+              encounter_medications."
           - name: qty_evening
             data_type: integer
-            description: ""
+            description: "{{ doc('encounter_medications__qty_evening') }} in
+              encounter_medications."
           - name: qty_night
             data_type: integer
-            description: ""
+            description: "{{ doc('encounter_medications__qty_night') }} in
+              encounter_medications."
           - name: encounter_id
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('encounter_medications__encounter_id') }} in
+              encounter_medications."
           - name: medication_id
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('encounter_medications__medication_id') }} in
+              encounter_medications."
           - name: prescriber_id
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('encounter_medications__prescriber_id') }} in
+              encounter_medications."
           - name: quantity
             data_type: integer
-            description: ""
+            description: "{{ doc('encounter_medications__quantity') }} in
+              encounter_medications."
+            data_tests:
+              - not_null
           - name: discontinued
             data_type: boolean
-            description: ""
+            description: "{{ doc('encounter_medications__discontinued') }} in
+              encounter_medications."
           - name: discontinuing_clinician_id
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('encounter_medications__discontinuing_clinician_id') }} in
+              encounter_medications."
           - name: discontinuing_reason
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('encounter_medications__discontinuing_reason') }} in
+              encounter_medications."
           - name: repeats
             data_type: integer
-            description: ""
+            description: "{{ doc('encounter_medications__repeats') }} in
+              encounter_medications."
           - name: is_discharge
             data_type: boolean
-            description: ""
+            description: "{{ doc('encounter_medications__is_discharge') }} in
+              encounter_medications."
+            data_tests:
+              - not_null
           - name: discontinued_date
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('encounter_medications__discontinued_date') }} in
+              encounter_medications."
           - name: date_legacy
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('generic__date_legacy') }} in encounter_medications."
           - name: end_date_legacy
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('encounter_medications__end_date_legacy') }} in
+              encounter_medications."
           - name: updated_at_sync_tick
             data_type: bigint
-            description: ""
+            description: "{{ doc('generic__updated_at_sync_tick') }} in
+              encounter_medications."
+            data_tests:
+              - not_null

@@ -1,35 +1,43 @@
 version: 2
-
 sources:
   - name: tamanu
     schema: public
-    description: "Tamanu database"
+    description: Tamanu database
     tables:
       - name: lab_request_logs
         description: ""
-        tags: ['clinical']
+        tags:
+          - clinical
         columns:
           - name: id
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('generic__id') }} in lab_request_logs."
+            data_tests:
+              - unique
+              - not_null
           - name: created_at
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('generic__created_at') }} in lab_request_logs."
           - name: updated_at
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('generic__updated_at') }} in lab_request_logs."
           - name: deleted_at
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('generic__deleted_at') }} in lab_request_logs."
           - name: status
-            data_type: character varying
-            description: ""
+            data_type: character varying(31)
+            description: "{{ doc('lab_request_logs__status') }} in lab_request_logs."
+            data_tests:
+              - not_null
           - name: lab_request_id
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('lab_request_logs__lab_request_id') }} in
+              lab_request_logs."
           - name: updated_by_id
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('lab_request_logs__updated_by_id') }} in lab_request_logs."
           - name: updated_at_sync_tick
             data_type: bigint
-            description: ""
+            description: "{{ doc('generic__updated_at_sync_tick') }} in lab_request_logs."
+            data_tests:
+              - not_null

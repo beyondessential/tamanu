@@ -1,125 +1,165 @@
 version: 2
-
 sources:
   - name: tamanu
     schema: public
-    description: "Tamanu database"
+    description: Tamanu database
     tables:
       - name: patient_death_data
         description: "{{ doc('table__patient_death_data') }}"
-        tags: ['clinical']
+        tags:
+          - clinical
         columns:
           - name: id
-            data_type: character varying
+            data_type: character varying(255)
             description: "{{ doc('patient_death_data__id') }}"
+            data_tests:
+              - unique
+              - not_null
           - name: patient_id
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('patient_death_data__patient_id') }} in
+              patient_death_data."
+            data_tests:
+              - not_null
           - name: clinician_id
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('patient_death_data__clinician_id') }} in
+              patient_death_data."
+            data_tests:
+              - not_null
           - name: facility_id
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('patient_death_data__facility_id') }} in
+              patient_death_data."
           - name: manner
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('patient_death_data__manner') }} in patient_death_data."
           - name: recent_surgery
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('patient_death_data__recent_surgery') }} in
+              patient_death_data."
           - name: last_surgery_date
-            data_type: character
-            description: ""
+            data_type: character(10)
+            description: "{{ doc('patient_death_data__last_surgery_date') }} in
+              patient_death_data."
           - name: last_surgery_reason_id
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('patient_death_data__last_surgery_reason_id') }} in
+              patient_death_data."
           - name: external_cause_date
-            data_type: character
-            description: ""
+            data_type: character(10)
+            description: "{{ doc('patient_death_data__external_cause_date') }} in
+              patient_death_data."
           - name: external_cause_location
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('patient_death_data__external_cause_location') }} in
+              patient_death_data."
           - name: external_cause_notes
             data_type: text
-            description: ""
+            description: "{{ doc('patient_death_data__external_cause_notes') }} in
+              patient_death_data."
           - name: was_pregnant
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('patient_death_data__was_pregnant') }} in
+              patient_death_data."
           - name: pregnancy_contributed
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('patient_death_data__pregnancy_contributed') }} in
+              patient_death_data."
           - name: fetal_or_infant
             data_type: boolean
-            description: ""
+            description: "{{ doc('patient_death_data__fetal_or_infant') }} in
+              patient_death_data."
           - name: stillborn
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('patient_death_data__stillborn') }} in patient_death_data."
           - name: birth_weight
             data_type: integer
-            description: ""
+            description: "{{ doc('patient_death_data__birth_weight') }} in
+              patient_death_data."
           - name: within_day_of_birth
             data_type: boolean
-            description: ""
+            description: "{{ doc('patient_death_data__within_day_of_birth') }} in
+              patient_death_data."
           - name: hours_survived_since_birth
             data_type: integer
-            description: ""
+            description: "{{ doc('patient_death_data__hours_survived_since_birth') }} in
+              patient_death_data."
           - name: carrier_age
             data_type: integer
-            description: ""
+            description: "{{ doc('patient_death_data__carrier_age') }} in
+              patient_death_data."
           - name: carrier_pregnancy_weeks
             data_type: integer
-            description: ""
+            description: "{{ doc('patient_death_data__carrier_pregnancy_weeks') }} in
+              patient_death_data."
           - name: carrier_existing_condition_id
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('patient_death_data__carrier_existing_condition_id') }} in
+              patient_death_data."
           - name: created_at
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('generic__created_at') }} in patient_death_data."
           - name: updated_at
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('generic__updated_at') }} in patient_death_data."
           - name: deleted_at
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('generic__deleted_at') }} in patient_death_data."
           - name: outside_health_facility
             data_type: boolean
-            description: ""
+            description: "{{ doc('patient_death_data__outside_health_facility') }} in
+              patient_death_data."
           - name: primary_cause_time_after_onset
             data_type: integer
-            description: ""
+            description: "{{ doc('patient_death_data__primary_cause_time_after_onset') }} in
+              patient_death_data."
           - name: primary_cause_condition_id
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('patient_death_data__primary_cause_condition_id') }} in
+              patient_death_data."
           - name: antecedent_cause1_time_after_onset
             data_type: integer
-            description: ""
+            description: "{{ doc('patient_death_data__antecedent_cause1_time_after_onset')
+              }} in patient_death_data."
           - name: antecedent_cause1_condition_id
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('patient_death_data__antecedent_cause1_condition_id') }} in
+              patient_death_data."
           - name: antecedent_cause2_time_after_onset
             data_type: integer
-            description: ""
+            description: "{{ doc('patient_death_data__antecedent_cause2_time_after_onset')
+              }} in patient_death_data."
           - name: antecedent_cause2_condition_id
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('patient_death_data__antecedent_cause2_condition_id') }} in
+              patient_death_data."
           - name: external_cause_date_legacy
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('patient_death_data__external_cause_date_legacy') }} in
+              patient_death_data."
           - name: last_surgery_date_legacy
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('patient_death_data__last_surgery_date_legacy') }} in
+              patient_death_data."
           - name: updated_at_sync_tick
             data_type: bigint
-            description: ""
+            description: "{{ doc('generic__updated_at_sync_tick') }} in patient_death_data."
+            data_tests:
+              - not_null
           - name: is_final
             data_type: boolean
-            description: ""
+            description: "{{ doc('patient_death_data__is_final') }} in patient_death_data."
+            data_tests:
+              - not_null
           - name: visibility_status
             data_type: text
-            description: ""
+            description: "{{ doc('generic__visibility_status') }} in patient_death_data."
           - name: antecedent_cause3_time_after_onset
             data_type: integer
-            description: ""
+            description: "{{ doc('patient_death_data__antecedent_cause3_time_after_onset')
+              }} in patient_death_data."
           - name: antecedent_cause3_condition_id
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('patient_death_data__antecedent_cause3_condition_id') }} in
+              patient_death_data."

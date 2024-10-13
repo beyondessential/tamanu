@@ -1,38 +1,59 @@
 version: 2
-
 sources:
   - name: tamanu
     schema: public
-    description: "Tamanu database"
+    description: Tamanu database
     tables:
       - name: program_registry_conditions
         description: ""
-        tags: ['reference']
+        tags:
+          - reference
         columns:
           - name: id
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('generic__id') }} in program_registry_conditions."
+            data_tests:
+              - unique
+              - not_null
           - name: created_at
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('generic__created_at') }} in program_registry_conditions."
+            data_tests:
+              - not_null
           - name: updated_at
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('generic__updated_at') }} in program_registry_conditions."
+            data_tests:
+              - not_null
           - name: deleted_at
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('generic__deleted_at') }} in program_registry_conditions."
           - name: code
             data_type: text
-            description: ""
+            description: "{{ doc('program_registry_conditions__code') }} in
+              program_registry_conditions."
+            data_tests:
+              - unique
+              - not_null
           - name: name
             data_type: text
-            description: ""
+            description: "{{ doc('program_registry_conditions__name') }} in
+              program_registry_conditions."
+            data_tests:
+              - not_null
           - name: visibility_status
             data_type: text
-            description: ""
+            description: "{{ doc('generic__visibility_status') }} in
+              program_registry_conditions."
           - name: program_registry_id
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('program_registry_conditions__program_registry_id') }} in
+              program_registry_conditions."
+            data_tests:
+              - not_null
           - name: updated_at_sync_tick
             data_type: bigint
-            description: ""
+            description: "{{ doc('generic__updated_at_sync_tick') }} in
+              program_registry_conditions."
+            data_tests:
+              - not_null

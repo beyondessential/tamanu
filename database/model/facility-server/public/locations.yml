@@ -1,18 +1,21 @@
 version: 2
-
 sources:
   - name: tamanu
     schema: public
-    description: "Tamanu database"
+    description: Tamanu database
     tables:
       - name: locations
         description: "{{ doc('table__locations') }}"
-        tags: ['reference']
+        tags:
+          - reference
         columns:
           - name: id
-            data_type: character varying
+            data_type: character varying(255)
             description: "{{ doc('locations__id') }}"
             data-tests:
+              - unique
+              - not_null
+            data_tests:
               - unique
               - not_null
           - name: created_at
@@ -29,17 +32,22 @@ sources:
             data_type: timestamp with time zone
             description: "{{ doc('generic__deleted_at') }} in locations"
           - name: code
-            data_type: character varying
+            data_type: character varying(255)
             description: "{{ doc('locations__code') }}"
             data-tests:
               - not_null
+            data_tests:
+              - unique
+              - not_null
           - name: name
-            data_type: character varying
+            data_type: character varying(255)
             description: "{{ doc('locations__name') }}"
             data-tests:
               - not_null
+            data_tests:
+              - not_null
           - name: facility_id
-            data_type: character varying
+            data_type: character varying(255)
             description: "{{ doc('facilities__id') }}"
             data-tests:
               - relationships:
@@ -47,13 +55,16 @@ sources:
                   field: id
           - name: visibility_status
             data_type: text
-            description: "{{ doc('generic__visibility_status') }} in locations, default value is 'current'"
+            description: "{{ doc('generic__visibility_status') }} in locations, default
+              value is 'current'"
             data-tests:
               - not_null
               - accepted_values:
-                  values: ["current", "historical"]
+                  values:
+                    - current
+                    - historical
           - name: location_group_id
-            data_type: character varying
+            data_type: character varying(255)
             description: "{{ doc('location_groups__id') }}"
             data-tests:
               - relationships:
@@ -66,4 +77,6 @@ sources:
             data_type: bigint
             description: "{{ doc('generic__updated_at_sync_tick') }} locations"
             data-tests:
+              - not_null
+            data_tests:
               - not_null

@@ -21,3 +21,7 @@ Reason for the logged change in the vitals survey response. Reasons are configur
 {% docs vital_logs__recorded_by_id %}
 Tamanu identifier for user that recorded the change in the vitals survey response
 {% enddocs %}
+
+{% docs vital_logs__answer_id %}
+TODO
+{% enddocs %}

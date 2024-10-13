@@ -1,56 +1,71 @@
 version: 2
-
 sources:
   - name: tamanu
     schema: public
-    description: "Tamanu database"
+    description: Tamanu database
     tables:
       - name: signers
         description: ""
-        tags: ['system']
+        tags:
+          - system
         columns:
           - name: id
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('generic__id') }} in signers."
+            data_tests:
+              - unique
+              - not_null
           - name: created_at
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('generic__created_at') }} in signers."
+            data_tests:
+              - not_null
           - name: updated_at
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('generic__updated_at') }} in signers."
+            data_tests:
+              - not_null
           - name: deleted_at
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('generic__deleted_at') }} in signers."
           - name: country_code
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('signers__country_code') }} in signers."
+            data_tests:
+              - not_null
           - name: private_key
             data_type: bytea
-            description: ""
+            description: "{{ doc('signers__private_key') }} in signers."
           - name: public_key
             data_type: bytea
-            description: ""
+            description: "{{ doc('signers__public_key') }} in signers."
+            data_tests:
+              - not_null
           - name: request
             data_type: text
-            description: ""
+            description: "{{ doc('signers__request') }} in signers."
+            data_tests:
+              - not_null
           - name: certificate
             data_type: text
-            description: ""
+            description: "{{ doc('signers__certificate') }} in signers."
           - name: validity_period_start
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('signers__validity_period_start') }} in signers."
           - name: validity_period_end
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('signers__validity_period_end') }} in signers."
           - name: signatures_issued
             data_type: integer
-            description: ""
+            description: "{{ doc('signers__signatures_issued') }} in signers."
+            data_tests:
+              - not_null
           - name: request_sent_at
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('signers__request_sent_at') }} in signers."
           - name: working_period_start
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('signers__working_period_start') }} in signers."
           - name: working_period_end
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('signers__working_period_end') }} in signers."

@@ -1,62 +1,86 @@
 version: 2
-
 sources:
   - name: tamanu
     schema: public
-    description: "Tamanu database"
+    description: Tamanu database
     tables:
       - name: certificate_notifications
         description: ""
-        tags: ['clinical']
+        tags:
+          - clinical
         columns:
           - name: id
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('generic__id') }} in certificate_notifications."
+            data_tests:
+              - unique
+              - not_null
           - name: created_at
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('generic__created_at') }} in certificate_notifications."
           - name: updated_at
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('generic__updated_at') }} in certificate_notifications."
           - name: deleted_at
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('generic__deleted_at') }} in certificate_notifications."
           - name: type
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('certificate_notifications__type') }} in
+              certificate_notifications."
+            data_tests:
+              - not_null
           - name: require_signing
             data_type: boolean
-            description: ""
+            description: "{{ doc('certificate_notifications__require_signing') }} in
+              certificate_notifications."
+            data_tests:
+              - not_null
           - name: patient_id
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('certificate_notifications__patient_id') }} in
+              certificate_notifications."
           - name: forward_address
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('certificate_notifications__forward_address') }} in
+              certificate_notifications."
           - name: lab_test_id
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('certificate_notifications__lab_test_id') }} in
+              certificate_notifications."
           - name: status
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('certificate_notifications__status') }} in
+              certificate_notifications."
+            data_tests:
+              - not_null
           - name: error
             data_type: text
-            description: ""
+            description: "{{ doc('certificate_notifications__error') }} in
+              certificate_notifications."
           - name: created_by
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('certificate_notifications__created_by') }} in
+              certificate_notifications."
           - name: lab_request_id
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('certificate_notifications__lab_request_id') }} in
+              certificate_notifications."
           - name: updated_at_sync_tick
             data_type: bigint
-            description: ""
+            description: "{{ doc('generic__updated_at_sync_tick') }} in
+              certificate_notifications."
+            data_tests:
+              - not_null
           - name: printed_date
-            data_type: character
-            description: ""
+            data_type: character(10)
+            description: "{{ doc('certificate_notifications__printed_date') }} in
+              certificate_notifications."
           - name: facility_name
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('certificate_notifications__facility_name') }} in
+              certificate_notifications."
           - name: language
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('certificate_notifications__language') }} in
+              certificate_notifications."

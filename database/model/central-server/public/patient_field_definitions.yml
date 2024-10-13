@@ -1,41 +1,64 @@
 version: 2
-
 sources:
   - name: tamanu
     schema: public
-    description: "Tamanu database"
+    description: Tamanu database
     tables:
       - name: patient_field_definitions
         description: ""
-        tags: ['reference']
+        tags:
+          - reference
         columns:
           - name: id
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('generic__id') }} in patient_field_definitions."
+            data_tests:
+              - unique
+              - not_null
           - name: created_at
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('generic__created_at') }} in patient_field_definitions."
+            data_tests:
+              - not_null
           - name: updated_at
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('generic__updated_at') }} in patient_field_definitions."
+            data_tests:
+              - not_null
           - name: deleted_at
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('generic__deleted_at') }} in patient_field_definitions."
           - name: name
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('patient_field_definitions__name') }} in
+              patient_field_definitions."
+            data_tests:
+              - not_null
           - name: field_type
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('patient_field_definitions__field_type') }} in
+              patient_field_definitions."
+            data_tests:
+              - not_null
           - name: options
             data_type: array
-            description: ""
+            description: "{{ doc('patient_field_definitions__options') }} in
+              patient_field_definitions."
           - name: visibility_status
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('generic__visibility_status') }} in
+              patient_field_definitions."
+            data_tests:
+              - not_null
           - name: category_id
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('patient_field_definitions__category_id') }} in
+              patient_field_definitions."
+            data_tests:
+              - not_null
           - name: updated_at_sync_tick
             data_type: bigint
-            description: ""
+            description: "{{ doc('generic__updated_at_sync_tick') }} in
+              patient_field_definitions."
+            data_tests:
+              - not_null

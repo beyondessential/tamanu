@@ -1,16 +1,16 @@
 version: 2
-
 sources:
   - name: tamanu
     schema: public
-    description: "Tamanu database"
+    description: Tamanu database
     tables:
       - name: vital_logs
         description: "{{ doc('table__vital_logs') }}"
-        tags: ['clinical']
+        tags:
+          - clinical
         columns:
           - name: id
-            data_type: timestamp with time zone
+            data_type: character varying(255)
             description: "{{ doc('vital_logs__id') }}"
             data_tests:
               - unique
@@ -29,7 +29,7 @@ sources:
             data_type: timestamp with time zone
             description: "{{ doc('generic__deleted_at') }} in vital_logs"
           - name: date
-            data_type: character
+            data_type: character(19)
             description: "{{ doc('generic__date') }} in vital_logs"
             data_tests:
               - not_null
@@ -44,18 +44,22 @@ sources:
             description: "{{ doc('vital_logs__reason_for_change') }}"
             data_tests:
               - accepted_values:
-                  values: [ 'incorrect-patient', 'incorrect-value', 'other', 'recorded-in-error' ]
+                  values:
+                    - incorrect-patient
+                    - incorrect-value
+                    - other
+                    - recorded-in-error
                   config:
                     severity: warn
           - name: recorded_by_id
-            data_type: character varying
+            data_type: character varying(255)
             description: "{{ doc('vital_logs__recorded_by_id') }} in vital_logs"
             data_tests:
               - relationships:
                   to: source('tamanu', 'users')
                   field: id
           - name: answer_id
-            data_type: character varying
+            data_type: character varying(255)
             description: "{{ doc('generic__id') }} in survey_response_answers"
             data_tests:
               - not_null

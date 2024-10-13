@@ -1,18 +1,21 @@
 version: 2
-
 sources:
   - name: tamanu
     schema: public
-    description: "Tamanu database"
+    description: Tamanu database
     tables:
       - name: scheduled_vaccines
         description: "{{ doc('table__vaccine_schedules') }}"
-        tags: ['reference']
+        tags:
+          - reference
         columns:
           - name: id
-            data_type: character varying
+            data_type: character varying(255)
             description: "{{ doc('vaccine_schedules__id') }}"
             data-tests:
+              - unique
+              - not_null
+            data_tests:
               - unique
               - not_null
           - name: created_at
@@ -20,28 +23,36 @@ sources:
             description: "{{ doc('generic__created_at') }} in scheduled_vaccines."
             data-tests:
               - not_null
+            data_tests:
+              - not_null
           - name: updated_at
             data_type: timestamp with time zone
             description: "{{ doc('generic__updated_at') }} in scheduled_vaccines."
             data-tests:
               - not_null
+            data_tests:
+              - not_null
           - name: deleted_at
             data_type: timestamp with time zone
             description: "{{ doc('generic__deleted_at') }} in scheduled_vaccines."
           - name: category
-            data_type: character varying
+            data_type: character varying(255)
             description: "{{ doc('vaccine_schedules__category') }}"
             data-tests:
               - not_null
               - accepted_values:
-                  values: ['Campaign', 'Catch-up', 'Other', 'Routine']
+                  values:
+                    - Campaign
+                    - Catch-up
+                    - Other
+                    - Routine
           - name: label
-            data_type: character varying
+            data_type: character varying(255)
             description: "{{ doc('vaccine_schedules__label') }}"
             data-tests:
               - not_null
           - name: dose_label
-            data_type: character varying
+            data_type: character varying(255)
             description: "{{ doc('vaccine_schedules__dose_label') }}"
             data-tests:
               - not_null
@@ -52,7 +63,7 @@ sources:
             data_type: integer
             description: "{{ doc('vaccine_schedules__index') }}"
           - name: vaccine_id
-            data_type: character varying
+            data_type: character varying(255)
             description: "{{ doc('vaccine_schedules__vaccine_id') }}"
             data-tests:
               - not_null
@@ -63,7 +74,6 @@ sources:
             data_type: text
             description: "{{ doc('generic__visibility_status') }} in scheduled_vaccines"
             data_tests:
-              - not_null
               - valid_visibility_status
           - name: updated_at_sync_tick
             data_type: bigint
@@ -73,6 +83,10 @@ sources:
           - name: hide_from_certificate
             data_type: boolean
             description: "{{ doc('vaccine_schedules__hide_from_certificate') }}"
+            data_tests:
+              - not_null
           - name: sort_index
             data_type: integer
             description: "{{ doc('vaccine_schedules__sort_index') }}"
+            data_tests:
+              - not_null

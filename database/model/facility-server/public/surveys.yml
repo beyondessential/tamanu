@@ -1,44 +1,67 @@
 version: 2
-
 sources:
   - name: tamanu
     schema: public
-    description: "Tamanu database"
+    description: Tamanu database
     tables:
       - name: surveys
         description: ""
-        tags: ['reference']
+        tags:
+          - reference
         columns:
           - name: id
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('generic__id') }} in surveys."
+            data_tests:
+              - unique
+              - not_null
           - name: created_at
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('generic__created_at') }} in surveys."
+            data_tests:
+              - not_null
           - name: updated_at
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('generic__updated_at') }} in surveys."
+            data_tests:
+              - not_null
           - name: deleted_at
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('generic__deleted_at') }} in surveys."
           - name: code
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('surveys__code') }} in surveys."
           - name: name
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('surveys__name') }} in surveys."
           - name: program_id
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('surveys__program_id') }} in surveys."
           - name: survey_type
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('surveys__survey_type') }} in surveys."
           - name: is_sensitive
             data_type: boolean
-            description: ""
+            description: "{{ doc('surveys__is_sensitive') }} in surveys."
+            data_tests:
+              - not_null
           - name: updated_at_sync_tick
             data_type: bigint
-            description: ""
+            description: "{{ doc('generic__updated_at_sync_tick') }} in surveys."
+            data_tests:
+              - not_null
+          - name: notifiable
+            data_type: boolean
+            description: "{{ doc('surveys__notifiable') }} in surveys."
+            data_tests:
+              - not_null
+          - name: notify_email_addresses
+            data_type: array
+            description: "{{ doc('surveys__notify_email_addresses') }} in surveys."
+            data_tests:
+              - not_null
           - name: visibility_status
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('generic__visibility_status') }} in surveys."
+            data_tests:
+              - not_null

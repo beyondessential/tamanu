@@ -1,16 +1,16 @@
 version: 2
-
 sources:
   - name: tamanu
     schema: public
-    description: "Tamanu database"
+    description: Tamanu database
     tables:
       - name: users
         description: "{{ doc('table__users') }}"
-        tags: ['administration']
+        tags:
+          - administration
         columns:
           - name: id
-            data_type: character varying
+            data_type: character varying(255)
             description: "{{ doc('users__id') }}"
             data_tests:
               - unique
@@ -29,35 +29,38 @@ sources:
             data_type: timestamp with time zone
             description: "{{ doc('generic__deleted_at') }} in users"
           - name: email
-            data_type:  character varying
+            data_type: character varying(255)
             description: "{{ doc('users__email') }}"
             data_tests:
+              - unique
               - not_null
           - name: password
-            data_type:  character varying
+            data_type: character varying(255)
             description: "{{ doc('users__password') }}"
+          - name: display_name
+            data_type: character varying(255)
+            description: "{{ doc('users__display_name') }}"
             data_tests:
               - not_null
-          - name: display_name
-            data_type:  character varying
-            description: "{{ doc('users__display_name') }}"
           - name: role
-            data_type:  character varying
+            data_type: character varying(255)
             description: "{{ doc('roles__id') }}, default value is 'practitioner'"
+            data_tests:
+              - not_null
           - name: updated_at_sync_tick
-            data_type: BIGINT
+            data_type: bigint
             description: "{{ doc('generic__updated_at_sync_tick') }} in users"
             data_tests:
               - not_null
           - name: display_id
-            data_type:  character varying
+            data_type: character varying(255)
             description: "{{ doc('users__display_id') }}"
           - name: visibility_status
-            data_type:  character varying
+            data_type: character varying(255)
             description: "{{ doc('generic__visibility_status') }} in users"
             data_tests:
               - not_null
               - valid_visibility_status
           - name: phone_number
-            data_type:  character varying
+            data_type: character varying(255)
             description: "{{ doc('users__phone_number') }}"

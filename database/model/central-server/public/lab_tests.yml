@@ -1,65 +1,77 @@
 version: 2
-
 sources:
   - name: tamanu
     schema: public
-    description: "Tamanu database"
+    description: Tamanu database
     tables:
       - name: lab_tests
         description: ""
-        tags: ['clinical']
+        tags:
+          - clinical
         columns:
           - name: id
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('generic__id') }} in lab_tests."
+            data_tests:
+              - unique
+              - not_null
           - name: created_at
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('generic__created_at') }} in lab_tests."
+            data_tests:
+              - not_null
           - name: updated_at
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('generic__updated_at') }} in lab_tests."
+            data_tests:
+              - not_null
           - name: deleted_at
             data_type: timestamp with time zone
-            description: ""
-          - name: code
-            data_type: character varying
-            description: ""
-          - name: name
-            data_type: character varying
-            description: ""
-          - name: unit
-            data_type: character varying
-            description: ""
-          - name: male_min
-            data_type: double precision
-            description: ""
-          - name: male_max
-            data_type: double precision
-            description: ""
-          - name: female_min
-            data_type: double precision
-            description: ""
-          - name: female_max
-            data_type: double precision
-            description: ""
-          - name: range_text
-            data_type: character varying
-            description: ""
-          - name: result_type
-            data_type: character varying
-            description: ""
-          - name: options
-            data_type: text
-            description: ""
-          - name: lab_test_category_id
-            data_type: character varying
-            description: ""
-          - name: visibility_status
-            data_type: text
-            description: ""
+            description: "{{ doc('generic__deleted_at') }} in lab_tests."
+          - name: date
+            data_type: character(10)
+            description: "{{ doc('generic__date') }} in lab_tests."
+            data_tests:
+              - not_null
+          - name: status
+            data_type: character varying(31)
+            description: "{{ doc('lab_tests__status') }} in lab_tests."
+            data_tests:
+              - not_null
+          - name: result
+            data_type: character varying(255)
+            description: "{{ doc('lab_tests__result') }} in lab_tests."
+            data_tests:
+              - not_null
+          - name: lab_request_id
+            data_type: character varying(255)
+            description: "{{ doc('lab_tests__lab_request_id') }} in lab_tests."
+          - name: lab_test_type_id
+            data_type: character varying(255)
+            description: "{{ doc('lab_tests__lab_test_type_id') }} in lab_tests."
+          - name: category_id
+            data_type: character varying(255)
+            description: "{{ doc('lab_tests__category_id') }} in lab_tests."
+          - name: lab_test_method_id
+            data_type: character varying(255)
+            description: "{{ doc('lab_tests__lab_test_method_id') }} in lab_tests."
+          - name: laboratory_officer
+            data_type: character varying(255)
+            description: "{{ doc('lab_tests__laboratory_officer') }} in lab_tests."
+          - name: completed_date
+            data_type: character(19)
+            description: "{{ doc('lab_tests__completed_date') }} in lab_tests."
+          - name: verification
+            data_type: character varying(255)
+            description: "{{ doc('lab_tests__verification') }} in lab_tests."
+          - name: date_legacy
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__date_legacy') }} in lab_tests."
+          - name: completed_date_legacy
+            data_type: timestamp with time zone
+            description: "{{ doc('lab_tests__completed_date_legacy') }} in lab_tests."
           - name: updated_at_sync_tick
             data_type: bigint
-            description: ""
-          - name: external_code
-            data_type: text
-            description: ""
+            description: "{{ doc('generic__updated_at_sync_tick') }} in lab_tests."
+            data_tests:
+              - not_null

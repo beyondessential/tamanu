@@ -1,33 +1,48 @@
 version: 2
-
 sources:
   - name: tamanu
     schema: public
-    description: "Tamanu database"
+    description: Tamanu database
     tables:
       - name: imaging_request_areas
         description: ""
-        tags: ['clinical']
+        tags:
+          - clinical
         columns:
           - name: id
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('generic__id') }} in imaging_request_areas."
+            data_tests:
+              - unique
+              - not_null
           - name: created_at
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('generic__created_at') }} in imaging_request_areas."
+            data_tests:
+              - not_null
           - name: updated_at
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('generic__updated_at') }} in imaging_request_areas."
+            data_tests:
+              - not_null
           - name: deleted_at
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('generic__deleted_at') }} in imaging_request_areas."
           - name: imaging_request_id
             data_type: character varying
-            description: ""
+            description: "{{ doc('imaging_request_areas__imaging_request_id') }} in
+              imaging_request_areas."
+            data_tests:
+              - not_null
           - name: area_id
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('imaging_request_areas__area_id') }} in
+              imaging_request_areas."
+            data_tests:
+              - not_null
           - name: updated_at_sync_tick
             data_type: bigint
-            description: ""
-
+            description: "{{ doc('generic__updated_at_sync_tick') }} in
+              imaging_request_areas."
+            data_tests:
+              - not_null

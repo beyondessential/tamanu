@@ -25,3 +25,7 @@ Display identifier for the user
 {% docs users__phone_number %}
 Phone number for user.
 {% enddocs %}
+
+{% docs users__role %}
+TODO
+{% enddocs %}

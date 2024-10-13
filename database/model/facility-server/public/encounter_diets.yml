@@ -1,22 +1,22 @@
 version: 2
-
 sources:
   - name: tamanu
     schema: public
-    description: "Tamanu database"
+    description: Tamanu database
     tables:
       - name: encounter_diets
         description: ""
-        tags: ['administration']
+        tags:
+          - administration
         columns:
           - name: id
             data_type: uuid
-            description: ""
+            description: "{{ doc('generic__id') }} in encounter_diets."
             data_tests:
               - unique
               - not_null
           - name: encounter_id
-            data_type: character varying
+            data_type: character varying(255)
             description: "{{ doc('encounters__id') }}"
             data_tests:
               - not_null
@@ -24,9 +24,10 @@ sources:
                   to: source('tamanu', 'encounters')
                   field: id
           - name: diet_id
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('encounter_diets__diet_id') }} in encounter_diets."
             data_tests:
+              - not_null
               - dbt_utils.relationships_where:
                   to: source('tamanu', 'reference_data')
                   field: id

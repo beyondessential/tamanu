@@ -1,38 +1,53 @@
 version: 2
-
 sources:
   - name: tamanu
     schema: public
-    description: "Tamanu database"
+    description: Tamanu database
     tables:
       - name: invoice_products
         description: ""
-        tags: ['reference']
+        tags:
+          - reference
         columns:
           - name: id
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('generic__id') }} in invoice_products."
+            data_tests:
+              - unique
+              - not_null
           - name: name
             data_type: text
-            description: ""
+            description: "{{ doc('invoice_products__name') }} in invoice_products."
+            data_tests:
+              - not_null
           - name: price
             data_type: numeric
-            description: ""
+            description: "{{ doc('invoice_products__price') }} in invoice_products."
+            data_tests:
+              - not_null
           - name: discountable
             data_type: boolean
-            description: ""
+            description: "{{ doc('invoice_products__discountable') }} in invoice_products."
+            data_tests:
+              - not_null
           - name: created_at
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('generic__created_at') }} in invoice_products."
+            data_tests:
+              - not_null
           - name: updated_at
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('generic__updated_at') }} in invoice_products."
           - name: deleted_at
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('generic__deleted_at') }} in invoice_products."
           - name: visibility_status
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('generic__visibility_status') }} in invoice_products."
+            data_tests:
+              - not_null
           - name: updated_at_sync_tick
             data_type: bigint
-            description: ""
+            description: "{{ doc('generic__updated_at_sync_tick') }} in invoice_products."
+            data_tests:
+              - not_null

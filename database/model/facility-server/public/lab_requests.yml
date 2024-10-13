@@ -1,92 +1,106 @@
 version: 2
-
 sources:
   - name: tamanu
     schema: public
-    description: "Tamanu database"
+    description: Tamanu database
     tables:
       - name: lab_requests
         description: ""
-        tags: ['clinical']
+        tags:
+          - clinical
         columns:
           - name: id
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('generic__id') }} in lab_requests."
+            data_tests:
+              - unique
+              - not_null
           - name: created_at
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('generic__created_at') }} in lab_requests."
+            data_tests:
+              - not_null
           - name: updated_at
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('generic__updated_at') }} in lab_requests."
+            data_tests:
+              - not_null
           - name: deleted_at
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('generic__deleted_at') }} in lab_requests."
           - name: sample_time
-            data_type: character
-            description: ""
+            data_type: character(19)
+            description: "{{ doc('lab_requests__sample_time') }} in lab_requests."
           - name: requested_date
-            data_type: character
-            description: ""
+            data_type: character(19)
+            description: "{{ doc('lab_requests__requested_date') }} in lab_requests."
           - name: urgent
             data_type: boolean
             description: "[Deprecated]"
           - name: specimen_attached
             data_type: boolean
-            description: ""
+            description: "{{ doc('lab_requests__specimen_attached') }} in lab_requests."
           - name: status
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('lab_requests__status') }} in lab_requests."
           - name: senaite_id
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('lab_requests__senaite_id') }} in lab_requests."
           - name: sample_id
-            data_type: character varying
+            data_type: character varying(255)
             description: "[Deprecated]"
           - name: requested_by_id
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('lab_requests__requested_by_id') }} in lab_requests."
           - name: encounter_id
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('lab_requests__encounter_id') }} in lab_requests."
           - name: lab_test_category_id
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('lab_requests__lab_test_category_id') }} in lab_requests."
           - name: display_id
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('lab_requests__display_id') }} in lab_requests."
+            data_tests:
+              - not_null
           - name: lab_test_priority_id
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('lab_requests__lab_test_priority_id') }} in lab_requests."
           - name: lab_test_laboratory_id
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('lab_requests__lab_test_laboratory_id') }} in
+              lab_requests."
           - name: sample_time_legacy
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('lab_requests__sample_time_legacy') }} in lab_requests."
           - name: requested_date_legacy
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('lab_requests__requested_date_legacy') }} in lab_requests."
           - name: updated_at_sync_tick
             data_type: bigint
-            description: ""
+            description: "{{ doc('generic__updated_at_sync_tick') }} in lab_requests."
+            data_tests:
+              - not_null
           - name: reason_for_cancellation
-            data_type: character varying
-            description: ""
+            data_type: character varying(31)
+            description: "{{ doc('lab_requests__reason_for_cancellation') }} in
+              lab_requests."
           - name: published_date
-            data_type: character
-            description: ""
+            data_type: character(19)
+            description: "{{ doc('lab_requests__published_date') }} in lab_requests."
           - name: department_id
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('lab_requests__department_id') }} in lab_requests."
           - name: lab_test_panel_request_id
             data_type: uuid
-            description: ""
+            description: "{{ doc('lab_requests__lab_test_panel_request_id') }} in
+              lab_requests."
           - name: lab_sample_site_id
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('lab_requests__lab_sample_site_id') }} in lab_requests."
           - name: specimen_type_id
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('lab_requests__specimen_type_id') }} in lab_requests."
           - name: collected_by_id
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('lab_requests__collected_by_id') }} in lab_requests."

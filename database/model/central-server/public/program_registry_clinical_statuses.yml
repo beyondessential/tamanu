@@ -1,41 +1,66 @@
 version: 2
-
 sources:
   - name: tamanu
     schema: public
-    description: "Tamanu database"
+    description: Tamanu database
     tables:
       - name: program_registry_clinical_statuses
         description: ""
-        tags: ['reference']
+        tags:
+          - reference
         columns:
           - name: id
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('generic__id') }} in program_registry_clinical_statuses."
+            data_tests:
+              - unique
+              - not_null
           - name: created_at
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('generic__created_at') }} in
+              program_registry_clinical_statuses."
+            data_tests:
+              - not_null
           - name: updated_at
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('generic__updated_at') }} in
+              program_registry_clinical_statuses."
+            data_tests:
+              - not_null
           - name: deleted_at
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('generic__deleted_at') }} in
+              program_registry_clinical_statuses."
           - name: code
             data_type: text
-            description: ""
+            description: "{{ doc('program_registry_clinical_statuses__code') }} in
+              program_registry_clinical_statuses."
+            data_tests:
+              - unique
+              - not_null
           - name: name
             data_type: text
-            description: ""
+            description: "{{ doc('program_registry_clinical_statuses__name') }} in
+              program_registry_clinical_statuses."
+            data_tests:
+              - not_null
           - name: color
             data_type: text
-            description: ""
+            description: "{{ doc('program_registry_clinical_statuses__color') }} in
+              program_registry_clinical_statuses."
           - name: visibility_status
             data_type: text
-            description: ""
+            description: "{{ doc('generic__visibility_status') }} in
+              program_registry_clinical_statuses."
           - name: program_registry_id
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('program_registry_clinical_statuses__program_registry_id')
+              }} in program_registry_clinical_statuses."
+            data_tests:
+              - not_null
           - name: updated_at_sync_tick
             data_type: bigint
-            description: ""
+            description: "{{ doc('generic__updated_at_sync_tick') }} in
+              program_registry_clinical_statuses."
+            data_tests:
+              - not_null

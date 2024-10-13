@@ -1,35 +1,50 @@
 version: 2
-
 sources:
   - name: tamanu
     schema: public
-    description: "Tamanu database"
+    description: Tamanu database
     tables:
       - name: invoice_item_discounts
         description: ""
-        tags: ['administration']
+        tags:
+          - administration
         columns:
           - name: id
             data_type: uuid
-            description: ""
+            description: "{{ doc('generic__id') }} in invoice_item_discounts."
+            data_tests:
+              - unique
+              - not_null
           - name: invoice_item_id
             data_type: uuid
-            description: ""
+            description: "{{ doc('invoice_item_discounts__invoice_item_id') }} in
+              invoice_item_discounts."
+            data_tests:
+              - not_null
           - name: percentage
             data_type: numeric
-            description: ""
+            description: "{{ doc('invoice_item_discounts__percentage') }} in
+              invoice_item_discounts."
+            data_tests:
+              - not_null
           - name: reason
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('invoice_item_discounts__reason') }} in
+              invoice_item_discounts."
           - name: created_at
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('generic__created_at') }} in invoice_item_discounts."
+            data_tests:
+              - not_null
           - name: updated_at
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('generic__updated_at') }} in invoice_item_discounts."
           - name: deleted_at
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('generic__deleted_at') }} in invoice_item_discounts."
           - name: updated_at_sync_tick
             data_type: bigint
-            description: ""
+            description: "{{ doc('generic__updated_at_sync_tick') }} in
+              invoice_item_discounts."
+            data_tests:
+              - not_null

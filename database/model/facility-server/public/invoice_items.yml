@@ -1,59 +1,83 @@
 version: 2
-
 sources:
   - name: tamanu
     schema: public
-    description: "Tamanu database"
+    description: Tamanu database
     tables:
       - name: invoice_items
         description: ""
-        tags: ['administration']
+        tags:
+          - administration
         columns:
           - name: id
             data_type: uuid
-            description: ""
+            description: "{{ doc('generic__id') }} in invoice_items."
+            data_tests:
+              - unique
+              - not_null
           - name: invoice_id
             data_type: uuid
-            description: ""
+            description: "{{ doc('invoice_items__invoice_id') }} in invoice_items."
+            data_tests:
+              - not_null
           - name: order_date
-            data_type: character
-            description: ""
+            data_type: character(10)
+            description: "{{ doc('invoice_items__order_date') }} in invoice_items."
+            data_tests:
+              - not_null
           - name: product_id
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('invoice_items__product_id') }} in invoice_items."
           - name: quantity
             data_type: integer
-            description: ""
+            description: "{{ doc('invoice_items__quantity') }} in invoice_items."
+            data_tests:
+              - not_null
           - name: product_name
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('invoice_items__product_name') }} in invoice_items."
+            data_tests:
+              - not_null
           - name: product_price
             data_type: numeric
-            description: ""
+            description: "{{ doc('invoice_items__product_price') }} in invoice_items."
+            data_tests:
+              - not_null
           - name: ordered_by_user_id
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('invoice_items__ordered_by_user_id') }} in invoice_items."
+            data_tests:
+              - not_null
           - name: source_id
             data_type: uuid
-            description: ""
+            description: "{{ doc('invoice_items__source_id') }} in invoice_items."
           - name: created_at
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('generic__created_at') }} in invoice_items."
+            data_tests:
+              - not_null
           - name: updated_at
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('generic__updated_at') }} in invoice_items."
           - name: deleted_at
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('generic__deleted_at') }} in invoice_items."
           - name: product_code
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('invoice_items__product_code') }} in invoice_items."
+            data_tests:
+              - not_null
           - name: note
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('invoice_items__note') }} in invoice_items."
           - name: product_discountable
             data_type: boolean
-            description: ""
+            description: "{{ doc('invoice_items__product_discountable') }} in
+              invoice_items."
+            data_tests:
+              - not_null
           - name: updated_at_sync_tick
             data_type: bigint
-            description: ""
+            description: "{{ doc('generic__updated_at_sync_tick') }} in invoice_items."
+            data_tests:
+              - not_null

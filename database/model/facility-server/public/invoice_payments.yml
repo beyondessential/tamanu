@@ -1,38 +1,54 @@
 version: 2
-
 sources:
   - name: tamanu
     schema: public
-    description: "Tamanu database"
+    description: Tamanu database
     tables:
       - name: invoice_payments
         description: ""
-        tags: ['administration']
+        tags:
+          - administration
         columns:
           - name: id
             data_type: uuid
-            description: ""
+            description: "{{ doc('generic__id') }} in invoice_payments."
+            data_tests:
+              - unique
+              - not_null
           - name: invoice_id
             data_type: uuid
-            description: ""
+            description: "{{ doc('invoice_payments__invoice_id') }} in invoice_payments."
+            data_tests:
+              - not_null
           - name: date
-            data_type: character
-            description: ""
+            data_type: character(10)
+            description: "{{ doc('generic__date') }} in invoice_payments."
+            data_tests:
+              - not_null
           - name: receipt_number
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('invoice_payments__receipt_number') }} in
+              invoice_payments."
+            data_tests:
+              - not_null
           - name: amount
             data_type: numeric
-            description: ""
+            description: "{{ doc('invoice_payments__amount') }} in invoice_payments."
+            data_tests:
+              - not_null
           - name: created_at
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('generic__created_at') }} in invoice_payments."
+            data_tests:
+              - not_null
           - name: updated_at
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('generic__updated_at') }} in invoice_payments."
           - name: deleted_at
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('generic__deleted_at') }} in invoice_payments."
           - name: updated_at_sync_tick
             data_type: bigint
-            description: ""
+            description: "{{ doc('generic__updated_at_sync_tick') }} in invoice_payments."
+            data_tests:
+              - not_null

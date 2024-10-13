@@ -1,16 +1,16 @@
 version: 2
-
 sources:
   - name: tamanu
     schema: public
-    description: "Tamanu database"
+    description: Tamanu database
     tables:
       - name: encounter_diagnoses
         description: "{{ doc('table__encounter_diagnoses') }}"
-        tags: ['clinical']
+        tags:
+          - clinical
         columns:
           - name: id
-            data_type: character varying
+            data_type: character varying(255)
             description: "{{ doc('encounter_diagnoses__id') }}"
             data_tests:
               - unique
@@ -29,24 +29,25 @@ sources:
             data_type: timestamp with time zone
             description: "{{ doc('generic__deleted_at') }} in encounter_diagnoses."
           - name: certainty
-            data_type: character varying
+            data_type: character varying(255)
             description: "{{ doc('encounter_diagnoses__certainty') }}"
           - name: is_primary
             data_type: boolean
             description: "{{ doc('encounter_diagnoses__is_primary') }}"
           - name: date
-            data_type: character
+            data_type: character(19)
             description: "{{ doc('encounter_diagnoses__datetime') }}"
-          - name: encounter_id
-            data_type: character varying
-            description: "{{ doc('encounters__id') }}"
             data_tests:
               - not_null
+          - name: encounter_id
+            data_type: character varying(255)
+            description: "{{ doc('encounters__id') }}"
+            data_tests:
               - relationships:
                   to: source('tamanu', 'encounters')
                   field: id
           - name: diagnosis_id
-            data_type: character varying
+            data_type: character varying(255)
             description: "{{ doc('reference_data__diagnosis') }}"
             data_tests:
               - dbt_utils.relationships_where:
@@ -62,8 +63,9 @@ sources:
             data_tests:
               - not_null
           - name: clinician_id
-            data_type: character varying
-            description: "{{ doc('users__id') }} as the clinician that recorded the diagnosis during the encounter"
+            data_type: character varying(255)
+            description: "{{ doc('users__id') }} as the clinician that recorded the
+              diagnosis during the encounter"
             data_tests:
               - relationships:
                   to: source('tamanu', 'users')

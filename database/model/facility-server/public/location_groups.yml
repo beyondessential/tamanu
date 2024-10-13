@@ -1,18 +1,21 @@
 version: 2
-
 sources:
   - name: tamanu
     schema: public
-    description: "Tamanu database"
+    description: Tamanu database
     tables:
       - name: location_groups
         description: "{{ doc('table__location_groups') }}"
-        tags: ['reference']
+        tags:
+          - reference
         columns:
           - name: id
-            data_type: character varying
+            data_type: character varying(255)
             description: "{{ doc('location_groups__id') }}"
             data-tests:
+              - unique
+              - not_null
+            data_tests:
               - unique
               - not_null
           - name: created_at
@@ -20,40 +23,55 @@ sources:
             description: "{{ doc('generic__created_at') }} in location groups"
             data-tests:
               - not_null
+            data_tests:
+              - not_null
           - name: updated_at
             data_type: timestamp with time zone
             description: "{{ doc('generic__updated_at') }} in location groups"
             data-tests:
+              - not_null
+            data_tests:
               - not_null
           - name: deleted_at
             data_type: timestamp with time zone
             description: "{{ doc('generic__deleted_at') }} in location groups"
           - name: visibility_status
             data_type: text
-            description: "{{ doc('generic__visibility_status') }} in location groups, default value is 'current'"
+            description: "{{ doc('generic__visibility_status') }} in location groups,
+              default value is 'current'"
             data-tests:
               - not_null
               - accepted_values:
-                  values: ["current", "historical"]
+                  values:
+                    - current
+                    - historical
           - name: name
-            data_type: character varying
+            data_type: character varying(255)
             description: "{{ doc('location_groups__name') }}"
             data-tests:
               - not_null
+            data_tests:
+              - not_null
           - name: code
-            data_type: character varying
+            data_type: character varying(255)
             description: "{{ doc('location_groups__code') }}"
             data-tests:
               - not_null
+            data_tests:
+              - not_null
           - name: facility_id
-            data_type: character varying
+            data_type: character varying(255)
             description: "{{ doc('facilities__id') }}"
             data-tests:
               - relationships:
                   to: source('tamanu', 'facilities')
                   field: id
+            data_tests:
+              - not_null
           - name: updated_at_sync_tick
             data_type: bigint
             description: "{{ doc('generic__updated_at_sync_tick') }} location groups"
             data-tests:
+              - not_null
+            data_tests:
               - not_null

@@ -38,3 +38,7 @@ City or town of the facility
 {% docs facilities__street_address %}
 Street address of the facility
 {% enddocs %}
+
+{% docs facilities__catchment_id %}
+TODO
+{% enddocs %}

@@ -1,65 +1,83 @@
 version: 2
-
 sources:
   - name: tamanu
     schema: public
-    description: "Tamanu database"
+    description: Tamanu database
     tables:
       - name: lab_test_types
         description: ""
-        tags: ['reference']
+        tags:
+          - reference
         columns:
           - name: id
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('generic__id') }} in lab_test_types."
+            data_tests:
+              - unique
+              - not_null
           - name: created_at
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('generic__created_at') }} in lab_test_types."
+            data_tests:
+              - not_null
           - name: updated_at
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('generic__updated_at') }} in lab_test_types."
+            data_tests:
+              - not_null
           - name: deleted_at
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('generic__deleted_at') }} in lab_test_types."
           - name: code
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('lab_test_types__code') }} in lab_test_types."
+            data_tests:
+              - not_null
           - name: name
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('lab_test_types__name') }} in lab_test_types."
+            data_tests:
+              - not_null
           - name: unit
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('lab_test_types__unit') }} in lab_test_types."
+            data_tests:
+              - not_null
           - name: male_min
             data_type: double precision
-            description: ""
+            description: "{{ doc('lab_test_types__male_min') }} in lab_test_types."
           - name: male_max
             data_type: double precision
-            description: ""
+            description: "{{ doc('lab_test_types__male_max') }} in lab_test_types."
           - name: female_min
             data_type: double precision
-            description: ""
+            description: "{{ doc('lab_test_types__female_min') }} in lab_test_types."
           - name: female_max
             data_type: double precision
-            description: ""
+            description: "{{ doc('lab_test_types__female_max') }} in lab_test_types."
           - name: range_text
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('lab_test_types__range_text') }} in lab_test_types."
           - name: result_type
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('lab_test_types__result_type') }} in lab_test_types."
+            data_tests:
+              - not_null
           - name: options
             data_type: text
-            description: ""
+            description: "{{ doc('lab_test_types__options') }} in lab_test_types."
           - name: lab_test_category_id
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('lab_test_types__lab_test_category_id') }} in
+              lab_test_types."
           - name: visibility_status
             data_type: text
-            description: ""
+            description: "{{ doc('generic__visibility_status') }} in lab_test_types."
           - name: updated_at_sync_tick
             data_type: bigint
-            description: ""
+            description: "{{ doc('generic__updated_at_sync_tick') }} in lab_test_types."
+            data_tests:
+              - not_null
           - name: external_code
             data_type: text
-            description: ""
+            description: "{{ doc('lab_test_types__external_code') }} in lab_test_types."

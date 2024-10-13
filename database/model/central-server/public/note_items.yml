@@ -1,47 +1,63 @@
 version: 2
-
 sources:
   - name: tamanu
     schema: public
-    description: "Tamanu database"
+    description: Tamanu database
     tables:
       - name: note_items
         description: ""
-        tags: ['clinical', 'deprecated']
+        tags:
+          - clinical
+          - deprecated
         columns:
           - name: id
             data_type: uuid
-            description: ""
+            description: "{{ doc('generic__id') }} in note_items."
+            data_tests:
+              - unique
+              - not_null
           - name: created_at
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('generic__created_at') }} in note_items."
+            data_tests:
+              - not_null
           - name: updated_at
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('generic__updated_at') }} in note_items."
+            data_tests:
+              - not_null
           - name: deleted_at
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('generic__deleted_at') }} in note_items."
           - name: note_page_id
             data_type: uuid
-            description: ""
+            description: "{{ doc('note_items__note_page_id') }} in note_items."
+            data_tests:
+              - not_null
           - name: revised_by_id
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('note_items__revised_by_id') }} in note_items."
           - name: author_id
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('note_items__author_id') }} in note_items."
           - name: on_behalf_of_id
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('note_items__on_behalf_of_id') }} in note_items."
           - name: content
             data_type: text
-            description: ""
+            description: "{{ doc('note_items__content') }} in note_items."
+            data_tests:
+              - not_null
           - name: date
-            data_type: character
-            description: ""
+            data_type: character(19)
+            description: "{{ doc('generic__date') }} in note_items."
+            data_tests:
+              - not_null
           - name: date_legacy
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('generic__date_legacy') }} in note_items."
           - name: updated_at_sync_tick
             data_type: bigint
-            description: ""
+            description: "{{ doc('generic__updated_at_sync_tick') }} in note_items."
+            data_tests:
+              - not_null

@@ -1,21 +1,25 @@
 version: 2
-
 sources:
   - name: tamanu
     schema: public
-    description: "Tamanu database"
+    description: Tamanu database
     tables:
       - name: invoice_discounts
         description: "{{ doc('table__invoice_discounts') }}"
-        tags: ['administration']
+        tags:
+          - administration
         columns:
           - name: id
             data_type: uuid
             description: "{{ doc('invoice_discounts__id') }}"
+            data_tests:
+              - unique
+              - not_null
           - name: invoice_id
             data_type: uuid
             description: "{{ doc('invoices__id') }}"
             data_tests:
+              - not_null
               - relationships:
                   to: source('tamanu', 'invoices')
                   field: id
@@ -25,18 +29,20 @@ sources:
             data_tests:
               - not_null
           - name: reason
-            data_type: character varying
+            data_type: character varying(255)
             description: "{{ doc('invoice_discounts__reason') }}"
           - name: is_manual
             data_type: boolean
             description: "{{ doc('invoice_discounts__is_manual') }}"
+            data_tests:
+              - not_null
           - name: applied_by_user_id
-            data_type: character varying
+            data_type: character varying(255)
             description: "{{ doc('generic__updated_by') }} in invoice_discounts"
             data_tests:
               - not_null
           - name: applied_time
-            data_type: character
+            data_type: character(19)
             description: "{{ doc('generic__datetime') }} in invoice_discounts"
             data_tests:
               - not_null
@@ -48,8 +54,6 @@ sources:
           - name: updated_at
             data_type: timestamp with time zone
             description: "{{ doc('generic__updated_at') }} in invoice_discounts"
-            data_tests:
-              - not_null
           - name: deleted_at
             data_type: timestamp with time zone
             description: "{{ doc('generic__deleted_at') }} in invoice_discounts"

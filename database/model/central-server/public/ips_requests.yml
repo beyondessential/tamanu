@@ -1,42 +1,58 @@
 version: 2
-
 sources:
   - name: tamanu
     schema: public
-    description: "Tamanu database"
+    description: Tamanu database
     tables:
       - name: ips_requests
         description: ""
-        tags: ['clinical']
+        tags:
+          - clinical
         columns:
           - name: id
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('generic__id') }} in ips_requests."
+            data_tests:
+              - unique
+              - not_null
           - name: created_at
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('generic__created_at') }} in ips_requests."
+            data_tests:
+              - not_null
           - name: updated_at
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('generic__updated_at') }} in ips_requests."
+            data_tests:
+              - not_null
           - name: deleted_at
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('generic__deleted_at') }} in ips_requests."
           - name: patient_id
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('ips_requests__patient_id') }} in ips_requests."
+            data_tests:
+              - not_null
           - name: created_by
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('ips_requests__created_by') }} in ips_requests."
+            data_tests:
+              - not_null
           - name: status
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('ips_requests__status') }} in ips_requests."
+            data_tests:
+              - not_null
           - name: email
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('ips_requests__email') }} in ips_requests."
+            data_tests:
+              - not_null
           - name: error
             data_type: text
-            description: ""
+            description: "{{ doc('ips_requests__error') }} in ips_requests."
           - name: updated_at_sync_tick
             data_type: bigint
-            description: ""
-
+            description: "{{ doc('generic__updated_at_sync_tick') }} in ips_requests."
+            data_tests:
+              - not_null

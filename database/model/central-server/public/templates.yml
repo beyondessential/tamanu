@@ -1,47 +1,56 @@
 version: 2
-
 sources:
   - name: tamanu
     schema: public
-    description: "Tamanu database"
+    description: Tamanu database
     tables:
       - name: templates
         description: ""
-        tags: ['administration']
+        tags:
+          - administration
         columns:
           - name: id
             data_type: uuid
-            description: ""
+            description: "{{ doc('generic__id') }} in templates."
+            data_tests:
+              - unique
+              - not_null
           - name: deleted_at
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('generic__deleted_at') }} in templates."
           - name: created_at
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('generic__created_at') }} in templates."
           - name: updated_at
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('generic__updated_at') }} in templates."
           - name: name
             data_type: text
-            description: ""
+            description: "{{ doc('templates__name') }} in templates."
+            data_tests:
+              - not_null
           - name: date_created
-            data_type: character
-            description: ""
+            data_type: character(10)
+            description: "{{ doc('templates__date_created') }} in templates."
           - name: title
             data_type: text
-            description: ""
+            description: "{{ doc('templates__title') }} in templates."
           - name: body
             data_type: text
-            description: ""
+            description: "{{ doc('templates__body') }} in templates."
           - name: visibility_status
             data_type: text
-            description: ""
+            description: "{{ doc('generic__visibility_status') }} in templates."
           - name: created_by_id
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('templates__created_by_id') }} in templates."
           - name: updated_at_sync_tick
             data_type: bigint
-            description: ""
+            description: "{{ doc('generic__updated_at_sync_tick') }} in templates."
+            data_tests:
+              - not_null
           - name: type
             data_type: text
-            description: ""
+            description: "{{ doc('templates__type') }} in templates."
+            data_tests:
+              - not_null

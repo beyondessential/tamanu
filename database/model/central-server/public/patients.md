@@ -58,6 +58,10 @@ Tamanu identifier for the patient the patient record was merged into
 [Deprecated] Timestamp of death of patient
 {% enddocs %}
 
+{% docs patients__date_of_death %}
+TODO
+{% enddocs %}
+
 {% docs patients__date_of_birth_legacy %}
 [Deprecated] Timestamp of birth of patient
 {% enddocs %}
