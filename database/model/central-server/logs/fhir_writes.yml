@@ -1,0 +1,46 @@
+version: 2
+sources:
+  - name: tamanu
+    schema: logs
+    description: TODO
+    __generator:
+      js_class: FhirWrite
+    tables:
+      - name: fhir_writes
+        description: "{{ doc('table__fhir_writes') }}"
+        tags: []
+        columns:
+          - name: id
+            data_type: uuid
+            description: "{{ doc('fhir_writes__id') }} in fhir_writes."
+            data_tests:
+              - unique
+              - not_null
+          - name: created_at
+            data_type: timestamp with time zone
+            description: "{{ doc('fhir_writes__created_at') }} in fhir_writes."
+            data_tests:
+              - not_null
+          - name: verb
+            data_type: text
+            description: "{{ doc('fhir_writes__verb') }} in fhir_writes."
+            data_tests:
+              - not_null
+          - name: url
+            data_type: text
+            description: "{{ doc('fhir_writes__url') }} in fhir_writes."
+            data_tests:
+              - not_null
+          - name: body
+            data_type: jsonb
+            description: "{{ doc('fhir_writes__body') }} in fhir_writes."
+            data_tests:
+              - not_null
+          - name: headers
+            data_type: jsonb
+            description: "{{ doc('fhir_writes__headers') }} in fhir_writes."
+            data_tests:
+              - not_null
+          - name: user_id
+            data_type: character varying(255)
+            description: "{{ doc('fhir_writes__user_id') }} in fhir_writes."

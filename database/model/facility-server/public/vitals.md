@@ -58,6 +58,10 @@ Observed patient's fasting blood glucose level
 Observed patient's urine pH
 {% enddocs %}
 
+{% docs vitals__encounter_id %}
+TODO
+{% enddocs %}
+
 {% docs vitals__urine_leukocytes %}
 Observed patient's urine leukocytes level
 {% enddocs %}

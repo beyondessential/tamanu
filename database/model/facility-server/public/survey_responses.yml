@@ -1,53 +1,67 @@
 version: 2
-
 sources:
   - name: tamanu
     schema: public
-    description: "Tamanu database"
+    description: Tamanu database
     tables:
       - name: survey_responses
         description: ""
-        tags: ['clinical']
+        tags:
+          - clinical
         columns:
           - name: id
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('generic__id') }} in survey_responses."
+            data_tests:
+              - unique
+              - not_null
           - name: created_at
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('generic__created_at') }} in survey_responses."
+            data_tests:
+              - not_null
           - name: updated_at
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('generic__updated_at') }} in survey_responses."
+            data_tests:
+              - not_null
           - name: deleted_at
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('generic__deleted_at') }} in survey_responses."
           - name: start_time
-            data_type: character
-            description: ""
+            data_type: character(19)
+            description: "{{ doc('survey_responses__start_time') }} in survey_responses."
           - name: end_time
-            data_type: character
-            description: ""
+            data_type: character(19)
+            description: "{{ doc('survey_responses__end_time') }} in survey_responses."
           - name: result
             data_type: double precision
-            description: ""
+            description: "{{ doc('survey_responses__result') }} in survey_responses."
           - name: survey_id
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('survey_responses__survey_id') }} in survey_responses."
           - name: encounter_id
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('survey_responses__encounter_id') }} in survey_responses."
           - name: result_text
             data_type: text
-            description: ""
+            description: "{{ doc('survey_responses__result_text') }} in survey_responses."
           - name: user_id
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('survey_responses__user_id') }} in survey_responses."
           - name: start_time_legacy
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('survey_responses__start_time_legacy') }} in
+              survey_responses."
           - name: end_time_legacy
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('survey_responses__end_time_legacy') }} in
+              survey_responses."
+          - name: notified
+            data_type: boolean
+            description: "{{ doc('survey_responses__notified') }} in survey_responses."
           - name: updated_at_sync_tick
             data_type: bigint
-            description: ""
+            description: "{{ doc('generic__updated_at_sync_tick') }} in survey_responses."
+            data_tests:
+              - not_null

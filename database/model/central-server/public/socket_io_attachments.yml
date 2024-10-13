@@ -1,23 +1,30 @@
 version: 2
-
 sources:
   - name: tamanu
     schema: public
-    description: "Tamanu database"
+    description: Tamanu database
     tables:
       - name: socket_io_attachments
         description: ""
-        tags: ['system']
+        tags:
+          - system
         columns:
           - name: id
             data_type: uuid
-            description: ""
+            description: "{{ doc('generic__id') }} in socket_io_attachments."
+            data_tests:
+              - unique
+              - not_null
           - name: created_at
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('generic__created_at') }} in socket_io_attachments."
           - name: payload
             data_type: bytea
-            description: ""
+            description: "{{ doc('socket_io_attachments__payload') }} in
+              socket_io_attachments."
           - name: updated_at_sync_tick
             data_type: bigint
-            description: ""
+            description: "{{ doc('generic__updated_at_sync_tick') }} in
+              socket_io_attachments."
+            data_tests:
+              - not_null

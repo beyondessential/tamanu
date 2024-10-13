@@ -1,35 +1,46 @@
 version: 2
-
 sources:
   - name: tamanu
     schema: public
-    description: "Tamanu database"
+    description: Tamanu database
     tables:
       - name: refresh_tokens
         description: ""
-        tags: ['system']
+        tags:
+          - system
         columns:
           - name: id
             data_type: uuid
-            description: ""
+            description: "{{ doc('generic__id') }} in refresh_tokens."
+            data_tests:
+              - unique
+              - not_null
           - name: refresh_id
             data_type: text
-            description: ""
+            description: "{{ doc('refresh_tokens__refresh_id') }} in refresh_tokens."
+            data_tests:
+              - not_null
           - name: device_id
             data_type: text
-            description: ""
+            description: "{{ doc('refresh_tokens__device_id') }} in refresh_tokens."
+            data_tests:
+              - not_null
           - name: user_id
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('refresh_tokens__user_id') }} in refresh_tokens."
+            data_tests:
+              - not_null
           - name: expires_at
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('refresh_tokens__expires_at') }} in refresh_tokens."
+            data_tests:
+              - not_null
           - name: deleted_at
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('generic__deleted_at') }} in refresh_tokens."
           - name: created_at
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('generic__created_at') }} in refresh_tokens."
           - name: updated_at
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('generic__updated_at') }} in refresh_tokens."

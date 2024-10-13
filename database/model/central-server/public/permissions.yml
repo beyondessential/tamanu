@@ -1,38 +1,49 @@
 version: 2
-
 sources:
   - name: tamanu
     schema: public
-    description: "Tamanu database"
+    description: Tamanu database
     tables:
       - name: permissions
         description: ""
-        tags: ['administration']
+        tags:
+          - administration
         columns:
           - name: id
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('generic__id') }} in permissions."
+            data_tests:
+              - unique
+              - not_null
           - name: created_at
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('generic__created_at') }} in permissions."
           - name: updated_at
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('generic__updated_at') }} in permissions."
           - name: deleted_at
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('generic__deleted_at') }} in permissions."
           - name: role_id
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('permissions__role_id') }} in permissions."
+            data_tests:
+              - not_null
           - name: noun
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('permissions__noun') }} in permissions."
+            data_tests:
+              - not_null
           - name: verb
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('permissions__verb') }} in permissions."
+            data_tests:
+              - not_null
           - name: object_id
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('permissions__object_id') }} in permissions."
           - name: updated_at_sync_tick
             data_type: bigint
-            description: ""
+            description: "{{ doc('generic__updated_at_sync_tick') }} in permissions."
+            data_tests:
+              - not_null

@@ -1,62 +1,84 @@
 version: 2
-
 sources:
   - name: tamanu
     schema: public
-    description: "Tamanu database"
+    description: Tamanu database
     tables:
       - name: survey_screen_components
         description: ""
-        tags: ['reference']
+        tags:
+          - reference
         columns:
           - name: id
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('generic__id') }} in survey_screen_components."
+            data_tests:
+              - unique
+              - not_null
           - name: created_at
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('generic__created_at') }} in survey_screen_components."
+            data_tests:
+              - not_null
           - name: updated_at
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('generic__updated_at') }} in survey_screen_components."
+            data_tests:
+              - not_null
           - name: deleted_at
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('generic__deleted_at') }} in survey_screen_components."
           - name: screen_index
             data_type: integer
-            description: ""
+            description: "{{ doc('survey_screen_components__screen_index') }} in
+              survey_screen_components."
           - name: component_index
             data_type: integer
-            description: ""
+            description: "{{ doc('survey_screen_components__component_index') }} in
+              survey_screen_components."
           - name: text
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('survey_screen_components__text') }} in
+              survey_screen_components."
           - name: visibility_criteria
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('survey_screen_components__visibility_criteria') }} in
+              survey_screen_components."
           - name: validation_criteria
             data_type: text
-            description: ""
+            description: "{{ doc('survey_screen_components__validation_criteria') }} in
+              survey_screen_components."
           - name: detail
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('survey_screen_components__detail') }} in
+              survey_screen_components."
           - name: config
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('survey_screen_components__config') }} in
+              survey_screen_components."
           - name: options
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('survey_screen_components__options') }} in
+              survey_screen_components."
           - name: calculation
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('survey_screen_components__calculation') }} in
+              survey_screen_components."
           - name: survey_id
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('survey_screen_components__survey_id') }} in
+              survey_screen_components."
           - name: data_element_id
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('survey_screen_components__data_element_id') }} in
+              survey_screen_components."
           - name: updated_at_sync_tick
             data_type: bigint
-            description: ""
+            description: "{{ doc('generic__updated_at_sync_tick') }} in
+              survey_screen_components."
+            data_tests:
+              - not_null
           - name: visibility_status
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('generic__visibility_status') }} in
+              survey_screen_components."

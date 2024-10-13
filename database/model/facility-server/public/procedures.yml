@@ -1,74 +1,85 @@
 version: 2
-
 sources:
   - name: tamanu
     schema: public
-    description: "Tamanu database"
+    description: Tamanu database
     tables:
       - name: procedures
         description: ""
-        tags: ['clinical']
+        tags:
+          - clinical
         columns:
           - name: id
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('generic__id') }} in procedures."
+            data_tests:
+              - unique
+              - not_null
           - name: created_at
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('generic__created_at') }} in procedures."
+            data_tests:
+              - not_null
           - name: updated_at
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('generic__updated_at') }} in procedures."
+            data_tests:
+              - not_null
           - name: deleted_at
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('generic__deleted_at') }} in procedures."
           - name: completed
             data_type: boolean
-            description: ""
+            description: "{{ doc('procedures__completed') }} in procedures."
           - name: date
-            data_type: character
-            description: ""
+            data_type: character(19)
+            description: "{{ doc('generic__date') }} in procedures."
+            data_tests:
+              - not_null
           - name: end_time
-            data_type: character
-            description: ""
+            data_type: character(19)
+            description: "{{ doc('procedures__end_time') }} in procedures."
           - name: note
             data_type: text
-            description: ""
+            description: "{{ doc('procedures__note') }} in procedures."
           - name: completed_note
             data_type: text
-            description: ""
+            description: "{{ doc('procedures__completed_note') }} in procedures."
           - name: encounter_id
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('procedures__encounter_id') }} in procedures."
           - name: location_id
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('procedures__location_id') }} in procedures."
           - name: procedure_type_id
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('procedures__procedure_type_id') }} in procedures."
           - name: anaesthetic_id
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('procedures__anaesthetic_id') }} in procedures."
           - name: physician_id
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('procedures__physician_id') }} in procedures."
           - name: assistant_id
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('procedures__assistant_id') }} in procedures."
           - name: anaesthetist_id
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('procedures__anaesthetist_id') }} in procedures."
           - name: start_time
-            data_type: character
-            description: ""
+            data_type: character(19)
+            description: "{{ doc('procedures__start_time') }} in procedures."
           - name: date_legacy
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('generic__date_legacy') }} in procedures."
           - name: start_time_legacy
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('procedures__start_time_legacy') }} in procedures."
           - name: end_time_legacy
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('procedures__end_time_legacy') }} in procedures."
           - name: updated_at_sync_tick
             data_type: bigint
-            description: ""
+            description: "{{ doc('generic__updated_at_sync_tick') }} in procedures."
+            data_tests:
+              - not_null

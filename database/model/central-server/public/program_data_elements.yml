@@ -1,47 +1,66 @@
 version: 2
-
 sources:
   - name: tamanu
     schema: public
-    description: "Tamanu database"
+    description: Tamanu database
     tables:
       - name: program_data_elements
         description: ""
-        tags: ['reference']
+        tags:
+          - reference
         columns:
           - name: id
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('generic__id') }} in program_data_elements."
+            data_tests:
+              - unique
+              - not_null
           - name: created_at
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('generic__created_at') }} in program_data_elements."
+            data_tests:
+              - not_null
           - name: updated_at
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('generic__updated_at') }} in program_data_elements."
+            data_tests:
+              - not_null
           - name: deleted_at
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('generic__deleted_at') }} in program_data_elements."
           - name: code
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('program_data_elements__code') }} in
+              program_data_elements."
           - name: name
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('program_data_elements__name') }} in
+              program_data_elements."
           - name: indicator
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('program_data_elements__indicator') }} in
+              program_data_elements."
           - name: default_text
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('program_data_elements__default_text') }} in
+              program_data_elements."
           - name: default_options
             data_type: text
-            description: ""
+            description: "{{ doc('program_data_elements__default_options') }} in
+              program_data_elements."
           - name: type
-            data_type: character varying
-            description: ""
+            data_type: character varying(31)
+            description: "{{ doc('program_data_elements__type') }} in
+              program_data_elements."
+            data_tests:
+              - not_null
           - name: updated_at_sync_tick
             data_type: bigint
-            description: ""
+            description: "{{ doc('generic__updated_at_sync_tick') }} in
+              program_data_elements."
+            data_tests:
+              - not_null
           - name: visualisation_config
             data_type: text
-            description: ""
+            description: "{{ doc('program_data_elements__visualisation_config') }} in
+              program_data_elements."

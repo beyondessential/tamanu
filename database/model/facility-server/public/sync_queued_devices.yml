@@ -1,35 +1,53 @@
 version: 2
-
 sources:
   - name: tamanu
     schema: public
-    description: "Tamanu database"
+    description: Tamanu database
     tables:
       - name: sync_queued_devices
         description: ""
-        tags: ['system']
+        tags:
+          - system
         columns:
           - name: id
             data_type: text
-            description: ""
+            description: "{{ doc('generic__id') }} in sync_queued_devices."
+            data_tests:
+              - unique
+              - not_null
           - name: last_seen_time
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('sync_queued_devices__last_seen_time') }} in
+              sync_queued_devices."
+            data_tests:
+              - not_null
           - name: facility_id
             data_type: text
-            description: ""
+            description: "{{ doc('sync_queued_devices__facility_id') }} in
+              sync_queued_devices."
+            data_tests:
+              - not_null
           - name: last_synced_tick
             data_type: bigint
-            description: ""
+            description: "{{ doc('sync_queued_devices__last_synced_tick') }} in
+              sync_queued_devices."
+            data_tests:
+              - not_null
           - name: urgent
             data_type: boolean
-            description: ""
+            description: "{{ doc('sync_queued_devices__urgent') }} in sync_queued_devices."
+            data_tests:
+              - not_null
           - name: created_at
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('generic__created_at') }} in sync_queued_devices."
+            data_tests:
+              - not_null
           - name: updated_at
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('generic__updated_at') }} in sync_queued_devices."
+            data_tests:
+              - not_null
           - name: deleted_at
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('generic__deleted_at') }} in sync_queued_devices."

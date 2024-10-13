@@ -17,3 +17,11 @@ Full readable name for location
 {% docs locations__max_occupancy %}
 The maximum number of patients that can be in this location
 {% enddocs %}
+
+{% docs locations__facility_id %}
+TODO
+{% enddocs %}
+
+{% docs locations__location_group_id %}
+TODO
+{% enddocs %}

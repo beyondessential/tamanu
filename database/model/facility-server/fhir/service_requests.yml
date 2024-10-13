@@ -1,0 +1,84 @@
+version: 2
+sources:
+  - name: tamanu
+    schema: fhir
+    description: TODO
+    __generator:
+      js_class: ServiceRequest
+    tables:
+      - name: service_requests
+        description: "{{ doc('table__service_requests') }}"
+        tags: []
+        columns:
+          - name: id
+            data_type: uuid
+            description: "{{ doc('service_requests__id') }} in service_requests."
+            data_tests:
+              - unique
+              - not_null
+          - name: version_id
+            data_type: uuid
+            description: "{{ doc('service_requests__version_id') }} in service_requests."
+            data_tests:
+              - not_null
+          - name: upstream_id
+            data_type: character varying
+            description: "{{ doc('service_requests__upstream_id') }} in service_requests."
+            data_tests:
+              - not_null
+          - name: last_updated
+            data_type: timestamp with time zone
+            description: "{{ doc('service_requests__last_updated') }} in service_requests."
+            data_tests:
+              - not_null
+          - name: identifier
+            data_type: jsonb
+            description: "{{ doc('service_requests__identifier') }} in service_requests."
+            data_tests:
+              - not_null
+          - name: status
+            data_type: text
+            description: "{{ doc('service_requests__status') }} in service_requests."
+          - name: intent
+            data_type: text
+            description: "{{ doc('service_requests__intent') }} in service_requests."
+          - name: category
+            data_type: jsonb
+            description: "{{ doc('service_requests__category') }} in service_requests."
+            data_tests:
+              - not_null
+          - name: priority
+            data_type: text
+            description: "{{ doc('service_requests__priority') }} in service_requests."
+          - name: order_detail
+            data_type: jsonb
+            description: "{{ doc('service_requests__order_detail') }} in service_requests."
+            data_tests:
+              - not_null
+          - name: location_code
+            data_type: jsonb
+            description: "{{ doc('service_requests__location_code') }} in service_requests."
+            data_tests:
+              - not_null
+          - name: code
+            data_type: jsonb
+            description: "{{ doc('service_requests__code') }} in service_requests."
+          - name: subject
+            data_type: jsonb
+            description: "{{ doc('service_requests__subject') }} in service_requests."
+          - name: requester
+            data_type: jsonb
+            description: "{{ doc('service_requests__requester') }} in service_requests."
+          - name: occurrence_date_time
+            data_type: text
+            description: "{{ doc('service_requests__occurrence_date_time') }} in
+              service_requests."
+          - name: encounter
+            data_type: jsonb
+            description: "{{ doc('service_requests__encounter') }} in service_requests."
+          - name: note
+            data_type: jsonb
+            description: "{{ doc('service_requests__note') }} in service_requests."
+          - name: specimen
+            data_type: jsonb
+            description: "{{ doc('service_requests__specimen') }} in service_requests."

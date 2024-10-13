@@ -1,0 +1,73 @@
+version: 2
+sources:
+  - name: tamanu
+    schema: fhir
+    description: TODO
+    __generator:
+      js_class: Immunization
+    tables:
+      - name: immunizations
+        description: "{{ doc('table__immunizations') }}"
+        tags: []
+        columns:
+          - name: id
+            data_type: uuid
+            description: "{{ doc('immunizations__id') }} in immunizations."
+            data_tests:
+              - unique
+              - not_null
+          - name: version_id
+            data_type: uuid
+            description: "{{ doc('immunizations__version_id') }} in immunizations."
+            data_tests:
+              - not_null
+          - name: upstream_id
+            data_type: character varying(255)
+            description: "{{ doc('immunizations__upstream_id') }} in immunizations."
+            data_tests:
+              - not_null
+          - name: last_updated
+            data_type: timestamp with time zone
+            description: "{{ doc('immunizations__last_updated') }} in immunizations."
+            data_tests:
+              - not_null
+          - name: status
+            data_type: text
+            description: "{{ doc('immunizations__status') }} in immunizations."
+            data_tests:
+              - not_null
+          - name: vaccine_code
+            data_type: jsonb
+            description: "{{ doc('immunizations__vaccine_code') }} in immunizations."
+            data_tests:
+              - not_null
+          - name: patient
+            data_type: jsonb
+            description: "{{ doc('immunizations__patient') }} in immunizations."
+            data_tests:
+              - not_null
+          - name: encounter
+            data_type: jsonb
+            description: "{{ doc('immunizations__encounter') }} in immunizations."
+          - name: occurrence_date_time
+            data_type: text
+            description: "{{ doc('immunizations__occurrence_date_time') }} in
+              immunizations."
+          - name: lot_number
+            data_type: text
+            description: "{{ doc('immunizations__lot_number') }} in immunizations."
+          - name: site
+            data_type: jsonb
+            description: "{{ doc('immunizations__site') }} in immunizations."
+            data_tests:
+              - not_null
+          - name: performer
+            data_type: jsonb
+            description: "{{ doc('immunizations__performer') }} in immunizations."
+            data_tests:
+              - not_null
+          - name: protocol_applied
+            data_type: jsonb
+            description: "{{ doc('immunizations__protocol_applied') }} in immunizations."
+            data_tests:
+              - not_null

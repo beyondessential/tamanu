@@ -1,0 +1,36 @@
+version: 2
+sources:
+  - name: tamanu
+    schema: fhir
+    description: TODO
+    __generator:
+      js_class: JobWorker
+    tables:
+      - name: job_workers
+        description: "{{ doc('table__job_workers') }}"
+        tags: []
+        columns:
+          - name: id
+            data_type: uuid
+            description: "{{ doc('job_workers__id') }} in job_workers."
+            data_tests:
+              - unique
+              - not_null
+          - name: created_at
+            data_type: timestamp with time zone
+            description: "{{ doc('job_workers__created_at') }} in job_workers."
+            data_tests:
+              - not_null
+          - name: updated_at
+            data_type: timestamp with time zone
+            description: "{{ doc('job_workers__updated_at') }} in job_workers."
+            data_tests:
+              - not_null
+          - name: deleted_at
+            data_type: timestamp with time zone
+            description: "{{ doc('job_workers__deleted_at') }} in job_workers."
+          - name: metadata
+            data_type: jsonb
+            description: "{{ doc('job_workers__metadata') }} in job_workers."
+            data_tests:
+              - not_null

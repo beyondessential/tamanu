@@ -1,47 +1,65 @@
 version: 2
-
 sources:
   - name: tamanu
     schema: public
-    description: "Tamanu database"
+    description: Tamanu database
     tables:
       - name: notes_legacy
         description: ""
-        tags: ['clinical', 'deprecated']
+        tags:
+          - clinical
+          - deprecated
         columns:
           - name: id
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('generic__id') }} in notes_legacy."
+            data_tests:
+              - unique
+              - not_null
           - name: created_at
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('generic__created_at') }} in notes_legacy."
+            data_tests:
+              - not_null
           - name: updated_at
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('generic__updated_at') }} in notes_legacy."
+            data_tests:
+              - not_null
           - name: deleted_at
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('generic__deleted_at') }} in notes_legacy."
           - name: record_id
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('notes_legacy__record_id') }} in notes_legacy."
+            data_tests:
+              - not_null
           - name: record_type
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('notes_legacy__record_type') }} in notes_legacy."
+            data_tests:
+              - not_null
           - name: date
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('generic__date') }} in notes_legacy."
+            data_tests:
+              - not_null
           - name: note_type
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('notes_legacy__note_type') }} in notes_legacy."
           - name: content
             data_type: text
-            description: ""
+            description: "{{ doc('notes_legacy__content') }} in notes_legacy."
+            data_tests:
+              - not_null
           - name: author_id
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('notes_legacy__author_id') }} in notes_legacy."
           - name: on_behalf_of_id
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('notes_legacy__on_behalf_of_id') }} in notes_legacy."
           - name: updated_at_sync_tick
             data_type: bigint
-            description: ""
+            description: "{{ doc('generic__updated_at_sync_tick') }} in notes_legacy."
+            data_tests:
+              - not_null

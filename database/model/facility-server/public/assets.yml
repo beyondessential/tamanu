@@ -1,16 +1,16 @@
 version: 2
-
 sources:
   - name: tamanu
     schema: public
-    description: "Tamanu database"
+    description: Tamanu database
     tables:
       - name: assets
         description: "{{ doc('table__assets') }}"
-        tags: ['reference']
+        tags:
+          - reference
         columns:
           - name: id
-            data_type: character varying
+            data_type: character varying(255)
             description: "{{ doc('assets__id') }}"
             data_tests:
               - unique
@@ -25,17 +25,19 @@ sources:
             data_type: timestamp with time zone
             description: "{{ doc('generic__deleted_at') }}"
           - name: name
-            data_type: character varying
+            data_type: character varying(255)
             description: "{{ doc('assets__name') }}"
             data_tests:
               - not_null
           - name: type
-            data_type: character varying
+            data_type: character varying(255)
             description: "{{ doc('assets__type') }}"
             data_tests:
               - not_null
               - accepted_values:
-                  values: ["image/png", "image/svg"]
+                  values:
+                    - image/png
+                    - image/svg
           - name: data
             data_type: bytea
             description: "{{ doc('assets__data') }}"

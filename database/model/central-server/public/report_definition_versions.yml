@@ -1,47 +1,66 @@
 version: 2
-
 sources:
   - name: tamanu
     schema: public
-    description: "Tamanu database"
+    description: Tamanu database
     tables:
       - name: report_definition_versions
         description: ""
-        tags: ['administration']
+        tags:
+          - administration
         columns:
           - name: id
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('generic__id') }} in report_definition_versions."
+            data_tests:
+              - unique
+              - not_null
           - name: created_at
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('generic__created_at') }} in report_definition_versions."
           - name: updated_at
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('generic__updated_at') }} in report_definition_versions."
           - name: deleted_at
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('generic__deleted_at') }} in report_definition_versions."
           - name: version_number
             data_type: integer
-            description: ""
+            description: "{{ doc('report_definition_versions__version_number') }} in
+              report_definition_versions."
+            data_tests:
+              - not_null
           - name: notes
             data_type: text
-            description: ""
+            description: "{{ doc('report_definition_versions__notes') }} in
+              report_definition_versions."
           - name: status
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('report_definition_versions__status') }} in
+              report_definition_versions."
+            data_tests:
+              - not_null
           - name: query
             data_type: text
-            description: ""
+            description: "{{ doc('report_definition_versions__query') }} in
+              report_definition_versions."
           - name: query_options
             data_type: json
-            description: ""
+            description: "{{ doc('report_definition_versions__query_options') }} in
+              report_definition_versions."
           - name: report_definition_id
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('report_definition_versions__report_definition_id') }} in
+              report_definition_versions."
           - name: user_id
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('report_definition_versions__user_id') }} in
+              report_definition_versions."
+            data_tests:
+              - not_null
           - name: updated_at_sync_tick
             data_type: bigint
-            description: ""
+            description: "{{ doc('generic__updated_at_sync_tick') }} in
+              report_definition_versions."
+            data_tests:
+              - not_null

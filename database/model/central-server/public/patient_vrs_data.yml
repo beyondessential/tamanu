@@ -1,38 +1,45 @@
 version: 2
-
 sources:
   - name: tamanu
     schema: public
-    description: "Tamanu database"
+    description: Tamanu database
     tables:
       - name: patient_vrs_data
         description: ""
-        tags: ['patient']
+        tags:
+          - patient
         columns:
           - name: id
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('generic__id') }} in patient_vrs_data."
+            data_tests:
+              - unique
+              - not_null
           - name: created_at
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('generic__created_at') }} in patient_vrs_data."
           - name: updated_at
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('generic__updated_at') }} in patient_vrs_data."
           - name: deleted_at
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('generic__deleted_at') }} in patient_vrs_data."
           - name: id_type
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('patient_vrs_data__id_type') }} in patient_vrs_data."
           - name: identifier
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('patient_vrs_data__identifier') }} in patient_vrs_data."
           - name: unmatched_village_name
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('patient_vrs_data__unmatched_village_name') }} in
+              patient_vrs_data."
           - name: patient_id
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('patient_vrs_data__patient_id') }} in patient_vrs_data."
           - name: is_deleted_by_remote
             data_type: boolean
-            description: ""
+            description: "{{ doc('patient_vrs_data__is_deleted_by_remote') }} in
+              patient_vrs_data."
+            data_tests:
+              - not_null

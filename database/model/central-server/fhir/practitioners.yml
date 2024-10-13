@@ -1,0 +1,42 @@
+version: 2
+sources:
+  - name: tamanu
+    schema: fhir
+    description: TODO
+    __generator:
+      js_class: Practitioner
+    tables:
+      - name: practitioners
+        description: "{{ doc('table__practitioners') }}"
+        tags: []
+        columns:
+          - name: id
+            data_type: uuid
+            description: "{{ doc('practitioners__id') }} in practitioners."
+            data_tests:
+              - unique
+              - not_null
+          - name: version_id
+            data_type: uuid
+            description: "{{ doc('practitioners__version_id') }} in practitioners."
+            data_tests:
+              - not_null
+          - name: upstream_id
+            data_type: character varying(255)
+            description: "{{ doc('practitioners__upstream_id') }} in practitioners."
+            data_tests:
+              - not_null
+          - name: last_updated
+            data_type: timestamp with time zone
+            description: "{{ doc('practitioners__last_updated') }} in practitioners."
+            data_tests:
+              - not_null
+          - name: identifier
+            data_type: jsonb
+            description: "{{ doc('practitioners__identifier') }} in practitioners."
+          - name: name
+            data_type: jsonb
+            description: "{{ doc('practitioners__name') }} in practitioners."
+          - name: telecom
+            data_type: jsonb
+            description: "{{ doc('practitioners__telecom') }} in practitioners."

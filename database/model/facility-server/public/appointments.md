@@ -18,6 +18,26 @@ End date and time of the appointment.
 The type of appointment.
 {% enddocs %}
 
+{% docs appointments__start_time %}
+TODO
+{% enddocs %}
+
+{% docs appointments__end_time %}
+TODO
+{% enddocs %}
+
+{% docs appointments__patient_id %}
+TODO
+{% enddocs %}
+
+{% docs appointments__clinician_id %}
+TODO
+{% enddocs %}
+
+{% docs appointments__location_id %}
+TODO
+{% enddocs %}
+
 {% docs appointments__status %}
 The current status of the appointment record.
 {% enddocs %}
@@ -28,4 +48,8 @@ Legacy format of the start time kept for safety purposes.
 
 {% docs appointments__end_time_legacy %}
 Legacy format of the end time kept for safety purposes.
+{% enddocs %}
+
+{% docs appointments__location_group_id %}
+TODO
 {% enddocs %}

@@ -24,6 +24,18 @@ Diet type. `type = diet`.
 Discharge disposition type. `type = dischargeDisposition`.
 {% enddocs %}
 
+{% docs reference_data__code %}
+TODO
+{% enddocs %}
+
+{% docs reference_data__type %}
+TODO
+{% enddocs %}
+
+{% docs reference_data__name %}
+TODO
+{% enddocs %}
+
 {% docs reference_data__patient_billing_type %}
 Patient billing type. `type = patientBillingType`.
 {% enddocs %}

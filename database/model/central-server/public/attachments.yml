@@ -1,16 +1,16 @@
 version: 2
-
 sources:
   - name: tamanu
     schema: public
-    description: "Tamanu database"
+    description: Tamanu database
     tables:
       - name: attachments
         description: "{{ doc('table__attachments') }}"
-        tags: ['clinical']
+        tags:
+          - clinical
         columns:
           - name: id
-            data_type: character varying
+            data_type: character varying(255)
             description: "{{ doc('attachments__id') }}"
             data_tests:
               - unique
@@ -21,7 +21,10 @@ sources:
             data_tests:
               - not_null
               - accepted_values:
-                  values: ["application/pdf", "image/jpeg", "image/png"]
+                  values:
+                    - application/pdf
+                    - image/jpeg
+                    - image/png
           - name: size
             data_type: integer
             description: "{{ doc('attachments__size') }}"

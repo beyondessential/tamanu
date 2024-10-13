@@ -1,35 +1,47 @@
 version: 2
-
 sources:
   - name: tamanu
     schema: public
-    description: "Tamanu database"
+    description: Tamanu database
     tables:
       - name: translated_strings
         description: ""
-        tags: ['reference']
+        tags:
+          - reference
         columns:
           - name: id
             data_type: text
-            description: ""
+            description: "{{ doc('generic__id') }} in translated_strings."
           - name: string_id
             data_type: text
-            description: ""
+            description: "{{ doc('translated_strings__string_id') }} in translated_strings."
+            data_tests:
+              - unique
+              - not_null
           - name: language
             data_type: text
-            description: ""
+            description: "{{ doc('translated_strings__language') }} in translated_strings."
+            data_tests:
+              - unique
+              - not_null
           - name: text
             data_type: text
-            description: ""
+            description: "{{ doc('translated_strings__text') }} in translated_strings."
           - name: created_at
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('generic__created_at') }} in translated_strings."
+            data_tests:
+              - not_null
           - name: updated_at
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('generic__updated_at') }} in translated_strings."
+            data_tests:
+              - not_null
           - name: deleted_at
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('generic__deleted_at') }} in translated_strings."
           - name: updated_at_sync_tick
             data_type: bigint
-            description: ""
+            description: "{{ doc('generic__updated_at_sync_tick') }} in translated_strings."
+            data_tests:
+              - not_null

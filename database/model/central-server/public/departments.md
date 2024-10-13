@@ -13,3 +13,7 @@ Code for department.
 {% docs departments__name %}
 Full readable name for department.
 {% enddocs %}
+
+{% docs departments__facility_id %}
+TODO
+{% enddocs %}

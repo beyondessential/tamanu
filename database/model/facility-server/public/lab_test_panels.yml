@@ -1,41 +1,56 @@
 version: 2
-
 sources:
   - name: tamanu
     schema: public
-    description: "Tamanu database"
+    description: Tamanu database
     tables:
       - name: lab_test_panels
         description: ""
-        tags: ['reference']
+        tags:
+          - reference
         columns:
           - name: id
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('generic__id') }} in lab_test_panels."
+            data_tests:
+              - unique
+              - not_null
           - name: created_at
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('generic__created_at') }} in lab_test_panels."
+            data_tests:
+              - not_null
           - name: updated_at
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('generic__updated_at') }} in lab_test_panels."
+            data_tests:
+              - not_null
           - name: deleted_at
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('generic__deleted_at') }} in lab_test_panels."
           - name: name
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('lab_test_panels__name') }} in lab_test_panels."
+            data_tests:
+              - not_null
           - name: code
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('lab_test_panels__code') }} in lab_test_panels."
+            data_tests:
+              - not_null
           - name: visibility_status
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('generic__visibility_status') }} in lab_test_panels."
+            data_tests:
+              - not_null
           - name: external_code
             data_type: text
-            description: ""
+            description: "{{ doc('lab_test_panels__external_code') }} in lab_test_panels."
           - name: category_id
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('lab_test_panels__category_id') }} in lab_test_panels."
           - name: updated_at_sync_tick
             data_type: bigint
-            description: ""
+            description: "{{ doc('generic__updated_at_sync_tick') }} in lab_test_panels."
+            data_tests:
+              - not_null

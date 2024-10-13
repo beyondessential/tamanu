@@ -38,6 +38,22 @@ The old way of storing end dates in tamanu
 The location that the encounter will transfer to at the planned_location_start_time
 {% enddocs %}
 
+{% docs encounters__patient_id %}
+TODO
+{% enddocs %}
+
+{% docs encounters__examiner_id %}
+TODO
+{% enddocs %}
+
+{% docs encounters__location_id %}
+TODO
+{% enddocs %}
+
+{% docs encounters__department_id %}
+TODO
+{% enddocs %}
+
 {% docs encounters__planned_location_start_time %}
 The time that the encounter will transfer to the planned location
 {% enddocs %}
@@ -49,4 +65,3 @@ The time that the encounter will transfer to the planned location
 {% docs encounters__referral_source_id %}
 
 {% enddocs %}
-

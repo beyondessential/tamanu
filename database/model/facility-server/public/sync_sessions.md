@@ -18,10 +18,6 @@ Timestamp when sync session made last connection
 Timestamp when sync session snapshot was completed
 {% enddocs %}
 
-{% docs sync_sessions__error %}
-Error recorded for the sync session
-{% enddocs %}
-
 {% docs sync_sessions__debug_info %}
 Debug information for the sync session
 {% enddocs %}
@@ -48,4 +44,8 @@ Sync tick that the sync session started at
 
 {% docs sync_sessions__snapshot_started_at %}
 Timestamp the sync session snapshot started at
+{% enddocs %}
+
+{% docs sync_sessions__errors %}
+TODO
 {% enddocs %}

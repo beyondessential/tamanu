@@ -1,0 +1,72 @@
+version: 2
+sources:
+  - name: tamanu
+    schema: fhir
+    description: TODO
+    __generator:
+      js_class: Job
+    tables:
+      - name: jobs
+        description: "{{ doc('table__jobs') }}"
+        tags: []
+        columns:
+          - name: id
+            data_type: uuid
+            description: "{{ doc('jobs__id') }} in jobs."
+            data_tests:
+              - unique
+              - not_null
+          - name: created_at
+            data_type: timestamp with time zone
+            description: "{{ doc('jobs__created_at') }} in jobs."
+            data_tests:
+              - not_null
+          - name: updated_at
+            data_type: timestamp with time zone
+            description: "{{ doc('jobs__updated_at') }} in jobs."
+            data_tests:
+              - not_null
+          - name: deleted_at
+            data_type: timestamp with time zone
+            description: "{{ doc('jobs__deleted_at') }} in jobs."
+          - name: priority
+            data_type: integer
+            description: "{{ doc('jobs__priority') }} in jobs."
+            data_tests:
+              - not_null
+          - name: status
+            data_type: text
+            description: "{{ doc('jobs__status') }} in jobs."
+            data_tests:
+              - not_null
+          - name: worker_id
+            data_type: uuid
+            description: "{{ doc('jobs__worker_id') }} in jobs."
+          - name: started_at
+            data_type: timestamp with time zone
+            description: "{{ doc('jobs__started_at') }} in jobs."
+          - name: completed_at
+            data_type: timestamp with time zone
+            description: "{{ doc('jobs__completed_at') }} in jobs."
+          - name: errored_at
+            data_type: timestamp with time zone
+            description: "{{ doc('jobs__errored_at') }} in jobs."
+          - name: error
+            data_type: text
+            description: "{{ doc('jobs__error') }} in jobs."
+          - name: topic
+            data_type: text
+            description: "{{ doc('jobs__topic') }} in jobs."
+            data_tests:
+              - not_null
+          - name: discriminant
+            data_type: text
+            description: "{{ doc('jobs__discriminant') }} in jobs."
+            data_tests:
+              - unique
+              - not_null
+          - name: payload
+            data_type: jsonb
+            description: "{{ doc('jobs__payload') }} in jobs."
+            data_tests:
+              - not_null

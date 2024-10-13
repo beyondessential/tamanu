@@ -1,44 +1,60 @@
 version: 2
-
 sources:
   - name: tamanu
     schema: public
-    description: "Tamanu database"
+    description: Tamanu database
     tables:
       - name: imaging_results
         description: ""
-        tags: ['clinical']
+        tags:
+          - clinical
         columns:
           - name: id
             data_type: uuid
-            description: ""
+            description: "{{ doc('generic__id') }} in imaging_results."
+            data_tests:
+              - unique
+              - not_null
           - name: created_at
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('generic__created_at') }} in imaging_results."
+            data_tests:
+              - not_null
           - name: updated_at
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('generic__updated_at') }} in imaging_results."
+            data_tests:
+              - not_null
           - name: deleted_at
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('generic__deleted_at') }} in imaging_results."
           - name: updated_at_sync_tick
             data_type: bigint
-            description: ""
+            description: "{{ doc('generic__updated_at_sync_tick') }} in imaging_results."
+            data_tests:
+              - not_null
           - name: visibility_status
             data_type: text
-            description: ""
+            description: "{{ doc('generic__visibility_status') }} in imaging_results."
+            data_tests:
+              - not_null
           - name: imaging_request_id
             data_type: character varying
-            description: ""
+            description: "{{ doc('imaging_results__imaging_request_id') }} in
+              imaging_results."
+            data_tests:
+              - not_null
           - name: completed_by_id
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('imaging_results__completed_by_id') }} in imaging_results."
           - name: description
             data_type: text
-            description: ""
+            description: "{{ doc('imaging_results__description') }} in imaging_results."
           - name: external_code
             data_type: text
-            description: ""
+            description: "{{ doc('imaging_results__external_code') }} in imaging_results."
           - name: completed_at
-            data_type: character
-            description: ""
+            data_type: character(19)
+            description: "{{ doc('imaging_results__completed_at') }} in imaging_results."
+            data_tests:
+              - not_null

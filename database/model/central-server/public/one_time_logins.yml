@@ -1,35 +1,44 @@
 version: 2
-
 sources:
   - name: tamanu
     schema: public
-    description: "Tamanu database"
+    description: Tamanu database
     tables:
       - name: one_time_logins
         description: ""
-        tags: ['system']
+        tags:
+          - system
         columns:
           - name: id
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('generic__id') }} in one_time_logins."
+            data_tests:
+              - unique
+              - not_null
           - name: user_id
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('one_time_logins__user_id') }} in one_time_logins."
+            data_tests:
+              - not_null
           - name: token
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('one_time_logins__token') }} in one_time_logins."
+            data_tests:
+              - not_null
           - name: created_at
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('generic__created_at') }} in one_time_logins."
           - name: updated_at
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('generic__updated_at') }} in one_time_logins."
           - name: deleted_at
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('generic__deleted_at') }} in one_time_logins."
           - name: expires_at
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('one_time_logins__expires_at') }} in one_time_logins."
+            data_tests:
+              - not_null
           - name: used_at
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('one_time_logins__used_at') }} in one_time_logins."

@@ -1,51 +1,78 @@
 version: 2
-
 sources:
   - name: tamanu
     schema: public
-    description: "Tamanu database"
+    description: Tamanu database
     tables:
       - name: certifiable_vaccines
         description: ""
-        tags: ['reference']
+        tags:
+          - reference
         columns:
           - name: id
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('generic__id') }} in certifiable_vaccines."
+            data_tests:
+              - unique
+              - not_null
           - name: created_at
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('generic__created_at') }} in certifiable_vaccines."
+            data_tests:
+              - not_null
           - name: updated_at
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('generic__updated_at') }} in certifiable_vaccines."
+            data_tests:
+              - not_null
           - name: deleted_at
             data_type: timestamp with time zone
-            description: ""
+            description: "{{ doc('generic__deleted_at') }} in certifiable_vaccines."
           - name: vaccine_id
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('certifiable_vaccines__vaccine_id') }} in
+              certifiable_vaccines."
+            data_tests:
+              - unique
+              - not_null
           - name: manufacturer_id
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('certifiable_vaccines__manufacturer_id') }} in
+              certifiable_vaccines."
           - name: icd11_drug_code
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('certifiable_vaccines__icd11_drug_code') }} in
+              certifiable_vaccines."
+            data_tests:
+              - not_null
           - name: icd11_disease_code
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('certifiable_vaccines__icd11_disease_code') }} in
+              certifiable_vaccines."
+            data_tests:
+              - not_null
           - name: vaccine_code
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('certifiable_vaccines__vaccine_code') }} in
+              certifiable_vaccines."
+            data_tests:
+              - not_null
           - name: target_code
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('certifiable_vaccines__target_code') }} in
+              certifiable_vaccines."
           - name: eu_product_code
-            data_type: character varying
-            description: ""
+            data_type: character varying(255)
+            description: "{{ doc('certifiable_vaccines__eu_product_code') }} in
+              certifiable_vaccines."
           - name: maximum_dosage
             data_type: integer
-            description: "Default value is 1"
+            description: Default value is 1
+            data_tests:
+              - not_null
           - name: updated_at_sync_tick
             data_type: bigint
-            description: ""
-
+            description: "{{ doc('generic__updated_at_sync_tick') }} in
+              certifiable_vaccines."
+            data_tests:
+              - not_null
