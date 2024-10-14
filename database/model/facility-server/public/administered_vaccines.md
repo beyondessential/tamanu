@@ -1,5 +1,8 @@
 {% docs table__administered_vaccines %}
-Table of vaccines administered to patients related to the Vaccination modal
+Table of vaccines administered to patients.
+
+Vaccinations are recorded via the Vaccinations modal; they are selected
+from a list of Scheduled Vaccines and linked to a Patient via an Encounter.
 {% enddocs %}
 
 {% docs administered_vaccines__id %}
@@ -44,11 +47,11 @@ Vaccine name of the vaccine administration recorded
 {% enddocs %}
 
 {% docs administered_vaccines__scheduled_vaccine_id %}
-TODO
+Reference to the scheduled vaccine that was administered.
 {% enddocs %}
 
 {% docs administered_vaccines__encounter_id %}
-TODO
+Reference to the Encounter this vaccine was given in.
 {% enddocs %}
 
 {% docs administered_vaccines__vaccine_brand %}
@@ -60,29 +63,35 @@ Disease the vaccine addresses of the vaccine administration recorded
 {% enddocs %}
 
 {% docs administered_vaccines__recorder_id %}
-TODO
+Reference to the User who recorded this vaccination.
+This may differ from the User or person who administered the vaccine.
 {% enddocs %}
 
 {% docs administered_vaccines__location_id %}
-TODO
+Reference to the Location at which the vaccine was given.
 {% enddocs %}
 
 {% docs administered_vaccines__department_id %}
-TODO
+Reference to the Department at which the vaccine was given.
 {% enddocs %}
 
 {% docs administered_vaccines__given_by %}
-TODO
+Free text field for the name of the health practitioner who administered the
+vaccine. This is defaulted to the `display_name` of the logged-in User, but can
+be changed. It is not a requirement that the administerer is a Tamanu User.
 {% enddocs %}
 
 {% docs administered_vaccines__consent_given_by %}
-Free text field recording consent given by
+Free text field recording who gave consent for the vaccination.
+This is usually the patient themselves, but may differ for children or dependent
+persons or other cases.
 {% enddocs %}
 
 {% docs administered_vaccines__not_given_reason_id %}
-TODO
+Reference to a Reference Data (`type=vaccineNotGivenReason`).
+These are presented as a dropdown for ease of recording and reporting, alongside the free-text field.
 {% enddocs %}
 
 {% docs administered_vaccines__circumstance_ids %}
-TODO
+Array of references to Reference Data (`type=vaccineCircumstance`).
 {% enddocs %}

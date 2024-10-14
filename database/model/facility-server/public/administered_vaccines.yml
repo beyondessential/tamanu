@@ -2,6 +2,8 @@ sources:
   - name: tamanu
     schema: public
     description: Tamanu database
+    __generator:
+      js_class: AdministeredVaccine
     tables:
       - name: administered_vaccines
         description: "{{ doc('table__vaccine_administrations') }}"
@@ -16,7 +18,7 @@ sources:
               - not_null
           - name: created_at
             data_type: timestamp with time zone
-            description: "{{ doc('generic__created_at') }} in administered_vaccines."
+            description: "{{ doc('generic__created_at') }} in administered_vaccines"
             data_tests:
               - not_null
           - name: updated_at
@@ -47,6 +49,8 @@ sources:
                     - SCHEDULED
                     - UNKNOWN
                     - UPCOMING
+            __generator:
+              values_from_constant: VACCINE_STATUS
           - name: reason
             data_type: character varying(255)
             description: "{{ doc('vaccine_administrations__reason') }}"
@@ -79,22 +83,23 @@ sources:
                     - right_thigh
                     - oral
                     - other
+            __generator:
+              values_from_constant: INJECTION_SITE_VALUES
           - name: consent
             data_type: boolean
             description: "{{ doc('vaccine_administrations__consent') }}"
           - name: recorder_id
             data_type: character varying(255)
-            description: "{{ doc('users__id') }} as the recorder of the administered
-              vaccines"
+            description: "{{ doc('vaccine_administrations__recorder_id') }}"
           - name: location_id
             data_type: character varying(255)
-            description: "{{ doc('locations__id') }} of the administered_vaccines"
+            description: "{{ doc('vaccine_administrations__location_id') }}"
           - name: department_id
             data_type: character varying(255)
-            description: "{{ doc('departments__id') }} of the administered_vaccines"
+            description: "{{ doc('vaccine_administrations__department_id') }}"
           - name: given_by
             data_type: text
-            description: "{{ doc('users__id') }} giving the administered_vaccines"
+            description: "{{ doc('vaccine_administrations__given_by') }}"
           - name: date_legacy
             data_type: timestamp with time zone
             description: "[Deprecated] {{ doc('generic__date_legacy') }} in
