@@ -128,18 +128,8 @@ export class AutocompleteInput extends Component {
   }
 
   updateValue = async (allowFreeTextForExistingValue = false) => {
-    const { value, suggester, options } = this.props;
+    const { value, suggester } = this.props;
 
-    if (!suggester) {
-      const selectedOption = options?.find(option => option.value === value);
-      this.setState({
-        selectedOption: {
-          value: selectedOption?.label || '',
-          tag: null,
-        },
-      });
-      return;
-    }
     if (value === '') {
       this.setState({ selectedOption: { value: '', tag: null } });
       this.attemptAutoFill();
