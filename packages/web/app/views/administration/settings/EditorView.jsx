@@ -5,7 +5,13 @@ import { Box, Divider } from '@material-ui/core';
 
 import { getScopedSchema, isSetting } from '@tamanu/settings';
 
-import { Button, DynamicSelectField, OutlinedButton, TranslatedText } from '../../../components';
+import {
+  Button,
+  DynamicSelectField,
+  OutlinedButton,
+  SelectInput,
+  TranslatedText,
+} from '../../../components';
 import { Colors } from '../../../constants';
 import { Category } from './components/Category';
 
@@ -16,6 +22,10 @@ const SettingsWrapper = styled.div`
 `;
 
 const StyledDynamicSelectField = styled(DynamicSelectField)`
+  width: 18.75rem;
+`;
+
+const StyledSelectInput = styled(SelectInput)`
   width: 18.75rem;
 `;
 
@@ -184,10 +194,9 @@ export const EditorView = memo(
         <SettingsWrapper>
           <CategoryOptions p={2}>
             <Box display="flex" alignItems="center">
-              <StyledDynamicSelectField
+              <StyledSelectInput
                 required
                 placeholder=""
-                controlled
                 label={
                   <TranslatedText
                     stringId="admin.settings.category.label"

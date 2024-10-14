@@ -222,7 +222,7 @@ export class AutocompleteInput extends Component {
   };
 
   attemptAutoFill = async () => {
-    const { autofill, controlled, name } = this.props;
+    const { autofill, name } = this.props;
     if (!autofill) {
       return false;
     }
@@ -231,40 +231,33 @@ export class AutocompleteInput extends Component {
       return false;
     }
     const autoSelectOption = suggestions[0];
-    if (!controlled) {
-      this.setState({
-        selectedOption: {
-          value: autoSelectOption.label,
-          tag: autoSelectOption.tag,
-        },
-      });
-    }
+    this.setState({
+      selectedOption: {
+        value: autoSelectOption.label,
+        tag: autoSelectOption.tag,
+      },
+    });
     this.handleSuggestionChange({ value: autoSelectOption.value, name });
     return true;
   };
 
   handleInputChange = (event, { newValue }) => {
-    const { controlled } = this.props;
     if (!newValue) {
       // when deleting field contents, clear the selection
       this.handleSuggestionChange({ value: undefined, label: '' });
     }
     if (typeof newValue !== 'undefined') {
-      if (!controlled) {
-        this.setState(prevState => {
-          const newSuggestion = prevState.suggestions.find(suggest => suggest.label === newValue);
-          return { selectedOption: { value: newValue, tag: newSuggestion?.tag ?? null } };
-        });
-      }
+      this.setState(prevState => {
+        const newSuggestion = prevState.suggestions.find(suggest => suggest.label === newValue);
+        return { selectedOption: { value: newValue, tag: newSuggestion?.tag ?? null } };
+      });
     }
   };
 
   handleClearValue = () => {
-    const { onChange, name, controlled } = this.props;
+    const { onChange, name } = this.props;
     onChange({ target: { value: undefined, name } });
-    if (!controlled) {
-      this.setState({ selectedOption: { value: '', tag: null } });
-    }
+    this.setState({ selectedOption: { value: '', tag: null } });
   };
 
   clearOptions = () => {
@@ -451,8 +444,6 @@ AutocompleteInput.propTypes = {
   className: PropTypes.string,
   onChange: PropTypes.func.isRequired,
   value: PropTypes.string,
-  // Only determine input state when supplied value has changed
-  controlled: PropTypes.bool,
   suggester: PropTypes.shape({
     fetchCurrentOption: PropTypes.func.isRequired,
     fetchSuggestions: PropTypes.func.isRequired,
