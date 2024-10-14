@@ -31,9 +31,16 @@ const DayWrapper = styled(Box)`
   }
 `;
 
+const DaysWrapper = styled(Box)`
+  display: flex;
+  overflow: auto;
+  max-width: 100%;
+  padding-block: 8px;
+`;
+
 const WeekdayText = styled(BodyText)`
   color: ${({ $selected, $isWeekend }) =>
-    $selected ? Colors.white : $isWeekend ? Colors.softText : 'inherit'};
+    $selected ? Colors.white : $isWeekend ? Colors.softText : Colors.midText};
 `;
 
 const DayButton = ({ day, selected, onClick }) => {
@@ -75,14 +82,16 @@ export const DateSelector = ({ date = new Date() }) => {
         <IconButton onClick={handleDecrement}>
           <ArrowBackIos />
         </IconButton>
-        {days.map(day => (
-          <DayButton
-            key={`day-${day.getTime()}`}
-            day={day}
-            selected={selectedDate.getTime() === day.getTime()}
-            onClick={() => setSelectedDate(day)}
-          />
-        ))}
+        <DaysWrapper>
+          {days.map(day => (
+            <DayButton
+              key={`day-${day.getTime()}`}
+              day={day}
+              selected={selectedDate.getTime() === day.getTime()}
+              onClick={() => setSelectedDate(day)}
+            />
+          ))}
+        </DaysWrapper>
         <IconButton onClick={handleIncrement}>
           <ArrowForwardIos />
         </IconButton>
