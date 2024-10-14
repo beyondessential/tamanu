@@ -3,9 +3,11 @@ sources:
   - name: tamanu
     schema: public
     description: Tamanu database
+    __generator:
+      js_class: Signer
     tables:
       - name: signers
-        description: ""
+        description: "{{ doc('table__signers') }}"
         tags:
           - system
         columns:
