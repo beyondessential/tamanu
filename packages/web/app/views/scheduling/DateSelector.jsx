@@ -1,30 +1,94 @@
 import { Box } from '@material-ui/core';
-import { ArrowBackIos, ArrowForwardIos, ArrowLeft, ArrowRight } from '@mui/icons-material';
-import { IconButton } from '@mui/material';
-import { eachDayOfInterval } from 'date-fns';
-import React from 'react';
+import { ArrowBackIos, ArrowForwardIos } from '@mui/icons-material';
+import { IconButton, styled } from '@mui/material';
+import {
+  addMonths,
+  eachDayOfInterval,
+  endOfMonth,
+  isToday,
+  startOfMonth,
+  subMonths,
+} from 'date-fns';
+import React, { useMemo, useState } from 'react';
+import { BodyText } from '../../components';
+import { Colors } from '../../constants';
 
-export const DateSelector = () => {
-  const days = eachDayOfInterval({
-    start: new Date(2014, 9, 1),
-    end: new Date(2014, 9, 31),
+const DayWrapper = styled(Box)`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px;
+  padding-inline: 10px;
+  border-radius: 3px;
+  background-color: ${({ $selected }) => ($selected ? Colors.primary : 'transparent')};
+  color: ${({ $selected }) => ($selected ? Colors.white : 'inherit')};
+  ${({ $isToday }) => $isToday && `border: 1px solid ${Colors.primary};`}
+  & div {
+    min-width: 18px;
+    text-align: center;
+  }
+`;
+
+const DayButton = ({ day, selected, isToday }) => {
+  return (
+    <DayWrapper $selected={selected} $isToday={isToday}>
+      <BodyText color={selected ? Colors.white : 'textTertiary'}>
+        {day.toLocaleDateString('default', {
+          weekday: 'narrow',
+        })}
+      </BodyText>
+      <BodyText>{day.getDate()}</BodyText>
+    </DayWrapper>
+  );
+};
+
+const getMonthInterval = date =>
+  eachDayOfInterval({
+    start: startOfMonth(date),
+    end: endOfMonth(date),
   });
-  console.log(days);
+
+export const DateSelector = ({ date = new Date() }) => {
+  const [days, setDays] = useState(getMonthInterval(date));
+  const [selectedIndex, setSelectedIndex] = useState(4);
+
+  const selectedDate = useMemo(() => days[selectedIndex], [days, selectedIndex]);
+
+  const handleDecrement = async () => {
+    if (selectedIndex > 0) {
+      setSelectedIndex(selectedIndex - 1);
+      return;
+    }
+    const newDays = getMonthInterval(subMonths(days[0], 1));
+    setDays(newDays);
+    setSelectedIndex(newDays.length - 1);
+  };
+
+  const handleIncrement = () => {
+    if (selectedIndex < days.length - 1) {
+      setSelectedIndex(selectedIndex + 1);
+      return;
+    }
+    setDays(getMonthInterval(addMonths(days[0], 1)));
+    setSelectedIndex(0);
+  };
+
   return (
     <div>
       <h1>DateSelector</h1>
-      <Box display="flex">
-        <IconButton>
+      <Box display="flex" alignItems="center" gap="5px">
+        <IconButton onClick={handleDecrement}>
           <ArrowBackIos />
         </IconButton>
         {days.map((day, index) => (
-          <Box key={index} display="flex" alignItems="center">
-            {new Intl.DateTimeFormat('en-US', {
-              weekday: 'narrow',
-            }).format(day)}
-          </Box>
+          <DayButton
+            key={`day-${day.getTime()}`}
+            isToday={isToday(day)}
+            day={day}
+            selected={index === selectedIndex}
+          />
         ))}
-        <IconButton>
+        <IconButton onClick={handleIncrement}>
           <ArrowForwardIos />
         </IconButton>
       </Box>
