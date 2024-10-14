@@ -1,10 +1,12 @@
 import config from 'config';
 import { omit } from 'lodash';
+
 import { initBugsnag } from '@tamanu/shared/services/logging';
-import { closeDatabase, initDatabase, initReporting } from './database';
-import { VERSION } from './middleware/versionCompatibility.js';
 import { ReadSettings } from '@tamanu/settings/reader';
 import { selectFacilityIds } from '@tamanu/shared/utils/configSelectors';
+
+import { closeDatabase, initDatabase, initReporting } from './database';
+import { VERSION } from './middleware/versionCompatibility.js';
 
 /**
  * @typedef {import('@tamanu/settings/types').FacilitySettingPath} FacilitySettingPath

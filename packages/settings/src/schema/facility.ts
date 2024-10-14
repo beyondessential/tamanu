@@ -72,6 +72,7 @@ export const facilitySettings = {
     },
     sync: {
       description: 'Facility sync settings',
+      highRisk: true,
       properties: {
         syncAllLabRequests: {
           description: '_',

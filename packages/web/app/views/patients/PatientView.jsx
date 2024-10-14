@@ -108,12 +108,11 @@ const tabCompare = ({ firstTab, secondTab, patientTabSettings }) => {
 
 const usePatientTabs = () => {
   const { ability } = useAuth();
-  const { getSetting } = useSettings()
+  const { getSetting } = useSettings();
   const patientTabSettings = getSetting('layouts.patientTabs');
   return TABS.filter(
     tab =>
-      patientTabSettings?.[tab.key]?.hidden === false &&
-      (!tab.condition || tab.condition(ability)),
+      patientTabSettings?.[tab.key]?.hidden !== true && (!tab.condition || tab.condition(ability)),
   ).sort((firstTab, secondTab) => tabCompare({ firstTab, secondTab, patientTabSettings }));
 };
 
