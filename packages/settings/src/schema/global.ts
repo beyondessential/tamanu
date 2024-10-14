@@ -21,13 +21,17 @@ import {
   vitalEditReasonsDefault,
   vitalEditReasonsSchema,
 } from './definitions';
-import { layoutModuleProperties, unhideableLayoutModuleProperties } from './global-settings-properties/layouts';
+import {
+  layoutModuleProperties,
+  unhideableLayoutModuleProperties,
+} from './global-settings-properties/layouts';
 
 export const globalSettings = {
   title: 'Global settings',
   description: 'Settings that apply to all servers',
   properties: {
     auth: {
+      highRisk: true,
       description: 'Authentication options',
       properties: {
         restrictUsersToFacilities: {
@@ -47,6 +51,11 @@ export const globalSettings = {
       properties: {
         mandateSpecimenType: {
           description: '_',
+          type: yup.boolean(),
+          defaultValue: false,
+        },
+        enableAppointmentsExtentions: {
+          description: 'Enable the appointment extensions feature',
           type: yup.boolean(),
           defaultValue: false,
         },
@@ -1167,7 +1176,11 @@ export const globalSettings = {
               type: yup.string().trim(),
               defaultValue: 'tamanu@health.gov',
             },
-            contactNumber: { description: '_', type: yup.string().trim(), defaultValue: '12345' },
+            contactNumber: {
+              description: '_',
+              type: yup.string().trim(),
+              defaultValue: '12345',
+            },
             healthFacility: {
               description: '_',
               type: yup

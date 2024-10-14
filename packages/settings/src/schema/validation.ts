@@ -3,9 +3,9 @@ import { globalSettings } from './global';
 import { centralSettings } from './central';
 import { facilitySettings } from './facility';
 import * as yup from 'yup';
-import _ from 'lodash';
+import _, { cloneDeep, isArray, mergeWith } from 'lodash';
 import { SettingsSchema } from '../types';
-import { isSetting } from './utils';
+import { extractDefaults, isSetting } from './utils';
 
 const SCOPE_TO_SCHEMA = {
   [SETTINGS_SCOPES.GLOBAL]: globalSettings,
@@ -64,8 +64,20 @@ export const validateSettings = async ({
   const flattenedSchema = flattenSchema(schemaValue);
   const yupSchema = yup
     .object()
-    .shape(flattenedSchema)
-    .noUnknown();
+    .shape(flattenedSchema);
 
   await yupSchema.validate(flattenedSettings, { abortEarly: false, strict: true });
+};
+
+/**
+ * Applies default values to all settings in the given scope that are not already set.
+ */
+export const applyDefaults = (settings: Record<string, unknown>, scope: string) => {
+  const schema = getScopedSchema(scope);
+  const defaults = cloneDeep(extractDefaults(schema));
+  return mergeWith(
+    defaults,
+    settings,
+    (_, settingValue) => (isArray(settingValue) ? settingValue : undefined), // Replace, don’t merge arrays
+  );
 };
