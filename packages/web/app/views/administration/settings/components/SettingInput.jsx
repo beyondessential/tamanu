@@ -165,7 +165,7 @@ export const SettingInput = ({
           <StyledNumberInput
             value={displayValue}
             onChange={handleChangeNumber}
-            style={{ width: '4.6875rem' }}
+            style={{ width: '6rem' }}
             error={error}
             helperText={error?.message}
             disabled={disabled}
