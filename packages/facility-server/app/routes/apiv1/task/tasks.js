@@ -174,7 +174,8 @@ taskRoutes.delete(
               },
               {
                 where: {
-                  [Op.or]: [{ parentTaskId: parentTask.id }, { id: task.id }],
+                  parentTaskId: parentTask.id,
+                  id: { [Op.ne]: task.id },
                   dueTime: { [Op.gt]: parentTask.endTime },
                   status: TASK_STATUSES.TODO,
                 },
@@ -183,7 +184,8 @@ taskRoutes.delete(
 
             await req.models.Task.destroy({
               where: {
-                [Op.or]: [{ parentTaskId: parentTask.id }, { id: task.id }],
+                parentTaskId: parentTask.id,
+                id: { [Op.ne]: task.id },
                 dueTime: { [Op.gt]: parentTask.endTime },
                 status: TASK_STATUSES.TODO,
               },

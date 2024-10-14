@@ -65,10 +65,9 @@ export class GenerateRepeatingTasks extends ScheduledTask {
         deleted_by_user_id = :deletedByUserId,
         deleted_time = :deletedTime,
         deleted_reason_id = (
-          SELECT parentTasks.deleted_reason_for_sync_id
-          FROM tasks AS parentTasks
-          WHERE parentTasks.id = tasks.parent_task_id
-          LIMIT 1
+          SELECT completed_parent_tasks.deleted_reason_for_sync_id
+          FROM tasks AS completed_parent_tasks
+          WHERE completed_parent_tasks.id = tasks.parent_task_id
         )
       where
         id in (
@@ -76,11 +75,11 @@ export class GenerateRepeatingTasks extends ScheduledTask {
             childTasks.id
           FROM
             tasks as childTasks
-            JOIN tasks as parentTasks ON parentTasks.id = childTasks.parent_task_id
-            AND parentTasks.end_time IS NOT NULL
+            JOIN tasks as parent_tasks ON parent_tasks.id = childTasks.parent_task_id
+            AND parent_tasks.end_time IS NOT NULL
           WHERE
             childTasks.deleted_at is NULL
-            and childTasks.due_time > parentTasks.end_time
+            and childTasks.due_time > parent_tasks.end_time
             and childTasks.status IN (:statuses)
             and childTasks.created_at > now () - interval '30' day
         )
