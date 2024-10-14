@@ -18,6 +18,7 @@ export const KEYS_EXPOSED_TO_FRONT_END = [
   'invoice',
   'labsCancellationReasons',
   'templates',
+  'layouts',
   'triageCategories',
   'upcomingVaccinations',
   'vaccinations',
