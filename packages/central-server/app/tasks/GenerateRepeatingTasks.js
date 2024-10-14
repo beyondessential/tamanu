@@ -59,18 +59,20 @@ export class GenerateRepeatingTasks extends ScheduledTask {
   // only need to account for tasks that have been created in the last 30 days with the status of TODO
   async removeChildTasksOverParentEndTime() {
     await this.sequelize.query(`
+      with parent as (
+        select id, deleted_reason_for_sync_id as reason_id
+        from tasks
+      )
       update tasks
       set
         deleted_at = now (),
         deleted_by_user_id = :deletedByUserId,
         deleted_time = :deletedTime,
-        deleted_reason_id = (
-          SELECT completed_parent_tasks.deleted_reason_for_sync_id
-          FROM tasks AS completed_parent_tasks
-          WHERE completed_parent_tasks.id = tasks.parent_task_id
-        )
+        deleted_reason_id = parent.reason_id
+      from parent
       where
-        id in (
+        tasks.parent_task_id = parent.id
+        tasks.id in (
           SELECT
             childTasks.id
           FROM
