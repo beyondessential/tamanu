@@ -323,7 +323,7 @@ export class CentralSyncManager {
 
   async setupSnapshotForPull(
     sessionId,
-    { since, facilityId, tablesToInclude, tablesForFullResync, isMobile },
+    { since, facilityId, tablesToInclude, tablesForFullResync, isMobile, deviceId },
     unmarkSnapshotAsProcessing,
   ) {
     let transactionTimeout;
@@ -413,6 +413,7 @@ export class CentralSyncManager {
           fullSyncPatientsTable,
           sessionId,
           facilityId,
+          deviceId,
           {}, // sending empty session config because this snapshot attempt is only for syncing new marked for sync patients
         );
 
@@ -431,6 +432,7 @@ export class CentralSyncManager {
           incrementalSyncPatientsTable,
           sessionId,
           facilityId,
+          deviceId,
           sessionConfig,
         );
 
@@ -446,6 +448,7 @@ export class CentralSyncManager {
             incrementalSyncPatientsTable,
             sessionId,
             facilityId,
+            deviceId,
             sessionConfig,
           );
         }
@@ -531,7 +534,7 @@ export class CentralSyncManager {
     );
   }
 
-  async persistIncomingChanges(sessionId, tablesToInclude) {
+  async persistIncomingChanges(sessionId, deviceId, tablesToInclude) {
     const { sequelize, models } = this.store;
     const totalPushed = await countSyncSnapshotRecords(
       sequelize,
@@ -546,7 +549,7 @@ export class CentralSyncManager {
 
     try {
       // commit the changes to the db
-      await sequelize.transaction(async () => {
+      const persistedAtSyncTick = await sequelize.transaction(async () => {
         // we tick-tock the global clock to make sure there is a unique tick for these changes
         // n.b. this used to also be used for concurrency control, but that is now handled by
         // shared advisory locks taken using the current sync tick as the id, which are waited on
@@ -562,8 +565,14 @@ export class CentralSyncManager {
           { savedAtSyncTick: tock },
           { direction: SYNC_SESSION_DIRECTION.INCOMING },
         );
+
+        return tock;
       });
 
+      await models.SyncDeviceTick.create({
+        deviceId,
+        persistedAtSyncTick,
+      });
       // tick tock global clock so that if records are modified by adjustDataPostSyncPush(),
       // they will be picked up for pulling in the same session (specifically won't be removed by removeEchoedChanges())
       await this.tickTockGlobalClock();
@@ -598,12 +607,12 @@ export class CentralSyncManager {
     await insertSnapshotRecords(sequelize, sessionId, incomingSnapshotRecords);
   }
 
-  async completePush(sessionId, tablesToInclude) {
+  async completePush(sessionId, deviceId, tablesToInclude) {
     await this.connectToSession(sessionId);
 
     // don't await persisting, the client should asynchronously poll as it may take longer than
     // the http request timeout
-    this.persistIncomingChanges(sessionId, tablesToInclude);
+    this.persistIncomingChanges(sessionId, deviceId, tablesToInclude);
   }
 
   async checkPushComplete(sessionId) {

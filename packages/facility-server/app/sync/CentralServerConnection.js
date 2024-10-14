@@ -245,7 +245,7 @@ export class CentralServerConnection {
   async initiatePull(sessionId, since) {
     // first, set the pull filter on the central server, which will kick of a snapshot of changes
     // to pull
-    const body = { since, facilityId: config.serverFacilityId };
+    const body = { since, facilityId: config.serverFacilityId, deviceId: this.deviceId };
     await this.fetch(`sync/${sessionId}/pull/initiate`, { method: 'POST', body });
 
     // then, poll the pull/ready endpoint until we get a valid response - it takes a while for
@@ -272,7 +272,10 @@ export class CentralServerConnection {
 
   async completePush(sessionId) {
     // first off, mark the push as complete on central
-    await this.fetch(`sync/${sessionId}/push/complete`, { method: 'POST' });
+    await this.fetch(`sync/${sessionId}/push/complete`, {
+      method: 'POST',
+      body: { deviceId: this.deviceId },
+    });
 
     // now poll the complete check endpoint until we get a valid response - it takes a while for
     // the pushed changes to finish persisting to the central database

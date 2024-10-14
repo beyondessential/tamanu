@@ -73,7 +73,8 @@
     snapshotTransactionTimeoutMs: null,
     "lookupTable": {
       "enabled": false,
-      "perModelUpdateTimeoutMs": null
+      "perModelUpdateTimeoutMs": null,
+      "avoidRepull": true
     }
   },
   "loadshedder": {
@@ -243,7 +244,7 @@
       "schedule": "* * * * *"
     },
     "syncLookupRefresher": {
-      "enabled": false,
+      "enabled": true,
       "schedule": "*/1 * * * *"
     }
   },
