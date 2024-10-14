@@ -157,15 +157,17 @@ export class Setting extends Model {
     const schema = getScopedSchema(scope);
     const defaultsForScope = extractDefaults(schema);
 
+    const existingSettings = await this.findAll({
+      where: {
+        key: records.map(r => r.key),
+        scope,
+        facilityId,
+      },
+      paranoid: false,
+    });
+
     const existingByKey = keyBy(
-      await this.findAll({
-        where: {
-          key: records.map(r => r.key),
-          scope,
-          facilityId,
-        },
-        paranoid: false,
-      }),
+      existingSettings.map(setting => setting.get({ plain: true })),
       'key',
     );
 
@@ -173,12 +175,12 @@ export class Setting extends Model {
       records.map(async record => {
         const existing = existingByKey[record.key];
         if (existing) {
+          if (existing.deletedAt) {
+            await this.restore({ where: { id: existing.id } });
+          }
           if (!isEqual(existing.value, record.value)) {
             // only update existing records that have changed
-            await this.update(
-              { value: record.value, deletedAt: null },
-              { where: { id: existing.id } },
-            );
+            await this.update({ value: record.value }, { where: { id: existing.id } });
           }
         } else {
           // only create records for values that differ from the defaults
