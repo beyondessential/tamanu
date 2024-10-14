@@ -9,9 +9,10 @@ import {
   isWeekend,
   startOfMonth,
   subMonths,
+  startOfDay,
 } from 'date-fns';
 import React, { useState } from 'react';
-import { BodyText } from '../../components';
+import { BodyText, TextButton } from '../../components';
 import { Colors } from '../../constants';
 
 const DayWrapper = styled(Box)`
@@ -24,7 +25,8 @@ const DayWrapper = styled(Box)`
   border-radius: 3px;
   background-color: ${({ $selected }) => ($selected ? Colors.primary : 'transparent')};
   color: ${({ $selected }) => ($selected ? Colors.white : 'inherit')};
-  ${({ $isToday }) => $isToday && `border: 1px solid ${Colors.primary};`}
+  border: 1px solid ${({ $isToday }) => ($isToday ? Colors.primary : 'transparent')};
+  flex-grow: 1;
   & div {
     min-width: 18px;
     text-align: center;
@@ -34,14 +36,22 @@ const DayWrapper = styled(Box)`
 const DaysWrapper = styled(Box)`
   display: flex;
   overflow: auto;
-  max-width: 100%;
+  scrollbar-width: thin;
+  width: 100%;
   padding-block: 8px;
+  justify-content: space-between;
 `;
 
 const WeekdayText = styled(BodyText)`
   color: ${({ $selected, $isWeekend }) =>
     $selected ? Colors.white : $isWeekend ? Colors.softText : Colors.midText};
 `;
+
+const getMonthInterval = date =>
+  eachDayOfInterval({
+    start: startOfMonth(date),
+    end: endOfMonth(date),
+  });
 
 const DayButton = ({ day, selected, onClick }) => {
   return (
@@ -56,13 +66,7 @@ const DayButton = ({ day, selected, onClick }) => {
   );
 };
 
-const getMonthInterval = date =>
-  eachDayOfInterval({
-    start: startOfMonth(date),
-    end: endOfMonth(date),
-  });
-
-export const DateSelector = ({ date = new Date() }) => {
+export const DateSelector = ({ date = startOfDay(new Date()) }) => {
   const [days, setDays] = useState(getMonthInterval(date));
   const [selectedDate, setSelectedDate] = useState(days.find(isToday));
 
@@ -74,11 +78,19 @@ export const DateSelector = ({ date = new Date() }) => {
     setDays(getMonthInterval(addMonths(days[0], 1)));
   };
 
+  const handleSetToday = () => {
+    setSelectedDate(startOfDay(new Date()));
+    if (!days.some(isToday)) {
+      setDays(getMonthInterval(new Date()));
+    }
+  };
+
   return (
     <div>
       <h1>DateSelector</h1>
       <h2>Month {days[0].toLocaleString('default', { month: 'long', year: 'numeric' })}</h2>
-      <Box display="flex" alignItems="center" gap="5px">
+      <Box display="flex" alignItems="center" justifyContent="space-between">
+        <TextButton onClick={handleSetToday}>Today</TextButton>
         <IconButton onClick={handleDecrement}>
           <ArrowBackIos />
         </IconButton>
