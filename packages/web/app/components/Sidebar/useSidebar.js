@@ -3,8 +3,8 @@ import { FACILITY_MENU_ITEMS } from './FacilityMenuItems';
 import { useLocalisation } from '../../contexts/Localisation';
 
 const sortTopLevelItems = (a, b) => {
-  // Always show patients first
-  if (a.key === 'patients') {
+  // Always show dashboard first
+  if (a.key === 'dashboard') {
     return -1;
   }
   return a.sortPriority - b.sortPriority;
@@ -47,9 +47,17 @@ const useSidebarFactory = (ITEMS, configKey) => {
         .sort(sortChildItems);
     }
 
-    return [...topLevelItems, { ...item, sortPriority: localisedItem.sortPriority, children }];
+    return [
+      ...topLevelItems,
+      {
+        ...item,
+        sortPriority: localisedItem.sortPriority,
+        ...(children.length > 0 && { children }),
+      },
+    ];
   }, []).sort(sortTopLevelItems);
 };
 
-export const useFacilitySidebar = () => useSidebarFactory(FACILITY_MENU_ITEMS, 'layout.sidebar');
-export const useCentralSidebar = () => useSidebarFactory(CENTRAL_MENU_ITEMS, 'layout.centralSidebar');
+export const useFacilitySidebar = () => useSidebarFactory(FACILITY_MENU_ITEMS, 'layouts.sidebar');
+export const useCentralSidebar = () =>
+  useSidebarFactory(CENTRAL_MENU_ITEMS, 'layouts.centralSidebar');

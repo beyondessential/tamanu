@@ -136,15 +136,15 @@ export const PatientLetterForm = ({ onSubmit, onCancel, editedObject, endpoint, 
         patientLetterData: {
           ...data,
           patient,
-          facilityId,
         },
+        facilityId,
         name: data.title,
         clinicianId: data.clinicianId,
       });
       const documentToOpen = printRequested ? document : null;
       onSubmit(documentToOpen);
     },
-    [api, endpoint, onSubmit, patient],
+    [api, endpoint, onSubmit, patient, facilityId],
   );
 
   const renderForm = props =>

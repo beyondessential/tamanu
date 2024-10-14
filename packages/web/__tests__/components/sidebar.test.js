@@ -3,6 +3,10 @@ import { useFacilitySidebar } from '../../app/components/Sidebar/index.js';
 import { useLocalisation } from '../../app/contexts/Localisation.jsx';
 
 const defaultConfig = {
+  dashboard: {
+    hidden: false,
+    sortPriority: 0,
+  },
   patients: {
     hidden: false,
     sortPriority: -1000,
@@ -99,7 +103,7 @@ describe('useFacilitySidebar', () => {
   it('should display the correct items', () => {
     vi.mocked(useLocalisation).mockReturnValue(localisationMock());
     const items = useFacilitySidebar();
-    expect(items.length).toBe(8);
+    expect(items.length).toBe(9);
     expect(items[0].key).toBe('patients');
     expect(items[0].children.length).toBe(4);
   });
@@ -107,7 +111,7 @@ describe('useFacilitySidebar', () => {
   it('should hide top level items', () => {
     vi.mocked(useLocalisation).mockReturnValue(localisationMock({ patients: { hidden: true } }));
     const items = useFacilitySidebar();
-    expect(items.length).toBe(7);
+    expect(items.length).toBe(8);
   });
 
   it('should hide secondary level items', () => {
@@ -115,7 +119,7 @@ describe('useFacilitySidebar', () => {
       localisationMock({ patients: { patientsEmergency: { hidden: true } } }),
     );
     const items = useFacilitySidebar();
-    expect(items[0].children.length).toBe(3);
+    expect(items[1].children.length).toBe(3);
   });
 
   it('should sort top level items', () => {
@@ -124,6 +128,7 @@ describe('useFacilitySidebar', () => {
     );
     const items = useFacilitySidebar();
     expect(items.map(item => item.key)).toStrictEqual([
+      'dashboard',
       'scheduling',
       'medication',
       'imaging',
@@ -155,7 +160,7 @@ describe('useFacilitySidebar', () => {
       }),
     );
     const items = useFacilitySidebar();
-    expect(items[0].children.map(item => item.key)).toStrictEqual([
+    expect(items[1].children.map(item => item.key)).toStrictEqual([
       'patientsOutpatients',
       'patientsEmergency',
       'patientsInpatients',
