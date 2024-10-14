@@ -166,10 +166,7 @@ export class Setting extends Model {
       paranoid: false,
     });
 
-    const existingByKey = keyBy(
-      existingSettings.map(setting => setting.get({ plain: true })),
-      'key',
-    );
+    const existingByKey = keyBy(existingSettings, 'key');
 
     await Promise.all(
       records.map(async record => {
