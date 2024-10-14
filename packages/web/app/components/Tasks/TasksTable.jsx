@@ -18,6 +18,7 @@ import { Colors } from '../../constants';
 import useOverflow from '../../hooks/useOverflow';
 import { ConditionalTooltip, ThemedTooltip } from '../Tooltip';
 import { TaskActionModal } from './TaskActionModal';
+import { useAuth } from '../../contexts/Auth';
 
 const StyledTable = styled(DataFetchingTable)`
   margin-top: 6px;
@@ -251,6 +252,10 @@ const getFrequency = ({ frequencyValue, frequencyUnit }) =>
   );
 
 const NotesCell = ({ row, hoveredRow, handleActionModalOpen }) => {
+  const { ability } = useAuth();
+  const canWrite = ability.can('write', 'Tasking');
+  const canDelete = ability.can('delete', 'Tasking');
+
   const [ref, isOverflowing] = useOverflow();
   const { note, status } = row;
 
@@ -267,7 +272,7 @@ const NotesCell = ({ row, hoveredRow, handleActionModalOpen }) => {
       </NotesDisplay>
       {hoveredRow?.id === row?.id && (
         <BulkActions>
-          {status === TASK_STATUSES.TODO && (
+          {canDelete && status === TASK_STATUSES.TODO && (
             <ThemedTooltip
               title={
                 <TranslatedText
@@ -281,7 +286,7 @@ const NotesCell = ({ row, hoveredRow, handleActionModalOpen }) => {
               </IconButton>
             </ThemedTooltip>
           )}
-          {status !== TASK_STATUSES.NON_COMPLETED && (
+          {canWrite && status !== TASK_STATUSES.NON_COMPLETED && (
             <ThemedTooltip
               title={
                 <TranslatedText
@@ -297,7 +302,7 @@ const NotesCell = ({ row, hoveredRow, handleActionModalOpen }) => {
               </IconButton>
             </ThemedTooltip>
           )}
-          {status !== TASK_STATUSES.COMPLETED && (
+          {canWrite && status !== TASK_STATUSES.COMPLETED && (
             <ThemedTooltip
               title={
                 <TranslatedText
@@ -311,7 +316,7 @@ const NotesCell = ({ row, hoveredRow, handleActionModalOpen }) => {
               </IconButton>
             </ThemedTooltip>
           )}
-          {status !== TASK_STATUSES.TODO && (
+          {canWrite && status !== TASK_STATUSES.TODO && (
             <ThemedTooltip
               title={
                 <TranslatedText
@@ -357,6 +362,10 @@ const NoDataMessage = () => (
 );
 
 export const TasksTable = ({ encounterId, searchParameters, refreshCount, refreshTaskTable }) => {
+  const { ability } = useAuth();
+  const canWrite = ability.can('write', 'Tasking');
+  const canDelete = ability.can('delete', 'Tasking');
+
   const [hoveredRow, setHoveredRow] = useState();
   const [data, setData] = useState([]);
   const [actionModal, setActionModal] = useState('');
@@ -456,11 +465,11 @@ export const TasksTable = ({ encounterId, searchParameters, refreshCount, refres
         taskIds={selectedTask?.id ? [selectedTask.id] : selectedRowIds}
         isRepeatingTask={isRepeatingTask}
       />
-      {selectedRows.length > 0 && (
+      {selectedRows.length > 0 && (canWrite || canDelete) && (
         <div>
           <StyledDivider />
           <BulkActions>
-            <ThemedTooltip
+           {canWrite && <ThemedTooltip
               title={
                 <TranslatedText
                   stringId="encounter.tasks.action.tooltip.notCompleted"
@@ -471,8 +480,8 @@ export const TasksTable = ({ encounterId, searchParameters, refreshCount, refres
               <IconButton onClick={() => handleActionModalOpen(TASK_STATUSES.NON_COMPLETED)}>
                 <StyledCancelIcon />
               </IconButton>
-            </ThemedTooltip>
-            <ThemedTooltip
+            </ThemedTooltip>}
+            {canWrite && <ThemedTooltip
               title={
                 <TranslatedText
                   stringId="encounter.tasks.action.tooltip.completed"
@@ -483,8 +492,8 @@ export const TasksTable = ({ encounterId, searchParameters, refreshCount, refres
               <IconButton onClick={() => handleActionModalOpen(TASK_ACTIONS.COMPLETED)}>
                 <StyledCheckCircleIcon />
               </IconButton>
-            </ThemedTooltip>
-            <ThemedTooltip
+            </ThemedTooltip>}
+            {canDelete && <ThemedTooltip
               title={
                 <TranslatedText
                   stringId="encounter.tasks.action.tooltip.delete"
@@ -495,7 +504,7 @@ export const TasksTable = ({ encounterId, searchParameters, refreshCount, refres
               <IconButton onClick={() => handleActionModalOpen(TASK_ACTIONS.DELETED)}>
                 <StyledDeleteOutlineIcon />
               </IconButton>
-            </ThemedTooltip>
+            </ThemedTooltip>}
           </BulkActions>
         </div>
       )}

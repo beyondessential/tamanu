@@ -25,7 +25,7 @@ const taskCompletionInputSchema = z.object({
 taskRoutes.post(
   '/completed',
   asyncHandler(async (req, res) => {
-    req.checkPermission('write', 'Task');
+    req.checkPermission('write', 'Tasking');
     const { taskIds, ...completedInfo } = await taskCompletionInputSchema.parseAsync(req.body);
 
     //validate task
@@ -66,7 +66,7 @@ const taskNonCompletionInputSchema = z.object({
 taskRoutes.put(
   '/notCompleted',
   asyncHandler(async (req, res) => {
-    req.checkPermission('write', 'Task');
+    req.checkPermission('write', 'Tasking');
     const { taskIds, ...notCompletedInfo } = await taskNonCompletionInputSchema.parseAsync(
       req.body,
     );
@@ -119,7 +119,7 @@ const taskDeletionInputSchema = z.object({
 taskRoutes.delete(
   '/',
   asyncHandler(async (req, res) => {
-    req.checkPermission('delete', 'Task');
+    req.checkPermission('delete', 'Tasking');
     const { taskIds, ...deletedInfo } = await taskDeletionInputSchema.parseAsync(req.query);
 
     //validate deleted reason
@@ -192,7 +192,7 @@ const taskTodoInputSchema = z.object({
 taskRoutes.put(
   '/todo',
   asyncHandler(async (req, res) => {
-    req.checkPermission('write', 'Task');
+    req.checkPermission('write', 'Tasking');
     const { taskIds, ...todoInfo } = await taskTodoInputSchema.parseAsync(req.body);
 
     //validate task
@@ -271,7 +271,7 @@ const tasksCreationSchema = z.object({
 taskRoutes.post(
   '/',
   asyncHandler(async (req, res) => {
-    req.checkPermission('create', 'Task');
+    req.checkPermission('create', 'Tasking');
     const {
       startTime,
       requestedByUserId,
