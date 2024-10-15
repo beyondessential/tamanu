@@ -14,63 +14,40 @@ import { PatientDetails } from './printComponents/PatientDetails';
 import { getResultName, getSurveyAnswerRows, separateColorText } from './surveyAnswers';
 import { SurveyResponseDetails } from './printComponents/SurveyResponseDetails';
 
-const INITAL_ITEMS_PER_COLUMN = 10;
-const INITAL_ITEMS_PER_COLUMN_WITH_RESULT = 9;
-const ITEMS_PER_COLUMN = 15;
-
 const pageStyles = StyleSheet.create({
   body: {
     paddingHorizontal: 50,
     paddingTop: 30,
     paddingBottom: 50,
   },
-  container: {
+  groupContainer: {
+    display: 'flex',
     flexDirection: 'row',
-    width: '100%',
-    flexWrap: 'wrap',
     justifyContent: 'space-between',
-    position: 'relative',
-  },
-  column: {
-    width: '50%',
-    flexDirection: 'column',
-  },
-  firstColumn: {
-    paddingRight: 10,
-  },
-  secondColumn: {
-    paddingLeft: 10,
+    flexWrap: 'wrap',
+    marginBottom: 4,
   },
   item: {
-    paddingTop: 8,
-    minHeight: 46,
-    position: 'relative',
+    width: 238,
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 2,
+    paddingBottom: 4,
+    borderBottom: '0.5px solid black',
+    marginBottom: 8,
+    alignSelf: 'flex-end'
   },
   itemText: {
     fontSize: 9,
-    marginBottom: 2,
-  },
-  answerContainer: {
-    borderBottom: '0.5px solid black',
-    paddingBottom: 2,
-    position: 'relative',
   },
   boldText: {
     fontFamily: 'Helvetica-Bold',
-  },
-  verticalDivider: {
-    position: 'absolute',
-    left: '50%',
-    width: 1,
-    backgroundColor: 'black',
-    height: '101%',
   },
   boldDivider: {
     borderBottom: '2px solid black',
     height: 2,
     width: '100%',
-    position: 'absolute',
-    bottom: '-5px',
+    marginTop: '-6px'
   },
   resultBox: {
     paddingTop: 7,
@@ -92,60 +69,27 @@ const ResultBox = ({ resultText, resultName }) => (
   </View>
 );
 
-const ResponseColumn = ({ row, showBoldBorder }) => {
+const ResponseItem = ({ row }) => {
   const { name, answer, type } = row;
   return (
-    <View style={pageStyles.item}>
+    <View style={pageStyles.item} wrap={false}>
       <Text style={pageStyles.itemText}>{name}</Text>
-      <View style={pageStyles.answerContainer}>
-        <Text style={[pageStyles.itemText, pageStyles.boldText]}>
-          {type === PROGRAM_DATA_ELEMENT_TYPES.PHOTO
-            ? 'Image file - Refer to Tamanu to view'
-            : answer}
-        </Text>
-        {showBoldBorder && <View style={pageStyles.boldDivider} />}
-      </View>
+      <Text style={[pageStyles.itemText, pageStyles.boldText]}>
+        {type === PROGRAM_DATA_ELEMENT_TYPES.PHOTO
+          ? 'Image file - Refer to Tamanu to view'
+          : answer}
+      </Text>
     </View>
   );
 };
 
-const ColumnsContainer = ({ answerRows, itemsPerColumn, hasResult }) => {
-  let columnHeight = '87vh';
-
-  if (itemsPerColumn !== ITEMS_PER_COLUMN) {
-    if (hasResult) {
-      columnHeight = '54vh';
-    } else {
-      columnHeight = '61vh';
-    }
-  }
-
-  const firstAnswerRows = answerRows.slice(0, itemsPerColumn + 1);
-  const secondAnswerRows = answerRows.slice(itemsPerColumn);
-
+const ResponsesGroup = ({ rows }) => {
   return (
-    <View style={pageStyles.container} wrap={false}>
-      {[firstAnswerRows, secondAnswerRows].map((rows, index) => (
-        <View
-          style={[
-            pageStyles.column,
-            { maxHeight: columnHeight },
-            !index ? pageStyles.firstColumn : pageStyles.secondColumn,
-          ]}
-          key={index}
-        >
-          {rows.map((row, index) =>
-            rows.length === itemsPerColumn + 1 && index === rows.length - 1 ? null : (
-              <ResponseColumn
-                key={row.id}
-                row={row}
-                showBoldBorder={row.screenIndex !== rows[index + 1]?.screenIndex}
-              />
-            ),
-          )}
-        </View>
+    <View style={pageStyles.groupContainer}>
+      {rows.map(row => (
+        <ResponseItem key={row.id} row={row} />
       ))}
-      <View style={pageStyles.verticalDivider} />
+      <View style={pageStyles.boldDivider}/>
     </View>
   );
 };
@@ -163,13 +107,15 @@ const SurveyResponsesPrintoutComponent = ({
 
   const surveyAnswerRows = getSurveyAnswerRows(surveyResponse).filter(({ answer }) => answer);
 
-  const initialItemsPerColumn = surveyResponse.resultText
-    ? INITAL_ITEMS_PER_COLUMN_WITH_RESULT
-    : INITAL_ITEMS_PER_COLUMN;
-
-  const initialAnswerRows = surveyAnswerRows.slice(0, initialItemsPerColumn * 2 + 1);
-  const restAnswerRows = surveyAnswerRows.slice(initialItemsPerColumn * 2);
-  const restColumnsPages = Math.ceil(restAnswerRows.length / (ITEMS_PER_COLUMN * 2));
+  const groupedAnswerRows = Object.values(
+    surveyAnswerRows.reduce((acc, item) => {
+      if (!acc[item.screenIndex]) {
+        acc[item.screenIndex] = [];
+      }
+      acc[item.screenIndex].push(item);
+      return acc;
+    }, {}),
+  );
 
   const { strippedResultText } = separateColorText(surveyResponse.resultText);
 
@@ -205,21 +151,10 @@ const SurveyResponsesPrintoutComponent = ({
           />
         )}
 
-        <ColumnsContainer
-          answerRows={initialAnswerRows}
-          itemsPerColumn={initialItemsPerColumn}
-          hasResult={!!surveyResponse.resultText}
-        />
-        {Array.from({ length: restColumnsPages }).map((_, index) => (
-          <ColumnsContainer
-            key={index}
-            answerRows={restAnswerRows.slice(
-              index * (ITEMS_PER_COLUMN * 2),
-              (index + 1) * (ITEMS_PER_COLUMN * 2) + 1,
-            )}
-            itemsPerColumn={ITEMS_PER_COLUMN}
-          />
+        {groupedAnswerRows.map((group, index) => (
+          <ResponsesGroup key={index} rows={group} />
         ))}
+
         <Footer printFacility={facility?.name} printedBy={currentUser?.displayName} />
       </Page>
     </Document>
