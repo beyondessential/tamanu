@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { push } from 'connected-react-router';
-import { Box, IconButton, Paper, Popper, styled } from '@mui/material';
+import { Box, IconButton, Menu, MenuItem, Paper, Popper, styled } from '@mui/material';
 import { MoreVert, Close, Brightness2 as Overnight } from '@mui/icons-material';
 
 import { PatientNameDisplay } from '../PatientNameDisplay';
@@ -92,16 +92,39 @@ const AppointmentStatusContainer = styled(Box)`
   padding-block-end: 0.75rem;
 `;
 
-const ControlsRow = ({ onClose }) => (
-  <ControlsContainer>
-    <StyledIconButton>
-      <MoreVert sx={{ fontSize: '0.875rem' }} />
-    </StyledIconButton>
-    <StyledIconButton onClick={onClose}>
-      <Close sx={{ fontSize: '0.875rem' }} />
-    </StyledIconButton>
-  </ControlsContainer>
-);
+const KebabMenu = ({ anchor, open, onClose, ...props }) => {
+  return (
+    <Menu anchorEl={anchor} open={open} onClose={onClose} {...props}>
+      <MenuItem>Modify</MenuItem>
+      <MenuItem>Cancel</MenuItem>
+    </Menu>
+  );
+};
+
+const ControlsRow = ({ onClose }) => {
+  const [anchor, setAnchor] = useState(null);
+  const isKebabMenuOpen = Boolean(anchor);
+
+  const handleClick = event => {
+    setAnchor(prevAnchor => (prevAnchor ? null : event.currentTarget));
+  };
+
+  const handleClose = () => {
+    setAnchor(null);
+  };
+
+  return (
+    <ControlsContainer>
+      <StyledIconButton onClick={handleClick}>
+        <MoreVert sx={{ fontSize: '0.875rem' }} />
+        <KebabMenu anchor={anchor} open={isKebabMenuOpen} onClose={handleClose} />
+      </StyledIconButton>
+      <StyledIconButton onClick={onClose}>
+        <Close sx={{ fontSize: '0.875rem' }} />
+      </StyledIconButton>
+    </ControlsContainer>
+  );
+};
 
 const DetailsDisplay = ({ label, value }) => (
   <FlexCol>
