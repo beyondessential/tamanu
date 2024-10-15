@@ -92,16 +92,36 @@ const AppointmentStatusContainer = styled(Box)`
   padding-block-end: 0.75rem;
 `;
 
-const KebabMenu = ({ anchor, open, onClose, ...props }) => {
+const StyledMenuItem = styled(MenuItem)`
+  font-size: 0.6875rem;
+  padding-inline: 0.75rem;
+  padding-block: 0.25rem;
+`;
+
+const KebabMenu = ({ anchor, open, onClose, items, ...props }) => {
   return (
     <Menu anchorEl={anchor} open={open} onClose={onClose} {...props}>
-      <MenuItem>Modify</MenuItem>
-      <MenuItem>Cancel</MenuItem>
+      {items.map((item, index) => (
+        <StyledMenuItem key={index} onClick={item.onClick}>
+          {item.label}
+        </StyledMenuItem>
+      ))}
     </Menu>
   );
 };
 
 const ControlsRow = ({ onClose }) => {
+  const controls = [
+    {
+      label: <TranslatedText stringId="scheduling.action.modify" fallback="Modify" />,
+      onClick: () => {},
+    },
+    {
+      label: <TranslatedText stringId="general.action.cancel" fallback="Cancel" />,
+      onClick: () => {},
+    },
+  ];
+
   const [anchor, setAnchor] = useState(null);
   const isKebabMenuOpen = Boolean(anchor);
 
@@ -117,7 +137,7 @@ const ControlsRow = ({ onClose }) => {
     <ControlsContainer>
       <StyledIconButton onClick={handleClick}>
         <MoreVert sx={{ fontSize: '0.875rem' }} />
-        <KebabMenu anchor={anchor} open={isKebabMenuOpen} onClose={handleClose} />
+        <KebabMenu anchor={anchor} items={controls} open={isKebabMenuOpen} onClose={handleClose} />
       </StyledIconButton>
       <StyledIconButton onClick={onClose}>
         <Close sx={{ fontSize: '0.875rem' }} />
