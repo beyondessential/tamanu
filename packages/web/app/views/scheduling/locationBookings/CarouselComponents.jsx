@@ -61,12 +61,13 @@ const HeaderCell = styled(BaseCell)`
   padding: 0.5rem;
   place-content: center;
   transition: background-color 100ms ease;
+  z-index: 1;
 `;
 
 const FirstHeaderCell = styled(HeaderCell)`
   inset-inline-start: 0;
   position: sticky;
-  z-index: 1;
+  z-index: 2;
 `;
 
 const ColHeaderCell = styled(HeaderCell)`
