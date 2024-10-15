@@ -101,6 +101,7 @@ select
   case
     when lr.status = 'reception_pending' then 'Reception pending'
     when lr.status = 'results_pending' then 'Results pending'
+    when lr.status = 'interim_results' then 'Interim results'
     when lr.status = 'to_be_verified' then 'To be verified'
     when lr.status = 'verified' then 'Verified'
     when lr.status = 'published' then 'Published'

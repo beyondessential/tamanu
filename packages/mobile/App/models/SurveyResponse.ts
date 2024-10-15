@@ -25,6 +25,7 @@ import { SYNC_DIRECTIONS } from './types';
 import { DateTimeStringColumn } from './DateColumns';
 import { PatientProgramRegistration } from './PatientProgramRegistration';
 import { VisibilityStatus } from '../visibilityStatuses';
+import { readConfig } from '~/services/config';
 
 type RecordValuesByModel = {
   Patient?: Record<string, string>;
@@ -86,16 +87,19 @@ async function writeToPatientFields(
   }
 
   if (valuesByModel.PatientProgramRegistration) {
+    const facilityId = await readConfig('facilityId', '');
     const { programId } = await Survey.findOne({ id: surveyId });
-    const { id: programRegistryId } = await ProgramRegistry.findOne({
+    const programRegistryDetail = await ProgramRegistry.findOne({
       where: { program: { id: programId }, visibilityStatus: VisibilityStatus.Current },
     });
-    if (!programRegistryId) {
+    if (!programRegistryDetail?.id) {
       throw new Error('No program registry configured for the current form');
     }
-    await PatientProgramRegistration.appendRegistration(patientId, programRegistryId, {
+    await PatientProgramRegistration.appendRegistration(patientId, programRegistryDetail.id, {
       date: submittedTime,
       ...valuesByModel.PatientProgramRegistration,
+      registeringFacilityId:
+        valuesByModel.PatientProgramRegistration.registeringFacilityId || facilityId,
       clinicianId: valuesByModel.PatientProgramRegistration.clinicianId || userId,
     });
   }

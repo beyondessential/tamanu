@@ -27,6 +27,7 @@ import { getAnswersFromData } from '../utils';
 import { FORM_TYPES } from '../constants';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useTranslation } from '../contexts/Translation';
+import { useAuth } from '../contexts/Auth';
 
 const InfoPopupLabel = React.memo(() => (
   <span>
@@ -62,6 +63,7 @@ export const TriageForm = ({
   editedObject,
 }) => {
   const api = useApi();
+  const { facilityId } = useAuth();
   const dispatch = useDispatch();
   const { getLocalisation } = useLocalisation();
   const { getTranslation } = useTranslation();
@@ -199,6 +201,7 @@ export const TriageForm = ({
       ...updatedValues,
       startDate: getCurrentDateTimeString(),
       patientId: patient.id,
+      facilityId,
     };
 
     if (typeof onSubmitEncounter === 'function') {

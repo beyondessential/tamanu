@@ -1,6 +1,6 @@
 {
   "name": "tamanu",
-  "version": "2.17.0",
+  "version": "2.18.0",
   "description": "This repo contains all the packages for Tamanu",
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
   "repository": "git@github.com:beyondessential/tamanu.git",
@@ -38,10 +38,6 @@
     "central-start": "npm run central-start-dev",
     "central-migrate": "npm run build-shared && TAMANU_ARGS=\"migrate\" npm run central-start-dev",
     "central-migrate-down": "npm run build-shared && TAMANU_ARGS=\"migrate down\" npm run central-start-dev",
-    "meta-test": "npm run build-shared && npm run --workspace @tamanu/meta-server test",
-    "meta-start-dev": "npm run watch-shared-and @tamanu/meta-server start-dev",
-    "meta-test-watch": "npm run watch-shared-and @tamanu/meta-server test-watch",
-    "meta-start": "npm run meta-start-dev",
     "build-report": "npm run build-shared && npm run --workspace @tamanu/central-server build && npm run --workspace @tamanu/central-server start report"
   },
   "engines": {
@@ -59,7 +55,7 @@
       "packages/web",
       "packages/facility-server",
       "packages/central-server",
-      "packages/meta-server",
+      "packages/web-frontend",
       "packages/shared",
       "packages/constants",
       "packages/settings",
