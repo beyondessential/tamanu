@@ -143,7 +143,7 @@ export const LocationBookingsView = () => {
           <Placeholder>Type</Placeholder>
         </Filters>
       </LocationBookingsTopBar>
-      {hasNoLocations || true ? (
+      {hasNoLocations ? (
         <EmptyStateLabel>No bookable locations</EmptyStateLabel>
       ) : (
         <Carousel>
