@@ -115,6 +115,7 @@ export const LocationBookingsView = () => {
     }).data?.data ?? [];
   const { data: locations, isLoading: locationsAreLoading } = useLocationsQuery({
     includeLocationGroup: true,
+    bookableOnly: true,
   });
 
   const appointmentsByLocation = partitionAppointmentsByLocation(appointments);
@@ -129,7 +130,6 @@ export const LocationBookingsView = () => {
           <Placeholder>Type</Placeholder>
         </Filters>
       </LocationBookingsTopBar>
-      {/* TODO: Extract <Carousel> into <LocationBookingsCalendar> */}
       <Carousel>
         <CarouselGrid.Root $dayCount={displayedDates.length}>
           <CarouselGrid.HeaderRow>

@@ -20,7 +20,10 @@ location.get(
 
     const {
       models: { Location, LocationGroup },
-      query: { includeLocationGroup = false },
+      query: {
+        includeLocationGroup = false,
+        bookableOnly = false, // No effect if includeLocationGroup is falsy
+      },
     } = req;
 
     const options = {
@@ -35,6 +38,7 @@ location.get(
           required: true,
           model: LocationGroup,
           as: 'locationGroup',
+          ...(bookableOnly ? { where: { isBookable: true } } : null),
         },
       ];
       options.order = [
