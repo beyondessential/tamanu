@@ -55,7 +55,6 @@
       "packages/web",
       "packages/facility-server",
       "packages/central-server",
-      "packages/web-frontend",
       "packages/shared",
       "packages/constants",
       "packages/settings",

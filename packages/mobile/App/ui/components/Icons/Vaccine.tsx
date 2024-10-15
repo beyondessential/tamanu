@@ -1,5 +1,5 @@
 import React, { memo, ReactElement } from 'react';
-import SvgXml from 'react-native-svg';
+import { SvgXml } from 'react-native-svg';
 
 export const VaccineIcon = memo(
   ({ ...props }): ReactElement => {

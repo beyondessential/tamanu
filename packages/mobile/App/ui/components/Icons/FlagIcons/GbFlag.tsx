@@ -1,5 +1,5 @@
 import React, { memo } from 'react';
-import SvgXml from 'react-native-svg';
+import { SvgXml } from 'react-native-svg';
 import { IconWithSizeProps } from '~/ui/interfaces/WithSizeProps';
 
 export const GbFlag = memo((props: IconWithSizeProps) => {

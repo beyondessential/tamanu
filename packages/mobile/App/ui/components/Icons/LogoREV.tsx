@@ -1,5 +1,5 @@
 import React, { memo } from 'react';
-import SvgXml from 'react-native-svg';
+import { SvgXml } from 'react-native-svg';
 
 export const LogoREVIcon = memo(props => {
   const xml = `<svg width="76" height="70" viewBox="0 0 76 70" fill="none" xmlns="http://www.w3.org/2000/svg">

@@ -60,6 +60,7 @@ lints.md
 
 # Env
 /packages/mobile/.envrc
+/packages/mobile/metro-cache
 
 # cd-up and cd-down workflows
 /ops

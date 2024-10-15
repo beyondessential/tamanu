@@ -1,5 +1,5 @@
 import React from 'react';
-import SvgXml from 'react-native-svg';
+import { SvgXml } from 'react-native-svg';
 
 export const ReminderBellIcon = props => {
   const xml = `
