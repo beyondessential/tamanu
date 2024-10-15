@@ -5,7 +5,7 @@
     "esModuleInterop": true,
     "moduleDetection": "force",
     "ignoreDeprecations": "5.0",
-    "verbatimModuleSyntax": false,
+    "importsNotUsedAsValues": "preserve",
     "isolatedModules": true,
     "module": "ES2020",
     "lib": ["es2020"],
@@ -17,10 +17,5 @@
     "strict": true,
     "target": "es2020"
   },
-  "exclude": [
-    "build",
-    "dist",
-    "jest.config.js",
-    "node_modules"
-  ]
+  "exclude": ["build", "dist", "jest.config.js", "node_modules"]
 }
