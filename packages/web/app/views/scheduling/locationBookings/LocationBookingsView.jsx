@@ -29,7 +29,7 @@ import { Typography } from '@material-ui/core';
 
 const Placeholder = styled.div`
   background-color: oklch(0% 0 0 / 3%);
-  block-size: 100%;
+  max-block-size: 100%;
   border: 1px solid oklch(0% 0 0 / 15%);
   border-radius: 0.2rem;
   color: oklch(0% 0 0 / 55%);
@@ -59,7 +59,7 @@ const LocationBookingsTopBar = styled(TopBar).attrs({
 const Wrapper = styled(PageContainer)`
   display: grid;
   grid-template-rows: auto 1fr;
-  block-size: 100%;
+  max-block-size: 100%;
 `;
 
 const Filters = styled('search')`
@@ -72,10 +72,14 @@ const EmptyStateLabel = styled(Typography).attrs({
   color: 'textSecondary',
   variant: 'body1',
 })`
+  color: ${Colors.midText};
   font-size: 2rem;
   font-weight: 400;
   place-self: center;
-  color: ${Colors.midText};
+
+  ${Wrapper}:has(&) {
+    min-block-size: 100%;
+  }
 `;
 
 const Carousel = styled.div`
