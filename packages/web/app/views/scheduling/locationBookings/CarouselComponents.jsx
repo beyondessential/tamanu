@@ -36,7 +36,7 @@ const HeaderRow = styled(Row)`
   block-size: var(--header-row-height);
   inset-block-start: 0;
   position: sticky;
-  z-index: 1;
+  z-index: 2;
 `;
 
 const BaseCell = styled.div`
