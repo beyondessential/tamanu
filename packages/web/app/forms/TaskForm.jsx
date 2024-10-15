@@ -35,6 +35,7 @@ import { TaskSetTable } from '../components/Tasks/TaskSetTable';
 import { useCreateTasks } from '../api/mutations/useTaskMutation';
 import { useEncounter } from '../contexts/Encounter';
 import { useAuth } from '../contexts/Auth';
+import { useTranslation } from '../contexts/Translation';
 
 const NestedFormGrid = styled.div`
   display: flex;
@@ -73,6 +74,7 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
   const { mutate: createTasks, isLoading: isCreatingTasks } = useCreateTasks();
   const { encounter } = useEncounter();
   const { currentUser } = useAuth();
+  const { getTranslation } = useTranslation();
 
   const combinedTaskSuggester = useSuggester('multiReferenceData', {
     baseQueryParameters: {
@@ -110,8 +112,8 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
           {
             name: selectedTask.label,
             highPriority: !!highPriority,
-            frequencyValue,
-            frequencyUnit,
+            ...(frequencyValue && { frequencyValue }),
+            ...(frequencyUnit && { frequencyUnit }),
             designationIds:
               typeof designationIds === 'string' ? JSON.parse(designationIds) : designationIds,
           },
@@ -155,14 +157,14 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
         designations?.map(item => item.designationId),
       );
       setFieldValue('highPriority', highPriority);
-      frequencyValue && setFieldValue('frequencyValue', Number(frequencyValue));
+      frequencyValue ? setFieldValue('frequencyValue', Number(frequencyValue)) : null;
       setFieldValue('frequencyUnit', frequencyUnit);
     }
   };
 
   return (
     <Form
-      suppressErrorDialog
+      showInlineErrorsOnly
       onSubmit={onSubmit}
       render={({ submitForm, setFieldValue }) => {
         return (
@@ -298,39 +300,23 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
       formType={FORM_TYPES.CREATE_FORM}
       validationSchema={yup.object().shape(
         {
-          taskId: foreignKey().required(
-            <TranslatedText stringId="validation.required.inline" fallback="*Required" />,
-          ),
-          startTime: yup
-            .date()
-            .required(
-              <TranslatedText stringId="validation.required.inline" fallback="*Required" />,
-            ),
+          taskId: foreignKey().required(getTranslation('validation.required.inline', '*Required')),
+          startTime: yup.date().required(getTranslation('validation.required.inline', '*Required')),
           requestedByUserId: foreignKey().required(
-            <TranslatedText stringId="validation.required.inline" fallback="*Required" />,
+            getTranslation('validation.required.inline', '*Required'),
           ),
           requestTime: yup
             .date()
-            .required(
-              <TranslatedText stringId="validation.required.inline" fallback="*Required" />,
-            ),
+            .required(getTranslation('validation.required.inline', '*Required')),
           note: yup.string(),
           highPriority: yup.boolean(),
           frequencyValue: yup.number().when('frequencyUnit', {
             is: unit => !!unit,
-            then: yup
-              .number()
-              .required(
-                <TranslatedText stringId="validation.required.inline" fallback="*Required" />,
-              ),
+            then: yup.number().required(getTranslation('validation.required.inline', '*Required')),
           }),
           frequencyUnit: yup.string().when('frequencyValue', {
             is: value => !!value,
-            then: yup
-              .string()
-              .required(
-                <TranslatedText stringId="validation.required.inline" fallback="*Required" />,
-              ),
+            then: yup.string().required(getTranslation('validation.required.inline', '*Required')),
           }),
         },
         ['frequencyValue', 'frequencyUnit'],

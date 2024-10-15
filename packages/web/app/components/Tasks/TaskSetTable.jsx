@@ -4,12 +4,12 @@ import styled from 'styled-components';
 import { Table } from '../Table';
 import { TranslatedText } from '../Translation';
 import { Colors } from '../../constants';
+import { useTableSorting } from '../Table/useTableSorting';
 
 const StyledPriorityHighIcon = styled(PriorityHighIcon)`
   color: ${Colors.alert};
   font-size: 16px;
 `;
-
 
 const StyledTable = styled(Table)`
   margin-bottom: 20px;
@@ -50,7 +50,7 @@ const StyledTable = styled(Table)`
 `;
 
 const getDesignations = ({ taskTemplate }) => {
-  if (!taskTemplate?.designations) return '';
+  if (!taskTemplate?.designations?.length) return '-';
   const designations = taskTemplate.designations.map(({ designation }) => designation.name);
   return designations.join(', ');
 };
@@ -81,7 +81,11 @@ const COLUMNS = [
     ),
     accessor: ({ taskTemplate }) => {
       const { frequencyValue, frequencyUnit } = taskTemplate ?? {};
-      return frequencyValue && frequencyUnit ? `${frequencyValue} ${frequencyUnit}` : '';
+      return frequencyValue && frequencyUnit ? (
+        `${frequencyValue} ${frequencyUnit}`
+      ) : (
+        <TranslatedText stringId="encounter.tasks.table.once" fallback="Once" />
+      );
     },
     sortable: false,
   },
@@ -93,11 +97,25 @@ const COLUMNS = [
         fallback="High priority"
       />
     ),
-    accessor: ({ taskTemplate }) => taskTemplate?.highPriority ? <StyledPriorityHighIcon /> : '',
+    accessor: ({ taskTemplate }) => (taskTemplate?.highPriority ? <StyledPriorityHighIcon /> : ''),
     sortable: false,
   },
 ];
 
 export const TaskSetTable = ({ tasks }) => {
-  return <StyledTable data={tasks} columns={COLUMNS} allowExport={false} disablePagination />;
+  const { orderBy, order, customSort } = useTableSorting({
+    initialSortKey: 'name',
+    initialSortDirection: 'asc',
+  });
+  return (
+    <StyledTable
+      data={tasks}
+      columns={COLUMNS}
+      allowExport={false}
+      disablePagination
+      orderBy={orderBy}
+      order={order}
+      customSort={customSort}
+    />
+  );
 };

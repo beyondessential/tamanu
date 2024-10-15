@@ -5,6 +5,8 @@ import CheckCircleIcon from '@material-ui/icons/CheckCircle';
 import CancelIcon from '@material-ui/icons/Cancel';
 import DeleteOutlineIcon from '@material-ui/icons/DeleteOutline';
 import { TASK_STATUSES, TASK_ACTIONS } from '@tamanu/constants';
+import PriorityHighIcon from '@material-ui/icons/PriorityHigh';
+
 import {
   BodyText,
   SmallBodyText,
@@ -18,6 +20,13 @@ import { Colors } from '../../constants';
 import useOverflow from '../../hooks/useOverflow';
 import { ConditionalTooltip, ThemedTooltip } from '../Tooltip';
 import { TaskActionModal } from './TaskActionModal';
+
+const StyledPriorityHighIcon = styled(PriorityHighIcon)`
+  color: ${Colors.alert};
+  font-size: 16px;
+  position: absolute;
+  left: -8px;
+`;
 
 const StyledTable = styled(DataFetchingTable)`
   margin-top: 6px;
@@ -79,6 +88,9 @@ const StyledTable = styled(DataFetchingTable)`
       max-width: 200px;
       white-space: nowrap;
       width: 200px;
+    }
+    &:nth-child(3) {
+      position: relative;
     }
   }
   .MuiTableFooter-root {
@@ -328,7 +340,7 @@ const NotesCell = ({ row, hoveredRow, handleActionModalOpen }) => {
   );
 };
 
-const getTask = ({ name, requestedBy, requestTime }) => (
+const getTask = ({ name, requestedBy, requestTime, highPriority }) => (
   <ThemedTooltip
     title={
       <TooltipContainer>
@@ -340,7 +352,10 @@ const getTask = ({ name, requestedBy, requestTime }) => (
       </TooltipContainer>
     }
   >
-    <span>{name}</span>
+    <span>
+      {highPriority && <StyledPriorityHighIcon />}
+      {name}
+    </span>
   </ThemedTooltip>
 );
 
