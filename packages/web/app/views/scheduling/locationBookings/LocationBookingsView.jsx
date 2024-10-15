@@ -23,6 +23,7 @@ import { DayHeaderCell } from './CalendarHeaderComponents';
 import { BookingsRow } from './CalendarBodyComponents';
 import { SkeletonRows } from './Skeletons';
 import { partitionAppointmentsByLocation } from './util';
+import { Typography } from '@material-ui/core';
 
 // BEGIN PLACEHOLDERS
 
@@ -56,14 +57,25 @@ const LocationBookingsTopBar = styled(TopBar).attrs({
 })``;
 
 const Wrapper = styled(PageContainer)`
-  max-block-size: 100%;
   display: grid;
   grid-template-rows: auto 1fr;
+  block-size: 100%;
 `;
 
 const Filters = styled('search')`
   display: flex;
   gap: 1rem;
+`;
+
+const EmptyStateLabel = styled(Typography).attrs({
+  align: 'center',
+  color: 'textSecondary',
+  variant: 'body1',
+})`
+  font-size: 2rem;
+  font-weight: 400;
+  place-self: center;
+  color: ${Colors.midText};
 `;
 
 const Carousel = styled.div`
@@ -117,6 +129,7 @@ export const LocationBookingsView = () => {
     includeLocationGroup: true,
     bookableOnly: true,
   });
+  const hasNoLocations = locations?.length === 0;
 
   const appointmentsByLocation = partitionAppointmentsByLocation(appointments);
 
@@ -130,42 +143,46 @@ export const LocationBookingsView = () => {
           <Placeholder>Type</Placeholder>
         </Filters>
       </LocationBookingsTopBar>
-      <Carousel>
-        <CarouselGrid.Root $dayCount={displayedDates.length}>
-          <CarouselGrid.HeaderRow>
-            <CarouselGrid.FirstHeaderCell>
-              <MonthPicker onAccept={setMonthOf} />
-            </CarouselGrid.FirstHeaderCell>
-            {displayedDates.map(d => {
-              const elementId = isStartOfThisWeek(d)
-                ? thisWeekId
-                : isFirstDisplayedDate(d)
-                ? firstDisplayedDayId
-                : null;
-              return (
-                <DayHeaderCell
-                  date={d}
-                  dim={!isSameMonth(d, monthOf)}
-                  id={elementId}
-                  key={d.valueOf()}
+      {hasNoLocations || true ? (
+        <EmptyStateLabel>No bookable locations</EmptyStateLabel>
+      ) : (
+        <Carousel>
+          <CarouselGrid.Root $dayCount={displayedDates.length}>
+            <CarouselGrid.HeaderRow>
+              <CarouselGrid.FirstHeaderCell>
+                <MonthPicker onAccept={setMonthOf} />
+              </CarouselGrid.FirstHeaderCell>
+              {displayedDates.map(d => {
+                const elementId = isStartOfThisWeek(d)
+                  ? thisWeekId
+                  : isFirstDisplayedDate(d)
+                  ? firstDisplayedDayId
+                  : null;
+                return (
+                  <DayHeaderCell
+                    date={d}
+                    dim={!isSameMonth(d, monthOf)}
+                    id={elementId}
+                    key={d.valueOf()}
+                  />
+                );
+              })}
+            </CarouselGrid.HeaderRow>
+            {locationsAreLoading ? (
+              <SkeletonRows colCount={displayedDates.length} />
+            ) : (
+              locations?.map(location => (
+                <BookingsRow
+                  appointments={appointmentsByLocation[location.id] ?? []}
+                  dates={displayedDates}
+                  key={location.code}
+                  location={location}
                 />
-              );
-            })}
-          </CarouselGrid.HeaderRow>
-          {locationsAreLoading ? (
-            <SkeletonRows colCount={displayedDates.length} />
-          ) : (
-            locations?.map(location => (
-              <BookingsRow
-                appointments={appointmentsByLocation[location.id] ?? []}
-                dates={displayedDates}
-                key={location.code}
-                location={location}
-              />
-            ))
-          )}
-        </CarouselGrid.Root>
-      </Carousel>
+              ))
+            )}
+          </CarouselGrid.Root>
+        </Carousel>
+      )}
     </Wrapper>
   );
 };
