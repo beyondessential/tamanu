@@ -31,21 +31,21 @@ sources:
             description: "{{ doc('generic__deleted_at') }} in note_items."
           - name: note_page_id
             data_type: uuid
-            description: "{{ doc('note_items__note_page_id') }} in note_items."
+            description: "{{ doc('note_items__note_page_id') }}"
             data_tests:
               - not_null
           - name: revised_by_id
             data_type: character varying(255)
-            description: "{{ doc('note_items__revised_by_id') }} in note_items."
+            description: "{{ doc('note_items__revised_by_id') }}"
           - name: author_id
             data_type: character varying(255)
-            description: "{{ doc('note_items__author_id') }} in note_items."
+            description: "{{ doc('note_items__author_id') }}"
           - name: on_behalf_of_id
             data_type: character varying(255)
-            description: "{{ doc('note_items__on_behalf_of_id') }} in note_items."
+            description: "{{ doc('note_items__on_behalf_of_id') }}"
           - name: content
             data_type: text
-            description: "{{ doc('note_items__content') }} in note_items."
+            description: "{{ doc('note_items__content') }}"
             data_tests:
               - not_null
           - name: date

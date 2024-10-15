@@ -33,8 +33,7 @@ sources:
               patient_field_definition_categories."
           - name: name
             data_type: character varying(255)
-            description: "{{ doc('patient_field_definition_categories__name') }} in
-              patient_field_definition_categories."
+            description: "{{ doc('patient_field_definition_categories__name') }}"
             data_tests:
               - not_null
           - name: updated_at_sync_tick

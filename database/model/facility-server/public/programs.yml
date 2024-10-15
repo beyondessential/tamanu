@@ -30,10 +30,10 @@ sources:
             description: "{{ doc('generic__deleted_at') }} in programs."
           - name: code
             data_type: character varying(255)
-            description: "{{ doc('programs__code') }} in programs."
+            description: "{{ doc('programs__code') }}"
           - name: name
             data_type: character varying(255)
-            description: "{{ doc('programs__name') }} in programs."
+            description: "{{ doc('programs__name') }}"
           - name: updated_at_sync_tick
             data_type: bigint
             description: "{{ doc('generic__updated_at_sync_tick') }} in programs."

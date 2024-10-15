@@ -30,40 +30,40 @@ sources:
             description: "{{ doc('generic__deleted_at') }} in triages."
           - name: arrival_time
             data_type: character(19)
-            description: "{{ doc('triages__arrival_time') }} in triages."
+            description: "{{ doc('triages__arrival_time') }}"
           - name: triage_time
             data_type: character(19)
-            description: "{{ doc('triages__triage_time') }} in triages."
+            description: "{{ doc('triages__triage_time') }}"
           - name: closed_time
             data_type: character(19)
-            description: "{{ doc('triages__closed_time') }} in triages."
+            description: "{{ doc('triages__closed_time') }}"
           - name: score
             data_type: text
-            description: "{{ doc('triages__score') }} in triages."
+            description: "{{ doc('triages__score') }}"
           - name: encounter_id
             data_type: character varying(255)
-            description: "{{ doc('triages__encounter_id') }} in triages."
+            description: "{{ doc('triages__encounter_id') }}"
           - name: practitioner_id
             data_type: character varying(255)
-            description: "{{ doc('triages__practitioner_id') }} in triages."
+            description: "{{ doc('triages__practitioner_id') }}"
           - name: chief_complaint_id
             data_type: character varying(255)
-            description: "{{ doc('triages__chief_complaint_id') }} in triages."
+            description: "{{ doc('triages__chief_complaint_id') }}"
           - name: secondary_complaint_id
             data_type: character varying(255)
-            description: "{{ doc('triages__secondary_complaint_id') }} in triages."
+            description: "{{ doc('triages__secondary_complaint_id') }}"
           - name: arrival_time_legacy
             data_type: timestamp with time zone
-            description: "{{ doc('triages__arrival_time_legacy') }} in triages."
+            description: "{{ doc('triages__arrival_time_legacy') }}"
           - name: triage_time_legacy
             data_type: timestamp with time zone
-            description: "{{ doc('triages__triage_time_legacy') }} in triages."
+            description: "{{ doc('triages__triage_time_legacy') }}"
           - name: closed_time_legacy
             data_type: timestamp with time zone
-            description: "{{ doc('triages__closed_time_legacy') }} in triages."
+            description: "{{ doc('triages__closed_time_legacy') }}"
           - name: arrival_mode_id
             data_type: character varying(255)
-            description: "{{ doc('triages__arrival_mode_id') }} in triages."
+            description: "{{ doc('triages__arrival_mode_id') }}"
           - name: updated_at_sync_tick
             data_type: bigint
             description: "{{ doc('generic__updated_at_sync_tick') }} in triages."

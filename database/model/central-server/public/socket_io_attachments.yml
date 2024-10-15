@@ -20,8 +20,7 @@ sources:
             description: "{{ doc('generic__created_at') }} in socket_io_attachments."
           - name: payload
             data_type: bytea
-            description: "{{ doc('socket_io_attachments__payload') }} in
-              socket_io_attachments."
+            description: "{{ doc('socket_io_attachments__payload') }}"
           - name: updated_at_sync_tick
             data_type: bigint
             description: "{{ doc('generic__updated_at_sync_tick') }} in

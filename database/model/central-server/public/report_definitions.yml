@@ -26,7 +26,7 @@ sources:
             description: "{{ doc('generic__deleted_at') }} in report_definitions."
           - name: name
             data_type: character varying(255)
-            description: "{{ doc('report_definitions__name') }} in report_definitions."
+            description: "{{ doc('report_definitions__name') }}"
             data_tests:
               - unique
               - not_null
@@ -37,6 +37,6 @@ sources:
               - not_null
           - name: db_schema
             data_type: character varying(255)
-            description: "{{ doc('report_definitions__db_schema') }} in report_definitions."
+            description: "{{ doc('report_definitions__db_schema') }}"
             data_tests:
               - not_null

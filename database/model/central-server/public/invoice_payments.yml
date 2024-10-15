@@ -17,7 +17,7 @@ sources:
               - not_null
           - name: invoice_id
             data_type: uuid
-            description: "{{ doc('invoice_payments__invoice_id') }} in invoice_payments."
+            description: "{{ doc('invoice_payments__invoice_id') }}"
             data_tests:
               - not_null
           - name: date
@@ -27,13 +27,12 @@ sources:
               - not_null
           - name: receipt_number
             data_type: character varying(255)
-            description: "{{ doc('invoice_payments__receipt_number') }} in
-              invoice_payments."
+            description: "{{ doc('invoice_payments__receipt_number') }}"
             data_tests:
               - not_null
           - name: amount
             data_type: numeric
-            description: "{{ doc('invoice_payments__amount') }} in invoice_payments."
+            description: "{{ doc('invoice_payments__amount') }}"
             data_tests:
               - not_null
           - name: created_at

@@ -30,20 +30,17 @@ sources:
             description: "{{ doc('generic__deleted_at') }} in patient_field_definitions."
           - name: name
             data_type: character varying(255)
-            description: "{{ doc('patient_field_definitions__name') }} in
-              patient_field_definitions."
+            description: "{{ doc('patient_field_definitions__name') }}"
             data_tests:
               - not_null
           - name: field_type
             data_type: character varying(255)
-            description: "{{ doc('patient_field_definitions__field_type') }} in
-              patient_field_definitions."
+            description: "{{ doc('patient_field_definitions__field_type') }}"
             data_tests:
               - not_null
           - name: options
             data_type: array
-            description: "{{ doc('patient_field_definitions__options') }} in
-              patient_field_definitions."
+            description: "{{ doc('patient_field_definitions__options') }}"
           - name: visibility_status
             data_type: character varying(255)
             description: "{{ doc('generic__visibility_status') }} in
@@ -52,8 +49,7 @@ sources:
               - not_null
           - name: category_id
             data_type: character varying(255)
-            description: "{{ doc('patient_field_definitions__category_id') }} in
-              patient_field_definitions."
+            description: "{{ doc('patient_field_definitions__category_id') }}"
             data_tests:
               - not_null
           - name: updated_at_sync_tick

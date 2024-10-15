@@ -30,19 +30,19 @@ sources:
             description: "{{ doc('generic__deleted_at') }} in surveys."
           - name: code
             data_type: character varying(255)
-            description: "{{ doc('surveys__code') }} in surveys."
+            description: "{{ doc('surveys__code') }}"
           - name: name
             data_type: character varying(255)
-            description: "{{ doc('surveys__name') }} in surveys."
+            description: "{{ doc('surveys__name') }}"
           - name: program_id
             data_type: character varying(255)
-            description: "{{ doc('surveys__program_id') }} in surveys."
+            description: "{{ doc('surveys__program_id') }}"
           - name: survey_type
             data_type: character varying(255)
-            description: "{{ doc('surveys__survey_type') }} in surveys."
+            description: "{{ doc('surveys__survey_type') }}"
           - name: is_sensitive
             data_type: boolean
-            description: "{{ doc('surveys__is_sensitive') }} in surveys."
+            description: "{{ doc('surveys__is_sensitive') }}"
             data_tests:
               - not_null
           - name: updated_at_sync_tick
@@ -52,12 +52,12 @@ sources:
               - not_null
           - name: notifiable
             data_type: boolean
-            description: "{{ doc('surveys__notifiable') }} in surveys."
+            description: "{{ doc('surveys__notifiable') }}"
             data_tests:
               - not_null
           - name: notify_email_addresses
             data_type: array
-            description: "{{ doc('surveys__notify_email_addresses') }} in surveys."
+            description: "{{ doc('surveys__notify_email_addresses') }}"
             data_tests:
               - not_null
           - name: visibility_status
