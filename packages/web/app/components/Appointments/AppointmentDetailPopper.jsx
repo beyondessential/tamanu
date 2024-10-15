@@ -14,8 +14,9 @@ import {
 import { Colors } from '../../constants';
 import { DateDisplay, getDateDisplay } from '../DateDisplay';
 import { reloadPatient } from '../../store';
-import { useApi } from '../../api';
 import { APPOINTMENT_TYPE_LABELS } from '@tamanu/constants';
+import { usePatientAdditionalDataQuery } from '../../api/queries';
+import { LoadingIndicator } from '../LoadingIndicator';
 
 const formatDateRange = (start, end, isOvernight) => {
   const formattedStart = getDateDisplay(start, { showDate: true, showTime: true });
@@ -133,6 +134,14 @@ const DetailsDisplay = ({ label, value }) => (
   </FlexCol>
 );
 
+const InlineDetailsDisplay = ({ label, value }) => (
+  <FlexRow sx={{ display: 'inline-flex' }}>
+    <span>
+      <Label>{label}: </Label> {value ?? '—'}
+    </span>
+  </FlexRow>
+);
+
 const BookingTypeDisplay = ({ type, isOvernight }) => (
   <DetailsDisplay
     label={<TranslatedText stringId="scheduling.bookingType.label" fallback="Booking type" />}
@@ -167,29 +176,30 @@ const PatientDetailsDisplay = ({ patient, onClick }) => {
         <PatientNameDisplay patient={patient} />
       </Title>
       <span>
-        <Label>
-          <TranslatedText stringId="general.localisedField.sex.label" fallback="Sex" />:
-        </Label>{' '}
-        <TranslatedSex sex={sex} />
-        <Label>
-          {' | '}
-          <TranslatedText
-            stringId="general.localisedField.dateOfBirth.label.short"
-            fallback="DOB"
-          />
-          :
-        </Label>{' '}
-        <DateDisplay date={dateOfBirth} />
+        <InlineDetailsDisplay
+          label={<TranslatedText stringId="general.localisedField.sex.label" fallback="Sex" />}
+          value={<TranslatedSex sex={sex} />}
+        />
+        <Label>{' | '}</Label>
+        <InlineDetailsDisplay
+          label={
+            <TranslatedText
+              stringId="general.localisedField.dateOfBirth.label.short"
+              fallback="DOB"
+            />
+          }
+          value={<DateDisplay date={dateOfBirth} />}
+        />
       </span>
       {additionalData?.primaryContactNumber && (
-        <DetailsDisplay
+        <InlineDetailsDisplay
           label={
             <TranslatedText
               stringId="patient.details.reminderContacts.field.contact"
               fallback="Contact"
-              value={additionalData.primaryContactNumber}
             />
           }
+          value={additionalData.primaryContactNumber}
         />
       )}
       <Label color={Colors.primary}>{displayId}</Label>
@@ -197,7 +207,7 @@ const PatientDetailsDisplay = ({ patient, onClick }) => {
   );
 };
 
-const AppointDetailsDisplay = ({ appointment, isOvernight }) => {
+const AppointmentDetailsDisplay = ({ appointment, isOvernight }) => {
   const { startTime, endTime, clinician, locationGroup, location, type } = appointment;
   return (
     <AppointmentDetailsContainer>
@@ -274,7 +284,7 @@ export const AppointmentDetailPopper = ({ open, onClose, anchorEl, appointment, 
       <ControlsRow onClose={onClose} />
       <StyledPaper elevation={0}>
         <PatientDetailsDisplay patient={appointment.patient} onClick={handlePatientDetailsClick} />
-        <AppointDetailsDisplay appointment={appointment} isOvernight={isOvernight} />
+        <AppointmentDetailsDisplay appointment={appointment} isOvernight={isOvernight} />
         <AppointmentStatusDisplay />
       </StyledPaper>
     </Popper>
