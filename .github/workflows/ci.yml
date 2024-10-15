@@ -289,8 +289,9 @@ jobs:
       - name: Build
         run: |
           yarn
-          yarn build central-server
-          yarn build facility-server
+          yarn build-shared
+          yarn workspace @tamanu/central-server build
+          yarn workspace @tamanu/facility-server build
       - name: Configure Tamanu
         run: |
           echo '{"db":{"host":"localhost","name":"central","username":"tamanu","password":"tamanu"}}' > packages/central-server/config/local.json5
