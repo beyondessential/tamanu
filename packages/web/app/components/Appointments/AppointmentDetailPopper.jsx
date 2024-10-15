@@ -16,6 +16,7 @@ import { DateDisplay, getDateDisplay } from '../DateDisplay';
 import { reloadPatient } from '../../store';
 import { APPOINTMENT_TYPE_LABELS } from '@tamanu/constants';
 import { usePatientAdditionalDataQuery } from '../../api/queries';
+import { CancelBookingModal } from './CancelBookingModal';
 
 const formatDateRange = (start, end, isOvernight) => {
   const formattedStart = getDateDisplay(start, { showDate: true, showTime: true });
@@ -110,7 +111,27 @@ const KebabMenu = ({ anchor, open, onClose, items, ...props }) => {
   );
 };
 
-const ControlsRow = ({ onClose }) => {
+const ControlsRow = ({ onClose, appointment }) => {
+  const [cancelModalOpen, setCancelModalOpen] = useState(false);
+  const [anchor, setAnchor] = useState(null);
+  const isKebabMenuOpen = Boolean(anchor);
+
+  const handleCancelClick = () => {
+    setCancelModalOpen(true);
+  };
+
+  const handleCancelModalClose = () => {
+    setCancelModalOpen(false);
+  };
+
+  const handleKebabClick = event => {
+    setAnchor(prevAnchor => (prevAnchor ? null : event.currentTarget));
+  };
+
+  const handleKebabClose = () => {
+    setAnchor(null);
+  };
+
   const controls = [
     {
       label: <TranslatedText stringId="scheduling.action.modify" fallback="Modify" />,
@@ -118,30 +139,29 @@ const ControlsRow = ({ onClose }) => {
     },
     {
       label: <TranslatedText stringId="general.action.cancel" fallback="Cancel" />,
-      onClick: () => {},
+      onClick: handleCancelClick,
     },
   ];
 
-  const [anchor, setAnchor] = useState(null);
-  const isKebabMenuOpen = Boolean(anchor);
-
-  const handleClick = event => {
-    setAnchor(prevAnchor => (prevAnchor ? null : event.currentTarget));
-  };
-
-  const handleClose = () => {
-    setAnchor(null);
-  };
-
   return (
     <ControlsContainer>
-      <StyledIconButton onClick={handleClick}>
+      <StyledIconButton onClick={handleKebabClick}>
         <MoreVert sx={{ fontSize: '0.875rem' }} />
-        <KebabMenu anchor={anchor} items={controls} open={isKebabMenuOpen} onClose={handleClose} />
+        <KebabMenu
+          anchor={anchor}
+          items={controls}
+          open={isKebabMenuOpen}
+          onClose={handleKebabClose}
+        />
       </StyledIconButton>
       <StyledIconButton onClick={onClose}>
         <Close sx={{ fontSize: '0.875rem' }} />
       </StyledIconButton>
+      <CancelBookingModal
+        appointment={appointment}
+        open={cancelModalOpen}
+        onClose={handleCancelModalClose}
+      />
     </ControlsContainer>
   );
 };
@@ -292,7 +312,7 @@ export const AppointmentDetailPopper = ({ open, onClose, anchorEl, appointment, 
         },
       ]}
     >
-      <ControlsRow onClose={onClose} />
+      <ControlsRow appointment={appointment} onClose={onClose} />
       <StyledPaper elevation={0}>
         <PatientDetailsDisplay patient={appointment.patient} onClick={handlePatientDetailsClick} />
         <AppointmentDetailsDisplay appointment={appointment} isOvernight={isOvernight} />
