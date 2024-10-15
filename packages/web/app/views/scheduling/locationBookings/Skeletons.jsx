@@ -11,7 +11,10 @@ const SkeletonRowHeaderCell = () => (
   </CalendarGrid.RowHeaderCell>
 );
 
-const SkeletonBodyCell = styled(Skeleton).attrs({ animation: 'wave', variant: 'rect' })`
+const SkeletonBodyCell = styled(Skeleton).attrs({
+  animation: 'wave',
+  variant: 'rect',
+})`
   block-size: 100%;
   &:not(:last-child) {
     border-inline-end: var(--border-style); // Defined in LocationBookingsCalendarGrid
@@ -27,10 +30,5 @@ const SkeletonRow = ({ colCount }) => (
   </CalendarGrid.Row>
 );
 
-export const SkeletonRows = ({ colCount }) => (
-  <>
-    {Array.from({ length: 7 }).map((_, i) => (
-      <SkeletonRow colCount={colCount} key={i} />
-    ))}
-  </>
-);
+export const SkeletonRows = ({ colCount }) =>
+  Array.from({ length: 7 }).map((_, i) => <SkeletonRow colCount={colCount} key={i} />);
