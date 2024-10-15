@@ -280,7 +280,11 @@ jobs:
       - name: Install and start postgres
         run: |
           source .github/scripts/install-postgres-ubuntu.sh 16
-          .github/scripts/test-facility-offline.sh setup-postgres
+
+          createuser --superuser tamanu
+          psql -c "ALTER USER tamanu PASSWORD 'tamanu';" postgres
+          createdb -O tamanu central
+          createdb -O tamanu facility
 
       - name: Build
         run: |
@@ -303,7 +307,6 @@ jobs:
               echo "The source model is behind the Tamanu database."
               exit 1
           fi
-      # TODO: turn test=facility-offline.sh script into more general setup script for ci
 
   # Dummy job to have a stable name for PR requirements
   tests-pass:
