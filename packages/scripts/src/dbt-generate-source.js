@@ -522,4 +522,8 @@ You can override the config for both by supplying \`NODE_CONFIG\` or the \`confi
   await Promise.all([run('central-server', opts), run('facility-server', opts)])
 }
 
+module.exports = {
+  readTablesFromDbt, readTableDoc
+};
+
 if (require.main === module) runAll();
