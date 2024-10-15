@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { push } from 'connected-react-router';
 import { Box, IconButton, Menu, MenuItem, Paper, Popper, styled } from '@mui/material';
@@ -16,7 +16,6 @@ import { DateDisplay, getDateDisplay } from '../DateDisplay';
 import { reloadPatient } from '../../store';
 import { APPOINTMENT_TYPE_LABELS } from '@tamanu/constants';
 import { usePatientAdditionalDataQuery } from '../../api/queries';
-import { LoadingIndicator } from '../LoadingIndicator';
 
 const formatDateRange = (start, end, isOvernight) => {
   const formattedStart = getDateDisplay(start, { showDate: true, showTime: true });
@@ -161,15 +160,7 @@ const BookingTypeDisplay = ({ type, isOvernight }) => (
 
 const PatientDetailsDisplay = ({ patient, onClick }) => {
   const { id, displayId, sex, dateOfBirth } = patient;
-  const api = useApi();
-  const [additionalData, setAdditionalData] = useState();
-  useEffect(() => {
-    (async () => {
-      const data = await api.get(`/patient/${id}/additionalData`);
-      setAdditionalData(data);
-    })();
-  }, [id, api]);
-
+  const { data: additionalData, isLoading } = usePatientAdditionalDataQuery(id);
   return (
     <PatientDetailsContainer onClick={onClick}>
       <Title>
@@ -191,7 +182,7 @@ const PatientDetailsDisplay = ({ patient, onClick }) => {
           value={<DateDisplay date={dateOfBirth} />}
         />
       </span>
-      {additionalData?.primaryContactNumber && (
+      {!isLoading && additionalData?.primaryContactNumber && (
         <InlineDetailsDisplay
           label={
             <TranslatedText
