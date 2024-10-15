@@ -6,18 +6,11 @@
 | ------- | ------- | ----------- |
 | [@tamanu/central-server](packages/central-server) | [central-server runbook](https://beyond-essential.slab.com/posts/tamanu-central-server-runbook-et0trny5) | The central server, which facility server and mobile client instances communicate with to synchronise data |
 | [@tamanu/facility-server](packages/facility-server) | [facility-server runbook](https://beyond-essential.slab.com/posts/todo-tamanu-lan-runbook-ezljl0qk) | The facility server, which the app communicates with |
-| [@tamanu/meta-server](packages/meta-server) | [meta-server runbook](https://beyond-essential.slab.com/posts/todo-tamanu-meta-server-runbook-0zbgw7m7) | The metadata server, which serves information about app versions and known central-server installations |
 | [@tamanu/web-frontend](packages/web) | [web runbook](https://beyond-essential.slab.com/posts/todo-tamanu-desktop-runbook-i2bmy57c) | The web app |
 | [mobile](packages/mobile) | [mobile runbook](https://beyond-essential.slab.com/posts/todo-tamanu-mobile-runbook-8vj8qceu) | The mobile app  |
 | [@tamanu/shared](packages/shared) | N/A | Shared code monolith among Tamanu components |
 | [@tamanu/build-tooling](packages/build-tooling) | N/A | Shared build tooling code |
 | [csca](packages/csca) | [csca runbook](https://beyond-essential.slab.com/posts/csca-runbook-be1td5ml), [signer runbook](https://beyond-essential.slab.com/posts/signer-runbook-hcws6er3) | A tool to create and manage a CSCA / ICAO eMRTD PKI |
-
-The latest version for each Tamanu service (Servers, Web Client & Mobile Client) can be retrieved with a HTTP GET request via their respective public API routes:
-
-- Facility server: https://meta.tamanu.io/version/lan
-- Webapp client: https://meta.tamanu.io/version/desktop
-- Mobile client: https://meta.tamanu.io/version/mobile
 
 ## Install
 
