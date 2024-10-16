@@ -108,11 +108,6 @@ const KebabMenu = ({ anchor, open, onClose, items, ...props }) => {
 const ControlsRow = ({ onClose, appointment, onUpdated }) => {
   const [cancelModalOpen, setCancelModalOpen] = useState(false);
   const [anchor, setAnchor] = useState(null);
-  const isKebabMenuOpen = Boolean(anchor);
-
-  const handleCancelClick = () => {
-    setCancelModalOpen(true);
-  };
 
   const handleCancelModalClose = () => {
     setCancelModalOpen(false);
@@ -122,10 +117,6 @@ const ControlsRow = ({ onClose, appointment, onUpdated }) => {
     setAnchor(prevAnchor => (prevAnchor ? null : event.currentTarget));
   };
 
-  const handleKebabClose = () => {
-    setAnchor(null);
-  };
-
   const controls = [
     {
       label: <TranslatedText stringId="scheduling.action.modify" fallback="Modify" />,
@@ -133,7 +124,7 @@ const ControlsRow = ({ onClose, appointment, onUpdated }) => {
     },
     {
       label: <TranslatedText stringId="general.action.cancel" fallback="Cancel" />,
-      onClick: handleCancelClick,
+      onClick: () => setCancelModalOpen(true),
     },
   ];
 
@@ -144,8 +135,8 @@ const ControlsRow = ({ onClose, appointment, onUpdated }) => {
         <KebabMenu
           anchor={anchor}
           items={controls}
-          open={isKebabMenuOpen}
-          onClose={handleKebabClose}
+          open={Boolean(anchor)}
+          onClose={() => setAnchor(null)}
         />
       </StyledIconButton>
       <StyledIconButton onClick={onClose}>

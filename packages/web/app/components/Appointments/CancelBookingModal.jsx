@@ -95,7 +95,7 @@ export const CancelBookingModal = ({ appointment, open, onClose, onUpdated }) =>
 
   const cancelBooking = useCallback(async () => {
     try {
-      await api.put(`appointments/${appointment.id} + 1`, {
+      await api.put(`appointments/${appointment.id}`, {
         status: APPOINTMENT_STATUSES.CANCELLED,
       });
       onUpdated();
@@ -117,7 +117,7 @@ export const CancelBookingModal = ({ appointment, open, onClose, onUpdated }) =>
           fallback="Cancel location booking"
         />
       }
-      fixedBottomRow
+      fixedBottomRow // Ensures that bottom modal content can place a border across entire modal
       bottomRowContent={<BottomModalContent cancelBooking={cancelBooking} onClose={onClose} />}
       open={open}
       onClose={onClose}
