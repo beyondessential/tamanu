@@ -1,12 +1,15 @@
 import React, { useCallback } from 'react';
+import { Box, styled } from '@mui/material';
+import { toast } from 'react-toastify';
+
 import { BaseModal } from '../BaseModal';
 import { TranslatedText } from '../Translation';
-import { Box, styled } from '@mui/material';
 import { Colors } from '../../constants';
 import { ConfirmCancelRow } from '../ButtonRow';
 import { useApi } from '../../api';
 import { APPOINTMENT_STATUSES } from '@tamanu/constants';
-import { toast } from 'react-toastify';
+import { formatDateRange } from './utils';
+import { PatientNameDisplay } from '../PatientNameDisplay';
 
 const FlexCol = styled(Box)`
   display: flex;
@@ -47,23 +50,45 @@ const AppointmentDetailsColumn = styled(FlexCol)`
   width: 50%;
 `;
 
+const BottomModalContainer = styled(Box)`
+  padding-block: 2rem;
+  padding-inline: 2.5rem;
+  border-block-start: 1px solid ${Colors.outline};
+  background-color: ${Colors.background};
+`;
+
 const AppointmentDetailsDisplay = ({ appointment }) => {
-  console.log(appointment);
+  const { locationGroup, location, patient, type, clinician, startTime, endTime } = appointment;
+
   return (
     <AppointmentDetailsContainer>
       <AppointmentDetailsColumn sx={{ borderInlineEnd: `1px solid ${Colors.outline}` }}>
-        <DetailDisplay label="Area" value={appointment?.locationGroup?.name} />
-        <DetailDisplay label="Location" value={appointment?.location?.name} />
-        <DetailDisplay label="Date" value={appointment?.startTime} />
+        <DetailDisplay label="Area" value={locationGroup?.name} />
+        <DetailDisplay label="Location" value={location?.name} />
+        <DetailDisplay label="Date" value={formatDateRange(startTime, endTime)} />
       </AppointmentDetailsColumn>
       <AppointmentDetailsColumn>
-        <DetailDisplay label="Patient" value={appointment?.patient?.fullName} />
-        <DetailDisplay label="Type" value={appointment?.type} />
-        <DetailDisplay label="Clinician" value={appointment?.clinician?.displayName} />
+        <DetailDisplay label="Patient" value={<PatientNameDisplay patient={patient} />} />
+        <DetailDisplay label="Type" value={type} />
+        <DetailDisplay label="Clinician" value={clinician?.displayName} />
       </AppointmentDetailsColumn>
     </AppointmentDetailsContainer>
   );
 };
+
+const BottomModalContent = ({ cancelBooking, onClose }) => (
+  <BottomModalContainer>
+    <ConfirmCancelRow
+      style={{ marginTop: '0px' }}
+      onConfirm={cancelBooking}
+      onCancel={onClose}
+      cancelText={<TranslatedText stringId="general.action.goBack" fallback="Go back" />}
+      confirmText={
+        <TranslatedText stringId="scheduling.action.cancelBooking" fallback="Cancel booking" />
+      }
+    />
+  </BottomModalContainer>
+);
 
 export const CancelBookingModal = ({ appointment, open, onClose, onUpdated }) => {
   const api = useApi();
@@ -92,22 +117,18 @@ export const CancelBookingModal = ({ appointment, open, onClose, onUpdated }) =>
           fallback="Cancel location booking"
         />
       }
+      fixedBottomRow
+      bottomRowContent={<BottomModalContent cancelBooking={cancelBooking} onClose={onClose} />}
       open={open}
       onClose={onClose}
     >
-      <TranslatedText
-        stringId="scheduling.modal.cancelLocationBooking.text"
-        fallback="Are you sure you would like to cancel the below location booking?"
-      />
-      <AppointmentDetailsDisplay appointment={appointment} />
-      <ConfirmCancelRow
-        onConfirm={cancelBooking}
-        onCancel={onClose}
-        cancelText={<TranslatedText stringId="general.action.goBack" fallback="Go back" />}
-        confirmText={
-          <TranslatedText stringId="scheduling.action.cancelBooking" fallback="Cancel booking" />
-        }
-      />
+      <FlexCol sx={{ gap: '1.75rem' }}>
+        <TranslatedText
+          stringId="scheduling.modal.cancelLocationBooking.text"
+          fallback="Are you sure you would like to cancel the below location booking?"
+        />
+        <AppointmentDetailsDisplay appointment={appointment} />
+      </FlexCol>
     </BaseModal>
   );
 };

@@ -12,18 +12,12 @@ import {
   TranslatedText,
 } from '../Translation';
 import { Colors } from '../../constants';
-import { DateDisplay, getDateDisplay } from '../DateDisplay';
+import { DateDisplay } from '../DateDisplay';
 import { reloadPatient } from '../../store';
 import { APPOINTMENT_TYPE_LABELS } from '@tamanu/constants';
 import { usePatientAdditionalDataQuery } from '../../api/queries';
 import { CancelBookingModal } from './CancelBookingModal';
-
-const formatDateRange = (start, end, isOvernight) => {
-  const formattedStart = getDateDisplay(start, { showDate: true, showTime: true });
-  const formattedEnd = getDateDisplay(end, { showDate: isOvernight, showTime: true });
-
-  return `${formattedStart} - ${formattedEnd}`;
-};
+import { formatDateRange } from './utils';
 
 const FlexRow = styled(Box)`
   display: flex;
@@ -295,7 +289,7 @@ export const AppointmentDetailPopper = ({
   onUpdated,
   anchorEl,
   appointment,
-  isOvernight,
+  isOvernight = false,
 }) => {
   const dispatch = useDispatch();
   const patientId = appointment.patient.id;
