@@ -95,7 +95,7 @@ const StyledMenuItem = styled(MenuItem)`
 
 const KebabMenu = ({ anchor, open, onClose, items, ...props }) => {
   return (
-    <Menu anchorEl={anchor} open={open} onClose={onClose} {...props}>
+    <Menu anchorEl={anchor} open={open} onClose={onClose} elevation={2} {...props}>
       {items.map((item, index) => (
         <StyledMenuItem key={index} onClick={item.onClick}>
           {item.label}
