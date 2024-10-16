@@ -38,6 +38,7 @@ const TABS = [
     label: <TranslatedText stringId="encounter.tabs.tasks" fallback="tasks" />,
     key: ENCOUNTER_TAB_NAMES.TASKS,
     render: props => <TasksPane {...props} />,
+    condition: getLocalisation => getLocalisation('features.enableTasking'),
   },
   {
     label: <TranslatedText stringId="encounter.tabs.vitals" fallback="Vitals" />,
@@ -140,7 +141,11 @@ export const EncounterView = () => {
   const patient = useSelector(state => state.patient);
   const { encounter, isLoadingEncounter } = useEncounter();
   const { data: patientBillingTypeData } = useReferenceData(encounter?.patientBillingTypeId);
-  const [currentTab, setCurrentTab] = useState(query.get('tab') || ENCOUNTER_TAB_NAMES.TASKS);
+
+  const defaultTab = getLocalisation('features.enableTasking')
+    ? ENCOUNTER_TAB_NAMES.TASKS
+    : ENCOUNTER_TAB_NAMES.VITALS;
+  const [currentTab, setCurrentTab] = useState(query.get('tab') || defaultTab);
   const disabled = encounter?.endDate || patient.death;
 
   useEffect(() => {

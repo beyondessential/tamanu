@@ -586,6 +586,7 @@ const rootLocalisationSchema = yup
         editPatientDetailsOnMobile: yup.boolean().required(),
         quickPatientGenerator: yup.boolean().required(),
         enableInvoicing: yup.boolean().required(),
+        enableTasking: yup.boolean().required(),
         hideOtherSex: yup.boolean().required(),
         registerNewPatient: yup.boolean().required(),
         enablePatientDeaths: yup.boolean().required(),

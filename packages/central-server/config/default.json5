@@ -819,6 +819,7 @@
         "editPatientDetailsOnMobile": true,
         "quickPatientGenerator": false,
         "enableInvoicing": false,
+        "enableTasking": false,
         "registerNewPatient": true,
         "hideOtherSex": true,
         "enablePatientDeaths": false,
