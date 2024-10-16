@@ -25,7 +25,7 @@ const taskCompletionInputSchema = z.object({
     .array()
     .min(1),
   completedByUserId: z.string(),
-  completedTime: z.string().datetime(),
+  completedTime: z.string(),
   completedNote: z.string().optional(),
 });
 taskRoutes.post(
@@ -66,7 +66,7 @@ const taskNonCompletionInputSchema = z.object({
     .array()
     .min(1),
   notCompletedByUserId: z.string(),
-  notCompletedTime: z.string().datetime(),
+  notCompletedTime: z.string(),
   notCompletedReasonId: z.string().optional(),
 });
 taskRoutes.put(
@@ -119,7 +119,7 @@ const taskDeletionInputSchema = z.object({
     .array()
     .min(1),
   deletedByUserId: z.string(),
-  deletedTime: z.string().datetime(),
+  deletedTime: z.string(),
   deletedReasonId: z.string().optional(),
 });
 taskRoutes.delete(
@@ -202,7 +202,7 @@ const taskTodoInputSchema = z.object({
     .array()
     .min(1),
   todoByUserId: z.string(),
-  todoTime: z.string().datetime(),
+  todoTime: z.string(),
   todoNote: z.string().optional(),
 });
 taskRoutes.put(
@@ -266,10 +266,10 @@ taskRoutes.put(
 );
 
 const tasksCreationSchema = z.object({
-  startTime: z.string().datetime(),
+  startTime: z.string(),
   encounterId: z.string().uuid(),
   requestedByUserId: z.string(),
-  requestTime: z.string().datetime(),
+  requestTime: z.string(),
   note: z.string().optional(),
   tasks: z
     .object({

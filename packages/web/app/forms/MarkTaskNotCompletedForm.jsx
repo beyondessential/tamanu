@@ -61,6 +61,7 @@ export const MarkTaskNotCompletedForm = ({ onClose, refreshTaskTable, taskIds })
                 />
               }
               required
+              saveDateAsString
               component={DateTimeField}
             />
             <Field
