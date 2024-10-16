@@ -2,6 +2,7 @@ import config from 'config';
 import { SETTINGS_SCOPES } from '@tamanu/constants';
 import { facilityTestSettings, centralTestSettings, globalTestSettings } from '@tamanu/settings';
 import { selectFacilityIds } from '../utils/configSelectors';
+import { defaultsDeep } from 'lodash';
 
 const seedForScope = async (models, settings, serverFacilityIds, scopeOverride) => {
   const { Setting } = models;
@@ -11,7 +12,9 @@ const seedForScope = async (models, settings, serverFacilityIds, scopeOverride) 
   };
   const scope = getScope();
   const combineSettings = async facilityId => {
-    await Setting.setAllToScope(settings, scope, facilityId);
+    const existing = await Setting.get('', facilityId, scope);
+    const combined = defaultsDeep(existing, settings);
+    return Setting.set('', combined, scope, facilityId);
   };
   if (serverFacilityIds) {
     return Promise.all(serverFacilityIds.map(combineSettings));
