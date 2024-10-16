@@ -185,6 +185,12 @@ const LowercaseText = styled.span`
   text-transform: lowercase;
 `;
 
+const StyledToolTip = styled(ThemedTooltip)`
+  .MuiTooltip-tooltip {
+    font-weight: 400;
+  }
+`;
+
 const getCompletedTooltipText = ({ completedBy, completedTime, completedNote }) => (
   <StatusTooltip>
     <TranslatedText stringId="tasks.table.tooltip.completed" fallback="Completed" />
@@ -220,15 +226,15 @@ const getStatus = row => {
       );
     case TASK_STATUSES.COMPLETED:
       return (
-        <ThemedTooltip title={getCompletedTooltipText(row)}>
+        <StyledToolTip title={getCompletedTooltipText(row)}>
           <StyledCheckCircleIcon />
-        </ThemedTooltip>
+        </StyledToolTip>
       );
     case TASK_STATUSES.NON_COMPLETED:
       return (
-        <ThemedTooltip title={getNotCompletedTooltipText(row)}>
+        <StyledToolTip title={getNotCompletedTooltipText(row)}>
           <StyledCancelIcon />
-        </ThemedTooltip>
+        </StyledToolTip>
       );
     default:
       break;
@@ -266,7 +272,7 @@ const getFrequency = ({ frequencyValue, frequencyUnit }) =>
 const BulkActions = ({ row, status, handleActionModalOpen }) => (
   <StyledBulkActions>
     {status !== TASK_STATUSES.NON_COMPLETED && (
-      <ThemedTooltip
+      <StyledToolTip
         title={
           <TranslatedText
             stringId="encounter.tasks.action.tooltip.notCompleted"
@@ -277,10 +283,10 @@ const BulkActions = ({ row, status, handleActionModalOpen }) => (
         <IconButton onClick={() => handleActionModalOpen(TASK_ACTIONS.NON_COMPLETED, row)}>
           <StyledCancelIcon />
         </IconButton>
-      </ThemedTooltip>
+      </StyledToolTip>
     )}
     {status !== TASK_STATUSES.COMPLETED && (
-      <ThemedTooltip
+      <StyledToolTip
         title={
           <TranslatedText
             stringId="encounter.tasks.action.tooltip.completed"
@@ -291,10 +297,10 @@ const BulkActions = ({ row, status, handleActionModalOpen }) => (
         <IconButton onClick={() => handleActionModalOpen(TASK_ACTIONS.COMPLETED, row)}>
           <StyledCheckCircleIcon />
         </IconButton>
-      </ThemedTooltip>
+      </StyledToolTip>
     )}
     {status !== TASK_STATUSES.TODO && (
-      <ThemedTooltip
+      <StyledToolTip
         title={
           <TranslatedText stringId="encounter.tasks.action.tooltip.toDo" fallback="Mark as to-do" />
         }
@@ -302,10 +308,10 @@ const BulkActions = ({ row, status, handleActionModalOpen }) => (
         <IconButton onClick={() => handleActionModalOpen(TASK_ACTIONS.TODO, row)}>
           <StatusTodo />
         </IconButton>
-      </ThemedTooltip>
+      </StyledToolTip>
     )}
     {status === TASK_STATUSES.TODO && (
-      <ThemedTooltip
+      <StyledToolTip
         title={
           <TranslatedText stringId="encounter.tasks.action.tooltip.delete" fallback="Delete" />
         }
@@ -313,7 +319,7 @@ const BulkActions = ({ row, status, handleActionModalOpen }) => (
         <IconButton onClick={() => handleActionModalOpen(TASK_ACTIONS.DELETED, row)}>
           <StyledDeleteOutlineIcon />
         </IconButton>
-      </ThemedTooltip>
+      </StyledToolTip>
     )}
   </StyledBulkActions>
 );
@@ -341,7 +347,7 @@ const NotesCell = ({ row, hoveredRow, handleActionModalOpen }) => {
 };
 
 const getTask = ({ name, requestedBy, requestTime, highPriority }) => (
-  <ThemedTooltip
+  <StyledToolTip
     title={
       <TooltipContainer>
         <div>{name}</div>
@@ -356,7 +362,7 @@ const getTask = ({ name, requestedBy, requestTime, highPriority }) => (
       {highPriority && <StyledPriorityHighIcon />}
       {name}
     </span>
-  </ThemedTooltip>
+  </StyledToolTip>
 );
 
 const NoDataMessage = () => (
