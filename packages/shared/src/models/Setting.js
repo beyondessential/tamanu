@@ -199,7 +199,7 @@ export class Setting extends Model {
   static async set(key, value, scope = SETTINGS_SCOPES.GLOBAL, facilityId = null) {
     const records = buildSettingsRecords(key, value, facilityId);
 
-    await this.#upsertRecords(records, scope);
+    await this.#upsertRecords(records, scope, facilityId);
 
     const keyWhere = key
       ? {
