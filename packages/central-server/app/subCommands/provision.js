@@ -15,6 +15,7 @@ import { loadSettingFile } from '../utils/loadSettingFile';
 import { referenceDataImporter } from '../admin/referenceDataImporter';
 import { getRandomBase64String } from '../auth/utils';
 import { programImporter } from '../admin/programImporter/programImporter';
+import { defaultsDeep } from 'lodash';
 
 export async function provision(provisioningFile, { skipIfNotNeeded }) {
   const store = await initDatabase({ testMode: false });
@@ -119,18 +120,26 @@ export async function provision(provisioningFile, { skipIfNotNeeded }) {
   /// ////////
   /// SETTINGS
 
+  const combineSettings = async (settings, scope, facilityId) => {
+    const existing = await store.models.Setting.get('', facilityId, scope);
+    const combined = defaultsDeep(existing, settings);
+    return store.models.Settings.set('', combined, scope, facilityId);
+  };
+
   if (settings.global) {
-    await store.models.Setting.setAllToScope(settings.global, SETTINGS_SCOPES.GLOBAL);
+    await combineSettings(settings.global, SETTINGS_SCOPES.GLOBAL);
     log.info('Set global settings');
   }
   if (settings.facilities) {
-    await Object.entries(settings.facilities).map(([facilityId, facilitySettings]) =>
-      store.models.Setting.setAllToScope(facilitySettings, SETTINGS_SCOPES.FACILITY, facilityId),
+    await Promise.all(
+      Object.entries(settings.facilities).map(([facilityId, facilitySettings]) =>
+        combineSettings(facilitySettings, SETTINGS_SCOPES.FACILITY, facilityId),
+      ),
     );
     log.info('Set facility settings');
   }
   if (settings.central) {
-    await store.models.Setting.setAllToScope(settings.central, SETTINGS_SCOPES.CENTRAL);
+    await combineSettings(settings.central, SETTINGS_SCOPES.CENTRAL);
     log.info('Set central settings');
   }
 
