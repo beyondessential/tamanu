@@ -1,8 +1,12 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { BaseModal } from '../BaseModal';
 import { TranslatedText } from '../Translation';
 import { Box, styled } from '@mui/material';
 import { Colors } from '../../constants';
+import { ConfirmCancelRow } from '../ButtonRow';
+import { useApi } from '../../api';
+import { APPOINTMENT_STATUSES } from '@tamanu/constants';
+import { toast } from 'react-toastify';
 
 const FlexCol = styled(Box)`
   display: flex;
@@ -16,6 +20,7 @@ const FlexRow = styled(Box)`
 
 const Label = styled(`span`)`
   font-weight: 400;
+  font-color: ${Colors.midText};
 `;
 
 const Value = styled(`span`)`
@@ -60,7 +65,25 @@ const AppointmentDetailsDisplay = ({ appointment }) => {
   );
 };
 
-export const CancelBookingModal = ({ appointment, open, onClose }) => {
+export const CancelBookingModal = ({ appointment, open, onClose, onUpdated }) => {
+  const api = useApi();
+
+  const cancelBooking = useCallback(async () => {
+    try {
+      await api.put(`appointments/${appointment.id} + 1`, {
+        status: APPOINTMENT_STATUSES.CANCELLED,
+      });
+      onUpdated();
+    } catch (error) {
+      toast.error(
+        <TranslatedText
+          stringId="scheduling.error.cancelBooking"
+          fallback="Error cancelling booking"
+        />,
+      );
+    }
+  }, [api, appointment.id, onUpdated]);
+
   return (
     <BaseModal
       title={
@@ -77,6 +100,14 @@ export const CancelBookingModal = ({ appointment, open, onClose }) => {
         fallback="Are you sure you would like to cancel the below location booking?"
       />
       <AppointmentDetailsDisplay appointment={appointment} />
+      <ConfirmCancelRow
+        onConfirm={cancelBooking}
+        onCancel={onClose}
+        cancelText={<TranslatedText stringId="general.action.goBack" fallback="Go back" />}
+        confirmText={
+          <TranslatedText stringId="scheduling.action.cancelBooking" fallback="Cancel booking" />
+        }
+      />
     </BaseModal>
   );
 };

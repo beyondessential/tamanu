@@ -111,7 +111,7 @@ const KebabMenu = ({ anchor, open, onClose, items, ...props }) => {
   );
 };
 
-const ControlsRow = ({ onClose, appointment }) => {
+const ControlsRow = ({ onClose, appointment, onUpdated }) => {
   const [cancelModalOpen, setCancelModalOpen] = useState(false);
   const [anchor, setAnchor] = useState(null);
   const isKebabMenuOpen = Boolean(anchor);
@@ -161,6 +161,7 @@ const ControlsRow = ({ onClose, appointment }) => {
         appointment={appointment}
         open={cancelModalOpen}
         onClose={handleCancelModalClose}
+        onUpdated={onUpdated}
       />
     </ControlsContainer>
   );
@@ -288,7 +289,14 @@ const AppointmentStatusDisplay = () => {
   return <AppointmentStatusContainer></AppointmentStatusContainer>;
 };
 
-export const AppointmentDetailPopper = ({ open, onClose, anchorEl, appointment, isOvernight }) => {
+export const AppointmentDetailPopper = ({
+  open,
+  onClose,
+  onUpdated,
+  anchorEl,
+  appointment,
+  isOvernight,
+}) => {
   const dispatch = useDispatch();
   const patientId = appointment.patient.id;
 
@@ -312,7 +320,7 @@ export const AppointmentDetailPopper = ({ open, onClose, anchorEl, appointment, 
         },
       ]}
     >
-      <ControlsRow appointment={appointment} onClose={onClose} />
+      <ControlsRow appointment={appointment} onClose={onClose} onUpdated={onUpdated} />
       <StyledPaper elevation={0}>
         <PatientDetailsDisplay patient={appointment.patient} onClick={handlePatientDetailsClick} />
         <AppointmentDetailsDisplay appointment={appointment} isOvernight={isOvernight} />
