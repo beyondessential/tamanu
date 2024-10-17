@@ -16,24 +16,6 @@ import {
 import { BodyText, TextButton } from '../../components';
 import { Colors } from '../../constants';
 
-const DayWrapper = styled(Box)`
-  cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 4px;
-  padding-inline: 6px;
-  border-radius: 3px;
-  background-color: ${({ $selected }) => ($selected ? Colors.primary : 'transparent')};
-  color: ${({ $selected }) => ($selected ? Colors.white : 'inherit')};
-  border: 1px solid ${({ $isToday }) => ($isToday ? Colors.primary : 'transparent')};
-  flex-grow: 1;
-  & div {
-    min-width: 18px;
-    text-align: center;
-  }
-`;
-
 const DaysWrapper = styled(Box)`
   display: flex;
   overflow: auto;
@@ -43,9 +25,30 @@ const DaysWrapper = styled(Box)`
   justify-content: space-between;
 `;
 
+const DayWrapper = styled(Box)`
+  background-color: ${({ $selected }) => ($selected ? Colors.primary : 'transparent')};
+  border: 1px solid ${({ $isToday }) => ($isToday ? Colors.primary : 'transparent')};
+  color: ${({ $selected }) => ($selected ? Colors.white : 'inherit')};
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 4px;
+  padding-inline: 6px;
+  border-radius: 3px;
+  flex-grow: 1;
+`;
+
 const WeekdayText = styled(BodyText)`
   color: ${({ $selected, $isWeekend }) =>
     $selected ? Colors.white : $isWeekend ? Colors.softText : Colors.midText};
+  min-width: 18px;
+  text-align: center;
+`;
+
+const DateText = styled(BodyText)`
+  min-width: 18px;
+  text-align: center;
 `;
 
 const getMonthInterval = date =>
@@ -62,7 +65,7 @@ const DayButton = ({ day, selected, onClick }) => {
           weekday: 'narrow',
         })}
       </WeekdayText>
-      <BodyText>{day.getDate()}</BodyText>
+      <DateText>{day.getDate()}</DateText>
     </DayWrapper>
   );
 };
