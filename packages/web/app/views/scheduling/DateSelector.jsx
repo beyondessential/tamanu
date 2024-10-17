@@ -12,9 +12,10 @@ import {
   subMonths,
   startOfDay,
   isSameMonth,
+  isSameDay,
 } from 'date-fns';
 
-import { BodyText, TextButton } from '../../components';
+import { BodyText, MonthYearInput, TextButton } from '../../components';
 import { Colors } from '../../constants';
 
 const DaysWrapper = styled(Box)`
@@ -53,10 +54,15 @@ const WeekdayText = styled(DateText)`
 
 const TodayButton = styled(TextButton)`
   margin-inline: 8px;
+  font-size: 0.875rem;
   text-decoration: underline;
   &:hover {
     text-decoration: underline;
   }
+`;
+
+const StepperButton = styled(IconButton)`
+  padding: 4px;
 `;
 
 const getMonthInterval = date => {
@@ -90,6 +96,15 @@ export const DateSelector = ({ value = new Date(), onChange }) => {
       },
     });
 
+  const handleCalenderChange = e => {
+    const date = e.target.value;
+    if (isSameMonth(date, new Date())) {
+      handleChange(new Date());
+    } else {
+      handleChange(startOfMonth(date));
+    }
+  };
+
   const handleIncrement = () => setViewedDays(getMonthInterval(addMonths(viewedDays[0], 1)));
   const handleDecrement = () => setViewedDays(getMonthInterval(subMonths(viewedDays[0], 1)));
 
@@ -105,23 +120,24 @@ export const DateSelector = ({ value = new Date(), onChange }) => {
     <div>
       <h2>Month {viewedDays[0].toLocaleString('default', { month: 'long', year: 'numeric' })}</h2>
       <Box display="flex" alignItems="center" justifyContent="space-between">
+        <MonthYearInput value={viewedDays[0]} onChange={handleCalenderChange} />
         <TodayButton onClick={handleSetToday}>Today</TodayButton>
-        <IconButton onClick={handleDecrement}>
-          <ArrowBackIos />
-        </IconButton>
+        <StepperButton onClick={handleDecrement}>
+          <ArrowBackIos fontSize="0.5rem" />
+        </StepperButton>
         <DaysWrapper>
           {viewedDays.map(day => (
             <DayButton
               day={day}
-              selected={value.getTime() === day.getTime()}
+              selected={isSameDay(day, value)}
               onClick={() => handleChange(day)}
               key={`day-${day.getTime()}`}
             />
           ))}
         </DaysWrapper>
-        <IconButton onClick={handleIncrement}>
-          <ArrowForwardIos />
-        </IconButton>
+        <StepperButton onClick={handleIncrement}>
+          <ArrowForwardIos fontSize="0.5rem" />
+        </StepperButton>
       </Box>
     </div>
   );
