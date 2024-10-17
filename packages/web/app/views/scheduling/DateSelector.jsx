@@ -1,3 +1,4 @@
+import React, { useState } from 'react';
 import { Box } from '@material-ui/core';
 import { ArrowBackIos, ArrowForwardIos } from '@mui/icons-material';
 import { IconButton, styled } from '@mui/material';
@@ -11,7 +12,7 @@ import {
   subMonths,
   startOfDay,
 } from 'date-fns';
-import React, { useState } from 'react';
+
 import { BodyText, TextButton } from '../../components';
 import { Colors } from '../../constants';
 
@@ -66,8 +67,8 @@ const DayButton = ({ day, selected, onClick }) => {
   );
 };
 
-export const DateSelector = ({ date = startOfDay(new Date()) }) => {
-  const [days, setDays] = useState(getMonthInterval(date));
+export const DateSelector = ({ initialDate = startOfDay(new Date()) }) => {
+  const [days, setDays] = useState(getMonthInterval(initialDate));
   const [selectedDate, setSelectedDate] = useState(days.find(isToday));
 
   const handleDecrement = async () => {
