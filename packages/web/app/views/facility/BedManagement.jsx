@@ -113,13 +113,17 @@ const DetailedDashboardItemNumber = ({ loading, value }) => {
   return <DetailedDashboardItemTitle>{value || 0}</DetailedDashboardItemTitle>;
 };
 
-const DetailedDashboardItem = ({ api }) => {
+const DetailedDashboardItem = ({ api, facilityId }) => {
   const {
     data: {
       data: { availableLocationCount, reservedLocationCount, occupiedLocationCount } = {},
     } = {},
     isLoading: patientLocationsLoading,
-  } = useQuery(['patientLocations'], () => api.get('patient/locations/stats'));
+  } = useQuery(['patientLocations'], () =>
+    api.get('patient/locations/stats', {
+      facilityId,
+    }),
+  );
 
   return (
     <DetailedDashboardItemContainer color={Colors.brightBlue}>
@@ -166,11 +170,13 @@ const DetailedDashboardItem = ({ api }) => {
 export const BedManagement = () => {
   const api = useApi();
   const dispatch = useDispatch();
-  const { facility } = useAuth();
+  const { facilityId } = useAuth();
 
   const { searchParameters, setSearchParameters } = usePatientSearch(
     PatientSearchKeys.BedManagementView,
   );
+
+  // TODO: make sure these numbers properly reflect the numbers of the facility
 
   const {
     data: { count: totalCurrentPatientsCount } = {},
@@ -179,7 +185,7 @@ export const BedManagement = () => {
     api.get('patient', {
       countOnly: true,
       currentPatient: true,
-      facilityId: facility.id,
+      facilityId,
     }),
   );
 
@@ -191,22 +197,26 @@ export const BedManagement = () => {
       countOnly: true,
       currentPatient: true,
       inpatient: true,
-      facilityId: facility.id,
+      facilityId,
     }),
   );
 
   const { data: { data: currentOccupancy } = {}, isLoading: currentOccupancyLoading } = useQuery(
-    ['currentOccupancy'],
-    () => api.get('patient/locations/occupancy'),
+    ['currentOccupancy', facilityId],
+    () => api.get('patient/locations/occupancy', { facilityId }),
   );
 
-  const { data: { data: alos } = {}, isLoading: alosLoading } = useQuery(['alos'], () =>
-    api.get('patient/locations/alos'),
+  const { data: { data: alos } = {}, isLoading: alosLoading } = useQuery(['alos', facilityId], () =>
+    api.get('patient/locations/alos', { facilityId }),
   );
 
   const { data: { data: readmissionsCount } = {}, isLoading: readmissionsCountLoading } = useQuery(
-    ['readmissionsCount'],
-    () => api.get('patient/locations/readmissions'),
+    ['readmissionsCount', facilityId],
+    () => api.get('patient/locations/readmissions', { facilityId }),
+  );
+
+  const { data: facility } = useQuery(['facility', facilityId], () =>
+    api.get(`facility/${encodeURIComponent(facilityId)}`),
   );
 
   // hides hover for rows that arent clickable (do not have a patient to click to)
@@ -230,8 +240,8 @@ export const BedManagement = () => {
         title={<TranslatedText stringId="bedManagement.title" fallback="Bed management" />}
         subTitle={
           <TranslatedReferenceData
-            fallback={facility.name}
-            value={facility.id}
+            fallback={facility?.name}
+            value={facility?.id}
             category="facility"
           />
         }
@@ -294,7 +304,7 @@ export const BedManagement = () => {
               }
             />
           </DashboardItemListContainer>
-          <DetailedDashboardItem api={api} />
+          <DetailedDashboardItem api={api} facilityId={facilityId} />
         </DashboardContainer>
       </ContentPane>
       <ContentPane>
@@ -309,7 +319,7 @@ export const BedManagement = () => {
           }
           onRowClick={handleViewPatient}
           rowStyle={rowStyle}
-          fetchOptions={searchParameters}
+          fetchOptions={{ ...searchParameters, facilityId }}
           endpoint="patient/locations/bedManagement"
         />
       </ContentPane>
