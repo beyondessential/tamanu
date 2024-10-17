@@ -98,7 +98,8 @@ export const DateSelector = ({ value = new Date(), onChange }) => {
   useEffect(() => {
     if (isSameMonth(value, viewedDays[0])) return;
     setViewedDays(getMonthInterval(value));
-  }, [value, viewedDays]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [value]);
 
   return (
     <div>
