@@ -15,10 +15,13 @@ import {
 import { useSuggester } from '../api';
 import { useMarkTaskCompleted } from '../api/mutations/useTaskMutation';
 import { FORM_TYPES } from '../constants';
+import { getCurrentDateTimeString } from '../utils/dateTime';
+import { useAuth } from '../contexts/Auth';
 
 export const MarkTaskCompletedForm = ({ onClose, refreshTaskTable, taskIds }) => {
   const practitionerSuggester = useSuggester('practitioner');
   const { mutate: markTaskCompleted, isLoading } = useMarkTaskCompleted();
+  const { currentUser } = useAuth();
 
   const onSubmit = async values => {
     markTaskCompleted(
@@ -60,6 +63,7 @@ export const MarkTaskCompletedForm = ({ onClose, refreshTaskTable, taskIds }) =>
                 />
               }
               required
+              saveDateAsString
               component={DateTimeField}
             />
             <Field
@@ -95,6 +99,10 @@ export const MarkTaskCompletedForm = ({ onClose, refreshTaskTable, taskIds }) =>
           ),
         completedNote: yup.string(),
       })}
+      initialValues={{
+        completedTime: getCurrentDateTimeString(),
+        completedByUserId: currentUser?.id,
+      }}
     />
   );
 };

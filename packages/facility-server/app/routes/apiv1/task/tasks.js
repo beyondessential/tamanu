@@ -15,6 +15,17 @@ import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 const taskRoutes = express.Router();
 export { taskRoutes as tasks };
 
+// Custom validator for "YYYY-MM-DD HH:MM:SS" format
+const datetimeCustom = z.string().refine((val) => {
+  const regex = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/;
+  if (!regex.test(val)) return false;
+
+  const date = new Date(val);
+  return !isNaN(date.getTime());
+}, {
+  message: "Invalid datetime format, expected YYYY-MM-DD HH:MM:SS",
+});
+
 /**
  * Mark task as completed
  * Only tasks in TODO & NON_COMPLETED status can be marked as completed
@@ -25,7 +36,7 @@ const taskCompletionInputSchema = z.object({
     .array()
     .min(1),
   completedByUserId: z.string(),
-  completedTime: z.string().datetime(),
+  completedTime: datetimeCustom,
   completedNote: z.string().optional(),
 });
 taskRoutes.post(
@@ -66,7 +77,7 @@ const taskNonCompletionInputSchema = z.object({
     .array()
     .min(1),
   notCompletedByUserId: z.string(),
-  notCompletedTime: z.string().datetime(),
+  notCompletedTime: datetimeCustom,
   notCompletedReasonId: z.string().optional(),
 });
 taskRoutes.put(
@@ -119,7 +130,7 @@ const taskDeletionInputSchema = z.object({
     .array()
     .min(1),
   deletedByUserId: z.string(),
-  deletedTime: z.string().datetime(),
+  deletedTime: datetimeCustom,
   deletedReasonId: z.string().optional(),
 });
 taskRoutes.delete(
@@ -202,7 +213,7 @@ const taskTodoInputSchema = z.object({
     .array()
     .min(1),
   todoByUserId: z.string(),
-  todoTime: z.string().datetime(),
+  todoTime: datetimeCustom,
   todoNote: z.string().optional(),
 });
 taskRoutes.put(
@@ -266,10 +277,10 @@ taskRoutes.put(
 );
 
 const tasksCreationSchema = z.object({
-  startTime: z.string().datetime(),
+  startTime: datetimeCustom,
   encounterId: z.string().uuid(),
   requestedByUserId: z.string(),
-  requestTime: z.string().datetime(),
+  requestTime: datetimeCustom,
   note: z.string().optional(),
   tasks: z
     .object({

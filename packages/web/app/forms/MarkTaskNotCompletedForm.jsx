@@ -14,10 +14,13 @@ import {
 import { useSuggester } from '../api';
 import { useMarkTaskNotCompleted } from '../api/mutations/useTaskMutation';
 import { FORM_TYPES } from '../constants';
+import { getCurrentDateTimeString } from '../utils/dateTime';
+import { useAuth } from '../contexts/Auth';
 
 export const MarkTaskNotCompletedForm = ({ onClose, refreshTaskTable, taskIds }) => {
   const practitionerSuggester = useSuggester('practitioner');
   const taskNotCompletedReasonSuggester = useSuggester('taskNotCompletedReason');
+  const { currentUser } = useAuth();
 
   const { mutate: markTaskNotCompleted } = useMarkTaskNotCompleted();
 
@@ -61,6 +64,7 @@ export const MarkTaskNotCompletedForm = ({ onClose, refreshTaskTable, taskIds })
                 />
               }
               required
+              saveDateAsString
               component={DateTimeField}
             />
             <Field
@@ -98,6 +102,10 @@ export const MarkTaskNotCompletedForm = ({ onClose, refreshTaskTable, taskIds })
           ),
         notCompletedReasonId: yup.string(),
       })}
+      initialValues={{
+        notCompletedTime: getCurrentDateTimeString(),
+        notCompletedByUserId: currentUser?.id,
+      }}
     />
   );
 };
