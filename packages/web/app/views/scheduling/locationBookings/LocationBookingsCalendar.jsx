@@ -74,6 +74,8 @@ export const LocationBookingsCalendar = ({ locationsQuery }) => {
         />
         {locationsAreLoading ? (
           <SkeletonRows colCount={displayedDates.length} />
+        ) : locations?.length === 0 ? (
+          <EmptyStateRow />
         ) : (
           locations?.map(location => (
             <BookingsRow
@@ -84,7 +86,6 @@ export const LocationBookingsCalendar = ({ locationsQuery }) => {
             />
           ))
         )}
-        <EmptyStateRow />
       </CarouselGrid.Root>
     </Carousel>
   );
