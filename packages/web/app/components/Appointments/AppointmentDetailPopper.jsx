@@ -247,7 +247,7 @@ const AppointmentDetailsDisplay = ({ appointment, isOvernight }) => {
         }
         value={
           <TranslatedReferenceData
-            fallback={locationGroup?.name}
+            fallback={locationGroup?.name ?? '—'}
             value={locationGroup?.id}
             category="locationGroup"
           />
@@ -259,7 +259,7 @@ const AppointmentDetailsDisplay = ({ appointment, isOvernight }) => {
         }
         value={
           <TranslatedReferenceData
-            fallback={location?.name}
+            fallback={location?.name ?? '—'}
             value={location?.id}
             category="location"
           />

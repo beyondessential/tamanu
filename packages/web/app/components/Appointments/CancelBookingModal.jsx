@@ -3,11 +3,11 @@ import { Box, styled } from '@mui/material';
 import { toast } from 'react-toastify';
 
 import { BaseModal } from '../BaseModal';
-import { TranslatedText } from '../Translation';
+import { TranslatedEnum, TranslatedReferenceData, TranslatedText } from '../Translation';
 import { Colors } from '../../constants';
 import { ConfirmCancelRow } from '../ButtonRow';
 import { useApi } from '../../api';
-import { APPOINTMENT_STATUSES } from '@tamanu/constants';
+import { APPOINTMENT_STATUSES, APPOINTMENT_TYPE_LABELS } from '@tamanu/constants';
 import { formatDateRange } from './utils';
 import { PatientNameDisplay } from '../PatientNameDisplay';
 
@@ -63,14 +63,61 @@ const AppointmentDetailsDisplay = ({ appointment }) => {
   return (
     <AppointmentDetailsContainer>
       <AppointmentDetailsColumn sx={{ borderInlineEnd: `1px solid ${Colors.outline}` }}>
-        <DetailDisplay label="Area" value={locationGroup?.name} />
-        <DetailDisplay label="Location" value={location?.name} />
-        <DetailDisplay label="Date" value={formatDateRange(startTime, endTime)} />
+        <DetailDisplay
+          label={
+            <TranslatedText
+              stringId={'general.localisedField.locationGroupId.label'}
+              fallback={'Area'}
+            />
+          }
+          value={
+            <TranslatedReferenceData
+              fallback={locationGroup?.name}
+              value={locationGroup?.id}
+              category="locationGroup"
+            />
+          }
+        />
+        <DetailDisplay
+          label={
+            <TranslatedText
+              stringId="general.localisedField.locationId.label"
+              fallback="Location"
+            />
+          }
+          value={
+            <TranslatedReferenceData
+              fallback={location?.name ?? '—'}
+              value={location?.id}
+              category="location"
+            />
+          }
+        />
+        <DetailDisplay
+          label={<TranslatedText stringId="general.date.label" fallback="Date" />}
+          value={formatDateRange(startTime, endTime)}
+        />
       </AppointmentDetailsColumn>
       <AppointmentDetailsColumn>
-        <DetailDisplay label="Patient" value={<PatientNameDisplay patient={patient} />} />
-        <DetailDisplay label="Type" value={type} />
-        <DetailDisplay label="Clinician" value={clinician?.displayName} />
+        <DetailDisplay
+          label={<TranslatedText stringId="general.patient.label" fallback="Patient" />}
+          value={<PatientNameDisplay patient={patient} />}
+        />
+        <DetailDisplay
+          label={<TranslatedText stringId="scheduling.bookingType.label" fallback="Booking type" />}
+          value={
+            <TranslatedEnum value={type} enumValues={APPOINTMENT_TYPE_LABELS} enumFallback={type} />
+          }
+        />
+        <DetailDisplay
+          label={
+            <TranslatedText
+              stringId="general.localisedField.clinician.label"
+              fallback="Clinician"
+            />
+          }
+          value={clinician?.displayName}
+        />
       </AppointmentDetailsColumn>
     </AppointmentDetailsContainer>
   );
