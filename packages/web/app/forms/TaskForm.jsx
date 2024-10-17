@@ -322,8 +322,8 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
         ['frequencyValue', 'frequencyUnit'],
       )}
       initialValues={{
-        startTime: new Date().toISOString(),
-        requestTime: new Date().toISOString(),
+        startTime: getCurrentDateTimeString(),
+        requestTime: getCurrentDateTimeString(),
         requestedByUserId: currentUser?.id,
       }}
     />

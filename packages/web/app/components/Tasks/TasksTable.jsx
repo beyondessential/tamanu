@@ -264,7 +264,7 @@ const AssignedToCell = ({ designations }) => {
 
 const getFrequency = ({ frequencyValue, frequencyUnit }) =>
   frequencyValue && frequencyUnit ? (
-    `${frequencyValue} ${frequencyUnit}`
+    `${frequencyValue} ${frequencyUnit}${Number(frequencyValue) > 1 ? 's' : ''}`
   ) : (
     <TranslatedText stringId="encounter.tasks.table.once" fallback="Once" />
   );

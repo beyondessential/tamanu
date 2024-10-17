@@ -82,7 +82,7 @@ const COLUMNS = [
     accessor: ({ taskTemplate }) => {
       const { frequencyValue, frequencyUnit } = taskTemplate ?? {};
       return frequencyValue && frequencyUnit ? (
-        `${frequencyValue} ${frequencyUnit}`
+        `${frequencyValue} ${frequencyUnit}${Number(frequencyValue) > 1 ? 's' : ''}`
       ) : (
         <TranslatedText stringId="encounter.tasks.table.once" fallback="Once" />
       );
