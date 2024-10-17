@@ -70,7 +70,7 @@ const startApp = appType => async ({ skipMigrationCheck }) => {
       startTasks({
         skipMigrationCheck: false,
         taskClasses: [SyncTask],
-        syncManager: context.syncManager,
+        syncManager: context.syncManager, // passing syncManager because it must be shared with SyncTask to prevent multiple syncs
       });
       break;
     default:
