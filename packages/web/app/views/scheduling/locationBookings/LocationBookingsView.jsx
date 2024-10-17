@@ -1,8 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { isStartOfThisWeek } from '@tamanu/shared/utils/dateTime';
-
 import { useLocationsQuery } from '../../../api/queries';
 import { Colors } from '../../../constants';
 import { PageContainer, TopBar, TranslatedText } from '../../../components';
