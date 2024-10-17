@@ -26,6 +26,7 @@ const Row = styled.div`
   display: grid;
   grid-column: 1 / -1;
   grid-template-columns: subgrid;
+  min-block-size: var(--row-height);
 
   &:not(:last-child) {
     border-block-end: var(--border-style);

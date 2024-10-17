@@ -1,12 +1,14 @@
-import { formatISO, isSameDay, startOfToday } from 'date-fns';
-import React from 'react';
+import { formatISO, isSameDay, isSameMonth, isThisMonth, startOfToday } from 'date-fns';
+import React, { useEffect } from 'react';
 import styled, { css } from 'styled-components';
 
-import { Colors } from '../../../constants';
-import { formatShort, formatWeekdayShort } from '../../../components';
-import { CarouselComponents as CalendarGrid } from './CarouselComponents';
+import { isStartOfThisWeek } from '@tamanu/shared/utils/dateTime';
 
-const StyledHeader = styled(CalendarGrid.ColHeaderCell).attrs({ as: 'time' })`
+import { Colors } from '../../../constants';
+import { formatShort, formatWeekdayShort, MonthYearInput } from '../../../components';
+import { CarouselComponents as CarouselGrid } from './CarouselComponents';
+
+const HeaderCell = styled(CarouselGrid.ColHeaderCell).attrs({ as: 'time' })`
   --base-font-weight: 400;
   color: ${({ $dim = false }) => ($dim ? Colors.midText : Colors.darkestText)};
   font-size: 1rem;
@@ -21,16 +23,17 @@ const StyledHeader = styled(CalendarGrid.ColHeaderCell).attrs({ as: 'time' })`
     `}
 `;
 
-const Weekday = styled.div`
+const Weekday = styled.p`
   color: ${Colors.midText};
   font-variant-caps: all-small-caps;
   font-weight: calc(var(--base-font-weight) + 100);
   letter-spacing: 0.1em;
+  margin: 0;
 `;
 
 export const DayHeaderCell = ({ date, dim, ...props }) => {
   return (
-    <StyledHeader
+    <HeaderCell
       $dim={dim}
       $isToday={isSameDay(date, startOfToday())}
       dateTime={formatISO(date, { representation: 'date' })}
@@ -38,6 +41,51 @@ export const DayHeaderCell = ({ date, dim, ...props }) => {
     >
       <Weekday>{formatWeekdayShort(date)}</Weekday>
       {formatShort(date)}
-    </StyledHeader>
+    </HeaderCell>
+  );
+};
+
+const MonthPicker = styled(MonthYearInput)`
+  .MuiInputBase-root,
+  .MuiInputBase-input {
+    font-size: inherit;
+  }
+
+  .MuiInputAdornment-root {
+    margin: 0;
+  }
+
+  body:has(&) > .MuiPickersPopper-root {
+    z-index: 1; // Above the sticky headers
+  }
+`;
+
+const thisWeekId = 'location-bookings-calendar__this-week';
+const firstDisplayedDayId = 'location-bookings-calendar__beginning';
+
+const scrollToThisWeek = () =>
+  document.getElementById(thisWeekId)?.scrollIntoView({ inline: 'start' });
+const scrollToBeginning = () =>
+  document.getElementById(firstDisplayedDayId)?.scrollIntoView({ inline: 'start' });
+
+export const LocationBookingsCalendarHeader = ({ selectedMonthState, displayedDates }) => {
+  const [monthOf, setMonthOf] = selectedMonthState;
+  const isFirstDisplayedDate = date => isSameDay(date, displayedDates[0]);
+  useEffect(() => (isThisMonth(monthOf) ? scrollToThisWeek : scrollToBeginning)(), [monthOf]);
+
+  return (
+    <CarouselGrid.HeaderRow>
+      <CarouselGrid.FirstHeaderCell>
+        <MonthPicker onAccept={setMonthOf} />
+      </CarouselGrid.FirstHeaderCell>
+      {displayedDates.map(d => {
+        const id = isStartOfThisWeek(d)
+          ? thisWeekId
+          : isFirstDisplayedDate(d)
+          ? firstDisplayedDayId
+          : null;
+        return <DayHeaderCell date={d} dim={!isSameMonth(d, monthOf)} id={id} key={d.valueOf()} />;
+      })}
+    </CarouselGrid.HeaderRow>
   );
 };
