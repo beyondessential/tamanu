@@ -28,6 +28,7 @@ import { EncounterModal } from '../EncounterModal';
 import { usePatientCurrentEncounter } from '../../api/queries';
 import { ConditionalTooltip } from '../Tooltip';
 
+
 const DEBOUNCE_DELAY = 200; // ms
 
 const formatDateRange = (start, end, isOvernight) => {
@@ -299,6 +300,7 @@ export const AppointmentDetailPopper = ({
 }) => {
   const dispatch = useDispatch();
   const api = useApi();
+  const [localStatus, setLocalStatus] = useState(appointment.status);
   const patientId = appointment.patient.id;
 
   const { data: initialEncounter } = usePatientCurrentEncounter(patientId);
