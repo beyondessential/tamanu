@@ -13,6 +13,7 @@ import { Text } from '../pdf/Text';
 import { PatientDetails } from './printComponents/PatientDetails';
 import { getResultName, getSurveyAnswerRows, separateColorText } from './surveyAnswers';
 import { SurveyResponseDetails } from './printComponents/SurveyResponseDetails';
+import { formatShort } from '../dateTime';
 
 const pageStyles = StyleSheet.create({
   body: {
@@ -69,15 +70,26 @@ const ResultBox = ({ resultText, resultName }) => (
   </View>
 );
 
+const getAnswers = ({ answer, type }) => {
+  switch (type) {
+    case PROGRAM_DATA_ELEMENT_TYPES.PHOTO:
+      return 'Image file - Refer to Tamanu to view';
+    case PROGRAM_DATA_ELEMENT_TYPES.SUBMISSION_DATE:
+      return formatShort(answer);
+    case PROGRAM_DATA_ELEMENT_TYPES.DATE:
+      return formatShort(answer);
+    default:
+      return answer;
+  }
+};
+
 const ResponseItem = ({ row }) => {
   const { name, answer, type } = row;
   return (
     <View style={pageStyles.item} wrap={false}>
       <Text style={pageStyles.itemText}>{name}</Text>
       <Text style={[pageStyles.itemText, pageStyles.boldText]}>
-        {type === PROGRAM_DATA_ELEMENT_TYPES.PHOTO
-          ? 'Image file - Refer to Tamanu to view'
-          : answer}
+        {getAnswers({ answer, type })}
       </Text>
     </View>
   );
