@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Box } from '@material-ui/core';
 import { ArrowBackIos, ArrowForwardIos } from '@mui/icons-material';
 import { IconButton, styled } from '@mui/material';
@@ -11,6 +11,7 @@ import {
   startOfMonth,
   subMonths,
   startOfDay,
+  isSameMonth,
 } from 'date-fns';
 
 import { BodyText, TextButton } from '../../components';
@@ -58,11 +59,13 @@ const TodayButton = styled(TextButton)`
   }
 `;
 
-const getMonthInterval = date =>
-  eachDayOfInterval({
-    start: startOfMonth(date),
-    end: endOfMonth(date),
+const getMonthInterval = date => {
+  const start = startOfDay(date);
+  return eachDayOfInterval({
+    start: startOfMonth(start),
+    end: endOfMonth(start),
   });
+};
 
 const DayButton = ({ day, selected, onClick }) => {
   return (
@@ -77,36 +80,41 @@ const DayButton = ({ day, selected, onClick }) => {
   );
 };
 
-export const DateSelector = ({ initialDate = startOfDay(new Date()) }) => {
-  const [days, setDays] = useState(getMonthInterval(initialDate));
-  const [selectedDate, setSelectedDate] = useState(days.find(isToday));
+export const DateSelector = ({ value = new Date(), onChange }) => {
+  const [viewedDays, setViewedDays] = useState(getMonthInterval(value));
 
-  const handleIncrement = () => setDays(getMonthInterval(addMonths(days[0], 1)));
-  const handleDecrement = () => setDays(getMonthInterval(subMonths(days[0], 1)));
+  const handleChange = day =>
+    onChange({
+      target: {
+        value: day,
+      },
+    });
 
-  const handleSetToday = () => {
-    const todayDate = startOfDay(new Date());
-    setSelectedDate(startOfDay(todayDate));
-    if (days[0].getMonth() !== todayDate.getMonth()) {
-      setDays(getMonthInterval(todayDate));
-    }
-  };
+  const handleIncrement = () => setViewedDays(getMonthInterval(addMonths(viewedDays[0], 1)));
+  const handleDecrement = () => setViewedDays(getMonthInterval(subMonths(viewedDays[0], 1)));
+
+  const handleSetToday = () => handleChange(new Date());
+
+  useEffect(() => {
+    if (isSameMonth(value, viewedDays[0])) return;
+    setViewedDays(getMonthInterval(value));
+  }, [value, viewedDays]);
 
   return (
     <div>
-      <h2>Month {days[0].toLocaleString('default', { month: 'long', year: 'numeric' })}</h2>
+      <h2>Month {viewedDays[0].toLocaleString('default', { month: 'long', year: 'numeric' })}</h2>
       <Box display="flex" alignItems="center" justifyContent="space-between">
         <TodayButton onClick={handleSetToday}>Today</TodayButton>
         <IconButton onClick={handleDecrement}>
           <ArrowBackIos />
         </IconButton>
         <DaysWrapper>
-          {days.map(day => (
+          {viewedDays.map(day => (
             <DayButton
               key={`day-${day.getTime()}`}
               day={day}
-              selected={selectedDate.getTime() === day.getTime()}
-              onClick={() => setSelectedDate(day)}
+              selected={value.getTime() === day.getTime()}
+              onClick={() => handleChange(day)}
             />
           ))}
         </DaysWrapper>
