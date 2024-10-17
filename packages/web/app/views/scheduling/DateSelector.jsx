@@ -51,6 +51,14 @@ const DateText = styled(BodyText)`
   text-align: center;
 `;
 
+const TodayButton = styled(TextButton)`
+  margin-inline: 8px;
+  text-decoration: underline;
+  &:hover {
+    text-decoration: underline;
+  }
+`;
+
 const getMonthInterval = date =>
   eachDayOfInterval({
     start: startOfMonth(date),
@@ -93,7 +101,7 @@ export const DateSelector = ({ initialDate = startOfDay(new Date()) }) => {
     <div>
       <h2>Month {days[0].toLocaleString('default', { month: 'long', year: 'numeric' })}</h2>
       <Box display="flex" alignItems="center" justifyContent="space-between">
-        <TextButton onClick={handleSetToday}>Today</TextButton>
+        <TodayButton onClick={handleSetToday}>Today</TodayButton>
         <IconButton onClick={handleDecrement}>
           <ArrowBackIos />
         </IconButton>
