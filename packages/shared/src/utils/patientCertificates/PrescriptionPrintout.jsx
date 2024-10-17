@@ -69,7 +69,13 @@ const generalStyles = StyleSheet.create({
 
 const SectionContainer = props => <View style={generalStyles.container} {...props} />;
 
-const PrescriptionsSection = ({ prescriptions, prescriber, facility, getLocalisation }) => {
+const PrescriptionsSection = ({
+  prescriptions,
+  prescriber,
+  facility,
+  getLocalisation,
+  getSetting,
+}) => {
   return (
     <View>
       <DataSection hideBottomRule title="Prescription details">
@@ -83,7 +89,12 @@ const PrescriptionsSection = ({ prescriptions, prescriber, facility, getLocalisa
         </Col>
       </DataSection>
       <View style={prescriptonSectionStyles.tableContainer}>
-        <Table columns={columns} data={prescriptions} getLocalisation={getLocalisation} />
+        <Table
+          columns={columns}
+          data={prescriptions}
+          getLocalisation={getLocalisation}
+          getSetting={getSetting}
+        />
       </View>
     </View>
   );
@@ -112,6 +123,7 @@ const PrescriptionPrintoutComponent = ({
   certificateData,
   facility,
   getLocalisation,
+  getSetting,
 }) => {
   return (
     <Document>
@@ -119,7 +131,6 @@ const PrescriptionPrintoutComponent = ({
         <CertificateHeader>
           <LetterheadSection
             letterheadConfig={certificateData}
-            getLocalisation={getLocalisation}
             logoSrc={certificateData.logo}
             certificateTitle="Prescription"
           />
@@ -134,6 +145,7 @@ const PrescriptionPrintoutComponent = ({
               prescriber={prescriber}
               facility={facility}
               getLocalisation={getLocalisation}
+              getSetting={getSetting}
             />
           </SectionContainer>
           <SectionContainer>

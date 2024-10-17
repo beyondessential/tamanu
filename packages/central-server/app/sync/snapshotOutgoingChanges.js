@@ -192,8 +192,8 @@ function getPatientRelatedWhereClause(
   const recordTypesLinkedToPatients = Object.values(getPatientLinkedModels(models)).map(
     m => m.tableName,
   );
-  const allRecordTypesAreForPatients = recordTypes.every(
-    recordType => recordTypesLinkedToPatients.includes(recordType),
+  const allRecordTypesAreForPatients = recordTypes.every(recordType =>
+    recordTypesLinkedToPatients.includes(recordType),
   );
 
   if (allRecordTypesAreForPatients) {
@@ -259,10 +259,10 @@ const snapshotOutgoingChangesFromSyncLookup = withConfig(
           --- either no patient_id (meaning we don't care if the record is associate to a patient, eg: reference_data)
           --- or patient_id has to match the marked for sync patient_ids, eg: encounters
           ${getPatientRelatedWhereClause(
-              store.models,
-              recordTypes,
-              patientCount,
-              markedForSyncPatientsTable,
+            store.models,
+            recordTypes,
+            patientCount,
+            markedForSyncPatientsTable,
           )}
           --- either no facility_id (meaning we don't care if the record is associate to a facility, eg: reference_data)
           --- or facility_id has to match the current facility, eg: patient_facilities
