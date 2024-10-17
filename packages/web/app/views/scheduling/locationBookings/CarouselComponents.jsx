@@ -41,6 +41,7 @@ const HeaderRow = styled(Row)`
 `;
 
 const BaseCell = styled.div`
+  min-block-size: var(--row-height);
   padding-block: 0.25rem;
   padding-inline: 0.5rem 1.5rem;
   scroll-margin-block-start: calc(var(--header-row-height) + 1.25rem);
@@ -98,7 +99,9 @@ const BodyCell = styled(BaseCell).attrs({ as: 'button' })`
   text-align: inherit;
 
   cursor: pointer;
-  min-block-size: var(--row-height);
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
 
   &:is(:nth-child(7n), :nth-child(7n + 1)) {
     background-color: var(--weekend-color);
