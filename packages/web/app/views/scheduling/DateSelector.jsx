@@ -112,10 +112,10 @@ export const DateSelector = ({ value = new Date(), onChange }) => {
         <DaysWrapper>
           {viewedDays.map(day => (
             <DayButton
-              key={`day-${day.getTime()}`}
               day={day}
               selected={value.getTime() === day.getTime()}
               onClick={() => handleChange(day)}
+              key={`day-${day.getTime()}`}
             />
           ))}
         </DaysWrapper>
