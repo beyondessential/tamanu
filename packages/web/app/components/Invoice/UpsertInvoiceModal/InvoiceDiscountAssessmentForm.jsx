@@ -9,7 +9,6 @@ import { ConfirmCancelBackRow } from '../../ButtonRow';
 import { Field, Form, SelectField } from '../../Field';
 import { FormGrid } from '../../FormGrid';
 import { useSettings } from '../../../contexts/Settings';
-import { slidingFeeScaleTable as defaultSlidingFeeScale } from '../../../constants';
 
 const StyledDivider = styled(Divider)`
   margin: 36px -32px 20px -32px;
@@ -20,9 +19,9 @@ const MAX_FAMILY_SIZE = 12;
 export const InvoiceDiscountAssessmentForm = ({ handleSubmit, onClose, handleBack }) => {
   const [familySize, setFamilySize] = useState();
   const [percentage, setPercentage] = useState();
-  const { getSetting } = useSettings();
 
-  const slidingFeeScale = getSetting(SETTING_KEYS.SLIDING_FEE_SCALE) ?? defaultSlidingFeeScale;
+  const { getSetting } = useSettings();
+  const slidingFeeScale = getSetting(SETTING_KEYS.SLIDING_FEE_SCALE);
 
   const familySizesOptions = Array.from({ length: MAX_FAMILY_SIZE }, (_, i) => ({
     label: (i + 1).toString(),

@@ -53,13 +53,13 @@ export const ProgramRegistrySection = (): ReactElement => {
       {doesRegistryCountExceedThreshold ? (
         <LocalisedField
           label={
-          <TranslatedText
-            stringId="general.localisedField.programRegistry.label"
-            fallback="Program registry"
-          />
+            <TranslatedText
+              stringId="general.localisedField.programRegistry.label"
+              fallback="Program registry"
+            />
           }
-          localisationPath="fields.programRegistry"
-          labelFontSize={screenPercentageToDP(2, Orientation.Height)  }
+          path="fields.programRegistry"
+          labelFontSize={screenPercentageToDP(2, Orientation.Height)}
           fieldFontSize={screenPercentageToDP(2, Orientation.Height)}
           component={AutocompleteModalField}
           placeholder="Search"
@@ -70,12 +70,12 @@ export const ProgramRegistrySection = (): ReactElement => {
       ) : (
         <LocalisedField
           label={
-          <TranslatedText
-            stringId="general.localisedField.programRegistry.label"
-            fallback="Program registry"
-          />
+            <TranslatedText
+              stringId="general.localisedField.programRegistry.label"
+              fallback="Program registry"
+            />
           }
-          localisationPath="fields.programRegistry"
+          path="fields.programRegistry"
           labelFontSize={screenPercentageToDP(2, Orientation.Height)}
           component={Dropdown}
           options={programRegistries}

@@ -18,8 +18,7 @@ triage.post(
   '/$',
   asyncHandler(async (req, res) => {
     const { models, db, user, body, settings } = req;
-    const { vitals, notes } = body;
-    const { facilityId } = body;
+    const { vitals, notes, facilityId } = body;
 
     req.checkPermission('create', 'Triage');
     if (vitals) {

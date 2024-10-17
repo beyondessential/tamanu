@@ -66,12 +66,13 @@ const CovidVaccineCertificateComponent = ({
   logoSrc,
   uvci,
   getLocalisation,
+  getSetting,
   extraPatientFields,
   printedDate,
 }) => {
-  const contactEmail = getLocalisation('templates.vaccineCertificate.emailAddress');
-  const contactNumber = getLocalisation('templates.vaccineCertificate.contactNumber');
-  const healthFacility = getLocalisation('templates.vaccineCertificate.healthFacility');
+  const { emailAddress: contactEmail, contactNumber, healthFacility } = getSetting(
+    'templates.vaccineCertificate',
+  );
   const countryCode = getLocalisation('country.alpha-2');
   const countryName = getLocalisation('country.name');
   const uvciFormat = getLocalisation('previewUvciFormat');
@@ -86,18 +87,24 @@ const CovidVaccineCertificateComponent = ({
     <Document>
       <Page size="A4" style={styles.page}>
         {watermarkSrc && <Watermark src={watermarkSrc} />}
-        <CovidLetterheadSection getLocalisation={getLocalisation} logoSrc={logoSrc} />
+        <CovidLetterheadSection getSetting={getSetting} logoSrc={logoSrc} />
         <H3>COVID-19 Vaccine Certificate</H3>
         <CovidPatientDetailsSection
           patient={patient}
           vdsSrc={vdsSrc}
           getLocalisation={getLocalisation}
+          getSetting={getSetting}
           certificateId={certificateId}
           extraFields={extraPatientFields}
           uvci={actualUvci}
         />
         <Box mb={20}>
-          <Table data={data} columns={columns} getLocalisation={getLocalisation} />
+          <Table
+            data={data}
+            columns={columns}
+            getLocalisation={getLocalisation}
+            getSetting={getSetting}
+          />
         </Box>
         <Box>
           <Row>
