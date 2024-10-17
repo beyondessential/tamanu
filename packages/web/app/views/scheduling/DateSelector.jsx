@@ -87,9 +87,10 @@ export const DateSelector = ({ initialDate = startOfDay(new Date()) }) => {
   const handleIncrement = () => setDays(getMonthInterval(addMonths(days[0], 1)));
 
   const handleSetToday = () => {
-    setSelectedDate(startOfDay(new Date()));
-    if (days[0].getMonth() !== new Date().getMonth()) {
-      setDays(getMonthInterval(new Date()));
+    const todayDate = startOfDay(new Date());
+    setSelectedDate(startOfDay(todayDate));
+    if (days[0].getMonth() !== todayDate.getMonth()) {
+      setDays(getMonthInterval(todayDate));
     }
   };
 
