@@ -2,6 +2,7 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 
 import { getAutocompleteComponentMap } from '@tamanu/shared/reports/utilities';
+
 export const surveyResponse = express.Router();
 
 // also update getNameColumnForModel in /packages/facility-server/app/routes/apiv1/surveyResponse.js when this changes
@@ -93,18 +94,24 @@ surveyResponse.get(
 surveyResponse.post(
   '/$',
   asyncHandler(async (req, res) => {
-    const { models, body, db } = req;
-
+    const {
+      models,
+      body: { facilityId, ...body },
+      db,
+      settings,
+    } = req;
     // Responses for the vitals survey will check against 'Vitals' create permissions
     // All others witll check against 'SurveyResponse' create permissions
     const noun = await models.Survey.getResponsePermissionCheck(body.surveyId);
     req.checkPermission('create', noun);
 
-    const getDefaultId = async type => models.SurveyResponseAnswer.getDefaultId(type);
+    const getDefaultId = async type =>
+      models.SurveyResponseAnswer.getDefaultId(type, settings[facilityId]);
     const updatedBody = {
       locationId: body.locationId || (await getDefaultId('location')),
       departmentId: body.departmentId || (await getDefaultId('department')),
       userId: req.user.id,
+      facilityId,
       ...body,
     };
 

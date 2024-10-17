@@ -1,8 +1,8 @@
 import { trace } from '@opentelemetry/api';
-import { Op } from 'sequelize';
+import { Op, QueryTypes } from 'sequelize';
 import _config from 'config';
 
-import { SYNC_DIRECTIONS, DEBUG_LOG_TYPES } from '@tamanu/constants';
+import { SYNC_DIRECTIONS, DEBUG_LOG_TYPES, SETTINGS_SCOPES } from '@tamanu/constants';
 import {
   CURRENT_SYNC_TIME_KEY,
   LOOKUP_UP_TO_TICK_KEY,
@@ -90,8 +90,12 @@ export class CentralSyncManager {
     // this is a convenient way to tick the clock, as it means that no two sync sessions will
     // happen at the same global sync time, meaning there's no ambiguity when resolving conflicts
 
+    const sessionId = await this.store.models.SyncSession.generateDbUuid();
     const startTime = new Date();
+
+    const unmarkSessionAsProcessing = await this.markSessionAsProcessing(sessionId);
     const syncSession = await this.store.models.SyncSession.create({
+      id: sessionId,
       startTime,
       lastConnectionTime: startTime,
       debugInfo,
@@ -100,7 +104,7 @@ export class CentralSyncManager {
     // no await as prepare session (especially the tickTockGlobalClock action) might get blocked
     // and take a while if the central server is concurrently persisting records from another client.
     // Client should poll for the result later.
-    const preparation = this.prepareSession(syncSession);
+    const preparation = this.prepareSession(syncSession).finally(unmarkSessionAsProcessing);
 
     // ...but in unit tests, the tests interfere with each other if we leave prepares running
     // in the background! So, allow overriding the above behaviour.
@@ -117,21 +121,22 @@ export class CentralSyncManager {
   }
 
   async prepareSession(syncSession) {
-    await createSnapshotTable(this.store.sequelize, syncSession.id);
+    try {
+      await createSnapshotTable(this.store.sequelize, syncSession.id);
+      const { tick } = await this.tickTockGlobalClock();
+      await syncSession.markAsStartedAt(tick);
 
-    const { tick } = await this.tickTockGlobalClock();
+      // eslint-disable-next-line no-unused-expressions
+      trace.getActiveSpan()?.setAttributes({
+        'app.sync.sessionId': syncSession.id,
+        'app.sync.tick': tick,
+      });
 
-    await this.store.sequelize.models.SyncSession.update(
-      { startedAtTick: tick },
-      { where: { id: syncSession.id } },
-    );
-    // eslint-disable-next-line no-unused-expressions
-    trace.getActiveSpan()?.setAttributes({
-      'app.sync.sessionId': syncSession.id,
-      'app.sync.tick': tick,
-    });
-
-    return { sessionId: syncSession.id, tick };
+      return { sessionId: syncSession.id, tick };
+    } catch (error) {
+      log.error('CentralSyncManager.prepareSession encountered an error', error);
+      await this.store.models.SyncSession.markSessionErrored(syncSession.id, error.message);
+    }
   }
 
   async connectToSession(sessionId) {
@@ -176,37 +181,37 @@ export class CentralSyncManager {
     log.info('CentralSyncManager.completedSession', {
       sessionId,
       durationMs,
-      facilityId: session.debugInfo.facilityId,
+      facilityIds: session.debugInfo.facilityIds,
       deviceId: session.debugInfo.deviceId,
     });
   }
 
-  async markSnapshotAsProcessing(sessionId) {
-    // Mark the snapshot as processing in a way that
+  async markSessionAsProcessing(sessionId) {
+    // Mark the session as processing something asynchronous in a way that
     // a) can be read across processes, if the central server is running in cluster mode; and
     // b) will automatically get cleared if the process restarts
     // A transaction level advisory lock fulfils both of these criteria, as it sits at the database
     // level (independent of an individual node process), but will be unlocked if the transaction is
-    // rolled back for any reason (e.g. the server restarts
+    // rolled back for any reason (e.g. the server restarts)
     const transaction = await this.store.sequelize.transaction();
-    await this.store.sequelize.query('SELECT pg_advisory_xact_lock(:snapshotLockId);', {
-      replacements: { snapshotLockId: uuidToFairlyUniqueInteger(sessionId) },
+    await this.store.sequelize.query('SELECT pg_advisory_xact_lock(:sessionLockId);', {
+      replacements: { sessionLockId: uuidToFairlyUniqueInteger(sessionId) },
       transaction,
     });
-    const unmarkSnapshotAsProcessing = async () => {
+    const unmarkSessionAsProcessing = async () => {
       await transaction.commit();
     };
-    return unmarkSnapshotAsProcessing;
+    return unmarkSessionAsProcessing;
   }
 
-  async checkSnapshotIsProcessing(sessionId) {
+  async checkSessionIsProcessing(sessionId) {
     const [rows] = await this.store.sequelize.query(
-      'SELECT NOT(pg_try_advisory_xact_lock(:snapshotLockId)) AS snapshot_is_processing;',
+      'SELECT NOT(pg_try_advisory_xact_lock(:sessionLockId)) AS session_is_processing;',
       {
-        replacements: { snapshotLockId: uuidToFairlyUniqueInteger(sessionId) },
+        replacements: { sessionLockId: uuidToFairlyUniqueInteger(sessionId) },
       },
     );
-    return rows[0].snapshot_is_processing;
+    return rows[0].session_is_processing;
   }
 
   // set pull filter begins creating a snapshot of changes to pull at this point in time
@@ -216,13 +221,13 @@ export class CentralSyncManager {
 
       // first check if the snapshot is already being processed, to throw a sane error if (for some
       // reason) the client managed to kick off the pull twice (ran into this in v1.24.0 and v1.24.1)
-      const isAlreadyProcessing = await this.checkSnapshotIsProcessing(sessionId);
+      const isAlreadyProcessing = await this.checkSessionIsProcessing(sessionId);
       if (isAlreadyProcessing) {
         throw new Error(`Snapshot for session ${sessionId} is already being processed`);
       }
 
-      const unmarkSnapshotAsProcessing = await this.markSnapshotAsProcessing(sessionId);
-      this.setupSnapshotForPull(sessionId, params, unmarkSnapshotAsProcessing); // don't await, as it takes a while - the sync client will poll for it to finish
+      const unmarkSessionAsProcessing = await this.markSessionAsProcessing(sessionId);
+      this.setupSnapshotForPull(sessionId, params, unmarkSessionAsProcessing); // don't await, as it takes a while - the sync client will poll for it to finish
     } catch (error) {
       log.error('CentralSyncManager.initiatePull encountered an error', error);
       await this.store.models.SyncSession.markSessionErrored(sessionId, error.message);
@@ -323,8 +328,8 @@ export class CentralSyncManager {
 
   async setupSnapshotForPull(
     sessionId,
-    { since, facilityId, tablesToInclude, tablesForFullResync, isMobile, deviceId },
-    unmarkSnapshotAsProcessing,
+    { since, facilityIds, tablesToInclude, tablesForFullResync, isMobile, deviceId },
+    unmarkSessionAsProcessing,
   ) {
     let transactionTimeout;
     try {
@@ -360,10 +365,10 @@ export class CentralSyncManager {
       // work out if any patients were newly marked for sync since this device last connected, and
       // include changes from all time for those patients
       const newPatientFacilitiesCount = await models.PatientFacility.count({
-        where: { facilityId, updatedAtSyncTick: { [Op.gt]: since } },
+        where: { facilityId: { [Op.in]: facilityIds }, updatedAtSyncTick: { [Op.gt]: since } },
       });
       log.debug('CentralSyncManager.initiatePull', {
-        facilityId,
+        facilityIds,
         newlyMarkedPatientCount: newPatientFacilitiesCount,
       });
 
@@ -371,7 +376,7 @@ export class CentralSyncManager {
         sequelize,
         sessionId,
         true,
-        facilityId,
+        facilityIds,
         since,
       );
 
@@ -379,11 +384,27 @@ export class CentralSyncManager {
         sequelize,
         sessionId,
         false,
-        facilityId,
+        facilityIds,
         since,
       );
 
-      const syncAllLabRequests = await models.Setting.get('syncAllLabRequests', facilityId);
+      // query settings table and return true if any facility has set syncAllLabRequests to true
+      const [{ syncAllLabRequests }] = await sequelize.query(
+        `
+        SELECT EXISTS (
+          SELECT 1
+          FROM settings
+          WHERE key = 'syncAllLabRequests'
+            AND scope = :scope
+            AND facility_id IN (:facilityIds)
+            AND value = 'true'
+        ) AS "syncAllLabRequests"
+        `,
+        {
+          replacements: { facilityIds, scope: SETTINGS_SCOPES.FACILITY },
+          type: QueryTypes.SELECT,
+        },
+      );
 
       const sessionConfig = {
         // for facilities with a lab, need ongoing lab requests
@@ -412,7 +433,7 @@ export class CentralSyncManager {
           newPatientFacilitiesCount,
           fullSyncPatientsTable,
           sessionId,
-          facilityId,
+          facilityIds,
           deviceId,
           {}, // sending empty session config because this snapshot attempt is only for syncing new marked for sync patients
         );
@@ -420,7 +441,7 @@ export class CentralSyncManager {
         // get changes since the last successful sync for all other synced patients and independent
         // record types
         const patientFacilitiesCount = await models.PatientFacility.count({
-          where: { facilityId },
+          where: { facilityId: facilityIds },
         });
 
         // regular changes
@@ -431,7 +452,7 @@ export class CentralSyncManager {
           patientFacilitiesCount,
           incrementalSyncPatientsTable,
           sessionId,
-          facilityId,
+          facilityIds,
           deviceId,
           sessionConfig,
         );
@@ -447,7 +468,7 @@ export class CentralSyncManager {
             patientFacilitiesCount,
             incrementalSyncPatientsTable,
             sessionId,
-            facilityId,
+            facilityIds,
             deviceId,
             sessionConfig,
           );
@@ -469,17 +490,27 @@ export class CentralSyncManager {
       await this.store.models.SyncSession.markSessionErrored(sessionId, error.message);
     } finally {
       if (transactionTimeout) clearTimeout(transactionTimeout);
-      await unmarkSnapshotAsProcessing();
+      await unmarkSessionAsProcessing();
     }
   }
 
   async checkSessionReady(sessionId) {
-    await this.connectToSession(sessionId);
-    const session = await this.connectToSession(sessionId);
-    if (session.startedAtTick === null) {
+    // if this session is still initiating, return false to tell the client to keep waiting
+    const sessionIsInitiating = await this.checkSessionIsProcessing(sessionId);
+    if (sessionIsInitiating) {
       return false;
     }
 
+    // if this session is not marked as processing, but also never set startedAtTick, record an error
+    const session = await this.connectToSession(sessionId);
+    if (session.startedAtTick === null) {
+      await session.markErrored(
+        'Session initiation incomplete, likely because the central server restarted during the process',
+      );
+      throw new Error(errorMessageFromSession(session));
+    }
+
+    // session ready!
     return true;
   }
 
@@ -487,7 +518,7 @@ export class CentralSyncManager {
     await this.connectToSession(sessionId);
 
     // if this snapshot still processing, return false to tell the client to keep waiting
-    const snapshotIsProcessing = await this.checkSnapshotIsProcessing(sessionId);
+    const snapshotIsProcessing = await this.checkSessionIsProcessing(sessionId);
     if (snapshotIsProcessing) {
       return false;
     }
@@ -583,6 +614,9 @@ export class CentralSyncManager {
         { persistCompletedAt: new Date() },
         { where: { id: sessionId } },
       );
+
+      // WARNING: if you are adding another db call here, you need to either move the
+      // persistCompletedAt lower down, or change the check in checkPushComplete
     } catch (error) {
       log.error('CentralSyncManager.persistIncomingChanges encountered an error', error);
       await models.SyncSession.markSessionErrored(sessionId, error.message);
@@ -612,15 +646,29 @@ export class CentralSyncManager {
 
     // don't await persisting, the client should asynchronously poll as it may take longer than
     // the http request timeout
-    this.persistIncomingChanges(sessionId, deviceId, tablesToInclude);
+    const unmarkSessionAsProcessing = await this.markSessionAsProcessing(sessionId);
+    this.persistIncomingChanges(sessionId, deviceId, tablesToInclude).finally(
+      unmarkSessionAsProcessing,
+    );
   }
 
   async checkPushComplete(sessionId) {
-    const session = await this.connectToSession(sessionId);
-    // respond with whether the push is properly complete, i.e. has been persisted to the db tables
-    if (!session.persistCompletedAt) {
+    // if the push is still persisting, return false to tell the client to keep waiting
+    const persistIsProcessing = await this.checkSessionIsProcessing(sessionId);
+    if (persistIsProcessing) {
       return false;
     }
+
+    // if this session is not marked as processing, but also never set persistCompletedAt, record an error
+    const session = await this.connectToSession(sessionId);
+    if (session.persistCompletedAt === null) {
+      await session.markErrored(
+        'Push persist incomplete, likely because the central server restarted during the process',
+      );
+      throw new Error(errorMessageFromSession(session));
+    }
+
+    // push complete!
     return true;
   }
 }
