@@ -32,6 +32,10 @@ export class LocationGroup extends Model {
           type: Sequelize.TEXT,
           defaultValue: VISIBILITY_STATUSES.CURRENT,
         },
+        isBookable: {
+          type: Sequelize.BOOLEAN,
+          defaultValue: false,
+        },
       },
       {
         ...options,
