@@ -82,9 +82,8 @@ export const DateSelector = ({ initialDate = startOfDay(new Date()) }) => {
   const [days, setDays] = useState(getMonthInterval(initialDate));
   const [selectedDate, setSelectedDate] = useState(days.find(isToday));
 
-  const handleDecrement = async () => setDays(getMonthInterval(subMonths(days[0], 1)));
-
   const handleIncrement = () => setDays(getMonthInterval(addMonths(days[0], 1)));
+  const handleDecrement = () => setDays(getMonthInterval(subMonths(days[0], 1)));
 
   const handleSetToday = () => {
     const todayDate = startOfDay(new Date());
