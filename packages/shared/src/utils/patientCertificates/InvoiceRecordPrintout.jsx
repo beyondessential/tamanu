@@ -467,7 +467,6 @@ const InvoiceRecordPrintoutComponent = ({
         />
         <CertificateHeader>
           <LetterheadSection
-            getLocalisation={getLocalisation}
             logoSrc={logo}
             certificateTitle={`Invoice number: ${invoice.displayId}`}
             letterheadConfig={certificateData}
