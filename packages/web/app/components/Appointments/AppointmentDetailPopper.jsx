@@ -368,7 +368,7 @@ export const AppointmentDetailPopper = ({
       <ControlsRow appointment={appointment} onClose={onClose} onUpdated={onUpdated} />
       <StyledPaper elevation={0}>
         <PatientDetailsDisplay patient={appointment.patient} onClick={handlePatientDetailsClick} />
-        <AppointDetailsDisplay appointment={appointment} isOvernight={isOvernight} />
+        <AppointmentDetailsDisplay appointment={appointment} isOvernight={isOvernight} />
         <AppointmentStatusDisplay
           selectedStatus={localStatus}
           updateAppointmentStatus={updateAppointmentStatus}
