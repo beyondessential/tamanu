@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import * as yup from 'yup';
-import { has, omit, sortBy } from 'lodash';
+import { omit, sortBy } from 'lodash';
 import React, { useCallback, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { Box, IconButton, Tooltip } from '@material-ui/core';
@@ -43,31 +43,50 @@ const ReservedText = styled.p`
   font-size: 14px;
 `;
 
+/**
+ *
+ * `values` is an object of existing, and new values
+ *
+ * existing value: { [stringId]: { en: Radiology } }
+ * new value: { [randomString]: { stringId: [stringId], en: Radiology } }
+ *
+ */
 const validationSchema = yup.lazy(values => {
-  delete values.search;
-  const newEntrySchema = {
+  delete values.search; // Remove the search option
+
+  const existingStringIds = new Set(); // Use to check if a new id clashes with an existing id
+  const numNewIdsByStringId = {}; // Use to check if any new ids clash with each other
+
+  const existingStringValidator = yup.object(); // No real validation needed as existing keys cannot change
+  const newStringValidator = yup.object({
     stringId: yup
       .string()
       .required('Required')
       .test(
         'isUnique',
         'Must be unique',
-        value =>
-          Object.entries(values).filter(([k, v]) => k === value || v.stringId === value).length ===
-          1,
+        value => !existingStringIds.has(value) && numNewIdsByStringId[value] === 1, // id does not already exist AND is unique among new ids
       ),
-  };
-  return yup.object().shape(
-    Object.keys(values).reduce(
-      (acc, key) => ({
-        ...acc,
-        [key]: yup.object({
-          ...(has(values[key], 'stringId') && newEntrySchema),
-        }),
+  });
+
+  const validator = yup.object().shape(
+    Object.fromEntries(
+      Object.entries(values).map(([key, value]) => {
+        // New entry
+        if (value.stringId) {
+          const { stringId } = value;
+          numNewIdsByStringId[stringId] = (numNewIdsByStringId[stringId] || 0) + 1;
+          return [key, newStringValidator];
+        }
+
+        // Existing entry
+        existingStringIds.add(key);
+        return [key, existingStringValidator];
       }),
-      {},
     ),
   );
+
+  return validator;
 });
 
 const useTranslationQuery = () => {
@@ -87,17 +106,19 @@ const useTranslationMutation = () => {
             stringId="admin.translation.notification.translationsSaved"
             fallback="Translations saved"
           />
-          {newStringIds
-            ? <>
-              {", "}
+          {newStringIds ? (
+            <>
+              {', '}
               <TranslatedText
                 stringId="admin.translation.notification.newStringIdCreated"
                 fallback={`Created ${newStringIds} new translated string entries`}
                 replacements={{ newStringIds }}
               />
             </>
-            : ''}
-        </span>
+          ) : (
+            ''
+          )}
+        </span>,
       );
       queryClient.invalidateQueries(['translation']);
     },
@@ -106,14 +127,19 @@ const useTranslationMutation = () => {
         stringId="admin.translation.notification.savingFailed"
         fallback={`Error saving translations: ${err.message}`}
         replacements={{ message: err.message }}
-      />
+      />;
     },
   });
 };
 
 const TranslationField = ({ placeholderId, stringId, code }) => (
   // This id format is necessary to avoid formik nesting at . delimiters
-  <AccessorField id={`['${placeholderId || stringId}']`} name={code} component={TextField} multiline />
+  <AccessorField
+    id={`['${placeholderId || stringId}']`}
+    name={code}
+    component={TextField}
+    multiline
+  />
 );
 
 export const FormContents = ({
@@ -273,17 +299,18 @@ export const TranslationForm = () => {
   };
 
   if (isLoading) return <LoadingIndicator />;
-  if (error) return (
-    <ErrorMessage
-      title={
-        <TranslatedText
-          stringId="admin.translation.error.loadTranslations"
-          fallback="Error: Could not load translations:"
-        />
-      }
-      error={error}
-    />
-  );
+  if (error)
+    return (
+      <ErrorMessage
+        title={
+          <TranslatedText
+            stringId="admin.translation.error.loadTranslations"
+            fallback="Error: Could not load translations:"
+          />
+        }
+        error={error}
+      />
+    );
 
   const sortedTranslations = sortBy(translations, obj => obj.stringId !== 'languageName'); // Ensure languageName key stays on top
 
