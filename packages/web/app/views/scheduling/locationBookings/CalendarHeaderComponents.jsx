@@ -56,7 +56,7 @@ const MonthPicker = styled(MonthYearInput)`
   }
 
   body:has(&) > .MuiPickersPopper-root {
-    z-index: 1; // Above the sticky headers
+    z-index: 2; // Above the sticky headers
   }
 `;
 
