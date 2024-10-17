@@ -72,6 +72,8 @@ export const APPOINTMENT_STATUSES = {
   CANCELLED: 'Cancelled',
 };
 
+export const APPOINTMENT_STATUS_VALUES = Object.values(APPOINTMENT_STATUSES);
+
 export const REFERRAL_STATUSES = {
   PENDING: 'pending',
   CANCELLED: 'cancelled',
