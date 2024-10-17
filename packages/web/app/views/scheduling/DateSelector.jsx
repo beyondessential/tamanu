@@ -87,7 +87,6 @@ export const DateSelector = ({ date = startOfDay(new Date()) }) => {
 
   return (
     <div>
-      <h1>DateSelector</h1>
       <h2>Month {days[0].toLocaleString('default', { month: 'long', year: 'numeric' })}</h2>
       <Box display="flex" alignItems="center" justifyContent="space-between">
         <TextButton onClick={handleSetToday}>Today</TextButton>

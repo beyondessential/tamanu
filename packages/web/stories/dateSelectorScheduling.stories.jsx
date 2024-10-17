@@ -3,7 +3,7 @@ import { DateSelector } from '../app/views/scheduling/DateSelector';
 
 export default {
   argTypes: {},
-  title: 'DateSelectorScheduling',
+  title: 'SchedulingDateSelector',
   component: DateSelector,
 };
 
