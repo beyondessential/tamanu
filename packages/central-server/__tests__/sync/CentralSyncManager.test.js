@@ -1231,7 +1231,7 @@ describe('CentralSyncManager', () => {
 
         // Push the encounter
         await centralSyncManager.addIncomingChanges(sessionId, changes);
-        await centralSyncManager.completePush(sessionId);
+        await centralSyncManager.completePush(sessionId, 'facility-a');
         await waitForPushCompleted(centralSyncManager, sessionId);
 
         // Start the snapshot for pull process
