@@ -20,8 +20,8 @@ const DayWrapper = styled(Box)`
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 8px;
-  padding-inline: 10px;
+  padding: 4px;
+  padding-inline: 6px;
   border-radius: 3px;
   background-color: ${({ $selected }) => ($selected ? Colors.primary : 'transparent')};
   color: ${({ $selected }) => ($selected ? Colors.white : 'inherit')};
