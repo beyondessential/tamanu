@@ -120,9 +120,9 @@ export async function provision(provisioningFile, { skipIfNotNeeded }) {
   /// ////////
   /// SETTINGS
 
-  const combineSettings = async (settings, scope, facilityId) => {
+  const combineSettings = async (settingData, scope, facilityId) => {
     const existing = await store.models.Setting.get('', facilityId, scope);
-    const combined = defaultsDeep(existing, settings);
+    const combined = defaultsDeep(settingData, existing);
     return store.models.Settings.set('', combined, scope, facilityId);
   };
 
