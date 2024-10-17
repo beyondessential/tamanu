@@ -103,7 +103,9 @@ export const DataFetchingProgramsTable = ({ endpoint, patient }) => {
         open={printModalOpen}
         onClose={() => setPrintModalOpen(false)}
         patient={patient}
-        surveyResponse={selectedResponse}
+        surveyResponseId={selectedResponse?.id}
+        title={selectedResponse?.surveyName}
+        submittedBy={selectedResponse?.submittedBy}
       />
       <DataFetchingTable
         endpoint={endpoint}

@@ -14,7 +14,7 @@ import { useSurveyResponse } from '../../../api/queries/useSurveyResponse';
 import { useAuth } from '../../../contexts/Auth';
 
 export const SurveyResponsesPrintModal = React.memo(
-  ({ patient, open, onClose, surveyResponse }) => {
+  ({ patient, open, onClose, surveyResponseId, title, isReferral, submittedBy }) => {
     const { getLocalisation } = useLocalisation();
     const { getTranslation } = useTranslation();
     const api = useApi();
@@ -42,8 +42,14 @@ export const SurveyResponsesPrintModal = React.memo(
       },
     );
 
-    const { data: surveyResponseData, isLoading: surveyResponseLoading } = useSurveyResponse(
-      surveyResponse?.id,
+    const { data: surveyResponse, isLoading: surveyResponseLoading } = useSurveyResponse(surveyResponseId);
+
+    const { data: user, isLoading: isUserLoading } = useQuery(
+      ['user', surveyResponse?.userId],
+      () => api.get(`user/${surveyResponse?.userId}`),
+      {
+        enabled: !!surveyResponse?.userId,
+      },
     );
 
     const isLoading =
@@ -51,6 +57,7 @@ export const SurveyResponsesPrintModal = React.memo(
       isCertificateFetching ||
       isVillageQueryLoading ||
       surveyResponseLoading ||
+      (isUserLoading && surveyResponse?.userId) ||
       isFacilityLoading;
 
     return (
@@ -69,13 +76,14 @@ export const SurveyResponsesPrintModal = React.memo(
           <SurveyResponsesPrintout
             patientData={{ ...patient, additionalData, village }}
             surveyResponse={{
-              ...surveyResponseData,
-              surveyName: surveyResponse?.surveyName,
-              submittedBy: surveyResponse?.submittedBy,
+              ...surveyResponse,
+              title,
+              submittedBy: submittedBy || user?.displayName,
             }}
             certificateData={certificateData}
             getLocalisation={getLocalisation}
             getTranslation={getTranslation}
+            isReferral={isReferral}
             currentUser={currentUser}
             facility={facility}
           />
