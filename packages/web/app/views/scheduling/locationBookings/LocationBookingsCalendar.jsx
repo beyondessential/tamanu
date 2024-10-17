@@ -62,7 +62,6 @@ export const LocationBookingsCalendar = ({ locationsQuery }) => {
       after: displayedDates[0],
       before: endOfDay(displayedDates[displayedDates.length - 1]),
     }).data?.data ?? [];
-  console.log(appointments);
   const appointmentsByLocation = partitionAppointmentsByLocation(appointments);
 
   return (
