@@ -37,18 +37,17 @@ const DayWrapper = styled(Box)`
   padding-inline: 6px;
   border-radius: 3px;
   flex-grow: 1;
-`;
-
-const WeekdayText = styled(BodyText)`
-  color: ${({ $selected, $isWeekend }) =>
-    $selected ? Colors.white : $isWeekend ? Colors.softText : Colors.midText};
-  min-width: 18px;
-  text-align: center;
+  user-select: none;
 `;
 
 const DateText = styled(BodyText)`
   min-width: 18px;
   text-align: center;
+`;
+
+const WeekdayText = styled(DateText)`
+  color: ${({ $selected, $isWeekend }) =>
+    $selected ? Colors.white : $isWeekend ? Colors.softText : Colors.midText};
 `;
 
 const TodayButton = styled(TextButton)`
