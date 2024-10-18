@@ -109,7 +109,7 @@ export const WarningModal = ({ open, setShowWarningModal, resolveFn }) => {
   );
 };
 
-export const BookLocationDrawer = ({ open, closeDrawer, initialValues, refreshCalendar }) => {
+export const BookLocationDrawer = ({ open, closeDrawer, initialLocationValues, refreshCalendar }) => {
   const patientSuggester = usePatientSuggester();
   const clinicianSuggester = useSuggester('practitioner');
 
@@ -129,11 +129,10 @@ export const BookLocationDrawer = ({ open, closeDrawer, initialValues, refreshCa
       showUnknownErrorToast: true,
     });
 
-    refreshCalendar();
-
     notifySuccess('Booking successfully created');
     closeDrawer();
     resetForm();
+    refreshCalendar();
   };
 
   return (
@@ -151,8 +150,9 @@ export const BookLocationDrawer = ({ open, closeDrawer, initialValues, refreshCa
           endTime: yup.string().required(),
           patientId: yup.string().required(),
         })}
-        initialValues={initialValues}
-        render={({ values, resetForm, setFieldValue, dirty }) => {
+        initialValues={initialLocationValues}
+        enableReinitialize
+        render={({ values, resetForm, setFieldValue, dirty, initialValues }) => {
           const warnAndResetForm = async () => {
             const confirmed = !dirty || (await handleShowWarningModal());
             if (!confirmed) return;

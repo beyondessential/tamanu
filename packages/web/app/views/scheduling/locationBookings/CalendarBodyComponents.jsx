@@ -5,11 +5,11 @@ import { CarouselComponents as CarouselGrid } from './CarouselComponents';
 import { AppointmentTile } from '../../../components/Appointments/AppointmentTile';
 import { partitionAppointmentsByDate } from './util';
 
-export const BookingsCell = ({ appointments, date, location, onOpenDrawer }) => (
+export const BookingsCell = ({ appointments, date, location, openBookingForm }) => (
   <CarouselGrid.Cell
     onClick={() => {
       // Open form for creating new booking
-      onOpenDrawer()
+      openBookingForm({ date, locationId: location.id });
     }}
   >
     {appointments?.map(a => (
@@ -18,7 +18,7 @@ export const BookingsCell = ({ appointments, date, location, onOpenDrawer }) => 
   </CarouselGrid.Cell>
 );
 
-export const BookingsRow = ({ appointments, dates, location, onOpenDrawer }) => {
+export const BookingsRow = ({ appointments, dates, location, openBookingForm }) => {
   const {
     name: locationName,
     locationGroup: { name: locationGroupName },
@@ -36,7 +36,7 @@ export const BookingsRow = ({ appointments, dates, location, onOpenDrawer }) => 
           date={d}
           key={d.valueOf()}
           location={location}
-          onOpenDrawer={onOpenDrawer}
+          openBookingForm={openBookingForm}
         />
       ))}
     </CarouselGrid.Row>

@@ -63,7 +63,7 @@ const isTimeSlotWithinRange = (timeSlot, range) => {
 // logic calculated through time ranges in the format { start: DATE, end: DATE }
 export const BookingTimeField = ({ disabled = false }) => {
   const { getSetting } = useSettings();
-  const { setFieldValue, values } = useFormikContext();
+  const { setFieldValue, values, dirty } = useFormikContext();
 
   const [selectedTimeRange, setSelectedTimeRange] = useState(null);
   const [hoverTimeRange, setHoverTimeRange] = useState(null);
@@ -93,11 +93,13 @@ export const BookingTimeField = ({ disabled = false }) => {
   ]);
 
   useEffect(() => {
-    const startTime = selectedTimeRange ? toDateTimeString(selectedTimeRange.start) : null;
-    const endTime = selectedTimeRange ? toDateTimeString(selectedTimeRange.end) : null;
-    setFieldValue('startTime', startTime);
-    setFieldValue('endTime', endTime);
-  }, [selectedTimeRange, setFieldValue]);
+    if (dirty) {
+      const startTime = selectedTimeRange ? toDateTimeString(selectedTimeRange.start) : null;
+      const endTime = selectedTimeRange ? toDateTimeString(selectedTimeRange.end) : null;
+      setFieldValue('startTime', startTime);
+      setFieldValue('endTime', endTime);
+    }
+  }, [selectedTimeRange, setFieldValue, dirty]);
 
   useEffect(() => {
     if (!values.startTime) setSelectedTimeRange(null);

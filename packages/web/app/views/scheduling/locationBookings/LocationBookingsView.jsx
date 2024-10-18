@@ -68,6 +68,9 @@ export const LocationBookingsView = () => {
     setIsDrawerOpen(true);
     setInitialDrawerValues(initialValues);
   };
+  const closeBookingForm = () => {
+    setIsDrawerOpen(false);
+  };
 
   const [refreshCount, setRefreshCount] = useState(0);
   const refreshCalendar = () => {
@@ -90,19 +93,25 @@ export const LocationBookingsView = () => {
           <Placeholder>Clinician</Placeholder>
           <Placeholder>Type</Placeholder>
         </Filters>
-        <NewBookingButton onClick={openBookingForm}>+ New booking</NewBookingButton>
+        <NewBookingButton onClick={() => openBookingForm({})}>+ New booking</NewBookingButton>
       </LocationBookingsTopBar>
       {hasNoLocations ? (
         <EmptyStateLabel>No bookable locations</EmptyStateLabel>
       ) : (
-        <LocationBookingsCalendar locationsQuery={locationsQuery} refreshCount={refreshCount} />
+        <LocationBookingsCalendar
+          locationsQuery={locationsQuery}
+          openBookingForm={openBookingForm}
+          refreshCount={refreshCount}
+        />
       )}
-      <BookLocationDrawer
-        initialValues={initialDrawerValues}
-        open={isDrawerOpen}
-        closeDrawer={() => setIsDrawerOpen(false)}
-        refreshCalendar={refreshCalendar}
-      />
+      {isDrawerOpen && (
+        <BookLocationDrawer
+          initialLocationValues={initialDrawerValues}
+          open={isDrawerOpen}
+          closeDrawer={closeBookingForm}
+          refreshCalendar={refreshCalendar}
+        />
+      )}
     </Wrapper>
   );
 };

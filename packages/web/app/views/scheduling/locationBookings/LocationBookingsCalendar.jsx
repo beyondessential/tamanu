@@ -50,7 +50,7 @@ const EmptyStateRow = () => (
   <StyledRow>No bookings to display. Please try adjusting the search filters.</StyledRow>
 );
 
-export const LocationBookingsCalendar = ({ locationsQuery, refreshCount }) => {
+export const LocationBookingsCalendar = ({ locationsQuery, openBookingForm, refreshCount }) => {
   const selectedMonthState = useState(startOfToday());
   const [monthOf] = selectedMonthState;
   const displayedDates = getDisplayableDates(monthOf);
@@ -86,6 +86,7 @@ export const LocationBookingsCalendar = ({ locationsQuery, refreshCount }) => {
               dates={displayedDates}
               key={location.code}
               location={location}
+              openBookingForm={openBookingForm}
             />
           ))
         )}
