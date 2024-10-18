@@ -1,43 +1,27 @@
-{% docs table__encounters %}
+{% docs fhir__table__encounters %}
 TODO
 {% enddocs %}
 
-{% docs encounters__id %}
+{% docs fhir__encounters__status %}
 TODO
 {% enddocs %}
 
-{% docs encounters__version_id %}
+{% docs fhir__encounters__class %}
 TODO
 {% enddocs %}
 
-{% docs encounters__upstream_id %}
+{% docs fhir__encounters__actual_period %}
 TODO
 {% enddocs %}
 
-{% docs encounters__last_updated %}
+{% docs fhir__encounters__subject %}
 TODO
 {% enddocs %}
 
-{% docs encounters__status %}
+{% docs fhir__encounters__location %}
 TODO
 {% enddocs %}
 
-{% docs encounters__class %}
-TODO
-{% enddocs %}
-
-{% docs encounters__actual_period %}
-TODO
-{% enddocs %}
-
-{% docs encounters__subject %}
-TODO
-{% enddocs %}
-
-{% docs encounters__location %}
-TODO
-{% enddocs %}
-
-{% docs encounters__service_provider %}
+{% docs fhir__encounters__service_provider %}
 TODO
 {% enddocs %}

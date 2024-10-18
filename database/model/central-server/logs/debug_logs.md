@@ -1,15 +1,39 @@
-{% docs table__debug_logs %}
+{% docs logs__table__debug_logs %}
 TODO
 {% enddocs %}
 
-{% docs debug_logs__id %}
+{% docs logs__debug_logs__id %}
 TODO
 {% enddocs %}
 
-{% docs debug_logs__type %}
+{% docs logs__debug_logs__type %}
 TODO
 {% enddocs %}
 
-{% docs debug_logs__info %}
+{% docs logs__debug_logs__info %}
+TODO
+{% enddocs %}
+
+{% docs logs__debug_logs__id %}
+TODO
+{% enddocs %}
+
+{% docs logs__debug_logs__type %}
+TODO
+{% enddocs %}
+
+{% docs logs__debug_logs__info %}
+TODO
+{% enddocs %}
+
+{% docs logs__debug_logs__id %}
+TODO
+{% enddocs %}
+
+{% docs logs__debug_logs__type %}
+TODO
+{% enddocs %}
+
+{% docs logs__debug_logs__info %}
 TODO
 {% enddocs %}
