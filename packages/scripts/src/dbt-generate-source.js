@@ -461,6 +461,13 @@ async function handleSchema(client, packageName, schemaName) {
   const oldTablesPromise = readTablesFromDbt(schemaPath);
   const sqlTablesPromise = readTablesFromDB(client, schemaName);
   const [oldTables, sqlTables] = await Promise.all([oldTablesPromise, sqlTablesPromise]);
+
+  const fhirLogsIndex = sqlTables.findIndex(
+    ({ name }) =>
+      packageName === 'facility-server' && schemaName === 'logs' && name === 'fhir_writes',
+  );
+  if (fhirLogsIndex) delete sqlTables[fhirLogsIndex];
+
   await handleTables(schemaPath, schemaName, oldTables, sqlTables);
 }
 
@@ -534,7 +541,8 @@ You can override the config for both by supplying \`NODE_CONFIG\` or the \`confi
 }
 
 module.exports = {
-  readTablesFromDbt, readTableDoc
+  readTablesFromDbt,
+  readTableDoc,
 };
 
 if (require.main === module) runAll();
