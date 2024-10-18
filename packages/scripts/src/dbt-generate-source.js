@@ -523,7 +523,8 @@ You can override the config for both by supplying \`NODE_CONFIG\` or the \`confi
     exit(1);
   }
 
-  await Promise.all([run('central-server', opts), run('facility-server', opts)])
+  await run('central-server', opts);
+  await run('facility-server', opts);
 }
 
 module.exports = {
