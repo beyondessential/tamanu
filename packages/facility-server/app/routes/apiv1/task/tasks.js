@@ -10,21 +10,10 @@ import {
 import { z } from 'zod';
 import { Op } from 'sequelize';
 import { v4 as uuidv4 } from 'uuid';
-import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { datetimeCustomValidation, getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 
 const taskRoutes = express.Router();
 export { taskRoutes as tasks };
-
-// Custom validator for "YYYY-MM-DD HH:MM:SS" format
-const datetimeCustom = z.string().refine((val) => {
-  const regex = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/;
-  if (!regex.test(val)) return false;
-
-  const date = new Date(val);
-  return !isNaN(date.getTime());
-}, {
-  message: "Invalid datetime format, expected YYYY-MM-DD HH:MM:SS",
-});
 
 /**
  * Mark task as completed
@@ -36,7 +25,7 @@ const taskCompletionInputSchema = z.object({
     .array()
     .min(1),
   completedByUserId: z.string(),
-  completedTime: datetimeCustom,
+  completedTime: datetimeCustomValidation,
   completedNote: z.string().optional(),
 });
 taskRoutes.post(
@@ -77,7 +66,7 @@ const taskNonCompletionInputSchema = z.object({
     .array()
     .min(1),
   notCompletedByUserId: z.string(),
-  notCompletedTime: datetimeCustom,
+  notCompletedTime: datetimeCustomValidation,
   notCompletedReasonId: z.string().optional(),
 });
 taskRoutes.put(
@@ -130,7 +119,7 @@ const taskDeletionInputSchema = z.object({
     .array()
     .min(1),
   deletedByUserId: z.string(),
-  deletedTime: datetimeCustom,
+  deletedTime: datetimeCustomValidation,
   deletedReasonId: z.string().optional(),
 });
 taskRoutes.delete(
@@ -213,7 +202,7 @@ const taskTodoInputSchema = z.object({
     .array()
     .min(1),
   todoByUserId: z.string(),
-  todoTime: datetimeCustom,
+  todoTime: datetimeCustomValidation,
   todoNote: z.string().optional(),
 });
 taskRoutes.put(
@@ -277,10 +266,10 @@ taskRoutes.put(
 );
 
 const tasksCreationSchema = z.object({
-  startTime: datetimeCustom,
+  startTime: datetimeCustomValidation,
   encounterId: z.string().uuid(),
   requestedByUserId: z.string(),
-  requestTime: datetimeCustom,
+  requestTime: datetimeCustomValidation,
   note: z.string().optional(),
   tasks: z
     .object({
