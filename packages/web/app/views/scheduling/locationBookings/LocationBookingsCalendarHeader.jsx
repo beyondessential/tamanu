@@ -5,8 +5,37 @@ import styled, { css } from 'styled-components';
 import { isStartOfThisWeek } from '@tamanu/shared/utils/dateTime';
 
 import { Colors } from '../../../constants';
-import { formatShort, formatWeekdayShort, MonthYearInput } from '../../../components';
+import { Button, formatShort, formatWeekdayShort, MonthYearInput } from '../../../components';
 import { CarouselComponents as CarouselGrid } from './CarouselComponents';
+
+const StyledFirstHeaderCell = styled(CarouselGrid.FirstHeaderCell)`
+  display: grid;
+  gap: 0.25rem;
+  grid-template-columns: minmax(min-content, 1fr) max-content;
+  align-items: center;
+`;
+
+const StyledButton = styled(Button).attrs({ variant: 'text' })`
+  font-size: 0.75rem;
+  font-weight: 400;
+  min-inline-size: 4rem; // Prevent hover effect from affecting layout
+  padding: 0.25rem;
+
+  &:hover {
+    background-color: initial;
+    font-weight: 500;
+  }
+
+  &,
+  &:hover {
+    text-decoration-line: underline;
+    text-decoration-thickness: from-font;
+  }
+
+  .MuiButton-label {
+    display: contents;
+  }
+`;
 
 const HeaderCell = styled(CarouselGrid.ColHeaderCell).attrs({ as: 'time' })`
   --base-font-weight: 400;
@@ -75,9 +104,10 @@ export const LocationBookingsCalendarHeader = ({ selectedMonthState, displayedDa
 
   return (
     <CarouselGrid.HeaderRow>
-      <CarouselGrid.FirstHeaderCell>
+      <StyledFirstHeaderCell>
         <MonthPicker onAccept={setMonthOf} />
-      </CarouselGrid.FirstHeaderCell>
+        <StyledButton>This week</StyledButton>
+      </StyledFirstHeaderCell>
       {displayedDates.map(d => {
         const id = isStartOfThisWeek(d)
           ? thisWeekId
