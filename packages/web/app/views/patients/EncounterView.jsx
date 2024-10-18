@@ -38,6 +38,7 @@ const TABS = [
     label: <TranslatedText stringId="encounter.tabs.tasks" fallback="tasks" />,
     key: ENCOUNTER_TAB_NAMES.TASKS,
     render: props => <TasksPane {...props} />,
+    condition: (_, ability) => ability.can('list', 'Tasking'),
   },
   {
     label: <TranslatedText stringId="encounter.tabs.vitals" fallback="Vitals" />,

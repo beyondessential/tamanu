@@ -18,6 +18,7 @@ import { Colors } from '../../constants';
 import useOverflow from '../../hooks/useOverflow';
 import { ConditionalTooltip, ThemedTooltip } from '../Tooltip';
 import { TaskActionModal } from './TaskActionModal';
+import { useAuth } from '../../contexts/Auth';
 
 const StyledTable = styled(DataFetchingTable)`
   margin-top: 6px;
@@ -250,60 +251,69 @@ const getFrequency = ({ frequencyValue, frequencyUnit }) =>
     <TranslatedText stringId="encounter.tasks.table.once" fallback="Once" />
   );
 
-const BulkActions = ({ row, status, handleActionModalOpen }) => (
-  <StyledBulkActions>
-    {status !== TASK_STATUSES.NON_COMPLETED && (
-      <ThemedTooltip
-        title={
-          <TranslatedText
-            stringId="encounter.tasks.action.tooltip.notCompleted"
-            fallback="Mark as not complete"
-          />
-        }
-      >
-        <IconButton onClick={() => handleActionModalOpen(TASK_ACTIONS.NON_COMPLETED, row)}>
-          <StyledCancelIcon />
-        </IconButton>
-      </ThemedTooltip>
-    )}
-    {status !== TASK_STATUSES.COMPLETED && (
-      <ThemedTooltip
-        title={
-          <TranslatedText
-            stringId="encounter.tasks.action.tooltip.completed"
-            fallback="Mark as complete"
-          />
-        }
-      >
-        <IconButton onClick={() => handleActionModalOpen(TASK_ACTIONS.COMPLETED, row)}>
-          <StyledCheckCircleIcon />
-        </IconButton>
-      </ThemedTooltip>
-    )}
-    {status !== TASK_STATUSES.TODO && (
-      <ThemedTooltip
-        title={
-          <TranslatedText stringId="encounter.tasks.action.tooltip.toDo" fallback="Mark as to-do" />
-        }
-      >
-        <IconButton onClick={() => handleActionModalOpen(TASK_ACTIONS.TODO, row)}>
-          <StatusTodo />
-        </IconButton>
-      </ThemedTooltip>
-    )}
-    {status === TASK_STATUSES.TODO && (
-      <ThemedTooltip
-        title={
-          <TranslatedText stringId="encounter.tasks.action.tooltip.delete" fallback="Delete" />
-        }
-      >
-        <IconButton onClick={() => handleActionModalOpen(TASK_ACTIONS.DELETED, row)}>
-          <StyledDeleteOutlineIcon />
-        </IconButton>
-      </ThemedTooltip>
-    )}
-  </StyledBulkActions>
-);
+const BulkActions = ({ row, status, handleActionModalOpen }) => {
+  const { ability } = useAuth();
+  const canWrite = ability.can('write', 'Tasking');
+  const canDelete = ability.can('delete', 'Tasking');
+
+  return (
+    <StyledBulkActions>
+      {status !== TASK_STATUSES.NON_COMPLETED && canWrite && (
+        <ThemedTooltip
+          title={
+            <TranslatedText
+              stringId="encounter.tasks.action.tooltip.notCompleted"
+              fallback="Mark as not complete"
+            />
+          }
+        >
+          <IconButton onClick={() => handleActionModalOpen(TASK_ACTIONS.NON_COMPLETED, row)}>
+            <StyledCancelIcon />
+          </IconButton>
+        </ThemedTooltip>
+      )}
+      {status !== TASK_STATUSES.COMPLETED && canWrite && (
+        <ThemedTooltip
+          title={
+            <TranslatedText
+              stringId="encounter.tasks.action.tooltip.completed"
+              fallback="Mark as complete"
+            />
+          }
+        >
+          <IconButton onClick={() => handleActionModalOpen(TASK_ACTIONS.COMPLETED, row)}>
+            <StyledCheckCircleIcon />
+          </IconButton>
+        </ThemedTooltip>
+      )}
+      {status !== TASK_STATUSES.TODO && canWrite && (
+        <ThemedTooltip
+          title={
+            <TranslatedText
+              stringId="encounter.tasks.action.tooltip.toDo"
+              fallback="Mark as to-do"
+            />
+          }
+        >
+          <IconButton onClick={() => handleActionModalOpen(TASK_ACTIONS.TODO, row)}>
+            <StatusTodo />
+          </IconButton>
+        </ThemedTooltip>
+      )}
+      {status === TASK_STATUSES.TODO && canDelete && (
+        <ThemedTooltip
+          title={
+            <TranslatedText stringId="encounter.tasks.action.tooltip.delete" fallback="Delete" />
+          }
+        >
+          <IconButton onClick={() => handleActionModalOpen(TASK_ACTIONS.DELETED, row)}>
+            <StyledDeleteOutlineIcon />
+          </IconButton>
+        </ThemedTooltip>
+      )}
+    </StyledBulkActions>
+  );
+};
 
 const NotesCell = ({ row, hoveredRow, handleActionModalOpen }) => {
   const [ref, isOverflowing] = useOverflow();
@@ -353,6 +363,10 @@ const NoDataMessage = () => (
 );
 
 export const TasksTable = ({ encounterId, searchParameters, refreshCount, refreshTaskTable }) => {
+  const { ability } = useAuth();
+  const canWrite = ability.can('write', 'Tasking');
+  const canDelete = ability.can('delete', 'Tasking');
+
   const [hoveredRow, setHoveredRow] = useState();
   const [data, setData] = useState([]);
   const [actionModal, setActionModal] = useState('');
@@ -382,7 +396,7 @@ export const TasksTable = ({ encounterId, searchParameters, refreshCount, refres
       const uniqueStatuses = new Set(data.map(item => item.status));
       return uniqueStatuses.size > 1 && !selectedKeys.size;
     },
-    getRowsFilterer: (selectedKeys) => (row) => {
+    getRowsFilterer: selectedKeys => row => {
       const selectedStatus = data.find(({ id }) => selectedKeys.has(id))?.status;
       return !selectedStatus || row.status === selectedStatus;
     },
@@ -469,7 +483,7 @@ export const TasksTable = ({ encounterId, searchParameters, refreshCount, refres
         taskIds={selectedTask?.id ? [selectedTask.id] : selectedRowIds}
         isRepeatingTask={isRepeatingTask}
       />
-      {selectedRows.length > 0 && (
+      {selectedRows.length > 0 && (canWrite || canDelete) && (
         <div>
           <StyledDivider />
           <BulkActions
