@@ -1,8 +1,5 @@
 import React, { ReactElement } from 'react';
 import { Root } from 'popup-ui';
-import {
-  Text,
-} from 'react-native';
 import { NavigationContainer, NavigationContainerRef } from '@react-navigation/native';
 import { PersistGate } from 'redux-persist/integration/react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
