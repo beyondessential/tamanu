@@ -62,10 +62,12 @@ const StyledPopper = styled(Popper)`
     color: ${Colors.darkestText};
     font-size: inherit;
     font-weight: 500;
-    inline-size: 4.25em;
+    inline-size: 4.5em;
+    line-height: 1.5;
     margin-block: 0;
     padding-block: 0.25rem;
     padding-inline: 0.5rem;
+    transition: background-color 120ms ease;
   }
 
   .Mui-selected {
