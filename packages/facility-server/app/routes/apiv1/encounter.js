@@ -563,7 +563,7 @@ encounterRelations.get(
     const query = await encounterTasksQuerySchema.parseAsync(req.query);
     const { order, orderBy, assignedTo, statuses, page, rowsPerPage } = query;
 
-    req.checkPermission('list', 'Task');
+    req.checkPermission('list', 'Tasking');
 
     const upcomingTasksTimeFrame = config.tasking?.upcomingTasksTimeFrame || 8;
     const baseQueryOptions = {
