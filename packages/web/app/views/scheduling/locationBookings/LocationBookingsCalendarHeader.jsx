@@ -106,7 +106,7 @@ export const LocationBookingsCalendarHeader = ({ selectedMonthState, displayedDa
     <CarouselGrid.HeaderRow>
       <StyledFirstHeaderCell>
         <MonthPicker onAccept={setMonthOf} />
-        <StyledButton>This week</StyledButton>
+        <StyledButton onClick={() => setMonthOf(startOfToday())}>This week</StyledButton>
       </StyledFirstHeaderCell>
       {displayedDates.map(d => {
         const id = isStartOfThisWeek(d)
