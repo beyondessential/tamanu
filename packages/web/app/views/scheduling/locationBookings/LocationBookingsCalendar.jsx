@@ -50,19 +50,22 @@ const EmptyStateRow = () => (
   <StyledRow>No bookings to display. Please try adjusting the search filters.</StyledRow>
 );
 
-export const LocationBookingsCalendar = ({ locationsQuery }) => {
+export const LocationBookingsCalendar = ({ locationsQuery, refreshCount }) => {
   const selectedMonthState = useState(startOfToday());
   const [monthOf] = selectedMonthState;
   const displayedDates = getDisplayableDates(monthOf);
 
   const { data: locations, isLoading: locationsAreLoading } = locationsQuery;
 
+  // TODO: load when loading appointments?
   const appointments =
-    useLocationBookingsQuery({
-      after: displayedDates[0],
-      before: endOfDay(displayedDates[displayedDates.length - 1]),
-    }).data?.data ?? [];
-  console.log(appointments);
+    useLocationBookingsQuery(
+      {
+        after: displayedDates[0],
+        before: endOfDay(displayedDates[displayedDates.length - 1]),
+      },
+      [refreshCount],
+    ).data?.data ?? [];
   const appointmentsByLocation = partitionAppointmentsByLocation(appointments);
 
   return (

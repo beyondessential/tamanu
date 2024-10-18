@@ -109,7 +109,7 @@ export const WarningModal = ({ open, setShowWarningModal, resolveFn }) => {
   );
 };
 
-export const BookLocationDrawer = ({ open, closeDrawer }) => {
+export const BookLocationDrawer = ({ open, closeDrawer, initialValues, refreshCalendar }) => {
   const patientSuggester = usePatientSuggester();
   const clinicianSuggester = useSuggester('practitioner');
 
@@ -128,6 +128,8 @@ export const BookLocationDrawer = ({ open, closeDrawer }) => {
     await api.post(`appointments/locationBooking`, values, {
       showUnknownErrorToast: true,
     });
+
+    refreshCalendar();
 
     notifySuccess('Booking successfully created');
     closeDrawer();
@@ -149,6 +151,7 @@ export const BookLocationDrawer = ({ open, closeDrawer }) => {
           endTime: yup.string().required(),
           patientId: yup.string().required(),
         })}
+        initialValues={initialValues}
         render={({ values, resetForm, setFieldValue, dirty }) => {
           const warnAndResetForm = async () => {
             const confirmed = !dirty || (await handleShowWarningModal());

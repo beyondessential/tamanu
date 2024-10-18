@@ -1,13 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
-
-import { isStartOfThisWeek } from '@tamanu/shared/utils/dateTime';
 
 import { useLocationsQuery } from '../../../api/queries';
 import { Colors } from '../../../constants';
-import { PageContainer, TopBar, TranslatedText } from '../../../components';
+import { Button, PageContainer, TopBar, TranslatedText } from '../../../components';
 import { Typography } from '@material-ui/core';
 import { LocationBookingsCalendar } from './LocationBookingsCalendar';
+import { BookLocationDrawer } from '../../../components/Appointments/LocationBookingForm/BookLocationDrawer';
 
 // BEGIN PLACEHOLDERS
 
@@ -43,6 +42,10 @@ const Filters = styled('search')`
   gap: 1rem;
 `;
 
+const NewBookingButton = styled(Button)`
+  margin-left: 1rem;
+`;
+
 const EmptyStateLabel = styled(Typography).attrs({
   align: 'center',
   color: 'textSecondary',
@@ -59,6 +62,18 @@ const EmptyStateLabel = styled(Typography).attrs({
 `;
 
 export const LocationBookingsView = () => {
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [initialDrawerValues, setInitialDrawerValues] = useState({});
+  const openBookingForm = initialValues => {
+    setIsDrawerOpen(true);
+    setInitialDrawerValues(initialValues);
+  };
+
+  const [refreshCount, setRefreshCount] = useState(0);
+  const refreshCalendar = () => {
+    setRefreshCount(refreshCount + 1);
+  };
+
   const locationsQuery = useLocationsQuery({
     includeLocationGroup: true,
     bookableOnly: true,
@@ -75,12 +90,19 @@ export const LocationBookingsView = () => {
           <Placeholder>Clinician</Placeholder>
           <Placeholder>Type</Placeholder>
         </Filters>
+        <NewBookingButton onClick={openBookingForm}>+ New booking</NewBookingButton>
       </LocationBookingsTopBar>
       {hasNoLocations ? (
         <EmptyStateLabel>No bookable locations</EmptyStateLabel>
       ) : (
-        <LocationBookingsCalendar locationsQuery={locationsQuery} />
+        <LocationBookingsCalendar locationsQuery={locationsQuery} refreshCount={refreshCount} />
       )}
+      <BookLocationDrawer
+        initialValues={initialDrawerValues}
+        open={isDrawerOpen}
+        closeDrawer={() => setIsDrawerOpen(false)}
+        refreshCalendar={refreshCalendar}
+      />
     </Wrapper>
   );
 };
