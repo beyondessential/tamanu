@@ -27,7 +27,6 @@ const CellContainer = styled.div`
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 10px;
-  margin-bottom: 16px;
 `;
 
 const LoadingIndicator = styled(CircularProgress)`

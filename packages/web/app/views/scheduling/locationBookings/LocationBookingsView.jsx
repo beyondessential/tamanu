@@ -64,12 +64,12 @@ const EmptyStateLabel = styled(Typography).attrs({
 export const LocationBookingsView = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [initialDrawerValues, setInitialDrawerValues] = useState({});
+  const closeBookingForm = () => {
+    setIsDrawerOpen(false);
+  };
   const openBookingForm = initialValues => {
     setIsDrawerOpen(true);
     setInitialDrawerValues(initialValues);
-  };
-  const closeBookingForm = () => {
-    setIsDrawerOpen(false);
   };
 
   const [refreshCount, setRefreshCount] = useState(0);
