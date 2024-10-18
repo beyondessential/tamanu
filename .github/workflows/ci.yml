@@ -309,6 +309,27 @@ jobs:
               exit 1
           fi
 
+  check-todo-db-model:
+    needs: node_modules_cache
+    name: Check If the DB Source Model Files have TODO Items
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: yarn
+      - uses: actions/cache/restore@v3
+        with:
+          key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
+          path: ${{ env.NODE_MODULES_PATHS }}
+
+      - name: Build
+        run: |
+          yarn
+
+      - run: yarn check-todo-dbt-source
+
   # Dummy job to have a stable name for PR requirements
   tests-pass:
     if: always() # always run even if dependencies fail
@@ -322,6 +343,7 @@ jobs:
       - test-facility-offline
       - test-yarn-lock
       - check-db-model
+      - check-todo-db-model
     runs-on: ubuntu-latest
     steps:
       - uses: re-actors/alls-green@release/v1
