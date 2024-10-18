@@ -16,7 +16,7 @@ export class Setting extends BaseModel {
   @Column({ nullable: false })
   key: string;
 
-  @Column({ nullable: false })
+  @Column({ nullable: true })
   value: string;
 
   @Column({ nullable: false })
@@ -97,7 +97,7 @@ export class Setting extends BaseModel {
     const settingWithFacilityScope = await this.get('', facilityId);
     const settingWithGlobalScope = await this.get('');
     const settings = merge(settingWithGlobalScope, settingWithFacilityScope);
-    return getAtPath(settings, key)
+    return getAtPath(settings, key);
   }
 
   static sanitizePulledRecordData(rows) {

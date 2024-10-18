@@ -7,7 +7,7 @@ import { DataFetchingProgramsTable } from '../../../components/ProgramResponsesT
 import { TabPane } from '../components';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
-export const EncounterProgramsPane = React.memo(() => {
+export const EncounterProgramsPane = React.memo(({ patient }) => {
   const dispatch = useDispatch();
   const params = useParams();
 
@@ -25,7 +25,10 @@ export const EncounterProgramsPane = React.memo(() => {
           <TranslatedText stringId="program.action.newSurvey" fallback="New form" />
         </Button>
       </TableButtonRow>
-      <DataFetchingProgramsTable endpoint={`encounter/${params.encounterId}/programResponses`} />
+      <DataFetchingProgramsTable
+        endpoint={`encounter/${params.encounterId}/programResponses`}
+        patient={patient}
+      />
     </TabPane>
   );
 });

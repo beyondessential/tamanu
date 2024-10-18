@@ -17,6 +17,7 @@ import {
 import { DischargeSummaryPrintout } from '@tamanu/shared/utils/patientCertificates';
 import { printPDF, PDFLoader } from '../../components/PatientPrinting/PDFLoader';
 import { useEncounterDischarge } from '../../api/queries/useEncounterDischarge';
+import { useSettings } from '../../contexts/Settings';
 
 const Container = styled.div`
   background: ${Colors.white};
@@ -35,6 +36,7 @@ export const DischargeSummaryView = React.memo(() => {
   const { data: certiciateData, isFetching: isCertificateFetching } = useCertificate();
   const { getLocalisation } = useLocalisation();
   const { getTranslation } = useTranslation();
+  const { getSetting } = useSettings();
   const { encounter } = useEncounter();
   const patient = useSelector(state => state.patient);
   const { data: additionalData, isFetching: isPADLoading } = usePatientAdditionalDataQuery(
@@ -76,6 +78,7 @@ export const DischargeSummaryView = React.memo(() => {
           certificateData={certiciateData}
           getLocalisation={getLocalisation}
           getTranslation={getTranslation}
+          getSetting={getSetting}
         />
       </PDFLoader>
     </Container>

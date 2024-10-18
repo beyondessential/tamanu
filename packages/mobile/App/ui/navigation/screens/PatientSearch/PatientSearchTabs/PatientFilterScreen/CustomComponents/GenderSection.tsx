@@ -23,7 +23,6 @@ export const SexSection = (): ReactElement => (
   <StyledView marginLeft={20} marginRight={20} marginBottom={20}>
     <LocalisedField
       label={<TranslatedText stringId="general.localisedField.sex.label" fallback="Sex" />}
-      localisationPath="fields.sex"
       component={RadioButtonGroup}
       name="sex"
       options={options}
