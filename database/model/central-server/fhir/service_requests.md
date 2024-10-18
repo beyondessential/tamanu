@@ -1,75 +1,59 @@
-{% docs table__service_requests %}
+{% docs fhir__table__service_requests %}
 TODO
 {% enddocs %}
 
-{% docs service_requests__id %}
+{% docs fhir__service_requests__identifier %}
 TODO
 {% enddocs %}
 
-{% docs service_requests__version_id %}
+{% docs fhir__service_requests__status %}
 TODO
 {% enddocs %}
 
-{% docs service_requests__upstream_id %}
+{% docs fhir__service_requests__intent %}
 TODO
 {% enddocs %}
 
-{% docs service_requests__last_updated %}
+{% docs fhir__service_requests__category %}
 TODO
 {% enddocs %}
 
-{% docs service_requests__identifier %}
+{% docs fhir__service_requests__priority %}
 TODO
 {% enddocs %}
 
-{% docs service_requests__status %}
+{% docs fhir__service_requests__order_detail %}
 TODO
 {% enddocs %}
 
-{% docs service_requests__intent %}
+{% docs fhir__service_requests__location_code %}
 TODO
 {% enddocs %}
 
-{% docs service_requests__category %}
+{% docs fhir__service_requests__code %}
 TODO
 {% enddocs %}
 
-{% docs service_requests__priority %}
+{% docs fhir__service_requests__subject %}
 TODO
 {% enddocs %}
 
-{% docs service_requests__order_detail %}
+{% docs fhir__service_requests__requester %}
 TODO
 {% enddocs %}
 
-{% docs service_requests__location_code %}
+{% docs fhir__service_requests__occurrence_date_time %}
 TODO
 {% enddocs %}
 
-{% docs service_requests__code %}
+{% docs fhir__service_requests__encounter %}
 TODO
 {% enddocs %}
 
-{% docs service_requests__subject %}
+{% docs fhir__service_requests__note %}
 TODO
 {% enddocs %}
 
-{% docs service_requests__requester %}
-TODO
-{% enddocs %}
-
-{% docs service_requests__occurrence_date_time %}
-TODO
-{% enddocs %}
-
-{% docs service_requests__encounter %}
-TODO
-{% enddocs %}
-
-{% docs service_requests__note %}
-TODO
-{% enddocs %}
-
-{% docs service_requests__specimen %}
+{% docs fhir__service_requests__specimen %}
 TODO
 {% enddocs %}

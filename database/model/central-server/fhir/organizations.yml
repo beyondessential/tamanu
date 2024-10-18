@@ -2,43 +2,43 @@ version: 2
 sources:
   - name: tamanu
     schema: fhir
-    description: TODO
+    description: "{{ doc('fhir__generic__schema') }}"
     __generator:
       js_class: Organization
     tables:
       - name: organizations
-        description: "{{ doc('table__organizations') }}"
+        description: "{{ doc('fhir__table__organizations') }}"
         tags: []
         columns:
           - name: id
             data_type: uuid
-            description: "{{ doc('organizations__id') }}"
+            description: "{{ doc('fhir__generic__id') }} in organizations."
             data_tests:
               - unique
               - not_null
           - name: version_id
             data_type: uuid
-            description: "{{ doc('organizations__version_id') }}"
+            description: "{{ doc('fhir__generic__version_id') }} in organizations."
             data_tests:
               - not_null
           - name: upstream_id
             data_type: character varying(255)
-            description: "{{ doc('organizations__upstream_id') }}"
+            description: "{{ doc('fhir__generic__upstream_id') }} in organizations."
             data_tests:
               - not_null
           - name: last_updated
             data_type: timestamp with time zone
-            description: "{{ doc('organizations__last_updated') }}"
+            description: "{{ doc('fhir__generic__last_updated') }} in organizations."
             data_tests:
               - not_null
           - name: identifier
             data_type: jsonb
-            description: "{{ doc('organizations__identifier') }}"
+            description: "{{ doc('fhir__organizations__identifier') }}"
           - name: name
             data_type: text
-            description: "{{ doc('organizations__name') }}"
+            description: "{{ doc('fhir__organizations__name') }}"
             data_tests:
               - not_null
           - name: active
             data_type: boolean
-            description: "{{ doc('organizations__active') }}"
+            description: "{{ doc('fhir__organizations__active') }}"

@@ -1,31 +1,15 @@
-{% docs table__organizations %}
+{% docs fhir__table__organizations %}
 TODO
 {% enddocs %}
 
-{% docs organizations__id %}
+{% docs fhir__organizations__identifier %}
 TODO
 {% enddocs %}
 
-{% docs organizations__version_id %}
+{% docs fhir__organizations__name %}
 TODO
 {% enddocs %}
 
-{% docs organizations__upstream_id %}
-TODO
-{% enddocs %}
-
-{% docs organizations__last_updated %}
-TODO
-{% enddocs %}
-
-{% docs organizations__identifier %}
-TODO
-{% enddocs %}
-
-{% docs organizations__name %}
-TODO
-{% enddocs %}
-
-{% docs organizations__active %}
+{% docs fhir__organizations__active %}
 TODO
 {% enddocs %}

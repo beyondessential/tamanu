@@ -1,135 +1,119 @@
-{% docs table__non_fhir_medici_report %}
+{% docs fhir__table__non_fhir_medici_report %}
 TODO
 {% enddocs %}
 
-{% docs non_fhir_medici_report__id %}
+{% docs fhir__non_fhir_medici_report__patient_id %}
 TODO
 {% enddocs %}
 
-{% docs non_fhir_medici_report__version_id %}
+{% docs fhir__non_fhir_medici_report__first_name %}
 TODO
 {% enddocs %}
 
-{% docs non_fhir_medici_report__upstream_id %}
+{% docs fhir__non_fhir_medici_report__last_name %}
 TODO
 {% enddocs %}
 
-{% docs non_fhir_medici_report__last_updated %}
+{% docs fhir__non_fhir_medici_report__date_of_birth %}
 TODO
 {% enddocs %}
 
-{% docs non_fhir_medici_report__patient_id %}
+{% docs fhir__non_fhir_medici_report__age %}
 TODO
 {% enddocs %}
 
-{% docs non_fhir_medici_report__first_name %}
+{% docs fhir__non_fhir_medici_report__sex %}
 TODO
 {% enddocs %}
 
-{% docs non_fhir_medici_report__last_name %}
+{% docs fhir__non_fhir_medici_report__patient_billing_id %}
 TODO
 {% enddocs %}
 
-{% docs non_fhir_medici_report__date_of_birth %}
+{% docs fhir__non_fhir_medici_report__patient_billing_type %}
 TODO
 {% enddocs %}
 
-{% docs non_fhir_medici_report__age %}
+{% docs fhir__non_fhir_medici_report__encounter_id %}
 TODO
 {% enddocs %}
 
-{% docs non_fhir_medici_report__sex %}
+{% docs fhir__non_fhir_medici_report__encounter_start_date %}
 TODO
 {% enddocs %}
 
-{% docs non_fhir_medici_report__patient_billing_id %}
+{% docs fhir__non_fhir_medici_report__encounter_end_date %}
 TODO
 {% enddocs %}
 
-{% docs non_fhir_medici_report__patient_billing_type %}
+{% docs fhir__non_fhir_medici_report__discharge_date %}
 TODO
 {% enddocs %}
 
-{% docs non_fhir_medici_report__encounter_id %}
+{% docs fhir__non_fhir_medici_report__encounter_type %}
 TODO
 {% enddocs %}
 
-{% docs non_fhir_medici_report__encounter_start_date %}
+{% docs fhir__non_fhir_medici_report__weight %}
 TODO
 {% enddocs %}
 
-{% docs non_fhir_medici_report__encounter_end_date %}
+{% docs fhir__non_fhir_medici_report__visit_type %}
 TODO
 {% enddocs %}
 
-{% docs non_fhir_medici_report__discharge_date %}
+{% docs fhir__non_fhir_medici_report__episode_end_status %}
 TODO
 {% enddocs %}
 
-{% docs non_fhir_medici_report__encounter_type %}
+{% docs fhir__non_fhir_medici_report__encounter_discharge_disposition %}
 TODO
 {% enddocs %}
 
-{% docs non_fhir_medici_report__weight %}
+{% docs fhir__non_fhir_medici_report__triage_category %}
 TODO
 {% enddocs %}
 
-{% docs non_fhir_medici_report__visit_type %}
+{% docs fhir__non_fhir_medici_report__wait_time %}
 TODO
 {% enddocs %}
 
-{% docs non_fhir_medici_report__episode_end_status %}
+{% docs fhir__non_fhir_medici_report__departments %}
 TODO
 {% enddocs %}
 
-{% docs non_fhir_medici_report__encounter_discharge_disposition %}
+{% docs fhir__non_fhir_medici_report__locations %}
 TODO
 {% enddocs %}
 
-{% docs non_fhir_medici_report__triage_category %}
+{% docs fhir__non_fhir_medici_report__reason_for_encounter %}
 TODO
 {% enddocs %}
 
-{% docs non_fhir_medici_report__wait_time %}
+{% docs fhir__non_fhir_medici_report__diagnoses %}
 TODO
 {% enddocs %}
 
-{% docs non_fhir_medici_report__departments %}
+{% docs fhir__non_fhir_medici_report__medications %}
 TODO
 {% enddocs %}
 
-{% docs non_fhir_medici_report__locations %}
+{% docs fhir__non_fhir_medici_report__vaccinations %}
 TODO
 {% enddocs %}
 
-{% docs non_fhir_medici_report__reason_for_encounter %}
+{% docs fhir__non_fhir_medici_report__procedures %}
 TODO
 {% enddocs %}
 
-{% docs non_fhir_medici_report__diagnoses %}
+{% docs fhir__non_fhir_medici_report__lab_requests %}
 TODO
 {% enddocs %}
 
-{% docs non_fhir_medici_report__medications %}
+{% docs fhir__non_fhir_medici_report__imaging_requests %}
 TODO
 {% enddocs %}
 
-{% docs non_fhir_medici_report__vaccinations %}
-TODO
-{% enddocs %}
-
-{% docs non_fhir_medici_report__procedures %}
-TODO
-{% enddocs %}
-
-{% docs non_fhir_medici_report__lab_requests %}
-TODO
-{% enddocs %}
-
-{% docs non_fhir_medici_report__imaging_requests %}
-TODO
-{% enddocs %}
-
-{% docs non_fhir_medici_report__notes %}
+{% docs fhir__non_fhir_medici_report__notes %}
 TODO
 {% enddocs %}

@@ -1,31 +1,87 @@
-{% docs table__fhir_writes %}
+{% docs logs__table__fhir_writes %}
 TODO
 {% enddocs %}
 
-{% docs fhir_writes__id %}
+{% docs logs__fhir_writes__id %}
 TODO
 {% enddocs %}
 
-{% docs fhir_writes__created_at %}
+{% docs logs__fhir_writes__created_at %}
 TODO
 {% enddocs %}
 
-{% docs fhir_writes__verb %}
+{% docs logs__fhir_writes__verb %}
 TODO
 {% enddocs %}
 
-{% docs fhir_writes__url %}
+{% docs logs__fhir_writes__url %}
 TODO
 {% enddocs %}
 
-{% docs fhir_writes__body %}
+{% docs logs__fhir_writes__body %}
 TODO
 {% enddocs %}
 
-{% docs fhir_writes__headers %}
+{% docs logs__fhir_writes__headers %}
 TODO
 {% enddocs %}
 
-{% docs fhir_writes__user_id %}
+{% docs logs__fhir_writes__user_id %}
+TODO
+{% enddocs %}
+
+{% docs logs__fhir_writes__id %}
+TODO
+{% enddocs %}
+
+{% docs logs__fhir_writes__created_at %}
+TODO
+{% enddocs %}
+
+{% docs logs__fhir_writes__verb %}
+TODO
+{% enddocs %}
+
+{% docs logs__fhir_writes__url %}
+TODO
+{% enddocs %}
+
+{% docs logs__fhir_writes__body %}
+TODO
+{% enddocs %}
+
+{% docs logs__fhir_writes__headers %}
+TODO
+{% enddocs %}
+
+{% docs logs__fhir_writes__user_id %}
+TODO
+{% enddocs %}
+
+{% docs logs__fhir_writes__id %}
+TODO
+{% enddocs %}
+
+{% docs logs__fhir_writes__created_at %}
+TODO
+{% enddocs %}
+
+{% docs logs__fhir_writes__verb %}
+TODO
+{% enddocs %}
+
+{% docs logs__fhir_writes__url %}
+TODO
+{% enddocs %}
+
+{% docs logs__fhir_writes__body %}
+TODO
+{% enddocs %}
+
+{% docs logs__fhir_writes__headers %}
+TODO
+{% enddocs %}
+
+{% docs logs__fhir_writes__user_id %}
 TODO
 {% enddocs %}

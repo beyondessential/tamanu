@@ -1,23 +1,19 @@
-{% docs table__job_workers %}
+{% docs fhir__table__job_workers %}
 TODO
 {% enddocs %}
 
-{% docs job_workers__id %}
+{% docs fhir__job_workers__created_at %}
 TODO
 {% enddocs %}
 
-{% docs job_workers__created_at %}
+{% docs fhir__job_workers__updated_at %}
 TODO
 {% enddocs %}
 
-{% docs job_workers__updated_at %}
+{% docs fhir__job_workers__deleted_at %}
 TODO
 {% enddocs %}
 
-{% docs job_workers__deleted_at %}
-TODO
-{% enddocs %}
-
-{% docs job_workers__metadata %}
+{% docs fhir__job_workers__metadata %}
 TODO
 {% enddocs %}

@@ -2,41 +2,41 @@ version: 2
 sources:
   - name: tamanu
     schema: fhir
-    description: TODO
+    description: "{{ doc('fhir__generic__schema') }}"
     __generator:
       js_class: Specimen
     tables:
       - name: specimens
-        description: "{{ doc('table__specimens') }}"
+        description: "{{ doc('fhir__table__specimens') }}"
         tags: []
         columns:
           - name: id
             data_type: uuid
-            description: "{{ doc('specimens__id') }}"
+            description: "{{ doc('fhir__generic__id') }} in specimens."
             data_tests:
               - unique
               - not_null
           - name: version_id
             data_type: uuid
-            description: "{{ doc('specimens__version_id') }}"
+            description: "{{ doc('fhir__generic__version_id') }} in specimens."
             data_tests:
               - not_null
           - name: upstream_id
             data_type: character varying(255)
-            description: "{{ doc('specimens__upstream_id') }}"
+            description: "{{ doc('fhir__generic__upstream_id') }} in specimens."
             data_tests:
               - not_null
           - name: last_updated
             data_type: timestamp with time zone
-            description: "{{ doc('specimens__last_updated') }}"
+            description: "{{ doc('fhir__generic__last_updated') }} in specimens."
             data_tests:
               - not_null
           - name: collection
             data_type: jsonb
-            description: "{{ doc('specimens__collection') }}"
+            description: "{{ doc('fhir__specimens__collection') }}"
           - name: request
             data_type: jsonb
-            description: "{{ doc('specimens__request') }}"
+            description: "{{ doc('fhir__specimens__request') }}"
           - name: type
             data_type: jsonb
-            description: "{{ doc('specimens__type') }}"
+            description: "{{ doc('fhir__specimens__type') }}"

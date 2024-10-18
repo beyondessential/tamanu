@@ -1,59 +1,55 @@
-{% docs table__jobs %}
+{% docs fhir__table__jobs %}
 TODO
 {% enddocs %}
 
-{% docs jobs__id %}
+{% docs fhir__jobs__created_at %}
 TODO
 {% enddocs %}
 
-{% docs jobs__created_at %}
+{% docs fhir__jobs__updated_at %}
 TODO
 {% enddocs %}
 
-{% docs jobs__updated_at %}
+{% docs fhir__jobs__deleted_at %}
 TODO
 {% enddocs %}
 
-{% docs jobs__deleted_at %}
+{% docs fhir__jobs__priority %}
 TODO
 {% enddocs %}
 
-{% docs jobs__priority %}
+{% docs fhir__jobs__status %}
 TODO
 {% enddocs %}
 
-{% docs jobs__status %}
+{% docs fhir__jobs__worker_id %}
 TODO
 {% enddocs %}
 
-{% docs jobs__worker_id %}
+{% docs fhir__jobs__started_at %}
 TODO
 {% enddocs %}
 
-{% docs jobs__started_at %}
+{% docs fhir__jobs__completed_at %}
 TODO
 {% enddocs %}
 
-{% docs jobs__completed_at %}
+{% docs fhir__jobs__errored_at %}
 TODO
 {% enddocs %}
 
-{% docs jobs__errored_at %}
+{% docs fhir__jobs__error %}
 TODO
 {% enddocs %}
 
-{% docs jobs__error %}
+{% docs fhir__jobs__topic %}
 TODO
 {% enddocs %}
 
-{% docs jobs__topic %}
+{% docs fhir__jobs__discriminant %}
 TODO
 {% enddocs %}
 
-{% docs jobs__discriminant %}
-TODO
-{% enddocs %}
-
-{% docs jobs__payload %}
+{% docs fhir__jobs__payload %}
 TODO
 {% enddocs %}
