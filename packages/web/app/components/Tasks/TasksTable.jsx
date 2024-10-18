@@ -18,7 +18,7 @@ import {
 } from '../.';
 import { Colors } from '../../constants';
 import useOverflow from '../../hooks/useOverflow';
-import { ConditionalTooltip, ThemedTooltip } from '../Tooltip';
+import { ThemedTooltip } from '../Tooltip';
 import { TaskActionModal } from './TaskActionModal';
 
 const StyledPriorityHighIcon = styled(PriorityHighIcon)`
@@ -191,6 +191,18 @@ const StyledToolTip = styled(ThemedTooltip)`
   }
 `;
 
+const getTodoTooltipText = ({ todoBy, todoTime, todoNote }) => (
+  <StatusTooltip>
+    <TranslatedText stringId="tasks.table.tooltip.toDo" fallback="To-do" />
+    <div>{todoBy?.displayName}</div>
+    <div>
+      <span color={Colors.midText}>{formatShortest(todoTime)} </span>
+      <LowercaseText>{formatTime(todoTime)}</LowercaseText>
+    </div>
+    <div>{todoNote}</div>
+  </StatusTooltip>
+);
+
 const getCompletedTooltipText = ({ completedBy, completedTime, completedNote }) => (
   <StatusTooltip>
     <TranslatedText stringId="tasks.table.tooltip.completed" fallback="Completed" />
@@ -221,7 +233,13 @@ const getStatus = row => {
     case TASK_STATUSES.TODO:
       return (
         <Box marginLeft="1.5px">
-          <StatusTodo />
+          {row?.todoByUserId ? (
+            <StyledToolTip title={getTodoTooltipText(row)}>
+              <StatusTodo />
+            </StyledToolTip>
+          ) : (
+            <StatusTodo />
+          )}
         </Box>
       );
     case TASK_STATUSES.COMPLETED:
@@ -255,10 +273,15 @@ const AssignedToCell = ({ designations }) => {
   if (!designations?.length) return '-';
 
   const designationNames = designations.map(assigned => assigned.name);
+
+  if (!isOverflowing) {
+    return <OverflowedBox ref={ref}>{designationNames.join(', ')}</OverflowedBox>;
+  }
+
   return (
-    <ConditionalTooltip visible={isOverflowing} title={designationNames.join(', ')}>
+    <StyledToolTip title={designationNames.join(', ')}>
       <OverflowedBox ref={ref}>{designationNames.join(', ')}</OverflowedBox>
-    </ConditionalTooltip>
+    </StyledToolTip>
   );
 };
 
@@ -271,20 +294,6 @@ const getFrequency = ({ frequencyValue, frequencyUnit }) =>
 
 const BulkActions = ({ row, status, handleActionModalOpen }) => (
   <StyledBulkActions>
-    {status !== TASK_STATUSES.NON_COMPLETED && (
-      <StyledToolTip
-        title={
-          <TranslatedText
-            stringId="encounter.tasks.action.tooltip.notCompleted"
-            fallback="Mark as not complete"
-          />
-        }
-      >
-        <IconButton onClick={() => handleActionModalOpen(TASK_ACTIONS.NON_COMPLETED, row)}>
-          <StyledCancelIcon />
-        </IconButton>
-      </StyledToolTip>
-    )}
     {status !== TASK_STATUSES.COMPLETED && (
       <StyledToolTip
         title={
@@ -296,6 +305,20 @@ const BulkActions = ({ row, status, handleActionModalOpen }) => (
       >
         <IconButton onClick={() => handleActionModalOpen(TASK_ACTIONS.COMPLETED, row)}>
           <StyledCheckCircleIcon />
+        </IconButton>
+      </StyledToolTip>
+    )}
+    {status !== TASK_STATUSES.NON_COMPLETED && (
+      <StyledToolTip
+        title={
+          <TranslatedText
+            stringId="encounter.tasks.action.tooltip.notCompleted"
+            fallback="Mark as not complete"
+          />
+        }
+      >
+        <IconButton onClick={() => handleActionModalOpen(TASK_ACTIONS.NON_COMPLETED, row)}>
+          <StyledCancelIcon />
         </IconButton>
       </StyledToolTip>
     )}
@@ -332,9 +355,13 @@ const NotesCell = ({ row, hoveredRow, handleActionModalOpen }) => {
     <Box display="flex" alignItems="center">
       <NotesDisplay>
         {note ? (
-          <ConditionalTooltip visible={isOverflowing} title={note}>
+          !isOverflowing ? (
             <OverflowedBox ref={ref}>{note}</OverflowedBox>
-          </ConditionalTooltip>
+          ) : (
+            <StyledToolTip title={note}>
+              <OverflowedBox ref={ref}>{note}</OverflowedBox>
+            </StyledToolTip>
+          )
         ) : (
           '-'
         )}

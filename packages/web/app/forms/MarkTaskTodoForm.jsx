@@ -63,7 +63,7 @@ export const MarkTaskTodoForm = ({ onClose, refreshTaskTable, taskIds }) => {
               component={DateTimeField}
             />
             <Field
-              name="completedNote"
+              name="todoNote"
               label={<TranslatedText stringId="general.notes.label" fallback="Notes" />}
               component={TextField}
             />
@@ -90,7 +90,7 @@ export const MarkTaskTodoForm = ({ onClose, refreshTaskTable, taskIds }) => {
           .translatedLabel(
             <TranslatedText stringId="task.form.recordTime.label" fallback="Record date & time" />,
           ),
-        completedNote: yup.string(),
+          todoNote: yup.string(),
       })}
     />
   );
