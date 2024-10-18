@@ -90,7 +90,7 @@ export const MarkTaskTodoForm = ({ onClose, refreshTaskTable, taskIds }) => {
           .translatedLabel(
             <TranslatedText stringId="task.form.recordTime.label" fallback="Record date & time" />,
           ),
-          todoNote: yup.string(),
+        todoNote: yup.string(),
       })}
     />
   );
