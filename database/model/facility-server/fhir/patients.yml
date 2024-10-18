@@ -12,66 +12,66 @@ sources:
         columns:
           - name: id
             data_type: uuid
-            description: "{{ doc('patients__id') }} in patients."
+            description: "{{ doc('patients__id') }}"
             data_tests:
               - unique
               - not_null
           - name: version_id
             data_type: uuid
-            description: "{{ doc('patients__version_id') }} in patients."
+            description: "{{ doc('patients__version_id') }}"
             data_tests:
               - not_null
           - name: upstream_id
             data_type: character varying(255)
-            description: "{{ doc('patients__upstream_id') }} in patients."
+            description: "{{ doc('patients__upstream_id') }}"
             data_tests:
               - not_null
           - name: last_updated
             data_type: timestamp with time zone
-            description: "{{ doc('patients__last_updated') }} in patients."
+            description: "{{ doc('patients__last_updated') }}"
             data_tests:
               - not_null
           - name: identifier
             data_type: jsonb
-            description: "{{ doc('patients__identifier') }} in patients."
+            description: "{{ doc('patients__identifier') }}"
             data_tests:
               - not_null
           - name: active
             data_type: boolean
-            description: "{{ doc('patients__active') }} in patients."
+            description: "{{ doc('patients__active') }}"
             data_tests:
               - not_null
           - name: name
             data_type: jsonb
-            description: "{{ doc('patients__name') }} in patients."
+            description: "{{ doc('patients__name') }}"
             data_tests:
               - not_null
           - name: telecom
             data_type: jsonb
-            description: "{{ doc('patients__telecom') }} in patients."
+            description: "{{ doc('patients__telecom') }}"
             data_tests:
               - not_null
           - name: gender
             data_type: text
-            description: "{{ doc('patients__gender') }} in patients."
+            description: "{{ doc('patients__gender') }}"
             data_tests:
               - not_null
           - name: birth_date
             data_type: text
-            description: "{{ doc('patients__birth_date') }} in patients."
+            description: "{{ doc('patients__birth_date') }}"
           - name: deceased_date_time
             data_type: text
-            description: "{{ doc('patients__deceased_date_time') }} in patients."
+            description: "{{ doc('patients__deceased_date_time') }}"
           - name: address
             data_type: jsonb
-            description: "{{ doc('patients__address') }} in patients."
+            description: "{{ doc('patients__address') }}"
             data_tests:
               - not_null
           - name: link
             data_type: jsonb
-            description: "{{ doc('patients__link') }} in patients."
+            description: "{{ doc('patients__link') }}"
           - name: extension
             data_type: jsonb
-            description: "{{ doc('patients__extension') }} in patients."
+            description: "{{ doc('patients__extension') }}"
             data_tests:
               - not_null

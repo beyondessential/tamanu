@@ -35,91 +35,71 @@ sources:
               - not_null
           - name: end_date
             data_type: character(19)
-            description: "{{ doc('encounter_medications__end_date') }} in
-              encounter_medications."
+            description: "{{ doc('encounter_medications__end_date') }}"
           - name: prescription
             data_type: character varying(255)
-            description: "{{ doc('encounter_medications__prescription') }} in
-              encounter_medications."
+            description: "{{ doc('encounter_medications__prescription') }}"
           - name: note
             data_type: character varying(255)
-            description: "{{ doc('encounter_medications__note') }} in
-              encounter_medications."
+            description: "{{ doc('encounter_medications__note') }}"
           - name: indication
             data_type: character varying(255)
-            description: "{{ doc('encounter_medications__indication') }} in
-              encounter_medications."
+            description: "{{ doc('encounter_medications__indication') }}"
           - name: route
             data_type: character varying(255)
-            description: "{{ doc('encounter_medications__route') }} in
-              encounter_medications."
+            description: "{{ doc('encounter_medications__route') }}"
           - name: qty_morning
             data_type: integer
-            description: "{{ doc('encounter_medications__qty_morning') }} in
-              encounter_medications."
+            description: "{{ doc('encounter_medications__qty_morning') }}"
           - name: qty_lunch
             data_type: integer
-            description: "{{ doc('encounter_medications__qty_lunch') }} in
-              encounter_medications."
+            description: "{{ doc('encounter_medications__qty_lunch') }}"
           - name: qty_evening
             data_type: integer
-            description: "{{ doc('encounter_medications__qty_evening') }} in
-              encounter_medications."
+            description: "{{ doc('encounter_medications__qty_evening') }}"
           - name: qty_night
             data_type: integer
-            description: "{{ doc('encounter_medications__qty_night') }} in
-              encounter_medications."
+            description: "{{ doc('encounter_medications__qty_night') }}"
           - name: encounter_id
             data_type: character varying(255)
-            description: "{{ doc('encounter_medications__encounter_id') }} in
-              encounter_medications."
+            description: "{{ doc('encounter_medications__encounter_id') }}"
           - name: medication_id
             data_type: character varying(255)
-            description: "{{ doc('encounter_medications__medication_id') }} in
-              encounter_medications."
+            description: "{{ doc('encounter_medications__medication_id') }}"
           - name: prescriber_id
             data_type: character varying(255)
-            description: "{{ doc('encounter_medications__prescriber_id') }} in
-              encounter_medications."
+            description: "{{ doc('encounter_medications__prescriber_id') }}"
           - name: quantity
             data_type: integer
-            description: "{{ doc('encounter_medications__quantity') }} in
-              encounter_medications."
+            description: "{{ doc('encounter_medications__quantity') }}"
             data_tests:
               - not_null
           - name: discontinued
             data_type: boolean
-            description: "{{ doc('encounter_medications__discontinued') }} in
-              encounter_medications."
+            description: "{{ doc('encounter_medications__discontinued') }}"
           - name: discontinuing_clinician_id
             data_type: character varying(255)
-            description: "{{ doc('encounter_medications__discontinuing_clinician_id') }} in
-              encounter_medications."
+            description: "{{ doc('encounter_medications__discontinuing_clinician_id') }}"
           - name: discontinuing_reason
             data_type: character varying(255)
-            description: "{{ doc('encounter_medications__discontinuing_reason') }} in
-              encounter_medications."
+            description: "{{ doc('encounter_medications__discontinuing_reason') }}"
           - name: repeats
             data_type: integer
-            description: "{{ doc('encounter_medications__repeats') }} in
-              encounter_medications."
+            description: "{{ doc('encounter_medications__repeats') }}"
           - name: is_discharge
             data_type: boolean
-            description: "{{ doc('encounter_medications__is_discharge') }} in
-              encounter_medications."
+            description: "{{ doc('encounter_medications__is_discharge') }}"
             data_tests:
               - not_null
           - name: discontinued_date
             data_type: character varying(255)
-            description: "{{ doc('encounter_medications__discontinued_date') }} in
-              encounter_medications."
+            description: "{{ doc('encounter_medications__discontinued_date') }}"
           - name: date_legacy
             data_type: timestamp with time zone
             description: "{{ doc('generic__date_legacy') }} in encounter_medications."
           - name: end_date_legacy
             data_type: timestamp with time zone
-            description: "{{ doc('encounter_medications__end_date_legacy') }} in
-              encounter_medications."
+            description: "{{ doc('encounter_medications__end_date_legacy') }}"
           - name: updated_at_sync_tick
             data_type: bigint
             description: "{{ doc('generic__updated_at_sync_tick') }} in

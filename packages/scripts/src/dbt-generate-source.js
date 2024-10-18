@@ -187,9 +187,9 @@ async function generateDataTests(column) {
  * @returns A column object, directly serialisable as dbt models.
  */
 function generateColumnModelDescription(tableName, columnName, hasGenericDoc) {
-  return `{{ doc('${
-    hasGenericDoc ? 'generic' : tableName
-  }__${columnName}') }} in ${tableName}.`;
+  return hasGenericDoc
+    ? `{{ doc('generic__${columnName}') }} in ${tableName}.`
+    : `{{ doc('${tableName}__${columnName}') }}`;
 }
 
 /**
@@ -377,7 +377,11 @@ async function handleMissingTable(schemaPath, schemaName, table, genericColNames
 async function handleColumn(tableName, dbtColumn, sqlColumn, hasGenericDoc) {
   dbtColumn.data_type = sqlColumn.data_type;
   if (dbtColumn.description === '') {
-    dbtColumn.description = generateColumnModelDescription(tableName, dbtColumn.name, hasGenericDoc);
+    dbtColumn.description = generateColumnModelDescription(
+      tableName,
+      dbtColumn.name,
+      hasGenericDoc,
+    );
   }
 
   const sqlDataTests = await generateDataTests(sqlColumn);

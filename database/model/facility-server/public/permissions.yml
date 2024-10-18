@@ -26,22 +26,22 @@ sources:
             description: "{{ doc('generic__deleted_at') }} in permissions."
           - name: role_id
             data_type: character varying(255)
-            description: "{{ doc('permissions__role_id') }} in permissions."
+            description: "{{ doc('permissions__role_id') }}"
             data_tests:
               - not_null
           - name: noun
             data_type: character varying(255)
-            description: "{{ doc('permissions__noun') }} in permissions."
+            description: "{{ doc('permissions__noun') }}"
             data_tests:
               - not_null
           - name: verb
             data_type: character varying(255)
-            description: "{{ doc('permissions__verb') }} in permissions."
+            description: "{{ doc('permissions__verb') }}"
             data_tests:
               - not_null
           - name: object_id
             data_type: character varying(255)
-            description: "{{ doc('permissions__object_id') }} in permissions."
+            description: "{{ doc('permissions__object_id') }}"
           - name: updated_at_sync_tick
             data_type: bigint
             description: "{{ doc('generic__updated_at_sync_tick') }} in permissions."

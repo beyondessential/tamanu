@@ -64,4 +64,4 @@ sources:
             description: "{{ doc('sync_sessions__snapshot_started_at') }}"
           - name: errors
             data_type: array
-            description: "{{ doc('sync_sessions__errors') }} in sync_sessions."
+            description: "{{ doc('sync_sessions__errors') }}"

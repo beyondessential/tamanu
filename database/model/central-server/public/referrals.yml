@@ -30,19 +30,19 @@ sources:
             description: "{{ doc('generic__deleted_at') }} in referrals."
           - name: referred_facility
             data_type: character varying(255)
-            description: "{{ doc('referrals__referred_facility') }} in referrals."
+            description: "{{ doc('referrals__referred_facility') }}"
           - name: initiating_encounter_id
             data_type: character varying(255)
-            description: "{{ doc('referrals__initiating_encounter_id') }} in referrals."
+            description: "{{ doc('referrals__initiating_encounter_id') }}"
           - name: completing_encounter_id
             data_type: character varying(255)
-            description: "{{ doc('referrals__completing_encounter_id') }} in referrals."
+            description: "{{ doc('referrals__completing_encounter_id') }}"
           - name: survey_response_id
             data_type: character varying(255)
-            description: "{{ doc('referrals__survey_response_id') }} in referrals."
+            description: "{{ doc('referrals__survey_response_id') }}"
           - name: status
             data_type: character varying(255)
-            description: "{{ doc('referrals__status') }} in referrals."
+            description: "{{ doc('referrals__status') }}"
             data_tests:
               - not_null
           - name: updated_at_sync_tick

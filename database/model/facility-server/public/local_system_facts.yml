@@ -26,9 +26,9 @@ sources:
             description: "{{ doc('generic__deleted_at') }} in local_system_facts."
           - name: key
             data_type: character varying(255)
-            description: "{{ doc('local_system_facts__key') }} in local_system_facts."
+            description: "{{ doc('local_system_facts__key') }}"
             data_tests:
               - not_null
           - name: value
             data_type: text
-            description: "{{ doc('local_system_facts__value') }} in local_system_facts."
+            description: "{{ doc('local_system_facts__value') }}"

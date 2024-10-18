@@ -17,40 +17,40 @@ sources:
               - not_null
           - name: invoice_id
             data_type: uuid
-            description: "{{ doc('invoice_items__invoice_id') }} in invoice_items."
+            description: "{{ doc('invoice_items__invoice_id') }}"
             data_tests:
               - not_null
           - name: order_date
             data_type: character(10)
-            description: "{{ doc('invoice_items__order_date') }} in invoice_items."
+            description: "{{ doc('invoice_items__order_date') }}"
             data_tests:
               - not_null
           - name: product_id
             data_type: character varying(255)
-            description: "{{ doc('invoice_items__product_id') }} in invoice_items."
+            description: "{{ doc('invoice_items__product_id') }}"
           - name: quantity
             data_type: integer
-            description: "{{ doc('invoice_items__quantity') }} in invoice_items."
+            description: "{{ doc('invoice_items__quantity') }}"
             data_tests:
               - not_null
           - name: product_name
             data_type: character varying(255)
-            description: "{{ doc('invoice_items__product_name') }} in invoice_items."
+            description: "{{ doc('invoice_items__product_name') }}"
             data_tests:
               - not_null
           - name: product_price
             data_type: numeric
-            description: "{{ doc('invoice_items__product_price') }} in invoice_items."
+            description: "{{ doc('invoice_items__product_price') }}"
             data_tests:
               - not_null
           - name: ordered_by_user_id
             data_type: character varying(255)
-            description: "{{ doc('invoice_items__ordered_by_user_id') }} in invoice_items."
+            description: "{{ doc('invoice_items__ordered_by_user_id') }}"
             data_tests:
               - not_null
           - name: source_id
             data_type: uuid
-            description: "{{ doc('invoice_items__source_id') }} in invoice_items."
+            description: "{{ doc('invoice_items__source_id') }}"
           - name: created_at
             data_type: timestamp with time zone
             description: "{{ doc('generic__created_at') }} in invoice_items."
@@ -64,16 +64,15 @@ sources:
             description: "{{ doc('generic__deleted_at') }} in invoice_items."
           - name: product_code
             data_type: character varying(255)
-            description: "{{ doc('invoice_items__product_code') }} in invoice_items."
+            description: "{{ doc('invoice_items__product_code') }}"
             data_tests:
               - not_null
           - name: note
             data_type: character varying(255)
-            description: "{{ doc('invoice_items__note') }} in invoice_items."
+            description: "{{ doc('invoice_items__note') }}"
           - name: product_discountable
             data_type: boolean
-            description: "{{ doc('invoice_items__product_discountable') }} in
-              invoice_items."
+            description: "{{ doc('invoice_items__product_discountable') }}"
             data_tests:
               - not_null
           - name: updated_at_sync_tick

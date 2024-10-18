@@ -35,16 +35,13 @@ sources:
               - not_null
           - name: patient_id
             data_type: character varying(255)
-            description: "{{ doc('patient_care_plans__patient_id') }} in
-              patient_care_plans."
+            description: "{{ doc('patient_care_plans__patient_id') }}"
           - name: examiner_id
             data_type: character varying(255)
-            description: "{{ doc('patient_care_plans__examiner_id') }} in
-              patient_care_plans."
+            description: "{{ doc('patient_care_plans__examiner_id') }}"
           - name: care_plan_id
             data_type: character varying(255)
-            description: "{{ doc('patient_care_plans__care_plan_id') }} in
-              patient_care_plans."
+            description: "{{ doc('patient_care_plans__care_plan_id') }}"
           - name: date_legacy
             data_type: timestamp with time zone
             description: "{{ doc('generic__date_legacy') }} in patient_care_plans."

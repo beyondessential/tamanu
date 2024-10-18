@@ -17,15 +17,13 @@ sources:
               - not_null
           - name: invoice_payment_id
             data_type: uuid
-            description: "{{ doc('invoice_patient_payments__invoice_payment_id') }} in
-              invoice_patient_payments."
+            description: "{{ doc('invoice_patient_payments__invoice_payment_id') }}"
             data_tests:
               - unique
               - not_null
           - name: method_id
             data_type: character varying(255)
-            description: "{{ doc('invoice_patient_payments__method_id') }} in
-              invoice_patient_payments."
+            description: "{{ doc('invoice_patient_payments__method_id') }}"
             data_tests:
               - not_null
           - name: created_at

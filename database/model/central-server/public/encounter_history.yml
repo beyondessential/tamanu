@@ -35,30 +35,27 @@ sources:
               - not_null
           - name: encounter_id
             data_type: character varying(255)
-            description: "{{ doc('encounter_history__encounter_id') }} in
-              encounter_history."
+            description: "{{ doc('encounter_history__encounter_id') }}"
             data_tests:
               - not_null
           - name: department_id
             data_type: character varying(255)
-            description: "{{ doc('encounter_history__department_id') }} in
-              encounter_history."
+            description: "{{ doc('encounter_history__department_id') }}"
             data_tests:
               - not_null
           - name: location_id
             data_type: character varying(255)
-            description: "{{ doc('encounter_history__location_id') }} in encounter_history."
+            description: "{{ doc('encounter_history__location_id') }}"
             data_tests:
               - not_null
           - name: examiner_id
             data_type: character varying(255)
-            description: "{{ doc('encounter_history__examiner_id') }} in encounter_history."
+            description: "{{ doc('encounter_history__examiner_id') }}"
             data_tests:
               - not_null
           - name: encounter_type
             data_type: character varying(255)
-            description: "{{ doc('encounter_history__encounter_type') }} in
-              encounter_history."
+            description: "{{ doc('encounter_history__encounter_type') }}"
             data_tests:
               - not_null
           - name: updated_at_sync_tick
@@ -68,7 +65,7 @@ sources:
               - not_null
           - name: actor_id
             data_type: character varying(255)
-            description: "{{ doc('encounter_history__actor_id') }} in encounter_history."
+            description: "{{ doc('encounter_history__actor_id') }}"
           - name: change_type
             data_type: character varying(255)
-            description: "{{ doc('encounter_history__change_type') }} in encounter_history."
+            description: "{{ doc('encounter_history__change_type') }}"

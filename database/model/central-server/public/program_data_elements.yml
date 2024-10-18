@@ -30,28 +30,22 @@ sources:
             description: "{{ doc('generic__deleted_at') }} in program_data_elements."
           - name: code
             data_type: character varying(255)
-            description: "{{ doc('program_data_elements__code') }} in
-              program_data_elements."
+            description: "{{ doc('program_data_elements__code') }}"
           - name: name
             data_type: character varying(255)
-            description: "{{ doc('program_data_elements__name') }} in
-              program_data_elements."
+            description: "{{ doc('program_data_elements__name') }}"
           - name: indicator
             data_type: character varying(255)
-            description: "{{ doc('program_data_elements__indicator') }} in
-              program_data_elements."
+            description: "{{ doc('program_data_elements__indicator') }}"
           - name: default_text
             data_type: character varying(255)
-            description: "{{ doc('program_data_elements__default_text') }} in
-              program_data_elements."
+            description: "{{ doc('program_data_elements__default_text') }}"
           - name: default_options
             data_type: text
-            description: "{{ doc('program_data_elements__default_options') }} in
-              program_data_elements."
+            description: "{{ doc('program_data_elements__default_options') }}"
           - name: type
             data_type: character varying(31)
-            description: "{{ doc('program_data_elements__type') }} in
-              program_data_elements."
+            description: "{{ doc('program_data_elements__type') }}"
             data_tests:
               - not_null
           - name: updated_at_sync_tick
@@ -62,5 +56,4 @@ sources:
               - not_null
           - name: visualisation_config
             data_type: text
-            description: "{{ doc('program_data_elements__visualisation_config') }} in
-              program_data_elements."
+            description: "{{ doc('program_data_elements__visualisation_config') }}"

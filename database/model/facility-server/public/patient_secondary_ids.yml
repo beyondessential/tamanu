@@ -26,8 +26,7 @@ sources:
             description: "{{ doc('generic__deleted_at') }} in patient_secondary_ids."
           - name: value
             data_type: character varying(255)
-            description: "{{ doc('patient_secondary_ids__value') }} in
-              patient_secondary_ids."
+            description: "{{ doc('patient_secondary_ids__value') }}"
             data_tests:
               - not_null
           - name: visibility_status
@@ -37,14 +36,12 @@ sources:
               - not_null
           - name: type_id
             data_type: character varying(255)
-            description: "{{ doc('patient_secondary_ids__type_id') }} in
-              patient_secondary_ids."
+            description: "{{ doc('patient_secondary_ids__type_id') }}"
             data_tests:
               - not_null
           - name: patient_id
             data_type: character varying(255)
-            description: "{{ doc('patient_secondary_ids__patient_id') }} in
-              patient_secondary_ids."
+            description: "{{ doc('patient_secondary_ids__patient_id') }}"
             data_tests:
               - not_null
           - name: updated_at_sync_tick

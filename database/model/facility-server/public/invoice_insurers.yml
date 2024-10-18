@@ -17,17 +17,17 @@ sources:
               - not_null
           - name: invoice_id
             data_type: uuid
-            description: "{{ doc('invoice_insurers__invoice_id') }} in invoice_insurers."
+            description: "{{ doc('invoice_insurers__invoice_id') }}"
             data_tests:
               - not_null
           - name: insurer_id
             data_type: character varying(255)
-            description: "{{ doc('invoice_insurers__insurer_id') }} in invoice_insurers."
+            description: "{{ doc('invoice_insurers__insurer_id') }}"
             data_tests:
               - not_null
           - name: percentage
             data_type: numeric
-            description: "{{ doc('invoice_insurers__percentage') }} in invoice_insurers."
+            description: "{{ doc('invoice_insurers__percentage') }}"
             data_tests:
               - not_null
           - name: created_at

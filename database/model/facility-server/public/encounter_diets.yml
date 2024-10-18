@@ -25,7 +25,7 @@ sources:
                   field: id
           - name: diet_id
             data_type: character varying(255)
-            description: "{{ doc('encounter_diets__diet_id') }} in encounter_diets."
+            description: "{{ doc('encounter_diets__diet_id') }}"
             data_tests:
               - not_null
               - dbt_utils.relationships_where:

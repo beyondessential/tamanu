@@ -12,17 +12,17 @@ sources:
         columns:
           - name: id
             data_type: uuid
-            description: "{{ doc('debug_logs__id') }} in debug_logs."
+            description: "{{ doc('debug_logs__id') }}"
             data_tests:
               - unique
               - not_null
           - name: type
             data_type: character varying(255)
-            description: "{{ doc('debug_logs__type') }} in debug_logs."
+            description: "{{ doc('debug_logs__type') }}"
             data_tests:
               - not_null
           - name: info
             data_type: json
-            description: "{{ doc('debug_logs__info') }} in debug_logs."
+            description: "{{ doc('debug_logs__info') }}"
             data_tests:
               - not_null

@@ -36,21 +36,18 @@ sources:
               - not_null
           - name: area_id
             data_type: character varying(255)
-            description: "{{ doc('imaging_area_external_codes__area_id') }} in
-              imaging_area_external_codes."
+            description: "{{ doc('imaging_area_external_codes__area_id') }}"
             data_tests:
               - unique
               - not_null
           - name: code
             data_type: text
-            description: "{{ doc('imaging_area_external_codes__code') }} in
-              imaging_area_external_codes."
+            description: "{{ doc('imaging_area_external_codes__code') }}"
             data_tests:
               - not_null
           - name: description
             data_type: text
-            description: "{{ doc('imaging_area_external_codes__description') }} in
-              imaging_area_external_codes."
+            description: "{{ doc('imaging_area_external_codes__description') }}"
           - name: updated_at_sync_tick
             data_type: bigint
             description: "{{ doc('generic__updated_at_sync_tick') }} in
