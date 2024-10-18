@@ -552,7 +552,6 @@ You can override the config for both by supplying \`NODE_CONFIG\` or the \`confi
   program.parse();
   const opts = program.opts();
 
-  // This doesn't take untracked files into account.
   if (!opts.allowDirty && !checkClean()) {
     console.error(
       `Error: 'database/' has uncommitted changes. Use --allow-dirty if you're sure. You may lose work!`,
