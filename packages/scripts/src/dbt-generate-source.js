@@ -488,8 +488,14 @@ async function run(packageName, opts) {
   }
 
   console.log('Handling database models for', packageName);
-  const schemaPromises = (await getSchemas(client)).map(s => handleSchema(client, packageName, s));
-  await Promise.all(schemaPromises);
+
+  const schemas = await getSchemas(client);
+  for (const schema of schemas) {
+    if (packageName === 'facility-server' && ['fhir'].includes(schema)) continue;
+
+    await handleSchema(client, packageName, schema);
+  }
+
   await client.end();
 }
 
