@@ -6,6 +6,7 @@ import { useLocationBookingsQuery } from '../../../api/queries';
 import { AppointmentTile } from '../../../components/Appointments/AppointmentTile';
 import { Colors } from '../../../constants';
 import { CarouselComponents as CarouselGrid } from './CarouselComponents';
+import { SkeletonRows } from './Skeletons';
 import { partitionAppointmentsByDate, partitionAppointmentsByLocation } from './util';
 
 export const BookingsCell = ({ appointments, date, location }) => (
@@ -65,7 +66,7 @@ export const LocationBookingsCalendarBody = ({ displayedDates, locationsQuery })
       before: endOfDay(displayedDates[displayedDates.length - 1]),
     }).data?.data ?? [];
 
-  if (locationsAreLoading) return locationsAreLoading;
+  if (locationsAreLoading) return <SkeletonRows colCount={displayedDates.length} />;
   if (locations?.length === 0) return <EmptyStateRow />;
 
   const appointmentsByLocation = partitionAppointmentsByLocation(appointments);
