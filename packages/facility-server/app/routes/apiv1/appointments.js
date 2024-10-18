@@ -11,13 +11,14 @@ appointments.post('/$', simplePost('Appointment'));
 
 appointments.post('/locationBooking', async (req, res) => {
   const { models, body } = req;
-  const { startTime, endTime } = body;
+  const { startTime, endTime, locationId } = body;
   const { Appointment } = models;
 
   req.checkPermission('create', 'Appointment');
 
   const bookingTimeAlreadyTaken = await Appointment.findOne({
     where: {
+      locationId,
       [Op.or]: [
         // Partial overlap
         {
