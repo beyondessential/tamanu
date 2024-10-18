@@ -121,16 +121,16 @@ async function readTablesFromDB(client, schemaName) {
 /**
  * Reads a table document from a file and parse into a structured JS object.
  *
- * @param {string} schemaPath
+ * @param {string} schema
  * @param {string} tableName
  * @returns A table document object or null if the doc doesn't exist
  */
-async function readTableDoc(schemaPath, tableName) {
-  const re = /\{%\s*docs\s+\w+?__(\w+)\s*%\}([^}]+)\{%\s+enddocs\s*%\}/g;
+async function readTableDoc(schema, tableName) {
+  const re = new RegExp(`\\{%\\s*docs\\s+${docPrefix(schema, '\\w+')}__(\\w+)\\s*%\\}([^}]+)\\{%\\s+enddocs\\s*%\\}`, 'g');
 
   let text;
   try {
-    text = await fs.readFile(path.join(schemaPath, `${tableName}.md`), {
+    text = await fs.readFile(path.join(schema.path, `${tableName}.md`), {
       encoding: 'utf-8',
     });
   } catch (err) {
@@ -144,7 +144,7 @@ async function readTableDoc(schemaPath, tableName) {
     columns: [],
   };
 
-  // generic.md isn't for a particular table and thus doesn't have a D`table_*` section.
+  // generic.md isn't for a particular table and thus doesn't have a `table_*` section.
   if (tableName !== 'generic') {
     const match = re.exec(text);
     if (match === null) return null;
@@ -179,15 +179,26 @@ async function generateDataTests(column) {
 }
 
 /**
+ * @param {object} schema
+ * @param {string} kind
+ * @returns {string} The prefix to use for doc keys.
+ */
+function docPrefix(schema, kind) {
+  if (schema.name === 'public') return kind;
+
+  return `${schema.name}__${kind}`;
+}
+
+/**
  * @param {string} tableName
  * @param {object} column
  * @param {boolean} hasGenericDoc If true, generates `description` to point to the generic document
- * @returns A column object, directly serialisable as dbt models.
+ * @returns {string} The default description of a column.
  */
-function generateColumnModelDescription(tableName, columnName, hasGenericDoc) {
+function generateColumnModelDescription(schema, tableName, columnName, hasGenericDoc) {
   return hasGenericDoc
-    ? `{{ doc('generic__${columnName}') }} in ${tableName}.`
-    : `{{ doc('${tableName}__${columnName}') }}`;
+    ? `{{ doc('${docPrefix(schema, 'generic')}__${columnName}') }} in ${tableName}.`
+    : `{{ doc('${docPrefix(schema, tableName)}__${columnName}') }}`;
 }
 
 /**
@@ -196,12 +207,12 @@ function generateColumnModelDescription(tableName, columnName, hasGenericDoc) {
  * @param {boolean} hasGenericDoc If true, generates `description` to point to the generic document
  * @returns A column object, directly serialisable as dbt models.
  */
-async function generateColumnModel(tableName, column, hasGenericDoc) {
+async function generateColumnModel(schema, tableName, column, hasGenericDoc) {
   const dataTests = await generateDataTests(column);
   return {
     name: column.name,
     data_type: column.data_type,
-    description: generateColumnModelDescription(tableName, column.name, hasGenericDoc),
+    description: generateColumnModelDescription(schema, tableName, column.name, hasGenericDoc),
     data_tests: dataTests.length === 0 ? undefined : dataTests,
   };
 }
@@ -224,23 +235,23 @@ function generateColumnDoc(column) {
  * @param {string[]} genericColNames
  * @returns A table object, directly serialisable as dbt model.
  */
-async function generateTableModel(schemaName, table, genericColNames) {
+async function generateTableModel(schema, table, genericColNames) {
   return {
     version: 2,
     sources: [
       {
         name: 'tamanu',
-        schema: schemaName,
-        description: 'TODO',
+        schema: schema.name,
+        description: `{{ doc('${docPrefix(schema, 'generic')}__schema') }}`,
         __generator: { js_class: inflection.classify(table.name) },
         tables: [
           {
             name: table.name,
-            description: `{{ doc('table__${table.name}') }}`,
+            description: `{{ doc('${docPrefix(schema, 'table')}__${table.name}') }}`,
             tags: [],
             columns: await Promise.all(
               table.columns.map(c =>
-                generateColumnModel(table.name, c, genericColNames.includes(c.name)),
+                generateColumnModel(schema, table.name, c, genericColNames.includes(c.name)),
               ),
             ),
           },
@@ -269,17 +280,17 @@ function generateTableDoc(table, genericColNames) {
  * @param {object} doc
  * @returns A string form of the given table doc
  */
-function stringifyTableDoc(doc) {
+function stringifyTableDoc(schema, doc) {
   const stringifyColumn = column => {
     return `
-{% docs ${doc.name}__${column.name} %}
+{% docs ${docPrefix(schema, doc.name)}__${column.name} %}
 ${column.description}
 {% enddocs %}
 `;
   };
 
   return `\
-{% docs table__${doc.name} %}
+{% docs ${docPrefix(schema, 'table')}__${doc.name} %}
 ${doc.description}
 {% enddocs %}
 ${doc.columns.map(stringifyColumn).join('')}`;
@@ -301,15 +312,22 @@ function fillMissingDocColumn(index, column, hasGenericDoc, doc) {
 /**
  * Generate a table document if it's missing and write as a file.
  *
- * @param {string} schemaPath
+ * @param {string} schema
  * @param {object} table
  * @param {string[]} genericColNames
  */
-async function fillMissingDoc(schemaPath, table, genericColNames) {
+async function fillMissingDoc(schema, table, genericColNames = []) {
+  const docPath = path.join(schema.path, `${table.name}.md`);
+
+  // delete empty files
+  if ((await fs.stat(docPath).then(stat => stat.size, () => 1)) === 0) {
+    await fs.unlink(docPath);
+  }
+
   let file;
   try {
-    file = await fs.open(path.join(schemaPath, `${table.name}.md`), 'wx');
-    await file.write(stringifyTableDoc(generateTableDoc(table, genericColNames)));
+    file = await fs.open(docPath, 'wx');
+    await file.write(stringifyTableDoc(schema, generateTableDoc(table, genericColNames)));
   } catch (err) {
     if (err.code !== 'EEXIST') throw err;
   } finally {
@@ -336,9 +354,9 @@ async function handleRemovedColumn(tableName, column, out) {
  * @param {string[]} genericColNames
  * @param {object} out the sink the addition operation operates on
  */
-async function handleMissingColumn(tableName, index, column, genericColNames, out) {
+async function handleMissingColumn(schema, tableName, index, column, genericColNames, out) {
   const hasGenericDoc = genericColNames.includes(column.name);
-  const model = await generateColumnModel(tableName, column, hasGenericDoc);
+  const model = await generateColumnModel(schema, tableName, column, hasGenericDoc);
   out.dbtColumns.splice(index, 0, model);
   fillMissingDocColumn(index, column, hasGenericDoc, out.doc);
 }
@@ -346,36 +364,36 @@ async function handleMissingColumn(tableName, index, column, genericColNames, ou
 /**
  * Deletes the given table's source model and its document from the filesystem
  *
- * @param {string} schemaPath
+ * @param {string} schema
  * @param {object} table
  */
-async function handleRemovedTable(schemaPath, table) {
-  console.warn(`Removing ${table.name}`);
-  const tablePath = path.join(schemaPath, table.name);
+async function handleRemovedTable(schema, table) {
+  console.warn(` | removing table ${table.name}`);
+  const tablePath = path.join(schema.path, table.name);
   await Promise.all([fs.rm(tablePath + '.yml'), fs.rm(tablePath + '.md', { force: true })]);
 }
 
 /**
  * Generates the given table's source model and its document if missing. Then it writes as files.
  *
- * @param {string} schemaPath
- * @param {string} schemaName
+ * @param {object} schema
  * @param {object} table
  * @param {string[]} genericColNames
  */
-async function handleMissingTable(schemaPath, schemaName, table, genericColNames) {
+async function handleMissingTable(schema, table, genericColNames) {
   const genModelPromise = (async () => {
-    const model = await generateTableModel(schemaName, table, genericColNames);
-    await fs.writeFile(path.join(schemaPath, `${table.name}.yml`), YAML.stringify(model));
+    const model = await generateTableModel(schema, table, genericColNames);
+    await fs.writeFile(path.join(schema.path, `${table.name}.yml`), YAML.stringify(model));
   })();
-  const docPromise = fillMissingDoc(schemaPath, table, genericColNames);
+  const docPromise = fillMissingDoc(schema, table, genericColNames);
   await Promise.all([genModelPromise, docPromise]);
 }
 
-async function handleColumn(tableName, dbtColumn, sqlColumn, hasGenericDoc) {
+async function handleColumn(schema, tableName, dbtColumn, sqlColumn, hasGenericDoc) {
   dbtColumn.data_type = sqlColumn.data_type;
-  if (dbtColumn.description === '') {
+  if (!dbtColumn.description) {
     dbtColumn.description = generateColumnModelDescription(
+      schema,
       tableName,
       dbtColumn.name,
       hasGenericDoc,
@@ -392,10 +410,10 @@ async function handleColumn(tableName, dbtColumn, sqlColumn, hasGenericDoc) {
   if (dbtColumn.data_tests.length === 0) delete dbtColumn.data_tests;
 }
 
-async function handleColumns(schemaPath, tableName, dbtSrc, sqlColumns, genericColNames) {
+async function handleColumns(schema, tableName, dbtSrc, sqlColumns, genericColNames) {
   const out = {
     dbtColumns: dbtSrc.sources[0].tables[0].columns,
-    doc: await readTableDoc(schemaPath, tableName),
+    doc: await readTableDoc(schema, tableName),
   };
 
   // This is expensive yet the most straightforward implementation to detect changes.
@@ -415,42 +433,41 @@ async function handleColumns(schemaPath, tableName, dbtSrc, sqlColumns, genericC
 
       const hasGenericDoc = genericColNames.includes(dbtColumn.name);
       fillMissingDocColumn(sqlColumnIndex, dbtColumn, hasGenericDoc, out.doc);
-      await handleColumn(tableName, dbtColumn, sqlColumn, hasGenericDoc);
+      await handleColumn(schema, tableName, dbtColumn, sqlColumn, hasGenericDoc);
     },
   );
 
   await Promise.all(intersectionPromises);
 
-  const tablePath = path.join(schemaPath, tableName);
-  // This writes files in a preferred format ignoring the original format.
+  const tablePath = path.join(schema.path, tableName);
   const modelPromise = fs.writeFile(tablePath + '.yml', YAML.stringify(dbtSrc));
-  const docPromise = fs.writeFile(tablePath + '.md', stringifyTableDoc(out.doc));
+  const docPromise = fs.writeFile(tablePath + '.md', stringifyTableDoc(schema, out.doc));
   await Promise.all([modelPromise, docPromise]);
 }
 
-async function handleTable(schemaPath, schemaName, dbtSrc, sqlTable, genericColNames) {
-  dbtSrc.sources[0].schema = schemaName;
+async function handleTable(schema, dbtSrc, sqlTable, genericColNames) {
+  dbtSrc.sources[0].schema = schema.name;
 
-  await fillMissingDoc(schemaPath, sqlTable, genericColNames);
-  await handleColumns(schemaPath, sqlTable.name, dbtSrc, sqlTable.columns, genericColNames);
+  await fillMissingDoc(schema, sqlTable, genericColNames);
+  await handleColumns(schema, sqlTable.name, dbtSrc, sqlTable.columns, genericColNames);
 }
 
-async function handleTables(schemaPath, schemaName, dbtSrcs, sqlTables) {
+async function handleTables(schema, dbtSrcs, sqlTables) {
   const genericColNames =
-    (await readTableDoc(schemaPath, 'generic'))?.columns.map(c => c.name) ?? [];
+    (await readTableDoc(schema, 'generic'))?.columns.map(c => c.name) ?? [];
 
   const getName = srcOrTable =>
     srcOrTable.sources ? srcOrTable.sources[0].tables[0].name : srcOrTable.name;
   const removedPromises = differenceBy(dbtSrcs, sqlTables, getName).map(src =>
-    handleRemovedTable(schemaPath, src.sources[0].tables[0]),
+    handleRemovedTable(schema, src.sources[0].tables[0]),
   );
   const missingPromises = differenceBy(sqlTables, dbtSrcs, getName).map(table =>
-    handleMissingTable(schemaPath, schemaName, table, genericColNames),
+    handleMissingTable(schema, table, genericColNames),
   );
 
   const intersectionPromises = intersectionBy(dbtSrcs, sqlTables, getName).map(async dbtSrc => {
     const sqlTable = sqlTables.find(t => t.name === dbtSrc.sources[0].tables[0].name);
-    await handleTable(schemaPath, schemaName, dbtSrc, sqlTable, genericColNames);
+    await handleTable(schema, dbtSrc, sqlTable, genericColNames);
   });
   await Promise.all([...removedPromises, ...missingPromises, ...intersectionPromises]);
 }
@@ -468,7 +485,10 @@ async function handleSchema(client, packageName, schemaName) {
   );
   if (fhirLogsIndex) delete sqlTables[fhirLogsIndex];
 
-  await handleTables(schemaPath, schemaName, compact(oldTables), compact(sqlTables));
+  await handleTables({
+    name: schemaName,
+    path: schemaPath,
+  }, compact(oldTables), compact(sqlTables));
 }
 
 async function run(packageName, opts) {
