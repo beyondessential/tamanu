@@ -80,10 +80,6 @@ const MonthPicker = styled(MonthYearInput)`
     font-size: inherit;
   }
 
-  .MuiInputAdornment-root {
-    margin: 0;
-  }
-
   body:has(&) > .MuiPickersPopper-root {
     z-index: 2; // Above the sticky headers
   }
