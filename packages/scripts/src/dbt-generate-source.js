@@ -7,7 +7,7 @@ const inflection = require('inflection');
 const path = require('node:path');
 const pg = require('pg');
 const YAML = require('yaml');
-const { remove, differenceBy, intersectionBy } = require('lodash');
+const { compact, differenceBy, intersectionBy, remove } = require('lodash');
 const { spawnSync } = require('child_process');
 
 /**
@@ -323,7 +323,7 @@ async function fillMissingDoc(schemaPath, table, genericColNames) {
  * @param {object} out the sink the removal operation operates on
  */
 async function handleRemovedColumn(tableName, column, out) {
-  console.warn(`Removing ${column.name} in ${tableName}`);
+  console.warn(` | removing ${column.name} in ${tableName}`);
   remove(out.dbtColumns, c => c.name === column.name);
   remove(out.doc.columns, c => c.name === column.name);
 }
@@ -468,14 +468,15 @@ async function handleSchema(client, packageName, schemaName) {
   );
   if (fhirLogsIndex) delete sqlTables[fhirLogsIndex];
 
-  await handleTables(schemaPath, schemaName, oldTables, sqlTables);
+  await handleTables(schemaPath, schemaName, compact(oldTables), compact(sqlTables));
 }
 
 async function run(packageName, opts) {
   const serverConfig = config.util.loadFileConfigs(path.join('packages', packageName, 'config'));
   const db = config.util.extendDeep(serverConfig.db, config.db); // merge with NODE_CONFIG
 
-  console.log('Connecting to database for', packageName);
+  console.log('-+', packageName);
+  console.log(' | connecting to database');
   const client = new pg.Client({
     host: db.host,
     port: db.port,
@@ -494,16 +495,19 @@ async function run(packageName, opts) {
     return;
   }
 
-  console.log('Handling database models for', packageName);
+  console.log(' | loading schemas');
 
   const schemas = await getSchemas(client);
   for (const schema of schemas) {
     if (packageName === 'facility-server' && ['fhir'].includes(schema)) continue;
 
+    console.log(' | updating source models for', schema);
     await handleSchema(client, packageName, schema);
   }
 
+  console.log(' + done, disconnecting');
   await client.end();
+  console.log();
 }
 
 function checkClean() {
