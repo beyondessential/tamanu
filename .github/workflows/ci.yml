@@ -264,7 +264,7 @@ jobs:
 
   check-db-model:
     needs: node_modules_cache
-    name: Check the DB Source Model Files are up to Date
+    name: DB schema up to date
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -312,7 +312,7 @@ jobs:
 
   check-todo-db-model:
     needs: node_modules_cache
-    name: Check If the DB Source Model Files have TODO Items
+    name: DB Schema TODOs
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
