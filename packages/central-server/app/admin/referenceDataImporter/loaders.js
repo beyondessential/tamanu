@@ -8,7 +8,6 @@ import {
   REFERENCE_DATA_RELATION_TYPES,
 } from '@tamanu/constants';
 import { v4 as uuidv4 } from 'uuid';
-import ms from 'ms';
 
 function stripNotes(fields) {
   const values = { ...fields };
@@ -376,9 +375,8 @@ export async function taskTemplateLoader(item, { models, pushError }) {
   let frequencyValue, frequencyUnit;
   if (taskFrequency?.trim()) {
     try {
-      const result = ms(ms(taskFrequency), { long: true });
-      frequencyValue = result.split(' ')[0];
-      frequencyUnit = result.split(' ')[1];
+      frequencyValue = taskFrequency.trim().split(' ')[0];
+      frequencyUnit = taskFrequency.trim().split(' ')[1];
     } catch (e) {
       pushError(`Invalid task frequency ${taskFrequency}: ${e.message}`);
     }
