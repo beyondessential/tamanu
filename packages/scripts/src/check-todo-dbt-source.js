@@ -19,7 +19,9 @@ async function detectTodoItemsInTable(schema, dbtSrc) {
   const table = dbtSrc.sources[0].tables[0];
   const isDescriptionTodo = dbtSrc.sources[0].description === 'TODO';
   if (isDescriptionTodo) {
-    console.log(`TODO: table description for ${schema.name}.${table.name}, in ${schema.path}/${table.name}.yml'`);
+    console.log(
+      `TODO: table description for ${schema.name}.${table.name}, in ${schema.path}/${table.name}.yml'`,
+    );
   }
 
   const doc = await readTableDoc(schema, table.name);
@@ -27,7 +29,9 @@ async function detectTodoItemsInTable(schema, dbtSrc) {
 
   const isDocTodo = doc.description === 'TODO';
   if (isDocTodo) {
-    console.log(`TODO: table documentation for ${schema.name}.${table.name}, in ${schema.path}/${table.name}.md`);
+    console.log(
+      `TODO: table documentation for ${schema.name}.${table.name}, in ${schema.path}/${table.name}.md`,
+    );
   }
 
   const todoColumnDocs = doc.columns.filter(c => c.description === 'TODO');
@@ -37,13 +41,13 @@ async function detectTodoItemsInTable(schema, dbtSrc) {
     );
   }
 
-  return (+isDescriptionTodo) + (+isDocTodo) + todoColumnDocs.length;
+  return +isDescriptionTodo + +isDocTodo + todoColumnDocs.length;
 }
 
 async function run() {
   let sum = 0;
   for (const packageName of ['central-server', 'facility-server']) {
-  const schemas = await getSchemas(packageName);
+    const schemas = await getSchemas(packageName);
     for (const schema of schemas) {
       const tables = await readTablesFromDbt(schema.path);
       for (const table of tables) {
