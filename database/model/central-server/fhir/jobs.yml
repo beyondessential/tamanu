@@ -4,7 +4,7 @@ sources:
     schema: fhir
     description: "{{ doc('fhir__generic__schema') }}"
     __generator:
-      js_class: Job
+      js_class: FhirJob
     tables:
       - name: jobs
         description: "{{ doc('fhir__table__jobs') }}"
@@ -39,6 +39,12 @@ sources:
             description: "{{ doc('fhir__jobs__status') }}"
             data_tests:
               - not_null
+              - accepted_values:
+                  values:
+                    - Queued
+                    - Grabbed
+                    - Started
+                    - Errored
           - name: worker_id
             data_type: uuid
             description: "{{ doc('fhir__jobs__worker_id') }}"
