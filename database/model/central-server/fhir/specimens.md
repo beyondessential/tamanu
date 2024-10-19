@@ -1,15 +1,19 @@
 {% docs fhir__table__specimens %}
-TODO
+FHIR data about specimen, for laboratory testing.
+
+<https://www.hl7.org/fhir/specimen.html>
 {% enddocs %}
 
 {% docs fhir__specimens__collection %}
-TODO
+Who collected the specimen, from where, and at what time.
 {% enddocs %}
 
 {% docs fhir__specimens__request %}
-TODO
+Reference to the servicerequest this specimen is for.
 {% enddocs %}
 
 {% docs fhir__specimens__type %}
-TODO
+Coded type of the specimen.
+
+These codes are from Reference Data `type=specimenType`.
 {% enddocs %}
