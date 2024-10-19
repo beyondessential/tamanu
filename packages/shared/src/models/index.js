@@ -125,3 +125,5 @@ export * from './TaskTemplateDesignation';
 export * from './UserDesignation';
 export * from './SyncLookup';
 export * from './DebugLog';
+export * from './DebugLog';
+export * from './SyncDeviceTick';
