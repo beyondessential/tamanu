@@ -5,7 +5,7 @@ These are materialised from `public.facilities`.
 
 This is mostly a stub resource that other, more clinically relevant, resources reference.
 
-<https://www.hl7.org/fhir/organizations.html>
+<https://www.hl7.org/fhir/organization.html>
 {% enddocs %}
 
 {% docs fhir__organizations__identifier %}
