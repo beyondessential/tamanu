@@ -3,6 +3,8 @@ FHIR data about practitioners.
 
 These are materialised from `public.users`.
 
+This is mostly a stub resource that other, more clinically relevant, resources reference.
+
 <https://www.hl7.org/fhir/practitioner.html>
 {% enddocs %}
 

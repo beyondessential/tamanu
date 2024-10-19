@@ -1,15 +1,23 @@
 {% docs fhir__table__organizations %}
-TODO
+FHIR data about organizations.
+
+These are materialised from `public.facilities`.
+
+This is mostly a stub resource that other, more clinically relevant, resources reference.
+
+<https://www.hl7.org/fhir/organizations.html>
 {% enddocs %}
 
 {% docs fhir__organizations__identifier %}
-TODO
+The facility's code.
 {% enddocs %}
 
 {% docs fhir__organizations__name %}
-TODO
+The facility's name.
 {% enddocs %}
 
 {% docs fhir__organizations__active %}
-TODO
+Whether the facility is active.
+
+This is materialised from `visibility_status`.
 {% enddocs %}
