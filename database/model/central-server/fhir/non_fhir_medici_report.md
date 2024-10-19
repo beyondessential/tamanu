@@ -1,119 +1,123 @@
 {% docs fhir__table__non_fhir_medici_report %}
-TODO
+This is a hack specifically to provide an integration (Medici) with a custom endpoint.
+
+It has nothing to do with FHIR but reuses the FHIR API infrastructure for convenience.
+
+Do not use outside of this integration's context.
 {% enddocs %}
 
 {% docs fhir__non_fhir_medici_report__patient_id %}
-TODO
+UUID of the patient.
 {% enddocs %}
 
 {% docs fhir__non_fhir_medici_report__first_name %}
-TODO
+First name of the patient.
 {% enddocs %}
 
 {% docs fhir__non_fhir_medici_report__last_name %}
-TODO
+Last name of the patient.
 {% enddocs %}
 
 {% docs fhir__non_fhir_medici_report__date_of_birth %}
-TODO
+Patient date of birth.
 {% enddocs %}
 
 {% docs fhir__non_fhir_medici_report__age %}
-TODO
+Patient age.
 {% enddocs %}
 
 {% docs fhir__non_fhir_medici_report__sex %}
-TODO
+Patient sex.
 {% enddocs %}
 
 {% docs fhir__non_fhir_medici_report__patient_billing_id %}
-TODO
+Billing ID for Medici purposes.
 {% enddocs %}
 
 {% docs fhir__non_fhir_medici_report__patient_billing_type %}
-TODO
+Medici billing type.
 {% enddocs %}
 
 {% docs fhir__non_fhir_medici_report__encounter_id %}
-TODO
+UUID of the encounter.
 {% enddocs %}
 
 {% docs fhir__non_fhir_medici_report__encounter_start_date %}
-TODO
+Start date of the encounter.
 {% enddocs %}
 
 {% docs fhir__non_fhir_medici_report__encounter_end_date %}
-TODO
+End date of the encounter.
 {% enddocs %}
 
 {% docs fhir__non_fhir_medici_report__discharge_date %}
-TODO
+Discharge date of the encounter.
 {% enddocs %}
 
 {% docs fhir__non_fhir_medici_report__encounter_type %}
-TODO
+Type of the encounter.
 {% enddocs %}
 
 {% docs fhir__non_fhir_medici_report__weight %}
-TODO
+Patient weight.
 {% enddocs %}
 
 {% docs fhir__non_fhir_medici_report__visit_type %}
-TODO
+Encounter visit type.
 {% enddocs %}
 
 {% docs fhir__non_fhir_medici_report__episode_end_status %}
-TODO
+Status at end of encounter.
 {% enddocs %}
 
 {% docs fhir__non_fhir_medici_report__encounter_discharge_disposition %}
-TODO
+Discharge disposition.
 {% enddocs %}
 
 {% docs fhir__non_fhir_medici_report__triage_category %}
-TODO
+Triage category.
 {% enddocs %}
 
 {% docs fhir__non_fhir_medici_report__wait_time %}
-TODO
+Wait time.
 {% enddocs %}
 
 {% docs fhir__non_fhir_medici_report__departments %}
-TODO
+Departments involved.
 {% enddocs %}
 
 {% docs fhir__non_fhir_medici_report__locations %}
-TODO
+Locations involved.
 {% enddocs %}
 
 {% docs fhir__non_fhir_medici_report__reason_for_encounter %}
-TODO
+Reason for encounter.
 {% enddocs %}
 
 {% docs fhir__non_fhir_medici_report__diagnoses %}
-TODO
+Diagnoses made.
 {% enddocs %}
 
 {% docs fhir__non_fhir_medici_report__medications %}
-TODO
+Medications prescribed.
 {% enddocs %}
 
 {% docs fhir__non_fhir_medici_report__vaccinations %}
-TODO
+Vaccinations done.
 {% enddocs %}
 
 {% docs fhir__non_fhir_medici_report__procedures %}
-TODO
+Procedures done.
 {% enddocs %}
 
 {% docs fhir__non_fhir_medici_report__lab_requests %}
-TODO
+Labs requested.
 {% enddocs %}
 
 {% docs fhir__non_fhir_medici_report__imaging_requests %}
-TODO
+Imagings requested.
 {% enddocs %}
 
 {% docs fhir__non_fhir_medici_report__notes %}
-TODO
+Any associated notes and comments.
 {% enddocs %}
