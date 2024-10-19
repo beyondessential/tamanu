@@ -87,7 +87,7 @@ export class Task extends Model {
         syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
         ...options,
         hooks: {
-          async beforeDestroy(task, opts) {
+          async afterDestroy(task, opts) {
             await models.TaskDesignation.destroy({
               where: { taskId: task.id },
               transaction: opts.transaction,
@@ -138,6 +138,10 @@ export class Task extends Model {
     this.belongsTo(models.ReferenceData, {
       foreignKey: 'deletedReasonId',
       as: 'deletedReason',
+    });
+    this.belongsTo(models.ReferenceData, {
+      foreignKey: 'deletedReasonForSyncId',
+      as: 'deletedReasonForSync',
     });
     this.belongsToMany(models.ReferenceData, {
       through: models.TaskDesignation,
