@@ -1,15 +1,21 @@
 {% docs fhir__table__practitioners %}
-TODO
+FHIR data about practitioners.
+
+These are materialised from `public.users`.
+
+<https://www.hl7.org/fhir/practitioner.html>
 {% enddocs %}
 
 {% docs fhir__practitioners__identifier %}
-TODO
+One or more identifiers:
+- The Tamanu internal UUID for the user
+- The Tamanu Display ID for the user, if present
 {% enddocs %}
 
 {% docs fhir__practitioners__name %}
-TODO
+The display name of the practitioner.
 {% enddocs %}
 
 {% docs fhir__practitioners__telecom %}
-TODO
+The practitioner's email.
 {% enddocs %}
