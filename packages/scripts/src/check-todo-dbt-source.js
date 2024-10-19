@@ -61,7 +61,7 @@ async function run() {
 (async function() {
   const todos = await run();
   if (todos) {
-    console.logs(`${todos} items remaining to document`);
+    console.log(`${todos} items remaining to document`);
     exit(1);
   }
 })();
