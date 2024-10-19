@@ -10,6 +10,9 @@ include an integer priority instead of (high, normal, low) and the lack of retur
 
 Job management is done via SQL functions: `job_submit()`, `job_start()`, `job_complete()`,
 `job_fail()`, `job_grab()`. Some additional functions are used for debugging: `job_backlog()`.
+
+This provides the possibility of decoupling part or whole of the job system from the Tamanu JS/TS
+codebase, while retaining identical handling.
 {% enddocs %}
 
 {% docs fhir__jobs__created_at %}

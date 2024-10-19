@@ -23,6 +23,9 @@ out the table of dead workers.
 Worker management is done via SQL functions: `job_worker_register()`, `job_worker_heartbeat()`,
 `job_worker_deregister()`, `job_worker_garbage_collect()`. Additionally there's the querying
 function `job_worker_is_alive()`.
+
+This provides the possibility of decoupling part or whole of the job system from the Tamanu JS/TS
+codebase, while retaining identical handling.
 {% enddocs %}
 
 {% docs fhir__job_workers__created_at %}
