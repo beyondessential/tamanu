@@ -19,7 +19,7 @@ async function detectTodoItemsInTable(schema, dbtSrc) {
   const table = dbtSrc.sources[0].tables[0];
   const isDescriptionTodo = dbtSrc.sources[0].description === 'TODO';
   if (isDescriptionTodo) {
-    console.log(`TODO: table description for ${table.name}, in ${schema}/${table.name}.yml'`);
+    console.log(`TODO: table description for ${schema.name}.${table.name}, in ${schema.path}/${table.name}.yml'`);
   }
 
   const doc = await readTableDoc(schema, table.name);
@@ -27,17 +27,17 @@ async function detectTodoItemsInTable(schema, dbtSrc) {
 
   const isDocTodo = doc.description === 'TODO';
   if (isDocTodo) {
-    console.log(`TODO: table documentation for ${table.name}, in ${schema}/${table.name}.md`);
+    console.log(`TODO: table documentation for ${schema.name}.${table.name}, in ${schema.path}/${table.name}.md`);
   }
 
   const todoColumnDocs = doc.columns.filter(c => c.description === 'TODO');
   for (const column of todoColumnDocs) {
     console.log(
-      `TODO: column documentation for ${table.name}:${column.name}, in ${schema}/${table.name}.md`,
+      `TODO: column documentation for ${schema.name}.${table.name}:${column.name}, in ${schema.path}/${table.name}.md`,
     );
   }
 
-  return isDescriptionTodo || isDocTodo || todoColumnDocs.length !== 0;
+  return (+isDescriptionTodo) + (+isDocTodo) + todoColumnDocs.length;
 }
 
 async function run(packageName) {
@@ -45,15 +45,16 @@ async function run(packageName) {
     const detectPromises = (await readTablesFromDbt(schema.path)).map(s =>
       detectTodoItemsInTable(schema, s),
     );
-    return (await Promise.all(detectPromises)).some(a => a);
+    return (await Promise.all(detectPromises)).reduce((acc, n) => acc + n, 0);
   });
-  return (await Promise.all(promises)).some(a => a);
+  return (await Promise.all(promises)).reduce((acc, n) => acc + n, 0);
 }
 
 (async function() {
   const promises = [run('central-server'), run('facility-server')];
-  const detected = (await Promise.all(promises)).some(a => a);
+  const detected = (await Promise.all(promises)).reduce((acc, n) => acc + n, 0);
   if (detected) {
+    console.error(`${detected} items remaining to document`);
     exit(1);
   }
 })();
