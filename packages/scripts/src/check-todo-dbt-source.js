@@ -40,21 +40,24 @@ async function detectTodoItemsInTable(schema, dbtSrc) {
   return (+isDescriptionTodo) + (+isDocTodo) + todoColumnDocs.length;
 }
 
-async function run(packageName) {
-  const promises = (await getSchemas(packageName)).map(async schema => {
-    const detectPromises = (await readTablesFromDbt(schema.path)).map(s =>
-      detectTodoItemsInTable(schema, s),
-    );
-    return (await Promise.all(detectPromises)).reduce((acc, n) => acc + n, 0);
-  });
-  return (await Promise.all(promises)).reduce((acc, n) => acc + n, 0);
+async function run() {
+  let sum = 0;
+  for (const packageName of ['central-server', 'facility-server']) {
+  const schemas = await getSchemas(packageName);
+    for (const schema of schemas) {
+      const tables = await readTablesFromDbt(schema.path);
+      for (const table of tables) {
+        sum += await detectTodoItemsInTable(schema, table);
+      }
+    }
+  }
+  return sum;
 }
 
 (async function() {
-  const promises = [run('central-server'), run('facility-server')];
-  const detected = (await Promise.all(promises)).reduce((acc, n) => acc + n, 0);
-  if (detected) {
-    console.error(`${detected} items remaining to document`);
+  const todos = await run();
+  if (todos) {
+    console.error(`${todos} items remaining to document`);
     exit(1);
   }
 })();
