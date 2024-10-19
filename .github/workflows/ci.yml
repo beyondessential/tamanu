@@ -305,7 +305,8 @@ jobs:
       - run: |
           yarn generate-dbt-source --fail-on-missing-config
           if [[ -n $(git status --porcelain=v2) ]]; then
-              echo "The source model is behind the Tamanu database."
+              git diff
+              echo "The source model is behind the Tamanu database Run `yarn generate-dbt-source` and commit the result."
               exit 1
           fi
 
@@ -324,10 +325,7 @@ jobs:
           key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
           path: ${{ env.NODE_MODULES_PATHS }}
 
-      - name: Build
-        run: |
-          yarn
-
+      - run: yarn
       - run: yarn check-todo-dbt-source
 
   # Dummy job to have a stable name for PR requirements
