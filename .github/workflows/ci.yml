@@ -325,7 +325,8 @@ jobs:
           yarn generate-dbt-source --fail-on-missing-config
           if [[ -n $(git status --porcelain=v2) ]]; then
               git diff
-              echo "The source model is behind the Tamanu database Run `yarn generate-dbt-source` and commit the result."
+              echo "The source model is behind the Tamanu database!"
+              echo "Run 'yarn generate-dbt-source' and commit the result."
               exit 1
           fi
 
