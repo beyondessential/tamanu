@@ -423,7 +423,7 @@ async function handleColumns(schema, tableName, dbtSrc, sqlColumns, genericColNa
     handleRemovedColumn(tableName, column, out),
   );
   differenceBy(sqlColumns, out.dbtColumns, 'name').forEach(column =>
-    handleMissingColumn(tableName, sqlColumns.indexOf(column), column, genericColNames, out),
+    handleMissingColumn(schema, tableName, sqlColumns.indexOf(column), column, genericColNames, out),
   );
 
   const intersectionPromises = intersectionBy(out.dbtColumns, sqlColumns, 'name').map(
