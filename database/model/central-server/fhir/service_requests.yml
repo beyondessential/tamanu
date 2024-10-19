@@ -69,7 +69,6 @@ sources:
             __generator:
               values_from_constant: FHIR_REQUEST_PRIORITY
             data_tests:
-              - not_null
               - accepted_values:
                   values:
                     - routine

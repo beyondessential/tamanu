@@ -77,7 +77,7 @@ Reference to the encounter this service request concerns.
 {% docs fhir__service_requests__note %}
 Any comments made about the request.
 
-For imaging, this may be orientation notes or other clinically-relevant annotations. 
+For imaging, this may be orientation notes or other clinically-relevant annotations.
 {% enddocs %}
 
 {% docs fhir__service_requests__specimen %}
