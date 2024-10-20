@@ -13,11 +13,11 @@ import {
   startOfDay,
   isSameMonth,
   isSameDay,
+  format,
 } from 'date-fns';
 
 import { BodyText, MonthYearInput, TextButton } from '../../components';
 import { Colors } from '../../constants';
-import { intlFormatDate } from '@tamanu/shared/utils/dateTime';
 
 const DaysWrapper = styled(Box)`
   display: flex;
@@ -74,18 +74,14 @@ const getMonthInterval = date => {
   });
 };
 
-const DayButton = ({ date, selected, onClick }) => {
-  return (
-    <DayWrapper onClick={onClick} $selected={selected} $isToday={isToday(date)}>
-      <WeekdayText $selected={selected} $isWeekend={isWeekend(date)}>
-        {intlFormatDate(date, {
-          weekday: 'narrow',
-        })}
-      </WeekdayText>
-      <DateText>{date.getDate()}</DateText>
-    </DayWrapper>
-  );
-};
+const DayButton = ({ date, selected, onClick }) => (
+  <DayWrapper onClick={onClick} $selected={selected} $isToday={isToday(date)}>
+    <WeekdayText $selected={selected} $isWeekend={isWeekend(date)}>
+      {format(date, 'EEEEE')}
+    </WeekdayText>
+    <DateText>{date.getDate()}</DateText>
+  </DayWrapper>
+);
 
 export const DateSelector = ({ value = new Date(), onChange }) => {
   const [viewedDays, setViewedDays] = useState(getMonthInterval(value));
