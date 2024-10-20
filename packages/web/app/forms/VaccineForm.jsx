@@ -18,7 +18,6 @@ import { VaccineNotGivenForm } from './VaccineNotGivenForm';
 import { usePatientCurrentEncounter } from '../api/queries';
 import { useAuth } from '../contexts/Auth';
 import { TranslatedText } from '../components/Translation/TranslatedText';
-import { useLocalisation } from '../contexts/Localisation';
 import { useSettings } from '../contexts/Settings';
 import { usePatientData } from '../api/queries/usePatientData';
 import { isAfter, isBefore, parse } from 'date-fns';
@@ -43,7 +42,6 @@ export const VaccineForm = ({
   getScheduledVaccines,
   vaccineRecordingType,
 }) => {
-  const { getLocalisation } = useLocalisation();
   const { getSetting } = useSettings();
 
   const [vaccineLabel, setVaccineLabel] = useState(existingValues?.vaccineLabel);
@@ -62,6 +60,7 @@ export const VaccineForm = ({
   } = usePatientCurrentEncounter(patientId);
 
   const vaccinationDefaults = getSetting(SETTING_KEYS.VACCINATION_DEFAULTS);
+  const vaccineConsentEnabled = getSetting('features.enableVaccineConsent');
 
   const selectedVaccine = useMemo(() => vaccineOptions.find(v => v.value === vaccineLabel), [
     vaccineLabel,
@@ -140,10 +139,7 @@ export const VaccineForm = ({
       )
       .test(
         'max',
-        <TranslatedText
-          stringId="vaccine.maxDateError"
-          fallback="Date cannot be in the future"
-        />,
+        <TranslatedText stringId="vaccine.maxDateError" fallback="Date cannot be in the future" />,
         value => {
           if (!value) return true;
           const maxDate = new Date();
@@ -191,8 +187,6 @@ export const VaccineForm = ({
   const baseSchemeValidation = editMode
     ? BASE_VACCINE_SCHEME_VALIDATION
     : NEW_RECORD_VACCINE_SCHEME_VALIDATION;
-
-  const vaccineConsentEnabled = getLocalisation('features.enableVaccineConsent');
 
   const initialValues = !editMode
     ? {

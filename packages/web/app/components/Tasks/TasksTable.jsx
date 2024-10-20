@@ -20,6 +20,7 @@ import { Colors } from '../../constants';
 import useOverflow from '../../hooks/useOverflow';
 import { ThemedTooltip } from '../Tooltip';
 import { TaskActionModal } from './TaskActionModal';
+import { useAuth } from '../../contexts/Auth';
 
 const StyledPriorityHighIcon = styled(PriorityHighIcon)`
   color: ${Colors.alert};
@@ -292,9 +293,13 @@ const getFrequency = ({ frequencyValue, frequencyUnit }) =>
     <TranslatedText stringId="encounter.tasks.table.once" fallback="Once" />
   );
 
-const BulkActions = ({ row, status, handleActionModalOpen }) => (
-  <StyledBulkActions>
-    {status !== TASK_STATUSES.COMPLETED && (
+const BulkActions = ({ row, status, handleActionModalOpen }) => {
+  const { ability } = useAuth();
+  const canWrite = ability.can('write', 'Tasking');
+  const canDelete = ability.can('delete', 'Tasking');
+
+  return <StyledBulkActions>
+    {status !== TASK_STATUSES.COMPLETED && canWrite && (
       <StyledToolTip
         title={
           <TranslatedText
@@ -308,7 +313,7 @@ const BulkActions = ({ row, status, handleActionModalOpen }) => (
         </IconButton>
       </StyledToolTip>
     )}
-    {status !== TASK_STATUSES.NON_COMPLETED && (
+    {status !== TASK_STATUSES.NON_COMPLETED && canWrite && (
       <StyledToolTip
         title={
           <TranslatedText
@@ -322,7 +327,7 @@ const BulkActions = ({ row, status, handleActionModalOpen }) => (
         </IconButton>
       </StyledToolTip>
     )}
-    {status !== TASK_STATUSES.TODO && (
+    {status !== TASK_STATUSES.TODO && canWrite && (
       <StyledToolTip
         title={
           <TranslatedText stringId="encounter.tasks.action.tooltip.toDo" fallback="Mark as to-do" />
@@ -333,7 +338,7 @@ const BulkActions = ({ row, status, handleActionModalOpen }) => (
         </IconButton>
       </StyledToolTip>
     )}
-    {status === TASK_STATUSES.TODO && (
+    {status === TASK_STATUSES.TODO && canDelete && (
       <StyledToolTip
         title={
           <TranslatedText stringId="encounter.tasks.action.tooltip.delete" fallback="Delete" />
@@ -345,7 +350,7 @@ const BulkActions = ({ row, status, handleActionModalOpen }) => (
       </StyledToolTip>
     )}
   </StyledBulkActions>
-);
+};
 
 const NotesCell = ({ row, hoveredRow, handleActionModalOpen }) => {
   const [ref, isOverflowing] = useOverflow();
@@ -402,6 +407,10 @@ const NoDataMessage = () => (
 );
 
 export const TasksTable = ({ encounterId, searchParameters, refreshCount, refreshTaskTable }) => {
+  const { ability } = useAuth();
+  const canWrite = ability.can('write', 'Tasking');
+  const canDelete = ability.can('delete', 'Tasking');
+
   const [hoveredRow, setHoveredRow] = useState();
   const [data, setData] = useState([]);
   const [actionModal, setActionModal] = useState('');
@@ -518,7 +527,7 @@ export const TasksTable = ({ encounterId, searchParameters, refreshCount, refres
         taskIds={selectedTask?.id ? [selectedTask.id] : selectedRowIds}
         isRepeatingTask={isRepeatingTask}
       />
-      {selectedRows.length > 0 && (
+      {selectedRows.length > 0 && (canWrite || canDelete) && (
         <div>
           <StyledDivider />
           <BulkActions
