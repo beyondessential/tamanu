@@ -35,10 +35,11 @@ export const DataFetchingTable = memo(
     lazyLoading = false,
     overrideLocalisationForStorybook = false,
     hasPermission = true,
+    defaultRowsPerPage = ROWS_PER_PAGE_OPTIONS[0],
     ...props
   }) => {
     const [page, setPage] = useState(0);
-    const [rowsPerPage, setRowsPerPage] = useState(ROWS_PER_PAGE_OPTIONS[0]);
+    const [rowsPerPage, setRowsPerPage] = useState(defaultRowsPerPage);
     const [sorting, setSorting] = useState(initialSort);
     const [fetchState, setFetchState] = useState(initialiseFetchState());
     const [forcedRefreshCount, setForcedRefreshCount] = useState(0);

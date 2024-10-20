@@ -404,7 +404,7 @@ export const TasksTable = ({ encounterId, searchParameters, refreshCount, refres
 
   useEffect(() => {
     resetSelection();
-  }, [searchParameters, resetSelection]);
+  }, [searchParameters, refreshCount, resetSelection]);
 
   const selectedRowIds = useMemo(() => selectedRows.map(row => row.id), [selectedRows]);
 
@@ -503,6 +503,7 @@ export const TasksTable = ({ encounterId, searchParameters, refreshCount, refres
         fetchOptions={searchParameters}
         onDataFetched={onDataFetched}
         refreshCount={refreshCount}
+        defaultRowsPerPage={25}
       />
     </div>
   );
