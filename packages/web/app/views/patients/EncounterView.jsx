@@ -32,13 +32,15 @@ import { TranslatedText, TranslatedReferenceData } from '../../components/Transl
 import { useSettings } from '../../contexts/Settings';
 
 const getIsTriage = encounter => ENCOUNTER_OPTIONS_BY_VALUE[encounter.encounterType].triageFlowOnly;
+const getEnableTasking = (getSetting, ability) =>
+  getSetting('features.enableTasking') && ability.can('list', 'Tasking');
 
 const TABS = [
   {
     label: <TranslatedText stringId="encounter.tabs.tasks" fallback="tasks" />,
     key: ENCOUNTER_TAB_NAMES.TASKS,
     render: props => <TasksPane {...props} />,
-    condition: (_, ability) => ability.can('list', 'Tasking'),
+    condition: (getSetting, ability) => getEnableTasking(getSetting, ability),
   },
   {
     label: <TranslatedText stringId="encounter.tabs.vitals" fallback="Vitals" />,
@@ -142,7 +144,7 @@ export const EncounterView = () => {
   const { encounter, isLoadingEncounter } = useEncounter();
   const { data: patientBillingTypeData } = useReferenceData(encounter?.patientBillingTypeId);
 
-  const defaultTab = getLocalisation('features.enableTasking')
+  const defaultTab = getEnableTasking(getSetting, ability)
     ? ENCOUNTER_TAB_NAMES.TASKS
     : ENCOUNTER_TAB_NAMES.VITALS;
   const [currentTab, setCurrentTab] = useState(query.get('tab') || defaultTab);
