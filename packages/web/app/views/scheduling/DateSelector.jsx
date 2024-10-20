@@ -6,15 +6,14 @@ import {
   addMonths,
   eachDayOfInterval,
   endOfMonth,
+  format,
+  isSameDay,
+  isSameMonth,
+  isThisMonth,
   isToday,
   isWeekend,
   startOfMonth,
   subMonths,
-  startOfDay,
-  isSameMonth,
-  isSameDay,
-  format,
-  isThisMonth,
 } from 'date-fns';
 
 import { BodyText, MonthYearInput, TextButton } from '../../components';
