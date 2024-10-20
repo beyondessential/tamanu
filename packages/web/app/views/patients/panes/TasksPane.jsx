@@ -8,6 +8,7 @@ import { AutocompleteInput, Button, CheckInput, TranslatedText } from '../../../
 import { useSuggester } from '../../../api';
 import { TasksTable } from '../../../components/Tasks/TasksTable';
 import { TaskModal } from '../../../components/Tasks/TaskModal';
+import { useAuth } from '../../../contexts/Auth';
 
 const TabPane = styled.div`
   margin: 20px 24px 24px;
@@ -44,6 +45,9 @@ const CheckInputGroup = styled.div`
 `;
 
 export const TasksPane = React.memo(({ encounter }) => {
+  const { ability } = useAuth();
+  const canCreate = ability.can('create', 'Tasking');
+
   const designationSuggester = useSuggester('designation');
   const [showCompleted, setShowCompleted] = useState(false);
   const [showNotCompleted, setShowNotCompleted] = useState(false);
@@ -119,9 +123,11 @@ export const TasksPane = React.memo(({ encounter }) => {
           suggester={designationSuggester}
           onChange={onFilterByDesignation}
         />
-        <Button onClick={() => setTaskModalOpen(true)} variant="outlined" color="primary">
-          <TranslatedText stringId="encounter.tasks.action.newTask" fallback="+ New task" />
-        </Button>
+        {canCreate && (
+          <Button onClick={() => setTaskModalOpen(true)} variant="outlined" color="primary">
+            <TranslatedText stringId="encounter.tasks.action.newTask" fallback="+ New task" />
+          </Button>
+        )}
       </ActionRow>
       <TasksTable
         encounterId={encounter.id}

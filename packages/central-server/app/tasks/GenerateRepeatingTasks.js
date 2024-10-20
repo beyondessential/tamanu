@@ -5,10 +5,8 @@ import { Op } from 'sequelize';
 import { sleepAsync } from '@tamanu/shared/utils';
 import { InvalidConfigError } from '@tamanu/shared/errors';
 import {
-  REFERENCE_TYPES,
   SYSTEM_USER_UUID,
-  TASK_OVERDUE_REASON_ID,
-  TASK_DELETE_BY_SYSTEM_REASON,
+  TASK_NOTE_COMPLETE_OVERDUE_REASON_ID,
   TASK_STATUSES,
 } from '@tamanu/constants';
 import { getCurrentDateTimeString, toDateTimeString } from '@tamanu/shared/utils/dateTime';
@@ -51,42 +49,48 @@ export class GenerateRepeatingTasks extends ScheduledTask {
   }
 
   async run() {
-    await this.removeChildTasksOverParentEndtime();
+    await this.removeChildTasksOverParentEndTime();
     await this.markOldRepeatingTasksAsNotCompleted();
     await this.generateChildTasks();
   }
 
-  // remove child tasks that have dueTime over parent endtime
+  // remove child tasks that have dueTime over parent endTime
   // this is a safe guard for the delayed sync from facility server to central server
   // only need to account for tasks that have been created in the last 30 days with the status of TODO
-  async removeChildTasksOverParentEndtime() {
-    const deletionReasonForFutureTasks = await this.models.ReferenceData.findByPk(
-      TASK_DELETE_BY_SYSTEM_REASON,
-      {
-        where: { type: REFERENCE_TYPES.TASK_DELETION_REASON },
-      },
-    );
-
-    await this.sequelize.query(
-      `update tasks set
-        deleted_at = now(),
+  async removeChildTasksOverParentEndTime() {
+    await this.sequelize.query(`
+      with parent as (
+        select id, deleted_reason_for_sync_id as reason_id
+        from tasks
+      )
+      update tasks
+      set
+        deleted_at = now (),
         deleted_by_user_id = :deletedByUserId,
         deleted_time = :deletedTime,
-        deleted_reason_id = :deletedReasonId
-        where id in (SELECT childTasks.id FROM tasks as childTasks
-    JOIN tasks as parentTasks
-      ON parentTasks.id = childTasks.parent_task_id
-      AND parentTasks.end_time IS NOT NULL
-    WHERE childTasks.deleted_at is NULL
-      and childTasks.due_time > parentTasks.end_time
-      and childTasks.status IN (:statuses)
-      and childTasks.created_at > now() - interval '30' day)`,
+        deleted_reason_id = parent.reason_id
+      from parent
+      where
+        tasks.parent_task_id = parent.id
+        tasks.id in (
+          SELECT
+            childTasks.id
+          FROM
+            tasks as childTasks
+            JOIN tasks as parent_tasks ON parent_tasks.id = childTasks.parent_task_id
+            AND parent_tasks.end_time IS NOT NULL
+          WHERE
+            childTasks.deleted_at is NULL
+            and childTasks.due_time > parent_tasks.end_time
+            and childTasks.status IN (:statuses)
+            and childTasks.created_at > now () - interval '30' day
+        )
+    `,
       {
         replacements: {
           statuses: [TASK_STATUSES.TODO],
           deletedByUserId: SYSTEM_USER_UUID,
           deletedTime: getCurrentDateTimeString(),
-          deletedReasonId: deletionReasonForFutureTasks?.id ?? null,
         },
       },
     );
@@ -94,9 +98,7 @@ export class GenerateRepeatingTasks extends ScheduledTask {
 
   async markOldRepeatingTasksAsNotCompleted() {
     const { Task, ReferenceData } = this.models;
-    const notCompletedReason = await ReferenceData.findOne({
-      where: { id: TASK_OVERDUE_REASON_ID, code: REFERENCE_TYPES.TASK_NOT_COMPLETED_REASON },
-    });
+    const notCompletedReason = await ReferenceData.findByPk(TASK_NOTE_COMPLETE_OVERDUE_REASON_ID);
 
     // 2 days ago
     const cutoffDateTime = new Date(new Date().getTime() - 2 * MILLISECONDS_PER_DAY);

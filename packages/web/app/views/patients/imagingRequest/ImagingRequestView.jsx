@@ -41,11 +41,13 @@ import { CancelModalButton } from './CancelModalButton';
 import { PrintModalButton } from './PrintModalButton';
 import { getReferenceDataStringId, TranslatedText } from '../../../components/Translation';
 import { useTranslation } from '../../../contexts/Translation';
+import { useSettings } from '../../../contexts/Settings';
 
 const ImagingRequestSection = ({ currentStatus, imagingRequest }) => {
   const { getLocalisation } = useLocalisation();
+  const { getSetting } = useSettings();
   const { getTranslation } = useTranslation();
-  const imagingPriorities = getLocalisation('imagingPriorities') || [];
+  const imagingPriorities = getSetting('imagingPriorities') || [];
   const imagingTypes = getLocalisation('imagingTypes') || {};
 
   const locationGroupSuggester = useSuggester('facilityLocationGroup');

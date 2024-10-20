@@ -3,25 +3,25 @@ import { StatusBar } from 'react-native';
 // Components
 import {
   FullView,
-  StyledView,
-  StyledSafeAreaView,
-  StyledText,
   RowView,
+  StyledSafeAreaView,
   StyledScrollView,
+  StyledText,
+  StyledView,
 } from '/styled/common';
 import { UserAvatar } from '/components/UserAvatar';
-import { BackButton, VisitTypeButtonList, PatientMenuButtons } from './CustomComponents';
+import { BackButton, PatientMenuButtons, VisitTypeButtonList } from './CustomComponents';
 // Helpers
 import { theme } from '/styled/theme';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { IPatient } from '~/types';
-import { joinNames, getGender } from '/helpers/user';
+import { getGender, joinNames } from '/helpers/user';
 import { getDisplayAge } from '/helpers/date';
 import { setDotsOnMaxLength } from '/helpers/text';
 import { SyncInactiveAlert } from '~/ui/components/SyncInactiveAlert';
 import { MenuOptionButtonProps } from '~/types/MenuOptionButtonProps';
-import { useLocalisation } from '~/ui/contexts/LocalisationContext';
 import { PatientSyncStatus } from '~/ui/components/PatientSyncStatus';
+import { useSettings } from '/contexts/SettingsContext';
 
 interface ScreenProps {
   navigateToSearchPatients: () => void;
@@ -36,8 +36,8 @@ export const Screen = ({
   navigateToSearchPatients,
   selectedPatient,
 }: ScreenProps): ReactElement => {
-  const { getLocalisation } = useLocalisation();
-  const ageDisplayFormat = getLocalisation('ageDisplayFormat');
+  const { getSetting } = useSettings();
+  const ageDisplayFormat = getSetting('ageDisplayFormat');
   return (
     <FullView background={theme.colors.PRIMARY_MAIN}>
       <StatusBar barStyle="light-content" />

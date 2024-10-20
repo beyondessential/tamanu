@@ -31,7 +31,7 @@ const taskCompletionInputSchema = z.object({
 taskRoutes.post(
   '/completed',
   asyncHandler(async (req, res) => {
-    req.checkPermission('write', 'Task');
+    req.checkPermission('write', 'Tasking');
     const { taskIds, ...completedInfo } = await taskCompletionInputSchema.parseAsync(req.body);
 
     //validate task
@@ -72,7 +72,7 @@ const taskNonCompletionInputSchema = z.object({
 taskRoutes.put(
   '/notCompleted',
   asyncHandler(async (req, res) => {
-    req.checkPermission('write', 'Task');
+    req.checkPermission('write', 'Tasking');
     const { taskIds, ...notCompletedInfo } = await taskNonCompletionInputSchema.parseAsync(
       req.body,
     );
@@ -125,7 +125,7 @@ const taskDeletionInputSchema = z.object({
 taskRoutes.delete(
   '/',
   asyncHandler(async (req, res) => {
-    req.checkPermission('delete', 'Task');
+    req.checkPermission('delete', 'Tasking');
     const { taskIds, ...deletedInfo } = await taskDeletionInputSchema.parseAsync(req.query);
 
     //validate deleted reason
@@ -138,9 +138,6 @@ taskRoutes.delete(
 
     const deletionReasonForFutureTasks = await req.models.ReferenceData.findByPk(
       TASK_DELETE_BY_SYSTEM_REASON,
-      {
-        where: { type: REFERENCE_TYPES.TASK_DELETION_REASON },
-      },
     );
 
     //validate task
@@ -166,17 +163,31 @@ taskRoutes.delete(
               });
           if (parentTask) {
             parentTask.endTime = new Date(new Date(task.dueTime).getTime() - 1);
+            parentTask.deletedReasonForSyncId = deletionReasonForFutureTasks?.id ?? null;
             await parentTask.save();
-            //remove all child tasks that have dueTime over parent endtime
+
+            await req.models.Task.update(
+              {
+                deletedByUserId: SYSTEM_USER_UUID,
+                deletedTime: getCurrentDateTimeString(),
+                deletedReasonId: deletionReasonForFutureTasks?.id ?? null,
+              },
+              {
+                where: {
+                  parentTaskId: parentTask.id,
+                  id: { [Op.ne]: task.id },
+                  dueTime: { [Op.gt]: parentTask.endTime },
+                  status: TASK_STATUSES.TODO,
+                },
+              },
+            );
+
             await req.models.Task.destroy({
               where: {
                 parentTaskId: parentTask.id,
                 id: { [Op.ne]: task.id },
                 dueTime: { [Op.gt]: parentTask.endTime },
                 status: TASK_STATUSES.TODO,
-                deletedByUserId: SYSTEM_USER_UUID,
-                deletedTime: getCurrentDateTimeString(),
-                deletedReasonId: deletionReasonForFutureTasks?.id ?? null,
               },
               individualHooks: true,
             });
@@ -208,7 +219,7 @@ const taskTodoInputSchema = z.object({
 taskRoutes.put(
   '/todo',
   asyncHandler(async (req, res) => {
-    req.checkPermission('write', 'Task');
+    req.checkPermission('write', 'Tasking');
     const { taskIds, ...todoInfo } = await taskTodoInputSchema.parseAsync(req.body);
 
     //validate task
@@ -287,7 +298,7 @@ const tasksCreationSchema = z.object({
 taskRoutes.post(
   '/',
   asyncHandler(async (req, res) => {
-    req.checkPermission('create', 'Task');
+    req.checkPermission('create', 'Tasking');
     const {
       startTime,
       requestedByUserId,

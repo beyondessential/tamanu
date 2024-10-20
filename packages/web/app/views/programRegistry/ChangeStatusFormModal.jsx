@@ -13,6 +13,7 @@ import {
   FormSeparatorLine,
   Modal,
 } from '../../components';
+import { useAuth } from '../../contexts/Auth';
 import { useApi, useSuggester } from '../../api';
 import { optionalForeignKey } from '../../utils/validation';
 import { PANE_SECTION_IDS } from '../../components/PatientInfoPane/paneSections';
@@ -29,6 +30,7 @@ const StyledFormGrid = styled(FormGrid)`
 
 export const ChangeStatusFormModal = ({ patientProgramRegistration, onClose, open }) => {
   const api = useApi();
+  const { currentUser } = useAuth();
   const queryClient = useQueryClient();
 
   const programRegistryStatusSuggester = useSuggester('programRegistryClinicalStatus', {
@@ -44,7 +46,7 @@ export const ChangeStatusFormModal = ({ patientProgramRegistration, onClose, ope
 
     await api.post(
       `patient/${encodeURIComponent(patientProgramRegistration.patientId)}/programRegistration`,
-      { ...rest, ...changedStatus, date: getCurrentDateTimeString() },
+      { ...rest, ...changedStatus, date: getCurrentDateTimeString(), clinicianId: currentUser.id },
     );
 
     queryClient.invalidateQueries([`infoPaneListItem-${PANE_SECTION_IDS.PROGRAM_REGISTRY}`]);
