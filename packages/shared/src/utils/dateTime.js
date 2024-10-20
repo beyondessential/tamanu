@@ -206,7 +206,7 @@ export const differenceInMilliseconds = (a, b) =>
 
 const locale = globalThis.navigator?.language ?? 'default';
 
-export const intlFormatDate = (date, formatOptions, fallback = 'Unknown') => {
+const intlFormatDate = (date, formatOptions, fallback = 'Unknown') => {
   if (!date) return fallback;
   return parseISO(date).toLocaleString(locale, formatOptions);
 };

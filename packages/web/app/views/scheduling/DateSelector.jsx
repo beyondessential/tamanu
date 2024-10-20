@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Box } from '@material-ui/core';
 import { ArrowBackIos, ArrowForwardIos } from '@mui/icons-material';
 import { IconButton, styled } from '@mui/material';
@@ -84,14 +84,14 @@ const DayButton = ({ date, selected, onClick }) => (
   </DayWrapper>
 );
 
-export const DateSelector = ({ value = new Date(), onChange }) => {
+export const DateSelector = ({ value, onChange }) => {
   const [viewedDays, setViewedDays] = useState(getMonthInterval(value));
 
   const handleIncrement = () => setViewedDays(getMonthInterval(addMonths(viewedDays[0], 1)));
   const handleDecrement = () => setViewedDays(getMonthInterval(subMonths(viewedDays[0], 1)));
 
   const handleChange = day => {
-    onChange({
+  onChange({
       target: {
         value: day,
       },
@@ -119,12 +119,12 @@ export const DateSelector = ({ value = new Date(), onChange }) => {
         <ArrowBackIos fontSize="0.5rem" />
       </StepperButton>
       <DaysWrapper>
-        {viewedDays.map(day => (
+        {viewedDays.map(date => (
           <DayButton
-            date={day}
-            selected={isSameDay(day, value)}
-            onClick={() => handleChange(day)}
-            key={`day-${day.getTime()}`}
+            date={date}
+            selected={isSameDay(date, value)}
+            onClick={() => handleChange(date)}
+            key={`day-button-${date.getTime()}`}
           />
         ))}
       </DaysWrapper>
