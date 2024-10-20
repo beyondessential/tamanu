@@ -25,7 +25,7 @@ const DaysWrapper = styled(Box)`
   overflow: auto;
   scrollbar-width: thin;
   width: 100%;
-  padding-block: 8px;
+  padding-block: 0.5rem;
   justify-content: space-between;
 `;
 
@@ -37,15 +37,15 @@ const DayWrapper = styled(Box)`
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 4px;
-  padding-inline: 6px;
+  padding: 0.25rem;
+  padding-inline: 0.375rem;
   border-radius: 3px;
   flex-grow: 1;
   user-select: none;
 `;
 
 const DateText = styled(BodyText)`
-  min-width: 18px;
+  min-width: 1.125rem;
   text-align: center;
 `;
 
@@ -55,7 +55,7 @@ const WeekdayText = styled(DateText)`
 `;
 
 const TodayButton = styled(TextButton)`
-  margin-inline: 8px;
+  margin-inline: 0.375rem;
   font-size: 0.875rem;
   text-decoration: underline;
   &:hover {
@@ -64,7 +64,7 @@ const TodayButton = styled(TextButton)`
 `;
 
 const StepperButton = styled(IconButton)`
-  padding: 4px;
+  padding: 0.25rem;
 `;
 
 const getMonthInterval = date => {
@@ -91,7 +91,7 @@ export const DateSelector = ({ value, onChange }) => {
   const handleDecrement = () => setViewedDays(getMonthInterval(subMonths(viewedDays[0], 1)));
 
   const handleChange = day => {
-  onChange({
+    onChange({
       target: {
         value: day,
       },
