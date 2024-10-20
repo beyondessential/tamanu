@@ -14,6 +14,7 @@ import {
   isSameMonth,
   isSameDay,
   format,
+  isThisMonth,
 } from 'date-fns';
 
 import { BodyText, MonthYearInput, TextButton } from '../../components';
@@ -100,11 +101,11 @@ export const DateSelector = ({ value = new Date(), onChange }) => {
     setViewedDays(getMonthInterval(day));
   };
 
+  const handleChangeToday = () => handleChange(new Date());
   const handleMonthYearChange = e => {
     const date = e.target.value;
-    const todayDate = new Date();
-    if (isSameMonth(date, todayDate)) {
-      handleChange(todayDate);
+    if (isThisMonth(date)) {
+      handleChangeToday();
       return;
     }
     handleChange(startOfMonth(date));
@@ -113,7 +114,7 @@ export const DateSelector = ({ value = new Date(), onChange }) => {
   return (
     <Box display="flex" alignItems="center" justifyContent="space-between">
       <MonthYearInput value={viewedDays[0]} onChange={handleMonthYearChange} />
-      <TodayButton onClick={() => handleChange(new Date())}>Today</TodayButton>
+      <TodayButton onClick={handleChangeToday}>Today</TodayButton>
       <StepperButton onClick={handleDecrement}>
         <ArrowBackIos fontSize="0.5rem" />
       </StepperButton>
