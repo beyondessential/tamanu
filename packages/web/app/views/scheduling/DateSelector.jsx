@@ -17,6 +17,7 @@ import {
 
 import { BodyText, MonthYearInput, TextButton } from '../../components';
 import { Colors } from '../../constants';
+import { intlFormatDate } from '@tamanu/shared/utils/dateTime';
 
 const DaysWrapper = styled(Box)`
   display: flex;
@@ -77,7 +78,7 @@ const DayButton = ({ day, selected, onClick }) => {
   return (
     <DayWrapper onClick={onClick} $selected={selected} $isToday={isToday(day)}>
       <WeekdayText $selected={selected} $isWeekend={isWeekend(day)}>
-        {day.toLocaleDateString('default', {
+        {intlFormatDate({
           weekday: 'narrow',
         })}
       </WeekdayText>
