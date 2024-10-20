@@ -1,7 +1,6 @@
 import asyncHandler from 'express-async-handler';
 import { Op, QueryTypes, Sequelize } from 'sequelize';
 
-import { getPatientAdditionalData } from '@tamanu/shared/utils';
 import { HIDDEN_VISIBILITY_STATUSES } from '@tamanu/constants/importable';
 import { renameObjectKeys } from '@tamanu/shared/utils/renameObjectKeys';
 import {
@@ -106,28 +105,8 @@ patientRelations.get(
       include: models.PatientAdditionalData.getFullReferenceAssociations(),
     });
 
-    // Lookup survey responses for passport and nationality to fill patient additional data
-    // Todo: Remove when WAITM-243 is complete
-    const passport = await getPatientAdditionalData(models, params.id, 'passport');
-    const nationalityId = await getPatientAdditionalData(models, params.id, 'nationalityId');
-    const streetVillage = await getPatientAdditionalData(models, params.id, 'streetVillage');
-    const cityTown = await getPatientAdditionalData(models, params.id, 'cityTown');
-    const countryId = await getPatientAdditionalData(models, params.id, 'countryId');
-    const nationality = nationalityId
-      ? await models.ReferenceData.findByPk(nationalityId)
-      : undefined;
-    const country = countryId ? await models.ReferenceData.findByPk(countryId) : undefined;
-
     const recordData = additionalDataRecord ? additionalDataRecord.toJSON() : {};
-    res.send({
-      ...recordData,
-      passport,
-      nationality,
-      nationalityId,
-      streetVillage,
-      cityTown,
-      country,
-    });
+    res.send(recordData);
   }),
 );
 

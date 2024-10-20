@@ -34,6 +34,7 @@ export const notify = (message, props) => {
   }
 };
 
+export const notifyInfo = (msg, props) => notify(msg, { ...props, type: 'info' });
 export const notifySuccess = (msg, props) => notify(msg, { ...props, type: 'success' });
 export const notifyError = (msg, props) => notify(msg, { ...props, type: 'error' });
 
