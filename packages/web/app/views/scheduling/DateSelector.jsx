@@ -74,15 +74,15 @@ const getMonthInterval = date => {
   });
 };
 
-const DayButton = ({ day, selected, onClick }) => {
+const DayButton = ({ date, selected, onClick }) => {
   return (
-    <DayWrapper onClick={onClick} $selected={selected} $isToday={isToday(day)}>
-      <WeekdayText $selected={selected} $isWeekend={isWeekend(day)}>
-        {intlFormatDate({
+    <DayWrapper onClick={onClick} $selected={selected} $isToday={isToday(date)}>
+      <WeekdayText $selected={selected} $isWeekend={isWeekend(date)}>
+        {intlFormatDate(date, {
           weekday: 'narrow',
         })}
       </WeekdayText>
-      <DateText>{day.getDate()}</DateText>
+      <DateText>{date.getDate()}</DateText>
     </DayWrapper>
   );
 };
@@ -127,7 +127,7 @@ export const DateSelector = ({ value = new Date(), onChange }) => {
       <DaysWrapper>
         {viewedDays.map(day => (
           <DayButton
-            day={day}
+            date={day}
             selected={isSameDay(day, value)}
             onClick={() => handleChange(day)}
             key={`day-${day.getTime()}`}
