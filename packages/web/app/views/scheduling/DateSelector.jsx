@@ -67,13 +67,11 @@ const StepperButton = styled(IconButton)`
   padding: 0.25rem;
 `;
 
-const getMonthInterval = date => {
-  const start = startOfDay(date);
-  return eachDayOfInterval({
-    start: startOfMonth(start),
-    end: endOfMonth(start),
+const getMonthInterval = date =>
+  eachDayOfInterval({
+    start: startOfMonth(date),
+    end: endOfMonth(date),
   });
-};
 
 const DayButton = ({ date, selected, onClick }) => (
   <DayWrapper onClick={onClick} $selected={selected} $isToday={isToday(date)}>
