@@ -117,28 +117,25 @@ export const DateSelector = ({ value = new Date(), onChange }) => {
   }, [value]);
 
   return (
-    <div>
-      <h2>Month {viewedDays[0].toLocaleString('default', { month: 'long', year: 'numeric' })}</h2>
-      <Box display="flex" alignItems="center" justifyContent="space-between">
-        <MonthYearInput value={viewedDays[0]} onChange={handleCalenderChange} />
-        <TodayButton onClick={handleSetToday}>Today</TodayButton>
-        <StepperButton onClick={handleDecrement}>
-          <ArrowBackIos fontSize="0.5rem" />
-        </StepperButton>
-        <DaysWrapper>
-          {viewedDays.map(day => (
-            <DayButton
-              day={day}
-              selected={isSameDay(day, value)}
-              onClick={() => handleChange(day)}
-              key={`day-${day.getTime()}`}
-            />
-          ))}
-        </DaysWrapper>
-        <StepperButton onClick={handleIncrement}>
-          <ArrowForwardIos fontSize="0.5rem" />
-        </StepperButton>
-      </Box>
-    </div>
+    <Box display="flex" alignItems="center" justifyContent="space-between">
+      <MonthYearInput value={viewedDays[0]} onChange={handleCalenderChange} />
+      <TodayButton onClick={handleSetToday}>Today</TodayButton>
+      <StepperButton onClick={handleDecrement}>
+        <ArrowBackIos fontSize="0.5rem" />
+      </StepperButton>
+      <DaysWrapper>
+        {viewedDays.map(day => (
+          <DayButton
+            day={day}
+            selected={isSameDay(day, value)}
+            onClick={() => handleChange(day)}
+            key={`day-${day.getTime()}`}
+          />
+        ))}
+      </DaysWrapper>
+      <StepperButton onClick={handleIncrement}>
+        <ArrowForwardIos fontSize="0.5rem" />
+      </StepperButton>
+    </Box>
   );
 };
