@@ -19,7 +19,7 @@ import { ExpandMore } from '@material-ui/icons';
 import { PaperStyles } from '../Paper';
 import { LoadingIndicator } from '../LoadingIndicator';
 import { DownloadDataButton } from './DownloadDataButton';
-import { useLocalisation } from '../../contexts/Localisation';
+import { useSettings } from '../../contexts/Settings';
 import { Colors } from '../../constants';
 import { ThemedTooltip } from '../Tooltip';
 import { ErrorBoundary } from '../ErrorBoundary';
@@ -649,11 +649,9 @@ TableComponent.defaultProps = {
 
 export const Table = React.forwardRef(
   ({ columns: allColumns, data, exportName, ...props }, ref) => {
-    const { getLocalisation } = useLocalisation();
     const { getTranslation } = useTranslation();
-    const columns = allColumns.filter(
-      ({ key }) => getLocalisation(`fields.${key}.hidden`) !== true,
-    );
+    const { getSetting } = useSettings();
+    const columns = allColumns.filter(({ key }) => getSetting(`fields.${key}.hidden`) !== true);
 
     return (
       <TableComponent
