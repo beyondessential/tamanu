@@ -86,37 +86,34 @@ const DayButton = ({ date, selected, onClick }) => (
 export const DateSelector = ({ value = new Date(), onChange }) => {
   const [viewedDays, setViewedDays] = useState(getMonthInterval(value));
 
-  const handleChange = day =>
+  const handleIncrement = () => setViewedDays(getMonthInterval(addMonths(viewedDays[0], 1)));
+  const handleDecrement = () => setViewedDays(getMonthInterval(subMonths(viewedDays[0], 1)));
+
+  const handleChange = day => {
     onChange({
       target: {
         value: day,
       },
     });
 
-  const handleCalenderChange = e => {
-    const date = e.target.value;
-    if (isSameMonth(date, new Date())) {
-      handleChange(new Date());
-    } else {
-      handleChange(startOfMonth(date));
-    }
+    if (isSameMonth(day, viewedDays[0])) return;
+    setViewedDays(getMonthInterval(day));
   };
 
-  const handleIncrement = () => setViewedDays(getMonthInterval(addMonths(viewedDays[0], 1)));
-  const handleDecrement = () => setViewedDays(getMonthInterval(subMonths(viewedDays[0], 1)));
-
-  const handleSetToday = () => handleChange(new Date());
-
-  useEffect(() => {
-    if (isSameMonth(value, viewedDays[0])) return;
-    setViewedDays(getMonthInterval(value));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [value]);
+  const handleMonthYearChange = e => {
+    const date = e.target.value;
+    const todayDate = new Date();
+    if (isSameMonth(date, todayDate)) {
+      handleChange(todayDate);
+      return;
+    }
+    handleChange(startOfMonth(date));
+  };
 
   return (
     <Box display="flex" alignItems="center" justifyContent="space-between">
-      <MonthYearInput value={viewedDays[0]} onChange={handleCalenderChange} />
-      <TodayButton onClick={handleSetToday}>Today</TodayButton>
+      <MonthYearInput value={viewedDays[0]} onChange={handleMonthYearChange} />
+      <TodayButton onClick={() => handleChange(new Date())}>Today</TodayButton>
       <StepperButton onClick={handleDecrement}>
         <ArrowBackIos fontSize="0.5rem" />
       </StepperButton>
