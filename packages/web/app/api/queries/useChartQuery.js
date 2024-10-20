@@ -76,6 +76,7 @@ export const useChartQuery = (encounterId, surveyId) => {
       { rowsPerPage: 50 },
       { isErrorUnknown: isErrorUnknownAllow404s },
     ),
+    { enabled: Boolean(surveyId) },
   );
 
   const surveyQuery = useChartSurveyQuery(surveyId);
