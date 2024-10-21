@@ -18,6 +18,7 @@ async function generateData(models) {
     LocationGroup,
     EncounterHistory,
     Patient,
+    Appointment,
     User,
     Note,
     PatientBirthData,
@@ -305,6 +306,13 @@ async function generateData(models) {
   await InvoiceItemDiscount.create(
     fake(InvoiceItemDiscount, {
       invoiceItemId: invoiceItem.id,
+    }),
+  );
+  await Appointment.create(
+    fake(Appointment, {
+      patientId: patient.id,
+      clinicianId: examiner.id,
+      locationGroupId: locationGroup.id,
     }),
   );
 }
