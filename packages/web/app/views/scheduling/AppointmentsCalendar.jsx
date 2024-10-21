@@ -18,7 +18,7 @@ import { useApi, useSuggester } from '../../api';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
 import { useAuth } from '../../contexts/Auth';
 import { ErrorMessage } from '../../components/ErrorMessage';
-import { MultiAutocompleteField } from '../../components/Field/MultiAutocompleteField';
+import { MultiAutocompleteInput } from '../../components/Field/MultiAutocompleteField';
 
 const LeftContainer = styled.div`
   min-height: 100%;
@@ -183,7 +183,7 @@ export const AppointmentsCalendar = () => {
             <SectionTitle variant="subtitle2">
               <TranslatedText stringId="appointment.type.label" fallback="Appointment type" />
             </SectionTitle>
-            <MultiAutocompleteField
+            <MultiAutocompleteInput
               onChange={e => {
                 if (!e.target.value) {
                   setAppointmentType([]);
