@@ -1,16 +1,18 @@
-import React, { useEffect, useRef, useState } from 'react';
-import styled, { css } from 'styled-components';
-import { isSameDay, parseISO } from 'date-fns';
-
 import { PriorityHigh as HighPriorityIcon } from '@material-ui/icons';
 import OvernightIcon from '@material-ui/icons/Brightness2';
+import { isSameDay, parseISO } from 'date-fns';
+import React, { useEffect, useRef, useState } from 'react';
+import styled, { css } from 'styled-components';
+
 import { APPOINTMENT_STATUSES } from '@tamanu/constants';
 
 import { Colors } from '../../constants';
-import { APPOINTMENT_STATUS_COLORS } from './appointmentStatusIndicators';
-import { AppointmentStatusIcon as StatusIcon } from '../Icons';
 import { formatTime } from '../DateDisplay';
 import { AppointmentDetailPopper } from './AppointmentDetailPopper';
+import {
+  APPOINTMENT_STATUS_COLORS,
+  AppointmentStatusIndicator as StatusIndicator,
+} from './appointmentStatusIndicators';
 
 const Wrapper = styled.div`
   ${({ $color = Colors.blue, $selected }) =>
@@ -125,7 +127,7 @@ export const AppointmentTile = ({
             style={{ fontSize: 15 }}
           />
         )}
-        <StatusIcon appointmentStatus={appointmentStatus} width={15} height={15} />
+        <StatusIndicator appointmentStatus={appointmentStatus} width={15} height={15} />
       </IconGroup>
       <AppointmentDetailPopper
         open={open}

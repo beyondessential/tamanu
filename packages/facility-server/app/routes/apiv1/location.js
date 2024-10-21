@@ -17,11 +17,30 @@ location.get(
       res.send([]);
       return;
     }
-    const locations = await req.models.Location.findAll({
+
+    const {
+      models: { Location, LocationGroup },
+      query: { bookableOnly = false },
+    } = req;
+
+    const locations = await Location.findAll({
       where: {
         facilityId: config.serverFacilityId,
       },
+      include: [
+        {
+          required: true,
+          model: LocationGroup,
+          as: 'locationGroup',
+          ...(bookableOnly ? { where: { isBookable: true } } : null),
+        },
+      ],
+      order: [
+        ['locationGroup', 'name', 'ASC'],
+        ['name', 'ASC'],
+      ],
     });
+
     res.send(locations);
   }),
 );
