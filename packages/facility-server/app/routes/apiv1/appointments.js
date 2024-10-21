@@ -33,6 +33,7 @@ const sortKeys = {
   sex: Sequelize.col('patient.sex'),
   dateOfBirth: Sequelize.col('patient.date_of_birth'),
   location: Sequelize.col('location.name'),
+  type: Sequelize.col('type.name'),
   locationGroup: Sequelize.col('location_groups.name'),
   clinician: Sequelize.col('clinician.display_name'),
 };

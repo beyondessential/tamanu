@@ -189,7 +189,7 @@ export const AppointmentsCalendar = () => {
                   setAppointmentType([]);
                   return;
                 }
-                setAppointmentType(JSON.parse(e.target.value));
+                setAppointmentType(e.target.value);
               }}
               suggester={appointmentTypeSuggester}
               value={appointmentType}
