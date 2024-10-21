@@ -1,5 +1,7 @@
 import React from 'react';
 
+import { Colors } from '../../constants';
+
 export const ChevronIcon = ({ htmlColor = Colors.darkText, ...props }) => (
   <svg
     width="10"
