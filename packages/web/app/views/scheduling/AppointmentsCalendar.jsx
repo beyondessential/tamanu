@@ -11,14 +11,14 @@ import { TwoColumnDisplay } from '../../components/TwoColumnDisplay';
 import { DailySchedule } from '../../components/Appointments/DailySchedule';
 import { NewAppointmentButton } from '../../components/Appointments/NewAppointmentButton';
 import { Button } from '../../components/Button';
-import { AutocompleteInput, TranslatedMultiSelectField } from '../../components/Field';
+import { AutocompleteInput } from '../../components/Field';
 import { Suggester } from '../../utils/suggester';
 import { Colors } from '../../constants';
 import { useApi, useSuggester } from '../../api';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
 import { useAuth } from '../../contexts/Auth';
 import { ErrorMessage } from '../../components/ErrorMessage';
-import { APPOINTMENT_TYPE_LABELS } from '@tamanu/constants';
+import { MultiAutocompleteField } from '../../components/Field/MultiAutocompleteField';
 
 const LeftContainer = styled.div`
   min-height: 100%;
@@ -86,6 +86,7 @@ const TodayButton = styled(Button)`
 export const AppointmentsCalendar = () => {
   const api = useApi();
   const locationGroupSuggester = useSuggester('facilityLocationGroup');
+  const appointmentTypeSuggester = useSuggester('appointmentType');
   const { ability } = useAuth();
 
   const [date, setDate] = useState(new Date());
@@ -182,7 +183,7 @@ export const AppointmentsCalendar = () => {
             <SectionTitle variant="subtitle2">
               <TranslatedText stringId="appointment.type.label" fallback="Appointment type" />
             </SectionTitle>
-            <TranslatedMultiSelectField
+            <MultiAutocompleteField
               onChange={e => {
                 if (!e.target.value) {
                   setAppointmentType([]);
@@ -190,9 +191,9 @@ export const AppointmentsCalendar = () => {
                 }
                 setAppointmentType(JSON.parse(e.target.value));
               }}
+              suggester={appointmentTypeSuggester}
               value={appointmentType}
               name="appointmentType"
-              enumValues={APPOINTMENT_TYPE_LABELS}
             />
           </Section>
         </LeftContainer>
