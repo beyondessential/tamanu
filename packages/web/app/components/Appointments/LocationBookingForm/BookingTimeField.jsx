@@ -106,7 +106,7 @@ export const BookingTimeField = ({ disabled = false }) => {
   ]);
 
   useEffect(() => {
-    if (dirty) {
+    if (dirty || selectedTimeRange) {
       const startTime = selectedTimeRange ? toDateTimeString(selectedTimeRange.start) : null;
       const endTime = selectedTimeRange ? toDateTimeString(selectedTimeRange.end) : null;
       setFieldValue('startTime', startTime);
@@ -201,7 +201,7 @@ export const BookingTimeField = ({ disabled = false }) => {
   return (
     <OuterLabelFieldWrapper label="Booking time" required>
       <CellContainer $disabled={disabled}>
-        {!date || isFetched ? (
+        {isFetched ? (
           timeSlots.map((timeSlot, index) => {
             const isSelected = isTimeSlotWithinRange(timeSlot, selectedTimeRange);
             const isBooked = bookedTimeSlots?.some(bookedTimeSlot =>

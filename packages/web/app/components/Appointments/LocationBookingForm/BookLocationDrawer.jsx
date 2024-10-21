@@ -110,9 +110,10 @@ export const WarningModal = ({ open, setShowWarningModal, resolveFn }) => {
   );
 };
 
-export const BookLocationDrawer = ({ open, closeDrawer, editMode = false, existingBooking }) => {
+export const BookLocationDrawer = ({ open, closeDrawer, editMode = false, initialLocationValues, refreshCalendar }) => {
   const patientSuggester = usePatientSuggester();
   const clinicianSuggester = useSuggester('practitioner');
+  const bookingTypeSuggester = useSuggester('bookingType')
 
   const api = useApi();
 
@@ -158,8 +159,9 @@ export const BookLocationDrawer = ({ open, closeDrawer, editMode = false, existi
           endTime: yup.string().required(),
           patientId: yup.string().required(),
         })}
-        initialValues={existingBooking}
-        render={({ values, resetForm, setFieldValue, dirty }) => {
+        initialValues={initialLocationValues}
+        enableReinitialize
+        render={({ values, resetForm, setFieldValue, dirty, initialValues }) => {
           const warnAndResetForm = async () => {
             const confirmed = !dirty || (await handleShowWarningModal());
             if (!confirmed) return;
@@ -170,6 +172,7 @@ export const BookLocationDrawer = ({ open, closeDrawer, editMode = false, existi
           return (
             <FormGrid columns={1}>
               <CloseDrawerIcon onClick={warnAndResetForm} />
+              {/* TODO: alther location field to properly handle state */}
               <Field
                 enableLocationStatus={false}
                 locationGroupLabel="Area"
@@ -201,10 +204,7 @@ export const BookLocationDrawer = ({ open, closeDrawer, editMode = false, existi
                 disabled={!values.locationId}
                 required
               />
-              <BookingTimeField
-                initialTimeRange={{ start: values.startTime, end: values.endTime }}
-                disabled={!values.date}
-              />
+              <BookingTimeField disabled={!values.date} />
               <Field
                 name="patientId"
                 label="Patient"
@@ -213,10 +213,10 @@ export const BookLocationDrawer = ({ open, closeDrawer, editMode = false, existi
                 required
               />
               <Field
-                name="bookingType"
-                label="Booking type"
-                component={TranslatedSelectField}
-                enumValues={APPOINTMENT_TYPE_LABELS}
+                name="bookingTypeId"
+                label="Booking Type"
+                component={AutocompleteField}
+                suggester={bookingTypeSuggester}
                 required
               />
               <Field

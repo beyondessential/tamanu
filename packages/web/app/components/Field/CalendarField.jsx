@@ -1,8 +1,8 @@
-import React, { useMemo, useState } from 'react';
+import { add, endOfYear, startOfToday, startOfYear } from 'date-fns';
+import React, { useState } from 'react';
 import { DatePicker } from '@mui/x-date-pickers';
 import { Colors } from '../../constants';
 import { StyledExpandLess, StyledExpandMore } from './FieldCommonComponents';
-import { add, endOfYear, startOfYear } from 'date-fns';
 import { TextInput } from './TextField';
 import { Popper, styled } from '@mui/material';
 
@@ -71,16 +71,14 @@ const StyledPopper = styled(Popper)`
 `;
 
 export const MonthYearInput = ({
-  minDate: propMinDate,
-  maxDate: propMaxDate,
-  name,
+  defaultValue = startOfToday(),
+  minDate = getMinDate(),
+  maxDate = getMaxDate(),
   value,
-  onChange = () => {},
+  onChange,
   ...props
 }) => {
   const [open, setOpen] = useState(false);
-  const minDate = propMinDate || getMinDate();
-  const maxDate = useMemo(() => propMaxDate || getMaxDate(), [propMaxDate]);
   return (
     <DatePicker
       onOpen={() => setOpen(true)}
@@ -88,7 +86,7 @@ export const MonthYearInput = ({
       views={['month', 'year']}
       yearsPerRow={4}
       monthsPerRow={4}
-      defaultValue={new Date()}
+      defaultValue={defaultValue}
       slots={{
         openPickerIcon: open ? StyledExpandLess : StyledExpandMore,
         switchViewButton: StyledExpandLess,
@@ -101,9 +99,7 @@ export const MonthYearInput = ({
           ...props,
         },
       }}
-      onAccept={date => {
-        onChange({ target: { value: date, name } });
-      }}
+      onAccept={date => onChange?.(date)}
       minDate={minDate}
       maxDate={maxDate}
       value={value}

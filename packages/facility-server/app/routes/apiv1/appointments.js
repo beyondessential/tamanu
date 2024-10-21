@@ -1,6 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { startOfDay } from 'date-fns';
+import { startOfToday } from 'date-fns';
 import { Op, Sequelize } from 'sequelize';
 import { simplePost, simplePut } from '@tamanu/shared/utils/crudHelpers';
 import { escapePatternWildcard } from '../../utils/query';
@@ -11,13 +11,14 @@ appointments.post('/$', simplePost('Appointment'));
 
 appointments.post('/locationBooking', async (req, res) => {
   const { models, body } = req;
-  const { startTime, endTime } = body;
+  const { startTime, endTime, locationId } = body;
   const { Appointment } = models;
 
   req.checkPermission('create', 'Appointment');
 
   const bookingTimeAlreadyTaken = await Appointment.findOne({
     where: {
+      locationId,
       [Op.or]: [
         // Partial overlap
         {
@@ -64,7 +65,7 @@ appointments.post('/locationBooking', async (req, res) => {
 appointments.put('/locationBooking/:id', async (req, res) => {
   const { models, body, params } = req;
   const { id } = params;
-  const { startTime, endTime } = body;
+  const { startTime, endTime, locationId } = body;
   const { Appointment } = models;
 
   const existingBooking = await Appointment.findByPk(id);
@@ -76,6 +77,7 @@ appointments.put('/locationBooking/:id', async (req, res) => {
   const bookingTimeAlreadyTaken = await Appointment.findOne({
     where: {
       id: { [Op.ne]: id },
+      locationId,
       [Op.or]: [
         // Partial overlap
         {
@@ -165,7 +167,7 @@ appointments.get(
     } = req;
     const { Appointment } = models;
 
-    const afterTime = after || startOfDay(new Date());
+    const afterTime = after || startOfToday();
     const startTimeQuery = {
       [Op.gte]: afterTime,
     };

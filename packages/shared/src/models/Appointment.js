@@ -13,8 +13,11 @@ export class Appointment extends Model {
         endTime: dateTimeType('endTime'),
         type: {
           type: Sequelize.STRING,
-          allowNull: false,
-          defaultValue: APPOINTMENT_TYPES.STANDARD,
+          allowNull: true,
+        },
+        bookingType: {
+          type: Sequelize.STRING,
+          allowNull: true,
         },
         status: {
           type: Sequelize.STRING,
@@ -55,6 +58,11 @@ export class Appointment extends Model {
     this.belongsTo(models.Location, {
       as: 'location',
       foreignKey: 'locationId',
+    });
+
+    this.belongsTo(models.ReferenceData, {
+      foreignKey: 'bookingTypeId',
+      as: 'bookingType',
     });
   }
 

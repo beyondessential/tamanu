@@ -1,14 +1,16 @@
 import {
   differenceInMilliseconds as dateFnsDifferenceInMilliseconds,
-  format as dateFnsFormat,
   differenceInMonths,
   differenceInWeeks,
   differenceInYears,
+  format as dateFnsFormat,
   formatISO9075,
   isMatch,
+  isSameDay,
   isValid,
   parseISO,
   startOfDay,
+  startOfWeek,
   sub,
 } from 'date-fns';
 import { TIME_UNIT_OPTIONS } from '@tamanu/constants';
@@ -249,8 +251,7 @@ export const formatLong = date =>
     'Date information not available',
   ); // "Thursday, 14 July 2022, 03:44 pm"
 
-/** @returns `true` if two dates lie on the same day in local time, else `false`. */
-export const areSameDay = (date1, date2) =>
-  date1.getDate() === date2.getDate() &&
-  date1.getMonth() === date2.getMonth() &&
-  date1.getFullYear() === date2.getFullYear();
+export const isStartOfThisWeek = date => {
+  const startOfThisWeek = startOfWeek(new Date(), { weekStartsOn: 1 });
+  return isSameDay(date, startOfThisWeek);
+};

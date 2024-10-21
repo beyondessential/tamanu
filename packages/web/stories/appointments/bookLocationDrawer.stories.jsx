@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { BookLocationDrawer } from '../../app/components/Appointments/LocationBookingForm/BookLocationDrawer';
 import { MockedApi } from '../utils/mockedApi';
 import { MockSettingsProvider } from '../utils/mockSettingsProvider';
-import { Button } from '../../app/components';
+import { Button, Form } from '../../app/components';
 import { toDateString } from '@tamanu/shared/utils/dateTime';
 import styled from 'styled-components';
 import {
@@ -111,7 +111,7 @@ export const ModifyBooking = () => {
       <BookLocationDrawer
         editMode
         closeDrawer={closeDrawer}
-        open={true}
+        open={open}
         existingBooking={generateMockLocationBooking("10:00:00", "10:30:00")}
       />
     </MockCalendar>
