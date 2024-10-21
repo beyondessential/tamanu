@@ -11,7 +11,7 @@ export class AppointmentTypeReferenceData extends CursorDataMigration {
     return `
       with updated as (
       update appointments
-      set type = case type
+      set type_id = case type_legacy
        when 'Standard' then 'appointmentType-standard'
        when 'Emergency' then 'appointmentType-emergency'
        when 'Specialist' then 'appointmentType-specialist'
