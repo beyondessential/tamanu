@@ -11,7 +11,7 @@ export class Appointment extends Model {
         id: primaryKey,
         startTime: dateTimeType('startTime', { allowNull: false }),
         endTime: dateTimeType('endTime'),
-        appointmentType: {
+        type: {
           type: Sequelize.STRING,
           allowNull: true,
         },
@@ -58,6 +58,11 @@ export class Appointment extends Model {
     this.belongsTo(models.Location, {
       as: 'location',
       foreignKey: 'locationId',
+    });
+
+    this.belongsTo(models.ReferenceData, {
+      foreignKey: 'bookingTypeId',
+      as: 'bookingType',
     });
   }
 

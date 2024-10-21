@@ -112,6 +112,7 @@ export const WarningModal = ({ open, setShowWarningModal, resolveFn }) => {
 export const BookLocationDrawer = ({ open, closeDrawer, initialLocationValues, refreshCalendar }) => {
   const patientSuggester = usePatientSuggester();
   const clinicianSuggester = useSuggester('practitioner');
+  const bookingTypeSuggester = useSuggester('bookingType')
 
   const api = useApi();
 
@@ -204,11 +205,10 @@ export const BookLocationDrawer = ({ open, closeDrawer, initialLocationValues, r
                 required
               />
               <Field
-                name="bookingType"
-                label="Booking type"
-                component={TranslatedSelectField}
-                // TODO: actually should be bookingType reference data
-                enumValues={APPOINTMENT_TYPE_LABELS}
+                name="bookingTypeId"
+                label="Booking Type"
+                component={AutocompleteField}
+                suggester={bookingTypeSuggester}
                 required
               />
               <Field
