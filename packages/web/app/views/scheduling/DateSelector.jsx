@@ -49,8 +49,11 @@ const DateText = styled(BodyText)`
 `;
 
 const WeekdayText = styled(DateText)`
-  color: ${({ $selected, $isWeekend }) =>
-    $selected ? Colors.white : $isWeekend ? Colors.softText : Colors.midText};
+  color: ${({ $selected, $isWeekend }) => {
+    if ($selected) return Colors.white;
+    if ($isWeekend) return Colors.softText;
+    return Colors.midText;
+  }};
 `;
 
 const TodayButton = styled(TextButton)`
