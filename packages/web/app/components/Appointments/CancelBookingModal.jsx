@@ -7,7 +7,11 @@ import { TranslatedEnum, TranslatedReferenceData, TranslatedText } from '../Tran
 import { Colors } from '../../constants';
 import { ConfirmCancelRow } from '../ButtonRow';
 import { useApi } from '../../api';
-import { APPOINTMENT_STATUSES, APPOINTMENT_TYPE_LABELS } from '@tamanu/constants';
+import {
+  APPOINTMENT_STATUSES,
+  APPOINTMENT_TYPE_LABELS,
+  OTHER_REFERENCE_TYPES,
+} from '@tamanu/constants';
 import { formatDateRange } from './utils';
 import { PatientNameDisplay } from '../PatientNameDisplay';
 
@@ -66,15 +70,15 @@ const AppointmentDetailsDisplay = ({ appointment }) => {
         <DetailDisplay
           label={
             <TranslatedText
-              stringId={'general.localisedField.locationGroupId.label'}
-              fallback={'Area'}
+              stringId="general.localisedField.locationGroupId.label"
+              fallback="Area"
             />
           }
           value={
             <TranslatedReferenceData
               fallback={locationGroup?.name}
               value={locationGroup?.id}
-              category="locationGroup"
+              category={OTHER_REFERENCE_TYPES.LOCATION_GROUP}
             />
           }
         />
@@ -89,7 +93,7 @@ const AppointmentDetailsDisplay = ({ appointment }) => {
             <TranslatedReferenceData
               fallback={location?.name ?? '—'}
               value={location?.id}
-              category="location"
+              category={OTHER_REFERENCE_TYPES.LOCATION}
             />
           }
         />
