@@ -27,6 +27,7 @@ export class Appointment extends Model {
       'clinician',
       'location',
       'locationGroup',
+      'type',
     ];
   }
 
