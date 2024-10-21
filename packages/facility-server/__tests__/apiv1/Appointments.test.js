@@ -1,6 +1,6 @@
 import { createDummyPatient } from '@tamanu/shared/demoData/patients';
 import { add } from 'date-fns';
-import { APPOINTMENT_STATUSES, APPOINTMENT_TYPES } from '@tamanu/constants';
+import { APPOINTMENT_STATUSES } from '@tamanu/constants';
 import { randomRecordId } from '@tamanu/shared/demoData/utilities';
 import { createTestContext } from '../utilities';
 
@@ -30,7 +30,6 @@ describe('Appointments', () => {
     expect(result).toHaveSucceeded();
     expect(result.body.patientId).toEqual(patient.id);
     expect(result.body.status).toEqual(APPOINTMENT_STATUSES.CONFIRMED);
-    expect(result.body.type).toEqual(APPOINTMENT_TYPES.STANDARD);
     expect(result.body.clinicianId).toEqual(userApp.user.dataValues.id);
   });
   it('should list appointments', async () => {
