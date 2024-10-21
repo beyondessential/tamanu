@@ -294,7 +294,7 @@ export const AppointmentDetail = ({ appointment, onUpdated, onClose }) => {
           <Heading>
             <TranslatedText stringId="general.type.label" fallback="Type" />
           </Heading>
-          {type}
+          {type && <TranslatedReferenceData value={type.id} category="appointmentType" />}
           <Heading>
             <TranslatedText stringId="general.time.label" fallback="Time" />
           </Heading>

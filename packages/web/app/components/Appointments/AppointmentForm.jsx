@@ -59,7 +59,7 @@ export const AppointmentForm = props => {
           .string()
           .required()
           .translatedLabel(<TranslatedText stringId="general.patient.label" fallback="Patient" />),
-        type: yup
+        typeId: yup
           .string()
           .required()
           .translatedLabel(
@@ -101,7 +101,7 @@ export const AppointmentForm = props => {
               label={
                 <TranslatedText stringId="appointment.type.label" fallback="Appointment type" />
               }
-              name="type"
+              name="typeId"
               component={AutocompleteField}
               suggester={appointmentTypeSuggester}
               required
