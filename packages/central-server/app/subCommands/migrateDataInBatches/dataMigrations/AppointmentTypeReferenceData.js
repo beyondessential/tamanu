@@ -20,7 +20,7 @@ export class AppointmentTypeReferenceData extends CursorDataMigration {
       where id in (
           select id
           from appointments
-          and id > $fromId
+          where id > $fromId
           order by id
           limit $limit
       )
