@@ -4,7 +4,6 @@ export {
   CircleIconDashed,
   CircleIconOutlined,
   CrossIconFilled,
-  AppointmentStatusIcon,
 } from './AppointmentStatusIcons';
 export { ChevronIcon } from './ChevronIcon';
 export { ClearIcon } from './ClearIcon';
