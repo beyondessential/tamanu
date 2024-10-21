@@ -22,7 +22,7 @@ export const AppointmentForm = props => {
   if (isUpdating) {
     initialValues = {
       patientId: appointment.patientId,
-      type: appointment.type,
+      type: appointment.typeId,
       startTime: appointment.startTime,
       endTime: appointment.endTime,
       clinicianId: appointment.clinicianId,
