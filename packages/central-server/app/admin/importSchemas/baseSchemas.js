@@ -373,21 +373,16 @@ export const UserDesignation = yup.object().shape({
 export const TaskTemplate = yup.object().shape({
   id: yup.string().required(),
   referenceDataId: yup.string().required(),
-  highPriority: yup
-    .boolean()
-    .nullable()
-    .default(null),
+  highPriority: yup.boolean().optional(),
   frequencyValue: yup
     .number()
     .moreThan(0)
-    .nullable()
-    .default(null),
+    .optional(),
   frequencyUnit: yup
     .string()
-    .nullable()
-    .transform(value => (value ? TASK_FREQUENCY_ACCEPTED_UNITS_TO_VALUE[value] : value))
-    .oneOf([...Object.values(TASK_FREQUENCY_ACCEPTED_UNITS), null])
-    .default(null),
+    .optional()
+    .transform(value => TASK_FREQUENCY_ACCEPTED_UNITS_TO_VALUE[value] || value)
+    .oneOf([...Object.values(TASK_FREQUENCY_ACCEPTED_UNITS), null]),
 });
 
 export const TaskTemplateDesignation = yup.object().shape({
