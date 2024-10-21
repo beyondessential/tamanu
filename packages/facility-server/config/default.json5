@@ -30,7 +30,7 @@
     "timeout": 10000,
     "syncApiConnection": {
       "host": "http://localhost",
-      "port": 4001,
+      "port": 4100,
     },
     "persistedCacheBatchSize": 10000,
     "pauseBetweenPersistedCacheBatchesInMilliseconds": 50,
@@ -88,15 +88,14 @@
   "auth": {
     "saltRounds": 12,
     "tokenDuration": "1h",
-    "useHardcodedPermissions": true
+    "useHardcodedPermissions": true,
+
+    // Authentication "cookie" secret. Set to a random value so sessions don't
+    // expire when the server restarts.
+    // "secret": "some long secret value",
   },
-  "survey": {
-    "defaultCodes": {
-      "department": "GeneralClinic",
-      "location": "GeneralClinic"
-    }
-  },
-  "serverFacilityId": "",
+  "serverFacilityId": null,
+  "serverFacilityIds": null,
   "debugging": {
     "requestFailureRate": 0
   },
@@ -118,10 +117,6 @@
     "encounter-summary-line-list": {
       "includedPatientFieldIds": []
     }
-  },
-  "questionCodeIds": {
-    "passport": "pde-FijCOVRDT005",
-    "nationalityId": "pde-PalauCOVSamp7"
   },
   "proxy": {
     // Possible values: https://expressjs.com/en/guide/behind-proxies.html

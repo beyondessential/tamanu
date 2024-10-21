@@ -1,46 +1,45 @@
 const os = require('node:os');
 
-const totalMemoryMB = os.totalmem() / (1024**2);
-const memory = process.env.TAMANU_MEMORY_ALLOCATION || (totalMemoryMB * 0.6);
+const totalMemoryMB = Math.round(os.totalmem() / (1024**2));
+const memory = process.env.TAMANU_MEMORY_ALLOCATION || (totalMemoryMB * 0.6).toFixed(0);
 
 const availableThreads = os.availableParallelism();
-const defaultApiScale = Math.max(2, Math.floor(availableThreads / 2));
+const minimumApiScale = totalMemoryMB > 3000 ? 2 : 1;
+const maximumApiScale = 4; // more requires custom caddy config
+const defaultApiScale = Math.min(maximumApiScale, Math.max(minimumApiScale, Math.floor(availableThreads / 2)));
+
+const cwd = '.'; // IMPORTANT: Leave this as-is, for production build
+
+function task(name, args, instances = 1, env = {}) {
+  const base = {
+    name,
+    cwd,
+    script: './dist/index.js',
+    args,
+    interpreter_args: `--max_old_space_size=${memory}`,
+    instances,
+    exec_mode: 'fork',
+    restart_delay: 5000,
+    env: {
+      NODE_ENV: 'production',
+      ...env,
+    },
+  };
+
+  if (env?.PORT) {
+    base.increment_var = 'PORT';
+  }
+
+  return base;
+}
 
 module.exports = {
   apps: [
-    {
-      name: 'tamanu-api-server',
-      cwd: '.', // IMPORTANT: Leave this as-is, for production build
-      script: './dist/index.js',
-      args: 'startServe',
-      interpreter_args: `--max_old_space_size=${memory}`,
-      instances: +process.env.TAMANU_API_SCALE || defaultApiScale,
-      exec_mode: 'cluster',
-      env: {
-        NODE_ENV: 'production',
-      },
-    },
-    {
-      name: 'tamanu-tasks-runner',
-      cwd: '.', // IMPORTANT: Leave this as-is, for production build
-      script: './dist/index.js',
-      args: 'startTasks',
-      interpreter_args: `--max_old_space_size=${memory}`,
-      instances: 1,
-      env: {
-        NODE_ENV: 'production',
-      },
-    },
-    {
-      name: 'tamanu-fhir-worker',
-      cwd: '.', // IMPORTANT: Leave this as-is, for production build
-      script: './dist/index.js',
-      args: 'startFhirWorker',
-      interpreter_args: `--max_old_space_size=${memory}`,
-      instances: 1,
-      env: {
-        NODE_ENV: 'production',
-      },
-    },
+    task('tamanu-api', 'startApi', +process.env.TAMANU_API_SCALE || defaultApiScale, {
+      PORT: +process.env.TAMANU_API_PORT || 3000,
+    }),
+    task('tamanu-tasks', 'startTasks'),
+    task('tamanu-fhir-refresh', 'startFhirWorker --topics=fhir.refresh.allFromUpstream,fhir.refresh.entireResource,fhir.refresh.fromUpstream'),
+    task('tamanu-fhir-resolve', 'startFhirWorker --topics=fhir.resolver'),
   ],
 };

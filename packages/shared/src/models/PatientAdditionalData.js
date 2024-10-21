@@ -2,7 +2,7 @@ import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
 import { buildPatientSyncFilterViaPatientId } from './buildPatientSyncFilterViaPatientId';
-import { onSaveMarkPatientForSync } from './onSaveMarkPatientForSync';
+import { buildPatientLinkedLookupFilter } from './buildPatientLinkedLookupFilter';
 
 export class PatientAdditionalData extends Model {
   static init(options) {
@@ -57,7 +57,6 @@ export class PatientAdditionalData extends Model {
         syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
       },
     );
-    onSaveMarkPatientForSync(this);
   }
 
   static initRelations(models) {
@@ -111,6 +110,9 @@ export class PatientAdditionalData extends Model {
     return ['countryOfBirth', 'nationality', 'ethnicity'];
   }
 
+  static buildSyncLookupQueryDetails() {
+    return buildPatientLinkedLookupFilter(this);
+  }
   static buildPatientSyncFilter = buildPatientSyncFilterViaPatientId;
 
   static async getForPatient(patientId) {

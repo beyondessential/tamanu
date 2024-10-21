@@ -44,7 +44,7 @@ export const DiagnosisForm = React.memo(
     const hasDiagnosis = Boolean(diagnosis?.id);
     const { currentUser } = useAuth();
 
-    const icd10Suggester = useSuggester('icd10', {
+    const diagnosisSuggester = useSuggester('diagnosis', {
       filterer: icd => !excludeDiagnoses.some(d => d.diagnosisId === icd.id),
     });
     const practitionerSuggester = useSuggester('practitioner');
@@ -91,7 +91,7 @@ export const DiagnosisForm = React.memo(
                   />
                 }
                 component={AutocompleteField}
-                suggester={icd10Suggester}
+                suggester={diagnosisSuggester}
                 required
               />
             </div>

@@ -95,4 +95,8 @@ export class SurveyScreenComponent extends Model {
   static buildSyncFilter() {
     return null; // syncs everywhere
   }
+
+  static buildSyncLookupQueryDetails() {
+    return null; // syncs everywhere
+  }
 }

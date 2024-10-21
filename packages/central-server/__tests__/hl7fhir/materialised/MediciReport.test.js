@@ -50,13 +50,12 @@ describe(`Materialised - MediciReport`, () => {
       locationGroup,
     };
   });
+
   beforeEach(async () => {
     const { MediciReport } = ctx.store.models;
     await MediciReport.destroy({ where: {} });
-    for (const upstreamModel of MediciReport.upstreams) {
-      await upstreamModel.destroy({ where: {} });
-    }
   });
+
   afterAll(() => ctx.close());
 
   async function makeEncounter(overrides = {}) {
@@ -150,9 +149,9 @@ describe(`Materialised - MediciReport`, () => {
     });
 
     const diagnosis = await ReferenceData.create({
-      type: 'icd10',
+      type: 'diagnosis',
       name: 'Diabetes',
-      code: 'icd10-E11',
+      code: 'diagnosis-E11',
     });
     const encounterDiagnosis = await EncounterDiagnosis.create({
       ...fake(EncounterDiagnosis),
@@ -241,7 +240,7 @@ describe(`Materialised - MediciReport`, () => {
       diagnoses: [
         {
           certainty: encounterDiagnosis.certainty,
-          code: 'icd10-E11',
+          code: 'diagnosis-E11',
           isPrimary: false,
           name: 'Diabetes',
         },

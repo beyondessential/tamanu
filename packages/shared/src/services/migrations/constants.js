@@ -13,4 +13,7 @@ export const NON_SYNCING_TABLES = [
   'jobs',
   'job_workers',
   'user_recently_viewed_patients',
+  'sync_lookup',
+  'debug_logs',
+  'sync_device_ticks',
 ];

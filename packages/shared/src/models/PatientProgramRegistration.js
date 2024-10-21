@@ -3,7 +3,6 @@ import { REGISTRATION_STATUSES, SYNC_DIRECTIONS } from '@tamanu/constants';
 import { dateTimeType } from './dateTimeTypes';
 import { getCurrentDateTimeString } from '../utils/dateTime';
 import { Model } from './Model';
-import { onSaveMarkPatientForSync } from './onSaveMarkPatientForSync';
 
 export class PatientProgramRegistration extends Model {
   static init({ primaryKey, ...options }) {
@@ -30,7 +29,6 @@ export class PatientProgramRegistration extends Model {
         syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
       },
     );
-    onSaveMarkPatientForSync(this);
   }
 
   static getFullReferenceAssociations() {
@@ -135,20 +133,11 @@ export class PatientProgramRegistration extends Model {
     });
   }
 
-  static buildPatientSyncFilter(
-    patientCount,
-    markedForSyncPatientsTable,
-    { syncTheseProgramRegistries },
-  ) {
-    const escapedProgramRegistryIds =
-      syncTheseProgramRegistries?.length > 0
-        ? syncTheseProgramRegistries.map(id => this.sequelize.escape(id)).join(',')
-        : "''";
+  static buildSyncFilter() {
+    return null;
+  }
 
-    if (patientCount === 0) {
-      return `WHERE program_registry_id IN (${escapedProgramRegistryIds}) AND updated_at_sync_tick > :since`;
-    }
-
-    return `WHERE (patient_id IN (SELECT patient_id FROM ${markedForSyncPatientsTable}) OR program_registry_id IN (${escapedProgramRegistryIds})) AND updated_at_sync_tick > :since`;
+  static buildSyncLookupQueryDetails() {
+    return null; // syncs everywhere
   }
 }

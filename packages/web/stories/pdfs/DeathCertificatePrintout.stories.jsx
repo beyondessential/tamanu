@@ -11,14 +11,6 @@ export default {
 
 const getLocalisation = key => {
   const config = {
-    'templates.letterhead.title': 'TAMANU MINISTRY OF HEALTH & MEDICAL SERVICES',
-    'templates.letterhead.subTitle': 'PO Box 12345, Melbourne, Australia',
-    'templates.vaccineCertificate.emailAddress': 'tamanu@health.govt',
-    'templates.vaccineCertificate.contactNumber': '123456',
-    'fields.firstName.longLabel': 'First Name',
-    'fields.lastName.longLabel': 'Last Name',
-    'fields.dateOfBirth.longLabel': 'Date of Birth',
-    'fields.sex.longLabel': 'Sex',
     previewUvciFormat: 'tamanu',
   };
   return config[key];
@@ -110,9 +102,9 @@ const patientData = {
   causes: {
     primary: {
       condition: {
-        id: 'icd10-H10-3',
+        id: 'diagnosis-H10-3',
         code: 'H10.3',
-        type: 'icd10',
+        type: 'diagnosis',
         name: 'Acute conjunctivitis',
         visibilityStatus: 'current',
         updatedAtSyncTick: '-999',
@@ -123,9 +115,9 @@ const patientData = {
     },
     antecedent1: {
       condition: {
-        id: 'icd10-H60-5',
+        id: 'diagnosis-H60-5',
         code: 'H60.5',
-        type: 'icd10',
+        type: 'diagnosis',
         name: 'Acute bacterial otitis externa',
         visibilityStatus: 'current',
         updatedAtSyncTick: '-999',
@@ -136,9 +128,9 @@ const patientData = {
     },
     antecedent2: {
       condition: {
-        id: 'ref/icd10/N41.0',
+        id: 'ref/diagnosis/N41.0',
         code: 'N41.0',
-        type: 'icd10',
+        type: 'diagnosis',
         name: 'Acute bacterial prostatitis',
         visibilityStatus: 'current',
         updatedAtSyncTick: '-999',
@@ -151,9 +143,9 @@ const patientData = {
       {
         id: '6d7b673f-c1a9-4b1e-80bd-c3a08c32d9f7',
         condition: {
-          id: 'icd10-L03-0',
+          id: 'diagnosis-L03-0',
           code: 'L03.0',
-          type: 'icd10',
+          type: 'diagnosis',
           name: 'Acute bacterial paronychia',
           visibilityStatus: 'current',
           updatedAtSyncTick: '-999',
@@ -165,9 +157,9 @@ const patientData = {
       {
         id: 'e2e527a8-3f0a-4f79-a75c-b5c85ae2fa2f',
         condition: {
-          id: 'icd10-I63-9',
+          id: 'diagnosis-I63-9',
           code: 'I63.9',
-          type: 'icd10',
+          type: 'diagnosis',
           name: 'Acute cerebral infarction',
           visibilityStatus: 'current',
           updatedAtSyncTick: '-999',
@@ -179,7 +171,7 @@ const patientData = {
     ],
     external: null,
   },
-  recentSurgery: { date: '2024-01-22', reasonId: 'ref/icd10/H10.3' },
+  recentSurgery: { date: '2024-01-22', reasonId: 'ref/diagnosis/H10.3' },
   pregnancy: null,
   fetalOrInfant: false,
 };

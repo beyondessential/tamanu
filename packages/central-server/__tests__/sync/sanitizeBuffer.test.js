@@ -3,7 +3,11 @@ import * as fc from 'fast-check';
 import { Transaction } from 'sequelize';
 
 import { fake } from '@tamanu/shared/test-helpers/fake';
-import { createSnapshotTable, findSyncSnapshotRecords, SYNC_SESSION_DIRECTION } from '@tamanu/shared/sync';
+import {
+  createSnapshotTable,
+  findSyncSnapshotRecords,
+  SYNC_SESSION_DIRECTION,
+} from '@tamanu/shared/sync';
 
 import { createTestContext } from '../utilities';
 import { snapshotOutgoingChanges } from '../../dist/sync/snapshotOutgoingChanges';
@@ -43,15 +47,16 @@ describe('sanitize binary data', () => {
 
             await createSnapshotTable(ctx.store.sequelize, syncSession.id);
             const result = await snapshotOutgoingChanges(
+              ctx.store,
               { Asset },
               tock - 1,
               0,
               true,
               syncSession.id,
-              '',
+              [''],
+              null,
               {
                 syncAllLabRequests: false,
-                syncAllEncountersForTheseVaccines: [],
                 isMobile: false,
               },
             );

@@ -21,7 +21,7 @@ describe('Reference data', () => {
 
   it('should not allow a regular user to create a new reference item', async () => {
     const result = await userApp.post('/api/referenceData').send({
-      type: 'icd10',
+      type: 'diagnosis',
       name: 'fail',
       code: 'fail',
     });
@@ -30,7 +30,7 @@ describe('Reference data', () => {
 
   it('should not allow a regular user to alter existing reference data', async () => {
     const existing = await models.ReferenceData.create({
-      type: 'icd10',
+      type: 'diagnosis',
       name: 'no-user-change',
       code: 'no-user-change',
     });
@@ -42,7 +42,7 @@ describe('Reference data', () => {
 
   it('should allow an admin create a new reference data item', async () => {
     const result = await adminApp.post('/api/referenceData').send({
-      type: 'icd10',
+      type: 'diagnosis',
       code: 'succeed',
       name: 'succeed',
     });
@@ -51,7 +51,7 @@ describe('Reference data', () => {
 
   it('should allow an admin to change a reference data label', async () => {
     const existing = await models.ReferenceData.create({
-      type: 'icd10',
+      type: 'diagnosis',
       name: 'change-label',
       code: 'change-label',
     });
@@ -63,7 +63,7 @@ describe('Reference data', () => {
 
   it('should not allow changing a reference data type', async () => {
     const existing = await models.ReferenceData.create({
-      type: 'icd10',
+      type: 'diagnosis',
       name: 'no-change-type',
       code: 'no-change-type',
     });

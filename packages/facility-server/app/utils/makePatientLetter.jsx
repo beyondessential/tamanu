@@ -4,12 +4,16 @@ import path from 'path';
 import { get } from 'lodash';
 import { PatientLetter, tmpdir } from '@tamanu/shared/utils';
 import crypto from 'crypto';
+import { SETTING_KEYS } from '@tamanu/constants';
 
 export const makePatientLetter = async (req, { id, facilityId, ...data }) => {
-  const { getLocalisation, models, language } = req;
+  const { getLocalisation, models, language, settings } = req;
   const localisation = await getLocalisation();
   const getLocalisationData = key => get(localisation, key);
-  const letterheadConfig = await models.Setting.get('templates.letterhead', facilityId);
+  const letterheadConfig = await settings[facilityId].get(
+    SETTING_KEYS.TEMPLATES_LETTERHEAD,
+    facilityId,
+  );
 
   const logo = await models.Asset.findOne({
     raw: true,

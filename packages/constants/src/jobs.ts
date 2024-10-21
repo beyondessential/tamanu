@@ -8,3 +8,9 @@ export const JOB_TOPICS = {
     RESOLVER: 'fhir.resolver',
   },
 };
+
+export const JOB_PRIORITIES = {
+  LOW: 500,
+  DEFAULT: 1000,
+  HIGH: 1500,
+};

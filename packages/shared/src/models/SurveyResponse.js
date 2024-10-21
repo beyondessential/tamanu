@@ -6,12 +6,16 @@ import {
 } from '@tamanu/constants';
 import { InvalidOperationError } from '../errors';
 import { Model } from './Model';
-import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
+import {
+  buildEncounterLinkedSyncFilter,
+  buildEncounterLinkedSyncFilterJoins,
+} from './buildEncounterLinkedSyncFilter';
 import { runCalculations } from '../utils/calculations';
 import { getActiveActionComponents, getResultValue, getStringValue } from '../utils/fields';
 import { getPatientDataDbLocation } from '../utils/getPatientDataDbLocation';
 import { dateTimeType } from './dateTimeTypes';
 import { getCurrentDateTimeString } from '../utils/dateTime';
+import { buildEncounterPatientIdSelect } from './buildPatientLinkedLookupFilter';
 
 async function createPatientIssues(models, questions, patientId) {
   const issueQuestions = questions.filter(
@@ -75,6 +79,7 @@ const getFieldsToWrite = async (models, questions, answers) => {
  */
 async function writeToPatientFields(
   models,
+  facilityId,
   questions,
   answers,
   patientId,
@@ -101,17 +106,19 @@ async function writeToPatientFields(
 
   if (valuesByModel.PatientProgramRegistration) {
     const { programId } = await models.Survey.findByPk(surveyId);
-    const { id: programRegistryId } = await models.ProgramRegistry.findOne({
+    const programRegistryDetail = await models.ProgramRegistry.findOne({
       where: { programId, visibilityStatus: VISIBILITY_STATUSES.CURRENT },
     });
-    if (!programRegistryId) {
+    if (!programRegistryDetail?.id) {
       throw new Error('No program registry configured for the current form');
     }
     await models.PatientProgramRegistration.create({
       patientId,
-      programRegistryId,
+      programRegistryId: programRegistryDetail.id,
       date: submittedTime,
       ...valuesByModel.PatientProgramRegistration,
+      registeringFacilityId:
+        valuesByModel.PatientProgramRegistration.registeringFacilityId || facilityId,
       clinicianId: valuesByModel.PatientProgramRegistration.clinicianId || userId,
     });
   }
@@ -119,6 +126,7 @@ async function writeToPatientFields(
 
 async function handleSurveyResponseActions(
   models,
+  facilityId,
   questions,
   answers,
   patientId,
@@ -130,6 +138,7 @@ async function handleSurveyResponseActions(
   await createPatientIssues(models, activeQuestions, patientId);
   await writeToPatientFields(
     models,
+    facilityId,
     activeQuestions,
     answers,
     patientId,
@@ -191,6 +200,13 @@ export class SurveyResponse extends Model {
       [this.tableName, 'encounters'],
       markedForSyncPatientsTable,
     );
+  }
+
+  static buildSyncLookupQueryDetails() {
+    return {
+      select: buildEncounterPatientIdSelect(this),
+      joins: buildEncounterLinkedSyncFilterJoins([this.tableName, 'encounters']),
+    };
   }
 
   static async getSurveyEncounter({
@@ -259,7 +275,15 @@ export class SurveyResponse extends Model {
       throw new Error('SurveyResponse.createWithAnswers must always run inside a transaction!');
     }
     const { models } = this.sequelize;
-    const { answers, surveyId, patientId, encounterId, forceNewEncounter, ...responseData } = data;
+    const {
+      answers,
+      surveyId,
+      patientId,
+      encounterId,
+      forceNewEncounter,
+      facilityId,
+      ...responseData
+    } = data;
 
     // ensure survey exists
     const survey = await models.Survey.findByPk(surveyId);
@@ -340,6 +364,7 @@ export class SurveyResponse extends Model {
 
     await handleSurveyResponseActions(
       models,
+      facilityId,
       questions,
       finalAnswers,
       encounter.patientId,
