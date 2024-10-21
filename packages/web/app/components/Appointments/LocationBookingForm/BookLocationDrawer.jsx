@@ -163,6 +163,7 @@ export const BookLocationDrawer = ({ open, closeDrawer, initialLocationValues, r
           return (
             <FormGrid columns={1}>
               <CloseDrawerIcon onClick={warnAndResetForm} />
+              {/* TODO: alther location field to properly handle state */}
               <Field
                 enableLocationStatus={false}
                 locationGroupLabel="Area"
@@ -206,6 +207,7 @@ export const BookLocationDrawer = ({ open, closeDrawer, initialLocationValues, r
                 name="bookingType"
                 label="Booking type"
                 component={TranslatedSelectField}
+                // TODO: actually should be bookingType reference data
                 enumValues={APPOINTMENT_TYPE_LABELS}
                 required
               />
