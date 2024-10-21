@@ -11,10 +11,13 @@ export class Appointment extends Model {
         id: primaryKey,
         startTime: dateTimeType('startTime', { allowNull: false }),
         endTime: dateTimeType('endTime'),
-        type: {
+        appointmentType: {
           type: Sequelize.STRING,
-          allowNull: false,
-          defaultValue: APPOINTMENT_TYPES.STANDARD,
+          allowNull: true,
+        },
+        bookingType: {
+          type: Sequelize.STRING,
+          allowNull: true,
         },
         status: {
           type: Sequelize.STRING,
