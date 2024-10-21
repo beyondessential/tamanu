@@ -7,21 +7,12 @@ import { debounce } from 'lodash';
 import { toast } from 'react-toastify';
 
 import { PatientNameDisplay } from '../PatientNameDisplay';
-import {
-  TranslatedEnum,
-  TranslatedReferenceData,
-  TranslatedSex,
-  TranslatedText,
-} from '../Translation';
+import { TranslatedReferenceData, TranslatedSex, TranslatedText } from '../Translation';
 import { Colors } from '../../constants';
 import { DateDisplay, getDateDisplay } from '../DateDisplay';
 import { reloadPatient } from '../../store';
 import { useApi } from '../../api';
-import {
-  APPOINTMENT_STATUS_VALUES,
-  APPOINTMENT_STATUSES,
-  APPOINTMENT_TYPE_LABELS,
-} from '@tamanu/constants';
+import { APPOINTMENT_STATUS_VALUES, APPOINTMENT_STATUSES } from '@tamanu/constants';
 import { AppointmentStatusChip } from './AppointmentStatusChip';
 
 const DEBOUNCE_DELAY = 200; // ms
@@ -129,7 +120,7 @@ const BookingTypeDisplay = ({ type, isOvernight }) => (
     label={<TranslatedText stringId="scheduling.bookingType.label" fallback="Booking type" />}
     value={
       <FlexRow sx={{ alignItems: 'center', justifyContent: 'space-between' }}>
-        <TranslatedEnum value={type} enumValues={APPOINTMENT_TYPE_LABELS} enumFallback={type} />
+        <TranslatedReferenceData value={type.id} fallback={type.name} category="appointmentType" />
         {isOvernight && (
           <FlexRow sx={{ gap: '2px' }}>
             <Overnight sx={{ fontSize: 15, color: Colors.primary }} />

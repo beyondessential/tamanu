@@ -8,7 +8,6 @@ import {
 import { NOTE_TYPE_LABELS } from './notes.js';
 import {
   REFERRAL_STATUS_LABELS,
-  APPOINTMENT_TYPE_LABELS,
   APPOINTMENT_STATUSES,
   IMAGING_REQUEST_STATUS_LABELS,
 } from './statuses';
@@ -39,7 +38,6 @@ type EnumEntries = [EnumKeys, EnumValues][];
  */
 export const registeredEnums = {
   APPOINTMENT_STATUSES,
-  APPOINTMENT_TYPE_LABELS,
   ASSET_NAME_LABELS,
   BIRTH_DELIVERY_TYPE_LABELS,
   BIRTH_TYPE_LABELS,
@@ -77,7 +75,6 @@ export const registeredEnums = {
  */
 export const translationPrefixes: Record<EnumKeys, string> = {
   APPOINTMENT_STATUSES: 'appointment.property.status',
-  APPOINTMENT_TYPE_LABELS: 'appointment.property.types',
   ASSET_NAME_LABELS: 'asset.property.name',
   BIRTH_DELIVERY_TYPE_LABELS: 'birth.property.birthDeliveryType',
   BIRTH_TYPE_LABELS: 'birth.property.birthType',
