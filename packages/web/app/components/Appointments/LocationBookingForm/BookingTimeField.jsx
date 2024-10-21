@@ -121,7 +121,7 @@ export const BookingTimeField = ({ disabled = false }) => {
   ]);
 
   useEffect(() => {
-    if (dirty) {
+    if (dirty || selectedTimeRange) {
       const startTime = selectedTimeRange ? toDateTimeString(selectedTimeRange.start) : null;
       const endTime = selectedTimeRange ? toDateTimeString(selectedTimeRange.end) : null;
       setFieldValue('startTime', startTime);

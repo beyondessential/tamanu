@@ -1,0 +1,117 @@
+import React, { useState } from 'react';
+import styled from 'styled-components';
+
+import { useLocationsQuery } from '../../../api/queries';
+import { Colors } from '../../../constants';
+import { Button, PageContainer, TopBar, TranslatedText } from '../../../components';
+import { Typography } from '@material-ui/core';
+import { LocationBookingsCalendar } from './LocationBookingsCalendar';
+import { BookLocationDrawer } from '../../../components/Appointments/LocationBookingForm/BookLocationDrawer';
+
+// BEGIN PLACEHOLDERS
+
+const Placeholder = styled.div`
+  background-color: oklch(0% 0 0 / 3%);
+  max-block-size: 100%;
+  border: 1px solid oklch(0% 0 0 / 15%);
+  border-radius: 0.2rem;
+  color: oklch(0% 0 0 / 55%);
+  display: grid;
+  font-size: 1rem;
+  padding: 0.5rem;
+  place-items: center;
+  text-align: center;
+`;
+
+// END PLACEHOLDERS
+
+const LocationBookingsTopBar = styled(TopBar).attrs({
+  title: (
+    <TranslatedText stringId="scheduling.locationBookings.title" fallback="Location bookings" />
+  ),
+})``;
+
+const Wrapper = styled(PageContainer)`
+  display: grid;
+  grid-template-rows: auto 1fr;
+  max-block-size: 100%;
+`;
+
+const Filters = styled('search')`
+  display: flex;
+  gap: 1rem;
+`;
+
+const NewBookingButton = styled(Button)`
+  margin-left: 1rem;
+`;
+
+const EmptyStateLabel = styled(Typography).attrs({
+  align: 'center',
+  color: 'textSecondary',
+  variant: 'body1',
+})`
+  color: ${Colors.midText};
+  font-size: 2rem;
+  font-weight: 400;
+  place-self: center;
+
+  ${Wrapper}:has(&) {
+    min-block-size: 100%;
+  }
+`;
+
+export const LocationBookingsView = () => {
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [initialDrawerValues, setInitialDrawerValues] = useState({});
+  const closeBookingForm = () => {
+    setIsDrawerOpen(false);
+  };
+  const openBookingForm = initialValues => {
+    setIsDrawerOpen(true);
+    setInitialDrawerValues(initialValues);
+  };
+
+  const [refreshCount, setRefreshCount] = useState(0);
+  const refreshCalendar = () => {
+    setRefreshCount(refreshCount + 1);
+  };
+
+  const locationsQuery = useLocationsQuery({
+    includeLocationGroup: true,
+    bookableOnly: true,
+  });
+  const { data: locations } = locationsQuery;
+  const hasNoLocations = locations?.length === 0;
+
+  return (
+    <Wrapper>
+      <LocationBookingsTopBar>
+        <Filters>
+          <Placeholder>Search</Placeholder>
+          <Placeholder>Area</Placeholder>
+          <Placeholder>Clinician</Placeholder>
+          <Placeholder>Type</Placeholder>
+        </Filters>
+        <NewBookingButton onClick={() => openBookingForm({})}>+ New booking</NewBookingButton>
+      </LocationBookingsTopBar>
+      {hasNoLocations ? (
+        <EmptyStateLabel>No bookable locations</EmptyStateLabel>
+      ) : (
+        <LocationBookingsCalendar
+          locationsQuery={locationsQuery}
+          openBookingForm={openBookingForm}
+          refreshCount={refreshCount}
+        />
+      )}
+      {isDrawerOpen && (
+        <BookLocationDrawer
+          initialLocationValues={initialDrawerValues}
+          open={isDrawerOpen}
+          closeDrawer={closeBookingForm}
+          refreshCalendar={refreshCalendar}
+        />
+      )}
+    </Wrapper>
+  );
+};
