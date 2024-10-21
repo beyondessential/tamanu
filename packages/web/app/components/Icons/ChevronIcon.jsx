@@ -2,10 +2,10 @@ import React from 'react';
 
 import { Colors } from '../../constants';
 
-export const ChevronIcon = ({ htmlColor = Colors.darkText, ...props }) => (
+export const ChevronIcon = ({ htmlColor = Colors.darkText, width = 10, height = 6, ...props }) => (
   <svg
-    width="10"
-    height="6"
+    width={width}
+    height={height}
     viewBox="0 0 10 6"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
