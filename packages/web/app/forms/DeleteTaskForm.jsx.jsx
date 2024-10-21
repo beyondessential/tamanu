@@ -66,6 +66,7 @@ export const DeleteTaskForm = ({ onClose, refreshTaskTable, taskIds }) => {
               required
               saveDateAsString
               component={DateTimeField}
+              max={getCurrentDateTimeString()}
             />
             <Field
               name="deletedReasonId"

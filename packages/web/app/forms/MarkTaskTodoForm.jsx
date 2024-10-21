@@ -65,6 +65,7 @@ export const MarkTaskTodoForm = ({ onClose, refreshTaskTable, taskIds }) => {
               required
               saveDateAsString
               component={DateTimeField}
+              max={getCurrentDateTimeString()}
             />
             <Field
               name="todoNote"
