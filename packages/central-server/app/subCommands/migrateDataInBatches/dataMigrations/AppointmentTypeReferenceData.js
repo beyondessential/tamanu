@@ -12,10 +12,10 @@ export class AppointmentTypeReferenceData extends CursorDataMigration {
       with updated as (
       update appointments
       set type_id = case type_legacy
-       when 'Standard' then 'appointmentType-Standard'
-       when 'Emergency' then 'appointmentType-Emergency'
-       when 'Specialist' then 'appointmentType-Specialist'
-       when 'Other' then 'appointmentType-Other'
+       when 'Standard' then 'appointmentType-standard'
+       when 'Emergency' then 'appointmentType-emergency'
+       when 'Specialist' then 'appointmentType-specialist'
+       when 'Other' then 'appointmentType-other'
       end
       where id in (
           select id
