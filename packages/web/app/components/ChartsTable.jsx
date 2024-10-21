@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
-import { DynamicColumnTable } from './Table';
+import { DynamicColumnTable, Table } from './Table';
 import { useEncounter } from '../contexts/Encounter';
 import { useChartQuery } from '../api/queries/useChartQuery';
 import { EditVitalCellModal } from './EditVitalCellModal';
 import { TranslatedText } from './Translation/TranslatedText';
 import { Colors } from '../constants';
 import { getChartsTableColumns } from './VitalsAndChartsTableColumns';
+import { Box } from '@material-ui/core';
 
 export const ChartsTable = React.memo(({ selectedSurveyId }) => {
   const patient = useSelector(state => state.patient);
@@ -32,7 +33,30 @@ export const ChartsTable = React.memo(({ selectedSurveyId }) => {
     onCellClick,
   );
 
-  // TODO: no data states
+  if (isLoading || data.length === 0) {
+    return (
+      <Table
+        columns={[]}
+        data={[]}
+        elevated={false}
+        noDataBackgroundColor={Colors.background}
+        noDataMessage={
+          <Box color={Colors.primary} fontWeight={500}>
+            {selectedSurveyId === ''
+              ? <TranslatedText
+                  stringId="chart.table.noChart"
+                  fallback="This patient has no recorded charts to display. Select the required chart to document a chart."
+                />
+              : <TranslatedText
+                  stringId="chart.table.noData"
+                  fallback="This patient has no chart information to display. Click ‘Record’ to add information to this chart."
+                />
+            }
+          </Box>
+        }
+      />
+    );
+  }
 
   return (
     <>
@@ -43,22 +67,14 @@ export const ChartsTable = React.memo(({ selectedSurveyId }) => {
           setOpenEditModal(false);
         }}
       />
-    <DynamicColumnTable
+      <DynamicColumnTable
         columns={columns}
         data={data}
         elevated={false}
-        isLoading={isLoading}
         errorMessage={error?.message}
         count={data.length}
         allowExport
         showFooterLegend={showFooterLegend}
-        noDataBackgroundColor={Colors.background}
-        noDataMessage={
-          <TranslatedText
-            stringId="chart.table.noData"
-            fallback="This patient has no chart information to display. Click ‘Record’ to add information to this chart."
-          />
-        }
       />
     </>
   );
