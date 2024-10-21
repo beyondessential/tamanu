@@ -57,10 +57,7 @@ const EmptyStateLabel = styled(Typography).attrs({
 `;
 
 export const LocationBookingsView = () => {
-  const locationsQuery = useLocationsQuery({
-    includeLocationGroup: true,
-    bookableOnly: true,
-  });
+  const locationsQuery = useLocationsQuery({ bookableOnly: true });
   const { data: locations } = locationsQuery;
   const hasNoLocations = locations?.length === 0;
 
