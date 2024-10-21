@@ -1,8 +1,8 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { push } from 'connected-react-router';
-import { Box, IconButton, Menu, MenuItem, Paper, Popper, styled } from '@mui/material';
-import { MoreVert, Close, Brightness2 as Overnight } from '@mui/icons-material';
+import { Box, IconButton, Paper, Popper, styled } from '@mui/material';
+import { Close, Brightness2 as Overnight } from '@mui/icons-material';
 import { debounce } from 'lodash';
 import { toast } from 'react-toastify';
 
@@ -26,6 +26,7 @@ import {
   APPOINTMENT_TYPE_LABELS,
 } from '@tamanu/constants';
 import { AppointmentStatusChip } from './AppointmentStatusChip';
+import { KebabMenuButton } from '../KebabMenuButton';
 
 const DEBOUNCE_DELAY = 200; // ms
 
@@ -102,34 +103,11 @@ const AppointmentStatusContainer = styled(Box)`
   justify-items: center;
 `;
 
-const StyledMenuItem = styled(MenuItem)`
-  font-size: 0.6875rem;
-  padding-inline: 0.75rem;
-  padding-block: 0.25rem;
-`;
-
-const KebabMenu = ({ anchor, open, onClose, items, ...props }) => {
-  return (
-    <Menu anchorEl={anchor} open={open} onClose={onClose} elevation={2} {...props}>
-      {items.map((item, index) => (
-        <StyledMenuItem key={index} onClick={item.onClick}>
-          {item.label}
-        </StyledMenuItem>
-      ))}
-    </Menu>
-  );
-};
-
 const ControlsRow = ({ onClose, appointment, onUpdated }) => {
   const [cancelModalOpen, setCancelModalOpen] = useState(false);
-  const [anchor, setAnchor] = useState(null);
 
   const handleCancelModalClose = () => {
     setCancelModalOpen(false);
-  };
-
-  const handleKebabClick = event => {
-    setAnchor(prevAnchor => (prevAnchor ? null : event.currentTarget));
   };
 
   const controls = [
@@ -145,15 +123,7 @@ const ControlsRow = ({ onClose, appointment, onUpdated }) => {
 
   return (
     <ControlsContainer>
-      <StyledIconButton onClick={handleKebabClick}>
-        <MoreVert sx={{ fontSize: '0.875rem' }} />
-        <KebabMenu
-          anchor={anchor}
-          items={controls}
-          open={Boolean(anchor)}
-          onClose={() => setAnchor(null)}
-        />
-      </StyledIconButton>
+      <KebabMenuButton items={controls} />
       <StyledIconButton onClick={onClose}>
         <Close sx={{ fontSize: '0.875rem' }} />
       </StyledIconButton>
