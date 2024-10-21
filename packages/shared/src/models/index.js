@@ -103,6 +103,8 @@ export * from './InvoicePayment';
 export * from './InvoicePatientPayment';
 export * from './InvoiceInsurerPayment';
 
+export * from './Notification';
+
 export * from './Signer';
 
 export * from './CertificateNotification';
