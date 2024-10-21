@@ -1,7 +1,7 @@
 import { DataTypes } from 'sequelize';
 
 export async function up(query) {
-  await query.addColumn('appointments', 'booking_type', {
+  await query.addColumn('appointments', 'booking_type_id', {
     type: DataTypes.STRING,
     references: {
       model: 'reference_data',
@@ -11,5 +11,5 @@ export async function up(query) {
 }
 
 export async function down(query) {
-  await query.removeColumn('appointments', 'booking_type');
+  await query.removeColumn('appointments', 'booking_type_id');
 }

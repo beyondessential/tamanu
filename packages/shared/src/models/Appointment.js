@@ -15,10 +15,6 @@ export class Appointment extends Model {
           type: Sequelize.STRING,
           allowNull: true,
         },
-        bookingType: {
-          type: Sequelize.STRING,
-          allowNull: true,
-        },
         status: {
           type: Sequelize.STRING,
           allowNull: false,
