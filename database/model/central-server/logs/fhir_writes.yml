@@ -2,7 +2,7 @@ version: 2
 sources:
   - name: tamanu
     schema: logs
-    description: TODO
+    description: "{{ doc('logs__generic__schema') }}"
     __generator:
       js_class: FhirWrite
     tables:
