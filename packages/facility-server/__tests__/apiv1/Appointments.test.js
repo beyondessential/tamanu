@@ -25,9 +25,11 @@ describe('Appointments', () => {
       patientId: patient.id,
       startTime: add(new Date(), { days: 1 }), // create a date in the future
       clinicianId: userApp.user.dataValues.id,
+      typeId: 'appointmentType-standard',
     });
     appointment = result.body;
     expect(result).toHaveSucceeded();
+    expect(result.body.typeId).toEqual('appointmentType-standard');
     expect(result.body.patientId).toEqual(patient.id);
     expect(result.body.status).toEqual(APPOINTMENT_STATUSES.CONFIRMED);
     expect(result.body.clinicianId).toEqual(userApp.user.dataValues.id);
