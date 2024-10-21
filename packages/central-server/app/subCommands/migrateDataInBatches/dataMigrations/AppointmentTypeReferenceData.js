@@ -12,15 +12,15 @@ export class AppointmentTypeReferenceData extends CursorDataMigration {
       with updated as (
       update appointments
       set type_id = case type_legacy
-       when 'Standard' then 'appointmentType-standard'
-       when 'Emergency' then 'appointmentType-emergency'
-       when 'Specialist' then 'appointmentType-specialist'
-       when 'Other' then 'appointmentType-other'
+       when 'Standard' then 'appointmentType-Standard'
+       when 'Emergency' then 'appointmentType-Emergency'
+       when 'Specialist' then 'appointmentType-Specialist'
+       when 'Other' then 'appointmentType-Other'
       end
       where id in (
           select id
           from appointments
-          where id > $fromId
+          where id > $fromId and type_legacy in ('Standard', 'Emergency', 'Specialist', 'Other')
           order by id
           limit $limit
       )
