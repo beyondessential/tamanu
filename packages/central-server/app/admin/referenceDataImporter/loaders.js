@@ -375,8 +375,9 @@ export async function taskTemplateLoader(item, { models, pushError }) {
   let frequencyValue, frequencyUnit;
   if (taskFrequency?.trim()) {
     try {
-      frequencyValue = taskFrequency.trim().split(' ')[0];
-      frequencyUnit = taskFrequency.trim().split(' ')[1];
+      const frequencyParts = taskFrequency.trim().split(' ');
+      frequencyValue = frequencyParts[0];
+      frequencyUnit = frequencyParts[1];
     } catch (e) {
       pushError(`Invalid task frequency ${taskFrequency}: ${e.message}`);
     }
