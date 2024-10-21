@@ -2,7 +2,7 @@ version: 2
 sources:
   - name: tamanu
     schema: logs
-    description: TODO
+    description: "{{ doc('logs__generic__schema') }}"
     __generator:
       js_class: DebugLog
     tables:
@@ -19,8 +19,13 @@ sources:
           - name: type
             data_type: character varying(255)
             description: "{{ doc('debug_logs__type') }}"
+            __generator:
+              values_from_constant: DEBUG_LOG_TYPES
             data_tests:
               - not_null
+              - accepted_values:
+                  values:
+                    - syncLookupUpdate
           - name: info
             data_type: json
             description: "{{ doc('debug_logs__info') }}"
