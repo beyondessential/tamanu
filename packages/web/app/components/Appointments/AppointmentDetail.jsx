@@ -291,15 +291,17 @@ export const AppointmentDetail = ({ appointment, onUpdated, onClose }) => {
       {errorMessage && <Section>{errorMessage}</Section>}
       <FirstRow>
         <div>
-          <Heading>
-            <TranslatedText stringId="general.type.label" fallback="Type" />
-          </Heading>
           {type && (
-            <TranslatedReferenceData
-              value={type.id}
-              fallback={type.name}
-              category="appointmentType"
-            />
+            <>
+              <Heading>
+                <TranslatedText stringId="general.type.label" fallback="Type" />
+              </Heading>
+              <TranslatedReferenceData
+                value={type.id}
+                fallback={type.name}
+                category="appointmentType"
+              />
+            </>
           )}
           <Heading>
             <TranslatedText stringId="general.time.label" fallback="Time" />
