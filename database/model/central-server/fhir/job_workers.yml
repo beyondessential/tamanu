@@ -4,7 +4,7 @@ sources:
     schema: fhir
     description: "{{ doc('fhir__generic__schema') }}"
     __generator:
-      js_class: JobWorker
+      js_class: FhirJobWorker
     tables:
       - name: job_workers
         description: "{{ doc('fhir__table__job_workers') }}"
