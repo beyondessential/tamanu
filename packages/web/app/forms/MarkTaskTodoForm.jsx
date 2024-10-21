@@ -15,10 +15,13 @@ import {
 import { useSuggester } from '../api';
 import { useMarkTaskTodo } from '../api/mutations/useTaskMutation';
 import { FORM_TYPES } from '../constants';
+import { getCurrentDateTimeString } from '../utils/dateTime';
+import { useAuth } from '../contexts/Auth';
 
 export const MarkTaskTodoForm = ({ onClose, refreshTaskTable, taskIds }) => {
   const practitionerSuggester = useSuggester('practitioner');
   const { mutate: markTaskTodo, isLoading } = useMarkTaskTodo();
+  const { currentUser } = useAuth();
 
   const onSubmit = async values => {
     markTaskTodo(
@@ -60,7 +63,9 @@ export const MarkTaskTodoForm = ({ onClose, refreshTaskTable, taskIds }) => {
                 />
               }
               required
+              saveDateAsString
               component={DateTimeField}
+              max={getCurrentDateTimeString()}
             />
             <Field
               name="todoNote"
@@ -92,6 +97,10 @@ export const MarkTaskTodoForm = ({ onClose, refreshTaskTable, taskIds }) => {
           ),
         todoNote: yup.string(),
       })}
+      initialValues={{
+        todoTime: getCurrentDateTimeString(),
+        todoByUserId: currentUser?.id,
+      }}
     />
   );
 };

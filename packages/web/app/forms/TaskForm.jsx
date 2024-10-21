@@ -90,23 +90,17 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
   const onSubmit = values => {
     const {
       designationIds,
-      requestTime,
-      startTime,
       highPriority,
       frequencyValue,
       frequencyUnit,
       ...other
     } = values;
-    const requestTimeString = new Date(requestTime).toISOString();
-    const startTimeString = new Date(startTime).toISOString();
 
     let payload;
 
     if (selectedTask.type === REFERENCE_TYPES.TASK_TEMPLATE) {
       payload = {
         ...other,
-        requestTime: requestTimeString,
-        startTime: startTimeString,
         encounterId: encounter.id,
         tasks: [
           {
@@ -130,8 +124,6 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
 
       payload = {
         ...values,
-        requestTime: requestTimeString,
-        startTime: startTimeString,
         tasks,
         encounterId: encounter.id,
       };

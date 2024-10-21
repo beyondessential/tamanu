@@ -14,10 +14,13 @@ import {
 import { useSuggester } from '../api';
 import { useDeleteTask } from '../api/mutations/useTaskMutation';
 import { FORM_TYPES } from '../constants';
+import { getCurrentDateTimeString } from '../utils/dateTime';
+import { useAuth } from '../contexts/Auth';
 
 export const DeleteTaskForm = ({ onClose, refreshTaskTable, taskIds }) => {
   const practitionerSuggester = useSuggester('practitioner');
   const taskDeletionReasonSuggester = useSuggester('taskDeletionReason');
+  const { currentUser } = useAuth();
 
   const { mutate: deleteTask } = useDeleteTask();
 
@@ -61,7 +64,9 @@ export const DeleteTaskForm = ({ onClose, refreshTaskTable, taskIds }) => {
                 />
               }
               required
+              saveDateAsString
               component={DateTimeField}
+              max={getCurrentDateTimeString()}
             />
             <Field
               name="deletedReasonId"
@@ -98,6 +103,10 @@ export const DeleteTaskForm = ({ onClose, refreshTaskTable, taskIds }) => {
           ),
         deletedReasonId: yup.string(),
       })}
+      initialValues={{
+        deletedTime: getCurrentDateTimeString(),
+        deletedByUserId: currentUser?.id,
+      }}
     />
   );
 };
