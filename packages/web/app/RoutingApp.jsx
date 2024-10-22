@@ -1,5 +1,5 @@
-import React from 'react';
-import { Redirect, Route, Switch } from 'react-router';
+import React, { useEffect } from 'react';
+import { Redirect, Route, Switch, useHistory } from 'react-router';
 import { useSelector } from 'react-redux';
 
 import { SERVER_TYPES } from '@tamanu/constants';
@@ -29,6 +29,14 @@ export const RoutingApp = () => {
 
 export const RoutingFacilityApp = React.memo(() => {
   const sidebarMenuItems = useFacilitySidebar();
+  const history = useHistory();
+
+  useEffect(() => {
+    if (sidebarMenuItems.length > 0) {
+      history.push(sidebarMenuItems[0].path);
+    }
+  }, [sidebarMenuItems, history]);
+
   return (
     <App sidebar={<Sidebar items={sidebarMenuItems} />}>
       <UserActivityMonitor />
