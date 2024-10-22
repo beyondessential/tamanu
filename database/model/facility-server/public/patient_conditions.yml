@@ -2,7 +2,7 @@ version: 2
 sources:
   - name: tamanu
     schema: public
-    description: Tamanu database
+    description: "{{ doc('logs__generic__schema') }}"
     tables:
       - name: patient_conditions
         description: ""
