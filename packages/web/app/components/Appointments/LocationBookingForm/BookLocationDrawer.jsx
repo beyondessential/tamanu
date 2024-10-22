@@ -181,7 +181,7 @@ export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues }) 
         })}
         initialValues={initialBookingValues}
         enableReinitialize
-        render={({ values, resetForm, setFieldValue, dirty, initialValues }) => {
+        render={({ values, resetForm, setFieldValue, dirty }) => {
           const warnAndResetForm = async () => {
             const confirmed = !dirty || (await handleShowWarningModal());
             if (!confirmed) return;
@@ -194,7 +194,6 @@ export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues }) 
               <CloseDrawerIcon onClick={warnAndResetForm} />
               <Field
                 enableLocationStatus={false}
-                key={initialValues?.locationId ?? ''}
                 name="locationId"
                 component={LocalisedLocationField}
                 required
