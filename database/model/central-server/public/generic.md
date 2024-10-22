@@ -1,4 +1,4 @@
-{% docs logs__generic__schema %}
+{% docs generic__schema %}
 Contains the primary data for Tamanu.
 
 This is the main namespace for Tamanu data. All contained here is generally regarded as the source
