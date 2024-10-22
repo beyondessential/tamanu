@@ -68,8 +68,8 @@ export const LocationBookingsView = () => {
     setIsDrawerOpen(false);
   };
   const openBookingForm = initialValues => {
-    setIsDrawerOpen(true);
     setInitialDrawerValues(initialValues);
+    setIsDrawerOpen(true);
   };
 
   const [refreshCount, setRefreshCount] = useState(0);
@@ -104,9 +104,15 @@ export const LocationBookingsView = () => {
           refreshCount={refreshCount}
         />
       )}
+      {/* <BookLocationDrawer
+          initialLocationValues={initialDrawerValues}
+          open={isDrawerOpen}
+          closeDrawer={closeBookingForm}
+          refreshCalendar={refreshCalendar}
+        /> */}
       {isDrawerOpen && (
         <BookLocationDrawer
-          initialLocationValues={initialDrawerValues}
+          initialBookingValues={initialDrawerValues}
           open={isDrawerOpen}
           closeDrawer={closeBookingForm}
           refreshCalendar={refreshCalendar}

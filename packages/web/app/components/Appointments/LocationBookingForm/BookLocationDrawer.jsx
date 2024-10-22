@@ -109,10 +109,15 @@ export const WarningModal = ({ open, setShowWarningModal, resolveFn }) => {
   );
 };
 
-export const BookLocationDrawer = ({ open, closeDrawer, initialLocationValues, refreshCalendar }) => {
+export const BookLocationDrawer = ({
+  open,
+  closeDrawer,
+  initialBookingValues,
+  refreshCalendar,
+}) => {
   const patientSuggester = usePatientSuggester();
   const clinicianSuggester = useSuggester('practitioner');
-  const bookingTypeSuggester = useSuggester('bookingType')
+  const bookingTypeSuggester = useSuggester('bookingType');
 
   const api = useApi();
 
@@ -150,8 +155,9 @@ export const BookLocationDrawer = ({ open, closeDrawer, initialLocationValues, r
           startTime: yup.string().required(),
           endTime: yup.string().required(),
           patientId: yup.string().required(),
+          bookingTypeId: yup.string().required(),
         })}
-        initialValues={initialLocationValues}
+        initialValues={initialBookingValues}
         enableReinitialize
         render={({ values, resetForm, setFieldValue, dirty, initialValues }) => {
           const warnAndResetForm = async () => {
@@ -160,6 +166,8 @@ export const BookLocationDrawer = ({ open, closeDrawer, initialLocationValues, r
             closeDrawer();
             resetForm();
           };
+
+          console.log('RENDERING LOCATION DRAWER');
 
           return (
             <FormGrid columns={1}>
@@ -171,9 +179,9 @@ export const BookLocationDrawer = ({ open, closeDrawer, initialLocationValues, r
                 label="Location"
                 name="locationId"
                 component={LocationField}
-                value={values.locationId}
                 required
-                onChange={() => {
+                onChange={event => {
+                  setFieldValue('locationId', event.target.value);
                   setFieldValue('overnight', null);
                   setFieldValue('date', null);
                   setFieldValue('startTime', null);
