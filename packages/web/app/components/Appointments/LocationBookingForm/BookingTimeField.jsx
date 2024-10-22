@@ -18,6 +18,7 @@ import { useFormikContext } from 'formik';
 import { toDateTimeString } from '../../../utils/dateTime';
 import { isEqual } from 'lodash';
 import { CircularProgress } from '@material-ui/core';
+import { TranslatedText } from '../../Translation/TranslatedText';
 
 const CellContainer = styled.div`
   border: 1px solid ${Colors.outline};
@@ -186,7 +187,10 @@ export const BookingTimeField = ({ disabled = false }) => {
   );
 
   return (
-    <OuterLabelFieldWrapper label="Booking time" required>
+    <OuterLabelFieldWrapper
+      label={<TranslatedText stringId="location.form.bookingTime.label" fallback="Booking time" />}
+      required
+    >
       <CellContainer $disabled={disabled}>
         {!isFetching ? (
           timeSlots.map((timeSlot, index) => {
