@@ -6,6 +6,7 @@ import { ClearIcon } from '../Icons/ClearIcon';
 import { TextField } from './TextField';
 import { Colors } from '../../constants';
 import { useTranslation } from '../../contexts/Translation';
+import { TranslatedText } from '../Translation';
 
 const Icon = styled(InputAdornment)`
   .MuiSvgIcon-root {
@@ -39,6 +40,7 @@ export const SearchField = props => {
     field: { value, name },
     form: { setFieldValue } = {},
     label,
+    placeholder,
   } = props;
   const [searchValue, setSearchValue] = useState(value);
 
@@ -51,8 +53,8 @@ export const SearchField = props => {
     if (setFieldValue) {
       setFieldValue(name, '');
     }
-  }
-  
+  };
+
   return (
     <StyledTextField
       InputProps={{
@@ -68,11 +70,8 @@ export const SearchField = props => {
         ),
       }}
       placeholder={
-        label
-          ? getTranslation('general.placeholder.searchWithLabel', 'Search :label', {
-              label: getTranslation(label.props.stringId, label.props.fallback).toLowerCase(),
-            })
-          : ''
+        <TranslatedText stringId="hi" fallback="hi" /> ??
+        (label ? getTranslation(label.props.stringId, label.props.fallback) : '')
       }
       {...props}
       value={searchValue}

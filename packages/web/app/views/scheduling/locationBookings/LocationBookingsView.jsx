@@ -6,6 +6,7 @@ import { Colors } from '../../../constants';
 import { PageContainer, TopBar, TranslatedText } from '../../../components';
 import { Typography } from '@material-ui/core';
 import { LocationBookingsCalendar } from './LocationBookingsCalendar';
+import { CalendarSearchBar } from './CalendarSearchBar';
 
 // BEGIN PLACEHOLDERS
 
@@ -64,12 +65,7 @@ export const LocationBookingsView = () => {
   return (
     <Wrapper>
       <LocationBookingsTopBar>
-        <Filters>
-          <Placeholder>Search</Placeholder>
-          <Placeholder>Area</Placeholder>
-          <Placeholder>Clinician</Placeholder>
-          <Placeholder>Type</Placeholder>
-        </Filters>
+        <CalendarSearchBar />
       </LocationBookingsTopBar>
       {hasNoLocations ? (
         <EmptyStateLabel>No bookable locations</EmptyStateLabel>
