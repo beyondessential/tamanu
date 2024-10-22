@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import * as yup from 'yup';
 import {
   AutocompleteField,
@@ -8,8 +8,6 @@ import {
   Field,
   Form,
   LocalisedLocationField,
-  LocationField,
-  TranslatedSelectField,
 } from '../../Field';
 import styled, { css, keyframes } from 'styled-components';
 import { BodyText, Heading4 } from '../../Typography';
@@ -19,10 +17,9 @@ import { FormSubmitCancelRow } from '../../ButtonRow';
 import { Colors } from '../../../constants';
 import Brightness2Icon from '@material-ui/icons/Brightness2';
 import { FormGrid } from '../../FormGrid';
-import { APPOINTMENT_TYPE_LABELS } from '@tamanu/constants';
 import { ClearIcon } from '../../Icons/ClearIcon';
 import { ConfirmModal } from '../../ConfirmModal';
-import { notifyError, notifySuccess } from '../../../utils';
+import { notifySuccess } from '../../../utils';
 import { TranslatedText } from '../../Translation/TranslatedText';
 
 const slideIn = keyframes`
