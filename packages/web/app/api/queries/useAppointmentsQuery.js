@@ -12,12 +12,12 @@ export const useAppointmentsQuery = (fetchOptions, queryOptions = {}) => {
 };
 
 /** Queries appointments with a non-null location ID */
-export const useLocationBookingsQuery = (options, dependencies = []) => {
+export const useLocationBookingsQuery = (fetchOptions, dependencies = []) => {
   const api = useApi();
   return useQuery(['appointments', ...dependencies], () =>
     api.get('appointments', {
       locationId: '',
-      ...options,
+      ...fetchOptions,
     }),
   );
 };

@@ -196,7 +196,7 @@ export const BookLocationDrawer = ({
               <CloseDrawerIcon onClick={warnAndResetForm} />
               <Field
                 enableLocationStatus={false}
-                key={initialValues?.locationId || ''}
+                key={initialValues?.locationId ?? ''}
                 name="locationId"
                 component={LocalisedLocationField}
                 required
