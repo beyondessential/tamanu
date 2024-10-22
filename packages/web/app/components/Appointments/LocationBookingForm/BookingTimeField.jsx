@@ -12,13 +12,13 @@ import {
 } from 'date-fns';
 import ms from 'ms';
 import { useSettings } from '../../../contexts/Settings';
-import { useAppointments } from '../../../api/queries/useAppointments';
 import { BookingTimeCell } from './BookingTimeCell';
 import { useFormikContext } from 'formik';
 import { toDateTimeString } from '../../../utils/dateTime';
 import { isEqual } from 'lodash';
 import { CircularProgress } from '@material-ui/core';
 import { TranslatedText } from '../../Translation/TranslatedText';
+import { useAppointmentsQuery } from '../../../api/queries';
 
 const CellContainer = styled.div`
   border: 1px solid ${Colors.outline};
@@ -69,7 +69,7 @@ export const BookingTimeField = ({ disabled = false }) => {
   const [hoverTimeRange, setHoverTimeRange] = useState(null);
 
   const { locationId, date } = values;
-  const { data: existingLocationBookings, isFetching } = useAppointments(
+  const { data: existingLocationBookings, isFetching } = useAppointmentsQuery(
     {
       after: date ? toDateTimeString(startOfDay(new Date(date))) : null,
       before: date ? toDateTimeString(endOfDay(new Date(date))) : null,
