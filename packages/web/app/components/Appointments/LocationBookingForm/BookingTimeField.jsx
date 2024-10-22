@@ -192,7 +192,9 @@ export const BookingTimeField = ({ disabled = false }) => {
       required
     >
       <CellContainer $disabled={disabled}>
-        {!isFetching ? (
+        {isFetching ? (
+          <LoadingIndicator />
+        ) : (
           timeSlots.map((timeSlot, index) => {
             const isSelected = isTimeSlotWithinRange(timeSlot, selectedTimeRange);
             const isBooked = bookedTimeSlots?.some(bookedTimeSlot =>
@@ -236,8 +238,6 @@ export const BookingTimeField = ({ disabled = false }) => {
               />
             );
           })
-        ) : (
-          <LoadingIndicator />
         )}
       </CellContainer>
     </OuterLabelFieldWrapper>
