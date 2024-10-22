@@ -88,13 +88,7 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
   const [selectedTask, setSelectedTask] = useState({});
 
   const onSubmit = values => {
-    const {
-      designationIds,
-      highPriority,
-      frequencyValue,
-      frequencyUnit,
-      ...other
-    } = values;
+    const { designationIds, highPriority, frequencyValue, frequencyUnit, ...other } = values;
 
     let payload;
 
@@ -293,13 +287,23 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
       validationSchema={yup.object().shape(
         {
           taskId: foreignKey().required(getTranslation('validation.required.inline', '*Required')),
-          startTime: yup.date().required(getTranslation('validation.required.inline', '*Required')),
+          startTime: yup
+            .date()
+            .required(getTranslation('validation.required.inline', '*Required'))
+            .min(
+              new Date(new Date().setHours(0, 0, 0, 0)),
+              getTranslation('validation.date.past', 'Date cannot be in the past'),
+            ),
           requestedByUserId: foreignKey().required(
             getTranslation('validation.required.inline', '*Required'),
           ),
           requestTime: yup
             .date()
-            .required(getTranslation('validation.required.inline', '*Required')),
+            .required(getTranslation('validation.required.inline', '*Required'))
+            .min(
+              new Date(new Date().setHours(0, 0, 0, 0)),
+              getTranslation('validation.date.past', 'Date cannot be in the past'),
+            ),
           note: yup.string(),
           highPriority: yup.boolean(),
           frequencyValue: yup.number().when('frequencyUnit', {
