@@ -11,7 +11,7 @@ sources:
         columns:
           - name: id
             data_type: character varying(255)
-            description: "{{ doc('patients__id') }}"
+            description: "{{ doc('generic__id') }}"
             data_tests:
               - unique
               - not_null
@@ -61,6 +61,7 @@ sources:
                   values:
                     - female
                     - male
+                    - other
           - name: village_id
             data_type: character varying(255)
             description: "{{ doc('patients__village_id') }}"

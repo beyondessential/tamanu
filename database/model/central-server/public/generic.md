@@ -1,5 +1,5 @@
 {% docs generic__id %}
-Tamanu identifier
+Tamanu internal identifier (generally a UUID)
 {% enddocs %}
 
 {% docs generic__created_at %}
