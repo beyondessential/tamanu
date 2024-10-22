@@ -5,7 +5,7 @@ sources:
     description: "{{ doc('logs__generic__schema') }}"
     tables:
       - name: encounter_medications
-        description: ""
+        description: "{{ doc('table__encounter_medications') }}"
         tags:
           - clinical
         columns:

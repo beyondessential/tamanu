@@ -5,7 +5,7 @@ sources:
     description: "{{ doc('logs__generic__schema') }}"
     tables:
       - name: permissions
-        description: ""
+        description: "{{ doc('table__permissions') }}"
         tags:
           - administration
         columns:

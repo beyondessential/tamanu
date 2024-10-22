@@ -5,7 +5,7 @@ sources:
     description: "{{ doc('logs__generic__schema') }}"
     tables:
       - name: lab_test_panel_lab_test_types
-        description: ""
+        description: "{{ doc('table__lab_test_panel_lab_test_types') }}"
         tags:
           - reference
         columns:

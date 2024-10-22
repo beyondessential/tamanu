@@ -5,7 +5,7 @@ sources:
     description: "{{ doc('logs__generic__schema') }}"
     tables:
       - name: local_system_facts
-        description: ""
+        description: "{{ doc('table__local_system_facts') }}"
         tags:
           - system
         columns:

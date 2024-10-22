@@ -5,7 +5,7 @@ sources:
     description: "{{ doc('logs__generic__schema') }}"
     tables:
       - name: user_localisation_caches
-        description: ""
+        description: "{{ doc('table__user_localisation_caches') }}"
         tags:
           - system
         columns:

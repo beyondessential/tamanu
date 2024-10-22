@@ -5,7 +5,7 @@ sources:
     description: "{{ doc('logs__generic__schema') }}"
     tables:
       - name: patient_issues
-        description: ""
+        description: "{{ doc('table__patient_issues') }}"
         tags:
           - clinical
         columns:

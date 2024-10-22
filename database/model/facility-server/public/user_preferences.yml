@@ -5,7 +5,7 @@ sources:
     description: "{{ doc('logs__generic__schema') }}"
     tables:
       - name: user_preferences
-        description: ""
+        description: "{{ doc('table__user_preferences') }}"
         tags:
           - system
         columns:

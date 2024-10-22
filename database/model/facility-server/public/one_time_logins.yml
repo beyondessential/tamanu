@@ -5,7 +5,7 @@ sources:
     description: "{{ doc('logs__generic__schema') }}"
     tables:
       - name: one_time_logins
-        description: ""
+        description: "{{ doc('table__one_time_logins') }}"
         tags:
           - system
         columns:
