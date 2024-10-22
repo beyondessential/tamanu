@@ -2,134 +2,133 @@
 Information about a patient's death.
 {% enddocs %}
 
-{% docs patient_death_data__id %}
-Tamanu identifier for the patient death data record
-{% enddocs %}
-
 {% docs patient_death_data__patient_id %}
-TODO
+Reference to the patient.
 {% enddocs %}
 
 {% docs patient_death_data__clinician_id %}
-TODO
+Reference to the clinician who is recording this death.
 {% enddocs %}
 
 {% docs patient_death_data__facility_id %}
-TODO
+Reference to the facility where this death is being recorded.
 {% enddocs %}
 
 {% docs patient_death_data__manner %}
-TODO
+Free-form description of the manner of death.
 {% enddocs %}
 
 {% docs patient_death_data__recent_surgery %}
-TODO
+Free-form description of the most recent surgery the patient received, if any.
 {% enddocs %}
 
 {% docs patient_death_data__last_surgery_date %}
-TODO
+Datetime of the most recent surgery the patient received, if any.
 {% enddocs %}
 
 {% docs patient_death_data__last_surgery_reason_id %}
-TODO
+Reference to `reference_data` with `type=diagnosis` for the reason of the most recent surgery the patient received, if any.
 {% enddocs %}
 
 {% docs patient_death_data__external_cause_date %}
-TODO
+Datetime of external cause of death, if applicable.
 {% enddocs %}
 
 {% docs patient_death_data__external_cause_location %}
-TODO
+Physical location of external cause of death, if applicable.
 {% enddocs %}
 
 {% docs patient_death_data__external_cause_notes %}
-TODO
+Free-form description of external cause of death, if applicable.
 {% enddocs %}
 
 {% docs patient_death_data__was_pregnant %}
-TODO
+Whether the deceased was pregnant.
 {% enddocs %}
 
 {% docs patient_death_data__pregnancy_contributed %}
-TODO
+Whether the pregnancy contributed to the death.
 {% enddocs %}
 
 {% docs patient_death_data__fetal_or_infant %}
-TODO
+Whether the deceased was themselves a foetus or infant.
 {% enddocs %}
 
 {% docs patient_death_data__stillborn %}
-TODO
+Whether the deceased was themselves stillborn.
 {% enddocs %}
 
 {% docs patient_death_data__birth_weight %}
-TODO
+If the deceased was a foetus, stillborn, or infant, their birth weight.
 {% enddocs %}
 
 {% docs patient_death_data__within_day_of_birth %}
-TODO
+If the deceased was a foetus, stillborn, or infant, whether their passing was on the day of their birth.
 {% enddocs %}
 
 {% docs patient_death_data__hours_survived_since_birth %}
-TODO
+If the deceased was an infant, how many days since the birth passed before their death.
 {% enddocs %}
 
 {% docs patient_death_data__carrier_age %}
-TODO
+If the deceased was a foetus, stillborn, or infant, the age of the carrier.
 {% enddocs %}
 
 {% docs patient_death_data__carrier_pregnancy_weeks %}
-TODO
+If the deceased was a foetus, stillborn, or infant, how many weeks pregnant their carrier was.
 {% enddocs %}
 
 {% docs patient_death_data__carrier_existing_condition_id %}
-TODO
+If the deceased was a foetus, stillborn, or infant, any relevant existing condition of the carrier.
 {% enddocs %}
 
 {% docs patient_death_data__outside_health_facility %}
-TODO
+Whether the death occurred outside of the facility.
 {% enddocs %}
 
 {% docs patient_death_data__primary_cause_time_after_onset %}
-TODO
+The time in minutes after onset of the primary cause of death, if known.
 {% enddocs %}
 
 {% docs patient_death_data__primary_cause_condition_id %}
-TODO
+Reference to the primary cause of death, if known.
 {% enddocs %}
 
 {% docs patient_death_data__antecedent_cause1_time_after_onset %}
-TODO
+The time in minutes after onset of an antecedent (1) cause of death, if applicable.
 {% enddocs %}
 
 {% docs patient_death_data__antecedent_cause1_condition_id %}
-TODO
+Reference to an antecedent (1) cause of death, if applicable.
 {% enddocs %}
 
 {% docs patient_death_data__antecedent_cause2_time_after_onset %}
-TODO
+The time in minutes after onset of an antecedent (2) cause of death, if applicable.
 {% enddocs %}
 
 {% docs patient_death_data__antecedent_cause2_condition_id %}
-TODO
+Reference to an antecedent (2) cause of death, if applicable.
 {% enddocs %}
 
 {% docs patient_death_data__external_cause_date_legacy %}
-TODO
+[Deprecated] Timestamp of external cause of death, if applicable.
 {% enddocs %}
 
 {% docs patient_death_data__last_surgery_date_legacy %}
-TODO
+[Deprecated] Timestamp of the most recent surgery the patient received, if any.
 {% enddocs %}
 
 {% docs patient_death_data__is_final %}
-TODO
+Whether this date record is final.
+
+In Tamanu, this is set by a supervisor after review, and cannot be reversed; it causes all fields to
+become read-only.
 {% enddocs %}
 
 {% docs patient_death_data__antecedent_cause3_time_after_onset %}
-TODO
+The time in minutes after onset of an antecedent (3) cause of death, if applicable.
 {% enddocs %}
 
 {% docs patient_death_data__antecedent_cause3_condition_id %}
-TODO
+Reference to an antecedent (3) cause of death, if applicable.
 {% enddocs %}
