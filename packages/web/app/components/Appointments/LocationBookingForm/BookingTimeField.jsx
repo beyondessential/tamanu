@@ -68,12 +68,17 @@ export const BookingTimeField = ({ disabled = false }) => {
   const [hoverTimeRange, setHoverTimeRange] = useState(null);
 
   const { locationId, date } = values;
-  const { data: existingLocationBookings, isFetched } = useAppointments({
-    after: date ? toDateTimeString(startOfDay(new Date(date))) : null,
-    before: date ? toDateTimeString(endOfDay(new Date(date))) : null,
-    all: true,
-    locationId,
-  });
+  const { data: existingLocationBookings, isFetching } = useAppointments(
+    {
+      after: date ? toDateTimeString(startOfDay(new Date(date))) : null,
+      before: date ? toDateTimeString(endOfDay(new Date(date))) : null,
+      all: true,
+      locationId,
+    },
+    {
+      enabled: !!(date && locationId),
+    },
+  );
 
   // Convert existing bookings into timeslots
   const bookedTimeSlots = existingLocationBookings?.data.map(booking => ({
@@ -183,7 +188,7 @@ export const BookingTimeField = ({ disabled = false }) => {
   return (
     <OuterLabelFieldWrapper label="Booking time" required>
       <CellContainer $disabled={disabled}>
-        {isFetched ? (
+        {!isFetching ? (
           timeSlots.map((timeSlot, index) => {
             const isSelected = isTimeSlotWithinRange(timeSlot, selectedTimeRange);
             const isBooked = bookedTimeSlots?.some(bookedTimeSlot =>
