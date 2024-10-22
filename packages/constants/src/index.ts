@@ -38,4 +38,3 @@ export * from './enumRegistry.js';
 export * from './materializedView.js';
 export * from './database.js';
 export * from './debugLog.js';
-export * from './mobile.js';
