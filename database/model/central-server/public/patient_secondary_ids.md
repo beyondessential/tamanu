@@ -1,15 +1,20 @@
 {% docs table__patient_secondary_ids %}
-TODO
+Alternative IDs to be checked for when searching for patient by ID.
+
+For example, driver licence or passport numbers, or other national or local health numbers, if there
+are disparate systems or the country is in a transitional period.
 {% enddocs %}
 
 {% docs patient_secondary_ids__value %}
-TODO
+Value of the identifier.
 {% enddocs %}
 
 {% docs patient_secondary_ids__type_id %}
-TODO
+Reference to `public.reference_data` with `type=secondaryIdType`.
 {% enddocs %}
 
 {% docs patient_secondary_ids__patient_id %}
-TODO
+Reference to the patient.
+
+There may be zero or more `patient_secondary_ids` per patient.
 {% enddocs %}
