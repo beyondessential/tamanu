@@ -6,6 +6,8 @@ sources:
     tables:
       - name: patient_contacts
         description: "{{ doc('table__patient_contacts') }}"
+        __generator:
+          js_class: PatientContact
         tags:
           - patient
         columns:
@@ -36,8 +38,16 @@ sources:
           - name: method
             data_type: text
             description: "{{ doc('patient_contacts__method') }}"
+            __generator:
+              values_from_constant: PATIENT_COMMUNICATION_CHANNELS
             data_tests:
               - not_null
+              - accepted_values:
+                  values:
+                    - Email
+                    - Sms
+                    - WhatsApp
+                    - Telegram
           - name: connection_details
             data_type: jsonb
             description: "{{ doc('patient_contacts__connection_details') }}"
@@ -49,11 +59,17 @@ sources:
             description: "{{ doc('patient_contacts__patient_id') }}"
             data_tests:
               - not_null
+              - relationships:
+                  to: source('tamanu', 'patients')
+                  field: id
           - name: relationship_id
             data_type: character varying(255)
             description: "{{ doc('patient_contacts__relationship_id') }}"
             data_tests:
               - not_null
+              - relationships:
+                  to: source('tamanu', 'reference_data')
+                  field: id
           - name: updated_at_sync_tick
             data_type: bigint
             description: "{{ doc('generic__updated_at_sync_tick') }} in patient_contacts."

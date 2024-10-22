@@ -122,7 +122,7 @@ Reference to an antecedent (2) cause of death, if applicable.
 Whether this date record is final.
 
 In Tamanu, this is set by a supervisor after review, and cannot be reversed; it causes all fields to
-become read-only.
+become read-only. The only way to undo this record is through a `death_revert_logs`.
 {% enddocs %}
 
 {% docs patient_death_data__antecedent_cause3_time_after_onset %}
