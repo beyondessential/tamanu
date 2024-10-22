@@ -18,6 +18,7 @@ import { useFormikContext } from 'formik';
 import { toDateTimeString } from '../../../utils/dateTime';
 import { isEqual } from 'lodash';
 import { CircularProgress } from '@material-ui/core';
+import { TranslatedText } from '../../Translation/TranslatedText';
 
 const CellContainer = styled.div`
   border: 1px solid ${Colors.outline};
@@ -95,14 +96,10 @@ export const BookingTimeField = ({ disabled = false }) => {
     [existingLocationBookings, isFetched],
   );
 
-  // TODO: temporary default for dev
-  const bookingSlotSettings = getSetting('appointments.bookingSlots') || {
-    startTime: '09:00',
-    endTime: '17:00',
-    slotDuration: '30min',
-  };
+  const bookingSlotSettings = getSetting('appointments.bookingSlots');
   const timeSlots = useMemo(() => calculateTimeSlots(bookingSlotSettings, values.date), [
     values.date,
+    bookingSlotSettings,
   ]);
 
   useEffect(() => {
@@ -199,7 +196,10 @@ export const BookingTimeField = ({ disabled = false }) => {
   );
 
   return (
-    <OuterLabelFieldWrapper label="Booking time" required>
+    <OuterLabelFieldWrapper
+      label={<TranslatedText stringId="location.form.bookingTime.label" fallback="Booking time" />}
+      required
+    >
       <CellContainer $disabled={disabled}>
         {isFetched ? (
           timeSlots.map((timeSlot, index) => {
