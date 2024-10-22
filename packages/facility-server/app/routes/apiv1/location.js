@@ -20,34 +20,27 @@ location.get(
 
     const {
       models: { Location, LocationGroup },
-      query: {
-        includeLocationGroup = false,
-        bookableOnly = false, // No effect if includeLocationGroup is falsy
-      },
+      query: { bookableOnly = false },
     } = req;
 
-    const options = {
+    const locations = await Location.findAll({
       where: {
         facilityId: config.serverFacilityId,
       },
-    };
-
-    if (includeLocationGroup) {
-      options.include = [
+      include: [
         {
           required: true,
           model: LocationGroup,
           as: 'locationGroup',
           ...(bookableOnly ? { where: { isBookable: true } } : null),
         },
-      ];
-      options.order = [
+      ],
+      order: [
         ['locationGroup', 'name', 'ASC'],
         ['name', 'ASC'],
-      ];
-    }
+      ],
+    });
 
-    const locations = await Location.findAll(options);
     res.send(locations);
   }),
 );

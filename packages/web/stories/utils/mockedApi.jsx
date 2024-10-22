@@ -37,6 +37,7 @@ function createMockedApi(endpoints) {
   return {
     get: request,
     post: request,
+    put: request,
   };
 }
 

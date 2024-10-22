@@ -8,9 +8,9 @@ export const useAppointmentsQuery = options => {
 };
 
 /** Queries appointments with a non-null location ID */
-export const useLocationBookingsQuery = (options, dependencies = []) => {
+export const useLocationBookingsQuery = options => {
   const api = useApi();
-  return useQuery(['appointments', ...dependencies], () =>
+  return useQuery(['appointments'], () =>
     api.get('appointments', {
       locationId: '',
       ...options,

@@ -78,7 +78,6 @@ export const LocationBookingsView = () => {
   };
 
   const locationsQuery = useLocationsQuery({
-    includeLocationGroup: true,
     bookableOnly: true,
   });
   const { data: locations } = locationsQuery;
