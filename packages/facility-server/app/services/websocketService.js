@@ -1,21 +1,10 @@
 import { Server } from 'socket.io';
 
-import { NOTIFY_CHANNELS, WS_EVENT_NAMESPACES } from '@tamanu/constants';
-
-const setupDatabaseNotificationForwarding = (pg, socketServer) => {
-  pg.on('notification', message => {
-    const { channel, payload } = message;
-    if (channel === NOTIFY_CHANNELS.DATA_UPDATED) {
-      const viewName = payload;
-      socketServer.emit(`${WS_EVENT_NAMESPACES.DATA_UPDATED}:${viewName}`);
-    }
-  });
-  pg.query(`LISTEN ${NOTIFY_CHANNELS.DATA_UPDATED}`);
-};
+import { WS_EVENTS } from '@tamanu/constants';
 
 /**
  *
- * @param {{httpServer: import('http').Server}} injector
+ * @param {{httpServer: import('http').Server, dbNotifier: Awaited<ReturnType<import('./dbNotifier')['defineDbNotifier']>>}} injector
  * @returns
  */
 export const defineWebsocketService = injector => {
@@ -29,7 +18,13 @@ export const defineWebsocketService = injector => {
 
   const getSocketServer = () => socketServer;
 
-  setupDatabaseNotificationForwarding(injector.pg, socketServer);
+  injector.dbNotifier.onMaterializedViewRefreshed(viewName =>
+    socketServer.emit(`${WS_EVENTS.DATABASE_MATERIALIZED_VIEW_REFRESHED}:${viewName}`),
+  );
+
+  injector.dbNotifier.onTableChanged(({ table, event }) => {
+    socketServer.emit(`${WS_EVENTS.DATABASE_TABLE_CHANGED}:${table}`, { event });
+  });
 
   /**
    *

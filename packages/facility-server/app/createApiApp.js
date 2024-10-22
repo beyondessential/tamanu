@@ -12,7 +12,11 @@ import { createServer } from 'http';
 import { defineWebsocketService } from './services/websocketService';
 import { defineWebsocketClientService } from './services/websocketClientService';
 import { addFacilityMiddleware } from './addFacilityMiddleware';
+import { defineDbNotifier } from './services/dbNotifier';
 
+/**
+ * @param {import('./ApplicationContext').ApplicationContext} ctx
+ */
 export async function createApiApp({
   sequelize,
   reportSchemaStores,
@@ -23,15 +27,22 @@ export async function createApiApp({
   const express = defineExpress();
   const server = createServer(express);
 
-  const pg = await sequelize.connectionManager.getConnection();
-
-  const websocketService = defineWebsocketService({ httpServer: server, pg });
+  const dbNotifier = await defineDbNotifier({
+    host: sequelize.config.host,
+    port: sequelize.config.port,
+    database: sequelize.config.database,
+    user: sequelize.config.user,
+    password: sequelize.config.password,
+  });
+  const websocketService = defineWebsocketService({ httpServer: server, dbNotifier });
   const websocketClientService = defineWebsocketClientService({ config, websocketService, models });
 
   const { errorMiddleware } = addFacilityMiddleware(express);
 
   // Release the connection back to the pool when the server is closed
-  server.on('close', () => sequelize.connectionManager.releaseConnection(pg));
+  server.on('close', () => {
+    dbNotifier.close();
+  });
 
   express.use((req, res, next) => {
     req.models = models;
@@ -42,6 +53,7 @@ export async function createApiApp({
     req.language = req.headers['language'];
     req.websocketService = websocketService;
     req.websocketClientService = websocketClientService;
+    req.dbNotifier = dbNotifier;
 
     next();
   });

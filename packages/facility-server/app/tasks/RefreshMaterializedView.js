@@ -35,7 +35,7 @@ const buildRefreshMaterializedViewTask = viewName =>
           { timezone: config.countryTimeZone },
         );
         await this.sequelize.query(`SET TIME ZONE '${this.sequelize.options.timezone}'`); // Revert to sequelize timezone
-        await this.sequelize.query(`NOTIFY ${NOTIFY_CHANNELS.DATA_UPDATED}, '${this.viewName}'`);
+        await this.sequelize.query(`NOTIFY ${NOTIFY_CHANNELS.MATERIALIZED_VIEW_REFRESHED}, '${this.viewName}'`);
       });
       await this.models.LocalSystemFact.set(
         `${MATERIALIZED_VIEW_LAST_REFRESHED_AT_KEY_NAMESPACE}:${this.viewName}`,
