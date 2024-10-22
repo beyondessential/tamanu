@@ -173,6 +173,7 @@ export const BookLocationDrawer = ({
               <Field
                 enableLocationStatus={false}
                 locationGroupLabel="Area"
+                key={initialBookingValues?.locationId}
                 label="Location"
                 name="locationId"
                 component={LocationField}
