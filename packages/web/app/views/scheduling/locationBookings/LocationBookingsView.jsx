@@ -103,20 +103,12 @@ export const LocationBookingsView = () => {
           refreshCount={refreshCount}
         />
       )}
-      {/* <BookLocationDrawer
-          initialLocationValues={initialDrawerValues}
-          open={isDrawerOpen}
-          closeDrawer={closeBookingForm}
-          refreshCalendar={refreshCalendar}
-        /> */}
-      {isDrawerOpen && (
         <BookLocationDrawer
           initialBookingValues={initialDrawerValues}
           open={isDrawerOpen}
           closeDrawer={closeBookingForm}
           refreshCalendar={refreshCalendar}
         />
-      )}
     </Wrapper>
   );
 };

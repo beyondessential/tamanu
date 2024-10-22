@@ -159,7 +159,7 @@ export const BookLocationDrawer = ({
         })}
         initialValues={initialBookingValues}
         enableReinitialize
-        render={({ values, resetForm, setFieldValue, dirty, initialValues }) => {
+        render={({ values, resetForm, setFieldValue, dirty }) => {
           const warnAndResetForm = async () => {
             const confirmed = !dirty || (await handleShowWarningModal());
             if (!confirmed) return;
@@ -167,12 +167,9 @@ export const BookLocationDrawer = ({
             resetForm();
           };
 
-          console.log('RENDERING LOCATION DRAWER');
-
           return (
             <FormGrid columns={1}>
               <CloseDrawerIcon onClick={warnAndResetForm} />
-              {/* TODO: alther location field to properly handle state */}
               <Field
                 enableLocationStatus={false}
                 locationGroupLabel="Area"
@@ -180,8 +177,7 @@ export const BookLocationDrawer = ({
                 name="locationId"
                 component={LocationField}
                 required
-                onChange={event => {
-                  setFieldValue('locationId', event.target.value);
+                onChange={() => {
                   setFieldValue('overnight', null);
                   setFieldValue('date', null);
                   setFieldValue('startTime', null);

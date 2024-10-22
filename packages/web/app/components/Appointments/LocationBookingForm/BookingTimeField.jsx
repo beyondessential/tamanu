@@ -81,7 +81,6 @@ export const BookingTimeField = ({ disabled = false }) => {
     end: new Date(booking.endTime),
   }));
 
-  // TODO: temporary default for dev
   const bookingSlotSettings = getSetting('appointments.bookingSlots');
   const timeSlots = useMemo(() => calculateTimeSlots(bookingSlotSettings, values.date), [
     values.date,
