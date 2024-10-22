@@ -157,7 +157,7 @@ export const BookLocationDrawer = ({
         })}
         initialValues={initialBookingValues}
         enableReinitialize
-        render={({ values, resetForm, setFieldValue, dirty }) => {
+        render={({ values, resetForm, setFieldValue, dirty, initialValues }) => {
           const warnAndResetForm = async () => {
             const confirmed = !dirty || (await handleShowWarningModal());
             if (!confirmed) return;
@@ -171,7 +171,7 @@ export const BookLocationDrawer = ({
               <Field
                 enableLocationStatus={false}
                 locationGroupLabel="Area"
-                key={initialBookingValues?.locationId}
+                key={initialValues?.locationId || ''}
                 label="Location"
                 name="locationId"
                 component={LocationField}
