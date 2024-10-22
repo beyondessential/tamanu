@@ -251,7 +251,7 @@ export class Task extends Model {
 
       for (
         ;
-        nextDueTime.getTime() < maxDueTime.getTime();
+        nextDueTime.getTime() <= maxDueTime.getTime();
         nextDueTime = addMilliseconds(nextDueTime, frequency)
       ) {
         const nextTask = {

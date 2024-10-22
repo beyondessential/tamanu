@@ -10,7 +10,7 @@ import {
 import { z } from 'zod';
 import { Op } from 'sequelize';
 import { v4 as uuidv4 } from 'uuid';
-import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { datetimeCustomValidation, getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 
 const taskRoutes = express.Router();
 export { taskRoutes as tasks };
@@ -25,7 +25,7 @@ const taskCompletionInputSchema = z.object({
     .array()
     .min(1),
   completedByUserId: z.string(),
-  completedTime: z.string().datetime(),
+  completedTime: datetimeCustomValidation,
   completedNote: z.string().optional(),
 });
 taskRoutes.post(
@@ -66,7 +66,7 @@ const taskNonCompletionInputSchema = z.object({
     .array()
     .min(1),
   notCompletedByUserId: z.string(),
-  notCompletedTime: z.string().datetime(),
+  notCompletedTime: datetimeCustomValidation,
   notCompletedReasonId: z.string().optional(),
 });
 taskRoutes.put(
@@ -119,7 +119,7 @@ const taskDeletionInputSchema = z.object({
     .array()
     .min(1),
   deletedByUserId: z.string(),
-  deletedTime: z.string().datetime(),
+  deletedTime: datetimeCustomValidation,
   deletedReasonId: z.string().optional(),
 });
 taskRoutes.delete(
@@ -213,7 +213,7 @@ const taskTodoInputSchema = z.object({
     .array()
     .min(1),
   todoByUserId: z.string(),
-  todoTime: z.string().datetime(),
+  todoTime: datetimeCustomValidation,
   todoNote: z.string().optional(),
 });
 taskRoutes.put(
@@ -277,10 +277,10 @@ taskRoutes.put(
 );
 
 const tasksCreationSchema = z.object({
-  startTime: z.string().datetime(),
+  startTime: datetimeCustomValidation,
   encounterId: z.string().uuid(),
   requestedByUserId: z.string(),
-  requestTime: z.string().datetime(),
+  requestTime: datetimeCustomValidation,
   note: z.string().optional(),
   tasks: z
     .object({
