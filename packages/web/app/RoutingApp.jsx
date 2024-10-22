@@ -33,7 +33,7 @@ export const RoutingFacilityApp = React.memo(() => {
     <App sidebar={<Sidebar items={sidebarMenuItems} />}>
       <UserActivityMonitor />
       <Switch>
-        <Redirect exact path="/" to="/dashboard" />
+        <Redirect exact path="/" to={sidebarMenuItems[0].path} />
         <Route path="/dashboard" component={DashboardView} />
         <Route path="/patients" component={PatientsRoutes} />
         <Route path="/appointments" component={AppointmentRoutes} />

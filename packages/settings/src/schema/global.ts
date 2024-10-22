@@ -1016,6 +1016,10 @@ export const globalSettings = {
         sidebar: {
           description: 'The sidebar tabs in the facility',
           properties: {
+            dashboard: {
+              description: '_',
+              properties: layoutModuleProperties,
+            },
             patients: {
               description: '_',
               properties: {

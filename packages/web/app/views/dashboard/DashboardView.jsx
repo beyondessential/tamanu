@@ -44,7 +44,7 @@ export const DashboardView = () => {
           <NotificationIcon />
         </IconButton>
       </TopBar>
-      <RecentlyViewedPatientsList />
+      <RecentlyViewedPatientsList inDashboard />
     </PageContainer>
   );
 };
