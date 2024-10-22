@@ -4,6 +4,7 @@ import {
   AutocompleteField,
   CheckField,
   DateField,
+  DynamicSelectField,
   Field,
   Form,
   LocationField,
@@ -41,8 +42,7 @@ const slideOut = keyframes`
 `;
 
 const Container = styled.div`
-  // TODO: temoirary
-  z-index: 100;
+  z-index: 9;
   width: 330px;
   padding: 16px;
   background-color: ${Colors.background};
@@ -215,7 +215,7 @@ export const BookLocationDrawer = ({
               <Field
                 name="bookingTypeId"
                 label="Booking Type"
-                component={AutocompleteField}
+                component={DynamicSelectField}
                 suggester={bookingTypeSuggester}
                 required
               />

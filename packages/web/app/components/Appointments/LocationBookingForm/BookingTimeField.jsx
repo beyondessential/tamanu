@@ -82,13 +82,10 @@ export const BookingTimeField = ({ disabled = false }) => {
   }));
 
   // TODO: temporary default for dev
-  const bookingSlotSettings = getSetting('appointments.bookingSlots') || {
-    startTime: '09:00',
-    endTime: '17:00',
-    slotDuration: '30min',
-  };
+  const bookingSlotSettings = getSetting('appointments.bookingSlots');
   const timeSlots = useMemo(() => calculateTimeSlots(bookingSlotSettings, values.date), [
     values.date,
+    bookingSlotSettings,
   ]);
 
   useEffect(() => {
