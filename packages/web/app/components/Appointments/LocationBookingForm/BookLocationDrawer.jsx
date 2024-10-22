@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import OvernightIcon from '@material-ui/icons/Brightness2';
 import * as yup from 'yup';
 import {
   AutocompleteField,
@@ -15,7 +16,6 @@ import { BookingTimeField } from './BookingTimeField';
 import { useApi, usePatientSuggester, useSuggester } from '../../../api';
 import { FormSubmitCancelRow } from '../../ButtonRow';
 import { Colors } from '../../../constants';
-import Brightness2Icon from '@material-ui/icons/Brightness2';
 import { FormGrid } from '../../FormGrid';
 import { APPOINTMENT_TYPE_LABELS } from '@tamanu/constants';
 import { ClearIcon } from '../../Icons/ClearIcon';
@@ -72,14 +72,9 @@ const Description = styled(BodyText)`
   color: ${Colors.midText};
 `;
 
-const OvernightStayField = styled.div`
+const OvernightStayLabel = styled.span`
   display: flex;
-  align-items: center;
-`;
-
-const OvernightIcon = styled(Brightness2Icon)`
-  position: absolute;
-  left: 145px;
+  gap: 0.25rem;
 `;
 
 const CloseDrawerIcon = styled(ClearIcon)`
@@ -190,15 +185,20 @@ export const BookLocationDrawer = ({ open, closeDrawer, editMode = false, initia
                   setFieldValue('endTime', null);
                 }}
               />
-              <OvernightStayField>
-                <Field
-                  name="overnight"
-                  label="Overnight stay"
-                  component={CheckField}
-                  disabled={!values.locationId}
-                />
-                <OvernightIcon fontSize="small" />
-              </OvernightStayField>
+              <Field
+                name="overnight"
+                label={
+                  <OvernightStayLabel>
+                    Overnight stay{' '}
+                    <OvernightIcon aria-hidden htmlColor="#326699" style={{ fontSize: 18 }} />
+                  </OvernightStayLabel>
+                }
+                component={styled(CheckField)`
+                  align-content: center;
+                `}
+                disabled={!values.locationId}
+              />
+
               <Field
                 name="date"
                 label="Date"
