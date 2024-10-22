@@ -2,11 +2,11 @@ import { useQuery } from '@tanstack/react-query';
 
 import { useApi } from '../useApi';
 
-export const useAppointmentsQuery = (queryParams, queryOptions = {}) => {
+export const useAppointmentsQuery = (fetchOptions, queryOptions = {}) => {
   const api = useApi();
   return useQuery(
-    ['appointments', queryParams],
-    () => api.get('appointments', queryParams),
+    ['appointments', fetchOptions],
+    () => api.get('appointments', fetchOptions),
     queryOptions,
   );
 };
