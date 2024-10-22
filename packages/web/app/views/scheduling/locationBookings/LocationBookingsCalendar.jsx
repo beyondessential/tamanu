@@ -49,6 +49,7 @@ export const LocationBookingsCalendar = ({ locationsQuery, openBookingForm, refr
         <LocationBookingsCalendarBody
           locationsQuery={locationsQuery}
           displayedDates={displayedDates}
+          openBookingForm={openBookingForm}
         />
       </CarouselGrid.Root>
     </Carousel>

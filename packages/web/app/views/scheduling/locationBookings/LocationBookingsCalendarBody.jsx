@@ -9,11 +9,11 @@ import { CarouselComponents as CarouselGrid } from './CarouselComponents';
 import { SkeletonRows } from './Skeletons';
 import { partitionAppointmentsByDate, partitionAppointmentsByLocation } from './util';
 
-export const BookingsCell = ({ appointments, date, location }) => (
+export const BookingsCell = ({ appointments, date, location, openBookingForm }) => (
   <CarouselGrid.Cell
     onClick={() => {
       // Open form for creating new booking
-      window.alert(`Create new booking:\n\n${location.name}\n\n${date}`);
+      openBookingForm({ date, locationId: location.id });
     }}
   >
     {appointments?.map(a => (
@@ -22,7 +22,7 @@ export const BookingsCell = ({ appointments, date, location }) => (
   </CarouselGrid.Cell>
 );
 
-export const BookingsRow = ({ appointments, dates, location }) => {
+export const BookingsRow = ({ appointments, dates, location, openBookingForm }) => {
   const {
     name: locationName,
     locationGroup: { name: locationGroupName },
@@ -40,6 +40,7 @@ export const BookingsRow = ({ appointments, dates, location }) => {
           date={d}
           key={d.valueOf()}
           location={location}
+          openBookingForm={openBookingForm}
         />
       ))}
     </CarouselGrid.Row>
@@ -58,7 +59,11 @@ const EmptyStateRow = () => (
   <StyledRow>No bookings to display. Please try adjusting the search filters.</StyledRow>
 );
 
-export const LocationBookingsCalendarBody = ({ displayedDates, locationsQuery }) => {
+export const LocationBookingsCalendarBody = ({
+  displayedDates,
+  locationsQuery,
+  openBookingForm,
+}) => {
   const { data: locations, isLoading: locationsAreLoading } = locationsQuery;
   const appointments =
     useLocationBookingsQuery({
@@ -77,6 +82,7 @@ export const LocationBookingsCalendarBody = ({ displayedDates, locationsQuery })
       dates={displayedDates}
       key={location.code}
       location={location}
+      openBookingForm={openBookingForm}
     />
   ));
 };
