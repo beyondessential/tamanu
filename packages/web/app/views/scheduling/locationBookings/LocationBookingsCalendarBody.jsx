@@ -63,13 +63,14 @@ export const LocationBookingsCalendarBody = ({
   displayedDates,
   locationsQuery,
   openBookingForm,
+  refreshCount
 }) => {
   const { data: locations, isLoading: locationsAreLoading } = locationsQuery;
   const appointments =
     useLocationBookingsQuery({
       after: displayedDates[0],
       before: endOfDay(displayedDates[displayedDates.length - 1]),
-    }).data?.data ?? [];
+    }, [refreshCount]).data?.data ?? [];
 
   if (locationsAreLoading) return <SkeletonRows colCount={displayedDates.length} />;
   if (locations?.length === 0) return <EmptyStateRow />;

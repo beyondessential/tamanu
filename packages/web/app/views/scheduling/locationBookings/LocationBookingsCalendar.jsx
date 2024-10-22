@@ -50,6 +50,7 @@ export const LocationBookingsCalendar = ({ locationsQuery, openBookingForm, refr
           locationsQuery={locationsQuery}
           displayedDates={displayedDates}
           openBookingForm={openBookingForm}
+          refreshCount={refreshCount}
         />
       </CarouselGrid.Root>
     </Carousel>
