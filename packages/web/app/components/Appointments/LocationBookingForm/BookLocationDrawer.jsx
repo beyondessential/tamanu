@@ -1,5 +1,9 @@
 import React, { useState } from 'react';
 import * as yup from 'yup';
+import styled, { css, keyframes } from 'styled-components';
+import { useQueryClient } from '@tanstack/react-query';
+import Brightness2Icon from '@material-ui/icons/Brightness2';
+
 import {
   AutocompleteField,
   CheckField,
@@ -9,13 +13,11 @@ import {
   Form,
   LocalisedLocationField,
 } from '../../Field';
-import styled, { css, keyframes } from 'styled-components';
 import { BodyText, Heading4 } from '../../Typography';
 import { BookingTimeField } from './BookingTimeField';
 import { useApi, usePatientSuggester, useSuggester } from '../../../api';
 import { FormSubmitCancelRow } from '../../ButtonRow';
 import { Colors } from '../../../constants';
-import Brightness2Icon from '@material-ui/icons/Brightness2';
 import { FormGrid } from '../../FormGrid';
 import { ClearIcon } from '../../Icons/ClearIcon';
 import { ConfirmModal } from '../../ConfirmModal';
@@ -124,13 +126,8 @@ export const WarningModal = ({ open, setShowWarningModal, resolveFn }) => {
   );
 };
 
-export const BookLocationDrawer = ({
-  open,
-  closeDrawer,
-  initialBookingValues,
-  refreshCalendar,
-  editMode,
-}) => {
+export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues, editMode }) => {
+  const queryClient = useQueryClient();
   const patientSuggester = usePatientSuggester();
   const clinicianSuggester = useSuggester('practitioner');
   const bookingTypeSuggester = useSuggester('bookingType');
@@ -165,7 +162,6 @@ export const BookLocationDrawer = ({
         />,
       );
     }
-
     if (response.status === 200) {
       notifySuccess(
         editMode ? (
@@ -182,7 +178,7 @@ export const BookLocationDrawer = ({
       );
       closeDrawer();
       resetForm();
-      refreshCalendar();
+      queryClient.invalidateQueries('appointments');
     }
   };
 

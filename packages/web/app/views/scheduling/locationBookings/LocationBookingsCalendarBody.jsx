@@ -2,7 +2,7 @@ import { endOfDay, formatISO } from 'date-fns';
 import React from 'react';
 import styled from 'styled-components';
 
-import { useLocationBookingsQuery } from '../../../api/queries';
+import { useAppointmentsQuery } from '../../../api/queries';
 import { AppointmentTile } from '../../../components/Appointments/AppointmentTile';
 import { Colors } from '../../../constants';
 import { CarouselComponents as CarouselGrid } from './CarouselComponents';
@@ -63,14 +63,14 @@ export const LocationBookingsCalendarBody = ({
   displayedDates,
   locationsQuery,
   openBookingForm,
-  refreshCount
 }) => {
   const { data: locations, isLoading: locationsAreLoading } = locationsQuery;
   const appointments =
-    useLocationBookingsQuery({
+    useAppointmentsQuery({
       after: displayedDates[0],
       before: endOfDay(displayedDates[displayedDates.length - 1]),
-    }, [refreshCount]).data?.data ?? [];
+      locationId: '',
+    }).data?.data ?? [];
 
   if (locationsAreLoading) return <SkeletonRows colCount={displayedDates.length} />;
   if (locations?.length === 0) return <EmptyStateRow />;
