@@ -159,8 +159,8 @@ const PatientDetailsDisplay = ({ patient, onClick }) => {
           <TranslatedText stringId="general.localisedField.sex.label" fallback="Sex" />:
         </Label>{' '}
         <TranslatedSex sex={sex} />
+        {' | '}
         <Label>
-          {' | '}
           <TranslatedText
             stringId="general.localisedField.dateOfBirth.label.short"
             fallback="DOB"
