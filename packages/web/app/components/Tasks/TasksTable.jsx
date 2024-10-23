@@ -196,7 +196,6 @@ const TableTooltip = ({ title, children }) => (
   <StyledToolTip
     title={title}
     PopperProps={{
-      disablePortal: true,
       popperOptions: {
         positionFixed: true,
         modifiers: {
