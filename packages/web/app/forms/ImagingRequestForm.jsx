@@ -31,7 +31,6 @@ import { TranslatedReferenceData, TranslatedText } from '../components/Translati
 import { useTranslation } from '../contexts/Translation';
 import { IMAGING_TYPES } from '@tamanu/constants';
 import { renderToText } from '../utils';
-import { useAuth } from '../contexts/Auth';
 import { camelCase } from 'lodash';
 
 function getEncounterTypeLabel(type) {
