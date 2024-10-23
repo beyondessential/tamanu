@@ -60,7 +60,7 @@ const StyledPaper = styled(Paper)`
   flex-direction: column;
   width: 16rem;
   box-shadow: 0 0.5rem 2rem 0 oklch(0 0 0 / 15%);
-  border-radius: 5px;
+  border-radius: 0.3125rem;
   font-size: 0.6875rem;
 `;
 
