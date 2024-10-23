@@ -105,13 +105,13 @@ export const BookingTimeField = ({ disabled = false }) => {
   // Convert existing bookings into timeslots
   const bookedTimeSlots = useMemo(
     () =>
-      existingLocationBookings?.data?.length > 0
+      !isFetching
         ? existingLocationBookings?.data.map(booking => ({
             start: new Date(booking.startTime),
             end: new Date(booking.endTime),
           }))
         : [],
-    [existingLocationBookings],
+    [existingLocationBookings, isFetching],
   );
 
   const bookingSlotSettings = getSetting('appointments.bookingSlots');

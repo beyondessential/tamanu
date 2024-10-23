@@ -22,7 +22,6 @@ import { FormGrid } from '../../FormGrid';
 import { ClearIcon } from '../../Icons/ClearIcon';
 import { ConfirmModal } from '../../ConfirmModal';
 import { notifyError, notifySuccess } from '../../../utils';
-import { useAppointments } from '../../../api/queries/useAppointments';
 import { TranslatedText } from '../../Translation/TranslatedText';
 
 const slideIn = keyframes`
@@ -148,14 +147,11 @@ export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues, ed
   const handleSubmit = async (values, { resetForm }) => {
     let response;
     if (editMode) {
-      response = await api.put(`appointments/locationBooking/${values.bookingId}`, values, {
-        showUnknownErrorToast: true,
-      });
+      response = await api.put(`appointments/locationBooking/${values.bookingId}`, values);
     } else {
-      response = await api.post(`appointments/locationBooking`, values, {
-        showUnknownErrorToast: true,
-      });
+      response = await api.post(`appointments/locationBooking`, values);
     }
+
     if (response.status === 409) {
       notifyError(
         <TranslatedText
@@ -164,7 +160,7 @@ export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues, ed
         />,
       );
     }
-    if (response.status === 200) {
+    if (response.newRecord.id) {
       notifySuccess(
         editMode ? (
           <TranslatedText
