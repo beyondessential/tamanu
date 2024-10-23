@@ -58,47 +58,44 @@ const StyledPaper = styled(Paper)`
   display: flex;
   flex-direction: column;
   width: 16rem;
-  box-shadow: 0px 8px 32px 0px #00000026;
+  box-shadow: 0 0.5rem 2rem 0 oklch(0 0 0 / 15%);
   border-radius: 5px;
   font-size: 0.6875rem;
 `;
 
 const StyledIconButton = styled(IconButton)`
-  padding: 0px;
+  padding: 0;
 `;
 
 const ControlsContainer = styled(FlexRow)`
   position: fixed;
-  top: 8px;
-  right: 8px;
+  inset-block-start: 0.5rem;
+  inset-inline-end: 8px;
   gap: 0.125rem;
 `;
 
 const PatientDetailsContainer = styled(FlexCol)`
+  padding-block: 0.75rem 0.5rem;
   padding-inline: 0.75rem;
-  padding-block-start: 0.75rem;
-  padding-block-end: 0.5rem;
   gap: 0.1875rem;
   :hover {
     background-color: ${Colors.veryLightBlue};
     cursor: pointer;
   }
-  border-top-left-radius: 5px;
-  border-top-right-radius: 5px;
+  border-top-left-radius: 0.3125rem;
+  border-top-right-radius: 0.3125rem;
 `;
 
 const AppointmentDetailsContainer = styled(FlexCol)`
-  padding-inline: 0.75rem;
-  padding-block: 0.75rem;
+  padding: 0.75rem;
   gap: 0.5rem;
-  border-top: 1px solid ${Colors.outline};
-  border-bottom: 1px solid ${Colors.outline};
+  border-top: max(0.0625rem, 1px) solid ${Colors.outline};
+  border-bottom: max(0.0625rem, 1px) solid ${Colors.outline};
 `;
 
 const AppointmentStatusContainer = styled(Box)`
   padding-inline: 0.75rem;
-  padding-block-start: 0.5rem;
-  padding-block-end: 0.75rem;
+  padding-block: 0.5rem 0.75rem;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   grid-row-gap: 0.5rem;
