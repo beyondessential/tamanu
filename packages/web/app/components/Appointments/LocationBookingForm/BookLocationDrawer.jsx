@@ -171,7 +171,7 @@ export const BookLocationDrawer = ({
         editMode ? (
           <TranslatedText
             stringId="locationBooking.notification.bookingSuccessfullyEdited"
-            fallback="Booking successfully edit"
+            fallback="Booking successfully edited"
           />
         ) : (
           <TranslatedText
