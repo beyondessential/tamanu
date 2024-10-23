@@ -19,7 +19,7 @@ import Brightness2Icon from '@material-ui/icons/Brightness2';
 import { FormGrid } from '../../FormGrid';
 import { ClearIcon } from '../../Icons/ClearIcon';
 import { ConfirmModal } from '../../ConfirmModal';
-import { notifySuccess } from '../../../utils';
+import { notifyError, notifySuccess } from '../../../utils';
 import { TranslatedText } from '../../Translation/TranslatedText';
 
 const slideIn = keyframes`
@@ -145,19 +145,30 @@ export const BookLocationDrawer = ({
     });
 
   const handleSubmit = async (values, { resetForm }) => {
-    await api.post(`appointments/locationBooking`, values, {
+    const response = await api.post(`appointments/locationBooking`, values, {
       showUnknownErrorToast: true,
     });
 
-    notifySuccess(
-      <TranslatedText
-        stringId="locationBooking.notification.bookingSuccessfullyCreated"
-        fallback="Booking successfully created"
-      />,
-    );
-    closeDrawer();
-    resetForm();
-    refreshCalendar();
+    if (response.status === 409) {
+      notifyError(
+        <TranslatedText
+          stringId="locationBooking.notification.bookingTimeConflict"
+          fallback="Booking failed. Booking time no longer available"
+        />,
+      );
+    }
+
+    if (response.status === 200) {
+      notifySuccess(
+        <TranslatedText
+          stringId="locationBooking.notification.bookingSuccessfullyCreated"
+          fallback="Booking successfully created"
+        />,
+      );
+      closeDrawer();
+      resetForm();
+      refreshCalendar();
+    }
   };
 
   return (
@@ -222,12 +233,7 @@ export const BookLocationDrawer = ({
               </OvernightStayField>
               <Field
                 name="date"
-                label={
-                  <TranslatedText
-                    stringId="general.form.date.label"
-                    fallback="Date"
-                  />
-                }
+                label={<TranslatedText stringId="general.form.date.label" fallback="Date" />}
                 component={DateField}
                 disabled={!values.locationId}
                 required
@@ -235,12 +241,7 @@ export const BookLocationDrawer = ({
               <BookingTimeField disabled={!values.date} />
               <Field
                 name="patientId"
-                label={
-                  <TranslatedText
-                    stringId="general.form.patient.label"
-                    fallback="Patient"
-                  />
-                }
+                label={<TranslatedText stringId="general.form.patient.label" fallback="Patient" />}
                 component={AutocompleteField}
                 suggester={patientSuggester}
                 required
@@ -260,10 +261,7 @@ export const BookLocationDrawer = ({
               <Field
                 name="clinicianId"
                 label={
-                  <TranslatedText
-                    stringId="general.form.clinician.label"
-                    fallback="Clinician"
-                  />
+                  <TranslatedText stringId="general.form.clinician.label" fallback="Clinician" />
                 }
                 component={AutocompleteField}
                 suggester={clinicianSuggester}
