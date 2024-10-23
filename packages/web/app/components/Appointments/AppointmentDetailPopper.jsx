@@ -117,7 +117,7 @@ const ControlsRow = ({ onClose }) => (
 const DetailsDisplay = ({ label, value }) => (
   <FlexCol>
     <Label>{label}</Label>
-    <span>{value ?? '—'}</span>
+    <span>{value ?? <>&mdash;</>}</span>
   </FlexCol>
 );
 
