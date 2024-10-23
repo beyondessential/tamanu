@@ -39,8 +39,8 @@ const useLocationSuggestion = locationId => {
 
 export const LocationInput = React.memo(
   ({
-    locationGroupLabel = 'Area',
-    label = 'Location',
+    locationGroupLabel,
+    label,
     name,
     disabled,
     error,
@@ -49,6 +49,7 @@ export const LocationInput = React.memo(
     className,
     value,
     onChange,
+    form = {},
     enableLocationStatus = true,
   }) => {
     const api = useApi();
@@ -58,6 +59,14 @@ export const LocationInput = React.memo(
     const suggester = locationSuggester(api, groupId, enableLocationStatus);
     const locationGroupSuggester = useSuggester('facilityLocationGroup');
     const { data: location } = useLocationSuggestion(locationId);
+    const { initialValues } = form;
+
+    useEffect(() => {
+      if (!initialValues) return;
+      // Form is reinitialisedd, reset the state handled group and location values
+      setGroupId('');
+      setLocationId(initialValues[name] ?? '');
+    }, [initialValues, name]);
 
     // when the location is selected, set the group value automatically if it's not set yet
     useEffect(() => {

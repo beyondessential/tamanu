@@ -1,12 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { Colors } from '../../constants';
-import {
-  APPOINTMENT_STATUS_COLORS,
-  APPOINTMENT_STATUS_ICONS,
-} from '../Appointments/appointmentStatusIndicators';
-
 const Svg = styled.svg.attrs({
   viewBox: '0 0 24 24',
   xmlns: 'http://www.w3.org/2000/svg',
@@ -86,9 +80,3 @@ export const CrossIconFilled = ({
     />
   </Svg>
 );
-
-export const AppointmentStatusIcon = ({ appointmentStatus, ...props }) => {
-  const IconComponent = APPOINTMENT_STATUS_ICONS[appointmentStatus] ?? CircleIconOutlined;
-  const fill = APPOINTMENT_STATUS_COLORS[appointmentStatus] ?? Colors.blue;
-  return <IconComponent aria-label={appointmentStatus} htmlColor={fill} {...props} />;
-};

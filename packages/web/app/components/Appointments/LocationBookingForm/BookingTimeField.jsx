@@ -12,14 +12,14 @@ import {
 } from 'date-fns';
 import ms from 'ms';
 import { useSettings } from '../../../contexts/Settings';
-import { useAppointments } from '../../../api/queries/useAppointments';
 import { BookingTimeCell } from './BookingTimeCell';
 import { useFormikContext } from 'formik';
 import { toDateTimeString } from '../../../utils/dateTime';
 import { isEqual } from 'lodash';
 import { CircularProgress } from '@material-ui/core';
-import { BodyText } from '../../Typography';
 import { FormHelperText } from '@mui/material';
+import { TranslatedText } from '../../Translation/TranslatedText';
+import { useAppointmentsQuery } from '../../../api/queries';
 
 const CellContainer = styled.div`
   border: 1px solid ${Colors.outline};
@@ -80,19 +80,23 @@ export const BookingTimeField = ({ disabled = false }) => {
   const [hoverTimeRange, setHoverTimeRange] = useState(null);
 
   const { locationId, date } = values;
-  const { data: existingLocationBookings, isFetched: isLocationBookingsFetched } = useAppointments({
-    after: date ? toDateTimeString(startOfDay(new Date(date))) : null,
-    before: date ? toDateTimeString(endOfDay(new Date(date))) : null,
-    all: true,
-    locationId,
-  });
+  const { data: existingLocationBookings, isFetching } = useAppointmentsQuery(
+    {
+      after: date ? toDateTimeString(startOfDay(new Date(date))) : null,
+      before: date ? toDateTimeString(endOfDay(new Date(date))) : null,
+      all: true,
+      locationId,
+    },
+    {
+      enabled: !!(date && locationId),
+    },
+  );
 
   const { data: bookingsForThisPatient, isFetched: isPatientBookingFetched } = useAppointments({
     after: date ? toDateTimeString(startOfDay(new Date(date))) : null,
     before: date ? toDateTimeString(endOfDay(new Date(date))) : null,
     all: true,
     patientId: values.patientId,
-    // locationId TODO: Not sure if filtered by location or not
   });
 
   const hasBookingForThisPatientToday =
@@ -101,23 +105,19 @@ export const BookingTimeField = ({ disabled = false }) => {
   // Convert existing bookings into timeslots
   const bookedTimeSlots = useMemo(
     () =>
-      isLocationBookingsFetched
+      !isFetching
         ? existingLocationBookings?.data.map(booking => ({
             start: new Date(booking.startTime),
             end: new Date(booking.endTime),
           }))
         : [],
-    [existingLocationBookings, isLocationBookingsFetched],
+    [existingLocationBookings, isFetching],
   );
 
-  // TODO: temporary default for dev
-  const bookingSlotSettings = getSetting('appointments.bookingSlots') || {
-    startTime: '09:00',
-    endTime: '17:00',
-    slotDuration: '30min',
-  };
+  const bookingSlotSettings = getSetting('appointments.bookingSlots');
   const timeSlots = useMemo(() => calculateTimeSlots(bookingSlotSettings, values.date), [
     values.date,
+    bookingSlotSettings,
   ]);
 
   useEffect(() => {
@@ -214,9 +214,14 @@ export const BookingTimeField = ({ disabled = false }) => {
   );
 
   return (
-    <OuterLabelFieldWrapper label="Booking time" required>
+    <OuterLabelFieldWrapper
+      label={<TranslatedText stringId="location.form.bookingTime.label" fallback="Booking time" />}
+      required
+    >
       <CellContainer $disabled={disabled}>
-        {!date || isLocationBookingsFetched ? (
+        {isFetching ? (
+          <LoadingIndicator />
+        ) : (
           timeSlots.map((timeSlot, index) => {
             const isSelected = isTimeSlotWithinRange(timeSlot, selectedTimeRange);
             const isBooked = bookedTimeSlots?.some(bookedTimeSlot =>
@@ -260,8 +265,6 @@ export const BookingTimeField = ({ disabled = false }) => {
               />
             );
           })
-        ) : (
-          <LoadingIndicator />
         )}
       </CellContainer>
       {hasBookingForThisPatientToday && (
