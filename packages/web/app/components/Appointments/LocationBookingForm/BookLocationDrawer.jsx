@@ -129,6 +129,7 @@ export const BookLocationDrawer = ({
   closeDrawer,
   initialBookingValues,
   refreshCalendar,
+  editMode,
 }) => {
   const patientSuggester = usePatientSuggester();
   const clinicianSuggester = useSuggester('practitioner');
@@ -146,21 +147,43 @@ export const BookLocationDrawer = ({
     });
 
   const handleSubmit = async (values, { resetForm }) => {
+    let response;
     if (editMode) {
-      await api.put(`appointments/locationBooking/${values.bookingId}`, values, {
+      response = await api.put(`appointments/locationBooking/${values.bookingId}`, values, {
         showUnknownErrorToast: true,
       });
     } else {
-      await api.post(`appointments/locationBooking`, values, {
+      response = await api.post(`appointments/locationBooking`, values, {
         showUnknownErrorToast: true,
       });
     }
-    notifySuccess(editMode ? 'Booking successfully edited' : <TranslatedText
-        stringId="locationBooking.notification.bookingSuccessfullyCreated"
-        fallback="Booking successfully created"
-      />);
-    closeDrawer();
-    resetForm();
+    if (response.status === 409) {
+      notifyError(
+        <TranslatedText
+          stringId="locationBooking.notification.bookingTimeConflict"
+          fallback="Booking failed. Booking time no longer available"
+        />,
+      );
+    }
+
+    if (response.status === 200) {
+      notifySuccess(
+        editMode ? (
+          <TranslatedText
+            stringId="locationBooking.notification.bookingSuccessfullyEdited"
+            fallback="Booking successfully edit"
+          />
+        ) : (
+          <TranslatedText
+            stringId="locationBooking.notification.bookingSuccessfullyCreated"
+            fallback="Booking successfully created"
+          />
+        ),
+      );
+      closeDrawer();
+      resetForm();
+      refreshCalendar();
+    }
   };
 
   const headingText = editMode ? 'Modify booking' : 'Book location';
@@ -223,12 +246,7 @@ export const BookLocationDrawer = ({
               </OvernightStayField>
               <Field
                 name="date"
-                label={
-                  <TranslatedText
-                    stringId="general.form.date.label"
-                    fallback="Date"
-                  />
-                }
+                label={<TranslatedText stringId="general.form.date.label" fallback="Date" />}
                 component={DateField}
                 disabled={!values.locationId}
                 required
@@ -236,12 +254,7 @@ export const BookLocationDrawer = ({
               <BookingTimeField disabled={!values.date} />
               <Field
                 name="patientId"
-                label={
-                  <TranslatedText
-                    stringId="general.form.patient.label"
-                    fallback="Patient"
-                  />
-                }
+                label={<TranslatedText stringId="general.form.patient.label" fallback="Patient" />}
                 component={AutocompleteField}
                 suggester={patientSuggester}
                 required
@@ -261,10 +274,7 @@ export const BookLocationDrawer = ({
               <Field
                 name="clinicianId"
                 label={
-                  <TranslatedText
-                    stringId="general.form.clinician.label"
-                    fallback="Clinician"
-                  />
+                  <TranslatedText stringId="general.form.clinician.label" fallback="Clinician" />
                 }
                 component={AutocompleteField}
                 suggester={clinicianSuggester}
