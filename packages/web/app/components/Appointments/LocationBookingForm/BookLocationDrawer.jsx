@@ -1,27 +1,29 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import * as yup from 'yup';
+import styled, { css, keyframes } from 'styled-components';
+import { useQueryClient } from '@tanstack/react-query';
+import Brightness2Icon from '@material-ui/icons/Brightness2';
+
 import {
   AutocompleteField,
   CheckField,
   DateField,
+  DynamicSelectField,
   Field,
   Form,
-  LocationField,
-  TranslatedSelectField,
+  LocalisedLocationField,
 } from '../../Field';
-import styled, { css, keyframes } from 'styled-components';
 import { BodyText, Heading4 } from '../../Typography';
 import { BookingTimeField } from './BookingTimeField';
 import { useApi, usePatientSuggester, useSuggester } from '../../../api';
 import { FormSubmitCancelRow } from '../../ButtonRow';
 import { Colors } from '../../../constants';
-import Brightness2Icon from '@material-ui/icons/Brightness2';
 import { FormGrid } from '../../FormGrid';
-import { APPOINTMENT_TYPE_LABELS } from '@tamanu/constants';
 import { ClearIcon } from '../../Icons/ClearIcon';
 import { ConfirmModal } from '../../ConfirmModal';
 import { notifyError, notifySuccess } from '../../../utils';
 import { useAppointments } from '../../../api/queries/useAppointments';
+import { TranslatedText } from '../../Translation/TranslatedText';
 
 const slideIn = keyframes`
   from {
@@ -42,8 +44,7 @@ const slideOut = keyframes`
 `;
 
 const Container = styled.div`
-  // TODO: temoirary
-  z-index: 100;
+  z-index: 9;
   width: 330px;
   padding: 16px;
   background-color: ${Colors.background};
@@ -96,13 +97,28 @@ export const WarningModal = ({ open, setShowWarningModal, resolveFn }) => {
   };
   return (
     <ConfirmModal
-      title="Cancel new booking"
-      subText="Are you sure you would like to cancel the new booking?"
+      title={
+        <TranslatedText
+          stringId="locationBooking.cancelWarningModal.title"
+          fallback="Cancel new booking"
+        />
+      }
+      subText={
+        <TranslatedText
+          stringId="locationBooking.cancelWarningModal.subtext"
+          fallback="Are you sure you would like to cancel the new booking?"
+        />
+      }
       open={open}
       onConfirm={() => {
         handleClose(true);
       }}
-      cancelButtonText="Back to editing"
+      cancelButtonText={
+        <TranslatedText
+          stringId="locationBooking.cancelWarningModal.cancelButton"
+          fallback="Back to editing"
+        />
+      }
       onCancel={() => {
         handleClose(false);
       }}
@@ -110,10 +126,11 @@ export const WarningModal = ({ open, setShowWarningModal, resolveFn }) => {
   );
 };
 
-export const BookLocationDrawer = ({ open, closeDrawer, editMode = false, initialLocationValues, refreshCalendar }) => {
+export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues, editMode }) => {
+  const queryClient = useQueryClient();
   const patientSuggester = usePatientSuggester();
   const clinicianSuggester = useSuggester('practitioner');
-  const bookingTypeSuggester = useSuggester('bookingType')
+  const bookingTypeSuggester = useSuggester('bookingType');
 
   const api = useApi();
 
@@ -129,18 +146,42 @@ export const BookLocationDrawer = ({ open, closeDrawer, editMode = false, initia
     });
 
   const handleSubmit = async (values, { resetForm }) => {
+    let response;
     if (editMode) {
-      await api.put(`appointments/locationBooking/${values.bookingId}`, values, {
+      response = await api.put(`appointments/locationBooking/${values.bookingId}`, values, {
         showUnknownErrorToast: true,
       });
     } else {
-      await api.post(`appointments/locationBooking`, values, {
+      response = await api.post(`appointments/locationBooking`, values, {
         showUnknownErrorToast: true,
       });
     }
-    notifySuccess(editMode ? 'Booking successfully edited' : 'Booking successfully created');
-    closeDrawer();
-    resetForm();
+    if (response.status === 409) {
+      notifyError(
+        <TranslatedText
+          stringId="locationBooking.notification.bookingTimeConflict"
+          fallback="Booking failed. Booking time no longer available"
+        />,
+      );
+    }
+    if (response.status === 200) {
+      notifySuccess(
+        editMode ? (
+          <TranslatedText
+            stringId="locationBooking.notification.bookingSuccessfullyEdited"
+            fallback="Booking successfully edited"
+          />
+        ) : (
+          <TranslatedText
+            stringId="locationBooking.notification.bookingSuccessfullyCreated"
+            fallback="Booking successfully created"
+          />
+        ),
+      );
+      closeDrawer();
+      resetForm();
+      queryClient.invalidateQueries('appointments');
+    }
   };
 
   const headingText = editMode ? 'Modify booking' : 'Book location';
@@ -160,10 +201,11 @@ export const BookLocationDrawer = ({ open, closeDrawer, editMode = false, initia
           startTime: yup.string().required(),
           endTime: yup.string().required(),
           patientId: yup.string().required(),
+          bookingTypeId: yup.string().required(),
         })}
-        initialValues={initialLocationValues}
+        initialValues={initialBookingValues}
         enableReinitialize
-        render={({ values, resetForm, setFieldValue, dirty, initialValues }) => {
+        render={({ values, resetForm, setFieldValue, dirty }) => {
           const warnAndResetForm = async () => {
             const confirmed = !dirty || (await handleShowWarningModal());
             if (!confirmed) return;
@@ -174,14 +216,10 @@ export const BookLocationDrawer = ({ open, closeDrawer, editMode = false, initia
           return (
             <FormGrid columns={1}>
               <CloseDrawerIcon onClick={warnAndResetForm} />
-              {/* TODO: alther location field to properly handle state */}
               <Field
                 enableLocationStatus={false}
-                locationGroupLabel="Area"
-                label="Location"
                 name="locationId"
-                component={LocationField}
-                value={values.locationId}
+                component={LocalisedLocationField}
                 required
                 onChange={() => {
                   setFieldValue('overnight', null);
@@ -193,7 +231,12 @@ export const BookLocationDrawer = ({ open, closeDrawer, editMode = false, initia
               <OvernightStayField>
                 <Field
                   name="overnight"
-                  label="Overnight stay"
+                  label={
+                    <TranslatedText
+                      stringId="location.form.overnightStay.label"
+                      fallback="Overnight stay"
+                    />
+                  }
                   component={CheckField}
                   disabled={!values.locationId}
                 />
@@ -201,7 +244,7 @@ export const BookLocationDrawer = ({ open, closeDrawer, editMode = false, initia
               </OvernightStayField>
               <Field
                 name="date"
-                label="Date"
+                label={<TranslatedText stringId="general.form.date.label" fallback="Date" />}
                 component={DateField}
                 disabled={!values.locationId}
                 required
@@ -209,21 +252,28 @@ export const BookLocationDrawer = ({ open, closeDrawer, editMode = false, initia
               <BookingTimeField disabled={!values.date} />
               <Field
                 name="patientId"
-                label="Patient"
+                label={<TranslatedText stringId="general.form.patient.label" fallback="Patient" />}
                 component={AutocompleteField}
                 suggester={patientSuggester}
                 required
               />
               <Field
                 name="bookingTypeId"
-                label="Booking Type"
-                component={AutocompleteField}
+                label={
+                  <TranslatedText
+                    stringId="location.form.bookingType.label"
+                    fallback="Booking type"
+                  />
+                }
+                component={DynamicSelectField}
                 suggester={bookingTypeSuggester}
                 required
               />
               <Field
                 name="clinicianId"
-                label="Clinician"
+                label={
+                  <TranslatedText stringId="general.form.clinician.label" fallback="Clinician" />
+                }
                 component={AutocompleteField}
                 suggester={clinicianSuggester}
               />

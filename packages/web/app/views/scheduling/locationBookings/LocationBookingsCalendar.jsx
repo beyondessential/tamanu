@@ -1,6 +1,5 @@
 import {
   eachDayOfInterval,
-  endOfDay,
   endOfMonth,
   endOfWeek,
   startOfMonth,
@@ -9,14 +8,10 @@ import {
 } from 'date-fns';
 import React, { useState } from 'react';
 import styled from 'styled-components';
-
-import { useLocationBookingsQuery } from '../../../api/queries';
 import { Colors } from '../../../constants/index';
 import { CarouselComponents as CarouselGrid } from './CarouselComponents';
-import { LocationBookingsCalendarHeader } from './CalendarHeaderComponents';
-import { SkeletonRows } from './Skeletons';
-import { BookingsRow } from './CalendarBodyComponents';
-import { partitionAppointmentsByLocation } from './util';
+import { LocationBookingsCalendarBody } from './LocationBookingsCalendarBody';
+import { LocationBookingsCalendarHeader } from './LocationBookingsCalendarHeader';
 
 const getDisplayableDates = date => {
   const start = startOfWeek(startOfMonth(date), { weekStartsOn: 1 });
@@ -38,35 +33,11 @@ const Carousel = styled.div`
   }
 `;
 
-const StyledRow = styled(CarouselGrid.Row)`
-  color: ${Colors.primary};
-  font-weight: 500;
-  grid-template-columns: initial;
-  place-items: center;
-  margin-block: 0.5rem;
-`;
 
-const EmptyStateRow = () => (
-  <StyledRow>No bookings to display. Please try adjusting the search filters.</StyledRow>
-);
-
-export const LocationBookingsCalendar = ({ locationsQuery, openBookingForm, refreshCount }) => {
+export const LocationBookingsCalendar = ({ locationsQuery, openBookingForm }) => {
   const selectedMonthState = useState(startOfToday());
   const [monthOf] = selectedMonthState;
   const displayedDates = getDisplayableDates(monthOf);
-
-  const { data: locations, isLoading: locationsAreLoading } = locationsQuery;
-
-  // TODO: load when loading appointments?
-  const appointments =
-    useLocationBookingsQuery(
-      {
-        after: displayedDates[0],
-        before: endOfDay(displayedDates[displayedDates.length - 1]),
-      },
-      [refreshCount],
-    ).data?.data ?? [];
-  const appointmentsByLocation = partitionAppointmentsByLocation(appointments);
 
   return (
     <Carousel>
@@ -74,22 +45,12 @@ export const LocationBookingsCalendar = ({ locationsQuery, openBookingForm, refr
         <LocationBookingsCalendarHeader
           selectedMonthState={selectedMonthState}
           displayedDates={displayedDates}
+        /> 
+        <LocationBookingsCalendarBody
+          locationsQuery={locationsQuery}
+          displayedDates={displayedDates}
+          openBookingForm={openBookingForm}
         />
-        {locationsAreLoading ? (
-          <SkeletonRows colCount={displayedDates.length} />
-        ) : locations?.length === 0 ? (
-          <EmptyStateRow />
-        ) : (
-          locations?.map(location => (
-            <BookingsRow
-              appointments={appointmentsByLocation[location.id] ?? []}
-              dates={displayedDates}
-              key={location.code}
-              location={location}
-              openBookingForm={openBookingForm}
-            />
-          ))
-        )}
       </CarouselGrid.Root>
     </Carousel>
   );

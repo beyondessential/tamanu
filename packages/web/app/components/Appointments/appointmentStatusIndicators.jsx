@@ -1,6 +1,7 @@
+import React from 'react';
+
 import { APPOINTMENT_STATUSES } from '@tamanu/constants';
 
-import { Colors } from '../../constants';
 import {
   CheckIconFilled,
   CheckIconOutlined,
@@ -8,6 +9,7 @@ import {
   CircleIconOutlined,
   CrossIconFilled,
 } from '../Icons';
+import { Colors } from '../../constants';
 
 export const APPOINTMENT_STATUS_COLORS = {
   [APPOINTMENT_STATUSES.ARRIVED]: Colors.purple,
@@ -25,4 +27,15 @@ export const APPOINTMENT_STATUS_ICONS = {
   [APPOINTMENT_STATUSES.CONFIRMED]: CircleIconDashed,
   [APPOINTMENT_STATUSES.NO_SHOW]: CrossIconFilled,
   [APPOINTMENT_STATUSES.SEEN]: CheckIconFilled,
+};
+
+export const AppointmentStatusIndicator = ({ appointmentStatus, ...props }) => {
+  const IconComponent = APPOINTMENT_STATUS_ICONS[appointmentStatus] ?? CircleIconOutlined;
+  return (
+    <IconComponent
+      aria-label={appointmentStatus}
+      htmlColor={APPOINTMENT_STATUS_COLORS[appointmentStatus] ?? Colors.blue}
+      {...props}
+    />
+  );
 };

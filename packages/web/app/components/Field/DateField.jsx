@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import KeyboardArrowLeftIcon from '@material-ui/icons/KeyboardArrowLeft';
 import KeyboardArrowRightIcon from '@material-ui/icons/KeyboardArrowRight';
-import { Box, IconButton, InputAdornment } from '@material-ui/core';
+import { Box } from '@material-ui/core';
 import { addDays, isAfter, isBefore, parse } from 'date-fns';
 import {
   format as formatDate,
@@ -14,7 +14,6 @@ import PropTypes from 'prop-types';
 import { TextInput } from './TextField';
 import { Colors } from '../../constants';
 import { DefaultIconButton } from '../Button';
-import { ClearIcon } from '../Icons/ClearIcon';
 
 // This component is pretty tricky! It has to keep track of two layers of state:
 //
@@ -45,10 +44,6 @@ const CustomIconTextInput = styled(TextInput)`
     border-radius: 50%;
     margin-left: 0.5rem;
   }
-`;
-
-const StyledClearIcon = styled(ClearIcon)`
-  cursor: pointer;
 `;
 
 function fromRFC3339(rfc3339Date, format) {
@@ -131,12 +126,6 @@ export const DateInput = ({
         return;
       }
     }
-  };
-
-  const handleClearValue = () => {
-    setCurrentText('');
-    setIsPlaceholder(true);
-    onChange({ target: { value: '', name } });
   };
 
   useEffect(() => {

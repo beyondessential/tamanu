@@ -1,8 +1,10 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { push } from 'connected-react-router';
-import { Box, IconButton, Paper, Popper, styled } from '@mui/material';
+import { Box, IconButton, Paper, Popper, ClickAwayListener, styled } from '@mui/material';
 import { MoreVert, Close, Brightness2 as Overnight } from '@mui/icons-material';
+import { debounce } from 'lodash';
+import { toast } from 'react-toastify';
 
 import { PatientNameDisplay } from '../PatientNameDisplay';
 import {
@@ -15,7 +17,14 @@ import { Colors } from '../../constants';
 import { DateDisplay, getDateDisplay } from '../DateDisplay';
 import { reloadPatient } from '../../store';
 import { useApi } from '../../api';
-import { APPOINTMENT_TYPE_LABELS } from '@tamanu/constants';
+import {
+  APPOINTMENT_STATUS_VALUES,
+  APPOINTMENT_STATUSES,
+  APPOINTMENT_TYPE_LABELS,
+} from '@tamanu/constants';
+import { AppointmentStatusChip } from './AppointmentStatusChip';
+
+const DEBOUNCE_DELAY = 200; // ms
 
 const formatDateRange = (start, end, isOvernight) => {
   const formattedStart = getDateDisplay(start, { showDate: true, showTime: true });
@@ -90,6 +99,11 @@ const AppointmentStatusContainer = styled(Box)`
   padding-inline: 0.75rem;
   padding-block-start: 0.5rem;
   padding-block-end: 0.75rem;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-row-gap: 0.5rem;
+  grid-column-gap: 0.3125rem;
+  justify-items: center;
 `;
 
 const ControlsRow = ({ onClose }) => (
@@ -220,18 +234,70 @@ const AppointDetailsDisplay = ({ appointment, isOvernight }) => {
   );
 };
 
-const AppointmentStatusDisplay = () => {
-  return <AppointmentStatusContainer></AppointmentStatusContainer>;
+const AppointmentStatusDisplay = ({ selectedStatus, updateAppointmentStatus }) => {
+  return (
+    <AppointmentStatusContainer>
+      {APPOINTMENT_STATUS_VALUES.filter(status => status != APPOINTMENT_STATUSES.CANCELLED).map(
+        status => (
+          <AppointmentStatusChip
+            key={status}
+            appointmentStatus={status}
+            deselected={status !== selectedStatus}
+            onClick={() => updateAppointmentStatus(status)}
+          />
+        ),
+      )}
+    </AppointmentStatusContainer>
+  );
 };
 
-export const AppointmentDetailPopper = ({ open, onClose, anchorEl, appointment, isOvernight }) => {
+export const AppointmentDetailPopper = ({
+  open,
+  onClose,
+  onUpdated,
+  anchorEl,
+  appointment,
+  isOvernight,
+}) => {
   const dispatch = useDispatch();
+  const api = useApi();
+  const [localStatus, setLocalStatus] = useState(appointment.status);
   const patientId = appointment.patient.id;
 
   const handlePatientDetailsClick = useCallback(async () => {
     await dispatch(reloadPatient(patientId));
     dispatch(push(`/patients/all/${patientId}`));
   }, [dispatch, patientId]);
+
+  const debouncedUpdateAppointmentSatus = useMemo(
+    () =>
+      debounce(async newValue => {
+        try {
+          await api.put(`appointments/${appointment.id}`, {
+            status: newValue,
+          });
+          if (onUpdated) onUpdated();
+        } catch (error) {
+          console.log(error);
+          toast.error(
+            <TranslatedText
+              stringId="schedule.error.updateStatus"
+              fallback="Error updating appointment status"
+            />,
+          );
+          setLocalStatus(appointment.status);
+        }
+      }, DEBOUNCE_DELAY),
+    [api, appointment.id, onUpdated, appointment.status],
+  );
+
+  const updateAppointmentStatus = useCallback(
+    newValue => {
+      setLocalStatus(newValue);
+      debouncedUpdateAppointmentSatus(newValue);
+    },
+    [debouncedUpdateAppointmentSatus],
+  );
 
   return (
     <Popper
@@ -248,12 +314,22 @@ export const AppointmentDetailPopper = ({ open, onClose, anchorEl, appointment, 
         },
       ]}
     >
-      <ControlsRow onClose={onClose} />
-      <StyledPaper elevation={0}>
-        <PatientDetailsDisplay patient={appointment.patient} onClick={handlePatientDetailsClick} />
-        <AppointDetailsDisplay appointment={appointment} isOvernight={isOvernight} />
-        <AppointmentStatusDisplay />
-      </StyledPaper>
+      <ClickAwayListener onClickAway={onClose}>
+        <Box>
+          <ControlsRow onClose={onClose} />
+          <StyledPaper elevation={0}>
+            <PatientDetailsDisplay
+              patient={appointment.patient}
+              onClick={handlePatientDetailsClick}
+            />
+            <AppointDetailsDisplay appointment={appointment} isOvernight={isOvernight} />
+            <AppointmentStatusDisplay
+              selectedStatus={localStatus}
+              updateAppointmentStatus={updateAppointmentStatus}
+            />
+          </StyledPaper>
+        </Box>
+      </ClickAwayListener>
     </Popper>
   );
 };

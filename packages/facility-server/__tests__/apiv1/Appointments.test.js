@@ -3,7 +3,6 @@ import { add } from 'date-fns';
 import { APPOINTMENT_STATUSES, APPOINTMENT_TYPES } from '@tamanu/constants';
 import { randomRecordId } from '@tamanu/shared/demoData/utilities';
 import { createTestContext } from '../utilities';
-import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
 
 describe('Appointments', () => {
   let baseApp;
