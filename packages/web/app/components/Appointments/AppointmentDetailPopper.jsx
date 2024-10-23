@@ -1,8 +1,8 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { push } from 'connected-react-router';
-import { Box, IconButton, Paper, Popper, ClickAwayListener, styled } from '@mui/material';
-import { MoreVert, Close, Brightness2 as Overnight } from '@mui/icons-material';
+import { Box, ClickAwayListener, IconButton, Paper, Popper, styled } from '@mui/material';
+import { Brightness2 as Overnight, Close, MoreVert } from '@mui/icons-material';
 import { debounce } from 'lodash';
 import { toast } from 'react-toastify';
 
@@ -17,6 +17,7 @@ import { Colors } from '../../constants';
 import { DateDisplay, getDateDisplay } from '../DateDisplay';
 import { reloadPatient } from '../../store';
 import { useApi } from '../../api';
+import { usePatientAdditionalDataQuery } from '../../api/queries';
 import {
   APPOINTMENT_STATUS_VALUES,
   APPOINTMENT_STATUSES,
@@ -129,7 +130,7 @@ const BookingTypeDisplay = ({ type, isOvernight }) => (
         <TranslatedEnum value={type} enumValues={APPOINTMENT_TYPE_LABELS} enumFallback={type} />
         {isOvernight && (
           <FlexRow sx={{ gap: '2px' }}>
-            <Overnight sx={{ fontSize: 15, color: Colors.primary }} />
+            <Overnight htmlColor={Colors.primary} sx={{ fontSize: 15 }} />
             <TranslatedText stringId="scheduling.bookingType.overnight" fallback="Overnight" />
           </FlexRow>
         )}
@@ -140,14 +141,7 @@ const BookingTypeDisplay = ({ type, isOvernight }) => (
 
 const PatientDetailsDisplay = ({ patient, onClick }) => {
   const { id, displayId, sex, dateOfBirth } = patient;
-  const api = useApi();
-  const [additionalData, setAdditionalData] = useState();
-  useEffect(() => {
-    (async () => {
-      const data = await api.get(`/patient/${id}/additionalData`);
-      setAdditionalData(data);
-    })();
-  }, [id, api]);
+  const { data: additionalData } = usePatientAdditionalDataQuery(id);
 
   return (
     <PatientDetailsContainer onClick={onClick}>
