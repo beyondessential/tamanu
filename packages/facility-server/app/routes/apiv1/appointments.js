@@ -51,11 +51,10 @@ appointments.post('/locationBooking', async (req, res) => {
     },
   });
 
-  // TODO: possibly should just go on frontend for translations
   if (bookingTimeAlreadyTaken) {
     return res
       .status(409)
-      .send({ error: { message: 'Booking failed. Booking time no longer available' } });
+      .send();
   }
 
   const newRecord = await Appointment.create(body);

@@ -21,7 +21,7 @@ import { Colors } from '../../../constants';
 import { FormGrid } from '../../FormGrid';
 import { ClearIcon } from '../../Icons/ClearIcon';
 import { ConfirmModal } from '../../ConfirmModal';
-import { notifySuccess } from '../../../utils';
+import { notifyError, notifySuccess } from '../../../utils';
 import { TranslatedText } from '../../Translation/TranslatedText';
 
 const slideIn = keyframes`
@@ -143,19 +143,29 @@ export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues }) 
     });
 
   const handleSubmit = async (values, { resetForm }) => {
-    await api.post(`appointments/locationBooking`, values, {
+    const response = await api.post(`appointments/locationBooking`, values, {
       showUnknownErrorToast: true,
     });
 
-    notifySuccess(
-      <TranslatedText
-        stringId="locationBooking.notification.bookingSuccessfullyCreated"
-        fallback="Booking successfully created"
-      />,
-    );
-    closeDrawer();
-    resetForm();
-    queryClient.invalidateQueries('appointments');
+    if (response.status === 409) {
+      notifyError(
+        <TranslatedText
+          stringId="locationBooking.notification.bookingTimeConflict"
+          fallback="Booking failed. Booking time no longer available"
+        />,
+      );
+    }
+    if (response.status === 200) {
+      notifySuccess(
+        <TranslatedText
+          stringId="locationBooking.notification.bookingSuccessfullyCreated"
+          fallback="Booking successfully created"
+        />,
+      );
+      closeDrawer();
+      resetForm();
+      queryClient.invalidateQueries('appointments');
+    }
   };
 
   return (
