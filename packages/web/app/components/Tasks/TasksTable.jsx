@@ -202,10 +202,10 @@ const TableTooltip = ({ title, children }) => (
         modifiers: {
           preventOverflow: {
             enabled: true,
-            boundariesElement: "window"
-          }
-        }
-      }
+            boundariesElement: 'window',
+          },
+        },
+      },
     }}
   >
     {children}
@@ -318,61 +318,66 @@ const BulkActions = ({ row, status, handleActionModalOpen }) => {
   const canWrite = ability.can('write', 'Tasking');
   const canDelete = ability.can('delete', 'Tasking');
 
-  return <StyledBulkActions>
-    {status !== TASK_STATUSES.COMPLETED && canWrite && (
-      <TableTooltip
-        title={
-          <TranslatedText
-            stringId="encounter.tasks.action.tooltip.completed"
-            fallback="Mark as complete"
-          />
-        }
-        PopperProps={{
-          disablePortal: true,
-        }}
-      >
-        <IconButton onClick={() => handleActionModalOpen(TASK_ACTIONS.COMPLETED, row)}>
-          <StyledCheckCircleIcon />
-        </IconButton>
-      </TableTooltip>
-    )}
-    {status !== TASK_STATUSES.NON_COMPLETED && canWrite && (
-      <TableTooltip
-        title={
-          <TranslatedText
-            stringId="encounter.tasks.action.tooltip.notCompleted"
-            fallback="Mark as not complete"
-          />
-        }
-      >
-        <IconButton onClick={() => handleActionModalOpen(TASK_ACTIONS.NON_COMPLETED, row)}>
-          <StyledCancelIcon />
-        </IconButton>
-      </TableTooltip>
-    )}
-    {status !== TASK_STATUSES.TODO && canWrite && (
-      <TableTooltip
-        title={
-          <TranslatedText stringId="encounter.tasks.action.tooltip.toDo" fallback="Mark as to-do" />
-        }
-      >
-        <IconButton onClick={() => handleActionModalOpen(TASK_ACTIONS.TODO, row)}>
-          <StatusTodo />
-        </IconButton>
-      </TableTooltip>
-    )}
-    {status === TASK_STATUSES.TODO && canDelete && (
-      <TableTooltip
-        title={
-          <TranslatedText stringId="encounter.tasks.action.tooltip.delete" fallback="Delete" />
-        }
-      >
-        <IconButton onClick={() => handleActionModalOpen(TASK_ACTIONS.DELETED, row)}>
-          <StyledDeleteOutlineIcon />
-        </IconButton>
-      </TableTooltip>
-    )}
-  </StyledBulkActions>
+  return (
+    <StyledBulkActions>
+      {status !== TASK_STATUSES.COMPLETED && canWrite && (
+        <TableTooltip
+          title={
+            <TranslatedText
+              stringId="encounter.tasks.action.tooltip.completed"
+              fallback="Mark as complete"
+            />
+          }
+          PopperProps={{
+            disablePortal: true,
+          }}
+        >
+          <IconButton onClick={() => handleActionModalOpen(TASK_ACTIONS.COMPLETED, row)}>
+            <StyledCheckCircleIcon />
+          </IconButton>
+        </TableTooltip>
+      )}
+      {status !== TASK_STATUSES.NON_COMPLETED && canWrite && (
+        <TableTooltip
+          title={
+            <TranslatedText
+              stringId="encounter.tasks.action.tooltip.notCompleted"
+              fallback="Mark as not complete"
+            />
+          }
+        >
+          <IconButton onClick={() => handleActionModalOpen(TASK_ACTIONS.NON_COMPLETED, row)}>
+            <StyledCancelIcon />
+          </IconButton>
+        </TableTooltip>
+      )}
+      {status !== TASK_STATUSES.TODO && canWrite && (
+        <TableTooltip
+          title={
+            <TranslatedText
+              stringId="encounter.tasks.action.tooltip.toDo"
+              fallback="Mark as to-do"
+            />
+          }
+        >
+          <IconButton onClick={() => handleActionModalOpen(TASK_ACTIONS.TODO, row)}>
+            <StatusTodo />
+          </IconButton>
+        </TableTooltip>
+      )}
+      {status === TASK_STATUSES.TODO && canDelete && (
+        <TableTooltip
+          title={
+            <TranslatedText stringId="encounter.tasks.action.tooltip.delete" fallback="Delete" />
+          }
+        >
+          <IconButton onClick={() => handleActionModalOpen(TASK_ACTIONS.DELETED, row)}>
+            <StyledDeleteOutlineIcon />
+          </IconButton>
+        </TableTooltip>
+      )}
+    </StyledBulkActions>
+  );
 };
 
 const NotesCell = ({ row, hoveredRow, handleActionModalOpen }) => {
@@ -394,8 +399,9 @@ const NotesCell = ({ row, hoveredRow, handleActionModalOpen }) => {
           '-'
         )}
       </NotesDisplay>
+      {hoveredRow?.id === row?.id && (
         <BulkActions row={row} status={status} handleActionModalOpen={handleActionModalOpen} />
-      
+      )}
     </Box>
   );
 };
