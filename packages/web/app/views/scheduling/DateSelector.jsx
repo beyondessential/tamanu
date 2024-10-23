@@ -24,7 +24,7 @@ const DaysWrapper = styled(Box)`
   overflow: auto;
   scrollbar-width: thin;
   width: 100%;
-  padding-block: 0.5rem;
+  padding-block: 0.25rem;
   justify-content: space-between;
 `;
 
@@ -37,7 +37,6 @@ const DayWrapper = styled(Box)`
   flex-direction: column;
   align-items: center;
   padding: 0.25rem;
-  padding-inline: 0.375rem;
   border-radius: 3px;
   flex-grow: 1;
   user-select: none;
@@ -58,7 +57,7 @@ const WeekdayText = styled(DateText)`
 
 const TodayButton = styled(TextButton)`
   margin-inline: 0.375rem;
-  font-size: 0.875rem;
+  font-size: 0.75rem;
   text-decoration: underline;
   &:hover {
     text-decoration: underline;
@@ -67,6 +66,9 @@ const TodayButton = styled(TextButton)`
 
 const StepperButton = styled(IconButton)`
   padding: 0.25rem;
+  & svg {
+    font-size: 1rem;
+  }
 `;
 
 const getMonthInterval = date =>
@@ -112,11 +114,11 @@ export const DateSelector = ({ value, onChange }) => {
   };
 
   return (
-    <Box display="flex" alignItems="center" justifyContent="space-between">
+    <Box display="flex" alignItems="center" justifyContent="space-between" padding={1}>
       <MonthYearInput value={viewedDays[0]} onChange={handleMonthYearChange} />
       <TodayButton onClick={handleChangeToday}>Today</TodayButton>
       <StepperButton onClick={handleDecrement}>
-        <ArrowBackIos fontSize="0.5rem" />
+        <ArrowBackIos />
       </StepperButton>
       <DaysWrapper>
         {viewedDays.map(date => (
@@ -129,7 +131,7 @@ export const DateSelector = ({ value, onChange }) => {
         ))}
       </DaysWrapper>
       <StepperButton onClick={handleIncrement}>
-        <ArrowForwardIos fontSize="0.5rem" />
+        <ArrowForwardIos />
       </StepperButton>
     </Box>
   );
