@@ -75,6 +75,7 @@ const getPatientFullName = ({ firstName, middleName, lastName }) =>
 
 export const AppointmentTile = ({
   appointment,
+  openBookingForm,
   onUpdated,
   ...props
 }) => {
@@ -92,6 +93,8 @@ export const AppointmentTile = ({
 
   const isHighPriority = false; // TODO
   const isOvernight = !isSameDay(startTime, endTime);
+
+  // TODO: handle the click outside event that closes this
 
   return (
     <Wrapper
@@ -134,6 +137,7 @@ export const AppointmentTile = ({
         appointment={appointment}
         isOvernight={isOvernight}
         onUpdated={onUpdated}
+        openBookingForm={openBookingForm}
       />
     </Wrapper>
   );
