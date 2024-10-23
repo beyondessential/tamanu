@@ -27,13 +27,7 @@ export async function createApiApp({
   const express = defineExpress();
   const server = createServer(express);
 
-  const dbNotifier = await defineDbNotifier({
-    host: sequelize.config.host,
-    port: sequelize.config.port,
-    database: sequelize.config.database,
-    user: sequelize.config.user,
-    password: sequelize.config.password,
-  });
+  const dbNotifier = await defineDbNotifier(sequelize.config);
   const websocketService = defineWebsocketService({ httpServer: server, dbNotifier });
   const websocketClientService = defineWebsocketClientService({ config, websocketService, models });
 
