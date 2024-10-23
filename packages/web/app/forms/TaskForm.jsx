@@ -292,7 +292,7 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
             .required(getTranslation('validation.required.inline', '*Required'))
             .min(
               new Date(new Date().setHours(0, 0, 0, 0)),
-              getTranslation('validation.date.past', 'Date cannot be in the past'),
+              getTranslation('general.validation.date.cannotInPast', 'Date cannot be in the past'),
             ),
           requestedByUserId: foreignKey().required(
             getTranslation('validation.required.inline', '*Required'),
@@ -302,7 +302,7 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
             .required(getTranslation('validation.required.inline', '*Required'))
             .min(
               new Date(new Date().setHours(0, 0, 0, 0)),
-              getTranslation('validation.date.past', 'Date cannot be in the past'),
+              getTranslation('general.validation.date.cannotInPast', 'Date cannot be in the past'),
             ),
           note: yup.string(),
           highPriority: yup.boolean(),
