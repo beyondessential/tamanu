@@ -77,7 +77,7 @@ export const BookingTimeField = ({ disabled = false }) => {
   const [hoverTimeRange, setHoverTimeRange] = useState(null);
 
   const { locationId, date } = values;
-  const { data: existingLocationBookings, isFetching } = useAppointmentsQuery(
+  const { data: existingLocationBookings, isFetching, isFetched } = useAppointmentsQuery(
     {
       after: date ? toDateTimeString(startOfDay(new Date(date))) : null,
       before: date ? toDateTimeString(endOfDay(new Date(date))) : null,
@@ -92,13 +92,13 @@ export const BookingTimeField = ({ disabled = false }) => {
   // Convert existing bookings into timeslots
   const bookedTimeSlots = useMemo(
     () =>
-      !isFetching
+      isFetched
         ? existingLocationBookings?.data.map(booking => ({
             start: new Date(booking.startTime),
             end: new Date(booking.endTime),
           }))
         : [],
-    [existingLocationBookings, isFetching],
+    [existingLocationBookings, isFetched],
   );
 
   const bookingSlotSettings = getSetting('appointments.bookingSlots');
