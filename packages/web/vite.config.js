@@ -10,13 +10,15 @@ export default async ({ mode }) => {
   Object.assign(process.env, loadEnv(mode, process.cwd(), 'TAMANU_'));
 
   let revision;
-  // try {
-  //   revision = execSync('git log --format="%h" -n1', { timeout: 100, encoding: 'utf-8' }).trim();
-  //   if (execSync('git status -s', { timeout: 100, encoding: 'utf-8' }).trim()) {
-  //     // repo is dirty (has uncommited files)
-  //     revision += '~';
-  //   }
-  // } catch (_) { /* ignore */ }
+  try {
+    revision = execSync('git log --format="%h" -n1', { timeout: 100, encoding: 'utf-8' }).trim();
+    if (execSync('git status -s', { timeout: 100, encoding: 'utf-8' }).trim()) {
+      // repo is dirty (has uncommited files)
+      revision += '~';
+    }
+  } catch (_) {
+    /* ignore */
+  }
 
   return defineConfig({
     assetsInclude: ['/sb-preview/runtime.js'],
@@ -26,11 +28,12 @@ export default async ({ mode }) => {
     plugins: [
       react(),
       json5Plugin(),
-      // nodePolyfills({
-      //   globals: {
-      //     Buffer: true,
-      //   },
-      // }),
+      nodePolyfills({
+        // include: ['./node_modules/**/*.js', '../../node_modules/**/*.js'],
+        globals: {
+          Buffer: true,
+        },
+      }),
     ],
 
     define: {
