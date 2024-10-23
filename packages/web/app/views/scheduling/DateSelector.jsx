@@ -19,6 +19,14 @@ import {
 import { BodyText, MonthYearInput, TextButton } from '../../components';
 import { Colors } from '../../constants';
 
+const Wrapper = styled(Box)`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+  gap: 0.5rem;
+`;
+
 const DaysWrapper = styled(Box)`
   display: flex;
   overflow: auto;
@@ -57,7 +65,7 @@ const WeekdayText = styled(DateText)`
 
 const TodayButton = styled(TextButton)`
   margin-inline: 0.375rem;
-  font-size: 0.75rem;
+  font-size: 0.8rem;
   text-decoration: underline;
   &:hover {
     text-decoration: underline;
@@ -67,8 +75,12 @@ const TodayButton = styled(TextButton)`
 const StepperButton = styled(IconButton)`
   padding: 0.25rem;
   & svg {
-    font-size: 1rem;
+    font-size: 1.25rem;
   }
+`;
+
+const StyledMonthYearInput = styled(MonthYearInput)`
+  width: 120px;
 `;
 
 const getMonthInterval = date =>
@@ -114,8 +126,8 @@ export const DateSelector = ({ value, onChange }) => {
   };
 
   return (
-    <Box display="flex" alignItems="center" justifyContent="space-between" padding={1}>
-      <MonthYearInput value={viewedDays[0]} onChange={handleMonthYearChange} />
+    <Wrapper>
+      <StyledMonthYearInput value={viewedDays[0]} onChange={handleMonthYearChange} />
       <TodayButton onClick={handleChangeToday}>Today</TodayButton>
       <StepperButton onClick={handleDecrement}>
         <ArrowBackIos />
@@ -133,6 +145,6 @@ export const DateSelector = ({ value, onChange }) => {
       <StepperButton onClick={handleIncrement}>
         <ArrowForwardIos />
       </StepperButton>
-    </Box>
+    </Wrapper>
   );
 };
