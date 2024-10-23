@@ -1,6 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Button, PageContainer, TopBar, TranslatedText } from '../../components';
+import { DateSelector } from './DateSelector';
 import styled from 'styled-components';
+import { Colors } from '../../constants';
 
 const Placeholder = styled.div`
   background-color: oklch(0% 0 0 / 3%);
@@ -21,6 +23,13 @@ const Wrapper = styled(PageContainer)`
   max-block-size: 100%;
 `;
 
+const CalendarWrapper = styled.div`
+  margin: 0.5rem;
+  border-radius: 4px;
+  border: 1px solid ${Colors.outline};
+  background: ${Colors.white};
+`;
+
 const LocationBookingsTopBar = styled(TopBar).attrs({
   title: <TranslatedText stringId="scheduling.appointments.title" fallback="Appointments" />,
 })``;
@@ -35,6 +44,11 @@ const NewBookingButton = styled(Button)`
 `;
 
 export const OutpatientAppointmentsCalendar = () => {
+  const [selectedDate, setSelectedDate] = useState(new Date());
+
+  const handleChangeDate = event => {
+    setSelectedDate(event.target.value);
+  };
   return (
     <Wrapper>
       <PageContainer>
@@ -47,6 +61,9 @@ export const OutpatientAppointmentsCalendar = () => {
           </Filters>
           <NewBookingButton onClick={null}>+ New booking</NewBookingButton>
         </LocationBookingsTopBar>
+        <CalendarWrapper>
+          <DateSelector value={selectedDate} onChange={handleChangeDate} />
+        </CalendarWrapper>
       </PageContainer>
     </Wrapper>
   );
