@@ -1,8 +1,8 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { push } from 'connected-react-router';
-import { Box, IconButton, Paper, Popper, styled } from '@mui/material';
-import { Close, Brightness2 as Overnight } from '@mui/icons-material';
+import { Box, IconButton, Paper, Popper, ClickAwayListener, styled } from '@mui/material';
+import { MoreVert, Close, Brightness2 as Overnight } from '@mui/icons-material';
 import { debounce } from 'lodash';
 import { toast } from 'react-toastify';
 
@@ -335,15 +335,20 @@ export const AppointmentDetailPopper = ({
         },
       ]}
     >
-      <ControlsRow appointment={appointment} onClose={onClose} onUpdated={onUpdated} />
-      <StyledPaper elevation={0}>
-        <PatientDetailsDisplay patient={appointment.patient} onClick={handlePatientDetailsClick} />
-        <AppointmentDetailsDisplay appointment={appointment} isOvernight={isOvernight} />
-        <AppointmentStatusDisplay
-          selectedStatus={localStatus}
-          updateAppointmentStatus={updateAppointmentStatus}
-        />
-      </StyledPaper>
+      <ClickAwayListener onClickAway={onClose}>
+        <Box>
+          <ControlsRow appointment={appointment} onClose={onClose} onUpdated={onUpdated} />
+          <StyledPaper elevation={0}>
+            <PatientDetailsDisplay patient={appointment.patient} onClick={handlePatientDetailsClick} />
+            <AppointmentDetailsDisplay appointment={appointment} isOvernight={isOvernight} />
+            <AppointmentStatusDisplay
+              selectedStatus={localStatus}
+              updateAppointmentStatus={updateAppointmentStatus}
+            />
+          </StyledPaper>
+            </Box>
+      </ClickAwayListener>
+
     </Popper>
   );
 };

@@ -31,8 +31,7 @@ const Bar = styled(Toolbar)`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding-left: 25px;
-  padding-right: 25px;
+  padding-inline: 25px;
 `;
 
 const Dot = styled.span`
