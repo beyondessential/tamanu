@@ -145,7 +145,7 @@ export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues, ed
   const handleSubmit = async (values, { resetForm }) => {
     let response;
     if (editMode) {
-      response = await api.put(`appointments/locationBooking/${values.bookingId}`, values);
+      response = await api.put(`appointments/locationBooking/${values.id}`, values);
     } else {
       response = await api.post(`appointments/locationBooking`, values);
     }
@@ -158,7 +158,7 @@ export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues, ed
         />,
       );
     }
-    if (response.newRecord.id) {
+    if (response.newRecord?.id || response.updatedRecord?.id) {
       notifySuccess(
         editMode ? (
           <TranslatedText

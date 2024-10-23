@@ -67,6 +67,8 @@ appointments.put('/locationBooking/:id', async (req, res) => {
   const { startTime, endTime, locationId } = body;
   const { Appointment } = models;
 
+  req.checkPermission('create', 'Appointment');
+
   const existingBooking = await Appointment.findByPk(id);
 
   if (!existingBooking) {
