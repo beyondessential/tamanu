@@ -11,6 +11,7 @@
   "type": "module",
   "scripts": {
     "build": "vite build",
+    "preview": "vite preview",
     "start-dev": "vite",
     "test": "NODE_ENV=test vitest run",
     "test-watch": "NODE_ENV=test vitest watch",

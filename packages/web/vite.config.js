@@ -29,7 +29,7 @@ export default async ({ mode }) => {
       react(),
       json5Plugin(),
       nodePolyfills({
-        // include: ['./node_modules/**/*.js', '../../node_modules/**/*.js'],
+        include: ['./node_modules/**/*.js', '../../node_modules/**/*.js'],
         globals: {
           Buffer: true,
         },
