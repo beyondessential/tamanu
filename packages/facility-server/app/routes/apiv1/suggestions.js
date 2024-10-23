@@ -77,7 +77,7 @@ function createSuggesterRoute(
       const suggestedIds = translations.map(extractDataId);
 
       const whereQuery = whereBuilder(`%${searchQuery}%`, query);
-      
+
       const where = {
         [Op.or]: [
           whereQuery,
@@ -319,7 +319,10 @@ const DEFAULT_WHERE_BUILDER = search => ({
 
 const filterByFacilityWhereBuilder = (search, query) => {
   const baseWhere = DEFAULT_WHERE_BUILDER(search);
-  if (!query.filterByFacility) {
+  // Parameters are passed as strings, so we need to check for 'true'
+  const shouldFilterByFacility =
+    query.filterByFacility === 'true' || query.filterByFacility === true;
+  if (!shouldFilterByFacility) {
     return baseWhere;
   }
 
