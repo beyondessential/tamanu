@@ -72,11 +72,6 @@ export const LocationBookingsView = () => {
     setIsDrawerOpen(true);
   };
 
-  const [refreshCount, setRefreshCount] = useState(0);
-  const refreshCalendar = () => {
-    setRefreshCount(refreshCount + 1);
-  };
-
   const locationsQuery = useLocationsQuery({
     bookableOnly: true,
   });
@@ -100,15 +95,13 @@ export const LocationBookingsView = () => {
         <LocationBookingsCalendar
           locationsQuery={locationsQuery}
           openBookingForm={openBookingForm}
-          refreshCount={refreshCount}
         />
       )}
-        <BookLocationDrawer
-          initialBookingValues={initialDrawerValues}
-          open={isDrawerOpen}
-          closeDrawer={closeBookingForm}
-          refreshCalendar={refreshCalendar}
-        />
+      <BookLocationDrawer
+        initialBookingValues={initialDrawerValues}
+        open={isDrawerOpen}
+        closeDrawer={closeBookingForm}
+      />
     </Wrapper>
   );
 };

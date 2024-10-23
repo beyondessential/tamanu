@@ -34,7 +34,7 @@ const Carousel = styled.div`
 `;
 
 
-export const LocationBookingsCalendar = ({ locationsQuery, openBookingForm, refreshCount }) => {
+export const LocationBookingsCalendar = ({ locationsQuery, openBookingForm }) => {
   const selectedMonthState = useState(startOfToday());
   const [monthOf] = selectedMonthState;
   const displayedDates = getDisplayableDates(monthOf);
@@ -50,7 +50,6 @@ export const LocationBookingsCalendar = ({ locationsQuery, openBookingForm, refr
           locationsQuery={locationsQuery}
           displayedDates={displayedDates}
           openBookingForm={openBookingForm}
-          refreshCount={refreshCount}
         />
       </CarouselGrid.Root>
     </Carousel>
