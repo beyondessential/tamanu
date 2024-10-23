@@ -71,6 +71,7 @@ labRequest.put(
           LAB_REQUEST_STATUSES.INTERIM_RESULTS,
           LAB_REQUEST_STATUSES.PUBLISHED,
           LAB_REQUEST_STATUSES.INVALIDATED,
+          LAB_REQUEST_STATUSES.CANCELLED,
         ].includes(labRequestData.status);
       }
 
