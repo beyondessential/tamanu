@@ -23,6 +23,7 @@ import {
   APPOINTMENT_TYPE_LABELS,
 } from '@tamanu/constants';
 import { AppointmentStatusChip } from './AppointmentStatusChip';
+import { MenuButton } from '../MenuButton';
 
 const DEBOUNCE_DELAY = 200; // ms
 
@@ -106,16 +107,29 @@ const AppointmentStatusContainer = styled(Box)`
   justify-items: center;
 `;
 
-const ControlsRow = ({ onClose }) => (
-  <ControlsContainer>
-    <StyledIconButton>
-      <MoreVert sx={{ fontSize: '0.875rem' }} />
-    </StyledIconButton>
-    <StyledIconButton onClick={onClose}>
-      <Close sx={{ fontSize: '0.875rem' }} />
-    </StyledIconButton>
-  </ControlsContainer>
-);
+const ControlsRow = ({ onClose, appointment, openBookingForm }) => {
+  const actions = [
+    {
+      label: <TranslatedText stringId="general.action.modify" fallback="Modify" />,
+      action: () => openBookingForm({...appointment, date: appointment.startTime}, true),
+    },
+    // TODO: cancel workflow
+    {
+      label: <TranslatedText stringId="general.action.Cancel" fallback="Cancel" />,
+      action: () => {},
+    },
+  ];
+
+  return (
+    <ControlsContainer>
+      {/* TODO: change size to match close button */}
+      <MenuButton actions={actions} />
+      <StyledIconButton onClick={onClose}>
+        <Close sx={{ fontSize: '0.875rem' }} />
+      </StyledIconButton>
+    </ControlsContainer>
+  );
+};
 
 const DetailsDisplay = ({ label, value }) => (
   <FlexCol>
@@ -258,6 +272,7 @@ export const AppointmentDetailPopper = ({
   anchorEl,
   appointment,
   isOvernight,
+  openBookingForm,
 }) => {
   const dispatch = useDispatch();
   const api = useApi();
@@ -316,7 +331,7 @@ export const AppointmentDetailPopper = ({
     >
       <ClickAwayListener onClickAway={onClose}>
         <Box>
-          <ControlsRow onClose={onClose} />
+          <ControlsRow appointment={appointment} openBookingForm={openBookingForm} onClose={onClose} />
           <StyledPaper elevation={0}>
             <PatientDetailsDisplay
               patient={appointment.patient}

@@ -75,6 +75,7 @@ const getPatientFullName = ({ firstName, middleName, lastName }) =>
 
 export const AppointmentTile = ({
   appointment,
+  openBookingForm,
   onUpdated,
   ...props
 }) => {
@@ -94,18 +95,6 @@ export const AppointmentTile = ({
   const isOvernight = !isSameDay(startTime, endTime);
 
   // TODO: handle the click outside event that closes this
-  // useEffect(() => {
-  //   const handleClickOutside = (event) => {
-  //     if (ref.current && !ref.current.contains(event.target)) {
-  //       setOpen(false);
-  //     }
-  //   };
-
-  //   document.addEventListener('mousedown', handleClickOutside);
-  //   return () => {
-  //     document.removeEventListener('mousedown', handleClickOutside);
-  //   };
-  // }, []);
 
   return (
     <Wrapper
@@ -148,6 +137,7 @@ export const AppointmentTile = ({
         appointment={appointment}
         isOvernight={isOvernight}
         onUpdated={onUpdated}
+        openBookingForm={openBookingForm}
       />
     </Wrapper>
   );

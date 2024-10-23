@@ -17,7 +17,7 @@ export const BookingsCell = ({ appointments, date, location, openBookingForm }) 
     }}
   >
     {appointments?.map(a => (
-      <AppointmentTile appointment={a} key={a.id} />
+      <AppointmentTile openBookingForm={openBookingForm} appointment={a} key={a.id} />
     ))}
   </CarouselGrid.Cell>
 );
