@@ -45,7 +45,7 @@ export const LocationBookingsCalendar = ({ locationsQuery, openBookingForm, refr
         <LocationBookingsCalendarHeader
           selectedMonthState={selectedMonthState}
           displayedDates={displayedDates}
-        />
+        /> 
         <LocationBookingsCalendarBody
           locationsQuery={locationsQuery}
           displayedDates={displayedDates}
