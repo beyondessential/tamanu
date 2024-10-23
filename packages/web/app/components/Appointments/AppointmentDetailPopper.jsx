@@ -71,7 +71,7 @@ const StyledIconButton = styled(IconButton)`
 const ControlsContainer = styled(FlexRow)`
   position: fixed;
   inset-block-start: 0.5rem;
-  inset-inline-end: 8px;
+  inset-inline-end: 0.5rem;
   gap: 0.125rem;
 `;
 
