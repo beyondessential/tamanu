@@ -93,6 +93,19 @@ export const AppointmentTile = ({
   const isHighPriority = false; // TODO
   const isOvernight = !isSameDay(startTime, endTime);
 
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (ref.current && !ref.current.contains(event.target)) {
+        setOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
   return (
     <Wrapper
       $color={APPOINTMENT_STATUS_COLORS[appointmentStatus]}
