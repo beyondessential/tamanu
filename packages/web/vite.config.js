@@ -16,7 +16,9 @@ export default async ({ mode }) => {
       // repo is dirty (has uncommited files)
       revision += '~';
     }
-  } catch (_) { /* ignore */ }
+  } catch (_) {
+    /* ignore */
+  }
 
   return defineConfig({
     assetsInclude: ['/sb-preview/runtime.js'],
@@ -27,6 +29,7 @@ export default async ({ mode }) => {
       react(),
       json5Plugin(),
       nodePolyfills({
+        include: ['./node_modules/**/*.js', '../../node_modules/**/*.js'],
         globals: {
           Buffer: true,
         },
@@ -44,8 +47,8 @@ export default async ({ mode }) => {
           NODE_ENV: process.env.NODE_ENV,
           REVISION: revision,
         },
-        arch: 'wasm',
         platform: 'web',
+        arch: 'wasm',
       }),
     },
     worker: {
