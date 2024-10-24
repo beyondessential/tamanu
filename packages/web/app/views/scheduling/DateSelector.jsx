@@ -23,7 +23,7 @@ const Wrapper = styled(Box)`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1rem;
+  padding: 0.5rem;
   gap: 0.5rem;
 `;
 
@@ -80,7 +80,7 @@ const StepperButton = styled(IconButton)`
 `;
 
 const StyledMonthYearInput = styled(MonthYearInput)`
-  width: 7.5rem;
+  width: 7rem;
 `;
 
 const getMonthInterval = date =>

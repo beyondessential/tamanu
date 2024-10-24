@@ -58,15 +58,16 @@ const Grid = styled.div`
 const Wrapper = styled(Box)`
   display: flex;
   width: 100%;
+  height: 100%;
   overflow: auto;
   border-top: 1px solid ${Colors.outline};
 `;
 
-export const BookingsCalendar = ({ headerData, cellData }) => {
+export const BookingsCalendar = ({ headerData, cellData, getTitle }) => {
   console.log(cellData);
   return (
     <Wrapper>
-      <BookingsCalendarHeader headerData={headerData} cellData={cellData} />
+      <BookingsCalendarHeader getTitle={getTitle} headerData={headerData} cellData={cellData} />
     </Wrapper>
   );
 };

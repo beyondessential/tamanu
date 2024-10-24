@@ -42,8 +42,8 @@ export const GroupByToggle = ({ value, onChange }) => {
         Area
       </ToggleButton>
       <ToggleButton
-        $selected={value === 'clinicians'}
-        onClick={() => onChange('clinicians')}
+        $selected={value === 'clinician'}
+        onClick={() => onChange('clinician')}
         variant={value === 'clinicians' ? 'contained' : 'outlined'}
       >
         Clinicians

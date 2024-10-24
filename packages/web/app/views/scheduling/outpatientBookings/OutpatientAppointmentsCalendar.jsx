@@ -24,8 +24,17 @@ const Placeholder = styled.div`
   text-align: center;
 `;
 
+const Container = styled(PageContainer)`
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+`;
+
 const CalendarWrapper = styled.div`
-  margin: 0.5rem;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  margin: 1rem;
   border-radius: 4px;
   border: 1px solid ${Colors.outline};
   background: ${Colors.white};
@@ -34,6 +43,7 @@ const CalendarWrapper = styled.div`
 const LocationBookingsTopBar = styled(TopBar).attrs({
   title: <TranslatedText stringId="scheduling.appointments.title" fallback="Appointments" />,
 })`
+  flex-grow: 0;
   & .MuiTypography-root {
     flex: 0;
   }
@@ -50,12 +60,12 @@ const NewBookingButton = styled(Button)`
 
 const APPOINTMENT_GROUP_BY = {
   AREA: 'area',
-  CLINICIANS: 'clinicians',
+  CLINICIAN: 'clinician',
 };
 
 export const OutpatientAppointmentsCalendar = () => {
   const [selectedDate, setSelectedDate] = useState(startOfDay(new Date()));
-  const [groupBy, setGroupBy] = useState(APPOINTMENT_GROUP_BY.CLINICIANS);
+  const [groupBy, setGroupBy] = useState(APPOINTMENT_GROUP_BY.AREA);
 
   const handleChangeDate = event => {
     setSelectedDate(event.target.value);
@@ -68,20 +78,23 @@ export const OutpatientAppointmentsCalendar = () => {
     after: selectedDate,
     before: endOfDay(selectedDate),
     clinicianId: '',
+    locationGroupId: '',
   });
 
   const groupByConfig = useMemo(
     () => ({
       [APPOINTMENT_GROUP_BY.AREA]: {
-        data: locationGroupData?.data,
+        data: locationGroupData,
         key: 'locationGroupId',
+        getTitle: ({ name }) => name,
       },
-      [APPOINTMENT_GROUP_BY.CLINICIANS]: {
+      [APPOINTMENT_GROUP_BY.CLINICIAN]: {
         data: userData?.data,
         key: 'clinicianId',
+        getTitle: ({ displayName }) => displayName,
       },
     }),
-    [locationGroupData?.data, userData?.data],
+    [locationGroupData, userData?.data],
   );
 
   const groupedAppointmentData = useMemo(() => {
@@ -90,7 +103,7 @@ export const OutpatientAppointmentsCalendar = () => {
   }, [appointmentData, groupBy, groupByConfig]);
 
   return (
-    <PageContainer>
+    <Container>
       <LocationBookingsTopBar>
         <GroupByToggle value={groupBy} onChange={setGroupBy} />
         <Filters>
@@ -103,10 +116,11 @@ export const OutpatientAppointmentsCalendar = () => {
       <CalendarWrapper>
         <DateSelector value={selectedDate} onChange={handleChangeDate} />
         <BookingsCalendar
+          getTitle={groupByConfig[groupBy].getTitle}
           headerData={groupByConfig[groupBy].data || []}
           cellData={groupedAppointmentData}
         />
       </CalendarWrapper>
-    </PageContainer>
+    </Container>
   );
 };

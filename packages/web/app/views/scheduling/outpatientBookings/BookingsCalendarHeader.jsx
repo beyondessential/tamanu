@@ -12,7 +12,7 @@ const HeaderTextWrapper = styled.div`
   font-size: 1rem;
   font-weight: var(--base-font-weight);
   line-height: 1.3;
-  width: 12rem;
+  width: 14rem;
   height: 60px;
   padding: 0.5rem 0.5rem;
   text-align: center;
@@ -55,11 +55,15 @@ const AppointmentTileWrapper = styled.div`
   height: 100%;
 `;
 
-export const HeaderCell = ({ entity, count }) => {
+const ColumnWrapper = styled.div`
+  display: flex;
+`;
+
+export const HeaderCell = ({ title, count }) => {
   return (
     <Wrapper>
       <HeaderTextWrapper>
-        <HeaderText>{entity.displayName}</HeaderText>
+        <HeaderText>{title}</HeaderText>
       </HeaderTextWrapper>
       <AppointNumberCell>
         <SmallBodyText>{count}</SmallBodyText>
@@ -69,22 +73,24 @@ export const HeaderCell = ({ entity, count }) => {
   );
 };
 
-export const BookingsCalendarHeader = ({ headerData, cellData }) => {
+export const BookingsCalendarHeader = ({ headerData, cellData, getTitle }) => {
   return (
-    <Box display="flex">
+    <ColumnWrapper>
       {headerData.map(d => {
         const appts = cellData[d.id];
         return (
           <Box key={d.id} display="flex" flexDirection="column">
-            <HeaderCell entity={d} id={d.id} key={d.id} count={appts?.length || 0} />
+            <HeaderCell title={getTitle(d)} id={d.id} key={d.id} count={appts?.length || 0} />
             <AppointmentTileWrapper>
               {appts?.map(a => (
-                <AppointmentTile appointment={a} key={a.id} />
+                <Box margin={1} key={a.id}>
+                  <AppointmentTile appointment={a} />
+                </Box>
               ))}
             </AppointmentTileWrapper>
           </Box>
         );
       })}
-    </Box>
+    </ColumnWrapper>
   );
 };
