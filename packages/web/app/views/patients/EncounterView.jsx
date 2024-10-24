@@ -3,7 +3,6 @@ import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { ENCOUNTER_TYPES } from '@tamanu/constants';
 import { useEncounter } from '../../contexts/Encounter';
-import { useLocalisation } from '../../contexts/Localisation';
 import { useUrlSearchParams } from '../../utils/useUrlSearchParams';
 import { ContentPane, EncounterTopBar } from '../../components';
 import { DiagnosisView } from '../../components/DiagnosisView';
@@ -29,6 +28,7 @@ import { useReferenceData } from '../../api/queries';
 import { useAuth } from '../../contexts/Auth';
 import { VitalChartDataProvider } from '../../contexts/VitalChartData';
 import { TranslatedText, TranslatedReferenceData } from '../../components/Translation';
+import { useSettings } from '../../contexts/Settings';
 
 const getIsTriage = encounter => ENCOUNTER_OPTIONS_BY_VALUE[encounter.encounterType].triageFlowOnly;
 
@@ -81,8 +81,8 @@ const TABS = [
     label: <TranslatedText stringId="encounter.tabs.invoicing" fallback="Invoicing" />,
     key: ENCOUNTER_TAB_NAMES.INVOICING,
     render: props => <EncounterInvoicingPane {...props} />,
-    condition: (getLocalisation, ability) =>
-      getLocalisation('features.enableInvoicing') && ability.can('read', 'Invoice'),
+    condition: (getSetting, ability) =>
+      getSetting('features.enableInvoicing') && ability.can('read', 'Invoice'),
   },
 ];
 
@@ -129,7 +129,7 @@ const StyledTabDisplay = styled(TabDisplay)`
 export const EncounterView = () => {
   const api = useApi();
   const query = useUrlSearchParams();
-  const { getLocalisation } = useLocalisation();
+  const { getSetting } = useSettings();
   const { facilityId, ability } = useAuth();
   const patient = useSelector(state => state.patient);
   const { encounter, isLoadingEncounter } = useEncounter();
@@ -143,7 +143,7 @@ export const EncounterView = () => {
 
   if (!encounter || isLoadingEncounter || patient.loading) return <LoadingIndicator />;
 
-  const visibleTabs = TABS.filter(tab => !tab.condition || tab.condition(getLocalisation, ability));
+  const visibleTabs = TABS.filter(tab => !tab.condition || tab.condition(getSetting, ability));
 
   return (
     <GridColumnContainer>
@@ -170,7 +170,7 @@ export const EncounterView = () => {
       </EncounterTopBar>
       <EncounterInfoPane
         encounter={encounter}
-        getLocalisation={getLocalisation}
+        getSetting={getSetting}
         patientBillingType={
           patientBillingTypeData && (
             <TranslatedReferenceData

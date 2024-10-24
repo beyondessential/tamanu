@@ -3,6 +3,7 @@ import { useLocalisation } from '../../../contexts/Localisation';
 import { Modal } from '../../Modal';
 import { PDFLoader, printPDF } from '../PDFLoader';
 import { IDCardPrintout } from '@tamanu/shared/utils/patientCertificates';
+import { useSettings } from '../../../contexts/Settings';
 
 const cardDimensions = {
   width: '85.6mm',
@@ -10,8 +11,9 @@ const cardDimensions = {
 };
 
 export const PatientIDCardPage = React.memo(({ patient, imageData }) => {
+  const { getSetting } = useSettings()
   const { getLocalisation } = useLocalisation();
-  const measures = getLocalisation('printMeasures.idCardPage');
+  const measures = getSetting('printMeasures.idCardPage');
   const [open, setOpen] = useState(true);
 
   return (
