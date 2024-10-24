@@ -101,11 +101,6 @@ export const BookingTimeField = ({ editMode, disabled = false }) => {
     },
   );
 
-  const showSameDayBookingWarning =
-    !editMode &&
-    values.patientId &&
-    existingLocationBookings.data.find(booking => booking.patientId === values.patientId);
-
   // Convert existing bookings into timeslots
   const bookedTimeSlots = useMemo(
     () =>
@@ -221,7 +216,7 @@ export const BookingTimeField = ({ editMode, disabled = false }) => {
 
   return (
     <OuterLabelFieldWrapper
-      label={<TranslatedText stringId="location.form.bookingTime.label" fallback="Booking time" />}
+      label={<TranslatedText stringId="locationBooking.form.bookingTime.label" fallback="Booking time" />}
       required
     >
       <CellContainer $disabled={disabled}>
@@ -274,11 +269,6 @@ export const BookingTimeField = ({ editMode, disabled = false }) => {
           })
         )}
       </CellContainer>
-      {showSameDayBookingWarning && (
-        <HelperText>
-          Patient already has appointment scheduled at this location for this day
-        </HelperText>
-      )}
     </OuterLabelFieldWrapper>
   );
 };

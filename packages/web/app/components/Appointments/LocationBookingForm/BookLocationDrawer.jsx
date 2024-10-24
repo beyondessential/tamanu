@@ -23,6 +23,7 @@ import { ClearIcon } from '../../Icons/ClearIcon';
 import { ConfirmModal } from '../../ConfirmModal';
 import { notifyError, notifySuccess } from '../../../utils';
 import { TranslatedText } from '../../Translation/TranslatedText';
+import { useAppointmentsQuery } from '../../../api/queries';
 
 const slideIn = keyframes`
   from {
@@ -208,6 +209,12 @@ export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues, ed
             resetForm();
           };
 
+          // TODO: how to get this working properly :thinking:
+          const showSameDayBookingWarning =
+            !editMode &&
+            values.patientId &&
+            existingLocationBookings.data.find(booking => booking.patientId === values.patientId);
+
           return (
             <FormGrid columns={1}>
               <CloseDrawerIcon onClick={warnAndResetForm} />
@@ -243,6 +250,10 @@ export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues, ed
                 component={DateField}
                 disabled={!values.locationId}
                 required
+                helperText={
+                  showSameDayBookingWarning &&
+                  'Patient already has appointment scheduled at this location for this day'
+                }
               />
               <BookingTimeField key={values.date} editMode={editMode} disabled={!values.date} />
               <Field
