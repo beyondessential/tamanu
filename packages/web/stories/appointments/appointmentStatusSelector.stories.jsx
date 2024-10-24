@@ -17,3 +17,16 @@ export const StatusSelector = () => {
     </div>
   );
 };
+
+export const Disabled = () => {
+  const [status, setStatus] = React.useState(APPOINTMENT_STATUSES.CONFIRMED);
+  return (
+    <div style={{ width: '16rem' }}>
+      <AppointmentStatusSelector
+        disabled
+        selectedStatus={status}
+        updateAppointmentStatus={setStatus}
+      />
+    </div>
+  );
+};

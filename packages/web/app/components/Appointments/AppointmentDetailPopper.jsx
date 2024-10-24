@@ -225,7 +225,11 @@ const AppointDetailsDisplay = ({ appointment, isOvernight }) => {
   );
 };
 
-export const AppointmentStatusSelector = ({ selectedStatus, updateAppointmentStatus }) => {
+export const AppointmentStatusSelector = ({
+  disabled,
+  selectedStatus,
+  updateAppointmentStatus,
+}) => {
   return (
     <AppointmentStatusContainer role="radiogroup">
       {APPOINTMENT_STATUS_VALUES.filter(status => status != APPOINTMENT_STATUSES.CANCELLED).map(
@@ -235,7 +239,7 @@ export const AppointmentStatusSelector = ({ selectedStatus, updateAppointmentSta
             <AppointmentStatusChip
               appointmentStatus={status}
               aria-checked={isSelected}
-              disabled={isSelected}
+              disabled={disabled || isSelected}
               key={status}
               onClick={() => updateAppointmentStatus(status)}
               role="radio"
