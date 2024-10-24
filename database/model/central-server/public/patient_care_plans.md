@@ -1,15 +1,20 @@
 {% docs table__patient_care_plans %}
-TODO
+List of current care plans the patient is on.
+
+In Tamanu this is displayed and entered in the patient view sidebar, under "Care plans".
+
+See also: `public.patient_allergies`, `public.patient_conditions`, `public.patient_family_histories`,
+`public.patient_issues`.
 {% enddocs %}
 
 {% docs patient_care_plans__patient_id %}
-TODO
+Reference to the patient.
 {% enddocs %}
 
 {% docs patient_care_plans__examiner_id %}
-TODO
+Reference to the practitioner who prescribed this care plan.
 {% enddocs %}
 
 {% docs patient_care_plans__care_plan_id %}
-TODO
+Reference to the care plan (Reference Data).
 {% enddocs %}

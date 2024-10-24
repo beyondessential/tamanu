@@ -2,10 +2,10 @@ version: 2
 sources:
   - name: tamanu
     schema: public
-    description: Tamanu database
+    description: "{{ doc('generic__schema') }}"
     tables:
       - name: document_metadata
-        description: ""
+        description: "{{ doc('table__document_metadata') }}"
         tags:
           - clinical
         columns:

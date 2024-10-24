@@ -2,10 +2,10 @@ version: 2
 sources:
   - name: tamanu
     schema: public
-    description: Tamanu database
+    description: "{{ doc('generic__schema') }}"
     tables:
       - name: death_revert_logs
-        description: ""
+        description: "{{ doc('table__death_revert_logs') }}"
         tags:
           - clinical
         columns:

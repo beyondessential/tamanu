@@ -2,10 +2,10 @@ version: 2
 sources:
   - name: tamanu
     schema: public
-    description: Tamanu database
+    description: "{{ doc('generic__schema') }}"
     tables:
       - name: certificate_notifications
-        description: ""
+        description: "{{ doc('table__certificate_notifications') }}"
         tags:
           - clinical
         columns:

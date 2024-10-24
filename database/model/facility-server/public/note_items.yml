@@ -2,10 +2,10 @@ version: 2
 sources:
   - name: tamanu
     schema: public
-    description: Tamanu database
+    description: "{{ doc('generic__schema') }}"
     tables:
       - name: note_items
-        description: ""
+        description: "{{ doc('table__note_items') }}"
         tags:
           - clinical
           - deprecated

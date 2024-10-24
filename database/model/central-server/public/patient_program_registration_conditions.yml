@@ -2,7 +2,7 @@ version: 2
 sources:
   - name: tamanu
     schema: public
-    description: Tamanu database
+    description: "{{ doc('generic__schema') }}"
     tables:
       - name: patient_program_registration_conditions
         description: "{{ doc('table__patient_program_registration_conditions') }}"

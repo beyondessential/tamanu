@@ -2,10 +2,10 @@ version: 2
 sources:
   - name: tamanu
     schema: public
-    description: Tamanu database
+    description: "{{ doc('generic__schema') }}"
     tables:
       - name: local_system_facts
-        description: ""
+        description: "{{ doc('table__local_system_facts') }}"
         tags:
           - system
         columns:

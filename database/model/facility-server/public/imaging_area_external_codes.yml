@@ -2,10 +2,10 @@ version: 2
 sources:
   - name: tamanu
     schema: public
-    description: Tamanu database
+    description: "{{ doc('generic__schema') }}"
     tables:
       - name: imaging_area_external_codes
-        description: ""
+        description: "{{ doc('table__imaging_area_external_codes') }}"
         tags:
           - reference
         columns:

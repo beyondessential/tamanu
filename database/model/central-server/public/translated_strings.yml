@@ -2,10 +2,10 @@ version: 2
 sources:
   - name: tamanu
     schema: public
-    description: Tamanu database
+    description: "{{ doc('generic__schema') }}"
     tables:
       - name: translated_strings
-        description: ""
+        description: "{{ doc('table__translated_strings') }}"
         tags:
           - reference
         columns:

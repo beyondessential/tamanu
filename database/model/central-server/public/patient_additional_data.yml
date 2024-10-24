@@ -2,10 +2,10 @@ version: 2
 sources:
   - name: tamanu
     schema: public
-    description: Tamanu database
+    description: "{{ doc('generic__schema') }}"
     tables:
       - name: patient_additional_data
-        description: ""
+        description: "{{ doc('table__patient_additional_data') }}"
         tags:
           - patient
         columns:
@@ -30,6 +30,17 @@ sources:
           - name: marital_status
             data_type: character varying(255)
             description: "{{ doc('patient_additional_data__marital_status') }}"
+            __generator:
+              values_from_constant: MARTIAL_STATUS_VALUES
+            data_tests:
+              - allowed_values:
+                - Defacto
+                - Married
+                - Single
+                - Widow
+                - Divorced
+                - Separated
+                - Unknown
           - name: city_town
             data_type: character varying(255)
             description: "{{ doc('patient_additional_data__city_town') }}"
@@ -45,6 +56,18 @@ sources:
           - name: blood_type
             data_type: character varying(255)
             description: "{{ doc('patient_additional_data__blood_type') }}"
+            __generator:
+              values_from_constant: BLOOD_TYPES
+            data_tests:
+              - allowed_values:
+                - A+
+                - A-
+                - AB-
+                - AB+
+                - B+
+                - B-
+                - O+
+                - O-
           - name: title
             data_type: character varying(255)
             description: "{{ doc('patient_additional_data__title') }}"

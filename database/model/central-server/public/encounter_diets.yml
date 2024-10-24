@@ -2,10 +2,10 @@ version: 2
 sources:
   - name: tamanu
     schema: public
-    description: Tamanu database
+    description: "{{ doc('generic__schema') }}"
     tables:
       - name: encounter_diets
-        description: ""
+        description: "{{ doc('table__encounter_diets') }}"
         tags:
           - administration
         columns:

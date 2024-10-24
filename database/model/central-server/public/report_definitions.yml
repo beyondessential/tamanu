@@ -2,10 +2,10 @@ version: 2
 sources:
   - name: tamanu
     schema: public
-    description: Tamanu database
+    description: "{{ doc('generic__schema') }}"
     tables:
       - name: report_definitions
-        description: ""
+        description: "{{ doc('table__report_definitions') }}"
         tags:
           - reference
         columns:

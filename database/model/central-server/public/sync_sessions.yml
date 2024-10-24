@@ -2,10 +2,10 @@ version: 2
 sources:
   - name: tamanu
     schema: public
-    description: Tamanu database
+    description: "{{ doc('generic__schema') }}"
     tables:
       - name: sync_sessions
-        description: ""
+        description: "{{ doc('table__sync_sessions') }}"
         tags:
           - system
         columns:

@@ -2,10 +2,10 @@ version: 2
 sources:
   - name: tamanu
     schema: public
-    description: Tamanu database
+    description: "{{ doc('generic__schema') }}"
     tables:
       - name: user_localisation_caches
-        description: ""
+        description: "{{ doc('table__user_localisation_caches') }}"
         tags:
           - system
         columns:

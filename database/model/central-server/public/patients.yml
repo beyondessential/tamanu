@@ -2,7 +2,7 @@ version: 2
 sources:
   - name: tamanu
     schema: public
-    description: Tamanu database
+    description: "{{ doc('generic__schema') }}"
     tables:
       - name: patients
         description: "{{ doc('table__patients') }}"
@@ -11,7 +11,7 @@ sources:
         columns:
           - name: id
             data_type: character varying(255)
-            description: "{{ doc('patients__id') }}"
+            description: "{{ doc('generic__id') }}"
             data_tests:
               - unique
               - not_null
@@ -55,12 +55,15 @@ sources:
           - name: sex
             data_type: user-defined
             description: "{{ doc('patients__sex') }}"
+            __generator:
+              values_from_constant: SEX_VALUES
             data_tests:
               - not_null
               - accepted_values:
                   values:
                     - female
                     - male
+                    - other
           - name: village_id
             data_type: character varying(255)
             description: "{{ doc('patients__village_id') }}"

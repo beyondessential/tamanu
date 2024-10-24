@@ -2,10 +2,10 @@ version: 2
 sources:
   - name: tamanu
     schema: public
-    description: Tamanu database
+    description: "{{ doc('generic__schema') }}"
     tables:
       - name: surveys
-        description: ""
+        description: "{{ doc('table__surveys') }}"
         tags:
           - reference
         columns:

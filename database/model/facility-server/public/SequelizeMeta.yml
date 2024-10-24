@@ -1,7 +1,7 @@
 sources:
   - name: tamanu
     schema: public
-    description: Tamanu database
+    description: "{{ doc('generic__schema') }}"
     tables:
       - name: SequelizeMeta
         description: "{{ doc('table__SequelizeMeta') }}"
