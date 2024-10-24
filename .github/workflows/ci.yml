@@ -279,9 +279,9 @@ jobs:
         working-directory: ${{ matrix.workdir }}
       - run: git diff --exit-code
 
-  check-db-model:
+  dbt-check-model:
     needs: node_modules_cache
-    name: DB schema up to date
+    name: DBT model up to date
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -322,17 +322,17 @@ jobs:
           yarn workspace @tamanu/facility-server run start migrate up
 
       - run: |
-          yarn generate-dbt-source --fail-on-missing-config
+          yarn dbt-generate-model --fail-on-missing-config
           if [[ -n $(git status --porcelain=v2) ]]; then
               git diff
-              echo "The source model is behind the Tamanu database!"
-              echo "Run 'yarn generate-dbt-source' and commit the result."
+              echo "The dbt model is behind the Tamanu database!"
+              echo "Run 'yarn dbt-generate-model' and commit the result."
               exit 1
           fi
 
-  check-todo-db-model:
+  dbt-check-todos:
     needs: node_modules_cache
-    name: DB Schema TODOs
+    name: DBT model TODOs
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -348,7 +348,7 @@ jobs:
           path: ${{ env.NODE_MODULES_PATHS }}
 
       - run: yarn
-      - run: yarn check-todo-dbt-source
+      - run: yarn dbt-check-todos
 
   # Dummy job to have a stable name for PR requirements
   tests-pass:
@@ -362,8 +362,8 @@ jobs:
       - test-mobile
       - test-facility-offline
       - test-yarn-lock
-      - check-db-model
-      - check-todo-db-model
+      - dbt-check-model
+      - dbt-check-todos
     runs-on: ubuntu-latest
     steps:
       - uses: re-actors/alls-green@release/v1
