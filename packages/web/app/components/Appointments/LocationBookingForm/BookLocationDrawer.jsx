@@ -155,7 +155,7 @@ export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues }) 
         />,
       );
     }
-    if (response.status === 200) {
+    if (response.newRecord?.id) {
       notifySuccess(
         <TranslatedText
           stringId="locationBooking.notification.bookingSuccessfullyCreated"
