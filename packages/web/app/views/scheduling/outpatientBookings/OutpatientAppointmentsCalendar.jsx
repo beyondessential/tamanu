@@ -1,9 +1,13 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Button, PageContainer, TopBar, TranslatedText } from '../../../components';
 import { DateSelector } from '../DateSelector';
 import styled from 'styled-components';
 import { Colors } from '../../../constants';
 import { GroupByToggle } from './GroupAppointmentToggle';
+import { useLocationsQuery } from '../../../api/queries';
+import { useLocationGroupsQuery } from '../../../api/queries/useLocationGroupsQuery';
+import { useUsersQuery } from '../../../api/queries/useUsersQuery';
+import { BookingsCalendar } from '../BookingCalender';
 
 const Placeholder = styled.div`
   background-color: oklch(0% 0 0 / 3%);
@@ -33,7 +37,11 @@ const CalendarWrapper = styled.div`
 
 const LocationBookingsTopBar = styled(TopBar).attrs({
   title: <TranslatedText stringId="scheduling.appointments.title" fallback="Appointments" />,
-})``;
+})`
+  & .MuiTypography-root {
+    flex: 0;
+  }
+`;
 
 const Filters = styled('search')`
   display: flex;
@@ -56,6 +64,28 @@ export const OutpatientAppointmentsCalendar = () => {
   const handleChangeDate = event => {
     setSelectedDate(event.target.value);
   };
+
+  const locationGroupsQuery = useLocationGroupsQuery();
+  const usersQuery = useUsersQuery();
+
+  const query = useMemo(
+    () =>
+      ({
+        [APPOINTMENT_GROUP_BY.AREA]: locationGroupsQuery,
+        [APPOINTMENT_GROUP_BY.CLINICIANS]: usersQuery,
+      }[groupBy]),
+    [groupBy, locationGroupsQuery, usersQuery],
+  );
+
+  const partitionKey = useMemo(
+    () =>
+      ({
+        [APPOINTMENT_GROUP_BY.AREA]: 'locationGroupId',
+        [APPOINTMENT_GROUP_BY.CLINICIANS]: 'clinicianId',
+      }[groupBy]),
+    [groupBy],
+  );
+
   return (
     <Wrapper>
       <PageContainer>
@@ -70,6 +100,11 @@ export const OutpatientAppointmentsCalendar = () => {
         </LocationBookingsTopBar>
         <CalendarWrapper>
           <DateSelector value={selectedDate} onChange={handleChangeDate} />
+          <BookingsCalendar
+            query={query}
+            partitionKey={partitionKey}
+            getHeadCellText={({ displayName }) => displayName}
+          />
         </CalendarWrapper>
       </PageContainer>
     </Wrapper>

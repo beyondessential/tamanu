@@ -10,7 +10,6 @@ const Wrapper = styled(Box)`
   background-color: ${Colors.white};
   border-radius: 50px;
   border: 1px solid ${Colors.primary};
-  margin-right: auto;
 `;
 
 const ToggleButton = styled(Button)`

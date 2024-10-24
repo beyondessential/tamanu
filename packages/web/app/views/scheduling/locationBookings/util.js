@@ -1,8 +1,8 @@
-/** Record<LocationId, Record<Date, Appointment> */
-export const partitionAppointmentsByLocation = appointments =>
+/** Record<string, Record<Date, Appointment> */
+export const partitionAppointmentsByKey = (appointments, key) =>
   appointments.reduce((acc, appt) => {
-    const locationId = appt.locationId;
-    (acc[locationId] || (acc[locationId] = [])).push(appt);
+    const groupId = appt[key];
+    (acc[groupId] || (acc[groupId] = [])).push(appt);
     return acc;
   }, {});
 

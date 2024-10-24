@@ -2,18 +2,18 @@ import { endOfDay, formatISO } from 'date-fns';
 import React from 'react';
 import styled from 'styled-components';
 
-import { useAppointmentsQuery } from '../../../api/queries';
-import { AppointmentTile } from '../../../components/Appointments/AppointmentTile';
-import { Colors } from '../../../constants';
-import { CarouselComponents as CarouselGrid } from './CarouselComponents';
-import { SkeletonRows } from './Skeletons';
-import { partitionAppointmentsByDate, partitionAppointmentsByKey } from './util';
+import { useAppointmentsQuery } from '../../api/queries';
+import { AppointmentTile } from '../../components/Appointments/AppointmentTile';
+import { Colors } from '../../constants';
+import { CarouselComponents as CarouselGrid } from './locationBookings/CarouselComponents';
+import { SkeletonRows } from './locationBookings/Skeletons';
+import { partitionAppointmentsByDate, partitionAppointmentsByKey } from './locationBookings/util';
 
 export const BookingsCell = ({ appointments, date, location, openBookingForm }) => (
   <CarouselGrid.Cell
     onClick={() => {
       // Open form for creating new booking
-      openBookingForm({ date, locationId: location.id });
+      // openBookingForm({ date, locationId: location.id });
     }}
   >
     {appointments?.map(a => (
@@ -22,24 +22,18 @@ export const BookingsCell = ({ appointments, date, location, openBookingForm }) 
   </CarouselGrid.Cell>
 );
 
-export const BookingsRow = ({ appointments, dates, location, openBookingForm }) => {
-  const {
-    name: locationName,
-    locationGroup: { name: locationGroupName },
-  } = location;
+export const BookingsRow = ({ appointments, dates, entity, openBookingForm, getHeaderText }) => {
   const appointmentsByDate = partitionAppointmentsByDate(appointments);
 
   return (
     <CarouselGrid.Row>
-      <CarouselGrid.RowHeaderCell>
-        {locationGroupName} {locationName}
-      </CarouselGrid.RowHeaderCell>
+      <CarouselGrid.RowHeaderCell>{getHeaderText(entity)}</CarouselGrid.RowHeaderCell>
       {dates.map(d => (
         <BookingsCell
           appointments={appointmentsByDate[formatISO(d, { representation: 'date' })]}
           date={d}
           key={d.valueOf()}
-          location={location}
+          entity={entity}
           openBookingForm={openBookingForm}
         />
       ))}
@@ -59,30 +53,32 @@ const EmptyStateRow = () => (
   <StyledRow>No bookings to display. Please try adjusting the search filters.</StyledRow>
 );
 
-export const LocationBookingsCalendarBody = ({
+export const BookingsCalendarBody = ({
   displayedDates,
-  locationsQuery,
+  query,
+  partitionKey,
+  getHeadCellText,
   openBookingForm,
 }) => {
-  const { data: locations, isLoading: locationsAreLoading } = locationsQuery;
+  const { data, isLoading } = query;
   const appointments =
     useAppointmentsQuery({
       after: displayedDates[0],
       before: endOfDay(displayedDates[displayedDates.length - 1]),
-      locationId: '',
     }).data?.data ?? [];
 
-  if (locationsAreLoading) return <SkeletonRows colCount={displayedDates.length} />;
-  if (locations?.length === 0) return <EmptyStateRow />;
+  if (isLoading) return <SkeletonRows colCount={displayedDates.length} />;
+  if (data?.length === 0) return <EmptyStateRow />;
 
-  const appointmentsByLocation = partitionAppointmentsByKey(appointments, 'locationId');
+  const partitionedAppointments = partitionAppointmentsByKey(appointments, partitionKey);
 
-  return locations?.map(location => (
+  return data?.map(entity => (
     <BookingsRow
-      appointments={appointmentsByLocation[location.id] ?? []}
+      appointments={partitionedAppointments[entity.id] ?? []}
       dates={displayedDates}
-      key={location.code}
-      location={location}
+      key={entity.id}
+      entity={entity}
+      getHeadCellText={getHeadCellText}
       openBookingForm={openBookingForm}
     />
   ));
