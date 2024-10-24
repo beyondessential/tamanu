@@ -47,8 +47,8 @@ export default async ({ mode }) => {
           NODE_ENV: process.env.NODE_ENV,
           REVISION: revision,
         },
-        platform: 'web',
         arch: 'wasm',
+        platform: 'web',
       }),
     },
     worker: {
