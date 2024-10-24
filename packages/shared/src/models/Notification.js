@@ -4,6 +4,7 @@ import { Model } from './Model';
 import { dateTimeType } from './dateTimeTypes';
 import { getCurrentDateTimeString } from '../utils/dateTime';
 import { log } from '../services/logging';
+import config from 'config';
 
 export class Notification extends Model {
   static init({ primaryKey, ...options }) {
@@ -77,6 +78,8 @@ export class Notification extends Model {
 
   static async pushNotification(type, metadata) {
     try {
+      if (!config.notification?.enabled) return;
+
       const { models } = this.sequelize;
 
       let patientId;
@@ -86,12 +89,15 @@ export class Notification extends Model {
           userId = metadata.requestedById;
           const encounter = await models.Encounter.findByPk(metadata.encounterId);
           patientId = encounter.patientId;
+          break;
         }
         case NOTIFICATION_TYPES.LAB_REQUEST: {
           userId = metadata.requestedById;
           const encounter = await models.Encounter.findByPk(metadata.encounterId);
           patientId = encounter.patientId;
+          break;
         }
+        default: return;
       }
 
       await this.create({

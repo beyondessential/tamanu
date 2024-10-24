@@ -5,6 +5,7 @@ import { NOTIFICATION_STATUSES } from '@tamanu/constants';
 import { Op, Sequelize } from 'sequelize';
 import { toCountryDateTimeString } from '@tamanu/shared/utils/countryDateTime';
 import { sub } from 'date-fns';
+import config from 'config';
 
 export const notifications = express.Router();
 
@@ -14,21 +15,29 @@ notifications.get(
     req.flagPermissionChecked();
     const { models, user } = req;
 
-    const RECENT_NOTIFICATION_TIME_FRAME = 48; // hours
+    const recentNotificationsTimeFrame = config.notification?.recentNotificationsTimeFrame || 48;
     const readNotifications = await models.Notification.findAll({
       where: {
         userId: user.id,
         status: NOTIFICATION_STATUSES.READ,
         createdTime: {
           [Op.gte]: toCountryDateTimeString(
-            sub(new Date(), { hours: RECENT_NOTIFICATION_TIME_FRAME }),
+            sub(new Date(), { hours: recentNotificationsTimeFrame }),
           ),
         },
       },
       include: models.Notification.getFullReferenceAssociations(),
       order: [
         ['createdTime', 'DESC'],
-        [Sequelize.literal(`"patient"."first_name"`), 'ASC'],
+        [
+          Sequelize.fn(
+            'concat',
+            Sequelize.fn('LOWER', Sequelize.col('patient.first_name')),
+            ' ',
+            Sequelize.fn('LOWER', Sequelize.col('patient.last_name')),
+          ),
+          'ASC',
+        ],
       ],
     });
 
@@ -40,7 +49,15 @@ notifications.get(
       include: models.Notification.getFullReferenceAssociations(),
       order: [
         ['createdTime', 'DESC'],
-        [Sequelize.literal(`LOWER("patient"."first_name")`), 'ASC'],
+        [
+          Sequelize.fn(
+            'concat',
+            Sequelize.fn('LOWER', Sequelize.col('patient.first_name')),
+            ' ',
+            Sequelize.fn('LOWER', Sequelize.col('patient.last_name')),
+          ),
+          'ASC',
+        ],
       ],
     });
 
@@ -60,7 +77,7 @@ notifications.put(
       throw new NotFoundError('Notification not found');
     }
 
-    await models.Notification.update({ status: NOTIFICATION_STATUSES.READ }, { where: { id } });
+    await notification.update({ status: NOTIFICATION_STATUSES.READ });
     res.status(204).json();
   }),
 );
@@ -73,7 +90,7 @@ notifications.put(
 
     await models.Notification.update(
       { status: NOTIFICATION_STATUSES.READ },
-      { where: { userId: user.id } },
+      { where: { userId: user.id, status: NOTIFICATION_STATUSES.UNREAD } },
     );
     res.status(204).json();
   }),

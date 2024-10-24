@@ -167,7 +167,7 @@ imagingRequest.put(
     if (!imagingRequestObject) throw new NotFoundError();
     req.checkPermission('write', 'ImagingRequest');
 
-    const oldStatus = imagingRequestObject.status;
+    const previousStatus = imagingRequestObject.status;
     await imagingRequestObject.update(imagingRequestData);
 
     // Updates the reference data associations for the areas to be imaged
@@ -231,7 +231,7 @@ imagingRequest.put(
         imagingRequestObject.results = [imagingResult];
       }
 
-      if (oldStatus !== IMAGING_REQUEST_STATUS_TYPES.COMPLETED) {
+      if (previousStatus !== IMAGING_REQUEST_STATUS_TYPES.COMPLETED) {
         await Notification.pushNotification(NOTIFICATION_TYPES.IMAGING_REQUEST, imagingRequestObject);
       }
     }
