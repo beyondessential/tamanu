@@ -94,8 +94,6 @@ export const AppointmentTile = ({
   const isHighPriority = false; // TODO
   const isOvernight = !isSameDay(startTime, endTime);
 
-  // TODO: handle the click outside event that closes this
-
   return (
     <Wrapper
       $color={APPOINTMENT_STATUS_COLORS[appointmentStatus]}
