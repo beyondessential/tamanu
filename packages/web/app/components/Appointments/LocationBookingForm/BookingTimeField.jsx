@@ -63,15 +63,19 @@ const isTimeSlotWithinRange = (timeSlot, range) => {
 // logic calculated through time ranges in the format { start: DATE, end: DATE }
 export const BookingTimeField = ({ disabled = false }) => {
   const { getSetting } = useSettings();
-  const { setFieldValue, values, dirty } = useFormikContext();
+  const { setFieldValue, values, dirty, initialValues } = useFormikContext();
 
   // TODO: not sure if this is the best way to do initial population
-  const initialTimeRange = values.startTime
-    ? {
-        start: new Date(values.startTime),
-        end: new Date(values.endTime),
-      }
-    : null;
+  const initialTimeRange = useMemo(
+    () =>
+      initialValues.startTime
+        ? {
+            start: new Date(initialValues.startTime),
+            end: new Date(initialValues.endTime),
+          }
+        : null,
+    [initialValues],
+  );
 
   const [selectedTimeRange, setSelectedTimeRange] = useState(initialTimeRange);
   const [hoverTimeRange, setHoverTimeRange] = useState(null);
@@ -93,12 +97,14 @@ export const BookingTimeField = ({ disabled = false }) => {
   const bookedTimeSlots = useMemo(
     () =>
       isFetched
-        ? existingLocationBookings?.data.map(booking => ({
-            start: new Date(booking.startTime),
-            end: new Date(booking.endTime),
-          }))
+        ? existingLocationBookings?.data
+            .map(booking => ({
+              start: new Date(booking.startTime),
+              end: new Date(booking.endTime),
+            }))
+            .filter(slot => !isEqual(slot, initialTimeRange))
         : [],
-    [existingLocationBookings, isFetched],
+    [existingLocationBookings, isFetched, initialTimeRange],
   );
 
   const bookingSlotSettings = getSetting('appointments.bookingSlots');
@@ -211,9 +217,10 @@ export const BookingTimeField = ({ disabled = false }) => {
         ) : (
           timeSlots.map((timeSlot, index) => {
             const isSelected = isTimeSlotWithinRange(timeSlot, selectedTimeRange);
-            const isBooked = bookedTimeSlots?.some(bookedTimeSlot =>
-              isTimeSlotWithinRange(timeSlot, bookedTimeSlot) && !isSelected,
+            const isBooked = bookedTimeSlots?.some(
+              bookedTimeSlot => isTimeSlotWithinRange(timeSlot, bookedTimeSlot) && !isSelected,
             );
+
             const onMouseEnter = () => {
               if (!selectedTimeRange) {
                 setHoverTimeRange(timeSlot);
@@ -243,6 +250,7 @@ export const BookingTimeField = ({ disabled = false }) => {
                 selectable={checkIfSelectableTimeSlot(timeSlot)}
                 booked={isBooked}
                 disabled={disabled}
+                // TODO: should clear when clicking ouside of a range of multiple time cells
                 onClick={() =>
                   isSelected ? removeSelectedTimeSlot(timeSlot) : addSelectedTimeSlot(timeSlot)
                 }
