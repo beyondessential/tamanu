@@ -5,13 +5,14 @@ import { Colors } from '../../../constants';
 import { BodyText, SmallBodyText } from '../../../components';
 import { CarouselComponents as CarouselGrid } from '../locationBookings/CarouselComponents';
 import { Box } from '@mui/material';
+import { AppointmentTile } from '../../../components/Appointments/AppointmentTile';
 
 const HeaderTextWrapper = styled.div`
   --base-font-weight: 400;
   font-size: 1rem;
   font-weight: var(--base-font-weight);
   line-height: 1.3;
-  width: 10rem;
+  width: 12rem;
   height: 60px;
   padding: 0.5rem 0.5rem;
   text-align: center;
@@ -46,6 +47,14 @@ const AppointNumberCell = styled.div`
   gap: 0.25rem;
 `;
 
+const AppointmentTileWrapper = styled.div`
+  border-inline-end: 1px solid ${Colors.outline};
+  border-block: 1px solid ${Colors.outline};
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+`;
+
 export const HeaderCell = ({ entity, count }) => {
   return (
     <Wrapper>
@@ -68,9 +77,11 @@ export const BookingsCalendarHeader = ({ headerData, cellData }) => {
         return (
           <Box key={d.id} display="flex" flexDirection="column">
             <HeaderCell entity={d} id={d.id} key={d.id} count={appts?.length || 0} />
-            {appts?.map(cell => (
-              <div>{cell.id}</div>
-            ))}
+            <AppointmentTileWrapper>
+              {appts?.map(a => (
+                <AppointmentTile appointment={a} key={a.id} />
+              ))}
+            </AppointmentTileWrapper>
           </Box>
         );
       })}
