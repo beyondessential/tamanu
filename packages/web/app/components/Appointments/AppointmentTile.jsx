@@ -27,6 +27,8 @@ const Wrapper = styled.div`
 
       border-color: ${$color};
 
+      border: 1px solid transparent;
+
       ${$selected &&
         css`
           border: 1px solid ${$color};
