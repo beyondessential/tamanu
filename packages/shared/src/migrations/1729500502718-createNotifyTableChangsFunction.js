@@ -26,8 +26,8 @@ export async function up(query) {
         'event', event_name
       );
 
-      -- Send notification to the 'table_changed' channel with the JSON payload
-      PERFORM pg_notify('table_changed', payload::text);
+      -- Send notification to the 'table-changed' channel with the JSON payload
+      PERFORM pg_notify('table-changed', payload::text);
 
       RETURN NULL;  -- Since this is an AFTER STATEMENT trigger, no row needs to be returned
     END;
@@ -38,5 +38,5 @@ export async function up(query) {
  * @param {QueryInterface} query
  */
 export async function down(query) {
-  await query.sequelize.query('DROP FUNCTION notify_table_changed()');
+  await query.sequelize.query('DROP FUNCTION notify_table_changed');
 }
