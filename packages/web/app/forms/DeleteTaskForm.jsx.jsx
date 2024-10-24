@@ -16,11 +16,14 @@ import { useDeleteTask } from '../api/mutations/useTaskMutation';
 import { FORM_TYPES } from '../constants';
 import { getCurrentDateTimeString } from '../utils/dateTime';
 import { useAuth } from '../contexts/Auth';
+import { useTranslation } from '../contexts/Translation';
 
 export const DeleteTaskForm = ({ onClose, refreshTaskTable, taskIds }) => {
+  const { getTranslation } = useTranslation();
   const practitionerSuggester = useSuggester('practitioner');
   const taskDeletionReasonSuggester = useSuggester('taskDeletionReason');
-  const { currentUser } = useAuth();
+  const { currentUser, ability } = useAuth();
+  const canCreateReferenceData = ability.can('create', 'ReferenceData');
 
   const { mutate: deleteTask } = useDeleteTask();
 
@@ -41,6 +44,7 @@ export const DeleteTaskForm = ({ onClose, refreshTaskTable, taskIds }) => {
 
   return (
     <Form
+      showInlineErrorsOnly
       onSubmit={onSubmit}
       formType={FORM_TYPES.CREATE_FORM}
       render={({ submitForm }) => (
@@ -78,6 +82,7 @@ export const DeleteTaskForm = ({ onClose, refreshTaskTable, taskIds }) => {
               }
               component={AutocompleteField}
               suggester={taskDeletionReasonSuggester}
+              allowCreatingCustomValue={canCreateReferenceData}
             />
           </FormGrid>
           <Divider style={{ margin: '32px -32px 30px -32px' }} />
@@ -100,6 +105,13 @@ export const DeleteTaskForm = ({ onClose, refreshTaskTable, taskIds }) => {
           .required()
           .translatedLabel(
             <TranslatedText stringId="task.form.recordTime.label" fallback="Record date & time" />,
+          )
+          .max(
+            getCurrentDateTimeString(),
+            getTranslation(
+              'general.validation.date.cannotInFuture',
+              'Date cannot be in the future',
+            ),
           ),
         deletedReasonId: yup.string(),
       })}

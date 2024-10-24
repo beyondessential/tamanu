@@ -622,7 +622,7 @@ encounterRelations.get(
         encounterId,
         status: { [Op.in]: statuses },
         dueTime: {
-          [Op.lt]: toCountryDateTimeString(add(new Date(), { hours: upcomingTasksTimeFrame })),
+          [Op.lte]: toCountryDateTimeString(add(new Date(), { hours: upcomingTasksTimeFrame })),
         },
         ...(assignedTo && {
           [Op.and]: literal(`

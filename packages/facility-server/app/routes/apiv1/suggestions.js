@@ -293,6 +293,7 @@ createSuggester(
             attributes: [],
             where: {
               type: relationType,
+              deleted_at: null,
             },
           },
           include: {
