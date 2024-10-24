@@ -11,47 +11,30 @@ import {
   formatShort,
   formatWeekdayShort,
   MonthYearInput,
+  SmallBodyText,
 } from '../../../components';
 import { CarouselComponents as CarouselGrid } from '../locationBookings/CarouselComponents';
 import { Box } from '@mui/material';
 
-const StyledFirstHeaderCell = styled(CarouselGrid.FirstHeaderCell)`
-  display: grid;
-  gap: 0.25rem;
-  grid-template-columns: minmax(min-content, 1fr) max-content;
-  align-items: center;
-`;
-
-const StyledButton = styled(Button).attrs({ variant: 'text' })`
-  font-size: 0.75rem;
-  font-weight: 400;
-  min-inline-size: 4rem; // Prevent hover effect from affecting layout
-  padding: 0.25rem;
-
-  &:hover {
-    background-color: initial;
-    font-weight: 500;
-  }
-
-  &,
-  &:hover {
-    text-decoration-line: underline;
-    text-decoration-thickness: from-font;
-  }
-
-  .MuiButton-label {
-    display: contents;
-  }
-`;
-
-const HeaderCell = styled.div`
+const HeaderTextWrapper = styled.div`
   --base-font-weight: 400;
   font-size: 1rem;
   font-weight: var(--base-font-weight);
   line-height: 1.3;
   width: 10rem;
+  height: 100%;
   padding: 0.5rem 0.5rem;
   text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+`;
+
+const Wrapper = styled(Box)`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   border-inline-end: 1px solid ${Colors.outline};
 `;
 
@@ -63,12 +46,28 @@ const HeaderText = styled(BodyText)`
   word-wrap: break-word;
 `;
 
-export const DayHeaderCell = ({ entity }) => {
+const AppointNumberCell = styled.div`
+  width: 100%;
+  border-top: 1px solid ${Colors.outline};
+  padding-inline-end: 0.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: end;
+  gap: 0.25rem;
+`;
+
+export const HeaderCell = ({ entity }) => {
   console.log(entity);
   return (
-    <HeaderCell>
-      <HeaderText>{entity.displayName}</HeaderText>
-    </HeaderCell>
+    <Wrapper>
+      <HeaderTextWrapper>
+        <HeaderText>{entity.displayName}</HeaderText>
+      </HeaderTextWrapper>
+      <AppointNumberCell>
+        <SmallBodyText>0</SmallBodyText>
+        <SmallBodyText color="textTertiary">appts</SmallBodyText>
+      </AppointNumberCell>
+    </Wrapper>
   );
 };
 
@@ -76,7 +75,7 @@ export const BookingsCalendarHeader = ({ headerData }) => {
   return (
     <Box display="flex">
       {headerData.map(d => {
-        return <DayHeaderCell entity={d} id={d.id} key={d.id} />;
+        return <HeaderCell entity={d} id={d.id} key={d.id} />;
       })}
     </Box>
   );
