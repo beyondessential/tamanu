@@ -4,10 +4,12 @@ import { DateSelector } from '../DateSelector';
 import styled from 'styled-components';
 import { Colors } from '../../../constants';
 import { GroupByToggle } from './GroupAppointmentToggle';
-import { useLocationsQuery } from '../../../api/queries';
+import { useAppointmentsQuery } from '../../../api/queries';
 import { useLocationGroupsQuery } from '../../../api/queries/useLocationGroupsQuery';
 import { useUsersQuery } from '../../../api/queries/useUsersQuery';
 import { BookingsCalendar } from './BookingCalender';
+import { endOfDay, startOfDay } from 'date-fns';
+import { keyBy } from 'lodash';
 
 const Placeholder = styled.div`
   background-color: oklch(0% 0 0 / 3%);
@@ -52,7 +54,7 @@ const APPOINTMENT_GROUP_BY = {
 };
 
 export const OutpatientAppointmentsCalendar = () => {
-  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [selectedDate, setSelectedDate] = useState(startOfDay(new Date()));
   const [groupBy, setGroupBy] = useState(APPOINTMENT_GROUP_BY.CLINICIANS);
 
   const handleChangeDate = event => {
@@ -71,14 +73,14 @@ export const OutpatientAppointmentsCalendar = () => {
     [groupBy, locationGroupsQuery, usersQuery],
   );
 
-  const partitionKey = useMemo(
-    () =>
-      ({
-        [APPOINTMENT_GROUP_BY.AREA]: 'locationGroupId',
-        [APPOINTMENT_GROUP_BY.CLINICIANS]: 'clinicianId',
-      }[groupBy]),
-    [groupBy],
-  );
+  const { data: appointmentData } = useAppointmentsQuery({
+    after: selectedDate,
+    before: endOfDay(selectedDate),
+  });
+
+  const partitionedAppointmentData = useMemo(() => keyBy(appointmentData, 'clinicianId'), [
+    appointmentData,
+  ]);
 
   return (
     <PageContainer>
@@ -93,11 +95,7 @@ export const OutpatientAppointmentsCalendar = () => {
       </LocationBookingsTopBar>
       <CalendarWrapper>
         <DateSelector value={selectedDate} onChange={handleChangeDate} />
-        <BookingsCalendar
-          query={query}
-          partitionKey={partitionKey}
-          getHeadCellText={({ displayName }) => displayName}
-        />
+        <BookingsCalendar query={query} cellData={partitionedAppointmentData} />
       </CalendarWrapper>
     </PageContainer>
   );

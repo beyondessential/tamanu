@@ -63,7 +63,6 @@ const Wrapper = styled(Box)`
 `;
 
 export const BookingsCalendar = ({ query, openBookingForm }) => {
-  const selectedMonthState = useState(startOfToday());
   const { data, isLoading } = query;
   const headerData = data?.data || [];
 

@@ -47,7 +47,6 @@ const AppointNumberCell = styled.div`
 `;
 
 export const HeaderCell = ({ entity }) => {
-  console.log(entity);
   return (
     <Wrapper>
       <HeaderTextWrapper>
