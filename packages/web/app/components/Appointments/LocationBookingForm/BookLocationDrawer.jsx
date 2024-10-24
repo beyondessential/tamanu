@@ -155,24 +155,28 @@ export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues, ed
         />,
       );
     }
-    if (response.newRecord?.id || response.updatedRecord?.id) {
+
+    if (!editMode && response.newRecord?.id) {
       notifySuccess(
-        editMode ? (
-          <TranslatedText
-            stringId="locationBooking.notification.bookingSuccessfullyEdited"
-            fallback="Booking successfully edited"
-          />
-        ) : (
-          <TranslatedText
-            stringId="locationBooking.notification.bookingSuccessfullyCreated"
-            fallback="Booking successfully created"
-          />
-        ),
+        <TranslatedText
+          stringId="locationBooking.notification.bookingSuccessfullyCreated"
+          fallback="Booking successfully created"
+        />,
       );
-      closeDrawer();
-      resetForm();
-      queryClient.invalidateQueries('appointments');
     }
+
+    if (editMode && response.updatedRecord?.id) {
+      notifySuccess(
+        <TranslatedText
+          stringId="locationBooking.notification.bookingSuccessfullyEdited"
+          fallback="Booking successfully edited"
+        />,
+      );
+    }
+
+    closeDrawer();
+    resetForm();
+    queryClient.invalidateQueries('appointments');
   };
 
   const headingText = editMode ? 'Modify booking' : 'Book location';
