@@ -65,7 +65,6 @@ export const BookingTimeField = ({ disabled = false }) => {
   const { getSetting } = useSettings();
   const { setFieldValue, values, dirty, initialValues } = useFormikContext();
 
-  // TODO: not sure if this is the best way to do initial population
   const initialTimeRange = useMemo(
     () =>
       initialValues.startTime
@@ -102,7 +101,7 @@ export const BookingTimeField = ({ disabled = false }) => {
               start: new Date(booking.startTime),
               end: new Date(booking.endTime),
             }))
-            .filter(slot => !isEqual(slot, initialTimeRange))
+            .filter(slot => !isEqual(slot, initialTimeRange)) // Dont include the existing booking in the booked time logic
         : [],
     [existingLocationBookings, isFetched, initialTimeRange],
   );
@@ -250,7 +249,6 @@ export const BookingTimeField = ({ disabled = false }) => {
                 selectable={checkIfSelectableTimeSlot(timeSlot)}
                 booked={isBooked}
                 disabled={disabled}
-                // TODO: should clear when clicking ouside of a range of multiple time cells
                 onClick={() =>
                   isSelected ? removeSelectedTimeSlot(timeSlot) : addSelectedTimeSlot(timeSlot)
                 }
