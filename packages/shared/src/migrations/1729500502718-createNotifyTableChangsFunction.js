@@ -38,5 +38,5 @@ export async function up(query) {
  * @param {QueryInterface} query
  */
 export async function down(query) {
-  await query.sequelize.query('DROP FUNCTION notify_table_changed');
+  await query.sequelize.query('DROP FUNCTION IF EXISTS notify_table_changed();');
 }
