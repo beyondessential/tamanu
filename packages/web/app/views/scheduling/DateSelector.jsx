@@ -80,7 +80,7 @@ const StepperButton = styled(IconButton)`
 `;
 
 const StyledMonthYearInput = styled(MonthYearInput)`
-  width: 120px;
+  width: 7.5rem;
 `;
 
 const getMonthInterval = date =>

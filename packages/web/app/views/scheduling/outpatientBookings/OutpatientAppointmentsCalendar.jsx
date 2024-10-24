@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { Button, PageContainer, TopBar, TranslatedText } from '../../components';
-import { DateSelector } from './DateSelector';
+import { Button, PageContainer, TopBar, TranslatedText } from '../../../components';
+import { DateSelector } from '../DateSelector';
 import styled from 'styled-components';
-import { Colors } from '../../constants';
+import { Colors } from '../../../constants';
+import { GroupByToggle } from './GroupAppointmentToggle';
 
 const Placeholder = styled.div`
   background-color: oklch(0% 0 0 / 3%);
@@ -43,8 +44,14 @@ const NewBookingButton = styled(Button)`
   margin-left: 1rem;
 `;
 
+const APPOINTMENT_GROUP_BY = {
+  AREA: 'area',
+  CLINICIANs: 'clinicians',
+};
+
 export const OutpatientAppointmentsCalendar = () => {
   const [selectedDate, setSelectedDate] = useState(new Date());
+  const [groupBy, setGroupBy] = useState(APPOINTMENT_GROUP_BY.AREA);
 
   const handleChangeDate = event => {
     setSelectedDate(event.target.value);
@@ -53,9 +60,9 @@ export const OutpatientAppointmentsCalendar = () => {
     <Wrapper>
       <PageContainer>
         <LocationBookingsTopBar>
+          <GroupByToggle value={groupBy} onChange={setGroupBy} />
           <Filters>
             <Placeholder>Search</Placeholder>
-            <Placeholder>Area</Placeholder>
             <Placeholder>Clinician</Placeholder>
             <Placeholder>Type</Placeholder>
           </Filters>
