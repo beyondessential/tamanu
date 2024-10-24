@@ -7,7 +7,7 @@ import { GroupByToggle } from './GroupAppointmentToggle';
 import { useLocationsQuery } from '../../../api/queries';
 import { useLocationGroupsQuery } from '../../../api/queries/useLocationGroupsQuery';
 import { useUsersQuery } from '../../../api/queries/useUsersQuery';
-import { BookingsCalendar } from '../BookingCalender';
+import { BookingsCalendar } from './BookingCalender';
 
 const Placeholder = styled.div`
   background-color: oklch(0% 0 0 / 3%);
@@ -20,12 +20,6 @@ const Placeholder = styled.div`
   padding: 0.5rem;
   place-items: center;
   text-align: center;
-`;
-
-const Wrapper = styled(PageContainer)`
-  display: grid;
-  grid-template-rows: auto 1fr;
-  max-block-size: 100%;
 `;
 
 const CalendarWrapper = styled.div`
@@ -54,12 +48,12 @@ const NewBookingButton = styled(Button)`
 
 const APPOINTMENT_GROUP_BY = {
   AREA: 'area',
-  CLINICIANs: 'clinicians',
+  CLINICIANS: 'clinicians',
 };
 
 export const OutpatientAppointmentsCalendar = () => {
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const [groupBy, setGroupBy] = useState(APPOINTMENT_GROUP_BY.AREA);
+  const [groupBy, setGroupBy] = useState(APPOINTMENT_GROUP_BY.CLINICIANS);
 
   const handleChangeDate = event => {
     setSelectedDate(event.target.value);
@@ -87,26 +81,24 @@ export const OutpatientAppointmentsCalendar = () => {
   );
 
   return (
-    <Wrapper>
-      <PageContainer>
-        <LocationBookingsTopBar>
-          <GroupByToggle value={groupBy} onChange={setGroupBy} />
-          <Filters>
-            <Placeholder>Search</Placeholder>
-            <Placeholder>Clinician</Placeholder>
-            <Placeholder>Type</Placeholder>
-          </Filters>
-          <NewBookingButton onClick={null}>+ New booking</NewBookingButton>
-        </LocationBookingsTopBar>
-        <CalendarWrapper>
-          <DateSelector value={selectedDate} onChange={handleChangeDate} />
-          <BookingsCalendar
-            query={query}
-            partitionKey={partitionKey}
-            getHeadCellText={({ displayName }) => displayName}
-          />
-        </CalendarWrapper>
-      </PageContainer>
-    </Wrapper>
+    <PageContainer>
+      <LocationBookingsTopBar>
+        <GroupByToggle value={groupBy} onChange={setGroupBy} />
+        <Filters>
+          <Placeholder>Search</Placeholder>
+          <Placeholder>Clinician</Placeholder>
+          <Placeholder>Type</Placeholder>
+        </Filters>
+        <NewBookingButton onClick={null}>+ New booking</NewBookingButton>
+      </LocationBookingsTopBar>
+      <CalendarWrapper>
+        <DateSelector value={selectedDate} onChange={handleChangeDate} />
+        <BookingsCalendar
+          query={query}
+          partitionKey={partitionKey}
+          getHeadCellText={({ displayName }) => displayName}
+        />
+      </CalendarWrapper>
+    </PageContainer>
   );
 };

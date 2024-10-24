@@ -2,12 +2,12 @@ import { endOfDay, formatISO } from 'date-fns';
 import React from 'react';
 import styled from 'styled-components';
 
-import { useAppointmentsQuery } from '../../api/queries';
-import { AppointmentTile } from '../../components/Appointments/AppointmentTile';
-import { Colors } from '../../constants';
-import { CarouselComponents as CarouselGrid } from './locationBookings/CarouselComponents';
-import { SkeletonRows } from './locationBookings/Skeletons';
-import { partitionAppointmentsByDate, partitionAppointmentsByKey } from './locationBookings/util';
+import { useAppointmentsQuery } from '../../../api/queries';
+import { AppointmentTile } from '../../../components/Appointments/AppointmentTile';
+import { Colors } from '../../../constants';
+import { CarouselComponents as CarouselGrid } from '../locationBookings/CarouselComponents';
+import { SkeletonRows } from '../locationBookings/Skeletons';
+import { partitionAppointmentsByDate, partitionAppointmentsByKey } from '../locationBookings/util';
 
 export const BookingsCell = ({ appointments, date, location, openBookingForm }) => (
   <CarouselGrid.Cell
@@ -22,12 +22,12 @@ export const BookingsCell = ({ appointments, date, location, openBookingForm }) 
   </CarouselGrid.Cell>
 );
 
-export const BookingsRow = ({ appointments, dates, entity, openBookingForm, getHeaderText }) => {
+export const BookingsRow = ({ appointments, dates, entity, openBookingForm }) => {
   const appointmentsByDate = partitionAppointmentsByDate(appointments);
 
   return (
     <CarouselGrid.Row>
-      <CarouselGrid.RowHeaderCell>{getHeaderText(entity)}</CarouselGrid.RowHeaderCell>
+      <CarouselGrid.RowHeaderCell>{}</CarouselGrid.RowHeaderCell>
       {dates.map(d => (
         <BookingsCell
           appointments={appointmentsByDate[formatISO(d, { representation: 'date' })]}

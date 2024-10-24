@@ -6,18 +6,18 @@ import ArrowBackIcon from '@material-ui/icons/KeyboardArrowLeft';
 import ArrowForwardIcon from '@material-ui/icons/KeyboardArrowRight';
 
 import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
-import { PageContainer, TOP_BAR_HEIGHT, TopBar as TopBarBase } from '../../components';
-import { TwoColumnDisplay } from '../../components/TwoColumnDisplay';
-import { DailySchedule } from '../../components/Appointments/DailySchedule';
-import { NewAppointmentButton } from '../../components/Appointments/NewAppointmentButton';
-import { Button } from '../../components/Button';
-import { AutocompleteInput, TranslatedMultiSelectField } from '../../components/Field';
-import { Suggester } from '../../utils/suggester';
-import { Colors } from '../../constants';
-import { useApi, useSuggester } from '../../api';
-import { TranslatedText } from '../../components/Translation/TranslatedText';
-import { useAuth } from '../../contexts/Auth';
-import { ErrorMessage } from '../../components/ErrorMessage';
+import { PageContainer, TOP_BAR_HEIGHT, TopBar as TopBarBase } from '../../../components';
+import { TwoColumnDisplay } from '../../../components/TwoColumnDisplay';
+import { DailySchedule } from '../../../components/Appointments/DailySchedule';
+import { NewAppointmentButton } from '../../../components/Appointments/NewAppointmentButton';
+import { Button } from '../../../components/Button';
+import { AutocompleteInput, TranslatedMultiSelectField } from '../../../components/Field';
+import { Suggester } from '../../../utils/suggester';
+import { Colors } from '../../../constants';
+import { useApi, useSuggester } from '../../../api';
+import { TranslatedText } from '../../../components/Translation/TranslatedText';
+import { useAuth } from '../../../contexts/Auth';
+import { ErrorMessage } from '../../../components/ErrorMessage';
 import { APPOINTMENT_TYPE_LABELS } from '@tamanu/constants';
 
 const LeftContainer = styled.div`
