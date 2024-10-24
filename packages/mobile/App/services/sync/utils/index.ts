@@ -9,4 +9,4 @@ export { pushOutgoingChanges } from './pushOutgoingChanges';
 export { saveIncomingChanges } from './saveIncomingChanges';
 export { setSyncTick } from './setSyncTick';
 export { sleepAsync } from './sleepAsync';
-export * from './snapshotOutgoingChanges';
+export { snapshotOutgoingChanges } from './snapshotOutgoingChanges';
