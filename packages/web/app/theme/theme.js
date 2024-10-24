@@ -4,6 +4,7 @@
  */
 
 import { createTheme } from '@material-ui/core/styles';
+import { createTheme as newCreateTheme, OutlinedInput } from '@mui/material';
 import { Colors, MUI_SPACING_UNIT } from '../constants';
 
 const themeName = 'Tamanu';
@@ -50,8 +51,8 @@ const FONTS = {
   DEFAULT: {
     HEADING: 'Roboto',
     BODY: 'Roboto',
-  }
-}
+  },
+};
 
 const bodyFontVariants = [FONTS.KHMER.BODY, FONTS.DEFAULT.BODY].join(', ');
 const headingFontVariants = [FONTS.KHMER.HEADING, FONTS.DEFAULT.HEADING].join(', ');
@@ -81,4 +82,15 @@ const overrides = {
   },
 };
 
-export const theme = createTheme({ palette, themeName, typography, shape, overrides });
+// Required as we are now using the latest version of MUI, which has a different structure for component overrides
+const components = {
+  MuiOutlinedInput: {
+    styleOverrides: {
+      notchedOutline: {
+        borderColor: Colors.outline,
+      },
+    },
+  },
+};
+
+export const theme = createTheme({ palette, themeName, typography, shape, overrides, components });

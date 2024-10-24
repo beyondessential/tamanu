@@ -7,6 +7,7 @@ import PropTypes from 'prop-types';
 import { CssBaseline } from '@material-ui/core';
 import { ThemeProvider } from 'styled-components';
 import { MuiThemeProvider, StylesProvider } from '@material-ui/core/styles';
+import { ThemeProvider as NewThemeProvider } from '@mui/material';
 import { LocalizationProvider as MuiLocalisationProvider } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { Slide, ToastContainer } from 'react-toastify';
@@ -65,28 +66,30 @@ function Root({ api, store, history }) {
         <ApiContext.Provider value={api}>
           <ConnectedRouter history={history}>
             <StylesProvider injectFirst>
-              <MuiThemeProvider theme={theme}>
-                <ThemeProvider theme={theme}>
-                  <MuiLocalisationProvider dateAdapter={AdapterDateFns}>
-                    <StateContextProviders store={store}>
-                      <ReactQueryDevtools initialIsOpen={false} />
-                      <ToastContainer
-                        hideProgressBar
-                        transition={Slide}
-                        closeOnClick
-                        pauseOnFocusLoss
-                        draggable
-                        pauseOnHover
-                        theme="colored"
-                        icon={false}
-                        limit={5}
-                      />
-                      <CssBaseline />
-                      <RoutingApp />
-                    </StateContextProviders>
-                  </MuiLocalisationProvider>
-                </ThemeProvider>
-              </MuiThemeProvider>
+              <NewThemeProvider theme={theme}>
+                <MuiThemeProvider theme={theme}>
+                  <ThemeProvider theme={theme}>
+                    <MuiLocalisationProvider dateAdapter={AdapterDateFns}>
+                      <StateContextProviders store={store}>
+                        <ReactQueryDevtools initialIsOpen={false} />
+                        <ToastContainer
+                          hideProgressBar
+                          transition={Slide}
+                          closeOnClick
+                          pauseOnFocusLoss
+                          draggable
+                          pauseOnHover
+                          theme="colored"
+                          icon={false}
+                          limit={5}
+                        />
+                        <CssBaseline />
+                        <RoutingApp />
+                      </StateContextProviders>
+                    </MuiLocalisationProvider>
+                  </ThemeProvider>
+                </MuiThemeProvider>
+              </NewThemeProvider>
             </StylesProvider>
           </ConnectedRouter>
         </ApiContext.Provider>
