@@ -16,8 +16,10 @@ import { useMarkTaskNotCompleted } from '../api/mutations/useTaskMutation';
 import { FORM_TYPES } from '../constants';
 import { getCurrentDateTimeString } from '../utils/dateTime';
 import { useAuth } from '../contexts/Auth';
+import { useTranslation } from '../contexts/Translation';
 
 export const MarkTaskNotCompletedForm = ({ onClose, refreshTaskTable, taskIds }) => {
+  const { getTranslation } = useTranslation();
   const practitionerSuggester = useSuggester('practitioner');
   const taskNotCompletedReasonSuggester = useSuggester('taskNotCompletedReason');
   const { currentUser } = useAuth();
@@ -41,6 +43,7 @@ export const MarkTaskNotCompletedForm = ({ onClose, refreshTaskTable, taskIds })
 
   return (
     <Form
+      showInlineErrorsOnly
       onSubmit={onSubmit}
       formType={FORM_TYPES.CREATE_FORM}
       render={({ submitForm }) => (
@@ -100,6 +103,13 @@ export const MarkTaskNotCompletedForm = ({ onClose, refreshTaskTable, taskIds })
           .required()
           .translatedLabel(
             <TranslatedText stringId="task.form.recordTime.label" fallback="Record date & time" />,
+          )
+          .max(
+            getCurrentDateTimeString(),
+            getTranslation(
+              'general.validation.date.cannotInFuture',
+              'Date cannot be in the future',
+            ),
           ),
         notCompletedReasonId: yup.string(),
       })}
