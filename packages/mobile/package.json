@@ -1,5 +1,5 @@
 {
-  "name": "tamanuapp",
+  "name": "@tamanu/mobile",
   "version": "2.18.0",
   "private": true,
   "scripts": {
