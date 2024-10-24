@@ -23,6 +23,7 @@ import { ClearIcon } from '../../Icons/ClearIcon';
 import { ConfirmModal } from '../../ConfirmModal';
 import { notifyError, notifySuccess } from '../../../utils';
 import { TranslatedText } from '../../Translation/TranslatedText';
+import { ClickAwayListener } from '@material-ui/core';
 
 const slideIn = keyframes`
   from {
@@ -143,12 +144,9 @@ export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues, ed
     });
 
   const handleSubmit = async (values, { resetForm }) => {
-    let response;
-    if (editMode) {
-      response = await api.put(`appointments/locationBooking/${values.id}`, values);
-    } else {
-      response = await api.post(`appointments/locationBooking`, values);
-    }
+    const response = editMode
+      ? await api.put(`appointments/locationBooking/${values.id}`, values)
+      : await api.post(`appointments/locationBooking`, values);
 
     if (response.status === 409) {
       notifyError(
