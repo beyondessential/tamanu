@@ -84,7 +84,7 @@ export const OutpatientAppointmentsCalendar = () => {
     [locationGroupData?.data, userData?.data],
   );
 
-  const partitionedAppointmentData = useMemo(() => {
+  const groupedAppointmentData = useMemo(() => {
     const { key } = groupByConfig[groupBy];
     return lodashGroupBy(appointmentData?.data, key);
   }, [appointmentData, groupBy, groupByConfig]);
@@ -104,7 +104,7 @@ export const OutpatientAppointmentsCalendar = () => {
         <DateSelector value={selectedDate} onChange={handleChangeDate} />
         <BookingsCalendar
           headerData={groupByConfig[groupBy].data || []}
-          cellData={partitionedAppointmentData}
+          cellData={groupedAppointmentData}
         />
       </CalendarWrapper>
     </PageContainer>

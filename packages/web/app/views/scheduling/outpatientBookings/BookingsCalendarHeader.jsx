@@ -46,14 +46,14 @@ const AppointNumberCell = styled.div`
   gap: 0.25rem;
 `;
 
-export const HeaderCell = ({ entity }) => {
+export const HeaderCell = ({ entity, count }) => {
   return (
     <Wrapper>
       <HeaderTextWrapper>
         <HeaderText>{entity.displayName}</HeaderText>
       </HeaderTextWrapper>
       <AppointNumberCell>
-        <SmallBodyText>0</SmallBodyText>
+        <SmallBodyText>{count}</SmallBodyText>
         <SmallBodyText color="textTertiary">appts</SmallBodyText>
       </AppointNumberCell>
     </Wrapper>
@@ -64,10 +64,11 @@ export const BookingsCalendarHeader = ({ headerData, cellData }) => {
   return (
     <Box display="flex">
       {headerData.map(d => {
+        const appts = cellData[d.id];
         return (
           <Box key={d.id} display="flex" flexDirection="column">
-            <HeaderCell entity={d} id={d.id} key={d.id} />
-            {cellData?.[d.id]?.map(cell => (
+            <HeaderCell entity={d} id={d.id} key={d.id} count={appts?.length || 0} />
+            {appts?.map(cell => (
               <div>{cell.id}</div>
             ))}
           </Box>
