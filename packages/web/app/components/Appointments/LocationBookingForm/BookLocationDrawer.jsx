@@ -271,7 +271,7 @@ export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues, ed
               />
               <FormSubmitCancelRow
                 onCancel={warnAndResetForm}
-                confirmDisabled={!values.startTime}
+                confirmDisabled={!dirty || !values.startTime}
               />
             </FormGrid>
           );

@@ -52,9 +52,7 @@ appointments.post('/locationBooking', async (req, res) => {
   });
 
   if (bookingTimeAlreadyTaken) {
-    return res
-      .status(409)
-      .send();
+    return res.status(409).send();
   }
 
   const newRecord = await Appointment.create(body);
@@ -72,7 +70,7 @@ appointments.put('/locationBooking/:id', async (req, res) => {
   const existingBooking = await Appointment.findByPk(id);
 
   if (!existingBooking) {
-    return res.status(404).send({ error: { message: 'Booking not found' } });
+    return res.status(404).send();
   }
 
   const bookingTimeAlreadyTaken = await Appointment.findOne({
@@ -83,14 +81,14 @@ appointments.put('/locationBooking/:id', async (req, res) => {
         // Partial overlap
         {
           startTime: {
-            [Op.gt]: startTime,
-            [Op.lt]: endTime,
+            [Op.gte]: startTime, // Exclude startTime
+            [Op.lt]: endTime, // Include endTime
           },
         },
         {
           endTime: {
-            [Op.gt]: startTime, 
-            [Op.lt]: endTime, 
+            [Op.gt]: startTime, // Exclude endTime
+            [Op.lte]: endTime, // Include startTime
           },
         },
         // Complete overlap
@@ -112,9 +110,7 @@ appointments.put('/locationBooking/:id', async (req, res) => {
   });
 
   if (bookingTimeAlreadyTaken) {
-    return res
-      .status(409)
-      .send({ error: { message: 'Booking failed. Booking time no longer available' } });
+    return res.status(409).send();
   }
 
   await existingBooking.update(body);
