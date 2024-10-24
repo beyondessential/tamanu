@@ -5,7 +5,13 @@ import styled, { css } from 'styled-components';
 import { isStartOfThisWeek } from '@tamanu/shared/utils/dateTime';
 
 import { Colors } from '../../../constants';
-import { Button, formatShort, formatWeekdayShort, MonthYearInput } from '../../../components';
+import {
+  BodyText,
+  Button,
+  formatShort,
+  formatWeekdayShort,
+  MonthYearInput,
+} from '../../../components';
 import { CarouselComponents as CarouselGrid } from '../locationBookings/CarouselComponents';
 import { Box } from '@mui/material';
 
@@ -38,28 +44,30 @@ const StyledButton = styled(Button).attrs({ variant: 'text' })`
   }
 `;
 
-const HeaderCell = styled(CarouselGrid.ColHeaderCell).attrs({ as: 'time' })`
+const HeaderCell = styled.div`
   --base-font-weight: 400;
-  color: ${Colors.darkestText}
   font-size: 1rem;
   font-weight: var(--base-font-weight);
   line-height: 1.3;
-  width: 100%;
+  width: 10rem;
+  padding: 0.5rem 0.5rem;
+  text-align: center;
+  border-inline-end: 1px solid ${Colors.outline};
 `;
 
-const HeadText = styled.p`
-  color: ${Colors.midText};
-  font-variant-caps: all-small-caps;
-  font-weight: calc(var(--base-font-weight) + 100);
-  letter-spacing: 0.1em;
-  margin: 0;
+const HeaderText = styled(BodyText)`
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  word-wrap: break-word;
 `;
 
 export const DayHeaderCell = ({ entity }) => {
   console.log(entity);
   return (
     <HeaderCell>
-      <HeadText>{entity.displayName}</HeadText>
+      <HeaderText>{entity.displayName}</HeaderText>
     </HeaderCell>
   );
 };

@@ -55,6 +55,13 @@ const Grid = styled.div`
     );
 `;
 
+const Wrapper = styled(Box)`
+  display: flex;
+  width: 100%;
+  overflow: auto;
+  border-top: 1px solid ${Colors.outline};
+`;
+
 export const BookingsCalendar = ({ query, openBookingForm }) => {
   const selectedMonthState = useState(startOfToday());
   const { data, isLoading } = query;
@@ -65,8 +72,8 @@ export const BookingsCalendar = ({ query, openBookingForm }) => {
   }
 
   return (
-    <Box display="flex" width="100%" overflow="scroll">
+    <Wrapper>
       <BookingsCalendarHeader headerData={headerData} />
-    </Box>
+    </Wrapper>
   );
 };
