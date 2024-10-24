@@ -36,7 +36,13 @@ const LoadingIndicator = styled(CircularProgress)`
   margin: 0 auto;
 `;
 
-const HelperText = styled(FormHelperText)``;
+const HelperText = styled(FormHelperText)`
+  && {
+    font-size: 11px;
+    letter-spacing: initial;
+    color: ${Colors.darkText};
+  }
+`;
 
 const calculateTimeSlots = (bookingSlotSettings, date) => {
   const { startTime, endTime, slotDuration } = bookingSlotSettings;
@@ -64,7 +70,7 @@ const isTimeSlotWithinRange = (timeSlot, range) => {
 };
 
 // logic calculated through time ranges in the format { start: DATE, end: DATE }
-export const BookingTimeField = ({ disabled = false }) => {
+export const BookingTimeField = ({ editMode, disabled = false }) => {
   const { getSetting } = useSettings();
   const { setFieldValue, values, dirty, initialValues } = useFormikContext();
 
@@ -95,15 +101,10 @@ export const BookingTimeField = ({ disabled = false }) => {
     },
   );
 
-  const { data: bookingsForThisPatient, isFetched: isPatientBookingFetched } = useAppointments({
-    after: date ? toDateTimeString(startOfDay(new Date(date))) : null,
-    before: date ? toDateTimeString(endOfDay(new Date(date))) : null,
-    all: true,
-    patientId: values.patientId,
-  });
-
-  const hasBookingForThisPatientToday =
-    isPatientBookingFetched && values.patientId && bookingsForThisPatient.data.length > 0;
+  const showSameDayBookingWarning =
+    !editMode &&
+    values.patientId &&
+    existingLocationBookings.data.find(booking => booking.patientId === values.patientId);
 
   // Convert existing bookings into timeslots
   const bookedTimeSlots = useMemo(
@@ -273,8 +274,10 @@ export const BookingTimeField = ({ disabled = false }) => {
           })
         )}
       </CellContainer>
-      {hasBookingForThisPatientToday && (
-        <HelperText>Patient already has appointment scheduled for this day</HelperText>
+      {showSameDayBookingWarning && (
+        <HelperText>
+          Patient already has appointment scheduled at this location for this day
+        </HelperText>
       )}
     </OuterLabelFieldWrapper>
   );
