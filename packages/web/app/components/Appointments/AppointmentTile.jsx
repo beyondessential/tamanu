@@ -75,6 +75,7 @@ const getPatientFullName = ({ firstName, middleName, lastName }) =>
 
 export const AppointmentTile = ({
   appointment,
+  openBookingForm,
   onUpdated,
   ...props
 }) => {
@@ -99,10 +100,7 @@ export const AppointmentTile = ({
       $selected={open}
       tabIndex={0}
       ref={ref}
-      onClick={e => {
-        e.stopPropagation();
-        setOpen(true)
-      }}
+      onClick={() => setOpen(true)}
       {...props}
     >
       <Label $strikethrough={appointmentStatus === APPOINTMENT_STATUSES.NO_SHOW}>
@@ -134,6 +132,7 @@ export const AppointmentTile = ({
         appointment={appointment}
         isOvernight={isOvernight}
         onUpdated={onUpdated}
+        openBookingForm={openBookingForm}
       />
     </Wrapper>
   );
