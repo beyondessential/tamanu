@@ -8,6 +8,7 @@ import { TranslatedText } from '../../components/Translation/TranslatedText';
 import { useAuth } from '../../contexts/Auth';
 import { Colors } from '../../constants';
 import { NotificationIcon } from '../../assets/icons/NotificationIcon';
+import { TasksPane } from '../patients/panes';
 
 const TopBar = styled.div`
   position: sticky;
@@ -18,6 +19,10 @@ const TopBar = styled.div`
   display: flex;
   justify-content: space-between;
 `;
+
+const DashboardLayout = styled.div`
+`;
+
 
 export const DashboardView = () => {
   const { currentUser } = useAuth();
@@ -44,7 +49,10 @@ export const DashboardView = () => {
           <NotificationIcon />
         </IconButton>
       </TopBar>
-      <RecentlyViewedPatientsList inDashboard />
+      <DashboardLayout>
+        <RecentlyViewedPatientsList inDashboard />
+        <TasksPane inDashboard />
+      </DashboardLayout>
     </PageContainer>
   );
 };
