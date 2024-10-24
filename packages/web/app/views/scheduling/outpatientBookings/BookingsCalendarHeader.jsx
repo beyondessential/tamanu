@@ -1,18 +1,8 @@
-import { formatISO, isSameDay, isSameMonth, isThisMonth, startOfToday } from 'date-fns';
 import React, { useEffect } from 'react';
-import styled, { css } from 'styled-components';
-
-import { isStartOfThisWeek } from '@tamanu/shared/utils/dateTime';
+import styled from 'styled-components';
 
 import { Colors } from '../../../constants';
-import {
-  BodyText,
-  Button,
-  formatShort,
-  formatWeekdayShort,
-  MonthYearInput,
-  SmallBodyText,
-} from '../../../components';
+import { BodyText, SmallBodyText } from '../../../components';
 import { CarouselComponents as CarouselGrid } from '../locationBookings/CarouselComponents';
 import { Box } from '@mui/material';
 
