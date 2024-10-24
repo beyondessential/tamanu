@@ -48,7 +48,12 @@ Date of birth of patient
 {% enddocs %}
 
 {% docs patients__sex %}
-Sex of patient
+Sex of patient.
+
+One of:
+- `male`
+- `female`
+- `other`
 {% enddocs %}
 
 {% docs patients__village_id %}

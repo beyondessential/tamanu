@@ -1,5 +1,5 @@
 {% docs table__patient_birth_data %}
-Information about the birth of the patient.
+Information about the birth of the patient, if their birth was recorded into Tamanu.
 
 This is specifically data about the newborn, and only the birth-relevant data.
 Other patient data is found in the normal tables i.e. `patients`, `patient_additional_data`, etc.

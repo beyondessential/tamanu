@@ -1,147 +1,193 @@
 {% docs table__patient_additional_data %}
-TODO
+Core or adjunct patient data that doesn't fit elsewhere, but is only downloaded to a facility once a
+patient is marked for sync.
+
+This is often refered to as "PAD".
+
+See also `patient_field_definition_categories`, `patient_field_definitions`, and `patient_field_values`,
+which define and specify custom/non-standard data to be stored against patients.
 {% enddocs %}
 
 {% docs patient_additional_data__place_of_birth %}
-TODO
+Free-form place of birth (typically a place name or country).
 {% enddocs %}
 
 {% docs patient_additional_data__primary_contact_number %}
-TODO
+Primary contact number.
+
+Note that this may be complementary to the more structured data in `patient_contacts`.
 {% enddocs %}
 
 {% docs patient_additional_data__secondary_contact_number %}
-TODO
+Secondary contact number.
+
+Note that this may be complementary to the more structured data in `patient_contacts`.
 {% enddocs %}
 
 {% docs patient_additional_data__marital_status %}
-TODO
+Marital status.
+
+One of:
+- `Defacto`
+- `Married`
+- `Single`
+- `Widow`
+- `Divorced`
+- `Separated`
+- `Unknown`
 {% enddocs %}
 
 {% docs patient_additional_data__city_town %}
-TODO
+Patient current address city or town.
+
+This may be free-form or chosen from a drop-down, depending on how Tamanu is configured.
 {% enddocs %}
 
 {% docs patient_additional_data__street_village %}
-TODO
+Patient current address street or village.
+
+This may be free-form or chosen from a drop-down, depending on how Tamanu is configured.
 {% enddocs %}
 
 {% docs patient_additional_data__educational_level %}
-TODO
+Highest educational attainment.
 {% enddocs %}
 
 {% docs patient_additional_data__social_media %}
-TODO
+Free-form social media contact.
+
+Note that this may be complementary to the more structured data in `patient_contacts`.
 {% enddocs %}
 
 {% docs patient_additional_data__blood_type %}
-TODO
+Blood type.
+
+One of:
+- `A+`
+- `A-`
+- `AB-`
+- `AB+`
+- `B+`
+- `B-`
+- `O+`
+- `O-`
 {% enddocs %}
 
 {% docs patient_additional_data__title %}
-TODO
+Patient name: title.
 {% enddocs %}
 
 {% docs patient_additional_data__ethnicity_id %}
-TODO
+Reference to patient ethnicity (Reference Data).
 {% enddocs %}
 
 {% docs patient_additional_data__nationality_id %}
-TODO
+Reference to patient nationality (Reference Data).
 {% enddocs %}
 
 {% docs patient_additional_data__country_id %}
-TODO
+Reference to patient country of residence (Reference Data).
 {% enddocs %}
 
 {% docs patient_additional_data__division_id %}
-TODO
+Reference to patient administrative division of residence (Reference Data).
 {% enddocs %}
 
 {% docs patient_additional_data__subdivision_id %}
-TODO
+Reference to patient administrative subdivision of residence (Reference Data).
 {% enddocs %}
 
 {% docs patient_additional_data__medical_area_id %}
-TODO
+Reference to patient administrative medical area of residence (Reference Data).
 {% enddocs %}
 
 {% docs patient_additional_data__nursing_zone_id %}
-TODO
+Reference to patient administrative nursing zone of residence (Reference Data).
 {% enddocs %}
 
 {% docs patient_additional_data__settlement_id %}
-TODO
+Reference to patient residence settlement (Reference Data).
 {% enddocs %}
 
 {% docs patient_additional_data__occupation_id %}
-TODO
+Reference to patient occupation (Reference Data).
 {% enddocs %}
 
 {% docs patient_additional_data__patient_id %}
-TODO
+Reference to the patient.
+
+There is at most one `patient_additional_data` row per patient.
+
+Note that the `id` column is generated from this column to enforce this.
 {% enddocs %}
 
 {% docs patient_additional_data__birth_certificate %}
-TODO
+Birth certificate identifier.
 {% enddocs %}
 
 {% docs patient_additional_data__driving_license %}
-TODO
+Driving licence identifier.
 {% enddocs %}
 
 {% docs patient_additional_data__passport %}
-TODO
+Passport number.
 {% enddocs %}
 
 {% docs patient_additional_data__religion_id %}
-TODO
+Reference to patient religion (Reference Data).
 {% enddocs %}
 
 {% docs patient_additional_data__patient_billing_type_id %}
-TODO
+Reference to patient billing type.
 {% enddocs %}
 
 {% docs patient_additional_data__country_of_birth_id %}
-TODO
+Reference to patient country of birth (Reference Data).
 {% enddocs %}
 
 {% docs patient_additional_data__registered_by_id %}
-TODO
+Reference to user that registered the patient in Tamanu.
 {% enddocs %}
 
 {% docs patient_additional_data__emergency_contact_name %}
-TODO
+Name of emergency contact.
 {% enddocs %}
 
 {% docs patient_additional_data__emergency_contact_number %}
-TODO
+Phone number of emergency contact.
 {% enddocs %}
 
 {% docs patient_additional_data__mother_id %}
-TODO
+Reference to patient ID of mother / parent.
 {% enddocs %}
 
 {% docs patient_additional_data__father_id %}
-TODO
+Reference to patient ID of father / parent.
 {% enddocs %}
 
 {% docs patient_additional_data__updated_at_by_field %}
-TODO
+JSON object recording the updated datetime for individual columns.
+
+As PADs contain a lot of disparate data, it's not uncommon that fields are edited separately in
+different facilities. The default sync strategy is for the last edit to a whole row to "win out" in
+case of a conflict, but this can lead to discarding important data in the case of PADs. This field
+is used to implement per-field "last edit wins" instead.
 {% enddocs %}
 
 {% docs patient_additional_data__health_center_id %}
-TODO
+Reference to patient primary health center (Reference Data).
 {% enddocs %}
 
 {% docs patient_additional_data__insurer_id %}
-TODO
+Reference to patient insurer (Reference Data).
 {% enddocs %}
 
 {% docs patient_additional_data__insurer_policy_number %}
-TODO
+Policy number of patient insurance.
 {% enddocs %}
 
 {% docs patient_additional_data__secondary_village_id %}
-TODO
+Reference to patient administrative village of residence (Reference Data, secondary).
+
+See also `patients.village_id`.
 {% enddocs %}

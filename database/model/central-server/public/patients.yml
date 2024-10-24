@@ -55,6 +55,8 @@ sources:
           - name: sex
             data_type: user-defined
             description: "{{ doc('patients__sex') }}"
+            __generator:
+              values_from_constant: SEX_VALUES
             data_tests:
               - not_null
               - accepted_values:
