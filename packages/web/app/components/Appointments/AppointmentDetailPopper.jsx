@@ -25,6 +25,7 @@ import {
 } from '@tamanu/constants';
 import { AppointmentStatusChip } from './AppointmentStatusChip';
 import { MenuButton } from '../MenuButton';
+import { useQueryClient } from '@tanstack/react-query';
 
 const DEBOUNCE_DELAY = 200; // ms
 
@@ -268,6 +269,7 @@ export const AppointmentDetailPopper = ({
   openBookingForm,
 }) => {
   const dispatch = useDispatch();
+  const queryClient = useQueryClient();
   const api = useApi();
   const [localStatus, setLocalStatus] = useState(appointment.status);
   const patientId = appointment.patient.id;
@@ -285,6 +287,7 @@ export const AppointmentDetailPopper = ({
             status: newValue,
           });
           if (onUpdated) onUpdated();
+          queryClient.invalidateQueries('appointments');
         } catch (error) {
           console.log(error);
           toast.error(
@@ -296,7 +299,7 @@ export const AppointmentDetailPopper = ({
           setLocalStatus(appointment.status);
         }
       }, DEBOUNCE_DELAY),
-    [api, appointment.id, onUpdated, appointment.status],
+    [api, appointment.id, onUpdated, appointment.status, queryClient],
   );
 
   const updateAppointmentStatus = useCallback(

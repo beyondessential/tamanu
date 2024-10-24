@@ -94,18 +94,13 @@ export const AppointmentTile = ({
   const isHighPriority = false; // TODO
   const isOvernight = !isSameDay(startTime, endTime);
 
-  // TODO: handle the click outside event that closes this
-
   return (
     <Wrapper
       $color={APPOINTMENT_STATUS_COLORS[appointmentStatus]}
       $selected={open}
       tabIndex={0}
       ref={ref}
-      onClick={e => {
-        e.stopPropagation();
-        setOpen(true)
-      }}
+      onClick={() => setOpen(true)}
       {...props}
     >
       <Label $strikethrough={appointmentStatus === APPOINTMENT_STATUSES.NO_SHOW}>
