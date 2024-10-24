@@ -1,31 +1,36 @@
 {% docs table__patient_allergies %}
-TODO
+List of allergies known of the patient.
+
+In Tamanu this is displayed and entered in the patient view sidebar, under "Allergies".
+
+See also: `public.patient_care_plans`, `public.patient_conditions`,
+`public.patient_family_histories`, `public.patient_issues`.
 {% enddocs %}
 
 {% docs patient_allergies__note %}
-TODO
+Free-form description of this allergy.
 {% enddocs %}
 
 {% docs patient_allergies__recorded_date %}
-TODO
+Datetime at which this allergy was recorded.
 {% enddocs %}
 
 {% docs patient_allergies__patient_id %}
-TODO
+Reference to the patient.
 {% enddocs %}
 
 {% docs patient_allergies__practitioner_id %}
-TODO
+Reference to the practitioner recording this allergy.
 {% enddocs %}
 
 {% docs patient_allergies__allergy_id %}
-TODO
+Reference to an allergy (Reference Data).
 {% enddocs %}
 
 {% docs patient_allergies__recorded_date_legacy %}
-TODO
+[Deprecated] Timestamp at which this allergy was recorded.
 {% enddocs %}
 
 {% docs patient_allergies__reaction_id %}
-TODO
+Reference to an allergic reaction (Reference Data).
 {% enddocs %}

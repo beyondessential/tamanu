@@ -3,8 +3,8 @@ List of ongoing conditions known about a patient.
 
 In Tamanu this is displayed and entered in the patient view sidebar, under "Ongoing conditions".
 
-See also: `public.patient_allergies`, `public.patient_care_plans`, `public.patient_family_histories`,
-`public.patient_issues`.
+See also: `public.patient_allergies`, `public.patient_care_plans`,
+`public.patient_family_histories`, `public.patient_issues`.
 {% enddocs %}
 
 {% docs patient_conditions__note %}
