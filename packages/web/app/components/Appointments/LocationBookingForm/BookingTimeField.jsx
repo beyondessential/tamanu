@@ -212,7 +212,7 @@ export const BookingTimeField = ({ disabled = false }) => {
           timeSlots.map((timeSlot, index) => {
             const isSelected = isTimeSlotWithinRange(timeSlot, selectedTimeRange);
             const isBooked = bookedTimeSlots?.some(bookedTimeSlot =>
-              isTimeSlotWithinRange(timeSlot, bookedTimeSlot),
+              isTimeSlotWithinRange(timeSlot, bookedTimeSlot) && !isSelected,
             );
             const onMouseEnter = () => {
               if (!selectedTimeRange) {

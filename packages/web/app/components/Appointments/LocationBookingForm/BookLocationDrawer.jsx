@@ -243,7 +243,7 @@ export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues, ed
                 disabled={!values.locationId}
                 required
               />
-              <BookingTimeField disabled={!values.date} />
+              <BookingTimeField key={values.date} disabled={!values.date} />
               <Field
                 name="patientId"
                 label={<TranslatedText stringId="general.form.patient.label" fallback="Patient" />}
