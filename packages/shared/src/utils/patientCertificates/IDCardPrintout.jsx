@@ -104,7 +104,7 @@ const IDCardPrintoutComponent = ({
   patientImageData,
   cardDimensions,
   measures,
-  getLocalisation,
+  getTranslation,
 }) => {
   const pageStyles = StyleSheet.create({
     card: {
@@ -129,24 +129,24 @@ const IDCardPrintoutComponent = ({
               <DetailsRow
                 name="displayId"
                 value={patient.displayId}
-                getLocalisation={getLocalisation}
+                getTranslation={getTranslation}
               />
               <DetailsRow
                 name="lastName"
                 value={patient.lastName}
-                getLocalisation={getLocalisation}
+                getTranslation={getTranslation}
               />
               <DetailsRow
                 name="firstName"
                 value={patient.firstName}
-                getLocalisation={getLocalisation}
+                getTranslation={getTranslation}
               />
               <DetailsRow
                 name="dateOfBirth"
                 value={getDOB(patient)}
-                getLocalisation={getLocalisation}
+                getTranslation={getTranslation}
               />
-              <DetailsRow name="sex" value={getSex(patient)} getLocalisation={getLocalisation} />
+              <DetailsRow name="sex" value={getSex(patient)} getTranslation={getTranslation} />
             </Details>
           </MainContainer>
           <BarcodeRow>
