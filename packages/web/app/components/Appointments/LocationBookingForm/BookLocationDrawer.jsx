@@ -23,6 +23,7 @@ import { ClearIcon } from '../../Icons/ClearIcon';
 import { ConfirmModal } from '../../ConfirmModal';
 import { notifyError, notifySuccess } from '../../../utils';
 import { TranslatedText } from '../../Translation/TranslatedText';
+import { useAppointmentsQuery } from '../../../api/queries';
 
 const slideIn = keyframes`
   from {
@@ -131,8 +132,6 @@ export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues, ed
   const [warningModalOpen, setShowWarningModal] = useState(false);
   const [resolveFn, setResolveFn] = useState(null);
 
-  // TODO: check for existing booking for that patient on this day
-
   const handleShowWarningModal = async () =>
     new Promise(resolve => {
       setResolveFn(() => resolve); // Save resolve to use in onConfirm/onCancel
@@ -140,12 +139,9 @@ export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues, ed
     });
 
   const handleSubmit = async (values, { resetForm }) => {
-    let response;
-    if (editMode) {
-      response = await api.put(`appointments/locationBooking/${values.id}`, values);
-    } else {
-      response = await api.post(`appointments/locationBooking`, values);
-    }
+    const response = editMode
+      ? await api.put(`appointments/locationBooking/${values.id}`, values)
+      : await api.post(`appointments/locationBooking`, values);
 
     if (response.status === 409) {
       notifyError(
@@ -155,24 +151,28 @@ export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues, ed
         />,
       );
     }
-    if (response.newRecord?.id || response.updatedRecord?.id) {
+
+    if (!editMode && response.newRecord?.id) {
       notifySuccess(
-        editMode ? (
-          <TranslatedText
-            stringId="locationBooking.notification.bookingSuccessfullyEdited"
-            fallback="Booking successfully edited"
-          />
-        ) : (
-          <TranslatedText
-            stringId="locationBooking.notification.bookingSuccessfullyCreated"
-            fallback="Booking successfully created"
-          />
-        ),
+        <TranslatedText
+          stringId="locationBooking.notification.bookingSuccessfullyCreated"
+          fallback="Booking successfully created"
+        />,
       );
-      closeDrawer();
-      resetForm();
-      queryClient.invalidateQueries('appointments');
     }
+
+    if (editMode && response.updatedRecord?.id) {
+      notifySuccess(
+        <TranslatedText
+          stringId="locationBooking.notification.bookingSuccessfullyEdited"
+          fallback="Booking successfully edited"
+        />,
+      );
+    }
+
+    closeDrawer();
+    resetForm();
+    queryClient.invalidateQueries('appointments');
   };
 
   const headingText = editMode ? 'Modify booking' : 'Book location';
@@ -203,6 +203,12 @@ export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues, ed
             closeDrawer();
             resetForm();
           };
+
+          // TODO: how to get this working properly :thinking:
+          const showSameDayBookingWarning =
+            !editMode &&
+            values.patientId &&
+            existingLocationBookings.data.find(booking => booking.patientId === values.patientId);
 
           return (
             <FormGrid columns={1}>
@@ -238,8 +244,12 @@ export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues, ed
                 component={DateField}
                 disabled={!values.locationId}
                 required
+                helperText={
+                  showSameDayBookingWarning &&
+                  'Patient already has appointment scheduled at this location for this day'
+                }
               />
-              <BookingTimeField key={values.date} disabled={!values.date} />
+              <BookingTimeField key={values.date} editMode={editMode} disabled={!values.date} />
               <Field
                 name="patientId"
                 label={<TranslatedText stringId="general.form.patient.label" fallback="Patient" />}
@@ -269,7 +279,7 @@ export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues, ed
               />
               <FormSubmitCancelRow
                 onCancel={warnAndResetForm}
-                confirmDisabled={!values.startTime}
+                confirmDisabled={!dirty || !values.startTime}
               />
             </FormGrid>
           );

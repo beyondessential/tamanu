@@ -66,10 +66,6 @@ const StyledPaper = styled(Paper)`
   font-size: 0.6875rem;
 `;
 
-const StyledIconButton = styled(IconButton)`
-  padding: 0;
-`;
-
 const ControlsContainer = styled(FlexRow)`
   position: fixed;
   inset-block-start: 0.5rem;
@@ -106,11 +102,24 @@ const AppointmentStatusContainer = styled(Box)`
   justify-items: center;
 `;
 
+const StyledMenuButton = styled(MenuButton)`
+  svg { 
+    font-size: 0.875rem
+  }
+`;
+
+const StyledIconButton = styled(IconButton)`
+  padding: 5px;
+  svg {
+    font-size: 0.875rem
+  }
+`;
+
 const ControlsRow = ({ onClose, appointment, openBookingForm }) => {
   const actions = [
     {
       label: <TranslatedText stringId="general.action.modify" fallback="Modify" />,
-      action: () => openBookingForm({...appointment, date: appointment.startTime}, true),
+      action: () => openBookingForm({ ...appointment, date: appointment.startTime }, true),
     },
     // TODO: cancel workflow
     {
@@ -121,10 +130,9 @@ const ControlsRow = ({ onClose, appointment, openBookingForm }) => {
 
   return (
     <ControlsContainer>
-      {/* TODO: change size to match close button */}
-      <MenuButton actions={actions} />
+      <StyledMenuButton actions={actions} />
       <StyledIconButton onClick={onClose}>
-        <Close sx={{ fontSize: '0.875rem' }} />
+        <Close />
       </StyledIconButton>
     </ControlsContainer>
   );
@@ -327,7 +335,11 @@ export const AppointmentDetailPopper = ({
     >
       <ClickAwayListener onClickAway={onClose}>
         <Box>
-          <ControlsRow appointment={appointment} openBookingForm={openBookingForm} onClose={onClose} />
+          <ControlsRow
+            appointment={appointment}
+            openBookingForm={openBookingForm}
+            onClose={onClose}
+          />
           <StyledPaper elevation={0}>
             <PatientDetailsDisplay
               patient={appointment.patient}

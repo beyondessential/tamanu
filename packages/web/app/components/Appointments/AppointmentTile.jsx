@@ -1,7 +1,7 @@
 import { PriorityHigh as HighPriorityIcon } from '@material-ui/icons';
 import OvernightIcon from '@material-ui/icons/Brightness2';
 import { isSameDay, parseISO } from 'date-fns';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import styled, { css } from 'styled-components';
 
 import { APPOINTMENT_STATUSES } from '@tamanu/constants';
@@ -26,6 +26,8 @@ const Wrapper = styled.div`
       }
 
       border-color: ${$color};
+
+      border: 1px solid transparent;
 
       ${$selected &&
         css`

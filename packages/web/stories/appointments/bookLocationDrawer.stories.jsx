@@ -100,19 +100,6 @@ export const NewBooking = () => {
   );
 };
 
-export const NewBookingWithDateWarning = () => {
-  const [open, setOpen] = useState(false);
-  const openDrawer = () => setOpen(true);
-  const closeDrawer = () => setOpen(false);
-
-  return (
-    <MockCalendar>
-      CALENDAR GOES HERE <Button onClick={openDrawer}>+ Book location</Button>
-      <BookLocationDrawer closeDrawer={closeDrawer} open={open} />
-    </MockCalendar>
-  );
-};
-
 export const ModifyBooking = () => {
   const [open, setOpen] = useState(false);
   const openDrawer = () => setOpen(true);

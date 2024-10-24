@@ -36,7 +36,13 @@ const LoadingIndicator = styled(CircularProgress)`
   margin: 0 auto;
 `;
 
-const HelperText = styled(FormHelperText)``;
+const HelperText = styled(FormHelperText)`
+  && {
+    font-size: 11px;
+    letter-spacing: initial;
+    color: ${Colors.darkText};
+  }
+`;
 
 const calculateTimeSlots = (bookingSlotSettings, date) => {
   const { startTime, endTime, slotDuration } = bookingSlotSettings;
@@ -64,11 +70,10 @@ const isTimeSlotWithinRange = (timeSlot, range) => {
 };
 
 // logic calculated through time ranges in the format { start: DATE, end: DATE }
-export const BookingTimeField = ({ disabled = false }) => {
+export const BookingTimeField = ({ editMode, disabled = false }) => {
   const { getSetting } = useSettings();
   const { setFieldValue, values, dirty, initialValues } = useFormikContext();
 
-  // TODO: not sure if this is the best way to do initial population
   const initialTimeRange = useMemo(
     () =>
       initialValues.startTime
@@ -96,16 +101,6 @@ export const BookingTimeField = ({ disabled = false }) => {
     },
   );
 
-  const { data: bookingsForThisPatient, isFetched: isPatientBookingFetched } = useAppointments({
-    after: date ? toDateTimeString(startOfDay(new Date(date))) : null,
-    before: date ? toDateTimeString(endOfDay(new Date(date))) : null,
-    all: true,
-    patientId: values.patientId,
-  });
-
-  const hasBookingForThisPatientToday =
-    isPatientBookingFetched && values.patientId && bookingsForThisPatient.data.length > 0;
-
   // Convert existing bookings into timeslots
   const bookedTimeSlots = useMemo(
     () =>
@@ -115,7 +110,7 @@ export const BookingTimeField = ({ disabled = false }) => {
               start: new Date(booking.startTime),
               end: new Date(booking.endTime),
             }))
-            .filter(slot => !isEqual(slot, initialTimeRange))
+            .filter(slot => !isEqual(slot, initialTimeRange)) // Dont include the existing booking in the booked time logic
         : [],
     [existingLocationBookings, isFetched, initialTimeRange],
   );
@@ -221,7 +216,7 @@ export const BookingTimeField = ({ disabled = false }) => {
 
   return (
     <OuterLabelFieldWrapper
-      label={<TranslatedText stringId="location.form.bookingTime.label" fallback="Booking time" />}
+      label={<TranslatedText stringId="locationBooking.form.bookingTime.label" fallback="Booking time" />}
       required
     >
       <CellContainer $disabled={disabled}>
@@ -263,7 +258,6 @@ export const BookingTimeField = ({ disabled = false }) => {
                 selectable={checkIfSelectableTimeSlot(timeSlot)}
                 booked={isBooked}
                 disabled={disabled}
-                // TODO: should clear when clicking ouside of a range of multiple time cells
                 onClick={() =>
                   isSelected ? removeSelectedTimeSlot(timeSlot) : addSelectedTimeSlot(timeSlot)
                 }
@@ -275,9 +269,6 @@ export const BookingTimeField = ({ disabled = false }) => {
           })
         )}
       </CellContainer>
-      {hasBookingForThisPatientToday && (
-        <HelperText>Patient already has appointment scheduled for this day</HelperText>
-      )}
     </OuterLabelFieldWrapper>
   );
 };
