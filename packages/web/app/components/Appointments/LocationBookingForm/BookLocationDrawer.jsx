@@ -23,7 +23,6 @@ import { ClearIcon } from '../../Icons/ClearIcon';
 import { ConfirmModal } from '../../ConfirmModal';
 import { notifyError, notifySuccess } from '../../../utils';
 import { TranslatedText } from '../../Translation/TranslatedText';
-import { ClickAwayListener } from '@material-ui/core';
 
 const slideIn = keyframes`
   from {
