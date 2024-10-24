@@ -12,7 +12,7 @@ const HeaderTextWrapper = styled.div`
   font-weight: var(--base-font-weight);
   line-height: 1.3;
   width: 10rem;
-  height: 100%;
+  height: 60px;
   padding: 0.5rem 0.5rem;
   text-align: center;
   display: flex;
@@ -60,11 +60,18 @@ export const HeaderCell = ({ entity }) => {
   );
 };
 
-export const BookingsCalendarHeader = ({ headerData }) => {
+export const BookingsCalendarHeader = ({ headerData, cellData }) => {
   return (
     <Box display="flex">
       {headerData.map(d => {
-        return <HeaderCell entity={d} id={d.id} key={d.id} />;
+        return (
+          <Box key={d.id} display="flex" flexDirection="column">
+            <HeaderCell entity={d} id={d.id} key={d.id} />
+            {cellData?.[d.id]?.map(cell => (
+              <div>{cell.id}</div>
+            ))}
+          </Box>
+        );
       })}
     </Box>
   );

@@ -9,7 +9,7 @@ import { useLocationGroupsQuery } from '../../../api/queries/useLocationGroupsQu
 import { useUsersQuery } from '../../../api/queries/useUsersQuery';
 import { BookingsCalendar } from './BookingCalender';
 import { endOfDay, startOfDay } from 'date-fns';
-import { keyBy } from 'lodash';
+import { groupBy as lodashGroupBy } from 'lodash';
 
 const Placeholder = styled.div`
   background-color: oklch(0% 0 0 / 3%);
@@ -76,12 +76,16 @@ export const OutpatientAppointmentsCalendar = () => {
   const { data: appointmentData } = useAppointmentsQuery({
     after: selectedDate,
     before: endOfDay(selectedDate),
+    clinicianId: '',
   });
 
-  const partitionedAppointmentData = useMemo(() => keyBy(appointmentData, 'clinicianId'), [
-    appointmentData,
+  const apptData = appointmentData?.data || [];
+
+  const partitionedAppointmentData = useMemo(() => lodashGroupBy(apptData, 'clinicianId'), [
+    apptData,
   ]);
 
+  console.log(partitionedAppointmentData);
   return (
     <PageContainer>
       <LocationBookingsTopBar>

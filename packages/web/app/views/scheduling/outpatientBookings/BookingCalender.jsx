@@ -62,7 +62,7 @@ const Wrapper = styled(Box)`
   border-top: 1px solid ${Colors.outline};
 `;
 
-export const BookingsCalendar = ({ query, openBookingForm }) => {
+export const BookingsCalendar = ({ query, openBookingForm, cellData }) => {
   const { data, isLoading } = query;
   const headerData = data?.data || [];
 
@@ -72,7 +72,7 @@ export const BookingsCalendar = ({ query, openBookingForm }) => {
 
   return (
     <Wrapper>
-      <BookingsCalendarHeader headerData={headerData} />
+      <BookingsCalendarHeader headerData={headerData} cellData={cellData} />
     </Wrapper>
   );
 };
