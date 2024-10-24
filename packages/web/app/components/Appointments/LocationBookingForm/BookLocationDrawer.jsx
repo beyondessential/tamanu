@@ -136,8 +136,6 @@ export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues, ed
   const [warningModalOpen, setShowWarningModal] = useState(false);
   const [resolveFn, setResolveFn] = useState(null);
 
-  // TODO: check for existing booking for that patient on this day
-
   const handleShowWarningModal = async () =>
     new Promise(resolve => {
       setResolveFn(() => resolve); // Save resolve to use in onConfirm/onCancel
