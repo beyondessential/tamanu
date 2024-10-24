@@ -61,17 +61,8 @@ export const OutpatientAppointmentsCalendar = () => {
     setSelectedDate(event.target.value);
   };
 
-  const locationGroupsQuery = useLocationGroupsQuery();
-  const usersQuery = useUsersQuery();
-
-  const query = useMemo(
-    () =>
-      ({
-        [APPOINTMENT_GROUP_BY.AREA]: locationGroupsQuery,
-        [APPOINTMENT_GROUP_BY.CLINICIANS]: usersQuery,
-      }[groupBy]),
-    [groupBy, locationGroupsQuery, usersQuery],
-  );
+  const { data: locationGroupData } = useLocationGroupsQuery();
+  const { data: userData } = useUsersQuery();
 
   const { data: appointmentData } = useAppointmentsQuery({
     after: selectedDate,
@@ -79,13 +70,25 @@ export const OutpatientAppointmentsCalendar = () => {
     clinicianId: '',
   });
 
-  const apptData = appointmentData?.data || [];
+  const groupByConfig = useMemo(
+    () => ({
+      [APPOINTMENT_GROUP_BY.AREA]: {
+        data: locationGroupData?.data,
+        key: 'locationGroupId',
+      },
+      [APPOINTMENT_GROUP_BY.CLINICIANS]: {
+        data: userData?.data,
+        key: 'clinicianId',
+      },
+    }),
+    [locationGroupData?.data, userData?.data],
+  );
 
-  const partitionedAppointmentData = useMemo(() => lodashGroupBy(apptData, 'clinicianId'), [
-    apptData,
-  ]);
+  const partitionedAppointmentData = useMemo(() => {
+    const { key } = groupByConfig[groupBy];
+    return lodashGroupBy(appointmentData?.data, key);
+  }, [appointmentData, groupBy, groupByConfig]);
 
-  console.log(partitionedAppointmentData);
   return (
     <PageContainer>
       <LocationBookingsTopBar>
@@ -99,7 +102,10 @@ export const OutpatientAppointmentsCalendar = () => {
       </LocationBookingsTopBar>
       <CalendarWrapper>
         <DateSelector value={selectedDate} onChange={handleChangeDate} />
-        <BookingsCalendar query={query} cellData={partitionedAppointmentData} />
+        <BookingsCalendar
+          headerData={groupByConfig[groupBy].data || []}
+          cellData={partitionedAppointmentData}
+        />
       </CalendarWrapper>
     </PageContainer>
   );

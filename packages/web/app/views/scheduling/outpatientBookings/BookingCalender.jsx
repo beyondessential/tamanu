@@ -62,14 +62,8 @@ const Wrapper = styled(Box)`
   border-top: 1px solid ${Colors.outline};
 `;
 
-export const BookingsCalendar = ({ query, openBookingForm, cellData }) => {
-  const { data, isLoading } = query;
-  const headerData = data?.data || [];
-
-  if (isLoading) {
-    return null;
-  }
-
+export const BookingsCalendar = ({ headerData, cellData }) => {
+  console.log(cellData);
   return (
     <Wrapper>
       <BookingsCalendarHeader headerData={headerData} cellData={cellData} />
