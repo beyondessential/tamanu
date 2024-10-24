@@ -52,12 +52,24 @@ sources:
           - name: requested_by_id
             data_type: character varying(255)
             description: "{{ doc('lab_requests__requested_by_id') }}"
+            data_tests:
+              - relationships:
+                  to: source('tamanu', 'users')
+                  field: id
           - name: encounter_id
             data_type: character varying(255)
             description: "{{ doc('lab_requests__encounter_id') }}"
+            data_tests:
+              - relationships:
+                  to: source('tamanu', 'encounters')
+                  field: id
           - name: lab_test_category_id
             data_type: character varying(255)
             description: "{{ doc('lab_requests__lab_test_category_id') }}"
+            data_tests:
+              - relationships:
+                  to: source('tamanu', 'reference_data')
+                  field: id
           - name: display_id
             data_type: character varying(255)
             description: "{{ doc('lab_requests__display_id') }}"
@@ -66,9 +78,17 @@ sources:
           - name: lab_test_priority_id
             data_type: character varying(255)
             description: "{{ doc('lab_requests__lab_test_priority_id') }}"
+            data_tests:
+              - relationships:
+                  to: source('tamanu', 'reference_data')
+                  field: id
           - name: lab_test_laboratory_id
             data_type: character varying(255)
             description: "{{ doc('lab_requests__lab_test_laboratory_id') }}"
+            data_tests:
+              - relationships:
+                  to: source('tamanu', 'reference_data')
+                  field: id
           - name: sample_time_legacy
             data_type: timestamp with time zone
             description: "{{ doc('lab_requests__sample_time_legacy') }}"
@@ -89,15 +109,35 @@ sources:
           - name: department_id
             data_type: character varying(255)
             description: "{{ doc('lab_requests__department_id') }}"
+            data_tests:
+              - relationships:
+                  to: source('tamanu', 'departments')
+                  field: id
           - name: lab_test_panel_request_id
             data_type: uuid
             description: "{{ doc('lab_requests__lab_test_panel_request_id') }}"
+            data_tests:
+              - relationships:
+                  to: source('tamanu', 'lab_test_panel_requests')
+                  field: id
           - name: lab_sample_site_id
             data_type: character varying(255)
             description: "{{ doc('lab_requests__lab_sample_site_id') }}"
+            data_tests:
+              - relationships:
+                  to: source('tamanu', 'reference_data')
+                  field: id
           - name: specimen_type_id
             data_type: character varying(255)
             description: "{{ doc('lab_requests__specimen_type_id') }}"
+            data_tests:
+              - relationships:
+                  to: source('tamanu', 'reference_data')
+                  field: id
           - name: collected_by_id
             data_type: character varying(255)
             description: "{{ doc('lab_requests__collected_by_id') }}"
+            data_tests:
+              - relationships:
+                  to: source('tamanu', 'users')
+                  field: id
