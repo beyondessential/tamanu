@@ -225,20 +225,28 @@ const AppointDetailsDisplay = ({ appointment, isOvernight }) => {
   );
 };
 
-const AppointmentStatusDisplay = ({ selectedStatus, updateAppointmentStatus }) => {
+export const AppointmentStatusSelector = ({
+  disabled,
+  selectedStatus,
+  updateAppointmentStatus,
+}) => {
   return (
     <AppointmentStatusContainer role="radiogroup">
       {APPOINTMENT_STATUS_VALUES.filter(status => status != APPOINTMENT_STATUSES.CANCELLED).map(
-        status => (
-          <AppointmentStatusChip
-            appointmentStatus={status}
-            aria-checked={status === selectedStatus}
-            deselected={status !== selectedStatus}
-            key={status}
-            onClick={() => updateAppointmentStatus(status)}
-            role="radio"
-          />
-        ),
+        status => {
+          const isSelected = status === selectedStatus;
+          return (
+            <AppointmentStatusChip
+              appointmentStatus={status}
+              aria-checked={isSelected}
+              disabled={disabled || isSelected}
+              key={status}
+              onClick={() => updateAppointmentStatus(status)}
+              role="radio"
+              selected={isSelected}
+            />
+          );
+        },
       )}
     </AppointmentStatusContainer>
   );
@@ -262,7 +270,7 @@ export const AppointmentDetailPopper = ({
     dispatch(push(`/patients/all/${patientId}`));
   }, [dispatch, patientId]);
 
-  const debouncedUpdateAppointmentSatus = useMemo(
+  const debouncedUpdateAppointmentStatus = useMemo(
     () =>
       debounce(async newValue => {
         try {
@@ -287,9 +295,9 @@ export const AppointmentDetailPopper = ({
   const updateAppointmentStatus = useCallback(
     newValue => {
       setLocalStatus(newValue);
-      debouncedUpdateAppointmentSatus(newValue);
+      debouncedUpdateAppointmentStatus(newValue);
     },
-    [debouncedUpdateAppointmentSatus],
+    [debouncedUpdateAppointmentStatus],
   );
 
   return (
@@ -316,7 +324,7 @@ export const AppointmentDetailPopper = ({
               onClick={handlePatientDetailsClick}
             />
             <AppointDetailsDisplay appointment={appointment} isOvernight={isOvernight} />
-            <AppointmentStatusDisplay
+            <AppointmentStatusSelector
               selectedStatus={localStatus}
               updateAppointmentStatus={updateAppointmentStatus}
             />
