@@ -102,10 +102,7 @@ export const AppointmentTile = ({
       $selected={open}
       tabIndex={0}
       ref={ref}
-      onClick={e => {
-        e.stopPropagation();
-        setOpen(true)
-      }}
+      onClick={() => setOpen(true)}
       {...props}
     >
       <Label $strikethrough={appointmentStatus === APPOINTMENT_STATUSES.NO_SHOW}>
