@@ -327,9 +327,6 @@ const BulkActions = ({ row, status, handleActionModalOpen }) => {
               fallback="Mark as complete"
             />
           }
-          PopperProps={{
-            disablePortal: true,
-          }}
         >
           <IconButton onClick={() => handleActionModalOpen(TASK_ACTIONS.COMPLETED, row)}>
             <StyledCheckCircleIcon />
