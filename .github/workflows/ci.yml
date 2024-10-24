@@ -33,7 +33,7 @@ jobs:
         with:
           key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
-      - run: npm install
+      - run: npm ci
       - uses: actions/cache/save@v3
         with:
           key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
@@ -72,7 +72,7 @@ jobs:
           key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
 
-      - run: npm install
+      - run: npm ci
       - run: npm run build-shared
       - run: npm run --workspace ${{ matrix.package }} build
 
@@ -105,7 +105,7 @@ jobs:
           key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
 
-      - run: npm install
+      - run: npm ci
       - run: npm run build
 
   lint:
@@ -122,7 +122,7 @@ jobs:
         with:
           key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
-      - run: npm install
+      - run: npm ci
 
       - name: Lint errors
         run: npm run lint-all -- --quiet
@@ -149,7 +149,7 @@ jobs:
           key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
 
-      - run: npm install
+      - run: npm ci
       - run: npm run build-shared
       - run: npm run --workspace @tamanu/web-frontend test-storybook
 
@@ -180,7 +180,7 @@ jobs:
           key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
 
-      - run: npm install
+      - run: npm ci
       - run: npm run build-shared
 
       - name: Install and start postgres ${{ matrix.postgres }}
@@ -203,7 +203,7 @@ jobs:
         with:
           key: ${{ runner.os }}-npmmobile-${{ hashFiles('mobile/package-lock.json') }}
           path: mobile/node_modules
-      - run: npm install
+      - run: npm ci
         working-directory: packages/mobile
       - uses: actions/cache/save@v3
         with:
@@ -227,7 +227,7 @@ jobs:
         with:
           key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
-      - run: npm install
+      - run: npm ci
 
       - name: Install and start postgres
         run: |
@@ -259,7 +259,7 @@ jobs:
         with:
           node-version-file: '.nvmrc'
           cache: npm
-      - run: npm install
+      - run: npm ci
         working-directory: ${{ matrix.workdir }}
       - run: git diff --exit-code
 
