@@ -1,14 +1,12 @@
 #!/usr/bin/env node
 
-process.env.SUPPRESS_NO_CONFIG_WARNING = 'y';
-const config = require('config');
 const fs = require('node:fs/promises');
 const inflection = require('inflection');
 const path = require('node:path');
-const pg = require('pg');
 const YAML = require('yaml');
 const { compact, differenceBy, intersectionBy, remove } = require('lodash');
 const { spawnSync } = require('child_process');
+const { dbConfig } = require('./dbConfig.js');
 
 /**
  * @param {string} schemaPath The path to the dir with source model files for a schema
@@ -493,20 +491,11 @@ async function handleSchema(client, packageName, schemaName) {
 }
 
 async function run(packageName, opts) {
-  const serverConfig = config.util.loadFileConfigs(path.join('packages', packageName, 'config'));
-  const db = config.util.extendDeep(serverConfig.db, config.db); // merge with NODE_CONFIG
-
   console.log('-+', packageName);
-  console.log(' | connecting to database');
-  const client = new pg.Client({
-    host: db.host,
-    port: db.port,
-    user: db.username,
-    database: db.name,
-    password: db.password,
-  });
+  let client;
   try {
-    await client.connect();
+    console.log(' | connecting to database');
+    ({ client } = await dbConfig(packageName));
   } catch (err) {
     console.error(err);
     if (opts.failOnMissingConfig) {
@@ -541,14 +530,9 @@ async function runAll() {
   const { exit } = require('node:process');
 
   program
-    .description(
-      `Generates a Source model in dbt.
-This reads Postgres database based on the config files. The search path is \`packages/<server-name>/config\`. \
-You can override the config for both by supplying \`NODE_CONFIG\` or the \`config\` directory at the current directory.
-`,
-    )
-    .option('--fail-on-missing-config')
-    .option('--allow-dirty');
+    .description('Generate dbt models from the current database')
+    .option('--fail-on-missing-config', 'Exit with 1 if we cannot connect to a db')
+    .option('--allow-dirty', 'Proceed even if there are uncommitted changed in the database/ folder');
 
   program.parse();
   const opts = program.opts();
