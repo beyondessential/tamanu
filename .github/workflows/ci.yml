@@ -321,7 +321,8 @@ jobs:
           yarn workspace @tamanu/central-server run start migrate up
           yarn workspace @tamanu/facility-server run start migrate up
 
-      - run: |
+      - name: Check model is up to date
+        run: |
           yarn dbt-generate-model --fail-on-missing-config
           if [[ -n $(git status --porcelain=v2) ]]; then
               git diff
@@ -329,6 +330,11 @@ jobs:
               echo "Run 'yarn dbt-generate-model' and commit the result."
               exit 1
           fi
+
+      - name: Check model is valid (ie that docs can generate)
+        run: |
+          pip3 install dbt-core dbt-postgres
+          yarn dbt-generate-docs
 
   dbt-todos:
     needs: node_modules_cache
@@ -350,28 +356,6 @@ jobs:
       - run: yarn
       - run: yarn dbt-check-todos
 
-  dbt-valid:
-    needs: node_modules_cache
-    name: DBT model valid
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.head_ref || github.ref }}
-      - uses: actions/setup-node@v4
-        with:
-          node-version-file: '.nvmrc'
-          cache: yarn
-      - uses: actions/cache/restore@v3
-        with:
-          key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
-          path: ${{ env.NODE_MODULES_PATHS }}
-
-      - run: yarn
-
-      # does a full parse and check so it incidentally validates the files
-      - run: yarn dbt-generate-docs
-
   # Dummy job to have a stable name for PR requirements
   tests-pass:
     if: always() # always run even if dependencies fail
@@ -386,7 +370,6 @@ jobs:
       - test-yarn-lock
       - dbt-model
       - dbt-todos
-      - dbt-valid
     runs-on: ubuntu-latest
     steps:
       - uses: re-actors/alls-green@release/v1
