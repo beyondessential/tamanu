@@ -31,7 +31,7 @@ export const defineDbNotifier = async config => {
   };
 
   return {
-    /** @type {(payload: { table: string, event: string }) => Promise<void>|void} */
+    /** @type {(payload: { table: string, event: string, oldId: string, newId: string }) => Promise<void>|void} */
     onTableChanged: tableChangedHook.on,
     /** @type {(materializedViewName: string) => Promise<void>|void} */
     onMaterializedViewRefreshed: materializedViewRefreshedHook.on,

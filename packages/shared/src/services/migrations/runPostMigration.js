@@ -120,8 +120,8 @@ export async function runPostMigration(log, sequelize) {
     log.info(`Adding notify change trigger to ${table}`);
     await sequelize.query(`
       CREATE TRIGGER notify_${table}_changed
-      AFTER INSERT OR UPDATE OR DELETE OR TRUNCATE ON ${table}
-      FOR EACH STATEMENT
+      AFTER INSERT OR UPDATE OR DELETE ON ${table}
+      FOR EACH ROW
       EXECUTE FUNCTION notify_table_changed();
     `);
   }

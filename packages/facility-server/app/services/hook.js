@@ -7,7 +7,7 @@ const hooks = createHooks();
  */
 export const defineHook = hookName => {
   const on = func => hooks.hook(hookName, func);
-  const trigger = () => hooks.callHook(hookName);
+  const trigger = payload => hooks.callHook(hookName, payload);
   return {
     on,
     trigger,
