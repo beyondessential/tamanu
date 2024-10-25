@@ -1,6 +1,6 @@
 version: 2
 sources:
-  - name: tamanu
+  - name: logs__tamanu
     schema: logs
     description: "{{ doc('logs__generic__schema') }}"
     __generator:

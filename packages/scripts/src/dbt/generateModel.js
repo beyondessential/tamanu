@@ -240,7 +240,7 @@ async function generateTableModel(schema, table, genericColNames) {
     version: 2,
     sources: [
       {
-        name: 'tamanu',
+        name: docPrefix(schema, 'tamanu'),
         schema: schema.name,
         description: `{{ doc('${docPrefix(schema, 'generic')}__schema') }}`,
         __generator: { js_class: inflection.classify(table.name) },
@@ -447,6 +447,7 @@ async function handleColumns(schema, tableName, dbtSrc, sqlColumns, genericColNa
 
 async function handleTable(schema, dbtSrc, sqlTable, genericColNames) {
   dbtSrc.sources[0].schema = schema.name;
+  dbtSrc.sources[0].name = docPrefix(schema, 'tamanu');
 
   await fillMissingDoc(schema, sqlTable, genericColNames);
   await handleColumns(schema, sqlTable.name, dbtSrc, sqlTable.columns, genericColNames);

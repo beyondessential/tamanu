@@ -34,13 +34,13 @@ sources:
               values_from_constant: MARTIAL_STATUS_VALUES
             data_tests:
               - allowed_values:
-                - Defacto
-                - Married
-                - Single
-                - Widow
-                - Divorced
-                - Separated
-                - Unknown
+                  - Defacto
+                  - Married
+                  - Single
+                  - Widow
+                  - Divorced
+                  - Separated
+                  - Unknown
           - name: city_town
             data_type: character varying(255)
             description: "{{ doc('patient_additional_data__city_town') }}"
@@ -60,14 +60,14 @@ sources:
               values_from_constant: BLOOD_TYPES
             data_tests:
               - allowed_values:
-                - A+
-                - A-
-                - AB-
-                - AB+
-                - B+
-                - B-
-                - O+
-                - O-
+                  - A+
+                  - A-
+                  - AB-
+                  - AB+
+                  - B+
+                  - B-
+                  - O+
+                  - O-
           - name: title
             data_type: character varying(255)
             description: "{{ doc('patient_additional_data__title') }}"
