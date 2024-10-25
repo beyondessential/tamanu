@@ -34,7 +34,6 @@ async function run(packageName) {
       'config-version': 2,
       profile: 'tamanu',
       'model-paths': (await sourceFolders(packageName)).map(path => join('..', '..', '..', path)),
-      // 'macro-paths': ['dbt_packages/data_staging/macros'],
       'target-path': 'target',
       'clean-targets': ['dbt_packages', 'target'],
       sources: { tamanu: { '+enabled': true } },
