@@ -216,7 +216,7 @@ const PatientDetailsDisplay = ({ patient, onClick }) => {
           }
         />
       )}
-      <PatientId color={Colors.primary}>{displayId}</PatientId>
+      <PatientId>{displayId}</PatientId>
     </PatientDetailsContainer>
   );
 };
