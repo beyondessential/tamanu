@@ -24,11 +24,13 @@ A subset of [the AIRV register](https://www.healthterminologies.gov.au/integrati
 {% enddocs %}
 
 {% docs fhir__immunizations__patient %}
-Reference to the patient to whom this vaccination concerns.
+Reference to the [patient](#!/source/source.tamanu.fhir__tamanu.patients) to whom this vaccination
+concerns.
 {% enddocs %}
 
 {% docs fhir__immunizations__encounter %}
-Reference to the encounter encompassing this vaccination event.
+Reference to the [encounter](#!/source/source.tamanu.fhir__tamanu.encounters) encompassing this
+vaccination event.
 
 In Tamanu, vaccinations can be given outside of an open encounter; this is encoded as an encounter
 being recorded solely for the one vaccination, and immediately closed.
@@ -47,7 +49,8 @@ Body area where the vaccine was given.
 {% enddocs %}
 
 {% docs fhir__immunizations__performer %}
-Reference to the practitioner who administered the vaccination.
+Reference to the [practitioner](#!/source/source.tamanu.fhir__tamanu.users) who administered the
+vaccination.
 {% enddocs %}
 
 {% docs fhir__immunizations__protocol_applied %}

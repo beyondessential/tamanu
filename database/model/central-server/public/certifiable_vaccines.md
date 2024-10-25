@@ -13,11 +13,13 @@ See also the signers table.
 {% enddocs %}
 
 {% docs certifiable_vaccines__vaccine_id %}
-Reference to a Reference Data (`type=vaccine`) for the vaccine drug.
+Reference to a [Reference Data](#!/source/source.tamanu.tamanu.reference_data) (`type=vaccine`)
+for the vaccine drug.
 {% enddocs %}
 
 {% docs certifiable_vaccines__manufacturer_id %}
-Reference to a Reference Data (`type=manufacturer`) for the organisation that manufactured the drug.
+Reference to a [Reference Data](#!/source/source.tamanu.tamanu.reference_data) (`type=manufacturer`)
+for the organisation that manufactured the drug.
 {% enddocs %}
 
 {% docs certifiable_vaccines__icd11_drug_code %}

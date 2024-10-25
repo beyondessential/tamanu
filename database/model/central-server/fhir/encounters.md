@@ -32,7 +32,7 @@ The start and end (if present) dates of the encounter.
 {% enddocs %}
 
 {% docs fhir__encounters__subject %}
-Reference to the patient involved in the encounter.
+Reference to the [patient](#!/source/source.tamanu.fhir__tamanu.patients) involved in the encounter.
 {% enddocs %}
 
 {% docs fhir__encounters__location %}
@@ -45,5 +45,6 @@ that area.
 {% enddocs %}
 
 {% docs fhir__encounters__service_provider %}
-Reference to the facility where the encounter is taking place.
+Reference to the [facility](#!/source/source.tamanu.fhir__tamanu.facilities) where the encounter is
+taking place.
 {% enddocs %}

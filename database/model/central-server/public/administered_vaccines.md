@@ -47,11 +47,12 @@ Vaccine name of the vaccine administration recorded
 {% enddocs %}
 
 {% docs administered_vaccines__scheduled_vaccine_id %}
-Reference to the scheduled vaccine that was administered.
+Reference to the [Scheduled Vaccine](#!/source/source.tamanu.tamanu.scheduled_vaccines) that was
+administered.
 {% enddocs %}
 
 {% docs administered_vaccines__encounter_id %}
-Reference to the Encounter this vaccine was given in.
+Reference to the [Encounter](#!/source/source.tamanu.tamanu.encounters) this vaccine was given in.
 {% enddocs %}
 
 {% docs administered_vaccines__vaccine_brand %}
@@ -63,16 +64,18 @@ Disease the vaccine addresses of the vaccine administration recorded
 {% enddocs %}
 
 {% docs administered_vaccines__recorder_id %}
-Reference to the User who recorded this vaccination.
+Reference to the [User](#!/source/source.tamanu.tamanu.users) who recorded this vaccination.
 This may differ from the User or person who administered the vaccine.
 {% enddocs %}
 
 {% docs administered_vaccines__location_id %}
-Reference to the Location at which the vaccine was given.
+Reference to the [Location](#!/source/source.tamanu.tamanu.locations) at which the vaccine was
+given.
 {% enddocs %}
 
 {% docs administered_vaccines__department_id %}
-Reference to the Department at which the vaccine was given.
+Reference to the [Department](#!/source/source.tamanu.tamanu.departments) at which the vaccine was
+given.
 {% enddocs %}
 
 {% docs administered_vaccines__given_by %}
@@ -88,10 +91,13 @@ persons or other cases.
 {% enddocs %}
 
 {% docs administered_vaccines__not_given_reason_id %}
-Reference to a Reference Data (`type=vaccineNotGivenReason`).
+Reference to a [Reference Data](#!/source/source.tamanu.tamanu.reference_data)
+(`type=vaccineNotGivenReason`).
+
 These are presented as a dropdown for ease of recording and reporting, alongside the free-text field.
 {% enddocs %}
 
 {% docs administered_vaccines__circumstance_ids %}
-Array of references to Reference Data (`type=vaccineCircumstance`).
+Array of references to [Reference Data](#!/source/source.tamanu.tamanu.reference_data)
+(`type=vaccineCircumstance`).
 {% enddocs %}

@@ -20,7 +20,7 @@ If set to `Warning`, an alert will pop up when visiting the patient.
 {% enddocs %}
 
 {% docs patient_issues__patient_id %}
-Reference to the patient.
+Reference to the [patient](#!/source/source.tamanu.tamanu.patients).
 {% enddocs %}
 
 {% docs patient_issues__recorded_date_legacy %}

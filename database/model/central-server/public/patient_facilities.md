@@ -12,9 +12,9 @@ doesn't necessarily imply this, it often does.)_
 {% enddocs %}
 
 {% docs patient_facilities__facility_id %}
-Reference to the facility.
+Reference to the [facility](#!/source/source.tamanu.tamanu.facilities).
 {% enddocs %}
 
 {% docs patient_facilities__patient_id %}
-Reference to the patient.
+Reference to the [patient](#!/source/source.tamanu.tamanu.patients).
 {% enddocs %}

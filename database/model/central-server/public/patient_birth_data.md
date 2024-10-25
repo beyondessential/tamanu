@@ -6,7 +6,7 @@ Other patient data is found in the normal tables i.e. `patients`, `patient_addit
 {% enddocs %}
 
 {% docs patient_birth_data__patient_id %}
-Reference to the patient.
+Reference to the [patient](#!/source/source.tamanu.tamanu.patients).
 
 There is at most one `patient_birth_data` row per patient.
 
@@ -74,7 +74,7 @@ Name of attendant at birth.
 {% enddocs %}
 
 {% docs patient_birth_data__birth_facility_id %}
-Reference to the facility the birth was recorded at.
+Reference to the [facility](#!/source/source.tamanu.tamanu.facilities) the birth was recorded at.
 
 This is only required when `registered_birth_place` is `health_facility`.
 {% enddocs %}

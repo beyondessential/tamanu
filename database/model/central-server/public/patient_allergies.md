@@ -16,15 +16,15 @@ Datetime at which this allergy was recorded.
 {% enddocs %}
 
 {% docs patient_allergies__patient_id %}
-Reference to the patient.
+Reference to the [patient](#!/source/source.tamanu.tamanu.patients).
 {% enddocs %}
 
 {% docs patient_allergies__practitioner_id %}
-Reference to the practitioner recording this allergy.
+Reference to the [practitioner](#!/source/source.tamanu.tamanu.users) recording this allergy.
 {% enddocs %}
 
 {% docs patient_allergies__allergy_id %}
-Reference to an allergy (Reference Data).
+Reference to an allergy ([Reference Data](#!/source/source.tamanu.tamanu.reference_data)).
 {% enddocs %}
 
 {% docs patient_allergies__recorded_date_legacy %}
@@ -32,5 +32,5 @@ Reference to an allergy (Reference Data).
 {% enddocs %}
 
 {% docs patient_allergies__reaction_id %}
-Reference to an allergic reaction (Reference Data).
+Reference to an allergic reaction ([Reference Data](#!/source/source.tamanu.tamanu.reference_data)).
 {% enddocs %}

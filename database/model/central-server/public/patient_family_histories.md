@@ -20,15 +20,16 @@ Free-form description of the family relationship.
 {% enddocs %}
 
 {% docs patient_family_histories__patient_id %}
-Reference to the patient.
+Reference to the [patient](#!/source/source.tamanu.tamanu.patients).
 {% enddocs %}
 
 {% docs patient_family_histories__practitioner_id %}
-Reference to the practitioner recording this history.
+Reference to the [practitioner](#!/source/source.tamanu.tamanu.users) recording this history.
 {% enddocs %}
 
 {% docs patient_family_histories__diagnosis_id %}
-Reference to a diagnosis describing this issue.
+Reference to a diagnosis ([Reference Data](#!/source/source.tamanu.tamanu.reference_data))
+describing this issue.
 {% enddocs %}
 
 {% docs patient_family_histories__recorded_date_legacy %}

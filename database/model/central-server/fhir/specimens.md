@@ -9,7 +9,8 @@ Who collected the specimen, from where, and at what time.
 {% enddocs %}
 
 {% docs fhir__specimens__request %}
-Reference to the servicerequest this specimen is for.
+Reference to the [service request](#!/source/source.tamanu.fhir__tamanu.service_requests) this
+specimen is for.
 {% enddocs %}
 
 {% docs fhir__specimens__type %}

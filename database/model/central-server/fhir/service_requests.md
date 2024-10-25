@@ -59,11 +59,13 @@ For labs this is the code of a test panel, if available.
 {% enddocs %}
 
 {% docs fhir__service_requests__subject %}
-Reference to the patient this service request concerns.
+Reference to the [patient](#!/source/source.tamanu.fhir__tamanu.patients) this service request
+concerns.
 {% enddocs %}
 
 {% docs fhir__service_requests__requester %}
-Reference to the practitioner who requested this.
+Reference to the [practitioner](#!/source/source.tamanu.fhir__tamanu.practitioners) who requested
+this.
 {% enddocs %}
 
 {% docs fhir__service_requests__occurrence_date_time %}
@@ -71,7 +73,8 @@ When this request should be actioned, if available.
 {% enddocs %}
 
 {% docs fhir__service_requests__encounter %}
-Reference to the encounter this service request concerns.
+Reference to the [encounter](#!/source/source.tamanu.fhir__tamanu.encounters) this service request
+concerns.
 {% enddocs %}
 
 {% docs fhir__service_requests__note %}

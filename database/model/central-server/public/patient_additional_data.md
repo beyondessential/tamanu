@@ -78,43 +78,43 @@ Patient name: title.
 {% enddocs %}
 
 {% docs patient_additional_data__ethnicity_id %}
-Reference to patient ethnicity (Reference Data).
+Reference to patient ethnicity ([Reference Data](#!/source/source.tamanu.tamanu.reference_data)).
 {% enddocs %}
 
 {% docs patient_additional_data__nationality_id %}
-Reference to patient nationality (Reference Data).
+Reference to patient nationality ([Reference Data](#!/source/source.tamanu.tamanu.reference_data)).
 {% enddocs %}
 
 {% docs patient_additional_data__country_id %}
-Reference to patient country of residence (Reference Data).
+Reference to patient country of residence ([Reference Data](#!/source/source.tamanu.tamanu.reference_data)).
 {% enddocs %}
 
 {% docs patient_additional_data__division_id %}
-Reference to patient administrative division of residence (Reference Data).
+Reference to patient administrative division of residence ([Reference Data](#!/source/source.tamanu.tamanu.reference_data)).
 {% enddocs %}
 
 {% docs patient_additional_data__subdivision_id %}
-Reference to patient administrative subdivision of residence (Reference Data).
+Reference to patient administrative subdivision of residence ([Reference Data](#!/source/source.tamanu.tamanu.reference_data)).
 {% enddocs %}
 
 {% docs patient_additional_data__medical_area_id %}
-Reference to patient administrative medical area of residence (Reference Data).
+Reference to patient administrative medical area of residence ([Reference Data](#!/source/source.tamanu.tamanu.reference_data)).
 {% enddocs %}
 
 {% docs patient_additional_data__nursing_zone_id %}
-Reference to patient administrative nursing zone of residence (Reference Data).
+Reference to patient administrative nursing zone of residence ([Reference Data](#!/source/source.tamanu.tamanu.reference_data)).
 {% enddocs %}
 
 {% docs patient_additional_data__settlement_id %}
-Reference to patient residence settlement (Reference Data).
+Reference to patient residence settlement ([Reference Data](#!/source/source.tamanu.tamanu.reference_data)).
 {% enddocs %}
 
 {% docs patient_additional_data__occupation_id %}
-Reference to patient occupation (Reference Data).
+Reference to patient occupation ([Reference Data](#!/source/source.tamanu.tamanu.reference_data)).
 {% enddocs %}
 
 {% docs patient_additional_data__patient_id %}
-Reference to the patient.
+Reference to the [patient](#!/source/source.tamanu.tamanu.patients).
 
 There is at most one `patient_additional_data` row per patient.
 
@@ -134,7 +134,7 @@ Passport number.
 {% enddocs %}
 
 {% docs patient_additional_data__religion_id %}
-Reference to patient religion (Reference Data).
+Reference to patient religion ([Reference Data](#!/source/source.tamanu.tamanu.reference_data)).
 {% enddocs %}
 
 {% docs patient_additional_data__patient_billing_type_id %}
@@ -142,11 +142,11 @@ Reference to patient billing type.
 {% enddocs %}
 
 {% docs patient_additional_data__country_of_birth_id %}
-Reference to patient country of birth (Reference Data).
+Reference to patient country of birth ([Reference Data](#!/source/source.tamanu.tamanu.reference_data)).
 {% enddocs %}
 
 {% docs patient_additional_data__registered_by_id %}
-Reference to user that registered the patient in Tamanu.
+Reference to the [user](#!/source/source.tamanu.tamanu.users) who registered the patient in Tamanu.
 {% enddocs %}
 
 {% docs patient_additional_data__emergency_contact_name %}
@@ -158,11 +158,11 @@ Phone number of emergency contact.
 {% enddocs %}
 
 {% docs patient_additional_data__mother_id %}
-Reference to patient ID of mother / parent.
+Reference to [patient](#!/source/source.tamanu.tamanu.patients) ID of mother / parent.
 {% enddocs %}
 
 {% docs patient_additional_data__father_id %}
-Reference to patient ID of father / parent.
+Reference to [patient](#!/source/source.tamanu.tamanu.patients) ID of father / parent.
 {% enddocs %}
 
 {% docs patient_additional_data__updated_at_by_field %}
@@ -175,11 +175,11 @@ is used to implement per-field "last edit wins" instead.
 {% enddocs %}
 
 {% docs patient_additional_data__health_center_id %}
-Reference to patient primary health center (Reference Data).
+Reference to patient primary health center ([Reference Data](#!/source/source.tamanu.tamanu.reference_data)).
 {% enddocs %}
 
 {% docs patient_additional_data__insurer_id %}
-Reference to patient insurer (Reference Data).
+Reference to patient insurer ([Reference Data](#!/source/source.tamanu.tamanu.reference_data)).
 {% enddocs %}
 
 {% docs patient_additional_data__insurer_policy_number %}
@@ -187,7 +187,7 @@ Policy number of patient insurance.
 {% enddocs %}
 
 {% docs patient_additional_data__secondary_village_id %}
-Reference to patient administrative village of residence (Reference Data, secondary).
+Reference to patient administrative village of residence ([Reference Data](#!/source/source.tamanu.tamanu.reference_data), secondary).
 
-See also `patients.village_id`.
+See also [`patients.village_id`](#!/source/source.tamanu.tamanu.patients).
 {% enddocs %}
