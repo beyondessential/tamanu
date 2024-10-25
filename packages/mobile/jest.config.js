@@ -1,5 +1,4 @@
 module.exports = {
-  verbose: true,
   preset: '@testing-library/react-native',
   moduleFileExtensions: ['ts', 'tsx', 'js'],
   transformIgnorePatterns: [

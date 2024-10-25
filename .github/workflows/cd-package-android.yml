@@ -99,7 +99,6 @@ jobs:
           npm install
   
       - name: Build shared packages
-        working-directory: ./
         run: |
           npm run build-shared
 

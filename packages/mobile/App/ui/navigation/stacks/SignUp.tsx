@@ -23,7 +23,6 @@ const TransitionStyle = TransitionPresets.SlideFromRightIOS;
 
 export const SignUpStack = ({ route }: IndexStackProps): ReactElement => {
   const { signedOutFromInactivity } = route.params;
-  console.log('hehehe');
   return (
     <RegisterAccountProvider>
       <Stack.Navigator headerMode="none" initialRouteName={Routes.SignUpStack.SignIn}>
