@@ -2,11 +2,11 @@ import React, { useCallback, useMemo, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { push } from 'connected-react-router';
 import { Box, ClickAwayListener, IconButton, Paper, Popper, styled } from '@mui/material';
-import { Brightness2 as Overnight, Close, MoreVert } from '@mui/icons-material';
+import { Brightness2 as Overnight, Close } from '@mui/icons-material';
 import { debounce } from 'lodash';
 import { toast } from 'react-toastify';
 
-import { PatientNameDisplay } from '../PatientNameDisplay';
+import { getPatientNameAsString } from '../PatientNameDisplay';
 import {
   TranslatedEnum,
   TranslatedReferenceData,
@@ -50,14 +50,14 @@ const FlexCol = styled(Box)`
   flex-direction: column;
 `;
 
-const Title = styled('span')`
-  font-weight: 500;
+const PatientName = styled('h2')`
   font-size: 0.875rem;
+  font-weight: 500;
+  margin-block: 0;
 `;
 
 const Label = styled('span')`
   font-weight: 500;
-  color: ${props => props.color || 'inherit'};
 `;
 
 const StyledPaper = styled(Paper)`
@@ -93,6 +93,21 @@ const AppointmentDetailsContainer = styled(FlexCol)`
   border-block: max(0.0625rem, 1px) solid ${Colors.outline};
   gap: 0.5rem;
   padding: 0.75rem;
+`;
+
+const SexAndDob = styled('div')`
+  > span + span {
+    margin-inline-start: 0.25rem;
+    padding-inline-start: 0.25rem;
+    border-inline-start: max(0.0625rem, 1px) solid currentcolor;
+  }
+`;
+
+const PatientId = styled('p')`
+  color: ${Colors.primary};
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  margin-block: 0;
 `;
 
 const AppointmentStatusContainer = styled(Box)`
@@ -171,24 +186,25 @@ const PatientDetailsDisplay = ({ patient, onClick }) => {
 
   return (
     <PatientDetailsContainer onClick={onClick}>
-      <Title>
-        <PatientNameDisplay patient={patient} />
-      </Title>
-      <span>
-        <Label>
-          <TranslatedText stringId="general.localisedField.sex.label" fallback="Sex" />:
-        </Label>{' '}
-        <TranslatedSex sex={sex} />
-        {' | '}
-        <Label>
-          <TranslatedText
-            stringId="general.localisedField.dateOfBirth.label.short"
-            fallback="DOB"
-          />
-          :
-        </Label>{' '}
-        <DateDisplay date={dateOfBirth} />
-      </span>
+      <PatientName>{getPatientNameAsString(patient)}</PatientName>
+      <SexAndDob>
+        <span>
+          <Label>
+            <TranslatedText stringId="general.localisedField.sex.label" fallback="Sex" />:
+          </Label>{' '}
+          <TranslatedSex sex={sex} />
+        </span>
+        <span>
+          <Label>
+            <TranslatedText
+              stringId="general.localisedField.dateOfBirth.label.short"
+              fallback="DOB"
+            />
+            :
+          </Label>{' '}
+          <DateDisplay date={dateOfBirth} />
+        </span>
+      </SexAndDob>
       {additionalData?.primaryContactNumber && (
         <DetailsDisplay
           label={
@@ -200,7 +216,7 @@ const PatientDetailsDisplay = ({ patient, onClick }) => {
           }
         />
       )}
-      <Label color={Colors.primary}>{displayId}</Label>
+      <PatientId color={Colors.primary}>{displayId}</PatientId>
     </PatientDetailsContainer>
   );
 };
