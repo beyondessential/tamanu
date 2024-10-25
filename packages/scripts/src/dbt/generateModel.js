@@ -390,12 +390,12 @@ async function handleMissingTable(schema, table, genericColNames) {
 async function handleColumn(schema, tableName, dbtColumn, sqlColumn, hasGenericDoc) {
   dbtColumn.data_type = sqlColumn.data_type;
   delete dbtColumn.__generator;
-    dbtColumn.description = generateColumnModelDescription(
-      schema,
-      tableName,
-      dbtColumn.name,
-      hasGenericDoc,
-    );
+  dbtColumn.description = generateColumnModelDescription(
+    schema,
+    tableName,
+    dbtColumn.name,
+    hasGenericDoc,
+  );
 
   const sqlDataTests = await generateDataTests(sqlColumn);
   if (!Object.hasOwn(dbtColumn, 'data_tests')) dbtColumn.data_tests = [];
@@ -445,6 +445,7 @@ async function handleColumns(schema, tableName, dbtSrc, sqlColumns, genericColNa
 async function handleTable(schema, dbtSrc, sqlTable, genericColNames) {
   dbtSrc.sources[0].schema = schema.name;
   dbtSrc.sources[0].name = docPrefix(schema, 'tamanu');
+  delete dbtSrc.sources[0].__generator;
 
   dbtSrc.sources[0].tables[0].description = `{{ doc("${docPrefix(schema, 'table')}__${sqlTable.name}") }}`;
   await fillMissingDoc(schema, sqlTable, genericColNames);
