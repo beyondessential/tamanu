@@ -33,7 +33,11 @@ const formatDateRange = (start, end, isOvernight) => {
   const formattedStart = getDateDisplay(start, { showDate: true, showTime: true });
   const formattedEnd = getDateDisplay(end, { showDate: isOvernight, showTime: true });
 
-  return `${formattedStart} - ${formattedEnd}`;
+  return (
+    <>
+      {formattedStart}&nbsp;&ndash; {formattedEnd}
+    </>
+  );
 };
 
 const FlexRow = styled(Box)`
