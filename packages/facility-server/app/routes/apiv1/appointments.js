@@ -16,6 +16,9 @@ appointments.post('/locationBooking', async (req, res) => {
   const { startTime, endTime, locationId } = body;
   const { Appointment } = models;
 
+  // TODO: transaction see imaging.js for example
+  // await Appointment.sequelize.transaction(async () => {})
+
   const bookingTimeAlreadyTaken = await Appointment.findOne({
     where: {
       locationId,
@@ -52,9 +55,8 @@ appointments.post('/locationBooking', async (req, res) => {
   });
 
   if (bookingTimeAlreadyTaken) {
-    return res
-      .status(409)
-      .send();
+    res.status(409).send();
+    return;
   }
 
   const newRecord = await Appointment.create(body);
