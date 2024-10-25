@@ -3,11 +3,9 @@ sources:
   - name: fhir__tamanu
     schema: fhir
     description: "{{ doc('fhir__generic__schema') }}"
-    __generator:
-      js_class: Organization
     tables:
       - name: organizations
-        description: "{{ doc('fhir__table__organizations') }}"
+        description: '{{ doc("fhir__table__organizations") }}'
         tags: []
         columns:
           - name: id

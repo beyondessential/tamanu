@@ -5,7 +5,7 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: patient_birth_data
-        description: "{{ doc('table__patient_birth_data') }}"
+        description: '{{ doc("table__patient_birth_data") }}'
         tags:
           - clinical
         columns:
@@ -40,8 +40,6 @@ sources:
           - name: birth_delivery_type
             data_type: character varying(255)
             description: "{{ doc('patient_birth_data__birth_delivery_type') }}"
-            __generator:
-              values_from_constant: BIRTH_DELIVERY_TYPES
             data_tests:
               - accepted_values:
                   values:
@@ -73,8 +71,6 @@ sources:
           - name: attendant_at_birth
             data_type: character varying(255)
             description: "{{ doc('patient_birth_data__attendant_at_birth') }}"
-            __generator:
-              values_from_constant: ATTENDANT_OF_BIRTH_TYPES
             data_tests:
               - accepted_values:
                   values:
@@ -96,8 +92,6 @@ sources:
           - name: registered_birth_place
             data_type: character varying(255)
             description: "{{ doc('patient_birth_data__registered_birth_place') }}"
-            __generator:
-              values_from_constant: PLACE_OF_BIRTH_TYPES
             data_tests:
               - accepted_values:
                   values:

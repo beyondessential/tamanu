@@ -5,7 +5,7 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: invoice_insurer_payments
-        description: "{{ doc('table__invoice_insurer_payments') }}"
+        description: '{{ doc("table__invoice_insurer_payments") }}'
         tags:
           - administration
         columns:

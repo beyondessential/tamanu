@@ -5,13 +5,13 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: notes
-        description: "{{ doc('table__notes') }}"
+        description: '{{ doc("table__notes") }}'
         tags:
           - clinical
         columns:
           - name: id
             data_type: uuid
-            description: "{{ doc('generic__id') }} for notes"
+            description: "{{ doc('generic__id') }} in notes."
             data-tests:
               - unique
               - not_null
@@ -20,21 +20,21 @@ sources:
               - not_null
           - name: created_at
             data_type: timestamp with time zone
-            description: "{{ doc('generic__created_at') }}"
+            description: "{{ doc('generic__created_at') }} in notes."
             data-tests:
               - not_null
             data_tests:
               - not_null
           - name: updated_at
             data_type: timestamp with time zone
-            description: "{{ doc('generic__updated_at') }}"
+            description: "{{ doc('generic__updated_at') }} in notes."
             data-tests:
               - not_null
             data_tests:
               - not_null
           - name: deleted_at
             data_type: timestamp with time zone
-            description: "{{ doc('generic__deleted_at') }}"
+            description: "{{ doc('generic__deleted_at') }} in notes."
           - name: note_type
             data_type: character varying(255)
             description: "{{ doc('notes__note_type') }}"
@@ -84,44 +84,43 @@ sources:
               - not_null
           - name: date
             data_type: character(19)
-            description: "{{ doc('generic__date') }}"
+            description: "{{ doc('generic__date') }} in notes."
             data-tests:
               - not_null
             data_tests:
               - not_null
           - name: date_legacy
             data_type: timestamp with time zone
-            description: "{{ doc('generic__date_legacy') }}"
+            description: "{{ doc('generic__date_legacy') }} in notes."
           - name: updated_at_sync_tick
             data_type: bigint
-            description: "{{ doc('generic__updated_at_sync_tick') }}"
+            description: "{{ doc('generic__updated_at_sync_tick') }} in notes."
             data-tests:
               - not_null
             data_tests:
               - not_null
           - name: visibility_status
             data_type: text
-            description: "{{ doc('generic__visibility_status') }}"
+            description: "{{ doc('generic__visibility_status') }} in notes."
           - name: author_id
             data_type: character varying(255)
-            description: "{{ doc('users__id') }} that authored the note"
+            description: "{{ doc('notes__author_id') }}"
             data-tests:
               - relationships:
                   to: source('tamanu', 'users')
                   field: id
           - name: on_behalf_of_id
             data_type: character varying(255)
-            description: "{{ doc('users__id') }} the note was recorded on behalf of"
+            description: "{{ doc('notes__on_behalf_of_id') }}"
             data-tests:
               - relationships:
                   to: source('tamanu', 'users')
                   field: id
           - name: content
             data_type: text
-            description: "{{ doc('notes__content') }}. Default value is ''"
+            description: "{{ doc('notes__content') }}"
             data_tests:
               - not_null
           - name: revised_by_id
             data_type: uuid
-            description: "[Deprecated] {{ doc('generic__id') }} of the user that revised the
-              note."
+            description: "{{ doc('notes__revised_by_id') }}"

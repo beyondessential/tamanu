@@ -3,11 +3,9 @@ sources:
   - name: fhir__tamanu
     schema: fhir
     description: "{{ doc('fhir__generic__schema') }}"
-    __generator:
-      js_class: FhirJob
     tables:
       - name: jobs
-        description: "{{ doc('fhir__table__jobs') }}"
+        description: '{{ doc("fhir__table__jobs") }}'
         tags: []
         columns:
           - name: id

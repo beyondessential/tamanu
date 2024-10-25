@@ -5,7 +5,7 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: imaging_requests
-        description: "{{ doc('table__imaging_requests') }}"
+        description: '{{ doc("table__imaging_requests") }}'
         tags:
           - clinical
         columns:
@@ -50,7 +50,7 @@ sources:
             description: "{{ doc('imaging_requests__completed_by_id') }}"
           - name: location_id
             data_type: character varying(255)
-            description: "[Deprecated]"
+            description: "{{ doc('imaging_requests__location_id') }}"
           - name: imaging_type
             data_type: character varying(31)
             description: "{{ doc('imaging_requests__imaging_type') }}"

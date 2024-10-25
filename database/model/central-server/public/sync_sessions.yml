@@ -5,29 +5,29 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: sync_sessions
-        description: "{{ doc('table__sync_sessions') }}"
+        description: '{{ doc("table__sync_sessions") }}'
         tags:
           - system
         columns:
           - name: id
             data_type: uuid
-            description: "{{ doc('sync_sessions__id') }}"
+            description: "{{ doc('generic__id') }} in sync_sessions."
             data_tests:
               - unique
               - not_null
           - name: created_at
             data_type: timestamp with time zone
-            description: "{{ doc('generic__created_at') }} in sync_sessions"
+            description: "{{ doc('generic__created_at') }} in sync_sessions."
             data_tests:
               - not_null
           - name: updated_at
             data_type: timestamp with time zone
-            description: "{{ doc('generic__updated_at') }} in sync_sessions"
+            description: "{{ doc('generic__updated_at') }} in sync_sessions."
             data_tests:
               - not_null
           - name: deleted_at
             data_type: timestamp with time zone
-            description: "{{ doc('generic__deleted_at') }} in sync_sessions"
+            description: "{{ doc('generic__deleted_at') }} in sync_sessions."
           - name: start_time
             data_type: timestamp with time zone
             description: "{{ doc('sync_sessions__start_time') }}"

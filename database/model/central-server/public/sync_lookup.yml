@@ -3,11 +3,9 @@ sources:
   - name: tamanu
     schema: public
     description: TODO
-    __generator:
-      js_class: SyncLookup
     tables:
       - name: sync_lookup
-        description: "{{ doc('table__sync_lookup') }}"
+        description: '{{ doc("table__sync_lookup") }}'
         tags: []
         columns:
           - name: id

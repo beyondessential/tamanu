@@ -5,7 +5,7 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: report_requests
-        description: "{{ doc('table__report_requests') }}"
+        description: '{{ doc("table__report_requests") }}'
         tags:
           - system
         columns:

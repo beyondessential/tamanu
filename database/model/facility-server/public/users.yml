@@ -5,29 +5,29 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: users
-        description: "{{ doc('table__users') }}"
+        description: '{{ doc("table__users") }}'
         tags:
           - administration
         columns:
           - name: id
             data_type: character varying(255)
-            description: "{{ doc('users__id') }}"
+            description: "{{ doc('generic__id') }} in users."
             data_tests:
               - unique
               - not_null
           - name: created_at
             data_type: timestamp with time zone
-            description: "{{ doc('generic__created_at') }} in users"
+            description: "{{ doc('generic__created_at') }} in users."
             data_tests:
               - not_null
           - name: updated_at
             data_type: timestamp with time zone
-            description: "{{ doc('generic__updated_at') }} in users"
+            description: "{{ doc('generic__updated_at') }} in users."
             data_tests:
               - not_null
           - name: deleted_at
             data_type: timestamp with time zone
-            description: "{{ doc('generic__deleted_at') }} in users"
+            description: "{{ doc('generic__deleted_at') }} in users."
           - name: email
             data_type: character varying(255)
             description: "{{ doc('users__email') }}"
@@ -44,12 +44,12 @@ sources:
               - not_null
           - name: role
             data_type: character varying(255)
-            description: "{{ doc('roles__id') }}, default value is 'practitioner'"
+            description: "{{ doc('users__role') }}"
             data_tests:
               - not_null
           - name: updated_at_sync_tick
             data_type: bigint
-            description: "{{ doc('generic__updated_at_sync_tick') }} in users"
+            description: "{{ doc('generic__updated_at_sync_tick') }} in users."
             data_tests:
               - not_null
           - name: display_id
@@ -57,10 +57,9 @@ sources:
             description: "{{ doc('users__display_id') }}"
           - name: visibility_status
             data_type: character varying(255)
-            description: "{{ doc('generic__visibility_status') }} in users"
+            description: "{{ doc('generic__visibility_status') }} in users."
             data_tests:
               - not_null
-              - valid_visibility_status
           - name: phone_number
             data_type: character varying(255)
             description: "{{ doc('users__phone_number') }}"
