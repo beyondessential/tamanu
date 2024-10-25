@@ -279,7 +279,7 @@ jobs:
         working-directory: ${{ matrix.workdir }}
       - run: git diff --exit-code
 
-  dbt-check-model:
+  dbt-model:
     needs: node_modules_cache
     name: DBT model up to date
     runs-on: ubuntu-latest
@@ -330,7 +330,7 @@ jobs:
               exit 1
           fi
 
-  dbt-check-todos:
+  dbt-todos:
     needs: node_modules_cache
     name: DBT model TODOs
     runs-on: ubuntu-latest
@@ -350,6 +350,28 @@ jobs:
       - run: yarn
       - run: yarn dbt-check-todos
 
+  dbt-valid:
+    needs: node_modules_cache
+    name: DBT model valid
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: yarn
+      - uses: actions/cache/restore@v3
+        with:
+          key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
+          path: ${{ env.NODE_MODULES_PATHS }}
+
+      - run: yarn
+
+      # does a full parse and check so it incidentally validates the files
+      - run: yarn dbt-generate-docs
+
   # Dummy job to have a stable name for PR requirements
   tests-pass:
     if: always() # always run even if dependencies fail
@@ -362,8 +384,9 @@ jobs:
       - test-mobile
       - test-facility-offline
       - test-yarn-lock
-      - dbt-check-model
-      - dbt-check-todos
+      - dbt-model
+      - dbt-todos
+      - dbt-valid
     runs-on: ubuntu-latest
     steps:
       - uses: re-actors/alls-green@release/v1
