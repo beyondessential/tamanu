@@ -1,6 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { QueryTypes } from 'sequelize';
+import { QueryTypes, Op } from 'sequelize';
 
 import { BadAuthenticationError } from '@tamanu/shared/errors';
 import { getPermissions } from '@tamanu/shared/permissions/middleware';
@@ -14,6 +14,11 @@ import {
   makeDeletedAtIsNullFilter,
   makeFilter,
 } from '../../utils/query';
+import { z } from 'zod';
+import { TASK_STATUSES } from '@tamanu/constants';
+import config from 'config';
+import { toCountryDateTimeString } from '@tamanu/shared/utils/countryDateTime';
+import { add } from 'date-fns';
 
 export const user = express.Router();
 
@@ -159,6 +164,79 @@ user.post(
 );
 
 user.get('/:id', simpleGet('User'));
+
+const clinicianTasksQuerySchema = z.object({
+  orderBy: z
+    .tuple([z.enum(['dueTime', 'name']), z.enum(['ASC', 'DESC'])])
+    .optional()
+    .default(['dueTime', 'ASC']),
+  assignedTo: z.string().optional(),
+  page: z.coerce
+    .number()
+    .optional()
+    .default(0),
+  rowsPerPage: z.coerce
+    .number()
+    .max(50)
+    .min(10)
+    .optional()
+    .default(25),
+});
+user.get(
+  '/:id/tasks',
+  asyncHandler(async (req, res) => {
+    const { models, params } = req;
+    req.checkPermission('read', 'Task');
+    const { id: userId } = params;
+
+    const query = await clinicianTasksQuerySchema.parseAsync(req.query);
+    const { orderBy, assignedTo, page, rowsPerPage } = query;
+
+    const upcomingTasksTimeFrame = config.tasking?.upcomingTasksTimeFrame || 8;
+
+    const taskIds = await models.Task.findAll({
+      logging: true,
+      order: [orderBy, ['highPriority', 'DESC'], ['name', 'ASC']],
+      limit: rowsPerPage,
+      offset: page * rowsPerPage,
+      attributes: ['id', 'dueTime', 'name', 'highPriority'],
+      where: {
+        status: TASK_STATUSES.TODO,
+        dueTime: {
+          [Op.lte]: toCountryDateTimeString(add(new Date(), { hours: upcomingTasksTimeFrame })),
+        },
+      },
+      include: [
+        {
+          model: models.Encounter,
+          as: 'encounter',
+          where: { endDate: { [Op.is]: null } }, // only get tasks belong to active encounters
+        },
+        {
+          attributes: [],
+          model: models.ReferenceData,
+          as: 'designations',
+          where: { ...(assignedTo && { id: assignedTo }) },
+          include: [
+            {
+              attributes: [],
+              model: models.User,
+              as: 'designationUsers',
+              where: { id: userId }, // only get tasks assigned to the current user
+            },
+          ],
+        },
+      ],
+    }).then(tasks => tasks.map(task => task.id));
+
+    const tasks = await models.Task.findAll({
+      where: { id: { [Op.in]: taskIds } },
+      order: [orderBy, ['highPriority', 'DESC'], ['name', 'ASC']],
+      include: [...models.Task.getFullReferenceAssociations()],
+    });
+    res.send(tasks);
+  }),
+);
 
 const globalUserRequests = permissionCheckingRouter('list', 'User');
 globalUserRequests.get('/$', paginatedGetList('User'));
