@@ -241,7 +241,6 @@ async function generateTableModel(schema, table, genericColNames) {
         name: docPrefix(schema, 'tamanu'),
         schema: schema.name,
         description: `{{ doc('${docPrefix(schema, 'generic')}__schema') }}`,
-        __generator: { js_class: inflection.classify(table.name) },
         tables: [
           {
             name: table.name,
