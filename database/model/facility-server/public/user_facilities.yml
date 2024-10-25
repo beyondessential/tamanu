@@ -5,7 +5,7 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: user_facilities
-        description: "{{ doc('table__user_facilities') }}"
+        description: '{{ doc("table__user_facilities") }}'
         tags:
           - system
         columns:

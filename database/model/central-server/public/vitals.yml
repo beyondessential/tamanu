@@ -5,33 +5,33 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: vitals
-        description: "{{ doc('table__vitals') }}"
+        description: '{{ doc("table__vitals") }}'
         tags:
           - clinical
           - deprecated
         columns:
           - name: id
             data_type: character varying(255)
-            description: "{{ doc('vitals__id') }}"
+            description: "{{ doc('generic__id') }} in vitals."
             data_tests:
               - unique
               - not_null
           - name: created_at
             data_type: timestamp with time zone
-            description: "{{ doc('generic__created_at') }} in vitals"
+            description: "{{ doc('generic__created_at') }} in vitals."
             data_tests:
               - not_null
           - name: updated_at
             data_type: timestamp with time zone
-            description: "{{ doc('generic__updated_at') }} in vitals"
+            description: "{{ doc('generic__updated_at') }} in vitals."
             data_tests:
               - not_null
           - name: deleted_at
             data_type: timestamp with time zone
-            description: "{{ doc('generic__deleted_at') }} in vitals"
+            description: "{{ doc('generic__deleted_at') }} in vitals."
           - name: date_recorded
             data_type: character(19)
-            description: "{{ doc('generic__date_recorded') }} in vitals"
+            description: "{{ doc('generic__date_recorded') }} in vitals."
             data_tests:
               - not_null
           - name: temperature
@@ -63,10 +63,10 @@ sources:
             description: "{{ doc('vitals__avpu') }}"
           - name: encounter_id
             data_type: character varying(255)
-            description: "{{ doc('encounters__id') }}"
+            description: "{{ doc('vitals__encounter_id') }}"
           - name: gcs
             data_type: double precision
-            description: "{{ doc('vitals__avpu') }}"
+            description: "{{ doc('vitals__gcs') }}"
           - name: hemoglobin
             data_type: double precision
             description: "{{ doc('vitals__hemoglobin') }}"
@@ -105,10 +105,10 @@ sources:
             description: "{{ doc('vitals__urine_glucose') }}"
           - name: date_recorded_legacy
             data_type: timestamp with time zone
-            description: "{{ doc('generic__date_recorded_legacy') }} in vitals"
+            description: "{{ doc('generic__date_recorded_legacy') }} in vitals."
           - name: updated_at_sync_tick
             data_type: bigint
-            description: "{{ doc('generic__updated_at_sync_tick') }} in vitals"
+            description: "{{ doc('generic__updated_at_sync_tick') }} in vitals."
             data_tests:
               - not_null
           - name: migrated_record

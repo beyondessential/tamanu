@@ -5,7 +5,7 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: document_metadata
-        description: "{{ doc('table__document_metadata') }}"
+        description: '{{ doc("table__document_metadata") }}'
         tags:
           - clinical
         columns:

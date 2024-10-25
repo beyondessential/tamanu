@@ -1,13 +1,11 @@
 version: 2
 sources:
-  - name: tamanu
+  - name: fhir__tamanu
     schema: fhir
     description: "{{ doc('fhir__generic__schema') }}"
-    __generator:
-      js_class: FhirJobWorker
     tables:
       - name: job_workers
-        description: "{{ doc('fhir__table__job_workers') }}"
+        description: '{{ doc("fhir__table__job_workers") }}'
         tags: []
         columns:
           - name: id

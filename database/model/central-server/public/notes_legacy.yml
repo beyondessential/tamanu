@@ -5,7 +5,7 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: notes_legacy
-        description: "{{ doc('table__notes_legacy') }}"
+        description: '{{ doc("table__notes_legacy") }}'
         tags:
           - clinical
           - deprecated

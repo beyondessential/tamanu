@@ -5,13 +5,13 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: roles
-        description: "{{ doc('table__roles') }}"
+        description: '{{ doc("table__roles") }}'
         tags:
           - administration
         columns:
           - name: id
             data_type: character varying(255)
-            description: "{{ doc('roles__id') }}"
+            description: "{{ doc('generic__id') }} in roles."
             data-tests:
               - unique
               - not_null
@@ -20,17 +20,17 @@ sources:
               - not_null
           - name: created_at
             data_type: timestamp with time zone
-            description: "{{ doc('generic__created_at') }} in roles"
+            description: "{{ doc('generic__created_at') }} in roles."
             data-tests:
               - not_null
           - name: updated_at
             data_type: timestamp with time zone
-            description: "{{ doc('generic__updated_at') }} in roles"
+            description: "{{ doc('generic__updated_at') }} in roles."
             data-tests:
               - not_null
           - name: deleted_at
             data_type: timestamp with time zone
-            description: "{{ doc('generic__deleted_at') }} in roles"
+            description: "{{ doc('generic__deleted_at') }} in roles."
           - name: name
             data_type: character varying(255)
             description: "{{ doc('roles__name') }}"
@@ -40,7 +40,7 @@ sources:
               - not_null
           - name: updated_at_sync_tick
             data_type: bigint
-            description: "{{ doc('generic__updated_at_sync_tick') }} roles"
+            description: "{{ doc('generic__updated_at_sync_tick') }} in roles."
             data-tests:
               - not_null
             data_tests:

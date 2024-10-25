@@ -5,19 +5,19 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: invoice_discounts
-        description: "{{ doc('table__invoice_discounts') }}"
+        description: '{{ doc("table__invoice_discounts") }}'
         tags:
           - administration
         columns:
           - name: id
             data_type: uuid
-            description: "{{ doc('invoice_discounts__id') }}"
+            description: "{{ doc('generic__id') }} in invoice_discounts."
             data_tests:
               - unique
               - not_null
           - name: invoice_id
             data_type: uuid
-            description: "{{ doc('invoices__id') }}"
+            description: "{{ doc('invoice_discounts__invoice_id') }}"
             data_tests:
               - not_null
               - relationships:
@@ -38,27 +38,27 @@ sources:
               - not_null
           - name: applied_by_user_id
             data_type: character varying(255)
-            description: "{{ doc('generic__updated_by') }} in invoice_discounts"
+            description: "{{ doc('invoice_discounts__applied_by_user_id') }}"
             data_tests:
               - not_null
           - name: applied_time
             data_type: character(19)
-            description: "{{ doc('generic__datetime') }} in invoice_discounts"
+            description: "{{ doc('invoice_discounts__applied_time') }}"
             data_tests:
               - not_null
           - name: created_at
             data_type: timestamp with time zone
-            description: "{{ doc('generic__created_at') }} in invoice_discounts"
+            description: "{{ doc('generic__created_at') }} in invoice_discounts."
             data_tests:
               - not_null
           - name: updated_at
             data_type: timestamp with time zone
-            description: "{{ doc('generic__updated_at') }} in invoice_discounts"
+            description: "{{ doc('generic__updated_at') }} in invoice_discounts."
           - name: deleted_at
             data_type: timestamp with time zone
-            description: "{{ doc('generic__deleted_at') }} in invoice_discounts"
+            description: "{{ doc('generic__deleted_at') }} in invoice_discounts."
           - name: updated_at_sync_tick
             data_type: bigint
-            description: "{{ doc('generic__updated_at_sync_tick') }} in invoice_discounts"
+            description: "{{ doc('generic__updated_at_sync_tick') }} in invoice_discounts."
             data_tests:
               - not_null

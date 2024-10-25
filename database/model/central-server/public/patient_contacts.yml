@@ -5,7 +5,7 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: patient_contacts
-        description: "{{ doc('table__patient_contacts') }}"
+        description: '{{ doc("table__patient_contacts") }}'
         __generator:
           js_class: PatientContact
         tags:
@@ -38,8 +38,6 @@ sources:
           - name: method
             data_type: text
             description: "{{ doc('patient_contacts__method') }}"
-            __generator:
-              values_from_constant: PATIENT_COMMUNICATION_CHANNELS
             data_tests:
               - not_null
               - accepted_values:

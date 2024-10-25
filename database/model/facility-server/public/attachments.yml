@@ -5,13 +5,13 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: attachments
-        description: "{{ doc('table__attachments') }}"
+        description: '{{ doc("table__attachments") }}'
         tags:
           - clinical
         columns:
           - name: id
             data_type: character varying(255)
-            description: "{{ doc('attachments__id') }}"
+            description: "{{ doc('generic__id') }} in attachments."
             data_tests:
               - unique
               - not_null
@@ -35,15 +35,15 @@ sources:
               - not_null
           - name: created_at
             data_type: timestamp with time zone
-            description: "{{ doc('generic__created_at') }}"
+            description: "{{ doc('generic__created_at') }} in attachments."
           - name: updated_at
             data_type: timestamp with time zone
-            description: "{{ doc('generic__updated_at') }}"
+            description: "{{ doc('generic__updated_at') }} in attachments."
           - name: deleted_at
             data_type: timestamp with time zone
-            description: "{{ doc('generic__deleted_at') }}"
+            description: "{{ doc('generic__deleted_at') }} in attachments."
           - name: updated_at_sync_tick
             data_type: bigint
-            description: "{{ doc('generic__updated_at_sync_tick') }}"
+            description: "{{ doc('generic__updated_at_sync_tick') }} in attachments."
             data_tests:
               - not_null

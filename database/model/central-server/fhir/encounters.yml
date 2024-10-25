@@ -1,13 +1,11 @@
 version: 2
 sources:
-  - name: tamanu
+  - name: fhir__tamanu
     schema: fhir
     description: "{{ doc('fhir__generic__schema') }}"
-    __generator:
-      js_class: Encounter
     tables:
       - name: encounters
-        description: "{{ doc('fhir__table__encounters') }}"
+        description: '{{ doc("fhir__table__encounters") }}'
         tags: []
         columns:
           - name: id

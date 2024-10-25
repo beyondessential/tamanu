@@ -5,29 +5,29 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: patients
-        description: "{{ doc('table__patients') }}"
+        description: '{{ doc("table__patients") }}'
         tags:
           - patient
         columns:
           - name: id
             data_type: character varying(255)
-            description: "{{ doc('generic__id') }}"
+            description: "{{ doc('generic__id') }} in patients."
             data_tests:
               - unique
               - not_null
           - name: created_at
             data_type: timestamp with time zone
-            description: "{{ doc('generic__created_at') }} in patients"
+            description: "{{ doc('generic__created_at') }} in patients."
             data_tests:
               - not_null
           - name: updated_at
             data_type: timestamp with time zone
-            description: "{{ doc('generic__updated_at') }} in patients"
+            description: "{{ doc('generic__updated_at') }} in patients."
             data_tests:
               - not_null
           - name: deleted_at
             data_type: timestamp with time zone
-            description: "{{ doc('generic__deleted_at') }} in patients"
+            description: "{{ doc('generic__deleted_at') }} in patients."
           - name: display_id
             data_type: character varying(255)
             description: "{{ doc('patients__display_id') }}"
@@ -55,8 +55,6 @@ sources:
           - name: sex
             data_type: user-defined
             description: "{{ doc('patients__sex') }}"
-            __generator:
-              values_from_constant: SEX_VALUES
             data_tests:
               - not_null
               - accepted_values:
@@ -72,15 +70,13 @@ sources:
             description: "{{ doc('patients__additional_details') }}"
           - name: date_of_death
             data_type: character(19)
-            description: "{{ doc('patients__date_and_time_of_death') }}"
+            description: "{{ doc('patients__date_of_death') }}"
           - name: merged_into_id
             data_type: character varying(255)
             description: "{{ doc('patients__merged_into_id') }}"
           - name: visibility_status
             data_type: character varying(255)
-            description: "{{ doc('generic__visibility_status') }} in patients"
-            data_tests:
-              - valid_visibility_status
+            description: "{{ doc('generic__visibility_status') }} in patients."
           - name: date_of_death_legacy
             data_type: timestamp with time zone
             description: "{{ doc('patients__date_of_death_legacy') }}"
@@ -89,6 +85,6 @@ sources:
             description: "{{ doc('patients__date_of_birth_legacy') }}"
           - name: updated_at_sync_tick
             data_type: bigint
-            description: "{{ doc('generic__updated_at_sync_tick') }} in patients"
+            description: "{{ doc('generic__updated_at_sync_tick') }} in patients."
             data_tests:
               - not_null

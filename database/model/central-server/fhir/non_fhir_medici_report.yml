@@ -1,13 +1,11 @@
 version: 2
 sources:
-  - name: tamanu
+  - name: fhir__tamanu
     schema: fhir
     description: "{{ doc('fhir__generic__schema') }}"
-    __generator:
-      js_class: NonFhirMediciReport
     tables:
       - name: non_fhir_medici_report
-        description: "{{ doc('fhir__table__non_fhir_medici_report') }}"
+        description: '{{ doc("fhir__table__non_fhir_medici_report") }}'
         tags: []
         columns:
           - name: id

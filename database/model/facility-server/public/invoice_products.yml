@@ -5,7 +5,7 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: invoice_products
-        description: "{{ doc('table__invoice_products') }}"
+        description: '{{ doc("table__invoice_products") }}'
         tags:
           - reference
         columns:

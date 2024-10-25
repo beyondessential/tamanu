@@ -3,11 +3,9 @@ sources:
   - name: tamanu
     schema: public
     description: "{{ doc('generic__schema') }}"
-    __generator:
-      js_class: CertifiableVaccine
     tables:
       - name: certifiable_vaccines
-        description: "{{ doc('table__vaccine_administrations') }}"
+        description: '{{ doc("table__certifiable_vaccines") }}'
         tags:
           - reference
         columns:

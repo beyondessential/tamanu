@@ -5,7 +5,7 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: imaging_results
-        description: "{{ doc('table__imaging_results') }}"
+        description: '{{ doc("table__imaging_results") }}'
         tags:
           - clinical
         columns:

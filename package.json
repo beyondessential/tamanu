@@ -37,8 +37,9 @@
     "central-migrate": "yarn run build-shared && TAMANU_ARGS=\"migrate\" yarn run central-start-dev",
     "central-migrate-down": "yarn run build-shared && TAMANU_ARGS=\"migrate down\" yarn run central-start-dev",
     "build-report": "yarn build-shared && yarn workspace @tamanu/central-server build && yarn workspace @tamanu/central-server start report",
-    "generate-dbt-source": "node packages/scripts/src/dbt-generate-source.js",
-    "check-todo-dbt-source": "node packages/scripts/src/check-todo-dbt-source.js"
+    "dbt-generate-model": "node packages/scripts/src/dbt/generateModel.js",
+    "dbt-generate-docs": "node packages/scripts/src/dbt/generateDocs.js",
+    "dbt-check-todos": "node packages/scripts/src/dbt/checkTodos.js"
   },
   "engines": {
     "node": "^20.9.0"

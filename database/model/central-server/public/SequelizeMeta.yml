@@ -4,7 +4,7 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: SequelizeMeta
-        description: "{{ doc('table__SequelizeMeta') }}"
+        description: '{{ doc("table__SequelizeMeta") }}'
         tags:
           - system
         columns:

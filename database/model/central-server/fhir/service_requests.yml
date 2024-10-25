@@ -1,13 +1,11 @@
 version: 2
 sources:
-  - name: tamanu
+  - name: fhir__tamanu
     schema: fhir
     description: "{{ doc('fhir__generic__schema') }}"
-    __generator:
-      js_class: ServiceRequest
     tables:
       - name: service_requests
-        description: "{{ doc('fhir__table__service_requests') }}"
+        description: '{{ doc("fhir__table__service_requests") }}'
         tags: []
         columns:
           - name: id
@@ -39,8 +37,6 @@ sources:
           - name: status
             data_type: text
             description: "{{ doc('fhir__service_requests__status') }}"
-            __generator:
-              values_from_constant: FHIR_REQUEST_STATUS
             data_tests:
               - accepted_values:
                   values:
@@ -66,8 +62,6 @@ sources:
           - name: priority
             data_type: text
             description: "{{ doc('fhir__service_requests__priority') }}"
-            __generator:
-              values_from_constant: FHIR_REQUEST_PRIORITY
             data_tests:
               - accepted_values:
                   values:

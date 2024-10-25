@@ -1,14 +1,11 @@
 #!/usr/bin/env node
 
-process.env.SUPPRESS_NO_CONFIG_WARNING = 'y';
-const config = require('config');
 const fs = require('node:fs/promises');
-const inflection = require('inflection');
 const path = require('node:path');
-const pg = require('pg');
 const YAML = require('yaml');
 const { compact, differenceBy, intersectionBy, remove } = require('lodash');
 const { spawnSync } = require('child_process');
+const { dbConfig } = require('./dbConfig.js');
 
 /**
  * @param {string} schemaPath The path to the dir with source model files for a schema
@@ -126,7 +123,10 @@ async function readTablesFromDB(client, schemaName) {
  * @returns A table document object or null if the doc doesn't exist
  */
 async function readTableDoc(schema, tableName) {
-  const re = new RegExp(`\\{%\\s*docs\\s+${docPrefix(schema, '\\w+')}__(\\w+)\\s*%\\}([^}]+)\\{%\\s+enddocs\\s*%\\}`, 'g');
+  const re = new RegExp(
+    `\\{%\\s*docs\\s+${docPrefix(schema, '\\w+')}__(\\w+)\\s*%\\}([^}]+)\\{%\\s+enddocs\\s*%\\}`,
+    'g',
+  );
 
   let text;
   try {
@@ -240,10 +240,9 @@ async function generateTableModel(schema, table, genericColNames) {
     version: 2,
     sources: [
       {
-        name: 'tamanu',
+        name: docPrefix(schema, 'tamanu'),
         schema: schema.name,
         description: `{{ doc('${docPrefix(schema, 'generic')}__schema') }}`,
-        __generator: { js_class: inflection.classify(table.name) },
         tables: [
           {
             name: table.name,
@@ -320,7 +319,12 @@ async function fillMissingDoc(schema, table, genericColNames = []) {
   const docPath = path.join(schema.path, `${table.name}.md`);
 
   // delete empty files
-  if ((await fs.stat(docPath).then(stat => stat.size, () => 1)) === 0) {
+  if (
+    (await fs.stat(docPath).then(
+      stat => stat.size,
+      () => 1,
+    )) === 0
+  ) {
     await fs.unlink(docPath);
   }
 
@@ -391,14 +395,13 @@ async function handleMissingTable(schema, table, genericColNames) {
 
 async function handleColumn(schema, tableName, dbtColumn, sqlColumn, hasGenericDoc) {
   dbtColumn.data_type = sqlColumn.data_type;
-  if (!dbtColumn.description) {
-    dbtColumn.description = generateColumnModelDescription(
-      schema,
-      tableName,
-      dbtColumn.name,
-      hasGenericDoc,
-    );
-  }
+  delete dbtColumn.__generator;
+  dbtColumn.description = generateColumnModelDescription(
+    schema,
+    tableName,
+    dbtColumn.name,
+    hasGenericDoc,
+  );
 
   const sqlDataTests = await generateDataTests(sqlColumn);
   if (!Object.hasOwn(dbtColumn, 'data_tests')) dbtColumn.data_tests = [];
@@ -423,7 +426,14 @@ async function handleColumns(schema, tableName, dbtSrc, sqlColumns, genericColNa
     handleRemovedColumn(tableName, column, out),
   );
   differenceBy(sqlColumns, out.dbtColumns, 'name').forEach(column =>
-    handleMissingColumn(schema, tableName, sqlColumns.indexOf(column), column, genericColNames, out),
+    handleMissingColumn(
+      schema,
+      tableName,
+      sqlColumns.indexOf(column),
+      column,
+      genericColNames,
+      out,
+    ),
   );
 
   const intersectionPromises = intersectionBy(out.dbtColumns, sqlColumns, 'name').map(
@@ -447,14 +457,18 @@ async function handleColumns(schema, tableName, dbtSrc, sqlColumns, genericColNa
 
 async function handleTable(schema, dbtSrc, sqlTable, genericColNames) {
   dbtSrc.sources[0].schema = schema.name;
+  dbtSrc.sources[0].name = docPrefix(schema, 'tamanu');
+  delete dbtSrc.sources[0].__generator;
 
+  dbtSrc.sources[0].tables[0].description = `{{ doc("${docPrefix(schema, 'table')}__${
+    sqlTable.name
+  }") }}`;
   await fillMissingDoc(schema, sqlTable, genericColNames);
   await handleColumns(schema, sqlTable.name, dbtSrc, sqlTable.columns, genericColNames);
 }
 
 async function handleTables(schema, dbtSrcs, sqlTables) {
-  const genericColNames =
-    (await readTableDoc(schema, 'generic'))?.columns.map(c => c.name) ?? [];
+  const genericColNames = (await readTableDoc(schema, 'generic'))?.columns.map(c => c.name) ?? [];
 
   const getName = srcOrTable =>
     srcOrTable.sources ? srcOrTable.sources[0].tables[0].name : srcOrTable.name;
@@ -485,27 +499,22 @@ async function handleSchema(client, packageName, schemaName) {
   );
   if (fhirLogsIndex) delete sqlTables[fhirLogsIndex];
 
-  await handleTables({
-    name: schemaName,
-    path: schemaPath,
-  }, compact(oldTables), compact(sqlTables));
+  await handleTables(
+    {
+      name: schemaName,
+      path: schemaPath,
+    },
+    compact(oldTables),
+    compact(sqlTables),
+  );
 }
 
 async function run(packageName, opts) {
-  const serverConfig = config.util.loadFileConfigs(path.join('packages', packageName, 'config'));
-  const db = config.util.extendDeep(serverConfig.db, config.db); // merge with NODE_CONFIG
-
   console.log('-+', packageName);
-  console.log(' | connecting to database');
-  const client = new pg.Client({
-    host: db.host,
-    port: db.port,
-    user: db.username,
-    database: db.name,
-    password: db.password,
-  });
+  let client;
   try {
-    await client.connect();
+    console.log(' | connecting to database');
+    ({ client } = await dbConfig(packageName));
   } catch (err) {
     console.error(err);
     if (opts.failOnMissingConfig) {
@@ -540,14 +549,12 @@ async function runAll() {
   const { exit } = require('node:process');
 
   program
-    .description(
-      `Generates a Source model in dbt.
-This reads Postgres database based on the config files. The search path is \`packages/<server-name>/config\`. \
-You can override the config for both by supplying \`NODE_CONFIG\` or the \`config\` directory at the current directory.
-`,
-    )
-    .option('--fail-on-missing-config')
-    .option('--allow-dirty');
+    .description('Generate dbt models from the current database')
+    .option('--fail-on-missing-config', 'Exit with 1 if we cannot connect to a db')
+    .option(
+      '--allow-dirty',
+      'Proceed even if there are uncommitted changed in the database/ folder',
+    );
 
   program.parse();
   const opts = program.opts();

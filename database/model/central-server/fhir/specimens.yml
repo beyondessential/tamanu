@@ -1,13 +1,11 @@
 version: 2
 sources:
-  - name: tamanu
+  - name: fhir__tamanu
     schema: fhir
     description: "{{ doc('fhir__generic__schema') }}"
-    __generator:
-      js_class: Specimen
     tables:
       - name: specimens
-        description: "{{ doc('fhir__table__specimens') }}"
+        description: '{{ doc("fhir__table__specimens") }}'
         tags: []
         columns:
           - name: id

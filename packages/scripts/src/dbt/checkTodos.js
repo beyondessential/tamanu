@@ -5,7 +5,7 @@
 const fs = require('node:fs/promises');
 const path = require('node:path');
 const { exit } = require('node:process');
-const { readTablesFromDbt, readTableDoc } = require('./dbt-generate-source.js');
+const { readTablesFromDbt, readTableDoc } = require('./generateModel.js');
 
 async function getSchemas(packageName) {
   const packagePath = path.join('database/model', packageName);
