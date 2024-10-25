@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import * as yup from 'yup';
 import styled, { css, keyframes } from 'styled-components';
-import { useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import Brightness2Icon from '@material-ui/icons/Brightness2';
 
 import {
@@ -142,31 +142,38 @@ export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues }) 
       setShowWarningModal(true);
     });
 
-  const handleSubmit = async (values, { resetForm }) => {
-    const response = await api.post(`appointments/locationBooking`, values, {
-      showUnknownErrorToast: true,
-    });
-
-    if (response.status === 409) {
-      notifyError(
-        <TranslatedText
-          stringId="locationBooking.notification.bookingTimeConflict"
-          fallback="Booking failed. Booking time no longer available"
-        />,
-      );
-    }
-    if (response.newRecord?.id) {
-      notifySuccess(
-        <TranslatedText
-          stringId="locationBooking.notification.bookingSuccessfullyCreated"
-          fallback="Booking successfully created"
-        />,
-      );
-      closeDrawer();
-      resetForm();
-      queryClient.invalidateQueries('appointments');
-    }
-  };
+  const { mutateAsync: handleSubmit } = useMutation(
+    payload => api.post(`appointments/locationBooking`, payload),
+    {
+      onSuccess: () => {
+        notifySuccess(
+          <TranslatedText
+            stringId="locationBooking.notification.bookingSuccessfullyCreated"
+            fallback="Booking successfully created"
+          />,
+        );
+        closeDrawer();
+        queryClient.invalidateQueries('appointments');
+      },
+      onError: error => {
+        if (error.response.status === 409) {
+          notifyError(
+            <TranslatedText
+              stringId="locationBooking.notification.bookingTimeConflict"
+              fallback="Booking failed. Booking time no longer available"
+            />,
+          );
+        } else {
+          notifyError(
+            <TranslatedText
+              stringId="locationBooking.notification.somethingWentWrong"
+              fallback="Something went wrong"
+            />,
+          );
+        }
+      },
+    },
+  );
 
   return (
     <Container columns={1} $open={open}>
