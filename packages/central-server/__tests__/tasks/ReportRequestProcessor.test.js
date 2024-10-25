@@ -13,7 +13,7 @@ jest.mock('@tamanu/shared/reports', () => {
   };
 });
 
-describe('ReportRequestProcesser', () => {
+describe('ReportRequestProcessor', () => {
   let ctx;
   let user;
 
