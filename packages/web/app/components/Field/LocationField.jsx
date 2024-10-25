@@ -63,7 +63,7 @@ export const LocationInput = React.memo(
 
     useEffect(() => {
       if (!initialValues) return;
-      // Form is reinitialisedd, reset the state handled group and location values
+      // Form is reinitialised, reset the state handled group and location values
       setGroupId('');
       setLocationId(initialValues[name] ?? '');
     }, [initialValues, name]);
