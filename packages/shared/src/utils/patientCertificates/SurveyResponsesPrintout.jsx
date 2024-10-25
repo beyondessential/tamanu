@@ -77,9 +77,10 @@ const ResultBox = ({ resultText, resultName }) => (
 
 const getAnswers = ({ answer, type }) => {
   switch (type) {
-    case PROGRAM_DATA_ELEMENT_TYPES.RESULT:
+    case PROGRAM_DATA_ELEMENT_TYPES.RESULT: {
       const { strippedResultText } = separateColorText(answer);
       return strippedResultText;
+    }
     case PROGRAM_DATA_ELEMENT_TYPES.CHECKBOX:
       return convertBinaryToYesNo(answer);
     case PROGRAM_DATA_ELEMENT_TYPES.CALCULATED:
