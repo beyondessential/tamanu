@@ -4,7 +4,7 @@ import { WS_EVENTS } from '@tamanu/constants';
 
 /**
  *
- * @param {{httpServer: import('http').Server, dbNotifier: Awaited<ReturnType<import('./dbNotifier')['defineDbNotifier']>>}} injector
+ * @param {{httpServer: import('http').Server, dbNotifier: Awaited<ReturnType<import('./dbNotifier')['defineDbNotifier']>>, models: import('../../../shared/src/models')}} injector
  * @returns
  */
 export const defineWebsocketService = injector => {
@@ -22,8 +22,8 @@ export const defineWebsocketService = injector => {
     socketServer.emit(`${WS_EVENTS.DATABASE_MATERIALIZED_VIEW_REFRESHED}:${viewName}`),
   );
 
-  injector.dbNotifier.onTableChanged(({ table, event }) => {
-    socketServer.emit(`${WS_EVENTS.DATABASE_TABLE_CHANGED}:${table}`, { event });
+  injector.dbNotifier.onTableChanged(payload => {
+    socketServer.emit(`${WS_EVENTS.DATABASE_TABLE_CHANGED}:${payload.table}`, payload);
   });
 
   /**

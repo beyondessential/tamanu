@@ -23,13 +23,15 @@ export async function up(query) {
       -- Create the JSON payload with table name and event name
       payload := json_build_object(
         'table', TG_TABLE_NAME,
-        'event', event_name
+        'event', event_name,
+        'oldId', row_to_json(OLD)->'id',
+		    'newId', row_to_json(NEW)->'id'
       );
 
-      -- Send notification to the 'table-changed' channel with the JSON payload
-      PERFORM pg_notify('table-changed', payload::text);
+      -- Send notification to the 'table_changed' channel with the JSON payload
+      PERFORM pg_notify('table_changed', payload::text);
 
-      RETURN NULL;  -- Since this is an AFTER STATEMENT trigger, no row needs to be returned
+      RETURN NEW;  -- Return the updated row
     END;
     $$ LANGUAGE plpgsql;
   `);
