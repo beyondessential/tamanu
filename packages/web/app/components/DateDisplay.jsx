@@ -157,7 +157,7 @@ export const getDateDisplay = (
 };
 
 export const DateDisplay = React.memo(
-  ({ date: dateValue, timeOnlyTooltip = false, color = 'unset', fontWeight, ...props }) => {
+  ({ date: dateValue, timeOnlyTooltip = false, color = 'currentcolor', fontWeight, ...props }) => {
     const displayDateString = getDateDisplay(dateValue, { ...props });
     const dateObj = parseDate(dateValue);
 
