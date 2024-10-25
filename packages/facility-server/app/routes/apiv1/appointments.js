@@ -10,11 +10,11 @@ export const appointments = express.Router();
 appointments.post('/$', simplePost('Appointment'));
 
 appointments.post('/locationBooking', async (req, res) => {
+  req.checkPermission('create', 'Appointment');
+
   const { models, body } = req;
   const { startTime, endTime, locationId } = body;
   const { Appointment } = models;
-
-  req.checkPermission('create', 'Appointment');
 
   const bookingTimeAlreadyTaken = await Appointment.findOne({
     where: {
