@@ -86,9 +86,9 @@ const StyledTable = styled(DataFetchingTable)`
   }
   td {
     &:last-child {
-      max-width: 200px;
+      max-width: 188px;
       white-space: nowrap;
-      width: 200px;
+      min-width: 188px;
     }
     &:nth-child(3) {
       position: relative;
