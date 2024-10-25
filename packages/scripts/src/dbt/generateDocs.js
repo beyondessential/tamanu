@@ -44,10 +44,10 @@ async function run(packageName) {
 
   console.log(' | generate packages.yml');
   const packages = [
-    // {
-    //   git: 'git@github.com-data-staging:beyondessential/data-staging.git',
-    //   revision: 'v7.0.0',
-    // },
+    {
+      git: 'git@github.com:beyondessential/data-staging.git',
+      revision: 'v7.0.0',
+    },
   ];
   await fs.writeFile(join(base, 'packages.yml'), YAML.stringify({ packages }));
 
@@ -82,6 +82,11 @@ async function run(packageName) {
       }).status
     )
       throw '';
+
+    for (const stagingExclude of ['models', 'seeds', 'snapshots']) {
+      console.log(' | remove data_staging', stagingExclude);
+      await rimraf(join(base, 'dbt_packages', 'data_staging', stagingExclude));
+    }
   }
 
   console.log(' | run dbt docs generate');
