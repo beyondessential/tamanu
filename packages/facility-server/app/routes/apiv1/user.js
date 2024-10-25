@@ -173,6 +173,7 @@ const clinicianTasksQuerySchema = z.object({
   designationId: z.string().optional(),
   locationGroupId: z.string().optional(),
   locationId: z.string().optional(),
+  highPriority: z.boolean().optional(),
   skip: z.coerce
     .number()
     .optional()
@@ -206,6 +207,7 @@ user.get(
         dueTime: {
           [Op.lte]: toCountryDateTimeString(add(new Date(), { hours: upcomingTasksTimeFrame })),
         },
+        ...(query.highPriority && { highPriority: query.highPriority }),
       },
       include: [
         {
@@ -232,6 +234,7 @@ user.get(
           model: models.ReferenceData,
           as: 'designations',
           ...(query.designationId && { where: { id: query.designationId } }),
+          required: true,
           include: [
             {
               attributes: [],

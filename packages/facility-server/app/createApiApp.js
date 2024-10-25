@@ -28,7 +28,7 @@ export async function createApiApp({
   const server = createServer(express);
 
   const dbNotifier = await defineDbNotifier(sequelize.config);
-  const websocketService = defineWebsocketService({ httpServer: server, dbNotifier });
+  const websocketService = defineWebsocketService({ httpServer: server, dbNotifier, models });
   const websocketClientService = defineWebsocketClientService({ config, websocketService, models });
 
   const { errorMiddleware } = addFacilityMiddleware(express);

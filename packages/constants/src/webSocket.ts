@@ -2,9 +2,10 @@ export const WS_EVENT_NAMESPACES = {
   TELEGRAM: 'telegram',
   PATIENT_CONTACT: 'patient-contact',
   DATABASE: 'database',
+  CLINICIAN_DASHBOARD: 'clinician-dashboard',
 };
 
-const { TELEGRAM, PATIENT_CONTACT, DATABASE } = WS_EVENT_NAMESPACES;
+const { TELEGRAM, PATIENT_CONTACT, DATABASE, CLINICIAN_DASHBOARD } = WS_EVENT_NAMESPACES;
 
 export const WS_EVENTS = {
   TELEGRAM_SUBSCRIBE: `${TELEGRAM}:subscribe`,
@@ -16,4 +17,5 @@ export const WS_EVENTS = {
   TELEGRAM_UNSUBSCRIBE_SUCCESS: `${TELEGRAM}:unsubscribe:success`,
   DATABASE_TABLE_CHANGED: `${DATABASE}:table-changed`,
   DATABASE_MATERIALIZED_VIEW_REFRESHED: `${DATABASE}:materialized-view-refreshed`,
+  CLINICIAN_DASHBOARD_TASKS_UPDATE: `${CLINICIAN_DASHBOARD}:tasks-update`,
 };
