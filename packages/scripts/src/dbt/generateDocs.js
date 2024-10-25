@@ -43,13 +43,15 @@ async function run(packageName) {
   );
 
   console.log(' | generate packages.yml');
-  const packages = [
-    {
-      git: 'git@github.com:beyondessential/data-staging.git',
-      revision: 'v7.0.0',
-    },
-  ];
-  await fs.writeFile(join(base, 'packages.yml'), YAML.stringify({ packages }));
+  await fs.writeFile(
+    join(base, 'packages.yml'),
+    YAML.stringify({
+      packages: [
+        { package: 'dbt-labs/dbt_utils', version: '1.3.0' },
+        { git: 'https://github.com/EqualExperts/dbt-unit-testing', revision: 'v0.2.6' },
+      ],
+    }),
+  );
 
   console.log(' | generate profiles.yml');
   await fs.writeFile(
@@ -73,21 +75,14 @@ async function run(packageName) {
     }),
   );
 
-  if (packages.length) {
-    console.log(' | run dbt deps');
-    if (
-      spawnSync('dbt', ['deps', '--profiles-dir', 'config'], {
-        cwd: base,
-        stdio: ['pipe', 'inherit', 'inherit'],
-      }).status
-    )
-      throw '';
-
-    for (const stagingExclude of ['models', 'seeds', 'snapshots']) {
-      console.log(' | remove data_staging', stagingExclude);
-      await rimraf(join(base, 'dbt_packages', 'data_staging', stagingExclude));
-    }
-  }
+  console.log(' | run dbt deps');
+  if (
+    spawnSync('dbt', ['deps', '--profiles-dir', 'config'], {
+      cwd: base,
+      stdio: ['pipe', 'inherit', 'inherit'],
+    }).status
+  )
+    throw '';
 
   console.log(' | run dbt docs generate');
   if (
