@@ -43,6 +43,20 @@ sources:
           - name: status
             data_type: character varying(255)
             description: "{{ doc('lab_requests__status') }}"
+            data_tests:
+              - accepted_values:
+                  values:
+                    - reception_pending
+                    - results_pending
+                    - interim_results
+                    - to_be_verified
+                    - verified
+                    - published
+                    - cancelled
+                    - invalidated
+                    - deleted
+                    - sample-not-collected
+                    - entered-in-error
           - name: senaite_id
             data_type: character varying(255)
             description: "{{ doc('lab_requests__senaite_id') }}"
@@ -103,6 +117,11 @@ sources:
           - name: reason_for_cancellation
             data_type: character varying(31)
             description: "{{ doc('lab_requests__reason_for_cancellation') }}"
+            data_tests:
+              - accepted_values:
+                  values:
+                    - duplicate
+                    - entered-in-error
           - name: published_date
             data_type: character(19)
             description: "{{ doc('lab_requests__published_date') }}"
