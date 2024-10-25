@@ -37,7 +37,6 @@ async function run(packageName) {
       // 'macro-paths': ['dbt_packages/data_staging/macros'],
       'target-path': 'target',
       'clean-targets': ['dbt_packages', 'target'],
-      models: { '+docs': { show: true } },
       sources: { tamanu: { '+enabled': true } },
     }),
   );
