@@ -33,7 +33,7 @@ async function run(packageName) {
       version,
       'config-version': 2,
       profile: 'tamanu',
-      'model-paths': [...(await sourceFolders(packageName)).map(path => join('..', '..', '..', path)), 'stub'],
+      'model-paths': (await sourceFolders(packageName)).map(path => join('..', '..', '..', path)),
       // 'macro-paths': ['dbt_packages/data_staging/macros'],
       'target-path': 'target',
       'clean-targets': ['dbt_packages', 'target'],
@@ -73,9 +73,6 @@ async function run(packageName) {
     }),
   );
 
-  console.log(' | generate stub model');
-  await stubModel(packageName, join(base, 'stub'));
-
   if (packages.length) {
     console.log(' | run dbt deps');
     if (
@@ -109,39 +106,6 @@ async function sourceFolders(packageName) {
     folders.push(join(source, schemaDir.name));
   }
   return folders;
-}
-
-// We generate a stub model which makes zero-sized tables from every single source table, so that
-// dbt will generate docs. Unfortunately there's no way to get dbt to just generate docs for sources
-// on its own without this coaxing.
-async function stubModel(packageName, base) {
-  for (const schemaDir of await sourceFolders(packageName)) {
-    const tableFiles = await fs.readdir(schemaDir, { withFileTypes: true });
-    for (const tableFile of tableFiles) {
-      if (!tableFile.isFile()) continue;
-      if (!tableFile.name.endsWith('.yml')) continue;
-      const table = YAML.parse(
-        await fs.readFile(join(schemaDir, tableFile.name), { encoding: 'utf-8' }),
-      );
-
-      const filename = `stub__${table.sources[0].schema}__${table.sources[0].tables[0].name}`;
-      const sql = `SELECT count(*) FROM {{ source("${table.sources[0].name}", "${table.sources[0].tables[0].name}") }}`;
-      const yml = YAML.stringify({
-        version: 2,
-        models: [
-          {
-            name: filename,
-            description: table.sources[0].tables[0].description,
-            tags: table.sources[0].tables[0].tags,
-            columns: [],
-          },
-        ],
-      });
-
-      await fs.writeFile(join(base, `${filename}.sql`), sql);
-      await fs.writeFile(join(base, `${filename}.yml`), yml);
-    }
-  }
 }
 
 (async () => {
