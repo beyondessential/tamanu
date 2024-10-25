@@ -170,12 +170,14 @@ const clinicianTasksQuerySchema = z.object({
     .tuple([z.enum(['dueTime', 'name']), z.enum(['ASC', 'DESC'])])
     .optional()
     .default(['dueTime', 'ASC']),
-  assignedTo: z.string().optional(),
-  page: z.coerce
+  designationId: z.string().optional(),
+  locationGroupId: z.string().optional(),
+  locationId: z.string().optional(),
+  skip: z.coerce
     .number()
     .optional()
     .default(0),
-  rowsPerPage: z.coerce
+  take: z.coerce
     .number()
     .max(50)
     .min(10)
@@ -190,15 +192,14 @@ user.get(
     const { id: userId } = params;
 
     const query = await clinicianTasksQuerySchema.parseAsync(req.query);
-    const { orderBy, assignedTo, page, rowsPerPage } = query;
 
     const upcomingTasksTimeFrame = config.tasking?.upcomingTasksTimeFrame || 8;
 
     const taskIds = await models.Task.findAll({
       logging: true,
-      order: [orderBy, ['highPriority', 'DESC'], ['name', 'ASC']],
-      limit: rowsPerPage,
-      offset: page * rowsPerPage,
+      order: [query.orderBy, ['highPriority', 'DESC'], ['name', 'ASC']],
+      limit: query.take,
+      offset: query.skip,
       attributes: ['id', 'dueTime', 'name', 'highPriority'],
       where: {
         status: TASK_STATUSES.TODO,
@@ -211,12 +212,26 @@ user.get(
           model: models.Encounter,
           as: 'encounter',
           where: { endDate: { [Op.is]: null } }, // only get tasks belong to active encounters
+          include: [
+            {
+              model: models.Location,
+              as: 'location',
+              ...(query.locationId && { where: { id: query.locationId } }),
+              include: [
+                {
+                  model: models.LocationGroup,
+                  as: 'locationGroup',
+                  ...(query.locationGroupId && { where: { id: query.locationGroupId } }),
+                },
+              ],
+            },
+          ],
         },
         {
           attributes: [],
           model: models.ReferenceData,
           as: 'designations',
-          where: { ...(assignedTo && { id: assignedTo }) },
+          ...(query.designationId && { where: { id: query.designationId } }),
           include: [
             {
               attributes: [],
@@ -231,7 +246,7 @@ user.get(
 
     const tasks = await models.Task.findAll({
       where: { id: { [Op.in]: taskIds } },
-      order: [orderBy, ['highPriority', 'DESC'], ['name', 'ASC']],
+      order: [query.orderBy, ['highPriority', 'DESC'], ['name', 'ASC']],
       include: [...models.Task.getFullReferenceAssociations()],
     });
     res.send(tasks);
