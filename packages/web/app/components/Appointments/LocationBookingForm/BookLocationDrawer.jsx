@@ -143,7 +143,7 @@ export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues }) 
     });
 
   const { mutateAsync: handleSubmit } = useMutation(
-    payload => api.post(`appointments/locationBooking`, payload),
+    payload => api.post('appointments/locationBooking', payload),
     {
       onSuccess: () => {
         notifySuccess(
