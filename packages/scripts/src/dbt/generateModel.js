@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 
 const fs = require('node:fs/promises');
-const inflection = require('inflection');
 const path = require('node:path');
 const YAML = require('yaml');
 const { compact, differenceBy, intersectionBy, remove } = require('lodash');
@@ -124,7 +123,10 @@ async function readTablesFromDB(client, schemaName) {
  * @returns A table document object or null if the doc doesn't exist
  */
 async function readTableDoc(schema, tableName) {
-  const re = new RegExp(`\\{%\\s*docs\\s+${docPrefix(schema, '\\w+')}__(\\w+)\\s*%\\}([^}]+)\\{%\\s+enddocs\\s*%\\}`, 'g');
+  const re = new RegExp(
+    `\\{%\\s*docs\\s+${docPrefix(schema, '\\w+')}__(\\w+)\\s*%\\}([^}]+)\\{%\\s+enddocs\\s*%\\}`,
+    'g',
+  );
 
   let text;
   try {
@@ -317,7 +319,12 @@ async function fillMissingDoc(schema, table, genericColNames = []) {
   const docPath = path.join(schema.path, `${table.name}.md`);
 
   // delete empty files
-  if ((await fs.stat(docPath).then(stat => stat.size, () => 1)) === 0) {
+  if (
+    (await fs.stat(docPath).then(
+      stat => stat.size,
+      () => 1,
+    )) === 0
+  ) {
     await fs.unlink(docPath);
   }
 
@@ -419,7 +426,14 @@ async function handleColumns(schema, tableName, dbtSrc, sqlColumns, genericColNa
     handleRemovedColumn(tableName, column, out),
   );
   differenceBy(sqlColumns, out.dbtColumns, 'name').forEach(column =>
-    handleMissingColumn(schema, tableName, sqlColumns.indexOf(column), column, genericColNames, out),
+    handleMissingColumn(
+      schema,
+      tableName,
+      sqlColumns.indexOf(column),
+      column,
+      genericColNames,
+      out,
+    ),
   );
 
   const intersectionPromises = intersectionBy(out.dbtColumns, sqlColumns, 'name').map(
@@ -446,14 +460,15 @@ async function handleTable(schema, dbtSrc, sqlTable, genericColNames) {
   dbtSrc.sources[0].name = docPrefix(schema, 'tamanu');
   delete dbtSrc.sources[0].__generator;
 
-  dbtSrc.sources[0].tables[0].description = `{{ doc("${docPrefix(schema, 'table')}__${sqlTable.name}") }}`;
+  dbtSrc.sources[0].tables[0].description = `{{ doc("${docPrefix(schema, 'table')}__${
+    sqlTable.name
+  }") }}`;
   await fillMissingDoc(schema, sqlTable, genericColNames);
   await handleColumns(schema, sqlTable.name, dbtSrc, sqlTable.columns, genericColNames);
 }
 
 async function handleTables(schema, dbtSrcs, sqlTables) {
-  const genericColNames =
-    (await readTableDoc(schema, 'generic'))?.columns.map(c => c.name) ?? [];
+  const genericColNames = (await readTableDoc(schema, 'generic'))?.columns.map(c => c.name) ?? [];
 
   const getName = srcOrTable =>
     srcOrTable.sources ? srcOrTable.sources[0].tables[0].name : srcOrTable.name;
@@ -484,10 +499,14 @@ async function handleSchema(client, packageName, schemaName) {
   );
   if (fhirLogsIndex) delete sqlTables[fhirLogsIndex];
 
-  await handleTables({
-    name: schemaName,
-    path: schemaPath,
-  }, compact(oldTables), compact(sqlTables));
+  await handleTables(
+    {
+      name: schemaName,
+      path: schemaPath,
+    },
+    compact(oldTables),
+    compact(sqlTables),
+  );
 }
 
 async function run(packageName, opts) {
@@ -532,7 +551,10 @@ async function runAll() {
   program
     .description('Generate dbt models from the current database')
     .option('--fail-on-missing-config', 'Exit with 1 if we cannot connect to a db')
-    .option('--allow-dirty', 'Proceed even if there are uncommitted changed in the database/ folder');
+    .option(
+      '--allow-dirty',
+      'Proceed even if there are uncommitted changed in the database/ folder',
+    );
 
   program.parse();
   const opts = program.opts();
