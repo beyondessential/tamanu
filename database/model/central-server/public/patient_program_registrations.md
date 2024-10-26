@@ -27,7 +27,7 @@ TODO
 {% enddocs %}
 
 {% docs patient_program_registrations__facility_id %}
-TODO
+Reference to the [facility](#!/source/source.tamanu.tamanu.facilities) this program registration is from.
 {% enddocs %}
 
 {% docs patient_program_registrations__village_id %}

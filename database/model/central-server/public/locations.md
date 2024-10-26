@@ -19,7 +19,7 @@ The maximum number of patients that can be in this location
 {% enddocs %}
 
 {% docs locations__facility_id %}
-TODO
+Reference to the [facility](#!/source/source.tamanu.tamanu.facilities) this location is in.
 {% enddocs %}
 
 {% docs locations__location_group_id %}

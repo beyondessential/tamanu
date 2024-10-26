@@ -7,7 +7,7 @@ TODO
 {% enddocs %}
 
 {% docs sync_queued_devices__facility_id %}
-TODO
+Reference to the [facility](#!/source/source.tamanu.tamanu.facilities) this device is associated with.
 {% enddocs %}
 
 {% docs sync_queued_devices__last_synced_tick %}

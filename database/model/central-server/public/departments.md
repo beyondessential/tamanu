@@ -15,5 +15,5 @@ Full readable name for department.
 {% enddocs %}
 
 {% docs departments__facility_id %}
-TODO
+Reference to the [facility](#!/source/source.tamanu.tamanu.facilities) this department is in.
 {% enddocs %}

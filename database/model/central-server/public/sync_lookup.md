@@ -23,7 +23,7 @@ TODO
 {% enddocs %}
 
 {% docs sync_lookup__facility_id %}
-TODO
+Reference to the [facility](#!/source/source.tamanu.tamanu.facilities) this sync lookup entry is scoped for.
 {% enddocs %}
 
 {% docs sync_lookup__is_lab_request %}
