@@ -11,7 +11,7 @@ TODO
 {% enddocs %}
 
 {% docs death_revert_logs__patient_id %}
-TODO
+Reference to the [patient](#!/source/source.tamanu.tamanu.patients).
 {% enddocs %}
 
 {% docs death_revert_logs__reverted_by_id %}

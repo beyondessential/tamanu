@@ -15,7 +15,7 @@ Age limits in years and thresholds in days for scheduled status are configurable
 {% enddocs %}
 
 {% docs upcoming_vaccinations__patient_id %}
-TODO
+Reference to the [patient](#!/source/source.tamanu.tamanu.patients).
 {% enddocs %}
 
 {% docs upcoming_vaccinations__scheduled_vaccine_id %}

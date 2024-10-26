@@ -7,7 +7,7 @@ TODO
 {% enddocs %}
 
 {% docs patient_program_registrations__patient_id %}
-TODO
+Reference to the [patient](#!/source/source.tamanu.tamanu.patients).
 {% enddocs %}
 
 {% docs patient_program_registrations__program_registry_id %}
@@ -19,7 +19,7 @@ TODO
 {% enddocs %}
 
 {% docs patient_program_registrations__clinician_id %}
-TODO
+Reference to the [clinician](#!/source/source.tamanu.tamanu.users) recording that registration.
 {% enddocs %}
 
 {% docs patient_program_registrations__registering_facility_id %}

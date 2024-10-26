@@ -28,5 +28,5 @@ TODO
 {% enddocs %}
 
 {% docs encounter_diagnoses__clinician_id %}
-TODO
+Reference to the [clinician](#!/source/source.tamanu.tamanu.users) recording that diagnosis.
 {% enddocs %}

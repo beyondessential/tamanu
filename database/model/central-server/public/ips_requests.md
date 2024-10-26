@@ -3,7 +3,7 @@ TODO
 {% enddocs %}
 
 {% docs ips_requests__patient_id %}
-TODO
+Reference to the [patient](#!/source/source.tamanu.tamanu.patients).
 {% enddocs %}
 
 {% docs ips_requests__created_by %}

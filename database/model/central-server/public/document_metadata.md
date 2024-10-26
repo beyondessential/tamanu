@@ -23,7 +23,7 @@ TODO
 {% enddocs %}
 
 {% docs document_metadata__patient_id %}
-TODO
+Reference to the [patient](#!/source/source.tamanu.tamanu.patients).
 {% enddocs %}
 
 {% docs document_metadata__encounter_id %}

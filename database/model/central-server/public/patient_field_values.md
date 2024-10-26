@@ -11,5 +11,5 @@ TODO
 {% enddocs %}
 
 {% docs patient_field_values__patient_id %}
-TODO
+Reference to the [patient](#!/source/source.tamanu.tamanu.patients).
 {% enddocs %}

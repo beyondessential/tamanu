@@ -15,7 +15,7 @@ TODO
 {% enddocs %}
 
 {% docs sync_lookup__patient_id %}
-TODO
+Reference to the [patient](#!/source/source.tamanu.tamanu.patients).
 {% enddocs %}
 
 {% docs sync_lookup__encounter_id %}
