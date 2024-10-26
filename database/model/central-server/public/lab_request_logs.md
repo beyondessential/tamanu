@@ -1,13 +1,13 @@
 {% docs table__lab_request_logs %}
-TODO
+This is a log of who changed the status of a lab request when.
 {% enddocs %}
 
 {% docs lab_request_logs__status %}
-TODO
+The status the lab request was updated to.
 {% enddocs %}
 
 {% docs lab_request_logs__lab_request_id %}
-TODO
+Reference to the [lab request](#!/source/source.tamanu.tamanu.lab_requests).
 {% enddocs %}
 
 {% docs lab_request_logs__updated_by_id %}
