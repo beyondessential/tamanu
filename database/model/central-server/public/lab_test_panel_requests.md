@@ -7,5 +7,5 @@ TODO
 {% enddocs %}
 
 {% docs lab_test_panel_requests__encounter_id %}
-TODO
+Reference to the [encounter](#!/source/source.tamanu.tamanu.encounters) this lab test panel request is a part of.
 {% enddocs %}

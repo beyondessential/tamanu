@@ -19,7 +19,7 @@ Reference to the [patient](#!/source/source.tamanu.tamanu.patients).
 {% enddocs %}
 
 {% docs sync_lookup__encounter_id %}
-TODO
+Reference to the [encounter](#!/source/source.tamanu.tamanu.encounters) this sync lookup entry contains or is part of, if relevant.
 {% enddocs %}
 
 {% docs sync_lookup__facility_id %}

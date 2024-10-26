@@ -20,7 +20,7 @@ Date and time the diagnosis was recorded
 {% enddocs %}
 
 {% docs encounter_diagnoses__encounter_id %}
-TODO
+Reference to the [encounter](#!/source/source.tamanu.tamanu.encounters) this diagnosis is for.
 {% enddocs %}
 
 {% docs encounter_diagnoses__diagnosis_id %}

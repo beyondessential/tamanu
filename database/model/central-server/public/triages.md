@@ -35,7 +35,7 @@ TODO
 {% enddocs %}
 
 {% docs triages__encounter_id %}
-TODO
+Reference to the [encounter](#!/source/source.tamanu.tamanu.encounters) this triage is for.
 {% enddocs %}
 
 {% docs triages__practitioner_id %}

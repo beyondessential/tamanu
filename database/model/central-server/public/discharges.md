@@ -11,7 +11,7 @@ Notes (discharge treatment plan and follow-up) written at time of discharge. Thi
 {% enddocs %}
 
 {% docs discharges__encounter_id %}
-TODO
+Reference to the [encounter](#!/source/source.tamanu.tamanu.encounters) this discharge is for.
 {% enddocs %}
 
 {% docs discharges__discharger_id %}

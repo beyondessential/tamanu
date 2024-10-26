@@ -19,7 +19,7 @@ TODO
 {% enddocs %}
 
 {% docs procedures__encounter_id %}
-TODO
+Reference to the [encounter](#!/source/source.tamanu.tamanu.encounters) this procedure is a part of.
 {% enddocs %}
 
 {% docs procedures__location_id %}

@@ -3,7 +3,7 @@ TODO
 {% enddocs %}
 
 {% docs encounter_diets__encounter_id %}
-TODO
+Reference to the [encounter](#!/source/source.tamanu.tamanu.encounters) this diet is for.
 {% enddocs %}
 
 {% docs encounter_diets__diet_id %}

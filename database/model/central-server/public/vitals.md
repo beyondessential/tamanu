@@ -59,7 +59,7 @@ Observed patient's urine pH
 {% enddocs %}
 
 {% docs vitals__encounter_id %}
-TODO
+Reference to the [encounter](#!/source/source.tamanu.tamanu.encounters) this recording of vitals is a part of.
 {% enddocs %}
 
 {% docs vitals__urine_leukocytes %}

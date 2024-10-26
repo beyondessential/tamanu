@@ -19,7 +19,7 @@ TODO
 {% enddocs %}
 
 {% docs survey_responses__encounter_id %}
-TODO
+Reference to the [encounter](#!/source/source.tamanu.tamanu.encounters) this survey response is a part of.
 {% enddocs %}
 
 {% docs survey_responses__result_text %}

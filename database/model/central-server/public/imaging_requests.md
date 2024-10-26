@@ -11,7 +11,7 @@ TODO
 {% enddocs %}
 
 {% docs imaging_requests__encounter_id %}
-TODO
+Reference to the [encounter](#!/source/source.tamanu.tamanu.encounters) this imaging requests is a part of.
 {% enddocs %}
 
 {% docs imaging_requests__requested_by_id %}

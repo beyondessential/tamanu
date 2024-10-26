@@ -27,7 +27,7 @@ Reference to the [patient](#!/source/source.tamanu.tamanu.patients).
 {% enddocs %}
 
 {% docs document_metadata__encounter_id %}
-TODO
+Reference to the [encounter](#!/source/source.tamanu.tamanu.encounters) this document is a part of.
 {% enddocs %}
 
 {% docs document_metadata__attachment_id %}

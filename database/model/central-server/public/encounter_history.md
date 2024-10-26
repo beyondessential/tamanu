@@ -3,7 +3,7 @@ TODO
 {% enddocs %}
 
 {% docs encounter_history__encounter_id %}
-TODO
+Reference to the original [encounter](#!/source/source.tamanu.tamanu.encounters) this history is for.
 {% enddocs %}
 
 {% docs encounter_history__department_id %}
