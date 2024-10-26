@@ -35,7 +35,7 @@ TODO
 {% enddocs %}
 
 {% docs document_metadata__department_id %}
-TODO
+Reference to the [department](#!/source/source.tamanu.tamanu.departments) this document was uploaded from.
 {% enddocs %}
 
 {% docs document_metadata__note %}

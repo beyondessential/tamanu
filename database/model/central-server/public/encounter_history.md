@@ -7,7 +7,7 @@ TODO
 {% enddocs %}
 
 {% docs encounter_history__department_id %}
-TODO
+Reference to the [department](#!/source/source.tamanu.tamanu.departments) the encounter was in.
 {% enddocs %}
 
 {% docs encounter_history__location_id %}

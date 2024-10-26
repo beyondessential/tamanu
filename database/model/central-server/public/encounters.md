@@ -51,7 +51,7 @@ TODO
 {% enddocs %}
 
 {% docs encounters__department_id %}
-TODO
+Reference to the [department](#!/source/source.tamanu.tamanu.departments) this encounter is in.
 {% enddocs %}
 
 {% docs encounters__planned_location_start_time %}
