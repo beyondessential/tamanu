@@ -11,8 +11,10 @@ const { dbConfig } = require('./dbConfig.js');
  * @param {string} schemaPath The path to the dir with source model files for a schema
  * @returns A list of source model files as JS objects.
  */
-async function readTablesFromDbt(schemaPath) {
-  const tablePromises = (await fs.readdir(schemaPath))
+async function readTablesFromDbt(schemaPath, noSymlinks = false) {
+  const tablePromises = (await fs.readdir(schemaPath, { withFileTypes: true }))
+    .filter(entry => noSymlinks ? !entry.isSymbolicLink() : true)
+    .map(entry => entry.name)
     .filter(tablePath => tablePath.endsWith('.yml'))
     .sort()
     .map(async tablePath => {
