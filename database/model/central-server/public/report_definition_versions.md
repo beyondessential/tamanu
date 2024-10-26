@@ -27,5 +27,5 @@ TODO
 {% enddocs %}
 
 {% docs report_definition_versions__user_id %}
-TODO
+Reference to the [user](#!/source/source.tamanu.tamanu.users) that saved this report version.
 {% enddocs %}

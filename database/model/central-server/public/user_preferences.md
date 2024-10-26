@@ -3,7 +3,7 @@ TODO
 {% enddocs %}
 
 {% docs user_preferences__user_id %}
-TODO
+Reference to the [user](#!/source/source.tamanu.tamanu.users) these preferences are for.
 {% enddocs %}
 
 {% docs user_preferences__selected_graphed_vitals_on_filter %}

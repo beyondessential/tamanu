@@ -3,7 +3,7 @@ TODO
 {% enddocs %}
 
 {% docs user_recently_viewed_patients__user_id %}
-TODO
+Reference to the [user](#!/source/source.tamanu.tamanu.users).
 {% enddocs %}
 
 {% docs user_recently_viewed_patients__patient_id %}

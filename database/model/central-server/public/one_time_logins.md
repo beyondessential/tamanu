@@ -3,7 +3,7 @@ TODO
 {% enddocs %}
 
 {% docs one_time_logins__user_id %}
-TODO
+Reference to the [user](#!/source/source.tamanu.tamanu.users).
 {% enddocs %}
 
 {% docs one_time_logins__token %}

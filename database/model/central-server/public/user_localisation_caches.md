@@ -7,5 +7,5 @@ TODO
 {% enddocs %}
 
 {% docs user_localisation_caches__user_id %}
-TODO
+Reference to the [user](#!/source/source.tamanu.tamanu.users) this cache is for.
 {% enddocs %}

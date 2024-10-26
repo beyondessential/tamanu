@@ -27,7 +27,7 @@ TODO
 {% enddocs %}
 
 {% docs survey_responses__user_id %}
-TODO
+Reference to the [user](#!/source/source.tamanu.tamanu.users) recording this survey response.
 {% enddocs %}
 
 {% docs survey_responses__start_time_legacy %}
