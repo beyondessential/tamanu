@@ -521,7 +521,7 @@ async function run(packageName, opts) {
       throw `Invalid database config for ${packageName}, cannot proceed.`;
     }
 
-    return;
+    return false;
   }
 
   console.log(' | loading schemas');
@@ -537,6 +537,33 @@ async function run(packageName, opts) {
   console.log(' + done, disconnecting');
   await client.end();
   console.log();
+  return true;
+}
+
+async function symlinkIdenticals() {
+  const allFacilityFiles = await fs.readdir(path.join('database', 'model', 'facility-server'), {
+    recursive: true,
+    withFileTypes: true,
+  });
+  
+  for (const entry of allFacilityFiles) {
+    if (!entry.isFile() || entry.isSymbolicLink()) continue;
+    const facilityPath = path.join(entry.path, entry.name);
+    const centralPath = path.join(entry.path.replace('/facility-server/', '/central-server/'), entry.name);
+    const facilityFile = await fs.readFile(facilityPath);
+    
+    try {
+      const centralFile = await fs.readFile(centralPath);
+      if (facilityFile.equals(centralFile)) {
+        console.warn(`dedupe ${facilityPath}`);
+        await fs.unlink(facilityPath);
+        await fs.symlink(centralPath.replace('database/model/', '../../'), facilityPath);
+      }
+    } catch (err) {
+      if (err.code === 'ENOENT') continue;
+      throw err;
+    }
+  }
 }
 
 function checkClean() {
@@ -551,6 +578,7 @@ async function runAll() {
   program
     .description('Generate dbt models from the current database')
     .option('--fail-on-missing-config', 'Exit with 1 if we cannot connect to a db')
+    .option('--no-depupe', 'Don\'t create symlinks from facility models that are identical to central ones')
     .option(
       '--allow-dirty',
       'Proceed even if there are uncommitted changed in the database/ folder',
@@ -566,8 +594,9 @@ async function runAll() {
     exit(1);
   }
 
-  await run('central-server', opts);
-  await run('facility-server', opts);
+  if ((await run('central-server', opts)) && (await run('facility-server', opts)) && !opts.noDedupe) {
+    await symlinkIdenticals();
+  }
 }
 
 module.exports = {
