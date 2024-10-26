@@ -15,5 +15,5 @@ TODO
 {% enddocs %}
 
 {% docs lab_request_attachments__replaced_by_id %}
-TODO
+Reference to the [user](#!/source/source.tamanu.tamanu.users) who replaced this attachments.
 {% enddocs %}

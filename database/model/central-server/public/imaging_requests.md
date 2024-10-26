@@ -15,7 +15,7 @@ Reference to the [encounter](#!/source/source.tamanu.tamanu.encounters) this ima
 {% enddocs %}
 
 {% docs imaging_requests__requested_by_id %}
-TODO
+Reference to the [user](#!/source/source.tamanu.tamanu.users) who requested this imaging.
 {% enddocs %}
 
 {% docs imaging_requests__legacy_results %}
@@ -23,7 +23,7 @@ TODO
 {% enddocs %}
 
 {% docs imaging_requests__completed_by_id %}
-TODO
+Reference to the [user](#!/source/source.tamanu.tamanu.users) who completed this imaging.
 {% enddocs %}
 
 {% docs imaging_requests__location_id %}

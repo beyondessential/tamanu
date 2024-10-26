@@ -11,5 +11,5 @@ TODO
 {% enddocs %}
 
 {% docs lab_request_logs__updated_by_id %}
-TODO
+Reference to the [user](#!/source/source.tamanu.tamanu.users) who updated this lab request.
 {% enddocs %}

@@ -15,5 +15,5 @@ Reference to the [patient](#!/source/source.tamanu.tamanu.patients).
 {% enddocs %}
 
 {% docs death_revert_logs__reverted_by_id %}
-TODO
+Reference to the [user](#!/source/source.tamanu.tamanu.users) who reverted this death record.
 {% enddocs %}
