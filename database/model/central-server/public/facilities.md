@@ -1,44 +1,46 @@
 {% docs table__facilities %}
-Table of facilities linked to the central server
-- Any healthcare facility - a hospital, a clinic, a mobile vaccination van, a laboratory, etc
-{% enddocs %}
+Table of facilities.
 
-{% docs facilities__id %}
-Tamanu identifier for facilities
+Facilities may be either or both of:
+- Any healthcare facility, like hospitals, clinics, mobile vaccination vans, laboratories, etc
+- A Tamanu Facility deployment.
+
+When syncing, patient and related records are scoped to a facility, according to the
+[`patient_facilities`](#!/source/source.tamanu.tamanu.patient_facilities) table.
 {% enddocs %}
 
 {% docs facilities__code %}
-Code for facilities
+Code (identifier) for the facility.
 {% enddocs %}
 
 {% docs facilities__name %}
-Full readable name for facilities
+Full readable name.
 {% enddocs %}
 
 {% docs facilities__division %}
-Division of the facility
+Administrative division this facility lives in.
 {% enddocs %}
 
 {% docs facilities__type %}
-Type of the facility
+Type of the facility.
 {% enddocs %}
 
 {% docs facilities__email %}
-Email address of the facility
+Administrative email address of the facility.
 {% enddocs %}
 
 {% docs facilities__contact_number %}
-Contact number of the facility
+Administrative contact number of the facility.
 {% enddocs %}
 
 {% docs facilities__city_town %}
-City or town of the facility
+City or town of the facility.
 {% enddocs %}
 
 {% docs facilities__street_address %}
-Street address of the facility
+Street address of the facility.
 {% enddocs %}
 
 {% docs facilities__catchment_id %}
-TODO
+Catchment area ([Reference Data](#!/source/source.tamanu.tamanu.reference_data)).
 {% enddocs %}
