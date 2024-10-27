@@ -45,10 +45,6 @@ export class Notification extends Model {
       foreignKey: 'userId',
       as: 'user',
     });
-    this.belongsTo(models.Patient, {
-      foreignKey: 'patientId',
-      as: 'patient',
-    });
   }
 
   static buildSyncFilter() {
@@ -102,9 +98,8 @@ export class Notification extends Model {
 
       await this.create({
         type,
-        metadata,
+        metadata: { ...metadata, patientId },
         userId,
-        patientId,
         createdTime: getCurrentDateTimeString(),
       })
     } catch (error) {
