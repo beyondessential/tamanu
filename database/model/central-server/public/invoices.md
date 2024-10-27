@@ -2,16 +2,17 @@
 Invoices related to encounters.
 {% enddocs %}
 
-{% docs invoices__id %}
-Tamanu identifier for invoices
-{% enddocs %}
-
 {% docs invoices__display_id %}
-TODO
+Short unique identifier used on the frontend.
 {% enddocs %}
 
 {% docs invoices__status %}
-TODO
+Status of the invoice.
+
+One of:
+- `cancelled`
+- `in_progress`
+- `finalised`
 {% enddocs %}
 
 {% docs invoices__encounter_id %}
@@ -19,9 +20,20 @@ Reference to the [encounter](#!/source/source.tamanu.tamanu.encounters) this inv
 {% enddocs %}
 
 {% docs invoices__patient_payment_status %}
-TODO
+Payment status (patient portion, if applicable).
+
+One of:
+- `unpaid`
+- `paid`
+- `partial`
 {% enddocs %}
 
 {% docs invoices__insurer_payment_status %}
-TODO
+Payment status (insurer portion, if applicable).
+
+One of:
+- `unpaid`
+- `paid`
+- `partial`
+- `rejected`
 {% enddocs %}
