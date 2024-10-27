@@ -103,7 +103,7 @@
     "styled-components": "^5.1.0",
     "styled-system": "^5.1.2",
     "typeorm": "^0.2.31",
-    "yup": "^0.28.0"
+    "yup": "^0.28.5"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
@@ -127,7 +127,7 @@
     "@types/react-test-renderer": "^18.3.0",
     "@types/styled-components": "^5.1.0",
     "@types/styled-system": "^5.1.4",
-    "@types/yup": "^0.26.27",
+    "@types/yup": "^0.32.0",
     "babel-jest": "^29.2.1",
     "babel-loader": "^8.0.6",
     "babel-plugin-module-resolver": "^4.0.0",
