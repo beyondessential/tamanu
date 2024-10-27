@@ -20,6 +20,9 @@ sources:
             description: "{{ doc('invoice_payments__invoice_id') }}"
             data_tests:
               - not_null
+              - relationships:
+                  to: source('tamanu', 'invoices')
+                  field: id
           - name: date
             data_type: character(10)
             description: "{{ doc('generic__date') }} in invoice_payments."

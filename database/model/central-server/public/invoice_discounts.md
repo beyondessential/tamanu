@@ -7,7 +7,7 @@ Tamanu identifier for invoice discounts
 {% enddocs %}
 
 {% docs invoice_discounts__invoice_id %}
-The [invoice](#!/source/source.tamanu.tamanu.invoice).
+The [invoice](#!/source/source.tamanu.tamanu.invoices).
 {% enddocs %}
 
 {% docs invoice_discounts__percentage %}
@@ -23,7 +23,7 @@ Indicates if the discount was manually added or based on an assessment
 {% enddocs %}
 
 {% docs invoice_discounts__applied_by_user_id %}
-The [user](#!/source/source.tamanu.tamanu.user) who applied this discount.
+The [user](#!/source/source.tamanu.tamanu.users) who applied this discount.
 {% enddocs %}
 
 {% docs invoice_discounts__applied_time %}

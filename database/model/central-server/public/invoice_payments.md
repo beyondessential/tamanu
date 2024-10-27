@@ -1,15 +1,17 @@
 {% docs table__invoice_payments %}
-TODO
+Individual payment against an invoice.
+
+Invoices can be paid in installments, by different parties, etc.
 {% enddocs %}
 
 {% docs invoice_payments__invoice_id %}
-TODO
+The [invoice](#!/source/source.tamanu.tamanu.invoices).
 {% enddocs %}
 
 {% docs invoice_payments__receipt_number %}
-TODO
+Receipt number. Usually auto-generated.
 {% enddocs %}
 
 {% docs invoice_payments__amount %}
-TODO
+Amount paid.
 {% enddocs %}
