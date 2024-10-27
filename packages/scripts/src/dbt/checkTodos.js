@@ -49,7 +49,7 @@ async function run() {
   for (const packageName of ['central-server', 'facility-server']) {
     const schemas = await getSchemas(packageName);
     for (const schema of schemas) {
-      const tables = await readTablesFromDbt(schema.path);
+      const tables = await readTablesFromDbt(schema.path, true);
       for (const table of tables) {
         sum += await detectTodoItemsInTable(schema, table);
       }

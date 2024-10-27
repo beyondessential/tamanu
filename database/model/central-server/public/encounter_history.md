@@ -3,11 +3,11 @@ TODO
 {% enddocs %}
 
 {% docs encounter_history__encounter_id %}
-TODO
+Reference to the original [encounter](#!/source/source.tamanu.tamanu.encounters) this history is for.
 {% enddocs %}
 
 {% docs encounter_history__department_id %}
-TODO
+Reference to the [department](#!/source/source.tamanu.tamanu.departments) the encounter was in.
 {% enddocs %}
 
 {% docs encounter_history__location_id %}

@@ -11,7 +11,7 @@ TODO
 {% enddocs %}
 
 {% docs settings__facility_id %}
-TODO
+Reference to the [facility](#!/source/source.tamanu.tamanu.facilities) this setting is for.
 {% enddocs %}
 
 {% docs settings__scope %}

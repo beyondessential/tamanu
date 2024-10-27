@@ -1,19 +1,21 @@
 {% docs table__lab_request_attachments %}
-TODO
+Attachments (uploaded documents) to a lab request.
+
+This could be forms for authorisation or consent, notes, instructions, etc.
 {% enddocs %}
 
 {% docs lab_request_attachments__attachment_id %}
-TODO
+The [attachment](#!/source/source.tamanu.tamanu.attachments) (obtained by uploading the file).
 {% enddocs %}
 
 {% docs lab_request_attachments__lab_request_id %}
-TODO
+Reference to the [lab request](#!/source/source.tamanu.tamanu.lab_requests).
 {% enddocs %}
 
 {% docs lab_request_attachments__title %}
-TODO
+Short name of the attachment.
 {% enddocs %}
 
 {% docs lab_request_attachments__replaced_by_id %}
-TODO
+Another lab request attachment which replaces this one.
 {% enddocs %}

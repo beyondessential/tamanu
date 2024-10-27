@@ -15,7 +15,7 @@ TODO
 {% enddocs %}
 
 {% docs invoices__encounter_id %}
-TODO
+Reference to the [encounter](#!/source/source.tamanu.tamanu.encounters) this invoice is a part of.
 {% enddocs %}
 
 {% docs invoices__patient_payment_status %}

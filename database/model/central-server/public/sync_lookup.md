@@ -15,15 +15,15 @@ TODO
 {% enddocs %}
 
 {% docs sync_lookup__patient_id %}
-TODO
+Reference to the [patient](#!/source/source.tamanu.tamanu.patients).
 {% enddocs %}
 
 {% docs sync_lookup__encounter_id %}
-TODO
+Reference to the [encounter](#!/source/source.tamanu.tamanu.encounters) this sync lookup entry contains or is part of, if relevant.
 {% enddocs %}
 
 {% docs sync_lookup__facility_id %}
-TODO
+Reference to the [facility](#!/source/source.tamanu.tamanu.facilities) this sync lookup entry is scoped for.
 {% enddocs %}
 
 {% docs sync_lookup__is_lab_request %}

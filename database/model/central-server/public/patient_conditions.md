@@ -20,15 +20,16 @@ Whether the condition has resolved.
 {% enddocs %}
 
 {% docs patient_conditions__patient_id %}
-Reference to the patient.
+Reference to the [patient](#!/source/source.tamanu.tamanu.patients).
 {% enddocs %}
 
 {% docs patient_conditions__examiner_id %}
-Reference to the practitioner diagnosing/recording this condition.
+Reference to the [practitioner](#!/source/source.tamanu.tamanu.users) diagnosing/recording this
+condition.
 {% enddocs %}
 
 {% docs patient_conditions__condition_id %}
-Reference to a diagnosis describing this issue.
+Reference to a diagnosis describing this issue ([Reference Data](#!/source/source.tamanu.tamanu.reference_data)).
 {% enddocs %}
 
 {% docs patient_conditions__recorded_date_legacy %}
@@ -40,7 +41,8 @@ Datetime at which this issue was resolved.
 {% enddocs %}
 
 {% docs patient_conditions__resolution_practitioner_id %}
-Reference to the practitioner diagnosing/recording the resolution of this condition.
+Reference to the [practitioner](#!/source/source.tamanu.tamanu.users) diagnosing/recording the
+resolution of this condition.
 {% enddocs %}
 
 {% docs patient_conditions__resolution_note %}

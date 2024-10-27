@@ -11,7 +11,7 @@ TODO
 {% enddocs %}
 
 {% docs refresh_tokens__user_id %}
-TODO
+Reference to the [user](#!/source/source.tamanu.tamanu.users).
 {% enddocs %}
 
 {% docs refresh_tokens__expires_at %}

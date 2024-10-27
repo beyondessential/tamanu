@@ -1,51 +1,59 @@
 {% docs table__lab_test_types %}
-TODO
+A kind of test that's possible to request.
+
+This includes information about the test itself, and also parameters around result formatting, like
+data type, expected ranges, etc.
 {% enddocs %}
 
 {% docs lab_test_types__code %}
-TODO
+Internal Tamanu code of the test.
 {% enddocs %}
 
 {% docs lab_test_types__name %}
-TODO
+Human-friendly name of the test.
 {% enddocs %}
 
 {% docs lab_test_types__unit %}
-TODO
+Unit the test result is measured in.
 {% enddocs %}
 
 {% docs lab_test_types__male_min %}
-TODO
+Minimum typical range for males.
 {% enddocs %}
 
 {% docs lab_test_types__male_max %}
-TODO
+Maximum typical range for males.
 {% enddocs %}
 
 {% docs lab_test_types__female_min %}
-TODO
+Minimum typical range for females.
 {% enddocs %}
 
 {% docs lab_test_types__female_max %}
-TODO
+Maximum typical range for females.
 {% enddocs %}
 
 {% docs lab_test_types__range_text %}
-TODO
+Unused.
 {% enddocs %}
 
 {% docs lab_test_types__result_type %}
-TODO
+Input type of result.
+
+One of:
+- `FreeText`
+- `Number`
+- `Select`
 {% enddocs %}
 
 {% docs lab_test_types__options %}
-TODO
+Comma-separated list of options. Unused.
 {% enddocs %}
 
 {% docs lab_test_types__lab_test_category_id %}
-TODO
+Reference to the category ([Reference Data](#!/source/source.tamanu.tamanu.reference_data)) of this test.
 {% enddocs %}
 
 {% docs lab_test_types__external_code %}
-TODO
+External code for the test (such as for LIMS).
 {% enddocs %}

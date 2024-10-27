@@ -15,5 +15,5 @@ Code for location group
 {% enddocs %}
 
 {% docs location_groups__facility_id %}
-TODO
+Reference to the [facility](#!/source/source.tamanu.tamanu.facilities) this location group is in.
 {% enddocs %}

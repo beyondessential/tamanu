@@ -1,91 +1,127 @@
 {% docs table__lab_requests %}
-TODO
+Lab requests are the entrypoint of laboratory workflows in Tamanu.
+
+Each row is a request for a laboratory to perform a group of tests on a sample taken from a patient.
+
+It will be updated over the course of the workflow to various statuses, starting with
+`reception_pending` (lab has not received the request yet), up to `published` (lab has completed the
+tests and has attached verified results).
+
+See also: `lab_request_attachments`, `lab_request_logs`, `lab_results`, `lab_tests`,
+`lab_test_panels`, and related tables to those.
 {% enddocs %}
 
 {% docs lab_requests__sample_time %}
-TODO
+When the sample was collected.
 {% enddocs %}
 
 {% docs lab_requests__requested_date %}
-TODO
+When the request was submitted.
 {% enddocs %}
 
 {% docs lab_requests__urgent %}
-TODO
+Deprecated.
 {% enddocs %}
 
 {% docs lab_requests__specimen_attached %}
-TODO
+Whether a specimen is attached.
+
+This implies `specimen_type_id`.
 {% enddocs %}
 
 {% docs lab_requests__status %}
-TODO
+The status of the request.
+
+One of:
+- `reception_pending`
+- `results_pending`
+- `interim_results`
+- `to_be_verified`
+- `verified`
+- `published`
+- `cancelled`
+- `invalidated`
+- `deleted`
+- `sample-not-collected`
+- `entered-in-error`
 {% enddocs %}
 
 {% docs lab_requests__senaite_id %}
-TODO
+When the [SENAITE](https://www.senaite.com/) integration is enabled, this is filled to the SENAITE
+ID for the request.
 {% enddocs %}
 
 {% docs lab_requests__sample_id %}
-TODO
+When the [SENAITE](https://www.senaite.com/) integration is enabled, this is filled to the SENAITE
+ID for the sample.
 {% enddocs %}
 
 {% docs lab_requests__requested_by_id %}
-TODO
+Reference to the [Clinician](#!/source/source.tamanu.tamanu.users) who submitted the request.
 {% enddocs %}
 
 {% docs lab_requests__encounter_id %}
-TODO
+Reference to the [Encounter](#!/source/source.tamanu.tamanu.encounters) the request is a part of.
 {% enddocs %}
 
 {% docs lab_requests__lab_test_category_id %}
-TODO
+Reference to the [Reference Data](#!/source/source.tamanu.tamanu.reference_data) representing the
+category of this request's test.
 {% enddocs %}
 
 {% docs lab_requests__display_id %}
-TODO
+Short unique identifier used on the frontend.
 {% enddocs %}
 
 {% docs lab_requests__lab_test_priority_id %}
-TODO
+Reference to the [Reference Data](#!/source/source.tamanu.tamanu.reference_data) representing the
+priority of this request.
 {% enddocs %}
 
 {% docs lab_requests__lab_test_laboratory_id %}
-TODO
+Reference to the [Reference Data](#!/source/source.tamanu.tamanu.reference_data) representing the
+laboratory fulfilling this request.
 {% enddocs %}
 
 {% docs lab_requests__sample_time_legacy %}
-TODO
+[Deprecated] When the sample was collected.
 {% enddocs %}
 
 {% docs lab_requests__requested_date_legacy %}
-TODO
+[Deprecated] When the request was submitted.
 {% enddocs %}
 
 {% docs lab_requests__reason_for_cancellation %}
-TODO
+Why this request was cancelled.
+
+One of:
+- `duplicate`
+- `entered-in-error`
 {% enddocs %}
 
 {% docs lab_requests__department_id %}
-TODO
+Reference to the [Department](#!/source/source.tamanu.tamanu.departments) the request comes from.
 {% enddocs %}
 
 {% docs lab_requests__lab_test_panel_request_id %}
-TODO
+Reference to the [Test Panel Request](#!/source/source.tamanu.tamanu.lab_test_panel_requests)
+associated with this request, if any.
 {% enddocs %}
 
 {% docs lab_requests__lab_sample_site_id %}
-TODO
+Reference to the [Reference Data](#!/source/source.tamanu.tamanu.reference_data) representing where
+on the patient the sample was taken.
 {% enddocs %}
 
 {% docs lab_requests__published_date %}
-TODO
+When this lab request's results were published.
 {% enddocs %}
 
 {% docs lab_requests__specimen_type_id %}
-TODO
+Reference to the [Reference Data](#!/source/source.tamanu.tamanu.reference_data) representing the
+type of the specimen for the request, if specified.
 {% enddocs %}
 
 {% docs lab_requests__collected_by_id %}
-TODO
+Reference to the [Clinician](#!/source/source.tamanu.tamanu.users) who collected the sample.
 {% enddocs %}

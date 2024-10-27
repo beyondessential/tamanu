@@ -1,43 +1,56 @@
 {% docs table__lab_tests %}
-TODO
+A single test as part of a [lab request](#!/source/source.tamanu.tamanu.lab_requests).
 {% enddocs %}
 
 {% docs lab_tests__status %}
-TODO
+The status of the test.
+
+One of:
+- `reception_pending`
+- `results_pending`
+- `interim_results`
+- `to_be_verified`
+- `verified`
+- `published`
+- `cancelled`
+- `invalidated`
+- `deleted`
+- `sample-not-collected`
+- `entered-in-error`
 {% enddocs %}
 
 {% docs lab_tests__result %}
-TODO
+The result of the test.
 {% enddocs %}
 
 {% docs lab_tests__lab_request_id %}
-TODO
+The [lab request](#!/source/source.tamanu.tamanu.lab_requests) this test is part of.
 {% enddocs %}
 
 {% docs lab_tests__lab_test_type_id %}
-TODO
+The [type](#!/source/source.tamanu.tamanu.lab_test_types) of the test.
 {% enddocs %}
 
 {% docs lab_tests__category_id %}
-TODO
+Reference to the category ([Reference Data](#!/source/source.tamanu.tamanu.reference_data)) of this test.
 {% enddocs %}
 
 {% docs lab_tests__lab_test_method_id %}
-TODO
+Reference to the method ([Reference Data](#!/source/source.tamanu.tamanu.reference_data)) of this test.
 {% enddocs %}
 
 {% docs lab_tests__laboratory_officer %}
-TODO
+Name of the lab officer performing the test.
 {% enddocs %}
 
 {% docs lab_tests__completed_date %}
-TODO
+Datetime at which the test was completed.
 {% enddocs %}
 
 {% docs lab_tests__verification %}
-TODO
+Unused.
 {% enddocs %}
 
 {% docs lab_tests__completed_date_legacy %}
-TODO
+[Deprecated] Timestamp at which the test was completed.
 {% enddocs %}

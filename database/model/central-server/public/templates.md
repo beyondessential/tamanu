@@ -19,7 +19,7 @@ TODO
 {% enddocs %}
 
 {% docs templates__created_by_id %}
-TODO
+Reference to the [user](#!/source/source.tamanu.tamanu.users) who created this template.
 {% enddocs %}
 
 {% docs templates__type %}

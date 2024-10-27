@@ -11,7 +11,7 @@ TODO
 {% enddocs %}
 
 {% docs certificate_notifications__patient_id %}
-TODO
+Reference to the [patient](#!/source/source.tamanu.tamanu.patients).
 {% enddocs %}
 
 {% docs certificate_notifications__forward_address %}

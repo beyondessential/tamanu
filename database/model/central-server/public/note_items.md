@@ -7,7 +7,7 @@ TODO
 {% enddocs %}
 
 {% docs note_items__revised_by_id %}
-TODO
+Reference to the [user](#!/source/source.tamanu.tamanu.users) who revised this note item.
 {% enddocs %}
 
 {% docs note_items__author_id %}

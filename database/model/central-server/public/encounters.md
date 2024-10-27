@@ -39,7 +39,7 @@ The location that the encounter will transfer to at the planned_location_start_t
 {% enddocs %}
 
 {% docs encounters__patient_id %}
-TODO
+Reference to the [patient](#!/source/source.tamanu.tamanu.patients).
 {% enddocs %}
 
 {% docs encounters__examiner_id %}
@@ -51,7 +51,7 @@ TODO
 {% enddocs %}
 
 {% docs encounters__department_id %}
-TODO
+Reference to the [department](#!/source/source.tamanu.tamanu.departments) this encounter is in.
 {% enddocs %}
 
 {% docs encounters__planned_location_start_time %}

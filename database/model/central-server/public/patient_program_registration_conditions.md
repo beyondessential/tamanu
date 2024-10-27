@@ -7,7 +7,7 @@ Tamanu identifier for patients and the program registration of conditions record
 {% enddocs %}
 
 {% docs patient_program_registration_conditions__patient_id %}
-TODO
+Reference to the [patient](#!/source/source.tamanu.tamanu.patients).
 {% enddocs %}
 
 {% docs patient_program_registration_conditions__program_registry_id %}
@@ -19,7 +19,7 @@ TODO
 {% enddocs %}
 
 {% docs patient_program_registration_conditions__clinician_id %}
-TODO
+Reference to the [clinician](#!/source/source.tamanu.tamanu.users) recording that condition.
 {% enddocs %}
 
 {% docs patient_program_registration_conditions__deletion_clinician_id %}

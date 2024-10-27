@@ -3,15 +3,15 @@ Information about a patient's death.
 {% enddocs %}
 
 {% docs patient_death_data__patient_id %}
-Reference to the patient.
+Reference to the [patient](#!/source/source.tamanu.tamanu.patients).
 {% enddocs %}
 
 {% docs patient_death_data__clinician_id %}
-Reference to the clinician who is recording this death.
+Reference to the [clinician](#!/source/source.tamanu.tamanu.users) who is recording this death.
 {% enddocs %}
 
 {% docs patient_death_data__facility_id %}
-Reference to the facility where this death is being recorded.
+Reference to the [facility](#!/source/source.tamanu.tamanu.facilities) where this death is being recorded.
 {% enddocs %}
 
 {% docs patient_death_data__manner %}
@@ -27,7 +27,8 @@ Datetime of the most recent surgery the patient received, if any.
 {% enddocs %}
 
 {% docs patient_death_data__last_surgery_reason_id %}
-Reference to `reference_data` with `type=diagnosis` for the reason of the most recent surgery the patient received, if any.
+Reference to a `diagnosis` ([Reference Data](#!/source/source.tamanu.tamanu.reference_data)) for the
+reason of the most recent surgery the patient received, if any.
 {% enddocs %}
 
 {% docs patient_death_data__external_cause_date %}
@@ -79,7 +80,8 @@ If the deceased was a foetus, stillborn, or infant, how many weeks pregnant thei
 {% enddocs %}
 
 {% docs patient_death_data__carrier_existing_condition_id %}
-If the deceased was a foetus, stillborn, or infant, any relevant existing condition of the carrier.
+If the deceased was a foetus, stillborn, or infant, any relevant existing condition
+([Reference Data](#!/source/source.tamanu.tamanu.reference_data)) of the carrier.
 {% enddocs %}
 
 {% docs patient_death_data__outside_health_facility %}
@@ -91,7 +93,8 @@ The time in minutes after onset of the primary cause of death, if known.
 {% enddocs %}
 
 {% docs patient_death_data__primary_cause_condition_id %}
-Reference to the primary cause of death, if known.
+Reference to the primary cause of death
+([Reference Data](#!/source/source.tamanu.tamanu.reference_data)), if known.
 {% enddocs %}
 
 {% docs patient_death_data__antecedent_cause1_time_after_onset %}
@@ -99,7 +102,8 @@ The time in minutes after onset of an antecedent (1) cause of death, if applicab
 {% enddocs %}
 
 {% docs patient_death_data__antecedent_cause1_condition_id %}
-Reference to an antecedent (1) cause of death, if applicable.
+Reference to an antecedent (1) cause of death
+([Reference Data](#!/source/source.tamanu.tamanu.reference_data)), if applicable.
 {% enddocs %}
 
 {% docs patient_death_data__antecedent_cause2_time_after_onset %}
@@ -107,7 +111,8 @@ The time in minutes after onset of an antecedent (2) cause of death, if applicab
 {% enddocs %}
 
 {% docs patient_death_data__antecedent_cause2_condition_id %}
-Reference to an antecedent (2) cause of death, if applicable.
+Reference to an antecedent (2) cause of death
+([Reference Data](#!/source/source.tamanu.tamanu.reference_data)), if applicable.
 {% enddocs %}
 
 {% docs patient_death_data__external_cause_date_legacy %}
@@ -130,5 +135,6 @@ The time in minutes after onset of an antecedent (3) cause of death, if applicab
 {% enddocs %}
 
 {% docs patient_death_data__antecedent_cause3_condition_id %}
-Reference to an antecedent (3) cause of death, if applicable.
+Reference to an antecedent (3) cause of death
+([Reference Data](#!/source/source.tamanu.tamanu.reference_data)), if applicable.
 {% enddocs %}

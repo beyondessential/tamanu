@@ -27,11 +27,11 @@ TODO
 {% enddocs %}
 
 {% docs appointments__patient_id %}
-TODO
+Reference to the [patient](#!/source/source.tamanu.tamanu.patients).
 {% enddocs %}
 
 {% docs appointments__clinician_id %}
-TODO
+Reference to the [clinician](#!/source/source.tamanu.tamanu.users) recording that appointment.
 {% enddocs %}
 
 {% docs appointments__location_id %}

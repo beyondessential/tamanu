@@ -34,7 +34,7 @@ TODO
 {% enddocs %}
 
 {% docs patient_contacts__patient_id %}
-Reference to the patient.
+Reference to the [patient](#!/source/source.tamanu.tamanu.patients).
 {% enddocs %}
 
 {% docs patient_contacts__relationship_id %}

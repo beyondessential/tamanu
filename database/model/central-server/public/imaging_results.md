@@ -7,7 +7,7 @@ TODO
 {% enddocs %}
 
 {% docs imaging_results__completed_by_id %}
-TODO
+Reference to the [user](#!/source/source.tamanu.tamanu.users) who completed this imaging.
 {% enddocs %}
 
 {% docs imaging_results__description %}

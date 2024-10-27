@@ -23,11 +23,11 @@ TODO
 {% enddocs %}
 
 {% docs document_metadata__patient_id %}
-TODO
+Reference to the [patient](#!/source/source.tamanu.tamanu.patients).
 {% enddocs %}
 
 {% docs document_metadata__encounter_id %}
-TODO
+Reference to the [encounter](#!/source/source.tamanu.tamanu.encounters) this document is a part of.
 {% enddocs %}
 
 {% docs document_metadata__attachment_id %}
@@ -35,7 +35,7 @@ TODO
 {% enddocs %}
 
 {% docs document_metadata__department_id %}
-TODO
+Reference to the [department](#!/source/source.tamanu.tamanu.departments) this document was uploaded from.
 {% enddocs %}
 
 {% docs document_metadata__note %}

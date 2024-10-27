@@ -39,7 +39,7 @@ TODO
 {% enddocs %}
 
 {% docs encounter_medications__encounter_id %}
-TODO
+Reference to the [encounter](#!/source/source.tamanu.tamanu.encounters) this medication/prescription is for.
 {% enddocs %}
 
 {% docs encounter_medications__medication_id %}

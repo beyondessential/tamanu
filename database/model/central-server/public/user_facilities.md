@@ -3,9 +3,9 @@ TODO
 {% enddocs %}
 
 {% docs user_facilities__facility_id %}
-TODO
+The [facility](#!/source/source.tamanu.tamanu.facilities).
 {% enddocs %}
 
 {% docs user_facilities__user_id %}
-TODO
+The [user](#!/source/source.tamanu.tamanu.users).
 {% enddocs %}

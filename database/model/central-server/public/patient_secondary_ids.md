@@ -10,11 +10,12 @@ Value of the identifier.
 {% enddocs %}
 
 {% docs patient_secondary_ids__type_id %}
-Reference to `public.reference_data` with `type=secondaryIdType`.
+Reference to [Reference Data](#!/source/source.tamanu.tamanu.reference_data)
+with `type=secondaryIdType`.
 {% enddocs %}
 
 {% docs patient_secondary_ids__patient_id %}
-Reference to the patient.
+Reference to the [patient](#!/source/source.tamanu.tamanu.patients).
 
 There may be zero or more `patient_secondary_ids` per patient.
 {% enddocs %}

@@ -31,7 +31,7 @@ TODO
 {% enddocs %}
 
 {% docs report_requests__facility_id %}
-TODO
+Reference to the [facility](#!/source/source.tamanu.tamanu.facilities) this report request is from.
 {% enddocs %}
 
 {% docs report_requests__export_format %}

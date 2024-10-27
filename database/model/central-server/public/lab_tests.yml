@@ -38,6 +38,19 @@ sources:
             description: "{{ doc('lab_tests__status') }}"
             data_tests:
               - not_null
+              - accepted_values:
+                  values:
+                    - reception_pending
+                    - results_pending
+                    - interim_results
+                    - to_be_verified
+                    - verified
+                    - published
+                    - cancelled
+                    - invalidated
+                    - deleted
+                    - sample-not-collected
+                    - entered-in-error
           - name: result
             data_type: character varying(255)
             description: "{{ doc('lab_tests__result') }}"
@@ -46,15 +59,31 @@ sources:
           - name: lab_request_id
             data_type: character varying(255)
             description: "{{ doc('lab_tests__lab_request_id') }}"
+            data_tests:
+              - relationships:
+                  to: source('tamanu', 'lab_requests')
+                  field: id
           - name: lab_test_type_id
             data_type: character varying(255)
             description: "{{ doc('lab_tests__lab_test_type_id') }}"
+            data_tests:
+              - relationships:
+                  to: source('tamanu', 'lab_test_types')
+                  field: id
           - name: category_id
             data_type: character varying(255)
             description: "{{ doc('lab_tests__category_id') }}"
+            data_tests:
+              - relationships:
+                  to: source('tamanu', 'reference_data')
+                  field: id
           - name: lab_test_method_id
             data_type: character varying(255)
             description: "{{ doc('lab_tests__lab_test_method_id') }}"
+            data_tests:
+              - relationships:
+                  to: source('tamanu', 'reference_data')
+                  field: id
           - name: laboratory_officer
             data_type: character varying(255)
             description: "{{ doc('lab_tests__laboratory_officer') }}"

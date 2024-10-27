@@ -29,5 +29,5 @@ TODO
 {% enddocs %}
 
 {% docs notes__revised_by_id %}
-TODO
+Reference to the [user](#!/source/source.tamanu.tamanu.users) who revised this note.
 {% enddocs %}
