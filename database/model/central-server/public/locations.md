@@ -2,10 +2,6 @@
 Information on the hospital locations.
 {% enddocs %}
 
-{% docs locations__id %}
-Tamanu identifier for location
-{% enddocs %}
-
 {% docs locations__code %}
 Code for location
 {% enddocs %}
@@ -23,5 +19,5 @@ Reference to the [facility](#!/source/source.tamanu.tamanu.facilities) this loca
 {% enddocs %}
 
 {% docs locations__location_group_id %}
-TODO
+Reference to the [group](#!/source/source.tamanu.tamanu.location_groups) this location is in.
 {% enddocs %}
