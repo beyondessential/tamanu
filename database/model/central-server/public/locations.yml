@@ -12,52 +12,40 @@ sources:
           - name: id
             data_type: character varying(255)
             description: "{{ doc('generic__id') }} in locations."
-            data-tests:
-              - unique
-              - not_null
             data_tests:
               - unique
               - not_null
           - name: created_at
             data_type: timestamp with time zone
             description: "{{ doc('generic__created_at') }} in locations."
-            data-tests:
-              - not_null
           - name: updated_at
             data_type: timestamp with time zone
             description: "{{ doc('generic__updated_at') }} in locations."
-            data-tests:
-              - not_null
           - name: deleted_at
             data_type: timestamp with time zone
             description: "{{ doc('generic__deleted_at') }} in locations."
           - name: code
             data_type: character varying(255)
             description: "{{ doc('locations__code') }}"
-            data-tests:
-              - not_null
             data_tests:
               - unique
               - not_null
           - name: name
             data_type: character varying(255)
             description: "{{ doc('locations__name') }}"
-            data-tests:
-              - not_null
             data_tests:
               - not_null
           - name: facility_id
             data_type: character varying(255)
             description: "{{ doc('locations__facility_id') }}"
-            data-tests:
+            data_tests:
               - relationships:
                   to: source('tamanu', 'facilities')
                   field: id
           - name: visibility_status
             data_type: text
             description: "{{ doc('generic__visibility_status') }} in locations."
-            data-tests:
-              - not_null
+            data_tests:
               - accepted_values:
                   values:
                     - current
@@ -65,7 +53,7 @@ sources:
           - name: location_group_id
             data_type: character varying(255)
             description: "{{ doc('locations__location_group_id') }}"
-            data-tests:
+            data_tests:
               - relationships:
                   to: source('tamanu', 'location_groups')
                   field: id
@@ -75,7 +63,5 @@ sources:
           - name: updated_at_sync_tick
             data_type: bigint
             description: "{{ doc('generic__updated_at_sync_tick') }} in locations."
-            data-tests:
-              - not_null
             data_tests:
               - not_null

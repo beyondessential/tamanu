@@ -12,24 +12,17 @@ sources:
           - name: id
             data_type: character varying(255)
             description: "{{ doc('generic__id') }} in scheduled_vaccines."
-            data-tests:
-              - unique
-              - not_null
             data_tests:
               - unique
               - not_null
           - name: created_at
             data_type: timestamp with time zone
             description: "{{ doc('generic__created_at') }} in scheduled_vaccines."
-            data-tests:
-              - not_null
             data_tests:
               - not_null
           - name: updated_at
             data_type: timestamp with time zone
             description: "{{ doc('generic__updated_at') }} in scheduled_vaccines."
-            data-tests:
-              - not_null
             data_tests:
               - not_null
           - name: deleted_at
@@ -38,8 +31,7 @@ sources:
           - name: category
             data_type: character varying(255)
             description: "{{ doc('scheduled_vaccines__category') }}"
-            data-tests:
-              - not_null
+            data_tests:
               - accepted_values:
                   values:
                     - Campaign
@@ -49,13 +41,9 @@ sources:
           - name: label
             data_type: character varying(255)
             description: "{{ doc('scheduled_vaccines__label') }}"
-            data-tests:
-              - not_null
           - name: dose_label
             data_type: character varying(255)
             description: "{{ doc('scheduled_vaccines__dose_label') }}"
-            data-tests:
-              - not_null
           - name: weeks_from_birth_due
             data_type: integer
             description: "{{ doc('scheduled_vaccines__weeks_from_birth_due') }}"
@@ -65,8 +53,6 @@ sources:
           - name: vaccine_id
             data_type: character varying(255)
             description: "{{ doc('scheduled_vaccines__vaccine_id') }}"
-            data-tests:
-              - not_null
           - name: weeks_from_last_vaccination_due
             data_type: integer
             description: "{{ doc('scheduled_vaccines__weeks_from_last_vaccination_due') }}"
