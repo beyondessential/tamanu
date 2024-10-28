@@ -7,7 +7,7 @@ import { GroupByToggle } from './GroupAppointmentToggle';
 import { useAppointmentsQuery } from '../../../api/queries';
 import { useLocationGroupsQuery } from '../../../api/queries/useLocationGroupsQuery';
 import { useUsersQuery } from '../../../api/queries/useUsersQuery';
-import { BookingsCalendar } from './BookingCalender';
+import { OutpatientBookingCalendar } from './OutpatientBookingCalendar';
 import { endOfDay, startOfDay } from 'date-fns';
 import { groupBy as lodashGroupBy } from 'lodash';
 
@@ -64,7 +64,7 @@ const APPOINTMENT_GROUP_BY = {
   CLINICIAN: 'clinician',
 };
 
-export const OutpatientAppointmentsCalendar = () => {
+export const OutpatientAppointmentsView = () => {
   const [selectedDate, setSelectedDate] = useState(startOfDay(new Date()));
   const [groupBy, setGroupBy] = useState(APPOINTMENT_GROUP_BY.AREA);
 
@@ -116,7 +116,7 @@ export const OutpatientAppointmentsCalendar = () => {
       </LocationBookingsTopBar>
       <CalendarWrapper>
         <DateSelector value={selectedDate} onChange={handleChangeDate} />
-        <BookingsCalendar
+        <OutpatientBookingCalendar
           getTitle={groupByConfig[groupBy].getTitle}
           headerData={groupByConfig[groupBy].data || []}
           cellData={groupedAppointmentData}

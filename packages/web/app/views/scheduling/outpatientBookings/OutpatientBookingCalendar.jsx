@@ -72,7 +72,7 @@ const AppointmentColumn = ({ appointments = [] }) =>
     </Box>
   ));
 
-export const BookingsCalendar = ({ headerData, cellData, getTitle }) => {
+export const OutpatientBookingCalendar = ({ headerData, cellData, getTitle }) => {
   return (
     <Wrapper>
       <Box display="flex" width="100%">
