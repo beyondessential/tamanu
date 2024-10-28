@@ -62,7 +62,7 @@ const FormSubmitActionDropdown = React.memo(({ requestId, encounter, submitForm 
         navigateToImagingRequest(requestId, 'print');
       }
     })();
-  }, [requestId, awaitingPrintRedirect, dispatch, navigateToImagingRequest]);
+  }, [requestId, awaitingPrintRedirect, dispatch, navigateToImagingRequest, facilityId]);
 
   const finalise = async data => {
     await submitForm(data);
