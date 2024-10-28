@@ -89,7 +89,8 @@ const StyledMonthYearInput = styled(MonthYearInput)`
 
 const StepperWrapper = styled(Box)`
   display: flex;
-  max-width: 70rem;
+  overflow: hidden;
+  width: 70rem;
 `;
 
 const getMonthInterval = date =>
