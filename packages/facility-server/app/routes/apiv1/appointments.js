@@ -4,17 +4,21 @@ import { startOfToday } from 'date-fns';
 import { Op, Sequelize } from 'sequelize';
 import { simplePost, simplePut } from '@tamanu/shared/utils/crudHelpers';
 import { escapePatternWildcard } from '../../utils/query';
+import { ForbiddenError, ResourceConflictError } from '@tamanu/shared/errors';
 
 export const appointments = express.Router();
 
 appointments.post('/$', simplePost('Appointment'));
 
 appointments.post('/locationBooking', async (req, res) => {
+  req.checkPermission('create', 'Appointment');
+
   const { models, body } = req;
   const { startTime, endTime, locationId } = body;
   const { Appointment } = models;
 
-  req.checkPermission('create', 'Appointment');
+  // TODO: transaction see imaging.js for example
+  // await Appointment.sequelize.transaction(async () => {})
 
   const bookingTimeAlreadyTaken = await Appointment.findOne({
     where: {
@@ -51,10 +55,12 @@ appointments.post('/locationBooking', async (req, res) => {
     },
   });
 
-  if (bookingTimeAlreadyTaken) {
-    return res
-      .status(409)
-      .send();
+  if (!bookingTimeAlreadyTaken) {
+    // TODO: why does this crash whole app
+    // throw new ResourceConflictError()
+    // TODO: feels wrong
+    res.status(409).send();
+    return;
   }
 
   const newRecord = await Appointment.create(body);

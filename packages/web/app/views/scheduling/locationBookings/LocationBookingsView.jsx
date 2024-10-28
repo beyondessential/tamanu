@@ -43,7 +43,7 @@ const Filters = styled('search')`
 `;
 
 const NewBookingButton = styled(Button)`
-  margin-left: 1rem;
+  margin-inline-start: 1rem;
 `;
 
 const EmptyStateLabel = styled(Typography).attrs({
