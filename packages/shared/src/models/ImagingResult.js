@@ -35,6 +35,11 @@ export class ImagingResult extends Model {
           type: DataTypes.TEXT,
         },
         externalCode: DataTypes.TEXT,
+        resultImageUrl: {
+          type: DataTypes.TEXT,
+          defaultValue: null,
+          allowNull: true,
+        },
       },
       {
         ...options,
