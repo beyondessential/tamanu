@@ -18,7 +18,6 @@ export const useOutpatientAppointmentsCalendarData = ({ groupBy, selectedDate })
   });
 
   return useMemo(() => {
-    console.log('firing');
     if (groupBy === APPOINTMENT_GROUP_BY.AREA) {
       return {
         headData: locationGroupData,
