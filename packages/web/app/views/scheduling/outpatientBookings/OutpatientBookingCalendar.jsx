@@ -19,6 +19,7 @@ const Wrapper = styled(Box)`
 export const ColumnWrapper = styled(Box)`
   display: flex;
   flex-direction: column;
+  width: ${CELL_WIDTH_PX}px;
   &:not(:last-child) {
     border-inline-end: 1px solid ${Colors.outline};
   }
@@ -57,8 +58,8 @@ export const HeadCell = ({ title, count = 0 }) => (
     <AppointmentNumber>
       {title && (
         <>
-          <SmallBodyText color="textTertiary">appts</SmallBodyText>
           <SmallBodyText>{count}</SmallBodyText>
+          <SmallBodyText color="textTertiary">appts</SmallBodyText>
         </>
       )}
     </AppointmentNumber>
