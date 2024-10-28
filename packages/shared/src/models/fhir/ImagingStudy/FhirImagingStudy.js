@@ -14,6 +14,7 @@ import { FhirResource } from '../Resource';
 import { FhirAnnotation, FhirIdentifier, FhirReference } from '../../../services/fhirTypes';
 import { Deleted, Invalid } from '../../../utils/fhir';
 import { getCurrentDateTimeString, toDateTimeString } from '../../../utils/dateTime';
+import { FHIR_ENDPOINT_SCHEMA } from './fhirEndpoint';
 
 export class FhirImagingStudy extends FhirResource {
   static init(options, models) {
@@ -27,6 +28,7 @@ export class FhirImagingStudy extends FhirResource {
           allowNull: false,
         },
         note: DataTypes.JSONB,
+        contained: DataTypes.JSONB,
       },
       options,
     );
@@ -39,11 +41,18 @@ export class FhirImagingStudy extends FhirResource {
 
   static get INTAKE_SCHEMA() {
     return yup.object({
-      identifier: yup.array().of(FhirIdentifier.asYup()),
+      identifier: yup
+        .array()
+        .of(FhirIdentifier.asYup())
+        .optional(),
       basedOn: yup.array().of(FhirReference.asYup()),
       started: yup.string().optional(),
       status: yup.string().required(),
       note: yup.array().of(FhirAnnotation.asYup()),
+      contained: yup
+        .array()
+        .of(FHIR_ENDPOINT_SCHEMA)
+        .optional(),
     });
   }
 
@@ -98,14 +107,19 @@ export class FhirImagingStudy extends FhirResource {
       });
     }
 
-    if (![
-      FHIR_IMAGING_STUDY_STATUS.AVAILABLE,
-      FHIR_IMAGING_STUDY_STATUS.FINAL_INVALID_LEGACY,
-      FHIR_IMAGING_STUDY_STATUS.CANCELLED
-    ].includes(this.status)) {
-      throw new Invalid(`ImagingStudy status must be either '${FHIR_IMAGING_STUDY_STATUS.AVAILABLE}' or '${FHIR_IMAGING_STUDY_STATUS.CANCELLED}'`, {
-        code: FHIR_ISSUE_TYPE.INVALID.VALUE,
-      });
+    if (
+      ![
+        FHIR_IMAGING_STUDY_STATUS.AVAILABLE,
+        FHIR_IMAGING_STUDY_STATUS.FINAL_INVALID_LEGACY,
+        FHIR_IMAGING_STUDY_STATUS.CANCELLED,
+      ].includes(this.status)
+    ) {
+      throw new Invalid(
+        `ImagingStudy status must be either '${FHIR_IMAGING_STUDY_STATUS.AVAILABLE}' or '${FHIR_IMAGING_STUDY_STATUS.CANCELLED}'`,
+        {
+          code: FHIR_ISSUE_TYPE.INVALID.VALUE,
+        },
+      );
     }
 
     const imagingRequest = await ImagingRequest.findByPk(serviceRequest.upstreamId);
@@ -114,17 +128,21 @@ export class FhirImagingStudy extends FhirResource {
       throw new Deleted('ImagingRequest has been deleted');
     }
 
-    if ([
-      IMAGING_REQUEST_STATUS_TYPES.CANCELLED,
-      IMAGING_REQUEST_STATUS_TYPES.ENTERED_IN_ERROR,
-    ].includes(imagingRequest.status)) {
+    if (
+      [
+        IMAGING_REQUEST_STATUS_TYPES.CANCELLED,
+        IMAGING_REQUEST_STATUS_TYPES.ENTERED_IN_ERROR,
+      ].includes(imagingRequest.status)
+    ) {
       throw new Invalid('ImagingRequest has been cancelled');
     }
 
-    if ([
-      FHIR_IMAGING_STUDY_STATUS.AVAILABLE,
-      FHIR_IMAGING_STUDY_STATUS.FINAL_INVALID_LEGACY,
-    ].includes(this.status)) {
+    if (
+      [
+        FHIR_IMAGING_STUDY_STATUS.AVAILABLE,
+        FHIR_IMAGING_STUDY_STATUS.FINAL_INVALID_LEGACY,
+      ].includes(this.status)
+    ) {
       return await this.attachResults(imagingRequest);
     }
 
@@ -151,30 +169,36 @@ export class FhirImagingStudy extends FhirResource {
   }
 
   async attachResults(imagingRequest) {
-    const imagingAccessCode = this.identifier.find(
+    const imagingAccessCode = this.identifier?.find(
       i => i?.system === config.hl7.dataDictionaries.imagingStudyAccessionId,
     )?.value;
-    if (!imagingAccessCode) {
-      throw new Invalid('Need to have Accession Number identifier', {
+    const resultImageUrl = this.contained?.[0]?.address;
+    if (!imagingAccessCode && !resultImageUrl) {
+      throw new Invalid('Need to have Accession Number identifier or contained Endpoint', {
         code: FHIR_ISSUE_TYPE.INVALID.STRUCTURE,
       });
     }
+
     const { ImagingResult } = this.sequelize.models;
+    const whereClause = { imagingRequestId: imagingRequest.id };
+    if (imagingAccessCode) {
+      whereClause.externalCode = imagingAccessCode;
+    }
+
     let result = await ImagingResult.findOne({
-      where: {
-        imagingRequestId: imagingRequest.id,
-        externalCode: imagingAccessCode,
-      },
+      where: whereClause,
     });
+
     const resultNotes = this.note.map(n => n.text).join('\n\n');
     if (result) {
-      result.set({ description: resultNotes });
+      result.set({ description: resultNotes, resultImageUrl });
       await result.save();
     } else {
       result = await ImagingResult.create({
         imagingRequestId: imagingRequest.id,
         description: resultNotes,
         externalCode: imagingAccessCode,
+        resultImageUrl,
         completedAt: this.started ? toDateTimeString(this.started) : getCurrentDateTimeString(),
       });
     }
