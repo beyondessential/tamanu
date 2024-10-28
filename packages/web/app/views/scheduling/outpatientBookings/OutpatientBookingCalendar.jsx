@@ -5,6 +5,8 @@ import { Box } from '@mui/material';
 import { BodyText, SmallBodyText } from '../../../components';
 import { AppointmentTile } from '../../../components/Appointments/AppointmentTile';
 import { Placeholders } from './Placeholders';
+import { ThemedTooltip } from '../../../components/Tooltip';
+import { APPOINTMENT_STATUSES } from '@tamanu/constants';
 
 export const CELL_WIDTH_PX = 224;
 
@@ -44,17 +46,37 @@ const AppointmentNumber = styled(Box)`
   border-block: 1px solid ${Colors.outline};
 `;
 
-const HeadCellText = styled(BodyText)`
+const HeadCellTextWrapper = styled(Box)`
   height: 4rem;
   display: flex;
   justify-content: center;
   flex-direction: column;
+`;
+
+const HeadCellText = styled(BodyText)`
   font-weight: 400;
+  display: -webkit-box;
+  padding-inline: 0.5rem;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+`;
+
+const AppointmentColumnWrapper = styled(Box)`
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  padding: 0.5rem;
+  gap: 0.5rem;
 `;
 
 export const HeadCell = ({ title, count = 0 }) => (
   <HeadCellWrapper>
-    <HeadCellText>{title}</HeadCellText>
+    <HeadCellTextWrapper>
+      <ThemedTooltip title={title}>
+        <HeadCellText>{title}</HeadCellText>
+      </ThemedTooltip>
+    </HeadCellTextWrapper>
     <AppointmentNumber>
       {title && (
         <>
@@ -66,12 +88,30 @@ export const HeadCell = ({ title, count = 0 }) => (
   </HeadCellWrapper>
 );
 
-const AppointmentColumn = ({ appointments = [] }) =>
-  appointments.map(a => (
-    <Box key={a.id} margin={1}>
-      <AppointmentTile appointment={a} />
-    </Box>
-  ));
+const AppointmentCell = ({ appointments = [] }) => (
+  <AppointmentColumnWrapper>
+    {appointments.map(a => (
+      <>
+        <AppointmentTile key={a.id} appointment={a} />
+        <AppointmentTile key={a.id + '1'} appointment={a} />
+        <AppointmentTile key={a.id + '2'} appointment={a} />
+        <AppointmentTile
+          key={a.id + '4'}
+          appointment={{ ...a, status: APPOINTMENT_STATUSES.CANCELLED }}
+        />
+        <AppointmentTile
+          key={a.id + '3'}
+          appointment={{ ...a, status: APPOINTMENT_STATUSES.NO_SHOW }}
+        />
+        <AppointmentTile key={a.id + '4'} appointment={a} />
+        <AppointmentTile key={a.id + '5'} appointment={a} />
+        <AppointmentTile key={a.id + '6'} appointment={a} />
+        <AppointmentTile key={a.id + '7'} appointment={a} />
+        <AppointmentTile key={a.id + '8'} appointment={a} />
+      </>
+    ))}
+  </AppointmentColumnWrapper>
+);
 
 export const OutpatientBookingCalendar = ({ headData, cellData, titleKey }) => {
   return (
@@ -82,7 +122,7 @@ export const OutpatientBookingCalendar = ({ headData, cellData, titleKey }) => {
           return (
             <ColumnWrapper key={cell.id}>
               <HeadCell title={cell[titleKey]} count={appointments?.length} />
-              <AppointmentColumn appointments={appointments} />
+              <AppointmentCell appointments={appointments} />
             </ColumnWrapper>
           );
         })}

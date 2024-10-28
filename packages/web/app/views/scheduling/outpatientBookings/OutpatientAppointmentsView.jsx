@@ -28,8 +28,8 @@ const Container = styled(PageContainer)`
 `;
 
 const CalendarWrapper = styled.div`
-  // max-width: fit-content;
   flex: 1;
+  overflow-y: hidden;
   display: flex;
   flex-direction: column;
   margin: 1rem;

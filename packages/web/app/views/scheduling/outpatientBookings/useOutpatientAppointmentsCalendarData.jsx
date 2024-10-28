@@ -9,7 +9,9 @@ import { APPOINTMENT_GROUP_BY } from './OutpatientAppointmentsView';
 
 export const useOutpatientAppointmentsCalendarData = ({ groupBy, selectedDate }) => {
   const { data: locationGroupData } = useLocationGroupsQuery();
-  const { data: userData } = useUsersQuery();
+  const { data: userData } = useUsersQuery({
+    orderBy: 'displayName',
+  });
   const { data: appointmentData } = useAppointmentsQuery({
     after: selectedDate,
     before: endOfDay(selectedDate),
