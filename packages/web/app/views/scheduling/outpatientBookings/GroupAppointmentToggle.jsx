@@ -36,8 +36,8 @@ export const GroupByToggle = ({ value, onChange }) => {
   return (
     <Wrapper>
       <ToggleButton
-        $selected={value === APPOINTMENT_GROUP_BY.LOCATION_GROUP}
-        onClick={() => onChange(APPOINTMENT_GROUP_BY.LOCATION_GROUP)}
+        $selected={value === APPOINTMENT_GROUP_BY.AREA}
+        onClick={() => onChange(APPOINTMENT_GROUP_BY.AREA)}
       >
         Area
       </ToggleButton>

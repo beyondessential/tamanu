@@ -7,7 +7,7 @@ import { AppointmentTile } from '../../../components/Appointments/AppointmentTil
 import { Colors } from '../../../constants';
 import { CarouselComponents as CarouselGrid } from './CarouselComponents';
 import { SkeletonRows } from './Skeletons';
-import { partitionAppointmentsByDate, partitionAppointmentsByKey } from './util';
+import { partitionAppointmentsByDate, partitionAppointmentsByLocation } from './util';
 
 export const BookingsCell = ({ appointments, date, location, openBookingForm }) => (
   <CarouselGrid.Cell
@@ -75,7 +75,7 @@ export const LocationBookingsCalendarBody = ({
   if (locationsAreLoading) return <SkeletonRows colCount={displayedDates.length} />;
   if (locations?.length === 0) return <EmptyStateRow />;
 
-  const appointmentsByLocation = partitionAppointmentsByKey(appointments, 'locationId');
+  const appointmentsByLocation = partitionAppointmentsByLocation(appointments);
 
   return locations?.map(location => (
     <BookingsRow

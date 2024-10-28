@@ -1,15 +1,12 @@
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import { Button, PageContainer, TopBar, TranslatedText } from '../../../components';
 import { DateSelector } from '../DateSelector';
 import styled from 'styled-components';
 import { Colors } from '../../../constants';
 import { GroupByToggle } from './GroupAppointmentToggle';
-import { useAppointmentsQuery } from '../../../api/queries';
-import { useLocationGroupsQuery } from '../../../api/queries/useLocationGroupsQuery';
-import { useUsersQuery } from '../../../api/queries/useUsersQuery';
 import { OutpatientBookingCalendar } from './OutpatientBookingCalendar';
-import { endOfDay, startOfDay } from 'date-fns';
-import { groupBy as lodashGroupBy } from 'lodash';
+import { startOfDay } from 'date-fns';
+import { useOutpatientAppointmentsCalendarData } from './useOutpatientAppointmentsCalendarData';
 
 const Placeholder = styled.div`
   background-color: oklch(0% 0 0 / 3%);
@@ -60,50 +57,22 @@ const NewBookingButton = styled(Button)`
 `;
 
 export const APPOINTMENT_GROUP_BY = {
-  LOCATION_GROUP: 'locationGroupId',
-  CLINICIAN: 'clinicianId',
-};
-
-const useOutpatientAppointments = groupBy => {
-  const { data: locationGroupData } = useLocationGroupsQuery();
-  const { data: userData } = useUsersQuery();
-
-  return useMemo(
-    () =>
-      ({
-        [APPOINTMENT_GROUP_BY.LOCATION_GROUP]: {
-          data: locationGroupData,
-          titleKey: 'name',
-        },
-        [APPOINTMENT_GROUP_BY.CLINICIAN]: {
-          data: userData?.data,
-          titleKey: 'displayName',
-        },
-      }[groupBy] || {}),
-    [locationGroupData, userData?.data, groupBy],
-  );
+  AREA: 'area',
+  CLINICIAN: 'clinician',
 };
 
 export const OutpatientAppointmentsView = () => {
   const [selectedDate, setSelectedDate] = useState(startOfDay(new Date()));
-  const [groupBy, setGroupBy] = useState(APPOINTMENT_GROUP_BY.LOCATION_GROUP);
+  const [groupBy, setGroupBy] = useState(APPOINTMENT_GROUP_BY.AREA);
 
   const handleChangeDate = event => {
     setSelectedDate(event.target.value);
   };
 
-  const { data: appointmentData } = useAppointmentsQuery({
-    after: selectedDate,
-    before: endOfDay(selectedDate),
-    clinicianId: '',
-    locationGroupId: '',
+  const { titleKey, headData = [], cellData } = useOutpatientAppointmentsCalendarData({
+    groupBy,
+    selectedDate,
   });
-
-  const { titleKey, data = [] } = useOutpatientAppointments(groupBy);
-
-  const groupedAppointmentData = useMemo(() => {
-    return lodashGroupBy(appointmentData?.data, groupBy);
-  }, [appointmentData?.data, groupBy]);
 
   return (
     <Container>
@@ -118,11 +87,7 @@ export const OutpatientAppointmentsView = () => {
       </LocationBookingsTopBar>
       <CalendarWrapper>
         <DateSelector value={selectedDate} onChange={handleChangeDate} />
-        <OutpatientBookingCalendar
-          titleKey={titleKey}
-          headerData={data}
-          cellData={groupedAppointmentData}
-        />
+        <OutpatientBookingCalendar titleKey={titleKey} headData={headData} cellData={cellData} />
       </CalendarWrapper>
     </Container>
   );
