@@ -74,7 +74,6 @@ const TodayButton = styled(TextButton)`
 
 const StepperButton = styled(IconButton)`
   padding: 0.25rem;
-  height: 2rem;
   & svg {
     font-size: 1.25rem;
   }
