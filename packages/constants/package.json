@@ -27,7 +27,9 @@
     "build-watch": "npm run build && concurrently \"npm run build:src -- --watch\" \"npm run build:cjs -- --watch\""
   },
   "dependencies": {
-    "@tamanu/build-tooling": "*",
     "@types/node": "^18.14.6"
+  },
+  "devDependencies": {
+    "@tamanu/build-tooling": "*"
   }
 }
