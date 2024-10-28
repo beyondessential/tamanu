@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import * as yup from 'yup';
 import styled, { css, keyframes } from 'styled-components';
-import { useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import Brightness2Icon from '@material-ui/icons/Brightness2';
 
 import {
@@ -142,31 +142,29 @@ export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues }) 
       setShowWarningModal(true);
     });
 
-  const handleSubmit = async (values, { resetForm }) => {
-    const response = await api.post(`appointments/locationBooking`, values, {
-      showUnknownErrorToast: true,
-    });
-
-    if (response.status === 409) {
-      notifyError(
-        <TranslatedText
-          stringId="locationBooking.notification.bookingTimeConflict"
-          fallback="Booking failed. Booking time no longer available"
-        />,
-      );
-    }
-    if (response.status === 200) {
-      notifySuccess(
-        <TranslatedText
-          stringId="locationBooking.notification.bookingSuccessfullyCreated"
-          fallback="Booking successfully created"
-        />,
-      );
-      closeDrawer();
-      resetForm();
-      queryClient.invalidateQueries('appointments');
-    }
-  };
+  const { mutateAsync: handleSubmit } = useMutation(
+    payload => api.post('appointments/locationBooking', payload, { throwResponse: true }),
+    {
+      onSuccess: () => {
+        notifySuccess(
+          <TranslatedText
+            stringId="locationBooking.notification.bookingSuccessfullyCreated"
+            fallback="Booking successfully created"
+          />,
+        );
+        closeDrawer();
+        queryClient.invalidateQueries('appointments');
+      },
+      onError: error => {
+        notifyError(
+          // TODO: checking staths code feels wrong
+          error.message === '409'
+            ? "Booking failed. Booking time no longer available"
+            : 'Something went wrong',
+        );
+      },
+    },
+  );
 
   return (
     <Container columns={1} $open={open}>
@@ -176,11 +174,11 @@ export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues }) 
       <Description>
         <TranslatedText
           stringId="locationBooking.form.new.description"
-          fallback="Create a new booking by completing the below details and selecting ‘Confirm’."
+          fallback="Create a new booking by completing the below details and selecting ‘Confirm’"
         />
       </Description>
       <Form
-        onSubmit={handleSubmit}
+        onSubmit={async values => handleSubmit(values)}
         suppressErrorDialog
         validationSchema={yup.object().shape({
           locationId: yup.string().required(),

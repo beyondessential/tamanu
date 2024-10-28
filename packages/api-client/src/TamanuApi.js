@@ -6,6 +6,7 @@ import { buildAbilityForUser } from '@tamanu/shared/permissions/buildAbility';
 
 import {
   AuthExpiredError,
+  ResourceConflictError,
   ServerResponseError,
   VersionIncompatibleError,
   getVersionIncompatibleMessage,
@@ -189,6 +190,8 @@ export class TamanuApi {
     const { error } = await getResponseErrorSafely(response);
     const message = error?.message || response.status.toString();
 
+    console.log('Extracting error', error)
+
     // handle forbidden error and trigger catch all modal
     if (response.status === 403 && error) {
       throw new ForbiddenError(message);
@@ -214,6 +217,11 @@ export class TamanuApi {
         }
         throw new VersionIncompatibleError(versionIncompatibleMessage);
       }
+    }
+
+    // Handle resource conflict
+    if (response.status === 409) {
+      throw new ResourceConflictError(message)
     }
 
     throw new ServerResponseError(`Server error response: ${message}`);
