@@ -1,6 +1,7 @@
 import React from 'react';
 import { Box, Button, styled } from '@mui/material';
 import { Colors } from '../../../constants';
+import { APPOINTMENT_GROUP_BY } from './OutpatientAppointmentsView';
 
 const Wrapper = styled(Box)`
   display: flex;
@@ -35,16 +36,14 @@ export const GroupByToggle = ({ value, onChange }) => {
   return (
     <Wrapper>
       <ToggleButton
-        $selected={value === 'area'}
-        onClick={() => onChange('area')}
-        variant={value === 'area' ? 'contained' : 'outlined'}
+        $selected={value === APPOINTMENT_GROUP_BY.LOCATION_GROUP}
+        onClick={() => onChange(APPOINTMENT_GROUP_BY.LOCATION_GROUP)}
       >
         Area
       </ToggleButton>
       <ToggleButton
-        $selected={value === 'clinician'}
-        onClick={() => onChange('clinician')}
-        variant={value === 'clinicians' ? 'contained' : 'outlined'}
+        $selected={value === APPOINTMENT_GROUP_BY.CLINICIAN}
+        onClick={() => onChange(APPOINTMENT_GROUP_BY.CLINICIAN)}
       >
         Clinicians
       </ToggleButton>

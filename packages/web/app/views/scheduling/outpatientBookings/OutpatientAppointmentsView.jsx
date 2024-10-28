@@ -59,21 +59,39 @@ const NewBookingButton = styled(Button)`
   margin-left: 1rem;
 `;
 
-const APPOINTMENT_GROUP_BY = {
-  AREA: 'area',
-  CLINICIAN: 'clinician',
+export const APPOINTMENT_GROUP_BY = {
+  LOCATION_GROUP: 'locationGroupId',
+  CLINICIAN: 'clinicianId',
+};
+
+const useOutpatientAppointments = groupBy => {
+  const { data: locationGroupData } = useLocationGroupsQuery();
+  const { data: userData } = useUsersQuery();
+
+  return useMemo(
+    () =>
+      ({
+        [APPOINTMENT_GROUP_BY.LOCATION_GROUP]: {
+          data: locationGroupData,
+          titleKey: 'name',
+        },
+        [APPOINTMENT_GROUP_BY.CLINICIAN]: {
+          data: userData?.data,
+          titleKey: 'displayName',
+        },
+      }[groupBy] || {}),
+    [locationGroupData, userData?.data, groupBy],
+  );
 };
 
 export const OutpatientAppointmentsView = () => {
   const [selectedDate, setSelectedDate] = useState(startOfDay(new Date()));
-  const [groupBy, setGroupBy] = useState(APPOINTMENT_GROUP_BY.AREA);
+  const [groupBy, setGroupBy] = useState(APPOINTMENT_GROUP_BY.LOCATION_GROUP);
 
   const handleChangeDate = event => {
     setSelectedDate(event.target.value);
   };
 
-  const { data: locationGroupData } = useLocationGroupsQuery();
-  const { data: userData } = useUsersQuery();
   const { data: appointmentData } = useAppointmentsQuery({
     after: selectedDate,
     before: endOfDay(selectedDate),
@@ -81,27 +99,11 @@ export const OutpatientAppointmentsView = () => {
     locationGroupId: '',
   });
 
-  const groupByConfig = useMemo(
-    () =>
-      ({
-        [APPOINTMENT_GROUP_BY.AREA]: {
-          data: locationGroupData,
-          groupByKey: 'locationGroupId',
-          titleKey: 'name',
-        },
-        [APPOINTMENT_GROUP_BY.CLINICIAN]: {
-          data: userData?.data,
-          groupByKey: 'clinicianId',
-          titleKey: 'displayName',
-        },
-      }[groupBy] || {}),
-    [locationGroupData, userData?.data, groupBy],
-  );
+  const { titleKey, data = [] } = useOutpatientAppointments(groupBy);
 
   const groupedAppointmentData = useMemo(() => {
-    const { groupByKey } = groupByConfig;
-    return lodashGroupBy(appointmentData?.data, groupByKey);
-  }, [appointmentData?.data, groupByConfig]);
+    return lodashGroupBy(appointmentData?.data, groupBy);
+  }, [appointmentData?.data, groupBy]);
 
   return (
     <Container>
@@ -117,8 +119,8 @@ export const OutpatientAppointmentsView = () => {
       <CalendarWrapper>
         <DateSelector value={selectedDate} onChange={handleChangeDate} />
         <OutpatientBookingCalendar
-          titleKey={groupByConfig.titleKey}
-          headerData={groupByConfig.data || []}
+          titleKey={titleKey}
+          headerData={data}
           cellData={groupedAppointmentData}
         />
       </CalendarWrapper>
