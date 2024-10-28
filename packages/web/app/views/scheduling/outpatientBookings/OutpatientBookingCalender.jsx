@@ -6,14 +6,12 @@ import { BodyText, SmallBodyText } from '../../../components';
 import { AppointmentTile } from '../../../components/Appointments/AppointmentTile';
 import { Placeholders } from './Placeholders';
 
-const MAX_WIDTH_REM = 100;
 export const CELL_WIDTH_PX = 224;
 
 const Wrapper = styled(Box)`
   display: flex;
   height: 100%;
   width: 100%;
-  // max-width: ${MAX_WIDTH_REM}px;
   overflow: auto;
   border-block-start: 1px solid ${Colors.outline};
 `;

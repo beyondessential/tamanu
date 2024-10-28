@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { Colors } from '../../../constants/index';
-import { CELL_WIDTH_PX, ColumnWrapper, HeadCell } from './BookingCalender';
+import { CELL_WIDTH_PX, ColumnWrapper, HeadCell } from './OutpatientBookingCalender';
 
 const Skeleton = styled.div`
   background-color: ${Colors.background};
