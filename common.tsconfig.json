@@ -18,9 +18,9 @@
     "target": "es2020"
   },
   "exclude": [
-    "build", 
-    "dist", 
-    "jest.config.js", 
+    "build",
+    "dist",
+    "jest.config.js",
     "node_modules"
   ]
 }
