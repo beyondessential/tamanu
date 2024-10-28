@@ -1,23 +1,24 @@
 {% docs table__attachments %}
-Table of files created/saved through the ui. These can be either documents, photo id's or patient letters
-{% enddocs %}
+Uploaded files.
 
-{% docs attachments__id %}
-Tamanu identifier for the attachment.
+These can be documents, photo IDs, patient letters...
+
+Most direct uploads will have a corresponding [`document_metadata`](#!/source/source.tamanu.tamanu.document_metadata),
+but there's other ways to upload files, such as [for lab requests](#!/source/source.tamanu.tamanu.lab_request_attachments).
 {% enddocs %}
 
 {% docs attachments__name %}
-The name for the attachment set on upload
+The name for the attachment set on upload.
 {% enddocs %}
 
 {% docs attachments__type %}
-The type of attachment stored.
+The [media type](https://en.wikipedia.org/wiki/Media_type) of the file.
 {% enddocs %}
 
 {% docs attachments__size %}
-The file size in bytes of attachment stored.
+The file size in bytes.
 {% enddocs %}
 
 {% docs attachments__data %}
-Contains a binary version of image data uploaded by user.
+The file data.
 {% enddocs %}
