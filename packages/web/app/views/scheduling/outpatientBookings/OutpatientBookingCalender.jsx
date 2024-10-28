@@ -66,9 +66,9 @@ export const HeadCell = ({ title, count = 0 }) => (
 );
 
 const AppointmentColumn = ({ appointments = [] }) =>
-  appointments.map(appt => (
-    <Box key={appt.id} margin={1}>
-      <AppointmentTile appointment={appt} />
+  appointments.map(a => (
+    <Box key={a.id} margin={1}>
+      <AppointmentTile appointment={a} />
     </Box>
   ));
 
@@ -76,12 +76,12 @@ export const BookingsCalendar = ({ headerData, cellData, getTitle }) => {
   return (
     <Wrapper>
       <Box display="flex" width="100%">
-        {headerData.map(d => {
-          const appts = cellData[d.id];
+        {headerData.map(headCell => {
+          const appointments = cellData[headCell.id];
           return (
-            <ColumnWrapper key={d.id}>
-              <HeadCell title={getTitle(d)} count={appts?.length} />
-              <AppointmentColumn appointments={appts} />
+            <ColumnWrapper key={headCell.id}>
+              <HeadCell title={getTitle(headCell)} count={appointments?.length} />
+              <AppointmentColumn appointments={appointments} />
             </ColumnWrapper>
           );
         })}
