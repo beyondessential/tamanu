@@ -73,7 +73,7 @@ const AppointmentColumn = ({ appointments = [] }) =>
     </Box>
   ));
 
-export const OutpatientBookingCalendar = ({ headerData, cellData, getTitle }) => {
+export const OutpatientBookingCalendar = ({ headerData, cellData, titleKey }) => {
   return (
     <Wrapper>
       <Box display="flex" width="100%">
@@ -81,7 +81,7 @@ export const OutpatientBookingCalendar = ({ headerData, cellData, getTitle }) =>
           const appointments = cellData[headCell.id];
           return (
             <ColumnWrapper key={headCell.id}>
-              <HeadCell title={getTitle(headCell)} count={appointments?.length} />
+              <HeadCell title={headCell[titleKey]} count={appointments?.length} />
               <AppointmentColumn appointments={appointments} />
             </ColumnWrapper>
           );

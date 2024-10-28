@@ -74,7 +74,6 @@ export const OutpatientAppointmentsView = () => {
 
   const { data: locationGroupData } = useLocationGroupsQuery();
   const { data: userData } = useUsersQuery();
-
   const { data: appointmentData } = useAppointmentsQuery({
     after: selectedDate,
     before: endOfDay(selectedDate),
@@ -83,25 +82,26 @@ export const OutpatientAppointmentsView = () => {
   });
 
   const groupByConfig = useMemo(
-    () => ({
-      [APPOINTMENT_GROUP_BY.AREA]: {
-        data: locationGroupData,
-        key: 'locationGroupId',
-        getTitle: ({ name }) => name,
-      },
-      [APPOINTMENT_GROUP_BY.CLINICIAN]: {
-        data: userData?.data,
-        key: 'clinicianId',
-        getTitle: ({ displayName }) => displayName,
-      },
-    }),
-    [locationGroupData, userData?.data],
+    () =>
+      ({
+        [APPOINTMENT_GROUP_BY.AREA]: {
+          data: locationGroupData,
+          groupByKey: 'locationGroupId',
+          titleKey: 'name',
+        },
+        [APPOINTMENT_GROUP_BY.CLINICIAN]: {
+          data: userData?.data,
+          groupByKey: 'clinicianId',
+          titleKey: 'displayName',
+        },
+      }[groupBy] || {}),
+    [locationGroupData, userData?.data, groupBy],
   );
 
   const groupedAppointmentData = useMemo(() => {
-    const { key } = groupByConfig[groupBy];
-    return lodashGroupBy(appointmentData?.data, key);
-  }, [appointmentData, groupBy, groupByConfig]);
+    const { groupByKey } = groupByConfig;
+    return lodashGroupBy(appointmentData?.data, groupByKey);
+  }, [appointmentData?.data, groupByConfig]);
 
   return (
     <Container>
@@ -117,8 +117,8 @@ export const OutpatientAppointmentsView = () => {
       <CalendarWrapper>
         <DateSelector value={selectedDate} onChange={handleChangeDate} />
         <OutpatientBookingCalendar
-          getTitle={groupByConfig[groupBy].getTitle}
-          headerData={groupByConfig[groupBy].data || []}
+          titleKey={groupByConfig.titleKey}
+          headerData={groupByConfig.data || []}
           cellData={groupedAppointmentData}
         />
       </CalendarWrapper>
