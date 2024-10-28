@@ -74,6 +74,7 @@ const TodayButton = styled(TextButton)`
 
 const StepperButton = styled(IconButton)`
   padding: 0.25rem;
+  height: 2rem;
   & svg {
     font-size: 1.25rem;
   }
@@ -89,6 +90,7 @@ const StyledMonthYearInput = styled(MonthYearInput)`
 
 const StepperWrapper = styled(Box)`
   display: flex;
+  align-items: center;
   overflow: hidden;
   width: 70rem;
 `;
