@@ -122,7 +122,6 @@ export const MonthYearInput = ({
   maxDate = getMaxDate(),
   value,
   onChange,
-  className,
   ...props
 }) => {
   const [open, setOpen] = useState(false);
@@ -144,7 +143,6 @@ export const MonthYearInput = ({
       minDate={minDate}
       maxDate={maxDate}
       value={value}
-      className={className}
       {...props}
     />
   );
