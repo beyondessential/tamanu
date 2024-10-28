@@ -143,7 +143,7 @@ export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues }) 
     });
 
   const { mutateAsync: handleSubmit } = useMutation(
-    payload => api.post('appointments/locationBooking', payload),
+    payload => api.post('appointments/locationBooking', payload, { throwResponse: true }),
     {
       onSuccess: () => {
         notifySuccess(
@@ -156,21 +156,12 @@ export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues }) 
         queryClient.invalidateQueries('appointments');
       },
       onError: error => {
-        if (error.response.status === 409) {
-          notifyError(
-            <TranslatedText
-              stringId="locationBooking.notification.bookingTimeConflict"
-              fallback="Booking failed. Booking time no longer available"
-            />,
-          );
-        } else {
-          notifyError(
-            <TranslatedText
-              stringId="locationBooking.notification.somethingWentWrong"
-              fallback="Something went wrong"
-            />,
-          );
-        }
+        notifyError(
+          // TODO: checking staths code feels wrong
+          error.message === '409'
+            ? "Booking failed. Booking time no longer available"
+            : 'Something went wrong',
+        );
       },
     },
   );
@@ -187,7 +178,7 @@ export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues }) 
         />
       </Description>
       <Form
-        onSubmit={handleSubmit}
+        onSubmit={async values => handleSubmit(values)}
         suppressErrorDialog
         validationSchema={yup.object().shape({
           locationId: yup.string().required(),
