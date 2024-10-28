@@ -17,9 +17,6 @@
         "name": "Utopia",
         "alpha-2": "UT",
         "alpha-3": "UTO"
-      },
-      "features": {
-        "enablePatientDeaths": true
       }
     }
   },

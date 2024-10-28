@@ -12,10 +12,12 @@ import { usePatientAdditionalDataQuery } from '../../../api/queries';
 
 import { PDFLoader, printPDF } from '../PDFLoader';
 import { useCovidLabTestQuery } from '../../../api/queries/useCovidLabTestsQuery';
+import { useSettings } from '../../../contexts/Settings';
 
 export const CovidClearanceCertificateModal = React.memo(({ patient }) => {
   const [open, setOpen] = useState(true);
   const { getLocalisation } = useLocalisation();
+  const { getSetting } = useSettings()
   const api = useApi();
   const { data: certificateData, isFetching: isCertificateFetching } = useCertificate({
     footerAssetName: ASSET_NAMES.COVID_CLEARANCE_CERTIFICATE_FOOTER,
@@ -63,6 +65,7 @@ export const CovidClearanceCertificateModal = React.memo(({ patient }) => {
           signingSrc={footerImg}
           logoSrc={logo}
           getLocalisation={getLocalisation}
+          getSetting={getSetting}
           printedBy={printedBy}
           certType={CertificateTypes.clearance}
         />
