@@ -128,12 +128,7 @@ const SurveyResponsesPrintoutComponent = ({
 }) => {
   const { watermark, logo } = certificateData;
 
-  const surveyAnswerRows = getSurveyAnswerRows(surveyResponse).filter(({ answer, type }) => {
-    if (type === PROGRAM_DATA_ELEMENT_TYPES.CALCULATED) {
-      return !!Number(answer);
-    }
-    return !!answer;
-  });
+  const surveyAnswerRows = getSurveyAnswerRows(surveyResponse).filter(({ answer }) => answer);
 
   const groupedAnswerRows = Object.values(
     surveyAnswerRows.reduce((acc, item) => {

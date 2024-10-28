@@ -14,18 +14,40 @@ function getConfigObject(componentId, config) {
   }
 }
 
+// Helper function to extract variable names from a calculation expression
+const extractVariables = (expression) => {
+  const variableRegex = /[a-zA-Z_][a-zA-Z0-9_]*/g;
+  return [...new Set(expression.match(variableRegex))]; // Extract unique variable names
+}
+
 export function runCalculations(components, values) {
   const inputValues = {};
   // calculation expression use "code"
   for (const c of components) {
     inputValues[c.dataElement.code] = values[c.dataElement.id] || '';
   }
-
   const calculatedValues = {};
   for (const c of components) {
     if (c.calculation) {
       try {
+        // Extract the required variables for this calculation
+        const requiredVariables = extractVariables(c.calculation);
+
+        const relevantInputs = {};
+        for (const variable of requiredVariables) {
+          relevantInputs[variable] = inputValues[variable] || '';
+        }
+
+        const isInputsEmpty = Object.values(relevantInputs).every(value => value === '');
+
+        if (isInputsEmpty) {
+          // Skip calculation if every input is empty
+          calculatedValues[c.dataElement.id] = null;
+          continue;
+        }
+
         let value = math.evaluate(c.calculation, inputValues);
+
         if (Number.isNaN(value)) {
           throw new Error('Value is NaN');
         }
