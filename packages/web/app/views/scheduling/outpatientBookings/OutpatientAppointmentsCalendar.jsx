@@ -31,6 +31,7 @@ const Container = styled(PageContainer)`
 `;
 
 const CalendarWrapper = styled.div`
+  // max-width: fit-content;
   flex: 1;
   display: flex;
   flex-direction: column;

@@ -22,8 +22,8 @@ import { Colors } from '../../constants';
 const Wrapper = styled(Box)`
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 0.5rem;
+  // justify-content: space-between;
+  padding: 0.3rem 0.48rem;
   gap: 0.5rem;
 `;
 
@@ -65,7 +65,7 @@ const WeekdayText = styled(DateText)`
 
 const TodayButton = styled(TextButton)`
   margin-inline: 0.375rem;
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   text-decoration: underline;
   &:hover {
     text-decoration: underline;
@@ -80,7 +80,16 @@ const StepperButton = styled(IconButton)`
 `;
 
 const StyledMonthYearInput = styled(MonthYearInput)`
-  width: 7rem;
+  width: 6.3rem;
+  & .MuiInputBase-root > input {
+    height: 1.039rem;
+    font-size: 0.875rem;
+  }
+`;
+
+const StepperWrapper = styled(Box)`
+  display: flex;
+  max-width: 70rem;
 `;
 
 const getMonthInterval = date =>
@@ -129,22 +138,24 @@ export const DateSelector = ({ value, onChange }) => {
     <Wrapper>
       <StyledMonthYearInput value={viewedDays[0]} onChange={handleMonthYearChange} />
       <TodayButton onClick={handleChangeToday}>Today</TodayButton>
-      <StepperButton onClick={handleDecrement}>
-        <ArrowBackIos />
-      </StepperButton>
-      <DaysWrapper>
-        {viewedDays.map(date => (
-          <DayButton
-            date={date}
-            selected={isSameDay(date, value)}
-            onClick={() => handleChange(date)}
-            key={`day-button-${date.getTime()}`}
-          />
-        ))}
-      </DaysWrapper>
-      <StepperButton onClick={handleIncrement}>
-        <ArrowForwardIos />
-      </StepperButton>
+      <StepperWrapper>
+        <StepperButton onClick={handleDecrement}>
+          <ArrowBackIos />
+        </StepperButton>
+        <DaysWrapper>
+          {viewedDays.map(date => (
+            <DayButton
+              date={date}
+              selected={isSameDay(date, value)}
+              onClick={() => handleChange(date)}
+              key={`day-button-${date.getTime()}`}
+            />
+          ))}
+        </DaysWrapper>
+        <StepperButton onClick={handleIncrement}>
+          <ArrowForwardIos />
+        </StepperButton>
+      </StepperWrapper>
     </Wrapper>
   );
 };

@@ -1,73 +1,94 @@
-import {
-  eachDayOfInterval,
-  endOfMonth,
-  endOfWeek,
-  startOfMonth,
-  startOfToday,
-  startOfWeek,
-} from 'date-fns';
-import React, { useState } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import { Colors } from '../../../constants/index';
-import { CarouselComponents as CarouselGrid } from '../locationBookings/CarouselComponents';
-import { BookingsCalendarBody } from './BookingsCalendarBody';
-import { BookingsCalendarHeader } from './BookingsCalendarHeader';
 import { Box } from '@mui/material';
+import { BodyText, SmallBodyText } from '../../../components';
+import { AppointmentTile } from '../../../components/Appointments/AppointmentTile';
+import { Placeholders } from './Placeholders';
 
-const getDisplayableDates = date => {
-  const start = startOfWeek(startOfMonth(date), { weekStartsOn: 1 });
-  const end = endOfWeek(endOfMonth(date), { weekStartsOn: 1 });
-  return eachDayOfInterval({ start, end });
-};
-
-const Carousel = styled.div`
-  background-color: ${Colors.white};
-  border: max(0.0625rem, 1px) solid ${Colors.outline};
-  border-radius: 0.2rem;
-  margin: 1rem;
-  overflow: scroll;
-  overscroll-behavior: contain;
-  scroll-snap-type: both mandatory;
-  width: initial;
-
-  @media (prefers-reduced-motion: no-preference) {
-    scroll-behavior: smooth;
-  }
-`;
-
-const Grid = styled.div`
-  --header-col-width: 11.5rem;
-  --header-row-height: 4rem; // Explicitly set, because scroll margins are relative to this
-  --row-height: calc(1lh + 1rem);
-
-  --border-style: max(0.0625rem, 1px) solid ${Colors.outline};
-  --weekend-color: color-mix(in oklab, white 100%, ${Colors.softOutline} 30%);
-
-  display: grid;
-  font-size: 0.875rem;
-  font-variant-numeric: lining-nums tabular-nums;
-  grid-auto-columns: var(--col-width);
-
-  // 42 because a month can span at most 6 distinct ISO weeks
-  grid-template-columns: var(--header-col-width) repeat(
-      ${({ $dayCount = 42 }) => $dayCount},
-      var(--col-width)
-    );
-`;
+const MAX_WIDTH_REM = 100;
+export const CELL_WIDTH_PX = 224;
 
 const Wrapper = styled(Box)`
   display: flex;
-  width: 100%;
   height: 100%;
+  width: 100%;
+  // max-width: ${MAX_WIDTH_REM}px;
   overflow: auto;
-  border-top: 1px solid ${Colors.outline};
+  border-block-start: 1px solid ${Colors.outline};
 `;
 
+export const ColumnWrapper = styled(Box)`
+  display: flex;
+  flex-direction: column;
+  &:not(:last-child) {
+    border-inline-end: 1px solid ${Colors.outline};
+  }
+`;
+
+const HeadCellWrapper = styled(Box)`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: ${CELL_WIDTH_PX}px;
+  text-align: center;
+`;
+
+const AppointmentNumber = styled(Box)`
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  height: 1.1rem;
+  gap: 0.25rem;
+  padding-inline-end: 0.25rem;
+  border-block: 1px solid ${Colors.outline};
+`;
+
+const HeadCellText = styled(BodyText)`
+  height: 4rem;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  font-weight: 400;
+`;
+
+export const HeadCell = ({ title, count = 0 }) => (
+  <HeadCellWrapper>
+    <HeadCellText>{title}</HeadCellText>
+    <AppointmentNumber>
+      {title && (
+        <>
+          <SmallBodyText color="textTertiary">appts</SmallBodyText>
+          <SmallBodyText>{count}</SmallBodyText>
+        </>
+      )}
+    </AppointmentNumber>
+  </HeadCellWrapper>
+);
+
+const AppointmentColumn = ({ appointments = [] }) =>
+  appointments.map(appt => (
+    <Box key={appt.id} margin={1}>
+      <AppointmentTile appointment={appt} />
+    </Box>
+  ));
+
 export const BookingsCalendar = ({ headerData, cellData, getTitle }) => {
-  console.log(cellData);
   return (
     <Wrapper>
-      <BookingsCalendarHeader getTitle={getTitle} headerData={headerData} cellData={cellData} />
+      <Box display="flex" width="100%">
+        {headerData.map(d => {
+          const appts = cellData[d.id];
+          return (
+            <ColumnWrapper key={d.id}>
+              <HeadCell title={getTitle(d)} count={appts?.length} />
+              <AppointmentColumn appointments={appts} />
+            </ColumnWrapper>
+          );
+        })}
+        <Placeholders />
+      </Box>
     </Wrapper>
   );
 };
