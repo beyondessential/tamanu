@@ -65,7 +65,7 @@ const partialNoShowAppt = {
   status: APPOINTMENT_STATUSES.NO_SHOW,
 };
 
-export const Template = args => {
+const Template = args => {
   const [selected, setSelected] = useState(args.selected);
   const onClose = () => setSelected(false);
   return (

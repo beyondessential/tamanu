@@ -1,6 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { startOfDay } from 'date-fns';
+import { startOfToday } from 'date-fns';
 import { Op, Sequelize } from 'sequelize';
 import { simplePost, simplePut } from '@tamanu/shared/utils/crudHelpers';
 import { escapePatternWildcard } from '../../utils/query';
@@ -57,7 +57,7 @@ appointments.get(
     } = req;
     const { Appointment } = models;
 
-    const afterTime = after || startOfDay(new Date());
+    const afterTime = after || startOfToday();
     const startTimeQuery = {
       [Op.gte]: afterTime,
     };
