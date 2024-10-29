@@ -16,14 +16,20 @@ End date and time of the appointment.
 
 {% docs appointments__type %}
 The type of appointment.
+
+One of:
+- `Standard`
+- `Emergency`
+- `Specialist`
+- `Other`
 {% enddocs %}
 
 {% docs appointments__start_time %}
-TODO
+When the appointment starts.
 {% enddocs %}
 
 {% docs appointments__end_time %}
-TODO
+When the appointment ends.
 {% enddocs %}
 
 {% docs appointments__patient_id %}
@@ -35,21 +41,27 @@ Reference to the [clinician](#!/source/source.tamanu.tamanu.users) recording tha
 {% enddocs %}
 
 {% docs appointments__location_id %}
-TODO
+The [location](#!/source/source.tamanu.tamanu.locations) where the appointment will take place.
 {% enddocs %}
 
 {% docs appointments__status %}
 The current status of the appointment record.
+
+One of:
+- `Confirmed`
+- `Arrived`
+- `No-show`
+- `Cancelled`
 {% enddocs %}
 
 {% docs appointments__start_time_legacy %}
-Legacy format of the start time kept for safety purposes.
+[Deprecated] Start time.
 {% enddocs %}
 
 {% docs appointments__end_time_legacy %}
-Legacy format of the end time kept for safety purposes.
+[Deprecated] End time.
 {% enddocs %}
 
 {% docs appointments__location_group_id %}
-TODO
+The [location group](#!/source/source.tamanu.tamanu.location_groups) where the appointment will take place.
 {% enddocs %}
