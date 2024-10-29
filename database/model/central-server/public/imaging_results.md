@@ -9,7 +9,7 @@ However there is no limit; for example there may be multiple notes from multiple
 {% enddocs %}
 
 {% docs imaging_results__imaging_request_id %}
-The [imaging request](#!/source/source.tamanu.tamanu.imaging_requests).
+Reference to the [imaging request](#!/source/source.tamanu.tamanu.imaging_requests).
 {% enddocs %}
 
 {% docs imaging_results__completed_by_id %}
