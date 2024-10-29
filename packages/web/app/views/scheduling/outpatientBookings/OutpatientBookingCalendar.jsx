@@ -70,7 +70,7 @@ const AppointmentColumnWrapper = styled(Box)`
   gap: 0.5rem;
 `;
 
-export const HeadCell = ({ title, count = 0 }) => (
+export const HeadCell = ({ title, count }) => (
   <HeadCellWrapper>
     <HeadCellTextWrapper>
       <ThemedTooltip title={title}>
@@ -78,7 +78,7 @@ export const HeadCell = ({ title, count = 0 }) => (
       </ThemedTooltip>
     </HeadCellTextWrapper>
     <AppointmentNumber>
-      {title && (
+      {Number.isInteger(count) && (
         <>
           <SmallBodyText>{count}</SmallBodyText>
           <SmallBodyText color="textTertiary">appts</SmallBodyText>
@@ -91,24 +91,7 @@ export const HeadCell = ({ title, count = 0 }) => (
 const AppointmentCell = ({ appointments = [] }) => (
   <AppointmentColumnWrapper>
     {appointments.map(a => (
-      <>
-        <AppointmentTile key={a.id} appointment={a} />
-        <AppointmentTile key={a.id + '1'} appointment={a} />
-        <AppointmentTile key={a.id + '2'} appointment={a} />
-        <AppointmentTile
-          key={a.id + '4'}
-          appointment={{ ...a, status: APPOINTMENT_STATUSES.CANCELLED }}
-        />
-        <AppointmentTile
-          key={a.id + '3'}
-          appointment={{ ...a, status: APPOINTMENT_STATUSES.NO_SHOW }}
-        />
-        <AppointmentTile key={a.id + '4'} appointment={a} />
-        <AppointmentTile key={a.id + '5'} appointment={a} />
-        <AppointmentTile key={a.id + '6'} appointment={a} />
-        <AppointmentTile key={a.id + '7'} appointment={a} />
-        <AppointmentTile key={a.id + '8'} appointment={a} />
-      </>
+      <AppointmentTile key={a.id} appointment={a} />
     ))}
   </AppointmentColumnWrapper>
 );
@@ -121,7 +104,7 @@ export const OutpatientBookingCalendar = ({ headData, cellData, titleKey }) => {
           const appointments = cellData[cell.id];
           return (
             <ColumnWrapper key={cell.id}>
-              <HeadCell title={cell[titleKey]} count={appointments?.length} />
+              <HeadCell title={cell[titleKey]} count={appointments?.length || 0} />
               <AppointmentCell appointments={appointments} />
             </ColumnWrapper>
           );
