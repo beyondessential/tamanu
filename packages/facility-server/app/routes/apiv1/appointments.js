@@ -4,7 +4,6 @@ import { startOfToday } from 'date-fns';
 import { Op, Sequelize } from 'sequelize';
 import { simplePost, simplePut } from '@tamanu/shared/utils/crudHelpers';
 import { escapePatternWildcard } from '../../utils/query';
-import { ForbiddenError, ResourceConflictError } from '@tamanu/shared/errors';
 
 export const appointments = express.Router();
 
@@ -55,7 +54,7 @@ appointments.post('/locationBooking', async (req, res) => {
     },
   });
 
-  if (!bookingTimeAlreadyTaken) {
+  if (bookingTimeAlreadyTaken) {
     // TODO: why does this crash whole app
     // throw new ResourceConflictError()
     // TODO: feels wrong
