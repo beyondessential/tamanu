@@ -55,15 +55,12 @@ appointments.post('/locationBooking', async (req, res) => {
   });
 
   if (bookingTimeAlreadyTaken) {
-    // TODO: why does this crash whole app
-    // throw new ResourceConflictError()
-    // TODO: feels wrong
     res.status(409).send();
     return;
   }
 
   const newRecord = await Appointment.create(body);
-  res.send({ newRecord });
+  res.send(newRecord);
 });
 
 const searchableFields = [

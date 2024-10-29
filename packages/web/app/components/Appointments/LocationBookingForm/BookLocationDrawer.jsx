@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import * as yup from 'yup';
-import styled, { css, keyframes } from 'styled-components';
+import styled from 'styled-components';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import Brightness2Icon from '@material-ui/icons/Brightness2';
 
@@ -64,8 +64,9 @@ const StyledDrawer = styled(Drawer)`
   .MuiPaper-root {
     top: ${TOP_BAR_HEIGHT}px;
     height: calc(100% - ${TOP_BAR_HEIGHT}px)
+    border-top: 1px 
   }
-`
+`;
 
 export const WarningModal = ({ open, setShowWarningModal, resolveFn }) => {
   const handleClose = confirmed => {
@@ -136,21 +137,24 @@ export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues }) 
       onError: error => {
         notifyError(
           // TODO: checking staths code feels wrong
-          error.message === '409'
-            ? 'Booking failed. Booking time no longer available'
-            : 'Something went wrong',
+          error.message === '409' ? (
+            <TranslatedText
+              stringId="locationBooking.notification.bookingTimeConflict"
+              fallback="Booking failed. Booking time no longer available"
+            />
+          ) : (
+            <TranslatedText
+              stringId="locationBooking.notification.somethingWentWrong"
+              fallback="Something went wrong"
+            />
+          ),
         );
       },
     },
   );
 
   return (
-    <StyledDrawer
-      variant="persistent"
-      anchor="right"
-      open={open}
-      onClose={closeDrawer}
-    >
+    <StyledDrawer variant="persistent" anchor="right" open={open} onClose={closeDrawer}>
       <Container columns={1}>
         <Heading>
           <TranslatedText stringId="locationBooking.form.new.heading" fallback="Book location" />
