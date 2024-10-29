@@ -8,18 +8,29 @@ import { useUsersQuery } from '../../../api/queries/useUsersQuery';
 import { APPOINTMENT_GROUP_BY } from './OutpatientAppointmentsView';
 
 export const useOutpatientAppointmentsCalendarData = ({ groupBy, selectedDate }) => {
-  const { data: locationGroupData } = useLocationGroupsQuery();
-  const { data: userData } = useUsersQuery({
+  const {
+    data: locationGroupData,
+    error: locationGroupsError,
+    isLoading: isLocationGroupsLoading,
+  } = useLocationGroupsQuery();
+  const { data: userData, error: usersError, isLoading: isUsersLoading } = useUsersQuery({
     orderBy: 'displayName',
   });
-  const { data: appointmentData } = useAppointmentsQuery({
+  const {
+    data: appointmentData,
+    error: appointmentError,
+    isLoading: isAppointmentsLoading,
+  } = useAppointmentsQuery({
     after: selectedDate,
     before: endOfDay(selectedDate),
     clinicianId: '',
     locationGroupId: '',
   });
 
-  return useMemo(() => {
+  const isLoading = isLocationGroupsLoading || isUsersLoading || isAppointmentsLoading;
+  const error = locationGroupsError || usersError || appointmentError;
+
+  const data = useMemo(() => {
     if (!appointmentData?.data || appointmentData?.data.length === 0) {
       return {};
     }
@@ -41,4 +52,6 @@ export const useOutpatientAppointmentsCalendarData = ({ groupBy, selectedDate })
     }
     return {};
   }, [appointmentData?.data, groupBy, locationGroupData, userData?.data]);
+
+  return { data, isLoading, error };
 };

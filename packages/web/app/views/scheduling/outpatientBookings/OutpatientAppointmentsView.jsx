@@ -69,7 +69,7 @@ export const OutpatientAppointmentsView = () => {
     setSelectedDate(event.target.value);
   };
 
-  const { titleKey, headData = [], cellData } = useOutpatientAppointmentsCalendarData({
+  const { data, isLoading, error } = useOutpatientAppointmentsCalendarData({
     groupBy,
     selectedDate,
   });
@@ -87,7 +87,7 @@ export const OutpatientAppointmentsView = () => {
       </LocationBookingsTopBar>
       <CalendarWrapper>
         <DateSelector value={selectedDate} onChange={handleChangeDate} />
-        <OutpatientBookingCalendar titleKey={titleKey} headData={headData} cellData={cellData} />
+        <OutpatientBookingCalendar {...data} />
       </CalendarWrapper>
     </Container>
   );

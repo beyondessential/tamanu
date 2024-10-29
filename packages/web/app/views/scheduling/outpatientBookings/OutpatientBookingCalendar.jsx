@@ -120,7 +120,7 @@ const AppointmentCell = ({ appointments = [] }) => (
 
 export const OutpatientBookingCalendar = ({ headData, cellData, titleKey }) => (
   <Wrapper>
-    {headData.length === 0 ? (
+    {!headData?.length ? (
       <NoResultsText>
         <TranslatedText
           stringId="appointments.outpatientCalendar.noAppointments"
@@ -129,7 +129,7 @@ export const OutpatientBookingCalendar = ({ headData, cellData, titleKey }) => (
       </NoResultsText>
     ) : (
       <Box display="flex" width="100%">
-        {headData.map(cell => {
+        {headData?.map(cell => {
           const appointments = cellData[cell.id];
           return (
             <ColumnWrapper className="column-wrapper" key={cell.id}>
