@@ -36,7 +36,7 @@ export const useOutpatientAppointmentsCalendarData = ({ groupBy, selectedDate })
       return {
         headData: userData.data.filter(user => !!cellData[user.id]),
         titleKey: 'displayName',
-        cellData: lodashGroupBy(appointmentData?.data, 'clinicianId'),
+        cellData,
       };
     }
     return {};
