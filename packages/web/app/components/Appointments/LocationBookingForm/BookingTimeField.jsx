@@ -195,7 +195,7 @@ export const BookingTimeField = ({ disabled = false }) => {
         {isFetching ? (
           <LoadingIndicator />
         ) : (
-          timeSlots.map((timeSlot, index) => {
+          timeSlots.map(timeSlot => {
             const isSelected = isTimeSlotWithinRange(timeSlot, selectedTimeRange);
             const isBooked = bookedTimeSlots?.some(bookedTimeSlot =>
               isTimeSlotWithinRange(timeSlot, bookedTimeSlot),

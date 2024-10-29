@@ -7,6 +7,13 @@ import { Button, PageContainer, TopBar, TranslatedText } from '../../../componen
 import { Typography } from '@material-ui/core';
 import { LocationBookingsCalendar } from './LocationBookingsCalendar';
 import { BookLocationDrawer } from '../../../components/Appointments/LocationBookingForm/BookLocationDrawer';
+import { AddRounded } from '@material-ui/icons';
+
+const PlusIcon = styled(AddRounded)`
+  && {
+    margin-right: 3px;
+  }
+`;
 
 // BEGIN PLACEHOLDERS
 
@@ -87,7 +94,10 @@ export const LocationBookingsView = () => {
           <Placeholder>Clinician</Placeholder>
           <Placeholder>Type</Placeholder>
         </Filters>
-        <NewBookingButton onClick={() => openBookingForm({})}>+ New booking</NewBookingButton>
+        <NewBookingButton onClick={() => openBookingForm({})}>
+          <PlusIcon />
+          New booking
+        </NewBookingButton>
       </LocationBookingsTopBar>
       {hasNoLocations ? (
         <EmptyStateLabel>No bookable locations</EmptyStateLabel>
