@@ -40,6 +40,9 @@ sources:
             data_tests:
               - unique
               - not_null
+              - relationships:
+                  to: source('tamanu', 'reference_data')
+                  field: id
           - name: code
             data_type: text
             description: "{{ doc('imaging_area_external_codes__code') }}"
