@@ -1,19 +1,36 @@
 {% docs table__permissions %}
-TODO
+These are associations of permissions to roles.
+
+Permissions are modeled on the concept of a sentence like
+
+```
+ROLE can VERB the NOUN
+ROLE can VERB the NOUN which is specifically the OBJECT ID
+```
+
+See also the [`roles`](#!/source/source.tamanu.tamanu.roles) and
+[`users`](#!/source/source.tamanu.tamanu.users) tables.
 {% enddocs %}
 
 {% docs permissions__role_id %}
-TODO
+The [`role`](#!/source/source.tamanu.tamanu.roles) authorised for this permission.
 {% enddocs %}
 
 {% docs permissions__noun %}
-TODO
+The subject of the action/permission, usually the model or resource being affected.
+
+Nouns are defined in `PascalCase` and are singular.
 {% enddocs %}
 
 {% docs permissions__verb %}
-TODO
+The action verb for this permission.
+
+Some common verbs include: `create`, `read`, `write`, `list`.
 {% enddocs %}
 
 {% docs permissions__object_id %}
-TODO
+An optional object ID to specialise the permission.
+
+If this is not set the permission is generally for the entire class of objects, if it _is_ set then
+the permission is _only_ for the specific object.
 {% enddocs %}
