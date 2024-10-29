@@ -52,9 +52,15 @@ const DayWrapper = styled(Box)`
 const DateText = styled(BodyText)`
   min-width: 1.125rem;
   text-align: center;
+  color: ${({ $selected, $isWeekend }) => {
+    if ($selected) return Colors.white;
+    if ($isWeekend) return Colors.midText;
+    return Colors.darkText;
+  }};
 `;
 
 const WeekdayText = styled(DateText)`
+  font-size: 0.688rem;
   color: ${({ $selected, $isWeekend }) => {
     if ($selected) return Colors.white;
     if ($isWeekend) return Colors.softText;
@@ -99,14 +105,19 @@ const getMonthInterval = date =>
     end: endOfMonth(date),
   });
 
-const DayButton = ({ date, selected, onClick }) => (
-  <DayWrapper onClick={onClick} $selected={selected} $isToday={isToday(date)}>
-    <WeekdayText $selected={selected} $isWeekend={isWeekend(date)}>
-      {format(date, 'EEEEE')}
-    </WeekdayText>
-    <DateText>{date.getDate()}</DateText>
-  </DayWrapper>
-);
+const DayButton = ({ date, selected, onClick }) => {
+  const isWeekendDay = isWeekend(date);
+  return (
+    <DayWrapper onClick={onClick} $selected={selected} $isToday={isToday(date)}>
+      <WeekdayText $selected={selected} $isWeekend={isWeekendDay}>
+        {format(date, 'EEEEE')}
+      </WeekdayText>
+      <DateText $isWeekend={isWeekendDay} $selected={selected}>
+        {date.getDate()}
+      </DateText>
+    </DayWrapper>
+  );
+};
 
 export const DateSelector = ({ value, onChange }) => {
   const [viewedDays, setViewedDays] = useState(getMonthInterval(value));

@@ -6,7 +6,6 @@ import { BodyText, SmallBodyText } from '../../../components';
 import { AppointmentTile } from '../../../components/Appointments/AppointmentTile';
 import { Placeholders } from './Placeholders';
 import { ThemedTooltip } from '../../../components/Tooltip';
-import { APPOINTMENT_STATUSES } from '@tamanu/constants';
 
 export const CELL_WIDTH_PX = 224;
 
