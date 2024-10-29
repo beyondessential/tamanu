@@ -39,6 +39,11 @@ export async function up(query) {
     allowNull: false,
     defaultValue: true,
   });
+  await query.addColumn({ schema: 'fhir', tableName: 'non_fhir_medici_report' }, 'is_live', {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: true,
+  });
 }
 
 /**
@@ -52,4 +57,5 @@ export async function down(query) {
   await query.removeColumn({ schema: 'fhir', tableName: 'practitioners' }, 'is_live');
   await query.removeColumn({ schema: 'fhir', tableName: 'service_requests' }, 'is_live');
   await query.removeColumn({ schema: 'fhir', tableName: 'specimens' }, 'is_live');
+  await query.removeColumn({ schema: 'fhir', tableName: 'non_fhir_medici_report' }, 'is_live');
 }
