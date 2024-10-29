@@ -11,6 +11,8 @@ import {
   FHIR_REQUEST_PRIORITY,
   LAB_REQUEST_STATUSES,
   FHIR_REQUEST_STATUS,
+  LAB_REQUEST_TABLE_STATUS_GROUPINGS,
+  IMAGING_TABLE_STATUS_GROUPINGS,
 } from '@tamanu/constants';
 import { fakeUUID } from '@tamanu/shared/utils/generateId';
 import { formatFhirDate } from '@tamanu/shared/utils/fhir/datetime';
@@ -679,10 +681,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
 
   describe('isLive', () => {
     describe('Imaging Requests', () => {
-      const activeRequestStatuses = [
-        IMAGING_REQUEST_STATUS_TYPES.PENDING,
-        IMAGING_REQUEST_STATUS_TYPES.IN_PROGRESS,
-      ];
+      const activeRequestStatuses = IMAGING_TABLE_STATUS_GROUPINGS.ACTIVE;
       const inActiveRequestStatuses = Object.values(IMAGING_REQUEST_STATUS_TYPES).filter(
         status => !activeRequestStatuses.includes(status),
       );
@@ -887,12 +886,9 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
     });
 
     describe('Lab Requests', () => {
-      const inActiveRequestStatuses = [
-        LAB_REQUEST_STATUSES.PUBLISHED,
-        LAB_REQUEST_STATUSES.INVALIDATED,
-      ];
-      const activeRequestStatuses = Object.values(LAB_REQUEST_STATUSES).filter(
-        status => !inActiveRequestStatuses.includes(status),
+      const activeRequestStatuses = LAB_REQUEST_TABLE_STATUS_GROUPINGS.ACTIVE;
+      const inActiveRequestStatuses = Object.values(LAB_REQUEST_STATUSES).filter(
+        status => !activeRequestStatuses.includes(status),
       );
 
       it('treats all active lab requests as live', async () => {
