@@ -8,6 +8,7 @@ import { DateSelector } from '../DateSelector';
 import { Colors } from '../../../constants';
 import { GroupAppointmentsToggle } from './GroupAppointmentsToggle';
 import { OutpatientBookingCalendar } from './OutpatientBookingCalendar';
+import { GroupByAppointmentToggleNew } from './GroupAppointmentToggleNew';
 
 const Placeholder = styled.div`
   background-color: oklch(0% 0 0 / 3%);
@@ -81,7 +82,7 @@ export const OutpatientAppointmentsView = () => {
   return (
     <Container>
       <LocationBookingsTopBar>
-        <GroupAppointmentsToggle value={groupBy} onChange={setGroupBy} />
+        <GroupByAppointmentToggleNew value={groupBy} onChange={setGroupBy} />
         <Filters>
           <Placeholder>Search</Placeholder>
           <Placeholder>Clinician</Placeholder>
