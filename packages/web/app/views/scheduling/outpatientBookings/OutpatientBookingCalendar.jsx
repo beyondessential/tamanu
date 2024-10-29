@@ -42,7 +42,7 @@ const AppointmentNumber = styled(Box)`
   justify-content: flex-end;
   height: 1.1rem;
   gap: 0.25rem;
-  padding-inline-end: 0.25rem;
+  padding-inline-end: 1rem;
   border-block: 1px solid ${Colors.outline};
 `;
 
@@ -70,27 +70,13 @@ const AppointmentColumnWrapper = styled(Box)`
   gap: 0.5rem;
 `;
 
-const EmptyContainer = styled(Box)`
-  width: 100%;
-  padding-top: 1rem;
-  text-align: center;
-`;
-
 const NoResultsText = styled(BodyText)`
+  width: 100%;
+  text-align: center;
+  padding-top: 1rem;
   color: ${Colors.primary};
   font-weight: 500;
 `;
-
-const NoResultsDisplay = () => (
-  <EmptyContainer>
-    <NoResultsText>
-      <TranslatedText
-        stringId="appointments.outpatientCalendar.noAppointments"
-        fallback="No appointments to display. Please try adjusting the search filters."
-      />
-    </NoResultsText>
-  </EmptyContainer>
-);
 
 export const HeadCell = ({ title, count }) => (
   <HeadCellWrapper>
@@ -106,12 +92,12 @@ export const HeadCell = ({ title, count }) => (
           <SmallBodyText color="textTertiary">
             {count === 1 ? (
               <TranslatedText
-                stringId="appointments.outpatientCalendar.abbreviatedAppointment"
+                stringId="appointments.outpatientCalendar.appointmentAbbreviation"
                 fallback="appt"
               />
             ) : (
               <TranslatedText
-                stringId="appointments.outpatientCalendar.abbreviatedAppointment.plural"
+                stringId="appointments.outpatientCalendar.appointmentAbbreviation.plural"
                 fallback="appts"
               />
             )}
@@ -133,7 +119,12 @@ const AppointmentCell = ({ appointments = [] }) => (
 export const OutpatientBookingCalendar = ({ headData, cellData, titleKey }) => (
   <Wrapper>
     {headData.length === 0 ? (
-      <NoResultsDisplay />
+      <NoResultsText>
+        <TranslatedText
+          stringId="appointments.outpatientCalendar.noAppointments"
+          fallback="No appointments to display. Please try adjusting the search filters."
+        />
+      </NoResultsText>
     ) : (
       <Box display="flex" width="100%">
         {headData.map(cell => {
