@@ -6,7 +6,7 @@ import { Box } from '@mui/material';
 import { Button, PageContainer, TopBar, TranslatedText } from '../../../components';
 import { DateSelector } from '../DateSelector';
 import { Colors } from '../../../constants';
-import { GroupByToggle } from './GroupAppointmentToggle';
+import { GroupAppointmentsToggle } from './GroupAppointmentsToggle';
 import { OutpatientBookingCalendar } from './OutpatientBookingCalendar';
 
 const Placeholder = styled.div`
@@ -81,7 +81,7 @@ export const OutpatientAppointmentsView = () => {
   return (
     <Container>
       <LocationBookingsTopBar>
-        <GroupByToggle value={groupBy} onChange={setGroupBy} />
+        <GroupAppointmentsToggle value={groupBy} onChange={setGroupBy} />
         <Filters>
           <Placeholder>Search</Placeholder>
           <Placeholder>Clinician</Placeholder>

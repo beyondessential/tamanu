@@ -4,6 +4,7 @@ import { Colors } from '../../../constants';
 import { APPOINTMENT_GROUP_BY } from './OutpatientAppointmentsView';
 
 const Wrapper = styled(Box)`
+  cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -32,21 +33,18 @@ const ToggleButton = styled(Button)`
   }
 `;
 
-export const GroupByToggle = ({ value, onChange }) => {
+export const GroupAppointmentsToggle = ({ value, onChange }) => {
+  const handleChange = () => {
+    onChange(
+      value === APPOINTMENT_GROUP_BY.AREA
+        ? APPOINTMENT_GROUP_BY.CLINICIAN
+        : APPOINTMENT_GROUP_BY.AREA,
+    );
+  };
   return (
-    <Wrapper>
-      <ToggleButton
-        $selected={value === APPOINTMENT_GROUP_BY.AREA}
-        onClick={() => onChange(APPOINTMENT_GROUP_BY.AREA)}
-      >
-        Area
-      </ToggleButton>
-      <ToggleButton
-        $selected={value === APPOINTMENT_GROUP_BY.CLINICIAN}
-        onClick={() => onChange(APPOINTMENT_GROUP_BY.CLINICIAN)}
-      >
-        Clinicians
-      </ToggleButton>
+    <Wrapper onClick={handleChange}>
+      <ToggleButton $selected={value === APPOINTMENT_GROUP_BY.AREA}>Area</ToggleButton>
+      <ToggleButton $selected={value === APPOINTMENT_GROUP_BY.CLINICIAN}>Clinicians</ToggleButton>
     </Wrapper>
   );
 };
