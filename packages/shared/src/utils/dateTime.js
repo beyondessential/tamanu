@@ -12,6 +12,7 @@ import {
   sub,
 } from 'date-fns';
 import { TIME_UNIT_OPTIONS } from '@tamanu/constants';
+import { z } from 'zod';
 
 export const ISO9075_DATE_FORMAT = 'yyyy-MM-dd';
 export const ISO9075_DATETIME_FORMAT = 'yyyy-MM-dd HH:mm:ss';
@@ -248,3 +249,17 @@ export const formatLong = date =>
     },
     'Date information not available',
   ); // "Thursday, 14 July 2022, 03:44 pm"
+
+// Custom validator for "YYYY-MM-DD HH:MM:SS" format
+export const datetimeCustomValidation = z.string().refine(
+  val => {
+    const regex = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/;
+    if (!regex.test(val)) return false;
+
+    const date = new Date(val);
+    return !isNaN(date.getTime());
+  },
+  {
+    message: 'Invalid datetime format, expected YYYY-MM-DD HH:MM:SS',
+  },
+);

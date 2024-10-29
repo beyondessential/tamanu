@@ -288,10 +288,12 @@ createSuggester(
         {
           model: ReferenceData,
           as: 'children',
+          required: false,
           through: {
             attributes: [],
             where: {
               type: relationType,
+              deleted_at: null,
             },
           },
           include: {
@@ -299,6 +301,9 @@ createSuggester(
             as: 'taskTemplate',
             include: TaskTemplate.getFullReferenceAssociations(),
           },
+          where: {
+            visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+          }
         },
       ];
     },

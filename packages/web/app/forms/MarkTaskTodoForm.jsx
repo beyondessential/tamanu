@@ -15,10 +15,15 @@ import {
 import { useSuggester } from '../api';
 import { useMarkTaskTodo } from '../api/mutations/useTaskMutation';
 import { FORM_TYPES } from '../constants';
+import { getCurrentDateTimeString } from '../utils/dateTime';
+import { useAuth } from '../contexts/Auth';
+import { useTranslation } from '../contexts/Translation';
 
 export const MarkTaskTodoForm = ({ onClose, refreshTaskTable, taskIds }) => {
+  const { getTranslation } = useTranslation();
   const practitionerSuggester = useSuggester('practitioner');
   const { mutate: markTaskTodo, isLoading } = useMarkTaskTodo();
+  const { currentUser } = useAuth();
 
   const onSubmit = async values => {
     markTaskTodo(
@@ -37,6 +42,7 @@ export const MarkTaskTodoForm = ({ onClose, refreshTaskTable, taskIds }) => {
 
   return (
     <Form
+      showInlineErrorsOnly
       onSubmit={onSubmit}
       formType={FORM_TYPES.CREATE_FORM}
       render={({ submitForm }) => (
@@ -60,10 +66,12 @@ export const MarkTaskTodoForm = ({ onClose, refreshTaskTable, taskIds }) => {
                 />
               }
               required
+              saveDateAsString
               component={DateTimeField}
+              max={getCurrentDateTimeString()}
             />
             <Field
-              name="completedNote"
+              name="todoNote"
               label={<TranslatedText stringId="general.notes.label" fallback="Notes" />}
               component={TextField}
             />
@@ -89,9 +97,20 @@ export const MarkTaskTodoForm = ({ onClose, refreshTaskTable, taskIds }) => {
           .required()
           .translatedLabel(
             <TranslatedText stringId="task.form.recordTime.label" fallback="Record date & time" />,
+          )
+          .max(
+            getCurrentDateTimeString(),
+            getTranslation(
+              'general.validation.date.cannotInFuture',
+              'Date cannot be in the future',
+            ),
           ),
-        completedNote: yup.string(),
+        todoNote: yup.string(),
       })}
+      initialValues={{
+        todoTime: getCurrentDateTimeString(),
+        todoByUserId: currentUser?.id,
+      }}
     />
   );
 };

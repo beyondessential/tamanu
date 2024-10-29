@@ -31,23 +31,6 @@ export class GenerateRepeatingTasks extends ScheduledTask {
     return 'GenerateRepeatingTasks';
   }
 
-  getQuery() {
-    return {
-      where: {
-        endTime: null,
-        frequencyValue: { [Op.not]: null },
-        frequencyUnit: { [Op.not]: null },
-        parentTaskId: null,
-      },
-    };
-  }
-
-  async countQueue() {
-    const { Task } = this.models;
-    const count = await Task.count(this.getQuery());
-    return count;
-  }
-
   async run() {
     await this.removeChildTasksOverParentEndTime();
     await this.markOldRepeatingTasksAsNotCompleted();
@@ -58,20 +41,22 @@ export class GenerateRepeatingTasks extends ScheduledTask {
   // this is a safe guard for the delayed sync from facility server to central server
   // only need to account for tasks that have been created in the last 30 days with the status of TODO
   async removeChildTasksOverParentEndTime() {
-    await this.sequelize.query(`
-      with parent as (
+    try {
+      await this.sequelize.query(
+        `
+      WITH parent as (
         select id, deleted_reason_for_sync_id as reason_id
-        from tasks
+        FROM tasks
       )
-      update tasks
-      set
+      UPDATE tasks
+      SET
         deleted_at = now (),
         deleted_by_user_id = :deletedByUserId,
         deleted_time = :deletedTime,
         deleted_reason_id = parent.reason_id
-      from parent
-      where
-        tasks.parent_task_id = parent.id
+      FROM parent
+      WHERE
+        tasks.parent_task_id = parent.id AND
         tasks.id in (
           SELECT
             childTasks.id
@@ -86,14 +71,17 @@ export class GenerateRepeatingTasks extends ScheduledTask {
             and childTasks.created_at > now () - interval '30' day
         )
     `,
-      {
-        replacements: {
-          statuses: [TASK_STATUSES.TODO],
-          deletedByUserId: SYSTEM_USER_UUID,
-          deletedTime: getCurrentDateTimeString(),
+        {
+          replacements: {
+            statuses: [TASK_STATUSES.TODO],
+            deletedByUserId: SYSTEM_USER_UUID,
+            deletedTime: getCurrentDateTimeString(),
+          },
         },
-      },
-    );
+      );
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   async markOldRepeatingTasksAsNotCompleted() {
@@ -146,7 +134,12 @@ export class GenerateRepeatingTasks extends ScheduledTask {
 
     for (let i = 0; i < batchCount; i++) {
       const tasks = await Task.findAll({
-        ...this.getQuery(),
+        where: {
+          endTime: null,
+          frequencyValue: { [Op.not]: null },
+          frequencyUnit: { [Op.not]: null },
+          parentTaskId: null,
+        },
         include: ['designations'],
         limit: batchSize,
       });
