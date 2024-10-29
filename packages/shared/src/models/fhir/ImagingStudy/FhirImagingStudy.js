@@ -52,6 +52,8 @@ export class FhirImagingStudy extends FhirResource {
       contained: yup
         .array()
         .of(FHIR_ENDPOINT_SCHEMA)
+        .min(1)
+        .max(1)
         .optional(),
     });
   }

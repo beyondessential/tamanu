@@ -5,7 +5,7 @@ const endpointStatuses = ['active', 'suspended', 'error', 'off', 'entered-in-err
 export const FHIR_ENDPOINT_SCHEMA = yup.object({
   resourceType: yup
     .string()
-    .oneOf(['Endpoint'])
+    .oneOf(['Endpoint'], 'ImagingStudy only supports a contained Endpoint resource')
     .required(),
   status: yup
     .string()
@@ -20,5 +20,17 @@ export const FHIR_ENDPOINT_SCHEMA = yup.object({
     .required(),
   payloadType: yup
     .array()
-    .of(yup.object({ code: yup.string().required(), display: yup.string().required() })),
+    .of(
+      yup.object({
+        code: yup
+          .string()
+          .oneOf(['none'], 'ImagingStudy contained Endpoint only supports a payload type of None')
+          .required(),
+        display: yup
+          .string()
+          .oneOf(['None'], 'ImagingStudy contained Endpoint only supports a payload type of None')
+          .required(),
+      }),
+    )
+    .required(),
 });
