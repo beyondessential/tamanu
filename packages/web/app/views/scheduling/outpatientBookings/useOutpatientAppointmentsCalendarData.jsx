@@ -28,11 +28,9 @@ export const useOutpatientAppointmentsCalendarData = ({ groupBy, selectedDate })
   });
 
   const isLoading = isLocationGroupsLoading || isUsersLoading || isFetchingAppointmentData;
-
   const error = locationGroupsError || usersError || appointmentError;
-
   const data = useMemo(() => {
-    if (!appointmentData?.data || appointmentData?.data.length === 0) {
+    if (!appointmentData?.data || appointmentData.data.length === 0) {
       return {};
     }
     if (groupBy === APPOINTMENT_GROUP_BY.AREA) {
