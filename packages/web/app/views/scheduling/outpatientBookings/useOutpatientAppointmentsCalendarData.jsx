@@ -20,16 +20,21 @@ export const useOutpatientAppointmentsCalendarData = ({ groupBy, selectedDate })
   });
 
   return useMemo(() => {
+    if (!appointmentData?.data || appointmentData?.data.length === 0) {
+      return {};
+    }
     if (groupBy === APPOINTMENT_GROUP_BY.AREA) {
+      const cellData = lodashGroupBy(appointmentData?.data, 'locationGroupId');
       return {
-        headData: locationGroupData,
+        headData: locationGroupData.filter(locationGroup => !!cellData[locationGroup.id]),
         titleKey: 'name',
-        cellData: lodashGroupBy(appointmentData?.data, 'locationGroupId'),
+        cellData,
       };
     }
     if (groupBy === APPOINTMENT_GROUP_BY.CLINICIAN) {
+      const cellData = lodashGroupBy(appointmentData?.data, 'clinicianId');
       return {
-        headData: userData?.data,
+        headData: userData.data.filter(user => !!cellData[user.id]),
         titleKey: 'displayName',
         cellData: lodashGroupBy(appointmentData?.data, 'clinicianId'),
       };
