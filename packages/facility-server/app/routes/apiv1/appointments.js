@@ -10,53 +10,64 @@ export const appointments = express.Router();
 appointments.post('/$', simplePost('Appointment'));
 
 appointments.post('/locationBooking', async (req, res) => {
+  req.checkPermission('create', 'Appointment');
+
   const { models, body } = req;
   const { startTime, endTime, locationId } = body;
   const { Appointment } = models;
 
-  req.checkPermission('create', 'Appointment');
+  try {
+    const result = await Appointment.sequelize.transaction(async transaction => {
+      const bookingTimeAlreadyTaken = await Appointment.findOne({
+        where: {
+          locationId,
+          [Op.or]: [
+            // Partial overlap
+            {
+              startTime: {
+                [Op.gte]: startTime, // Exclude startTime
+                [Op.lt]: endTime, // Include endTime
+              },
+            },
+            {
+              endTime: {
+                [Op.gt]: startTime, // Exclude endTime
+                [Op.lte]: endTime, // Include startTime
+              },
+            },
+            // Complete overlap
+            {
+              startTime: {
+                [Op.lt]: startTime,
+              },
+              endTime: {
+                [Op.gt]: endTime,
+              },
+            },
+            // Same time
+            {
+              startTime: startTime,
+              endTime: endTime,
+            },
+          ],
+        },
+        transaction,
+      });
 
-  const bookingTimeAlreadyTaken = await Appointment.findOne({
-    where: {
-      locationId,
-      [Op.or]: [
-        // Partial overlap
-        {
-          startTime: {
-            [Op.gte]: startTime, // Exclude startTime
-            [Op.lt]: endTime, // Include endTime
-          },
-        },
-        {
-          endTime: {
-            [Op.gt]: startTime, // Exclude endTime
-            [Op.lte]: endTime, // Include startTime
-          },
-        },
-        // Complete overlap
-        {
-          startTime: {
-            [Op.lt]: startTime,
-          },
-          endTime: {
-            [Op.gt]: endTime,
-          },
-        },
-        // Same time
-        {
-          startTime: startTime,
-          endTime: endTime,
-        },
-      ],
-    },
-  });
+      if (bookingTimeAlreadyTaken) {
+        const error = new Error()
+        error.status = 409
+        throw error;
+      }
 
-  if (bookingTimeAlreadyTaken) {
-    return res.status(409).send();
+      const newRecord = await Appointment.create(body, { transaction });
+      return newRecord;
+    });
+
+    res.status(201).send(result);
+  } catch (error) {
+    res.status(error.status || 500).send()
   }
-
-  const newRecord = await Appointment.create(body);
-  res.send({ newRecord });
 });
 
 appointments.put('/locationBooking/:id', async (req, res) => {
