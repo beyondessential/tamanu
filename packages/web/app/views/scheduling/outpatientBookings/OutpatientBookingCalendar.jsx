@@ -1,8 +1,9 @@
 import React from 'react';
-import styled from 'styled-components';
-import { Colors } from '../../../constants/index';
 import { Box } from '@mui/material';
-import { BodyText, SmallBodyText } from '../../../components';
+import styled from 'styled-components';
+
+import { Colors } from '../../../constants/index';
+import { BodyText, SmallBodyText, TranslatedText } from '../../../components';
 import { AppointmentTile } from '../../../components/Appointments/AppointmentTile';
 import { Placeholders } from './Placeholders';
 import { ThemedTooltip } from '../../../components/Tooltip';
@@ -69,6 +70,28 @@ const AppointmentColumnWrapper = styled(Box)`
   gap: 0.5rem;
 `;
 
+const EmptyContainer = styled(Box)`
+  width: 100%;
+  padding-top: 1rem;
+  text-align: center;
+`;
+
+const NoResultsText = styled(BodyText)`
+  color: ${Colors.primary};
+  font-weight: 500;
+`;
+
+const NoResultsDisplay = () => (
+  <EmptyContainer>
+    <NoResultsText>
+      <TranslatedText
+        stringId="appointments.outpatientCalendar.noAppointments"
+        fallback="No appointments to display. Please try adjusting the search filters."
+      />
+    </NoResultsText>
+  </EmptyContainer>
+);
+
 export const HeadCell = ({ title, count }) => (
   <HeadCellWrapper>
     <HeadCellTextWrapper>
@@ -80,7 +103,19 @@ export const HeadCell = ({ title, count }) => (
       {Number.isInteger(count) && (
         <>
           <SmallBodyText>{count}</SmallBodyText>
-          <SmallBodyText color="textTertiary">appt{count !== 1 ? 's' : ''}</SmallBodyText>
+          <SmallBodyText color="textTertiary">
+            {count === 1 ? (
+              <TranslatedText
+                stringId="appointments.outpatientCalendar.abbreviatedAppointment"
+                fallback="appt"
+              />
+            ) : (
+              <TranslatedText
+                stringId="appointments.outpatientCalendar.abbreviatedAppointment.plural"
+                fallback="appts"
+              />
+            )}
+          </SmallBodyText>
         </>
       )}
     </AppointmentNumber>
@@ -95,9 +130,11 @@ const AppointmentCell = ({ appointments = [] }) => (
   </AppointmentColumnWrapper>
 );
 
-export const OutpatientBookingCalendar = ({ headData, cellData, titleKey }) => {
-  return (
-    <Wrapper>
+export const OutpatientBookingCalendar = ({ headData, cellData, titleKey }) => (
+  <Wrapper>
+    {headData.length === 0 ? (
+      <NoResultsDisplay />
+    ) : (
       <Box display="flex" width="100%">
         {headData.map(cell => {
           const appointments = cellData[cell.id];
@@ -110,6 +147,6 @@ export const OutpatientBookingCalendar = ({ headData, cellData, titleKey }) => {
         })}
         <Placeholders />
       </Box>
-    </Wrapper>
-  );
-};
+    )}
+  </Wrapper>
+);
