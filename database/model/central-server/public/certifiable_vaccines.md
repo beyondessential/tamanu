@@ -9,7 +9,7 @@ This table both contains additional information about scheduled vaccines which i
 required for those to be certified, and signals that the vaccines listed may be
 included in certification QR codes.
 
-See also the signers table.
+See also the [`signers`](#!/source/source.tamanu.tamanu.signers) table.
 {% enddocs %}
 
 {% docs certifiable_vaccines__vaccine_id %}
