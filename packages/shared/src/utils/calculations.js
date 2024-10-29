@@ -40,7 +40,7 @@ export function runCalculations(components, values) {
 
         const isInputsEmpty = Object.values(relevantInputs).every(value => value === '');
 
-        if (isInputsEmpty) {
+        if (requiredVariables.length && isInputsEmpty) {
           // Skip calculation if every input is empty
           calculatedValues[c.dataElement.id] = null;
           continue;
