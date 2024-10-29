@@ -17,6 +17,7 @@ locationGroup.get(
       res.send([]);
       return;
     }
+
     const locationGroups = await req.models.LocationGroup.findAll({
       where: {
         facilityId: config.serverFacilityId,
