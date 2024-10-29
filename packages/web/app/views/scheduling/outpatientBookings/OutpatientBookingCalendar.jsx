@@ -5,7 +5,6 @@ import styled from 'styled-components';
 import { Colors } from '../../../constants/index';
 import { BodyText, SmallBodyText, TranslatedText } from '../../../components';
 import { AppointmentTile } from '../../../components/Appointments/AppointmentTile';
-import { Placeholders } from './Placeholders';
 import { ThemedTooltip } from '../../../components/Tooltip';
 
 export const CELL_WIDTH_PX = 224;
@@ -78,6 +77,11 @@ const NoResultsText = styled(BodyText)`
   font-weight: 500;
 `;
 
+const Placeholder = styled.div`
+  background-color: ${Colors.white};
+  flex: 1;
+`;
+
 export const HeadCell = ({ title, count }) => (
   <HeadCellWrapper>
     <HeadCellTextWrapper>
@@ -136,7 +140,7 @@ export const OutpatientBookingCalendar = ({ headData, cellData, titleKey }) => (
             </ColumnWrapper>
           );
         })}
-        <Placeholders />
+        <Placeholder />
       </Box>
     )}
   </Wrapper>
