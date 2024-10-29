@@ -77,7 +77,7 @@ This is a customisable list; by default the values are `routine`, `urgent`, `asa
 {% enddocs %}
 
 {% docs imaging_requests__location_group_id %}
-Reference to the [location group](#!/source/source.tamanu.tamanu.location_groups) for this imaging.
+Reference to the [location group](#!/source/source.tamanu.tamanu.location_groups) for this imaging request.
 {% enddocs %}
 
 {% docs imaging_requests__reason_for_cancellation %}
