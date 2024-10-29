@@ -1,19 +1,19 @@
 {% docs table__refresh_tokens %}
-TODO
+Refresh tokens are used by API clients to refresh their authentication quickly, within a timeout.
 {% enddocs %}
 
 {% docs refresh_tokens__refresh_id %}
-TODO
+Random value given to the client to use as this refresh token.
 {% enddocs %}
 
 {% docs refresh_tokens__device_id %}
-TODO
+Unique device ID from the client.
 {% enddocs %}
 
 {% docs refresh_tokens__user_id %}
-Reference to the [user](#!/source/source.tamanu.tamanu.users).
+The [user](#!/source/source.tamanu.tamanu.users) being authenticated as.
 {% enddocs %}
 
 {% docs refresh_tokens__expires_at %}
-TODO
+When the refresh token expires.
 {% enddocs %}
