@@ -109,7 +109,7 @@ const DayButton = ({ date, selected, onClick }) => {
   const isWeekendDay = isWeekend(date);
   return (
     <DayWrapper onClick={onClick} $selected={selected} $isToday={isToday(date)}>
-      <WeekdayText $selected={selected} $isWeekend={isWeekendDay}>
+      <WeekdayText $isWeekend={isWeekendDay} $selected={selected}>
         {format(date, 'EEEEE')}
       </WeekdayText>
       <DateText $isWeekend={isWeekendDay} $selected={selected}>
