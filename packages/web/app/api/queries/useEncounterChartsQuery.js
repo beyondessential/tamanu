@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { CHARTING_DATA_ELEMENT_IDS, VISIBILITY_STATUSES } from '@tamanu/constants';
-import { isErrorUnknownAllow404s, useApi } from '../index';
+import { combineQueries, isErrorUnknownAllow404s, useApi } from '../index';
 import { getConfigObject } from '../../utils';
 import { useChartSurveyQuery } from './useChartSurveyQuery';
 
@@ -68,7 +68,7 @@ export function getDatesAndRecords(data, surveyData, dateElementId) {
   return { recordedDates, records };
 }
 
-export const useChartQuery = (encounterId, surveyId) => {
+export const useEncounterChartsQuery = (encounterId, surveyId) => {
   const api = useApi();
   const chartQuery = useQuery(['encounterCharts', encounterId], () =>
     api.get(
@@ -78,23 +78,24 @@ export const useChartQuery = (encounterId, surveyId) => {
     ),
     { enabled: Boolean(surveyId) },
   );
-
   const surveyQuery = useChartSurveyQuery(surveyId);
-  const error = chartQuery.error || surveyQuery.error;
 
-  const chartData = chartQuery?.data?.data || [];
-  const surveyData = surveyQuery?.data;
+  const {
+    data: [chartData, surveyData],
+    error,
+    isLoading,
+  } = combineQueries([chartQuery, surveyQuery]);
 
   const { recordedDates, records } = getDatesAndRecords(
-    chartData,
+    chartData?.data || [],
     surveyData,
     CHARTING_DATA_ELEMENT_IDS.dateRecorded,
   );
 
   return {
-    ...chartQuery,
     data: records,
     recordedDates,
     error,
+    isLoading,
   };
 };

@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { VITALS_DATA_ELEMENT_IDS } from '@tamanu/constants';
 import { isErrorUnknownAllow404s, useApi } from '../index';
 import { useVitalsSurveyQuery } from './useVitalsSurveyQuery';
-import { getDatesAndRecords } from './useChartQuery';
+import { getDatesAndRecords } from './useEncounterChartsQuery';
 
 export const useVitals = encounterId => {
   const api = useApi();

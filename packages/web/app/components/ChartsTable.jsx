@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 import { DynamicColumnTable, Table } from './Table';
 import { useEncounter } from '../contexts/Encounter';
-import { useChartQuery } from '../api/queries/useChartQuery';
+import { useEncounterChartsQuery } from '../api/queries/useEncounterChartsQuery';
 import { EditVitalCellModal } from './EditVitalCellModal';
 import { TranslatedText } from './Translation/TranslatedText';
 import { Colors } from '../constants';
@@ -12,7 +12,7 @@ import { Box } from '@material-ui/core';
 export const ChartsTable = React.memo(({ selectedSurveyId }) => {
   const patient = useSelector(state => state.patient);
   const { encounter } = useEncounter();
-  const { data, recordedDates, error, isLoading } = useChartQuery(encounter.id, selectedSurveyId);
+  const { data, recordedDates, error, isLoading } = useEncounterChartsQuery(encounter.id, selectedSurveyId);
   const [openEditModal, setOpenEditModal] = useState(false);
   const [selectedCell, setSelectedCell] = useState(null);
   const showFooterLegend = data.some(entry =>
