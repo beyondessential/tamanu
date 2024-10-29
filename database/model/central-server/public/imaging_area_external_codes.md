@@ -6,7 +6,7 @@ table adds additional (external) codes.
 {% enddocs %}
 
 {% docs imaging_area_external_codes__area_id %}
-Reference to the imaging area ([Reference Data](#!/source/source.tamanu.tamanu.reference_data)). 
+Reference to the imaging area ([Reference Data](#!/source/source.tamanu.tamanu.reference_data)).
 {% enddocs %}
 
 {% docs imaging_area_external_codes__code %}
