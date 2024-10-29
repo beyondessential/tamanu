@@ -113,7 +113,12 @@ export class GenerateRepeatingTasks extends ScheduledTask {
   async generateChildTasks() {
     const { Task } = this.models;
 
-    const toProcess = await this.countQueue();
+    const toProcess = await Task.count({
+      endTime: null,
+      frequencyValue: { [Op.not]: null },
+      frequencyUnit: { [Op.not]: null },
+      parentTaskId: null,
+    });
     if (toProcess === 0) return;
 
     const { batchSize, batchSleepAsyncDurationInMilliseconds } = this.config;
