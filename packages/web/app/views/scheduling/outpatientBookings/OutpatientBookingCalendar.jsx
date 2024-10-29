@@ -6,16 +6,9 @@ import { Colors } from '../../../constants/index';
 import { BodyText, SmallBodyText, TranslatedText } from '../../../components';
 import { AppointmentTile } from '../../../components/Appointments/AppointmentTile';
 import { ThemedTooltip } from '../../../components/Tooltip';
+import { useOutpatientAppointmentsCalendarData } from './useOutpatientAppointmentsCalendarData';
 
 export const CELL_WIDTH_PX = 224;
-
-const Wrapper = styled(Box)`
-  display: flex;
-  height: 100%;
-  width: 100%;
-  overflow: auto;
-  border-block-start: 1px solid ${Colors.outline};
-`;
 
 export const ColumnWrapper = styled(Box)`
   display: flex;
@@ -72,11 +65,11 @@ const AppointmentColumnWrapper = styled(Box)`
   gap: 0.5rem;
 `;
 
-const NoResultsText = styled(BodyText)`
+const StatusText = styled(BodyText)`
   width: 100%;
   text-align: center;
   padding-top: 1rem;
-  color: ${Colors.primary};
+  color: ${({ $error }) => ($error ? Colors.alert : Colors.primary)};
   font-weight: 500;
 `;
 
@@ -118,27 +111,51 @@ const AppointmentCell = ({ appointments = [] }) => (
   </AppointmentColumnWrapper>
 );
 
-export const OutpatientBookingCalendar = ({ headData, cellData, titleKey }) => (
-  <Wrapper>
-    {!headData?.length ? (
-      <NoResultsText>
+export const OutpatientBookingCalendar = ({ groupBy, selectedDate }) => {
+  const { data, isLoading, error } = useOutpatientAppointmentsCalendarData({
+    groupBy,
+    selectedDate,
+  });
+  const { headData = [], cellData, titleKey } = data;
+
+  if (isLoading) {
+    return (
+      <StatusText>
+        <TranslatedText stringId="general.table.loading" fallback="Loading..." />
+      </StatusText>
+    );
+  }
+  if (error)
+    return (
+      <StatusText $error>
+        <TranslatedText
+          stringId="appointments.outpatientCalendar.error"
+          fallback="Failed to load appointments. Please try again."
+        />
+      </StatusText>
+    );
+
+  if (headData.length === 0) {
+    return (
+      <StatusText>
         <TranslatedText
           stringId="appointments.outpatientCalendar.noAppointments"
           fallback="No appointments to display. Please try adjusting the search filters."
         />
-      </NoResultsText>
-    ) : (
-      <Box display="flex" width="100%">
-        {headData?.map(cell => {
-          const appointments = cellData[cell.id];
-          return (
-            <ColumnWrapper className="column-wrapper" key={cell.id}>
-              <HeadCell title={cell[titleKey]} count={appointments?.length || 0} />
-              <AppointmentCell appointments={appointments} />
-            </ColumnWrapper>
-          );
-        })}
-      </Box>
-    )}
-  </Wrapper>
-);
+      </StatusText>
+    );
+  }
+  return (
+    <Box display="flex" width="100%">
+      {headData?.map(cell => {
+        const appointments = cellData[cell.id];
+        return (
+          <ColumnWrapper className="column-wrapper" key={cell.id}>
+            <HeadCell title={cell[titleKey]} count={appointments?.length || 0} />
+            <AppointmentCell appointments={appointments} />
+          </ColumnWrapper>
+        );
+      })}
+    </Box>
+  );
+};

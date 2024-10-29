@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
+import { startOfDay } from 'date-fns';
+import styled from 'styled-components';
+import { Box } from '@mui/material';
+
 import { Button, PageContainer, TopBar, TranslatedText } from '../../../components';
 import { DateSelector } from '../DateSelector';
-import styled from 'styled-components';
 import { Colors } from '../../../constants';
 import { GroupByToggle } from './GroupAppointmentToggle';
 import { OutpatientBookingCalendar } from './OutpatientBookingCalendar';
-import { startOfDay } from 'date-fns';
-import { useOutpatientAppointmentsCalendarData } from './useOutpatientAppointmentsCalendarData';
 
 const Placeholder = styled.div`
   background-color: oklch(0% 0 0 / 3%);
@@ -27,7 +28,7 @@ const Container = styled(PageContainer)`
   height: 100%;
 `;
 
-const CalendarWrapper = styled.div`
+const CalendarWrapper = styled(Box)`
   flex: 1;
   overflow-y: hidden;
   display: flex;
@@ -36,6 +37,14 @@ const CalendarWrapper = styled.div`
   border-radius: 4px;
   border: 1px solid ${Colors.outline};
   background: ${Colors.white};
+`;
+
+const CalendarInnerWrapper = styled(Box)`
+  display: flex;
+  height: 100%;
+  width: 100%;
+  overflow: auto;
+  border-block-start: 1px solid ${Colors.outline};
 `;
 
 const LocationBookingsTopBar = styled(TopBar).attrs({
@@ -69,11 +78,6 @@ export const OutpatientAppointmentsView = () => {
     setSelectedDate(event.target.value);
   };
 
-  const { data, isLoading, error } = useOutpatientAppointmentsCalendarData({
-    groupBy,
-    selectedDate,
-  });
-
   return (
     <Container>
       <LocationBookingsTopBar>
@@ -87,7 +91,9 @@ export const OutpatientAppointmentsView = () => {
       </LocationBookingsTopBar>
       <CalendarWrapper>
         <DateSelector value={selectedDate} onChange={handleChangeDate} />
-        <OutpatientBookingCalendar {...data} />
+        <CalendarInnerWrapper>
+          <OutpatientBookingCalendar groupBy={groupBy} selectedDate={selectedDate} />
+        </CalendarInnerWrapper>
       </CalendarWrapper>
     </Container>
   );

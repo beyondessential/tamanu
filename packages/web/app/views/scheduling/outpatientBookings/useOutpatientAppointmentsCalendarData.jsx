@@ -19,7 +19,7 @@ export const useOutpatientAppointmentsCalendarData = ({ groupBy, selectedDate })
   const {
     data: appointmentData,
     error: appointmentError,
-    isLoading: isAppointmentsLoading,
+    isFetching: isFetchingAppointmentData,
   } = useAppointmentsQuery({
     after: selectedDate,
     before: endOfDay(selectedDate),
@@ -27,7 +27,8 @@ export const useOutpatientAppointmentsCalendarData = ({ groupBy, selectedDate })
     locationGroupId: '',
   });
 
-  const isLoading = isLocationGroupsLoading || isUsersLoading || isAppointmentsLoading;
+  const isLoading = isLocationGroupsLoading || isUsersLoading || isFetchingAppointmentData;
+
   const error = locationGroupsError || usersError || appointmentError;
 
   const data = useMemo(() => {
