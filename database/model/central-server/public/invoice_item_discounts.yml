@@ -20,6 +20,9 @@ sources:
             description: "{{ doc('invoice_item_discounts__invoice_item_id') }}"
             data_tests:
               - not_null
+              - relationships:
+                  to: source('tamanu', 'invoice_items')
+                  field: id
           - name: percentage
             data_type: numeric
             description: "{{ doc('invoice_item_discounts__percentage') }}"

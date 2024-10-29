@@ -21,11 +21,17 @@ sources:
             data_tests:
               - unique
               - not_null
+              - relationships:
+                  to: source('tamanu', 'invoice_payments')
+                  field: id
           - name: method_id
             data_type: character varying(255)
             description: "{{ doc('invoice_patient_payments__method_id') }}"
             data_tests:
               - not_null
+              - relationships:
+                  to: source('tamanu', 'reference_data')
+                  field: id
           - name: created_at
             data_type: timestamp with time zone
             description: "{{ doc('generic__created_at') }} in invoice_patient_payments."

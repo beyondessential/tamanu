@@ -1,15 +1,15 @@
 {% docs table__invoice_products %}
-TODO
+Products which can be invoiced.
 {% enddocs %}
 
 {% docs invoice_products__name %}
-TODO
+Name of the product.
 {% enddocs %}
 
 {% docs invoice_products__price %}
-TODO
+Price of the product.
 {% enddocs %}
 
 {% docs invoice_products__discountable %}
-TODO
+Whether the product can be discounted.
 {% enddocs %}

@@ -41,6 +41,9 @@ sources:
             description: "{{ doc('invoice_discounts__applied_by_user_id') }}"
             data_tests:
               - not_null
+              - relationships:
+                  to: source('tamanu', 'users')
+                  field: id
           - name: applied_time
             data_type: character(19)
             description: "{{ doc('invoice_discounts__applied_time') }}"

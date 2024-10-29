@@ -1,15 +1,15 @@
 {% docs table__invoice_item_discounts %}
-TODO
+Discounts applied to invoice items.
 {% enddocs %}
 
 {% docs invoice_item_discounts__invoice_item_id %}
-TODO
+The [invoice item](#!/source/source.tamanu.tamanu.invoice_items).
 {% enddocs %}
 
 {% docs invoice_item_discounts__percentage %}
-TODO
+Percentage of the discount.
 {% enddocs %}
 
 {% docs invoice_item_discounts__reason %}
-TODO
+Free-form reason for the discount.
 {% enddocs %}

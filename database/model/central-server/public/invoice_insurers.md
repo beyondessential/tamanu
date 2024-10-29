@@ -1,15 +1,15 @@
 {% docs table__invoice_insurers %}
-TODO
+Insurers to be used for an invoice.
 {% enddocs %}
 
 {% docs invoice_insurers__invoice_id %}
-TODO
+The [invoice](#!/source/source.tamanu.tamanu.invoices).
 {% enddocs %}
 
 {% docs invoice_insurers__insurer_id %}
-TODO
+The insurer ([Reference Data](#!/source/source.tamanu.tamanu.reference_data)).
 {% enddocs %}
 
 {% docs invoice_insurers__percentage %}
-TODO
+How much of the invoice this insurer is paying.
 {% enddocs %}
