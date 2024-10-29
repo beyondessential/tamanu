@@ -80,7 +80,7 @@ export const HeadCell = ({ title, count }) => (
       {Number.isInteger(count) && (
         <>
           <SmallBodyText>{count}</SmallBodyText>
-          <SmallBodyText color="textTertiary">appts</SmallBodyText>
+          <SmallBodyText color="textTertiary">appt{count !== 1 ? 's' : ''}</SmallBodyText>
         </>
       )}
     </AppointmentNumber>
