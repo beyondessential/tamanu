@@ -774,7 +774,7 @@ describe(`Materialised FHIR - ImagingStudy`, () => {
           expect(response.status).toBe(410);
         }));
 
-      it('returns invalid if neither identifier nor contained Endpoint are present', () =>
+      it('returns invalid structure if neither identifier nor contained Endpoint are present', () =>
         showError(async () => {
           // arrange
           const { FhirServiceRequest, ImagingRequest } = ctx.store.models;
@@ -819,6 +819,271 @@ describe(`Materialised FHIR - ImagingStudy`, () => {
                 diagnostics: expect.any(String),
                 details: {
                   text: 'Need to have Accession Number identifier or contained Endpoint',
+                },
+              },
+            ],
+          });
+          expect(response.status).toBe(400);
+        }));
+
+      it('returns invalid if an unsupported resource type is in the contained field', () =>
+        showError(async () => {
+          // arrange
+          const { FhirServiceRequest, ImagingRequest } = ctx.store.models;
+          const ir = await ImagingRequest.create(
+            fake(ImagingRequest, {
+              requestedById: resources.practitioner.id,
+              encounterId: encounter.id,
+              locationId: resources.location.id,
+              priority: 'routine',
+              requestedDate: '2022-03-04 15:30:00',
+              status: IMAGING_REQUEST_STATUS_TYPES.PENDING,
+            }),
+          );
+          await ir.setAreas([resources.area1.id, resources.area2.id]);
+          await ir.reload();
+          const mat = await FhirServiceRequest.materialiseFromUpstream(ir.id);
+
+          await FhirServiceRequest.resolveUpstreams();
+
+          // act
+
+          const response = await app.post(PATH).send({
+            resourceType: 'ImagingStudy',
+            status: 'final',
+            basedOn: [
+              {
+                type: 'ServiceRequest',
+                reference: `ServiceRequest/${mat.id}`,
+              },
+            ],
+            note: [{ text: 'This is a fair note' }, { text: 'This is another note' }],
+            contained: [
+              {
+                resourceType: 'DiagnosticReport',
+                basedOn: [
+                  {
+                    type: 'ServiceRequest',
+                    reference: `ServiceRequest/${mat.id}`,
+                  },
+                ],
+                status: 'final',
+                category: [
+                  {
+                    coding: [
+                      {
+                        code: '108252007',
+                        system: 'http://snomed.info/sct',
+                      },
+                    ],
+                  },
+                ],
+                code: {
+                  coding: [
+                    {
+                      system: 'http://loinc.org',
+                      code: '42191-7',
+                      display: 'Hepatitis Panel',
+                    },
+                  ],
+                },
+              },
+            ],
+          });
+
+          // assert
+          expect(response.body).toMatchObject({
+            resourceType: 'OperationOutcome',
+            id: expect.any(String),
+            issue: [
+              {
+                severity: 'error',
+                code: 'invalid',
+                diagnostics: expect.any(String),
+                details: {
+                  text: 'contained[0].payloadType is a required field',
+                },
+              },
+            ],
+          });
+          expect(response.status).toBe(400);
+        }));
+
+      it('returns invalid for an empty contained field', () =>
+        showError(async () => {
+          // arrange
+          const { FhirServiceRequest, ImagingRequest } = ctx.store.models;
+          const ir = await ImagingRequest.create(
+            fake(ImagingRequest, {
+              requestedById: resources.practitioner.id,
+              encounterId: encounter.id,
+              locationId: resources.location.id,
+              priority: 'routine',
+              requestedDate: '2022-03-04 15:30:00',
+              status: IMAGING_REQUEST_STATUS_TYPES.PENDING,
+            }),
+          );
+          await ir.setAreas([resources.area1.id, resources.area2.id]);
+          await ir.reload();
+          const mat = await FhirServiceRequest.materialiseFromUpstream(ir.id);
+
+          await FhirServiceRequest.resolveUpstreams();
+
+          // act
+
+          const response = await app.post(PATH).send({
+            resourceType: 'ImagingStudy',
+            status: 'final',
+            basedOn: [
+              {
+                type: 'ServiceRequest',
+                reference: `ServiceRequest/${mat.id}`,
+              },
+            ],
+            note: [{ text: 'This is a fair note' }, { text: 'This is another note' }],
+            contained: [],
+          });
+
+          // assert
+          expect(response.body).toMatchObject({
+            resourceType: 'OperationOutcome',
+            id: expect.any(String),
+            issue: [
+              {
+                severity: 'error',
+                code: 'invalid',
+                diagnostics: expect.any(String),
+                details: {
+                  text: 'contained field must have at least 1 items',
+                },
+              },
+            ],
+          });
+          expect(response.status).toBe(400);
+        }));
+
+      it('returns invalid for a contained field with multiple entries', () =>
+        showError(async () => {
+          // arrange
+          const { FhirServiceRequest, ImagingRequest } = ctx.store.models;
+          const ir = await ImagingRequest.create(
+            fake(ImagingRequest, {
+              requestedById: resources.practitioner.id,
+              encounterId: encounter.id,
+              locationId: resources.location.id,
+              priority: 'routine',
+              requestedDate: '2022-03-04 15:30:00',
+              status: IMAGING_REQUEST_STATUS_TYPES.PENDING,
+            }),
+          );
+          await ir.setAreas([resources.area1.id, resources.area2.id]);
+          await ir.reload();
+          const mat = await FhirServiceRequest.materialiseFromUpstream(ir.id);
+
+          await FhirServiceRequest.resolveUpstreams();
+
+          // act
+
+          const response = await app.post(PATH).send({
+            resourceType: 'ImagingStudy',
+            status: 'final',
+            basedOn: [
+              {
+                type: 'ServiceRequest',
+                reference: `ServiceRequest/${mat.id}`,
+              },
+            ],
+            note: [{ text: 'This is a fair note' }, { text: 'This is another note' }],
+            contained: [
+              {
+                address: 'http://example1.com',
+                resourceType: 'Endpoint',
+                status: 'active',
+                connectionType: { code: 'dicom', display: 'DICOM' },
+                payloadType: [{ code: 'none', display: 'None' }],
+              },
+              {
+                address: 'http://example2.com',
+                resourceType: 'Endpoint',
+                status: 'active',
+                connectionType: { code: 'dicom', display: 'DICOM' },
+                payloadType: [{ code: 'none', display: 'None' }],
+              },
+            ],
+          });
+
+          // assert
+          expect(response.body).toMatchObject({
+            resourceType: 'OperationOutcome',
+            id: expect.any(String),
+            issue: [
+              {
+                severity: 'error',
+                code: 'invalid',
+                diagnostics: expect.any(String),
+                details: {
+                  text: 'contained field must have less than or equal to 1 items',
+                },
+              },
+            ],
+          });
+          expect(response.status).toBe(400);
+        }));
+
+      it('returns invalid if the contained endpoint has an unsupported payload type', () =>
+        showError(async () => {
+          // arrange
+          const { FhirServiceRequest, ImagingRequest } = ctx.store.models;
+          const ir = await ImagingRequest.create(
+            fake(ImagingRequest, {
+              requestedById: resources.practitioner.id,
+              encounterId: encounter.id,
+              locationId: resources.location.id,
+              priority: 'routine',
+              requestedDate: '2022-03-04 15:30:00',
+              status: IMAGING_REQUEST_STATUS_TYPES.PENDING,
+            }),
+          );
+          await ir.setAreas([resources.area1.id, resources.area2.id]);
+          await ir.reload();
+          const mat = await FhirServiceRequest.materialiseFromUpstream(ir.id);
+
+          await FhirServiceRequest.resolveUpstreams();
+
+          // act
+
+          const response = await app.post(PATH).send({
+            resourceType: 'ImagingStudy',
+            status: 'final',
+            basedOn: [
+              {
+                type: 'ServiceRequest',
+                reference: `ServiceRequest/${mat.id}`,
+              },
+            ],
+            note: [{ text: 'This is a fair note' }, { text: 'This is another note' }],
+            contained: [
+              {
+                address: 'http://example.com',
+                resourceType: 'Endpoint',
+                status: 'active',
+                connectionType: { code: 'dicom', display: 'DICOM' },
+                payloadType: [{ code: 'urn:ihe:rad:TEXT', display: '	Radiology XDS-I Text' }],
+              },
+            ],
+          });
+
+          // assert
+          expect(response.body).toMatchObject({
+            resourceType: 'OperationOutcome',
+            id: expect.any(String),
+            issue: [
+              {
+                severity: 'error',
+                code: 'invalid',
+                diagnostics: expect.any(String),
+                details: {
+                  text: 'ImagingStudy contained Endpoint only supports a payload type of None',
                 },
               },
             ],
