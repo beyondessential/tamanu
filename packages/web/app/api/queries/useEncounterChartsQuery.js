@@ -25,10 +25,10 @@ export function getDatesAndRecords(data, surveyData, dateElementId) {
       .records,
   );
 
-  const elementIdToAnswer = data.reduce(
-    (dict, a) => ({ ...dict, [a.dataElementId]: a }),
-    {},
-  );
+  const elementIdToAnswer = {};
+  data.forEach(answer => {
+    elementIdToAnswer[answer.dataElementId] = answer;
+  });
 
   const records = surveyData.components
     .filter(component => component.dataElementId !== dateElementId)
