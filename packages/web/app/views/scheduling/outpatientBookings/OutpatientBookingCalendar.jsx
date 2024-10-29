@@ -69,8 +69,12 @@ const StatusText = styled(BodyText)`
   width: 100%;
   text-align: center;
   padding-top: 1rem;
-  color: ${({ $error }) => ($error ? Colors.alert : Colors.primary)};
   font-weight: 500;
+  color: ${Colors.primary};
+`;
+
+const ErrorText = styled(StatusText)`
+  color: ${Colors.alert};
 `;
 
 export const HeadCell = ({ title, count }) => (
@@ -118,6 +122,17 @@ export const OutpatientBookingCalendar = ({ groupBy, selectedDate }) => {
   });
   const { headData = [], cellData, titleKey } = data;
 
+  if (error) {
+    return (
+      <ErrorText>
+        <TranslatedText
+          stringId="appointments.outpatientCalendar.error"
+          fallback="Failed to load appointments. Please try again."
+        />
+      </ErrorText>
+    );
+  }
+
   if (isLoading) {
     return (
       <StatusText>
@@ -125,15 +140,6 @@ export const OutpatientBookingCalendar = ({ groupBy, selectedDate }) => {
       </StatusText>
     );
   }
-  if (error)
-    return (
-      <StatusText $error>
-        <TranslatedText
-          stringId="appointments.outpatientCalendar.error"
-          fallback="Failed to load appointments. Please try again."
-        />
-      </StatusText>
-    );
 
   if (headData.length === 0) {
     return (
