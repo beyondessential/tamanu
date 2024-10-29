@@ -21,7 +21,10 @@ export const ColumnWrapper = styled(Box)`
   display: flex;
   flex-direction: column;
   width: ${CELL_WIDTH_PX}px;
-  &:not(:last-child) {
+  &:not(:first-child) {
+    border-inline-start: 1px solid ${Colors.outline};
+  }
+  &:last-child {
     border-inline-end: 1px solid ${Colors.outline};
   }
 `;
@@ -77,11 +80,6 @@ const NoResultsText = styled(BodyText)`
   font-weight: 500;
 `;
 
-const Placeholder = styled.div`
-  background-color: ${Colors.white};
-  flex: 1;
-`;
-
 export const HeadCell = ({ title, count }) => (
   <HeadCellWrapper>
     <HeadCellTextWrapper>
@@ -134,13 +132,12 @@ export const OutpatientBookingCalendar = ({ headData, cellData, titleKey }) => (
         {headData.map(cell => {
           const appointments = cellData[cell.id];
           return (
-            <ColumnWrapper key={cell.id}>
+            <ColumnWrapper className="column-wrapper" key={cell.id}>
               <HeadCell title={cell[titleKey]} count={appointments?.length || 0} />
               <AppointmentCell appointments={appointments} />
             </ColumnWrapper>
           );
         })}
-        <Placeholder />
       </Box>
     )}
   </Wrapper>
