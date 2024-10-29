@@ -24,13 +24,12 @@ import { ConfirmModal } from '../../ConfirmModal';
 import { notifyError, notifySuccess } from '../../../utils';
 import { TranslatedText } from '../../Translation/TranslatedText';
 import { Drawer } from '@material-ui/core';
+import { TOP_BAR_HEIGHT } from '../../TopBar';
 
 const Container = styled.div`
   width: 330px;
   padding: 16px;
   background-color: ${Colors.background};
-  border: 1px solid ${Colors.outline};
-  height: 100%;
   overflow-y: auto;
 `;
 
@@ -60,6 +59,13 @@ const CloseDrawerIcon = styled(ClearIcon)`
   top: 16px;
   right: 16px;
 `;
+
+const StyledDrawer = styled(Drawer)`
+  .MuiPaper-root {
+    top: ${TOP_BAR_HEIGHT}px;
+    height: calc(100% - ${TOP_BAR_HEIGHT}px)
+  }
+`
 
 export const WarningModal = ({ open, setShowWarningModal, resolveFn }) => {
   const handleClose = confirmed => {
@@ -139,7 +145,12 @@ export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues }) 
   );
 
   return (
-    <Drawer anchor="right" open={open} onClose={closeDrawer}>
+    <StyledDrawer
+      variant="persistent"
+      anchor="right"
+      open={open}
+      onClose={closeDrawer}
+    >
       <Container columns={1}>
         <Heading>
           <TranslatedText stringId="locationBooking.form.new.heading" fallback="Book location" />
@@ -250,6 +261,6 @@ export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues }) 
           resolveFn={resolveFn}
         />
       </Container>
-    </Drawer>
+    </StyledDrawer>
   );
 };
