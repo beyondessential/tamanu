@@ -42,7 +42,7 @@ Reference to the [user](#!/source/source.tamanu.tamanu.users) who completed this
 {% enddocs %}
 
 {% docs imaging_requests__location_id %}
-Reference to the [location](#!/source/source.tamanu.tamanu.locations) for this imaging.
+Reference to the [location](#!/source/source.tamanu.tamanu.locations) for this imaging request.
 {% enddocs %}
 
 {% docs imaging_requests__imaging_type %}
