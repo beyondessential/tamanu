@@ -83,7 +83,11 @@ const LoadingSkeleton = styled(Skeleton).attrs({
   width: '100%',
   height: '100%',
   sx: { bgcolor: Colors.white },
-})``;
+})`
+  ::after {
+    animation-duration: 1s !important;
+  }
+`;
 
 export const HeadCell = ({ title, count }) => (
   <HeadCellWrapper>
