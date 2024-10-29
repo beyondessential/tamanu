@@ -96,11 +96,16 @@ export const LocationBookingsView = () => {
         </Filters>
         <NewBookingButton onClick={() => openBookingForm({})}>
           <PlusIcon />
-          New booking
+          <TranslatedText stringId="locationBooking.calendar.newBooking" fallback="New booking" />
         </NewBookingButton>
       </LocationBookingsTopBar>
       {hasNoLocations ? (
-        <EmptyStateLabel>No bookable locations</EmptyStateLabel>
+        <EmptyStateLabel>
+          <TranslatedText
+            stringId="locationBooking.calendar.noBookableLocations"
+            fallback="No bookable locations"
+          />
+        </EmptyStateLabel>
       ) : (
         <LocationBookingsCalendar
           locationsQuery={locationsQuery}
