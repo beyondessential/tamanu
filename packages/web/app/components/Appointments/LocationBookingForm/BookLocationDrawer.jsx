@@ -31,6 +31,7 @@ const Container = styled.div`
   padding: 16px;
   background-color: ${Colors.background};
   overflow-y: auto;
+  position: relative;
 `;
 
 const Heading = styled(Heading4)`
@@ -64,7 +65,6 @@ const StyledDrawer = styled(Drawer)`
   .MuiPaper-root {
     top: ${TOP_BAR_HEIGHT}px;
     height: calc(100% - ${TOP_BAR_HEIGHT}px)
-    border-top: 1px 
   }
 `;
 
