@@ -1,11 +1,10 @@
 {% docs table__roles %}
-These are sets of permissions that are given to users to determine what they can do in Tamanu
-{% enddocs %}
+These are sets of permissions that are given to users to determine what they can do in Tamanu.
 
-{% docs roles__id %}
-Tamanu identifier for this user role
+The actual permissions are associated to the role in the
+[`permissions`](#!/source/source.tamanu.tamanu.permissions) table.
 {% enddocs %}
 
 {% docs roles__name %}
-Readable name for the role
+Readable name for the role.
 {% enddocs %}
