@@ -24,7 +24,7 @@ export function runCalculations(components, values) {
   const inputValues = {};
   // calculation expression use "code"
   for (const c of components) {
-    inputValues[c.dataElement.code] = values[c.dataElement.id] || '';
+    inputValues[c.dataElement.code] = values[c.dataElement.id] ?? '';
   }
   const calculatedValues = {};
   for (const c of components) {
@@ -35,7 +35,7 @@ export function runCalculations(components, values) {
 
         const relevantInputs = {};
         for (const variable of requiredVariables) {
-          relevantInputs[variable] = inputValues[variable] || '';
+          relevantInputs[variable] = inputValues[variable] ?? '';
         }
 
         const isInputsEmpty = Object.values(relevantInputs).every(value => value === '');
