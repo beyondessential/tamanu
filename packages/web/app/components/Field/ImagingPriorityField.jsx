@@ -2,12 +2,12 @@ import React from 'react';
 
 import { Field } from './Field';
 import { SelectField } from './SelectField';
-import { useLocalisation } from '../../contexts/Localisation';
 import { TranslatedText } from '../Translation/TranslatedText';
+import { useSettings } from '../../contexts/Settings';
 
 export const ImagingPriorityField = ({ name = 'priority', required }) => {
-  const { getLocalisation } = useLocalisation();
-  const imagingPriorities = getLocalisation('imagingPriorities') || [];
+  const { getSetting } = useSettings();
+  const imagingPriorities = getSetting('imagingPriorities') || [];
 
   return (
     <Field

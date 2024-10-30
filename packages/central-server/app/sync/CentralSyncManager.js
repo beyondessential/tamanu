@@ -1,8 +1,8 @@
 import { trace } from '@opentelemetry/api';
-import { Op } from 'sequelize';
+import { Op, QueryTypes } from 'sequelize';
 import _config from 'config';
 
-import { SYNC_DIRECTIONS, DEBUG_LOG_TYPES } from '@tamanu/constants';
+import { SYNC_DIRECTIONS, DEBUG_LOG_TYPES, SETTINGS_SCOPES } from '@tamanu/constants';
 import {
   CURRENT_SYNC_TIME_KEY,
   LOOKUP_UP_TO_TICK_KEY,
@@ -181,7 +181,7 @@ export class CentralSyncManager {
     log.info('CentralSyncManager.completedSession', {
       sessionId,
       durationMs,
-      facilityId: session.debugInfo.facilityId,
+      facilityIds: session.debugInfo.facilityIds,
       deviceId: session.debugInfo.deviceId,
     });
   }
@@ -328,7 +328,7 @@ export class CentralSyncManager {
 
   async setupSnapshotForPull(
     sessionId,
-    { since, facilityId, tablesToInclude, tablesForFullResync, isMobile },
+    { since, facilityIds, tablesToInclude, tablesForFullResync, isMobile, deviceId },
     unmarkSessionAsProcessing,
   ) {
     let transactionTimeout;
@@ -365,10 +365,10 @@ export class CentralSyncManager {
       // work out if any patients were newly marked for sync since this device last connected, and
       // include changes from all time for those patients
       const newPatientFacilitiesCount = await models.PatientFacility.count({
-        where: { facilityId, updatedAtSyncTick: { [Op.gt]: since } },
+        where: { facilityId: { [Op.in]: facilityIds }, updatedAtSyncTick: { [Op.gt]: since } },
       });
       log.debug('CentralSyncManager.initiatePull', {
-        facilityId,
+        facilityIds,
         newlyMarkedPatientCount: newPatientFacilitiesCount,
       });
 
@@ -376,7 +376,7 @@ export class CentralSyncManager {
         sequelize,
         sessionId,
         true,
-        facilityId,
+        facilityIds,
         since,
       );
 
@@ -384,11 +384,27 @@ export class CentralSyncManager {
         sequelize,
         sessionId,
         false,
-        facilityId,
+        facilityIds,
         since,
       );
 
-      const syncAllLabRequests = await models.Setting.get('syncAllLabRequests', facilityId);
+      // query settings table and return true if any facility has set syncAllLabRequests to true
+      const [{ syncAllLabRequests }] = await sequelize.query(
+        `
+        SELECT EXISTS (
+          SELECT 1
+          FROM settings
+          WHERE key = 'sync.syncAllLabRequests'
+            AND scope = :scope
+            AND facility_id IN (:facilityIds)
+            AND value = 'true'
+        ) AS "syncAllLabRequests"
+        `,
+        {
+          replacements: { facilityIds, scope: SETTINGS_SCOPES.FACILITY },
+          type: QueryTypes.SELECT,
+        },
+      );
 
       const sessionConfig = {
         // for facilities with a lab, need ongoing lab requests
@@ -417,14 +433,15 @@ export class CentralSyncManager {
           newPatientFacilitiesCount,
           fullSyncPatientsTable,
           sessionId,
-          facilityId,
+          facilityIds,
+          deviceId,
           {}, // sending empty session config because this snapshot attempt is only for syncing new marked for sync patients
         );
 
         // get changes since the last successful sync for all other synced patients and independent
         // record types
         const patientFacilitiesCount = await models.PatientFacility.count({
-          where: { facilityId },
+          where: { facilityId: facilityIds },
         });
 
         // regular changes
@@ -435,7 +452,8 @@ export class CentralSyncManager {
           patientFacilitiesCount,
           incrementalSyncPatientsTable,
           sessionId,
-          facilityId,
+          facilityIds,
+          deviceId,
           sessionConfig,
         );
 
@@ -450,7 +468,8 @@ export class CentralSyncManager {
             patientFacilitiesCount,
             incrementalSyncPatientsTable,
             sessionId,
-            facilityId,
+            facilityIds,
+            deviceId,
             sessionConfig,
           );
         }
@@ -546,7 +565,7 @@ export class CentralSyncManager {
     );
   }
 
-  async persistIncomingChanges(sessionId, tablesToInclude) {
+  async persistIncomingChanges(sessionId, deviceId, tablesToInclude) {
     const { sequelize, models } = this.store;
     const totalPushed = await countSyncSnapshotRecords(
       sequelize,
@@ -561,7 +580,7 @@ export class CentralSyncManager {
 
     try {
       // commit the changes to the db
-      await sequelize.transaction(async () => {
+      const persistedAtSyncTick = await sequelize.transaction(async () => {
         // we tick-tock the global clock to make sure there is a unique tick for these changes
         // n.b. this used to also be used for concurrency control, but that is now handled by
         // shared advisory locks taken using the current sync tick as the id, which are waited on
@@ -577,8 +596,14 @@ export class CentralSyncManager {
           { savedAtSyncTick: tock },
           { direction: SYNC_SESSION_DIRECTION.INCOMING },
         );
+
+        return tock;
       });
 
+      await models.SyncDeviceTick.create({
+        deviceId,
+        persistedAtSyncTick,
+      });
       // tick tock global clock so that if records are modified by adjustDataPostSyncPush(),
       // they will be picked up for pulling in the same session (specifically won't be removed by removeEchoedChanges())
       await this.tickTockGlobalClock();
@@ -616,13 +641,15 @@ export class CentralSyncManager {
     await insertSnapshotRecords(sequelize, sessionId, incomingSnapshotRecords);
   }
 
-  async completePush(sessionId, tablesToInclude) {
+  async completePush(sessionId, deviceId, tablesToInclude) {
     await this.connectToSession(sessionId);
 
     // don't await persisting, the client should asynchronously poll as it may take longer than
     // the http request timeout
     const unmarkSessionAsProcessing = await this.markSessionAsProcessing(sessionId);
-    this.persistIncomingChanges(sessionId, tablesToInclude).finally(unmarkSessionAsProcessing);
+    this.persistIncomingChanges(sessionId, deviceId, tablesToInclude).finally(
+      unmarkSessionAsProcessing,
+    );
   }
 
   async checkPushComplete(sessionId) {

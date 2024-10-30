@@ -36,7 +36,7 @@ export const userMiddleware = ({ secret }) =>
 
     const { userId, deviceId } = contents;
 
-    const user = stripUser(await findUserById(store.models, userId));
+    const user = await findUserById(store.models, userId);
     if (!user) {
       throw new BadAuthenticationError(`User specified in token (${userId}) does not exist`);
     }
@@ -68,5 +68,5 @@ export const userInfo = asyncHandler(async (req, res) => {
     throw new ForbiddenError();
   }
 
-  res.send(req.user);
+  res.send(stripUser(req.user));
 });

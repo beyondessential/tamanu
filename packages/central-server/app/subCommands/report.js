@@ -21,7 +21,7 @@ const validateReportId = async (reportId, models) => {
 
   const validNames = REPORT_DEFINITIONS.map(d => d.id);
 
-  if (!validNames.some(n => n === reportId)) {
+  if (!validNames.includes(reportId)) {
     const nameOutput = validNames.map(n => `\n  ${n}`).join('');
     throw new Error(
       `invalid name '${reportId}', must be one of: ${nameOutput} \n (hint - supply name with --reportId <reportId>)`,
@@ -44,7 +44,7 @@ async function report(options) {
   const reportSchemaStores = config.db.reportSchemas?.enabled ? await initReporting() : null;
   setupEnv();
   try {
-    const { reportId, parameters, recipients, userId, format } = options;
+    const { reportId, parameters, recipients, userId, format, sleepAfterReport } = options;
 
     await validateReportId(reportId, store.models);
 
@@ -76,6 +76,7 @@ async function report(options) {
       emailService,
       userId,
       format,
+      sleepAfterReport,
     );
     log.info(
       `Running report "${reportId}" with parameters "${parameters}", recipients "${recipients}" and userId ${userId}`,
@@ -107,4 +108,8 @@ export const reportCommand = new Command('report')
   .option('-p, --parameters <json>', 'JSON parameters')
   .option('-u, --userId <string>', 'Requested by userId')
   .option('-f, --format <string>', 'Export format (xslx or csv)', REPORT_EXPORT_FORMATS.XLSX)
+  .option(
+    '-s, --sleepAfterReport <json>',
+    'Sleep thread for `duration` if report takes longer than `ifRunAtLeast`',
+  )
   .action(report);

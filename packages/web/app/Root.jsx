@@ -7,7 +7,7 @@ import PropTypes from 'prop-types';
 import { CssBaseline } from '@material-ui/core';
 import { ThemeProvider } from 'styled-components';
 import { MuiThemeProvider, StylesProvider } from '@material-ui/core/styles';
-import { Slide, ToastContainer } from 'react-toastify';
+import { Slide } from 'react-toastify';
 import { ApiContext } from './api';
 import { RoutingApp } from './RoutingApp';
 import { theme } from './theme';
@@ -22,6 +22,8 @@ import { ProgramRegistryProvider } from './contexts/ProgramRegistry';
 import { TranslationProvider } from './contexts/Translation';
 import { LocalisationProvider } from './contexts/Localisation';
 import { SettingsProvider } from './contexts/Settings';
+import { CustomToastContainer } from './customToastContainer';
+import { ClearIcon } from './components/Icons/ClearIcon';
 
 const StateContextProviders = ({ children, store }) => (
   <EncounterProvider store={store}>
@@ -67,7 +69,7 @@ function Root({ api, store, history }) {
                 <ThemeProvider theme={theme}>
                   <StateContextProviders store={store}>
                     <ReactQueryDevtools initialIsOpen={false} />
-                    <ToastContainer
+                    <CustomToastContainer
                       hideProgressBar
                       transition={Slide}
                       closeOnClick
@@ -77,6 +79,7 @@ function Root({ api, store, history }) {
                       theme="colored"
                       icon={false}
                       limit={5}
+                      closeButton={<ClearIcon />}
                     />
                     <CssBaseline />
                     <RoutingApp />

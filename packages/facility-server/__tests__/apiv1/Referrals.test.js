@@ -2,6 +2,7 @@ import config from 'config';
 import { createDummyEncounter, createDummyPatient } from '@tamanu/shared/demoData';
 import { chance, findOneOrCreate } from '@tamanu/shared/test-helpers';
 import { createTestContext } from '../utilities';
+import { selectFacilityIds } from '@tamanu/shared/utils/configSelectors';
 
 let baseApp = null;
 let models = null;
@@ -61,7 +62,9 @@ function getRandomAnswer(dataElement) {
 }
 
 describe('Referrals', () => {
+  const [facilityId] = selectFacilityIds(config);
   let ctx = null;
+  let settings = null;
   let app = null;
   let patient = null;
   let encounter = null;
@@ -73,6 +76,7 @@ describe('Referrals', () => {
     ctx = await createTestContext();
     baseApp = ctx.baseApp;
     models = ctx.models;
+    settings = ctx.settings[facilityId];
     app = await baseApp.asRole('practitioner');
     patient = await models.Patient.create(await createDummyPatient(models));
     encounter = await models.Encounter.create({
@@ -98,6 +102,7 @@ describe('Referrals', () => {
       surveyId: testSurvey.id,
       departmentId,
       locationId,
+      facilityId,
     });
     expect(result).toHaveSucceeded();
   });
@@ -113,6 +118,7 @@ describe('Referrals', () => {
       surveyId: testSurvey.id,
       departmentId,
       locationId,
+      facilityId,
     });
 
     const result = await app.get(`/api/patient/${patient.id}/referrals`);
@@ -121,8 +127,10 @@ describe('Referrals', () => {
   });
 
   it('should use the default department if one is not provided', async () => {
-    const { department: departmentCode } = config.survey.defaultCodes;
-    const department = await findOneOrCreate(ctx.models, ctx.models.Department, { code: departmentCode });
+    const { department: departmentCode } = await settings.get('survey.defaultCodes');
+    const department = await findOneOrCreate(models, models.Department, {
+      code: departmentCode,
+    });
 
     const { locationId } = encounter;
     const result = await app.post('/api/referral').send({
@@ -132,18 +140,19 @@ describe('Referrals', () => {
       patientId: patient.id,
       surveyId: testSurvey.id,
       locationId,
+      facilityId,
     });
 
     expect(result).toHaveSucceeded();
-    const initiatingEncounter = await ctx.models.Encounter.findOne({
+    const initiatingEncounter = await models.Encounter.findOne({
       where: { id: result.body.initiatingEncounterId },
     });
     expect(initiatingEncounter).toHaveProperty('departmentId', department.id);
   });
 
   it('should use the default location if one is not provided', async () => {
-    const { location: locationCode } = config.survey.defaultCodes;
-    const location = await findOneOrCreate(ctx.models, ctx.models.Location, { code: locationCode });
+    const { location: locationCode } = await settings.get('survey.defaultCodes');
+    const location = await findOneOrCreate(models, models.Location, { code: locationCode });
 
     const { departmentId } = encounter;
     const result = await app.post('/api/referral').send({
@@ -153,10 +162,11 @@ describe('Referrals', () => {
       patientId: patient.id,
       surveyId: testSurvey.id,
       departmentId,
+      facilityId,
     });
 
     expect(result).toHaveSucceeded();
-    const initiatingEncounter = await ctx.models.Encounter.findOne({
+    const initiatingEncounter = await models.Encounter.findOne({
       where: { id: result.body.initiatingEncounterId },
     });
     expect(initiatingEncounter).toHaveProperty('locationId', location.id);

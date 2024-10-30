@@ -1,5 +1,6 @@
 import React from 'react';
 import { getDisplayDate } from '../patientCertificates/getDisplayDate';
+import { useLanguageContext } from '../pdf/languageContext';
 import { Divider } from './Divider';
 import { Col, Row } from '../patientCertificates/Layout';
 import { P } from '../patientCertificates/Typography';
@@ -35,12 +36,12 @@ export const HandoverPatient = ({
   diagnosis,
   notes,
   getLocalisation,
+  getSetting,
   createdAt,
   isEdited,
 }) => {
-  const detailsToDisplay = PATIENT_FIELDS.filter(
-    ({ key }) => !getLocalisation(`fields.${key}.hidden`),
-  );
+  const { getTranslation } = useLanguageContext();
+  const detailsToDisplay = PATIENT_FIELDS.filter(({ key }) => !getSetting(`fields.${key}.hidden`));
   return (
     <>
       <Row style={{ width: '100%', marginBottom: 40 }}>
@@ -49,7 +50,10 @@ export const HandoverPatient = ({
             {detailsToDisplay.map(
               ({ key, label: defaultLabel, accessor, percentageWidth = 33 }) => {
                 const value = (accessor ? accessor(patient, getLocalisation) : patient[key]) || '';
-                const label = defaultLabel || getLocalisation(`fields.${key}.shortLabel`);
+                const label =
+                  defaultLabel ||
+                  getTranslation(`general.localisedFields.${key}.label.short`) ||
+                  getTranslation(`general.localisedFields.${key}.label`);
 
                 return (
                   <ValueDisplay

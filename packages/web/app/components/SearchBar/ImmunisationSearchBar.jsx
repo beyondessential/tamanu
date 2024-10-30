@@ -11,7 +11,7 @@ import {
   TranslatedSelectField,
 } from '../Field';
 import { TranslatedText } from '../Translation';
-import { useLocalisation } from '../../contexts/Localisation';
+import { useSettings } from '../../contexts/Settings';
 
 const Spacer = styled.div`
   flex: 1;
@@ -35,9 +35,9 @@ const statusOptions = Object.entries(VACCINE_STATUS_LABELS).map(([value, label])
 }));
 
 export const ImmunisationSearchBar = ({ onSearch }) => {
-  const { getLocalisation } = useLocalisation();
+  const { getSetting } = useSettings()
   const villageSuggester = useSuggester('village');
-  const hideOtherSex = getLocalisation('features.hideOtherSex') === true;
+  const hideOtherSex = getSetting('features.hideOtherSex') === true;
 
   return (
     <CustomisableSearchBar title="Search for Patients" onSearch={onSearch}>

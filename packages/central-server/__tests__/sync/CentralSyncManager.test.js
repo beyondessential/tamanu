@@ -9,6 +9,7 @@ import { randomLabRequest } from '@tamanu/shared/demoData';
 import { sleepAsync } from '@tamanu/shared/utils/sleepAsync';
 import {
   LAB_REQUEST_STATUSES,
+  SETTING_KEYS,
   SETTINGS_SCOPES,
   SYNC_DIRECTIONS,
   DEBUG_LOG_TYPES,
@@ -16,7 +17,7 @@ import {
 import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
 
 import { createTestContext } from '../utilities';
-import { importerTransaction } from '../../dist/admin/importerEndpoint';
+import { importerTransaction } from '../../dist/admin/importer/importerEndpoint';
 import { referenceDataImporter } from '../../dist/admin/referenceDataImporter';
 import { cloneDeep } from 'lodash';
 
@@ -386,7 +387,7 @@ describe('CentralSyncManager', () => {
         sessionId,
         {
           since: 1,
-          facilityId: facility.id,
+          facilityIds: [facility.id],
         },
         () => true,
       );
@@ -395,6 +396,28 @@ describe('CentralSyncManager', () => {
         limit: 10,
       });
       expect(changes.length).toBe(1);
+    });
+    it('returns all the outgoing changes with multiple facilities', async () => {
+      const facility1 = await models.Facility.create(fake(models.Facility));
+      const facility2 = await models.Facility.create(fake(models.Facility));
+      const facility3 = await models.Facility.create(fake(models.Facility));
+      const centralSyncManager = initializeCentralSyncManager();
+      const { sessionId } = await centralSyncManager.startSession();
+      await waitForSession(centralSyncManager, sessionId);
+
+      await centralSyncManager.setupSnapshotForPull(
+        sessionId,
+        {
+          since: 1,
+          facilityIds: [facility1.id, facility2.id, facility3.id],
+        },
+        () => true,
+      );
+
+      const changes = await centralSyncManager.getOutgoingChanges(sessionId, {
+        limit: 10,
+      });
+      expect(changes.length).toBe(3);
     });
   });
 
@@ -415,17 +438,20 @@ describe('CentralSyncManager', () => {
         const patient3 = await models.Patient.create({
           ...fake(models.Patient),
         });
-        const facility = await models.Facility.create({
+        const thisFacility = await models.Facility.create({
+          ...fake(models.Facility),
+        });
+        const otherFacility = await models.Facility.create({
           ...fake(models.Facility),
         });
         await models.User.create(fakeUser());
         await models.Department.create({
           ...fake(models.Department),
-          facilityId: facility.id,
+          facilityId: otherFacility.id,
         });
         await models.Location.create({
           ...fake(models.Location),
-          facilityId: facility.id,
+          facilityId: otherFacility.id,
         });
         const encounter1 = await models.Encounter.create({
           ...(await createDummyEncounter(models)),
@@ -446,12 +472,12 @@ describe('CentralSyncManager', () => {
         await models.PatientFacility.create({
           id: models.PatientFacility.generateId(),
           patientId: patient1.id,
-          facilityId: facility.id,
+          facilityId: thisFacility.id,
         });
         await models.PatientFacility.create({
           id: models.PatientFacility.generateId(),
           patientId: patient2.id,
-          facilityId: facility.id,
+          facilityId: thisFacility.id,
         });
 
         const centralSyncManager = initializeCentralSyncManager();
@@ -462,7 +488,7 @@ describe('CentralSyncManager', () => {
           sessionId,
           {
             since: 15,
-            facilityId: facility.id,
+            facilityIds: [thisFacility.id],
           },
           () => true,
         );
@@ -475,6 +501,95 @@ describe('CentralSyncManager', () => {
         // Assert if outgoing changes contain the encounters (fully) for the marked for sync patients
         expect(encounterIds).toEqual(expect.arrayContaining([encounter1.id, encounter2.id]));
         expect(encounterIds).not.toEqual(expect.arrayContaining([encounter3.id]));
+      });
+
+      it('returns all encounters for newly marked-for-sync patients across multiple facilities', async () => {
+        const OLD_SYNC_TICK = 20;
+        const NEW_SYNC_TICK = 30;
+
+        // ~ ~ ~ Set up old data
+        await models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, OLD_SYNC_TICK);
+        const patient1 = await models.Patient.create({
+          ...fake(models.Patient),
+        });
+        const patient2 = await models.Patient.create({
+          ...fake(models.Patient),
+        });
+        const patient3 = await models.Patient.create({
+          ...fake(models.Patient),
+        });
+        const facility1 = await models.Facility.create({
+          ...fake(models.Facility),
+        });
+        const facility2 = await models.Facility.create({
+          ...fake(models.Facility),
+        });
+        const otherFacility = await models.Facility.create({
+          ...fake(models.Facility),
+        });
+        await models.User.create(fakeUser());
+        await models.Department.create({
+          ...fake(models.Department),
+          facilityId: otherFacility.id,
+        });
+        await models.Location.create({
+          ...fake(models.Location),
+          facilityId: otherFacility.id,
+        });
+        const encounter1 = await models.Encounter.create({
+          ...(await createDummyEncounter(models)),
+          patientId: patient1.id,
+        });
+        const encounter2 = await models.Encounter.create({
+          ...(await createDummyEncounter(models)),
+          patientId: patient2.id,
+        });
+        const encounter3 = await models.Encounter.create({
+          ...(await createDummyEncounter(models)),
+          patientId: patient2.id,
+        });
+        const encounter4 = await models.Encounter.create({
+          ...(await createDummyEncounter(models)),
+          patientId: patient3.id,
+        });
+
+        await models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, NEW_SYNC_TICK);
+
+        // ~ ~ ~ Set up data for marked for sync patients
+        await models.PatientFacility.create({
+          id: models.PatientFacility.generateId(),
+          patientId: patient1.id,
+          facilityId: facility1.id,
+        });
+        await models.PatientFacility.create({
+          id: models.PatientFacility.generateId(),
+          patientId: patient2.id,
+          facilityId: facility2.id,
+        });
+
+        const centralSyncManager = initializeCentralSyncManager();
+        const { sessionId } = await centralSyncManager.startSession();
+        await waitForSession(centralSyncManager, sessionId);
+
+        await centralSyncManager.setupSnapshotForPull(
+          sessionId,
+          {
+            since: 15,
+            facilityIds: [facility1.id, facility2.id],
+          },
+          () => true,
+        );
+
+        const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionId, {});
+        const encounterIds = outgoingChanges
+          .filter(c => c.recordType === 'encounters')
+          .map(c => c.recordId);
+
+        // Assert if outgoing changes contain the encounters (fully) for the marked for sync patients
+        expect(encounterIds).toEqual(
+          expect.arrayContaining([encounter1.id, encounter2.id, encounter3.id]),
+        );
+        expect(encounterIds).not.toEqual(expect.arrayContaining([encounter4.id]));
       });
 
       it('returns only newly created encounter for a previously marked-for-sync patient', async () => {
@@ -503,12 +618,6 @@ describe('CentralSyncManager', () => {
           ...(await createDummyEncounter(models)),
           patientId: patient1.id,
         });
-        // ~ ~ ~ Set up data for marked for sync patients
-        await models.PatientFacility.create({
-          id: models.PatientFacility.generateId(),
-          patientId: patient1.id,
-          facilityId: facility.id,
-        });
 
         await models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, NEW_SYNC_TICK);
 
@@ -525,7 +634,7 @@ describe('CentralSyncManager', () => {
           sessionId,
           {
             since: 15,
-            facilityId: facility.id,
+            facilityIds: [facility.id],
           },
           () => true,
         );
@@ -573,7 +682,7 @@ describe('CentralSyncManager', () => {
           sessionId,
           {
             since: 1,
-            facilityId: facility.id,
+            facilityIds: [facility.id],
             isMobile: true,
           },
           () => true,
@@ -645,7 +754,7 @@ describe('CentralSyncManager', () => {
           sessionId,
           {
             since: 1,
-            facilityId: facility.id,
+            facilityIds: [facility.id],
             isMobile: true,
           },
           () => true,
@@ -700,7 +809,7 @@ describe('CentralSyncManager', () => {
           sessionIdOne,
           {
             since: 1,
-            facilityId: facility.id,
+            facilityIds: [facility.id],
             isMobile: true,
           },
           () => true,
@@ -772,6 +881,7 @@ describe('CentralSyncManager', () => {
     describe('handles sync special case configurations', () => {
       describe('syncAllLabRequests', () => {
         let facility;
+        let otherFacility;
         let encounter1;
         let encounter2;
         let labTestPanelRequest1;
@@ -797,14 +907,23 @@ describe('CentralSyncManager', () => {
 
           // Create the lab requests to be tested
           facility = await models.Facility.create(fake(models.Facility));
+          otherFacility = await models.Facility.create(fake(models.Facility));
           await models.User.create(fakeUser());
-          await models.Department.create({
+          const department1 = await models.Department.create({
             ...fake(models.Department),
             facilityId: facility.id,
           });
-          await models.Location.create({
+          const department2 = await models.Department.create({
+            ...fake(models.Department),
+            facilityId: otherFacility.id,
+          });
+          const location1 = await models.Location.create({
             ...fake(models.Location),
             facilityId: facility.id,
+          });
+          const location2 = await models.Location.create({
+            ...fake(models.Location),
+            facilityId: otherFacility.id,
           });
           const patient1 = await models.Patient.create({
             ...fake(models.Patient),
@@ -815,10 +934,14 @@ describe('CentralSyncManager', () => {
           encounter1 = await models.Encounter.create({
             ...(await createDummyEncounter(models)),
             patientId: patient1.id,
+            locationId: location2.id,
+            departmentId: department2.id,
           });
           encounter2 = await models.Encounter.create({
             ...(await createDummyEncounter(models)),
             patientId: patient2.id,
+            locationId: location2.id,
+            departmentId: department2.id,
           });
           const category = await models.ReferenceData.create({
             id: 'test1',
@@ -872,6 +995,8 @@ describe('CentralSyncManager', () => {
           fullSyncedPatientEncounter = await models.Encounter.create({
             ...(await createDummyEncounter(models)),
             patientId: fullSyncedPatient.id,
+            locationId: location1.id,
+            departmentId: department1.id,
           });
           const fullSyncedPatientLabRequestData = await randomLabRequest(models, {
             patientId: fullSyncedPatientEncounter.id,
@@ -891,18 +1016,13 @@ describe('CentralSyncManager', () => {
           fullSyncedPatientLabRequestTests = await Promise.all(
             fullSyncedPatientLabRequestTestsData.map(lt => models.LabTest.create(lt)),
           );
-          await models.PatientFacility.create({
-            id: models.PatientFacility.generateId(),
-            patientId: fullSyncedPatient.id,
-            facilityId: facility.id,
-          });
         });
 
         it('syncs all lab requests when enabled', async () => {
           // Enable syncAllLabRequests
           await models.Setting.create({
             facilityId: facility.id,
-            key: 'syncAllLabRequests',
+            key: 'sync.syncAllLabRequests',
             value: true,
             scope: SETTINGS_SCOPES.FACILITY,
           });
@@ -916,7 +1036,7 @@ describe('CentralSyncManager', () => {
             sessionId,
             {
               since: 1,
-              facilityId: facility.id,
+              facilityIds: [facility.id],
             },
             () => true,
           );
@@ -948,7 +1068,7 @@ describe('CentralSyncManager', () => {
           // Disable syncAllLabRequests
           await models.Setting.create({
             facilityId: facility.id,
-            key: 'syncAllLabRequests',
+            key: SETTING_KEYS.SYNC_ALL_LAB_REQUESTS,
             value: false,
             scope: SETTINGS_SCOPES.FACILITY,
           });
@@ -962,7 +1082,7 @@ describe('CentralSyncManager', () => {
             sessionId,
             {
               since: 1,
-              facilityId: facility.id,
+              facilityIds: [facility.id],
             },
             () => true,
           );
@@ -1032,7 +1152,7 @@ describe('CentralSyncManager', () => {
           sessionId,
           {
             since: 2,
-            facilityId: facility.id,
+            facilityIds: [facility.id],
           },
           () => true,
         );
@@ -1112,7 +1232,7 @@ describe('CentralSyncManager', () => {
 
         // Push the encounter
         await centralSyncManager.addIncomingChanges(sessionId, changes);
-        await centralSyncManager.completePush(sessionId);
+        await centralSyncManager.completePush(sessionId, 'facility-a');
         await waitForPushCompleted(centralSyncManager, sessionId);
 
         // Start the snapshot for pull process
@@ -1120,7 +1240,7 @@ describe('CentralSyncManager', () => {
           sessionId,
           {
             since: CURRENT_SYNC_TICK - 2,
-            facilityId: facility.id,
+            facilityIds: [facility.id],
           },
           () => true,
         );

@@ -6,8 +6,8 @@ import {
   FHIR_INTERACTIONS,
   FHIR_ISSUE_TYPE,
   LAB_REQUEST_STATUSES,
-  SUPPORTED_CONTENT_TYPES,
   MAX_ATTACHMENT_SIZE_BYTES,
+  SUPPORTED_CONTENT_TYPES,
 } from '@tamanu/constants';
 import { InvalidOperationError } from '@tamanu/shared/errors';
 import { FhirCodeableConcept, FhirReference } from '../../../services/fhirTypes';
@@ -181,7 +181,7 @@ export class FhirDiagnosticReport extends FhirResource {
 
   async saveAttachment(labRequest) {
     if (!Array.isArray(this.presentedForm) || this.presentedForm.length > 1) {
-      throw new Invalid('presentedForm must be an array on length 1');
+      throw new Invalid('presentedForm must be an array of length 1');
     }
 
     const form = this.presentedForm[0];

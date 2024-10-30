@@ -1,8 +1,14 @@
-import { disableHardcodedPermissionsForSuite, fake } from '@tamanu/shared/test-helpers';
+import config from 'config';
+import { afterAll, beforeAll } from '@jest/globals';
+
 import { REGISTRATION_STATUSES } from '@tamanu/constants';
+import { selectFacilityIds } from '@tamanu/shared/utils/configSelectors';
+import { disableHardcodedPermissionsForSuite, fake } from '@tamanu/shared/test-helpers';
+
 import { createTestContext } from '../utilities';
 
 describe('PatientProgramRegistration', () => {
+  const [facilityId] = selectFacilityIds(config);
   let ctx = null;
   let app = null;
   let baseApp = null;
@@ -158,6 +164,7 @@ describe('PatientProgramRegistration', () => {
         patientId: patient.id,
         date: '2023-09-02 08:00:00',
         conditionIds: [programRegistryCondition.id],
+        registeringFacilityId: facilityId,
       });
 
       expect(result).toHaveSucceeded();
@@ -211,6 +218,7 @@ describe('PatientProgramRegistration', () => {
         programRegistryId: programRegistry1.id,
         registrationStatus: REGISTRATION_STATUSES.INACTIVE,
         date: '2023-09-02 09:00:00',
+        registeringFacilityId: facilityId,
       });
 
       expect(result).toHaveSucceeded();
@@ -271,6 +279,7 @@ describe('PatientProgramRegistration', () => {
           programRegistryId: registry.id,
           clinicalStatusId: status2.id,
           villageId: village.id,
+          registeringFacilityId: facility.id,
           registrationStatus: REGISTRATION_STATUSES.ACTIVE,
           date: '2023-09-02 10:00:00',
         },
@@ -278,6 +287,7 @@ describe('PatientProgramRegistration', () => {
           patientId: patient.id,
           clinicalStatusId: status1.id,
           programRegistryId: registry.id,
+          registeringFacilityId: facility.id,
           registrationStatus: REGISTRATION_STATUSES.ACTIVE,
           date: '2023-09-02 11:00:00',
         },
@@ -285,14 +295,15 @@ describe('PatientProgramRegistration', () => {
           patientId: patient.id,
           clinicalStatusId: status2.id,
           programRegistryId: registry.id,
+          registeringFacilityId: facility.id,
           registrationStatus: REGISTRATION_STATUSES.INACTIVE,
           date: '2023-09-02 11:30:00',
         },
       ];
 
       for (const r of records) {
-        await app.post(`/api/patient/${patient.id}/programRegistration`).send(r);
-        // await sleepAsync(1000);
+        const result = await app.post(`/api/patient/${patient.id}/programRegistration`).send(r);
+        expect(result).toHaveSucceeded();
       }
 
       return { patient, registry, records };
@@ -549,6 +560,7 @@ describe('PatientProgramRegistration', () => {
             clinicianId: app.user.id,
             patientId: patient.id,
             date: TEST_DATE_EARLY,
+            registeringFacilityId: facilityId,
           });
 
         expect(result).toBeForbidden();
@@ -573,6 +585,7 @@ describe('PatientProgramRegistration', () => {
             clinicianId: app.user.id,
             patientId: patient.id,
             date: TEST_DATE_EARLY,
+            registeringFacilityId: facilityId,
           });
 
         expect(result).toHaveSucceeded();

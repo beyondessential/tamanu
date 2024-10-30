@@ -30,7 +30,7 @@ patientProgramRegistration.post(
   asyncHandler(async (req, res) => {
     const { db, models, params, body } = req;
     const { patientId } = params;
-    const { programRegistryId } = body;
+    const { programRegistryId, registeringFacilityId } = body;
 
     req.checkPermission('read', 'Patient');
     const patient = await models.Patient.findByPk(patientId);
@@ -76,6 +76,11 @@ patientProgramRegistration.post(
             programRegistryConditionId: conditionId,
           })),
         ),
+        // as a side effect, mark for sync in the current facility
+        models.PatientFacility.upsert({
+          patientId,
+          facilityId: registeringFacilityId,
+        }),
       ]);
     });
 
@@ -158,14 +163,14 @@ patientProgramRegistration.get(
       .map(({ date, clinician }) => ({ date, clinician }))
       .reverse();
 
-    const recentDeativationRecord = deactivationRecords.find(
+    const recentDeactivationRecord = deactivationRecords.find(
       ({ date }) => !isAfter(new Date(date), new Date(registration.date)),
     );
     const deactivationData =
       registration.registrationStatus === REGISTRATION_STATUSES.INACTIVE
         ? {
-            dateRemoved: recentDeativationRecord.date,
-            removedBy: recentDeativationRecord.clinician,
+            dateRemoved: recentDeactivationRecord.date,
+            removedBy: recentDeactivationRecord.clinician,
           }
         : {};
 

@@ -7,6 +7,7 @@ import {
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging/log';
 import { withConfig } from '@tamanu/shared/utils/withConfig';
+import { getPatientLinkedModels } from './getPatientLinkedModels';
 
 const snapshotChangesForModel = async (
   model,
@@ -14,7 +15,7 @@ const snapshotChangesForModel = async (
   patientCount,
   markedForSyncPatientsTable,
   sessionId,
-  facilityId,
+  facilityIds,
   sessionConfig,
   config,
 ) => {
@@ -105,7 +106,7 @@ const snapshotChangesForModel = async (
           since,
           // include replacement params used in some model specific sync filters outside of this file
           // see e.g. Referral.buildSyncFilter
-          facilityId,
+          facilityIds,
           limit: CHUNK_SIZE,
           fromId,
         },
@@ -134,7 +135,7 @@ const snapshotOutgoingChangesFromModels = withConfig(
     patientCount,
     markedForSyncPatientsTable,
     sessionId,
-    facilityId,
+    facilityIds,
     sessionConfig,
     config,
   ) => {
@@ -163,7 +164,7 @@ const snapshotOutgoingChangesFromModels = withConfig(
           patientCount,
           markedForSyncPatientsTable,
           sessionId,
-          facilityId,
+          facilityIds,
           sessionConfig,
           config,
         );
@@ -182,6 +183,33 @@ const snapshotOutgoingChangesFromModels = withConfig(
   },
 );
 
+function getPatientRelatedWhereClause(
+  models,
+  recordTypes,
+  patientCount,
+  markedForSyncPatientsTable,
+) {
+  const recordTypesLinkedToPatients = Object.values(getPatientLinkedModels(models)).map(
+    m => m.tableName,
+  );
+  const allRecordTypesAreForPatients = recordTypes.every(recordType =>
+    recordTypesLinkedToPatients.includes(recordType),
+  );
+
+  if (allRecordTypesAreForPatients) {
+    if (patientCount) {
+      return `patient_id IN (SELECT patient_id FROM ${markedForSyncPatientsTable})`;
+    }
+    return 'FALSE';
+  }
+  if (!allRecordTypesAreForPatients) {
+    if (patientCount) {
+      return `(patient_id IS NULL OR patient_id IN (SELECT patient_id FROM ${markedForSyncPatientsTable}))`;
+    }
+    return 'patient_id IS NULL';
+  }
+}
+
 const snapshotOutgoingChangesFromSyncLookup = withConfig(
   async (
     store,
@@ -190,7 +218,8 @@ const snapshotOutgoingChangesFromSyncLookup = withConfig(
     patientCount,
     markedForSyncPatientsTable,
     sessionId,
-    facilityId,
+    facilityIds,
+    deviceId,
     sessionConfig,
     config,
   ) => {
@@ -198,6 +227,7 @@ const snapshotOutgoingChangesFromSyncLookup = withConfig(
     let totalCount = 0;
     const snapshotTableName = getSnapshotTableName(sessionId);
     const CHUNK_SIZE = config.sync.maxRecordsPerSnapshotChunk;
+    const { avoidRepull } = config.sync.lookupTable;
     const { syncAllLabRequests } = sessionConfig;
     const recordTypes = Object.values(outgoingModels).map(m => m.tableName);
     while (fromId != null) {
@@ -228,21 +258,20 @@ const snapshotOutgoingChangesFromSyncLookup = withConfig(
         WHERE updated_at_sync_tick > :since
         ${fromId ? `AND id > :fromId` : ''}
         AND (
-          --- either no patient_id (meaning we don't care if the record is associate to a patient, eg: reference_data) 
+          --- either no patient_id (meaning we don't care if the record is associate to a patient, eg: reference_data)
           --- or patient_id has to match the marked for sync patient_ids, eg: encounters
-          (
-            patient_id IS NULL
-          ${
-            patientCount
-              ? `OR patient_id IN (SELECT patient_id FROM ${markedForSyncPatientsTable})`
-              : ''
-          })
-          --- either no facility_id (meaning we don't care if the record is associate to a facility, eg: reference_data) 
+          ${getPatientRelatedWhereClause(
+            store.models,
+            recordTypes,
+            patientCount,
+            markedForSyncPatientsTable,
+          )}
+          --- either no facility_id (meaning we don't care if the record is associate to a facility, eg: reference_data)
           --- or facility_id has to match the current facility, eg: patient_facilities
           AND (
             facility_id IS NULL
             OR
-            facility_id = :facilityId
+            facility_id in (:facilityIds)
           )
           --- if syncAllLabRequests is on then sync all records with is_lab_request IS TRUE
           ${
@@ -254,6 +283,11 @@ const snapshotOutgoingChangesFromSyncLookup = withConfig(
           }
         )
         AND record_type IN (:recordTypes)
+        ${
+          avoidRepull && deviceId
+            ? 'AND (pushed_by_device_id <> :deviceId OR pushed_by_device_id IS NULL)'
+            : ''
+        }
         ORDER BY id
         LIMIT :limit
         RETURNING sync_lookup_id
@@ -268,10 +302,11 @@ const snapshotOutgoingChangesFromSyncLookup = withConfig(
             since,
             // include replacement params used in some model specific sync filters outside of this file
             // see e.g. Referral.buildSyncFilter
-            facilityId,
+            facilityIds,
             limit: CHUNK_SIZE,
             fromId,
             recordTypes,
+            deviceId,
           },
         },
       );
@@ -286,6 +321,7 @@ const snapshotOutgoingChangesFromSyncLookup = withConfig(
       count: totalCount,
       since,
       sessionId,
+      deviceId,
     });
 
     return totalCount;
@@ -300,7 +336,8 @@ export const snapshotOutgoingChanges = withConfig(
     patientCount,
     markedForSyncPatientsTable,
     sessionId,
-    facilityId,
+    facilityIds,
+    deviceId,
     sessionConfig,
     config,
   ) => {
@@ -318,7 +355,8 @@ export const snapshotOutgoingChanges = withConfig(
           patientCount,
           markedForSyncPatientsTable,
           sessionId,
-          facilityId,
+          facilityIds,
+          deviceId,
           sessionConfig,
           config,
         )
@@ -328,7 +366,7 @@ export const snapshotOutgoingChanges = withConfig(
           patientCount,
           markedForSyncPatientsTable,
           sessionId,
-          facilityId,
+          facilityIds,
           sessionConfig,
           config,
         );
