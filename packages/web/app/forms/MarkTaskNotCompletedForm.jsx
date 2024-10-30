@@ -22,14 +22,17 @@ export const MarkTaskNotCompletedForm = ({ onClose, refreshTaskTable, taskIds })
   const { getTranslation } = useTranslation();
   const practitionerSuggester = useSuggester('practitioner');
   const taskNotCompletedReasonSuggester = useSuggester('taskNotCompletedReason');
-  const { currentUser } = useAuth();
+  const { currentUser, ability } = useAuth();
+  const canCreateReferenceData = ability.can('create', 'ReferenceData');
 
   const { mutate: markTaskNotCompleted } = useMarkTaskNotCompleted();
 
   const onSubmit = async values => {
+    const { notCompletedReasonId, ...others } = values;
     markTaskNotCompleted(
       {
-        ...values,
+        ...others,
+        ...(notCompletedReasonId && { notCompletedReasonId }),
         taskIds,
       },
       {
@@ -81,6 +84,7 @@ export const MarkTaskNotCompletedForm = ({ onClose, refreshTaskTable, taskIds })
               }
               component={AutocompleteField}
               suggester={taskNotCompletedReasonSuggester}
+              allowCreatingCustomValue={canCreateReferenceData}
             />
           </FormGrid>
           <Divider style={{ margin: '32px -32px 30px -32px' }} />

@@ -28,7 +28,7 @@ import {
 import { useTranslation } from '../../contexts/Translation';
 import { FORM_TYPES } from '../../constants';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
-import { TranslatedReferenceData } from '../../components';
+import { getReferenceDataStringId, TranslatedReferenceData } from '../../components';
 
 export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistration, open }) => {
   const api = useApi();
@@ -190,6 +190,10 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
                         />
                       ),
                       value: condition.id,
+                      searchString: getTranslation(
+                        getReferenceDataStringId(condition.id, 'condition'),
+                        condition.name,
+                      ),
                     }))}
                     disabled={!conditions || conditions.length === 0}
                   />
