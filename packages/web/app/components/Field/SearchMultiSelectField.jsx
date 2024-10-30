@@ -1,29 +1,27 @@
 import {
   Checkbox,
-  FormControl,
   Icon,
-  InputBase,
   ListItemText,
   ListSubheader,
   MenuItem,
   OutlinedInput,
   Select,
   styled,
-  TextField,
-  useTheme,
 } from '@mui/material';
 import React, { useCallback, useState } from 'react';
 import { StyledTextField } from './TextField';
-import { Search } from '@mui/icons-material';
+import { ExpandMore, Search } from '@mui/icons-material';
 import { TextButton } from '../Button';
-import { Divider, Input } from '@material-ui/core';
+import { Divider } from '@material-ui/core';
 import { TranslatedText } from '../Translation';
 import { Colors } from '../../constants';
+import { CheckboxIconChecked, CheckboxIconUnchecked } from '../Icons/CheckboxIcon';
 
 const MenuProps = {
   PaperProps: {
     sx: {
-      maxHeight: 300,
+      maxHeight: '244px',
+      paddingInline: '0.625rem',
     },
   },
   MenuListProps: {
@@ -56,9 +54,8 @@ const StyledOutlinedInput = styled(OutlinedInput)`
   }
 `;
 
-const SearchMultiSelectInput = ({ options, onChange, name, size = 'small' }) => {
-  const theme = useTheme();
-  console.log(theme);
+const SearchMultiSelectInput = ({ options, onChange, name, size = 'small', ...props }) => {
+  const [open, setOpen] = useState(false);
 
   const [searchValue, setSearchValue] = useState('');
   const [selectedOptions, setSelectedOptions] = useState([]);
@@ -80,18 +77,23 @@ const SearchMultiSelectInput = ({ options, onChange, name, size = 'small' }) => 
 
   return (
     <Select
+      open={open}
+      onOpen={() => setOpen(true)}
+      onClose={() => setOpen(false)}
       multiple
       value={selectedOptions}
       onChange={handleChange}
       displayEmpty
       renderValue={selected => (selected.length === 0 ? name : `${name} (${selected.length})`)}
       MenuProps={MenuProps}
+      IconComponent={ExpandMore}
       input={<StyledOutlinedInput />}
-      IconComponent={null}
       size={size}
-      variant="outlined"
     >
-      <StyledSubheader>
+      <StyledSubheader
+        onClick={e => e.stopPropagation()}
+        sx={{ padding: 0, paddingBlockStart: '0.5625rem' }}
+      >
         <StyledTextField
           autoFocus
           variant="outlined"
@@ -100,13 +102,14 @@ const SearchMultiSelectInput = ({ options, onChange, name, size = 'small' }) => 
           onKeyDown={e => e.stopPropagation()}
           InputProps={{
             startAdornment: (
-              <Icon position="start">
-                <Search />
+              <Icon position="start" sx={{ padding: 0, marginLeft: '-6px' }}>
+                <Search sx={{ width: 13, padding: 0 }} />
               </Icon>
             ),
           }}
-          style={{ width: '100%' }}
-          placeholder="Search..."
+          size="small"
+          style={{ width: '100%', paddingLeft: 0 }}
+          placeholder={`Search ${name}`}
         />
         <TextButton
           style={{ alignSelf: 'end', fontSize: '11px', textDecoration: 'underline' }}
@@ -119,9 +122,25 @@ const SearchMultiSelectInput = ({ options, onChange, name, size = 'small' }) => 
 
       {filteredOptions.length > 0 ? (
         filteredOptions.map(option => (
-          <MenuItem key={option.value} value={option.value}>
-            <Checkbox checked={selectedOptions.includes(option.value)} />
-            <ListItemText primary={option.label} />
+          <MenuItem
+            key={option.value}
+            value={option.value}
+            sx={{
+              padding: 0,
+              '&.Mui-selected': {
+                backgroundColor: 'transparent',
+              },
+              '&.Mui-selected:hover': {
+                backgroundColor: 'rgba(0, 0, 0, 0.04)', // Optional: keep hover effect
+              },
+            }}
+          >
+            <Checkbox
+              checked={selectedOptions.includes(option.value)}
+              icon={<CheckboxIconUnchecked width={15} height={15} />}
+              checkedIcon={<CheckboxIconChecked width={15} height={15} />}
+            />
+            <ListItemText primary={option.label} primaryTypographyProps={{ fontSize: '11px' }} />
           </MenuItem>
         ))
       ) : (
