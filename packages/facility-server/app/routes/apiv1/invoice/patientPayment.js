@@ -60,6 +60,7 @@ const handleCreatePatientPayment = asyncHandler(async (req, res) => {
         date: data.date,
         receiptNumber: data.receiptNumber,
         amount: data.amount,
+        updatedByUserId: req.user.id ?? null,
       },
       { returning: true, transaction },
     );
@@ -125,6 +126,7 @@ const handleUpdatePatientPayment = asyncHandler(async (req, res) => {
         date: data.date,
         receiptNumber: data.receiptNumber,
         amount: data.amount,
+        updatedByUserId: req.user.id ?? null,
       },
       { where: { id: paymentId } },
       { transaction, returning: true },
@@ -167,7 +169,12 @@ const handleGetPatientPayments = asyncHandler(async (req, res) => {
 
   const patientPayments = await req.models.InvoicePatientPayment.findAll({
     include: [
-      { model: req.models.InvoicePayment, as: 'detail', where: { invoiceId } },
+      {
+        model: req.models.InvoicePayment,
+        as: 'detail',
+        where: { invoiceId },
+        include: [{ model: req.models.User, as: 'updatedByUser' }],
+      },
       { model: req.models.ReferenceData, as: 'method' },
     ],
   }).then(payments =>

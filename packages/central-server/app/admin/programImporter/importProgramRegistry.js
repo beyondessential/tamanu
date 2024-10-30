@@ -5,7 +5,7 @@ import { log } from '@tamanu/shared/services/logging';
 import { VISIBILITY_STATUSES } from '@tamanu/constants';
 
 import { DataImportError } from '../errors';
-import { importRows } from '../importRows';
+import { importRows } from '../importer/importRows';
 
 import { readTwoModelTypeSheet } from './readMetadata';
 

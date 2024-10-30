@@ -1,7 +1,9 @@
 import { disableHardcodedPermissionsForSuite, fake } from '@tamanu/shared/test-helpers';
+import config from 'config';
 import { REPORT_DB_SCHEMAS } from '@tamanu/constants';
 import { createTestContext } from '../utilities';
 import { setupReportPermissionsTest, testReportPermissions } from './reportsApiCommon';
+import { selectFacilityIds } from '@tamanu/shared/utils/configSelectors';
 
 const reportsUtils = {
   __esModule: true,
@@ -73,7 +75,7 @@ describe('Reports', () => {
     });
 
     it('should include the currentFacilityId parameter', async () => {
-      const facilityId = await ctx.models.LocalSystemFact.get('facilityId');
+      const [facilityId] = selectFacilityIds(config);
       const def = await ctx.models.ReportDefinitionVersion.create({
         versionNumber: 1,
         status: 'published',
@@ -84,7 +86,7 @@ describe('Reports', () => {
         }),
         query: 'SELECT id FROM facilities WHERE id = :currentFacilityId',
       });
-      const report = await def.dataGenerator(ctx, {});
+      const report = await def.dataGenerator({ ...ctx, facilityId }, {});
       expect(report).toEqual([['id'], [facilityId]]);
     });
   });

@@ -16,19 +16,19 @@ const StyledContentPane = styled(ContentPane)`
   position: relative;
 `;
 
-const LabRequestListing = ({ status = '', searchParamKey = LabRequestSearchParamKeys.All }) => {
+const LabRequestListing = ({ statuses, searchParamKey = LabRequestSearchParamKeys.All }) => {
   const { loadEncounter } = useEncounter();
   const { loadLabRequest, searchParameters } = useLabRequest(searchParamKey);
 
   return (
     <StyledContentPane>
       <SearchTableTitle>Lab request search</SearchTableTitle>
-      <LabRequestsSearchBar status={status} />
+      <LabRequestsSearchBar statuses={statuses} />
       <LabRequestsTable
         loadEncounter={loadEncounter}
         loadLabRequest={loadLabRequest}
         searchParameters={searchParameters}
-        status={status}
+        statuses={statuses}
       />
     </StyledContentPane>
   );
@@ -45,7 +45,7 @@ export const PublishedLabRequestListingView = () => (
   <PageContainer>
     <TopBar title="Published lab requests" />
     <LabRequestListing
-      status={LAB_REQUEST_STATUSES.PUBLISHED}
+      statuses={[LAB_REQUEST_STATUSES.PUBLISHED, LAB_REQUEST_STATUSES.INVALIDATED]}
       searchParamKey={LabRequestSearchParamKeys.Published}
     />
   </PageContainer>

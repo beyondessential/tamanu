@@ -43,7 +43,7 @@ const NoFacilitiesIndicator = (): ReactElement => (
 export const FacilitySelectField = ({ options, onChange, value }): ReactElement => {
   const [currentFilter, setCurrentFilter] = useState('');
 
-  const items = options
+  const items = (options || [])
     .filter(o => {
       const lowercase = (o.label || '').toLowerCase();
       return lowercase.includes((currentFilter || '').toLowerCase());
@@ -59,8 +59,8 @@ export const FacilitySelectField = ({ options, onChange, value }): ReactElement 
 
   const contents = ((): ReactElement => {
     if (items.length > 0) return items;
-    if (options.length === 0) return <LoadingIndicator />;
-    return <NoFacilitiesIndicator />;
+    if (!options) return <LoadingIndicator />;
+    if (options.length === 0) return <NoFacilitiesIndicator />;
   })();
 
   return (

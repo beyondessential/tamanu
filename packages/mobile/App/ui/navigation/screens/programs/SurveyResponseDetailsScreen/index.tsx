@@ -63,6 +63,8 @@ function getAnswerText(question, answer): string | number {
       return 'PATIENT_ISSUE_GENERATOR';
     case FieldTypes.MULTI_SELECT:
       return JSON.parse(answer).join(', ');
+    case FieldTypes.GEOLOCATE:
+      return answer || 'N/A';
     default:
       console.warn(`Unknown field type: ${question.dataElement.type}`);
       return `?? ${question.dataElement.type}`;

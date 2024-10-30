@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
-import { FACILITY_MENU_ITEMS } from '../app/components/Sidebar/config';
+import { FACILITY_MENU_ITEMS } from '../app/components/Sidebar/FacilityMenuItems';
 import { Sidebar } from '../app/components/Sidebar';
 
 const Container = styled.div`

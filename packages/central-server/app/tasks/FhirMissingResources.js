@@ -1,13 +1,14 @@
 import config from 'config';
-import { FHIR_INTERACTIONS, JOB_TOPICS } from '@tamanu/constants';
+import { FHIR_INTERACTIONS, JOB_PRIORITIES, JOB_TOPICS } from '@tamanu/constants';
 import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
 import { resourcesThatCanDo } from '@tamanu/shared/utils/fhir/resources';
 import { prepareQuery } from '../utils/prepareQuery';
+import { Op } from 'sequelize';
 
 export class FhirMissingResources extends ScheduledTask {
-  constructor(context) {
-    const conf = config.schedules.fhirMissingResources;
+  constructor(context, overrideConfig = null) {
+    const conf = { ...config.schedules.fhirMissingResources, ...overrideConfig };
     const { schedule, jitterTime, enabled } = conf;
     super(schedule, log.child({ task: 'FhirMissingResources' }), jitterTime, enabled);
     this.config = conf;
@@ -22,6 +23,26 @@ export class FhirMissingResources extends ScheduledTask {
     return 'FhirMissingResources';
   }
 
+  async getQueryToFilterUpstream(Resource, UpstreamModel) {
+    const { created_after } = this.config;
+
+    const upstreamTable = UpstreamModel.tableName;
+    const baseQueryToFilterUpstream = await Resource.queryToFilterUpstream(upstreamTable);
+
+    if (!created_after) {
+      return baseQueryToFilterUpstream;
+    }
+
+    // Filter by created_at >= created_after
+    const queryToFilterUpstream = { ...baseQueryToFilterUpstream };
+    queryToFilterUpstream.where = {
+      ...baseQueryToFilterUpstream?.where,
+      created_at: { [Op.gte]: created_after },
+    };
+
+    return queryToFilterUpstream;
+  }
+
   async countQueue() {
     let all = 0;
 
@@ -29,8 +50,7 @@ export class FhirMissingResources extends ScheduledTask {
       const resourceTable = Resource.tableName;
 
       for (const UpstreamModel of Resource.UpstreamModels) {
-        const upstreamTable = UpstreamModel.tableName;
-        const queryToFilterUpstream = await Resource.queryToFilterUpstream(upstreamTable);
+        const queryToFilterUpstream = await this.getQueryToFilterUpstream(Resource, UpstreamModel);
         const sql = await prepareQuery(UpstreamModel, {
           ...queryToFilterUpstream,
           attributes: ['id'],
@@ -55,8 +75,7 @@ export class FhirMissingResources extends ScheduledTask {
     for (const Resource of this.materialisableResources) {
       const resourceTable = Resource.tableName;
       for (const UpstreamModel of Resource.UpstreamModels) {
-        const upstreamTable = UpstreamModel.tableName;
-        const queryToFilterUpstream = await Resource.queryToFilterUpstream(upstreamTable);
+        const queryToFilterUpstream = await this.getQueryToFilterUpstream(Resource, UpstreamModel);
         const sql = await prepareQuery(UpstreamModel, {
           ...queryToFilterUpstream,
           attributes: ['id'],
@@ -83,13 +102,14 @@ export class FhirMissingResources extends ScheduledTask {
         await Resource.sequelize.query(
           `
           WITH upstream AS (${sql.replace(/;$/, '')})
-          INSERT INTO fhir.jobs (topic, payload)
+          INSERT INTO fhir.jobs (topic, payload, priority)
           SELECT
             $topic::text as topic,
             json_build_object(
               'resource', $resource::text,
               'upstreamId', upstream.id
-            ) as payload
+            ) as payload,
+            $priority::int as priority
           FROM upstream
           LEFT JOIN fhir."${resourceTable}" r ON r.upstream_id = upstream.id
           WHERE r.id IS NULL`,
@@ -97,6 +117,7 @@ export class FhirMissingResources extends ScheduledTask {
             bind: {
               topic: JOB_TOPICS.FHIR.REFRESH.FROM_UPSTREAM,
               resource: Resource.fhirName,
+              priority: JOB_PRIORITIES.LOW, // Ensure MissingResource jobs come in as low priority so they don't clog up the job queue
             },
           },
         );

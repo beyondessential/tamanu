@@ -7,7 +7,17 @@ import { LOCAL_STORAGE_KEYS } from '../constants';
 import { getDeviceId, notifyError } from '../utils';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 
-const { TOKEN, LOCALISATION, SERVER, PERMISSIONS, ROLE, SETTINGS, LANGUAGE } = LOCAL_STORAGE_KEYS;
+const {
+  TOKEN,
+  LOCALISATION,
+  SERVER,
+  AVAILABLE_FACILITIES,
+  FACILITY_ID,
+  PERMISSIONS,
+  ROLE,
+  SETTINGS,
+  LANGUAGE,
+} = LOCAL_STORAGE_KEYS;
 
 function safeGetStoredJSON(key) {
   try {
@@ -19,28 +29,68 @@ function safeGetStoredJSON(key) {
 
 function restoreFromLocalStorage() {
   const token = localStorage.getItem(TOKEN);
+  const facilityId = localStorage.getItem(FACILITY_ID);
   const localisation = safeGetStoredJSON(LOCALISATION);
   const server = safeGetStoredJSON(SERVER);
+  const availableFacilities = safeGetStoredJSON(AVAILABLE_FACILITIES);
   const permissions = safeGetStoredJSON(PERMISSIONS);
   const role = safeGetStoredJSON(ROLE);
   const settings = safeGetStoredJSON(SETTINGS);
 
-  return { token, localisation, server, permissions, role, settings };
+  return {
+    token,
+    localisation,
+    server,
+    availableFacilities,
+    facilityId,
+    permissions,
+    role,
+    settings,
+  };
 }
 
-function saveToLocalStorage({ token, localisation, server, permissions, role, settings }) {
-  localStorage.setItem(TOKEN, token);
-  localStorage.setItem(LOCALISATION, JSON.stringify(localisation));
-  localStorage.setItem(SERVER, JSON.stringify(server));
-  localStorage.setItem(PERMISSIONS, JSON.stringify(permissions));
-  localStorage.setItem(ROLE, JSON.stringify(role));
-  localStorage.setItem(SETTINGS, JSON.stringify(settings));
+function saveToLocalStorage({
+  token,
+  localisation,
+  server,
+  availableFacilities,
+  facilityId,
+  permissions,
+  role,
+  settings,
+}) {
+  if (token) {
+    localStorage.setItem(TOKEN, token);
+  }
+  if (facilityId) {
+    localStorage.setItem(FACILITY_ID, facilityId);
+  }
+  if (server) {
+    localStorage.setItem(SERVER, JSON.stringify(server));
+  }
+  if (localisation) {
+    localStorage.setItem(LOCALISATION, JSON.stringify(localisation));
+  }
+  if (permissions) {
+    localStorage.setItem(PERMISSIONS, JSON.stringify(permissions));
+  }
+  if (availableFacilities) {
+    localStorage.setItem(AVAILABLE_FACILITIES, JSON.stringify(availableFacilities));
+  }
+  if (role) {
+    localStorage.setItem(ROLE, JSON.stringify(role));
+  }
+  if (settings) {
+    localStorage.setItem(SETTINGS, JSON.stringify(settings));
+  }
 }
 
 function clearLocalStorage() {
   localStorage.removeItem(TOKEN);
   localStorage.removeItem(LOCALISATION);
   localStorage.removeItem(SERVER);
+  localStorage.removeItem(AVAILABLE_FACILITIES);
+  localStorage.removeItem(FACILITY_ID);
   localStorage.removeItem(PERMISSIONS);
   localStorage.removeItem(ROLE);
   localStorage.removeItem(SETTINGS);
@@ -84,7 +134,16 @@ export class TamanuApi extends ApiClient {
   }
 
   async restoreSession() {
-    const { token, localisation, server, permissions, role, settings } = restoreFromLocalStorage();
+    const {
+      token,
+      localisation,
+      server,
+      availableFacilities,
+      facilityId,
+      permissions,
+      role,
+      settings,
+    } = restoreFromLocalStorage();
     if (!token) {
       throw new Error('No stored session found.');
     }
@@ -93,14 +152,49 @@ export class TamanuApi extends ApiClient {
     this.user = user;
     const ability = buildAbilityForUser(user, permissions);
 
-    return { user, token, localisation, server, ability, role, settings };
+    return {
+      user,
+      token,
+      localisation,
+      server,
+      availableFacilities,
+      facilityId,
+      ability,
+      role,
+      settings,
+    };
   }
 
   async login(email, password) {
     const output = await super.login(email, password);
-    const { token, localisation, server, permissions, role, settings } = output;
-    saveToLocalStorage({ token, localisation, server, permissions, role, settings });
+    const {
+      token,
+      localisation,
+      server,
+      availableFacilities,
+      permissions,
+      role,
+    } = output;
+    saveToLocalStorage({
+      token,
+      localisation,
+      server,
+      availableFacilities,
+      permissions,
+      role,
+    });
     return output;
+  }
+
+  async setFacility(facilityId) {
+    const { token, settings } = await this.post('setFacility', { facilityId });
+    this.setToken(token);
+    saveToLocalStorage({
+      token,
+      facilityId,
+      settings,
+    });
+    return { settings };
   }
 
   async fetch(endpoint, query, config) {
@@ -122,7 +216,7 @@ export class TamanuApi extends ApiClient {
           <TranslatedText
             key="general.api.notification.requestFailed"
             stringId="general.api.notification.requestFailed"
-            fallback='Network request failed'
+            fallback="Network request failed"
           />,
           <TranslatedText
             key="general.api.notification.path"
@@ -135,7 +229,7 @@ export class TamanuApi extends ApiClient {
             stringId="general.api.notification.message"
             fallback={`Message: ${message}`}
             replacements={{ message }}
-          />
+          />,
         ]);
       }
 

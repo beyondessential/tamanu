@@ -8,7 +8,7 @@ import {
 import { getPermissionsForRoles } from '@tamanu/shared/permissions/rolesToPermissions';
 import { createDummyPatient } from '@tamanu/shared/demoData/patients';
 import { REFERENCE_TYPES, REFERENCE_DATA_TRANSLATION_PREFIX } from '@tamanu/constants';
-import { importerTransaction } from '../../dist/admin/importerEndpoint';
+import { importerTransaction } from '../../dist/admin/importer/importerEndpoint';
 import { referenceDataImporter } from '../../dist/admin/referenceDataImporter';
 import { createTestContext } from '../utilities';
 import './matchers';

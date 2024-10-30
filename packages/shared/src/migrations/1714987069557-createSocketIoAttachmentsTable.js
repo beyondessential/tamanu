@@ -6,7 +6,7 @@ import config from 'config';
  * @param {QueryInterface} query
  */
 export async function up(query) {
-  if (config.serverFacilityId) return;
+  if (config.serverFacilityId || config.serverFacilityIds) return;
 
   await query.createTable('socket_io_attachments', {
     id: {
@@ -29,7 +29,7 @@ export async function up(query) {
  * @param {QueryInterface} query
  */
 export async function down(query) {
-  if (config.serverFacilityId) return;
+  if (config.serverFacilityId || config.serverFacilityIds) return;
 
   await query.dropTable('socket_io_attachments');
 }

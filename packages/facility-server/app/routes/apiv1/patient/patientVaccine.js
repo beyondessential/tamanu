@@ -1,7 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import Sequelize, { Op, QueryTypes } from 'sequelize';
-import config from 'config';
 
 import {
   ENCOUNTER_TYPES,
@@ -12,6 +11,7 @@ import {
 } from '@tamanu/constants';
 import { NotFoundError } from '@tamanu/shared/errors';
 import { getCurrentDateString } from '@tamanu/shared/utils/dateTime';
+import config from 'config';
 
 export const patientVaccineRoutes = express.Router();
 
@@ -217,6 +217,7 @@ patientVaccineRoutes.post(
   '/:id/administeredVaccine',
   asyncHandler(async (req, res) => {
     const { db, user } = req;
+    const { facilityId } = req.body;
     req.checkPermission('create', 'PatientVaccine');
 
     // Require scheduledVaccineId if vaccine category is not OTHER
@@ -256,7 +257,7 @@ patientVaccineRoutes.post(
           vaccineData.givenElsewhere
             ? SETTING_KEYS.VACCINATION_GIVEN_ELSEWHERE_DEFAULTS
             : SETTING_KEYS.VACCINATION_DEFAULTS,
-          config.serverFacilityId,
+          facilityId,
         )) || {};
       departmentId = departmentId || vaccinationDefaults.departmentId;
       locationId = locationId || vaccinationDefaults.locationId;

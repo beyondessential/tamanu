@@ -1,17 +1,20 @@
+import { fake } from '@tamanu/shared/test-helpers/fake';
 import { createTestContext } from './utilities';
 
 describe('facility routes', () => {
   let ctx;
   let baseApp;
   let models;
-  let app;
+  let userApp;
   let facilities;
 
   beforeAll(async () => {
     ctx = await createTestContext();
     baseApp = ctx.baseApp;
     models = ctx.store.models;
-    app = await baseApp.asRole('practitioner');
+
+    const user = await models.User.create(fake(models.User, { role: 'practitioner' }));
+    userApp = await baseApp.asUser(user);
 
     const facilityOne = await models.Facility.create({
       code: 'test-facility-1',
@@ -25,18 +28,30 @@ describe('facility routes', () => {
       code: 'test-facility-3',
       name: 'Test Facility 3',
     });
+    await models.UserFacility.create({
+      userId: user.id,
+      facilityId: facilityOne.id,
+    });
+    await models.UserFacility.create({
+      userId: user.id,
+      facilityId: facilityTwo.id,
+    });
+    await models.UserFacility.create({
+      userId: user.id,
+      facilityId: facilityThree.id,
+    });
     facilities = [facilityOne, facilityTwo, facilityThree];
   });
 
   afterAll(async () => ctx.close());
 
   it('should receive the correct count of facilities', async () => {
-    const { body: result } = await app.get('/api/facility');
+    const { body: result } = await userApp.get('/api/facility');
     expect(result.count).toBe(3);
   });
 
   it('should receive the correct facilities', async () => {
-    const { body: result } = await app.get('/api/facility');
+    const { body: result } = await userApp.get('/api/facility');
 
     expect(result.data[0].code).toBe(facilities[0].code);
     expect(result.data[0].name).toBe(facilities[0].name);

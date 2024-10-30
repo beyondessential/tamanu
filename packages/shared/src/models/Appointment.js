@@ -70,7 +70,7 @@ export class Appointment extends Model {
       WHERE
         appointments.patient_id IN (SELECT patient_id FROM ${markedForSyncPatientsTable})
       AND
-        location_groups.facility_id = :facilityId
+        location_groups.facility_id in (:facilityIds)
       AND
         appointments.updated_at_sync_tick > :since
     `;

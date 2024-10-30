@@ -123,7 +123,7 @@ export const ReportGeneratorForm = () => {
   const api = useApi();
   const { getTranslation } = useTranslation();
   const getFileName = useFileName();
-  const { currentUser } = useAuth();
+  const { currentUser, facilityId } = useAuth();
   const [successMessage, setSuccessMessage] = useState(null);
   const [requestError, setRequestError] = useState(null);
   const [bookType, setBookFormat] = useState(REPORT_EXPORT_FORMATS.XLSX);
@@ -195,6 +195,7 @@ export const ReportGeneratorForm = () => {
       if (dataSource === REPORT_DATA_SOURCES.THIS_FACILITY) {
         const excelData = await api.post(`reports/${reportId}`, {
           parameters: updatedFilters,
+          facilityId,
         });
 
         const filterString = Object.entries(filterValues)

@@ -1,6 +1,7 @@
 /** @typedef {import('sequelize').QueryInterface} QueryInterface */
 import { Op } from 'sequelize';
 import config from 'config';
+import { selectFacilityIds } from '../utils/configSelectors';
 
 const DEFAULT_SETTINGS = {
   'features.reminderContactModule.enabled': 'false',
@@ -11,7 +12,8 @@ const DEFAULT_SETTINGS = {
  */
 export async function up(query) {
   //this setting only exists on the server
-  if (config.serverFacilityId) return;
+  const isFacilityServer = !!selectFacilityIds(config);
+  if (isFacilityServer) return;
 
   await query.bulkInsert(
     'settings',
@@ -27,7 +29,8 @@ export async function up(query) {
  * @param {QueryInterface} query
  */
 export async function down(query) {
-  if (config.serverFacilityId) return;
+  const isFacilityServer = !!selectFacilityIds(config);
+  if (isFacilityServer) return;
   await query.bulkDelete('settings', {
     key: {
       [Op.in]: Object.keys(DEFAULT_SETTINGS),

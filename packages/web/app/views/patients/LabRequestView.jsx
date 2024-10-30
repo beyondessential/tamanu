@@ -57,7 +57,6 @@ const BottomContainer = styled.div`
   background-color: ${Colors.white};
   padding: 18px 30px;
   display: flex;
-  overflow: hidden;
   flex-direction: column;
   flex: 1;
 `;

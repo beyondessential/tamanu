@@ -1,1 +1,5 @@
-export const globalTestSettings = {};
+export const globalTestSettings = {
+  auth: {
+    restrictUsersToFacilities: false,
+  },
+};

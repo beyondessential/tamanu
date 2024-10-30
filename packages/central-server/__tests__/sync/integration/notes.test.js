@@ -11,6 +11,7 @@ import {
 
 import { createTestContext } from '../../utilities';
 import { CentralSyncManager } from '../../../dist/sync/CentralSyncManager';
+import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 
 const waitForSession = async (centralSyncManager, sessionId) => {
   let ready = false;
@@ -26,6 +27,7 @@ describe('CentralSyncManager', () => {
   let centralSyncManager;
   let patient;
   let department;
+  let location;
   let facility;
   let user;
 
@@ -40,20 +42,22 @@ describe('CentralSyncManager', () => {
         models.Encounter.create({
           ...(await createDummyEncounter(models)),
           patientId,
+          endDate: getCurrentDateTimeString(),
         }),
       ),
     );
   };
 
   const createNotesOfRecordsWithPatientViaEncounter = async encounters => {
-    const [encounter1, encounter2, encounter3] = encounters;
+    const [encounter1, encounter2] = encounters;
 
-    // work around as Triage.create needs config.facilityId which is not available in central
-    const [triage] = await models.Triage.upsert({
-      encounterId: encounter1.id,
+    const triage = await models.Triage.create({
       patientId: patient.id,
       departmentId: department.id,
+      locationId: location.id,
       facilityId: facility.id,
+      practitionerId: user.id,
+      triageTime: getCurrentDateTimeString(),
     });
     const triageNote = await triage.createNote({
       noteType: NOTE_TYPES.OTHER,
@@ -63,7 +67,7 @@ describe('CentralSyncManager', () => {
 
     const labRequest = await models.LabRequest.create({
       patientId: patient.id,
-      encounterId: encounter2.id,
+      encounterId: encounter1.id,
       status: LAB_REQUEST_STATUSES.PENDING,
     });
     const labRequestNote = await labRequest.createNote({
@@ -73,7 +77,7 @@ describe('CentralSyncManager', () => {
     });
 
     const imagingRequest = await models.ImagingRequest.create({
-      encounterId: encounter3.id,
+      encounterId: encounter2.id,
       imagingType: IMAGING_TYPES.CT_SCAN,
       requestedById: user.id,
     });
@@ -103,7 +107,7 @@ describe('CentralSyncManager', () => {
       ...fake(models.Department),
       facilityId: facility.id,
     });
-    await models.Location.create({
+    location = await models.Location.create({
       ...fake(models.Location),
       facilityId: facility.id,
     });
@@ -123,16 +127,14 @@ describe('CentralSyncManager', () => {
 
   afterAll(() => ctx.close());
 
+  afterEach(async () => {
+    await models.Encounter.truncate({ cascade: true, force: true });
+  });
+
   it('returns all notes of record types associated with encounters of marked-for-sync patients', async () => {
     await models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, OLD_SYNC_TICK);
 
     const encounters = await createEncounters(patient.id, 3);
-
-    await models.PatientFacility.create({
-      id: models.PatientFacility.generateId(),
-      patientId: patient.id,
-      facilityId: facility.id,
-    });
 
     await models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, NEW_SYNC_TICK);
 
@@ -149,7 +151,7 @@ describe('CentralSyncManager', () => {
       sessionId,
       {
         since: 15,
-        facilityId: facility.id,
+        facilityIds: [facility.id],
       },
       () => true,
     );
@@ -172,12 +174,6 @@ describe('CentralSyncManager', () => {
     await models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, OLD_SYNC_TICK);
 
     const [encounter1, encounter2, encounter3] = await createEncounters(patient.id, 3);
-
-    await models.PatientFacility.create({
-      id: models.PatientFacility.generateId(),
-      patientId: patient.id,
-      facilityId: facility.id,
-    });
 
     await models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, NEW_SYNC_TICK);
 
@@ -204,7 +200,7 @@ describe('CentralSyncManager', () => {
       sessionId,
       {
         since: 15,
-        facilityId: facility.id,
+        facilityIds: [facility.id],
       },
       () => true,
     );
@@ -232,12 +228,6 @@ describe('CentralSyncManager', () => {
     const encounters = await createEncounters(patient.id, 3);
     const [encounter1] = encounters;
 
-    await models.PatientFacility.create({
-      id: models.PatientFacility.generateId(),
-      patientId: patient.id,
-      facilityId: facility.id,
-    });
-
     await encounter1.createNote({
       noteType: NOTE_TYPES.OTHER,
       content: 'encounter1Note',
@@ -254,7 +244,7 @@ describe('CentralSyncManager', () => {
       sessionId,
       {
         since: 15,
-        facilityId: facility.id,
+        facilityIds: [facility.id],
       },
       () => true,
     );

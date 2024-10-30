@@ -29,7 +29,7 @@ export class ApplicationContext {
       if (config.errors.type === 'bugsnag') {
         await initBugsnag({
           ...omit(config.errors, ['enabled', 'type']),
-          appVersion: VERSION,
+          appVersion: [VERSION, process.env.REVISION].filter(Boolean).join('-'),
           appType,
         });
       }

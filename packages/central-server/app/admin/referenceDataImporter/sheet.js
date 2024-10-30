@@ -3,7 +3,7 @@ import { utils } from 'xlsx';
 import { PATIENT_FIELD_DEFINITION_TYPES, REFERENCE_TYPE_VALUES } from '@tamanu/constants';
 import { DataLoaderError, ValidationError, WorkSheetError } from '../errors';
 import { statkey, updateStat } from '../stats';
-import { importRows } from '../importRows';
+import { importRows } from '../importer/importRows';
 
 const FOREIGN_KEY_SCHEMATA = {
   CertifiableVaccine: [
@@ -98,12 +98,13 @@ export async function importSheet({ errors, log, models }, { loader, sheetName, 
   log.debug('Preparing rows of data into table rows', { rows: sheetRows.length });
   const tableRows = [];
   const idCache = new Set();
+
   for (const [sheetRow, data] of sheetRows.entries()) {
     const trimmed = Object.fromEntries(
       Object.entries(data).map(([key, value]) => [key.trim(), value]),
     );
     try {
-      for (const { model, values } of loader(trimmed, models, FOREIGN_KEY_SCHEMATA)) {
+      for (const { model, values } of await loader(trimmed, models, FOREIGN_KEY_SCHEMATA)) {
         if (!models[model]) throw new Error(`No such type of data: ${model}`);
         if (model === 'PatientFieldValue') {
           const existingDefinition =

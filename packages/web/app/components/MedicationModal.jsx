@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 
-import { useApi } from '../api';
-import { Suggester } from '../utils/suggester';
+import { useApi, useSuggester } from '../api';
 import { FormModal } from './FormModal';
 import { MedicationForm } from '../forms/MedicationForm';
 import { getCurrentDateString } from '../utils/dateTime';
@@ -9,8 +8,8 @@ import { TranslatedText } from './Translation/TranslatedText';
 
 export const MedicationModal = ({ open, onClose, onSaved, encounterId, medication, readOnly }) => {
   const api = useApi();
-  const practitionerSuggester = new Suggester(api, 'practitioner');
-  const drugSuggester = new Suggester(api, 'drug');
+  const practitionerSuggester = useSuggester('practitioner');
+  const drugSuggester = useSuggester('drug');
   const [shouldDiscontinue, setShouldDiscontinue] = useState(false);
   const [submittedMedication, setSubmittedMedication] = useState(null);
   const onDiscontinue = () => {

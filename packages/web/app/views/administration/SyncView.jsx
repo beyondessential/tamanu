@@ -1,5 +1,6 @@
 import ms from 'ms';
 import React from 'react';
+import { Box } from '@material-ui/core';
 
 import { DataFetchingTable, DateDisplay, PageContainer, TopBar } from '../../components';
 import { SYNC_LAST_COMPLETED_ENDPOINT } from './constants';
@@ -10,9 +11,10 @@ const LastSyncs = React.memo(props => (
     endpoint={SYNC_LAST_COMPLETED_ENDPOINT}
     columns={[
       {
-        key: 'facilityId',
-        title: <TranslatedText stringId="general.facility.label" fallback="Facility" />,
+        key: 'facilityIds',
+        title: <TranslatedText stringId="general.facility.label.plural" fallback="Facilities" />,
         minWidth: 100,
+        accessor: ({ facilityIds }) => facilityIds.join(', '),
       },
       {
         key: 'completedAt',
@@ -41,13 +43,15 @@ export const SyncView = React.memo(() => {
   return (
     <PageContainer>
       <TopBar title={<TranslatedText stringId="admin.syncStatus.title" fallback="Sync status" />} />
-      <p>
-        <TranslatedText
-          stringId="admin.syncStatus.times.message"
-          fallback="Times are in the server's timezone"
-        />
-      </p>
-      <LastSyncs />
+      <Box p={4}>
+        <p>
+          <TranslatedText
+            stringId="admin.syncStatus.times.message"
+            fallback="Times are in the server's timezone"
+          />
+        </p>
+        <LastSyncs />
+      </Box>
     </PageContainer>
   );
 });

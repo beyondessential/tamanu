@@ -1,6 +1,5 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import config from 'config';
 import { endOfDay, startOfDay } from 'date-fns';
 import { Op, QueryTypes, Sequelize } from 'sequelize';
 
@@ -123,14 +122,25 @@ labRequest.get(
       makeFilter(true, `lab_requests.status != :cancelled`, () => ({
         cancelled: LAB_REQUEST_STATUSES.CANCELLED,
       })),
-      makeFilter(true, `lab_requests.status != :invalidated`, () => ({
-        invalidated: LAB_REQUEST_STATUSES.INVALIDATED,
-      })),
+      makeFilter(
+        !filterParams.statuses?.includes(LAB_REQUEST_STATUSES.INVALIDATED),
+        `lab_requests.status != :invalidated`,
+        () => ({
+          invalidated: LAB_REQUEST_STATUSES.INVALIDATED,
+        }),
+      ),
+      makeFilter(
+        !filterParams.statuses?.includes(LAB_REQUEST_STATUSES.PUBLISHED),
+        'lab_requests.status != :published',
+        () => ({
+          published: LAB_REQUEST_STATUSES.PUBLISHED,
+        }),
+      ),
       makeDeletedAtIsNullFilter('lab_requests'),
       makeFilter(true, `lab_requests.status != :enteredInError`, () => ({
         enteredInError: LAB_REQUEST_STATUSES.ENTERED_IN_ERROR,
       })),
-      makeSimpleTextFilter('status', 'lab_requests.status'),
+      makeFilter(filterParams.statuses, 'lab_requests.status in (:statuses)'),
       makeSimpleTextFilter('requestId', 'lab_requests.display_id'),
       makeFilter(filterParams.category, 'category.id = :category'),
       makeSimpleTextFilter('priority', 'priority.id'),
@@ -160,7 +170,7 @@ labRequest.get(
       makeFilter(
         !JSON.parse(filterParams.allFacilities || false),
         'location.facility_id = :facilityId',
-        () => ({ facilityId: config.serverFacilityId }),
+        ({ facilityId }) => ({ facilityId }),
       ),
       makeFilter(
         filterParams.publishedDate,
@@ -170,13 +180,6 @@ labRequest.get(
             publishedDate: `${publishedDate}%`,
           };
         },
-      ),
-      makeFilter(
-        filterParams.status !== LAB_REQUEST_STATUSES.PUBLISHED,
-        'lab_requests.status != :published',
-        () => ({
-          published: LAB_REQUEST_STATUSES.PUBLISHED,
-        }),
       ),
       makeDeletedAtIsNullFilter('encounter'),
     ].filter(f => f);

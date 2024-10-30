@@ -1,7 +1,10 @@
 import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
-import { buildEncounterLinkedSyncFilter, buildEncounterLinkedSyncFilterJoins } from './buildEncounterLinkedSyncFilter';
+import {
+  buildEncounterLinkedSyncFilter,
+  buildEncounterLinkedSyncFilterJoins,
+} from './buildEncounterLinkedSyncFilter';
 import { dateType } from './dateTimeTypes';
 import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
 
@@ -43,6 +46,10 @@ export class InvoicePayment extends Model {
       foreignKey: 'invoicePaymentId',
       as: 'insurerPayment',
     });
+    this.belongsTo(models.User, {
+      foreignKey: 'updatedByUserId',
+      as: 'updatedByUser',
+    });
   }
 
   static buildPatientSyncFilter(patientCount, markedForSyncPatientsTable) {
@@ -70,6 +77,10 @@ export class InvoicePayment extends Model {
    */
   static getListReferenceAssociations(models) {
     return [
+      {
+        model: models.User,
+        as: 'updatedByUser',
+      },
       {
         model: models.InvoicePatientPayment,
         as: 'patientPayment',

@@ -31,7 +31,7 @@ async function fetchFacilityOptions({ centralServer }) {
   const { data: facilities } = await centralServer.get('facility', {});
 
   // map them to select option format
-  return facilities.map(f => ({
+  return facilities.map((f: { name: string; id: string; }) => ({
     label: f.name,
     value: f.id,
   }));
@@ -51,7 +51,7 @@ export const SelectFacilityForm = ({ onSubmitForm }) => {
     return () => {
       canceled = true;
     };
-  }, []);
+  }, [backend]);
 
   const onSubmit = useCallback(
     async ({ facilityId }) => {
@@ -62,7 +62,7 @@ export const SelectFacilityForm = ({ onSubmitForm }) => {
         throw new Error('Submitted a facility that does not exist');
       }
     },
-    [facilityOptions],
+    [facilityOptions, onSubmitForm],
   );
 
   return (
@@ -84,7 +84,7 @@ export const SelectFacilityForm = ({ onSubmitForm }) => {
               name="facilityId"
               component={FacilitySelectField}
               label={<TranslatedText stringId="general.facility.label" fallback="Facility" />}
-              options={facilityOptions || []}
+              options={facilityOptions}
               placeholder={
                 <TranslatedText stringId="login.facility.placeholder" fallback="Select facility" />
               }
@@ -115,14 +115,14 @@ export const SelectFacilityScreen: FunctionComponent<any> = ({ navigation }: Sig
     await assignFacility(values.facilityId, values.facilityName);
     // trigger sync when user finish selecting the facility for the device
     await backend.syncManager.triggerSync();
-  }, []);
+  }, [assignFacility, backend.syncManager]);
 
   useEffect(() => {
     // if we already have a facility id, immediately navigate onward to the home screen
     if (facilityId) {
       navigation.replace(Routes.HomeStack.Index);
     }
-  }, [facilityId]);
+  }, [facilityId, navigation]);
 
   if (facilityId) {
     return null;

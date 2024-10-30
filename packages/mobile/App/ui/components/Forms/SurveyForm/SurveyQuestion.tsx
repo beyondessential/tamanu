@@ -11,6 +11,7 @@ interface SurveyQuestionProps {
   patient: IPatient;
   // Dropdown components will overlap if there are 2 in a row if a z-index is not explicitly set
   zIndex: number;
+  setDisableSubmit: (disabled?: boolean) => void;
 }
 
 function getField(
@@ -40,6 +41,7 @@ export const SurveyQuestion = ({
   patient,
   setPosition,
   zIndex,
+  setDisableSubmit,
 }: SurveyQuestionProps): ReactElement => {
   const { dataElement } = component;
   const config = component && component.getConfigObject();
@@ -50,7 +52,7 @@ export const SurveyQuestion = ({
 
   return (
     <StyledView
-      marginTop={10}
+      marginTop={12}
       zIndex={zIndex}
       onLayout={({ nativeEvent }): void => {
         setPosition(nativeEvent.layout.y);
@@ -64,6 +66,7 @@ export const SurveyQuestion = ({
         multiline={isMultiline}
         patient={patient}
         config={config}
+        setDisableSubmit={setDisableSubmit}
       />
     </StyledView>
   );

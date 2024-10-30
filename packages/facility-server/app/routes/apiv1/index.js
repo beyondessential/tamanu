@@ -2,7 +2,13 @@ import express from 'express';
 
 import { constructPermission } from '@tamanu/shared/permissions/middleware';
 import { settingsCache } from '@tamanu/settings';
-import { authMiddleware, loginHandler, refreshHandler } from '../../middleware/auth';
+
+import {
+  authMiddleware,
+  loginHandler,
+  refreshHandler,
+  setFacilityHandler,
+} from '../../middleware/auth';
 import asyncHandler from 'express-async-handler';
 import { keyBy, mapValues } from 'lodash';
 
@@ -15,6 +21,7 @@ import { changePassword } from './changePassword';
 import { department } from './department';
 import { diagnosis } from './diagnosis';
 import { encounter } from './encounter';
+import { facility } from './facility';
 import { familyHistory } from './familyHistory';
 import { imagingRequest } from './imaging';
 import { invoices } from './invoice';
@@ -47,7 +54,6 @@ import { triage } from './triage';
 import { user } from './user';
 import { vitals } from './vitals';
 import { translation } from './translation';
-import { vaccinationSettings } from './vaccinationSettings';
 import { upcomingVaccinations } from './upcomingVaccinations';
 import { telegramRoutes } from './telegram/telegramRoutes';
 
@@ -97,6 +103,7 @@ apiv1.get(
 );
 
 apiv1.use(authMiddleware);
+
 apiv1.use(constructPermission);
 
 apiv1.delete(
@@ -109,6 +116,7 @@ apiv1.delete(
 );
 
 apiv1.post('/refresh', refreshHandler);
+apiv1.post('/setFacility', setFacilityHandler);
 apiv1.use(patientDataRoutes); // see below for specifics
 apiv1.use(referenceDataRoutes); // see below for specifics
 apiv1.use(syncRoutes); // see below for specifics
@@ -144,7 +152,7 @@ referenceDataRoutes.use('/asset', asset);
 referenceDataRoutes.use('/attachment', attachment);
 referenceDataRoutes.use('/certificateNotification', certificateNotification);
 referenceDataRoutes.use('/department', department);
-
+referenceDataRoutes.use('/facility', facility);
 referenceDataRoutes.use('/labRequestLog', labRequestLog);
 referenceDataRoutes.use('/location', location);
 referenceDataRoutes.use('/locationGroup', locationGroup);
@@ -159,7 +167,6 @@ referenceDataRoutes.use('/scheduledVaccine', scheduledVaccine);
 referenceDataRoutes.use('/suggestions', suggestions);
 referenceDataRoutes.use('/survey', survey);
 referenceDataRoutes.use('/user', user);
-referenceDataRoutes.use('/vaccinationSettings', vaccinationSettings);
 referenceDataRoutes.use('/upcomingVaccinations', upcomingVaccinations);
 referenceDataRoutes.use('/translation', translation);
 

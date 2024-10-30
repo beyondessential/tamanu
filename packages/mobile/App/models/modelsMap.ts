@@ -44,6 +44,7 @@ import { PatientFacility } from './PatientFacility';
 import { Setting } from './Setting';
 import { Note } from './Note';
 import { VitalLog } from './VitalLog';
+import { UserFacility } from './UserFacility';
 
 export const MODELS_MAP = {
   ReferenceData,
@@ -92,6 +93,7 @@ export const MODELS_MAP = {
   PatientFacility,
   Setting,
   Note,
+  UserFacility
 };
 
 type AllValuesOfObject<T extends object> = Array<T[keyof T]>;

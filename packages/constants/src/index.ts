@@ -1,6 +1,7 @@
 export * from './auth.js';
 export * from './births.js';
 export * from './brands.js';
+export * from './colors.js';
 export * from './comms.js';
 export * from './datetimes.js';
 export * from './deaths.js';

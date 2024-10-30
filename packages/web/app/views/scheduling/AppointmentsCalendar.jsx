@@ -12,7 +12,6 @@ import { DailySchedule } from '../../components/Appointments/DailySchedule';
 import { NewAppointmentButton } from '../../components/Appointments/NewAppointmentButton';
 import { Button } from '../../components/Button';
 import { AutocompleteInput, TranslatedMultiSelectField } from '../../components/Field';
-import { Suggester } from '../../utils/suggester';
 import { Colors } from '../../constants';
 import { useApi, useSuggester } from '../../api';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
@@ -86,6 +85,7 @@ const TodayButton = styled(Button)`
 export const AppointmentsCalendar = () => {
   const api = useApi();
   const locationGroupSuggester = useSuggester('facilityLocationGroup');
+  const practitionerSuggester = useSuggester('practitioner');
   const { ability } = useAuth();
 
   const [date, setDate] = useState(new Date());
@@ -124,7 +124,7 @@ export const AppointmentsCalendar = () => {
         <AutocompleteInput
           value={filterValue}
           onChange={updateFilterValue}
-          suggester={new Suggester(api, 'practitioner')}
+          suggester={practitionerSuggester}
         />
       ),
     },

@@ -127,7 +127,7 @@ const PatientLetterFormContents = ({ submitForm, onCancel, setValues }) => {
 };
 
 export const PatientLetterForm = ({ onSubmit, onCancel, editedObject, endpoint, patient }) => {
-  const { currentUser } = useAuth();
+  const { currentUser, facilityId } = useAuth();
   const api = useApi();
 
   const handleSubmit = useCallback(
@@ -137,13 +137,14 @@ export const PatientLetterForm = ({ onSubmit, onCancel, editedObject, endpoint, 
           ...data,
           patient,
         },
+        facilityId,
         name: data.title,
         clinicianId: data.clinicianId,
       });
       const documentToOpen = printRequested ? document : null;
       onSubmit(documentToOpen);
     },
-    [api, endpoint, onSubmit, patient],
+    [api, endpoint, onSubmit, patient, facilityId],
   );
 
   const renderForm = props =>

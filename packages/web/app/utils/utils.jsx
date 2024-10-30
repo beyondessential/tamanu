@@ -6,16 +6,6 @@ import { toast } from 'react-toastify';
 import deepEqual from 'deep-equal';
 import shortid from 'shortid';
 
-export const concatSelf = (array, ...items) => {
-  items.forEach(item => {
-    if (isArray(item)) {
-      item.forEach(variable => array.push(variable));
-    } else {
-      array.push(item);
-    }
-  });
-};
-
 export const prepareToastMessage = msg => {
   const messages = isArray(msg) ? msg : [msg];
   return (

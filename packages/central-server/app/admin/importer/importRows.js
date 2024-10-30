@@ -9,9 +9,9 @@ import {
 } from '@tamanu/constants';
 import { normaliseSheetName } from './importerEndpoint';
 
-import { ForeignkeyResolutionError, UpsertionError, ValidationError } from './errors';
-import { statkey, updateStat } from './stats';
-import * as schemas from './importSchemas';
+import { ForeignkeyResolutionError, UpsertionError, ValidationError } from '../errors';
+import { statkey, updateStat } from '../stats';
+import * as schemas from '../importSchemas';
 
 function findFieldName(values, fkField) {
   const fkFieldLower = fkField.toLowerCase();
@@ -206,11 +206,12 @@ export async function importRows(
   for (const { model, sheetRow, values } of validRows) {
     const Model = models[model];
     const existing = await loadExisting(Model, values);
+
     try {
       if (existing) {
         await existing.update(values);
         if (values.deletedAt) {
-          if (!['Permission', 'SurveyScreenComponent'].includes(model)) {
+          if (!['Permission', 'SurveyScreenComponent', 'UserFacility'].includes(model)) {
             throw new ValidationError(`Deleting ${model} via the importer is not supported`);
           }
           await existing.destroy();
@@ -229,8 +230,7 @@ export async function importRows(
 
       const dataType = normaliseSheetName(sheetName);
       const isValidTable =
-        model === 'ReferenceData' || // All records in the reference data table are translatable
-        camelCase(model) === dataType; // This prevents join tables from being translated - unsure about this
+        model === 'ReferenceData' || camelCase(model) === dataType; // All records in the reference data table are translatable // This prevents join tables from being translated - unsure about this
       const isTranslatable = TRANSLATABLE_REFERENCE_TYPES.includes(dataType);
       if (isTranslatable && isValidTable) {
         translationRecordsForSheet.push({

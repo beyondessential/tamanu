@@ -213,3 +213,56 @@ export function labTestPanelLoader(item) {
 
   return rows;
 }
+
+export async function userLoader(item, models) {
+  const { id, allowedFacilities, ...otherFields } = item;
+  const rows = [];
+
+  const allowedFacilityIds = allowedFacilities
+    ? allowedFacilities.split(',').map(t => t.trim())
+    : [];
+
+  rows.push({
+    model: 'User',
+    values: {
+      id,
+      ...otherFields,
+    },
+    allowedFacilityIds,
+  });
+
+  const existingUser = await models.User.findByPk(id, {
+    include: [{ model: models.Facility, as: 'facilities' }],
+  });
+
+  if (existingUser) {
+    const idsToBeDeleted = existingUser.facilities
+      .map(f => f.id)
+      .filter(id => !allowedFacilityIds.includes(id));
+
+    idsToBeDeleted.forEach(facilityId => {
+      rows.push({
+        model: 'UserFacility',
+        values: {
+          id: `${id};${facilityId}`,
+          userId: id,
+          facilityId: facilityId,
+          deletedAt: new Date(),
+        },
+      });
+    });
+  }
+
+  allowedFacilityIds.forEach(facilityId => {
+    rows.push({
+      model: 'UserFacility',
+      values: {
+        id: `${id};${facilityId}`,
+        userId: id,
+        facilityId: facilityId,
+      },
+    });
+  });
+
+  return rows;
+}
