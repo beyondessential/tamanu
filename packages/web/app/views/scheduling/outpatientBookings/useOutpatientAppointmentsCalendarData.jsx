@@ -33,7 +33,7 @@ export const useOutpatientAppointmentsCalendarData = ({ groupBy, selectedDate })
     if (!appointmentData?.data || appointmentData.data.length === 0) {
       return {};
     }
-    if (groupBy === APPOINTMENT_GROUP_BY.AREA) {
+    if (groupBy === APPOINTMENT_GROUP_BY.LOCATION_GROUP) {
       const cellData = lodashGroupBy(appointmentData?.data, 'locationGroupId');
       return {
         headData: locationGroupData.filter(locationGroup => !!cellData[locationGroup.id]),
