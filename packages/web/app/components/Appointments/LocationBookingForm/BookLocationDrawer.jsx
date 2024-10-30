@@ -64,7 +64,7 @@ const CloseDrawerIcon = styled(ClearIcon)`
 const StyledDrawer = styled(Drawer)`
   .MuiPaper-root {
     top: ${TOP_BAR_HEIGHT}px;
-    height: calc(100% - ${TOP_BAR_HEIGHT}px)
+    height: calc(100% - ${TOP_BAR_HEIGHT}px);
   }
 `;
 
@@ -122,22 +122,31 @@ export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues, ed
     });
 
   const { mutateAsync: handleSubmit } = useMutation(
-    payload => editMode ? api.put(`appointments/locationBooking/${values.id}`, values) : api.post('appointments/locationBooking', payload, { throwResponse: true }),
+    payload =>
+      editMode
+        ? api.put(`appointments/locationBooking/${payload.id}`, payload, { throwResponse: true })
+        : api.post('appointments/locationBooking', payload, { throwResponse: true }),
     {
       onSuccess: () => {
         notifySuccess(
-          <TranslatedText
-            stringId="locationBooking.notification.bookingSuccessfullyCreated"
-            fallback="Booking successfully created"
-          />,
+          editMode ? (
+            <TranslatedText
+              stringId="locationBooking.notification.bookingSuccessfullyEdited"
+              fallback="Booking successfully edited"
+            />
+          ) : (
+            <TranslatedText
+              stringId="locationBooking.notification.bookingSuccessfullyCreated"
+              fallback="Booking successfully created"
+            />
+          ),
         );
         closeDrawer();
         queryClient.invalidateQueries('appointments');
       },
       onError: error => {
         notifyError(
-          // TODO: checking staths code feels wrong
-          error.message === '409' ? (
+          error.message == 409 ? (
             <TranslatedText
               stringId="locationBooking.notification.bookingTimeConflict"
               fallback="Booking failed. Booking time no longer available"
@@ -159,29 +168,29 @@ export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues, ed
     : 'Create a new booking by completing the below details and selecting ‘Confirm’.';
 
   return (
-<StyledDrawer variant="persistent" anchor="right" open={open} onClose={closeDrawer}>
-    <Container columns={1}>
-      <Heading>{headingText}</Heading>
-      <Description>{descriptionText}</Description>
-      <Form
-        onSubmit={handleSubmit}
-        suppressErrorDialog
-        validationSchema={yup.object().shape({
-          locationId: yup.string().required(),
-          startTime: yup.string().required(),
-          endTime: yup.string().required(),
-          patientId: yup.string().required(),
-          bookingTypeId: yup.string().required(),
-        })}
-        initialValues={initialBookingValues}
-        enableReinitialize
-        render={({ values, resetForm, setFieldValue, dirty }) => {
-          const warnAndResetForm = async () => {
-            const confirmed = !dirty || (await handleShowWarningModal());
-            if (!confirmed) return;
-            closeDrawer();
-            resetForm();
-          };
+    <StyledDrawer variant="persistent" anchor="right" open={open} onClose={closeDrawer}>
+      <Container columns={1}>
+        <Heading>{headingText}</Heading>
+        <Description>{descriptionText}</Description>
+        <Form
+          onSubmit={handleSubmit}
+          suppressErrorDialog
+          validationSchema={yup.object().shape({
+            locationId: yup.string().required(),
+            startTime: yup.string().required(),
+            endTime: yup.string().required(),
+            patientId: yup.string().required(),
+            bookingTypeId: yup.string().required(),
+          })}
+          initialValues={initialBookingValues}
+          enableReinitialize
+          render={({ values, resetForm, setFieldValue, dirty }) => {
+            const warnAndResetForm = async () => {
+              const confirmed = !dirty || (await handleShowWarningModal());
+              if (!confirmed) return;
+              closeDrawer();
+              resetForm();
+            };
 
             return (
               <FormGrid columns={1}>
@@ -219,7 +228,7 @@ export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues, ed
                   disabled={!values.locationId}
                   required
                 />
-                <BookingTimeField  key={values.date} disabled={!values.date} />
+                <BookingTimeField key={values.date} disabled={!values.date} />
                 <Field
                   name="patientId"
                   label={
