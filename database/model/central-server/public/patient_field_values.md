@@ -1,13 +1,15 @@
 {% docs table__patient_field_values %}
-TODO
+Values recorded in custom patient fields.
+
+The `id` column is generated to enforce one value row per field definition per patient.
 {% enddocs %}
 
 {% docs patient_field_values__value %}
-TODO
+Value.
 {% enddocs %}
 
 {% docs patient_field_values__definition_id %}
-TODO
+The [field definition](#!/source/source.tamanu.tamanu.patient_field_definitions).
 {% enddocs %}
 
 {% docs patient_field_values__patient_id %}
