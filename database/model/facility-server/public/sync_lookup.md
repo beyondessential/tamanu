@@ -37,3 +37,7 @@ TODO
 {% docs sync_lookup__updated_at_by_field_sum %}
 TODO
 {% enddocs %}
+
+{% docs sync_lookup__pushed_by_device_id %}
+TODO
+{% enddocs %}

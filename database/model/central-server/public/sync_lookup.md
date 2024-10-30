@@ -51,3 +51,7 @@ If the record has an `updatedAtByField`, the sum of those values.
 
 This is used to sort and filter records efficiently during the sync process.
 {% enddocs %}
+
+{% docs sync_lookup__pushed_by_device_id %}
+The unique device that pushed this record.
+{% enddocs %}
