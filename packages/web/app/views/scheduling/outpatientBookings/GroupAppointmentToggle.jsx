@@ -33,7 +33,7 @@ const AnimatedBackground = styled('div')`
   height: 1.8rem;
   border-radius: 50px;
   background-color: ${Colors.primary};
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.28, 1.13);
   transform: ${({ $toggled }) => ($toggled ? 'translateX(6.563rem)' : 'translateX(0)')};
 `;
 
