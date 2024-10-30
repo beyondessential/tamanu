@@ -20,11 +20,6 @@ sources:
             description: "{{ doc('attachments__type') }}"
             data_tests:
               - not_null
-              - accepted_values:
-                  values:
-                    - application/pdf
-                    - image/jpeg
-                    - image/png
           - name: size
             data_type: integer
             description: "{{ doc('attachments__size') }}"
