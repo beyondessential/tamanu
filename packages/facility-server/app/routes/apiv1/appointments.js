@@ -4,6 +4,7 @@ import { startOfToday } from 'date-fns';
 import { Op, Sequelize } from 'sequelize';
 import { simplePost, simplePut } from '@tamanu/shared/utils/crudHelpers';
 import { escapePatternWildcard } from '../../utils/query';
+import { ResourceConflictError } from '@tamanu/shared/errors';
 
 export const appointments = express.Router();
 
@@ -55,9 +56,7 @@ appointments.post('/locationBooking', async (req, res) => {
       });
 
       if (bookingTimeAlreadyTaken) {
-        const error = new Error()
-        error.status = 409
-        throw error;
+        throw new ResourceConflictError()
       }
 
       const newRecord = await Appointment.create(body, { transaction });

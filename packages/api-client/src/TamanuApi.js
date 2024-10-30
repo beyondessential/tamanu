@@ -190,8 +190,6 @@ export class TamanuApi {
     const { error } = await getResponseErrorSafely(response);
     const message = error?.message || response.status.toString();
 
-    console.log('Extracting error', error)
-
     // handle forbidden error and trigger catch all modal
     if (response.status === 403 && error) {
       throw new ForbiddenError(message);
