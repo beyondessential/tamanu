@@ -22,7 +22,7 @@ const StyledPriorityHighIcon = styled(PriorityHighIcon)`
   color: ${Colors.alert};
   font-size: 16px;
   position: absolute;
-  left: -8px;
+  left: -6px;
 `;
 
 const StyledTable = styled(DataFetchingTable)`
@@ -59,6 +59,11 @@ const StyledTable = styled(DataFetchingTable)`
       width: 20px;
     }
   }
+  td {
+    &:nth-child(5) {
+      position: relative;
+    }
+  }
   .MuiTableFooter-root {
     background-color: ${Colors.white};
     .MuiPagination-root {
@@ -77,13 +82,6 @@ const StatusTodo = styled.div`
   height: 15px;
   border: 1px dashed ${Colors.blue};
   border-radius: 50%;
-`;
-
-
-const TooltipContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
 `;
 
 const StyledCancelIcon = styled(CancelIcon)`
@@ -128,13 +126,9 @@ const getStatus = row => {
         </Box>
       );
     case TASK_STATUSES.COMPLETED:
-      return (
-        <StyledCheckCircleIcon />
-      );
+      return <StyledCheckCircleIcon />;
     case TASK_STATUSES.NON_COMPLETED:
-      return (
-        <StyledCancelIcon />
-      );
+      return <StyledCancelIcon />;
     default:
       break;
   }
@@ -149,24 +143,18 @@ const getDueTime = ({ dueTime }) => {
   );
 };
 
+const getLocation = ({ encounter }) => (
+  <div>
+    <BodyText>{encounter.location.name}</BodyText>
+    <SmallBodyText color={Colors.midText}>{encounter.location.locationGroup.name}</SmallBodyText>
+  </div>
+);
 
-const getTask = ({ name, requestedBy, requestTime, highPriority }) => (
-  <StyledToolTip
-    title={
-      <TooltipContainer>
-        <div>{name}</div>
-        <div>{requestedBy.displayName}</div>
-        <Box sx={{ textTransform: 'lowercase' }}>
-          {`${formatShortest(requestTime)} ${formatTime(requestTime)}`}
-        </Box>
-      </TooltipContainer>
-    }
-  >
-    <span>
-      {highPriority && <StyledPriorityHighIcon />}
-      {name}
-    </span>
-  </StyledToolTip>
+const getTaskName = ({ name, highPriority }) => (
+  <span>
+    {highPriority && <StyledPriorityHighIcon />}
+    {name}
+  </span>
 );
 
 const NoDataMessage = () => (
@@ -185,32 +173,35 @@ const COLUMNS = [
     sortable: false,
   },
   {
-    key: 'dueTime',
-    title: <TranslatedText stringId="encounter.tasks.table.column.task" fallback="Due at" />,
-    accessor: getDueTime,
+    key: 'location',
+    title: <TranslatedText stringId="dashboard.tasks.table.column.location" fallback="Location" />,
+    accessor: getLocation,
   },
   {
-    key: 'name',
-    title: <TranslatedText stringId="encounter.tasks.table.column.task" fallback="Task" />,
-  },
-  {
-    key: 'name',
+    key: 'patientId',
     title: (
-      <TranslatedText stringId="encounter.tasks.table.column.assignedTo" fallback="Assigned to" />
+      <TranslatedText stringId="dashboard.tasks.table.column.patientId" fallback="Patient ID" />
     ),
+    accessor: ({ encounter }) => encounter.patient.displayId,
+  },
+  {
+    key: 'patientName',
+    title: <TranslatedText stringId="dashboard.tasks.table.column.patient" fallback="Patient" />,
+    accessor: ({ encounter }) => `${encounter.patient.firstName} ${encounter.patient.lastName}`,
   },
   {
     key: 'name',
-    title: <TranslatedText stringId="encounter.tasks.table.column.task" fallback="Task" />,
+    title: <TranslatedText stringId="dashboard.tasks.table.column.task" fallback="Task" />,
+    accessor: getTaskName,
   },
   {
     key: 'dueTime',
-    title: <TranslatedText stringId="encounter.tasks.table.column.task" fallback="Due at" />,
+    title: <TranslatedText stringId="dashboard.tasks.table.column.task" fallback="Due at" />,
     accessor: getDueTime,
   },
 ];
 
-export const DashboardTasksTable = ({ encounterId, searchParameters, refreshCount, refreshTaskTable }) => {
+export const DashboardTasksTable = ({ searchParameters, refreshCount }) => {
   const { currentUser } = useAuth();
   return (
     <StyledTable
@@ -220,6 +211,7 @@ export const DashboardTasksTable = ({ encounterId, searchParameters, refreshCoun
       allowExport={false}
       fetchOptions={searchParameters}
       defaultRowsPerPage={25}
+      refreshCount={refreshCount}
     />
   );
 };

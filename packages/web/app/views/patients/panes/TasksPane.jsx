@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { omit, set } from 'lodash';
+import { omit } from 'lodash';
 import { Box } from '@material-ui/core';
 import { TASK_STATUSES } from '@tamanu/constants';
 import { Colors } from '../../../constants';
@@ -8,9 +8,7 @@ import {
   AutocompleteInput,
   Button,
   CheckInput,
-  Field,
   Heading4,
-  LocalisedLocationField,
   LocationInput,
   TranslatedText,
 } from '../../../components';
@@ -32,10 +30,9 @@ const TabPane = styled.div`
 const ActionRow = styled.div`
   display: flex;
   gap: 10px;
-  align-items: flex-end;
+  align-items: ${p => p.$inDashboard ? 'flex-end' : 'center'};
   justify-content: flex-end;
   margin-left: auto;
-  align-items: center;
 `;
 
 const StyledCheckInput = styled(CheckInput)`
@@ -81,7 +78,6 @@ export const TasksPane = React.memo(({ encounter, inDashboard = false }) => {
 
   const [showCompleted, setShowCompleted] = useState(false);
   const [showNotCompleted, setShowNotCompleted] = useState(false);
-  const [showHighPriorityOnly, setShowHighPriorityOnly] = useState(false);
 
   const [searchParameters, setSearchParameters] = useState({});
   const [refreshCount, setRefreshCount] = useState(0);
@@ -97,13 +93,15 @@ export const TasksPane = React.memo(({ encounter, inDashboard = false }) => {
   const onLocationIdChange = e => {
     const { value } = e.target;
     setSearchParameters(prevParams =>
-      value ? set(prevParams, 'locationId', value) : omit(prevParams, 'locationId'),
+      value ? { ...prevParams, locationId: value } : omit(prevParams, 'locationId'),
     );
   };
 
   const onHighPriorityOnlyChange = e => {
     const { checked } = e.target;
-    setShowHighPriorityOnly(checked);
+    setSearchParameters(prevParams =>
+      checked ? { ...prevParams, highPriority: true } : omit(prevParams, 'highPriority'),
+    );
   };
 
   const refreshTaskTable = useCallback(() => {
@@ -115,6 +113,7 @@ export const TasksPane = React.memo(({ encounter, inDashboard = false }) => {
   }, [searchParameters]);
 
   useEffect(() => {
+    if (inDashboard) return;
     const statuses = [TASK_STATUSES.TODO];
 
     if (showCompleted) {
@@ -126,7 +125,7 @@ export const TasksPane = React.memo(({ encounter, inDashboard = false }) => {
     }
 
     setSearchParameters({ ...searchParameters, statuses });
-  }, [showCompleted, showNotCompleted]);
+  }, [showCompleted, showNotCompleted, inDashboard]);
 
   return (
     <TabPane>
@@ -139,7 +138,7 @@ export const TasksPane = React.memo(({ encounter, inDashboard = false }) => {
             />
           </Heading4>
         ) : null}
-        <ActionRow>
+        <ActionRow $inDashboard={inDashboard}>
           {!inDashboard ? (
             <>
               <CheckInputGroup>
@@ -210,7 +209,7 @@ export const TasksPane = React.memo(({ encounter, inDashboard = false }) => {
                     fallback="High priority only"
                   />
                 }
-                value={showHighPriorityOnly}
+                value={searchParameters.highPriority}
                 $inDashboard={inDashboard}
                 onChange={onHighPriorityOnlyChange}
               />
@@ -225,7 +224,9 @@ export const TasksPane = React.memo(({ encounter, inDashboard = false }) => {
           refreshCount={refreshCount}
           refreshTaskTable={refreshTaskTable}
         />
-      ) : <DashboardTasksTable searchParameters={searchParameters} />}
+      ) : (
+        <DashboardTasksTable searchParameters={searchParameters} />
+      )}
       <TaskModal
         open={taskModalOpen}
         onClose={() => setTaskModalOpen(false)}

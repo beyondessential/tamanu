@@ -173,12 +173,16 @@ const clinicianTasksQuerySchema = z.object({
   designationId: z.string().optional(),
   locationGroupId: z.string().optional(),
   locationId: z.string().optional(),
-  highPriority: z.boolean().optional(),
-  skip: z.coerce
+  highPriority: z
+    .enum(['true', 'false'])
+    .transform(value => value === 'true')
+    .optional()
+    .default('false'),
+  page: z.coerce
     .number()
     .optional()
     .default(0),
-  take: z.coerce
+  rowsPerPage: z.coerce
     .number()
     .max(50)
     .min(10)
@@ -196,25 +200,29 @@ user.get(
 
     const upcomingTasksTimeFrame = config.tasking?.upcomingTasksTimeFrame || 8;
 
-    const taskIds = await models.Task.findAll({
-      logging: true,
-      order: [query.orderBy, ['highPriority', 'DESC'], ['name', 'ASC']],
-      limit: query.take,
-      offset: query.skip,
-      attributes: ['id', 'dueTime', 'name', 'highPriority'],
+    const baseQueryOptions = {
       where: {
         status: TASK_STATUSES.TODO,
         dueTime: {
           [Op.lte]: toCountryDateTimeString(add(new Date(), { hours: upcomingTasksTimeFrame })),
         },
         ...(query.highPriority && { highPriority: query.highPriority }),
-      },
+      }
+    };
+
+    const tasks = await models.Task.findAll({
+      order: [query.orderBy, ['highPriority', 'DESC'], ['name', 'ASC']],
+      limit: query.rowsPerPage,
+      offset: query.page * query.rowsPerPage,
+      attributes: ['id', 'dueTime', 'name', 'highPriority', 'status'],
+      ...baseQueryOptions,
       include: [
         {
           model: models.Encounter,
           as: 'encounter',
           where: { endDate: { [Op.is]: null } }, // only get tasks belong to active encounters
           include: [
+            'patient',
             {
               model: models.Location,
               as: 'location',
@@ -245,14 +253,10 @@ user.get(
           ],
         },
       ],
-    }).then(tasks => tasks.map(task => task.id));
-
-    const tasks = await models.Task.findAll({
-      where: { id: { [Op.in]: taskIds } },
-      order: [query.orderBy, ['highPriority', 'DESC'], ['name', 'ASC']],
-      include: [...models.Task.getFullReferenceAssociations()],
     });
-    res.send({ data: tasks, count: tasks.length });
+
+    const count = await models.Task.count(baseQueryOptions);
+    res.send({ data: tasks, count });
   }),
 );
 

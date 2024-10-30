@@ -18,6 +18,7 @@ const TopBar = styled.div`
   background-color: ${Colors.white};
   display: flex;
   justify-content: space-between;
+  z-index: 1;
 `;
 
 const DashboardLayout = styled.div`
