@@ -19,22 +19,6 @@ The absolute index (order) of the component in the survey.
 Description or question of this component.
 {% enddocs %}
 
-{% docs survey_screen_components__visibility_criteria %}
-JSON criteria that determines when this component is visible.
-
-A criteria is a list of other components' codes and the value that will make this question show up:
-
-```json
-{
-  "otherQuestion": "Yes"
-}
-```
-
-There can also be the special criterium `{"hidden": true}` which always hides the question, and the
-special key `"_conjunction": "or"` which makes it so _any one_ item in the list is sufficient to
-show the question, instead of the default where _all_ items must match.
-{% enddocs %}
-
 {% docs survey_screen_components__validation_criteria %}
 JSON criteria that determines whether the value entered in this component is accepted.
 {% enddocs %}
@@ -49,6 +33,22 @@ JSON additional config of the component.
 
 {% docs survey_screen_components__options %}
 JSON array of strings of options to be selected.
+{% enddocs %}
+
+{% docs survey_screen_components__visibility_criteria %}
+JSON criteria that determines when this component is visible.
+
+A criteria is a list of other components' codes and the value that will make this question show up:
+
+```json
+{
+  "otherQuestion": "Yes"
+}
+```
+
+There can also be the special criterium `{"hidden": true}` which always hides the question, and the
+special key `"_conjunction": "or"` which makes it so _any one_ item in the list is sufficient to
+show the question, instead of the default where _all_ items must match.
 {% enddocs %}
 
 {% docs survey_screen_components__calculation %}
