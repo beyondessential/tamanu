@@ -1,14 +1,24 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { omit } from 'lodash';
+import { omit, set } from 'lodash';
 import { Box } from '@material-ui/core';
 import { TASK_STATUSES } from '@tamanu/constants';
 import { Colors } from '../../../constants';
-import { AutocompleteInput, Button, CheckInput, TranslatedText } from '../../../components';
+import {
+  AutocompleteInput,
+  Button,
+  CheckInput,
+  Field,
+  Heading4,
+  LocalisedLocationField,
+  LocationInput,
+  TranslatedText,
+} from '../../../components';
 import { useSuggester } from '../../../api';
 import { TasksTable } from '../../../components/Tasks/TasksTable';
 import { TaskModal } from '../../../components/Tasks/TaskModal';
 import { useAuth } from '../../../contexts/Auth';
+import { DashboardTasksTable } from '../../../components/Tasks/DashboardTaskTable';
 
 const TabPane = styled.div`
   margin: 20px 24px 24px;
@@ -16,6 +26,7 @@ const TabPane = styled.div`
   border-radius: 4px;
   padding: 6px 12px;
   min-height: 460px;
+  background-color: ${Colors.white};
 `;
 
 const ActionRow = styled.div`
@@ -23,6 +34,8 @@ const ActionRow = styled.div`
   gap: 10px;
   align-items: flex-end;
   justify-content: flex-end;
+  margin-left: auto;
+  align-items: center;
 `;
 
 const StyledCheckInput = styled(CheckInput)`
@@ -36,6 +49,7 @@ const StyledCheckInput = styled(CheckInput)`
     line-height: 15px;
     margin-left: -3px;
   }
+  ${p => (p.$inDashboard ? 'margin-top: 18px;' : '')}
 `;
 
 const CheckInputGroup = styled.div`
@@ -44,13 +58,31 @@ const CheckInputGroup = styled.div`
   flex-direction: column;
 `;
 
-export const TasksPane = React.memo(({ encounter }) => {
+const TopBar = styled.div`
+  display: flex;
+  width: 100%;
+`;
+
+const FilterGrid = styled.div`
+  display: grid;
+  grid-template-columns: 250px 250px 120px;
+  column-gap: 10px;
+  align-items: center;
+  > :nth-child(2) > :first-child > :nth-child(2) {
+    background-color: ${Colors.background};
+  }
+`;
+
+export const TasksPane = React.memo(({ encounter, inDashboard = false }) => {
   const { ability } = useAuth();
   const canCreate = ability.can('create', 'Tasking');
 
   const designationSuggester = useSuggester('designation');
+
   const [showCompleted, setShowCompleted] = useState(false);
   const [showNotCompleted, setShowNotCompleted] = useState(false);
+  const [showHighPriorityOnly, setShowHighPriorityOnly] = useState(false);
+
   const [searchParameters, setSearchParameters] = useState({});
   const [refreshCount, setRefreshCount] = useState(0);
   const [taskModalOpen, setTaskModalOpen] = useState(false);
@@ -60,6 +92,18 @@ export const TasksPane = React.memo(({ encounter }) => {
     setSearchParameters(prevParams =>
       designationId ? { ...prevParams, assignedTo: designationId } : omit(prevParams, 'assignedTo'),
     );
+  };
+
+  const onLocationIdChange = e => {
+    const { value } = e.target;
+    setSearchParameters(prevParams =>
+      value ? set(prevParams, 'locationId', value) : omit(prevParams, 'locationId'),
+    );
+  };
+
+  const onHighPriorityOnlyChange = e => {
+    const { checked } = e.target;
+    setShowHighPriorityOnly(checked);
   };
 
   const refreshTaskTable = useCallback(() => {
@@ -86,55 +130,102 @@ export const TasksPane = React.memo(({ encounter }) => {
 
   return (
     <TabPane>
-      <ActionRow>
-        <CheckInputGroup>
-          <StyledCheckInput
-            label={
-              <TranslatedText
-                stringId="encounter.tasks.showCompleted.label"
-                fallback="Show completed"
+      <TopBar>
+        {inDashboard ? (
+          <Heading4>
+            <TranslatedText
+              stringId="dashboard.tasks.upcomingTasks.title"
+              fallback="Upcoming tasks"
+            />
+          </Heading4>
+        ) : null}
+        <ActionRow>
+          {!inDashboard ? (
+            <>
+              <CheckInputGroup>
+                <StyledCheckInput
+                  label={
+                    <TranslatedText
+                      stringId="encounter.tasks.showCompleted.label"
+                      fallback="Show completed"
+                    />
+                  }
+                  onChange={() => setShowCompleted(!showCompleted)}
+                  value={showCompleted}
+                />
+                <StyledCheckInput
+                  label={
+                    <TranslatedText
+                      stringId="encounter.tasks.showNotCompleted.label"
+                      fallback="Show not completed"
+                    />
+                  }
+                  onChange={() => setShowNotCompleted(!showNotCompleted)}
+                  value={showNotCompleted}
+                />
+              </CheckInputGroup>
+              <AutocompleteInput
+                name="designationId"
+                label={
+                  <Box marginBottom="-4px">
+                    <TranslatedText
+                      stringId="general.localisedField.assignedTo.label"
+                      fallback="Assigned to"
+                    />
+                  </Box>
+                }
+                size="small"
+                suggester={designationSuggester}
+                onChange={onFilterByDesignation}
               />
-            }
-            onChange={() => setShowCompleted(!showCompleted)}
-            value={showCompleted}
-          />
-          <StyledCheckInput
-            label={
-              <TranslatedText
-                stringId="encounter.tasks.showNotCompleted.label"
-                fallback="Show not completed"
+              {canCreate && (
+                <Button onClick={() => setTaskModalOpen(true)} variant="outlined" color="primary">
+                  <TranslatedText stringId="encounter.tasks.action.newTask" fallback="+ New task" />
+                </Button>
+              )}
+            </>
+          ) : (
+            <FilterGrid>
+              <LocationInput
+                name="locationId"
+                onChange={onLocationIdChange}
+                size="small"
+                label={
+                  <TranslatedText
+                    stringId="general.localisedField.locationId.label"
+                    fallback="Location"
+                  />
+                }
+                locationGroupLabel={
+                  <TranslatedText
+                    stringId="general.localisedField.locationGroupId.label"
+                    fallback="Area"
+                  />
+                }
               />
-            }
-            onChange={() => setShowNotCompleted(!showNotCompleted)}
-            value={showNotCompleted}
-          />
-        </CheckInputGroup>
-        <AutocompleteInput
-          name="designationId"
-          label={
-            <Box marginBottom="-4px">
-              <TranslatedText
-                stringId="general.localisedField.assignedTo.label"
-                fallback="Assigned to"
+              <StyledCheckInput
+                label={
+                  <TranslatedText
+                    stringId="dashboard.tasks.table.highPriorityOnly.label"
+                    fallback="High priority only"
+                  />
+                }
+                value={showHighPriorityOnly}
+                $inDashboard={inDashboard}
+                onChange={onHighPriorityOnlyChange}
               />
-            </Box>
-          }
-          size="small"
-          suggester={designationSuggester}
-          onChange={onFilterByDesignation}
+            </FilterGrid>
+          )}
+        </ActionRow>
+      </TopBar>
+      {!inDashboard ? (
+        <TasksTable
+          encounterId={encounter.id}
+          searchParameters={searchParameters}
+          refreshCount={refreshCount}
+          refreshTaskTable={refreshTaskTable}
         />
-        {canCreate && (
-          <Button onClick={() => setTaskModalOpen(true)} variant="outlined" color="primary">
-            <TranslatedText stringId="encounter.tasks.action.newTask" fallback="+ New task" />
-          </Button>
-        )}
-      </ActionRow>
-      <TasksTable
-        encounterId={encounter.id}
-        searchParameters={searchParameters}
-        refreshCount={refreshCount}
-        refreshTaskTable={refreshTaskTable}
-      />
+      ) : <DashboardTasksTable searchParameters={searchParameters} />}
       <TaskModal
         open={taskModalOpen}
         onClose={() => setTaskModalOpen(false)}

@@ -252,7 +252,7 @@ user.get(
       order: [query.orderBy, ['highPriority', 'DESC'], ['name', 'ASC']],
       include: [...models.Task.getFullReferenceAssociations()],
     });
-    res.send(tasks);
+    res.send({ data: tasks, count: tasks.length });
   }),
 );
 
