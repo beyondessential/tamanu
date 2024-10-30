@@ -42,18 +42,19 @@ const MovingBackground = styled('div')`
   transform: ${({ $selected }) => ($selected ? 'translateX(6.563rem)' : 'translateX(0)')};
 `;
 
-export const GroupByAppointmentToggleNew = ({ value, onChange }) => {
+export const GroupByAppointmentToggle = ({ value, onChange }) => {
   const handleChange = () => {
     onChange(
-      value === APPOINTMENT_GROUP_BY.AREA
+      value === APPOINTMENT_GROUP_BY.LOCATION_GROUP
         ? APPOINTMENT_GROUP_BY.CLINICIAN
-        : APPOINTMENT_GROUP_BY.AREA,
+        : APPOINTMENT_GROUP_BY.LOCATION_GROUP,
     );
   };
   return (
     <Wrapper onClick={handleChange}>
-      <MovingBackground $selected={value === APPOINTMENT_GROUP_BY.CLINICIAN} />
-      <ToggleButton $selected={value === APPOINTMENT_GROUP_BY.AREA}>Area</ToggleButton>
+      {/* TODO this is weird naming */}
+      <MovingBackground $selected={value === APPOINTMENT_GROUP_BY.CLINICIAN} />{' '}
+      <ToggleButton $selected={value === APPOINTMENT_GROUP_BY.LOCATION_GROUP}>Area</ToggleButton>
       <ToggleButton $selected={value === APPOINTMENT_GROUP_BY.CLINICIAN}>Clinicians</ToggleButton>
     </Wrapper>
   );
