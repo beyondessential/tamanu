@@ -1,13 +1,15 @@
 {% docs table__death_revert_logs %}
-TODO
+Patient deaths can be reverted if they were recorded in error, this tracks those reverts.
+
+See [`patient_death_data`](#!/source/source.tamanu.tamanu.patient_death_data).
 {% enddocs %}
 
 {% docs death_revert_logs__revert_time %}
-TODO
+When the reversion happened.
 {% enddocs %}
 
 {% docs death_revert_logs__death_data_id %}
-TODO
+The [`patient_death_data`](#!/source/source.tamanu.tamanu.patient_death_data) record this is reverting.
 {% enddocs %}
 
 {% docs death_revert_logs__patient_id %}
