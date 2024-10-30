@@ -89,9 +89,10 @@ sources:
             data_type: character varying(255)
             description: "{{ doc('encounters__patient_billing_type_id') }}"
             data_tests:
-              - relationships:
+              - dbt_utils.relationships_where:
                   to: source('tamanu', 'reference_data')
                   field: id
+                  to_condition: type = 'patientBillingType'
           - name: start_date_legacy
             data_type: timestamp with time zone
             description: "{{ doc('encounters__start_date_legacy') }}"
@@ -102,9 +103,10 @@ sources:
             data_type: character varying(255)
             description: "{{ doc('encounters__referral_source_id') }}"
             data_tests:
-              - relationships:
+              - dbt_utils.relationships_where:
                   to: source('tamanu', 'reference_data')
                   field: id
+                  to_condition: type = 'referralSource'
           - name: planned_location_id
             data_type: character varying(255)
             description: "{{ doc('encounters__planned_location_id') }}"

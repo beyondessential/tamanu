@@ -29,9 +29,10 @@ sources:
             description: "{{ doc('invoice_patient_payments__method_id') }}"
             data_tests:
               - not_null
-              - relationships:
+              - dbt_utils.relationships_where:
                   to: source('tamanu', 'reference_data')
                   field: id
+                  to_condition: type = 'paymentMethod'
           - name: created_at
             data_type: timestamp with time zone
             description: "{{ doc('generic__created_at') }} in invoice_patient_payments."
