@@ -1,11 +1,11 @@
 {% docs table__programs %}
-TODO
+Groups of [surveys](#!/source/source.tamanu.tamanu.surveys).
 {% enddocs %}
 
 {% docs programs__code %}
-TODO
+Machine-friendly code.
 {% enddocs %}
 
 {% docs programs__name %}
-TODO
+Human-friendly name.
 {% enddocs %}
