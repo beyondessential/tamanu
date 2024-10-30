@@ -23,7 +23,6 @@ import { ClearIcon } from '../../Icons/ClearIcon';
 import { ConfirmModal } from '../../ConfirmModal';
 import { notifyError, notifySuccess } from '../../../utils';
 import { TranslatedText } from '../../Translation/TranslatedText';
-import { useAppointmentsQuery } from '../../../api/queries';
 
 import { Drawer } from '@material-ui/core';
 import { TOP_BAR_HEIGHT } from '../../TopBar';
@@ -126,23 +125,29 @@ export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues, ed
   const { mutateAsync: handleSubmit } = useMutation(
     payload =>
       editMode
-        ? api.put(`appointments/locationBooking/${values.id}`, values)
+        ? api.put(`appointments/locationBooking/${payload.id}`, payload, { throwResponse: true })
         : api.post('appointments/locationBooking', payload, { throwResponse: true }),
     {
       onSuccess: () => {
         notifySuccess(
-          <TranslatedText
-            stringId="locationBooking.notification.bookingSuccessfullyCreated"
-            fallback="Booking successfully created"
-          />,
+          editMode ? (
+            <TranslatedText
+              stringId="locationBooking.notification.bookingSuccessfullyEdited"
+              fallback="Booking successfully edited"
+            />
+          ) : (
+            <TranslatedText
+              stringId="locationBooking.notification.bookingSuccessfullyCreated"
+              fallback="Booking successfully created"
+            />
+          ),
         );
         closeDrawer();
         queryClient.invalidateQueries('appointments');
       },
       onError: error => {
         notifyError(
-          // TODO: checking staths code feels wrong
-          error.message === '409' ? (
+          error.message == 409 ? (
             <TranslatedText
               stringId="locationBooking.notification.bookingTimeConflict"
               fallback="Booking failed. Booking time no longer available"
@@ -189,10 +194,10 @@ export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues, ed
             };
 
             // TODO: how to get this working properly :thinking:
-            const showSameDayBookingWarning =
-              !editMode &&
-              values.patientId &&
-              existingLocationBookings.data.find(booking => booking.patientId === values.patientId);
+            // const showSameDayBookingWarning =
+            //   !editMode &&
+            //   values.patientId &&
+            //   existingLocationBookings.data.find(booking => booking.patientId === values.patientId);
 
             return (
               <FormGrid columns={1}>
@@ -234,7 +239,7 @@ export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues, ed
                     'Patient already has appointment scheduled at this location for this day'
                   }
                 />
-                <BookingTimeField key={values.date} editMode={editMode} disabled={!values.date} />
+                <BookingTimeField key={values.date} disabled={!values.date} />
                 <Field
                   name="patientId"
                   label={
