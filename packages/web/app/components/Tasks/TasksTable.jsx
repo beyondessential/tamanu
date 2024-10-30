@@ -86,9 +86,9 @@ const StyledTable = styled(DataFetchingTable)`
   }
   td {
     &:last-child {
-      max-width: 200px;
+      max-width: 188px;
       white-space: nowrap;
-      width: 200px;
+      min-width: 188px;
     }
     &:nth-child(3) {
       position: relative;
@@ -211,18 +211,6 @@ const TableTooltip = ({ title, children }) => (
   </StyledToolTip>
 );
 
-const getTodoTooltipText = ({ todoBy, todoTime, todoNote }) => (
-  <StatusTooltip>
-    <TranslatedText stringId="tasks.table.tooltip.toDo" fallback="To-do" />
-    <div>{todoBy?.displayName}</div>
-    <div>
-      <span color={Colors.midText}>{formatShortest(todoTime)} </span>
-      <LowercaseText>{formatTime(todoTime)}</LowercaseText>
-    </div>
-    <div>{todoNote}</div>
-  </StatusTooltip>
-);
-
 const getCompletedTooltipText = ({ completedBy, completedTime, completedNote }) => (
   <StatusTooltip>
     <TranslatedText stringId="tasks.table.tooltip.completed" fallback="Completed" />
@@ -253,13 +241,7 @@ const getStatus = row => {
     case TASK_STATUSES.TODO:
       return (
         <Box marginLeft="1.5px">
-          {row?.todoByUserId ? (
-            <TableTooltip title={getTodoTooltipText(row)}>
-              <StatusTodo />
-            </TableTooltip>
-          ) : (
-            <StatusTodo />
-          )}
+          <StatusTodo />
         </Box>
       );
     case TASK_STATUSES.COMPLETED:

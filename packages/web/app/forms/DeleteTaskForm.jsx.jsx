@@ -1,6 +1,7 @@
 import React from 'react';
 import { Divider } from '@material-ui/core';
 import * as yup from 'yup';
+import { TASK_DELETE_BY_SYSTEM_REASON } from '@tamanu/constants';
 
 import {
   AutocompleteField,
@@ -83,6 +84,7 @@ export const DeleteTaskForm = ({ onClose, refreshTaskTable, taskIds }) => {
               component={AutocompleteField}
               suggester={taskDeletionReasonSuggester}
               allowCreatingCustomValue={canCreateReferenceData}
+              filterer={({ value }) => value !== TASK_DELETE_BY_SYSTEM_REASON}
             />
           </FormGrid>
           <Divider style={{ margin: '32px -32px 30px -32px' }} />
