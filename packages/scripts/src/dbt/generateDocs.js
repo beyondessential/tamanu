@@ -83,7 +83,7 @@ async function run(packageName) {
 
   console.log(' | run dbt docs generate');
   if (
-    spawnSync('dbt', ['docs', 'generate', '--profiles-dir', 'config'], {
+    spawnSync('dbt', ['docs', 'generate', '--profiles-dir', 'config', '--static'], {
       cwd: base,
       stdio: ['pipe', 'inherit', 'inherit'],
     }).status
