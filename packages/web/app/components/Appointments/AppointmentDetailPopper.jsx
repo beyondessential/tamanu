@@ -2,7 +2,7 @@ import React, { useCallback, useMemo, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { push } from 'connected-react-router';
 import { Box, ClickAwayListener, IconButton, Paper, Popper, styled } from '@mui/material';
-import { Brightness2 as Overnight, Close, MoreVert } from '@mui/icons-material';
+import { Brightness2 as Overnight, Close } from '@mui/icons-material';
 import { debounce } from 'lodash';
 import { toast } from 'react-toastify';
 
