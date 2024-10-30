@@ -23,8 +23,7 @@ const ToggleButton = styled('div')`
   color: ${({ $selected }) => ($selected ? Colors.white : Colors.primary)};
   width: 6.65rem;
   text-align: center;
-  transition: color 0.25s;
-  transition-delay: 0.05s;
+  transition: color 0.3s;
 `;
 
 const AnimatedBackground = styled('div')`
