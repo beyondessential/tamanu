@@ -96,6 +96,12 @@ const StyledCheckCircleIcon = styled(CheckCircleIcon)`
   vertical-align: middle;
 `;
 
+const TooltipContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+`;
+
 const NoDataContainer = styled.div`
   height: 354px;
   font-weight: 500;
@@ -150,18 +156,30 @@ const getLocation = ({ encounter }) => (
   </div>
 );
 
-const getTaskName = ({ name, highPriority }) => (
-  <span>
-    {highPriority && <StyledPriorityHighIcon />}
-    {name}
-  </span>
+const getTaskName = ({ name, requestedBy, requestTime, highPriority }) => (
+  <StyledToolTip
+    title={
+      <TooltipContainer>
+        <div>{name}</div>
+        <div>{requestedBy.displayName}</div>
+        <Box sx={{ textTransform: 'lowercase' }}>
+          {`${formatShortest(requestTime)} ${formatTime(requestTime)}`}
+        </Box>
+      </TooltipContainer>
+    }
+  >
+    <span>
+      {highPriority && <StyledPriorityHighIcon />}
+      {name}
+    </span>
+  </StyledToolTip>
 );
 
 const NoDataMessage = () => (
   <NoDataContainer>
     <TranslatedText
-      stringId="encounter.tasks.table.noData"
-      fallback="No patient tasks to display. Please try adjusting filters or click ‘+ New task’ to add a task to this patient."
+      stringId="dashboard.tasks.table.noData"
+      fallback="No upcoming tasks to display. If applicable please try adjusting the filter."
     />
   </NoDataContainer>
 );

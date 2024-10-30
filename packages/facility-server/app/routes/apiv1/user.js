@@ -214,9 +214,10 @@ user.get(
       order: [query.orderBy, ['highPriority', 'DESC'], ['name', 'ASC']],
       limit: query.rowsPerPage,
       offset: query.page * query.rowsPerPage,
-      attributes: ['id', 'dueTime', 'name', 'highPriority', 'status'],
+      attributes: ['id', 'dueTime', 'name', 'highPriority', 'status', 'requestTime'],
       ...baseQueryOptions,
       include: [
+        'requestedBy',
         {
           model: models.Encounter,
           as: 'encounter',
