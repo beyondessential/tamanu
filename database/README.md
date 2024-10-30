@@ -32,3 +32,9 @@ Local configuration, sync status, task queues etc.
 Usually invisible to clinicians and PMs.
 
 Sometimes sensitive (eg a queued email to a patient notifying them of a test result).
+
+### 🚮 Deprecated/legacy data (tag: `deprecated`)
+
+Entire tables that are deprecated.
+
+This is an additional tag and should be accompanied by one of the above tags.

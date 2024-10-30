@@ -1,23 +1,27 @@
 {% docs table__notes %}
 Notes recorded by clinicians or system generated.
+
+Also see the deprecated [`note_items`](#!/source/source.tamanu.tamanu.note_items),
+[`note_pages`](#!/source/source.tamanu.tamanu.note_pages), and the even older
+[`notes_legacy`](#!/source/source.tamanu.tamanu.notes_legacy).
+
+This is the current version (3) of the notes system.
 {% enddocs %}
 
 {% docs notes__note_type %}
-Type of note recorded
+Type of note recorded.
 {% enddocs %}
 
 {% docs notes__record_id %}
-Tamanu identifier of the record type the note is about.
-
-For example, if the record type of this note is 'Encounter' this is the encounter identifier.
+Polymorphic relationship to the record to which the note is attached (id).
 {% enddocs %}
 
 {% docs notes__record_type %}
-The record type of this note
+Polymorphic relationship to the record to which the note is attached (type).
 {% enddocs %}
 
 {% docs notes__content %}
-The content of the note recorded
+The content of the note recorded.
 {% enddocs %}
 
 {% docs notes__author_id %}
