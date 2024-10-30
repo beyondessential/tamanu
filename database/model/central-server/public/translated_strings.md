@@ -3,7 +3,7 @@ Localisation and translation strings.
 
 These are used for two distinct purposes:
 - to translate Tamanu in languages other than English
-- to adjust the wording of specific items in the UI 
+- to adjust the wording of specific items in the UI
 {% enddocs %}
 
 {% docs translated_strings__string_id %}
