@@ -42,6 +42,13 @@ const styles = StyleSheet.create({
     textAlign: 'right',
     marginBottom: 14,
   },
+  certificateSubtitle: {
+    fontFamily: 'Helvetica',
+    fontSize: 18,
+    textAlign: 'right',
+    marginTop: '-10px',
+    height: 40,
+  },
 });
 
 export const H1 = ({ style, ...props }) => <Text style={{ ...styles.h1, ...style }} {...props} />;
@@ -56,3 +63,4 @@ export const P = ({ mt = 0, mb, bold = false, fontSize = 14, style = {}, ...prop
 );
 export const CertificateAddress = props => <Text style={styles.certificateAddress} {...props} />;
 export const CertificateTitle = props => <Text style={styles.certificateTitle} {...props} />;
+export const CertificateSubtitle = props => <Text style={styles.certificateSubtitle} {...props} />;

@@ -1,11 +1,11 @@
 import React, { ReactElement } from 'react';
 import { TextField } from '../../../TextField/TextField';
 import { LocalisedField } from '~/ui/components/Forms/LocalisedField';
-import { useLocalisation } from '~/ui/contexts/LocalisationContext';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
+import { useSettings } from '~/ui/contexts/SettingsContext';
 
 export const NameSection = (): ReactElement => {
-  const { getBool } = useLocalisation();
+  const { getSetting } = useSettings();
 
   return (
     <>
@@ -26,7 +26,7 @@ export const NameSection = (): ReactElement => {
           />
         }
         component={TextField}
-        required={getBool('fields.middleName.requiredPatientData')}
+        required={getSetting<boolean>('fields.middleName.requiredPatientData')}
       />
       <LocalisedField
         name="lastName"
@@ -45,7 +45,7 @@ export const NameSection = (): ReactElement => {
           />
         }
         component={TextField}
-        required={getBool('fields.culturalName.requiredPatientData')}
+        required={getSetting<boolean>('fields.culturalName.requiredPatientData')}
       />
     </>
   );

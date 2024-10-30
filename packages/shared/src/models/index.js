@@ -119,3 +119,5 @@ export * from './TranslatedString';
 export * from './IPSRequest';
 export * from './SyncLookup';
 export * from './DebugLog';
+export * from './DebugLog';
+export * from './SyncDeviceTick';

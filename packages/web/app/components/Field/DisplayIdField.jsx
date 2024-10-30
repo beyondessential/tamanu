@@ -1,14 +1,14 @@
 import React from 'react';
 import { useFormikContext } from 'formik';
-import { useLocalisation } from '../../contexts/Localisation';
 import { TextField } from './TextField';
 import { LocalisedField } from './LocalisedField';
 import { useTranslation } from '../../contexts/Translation';
+import { useSettings } from '../../contexts/Settings';
 
 const useDisplayIdValidation = (label, fieldName = 'displayId') => {
   const { initialValues } = useFormikContext();
-  const { getLocalisation } = useLocalisation();
-  const pattern = getLocalisation('fields.displayId.pattern');
+  const { getSetting } = useSettings();
+  const pattern = getSetting('fields.displayId.pattern');
   const regex = pattern ? new RegExp(pattern) : null;
   return value =>
     value !== initialValues[fieldName] && regex && !regex.test(value)
