@@ -28,17 +28,16 @@ const ToggleButton = styled('div')`
   text-transform: none;
   border: none;
   transition: color 0.25s;
-  transition-delay: 0.05s;
 `;
 
-const MovingBackground = styled('div')`
+const AnimatedBackground = styled('div')`
   position: absolute;
   width: 6.6rem;
   left: 0.2rem;
   height: 1.8rem;
   border-radius: 50px;
   background-color: ${Colors.primary};
-  transition: transform 0.3s;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.04, 1.15);
   transform: ${({ $selected }) => ($selected ? 'translateX(6.563rem)' : 'translateX(0)')};
 `;
 
@@ -53,7 +52,7 @@ export const GroupByAppointmentToggle = ({ value, onChange }) => {
   return (
     <Wrapper onClick={handleChange}>
       {/* TODO this is weird naming */}
-      <MovingBackground $selected={value === APPOINTMENT_GROUP_BY.CLINICIAN} />{' '}
+      <AnimatedBackground $selected={value === APPOINTMENT_GROUP_BY.CLINICIAN} />
       <ToggleButton $selected={value === APPOINTMENT_GROUP_BY.LOCATION_GROUP}>Area</ToggleButton>
       <ToggleButton $selected={value === APPOINTMENT_GROUP_BY.CLINICIAN}>Clinicians</ToggleButton>
     </Wrapper>
