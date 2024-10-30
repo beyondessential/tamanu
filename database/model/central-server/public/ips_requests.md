@@ -1,23 +1,23 @@
 {% docs table__ips_requests %}
-TODO
+Queue of requests to generate [International Patient Summaries](https://international-patient-summary.net/) (IPS).
 {% enddocs %}
 
 {% docs ips_requests__patient_id %}
-Reference to the [patient](#!/source/source.tamanu.tamanu.patients).
+The [patient](#!/source/source.tamanu.tamanu.patients).
 {% enddocs %}
 
 {% docs ips_requests__created_by %}
-TODO
+Reference to the [user](#!/source/source.tamanu.tamanu.users) who created this request.
 {% enddocs %}
 
 {% docs ips_requests__status %}
-TODO
+Processing status.
 {% enddocs %}
 
 {% docs ips_requests__email %}
-TODO
+Email to send the generated IPS to.
 {% enddocs %}
 
 {% docs ips_requests__error %}
-TODO
+If processing fails, the error.
 {% enddocs %}
