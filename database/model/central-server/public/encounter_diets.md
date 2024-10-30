@@ -1,5 +1,8 @@
 {% docs table__encounter_diets %}
-TODO
+A diet associated with an encounter.
+
+A patient can be placed on a diet for various medical purposes.
+Diets are specified in reference data.
 {% enddocs %}
 
 {% docs encounter_diets__encounter_id %}
@@ -7,5 +10,5 @@ Reference to the [encounter](#!/source/source.tamanu.tamanu.encounters) this die
 {% enddocs %}
 
 {% docs encounter_diets__diet_id %}
-TODO
+The diet ([Reference Data](#!/source/source.tamanu.tamanu.reference_data), `type = diet`).
 {% enddocs %}

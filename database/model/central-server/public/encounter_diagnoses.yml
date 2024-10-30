@@ -31,6 +31,14 @@ sources:
           - name: certainty
             data_type: character varying(255)
             description: "{{ doc('encounter_diagnoses__certainty') }}"
+            data_tests:
+              - accepted_values:
+                  values:
+                    - confirmed
+                    - disproven
+                    - emergency
+                    - error
+                    - suspected
           - name: is_primary
             data_type: boolean
             description: "{{ doc('encounter_diagnoses__is_primary') }}"

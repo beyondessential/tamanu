@@ -63,12 +63,25 @@ sources:
           - name: encounter_id
             data_type: character varying(255)
             description: "{{ doc('encounter_medications__encounter_id') }}"
+            data_tests:
+              - relationships:
+                  to: source('tamanu', 'encounters')
+                  field: id
           - name: medication_id
             data_type: character varying(255)
             description: "{{ doc('encounter_medications__medication_id') }}"
+            data_tests:
+              - dbt_utils.relationships_where:
+                  to: source('tamanu', 'reference_data')
+                  field: id
+                  to_condition: type = 'drug'
           - name: prescriber_id
             data_type: character varying(255)
             description: "{{ doc('encounter_medications__prescriber_id') }}"
+            data_tests:
+              - relationships:
+                  to: source('tamanu', 'users')
+                  field: id
           - name: quantity
             data_type: integer
             description: "{{ doc('encounter_medications__quantity') }}"

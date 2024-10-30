@@ -48,7 +48,9 @@ Datetime at which the test was completed.
 {% enddocs %}
 
 {% docs lab_tests__verification %}
-Unused.
+Free-form field for a verification indication.
+
+May be a verifying or supervising officer's name, a department, lab notes...
 {% enddocs %}
 
 {% docs lab_tests__completed_date_legacy %}
