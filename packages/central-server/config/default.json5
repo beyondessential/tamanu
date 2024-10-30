@@ -429,6 +429,7 @@
   "scheduledReports": [],
   "disk": {
     "diskPath": "C:/",
+    "freeSpaceRequired": {"gigabytesForUploadingDocuments": 0},
   },
   // Note: this config should be duplicated on the facility server if the same behavior is
   // desired for "this facility" and "all facilities"
@@ -437,6 +438,7 @@
       "includedPatientFieldIds": []
     }
   },
+  "reportProcess":{"timeOutDurationSeconds":60},
   "notifications": {
     "certificates": {
       "labTestCategoryIds": []

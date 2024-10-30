@@ -64,7 +64,7 @@ const localisationPromise = rootLocalisationSchema
     return l;
   })
   .catch(e => {
-    const errors = e.inner.map(inner => `\n  - ${inner.message}`);
+    const errors = e?.inner?.map(inner => `\n  - ${inner.message}`);
     log.error(
       `Error(s) validating localisation (check localisation.data in your config):${errors}`,
     );
