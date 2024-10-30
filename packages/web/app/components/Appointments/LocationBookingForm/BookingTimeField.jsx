@@ -36,14 +36,6 @@ const LoadingIndicator = styled(CircularProgress)`
   margin: 0 auto;
 `;
 
-const HelperText = styled(FormHelperText)`
-  && {
-    font-size: 11px;
-    letter-spacing: initial;
-    color: ${Colors.darkText};
-  }
-`;
-
 const calculateTimeSlots = (bookingSlotSettings, date) => {
   const { startTime, endTime, slotDuration } = bookingSlotSettings;
   const startOfDay = parse(startTime, 'HH:mm', new Date(date ?? null));
@@ -70,7 +62,7 @@ const isTimeSlotWithinRange = (timeSlot, range) => {
 };
 
 // logic calculated through time ranges in the format { start: DATE, end: DATE }
-export const BookingTimeField = ({ editMode, disabled = false }) => {
+export const BookingTimeField = ({ disabled = false }) => {
   const { getSetting } = useSettings();
   const { setFieldValue, values, dirty, initialValues } = useFormikContext();
 
