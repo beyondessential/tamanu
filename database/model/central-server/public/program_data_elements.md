@@ -12,11 +12,13 @@ This is also used to refer to questions within criterias and such.
 {% enddocs %}
 
 {% docs program_data_elements__name %}
-Human-friendly name.
+Human-friendly name
 {% enddocs %}
 
 {% docs program_data_elements__indicator %}
-TODO
+Another name for the data element.
+
+It's named `indicator` from mimicry of Tupaia.
 {% enddocs %}
 
 {% docs program_data_elements__default_text %}

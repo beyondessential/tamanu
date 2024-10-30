@@ -1,5 +1,5 @@
 {% docs table__programs %}
-Groups of [surveys](#!/source/source.tamanu.tamanu.surveys).
+Groups of [surveys](#!/source/source.tamanu.tamanu.surveys) or [program registries](#!/source/source.tamanu.tamanu.program_registries).
 {% enddocs %}
 
 {% docs programs__code %}
