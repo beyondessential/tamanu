@@ -57,13 +57,13 @@ export const LocationInput = React.memo(
     const [groupId, setGroupId] = useState('');
     const [locationId, setLocationId] = useState(value);
     const suggester = locationSuggester(api, groupId, enableLocationStatus);
-    const locationGroupSuggester = useSuggester('facilityLocationGroup');
+    const locationGroupSuggester = useSuggester('bookableLocationGroup');
     const { data: location } = useLocationSuggestion(locationId);
     const { initialValues } = form;
 
     useEffect(() => {
       if (!initialValues) return;
-      // Form is reinitialisedd, reset the state handled group and location values
+      // Form is reinitialised, reset the state handled group and location values
       setGroupId('');
       setLocationId(initialValues[name] ?? '');
     }, [initialValues, name]);
