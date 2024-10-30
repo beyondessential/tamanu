@@ -19,14 +19,10 @@ const Wrapper = styled(Box)`
 `;
 
 const ToggleButton = styled('div')`
-  border-radius: 50px;
+  position: relative;
   color: ${({ $selected }) => ($selected ? Colors.white : Colors.primary)};
   width: 6.65rem;
-  position: relative;
   text-align: center;
-  box-shadow: none;
-  text-transform: none;
-  border: none;
   transition: color 0.25s;
   transition-delay: 0.05s;
 `;
