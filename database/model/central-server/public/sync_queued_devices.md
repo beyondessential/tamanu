@@ -1,13 +1,13 @@
 {% docs table__sync_queued_devices %}
-TODO
+Devices waiting their turn to be synced.
 {% enddocs %}
 
 {% docs sync_queued_devices__last_seen_time %}
-TODO
+The last time the device has reached out to the syncing server.
 {% enddocs %}
 
 {% docs sync_queued_devices__last_synced_tick %}
-TODO
+The sync tick the device is currently at.
 {% enddocs %}
 
 {% docs sync_queued_devices__facility_id_legacy %}
@@ -15,7 +15,7 @@ TODO
 {% enddocs %}
 
 {% docs sync_queued_devices__urgent %}
-TODO
+A way for a device to bump its priority in the queue.
 {% enddocs %}
 
 {% docs sync_queued_devices__facility_ids %}
