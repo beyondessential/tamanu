@@ -21,11 +21,11 @@ The content of the note recorded
 {% enddocs %}
 
 {% docs notes__author_id %}
-TODO
+Reference to the [user](#!/source/source.tamanu.tamanu.users) who published this note.
 {% enddocs %}
 
 {% docs notes__on_behalf_of_id %}
-TODO
+Reference to the [user](#!/source/source.tamanu.tamanu.users) who wrote this note, if it wasn't the user who published it.
 {% enddocs %}
 
 {% docs notes__revised_by_id %}

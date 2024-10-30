@@ -107,3 +107,7 @@ sources:
           - name: revised_by_id
             data_type: uuid
             description: "{{ doc('notes__revised_by_id') }}"
+            data_tests:
+              - relationships:
+                  to: source('tamanu', 'users')
+                  field: id
