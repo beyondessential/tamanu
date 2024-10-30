@@ -136,8 +136,7 @@ export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues }) 
       },
       onError: error => {
         notifyError(
-          // TODO: checking staths code feels wrong
-          error.message === '409' ? (
+          error.message == 409 ? (
             <TranslatedText
               stringId="locationBooking.notification.bookingTimeConflict"
               fallback="Booking failed. Booking time no longer available"
