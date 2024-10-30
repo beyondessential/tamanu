@@ -52,8 +52,7 @@ export const GroupByAppointmentToggle = ({ value, onChange }) => {
   };
   return (
     <Wrapper onClick={handleChange}>
-      {/* TODO this is weird naming */}
-      <AnimatedBackground $selected={value === APPOINTMENT_GROUP_BY.CLINICIAN} />
+      <AnimatedBackground $toggled={value === APPOINTMENT_GROUP_BY.CLINICIAN} />
       <ToggleButton $selected={value === APPOINTMENT_GROUP_BY.LOCATION_GROUP}>Area</ToggleButton>
       <ToggleButton $selected={value === APPOINTMENT_GROUP_BY.CLINICIAN}>Clinicians</ToggleButton>
     </Wrapper>
