@@ -1,21 +1,21 @@
 {% docs table__templates %}
-TODO
+Templates used for patient letters and clinical notes etc.
 {% enddocs %}
 
 {% docs templates__name %}
-TODO
+Internal name of the template (used when importing).
 {% enddocs %}
 
 {% docs templates__date_created %}
-TODO
+When the template was created.
 {% enddocs %}
 
 {% docs templates__title %}
-TODO
+Title of the template (which will be rendered).
 {% enddocs %}
 
 {% docs templates__body %}
-TODO
+Body of the template (which will be rendered).
 {% enddocs %}
 
 {% docs templates__created_by_id %}
@@ -23,5 +23,5 @@ Reference to the [user](#!/source/source.tamanu.tamanu.users) who created this t
 {% enddocs %}
 
 {% docs templates__type %}
-TODO
+Type of the template (refered to in code).
 {% enddocs %}
