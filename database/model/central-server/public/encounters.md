@@ -41,7 +41,7 @@ Device IDs are proper to each device and not globally recorded in e.g. a `device
 {% enddocs %}
 
 {% docs encounters__end_date_legacy %}
-[Deprecated] end date
+[Deprecated] End date.
 {% enddocs %}
 
 {% docs encounters__planned_location_id %}
