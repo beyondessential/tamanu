@@ -1,9 +1,12 @@
 import config from 'config';
 import { omit } from 'lodash';
+
 import { initBugsnag } from '@tamanu/shared/services/logging';
+import { ReadSettings } from '@tamanu/settings/reader';
+import { selectFacilityIds } from '@tamanu/shared/utils/configSelectors';
+
 import { closeDatabase, initDatabase, initReporting } from './database';
 import { VERSION } from './middleware/versionCompatibility.js';
-import { ReadSettings } from '@tamanu/settings/reader';
 
 /**
  * @typedef {import('@tamanu/settings/types').FacilitySettingPath} FacilitySettingPath
@@ -33,16 +36,20 @@ export class ApplicationContext {
       if (config.errors.type === 'bugsnag') {
         await initBugsnag({
           ...omit(config.errors, ['enabled', 'type']),
-          appVersion: VERSION,
+          appVersion: [VERSION, process.env.REVISION].filter(Boolean).join('-'),
           appType,
         });
       }
     }
 
+    const facilityIds = selectFacilityIds(config);
     const database = await initDatabase();
     this.sequelize = database.sequelize;
     this.models = database.models;
-    this.settings = new ReadSettings(this.models, config.serverFacilityId);
+    this.settings = facilityIds.reduce((acc, facilityId) => {
+      acc[facilityId] = new ReadSettings(this.models, facilityId);
+      return acc;
+    }, {});
     if (config.db.reportSchemas?.enabled) {
       this.reportSchemaStores = await initReporting();
     }

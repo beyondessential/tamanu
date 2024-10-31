@@ -70,17 +70,17 @@ export class TamanuApi {
       token,
       localisation,
       server = {},
+      availableFacilities,
       permissions,
       centralHost,
       role,
-      settings,
     } = await response.json();
     server.type = serverType;
     server.centralHost = centralHost;
     this.setToken(token);
 
     const { user, ability } = await this.fetchUserData(permissions);
-    return { user, token, localisation, server, ability, role, settings };
+    return { user, token, localisation, server, availableFacilities, ability, role };
   }
 
   async fetchUserData(permissions) {
@@ -189,8 +189,6 @@ export class TamanuApi {
   async extractError(endpoint, response) {
     const { error } = await getResponseErrorSafely(response);
     const message = error?.message || response.status.toString();
-
-    console.log('Extracting error', error)
 
     // handle forbidden error and trigger catch all modal
     if (response.status === 403 && error) {

@@ -1,4 +1,3 @@
-import config from 'config';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { QueryTypes } from 'sequelize';
@@ -13,14 +12,10 @@ locationGroup.get(
   '/$',
   asyncHandler(async (req, res) => {
     req.checkPermission('list', 'Location');
-    if (!config.serverFacilityId) {
-      res.send([]);
-      return;
-    }
-
+    const { facilityId } = req.query;
     const locationGroups = await req.models.LocationGroup.findAll({
       where: {
-        facilityId: config.serverFacilityId,
+        facilityId,
       },
       order: [['name', 'ASC']],
     });
@@ -32,13 +27,10 @@ locationGroup.get(
   '/:id/locations',
   asyncHandler(async (req, res) => {
     req.checkPermission('list', 'Location');
-    if (!config.serverFacilityId) {
-      res.send([]);
-      return;
-    }
+    const { facilityId } = req.query;
     const locations = await req.models.Location.findAll({
       where: {
-        facilityId: config.serverFacilityId,
+        facilityId,
         locationGroupId: req.params.id,
       },
     });
@@ -50,11 +42,7 @@ locationGroup.get(
   '/:id/handoverNotes',
   asyncHandler(async (req, res) => {
     checkHandoverNotesPermissions(req);
-
-    if (!config.serverFacilityId) {
-      res.send({});
-      return;
-    }
+    const { facilityId } = req.query;
 
     const group = await req.models.LocationGroup.findByPk(req.params.id);
 
@@ -171,7 +159,7 @@ locationGroup.get(
       {
         replacements: {
           id: req.params.id,
-          facilityId: config.serverFacilityId,
+          facilityId,
         },
         type: QueryTypes.SELECT,
       },

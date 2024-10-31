@@ -250,7 +250,6 @@ const DeathCertificatePrintoutComponent = React.memo(
           />
           <CertificateHeader>
             <LetterheadSection
-              getLocalisation={getLocalisation}
               logoSrc={logo}
               letterheadConfig={certificateData}
               certificateTitle="Cause of death certificate"

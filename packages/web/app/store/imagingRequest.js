@@ -6,10 +6,11 @@ const IMAGING_LOAD_ERROR = 'IMAGING_LOAD_ERROR';
 const IMAGING_LOAD_FINISH = 'IMAGING_LOAD_FINISH';
 
 export const reloadImagingRequest = id => async (dispatch, getState, { api }) => {
+  const { auth } = getState();
+  const { facilityId } = auth;
   dispatch({ type: IMAGING_LOAD_START, id });
-
   try {
-    const imagingRequest = await api.get(`imagingRequest/${id}`);
+    const imagingRequest = await api.get(`imagingRequest/${id}`, { facilityId });
 
     const encounter = imagingRequest.encounters?.[0];
     if (encounter) {

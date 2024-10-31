@@ -6,15 +6,15 @@ import { theme } from '/styled/theme';
 import { getGender, joinNames } from '/helpers/user';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { IPatient } from '~/types';
-import { useLocalisation } from '~/ui/contexts/LocalisationContext';
 import { getReferenceDataStringId } from '../Translations/TranslatedReferenceData';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
+import { useSettings } from '/contexts/SettingsContext';
 
 export const PatientTile = (patient: IPatient): JSX.Element => {
   const { firstName, lastName, sex } = patient;
-  const { getLocalisation } = useLocalisation();
   const { getTranslation } = useTranslation();
-  const ageDisplayFormat = getLocalisation('ageDisplayFormat');
+  const { getSetting } = useSettings();
+  const ageDisplayFormat = getSetting('ageDisplayFormat');
 
   return (
     <RowView
