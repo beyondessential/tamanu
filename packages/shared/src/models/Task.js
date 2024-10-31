@@ -1,5 +1,10 @@
-import { DataTypes } from 'sequelize';
-import { SYNC_DIRECTIONS, TASK_STATUSES } from '@tamanu/constants';
+import { DataTypes, Op } from 'sequelize';
+import {
+  SYNC_DIRECTIONS,
+  TASK_STATUSES,
+  TASK_DELETE_PATIENT_DISCHARGED_REASON_ID,
+  SYSTEM_USER_UUID,
+} from '@tamanu/constants';
 import { v4 as uuidv4 } from 'uuid';
 import { Model } from './Model';
 import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
@@ -7,7 +12,7 @@ import { dateTimeType } from './dateTimeTypes';
 import config from 'config';
 import ms from 'ms';
 import { addMilliseconds } from 'date-fns';
-import { toDateTimeString } from '../utils/dateTime';
+import { getCurrentDateTimeString, toDateTimeString } from '../utils/dateTime';
 import { buildEncounterLinkedLookupFilter } from '../sync/buildEncounterLinkedLookupFilter';
 
 export class Task extends Model {
@@ -291,5 +296,58 @@ export class Task extends Model {
     if (allClonedDesignations.length) {
       await this.sequelize.models.TaskDesignation.bulkCreate(allClonedDesignations);
     }
+  }
+
+  static async onEncounterDischarged(encounterId) {
+    const { models } = this.sequelize;
+
+    // delete all future tasks of this encounter
+    const taskDeletionReason = await models.ReferenceData.findByPk(
+      TASK_DELETE_PATIENT_DISCHARGED_REASON_ID,
+    );
+    const endTime = getCurrentDateTimeString();
+
+    await models.Task.update(
+      {
+        endTime,
+        deletedReasonForSyncId: taskDeletionReason?.id ?? null,
+      },
+      {
+        where: {
+          encounterId,
+          parentTaskId: null,
+          frequencyValue: { [Op.not]: null },
+          frequencyUnit: { [Op.not]: null },
+        },
+      },
+    );
+
+    await models.Task.update(
+      {
+        deletedByUserId: SYSTEM_USER_UUID,
+        deletedReasonId: taskDeletionReason?.id ?? null,
+        deletedTime: getCurrentDateTimeString(),
+      },
+      {
+        where: {
+          encounterId,
+          status: TASK_STATUSES.TODO,
+          dueTime: { [Op.gt]: endTime },
+          frequencyValue: { [Op.not]: null },
+          frequencyUnit: { [Op.not]: null },
+        },
+      },
+    );
+
+    await models.Task.destroy({
+      where: {
+        encounterId,
+        status: TASK_STATUSES.TODO,
+        dueTime: { [Op.gt]: endTime },
+        frequencyValue: { [Op.not]: null },
+        frequencyUnit: { [Op.not]: null },
+      },
+      individualHooks: true,
+    });
   }
 }
