@@ -205,7 +205,7 @@ export class AutocompleteInput extends Component {
   };
 
   fetchOptions = async ({ value, reason }) => {
-    const { value: formValue, allowCreatingCustomValue } = this.props;
+    const { value: formValue, allowCreatingCustomValue, filterer } = this.props;
 
     if (reason === 'suggestion-selected') {
       this.clearOptions();
@@ -238,6 +238,7 @@ export class AutocompleteInput extends Component {
         });
       }
     }
+    suggestions = suggestions.filter(filterer);
     this.setState({ suggestions });
   };
 
@@ -513,6 +514,7 @@ AutocompleteInput.propTypes = {
   groupByKey: PropTypes.string,
   getSectionTitle: PropTypes.func,
   orderByValues: PropTypes.arrayOf(PropTypes.string),
+  filterer: PropTypes.func,
 };
 
 AutocompleteInput.defaultProps = {
@@ -529,6 +531,7 @@ AutocompleteInput.defaultProps = {
   autofill: false,
   allowCreatingCustomValue: false,
   multiSection: false,
+  filterer: () => true,
 };
 
 export const AutocompleteField = ({ field, ...props }) => (

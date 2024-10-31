@@ -88,9 +88,17 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
   const [selectedTask, setSelectedTask] = useState({});
 
   const onSubmit = values => {
-    const { designationIds, highPriority, frequencyValue, frequencyUnit, ...other } = values;
-
+    const {
+      designationIds,
+      highPriority,
+      frequencyValue,
+      frequencyUnit,
+      startTime,
+      ...other
+    } = values;
     let payload;
+
+    const startTimeString = startTime.substring(0, startTime.length - 2) + '00';
 
     if (selectedTask.type === REFERENCE_TYPES.TASK_TEMPLATE) {
       payload = {
@@ -106,6 +114,7 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
               typeof designationIds === 'string' ? JSON.parse(designationIds) : designationIds,
           },
         ],
+        startTime: startTimeString,
       };
     } else if (selectedTask.type === REFERENCE_TYPES.TASK_SET) {
       const tasks = selectedTask.children.map(({ name, taskTemplate }) => ({
@@ -114,6 +123,7 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
         frequencyUnit: taskTemplate.frequencyUnit,
         highPriority: !!taskTemplate.highPriority,
         designationIds: taskTemplate.designations.map(item => item.designationId),
+        startTime: startTimeString,
       }));
 
       payload = {
@@ -292,7 +302,7 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
             .required(getTranslation('validation.required.inline', '*Required'))
             .min(
               new Date(new Date().setHours(0, 0, 0, 0)),
-              getTranslation('validation.date.past', 'Date cannot be in the past'),
+              getTranslation('general.validation.date.cannotInPast', 'Date cannot be in the past'),
             ),
           requestedByUserId: foreignKey().required(
             getTranslation('validation.required.inline', '*Required'),
@@ -302,7 +312,7 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
             .required(getTranslation('validation.required.inline', '*Required'))
             .min(
               new Date(new Date().setHours(0, 0, 0, 0)),
-              getTranslation('validation.date.past', 'Date cannot be in the past'),
+              getTranslation('general.validation.date.cannotInPast', 'Date cannot be in the past'),
             ),
           note: yup.string(),
           highPriority: yup.boolean(),
