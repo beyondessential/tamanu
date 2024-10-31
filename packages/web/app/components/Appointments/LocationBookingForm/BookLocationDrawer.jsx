@@ -258,9 +258,7 @@ export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues, ed
                       <OvernightIcon aria-hidden htmlColor="#326699" style={{ fontSize: 18 }} />
                     </OvernightStayLabel>
                   }
-                  component={styled(CheckField)`
-                    align-content: center;
-                  `}
+                  component={CheckField}
                   disabled={!values.locationId}
                 />
                 <DateFieldWithWarning editMode={editMode} />
