@@ -5,8 +5,8 @@ import { LocationBookingsView, OutpatientAppointmentsView } from '../views/sched
 
 export const AppointmentRoutes = React.memo(({ match }) => (
   <Switch>
-    <Route path={`${match.path}/calendar`} component={OutpatientAppointmentsView} />
+    <Route path={`${match.path}/outpatients`} component={OutpatientAppointmentsView} />
     <Route path={`${match.path}/locations`} component={LocationBookingsView} />
-    <Redirect to={`${match.path}/calendar`} />
+    <Redirect to={`${match.path}/outpatients`} />
   </Switch>
 ));

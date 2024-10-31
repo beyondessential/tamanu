@@ -66,7 +66,7 @@ export const FACILITY_MENU_ITEMS = [
             fallback="Outpatient appointments"
           />
         ),
-        path: '/appointments/calendar',
+        path: '/appointments/outpatients',
         key: 'outpatientAppointments',
         ability: { action: 'read' },
       },
