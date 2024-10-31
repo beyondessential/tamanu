@@ -67,7 +67,7 @@ export const DailySchedule = ({
         if (!appointmentType.length) {
           return true;
         }
-        return appointmentType.includes(appointment.type?.id);
+        return appointmentType.includes(appointment.appointmentType?.id);
       });
       return {
         header,
