@@ -11,6 +11,7 @@ import {
 import { useTranslation } from '../../../contexts/Translation';
 import FilterField from '../../../components/Field/FilterField';
 import { SearchMultiSelectField } from '../../../components/Field/SearchMultiSelectField';
+import { Formik } from 'formik';
 
 const SearchBar = styled('search')`
   display: flex;
@@ -34,27 +35,34 @@ export const CalendarSearchBar = () => {
   const { getTranslation } = useTranslation();
 
   return (
-    <Form
-      onSubmit={async () => {}}
-      render={() => (
-        <SearchBar>
-          <Field
-            name="patientNameOrId"
-            component={SearchField}
-            placeholder={getTranslation(
-              'scheduling.filter.placeholder.patientNameOrId',
-              'Search patient name or ID',
-            )} // Avoids [object Object] in the placeholder
-            style={{ width: '18.75rem' }}
-          />
-          <Field
-            name="selectedOptions"
-            label={<TranslatedText stringId="hi" fallback="hihihi" />}
-            options={options}
-            component={SearchMultiSelectField}
-          />
-        </SearchBar>
-      )}
-    />
+    <Formik
+      initialValues={{
+        selectedOptions: [],
+        patientNameOrId: '',
+      }}
+    >
+      <Form
+        onSubmit={async () => {}}
+        render={() => (
+          <SearchBar>
+            <Field
+              name="patientNameOrId"
+              component={SearchField}
+              placeholder={getTranslation(
+                'scheduling.filter.placeholder.patientNameOrId',
+                'Search patient name or ID',
+              )} // Avoids [object Object] in the placeholder
+              style={{ width: '18.75rem' }}
+            />
+            <Field
+              name="selectedOptions"
+              label={<TranslatedText stringId="hi" fallback="hihihi" />}
+              options={options}
+              component={SearchMultiSelectField}
+            />
+          </SearchBar>
+        )}
+      />
+    </Formik>
   );
 };
