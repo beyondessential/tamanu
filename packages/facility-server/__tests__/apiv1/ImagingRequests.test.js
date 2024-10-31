@@ -1,3 +1,4 @@
+import { afterAll, beforeAll } from '@jest/globals';
 import config from 'config';
 import {
   IMAGING_REQUEST_STATUS_TYPES,
@@ -11,11 +12,13 @@ import {
 import { createDummyEncounter, createDummyPatient } from '@tamanu/shared/demoData/patients';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { fake } from '@tamanu/shared/test-helpers/fake';
+import { selectFacilityIds } from '@tamanu/shared/utils/configSelectors';
 import { sleepAsync } from '@tamanu/shared/utils/sleepAsync';
 
 import { createTestContext } from '../utilities';
 
 describe('Imaging requests', () => {
+  const [facilityId] = selectFacilityIds(config);
   let patient = null;
   let encounter = null;
   let app = null;
@@ -250,7 +253,7 @@ describe('Imaging requests', () => {
     });
 
     // act
-    const result = await app.get(`/api/imagingRequest/${ir.id}`);
+    const result = await app.get(`/api/imagingRequest/${ir.id}`).query({ facilityId });
 
     // assert
     expect(result).toHaveSucceeded();
@@ -281,6 +284,7 @@ describe('Imaging requests', () => {
         completedAt: getCurrentDateTimeString(),
         completedById: app.user.dataValues.id,
       },
+      facilityId,
     });
 
     // assert
@@ -309,6 +313,7 @@ describe('Imaging requests', () => {
         completedAt: getCurrentDateTimeString(),
         completedById: app.user.dataValues.id,
       },
+      facilityId,
     });
     const result2 = await app.put(`/api/imagingRequest/${ir.id}`).send({
       status: 'completed',
@@ -317,6 +322,7 @@ describe('Imaging requests', () => {
         completedAt: getCurrentDateTimeString(),
         completedById: app.user.dataValues.id,
       },
+      facilityId,
     });
 
     // assert
@@ -347,6 +353,7 @@ describe('Imaging requests', () => {
         completedAt: newResultDate,
         completedById: app.user.dataValues.id,
       },
+      facilityId,
     });
 
     // assert
@@ -389,7 +396,7 @@ describe('Imaging requests', () => {
     );
 
     // act
-    const result = await app.get(`/api/imagingRequest/${ir.id}`);
+    const result = await app.get(`/api/imagingRequest/${ir.id}`).query({ facilityId });
 
     // reset settings
     await models.Setting.set('integrations.imaging', settings, SETTINGS_SCOPES.GLOBAL);
@@ -409,6 +416,8 @@ describe('Imaging requests', () => {
   });
 
   describe('Listing requests', () => {
+    const [facilityId] = selectFacilityIds(config);
+
     const makeRequestAtFacility = async (facilityId, status, resultCount = 0) => {
       const testLocation = await models.Location.create({
         ...fake(models.Location),
@@ -444,12 +453,9 @@ describe('Imaging requests', () => {
 
       beforeAll(async () => {
         await models.ImagingRequest.truncate({ cascade: true });
-        await makeRequestAtFacility(config.serverFacilityId);
-        await makeRequestAtFacility(config.serverFacilityId);
-        await makeRequestAtFacility(
-          config.serverFacilityId,
-          IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
-        );
+        await makeRequestAtFacility(facilityId);
+        await makeRequestAtFacility(facilityId);
+        await makeRequestAtFacility(facilityId, IMAGING_REQUEST_STATUS_TYPES.COMPLETED);
         await makeRequestAtFacility(otherFacilityId);
         await makeRequestAtFacility(otherFacilityId);
         await makeRequestAtFacility(otherFacilityId, IMAGING_REQUEST_STATUS_TYPES.COMPLETED);
@@ -459,7 +465,7 @@ describe('Imaging requests', () => {
         const result = await app.get(`/api/imagingRequest?allFacilities=false`);
         expect(result).toHaveSucceeded();
         result.body.data.forEach(ir => {
-          expect(ir.encounter.location.facilityId).toBe(config.serverFacilityId);
+          expect(ir.encounter.location.facilityId).toBe(facilityId);
         });
       });
 
@@ -468,7 +474,7 @@ describe('Imaging requests', () => {
         expect(result).toHaveSucceeded();
 
         const hasConfigFacility = result.body.data.some(
-          ir => ir.encounter.location.facilityId === config.serverFacilityId,
+          ir => ir.encounter.location.facilityId === facilityId,
         );
         expect(hasConfigFacility).toBe(true);
 
@@ -507,19 +513,19 @@ describe('Imaging requests', () => {
           await sleepAsync(1000);
           const resultCount = i % 4; // get a few different result counts in, including 0
           await makeRequestAtFacility(
-            config.serverFacilityId,
+            facilityId,
             IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
             resultCount,
           );
         }
         for (let i = 0; i < incompleteCount; ++i) {
-          await makeRequestAtFacility(config.serverFacilityId);
+          await makeRequestAtFacility(facilityId);
         }
       });
 
       it('Should paginate correctly', async () => {
         const getPage = async page => {
-          const result = await app.get(`/api/imagingRequest?page=${page}`);
+          const result = await app.get(`/api/imagingRequest?facilityId=${facilityId}&page=${page}`);
           expect(result).toHaveSucceeded();
           return result;
         };
@@ -542,7 +548,7 @@ describe('Imaging requests', () => {
       it('Should paginate correctly when sorting by completedAt', async () => {
         const getPage = async page => {
           const result = await app.get(
-            `/api/imagingRequest?orderBy=completedAt&page=${page}&order=DESC`,
+            `/api/imagingRequest?facilityId=${facilityId}&orderBy=completedAt&page=${page}&order=DESC`,
           );
           expect(result).toHaveSucceeded();
           return result;
@@ -579,7 +585,7 @@ describe('Imaging requests', () => {
       it('Should paginate correctly when sorting by completedAt and filtering by status', async () => {
         const getPage = async page => {
           const result = await app.get(
-            `/api/imagingRequest?status=${IMAGING_REQUEST_STATUS_TYPES.COMPLETED}&orderBy=completedAt&page=${page}&order=ASC`,
+            `/api/imagingRequest?facilityId=${facilityId}&status=${IMAGING_REQUEST_STATUS_TYPES.COMPLETED}&orderBy=completedAt&page=${page}&order=ASC`,
           );
           expect(result).toHaveSucceeded();
           return result;

@@ -3,7 +3,6 @@ import ReactPDF from '@react-pdf/renderer';
 import path from 'path';
 import QRCode from 'qrcode';
 import { get } from 'lodash';
-import config from 'config';
 import { ASSET_FALLBACK_NAMES, ASSET_NAMES } from '@tamanu/constants';
 
 import {
@@ -65,19 +64,17 @@ async function getPatientVaccines(models, patient) {
   return { certifiableVaccines, vaccines: vaccineData, patientData };
 }
 
-export const makeCovidVaccineCertificate = async (
+export const makeCovidVaccineCertificate = async ({
+  models,
+  settings,
+  language,
   patient,
   printedBy,
   printedDate,
-  models,
-  settings,
-  uvci,
   qrData = null,
-  language,
-) => {
-  const localisation = await getLocalisation();
-  const settingsObj = await settings.getAll();
-
+  uvci,
+}) => {
+  const [localisation, settingsObj] = await Promise.all([getLocalisation(), settings.getAll()]);
   const getLocalisationData = key => get(localisation, key);
   const getSettingData = key => get(settingsObj, key);
 
@@ -108,16 +105,20 @@ export const makeCovidVaccineCertificate = async (
   );
 };
 
-export const makeVaccineCertificate = async (
+export const makeVaccineCertificate = async ({
+  models,
+  settings,
+  facilityName,
+  language,
   patient,
   printedBy,
   printedDate,
-  facilityName,
-  models,
-  language,
   translations,
-) => {
+}) => {
   const localisation = await getLocalisation();
+
+  const { title, subTitle } = await settings.get('templates.letterhead');
+  const { healthFacility } = await settings.get('templates.vaccineCertificate');
 
   const fileName = `vaccine-certificate-${patient.id}.pdf`;
   const { logo, signingImage, watermark } = await getCertificateAssets(
@@ -139,22 +140,23 @@ export const makeVaccineCertificate = async (
       translations={translations}
       localisation={localisation}
       language={language}
+      certificateData={{ title, subTitle }}
+      healthFacility={healthFacility}
     />,
     fileName,
   );
 };
 
-export const makeCovidCertificate = async (
-  certType,
-  patient,
-  printedBy,
+export const makeCovidCertificate = async ({
   models,
   settings,
-  vdsData = null,
+  certType,
   language,
-) => {
-  const settingsObj = await settings.getAll();
-  const localisation = await getLocalisation();
+  patient,
+  printedBy,
+  vdsData = null,
+}) => {
+  const [localisation, settingsObj] = await Promise.all([getLocalisation(), settings.getAll()]);
   const getLocalisationData = key => get(localisation, key);
   const getSettingData = key => get(settingsObj, key);
 
@@ -172,13 +174,13 @@ export const makeCovidCertificate = async (
   const passportFromSurveyResponse = await getPatientSurveyResponseAnswer(
     models,
     patient.id,
-    config?.questionCodeIds?.passport,
+    getSettingData('questionCodeIds.passport'),
   );
 
   const nationalityId = await getPatientSurveyResponseAnswer(
     models,
     patient.id,
-    config?.questionCodeIds?.nationalityId,
+    getSettingData('questionCodeIds.nationalityId'),
   );
 
   const nationalityRecord = await models.ReferenceData.findByPk(nationalityId);

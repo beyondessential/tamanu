@@ -19,12 +19,13 @@ export class CovidClearanceCertificatePublisher extends ScheduledTask {
   constructor(context) {
     const { schedule, jitterTime, enabled } = config.schedules.covidClearanceCertificatePublisher;
     super(schedule, log, jitterTime, enabled);
+    this.settings = context.settings;
     this.models = context.store.models;
   }
 
   async run() {
     const { LabRequest, LabTest, CertificateNotification, Encounter } = this.models;
-    const questionId = config.questionCodeIds?.email;
+    const questionId = await this.settings.get('questionCodeIds.email');
 
     const labRequestsWhere = {
       ...(await getCovidClearanceCertificateFilter(this.models)),

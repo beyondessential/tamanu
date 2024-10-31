@@ -64,7 +64,7 @@ EOF
     yarn workspace @tamanu/central-server start provision provisioning.json5
     nohup yarn workspace @tamanu/central-server start > central-server.out &
     echo "CENTRAL_SERVER_PID=$!" >> $GITHUB_ENV
-    curl --retry 8 --retry-connrefused localhost:3000
+    curl --retry 8 --retry-all-errors localhost:3000
 }
 
 # Start the facility server, to initialise it.
@@ -73,7 +73,7 @@ test_facility_offline_facility_start() {
 	cat <<- EOF > packages/facility-server/config/local.json5
 	{
 	    "port": "4000",
-	    "serverFacilityId": "facility-test",
+	    "serverFacilityIds": ["facility-test"],
 	    "sync": {
 	        "email": "facility-test@tamanu.io",
 	        "password": "facility-test",
@@ -92,7 +92,7 @@ test_facility_offline_facility_start() {
 	EOF
 	nohup yarn workspace @tamanu/facility-server start > facility-server.out &
 	echo "FACILITY_SERVER_PID=$!" >> $GITHUB_ENV
-	curl --retry 8 --retry-connrefused localhost:4000
+	curl --retry 8 --retry-all-errors localhost:4000
 }
 
 test_facility_offline_stop_and_print() {
@@ -104,7 +104,7 @@ test_facility_offline_stop_and_print() {
 
 test_facility_offline_facility_start_again() {
 	yarn workspace @tamanu/facility-server start &
-	curl --retry 8 --retry-connrefused localhost:4000
+	curl --retry 8 --retry-all-errors localhost:4000
 	kill -INT -$!
 }
 
