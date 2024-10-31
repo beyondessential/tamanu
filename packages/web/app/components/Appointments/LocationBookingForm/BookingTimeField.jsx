@@ -82,10 +82,14 @@ export const BookingTimeField = ({ disabled = false }) => {
   );
 
   // Convert existing bookings into timeslots
-  const bookedTimeSlots = existingLocationBookings?.data.map(booking => ({
-    start: new Date(booking.startTime),
-    end: new Date(booking.endTime),
-  }));
+  const bookedTimeSlots = useMemo(
+    () =>
+      existingLocationBookings?.data.map(booking => ({
+        start: new Date(booking.startTime),
+        end: new Date(booking.endTime),
+      })) || [],
+    [existingLocationBookings],
+  );
 
   const bookingSlotSettings = getSetting('appointments.bookingSlots');
   const timeSlots = useMemo(() => calculateTimeSlots(bookingSlotSettings, values.date), [
