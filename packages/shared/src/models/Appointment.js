@@ -1,5 +1,5 @@
 import { Sequelize } from 'sequelize';
-import { APPOINTMENT_STATUSES, APPOINTMENT_TYPES, SYNC_DIRECTIONS } from '@tamanu/constants';
+import { APPOINTMENT_STATUSES, SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
 import { dateTimeType } from './dateTimeTypes';
 import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
@@ -13,8 +13,7 @@ export class Appointment extends Model {
         endTime: dateTimeType('endTime'),
         type: {
           type: Sequelize.STRING,
-          allowNull: false,
-          defaultValue: APPOINTMENT_TYPES.STANDARD,
+          allowNull: true,
         },
         status: {
           type: Sequelize.STRING,
@@ -55,6 +54,11 @@ export class Appointment extends Model {
     this.belongsTo(models.Location, {
       as: 'location',
       foreignKey: 'locationId',
+    });
+
+    this.belongsTo(models.ReferenceData, {
+      foreignKey: 'bookingTypeId',
+      as: 'bookingType',
     });
   }
 

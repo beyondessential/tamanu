@@ -1,11 +1,19 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 
 import { useLocationsQuery } from '../../../api/queries';
 import { Colors } from '../../../constants';
-import { PageContainer, TopBar, TranslatedText } from '../../../components';
+import { Button, PageContainer, TopBar, TranslatedText } from '../../../components';
 import { Typography } from '@material-ui/core';
 import { LocationBookingsCalendar } from './LocationBookingsCalendar';
+import { BookLocationDrawer } from '../../../components/Appointments/LocationBookingForm/BookLocationDrawer';
+import { AddRounded } from '@material-ui/icons';
+
+const PlusIcon = styled(AddRounded)`
+  && {
+    margin-right: 3px;
+  }
+`;
 
 // BEGIN PLACEHOLDERS
 
@@ -41,6 +49,10 @@ const Filters = styled('search')`
   gap: 1rem;
 `;
 
+const NewBookingButton = styled(Button)`
+  margin-inline-start: 1rem;
+`;
+
 const EmptyStateLabel = styled(Typography).attrs({
   align: 'center',
   color: 'textSecondary',
@@ -57,7 +69,19 @@ const EmptyStateLabel = styled(Typography).attrs({
 `;
 
 export const LocationBookingsView = () => {
-  const locationsQuery = useLocationsQuery({ bookableOnly: true });
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [initialDrawerValues, setInitialDrawerValues] = useState({});
+  const closeBookingForm = () => {
+    setIsDrawerOpen(false);
+  };
+  const openBookingForm = initialValues => {
+    setInitialDrawerValues(initialValues);
+    setIsDrawerOpen(true);
+  };
+
+  const locationsQuery = useLocationsQuery({
+    bookableOnly: true,
+  });
   const { data: locations } = locationsQuery;
   const hasNoLocations = locations?.length === 0;
 
@@ -70,12 +94,29 @@ export const LocationBookingsView = () => {
           <Placeholder>Clinician</Placeholder>
           <Placeholder>Type</Placeholder>
         </Filters>
+        <NewBookingButton onClick={() => openBookingForm({})}>
+          <PlusIcon />
+          <TranslatedText stringId="locationBooking.calendar.newBooking" fallback="New booking" />
+        </NewBookingButton>
       </LocationBookingsTopBar>
       {hasNoLocations ? (
-        <EmptyStateLabel>No bookable locations</EmptyStateLabel>
+        <EmptyStateLabel>
+          <TranslatedText
+            stringId="locationBooking.calendar.noBookableLocations"
+            fallback="No bookable locations"
+          />
+        </EmptyStateLabel>
       ) : (
-        <LocationBookingsCalendar locationsQuery={locationsQuery} />
+        <LocationBookingsCalendar
+          locationsQuery={locationsQuery}
+          openBookingForm={openBookingForm}
+        />
       )}
+      <BookLocationDrawer
+        initialBookingValues={initialDrawerValues}
+        open={isDrawerOpen}
+        closeDrawer={closeBookingForm}
+      />
     </Wrapper>
   );
 };
