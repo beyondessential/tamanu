@@ -13,7 +13,7 @@ const { dbConfig } = require('./dbConfig.js');
  */
 async function readTablesFromDbt(schemaPath, noSymlinks = false) {
   const tablePromises = (await fs.readdir(schemaPath, { withFileTypes: true }))
-    .filter(entry => noSymlinks ? !entry.isSymbolicLink() : true)
+    .filter(entry => (noSymlinks ? !entry.isSymbolicLink() : true))
     .map(entry => entry.name)
     .filter(tablePath => tablePath.endsWith('.yml'))
     .sort()
@@ -117,6 +117,32 @@ async function readTablesFromDB(client, schemaName) {
   return await Promise.all(tablePromises);
 }
 
+function* dbtDocParser(input) {
+  let remain = input;
+
+  let section = null;
+  while (remain.length) {
+    if (section) {
+      // find the next {% enddocs %}
+      const match = /^\{%\s*enddocs\s*%\}\s*$/m.exec(remain);
+      if (!match || !match.length) break;
+
+      const contents = remain.substring(0, match.index).trim();
+      remain = remain.substring(match.index + match[0].length);
+
+      yield { section, contents };
+      section = null;
+    } else {
+      // find the next {% docs ... %}
+      const match = /^\{%\s*docs\s+(.+)%\}\s*$/m.exec(remain);
+      if (!match || !match.length) break;
+
+      remain = remain.substring(match.index + match[0].length);
+      section = match[1].trim();
+    }
+  }
+}
+
 /**
  * Reads a table document from a file and parse into a structured JS object.
  *
@@ -125,11 +151,6 @@ async function readTablesFromDB(client, schemaName) {
  * @returns A table document object or null if the doc doesn't exist
  */
 async function readTableDoc(schema, tableName) {
-  const re = new RegExp(
-    `\\{%\\s*docs\\s+${docPrefix(schema, '\\w+')}__(\\w+)\\s*%\\}([^}]+)\\{%\\s+enddocs\\s*%\\}`,
-    'g',
-  );
-
   let text;
   try {
     text = await fs.readFile(path.join(schema.path, `${tableName}.md`), {
@@ -142,22 +163,37 @@ async function readTableDoc(schema, tableName) {
 
   const doc = {
     name: tableName,
+    description: 'TODO',
     // Make columns a list to preserve the order.
     columns: [],
   };
 
-  // generic.md isn't for a particular table and thus doesn't have a `table_*` section.
-  if (tableName !== 'generic') {
-    const match = re.exec(text);
-    if (match === null) return null;
-    doc.description = match[2].trim();
+  const sections = [];
+  const parser = dbtDocParser(text);
+  let section = null;
+  while ((section = parser.next().value)) {
+    sections.push(section);
   }
 
-  let match;
-  while ((match = re.exec(text)) !== null) {
+  const expectedTablePrefix = `${docPrefix(schema, 'table')}__`;
+  const expectedColumnPrefix = `${docPrefix(schema, tableName)}__`;
+  for (const { section, contents } of sections) {
+    if (section.startsWith(expectedTablePrefix)) {
+      doc.description = contents;
+      continue;
+    }
+
+    if (!section.startsWith(expectedColumnPrefix)) {
+      // just ignore invalid sections, which will drop them
+      continue;
+    }
+
+    const name = section.substring(expectedColumnPrefix.length);
+    if (!name) continue;
+
     doc.columns.push({
-      name: match[1],
-      description: match[2].trim(),
+      name,
+      description: contents,
     });
   }
 
@@ -547,13 +583,16 @@ async function symlinkIdenticals() {
     recursive: true,
     withFileTypes: true,
   });
-  
+
   for (const entry of allFacilityFiles) {
     if (!entry.isFile() || entry.isSymbolicLink()) continue;
     const facilityPath = path.join(entry.path, entry.name);
-    const centralPath = path.join(entry.path.replace('/facility-server/', '/central-server/'), entry.name);
+    const centralPath = path.join(
+      entry.path.replace('/facility-server/', '/central-server/'),
+      entry.name,
+    );
     const facilityFile = await fs.readFile(facilityPath);
-    
+
     try {
       const centralFile = await fs.readFile(centralPath);
       if (facilityFile.equals(centralFile)) {
@@ -580,7 +619,10 @@ async function runAll() {
   program
     .description('Generate dbt models from the current database')
     .option('--fail-on-missing-config', 'Exit with 1 if we cannot connect to a db')
-    .option('--no-depupe', 'Don\'t create symlinks from facility models that are identical to central ones')
+    .option(
+      '--no-depupe',
+      "Don't create symlinks from facility models that are identical to central ones",
+    )
     .option(
       '--allow-dirty',
       'Proceed even if there are uncommitted changed in the database/ folder',
@@ -596,7 +638,11 @@ async function runAll() {
     exit(1);
   }
 
-  if ((await run('central-server', opts)) && (await run('facility-server', opts)) && !opts.noDedupe) {
+  if (
+    (await run('central-server', opts)) &&
+    (await run('facility-server', opts)) &&
+    !opts.noDedupe
+  ) {
     await symlinkIdenticals();
   }
 }
