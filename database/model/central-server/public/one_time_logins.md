@@ -3,7 +3,7 @@ One time logins are used for password resets.
 {% enddocs %}
 
 {% docs one_time_logins__user_id %}
-The [user](#!/source/source.tamanu.tamanu.users) for whom this one time login is.
+The [user](#!/source/source.tamanu.tamanu.users) for whom this one time login is for.
 {% enddocs %}
 
 {% docs one_time_logins__token %}
