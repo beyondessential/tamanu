@@ -8,6 +8,7 @@ import {
   DOCUMENT_SOURCES,
   NOTE_RECORD_TYPES,
   VITALS_DATA_ELEMENT_IDS,
+  CHARTING_DATA_ELEMENT_IDS,
   IMAGING_REQUEST_STATUS_TYPES,
 } from '@tamanu/constants';
 
@@ -41,7 +42,7 @@ encounter.post(
     const { models, body, user } = req;
     req.checkPermission('create', 'Encounter');
     const encounterObject = await models.Encounter.create({ ...body, actorId: user.id });
-    
+
     if (body.dietIds) {
       const dietIds = JSON.parse(body.dietIds);
       await encounterObject.addDiets(dietIds);
@@ -367,7 +368,9 @@ async function getAnswersWithHistory(req) {
   const { order = 'DESC' } = query;
 
   const isVitals = surveyId === null;
-  const dateDataElement = isVitals ? VITALS_DATA_ELEMENT_IDS.dateRecorded : 'pde-ChartDate'; // TODO: Create and use constant
+  const dateDataElement = isVitals
+    ? VITALS_DATA_ELEMENT_IDS.dateRecorded
+    : CHARTING_DATA_ELEMENT_IDS.dateRecorded;
   const historyTable = 'vital_logs'; // TODO: Create new model/table and use it here if its not vitals query
   // The LIMIT and OFFSET occur in an unusual place in this query
   // So we can't run it through the generic runPaginatedQuery function
