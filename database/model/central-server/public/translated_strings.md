@@ -1,15 +1,19 @@
 {% docs table__translated_strings %}
-TODO
+Localisation and translation strings.
+
+These are used for two distinct purposes:
+- to translate Tamanu in languages other than English
+- to adjust the wording of specific items in the UI
 {% enddocs %}
 
 {% docs translated_strings__string_id %}
-TODO
+The internal reference of the item being translated.
 {% enddocs %}
 
 {% docs translated_strings__language %}
-TODO
+The language code.
 {% enddocs %}
 
 {% docs translated_strings__text %}
-TODO
+The actual translated text.
 {% enddocs %}

@@ -30,6 +30,9 @@ sources:
             description: "{{ doc('refresh_tokens__user_id') }}"
             data_tests:
               - not_null
+              - relationships:
+                  to: source('tamanu', 'users')
+                  field: id
           - name: expires_at
             data_type: timestamp with time zone
             description: "{{ doc('refresh_tokens__expires_at') }}"

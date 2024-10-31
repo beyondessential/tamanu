@@ -28,8 +28,6 @@ sources:
           - name: deleted_at
             data_type: timestamp with time zone
             description: "{{ doc('generic__deleted_at') }} in settings."
-            data_tests:
-              - unique
           - name: key
             data_type: text
             description: "{{ doc('settings__key') }}"
@@ -44,6 +42,9 @@ sources:
             description: "{{ doc('settings__facility_id') }}"
             data_tests:
               - unique
+              - relationships:
+                  to: source('tamanu', 'facilities')
+                  field: id
           - name: updated_at_sync_tick
             data_type: bigint
             description: "{{ doc('generic__updated_at_sync_tick') }} in settings."
@@ -54,3 +55,8 @@ sources:
             description: "{{ doc('settings__scope') }}"
             data_tests:
               - not_null
+              - accepted_values:
+                  values:
+                    - global
+                    - central
+                    - facility

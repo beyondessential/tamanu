@@ -29,10 +29,6 @@ JSON structure containing the details of the contact.
 Its schema varies based on the `method`.
 {% enddocs %}
 
-{% docs patient_contacts__deletion_status %}
-TODO
-{% enddocs %}
-
 {% docs patient_contacts__patient_id %}
 Reference to the [patient](#!/source/source.tamanu.tamanu.patients).
 {% enddocs %}

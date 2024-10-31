@@ -61,11 +61,16 @@ Date field which is a timestamp of record being deleted
 {% enddocs %}
 
 {% docs generic__visibility_status %}
-The visibility status of the record. 
-"current" indicates the record is currently in use and should be visible and accessible to users on the User Interface.
-"historical" indicates that the record is no longer in use and should not be visible nor accessible to users. However, the record may still be present in Reporting.
-"merged" indicates that the record has been merged, is no longer in use and should not be visible nor accessible to users.
-The default value is "current".
+The visibility status of the record.
+
+- `current` indicates the record is currently in use and should be visible and accessible to users
+  on the User Interface.
+- `historical` indicates that the record is no longer in use and should not be visible nor
+  accessible to users. However, the record may still be present in Reporting.
+- `merged` indicates that the record has been merged, is no longer in use and should not be visible
+  nor accessible to users.
+
+The default value is `current`.
 {% enddocs %}
 
 {% docs generic__updated_at_sync_tick %}

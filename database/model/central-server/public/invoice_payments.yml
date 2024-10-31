@@ -54,3 +54,10 @@ sources:
             description: "{{ doc('generic__updated_at_sync_tick') }} in invoice_payments."
             data_tests:
               - not_null
+          - name: updated_by_user_id
+            data_type: character varying(255)
+            description: "{{ doc('invoice_payments__updated_by_user_id') }}"
+            data_tests:
+              - relationships:
+                  to: source('tamanu', 'users')
+                  field: id

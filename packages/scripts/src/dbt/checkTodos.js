@@ -24,6 +24,13 @@ async function detectTodoItemsInTable(schema, dbtSrc) {
     );
   }
 
+  const isTagsTodo = dbtSrc.sources[0].tags?.length === 0;
+  if (isTagsTodo) {
+    console.log(
+      `TODO: table tags for ${schema.name}.${table.name}, in ${schema.path}/${table.name}.yml'`,
+    );
+  }
+
   const doc = await readTableDoc(schema, table.name);
   if (doc === null) return;
 
@@ -41,7 +48,7 @@ async function detectTodoItemsInTable(schema, dbtSrc) {
     );
   }
 
-  return +isDescriptionTodo + +isDocTodo + todoColumnDocs.length;
+  return +isDescriptionTodo + +isTagsTodo + +isDocTodo + todoColumnDocs.length;
 }
 
 async function run() {
