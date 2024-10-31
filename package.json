@@ -8,6 +8,7 @@
   "license": "GPL-3.0-and-later AND BUSL-1.1",
   "type": "module",
   "scripts": {
+    "prepare": "patch-package",
     "clean": "rimraf packages/*/dist packages/*/*.tsbuildinfo",
     "clean:deps": "rimraf node_modules packages/*/node_modules",
     "create-package": "node scripts/create-package.mjs",
@@ -28,6 +29,7 @@
     "facility-test-watch": "npm run watch-shared-and @tamanu/facility-server test-watch",
     "facility-migrate": "npm run build-shared && TAMANU_ARGS=\"migrate up\" npm run facility-start-dev",
     "facility-migrate-down": "npm run build-shared && TAMANU_ARGS=\"migrate down\" npm run facility-start-dev",
+    "mobile-run-android": "npm run build-shared && npm run --workspace @tamanu/mobile android",
     "shared-test": "npm run build-shared && npm run --workspace @tamanu/shared test",
     "central-test": "npm run build-shared && npm run --workspace @tamanu/central-server test",
     "central-shell": "npm run build-shared && npm run --workspace @tamanu/central-server shell",
@@ -42,6 +44,7 @@
     "node": "^20.9.0"
   },
   "packageManager": "npm@10.8.0",
+  "postinstall": "patch-package",
   "private": true,
   "workspaces": {
     "packages": [
@@ -52,17 +55,11 @@
       "packages/web",
       "packages/facility-server",
       "packages/central-server",
-      "packages/web-frontend",
       "packages/shared",
       "packages/constants",
       "packages/settings",
-      "packages/api-client"
-    ],
-    "nohoist": [
-      "**/fbjs-scripts",
-      "**/fbjs-scripts/**",
-      "**/config",
-      "**/config/**"
+      "packages/api-client",
+      "packages/mobile"
     ]
   },
   "devDependencies": {
@@ -79,9 +76,19 @@
     "yaml": "^2.2.1"
   },
   "dependencies": {
+    "@rnx-kit/metro-resolver-symlinks": "^0.1.36",
     "concurrently": "^8.2.2",
     "config": "^3.3.9",
     "jsbarcode": "^3.11.6",
+    "patch-package": "^8.0.0",
     "pm2": "^4.5.0"
+  },
+  "overrides": {
+    "react": "18.2.0",
+    "react-native-svg": "^12.1.0",
+    "react-redux": "8.0.2",
+    "react-dom": "18.2.0",
+    "react-test-renderer": "^18.3.1",
+    "@react-pdf/renderer": "^3.4.4"
   }
 }

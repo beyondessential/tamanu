@@ -245,13 +245,7 @@ jobs:
         run: .github/scripts/test-facility-offline.sh facility-start-again
 
   test-package-lock:
-    strategy:
-      fail-fast: false
-      matrix:
-        workdir:
-          - .
-          - packages/mobile
-    name: Check ${{ matrix.workdir }}/package-lock.json is up to date
+    name: Check package-lock.json is up to date
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -260,7 +254,6 @@ jobs:
           node-version-file: '.nvmrc'
           cache: npm
       - run: npm ci
-        working-directory: ${{ matrix.workdir }}
       - run: git diff --exit-code
 
   # Dummy job to have a stable name for PR requirements

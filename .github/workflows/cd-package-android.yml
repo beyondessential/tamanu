@@ -97,6 +97,10 @@ jobs:
         working-directory: packages/mobile
         run: |
           npm install
+  
+      - name: Build shared packages
+        run: |
+          npm run build-shared
 
       - name: Build release
         working-directory: packages/mobile/android
