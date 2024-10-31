@@ -1,70 +1,73 @@
-import React, { memo, useMemo, useState } from 'react';
-import { capitalize, omitBy, pickBy, startCase } from 'lodash';
+import React, { memo, useEffect, useMemo, useState } from 'react';
+import { capitalize, cloneDeep, get, omitBy, pickBy, set, startCase } from 'lodash';
 import styled from 'styled-components';
 import { Box, Divider } from '@material-ui/core';
 
 import { getScopedSchema, isSetting } from '@tamanu/settings';
 
-import { LargeBodyText, Heading4, SelectInput, TranslatedText } from '../../../components';
-import { ScopeSelectorFields } from './ScopeSelectorFields';
+import {
+  Button,
+  DynamicSelectField,
+  OutlinedButton,
+  SelectInput,
+  TranslatedText,
+} from '../../../components';
 import { Colors } from '../../../constants';
-import { ThemedTooltip } from '../../../components/Tooltip';
-
-const INDENT_WIDTH_PX = 20;
+import { Category } from './components/Category';
 
 const SettingsWrapper = styled.div`
   background-color: ${Colors.white};
   border: 1px solid ${Colors.outline};
-  margin-top: 20px;
+  margin-top: 1.25rem;
 `;
 
-const StyledTopBar = styled.div`
-  display: flex;
+const StyledDynamicSelectField = styled(DynamicSelectField)`
+  width: 18.75rem;
 `;
 
 const StyledSelectInput = styled(SelectInput)`
-  width: 300px;
+  width: 18.75rem;
 `;
 
-const StyledList = styled.div`
+const CategoryOptions = styled(Box)`
   display: flex;
-  flex-direction: column;
-  gap: 20px;
+  justify-content: space-between;
+  align-items: end;
 `;
 
 const CategoriesWrapper = styled.div`
-  padding: 20px;
+  display: grid;
+  column-gap: 1rem;
+  grid-template-columns: minmax(min-content, 30rem) minmax(min-content, max-content);
+  padding: 1.25rem;
 `;
 
-const CategoryWrapper = styled.div`
-  margin-left: ${({ $nestLevel }) => $nestLevel * INDENT_WIDTH_PX}px;
-  :not(:first-child) {
-    padding-top: 20px;
-    border-top: 1px solid ${Colors.outline};
-  }
+const ButtonGroup = styled.div`
+  display: flex;
+  gap: 1rem;
 `;
 
-const sortProperties = ([a0, a1], [b0, b1]) => {
-  const aName = a1.name || a0;
-  const bName = b1.name || b0;
-  const isTopLevelA = isSetting(a1);
-  const isTopLevelB = isSetting(b1);
-  // Sort top level settings first
-  if (isTopLevelA && !isTopLevelB) return -1;
-  if (!isTopLevelA && isTopLevelB) return 1;
-  // Alphabetical sort
-  return aName.localeCompare(bName);
-};
+const UNCATEGORISED_KEY = 'uncategorised';
 
-const getName = (name, path) => {
-  return name || capitalize(startCase(path.split('.').pop()));
-};
+export const formatSettingName = (name, path) => name || capitalize(startCase(path));
 
-const getCategoryOptions = schema =>
-  Object.entries(schema.properties).map(([key, value]) => ({
-    value: key,
-    label: value.name || capitalize(startCase(key)),
-  }));
+const recursiveJsonParse = obj => {
+  if (typeof obj !== 'object') return obj;
+  if (Array.isArray(obj)) return obj.map(recursiveJsonParse);
+  return Object.entries(obj).reduce((acc, [key, value]) => {
+    try {
+      const parsed = JSON.parse(value);
+      if (typeof parsed === 'object') {
+        acc[key] = parsed;
+      } else {
+        acc[key] = value;
+      }
+    } catch {
+      acc[key] = recursiveJsonParse(value);
+    }
+    return acc;
+  }, {});
+};
 
 const prepareSchema = scope => {
   const schema = getScopedSchema(scope);
@@ -74,7 +77,7 @@ const prepareSchema = scope => {
     const categories = omitBy(schema.properties, isSetting);
     schema.properties = {
       ...categories,
-      uncategorised: {
+      [UNCATEGORISED_KEY]: {
         properties: uncategorised,
       },
     };
@@ -82,85 +85,172 @@ const prepareSchema = scope => {
   return schema;
 };
 
-const CategoryTitle = ({ name, path, description }) => {
-  const categoryTitle = getName(name, path);
-  if (!categoryTitle) return null;
-  return (
-    <ThemedTooltip placement="top" arrow title={description}>
-      <Heading4 width="fit-content" mt={0} mb={2}>
-        {categoryTitle}
-      </Heading4>
-    </ThemedTooltip>
-  );
+const getSchemaForCategory = (schema, category, subCategory) => {
+  const categorySchema = schema.properties[category];
+  if (!categorySchema) return null;
+  if (subCategory) {
+    // Pass down highRisk from parent category to now top level subcategory
+    const subCategorySchema = categorySchema.properties[subCategory];
+    const isHighRisk = categorySchema.highRisk || subCategorySchema.highRisk;
+    return {
+      ...subCategorySchema,
+      highRisk: isHighRisk,
+    };
+  }
+  return categorySchema;
 };
 
-const SettingName = ({ name, path, description }) => (
-  <ThemedTooltip arrow placement="top" title={description}>
-    <LargeBodyText ml={1} width="fit-content">
-      {getName(name, path)}
-    </LargeBodyText>
-  </ThemedTooltip>
+const getSubCategoryOptions = (schema, category) => {
+  const categorySchema = schema.properties[category];
+  if (!categorySchema) return null;
+  const subCategories = omitBy(categorySchema.properties, isSetting);
+  return Object.keys(subCategories).length > 1
+    ? getCategoryOptions({ properties: subCategories })
+    : null;
+};
+
+const getCategoryOptions = schema =>
+  Object.entries(schema.properties)
+    .map(([key, value]) => ({
+      value: key,
+      label: formatSettingName(value.name, key),
+    }))
+    .sort((a, b) => a.label.localeCompare(b.label));
+
+export const EditorView = memo(
+  ({
+    values,
+    setValues,
+    setFieldValue,
+    submitForm,
+    resetForm,
+    isSubmitting,
+    dirty,
+    handleShowWarningModal,
+    scope,
+  }) => {
+    const [category, setCategory] = useState(null);
+    const [subCategory, setSubCategory] = useState(null);
+
+    const scopedSchema = useMemo(() => prepareSchema(scope), [scope]);
+    const categoryOptions = useMemo(() => getCategoryOptions(scopedSchema), [scopedSchema]);
+    const subCategoryOptions = useMemo(() => getSubCategoryOptions(scopedSchema, category), [
+      category,
+      scopedSchema,
+    ]);
+    const schemaForCategory = useMemo(
+      () => getSchemaForCategory(scopedSchema, category, subCategory),
+      [scopedSchema, category, subCategory],
+    );
+
+    const handleChangeScope = () => {
+      setSubCategory(null);
+      setCategory(null);
+    };
+
+    useEffect(handleChangeScope, [scope]);
+
+    const handleChangeCategory = async e => {
+      const newCategory = e.target.value;
+      if (newCategory !== category && dirty) {
+        const dismissChanges = await handleShowWarningModal();
+        if (!dismissChanges) return;
+        await resetForm();
+      }
+      setSubCategory(null);
+      setCategory(newCategory);
+    };
+
+    const handleChangeSubcategory = e => {
+      setSubCategory(e.target.value);
+    };
+
+    const getSettingPath = path =>
+      `${category === UNCATEGORISED_KEY ? '' : `${category}.`}${
+        subCategory ? `${subCategory}.` : ''
+      }${path}`;
+
+    const handleChangeSetting = (path, value) => {
+      const settingObject = cloneDeep(values.settings);
+      const updatedSettings = set(settingObject, getSettingPath(path), value);
+      setFieldValue('settings', updatedSettings);
+    };
+
+    const getSettingValue = path => get(values.settings, getSettingPath(path));
+
+    const saveSettings = async event => {
+      // Need to parse json string objects stored in keys
+      const parsedSettings = recursiveJsonParse(values.settings);
+      delete parsedSettings.uncategorised;
+      setValues({ ...values, settings: parsedSettings });
+      const success = await submitForm(event);
+      if (success) {
+        resetForm({ values });
+      }
+    };
+
+    return (
+      <>
+        <SettingsWrapper>
+          <CategoryOptions p={2}>
+            <Box display="flex" alignItems="center">
+              <StyledSelectInput
+                required
+                placeholder=""
+                label={
+                  <TranslatedText
+                    stringId="admin.settings.category.label"
+                    fallback="Select category"
+                  />
+                }
+                value={category}
+                onChange={handleChangeCategory}
+                options={categoryOptions}
+              />
+              {subCategoryOptions && (
+                <Box ml={2}>
+                  <StyledDynamicSelectField
+                    label={
+                      <TranslatedText
+                        stringId="admin.settings.subCategory.label"
+                        fallback="Select sub-category"
+                      />
+                    }
+                    placeholder=""
+                    value={subCategory}
+                    onChange={handleChangeSubcategory}
+                    options={subCategoryOptions}
+                  />
+                </Box>
+              )}
+            </Box>
+            <ButtonGroup>
+              <OutlinedButton onClick={() => resetForm()} disabled={!dirty}>
+                <TranslatedText
+                  stringId="admin.settings.action.clearChanges"
+                  fallback="Clear changes"
+                />
+              </OutlinedButton>
+              <Button onClick={saveSettings} disabled={!dirty || isSubmitting}>
+                <TranslatedText
+                  stringId="admin.settings.action.saveChanges"
+                  fallback="Save changes"
+                />
+              </Button>
+            </ButtonGroup>
+          </CategoryOptions>
+          <Divider />
+          {category && (
+            <CategoriesWrapper p={2}>
+              <Category
+                schema={schemaForCategory}
+                getSettingValue={getSettingValue}
+                handleChangeSetting={handleChangeSetting}
+              />
+            </CategoriesWrapper>
+          )}
+        </SettingsWrapper>
+      </>
+    );
+  },
 );
-
-export const Category = ({ values, path = '' }) => {
-  const Wrapper = path ? CategoryWrapper : Box;
-  const nestLevel = path.split('.').length;
-  const sortedProperties = Object.entries(values.properties).sort(sortProperties);
-  return (
-    <Wrapper $nestLevel={nestLevel}>
-      <CategoryTitle name={values.name} path={path} description={values.description} />
-      <StyledList>
-        {sortedProperties.map(([key, value]) => {
-          const newPath = path ? `${path}.${key}` : key;
-          return value.type ? (
-            <SettingName
-              key={newPath}
-              path={newPath}
-              name={value.name}
-              description={value.description}
-            />
-          ) : (
-            <Category key={newPath} path={newPath} values={value} />
-          );
-        })}
-      </StyledList>
-    </Wrapper>
-  );
-};
-
-export const EditorView = memo(({ values }) => {
-  const [category, setCategory] = useState(null);
-  const { scope } = values;
-
-  const scopedSchema = useMemo(() => prepareSchema(scope), [scope]);
-  const categoryOptions = useMemo(() => getCategoryOptions(scopedSchema), [scopedSchema]);
-  const initialValues = useMemo(() => scopedSchema.properties[category], [category, scopedSchema]);
-
-  const handleChangeScope = () => {
-    setCategory(null);
-  };
-  const handleChangeCategory = e => setCategory(e.target.value);
-
-  return (
-    <>
-      <StyledTopBar>
-        <ScopeSelectorFields onChangeScope={handleChangeScope} />
-      </StyledTopBar>
-      <SettingsWrapper>
-        <Box p={2}>
-          <StyledSelectInput
-            required
-            label={<TranslatedText stringId="admin.settings.category" fallback="Category" />}
-            value={category}
-            onChange={handleChangeCategory}
-            options={categoryOptions}
-          />
-        </Box>
-        <Divider />
-        <CategoriesWrapper p={2}>
-          {category && <Category values={initialValues} />}
-        </CategoriesWrapper>
-      </SettingsWrapper>
-    </>
-  );
-});

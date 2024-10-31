@@ -4,7 +4,8 @@ import {
   createDummyPatientAdditionalData,
 } from '@tamanu/shared/demoData/patients';
 import { randomLabRequest } from '@tamanu/shared/demoData/labRequests';
-import { fake } from '@tamanu/shared/test-helpers/fake';
+import { chance, fake } from '@tamanu/shared/test-helpers';
+import { CertificateTypes } from '@tamanu/shared/utils';
 import { LAB_REQUEST_STATUSES, REFERENCE_TYPES } from '@tamanu/constants';
 import { makeCovidCertificate, makeVaccineCertificate } from '../dist/utils/makePatientCertificate';
 
@@ -177,25 +178,28 @@ describe('Certificate', () => {
   it('Generates a Patient Covid Certificate', async () => {
     await createLabTests();
     const patientRecord = await models.Patient.findByPk(patient.id);
-    const printedBy = 'Initial Admin';
-    const result = await makeCovidCertificate('test', patientRecord, printedBy, models, settings, [
-      { foo: 'bar' },
-    ]);
+    const result = await makeCovidCertificate({
+      models,
+      settings,
+      certType: chance.pickone(Object.values(CertificateTypes)),
+      patient: patientRecord,
+      printedBy: chance.name(),
+      translations: [{ foo: 'bar' }],
+    });
     expect(result.status).toEqual('success');
   });
 
   it('Generates a Patient Vaccine Certificate', async () => {
     await createVaccines();
     const patientRecord = await models.Patient.findByPk(patient.id);
-    const printedBy = 'Initial Admin';
-    const printedAt = new Date();
-    const result = await makeVaccineCertificate(
-      patientRecord,
-      printedBy,
-      printedAt,
-      'test facility',
+    const result = await makeVaccineCertificate({
       models,
-    );
+      settings,
+      patient: patientRecord,
+      printedAt: new Date(),
+      printedBy: chance.name(),
+      facilityName: 'test facility',
+    });
     expect(result.status).toEqual('success');
   });
 });

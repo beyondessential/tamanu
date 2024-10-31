@@ -2,7 +2,6 @@ import { pascal } from 'case';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { literal, Op, Sequelize } from 'sequelize';
-import config from 'config';
 import { NotFoundError, ValidationError } from '@tamanu/shared/errors';
 import { camelCase, keyBy, omit } from 'lodash';
 import {
@@ -77,25 +76,14 @@ function createSuggesterRoute(
         : [];
       const suggestedIds = translations.map(extractDataId);
 
-      const filterByFacility = !!query.filterByFacility || endpoint === 'facilityLocationGroup';
-
       const whereQuery = whereBuilder(`%${searchQuery}%`, query);
-      const visibilityStatus = whereQuery.visibilityStatus;
 
       const where = {
         [Op.or]: [
           whereQuery,
           {
-            ...(dataType === OTHER_REFERENCE_TYPES.INVOICE_PRODUCT ? omit(whereQuery, 'name') : {}), //! Workaround for invoice product suggester while waiting for the actual fix
             id: { [Op.in]: suggestedIds },
-            ...(visibilityStatus
-              ? {
-                  visibilityStatus: {
-                    [Op.eq]: visibilityStatus,
-                  },
-                }
-              : {}),
-            ...(filterByFacility ? { facilityId: config.serverFacilityId } : {}),
+            ...omit(whereQuery, 'name'),
           },
         ],
       };
@@ -103,6 +91,7 @@ function createSuggesterRoute(
       if (endpoint === 'location' && query.locationGroupId) {
         where.locationGroupId = query.locationGroupId;
       }
+
       const include = includeBuilder?.(req);
 
       const results = await model.findAll({
@@ -115,8 +104,10 @@ function createSuggesterRoute(
         },
         limit: defaultLimit,
       });
+
       // Allow for async mapping functions (currently only used by location suggester)
       const data = await Promise.all(results.map(r => mapper(r)));
+
       res.send(isTranslatable ? replaceDataLabelsWithTranslations({ data, translations }) : data);
     }),
   );
@@ -183,7 +174,7 @@ function createAllRecordsRoute(
       const { models, query } = req;
 
       const model = models[modelName];
-      const where = whereBuilder('%', query);
+      const where = whereBuilder('%', query, req);
       const results = await model.findAll({
         where,
         order: [[Sequelize.literal(searchColumn), 'ASC']],
@@ -328,13 +319,16 @@ const DEFAULT_WHERE_BUILDER = search => ({
 
 const filterByFacilityWhereBuilder = (search, query) => {
   const baseWhere = DEFAULT_WHERE_BUILDER(search);
-  if (!query.filterByFacility) {
+  // Parameters are passed as strings, so we need to check for 'true'
+  const shouldFilterByFacility =
+    query.filterByFacility === 'true' || query.filterByFacility === true;
+  if (!shouldFilterByFacility) {
     return baseWhere;
   }
 
   return {
     ...baseWhere,
-    facilityId: config.serverFacilityId,
+    facilityId: query.facilityId,
   };
 };
 
