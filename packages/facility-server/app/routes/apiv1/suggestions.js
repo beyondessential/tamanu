@@ -214,7 +214,11 @@ function createAllRecordsRoute(
   );
 }
 
-function createSuggesterCreateRoute(endpoint, modelName, { creatingBodyBuilder, mapper }) {
+function createSuggesterCreateRoute(
+  endpoint,
+  modelName,
+  { creatingBodyBuilder, mapper, afterCreated },
+) {
   suggestions.post(
     `/${endpoint}/create`,
     asyncHandler(async (req, res) => {
@@ -223,6 +227,9 @@ function createSuggesterCreateRoute(endpoint, modelName, { creatingBodyBuilder, 
 
       const body = await creatingBodyBuilder(req);
       const newRecord = await models[modelName].create(body, { returning: true });
+      if (afterCreated) {
+        await afterCreated(req, newRecord);
+      }
       const mappedRecord = await mapper(newRecord);
       res.send(mappedRecord);
     }),
@@ -260,6 +267,33 @@ function createSuggester(
 // once there's more than one status that we're checking against
 const VISIBILITY_CRITERIA = {
   visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+};
+
+const afterCreatedReferenceData = async (req, newRecord) => {
+  const { models } = req;
+
+  if (newRecord.type === REFERENCE_TYPES.TASK_TEMPLATE) {
+    await models.TaskTemplate.create({ referenceDataId: newRecord.id });
+  }
+};
+
+const referenceDataBodyBuilder = ({ type, name }) => {
+  if (!name) {
+    throw new ValidationError('Name is required');
+  }
+
+  if (!type) {
+    throw new ValidationError('Type is required');
+  }
+
+  const code = `${camelCase(name)}-${customAlphabet('1234567890ABCDEFGHIJKLMNPQRSTUVWXYZ', 3)()}`;
+
+  return {
+    id: uuidv4(),
+    code,
+    type,
+    name,
+  };
 };
 
 createSuggester(
@@ -301,36 +335,14 @@ createSuggester(
             as: 'taskTemplate',
             include: TaskTemplate.getFullReferenceAssociations(),
           },
-          where: {
-            visibilityStatus: VISIBILITY_STATUSES.CURRENT,
-          }
+          where: VISIBILITY_CRITERIA,
         },
       ];
     },
-    mapper: ({ name, code, id, type, children, taskTemplate }) => ({ name, code, id, type, children, taskTemplate }),
-    creatingBodyBuilder: req => {
-      const { body } = req;
-      const { type, name } = body;
-      if (!name) {
-        throw new ValidationError('Name is required');
-      }
-
-      if (!type) {
-        throw new ValidationError('Type is required');
-      }
-
-      const code = `${camelCase(body.name)}-${customAlphabet(
-        '1234567890ABCDEFGHIJKLMNPQRSTUVWXYZ',
-        3,
-      )()}`;
-
-      return {
-        id: uuidv4(),
-        code,
-        type,
-        name,
-      };
-    },
+    mapper: item => item,
+    creatingBodyBuilder: req =>
+      referenceDataBodyBuilder({ type: req.body.type, name: req.body.name }),
+    afterCreated: afterCreatedReferenceData,
   },
   true,
 );
@@ -365,24 +377,8 @@ REFERENCE_TYPE_VALUES.forEach(typeName => {
           },
         };
       },
-      creatingBodyBuilder: req => {
-        const { body } = req;
-        if (!body.name) {
-          throw new ValidationError('Name is required');
-        }
-
-        const code = `${camelCase(body.name)}-${customAlphabet(
-          '1234567890ABCDEFGHIJKLMNPQRSTUVWXYZ',
-          3,
-        )()}`;
-
-        return {
-          id: uuidv4(),
-          code,
-          type: typeName,
-          name: body.name,
-        };
-      },
+      creatingBodyBuilder: req => referenceDataBodyBuilder({ type: typeName, name: req.body.name }),
+      afterCreated: afterCreatedReferenceData,
     },
     true,
   );
