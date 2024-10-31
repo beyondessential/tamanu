@@ -123,4 +123,9 @@ export const ChartsPane = React.memo(({ patient, encounter, readonly }) => {
 ChartsPane.propTypes = {
   patient: PropTypes.object.isRequired,
   encounter: PropTypes.string.isRequired,
+  readonly: PropTypes.bool,
+};
+
+ChartsPane.defaultProps = {
+  readonly: false,
 };
