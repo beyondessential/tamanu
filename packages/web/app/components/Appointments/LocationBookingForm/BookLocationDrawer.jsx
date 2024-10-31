@@ -173,7 +173,7 @@ export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues, ed
         <Heading>{headingText}</Heading>
         <Description>{descriptionText}</Description>
         <Form
-          onSubmit={handleSubmit}
+          onSubmit={async values => handleSubmit(values)}
           suppressErrorDialog
           validationSchema={yup.object().shape({
             locationId: yup.string().required(),
