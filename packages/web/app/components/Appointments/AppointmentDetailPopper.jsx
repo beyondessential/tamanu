@@ -123,7 +123,7 @@ const ControlsRow = ({ onClose, appointment, openBookingForm }) => {
     },
     // TODO: cancel workflow
     {
-      label: <TranslatedText stringId="general.action.Cancel" fallback="Cancel" />,
+      label: <TranslatedText stringId="general.action.cancel" fallback="Cancel" />,
       action: () => {},
     },
   ];
