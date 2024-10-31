@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import { Typography } from '@material-ui/core';
 import { runCalculations } from '@tamanu/shared/utils/calculations';
 import styled from 'styled-components';
@@ -16,6 +16,10 @@ const EmptyStateText = styled(Typography)`
 
 const StyledButtonRow = styled(ButtonRow)`
   margin-block-start: 24px;
+`;
+
+const StyledHeaderComponents = styled.div`
+  margin-bottom: 1.2rem;
 `;
 
 const useCalculatedFormValues = (components, values, setFieldValue) => {
@@ -64,6 +68,7 @@ const useScrollToFirstError = () => {
 export const SurveyScreen = ({
   allComponents,
   screenComponents = allComponents,
+  headerComponents = [],
   values = {},
   setFieldValue,
   onStepForward,
@@ -108,17 +113,24 @@ export const SurveyScreen = ({
     }
   };
 
-  const visibleComponents = screenComponents
-    .filter(c => checkVisibility(c, values, allComponents))
-    .map(c => (
-      <SurveyQuestion
-        component={c}
-        patient={patient}
-        key={c.id}
-        inputRef={setQuestionToRef(c.dataElementId)}
-        encounterType={encounterType}
-      />
-    ));
+  const getVisibleComponents = useCallback(
+    (components, allComponents) =>
+      components
+        .filter(c => checkVisibility(c, values, allComponents))
+        .map(c => (
+          <SurveyQuestion
+            component={c}
+            patient={patient}
+            key={c.id}
+            inputRef={setQuestionToRef(c.dataElementId)}
+            encounterType={encounterType}
+          />
+        )),
+    [encounterType, patient, setQuestionToRef, values],
+  );
+
+  const visibleHeaderComponents = getVisibleComponents(headerComponents, allComponents);
+  const visibleComponents = getVisibleComponents(screenComponents, allComponents);
 
   const emptyStateMessage = (
     <EmptyStateText variant="body2">
@@ -130,8 +142,14 @@ export const SurveyScreen = ({
   );
 
   return (
-    <FormGrid columns={cols}>
-      {visibleComponents.length > 0 ? visibleComponents : emptyStateMessage}
+    <>
+      {// header compoents should take the whole width
+      visibleHeaderComponents.length > 0 ? (
+        <StyledHeaderComponents>{visibleHeaderComponents}</StyledHeaderComponents>
+      ) : null}
+      <FormGrid columns={cols}>
+        {visibleComponents.length > 0 ? visibleComponents : emptyStateMessage}
+      </FormGrid>
       <StyledButtonRow>
         {submitButton || (
           <>
@@ -144,6 +162,6 @@ export const SurveyScreen = ({
           </>
         )}
       </StyledButtonRow>
-    </FormGrid>
+    </>
   );
 };

@@ -659,8 +659,8 @@ describe('User', () => {
       const result = await app.get('/api/user/userPreferences');
       expect(result).toHaveSucceeded();
       expect(result.body).toMatchObject({
-        preferenceKey: 'selectedGraphedVitalsOnFilter',
-        preferenceValue: defaultSelectedGraphedVitalsOnFilter,
+        key: 'selectedGraphedVitalsOnFilter',
+        value: defaultSelectedGraphedVitalsOnFilter,
       });
     });
 

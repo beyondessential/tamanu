@@ -12,15 +12,10 @@ import { useAuth } from '../contexts/Auth';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useChartSurveyQuery } from '../api/queries/useChartSurveyQuery';
 
-export const SimpleChartForm = React.memo(({ patient, onSubmit, onClose, surveyId }) => {
-  const {
-    data: chartSurvey,
-    isLoading,
-    isError,
-    error,
-  } = useChartSurveyQuery(surveyId);
+export const SimpleChartForm = React.memo(({ patient, onSubmit, onClose, chartSurveyId }) => {
+  const { data: chartSurvey, isLoading, isError, error } = useChartSurveyQuery(chartSurveyId);
   const { components = [] } = chartSurvey || {};
-  const currentComponents = components.filter(
+  const visibleComponents = components.filter(
     c => c.visibilityStatus === VISIBILITY_STATUSES.CURRENT,
   );
 
@@ -51,6 +46,9 @@ export const SimpleChartForm = React.memo(({ patient, onSubmit, onClose, surveyI
 
   const handleSubmit = async data => onSubmit({ survey: chartSurvey, ...data });
 
+  // date component should always be the first one
+  const [dateComponent, ...componentsExceptDate] = visibleComponents;
+
   return (
     <Form
       onSubmit={handleSubmit}
@@ -59,7 +57,8 @@ export const SimpleChartForm = React.memo(({ patient, onSubmit, onClose, surveyI
       validateOnBlur
       render={({ submitForm, values, setFieldValue }) => (
         <SurveyScreen
-          allComponents={currentComponents}
+          headerComponents={dateComponent ? [dateComponent] : []}
+          allComponents={componentsExceptDate}
           patient={patient}
           cols={2}
           values={values}
