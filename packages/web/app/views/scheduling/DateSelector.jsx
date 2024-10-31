@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { Box } from '@material-ui/core';
-import { ArrowBackIos, ArrowForwardIos } from '@mui/icons-material';
-import { IconButton, styled } from '@mui/material';
+import ArrowBackIos from '@mui/icons-material/ArrowBackIos';
+import ArrowForwardIos from '@mui/icons-material/ArrowForwardIos';
+import { styled } from '@mui/material/styles';
+import IconButton from '@mui/material/IconButton';
 import {
   addDays,
   addMonths,
