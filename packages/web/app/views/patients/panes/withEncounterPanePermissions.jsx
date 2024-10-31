@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 import React from 'react';
 import styled from 'styled-components';
 import { Colors } from '../../../constants';
