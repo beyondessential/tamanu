@@ -18,10 +18,6 @@ const StyledButtonRow = styled(ButtonRow)`
   margin-block-start: 24px;
 `;
 
-const StyledHeaderComponents = styled.div`
-  margin-bottom: 1.2rem;
-`;
-
 const useCalculatedFormValues = (components, values, setFieldValue) => {
   useEffect(() => {
     // recalculate dynamic fields
@@ -68,7 +64,6 @@ const useScrollToFirstError = () => {
 export const SurveyScreen = ({
   allComponents,
   screenComponents = allComponents,
-  headerComponents = [],
   values = {},
   setFieldValue,
   onStepForward,
@@ -129,7 +124,6 @@ export const SurveyScreen = ({
     [encounterType, patient, setQuestionToRef, values],
   );
 
-  const visibleHeaderComponents = getVisibleComponents(headerComponents, allComponents);
   const visibleComponents = getVisibleComponents(screenComponents, allComponents);
 
   const emptyStateMessage = (
@@ -142,14 +136,8 @@ export const SurveyScreen = ({
   );
 
   return (
-    <>
-      {// header compoents should take the whole width
-      visibleHeaderComponents.length > 0 ? (
-        <StyledHeaderComponents>{visibleHeaderComponents}</StyledHeaderComponents>
-      ) : null}
-      <FormGrid columns={cols}>
-        {visibleComponents.length > 0 ? visibleComponents : emptyStateMessage}
-      </FormGrid>
+    <FormGrid columns={cols}>
+      {visibleComponents.length > 0 ? visibleComponents : emptyStateMessage}
       <StyledButtonRow>
         {submitButton || (
           <>
@@ -162,6 +150,6 @@ export const SurveyScreen = ({
           </>
         )}
       </StyledButtonRow>
-    </>
+    </FormGrid>
   );
 };

@@ -46,9 +46,6 @@ export const SimpleChartForm = React.memo(({ patient, onSubmit, onClose, chartSu
 
   const handleSubmit = async data => onSubmit({ survey: chartSurvey, ...data });
 
-  // date component should always be the first one
-  const [dateComponent, ...componentsExceptDate] = visibleComponents;
-
   return (
     <Form
       onSubmit={handleSubmit}
@@ -57,8 +54,7 @@ export const SimpleChartForm = React.memo(({ patient, onSubmit, onClose, chartSu
       validateOnBlur
       render={({ submitForm, values, setFieldValue }) => (
         <SurveyScreen
-          headerComponents={dateComponent ? [dateComponent] : []}
-          allComponents={componentsExceptDate}
+          allComponents={visibleComponents}
           patient={patient}
           cols={2}
           values={values}
