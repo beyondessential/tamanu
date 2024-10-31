@@ -1,8 +1,10 @@
 import React from 'react';
 import Box from '@mui/material/Box';
 import { styled } from '@mui/material/styles';
+
 import { Colors } from '../../../constants';
 import { APPOINTMENT_GROUP_BY } from './OutpatientAppointmentsView';
+import { TranslatedText } from '../../../components';
 
 const Wrapper = styled(Box)`
   cursor: pointer;
@@ -58,9 +60,14 @@ export const GroupByAppointmentToggle = ({ value, onChange }) => {
   return (
     <Wrapper onClick={handleChange} role="radiogroup">
       <AnimatedBackground $toggled={value === APPOINTMENT_GROUP_BY.CLINICIAN} />
-      <ToggleButton aria-checked={value === APPOINTMENT_GROUP_BY.LOCATION_GROUP}>Area</ToggleButton>
+      <ToggleButton aria-checked={value === APPOINTMENT_GROUP_BY.LOCATION_GROUP}>
+        <TranslatedText stringId="outpatientAppointments.groupByToggle.area" fallback="Area" />
+      </ToggleButton>
       <ToggleButton aria-checked={value === APPOINTMENT_GROUP_BY.CLINICIAN}>
-        Clinicians
+        <TranslatedText
+          stringId="outpatientAppointments.groupByToggle.clinicians"
+          fallback="Clinicians"
+        />
       </ToggleButton>
     </Wrapper>
   );

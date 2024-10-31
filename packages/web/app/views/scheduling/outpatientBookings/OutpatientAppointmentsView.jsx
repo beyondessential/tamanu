@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { startOfDay } from 'date-fns';
 import styled from 'styled-components';
 import Box from '@mui/material/Box';
+import AddIcon from '@mui/icons-material/Add';
 
 import { Button, PageContainer, TopBar, TranslatedText } from '../../../components';
 import { DateSelector } from '../DateSelector';
@@ -87,7 +88,9 @@ export const OutpatientAppointmentsView = () => {
           <Placeholder>Clinician</Placeholder>
           <Placeholder>Type</Placeholder>
         </Filters>
-        <NewBookingButton onClick={null}>+ New booking</NewBookingButton>
+        <NewBookingButton onClick={null}>
+          <AddIcon /> Book appointment
+        </NewBookingButton>
       </LocationBookingsTopBar>
       <CalendarWrapper>
         <DateSelector value={selectedDate} onChange={handleChangeDate} />
