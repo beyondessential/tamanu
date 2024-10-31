@@ -59,8 +59,8 @@ export class Appointment extends Model {
     });
 
     this.belongsTo(models.ReferenceData, {
-      as: 'type',
-      foreignKey: 'typeId',
+      as: 'appointmentTypeId',
+      foreignKey: 'appointmentTypeId',
     });
   }
 

@@ -22,7 +22,7 @@ export const AppointmentForm = props => {
   if (isUpdating) {
     initialValues = {
       patientId: appointment.patientId,
-      typeId: appointment.typeId,
+      appointTypeId: appointment.appointTypeId,
       startTime: appointment.startTime,
       endTime: appointment.endTime,
       clinicianId: appointment.clinicianId,
@@ -59,7 +59,7 @@ export const AppointmentForm = props => {
           .string()
           .required()
           .translatedLabel(<TranslatedText stringId="general.patient.label" fallback="Patient" />),
-        typeId: yup
+        appointmentTypeId: yup
           .string()
           .required()
           .translatedLabel(
@@ -101,7 +101,7 @@ export const AppointmentForm = props => {
               label={
                 <TranslatedText stringId="appointment.type.label" fallback="Appointment type" />
               }
-              name="typeId"
+              name="appointmentTypeId"
               component={AutocompleteField}
               suggester={appointmentTypeSuggester}
               required
