@@ -1,13 +1,18 @@
 {% docs table__program_data_elements %}
-TODO
+Describes how a survey question gets stored.
+
+See [survey screen components](#!/source/source.tamanu.tamanu.survey_screen_components), which
+describes how the question is displayed.
 {% enddocs %}
 
 {% docs program_data_elements__code %}
-TODO
+Machine-friendly short name for the question.
+
+This is also used to refer to questions within criterias and such.
 {% enddocs %}
 
 {% docs program_data_elements__name %}
-TODO
+Human-friendly name.
 {% enddocs %}
 
 {% docs program_data_elements__indicator %}
@@ -15,17 +20,19 @@ TODO
 {% enddocs %}
 
 {% docs program_data_elements__default_text %}
-TODO
+Default value.
 {% enddocs %}
 
 {% docs program_data_elements__default_options %}
-TODO
+Default options if this is a dropdown.
 {% enddocs %}
 
 {% docs program_data_elements__type %}
-TODO
+Type of the field.
+
+Types are here: <https://github.com/beyondessential/tamanu/blob/main/packages/constants/src/surveys.ts>
 {% enddocs %}
 
 {% docs program_data_elements__visualisation_config %}
-TODO
+JSON visualisation configuration.
 {% enddocs %}

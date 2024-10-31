@@ -59,9 +59,10 @@ sources:
             data_type: character varying(255)
             description: "{{ doc('patient_family_histories__diagnosis_id') }}"
             data_tests:
-              - relationships:
+              - dbt_utils.relationships_where:
                   to: source('tamanu', 'reference_data')
                   field: id
+                  to_condition: type = 'diagnosis'
           - name: recorded_date_legacy
             data_type: timestamp with time zone
             description: "{{ doc('patient_family_histories__recorded_date_legacy') }}"

@@ -38,6 +38,11 @@ sources:
             description: "{{ doc('patient_field_definitions__field_type') }}"
             data_tests:
               - not_null
+              - accepted_values:
+                  values:
+                    - string
+                    - number
+                    - select
           - name: options
             data_type: array
             description: "{{ doc('patient_field_definitions__options') }}"
@@ -52,6 +57,9 @@ sources:
             description: "{{ doc('patient_field_definitions__category_id') }}"
             data_tests:
               - not_null
+              - relationships:
+                  to: source('tamanu', 'patient_field_definition_categories')
+                  field: id
           - name: updated_at_sync_tick
             data_type: bigint
             description: "{{ doc('generic__updated_at_sync_tick') }} in

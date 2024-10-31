@@ -3,7 +3,7 @@ Information about a patient's death.
 {% enddocs %}
 
 {% docs patient_death_data__patient_id %}
-Reference to the [patient](#!/source/source.tamanu.tamanu.patients).
+The [patient](#!/source/source.tamanu.tamanu.patients) who died.
 {% enddocs %}
 
 {% docs patient_death_data__clinician_id %}

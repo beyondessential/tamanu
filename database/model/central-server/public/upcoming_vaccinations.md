@@ -1,5 +1,5 @@
 {% docs table__upcoming_vaccinations %}
-This model lists patients and next vaccine due for a given vaccine type.
+A **view** which lists patients and next vaccine due for a given vaccine type.
 
 The first dose of a vaccine type is based on weeks from birth due whilst subsequent doses are based on weeks from last 
 vaccination due.
@@ -15,19 +15,19 @@ Age limits in years and thresholds in days for scheduled status are configurable
 {% enddocs %}
 
 {% docs upcoming_vaccinations__patient_id %}
-Reference to the [patient](#!/source/source.tamanu.tamanu.patients).
+The [patient](#!/source/source.tamanu.tamanu.patients).
 {% enddocs %}
 
 {% docs upcoming_vaccinations__scheduled_vaccine_id %}
-TODO
+Reference to the [scheduled vaccine](#!/source/source.tamanu.tamanu.scheduled_vaccines).
 {% enddocs %}
 
 {% docs upcoming_vaccinations__vaccine_category %}
-TODO
+Vaccine category [Routine, Catch-up, Campaign, Other]
 {% enddocs %}
 
 {% docs upcoming_vaccinations__vaccine_id %}
-TODO
+Reference to the vaccine ([Reference Data](#!/source/source.tamanu.tamanu.reference_data), `type = drug`).
 {% enddocs %}
 
 {% docs upcoming_vaccinations__due_date %}

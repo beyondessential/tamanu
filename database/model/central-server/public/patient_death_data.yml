@@ -53,9 +53,10 @@ sources:
             data_type: character varying(255)
             description: "{{ doc('patient_death_data__last_surgery_reason_id') }}"
             data_tests:
-              - relationships:
+              - dbt_utils.relationships_where:
                   to: source('tamanu', 'reference_data')
                   field: id
+                  to_condition: type = 'diagnosis'
           - name: external_cause_date
             data_type: character(10)
             description: "{{ doc('patient_death_data__external_cause_date') }}"
@@ -96,9 +97,10 @@ sources:
             data_type: character varying(255)
             description: "{{ doc('patient_death_data__carrier_existing_condition_id') }}"
             data_tests:
-              - relationships:
+              - dbt_utils.relationships_where:
                   to: source('tamanu', 'reference_data')
                   field: id
+                  to_condition: type = 'condition'
           - name: created_at
             data_type: timestamp with time zone
             description: "{{ doc('generic__created_at') }} in patient_death_data."
@@ -118,9 +120,10 @@ sources:
             data_type: character varying(255)
             description: "{{ doc('patient_death_data__primary_cause_condition_id') }}"
             data_tests:
-              - relationships:
+              - dbt_utils.relationships_where:
                   to: source('tamanu', 'reference_data')
                   field: id
+                  to_condition: type = 'condition'
           - name: antecedent_cause1_time_after_onset
             data_type: integer
             description: "{{ doc('patient_death_data__antecedent_cause1_time_after_onset')
@@ -129,9 +132,10 @@ sources:
             data_type: character varying(255)
             description: "{{ doc('patient_death_data__antecedent_cause1_condition_id') }}"
             data_tests:
-              - relationships:
+              - dbt_utils.relationships_where:
                   to: source('tamanu', 'reference_data')
                   field: id
+                  to_condition: type = 'condition'
           - name: antecedent_cause2_time_after_onset
             data_type: integer
             description: "{{ doc('patient_death_data__antecedent_cause2_time_after_onset')
@@ -140,9 +144,10 @@ sources:
             data_type: character varying(255)
             description: "{{ doc('patient_death_data__antecedent_cause2_condition_id') }}"
             data_tests:
-              - relationships:
+              - dbt_utils.relationships_where:
                   to: source('tamanu', 'reference_data')
                   field: id
+                  to_condition: type = 'condition'
           - name: external_cause_date_legacy
             data_type: timestamp with time zone
             description: "{{ doc('patient_death_data__external_cause_date_legacy') }}"
@@ -170,6 +175,7 @@ sources:
             data_type: character varying(255)
             description: "{{ doc('patient_death_data__antecedent_cause3_condition_id') }}"
             data_tests:
-              - relationships:
+              - dbt_utils.relationships_where:
                   to: source('tamanu', 'reference_data')
                   field: id
+                  to_condition: type = 'condition'

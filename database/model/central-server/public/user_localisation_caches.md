@@ -1,9 +1,11 @@
 {% docs table__user_localisation_caches %}
-TODO
+Cached localisation data.
+
+Localisation can be pretty expensive to retrieve, so this caches it per user.
 {% enddocs %}
 
 {% docs user_localisation_caches__localisation %}
-TODO
+JSON data.
 {% enddocs %}
 
 {% docs user_localisation_caches__user_id %}

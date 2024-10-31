@@ -1,37 +1,21 @@
 {% docs table__triages %}
-Records of each user that can login to the site
-{% enddocs %}
-
-{% docs triages__id %}
-Tamanu identifier for user
-{% enddocs %}
-
-{% docs triages__email %}
-Email address for user. This is used to login and receive emails.
-{% enddocs %}
-
-{% docs triages__password %}
-Encrypted password for user login
-{% enddocs %}
-
-{% docs triages__display_name %}
-The human readable display name for the user
+Triage data of patients waiting in an emergency department.
 {% enddocs %}
 
 {% docs triages__arrival_time %}
-TODO
+When the patient arrived.
 {% enddocs %}
 
 {% docs triages__triage_time %}
-TODO
+When the patient was triaged.
 {% enddocs %}
 
 {% docs triages__closed_time %}
-TODO
+When the patient was processed.
 {% enddocs %}
 
 {% docs triages__score %}
-TODO
+Classification done by the triage practitioner.
 {% enddocs %}
 
 {% docs triages__encounter_id %}
@@ -39,37 +23,29 @@ Reference to the [encounter](#!/source/source.tamanu.tamanu.encounters) this tri
 {% enddocs %}
 
 {% docs triages__practitioner_id %}
-TODO
+Reference to the [practitioner](#!/source/source.tamanu.tamanu.users) assigned to this patient.
 {% enddocs %}
 
 {% docs triages__chief_complaint_id %}
-TODO
+Reference to the primary complaint ([Reference Data](#!/source/source.tamanu.tamanu.reference_data), `type = triageReason`).
 {% enddocs %}
 
 {% docs triages__secondary_complaint_id %}
-TODO
+Reference to the secondary complaint ([Reference Data](#!/source/source.tamanu.tamanu.reference_data), `type = triageReason`).
 {% enddocs %}
 
 {% docs triages__arrival_time_legacy %}
-TODO
+[Deprecated] When the patient arrived.
 {% enddocs %}
 
 {% docs triages__triage_time_legacy %}
-TODO
+[Deprecated] When the patient was triaged.
 {% enddocs %}
 
 {% docs triages__closed_time_legacy %}
-TODO
+[Deprecated] When the patient was processed.
 {% enddocs %}
 
 {% docs triages__arrival_mode_id %}
-TODO
-{% enddocs %}
-
-{% docs triages__display_id %}
-Display identifier for the user
-{% enddocs %}
-
-{% docs triages__phone_number %}
-Phone number for user.
+Reference to how the patient arrived ([Reference Data](#!/source/source.tamanu.tamanu.reference_data), `type = arrivalMode`).
 {% enddocs %}

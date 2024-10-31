@@ -46,7 +46,6 @@ async function run(packageName) {
     YAML.stringify({
       packages: [
         { package: 'dbt-labs/dbt_utils', version: '1.3.0' },
-        { git: 'https://github.com/EqualExperts/dbt-unit-testing', revision: 'v0.2.6' },
       ],
     }),
   );
@@ -84,7 +83,7 @@ async function run(packageName) {
 
   console.log(' | run dbt docs generate');
   if (
-    spawnSync('dbt', ['docs', 'generate', '--profiles-dir', 'config'], {
+    spawnSync('dbt', ['docs', 'generate', '--profiles-dir', 'config', '--static'], {
       cwd: base,
       stdio: ['pipe', 'inherit', 'inherit'],
     }).status

@@ -47,5 +47,5 @@ Timestamp the sync session snapshot started at
 {% enddocs %}
 
 {% docs sync_sessions__errors %}
-TODO
+If a sync fails, the error(s).
 {% enddocs %}
