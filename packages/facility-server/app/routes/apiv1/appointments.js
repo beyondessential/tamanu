@@ -56,7 +56,7 @@ appointments.post('/locationBooking', async (req, res) => {
       });
 
       if (bookingTimeAlreadyTaken) {
-        throw new ResourceConflictError()
+        throw new ResourceConflictError();
       }
 
       const newRecord = await Appointment.create(body, { transaction });
@@ -65,7 +65,7 @@ appointments.post('/locationBooking', async (req, res) => {
 
     res.status(201).send(result);
   } catch (error) {
-    res.status(error.status || 500).send()
+    res.status(error.status || 500).send();
   }
 });
 
@@ -77,54 +77,62 @@ appointments.put('/locationBooking/:id', async (req, res) => {
 
   req.checkPermission('create', 'Appointment');
 
-  const existingBooking = await Appointment.findByPk(id);
+  try {
+    const result = await Appointment.sequelize.transaction(async transaction => {
+      const existingBooking = await Appointment.findByPk(id, {transaction});
 
-  if (!existingBooking) {
-    throw new NotFoundError()
+      if (!existingBooking) {
+        throw new NotFoundError();
+      }
+      const bookingTimeAlreadyTaken = await Appointment.findOne({
+        where: {
+          id: { [Op.ne]: id },
+          locationId,
+          [Op.or]: [
+            // Partial overlap
+            {
+              startTime: {
+                [Op.gte]: startTime, // Exclude startTime
+                [Op.lt]: endTime, // Include endTime
+              },
+            },
+            {
+              endTime: {
+                [Op.gt]: startTime, // Exclude endTime
+                [Op.lte]: endTime, // Include startTime
+              },
+            },
+            // Complete overlap
+            {
+              startTime: {
+                [Op.lt]: startTime,
+              },
+              endTime: {
+                [Op.gt]: endTime,
+              },
+            },
+            // Same time
+            {
+              startTime: startTime,
+              endTime: endTime,
+            },
+          ],
+        },
+        transaction
+      });
+
+      if (bookingTimeAlreadyTaken) {
+        throw new ResourceConflictError();
+      }
+
+      const updatedRecord = await existingBooking.update(body, { transaction });
+      return updatedRecord;
+    });
+
+    res.status(200).send(result);
+  } catch (error) {
+    res.status(error.status || 500).send();
   }
-
-  const bookingTimeAlreadyTaken = await Appointment.findOne({
-    where: {
-      id: { [Op.ne]: id },
-      locationId,
-      [Op.or]: [
-        // Partial overlap
-        {
-          startTime: {
-            [Op.gte]: startTime, // Exclude startTime
-            [Op.lt]: endTime, // Include endTime
-          },
-        },
-        {
-          endTime: {
-            [Op.gt]: startTime, // Exclude endTime
-            [Op.lte]: endTime, // Include startTime
-          },
-        },
-        // Complete overlap
-        {
-          startTime: {
-            [Op.lt]: startTime,
-          },
-          endTime: {
-            [Op.gt]: endTime,
-          },
-        },
-        // Same time
-        {
-          startTime: startTime,
-          endTime: endTime,
-        },
-      ],
-    },
-  });
-
-  if (bookingTimeAlreadyTaken) {
-    throw new ResourceConflictError()
-  }
-
-  await existingBooking.update(body);
-  res.send({ updatedRecord: existingBooking });
 });
 
 const searchableFields = [
