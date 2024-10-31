@@ -6,13 +6,15 @@ import { useAppointmentsQuery } from '../../../api/queries';
 import { useLocationGroupsQuery } from '../../../api/queries/useLocationGroupsQuery';
 import { useUsersQuery } from '../../../api/queries/useUsersQuery';
 import { APPOINTMENT_GROUP_BY } from './OutpatientAppointmentsView';
+import { useAuth } from '../../../contexts/Auth';
 
 export const useOutpatientAppointmentsCalendarData = ({ groupBy, selectedDate }) => {
+  const { facilityId } = useAuth();
   const {
     data: locationGroupData,
     error: locationGroupsError,
     isLoading: isLocationGroupsLoading,
-  } = useLocationGroupsQuery();
+  } = useLocationGroupsQuery({ facilityId });
   const { data: userData, error: usersError, isLoading: isUsersLoading } = useUsersQuery({
     orderBy: 'displayName',
   });
@@ -27,30 +29,32 @@ export const useOutpatientAppointmentsCalendarData = ({ groupBy, selectedDate })
     locationGroupId: '',
   });
 
+  const config = useMemo(
+    () =>
+      ({
+        [APPOINTMENT_GROUP_BY.LOCATION_GROUP]: {
+          titleKey: 'name',
+          data: locationGroupData,
+        },
+        [APPOINTMENT_GROUP_BY.CLINICIAN]: {
+          titleKey: 'displayName',
+          data: userData.data,
+        },
+      }[groupBy]),
+    [groupBy, locationGroupData, userData?.data],
+  );
+
   const isLoading = isLocationGroupsLoading || isUsersLoading || isFetchingAppointmentData;
   const error = locationGroupsError || usersError || appointmentError;
   const data = useMemo(() => {
-    if (!appointmentData?.data || appointmentData.data.length === 0) {
+    if (!config || !appointmentData?.data || appointmentData.data.length === 0) {
       return {};
     }
-    if (groupBy === APPOINTMENT_GROUP_BY.LOCATION_GROUP) {
-      const cellData = lodashGroupBy(appointmentData?.data, 'locationGroupId');
-      return {
-        headData: locationGroupData.filter(locationGroup => !!cellData[locationGroup.id]),
-        titleKey: 'name',
-        cellData,
-      };
-    }
-    if (groupBy === APPOINTMENT_GROUP_BY.CLINICIAN) {
-      const cellData = lodashGroupBy(appointmentData?.data, 'clinicianId');
-      return {
-        headData: userData.data.filter(user => !!cellData[user.id]),
-        titleKey: 'displayName',
-        cellData,
-      };
-    }
-    return {};
-  }, [appointmentData?.data, groupBy, locationGroupData, userData?.data]);
+    const { titleKey, data: baseData } = config[groupBy];
+    const cellData = lodashGroupBy(appointmentData?.data, groupBy);
+    const headData = baseData.filter(data => !!cellData[data.id]);
+    return { headData, cellData, titleKey };
+  }, [appointmentData.data, config, groupBy]);
 
   return { data, isLoading, error };
 };
