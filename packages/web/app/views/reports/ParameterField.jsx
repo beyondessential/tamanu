@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import styled from 'styled-components';
 import {
   SUGGESTER_ENDPOINTS,
@@ -21,6 +21,8 @@ import { VaccineCategoryField } from './VaccineCategoryField';
 import { ImagingTypeField } from './ImagingTypeField';
 import { VaccineField } from './VaccineField';
 import { useSuggester } from '../../api';
+import { FacilityField } from './FacilityField';
+import { useField } from 'formik';
 
 export const FIELD_TYPES_TO_SUGGESTER_OPTIONS = {
   ParameterSuggesterSelectField: SUGGESTER_ENDPOINTS_SUPPORTING_ALL,
@@ -34,12 +36,47 @@ export const FIELD_TYPES_WITH_PREDEFINED_OPTIONS = [
   'ParameterMultiselectField',
 ];
 
-const ParameterSuggesterSelectField = ({ suggesterEndpoint, name, ...props }) => (
-  <Field component={SuggesterSelectField} endpoint={suggesterEndpoint} name={name} {...props} />
-);
+export const FIELD_TYPES_SUPPORTING_FILTER_BY_SELECTED_FACILITY = [
+  'ParameterSuggesterSelectField',
+  'ParameterAutocompleteField',
+];
 
-const ParameterAutocompleteField = ({ suggesterEndpoint, suggesterOptions, name, ...props }) => {
-  const suggester = useSuggester(suggesterEndpoint, suggesterOptions);
+const useReportSuggesterOptions = (parameters, suggesterOptions = {}) => {
+  // Get name of facility select field if it exists
+  const facilityField = useMemo(
+    () => parameters.find(param => param.parameterField === 'FacilityField'),
+    [parameters],
+  );
+  const [{ value: facilityIdValue }] = useField(facilityField?.name || 'facilityId');
+  if (!facilityField?.filterBySelectedFacility || !facilityIdValue) return suggesterOptions;
+  return {
+    ...suggesterOptions,
+    baseQueryParameters: { ...suggesterOptions?.baseQueryParameters, facilityId: facilityIdValue },
+  };
+};
+
+const ParameterSuggesterSelectField = ({ suggesterEndpoint, name, parameters, ...props }) => {
+  const { baseQueryParameters } = useReportSuggesterOptions(parameters);
+  return (
+    <Field
+      component={SuggesterSelectField}
+      endpoint={suggesterEndpoint}
+      baseQueryParameters={baseQueryParameters}
+      name={name}
+      {...props}
+    />
+  );
+};
+
+const ParameterAutocompleteField = ({
+  suggesterEndpoint,
+  suggesterOptions,
+  name,
+  parameters,
+  ...props
+}) => {
+  const options = useReportSuggesterOptions(parameters, suggesterOptions);
+  const suggester = useSuggester(suggesterEndpoint, options);
   return <Field component={AutocompleteField} suggester={suggester} name={name} {...props} />;
 };
 
@@ -57,6 +94,7 @@ export const PARAMETER_FIELD_COMPONENTS = {
   VillageField,
   LabTestLaboratoryField,
   PractitionerField,
+  FacilityField,
   DiagnosisField,
   VaccineCategoryField,
   VaccineField,
@@ -70,7 +108,15 @@ export const PARAMETER_FIELD_COMPONENTS = {
   LabTestTypeField,
 };
 
-export const ParameterField = ({ parameterField, name, required, label, values, ...props }) => {
+export const ParameterField = ({
+  parameterField,
+  parameters,
+  name,
+  required,
+  label,
+  values,
+  ...props
+}) => {
   const ParameterFieldComponent = PARAMETER_FIELD_COMPONENTS[parameterField];
 
   return (
@@ -79,6 +125,7 @@ export const ParameterField = ({ parameterField, name, required, label, values, 
       name={name}
       label={label}
       parameterValues={values}
+      parameters={parameters}
       {...props}
     />
   );

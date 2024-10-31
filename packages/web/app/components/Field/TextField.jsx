@@ -30,7 +30,8 @@ export const StyledTextField = styled(MuiTextField)`
   .MuiInputBase-input {
     ${props =>
       props.style?.color ? `color: ${props.style.color}` : `color: ${Colors.darkestText}`};
-    padding: 13px 12px 13px 15px;
+    padding-block: 13px;
+    padding-inline: 15px 12px;
     line-height: 18px;
     ${props => (props.style?.minHeight ? `min-height: ${props.style.minHeight}` : '')};
     ${props => (props.style?.padding ? `padding: ${props.style.padding}` : '')};

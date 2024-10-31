@@ -4,10 +4,70 @@ import { startOfToday } from 'date-fns';
 import { Op, Sequelize } from 'sequelize';
 import { simplePost, simplePut } from '@tamanu/shared/utils/crudHelpers';
 import { escapePatternWildcard } from '../../utils/query';
+import { ResourceConflictError } from '@tamanu/shared/errors';
 
 export const appointments = express.Router();
 
 appointments.post('/$', simplePost('Appointment'));
+
+appointments.post('/locationBooking', async (req, res) => {
+  req.checkPermission('create', 'Appointment');
+
+  const { models, body } = req;
+  const { startTime, endTime, locationId } = body;
+  const { Appointment } = models;
+
+  try {
+    const result = await Appointment.sequelize.transaction(async transaction => {
+      const bookingTimeAlreadyTaken = await Appointment.findOne({
+        where: {
+          locationId,
+          [Op.or]: [
+            // Partial overlap
+            {
+              startTime: {
+                [Op.gte]: startTime, // Exclude startTime
+                [Op.lt]: endTime, // Include endTime
+              },
+            },
+            {
+              endTime: {
+                [Op.gt]: startTime, // Exclude endTime
+                [Op.lte]: endTime, // Include startTime
+              },
+            },
+            // Complete overlap
+            {
+              startTime: {
+                [Op.lt]: startTime,
+              },
+              endTime: {
+                [Op.gt]: endTime,
+              },
+            },
+            // Same time
+            {
+              startTime: startTime,
+              endTime: endTime,
+            },
+          ],
+        },
+        transaction,
+      });
+
+      if (bookingTimeAlreadyTaken) {
+        throw new ResourceConflictError()
+      }
+
+      const newRecord = await Appointment.create(body, { transaction });
+      return newRecord;
+    });
+
+    res.status(201).send(result);
+  } catch (error) {
+    res.status(error.status || 500).send()
+  }
+});
 
 const searchableFields = [
   'startTime',

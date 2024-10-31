@@ -68,6 +68,10 @@ describe('Reference data exporter', () => {
       'TranslatedString',
     ];
     for (const model of modelsToDestroy) {
+      // FK constraints on patient facility table that prevent deleting patient table
+      if (model === 'Patient') {
+        await ctx.store.models.PatientFacility.destroy({ where: {}, force: true });
+      }
       await ctx.store.models[model].destroy({ where: {}, force: true });
     }
   });

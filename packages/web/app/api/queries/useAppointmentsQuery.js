@@ -2,18 +2,11 @@ import { useQuery } from '@tanstack/react-query';
 
 import { useApi } from '../useApi';
 
-export const useAppointmentsQuery = options => {
+export const useAppointmentsQuery = (fetchOptions, useQueryOptions = {}) => {
   const api = useApi();
-  return useQuery(['appointments'], () => api.get('appointments', options));
-};
-
-/** Queries appointments with a non-null location ID */
-export const useLocationBookingsQuery = options => {
-  const api = useApi();
-  return useQuery(['appointments'], () =>
-    api.get('appointments', {
-      locationId: '',
-      ...options,
-    }),
+  return useQuery(
+    ['appointments', fetchOptions],
+    () => api.get('appointments', fetchOptions),
+    useQueryOptions,
   );
 };

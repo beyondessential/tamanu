@@ -64,7 +64,7 @@ export const Table = ({ data, columns, getLocalisation, getSetting, columnStyle 
               key={key}
               customStyles={[customStyles, columnIndex === 0 ? leftColumnStyle : columnStyle]}
             >
-              {accessor ? accessor(row, getLocalisation) : row[key]}
+              {accessor ? accessor(row, getLocalisation, getSetting) : row[key]}
             </TD>
           ))}
         </TR>

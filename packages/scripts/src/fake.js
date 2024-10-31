@@ -10,6 +10,7 @@ const config = require('config');
  */
 async function generateData(models) {
   const {
+    Appointment,
     Department,
     Discharge,
     Encounter,

@@ -6,6 +6,7 @@ import { buildAbilityForUser } from '@tamanu/shared/permissions/buildAbility';
 
 import {
   AuthExpiredError,
+  ResourceConflictError,
   ServerResponseError,
   VersionIncompatibleError,
   getVersionIncompatibleMessage,
@@ -69,17 +70,17 @@ export class TamanuApi {
       token,
       localisation,
       server = {},
+      availableFacilities,
       permissions,
       centralHost,
       role,
-      settings,
     } = await response.json();
     server.type = serverType;
     server.centralHost = centralHost;
     this.setToken(token);
 
     const { user, ability } = await this.fetchUserData(permissions);
-    return { user, token, localisation, server, ability, role, settings };
+    return { user, token, localisation, server, availableFacilities, ability, role };
   }
 
   async fetchUserData(permissions) {
@@ -214,6 +215,11 @@ export class TamanuApi {
         }
         throw new VersionIncompatibleError(versionIncompatibleMessage);
       }
+    }
+
+    // Handle resource conflict
+    if (response.status === 409) {
+      throw new ResourceConflictError(message)
     }
 
     throw new ServerResponseError(`Server error response: ${message}`);

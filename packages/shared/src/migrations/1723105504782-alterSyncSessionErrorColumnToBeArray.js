@@ -21,7 +21,7 @@ export async function down(query) {
   });
 
   await query.sequelize.query(`
-    UPDATE sync_sessions SET error = ARRAY[1]
+    UPDATE sync_sessions SET error = errors[1]
     WHERE errors IS NOT NULL;
   `);
 
