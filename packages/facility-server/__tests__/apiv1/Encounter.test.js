@@ -1289,6 +1289,106 @@ describe('Encounter', () => {
       });
     });
 
+    describe('charting', () => {
+      let chartsEncounter = null;
+      let chartsPatient = null;
+
+      beforeAll(async () => {
+        chartsPatient = await models.Patient.create(await createDummyPatient(models));
+        chartsEncounter = await models.Encounter.create({
+          ...(await createDummyEncounter(models, { endDate: null })),
+          patientId: chartsPatient.id,
+          reasonForEncounter: 'charting test',
+        });
+
+        await setupSurveyFromObject(models, {
+          program: {
+            id: 'charts-program',
+          },
+          survey: {
+            id: 'simple-chart-survey',
+            survey_type: 'simpleChart',
+          },
+          questions: [
+            {
+              name: 'ChartDate',
+              type: 'DateTime',
+            },
+            {
+              name: 'ChartQuestionOne',
+              type: 'Number',
+            },
+            {
+              name: 'ChartQuestionTwo',
+              type: 'Number',
+            },
+          ],
+        });
+      });
+
+      beforeEach(async () => {
+        await models.SurveyResponseAnswer.truncate({});
+        await models.SurveyResponse.truncate({});
+      });
+
+      it('should record a new simple chart reading', async () => {
+        const submissionDate = getCurrentDateTimeString();
+        const result = await app.post('/api/surveyResponse').send({
+          surveyId: 'simple-chart-survey',
+          patientId: chartsPatient.id,
+          startTime: submissionDate,
+          endTime: submissionDate,
+          answers: {
+            'pde-ChartDate': submissionDate,
+            'pde-ChartQuestionOne': 1234,
+          },
+        });
+        expect(result).toHaveSucceeded();
+        const saved = await models.SurveyResponseAnswer.findOne({
+          where: { dataElementId: 'pde-ChartQuestionOne', body: '1234' },
+        });
+        expect(saved).toHaveProperty('body', '1234');
+      });
+
+      it('should get simple chart readings for an encounter', async () => {
+        const surveyId = 'simple-chart-survey';
+        const submissionDate = getCurrentDateTimeString();
+        const answers = {
+          'pde-ChartDate': submissionDate,
+          'pde-ChartQuestionOne': 123,
+          'pde-ChartQuestionTwo': 456,
+        };
+        await app.post('/api/surveyResponse').send({
+          surveyId,
+          patientId: chartsPatient.id,
+          startTime: submissionDate,
+          endTime: submissionDate,
+          answers,
+        });
+        const result = await app.get(`/api/encounter/${chartsEncounter.id}/charts/${surveyId}`);
+        expect(result).toHaveSucceeded();
+        const { body } = result;
+        expect(body).toHaveProperty('count');
+        expect(body.count).toBeGreaterThan(0);
+        expect(body).toHaveProperty('data');
+        expect(body.data).toEqual(
+          expect.arrayContaining(
+            Object.entries(answers).map(([key, value]) =>
+              expect.objectContaining({
+                dataElementId: key,
+                records: {
+                  [submissionDate]: expect.objectContaining({
+                    id: expect.any(String),
+                    body: value.toString(),
+                    logs: null,
+                  }),
+                },
+              }),
+            ),
+          ),
+        );
+      });
+    });
     describe('program responses', () => {
       disableHardcodedPermissionsForSuite();
 
