@@ -144,6 +144,15 @@ export const WarningModal = ({ open, setShowWarningModal, resolveFn }) => {
   );
 };
 
+const validationSchema = yup.object({
+  locationId: yup.string().required(),
+  overnight: yup.boolean().required(),
+  startTime: yup.string().required(),
+  endTime: yup.string().required(),
+  patientId: yup.string().required(),
+  bookingTypeId: yup.string().required(),
+});
+
 export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues, editMode }) => {
   const queryClient = useQueryClient();
   const patientSuggester = usePatientSuggester();
@@ -215,13 +224,7 @@ export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues, ed
         <Form
           onSubmit={async values => handleSubmit(values)}
           suppressErrorDialog
-          validationSchema={yup.object().shape({
-            locationId: yup.string().required(),
-            startTime: yup.string().required(),
-            endTime: yup.string().required(),
-            patientId: yup.string().required(),
-            bookingTypeId: yup.string().required(),
-          })}
+          validationSchema={validationSchema}
           initialValues={initialBookingValues}
           enableReinitialize
           render={({ values, resetForm, setFieldValue, dirty }) => {
