@@ -85,6 +85,10 @@ export const VITALS_DATA_ELEMENT_IDS = {
   avpu: PDE_AVPU,
 };
 
+export const CHARTING_DATA_ELEMENT_IDS = {
+  dateRecorded: 'pde-PatientChartingDate',
+}
+
 export const BLOOD_PRESSURE = 'BLOOD_PRESSURE';
 export const LINE = 'LINE';
 export const VITAL_CHARTS = {

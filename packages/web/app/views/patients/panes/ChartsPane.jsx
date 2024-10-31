@@ -9,10 +9,11 @@ import { TableButtonRow, ButtonWithPermissionCheck } from '../../../components';
 import { useApi } from '../../../api';
 
 import { SelectField } from '../../../components/Field';
-import { useChartSurveys } from '../../../api/queries';
+import { useChartSurveysQuery } from '../../../api/queries';
 import { useUserPreferencesMutation } from '../../../api/mutations/useUserPreferencesMutation';
 import { useUserPreferencesQuery } from '../../../api/queries/useUserPreferencesQuery';
 import { ChartModal } from '../../../components/ChartModal';
+import { ChartsTable } from '../../../components/ChartsTable';
 import { getAnswersFromData } from '../../../utils';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
@@ -20,10 +21,7 @@ const StyledTranslatedSelectField = styled(SelectField)`
   width: 200px;
 `;
 
-const ChartDropDown = () => {
-  const [selectedChartType, setSelectedChartType] = useState('');
-
-  const { data: chartSurveys = [] } = useChartSurveys();
+const ChartDropDown = ({ selectedChartType, setSelectedChartType, chartSurveys }) => {
   const chartTypes = useMemo(
     () =>
       chartSurveys.map(chartSurvey => ({
@@ -34,7 +32,6 @@ const ChartDropDown = () => {
   );
 
   const userPreferencesMutation = useUserPreferencesMutation();
-  const { data: userPreferences } = useUserPreferencesQuery();
 
   const handleChange = newValues => {
     const newSelectedChartType = newValues.target.value;
@@ -50,7 +47,7 @@ const ChartDropDown = () => {
     <StyledTranslatedSelectField
       options={chartTypes}
       onChange={handleChange}
-      value={selectedChartType || userPreferences?.selectedChartType}
+      value={selectedChartType}
       name="chartType"
       prefix="chart.property.type"
       isClearable={false}
@@ -58,14 +55,16 @@ const ChartDropDown = () => {
   );
 };
 
-export const ChartsPane = React.memo(({ patient, encounter }) => {
+export const ChartsPane = React.memo(({ patient, encounter, readonly }) => {
   const [modalOpen, setModalOpen] = useState(false);
-  const [selectedChartType, setSelectedChartType] = useState('');
   const { data: userPreferences } = useUserPreferencesQuery();
+  const [selectedChartType, setSelectedChartType] = useState(
+    userPreferences?.selectedChartType || '',
+  );
   const [startTime] = useState(getCurrentDateTimeString());
   const api = useApi();
 
-  const { data: chartSurveys = [] } = useChartSurveys();
+  const { data: chartSurveys = [] } = useChartSurveysQuery();
   const chartTypes = useMemo(
     () =>
       chartSurveys
@@ -107,14 +106,20 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
 
       <TableButtonRow variant="small" justifyContent="space-between">
         <ChartDropDown
-          selectedChart={selectedChartType || userPreferences?.selectedChartType}
-          handleSelectChartType={setSelectedChartType}
-          chartTypes={chartTypes}
+          selectedChartType={selectedChartType}
+          setSelectedChartType={setSelectedChartType}
+          chartSurveys={chartSurveys}
         />
-        <ButtonWithPermissionCheck onClick={() => setModalOpen(true)} verb="create" noun="Chart">
-          <TranslatedText stringId="chart.action.new" fallback="Record" />
+        <ButtonWithPermissionCheck
+          onClick={() => setModalOpen(true)}
+          disabled={readonly}
+          verb="submit"
+          noun="SurveyResponse"
+        >
+          <TranslatedText stringId="chart.action.record" fallback="Record" />
         </ButtonWithPermissionCheck>
       </TableButtonRow>
+      <ChartsTable selectedSurveyId={selectedChartType} />
     </TabPane>
   );
 });
