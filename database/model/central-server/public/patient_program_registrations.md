@@ -14,9 +14,8 @@ registry, the merged patient ends up with two registrations.
 The current status of the registration.
 
 One of:
-- `purple`
-- `active`,
-- `inactive`,
+- `active`
+- `inactive`
 - `recordedInError`
 {% enddocs %}
 
