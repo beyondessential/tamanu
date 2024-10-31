@@ -27,7 +27,7 @@ export class Appointment extends Model {
       'clinician',
       'location',
       'locationGroup',
-      'type',
+      'appointmentType',
     ];
   }
 
@@ -59,8 +59,8 @@ export class Appointment extends Model {
     });
 
     this.belongsTo(models.ReferenceData, {
-      as: 'appointmentTypeId',
       foreignKey: 'appointmentTypeId',
+      as: 'appointmentType',
     });
   }
 
