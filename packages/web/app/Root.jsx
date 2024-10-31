@@ -10,7 +10,7 @@ import { MuiThemeProvider, StylesProvider } from '@material-ui/core/styles';
 import { ThemeProvider as NewThemeProvider } from '@mui/material';
 import { LocalizationProvider as MuiLocalisationProvider } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import { Slide, ToastContainer } from 'react-toastify';
+import { Slide } from 'react-toastify';
 import { ApiContext } from './api';
 import { RoutingApp } from './RoutingApp';
 import { theme } from './theme';
@@ -25,6 +25,8 @@ import { ProgramRegistryProvider } from './contexts/ProgramRegistry';
 import { TranslationProvider } from './contexts/Translation';
 import { LocalisationProvider } from './contexts/Localisation';
 import { SettingsProvider } from './contexts/Settings';
+import { CustomToastContainer } from './customToastContainer';
+import { ClearIcon } from './components/Icons/ClearIcon';
 
 const StateContextProviders = ({ children, store }) => (
   <EncounterProvider store={store}>
@@ -72,7 +74,7 @@ function Root({ api, store, history }) {
                     <MuiLocalisationProvider dateAdapter={AdapterDateFns}>
                       <StateContextProviders store={store}>
                         <ReactQueryDevtools initialIsOpen={false} />
-                        <ToastContainer
+                        <CustomToastContainer
                           hideProgressBar
                           transition={Slide}
                           closeOnClick
@@ -82,6 +84,7 @@ function Root({ api, store, history }) {
                           theme="colored"
                           icon={false}
                           limit={5}
+                          closeButton={<ClearIcon />}
                         />
                         <CssBaseline />
                         <RoutingApp />

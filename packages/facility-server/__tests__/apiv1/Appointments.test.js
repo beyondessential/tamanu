@@ -64,4 +64,59 @@ describe('Appointments', () => {
     expect(getResult.body.count).toEqual(1);
     expect(getResult.body.data[0].status).toEqual(APPOINTMENT_STATUSES.CANCELLED);
   });
+
+  describe('location bookings', () => {
+    let locationId, patientId, clinicianId;
+
+    beforeAll(async () => {
+      locationId = await randomRecordId(models, 'Location'); // Fetch once for all tests
+      patientId = patient.id;
+      clinicianId = userApp.user.dataValues.id;
+    });
+
+    const makeBooking = async (startTime, endTime) => {
+      return await userApp.post('/api/appointments/locationBooking').send({
+        patientId,
+        startTime,
+        endTime,
+        clinicianId,
+        locationId,
+      });
+    };
+
+    beforeEach(async () => {
+      await makeBooking('2024-10-02 12:00:00', '2024-10-02 12:30:00');
+    });
+
+    afterEach(async () => {
+      await models.Appointment.truncate();
+    });
+
+    describe('booked time conflict checking', () => {
+      it('should reject if the same time', async () => {
+        const result = await makeBooking('2024-10-02 12:00:00', '2024-10-02 12:30:00');
+        expect(result.status).toBe(409);
+      });
+      it('should reject if start overlaps', async () => {
+        const result = await makeBooking('2024-10-02 12:15:00', '2024-10-02 12:45:00');
+        expect(result.status).toBe(409);
+      });
+      it('should reject if end overlaps', async () => {
+        const result = await makeBooking('2024-10-02 11:45:00', '2024-10-02 12:15:00');
+        expect(result.status).toBe(409);
+      });
+      it('should reject if completely overlaps', async () => {
+        const result = await makeBooking('2024-10-02 11:30:00', '2024-10-02 13:00:00');
+        expect(result.status).toBe(409);
+      });
+      it('should allow booking if start time equals end time of another', async () => {
+        const result = await makeBooking('2024-10-02 12:30:00', '2024-10-02 13:00:00');
+        expect(result).toHaveSucceeded();
+      });
+      it('should allow booking if end time equals start time of another', async () => {
+        const result = await makeBooking('2024-10-02 11:30:00', '2024-10-02 12:00:00');
+        expect(result).toHaveSucceeded();
+      });
+    });
+  });
 });

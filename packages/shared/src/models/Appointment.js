@@ -1,5 +1,5 @@
 import { Sequelize } from 'sequelize';
-import { APPOINTMENT_STATUSES, APPOINTMENT_TYPES, SYNC_DIRECTIONS } from '@tamanu/constants';
+import { APPOINTMENT_STATUSES, SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
 import { dateTimeType } from './dateTimeTypes';
 import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
@@ -13,8 +13,7 @@ export class Appointment extends Model {
         endTime: dateTimeType('endTime'),
         type: {
           type: Sequelize.STRING,
-          allowNull: false,
-          defaultValue: APPOINTMENT_TYPES.STANDARD,
+          allowNull: true,
         },
         status: {
           type: Sequelize.STRING,
@@ -56,6 +55,11 @@ export class Appointment extends Model {
       as: 'location',
       foreignKey: 'locationId',
     });
+
+    this.belongsTo(models.ReferenceData, {
+      foreignKey: 'bookingTypeId',
+      as: 'bookingType',
+    });
   }
 
   static buildPatientSyncFilter(patientCount, markedForSyncPatientsTable) {
@@ -70,7 +74,7 @@ export class Appointment extends Model {
       WHERE
         appointments.patient_id IN (SELECT patient_id FROM ${markedForSyncPatientsTable})
       AND
-        location_groups.facility_id = :facilityId
+        location_groups.facility_id in (:facilityIds)
       AND
         appointments.updated_at_sync_tick > :since
     `;

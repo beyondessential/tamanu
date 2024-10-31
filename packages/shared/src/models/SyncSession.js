@@ -30,6 +30,16 @@ export class SyncSession extends Model {
     });
   }
 
+  /**
+   * @param {number} tick sync tick
+   */
+  async markAsStartedAt(tick) {
+    return this.sequelize.models.SyncSession.update(
+      { startedAtTick: tick },
+      { where: { id: this.id } },
+    );
+  }
+
   async markErrored(error) {
     const errors = this.errors || [];
     await this.update({

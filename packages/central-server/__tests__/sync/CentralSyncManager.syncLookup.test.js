@@ -29,10 +29,13 @@ describe('Sync Lookup data', () => {
   let centralSyncManager;
   let sessionId;
   let facility;
+  let facility2;
   let patient;
   let department;
+  let department2;
   let examiner;
   let location;
+  let location2;
   let labRequest1;
   let labTestPanel1;
   let labRequestAttachment1;
@@ -52,6 +55,7 @@ describe('Sync Lookup data', () => {
     sync: {
       lookupTable: {
         enabled: true,
+        avoidRepull: true,
       },
       maxRecordsPerSnapshotChunk: 10000000,
     },
@@ -183,6 +187,23 @@ describe('Sync Lookup data', () => {
       fake(Location, {
         facilityId: facility.id,
         locationGroupId: locationGroup.id,
+      }),
+    );
+    facility2 = await Facility.create(fake(Facility));
+    department2 = await Department.create(
+      fake(Department, {
+        facilityId: facility2.id,
+      }),
+    );
+    const locationGroup2 = await LocationGroup.create(
+      fake(LocationGroup, {
+        facilityId: facility2.id,
+      }),
+    );
+    location2 = await Location.create(
+      fake(Location, {
+        facilityId: facility2.id,
+        locationGroupId: locationGroup2.id,
       }),
     );
 
@@ -544,7 +565,9 @@ describe('Sync Lookup data', () => {
     });
     await models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, 4);
     await models.LocalSystemFact.set(LOOKUP_UP_TO_TICK_KEY, -1);
+    await models.SyncDeviceTick.truncate({ force: true });
 
+    jest.resetModules();
     jest.clearAllMocks();
   });
 
@@ -557,7 +580,7 @@ describe('Sync Lookup data', () => {
       ctx.store.sequelize,
       sessionId,
       true,
-      facility.id,
+      [facility.id],
       0,
     );
 
@@ -571,7 +594,8 @@ describe('Sync Lookup data', () => {
       patientCount,
       fullSyncPatientsTable,
       sessionId,
-      '',
+      [''],
+      null,
       simplestSessionConfig,
       simplestConfig,
     );
@@ -636,7 +660,7 @@ describe('Sync Lookup data', () => {
       ctx.store.sequelize,
       sessionId,
       true,
-      facility.id,
+      [facility.id],
       0,
     );
 
@@ -655,7 +679,8 @@ describe('Sync Lookup data', () => {
       patientCount,
       fullSyncPatientsTable,
       sessionId,
-      facility.id,
+      [facility.id],
+      null,
       simplestSessionConfig,
       simplestConfig,
     );
@@ -742,7 +767,7 @@ describe('Sync Lookup data', () => {
         ctx.store.sequelize,
         sessionId,
         false,
-        facility.id,
+        [facility.id],
         10,
       );
     });
@@ -785,7 +810,8 @@ describe('Sync Lookup data', () => {
           patientCount,
           regularSyncPatientsTable,
           sessionId,
-          facility.id,
+          [facility.id],
+          null,
           simplestSessionConfig,
           simplestConfig,
         );
@@ -800,10 +826,6 @@ describe('Sync Lookup data', () => {
       });
 
       it('Does not snapshot settings linked to a facility other than the current facility', async () => {
-        const facility2 = await models.Facility.create({
-          ...fake(models.Facility),
-          name: 'Utopia HQ',
-        });
         const setting = await models.Setting.create({
           facilityId: facility2.id,
           key: 'test',
@@ -837,7 +859,8 @@ describe('Sync Lookup data', () => {
           patientCount,
           regularSyncPatientsTable,
           sessionId,
-          facility.id,
+          [facility.id],
+          null,
           simplestSessionConfig,
           simplestConfig,
         );
@@ -884,7 +907,8 @@ describe('Sync Lookup data', () => {
           patientCount,
           regularSyncPatientsTable,
           sessionId,
-          facility.id,
+          [facility.id],
+          null,
           simplestSessionConfig,
           simplestConfig,
         );
@@ -913,7 +937,7 @@ describe('Sync Lookup data', () => {
       ctx.store.sequelize,
       sessionId,
       false,
-      facility.id,
+      [facility.id],
       10,
     );
 
@@ -943,7 +967,8 @@ describe('Sync Lookup data', () => {
       patientCount,
       regularSyncPatientsTable,
       sessionId,
-      facility.id,
+      [facility.id],
+      null,
       simplestSessionConfig,
       simplestConfig,
     );
@@ -978,8 +1003,8 @@ describe('Sync Lookup data', () => {
       encounter2 = await models.Encounter.create(
         fake(models.Encounter, {
           patientId: patient2.id,
-          departmentId: department.id,
-          locationId: location.id,
+          departmentId: department2.id,
+          locationId: location2.id,
           examinerId: examiner.id,
           startDate: '2023-12-21T04:59:51.851Z',
         }),
@@ -988,7 +1013,7 @@ describe('Sync Lookup data', () => {
 
       labRequest2 = await models.LabRequest.create(
         fake(models.LabRequest, {
-          departmentId: department.id,
+          departmentId: department2.id,
           collectedById: examiner.id,
           encounterId: encounter2.id,
         }),
@@ -1040,7 +1065,7 @@ describe('Sync Lookup data', () => {
         ctx.store.sequelize,
         sessionId,
         false,
-        facility.id,
+        [facility.id],
         10,
       );
     });
@@ -1059,7 +1084,8 @@ describe('Sync Lookup data', () => {
         patientCount,
         regularSyncPatientsTable,
         sessionId,
-        facility.id,
+        [facility.id],
+        null,
         sessionConfig,
         simplestConfig,
       );
@@ -1145,7 +1171,8 @@ describe('Sync Lookup data', () => {
         patientCount,
         regularSyncPatientsTable,
         sessionId,
-        facility.id,
+        [facility.id],
+        null,
         sessionConfig,
         simplestConfig,
       );
@@ -1201,6 +1228,156 @@ describe('Sync Lookup data', () => {
       expect(labRequestLogIds).toEqual([labRequestLog1.id]);
       expect(labTestIds).toEqual([labTest1.id]);
       expect(labTestPanelRequests).toEqual([labTestPanelRequest1.id]);
+    });
+
+    it("Updates existing encounter's isLabRequest to be TRUE when encounter got lab request attached to it ", async () => {
+      const patient3 = await models.Patient.create(fake(models.Patient));
+
+      const encounter3 = await models.Encounter.create(
+        fake(models.Encounter, {
+          patientId: patient3.id,
+          departmentId: department.id,
+          locationId: location.id,
+          examinerId: examiner.id,
+          startDate: '2023-12-21T04:59:51.851Z',
+        }),
+      );
+
+      await centralSyncManager.updateLookupTable();
+
+      const nonLabRequestEncounterLookupData = await models.SyncLookup.findOne({
+        where: { recordId: encounter3.id },
+      });
+
+      expect(nonLabRequestEncounterLookupData.isLabRequest).toBeFalse();
+
+      const labRequest = await models.LabRequest.create(
+        fake(models.LabRequest, {
+          departmentId: department.id,
+          collectedById: examiner.id,
+          encounterId: encounter3.id,
+        }),
+      );
+
+      await centralSyncManager.updateLookupTable();
+
+      const labRequestLookupData = await models.SyncLookup.findOne({
+        where: { recordId: labRequest.id },
+      });
+      const labRequestEncounterLookupData = await models.SyncLookup.findOne({
+        where: { recordId: encounter3.id },
+      });
+
+      expect(labRequestLookupData).toBeDefined();
+      expect(labRequestEncounterLookupData.isLabRequest).toBeTrue();
+    });
+  });
+
+  describe('avoidRepull', () => {
+    const snapshotOutgoingRecordsForFacility = async avoidRepull => {
+      const deviceId = 'facility-a';
+      await models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, 4);
+      const pushedPatientFromCurrentFacility = await models.Patient.create(fake(models.Patient));
+
+      // Set new sync time so that it does not match the SyncDeviceTick record
+      // in order to have it included in the snapshot.
+      await models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, 5);
+      const patientFromAnotherFacility = await models.Patient.create(fake(models.Patient));
+
+      await models.SyncDeviceTick.create({
+        deviceId,
+        persistedAtSyncTick: pushedPatientFromCurrentFacility.updatedAtSyncTick,
+      });
+
+      const actualConfig = jest.requireActual('config');
+      const { CentralSyncManager } = require('../../dist/sync/CentralSyncManager');
+      const config = {
+        ...actualConfig,
+        sync: {
+          ...actualConfig.sync,
+          lookupTable: {
+            enabled: true,
+            perModelUpdateTimeoutMs: 40000,
+            avoidRepull,
+          },
+        },
+      };
+      CentralSyncManager.overrideConfig(config);
+
+      const centralSyncManager = new CentralSyncManager(ctx);
+      await centralSyncManager.updateLookupTable();
+
+      const regularSyncPatientsTable = await createMarkedForSyncPatientsTable(
+        ctx.store.sequelize,
+        sessionId,
+        false,
+        facility.id,
+        10,
+      );
+
+      const sessionConfig = {
+        syncAllLabRequests: true,
+        isMobile: false,
+      };
+
+      const patientCount = 1;
+      await snapshotOutgoingChanges(
+        ctx.store,
+        { Patient: models.Patient },
+        SINCE,
+        patientCount,
+        regularSyncPatientsTable,
+        sessionId,
+        facility.id,
+        deviceId,
+        sessionConfig,
+        config,
+      );
+
+      const outgoingSnapshotRecords = await findSyncSnapshotRecords(
+        ctx.store.sequelize,
+        sessionId,
+        SYNC_SESSION_DIRECTION.OUTGOING,
+      );
+
+      return {
+        outgoingSnapshotRecords,
+        pushedPatientFromCurrentFacility,
+        patientFromAnotherFacility,
+      };
+    };
+    it("Avoids repull data for a device when 'avoidRepull' feature flag is enabled", async () => {
+      const {
+        outgoingSnapshotRecords,
+        pushedPatientFromCurrentFacility,
+        patientFromAnotherFacility,
+      } = await snapshotOutgoingRecordsForFacility(true);
+      const snapshotPushedPatientFromCurrentFacility = outgoingSnapshotRecords.find(
+        r => r.recordId === pushedPatientFromCurrentFacility.id,
+      );
+      const snapshotPatientFromAnotherFacility = outgoingSnapshotRecords.find(
+        r => r.recordId === patientFromAnotherFacility.id,
+      );
+
+      expect(snapshotPushedPatientFromCurrentFacility).not.toBeDefined();
+      expect(snapshotPatientFromAnotherFacility).toBeDefined();
+    });
+
+    it("Repulls data for a device when 'avoidRepull' feature flag is disabled", async () => {
+      const {
+        outgoingSnapshotRecords,
+        pushedPatientFromCurrentFacility,
+        patientFromAnotherFacility,
+      } = await snapshotOutgoingRecordsForFacility(false);
+      const snapshotPushedPatientFromCurrentFacility = outgoingSnapshotRecords.find(
+        r => r.recordId === pushedPatientFromCurrentFacility.id,
+      );
+      const snapshotPatientFromAnotherFacility = outgoingSnapshotRecords.find(
+        r => r.recordId === patientFromAnotherFacility.id,
+      );
+
+      expect(snapshotPushedPatientFromCurrentFacility).toBeDefined();
+      expect(snapshotPatientFromAnotherFacility).toBeDefined();
     });
   });
 });

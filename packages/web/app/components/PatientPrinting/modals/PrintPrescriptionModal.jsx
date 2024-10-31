@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 
 import { Modal } from '../../Modal';
 import { useCertificate } from '../../../utils/useCertificate';
@@ -26,7 +27,7 @@ export const PrintPrescriptionModal = ({ medication, patientWeight, open, onClos
   const [additionalDataLoading, setAdditionalDataLoading] = useState(false);
   const [villageLoading, setVillageLoading] = useState(false);
   const [prescriberLoading, setPrescriberLoading] = useState(false);
-  const { facility } = useAuth();
+  const { facilityId } = useAuth();
 
   useEffect(() => {
     setEncounterLoading(true);
@@ -83,12 +84,17 @@ export const PrintPrescriptionModal = ({ medication, patientWeight, open, onClos
     })();
   }, [api, medication.prescriberId]);
 
+  const { data: facility, isLoading: isFacilityLoading } = useQuery(['facility', facilityId], () =>
+    api.get(`facility/${encodeURIComponent(facilityId)}`),
+  );
+
   const isLoading =
     encounterLoading ||
     patientLoading ||
     additionalDataLoading ||
     villageLoading ||
     prescriberLoading ||
+    isFacilityLoading ||
     isFetchingCertificate;
 
   return (

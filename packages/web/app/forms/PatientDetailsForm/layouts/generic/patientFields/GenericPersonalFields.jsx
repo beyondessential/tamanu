@@ -1,18 +1,19 @@
 import React from 'react';
 
-import { PATIENT_REGISTRY_TYPES, MARITAL_STATUS_OPTIONS } from '@tamanu/constants';
+import {
+  PATIENT_REGISTRY_TYPES,
+  MARTIAL_STATUS_LABELS,
+  BLOOD_LABELS,
+  EDUCATIONAL_ATTAINMENT_LABELS,
+  SOCIAL_MEDIA_LABELS,
+  TITLE_LABELS,
+} from '@tamanu/constants';
 
 import {
-  BLOOD_OPTIONS,
-  EDUCATIONAL_ATTAINMENT_OPTIONS,
-  SOCIAL_MEDIA_OPTIONS,
-  TITLE_OPTIONS,
-} from '../../../../../constants';
-import {
-  SelectField,
   TextField,
   AutocompleteField,
   SuggesterSelectField,
+  TranslatedSelectField,
 } from '../../../../../components';
 import { ConfiguredMandatoryPatientFields } from '../../../ConfiguredMandatoryPatientFields';
 import { usePatientSuggester, useSuggester } from '../../../../../api';
@@ -28,14 +29,13 @@ export const GenericPersonalFields = ({ patientRegistryType, filterByMandatory, 
 
   const PERSONAL_FIELDS = {
     title: {
-      component: SelectField,
-      options: TITLE_OPTIONS,
+      component: TranslatedSelectField,
+      enumValues: TITLE_LABELS,
       label: <TranslatedText stringId="general.localisedField.title.label" fallback="Title" />,
-      prefix: 'localisedField.property.title',
     },
     maritalStatus: {
-      component: SelectField,
-      options: MARITAL_STATUS_OPTIONS,
+      component: TranslatedSelectField,
+      enumValues: MARTIAL_STATUS_LABELS,
       condition: () => patientRegistryType === PATIENT_REGISTRY_TYPES.NEW_PATIENT || isEdit,
       label: (
         <TranslatedText
@@ -43,15 +43,13 @@ export const GenericPersonalFields = ({ patientRegistryType, filterByMandatory, 
           fallback="Marital status"
         />
       ),
-      prefix: 'localisedField.property.maritalStatus',
     },
     bloodType: {
-      component: SelectField,
-      options: BLOOD_OPTIONS,
+      component: TranslatedSelectField,
+      enumValues: BLOOD_LABELS,
       label: (
         <TranslatedText stringId="general.localisedField.bloodType.label" fallback="Blood type" />
       ),
-      prefix: 'localisedField.property.bloodType',
     },
     placeOfBirth: {
       component: TextField,
@@ -97,8 +95,8 @@ export const GenericPersonalFields = ({ patientRegistryType, filterByMandatory, 
       ),
     },
     educationalLevel: {
-      component: SelectField,
-      options: EDUCATIONAL_ATTAINMENT_OPTIONS,
+      component: TranslatedSelectField,
+      enumValues: EDUCATIONAL_ATTAINMENT_LABELS,
       condition: () => patientRegistryType === PATIENT_REGISTRY_TYPES.NEW_PATIENT || isEdit,
       label: (
         <TranslatedText
@@ -106,7 +104,6 @@ export const GenericPersonalFields = ({ patientRegistryType, filterByMandatory, 
           fallback="Educational attainment"
         />
       ),
-      prefix: 'localisedField.property.educationalLevel',
     },
     occupationId: {
       component: AutocompleteField,
@@ -120,8 +117,8 @@ export const GenericPersonalFields = ({ patientRegistryType, filterByMandatory, 
       ),
     },
     socialMedia: {
-      component: SelectField,
-      options: SOCIAL_MEDIA_OPTIONS,
+      component: TranslatedSelectField,
+      enumValues: SOCIAL_MEDIA_LABELS,
       condition: () => patientRegistryType === PATIENT_REGISTRY_TYPES.NEW_PATIENT || isEdit,
       label: (
         <TranslatedText
@@ -129,7 +126,6 @@ export const GenericPersonalFields = ({ patientRegistryType, filterByMandatory, 
           fallback="Social media"
         />
       ),
-      prefix: 'localisedField.property.socialMedia',
     },
     patientBillingTypeId: {
       component: SuggesterSelectField,

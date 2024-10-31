@@ -9,7 +9,8 @@ import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
 import { TextFieldErrorMessage } from '../TextField/TextFieldErrorMessage';
 import { useBackend } from '~/ui/hooks';
 import { TranslatedTextElement } from '../Translations/TranslatedText';
-import { TranslatedReferenceData } from '../Translations/TranslatedReferenceData';
+import { useTranslation } from '~/ui/contexts/TranslationContext';
+import { getReferenceDataStringId } from '../Translations/TranslatedReferenceData';
 
 const MIN_COUNT_FILTERABLE_BY_DEFAULT = 8;
 
@@ -25,7 +26,7 @@ export interface DropdownProps extends BaseInputProps {
   label?: string;
   labelColor?: string;
   labelFontSize?: string | number;
-  fieldFontSize?: number
+  fieldFontSize?: number;
   fixedHeight: boolean;
   searchPlaceholderText?: string;
   selectPlaceholderText?: string;
@@ -200,21 +201,19 @@ export const MultiSelectDropdown = ({ ...props }): ReactElement => (
 
 export const SuggesterDropdown = ({ referenceDataType, ...props }): ReactElement => {
   const { models } = useBackend();
+  const { getTranslation } = useTranslation();
   const [options, setOptions] = useState([]);
 
   useEffect(() => {
     (async (): Promise<void> => {
       const results = await models.ReferenceData.getSelectOptionsForType(referenceDataType);
-      const translatedResults = results.map(option => ({
-        label: (
-          <TranslatedReferenceData
-            category={referenceDataType}
-            value={option.value}
-            fallback={option.label}
-          />
-        ),
-        value: option.value,
-      }));
+      const translatedResults = results.map(option => {
+        const stringId = getReferenceDataStringId(option.value, referenceDataType);
+        return {
+          label: getTranslation(stringId, option.label),
+          value: option.value,
+        };
+      });
       setOptions(translatedResults);
     })();
   }, []);

@@ -28,12 +28,12 @@ import {
 import { useTranslation } from '../../contexts/Translation';
 import { FORM_TYPES } from '../../constants';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
-import { TranslatedReferenceData } from '../../components';
+import { getReferenceDataStringId, TranslatedReferenceData } from '../../components';
 
 export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistration, open }) => {
   const api = useApi();
   const queryClient = useQueryClient();
-  const { currentUser, facility } = useAuth();
+  const { currentUser, facilityId } = useAuth();
   const programRegistryStatusSuggester = useSuggester('programRegistryClinicalStatus', {
     baseQueryParameters: { programRegistryId: patientProgramRegistration.programRegistryId },
   });
@@ -190,6 +190,10 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
                         />
                       ),
                       value: condition.id,
+                      searchString: getTranslation(
+                        getReferenceDataStringId(condition.id, 'condition'),
+                        condition.name,
+                      ),
                     }))}
                     disabled={!conditions || conditions.length === 0}
                   />
@@ -213,7 +217,7 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
         }}
         initialValues={{
           ...patientProgramRegistration,
-          registeringFacilityId: facility?.id,
+          registeringFacilityId: facilityId,
           clinicianId: currentUser?.id,
           conditionIds: registrationConditions?.data.map(x => x.programRegistryConditionId),
           clinicalStatusId: patientProgramRegistration.clinicalStatus?.id,
