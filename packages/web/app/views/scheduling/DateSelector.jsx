@@ -3,6 +3,7 @@ import { Box } from '@material-ui/core';
 import { ArrowBackIos, ArrowForwardIos } from '@mui/icons-material';
 import { IconButton, styled } from '@mui/material';
 import {
+  addDays,
   addMonths,
   eachDayOfInterval,
   endOfMonth,
@@ -13,6 +14,7 @@ import {
   isToday,
   isWeekend,
   startOfMonth,
+  subDays,
   subMonths,
 } from 'date-fns';
 
@@ -148,8 +150,20 @@ export const DateSelector = ({ value, onChange }) => {
     handleChange(startOfMonth(newDate));
   };
 
+  const handleOnKeyDown = e => {
+    if (e.key === 'ArrowLeft') {
+      if (isSameDay(value, startOfMonth(viewedDays[0]))) return;
+      handleChange(subDays(value, 1));
+    }
+
+    if (e.key === 'ArrowRight') {
+      if (isSameDay(value, endOfMonth(viewedDays[0]))) return;
+      handleChange(addDays(value, 1));
+    }
+  };
+
   return (
-    <Wrapper>
+    <Wrapper onKeyDown={handleOnKeyDown}>
       <StyledMonthYearInput value={viewedDays[0]} onChange={handleMonthYearChange} />
       <TodayButton onClick={handleChangeToday}>Today</TodayButton>
       <StepperWrapper>
