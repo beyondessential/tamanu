@@ -114,12 +114,7 @@ const getMonthInterval = date =>
 const DayButton = ({ date, selected, onClick }) => {
   const isWeekendDay = isWeekend(date);
   return (
-    <DayWrapper
-      id={`day-button-${date.getDate()}`}
-      onClick={onClick}
-      $selected={selected}
-      $isToday={isToday(date)}
-    >
+    <DayWrapper onClick={onClick} $selected={selected} $isToday={isToday(date)}>
       <WeekdayText $isWeekend={isWeekendDay} $selected={selected}>
         {format(date, 'EEEEE')}
       </WeekdayText>
@@ -159,17 +154,16 @@ export const DateSelector = ({ value, onChange }) => {
 
   const handleOnKeyDown = e => {
     if (e.key === 'ArrowLeft') {
+      console.log(e);
       if (isSameDay(value, viewedDays[0])) return;
-      const newValue = subDays(value, 1);
-      handleChange(newValue);
-      document.getElementById(`day-button-${newValue.getDate()}`).focus();
+      handleChange(subDays(value, 1));
+      e.target.previousElementSibling.focus();
     }
 
     if (e.key === 'ArrowRight') {
       if (isSameDay(value, viewedDays[viewedDays.length - 1])) return;
-      const newValue = addDays(value, 1);
-      handleChange(newValue);
-      document.getElementById(`day-button-${newValue.getDate()}`).focus();
+      handleChange(addDays(value, 1));
+      e.target.nextElementSibling.focus();
     }
   };
 
