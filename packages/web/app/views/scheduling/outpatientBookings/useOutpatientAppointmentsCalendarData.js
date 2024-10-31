@@ -41,15 +41,15 @@ export const useOutpatientAppointmentsCalendarData = ({ groupBy, selectedDate })
 
     if (groupBy === APPOINTMENT_GROUP_BY.CLINICIAN) {
       return {
-        headData: userData?.data.filter(user => !!cellData[user.id]),
         cellData,
+        headData: userData?.data.filter(user => !!cellData[user.id]),
         titleKey: 'displayName',
       };
     }
     if (groupBy === APPOINTMENT_GROUP_BY.LOCATION_GROUP) {
       return {
-        headData: locationGroupData.filter(group => !!cellData[group.id]),
         cellData,
+        headData: locationGroupData.filter(group => !!cellData[group.id]),
         titleKey: 'name',
       };
     }
