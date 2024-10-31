@@ -67,11 +67,11 @@ export const FACILITY_MENU_ITEMS = [
           />
         ),
         path: '/appointments/outpatients',
-        key: 'outpatientAppointments',
+        key: 'schedulingOutpatients',
         ability: { action: 'read' },
       },
       {
-        key: 'locationBookings',
+        key: 'schedulingLocations',
         path: '/appointments/locations',
         label: (
           <TranslatedText stringId="sidebar.scheduling.locations" fallback="Location bookings" />

@@ -1022,9 +1022,8 @@ export const globalSettings = {
             scheduling: {
               description: '_',
               properties: {
-                schedulingAppointments: { properties: layoutModuleProperties },
-                schedulingCalendar: { properties: layoutModuleProperties },
-                schedulingNew: { properties: layoutModuleProperties },
+                appointmentOutpatients: { properties: layoutModuleProperties },
+                appointmentLocations: { properties: layoutModuleProperties },
               },
             },
             medication: {
