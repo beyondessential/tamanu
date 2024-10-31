@@ -76,7 +76,7 @@ export const LocationBookingsView = () => {
   };
   const openBookingForm = initialValues => {
     setInitialDrawerValues(initialValues);
-    setIsDrawerOpen(true);
+    setIsDrawerOpen(true); 
   };
 
   const locationsQuery = useLocationsQuery({
