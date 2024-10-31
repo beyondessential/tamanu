@@ -19,6 +19,7 @@ const Wrapper = styled(Box)`
 `;
 
 const ToggleButton = styled('button')`
+  cursor: pointer;
   position: relative;
   appearance: none;
   color: ${Colors.primary};
@@ -27,12 +28,11 @@ const ToggleButton = styled('button')`
   width: 6.65rem;
   text-align: center;
   transition: color 0.3s cubic-bezier(0.4, 0, 0.28, 1.13);
-
-  &[aria-checked='true']  {
+  &[aria-checked='true'] {
     color: ${Colors.white};
   }
 `;
-ToggleButton.defaultProps = {'aria-role': 'radio'};
+ToggleButton.defaultProps = { 'aria-role': 'radio' };
 
 const AnimatedBackground = styled('div')`
   position: absolute;
@@ -44,7 +44,7 @@ const AnimatedBackground = styled('div')`
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.28, 1.13);
   transform: ${({ $toggled }) => ($toggled ? 'translateX(6.563rem)' : 'translateX(0)')};
 `;
-AnimatedBackground.defaultProps = {'aria-hidden': true};
+AnimatedBackground.defaultProps = { 'aria-hidden': true };
 
 export const GroupByAppointmentToggle = ({ value, onChange }) => {
   const handleChange = () => {
@@ -55,10 +55,12 @@ export const GroupByAppointmentToggle = ({ value, onChange }) => {
     );
   };
   return (
-    <Wrapper onClick={handleChange} role='radiogroup'>
+    <Wrapper onClick={handleChange} role="radiogroup">
       <AnimatedBackground $toggled={value === APPOINTMENT_GROUP_BY.CLINICIAN} />
       <ToggleButton aria-checked={value === APPOINTMENT_GROUP_BY.LOCATION_GROUP}>Area</ToggleButton>
-      <ToggleButton aria-checked={value === APPOINTMENT_GROUP_BY.CLINICIAN}>Clinicians</ToggleButton>
+      <ToggleButton aria-checked={value === APPOINTMENT_GROUP_BY.CLINICIAN}>
+        Clinicians
+      </ToggleButton>
     </Wrapper>
   );
 };
