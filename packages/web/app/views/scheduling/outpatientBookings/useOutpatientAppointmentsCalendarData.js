@@ -15,9 +15,11 @@ export const useOutpatientAppointmentsCalendarData = ({ groupBy, selectedDate })
     error: locationGroupsError,
     isLoading: isLocationGroupsLoading,
   } = useLocationGroupsQuery({ facilityId });
+
   const { data: userData, error: usersError, isLoading: isUsersLoading } = useUsersQuery({
     orderBy: 'displayName',
   });
+
   const {
     data: appointmentData,
     error: appointmentError,
@@ -29,32 +31,29 @@ export const useOutpatientAppointmentsCalendarData = ({ groupBy, selectedDate })
     locationGroupId: '',
   });
 
-  const config = useMemo(
-    () =>
-      ({
-        [APPOINTMENT_GROUP_BY.LOCATION_GROUP]: {
-          titleKey: 'name',
-          data: locationGroupData,
-        },
-        [APPOINTMENT_GROUP_BY.CLINICIAN]: {
-          titleKey: 'displayName',
-          data: userData.data,
-        },
-      }[groupBy]),
-    [groupBy, locationGroupData, userData?.data],
-  );
-
   const isLoading = isLocationGroupsLoading || isUsersLoading || isFetchingAppointmentData;
   const error = locationGroupsError || usersError || appointmentError;
+
   const data = useMemo(() => {
-    if (!config || !appointmentData?.data || appointmentData.data.length === 0) {
-      return {};
-    }
-    const { titleKey, data: baseData } = config[groupBy];
+    if (!appointmentData?.data || appointmentData.data.length === 0) return {};
+
     const cellData = lodashGroupBy(appointmentData?.data, groupBy);
-    const headData = baseData.filter(data => !!cellData[data.id]);
-    return { headData, cellData, titleKey };
-  }, [appointmentData.data, config, groupBy]);
+
+    if (groupBy === APPOINTMENT_GROUP_BY.CLINICIAN) {
+      return {
+        headData: userData?.data.filter(user => !!cellData[user.id]),
+        cellData,
+        titleKey: 'displayName',
+      };
+    }
+    if (groupBy === APPOINTMENT_GROUP_BY.LOCATION_GROUP) {
+      return {
+        headData: locationGroupData.filter(group => !!cellData[group.id]),
+        cellData,
+        titleKey: 'name',
+      };
+    }
+  }, [appointmentData?.data, groupBy, userData?.data, locationGroupData]);
 
   return { data, isLoading, error };
 };
