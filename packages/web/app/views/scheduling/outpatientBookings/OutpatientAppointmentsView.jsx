@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { startOfDay } from 'date-fns';
 import styled from 'styled-components';
-import { Box } from '@mui/material';
+import Box from '@mui/material/Box';
 
 import { Button, PageContainer, TopBar, TranslatedText } from '../../../components';
 import { DateSelector } from '../DateSelector';
