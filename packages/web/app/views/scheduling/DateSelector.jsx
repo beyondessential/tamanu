@@ -35,7 +35,7 @@ const DaysWrapper = styled(Box)`
   justify-content: space-between;
 `;
 
-const DayWrapper = styled(Box)`
+const DayWrapper = styled('button')`
   background-color: ${({ $selected }) => ($selected ? Colors.primary : 'transparent')};
   border: 1px solid ${({ $isToday }) => ($isToday ? Colors.primary : 'transparent')};
   color: ${({ $selected }) => ($selected ? Colors.white : 'inherit')};
