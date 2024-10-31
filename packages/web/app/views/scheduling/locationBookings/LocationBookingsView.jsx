@@ -11,7 +11,7 @@ import { AddRounded } from '@material-ui/icons';
 
 const PlusIcon = styled(AddRounded)`
   && {
-    margin-right: 3px;
+    margin-inline-end: 0.1875rem;
   }
 `;
 
