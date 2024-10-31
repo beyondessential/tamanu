@@ -36,18 +36,10 @@ const LoadingIndicator = styled(CircularProgress)`
   margin: 0 auto;
 `;
 
-const HelperText = styled(FormHelperText)`
-  && {
-    font-size: 11px;
-    letter-spacing: initial;
-    color: ${Colors.darkText};
-  }
-`;
-
 const calculateTimeSlots = (bookingSlotSettings, date) => {
   const { startTime, endTime, slotDuration } = bookingSlotSettings;
-  const startOfDay = parse(startTime, 'HH:mm', new Date(date ? date : null));
-  const endOfDay = parse(endTime, 'HH:mm', new Date(date ? date : null));
+  const startOfDay = parse(startTime, 'HH:mm', new Date(date ?? null));
+  const endOfDay = parse(endTime, 'HH:mm', new Date(date ?? null));
   const durationMinutes = ms(slotDuration) / 60_000; // In minutes
 
   const totalSlots = differenceInMinutes(endOfDay, startOfDay) / durationMinutes;
@@ -70,7 +62,7 @@ const isTimeSlotWithinRange = (timeSlot, range) => {
 };
 
 // logic calculated through time ranges in the format { start: DATE, end: DATE }
-export const BookingTimeField = ({ editMode, disabled = false }) => {
+export const BookingTimeField = ({ disabled = false }) => {
   const { getSetting } = useSettings();
   const { setFieldValue, values, dirty, initialValues } = useFormikContext();
 
@@ -223,7 +215,7 @@ export const BookingTimeField = ({ editMode, disabled = false }) => {
         {isFetching ? (
           <LoadingIndicator />
         ) : (
-          timeSlots.map((timeSlot, index) => {
+          timeSlots.map(timeSlot => {
             const isSelected = isTimeSlotWithinRange(timeSlot, selectedTimeRange);
             const isBooked = bookedTimeSlots?.some(
               bookedTimeSlot => isTimeSlotWithinRange(timeSlot, bookedTimeSlot) && !isSelected,
@@ -252,7 +244,7 @@ export const BookingTimeField = ({ editMode, disabled = false }) => {
 
             return (
               <BookingTimeCell
-                key={index}
+                key={timeSlot.start}
                 timeSlot={timeSlot}
                 selected={isSelected}
                 selectable={checkIfSelectableTimeSlot(timeSlot)}

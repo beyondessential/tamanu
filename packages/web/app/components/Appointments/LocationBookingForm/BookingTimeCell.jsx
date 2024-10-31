@@ -30,7 +30,7 @@ const AvailableCell = styled(Cell)`
     border: 1px solid ${Colors.primary};
   `};
   &:hover {
-    cursor: ${({ $selectable }) => ($selectable ? `pointer` : 'cursor')};
+    cursor: ${({ $selectable }) => ($selectable ? 'pointer' : 'cursor')};
   }
 `;
 
