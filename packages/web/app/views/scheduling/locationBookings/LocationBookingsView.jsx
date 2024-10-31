@@ -8,6 +8,7 @@ import { Typography } from '@material-ui/core';
 import { LocationBookingsCalendar } from './LocationBookingsCalendar';
 import { BookLocationDrawer } from '../../../components/Appointments/LocationBookingForm/BookLocationDrawer';
 import { AddRounded } from '@material-ui/icons';
+import { useAuth } from '../../../contexts/Auth';
 
 const PlusIcon = styled(AddRounded)`
   && {
@@ -72,6 +73,7 @@ export const LocationBookingsView = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [initialDrawerValues, setInitialDrawerValues] = useState({});
   const [editMode, setEditMode] = useState(false)
+  const { facilityId } = useAuth()
   const closeBookingForm = () => {
     setIsDrawerOpen(false);
   };
@@ -82,6 +84,7 @@ export const LocationBookingsView = () => {
   };
 
   const locationsQuery = useLocationsQuery({
+    facilityId,
     bookableOnly: true,
   });
   const { data: locations } = locationsQuery;
