@@ -55,3 +55,8 @@ sources:
             description: "{{ doc('settings__scope') }}"
             data_tests:
               - not_null
+              - accepted_values:
+                  values:
+                    - global
+                    - central
+                    - facility

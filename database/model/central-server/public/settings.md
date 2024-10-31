@@ -22,4 +22,9 @@ The [facility](#!/source/source.tamanu.tamanu.facilities) this setting is scoped
 
 {% docs settings__scope %}
 Scope of the setting, which determines how it's applied.
+
+One of:
+- `global`
+- `central`
+- `facility`
 {% enddocs %}
