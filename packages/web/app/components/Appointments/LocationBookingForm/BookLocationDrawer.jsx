@@ -207,10 +207,22 @@ export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues, ed
     },
   );
 
-  const headingText = editMode ? 'Modify booking' : 'Book location';
-  const descriptionText = editMode
-    ? 'Modify the selected booking below.'
-    : 'Create a new booking by completing the below details and selecting ‘Confirm’.';
+  const headingText = editMode ? (
+    <TranslatedText stringId="locationBooking.form.edit.heading" fallback="Modify booking" />
+  ) : (
+    <TranslatedText stringId="locationBooking.form.new.heading" fallback="Book location" />
+  );
+  const descriptionText = editMode ? (
+    <TranslatedText
+      stringId="locationBooking.form.edit.description"
+      fallback="Modify the selected booking below."
+    />
+  ) : (
+    <TranslatedText
+      stringId="locationBooking.form.new.description"
+      fallback="Create a new booking by completing the below details and selecting ‘Confirm’"
+    />
+  );
 
   return (
     <StyledDrawer variant="persistent" anchor="right" open={open} onClose={closeDrawer}>

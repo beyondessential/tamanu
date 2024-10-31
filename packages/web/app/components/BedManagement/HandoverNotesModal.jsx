@@ -9,11 +9,13 @@ import { useSettings } from '../../contexts/Settings';
 import { useCertificate } from '../../utils/useCertificate';
 import { TranslatedText } from '../Translation/TranslatedText';
 import { PDFLoader, printPDF } from '../PatientPrinting/PDFLoader';
+import { useAuth } from '../../contexts/Auth';
 
 export const HandoverNotesModal = React.memo(({ area: areaId, ...props }) => {
   const { getLocalisation } = useLocalisation();
   const { getSetting } = useSettings();
   const api = useApi();
+  const { facilityId } = useAuth();
   const { data: certificateData, isFetching: isFetchingCertificate } = useCertificate();
   const { logo, title, subTitle } = certificateData;
   const letterheadConfig = { title, subTitle };
@@ -30,8 +32,8 @@ export const HandoverNotesModal = React.memo(({ area: areaId, ...props }) => {
     refetch: refetchHandoverNotes,
     isFetching: isFetchingHandoverNotes,
   } = useQuery(
-    ['locationGroupHandoverNotes'],
-    () => areaId && api.get(`locationGroup/${areaId}/handoverNotes`),
+    ['locationGroupHandoverNotes', facilityId],
+    () => areaId && api.get(`locationGroup/${areaId}/handoverNotes`, { facilityId }),
   );
 
   useEffect(() => {

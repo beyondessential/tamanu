@@ -17,7 +17,7 @@ import { useSettings } from '../../../contexts/Settings';
 export const CovidClearanceCertificateModal = React.memo(({ patient }) => {
   const [open, setOpen] = useState(true);
   const { getLocalisation } = useLocalisation();
-  const { getSetting } = useSettings();
+  const { getSetting } = useSettings()
   const api = useApi();
   const { data: certificateData, isFetching: isCertificateFetching } = useCertificate({
     footerAssetName: ASSET_NAMES.COVID_CLEARANCE_CERTIFICATE_FOOTER,

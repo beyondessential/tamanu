@@ -277,6 +277,7 @@ programRegistry.get(
         currently_at_village.name as "village.name",
         currently_at_facility.name as "facility.name",
         registering_facility.name as "registering_facility.name",
+        registering_facility.id as "registering_facility_id",
         conditions.condition_list as "conditions",
         status.name as "clinical_status.name",
         status.color as "clinical_status.color",

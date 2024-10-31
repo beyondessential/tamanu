@@ -3,7 +3,6 @@ import { useNavigation } from '@react-navigation/native';
 import { StyledView } from '/styled/common';
 import { TextField } from '../../TextField/TextField';
 import { Dropdown } from '~/ui/components/Dropdown';
-import { useLocalisation } from '~/ui/contexts/LocalisationContext';
 import { LocalisedField } from '~/ui/components/Forms/LocalisedField';
 import { Field } from '~/ui/components/Forms/FormField';
 import { AutocompleteModalField } from '~/ui/components/AutocompleteModal/AutocompleteModalField';
@@ -132,9 +131,7 @@ export const PatientAdditionalDataFields = ({
   showMandatory = true,
   isEdit = true,
 }: PatientAdditionalDataFieldsProps): ReactElement[] => {
-  const { getLocalisation } = useLocalisation();
   const { getSetting } = useSettings();
-  const isHardCodedLayout = getLocalisation('layouts.patientDetails') !== 'generic';
   const [customFieldDefinitions, _, loading] = useBackendEffect(({ models }) =>
     models.PatientFieldDefinition.getRepository().find({
       select: ['id'],
@@ -142,9 +139,11 @@ export const PatientAdditionalDataFields = ({
   );
   const customFieldIds = customFieldDefinitions?.map(({ id }) => id);
 
-  const padFields = isHardCodedLayout
-    ? fields
-    : getConfiguredPatientAdditionalDataFields(fields as string[], showMandatory, getSetting);
+  const padFields = getConfiguredPatientAdditionalDataFields(
+    fields as string[],
+    showMandatory,
+    getSetting,
+  );
 
   if (isCustomSection)
     return fields.map(field => getCustomFieldComponent(field as PatientFieldDefinition));

@@ -244,7 +244,7 @@ export const BookingTimeField = ({ disabled = false }) => {
 
             return (
               <BookingTimeCell
-                key={timeSlot.start}
+                key={timeSlot.start.valueOf()}
                 timeSlot={timeSlot}
                 selected={isSelected}
                 selectable={checkIfSelectableTimeSlot(timeSlot)}

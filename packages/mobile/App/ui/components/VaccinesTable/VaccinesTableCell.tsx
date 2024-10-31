@@ -1,4 +1,4 @@
-import React, { memo, useCallback } from 'react';
+import React, { useCallback } from 'react';
 import { Popup } from 'popup-ui';
 import { CenterView, StyledImage, StyledTouchableOpacity, StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
@@ -57,59 +57,54 @@ export const CellContent = ({
   );
 };
 
-export const VaccineTableCell = memo(
-  ({ data, status, onPress }: VaccineTableCellProps): JSX.Element => {
-    const { scheduledVaccine, administeredVaccine, vaccineStatus, dueStatus } = data;
-    const {
-      vaccine: drug,
-      id: scheduledVaccineId,
-      label: scheduledVaccineLabel,
+export const VaccineTableCell = ({ data, status, onPress }: VaccineTableCellProps): JSX.Element => {
+  const { scheduledVaccine, administeredVaccine, vaccineStatus, dueStatus } = data;
+  const {
+    vaccine: drug,
+    id: scheduledVaccineId,
+    label: scheduledVaccineLabel,
+    doseLabel,
+  } = scheduledVaccine;
+
+  const cellStatus = vaccineStatus === VaccineStatus.SCHEDULED ? dueStatus.status : status;
+
+  const onAdminister = useCallback(() => {
+    onPress({
+      ...drug,
+      status: vaccineStatus,
+      scheduledVaccineId,
+      scheduledVaccineLabel,
       doseLabel,
-    } = scheduledVaccine;
+      administeredVaccine,
+    });
+    Popup.hide();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data]);
 
-    const cellStatus = vaccineStatus === VaccineStatus.SCHEDULED ? dueStatus.status : status;
-
-    const onAdminister = useCallback(() => {
-      onPress({
-        ...drug,
-        status: vaccineStatus,
-        scheduledVaccineId,
-        scheduledVaccineLabel,
-        doseLabel,
-        administeredVaccine,
+  const onPressItem = useCallback(() => {
+    if (cellStatus !== VaccineStatus.GIVEN && dueStatus.warningMessage) {
+      Popup.show({
+        type: 'Warning',
+        title: 'Vaccination Warning',
+        button: true,
+        textBody: dueStatus.warningMessage,
+        buttonText: 'Ok',
+        callback: (): void => Popup.hide(),
+        icon: <BypassWarningIcon onBypassWarning={onAdminister} />,
       });
-      Popup.hide();
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [data]);
 
-    const onPressItem = useCallback(() => {
-      if (cellStatus !== VaccineStatus.GIVEN && dueStatus.warningMessage) {
-        Popup.show({
-          type: 'Warning',
-          title: 'Vaccination Warning',
-          button: true,
-          textBody: dueStatus.warningMessage,
-          buttonText: 'Ok',
-          callback: (): void => Popup.hide(),
-          icon: <BypassWarningIcon onBypassWarning={onAdminister} />,
-        });
+      return;
+    }
 
-        return;
-      }
+    if (vaccineStatus) {
+      onAdminister();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data]);
 
-      if (vaccineStatus) {
-        onAdminister();
-      }
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [data]);
-
-    return (
-      <StyledTouchableOpacity onPress={onPressItem}>
-        <CellContent vaccineStatus={vaccineStatus} cellStatus={cellStatus} />
-      </StyledTouchableOpacity>
-    );
-  },
-  (prevProps, nextProps) => {
-    return prevProps.id === nextProps.id;
-  },
-);
+  return (
+    <StyledTouchableOpacity onPress={onPressItem}>
+      <CellContent vaccineStatus={vaccineStatus} cellStatus={cellStatus} />
+    </StyledTouchableOpacity>
+  );
+};
