@@ -117,7 +117,7 @@ export const LocationBookingsView = () => {
           openBookingForm={openBookingForm}
         />
       )}
-      <BookLocationDrawer
+      <BookLocationDrawer 
         initialBookingValues={initialDrawerValues}
         editMode={editMode}
         open={isDrawerOpen}
