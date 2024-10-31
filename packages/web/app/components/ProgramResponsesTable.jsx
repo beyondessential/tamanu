@@ -9,6 +9,7 @@ import { MenuButton } from './MenuButton';
 import { TranslatedText } from './Translation/TranslatedText';
 import { useAuth } from '../contexts/Auth';
 import { useRefreshCount } from '../hooks/useRefreshCount';
+import { SurveyResponsesPrintModal } from './PatientPrinting/modals/SurveyResponsesPrintModal';
 
 const getDate = ({ endTime }) => <DateDisplay date={endTime} />;
 const getSubmittedBy = ({ submittedBy }) => submittedBy;
@@ -16,21 +17,27 @@ const getProgramName = ({ programName }) => programName;
 const getSurveyName = ({ surveyName }) => surveyName;
 const getResults = ({ resultText }) => <SurveyResultBadge resultText={resultText} />;
 
-export const DataFetchingProgramsTable = ({ endpoint }) => {
+export const DataFetchingProgramsTable = ({ endpoint, patient }) => {
   const { ability } = useAuth();
-  const [modalOpen, setModalOpen] = useState(false);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [printModalOpen, setPrintModalOpen] = useState(false);
   const [refreshCount, updateRefreshCount] = useRefreshCount();
   const [selectedResponse, setSelectedResponse] = useState(null);
   const [selectedResponseId, setSelectedResponseId] = useState(null);
   const onSelectResponse = useCallback(surveyResponse => {
     setSelectedResponseId(surveyResponse.id);
+    setSelectedResponse(surveyResponse);
   }, []);
   const cancelResponse = useCallback(() => setSelectedResponseId(null), []);
 
   const actions = [
     {
+      label: <TranslatedText stringId="general.action.print" fallback="Print" />,
+      action: () => setPrintModalOpen(true),
+    },
+    {
       label: <TranslatedText stringId="general.action.delete" fallback="Delete" />,
-      action: () => setModalOpen(true),
+      action: () => setDeleteModalOpen(true),
       permissionCheck: () => {
         return ability?.can('delete', 'SurveyResponse');
       },
@@ -87,7 +94,19 @@ export const DataFetchingProgramsTable = ({ endpoint }) => {
 
   return (
     <>
-      <SurveyResponseDetailsModal surveyResponseId={selectedResponseId} onClose={cancelResponse} />
+      <SurveyResponseDetailsModal
+        surveyResponseId={selectedResponseId}
+        onClose={cancelResponse}
+        onPrint={() => setPrintModalOpen(true)}
+      />
+      <SurveyResponsesPrintModal
+        open={printModalOpen}
+        onClose={() => setPrintModalOpen(false)}
+        patient={patient}
+        surveyResponseId={selectedResponse?.id}
+        title={selectedResponse?.surveyName}
+        submittedBy={selectedResponse?.submittedBy}
+      />
       <DataFetchingTable
         endpoint={endpoint}
         columns={columns}
@@ -103,11 +122,11 @@ export const DataFetchingProgramsTable = ({ endpoint }) => {
         refreshCount={refreshCount}
       />
       <DeleteProgramResponseModal
-        open={modalOpen}
+        open={deleteModalOpen}
         surveyResponseToDelete={selectedResponse}
         endpoint={endpoint}
         onClose={() => {
-          setModalOpen(false);
+          setDeleteModalOpen(false);
           updateRefreshCount();
         }}
       />

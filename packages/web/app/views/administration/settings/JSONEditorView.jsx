@@ -4,28 +4,45 @@ import { Settings } from '@material-ui/icons';
 
 import { SETTINGS_SCOPES } from '@tamanu/constants';
 
-import { LargeButton, TextButton, ContentPane, ButtonRow, TopBar } from '../../../components';
-import { JSONEditor } from './JSONEditor';
-import { ScopeSelectorFields } from './ScopeSelectorFields';
-import { DefaultSettingsModal } from './DefaultSettingsModal';
+import { TextButton, ButtonRow, Button } from '../../../components';
+import { JSONEditor } from './components/JSONEditor';
+import { DefaultSettingsModal } from './components/DefaultSettingsModal';
 import { notifyError } from '../../../utils';
 import { TranslatedText } from '../../../components/Translation';
+import { Colors } from '../../../constants';
+import { isNull } from 'lodash';
 
-const StyledTopBar = styled(TopBar)`
-  padding: 0;
-  .MuiToolbar-root {
-    align-items: flex-end;
-  }
+const SettingsWrapper = styled.div`
+  background-color: ${Colors.white};
+  border: 1px solid ${Colors.outline};
+  margin-top: 1.25rem;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+`;
+
+const EditorWrapper = styled.div`
+  margin: 1.25rem;
+  margin-top: 0;
+  flex: 1;
+`;
+
+const StyledTopBar = styled.div`
+  display: flex;
+  justify-content: space-between;
+  padding: 1.25rem;
+`;
+
+const StyledButtonRow = styled(ButtonRow)`
+  margin: 0;
+  width: initial;
 `;
 
 const DefaultSettingsButton = styled(TextButton)`
-  font-size: 14px;
   white-space: nowrap;
-  margin-left: 5px;
   .MuiSvgIcon-root {
     margin-right: 5px;
   }
-  margin-bottom: 12px;
 `;
 
 const buildSettingsString = settings => {
@@ -33,13 +50,12 @@ const buildSettingsString = settings => {
   return JSON.stringify(settings, null, 2);
 };
 
-export const JSONEditorView = React.memo(({ settings, values, setValues, submitForm }) => {
-  const { scope, facilityId } = values;
-  const [settingsEditString, setSettingsEditString] = useState('');
+export const JSONEditorView = React.memo(({ values, setValues, submitForm, scope, facilityId }) => {
+  const [settingsEditString, setSettingsEditString] = useState(null);
   const [jsonError, setJsonError] = useState(null);
   const [isDefaultModalOpen, setIsDefaultModalOpen] = useState(false);
 
-  const settingsViewString = buildSettingsString(settings);
+  const settingsViewString = buildSettingsString(values.settings);
   const hasSettingsChanged = settingsViewString !== settingsEditString;
 
   const updateSettingsEditString = value => {
@@ -47,7 +63,8 @@ export const JSONEditorView = React.memo(({ settings, values, setValues, submitF
     setJsonError(null);
   };
 
-  const turnOnEditMode = () => updateSettingsEditString(buildSettingsString(settings) || '{}');
+  const turnOnEditMode = () =>
+    updateSettingsEditString(buildSettingsString(values.settings) || '{}');
   const turnOffEditMode = () => updateSettingsEditString(null);
 
   const onChangeSettings = newValue => updateSettingsEditString(newValue);
@@ -73,54 +90,55 @@ export const JSONEditorView = React.memo(({ settings, values, setValues, submitF
     }
   };
 
-  const editMode = !!settingsEditString;
+  const editMode = !isNull(settingsEditString);
   const isEditorVisible = scope !== SETTINGS_SCOPES.FACILITY || facilityId;
 
+  if (!isEditorVisible) {
+    return null;
+  }
   return (
-    <>
+    <SettingsWrapper>
       <StyledTopBar>
-        <ScopeSelectorFields onChangeFacility={turnOffEditMode} onChangeScope={turnOffEditMode} />
         <DefaultSettingsButton onClick={() => setIsDefaultModalOpen(true)}>
           <Settings />
           <TranslatedText
             stringId="admin.settings.viewDefaultScope.message"
-            fallback="View default {scope} settings"
+            fallback="View default :scope settings"
+            replacements={{ scope }}
           />
         </DefaultSettingsButton>
-        <ButtonRow>
+        <StyledButtonRow>
           {editMode ? (
             <>
-              <LargeButton variant="outlined" onClick={turnOffEditMode}>
+              <Button variant="outlined" onClick={turnOffEditMode}>
                 <TranslatedText stringId="general.action.cancel" fallback="Cancel" />
-              </LargeButton>
-              <LargeButton onClick={saveSettings} disabled={!hasSettingsChanged}>
+              </Button>
+              <Button onClick={saveSettings} disabled={!hasSettingsChanged}>
                 <TranslatedText stringId="general.action.save" fallback="Save" />
-              </LargeButton>
+              </Button>
             </>
           ) : (
-            <LargeButton onClick={turnOnEditMode} disabled={!isEditorVisible}>
+            <Button onClick={turnOnEditMode} disabled={!isEditorVisible}>
               <TranslatedText stringId="general.action.edit" fallback="Edit" />
-            </LargeButton>
+            </Button>
           )}
-        </ButtonRow>
+        </StyledButtonRow>
       </StyledTopBar>
-      <ContentPane>
-        {isEditorVisible && (
-          <JSONEditor
-            onChange={onChangeSettings}
-            value={editMode ? settingsEditString : settingsViewString}
-            editMode={editMode}
-            error={jsonError}
-            placeholderText="No settings found for this server/facility"
-            fontSize={14}
-          />
-        )}
-      </ContentPane>
+      <EditorWrapper>
+        <JSONEditor
+          onChange={onChangeSettings}
+          value={editMode ? settingsEditString : settingsViewString}
+          editMode={editMode}
+          error={jsonError}
+          placeholder="No settings found for this server/facility"
+          fontSize={14}
+        />
+      </EditorWrapper>
       <DefaultSettingsModal
         open={isDefaultModalOpen}
         onClose={() => setIsDefaultModalOpen(false)}
         scope={scope}
       />
-    </>
+    </SettingsWrapper>
   );
 });
