@@ -78,6 +78,45 @@ describe('Survey calculations', () => {
       expect(calculations.TEST).toEqual(1024);
     });
 
+    it('should supports 0 value variables', () => {
+      const survey = makeDummySurvey([
+        { code: 'TEST_1' },
+        { code: 'TEST_2' },
+        { code: 'TEST', type: 'CalculatedQuestion', calculation: 'TEST_1 + TEST_2' },
+      ]);
+      const calculations = runCalculations(survey, {
+        TEST_1: 0,
+        TEST_2: 0,
+      });
+      expect(calculations.TEST).toEqual(0);
+    });
+
+    it('should treat undefined variable as 0', () => {
+      const survey = makeDummySurvey([
+        { code: 'TEST_1' },
+        { code: 'TEST_2' },
+        { code: 'TEST', type: 'CalculatedQuestion', calculation: '(TEST_1 + TEST_2)*100' },
+      ]);
+      const calculations = runCalculations(survey, {
+        TEST_1: 12,
+        TEST_2: undefined,
+      });
+      expect(calculations.TEST).toEqual(1200);
+    });
+
+    it('should returns null if all variables are undefined', () => {
+      const survey = makeDummySurvey([
+        { code: 'TEST_1' },
+        { code: 'TEST_2' },
+        { code: 'TEST', type: 'CalculatedQuestion', calculation: '(TEST_1 + TEST_2)/2' },
+      ]);
+      const calculations = runCalculations(survey, {
+        TEST_1: undefined,
+        TEST_2: undefined,
+      });
+      expect(calculations.TEST).toEqual(null);
+    });
+
     it('should use second-order substitutions', () => {
       const survey = makeDummySurvey([
         { code: 'TEST_1' },
