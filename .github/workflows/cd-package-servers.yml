@@ -147,7 +147,7 @@ jobs:
         shell: bash
         run: |
           export NODE_ENV=production
-          npm install --legacy-peer-deps --userconfig .npmrc.timeout --package-lock
+          npm install --userconfig .npmrc.timeout --package-lock
 
       - name: Prepare final output
         shell: bash
