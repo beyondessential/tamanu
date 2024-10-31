@@ -152,12 +152,12 @@ export const DateSelector = ({ value, onChange }) => {
 
   const handleOnKeyDown = e => {
     if (e.key === 'ArrowLeft') {
-      if (isSameDay(value, startOfMonth(viewedDays[0]))) return;
+      if (isSameDay(value, viewedDays[0])) return;
       handleChange(subDays(value, 1));
     }
 
     if (e.key === 'ArrowRight') {
-      if (isSameDay(value, endOfMonth(viewedDays[0]))) return;
+      if (isSameDay(value, viewedDays[viewedDays.length - 1])) return;
       handleChange(addDays(value, 1));
     }
   };
@@ -173,6 +173,7 @@ export const DateSelector = ({ value, onChange }) => {
         <DaysWrapper>
           {viewedDays.map(date => (
             <DayButton
+              aria-pressed={isSameDay(date, value)}
               date={date}
               selected={isSameDay(date, value)}
               onClick={() => handleChange(date)}
