@@ -4,7 +4,7 @@ import { startOfToday } from 'date-fns';
 import { Op, Sequelize } from 'sequelize';
 import { simplePost, simplePut } from '@tamanu/shared/utils/crudHelpers';
 import { escapePatternWildcard } from '../../utils/query';
-import { ResourceConflictError } from '@tamanu/shared/errors';
+import { NotFoundError, ResourceConflictError } from '@tamanu/shared/errors';
 
 export const appointments = express.Router();
 
@@ -80,7 +80,7 @@ appointments.put('/locationBooking/:id', async (req, res) => {
   const existingBooking = await Appointment.findByPk(id);
 
   if (!existingBooking) {
-    return res.status(404).send();
+    throw new NotFoundError()
   }
 
   const bookingTimeAlreadyTaken = await Appointment.findOne({
@@ -120,7 +120,7 @@ appointments.put('/locationBooking/:id', async (req, res) => {
   });
 
   if (bookingTimeAlreadyTaken) {
-    return res.status(409).send();
+    throw new ResourceConflictError()
   }
 
   await existingBooking.update(body);
