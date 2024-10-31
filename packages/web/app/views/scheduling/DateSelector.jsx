@@ -36,6 +36,8 @@ const DaysWrapper = styled(Box)`
 `;
 
 const DayWrapper = styled('button')`
+  touch-action: manipulation
+  appearance: none;
   background-color: ${({ $selected }) => ($selected ? Colors.primary : 'transparent')};
   border: 1px solid ${({ $isToday }) => ($isToday ? Colors.primary : 'transparent')};
   color: ${({ $selected }) => ($selected ? Colors.white : 'inherit')};
