@@ -6,15 +6,13 @@ import { useAppointmentsQuery } from '../../../api/queries';
 import { useLocationGroupsQuery } from '../../../api/queries/useLocationGroupsQuery';
 import { useUsersQuery } from '../../../api/queries/useUsersQuery';
 import { APPOINTMENT_GROUP_BY } from './OutpatientAppointmentsView';
-import { useAuth } from '../../../contexts/Auth';
 
 export const useOutpatientAppointmentsCalendarData = ({ groupBy, selectedDate }) => {
-  const { facilityId } = useAuth();
   const {
     data: locationGroupData,
     error: locationGroupsError,
     isLoading: isLocationGroupsLoading,
-  } = useLocationGroupsQuery({ facilityId });
+  } = useLocationGroupsQuery();
 
   const { data: userData, error: usersError, isLoading: isUsersLoading } = useUsersQuery(
     {
