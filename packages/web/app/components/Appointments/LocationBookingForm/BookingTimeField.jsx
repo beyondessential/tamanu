@@ -9,7 +9,6 @@ import {
   startOfDay,
   endOfDay,
   isWithinInterval,
-  parseISO,
 } from 'date-fns';
 import ms from 'ms';
 import { useSettings } from '../../../contexts/Settings';
