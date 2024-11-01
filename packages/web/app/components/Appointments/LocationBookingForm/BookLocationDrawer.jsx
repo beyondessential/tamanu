@@ -105,7 +105,7 @@ export const DateFieldWithWarning = ({ editMode }) => {
         showSameDayBookingWarning && (
           <TranslatedText
             stringId="locationBooking.form.date.warning"
-            fallback="Patient already has appointment scheduled at this location for this day"
+            fallback="Patient already has an appointment scheduled at this location on this day"
           />
         )
       }
