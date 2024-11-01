@@ -17,7 +17,6 @@ import { useFormikContext } from 'formik';
 import { toDateTimeString } from '../../../utils/dateTime';
 import { isEqual } from 'lodash';
 import { CircularProgress } from '@material-ui/core';
-import { FormHelperText } from '@mui/material';
 import { TranslatedText } from '../../Translation/TranslatedText';
 import { useAppointmentsQuery } from '../../../api/queries';
 
@@ -244,7 +243,7 @@ export const BookingTimeField = ({ disabled = false }) => {
 
             return (
               <BookingTimeCell
-                key={timeSlot.start}
+                key={timeSlot.start.valueOf()}
                 timeSlot={timeSlot}
                 selected={isSelected}
                 selectable={checkIfSelectableTimeSlot(timeSlot)}

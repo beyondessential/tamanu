@@ -1,4 +1,3 @@
-import config from 'config';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 
@@ -13,19 +12,14 @@ location.get(
   '/$',
   asyncHandler(async (req, res) => {
     req.checkPermission('list', 'Location');
-    if (!config.serverFacilityId) {
-      res.send([]);
-      return;
-    }
-
     const {
-      models: { Location, LocationGroup },
+      models: { LocationGroup },
       query: { bookableOnly = false },
     } = req;
-
-    const locations = await Location.findAll({
+    const { facilityId } = req.query;
+    const locations = await req.models.Location.findAll({
       where: {
-        facilityId: config.serverFacilityId,
+        facilityId,
       },
       include: [
         {

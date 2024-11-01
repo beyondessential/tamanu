@@ -1,3 +1,2 @@
-export * from './config';
-export { useFacilitySidebar } from './useFacilitySidebar';
+export { useFacilitySidebar, useCentralSidebar } from './useSidebar';
 export { Sidebar } from './Sidebar';
