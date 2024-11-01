@@ -3,7 +3,14 @@ import * as yup from 'yup';
 import styled from 'styled-components';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
-import { AutocompleteField, DynamicSelectField, Field, Form } from '../../../components/Field';
+import {
+  AutocompleteField,
+  DynamicSelectField,
+  Field,
+  Form,
+  DateTimeField,
+  TimeWithStableDayField,
+} from '../../../components/Field';
 import { BodyText, Heading4 } from '../../../components/Typography';
 import { useApi, usePatientSuggester, useSuggester } from '../../../api';
 import { FormSubmitCancelRow } from '../../../components/ButtonRow';
@@ -15,9 +22,7 @@ import { notifyError, notifySuccess } from '../../../utils';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { Drawer } from '@material-ui/core';
 import { TOP_BAR_HEIGHT } from '../../../components/TopBar';
-import { DateTimeField, TimeField } from '../../../components';
-import { isAfter, parseISO, set } from 'date-fns';
-import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { isAfter, parseISO } from 'date-fns';
 
 const Container = styled.div`
   width: 330px;
@@ -94,7 +99,7 @@ export const BookingDrawer = ({ open, closeDrawer, initialBookingValues }) => {
   const appointmentTypeSuggester = useSuggester('appointmentType');
   const locationGroupSuggester = useSuggester('locationGroup');
 
-  const api = useApi();
+  // const api = useApi();
 
   const [warningModalOpen, setShowWarningModal] = useState(false);
   const [resolveFn, setResolveFn] = useState(null);
@@ -166,14 +171,13 @@ export const BookingDrawer = ({ open, closeDrawer, initialBookingValues }) => {
           })}
           initialValues={initialBookingValues}
           enableReinitialize
-          render={({ values, resetForm, dirty, setFieldValue }) => {
+          render={({ values, resetForm, dirty }) => {
             const warnAndResetForm = async () => {
               const confirmed = !dirty || (await handleShowWarningModal());
               if (!confirmed) return;
               closeDrawer();
               resetForm();
             };
-            console.log(values);
 
             return (
               <FormGrid columns={1}>
@@ -223,20 +227,6 @@ export const BookingDrawer = ({ open, closeDrawer, initialBookingValues }) => {
                 <Field
                   name="startTime"
                   saveDateAsString
-                  onChange={e => {
-                    const { value } = e.target;
-                    const startTime = parseISO(value);
-                    const endTime = parseISO(values.endTime);
-                    setFieldValue(
-                      'endTime',
-                      toDateTimeString(
-                        set(startTime, {
-                          hours: endTime.getHours(),
-                          minutes: endTime.getMinutes(),
-                        }),
-                      ),
-                    );
-                  }}
                   label={
                     <TranslatedText stringId="general.dateAndTime.label" fallback="Date & time" />
                   }
@@ -245,18 +235,12 @@ export const BookingDrawer = ({ open, closeDrawer, initialBookingValues }) => {
                 />
                 <Field
                   name="endTime"
+                  disabled={!values.startTime}
                   saveDateAsString
-                  onChange={e => {
-                    const { value } = e.target;
-                    const startTime = parseISO(values.startTime);
-                    const endTime = parseISO(value);
-                    e.target.value = toDateTimeString(
-                      set(startTime, { hours: endTime.getHours(), minutes: endTime.getMinutes() }),
-                    );
-                  }}
                   min={values.startTime}
+                  baseDate={parseISO(values.startTime)}
                   label={<TranslatedText stringId="general.endTime.label" fallback="End time" />}
-                  component={TimeField}
+                  component={TimeWithStableDayField}
                   required
                 />
 
