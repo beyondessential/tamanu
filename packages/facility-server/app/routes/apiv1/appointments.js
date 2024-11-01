@@ -8,6 +8,40 @@ import { NotFoundError, ResourceConflictError } from '@tamanu/shared/errors';
 
 export const appointments = express.Router();
 
+const timeOverLapWhereCondition = (startTime, endTime) => {
+  return {
+    [Op.or]: [
+      // Partial overlap
+      {
+        startTime: {
+          [Op.gte]: startTime, // Exclude startTime
+          [Op.lt]: endTime, // Include endTime
+        },
+      },
+      {
+        endTime: {
+          [Op.gt]: startTime, // Exclude endTime
+          [Op.lte]: endTime, // Include startTime
+        },
+      },
+      // Complete overlap
+      {
+        startTime: {
+          [Op.lt]: startTime,
+        },
+        endTime: {
+          [Op.gt]: endTime,
+        },
+      },
+      // Same time
+      {
+        startTime: startTime,
+        endTime: endTime,
+      },
+    ],
+  };
+};
+
 appointments.post('/$', simplePost('Appointment'));
 
 appointments.post('/locationBooking', async (req, res) => {
@@ -22,40 +56,12 @@ appointments.post('/locationBooking', async (req, res) => {
       const bookingTimeAlreadyTaken = await Appointment.findOne({
         where: {
           locationId,
-          [Op.or]: [
-            // Partial overlap
-            {
-              startTime: {
-                [Op.gte]: startTime, // Exclude startTime
-                [Op.lt]: endTime, // Include endTime
-              },
-            },
-            {
-              endTime: {
-                [Op.gt]: startTime, // Exclude endTime
-                [Op.lte]: endTime, // Include startTime
-              },
-            },
-            // Complete overlap
-            {
-              startTime: {
-                [Op.lt]: startTime,
-              },
-              endTime: {
-                [Op.gt]: endTime,
-              },
-            },
-            // Same time
-            {
-              startTime: startTime,
-              endTime: endTime,
-            },
-          ],
+          ...timeOverLapWhereCondition(startTime, endTime),
         },
         transaction,
       });
 
-      if (bookingTimeAlreadyTaken) {
+      if (!bookingTimeAlreadyTaken) {
         throw new ResourceConflictError();
       }
 
@@ -79,7 +85,7 @@ appointments.put('/locationBooking/:id', async (req, res) => {
 
   try {
     const result = await Appointment.sequelize.transaction(async transaction => {
-      const existingBooking = await Appointment.findByPk(id, {transaction});
+      const existingBooking = await Appointment.findByPk(id, { transaction });
 
       if (!existingBooking) {
         throw new NotFoundError();
@@ -88,37 +94,9 @@ appointments.put('/locationBooking/:id', async (req, res) => {
         where: {
           id: { [Op.ne]: id },
           locationId,
-          [Op.or]: [
-            // Partial overlap
-            {
-              startTime: {
-                [Op.gte]: startTime, // Exclude startTime
-                [Op.lt]: endTime, // Include endTime
-              },
-            },
-            {
-              endTime: {
-                [Op.gt]: startTime, // Exclude endTime
-                [Op.lte]: endTime, // Include startTime
-              },
-            },
-            // Complete overlap
-            {
-              startTime: {
-                [Op.lt]: startTime,
-              },
-              endTime: {
-                [Op.gt]: endTime,
-              },
-            },
-            // Same time
-            {
-              startTime: startTime,
-              endTime: endTime,
-            },
-          ],
+          ...timeOverLapWhereCondition(startTime, endTime),
         },
-        transaction
+        transaction,
       });
 
       if (bookingTimeAlreadyTaken) {

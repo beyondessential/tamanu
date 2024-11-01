@@ -104,6 +104,39 @@ export const WarningModal = ({ open, setShowWarningModal, resolveFn }) => {
   );
 };
 
+const HeadingText = ({ editMode }) =>
+  editMode ? (
+    <TranslatedText stringId="locationBooking.form.edit.heading" fallback="Modify booking" />
+  ) : (
+    <TranslatedText stringId="locationBooking.form.new.heading" fallback="Book location" />
+  );
+
+const DescriptionText = ({ editMode }) =>
+  editMode ? (
+    <TranslatedText
+      stringId="locationBooking.form.edit.description"
+      fallback="Modify the selected booking below."
+    />
+  ) : (
+    <TranslatedText
+      stringId="locationBooking.form.new.description"
+      fallback="Create a new booking by completing the below details and selecting ‘Confirm’"
+    />
+  );
+
+const SuccessMessage = ({ editMode }) =>
+  editMode ? (
+    <TranslatedText
+      stringId="locationBooking.notification.bookingSuccessfullyEdited"
+      fallback="Booking successfully edited"
+    />
+  ) : (
+    <TranslatedText
+      stringId="locationBooking.notification.bookingSuccessfullyCreated"
+      fallback="Booking successfully created"
+    />
+  );
+
 export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues, editMode }) => {
   const queryClient = useQueryClient();
   const patientSuggester = usePatientSuggester();
@@ -128,19 +161,7 @@ export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues, ed
         : api.post('appointments/locationBooking', payload, { throwResponse: true }),
     {
       onSuccess: () => {
-        notifySuccess(
-          editMode ? (
-            <TranslatedText
-              stringId="locationBooking.notification.bookingSuccessfullyEdited"
-              fallback="Booking successfully edited"
-            />
-          ) : (
-            <TranslatedText
-              stringId="locationBooking.notification.bookingSuccessfullyCreated"
-              fallback="Booking successfully created"
-            />
-          ),
-        );
+        notifySuccess(<SuccessMessage />);
         closeDrawer();
         queryClient.invalidateQueries('appointments');
       },
@@ -162,28 +183,15 @@ export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues, ed
     },
   );
 
-  const headingText = editMode ? (
-    <TranslatedText stringId="locationBooking.form.edit.heading" fallback="Modify booking" />
-  ) : (
-    <TranslatedText stringId="locationBooking.form.new.heading" fallback="Book location" />
-  );
-  const descriptionText = editMode ? (
-    <TranslatedText
-      stringId="locationBooking.form.edit.description"
-      fallback="Modify the selected booking below."
-    />
-  ) : (
-    <TranslatedText
-      stringId="locationBooking.form.new.description"
-      fallback="Create a new booking by completing the below details and selecting ‘Confirm’"
-    />
-  );
-
   return (
     <StyledDrawer variant="persistent" anchor="right" open={open} onClose={closeDrawer}>
       <Container columns={1}>
-        <Heading>{headingText}</Heading>
-        <Description>{descriptionText}</Description>
+        <Heading>
+          <HeadingText editMode={editMode} />
+        </Heading>
+        <Description>
+          <DescriptionText editMode={editMode} />
+        </Description>
         <Form
           onSubmit={async values => handleSubmit(values)}
           suppressErrorDialog
