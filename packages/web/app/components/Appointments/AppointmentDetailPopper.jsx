@@ -1,8 +1,14 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { push } from 'connected-react-router';
-import { Box, ClickAwayListener, IconButton, Paper, Popper, styled } from '@mui/material';
-import { Brightness2 as Overnight, Close } from '@mui/icons-material';
+import Box from '@mui/material/Box';
+import ClickAwayListener from '@mui/material/ClickAwayListener';
+import IconButton from '@mui/material/IconButton';
+import Paper from '@mui/material/Paper';
+import Popper from '@mui/material/Popper';
+import { styled } from '@mui/material/styles';
+import Overnight from '@mui/icons-material/Brightness2';
+import Close from '@mui/icons-material/Close';
 import { debounce } from 'lodash';
 import { toast } from 'react-toastify';
 
@@ -137,11 +143,11 @@ const ControlsRow = ({ onClose, appointment, openBookingForm }) => {
   const actions = [
     {
       label: <TranslatedText stringId="general.action.modify" fallback="Modify" />,
-      action: () => openBookingForm({ ...appointment, date: appointment.startTime }, true),
+      action: () => openBookingForm({ ...appointment, date: appointment.startTime }),
     },
     // TODO: cancel workflow
     {
-      label: <TranslatedText stringId="general.action.Cancel" fallback="Cancel" />,
+      label: <TranslatedText stringId="general.action.cancel" fallback="Cancel" />,
       action: () => {},
     },
   ];

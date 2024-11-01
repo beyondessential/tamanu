@@ -36,9 +36,10 @@ const LoadingIndicator = styled(CircularProgress)`
 `;
 
 const calculateTimeSlots = (bookingSlotSettings, date) => {
+  if (!date) return [];
   const { startTime, endTime, slotDuration } = bookingSlotSettings;
-  const startOfDay = parse(startTime, 'HH:mm', new Date(date ?? null));
-  const endOfDay = parse(endTime, 'HH:mm', new Date(date ?? null));
+  const startOfDay = parse(startTime, 'HH:mm', new Date(date));
+  const endOfDay = parse(endTime, 'HH:mm', new Date(date));
   const durationMinutes = ms(slotDuration) / 60_000; // In minutes
 
   const totalSlots = differenceInMinutes(endOfDay, startOfDay) / durationMinutes;
@@ -65,16 +66,13 @@ export const BookingTimeField = ({ disabled = false }) => {
   const { getSetting } = useSettings();
   const { setFieldValue, values, dirty, initialValues } = useFormikContext();
 
-  const initialTimeRange = useMemo(
-    () =>
-      initialValues.startTime
-        ? {
-            start: new Date(initialValues.startTime),
-            end: new Date(initialValues.endTime),
-          }
-        : null,
-    [initialValues],
-  );
+  const initialTimeRange = useMemo(() => {
+    if (!initialValues.startTime) return null;
+    return {
+      start: new Date(initialValues.startTime),
+      end: new Date(initialValues.endTime),
+    };
+  }, [initialValues]);
 
   const [selectedTimeRange, setSelectedTimeRange] = useState(initialTimeRange);
   const [hoverTimeRange, setHoverTimeRange] = useState(null);
@@ -93,18 +91,15 @@ export const BookingTimeField = ({ disabled = false }) => {
   );
 
   // Convert existing bookings into timeslots
-  const bookedTimeSlots = useMemo(
-    () =>
-      isFetched
-        ? existingLocationBookings?.data
-            .map(booking => ({
-              start: new Date(booking.startTime),
-              end: new Date(booking.endTime),
-            }))
-            .filter(slot => !isEqual(slot, initialTimeRange)) // Dont include the existing booking in the booked time logic
-        : [],
-    [existingLocationBookings, isFetched, initialTimeRange],
-  );
+  const bookedTimeSlots = useMemo(() => {
+    if (!isFetched) return [];
+    return existingLocationBookings?.data
+      .map(booking => ({
+        start: new Date(booking.startTime),
+        end: new Date(booking.endTime),
+      }))
+      .filter(slot => !isEqual(slot, initialTimeRange)); // Dont include the existing booking in the booked time logic
+  }, [existingLocationBookings, isFetched, initialTimeRange]);
 
   const bookingSlotSettings = getSetting('appointments.bookingSlots');
   const timeSlots = useMemo(() => calculateTimeSlots(bookingSlotSettings, values.date), [
@@ -207,7 +202,7 @@ export const BookingTimeField = ({ disabled = false }) => {
 
   return (
     <OuterLabelFieldWrapper
-      label={<TranslatedText stringId="locationBooking.form.bookingTime.label" fallback="Booking time" />}
+      label={<TranslatedText stringId="locationBooking.bookingTime.label" fallback="Booking time" />}
       required
     >
       <CellContainer $disabled={disabled}>

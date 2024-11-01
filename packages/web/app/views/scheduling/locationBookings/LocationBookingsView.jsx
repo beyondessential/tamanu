@@ -72,14 +72,12 @@ const EmptyStateLabel = styled(Typography).attrs({
 export const LocationBookingsView = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [initialDrawerValues, setInitialDrawerValues] = useState({});
-  const [editMode, setEditMode] = useState(false)
   const { facilityId } = useAuth()
   const closeBookingForm = () => {
     setIsDrawerOpen(false);
   };
-  const openBookingForm = (initialValues, editMode = false) => {
+  const openBookingForm = (initialValues) => {
     setInitialDrawerValues(initialValues);
-    setEditMode(editMode)
     setIsDrawerOpen(true);
   };
 
@@ -119,7 +117,6 @@ export const LocationBookingsView = () => {
       )}
       <BookLocationDrawer 
         initialBookingValues={initialDrawerValues}
-        editMode={editMode}
         open={isDrawerOpen}
         closeDrawer={closeBookingForm}
       />
