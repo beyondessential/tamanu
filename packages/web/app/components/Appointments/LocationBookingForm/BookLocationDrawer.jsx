@@ -4,6 +4,9 @@ import styled from 'styled-components';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import Brightness2Icon from '@material-ui/icons/Brightness2';
 
+import { Drawer } from '@material-ui/core';
+import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
+
 import {
   AutocompleteField,
   CheckField,
@@ -24,11 +27,9 @@ import { ConfirmModal } from '../../ConfirmModal';
 import { notifyError, notifySuccess } from '../../../utils';
 import { TranslatedText } from '../../Translation/TranslatedText';
 
-import { Drawer } from '@material-ui/core';
 import { TOP_BAR_HEIGHT } from '../../TopBar';
 import { useAppointmentsQuery } from '../../../api/queries';
 import { endOfDay, startOfDay } from 'date-fns';
-import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { useFormikContext } from 'formik';
 
 const Container = styled.div`
