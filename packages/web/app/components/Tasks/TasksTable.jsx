@@ -75,7 +75,7 @@ const StyledTable = styled(DataFetchingTable)`
     cursor: ${props => (props.onClickRow ? 'pointer' : '')};
     transition: all 250ms;
     &:hover {
-      box-shadow: ${props => (props.disabledHoverEffect ? '' : '10px 10px 15px 0px rgba(0, 0, 0, 0.1)')};
+      box-shadow: ${props => (props.disabledHoverEffect ? 'none' : '10px 10px 15px 0px rgba(0, 0, 0, 0.1)')};
     }
     position: relative;
     max-height: 42px;
