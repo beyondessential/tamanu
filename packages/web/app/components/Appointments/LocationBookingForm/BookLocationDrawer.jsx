@@ -137,7 +137,7 @@ const SuccessMessage = ({ editMode }) =>
     />
   );
 
-export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues, editMode }) => {
+export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues }) => {
   const queryClient = useQueryClient();
   const patientSuggester = usePatientSuggester();
   const clinicianSuggester = useSuggester('practitioner');
@@ -147,6 +147,8 @@ export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues, ed
 
   const [warningModalOpen, setShowWarningModal] = useState(false);
   const [resolveFn, setResolveFn] = useState(null);
+
+  const editMode = !!initialBookingValues.id
 
   const handleShowWarningModal = async () =>
     new Promise(resolve => {
