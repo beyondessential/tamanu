@@ -38,7 +38,7 @@ export const withEncounterPanePermissions = (Component, props, permissionNoun) =
     <Container>
       <Content>
         <TranslatedText
-          stringId="encounter.pane.noPermissions"
+          stringId="encounter.pane.notPermittedText"
           fallback="You do not have permission to use this feature\nPlease speak to your System Administrator if you think this is incorrect."
         />
       </Content>
