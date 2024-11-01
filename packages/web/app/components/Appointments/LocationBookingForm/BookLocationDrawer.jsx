@@ -1,11 +1,12 @@
 import Brightness2Icon from '@material-ui/icons/Brightness2';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import * as yup from 'yup';
 
 import { Drawer } from '@material-ui/core';
-import { useApi, usePatientSuggester, useSuggester } from '../../../api';
+import { usePatientSuggester, useSuggester } from '../../../api';
+import { useLocationBookingMutation } from '../../../api/mutations';
 import { Colors } from '../../../constants';
 import { notifyError, notifySuccess } from '../../../utils';
 import { FormSubmitCancelRow } from '../../ButtonRow';
@@ -47,8 +48,8 @@ const OvernightIcon = styled(Brightness2Icon)`
 const CloseDrawerIcon = styled(ClearIcon)`
   cursor: pointer;
   position: absolute;
-  top: 16px;
-  right: 16px;
+  inset-block-start: 1rem;
+  inset-inline-end: 1rem;
 `;
 
 const StyledDrawer = styled(Drawer)`
@@ -131,13 +132,9 @@ export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues }) 
       setShowWarningModal(true);
     });
 
-  const api = useApi();
   const queryClient = useQueryClient();
-  const { mutateAsync: handleSubmit } = useMutation(
-    payload =>
-      editMode
-        ? api.put(`appointments/locationBooking/${payload.id}`, payload, { throwResponse: true })
-        : api.post('appointments/locationBooking', payload, { throwResponse: true }),
+  const { mutateAsync: handleSubmit } = useLocationBookingMutation(
+    { editMode },
     {
       onSuccess: () => {
         notifySuccess(<SuccessMessage />);
