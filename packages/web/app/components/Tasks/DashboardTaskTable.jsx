@@ -3,20 +3,17 @@ import styled from 'styled-components';
 import { Box } from '@material-ui/core';
 import CheckCircleIcon from '@material-ui/icons/CheckCircle';
 import CancelIcon from '@material-ui/icons/Cancel';
-import { TASK_STATUSES } from '@tamanu/constants';
+import { TASK_STATUSES, WS_EVENTS } from '@tamanu/constants';
 import PriorityHighIcon from '@material-ui/icons/PriorityHigh';
 
-import {
-  BodyText,
-  SmallBodyText,
-  formatShortest,
-  formatTime,
-  TranslatedText,
-  DataFetchingTable,
-} from '../.';
+import { BodyText, SmallBodyText, formatShortest, formatTime, TranslatedText, Table } from '../.';
 import { Colors } from '../../constants';
 import { ThemedTooltip } from '../Tooltip';
 import { useAuth } from '../../contexts/Auth';
+import { useAutoUpdatingQuery } from '../../api/queries/useAutoUpdatingQuery';
+import { ROWS_PER_PAGE_OPTIONS } from '../../constants';
+import { Paginator } from '../Table/Paginator';
+import { useTablePaginator } from '../Table/useTablePaginator';
 
 const StyledPriorityHighIcon = styled(PriorityHighIcon)`
   color: ${Colors.alert};
@@ -25,9 +22,10 @@ const StyledPriorityHighIcon = styled(PriorityHighIcon)`
   left: -6px;
 `;
 
-const StyledTable = styled(DataFetchingTable)`
+const StyledTable = styled(Table)`
   border-left: 0px solid white;
   border-right: 0px solid white;
+  border-bottom: 0px solid white;
   border-radius: 0px;
   box-shadow: none;
   margin-top: 5px;
@@ -120,6 +118,14 @@ const StyledToolTip = styled(ThemedTooltip)`
   .MuiTooltip-tooltip {
     font-weight: 400;
   }
+`;
+
+const PaginatorContainer = styled.div`
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  margin-top: -14px;
+  margin-bottom: -18px;
 `;
 
 const getStatus = row => {
@@ -221,15 +227,41 @@ const COLUMNS = [
 
 export const DashboardTasksTable = ({ searchParameters, refreshCount }) => {
   const { currentUser } = useAuth();
+
+  const { page, rowsPerPage, handleChangePage, handleChangeRowsPerPage } = useTablePaginator({
+    resetPage: searchParameters,
+  });
+
+  const queryParams = { ...searchParameters, page, rowsPerPage };
+
+  const { data: userTasks, isLoading } = useAutoUpdatingQuery(
+    `user/${currentUser?.id}/tasks`,
+    queryParams,
+    `${WS_EVENTS.DATABASE_TABLE_CHANGED}:tasks`,
+  );
+
   return (
-    <StyledTable
-      endpoint={`user/${currentUser?.id}/tasks`}
-      columns={COLUMNS}
-      noDataMessage={<NoDataMessage />}
-      allowExport={false}
-      fetchOptions={searchParameters}
-      defaultRowsPerPage={25}
-      refreshCount={refreshCount}
-    />
+    <div>
+      <StyledTable
+        data={userTasks?.data}
+        columns={COLUMNS}
+        noDataMessage={<NoDataMessage />}
+        allowExport={false}
+        isLoading={isLoading}
+        refreshCount={refreshCount}
+        count={userTasks?.count}
+      />
+      <PaginatorContainer>
+        <Paginator
+          page={page}
+          colSpan={COLUMNS.length}
+          count={userTasks?.count}
+          rowsPerPage={rowsPerPage}
+          onPageChange={handleChangePage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+          rowsPerPageOptions={ROWS_PER_PAGE_OPTIONS}
+        />
+      </PaginatorContainer>
+    </div>
   );
 };

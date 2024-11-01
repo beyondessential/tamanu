@@ -9,3 +9,4 @@ export * from './notes.js';
 export * from './patient.js';
 export * from './programRegistries.js';
 export * from './styles.js';
+export * from './table.js';

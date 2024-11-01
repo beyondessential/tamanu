@@ -207,15 +207,7 @@ user.get(
           [Op.lte]: toCountryDateTimeString(add(new Date(), { hours: upcomingTasksTimeFrame })),
         },
         ...(query.highPriority && { highPriority: query.highPriority }),
-      }
-    };
-
-    const tasks = await models.Task.findAll({
-      order: [query.orderBy, ['highPriority', 'DESC'], ['name', 'ASC']],
-      limit: query.rowsPerPage,
-      offset: query.page * query.rowsPerPage,
-      attributes: ['id', 'dueTime', 'name', 'highPriority', 'status', 'requestTime'],
-      ...baseQueryOptions,
+      },
       include: [
         'requestedBy',
         {
@@ -254,6 +246,14 @@ user.get(
           ],
         },
       ],
+    };
+
+    const tasks = await models.Task.findAll({
+      order: [query.orderBy, ['highPriority', 'DESC'], ['name', 'ASC']],
+      limit: query.rowsPerPage,
+      offset: query.page * query.rowsPerPage,
+      attributes: ['id', 'dueTime', 'name', 'highPriority', 'status', 'requestTime'],
+      ...baseQueryOptions,
     });
 
     const count = await models.Task.count(baseQueryOptions);
