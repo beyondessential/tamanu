@@ -78,8 +78,8 @@ export const DateFieldWithWarning = ({ editMode }) => {
   const { values } = useFormikContext();
   const { data: existingLocationBookings, isFetched } = useAppointmentsQuery(
     {
-      after: values.date ? toDateTimeString(startOfDay(values.date)) : null,
-      before: values.date ? toDateTimeString(endOfDay(values.date)) : null,
+      after: values.date ? toDateTimeString(startOfDay(new Date(values.date))) : null,
+      before: values.date ? toDateTimeString(endOfDay(new Date(values.date))) : null,
       all: true,
       locationId: values.locationId,
       patientId: values.patientId,
