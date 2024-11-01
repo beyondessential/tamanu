@@ -36,9 +36,10 @@ const LoadingIndicator = styled(CircularProgress)`
 `;
 
 const calculateTimeSlots = (bookingSlotSettings, date) => {
+  if (!date) return [];
   const { startTime, endTime, slotDuration } = bookingSlotSettings;
-  const startOfDay = parse(startTime, 'HH:mm', new Date(date ?? null));
-  const endOfDay = parse(endTime, 'HH:mm', new Date(date ?? null));
+  const startOfDay = parse(startTime, 'HH:mm', new Date(date));
+  const endOfDay = parse(endTime, 'HH:mm', new Date(date));
   const durationMinutes = ms(slotDuration) / 60_000; // In minutes
 
   const totalSlots = differenceInMinutes(endOfDay, startOfDay) / durationMinutes;
@@ -63,13 +64,21 @@ const isTimeSlotWithinRange = (timeSlot, range) => {
 // logic calculated through time ranges in the format { start: DATE, end: DATE }
 export const BookingTimeField = ({ disabled = false }) => {
   const { getSetting } = useSettings();
-  const { setFieldValue, values, dirty } = useFormikContext();
+  const { setFieldValue, values, dirty, initialValues } = useFormikContext();
 
-  const [selectedTimeRange, setSelectedTimeRange] = useState(null);
+  const initialTimeRange = useMemo(() => {
+    if (!initialValues.startTime) return null;
+    return {
+      start: new Date(initialValues.startTime),
+      end: new Date(initialValues.endTime),
+    };
+  }, [initialValues]);
+
+  const [selectedTimeRange, setSelectedTimeRange] = useState(initialTimeRange);
   const [hoverTimeRange, setHoverTimeRange] = useState(null);
 
   const { locationId, date } = values;
-  const { data: existingLocationBookings, isFetching } = useAppointmentsQuery(
+  const { data: existingLocationBookings, isFetching, isFetched } = useAppointmentsQuery(
     {
       after: date ? toDateTimeString(startOfDay(new Date(date))) : null,
       before: date ? toDateTimeString(endOfDay(new Date(date))) : null,
@@ -82,10 +91,15 @@ export const BookingTimeField = ({ disabled = false }) => {
   );
 
   // Convert existing bookings into timeslots
-  const bookedTimeSlots = existingLocationBookings?.data.map(booking => ({
-    start: new Date(booking.startTime),
-    end: new Date(booking.endTime),
-  }));
+  const bookedTimeSlots = useMemo(() => {
+    if (!isFetched) return [];
+    return existingLocationBookings?.data
+      .map(booking => ({
+        start: new Date(booking.startTime),
+        end: new Date(booking.endTime),
+      }))
+      .filter(slot => !isEqual(slot, initialTimeRange)); // Dont include the existing booking in the booked time logic
+  }, [existingLocationBookings, isFetched, initialTimeRange]);
 
   const bookingSlotSettings = getSetting('appointments.bookingSlots');
   const timeSlots = useMemo(() => calculateTimeSlots(bookingSlotSettings, values.date), [
@@ -197,9 +211,10 @@ export const BookingTimeField = ({ disabled = false }) => {
         ) : (
           timeSlots.map(timeSlot => {
             const isSelected = isTimeSlotWithinRange(timeSlot, selectedTimeRange);
-            const isBooked = bookedTimeSlots?.some(bookedTimeSlot =>
-              isTimeSlotWithinRange(timeSlot, bookedTimeSlot),
+            const isBooked = bookedTimeSlots?.some(
+              bookedTimeSlot => isTimeSlotWithinRange(timeSlot, bookedTimeSlot) && !isSelected,
             );
+
             const onMouseEnter = () => {
               if (!selectedTimeRange) {
                 setHoverTimeRange(timeSlot);
@@ -223,7 +238,7 @@ export const BookingTimeField = ({ disabled = false }) => {
 
             return (
               <BookingTimeCell
-                key={timeSlot.start}
+                key={timeSlot.start.valueOf()}
                 timeSlot={timeSlot}
                 selected={isSelected}
                 selectable={checkIfSelectableTimeSlot(timeSlot)}

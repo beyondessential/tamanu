@@ -64,7 +64,7 @@ const CloseDrawerIcon = styled(ClearIcon)`
 const StyledDrawer = styled(Drawer)`
   .MuiPaper-root {
     top: ${TOP_BAR_HEIGHT}px;
-    height: calc(100% - ${TOP_BAR_HEIGHT}px)
+    height: calc(100% - ${TOP_BAR_HEIGHT}px);
   }
 `;
 
@@ -104,6 +104,39 @@ export const WarningModal = ({ open, setShowWarningModal, resolveFn }) => {
   );
 };
 
+const HeadingText = ({ editMode }) =>
+  editMode ? (
+    <TranslatedText stringId="locationBooking.form.edit.heading" fallback="Modify booking" />
+  ) : (
+    <TranslatedText stringId="locationBooking.form.new.heading" fallback="Book location" />
+  );
+
+const DescriptionText = ({ editMode }) =>
+  editMode ? (
+    <TranslatedText
+      stringId="locationBooking.form.edit.description"
+      fallback="Modify the selected booking below."
+    />
+  ) : (
+    <TranslatedText
+      stringId="locationBooking.form.new.description"
+      fallback="Create a new booking by completing the below details and selecting ‘Confirm’"
+    />
+  );
+
+const SuccessMessage = ({ editMode }) =>
+  editMode ? (
+    <TranslatedText
+      stringId="locationBooking.notification.bookingSuccessfullyEdited"
+      fallback="Booking successfully edited"
+    />
+  ) : (
+    <TranslatedText
+      stringId="locationBooking.notification.bookingSuccessfullyCreated"
+      fallback="Booking successfully created"
+    />
+  );
+
 export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues }) => {
   const queryClient = useQueryClient();
   const patientSuggester = usePatientSuggester();
@@ -115,6 +148,8 @@ export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues }) 
   const [warningModalOpen, setShowWarningModal] = useState(false);
   const [resolveFn, setResolveFn] = useState(null);
 
+  const editMode = !!initialBookingValues.id
+
   const handleShowWarningModal = async () =>
     new Promise(resolve => {
       setResolveFn(() => resolve); // Save resolve to use in onConfirm/onCancel
@@ -122,15 +157,13 @@ export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues }) 
     });
 
   const { mutateAsync: handleSubmit } = useMutation(
-    payload => api.post('appointments/locationBooking', payload, { throwResponse: true }),
+    payload =>
+      editMode
+        ? api.put(`appointments/locationBooking/${payload.id}`, payload, { throwResponse: true })
+        : api.post('appointments/locationBooking', payload, { throwResponse: true }),
     {
       onSuccess: () => {
-        notifySuccess(
-          <TranslatedText
-            stringId="locationBooking.notification.bookingSuccessfullyCreated"
-            fallback="Booking successfully created"
-          />,
-        );
+        notifySuccess(<SuccessMessage />);
         closeDrawer();
         queryClient.invalidateQueries('appointments');
       },
@@ -156,13 +189,10 @@ export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues }) 
     <StyledDrawer variant="persistent" anchor="right" open={open} onClose={closeDrawer}>
       <Container columns={1}>
         <Heading>
-          <TranslatedText stringId="locationBooking.form.new.heading" fallback="Book location" />
+          <HeadingText editMode={editMode} />
         </Heading>
         <Description>
-          <TranslatedText
-            stringId="locationBooking.form.new.description"
-            fallback="Create a new booking by completing the below details and selecting ‘Confirm’"
-          />
+          <DescriptionText editMode={editMode} />
         </Description>
         <Form
           onSubmit={async values => handleSubmit(values)}
@@ -220,7 +250,7 @@ export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues }) 
                   disabled={!values.locationId}
                   required
                 />
-                <BookingTimeField disabled={!values.date} />
+                <BookingTimeField key={values.date} disabled={!values.date} />
                 <Field
                   name="patientId"
                   label={

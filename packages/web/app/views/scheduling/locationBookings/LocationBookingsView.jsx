@@ -12,7 +12,7 @@ import { useAuth } from '../../../contexts/Auth';
 
 const PlusIcon = styled(AddRounded)`
   && {
-    margin-right: 3px;
+    margin-inline-end: 0.1875rem;
   }
 `;
 
@@ -76,7 +76,7 @@ export const LocationBookingsView = () => {
   const closeBookingForm = () => {
     setIsDrawerOpen(false);
   };
-  const openBookingForm = initialValues => {
+  const openBookingForm = (initialValues) => {
     setInitialDrawerValues(initialValues);
     setIsDrawerOpen(true);
   };
