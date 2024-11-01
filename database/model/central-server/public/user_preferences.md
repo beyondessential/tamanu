@@ -6,8 +6,10 @@ Per-user preferences.
 The [user](#!/source/source.tamanu.tamanu.users) these preferences are for.
 {% enddocs %}
 
-{% docs user_preferences__selected_graphed_vitals_on_filter %}
-In the Vitals views, graphs can be filtered. This is remembered per user.
+{% docs user_preferences__key %}
+TODO
+{% enddocs %}
 
-Comma-separated.
+{% docs user_preferences__value %}
+TODO
 {% enddocs %}

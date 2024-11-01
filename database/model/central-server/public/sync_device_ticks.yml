@@ -22,3 +22,8 @@ sources:
             description: "{{ doc('sync_device_ticks__device_id') }}"
             data_tests:
               - not_null
+          - name: updated_at_sync_tick
+            data_type: bigint
+            description: "{{ doc('generic__updated_at_sync_tick') }} in sync_device_ticks."
+            data_tests:
+              - not_null

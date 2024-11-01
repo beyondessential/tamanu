@@ -71,6 +71,9 @@ sources:
           - name: updated_at_by_field_sum
             data_type: bigint
             description: "{{ doc('sync_lookup__updated_at_by_field_sum') }}"
+          - name: source_updated_at_sync_tick
+            data_type: bigint
+            description: "{{ doc('sync_lookup__source_updated_at_sync_tick') }}"
           - name: pushed_by_device_id
-            data_type: text
+            data_type: character varying(255)
             description: "{{ doc('sync_lookup__pushed_by_device_id') }}"
