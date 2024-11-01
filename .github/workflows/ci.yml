@@ -312,8 +312,8 @@ jobs:
 
       - name: Run Migrations
         run: |
-          npm run --workspace @tamanu/central-server run start migrate up
-          npm run --workspace @tamanu/facility-server run start migrate up
+          npm run --workspace @tamanu/central-server start migrate up
+          npm run --workspace @tamanu/facility-server start migrate up
 
       - name: Check model is up to date
         run: |
