@@ -284,10 +284,10 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version-file: '.nvmrc'
-          cache: yarn
+          cache: npm
       - uses: actions/cache/restore@v3
         with:
-          key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
+          key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
 
       - name: Install and start postgres
@@ -301,10 +301,10 @@ jobs:
 
       - name: Build
         run: |
-          yarn
-          yarn build-shared
-          yarn workspace @tamanu/central-server build
-          yarn workspace @tamanu/facility-server build
+          npm install
+          npm run build-shared
+          npm run --workspace @tamanu/central-server build
+          npm run --workspace @tamanu/facility-server build
       - name: Configure Tamanu
         run: |
           echo '{"db":{"host":"localhost","name":"central","username":"tamanu","password":"tamanu"}}' > packages/central-server/config/local.json5
@@ -312,23 +312,23 @@ jobs:
 
       - name: Run Migrations
         run: |
-          yarn workspace @tamanu/central-server run start migrate up
-          yarn workspace @tamanu/facility-server run start migrate up
+          npm run --workspace @tamanu/central-server run start migrate up
+          npm run --workspace @tamanu/facility-server run start migrate up
 
       - name: Check model is up to date
         run: |
-          yarn dbt-generate-model --fail-on-missing-config
+          npm run dbt-generate-model --fail-on-missing-config
           if [[ -n $(git status --porcelain=v2) ]]; then
               git diff
               echo "The dbt model is behind the Tamanu database!"
-              echo "Run 'yarn dbt-generate-model' and commit the result."
+              echo "Run 'npm run dbt-generate-model' and commit the result."
               exit 1
           fi
 
       - name: Check model is valid (ie that docs can generate)
         run: |
           pip3 install dbt-core dbt-postgres
-          yarn dbt-generate-docs
+          npmn run dbt-generate-docs
 
   dbt-todos:
     needs: node_modules_cache
@@ -341,14 +341,14 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version-file: '.nvmrc'
-          cache: yarn
+          cache: npm
       - uses: actions/cache/restore@v3
         with:
-          key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
+          key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
 
-      - run: yarn
-      - run: yarn dbt-check-todos
+      - run: npm install
+      - run: npm run dbt-check-todos
 
   # Dummy job to have a stable name for PR requirements
   tests-pass:
