@@ -9,6 +9,7 @@ import { DateSelector } from '../DateSelector';
 import { Colors } from '../../../constants';
 import { OutpatientBookingCalendar } from './OutpatientBookingCalendar';
 import { GroupByAppointmentToggle } from './GroupAppointmentToggle';
+import { BookingDrawer } from './BookingDrawer';
 
 const Placeholder = styled.div`
   background-color: oklch(0% 0 0 / 3%);
@@ -72,6 +73,7 @@ export const APPOINTMENT_GROUP_BY = {
 };
 
 export const OutpatientAppointmentsView = () => {
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(startOfDay(new Date()));
   const [groupBy, setGroupBy] = useState(APPOINTMENT_GROUP_BY.LOCATION_GROUP);
 
@@ -81,6 +83,7 @@ export const OutpatientAppointmentsView = () => {
 
   return (
     <Container>
+      <BookingDrawer open={drawerOpen} />
       <LocationBookingsTopBar>
         <GroupByAppointmentToggle value={groupBy} onChange={setGroupBy} />
         <Filters>
@@ -88,7 +91,7 @@ export const OutpatientAppointmentsView = () => {
           <Placeholder>Clinician</Placeholder>
           <Placeholder>Type</Placeholder>
         </Filters>
-        <NewBookingButton onClick={null}>
+        <NewBookingButton onClick={() => setDrawerOpen(true)}>
           <AddIcon /> Book appointment
         </NewBookingButton>
       </LocationBookingsTopBar>
