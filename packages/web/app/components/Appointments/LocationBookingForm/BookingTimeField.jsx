@@ -207,7 +207,7 @@ export const BookingTimeField = ({ disabled = false }) => {
 
   return (
     <OuterLabelFieldWrapper
-      label={<TranslatedText stringId="locationBooking.form.bookingTime.label" fallback="Booking time" />}
+      label={<TranslatedText stringId="locationBooking.bookingTime.label" fallback="Booking time" />}
       required
     >
       <CellContainer $disabled={disabled}>

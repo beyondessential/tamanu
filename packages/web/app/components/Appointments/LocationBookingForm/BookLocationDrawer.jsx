@@ -97,7 +97,7 @@ export const DateFieldWithWarning = ({ editMode }) => {
   return (
     <Field
       name="date"
-      label={<TranslatedText stringId="general.form.date.label" fallback="Date" />}
+      label={<TranslatedText stringId="general.date.label" fallback="Date" />}
       component={DateField}
       disabled={!values.locationId}
       required
