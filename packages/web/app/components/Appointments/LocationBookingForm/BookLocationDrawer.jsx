@@ -92,7 +92,7 @@ export const DateFieldWithWarning = ({ editMode }) => {
     !editMode &&
     isFetched &&
     values.patientId &&
-    existingLocationBookings.data.find(booking => booking.patientId === values.patientId);
+    existingLocationBookings.data.some(booking => booking.patientId === values.patientId);
 
   return (
     <Field
