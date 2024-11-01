@@ -23,6 +23,7 @@ import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { Drawer } from '@material-ui/core';
 import { TOP_BAR_HEIGHT } from '../../../components/TopBar';
 import { isAfter, parseISO } from 'date-fns';
+import { useTranslation } from '../../../contexts/Translation';
 
 const Container = styled.div`
   width: 330px;
@@ -65,14 +66,14 @@ export const WarningModal = ({ open, setShowWarningModal, resolveFn }) => {
     <ConfirmModal
       title={
         <TranslatedText
-          stringId="locationBooking.cancelWarningModal.title"
-          fallback="Cancel new booking"
+          stringId="outpatientAppointments.cancelWarningModal.title"
+          fallback="Cancel new appointment"
         />
       }
       subText={
         <TranslatedText
-          stringId="locationBooking.cancelWarningModal.subtext"
-          fallback="Are you sure you would like to cancel the new booking?"
+          stringId="outpatientAppointments.cancelWarningModal.subtext"
+          fallback="Are you sure you would like to cancel the new appointment?"
         />
       }
       open={open}
@@ -80,10 +81,7 @@ export const WarningModal = ({ open, setShowWarningModal, resolveFn }) => {
         handleClose(true);
       }}
       cancelButtonText={
-        <TranslatedText
-          stringId="locationBooking.cancelWarningModal.cancelButton"
-          fallback="Back to editing"
-        />
+        <TranslatedText stringId="appointments.action.backToEditing" fallback="Back to editing" />
       }
       onCancel={() => {
         handleClose(false);
@@ -93,6 +91,7 @@ export const WarningModal = ({ open, setShowWarningModal, resolveFn }) => {
 };
 
 export const BookingDrawer = ({ open, closeDrawer, initialBookingValues }) => {
+  const { getTranslation } = useTranslation();
   const queryClient = useQueryClient();
   const patientSuggester = usePatientSuggester();
   const clinicianSuggester = useSuggester('practitioner');
@@ -118,8 +117,8 @@ export const BookingDrawer = ({ open, closeDrawer, initialBookingValues }) => {
       onSuccess: () => {
         notifySuccess(
           <TranslatedText
-            stringId="outpatientAppointment.notification.appointmentSuccessfullyCreated"
-            fallback="Appointment successfully created"
+            stringId="outpatientAppointment.notification.create.success"
+            fallback="Appointment created successfully"
           />,
         );
         closeDrawer();
@@ -128,7 +127,7 @@ export const BookingDrawer = ({ open, closeDrawer, initialBookingValues }) => {
       onError: error => {
         notifyError(
           <TranslatedText
-            stringId="outpatientAppointments.notification.appointmentFailed"
+            stringId="outpatientAppointments.notification.create.error"
             fallback="Failed to create appointment with error: :error"
             replacements={{ error: error.message }}
           />,
@@ -156,17 +155,32 @@ export const BookingDrawer = ({ open, closeDrawer, initialBookingValues }) => {
           onSubmit={async values => handleSubmit(values)}
           suppressErrorDialog
           validationSchema={yup.object().shape({
-            locationGroupId: yup.string().required(),
+            locationGroupId: yup
+              .string()
+              .required()
+              .translatedLabel(
+                <TranslatedText
+                  stringId="general.localisedField.locationGroupId.label"
+                  fallback="Area"
+                />,
+              ),
             appointmentTypeId: yup.string().required(),
             startTime: yup.string().required(),
             endTime: yup
               .string()
-              .required()
-              .test('isAfter', 'End time must be after start time', (value, { parent }) => {
-                const startTime = parseISO(parent.startTime);
-                const endTime = parseISO(value);
-                return isAfter(endTime, startTime);
-              }),
+              .test(
+                'isAfter',
+                getTranslation(
+                  'outpatientAppointments.endTime.validation.isAfterStartTime',
+                  'End time must be after start time',
+                ),
+                (value, { parent }) => {
+                  if (!value) return true;
+                  const startTime = parseISO(parent.startTime);
+                  const endTime = parseISO(value);
+                  return isAfter(endTime, startTime);
+                },
+              ),
             patientId: yup.string().required(),
           })}
           initialValues={initialBookingValues}
@@ -240,7 +254,6 @@ export const BookingDrawer = ({ open, closeDrawer, initialBookingValues }) => {
                   baseDate={parseISO(values.startTime)}
                   label={<TranslatedText stringId="general.endTime.label" fallback="End time" />}
                   component={TimeWithStableDayField}
-                  required
                 />
 
                 <FormSubmitCancelRow

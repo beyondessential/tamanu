@@ -16,9 +16,14 @@ export const useOutpatientAppointmentsCalendarData = ({ groupBy, selectedDate })
     isLoading: isLocationGroupsLoading,
   } = useLocationGroupsQuery({ facilityId });
 
-  const { data: userData, error: usersError, isLoading: isUsersLoading } = useUsersQuery({
-    orderBy: 'displayName',
-  });
+  const { data: userData, error: usersError, isLoading: isUsersLoading } = useUsersQuery(
+    {
+      orderBy: 'displayName',
+    },
+    {
+      select: ({ data }) => [...data, { id: 'unknown', displayName: 'Unknown' }],
+    },
+  );
 
   const {
     data: appointmentData,
@@ -27,7 +32,6 @@ export const useOutpatientAppointmentsCalendarData = ({ groupBy, selectedDate })
   } = useAppointmentsQuery({
     after: selectedDate,
     before: endOfDay(selectedDate),
-    clinicianId: '',
     locationGroupId: '',
   });
 
@@ -37,12 +41,15 @@ export const useOutpatientAppointmentsCalendarData = ({ groupBy, selectedDate })
   const data = useMemo(() => {
     if (!appointmentData?.data || appointmentData.data.length === 0) return {};
 
-    const cellData = lodashGroupBy(appointmentData?.data, groupBy);
+    const cellData = lodashGroupBy(
+      appointmentData?.data,
+      appointment => appointment[groupBy] || 'unknown',
+    );
 
     if (groupBy === APPOINTMENT_GROUP_BY.CLINICIAN) {
       return {
         cellData,
-        headData: userData?.data.filter(user => !!cellData[user.id]),
+        headData: userData.filter(user => !!cellData[user.id]),
         titleKey: 'displayName',
       };
     }
@@ -53,7 +60,7 @@ export const useOutpatientAppointmentsCalendarData = ({ groupBy, selectedDate })
         titleKey: 'name',
       };
     }
-  }, [appointmentData?.data, groupBy, userData?.data, locationGroupData]);
+  }, [appointmentData?.data, groupBy, userData, locationGroupData]);
 
   return { data, isLoading, error };
 };

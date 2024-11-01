@@ -64,7 +64,7 @@ const CloseDrawerIcon = styled(ClearIcon)`
 const StyledDrawer = styled(Drawer)`
   .MuiPaper-root {
     top: ${TOP_BAR_HEIGHT}px;
-    height: calc(100% - ${TOP_BAR_HEIGHT}px)
+    height: calc(100% - ${TOP_BAR_HEIGHT}px);
   }
 `;
 
@@ -92,10 +92,7 @@ export const WarningModal = ({ open, setShowWarningModal, resolveFn }) => {
         handleClose(true);
       }}
       cancelButtonText={
-        <TranslatedText
-          stringId="locationBooking.cancelWarningModal.cancelButton"
-          fallback="Back to editing"
-        />
+        <TranslatedText stringId="appointments.action.backToEditing" fallback="Back to editing" />
       }
       onCancel={() => {
         handleClose(false);
