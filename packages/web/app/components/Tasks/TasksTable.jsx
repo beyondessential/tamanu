@@ -76,7 +76,7 @@ const StyledTable = styled(DataFetchingTable)`
     transition: all 250ms;
     &:hover {
       box-shadow: ${props =>
-        props.disableHoverEffect ? '' : '10px 10px 15px 0px rgba(0, 0, 0, 0.1)'};
+        props.disableHoverEffect ? 'none' : '10px 10px 15px 0px rgba(0, 0, 0, 0.1)'};
     }
     position: relative;
     max-height: 42px;
