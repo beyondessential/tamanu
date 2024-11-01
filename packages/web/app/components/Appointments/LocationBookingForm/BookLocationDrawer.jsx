@@ -137,18 +137,23 @@ const SuccessMessage = ({ editMode }) =>
     />
   );
 
+const validationSchema = yup.object({
+  locationId: yup.string().required(),
+  startTime: yup.string().required(),
+  endTime: yup.string().required(),
+  patientId: yup.string().required(),
+  bookingTypeId: yup.string().required(),
+});
+
 export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues }) => {
-  const queryClient = useQueryClient();
+  const editMode = !!initialBookingValues.id;
+
   const patientSuggester = usePatientSuggester();
   const clinicianSuggester = useSuggester('practitioner');
   const bookingTypeSuggester = useSuggester('bookingType');
 
-  const api = useApi();
-
   const [warningModalOpen, setShowWarningModal] = useState(false);
   const [resolveFn, setResolveFn] = useState(null);
-
-  const editMode = !!initialBookingValues.id
 
   const handleShowWarningModal = async () =>
     new Promise(resolve => {
@@ -156,6 +161,8 @@ export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues }) 
       setShowWarningModal(true);
     });
 
+  const api = useApi();
+  const queryClient = useQueryClient();
   const { mutateAsync: handleSubmit } = useMutation(
     payload =>
       editMode
@@ -185,6 +192,78 @@ export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues }) 
     },
   );
 
+  const renderForm = ({ values, resetForm, setFieldValue, dirty }) => {
+    const warnAndResetForm = async () => {
+      const confirmed = !dirty || (await handleShowWarningModal());
+      if (!confirmed) return;
+      closeDrawer();
+      resetForm();
+    };
+
+    return (
+      <FormGrid columns={1}>
+        <CloseDrawerIcon onClick={warnAndResetForm} />
+        <Field
+          enableLocationStatus={false}
+          name="locationId"
+          component={LocalisedLocationField}
+          required
+          onChange={() => {
+            setFieldValue('overnight', null);
+            setFieldValue('date', null);
+            setFieldValue('startTime', null);
+            setFieldValue('endTime', null);
+          }}
+        />
+        <OvernightStayField>
+          <Field
+            name="overnight"
+            label={
+              <TranslatedText
+                stringId="location.form.overnightStay.label"
+                fallback="Overnight stay"
+              />
+            }
+            component={CheckField}
+            disabled={!values.locationId}
+          />
+          <OvernightIcon fontSize="small" />
+        </OvernightStayField>
+        <Field
+          name="date"
+          label={<TranslatedText stringId="general.form.date.label" fallback="Date" />}
+          component={DateField}
+          disabled={!values.locationId}
+          required
+        />
+        <BookingTimeField key={values.date} disabled={!values.date} />
+        <Field
+          name="patientId"
+          label={<TranslatedText stringId="general.form.patient.label" fallback="Patient" />}
+          component={AutocompleteField}
+          suggester={patientSuggester}
+          required
+        />
+        <Field
+          name="bookingTypeId"
+          label={
+            <TranslatedText stringId="location.form.bookingType.label" fallback="Booking type" />
+          }
+          component={DynamicSelectField}
+          suggester={bookingTypeSuggester}
+          required
+        />
+        <Field
+          name="clinicianId"
+          label={<TranslatedText stringId="general.form.clinician.label" fallback="Clinician" />}
+          component={AutocompleteField}
+          suggester={clinicianSuggester}
+        />
+        <FormSubmitCancelRow onCancel={warnAndResetForm} confirmDisabled={!values.startTime} />
+      </FormGrid>
+    );
+  };
+
   return (
     <StyledDrawer variant="persistent" anchor="right" open={open} onClose={closeDrawer}>
       <Container columns={1}>
@@ -197,96 +276,10 @@ export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues }) 
         <Form
           onSubmit={async values => handleSubmit(values)}
           suppressErrorDialog
-          validationSchema={yup.object().shape({
-            locationId: yup.string().required(),
-            startTime: yup.string().required(),
-            endTime: yup.string().required(),
-            patientId: yup.string().required(),
-            bookingTypeId: yup.string().required(),
-          })}
+          validationSchema={validationSchema}
           initialValues={initialBookingValues}
           enableReinitialize
-          render={({ values, resetForm, setFieldValue, dirty }) => {
-            const warnAndResetForm = async () => {
-              const confirmed = !dirty || (await handleShowWarningModal());
-              if (!confirmed) return;
-              closeDrawer();
-              resetForm();
-            };
-
-            return (
-              <FormGrid columns={1}>
-                <CloseDrawerIcon onClick={warnAndResetForm} />
-                <Field
-                  enableLocationStatus={false}
-                  name="locationId"
-                  component={LocalisedLocationField}
-                  required
-                  onChange={() => {
-                    setFieldValue('overnight', null);
-                    setFieldValue('date', null);
-                    setFieldValue('startTime', null);
-                    setFieldValue('endTime', null);
-                  }}
-                />
-                <OvernightStayField>
-                  <Field
-                    name="overnight"
-                    label={
-                      <TranslatedText
-                        stringId="location.form.overnightStay.label"
-                        fallback="Overnight stay"
-                      />
-                    }
-                    component={CheckField}
-                    disabled={!values.locationId}
-                  />
-                  <OvernightIcon fontSize="small" />
-                </OvernightStayField>
-                <Field
-                  name="date"
-                  label={<TranslatedText stringId="general.form.date.label" fallback="Date" />}
-                  component={DateField}
-                  disabled={!values.locationId}
-                  required
-                />
-                <BookingTimeField key={values.date} disabled={!values.date} />
-                <Field
-                  name="patientId"
-                  label={
-                    <TranslatedText stringId="general.form.patient.label" fallback="Patient" />
-                  }
-                  component={AutocompleteField}
-                  suggester={patientSuggester}
-                  required
-                />
-                <Field
-                  name="bookingTypeId"
-                  label={
-                    <TranslatedText
-                      stringId="location.form.bookingType.label"
-                      fallback="Booking type"
-                    />
-                  }
-                  component={DynamicSelectField}
-                  suggester={bookingTypeSuggester}
-                  required
-                />
-                <Field
-                  name="clinicianId"
-                  label={
-                    <TranslatedText stringId="general.form.clinician.label" fallback="Clinician" />
-                  }
-                  component={AutocompleteField}
-                  suggester={clinicianSuggester}
-                />
-                <FormSubmitCancelRow
-                  onCancel={warnAndResetForm}
-                  confirmDisabled={!values.startTime}
-                />
-              </FormGrid>
-            );
-          }}
+          render={renderForm}
         />
         <WarningModal
           open={warningModalOpen}
