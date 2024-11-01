@@ -83,7 +83,7 @@ export const OutpatientAppointmentsView = () => {
 
   return (
     <Container>
-      <BookingDrawer open={drawerOpen} />
+      <BookingDrawer closeDrawer={() => setDrawerOpen(false)} open={drawerOpen} />
       <LocationBookingsTopBar>
         <GroupByAppointmentToggle value={groupBy} onChange={setGroupBy} />
         <Filters>

@@ -99,7 +99,7 @@ export const BookingDrawer = ({ open, closeDrawer, initialBookingValues }) => {
   const appointmentTypeSuggester = useSuggester('appointmentType');
   const locationGroupSuggester = useSuggester('locationGroup');
 
-  // const api = useApi();
+  const api = useApi();
 
   const [warningModalOpen, setShowWarningModal] = useState(false);
   const [resolveFn, setResolveFn] = useState(null);
@@ -112,7 +112,7 @@ export const BookingDrawer = ({ open, closeDrawer, initialBookingValues }) => {
 
   const { mutateAsync: handleSubmit } = useMutation(
     payload => {
-      console.log('payload', payload);
+      return api.post('appointments', payload);
     },
     {
       onSuccess: () => {
@@ -162,8 +162,8 @@ export const BookingDrawer = ({ open, closeDrawer, initialBookingValues }) => {
             endTime: yup
               .string()
               .required()
-              .test('isAfter', 'End time must be after start time', (value, ctx) => {
-                const startTime = parseISO(ctx.parent.startTime);
+              .test('isAfter', 'End time must be after start time', (value, { parent }) => {
+                const startTime = parseISO(parent.startTime);
                 const endTime = parseISO(value);
                 return isAfter(endTime, startTime);
               }),
@@ -237,7 +237,6 @@ export const BookingDrawer = ({ open, closeDrawer, initialBookingValues }) => {
                   name="endTime"
                   disabled={!values.startTime}
                   saveDateAsString
-                  min={values.startTime}
                   baseDate={parseISO(values.startTime)}
                   label={<TranslatedText stringId="general.endTime.label" fallback="End time" />}
                   component={TimeWithStableDayField}
