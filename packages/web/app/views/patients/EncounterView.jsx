@@ -30,7 +30,7 @@ import { useAuth } from '../../contexts/Auth';
 import { VitalChartDataProvider } from '../../contexts/VitalChartData';
 import { TranslatedText, TranslatedReferenceData } from '../../components/Translation';
 import { useSettings } from '../../contexts/Settings';
-import { withEncounterPanePermissions } from './panes/withEncounterPanePermissions';
+import { EncounterPaneWithPermissionCheck } from './panes/EncounterPaneWithPermissionCheck';
 
 const getIsTriage = encounter => ENCOUNTER_OPTIONS_BY_VALUE[encounter.encounterType].triageFlowOnly;
 
@@ -38,7 +38,11 @@ const TABS = [
   {
     label: <TranslatedText stringId="encounter.tabs.tasks" fallback="tasks" />,
     key: ENCOUNTER_TAB_NAMES.TASKS,
-    render: props => withEncounterPanePermissions(TasksPane, props, 'Tasking'),
+    render: props => (
+      <EncounterPaneWithPermissionCheck permissionNoun="Tasking">
+        <TasksPane {...props} />
+      </EncounterPaneWithPermissionCheck>
+    ),
     condition: getSetting => getSetting('features.enableTasking'),
   },
   {
@@ -88,7 +92,11 @@ const TABS = [
   {
     label: <TranslatedText stringId="encounter.tabs.invoicing" fallback="Invoicing" />,
     key: ENCOUNTER_TAB_NAMES.INVOICING,
-    render: props => withEncounterPanePermissions(EncounterInvoicingPane, props, 'Invoice'),
+    render: props => (
+      <EncounterPaneWithPermissionCheck permissionNoun="Invoice">
+        <EncounterInvoicingPane {...props} />
+      </EncounterPaneWithPermissionCheck>
+    ),
     condition: getSetting => getSetting('features.enableInvoicing'),
   },
 ];

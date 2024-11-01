@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/rules-of-hooks */
 import React from 'react';
 import styled from 'styled-components';
 import { Colors } from '../../../constants';
@@ -28,12 +27,12 @@ const Content = styled.div`
   color: ${Colors.primary};
 `;
 
-export const withEncounterPanePermissions = (Component, props, permissionNoun) => {
+export const EncounterPaneWithPermissionCheck = ({ children, permissionNoun }) => {
   const { ability } = useAuth();
   const hasPermission = ability.can('list', permissionNoun);
 
   return hasPermission ? (
-    <Component {...props} />
+    children
   ) : (
     <Container>
       <Content>
