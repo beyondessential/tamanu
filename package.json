@@ -38,7 +38,10 @@
     "central-start": "npm run central-start-dev",
     "central-migrate": "npm run build-shared && TAMANU_ARGS=\"migrate\" npm run central-start-dev",
     "central-migrate-down": "npm run build-shared && TAMANU_ARGS=\"migrate down\" npm run central-start-dev",
-    "build-report": "npm run build-shared && npm run --workspace @tamanu/central-server build && npm run --workspace @tamanu/central-server start report"
+    "build-report": "npm run build-shared && npm run --workspace @tamanu/central-server build && npm run --workspace @tamanu/central-server start report",
+    "dbt-generate-model": "node packages/scripts/src/dbt/generateModel.js",
+    "dbt-generate-docs": "node packages/scripts/src/dbt/generateDocs.js",
+    "dbt-check-todos": "node packages/scripts/src/dbt/checkTodos.js"
   },
   "engines": {
     "node": "^20.9.0"
