@@ -77,9 +77,9 @@ export const LocationBookingsView = () => {
   const closeBookingForm = () => {
     setIsDrawerOpen(false);
   };
-  const openBookingForm = (initialValues, editMode = false) => {
+  const openBookingForm = (initialValues) => {
     setInitialDrawerValues(initialValues);
-    setEditMode(editMode)
+    setEditMode(!!initialValues.id)
     setIsDrawerOpen(true);
   };
 

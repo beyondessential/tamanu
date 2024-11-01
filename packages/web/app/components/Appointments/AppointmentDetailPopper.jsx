@@ -125,7 +125,7 @@ const ControlsRow = ({ onClose, appointment, openBookingForm }) => {
   const actions = [
     {
       label: <TranslatedText stringId="general.action.modify" fallback="Modify" />,
-      action: () => openBookingForm({ ...appointment, date: appointment.startTime }, true),
+      action: () => openBookingForm({ ...appointment, date: appointment.startTime }),
     },
     // TODO: cancel workflow
     {
