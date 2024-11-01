@@ -50,7 +50,7 @@ describe('User', () => {
 
     beforeAll(async () => {
       const { User, Role } = models;
-      await models.Setting.set('auth.restrictUsersToFacilities', true)
+      await models.Setting.set('auth.restrictUsersToFacilities', true);
       authRole = await Role.create(fake(Role));
       authUser = await User.create(fake(User, { password: rawPassword, role: authRole.id }));
       deactivatedUser = await User.create(
@@ -346,7 +346,7 @@ describe('User', () => {
     const validUserFacilityIds = validUserFacilities.map(f => f.id);
 
     beforeAll(async () => {
-      await models.Setting.set('auth.restrictUsersToFacilities', true)
+      await models.Setting.set('auth.restrictUsersToFacilities', true);
       superUser = await models.User.create(
         createUser({
           role: 'admin',
@@ -659,13 +659,14 @@ describe('User', () => {
       const result = await app.get('/api/user/userPreferences');
       expect(result).toHaveSucceeded();
       expect(result.body).toMatchObject({
-        key: 'selectedGraphedVitalsOnFilter',
-        value: defaultSelectedGraphedVitalsOnFilter,
+        selectedGraphedVitalsOnFilter: defaultSelectedGraphedVitalsOnFilter,
       });
     });
 
     it('should update current user preference and updatedAt for selected graphed vitals on filter', async () => {
-      const result1 = await models.UserPreference.findOne({ where: { key: 'selectedGraphedVitalsOnFilter' } });
+      const result1 = await models.UserPreference.findOne({
+        where: { key: 'selectedGraphedVitalsOnFilter' },
+      });
       const result2 = await updateUserPreference({
         key: 'selectedGraphedVitalsOnFilter',
         value: defaultSelectedGraphedVitalsOnFilter,
