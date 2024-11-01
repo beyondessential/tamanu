@@ -6,8 +6,6 @@ import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 
 import { TabPane } from '../components';
 import { TableButtonRow, ButtonWithPermissionCheck } from '../../../components';
-import { useApi } from '../../../api';
-
 import { SelectField } from '../../../components/Field';
 import { useChartSurveysQuery } from '../../../api/queries';
 import { useUserPreferencesMutation } from '../../../api/mutations/useUserPreferencesMutation';
@@ -16,7 +14,10 @@ import { ChartModal } from '../../../components/ChartModal';
 import { ChartsTable } from '../../../components/ChartsTable';
 import { getAnswersFromData } from '../../../utils';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
+
 import { useAuth } from '../../../contexts/Auth';
+import { useEncounter } from '../../../contexts/Encounter';
+import { useApi } from '../../../api';
 
 const StyledTranslatedSelectField = styled(SelectField)`
   width: 200px;
@@ -50,6 +51,7 @@ const ChartDropDown = ({ selectedChartTypeId, setSelectedChartTypeId, chartTypes
 export const ChartsPane = React.memo(({ patient, encounter, readonly }) => {
   const api = useApi();
   const { facilityId } = useAuth();
+  const { loadEncounter } = useEncounter();
   const [modalOpen, setModalOpen] = useState(false);
   const { data: userPreferences } = useUserPreferencesQuery();
   const [selectedChartTypeId, setSelectedChartTypeId] = useState(
@@ -81,6 +83,7 @@ export const ChartsPane = React.memo(({ patient, encounter, readonly }) => {
       facilityId,
     });
     handleClose();
+    await loadEncounter(encounter.id);
   };
 
   const findChartName = useCallback(

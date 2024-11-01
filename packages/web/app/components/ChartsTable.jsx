@@ -1,18 +1,24 @@
 import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 import { DynamicColumnTable, Table } from './Table';
+
+import { Box } from '@material-ui/core';
+
+import { Colors } from '../constants';
 import { useEncounter } from '../contexts/Encounter';
 import { useEncounterChartsQuery } from '../api/queries/useEncounterChartsQuery';
 import { EditVitalCellModal } from './EditVitalCellModal';
 import { TranslatedText } from './Translation/TranslatedText';
-import { Colors } from '../constants';
 import { getChartsTableColumns } from './VitalsAndChartsTableColumns';
-import { Box } from '@material-ui/core';
+import { LoadingIndicator } from './LoadingIndicator';
 
 export const ChartsTable = React.memo(({ selectedSurveyId }) => {
   const patient = useSelector(state => state.patient);
   const { encounter } = useEncounter();
-  const { data, recordedDates, error, isLoading } = useEncounterChartsQuery(encounter.id, selectedSurveyId);
+  const { data, recordedDates, error, isLoading } = useEncounterChartsQuery(
+    encounter.id,
+    selectedSurveyId,
+  );
   const [openEditModal, setOpenEditModal] = useState(false);
   const [selectedCell, setSelectedCell] = useState(null);
   const showFooterLegend = data.some(entry =>
@@ -33,7 +39,15 @@ export const ChartsTable = React.memo(({ selectedSurveyId }) => {
     onCellClick,
   );
 
-  if (isLoading || data.length === 0) {
+  if (isLoading) {
+    return (
+      <Box mt={2}>
+        <LoadingIndicator height="400px" />
+      </Box>
+    );
+  }
+
+  if (data.length === 0) {
     return (
       <Table
         columns={[]}
@@ -42,16 +56,17 @@ export const ChartsTable = React.memo(({ selectedSurveyId }) => {
         noDataBackgroundColor={Colors.background}
         noDataMessage={
           <Box color={Colors.primary} fontWeight={500}>
-            {selectedSurveyId === ''
-              ? <TranslatedText
-                  stringId="chart.table.noChart"
-                  fallback="This patient has no recorded charts to display. Select the required chart to document a chart."
-                />
-              : <TranslatedText
-                  stringId="chart.table.noData"
-                  fallback="This patient has no chart information to display. Click ‘Record’ to add information to this chart."
-                />
-            }
+            {selectedSurveyId === '' ? (
+              <TranslatedText
+                stringId="chart.table.noChart"
+                fallback="This patient has no recorded charts to display. Select the required chart to document a chart."
+              />
+            ) : (
+              <TranslatedText
+                stringId="chart.table.noData"
+                fallback="This patient has no chart information to display. Click ‘Record’ to add information to this chart."
+              />
+            )}
           </Box>
         }
       />
