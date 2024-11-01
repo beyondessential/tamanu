@@ -1,9 +1,15 @@
-import React, { useState } from 'react';
-import * as yup from 'yup';
-import styled from 'styled-components';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
 import Brightness2Icon from '@material-ui/icons/Brightness2';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import React, { useState } from 'react';
+import styled from 'styled-components';
+import * as yup from 'yup';
 
+import { Drawer } from '@material-ui/core';
+import { useApi, usePatientSuggester, useSuggester } from '../../../api';
+import { Colors } from '../../../constants';
+import { notifyError, notifySuccess } from '../../../utils';
+import { FormSubmitCancelRow } from '../../ButtonRow';
+import { ConfirmModal } from '../../ConfirmModal';
 import {
   AutocompleteField,
   CheckField,
@@ -13,18 +19,12 @@ import {
   Form,
   LocalisedLocationField,
 } from '../../Field';
-import { BodyText, Heading4 } from '../../Typography';
-import { BookingTimeField } from './BookingTimeField';
-import { useApi, usePatientSuggester, useSuggester } from '../../../api';
-import { FormSubmitCancelRow } from '../../ButtonRow';
-import { Colors } from '../../../constants';
 import { FormGrid } from '../../FormGrid';
 import { ClearIcon } from '../../Icons/ClearIcon';
-import { ConfirmModal } from '../../ConfirmModal';
-import { notifyError, notifySuccess } from '../../../utils';
-import { TranslatedText } from '../../Translation/TranslatedText';
-import { Drawer } from '@material-ui/core';
 import { TOP_BAR_HEIGHT } from '../../TopBar';
+import { TranslatedText } from '../../Translation/TranslatedText';
+import { BookLocationHeader } from './BookLocationHeader';
+import { BookingTimeField } from './BookingTimeField';
 
 const Container = styled.div`
   width: 330px;
@@ -32,16 +32,6 @@ const Container = styled.div`
   background-color: ${Colors.background};
   overflow-y: auto;
   position: relative;
-`;
-
-const Heading = styled(Heading4)`
-  font-size: 16px;
-  margin-bottom: 9px;
-`;
-
-const Description = styled(BodyText)`
-  font-size: 11px;
-  color: ${Colors.midText};
 `;
 
 const OvernightStayField = styled.div`
@@ -103,26 +93,6 @@ export const WarningModal = ({ open, setShowWarningModal, resolveFn }) => {
     />
   );
 };
-
-const HeadingText = ({ editMode }) =>
-  editMode ? (
-    <TranslatedText stringId="locationBooking.form.edit.heading" fallback="Modify booking" />
-  ) : (
-    <TranslatedText stringId="locationBooking.form.new.heading" fallback="Book location" />
-  );
-
-const DescriptionText = ({ editMode }) =>
-  editMode ? (
-    <TranslatedText
-      stringId="locationBooking.form.edit.description"
-      fallback="Modify the selected booking below."
-    />
-  ) : (
-    <TranslatedText
-      stringId="locationBooking.form.new.description"
-      fallback="Create a new booking by completing the below details and selecting ‘Confirm’"
-    />
-  );
 
 const SuccessMessage = ({ editMode }) =>
   editMode ? (
@@ -267,12 +237,7 @@ export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues }) 
   return (
     <StyledDrawer variant="persistent" anchor="right" open={open} onClose={closeDrawer}>
       <Container columns={1}>
-        <Heading>
-          <HeadingText editMode={editMode} />
-        </Heading>
-        <Description>
-          <DescriptionText editMode={editMode} />
-        </Description>
+        <BookLocationHeader />
         <Form
           onSubmit={async values => handleSubmit(values)}
           suppressErrorDialog
