@@ -61,10 +61,10 @@ const CloseDrawerIcon = styled(ClearIcon)`
   right: 16px;
 `;
 
-const StyledDrawer = styled(Drawer)`
+const StyledDrawer = styled(Drawer).attrs({ anchor: 'right', variant: 'persistent' })`
   .MuiPaper-root {
-    top: ${TOP_BAR_HEIGHT}px;
-    height: calc(100% - ${TOP_BAR_HEIGHT}px);
+    block-size: calc(100% - ${TOP_BAR_HEIGHT}px);
+    inset-block-start: ${TOP_BAR_HEIGHT}px;
   }
 `;
 
@@ -229,7 +229,7 @@ export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues, ed
   );
 
   return (
-    <StyledDrawer variant="persistent" anchor="right" open={open} onClose={closeDrawer}>
+    <StyledDrawer open={open} onClose={closeDrawer}>
       <Container columns={1}>
         <Heading>{headingText}</Heading>
         <Description>{descriptionText}</Description>
