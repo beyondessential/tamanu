@@ -18,12 +18,7 @@ const CustomBarcode = ({ id, width, height }) => {
   return <Image source={barcode} style={{ height, maxWidth: width, objectFit: 'cover' }} />;
 };
 
-const convertToPt = mm => {
-  // remove 'mm' etc from strings
-  if (typeof mm === 'string') return parseFloat(mm.replace(/[^0-9.]/i, '')) * 2.835;
-
-  return mm * 2.835;
-};
+const mmToPt = mm => mm * 2.835;
 
 const styles = StyleSheet.create({
   mainContainer: {
@@ -82,15 +77,12 @@ const DetailsKey = props => <Text style={styles.detailsKey} {...props} />;
 const DetailsValue = props => <Text style={styles.detailsValue} {...props} />;
 const BarcodeRow = props => <View style={styles.barcodeRow} {...props} />;
 
-const DetailsRow = ({ name, value, getLocalisation }) => {
-  const label = getLocalisation(`fields.${name}.shortLabel`);
-  return (
-    <InfoRow>
-      <DetailsKey>{`${label}: `}</DetailsKey>
-      <DetailsValue>{value}</DetailsValue>
-    </InfoRow>
-  );
-};
+const DetailsRow = ({ value, label }) => (
+  <InfoRow>
+    <DetailsKey>{`${label}: `}</DetailsKey>
+    <DetailsValue>{value}</DetailsValue>
+  </InfoRow>
+);
 
 const PatientPhoto = ({ patientImageData }) => {
   return (
@@ -107,14 +99,14 @@ const IDCardPrintoutComponent = ({
   patientImageData,
   cardDimensions,
   measures,
-  getLocalisation,
+  getTranslation,
 }) => {
   const pageStyles = StyleSheet.create({
     card: {
       width: cardDimensions.width,
       height: cardDimensions.height,
-      marginTop: convertToPt(measures.cardMarginTop),
-      marginLeft: convertToPt(measures.cardMarginLeft),
+      marginTop: mmToPt(measures.cardMarginTop),
+      marginLeft: mmToPt(measures.cardMarginLeft),
       display: 'flex',
       flexDirection: 'column',
     },
@@ -124,32 +116,31 @@ const IDCardPrintoutComponent = ({
 
   return (
     <Document>
-      <Page size="A4" style={{ paddingTop: convertToPt('10.6mm') }}>
+      <Page size="A4" style={{ paddingTop: mmToPt(10.6) }}>
         <Card>
           <MainContainer>
             <PatientPhoto patientImageData={patientImageData} />
             <Details>
               <DetailsRow
-                name="displayId"
                 value={patient.displayId}
-                getLocalisation={getLocalisation}
+                label={getTranslation('general.localisedField.displayId.label.short', 'NHN')}
               />
               <DetailsRow
-                name="lastName"
                 value={patient.lastName}
-                getLocalisation={getLocalisation}
+                label={getTranslation('general.localisedField.lastName.label', 'Last name')}
               />
               <DetailsRow
-                name="firstName"
                 value={patient.firstName}
-                getLocalisation={getLocalisation}
+                label={getTranslation('general.localisedField.firstName.label', 'First name')}
               />
               <DetailsRow
-                name="dateOfBirth"
                 value={getDOB(patient)}
-                getLocalisation={getLocalisation}
+                label={getTranslation('general.localisedField.dateOfBirth.label.short', 'DOB')}
               />
-              <DetailsRow name="sex" value={getSex(patient)} getLocalisation={getLocalisation} />
+              <DetailsRow
+                value={getSex(patient)}
+                label={getTranslation('general.localisedField.sex.label', 'Sex')}
+              />
             </Details>
           </MainContainer>
           <BarcodeRow>

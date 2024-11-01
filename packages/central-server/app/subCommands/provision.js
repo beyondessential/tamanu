@@ -15,6 +15,7 @@ import { loadSettingFile } from '../utils/loadSettingFile';
 import { referenceDataImporter } from '../admin/referenceDataImporter';
 import { getRandomBase64String } from '../auth/utils';
 import { programImporter } from '../admin/programImporter/programImporter';
+import { defaultsDeep } from 'lodash';
 
 export async function provision(provisioningFile, { skipIfNotNeeded }) {
   const store = await initDatabase({ testMode: false });
@@ -37,7 +38,7 @@ export async function provision(provisioningFile, { skipIfNotNeeded }) {
     facilities = {},
     programs = [],
     referenceData = [],
-    settings: globalSettings = {},
+    settings = {},
   } = await loadSettingFile(provisioningFile);
 
   /// //////////////
@@ -119,16 +120,27 @@ export async function provision(provisioningFile, { skipIfNotNeeded }) {
   /// ////////
   /// SETTINGS
 
-  for (const [key, value] of Object.entries(globalSettings)) {
-    log.info('Installing global setting', { key });
-    await store.models.Setting.set(key, value, SETTINGS_SCOPES.GLOBAL);
-  }
+  const combineSettings = async (settingData, scope, facilityId) => {
+    const existing = await store.models.Setting.get('', facilityId, scope);
+    const combined = defaultsDeep(settingData, existing);
+    return store.models.Settings.set('', combined, scope, facilityId);
+  };
 
-  for (const [id, { settings = {} }] of Object.entries(facilities)) {
-    for (const [key, value] of Object.entries(settings)) {
-      log.info('Installing facility setting', { key, facility: id });
-      await store.models.Setting.set(key, value, SETTINGS_SCOPES.FACILITY, id);
-    }
+  if (settings.global) {
+    await combineSettings(settings.global, SETTINGS_SCOPES.GLOBAL);
+    log.info('Set global settings');
+  }
+  if (settings.facilities) {
+    await Promise.all(
+      Object.entries(settings.facilities).map(([facilityId, facilitySettings]) =>
+        combineSettings(facilitySettings, SETTINGS_SCOPES.FACILITY, facilityId),
+      ),
+    );
+    log.info('Set facility settings');
+  }
+  if (settings.central) {
+    await combineSettings(settings.central, SETTINGS_SCOPES.CENTRAL);
+    log.info('Set central settings');
   }
 
   /// /////

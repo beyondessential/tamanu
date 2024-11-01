@@ -1,6 +1,6 @@
 import { CENTRAL_MENU_ITEMS } from './CentralMenuItems';
 import { FACILITY_MENU_ITEMS } from './FacilityMenuItems';
-import { useLocalisation } from '../../contexts/Localisation';
+import { useSettings } from '../../contexts/Settings';
 
 const sortTopLevelItems = (a, b) => {
   // Always show patients first
@@ -21,8 +21,8 @@ const sortChildItems = (a, b) => {
 // This hook is used to get the menu items for the facility sidebar. It gets the configured hidden and
 // sortPriority values from  sidebar config and merges them with the *_MENU_ITEMS constant
 const useSidebarFactory = (ITEMS, configKey) => {
-  const { getLocalisation } = useLocalisation();
-  const sidebarConfig = getLocalisation(configKey);
+  const { getSetting } = useSettings();
+  const sidebarConfig = getSetting(configKey);
 
   if (!sidebarConfig) {
     return ITEMS;

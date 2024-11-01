@@ -20,9 +20,6 @@ export class PatientContact extends BaseModel implements IPatientContact {
   @Column({ nullable: true })
   connectionDetails: string;
 
-  @Column({ nullable: true })
-  deletionStatus: string;
-
   @ManyToOne(
     () => Patient,
     patient => patient.contacts,

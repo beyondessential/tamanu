@@ -13,11 +13,10 @@ describe('New Zealand ethnicity extension', () => {
     expect(extension).toMatchObject([]);
     expect(extension.length).toBe(0);
   });
-
   it('returns a fhir extension when feature flag is on', () => {
     const mockConfig = {
       hl7: config.hl7,
-      localisation: { data: { features: { fhirNewZealandEthnicity: true } } },
+      integrations: { fhir: { extensions: { Patient: { newZealandEthnicity: true } } } },
     };
     const extension = nzEthnicity.overrideConfig(patient, mockConfig);
     expect(extension).toMatchObject([

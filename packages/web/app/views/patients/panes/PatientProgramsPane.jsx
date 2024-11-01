@@ -6,7 +6,7 @@ import { Button, ContentPane, TableButtonRow } from '../../../components';
 import { DataFetchingProgramsTable } from '../../../components/ProgramResponsesTable';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
-export const PatientProgramsPane = React.memo(({ endpoint }) => {
+export const PatientProgramsPane = React.memo(({ endpoint, patient }) => {
   const dispatch = useDispatch();
   const params = useParams();
 
@@ -20,7 +20,7 @@ export const PatientProgramsPane = React.memo(({ endpoint }) => {
           <TranslatedText stringId="program.action.newSurvey" fallback="New form" />
         </Button>
       </TableButtonRow>
-      <DataFetchingProgramsTable endpoint={endpoint} />
+      <DataFetchingProgramsTable endpoint={endpoint} patient={patient} />
     </ContentPane>
   );
 });
