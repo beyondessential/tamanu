@@ -99,7 +99,7 @@ export const LocationBookingsView = () => {
         </Filters>
         <NewBookingButton onClick={() => openBookingForm({})}>
           <PlusIcon />
-          <TranslatedText stringId="locationBooking.calendar.newBooking" fallback="New booking" />
+          <TranslatedText stringId="locationBooking.calendar.bookLocation" fallback="Book location" />
         </NewBookingButton>
       </LocationBookingsTopBar>
       {hasNoLocations ? (
