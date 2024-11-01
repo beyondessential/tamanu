@@ -8,7 +8,7 @@ import { NotFoundError, ResourceConflictError } from '@tamanu/shared/errors';
 
 export const appointments = express.Router();
 
-const timeOverLapWhereCondition = (startTime, endTime) => {
+const timeOverlapWhereCondition = (startTime, endTime) => {
   return {
     [Op.or]: [
       // Partial overlap
@@ -56,12 +56,12 @@ appointments.post('/locationBooking', async (req, res) => {
       const bookingTimeAlreadyTaken = await Appointment.findOne({
         where: {
           locationId,
-          ...timeOverLapWhereCondition(startTime, endTime),
+          ...timeOverlapWhereCondition(startTime, endTime),
         },
         transaction,
       });
 
-      if (!bookingTimeAlreadyTaken) {
+      if (bookingTimeAlreadyTaken) {
         throw new ResourceConflictError();
       }
 
@@ -94,7 +94,7 @@ appointments.put('/locationBooking/:id', async (req, res) => {
         where: {
           id: { [Op.ne]: id },
           locationId,
-          ...timeOverLapWhereCondition(startTime, endTime),
+          ...timeOverlapWhereCondition(startTime, endTime),
         },
         transaction,
       });
