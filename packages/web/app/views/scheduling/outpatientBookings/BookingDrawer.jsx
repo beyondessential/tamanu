@@ -14,7 +14,7 @@ import {
 import { BodyText, Heading4 } from '../../../components/Typography';
 import { useApi, usePatientSuggester, useSuggester } from '../../../api';
 import { FormSubmitCancelRow } from '../../../components/ButtonRow';
-import { Colors } from '../../../constants';
+import { Colors, FORM_TYPES } from '../../../constants';
 import { FormGrid } from '../../../components/FormGrid';
 import { ClearIcon } from '../../../components/Icons/ClearIcon';
 import { ConfirmModal } from '../../../components/ConfirmModal';
@@ -90,13 +90,61 @@ export const WarningModal = ({ open, setShowWarningModal, resolveFn }) => {
   );
 };
 
-export const BookingDrawer = ({ open, closeDrawer, initialBookingValues }) => {
+const SuccessMessage = ({ isEdit }) => {
+  return isEdit ? (
+    <TranslatedText
+      stringId="outpatientAppointment.notification.edit.success"
+      fallback="Appointment successfully edited"
+    />
+  ) : (
+    <TranslatedText
+      stringId="outpatientAppointment.notification.create.success"
+      fallback="Appointment successfully created"
+    />
+  );
+};
+
+const ErrorMessage = ({ isEdit, error }) => {
+  return isEdit ? (
+    <TranslatedText
+      stringId="outpatientAppointment.notification.edit.error"
+      fallback="Failed to edit appointment with error: :error"
+      replacements={{ error: error.message }}
+    />
+  ) : (
+    <TranslatedText
+      stringId="outpatientAppointment.notification.create.error"
+      fallback="Failed to create appointment with error: :error"
+      replacements={{ error: error.message }}
+    />
+  );
+};
+
+const DrawerHeading = ({ isEdit }) => (
+  <Heading>
+    {isEdit ? (
+      <TranslatedText
+        stringId="outpatientAppointment.form.edit.heading"
+        fallback="Modify outpatient appointment"
+      />
+    ) : (
+      <TranslatedText
+        stringId="outpatientAppointment.form.new.heading"
+        fallback="New outpatient appointment"
+      />
+    )}
+  </Heading>
+);
+
+export const BookingDrawer = ({ open, closeDrawer, initialValues = {} }) => {
   const { getTranslation } = useTranslation();
   const queryClient = useQueryClient();
   const patientSuggester = usePatientSuggester();
   const clinicianSuggester = useSuggester('practitioner');
   const appointmentTypeSuggester = useSuggester('appointmentType');
   const locationGroupSuggester = useSuggester('locationGroup');
+
+  const isEdit = !!initialValues.id;
 
   const api = useApi();
 
@@ -111,27 +159,18 @@ export const BookingDrawer = ({ open, closeDrawer, initialBookingValues }) => {
 
   const { mutateAsync: handleSubmit } = useMutation(
     payload => {
-      return api.post('appointments', payload);
+      return isEdit
+        ? api.put(`appointments/${payload.id}`, payload)
+        : api.post('appointments', payload);
     },
     {
       onSuccess: () => {
-        notifySuccess(
-          <TranslatedText
-            stringId="outpatientAppointment.notification.create.success"
-            fallback="Appointment created successfully"
-          />,
-        );
+        notifySuccess(<SuccessMessage isEdit={isEdit} />);
         closeDrawer();
         queryClient.invalidateQueries('appointments');
       },
       onError: error => {
-        notifyError(
-          <TranslatedText
-            stringId="outpatientAppointments.notification.create.error"
-            fallback="Failed to create appointment with error: :error"
-            replacements={{ error: error.message }}
-          />,
-        );
+        notifyError(<ErrorMessage isEdit={isEdit} error={error} />);
       },
     },
   );
@@ -139,12 +178,7 @@ export const BookingDrawer = ({ open, closeDrawer, initialBookingValues }) => {
   return (
     <StyledDrawer variant="persistent" anchor="right" open={open} onClose={closeDrawer}>
       <Container columns={1}>
-        <Heading>
-          <TranslatedText
-            stringId="outpatientAppointment.form.new.heading"
-            fallback="New outpatient appointment"
-          />
-        </Heading>
+        <DrawerHeading isEdit={isEdit} />
         <Description>
           <TranslatedText
             stringId="outpatientAppointment.form.new.description"
@@ -154,6 +188,7 @@ export const BookingDrawer = ({ open, closeDrawer, initialBookingValues }) => {
         <Form
           onSubmit={async values => handleSubmit(values)}
           suppressErrorDialog
+          formType={isEdit ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
           validationSchema={yup.object().shape({
             locationGroupId: yup
               .string()
@@ -168,6 +203,7 @@ export const BookingDrawer = ({ open, closeDrawer, initialBookingValues }) => {
             startTime: yup.string().required(),
             endTime: yup
               .string()
+              .nullable()
               .test(
                 'isAfter',
                 getTranslation(
@@ -183,7 +219,7 @@ export const BookingDrawer = ({ open, closeDrawer, initialBookingValues }) => {
               ),
             patientId: yup.string().required(),
           })}
-          initialValues={initialBookingValues}
+          initialValues={initialValues}
           enableReinitialize
           render={({ values, resetForm, dirty }) => {
             const warnAndResetForm = async () => {
@@ -258,7 +294,7 @@ export const BookingDrawer = ({ open, closeDrawer, initialBookingValues }) => {
 
                 <FormSubmitCancelRow
                   onCancel={warnAndResetForm}
-                  confirmDisabled={!values.startTime}
+                  confirmDisabled={!values.startTime || !dirty}
                 />
               </FormGrid>
             );

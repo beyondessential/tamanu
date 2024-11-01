@@ -120,15 +120,15 @@ export const HeadCell = ({ title, count }) => (
   </HeadCellWrapper>
 );
 
-const AppointmentCell = ({ appointments = [] }) => (
+const AppointmentCell = ({ appointments = [], onEditAppointment }) => (
   <AppointmentColumnWrapper>
     {appointments.map(a => (
-      <AppointmentTile key={a.id} appointment={a} />
+      <AppointmentTile key={a.id} appointment={a} onClick={() => onEditAppointment(a)} />
     ))}
   </AppointmentColumnWrapper>
 );
 
-export const OutpatientBookingCalendar = ({ groupBy, selectedDate }) => {
+export const OutpatientBookingCalendar = ({ groupBy, selectedDate, onEditAppointment }) => {
   const { data, isLoading, error } = useOutpatientAppointmentsCalendarData({
     groupBy,
     selectedDate,
@@ -167,7 +167,7 @@ export const OutpatientBookingCalendar = ({ groupBy, selectedDate }) => {
         return (
           <ColumnWrapper className="column-wrapper" key={cell.id}>
             <HeadCell title={cell[titleKey]} count={appointments?.length || 0} />
-            <AppointmentCell appointments={appointments} />
+            <AppointmentCell onEditAppointment={onEditAppointment} appointments={appointments} />
           </ColumnWrapper>
         );
       })}

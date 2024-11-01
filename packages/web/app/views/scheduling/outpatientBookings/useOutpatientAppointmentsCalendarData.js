@@ -19,6 +19,7 @@ export const useOutpatientAppointmentsCalendarData = ({ groupBy, selectedDate })
       orderBy: 'displayName',
     },
     {
+      // Add an 'unknown' user to the list for appointments that don't have a clinician
       select: ({ data }) => [...data, { id: 'unknown', displayName: 'Unknown' }],
     },
   );
@@ -54,7 +55,7 @@ export const useOutpatientAppointmentsCalendarData = ({ groupBy, selectedDate })
     if (groupBy === APPOINTMENT_GROUP_BY.LOCATION_GROUP) {
       return {
         cellData,
-        headData: locationGroupData.filter(group => !!cellData[group.id]),
+        headData: locationGroupData?.filter(group => !!cellData[group.id]),
         titleKey: 'name',
       };
     }

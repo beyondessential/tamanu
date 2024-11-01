@@ -9,6 +9,7 @@ import { ResourceConflictError } from '@tamanu/shared/errors';
 export const appointments = express.Router();
 
 appointments.post('/$', simplePost('Appointment'));
+appointments.put('/:id', simplePut('Appointment'));
 
 appointments.post('/locationBooking', async (req, res) => {
   req.checkPermission('create', 'Appointment');
@@ -56,7 +57,7 @@ appointments.post('/locationBooking', async (req, res) => {
       });
 
       if (bookingTimeAlreadyTaken) {
-        throw new ResourceConflictError()
+        throw new ResourceConflictError();
       }
 
       const newRecord = await Appointment.create(body, { transaction });
@@ -65,7 +66,7 @@ appointments.post('/locationBooking', async (req, res) => {
 
     res.status(201).send(result);
   } catch (error) {
-    res.status(error.status || 500).send()
+    res.status(error.status || 500).send();
   }
 });
 

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { pick } from 'lodash';
 import { startOfDay } from 'date-fns';
 import styled from 'styled-components';
 import Box from '@mui/material/Box';
@@ -73,6 +74,7 @@ export const APPOINTMENT_GROUP_BY = {
 };
 
 export const OutpatientAppointmentsView = () => {
+  const [selectedAppointment, setSelectedAppointment] = useState({});
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(startOfDay(new Date()));
   const [groupBy, setGroupBy] = useState(APPOINTMENT_GROUP_BY.LOCATION_GROUP);
@@ -81,9 +83,28 @@ export const OutpatientAppointmentsView = () => {
     setSelectedDate(event.target.value);
   };
 
+  const handleEditAppointment = appointment => {
+    setSelectedAppointment(
+      pick(appointment, [
+        'id',
+        'locationGroupId',
+        'appointmentTypeId',
+        'startTime',
+        'endTime',
+        'patientId',
+        'clinicianId',
+      ]),
+    );
+    setDrawerOpen(true);
+  };
+
   return (
     <Container>
-      <BookingDrawer closeDrawer={() => setDrawerOpen(false)} open={drawerOpen} />
+      <BookingDrawer
+        initialValues={selectedAppointment}
+        closeDrawer={() => setDrawerOpen(false)}
+        open={drawerOpen}
+      />
       <LocationBookingsTopBar>
         <GroupByAppointmentToggle value={groupBy} onChange={setGroupBy} />
         <Filters>
@@ -91,14 +112,18 @@ export const OutpatientAppointmentsView = () => {
           <Placeholder>Clinician</Placeholder>
           <Placeholder>Type</Placeholder>
         </Filters>
-        <NewBookingButton onClick={() => setDrawerOpen(true)}>
+        <NewBookingButton onClick={() => handleEditAppointment({})}>
           <AddIcon /> Book appointment
         </NewBookingButton>
       </LocationBookingsTopBar>
       <CalendarWrapper>
         <DateSelector value={selectedDate} onChange={handleChangeDate} />
         <CalendarInnerWrapper>
-          <OutpatientBookingCalendar groupBy={groupBy} selectedDate={selectedDate} />
+          <OutpatientBookingCalendar
+            onEditAppointment={handleEditAppointment}
+            groupBy={groupBy}
+            selectedDate={selectedDate}
+          />
         </CalendarInnerWrapper>
       </CalendarWrapper>
     </Container>
