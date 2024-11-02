@@ -328,7 +328,7 @@ jobs:
       - name: Check model is valid (ie that docs can generate)
         run: |
           pip3 install dbt-core dbt-postgres
-          npmn run dbt-generate-docs
+          npm run dbt-generate-docs
 
   dbt-todos:
     needs: node_modules_cache
