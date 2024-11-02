@@ -43,14 +43,14 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version-file: '.nvmrc'
-          cache: yarn
+          cache: npm
       - uses: actions/cache/restore@v3
         with:
-          key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
+          key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
 
-      - run: yarn
-      - run: yarn build-shared
+      - run: npm install
+      - run: npm run build-shared
 
       - name: Install and start postgres ${{ matrix.postgres }}
         run: |
@@ -67,7 +67,7 @@ jobs:
 
       - run: aws s3 cp s3://bes-tamanu-test-data-snapshots/${{ steps.commit-finder.outputs.commit }}/fake-pg${{ matrix.postgres }}.dump ./ --no-progress
 
-      - run: yarn workspace scripts run test-determinism --dump-path $(realpath fake-pg${{ matrix.postgres }}.dump)
+      - run: npm run --workspace scripts test-determinism -- --dump-path $(realpath fake-pg${{ matrix.postgres }}.dump)
 
   # Dummy job to have a stable name for PR requirements
   tests-pass:
