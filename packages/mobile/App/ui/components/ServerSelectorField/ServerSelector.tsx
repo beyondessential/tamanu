@@ -39,7 +39,7 @@ const fetchServers = async (): Promise<SelectOption[]> => {
   if (__DEV__) {
     // If dev mode, add a local server option using special alias to localhost
     options.unshift({
-      label: 'Local central server (port 3000)',
+      label: 'Local central server (port: 3000)',
       value: 'http://10.0.2.2:3000',
     });
   }
