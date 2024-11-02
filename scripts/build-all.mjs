@@ -25,5 +25,5 @@ doWithAllPackages((name, pkg, _pkgPath, isShared) => {
   }
 
   console.log(`Building ${name}...`);
-  execFileSync('yarn', ['workspace', pkg.name, 'run', 'build'], { stdio: 'inherit' });
+  execFileSync('npm', ['--workspace', pkg.name, 'run', 'build'], { stdio: 'inherit' });
 });
