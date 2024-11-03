@@ -1,7 +1,7 @@
 import { PriorityHigh as HighPriorityIcon } from '@material-ui/icons';
 import OvernightIcon from '@material-ui/icons/Brightness2';
 import { isSameDay, parseISO } from 'date-fns';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import styled, { css } from 'styled-components';
 
 import { APPOINTMENT_STATUSES } from '@tamanu/constants';
@@ -26,6 +26,8 @@ const Wrapper = styled.div`
       }
 
       border-color: ${$color};
+
+      border: 1px solid transparent;
 
       ${$selected &&
         css`
@@ -73,20 +75,9 @@ const IconGroup = styled.div`
 const getPatientFullName = ({ firstName, middleName, lastName }) =>
   [firstName, middleName, lastName].filter(Boolean).join(' ');
 
-export const AppointmentTile = ({
-  appointment,
-  selected = false,
-  onClose,
-  onUpdated,
-  onEdit,
-  ...props
-}) => {
+export const AppointmentTile = ({ appointment, onUpdated, onEdit, ...props }) => {
   const ref = useRef(null);
   const [open, setOpen] = useState();
-
-  useEffect(() => {
-    setOpen(selected);
-  }, [selected]);
 
   const {
     patient,
@@ -103,9 +94,10 @@ export const AppointmentTile = ({
   return (
     <Wrapper
       $color={APPOINTMENT_STATUS_COLORS[appointmentStatus]}
-      $selected={selected}
+      $selected={open}
       tabIndex={0}
       ref={ref}
+      onClick={() => setOpen(true)}
       {...props}
     >
       <Label $strikethrough={appointmentStatus === APPOINTMENT_STATUSES.NO_SHOW}>
@@ -132,7 +124,7 @@ export const AppointmentTile = ({
       </IconGroup>
       <AppointmentDetailPopper
         open={open}
-        onClose={onClose}
+        onClose={() => setOpen(false)}
         anchorEl={ref.current}
         appointment={appointment}
         isOvernight={isOvernight}

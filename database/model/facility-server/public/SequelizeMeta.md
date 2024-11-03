@@ -1,0 +1,1 @@
+../../central-server/public/SequelizeMeta.md

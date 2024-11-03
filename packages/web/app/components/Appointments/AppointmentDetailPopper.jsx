@@ -3,15 +3,15 @@ import { useDispatch } from 'react-redux';
 import { push } from 'connected-react-router';
 import Box from '@mui/material/Box';
 import ClickAwayListener from '@mui/material/ClickAwayListener';
-import IconButton from '@material-ui/core/IconButton';
+import IconButton from '@mui/material/IconButton';
 import Paper from '@mui/material/Paper';
 import Popper from '@mui/material/Popper';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import { styled } from '@mui/material/styles';
-import { default as Overnight } from '@mui/icons-material/Brightness2';
-import Close from '@mui/icons-material/Close';
+import Overnight from '@mui/icons-material/Brightness2';
 import MoreVert from '@mui/icons-material/MoreVert';
+import Close from '@mui/icons-material/Close';
 import { debounce } from 'lodash';
 import { toast } from 'react-toastify';
 
@@ -24,6 +24,7 @@ import { useApi } from '../../api';
 import { usePatientAdditionalDataQuery } from '../../api/queries';
 import { APPOINTMENT_STATUS_VALUES, APPOINTMENT_STATUSES } from '@tamanu/constants';
 import { AppointmentStatusChip } from './AppointmentStatusChip';
+import { useQueryClient } from '@tanstack/react-query';
 
 const DEBOUNCE_DELAY = 200; // ms
 
@@ -327,6 +328,7 @@ export const AppointmentDetailPopper = ({
   isOvernight,
 }) => {
   const dispatch = useDispatch();
+  const queryClient = useQueryClient();
   const api = useApi();
   const [menuAnchorEl, setMenuAnchorEl] = useState(null);
   const [localStatus, setLocalStatus] = useState(appointment.status);
@@ -345,6 +347,7 @@ export const AppointmentDetailPopper = ({
             status: newValue,
           });
           if (onUpdated) onUpdated();
+          queryClient.invalidateQueries('appointments');
         } catch (error) {
           console.log(error);
           toast.error(
@@ -356,7 +359,7 @@ export const AppointmentDetailPopper = ({
           setLocalStatus(appointment.status);
         }
       }, DEBOUNCE_DELAY),
-    [api, appointment.id, onUpdated, appointment.status],
+    [api, appointment.id, onUpdated, appointment.status, queryClient],
   );
 
   const updateAppointmentStatus = useCallback(
@@ -391,12 +394,7 @@ export const AppointmentDetailPopper = ({
         },
       ]}
     >
-      <ActionMenu
-        appointment={appointment}
-        anchorEl={menuAnchorEl}
-        onEdit={handleEdit}
-        onClose={handleCloseMenu}
-      />
+      <ActionMenu anchorEl={menuAnchorEl} onEdit={handleEdit} onClose={handleCloseMenu} />
       <ClickAwayListener onClickAway={onClose}>
         <Box>
           <ControlsRow onClose={onClose} onClick={handleOpenMenu} />

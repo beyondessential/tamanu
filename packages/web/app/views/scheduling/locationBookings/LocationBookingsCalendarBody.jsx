@@ -8,16 +8,23 @@ import { Colors } from '../../../constants';
 import { CarouselComponents as CarouselGrid } from './CarouselComponents';
 import { SkeletonRows } from './Skeletons';
 import { partitionAppointmentsByDate, partitionAppointmentsByLocation } from './util';
+import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
 
 export const BookingsCell = ({ appointments, date, location, openBookingForm }) => (
   <CarouselGrid.Cell
-    onClick={() => {
+    onClick={e => {
+      if (e.target.closest('.appointment-tile')) return;
       // Open form for creating new booking
-      openBookingForm({ date, locationId: location.id });
+      openBookingForm({ date: toDateTimeString(date), locationId: location.id });
     }}
   >
     {appointments?.map(a => (
-      <AppointmentTile appointment={a} key={a.id} />
+      <AppointmentTile
+        className="appointment-tile"
+        onEdit={() => openBookingForm({ ...a, date: a.startTime })}
+        appointment={a}
+        key={a.id}
+      />
     ))}
   </CarouselGrid.Cell>
 );
@@ -62,7 +69,7 @@ const EmptyStateRow = () => (
 export const LocationBookingsCalendarBody = ({
   displayedDates,
   locationsQuery,
-openBookingForm,
+  openBookingForm,
 }) => {
   const { data: locations, isLoading: locationsAreLoading } = locationsQuery;
   const appointments =

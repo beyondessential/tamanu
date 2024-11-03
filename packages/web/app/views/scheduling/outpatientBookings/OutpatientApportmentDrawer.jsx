@@ -222,7 +222,6 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
                 suggester={locationGroupSuggester}
                 required
               />
-
               <Field
                 name="appointmentTypeId"
                 label={

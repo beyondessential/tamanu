@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Drawer as MuiDrawer } from '@material-ui/core';
+import { Drawer as MuiDrawer } from '@mui/material';
 
 import { BodyText, Heading4 } from '../../../components/Typography';
 import { Colors } from '../../../constants';
@@ -26,8 +26,8 @@ const Description = styled(BodyText)`
 
 const StyledDrawer = styled(MuiDrawer)`
   .MuiPaper-root {
-    top: ${TOP_BAR_HEIGHT}px;
-    height: calc(100% - ${TOP_BAR_HEIGHT}px);
+    block-size: calc(100% - ${TOP_BAR_HEIGHT}px);
+    inset-block-start: ${TOP_BAR_HEIGHT}px;
   }
 `;
 
