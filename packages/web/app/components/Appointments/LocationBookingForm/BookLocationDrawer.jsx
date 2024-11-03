@@ -32,17 +32,23 @@ import { TranslatedText } from '../../Translation/TranslatedText';
 import { BookLocationHeader } from './BookLocationHeader';
 import { BookingTimeField } from './BookingTimeField';
 
-const Container = styled.div`
-  width: 330px;
-  padding: 1rem;
-  background-color: ${Colors.background};
-  overflow-y: auto;
-  position: relative;
+/** @param {string} isoTimeString */
+const toIsoDateString = isoTimeString => isoTimeString.slice(0, 10);
+
+const StyledDrawer = styled(Drawer).attrs({ anchor: 'right', variant: 'persistent' })`
+  .MuiPaper-root {
+    block-size: calc(100% - ${TOP_BAR_HEIGHT}px);
+    inset-block-start: ${TOP_BAR_HEIGHT}px;
+  }
 `;
 
-const OvernightStayLabel = styled.span`
-  display: flex;
-  gap: 0.25rem;
+const Container = styled.div`
+  background-color: ${Colors.background};
+  inline-size: 330px;
+  min-block-size: 100%;
+  overflow-y: auto;
+  padding: 1rem;
+  position: relative;
 `;
 
 const CloseDrawerIcon = styled(ClearIcon)`
@@ -52,11 +58,9 @@ const CloseDrawerIcon = styled(ClearIcon)`
   inset-inline-end: 1rem;
 `;
 
-const StyledDrawer = styled(Drawer).attrs({ anchor: 'right', variant: 'persistent' })`
-  .MuiPaper-root {
-    block-size: calc(100% - ${TOP_BAR_HEIGHT}px);
-    inset-block-start: ${TOP_BAR_HEIGHT}px;
-  }
+const OvernightStayLabel = styled.span`
+  display: flex;
+  gap: 0.25rem;
 `;
 
 export const DateFieldWithWarning = ({ editMode }) => {
@@ -160,6 +164,8 @@ const validationSchema = yup.object({
 export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues }) => {
   const editMode = !!initialBookingValues.id;
 
+  const resettableFieldsReversed = ['endTime', 'startTime', 'overnight', 'locationId'];
+
   const patientSuggester = usePatientSuggester();
   const clinicianSuggester = useSuggester('practitioner');
   const bookingTypeSuggester = useSuggester('bookingType');
@@ -208,6 +214,30 @@ export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues }) 
       resetForm();
     };
 
+    /** Resets fields which appear strictly after the sentinel field in the form. */
+    const resetFieldsAfter = sentinel => {
+      for (const field of resettableFieldsReversed) {
+        if (field === sentinel) return;
+        setFieldValue(field, null);
+      }
+    };
+
+    const DateTimeFields = () => {
+      if (!values.overnight) {
+        return (
+          <>
+            <DateFieldWithWarning editMode={editMode} />
+            <BookingTimeField /* key={toIsoDateString(values.date)} */ disabled={!values.date} />
+          </>
+        );
+      }
+
+      return (
+        <>
+        </>
+      );
+    };
+
     return (
       <FormGrid columns={1}>
         <CloseDrawerIcon onClick={warnAndResetForm} />
@@ -216,26 +246,21 @@ export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues }) 
           name="locationId"
           component={LocalisedLocationField}
           required
-          onChange={() => {
-            setFieldValue('overnight', null);
-            setFieldValue('date', null);
-            setFieldValue('startTime', null);
-            setFieldValue('endTime', null);
-          }}
+          onChange={() => resetFieldsAfter('locationId')}
         />
         <Field
           name="overnight"
           label={
             <OvernightStayLabel>
-              Overnight stay{' '}
-              <OvernightIcon aria-hidden htmlColor="#326699" style={{ fontSize: 18 }} />
+              Overnight stay
+              <OvernightIcon aria-hidden htmlColor={Colors.primary} style={{ fontSize: 18 }} />
             </OvernightStayLabel>
           }
           component={CheckField}
           disabled={!values.locationId}
+          onChange={() => resetFieldsAfter('overnight')}
         />
-        <DateFieldWithWarning editMode={editMode} />
-        <BookingTimeField key={values.date} disabled={!values.date} />
+        <DateTimeFields />
         <Field
           name="patientId"
           label={<TranslatedText stringId="general.form.patient.label" fallback="Patient" />}
