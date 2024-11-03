@@ -34,7 +34,7 @@ import { BookingTimeField } from './BookingTimeField';
 
 const Container = styled.div`
   width: 330px;
-  padding: 16px;
+  padding: 1rem;
   background-color: ${Colors.background};
   overflow-y: auto;
   position: relative;
@@ -59,8 +59,8 @@ const CloseDrawerIcon = styled(ClearIcon)`
 
 const StyledDrawer = styled(Drawer)`
   .MuiPaper-root {
-    top: ${TOP_BAR_HEIGHT}px;
-    height: calc(100% - ${TOP_BAR_HEIGHT}px);
+    block-size: calc(100% - ${TOP_BAR_HEIGHT}px);
+    inset-block-start: ${TOP_BAR_HEIGHT}px;
   }
 `;
 
