@@ -154,7 +154,6 @@ export const DateSelector = ({ value, onChange }) => {
 
   const handleOnKeyDown = e => {
     if (e.key === 'ArrowLeft') {
-      console.log(e);
       if (isSameDay(value, viewedDays[0])) return;
       handleChange(subDays(value, 1));
       e.target.previousElementSibling.focus();
