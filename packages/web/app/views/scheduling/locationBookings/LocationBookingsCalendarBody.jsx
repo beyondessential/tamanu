@@ -62,7 +62,7 @@ const EmptyStateRow = () => (
 export const LocationBookingsCalendarBody = ({
   displayedDates,
   locationsQuery,
-  openBookingForm,
+openBookingForm,
 }) => {
   const { data: locations, isLoading: locationsAreLoading } = locationsQuery;
   const appointments =

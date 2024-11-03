@@ -10,7 +10,7 @@ import { DateSelector } from '../DateSelector';
 import { Colors } from '../../../constants';
 import { OutpatientBookingCalendar } from './OutpatientBookingCalendar';
 import { GroupByAppointmentToggle } from './GroupAppointmentToggle';
-import { BookingDrawer } from './BookingDrawer';
+import { OutpatientAppointmentDrawer } from './OutpatientApportmentDrawer';
 
 const Placeholder = styled.div`
   background-color: oklch(0% 0 0 / 3%);
@@ -83,6 +83,8 @@ export const OutpatientAppointmentsView = () => {
     setSelectedDate(event.target.value);
   };
 
+  const handleCloseDrawer = () => setDrawerOpen(false);
+
   const handleEditAppointment = appointment => {
     setSelectedAppointment(
       pick(appointment, [
@@ -100,9 +102,9 @@ export const OutpatientAppointmentsView = () => {
 
   return (
     <Container>
-      <BookingDrawer
+      <OutpatientAppointmentDrawer
         initialValues={selectedAppointment}
-        closeDrawer={() => setDrawerOpen(false)}
+        onClose={handleCloseDrawer}
         open={drawerOpen}
       />
       <LocationBookingsTopBar>

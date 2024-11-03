@@ -72,7 +72,7 @@ const EmptyStateLabel = styled(Typography).attrs({
 export const LocationBookingsView = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [initialDrawerValues, setInitialDrawerValues] = useState({});
-  const { facilityId } = useAuth()
+  const { facilityId } = useAuth();
   const closeBookingForm = () => {
     setIsDrawerOpen(false);
   };
@@ -115,10 +115,10 @@ export const LocationBookingsView = () => {
           openBookingForm={openBookingForm}
         />
       )}
-      <BookLocationDrawer 
-        initialBookingValues={initialDrawerValues}
+      <BookLocationDrawer
+        initialValues={initialDrawerValues}
         open={isDrawerOpen}
-        closeDrawer={closeBookingForm}
+        onClose={closeBookingForm}
       />
     </Wrapper>
   );

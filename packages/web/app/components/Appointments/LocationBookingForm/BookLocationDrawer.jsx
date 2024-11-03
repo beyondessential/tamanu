@@ -13,36 +13,15 @@ import {
   Form,
   LocalisedLocationField,
 } from '../../Field';
-import { BodyText, Heading4 } from '../../Typography';
 import { BookingTimeField } from './BookingTimeField';
 import { useApi, usePatientSuggester, useSuggester } from '../../../api';
 import { FormSubmitCancelRow } from '../../ButtonRow';
-import { Colors } from '../../../constants';
 import { FormGrid } from '../../FormGrid';
 import { ClearIcon } from '../../Icons/ClearIcon';
 import { ConfirmModal } from '../../ConfirmModal';
 import { notifyError, notifySuccess } from '../../../utils';
 import { TranslatedText } from '../../Translation/TranslatedText';
-import { Drawer } from '@material-ui/core';
-import { TOP_BAR_HEIGHT } from '../../TopBar';
-
-const Container = styled.div`
-  width: 330px;
-  padding: 16px;
-  background-color: ${Colors.background};
-  overflow-y: auto;
-  position: relative;
-`;
-
-const Heading = styled(Heading4)`
-  font-size: 16px;
-  margin-bottom: 9px;
-`;
-
-const Description = styled(BodyText)`
-  font-size: 11px;
-  color: ${Colors.midText};
-`;
+import { Drawer } from '../../../views/scheduling/outpatientBookings/Drawer';
 
 const OvernightStayField = styled.div`
   display: flex;
@@ -59,13 +38,6 @@ const CloseDrawerIcon = styled(ClearIcon)`
   position: absolute;
   top: 16px;
   right: 16px;
-`;
-
-const StyledDrawer = styled(Drawer)`
-  .MuiPaper-root {
-    top: ${TOP_BAR_HEIGHT}px;
-    height: calc(100% - ${TOP_BAR_HEIGHT}px);
-  }
 `;
 
 export const WarningModal = ({ open, setShowWarningModal, resolveFn }) => {
@@ -101,7 +73,7 @@ export const WarningModal = ({ open, setShowWarningModal, resolveFn }) => {
   );
 };
 
-export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues }) => {
+export const BookLocationDrawer = ({ open, onClose, initialValues }) => {
   const queryClient = useQueryClient();
   const patientSuggester = usePatientSuggester();
   const clinicianSuggester = useSuggester('practitioner');
@@ -128,7 +100,7 @@ export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues }) 
             fallback="Booking successfully created"
           />,
         );
-        closeDrawer();
+        onClose();
         queryClient.invalidateQueries('appointments');
       },
       onError: error => {
@@ -150,117 +122,116 @@ export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues }) 
   );
 
   return (
-    <StyledDrawer variant="persistent" anchor="right" open={open} onClose={closeDrawer}>
-      <Container columns={1}>
-        <Heading>
-          <TranslatedText stringId="locationBooking.form.new.heading" fallback="Book location" />
-        </Heading>
-        <Description>
-          <TranslatedText
-            stringId="locationBooking.form.new.description"
-            fallback="Create a new booking by completing the below details and selecting ‘Confirm’"
-          />
-        </Description>
-        <Form
-          onSubmit={async values => handleSubmit(values)}
-          suppressErrorDialog
-          validationSchema={yup.object().shape({
-            locationId: yup.string().required(),
-            startTime: yup.string().required(),
-            endTime: yup.string().required(),
-            patientId: yup.string().required(),
-            bookingTypeId: yup.string().required(),
-          })}
-          initialValues={initialBookingValues}
-          enableReinitialize
-          render={({ values, resetForm, setFieldValue, dirty }) => {
-            const warnAndResetForm = async () => {
-              const confirmed = !dirty || (await handleShowWarningModal());
-              if (!confirmed) return;
-              closeDrawer();
-              resetForm();
-            };
+    <Drawer
+      open={open}
+      onClose={onClose}
+      title={
+        <TranslatedText stringId="locationBooking.form.new.heading" fallback="Book location" />
+      }
+      description={
+        <TranslatedText
+          stringId="locationBooking.form.new.description"
+          fallback="Create a new booking by completing the below details and selecting ‘Confirm’"
+        />
+      }
+    >
+      <Form
+        onSubmit={async values => handleSubmit(values)}
+        suppressErrorDialog
+        validationSchema={yup.object().shape({
+          locationId: yup.string().required(),
+          startTime: yup.string().required(),
+          endTime: yup.string().required(),
+          patientId: yup.string().required(),
+          // bookingTypeId: yup.string().required(),
+        })}
+        initialValues={initialValues}
+        enableReinitialize
+        render={({ values, resetForm, setFieldValue, dirty }) => {
+          const warnAndResetForm = async () => {
+            const confirmed = !dirty || (await handleShowWarningModal());
+            if (!confirmed) return;
+            onClose();
+            resetForm();
+          };
 
-            return (
-              <FormGrid columns={1}>
-                <CloseDrawerIcon onClick={warnAndResetForm} />
+          return (
+            <FormGrid columns={1}>
+              <CloseDrawerIcon onClick={warnAndResetForm} />
+              <Field
+                enableLocationStatus={false}
+                name="locationId"
+                component={LocalisedLocationField}
+                required
+                onChange={() => {
+                  setFieldValue('overnight', null);
+                  setFieldValue('date', null);
+                  setFieldValue('startTime', null);
+                  setFieldValue('endTime', null);
+                }}
+              />
+              <OvernightStayField>
                 <Field
-                  enableLocationStatus={false}
-                  name="locationId"
-                  component={LocalisedLocationField}
-                  required
-                  onChange={() => {
-                    setFieldValue('overnight', null);
-                    setFieldValue('date', null);
-                    setFieldValue('startTime', null);
-                    setFieldValue('endTime', null);
-                  }}
-                />
-                <OvernightStayField>
-                  <Field
-                    name="overnight"
-                    label={
-                      <TranslatedText
-                        stringId="location.form.overnightStay.label"
-                        fallback="Overnight stay"
-                      />
-                    }
-                    component={CheckField}
-                    disabled={!values.locationId}
-                  />
-                  <OvernightIcon fontSize="small" />
-                </OvernightStayField>
-                <Field
-                  name="date"
-                  label={<TranslatedText stringId="general.form.date.label" fallback="Date" />}
-                  component={DateField}
-                  disabled={!values.locationId}
-                  required
-                />
-                <BookingTimeField disabled={!values.date} />
-                <Field
-                  name="patientId"
-                  label={
-                    <TranslatedText stringId="general.form.patient.label" fallback="Patient" />
-                  }
-                  component={AutocompleteField}
-                  suggester={patientSuggester}
-                  required
-                />
-                <Field
-                  name="bookingTypeId"
+                  name="overnight"
                   label={
                     <TranslatedText
-                      stringId="location.form.bookingType.label"
-                      fallback="Booking type"
+                      stringId="location.form.overnightStay.label"
+                      fallback="Overnight stay"
                     />
                   }
-                  component={DynamicSelectField}
-                  suggester={bookingTypeSuggester}
-                  required
+                  component={CheckField}
+                  disabled={!values.locationId}
                 />
-                <Field
-                  name="clinicianId"
-                  label={
-                    <TranslatedText stringId="general.form.clinician.label" fallback="Clinician" />
-                  }
-                  component={AutocompleteField}
-                  suggester={clinicianSuggester}
-                />
-                <FormSubmitCancelRow
-                  onCancel={warnAndResetForm}
-                  confirmDisabled={!values.startTime}
-                />
-              </FormGrid>
-            );
-          }}
-        />
-        <WarningModal
-          open={warningModalOpen}
-          setShowWarningModal={setShowWarningModal}
-          resolveFn={resolveFn}
-        />
-      </Container>
-    </StyledDrawer>
+                <OvernightIcon fontSize="small" />
+              </OvernightStayField>
+              <Field
+                name="date"
+                label={<TranslatedText stringId="general.form.date.label" fallback="Date" />}
+                component={DateField}
+                disabled={!values.locationId}
+                required
+              />
+              <BookingTimeField disabled={!values.date} />
+              <Field
+                name="patientId"
+                label={<TranslatedText stringId="general.form.patient.label" fallback="Patient" />}
+                component={AutocompleteField}
+                suggester={patientSuggester}
+                required
+              />
+              <Field
+                name="bookingTypeId"
+                label={
+                  <TranslatedText
+                    stringId="location.form.bookingType.label"
+                    fallback="Booking type"
+                  />
+                }
+                component={DynamicSelectField}
+                suggester={bookingTypeSuggester}
+                required
+              />
+              <Field
+                name="clinicianId"
+                label={
+                  <TranslatedText stringId="general.form.clinician.label" fallback="Clinician" />
+                }
+                component={AutocompleteField}
+                suggester={clinicianSuggester}
+              />
+              <FormSubmitCancelRow
+                onCancel={warnAndResetForm}
+                confirmDisabled={!values.startTime}
+              />
+            </FormGrid>
+          );
+        }}
+      />
+      <WarningModal
+        open={warningModalOpen}
+        setShowWarningModal={setShowWarningModal}
+        resolveFn={resolveFn}
+      />
+    </Drawer>
   );
 };

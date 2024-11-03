@@ -6,6 +6,8 @@ import ClickAwayListener from '@mui/material/ClickAwayListener';
 import IconButton from '@material-ui/core/IconButton';
 import Paper from '@mui/material/Paper';
 import Popper from '@mui/material/Popper';
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
 import { styled } from '@mui/material/styles';
 import { default as Overnight } from '@mui/icons-material/Brightness2';
 import Close from '@mui/icons-material/Close';
@@ -102,9 +104,20 @@ const AppointmentStatusContainer = styled(Box)`
   justify-items: center;
 `;
 
-const ControlsRow = ({ onClose }) => (
+const StyledMenu = styled(Menu)`
+  ul {
+    padding-block: 0.25rem;
+  }
+
+  li {
+    font-size: 0.6875rem;
+    padding-inline: 0.75rem;
+  }
+`;
+
+const ControlsRow = ({ onClose, onClick }) => (
   <ControlsContainer>
-    <StyledIconButton>
+    <StyledIconButton onClick={onClick}>
       <MoreVert sx={{ fontSize: '0.875rem' }} />
     </StyledIconButton>
     <StyledIconButton onClick={onClose}>
@@ -177,6 +190,30 @@ const PatientDetailsDisplay = ({ patient, onClick }) => {
   );
 };
 
+const ActionMenu = ({ appointment, anchorEl, onClose, onEdit }) => (
+  <StyledMenu
+    anchorEl={anchorEl}
+    open={!!anchorEl}
+    onClose={onClose}
+    MenuListProps={{
+      'aria-labelledby': 'basic-button',
+    }}
+  >
+    <MenuItem onClick={onEdit}>
+      <TranslatedText stringId="general.action.modify" fallback="Modify" />
+    </MenuItem>
+    <MenuItem onClick={onClose}>
+      <TranslatedText stringId="appointment.action.cancel" fallback="Cancel" />
+    </MenuItem>
+    <MenuItem onClick={onClose}>
+      <TranslatedText stringId="appointment.action.newAppointment" fallback="New appointment" />
+    </MenuItem>
+    <MenuItem onClick={onClose}>
+      <TranslatedText stringId="appointment.action.emailAppointment" fallback="Email appointment" />
+    </MenuItem>
+  </StyledMenu>
+);
+
 const AppointDetailsDisplay = ({ appointment, isOvernight }) => {
   const { startTime, endTime, clinician, locationGroup, location, type } = appointment;
   return (
@@ -206,19 +243,24 @@ const AppointDetailsDisplay = ({ appointment, isOvernight }) => {
           />
         }
       />
-      <DetailsDisplay
-        label={
-          <TranslatedText stringId="general.localisedField.locationId.label" fallback="Location" />
-        }
-        value={
-          <TranslatedReferenceData
-            fallback={location?.name}
-            value={location?.id}
-            category="location"
-          />
-        }
-      />
-      <BookingTypeDisplay type={type} isOvernight={isOvernight} />
+      {location && (
+        <DetailsDisplay
+          label={
+            <TranslatedText
+              stringId="general.localisedField.locationId.label"
+              fallback="Location"
+            />
+          }
+          value={
+            <TranslatedReferenceData
+              fallback={location?.name}
+              value={location?.id}
+              category="location"
+            />
+          }
+        />
+      )}
+      {type && <BookingTypeDisplay type={type} isOvernight={isOvernight} />}
     </AppointmentDetailsContainer>
   );
 };
@@ -254,12 +296,14 @@ export const AppointmentDetailPopper = ({
   open,
   onClose,
   onUpdated,
+  onEdit,
   anchorEl,
   appointment,
   isOvernight,
 }) => {
   const dispatch = useDispatch();
   const api = useApi();
+  const [menuAnchorEl, setMenuAnchorEl] = useState(null);
   const [localStatus, setLocalStatus] = useState(appointment.status);
   const patientId = appointment.patient.id;
 
@@ -298,6 +342,15 @@ export const AppointmentDetailPopper = ({
     [debouncedUpdateAppointmentStatus],
   );
 
+  const handleOpenMenu = e => setMenuAnchorEl(e.currentTarget);
+  const handleCloseMenu = () => setMenuAnchorEl(null);
+
+  const handleEdit = () => {
+    onEdit();
+    handleCloseMenu();
+    onClose();
+  };
+
   return (
     <Popper
       open={open}
@@ -313,9 +366,15 @@ export const AppointmentDetailPopper = ({
         },
       ]}
     >
+      <ActionMenu
+        appointment={appointment}
+        anchorEl={menuAnchorEl}
+        onEdit={handleEdit}
+        onClose={handleCloseMenu}
+      />
       <ClickAwayListener onClickAway={onClose}>
         <Box>
-          <ControlsRow onClose={onClose} />
+          <ControlsRow onClose={onClose} onClick={handleOpenMenu} />
           <StyledPaper elevation={0}>
             <PatientDetailsDisplay
               patient={appointment.patient}

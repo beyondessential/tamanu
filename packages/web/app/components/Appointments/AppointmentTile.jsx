@@ -78,6 +78,7 @@ export const AppointmentTile = ({
   selected = false,
   onClose,
   onUpdated,
+  onEdit,
   ...props
 }) => {
   const ref = useRef(null);
@@ -136,6 +137,7 @@ export const AppointmentTile = ({
         appointment={appointment}
         isOvernight={isOvernight}
         onUpdated={onUpdated}
+        onEdit={onEdit}
       />
     </Wrapper>
   );

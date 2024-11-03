@@ -120,15 +120,8 @@ export const HeadCell = ({ title, count }) => (
   </HeadCellWrapper>
 );
 
-const AppointmentCell = ({ appointments = [], onEditAppointment }) => (
-  <AppointmentColumnWrapper>
-    {appointments.map(a => (
-      <AppointmentTile key={a.id} appointment={a} onClick={() => onEditAppointment(a)} />
-    ))}
-  </AppointmentColumnWrapper>
-);
-
 export const OutpatientBookingCalendar = ({ groupBy, selectedDate, onEditAppointment }) => {
+  const [selectedAppointment, setSelectedAppointment] = React.useState(null);
   const { data, isLoading, error } = useOutpatientAppointmentsCalendarData({
     groupBy,
     selectedDate,
@@ -167,7 +160,18 @@ export const OutpatientBookingCalendar = ({ groupBy, selectedDate, onEditAppoint
         return (
           <ColumnWrapper className="column-wrapper" key={cell.id}>
             <HeadCell title={cell[titleKey]} count={appointments?.length || 0} />
-            <AppointmentCell onEditAppointment={onEditAppointment} appointments={appointments} />
+            <AppointmentColumnWrapper>
+              {appointments.map(a => (
+                <AppointmentTile
+                  key={a.id}
+                  appointment={a}
+                  selected={selectedAppointment === a.id}
+                  onClose={() => setSelectedAppointment(null)}
+                  onClick={() => setSelectedAppointment(a.id)}
+                  onEdit={() => onEditAppointment(a)}
+                />
+              ))}
+            </AppointmentColumnWrapper>
           </ColumnWrapper>
         );
       })}
