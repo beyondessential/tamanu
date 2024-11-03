@@ -27,7 +27,7 @@ import { FormGrid } from '../../FormGrid';
 import { ClearIcon } from '../../Icons/ClearIcon';
 import { TranslatedText } from '../../Translation/TranslatedText';
 import { BookingTimeField } from './BookingTimeField';
-import { Drawer } from '../../../views/scheduling/outpatientBookings/Drawer';
+import { Drawer } from '../../Drawer';
 
 const OvernightStayField = styled.div`
   display: flex;

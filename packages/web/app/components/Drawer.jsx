@@ -2,9 +2,9 @@ import React from 'react';
 import styled from 'styled-components';
 import { Drawer as MuiDrawer } from '@mui/material';
 
-import { BodyText, Heading4 } from '../../../components/Typography';
-import { Colors } from '../../../constants';
-import { TOP_BAR_HEIGHT } from '../../../components/TopBar';
+import { BodyText, Heading4 } from './Typography';
+import { Colors } from '../constants';
+import { TOP_BAR_HEIGHT } from './TopBar';
 
 const Container = styled.div`
   width: 330px;

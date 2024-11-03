@@ -6,11 +6,11 @@ import Box from '@mui/material/Box';
 import AddIcon from '@mui/icons-material/Add';
 
 import { Button, PageContainer, TopBar, TranslatedText } from '../../../components';
-import { DateSelector } from '../DateSelector';
+import { DateSelector } from './DateSelector';
 import { Colors } from '../../../constants';
 import { OutpatientBookingCalendar } from './OutpatientBookingCalendar';
 import { GroupByAppointmentToggle } from './GroupAppointmentToggle';
-import { OutpatientAppointmentDrawer } from './OutpatientApportmentDrawer';
+import { OutpatientAppointmentDrawer } from '../../../components/Appointments/OutpatientsBookingForm/OutpatientApportmentDrawer';
 
 const Placeholder = styled.div`
   background-color: oklch(0% 0 0 / 3%);

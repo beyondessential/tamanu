@@ -3,17 +3,7 @@ import styled from 'styled-components';
 import KeyboardArrowLeftIcon from '@material-ui/icons/KeyboardArrowLeft';
 import KeyboardArrowRightIcon from '@material-ui/icons/KeyboardArrowRight';
 import { Box } from '@material-ui/core';
-import {
-  addDays,
-  isAfter,
-  isBefore,
-  parse,
-  getYear,
-  getMonth,
-  getDate,
-  set,
-  parseISO,
-} from 'date-fns';
+import { addDays, isAfter, isBefore, parse } from 'date-fns';
 import {
   format as formatDate,
   toDateString,
@@ -193,20 +183,6 @@ export const DateField = ({ field, ...props }) => (
 export const TimeField = ({ field, ...props }) => (
   <TimeInput name={field.name} value={field.value} onChange={field.onChange} {...props} />
 );
-
-export const TimeWithStableDayField = ({ field, baseDate, ...props }) => {
-  const handleChange = event => {
-    const newValue = toDateTimeString(
-      set(parseISO(event.target.value), {
-        year: getYear(baseDate),
-        date: getDate(baseDate),
-        month: getMonth(baseDate),
-      }),
-    );
-    field.onChange({ target: { value: newValue, name: field.name } });
-  };
-  return <TimeInput name={field.name} value={field.value} {...props} onChange={handleChange} />;
-};
 
 export const DateTimeField = ({ field, ...props }) => (
   <DateTimeInput name={field.name} value={field.value} onChange={field.onChange} {...props} />

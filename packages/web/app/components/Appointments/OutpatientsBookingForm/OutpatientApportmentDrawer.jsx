@@ -3,25 +3,19 @@ import * as yup from 'yup';
 import styled from 'styled-components';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
-import {
-  AutocompleteField,
-  DynamicSelectField,
-  Field,
-  Form,
-  DateTimeField,
-  TimeWithStableDayField,
-} from '../../../components/Field';
+import { AutocompleteField, DynamicSelectField, Field, Form, DateTimeField } from '../../Field';
 import { useApi, usePatientSuggester, useSuggester } from '../../../api';
-import { FormSubmitCancelRow } from '../../../components/ButtonRow';
+import { FormSubmitCancelRow } from '../../ButtonRow';
 import { FORM_TYPES } from '../../../constants';
-import { FormGrid } from '../../../components/FormGrid';
-import { ClearIcon } from '../../../components/Icons/ClearIcon';
-import { ConfirmModal } from '../../../components/ConfirmModal';
+import { FormGrid } from '../../FormGrid';
+import { ClearIcon } from '../../Icons/ClearIcon';
+import { ConfirmModal } from '../../ConfirmModal';
 import { notifyError, notifySuccess } from '../../../utils';
-import { TranslatedText } from '../../../components/Translation/TranslatedText';
+import { TranslatedText } from '../../Translation/TranslatedText';
 import { isAfter, parseISO } from 'date-fns';
 import { useTranslation } from '../../../contexts/Translation';
-import { Drawer } from './Drawer';
+import { Drawer } from '../../Drawer';
+import { TimeWithFixedDateField } from './TimeWithFixedDateField';
 
 const CloseDrawerIcon = styled(ClearIcon)`
   cursor: pointer;
@@ -244,20 +238,20 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
               />
               <Field
                 name="startTime"
-                saveDateAsString
                 label={
                   <TranslatedText stringId="general.dateAndTime.label" fallback="Date & time" />
                 }
                 component={DateTimeField}
                 required
+                saveDateAsString
               />
               <Field
                 name="endTime"
                 disabled={!values.startTime}
-                saveDateAsString
-                baseDate={parseISO(values.startTime)}
+                date={parseISO(values.startTime)}
                 label={<TranslatedText stringId="general.endTime.label" fallback="End time" />}
-                component={TimeWithStableDayField}
+                component={TimeWithFixedDateField}
+                saveDateAsString
               />
 
               <FormSubmitCancelRow

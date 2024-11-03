@@ -20,8 +20,8 @@ import {
   subMonths,
 } from 'date-fns';
 
-import { BodyText, MonthYearInput, TextButton } from '../../components';
-import { Colors } from '../../constants';
+import { BodyText, MonthYearInput, TextButton } from '../../../components';
+import { Colors } from '../../../constants';
 
 const Wrapper = styled(Box)`
   display: flex;
