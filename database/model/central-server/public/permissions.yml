@@ -1,0 +1,52 @@
+version: 2
+sources:
+  - name: tamanu
+    schema: public
+    description: "{{ doc('generic__schema') }}"
+    tables:
+      - name: permissions
+        description: '{{ doc("table__permissions") }}'
+        tags:
+          - administration
+        columns:
+          - name: id
+            data_type: character varying(255)
+            description: "{{ doc('generic__id') }} in permissions."
+            data_tests:
+              - unique
+              - not_null
+          - name: created_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__created_at') }} in permissions."
+          - name: updated_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__updated_at') }} in permissions."
+          - name: deleted_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__deleted_at') }} in permissions."
+          - name: role_id
+            data_type: character varying(255)
+            description: "{{ doc('permissions__role_id') }}"
+            data_tests:
+              - not_null
+              - relationships:
+                  to: source('tamanu', 'roles')
+                  field: id
+          - name: noun
+            data_type: character varying(255)
+            description: "{{ doc('permissions__noun') }}"
+            data_tests:
+              - not_null
+          - name: verb
+            data_type: character varying(255)
+            description: "{{ doc('permissions__verb') }}"
+            data_tests:
+              - not_null
+          - name: object_id
+            data_type: character varying(255)
+            description: "{{ doc('permissions__object_id') }}"
+          - name: updated_at_sync_tick
+            data_type: bigint
+            description: "{{ doc('generic__updated_at_sync_tick') }} in permissions."
+            data_tests:
+              - not_null
