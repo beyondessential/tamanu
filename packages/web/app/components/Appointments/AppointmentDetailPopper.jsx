@@ -190,7 +190,7 @@ const PatientDetailsDisplay = ({ patient, onClick }) => {
   );
 };
 
-const ActionMenu = ({ appointment, anchorEl, onClose, onEdit }) => (
+const ActionMenu = ({ anchorEl, onClose, onEdit }) => (
   <StyledMenu
     anchorEl={anchorEl}
     open={!!anchorEl}
