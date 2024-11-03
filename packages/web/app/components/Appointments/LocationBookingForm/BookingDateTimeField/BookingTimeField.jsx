@@ -1,14 +1,15 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { toggleButtonClasses, ToggleButtonGroup } from '@mui/material';
+import React, { useCallback, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { OuterLabelFieldWrapper } from '../../Field';
 import { Colors } from '../../../constants';
 import {
+  addMilliseconds,
   addMinutes,
-  parse,
   differenceInMinutes,
-  startOfDay,
   endOfDay,
-  isWithinInterval,
+  parse,
+  startOfDay,
 } from 'date-fns';
 import ms from 'ms';
 import { useSettings } from '../../../contexts/Settings';
@@ -19,15 +20,23 @@ import { isEqual } from 'lodash';
 import { CircularProgress } from '@material-ui/core';
 import { TranslatedText } from '../../Translation/TranslatedText';
 import { useAppointmentsQuery } from '../../../api/queries';
+import { isTimeSlotWithinRange } from './BookingDateTimeField/util';
 
-const CellContainer = styled.div`
-  border: 1px solid ${Colors.outline};
-  background-color: ${({ $disabled }) => ($disabled ? 'initial' : 'white')};
-  width: 295px;
-  padding: 11px 14px;
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
+const ToggleGroup = styled(ToggleButtonGroup)`
+  border: max(0.0625rem, 1px) solid ${Colors.outline};
+  inline-size: 295px;
+  padding-block: 0.75rem;
+  padding-inline: 1rem;
+
+  &.MuiToggleButtonGroup-root {
+    display: grid;
+    gap: 0.5rem 0.75rem;
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  &.${toggleButtonClasses.disabled} {
+    background-color: initial;
+  }
 `;
 
 const LoadingIndicator = styled(CircularProgress)`
@@ -35,8 +44,10 @@ const LoadingIndicator = styled(CircularProgress)`
   margin: 0 auto;
 `;
 
+/** @return {Array<{start: Date, end: Date}>} */
 const calculateTimeSlots = (bookingSlotSettings, date) => {
-  if (!date) return [];
+  if (!date || !bookingSlotSettings) return [];
+
   const { startTime, endTime, slotDuration } = bookingSlotSettings;
   const startOfDay = parse(startTime, 'HH:mm', new Date(date));
   const endOfDay = parse(endTime, 'HH:mm', new Date(date));
@@ -47,24 +58,15 @@ const calculateTimeSlots = (bookingSlotSettings, date) => {
   for (let i = 0; i < totalSlots; i++) {
     const start = addMinutes(startOfDay, i * durationMinutes);
     const end = addMinutes(start, durationMinutes);
-    slots.push({
-      start,
-      end,
-    });
+    slots.push({ start, end });
   }
 
   return slots;
 };
 
-const isTimeSlotWithinRange = (timeSlot, range) => {
-  if (!range) return false;
-  return isWithinInterval(timeSlot.start, range) && isWithinInterval(timeSlot.end, range);
-};
-
-// logic calculated through time ranges in the format { start: DATE, end: DATE }
+/** logic calculated through time ranges in the format { start: DATE, end: DATE } */
 export const BookingTimeField = ({ disabled = false }) => {
-  const { getSetting } = useSettings();
-  const { setFieldValue, values, dirty, initialValues } = useFormikContext();
+  const { setFieldValue, values, initialValues } = useFormikContext();
 
   const initialTimeRange = useMemo(() => {
     if (!initialValues.startTime) return null;
@@ -72,9 +74,19 @@ export const BookingTimeField = ({ disabled = false }) => {
       start: new Date(initialValues.startTime),
       end: new Date(initialValues.endTime),
     };
-  }, [initialValues]);
+  }, [initialValues.endTime, initialValues.startTime]);
 
+  /**
+   * The underlying datetime range selected by this component, independent of time slots.
+   * { start: Date, end: Date }
+   */
   const [selectedTimeRange, setSelectedTimeRange] = useState(initialTimeRange);
+  /**
+   * Array of integers representing the selected toggle buttons. Each time slot is represented by
+   * the integer form of its start time.
+   */
+  const [selectedToggles, setSelectedToggles] = useState(initialValues?.startTime?.valueOf() ?? []);
+
   const [hoverTimeRange, setHoverTimeRange] = useState(null);
 
   const { locationId, date } = values;
@@ -101,81 +113,9 @@ export const BookingTimeField = ({ disabled = false }) => {
       .filter(slot => !isEqual(slot, initialTimeRange)); // Dont include the existing booking in the booked time logic
   }, [existingLocationBookings, isFetched, initialTimeRange]);
 
+  const { getSetting } = useSettings();
   const bookingSlotSettings = getSetting('appointments.bookingSlots');
-  const timeSlots = useMemo(() => calculateTimeSlots(bookingSlotSettings, values.date), [
-    values.date,
-    bookingSlotSettings,
-  ]);
-
-  useEffect(() => {
-    if (dirty || selectedTimeRange) {
-      const startTime = selectedTimeRange ? toDateTimeString(selectedTimeRange.start) : null;
-      const endTime = selectedTimeRange ? toDateTimeString(selectedTimeRange.end) : null;
-      setFieldValue('startTime', startTime);
-      setFieldValue('endTime', endTime);
-    }
-  }, [selectedTimeRange, setFieldValue, dirty]);
-
-  useEffect(() => {
-    if (!values.startTime) setSelectedTimeRange(null);
-  }, [values]);
-
-  const updateTimeRangeStart = start =>
-    setSelectedTimeRange(prevRange => ({
-      ...prevRange,
-      start,
-    }));
-
-  const updateTimeRangeEnd = end =>
-    setSelectedTimeRange(prevRange => ({
-      ...prevRange,
-      end,
-    }));
-
-  const addSelectedTimeSlot = useCallback(
-    timeSlot => {
-      if (!selectedTimeRange) {
-        setSelectedTimeRange(timeSlot);
-        return;
-      }
-      if (timeSlot.start < selectedTimeRange.start) {
-        updateTimeRangeStart(timeSlot.start);
-        return;
-      }
-      if (timeSlot.end > selectedTimeRange.end) {
-        updateTimeRangeEnd(timeSlot.end);
-        return;
-      }
-    },
-    [selectedTimeRange],
-  );
-
-  const removeSelectedTimeSlot = useCallback(
-    timeSlot => {
-      if (
-        isEqual(timeSlot.start, selectedTimeRange.start) &&
-        isEqual(timeSlot.end, selectedTimeRange.end)
-      ) {
-        setSelectedTimeRange(null);
-        setHoverTimeRange(timeSlot);
-        return;
-      }
-
-      if (isEqual(timeSlot.start, selectedTimeRange.start)) {
-        updateTimeRangeStart(timeSlot.end);
-        return;
-      }
-      if (isEqual(timeSlot.end, selectedTimeRange.end)) {
-        updateTimeRangeEnd(timeSlot.start);
-        return;
-      }
-
-      setSelectedTimeRange(null);
-      setHoverTimeRange(timeSlot);
-      return;
-    },
-    [selectedTimeRange],
-  );
+  const timeSlots = calculateTimeSlots(bookingSlotSettings, values.date);
 
   const checkIfSelectableTimeSlot = useCallback(
     timeSlot => {
@@ -200,12 +140,68 @@ export const BookingTimeField = ({ disabled = false }) => {
     [selectedTimeRange, bookedTimeSlots],
   );
 
+  // const updateStart = newStart => {
+  //   setSelectedTimeRange({ start: newStart, end: selectedTimeRange.end });
+  //   void setFieldValue('startTime', newStart);
+  // };
+  // const updateEnd = newEnd => {
+  //   setSelectedTimeRange({ start: selectedTimeRange.start, end: newEnd });
+  //   void setFieldValue('endTime', newEnd);
+  // };
+  const updateTimeRange = newTimeRange => {
+    setSelectedTimeRange(newTimeRange);
+    void setFieldValue('startTime', newTimeRange.start);
+    void setFieldValue('endTime', newTimeRange.end);
+  };
+
+  const handleChange = (_event, newTimeSlots) => {
+    if (newTimeSlots.length === 0) {
+      setSelectedToggles([]);
+      setSelectedTimeRange(null);
+      return;
+    }
+
+    const sortedTimeSlots = newTimeSlots.toSorted();
+    const newStart = new Date(sortedTimeSlots[0]);
+    const newEnd = addMilliseconds(
+      new Date(sortedTimeSlots.at(-1)),
+      ms(bookingSlotSettings.slotDuration),
+    );
+    const newTimeRange = { start: newStart, end: newEnd };
+
+    // Update toggle button group state
+    const newToggleSelection = timeSlots
+      .filter(s => isTimeSlotWithinRange(s, newTimeRange))
+      .map(({ start }) => start.valueOf());
+    setSelectedToggles(newToggleSelection);
+
+    // Update semantic datetime range selection
+    updateTimeRange(newTimeRange);
+
+    // switch (variant) {
+    //   case 'default': {
+    //     updateTimeRange(newTimeRange);
+    //     break;
+    //   }
+    //   case 'startTime': {
+    //     updateStart(newStart);
+    //     break;
+    //   }
+    //   case 'endTime': {
+    //     updateEnd(newEnd);
+    //     break;
+    //   }
+    // }
+  };
+
   return (
     <OuterLabelFieldWrapper
-      label={<TranslatedText stringId="locationBooking.bookingTime.label" fallback="Booking time" />}
+      label={
+        <TranslatedText stringId="locationBooking.bookingTime.label" fallback="Booking time" />
+      }
       required
     >
-      <CellContainer $disabled={disabled}>
+      <ToggleGroup $disabled={disabled} value={selectedToggles} onChange={handleChange}>
         {isFetching ? (
           <LoadingIndicator />
         ) : (
@@ -244,17 +240,15 @@ export const BookingTimeField = ({ disabled = false }) => {
                 selectable={checkIfSelectableTimeSlot(timeSlot)}
                 booked={isBooked}
                 disabled={disabled}
-                onClick={() =>
-                  isSelected ? removeSelectedTimeSlot(timeSlot) : addSelectedTimeSlot(timeSlot)
-                }
                 onMouseEnter={onMouseEnter}
                 onMouseLeave={() => setHoverTimeRange(null)}
                 inHoverRange={isTimeSlotWithinRange(timeSlot, hoverTimeRange)}
+                value={timeSlot.start.valueOf()}
               />
             );
           })
         )}
-      </CellContainer>
+      </ToggleGroup>
     </OuterLabelFieldWrapper>
   );
 };
