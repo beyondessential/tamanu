@@ -117,7 +117,7 @@ appointments.put('/locationBooking/:id', async (req, res) => {
 const searchableFields = [
   'startTime',
   'endTime',
-  'type',
+  'appointmentType',
   'status',
   'clinicianId',
   'locationId',
@@ -138,7 +138,7 @@ const sortKeys = {
   sex: Sequelize.col('patient.sex'),
   dateOfBirth: Sequelize.col('patient.date_of_birth'),
   location: Sequelize.col('location.name'),
-  type: Sequelize.col('type.name'),
+  appointmentType: Sequelize.col('appointmentType.name'),
   locationGroup: Sequelize.col('location_groups.name'),
   clinician: Sequelize.col('clinician.display_name'),
 };

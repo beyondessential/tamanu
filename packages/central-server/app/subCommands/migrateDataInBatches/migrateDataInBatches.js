@@ -6,18 +6,18 @@ import { initDatabase } from '../../database';
 
 export const migrateDataInBatches = async (
   name,
-  { batchSize: batchSizeOverride, delay: delayOverrideMs, storeOverride },
+  { batchSize: batchSizeOverride, delay: delayOverrideMs },
 ) => {
   // setup
   const DataMigration = dataMigrations[name];
   if (!DataMigration) {
     throw new Error(`name not recognised: ${name}`);
   }
-  const storeToUse = storeOverride || (await initDatabase({ testMode: false }));
+  const store = await initDatabase({ testMode: false });
   const batchSize = batchSizeOverride || DataMigration.defaultBatchSize;
   const delayMs = delayOverrideMs || DataMigration.defaultDelayMs;
   const log = createNamedLogger('migrateData', { name, batchSize, delay: delayMs });
-  const dm = new DataMigration(storeToUse, log);
+  const dm = new DataMigration(store, log);
 
   // run
   log.info('Started data migration');
