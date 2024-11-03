@@ -290,7 +290,7 @@ export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues }) 
 
   return (
     <StyledDrawer open={open} onClose={closeDrawer}>
-      <Container columns={1}>
+      <Container>
         <BookLocationHeader />
         <Form
           onSubmit={async values => handleSubmit(values)}
