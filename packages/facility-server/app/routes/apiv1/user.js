@@ -152,9 +152,10 @@ user.post(
 
     req.checkPermission('write', currentUser);
 
-    const { selectedGraphedVitalsOnFilter } = body;
+    const { selectedGraphedVitalsOnFilter, clinicianDashboardTaskingTableFilter } = body;
     const [userPreferences] = await UserPreference.upsert({
       selectedGraphedVitalsOnFilter,
+      clinicianDashboardTaskingTableFilter,
       userId: currentUser.id,
       deletedAt: null,
     });

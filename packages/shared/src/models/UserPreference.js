@@ -24,6 +24,7 @@ export class UserPreference extends Model {
             key: 'id',
           },
         },
+        clinicianDashboardTaskingTableFilter: DataTypes.JSONB,
       },
       { syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL, ...options },
     );
