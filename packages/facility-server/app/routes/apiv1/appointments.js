@@ -56,7 +56,7 @@ appointments.post('/locationBooking', async (req, res) => {
       });
 
       if (bookingTimeAlreadyTaken) {
-        throw new ResourceConflictError()
+        throw new ResourceConflictError();
       }
 
       const newRecord = await Appointment.create(body, { transaction });
@@ -65,14 +65,14 @@ appointments.post('/locationBooking', async (req, res) => {
 
     res.status(201).send(result);
   } catch (error) {
-    res.status(error.status || 500).send()
+    res.status(error.status || 500).send();
   }
 });
 
 const searchableFields = [
   'startTime',
   'endTime',
-  'type',
+  'appointmentType',
   'status',
   'clinicianId',
   'locationId',
@@ -93,7 +93,7 @@ const sortKeys = {
   sex: Sequelize.col('patient.sex'),
   dateOfBirth: Sequelize.col('patient.date_of_birth'),
   location: Sequelize.col('location.name'),
-  type: Sequelize.col('type.name'),
+  appointmentType: Sequelize.col('appointmentType.name'),
   locationGroup: Sequelize.col('location_groups.name'),
   clinician: Sequelize.col('clinician.display_name'),
 };
