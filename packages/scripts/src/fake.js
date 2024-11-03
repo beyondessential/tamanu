@@ -328,6 +328,7 @@ async function generateData(models) {
     }),
   );
 
+  // Stub to generate new db version
   await ImagingResult.create(
     fake(ImagingResult, {
       imagingRequestId: imagingRequest.id,
