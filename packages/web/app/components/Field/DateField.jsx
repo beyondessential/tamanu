@@ -195,6 +195,7 @@ export const TimeField = ({ field, ...props }) => (
 );
 
 export const TimeWithStableDayField = ({ field, baseDate, ...props }) => {
+  delete props.onChange;
   const handleChange = event => {
     const { value } = event.target;
     const newValue = toDateTimeString(
