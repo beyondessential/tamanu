@@ -138,7 +138,7 @@ const BookingTypeDisplay = ({ type, isOvernight }) => (
     label={<TranslatedText stringId="scheduling.bookingType.label" fallback="Booking type" />}
     value={
       <FlexRow sx={{ alignItems: 'center', justifyContent: 'space-between' }}>
-        <TranslatedReferenceData value={type.id} fallback={type.name} category="appointmentType" />
+        <TranslatedReferenceData value={type.id} fallback={type.name} category="bookingType" />
         {isOvernight && (
           <FlexRow sx={{ gap: '2px' }}>
             <Overnight htmlColor={Colors.primary} sx={{ fontSize: 15 }} />
@@ -215,7 +215,15 @@ const ActionMenu = ({ appointment, anchorEl, onClose, onEdit }) => (
 );
 
 const AppointDetailsDisplay = ({ appointment, isOvernight }) => {
-  const { startTime, endTime, clinician, locationGroup, location, type } = appointment;
+  const {
+    startTime,
+    endTime,
+    clinician,
+    locationGroup,
+    location,
+    type,
+    appointmentType,
+  } = appointment;
   return (
     <AppointmentDetailsContainer>
       <DetailsDisplay
@@ -261,6 +269,23 @@ const AppointDetailsDisplay = ({ appointment, isOvernight }) => {
         />
       )}
       {type && <BookingTypeDisplay type={type} isOvernight={isOvernight} />}
+      {appointmentType && (
+        <DetailsDisplay
+          label={
+            <TranslatedText
+              stringId="scheduling.appointmentType.label"
+              fallback="Appointment type"
+            />
+          }
+          value={
+            <TranslatedReferenceData
+              value={appointmentType.id}
+              appointmentType={appointmentType.name}
+              category="appointmentType"
+            />
+          }
+        />
+      )}
     </AppointmentDetailsContainer>
   );
 };
