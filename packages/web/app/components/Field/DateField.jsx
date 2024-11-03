@@ -195,11 +195,9 @@ export const TimeField = ({ field, ...props }) => (
 );
 
 export const TimeWithStableDayField = ({ field, baseDate, ...props }) => {
-  delete props.onChange;
   const handleChange = event => {
-    const { value } = event.target;
     const newValue = toDateTimeString(
-      set(parseISO(value), {
+      set(parseISO(event.target.value), {
         year: getYear(baseDate),
         date: getDate(baseDate),
         month: getMonth(baseDate),
@@ -207,7 +205,7 @@ export const TimeWithStableDayField = ({ field, baseDate, ...props }) => {
     );
     field.onChange({ target: { value: newValue, name: field.name } });
   };
-  return <TimeInput name={field.name} value={field.value} onChange={handleChange} {...props} />;
+  return <TimeInput name={field.name} value={field.value} {...props} onChange={handleChange} />;
 };
 
 export const DateTimeField = ({ field, ...props }) => (
