@@ -2,6 +2,9 @@ import { fake } from '@tamanu/shared/test-helpers/fake';
 import { createTestContext } from '../utilities';
 import { migrateDataInBatches } from '../../app/subCommands/migrateDataInBatches/migrateDataInBatches';
 import { APPOINTMENT_TYPES } from '@tamanu/shared/demoData';
+import { initDatabase } from '../../app/database';
+
+jest.mock('../../app/database');
 
 const prepopulate = async models => {
   const { Appointment, ReferenceData } = models;
@@ -36,10 +39,10 @@ describe('migrateAppointmentTypeReferenceData', () => {
   it('migrates appointment type reference data', async () => {
     await prepopulate(models);
     const exitSpy = jest.spyOn(process, 'exit').mockImplementation(() => {});
+    initDatabase.mockResolvedValue(ctx.store);
     await migrateDataInBatches('AppointmentTypeReferenceData', {
       batchSize: 2,
       delay: 0,
-      storeOverride: ctx.store,
     });
     expect(exitSpy).toHaveBeenCalledWith(0);
     const appointments = await models.Appointment.findAll();
