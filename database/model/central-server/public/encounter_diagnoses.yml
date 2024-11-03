@@ -1,0 +1,80 @@
+version: 2
+sources:
+  - name: tamanu
+    schema: public
+    description: "{{ doc('generic__schema') }}"
+    tables:
+      - name: encounter_diagnoses
+        description: '{{ doc("table__encounter_diagnoses") }}'
+        tags:
+          - clinical
+        columns:
+          - name: id
+            data_type: character varying(255)
+            description: "{{ doc('generic__id') }} in encounter_diagnoses."
+            data_tests:
+              - unique
+              - not_null
+          - name: created_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__created_at') }} in encounter_diagnoses."
+            data_tests:
+              - not_null
+          - name: updated_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__updated_at') }} in encounter_diagnoses."
+            data_tests:
+              - not_null
+          - name: deleted_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__deleted_at') }} in encounter_diagnoses."
+          - name: certainty
+            data_type: character varying(255)
+            description: "{{ doc('encounter_diagnoses__certainty') }}"
+            data_tests:
+              - accepted_values:
+                  values:
+                    - confirmed
+                    - disproven
+                    - emergency
+                    - error
+                    - suspected
+          - name: is_primary
+            data_type: boolean
+            description: "{{ doc('encounter_diagnoses__is_primary') }}"
+          - name: date
+            data_type: character(19)
+            description: "{{ doc('generic__date') }} in encounter_diagnoses."
+            data_tests:
+              - not_null
+          - name: encounter_id
+            data_type: character varying(255)
+            description: "{{ doc('encounter_diagnoses__encounter_id') }}"
+            data_tests:
+              - relationships:
+                  to: source('tamanu', 'encounters')
+                  field: id
+          - name: diagnosis_id
+            data_type: character varying(255)
+            description: "{{ doc('encounter_diagnoses__diagnosis_id') }}"
+            data_tests:
+              - dbt_utils.relationships_where:
+                  to: source('tamanu', 'reference_data')
+                  field: id
+                  to_condition: type = 'diagnosis'
+          - name: date_legacy
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__date_legacy') }} in encounter_diagnoses."
+          - name: updated_at_sync_tick
+            data_type: bigint
+            description: "{{ doc('generic__updated_at_sync_tick') }} in
+              encounter_diagnoses."
+            data_tests:
+              - not_null
+          - name: clinician_id
+            data_type: character varying(255)
+            description: "{{ doc('encounter_diagnoses__clinician_id') }}"
+            data_tests:
+              - relationships:
+                  to: source('tamanu', 'users')
+                  field: id
