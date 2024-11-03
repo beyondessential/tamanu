@@ -1,11 +1,12 @@
+import { alpha } from '@material-ui/core';
+import { ToggleButton, toggleButtonClasses, toggleButtonGroupClasses } from '@mui/material';
 import React from 'react';
 import styled, { css } from 'styled-components';
-import { Colors } from '../../../constants';
-import { ConditionalTooltip, ThemedTooltip } from '../../Tooltip';
-import { TimeRangeDisplay } from '../../DateDisplay';
-import { alpha } from '@material-ui/core';
-import { TranslatedText } from '../../Translation/TranslatedText';
-import { ToggleButton, toggleButtonClasses, toggleButtonGroupClasses } from '@mui/material';
+
+import { Colors } from '../../../../constants';
+import { TimeRangeDisplay } from '../../../DateDisplay';
+import { ConditionalTooltip, ThemedTooltip } from '../../../Tooltip';
+import { TranslatedText } from '../../../Translation/TranslatedText';
 
 const Cell = styled(ToggleButton)`
   &.${toggleButtonClasses.root}.${toggleButtonGroupClasses.grouped}:is(

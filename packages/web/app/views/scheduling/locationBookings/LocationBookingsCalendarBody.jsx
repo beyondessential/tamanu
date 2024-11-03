@@ -18,7 +18,12 @@ export const BookingsCell = ({ appointments, date, location, openBookingForm }) 
     }}
   >
     {appointments?.map(a => (
-      <AppointmentTile className="appointment-tile" openBookingForm={openBookingForm} appointment={a} key={a.id} />
+      <AppointmentTile
+        className="appointment-tile"
+        openBookingForm={openBookingForm}
+        appointment={a}
+        key={a.id}
+      />
     ))}
   </CarouselGrid.Cell>
 );

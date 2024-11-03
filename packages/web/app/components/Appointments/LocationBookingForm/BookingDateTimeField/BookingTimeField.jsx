@@ -1,8 +1,5 @@
+import { CircularProgress } from '@material-ui/core';
 import { toggleButtonClasses, ToggleButtonGroup } from '@mui/material';
-import React, { useCallback, useMemo, useState } from 'react';
-import styled from 'styled-components';
-import { OuterLabelFieldWrapper } from '../../Field';
-import { Colors } from '../../../constants';
 import {
   addMilliseconds,
   addMinutes,
@@ -11,16 +8,20 @@ import {
   parse,
   startOfDay,
 } from 'date-fns';
-import ms from 'ms';
-import { useSettings } from '../../../contexts/Settings';
-import { BookingTimeCell } from './BookingTimeCell';
 import { useFormikContext } from 'formik';
-import { toDateTimeString } from '../../../utils/dateTime';
 import { isEqual } from 'lodash';
-import { CircularProgress } from '@material-ui/core';
-import { TranslatedText } from '../../Translation/TranslatedText';
-import { useAppointmentsQuery } from '../../../api/queries';
-import { isTimeSlotWithinRange } from './BookingDateTimeField/util';
+import ms from 'ms';
+import React, { useCallback, useMemo, useState } from 'react';
+import styled from 'styled-components';
+
+import { useAppointmentsQuery } from '../../../../api/queries';
+import { Colors } from '../../../../constants';
+import { useSettings } from '../../../../contexts/Settings';
+import { toDateTimeString } from '../../../../utils/dateTime';
+import { OuterLabelFieldWrapper } from '../../../Field';
+import { TranslatedText } from '../../../Translation/TranslatedText';
+import { BookingTimeCell } from './BookingTimeCell';
+import { isTimeSlotWithinRange } from './util';
 
 const ToggleGroup = styled(ToggleButtonGroup)`
   border: max(0.0625rem, 1px) solid ${Colors.outline};
