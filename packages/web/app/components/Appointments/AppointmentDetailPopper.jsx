@@ -192,14 +192,7 @@ const PatientDetailsDisplay = ({ patient, onClick }) => {
 };
 
 const ActionMenu = ({ anchorEl, onClose, onEdit }) => (
-  <StyledMenu
-    anchorEl={anchorEl}
-    open={!!anchorEl}
-    onClose={onClose}
-    MenuListProps={{
-      'aria-labelledby': 'basic-button',
-    }}
-  >
+  <StyledMenu anchorEl={anchorEl} open={!!anchorEl} onClose={onClose}>
     <MenuItem onClick={onEdit}>
       <TranslatedText stringId="general.action.modify" fallback="Modify" />
     </MenuItem>
