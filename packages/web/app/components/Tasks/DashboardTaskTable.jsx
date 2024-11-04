@@ -7,11 +7,10 @@ import { TASK_STATUSES, WS_EVENTS } from '@tamanu/constants';
 import PriorityHighIcon from '@material-ui/icons/PriorityHigh';
 
 import { BodyText, SmallBodyText, formatShortest, formatTime, TranslatedText, Table } from '../.';
-import { Colors } from '../../constants';
+import { Colors, ROWS_PER_PAGE_OPTIONS } from '../../constants';
 import { ThemedTooltip } from '../Tooltip';
 import { useAuth } from '../../contexts/Auth';
 import { useAutoUpdatingQuery } from '../../api/queries/useAutoUpdatingQuery';
-import { ROWS_PER_PAGE_OPTIONS } from '../../constants';
 import { Paginator } from '../Table/Paginator';
 import { useTablePaginator } from '../Table/useTablePaginator';
 
