@@ -19,6 +19,7 @@ import { TASK_STATUSES } from '@tamanu/constants';
 import config from 'config';
 import { toCountryDateTimeString } from '@tamanu/shared/utils/countryDateTime';
 import { add } from 'date-fns';
+import { getOrderClause } from '../../database/utils';
 
 export const user = express.Router();
 
@@ -168,9 +169,13 @@ user.get('/:id', simpleGet('User'));
 
 const clinicianTasksQuerySchema = z.object({
   orderBy: z
-    .tuple([z.enum(['dueTime', 'name']), z.enum(['ASC', 'DESC'])])
+    .string()
     .optional()
-    .default(['dueTime', 'ASC']),
+    .default('dueTime'),
+  order: z
+    .enum(['asc', 'desc'])
+    .optional()
+    .default('asc'),
   designationId: z.string().optional(),
   locationGroupId: z.string().optional(),
   locationId: z.string().optional(),
@@ -198,8 +203,27 @@ user.get(
     const { id: userId } = params;
 
     const query = await clinicianTasksQuerySchema.parseAsync(req.query);
+    const {
+      orderBy,
+      order,
+      page,
+      rowsPerPage,
+      highPriority,
+      locationId,
+      locationGroupId,
+      designationId,
+    } = query;
 
     const upcomingTasksTimeFrame = config.tasking?.upcomingTasksTimeFrame || 8;
+
+    const defaultOrder = [
+      ['dueTime', 'ASC'],
+      ['highPriority', 'DESC'],
+      ['encounter', 'patient', 'lastName', 'ASC'],
+      ['encounter', 'patient', 'firstName', 'ASC'],
+      ['name', 'ASC'],
+    ];
+    const orderOptions = orderBy ? getOrderClause(order, orderBy) : [];
 
     const baseQueryOptions = {
       where: {
@@ -207,7 +231,7 @@ user.get(
         dueTime: {
           [Op.lte]: toCountryDateTimeString(add(new Date(), { hours: upcomingTasksTimeFrame })),
         },
-        ...(query.highPriority && { highPriority: query.highPriority }),
+        ...(highPriority && { highPriority }),
       },
       include: [
         'requestedBy',
@@ -220,12 +244,12 @@ user.get(
             {
               model: models.Location,
               as: 'location',
-              ...(query.locationId && { where: { id: query.locationId } }),
+              ...(locationId && { where: { id: locationId } }),
               include: [
                 {
                   model: models.LocationGroup,
                   as: 'locationGroup',
-                  ...(query.locationGroupId && { where: { id: query.locationGroupId } }),
+                  ...(locationGroupId && { where: { id: locationGroupId } }),
                 },
               ],
             },
@@ -235,7 +259,7 @@ user.get(
           attributes: [],
           model: models.ReferenceData,
           as: 'designations',
-          ...(query.designationId && { where: { id: query.designationId } }),
+          ...(designationId && { where: { id: designationId } }),
           required: true,
           include: [
             {
@@ -247,12 +271,12 @@ user.get(
           ],
         },
       ],
+      order: [...orderOptions, ...defaultOrder],
     };
 
     const tasks = await models.Task.findAll({
-      order: [query.orderBy, ['highPriority', 'DESC'], ['name', 'ASC']],
-      limit: query.rowsPerPage,
-      offset: query.page * query.rowsPerPage,
+      limit: rowsPerPage,
+      offset: page * rowsPerPage,
       attributes: ['id', 'dueTime', 'name', 'highPriority', 'status', 'requestTime'],
       ...baseQueryOptions,
     });

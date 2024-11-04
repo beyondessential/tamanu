@@ -13,6 +13,7 @@ import { useAuth } from '../../contexts/Auth';
 import { useAutoUpdatingQuery } from '../../api/queries/useAutoUpdatingQuery';
 import { Paginator } from '../Table/Paginator';
 import { useTablePaginator } from '../Table/useTablePaginator';
+import { useTableSorting } from '../Table/useTableSorting';
 
 const StyledPriorityHighIcon = styled(PriorityHighIcon)`
   color: ${Colors.alert};
@@ -196,19 +197,19 @@ const COLUMNS = [
     sortable: false,
   },
   {
-    key: 'location',
+    key: 'encounter.location.name',
     title: <TranslatedText stringId="dashboard.tasks.table.column.location" fallback="Location" />,
     accessor: getLocation,
   },
   {
-    key: 'patientId',
+    key: 'encounter.patient.displayId',
     title: (
       <TranslatedText stringId="dashboard.tasks.table.column.patientId" fallback="Patient ID" />
     ),
     accessor: ({ encounter }) => encounter.patient.displayId,
   },
   {
-    key: 'patientName',
+    key: 'encounter.patient.firstName',
     title: <TranslatedText stringId="dashboard.tasks.table.column.patient" fallback="Patient" />,
     accessor: ({ encounter }) => `${encounter.patient.firstName} ${encounter.patient.lastName}`,
   },
@@ -231,7 +232,12 @@ export const DashboardTasksTable = ({ searchParameters, refreshCount }) => {
     resetPage: searchParameters,
   });
 
-  const queryParams = { ...searchParameters, page, rowsPerPage };
+  const { orderBy, order, onChangeOrderBy, customSort } = useTableSorting({
+    initialSortKey: 'dueTime',
+    initialSortDirection: 'asc',
+  });
+
+  const queryParams = { ...searchParameters, page, rowsPerPage, orderBy, order };
 
   const { data: userTasks, isLoading } = useAutoUpdatingQuery(
     `user/${currentUser?.id}/tasks`,
@@ -249,6 +255,9 @@ export const DashboardTasksTable = ({ searchParameters, refreshCount }) => {
         isLoading={isLoading}
         refreshCount={refreshCount}
         count={userTasks?.count}
+        onChangeOrderBy={onChangeOrderBy}
+        orderBy={orderBy}
+        order={order}
       />
       <PaginatorContainer>
         <Paginator
