@@ -9,9 +9,9 @@ sql: |
 send:
   - target: zendesk
     endpoint: https://example.zendesk.com/api/v2/requests
-    subject: '[Tamanu Alert] FHIR abnormally large queue ({{ hostname }})'
+    subject: '[Tamanu Alert] FHIR job queue abnormally large ({{ hostname }})'
     template: |
       <p>Server: {{ hostname }}</p>
       <p>Alert: {{ filename }}</p>
-      <h1>FHIR job queued jobs count is abnormally high</h1>
-      <p>Current job count: {{ rows[0].job_count }}</p>
+      <h1>FHIR queued jobs count is abnormally high</h1>
+      <p>Currently queued jobs: {{ rows[0].job_count }}</p>

@@ -17,7 +17,10 @@ send:
       <p>Alert: {{ filename }}</p>
       <h1>Long running FHIR jobs detected</h1>
       <ul>
-        {% for row in rows %}
+        {% for row in rows | slice(end=5) %}
         <li><b>{{row.resource}}</> ID: <b>{{ row.id }}</b> - Duration: <i>{{ row.duration_minutes }} minutes</i></li>
         {% endfor %}
+         <li>... and {{ rows | length - 5 }} more</li>
+        {% endif %}
       </ul>
+      <p>For more information, please check the logs.</p>
