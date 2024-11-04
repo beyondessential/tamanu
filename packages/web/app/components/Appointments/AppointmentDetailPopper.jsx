@@ -190,7 +190,7 @@ const PatientDetailsDisplay = ({ patient, onClick }) => {
           />
           :
         </Label>{' '}
-        <DateDisplay date={dateOfBirth} />
+        <DateDisplay showTooltip={false} date={dateOfBirth} />
       </span>
       {additionalData?.primaryContactNumber && (
         <DetailsDisplay
