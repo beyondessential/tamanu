@@ -1,0 +1,24 @@
+enabled: true
+sql: |
+  SELECT
+    id,
+    payload->>'resource' AS resource,
+    ROUND(EXTRACT(EPOCH FROM (NOW() - started_at)) / 60) AS duration_minutes, -- Duration in minutes
+  FROM fhir.jobs
+  WHERE status = 'Started'
+    AND NOW() - started_at > INTERVAL '30 minutes' -- tbd: tune this threshold
+    -- AND started_at > NOW() - INTERVAL '2 hours' -- tbd: best way to avoid repeating alerts for the same job?
+send:
+  - target: zendesk
+    endpoint: https://example.zendesk.com/api/v2/requests
+    subject: '[Tamanu Alert] Long-running FHIR jobs ({{ hostname }})'
+    template: |
+      <p>Server: {{ hostname }}</p>
+      <p>Alert: {{ filename }}</p>
+      <h1>Long-running FHIR jobs detected</h1>
+      <ul>
+        {% for row in rows %}
+        <li><b>{{row.resource}}</> ID: <b>{{ row.id }}</b> - Duration: <i>{{ row.duration_minutes }} minutes</i></li>
+        {% endfor %}
+      </ul>
+      <p>Check logs and job processing services for further details.</p>

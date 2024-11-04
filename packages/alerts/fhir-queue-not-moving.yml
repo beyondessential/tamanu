@@ -15,7 +15,7 @@ sql: |
     since_last_check_queued_jobs.count AS since_last_count
   FROM current_queued_jobs, since_last_check_queued_jobs
   WHERE current_queued_jobs.count > 100 -- TBD: tune this threshold
-  AND current_queued_jobs.count >= since_last_check_queued_jobs.count
+    AND current_queued_jobs.count >= since_last_check_queued_jobs.count
 
 send:
   - target: zendesk
