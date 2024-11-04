@@ -1,13 +1,6 @@
 import { CircularProgress } from '@material-ui/core';
 import { toggleButtonClasses, ToggleButtonGroup } from '@mui/material';
-import {
-  addMilliseconds,
-  addMinutes,
-  differenceInMinutes,
-  endOfDay,
-  parse,
-  startOfDay,
-} from 'date-fns';
+import { addMilliseconds, endOfDay, startOfDay } from 'date-fns';
 import { useFormikContext } from 'formik';
 import { isEqual } from 'lodash';
 import ms from 'ms';
@@ -21,7 +14,7 @@ import { toDateTimeString } from '../../../../utils/dateTime';
 import { OuterLabelFieldWrapper } from '../../../Field';
 import { TranslatedText } from '../../../Translation/TranslatedText';
 import { BookingTimeCell } from './BookingTimeCell';
-import { isTimeSlotWithinRange } from './util';
+import { calculateTimeSlots, isTimeSlotWithinRange } from './util';
 
 const ToggleGroup = styled(ToggleButtonGroup)`
   border: max(0.0625rem, 1px) solid ${Colors.outline};
@@ -44,26 +37,6 @@ const LoadingIndicator = styled(CircularProgress)`
   grid-column: 1 / -1;
   margin: 0 auto;
 `;
-
-/** @return {Array<{start: Date, end: Date}>} */
-const calculateTimeSlots = (bookingSlotSettings, date) => {
-  if (!date || !bookingSlotSettings) return [];
-
-  const { startTime, endTime, slotDuration } = bookingSlotSettings;
-  const startOfDay = parse(startTime, 'HH:mm', new Date(date));
-  const endOfDay = parse(endTime, 'HH:mm', new Date(date));
-  const durationMinutes = ms(slotDuration) / 60_000; // In minutes
-
-  const totalSlots = differenceInMinutes(endOfDay, startOfDay) / durationMinutes;
-  const slots = [];
-  for (let i = 0; i < totalSlots; i++) {
-    const start = addMinutes(startOfDay, i * durationMinutes);
-    const end = addMinutes(start, durationMinutes);
-    slots.push({ start, end });
-  }
-
-  return slots;
-};
 
 /** logic calculated through time ranges in the format { start: DATE, end: DATE } */
 export const BookingTimeField = ({ disabled = false }) => {
@@ -141,14 +114,6 @@ export const BookingTimeField = ({ disabled = false }) => {
     [selectedTimeRange, bookedTimeSlots],
   );
 
-  // const updateStart = newStart => {
-  //   setSelectedTimeRange({ start: newStart, end: selectedTimeRange.end });
-  //   void setFieldValue('startTime', newStart);
-  // };
-  // const updateEnd = newEnd => {
-  //   setSelectedTimeRange({ start: selectedTimeRange.start, end: newEnd });
-  //   void setFieldValue('endTime', newEnd);
-  // };
   const updateTimeRange = newTimeRange => {
     setSelectedTimeRange(newTimeRange);
     void setFieldValue('startTime', newTimeRange.start);
@@ -178,21 +143,6 @@ export const BookingTimeField = ({ disabled = false }) => {
 
     // Update semantic datetime range selection
     updateTimeRange(newTimeRange);
-
-    // switch (variant) {
-    //   case 'default': {
-    //     updateTimeRange(newTimeRange);
-    //     break;
-    //   }
-    //   case 'startTime': {
-    //     updateStart(newStart);
-    //     break;
-    //   }
-    //   case 'endTime': {
-    //     updateEnd(newEnd);
-    //     break;
-    //   }
-    // }
   };
 
   return (
