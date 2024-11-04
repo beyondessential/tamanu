@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { useQueryClient } from '@tanstack/react-query';
 
 import { AutocompleteField, DynamicSelectField, Field, Form, DateTimeField } from '../../Field';
-import { useApi, usePatientSuggester, useSuggester } from '../../../api';
+import { usePatientSuggester, useSuggester } from '../../../api';
 import { useAppointmentMutation } from '../../../api/mutations';
 import { FormSubmitCancelRow } from '../../ButtonRow';
 import { FORM_TYPES } from '../../../constants';
@@ -97,8 +97,6 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
   const locationGroupSuggester = useSuggester('locationGroup');
 
   const isEdit = !!initialValues.id;
-
-  const api = useApi();
 
   const [warningModalOpen, setShowWarningModal] = useState(false);
   const [resolveFn, setResolveFn] = useState(null);
