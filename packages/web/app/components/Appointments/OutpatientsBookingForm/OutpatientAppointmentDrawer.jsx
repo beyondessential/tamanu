@@ -101,6 +101,103 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
   const [warningModalOpen, setShowWarningModal] = useState(false);
   const [resolveFn, setResolveFn] = useState(null);
 
+  const validationSchema = yup.object().shape({
+    locationGroupId: yup
+      .string()
+      .required()
+      .translatedLabel(
+        <TranslatedText stringId="general.localisedField.locationGroupId.label" fallback="Area" />,
+      ),
+    appointmentTypeId: yup.string().required(),
+    startTime: yup.string().required(),
+    endTime: yup
+      .string()
+      .nullable()
+      .test(
+        'isAfter',
+        getTranslation(
+          'outpatientAppointments.endTime.validation.isAfterStartTime',
+          'End time must be after start time',
+        ),
+        (value, { parent }) => {
+          if (!value) return true;
+          const startTime = parseISO(parent.startTime);
+          const endTime = parseISO(value);
+          return isAfter(endTime, startTime);
+        },
+      ),
+    patientId: yup.string().required(),
+  });
+
+  const renderForm = ({ values, resetForm, dirty }) => {
+    const warnAndResetForm = async () => {
+      const confirmed = !dirty || (await handleShowWarningModal());
+      if (!confirmed) return;
+      onClose();
+      resetForm();
+    };
+
+    return (
+      <FormGrid columns={1}>
+        <CloseDrawerIcon onClick={warnAndResetForm} />
+        <Field
+          name="patientId"
+          label={<TranslatedText stringId="general.form.patient.label" fallback="Patient" />}
+          component={AutocompleteField}
+          suggester={patientSuggester}
+          required
+        />
+        <Field
+          label={
+            <TranslatedText stringId="general.locationGroup.label" fallback="Location group" />
+          }
+          name="locationGroupId"
+          component={AutocompleteField}
+          suggester={locationGroupSuggester}
+          required
+        />
+        <Field
+          name="appointmentTypeId"
+          label={
+            <TranslatedText
+              stringId="appointment.appointmentType.label"
+              fallback="Appointment type"
+            />
+          }
+          component={DynamicSelectField}
+          suggester={appointmentTypeSuggester}
+          required
+        />
+        <Field
+          name="clinicianId"
+          label={<TranslatedText stringId="general.form.clinician.label" fallback="Clinician" />}
+          component={AutocompleteField}
+          suggester={clinicianSuggester}
+        />
+        <Field
+          name="startTime"
+          label={<TranslatedText stringId="general.dateAndTime.label" fallback="Date & time" />}
+          component={DateTimeField}
+          required
+          saveDateAsString
+        />
+        <Field
+          name="endTime"
+          disabled={!values.startTime}
+          date={parseISO(values.startTime)}
+          label={<TranslatedText stringId="general.endTime.label" fallback="End time" />}
+          component={TimeWithFixedDateField}
+          saveDateAsString
+        />
+
+        <FormSubmitCancelRow
+          onCancel={warnAndResetForm}
+          confirmDisabled={!values.startTime || !dirty}
+        />
+      </FormGrid>
+    );
+  };
+
   const handleShowWarningModal = async () =>
     new Promise(resolve => {
       setResolveFn(() => resolve); // Save resolve to use in onConfirm/onCancel
@@ -148,113 +245,10 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
         onSubmit={async values => handleSubmit(values)}
         suppressErrorDialog
         formType={isEdit ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
-        validationSchema={yup.object().shape({
-          locationGroupId: yup
-            .string()
-            .required()
-            .translatedLabel(
-              <TranslatedText
-                stringId="general.localisedField.locationGroupId.label"
-                fallback="Area"
-              />,
-            ),
-          appointmentTypeId: yup.string().required(),
-          startTime: yup.string().required(),
-          endTime: yup
-            .string()
-            .nullable()
-            .test(
-              'isAfter',
-              getTranslation(
-                'outpatientAppointments.endTime.validation.isAfterStartTime',
-                'End time must be after start time',
-              ),
-              (value, { parent }) => {
-                if (!value) return true;
-                const startTime = parseISO(parent.startTime);
-                const endTime = parseISO(value);
-                return isAfter(endTime, startTime);
-              },
-            ),
-          patientId: yup.string().required(),
-        })}
+        validationSchema={validationSchema}
         initialValues={initialValues}
         enableReinitialize
-        render={({ values, resetForm, dirty }) => {
-          const warnAndResetForm = async () => {
-            const confirmed = !dirty || (await handleShowWarningModal());
-            if (!confirmed) return;
-            onClose();
-            resetForm();
-          };
-
-          return (
-            <FormGrid columns={1}>
-              <CloseDrawerIcon onClick={warnAndResetForm} />
-              <Field
-                name="patientId"
-                label={<TranslatedText stringId="general.form.patient.label" fallback="Patient" />}
-                component={AutocompleteField}
-                suggester={patientSuggester}
-                required
-              />
-              <Field
-                label={
-                  <TranslatedText
-                    stringId="general.locationGroup.label"
-                    fallback="Location group"
-                  />
-                }
-                name="locationGroupId"
-                component={AutocompleteField}
-                suggester={locationGroupSuggester}
-                required
-              />
-              <Field
-                name="appointmentTypeId"
-                label={
-                  <TranslatedText
-                    stringId="appointment.appointmentType.label"
-                    fallback="Appointment type"
-                  />
-                }
-                component={DynamicSelectField}
-                suggester={appointmentTypeSuggester}
-                required
-              />
-              <Field
-                name="clinicianId"
-                label={
-                  <TranslatedText stringId="general.form.clinician.label" fallback="Clinician" />
-                }
-                component={AutocompleteField}
-                suggester={clinicianSuggester}
-              />
-              <Field
-                name="startTime"
-                label={
-                  <TranslatedText stringId="general.dateAndTime.label" fallback="Date & time" />
-                }
-                component={DateTimeField}
-                required
-                saveDateAsString
-              />
-              <Field
-                name="endTime"
-                disabled={!values.startTime}
-                date={parseISO(values.startTime)}
-                label={<TranslatedText stringId="general.endTime.label" fallback="End time" />}
-                component={TimeWithFixedDateField}
-                saveDateAsString
-              />
-
-              <FormSubmitCancelRow
-                onCancel={warnAndResetForm}
-                confirmDisabled={!values.startTime || !dirty}
-              />
-            </FormGrid>
-          );
-        }}
+        render={renderForm}
       />
       <WarningModal
         open={warningModalOpen}
