@@ -263,12 +263,14 @@ export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues }) 
             component={DynamicSelectField}
             suggester={bookingTypeSuggester}
             required
+            size="small"
           />
           <Field
             name="clinicianId"
             label={<TranslatedText stringId="general.form.clinician.label" fallback="Clinician" />}
             component={AutocompleteField}
             suggester={clinicianSuggester}
+            size="small"
           />
           <FormSubmitCancelRow onCancel={warnAndResetForm} />
         </FormGrid>
@@ -278,7 +280,7 @@ export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues }) 
 
   return (
     <StyledDrawer variant="persistent" anchor="right" open={open} onClose={closeDrawer}>
-      <Container columns={1}>
+      <Container>
         <Form
           onSubmit={async values => handleSubmit(values)}
           suppressErrorDialog

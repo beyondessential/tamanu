@@ -4,22 +4,19 @@ import styled from 'styled-components';
 import { TranslatedText } from '../../Translation';
 import { BodyText, Heading4 } from '../../Typography';
 import { Colors } from '../../../constants';
-import { Close } from '@material-ui/icons';
 import { ClearIcon } from '../../Icons';
 
-const HeaderContainer = styled.header`
+const Heading = styled(Heading4)`
+  font-size: 16px;
+  margin-bottom: 9px;
+  // TODO: behaviour not quite right
   position: sticky;
   z-index: 1; 
   background-color: ${Colors.background};
   border-bottom: 1px ${Colors.outline} solid;
   padding-bottom: 5px;
-  top: 0;
-`;
-
-const Heading = styled(Heading4)`
-  font-size: 16px;
-  margin: 0;
-  margin-bottom: 9px;
+  top: 10px;
+  border: 1px red solid;
 `;
 
 const Description = styled(BodyText)`
@@ -55,13 +52,13 @@ const DescriptionText = ({ editMode }) =>
   );
 
 export const BookLocationHeader = ({ editMode, onClose }) => (
-  <HeaderContainer>
+  <>
     <Heading>
       <HeadingText editMode={editMode} />
+      <CloseDrawerIcon onClick={onClose} />
     </Heading>
     <Description>
       <DescriptionText editMode={editMode} />
     </Description>
-    <CloseDrawerIcon onClick={onClose} />
-  </HeaderContainer>
+  </>
 );
