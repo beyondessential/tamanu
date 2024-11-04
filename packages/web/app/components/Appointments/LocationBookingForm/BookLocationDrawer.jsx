@@ -3,7 +3,7 @@ import Brightness2Icon from '@material-ui/icons/Brightness2';
 import { useQueryClient } from '@tanstack/react-query';
 import { endOfDay, startOfDay } from 'date-fns';
 import { useFormikContext } from 'formik';
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import * as yup from 'yup';
 
@@ -34,6 +34,7 @@ import { BookingTimeField } from './BookingTimeField';
 const Container = styled.div`
   width: 330px;
   padding: 1rem;
+  padding-top: 0;
   background-color: ${Colors.background};
   overflow-y: auto;
   position: relative;
@@ -51,8 +52,8 @@ const OvernightIcon = styled(Brightness2Icon)`
 
 const StyledDrawer = styled(Drawer)`
   .MuiPaper-root {
-    block-size: calc(100% - ${TOP_BAR_HEIGHT}px);
-    inset-block-start: ${TOP_BAR_HEIGHT}px;
+    block-size: calc(100% - ${TOP_BAR_HEIGHT + 1}px);
+    inset-block-start: ${TOP_BAR_HEIGHT + 1}px;
   }
 `;
 
@@ -149,11 +150,11 @@ const SuccessMessage = ({ editMode }) =>
   );
 
 const validationSchema = yup.object({
-  locationId: yup.string().required("*Required"),
-  startTime: yup.string().required("*Required"),
-  endTime: yup.string().required("*Required"),
-  patientId: yup.string().required("*Required"),
-  bookingTypeId: yup.string().required("*Required"),
+  locationId: yup.string().required('*Required'),
+  startTime: yup.string().required('*Required'),
+  endTime: yup.string().required('*Required'),
+  patientId: yup.string().required('*Required'),
+  bookingTypeId: yup.string().required('*Required'),
 });
 
 export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues }) => {
@@ -165,6 +166,14 @@ export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues }) 
 
   const [warningModalOpen, setShowWarningModal] = useState(false);
   const [resolveFn, setResolveFn] = useState(null);
+
+  const scrollRef = useRef(null);
+
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = 0;
+    }
+  }, []);
 
   const handleShowWarningModal = async () =>
     new Promise(resolve => {
@@ -208,60 +217,62 @@ export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues }) 
     };
 
     return (
-      <FormGrid nested columns={1}>
+      <>
         <BookLocationHeader onClose={warnAndResetForm} />
-        <Field
-          enableLocationStatus={false}
-          name="locationId"
-          component={LocalisedLocationField}
-          required
-          onChange={() => {
-            setFieldValue('overnight', null);
-            setFieldValue('startTime', null);
-            setFieldValue('endTime', null);
-          }}
-        />
-        <OvernightStayField>
+        <FormGrid nested columns={1}>
           <Field
-            name="overnight"
-            label={
-              <TranslatedText
-                stringId="location.form.overnightStay.label"
-                fallback="Overnight stay"
-              />
-            }
-            component={CheckField}
-            disabled={!values.locationId}
+            enableLocationStatus={false}
+            name="locationId"
+            component={LocalisedLocationField}
+            required
+            onChange={() => {
+              setFieldValue('overnight', null);
+              setFieldValue('startTime', null);
+              setFieldValue('endTime', null);
+            }}
           />
-          <OvernightIcon fontSize="small" />
-        </OvernightStayField>
-        <DateFieldWithWarning editMode={editMode} />
-        {/* TODO: red highlight validation */}
-        <BookingTimeField key={values.date} disabled={!values.date || !values.locationId} />
-        <Field
-          name="patientId"
-          label={<TranslatedText stringId="general.form.patient.label" fallback="Patient" />}
-          component={AutocompleteField}
-          suggester={patientSuggester}
-          required
-        />
-        <Field
-          name="bookingTypeId"
-          label={
-            <TranslatedText stringId="location.form.bookingType.label" fallback="Booking type" />
-          }
-          component={DynamicSelectField}
-          suggester={bookingTypeSuggester}
-          required
-        />
-        <Field
-          name="clinicianId"
-          label={<TranslatedText stringId="general.form.clinician.label" fallback="Clinician" />}
-          component={AutocompleteField}
-          suggester={clinicianSuggester}
-        />
-        <FormSubmitCancelRow onCancel={warnAndResetForm}/>
-      </FormGrid>
+          <OvernightStayField>
+            <Field
+              name="overnight"
+              label={
+                <TranslatedText
+                  stringId="location.form.overnightStay.label"
+                  fallback="Overnight stay"
+                />
+              }
+              component={CheckField}
+              disabled={!values.locationId}
+            />
+            <OvernightIcon fontSize="small" />
+          </OvernightStayField>
+          <DateFieldWithWarning editMode={editMode} />
+          {/* TODO: red highlight validation */}
+          <BookingTimeField key={values.date} disabled={!values.date || !values.locationId} />
+          <Field
+            name="patientId"
+            label={<TranslatedText stringId="general.form.patient.label" fallback="Patient" />}
+            component={AutocompleteField}
+            suggester={patientSuggester}
+            required
+          />
+          <Field
+            name="bookingTypeId"
+            label={
+              <TranslatedText stringId="location.form.bookingType.label" fallback="Booking type" />
+            }
+            component={DynamicSelectField}
+            suggester={bookingTypeSuggester}
+            required
+          />
+          <Field
+            name="clinicianId"
+            label={<TranslatedText stringId="general.form.clinician.label" fallback="Clinician" />}
+            component={AutocompleteField}
+            suggester={clinicianSuggester}
+          />
+          <FormSubmitCancelRow onCancel={warnAndResetForm} />
+        </FormGrid>
+      </>
     );
   };
 
