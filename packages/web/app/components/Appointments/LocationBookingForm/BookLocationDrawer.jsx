@@ -3,7 +3,7 @@ import Brightness2Icon from '@material-ui/icons/Brightness2';
 import { useQueryClient } from '@tanstack/react-query';
 import { endOfDay, startOfDay } from 'date-fns';
 import { useFormikContext } from 'formik';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import * as yup from 'yup';
 
@@ -55,10 +55,6 @@ const StyledDrawer = styled(Drawer)`
     block-size: calc(100% - ${TOP_BAR_HEIGHT + 1}px);
     inset-block-start: ${TOP_BAR_HEIGHT + 1}px;
   }
-`;
-
-const StyledField = styled(Field)`
-  font-size: 12px;
 `;
 
 export const DateFieldWithWarning = ({ editMode }) => {
@@ -151,6 +147,7 @@ const SuccessMessage = ({ editMode }) =>
 
 const validationSchema = yup.object({
   locationId: yup.string().required('*Required'),
+  date: yup.string().required('*Required'),
   startTime: yup.string().required('*Required'),
   endTime: yup.string().required('*Required'),
   patientId: yup.string().required('*Required'),
@@ -166,14 +163,6 @@ export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues }) 
 
   const [warningModalOpen, setShowWarningModal] = useState(false);
   const [resolveFn, setResolveFn] = useState(null);
-
-  const scrollRef = useRef(null);
-
-  useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = 0;
-    }
-  }, []);
 
   const handleShowWarningModal = async () =>
     new Promise(resolve => {
@@ -263,14 +252,12 @@ export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues }) 
             component={DynamicSelectField}
             suggester={bookingTypeSuggester}
             required
-            size="small"
           />
           <Field
             name="clinicianId"
             label={<TranslatedText stringId="general.form.clinician.label" fallback="Clinician" />}
             component={AutocompleteField}
             suggester={clinicianSuggester}
-            size="small"
           />
           <FormSubmitCancelRow onCancel={warnAndResetForm} />
         </FormGrid>
@@ -285,6 +272,7 @@ export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues }) 
           onSubmit={async values => handleSubmit(values)}
           suppressErrorDialog
           validationSchema={validationSchema}
+          validateOnChange
           initialValues={initialBookingValues}
           enableReinitialize
           render={renderForm}
