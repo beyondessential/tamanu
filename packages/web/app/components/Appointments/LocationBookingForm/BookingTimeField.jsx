@@ -21,13 +21,14 @@ import { TranslatedText } from '../../Translation/TranslatedText';
 import { useAppointmentsQuery } from '../../../api/queries';
 
 const CellContainer = styled.div`
-  border: 1px solid ${Colors.outline};
+  border: 1px solid ${({ $error }) => ($error ? Colors.alert : Colors.outline)};
   background-color: ${({ $disabled }) => ($disabled ? 'initial' : 'white')};
   width: 295px;
   padding: 11px 14px;
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 10px;
+  border-radius: 3px;
 `;
 
 const LoadingIndicator = styled(CircularProgress)`
@@ -63,7 +64,10 @@ const isTimeSlotWithinRange = (timeSlot, range) => {
 // logic calculated through time ranges in the format { start: DATE, end: DATE }
 export const BookingTimeField = ({ disabled = false }) => {
   const { getSetting } = useSettings();
-  const { setFieldValue, values, dirty, initialValues } = useFormikContext();
+  const { setFieldValue, values, dirty, initialValues, errors } = useFormikContext();
+
+
+  const validationError = errors.startTime || errors.endTime
 
   const initialTimeRange = useMemo(() => {
     if (!initialValues.startTime) return null;
@@ -204,7 +208,7 @@ export const BookingTimeField = ({ disabled = false }) => {
       label={<TranslatedText stringId="locationBooking.bookingTime.label" fallback="Booking time" />}
       required
     >
-      <CellContainer $disabled={disabled}>
+      <CellContainer $error={validationError} $disabled={disabled}>
         {isFetching ? (
           <LoadingIndicator />
         ) : (

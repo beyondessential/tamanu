@@ -109,6 +109,10 @@ const AppointmentStatusContainer = styled(Box)`
 `;
 
 const StyledMenuButton = styled(MenuButton)`
+  .MuiPaper-root {
+    box-shadow: 0 0.5rem 2rem 0 oklch(0 0 0 / 15%);
+  }
+
   svg {
     font-size: 0.875rem;
   }
@@ -210,7 +214,6 @@ const PatientDetailsDisplay = ({ patient, onClick }) => {
 
 const AppointDetailsDisplay = ({ appointment, isOvernight }) => {
   const { startTime, endTime, clinician, locationGroup, location, type } = appointment;
-  console.log(appointment)
   return (
     <AppointmentDetailsContainer>
       <DetailsDisplay
