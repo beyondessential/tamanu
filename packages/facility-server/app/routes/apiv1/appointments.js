@@ -156,6 +156,7 @@ appointments.get(
         all = false,
         order = 'ASC',
         orderBy = 'startTime',
+        patientNameOrId,
         ...queries
       },
     } = req;
@@ -170,6 +171,31 @@ appointments.get(
       startTimeQuery[Op.lte] = before;
     }
 
+    const patientNameOrIdQuery = patientNameOrId
+      ? {
+          [Op.or]: [
+            Sequelize.where(
+              Sequelize.fn(
+                'concat',
+                Sequelize.col('patient.first_name'),
+                ' ',
+                Sequelize.col('patient.middle_name'),
+                ' ',
+                Sequelize.col('patient.last_name'),
+              ),
+              {
+                [Op.iLike]: `%${escapePatternWildcard(patientNameOrId)}%`,
+              },
+            ),
+            {
+              '$patient.display_id$': {
+                [Op.iLike]: `%${escapePatternWildcard(patientNameOrId)}%`,
+              },
+            },
+          ],
+        }
+      : {};
+
     const filters = Object.entries(queries).reduce((_filters, [queryField, queryValue]) => {
       if (!searchableFields.includes(queryField)) {
         return _filters;
@@ -182,8 +208,6 @@ appointments.get(
       if (queryField.includes('.')) {
         column = `$${queryField}$`;
       }
-      log.info(`Filtering on ${column} with value ${queryValue}`);
-      log.debug(`Filtering on ${column} with value ${queryValue}`);
       const filterCondition = Array.isArray(queryValue)
         ? { [Op.in]: queryValue }
         : { [Op.iLike]: `%${escapePatternWildcard(queryValue)}%` };
@@ -200,6 +224,7 @@ appointments.get(
       order: [[sortKeys[orderBy] || orderBy, order]],
       where: {
         startTime: startTimeQuery,
+        ...(patientNameOrId ? patientNameOrIdQuery : null),
         ...filters,
       },
       include: [...Appointment.getListReferenceAssociations()],

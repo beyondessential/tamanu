@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 
 import { useLocationsQuery } from '../../../api/queries';
@@ -10,29 +10,13 @@ import { CalendarSearchBar } from './CalendarSearchBar';
 import { BookLocationDrawer } from '../../../components/Appointments/LocationBookingForm/BookLocationDrawer';
 import { AddRounded } from '@material-ui/icons';
 import { useAuth } from '../../../contexts/Auth';
+import { useLocationBookingFilters } from '../../../contexts/LocationBookingFilters';
 
 const PlusIcon = styled(AddRounded)`
   && {
     margin-inline-end: 0.1875rem;
   }
 `;
-
-// BEGIN PLACEHOLDERS
-
-const Placeholder = styled.div`
-  background-color: oklch(0% 0 0 / 3%);
-  max-block-size: 100%;
-  border: 1px solid oklch(0% 0 0 / 15%);
-  border-radius: 0.2rem;
-  color: oklch(0% 0 0 / 55%);
-  display: grid;
-  font-size: 1rem;
-  padding: 0.5rem;
-  place-items: center;
-  text-align: center;
-`;
-
-// END PLACEHOLDERS
 
 const LocationBookingsTopBar = styled(TopBar).attrs({
   title: (
@@ -44,11 +28,6 @@ const Wrapper = styled(PageContainer)`
   display: grid;
   grid-template-rows: auto 1fr;
   max-block-size: 100%;
-`;
-
-const Filters = styled('search')`
-  display: flex;
-  gap: 1rem;
 `;
 
 const NewBookingButton = styled(Button)`
@@ -74,19 +53,13 @@ export const LocationBookingsView = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [initialDrawerValues, setInitialDrawerValues] = useState({});
   const { facilityId } = useAuth();
-  const [filters, setFilters] = useState({
-    patientNameOrId: '',
-    area: [],
-    clinician: [],
-    type: [],
-  });
 
-  const handleFilterChange = useCallback(values => setFilters(values), []);
+  const { filters, handleFilterChange } = useLocationBookingFilters();
 
   const closeBookingForm = () => {
     setIsDrawerOpen(false);
   };
-  const openBookingForm = (initialValues) => {
+  const openBookingForm = initialValues => {
     setInitialDrawerValues(initialValues);
     setIsDrawerOpen(true);
   };
@@ -94,7 +67,9 @@ export const LocationBookingsView = () => {
   const locationsQuery = useLocationsQuery({
     facilityId,
     bookableOnly: true,
+    locationGroupIds: filters.locationGroupIds,
   });
+
   const { data: locations } = locationsQuery;
   const hasNoLocations = locations?.length === 0;
 
@@ -104,7 +79,10 @@ export const LocationBookingsView = () => {
         <CalendarSearchBar onFilterChange={handleFilterChange} />
         <NewBookingButton onClick={() => openBookingForm({})}>
           <PlusIcon />
-          <TranslatedText stringId="locationBooking.calendar.bookLocation" fallback="Book location" />
+          <TranslatedText
+            stringId="locationBooking.calendar.bookLocation"
+            fallback="Book location"
+          />
         </NewBookingButton>
       </LocationBookingsTopBar>
       {hasNoLocations ? (
@@ -120,7 +98,7 @@ export const LocationBookingsView = () => {
           openBookingForm={openBookingForm}
         />
       )}
-      <BookLocationDrawer 
+      <BookLocationDrawer
         initialBookingValues={initialDrawerValues}
         open={isDrawerOpen}
         closeDrawer={closeBookingForm}

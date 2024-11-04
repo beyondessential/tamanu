@@ -81,6 +81,7 @@ export const LocationBookingsCalendarBody = ({
     locationId: '',
     clinicianId: filters.clinicianId,
     bookingTypeId: filters.bookingTypeId,
+    patientNameOrId: filters.patientNameOrId,
   });
 
   const appointments = appointmentsData.data ?? [];
