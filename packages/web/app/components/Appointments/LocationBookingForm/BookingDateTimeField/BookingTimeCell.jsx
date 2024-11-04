@@ -1,4 +1,3 @@
-import { alpha } from '@material-ui/core';
 import { ToggleButton, toggleButtonClasses, toggleButtonGroupClasses } from '@mui/material';
 import React from 'react';
 import styled, { css } from 'styled-components';
@@ -27,7 +26,10 @@ const Toggle = styled(ToggleButton)`
     transition: background-color 100ms ease, border-color 100ms ease;
 
     &.${toggleButtonClasses.selected} {
-      background-color: ${alpha(Colors.primary, 0.1)};
+      background-color: oklch(from ${Colors.primary} l c h / 10%);
+      @supports not (color: oklch(from black l c h)) {
+        background-color: ${Colors.primary}1a;
+      }
 
       &,
       & + & // Override stubborn MUI style
@@ -51,8 +53,12 @@ const Toggle = styled(ToggleButton)`
       $booked &&
       css`
         &:disabled {
-          background-color: ${alpha(Colors.alert, 0.1)};
           color: ${Colors.midText};
+
+          background-color: oklch(from ${Colors.alert} l c h / 10%);
+          @supports not (color: oklch(from black l c h)) {
+            background-color: ${Colors.alert}1a;
+          }
         }
       `}`;
 
