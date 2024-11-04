@@ -20,8 +20,8 @@ import { TimeWithFixedDateField } from './TimeWithFixedDateField';
 const CloseDrawerIcon = styled(ClearIcon)`
   cursor: pointer;
   position: absolute;
-  top: 16px;
-  right: 16px;
+  inset-block-start: 1rem;
+  inset-inline-end: 1rem;
 `;
 
 export const WarningModal = ({ open, setShowWarningModal, resolveFn }) => {
