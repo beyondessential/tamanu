@@ -17,6 +17,8 @@ import { TasksTable } from '../../../components/Tasks/TasksTable';
 import { TaskModal } from '../../../components/Tasks/TaskModal';
 import { useAuth } from '../../../contexts/Auth';
 import { DashboardTasksTable } from '../../../components/Tasks/DashboardTaskTable';
+import { useUserPreferencesMutation } from '../../../api/mutations/useUserPreferencesMutation';
+import { useUserPreferencesQuery } from '../../../api/queries/useUserPreferencesQuery';
 
 const TabPane = styled.div`
   margin: 20px 24px 24px;
@@ -30,7 +32,7 @@ const TabPane = styled.div`
 const ActionRow = styled.div`
   display: flex;
   gap: 10px;
-  align-items: ${p => p.$inDashboard ? 'flex-end' : 'center'};
+  align-items: ${p => (p.$inDashboard ? 'center' : 'flex-end')};
   justify-content: flex-end;
   margin-left: auto;
 `;
@@ -74,6 +76,10 @@ export const TasksPane = React.memo(({ encounter, inDashboard = false }) => {
   const { ability } = useAuth();
   const canCreate = ability.can('create', 'Tasking');
 
+  const userPreferencesMutation = useUserPreferencesMutation();
+  const { data: userPreferences } = useUserPreferencesQuery({ enabled: inDashboard });
+  const { clinicianDashboardTaskingTableFilter = {} } = userPreferences || {};
+
   const designationSuggester = useSuggester('designation');
 
   const [showCompleted, setShowCompleted] = useState(false);
@@ -92,16 +98,26 @@ export const TasksPane = React.memo(({ encounter, inDashboard = false }) => {
 
   const onLocationIdChange = e => {
     const { value } = e.target;
-    setSearchParameters(prevParams =>
-      value ? { ...prevParams, locationId: value } : omit(prevParams, 'locationId'),
-    );
+
+    const newParams = value
+      ? { ...clinicianDashboardTaskingTableFilter, locationId: value }
+      : omit(clinicianDashboardTaskingTableFilter, 'locationId');
+
+    userPreferencesMutation.mutate({
+      clinicianDashboardTaskingTableFilter: newParams,
+    });
   };
 
   const onHighPriorityOnlyChange = e => {
     const { checked } = e.target;
-    setSearchParameters(prevParams =>
-      checked ? { ...prevParams, highPriority: true } : omit(prevParams, 'highPriority'),
-    );
+
+    const newParams = checked
+      ? { ...clinicianDashboardTaskingTableFilter, highPriority: checked }
+      : omit(clinicianDashboardTaskingTableFilter, 'highPriority');
+
+    userPreferencesMutation.mutate({
+      clinicianDashboardTaskingTableFilter: newParams,
+    });
   };
 
   const refreshTaskTable = useCallback(() => {
@@ -201,6 +217,7 @@ export const TasksPane = React.memo(({ encounter, inDashboard = false }) => {
                     fallback="Area"
                   />
                 }
+                value={clinicianDashboardTaskingTableFilter.locationId}
               />
               <StyledCheckInput
                 label={
@@ -209,7 +226,7 @@ export const TasksPane = React.memo(({ encounter, inDashboard = false }) => {
                     fallback="High priority only"
                   />
                 }
-                value={searchParameters.highPriority}
+                value={clinicianDashboardTaskingTableFilter.highPriority}
                 $inDashboard={inDashboard}
                 onChange={onHighPriorityOnlyChange}
               />
@@ -225,7 +242,7 @@ export const TasksPane = React.memo(({ encounter, inDashboard = false }) => {
           refreshTaskTable={refreshTaskTable}
         />
       ) : (
-        <DashboardTasksTable searchParameters={searchParameters} />
+        <DashboardTasksTable searchParameters={clinicianDashboardTaskingTableFilter} />
       )}
       <TaskModal
         open={taskModalOpen}
