@@ -21,6 +21,7 @@ import useOverflow from '../../hooks/useOverflow';
 import { ThemedTooltip } from '../Tooltip';
 import { TaskActionModal } from './TaskActionModal';
 import { useAuth } from '../../contexts/Auth';
+import { differenceInHours } from 'date-fns';
 
 const StyledPriorityHighIcon = styled(PriorityHighIcon)`
   color: ${Colors.alert};
@@ -297,10 +298,13 @@ const getFrequency = ({ frequencyValue, frequencyUnit }) =>
     <TranslatedText stringId="encounter.tasks.table.once" fallback="Once" />
   );
 
-const BulkActions = ({ row, status, handleActionModalOpen }) => {
+const BulkActions = ({ row, handleActionModalOpen }) => {
+  const { status } = row;
   const { ability } = useAuth();
   const canWrite = ability.can('write', 'Tasking');
   const canDelete = ability.can('delete', 'Tasking');
+
+  const isTaskOverdue = differenceInHours(new Date(), new Date(row.dueTime)) >= 48;
 
   return (
     <StyledBulkActions>
@@ -332,7 +336,7 @@ const BulkActions = ({ row, status, handleActionModalOpen }) => {
           </IconButton>
         </TableTooltip>
       )}
-      {status !== TASK_STATUSES.TODO && canWrite && (
+      {status !== TASK_STATUSES.TODO && canWrite && !isTaskOverdue && (
         <TableTooltip
           title={
             <TranslatedText
@@ -363,7 +367,7 @@ const BulkActions = ({ row, status, handleActionModalOpen }) => {
 
 const NotesCell = ({ row, hoveredRow, handleActionModalOpen }) => {
   const [ref, isOverflowing] = useOverflow();
-  const { note, status } = row;
+  const { note } = row;
 
   return (
     <Box display="flex" alignItems="center">
@@ -381,7 +385,7 @@ const NotesCell = ({ row, hoveredRow, handleActionModalOpen }) => {
         )}
       </NotesDisplay>
       {hoveredRow?.id === row?.id && (
-        <BulkActions row={row} status={status} handleActionModalOpen={handleActionModalOpen} />
+        <BulkActions row={row} handleActionModalOpen={handleActionModalOpen} />
       )}
     </Box>
   );
@@ -542,7 +546,7 @@ export const TasksTable = ({ encounterId, searchParameters, refreshCount, refres
         <div>
           <StyledDivider />
           <BulkActions
-            status={selectedRows[0].status}
+            row={selectedRows[0]}
             handleActionModalOpen={handleActionModalOpen}
           />
         </div>
