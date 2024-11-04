@@ -33,7 +33,7 @@ import { BookLocationHeader } from './BookLocationHeader';
 import { BookingTimeField } from './BookingTimeField';
 
 /** @param {string} isoTimeString */
-const toIsoDateString = isoTimeString => isoTimeString.slice(0, 10);
+const toIsoDateString = isoTimeString => isoTimeString?.slice(0, 10);
 
 const StyledDrawer = styled(Drawer).attrs({ anchor: 'right', variant: 'persistent' })`
   .MuiPaper-root {
