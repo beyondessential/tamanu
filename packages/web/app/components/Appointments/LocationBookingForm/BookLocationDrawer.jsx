@@ -149,11 +149,11 @@ const SuccessMessage = ({ editMode }) =>
   );
 
 const validationSchema = yup.object({
-  locationId: yup.string().required(),
-  startTime: yup.string().required(),
-  endTime: yup.string().required(),
-  patientId: yup.string().required(),
-  bookingTypeId: yup.string().required(),
+  locationId: yup.string().required("*Required"),
+  startTime: yup.string().required("*Required"),
+  endTime: yup.string().required("*Required"),
+  patientId: yup.string().required("*Required"),
+  bookingTypeId: yup.string().required("*Required"),
 });
 
 export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues }) => {
@@ -217,7 +217,6 @@ export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues }) 
           required
           onChange={() => {
             setFieldValue('overnight', null);
-            setFieldValue('date', null);
             setFieldValue('startTime', null);
             setFieldValue('endTime', null);
           }}
@@ -238,7 +237,7 @@ export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues }) 
         </OvernightStayField>
         <DateFieldWithWarning editMode={editMode} />
         {/* TODO: red highlight validation */}
-        <BookingTimeField key={values.date} disabled={!values.date} />
+        <BookingTimeField key={values.date} disabled={!values.date || !values.locationId} />
         <Field
           name="patientId"
           label={<TranslatedText stringId="general.form.patient.label" fallback="Patient" />}

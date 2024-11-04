@@ -109,15 +109,15 @@ const AppointmentStatusContainer = styled(Box)`
 `;
 
 const StyledMenuButton = styled(MenuButton)`
-  svg { 
-    font-size: 0.875rem
+  svg {
+    font-size: 0.875rem;
   }
 `;
 
 const StyledIconButton = styled(IconButton)`
   padding: 5px;
   svg {
-    font-size: 0.875rem
+    font-size: 0.875rem;
   }
 `;
 
@@ -210,6 +210,7 @@ const PatientDetailsDisplay = ({ patient, onClick }) => {
 
 const AppointDetailsDisplay = ({ appointment, isOvernight }) => {
   const { startTime, endTime, clinician, locationGroup, location, type } = appointment;
+  console.log(appointment)
   return (
     <AppointmentDetailsContainer>
       <DetailsDisplay
@@ -231,8 +232,8 @@ const AppointDetailsDisplay = ({ appointment, isOvernight }) => {
         }
         value={
           <TranslatedReferenceData
-            fallback={locationGroup?.name}
-            value={locationGroup?.id}
+            fallback={location?.locationGroup?.name || locationGroup?.name}
+            value={location?.locationGroup?.id || locationGroup?.id}
             category="locationGroup"
           />
         }
