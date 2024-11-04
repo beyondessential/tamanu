@@ -21,7 +21,6 @@ location.get(
     const locations = await req.models.Location.findAll({
       where: {
         facilityId,
-        ...(locationGroupIds ? { locationGroupId: { [Op.in]: locationGroupIds } } : null),
       },
       include: [
         {
