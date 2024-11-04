@@ -20,8 +20,11 @@ const Toggle = styled(ToggleButton)`
     font-size: 0.75rem;
     font-variant-numeric: lining-nums tabular-nums;
     font-weight: 400;
+    letter-spacing: .01em;
     line-height: 1;
     margin: 0;
+    padding: 0.25rem;
+    text-transform: none;
     touch-action: manipulation;
     transition: background-color 100ms ease, border-color 100ms ease;
 
@@ -118,7 +121,6 @@ export const BookingTimeCell = ({
 
   return (
     <ConditionalTooltip
-      visible={!selectable}
       $maxWidth="200px"
       title={
         <TranslatedText
@@ -126,6 +128,7 @@ export const BookingTimeCell = ({
           fallback="All times must be available when booking over multiple times"
         />
       }
+      visible={!selectable}
     >
       <AvailableCell
         $hover={inHoverRange && selectable}
