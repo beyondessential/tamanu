@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 
 import { Box, styled } from '@mui/material';
 import {
@@ -11,7 +11,7 @@ import {
 import { useTranslation } from '../../../contexts/Translation';
 import FilterField from '../../../components/Field/FilterField';
 import { SearchMultiSelectField } from '../../../components/Field/SearchMultiSelectField';
-import { Formik } from 'formik';
+import { Formik, useFormikContext } from 'formik';
 
 const SearchBar = styled('search')`
   display: flex;
@@ -31,7 +31,15 @@ const options = [
   { label: 'Option 10', value: 'option10' },
 ];
 
-export const CalendarSearchBar = () => {
+const FormListener = ({ onFilterChange }) => {
+  const { values } = useFormikContext();
+
+  useEffect(() => {
+    onFilterChange(values);
+  }, [values, onFilterChange]);
+};
+
+export const CalendarSearchBar = ({ onFilterChange }) => {
   const { getTranslation } = useTranslation();
 
   return (
@@ -40,27 +48,42 @@ export const CalendarSearchBar = () => {
         selectedOptions: [],
         patientNameOrId: '',
       }}
+      enableReinitialize
     >
       <Form
-        onSubmit={async () => {}}
         render={() => (
-          <SearchBar>
-            <Field
-              name="patientNameOrId"
-              component={SearchField}
-              placeholder={getTranslation(
-                'scheduling.filter.placeholder.patientNameOrId',
-                'Search patient name or ID',
-              )} // Avoids [object Object] in the placeholder
-              style={{ width: '18.75rem' }}
-            />
-            <Field
-              name="selectedOptions"
-              label={<TranslatedText stringId="hi" fallback="hihihi" />}
-              options={options}
-              component={SearchMultiSelectField}
-            />
-          </SearchBar>
+          <>
+            <FormListener onFilterChange={onFilterChange} />
+            <SearchBar>
+              <Field
+                name="patientNameOrId"
+                component={SearchField}
+                placeholder={getTranslation(
+                  'scheduling.filter.placeholder.patientNameOrId',
+                  'Search patient name or ID',
+                )} // Avoids [object Object] in the placeholder
+                style={{ width: '18.75rem' }}
+              />
+              <Field
+                name="area"
+                label={getTranslation('general.area.label', 'Area')}
+                options={options}
+                component={SearchMultiSelectField}
+              />
+              <Field
+                name="clinician"
+                label={getTranslation('general.localisedField.clinician.label.short', 'Clinician')}
+                options={options}
+                component={SearchMultiSelectField}
+              />
+              <Field
+                name="type"
+                label={getTranslation('general.type.label', 'Type')}
+                options={options}
+                component={SearchMultiSelectField}
+              />
+            </SearchBar>
+          </>
         )}
       />
     </Formik>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import styled from 'styled-components';
 
 import { useLocationsQuery } from '../../../api/queries';
@@ -74,6 +74,15 @@ export const LocationBookingsView = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [initialDrawerValues, setInitialDrawerValues] = useState({});
   const { facilityId } = useAuth();
+  const [filters, setFilters] = useState({
+    patientNameOrId: '',
+    area: [],
+    clinician: [],
+    type: [],
+  });
+
+  const handleFilterChange = useCallback(values => setFilters(values), []);
+
   const closeBookingForm = () => {
     setIsDrawerOpen(false);
   };
@@ -92,7 +101,7 @@ export const LocationBookingsView = () => {
   return (
     <Wrapper>
       <LocationBookingsTopBar>
-        <CalendarSearchBar />
+        <CalendarSearchBar onFilterChange={handleFilterChange} />
         <NewBookingButton onClick={() => openBookingForm({})}>
           <PlusIcon />
           <TranslatedText stringId="locationBooking.calendar.newBooking" fallback="New booking" />

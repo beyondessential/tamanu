@@ -26,8 +26,6 @@ export const SearchMultiSelectInput = ({
   const [anchorEl, setAnchorEl] = useState(null);
   const [searchValue, setSearchValue] = useState('');
 
-  console.log(onChange);
-
   const handleOpen = event => setAnchorEl(event.currentTarget);
   const handleClose = () => setAnchorEl(null);
 
@@ -49,7 +47,7 @@ export const SearchMultiSelectInput = ({
       <OutlinedInput
         readOnly
         onClick={handleOpen}
-        value={value.length === 0 ? name : `${name} (${value.length})`}
+        value={`${label} ${value.length > 0 ? `(${value.length})` : ''}`}
         startAdornment={
           <InputAdornment width={24} height={24} sx={{ marginRight: '0.4375rem' }}>
             <FilterIcon />
