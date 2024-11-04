@@ -17,6 +17,7 @@ const Toggle = styled(ToggleButton)`
     block-size: 1.875rem;
     border-radius: calc(infinity * 1px);
     border: max(0.0625rem, 1px) solid ${Colors.outline};
+    color: ${Colors.darkestText};
     font-size: 0.75rem;
     font-variant-numeric: lining-nums tabular-nums;
     font-weight: 400;
@@ -33,6 +34,11 @@ const Toggle = styled(ToggleButton)`
       {
         border: max(0.0625rem, 1px) solid ${Colors.primary};
       }
+    }
+
+    // Manually manage hover effect with $hover transient prop
+    &:not(.${toggleButtonGroupClasses.selected}):hover {
+     background-color: unset;
     }
 
     &:disabled,
