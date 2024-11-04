@@ -8,7 +8,7 @@ import { TimeRangeDisplay } from '../../../DateDisplay';
 import { ConditionalTooltip, ThemedTooltip } from '../../../Tooltip';
 import { TranslatedText } from '../../../Translation/TranslatedText';
 
-const Cell = styled(ToggleButton)`
+const Toggle = styled(ToggleButton)`
   &.${toggleButtonClasses.root}.${toggleButtonGroupClasses.grouped}:is(
     .${toggleButtonGroupClasses.firstButton},
     .${toggleButtonGroupClasses.middleButton},
@@ -50,7 +50,7 @@ const Cell = styled(ToggleButton)`
         }
       `}`;
 
-const AvailableCell = styled(Cell)`
+const AvailableCell = styled(Toggle)`
   ${({ $hover }) =>
     $hover &&
     css`
@@ -81,9 +81,9 @@ export const BookingTimeCell = ({
 }) => {
   if (disabled) {
     return (
-      <Cell {...props} disabled>
+      <Toggle {...props} disabled>
         <TimeRangeDisplay range={timeSlot} />
-      </Cell>
+      </Toggle>
     );
   }
 
@@ -97,9 +97,9 @@ export const BookingTimeCell = ({
           />
         }
       >
-        <Cell {...props} $booked disabled>
+        <Toggle {...props} $booked disabled>
           <TimeRangeDisplay range={timeSlot} />
-        </Cell>
+        </Toggle>
       </ThemedTooltip>
     );
   }
