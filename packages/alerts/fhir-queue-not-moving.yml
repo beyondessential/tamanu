@@ -1,0 +1,29 @@
+enabled: true
+sql: |
+  WITH current_queued_jobs AS (
+    SELECT COUNT(*) AS count
+    FROM fhir.jobs
+    WHERE status = 'Queued'
+  ),
+  since_last_check_queued_jobs AS (
+    SELECT COUNT(*) AS count
+    FROM fhir.jobs
+    WHERE created_at <= $1 and status = 'Queued'
+  )
+  SELECT
+    current_queued_jobs.count AS current_count,
+    since_last_check_queued_jobs.count AS since_last_count
+  FROM current_queued_jobs, since_last_check_queued_jobs
+  WHERE current_queued_jobs.count > 100 -- TBD: tune this threshold
+  AND current_queued_jobs.count >= since_last_check_queued_jobs.count
+
+send:
+  - target: zendesk
+    endpoint: https://example.zendesk.com/api/v2/requests
+    subject: '[Tamanu Alert] Persistent queued job alert ({{ hostname }})'
+    template: |
+      <p>Server: {{ hostname }}</p>
+      <p>Alert: {{ filename }}</p>
+      <h1>Queued job count has not decreased in the fhir.jobs table since last check</h1>
+      <p>Current queued job count: {{ rows[0].current_count }}</p>
+      <p>Queued since last check: {{ rows[0].since_last_count }}</p>
