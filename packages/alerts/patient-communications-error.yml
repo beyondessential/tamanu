@@ -1,18 +1,18 @@
 enabled: true
 sql: |
   SELECT *
-  FROM certificate_notifications
+  FROM patient_communications
   WHERE status = 'Error'
   AND created_at > $1
 
 send:
   - target: zendesk
     endpoint: https://example.zendesk.com/api/v2/requests
-    subject: '[Tamanu Alert] Certificate notification error ({{ hostname }})'
+    subject: '[Tamanu Alert] Patient communication error ({{ hostname }})'
     template: |
       <p>Server: {{ hostname }}</p>
-      <h1>Patient notifications errored</h1>
-      <p>There are {{ rows | length }} Certificate notifications that have failed to process.</p>
+      <h1>Patient communication errored</h1>
+      <p>There are {{ rows | length }} Patient communications that have failed to process.</p>
       <ul>
         {% for row in rows | slice(end=5) %}
         <li><b>{{ row.id }}</b>: {{ row.type }} - <i>{{ row.error }}</i></li>

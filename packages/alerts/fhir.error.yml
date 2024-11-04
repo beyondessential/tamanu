@@ -11,7 +11,7 @@ send:
     subject: '[Tamanu Alert] FHIR job error ({{ hostname }})'
     template: |
       <p>Server: {{ hostname }}</p>
-      <h1>FHIR errored jobs</h1>
+      <h1>FHIR jobs errored</h1>
       <p>There are {{ rows | length }} FHIR jobs that have failed to process.</p>
       <ul>
         {% for row in rows | slice(end=5) %}
