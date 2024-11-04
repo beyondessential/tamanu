@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   OutlinedInput,
   Menu,
@@ -14,6 +14,10 @@ import { CheckboxIconChecked, CheckboxIconUnchecked } from '../Icons/CheckboxIco
 import { FilterIcon } from '../Icons/FilterIcon';
 import { Colors } from '../../constants';
 import { TextButton } from '../Button';
+import { useAuth } from '../../contexts/Auth';
+import { useApi } from '../../api';
+import { getCurrentLanguageCode } from '../../utils/translation';
+import { unionBy } from 'lodash';
 
 export const SearchMultiSelectInput = ({
   value = [],
@@ -31,8 +35,8 @@ export const SearchMultiSelectInput = ({
 
   const handleSelectOption = optionValue => {
     const newSelected = value.includes(optionValue)
-      ? value.filter(v => v !== optionValue) // Remove option if already selected
-      : [...value, optionValue]; // Add option if not selected
+      ? value.filter(v => v !== optionValue) // remove if already selected
+      : [...value, optionValue]; // add if not selected
 
     onChange({ target: { value: newSelected, name } });
   };
@@ -63,10 +67,10 @@ export const SearchMultiSelectInput = ({
         PaperProps={{
           sx: {
             '& *': {
-              fontSize: '0.6875rem', // Set your desired font size
+              fontSize: '0.6875rem',
             },
           },
-          style: { width: anchorEl ? anchorEl.clientWidth : undefined, paddingInline: '0.625rem' },
+          style: { width: '12.875rem', paddingInline: '0.625rem' },
         }}
       >
         <Box p={1} sx={{ display: 'flex', flexDirection: 'column', padding: 0 }}>
@@ -134,3 +138,78 @@ export const SearchMultiSelectField = ({ field, options, label, ...props }) => (
     {...props}
   />
 );
+
+export const SuggesterSearchMultiSelectField = ({
+  field,
+  endpoint,
+  baseQueryParameters,
+  filterByFacility,
+  baseOptions = [],
+  ...props
+}) => {
+  const { facilityId } = useAuth();
+  const api = useApi();
+  const [options, setOptions] = useState([]);
+  const [initialOptions, setInitialOptions] = useState(baseOptions);
+
+  // We need this hook to fetch the label of the current value beside the other useEffect hooks to fetch all of the options.
+  // This is because the 2nd useEffect hooks will only fetch options available in the current facility,
+  // and the current value may belong to a different facility.
+  useEffect(() => {
+    // If a value is set, fetch the record to display it's name
+    if (field.value) {
+      const values = Array.isArray(field.value) ? field.value : JSON.parse(field.value);
+
+      for (const value of values) {
+        api
+          .get(`suggestions/${encodeURIComponent(endpoint)}/${encodeURIComponent(value)}`, {
+            language: getCurrentLanguageCode(),
+          })
+          .then(({ id, name }) => {
+            setInitialOptions(prev => [...prev, { value: id, label: name }]);
+          });
+      }
+    }
+    // Only do the fetch when the component first mounts
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    api
+      .get(`suggestions/${encodeURIComponent(endpoint)}/all`, {
+        facilityId,
+        filterByFacility,
+        language: getCurrentLanguageCode(),
+        ...baseQueryParameters,
+      })
+      .then(resultData => {
+        setOptions(
+          unionBy(
+            initialOptions,
+            resultData.map(({ id, name }) => ({
+              value: id,
+              label: name,
+            })),
+            'value',
+          ),
+        );
+      });
+  }, [
+    api,
+    setOptions,
+    endpoint,
+    filterByFacility,
+    facilityId,
+    initialOptions,
+    baseQueryParameters,
+  ]);
+
+  const baseProps = {
+    name: field.name,
+    onChange: field.onChange,
+    value: field.value,
+    options,
+  };
+
+  return <SearchMultiSelectInput {...baseProps} {...props} />;
+};
