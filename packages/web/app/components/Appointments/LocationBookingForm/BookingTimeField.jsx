@@ -36,10 +36,9 @@ const LoadingIndicator = styled(CircularProgress)`
 `;
 
 const calculateTimeSlots = (bookingSlotSettings, date) => {
-  if (!date) return [];
   const { startTime, endTime, slotDuration } = bookingSlotSettings;
-  const startOfDay = parse(startTime, 'HH:mm', new Date(date));
-  const endOfDay = parse(endTime, 'HH:mm', new Date(date));
+  const startOfDay = parse(startTime, 'HH:mm', new Date(date ?? null));
+  const endOfDay = parse(endTime, 'HH:mm', new Date(date ?? null));
   const durationMinutes = ms(slotDuration) / 60_000; // In minutes
 
   const totalSlots = differenceInMinutes(endOfDay, startOfDay) / durationMinutes;

@@ -26,7 +26,6 @@ import {
   LocalisedLocationField,
 } from '../../Field';
 import { FormGrid } from '../../FormGrid';
-import { ClearIcon } from '../../Icons/ClearIcon';
 import { TOP_BAR_HEIGHT } from '../../TopBar';
 import { TranslatedText } from '../../Translation/TranslatedText';
 import { BookLocationHeader } from './BookLocationHeader';
@@ -50,18 +49,15 @@ const OvernightIcon = styled(Brightness2Icon)`
   left: 145px;
 `;
 
-const CloseDrawerIcon = styled(ClearIcon)`
-  cursor: pointer;
-  position: absolute;
-  inset-block-start: 1rem;
-  inset-inline-end: 1rem;
-`;
-
 const StyledDrawer = styled(Drawer)`
   .MuiPaper-root {
     block-size: calc(100% - ${TOP_BAR_HEIGHT}px);
     inset-block-start: ${TOP_BAR_HEIGHT}px;
   }
+`;
+
+const StyledField = styled(Field)`
+  font-size: 12px;
 `;
 
 export const DateFieldWithWarning = ({ editMode }) => {
@@ -90,7 +86,6 @@ export const DateFieldWithWarning = ({ editMode }) => {
       name="date"
       label={<TranslatedText stringId="general.date.label" fallback="Date" />}
       component={DateField}
-      disabled={!values.locationId}
       required
       helperText={
         showSameDayBookingWarning && (
@@ -213,8 +208,8 @@ export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues }) 
     };
 
     return (
-      <FormGrid columns={1}>
-        <CloseDrawerIcon onClick={warnAndResetForm} />
+      <FormGrid nested columns={1}>
+        <BookLocationHeader onClose={warnAndResetForm} />
         <Field
           enableLocationStatus={false}
           name="locationId"
@@ -242,6 +237,7 @@ export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues }) 
           <OvernightIcon fontSize="small" />
         </OvernightStayField>
         <DateFieldWithWarning editMode={editMode} />
+        {/* TODO: red highlight validation */}
         <BookingTimeField key={values.date} disabled={!values.date} />
         <Field
           name="patientId"
@@ -265,7 +261,7 @@ export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues }) 
           component={AutocompleteField}
           suggester={clinicianSuggester}
         />
-        <FormSubmitCancelRow onCancel={warnAndResetForm} confirmDisabled={!values.startTime} />
+        <FormSubmitCancelRow onCancel={warnAndResetForm}/>
       </FormGrid>
     );
   };
@@ -273,7 +269,6 @@ export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues }) 
   return (
     <StyledDrawer variant="persistent" anchor="right" open={open} onClose={closeDrawer}>
       <Container columns={1}>
-        <BookLocationHeader />
         <Form
           onSubmit={async values => handleSubmit(values)}
           suppressErrorDialog
