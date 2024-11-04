@@ -10,7 +10,7 @@ import { DateSelector } from './DateSelector';
 import { Colors } from '../../../constants';
 import { OutpatientBookingCalendar } from './OutpatientBookingCalendar';
 import { GroupByAppointmentToggle } from './GroupAppointmentToggle';
-import { OutpatientAppointmentDrawer } from '../../../components/Appointments/OutpatientsBookingForm/OutpatientApportmentDrawer';
+import { OutpatientAppointmentDrawer } from '../../../components/Appointments/OutpatientsBookingForm/OutpatientAppointmentDrawer';
 
 const Placeholder = styled.div`
   background-color: oklch(0% 0 0 / 3%);
