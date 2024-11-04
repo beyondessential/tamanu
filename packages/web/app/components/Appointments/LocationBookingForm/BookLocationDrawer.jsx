@@ -1,8 +1,6 @@
 import { Drawer } from '@material-ui/core';
 import OvernightIcon from '@material-ui/icons/Brightness2';
 import { useQueryClient } from '@tanstack/react-query';
-import { endOfDay, startOfDay } from 'date-fns';
-import { useFormikContext } from 'formik';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import * as yup from 'yup';
@@ -11,7 +9,6 @@ import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
 
 import { usePatientSuggester, useSuggester } from '../../../api';
 import { useLocationBookingMutation } from '../../../api/mutations';
-import { useAppointmentsQuery } from '../../../api/queries';
 import { Colors } from '../../../constants';
 import { notifyError, notifySuccess } from '../../../utils';
 import { FormSubmitCancelRow } from '../../ButtonRow';
@@ -19,7 +16,6 @@ import { ConfirmModal } from '../../ConfirmModal';
 import {
   AutocompleteField,
   CheckField,
-  DateField,
   DynamicSelectField,
   Field,
   Form,
@@ -30,10 +26,7 @@ import { ClearIcon } from '../../Icons/ClearIcon';
 import { TOP_BAR_HEIGHT } from '../../TopBar';
 import { TranslatedText } from '../../Translation/TranslatedText';
 import { BookLocationHeader } from './BookLocationHeader';
-import { BookingTimeField } from './BookingTimeField';
-
-/** @param {string} isoTimeString */
-const toIsoDateString = isoTimeString => isoTimeString?.slice(0, 10);
+import { BookingDateTimeRangeField } from './BookingDateTimeField/BookingDateTimeRangeField';
 
 const StyledDrawer = styled(Drawer).attrs({ anchor: 'right', variant: 'persistent' })`
   .MuiPaper-root {
@@ -62,46 +55,6 @@ const OvernightStayLabel = styled.span`
   display: flex;
   gap: 0.25rem;
 `;
-
-export const DateFieldWithWarning = ({ editMode }) => {
-  const { values } = useFormikContext();
-  const { data: existingLocationBookings, isFetched } = useAppointmentsQuery(
-    {
-      after: values.date ? toDateTimeString(startOfDay(new Date(values.date))) : null,
-      before: values.date ? toDateTimeString(endOfDay(new Date(values.date))) : null,
-      all: true,
-      locationId: values.locationId,
-      patientId: values.patientId,
-    },
-    {
-      enabled: !!(values.date && values.locationId && values.patientId),
-    },
-  );
-
-  const showSameDayBookingWarning =
-    !editMode &&
-    isFetched &&
-    values.patientId &&
-    existingLocationBookings.data.some(booking => booking.patientId === values.patientId);
-
-  return (
-    <Field
-      name="date"
-      label={<TranslatedText stringId="general.date.label" fallback="Date" />}
-      component={DateField}
-      disabled={!values.locationId}
-      required
-      helperText={
-        showSameDayBookingWarning && (
-          <TranslatedText
-            stringId="locationBooking.form.date.warning"
-            fallback="Patient already has an appointment scheduled at this location on this day"
-          />
-        )
-      }
-    />
-  );
-};
 
 export const WarningModal = ({ open, setShowWarningModal, resolveFn }) => {
   const handleClose = confirmed => {
@@ -222,22 +175,6 @@ export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues }) 
       }
     };
 
-    const DateTimeFields = () => {
-      if (!values.overnight) {
-        return (
-          <>
-            <DateFieldWithWarning editMode={editMode} />
-            <BookingTimeField /* key={toIsoDateString(values.date)} */ disabled={!values.date} />
-          </>
-        );
-      }
-
-      return (
-        <>
-        </>
-      );
-    };
-
     return (
       <FormGrid columns={1}>
         <CloseDrawerIcon onClick={warnAndResetForm} />
@@ -257,10 +194,9 @@ export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues }) 
             </OvernightStayLabel>
           }
           component={CheckField}
-          disabled={!values.locationId}
           onChange={() => resetFieldsAfter('overnight')}
         />
-        <DateTimeFields />
+        <BookingDateTimeRangeField required separate={values.overnight} />
         <Field
           name="patientId"
           label={<TranslatedText stringId="general.form.patient.label" fallback="Patient" />}
