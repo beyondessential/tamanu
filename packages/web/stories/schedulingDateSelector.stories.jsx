@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { DateSelector } from '../app/views/scheduling/DateSelector';
 import { startOfDay } from 'date-fns';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { DateSelector } from '../app/views/scheduling/outpatientBookings/DateSelector';
 
 export default {
   title: 'Scheduling/DateSelector',
