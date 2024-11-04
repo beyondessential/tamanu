@@ -14,8 +14,7 @@ import { useSettings } from '../../../../contexts/Settings';
 import { BookingTimeCell } from './BookingTimeCell';
 import { calculateTimeSlots, isTimeSlotWithinRange } from './util';
 import ms from 'ms';
-import { TranslatedText } from '../../../Translation/index.js';
-import { OuterLabelFieldWrapper } from '../../../Field/index.js';
+import { OuterLabelFieldWrapper } from '../../../Field';
 
 const ToggleGroup = styled(ToggleButtonGroup)`
   background-color: white;
@@ -43,6 +42,7 @@ const LoadingIndicator = styled(CircularProgress)`
 export const TimeSlotPicker = ({
   date,
   disabled = false,
+  label,
   onChange,
   required,
   variant = 'range',
@@ -165,12 +165,7 @@ export const TimeSlotPicker = ({
   );
 
   return (
-    <OuterLabelFieldWrapper
-      label={
-        <TranslatedText stringId="locationBooking.bookingTime.label" fallback="Booking time" />
-      }
-      required={required}
-    >
+    <OuterLabelFieldWrapper label={label} required={required}>
       <ToggleGroup disabled={disabled} value={selectedToggles} onChange={handleChange} {...props}>
         {isFetching ? (
           <LoadingIndicator />
