@@ -5,16 +5,20 @@ import styled from 'styled-components';
 import { useAppointmentsQuery } from '../../../api/queries';
 import { AppointmentTile } from '../../../components/Appointments/AppointmentTile';
 import { Colors } from '../../../constants';
+import { toDateTimeString } from '../../../utils/dateTime';
 import { CarouselComponents as CarouselGrid } from './CarouselComponents';
 import { SkeletonRows } from './Skeletons';
 import { partitionAppointmentsByDate, partitionAppointmentsByLocation } from './util';
 
 export const BookingsCell = ({ appointments, date, location, openBookingForm }) => (
   <CarouselGrid.Cell
-    onClick={(e) => {
+    onClick={e => {
       if (e.target.closest('.appointment-tile')) return;
       // Open form for creating new booking
-      openBookingForm({ date, locationId: location.id });
+      openBookingForm({
+        date: toDateTimeString(date),
+        locationId: location.id,
+      });
     }}
   >
     {appointments?.map(a => (
