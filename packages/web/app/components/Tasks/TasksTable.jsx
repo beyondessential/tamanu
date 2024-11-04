@@ -73,9 +73,12 @@ const StyledTable = styled(DataFetchingTable)`
   }
   .MuiTableBody-root .MuiTableRow-root:not(.statusRow) {
     cursor: ${props => (props.onClickRow ? 'pointer' : '')};
+    transition: all 250ms;
     &:hover {
-      box-shadow: 10px 10px 15px 0px rgba(0, 0, 0, 0.1);
+      box-shadow: ${props =>
+        props.disableHoverEffect ? 'none' : '10px 10px 15px 0px rgba(0, 0, 0, 0.1)'};
     }
+    position: relative;
     max-height: 42px;
   }
   .MuiFormControlLabel-root {
@@ -416,6 +419,7 @@ export const TasksTable = ({ encounterId, searchParameters, refreshCount, refres
   const { ability } = useAuth();
   const canWrite = ability.can('write', 'Tasking');
   const canDelete = ability.can('delete', 'Tasking');
+  const canDoAction = canWrite || canDelete;
 
   const [hoveredRow, setHoveredRow] = useState();
   const [data, setData] = useState([]);
@@ -515,6 +519,7 @@ export const TasksTable = ({ encounterId, searchParameters, refreshCount, refres
         : selectedRows.some(row => row.frequencyValue && row.frequencyUnit),
     [selectedRows, selectedTask],
   );
+
   const handleMouseEnterRow = data => {
     setHoveredRow(data);
   };
@@ -533,7 +538,7 @@ export const TasksTable = ({ encounterId, searchParameters, refreshCount, refres
         taskIds={selectedTask?.id ? [selectedTask.id] : selectedRowIds}
         isRepeatingTask={isRepeatingTask}
       />
-      {selectedRows.length > 0 && (canWrite || canDelete) && (
+      {selectedRows.length > 0 && canDoAction && (
         <div>
           <StyledDivider />
           <BulkActions
@@ -544,7 +549,7 @@ export const TasksTable = ({ encounterId, searchParameters, refreshCount, refres
       )}
       <StyledTable
         endpoint={`encounter/${encounterId}/tasks`}
-        columns={[selectableColumn, ...COLUMNS]}
+        columns={[...(canDoAction ? [selectableColumn] : []), ...COLUMNS]}
         noDataMessage={<NoDataMessage />}
         allowExport={false}
         onMouseEnterRow={handleMouseEnterRow}
@@ -554,6 +559,7 @@ export const TasksTable = ({ encounterId, searchParameters, refreshCount, refres
         onDataFetched={onDataFetched}
         refreshCount={refreshCount}
         defaultRowsPerPage={25}
+        disableHoverEffect={!canDoAction}
       />
     </div>
   );

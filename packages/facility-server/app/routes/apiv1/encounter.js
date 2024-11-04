@@ -12,8 +12,6 @@ import {
   VITALS_DATA_ELEMENT_IDS,
   IMAGING_REQUEST_STATUS_TYPES,
   TASK_STATUSES,
-  TASK_DELETE_PATIENT_DISCHARGED_REASON_ID,
-  SYSTEM_USER_UUID,
 } from '@tamanu/constants';
 import {
   simpleGet,
@@ -94,55 +92,6 @@ encounter.put(
             await medication.update({ isDischarge, quantity, repeats });
           }
         }
-
-        // delete all future tasks of this encounter
-        const taskDeletionReason = await models.ReferenceData.findByPk(
-          TASK_DELETE_PATIENT_DISCHARGED_REASON_ID,
-        );
-        const endTime = getCurrentDateTimeString();
-
-        await models.Task.update(
-          {
-            endTime,
-            deletedReasonForSyncId: taskDeletionReason?.id ?? null,
-          },
-          {
-            where: {
-              encounterId: id,
-              parentTaskId: null,
-              frequencyValue: { [Op.not]: null },
-              frequencyUnit: { [Op.not]: null },
-            },
-          },
-        );
-
-        await models.Task.update(
-          {
-            deletedByUserId: SYSTEM_USER_UUID,
-            deletedReasonId: taskDeletionReason?.id ?? null,
-            deletedTime: getCurrentDateTimeString(),
-          },
-          {
-            where: {
-              encounterId: id,
-              status: TASK_STATUSES.TODO,
-              dueTime: { [Op.gt]: endTime },
-              frequencyValue: { [Op.not]: null },
-              frequencyUnit: { [Op.not]: null },
-            },
-          },
-        );
-
-        await models.Task.destroy({
-          where: {
-            encounterId: id,
-            status: TASK_STATUSES.TODO,
-            dueTime: { [Op.gt]: endTime },
-            frequencyValue: { [Op.not]: null },
-            frequencyUnit: { [Op.not]: null },
-          },
-          individualHooks: true,
-        });
       }
 
       if (referralId) {
