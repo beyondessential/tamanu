@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 
 import { AutocompleteField, DynamicSelectField, Field, Form, DateTimeField } from '../../Field';
 import { useApi, usePatientSuggester, useSuggester } from '../../../api';
+import { useAppointmentMutation } from '../../../api/mutations';
 import { FormSubmitCancelRow } from '../../ButtonRow';
 import { FORM_TYPES } from '../../../constants';
 import { FormGrid } from '../../FormGrid';
@@ -108,12 +109,8 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
       setShowWarningModal(true);
     });
 
-  const { mutateAsync: handleSubmit } = useMutation(
-    payload => {
-      return isEdit
-        ? api.put(`appointments/${payload.id}`, payload)
-        : api.post('appointments', payload);
-    },
+  const { mutateAsync: handleSubmit } = useAppointmentMutation(
+    { isEdit },
     {
       onSuccess: () => {
         notifySuccess(<SuccessMessage isEdit={isEdit} />);
@@ -125,7 +122,6 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
       },
     },
   );
-
   return (
     <Drawer
       open={open}
