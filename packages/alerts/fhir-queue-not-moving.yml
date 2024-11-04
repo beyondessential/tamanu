@@ -20,7 +20,7 @@ sql: |
 send:
   - target: zendesk
     endpoint: https://example.zendesk.com/api/v2/requests
-    subject: '[Tamanu Alert] FHIR persistent queued job alert ({{ hostname }})'
+    subject: '[Tamanu Alert] FHIR persistent queued job ({{ hostname }})'
     template: |
       <p>Server: {{ hostname }}</p>
       <p>Alert: {{ filename }}</p>

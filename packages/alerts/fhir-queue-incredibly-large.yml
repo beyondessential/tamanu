@@ -1,0 +1,17 @@
+enabled: true
+sql: |
+  SELECT
+    COUNT(*) AS job_count
+  FROM fhir.jobs
+  WHERE status = 'Queued'
+  HAVING COUNT(*) > 10000 -- TBD: tune this threshold
+
+send:
+  - target: zendesk
+    endpoint: https://example.zendesk.com/api/v2/requests
+    subject: '[Tamanu Alert] FHIR abnormally large queue ({{ hostname }})'
+    template: |
+      <p>Server: {{ hostname }}</p>
+      <p>Alert: {{ filename }}</p>
+      <h1>FHIR job queued jobs count is abnormally high</h1>
+      <p>Current job count: {{ rows[0].job_count }}</p>
