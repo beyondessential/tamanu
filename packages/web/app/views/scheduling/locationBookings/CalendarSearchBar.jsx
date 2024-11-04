@@ -23,15 +23,9 @@ export const CalendarSearchBar = ({ onFilterChange }) => {
   const { getTranslation } = useTranslation();
 
   return (
-    <Formik
-      initialValues={{
-        selectedOptions: [],
-        patientNameOrId: '',
-      }}
-      enableReinitialize
-    >
+    <Formik enableReinitialize>
       <Form
-        onSubmit={() => {}}
+        onSubmit={async () => {}}
         render={() => (
           <>
             <FormListener onFilterChange={onFilterChange} />
@@ -46,19 +40,19 @@ export const CalendarSearchBar = ({ onFilterChange }) => {
                 style={{ width: '18.75rem' }}
               />
               <Field
-                name="area"
+                name="locationGroupIds"
                 label={getTranslation('general.area.label', 'Area')}
                 component={SuggesterSearchMultiSelectField}
                 endpoint="bookableLocationGroup"
               />
               <Field
-                name="clinician"
+                name="clinicianId"
                 label={getTranslation('general.localisedField.clinician.label.short', 'Clinician')}
                 component={SuggesterSearchMultiSelectField}
                 endpoint="practitioner"
               />
               <Field
-                name="type"
+                name="bookingTypeId"
                 label={getTranslation('general.type.label', 'Type')}
                 component={SuggesterSearchMultiSelectField}
                 endpoint="bookingType"

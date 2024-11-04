@@ -8,17 +8,23 @@ import { Colors } from '../../../constants';
 import { CarouselComponents as CarouselGrid } from './CarouselComponents';
 import { SkeletonRows } from './Skeletons';
 import { partitionAppointmentsByDate, partitionAppointmentsByLocation } from './util';
+import { useLocationBookingFilters } from '../../../contexts/LocationBookingFilters';
 
 export const BookingsCell = ({ appointments, date, location, openBookingForm }) => (
   <CarouselGrid.Cell
-    onClick={(e) => {
+    onClick={e => {
       if (e.target.closest('.appointment-tile')) return;
       // Open form for creating new booking
       openBookingForm({ date, locationId: location.id });
     }}
   >
     {appointments?.map(a => (
-      <AppointmentTile className="appointment-tile" openBookingForm={openBookingForm} appointment={a} key={a.id} />
+      <AppointmentTile
+        className="appointment-tile"
+        openBookingForm={openBookingForm}
+        appointment={a}
+        key={a.id}
+      />
     ))}
   </CarouselGrid.Cell>
 );
@@ -65,13 +71,19 @@ export const LocationBookingsCalendarBody = ({
   locationsQuery,
   openBookingForm,
 }) => {
+  const { filters } = useLocationBookingFilters();
+
   const { data: locations, isLoading: locationsAreLoading } = locationsQuery;
-  const appointments =
-    useAppointmentsQuery({
-      after: displayedDates[0],
-      before: endOfDay(displayedDates[displayedDates.length - 1]),
-      locationId: '',
-    }).data?.data ?? [];
+
+  const { data: appointmentsData = [] } = useAppointmentsQuery({
+    after: displayedDates[0],
+    before: endOfDay(displayedDates[displayedDates.length - 1]),
+    locationId: '',
+    clinicianId: filters.clinicianId,
+    bookingTypeId: filters.bookingTypeId,
+  });
+
+  const appointments = appointmentsData.data ?? [];
 
   if (locationsAreLoading) return <SkeletonRows colCount={displayedDates.length} />;
   if (locations?.length === 0) return <EmptyStateRow />;

@@ -2,7 +2,7 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 
 import { simpleGet, simplePost, simplePut } from '@tamanu/shared/utils/crudHelpers';
-import { log } from '@tamanu/shared/services/logging';
+import { Op } from 'sequelize';
 
 export const location = express.Router();
 
@@ -12,17 +12,16 @@ location.post('/$', simplePost('Location'));
 location.get(
   '/$',
   asyncHandler(async (req, res) => {
-    log.debug('Fetching locations');
-    log.info('Fetching locations');
     req.checkPermission('list', 'Location');
     const {
       models: { LocationGroup },
-      query: { bookableOnly = false },
+      query: { bookableOnly = false, locationGroupIds },
     } = req;
     const { facilityId } = req.query;
     const locations = await req.models.Location.findAll({
       where: {
         facilityId,
+        ...(locationGroupIds ? { locationGroupId: { [Op.in]: locationGroupIds } } : null),
       },
       include: [
         {
@@ -30,6 +29,7 @@ location.get(
           model: LocationGroup,
           as: 'locationGroup',
           ...(bookableOnly ? { where: { isBookable: true } } : null),
+          ...(locationGroupIds ? { where: { id: { [Op.in]: locationGroupIds } } } : null),
         },
       ],
       order: [

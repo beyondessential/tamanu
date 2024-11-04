@@ -117,6 +117,7 @@ const searchableFields = [
   'startTime',
   'endTime',
   'type',
+  'bookingTypeId',
   'status',
   'clinicianId',
   'locationId',
@@ -168,11 +169,12 @@ appointments.get(
     if (before) {
       startTimeQuery[Op.lte] = before;
     }
+
     const filters = Object.entries(queries).reduce((_filters, [queryField, queryValue]) => {
       if (!searchableFields.includes(queryField)) {
         return _filters;
       }
-      if (!(typeof queryValue === 'string')) {
+      if (!(typeof queryValue === 'string') && !Array.isArray(queryValue)) {
         return _filters;
       }
       let column = queryField;
@@ -180,14 +182,18 @@ appointments.get(
       if (queryField.includes('.')) {
         column = `$${queryField}$`;
       }
+      log.info(`Filtering on ${column} with value ${queryValue}`);
+      log.debug(`Filtering on ${column} with value ${queryValue}`);
+      const filterCondition = Array.isArray(queryValue)
+        ? { [Op.in]: queryValue }
+        : { [Op.iLike]: `%${escapePatternWildcard(queryValue)}%` };
 
       return {
         ..._filters,
-        [column]: {
-          [Op.iLike]: `%${escapePatternWildcard(queryValue)}%`,
-        },
+        [column]: filterCondition,
       };
     }, {});
+
     const { rows, count } = await Appointment.findAndCountAll({
       limit: all ? undefined : rowsPerPage,
       offset: all ? undefined : page * rowsPerPage,
