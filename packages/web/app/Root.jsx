@@ -8,7 +8,7 @@ import { CssBaseline } from '@material-ui/core';
 import { ThemeProvider } from 'styled-components';
 import { MuiThemeProvider, StylesProvider } from '@material-ui/core/styles';
 import { ThemeProvider as NewThemeProvider } from '@mui/material';
-import { LocalizationProvider as MuiLocalisationProvider } from '@mui/x-date-pickers';
+import { LocalizationProvider as MuiLocalisationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { Slide } from 'react-toastify';
 import { ApiContext } from './api';

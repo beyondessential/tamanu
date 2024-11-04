@@ -55,10 +55,10 @@ export const SurveyResponsesPrintModal = React.memo(
     const isLoading =
       isAdditionalDataLoading ||
       isCertificateFetching ||
-      isVillageQueryLoading ||
+      (isVillageQueryLoading && patient?.villageId) ||
       surveyResponseLoading ||
       (isUserLoading && surveyResponse?.userId) ||
-      isFacilityLoading;
+      (isFacilityLoading && facilityId);
 
     return (
       <Modal

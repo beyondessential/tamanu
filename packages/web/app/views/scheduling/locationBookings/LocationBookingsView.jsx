@@ -13,7 +13,7 @@ import { useAuth } from '../../../contexts/Auth';
 
 const PlusIcon = styled(AddRounded)`
   && {
-    margin-right: 3px;
+    margin-inline-end: 0.1875rem;
   }
 `;
 
@@ -86,7 +86,7 @@ export const LocationBookingsView = () => {
   const closeBookingForm = () => {
     setIsDrawerOpen(false);
   };
-  const openBookingForm = initialValues => {
+  const openBookingForm = (initialValues) => {
     setInitialDrawerValues(initialValues);
     setIsDrawerOpen(true);
   };
@@ -104,7 +104,7 @@ export const LocationBookingsView = () => {
         <CalendarSearchBar onFilterChange={handleFilterChange} />
         <NewBookingButton onClick={() => openBookingForm({})}>
           <PlusIcon />
-          <TranslatedText stringId="locationBooking.calendar.newBooking" fallback="New booking" />
+          <TranslatedText stringId="locationBooking.calendar.bookLocation" fallback="Book location" />
         </NewBookingButton>
       </LocationBookingsTopBar>
       {hasNoLocations ? (
@@ -120,7 +120,7 @@ export const LocationBookingsView = () => {
           openBookingForm={openBookingForm}
         />
       )}
-      <BookLocationDrawer
+      <BookLocationDrawer 
         initialBookingValues={initialDrawerValues}
         open={isDrawerOpen}
         closeDrawer={closeBookingForm}
