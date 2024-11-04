@@ -46,7 +46,7 @@ const CloseDrawerIcon = styled(ClearIcon)`
   inset-inline-end: 1rem;
 `;
 
-export const DateFieldWithWarning = ({ editMode }) => {
+export const DateFieldWithWarning = ({ isEdit }) => {
   const { values } = useFormikContext();
   const { data: existingLocationBookings, isFetched } = useAppointmentsQuery(
     {
@@ -62,7 +62,7 @@ export const DateFieldWithWarning = ({ editMode }) => {
   );
 
   const showSameDayBookingWarning =
-    !editMode &&
+    !isEdit &&
     isFetched &&
     values.patientId &&
     existingLocationBookings.data.some(booking => booking.patientId === values.patientId);
@@ -122,8 +122,8 @@ export const WarningModal = ({ open, setShowWarningModal, resolveFn }) => {
   );
 };
 
-const SuccessMessage = ({ editMode }) =>
-  editMode ? (
+const SuccessMessage = ({ isEdit }) =>
+  isEdit ? (
     <TranslatedText
       stringId="locationBooking.notification.bookingSuccessfullyEdited"
       fallback="Booking successfully edited"
@@ -144,7 +144,7 @@ const validationSchema = yup.object({
 });
 
 export const BookLocationDrawer = ({ open, onClose, initialValues }) => {
-  const editMode = !!initialValues.id;
+  const isEdit = !!initialValues.id;
 
   const patientSuggester = usePatientSuggester();
   const clinicianSuggester = useSuggester('practitioner');
@@ -161,7 +161,7 @@ export const BookLocationDrawer = ({ open, onClose, initialValues }) => {
 
   const queryClient = useQueryClient();
   const { mutateAsync: handleSubmit } = useLocationBookingMutation(
-    { editMode },
+    { isEdit },
     {
       onSuccess: () => {
         notifySuccess(<SuccessMessage />);
@@ -223,7 +223,7 @@ export const BookLocationDrawer = ({ open, onClose, initialValues }) => {
           />
           <OvernightIcon fontSize="small" />
         </OvernightStayField>
-        <DateFieldWithWarning editMode={editMode} />
+        <DateFieldWithWarning isEdit={isEdit} />
         <BookingTimeField key={values.date} disabled={!values.date} />
         <Field
           name="patientId"
