@@ -215,14 +215,14 @@ const ActionMenu = ({ anchorEl, onClose, onEdit }) => (
   </StyledMenu>
 );
 
-const AppointDetailsDisplay = ({ appointment, isOvernight }) => {
+const AppointmentDetailsDisplay = ({ appointment, isOvernight }) => {
   const {
     startTime,
     endTime,
     clinician,
     locationGroup,
     location,
-    type,
+    bookingType,
     appointmentType,
   } = appointment;
   return (
@@ -269,7 +269,7 @@ const AppointDetailsDisplay = ({ appointment, isOvernight }) => {
           }
         />
       )}
-      {type && <BookingTypeDisplay type={type} isOvernight={isOvernight} />}
+      {bookingType && <BookingTypeDisplay type={bookingType} isOvernight={isOvernight} />}
       {appointmentType && (
         <DetailsDisplay
           label={
@@ -403,7 +403,7 @@ export const AppointmentDetailPopper = ({
               patient={appointment.patient}
               onClick={handlePatientDetailsClick}
             />
-            <AppointDetailsDisplay appointment={appointment} isOvernight={isOvernight} />
+            <AppointmentDetailsDisplay appointment={appointment} isOvernight={isOvernight} />
             <AppointmentStatusSelector
               selectedStatus={localStatus}
               updateAppointmentStatus={updateAppointmentStatus}
