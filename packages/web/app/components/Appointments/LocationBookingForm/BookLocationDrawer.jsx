@@ -5,8 +5,6 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import * as yup from 'yup';
 
-import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
-
 import { usePatientSuggester, useSuggester } from '../../../api';
 import { useLocationBookingMutation } from '../../../api/mutations';
 import { Colors } from '../../../constants';
