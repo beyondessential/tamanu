@@ -58,8 +58,24 @@ const StyledTable = styled(Table)`
     }
   }
   td {
+    &:nth-child(1) {
+      width: 5%;
+    }
+    &:nth-child(2) {
+      width: 21%;
+    }
+    &:nth-child(3) {
+      width: 22%;
+    }
+    &:nth-child(4) {
+      width: 20%;
+    }
     &:nth-child(5) {
       position: relative;
+      width: 22%;
+    }
+    &:nth-child(6) {
+      width: 10%;
     }
   }
   .MuiTableFooter-root {
@@ -167,7 +183,7 @@ const getTaskName = ({ name, requestedBy, requestTime, highPriority }) => (
     title={
       <TooltipContainer>
         <div>{name}</div>
-        <div>{requestedBy.displayName}</div>
+        <div>{requestedBy?.displayName}</div>
         <Box sx={{ textTransform: 'lowercase' }}>
           {`${formatShortest(requestTime)} ${formatTime(requestTime)}`}
         </Box>
@@ -197,7 +213,7 @@ const COLUMNS = [
     sortable: false,
   },
   {
-    key: 'encounter.location.name',
+    key: 'locationName',
     title: <TranslatedText stringId="dashboard.tasks.table.column.location" fallback="Location" />,
     accessor: getLocation,
   },
@@ -209,7 +225,7 @@ const COLUMNS = [
     accessor: ({ encounter }) => encounter.patient.displayId,
   },
   {
-    key: 'encounter.patient.firstName',
+    key: 'patientName',
     title: <TranslatedText stringId="dashboard.tasks.table.column.patient" fallback="Patient" />,
     accessor: ({ encounter }) => `${encounter.patient.firstName} ${encounter.patient.lastName}`,
   },

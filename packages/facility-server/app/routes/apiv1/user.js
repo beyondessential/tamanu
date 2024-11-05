@@ -219,11 +219,25 @@ user.get(
     const defaultOrder = [
       ['dueTime', 'ASC'],
       ['highPriority', 'DESC'],
-      ['encounter', 'patient', 'lastName', 'ASC'],
       ['encounter', 'patient', 'firstName', 'ASC'],
+      ['encounter', 'patient', 'lastName', 'ASC'],
       ['name', 'ASC'],
     ];
-    const orderOptions = orderBy ? getOrderClause(order, orderBy) : [];
+    const orderOptions = [];
+    if (orderBy) {
+      switch (orderBy) {
+        case 'locationName':
+          orderOptions.push(['encounter', 'location', 'name', order]);
+          orderOptions.push(['encounter', 'location', 'locationGroup', 'name', order]);
+          break;
+        case 'patientName':
+          orderOptions.push(['encounter', 'patient', 'firstName', order]);
+          orderOptions.push(['encounter', 'patient', 'lastName', order]);
+          break;
+        default:
+          orderOptions.push(getOrderClause(order, orderBy));
+      }
+    }
 
     const baseQueryOptions = {
       where: {
@@ -278,6 +292,7 @@ user.get(
       limit: rowsPerPage,
       offset: page * rowsPerPage,
       attributes: ['id', 'dueTime', 'name', 'highPriority', 'status', 'requestTime'],
+      subQuery: false,
       ...baseQueryOptions,
     });
 
