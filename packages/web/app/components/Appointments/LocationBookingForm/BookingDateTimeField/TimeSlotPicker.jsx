@@ -107,7 +107,7 @@ export const TimeSlotPicker = ({
         }
 
         // One time slot already selected. A second one makes a contiguous series.
-        // (Selecting tail before head is allowed.)
+        // (Selecting tail before head is allowed.) TODO: Doesn’t work
         if (selectedToggles.length === 1) {
           const newStart = new Date(newToggles[0]);
           const newEnd = addMs(new Date(newToggles.at(-1)), ms(bookingSlotSettings.slotDuration));
