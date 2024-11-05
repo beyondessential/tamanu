@@ -8,15 +8,19 @@ import { ClearIcon } from '../../Icons';
 
 const Heading = styled(Heading4)`
   font-size: 16px;
-  margin-bottom: 9px;
-  // TODO: behaviour not quite right
   position: sticky;
-  z-index: 1; 
+  z-index: 1;
   background-color: ${Colors.background};
   border-bottom: 1px ${Colors.outline} solid;
   padding-bottom: 5px;
-  top: 10px;
-  border: 1px red solid;
+  margin-top: 0;
+  margin-left: -1rem;
+  margin-right: -1rem;
+  margin-bottom: 9px;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  padding-top: 1rem;
+  top: 0;
 `;
 
 const Description = styled(BodyText)`
@@ -27,8 +31,8 @@ const Description = styled(BodyText)`
 const CloseDrawerIcon = styled(ClearIcon)`
   cursor: pointer;
   position: absolute;
-  inset-block-start: 0rem;
-  inset-inline-end: 00rem;
+  inset-block-start: 1rem;
+  inset-inline-end: 1rem;
 `;
 
 const HeadingText = ({ editMode }) =>
