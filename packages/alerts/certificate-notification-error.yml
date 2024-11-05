@@ -12,7 +12,7 @@ send:
     template: |
       <p>Server: {{ hostname }}</p>
       <h1>Patient notifications errored</h1>
-      <p>There are {{ rows | length }} Certificate notifications that have failed to process.</p>
+      <p>There are {{ rows | length }} certificate notifications that have failed to process.</p>
       <ul>
         {% for row in rows | slice(end=5) %}
         <li><b>{{ row.id }}</b>: {{ row.type }} - <i>{{ row.error }}</i></li>

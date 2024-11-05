@@ -12,7 +12,7 @@ send:
     template: |
       <p>Server: {{ hostname }}</p>
       <h1>Report request errored</h1>
-      <p>There are {{ rows | length }} Report requests that have failed.</p>
+      <p>There are {{ rows | length }} report requests that have failed.</p>
       <ul>
         {% for row in rows | slice(end=5) %}
         <li><b>{{ row.id }}</b> - <i>{{ row.error }}</i></li>
