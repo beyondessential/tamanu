@@ -209,6 +209,7 @@ export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues }) 
       <>
         <BookLocationHeader onClose={warnAndResetForm} />
         <FormGrid nested columns={1}>
+          {/* TODO:: why is this not clearing properly */}
           <Field
             enableLocationStatus={false}
             name="locationId"
