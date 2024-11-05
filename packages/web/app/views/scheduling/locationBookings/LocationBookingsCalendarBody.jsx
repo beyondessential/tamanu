@@ -91,7 +91,17 @@ export const LocationBookingsCalendarBody = ({
 
   const appointmentsByLocation = partitionAppointmentsByLocation(appointments);
 
-  return locations?.map(location => (
+  const areFiltersActive = Object.values(filters).some(
+    filter => filter !== null && filter.length > 0,
+  );
+
+  const filteredLocations = areFiltersActive
+    ? locations.filter(location => appointmentsByLocation[location.id])
+    : locations;
+
+  if (filteredLocations.length === 0) return <EmptyStateRow />;
+
+  return filteredLocations?.map(location => (
     <BookingsRow
       appointments={appointmentsByLocation[location.id] ?? []}
       dates={displayedDates}

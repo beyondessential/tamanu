@@ -1,17 +1,15 @@
 import React, { useState } from 'react';
 import {
-  OutlinedInput,
   Menu,
   MenuItem,
   Checkbox,
   Box,
-  IconButton,
   ListItemText,
   styled,
   Button,
   InputAdornment,
 } from '@mui/material';
-import { Clear, Search } from '@mui/icons-material';
+import { Search } from '@mui/icons-material';
 
 import { CheckboxIconChecked, CheckboxIconUnchecked } from '../Icons/CheckboxIcon';
 import { Colors } from '../../constants';
@@ -19,7 +17,6 @@ import { TextButton } from '../Button';
 import { useSuggesterOptions } from '../../hooks';
 import { TranslatedText } from '../Translation';
 import { TextInput } from './TextField';
-import { ClearIcon } from '../Icons';
 
 const StyledTextInput = styled(TextInput)`
   .MuiInputBase-input {
@@ -32,6 +29,8 @@ const Icon = styled(InputAdornment)`
     color: ${Colors.softText};
     font-size: 0.9375rem;
   }
+
+  font-size: 0.9375rem; // prevent font size from being inherited from parent
 `;
 
 const StyledMenu = styled(Menu)`
