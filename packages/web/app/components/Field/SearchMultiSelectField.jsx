@@ -7,14 +7,50 @@ import {
   Box,
   IconButton,
   ListItemText,
-  InputAdornment,
+  styled,
+  Button,
 } from '@mui/material';
 import { Search } from '@mui/icons-material';
+
 import { CheckboxIconChecked, CheckboxIconUnchecked } from '../Icons/CheckboxIcon';
-import { FilterIcon } from '../Icons/FilterIcon';
 import { Colors } from '../../constants';
 import { TextButton } from '../Button';
 import { useSuggesterOptions } from '../../hooks';
+import { TranslatedText } from '../Translation';
+
+const StyledMenu = styled(Menu)`
+  .MuiMenu-paper {
+    width: 12.875rem;
+    padding-inline: 0.625rem;
+    & * {
+      font-size: 0.6875rem;
+    }
+  }
+`;
+
+const OptionsContainer = styled(Box)`
+  max-height: 11.0625rem;
+  overflow-y: auto;
+  padding-block: 0.5rem;
+  padding-inline: 0;
+  border-block-start: 1px solid ${Colors.outline};
+`;
+
+const StyledInputButton = styled(Button)`
+  color: ${Colors.darkText};
+  font-size: 0.875rem;
+  line-height: 1.125rem;
+  padding-inline: 0.9375rem;
+  text-transform: none;
+  border: 1px solid ${Colors.outline};
+  :hover {
+    border: 1px solid ${props => props.theme.palette.grey['400']};
+    background-color: ${Colors.white};
+  }
+  :focus {
+    border: 1px solid ${props => props.theme.palette.primary.main};
+  }
+`;
 
 export const SearchMultiSelectInput = ({
   value = [],
@@ -45,31 +81,11 @@ export const SearchMultiSelectInput = ({
 
   return (
     <>
-      <OutlinedInput
-        readOnly
-        onClick={handleOpen}
-        value={`${label} ${value.length > 0 ? `(${value.length})` : ''}`}
-        startAdornment={
-          <InputAdornment width={24} height={24} sx={{ marginRight: '0.4375rem' }}>
-            <FilterIcon />
-          </InputAdornment>
-        }
-        {...props}
-      />
+      <StyledInputButton variant="outlined" onClick={handleOpen} {...props}>
+        {label} {value.length > 0 ? `(${value.length})` : ''}
+      </StyledInputButton>
 
-      <Menu
-        anchorEl={anchorEl}
-        open={Boolean(anchorEl)}
-        onClose={handleClose}
-        PaperProps={{
-          sx: {
-            '& *': {
-              fontSize: '0.6875rem',
-            },
-          },
-          style: { width: '12.875rem', paddingInline: '0.625rem' },
-        }}
-      >
+      <StyledMenu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleClose}>
         <Box p={1} sx={{ display: 'flex', flexDirection: 'column', padding: 0 }}>
           <OutlinedInput
             startAdornment={
@@ -89,21 +105,14 @@ export const SearchMultiSelectInput = ({
           </TextButton>
         </Box>
 
-        <Box
-          style={{
-            maxHeight: '11.0625rem',
-            overflowY: 'auto',
-            paddingBlock: '0.5rem',
-            paddingInline: 0,
-            borderBlockStart: `1px solid ${Colors.outline}`,
-          }}
-        >
+        <OptionsContainer>
           {options.length > 0 ? (
             options
               .filter(option => option.label.toLowerCase().includes(searchValue.toLowerCase()))
+              .sort((a, b) => a.label.localeCompare(b.label))
               .map(option => (
                 <MenuItem
-                  key={option.value}
+                  key={`${name}-${option.value}`}
                   onClick={() => handleSelectOption(option.value)}
                   sx={{ paddingInline: 0, gap: '0.5625rem' }}
                 >
@@ -117,10 +126,12 @@ export const SearchMultiSelectInput = ({
                 </MenuItem>
               ))
           ) : (
-            <MenuItem disabled>No options found</MenuItem>
+            <MenuItem disabled>
+              <TranslatedText stringId="general.search.noDataMessage" fallback="No options found" />
+            </MenuItem>
           )}
-        </Box>
-      </Menu>
+        </OptionsContainer>
+      </StyledMenu>
     </>
   );
 };

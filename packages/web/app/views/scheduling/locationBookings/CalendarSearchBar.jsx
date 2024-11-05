@@ -5,6 +5,7 @@ import { Field, Form, SearchField } from '../../../components';
 import { useTranslation } from '../../../contexts/Translation';
 import { SuggesterSearchMultiSelectField } from '../../../components/Field/SearchMultiSelectField';
 import { Formik, useFormikContext } from 'formik';
+import { FilterField } from '../../../components/Field/FilterField';
 
 const SearchBar = styled('search')`
   display: flex;
@@ -42,19 +43,19 @@ export const CalendarSearchBar = ({ onFilterChange }) => {
               <Field
                 name="locationGroupIds"
                 label={getTranslation('general.area.label', 'Area')}
-                component={SuggesterSearchMultiSelectField}
+                component={FilterField}
                 endpoint="bookableLocationGroup"
               />
               <Field
                 name="clinicianId"
                 label={getTranslation('general.localisedField.clinician.label.short', 'Clinician')}
-                component={SuggesterSearchMultiSelectField}
+                component={FilterField}
                 endpoint="practitioner"
               />
               <Field
                 name="bookingTypeId"
                 label={getTranslation('general.type.label', 'Type')}
-                component={SuggesterSearchMultiSelectField}
+                component={FilterField}
                 endpoint="bookingType"
               />
             </SearchBar>
