@@ -248,7 +248,7 @@ export const DashboardTasksTable = ({ searchParameters, refreshCount }) => {
     resetPage: searchParameters,
   });
 
-  const { orderBy, order, onChangeOrderBy, customSort } = useTableSorting({
+  const { orderBy, order, onChangeOrderBy } = useTableSorting({
     initialSortKey: 'dueTime',
     initialSortDirection: 'asc',
   });
