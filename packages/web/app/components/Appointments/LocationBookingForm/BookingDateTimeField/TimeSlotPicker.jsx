@@ -1,10 +1,10 @@
 import { CircularProgress } from '@material-ui/core';
-import { ToggleButtonGroup, toggleButtonClasses, toggleButtonGroupClasses } from '@mui/material';
+import { ToggleButtonGroup, toggleButtonGroupClasses } from '@mui/material';
 import { addMilliseconds as addMs, endOfDay, startOfDay, startOfToday } from 'date-fns';
 import { useFormikContext } from 'formik';
 import { PropTypes } from 'prop-types';
 import React, { useCallback, useMemo, useState } from 'react';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 
 import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
 
@@ -28,9 +28,13 @@ const ToggleGroup = styled(ToggleButtonGroup)`
     grid-template-columns: repeat(2, 1fr);
   }
 
-  &.${toggleButtonClasses.disabled} {
-    background-color: initial;
-  }
+  // Workaround: MUI doesn’t seem to reliably include toggleButtonGroupClasses.disabled class when
+  // disabled={true}, hence accessing directly
+  ${({ disabled }) =>
+    disabled &&
+    css`
+      background-color: initial;
+    `}
 `;
 
 const LoadingIndicator = styled(CircularProgress)`
@@ -64,8 +68,8 @@ export const TimeSlotPicker = ({
   const { getSetting } = useSettings();
   const bookingSlotSettings = getSetting('appointments.bookingSlots');
 
-  // Fall back to today so time slots render. Prevents GUI from looking broken when no date is selected, but
-  // component should be disabled in this scenario
+  // Fall back to arbitrary day so time slots render. Prevents GUI from looking broken when no date
+  // is selected, but component should be disabled in this scenario
   const timeSlots = calculateTimeSlots(bookingSlotSettings, date ?? startOfToday());
 
   const { data: existingLocationBookings, isFetching, isFetched } = useAppointmentsQuery(
