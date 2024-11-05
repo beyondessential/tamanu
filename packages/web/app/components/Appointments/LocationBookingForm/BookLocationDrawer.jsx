@@ -12,7 +12,6 @@ import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { usePatientSuggester, useSuggester } from '../../../api';
 import { useLocationBookingMutation } from '../../../api/mutations';
 import { useAppointmentsQuery } from '../../../api/queries';
-import { Colors } from '../../../constants';
 import { notifyError, notifySuccess } from '../../../utils';
 import { FormSubmitCancelRow } from '../../ButtonRow';
 import { ConfirmModal } from '../../ConfirmModal';
@@ -27,18 +26,8 @@ import {
 } from '../../Field';
 import { FormGrid } from '../../FormGrid';
 import { ClearIcon } from '../../Icons/ClearIcon';
-import { TOP_BAR_HEIGHT } from '../../TopBar';
 import { TranslatedText } from '../../Translation/TranslatedText';
-import { BookLocationHeader } from './BookLocationHeader';
 import { BookingTimeField } from './BookingTimeField';
-
-const Container = styled.div`
-  width: 330px;
-  padding: 1rem;
-  background-color: ${Colors.background};
-  overflow-y: auto;
-  position: relative;
-`;
 
 const OvernightStayField = styled.div`
   display: flex;
@@ -55,13 +44,6 @@ const CloseDrawerIcon = styled(ClearIcon)`
   position: absolute;
   inset-block-start: 1rem;
   inset-inline-end: 1rem;
-`;
-
-const StyledDrawer = styled(Drawer)`
-  .MuiPaper-root {
-    block-size: calc(100% - ${TOP_BAR_HEIGHT}px);
-    inset-block-start: ${TOP_BAR_HEIGHT}px;
-  }
 `;
 
 export const DateFieldWithWarning = ({ isEdit }) => {
@@ -161,7 +143,7 @@ const validationSchema = yup.object({
   bookingTypeId: yup.string().required(),
 });
 
-export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues }) => {
+export const BookLocationDrawer = ({ open, onClose, initialBookingValues }) => {
   const isEdit = !!initialBookingValues.id;
 
   const patientSuggester = usePatientSuggester();
@@ -183,7 +165,7 @@ export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues }) 
     {
       onSuccess: () => {
         notifySuccess(<SuccessMessage />);
-        closeDrawer();
+        onClose();
         queryClient.invalidateQueries('appointments');
       },
       onError: error => {
@@ -208,7 +190,7 @@ export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues }) 
     const warnAndResetForm = async () => {
       const confirmed = !dirty || (await handleShowWarningModal());
       if (!confirmed) return;
-      closeDrawer();
+      onClose();
       resetForm();
     };
 
@@ -271,23 +253,32 @@ export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues }) 
   };
 
   return (
-    <StyledDrawer variant="persistent" anchor="right" open={open} onClose={closeDrawer}>
-      <Container columns={1}>
-        <BookLocationHeader />
-        <Form
-          onSubmit={async values => handleSubmit(values)}
-          suppressErrorDialog
-          validationSchema={validationSchema}
-          initialValues={initialBookingValues}
-          enableReinitialize
-          render={renderForm}
+    <Drawer
+      open={open}
+      onClose={onClose}
+      title={
+        <TranslatedText stringId="locationBooking.form.new.heading" fallback="Book location" />
+      }
+      description={
+        <TranslatedText
+          stringId="locationBooking.form.new.description"
+          fallback="Create a new booking by completing the below details and selecting ‘Confirm’"
         />
-        <WarningModal
-          open={warningModalOpen}
-          setShowWarningModal={setShowWarningModal}
-          resolveFn={resolveFn}
-        />
-      </Container>
-    </StyledDrawer>
+      }
+    >
+      <Form
+        onSubmit={async values => handleSubmit(values)}
+        suppressErrorDialog
+        validationSchema={validationSchema}
+        initialValues={initialBookingValues}
+        enableReinitialize
+        render={renderForm}
+      />
+      <WarningModal
+        open={warningModalOpen}
+        setShowWarningModal={setShowWarningModal}
+        resolveFn={resolveFn}
+      />
+    </Drawer>
   );
 };

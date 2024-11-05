@@ -33,9 +33,9 @@ const generateMockLocationBooking = (startTime, endtime) => ({
 });
 
 const mockAppointments = [
-  generateMockLocationBooking("9:00:00", "9:30:00"),
-  generateMockLocationBooking("11:30:00", "12:00:00"),
-  generateMockLocationBooking("15:00:00", "16:30:00"),
+  generateMockLocationBooking('9:00:00', '9:30:00'),
+  generateMockLocationBooking('11:30:00', '12:00:00'),
+  generateMockLocationBooking('15:00:00', '16:30:00'),
 ];
 
 const mockSettings = {
@@ -89,30 +89,30 @@ const MockCalendar = styled.div`
 
 export const NewBooking = () => {
   const [open, setOpen] = useState(false);
-  const openDrawer = () => setOpen(true);
-  const closeDrawer = () => setOpen(false);
+  const onOpen = () => setOpen(true);
+  const onClose = () => setOpen(false);
 
   return (
     <MockCalendar>
-      CALENDAR GOES HERE <Button onClick={openDrawer}>+ Book location</Button>
-      <BookLocationDrawer closeDrawer={closeDrawer} open={open} />
+      CALENDAR GOES HERE <Button onClick={onOpen}>+ Book location</Button>
+      <BookLocationDrawer onClose={onClose} open={open} />
     </MockCalendar>
   );
 };
 
 export const ModifyBooking = () => {
   const [open, setOpen] = useState(false);
-  const openDrawer = () => setOpen(true);
-  const closeDrawer = () => setOpen(false);
+  const onOpen = () => setOpen(true);
+  const onClose = () => setOpen(false);
 
   return (
     <MockCalendar>
-      CALENDAR GOES HERE <Button onClick={openDrawer}>+ Book location</Button>
+      CALENDAR GOES HERE <Button onClick={onOpen}>+ Book location</Button>
       <BookLocationDrawer
         editMode
-        closeDrawer={closeDrawer}
+        onClose={onClose}
         open={open}
-        existingBooking={generateMockLocationBooking("10:00:00", "10:30:00")}
+        existingBooking={generateMockLocationBooking('10:00:00', '10:30:00')}
       />
     </MockCalendar>
   );
