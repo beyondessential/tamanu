@@ -5,6 +5,7 @@ import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import styled from 'styled-components';
 import PriorityHighIcon from '@material-ui/icons/PriorityHigh';
 import { Divider } from '@material-ui/core';
+import { useQueryClient } from '@tanstack/react-query';
 import {
   REFERENCE_DATA_RELATION_TYPES,
   REFERENCE_TYPES,
@@ -75,6 +76,7 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
   const { encounter } = useEncounter();
   const { currentUser } = useAuth();
   const { getTranslation } = useTranslation();
+  const queryClient = useQueryClient();
 
   const combinedTaskSuggester = useSuggester('multiReferenceData', {
     baseQueryParameters: {
@@ -134,6 +136,7 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
     }
     createTasks(payload, {
       onSuccess: () => {
+        queryClient.invalidateQueries([`user/${currentUser?.id}/tasks`]);
         refreshTaskTable();
         onClose();
       },
