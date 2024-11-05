@@ -1,4 +1,5 @@
 import { addMinutes, differenceInMinutes, isWithinInterval, parse } from 'date-fns';
+import { isEqual } from 'lodash';
 import ms from 'ms';
 
 /**
@@ -21,7 +22,7 @@ export const calculateTimeSlots = (bookingSlotSettings, date) => {
   const { startTime, endTime, slotDuration } = bookingSlotSettings;
   const startOfDay = parse(startTime, 'HH:mm', date);
   const endOfDay = parse(endTime, 'HH:mm', date);
-  const durationMinutes = ms(slotDuration) / 60_000; // In minutes
+  const durationMinutes = ms(slotDuration) / 60_000;
 
   const slotCount = differenceInMinutes(endOfDay, startOfDay) / durationMinutes;
   const slots = [];
@@ -32,4 +33,19 @@ export const calculateTimeSlots = (bookingSlotSettings, date) => {
   }
 
   return slots;
+};
+
+/**
+ * @param {Array} testArr
+ * @param {Array} referenceArr
+ * @returns {boolean} True if and only if `testArr` can be obtained by removing either the first
+ * or last element from `referenceArr`.
+ */
+export const isSameArrayMinusHeadOrTail = (testArr, referenceArr) => {
+  if (referenceArr.length === 0) return false;
+
+  const withoutHead = referenceArr.slice(1);
+  const withoutTail = referenceArr.slice(0, -1);
+
+  return isEqual(testArr, withoutHead) || isEqual(testArr, withoutTail);
 };

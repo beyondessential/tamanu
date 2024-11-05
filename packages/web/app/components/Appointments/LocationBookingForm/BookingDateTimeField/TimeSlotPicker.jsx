@@ -1,25 +1,24 @@
 import { CircularProgress } from '@material-ui/core';
-import { toggleButtonClasses, ToggleButtonGroup, toggleButtonGroupClasses } from '@mui/material';
-import { addMilliseconds, endOfDay, startOfDay, startOfToday } from 'date-fns';
+import { ToggleButtonGroup, toggleButtonClasses, toggleButtonGroupClasses } from '@mui/material';
+import { addMilliseconds as addMs, endOfDay, startOfDay, startOfToday } from 'date-fns';
 import { useFormikContext } from 'formik';
 import { PropTypes } from 'prop-types';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import styled from 'styled-components';
 
 import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
 
+import ms from 'ms';
 import { useAppointmentsQuery } from '../../../../api/queries';
 import { Colors } from '../../../../constants';
 import { useSettings } from '../../../../contexts/Settings';
-import { BookingTimeCell } from './BookingTimeCell';
-import { calculateTimeSlots, isTimeSlotWithinRange } from './util';
-import ms from 'ms';
 import { OuterLabelFieldWrapper } from '../../../Field';
+import { BookingTimeCell } from './BookingTimeCell';
+import { calculateTimeSlots, isSameArrayMinusHeadOrTail, isTimeSlotWithinRange } from './util';
 
 const ToggleGroup = styled(ToggleButtonGroup)`
   background-color: white;
   border: max(0.0625rem, 1px) solid ${Colors.outline};
-  inline-size: 295px;
   padding-block: 0.75rem;
   padding-inline: 1rem;
 
@@ -65,8 +64,8 @@ export const TimeSlotPicker = ({
   const { getSetting } = useSettings();
   const bookingSlotSettings = getSetting('appointments.bookingSlots');
 
-  // Fall back to today so time slots render. Prevents GUI from looking broken when no date is selected, but this
-  // component should be disabled under this scenario.
+  // Fall back to today so time slots render. Prevents GUI from looking broken when no date is selected, but
+  // component should be disabled in this scenario
   const timeSlots = calculateTimeSlots(bookingSlotSettings, date ?? startOfToday());
 
   const { data: existingLocationBookings, isFetching, isFetched } = useAppointmentsQuery(
@@ -81,33 +80,59 @@ export const TimeSlotPicker = ({
     },
   );
 
-  const handleChange = (_event, newTimeSlots) => {
-    if (newTimeSlots.length === 0) {
-      setSelectedToggles([]);
-      void setFieldValue('startTime', null);
-      void setFieldValue('endTime', null);
-      return;
-    }
+  const updateSelection = (newToggleSelection, newStartTime, newEndTime) => {
+    setSelectedToggles(newToggleSelection);
+    void setFieldValue('startTime', newStartTime);
+    void setFieldValue('endTime', newEndTime);
+  };
 
+  /**
+   * @param {Array<int>} newToggles Provided by MUI Toggle Button Group. This function coerces this
+   * into a contiguous selection.
+   */
+  const handleChange = (event, newToggles) => {
     switch (variant) {
       case 'range': {
-        const sortedTimeSlots = newTimeSlots.toSorted();
-        const newStart = new Date(sortedTimeSlots[0]);
-        const newEnd = addMilliseconds(
-          new Date(sortedTimeSlots.at(-1)),
-          ms(bookingSlotSettings.slotDuration),
-        );
-        const newTimeRange = { start: newStart, end: newEnd };
+        // Deselecting the only selected time slot
+        if (newToggles.length === 0) {
+          updateSelection([], null, null);
+          break;
+        }
 
-        // Update toggle button group state
-        const newToggleSelection = timeSlots
-          .filter(s => isTimeSlotWithinRange(s, newTimeRange))
-          .map(({ start }) => start.valueOf());
-        setSelectedToggles(newToggleSelection);
+        // Fresh selection
+        if (newToggles.length === 1) {
+          const newStart = new Date(newToggles[0]);
+          const newEnd = addMs(newStart, ms(bookingSlotSettings.slotDuration));
+          updateSelection(newToggles, newStart, newEnd);
+          break;
+        }
 
-        // Update value in form context
-        void setFieldValue('startTime', newStart);
-        void setFieldValue('endTime', newEnd);
+        // One time slot already selected. A second one makes a contiguous series.
+        // (Selecting tail before head is allowed.)
+        if (selectedToggles.length === 1) {
+          const newStart = new Date(newToggles[0]);
+          const newEnd = addMs(new Date(newToggles.at(-1)), ms(bookingSlotSettings.slotDuration));
+          const newTimeRange = { start: newStart, end: newEnd };
+          const newSelection = timeSlots
+            .filter(s => isTimeSlotWithinRange(s, newTimeRange))
+            .map(({ start }) => start.valueOf());
+          updateSelection(newSelection, newStart, newEnd);
+          break;
+        }
+
+        // Many time slots already selected. User may shorten the selection by deselecting only the
+        // first or last slot.
+        if (isSameArrayMinusHeadOrTail(newToggles, selectedToggles)) {
+          const newStart = new Date(newToggles[0]);
+          const newEnd = addMs(new Date(newToggles.at(-1)), ms(bookingSlotSettings.slotDuration));
+          const newSelection = newToggles;
+          updateSelection(newSelection, newStart, newEnd);
+          break;
+        }
+
+        // Many time slots selected. Clicking anything other than the head or tail clears the
+        // selection.
+        updateSelection([], null, null);
         break;
       }
       case 'start': {
@@ -120,7 +145,7 @@ export const TimeSlotPicker = ({
       }
     }
 
-    onChange?.();
+    onChange?.(event, { start: values.startTime, end: values.endTime });
   };
 
   // Convert existing bookings into timeslots TODO: Exclude slots that this form edits
