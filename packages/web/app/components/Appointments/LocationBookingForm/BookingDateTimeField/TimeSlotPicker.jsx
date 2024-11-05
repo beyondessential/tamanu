@@ -157,8 +157,8 @@ export const TimeSlotPicker = ({
     }));
   }, [existingLocationBookings, isFetched]);
 
+  /** Watch out! startTime and endTime values are strings. */
   const checkIfSelectableTimeSlot = useCallback(
-    /** Watch out! startTime and endTime values are strings. */
     timeSlot => {
       if (!values.startTime || !values.endTime) return true;
       if (values.startTime < timeSlot.end) {

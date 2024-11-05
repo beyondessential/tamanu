@@ -4,7 +4,7 @@ import ms from 'ms';
 
 /**
  * @param {{start: Date, end: Date}} timeSlot
- * @param {{start: Date, end: Date}} range
+ * @param {{start: Date, end: Date} | null} range
  */
 export const isTimeSlotWithinRange = (timeSlot, range) => {
   if (!range) return false;
