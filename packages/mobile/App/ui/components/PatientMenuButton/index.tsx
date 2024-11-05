@@ -3,7 +3,7 @@ import { StyleSheet, TouchableHighlight } from 'react-native';
 import { theme } from '/styled/theme';
 import { StyledText, StyledView } from '/styled/common';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
-import { MenuOptionButtonProps } from '~types/MenuOptionButtonProps';
+import { MenuOptionButtonProps } from '~/types/MenuOptionButtonProps';
 
 const styles = StyleSheet.create({
   buttonContainer: {

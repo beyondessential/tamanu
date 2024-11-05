@@ -8,7 +8,7 @@ doWithAllPackages((name, pkg) => {
   }
 
   console.log(`Testing ${name}...`);
-  execFileSync('yarn', ['workspace', pkg.name, 'run', 'test', ...process.argv.slice(2)], {
+  execFileSync('npm', ['--workspace', pkg.name, 'run', 'test', ...process.argv.slice(2)], {
     stdio: 'inherit',
   });
 });
