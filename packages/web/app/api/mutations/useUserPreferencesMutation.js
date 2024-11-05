@@ -19,3 +19,20 @@ export const useUserPreferencesMutation = () => {
     },
   });
 };
+
+export const useReorderEncounterTabs = () => {
+  const api = useApi();
+  const queryClient = useQueryClient();
+  const { currentUser } = useAuth();
+
+  return useMutation({
+    mutationFn: async encounterTabOrders => {
+      return api.post(`user/userPreferences/reorderEncounterTab`, {
+        encounterTabOrders,
+      });
+    },
+    onSuccess: data => {
+      queryClient.setQueriesData(['userPreferences', currentUser.id], data);
+    },
+  });
+};
