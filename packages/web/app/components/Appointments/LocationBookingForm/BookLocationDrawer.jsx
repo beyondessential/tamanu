@@ -1,4 +1,3 @@
-import { Drawer } from '@material-ui/core';
 import Brightness2Icon from '@material-ui/icons/Brightness2';
 import { useQueryClient } from '@tanstack/react-query';
 import { endOfDay, startOfDay } from 'date-fns';
@@ -28,6 +27,7 @@ import { FormGrid } from '../../FormGrid';
 import { ClearIcon } from '../../Icons/ClearIcon';
 import { TranslatedText } from '../../Translation/TranslatedText';
 import { BookingTimeField } from './BookingTimeField';
+import { Drawer } from '../../Drawer';
 
 const OvernightStayField = styled.div`
   display: flex;
