@@ -33,8 +33,7 @@ const Carousel = styled.div`
   }
 `;
 
-
-export const LocationBookingsCalendar = ({ locationsQuery, openBookingForm }) => {
+export const LocationBookingsCalendar = ({ locationsQuery, handleOpenDrawer }) => {
   const selectedMonthState = useState(startOfToday());
   const [monthOf] = selectedMonthState;
   const displayedDates = getDisplayableDates(monthOf);
@@ -45,11 +44,11 @@ export const LocationBookingsCalendar = ({ locationsQuery, openBookingForm }) =>
         <LocationBookingsCalendarHeader
           selectedMonthState={selectedMonthState}
           displayedDates={displayedDates}
-        /> 
+        />
         <LocationBookingsCalendarBody
           locationsQuery={locationsQuery}
           displayedDates={displayedDates}
-          openBookingForm={openBookingForm}
+          onOpenDrawer={handleOpenDrawer}
         />
       </CarouselGrid.Root>
     </Carousel>

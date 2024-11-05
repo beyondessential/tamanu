@@ -9,16 +9,21 @@ import { CarouselComponents as CarouselGrid } from './CarouselComponents';
 import { SkeletonRows } from './Skeletons';
 import { partitionAppointmentsByDate, partitionAppointmentsByLocation } from './util';
 
-export const BookingsCell = ({ appointments, date, location, openBookingForm }) => (
+export const BookingsCell = ({ appointments, date, location, handleOpenDrawer }) => (
   <CarouselGrid.Cell
-    onClick={(e) => {
+    onClick={e => {
       if (e.target.closest('.appointment-tile')) return;
       // Open form for creating new booking
-      openBookingForm({ date, locationId: location.id });
+      handleOpenDrawer({ date, locationId: location.id });
     }}
   >
     {appointments?.map(a => (
-      <AppointmentTile className="appointment-tile" openBookingForm={openBookingForm} appointment={a} key={a.id} />
+      <AppointmentTile
+        className="appointment-tile"
+        onEdit={handleOpenDrawer}
+        appointment={a}
+        key={a.id}
+      />
     ))}
   </CarouselGrid.Cell>
 );
@@ -63,7 +68,7 @@ const EmptyStateRow = () => (
 export const LocationBookingsCalendarBody = ({
   displayedDates,
   locationsQuery,
-  openBookingForm,
+  handleOpenDrawer,
 }) => {
   const { data: locations, isLoading: locationsAreLoading } = locationsQuery;
   const appointments =
@@ -84,7 +89,7 @@ export const LocationBookingsCalendarBody = ({
       dates={displayedDates}
       key={location.code}
       location={location}
-      openBookingForm={openBookingForm}
+      omEmptyCellClick={handleOpenDrawer}
     />
   ));
 };

@@ -71,13 +71,13 @@ const EmptyStateLabel = styled(Typography).attrs({
 
 export const LocationBookingsView = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [initialDrawerValues, setInitialDrawerValues] = useState({});
-  const { facilityId } = useAuth()
-  const closeBookingForm = () => {
+  const [initialValues, setInitialValues] = useState({});
+  const { facilityId } = useAuth();
+  const handleCloseDrawer = () => {
     setIsDrawerOpen(false);
   };
-  const openBookingForm = (initialValues) => {
-    setInitialDrawerValues(initialValues);
+  const handleOpenDrawer = initialValues => {
+    setInitialValues(initialValues);
     setIsDrawerOpen(true);
   };
 
@@ -97,9 +97,12 @@ export const LocationBookingsView = () => {
           <Placeholder>Clinician</Placeholder>
           <Placeholder>Type</Placeholder>
         </Filters>
-        <NewBookingButton onClick={() => openBookingForm({})}>
+        <NewBookingButton onClick={() => handleOpenDrawer({})}>
           <PlusIcon />
-          <TranslatedText stringId="locationBooking.calendar.bookLocation" fallback="Book location" />
+          <TranslatedText
+            stringId="locationBooking.calendar.bookLocation"
+            fallback="Book location"
+          />
         </NewBookingButton>
       </LocationBookingsTopBar>
       {hasNoLocations ? (
@@ -112,13 +115,13 @@ export const LocationBookingsView = () => {
       ) : (
         <LocationBookingsCalendar
           locationsQuery={locationsQuery}
-          openBookingForm={openBookingForm}
+          handleOpenDrawer={handleOpenDrawer}
         />
       )}
-      <BookLocationDrawer 
-        initialBookingValues={initialDrawerValues}
+      <BookLocationDrawer
+        initialBookingValues={initialValues}
         open={isDrawerOpen}
-        closeDrawer={closeBookingForm}
+        onClose={handleCloseDrawer}
       />
     </Wrapper>
   );

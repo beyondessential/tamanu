@@ -109,15 +109,15 @@ const AppointmentStatusContainer = styled(Box)`
 `;
 
 const StyledMenuButton = styled(MenuButton)`
-  svg { 
-    font-size: 0.875rem
+  svg {
+    font-size: 0.875rem;
   }
 `;
 
 const StyledIconButton = styled(IconButton)`
   padding: 5px;
   svg {
-    font-size: 0.875rem
+    font-size: 0.875rem;
   }
 `;
 
@@ -288,7 +288,7 @@ export const AppointmentDetailPopper = ({
   anchorEl,
   appointment,
   isOvernight,
-  openBookingForm,
+  onEdit,
 }) => {
   const dispatch = useDispatch();
   const queryClient = useQueryClient();
@@ -349,11 +349,7 @@ export const AppointmentDetailPopper = ({
     >
       <ClickAwayListener onClickAway={onClose}>
         <Box>
-          <ControlsRow
-            appointment={appointment}
-            openBookingForm={openBookingForm}
-            onClose={onClose}
-          />
+          <ControlsRow appointment={appointment} onEdit={onEdit} onClose={onClose} />
           <StyledPaper elevation={0}>
             <PatientDetailsDisplay
               patient={appointment.patient}
