@@ -238,13 +238,17 @@ export const TimeSlotPicker = ({
 TimeSlotPicker.propTypes = {
   date: PropTypes.instanceOf(Date),
   disabled: PropTypes.bool,
+  label: PropTypes.elementType,
   onChange: PropTypes.func,
+  required: PropTypes.bool,
   variant: PropTypes.oneOf(['range', 'start', 'end']),
 };
 
 TimeSlotPicker.defaultProps = {
   date: startOfToday(),
   disabled: false,
+  label: undefined,
   onChange: null,
+  required: false,
   variant: 'range',
 };
