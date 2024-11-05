@@ -197,7 +197,7 @@ export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues }) 
     },
   );
 
-  const renderForm = ({ values, resetForm, setFieldValue, dirty, errors }) => {
+  const renderForm = ({ values, resetForm, setFieldValue, dirty }) => {
     const warnAndResetForm = async () => {
       const confirmed = !dirty || (await handleShowWarningModal());
       if (!confirmed) return;
@@ -270,7 +270,10 @@ export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues }) 
     <StyledDrawer variant="persistent" anchor="right" open={open} onClose={closeDrawer}>
       <Container>
         <Form
-          onSubmit={async values => handleSubmit(values)}
+          onSubmit={async (values, { resetForm }) => {
+            await handleSubmit(values);
+            resetForm();
+          }}
           suppressErrorDialog
           validationSchema={validationSchema}
           // TODO: only clear red fields dont make them
