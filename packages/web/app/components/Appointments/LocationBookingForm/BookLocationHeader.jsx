@@ -26,6 +26,7 @@ const Heading = styled(Heading4)`
 const Description = styled(BodyText)`
   font-size: 12px;
   color: ${Colors.midText};
+  margin-bottom: 1.2rem;
 `;
 
 const CloseDrawerIcon = styled(ClearIcon)`

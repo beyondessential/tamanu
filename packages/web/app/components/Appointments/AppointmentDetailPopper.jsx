@@ -111,6 +111,11 @@ const AppointmentStatusContainer = styled(Box)`
 const StyledMenuButton = styled(MenuButton)`
   .MuiPaper-root {
     box-shadow: 0 0.5rem 2rem 0 oklch(0 0 0 / 15%);
+    width: 58px;
+  }
+
+    .MuiPopper-root {
+    width: 58px; /* Ensure the Popper width is consistent */
   }
 
   svg {
@@ -140,7 +145,7 @@ const ControlsRow = ({ onClose, appointment, openBookingForm }) => {
 
   return (
     <ControlsContainer>
-      <StyledMenuButton actions={actions} />
+      <StyledMenuButton actions={actions} placement="bottom-start" />
       <StyledIconButton onClick={onClose}>
         <Close />
       </StyledIconButton>
