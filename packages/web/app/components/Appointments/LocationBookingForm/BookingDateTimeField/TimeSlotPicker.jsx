@@ -191,11 +191,10 @@ export const TimeSlotPicker = ({
           <LoadingIndicator />
         ) : (
           timeSlots.map(timeSlot => {
-            // const isSelected = isTimeSlotWithinRange(timeSlot, selectedTimeRange);
-            // const isBooked = bookedTimeSlots?.some(
-            //   bookedTimeSlot => isTimeSlotWithinRange(timeSlot, bookedTimeSlot) && !isSelected,
-            // );
-            //
+            const isBooked = bookedTimeSlots?.some(bookedTimeSlot =>
+              isTimeSlotWithinRange(timeSlot, bookedTimeSlot),
+            );
+
             // const onMouseEnter = () => {
             //   if (!selectedTimeRange) {
             //     setHoverTimeRange(timeSlot);
@@ -222,7 +221,7 @@ export const TimeSlotPicker = ({
                 key={timeSlot.start.valueOf()}
                 timeSlot={timeSlot}
                 selectable={checkIfSelectableTimeSlot(timeSlot)}
-                // booked={isBooked}
+                booked={isBooked}
                 disabled={disabled}
                 // onMouseEnter={onMouseEnter}
                 // onMouseLeave={() => setHoverTimeRange(null)}

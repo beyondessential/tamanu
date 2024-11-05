@@ -42,7 +42,8 @@ const Toggle = styled(ToggleButton)`
     }
 
     // Manually manage hover effect with $hover transient prop
-    &:not(.${toggleButtonGroupClasses.selected}):hover {
+    // Using :where() to avoid :not() increasing specificity
+    &:where(:not(.${toggleButtonGroupClasses.selected})):hover {
      background-color: unset;
     }
 
@@ -55,7 +56,8 @@ const Toggle = styled(ToggleButton)`
     ${({ $booked }) =>
       $booked &&
       css`
-        &:disabled {
+        &,
+        &:hover {
           color: ${Colors.midText};
 
           background-color: oklch(from ${Colors.alert} l c h / 10%);
@@ -112,7 +114,8 @@ export const BookingTimeCell = ({
           />
         }
       >
-        <Toggle {...props} $booked disabled>
+        <Toggle {...props} $booked aria-disabled>
+          {/* Not true `disabled` attribute as it prevents tooltip from listening for events */}
           <TimeRangeDisplay range={timeSlot} />
         </Toggle>
       </ThemedTooltip>
