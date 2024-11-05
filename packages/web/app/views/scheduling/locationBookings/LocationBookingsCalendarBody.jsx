@@ -15,7 +15,11 @@ export const BookingsCell = ({ appointments, date, location, openBookingForm }) 
       if (e.target.closest('.appointment-tile')) return;
       // Open form for creating new booking
       openBookingForm({ date, locationId: location.id });
+
+      // TODO: set selectedstate state for cell
+      console.log('locationId', location.id)
     }}
+    selected={Math.random() > 0.9}
   >
     {appointments?.map(a => (
       <AppointmentTile className="appointment-tile" openBookingForm={openBookingForm} appointment={a} key={a.id} />

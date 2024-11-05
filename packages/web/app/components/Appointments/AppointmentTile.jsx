@@ -1,6 +1,6 @@
 import { PriorityHigh as HighPriorityIcon } from '@material-ui/icons';
 import OvernightIcon from '@material-ui/icons/Brightness2';
-import { isSameDay, parseISO } from 'date-fns';
+import { format, isSameDay, parseISO } from 'date-fns';
 import React, { useRef, useState } from 'react';
 import styled, { css } from 'styled-components';
 
@@ -13,6 +13,7 @@ import {
   APPOINTMENT_STATUS_COLORS,
   AppointmentStatusIndicator as StatusIndicator,
 } from './appointmentStatusIndicators';
+import { ConditionalTooltip } from '../Tooltip';
 
 const Wrapper = styled.div`
   ${({ $color = Colors.blue, $selected }) =>
@@ -56,6 +57,9 @@ const Wrapper = styled.div`
 
 const Label = styled.span`
   padding-inline-start: 0.3125rem;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 
   ${props =>
     props.$strikethrough &&
@@ -64,7 +68,9 @@ const Label = styled.span`
     `}
 `;
 
-const Timestamp = ({ date }) => <time dateTime={date.toISOString()}>{formatTime(date)}</time>;
+const Timestamp = ({ date }) => (
+  <time dateTime={date.toISOString()}>{format(date, 'h:mma').toLowerCase()}</time>
+);
 
 const IconGroup = styled.div`
   align-items: center;
@@ -75,12 +81,7 @@ const IconGroup = styled.div`
 const getPatientFullName = ({ firstName, middleName, lastName }) =>
   [firstName, middleName, lastName].filter(Boolean).join(' ');
 
-export const AppointmentTile = ({
-  appointment,
-  openBookingForm,
-  onUpdated,
-  ...props
-}) => {
+export const AppointmentTile = ({ appointment, openBookingForm, onUpdated, ...props }) => {
   const ref = useRef(null);
   const [open, setOpen] = useState();
 
@@ -96,6 +97,12 @@ export const AppointmentTile = ({
   const isHighPriority = false; // TODO
   const isOvernight = !isSameDay(startTime, endTime);
 
+  const tileText = (
+    <>
+      <Timestamp date={startTime} /> {getPatientFullName(patient)}
+    </>
+  );
+
   return (
     <Wrapper
       $color={APPOINTMENT_STATUS_COLORS[appointmentStatus]}
@@ -106,7 +113,10 @@ export const AppointmentTile = ({
       {...props}
     >
       <Label $strikethrough={appointmentStatus === APPOINTMENT_STATUSES.NO_SHOW}>
-        <Timestamp date={startTime} /> {getPatientFullName(patient)}
+        {/* TODO: need to hide if no ellipsis */}
+        <ConditionalTooltip visible title={tileText}>
+          {tileText}
+        </ConditionalTooltip>
       </Label>
       <IconGroup>
         {isHighPriority && (
