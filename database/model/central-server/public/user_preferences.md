@@ -11,3 +11,7 @@ In the Vitals views, graphs can be filtered. This is remembered per user.
 
 Comma-separated.
 {% enddocs %}
+
+{% docs user_preferences__clinician_dashboard_tasking_table_filter %}
+In the Upcoming tasks table on Dashboard, tasks can be filtered. This is remembered per user.
+{% enddocs %}
