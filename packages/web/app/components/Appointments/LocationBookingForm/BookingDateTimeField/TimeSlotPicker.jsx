@@ -105,20 +105,17 @@ export const TimeSlotPicker = ({
           .map(({ start }) => start.valueOf());
         setSelectedToggles(newToggleSelection);
 
-        console.log('newTimeRange', newTimeRange);
-        console.log('newToggleSelection', newToggleSelection);
-
         // Update value in form context
         void setFieldValue('startTime', newStart);
         void setFieldValue('endTime', newEnd);
         break;
       }
       case 'start': {
-        // void setFieldValue('startTime', newStart);
+        // TODO
         break;
       }
       case 'end': {
-        // void setFieldValue('endTime', newEnd);
+        // TODO
         break;
       }
     }
@@ -134,12 +131,6 @@ export const TimeSlotPicker = ({
       end: new Date(booking.endTime),
     }));
   }, [existingLocationBookings, isFetched]);
-  console.log('bookedTimeSlots', bookedTimeSlots);
-
-  useEffect(() => {
-    const { startTime, endTime } = values;
-    console.log({ startTime, endTime });
-  }, [values.startTime, values.endTime]);
 
   const checkIfSelectableTimeSlot = useCallback(
     timeSlot => {
@@ -201,7 +192,6 @@ export const TimeSlotPicker = ({
               <BookingTimeCell
                 key={timeSlot.start.valueOf()}
                 timeSlot={timeSlot}
-                // selected={isSelected}
                 selectable={checkIfSelectableTimeSlot(timeSlot)}
                 // booked={isBooked}
                 disabled={disabled}
