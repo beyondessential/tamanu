@@ -1,10 +1,8 @@
 enabled: true
 sql: |
-  SELECT rr.id, rr.error, rd.name
-  FROM report_requests rr
-  JOIN report_definition_versions rdv ON rr.report_definition_version_id = rdv.id
-  JOIN report_definitions rd ON rdv.report_definition_id = rd.id
-  WHERE rr.status = 'Error'
+  SELECT *
+  FROM report_requests
+  WHERE status = 'Error'
   AND created_at > $1
 
 send:
@@ -17,7 +15,7 @@ send:
       <p>There are {{ rows | length }} Report requests that have failed.</p>
       <ul>
         {% for row in rows | slice(end=5) %}
-        <li>Report name: <b>{{ row.name }}</b>  Request id: <b>{{ row.id }}</b> - <i>{{ row.error }}</i></li>
+        <li><b>{{ row.id }}</b> - <i>{{ row.error }}</i></li>
         {% endfor %}
         {% if rows | length > 5 %}
         <li>... and {{ rows | length - 5 }} more</li>
