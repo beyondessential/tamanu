@@ -197,7 +197,7 @@ export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues }) 
     },
   );
 
-  const renderForm = ({ values, resetForm, setFieldValue, dirty }) => {
+  const renderForm = ({ values, resetForm, setFieldValue, dirty, errors }) => {
     const warnAndResetForm = async () => {
       const confirmed = !dirty || (await handleShowWarningModal());
       if (!confirmed) return;
@@ -214,6 +214,7 @@ export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues }) 
             name="locationId"
             component={LocalisedLocationField}
             required
+            // TODO: make this show *required in red
             onChange={() => {
               setFieldValue('overnight', null);
               setFieldValue('startTime', null);
@@ -272,7 +273,8 @@ export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues }) 
           onSubmit={async values => handleSubmit(values)}
           suppressErrorDialog
           validationSchema={validationSchema}
-          validateOnChange
+          // TODO: only clear red fields dont make them
+          // validateOnChange
           initialValues={initialBookingValues}
           enableReinitialize
           render={renderForm}
