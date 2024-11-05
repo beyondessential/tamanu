@@ -35,7 +35,9 @@ export const useSuggesterOptions = ({
           });
       });
     }
-  }, [field.value, endpoint, isMulti, api]);
+    // Only do the fetch when the component first mounts
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     api
