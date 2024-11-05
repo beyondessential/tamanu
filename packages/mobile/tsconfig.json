@@ -1,5 +1,5 @@
 {
-  "extends": ["../../common.tsconfig.json"],
+  "extends": "../../common.tsconfig.json",
   "compilerOptions": {
     "allowJs": true,
     "allowSyntheticDefaultImports": true,
@@ -41,6 +41,6 @@
     "node_modules",
     "babel.config.js",
     "metro.config.js",
-    "jest.config.js"
+    "jest.config.mjs"
   ]
 }

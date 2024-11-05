@@ -1,8 +1,14 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { push } from 'connected-react-router';
-import { Box, IconButton, Paper, Popper, ClickAwayListener, styled } from '@mui/material';
-import { MoreVert, Close, Brightness2 as Overnight } from '@mui/icons-material';
+import Box from '@mui/material/Box';
+import ClickAwayListener from '@mui/material/ClickAwayListener';
+import IconButton from '@mui/material/IconButton';
+import Paper from '@mui/material/Paper';
+import Popper from '@mui/material/Popper';
+import { styled } from '@mui/material/styles';
+import Overnight from '@mui/icons-material/Brightness2';
+import Close from '@mui/icons-material/Close';
 import { debounce } from 'lodash';
 import { toast } from 'react-toastify';
 
@@ -20,6 +26,7 @@ import { usePatientAdditionalDataQuery } from '../../api/queries';
 import { CancelBookingModal } from './CancelBookingModal';
 import { formatDateRange } from './utils';
 import { useApi } from '../../api';
+import { usePatientAdditionalDataQuery } from '../../api/queries';
 import {
   APPOINTMENT_STATUS_VALUES,
   APPOINTMENT_STATUSES,
@@ -27,6 +34,8 @@ import {
 } from '@tamanu/constants';
 import { AppointmentStatusChip } from './AppointmentStatusChip';
 import { KebabMenuButton } from '../KebabMenuButton';
+import { MenuButton } from '../MenuButton';
+import { useQueryClient } from '@tanstack/react-query';
 
 const DEBOUNCE_DELAY = 200; // ms
 
@@ -55,47 +64,40 @@ const StyledPaper = styled(Paper)`
   display: flex;
   flex-direction: column;
   width: 16rem;
-  box-shadow: 0px 8px 32px 0px #00000026;
-  border-radius: 5px;
+  box-shadow: 0 0.5rem 2rem 0 oklch(0 0 0 / 15%);
+  border-radius: 0.3125rem;
   font-size: 0.6875rem;
-`;
-
-const StyledIconButton = styled(IconButton)`
-  padding: 0px;
 `;
 
 const ControlsContainer = styled(FlexRow)`
   position: fixed;
-  top: 8px;
-  right: 8px;
+  inset-block-start: 0.5rem;
+  inset-inline-end: 0.5rem;
   gap: 0.125rem;
 `;
 
 const PatientDetailsContainer = styled(FlexCol)`
+  padding-block: 0.75rem 0.5rem;
   padding-inline: 0.75rem;
-  padding-block-start: 0.75rem;
-  padding-block-end: 0.5rem;
   gap: 0.1875rem;
   :hover {
     background-color: ${Colors.veryLightBlue};
     cursor: pointer;
   }
-  border-top-left-radius: 5px;
-  border-top-right-radius: 5px;
+  border-top-left-radius: 0.3125rem;
+  border-top-right-radius: 0.3125rem;
 `;
 
 const AppointmentDetailsContainer = styled(FlexCol)`
-  padding-inline: 0.75rem;
-  padding-block: 0.75rem;
+  padding: 0.75rem;
   gap: 0.5rem;
-  border-top: 1px solid ${Colors.outline};
-  border-bottom: 1px solid ${Colors.outline};
+  border-top: max(0.0625rem, 1px) solid ${Colors.outline};
+  border-bottom: max(0.0625rem, 1px) solid ${Colors.outline};
 `;
 
 const AppointmentStatusContainer = styled(Box)`
   padding-inline: 0.75rem;
-  padding-block-start: 0.5rem;
-  padding-block-end: 0.75rem;
+  padding-block: 0.5rem 0.75rem;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   grid-row-gap: 0.5rem;
@@ -103,36 +105,38 @@ const AppointmentStatusContainer = styled(Box)`
   justify-items: center;
 `;
 
-const ControlsRow = ({ onClose, appointment, onUpdated }) => {
-  const [cancelModalOpen, setCancelModalOpen] = useState(false);
+const StyledMenuButton = styled(MenuButton)`
+  svg {
+    font-size: 0.875rem;
+  }
+`;
 
-  const handleCancelModalClose = () => {
-    setCancelModalOpen(false);
-  };
+const StyledIconButton = styled(IconButton)`
+  padding: 5px;
+  svg {
+    font-size: 0.875rem;
+  }
+`;
 
-  const controls = [
+const ControlsRow = ({ onClose, appointment, openBookingForm }) => {
+  const actions = [
     {
-      label: <TranslatedText stringId="scheduling.action.modify" fallback="Modify" />,
-      onClick: () => {},
+      label: <TranslatedText stringId="general.action.modify" fallback="Modify" />,
+      action: () => openBookingForm({ ...appointment, date: appointment.startTime }),
     },
+    // TODO: cancel workflow
     {
       label: <TranslatedText stringId="general.action.cancel" fallback="Cancel" />,
-      onClick: () => setCancelModalOpen(true),
+      action: () => {},
     },
   ];
 
   return (
     <ControlsContainer>
-      <KebabMenuButton items={controls} />
+      <StyledMenuButton actions={actions} />
       <StyledIconButton onClick={onClose}>
-        <Close sx={{ fontSize: '0.875rem' }} />
+        <Close />
       </StyledIconButton>
-      <CancelBookingModal
-        appointment={appointment}
-        open={cancelModalOpen}
-        onClose={handleCancelModalClose}
-        onUpdated={onUpdated}
-      />
     </ControlsContainer>
   );
 };
@@ -140,7 +144,7 @@ const ControlsRow = ({ onClose, appointment, onUpdated }) => {
 const DetailsDisplay = ({ label, value }) => (
   <FlexCol>
     <Label>{label}</Label>
-    <span>{value ?? '—'}</span>
+    <span>{value ?? <>&mdash;</>}</span>
   </FlexCol>
 );
 
@@ -160,7 +164,7 @@ const BookingTypeDisplay = ({ type, isOvernight }) => (
         <TranslatedEnum value={type} enumValues={APPOINTMENT_TYPE_LABELS} enumFallback={type} />
         {isOvernight && (
           <FlexRow sx={{ gap: '2px' }}>
-            <Overnight sx={{ fontSize: 15, color: Colors.primary }} />
+            <Overnight htmlColor={Colors.primary} sx={{ fontSize: 15 }} />
             <TranslatedText stringId="scheduling.bookingType.overnight" fallback="Overnight" />
           </FlexRow>
         )}
@@ -255,18 +259,28 @@ const AppointmentDetailsDisplay = ({ appointment, isOvernight }) => {
   );
 };
 
-const AppointmentStatusDisplay = ({ selectedStatus, updateAppointmentStatus }) => {
+export const AppointmentStatusSelector = ({
+  disabled,
+  selectedStatus,
+  updateAppointmentStatus,
+}) => {
   return (
-    <AppointmentStatusContainer>
+    <AppointmentStatusContainer role="radiogroup">
       {APPOINTMENT_STATUS_VALUES.filter(status => status != APPOINTMENT_STATUSES.CANCELLED).map(
-        status => (
-          <AppointmentStatusChip
-            key={status}
-            appointmentStatus={status}
-            deselected={status !== selectedStatus}
-            onClick={() => updateAppointmentStatus(status)}
-          />
-        ),
+        status => {
+          const isSelected = status === selectedStatus;
+          return (
+            <AppointmentStatusChip
+              appointmentStatus={status}
+              aria-checked={isSelected}
+              disabled={disabled || isSelected}
+              key={status}
+              onClick={() => updateAppointmentStatus(status)}
+              role="radio"
+              selected={isSelected}
+            />
+          );
+        },
       )}
     </AppointmentStatusContainer>
   );
@@ -279,8 +293,10 @@ export const AppointmentDetailPopper = ({
   anchorEl,
   appointment,
   isOvernight = false,
+  openBookingForm,
 }) => {
   const dispatch = useDispatch();
+  const queryClient = useQueryClient();
   const api = useApi();
   const [localStatus, setLocalStatus] = useState(appointment.status);
   const patientId = appointment.patient.id;
@@ -290,7 +306,7 @@ export const AppointmentDetailPopper = ({
     dispatch(push(`/patients/all/${patientId}`));
   }, [dispatch, patientId]);
 
-  const debouncedUpdateAppointmentSatus = useMemo(
+  const debouncedUpdateAppointmentStatus = useMemo(
     () =>
       debounce(async newValue => {
         try {
@@ -298,6 +314,7 @@ export const AppointmentDetailPopper = ({
             status: newValue,
           });
           if (onUpdated) onUpdated();
+          queryClient.invalidateQueries('appointments');
         } catch (error) {
           console.log(error);
           toast.error(
@@ -309,15 +326,15 @@ export const AppointmentDetailPopper = ({
           setLocalStatus(appointment.status);
         }
       }, DEBOUNCE_DELAY),
-    [api, appointment.id, onUpdated, appointment.status],
+    [api, appointment.id, onUpdated, appointment.status, queryClient],
   );
 
   const updateAppointmentStatus = useCallback(
     newValue => {
       setLocalStatus(newValue);
-      debouncedUpdateAppointmentSatus(newValue);
+      debouncedUpdateAppointmentStatus(newValue);
     },
-    [debouncedUpdateAppointmentSatus],
+    [debouncedUpdateAppointmentStatus],
   );
 
   return (
@@ -337,18 +354,25 @@ export const AppointmentDetailPopper = ({
     >
       <ClickAwayListener onClickAway={onClose}>
         <Box>
-          <ControlsRow appointment={appointment} onClose={onClose} onUpdated={onUpdated} />
+          <ControlsRow
+            appointment={appointment}
+            openBookingForm={openBookingForm}
+            onClose={onClose}
+            onUpdated={onUpdated}
+          />
           <StyledPaper elevation={0}>
-            <PatientDetailsDisplay patient={appointment.patient} onClick={handlePatientDetailsClick} />
+            <PatientDetailsDisplay
+              patient={appointment.patient}
+              onClick={handlePatientDetailsClick}
+            />
             <AppointmentDetailsDisplay appointment={appointment} isOvernight={isOvernight} />
-            <AppointmentStatusDisplay
+            <AppointmentStatusSelector
               selectedStatus={localStatus}
               updateAppointmentStatus={updateAppointmentStatus}
             />
           </StyledPaper>
-            </Box>
+        </Box>
       </ClickAwayListener>
-
     </Popper>
   );
 };

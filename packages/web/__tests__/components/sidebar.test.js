@@ -1,8 +1,8 @@
 import { describe, expect, afterEach, it, vi } from 'vitest';
 import { useFacilitySidebar } from '../../app/components/Sidebar/index.js';
-import { useLocalisation } from '../../app/contexts/Localisation.jsx';
+import { useSettings } from '../../app/contexts/Settings.jsx';
 
-const defaultConfig = {
+const defaultSettings = {
   patients: {
     hidden: false,
     sortPriority: -1000,
@@ -77,10 +77,10 @@ const defaultConfig = {
   },
 };
 
-vi.mock('../../app/contexts/Localisation');
+vi.mock('../../app/contexts/Settings');
 
-const localisationMock = config => ({
-  getLocalisation: () => ({ ...defaultConfig, ...config }),
+const settingsMock = settings => ({
+  getSetting: () => ({ ...defaultSettings, ...settings }),
 });
 
 describe('useFacilitySidebar', () => {
@@ -89,7 +89,7 @@ describe('useFacilitySidebar', () => {
   });
 
   it('should display the correct items', () => {
-    vi.mocked(useLocalisation).mockReturnValue(localisationMock());
+    vi.mocked(useSettings).mockReturnValue(settingsMock());
     const items = useFacilitySidebar();
     expect(items.length).toBe(8);
     expect(items[0].key).toBe('patients');
@@ -97,23 +97,21 @@ describe('useFacilitySidebar', () => {
   });
 
   it('should hide top level items', () => {
-    vi.mocked(useLocalisation).mockReturnValue(localisationMock({ patients: { hidden: true } }));
+    vi.mocked(useSettings).mockReturnValue(settingsMock({ patients: { hidden: true } }));
     const items = useFacilitySidebar();
     expect(items.length).toBe(7);
   });
 
   it('should hide secondary level items', () => {
-    vi.mocked(useLocalisation).mockReturnValue(
-      localisationMock({ patients: { patientsEmergency: { hidden: true } } }),
+    vi.mocked(useSettings).mockReturnValue(
+      settingsMock({ patients: { patientsEmergency: { hidden: true } } }),
     );
     const items = useFacilitySidebar();
     expect(items[0].children.length).toBe(3);
   });
 
   it('should sort top level items', () => {
-    vi.mocked(useLocalisation).mockReturnValue(
-      localisationMock({ patients: { sortPriority: 10 } }),
-    );
+    vi.mocked(useSettings).mockReturnValue(settingsMock({ patients: { sortPriority: 10 } }));
     const items = useFacilitySidebar();
     expect(items.map(item => item.key)).toStrictEqual([
       'scheduling',
@@ -128,8 +126,8 @@ describe('useFacilitySidebar', () => {
   });
 
   it('should sort secondary level items', () => {
-    vi.mocked(useLocalisation).mockReturnValue(
-      localisationMock({
+    vi.mocked(useSettings).mockReturnValue(
+      settingsMock({
         patients: {
           patientsAll: {
             sortPriority: 3,

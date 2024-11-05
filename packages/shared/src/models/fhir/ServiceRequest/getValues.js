@@ -168,9 +168,12 @@ function imagingCode(upstream) {
   const { label } = imagingTypes[imagingType] || {};
   if (!label) throw new Exception(`No label matching imaging type ${imagingType} in localisation.`);
 
-  return new FhirCodeableConcept({
-    text: label,
-  });
+  return generateCodings(
+    imagingType,
+    undefined,
+    label,
+    config.hl7.dataDictionaries.serviceRequestImagingTypeCodeSystem,
+  );
 }
 
 // Match the priority to a FHIR ServiceRequest priority where possible
@@ -216,6 +219,7 @@ function statusFromLabRequest(upstream) {
     case LAB_REQUEST_STATUSES.RECEPTION_PENDING:
       return FHIR_REQUEST_STATUS.DRAFT;
     case LAB_REQUEST_STATUSES.RESULTS_PENDING:
+    case LAB_REQUEST_STATUSES.INTERIM_RESULTS:
     case LAB_REQUEST_STATUSES.TO_BE_VERIFIED:
     case LAB_REQUEST_STATUSES.VERIFIED:
       return FHIR_REQUEST_STATUS.ACTIVE;

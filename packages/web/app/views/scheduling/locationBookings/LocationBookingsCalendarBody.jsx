@@ -2,27 +2,28 @@ import { endOfDay, formatISO } from 'date-fns';
 import React from 'react';
 import styled from 'styled-components';
 
-import { useLocationBookingsQuery } from '../../../api/queries';
+import { useAppointmentsQuery } from '../../../api/queries';
 import { AppointmentTile } from '../../../components/Appointments/AppointmentTile';
 import { Colors } from '../../../constants';
 import { CarouselComponents as CarouselGrid } from './CarouselComponents';
 import { SkeletonRows } from './Skeletons';
 import { partitionAppointmentsByDate, partitionAppointmentsByLocation } from './util';
 
-export const BookingsCell = ({ appointments, date, location }) => (
+export const BookingsCell = ({ appointments, date, location, openBookingForm }) => (
   <CarouselGrid.Cell
-    onClick={() => {
+    onClick={(e) => {
+      if (e.target.closest('.appointment-tile')) return;
       // Open form for creating new booking
-      window.alert(`Create new booking:\n\n${location.name}\n\n${date}`);
+      openBookingForm({ date, locationId: location.id });
     }}
   >
     {appointments?.map(a => (
-      <AppointmentTile appointment={a} key={a.id} />
+      <AppointmentTile className="appointment-tile" openBookingForm={openBookingForm} appointment={a} key={a.id} />
     ))}
   </CarouselGrid.Cell>
 );
 
-export const BookingsRow = ({ appointments, dates, location }) => {
+export const BookingsRow = ({ appointments, dates, location, openBookingForm }) => {
   const {
     name: locationName,
     locationGroup: { name: locationGroupName },
@@ -40,6 +41,7 @@ export const BookingsRow = ({ appointments, dates, location }) => {
           date={d}
           key={d.valueOf()}
           location={location}
+          openBookingForm={openBookingForm}
         />
       ))}
     </CarouselGrid.Row>
@@ -58,12 +60,17 @@ const EmptyStateRow = () => (
   <StyledRow>No bookings to display. Please try adjusting the search filters.</StyledRow>
 );
 
-export const LocationBookingsCalendarBody = ({ displayedDates, locationsQuery }) => {
+export const LocationBookingsCalendarBody = ({
+  displayedDates,
+  locationsQuery,
+  openBookingForm,
+}) => {
   const { data: locations, isLoading: locationsAreLoading } = locationsQuery;
   const appointments =
-    useLocationBookingsQuery({
+    useAppointmentsQuery({
       after: displayedDates[0],
       before: endOfDay(displayedDates[displayedDates.length - 1]),
+      locationId: '',
     }).data?.data ?? [];
 
   if (locationsAreLoading) return <SkeletonRows colCount={displayedDates.length} />;
@@ -77,6 +84,7 @@ export const LocationBookingsCalendarBody = ({ displayedDates, locationsQuery })
       dates={displayedDates}
       key={location.code}
       location={location}
+      openBookingForm={openBookingForm}
     />
   ));
 };

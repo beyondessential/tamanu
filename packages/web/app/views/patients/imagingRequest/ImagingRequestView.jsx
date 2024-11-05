@@ -42,6 +42,7 @@ import { PrintModalButton } from './PrintModalButton';
 import { getReferenceDataStringId, TranslatedText } from '../../../components/Translation';
 import { useTranslation } from '../../../contexts/Translation';
 import { useSettings } from '../../../contexts/Settings';
+import { useAuth } from '../../../contexts/Auth';
 
 const ImagingRequestSection = ({ currentStatus, imagingRequest }) => {
   const { getLocalisation } = useLocalisation();
@@ -246,6 +247,7 @@ const ImagingResultsSection = ({ results }) => {
 
 const ImagingRequestInfoPane = React.memo(({ imagingRequest, onSubmit }) => {
   const api = useApi();
+  const { facilityId } = useAuth();
 
   const isCancelled = imagingRequest.status === IMAGING_REQUEST_STATUS_TYPES.CANCELLED;
   const getCanAddResult = values => values.status === IMAGING_REQUEST_STATUS_TYPES.COMPLETED;
@@ -259,7 +261,7 @@ const ImagingRequestInfoPane = React.memo(({ imagingRequest, onSubmit }) => {
           updatedValues.newResult = values.newResult;
         }
 
-        await api.put(`imagingRequest/${imagingRequest.id}`, updatedValues);
+        await api.put(`imagingRequest/${imagingRequest.id}`, { ...updatedValues, facilityId });
 
         onSubmit(updatedValues);
       }}

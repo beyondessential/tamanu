@@ -6,7 +6,6 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { TabDisplay } from '../../components/TabDisplay';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { PatientAlert } from '../../components/PatientAlert';
-import { useLocalisation } from '../../contexts/Localisation';
 import { useApi } from '../../api';
 import {
   DocumentsPane,
@@ -29,6 +28,7 @@ import { invalidatePatientDataQueries } from '../../utils';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
 import { useSyncState } from '../../contexts/SyncState';
 import { useAuth } from '../../contexts/Auth';
+import { useSettings } from '../../contexts/Settings';
 
 const StyledDisplayTabs = styled(TabDisplay)`
   overflow: initial;
@@ -69,8 +69,8 @@ const TABS = [
     label: <TranslatedText stringId="patient.tab.forms" fallback="Forms" />,
     key: PATIENT_TABS.PROGRAMS,
     icon: 'fa fa-hospital',
-    render: ({ patient, ...props }) => (
-      <PatientProgramsPane endpoint={`patient/${patient.id}/programResponses`} {...props} />
+    render: props => (
+      <PatientProgramsPane endpoint={`patient/${props.patient.id}/programResponses`} {...props} />
     ),
   },
   {
@@ -100,21 +100,20 @@ const TABS = [
   },
 ];
 
-const tabCompare = ({ firstTab, secondTab, patientTabLocalisation }) => {
-  const firstTabSortPriority = patientTabLocalisation?.[firstTab.key]?.sortPriority || 0;
-  const secondTabSortPriority = patientTabLocalisation?.[secondTab.key]?.sortPriority || 0;
+const tabCompare = ({ firstTab, secondTab, patientTabSettings }) => {
+  const firstTabSortPriority = patientTabSettings?.[firstTab.key]?.sortPriority || 0;
+  const secondTabSortPriority = patientTabSettings?.[secondTab.key]?.sortPriority || 0;
   return firstTabSortPriority - secondTabSortPriority;
 };
 
 const usePatientTabs = () => {
   const { ability } = useAuth();
-  const { getLocalisation } = useLocalisation();
-  const patientTabLocalisation = getLocalisation('layouts.patientTabs');
+  const { getSetting } = useSettings();
+  const patientTabSettings = getSetting('layouts.patientTabs');
   return TABS.filter(
     tab =>
-      patientTabLocalisation?.[tab.key]?.hidden === false &&
-      (!tab.condition || tab.condition(ability)),
-  ).sort((firstTab, secondTab) => tabCompare({ firstTab, secondTab, patientTabLocalisation }));
+      patientTabSettings?.[tab.key]?.hidden !== true && (!tab.condition || tab.condition(ability)),
+  ).sort((firstTab, secondTab) => tabCompare({ firstTab, secondTab, patientTabSettings }));
 };
 
 export const PatientView = () => {
