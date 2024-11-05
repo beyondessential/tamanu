@@ -58,12 +58,7 @@ export const TimeSlotPicker = ({
    * the integer form of its start time.
    */
   const [selectedToggles, setSelectedToggles] = useState([]); // TODO
-
-  const [hoverRangeStart, setHoverRangeStart] = useState(
-    variant === 'end' ? values.startTime : null,
-  );
-  const [hoverRangeEnd, setHoverRangeEnd] = useState(variant === 'start' ? values.endTime : null);
-  const hoverRange = { start: hoverRangeStart, end: hoverRangeEnd };
+  const [hoverRange, setHoverRange] = useState(null);
 
   const { getSetting } = useSettings();
   const bookingSlotSettings = getSetting('appointments.bookingSlots');
@@ -137,6 +132,7 @@ export const TimeSlotPicker = ({
         // Many time slots selected. Clicking anything other than the head or tail clears the
         // selection.
         updateSelection([], null, null);
+        setHoverRange(null);
         break;
       }
       case 'start': {
@@ -162,6 +158,7 @@ export const TimeSlotPicker = ({
   }, [existingLocationBookings, isFetched]);
 
   const checkIfSelectableTimeSlot = useCallback(
+    /** Watch out! startTime and endTime values are strings. */
     timeSlot => {
       if (!values.startTime || !values.endTime) return true;
       if (values.startTime < timeSlot.end) {
@@ -195,26 +192,28 @@ export const TimeSlotPicker = ({
               isTimeSlotWithinRange(timeSlot, bookedTimeSlot),
             );
 
-            // const onMouseEnter = () => {
-            //   if (!selectedTimeRange) {
-            //     setHoverTimeRange(timeSlot);
-            //     return;
-            //   }
-            //   if (timeSlot.start <= selectedTimeRange.start) {
-            //     setHoverTimeRange({
-            //       start: timeSlot.start,
-            //       end: selectedTimeRange.end,
-            //     });
-            //     return;
-            //   }
-            //   if (timeSlot.end >= selectedTimeRange.end) {
-            //     setHoverTimeRange({
-            //       start: selectedTimeRange.start,
-            //       end: timeSlot.end,
-            //     });
-            //     return;
-            //   }
-            // };
+            const onMouseEnter = () => {
+              if (selectedToggles.length > 1) return;
+
+              if (!values.startTime || !values.endTime) {
+                setHoverRange(timeSlot);
+                return;
+              }
+              if (timeSlot.start <= values.startTime) {
+                setHoverRange({
+                  start: timeSlot.start,
+                  end: values.endTime,
+                });
+                return;
+              }
+              if (timeSlot.end >= values.endTime) {
+                setHoverRange({
+                  start: values.startTime,
+                  end: timeSlot.end,
+                });
+                return;
+              }
+            };
 
             return (
               <BookingTimeCell
@@ -223,9 +222,9 @@ export const TimeSlotPicker = ({
                 selectable={checkIfSelectableTimeSlot(timeSlot)}
                 booked={isBooked}
                 disabled={disabled}
-                // onMouseEnter={onMouseEnter}
-                // onMouseLeave={() => setHoverTimeRange(null)}
-                // inHoverRange={isTimeSlotWithinRange(timeSlot, hoverTimeRange)}
+                onMouseEnter={onMouseEnter}
+                onMouseLeave={() => setHoverRange(null)}
+                inHoverRange={isTimeSlotWithinRange(timeSlot, hoverRange)}
                 value={timeSlot.start.valueOf()}
               />
             );

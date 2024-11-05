@@ -72,7 +72,7 @@ const AvailableCell = styled(Toggle)`
     $hover &&
     css`
       &:not(${toggleButtonClasses.selected}),
-      &:not(${toggleButtonClasses.selected}):hover {
+      &&&&:not(${toggleButtonClasses.selected}):hover {
         background-color: ${Colors.veryLightBlue};
       }
     `};
@@ -88,12 +88,12 @@ const AvailableCell = styled(Toggle)`
 
 export const BookingTimeCell = ({
   timeSlot,
-  booked,
+  booked = false,
   selectable = true,
-  disabled,
+  disabled = false,
   onMouseEnter,
   onMouseLeave,
-  inHoverRange,
+  inHoverRange = false,
   ...props
 }) => {
   if (disabled) {
@@ -134,7 +134,7 @@ export const BookingTimeCell = ({
       visible={!selectable}
     >
       <AvailableCell
-        $hover={inHoverRange && selectable}
+        $hover={selectable && inHoverRange}
         $selectable={selectable}
         onMouseEnter={selectable ? onMouseEnter : null}
         onMouseLeave={selectable ? onMouseLeave : null}
