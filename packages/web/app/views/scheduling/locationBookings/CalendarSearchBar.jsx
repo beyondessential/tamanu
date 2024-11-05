@@ -3,7 +3,7 @@ import React, { useEffect } from 'react';
 import { styled } from '@mui/material';
 import { Field, Form, SearchField, TextButton, TranslatedText } from '../../../components';
 import { useTranslation } from '../../../contexts/Translation';
-import { Formik, useFormikContext } from 'formik';
+import { useFormikContext } from 'formik';
 import { FilterField } from '../../../components/Field/FilterField';
 
 const SearchBar = styled('search')`

@@ -4,7 +4,6 @@
  */
 
 import { createTheme } from '@material-ui/core/styles';
-import { createTheme as newCreateTheme, OutlinedInput } from '@mui/material';
 import { Colors, MUI_SPACING_UNIT } from '../constants';
 
 const themeName = 'Tamanu';

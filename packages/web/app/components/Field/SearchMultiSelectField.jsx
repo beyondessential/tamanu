@@ -9,19 +9,34 @@ import {
   ListItemText,
   styled,
   Button,
+  InputAdornment,
 } from '@mui/material';
-import { Search } from '@mui/icons-material';
+import { Clear, Search } from '@mui/icons-material';
 
 import { CheckboxIconChecked, CheckboxIconUnchecked } from '../Icons/CheckboxIcon';
 import { Colors } from '../../constants';
 import { TextButton } from '../Button';
 import { useSuggesterOptions } from '../../hooks';
 import { TranslatedText } from '../Translation';
+import { TextInput } from './TextField';
+import { ClearIcon } from '../Icons';
+
+const StyledTextInput = styled(TextInput)`
+  .MuiInputBase-input {
+    padding-inline-start: 0.4375rem;
+  }
+`;
+
+const Icon = styled(InputAdornment)`
+  .MuiSvgIcon-root {
+    color: ${Colors.softText};
+    font-size: 0.9375rem;
+  }
+`;
 
 const StyledMenu = styled(Menu)`
   .MuiMenu-paper {
     width: 12.875rem;
-    padding-inline: 0.625rem;
     & * {
       font-size: 0.6875rem;
     }
@@ -86,22 +101,26 @@ export const SearchMultiSelectInput = ({
       </StyledInputButton>
 
       <StyledMenu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleClose}>
-        <Box p={1} sx={{ display: 'flex', flexDirection: 'column', padding: 0 }}>
-          <OutlinedInput
-            startAdornment={
-              <IconButton edge="start" size="small" sx={{ marginRight: 0.5 }}>
-                <Search fontSize="small" />
-              </IconButton>
-            }
-            placeholder="Search..."
+        <Box p={1} sx={{ display: 'flex', flexDirection: 'column', padding: '0 0.625rem' }}>
+          <StyledTextInput
+            InputProps={{
+              startAdornment: (
+                <Icon>
+                  <Search />
+                </Icon>
+              ),
+            }}
+            placeholder={`Search ${label.toLowerCase()}`}
+            style={{ paddingInlineStart: 0 }}
             value={searchValue}
             onChange={e => setSearchValue(e.target.value)}
+            size="small"
           />
           <TextButton
             onClick={handleClear}
             style={{ textDecoration: 'underline', alignSelf: 'end', marginBlock: '0.25rem' }}
           >
-            Clear
+            <TranslatedText stringId="general.action.clear" fallback="Clear" />
           </TextButton>
         </Box>
 
@@ -114,7 +133,7 @@ export const SearchMultiSelectInput = ({
                 <MenuItem
                   key={`${name}-${option.value}`}
                   onClick={() => handleSelectOption(option.value)}
-                  sx={{ paddingInline: 0, gap: '0.5625rem' }}
+                  sx={{ paddingInline: '0.625rem', gap: '0.5625rem' }}
                 >
                   <Checkbox
                     checked={value.includes(option.value)}
