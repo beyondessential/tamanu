@@ -304,7 +304,7 @@ const BulkActions = ({ row, handleActionModalOpen }) => {
   const canWrite = ability.can('write', 'Tasking');
   const canDelete = ability.can('delete', 'Tasking');
 
-  const isTaskOverdue = differenceInHours(new Date(), new Date(row.dueTime)) >= 48;
+  const isTaskOverdue = differenceInHours(new Date(), parseISO(row.dueTime)) >= 48;
 
   return (
     <StyledBulkActions>
