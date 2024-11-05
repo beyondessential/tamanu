@@ -3,10 +3,10 @@ sql: |
   SELECT
     id,
     payload->>'resource' AS resource,
-    ROUND(EXTRACT(EPOCH FROM (NOW() - updated_at)) / 60) AS duration_minutes,
+    ROUND(EXTRACT(EPOCH FROM (NOW() - created_at)) / 60) AS duration_minutes,
   FROM fhir.jobs
   WHERE status = 'Queued'
-    AND NOW() - started_at > INTERVAL '30 minutes' -- tbd: tune this threshold
+    AND NOW() - created_at > INTERVAL '30 minutes' -- tbd: tune this threshold
     -- AND started_at > NOW() - INTERVAL '2 hours' -- tbd: best way to avoid repeating alerts for the same job?
 send:
   - target: zendesk
