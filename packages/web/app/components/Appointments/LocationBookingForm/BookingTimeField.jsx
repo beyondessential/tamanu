@@ -19,6 +19,7 @@ import { isEqual } from 'lodash';
 import { CircularProgress } from '@material-ui/core';
 import { TranslatedText } from '../../Translation/TranslatedText';
 import { useAppointmentsQuery } from '../../../api/queries';
+import { FormHelperText } from '@mui/material';
 
 const CellContainer = styled.div`
   border: 1px solid ${({ $error }) => ($error ? Colors.alert : Colors.outline)};
@@ -64,8 +65,7 @@ const isTimeSlotWithinRange = (timeSlot, range) => {
 // logic calculated through time ranges in the format { start: DATE, end: DATE }
 export const BookingTimeField = ({ disabled = false }) => {
   const { getSetting } = useSettings();
-  const { setFieldValue, values, dirty, initialValues, errors } = useFormikContext();
-
+  const { setFieldValue, values, dirty, initialValues, errors, touched } = useFormikContext();
 
   const validationError = errors.startTime || errors.endTime
 
@@ -258,6 +258,7 @@ export const BookingTimeField = ({ disabled = false }) => {
           })
         )}
       </CellContainer>
+      <FormHelperText error>{!selectedTimeRange && validationError && "*Required"}</FormHelperText>
     </OuterLabelFieldWrapper>
   );
 };
