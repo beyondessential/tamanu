@@ -119,7 +119,7 @@ const TooltipContainer = styled.div`
 const NoDataContainer = styled.div`
   height: 354px;
   font-weight: 500;
-  margin: 20px 0 20px 0;
+  margin: 0 0 20px 0;
   border-radius: 4px;
   display: flex;
   align-items: center;
@@ -274,6 +274,7 @@ export const DashboardTasksTable = ({ searchParameters, refreshCount }) => {
         onChangeOrderBy={onChangeOrderBy}
         orderBy={orderBy}
         order={order}
+        hideHeader={!userTasks?.count}
       />
       <PaginatorContainer>
         <Paginator

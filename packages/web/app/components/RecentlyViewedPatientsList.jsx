@@ -56,7 +56,7 @@ const CardComponent = styled.div`
     margin-left: 0;
   }
   ${p =>
-    p.$inDashboard
+    p.$isDashboard
       ? `border: 1px solid ${Colors.outline};
       height: 100px;
     `
@@ -79,7 +79,7 @@ const CardListContainer = styled.div`
   flex-direction: row;
   align-items: center;
   ${p =>
-    p.$inDashboard
+    p.$isDashboard
       ? `background-color: ${Colors.white};
     margin-left: 20px;
     margin-right: 20px;
@@ -90,8 +90,8 @@ const CardListContainer = styled.div`
 
 const CardTitle = styled(Typography)`
   font-weight: bold;
-  font-size: ${p => (p.$inDashboard ? '11px' : '14px')};
-  ${p => (p.$inDashboard ? 'margin-bottom: 4px;' : '')}
+  font-size: ${p => (p.$isDashboard ? '11px' : '14px')};
+  ${p => (p.$isDashboard ? 'margin-bottom: 4px;' : '')}
   color: ${getColorForEncounter};
   overflow: hidden;
   text-overflow: ellipsis;
@@ -99,8 +99,8 @@ const CardTitle = styled(Typography)`
 `;
 
 const CardText = styled(Typography)`
-  font-size: ${p => (p.$inDashboard ? '11px' : '14px')};
-  ${p => (p.$inDashboard ? 'margin-bottom: 4px;' : '')}
+  font-size: ${p => (p.$isDashboard ? '11px' : '14px')};
+  ${p => (p.$isDashboard ? 'margin-bottom: 4px;' : '')}
 `;
 
 const CapitalizedCardText = styled(CardText)`
@@ -157,21 +157,21 @@ const SectionTitle = styled.div`
 
 const PATIENTS_PER_PAGE = 6;
 
-const Card = ({ patient, handleClick, inDashboard }) => {
+const Card = ({ patient, handleClick, isDashboard }) => {
   return (
-    <CardComponent onClick={() => handleClick(patient.id)} $inDashboard={inDashboard}>
+    <CardComponent onClick={() => handleClick(patient.id)} $isDashboard={isDashboard}>
       <EncounterTypeIndicator $encounterType={patient.encounter_type} />
       <CardComponentContent>
         <ThemedTooltip title={`${patient.firstName || ''} ${patient.lastName || ''}`}>
-          <CardTitle $encounterType={patient.encounter_type} $inDashboard={inDashboard}>
+          <CardTitle $encounterType={patient.encounter_type} $isDashboard={isDashboard}>
             {patient.firstName} {patient.lastName}
           </CardTitle>
         </ThemedTooltip>
-        <CardText $inDashboard={inDashboard}>{patient.displayId}</CardText>
-        <CapitalizedCardText $inDashboard={inDashboard}>
+        <CardText $isDashboard={isDashboard}>{patient.displayId}</CardText>
+        <CapitalizedCardText $isDashboard={isDashboard}>
           <TranslatedSex sex={patient.sex} />
         </CapitalizedCardText>
-        <CardText $inDashboard={inDashboard}>
+        <CardText $isDashboard={isDashboard}>
           <TranslatedText stringId="general.dateOfBirth.label" fallback="DOB" />
           : <DateDisplay date={patient.dateOfBirth} shortYear />
         </CardText>
@@ -180,7 +180,7 @@ const Card = ({ patient, handleClick, inDashboard }) => {
   );
 };
 
-export const RecentlyViewedPatientsList = ({ encounterType, inDashboard = false }) => {
+export const RecentlyViewedPatientsList = ({ encounterType, isDashboard = false }) => {
   const { navigateToPatient } = usePatientNavigation();
   const [isExpanded, setIsExpanded] = useState(true);
   const [pageIndex, setPageIndex] = useState(0);
@@ -211,7 +211,7 @@ export const RecentlyViewedPatientsList = ({ encounterType, inDashboard = false 
   return (
     <Container>
       <ContainerTitle onClick={() => setIsExpanded(!isExpanded)}>
-        {!inDashboard && (
+        {!isDashboard && (
           <>
             <SectionLabel>
               <TranslatedText
@@ -224,8 +224,8 @@ export const RecentlyViewedPatientsList = ({ encounterType, inDashboard = false 
         )}
       </ContainerTitle>
       <Collapse in={isExpanded} timeout="auto" unmountOnExit>
-        <CardListContainer $inDashboard={inDashboard}>
-          {inDashboard && (
+        <CardListContainer $isDashboard={isDashboard}>
+          {isDashboard && (
             <SectionTitle>
               <TranslatedText
                 stringId="patientList.recentlyViewed.title"
@@ -248,7 +248,7 @@ export const RecentlyViewedPatientsList = ({ encounterType, inDashboard = false 
                   key={patient.id}
                   patient={patient}
                   handleClick={cardOnClick}
-                  inDashboard={inDashboard}
+                  isDashboard={isDashboard}
                 />
               ))}
           </CardList>

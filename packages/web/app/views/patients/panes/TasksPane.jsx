@@ -32,7 +32,7 @@ const TabPane = styled.div`
 const ActionRow = styled.div`
   display: flex;
   gap: 10px;
-  align-items: ${p => (p.$inDashboard ? 'center' : 'flex-end')};
+  align-items: ${p => (p.$isDashboard ? 'center' : 'flex-end')};
   justify-content: flex-end;
   margin-left: auto;
 `;
@@ -48,7 +48,7 @@ const StyledCheckInput = styled(CheckInput)`
     line-height: 15px;
     margin-left: -3px;
   }
-  ${p => (p.$inDashboard ? 'margin-top: 18px;' : '')}
+  ${p => (p.$isDashboard ? 'margin-top: 18px;' : '')}
 `;
 
 const CheckInputGroup = styled.div`
@@ -72,12 +72,12 @@ const FilterGrid = styled.div`
   }
 `;
 
-export const TasksPane = React.memo(({ encounter, inDashboard = false }) => {
+export const TasksPane = React.memo(({ encounter, isDashboard = false }) => {
   const { ability } = useAuth();
   const canCreate = ability.can('create', 'Tasking');
 
   const userPreferencesMutation = useUserPreferencesMutation();
-  const { data: userPreferences } = useUserPreferencesQuery({ enabled: inDashboard });
+  const { data: userPreferences } = useUserPreferencesQuery({ enabled: isDashboard });
   const { clinicianDashboardTaskingTableFilter = {} } = userPreferences || {};
 
   const designationSuggester = useSuggester('designation');
@@ -129,7 +129,7 @@ export const TasksPane = React.memo(({ encounter, inDashboard = false }) => {
   }, [searchParameters]);
 
   useEffect(() => {
-    if (inDashboard) return;
+    if (isDashboard) return;
     const statuses = [TASK_STATUSES.TODO];
 
     if (showCompleted) {
@@ -141,12 +141,12 @@ export const TasksPane = React.memo(({ encounter, inDashboard = false }) => {
     }
 
     setSearchParameters({ ...searchParameters, statuses });
-  }, [showCompleted, showNotCompleted, inDashboard]);
+  }, [showCompleted, showNotCompleted, isDashboard]);
 
   return (
     <TabPane>
       <TopBar>
-        {inDashboard ? (
+        {isDashboard ? (
           <Heading4>
             <TranslatedText
               stringId="dashboard.tasks.upcomingTasks.title"
@@ -154,8 +154,8 @@ export const TasksPane = React.memo(({ encounter, inDashboard = false }) => {
             />
           </Heading4>
         ) : null}
-        <ActionRow $inDashboard={inDashboard}>
-          {!inDashboard ? (
+        <ActionRow $isDashboard={isDashboard}>
+          {!isDashboard ? (
             <>
               <CheckInputGroup>
                 <StyledCheckInput
@@ -227,14 +227,14 @@ export const TasksPane = React.memo(({ encounter, inDashboard = false }) => {
                   />
                 }
                 value={clinicianDashboardTaskingTableFilter.highPriority}
-                $inDashboard={inDashboard}
+                $isDashboard={isDashboard}
                 onChange={onHighPriorityOnlyChange}
               />
             </FilterGrid>
           )}
         </ActionRow>
       </TopBar>
-      {!inDashboard ? (
+      {!isDashboard ? (
         <TasksTable
           encounterId={encounter.id}
           searchParameters={searchParameters}

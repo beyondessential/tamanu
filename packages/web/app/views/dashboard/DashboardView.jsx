@@ -51,8 +51,8 @@ export const DashboardView = () => {
         </IconButton>
       </TopBar>
       <DashboardLayout>
-        <RecentlyViewedPatientsList inDashboard />
-        <TasksPane inDashboard />
+        <RecentlyViewedPatientsList isDashboard />
+        <TasksPane isDashboard />
       </DashboardLayout>
     </PageContainer>
   );
