@@ -1312,7 +1312,7 @@ describe('Encounter', () => {
           },
           questions: [
             {
-              name: 'ChartDate',
+              name: 'PatientChartingDate',
               type: 'DateTime',
             },
             {
