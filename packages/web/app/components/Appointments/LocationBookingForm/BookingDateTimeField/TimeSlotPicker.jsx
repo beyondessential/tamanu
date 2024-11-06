@@ -99,10 +99,13 @@ export const TimeSlotPicker = ({
   };
 
   /**
-   * @param {Array<int>} newToggles Provided by MUI Toggle Button Group. This function coerces this
-   * into a contiguous selection.
+   * @param {Array<int>} newTogglesUnsorted Provided by MUI Toggle Button Group. This function coerces this
+   * into a contiguous selection. Note that this array has set semantics, and is not guaranteed to
+   * have its elements in natural order.
    */
-  const handleChange = (event, newToggles) => {
+  const handleChange = (event, newTogglesUnsorted) => {
+    const newToggles = newTogglesUnsorted.toSorted();
+
     switch (variant) {
       case 'range': {
         // Deselecting the only selected time slot
@@ -120,10 +123,11 @@ export const TimeSlotPicker = ({
         }
 
         // One time slot already selected. A second one makes a contiguous series.
-        // (Selecting tail before head is allowed.) TODO: Doesn’t work
+        // (Selecting tail before head is allowed.)
         if (selectedToggles.length === 1) {
           const newStart = new Date(newToggles[0]);
-          const newEnd = addMs(new Date(newToggles.at(-1)), ms(bookingSlotSettings.slotDuration));
+          const startOfLatestSlot = new Date(newToggles.at(-1));
+          const newEnd = addMs(startOfLatestSlot, ms(bookingSlotSettings.slotDuration));
           const newTimeRange = { start: newStart, end: newEnd };
           const newSelection = timeSlots
             .filter(s => isTimeSlotWithinRange(s, newTimeRange))
