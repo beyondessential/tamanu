@@ -1,6 +1,15 @@
 import { CircularProgress } from '@material-ui/core';
 import { ToggleButtonGroup, toggleButtonGroupClasses } from '@mui/material';
-import { addMilliseconds as addMs, endOfDay, isValid, startOfDay, startOfToday } from 'date-fns';
+import {
+  addMilliseconds as addMs,
+  areIntervalsOverlapping,
+  endOfDay,
+  isValid,
+  max,
+  min,
+  startOfDay,
+  startOfToday,
+} from 'date-fns';
 import { useFormikContext } from 'formik';
 import { PropTypes } from 'prop-types';
 import React, { useCallback, useMemo, useState } from 'react';
@@ -197,8 +206,8 @@ export const TimeSlotPicker = ({
           <LoadingIndicator />
         ) : (
           timeSlots.map(timeSlot => {
-            const isBooked = bookedTimeSlots?.some(bookedTimeSlot =>
-              isTimeSlotWithinRange(timeSlot, bookedTimeSlot),
+            const isBooked = bookedIntervals?.some(bookedInterval =>
+              areIntervalsOverlapping(timeSlot, bookedInterval),
             );
 
             const onMouseEnter = () => {
