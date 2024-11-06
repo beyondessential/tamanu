@@ -41,3 +41,7 @@ TODO
 {% docs sync_lookup__pushed_by_device_id %}
 TODO
 {% enddocs %}
+
+{% docs sync_lookup__source_updated_at_sync_tick %}
+TODO
+{% enddocs %}

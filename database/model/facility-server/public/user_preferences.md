@@ -9,3 +9,11 @@ TODO
 {% docs user_preferences__selected_graphed_vitals_on_filter %}
 TODO
 {% enddocs %}
+
+{% docs user_preferences__key %}
+TODO
+{% enddocs %}
+
+{% docs user_preferences__value %}
+TODO
+{% enddocs %}
