@@ -71,6 +71,7 @@ export const LocationBookingsCalendarBody = ({
       after: displayedDates[0],
       before: endOfDay(displayedDates[displayedDates.length - 1]),
       locationId: '',
+      all: true
     }).data?.data ?? [];
 
   if (locationsAreLoading) return <SkeletonRows colCount={displayedDates.length} />;
