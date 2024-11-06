@@ -24,6 +24,7 @@ import { useSettings } from '../../../../contexts/Settings';
 import { OuterLabelFieldWrapper } from '../../../Field';
 import { BookingTimeCell } from './BookingTimeCell';
 import { calculateTimeSlots, isSameArrayMinusHeadOrTail, isTimeSlotWithinRange } from './util';
+import { isEqual } from 'lodash';
 
 const ToggleGroup = styled(ToggleButtonGroup)`
   background-color: white;
@@ -60,7 +61,11 @@ export const TimeSlotPicker = ({
   variant = 'range',
   ...props
 }) => {
-  const { setFieldValue, values } = useFormikContext();
+  const {
+    initialValues: { startTime: initialStart, endTime: initialEnd },
+    setFieldValue,
+    values,
+  } = useFormikContext();
 
   /**
    * Array of integers representing the selected toggle buttons. Each time slot is represented by
@@ -132,8 +137,7 @@ export const TimeSlotPicker = ({
         if (isSameArrayMinusHeadOrTail(newToggles, selectedToggles)) {
           const newStart = new Date(newToggles[0]);
           const newEnd = addMs(new Date(newToggles.at(-1)), ms(bookingSlotSettings.slotDuration));
-          const newSelection = newToggles;
-          updateSelection(newSelection, newStart, newEnd);
+          updateSelection(newToggles, newStart, newEnd);
           break;
         }
 
@@ -175,28 +179,24 @@ export const TimeSlotPicker = ({
       .filter(interval => !isEqual(interval, initialTimeRange)); // Ignore the booking currently being modified
   }, [existingLocationBookings?.data, initialTimeRange, isFetched]);
 
-  /** Watch out! startTime and endTime values are strings. */
+  /** A time slot is selectable if it does not create a selection of time slots that collides with another booking */
   const checkIfSelectableTimeSlot = useCallback(
     timeSlot => {
+      // If beginning a fresh selection, discontinuity is impossible
       if (!values.startTime || !values.endTime) return true;
-      if (values.startTime < timeSlot.end) {
-        return !bookedTimeSlots.some(bookedSlot =>
-          isTimeSlotWithinRange(bookedSlot, {
-            start: values.startTime,
-            end: timeSlot.end,
-          }),
-        );
-      }
-      if (values.endTime > timeSlot.start) {
-        return !bookedTimeSlots.some(bookedSlot =>
-          isTimeSlotWithinRange(bookedSlot, {
-            start: timeSlot.start,
-            end: values.endTime,
-          }),
-        );
-      }
+
+      // The would-be time range if this time slot were to be selected
+      const targetSelection = {
+        start: min([new Date(values.startTime), timeSlot.start]),
+        end: max([new Date(values.endTime), timeSlot.end]),
+      };
+
+      // Prohibit collisions with booked intervals
+      return !bookedIntervals.some(bookedInterval =>
+        areIntervalsOverlapping(targetSelection, bookedInterval),
+      );
     },
-    [bookedTimeSlots, values.startTime, values.endTime],
+    [bookedIntervals, values.startTime, values.endTime],
   );
 
   return (
