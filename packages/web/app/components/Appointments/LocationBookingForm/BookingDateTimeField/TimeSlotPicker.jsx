@@ -147,14 +147,24 @@ export const TimeSlotPicker = ({
     onChange?.(event, { start: values.startTime, end: values.endTime });
   };
 
-  // Convert existing bookings into timeslots TODO: Exclude slots that this form edits
-  const bookedTimeSlots = useMemo(() => {
+  // Convert existing bookings into timeslots
+  const initialTimeRange = useMemo(() => {
+    return initialStart && initialEnd
+      ? {
+          start: new Date(initialStart),
+          end: new Date(initialEnd),
+        }
+      : null;
+  }, [initialStart, initialEnd]);
+  const bookedIntervals = useMemo(() => {
     if (!isFetched) return [];
-    return existingLocationBookings?.data.map(booking => ({
-      start: new Date(booking.startTime),
-      end: new Date(booking.endTime),
-    }));
-  }, [existingLocationBookings, isFetched]);
+    return existingLocationBookings?.data
+      .map(booking => ({
+        start: new Date(booking.startTime),
+        end: new Date(booking.endTime),
+      }))
+      .filter(interval => !isEqual(interval, initialTimeRange)); // Ignore the booking currently being modified
+  }, [existingLocationBookings?.data, initialTimeRange, isFetched]);
 
   /** Watch out! startTime and endTime values are strings. */
   const checkIfSelectableTimeSlot = useCallback(
