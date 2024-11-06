@@ -216,20 +216,11 @@ export const TimeSlotPicker = ({
                 setHoverRange(timeSlot);
                 return;
               }
-              if (timeSlot.start <= values.startTime) {
-                setHoverRange({
-                  start: timeSlot.start,
-                  end: values.endTime,
-                });
-                return;
-              }
-              if (timeSlot.end >= values.endTime) {
-                setHoverRange({
-                  start: values.startTime,
-                  end: timeSlot.end,
-                });
-                return;
-              }
+
+              setHoverRange({
+                start: min([timeSlot.start, values.startTime]),
+                end: max([timeSlot.end, values.endTime]),
+              });
             };
 
             return (
