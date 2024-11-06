@@ -30,7 +30,10 @@ export class Appointment extends Model {
       { association: 'patient', include: ['village'] },
       'clinician',
       'location',
-      'locationGroup',
+      {
+        association: 'location',
+        include: ['locationGroup'],
+      }
     ];
   }
 
