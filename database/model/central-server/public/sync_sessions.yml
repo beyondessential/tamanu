@@ -65,6 +65,3 @@ sources:
           - name: errors
             data_type: array
             description: "{{ doc('sync_sessions__errors') }}"
-          - name: push_saved_at_tick
-            data_type: bigint
-            description: "{{ doc('sync_sessions__push_saved_at_tick') }}"

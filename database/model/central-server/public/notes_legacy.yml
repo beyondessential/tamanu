@@ -12,6 +12,7 @@ sources:
             data_type: character varying(255)
             description: "{{ doc('generic__id') }} in notes_legacy."
             data_tests:
+              - unique
               - not_null
           - name: created_at
             data_type: timestamp with time zone

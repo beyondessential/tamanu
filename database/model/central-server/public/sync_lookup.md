@@ -55,7 +55,3 @@ This is used to sort and filter records efficiently during the sync process.
 {% docs sync_lookup__pushed_by_device_id %}
 The unique device that pushed this record.
 {% enddocs %}
-
-{% docs sync_lookup__source_updated_at_sync_tick %}
-TODO
-{% enddocs %}
