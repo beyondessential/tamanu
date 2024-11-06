@@ -219,8 +219,11 @@ user.get(
     const defaultOrder = [
       ['dueTime', 'ASC'],
       ['highPriority', 'DESC'],
-      ['encounter', 'patient', 'firstName', 'ASC'],
-      ['encounter', 'patient', 'lastName', 'ASC'],
+      [
+        Sequelize.literal(
+          'LOWER(CONCAT("encounter->patient"."first_name", \' \', "encounter->patient"."last_name"))',
+        ),
+      ],
       ['name', 'ASC'],
     ];
     const orderOptions = [];
