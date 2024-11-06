@@ -1,0 +1,1 @@
+../../central-server/public/vital_logs.md

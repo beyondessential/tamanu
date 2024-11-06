@@ -10,7 +10,6 @@ import { SubmitSection } from './SubmitSection';
 import { generateId, getConfiguredPatientAdditionalDataFields } from '~/ui/helpers/patient';
 import { Patient } from '~/models/Patient';
 import { withPatient } from '~/ui/containers/Patient';
-import { useLocalisation } from '~/ui/contexts/LocalisationContext';
 import { Routes } from '~/ui/helpers/routes';
 import { ALL_ADDITIONAL_DATA_FIELDS } from '~/ui/helpers/additionalData';
 import { getPatientDetailsValidation } from './patientDetailsValidationSchema';
@@ -180,7 +179,6 @@ const FormComponent = ({ selectedPatient, setSelectedPatient, isEdit, children }
     [navigation, selectedPatient, setSelectedPatient, createOrUpdateOtherPatientData],
   );
 
-  const { getLocalisation } = useLocalisation();
   const { getSetting } = useSettings();
 
   return loading ? (
@@ -195,7 +193,7 @@ const FormComponent = ({ selectedPatient, setSelectedPatient, isEdit, children }
           selectedPatient,
           patientAdditionalData,
           customPatientFieldValues,
-          getLocalisation,
+          getSetting,
         )}
       >
         {({ handleSubmit }): JSX.Element => (
