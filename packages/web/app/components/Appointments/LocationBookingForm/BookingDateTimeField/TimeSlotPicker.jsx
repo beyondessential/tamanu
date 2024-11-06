@@ -187,8 +187,8 @@ export const TimeSlotPicker = ({
 
       // The would-be time range if this time slot were to be selected
       const targetSelection = {
-        start: min([new Date(values.startTime), timeSlot.start]),
-        end: max([new Date(values.endTime), timeSlot.end]),
+        start: min([values.startTime, timeSlot.start]),
+        end: max([values.endTime, timeSlot.end]),
       };
 
       // Prohibit collisions with booked intervals
