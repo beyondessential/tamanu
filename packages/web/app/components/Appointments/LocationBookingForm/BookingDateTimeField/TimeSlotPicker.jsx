@@ -191,7 +191,6 @@ export const TimeSlotPicker = ({
         end: max([values.endTime, timeSlot.end]),
       };
 
-      // Prohibit collisions with booked intervals
       return !bookedIntervals.some(bookedInterval =>
         areIntervalsOverlapping(targetSelection, bookedInterval),
       );
