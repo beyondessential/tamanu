@@ -1,0 +1,50 @@
+version: 2
+sources:
+  - name: tamanu
+    schema: public
+    description: "{{ doc('generic__schema') }}"
+    tables:
+      - name: assets
+        description: '{{ doc("table__assets") }}'
+        tags:
+          - reference
+        columns:
+          - name: id
+            data_type: character varying(255)
+            description: "{{ doc('generic__id') }} in assets."
+            data_tests:
+              - unique
+              - not_null
+          - name: created_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__created_at') }} in assets."
+          - name: updated_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__updated_at') }} in assets."
+          - name: deleted_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__deleted_at') }} in assets."
+          - name: name
+            data_type: character varying(255)
+            description: "{{ doc('assets__name') }}"
+            data_tests:
+              - not_null
+          - name: type
+            data_type: character varying(255)
+            description: "{{ doc('assets__type') }}"
+            data_tests:
+              - not_null
+              - accepted_values:
+                  values:
+                    - image/png
+                    - image/svg
+          - name: data
+            data_type: bytea
+            description: "{{ doc('assets__data') }}"
+            data_tests:
+              - not_null
+          - name: updated_at_sync_tick
+            data_type: bigint
+            description: "{{ doc('generic__updated_at_sync_tick') }} in assets."
+            data_tests:
+              - not_null

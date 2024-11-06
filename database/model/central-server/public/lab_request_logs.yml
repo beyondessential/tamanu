@@ -1,0 +1,50 @@
+version: 2
+sources:
+  - name: tamanu
+    schema: public
+    description: "{{ doc('generic__schema') }}"
+    tables:
+      - name: lab_request_logs
+        description: '{{ doc("table__lab_request_logs") }}'
+        tags:
+          - clinical
+        columns:
+          - name: id
+            data_type: character varying(255)
+            description: "{{ doc('generic__id') }} in lab_request_logs."
+            data_tests:
+              - unique
+              - not_null
+          - name: created_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__created_at') }} in lab_request_logs."
+          - name: updated_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__updated_at') }} in lab_request_logs."
+          - name: deleted_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__deleted_at') }} in lab_request_logs."
+          - name: status
+            data_type: character varying(31)
+            description: "{{ doc('lab_request_logs__status') }}"
+            data_tests:
+              - not_null
+          - name: lab_request_id
+            data_type: character varying(255)
+            description: "{{ doc('lab_request_logs__lab_request_id') }}"
+            data_tests:
+              - relationships:
+                  to: source('tamanu', 'lab_requests')
+                  field: id
+          - name: updated_by_id
+            data_type: character varying(255)
+            description: "{{ doc('lab_request_logs__updated_by_id') }}"
+            data_tests:
+              - relationships:
+                  to: source('tamanu', 'users')
+                  field: id
+          - name: updated_at_sync_tick
+            data_type: bigint
+            description: "{{ doc('generic__updated_at_sync_tick') }} in lab_request_logs."
+            data_tests:
+              - not_null

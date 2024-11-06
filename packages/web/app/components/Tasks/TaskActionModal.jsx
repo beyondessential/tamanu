@@ -40,7 +40,7 @@ const getModalTitle = (action, isRepeatingTask) => {
   }
 };
 
-const getModalDescription = (action, isRepeatingTask) => {
+const getModalDescription = (action, isRepeatingTask, taskIds) => {
   switch (action) {
     case TASK_ACTIONS.COMPLETED:
       return (
@@ -57,6 +57,14 @@ const getModalDescription = (action, isRepeatingTask) => {
         />
       );
     case TASK_ACTIONS.DELETED:
+      if (taskIds.length > 1) {
+        return (
+          <TranslatedText
+            stringId="task.modal.deleteMultiple.description"
+            fallback="Complete details below to delete tasks. Please note that if the selected tasks include a repeating task, all future instances of the task will also be deleted. This action is irreversible. "
+          />
+        );
+      }
       if (isRepeatingTask) {
         return (
           <TranslatedText
@@ -133,7 +141,7 @@ export const TaskActionModal = ({
       open={open}
       onClose={onClose}
     >
-      <ModalDescription>{getModalDescription(action, isRepeatingTask)}</ModalDescription>
+      <ModalDescription>{getModalDescription(action, isRepeatingTask, taskIds)}</ModalDescription>
       {taskActionForm}
     </FormModal>
   );

@@ -17,8 +17,10 @@ import { useMarkTaskTodo } from '../api/mutations/useTaskMutation';
 import { FORM_TYPES } from '../constants';
 import { getCurrentDateTimeString } from '../utils/dateTime';
 import { useAuth } from '../contexts/Auth';
+import { useTranslation } from '../contexts/Translation';
 
 export const MarkTaskTodoForm = ({ onClose, refreshTaskTable, taskIds }) => {
+  const { getTranslation } = useTranslation();
   const practitionerSuggester = useSuggester('practitioner');
   const { mutate: markTaskTodo, isLoading } = useMarkTaskTodo();
   const { currentUser } = useAuth();
@@ -40,6 +42,7 @@ export const MarkTaskTodoForm = ({ onClose, refreshTaskTable, taskIds }) => {
 
   return (
     <Form
+      showInlineErrorsOnly
       onSubmit={onSubmit}
       formType={FORM_TYPES.CREATE_FORM}
       render={({ submitForm }) => (
@@ -94,6 +97,13 @@ export const MarkTaskTodoForm = ({ onClose, refreshTaskTable, taskIds }) => {
           .required()
           .translatedLabel(
             <TranslatedText stringId="task.form.recordTime.label" fallback="Record date & time" />,
+          )
+          .max(
+            getCurrentDateTimeString(),
+            getTranslation(
+              'general.validation.date.cannotInFuture',
+              'Date cannot be in the future',
+            ),
           ),
         todoNote: yup.string(),
       })}

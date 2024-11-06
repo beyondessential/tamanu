@@ -17,10 +17,10 @@ test_facility_offline_setup_postgres() {
 
 # Build both the facility and central servers.
 test_facility_offline_build() {
-    yarn
-    yarn build-shared
-    yarn workspace @tamanu/central-server build
-    yarn workspace @tamanu/facility-server build
+    npm install
+    npm run build-shared
+    npm run build --workspace @tamanu/central-server
+    npm run build --workspace @tamanu/facility-server
 }
 
 # Start the central server.
@@ -60,9 +60,9 @@ EOF
 EOF
 
     # specify ports for consistency
-    yarn workspace @tamanu/central-server start migrate
-    yarn workspace @tamanu/central-server start provision provisioning.json5
-    nohup yarn workspace @tamanu/central-server start > central-server.out &
+    npm run --workspace @tamanu/central-server start migrate
+    npm run --workspace @tamanu/central-server start provision provisioning.json5
+    nohup npm run --workspace @tamanu/central-server start > central-server.out &
     echo "CENTRAL_SERVER_PID=$!" >> $GITHUB_ENV
     curl --retry 8 --retry-all-errors localhost:3000
 }
@@ -90,7 +90,7 @@ test_facility_offline_facility_start() {
 	    }
 	}
 	EOF
-	nohup yarn workspace @tamanu/facility-server start > facility-server.out &
+	nohup npm run --workspace @tamanu/facility-server start > facility-server.out &
 	echo "FACILITY_SERVER_PID=$!" >> $GITHUB_ENV
 	curl --retry 8 --retry-all-errors localhost:4000
 }
@@ -103,7 +103,7 @@ test_facility_offline_stop_and_print() {
 }
 
 test_facility_offline_facility_start_again() {
-	yarn workspace @tamanu/facility-server start &
+	npm run --workspace @tamanu/facility-server start &
 	curl --retry 8 --retry-all-errors localhost:4000
 	kill -INT -$!
 }

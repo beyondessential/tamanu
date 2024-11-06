@@ -27,11 +27,13 @@ import { FormGrid } from '../components/FormGrid';
 import { FormCancelButton } from '../components/Button';
 import { ButtonRow, DateDisplay, FormSeparatorLine } from '../components';
 import { FormSubmitDropdownButton } from '../components/DropdownButton';
-import { TranslatedReferenceData, TranslatedText } from '../components/Translation';
+import {
+  getReferenceDataStringId,
+  TranslatedReferenceData,
+  TranslatedText,
+} from '../components/Translation';
 import { useTranslation } from '../contexts/Translation';
 import { IMAGING_TYPES } from '@tamanu/constants';
-import { renderToText } from '../utils';
-import { useAuth } from '../contexts/Auth';
 import { camelCase } from 'lodash';
 
 function getEncounterTypeLabel(type) {
@@ -46,7 +48,6 @@ function getEncounterLabel(encounter) {
 
 const FormSubmitActionDropdown = React.memo(({ requestId, encounter, submitForm }) => {
   const dispatch = useDispatch();
-  const { facilityId } = useAuth();
   const { loadEncounter } = useEncounter();
   const { navigateToImagingRequest } = usePatientNavigation();
   const [awaitingPrintRedirect, setAwaitingPrintRedirect] = useState();
@@ -55,7 +56,7 @@ const FormSubmitActionDropdown = React.memo(({ requestId, encounter, submitForm 
   useEffect(() => {
     (async () => {
       if (awaitingPrintRedirect && requestId) {
-        await dispatch(reloadImagingRequest(requestId, facilityId));
+        await dispatch(reloadImagingRequest(requestId));
         navigateToImagingRequest(requestId, 'print');
       }
     })();
@@ -249,11 +250,10 @@ export const ImagingRequestForm = React.memo(
                     .map(({ id, name, type }) => ({
                       label: <TranslatedReferenceData fallback={name} value={id} category={type} />,
                       value: id,
+                      searchString: getTranslation(getReferenceDataStringId(id, type), name),
                     }))
                     .sort((area1, area2) => {
-                      const str1 = renderToText(area1.label);
-                      const str2 = renderToText(area2.label);
-                      return str1.localeCompare(str2);
+                      return area1.searchString.localeCompare(area2.searchString);
                     })}
                   name="areas"
                   label={

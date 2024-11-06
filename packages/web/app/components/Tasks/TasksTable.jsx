@@ -6,6 +6,7 @@ import CancelIcon from '@material-ui/icons/Cancel';
 import DeleteOutlineIcon from '@material-ui/icons/DeleteOutline';
 import { TASK_STATUSES, TASK_ACTIONS } from '@tamanu/constants';
 import PriorityHighIcon from '@material-ui/icons/PriorityHigh';
+import { differenceInHours, parseISO } from 'date-fns';
 
 import {
   BodyText,
@@ -73,9 +74,12 @@ const StyledTable = styled(DataFetchingTable)`
   }
   .MuiTableBody-root .MuiTableRow-root:not(.statusRow) {
     cursor: ${props => (props.onClickRow ? 'pointer' : '')};
+    transition: all 250ms;
     &:hover {
-      box-shadow: 10px 10px 15px 0px rgba(0, 0, 0, 0.1);
+      box-shadow: ${props =>
+        props.disableHoverEffect ? 'none' : '10px 10px 15px 0px rgba(0, 0, 0, 0.1)'};
     }
+    position: relative;
     max-height: 42px;
   }
   .MuiFormControlLabel-root {
@@ -86,9 +90,9 @@ const StyledTable = styled(DataFetchingTable)`
   }
   td {
     &:last-child {
-      max-width: 200px;
+      max-width: 188px;
       white-space: nowrap;
-      width: 200px;
+      min-width: 188px;
     }
     &:nth-child(3) {
       position: relative;
@@ -114,7 +118,7 @@ const StatusTodo = styled.div`
   border-radius: 50%;
 `;
 
-const StyledBulkActions = styled.div`
+const StyledActionsRow = styled.div`
   display: flex;
   gap: 15px;
   padding-right: 10px;
@@ -192,16 +196,23 @@ const StyledToolTip = styled(ThemedTooltip)`
   }
 `;
 
-const getTodoTooltipText = ({ todoBy, todoTime, todoNote }) => (
-  <StatusTooltip>
-    <TranslatedText stringId="tasks.table.tooltip.toDo" fallback="To-do" />
-    <div>{todoBy?.displayName}</div>
-    <div>
-      <span color={Colors.midText}>{formatShortest(todoTime)} </span>
-      <LowercaseText>{formatTime(todoTime)}</LowercaseText>
-    </div>
-    <div>{todoNote}</div>
-  </StatusTooltip>
+const TableTooltip = ({ title, children }) => (
+  <StyledToolTip
+    title={title}
+    PopperProps={{
+      popperOptions: {
+        positionFixed: true,
+        modifiers: {
+          preventOverflow: {
+            enabled: true,
+            boundariesElement: 'window',
+          },
+        },
+      },
+    }}
+  >
+    {children}
+  </StyledToolTip>
 );
 
 const getCompletedTooltipText = ({ completedBy, completedTime, completedNote }) => (
@@ -234,26 +245,20 @@ const getStatus = row => {
     case TASK_STATUSES.TODO:
       return (
         <Box marginLeft="1.5px">
-          {row?.todoByUserId ? (
-            <StyledToolTip title={getTodoTooltipText(row)}>
-              <StatusTodo />
-            </StyledToolTip>
-          ) : (
-            <StatusTodo />
-          )}
+          <StatusTodo />
         </Box>
       );
     case TASK_STATUSES.COMPLETED:
       return (
-        <StyledToolTip title={getCompletedTooltipText(row)}>
+        <TableTooltip title={getCompletedTooltipText(row)}>
           <StyledCheckCircleIcon />
-        </StyledToolTip>
+        </TableTooltip>
       );
     case TASK_STATUSES.NON_COMPLETED:
       return (
-        <StyledToolTip title={getNotCompletedTooltipText(row)}>
+        <TableTooltip title={getNotCompletedTooltipText(row)}>
           <StyledCancelIcon />
-        </StyledToolTip>
+        </TableTooltip>
       );
     default:
       break;
@@ -280,9 +285,9 @@ const AssignedToCell = ({ designations }) => {
   }
 
   return (
-    <StyledToolTip title={designationNames.join(', ')}>
+    <TableTooltip title={designationNames.join(', ')}>
       <OverflowedBox ref={ref}>{designationNames.join(', ')}</OverflowedBox>
-    </StyledToolTip>
+    </TableTooltip>
   );
 };
 
@@ -293,68 +298,79 @@ const getFrequency = ({ frequencyValue, frequencyUnit }) =>
     <TranslatedText stringId="encounter.tasks.table.once" fallback="Once" />
   );
 
-const BulkActions = ({ row, status, handleActionModalOpen }) => {
+const getIsTaskOverdue = (task) => differenceInHours(new Date(), parseISO(task.dueTime)) >= 48;
+
+const ActionsRow = ({ row, rows, handleActionModalOpen }) => {
+  const status = row?.status || rows[0]?.status;
+
   const { ability } = useAuth();
   const canWrite = ability.can('write', 'Tasking');
   const canDelete = ability.can('delete', 'Tasking');
 
-  return <StyledBulkActions>
-    {status !== TASK_STATUSES.COMPLETED && canWrite && (
-      <StyledToolTip
-        title={
-          <TranslatedText
-            stringId="encounter.tasks.action.tooltip.completed"
-            fallback="Mark as complete"
-          />
-        }
-      >
-        <IconButton onClick={() => handleActionModalOpen(TASK_ACTIONS.COMPLETED, row)}>
-          <StyledCheckCircleIcon />
-        </IconButton>
-      </StyledToolTip>
-    )}
-    {status !== TASK_STATUSES.NON_COMPLETED && canWrite && (
-      <StyledToolTip
-        title={
-          <TranslatedText
-            stringId="encounter.tasks.action.tooltip.notCompleted"
-            fallback="Mark as not complete"
-          />
-        }
-      >
-        <IconButton onClick={() => handleActionModalOpen(TASK_ACTIONS.NON_COMPLETED, row)}>
-          <StyledCancelIcon />
-        </IconButton>
-      </StyledToolTip>
-    )}
-    {status !== TASK_STATUSES.TODO && canWrite && (
-      <StyledToolTip
-        title={
-          <TranslatedText stringId="encounter.tasks.action.tooltip.toDo" fallback="Mark as to-do" />
-        }
-      >
-        <IconButton onClick={() => handleActionModalOpen(TASK_ACTIONS.TODO, row)}>
-          <StatusTodo />
-        </IconButton>
-      </StyledToolTip>
-    )}
-    {status === TASK_STATUSES.TODO && canDelete && (
-      <StyledToolTip
-        title={
-          <TranslatedText stringId="encounter.tasks.action.tooltip.delete" fallback="Delete" />
-        }
-      >
-        <IconButton onClick={() => handleActionModalOpen(TASK_ACTIONS.DELETED, row)}>
-          <StyledDeleteOutlineIcon />
-        </IconButton>
-      </StyledToolTip>
-    )}
-  </StyledBulkActions>
+  const isTaskOverdue = row ? getIsTaskOverdue(row) : rows.some(getIsTaskOverdue);
+
+  return (
+    <StyledActionsRow>
+      {status !== TASK_STATUSES.COMPLETED && canWrite && (
+        <TableTooltip
+          title={
+            <TranslatedText
+              stringId="encounter.tasks.action.tooltip.completed"
+              fallback="Mark as complete"
+            />
+          }
+        >
+          <IconButton onClick={() => handleActionModalOpen(TASK_ACTIONS.COMPLETED, row)}>
+            <StyledCheckCircleIcon />
+          </IconButton>
+        </TableTooltip>
+      )}
+      {status !== TASK_STATUSES.NON_COMPLETED && canWrite && (
+        <TableTooltip
+          title={
+            <TranslatedText
+              stringId="encounter.tasks.action.tooltip.notCompleted"
+              fallback="Mark as not complete"
+            />
+          }
+        >
+          <IconButton onClick={() => handleActionModalOpen(TASK_ACTIONS.NON_COMPLETED, row)}>
+            <StyledCancelIcon />
+          </IconButton>
+        </TableTooltip>
+      )}
+      {status !== TASK_STATUSES.TODO && canWrite && !isTaskOverdue && (
+        <TableTooltip
+          title={
+            <TranslatedText
+              stringId="encounter.tasks.action.tooltip.toDo"
+              fallback="Mark as to-do"
+            />
+          }
+        >
+          <IconButton onClick={() => handleActionModalOpen(TASK_ACTIONS.TODO, row)}>
+            <StatusTodo />
+          </IconButton>
+        </TableTooltip>
+      )}
+      {status === TASK_STATUSES.TODO && canDelete && (
+        <TableTooltip
+          title={
+            <TranslatedText stringId="encounter.tasks.action.tooltip.delete" fallback="Delete" />
+          }
+        >
+          <IconButton onClick={() => handleActionModalOpen(TASK_ACTIONS.DELETED, row)}>
+            <StyledDeleteOutlineIcon />
+          </IconButton>
+        </TableTooltip>
+      )}
+    </StyledActionsRow>
+  );
 };
 
 const NotesCell = ({ row, hoveredRow, handleActionModalOpen }) => {
   const [ref, isOverflowing] = useOverflow();
-  const { note, status } = row;
+  const { note } = row;
 
   return (
     <Box display="flex" alignItems="center">
@@ -363,23 +379,23 @@ const NotesCell = ({ row, hoveredRow, handleActionModalOpen }) => {
           !isOverflowing ? (
             <OverflowedBox ref={ref}>{note}</OverflowedBox>
           ) : (
-            <StyledToolTip title={note}>
+            <TableTooltip title={note}>
               <OverflowedBox ref={ref}>{note}</OverflowedBox>
-            </StyledToolTip>
+            </TableTooltip>
           )
         ) : (
           '-'
         )}
       </NotesDisplay>
       {hoveredRow?.id === row?.id && (
-        <BulkActions row={row} status={status} handleActionModalOpen={handleActionModalOpen} />
+        <ActionsRow row={row} handleActionModalOpen={handleActionModalOpen} />
       )}
     </Box>
   );
 };
 
 const getTask = ({ name, requestedBy, requestTime, highPriority }) => (
-  <StyledToolTip
+  <TableTooltip
     title={
       <TooltipContainer>
         <div>{name}</div>
@@ -394,7 +410,7 @@ const getTask = ({ name, requestedBy, requestTime, highPriority }) => (
       {highPriority && <StyledPriorityHighIcon />}
       {name}
     </span>
-  </StyledToolTip>
+  </TableTooltip>
 );
 
 const NoDataMessage = () => (
@@ -410,6 +426,7 @@ export const TasksTable = ({ encounterId, searchParameters, refreshCount, refres
   const { ability } = useAuth();
   const canWrite = ability.can('write', 'Tasking');
   const canDelete = ability.can('delete', 'Tasking');
+  const canDoAction = canWrite || canDelete;
 
   const [hoveredRow, setHoveredRow] = useState();
   const [data, setData] = useState([]);
@@ -509,6 +526,7 @@ export const TasksTable = ({ encounterId, searchParameters, refreshCount, refres
         : selectedRows.some(row => row.frequencyValue && row.frequencyUnit),
     [selectedRows, selectedTask],
   );
+
   const handleMouseEnterRow = data => {
     setHoveredRow(data);
   };
@@ -527,18 +545,15 @@ export const TasksTable = ({ encounterId, searchParameters, refreshCount, refres
         taskIds={selectedTask?.id ? [selectedTask.id] : selectedRowIds}
         isRepeatingTask={isRepeatingTask}
       />
-      {selectedRows.length > 0 && (canWrite || canDelete) && (
+      {selectedRows.length > 0 && canDoAction && (
         <div>
           <StyledDivider />
-          <BulkActions
-            status={selectedRows[0].status}
-            handleActionModalOpen={handleActionModalOpen}
-          />
+          <ActionsRow rows={selectedRows} handleActionModalOpen={handleActionModalOpen} />
         </div>
       )}
       <StyledTable
         endpoint={`encounter/${encounterId}/tasks`}
-        columns={[selectableColumn, ...COLUMNS]}
+        columns={[...(canDoAction ? [selectableColumn] : []), ...COLUMNS]}
         noDataMessage={<NoDataMessage />}
         allowExport={false}
         onMouseEnterRow={handleMouseEnterRow}
@@ -548,6 +563,7 @@ export const TasksTable = ({ encounterId, searchParameters, refreshCount, refres
         onDataFetched={onDataFetched}
         refreshCount={refreshCount}
         defaultRowsPerPage={25}
+        disableHoverEffect={!canDoAction}
       />
     </div>
   );

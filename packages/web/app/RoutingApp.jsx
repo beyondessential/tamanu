@@ -21,6 +21,7 @@ import { Sidebar, useCentralSidebar, useFacilitySidebar } from './components/Sid
 import { UserActivityMonitor } from './components/UserActivityMonitor';
 import { getServerType } from './store';
 import { DashboardView } from './views/dashboard/DashboardView';
+import { useSettings } from './contexts/Settings';
 
 export const RoutingApp = () => {
   const isCentralServer = useSelector(getServerType) === SERVER_TYPES.CENTRAL;
@@ -29,19 +30,13 @@ export const RoutingApp = () => {
 
 export const RoutingFacilityApp = React.memo(() => {
   const sidebarMenuItems = useFacilitySidebar();
-  const history = useHistory();
-
-  useEffect(() => {
-    if (sidebarMenuItems.length > 0) {
-      history.push(sidebarMenuItems[0].path);
-    }
-  }, [sidebarMenuItems, history]);
+  const { isSettingsLoaded } = useSettings();
 
   return (
     <App sidebar={<Sidebar items={sidebarMenuItems} />}>
       <UserActivityMonitor />
       <Switch>
-        <Redirect exact path="/" to={sidebarMenuItems[0].path} />
+        {isSettingsLoaded ? <Redirect exact path="/" to={sidebarMenuItems[0].path} /> : null}
         <Route path="/dashboard" component={DashboardView} />
         <Route path="/patients" component={PatientsRoutes} />
         <Route path="/appointments" component={AppointmentRoutes} />

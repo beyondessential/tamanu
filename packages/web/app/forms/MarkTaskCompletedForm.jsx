@@ -17,8 +17,10 @@ import { useMarkTaskCompleted } from '../api/mutations/useTaskMutation';
 import { FORM_TYPES } from '../constants';
 import { getCurrentDateTimeString } from '../utils/dateTime';
 import { useAuth } from '../contexts/Auth';
+import { useTranslation } from '../contexts/Translation';
 
 export const MarkTaskCompletedForm = ({ onClose, refreshTaskTable, taskIds }) => {
+  const { getTranslation } = useTranslation();
   const practitionerSuggester = useSuggester('practitioner');
   const { mutate: markTaskCompleted, isLoading } = useMarkTaskCompleted();
   const { currentUser } = useAuth();
@@ -40,6 +42,7 @@ export const MarkTaskCompletedForm = ({ onClose, refreshTaskTable, taskIds }) =>
 
   return (
     <Form
+      showInlineErrorsOnly
       onSubmit={onSubmit}
       formType={FORM_TYPES.CREATE_FORM}
       render={({ submitForm }) => (
@@ -97,6 +100,13 @@ export const MarkTaskCompletedForm = ({ onClose, refreshTaskTable, taskIds }) =>
               stringId="task.form.completedTime.label"
               fallback="Completed date & time"
             />,
+          )
+          .max(
+            getCurrentDateTimeString(),
+            getTranslation(
+              'general.validation.date.cannotInFuture',
+              'Date cannot be in the future',
+            ),
           ),
         completedNote: yup.string(),
       })}
