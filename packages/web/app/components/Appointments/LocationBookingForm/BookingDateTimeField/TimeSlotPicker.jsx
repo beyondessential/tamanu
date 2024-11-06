@@ -1,6 +1,6 @@
 import { CircularProgress } from '@material-ui/core';
 import { ToggleButtonGroup, toggleButtonGroupClasses } from '@mui/material';
-import { addMilliseconds as addMs, endOfDay, startOfDay, startOfToday } from 'date-fns';
+import { addMilliseconds as addMs, endOfDay, isValid, startOfDay, startOfToday } from 'date-fns';
 import { useFormikContext } from 'formik';
 import { PropTypes } from 'prop-types';
 import React, { useCallback, useMemo, useState } from 'react';
@@ -67,16 +67,15 @@ export const TimeSlotPicker = ({
   // is selected, but component should be disabled in this scenario
   const timeSlots = calculateTimeSlots(bookingSlotSettings, date ?? startOfToday());
 
+  const dateIsValid = isValid(date);
   const { data: existingLocationBookings, isFetching, isFetched } = useAppointmentsQuery(
     {
-      after: date ? toDateTimeString(startOfDay(date)) : null,
-      before: date ? toDateTimeString(endOfDay(date)) : null,
+      after: dateIsValid ? toDateTimeString(startOfDay(date)) : null,
+      before: dateIsValid ? toDateTimeString(endOfDay(date)) : null,
       all: true,
       locationId: values.locationId,
     },
-    {
-      enabled: !!(date && values.locationId),
-    },
+    { enabled: dateIsValid && !!values.locationId },
   );
 
   const updateSelection = (newToggleSelection, newStartTime, newEndTime) => {

@@ -1,4 +1,4 @@
-import { addMinutes, differenceInMinutes, isWithinInterval, parse } from 'date-fns';
+import { addMinutes, differenceInMinutes, isValid, isWithinInterval, parse } from 'date-fns';
 import { isEqual } from 'lodash';
 import ms from 'ms';
 
@@ -17,7 +17,7 @@ export const isTimeSlotWithinRange = (timeSlot, range) => {
  * @return {Array<{start: Date, end: Date}>}
  */
 export const calculateTimeSlots = (bookingSlotSettings, date) => {
-  if (!date || !bookingSlotSettings) return [];
+  if (!isValid(date) || !bookingSlotSettings) return [];
 
   const { startTime, endTime, slotDuration } = bookingSlotSettings;
   const startOfDay = parse(startTime, 'HH:mm', date);
