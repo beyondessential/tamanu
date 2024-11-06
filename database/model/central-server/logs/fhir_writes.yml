@@ -1,0 +1,44 @@
+version: 2
+sources:
+  - name: logs__tamanu
+    schema: logs
+    description: "{{ doc('logs__generic__schema') }}"
+    tables:
+      - name: fhir_writes
+        description: '{{ doc("logs__table__fhir_writes") }}'
+        tags: []
+        columns:
+          - name: id
+            data_type: uuid
+            description: "{{ doc('logs__fhir_writes__id') }}"
+            data_tests:
+              - unique
+              - not_null
+          - name: created_at
+            data_type: timestamp with time zone
+            description: "{{ doc('logs__fhir_writes__created_at') }}"
+            data_tests:
+              - not_null
+          - name: verb
+            data_type: text
+            description: "{{ doc('logs__fhir_writes__verb') }}"
+            data_tests:
+              - not_null
+          - name: url
+            data_type: text
+            description: "{{ doc('logs__fhir_writes__url') }}"
+            data_tests:
+              - not_null
+          - name: body
+            data_type: jsonb
+            description: "{{ doc('logs__fhir_writes__body') }}"
+            data_tests:
+              - not_null
+          - name: headers
+            data_type: jsonb
+            description: "{{ doc('logs__fhir_writes__headers') }}"
+            data_tests:
+              - not_null
+          - name: user_id
+            data_type: character varying(255)
+            description: "{{ doc('logs__fhir_writes__user_id') }}"
