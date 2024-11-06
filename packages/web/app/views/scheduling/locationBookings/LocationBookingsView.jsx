@@ -37,7 +37,9 @@ const LocationBookingsTopBar = styled(TopBar).attrs({
   title: (
     <TranslatedText stringId="scheduling.locationBookings.title" fallback="Location bookings" />
   ),
-})``;
+})`
+  border-bottom: 1px ${Colors.outline} solid;
+`;
 
 const Wrapper = styled(PageContainer)`
   display: grid;
@@ -72,11 +74,11 @@ const EmptyStateLabel = styled(Typography).attrs({
 export const LocationBookingsView = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [initialDrawerValues, setInitialDrawerValues] = useState({});
-  const { facilityId } = useAuth()
+  const { facilityId } = useAuth();
   const closeBookingForm = () => {
     setIsDrawerOpen(false);
   };
-  const openBookingForm = (initialValues) => {
+  const openBookingForm = initialValues => {
     setInitialDrawerValues(initialValues);
     setIsDrawerOpen(true);
   };
@@ -99,7 +101,10 @@ export const LocationBookingsView = () => {
         </Filters>
         <NewBookingButton onClick={() => openBookingForm({})}>
           <PlusIcon />
-          <TranslatedText stringId="locationBooking.calendar.bookLocation" fallback="Book location" />
+          <TranslatedText
+            stringId="locationBooking.calendar.bookLocation"
+            fallback="Book location"
+          />
         </NewBookingButton>
       </LocationBookingsTopBar>
       {hasNoLocations ? (
@@ -115,7 +120,7 @@ export const LocationBookingsView = () => {
           openBookingForm={openBookingForm}
         />
       )}
-      <BookLocationDrawer 
+      <BookLocationDrawer
         initialBookingValues={initialDrawerValues}
         open={isDrawerOpen}
         closeDrawer={closeBookingForm}
