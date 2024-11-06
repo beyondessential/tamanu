@@ -114,8 +114,8 @@ const StyledMenuButton = styled(MenuButton)`
     width: 58px;
   }
 
-    .MuiPopper-root {
-    width: 58px; /* Ensure the Popper width is consistent */
+  .MuiPopper-root {
+    width: 58px;
   }
 
   svg {
