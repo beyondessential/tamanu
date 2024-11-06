@@ -4,8 +4,8 @@ import { DynamicColumnTable } from './Table';
 import { useEncounter } from '../contexts/Encounter';
 import { useVitals } from '../api/queries/useVitals';
 import { EditVitalCellModal } from './EditVitalCellModal';
-import { useLocalisation } from '../contexts/Localisation';
 import { getVitalsTableColumns } from './VitalsAndChartsTableColumns';
+import { useSettings } from '../contexts/Settings';
 
 export const VitalsTable = React.memo(() => {
   const patient = useSelector(state => state.patient);
@@ -13,8 +13,8 @@ export const VitalsTable = React.memo(() => {
   const { data, recordedDates, error, isLoading } = useVitals(encounter.id);
   const [openEditModal, setOpenEditModal] = useState(false);
   const [selectedCell, setSelectedCell] = useState(null);
-  const { getLocalisation } = useLocalisation();
-  const isVitalEditEnabled = getLocalisation('features.enableVitalEdit');
+  const { getSetting } = useSettings();
+  const isVitalEditEnabled = getSetting('features.enableVitalEdit');
   const showFooterLegend = data.some(entry =>
     recordedDates.some(date => entry[date].historyLogs.length > 1),
   );

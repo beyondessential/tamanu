@@ -1342,6 +1342,7 @@ describe('Encounter', () => {
             'pde-ChartDate': submissionDate,
             'pde-ChartQuestionOne': 1234,
           },
+          facilityId,
         });
         expect(result).toHaveSucceeded();
         const saved = await models.SurveyResponseAnswer.findOne({
@@ -1364,6 +1365,7 @@ describe('Encounter', () => {
           startTime: submissionDate,
           endTime: submissionDate,
           answers,
+          facilityId,
         });
         const result = await app.get(`/api/encounter/${chartsEncounter.id}/charts/${surveyId}`);
         expect(result).toHaveSucceeded();

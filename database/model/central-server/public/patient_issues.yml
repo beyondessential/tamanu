@@ -1,0 +1,60 @@
+version: 2
+sources:
+  - name: tamanu
+    schema: public
+    description: "{{ doc('generic__schema') }}"
+    tables:
+      - name: patient_issues
+        description: '{{ doc("table__patient_issues") }}'
+        __generator:
+          js_class: PatientIssue
+        tags:
+          - clinical
+        columns:
+          - name: id
+            data_type: character varying(255)
+            description: "{{ doc('generic__id') }} in patient_issues."
+            data_tests:
+              - unique
+              - not_null
+          - name: created_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__created_at') }} in patient_issues."
+            data_tests:
+              - not_null
+          - name: updated_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__updated_at') }} in patient_issues."
+            data_tests:
+              - not_null
+          - name: deleted_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__deleted_at') }} in patient_issues."
+          - name: note
+            data_type: character varying(255)
+            description: "{{ doc('patient_issues__note') }}"
+          - name: recorded_date
+            data_type: character(19)
+            description: "{{ doc('patient_issues__recorded_date') }}"
+            data_tests:
+              - not_null
+          - name: type
+            data_type: user-defined
+            description: "{{ doc('patient_issues__type') }}"
+            data_tests:
+              - not_null
+          - name: patient_id
+            data_type: character varying(255)
+            description: "{{ doc('patient_issues__patient_id') }}"
+            data_tests:
+              - relationships:
+                  to: source('tamanu', 'patients')
+                  field: id
+          - name: recorded_date_legacy
+            data_type: timestamp with time zone
+            description: "{{ doc('patient_issues__recorded_date_legacy') }}"
+          - name: updated_at_sync_tick
+            data_type: bigint
+            description: "{{ doc('generic__updated_at_sync_tick') }} in patient_issues."
+            data_tests:
+              - not_null

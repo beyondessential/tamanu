@@ -106,7 +106,7 @@ export const TranslationProvider = ({ children }: PropsWithChildren<object>): Re
     await writeLanguage(languageCode);
     if (!languageOptions) getLanguageOptions();
     const translations = await models.TranslatedString.getForLanguage(languageCode);
-    if (isEmpty(translations)) {
+    if (isEmpty(translations) && host) {
       // If we dont have translations synced down, fetch from the public server endpoint directly
       const response = await fetch(`${host}/api/public/translation/${languageCode}`);
       const data = await response.json();
