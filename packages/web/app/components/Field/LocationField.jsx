@@ -35,7 +35,6 @@ export const LocationInput = React.memo(
     onChange,
     form = {},
     enableLocationStatus = true,
-    size
   }) => {
     const { facilityId } = useAuth();
     const [groupId, setGroupId] = useState('');
@@ -113,7 +112,6 @@ export const LocationInput = React.memo(
           value={groupId}
           disabled={locationGroupSelectIsDisabled || disabled}
           autofill={!value} // do not autofill if there is a pre-filled value
-          size={size}
         />
         <AutocompleteInput
           label={label}
@@ -127,7 +125,6 @@ export const LocationInput = React.memo(
           onChange={handleChange}
           className={className}
           autofill={!value} // do not autofill if there is a pre-filled value
-          size={size}
         />
       </>
     );
