@@ -30,6 +30,7 @@ import { TOP_BAR_HEIGHT } from '../../TopBar';
 import { TranslatedText } from '../../Translation/TranslatedText';
 import { BookLocationHeader } from './BookLocationHeader';
 import { BookingTimeField } from './BookingTimeField';
+import { useTranslation } from '../../../contexts/Translation';
 
 const Container = styled.div`
   width: 330px;
@@ -155,6 +156,7 @@ const validationSchema = yup.object({
 });
 
 export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues }) => {
+  const { getTranslation } = useTranslation()
   const editMode = !!initialBookingValues.id;
 
   const patientSuggester = usePatientSuggester();
@@ -241,15 +243,16 @@ export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues }) 
           <BookingTimeField key={values.date} disabled={!values.date || !values.locationId} />
           <Field
             name="patientId"
-            label={<TranslatedText stringId="general.form.patient.label" fallback="Patient" />}
+            label={<TranslatedText stringId="general.patient.label" fallback="Patient" />}
             component={AutocompleteField}
+            placeholder={getTranslation("general.patient.search.placeholder", "Search patient name or ID")}
             suggester={patientSuggester}
             required
           />
           <Field
             name="bookingTypeId"
             label={
-              <TranslatedText stringId="location.form.bookingType.label" fallback="Booking type" />
+              <TranslatedText stringId="location.bookingType.label" fallback="Booking type" />
             }
             component={DynamicSelectField}
             suggester={bookingTypeSuggester}
