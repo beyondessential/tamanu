@@ -16,7 +16,7 @@ export class Setting extends BaseModel {
   @Column({ nullable: false })
   key: string;
 
-  @Column({ nullable: false })
+  @Column({ nullable: true })
   value: string;
 
   @Column({ nullable: false })
@@ -42,6 +42,7 @@ export class Setting extends BaseModel {
       }
       return null;
     };
+
     const scope = determineScope();
 
     const settingsQueryBuilder = this.getRepository()
@@ -77,7 +78,7 @@ export class Setting extends BaseModel {
 
     const settingsObject = {};
     for (const currentSetting of settings) {
-      setAtPath(settingsObject, currentSetting.key, JSON.parse(currentSetting.value));
+      setAtPath(settingsObject, currentSetting.key, JSON.parse(currentSetting.value ?? null));
     }
 
     if (key === '') {
@@ -97,7 +98,7 @@ export class Setting extends BaseModel {
     const settingWithFacilityScope = await this.get('', facilityId);
     const settingWithGlobalScope = await this.get('');
     const settings = merge(settingWithGlobalScope, settingWithFacilityScope);
-    return getAtPath(settings, key)
+    return getAtPath(settings, key);
   }
 
   static sanitizePulledRecordData(rows) {

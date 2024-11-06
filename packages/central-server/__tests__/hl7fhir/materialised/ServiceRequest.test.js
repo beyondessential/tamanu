@@ -149,6 +149,13 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
         priority: 'routine',
         code: {
           text: 'X-Ray',
+          coding: [
+            {
+              code: 'xRay',
+              display: 'X-Ray',
+              system: 'http://tamanu.io/data-dictionary/imaging-type-code.html',
+            },
+          ],
         },
         orderDetail: [
           {
@@ -513,6 +520,13 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
               priority: 'routine',
               code: {
                 text: 'X-Ray',
+                coding: [
+                  {
+                    code: 'xRay',
+                    display: 'X-Ray',
+                    system: 'http://tamanu.io/data-dictionary/imaging-type-code.html',
+                  },
+                ],
               },
               orderDetail: [
                 {
@@ -632,6 +646,13 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
               priority: 'routine',
               code: {
                 text: 'X-Ray',
+                coding: [
+                  {
+                    code: 'xRay',
+                    display: 'X-Ray',
+                    system: 'http://tamanu.io/data-dictionary/imaging-type-code.html',
+                  },
+                ],
               },
               orderDetail: [
                 {

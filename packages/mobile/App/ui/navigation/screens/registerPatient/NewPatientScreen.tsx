@@ -10,7 +10,7 @@ import { withPatient } from '/containers/Patient';
 import { NewPatientScreenProps } from '/interfaces/screens/RegisterPatientStack/NewPatientScreenProps';
 import { getGender, joinNames } from '~/ui/helpers/user';
 import { getDisplayAge } from '~/ui/helpers/date';
-import { useLocalisation } from '~/ui/contexts/LocalisationContext';
+import { useSettings } from '/contexts/SettingsContext';
 
 const Screen = ({ navigation, selectedPatient }: NewPatientScreenProps): ReactElement => {
   const onNavigateToHome = useCallback(() => {
@@ -32,8 +32,8 @@ const Screen = ({ navigation, selectedPatient }: NewPatientScreenProps): ReactEl
     });
   }, []);
 
-  const { getLocalisation } = useLocalisation();
-  const ageDisplayFormat = getLocalisation('ageDisplayFormat');
+  const { getSetting } = useSettings();
+  const ageDisplayFormat = getSetting('ageDisplayFormat');
 
   return (
     <FullView>
