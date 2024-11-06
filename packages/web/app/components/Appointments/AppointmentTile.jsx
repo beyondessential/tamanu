@@ -104,48 +104,47 @@ export const AppointmentTile = ({ appointment, openBookingForm, onUpdated, ...pr
   );
 
   return (
-    <Wrapper
-      $color={APPOINTMENT_STATUS_COLORS[appointmentStatus]}
-      $selected={open}
-      tabIndex={0}
-      ref={ref}
-      onClick={() => setOpen(true)}
-      {...props}
-    >
-      <Label $strikethrough={appointmentStatus === APPOINTMENT_STATUSES.NO_SHOW}>
-        {/* TODO: need to hide if no ellipsis */}
-        <ConditionalTooltip visible title={tileText}>
+    <ConditionalTooltip visible title={tileText}>
+      <Wrapper
+        $color={APPOINTMENT_STATUS_COLORS[appointmentStatus]}
+        $selected={open}
+        tabIndex={0}
+        ref={ref}
+        onClick={() => setOpen(true)}
+        {...props}
+      >
+        <Label $strikethrough={appointmentStatus === APPOINTMENT_STATUSES.NO_SHOW}>
           {tileText}
-        </ConditionalTooltip>
-      </Label>
-      <IconGroup>
-        {isHighPriority && (
-          <HighPriorityIcon
-            aria-label="High priority"
-            aria-hidden={undefined}
-            htmlColor={Colors.alert}
-            style={{ fontSize: 15 }}
-          />
-        )}
-        {isOvernight && (
-          <OvernightIcon
-            aria-label="Overnight"
-            aria-hidden={undefined}
-            htmlColor="#326699"
-            style={{ fontSize: 15 }}
-          />
-        )}
-        <StatusIndicator appointmentStatus={appointmentStatus} width={15} height={15} />
-      </IconGroup>
-      <AppointmentDetailPopper
-        open={open}
-        onClose={() => setOpen(false)}
-        anchorEl={ref.current}
-        appointment={appointment}
-        isOvernight={isOvernight}
-        onUpdated={onUpdated}
-        openBookingForm={openBookingForm}
-      />
-    </Wrapper>
+        </Label>
+        <IconGroup>
+          {isHighPriority && (
+            <HighPriorityIcon
+              aria-label="High priority"
+              aria-hidden={undefined}
+              htmlColor={Colors.alert}
+              style={{ fontSize: 15 }}
+            />
+          )}
+          {isOvernight && (
+            <OvernightIcon
+              aria-label="Overnight"
+              aria-hidden={undefined}
+              htmlColor="#326699"
+              style={{ fontSize: 15 }}
+            />
+          )}
+          <StatusIndicator appointmentStatus={appointmentStatus} width={15} height={15} />
+        </IconGroup>
+        <AppointmentDetailPopper
+          open={open}
+          onClose={() => setOpen(false)}
+          anchorEl={ref.current}
+          appointment={appointment}
+          isOvernight={isOvernight}
+          onUpdated={onUpdated}
+          openBookingForm={openBookingForm}
+        />
+      </Wrapper>
+    </ConditionalTooltip>
   );
 };
