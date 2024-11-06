@@ -1,6 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { QueryTypes, Op } from 'sequelize';
+import { QueryTypes, Op, Sequelize } from 'sequelize';
 
 import { BadAuthenticationError } from '@tamanu/shared/errors';
 import { getPermissions } from '@tamanu/shared/permissions/middleware';
@@ -169,7 +169,7 @@ user.get('/:id', simpleGet('User'));
 
 const clinicianTasksQuerySchema = z.object({
   orderBy: z
-    .string()
+    .enum(['dueTime', 'locationName', 'patientName', 'encounter.patient.displayId', 'name'])
     .optional()
     .default('dueTime'),
   order: z
@@ -227,12 +227,20 @@ user.get(
     if (orderBy) {
       switch (orderBy) {
         case 'locationName':
-          orderOptions.push(['encounter', 'location', 'name', order]);
-          orderOptions.push(['encounter', 'location', 'locationGroup', 'name', order]);
+          orderOptions.push([
+            Sequelize.literal(
+              'LOWER(CONCAT("encounter->location"."name", \' \', "encounter->location->locationGroup"."name"))',
+            ),
+            order,
+          ]);
           break;
         case 'patientName':
-          orderOptions.push(['encounter', 'patient', 'firstName', order]);
-          orderOptions.push(['encounter', 'patient', 'lastName', order]);
+          orderOptions.push([
+            Sequelize.literal(
+              'LOWER(CONCAT("encounter->patient"."first_name", \' \', "encounter->patient"."last_name"))',
+            ),
+            order,
+          ]);
           break;
         default:
           orderOptions.push(getOrderClause(order, orderBy));

@@ -47,9 +47,9 @@ export const defineWebsocketService = injector => {
         ],
       });
 
-      for (let i = 0; i < task?.designations?.length; i++) {
-        const user = task.designations[i].designationUsers[0];
-        socketServer.emit(`${WS_EVENTS.CLINICIAN_DASHBOARD_TASKS_UPDATE}:${user.id}`, task);
+      const userIds = new Set(task?.designations?.flatMap(designation  => designation.designationUsers.map(user => user.id)) ?? []);
+      for (const userId of userIds) {
+        socketServer.emit(`${WS_EVENTS.USER_TASKS_UPDATE}:${userId}`, task);
       }
     }
   });
