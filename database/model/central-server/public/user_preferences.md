@@ -7,9 +7,9 @@ The [user](#!/source/source.tamanu.tamanu.users) these preferences are for.
 {% enddocs %}
 
 {% docs user_preferences__key %}
-TODO
+Key of the user preference
 {% enddocs %}
 
 {% docs user_preferences__value %}
-TODO
+Value of the user preference
 {% enddocs %}

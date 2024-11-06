@@ -1,27 +1,27 @@
 {% docs table__notes_legacy %}
-TODO
+Legacy notes
 {% enddocs %}
 
 {% docs notes_legacy__record_id %}
-TODO
+Legacy notes record_id
 {% enddocs %}
 
 {% docs notes_legacy__record_type %}
-TODO
+Legacy notes record_type
 {% enddocs %}
 
 {% docs notes_legacy__note_type %}
-TODO
+Legacy notes note_type
 {% enddocs %}
 
 {% docs notes_legacy__content %}
-TODO
+Legacy notes content
 {% enddocs %}
 
 {% docs notes_legacy__author_id %}
-TODO
+Legacy notes author_id
 {% enddocs %}
 
 {% docs notes_legacy__on_behalf_of_id %}
-TODO
+Legacy notes on_behalf_of_id
 {% enddocs %}
