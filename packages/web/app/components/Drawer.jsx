@@ -31,9 +31,17 @@ const StyledDrawer = styled(MuiDrawer)`
   }
 `;
 
-export const Drawer = ({ open, onClose, title, description, children }) => {
+export const Drawer = ({ open, className, onClose, title, description, children }) => {
   return (
-    <StyledDrawer variant="persistent" anchor="right" open={open} onClose={onClose}>
+    <StyledDrawer
+      PaperProps={{
+        className,
+      }}
+      variant="persistent"
+      anchor="right"
+      open={open}
+      onClose={onClose}
+    >
       <Container columns={1}>
         <Title>{title}</Title>
         <Description>{description}</Description>

@@ -254,6 +254,7 @@ export const BookLocationDrawer = ({ open, onClose, initialValues }) => {
 
   return (
     <Drawer
+      className="appointment-drawer"
       open={open}
       onClose={onClose}
       title={

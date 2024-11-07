@@ -351,6 +351,11 @@ export const AppointmentDetailPopper = ({
     [debouncedUpdateAppointmentStatus],
   );
 
+  const handleClickAway = e => {
+    if (e.target.closest('.appointment-drawer')) return;
+    onClose();
+  };
+
   return (
     <Popper
       open={open}
@@ -366,7 +371,11 @@ export const AppointmentDetailPopper = ({
         },
       ]}
     >
-      <ClickAwayListener onClickAway={onClose}>
+      <ClickAwayListener
+        onClickAway={handleClickAway}
+        mouseEvent="onMouseDown"
+        touchEvent="onTouchStart"
+      >
         <Box>
           <ControlsRow onClose={onClose} onEdit={onEdit} />
           <StyledPaper elevation={0}>
