@@ -58,7 +58,16 @@ const StyledDrawer = styled(Drawer)`
   }
 `;
 
-export const DateFieldWithWarning = ({ editMode }) => {
+const StyledFormGrid = styled(FormGrid)`
+  .label-field,
+  .MuiInputBase-input,
+  .MuiFormControlLabel-label {
+    font-size: 12px;
+  }
+`
+
+
+export const DateFieldWithWarning = ({ editMode, setSelectedCell }) => {
   const { values } = useFormikContext();
   const { data: existingLocationBookings, isFetched } = useAppointmentsQuery(
     {
@@ -93,6 +102,9 @@ export const DateFieldWithWarning = ({ editMode }) => {
           />
         )
       }
+      onChange={e => {
+        setSelectedCell(prevCell => ({ ...prevCell, date: e.target.value }));
+      }}
     />
   );
 };
@@ -215,7 +227,7 @@ export const BookLocationDrawer = ({
     return (
       <>
         <BookLocationHeader onClose={warnAndResetForm} />
-        <FormGrid nested columns={1}>
+        <StyledFormGrid nested columns={1}>
           {/* TODO:: why is this not clearing properly */}
           <Field
             enableLocationStatus={false}
@@ -223,7 +235,8 @@ export const BookLocationDrawer = ({
             component={LocalisedLocationField}
             required
             // TODO: make this show *required in red
-            onChange={() => {
+            onChange={e => {
+              setSelectedCell(prevCell => ({ ...prevCell, locationId: e.target.value }));
               setFieldValue('overnight', null);
               setFieldValue('startTime', null);
               setFieldValue('endTime', null);
@@ -243,7 +256,7 @@ export const BookLocationDrawer = ({
             />
             <OvernightIcon fontSize="small" />
           </OvernightStayField>
-          <DateFieldWithWarning editMode={editMode} />
+          <DateFieldWithWarning setSelectedCell={setSelectedCell} editMode={editMode} />
           {/* TODO: red highlight validation */}
           <BookingTimeField key={values.date} disabled={!values.date || !values.locationId} />
           <Field
@@ -271,7 +284,7 @@ export const BookLocationDrawer = ({
             suggester={clinicianSuggester}
           />
           <FormSubmitCancelRow onCancel={warnAndResetForm} />
-        </FormGrid>
+        </StyledFormGrid>
       </>
     );
   };
