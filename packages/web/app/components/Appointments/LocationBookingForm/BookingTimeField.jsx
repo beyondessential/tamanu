@@ -72,7 +72,7 @@ export const BookingTimeField = ({ disabled = false }) => {
       start: new Date(initialValues.startTime),
       end: new Date(initialValues.endTime),
     };
-  }, [initialValues]); 
+  }, [initialValues]);
 
   const [selectedTimeRange, setSelectedTimeRange] = useState(initialTimeRange);
   const [hoverTimeRange, setHoverTimeRange] = useState(null);
