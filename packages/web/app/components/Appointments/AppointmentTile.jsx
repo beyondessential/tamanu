@@ -75,12 +75,7 @@ const IconGroup = styled.div`
 const getPatientFullName = ({ firstName, middleName, lastName }) =>
   [firstName, middleName, lastName].filter(Boolean).join(' ');
 
-export const AppointmentTile = ({
-  appointment,
-  openBookingForm,
-  onUpdated,
-  ...props
-}) => {
+export const AppointmentTile = ({ appointment, openBookingForm, onUpdated, ...props }) => {
   const ref = useRef(null);
   const [open, setOpen] = useState();
 
@@ -119,7 +114,7 @@ export const AppointmentTile = ({
         )}
         {isOvernight && (
           <OvernightIcon
-            aria-label="Overnight"
+            aria-label="Overnight booking"
             aria-hidden={undefined}
             htmlColor="#326699"
             style={{ fontSize: 15 }}
