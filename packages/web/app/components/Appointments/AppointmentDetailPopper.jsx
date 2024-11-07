@@ -304,7 +304,6 @@ export const AppointmentStatusSelector = ({
 export const AppointmentDetailPopper = ({
   open,
   onClose,
-  onUpdated,
   onEdit,
   anchorEl,
   appointment,
@@ -328,7 +327,7 @@ export const AppointmentDetailPopper = ({
           await api.put(`appointments/${appointment.id}`, {
             status: newValue,
           });
-          if (onUpdated) onUpdated();
+          // if (onUpdated) onUpdated();
           queryClient.invalidateQueries('appointments');
         } catch (error) {
           console.log(error);
@@ -341,7 +340,7 @@ export const AppointmentDetailPopper = ({
           setLocalStatus(appointment.status);
         }
       }, DEBOUNCE_DELAY),
-    [api, appointment.id, onUpdated, appointment.status, queryClient],
+    [api, appointment.id, appointment.status, queryClient],
   );
 
   const updateAppointmentStatus = useCallback(

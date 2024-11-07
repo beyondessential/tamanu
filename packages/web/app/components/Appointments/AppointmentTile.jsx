@@ -75,7 +75,7 @@ const IconGroup = styled.div`
 const getPatientFullName = ({ firstName, middleName, lastName }) =>
   [firstName, middleName, lastName].filter(Boolean).join(' ');
 
-export const AppointmentTile = ({ appointment, onUpdated, onEdit, ...props }) => {
+export const AppointmentTile = ({ appointment, onEdit, ...props }) => {
   const ref = useRef(null);
   const [open, setOpen] = useState();
 
@@ -128,7 +128,6 @@ export const AppointmentTile = ({ appointment, onUpdated, onEdit, ...props }) =>
         anchorEl={ref.current}
         appointment={appointment}
         isOvernight={isOvernight}
-        onUpdated={onUpdated}
         onEdit={onEdit}
       />
     </Wrapper>
