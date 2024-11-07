@@ -89,7 +89,7 @@ export const AppointmentTile = ({ appointment, onUpdated, onEdit, ...props }) =>
   const endTime = parseISO(endTimeStr);
 
   const isHighPriority = false; // TODO
-  const isOvernight = !isSameDay(startTime, endTime);
+  const isOvernight = appointment.location && !isSameDay(startTime, endTime);
 
   return (
     <Wrapper
