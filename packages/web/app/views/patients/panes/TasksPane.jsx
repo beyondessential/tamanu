@@ -32,7 +32,7 @@ const TabPane = styled.div`
 const ActionRow = styled.div`
   display: flex;
   gap: 10px;
-  align-items: ${p => (p.$isDashboard ? 'center' : 'flex-end')};
+  align-items: flex-end;
   justify-content: flex-end;
   margin-left: auto;
 `;
