@@ -58,21 +58,18 @@ const StyledTable = styled(Table)`
     }
   }
   td {
-    &:nth-child(1) {
-      width: 5%;
-    }
     &:nth-child(2) {
-      width: 21%;
+      width: 22%;
     }
     &:nth-child(3) {
-      width: 22%;
+      width: 20%;
     }
     &:nth-child(4) {
       width: 20%;
     }
     &:nth-child(5) {
       position: relative;
-      width: 22%;
+      width: 28%;
     }
     &:nth-child(6) {
       width: 10%;
