@@ -79,7 +79,7 @@ const appointmentToFormFields = appointment => {
 
   const startDate = isValid(startTime) ? startOfDay(startTime) : null;
   const endDate = isValid(endTime) ? startOfDay(endTime) : null;
-  const overnight = isSameDay(startDate, endDate);
+  const overnight = !isSameDay(startDate, endDate);
 
   return {
     // Semantically significant values
