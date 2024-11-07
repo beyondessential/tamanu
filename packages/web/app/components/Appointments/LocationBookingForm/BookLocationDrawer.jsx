@@ -197,7 +197,7 @@ export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues }) 
           component={CheckField}
           onChange={() => resetFieldsAfter('overnight')}
         />
-        <BookingDateTimeRangeField required separate={values.overnight} />
+        <BookingDateTimeRangeField editMode={editMode} required separate={values.overnight} />
         <Field
           name="patientId"
           label={<TranslatedText stringId="general.form.patient.label" fallback="Patient" />}
