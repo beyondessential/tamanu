@@ -112,7 +112,7 @@ const validationSchema = yup.object({
   endTime: yup.date().required(),
   patientId: yup.string().required(),
   bookingTypeId: yup.string().required(),
-  clinicianId: yup.string().required(),
+  clinicianId: yup.string(),
 });
 
 export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues }) => {
