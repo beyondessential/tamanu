@@ -17,6 +17,10 @@ const Text = styled.div`
   margin-bottom: 10px;
 `;
 
+export const FullWidthCol = styled.div`
+  grid-column: 1/-1;
+`;
+
 const OuterLabelRequired = styled.span`
   color: ${Colors.alert};
   padding-left: 3px;
@@ -71,7 +75,7 @@ export const SurveyQuestion = ({ component, patient, inputRef, disabled, encount
   }
   if (!FieldComponent) return <Text>{text}</Text>;
 
-  return (
+  const fieldComponent = (
     <Field
       inputRef={inputRef}
       label={text}
@@ -85,4 +89,6 @@ export const SurveyQuestion = ({ component, patient, inputRef, disabled, encount
       disabled={disabled}
     />
   );
+
+  return configObject.fullWidth ? <FullWidthCol>{fieldComponent}</FullWidthCol> : fieldComponent;
 };

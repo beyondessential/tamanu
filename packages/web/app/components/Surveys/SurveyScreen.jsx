@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import { Typography } from '@material-ui/core';
 import { runCalculations } from '@tamanu/shared/utils/calculations';
 import styled from 'styled-components';
@@ -108,17 +108,23 @@ export const SurveyScreen = ({
     }
   };
 
-  const visibleComponents = screenComponents
-    .filter(c => checkVisibility(c, values, allComponents))
-    .map(c => (
-      <SurveyQuestion
-        component={c}
-        patient={patient}
-        key={c.id}
-        inputRef={setQuestionToRef(c.dataElementId)}
-        encounterType={encounterType}
-      />
-    ));
+  const getVisibleComponents = useCallback(
+    (components, allComponents) =>
+      components
+        .filter(c => checkVisibility(c, values, allComponents))
+        .map(c => (
+          <SurveyQuestion
+            component={c}
+            patient={patient}
+            key={c.id}
+            inputRef={setQuestionToRef(c.dataElementId)}
+            encounterType={encounterType}
+          />
+        )),
+    [encounterType, patient, setQuestionToRef, values],
+  );
+
+  const visibleComponents = getVisibleComponents(screenComponents, allComponents);
 
   const emptyStateMessage = (
     <EmptyStateText variant="body2">

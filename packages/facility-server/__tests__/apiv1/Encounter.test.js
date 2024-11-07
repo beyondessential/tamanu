@@ -16,6 +16,7 @@ import {
   NOTE_RECORD_TYPES,
   NOTE_TYPES,
   VITALS_DATA_ELEMENT_IDS,
+  CHARTING_DATA_ELEMENT_IDS,
 } from '@tamanu/constants';
 import { setupSurveyFromObject } from '@tamanu/shared/demoData/surveys';
 import { fake, fakeUser } from '@tamanu/shared/test-helpers/fake';
@@ -1311,7 +1312,7 @@ describe('Encounter', () => {
           },
           questions: [
             {
-              name: 'ChartDate',
+              name: 'PatientChartingDate',
               type: 'DateTime',
             },
             {
@@ -1339,7 +1340,7 @@ describe('Encounter', () => {
           startTime: submissionDate,
           endTime: submissionDate,
           answers: {
-            'pde-ChartDate': submissionDate,
+            [CHARTING_DATA_ELEMENT_IDS.dateRecorded]: submissionDate,
             'pde-ChartQuestionOne': 1234,
           },
           facilityId,
@@ -1355,7 +1356,7 @@ describe('Encounter', () => {
         const surveyId = 'simple-chart-survey';
         const submissionDate = getCurrentDateTimeString();
         const answers = {
-          'pde-ChartDate': submissionDate,
+          [CHARTING_DATA_ELEMENT_IDS.dateRecorded]: submissionDate,
           'pde-ChartQuestionOne': 123,
           'pde-ChartQuestionTwo': 456,
         };
