@@ -6,11 +6,8 @@ import ClickAwayListener from '@mui/material/ClickAwayListener';
 import IconButton from '@mui/material/IconButton';
 import Paper from '@mui/material/Paper';
 import Popper from '@mui/material/Popper';
-import Menu from '@mui/material/Menu';
-import MenuItem from '@mui/material/MenuItem';
 import { styled } from '@mui/material/styles';
 import Overnight from '@mui/icons-material/Brightness2';
-import MoreVert from '@mui/icons-material/MoreVert';
 import Close from '@mui/icons-material/Close';
 import { debounce } from 'lodash';
 import { toast } from 'react-toastify';
@@ -25,6 +22,7 @@ import { usePatientAdditionalDataQuery } from '../../api/queries';
 import { APPOINTMENT_STATUS_VALUES, APPOINTMENT_STATUSES } from '@tamanu/constants';
 import { AppointmentStatusChip } from './AppointmentStatusChip';
 import { useQueryClient } from '@tanstack/react-query';
+import { MenuButton } from '../MenuButton';
 
 const DEBOUNCE_DELAY = 200; // ms
 
@@ -65,10 +63,6 @@ const StyledPaper = styled(Paper)`
   font-size: 0.6875rem;
 `;
 
-const StyledIconButton = styled(IconButton)`
-  padding: 0;
-`;
-
 const ControlsContainer = styled(FlexRow)`
   position: fixed;
   inset-block-start: 0.5rem;
@@ -105,27 +99,41 @@ const AppointmentStatusContainer = styled(Box)`
   justify-items: center;
 `;
 
-const StyledMenu = styled(Menu)`
-  ul {
-    padding-block: 0.25rem;
-  }
-
-  li {
-    font-size: 0.6875rem;
-    padding-inline: 0.75rem;
+const StyledMenuButton = styled(MenuButton)`
+  svg {
+    font-size: 0.875rem;
   }
 `;
 
-const ControlsRow = ({ onClose, onClick }) => (
-  <ControlsContainer>
-    <StyledIconButton onClick={onClick}>
-      <MoreVert sx={{ fontSize: '0.875rem' }} />
-    </StyledIconButton>
-    <StyledIconButton onClick={onClose}>
-      <Close sx={{ fontSize: '0.875rem' }} />
-    </StyledIconButton>
-  </ControlsContainer>
-);
+const StyledIconButton = styled(IconButton)`
+  padding: 5px;
+  svg {
+    font-size: 0.875rem;
+  }
+`;
+
+const ControlsRow = ({ onClose, onEdit }) => {
+  const actions = [
+    {
+      label: <TranslatedText stringId="general.action.modify" fallback="Modify" />,
+      action: onEdit,
+    },
+    // TODO: cancel workflow
+    {
+      label: <TranslatedText stringId="general.action.cancel" fallback="Cancel" />,
+      action: () => {},
+    },
+  ];
+
+  return (
+    <ControlsContainer>
+      <StyledMenuButton actions={actions} />
+      <StyledIconButton onClick={onClose}>
+        <Close />
+      </StyledIconButton>
+    </ControlsContainer>
+  );
+};
 
 const DetailsDisplay = ({ label, value }) => (
   <FlexCol>
@@ -173,7 +181,7 @@ const PatientDetailsDisplay = ({ patient, onClick }) => {
           />
           :
         </Label>{' '}
-        <DateDisplay date={dateOfBirth} />
+        <DateDisplay noTooltip date={dateOfBirth} />
       </span>
       {additionalData?.primaryContactNumber && (
         <DetailsDisplay
@@ -190,23 +198,6 @@ const PatientDetailsDisplay = ({ patient, onClick }) => {
     </PatientDetailsContainer>
   );
 };
-
-const ActionMenu = ({ anchorEl, onClose, onEdit }) => (
-  <StyledMenu anchorEl={anchorEl} open={!!anchorEl} onClose={onClose}>
-    <MenuItem onClick={onEdit}>
-      <TranslatedText stringId="general.action.modify" fallback="Modify" />
-    </MenuItem>
-    <MenuItem onClick={onClose}>
-      <TranslatedText stringId="appointment.action.cancel" fallback="Cancel" />
-    </MenuItem>
-    <MenuItem onClick={onClose}>
-      <TranslatedText stringId="appointment.action.newAppointment" fallback="New appointment" />
-    </MenuItem>
-    <MenuItem onClick={onClose}>
-      <TranslatedText stringId="appointment.action.emailAppointment" fallback="Email appointment" />
-    </MenuItem>
-  </StyledMenu>
-);
 
 const AppointmentDetailsDisplay = ({ appointment, isOvernight }) => {
   const {
@@ -239,8 +230,8 @@ const AppointmentDetailsDisplay = ({ appointment, isOvernight }) => {
         }
         value={
           <TranslatedReferenceData
-            fallback={locationGroup?.name}
-            value={locationGroup?.id}
+            fallback={location?.locationGroup?.name || locationGroup?.name}
+            value={location?.locationGroup?.id || locationGroup?.id}
             category="locationGroup"
           />
         }
@@ -323,7 +314,6 @@ export const AppointmentDetailPopper = ({
   const dispatch = useDispatch();
   const queryClient = useQueryClient();
   const api = useApi();
-  const [menuAnchorEl, setMenuAnchorEl] = useState(null);
   const [localStatus, setLocalStatus] = useState(appointment.status);
   const patientId = appointment.patient.id;
 
@@ -363,15 +353,6 @@ export const AppointmentDetailPopper = ({
     [debouncedUpdateAppointmentStatus],
   );
 
-  const handleOpenMenu = e => setMenuAnchorEl(e.currentTarget);
-  const handleCloseMenu = () => setMenuAnchorEl(null);
-
-  const handleEdit = () => {
-    onEdit();
-    handleCloseMenu();
-    onClose();
-  };
-
   return (
     <Popper
       open={open}
@@ -387,10 +368,9 @@ export const AppointmentDetailPopper = ({
         },
       ]}
     >
-      <ActionMenu anchorEl={menuAnchorEl} onEdit={handleEdit} onClose={handleCloseMenu} />
       <ClickAwayListener onClickAway={onClose}>
         <Box>
-          <ControlsRow onClose={onClose} onClick={handleOpenMenu} />
+          <ControlsRow onClose={onClose} onEdit={onEdit} />
           <StyledPaper elevation={0}>
             <PatientDetailsDisplay
               patient={appointment.patient}

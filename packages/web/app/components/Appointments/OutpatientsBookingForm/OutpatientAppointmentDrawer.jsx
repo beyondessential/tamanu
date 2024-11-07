@@ -190,10 +190,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
           saveDateAsString
         />
 
-        <FormSubmitCancelRow
-          onCancel={warnAndResetForm}
-          confirmDisabled={!values.startTime || !dirty}
-        />
+        <FormSubmitCancelRow onCancel={warnAndResetForm} />
       </FormGrid>
     );
   };
