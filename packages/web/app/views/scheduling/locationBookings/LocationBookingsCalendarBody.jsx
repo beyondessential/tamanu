@@ -1,4 +1,4 @@
-import { endOfDay, formatISO } from 'date-fns';
+import { endOfDay, formatISO, isEqual } from 'date-fns';
 import React from 'react';
 import styled from 'styled-components';
 
@@ -9,25 +9,27 @@ import { CarouselComponents as CarouselGrid } from './CarouselComponents';
 import { SkeletonRows } from './Skeletons';
 import { partitionAppointmentsByDate, partitionAppointmentsByLocation } from './util';
 
-export const BookingsCell = ({ appointments, date, location, openBookingForm }) => (
+export const BookingsCell = ({ appointments, date, location, openBookingForm, selectedCell }) => (
   <CarouselGrid.Cell
-    onClick={(e) => {
+    onClick={e => {
       if (e.target.closest('.appointment-tile')) return;
       // Open form for creating new booking
       openBookingForm({ date, locationId: location.id });
-
-      // TODO: set selectedstate state for cell
-      console.log('locationId', location.id)
     }}
-    selected={Math.random() > 0.9}
+    selected={location.id === selectedCell.locationId && isEqual(date, selectedCell.date)}
   >
     {appointments?.map(a => (
-      <AppointmentTile className="appointment-tile" openBookingForm={openBookingForm} appointment={a} key={a.id} />
+      <AppointmentTile
+        className="appointment-tile"
+        openBookingForm={openBookingForm}
+        appointment={a}
+        key={a.id}
+      />
     ))}
   </CarouselGrid.Cell>
 );
 
-export const BookingsRow = ({ appointments, dates, location, openBookingForm }) => {
+export const BookingsRow = ({ appointments, dates, location, openBookingForm, selectedCell }) => {
   const {
     name: locationName,
     locationGroup: { name: locationGroupName },
@@ -46,6 +48,7 @@ export const BookingsRow = ({ appointments, dates, location, openBookingForm }) 
           key={d.valueOf()}
           location={location}
           openBookingForm={openBookingForm}
+          selectedCell={selectedCell}
         />
       ))}
     </CarouselGrid.Row>
@@ -68,6 +71,7 @@ export const LocationBookingsCalendarBody = ({
   displayedDates,
   locationsQuery,
   openBookingForm,
+  selectedCell,
 }) => {
   const { data: locations, isLoading: locationsAreLoading } = locationsQuery;
   const appointments =
@@ -75,7 +79,7 @@ export const LocationBookingsCalendarBody = ({
       after: displayedDates[0],
       before: endOfDay(displayedDates[displayedDates.length - 1]),
       locationId: '',
-      all: true
+      all: true,
     }).data?.data ?? [];
 
   if (locationsAreLoading) return <SkeletonRows colCount={displayedDates.length} />;
@@ -90,6 +94,7 @@ export const LocationBookingsCalendarBody = ({
       key={location.code}
       location={location}
       openBookingForm={openBookingForm}
+      selectedCell={selectedCell}
     />
   ));
 };

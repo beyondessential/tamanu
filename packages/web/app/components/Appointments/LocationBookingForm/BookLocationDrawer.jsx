@@ -155,8 +155,13 @@ const validationSchema = yup.object({
   bookingTypeId: yup.string().required('*Required'),
 });
 
-export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues }) => {
-  const { getTranslation } = useTranslation()
+export const BookLocationDrawer = ({
+  open,
+  closeDrawer,
+  initialBookingValues,
+  setSelectedCell,
+}) => {
+  const { getTranslation } = useTranslation();
   const editMode = !!initialBookingValues.id;
 
   const patientSuggester = usePatientSuggester();
@@ -245,15 +250,16 @@ export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues }) 
             name="patientId"
             label={<TranslatedText stringId="general.patient.label" fallback="Patient" />}
             component={AutocompleteField}
-            placeholder={getTranslation("general.patient.search.placeholder", "Search patient name or ID")}
+            placeholder={getTranslation(
+              'general.patient.search.placeholder',
+              'Search patient name or ID',
+            )}
             suggester={patientSuggester}
             required
           />
           <Field
             name="bookingTypeId"
-            label={
-              <TranslatedText stringId="location.bookingType.label" fallback="Booking type" />
-            }
+            label={<TranslatedText stringId="location.bookingType.label" fallback="Booking type" />}
             component={DynamicSelectField}
             suggester={bookingTypeSuggester}
             required
