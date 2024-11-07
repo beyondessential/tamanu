@@ -2,14 +2,15 @@
 enabled: true
 sql: |
   SELECT
-    id, errors,
+    id,
+    errors,
     debug_info->>'facilityId' AS facility_id,
     completed_at - created_at AS duration
   FROM sync_sessions
   WHERE
     updated_at > now() - interval '1 minute' -- Lookback window
   AND errors IS NOT NULL
-  AND (cardinality(errors) > 1 OR errors[1] <> 'could not serialize access due to concurrent update')
+  AND errors <> ARRAY['Session marked as completed due to its device reconnecting']
 
 send:
   - target: zendesk
