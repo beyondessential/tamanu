@@ -15,7 +15,7 @@ sql: |
 send:
   - target: zendesk
     endpoint: https://example.zendesk.com/api/v2/requests
-    subject: '[Tamanu alert] Sync sessions longer than 21 minutes ({{ hostname }})'
+    subject: '[Tamanu alert] Sync sessions longer than 20 minutes ({{ hostname }})'
     template: |
       <p>Server: {{ hostname }}</p>
       <p>Alert: {{ filename }}</p>
