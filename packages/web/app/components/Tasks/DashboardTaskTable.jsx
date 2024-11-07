@@ -282,6 +282,7 @@ export const DashboardTasksTable = ({ searchParameters, refreshCount }) => {
           onPageChange={handleChangePage}
           onRowsPerPageChange={handleChangeRowsPerPage}
           rowsPerPageOptions={ROWS_PER_PAGE_OPTIONS}
+          isLoading={isLoading}
         />
       </PaginatorContainer>
     </div>

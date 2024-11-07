@@ -128,7 +128,7 @@ export const Paginator = React.memo(
       <PaginatorWrapper colSpan={colSpan}>
         <FooterContent>
           <PageRecordCount>
-            {isLoading && (
+            {!isLoading && (
               <TranslatedText
                 stringId="general.table.pageRecordCount"
                 fallback=":lowerRange–:upperRange of :count"
