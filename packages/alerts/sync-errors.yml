@@ -3,14 +3,15 @@ enabled: true
 sql: |
   SELECT
     id,
-    errors,
+    errors::text,
     debug_info->>'facilityId' AS facility_id,
-    completed_at - created_at AS duration
+    created_at::text AS created,
+    (completed_at - created_at)::text AS duration
   FROM sync_sessions
   WHERE
     updated_at > now() - interval '1 minute' -- Lookback window
   AND errors IS NOT NULL
-  AND errors <> ARRAY['Session marked as completed due to its device reconnecting']
+  AND errors <> ARRAY['could not serialize access due to concurrent update']
 
 send:
   - target: zendesk
@@ -23,7 +24,7 @@ send:
       <p><b>Report this immediately to support.</b></p>
       <ul>
         {% for row in rows | slice(end=5) %}
-        <li><b>{{ row.id }}</b>: <i>{{ row.errors }}</i> ({{ row.facility_id }}, {{ row.duration }})</li>
+        <li><b>{{ row.id }}</b>: <i>{{ row.errors }}</i> ({{ row.facility_id }},  duration {{ row.duration }}, start {{ row.created }})</li>
         {% endfor %}
         {% if rows | length > 5 %}
         <li>... and {{ rows | length - 5 }} more</li>
