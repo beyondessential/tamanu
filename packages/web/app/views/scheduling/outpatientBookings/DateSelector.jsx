@@ -146,8 +146,7 @@ export const DateSelector = ({ value, onChange }) => {
   };
 
   const handleChangeToday = () => handleChange(new Date());
-  const handleMonthYearChange = e => {
-    const newDate = e.target.value;
+  const handleMonthYearChange = newDate => {
     if (isThisMonth(newDate)) {
       handleChangeToday();
       return;
