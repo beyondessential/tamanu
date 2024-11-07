@@ -100,6 +100,7 @@ const BodyCell = styled(BaseCell).attrs({ as: 'button' })`
   align-items: stretch;
   ${({ selected }) => selected && `border: 1px solid ${Colors.primary};`}
 
+  align-items: stretch;
   cursor: pointer;
   display: flex;
   flex-direction: column;
