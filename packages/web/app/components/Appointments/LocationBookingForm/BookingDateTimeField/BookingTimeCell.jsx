@@ -50,16 +50,20 @@ const Toggle = styled(ToggleButton)`
     }
 
     &:disabled,
+    &[aria-disabled='true'],
     &.${toggleButtonGroupClasses.disabled} {
       background-color: ${Colors.background};
       cursor: not-allowed;
     }
 
-    ${({ $booked }) =>
+    ${({ $booked = false }) =>
       $booked &&
       css`
         &,
-        &:hover {
+        &:hover,
+        &:disabled,
+        &[aria-disabled='true'],
+        &.${toggleButtonGroupClasses.disabled} {
           color: ${Colors.midText};
 
           background-color: oklch(from ${Colors.alert} l c h / 10%);
