@@ -32,6 +32,7 @@ export const useOutpatientAppointmentsCalendarData = ({ groupBy, selectedDate })
     after: selectedDate,
     before: endOfDay(selectedDate),
     locationGroupId: '',
+    all: true,
   });
 
   const isLoading = isLocationGroupsLoading || isUsersLoading || isFetchingAppointmentData;
