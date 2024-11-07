@@ -362,6 +362,9 @@ export const AppointmentDetailPopper = ({
       anchorEl={anchorEl}
       placement="bottom-start"
       onClick={e => e.stopPropagation()} // Prevent the popper from closing when clicked
+      sx={{
+        zIndex: 10,
+      }}
       modifiers={[
         {
           name: 'offset',
