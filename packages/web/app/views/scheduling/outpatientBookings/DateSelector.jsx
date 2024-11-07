@@ -53,6 +53,9 @@ const DayWrapper = styled('button')`
   border-radius: 3px;
   flex-grow: 1;
   user-select: none;
+  :hover {
+    background-color: ${({ $selected }) => ($selected ? Colors.primary : Colors.veryLightBlue)};
+  }
 `;
 
 const DateText = styled(BodyText)`
