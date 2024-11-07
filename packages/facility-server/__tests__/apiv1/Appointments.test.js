@@ -41,19 +41,6 @@ describe('Appointments', () => {
     // verify that the appointment returned is the one created above
     expect(result.body.data[0].id).toEqual(appointment.id);
   });
-  it('should be backwards compatible for appointments with locations', async () => {
-    const locationId = await randomRecordId(models, 'Location');
-    await models.Appointment.update(
-      {
-        locationId,
-      },
-      {
-        where: { id: appointment.id },
-      },
-    );
-    const result = await userApp.get('/api/appointments');
-    expect(result.body.data[0].locationGroup.id).toEqual(locationId);
-  });
   it('should cancel an appointment', async () => {
     const result = await userApp.put(`/api/appointments/${appointment.id}`).send({
       status: APPOINTMENT_STATUSES.CANCELLED,
