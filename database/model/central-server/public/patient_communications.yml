@@ -1,0 +1,73 @@
+version: 2
+sources:
+  - name: tamanu
+    schema: public
+    description: "{{ doc('generic__schema') }}"
+    tables:
+      - name: patient_communications
+        description: '{{ doc("table__patient_communications") }}'
+        tags:
+          - clinical
+        columns:
+          - name: id
+            data_type: character varying(255)
+            description: "{{ doc('generic__id') }} in patient_communications."
+            data_tests:
+              - unique
+              - not_null
+          - name: created_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__created_at') }} in patient_communications."
+            data_tests:
+              - not_null
+          - name: updated_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__updated_at') }} in patient_communications."
+            data_tests:
+              - not_null
+          - name: deleted_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__deleted_at') }} in patient_communications."
+          - name: type
+            data_type: text
+            description: "{{ doc('patient_communications__type') }}"
+            data_tests:
+              - not_null
+          - name: channel
+            data_type: text
+            description: "{{ doc('patient_communications__channel') }}"
+            data_tests:
+              - not_null
+          - name: subject
+            data_type: text
+            description: "{{ doc('patient_communications__subject') }}"
+          - name: content
+            data_type: text
+            description: "{{ doc('patient_communications__content') }}"
+          - name: status
+            data_type: user-defined
+            description: "{{ doc('patient_communications__status') }}"
+            data_tests:
+              - not_null
+          - name: error
+            data_type: text
+            description: "{{ doc('patient_communications__error') }}"
+          - name: retry_count
+            data_type: integer
+            description: "{{ doc('patient_communications__retry_count') }}"
+          - name: patient_id
+            data_type: character varying(255)
+            description: "{{ doc('patient_communications__patient_id') }}"
+            data_tests:
+              - relationships:
+                  to: source('tamanu', 'patients')
+                  field: id
+          - name: destination
+            data_type: character varying(255)
+            description: "{{ doc('patient_communications__destination') }}"
+          - name: attachment
+            data_type: character varying(255)
+            description: "{{ doc('patient_communications__attachment') }}"
+          - name: hash
+            data_type: integer
+            description: "{{ doc('patient_communications__hash') }}"

@@ -6,6 +6,7 @@ import CancelIcon from '@material-ui/icons/Cancel';
 import DeleteOutlineIcon from '@material-ui/icons/DeleteOutline';
 import { TASK_STATUSES, TASK_ACTIONS } from '@tamanu/constants';
 import PriorityHighIcon from '@material-ui/icons/PriorityHigh';
+import { differenceInHours, parseISO } from 'date-fns';
 
 import {
   BodyText,
@@ -117,7 +118,7 @@ const StatusTodo = styled.div`
   border-radius: 50%;
 `;
 
-const StyledBulkActions = styled.div`
+const StyledActionsRow = styled.div`
   display: flex;
   gap: 15px;
   padding-right: 10px;
@@ -297,13 +298,19 @@ const getFrequency = ({ frequencyValue, frequencyUnit }) =>
     <TranslatedText stringId="encounter.tasks.table.once" fallback="Once" />
   );
 
-const BulkActions = ({ row, status, handleActionModalOpen }) => {
+const getIsTaskOverdue = (task) => differenceInHours(new Date(), parseISO(task.dueTime)) >= 48;
+
+const ActionsRow = ({ row, rows, handleActionModalOpen }) => {
+  const status = row?.status || rows[0]?.status;
+
   const { ability } = useAuth();
   const canWrite = ability.can('write', 'Tasking');
   const canDelete = ability.can('delete', 'Tasking');
 
+  const isTaskOverdue = row ? getIsTaskOverdue(row) : rows.some(getIsTaskOverdue);
+
   return (
-    <StyledBulkActions>
+    <StyledActionsRow>
       {status !== TASK_STATUSES.COMPLETED && canWrite && (
         <TableTooltip
           title={
@@ -332,7 +339,7 @@ const BulkActions = ({ row, status, handleActionModalOpen }) => {
           </IconButton>
         </TableTooltip>
       )}
-      {status !== TASK_STATUSES.TODO && canWrite && (
+      {status !== TASK_STATUSES.TODO && canWrite && !isTaskOverdue && (
         <TableTooltip
           title={
             <TranslatedText
@@ -357,13 +364,13 @@ const BulkActions = ({ row, status, handleActionModalOpen }) => {
           </IconButton>
         </TableTooltip>
       )}
-    </StyledBulkActions>
+    </StyledActionsRow>
   );
 };
 
 const NotesCell = ({ row, hoveredRow, handleActionModalOpen }) => {
   const [ref, isOverflowing] = useOverflow();
-  const { note, status } = row;
+  const { note } = row;
 
   return (
     <Box display="flex" alignItems="center">
@@ -381,7 +388,7 @@ const NotesCell = ({ row, hoveredRow, handleActionModalOpen }) => {
         )}
       </NotesDisplay>
       {hoveredRow?.id === row?.id && (
-        <BulkActions row={row} status={status} handleActionModalOpen={handleActionModalOpen} />
+        <ActionsRow row={row} handleActionModalOpen={handleActionModalOpen} />
       )}
     </Box>
   );
@@ -541,10 +548,7 @@ export const TasksTable = ({ encounterId, searchParameters, refreshCount, refres
       {selectedRows.length > 0 && canDoAction && (
         <div>
           <StyledDivider />
-          <BulkActions
-            status={selectedRows[0].status}
-            handleActionModalOpen={handleActionModalOpen}
-          />
+          <ActionsRow rows={selectedRows} handleActionModalOpen={handleActionModalOpen} />
         </div>
       )}
       <StyledTable

@@ -42,6 +42,7 @@ export class Setting extends BaseModel {
       }
       return null;
     };
+
     const scope = determineScope();
 
     const settingsQueryBuilder = this.getRepository()
@@ -77,7 +78,7 @@ export class Setting extends BaseModel {
 
     const settingsObject = {};
     for (const currentSetting of settings) {
-      setAtPath(settingsObject, currentSetting.key, JSON.parse(currentSetting.value));
+      setAtPath(settingsObject, currentSetting.key, JSON.parse(currentSetting.value ?? null));
     }
 
     if (key === '') {
