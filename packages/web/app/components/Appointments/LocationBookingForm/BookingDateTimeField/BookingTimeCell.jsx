@@ -88,6 +88,35 @@ const AvailableCell = styled(Toggle)`
     `}
 `;
 
+const tooltipStyles = css`
+  // Workaround: ThemedTooltip passes its classes onto the tooltip popper
+  &:not(.MuiTooltip-popper) {
+    display: grid;
+    grid-template-columns: subgrid;
+  }
+`;
+
+const BookedTooltip = styled(ThemedTooltip).attrs({
+  title: (
+    <TranslatedText stringId="locationBooking.tooltip.notAvailable" fallback="Not available" />
+  ),
+})`
+  ${tooltipStyles}
+`;
+
+const StyledConditionalTooltip = styled(ConditionalTooltip).attrs({
+  title: (
+    <TranslatedText
+      stringId="locationBooking.tooltip.unavailableTimeInRangeWarning"
+      fallback="All times must be available when booking over multiple times"
+    />
+  ),
+})`
+  ${tooltipStyles};
+  max-inline-size: 13em;
+  text-wrap: balance;
+`;
+
 export const BookingTimeCell = ({
   timeSlot,
   booked = false,
@@ -108,33 +137,17 @@ export const BookingTimeCell = ({
 
   if (booked) {
     return (
-      <ThemedTooltip
-        title={
-          <TranslatedText
-            stringId="locationBooking.tooltip.notAvailable"
-            fallback="Not available"
-          />
-        }
-      >
+      <BookedTooltip>
         <Toggle {...props} $booked aria-disabled>
           {/* Not true `disabled` attribute as it prevents tooltip from listening for events */}
           <TimeRangeDisplay range={timeSlot} />
         </Toggle>
-      </ThemedTooltip>
+      </BookedTooltip>
     );
   }
 
   return (
-    <ConditionalTooltip
-      $maxWidth="200px"
-      title={
-        <TranslatedText
-          stringId="locationBooking.tooltip.unavailableTimeInRangeWarning"
-          fallback="All times must be available when booking over multiple times"
-        />
-      }
-      visible={!selectable}
-    >
+    <StyledConditionalTooltip visible={!selectable}>
       <AvailableCell
         $hover={selectable && inHoverRange}
         $selectable={selectable}
@@ -145,7 +158,7 @@ export const BookingTimeCell = ({
       >
         <TimeRangeDisplay range={timeSlot} />
       </AvailableCell>
-    </ConditionalTooltip>
+    </StyledConditionalTooltip>
   );
 };
 
