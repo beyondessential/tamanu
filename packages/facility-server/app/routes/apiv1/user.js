@@ -257,6 +257,10 @@ user.get(
           [Op.lte]: toCountryDateTimeString(add(new Date(), { hours: upcomingTasksTimeFrame })),
         },
         ...(highPriority && { highPriority }),
+        [Op.or]: [
+          { '$designations.designationUsers.id$': userId }, // get tasks assigned to the current user
+          { '$designations.id$': { [Op.is]: null } }, // get tasks that are not assigned to anyone
+        ],
       },
       include: [
         'requestedBy',
@@ -285,13 +289,12 @@ user.get(
           model: models.ReferenceData,
           as: 'designations',
           ...(designationId && { where: { id: designationId } }),
-          required: true,
+          required: false,
           include: [
             {
               attributes: [],
               model: models.User,
               as: 'designationUsers',
-              where: { id: userId }, // only get tasks assigned to the current user
             },
           ],
         },

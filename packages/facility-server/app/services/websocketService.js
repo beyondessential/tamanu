@@ -34,7 +34,7 @@ export const defineWebsocketService = injector => {
           {
             model: injector.models.ReferenceData,
             as: 'designations',
-            required: true,
+            required: false,
             include: [
               {
                 attributes: ['id'],
@@ -48,8 +48,13 @@ export const defineWebsocketService = injector => {
       });
 
       const userIds = new Set(task?.designations?.flatMap(designation  => designation.designationUsers.map(user => user.id)) ?? []);
-      for (const userId of userIds) {
-        socketServer.emit(`${WS_EVENTS.USER_TASKS_UPDATE}:${userId}`, task);
+
+      if (userIds.size === 0) {
+        socketServer.emit(`${WS_EVENTS.CLINICIAN_DASHBOARD_TASKS_UPDATE}:all`, task);
+      } else {
+        for (const userId of userIds) {
+          socketServer.emit(`${WS_EVENTS.CLINICIAN_DASHBOARD_TASKS_UPDATE}:${userId}`, task);
+        }
       }
     }
   });
