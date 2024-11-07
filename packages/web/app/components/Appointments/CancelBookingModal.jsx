@@ -76,8 +76,8 @@ const AppointmentDetailsDisplay = ({ appointment }) => {
           }
           value={
             <TranslatedReferenceData
-              fallback={locationGroup?.name}
-              value={locationGroup?.id}
+              fallback={location?.locationGroup?.name || locationGroup?.name}
+              value={location?.locationGroup?.id || locationGroup?.id}
               category={OTHER_REFERENCE_TYPES.LOCATION_GROUP}
             />
           }
