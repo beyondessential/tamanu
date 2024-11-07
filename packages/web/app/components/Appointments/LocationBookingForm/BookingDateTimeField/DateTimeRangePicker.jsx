@@ -1,9 +1,9 @@
+import { useFormikContext } from 'formik';
 import React from 'react';
 
 import { DateField, Field } from '../../../Field';
 import { TranslatedText } from '../../../Translation';
 import { TimeSlotPicker } from './TimeSlotPicker';
-import { useFormikContext } from 'formik';
 
 export const DateTimeRangePicker = ({
   dateFieldHelperText,

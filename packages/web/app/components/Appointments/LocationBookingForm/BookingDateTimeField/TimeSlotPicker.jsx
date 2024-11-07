@@ -10,6 +10,7 @@ import {
   startOfToday,
 } from 'date-fns';
 import { useFormikContext } from 'formik';
+import { isEqual } from 'lodash';
 import { PropTypes } from 'prop-types';
 import React, { useCallback, useMemo, useState } from 'react';
 import styled, { css } from 'styled-components';
@@ -23,7 +24,6 @@ import { useSettings } from '../../../../contexts/Settings';
 import { OuterLabelFieldWrapper } from '../../../Field';
 import { BookingTimeCell, SkeletonTimeSlotToggles } from './BookingTimeCell';
 import { calculateTimeSlots, isSameArrayMinusHeadOrTail, isTimeSlotWithinRange } from './util';
-import { isEqual } from 'lodash';
 
 const ToggleGroup = styled(ToggleButtonGroup)`
   background-color: white;

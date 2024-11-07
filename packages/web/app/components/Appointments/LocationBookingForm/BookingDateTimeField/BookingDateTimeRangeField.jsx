@@ -1,9 +1,9 @@
 import { endOfDay, startOfDay } from 'date-fns';
+import { useFormikContext } from 'formik';
 import React from 'react';
 
 import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
 
-import { useFormikContext } from 'formik';
 import { useAppointmentsQuery } from '../../../../api/queries';
 import { TranslatedText } from '../../../Translation';
 import { DateTimePicker } from './DateTimePicker';
