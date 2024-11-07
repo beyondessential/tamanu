@@ -61,12 +61,11 @@ export const TimeSlotPicker = ({
     values,
   } = useFormikContext();
 
-  /**
-   * Array of integers representing the selected toggle buttons. Each time slot is represented by
-   * the integer form of its start time.
-   */
-  const [selectedToggles, setSelectedToggles] = useState([]); // TODO
-  const [hoverRange, setHoverRange] = useState(null);
+  const initialTimeRange = useMemo(() => {
+    return isValid(initialStart) && isValid(initialEnd)
+      ? { start: initialStart, end: initialEnd }
+      : null;
+  }, [initialStart, initialEnd]);
 
   const { getSetting } = useSettings();
   const bookingSlotSettings = getSetting('appointments.bookingSlots');
@@ -74,6 +73,19 @@ export const TimeSlotPicker = ({
   // Fall back to arbitrary day so time slots render. Prevents GUI from looking broken when no date
   // is selected, but component should be disabled in this scenario
   const timeSlots = calculateTimeSlots(bookingSlotSettings, date ?? startOfToday());
+
+  /**
+   * Array of integers representing the selected toggle buttons. Each time slot is represented by
+   * the integer form of its start time.
+   */
+  const [selectedToggles, setSelectedToggles] = useState(
+    initialTimeRange
+      ? timeSlots
+          .filter(s => areIntervalsOverlapping(s, initialTimeRange))
+          .map(({ start }) => start.valueOf())
+      : null,
+  );
+  const [hoverRange, setHoverRange] = useState(null);
 
   const dateIsValid = isValid(date);
   const { data: existingLocationBookings, isFetching, isFetched } = useAppointmentsQuery(
@@ -93,9 +105,9 @@ export const TimeSlotPicker = ({
   };
 
   /**
-   * @param {Array<int>} newTogglesUnsorted Provided by MUI Toggle Button Group. This function coerces this
-   * into a contiguous selection. Note that this array has set semantics, and is not guaranteed to
-   * have its elements in natural order.
+   * @param {Array<int>} newTogglesUnsorted Provided by MUI Toggle Button Group. This function
+   * coerces this into a contiguous selection. Note that this array has set semantics, and is not
+   * guaranteed to have its elements in natural order.
    */
   const handleChange = (event, newTogglesUnsorted) => {
     const newToggles = newTogglesUnsorted.toSorted();
@@ -124,7 +136,7 @@ export const TimeSlotPicker = ({
           const newEnd = addMs(startOfLatestSlot, ms(bookingSlotSettings.slotDuration));
           const newTimeRange = { start: newStart, end: newEnd };
           const newSelection = timeSlots
-            .filter(s => isTimeSlotWithinRange(s, newTimeRange))
+            .filter(s => areIntervalsOverlapping(s, newTimeRange))
             .map(({ start }) => start.valueOf());
           updateSelection(newSelection, newStart, newEnd);
           break;
@@ -158,15 +170,6 @@ export const TimeSlotPicker = ({
     onChange?.(event, { start: values.startTime, end: values.endTime });
   };
 
-  // Convert existing bookings into timeslots
-  const initialTimeRange = useMemo(() => {
-    return initialStart && initialEnd
-      ? {
-          start: new Date(initialStart),
-          end: new Date(initialEnd),
-        }
-      : null;
-  }, [initialStart, initialEnd]);
   const bookedIntervals = useMemo(() => {
     if (!isFetched) return [];
     return existingLocationBookings?.data
