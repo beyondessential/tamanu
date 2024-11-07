@@ -14,8 +14,8 @@ import { useDispatch } from 'react-redux';
 import { toast } from 'react-toastify';
 
 import {
-  APPOINTMENT_STATUSES,
   APPOINTMENT_STATUS_VALUES,
+  APPOINTMENT_STATUSES,
   APPOINTMENT_TYPE_LABELS,
 } from '@tamanu/constants';
 import { useApi } from '../../api';
@@ -101,7 +101,7 @@ const AppointmentDetailsContainer = styled(FlexCol)`
   padding: 0.75rem;
 `;
 
-const SexAndDob = styled('div')`
+const PrimaryDetails = styled('div')`
   > span + span {
     margin-inline-start: 0.25rem;
     padding-inline-start: 0.25rem;
@@ -193,7 +193,7 @@ const PatientDetailsDisplay = ({ patient, onClick }) => {
   return (
     <PatientDetailsContainer onClick={onClick}>
       <PatientName>{getPatientNameAsString(patient)}</PatientName>
-      <SexAndDob>
+      <PrimaryDetails>
         <span>
           <Label>
             <TranslatedText stringId="general.localisedField.sex.label" fallback="Sex" />:
@@ -210,7 +210,7 @@ const PatientDetailsDisplay = ({ patient, onClick }) => {
           </Label>{' '}
           <DateDisplay noTooltip date={dateOfBirth} />
         </span>
-      </SexAndDob>
+      </PrimaryDetails>
       {additionalData?.primaryContactNumber && (
         <DetailsDisplay
           label={
