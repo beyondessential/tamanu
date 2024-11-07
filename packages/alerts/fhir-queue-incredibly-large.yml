@@ -4,7 +4,7 @@ sql: |
     COUNT(*) AS job_count
   FROM fhir.jobs
   WHERE status = 'Queued'
-  HAVING COUNT(*) > 1000
+  HAVING COUNT(*) > 1000;
 
 send:
   - target: zendesk

@@ -3,7 +3,7 @@ sql: |
   SELECT *
   FROM patient_communications
   WHERE status = 'Error'
-  AND created_at > $1
+  AND created_at > $1;
 
 send:
   - target: zendesk

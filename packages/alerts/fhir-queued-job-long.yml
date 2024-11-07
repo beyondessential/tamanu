@@ -6,7 +6,7 @@ sql: |
     ROUND(EXTRACT(EPOCH FROM (NOW() - created_at)) / 60) AS duration_minutes,
   FROM fhir.jobs
   WHERE status = 'Queued'
-    AND NOW() - created_at > INTERVAL '15 minutes'
+    AND NOW() - created_at > INTERVAL '15 minutes';
 send:
   - target: zendesk
     endpoint: https://example.zendesk.com/api/v2/requests

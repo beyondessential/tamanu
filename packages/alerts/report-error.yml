@@ -3,7 +3,7 @@ sql: |
   SELECT *
   FROM report_requests
   WHERE status = 'Error'
-  AND created_at > $1
+  AND created_at > $1;
 
 send:
   - target: zendesk

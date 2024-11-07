@@ -1,26 +1,25 @@
 ---
 enabled: true
 sql: |
-  SELECT
-    id,
-    errors::text,
+  select
+    id, errors::text,
     debug_info->>'facilityId' AS facility_id,
     created_at::text AS created,
     (completed_at - created_at)::text AS duration
-  FROM sync_sessions
-  WHERE
-    updated_at > now() - interval '1 minute' -- Lookback window
-  AND errors IS NOT NULL
-  AND errors <> ARRAY['could not serialize access due to concurrent update'];
+  from sync_sessions
+  where created_at > $1
+  and completed_at IS NULL
+  and (pull_until is null or pull_since is null or pull_until - pull_since < 1000)
+  and (updated_at - created_at) > '21 minutes'::interval;
 
 send:
   - target: zendesk
     endpoint: https://example.zendesk.com/api/v2/requests
-    subject: '[Tamanu Alert] Sync session error ({{ hostname }})'
+    subject: '[Tamanu alert] Sync sessions longer than 21 minutes ({{ hostname }})'
     template: |
       <p>Server: {{ hostname }}</p>
       <p>Alert: {{ filename }}</p>
-      <h1>Sync sessions with an error in the last minute</h1>
+      <h1>Sync sessions lasting longer than 21 minutes in the last {{ interval }}</h1>
       <p><b>Report this immediately to support.</b></p>
       <ul>
         {% for row in rows | slice(end=5) %}
