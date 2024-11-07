@@ -1,17 +1,29 @@
-import React, { useCallback, useMemo, useState } from 'react';
-import { useDispatch } from 'react-redux';
-import { push } from 'connected-react-router';
+import Overnight from '@mui/icons-material/Brightness2';
+import Close from '@mui/icons-material/Close';
 import Box from '@mui/material/Box';
 import ClickAwayListener from '@mui/material/ClickAwayListener';
 import IconButton from '@mui/material/IconButton';
 import Paper from '@mui/material/Paper';
 import Popper from '@mui/material/Popper';
 import { styled } from '@mui/material/styles';
-import Overnight from '@mui/icons-material/Brightness2';
-import Close from '@mui/icons-material/Close';
+import { useQueryClient } from '@tanstack/react-query';
+import { push } from 'connected-react-router';
 import { debounce } from 'lodash';
+import React, { useCallback, useMemo, useState } from 'react';
+import { useDispatch } from 'react-redux';
 import { toast } from 'react-toastify';
 
+import {
+  APPOINTMENT_STATUSES,
+  APPOINTMENT_STATUS_VALUES,
+  APPOINTMENT_TYPE_LABELS,
+} from '@tamanu/constants';
+import { useApi } from '../../api';
+import { usePatientAdditionalDataQuery } from '../../api/queries';
+import { Colors } from '../../constants';
+import { reloadPatient } from '../../store';
+import { DateDisplay, getDateDisplay } from '../DateDisplay';
+import { MenuButton } from '../MenuButton';
 import { getPatientNameAsString } from '../PatientNameDisplay';
 import {
   TranslatedEnum,
@@ -19,19 +31,7 @@ import {
   TranslatedSex,
   TranslatedText,
 } from '../Translation';
-import { Colors } from '../../constants';
-import { DateDisplay, getDateDisplay } from '../DateDisplay';
-import { reloadPatient } from '../../store';
-import { useApi } from '../../api';
-import { usePatientAdditionalDataQuery } from '../../api/queries';
-import {
-  APPOINTMENT_STATUS_VALUES,
-  APPOINTMENT_STATUSES,
-  APPOINTMENT_TYPE_LABELS,
-} from '@tamanu/constants';
 import { AppointmentStatusChip } from './AppointmentStatusChip';
-import { MenuButton } from '../MenuButton';
-import { useQueryClient } from '@tanstack/react-query';
 
 const DEBOUNCE_DELAY = 200; // ms
 
@@ -208,7 +208,7 @@ const PatientDetailsDisplay = ({ patient, onClick }) => {
             />
             :
           </Label>{' '}
-          <DateDisplay date={dateOfBirth} />
+          <DateDisplay noTooltip date={dateOfBirth} />
         </span>
       </SexAndDob>
       {additionalData?.primaryContactNumber && (
@@ -250,8 +250,8 @@ const AppointDetailsDisplay = ({ appointment, isOvernight }) => {
         }
         value={
           <TranslatedReferenceData
-            fallback={locationGroup?.name}
-            value={locationGroup?.id}
+            fallback={location?.locationGroup?.name || locationGroup?.name}
+            value={location?.locationGroup?.id || locationGroup?.id}
             category="locationGroup"
           />
         }

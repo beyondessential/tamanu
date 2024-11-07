@@ -38,7 +38,9 @@ const LocationBookingsTopBar = styled(TopBar).attrs({
   title: (
     <TranslatedText stringId="scheduling.locationBookings.title" fallback="Location bookings" />
   ),
-})``;
+})`
+  border-block-end: max(0.0625rem, 1px) ${Colors.outline} solid;
+`;
 
 const Wrapper = styled(PageContainer)`
   display: grid;
