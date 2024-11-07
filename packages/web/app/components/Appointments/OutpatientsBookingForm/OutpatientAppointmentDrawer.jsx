@@ -239,7 +239,10 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
       }
     >
       <Form
-        onSubmit={async values => handleSubmit(values)}
+        onSubmit={async (values, { resetForm }) => {
+          await handleSubmit(values);
+          resetForm();
+        }}
         suppressErrorDialog
         formType={isEdit ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
         validationSchema={validationSchema}

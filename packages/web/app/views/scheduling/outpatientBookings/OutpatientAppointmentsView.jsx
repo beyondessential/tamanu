@@ -85,7 +85,7 @@ export const OutpatientAppointmentsView = () => {
 
   const handleCloseDrawer = () => setDrawerOpen(false);
 
-  const handleEditAppointment = appointment => {
+  const handleOpenDrawer = appointment => {
     setSelectedAppointment(
       pick(appointment, [
         'id',
@@ -114,7 +114,7 @@ export const OutpatientAppointmentsView = () => {
           <Placeholder>Clinician</Placeholder>
           <Placeholder>Type</Placeholder>
         </Filters>
-        <NewBookingButton onClick={() => handleEditAppointment({})}>
+        <NewBookingButton onClick={() => handleOpenDrawer({})}>
           <AddIcon /> Book appointment
         </NewBookingButton>
       </LocationBookingsTopBar>
@@ -122,7 +122,7 @@ export const OutpatientAppointmentsView = () => {
         <DateSelector value={selectedDate} onChange={handleChangeDate} />
         <CalendarInnerWrapper>
           <OutpatientBookingCalendar
-            onEditAppointment={handleEditAppointment}
+            onOpenDrawer={handleOpenDrawer}
             groupBy={groupBy}
             selectedDate={selectedDate}
           />

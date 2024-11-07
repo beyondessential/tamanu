@@ -45,74 +45,80 @@ const timeOverlapWhereCondition = (startTime, endTime) => {
 appointments.post('/$', simplePost('Appointment'));
 appointments.put('/:id', simplePut('Appointment'));
 
-appointments.post('/locationBooking', async (req, res) => {
-  req.checkPermission('create', 'Appointment');
+appointments.post(
+  '/locationBooking',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('create', 'Appointment');
 
-  const { models, body } = req;
-  const { startTime, endTime, locationId } = body;
-  const { Appointment } = models;
+    const { models, body } = req;
+    const { startTime, endTime, locationId } = body;
+    const { Appointment } = models;
 
-  try {
-    const result = await Appointment.sequelize.transaction(async transaction => {
-      const bookingTimeAlreadyTaken = await Appointment.findOne({
-        where: {
-          locationId,
-          ...timeOverlapWhereCondition(startTime, endTime),
-        },
-        transaction,
+    try {
+      const result = await Appointment.sequelize.transaction(async transaction => {
+        const bookingTimeAlreadyTaken = await Appointment.findOne({
+          where: {
+            locationId,
+            ...timeOverlapWhereCondition(startTime, endTime),
+          },
+          transaction,
+        });
+
+        if (bookingTimeAlreadyTaken) {
+          throw new ResourceConflictError();
+        }
+
+        const newRecord = await Appointment.create(body, { transaction });
+        return newRecord;
       });
 
-      if (bookingTimeAlreadyTaken) {
-        throw new ResourceConflictError();
-      }
+      res.status(201).send(result);
+    } catch (error) {
+      res.status(error.status || 500).send();
+    }
+  }),
+);
 
-      const newRecord = await Appointment.create(body, { transaction });
-      return newRecord;
-    });
+appointments.put(
+  '/locationBooking/:id',
+  asyncHandler(async (req, res) => {
+    const { models, body, params } = req;
+    const { id } = params;
+    const { startTime, endTime, locationId } = body;
+    const { Appointment } = models;
 
-    res.status(201).send(result);
-  } catch (error) {
-    res.status(error.status || 500).send();
-  }
-});
+    req.checkPermission('create', 'Appointment');
 
-appointments.put('/locationBooking/:id', async (req, res) => {
-  const { models, body, params } = req;
-  const { id } = params;
-  const { startTime, endTime, locationId } = body;
-  const { Appointment } = models;
+    try {
+      const result = await Appointment.sequelize.transaction(async transaction => {
+        const existingBooking = await Appointment.findByPk(id, { transaction });
 
-  req.checkPermission('create', 'Appointment');
+        if (!existingBooking) {
+          throw new NotFoundError();
+        }
+        const bookingTimeAlreadyTaken = await Appointment.findOne({
+          where: {
+            id: { [Op.ne]: id },
+            locationId,
+            ...timeOverlapWhereCondition(startTime, endTime),
+          },
+          transaction,
+        });
 
-  try {
-    const result = await Appointment.sequelize.transaction(async transaction => {
-      const existingBooking = await Appointment.findByPk(id, { transaction });
+        if (bookingTimeAlreadyTaken) {
+          throw new ResourceConflictError();
+        }
 
-      if (!existingBooking) {
-        throw new NotFoundError();
-      }
-      const bookingTimeAlreadyTaken = await Appointment.findOne({
-        where: {
-          id: { [Op.ne]: id },
-          locationId,
-          ...timeOverlapWhereCondition(startTime, endTime),
-        },
-        transaction,
+        const updatedRecord = await existingBooking.update(body, { transaction });
+        return updatedRecord;
       });
 
-      if (bookingTimeAlreadyTaken) {
-        throw new ResourceConflictError();
-      }
-
-      const updatedRecord = await existingBooking.update(body, { transaction });
-      return updatedRecord;
-    });
-
-    res.status(200).send(result);
-  } catch (error) {
-    res.status(error.status || 500).send();
-  }
-});
+      res.status(200).send(result);
+    } catch (error) {
+      res.status(error.status || 500).send();
+    }
+  }),
+);
 
 const searchableFields = [
   'startTime',
