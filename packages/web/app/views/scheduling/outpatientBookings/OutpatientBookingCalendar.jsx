@@ -59,7 +59,6 @@ const HeadCellText = styled(BodyText)`
 `;
 
 const AppointmentColumnWrapper = styled(Box)`
-  overflow: auto;
   display: flex;
   flex-direction: column;
   padding: 0.5rem;
@@ -153,7 +152,7 @@ export const OutpatientBookingCalendar = ({ groupBy, selectedDate, onOpenDrawer 
     );
   }
   return (
-    <Box display="flex" width="100%">
+    <Box display="flex" width="100%" overflow="auto">
       {headData?.map(cell => {
         const appointments = cellData[cell.id];
         return (
