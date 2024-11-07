@@ -1,0 +1,73 @@
+version: 2
+sources:
+  - name: tamanu
+    schema: public
+    description: "{{ doc('generic__schema') }}"
+    tables:
+      - name: patient_contacts
+        description: '{{ doc("table__patient_contacts") }}'
+        __generator:
+          js_class: PatientContact
+        tags:
+          - patient
+        columns:
+          - name: id
+            data_type: character varying(255)
+            description: "{{ doc('generic__id') }} in patient_contacts."
+            data_tests:
+              - unique
+              - not_null
+          - name: created_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__created_at') }} in patient_contacts."
+            data_tests:
+              - not_null
+          - name: updated_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__updated_at') }} in patient_contacts."
+            data_tests:
+              - not_null
+          - name: deleted_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__deleted_at') }} in patient_contacts."
+          - name: name
+            data_type: text
+            description: "{{ doc('patient_contacts__name') }}"
+            data_tests:
+              - not_null
+          - name: method
+            data_type: text
+            description: "{{ doc('patient_contacts__method') }}"
+            data_tests:
+              - not_null
+              - accepted_values:
+                  values:
+                    - Email
+                    - Sms
+                    - WhatsApp
+                    - Telegram
+          - name: connection_details
+            data_type: jsonb
+            description: "{{ doc('patient_contacts__connection_details') }}"
+          - name: patient_id
+            data_type: character varying(255)
+            description: "{{ doc('patient_contacts__patient_id') }}"
+            data_tests:
+              - not_null
+              - relationships:
+                  to: source('tamanu', 'patients')
+                  field: id
+          - name: relationship_id
+            data_type: character varying(255)
+            description: "{{ doc('patient_contacts__relationship_id') }}"
+            data_tests:
+              - not_null
+              - dbt_utils.relationships_where:
+                  to: source('tamanu', 'reference_data')
+                  field: id
+                  to_condition: type = 'contactRelationship'
+          - name: updated_at_sync_tick
+            data_type: bigint
+            description: "{{ doc('generic__updated_at_sync_tick') }} in patient_contacts."
+            data_tests:
+              - not_null

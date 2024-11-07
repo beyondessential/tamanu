@@ -830,7 +830,7 @@ export const globalSettings = {
               name: 'Imaging provider',
               description: '_',
               type: yup.string(),
-              defaultValue: '',
+              defaultValue: 'test',
             },
           },
         },

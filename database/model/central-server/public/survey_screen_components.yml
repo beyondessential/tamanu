@@ -1,0 +1,73 @@
+version: 2
+sources:
+  - name: tamanu
+    schema: public
+    description: "{{ doc('generic__schema') }}"
+    tables:
+      - name: survey_screen_components
+        description: '{{ doc("table__survey_screen_components") }}'
+        tags:
+          - reference
+        columns:
+          - name: id
+            data_type: character varying(255)
+            description: "{{ doc('generic__id') }} in survey_screen_components."
+            data_tests:
+              - unique
+              - not_null
+          - name: created_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__created_at') }} in survey_screen_components."
+            data_tests:
+              - not_null
+          - name: updated_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__updated_at') }} in survey_screen_components."
+            data_tests:
+              - not_null
+          - name: deleted_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__deleted_at') }} in survey_screen_components."
+          - name: screen_index
+            data_type: integer
+            description: "{{ doc('survey_screen_components__screen_index') }}"
+          - name: component_index
+            data_type: integer
+            description: "{{ doc('survey_screen_components__component_index') }}"
+          - name: text
+            data_type: character varying(255)
+            description: "{{ doc('survey_screen_components__text') }}"
+          - name: visibility_criteria
+            data_type: character varying(255)
+            description: "{{ doc('survey_screen_components__visibility_criteria') }}"
+          - name: validation_criteria
+            data_type: text
+            description: "{{ doc('survey_screen_components__validation_criteria') }}"
+          - name: detail
+            data_type: character varying(255)
+            description: "{{ doc('survey_screen_components__detail') }}"
+          - name: config
+            data_type: character varying(255)
+            description: "{{ doc('survey_screen_components__config') }}"
+          - name: options
+            data_type: character varying(255)
+            description: "{{ doc('survey_screen_components__options') }}"
+          - name: calculation
+            data_type: character varying(255)
+            description: "{{ doc('survey_screen_components__calculation') }}"
+          - name: survey_id
+            data_type: character varying(255)
+            description: "{{ doc('survey_screen_components__survey_id') }}"
+          - name: data_element_id
+            data_type: character varying(255)
+            description: "{{ doc('survey_screen_components__data_element_id') }}"
+          - name: updated_at_sync_tick
+            data_type: bigint
+            description: "{{ doc('generic__updated_at_sync_tick') }} in
+              survey_screen_components."
+            data_tests:
+              - not_null
+          - name: visibility_status
+            data_type: character varying(255)
+            description: "{{ doc('generic__visibility_status') }} in
+              survey_screen_components."
