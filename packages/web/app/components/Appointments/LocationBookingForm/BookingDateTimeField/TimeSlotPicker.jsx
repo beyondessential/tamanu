@@ -1,4 +1,3 @@
-import { CircularProgress } from '@material-ui/core';
 import { ToggleButtonGroup, toggleButtonGroupClasses } from '@mui/material';
 import {
   addMilliseconds as addMs,
@@ -22,7 +21,7 @@ import { useAppointmentsQuery } from '../../../../api/queries';
 import { Colors } from '../../../../constants';
 import { useSettings } from '../../../../contexts/Settings';
 import { OuterLabelFieldWrapper } from '../../../Field';
-import { BookingTimeCell } from './BookingTimeCell';
+import { BookingTimeCell, SkeletonTimeSlotToggles } from './BookingTimeCell';
 import { calculateTimeSlots, isSameArrayMinusHeadOrTail, isTimeSlotWithinRange } from './util';
 import { isEqual } from 'lodash';
 
@@ -45,11 +44,6 @@ const ToggleGroup = styled(ToggleButtonGroup)`
     css`
       background-color: initial;
     `}
-`;
-
-const LoadingIndicator = styled(CircularProgress)`
-  grid-column: 1 / -1;
-  margin: 0 auto;
 `;
 
 export const TimeSlotPicker = ({
@@ -206,7 +200,7 @@ export const TimeSlotPicker = ({
     <OuterLabelFieldWrapper label={label} required={required}>
       <ToggleGroup disabled={disabled} value={selectedToggles} onChange={handleChange} {...props}>
         {isFetching ? (
-          <LoadingIndicator />
+          <SkeletonTimeSlotToggles />
         ) : (
           timeSlots.map(timeSlot => {
             const isBooked = bookedIntervals?.some(bookedInterval =>

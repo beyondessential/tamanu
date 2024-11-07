@@ -1,4 +1,10 @@
-import { ToggleButton, toggleButtonClasses, toggleButtonGroupClasses } from '@mui/material';
+import {
+  Skeleton,
+  skeletonClasses,
+  ToggleButton,
+  toggleButtonClasses,
+  toggleButtonGroupClasses,
+} from '@mui/material';
 import React from 'react';
 import styled, { css } from 'styled-components';
 
@@ -20,7 +26,7 @@ const Toggle = styled(ToggleButton)`
     font-size: 0.75rem;
     font-variant-numeric: lining-nums tabular-nums;
     font-weight: 400;
-    letter-spacing: .01em;
+    letter-spacing: 0.01em;
     line-height: 1;
     margin: 0;
     padding: 0.25rem;
@@ -145,4 +151,16 @@ export const BookingTimeCell = ({
       </AvailableCell>
     </ConditionalTooltip>
   );
+};
+
+const StyledSkeleton = styled(Skeleton).attrs({ variant: 'rounded' })`
+  &.${skeletonClasses.root} {
+    block-size: 1.875rem;
+    border-radius: calc(infinity * 1px);
+  }
+`;
+
+export const SkeletonTimeSlotToggles = ({ count = 16 }) => {
+  // eslint-disable-next-line react/jsx-key
+  return Array.from({ length: count }).map(() => <StyledSkeleton />);
 };
