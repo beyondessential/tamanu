@@ -11,6 +11,7 @@ import { partitionAppointmentsByDate, partitionAppointmentsByLocation } from './
 
 export const BookingsCell = ({ appointments, date, location, openBookingForm, selectedCell }) => (
   <CarouselGrid.Cell
+    id={location.id + '.' + date.valueOf()}
     onClick={e => {
       if (e.target.closest('.appointment-tile')) return;
       // Open form for creating new booking

@@ -3,7 +3,7 @@ import Brightness2Icon from '@material-ui/icons/Brightness2';
 import { useQueryClient } from '@tanstack/react-query';
 import { endOfDay, startOfDay } from 'date-fns';
 import { useFormikContext } from 'formik';
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import * as yup from 'yup';
 
@@ -64,8 +64,12 @@ const StyledFormGrid = styled(FormGrid)`
   .MuiFormControlLabel-label {
     font-size: 12px;
   }
-`
+`;
 
+const scrollToCell = newCell =>
+  document
+    .getElementById(`${newCell.locationId}.${new Date(newCell.date).valueOf()}`)
+    ?.scrollIntoView({ inline: 'start', behavior: 'smooth' });
 
 export const DateFieldWithWarning = ({ editMode, setSelectedCell }) => {
   const { values } = useFormikContext();
@@ -103,7 +107,12 @@ export const DateFieldWithWarning = ({ editMode, setSelectedCell }) => {
         )
       }
       onChange={e => {
-        setSelectedCell(prevCell => ({ ...prevCell, date: e.target.value }));
+        setSelectedCell(prevCell => {
+          const newCell = { ...prevCell, date: e.target.value };
+          console.log(newCell);
+          scrollToCell(newCell);
+          return newCell;
+        });
       }}
     />
   );
@@ -183,6 +192,11 @@ export const BookLocationDrawer = ({
   const [warningModalOpen, setShowWarningModal] = useState(false);
   const [resolveFn, setResolveFn] = useState(null);
 
+  const topRef = useRef(null);
+
+  useEffect(() => topRef.current.scrollIntoView(), [open]);
+
+
   const handleShowWarningModal = async () =>
     new Promise(resolve => {
       setResolveFn(() => resolve); // Save resolve to use in onConfirm/onCancel
@@ -225,7 +239,7 @@ export const BookLocationDrawer = ({
     };
 
     return (
-      <>
+      <div ref={topRef}>
         <BookLocationHeader onClose={warnAndResetForm} />
         <StyledFormGrid nested columns={1}>
           {/* TODO:: why is this not clearing properly */}
@@ -257,7 +271,6 @@ export const BookLocationDrawer = ({
             <OvernightIcon fontSize="small" />
           </OvernightStayField>
           <DateFieldWithWarning setSelectedCell={setSelectedCell} editMode={editMode} />
-          {/* TODO: red highlight validation */}
           <BookingTimeField key={values.date} disabled={!values.date || !values.locationId} />
           <Field
             name="patientId"
@@ -285,7 +298,7 @@ export const BookLocationDrawer = ({
           />
           <FormSubmitCancelRow onCancel={warnAndResetForm} />
         </StyledFormGrid>
-      </>
+      </div>
     );
   };
 
@@ -299,8 +312,7 @@ export const BookLocationDrawer = ({
           }}
           suppressErrorDialog
           validationSchema={validationSchema}
-          // TODO: only clear red fields dont make them
-          // validateOnChange
+          validateOnChange
           initialValues={initialBookingValues}
           enableReinitialize
           render={renderForm}

@@ -67,7 +67,7 @@ export const BookingTimeField = ({ disabled = false }) => {
   const { getSetting } = useSettings();
   const { setFieldValue, values, dirty, initialValues, errors, touched } = useFormikContext();
 
-  const validationError = errors.startTime || errors.endTime
+  const validationError = !disabled && errors.startTime
 
   const initialTimeRange = useMemo(() => {
     if (!initialValues.startTime) return null;
@@ -208,7 +208,7 @@ export const BookingTimeField = ({ disabled = false }) => {
       label={<TranslatedText stringId="locationBooking.bookingTime.label" fallback="Booking time" />}
       required
     >
-      <CellContainer $error={validationError} $disabled={disabled}>
+      <CellContainer $error={!selectedTimeRange && validationError} $disabled={disabled}>
         {isFetching ? (
           <LoadingIndicator />
         ) : (
