@@ -54,13 +54,18 @@ const AppointmentTopBar = styled(TopBar).attrs({
   title: <TranslatedText stringId="scheduling.appointments.title" fallback="Appointments" />,
 })`
   flex-grow: 0;
+  & .MuiToolbar-root {
+    justify-content: flex-start;
+  }
   & .MuiTypography-root {
     min-width: 7.188rem;
+    margin-inline-end: 1rem;
     flex: 0;
   }
 `;
 
 const Filters = styled('search')`
+  margin-left: auto;
   display: flex;
   gap: 1rem;
 `;
