@@ -72,10 +72,10 @@ export const ImmunisationsView = () => {
   const [refreshCount, setRefreshCount] = useState(0);
   const dispatch = useDispatch();
 
-  const endpoint = 'upcomingVaccinations/updateStats';
   // listen to any updates on the root collection, i.e. the first segment of the endpoint
   // updates at the root level indicate anything below needs to be re-fetched
-  const rootCollection = endpoint.split('/')[0];
+  const rootCollection = 'upcomingVaccinations';
+  const endpoint = `${rootCollection}/updateStats`;
   const updateDetectionChannel = `${WS_EVENTS.DATABASE_MATERIALIZED_VIEW_REFRESHED}:${rootCollection}`;
 
   const { data: updateStats, error } = useAutoUpdatingQuery(endpoint, {}, updateDetectionChannel);
