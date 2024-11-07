@@ -50,11 +50,12 @@ const CalendarInnerWrapper = styled(Box)`
   border-block-start: 1px solid ${Colors.outline};
 `;
 
-const LocationBookingsTopBar = styled(TopBar).attrs({
+const AppointmentTopBar = styled(TopBar).attrs({
   title: <TranslatedText stringId="scheduling.appointments.title" fallback="Appointments" />,
 })`
   flex-grow: 0;
   & .MuiTypography-root {
+    min-width: 7.188rem;
     flex: 0;
   }
 `;
@@ -107,7 +108,7 @@ export const OutpatientAppointmentsView = () => {
         onClose={handleCloseDrawer}
         open={drawerOpen}
       />
-      <LocationBookingsTopBar>
+      <AppointmentTopBar>
         <GroupByAppointmentToggle value={groupBy} onChange={setGroupBy} />
         <Filters>
           <Placeholder>Search</Placeholder>
@@ -117,7 +118,7 @@ export const OutpatientAppointmentsView = () => {
         <NewBookingButton onClick={() => handleOpenDrawer({})}>
           <AddIcon /> Book appointment
         </NewBookingButton>
-      </LocationBookingsTopBar>
+      </AppointmentTopBar>
       <CalendarWrapper>
         <DateSelector value={selectedDate} onChange={handleChangeDate} />
         <CalendarInnerWrapper>
