@@ -29,11 +29,11 @@ export class Appointment extends Model {
     return [
       { association: 'patient', include: ['village'] },
       'clinician',
-      'location',
       {
         association: 'location',
         include: ['locationGroup'],
-      }
+      },
+      'locationGroup'
     ];
   }
 
