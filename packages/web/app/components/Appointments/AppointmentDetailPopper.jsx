@@ -203,7 +203,7 @@ const PatientDetailsDisplay = ({ patient, onClick }) => {
               fallback="DOB"
             />
           }
-          value={<DateDisplay date={dateOfBirth} />}
+          value={<DateDisplay date={dateOfBirth} noTooltip />}
         />
       </span>
       {!isLoading && additionalData?.primaryContactNumber && (
@@ -245,8 +245,8 @@ const AppointmentDetailsDisplay = ({ appointment, isOvernight }) => {
         }
         value={
           <TranslatedReferenceData
-            fallback={locationGroup?.name ?? '—'}
-            value={locationGroup?.id}
+            fallback={location?.locationGroup?.name || locationGroup?.name}
+            value={location?.locationGroup?.id || locationGroup?.id}
             category="locationGroup"
           />
         }
