@@ -21,7 +21,6 @@ import { useApi } from '../../api';
 import { usePatientAdditionalDataQuery } from '../../api/queries';
 import { APPOINTMENT_STATUS_VALUES, APPOINTMENT_STATUSES } from '@tamanu/constants';
 import { AppointmentStatusChip } from './AppointmentStatusChip';
-import { useQueryClient } from '@tanstack/react-query';
 import { MenuButton } from '../MenuButton';
 
 const DEBOUNCE_DELAY = 200; // ms
@@ -304,13 +303,13 @@ export const AppointmentStatusSelector = ({
 export const AppointmentDetailPopper = ({
   open,
   onClose,
+  onStatusChange,
   onEdit,
   anchorEl,
   appointment,
   isOvernight,
 }) => {
   const dispatch = useDispatch();
-  const queryClient = useQueryClient();
   const api = useApi();
   const [localStatus, setLocalStatus] = useState(appointment.status);
   const patientId = appointment.patient.id;
@@ -327,10 +326,8 @@ export const AppointmentDetailPopper = ({
           await api.put(`appointments/${appointment.id}`, {
             status: newValue,
           });
-          // if (onUpdated) onUpdated();
-          queryClient.invalidateQueries('appointments');
+          if (onStatusChange) onStatusChange(newValue);
         } catch (error) {
-          console.log(error);
           toast.error(
             <TranslatedText
               stringId="schedule.error.updateStatus"
@@ -340,7 +337,7 @@ export const AppointmentDetailPopper = ({
           setLocalStatus(appointment.status);
         }
       }, DEBOUNCE_DELAY),
-    [api, appointment.id, appointment.status, queryClient],
+    [api, appointment.id, appointment.status, onStatusChange],
   );
 
   const updateAppointmentStatus = useCallback(

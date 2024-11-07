@@ -76,15 +76,11 @@ const getPatientFullName = ({ firstName, middleName, lastName }) =>
   [firstName, middleName, lastName].filter(Boolean).join(' ');
 
 export const AppointmentTile = ({ appointment, onEdit, ...props }) => {
+  const { patient, startTime: startTimeStr, endTime: endTimeStr, status } = appointment;
   const ref = useRef(null);
   const [open, setOpen] = useState();
+  const [localStatus, setLocalStatus] = useState(status);
 
-  const {
-    patient,
-    startTime: startTimeStr,
-    endTime: endTimeStr,
-    status: appointmentStatus,
-  } = appointment;
   const startTime = parseISO(startTimeStr);
   const endTime = parseISO(endTimeStr);
 
@@ -93,14 +89,14 @@ export const AppointmentTile = ({ appointment, onEdit, ...props }) => {
 
   return (
     <Wrapper
-      $color={APPOINTMENT_STATUS_COLORS[appointmentStatus]}
+      $color={APPOINTMENT_STATUS_COLORS[localStatus]}
       $selected={open}
       tabIndex={0}
       ref={ref}
       onClick={() => setOpen(true)}
       {...props}
     >
-      <Label $strikethrough={appointmentStatus === APPOINTMENT_STATUSES.NO_SHOW}>
+      <Label $strikethrough={localStatus === APPOINTMENT_STATUSES.NO_SHOW}>
         <Timestamp date={startTime} /> {getPatientFullName(patient)}
       </Label>
       <IconGroup>
@@ -120,7 +116,7 @@ export const AppointmentTile = ({ appointment, onEdit, ...props }) => {
             style={{ fontSize: 15 }}
           />
         )}
-        <StatusIndicator appointmentStatus={appointmentStatus} width={15} height={15} />
+        <StatusIndicator appointmentStatus={localStatus} width={15} height={15} />
       </IconGroup>
       <AppointmentDetailPopper
         open={open}
@@ -129,6 +125,7 @@ export const AppointmentTile = ({ appointment, onEdit, ...props }) => {
         appointment={appointment}
         isOvernight={isOvernight}
         onEdit={onEdit}
+        onStatusChange={setLocalStatus}
       />
     </Wrapper>
   );
