@@ -204,6 +204,8 @@ taskRoutes.delete(
 /**
  * Mark task as todo
  * Only tasks in COMPLETED & NON_COMPLETED status can be marked as todo
+ * - Only allow to set as todo for tasks that are not older than 48 hours
+ * const cutoffDateTime = new Date(new Date().getTime() - 2 * MILLISECONDS_PER_DAY);
  * - Copy info from the selected task and set the new task status as todo, set todo info to the new task
  * - Delete the selected task
  */
@@ -213,7 +215,10 @@ const taskTodoInputSchema = z.object({
     .array()
     .min(1),
   todoByUserId: z.string(),
-  todoTime: datetimeCustomValidation,
+  todoTime: datetimeCustomValidation.refine(
+    datetime => new Date().getTime() - new Date(datetime).getTime() < 2 * 86400000,
+    'Task is older than 48 hours',
+  ),
   todoNote: z.string().optional(),
 });
 taskRoutes.put(
