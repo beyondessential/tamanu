@@ -144,6 +144,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
           label={<TranslatedText stringId="general.form.patient.label" fallback="Patient" />}
           component={AutocompleteField}
           suggester={patientSuggester}
+          disabled={isEdit}
           required
         />
         <Field
