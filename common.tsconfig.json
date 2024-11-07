@@ -3,8 +3,9 @@
   "compilerOptions": {
     "alwaysStrict": true,
     "esModuleInterop": true,
+    "moduleDetection": "force",
     "ignoreDeprecations": "5.0",
-    "importsNotUsedAsValues": "preserve",
+    "verbatimModuleSyntax": false,
     "isolatedModules": true,
     "module": "ES2020",
     "lib": ["es2020"],

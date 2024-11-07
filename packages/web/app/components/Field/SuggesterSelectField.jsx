@@ -6,11 +6,22 @@ import { useApi } from '../../api';
 import { SelectInput } from './SelectField';
 import { MultiselectInput } from './MultiselectField';
 import { getCurrentLanguageCode } from '../../utils/translation';
+import { useAuth } from '../../contexts/Auth';
 
 export const SuggesterSelectField = React.memo(
-  ({ field, endpoint, filterByFacility, isMulti = false, initialOptions = [], ...props }) => {
+  ({
+    field,
+    endpoint,
+    baseQueryParameters,
+    filterByFacility,
+    baseOptions = [],
+    isMulti = false,
+    ...props
+  }) => {
+    const { facilityId } = useAuth();
     const api = useApi();
-    const [options, setOptions] = useState(initialOptions);
+    const [options, setOptions] = useState([]);
+    const [initialOptions, setInitialOptions] = useState(baseOptions);
 
     // We need this hook to fetch the label of the current value beside the other useEffect hooks to fetch all of the options.
     // This is because the 2nd useEffect hooks will only fetch options available in the current facility,
@@ -31,22 +42,10 @@ export const SuggesterSelectField = React.memo(
               language: getCurrentLanguageCode(),
             })
             .then(({ id, name }) => {
-              setOptions(currentOptions =>
-                unionBy(
-                  currentOptions,
-                  [
-                    {
-                      value: id,
-                      label: name,
-                    },
-                  ],
-                  'value',
-                ),
-              );
+              setInitialOptions(prev => [...prev, { value: id, label: name }]);
             });
         }
       }
-
       // Only do the fetch when the component first mounts
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
@@ -54,13 +53,15 @@ export const SuggesterSelectField = React.memo(
     useEffect(() => {
       api
         .get(`suggestions/${encodeURIComponent(endpoint)}/all`, {
+          facilityId,
           filterByFacility,
           language: getCurrentLanguageCode(),
+          ...baseQueryParameters,
         })
         .then(resultData => {
-          setOptions(currentOptions =>
+          setOptions(
             unionBy(
-              currentOptions,
+              initialOptions,
               resultData.map(({ id, name }) => ({
                 value: id,
                 label: name,
@@ -69,7 +70,15 @@ export const SuggesterSelectField = React.memo(
             ),
           );
         });
-    }, [api, setOptions, endpoint, filterByFacility]);
+    }, [
+      api,
+      setOptions,
+      endpoint,
+      filterByFacility,
+      facilityId,
+      initialOptions,
+      baseQueryParameters,
+    ]);
 
     const baseProps = {
       name: field.name,
