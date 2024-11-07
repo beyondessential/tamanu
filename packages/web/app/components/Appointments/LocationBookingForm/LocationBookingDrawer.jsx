@@ -25,8 +25,8 @@ import { FormGrid } from '../../FormGrid';
 import { ClearIcon } from '../../Icons/ClearIcon';
 import { TOP_BAR_HEIGHT } from '../../TopBar';
 import { TranslatedText } from '../../Translation/TranslatedText';
-import { BookLocationHeader } from './BookLocationHeader';
-import { BookingDateTimeRangeField } from './BookingDateTimeField/BookingDateTimeRangeField';
+import { DateTimeRangeField } from './DateTimeRangeField/DateTimeRangeField';
+import { LocationBookingDrawerHeader } from './LocationBookingDrawerHeader';
 
 const StyledDrawer = styled(Drawer).attrs({ anchor: 'right', variant: 'persistent' })`
   .MuiPaper-root {
@@ -115,7 +115,7 @@ const validationSchema = yup.object({
   clinicianId: yup.string(),
 });
 
-export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues }) => {
+export const LocationBookingDrawer = ({ open, closeDrawer, initialBookingValues }) => {
   const editMode = !!initialBookingValues.id;
 
   const resettableFieldsReversed = ['endTime', 'startTime', 'overnight', 'locationId'];
@@ -190,17 +190,14 @@ export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues }) 
           name="overnight"
           label={
             <OvernightStayLabel>
-              <TranslatedText
-                stringId="location.overnightStay.label"
-                fallback="Overnight stay"
-              />
+              <TranslatedText stringId="location.overnightStay.label" fallback="Overnight stay" />
               <OvernightIcon aria-hidden htmlColor={Colors.primary} style={{ fontSize: 18 }} />
             </OvernightStayLabel>
           }
           component={CheckField}
           onChange={() => resetFieldsAfter('overnight')}
         />
-        <BookingDateTimeRangeField editMode={editMode} required separate={values.overnight} />
+        <DateTimeRangeField editMode={editMode} required separate={values.overnight} />
         <Field
           name="patientId"
           label={<TranslatedText stringId="general.form.patient.label" fallback="Patient" />}
@@ -231,7 +228,7 @@ export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues }) 
   return (
     <StyledDrawer open={open} onClose={closeDrawer}>
       <Container>
-        <BookLocationHeader />
+        <LocationBookingDrawerHeader />
         <Form
           onSubmit={async ({
             locationId,

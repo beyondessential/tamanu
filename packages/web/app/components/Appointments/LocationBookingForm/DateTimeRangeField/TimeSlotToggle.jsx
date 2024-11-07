@@ -121,7 +121,7 @@ const StyledConditionalTooltip = styled(ConditionalTooltip).attrs({
   text-wrap: balance;
 `;
 
-export const BookingTimeCell = ({
+export const TimeSlotToggle = ({
   timeSlot,
   booked = false,
   selectable = true,

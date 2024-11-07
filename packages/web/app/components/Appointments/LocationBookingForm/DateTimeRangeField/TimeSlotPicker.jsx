@@ -22,7 +22,7 @@ import { useAppointmentsQuery } from '../../../../api/queries';
 import { Colors } from '../../../../constants';
 import { useSettings } from '../../../../contexts/Settings';
 import { OuterLabelFieldWrapper } from '../../../Field';
-import { BookingTimeCell, SkeletonTimeSlotToggles } from './BookingTimeCell';
+import { SkeletonTimeSlotToggles, TimeSlotToggle } from './TimeSlotToggle';
 import { calculateTimeSlots, isSameArrayMinusHeadOrTail, isTimeSlotWithinRange } from './util';
 
 const ToggleGroup = styled(ToggleButtonGroup)`
@@ -225,7 +225,7 @@ export const TimeSlotPicker = ({
             };
 
             return (
-              <BookingTimeCell
+              <TimeSlotToggle
                 key={timeSlot.start.valueOf()}
                 timeSlot={timeSlot}
                 selectable={checkIfSelectableTimeSlot(timeSlot)}

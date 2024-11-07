@@ -6,7 +6,7 @@ import styled from 'styled-components';
 
 import { useLocationsQuery } from '../../../api/queries';
 import { Button, PageContainer, TopBar, TranslatedText } from '../../../components';
-import { BookLocationDrawer } from '../../../components/Appointments/LocationBookingForm/BookLocationDrawer';
+import { LocationBookingDrawer } from '../../../components/Appointments/LocationBookingForm/LocationBookingDrawer';
 import { Colors } from '../../../constants';
 import { useAuth } from '../../../contexts/Auth';
 import { LocationBookingsCalendar } from './LocationBookingsCalendar';
@@ -155,7 +155,7 @@ export const LocationBookingsView = () => {
           openBookingForm={openBookingForm}
         />
       )}
-      <BookLocationDrawer
+      <LocationBookingDrawer
         initialBookingValues={initialDrawerValues}
         open={isDrawerOpen}
         closeDrawer={closeBookingForm}

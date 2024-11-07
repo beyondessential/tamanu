@@ -35,7 +35,7 @@ const DescriptionText = ({ editMode }) =>
     />
   );
 
-export const BookLocationHeader = ({ editMode }) => (
+export const LocationBookingDrawerHeader = ({ editMode }) => (
   <header>
     <Heading>
       <HeadingText editMode={editMode} />

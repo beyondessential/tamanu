@@ -9,7 +9,7 @@ import { TranslatedText } from '../../../Translation';
 import { DateTimePicker } from './DateTimePicker';
 import { DateTimeRangePicker } from './DateTimeRangePicker';
 
-export const BookingDateTimeRangeField = ({ editMode, separate = false, ...props }) => {
+export const DateTimeRangeField = ({ editMode, separate = false, ...props }) => {
   const {
     values: { startDate, endDate, locationId, patientId },
   } = useFormikContext();

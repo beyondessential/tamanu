@@ -1,18 +1,18 @@
 import React, { useState } from 'react';
 
-import { BookLocationDrawer } from '../../app/components/Appointments/LocationBookingForm/BookLocationDrawer';
+import { LocationBookingDrawer } from '../../app/components/Appointments/LocationBookingForm/LocationBookingDrawer';
 import { MockedApi } from '../utils/mockedApi';
 import { MockSettingsProvider } from '../utils/mockSettingsProvider';
 import { Button } from '../../app/components';
 import { toDateString } from '@tamanu/shared/utils/dateTime';
 import styled from 'styled-components';
 import {
-  mockLocationGroupSuggesterEndpoint,
-  mockLocationGroupData,
-  mockLocationSuggesterEndpoint,
   mockLocationData,
-  mockPatientSuggesterEndpoint,
+  mockLocationGroupData,
+  mockLocationGroupSuggesterEndpoint,
+  mockLocationSuggesterEndpoint,
   mockPatientData,
+  mockPatientSuggesterEndpoint,
 } from '../utils/mockSuggesterData';
 import Chance from 'chance';
 
@@ -33,9 +33,9 @@ const generateMockLocationBooking = (startTime, endtime) => ({
 });
 
 const mockAppointments = [
-  generateMockLocationBooking("9:00:00", "9:30:00"),
-  generateMockLocationBooking("11:30:00", "12:00:00"),
-  generateMockLocationBooking("15:00:00", "16:30:00"),
+  generateMockLocationBooking('9:00:00', '9:30:00'),
+  generateMockLocationBooking('11:30:00', '12:00:00'),
+  generateMockLocationBooking('15:00:00', '16:30:00'),
 ];
 
 const mockSettings = {
@@ -61,7 +61,7 @@ const endpoints = {
 
 export default {
   title: 'Appointments/Book location drawer',
-  component: BookLocationDrawer,
+  component: LocationBookingDrawer,
   decorators: [
     Story => (
       <MockedApi endpoints={endpoints}>
@@ -95,7 +95,7 @@ export const NewBooking = () => {
   return (
     <MockCalendar>
       CALENDAR GOES HERE <Button onClick={openDrawer}>+ Book location</Button>
-      <BookLocationDrawer closeDrawer={closeDrawer} open={open} />
+      <LocationBookingDrawer closeDrawer={closeDrawer} open={open} />
     </MockCalendar>
   );
 };
@@ -108,11 +108,11 @@ export const ModifyBooking = () => {
   return (
     <MockCalendar>
       CALENDAR GOES HERE <Button onClick={openDrawer}>+ Book location</Button>
-      <BookLocationDrawer
+      <LocationBookingDrawer
         editMode
         closeDrawer={closeDrawer}
         open={open}
-        existingBooking={generateMockLocationBooking("10:00:00", "10:30:00")}
+        existingBooking={generateMockLocationBooking('10:00:00', '10:30:00')}
       />
     </MockCalendar>
   );
