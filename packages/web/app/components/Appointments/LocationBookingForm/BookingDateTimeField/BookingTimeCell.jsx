@@ -1,10 +1,6 @@
-import {
-  Skeleton,
-  skeletonClasses,
-  ToggleButton,
-  toggleButtonClasses,
-  toggleButtonGroupClasses,
-} from '@mui/material';
+import Skeleton, { skeletonClasses } from '@mui/material/Skeleton';
+import ToggleButton, { toggleButtonClasses } from '@mui/material/ToggleButton';
+import { toggleButtonGroupClasses } from '@mui/material/ToggleButtonGroup';
 import React from 'react';
 import styled, { css } from 'styled-components';
 
