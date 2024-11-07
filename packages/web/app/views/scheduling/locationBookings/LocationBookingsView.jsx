@@ -1,14 +1,15 @@
+import { Typography } from '@material-ui/core';
+import { AddRounded } from '@material-ui/icons';
+import { isSameDay, isValid, startOfDay } from 'date-fns';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
 import { useLocationsQuery } from '../../../api/queries';
-import { Colors } from '../../../constants';
 import { Button, PageContainer, TopBar, TranslatedText } from '../../../components';
-import { Typography } from '@material-ui/core';
-import { LocationBookingsCalendar } from './LocationBookingsCalendar';
 import { BookLocationDrawer } from '../../../components/Appointments/LocationBookingForm/BookLocationDrawer';
-import { AddRounded } from '@material-ui/icons';
+import { Colors } from '../../../constants';
 import { useAuth } from '../../../contexts/Auth';
+import { LocationBookingsCalendar } from './LocationBookingsCalendar';
 
 const PlusIcon = styled(AddRounded)`
   && {
@@ -69,15 +70,46 @@ const EmptyStateLabel = styled(Typography).attrs({
   }
 `;
 
+const appointmentToFormFields = appointment => {
+  if (!appointment) return {};
+
+  const { bookingTypeId, clinicianId, id, locationId, patientId } = appointment;
+  const startTime = appointment.startTime ? new Date(appointment.startTime) : null;
+  const endTime = appointment.endTime ? new Date(appointment.endTime) : null;
+
+  const startDate = isValid(startTime) ? startOfDay(startTime) : null;
+  const endDate = isValid(endTime) ? startOfDay(endTime) : null;
+  const overnight = isSameDay(startDate, endDate);
+
+  return {
+    // Semantically significant values
+    locationId,
+    patientId,
+    startTime,
+    endTime,
+    bookingTypeId,
+    clinicianId,
+
+    // Only for user input purposes
+    overnight,
+    date: startDate,
+    startDate,
+    endDate,
+
+    // Determines whether location booking drawer should open in CREATE or EDIT mode
+    id,
+  };
+};
+
 export const LocationBookingsView = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [initialDrawerValues, setInitialDrawerValues] = useState({});
-  const { facilityId } = useAuth()
+  const { facilityId } = useAuth();
   const closeBookingForm = () => {
     setIsDrawerOpen(false);
   };
-  const openBookingForm = (initialValues) => {
-    setInitialDrawerValues(initialValues);
+  const openBookingForm = appointment => {
+    setInitialDrawerValues(appointmentToFormFields(appointment));
     setIsDrawerOpen(true);
   };
 
@@ -99,7 +131,10 @@ export const LocationBookingsView = () => {
         </Filters>
         <NewBookingButton onClick={() => openBookingForm({})}>
           <PlusIcon />
-          <TranslatedText stringId="locationBooking.calendar.bookLocation" fallback="Book location" />
+          <TranslatedText
+            stringId="locationBooking.calendar.bookLocation"
+            fallback="Book location"
+          />
         </NewBookingButton>
       </LocationBookingsTopBar>
       {hasNoLocations ? (
@@ -115,7 +150,7 @@ export const LocationBookingsView = () => {
           openBookingForm={openBookingForm}
         />
       )}
-      <BookLocationDrawer 
+      <BookLocationDrawer
         initialBookingValues={initialDrawerValues}
         open={isDrawerOpen}
         closeDrawer={closeBookingForm}

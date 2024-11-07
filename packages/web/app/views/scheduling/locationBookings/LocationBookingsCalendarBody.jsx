@@ -5,20 +5,21 @@ import styled from 'styled-components';
 import { useAppointmentsQuery } from '../../../api/queries';
 import { AppointmentTile } from '../../../components/Appointments/AppointmentTile';
 import { Colors } from '../../../constants';
-import { toDateTimeString } from '../../../utils/dateTime';
 import { CarouselComponents as CarouselGrid } from './CarouselComponents';
 import { SkeletonRows } from './Skeletons';
 import { partitionAppointmentsByDate, partitionAppointmentsByLocation } from './util';
 
-export const BookingsCell = ({ appointments, date, location, openBookingForm }) => (
+export const BookingsCell = ({
+  appointments,
+  date,
+  location: { id: locationId },
+  openBookingForm,
+}) => (
   <CarouselGrid.Cell
     onClick={e => {
       if (e.target.closest('.appointment-tile')) return;
       // Open form for creating new booking
-      openBookingForm({
-        date: toDateTimeString(date),
-        locationId: location.id,
-      });
+      openBookingForm({ startTime: date, locationId });
     }}
   >
     {appointments?.map(a => (
@@ -80,7 +81,7 @@ export const LocationBookingsCalendarBody = ({
       after: displayedDates[0],
       before: endOfDay(displayedDates[displayedDates.length - 1]),
       locationId: '',
-      all: true
+      all: true,
     }).data?.data ?? [];
 
   if (locationsAreLoading) return <SkeletonRows colCount={displayedDates.length} />;

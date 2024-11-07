@@ -5,6 +5,8 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import * as yup from 'yup';
 
+import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
+
 import { usePatientSuggester, useSuggester } from '../../../api';
 import { useLocationBookingMutation } from '../../../api/mutations';
 import { Colors } from '../../../constants';
@@ -106,10 +108,11 @@ const SuccessMessage = ({ editMode }) =>
 const validationSchema = yup.object({
   locationId: yup.string().required(),
   overnight: yup.boolean().required(),
-  startTime: yup.string().required(),
-  endTime: yup.string().required(),
+  startTime: yup.date().required(),
+  endTime: yup.date().required(),
   patientId: yup.string().required(),
   bookingTypeId: yup.string().required(),
+  clinicianId: yup.string().required(),
 });
 
 export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues }) => {
@@ -227,7 +230,23 @@ export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues }) 
       <Container>
         <BookLocationHeader />
         <Form
-          onSubmit={async values => handleSubmit(values)}
+          onSubmit={async ({
+            locationId,
+            startTime,
+            endTime,
+            patientId,
+            bookingTypeId,
+            clinicianId,
+          }) =>
+            handleSubmit({
+              locationId,
+              startTime: toDateTimeString(startTime),
+              endTime: toDateTimeString(endTime),
+              patientId,
+              bookingTypeId,
+              clinicianId,
+            })
+          }
           suppressErrorDialog
           validationSchema={validationSchema}
           initialValues={initialBookingValues}
