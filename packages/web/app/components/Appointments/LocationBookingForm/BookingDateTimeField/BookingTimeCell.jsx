@@ -157,7 +157,6 @@ export const BookingTimeCell = ({
         $selectable={selectable}
         onMouseEnter={selectable ? onMouseEnter : null}
         onMouseLeave={selectable ? onMouseLeave : null}
-        // onClick={selectable ? onClick : null}
         {...props}
       >
         <TimeRangeDisplay range={timeSlot} />
