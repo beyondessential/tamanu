@@ -10,7 +10,7 @@ sql: |
   where created_at > $1
   and completed_at IS NULL
   and (pull_until is null or pull_since is null or pull_until - pull_since < 1000)
-  and (updated_at - created_at) > '21 minutes'::interval;
+  and (updated_at - created_at) > '20 minutes'::interval;
 
 send:
   - target: zendesk
