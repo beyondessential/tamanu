@@ -26,14 +26,12 @@ import { usePatientAdditionalDataQuery } from '../../api/queries';
 import { CancelBookingModal } from './CancelBookingModal';
 import { formatDateRange } from './utils';
 import { useApi } from '../../api';
-import { usePatientAdditionalDataQuery } from '../../api/queries';
 import {
   APPOINTMENT_STATUS_VALUES,
   APPOINTMENT_STATUSES,
   APPOINTMENT_TYPE_LABELS,
 } from '@tamanu/constants';
 import { AppointmentStatusChip } from './AppointmentStatusChip';
-import { KebabMenuButton } from '../KebabMenuButton';
 import { MenuButton } from '../MenuButton';
 import { useQueryClient } from '@tanstack/react-query';
 
@@ -118,16 +116,21 @@ const StyledIconButton = styled(IconButton)`
   }
 `;
 
-const ControlsRow = ({ onClose, appointment, openBookingForm }) => {
+const ControlsRow = ({ onClose, appointment, openBookingForm, handleAppointmentUpdate }) => {
+  const [cancelModalOpen, setCancelModalOpen] = useState(false);
+
+  const handleCancelModalClose = () => {
+    setCancelModalOpen(false);
+  };
+
   const actions = [
     {
       label: <TranslatedText stringId="general.action.modify" fallback="Modify" />,
       action: () => openBookingForm({ ...appointment, date: appointment.startTime }),
     },
-    // TODO: cancel workflow
     {
       label: <TranslatedText stringId="general.action.cancel" fallback="Cancel" />,
-      action: () => {},
+      action: () => setCancelModalOpen(true),
     },
   ];
 
@@ -137,6 +140,12 @@ const ControlsRow = ({ onClose, appointment, openBookingForm }) => {
       <StyledIconButton onClick={onClose}>
         <Close />
       </StyledIconButton>
+      <CancelBookingModal
+        appointment={appointment}
+        open={cancelModalOpen}
+        onClose={handleCancelModalClose}
+        handleAppointmentUpdate={handleAppointmentUpdate}
+      />
     </ControlsContainer>
   );
 };
@@ -301,6 +310,11 @@ export const AppointmentDetailPopper = ({
   const [localStatus, setLocalStatus] = useState(appointment.status);
   const patientId = appointment.patient.id;
 
+  const handleAppointmentUpdate = useCallback(() => {
+    queryClient.invalidateQueries('appointments');
+    if (onUpdated) onUpdated();
+  }, [queryClient, onUpdated]);
+
   const handlePatientDetailsClick = useCallback(async () => {
     await dispatch(reloadPatient(patientId));
     dispatch(push(`/patients/all/${patientId}`));
@@ -313,8 +327,7 @@ export const AppointmentDetailPopper = ({
           await api.put(`appointments/${appointment.id}`, {
             status: newValue,
           });
-          if (onUpdated) onUpdated();
-          queryClient.invalidateQueries('appointments');
+          handleAppointmentUpdate();
         } catch (error) {
           console.log(error);
           toast.error(
@@ -326,7 +339,7 @@ export const AppointmentDetailPopper = ({
           setLocalStatus(appointment.status);
         }
       }, DEBOUNCE_DELAY),
-    [api, appointment.id, onUpdated, appointment.status, queryClient],
+    [api, appointment.id, appointment.status, handleAppointmentUpdate],
   );
 
   const updateAppointmentStatus = useCallback(
@@ -358,7 +371,7 @@ export const AppointmentDetailPopper = ({
             appointment={appointment}
             openBookingForm={openBookingForm}
             onClose={onClose}
-            onUpdated={onUpdated}
+            handleAppointmentUpdate={handleAppointmentUpdate}
           />
           <StyledPaper elevation={0}>
             <PatientDetailsDisplay

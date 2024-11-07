@@ -141,7 +141,7 @@ const BottomModalContent = ({ cancelBooking, onClose }) => (
   </BottomModalContainer>
 );
 
-export const CancelBookingModal = ({ appointment, open, onClose, onUpdated }) => {
+export const CancelBookingModal = ({ appointment, open, onClose, handleAppointmentUpdate }) => {
   const api = useApi();
 
   const cancelBooking = useCallback(async () => {
@@ -149,7 +149,8 @@ export const CancelBookingModal = ({ appointment, open, onClose, onUpdated }) =>
       await api.put(`appointments/${appointment.id}`, {
         status: APPOINTMENT_STATUSES.CANCELLED,
       });
-      onUpdated();
+      handleAppointmentUpdate();
+      onClose();
     } catch (error) {
       toast.error(
         <TranslatedText
@@ -158,7 +159,7 @@ export const CancelBookingModal = ({ appointment, open, onClose, onUpdated }) =>
         />,
       );
     }
-  }, [api, appointment.id, onUpdated]);
+  }, [api, appointment.id, handleAppointmentUpdate, onClose]);
 
   return (
     <BaseModal

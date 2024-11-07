@@ -11,14 +11,19 @@ import { partitionAppointmentsByDate, partitionAppointmentsByLocation } from './
 
 export const BookingsCell = ({ appointments, date, location, openBookingForm }) => (
   <CarouselGrid.Cell
-    onClick={(e) => {
+    onClick={e => {
       if (e.target.closest('.appointment-tile')) return;
       // Open form for creating new booking
       openBookingForm({ date, locationId: location.id });
     }}
   >
     {appointments?.map(a => (
-      <AppointmentTile className="appointment-tile" openBookingForm={openBookingForm} appointment={a} key={a.id} />
+      <AppointmentTile
+        className="appointment-tile"
+        openBookingForm={openBookingForm}
+        appointment={a}
+        key={a.id}
+      />
     ))}
   </CarouselGrid.Cell>
 );
