@@ -56,7 +56,7 @@ const StyledPaper = styled(Paper)`
   display: flex;
   flex-direction: column;
   width: 16rem;
-  box-shadow: 0 0.5rem 2rem 0 oklch(0 0 0 / 15%);
+  box-shadow: 0px 8px 32px 0px hsla(0, 0%, 0%, 0.15);
   border-radius: 0.3125rem;
   font-size: 0.6875rem;
 `;
@@ -100,6 +100,9 @@ const AppointmentStatusContainer = styled(Box)`
 const StyledMenuButton = styled(MenuButton)`
   svg {
     font-size: 0.875rem;
+  }
+  #menu-list-grow {
+    box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.1), 0px 4px 16px rgba(0, 0, 0, 0.1);
   }
 `;
 

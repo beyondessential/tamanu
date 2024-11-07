@@ -104,12 +104,11 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
   const validationSchema = yup.object().shape({
     locationGroupId: yup
       .string()
-      .required()
-      .translatedLabel(
-        <TranslatedText stringId="general.localisedField.locationGroupId.label" fallback="Area" />,
-      ),
-    appointmentTypeId: yup.string().required(),
-    startTime: yup.string().required(),
+      .required(getTranslation('validation.required.inline', '*Required')),
+    appointmentTypeId: yup
+      .string()
+      .required(getTranslation('validation.required.inline', '*Required')),
+    startTime: yup.string().required(getTranslation('validation.required.inline', '*Required')),
     endTime: yup
       .string()
       .nullable()
@@ -126,7 +125,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
           return isAfter(endTime, startTime);
         },
       ),
-    patientId: yup.string().required(),
+    patientId: yup.string().required(getTranslation('validation.required.inline', '*Required')),
   });
 
   const renderForm = ({ values, resetForm, dirty }) => {
