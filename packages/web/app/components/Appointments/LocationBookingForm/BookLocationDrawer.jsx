@@ -190,7 +190,10 @@ export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues }) 
           name="overnight"
           label={
             <OvernightStayLabel>
-              Overnight stay
+              <TranslatedText
+                stringId="location.overnightStay.label"
+                fallback="Overnight stay"
+              />
               <OvernightIcon aria-hidden htmlColor={Colors.primary} style={{ fontSize: 18 }} />
             </OvernightStayLabel>
           }
