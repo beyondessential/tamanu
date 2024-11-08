@@ -6,10 +6,10 @@ import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
 
 import { useAppointmentsQuery } from '../../../../api/queries';
 import { TranslatedText } from '../../../Translation';
-import { DateTimePicker } from './DateTimePicker';
+import { EndDateTimePicker, StartDateTimePicker } from './DateTimePicker';
 import { DateTimeRangePicker } from './DateTimeRangePicker';
 
-export const DateTimeRangeField = ({ editMode, separate = false, ...props }) => {
+export const DateTimeRangeField = ({ editMode, required, separate = false, ...props }) => {
   const {
     values: { startDate, endDate, locationId, patientId },
   } = useFormikContext();
@@ -42,8 +42,11 @@ export const DateTimeRangeField = ({ editMode, separate = false, ...props }) => 
   if (separate) {
     return (
       <>
-        <DateTimePicker dateFieldHelperText={getStartDateFieldHelperText()} name="start" />
-        <DateTimePicker name="end" />
+        <StartDateTimePicker
+          dateFieldHelperText={getStartDateFieldHelperText()}
+          required={required}
+        />
+        <EndDateTimePicker required={required} />
       </>
     );
   }
@@ -53,6 +56,7 @@ export const DateTimeRangeField = ({ editMode, separate = false, ...props }) => 
       dateFieldHelperText={getStartDateFieldHelperText()}
       datePickerLabel={<TranslatedText stringId="general.date.label" fallback="Date" />}
       datePickerName="date"
+      required={required}
       timePickerLabel={
         <TranslatedText stringId="locationBooking.bookingTime.label" fallback="Booking time" />
       }
