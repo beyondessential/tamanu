@@ -45,6 +45,11 @@ export class FhirResource extends Model {
             return this.lastUpdated;
           },
         },
+        resolved: {
+          type: DataTypes.BOOLEAN,
+          allowNull: false,
+          defaultValue: false,
+        },
         ...attributes,
       },
       {
@@ -193,7 +198,7 @@ export class FhirResource extends Model {
   asFhir() {
     const fields = {};
     for (const name of Object.keys(this.constructor.getAttributes())) {
-      if (['id', 'versionId', 'upstreamId', 'lastUpdated'].includes(name)) continue;
+      if (['id', 'versionId', 'upstreamId', 'lastUpdated', 'resolved'].includes(name)) continue;
       fields[name] = this.get(name);
     }
 
