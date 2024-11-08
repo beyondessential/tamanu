@@ -102,7 +102,7 @@ const StyledMenuButton = styled(MenuButton)`
     font-size: 0.875rem;
   }
   #menu-list-grow {
-    box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.1), 0px 4px 16px rgba(0, 0, 0, 0.1);
+    box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.1);
   }
 `;
 
