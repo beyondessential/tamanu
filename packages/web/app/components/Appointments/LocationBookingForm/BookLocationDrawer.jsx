@@ -64,46 +64,6 @@ const StyledDrawer = styled(Drawer)`
   }
 `;
 
-export const DateFieldWithWarning = ({ editMode }) => {
-  const { values } = useFormikContext();
-  const { data: existingLocationBookings, isFetched } = useAppointmentsQuery(
-    {
-      after: values.date ? toDateTimeString(startOfDay(new Date(values.date))) : null,
-      before: values.date ? toDateTimeString(endOfDay(new Date(values.date))) : null,
-      all: true,
-      locationId: values.locationId,
-      patientId: values.patientId,
-    },
-    {
-      enabled: !!(values.date && values.locationId && values.patientId),
-    },
-  );
-
-  const showSameDayBookingWarning =
-    !editMode &&
-    isFetched &&
-    values.patientId &&
-    existingLocationBookings.data.some(booking => booking.patientId === values.patientId);
-
-  return (
-    <Field
-      name="date"
-      label={<TranslatedText stringId="general.date.label" fallback="Date" />}
-      component={DateField}
-      disabled={!values.locationId}
-      required
-      helperText={
-        showSameDayBookingWarning && (
-          <TranslatedText
-            stringId="locationBooking.form.date.warning"
-            fallback="Patient already has an appointment scheduled at this location on this day"
-          />
-        )
-      }
-    />
-  );
-};
-
 export const WarningModal = ({ open, setShowWarningModal, resolveFn }) => {
   const handleClose = confirmed => {
     setShowWarningModal(false);
@@ -241,7 +201,12 @@ export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues }) 
           />
           <OvernightIcon fontSize="small" />
         </OvernightStayField>
-        <DateFieldWithWarning editMode={editMode} />
+        <Field
+          name="date"
+          label={<TranslatedText stringId="general.date.label" fallback="Date" />}
+          component={DateField}
+          required
+        />
         <BookingTimeField key={values.date} disabled={!values.date} />
         <Field
           name="patientId"
