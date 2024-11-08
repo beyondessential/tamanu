@@ -15,6 +15,7 @@ import {
   isThisMonth,
   isToday,
   isWeekend,
+  startOfDay,
   startOfMonth,
   subDays,
   subMonths,
@@ -145,7 +146,7 @@ export const DateSelector = ({ value, onChange }) => {
     setViewedDays(getMonthInterval(day));
   };
 
-  const handleChangeToday = () => handleChange(new Date());
+  const handleChangeToday = () => handleChange(startOfDay(new Date()));
   const handleMonthYearChange = newDate => {
     if (isThisMonth(newDate)) {
       handleChangeToday();
