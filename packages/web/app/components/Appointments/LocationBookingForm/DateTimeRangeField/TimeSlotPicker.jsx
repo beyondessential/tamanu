@@ -11,13 +11,12 @@ import {
 } from 'date-fns';
 import { useFormikContext } from 'formik';
 import { isEqual } from 'lodash';
+import ms from 'ms';
 import { PropTypes } from 'prop-types';
 import React, { useCallback, useMemo, useState } from 'react';
 import styled, { css } from 'styled-components';
 
 import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
-
-import ms from 'ms';
 import { useAppointmentsQuery } from '../../../../api/queries';
 import { Colors } from '../../../../constants';
 import { useSettings } from '../../../../contexts/Settings';
@@ -69,6 +68,7 @@ export const TimeSlotPicker = ({
 
   const { getSetting } = useSettings();
   const bookingSlotSettings = getSetting('appointments.bookingSlots');
+  const slotDurationMs = ms(bookingSlotSettings.slotDuration);
 
   // Fall back to arbitrary day so time slots render. Prevents GUI from looking broken when no date
   // is selected, but component should be disabled in this scenario
@@ -98,11 +98,23 @@ export const TimeSlotPicker = ({
     { enabled: dateIsValid && !!values.locationId },
   );
 
-  const updateSelection = (newToggleSelection, newStartTime, newEndTime) => {
+  const updateSelection = (newToggleSelection, { start: newStartTime, end: newEndTime }) => {
     setSelectedToggles(newToggleSelection);
-    void setFieldValue('startTime', newStartTime);
-    void setFieldValue('endTime', newEndTime);
+    switch (variant) {
+      case 'range':
+        void setFieldValue('startTime', newStartTime);
+        void setFieldValue('endTime', newEndTime);
+        break;
+      case 'start':
+        void setFieldValue('startTime', newStartTime);
+        break;
+      case 'end':
+        void setFieldValue('endTime', newEndTime);
+        break;
+    }
   };
+
+  const endOfSlotStartingAt = slotStartTime => addMs(slotStartTime, slotDurationMs);
 
   /**
    * @param {Array<int>} newTogglesUnsorted Provided by MUI Toggle Button Group. This function
@@ -116,15 +128,18 @@ export const TimeSlotPicker = ({
       case 'range': {
         // Deselecting the only selected time slot
         if (newToggles.length === 0) {
-          updateSelection([], null, null);
+          updateSelection([], { start: null, end: null });
           break;
         }
 
         // Fresh selection
         if (newToggles.length === 1) {
           const newStart = new Date(newToggles[0]);
-          const newEnd = addMs(newStart, ms(bookingSlotSettings.slotDuration));
-          updateSelection(newToggles, newStart, newEnd);
+          const newEnd = endOfSlotStartingAt(newStart);
+          updateSelection(newToggles, {
+            start: newStart,
+            end: newEnd,
+          });
           break;
         }
 
@@ -133,12 +148,12 @@ export const TimeSlotPicker = ({
         if (selectedToggles.length === 1) {
           const newStart = new Date(newToggles[0]);
           const startOfLatestSlot = new Date(newToggles.at(-1));
-          const newEnd = addMs(startOfLatestSlot, ms(bookingSlotSettings.slotDuration));
+          const newEnd = addMs(startOfLatestSlot, slotDurationMs);
           const newTimeRange = { start: newStart, end: newEnd };
           const newSelection = timeSlots
             .filter(s => areIntervalsOverlapping(s, newTimeRange))
             .map(({ start }) => start.valueOf());
-          updateSelection(newSelection, newStart, newEnd);
+          updateSelection(newSelection, newTimeRange);
           break;
         }
 
@@ -146,23 +161,57 @@ export const TimeSlotPicker = ({
         // first or last slot.
         if (isSameArrayMinusHeadOrTail(newToggles, selectedToggles)) {
           const newStart = new Date(newToggles[0]);
-          const newEnd = addMs(new Date(newToggles.at(-1)), ms(bookingSlotSettings.slotDuration));
-          updateSelection(newToggles, newStart, newEnd);
+          const newEnd = addMs(new Date(newToggles.at(-1)), slotDurationMs);
+          updateSelection(newToggles, { start: newStart, end: newEnd });
           break;
         }
 
         // Many time slots selected. Clicking anything other than the head or tail clears the
         // selection.
-        updateSelection([], null, null);
+        updateSelection([], { start: null, end: null });
         setHoverRange(null);
         break;
       }
       case 'start': {
-        // TODO
+        // Deselecting the only selected time slot (necessarily the latest time slot of the day)
+        if (newToggles.length === 0) {
+          updateSelection([], { start: null });
+          break;
+        }
+
+        // Fresh selection. Select this and all succeeding time slots
+        if (newToggles.length === 1) {
+          const [selectedToggle] = newToggles;
+          const newSelection = timeSlots
+            .map(({ start }) => start.valueOf())
+            .filter(s => s >= selectedToggle);
+
+          const newStart = new Date(selectedToggle);
+          updateSelection(newSelection, { start: newStart });
+        }
+
+        // Many time slots already selected. Toggling any time slot updates the selection to make
+        // that the new starting time slot.
         break;
       }
       case 'end': {
-        // TODO
+        // Deselecting the only selected time slot (necessarily the earliest time slot of the day)
+        if (newToggles.length === 0) {
+          updateSelection([], { end: null });
+          break;
+        }
+
+        // Fresh selection. Select this and all preceding time slots
+        if (newToggles.length === 1) {
+          const [selectedToggle] = newToggles;
+          const newSelection = timeSlots
+            .map(({ start }) => start.valueOf())
+            .filter(s => s <= selectedToggle);
+
+          const startOfTimeSlot = new Date(selectedToggle);
+          const newEnd = endOfSlotStartingAt(startOfTimeSlot);
+          updateSelection(newSelection, { end: newEnd });
+        }
         break;
       }
     }

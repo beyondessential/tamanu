@@ -9,7 +9,13 @@ import { TranslatedText } from '../../../Translation';
 import { EndDateTimePicker, StartDateTimePicker } from './DateTimePicker';
 import { DateTimeRangePicker } from './DateTimeRangePicker';
 
-export const DateTimeRangeField = ({ editMode, required, separate = false, ...props }) => {
+export const DateTimeRangeField = ({
+  disabled,
+  editMode,
+  required,
+  separate = false,
+  ...props
+}) => {
   const {
     values: { startDate, endDate, locationId, patientId },
   } = useFormikContext();
@@ -44,9 +50,10 @@ export const DateTimeRangeField = ({ editMode, required, separate = false, ...pr
       <>
         <StartDateTimePicker
           dateFieldHelperText={getStartDateFieldHelperText()}
+          disabled={disabled}
           required={required}
         />
-        <EndDateTimePicker required={required} />
+        <EndDateTimePicker disabled={disabled || !startDate} required={required} />
       </>
     );
   }
@@ -56,6 +63,7 @@ export const DateTimeRangeField = ({ editMode, required, separate = false, ...pr
       dateFieldHelperText={getStartDateFieldHelperText()}
       datePickerLabel={<TranslatedText stringId="general.date.label" fallback="Date" />}
       datePickerName="date"
+      disabled={disabled}
       required={required}
       timePickerLabel={
         <TranslatedText stringId="locationBooking.bookingTime.label" fallback="Booking time" />

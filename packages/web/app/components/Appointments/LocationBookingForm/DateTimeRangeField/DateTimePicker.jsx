@@ -1,10 +1,11 @@
+import { isValid } from 'date-fns';
 import { useFormikContext } from 'formik';
 import React from 'react';
+import styled from 'styled-components';
 
 import { DateField, Field } from '../../../Field';
 import { TranslatedText } from '../../../Translation';
 import { TimeSlotPicker } from './TimeSlotPicker';
-import styled from 'styled-components';
 
 const DateTimePicker = ({
   disabled = false,
@@ -20,6 +21,8 @@ const DateTimePicker = ({
   onTimeChange,
 }) => {
   const dateFieldValue = useFormikContext().values[datePickerName];
+  const date = new Date(dateFieldValue); // Not using parseISO in case it’s already a date object
+  const isValidDate = isValid(date);
 
   return (
     <>
@@ -32,8 +35,8 @@ const DateTimePicker = ({
         required={required}
       />
       <TimeSlotPicker
-        date={dateFieldValue}
-        disabled={disabled || !dateFieldValue}
+        date={isValidDate ? date : null}
+        disabled={disabled || !isValidDate}
         label={timePickerLabel}
         name={timePickerName}
         onChange={onTimeChange}

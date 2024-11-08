@@ -35,6 +35,20 @@ export const calculateTimeSlots = (bookingSlotSettings, date) => {
   return slots;
 };
 
+export const isSameArrayMinusHead = (testArr, referenceArr) => {
+  if (referenceArr.length === 0) return false;
+
+  const withoutHead = referenceArr.slice(1);
+  return isEqual(testArr, withoutHead);
+};
+
+export const isSameArrayMinusTail = (testArr, referenceArr) => {
+  if (referenceArr.length === 0) return false;
+
+  const withoutTail = referenceArr.slice(0, -1);
+  return isEqual(testArr, withoutTail);
+};
+
 /**
  * @param {Array} testArr
  * @param {Array} referenceArr
@@ -42,10 +56,5 @@ export const calculateTimeSlots = (bookingSlotSettings, date) => {
  * or last element from `referenceArr`.
  */
 export const isSameArrayMinusHeadOrTail = (testArr, referenceArr) => {
-  if (referenceArr.length === 0) return false;
-
-  const withoutHead = referenceArr.slice(1);
-  const withoutTail = referenceArr.slice(0, -1);
-
-  return isEqual(testArr, withoutHead) || isEqual(testArr, withoutTail);
+  return isSameArrayMinusHead(testArr, referenceArr) || isSameArrayMinusTail(testArr, referenceArr);
 };
