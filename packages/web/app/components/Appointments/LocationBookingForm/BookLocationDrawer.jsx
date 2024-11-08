@@ -58,10 +58,12 @@ const StyledDrawer = styled(Drawer)`
   }
 `;
 
+// The base form fields are going to have their size tweaked in a later card so this is a bridging solution just for this form
 const StyledFormGrid = styled(FormGrid)`
   .label-field,
   .MuiInputBase-input,
-  .MuiFormControlLabel-label {
+  .MuiFormControlLabel-label,
+  div {
     font-size: 12px;
   }
 `;
@@ -195,7 +197,6 @@ export const BookLocationDrawer = ({
   const topRef = useRef(null);
 
   useEffect(() => topRef.current.scrollIntoView(), [open]);
-
 
   const handleShowWarningModal = async () =>
     new Promise(resolve => {
