@@ -1,17 +1,13 @@
 import { Drawer } from '@material-ui/core';
 import Brightness2Icon from '@material-ui/icons/Brightness2';
 import { useQueryClient } from '@tanstack/react-query';
-import { endOfDay, startOfDay } from 'date-fns';
-import { useFormikContext } from 'formik';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import * as yup from 'yup';
 
-import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
 
 import { usePatientSuggester, useSuggester } from '../../../api';
 import { useLocationBookingMutation } from '../../../api/mutations';
-import { useAppointmentsQuery } from '../../../api/queries';
 import { Colors } from '../../../constants';
 import { notifyError, notifySuccess } from '../../../utils';
 import { FormSubmitCancelRow } from '../../ButtonRow';
@@ -57,7 +53,7 @@ const CloseDrawerIcon = styled(ClearIcon)`
   inset-inline-end: 1rem;
 `;
 
-const StyledDrawer = styled(Drawer)`
+const StyledDrawer = styled(Drawer)`x
   .MuiPaper-root {
     block-size: calc(100% - ${TOP_BAR_HEIGHT}px);
     inset-block-start: ${TOP_BAR_HEIGHT}px;
