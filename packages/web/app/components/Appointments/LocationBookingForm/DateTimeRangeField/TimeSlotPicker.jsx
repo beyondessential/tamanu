@@ -22,7 +22,13 @@ import { Colors } from '../../../../constants';
 import { useSettings } from '../../../../contexts/Settings';
 import { OuterLabelFieldWrapper } from '../../../Field';
 import { SkeletonTimeSlotToggles, TimeSlotToggle } from './TimeSlotToggle';
-import { calculateTimeSlots, isSameArrayMinusHeadOrTail, isTimeSlotWithinRange } from './util';
+import {
+  calculateTimeSlots,
+  isSameArrayMinusHead,
+  isSameArrayMinusHeadOrTail,
+  isSameArrayMinusTail,
+  isTimeSlotWithinRange,
+} from './util';
 
 const ToggleGroup = styled(ToggleButtonGroup)`
   background-color: white;
@@ -83,7 +89,7 @@ export const TimeSlotPicker = ({
       ? timeSlots
           .filter(s => areIntervalsOverlapping(s, initialTimeRange))
           .map(({ start }) => start.valueOf())
-      : null,
+      : [],
   );
   const [hoverRange, setHoverRange] = useState(null);
 
@@ -161,13 +167,13 @@ export const TimeSlotPicker = ({
         // first or last slot.
         if (isSameArrayMinusHeadOrTail(newToggles, selectedToggles)) {
           const newStart = new Date(newToggles[0]);
-          const newEnd = addMs(new Date(newToggles.at(-1)), slotDurationMs);
+          const newEnd = endOfSlotStartingAt(new Date(newToggles.at(-1)));
           updateSelection(newToggles, { start: newStart, end: newEnd });
           break;
         }
 
-        // Many time slots selected. Clicking anything other than the head or tail clears the
-        // selection.
+        // Many time slots selected. Toggling anything other than the head or tail would create a
+        // discontinuous selection, so clear the selection instead.
         updateSelection([], { start: null, end: null });
         setHoverRange(null);
         break;
@@ -188,10 +194,20 @@ export const TimeSlotPicker = ({
 
           const newStart = new Date(selectedToggle);
           updateSelection(newSelection, { start: newStart });
+          break;
         }
 
-        // Many time slots already selected. Toggling any time slot updates the selection to make
-        // that the new starting time slot.
+        // Many time slots already selected. User may shorten the selection by deselecting only the
+        // earliest slot.
+        if (isSameArrayMinusHead(newToggles, selectedToggles)) {
+          const newStart = new Date(newToggles[0]);
+          updateSelection(newToggles, { start: newStart });
+          break;
+        }
+
+        // Many time slots selected. Toggling anything other than the head would create a
+        // discontinuous selection, so clear the selection instead.
+        updateSelection([], { start: null });
         break;
       }
       case 'end': {
@@ -211,7 +227,21 @@ export const TimeSlotPicker = ({
           const startOfTimeSlot = new Date(selectedToggle);
           const newEnd = endOfSlotStartingAt(startOfTimeSlot);
           updateSelection(newSelection, { end: newEnd });
+          break;
         }
+
+        // Many time slots already selected. User may shorten the selection by deselecting only the
+        // latest slot.
+        if (isSameArrayMinusTail(newToggles, selectedToggles)) {
+          const startOfLastSlot = new Date(newToggles.at(-1));
+          const newEnd = endOfSlotStartingAt(startOfLastSlot);
+          updateSelection(newToggles, { end: newEnd });
+          break;
+        }
+
+        // Many time slots selected. Toggling anything other than the tail would create a
+        // discontinuous selection, so clear the selection instead.
+        updateSelection([], { end: null });
         break;
       }
     }
