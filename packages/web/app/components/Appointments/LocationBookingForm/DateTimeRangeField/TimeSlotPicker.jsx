@@ -1,4 +1,4 @@
-import { ToggleButtonGroup, toggleButtonGroupClasses } from '@mui/material';
+import ToggleButtonGroup, { toggleButtonGroupClasses } from '@mui/material/ToggleButtonGroup';
 import {
   addMilliseconds as addMs,
   areIntervalsOverlapping,
