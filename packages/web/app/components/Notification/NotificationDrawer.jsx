@@ -2,12 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import CloseIcon from '@material-ui/icons/Close';
 import { Drawer } from '@material-ui/core';
-import {
-  WS_EVENTS,
-  NOTIFICATION_TYPES,
-  NOTIFICATION_STATUSES,
-  LAB_REQUEST_STATUSES,
-} from '@tamanu/constants';
+import { NOTIFICATION_TYPES, NOTIFICATION_STATUSES, LAB_REQUEST_STATUSES } from '@tamanu/constants';
 import { kebabCase } from 'lodash';
 import { useHistory } from 'react-router-dom';
 
@@ -16,7 +11,6 @@ import { Colors } from '../../constants';
 import { BodyText, Heading5 } from '../Typography';
 import { TranslatedText } from '../Translation';
 import { useTranslation } from '../../contexts/Translation';
-import { useAutoUpdatingQuery } from '../../api/queries/useAutoUpdatingQuery';
 import { formatShortest, formatTime } from '../DateDisplay';
 import { useMarkAllAsRead, useMarkAsRead } from '../../api/mutations';
 import { useQueryClient } from '@tanstack/react-query';
@@ -164,12 +158,7 @@ const Card = ({ notification = {} }) => {
   );
 };
 
-export const NotificationDrawer = ({ open, onClose }) => {
-  const { data: notifications = {} } = useAutoUpdatingQuery(
-    'notifications',
-    {},
-    `${WS_EVENTS.DATABASE_TABLE_CHANGED}:notifications`,
-  );
+export const NotificationDrawer = ({ open, onClose, notifications }) => {
   const queryClient = useQueryClient();
   const { mutate: markAllAsRead } = useMarkAllAsRead();
   const { unreadNotifications = [], readNotifications = [] } = notifications;
