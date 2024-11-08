@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { IconButton } from '@material-ui/core';
 
@@ -8,6 +8,7 @@ import { TranslatedText } from '../../components/Translation/TranslatedText';
 import { useAuth } from '../../contexts/Auth';
 import { Colors } from '../../constants';
 import { NotificationIcon } from '../../assets/icons/NotificationIcon';
+import { NotificationDrawer } from '../../components/Notification/NotificationDrawer';
 
 const TopBar = styled.div`
   position: sticky;
@@ -21,6 +22,7 @@ const TopBar = styled.div`
 
 export const DashboardView = () => {
   const { currentUser } = useAuth();
+  const [notificationOpen, setNotificationOpen] = useState(false);
 
   return (
     <PageContainer>
@@ -40,11 +42,12 @@ export const DashboardView = () => {
             />
           </Heading5>
         </div>
-        <IconButton>
+        <IconButton onClick={() => setNotificationOpen(true)}>
           <NotificationIcon />
         </IconButton>
       </TopBar>
       <RecentlyViewedPatientsList inDashboard />
+      <NotificationDrawer open={notificationOpen} onClose={() => setNotificationOpen(false)} />
     </PageContainer>
   );
 };

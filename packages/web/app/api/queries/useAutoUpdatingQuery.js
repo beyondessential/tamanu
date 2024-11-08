@@ -1,6 +1,5 @@
 import { useEffect, useMemo } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { WS_EVENT_NAMESPACES } from '@tamanu/constants';
 import { useSocket } from '../../utils/useSocket';
 import { useApi } from '../useApi';
 
@@ -8,16 +7,11 @@ import { useApi } from '../useApi';
  * Similar to useQuery but with a listener to a socket channel matching the endpoint that indicates
  * when the data has updated, and invalidates the query when the event is received
  */
-export const useAutoUpdatingQuery = (endpoint, queryParams) => {
+export const useAutoUpdatingQuery = (endpoint, queryParams, updateDetectionChannel) => {
   const api = useApi();
   const { socket } = useSocket();
   const queryClient = useQueryClient();
   const queryKey = useMemo(() => [endpoint, queryParams], [endpoint, queryParams]);
-
-  // listen to any updates on the root collection, i.e. the first segment of the endpoint
-  // updates at the root level indicate anything below needs to be re-fetched
-  const rootCollection = endpoint.split('/')[0];
-  const updateDetectionChannel = `${WS_EVENT_NAMESPACES.DATA_UPDATED}:${rootCollection}`;
 
   useEffect(() => {
     const handleDataUpdatedEvent = () => {
