@@ -1,16 +1,11 @@
 import Brightness2Icon from '@material-ui/icons/Brightness2';
 import { useQueryClient } from '@tanstack/react-query';
-import { endOfDay, startOfDay } from 'date-fns';
-import { useFormikContext } from 'formik';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import * as yup from 'yup';
 
-import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
-
 import { usePatientSuggester, useSuggester } from '../../../api';
 import { useLocationBookingMutation } from '../../../api/mutations';
-import { useAppointmentsQuery } from '../../../api/queries';
 import { notifyError, notifySuccess } from '../../../utils';
 import { FormSubmitCancelRow } from '../../ButtonRow';
 import { ConfirmModal } from '../../ConfirmModal';
@@ -46,45 +41,12 @@ const CloseDrawerIcon = styled(ClearIcon)`
   inset-inline-end: 1rem;
 `;
 
-export const DateFieldWithWarning = ({ isEdit }) => {
-  const { values } = useFormikContext();
-  const { data: existingLocationBookings, isFetched } = useAppointmentsQuery(
-    {
-      after: values.date ? toDateTimeString(startOfDay(new Date(values.date))) : null,
-      before: values.date ? toDateTimeString(endOfDay(new Date(values.date))) : null,
-      all: true,
-      locationId: values.locationId,
-      patientId: values.patientId,
-    },
-    {
-      enabled: !!(values.date && values.locationId && values.patientId),
-    },
-  );
-
-  const showSameDayBookingWarning =
-    !isEdit &&
-    isFetched &&
-    values.patientId &&
-    existingLocationBookings.data.some(booking => booking.patientId === values.patientId);
-
-  return (
-    <Field
-      name="date"
-      label={<TranslatedText stringId="general.date.label" fallback="Date" />}
-      component={DateField}
-      disabled={!values.locationId}
-      required
-      helperText={
-        showSameDayBookingWarning && (
-          <TranslatedText
-            stringId="locationBooking.form.date.warning"
-            fallback="Patient already has an appointment scheduled at this location on this day"
-          />
-        )
-      }
-    />
-  );
-};
+const StyledDrawer = styled(Drawer)`
+  .MuiPaper-root {
+    block-size: calc(100% - ${TOP_BAR_HEIGHT}px);
+    inset-block-start: ${TOP_BAR_HEIGHT}px;
+  }
+`;
 
 export const WarningModal = ({ open, setShowWarningModal, resolveFn }) => {
   const handleClose = confirmed => {
@@ -223,7 +185,12 @@ export const BookLocationDrawer = ({ open, onClose, initialValues }) => {
           />
           <OvernightIcon fontSize="small" />
         </OvernightStayField>
-        <DateFieldWithWarning isEdit={isEdit} />
+        <Field
+          name="date"
+          label={<TranslatedText stringId="general.date.label" fallback="Date" />}
+          component={DateField}
+          required
+        />
         <BookingTimeField key={values.date} disabled={!values.date} />
         <Field
           name="patientId"
