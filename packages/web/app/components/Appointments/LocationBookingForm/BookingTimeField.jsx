@@ -65,9 +65,7 @@ const isTimeSlotWithinRange = (timeSlot, range) => {
 // logic calculated through time ranges in the format { start: DATE, end: DATE }
 export const BookingTimeField = ({ disabled = false }) => {
   const { getSetting } = useSettings();
-  const { setFieldValue, values, dirty, initialValues, errors, touched } = useFormikContext();
-
-  const validationError = !disabled && errors.startTime
+  const { setFieldValue, values, dirty, initialValues } = useFormikContext();
 
   const initialTimeRange = useMemo(() => {
     if (!initialValues.startTime) return null;
@@ -208,7 +206,7 @@ export const BookingTimeField = ({ disabled = false }) => {
       label={<TranslatedText stringId="locationBooking.bookingTime.label" fallback="Booking time" />}
       required
     >
-      <CellContainer $error={!selectedTimeRange && validationError} $disabled={disabled}>
+      <CellContainer $disabled={disabled}>
         {isFetching ? (
           <LoadingIndicator />
         ) : (
