@@ -7,7 +7,6 @@ import styled, { css } from 'styled-components';
 import { APPOINTMENT_STATUSES } from '@tamanu/constants';
 
 import { Colors } from '../../constants';
-import { formatTime } from '../DateDisplay';
 import { AppointmentDetailPopper } from './AppointmentDetailPopper';
 import {
   APPOINTMENT_STATUS_COLORS,

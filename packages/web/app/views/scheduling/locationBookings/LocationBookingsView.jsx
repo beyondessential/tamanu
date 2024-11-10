@@ -74,14 +74,12 @@ const EmptyStateLabel = styled(Typography).attrs({
 export const LocationBookingsView = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [initialDrawerValues, setInitialDrawerValues] = useState({});
-  const [selectedCell, setSelectedCell] = useState({ locationId: null, date: null });
   const { facilityId } = useAuth();
   const closeBookingForm = () => {
     setIsDrawerOpen(false);
   };
   const openBookingForm = initialValues => {
     setInitialDrawerValues(initialValues);
-    setSelectedCell({ locationId: initialValues.locationId, date: initialValues.date });
     setIsDrawerOpen(true);
   };
 
@@ -120,14 +118,12 @@ export const LocationBookingsView = () => {
         <LocationBookingsCalendar
           locationsQuery={locationsQuery}
           openBookingForm={openBookingForm}
-          selectedCell={selectedCell}
         />
       )}
       <BookLocationDrawer
         initialBookingValues={initialDrawerValues}
         open={isDrawerOpen}
         closeDrawer={closeBookingForm}
-        setSelectedCell={setSelectedCell}
       />
     </Wrapper>
   );

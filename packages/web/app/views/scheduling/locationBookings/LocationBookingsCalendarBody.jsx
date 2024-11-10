@@ -1,4 +1,4 @@
-import { endOfDay, formatISO, isEqual } from 'date-fns';
+import { endOfDay, formatISO } from 'date-fns';
 import React from 'react';
 import styled from 'styled-components';
 
@@ -9,7 +9,7 @@ import { CarouselComponents as CarouselGrid } from './CarouselComponents';
 import { SkeletonRows } from './Skeletons';
 import { partitionAppointmentsByDate, partitionAppointmentsByLocation } from './util';
 
-export const BookingsCell = ({ appointments, date, location, openBookingForm, selectedCell }) => (
+export const BookingsCell = ({ appointments, date, location, openBookingForm }) => (
   <CarouselGrid.Cell
     id={location.id + '.' + date.valueOf()}
     onClick={e => {
@@ -17,7 +17,6 @@ export const BookingsCell = ({ appointments, date, location, openBookingForm, se
       // Open form for creating new booking
       openBookingForm({ date, locationId: location.id });
     }}
-    selected={location.id === selectedCell.locationId && isEqual(date, new Date(selectedCell.date))}
   >
     {appointments?.map(a => (
       <AppointmentTile
@@ -30,7 +29,7 @@ export const BookingsCell = ({ appointments, date, location, openBookingForm, se
   </CarouselGrid.Cell>
 );
 
-export const BookingsRow = ({ appointments, dates, location, openBookingForm, selectedCell }) => {
+export const BookingsRow = ({ appointments, dates, location, openBookingForm }) => {
   const {
     name: locationName,
     locationGroup: { name: locationGroupName },
@@ -49,7 +48,6 @@ export const BookingsRow = ({ appointments, dates, location, openBookingForm, se
           key={d.valueOf()}
           location={location}
           openBookingForm={openBookingForm}
-          selectedCell={selectedCell}
         />
       ))}
     </CarouselGrid.Row>
@@ -72,7 +70,6 @@ export const LocationBookingsCalendarBody = ({
   displayedDates,
   locationsQuery,
   openBookingForm,
-  selectedCell,
 }) => {
   const { data: locations, isLoading: locationsAreLoading } = locationsQuery;
   const appointments =
@@ -95,7 +92,6 @@ export const LocationBookingsCalendarBody = ({
       key={location.code}
       location={location}
       openBookingForm={openBookingForm}
-      selectedCell={selectedCell}
     />
   ));
 };

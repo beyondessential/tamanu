@@ -98,7 +98,6 @@ const BodyCell = styled(BaseCell).attrs({ as: 'button' })`
   line-height: inherit;
   text-align: inherit;
   align-items: stretch;
-  ${({ selected }) => selected && `border: 1px solid ${Colors.primary} !important;`}
 
   align-items: stretch;
   cursor: pointer;

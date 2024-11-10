@@ -54,7 +54,8 @@ const StyledDrawer = styled(Drawer)`
   }
 `;
 
-// The base form fields are going to have their size tweaked in a later card so this is a bridging solution just for this form
+// A bit blunt but the base form fields are going to have their size tweaked in a
+// later card so this is a bridging solution just for this form
 const StyledFormGrid = styled(FormGrid)`
   .label-field,
   .MuiInputBase-input,
@@ -131,7 +132,6 @@ export const BookLocationDrawer = ({
   open,
   closeDrawer,
   initialBookingValues,
-  setSelectedCell,
 }) => {
   const { getTranslation } = useTranslation();
   const editMode = !!initialBookingValues.id;
@@ -192,18 +192,19 @@ export const BookLocationDrawer = ({
       <div ref={topRef}>
         <BookLocationHeader onClose={warnAndResetForm} />
         <StyledFormGrid nested columns={1}>
-          {/* TODO:: why is this not clearing properly */}
           <Field
             enableLocationStatus={false}
             name="locationId"
             component={LocalisedLocationField}
             required
-            // TODO: make this show *required in red
             onChange={e => {
-              setSelectedCell(prevCell => ({ ...prevCell, locationId: e.target.value }));
-              setFieldValue('overnight', null);
-              setFieldValue('startTime', null);
-              setFieldValue('endTime', null);
+              if (values.overnight) {
+                setFieldValue('overnight', null);
+              }
+              if (values.startTime) {
+                setFieldValue('startTime', null);
+                setFieldValue('endTime', null);
+              }
             }}
           />
         <OvernightStayField>
@@ -233,6 +234,10 @@ export const BookLocationDrawer = ({
           component={AutocompleteField}
           suggester={patientSuggester}
           required
+          placeholder={getTranslation(
+            'general.patient.search.placeholder',
+            'Search patient name or ID',
+          )}
         />
         <Field
           name="bookingTypeId"
