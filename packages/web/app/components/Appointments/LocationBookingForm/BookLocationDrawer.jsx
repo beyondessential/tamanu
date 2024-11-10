@@ -1,17 +1,13 @@
 import { Drawer } from '@material-ui/core';
 import Brightness2Icon from '@material-ui/icons/Brightness2';
 import { useQueryClient } from '@tanstack/react-query';
-import { endOfDay, startOfDay } from 'date-fns';
-import { useFormikContext } from 'formik';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import * as yup from 'yup';
 
-import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
 
 import { usePatientSuggester, useSuggester } from '../../../api';
 import { useLocationBookingMutation } from '../../../api/mutations';
-import { useAppointmentsQuery } from '../../../api/queries';
 import { Colors } from '../../../constants';
 import { notifyError, notifySuccess } from '../../../utils';
 import { FormSubmitCancelRow } from '../../ButtonRow';
@@ -63,46 +59,6 @@ const StyledDrawer = styled(Drawer)`
     inset-block-start: ${TOP_BAR_HEIGHT}px;
   }
 `;
-
-export const DateFieldWithWarning = ({ editMode }) => {
-  const { values } = useFormikContext();
-  const { data: existingLocationBookings, isFetched } = useAppointmentsQuery(
-    {
-      after: values.date ? toDateTimeString(startOfDay(new Date(values.date))) : null,
-      before: values.date ? toDateTimeString(endOfDay(new Date(values.date))) : null,
-      all: true,
-      locationId: values.locationId,
-      patientId: values.patientId,
-    },
-    {
-      enabled: !!(values.date && values.locationId && values.patientId),
-    },
-  );
-
-  const showSameDayBookingWarning =
-    !editMode &&
-    isFetched &&
-    values.patientId &&
-    existingLocationBookings.data.some(booking => booking.patientId === values.patientId);
-
-  return (
-    <Field
-      name="date"
-      label={<TranslatedText stringId="general.date.label" fallback="Date" />}
-      component={DateField}
-      disabled={!values.locationId}
-      required
-      helperText={
-        showSameDayBookingWarning && (
-          <TranslatedText
-            stringId="locationBooking.form.date.warning"
-            fallback="Patient already has an appointment scheduled at this location on this day"
-          />
-        )
-      }
-    />
-  );
-};
 
 export const WarningModal = ({ open, setShowWarningModal, resolveFn }) => {
   const handleClose = confirmed => {
@@ -241,7 +197,12 @@ export const BookLocationDrawer = ({ open, closeDrawer, initialBookingValues }) 
           />
           <OvernightIcon fontSize="small" />
         </OvernightStayField>
-        <DateFieldWithWarning editMode={editMode} />
+        <Field
+          name="date"
+          label={<TranslatedText stringId="general.date.label" fallback="Date" />}
+          component={DateField}
+          required
+        />
         <BookingTimeField key={values.date} disabled={!values.date} />
         <Field
           name="patientId"
