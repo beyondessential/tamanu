@@ -75,12 +75,7 @@ const IconGroup = styled.div`
 const getPatientFullName = ({ firstName, middleName, lastName }) =>
   [firstName, middleName, lastName].filter(Boolean).join(' ');
 
-export const AppointmentTile = ({
-  appointment,
-  openBookingForm,
-  onUpdated,
-  ...props
-}) => {
+export const AppointmentTile = ({ appointment, openBookingForm, onUpdated, ...props }) => {
   const ref = useRef(null);
   const [open, setOpen] = useState();
 
