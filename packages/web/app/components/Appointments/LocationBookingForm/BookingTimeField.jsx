@@ -256,7 +256,6 @@ export const BookingTimeField = ({ disabled = false }) => {
           })
         )}
       </CellContainer>
-      <FormHelperText error>{!selectedTimeRange && validationError && "*Required"}</FormHelperText>
     </OuterLabelFieldWrapper>
   );
 };
