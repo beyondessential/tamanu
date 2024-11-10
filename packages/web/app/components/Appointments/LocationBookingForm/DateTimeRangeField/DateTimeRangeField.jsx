@@ -13,12 +13,13 @@ export const DateTimeRangeField = ({ disabled, required, separate = false, ...pr
   } = useFormikContext();
 
   if (separate) {
+    const doDisableEndPicker = disabled || !startDate;
     return (
       <>
         <StartDateTimePicker disabled={disabled} required={required} />
         <EndDateTimePicker
-          disabled={disabled || !startDate}
-          minDate={addDays(new Date(startDate), 1)}
+          disabled={doDisableEndPicker}
+          minDate={!doDisableEndPicker ? addDays(new Date(startDate), 1) : null}
           required={required}
         />
       </>
