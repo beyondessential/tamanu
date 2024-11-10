@@ -51,20 +51,6 @@ export const IMAGING_REQUEST_STATUS_CONFIG = {
   },
 };
 
-export const APPOINTMENT_TYPES = {
-  STANDARD: 'Standard',
-  EMERGENCY: 'Emergency',
-  SPECIALIST: 'Specialist',
-  OTHER: 'Other',
-};
-
-export const APPOINTMENT_TYPE_LABELS = {
-  [APPOINTMENT_TYPES.STANDARD]: 'Standard',
-  [APPOINTMENT_TYPES.EMERGENCY]: 'Emergency',
-  [APPOINTMENT_TYPES.SPECIALIST]: 'Specialist',
-  [APPOINTMENT_TYPES.OTHER]: 'Other',
-};
-
 export const APPOINTMENT_STATUSES = {
   CONFIRMED: 'Confirmed',
   ARRIVED: 'Arrived',

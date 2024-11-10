@@ -78,6 +78,7 @@ export const LocationBookingsCalendarBody = ({
   const { data: appointmentsData = [] } = useAppointmentsQuery({
     after: displayedDates[0],
     before: endOfDay(displayedDates[displayedDates.length - 1]),
+    all: true,
     locationId: '',
     clinicianId: filters.clinicianId,
     bookingTypeId: filters.bookingTypeId,

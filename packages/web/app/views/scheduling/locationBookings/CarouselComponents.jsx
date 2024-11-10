@@ -98,6 +98,7 @@ const BodyCell = styled(BaseCell).attrs({ as: 'button' })`
   line-height: inherit;
   text-align: inherit;
 
+  align-items: stretch;
   cursor: pointer;
   display: flex;
   flex-direction: column;

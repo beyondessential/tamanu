@@ -1,5 +1,12 @@
 import { IMAGING_AREA_TYPES } from '@tamanu/constants';
-import { CARE_PLANS, DRUGS, DIAGNOSES, splitIds, TRIAGE_DIAGNOSES } from '@tamanu/shared/demoData';
+import {
+  CARE_PLANS,
+  DRUGS,
+  DIAGNOSES,
+  splitIds,
+  TRIAGE_DIAGNOSES,
+  APPOINTMENT_TYPES,
+} from '@tamanu/shared/demoData';
 import {
   CT_SCAN_IMAGING_AREAS,
   ULTRASOUND_IMAGING_AREAS,
@@ -9,6 +16,11 @@ import {
 export const testDiagnoses = DIAGNOSES.slice(0, 50);
 export const testDrugs = DRUGS.slice(0, 50);
 export const testTriageReasons = TRIAGE_DIAGNOSES.map(x => ({ ...x, type: 'triageReason' }));
+export const testAppointmentTypes = APPOINTMENT_TYPES.map(x => ({
+  ...x,
+  id: `appointmentType-${x.id}`,
+  type: 'appointmentType',
+}));
 
 export const testImagingAreas = [
   ...X_RAY_IMAGING_AREAS.map(x => ({
@@ -67,5 +79,6 @@ export const allSeeds = [
   ...testVillages,
   ...testAllergies,
   ...testSecondaryIdTypes,
+  ...testAppointmentTypes,
   ...CARE_PLANS,
 ];

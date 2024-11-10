@@ -22,7 +22,9 @@ const LocationBookingsTopBar = styled(TopBar).attrs({
   title: (
     <TranslatedText stringId="scheduling.locationBookings.title" fallback="Location bookings" />
   ),
-})``;
+})`
+  border-block-end: max(0.0625rem, 1px) ${Colors.outline} solid;
+`;
 
 const Wrapper = styled(PageContainer)`
   display: grid;
@@ -60,6 +62,7 @@ export const LocationBookingsView = () => {
     setIsDrawerOpen(false);
   };
   const openBookingForm = initialValues => {
+  const openBookingForm = initialValues => {
     setInitialDrawerValues(initialValues);
     setIsDrawerOpen(true);
   };
@@ -83,6 +86,10 @@ export const LocationBookingsView = () => {
             stringId="locationBooking.calendar.bookLocation"
             fallback="Book location"
           />
+          <TranslatedText
+            stringId="locationBooking.calendar.bookLocation"
+            fallback="Book location"
+          />
         </NewBookingButton>
       </LocationBookingsTopBar>
       {hasNoLocations ? (
@@ -98,6 +105,7 @@ export const LocationBookingsView = () => {
           openBookingForm={openBookingForm}
         />
       )}
+      <BookLocationDrawer
       <BookLocationDrawer
         initialBookingValues={initialDrawerValues}
         open={isDrawerOpen}
