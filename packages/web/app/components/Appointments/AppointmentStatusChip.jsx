@@ -64,7 +64,7 @@ export const AppointmentStatusChip = ({ appointmentStatus, disabled, selected, .
       selected={selected}
       {...props}
     >
-      {appointmentStatus ?? <>&mdash;</>}
+      {appointmentStatus.split('-').join(' ') ?? <>&mdash;</>}
     </Chip>
   );
 };
