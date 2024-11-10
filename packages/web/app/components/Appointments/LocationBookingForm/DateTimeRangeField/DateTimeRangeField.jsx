@@ -7,15 +7,9 @@ import { TranslatedText } from '../../../Translation';
 import { EndDateTimePicker, StartDateTimePicker } from './DateTimePicker';
 import { DateTimeRangePicker } from './DateTimeRangePicker';
 
-export const DateTimeRangeField = ({
-  disabled,
-  editMode,
-  required,
-  separate = false,
-  ...props
-}) => {
+export const DateTimeRangeField = ({ disabled, required, separate = false, ...props }) => {
   const {
-    values: { startDate, endDate, locationId, patientId },
+    values: { startDate },
   } = useFormikContext();
 
   if (separate) {
