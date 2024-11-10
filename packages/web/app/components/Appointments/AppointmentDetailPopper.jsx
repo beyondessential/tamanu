@@ -13,22 +13,13 @@ import { debounce } from 'lodash';
 import { toast } from 'react-toastify';
 
 import { PatientNameDisplay } from '../PatientNameDisplay';
-import {
-  TranslatedEnum,
-  TranslatedReferenceData,
-  TranslatedSex,
-  TranslatedText,
-} from '../Translation';
+import { TranslatedReferenceData, TranslatedSex, TranslatedText } from '../Translation';
 import { Colors } from '../../constants';
 import { DateDisplay, getDateDisplay } from '../DateDisplay';
 import { reloadPatient } from '../../store';
 import { useApi } from '../../api';
 import { usePatientAdditionalDataQuery } from '../../api/queries';
-import {
-  APPOINTMENT_STATUS_VALUES,
-  APPOINTMENT_STATUSES,
-  APPOINTMENT_TYPE_LABELS,
-} from '@tamanu/constants';
+import { APPOINTMENT_STATUS_VALUES, APPOINTMENT_STATUSES } from '@tamanu/constants';
 import { AppointmentStatusChip } from './AppointmentStatusChip';
 import { MenuButton } from '../MenuButton';
 import { useQueryClient } from '@tanstack/react-query';
@@ -153,6 +144,12 @@ const ControlsRow = ({ onClose, appointment, openBookingForm }) => {
   );
 };
 
+const InlineDetailsDisplay = ({ label, value }) => (
+  <span>
+    <Label>{label}: </Label> {value ?? '—'}
+  </span>
+);
+
 const DetailsDisplay = ({ label, value }) => (
   <FlexCol>
     <Label>{label}</Label>
@@ -165,7 +162,7 @@ const BookingTypeDisplay = ({ type, isOvernight }) => (
     label={<TranslatedText stringId="scheduling.bookingType.label" fallback="Booking type" />}
     value={
       <FlexRow sx={{ alignItems: 'center', justifyContent: 'space-between' }}>
-        <TranslatedEnum value={type} enumValues={APPOINTMENT_TYPE_LABELS} enumFallback={type} />
+        <TranslatedReferenceData value={type.id} fallback={type.name} category="appointmentType" />
         {isOvernight && (
           <FlexRow sx={{ gap: '2px' }}>
             <Overnight htmlColor={Colors.primary} sx={{ fontSize: 15 }} />
@@ -202,14 +199,14 @@ const PatientDetailsDisplay = ({ patient, onClick }) => {
         <DateDisplay noTooltip date={dateOfBirth} />
       </span>
       {additionalData?.primaryContactNumber && (
-        <DetailsDisplay
+        <InlineDetailsDisplay
           label={
             <TranslatedText
               stringId="patient.details.reminderContacts.field.contact"
               fallback="Contact"
-              value={additionalData.primaryContactNumber}
             />
           }
+          value={additionalData.primaryContactNumber}
         />
       )}
       <Label color={Colors.primary}>{displayId}</Label>

@@ -11,15 +11,12 @@ export class Appointment extends Model {
         id: primaryKey,
         startTime: dateTimeType('startTime', { allowNull: false }),
         endTime: dateTimeType('endTime'),
-        type: {
-          type: Sequelize.STRING,
-          allowNull: true,
-        },
         status: {
           type: Sequelize.STRING,
           allowNull: false,
           defaultValue: APPOINTMENT_STATUSES.CONFIRMED,
         },
+        typeLegacy: Sequelize.STRING,
       },
       { syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL, ...options },
     );
@@ -34,6 +31,8 @@ export class Appointment extends Model {
         include: ['locationGroup'],
       },
       'locationGroup',
+      'appointmentType',
+      'bookingType',
     ];
   }
 
@@ -62,6 +61,11 @@ export class Appointment extends Model {
     this.belongsTo(models.ReferenceData, {
       foreignKey: 'bookingTypeId',
       as: 'bookingType',
+    });
+
+    this.belongsTo(models.ReferenceData, {
+      foreignKey: 'appointmentTypeId',
+      as: 'appointmentType',
     });
   }
 
