@@ -15,8 +15,8 @@ import {
   isThisMonth,
   isToday,
   isWeekend,
-  startOfDay,
   startOfMonth,
+  startOfToday,
   subDays,
   subMonths,
 } from 'date-fns';
@@ -146,7 +146,8 @@ export const DateSelector = ({ value, onChange }) => {
     setViewedDays(getMonthInterval(day));
   };
 
-  const handleChangeToday = () => handleChange(startOfDay(new Date()));
+  const handleChangeToday = () => handleChange(startOfToday());
+
   const handleMonthYearChange = newDate => {
     if (isThisMonth(newDate)) {
       handleChangeToday();
