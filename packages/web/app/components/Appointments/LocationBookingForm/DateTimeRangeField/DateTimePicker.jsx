@@ -25,12 +25,11 @@ const DateTimePicker = ({
 }) => {
   const { values, setFieldValue } = useFormikContext();
   const dateFieldValue = values[datePickerName];
-  const date = new Date(dateFieldValue); // Not using parseISO in case it’s already a date object
+  const date = dateFieldValue ? new Date(dateFieldValue) : null;
   const isValidDate = isValid(date);
 
   const handleDateChange = async e => {
-    console.log(`setting ‘${datePickerName}’ to ${e.target.value} → ${new Date(e.target.value)}`);
-    await setFieldValue(datePickerName, new Date(e.target.value));
+    await setFieldValue(datePickerName, new Date(e.target.value)); // TODO: Doesn’t work
     onDateChange?.();
   };
 
