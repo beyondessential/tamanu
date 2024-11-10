@@ -36,7 +36,7 @@ const NotificationIndicator = styled.div`
 export const DashboardView = () => {
   const { currentUser } = useAuth();
   const [notificationOpen, setNotificationOpen] = useState(false);
-  const { data: notifications = {} } = useAutoUpdatingQuery(
+  const { data: notifications = {}, isLoading } = useAutoUpdatingQuery(
     'notifications',
     {},
     `${WS_EVENTS.DATABASE_TABLE_CHANGED}:notifications`,
@@ -70,6 +70,7 @@ export const DashboardView = () => {
         open={notificationOpen}
         onClose={() => setNotificationOpen(false)}
         notifications={notifications}
+        isLoading={isLoading}
       />
     </PageContainer>
   );

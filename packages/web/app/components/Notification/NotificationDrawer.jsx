@@ -14,6 +14,7 @@ import { useTranslation } from '../../contexts/Translation';
 import { formatShortest, formatTime } from '../DateDisplay';
 import { useMarkAllAsRead, useMarkAsRead } from '../../api/mutations';
 import { useQueryClient } from '@tanstack/react-query';
+import { LoadingIndicator } from '../LoadingIndicator';
 
 const NOTIFICATION_ICONS = {
   [NOTIFICATION_TYPES.LAB_REQUEST]: labsIcon,
@@ -22,7 +23,7 @@ const NOTIFICATION_ICONS = {
 
 const getNotificationText = ({ getTranslation, type, patient, metadata }) => {
   const { firstName, lastName } = patient;
-  const { displayId } = metadata.dataValues;
+  const { displayId } = metadata;
   const patientName = `${firstName} ${lastName}`;
 
   if (type === NOTIFICATION_TYPES.IMAGING_REQUEST) {
@@ -32,7 +33,7 @@ const getNotificationText = ({ getTranslation, type, patient, metadata }) => {
       { displayId, patientName },
     );
   } else if (type === NOTIFICATION_TYPES.LAB_REQUEST) {
-    const labRequestStatus = metadata?.dataValues?.status;
+    const labRequestStatus = metadata.status;
     switch (labRequestStatus) {
       case LAB_REQUEST_STATUSES.PUBLISHED:
       case LAB_REQUEST_STATUSES.INTERIM_RESULTS:
@@ -128,11 +129,11 @@ const ReadTitle = styled.div`
   font-weight: 500;
 `;
 
-const Card = ({ notification = {} }) => {
+const Card = ({ notification }) => {
   const { getTranslation } = useTranslation();
-  const { mutateAsync: markAsRead } = useMarkAsRead(notification?.id);
+  const { mutateAsync: markAsRead } = useMarkAsRead(notification.id);
   const { type, createdTime, status, patient, metadata } = notification;
-  const { encounterId, id } = metadata.dataValues.encounterId;
+  const { encounterId, id } = metadata;
 
   const history = useHistory();
 
@@ -158,7 +159,7 @@ const Card = ({ notification = {} }) => {
   );
 };
 
-export const NotificationDrawer = ({ open, onClose, notifications }) => {
+export const NotificationDrawer = ({ open, onClose, notifications, isLoading }) => {
   const queryClient = useQueryClient();
   const { mutate: markAllAsRead } = useMarkAllAsRead();
   const { unreadNotifications = [], readNotifications = [] } = notifications;
@@ -182,37 +183,43 @@ export const NotificationDrawer = ({ open, onClose, notifications }) => {
           <CloseIcon />
         </CloseButton>
       </Title>
-      {!!unreadNotifications.length && (
-        <UnreadTitle>
-          <Heading5 margin={0}>
-            <TranslatedText fallback="Unread" stringId="dashboard.notification.unread.title" />
-          </Heading5>
-          <ActionLink onClick={onMarkAllAsRead}>
-            <TranslatedText
-              fallback="Mark all as read"
-              stringId="dashboard.notification.action.markAllAsRead"
-            />
-          </ActionLink>
-        </UnreadTitle>
+      {!isLoading ? (
+        <>
+          {!!unreadNotifications.length && (
+            <UnreadTitle>
+              <Heading5 margin={0}>
+                <TranslatedText fallback="Unread" stringId="dashboard.notification.unread.title" />
+              </Heading5>
+              <ActionLink onClick={onMarkAllAsRead}>
+                <TranslatedText
+                  fallback="Mark all as read"
+                  stringId="dashboard.notification.action.markAllAsRead"
+                />
+              </ActionLink>
+            </UnreadTitle>
+          )}
+          <NotificationList>
+            {unreadNotifications.map(notification => (
+              <Card notification={notification} key={notification.id} />
+            ))}
+          </NotificationList>
+          {!!readNotifications.length && (
+            <ReadTitle>
+              <TranslatedText
+                fallback="Recent (last 48 hours)"
+                stringId="dashboard.notification.recent.title"
+              />
+            </ReadTitle>
+          )}
+          <NotificationList>
+            {readNotifications.map(notification => (
+              <Card notification={notification} key={notification.id} />
+            ))}
+          </NotificationList>
+        </>
+      ) : (
+        <LoadingIndicator backgroundColor={Colors.white} />
       )}
-      <NotificationList>
-        {unreadNotifications.map(notification => (
-          <Card notification={notification} />
-        ))}
-      </NotificationList>
-      {!!readNotifications.length && (
-        <ReadTitle>
-          <TranslatedText
-            fallback="Recent (last 48 hours)"
-            stringId="dashboard.notification.recent.title"
-          />
-        </ReadTitle>
-      )}
-      <NotificationList>
-        {readNotifications.map(notification => (
-          <Card notification={notification} />
-        ))}
-      </NotificationList>
     </StyledDrawer>
   );
 };
