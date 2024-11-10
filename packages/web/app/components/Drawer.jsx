@@ -31,12 +31,19 @@ const StyledDrawer = styled(MuiDrawer)`
   }
 `;
 
-export const Drawer = ({ open, className, onClose, title, description, children }) => {
+export const Drawer = ({
+  open,
+  PaperProps = {},
+  className,
+  onClose,
+  title,
+  description,
+  children,
+}) => {
   return (
     <StyledDrawer
-      PaperProps={{
-        className,
-      }}
+      PaperProps={PaperProps}
+      className={className}
       variant="persistent"
       anchor="right"
       open={open}

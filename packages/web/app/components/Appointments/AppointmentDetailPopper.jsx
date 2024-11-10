@@ -23,6 +23,7 @@ import { APPOINTMENT_STATUS_VALUES, APPOINTMENT_STATUSES } from '@tamanu/constan
 import { AppointmentStatusChip } from './AppointmentStatusChip';
 import { MenuButton } from '../MenuButton';
 
+export const APPOINTMENT_DRAWER_CLASS = 'appointment-drawer';
 const DEBOUNCE_DELAY = 200; // ms
 
 const formatDateRange = (start, end, isOvernight) => {
@@ -356,7 +357,7 @@ export const AppointmentDetailPopper = ({
   );
 
   const handleClickAway = e => {
-    if (e.target.closest('.appointment-drawer')) return;
+    if (e.target.closest(`.${APPOINTMENT_DRAWER_CLASS}`)) return;
     onClose();
   };
 

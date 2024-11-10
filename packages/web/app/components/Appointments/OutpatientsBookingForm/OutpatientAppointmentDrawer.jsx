@@ -17,6 +17,7 @@ import { isAfter, parseISO } from 'date-fns';
 import { useTranslation } from '../../../contexts/Translation';
 import { Drawer } from '../../Drawer';
 import { TimeWithFixedDateField } from './TimeWithFixedDateField';
+import { APPOINTMENT_DRAWER_CLASS } from '../AppointmentDetailPopper';
 
 const CloseDrawerIcon = styled(ClearIcon)`
   cursor: pointer;
@@ -216,7 +217,10 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {} 
   );
   return (
     <Drawer
-      className="appointment-drawer"
+      PaperProps={{
+        // Used to exclude the drawer from click away listener on appointment details popper
+        className: APPOINTMENT_DRAWER_CLASS,
+      }}
       open={open}
       onClose={onClose}
       title={

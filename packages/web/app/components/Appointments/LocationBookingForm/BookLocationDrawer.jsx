@@ -23,6 +23,7 @@ import { ClearIcon } from '../../Icons/ClearIcon';
 import { TranslatedText } from '../../Translation/TranslatedText';
 import { BookingTimeField } from './BookingTimeField';
 import { Drawer } from '../../Drawer';
+import { APPOINTMENT_DRAWER_CLASS } from '../AppointmentDetailPopper';
 
 const OvernightStayField = styled.div`
   display: flex;
@@ -214,7 +215,10 @@ export const BookLocationDrawer = ({ open, onClose, initialValues }) => {
 
   return (
     <Drawer
-      className="appointment-drawer"
+      PaperProps={{
+        // Used to exclude the drawer from click away listener on appointment detail popper
+        className: APPOINTMENT_DRAWER_CLASS,
+      }}
       open={open}
       onClose={onClose}
       title={
