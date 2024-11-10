@@ -292,15 +292,31 @@ export const TimeSlotPicker = ({
             const onMouseEnter = () => {
               if (selectedToggles.length > 1) return;
 
-              if (!values.startTime || !values.endTime) {
-                setHoverRange(timeSlot);
-                return;
-              }
+              switch (variant) {
+                case 'range':
+                  if (!values.startTime || !values.endTime) {
+                    setHoverRange(timeSlot);
+                    return;
+                  }
 
-              setHoverRange({
-                start: min([timeSlot.start, values.startTime]),
-                end: max([timeSlot.end, values.endTime]),
-              });
+                  setHoverRange({
+                    start: min([timeSlot.start, values.startTime]),
+                    end: max([timeSlot.end, values.endTime]),
+                  });
+                  return;
+                case 'start':
+                  setHoverRange({
+                    start: timeSlot.start,
+                    end: endOfDay(date),
+                  });
+                  return;
+                case 'end':
+                  setHoverRange({
+                    start: startOfDay(date),
+                    end: timeSlot.end,
+                  });
+                  return;
+              }
             };
 
             return (
