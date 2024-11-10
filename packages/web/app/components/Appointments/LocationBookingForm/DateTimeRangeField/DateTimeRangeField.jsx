@@ -1,10 +1,8 @@
-import { addDays, endOfDay, startOfDay } from 'date-fns';
+import { addDays } from 'date-fns';
 import { useFormikContext } from 'formik';
 import React from 'react';
 
 import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
-
-import { useAppointmentsQuery } from '../../../../api/queries';
 import { TranslatedText } from '../../../Translation';
 import { EndDateTimePicker, StartDateTimePicker } from './DateTimePicker';
 import { DateTimeRangePicker } from './DateTimeRangePicker';
@@ -19,16 +17,6 @@ export const DateTimeRangeField = ({
   const {
     values: { startDate, endDate, locationId, patientId },
   } = useFormikContext();
-  const { data: existingLocationBookings, isFetched } = useAppointmentsQuery(
-    {
-      after: startDate ? toDateTimeString(startOfDay(new Date(startDate))) : null,
-      before: endDate ? toDateTimeString(endOfDay(new Date(endDate))) : null,
-      all: true,
-      locationId,
-      patientId,
-    },
-    { enabled: !!(startDate && endDate && locationId && patientId) },
-  );
 
   if (separate) {
     return (
