@@ -3,7 +3,7 @@
 FROM node:20-alpine AS base
 WORKDIR /app
 ENV NODE_ENV=production
-COPY package.json yarn.lock COPYRIGHT LICENSE-GPL LICENSE-BSL ./
+COPY package.json package-lock.json COPYRIGHT LICENSE-GPL LICENSE-BSL ./
 
 FROM base AS build-base
 RUN apk add --no-cache \
@@ -15,7 +15,7 @@ RUN apk add --no-cache \
     jq \
     make \
     python3
-COPY .yarnrc common.* ./
+COPY common.* ./
 COPY scripts/ scripts/
 
 FROM base AS run-base

@@ -17,6 +17,7 @@ locationGroup.get(
       where: {
         facilityId,
       },
+      order: [['name', 'ASC']],
     });
     res.send(locationGroups);
   }),

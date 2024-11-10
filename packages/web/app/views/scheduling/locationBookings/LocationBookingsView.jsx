@@ -12,7 +12,7 @@ import { useAuth } from '../../../contexts/Auth';
 
 const PlusIcon = styled(AddRounded)`
   && {
-    margin-right: 3px;
+    margin-inline-end: 0.1875rem;
   }
 `;
 
@@ -37,7 +37,9 @@ const LocationBookingsTopBar = styled(TopBar).attrs({
   title: (
     <TranslatedText stringId="scheduling.locationBookings.title" fallback="Location bookings" />
   ),
-})``;
+})`
+  border-block-end: max(0.0625rem, 1px) ${Colors.outline} solid;
+`;
 
 const Wrapper = styled(PageContainer)`
   display: grid;
@@ -72,7 +74,7 @@ const EmptyStateLabel = styled(Typography).attrs({
 export const LocationBookingsView = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [initialDrawerValues, setInitialDrawerValues] = useState({});
-  const { facilityId } = useAuth()
+  const { facilityId } = useAuth();
   const closeBookingForm = () => {
     setIsDrawerOpen(false);
   };
@@ -99,7 +101,10 @@ export const LocationBookingsView = () => {
         </Filters>
         <NewBookingButton onClick={() => openBookingForm({})}>
           <PlusIcon />
-          <TranslatedText stringId="locationBooking.calendar.newBooking" fallback="New booking" />
+          <TranslatedText
+            stringId="locationBooking.calendar.bookLocation"
+            fallback="Book location"
+          />
         </NewBookingButton>
       </LocationBookingsTopBar>
       {hasNoLocations ? (

@@ -3,13 +3,12 @@ import { useDispatch } from 'react-redux';
 import { push } from 'connected-react-router';
 import Box from '@mui/material/Box';
 import ClickAwayListener from '@mui/material/ClickAwayListener';
-import IconButton from '@material-ui/core/IconButton';
+import IconButton from '@mui/material/IconButton';
 import Paper from '@mui/material/Paper';
 import Popper from '@mui/material/Popper';
 import { styled } from '@mui/material/styles';
-import { default as Overnight } from '@mui/icons-material/Brightness2';
+import Overnight from '@mui/icons-material/Brightness2';
 import Close from '@mui/icons-material/Close';
-import MoreVert from '@mui/icons-material/MoreVert';
 import { debounce } from 'lodash';
 import { toast } from 'react-toastify';
 
@@ -22,6 +21,8 @@ import { useApi } from '../../api';
 import { usePatientAdditionalDataQuery } from '../../api/queries';
 import { APPOINTMENT_STATUS_VALUES, APPOINTMENT_STATUSES } from '@tamanu/constants';
 import { AppointmentStatusChip } from './AppointmentStatusChip';
+import { MenuButton } from '../MenuButton';
+import { useQueryClient } from '@tanstack/react-query';
 
 const DEBOUNCE_DELAY = 200; // ms
 
@@ -62,10 +63,6 @@ const StyledPaper = styled(Paper)`
   font-size: 0.6875rem;
 `;
 
-const StyledIconButton = styled(IconButton)`
-  padding: 0;
-`;
-
 const ControlsContainer = styled(FlexRow)`
   position: fixed;
   inset-block-start: 0.5rem;
@@ -102,16 +99,41 @@ const AppointmentStatusContainer = styled(Box)`
   justify-items: center;
 `;
 
-const ControlsRow = ({ onClose }) => (
-  <ControlsContainer>
-    <StyledIconButton>
-      <MoreVert sx={{ fontSize: '0.875rem' }} />
-    </StyledIconButton>
-    <StyledIconButton onClick={onClose}>
-      <Close sx={{ fontSize: '0.875rem' }} />
-    </StyledIconButton>
-  </ControlsContainer>
-);
+const StyledMenuButton = styled(MenuButton)`
+  svg {
+    font-size: 0.875rem;
+  }
+`;
+
+const StyledIconButton = styled(IconButton)`
+  padding: 5px;
+  svg {
+    font-size: 0.875rem;
+  }
+`;
+
+const ControlsRow = ({ onClose, appointment, openBookingForm }) => {
+  const actions = [
+    {
+      label: <TranslatedText stringId="general.action.modify" fallback="Modify" />,
+      action: () => openBookingForm({ ...appointment, date: appointment.startTime }),
+    },
+    // TODO: cancel workflow
+    {
+      label: <TranslatedText stringId="general.action.cancel" fallback="Cancel" />,
+      action: () => {},
+    },
+  ];
+
+  return (
+    <ControlsContainer>
+      <StyledMenuButton actions={actions} />
+      <StyledIconButton onClick={onClose}>
+        <Close />
+      </StyledIconButton>
+    </ControlsContainer>
+  );
+};
 
 const DetailsDisplay = ({ label, value }) => (
   <FlexCol>
@@ -159,7 +181,7 @@ const PatientDetailsDisplay = ({ patient, onClick }) => {
           />
           :
         </Label>{' '}
-        <DateDisplay date={dateOfBirth} />
+        <DateDisplay noTooltip date={dateOfBirth} />
       </span>
       {additionalData?.primaryContactNumber && (
         <DetailsDisplay
@@ -200,8 +222,8 @@ const AppointDetailsDisplay = ({ appointment, isOvernight }) => {
         }
         value={
           <TranslatedReferenceData
-            fallback={locationGroup?.name}
-            value={locationGroup?.id}
+            fallback={location?.locationGroup?.name || locationGroup?.name}
+            value={location?.locationGroup?.id || locationGroup?.id}
             category="locationGroup"
           />
         }
@@ -257,8 +279,10 @@ export const AppointmentDetailPopper = ({
   anchorEl,
   appointment,
   isOvernight,
+  openBookingForm,
 }) => {
   const dispatch = useDispatch();
+  const queryClient = useQueryClient();
   const api = useApi();
   const [localStatus, setLocalStatus] = useState(appointment.status);
   const patientId = appointment.patient.id;
@@ -276,6 +300,7 @@ export const AppointmentDetailPopper = ({
             status: newValue,
           });
           if (onUpdated) onUpdated();
+          queryClient.invalidateQueries('appointments');
         } catch (error) {
           console.log(error);
           toast.error(
@@ -287,7 +312,7 @@ export const AppointmentDetailPopper = ({
           setLocalStatus(appointment.status);
         }
       }, DEBOUNCE_DELAY),
-    [api, appointment.id, onUpdated, appointment.status],
+    [api, appointment.id, onUpdated, appointment.status, queryClient],
   );
 
   const updateAppointmentStatus = useCallback(
@@ -315,7 +340,11 @@ export const AppointmentDetailPopper = ({
     >
       <ClickAwayListener onClickAway={onClose}>
         <Box>
-          <ControlsRow onClose={onClose} />
+          <ControlsRow
+            appointment={appointment}
+            openBookingForm={openBookingForm}
+            onClose={onClose}
+          />
           <StyledPaper elevation={0}>
             <PatientDetailsDisplay
               patient={appointment.patient}
