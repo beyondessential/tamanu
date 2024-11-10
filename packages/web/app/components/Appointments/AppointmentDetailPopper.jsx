@@ -56,7 +56,7 @@ const StyledPaper = styled(Paper)`
   display: flex;
   flex-direction: column;
   width: 16rem;
-  box-shadow: 0px 8px 32px 0px hsla(0, 0%, 0%, 0.15);
+  box-shadow: 0 0.5rem 2rem 0 oklch(0 0 0 / 15%);
   border-radius: 0.3125rem;
   font-size: 0.6875rem;
 `;
@@ -102,7 +102,7 @@ const StyledMenuButton = styled(MenuButton)`
     font-size: 0.875rem;
   }
   #menu-list-grow {
-    box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.1);
+    box-shadow: 0px 0.25rem 1rem 0px hsla(0, 0%, 0%, 0.1);
   }
 `;
 
@@ -329,7 +329,7 @@ export const AppointmentDetailPopper = ({
           await api.put(`appointments/${appointment.id}`, {
             status: newValue,
           });
-          if (onStatusChange) onStatusChange(newValue);
+          onStatusChange?.(newValue);
         } catch (error) {
           toast.error(
             <TranslatedText

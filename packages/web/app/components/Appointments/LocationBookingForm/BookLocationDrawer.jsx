@@ -77,7 +77,7 @@ export const WarningModal = ({ open, setShowWarningModal, resolveFn }) => {
   );
 };
 
-const SuccessMessage = ({ isEdit }) =>
+const SuccessMessage = ({ isEdit = false }) =>
   isEdit ? (
     <TranslatedText
       stringId="locationBooking.notification.bookingSuccessfullyEdited"
