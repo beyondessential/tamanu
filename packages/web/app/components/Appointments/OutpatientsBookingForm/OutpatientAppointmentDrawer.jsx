@@ -58,7 +58,7 @@ export const WarningModal = ({ open, setShowWarningModal, resolveFn }) => {
   );
 };
 
-const SuccessMessage = ({ isEdit }) => {
+const SuccessMessage = ({ isEdit = false }) => {
   return isEdit ? (
     <TranslatedText
       stringId="outpatientAppointment.notification.edit.success"
@@ -72,7 +72,7 @@ const SuccessMessage = ({ isEdit }) => {
   );
 };
 
-const ErrorMessage = ({ isEdit, error }) => {
+const ErrorMessage = ({ isEdit = false, error }) => {
   return isEdit ? (
     <TranslatedText
       stringId="outpatientAppointment.notification.edit.error"
