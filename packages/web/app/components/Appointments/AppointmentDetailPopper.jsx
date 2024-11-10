@@ -261,7 +261,7 @@ export const AppointmentStatusSelector = ({
 }) => {
   return (
     <AppointmentStatusContainer role="radiogroup">
-      {APPOINTMENT_STATUS_VALUES.filter(status => status != APPOINTMENT_STATUSES.CANCELLED).map(
+      {APPOINTMENT_STATUS_VALUES.filter(status => status !== APPOINTMENT_STATUSES.CANCELLED).map(
         status => {
           const isSelected = status === selectedStatus;
           return (
