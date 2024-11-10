@@ -17,7 +17,7 @@ export const DateTimeRangePicker = ({
 }) => {
   const { values } = useFormikContext();
   const dateFieldValue = values[datePickerName];
-  const date = new Date(dateFieldValue); // Not using parseISO in case it’s already a date object
+  const date = dateFieldValue ? new Date(dateFieldValue) : null; // Not using parseISO in case it’s already a date object
   const isValidDate = isValid(date);
 
   const locationId = values.locationId;
