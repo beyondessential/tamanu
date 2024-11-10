@@ -18,6 +18,8 @@ import {
   FhirReference,
 } from '../../../services/fhirTypes';
 import { formatFhirDate } from '../../../utils/fhir';
+import { FhirPatient } from '../Patient/FhirPatient';
+import { FhirOrganization } from '../Organization/FhirOrganization';
 
 export async function getValues(upstream, models) {
   const { Encounter } = models;
@@ -103,9 +105,7 @@ function period(encounter) {
 }
 
 function subjectRef(encounter) {
-  return new FhirReference({
-    type: 'upstream://patient',
-    reference: encounter.patient.id,
+  return FhirReference.unresolved(FhirPatient, encounter.patient.id, {
     display: `${encounter.patient.firstName} ${encounter.patient.lastName}`,
   });
 }
@@ -150,14 +150,12 @@ function locationRef(encounter) {
 }
 
 async function serviceProviderRef(encounter) {
-  const { facility } =  encounter.location;
+  const { facility } = encounter.location;
   if (!facility) {
     return null;
   }
 
-  return new FhirReference({
-    type: 'upstream://organization',
-    reference: facility.id,
+  return FhirReference.unresolved(FhirOrganization, facility.id, {
     display: facility.name,
   });
 }

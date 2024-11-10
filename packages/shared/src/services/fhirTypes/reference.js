@@ -2,6 +2,7 @@ import * as yup from 'yup';
 
 import { FhirBaseType } from './baseType';
 import { FhirIdentifier } from './identifier';
+import { lowerCase, snakeCase } from 'lodash';
 
 export class FhirReference extends FhirBaseType {
   static SCHEMA() {
@@ -35,6 +36,22 @@ export class FhirReference extends FhirBaseType {
           .default(null),
       })
       .noUnknown();
+  }
+
+  static resolved(resourceType, id, fields) {
+    return new this({
+      type: resourceType.fhirName,
+      reference: `${resourceType.fhirName}/${id}`,
+      ...fields,
+    });
+  }
+
+  static unresolved(resourceType, id, fields) {
+    return new this({
+      type: `upstream://${snakeCase(lowerCase(resourceType.fhirName))}`,
+      reference: id,
+      ...fields,
+    });
   }
 
   static fake(model, { fieldName }, id) {

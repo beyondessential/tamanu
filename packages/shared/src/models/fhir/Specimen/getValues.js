@@ -2,6 +2,8 @@ import config from 'config';
 
 import { FhirReference, FhirCoding, FhirCodeableConcept } from '../../../services/fhirTypes';
 import { formatFhirDate } from '../../../utils/fhir';
+import { FhirServiceRequest } from '../ServiceRequest/FhirServiceRequest';
+import { FhirPractitioner } from '../Practitioner/FhirPractitioner';
 
 export async function getValues(upstream, models) {
   const { LabRequest } = models;
@@ -16,7 +18,7 @@ async function getValuesFromLabRequest(upstream, models) {
     collection: createCollection(
       formatFhirDate(upstream.sampleTime),
       collectorRef(upstream),
-      await resolveBodySite(upstream, models)
+      await resolveBodySite(upstream, models),
     ),
     type: await resolveSpecimenType(upstream, models),
     request: [requestRef(upstream)],
@@ -24,32 +26,22 @@ async function getValuesFromLabRequest(upstream, models) {
 }
 
 function createCollection(collectedDateTime, collector, bodySite) {
-  return (
-    collectedDateTime === null &&
-    collector === null &&
-    bodySite === null
-  ) ?
-    null
+  return collectedDateTime === null && collector === null && bodySite === null
+    ? null
     : {
-      collectedDateTime,
-      collector,
-      bodySite
-    };
+        collectedDateTime,
+        collector,
+        bodySite,
+      };
 }
 
 function requestRef(labRequest) {
-  return new FhirReference({
-    type: 'upstream://service_request',
-    reference: labRequest.id,
-  });
+  return FhirReference.unresolved(FhirServiceRequest, labRequest.id);
 }
 
 function collectorRef(labRequest) {
   if (!labRequest.collectedById) return null;
-  return new FhirReference({
-    type: 'upstream://practitioner',
-    reference: labRequest.collectedById,
-  });
+  return FhirReference.unresolved(FhirPractitioner, labRequest.collectedById);
 }
 
 async function resolveBodySite(upstream, models) {
@@ -59,7 +51,7 @@ async function resolveBodySite(upstream, models) {
   const bodySite = await ReferenceData.findOne({
     where: {
       id: labSampleSiteId,
-    }
+    },
   });
   if (!bodySite) return null;
   return new FhirCodeableConcept({
@@ -80,7 +72,7 @@ async function resolveSpecimenType(upstream, models) {
   const specimenType = await ReferenceData.findOne({
     where: {
       id: specimenTypeId,
-    }
+    },
   });
   if (!specimenType) return null;
   return new FhirCodeableConcept({

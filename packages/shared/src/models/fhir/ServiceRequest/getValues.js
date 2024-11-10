@@ -18,6 +18,10 @@ import {
   FhirReference,
 } from '../../../services/fhirTypes';
 import { Exception, formatFhirDate } from '../../../utils/fhir';
+import { FhirPatient } from '../Patient/FhirPatient';
+import { FhirEncounter } from '../Encounter/FhirEncounter';
+import { FhirPractitioner } from '../Practitioner/FhirPractitioner';
+import { FhirSpecimen } from '../Specimen/FhirSpecimen';
 
 export async function getValues(upstream, models) {
   const { ImagingRequest, LabRequest } = models;
@@ -84,20 +88,12 @@ async function getValuesFromImagingRequest(upstream, models) {
           ]
         : [],
     ),
-    subject: new FhirReference({
-      type: 'upstream://patient',
-      reference: upstream.encounter.patient.id,
+    subject: FhirReference.unresolved(FhirPatient, upstream.encounter.patient.id, {
       display: `${upstream.encounter.patient.firstName} ${upstream.encounter.patient.lastName}`,
     }),
-    encounter: new FhirReference({
-      type: 'upstream://encounter',
-      reference: upstream.encounter.id,
-    }),
+    encounter: FhirReference.unresolved(FhirEncounter, upstream.encounter.id),
     occurrenceDateTime: formatFhirDate(upstream.requestedDate),
-    requester: new FhirReference({
-      type: 'upstream://practitioner',
-      reference: upstream.requestedBy.id,
-    }),
+    requester: FhirReference.unresolved(FhirPractitioner, upstream.requestedBy.id),
     locationCode: locationCode(upstream),
     note: imagingAnnotations(upstream),
   };
@@ -131,20 +127,12 @@ async function getValuesFromLabRequest(upstream) {
     priority: validatePriority(upstream.priority?.name),
     code: labCode(upstream),
     orderDetail: await labOrderDetails(upstream),
-    subject: new FhirReference({
-      type: 'upstream://patient',
-      reference: upstream.encounter.patient.id,
+    subject: FhirReference.unresolved(FhirPatient, upstream.encounter.patient.id, {
       display: `${upstream.encounter.patient.firstName} ${upstream.encounter.patient.lastName}`,
     }),
-    encounter: new FhirReference({
-      type: 'upstream://encounter',
-      reference: upstream.encounter.id,
-    }),
+    encounter: FhirReference.unresolved(FhirEncounter, upstream.encounter.id),
     occurrenceDateTime: formatFhirDate(upstream.requestedDate),
-    requester: new FhirReference({
-      type: 'upstream://practitioner',
-      reference: upstream.requestedBy.id,
-    }),
+    requester: FhirReference.unresolved(FhirPractitioner, upstream.requestedBy.id),
     note: labAnnotations(upstream),
     specimen: resolveSpecimen(upstream),
   };
@@ -154,10 +142,7 @@ function resolveSpecimen(upstream) {
   if (!upstream.specimenAttached) {
     return null;
   }
-  return new FhirReference({
-    type: 'upstream://specimen',
-    reference: upstream.id,
-  });
+  return FhirReference.unresolved(FhirSpecimen, upstream.id);
 }
 
 function imagingCode(upstream) {

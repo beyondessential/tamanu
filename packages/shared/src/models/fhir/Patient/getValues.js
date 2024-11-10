@@ -13,6 +13,7 @@ import {
 } from '../../../services/fhirTypes';
 import { nzEthnicity } from '../extensions';
 import { formatFhirDate } from '../../../utils/fhir';
+import { FhirPatient } from './FhirPatient';
 
 export async function getValues(upstream, models) {
   const { Patient } = models;
@@ -133,9 +134,7 @@ async function mergeLinks(patient) {
       links.push(
         new FhirPatientLink({
           type: 'replaced-by',
-          other: new FhirReference({
-            reference: mergeTarget.id,
-            type: 'upstream://patient',
+          other: FhirReference.unresolved(FhirPatient, mergeTarget.id, {
             display: mergeTarget.displayId,
           }),
         }),
@@ -150,9 +149,7 @@ async function mergeLinks(patient) {
       links.push(
         new FhirPatientLink({
           type: 'replaces',
-          other: new FhirReference({
-            reference: mergedPatient.id,
-            type: 'upstream://patient',
+          other: FhirReference.unresolved(FhirPatient, mergedPatient.id, {
             display: mergedPatient.displayId,
           }),
         }),
@@ -161,9 +158,7 @@ async function mergeLinks(patient) {
       links.push(
         new FhirPatientLink({
           type: 'seealso',
-          other: new FhirReference({
-            reference: mergedPatient.id,
-            type: 'upstream://patient',
+          other: FhirReference.unresolved(FhirPatient, mergedPatient.id, {
             display: mergedPatient.displayId,
           }),
         }),
