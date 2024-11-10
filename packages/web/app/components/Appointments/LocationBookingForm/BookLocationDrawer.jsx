@@ -65,11 +65,6 @@ const StyledFormGrid = styled(FormGrid)`
   }
 `;
 
-const scrollToCell = newCell =>
-  document
-    .getElementById(`${newCell.locationId}.${new Date(newCell.date).valueOf()}`)
-    ?.scrollIntoView({ inline: 'start', behavior: 'smooth' });
-
 export const WarningModal = ({ open, setShowWarningModal, resolveFn }) => {
   const handleClose = confirmed => {
     setShowWarningModal(false);
