@@ -1,4 +1,4 @@
-import { endOfDay, startOfDay } from 'date-fns';
+import { addDays, endOfDay, startOfDay } from 'date-fns';
 import { useFormikContext } from 'formik';
 import React from 'react';
 
@@ -53,7 +53,11 @@ export const DateTimeRangeField = ({
           disabled={disabled}
           required={required}
         />
-        <EndDateTimePicker disabled={disabled || !startDate} required={required} />
+        <EndDateTimePicker
+          disabled={disabled || !startDate}
+          minDate={addDays(new Date(startDate), 1)}
+          required={required}
+        />
       </>
     );
   }

@@ -3,12 +3,15 @@ import { useFormikContext } from 'formik';
 import React from 'react';
 import styled from 'styled-components';
 
+import { toDateString } from '@tamanu/shared/utils/dateTime';
+
 import { DateField, Field } from '../../../Field';
 import { TranslatedText } from '../../../Translation';
 import { TimeSlotPicker } from './TimeSlotPicker';
 
 const DateTimePicker = ({
   disabled = false,
+  minDate,
   required = false,
 
   datePickerLabel = <TranslatedText stringId="general.date.label" fallback="Date" />,
@@ -20,9 +23,16 @@ const DateTimePicker = ({
   timePickerVariant,
   onTimeChange,
 }) => {
-  const dateFieldValue = useFormikContext().values[datePickerName];
+  const { values, setFieldValue } = useFormikContext();
+  const dateFieldValue = values[datePickerName];
   const date = new Date(dateFieldValue); // Not using parseISO in case it’s already a date object
   const isValidDate = isValid(date);
+
+  const handleDateChange = async e => {
+    console.log(`setting ‘${datePickerName}’ to ${e.target.value} → ${new Date(e.target.value)}`);
+    await setFieldValue(datePickerName, new Date(e.target.value));
+    onDateChange?.();
+  };
 
   return (
     <>
@@ -30,8 +40,9 @@ const DateTimePicker = ({
         component={DateField}
         disabled={disabled}
         label={datePickerLabel}
+        min={isValid(minDate) ? toDateString(minDate) : null}
         name={datePickerName}
-        onChange={onDateChange}
+        onChange={handleDateChange}
         required={required}
       />
       <TimeSlotPicker
