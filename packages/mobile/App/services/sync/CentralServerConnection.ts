@@ -65,7 +65,7 @@ export class CentralServerConnection {
     this.deviceId = await readConfig('deviceId');
 
     if (!this.deviceId) {
-      this.deviceId = uuidv4();
+      this.deviceId = `mobile-${uuidv4()}`;
       await writeConfig('deviceId', this.deviceId);
     }
   }
