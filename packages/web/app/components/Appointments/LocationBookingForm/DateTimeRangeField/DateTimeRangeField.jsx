@@ -30,29 +30,10 @@ export const DateTimeRangeField = ({
     { enabled: !!(startDate && endDate && locationId && patientId) },
   );
 
-  const getStartDateFieldHelperText = () => {
-    const showSameDayBookingWarning =
-      !editMode &&
-      isFetched &&
-      patientId &&
-      existingLocationBookings.data.some(booking => booking.patientId === patientId);
-
-    return showSameDayBookingWarning ? (
-      <TranslatedText
-        stringId="locationBooking.form.date.warning"
-        fallback="Patient already has an appointment scheduled at this location on this day"
-      />
-    ) : null;
-  };
-
   if (separate) {
     return (
       <>
-        <StartDateTimePicker
-          dateFieldHelperText={getStartDateFieldHelperText()}
-          disabled={disabled}
-          required={required}
-        />
+        <StartDateTimePicker disabled={disabled} required={required} />
         <EndDateTimePicker
           disabled={disabled || !startDate}
           minDate={addDays(new Date(startDate), 1)}
@@ -64,7 +45,6 @@ export const DateTimeRangeField = ({
 
   return (
     <DateTimeRangePicker
-      dateFieldHelperText={getStartDateFieldHelperText()}
       datePickerLabel={<TranslatedText stringId="general.date.label" fallback="Date" />}
       datePickerName="date"
       disabled={disabled}
