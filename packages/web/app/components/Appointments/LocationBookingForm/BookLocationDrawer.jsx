@@ -1,17 +1,13 @@
 import { Drawer } from '@material-ui/core';
 import Brightness2Icon from '@material-ui/icons/Brightness2';
 import { useQueryClient } from '@tanstack/react-query';
-import { endOfDay, startOfDay } from 'date-fns';
-import { useFormikContext } from 'formik';
 import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import * as yup from 'yup';
 
-import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
 
 import { usePatientSuggester, useSuggester } from '../../../api';
 import { useLocationBookingMutation } from '../../../api/mutations';
-import { useAppointmentsQuery } from '../../../api/queries';
 import { Colors } from '../../../constants';
 import { notifyError, notifySuccess } from '../../../utils';
 import { FormSubmitCancelRow } from '../../ButtonRow';
@@ -72,53 +68,6 @@ const scrollToCell = newCell =>
   document
     .getElementById(`${newCell.locationId}.${new Date(newCell.date).valueOf()}`)
     ?.scrollIntoView({ inline: 'start', behavior: 'smooth' });
-
-export const DateFieldWithWarning = ({ editMode, setSelectedCell }) => {
-  const { values } = useFormikContext();
-  const { data: existingLocationBookings, isFetched } = useAppointmentsQuery(
-    {
-      after: values.date ? toDateTimeString(startOfDay(new Date(values.date))) : null,
-      before: values.date ? toDateTimeString(endOfDay(new Date(values.date))) : null,
-      all: true,
-      locationId: values.locationId,
-      patientId: values.patientId,
-    },
-    {
-      enabled: !!(values.date && values.locationId && values.patientId),
-    },
-  );
-
-  const showSameDayBookingWarning =
-    !editMode &&
-    isFetched &&
-    values.patientId &&
-    existingLocationBookings.data.some(booking => booking.patientId === values.patientId);
-
-  return (
-    <Field
-      name="date"
-      label={<TranslatedText stringId="general.date.label" fallback="Date" />}
-      component={DateField}
-      required
-      helperText={
-        showSameDayBookingWarning && (
-          <TranslatedText
-            stringId="locationBooking.form.date.warning"
-            fallback="Patient already has an appointment scheduled at this location on this day"
-          />
-        )
-      }
-      onChange={e => {
-        setSelectedCell(prevCell => {
-          const newCell = { ...prevCell, date: e.target.value };
-          console.log(newCell);
-          scrollToCell(newCell);
-          return newCell;
-        });
-      }}
-    />
-  );
-};
 
 export const WarningModal = ({ open, setShowWarningModal, resolveFn }) => {
   const handleClose = confirmed => {
@@ -257,7 +206,7 @@ export const BookLocationDrawer = ({
               setFieldValue('endTime', null);
             }}
           />
-          <OvernightStayField>
+        <OvernightStayField>
             <Field
               name="overnight"
               label={
@@ -271,36 +220,38 @@ export const BookLocationDrawer = ({
             />
             <OvernightIcon fontSize="small" />
           </OvernightStayField>
-          <DateFieldWithWarning setSelectedCell={setSelectedCell} editMode={editMode} />
-          <BookingTimeField key={values.date} disabled={!values.date || !values.locationId} />
-          <Field
-            name="patientId"
-            label={<TranslatedText stringId="general.patient.label" fallback="Patient" />}
-            component={AutocompleteField}
-            placeholder={getTranslation(
-              'general.patient.search.placeholder',
-              'Search patient name or ID',
-            )}
-            suggester={patientSuggester}
-            required
-          />
-          <Field
-            name="bookingTypeId"
-            label={<TranslatedText stringId="location.bookingType.label" fallback="Booking type" />}
-            component={DynamicSelectField}
-            suggester={bookingTypeSuggester}
-            required
-          />
-          <Field
-            name="clinicianId"
-            label={<TranslatedText stringId="general.form.clinician.label" fallback="Clinician" />}
-            component={AutocompleteField}
-            suggester={clinicianSuggester}
-          />
-          <FormSubmitCancelRow onCancel={warnAndResetForm} />
-        </StyledFormGrid>
-      </div>
-    );
+        <Field
+          name="date"
+          label={<TranslatedText stringId="general.date.label" fallback="Date" />}
+          component={DateField}
+          required
+        />
+        <BookingTimeField key={values.date} disabled={!values.date} />
+        <Field
+          name="patientId"
+          label={<TranslatedText stringId="general.form.patient.label" fallback="Patient" />}
+          component={AutocompleteField}
+          suggester={patientSuggester}
+          required
+        />
+        <Field
+          name="bookingTypeId"
+          label={
+            <TranslatedText stringId="location.form.bookingType.label" fallback="Booking type" />
+          }
+          component={DynamicSelectField}
+          suggester={bookingTypeSuggester}
+          required
+        />
+        <Field
+          name="clinicianId"
+          label={<TranslatedText stringId="general.form.clinician.label" fallback="Clinician" />}
+          component={AutocompleteField}
+          suggester={clinicianSuggester}
+        />
+        <FormSubmitCancelRow onCancel={warnAndResetForm} confirmDisabled={!values.startTime} />
+      </StyledFormGrid>
+    </div>);
   };
 
   return (
