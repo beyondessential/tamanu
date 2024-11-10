@@ -2,7 +2,6 @@ import { addDays } from 'date-fns';
 import { useFormikContext } from 'formik';
 import React from 'react';
 
-import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { TranslatedText } from '../../../Translation';
 import { EndDateTimePicker, StartDateTimePicker } from './DateTimePicker';
 import { DateTimeRangePicker } from './DateTimeRangePicker';
