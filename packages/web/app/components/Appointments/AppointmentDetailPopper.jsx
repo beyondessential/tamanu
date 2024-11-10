@@ -141,6 +141,12 @@ const ControlsRow = ({ onClose, onEdit }) => {
   );
 };
 
+const InlineDetailsDisplay = ({ label, value }) => (
+  <span>
+    <Label>{label}: </Label> {value ?? '—'}
+  </span>
+);
+
 const DetailsDisplay = ({ label, value }) => (
   <FlexCol>
     <Label>{label}</Label>
@@ -190,14 +196,14 @@ const PatientDetailsDisplay = ({ patient, onClick }) => {
         <DateDisplay noTooltip date={dateOfBirth} />
       </span>
       {additionalData?.primaryContactNumber && (
-        <DetailsDisplay
+        <InlineDetailsDisplay
           label={
             <TranslatedText
               stringId="patient.details.reminderContacts.field.contact"
               fallback="Contact"
-              value={additionalData.primaryContactNumber}
             />
           }
+          value={additionalData.primaryContactNumber}
         />
       )}
       <Label color={Colors.primary}>{displayId}</Label>
