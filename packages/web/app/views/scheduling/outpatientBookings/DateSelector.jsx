@@ -163,7 +163,7 @@ export const DateSelector = ({ value, onChange }) => {
     }
 
     if (e.key === 'ArrowRight') {
-      if (isSameDay(value, viewedDays[viewedDays.length - 1])) return;
+      if (isSameDay(value, viewedDays.at(-1))) return;
       handleChange(addDays(value, 1));
       e.target.nextElementSibling.focus();
     }
