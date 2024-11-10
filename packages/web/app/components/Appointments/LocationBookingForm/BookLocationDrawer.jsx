@@ -41,13 +41,6 @@ const CloseDrawerIcon = styled(ClearIcon)`
   inset-inline-end: 1rem;
 `;
 
-const StyledDrawer = styled(Drawer)`
-  .MuiPaper-root {
-    block-size: calc(100% - ${TOP_BAR_HEIGHT}px);
-    inset-block-start: ${TOP_BAR_HEIGHT}px;
-  }
-`;
-
 export const WarningModal = ({ open, setShowWarningModal, resolveFn }) => {
   const handleClose = confirmed => {
     setShowWarningModal(false);
