@@ -1,4 +1,3 @@
-import { Drawer } from '@material-ui/core';
 import OvernightIcon from '@material-ui/icons/Brightness2';
 import { useQueryClient } from '@tanstack/react-query';
 import React, { useState } from 'react';
@@ -13,6 +12,7 @@ import { Colors } from '../../../constants';
 import { notifyError, notifySuccess } from '../../../utils';
 import { FormSubmitCancelRow } from '../../ButtonRow';
 import { ConfirmModal } from '../../ConfirmModal';
+import { Drawer } from '../../Drawer';
 import {
   AutocompleteField,
   CheckField,
@@ -246,7 +246,7 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
       <Form
         enableReinitialize
         initialValues={initialValues}
-        onSubmit={putOrPostBooking}
+        onSubmit={handleSubmit}
         render={renderForm}
         suppressErrorDialog
         validationSchema={validationSchema}
