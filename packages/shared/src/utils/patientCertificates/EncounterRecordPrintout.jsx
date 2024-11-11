@@ -1,15 +1,17 @@
 import React from 'react';
 import { Document, StyleSheet, View } from '@react-pdf/renderer';
-import { CertificateHeader, Watermark } from './Layout';
-import { LetterheadSection } from './LetterheadSection';
-import { PatientDetailsWithAddress } from './printComponents/PatientDetailsWithAddress';
 import { startCase } from 'lodash';
+
 import {
   ENCOUNTER_TYPE_LABELS,
   NOTE_TYPE_LABELS,
   DRUG_ROUTE_LABELS,
   NOTE_TYPES,
 } from '@tamanu/constants';
+
+import { CertificateHeader, Watermark } from './Layout';
+import { LetterheadSection } from './LetterheadSection';
+import { PatientDetailsWithAddress } from './printComponents/PatientDetailsWithAddress';
 import { getDisplayDate } from './getDisplayDate';
 import { EncounterDetailsExtended } from './printComponents/EncounterDetailsExtended';
 import { MultiPageHeader } from './printComponents/MultiPageHeader';
