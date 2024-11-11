@@ -38,6 +38,15 @@ export class FhirReference extends FhirBaseType {
       .noUnknown();
   }
 
+  static async to(resourceModel, upstreamId, fields) {
+    const resource = await resourceModel.findOne({ where: { upstreamId } });
+    if (!resource) {
+      return this.unresolved(resourceModel, upstreamId, fields);
+    }
+
+    return this.resolved(resourceModel, resource.id, fields);
+  }
+
   static resolved(resourceType, id, fields) {
     return new this({
       type: resourceType.fhirName,
@@ -46,10 +55,10 @@ export class FhirReference extends FhirBaseType {
     });
   }
 
-  static unresolved(resourceType, id, fields) {
+  static unresolved(resourceType, upstreamId, fields) {
     return new this({
       type: `upstream://${snakeCase(lowerCase(resourceType.fhirName))}`,
-      reference: id,
+      reference: upstreamId,
       ...fields,
     });
   }

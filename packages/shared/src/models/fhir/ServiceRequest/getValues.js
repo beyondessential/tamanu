@@ -27,7 +27,7 @@ export async function getValues(upstream, models) {
   const { ImagingRequest, LabRequest } = models;
 
   if (upstream instanceof ImagingRequest) return getValuesFromImagingRequest(upstream, models);
-  if (upstream instanceof LabRequest) return getValuesFromLabRequest(upstream);
+  if (upstream instanceof LabRequest) return getValuesFromLabRequest(upstream, models);
   throw new Error(`Invalid upstream type for service request ${upstream.constructor.name}`);
 }
 
@@ -88,18 +88,18 @@ async function getValuesFromImagingRequest(upstream, models) {
           ]
         : [],
     ),
-    subject: FhirReference.unresolved(FhirPatient, upstream.encounter.patient.id, {
+    subject: await FhirReference.to(models.FhirPatient, upstream.encounter.patient.id, {
       display: `${upstream.encounter.patient.firstName} ${upstream.encounter.patient.lastName}`,
     }),
-    encounter: FhirReference.unresolved(FhirEncounter, upstream.encounter.id),
+    encounter: await FhirReference.to(models.FhirEncounter, upstream.encounter.id),
     occurrenceDateTime: formatFhirDate(upstream.requestedDate),
-    requester: FhirReference.unresolved(FhirPractitioner, upstream.requestedBy.id),
+    requester: await FhirReference.to(models.FhirPractitioner, upstream.requestedBy.id),
     locationCode: locationCode(upstream),
     note: imagingAnnotations(upstream),
   };
 }
 
-async function getValuesFromLabRequest(upstream) {
+async function getValuesFromLabRequest(upstream, models) {
   return {
     lastUpdated: new Date(),
     identifier: [
@@ -127,22 +127,22 @@ async function getValuesFromLabRequest(upstream) {
     priority: validatePriority(upstream.priority?.name),
     code: labCode(upstream),
     orderDetail: await labOrderDetails(upstream),
-    subject: FhirReference.unresolved(FhirPatient, upstream.encounter.patient.id, {
+    subject: await FhirReference.to(models.FhirPatient, upstream.encounter.patient.id, {
       display: `${upstream.encounter.patient.firstName} ${upstream.encounter.patient.lastName}`,
     }),
-    encounter: FhirReference.unresolved(FhirEncounter, upstream.encounter.id),
+    encounter: await FhirReference.to(models.FhirEncounter, upstream.encounter.id),
     occurrenceDateTime: formatFhirDate(upstream.requestedDate),
-    requester: FhirReference.unresolved(FhirPractitioner, upstream.requestedBy.id),
+    requester: await FhirReference.to(models.FhirPractitioner, upstream.requestedBy.id),
     note: labAnnotations(upstream),
-    specimen: resolveSpecimen(upstream),
+    specimen: await resolveSpecimen(upstream, models),
   };
 }
 
-function resolveSpecimen(upstream) {
+async function resolveSpecimen(upstream, models) {
   if (!upstream.specimenAttached) {
     return null;
   }
-  return FhirReference.unresolved(FhirSpecimen, upstream.id);
+  return FhirReference.to(models.FhirSpecimen, upstream.id);
 }
 
 function imagingCode(upstream) {

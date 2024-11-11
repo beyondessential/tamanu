@@ -17,11 +17,11 @@ async function getValuesFromLabRequest(upstream, models) {
     lastUpdated: new Date(),
     collection: createCollection(
       formatFhirDate(upstream.sampleTime),
-      collectorRef(upstream),
+      await collectorRef(upstream, models),
       await resolveBodySite(upstream, models),
     ),
     type: await resolveSpecimenType(upstream, models),
-    request: [requestRef(upstream)],
+    request: [await requestRef(upstream, models)],
   };
 }
 
@@ -35,13 +35,13 @@ function createCollection(collectedDateTime, collector, bodySite) {
       };
 }
 
-function requestRef(labRequest) {
-  return FhirReference.unresolved(FhirServiceRequest, labRequest.id);
+async function requestRef(labRequest, models) {
+  return FhirReference.to(models.FhirServiceRequest, labRequest.id);
 }
 
-function collectorRef(labRequest) {
+async function collectorRef(labRequest, models) {
   if (!labRequest.collectedById) return null;
-  return FhirReference.unresolved(FhirPractitioner, labRequest.collectedById);
+  return FhirReference.to(models.FhirPractitioner, labRequest.collectedById);
 }
 
 async function resolveBodySite(upstream, models) {
