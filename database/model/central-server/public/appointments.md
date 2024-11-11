@@ -14,16 +14,6 @@ Start date and time of the appointment.
 End date and time of the appointment.
 {% enddocs %}
 
-{% docs appointments__type %}
-The type of appointment.
-
-One of:
-- `Standard`
-- `Emergency`
-- `Specialist`
-- `Other`
-{% enddocs %}
-
 {% docs appointments__start_time %}
 When the appointment starts.
 {% enddocs %}
@@ -54,6 +44,10 @@ One of:
 - `Cancelled`
 {% enddocs %}
 
+{% docs appointments__type_legacy %}
+TODO
+{% enddocs %}
+
 {% docs appointments__start_time_legacy %}
 [Deprecated] Start time.
 {% enddocs %}
@@ -64,4 +58,12 @@ One of:
 
 {% docs appointments__location_group_id %}
 The [location group](#!/source/source.tamanu.tamanu.location_groups) where the appointment will take place.
+{% enddocs %}
+
+{% docs appointments__booking_type_id %}
+TODO
+{% enddocs %}
+
+{% docs appointments__appointment_type_id %}
+TODO
 {% enddocs %}
