@@ -258,7 +258,7 @@ export const AppointmentStatusSelector = ({
 }) => {
   return (
     <AppointmentStatusContainer role="radiogroup">
-      {APPOINTMENT_STATUS_VALUES.filter(status => status != APPOINTMENT_STATUSES.CANCELLED).map(
+      {APPOINTMENT_STATUS_VALUES.filter(status => status !== APPOINTMENT_STATUSES.CANCELLED).map(
         status => {
           const isSelected = status === selectedStatus;
           return (
@@ -329,20 +329,34 @@ export const AppointmentDetailPopper = ({
     [debouncedUpdateAppointmentStatus],
   );
 
+  const modifiers = [
+    {
+      name: 'offset',
+      options: {
+        offset: [0, 2],
+      },
+    },
+    {
+      name: 'preventOverflow',
+      enabled: true,
+      options: {
+        altAxis: true,
+        altBoundary: true,
+        tether: false,
+        rootBoundary: 'document',
+        padding: { top: 64, left: 184 }, // px conversions of height / width from CarouselComponents
+      },
+    },
+  ];
+
+
   return (
     <Popper
       open={open}
       anchorEl={anchorEl}
       placement="bottom-start"
       onClick={e => e.stopPropagation()} // Prevent the popper from closing when clicked
-      modifiers={[
-        {
-          name: 'offset',
-          options: {
-            offset: [0, 2],
-          },
-        },
-      ]}
+      modifiers={modifiers}
     >
       <ClickAwayListener onClickAway={onClose}>
         <Box>
