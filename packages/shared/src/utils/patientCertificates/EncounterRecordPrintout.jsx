@@ -15,7 +15,7 @@ import { EncounterDetailsExtended } from './printComponents/EncounterDetailsExte
 import { MultiPageHeader } from './printComponents/MultiPageHeader';
 import { getName } from '../patientAccessors';
 import { Footer } from './printComponents/Footer';
-import { withLanguageContext } from '../pdf/languageContext';
+import { useLanguageContext, withLanguageContext } from '../pdf/languageContext';
 import { Page } from '../pdf/Page';
 import { Text } from '../pdf/Text';
 import { formatShort } from '../dateTime';
@@ -299,12 +299,13 @@ const EncounterRecordPrintoutComponent = ({
   notes,
   discharge,
   medications,
-  getTranslation,
+  getLocalisation,
   clinicianText,
   vitalsData,
   recordedDates,
   getVitalsColumn,
 }) => {
+  const { getTranslation } = useLanguageContext();
   const { watermark, logo } = certificateData;
 
   const COLUMNS = {
