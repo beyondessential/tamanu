@@ -22,9 +22,11 @@ const PATIENT_FIELDS = {
 export const PatientDetailsWithAddress = ({ patient, getLocalisation }) => {
   const { getTranslation } = useLanguageContext();
   return (
-    <DataSection title="Patient details">
+    <DataSection title={getTranslation('pdf.patientDetails.title', 'Patient details')}>
       <Col>{renderDataItems(PATIENT_FIELDS.leftCol, patient, getLocalisation, getTranslation)}</Col>
-      <Col>{renderDataItems(PATIENT_FIELDS.rightCol, patient, getLocalisation, getTranslation)}</Col>
+      <Col>
+        {renderDataItems(PATIENT_FIELDS.rightCol, patient, getLocalisation, getTranslation)}
+      </Col>
     </DataSection>
   );
 };
