@@ -74,6 +74,9 @@ export const formatLong = date =>
     'Date information not available',
   ); // "Thursday, 14 July 2022, 03:44 pm"
 
+/** "Thu" */
+export const formatWeekdayShort = date => intlFormatDate(date, { weekday: 'short' });
+
 // Diagnostic info for debugging
 const DiagnosticInfo = ({ date: rawDate }) => {
   const date = new Date(rawDate);
@@ -154,10 +157,20 @@ export const getDateDisplay = (
 };
 
 export const DateDisplay = React.memo(
-  ({ date: dateValue, timeOnlyTooltip = false, color = 'unset', fontWeight, ...props }) => {
+  ({
+    date: dateValue,
+    timeOnlyTooltip = false,
+    color = 'unset',
+    fontWeight,
+    noTooltip = false,
+    ...props
+  }) => {
     const displayDateString = getDateDisplay(dateValue, { ...props });
     const dateObj = parseDate(dateValue);
 
+    if (noTooltip) {
+      return <span style={{ color, fontWeight }}>{displayDateString}</span>;
+    }
     return (
       <DateTooltip date={dateObj} timeOnlyTooltip={timeOnlyTooltip}>
         <span style={{ color, fontWeight }}>{displayDateString}</span>
@@ -178,8 +191,10 @@ export const MultilineDatetimeDisplay = React.memo(
   },
 );
 
-export const TimeRangeDisplay = React.memo(
-  ({ range }) => `${format(range.start, 'hh:mm a')} - ${format(range.end, 'hh:mm a')}`,
+export const TimeRangeDisplay = ({ range: { start, end } }) => (
+  <>
+    {format(start, 'h:mma').toLowerCase()}&nbsp;&ndash; {format(end, 'h:mma').toLowerCase()}
+  </>
 );
 
 const VALID_FORMAT_FUNCTIONS = [

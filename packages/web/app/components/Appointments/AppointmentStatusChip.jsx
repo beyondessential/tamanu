@@ -5,18 +5,12 @@ import { Colors } from '../../constants';
 import { APPOINTMENT_STATUS_COLORS } from './appointmentStatusIndicators';
 
 const PillShapedButton = styled.button`
-  ${({ $color }) =>
-    css`
-      color: ${$color};
-      background-color: oklch(from ${$color} l c h / 10%);
-
-      @supports not (color: oklch(from black l c h)) {
-        background-color: ${$color}1a; // Works only with six-digit hex colour
-      }
-    `}
-
+  background-color: ${Colors.white};
+  border-color: ${Colors.softText};
   border-radius: calc(infinity * 1px);
-  border: 0;
+  border-style: solid;
+  border-width: max(0.0625rem, 1px);
+  color: ${Colors.softText};
   cursor: pointer;
   font-size: 0.6875rem;
   inline-size: fit-content;
@@ -26,40 +20,48 @@ const PillShapedButton = styled.button`
   padding-inline: 0.6875rem;
   text-align: center;
   touch-action: manipulation;
-  transition: background-color 150ms ease;
-
-  &:hover:not(:disabled) {
-    background-color: ${Colors.veryLightBlue};
-  }
-
-  ${({ $deselected }) =>
-    $deselected &&
-    css`
-      border: 1px solid ${Colors.softText};
-      color: ${Colors.softText};
-      background-color: ${Colors.white};
-    `}
+  transition: background-color 150ms ease, border-color 150ms ease;
 
   &:disabled {
-    border: 1px solid ${Colors.softText};
-    color: ${Colors.softText};
     background-color: ${Colors.softOutline};
+    border-color: ${Colors.softText};
+    color: ${Colors.softText};
     cursor: not-allowed;
   }
+
+  ${({ $color, $selected }) =>
+    $selected
+      ? css`
+          &,
+          &:disabled {
+            border-color: transparent;
+            color: ${$color};
+            background-color: oklch(from ${$color} l c h / 10%);
+
+            @supports not (color: oklch(from black l c h)) {
+              background-color: ${$color}1a; // Works only with six-digit hex colour
+            }
+          }
+        `
+      : css`
+          &:hover:not(:disabled) {
+            background-color: ${Colors.veryLightBlue};
+          }
+        `}
 `;
 
-const Chip = ({ color = Colors.blue, children, deselected, ...props }) => (
-  <PillShapedButton $color={color} $deselected={deselected} {...props}>
+const Chip = ({ color = Colors.blue, children, selected, ...props }) => (
+  <PillShapedButton $color={color} $selected={selected} {...props}>
     {children}
   </PillShapedButton>
 );
 
-export const AppointmentStatusChip = ({ appointmentStatus, disabled, deselected, ...props }) => {
+export const AppointmentStatusChip = ({ appointmentStatus, disabled, selected, ...props }) => {
   return (
     <Chip
       disabled={disabled}
       color={APPOINTMENT_STATUS_COLORS[appointmentStatus]}
-      deselected={deselected}
+      selected={selected}
       {...props}
     >
       {appointmentStatus ?? <>&mdash;</>}

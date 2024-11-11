@@ -70,9 +70,11 @@
     // can be turned on by lowering to some amount that seems appropriate if snapshot performance is an issue
     "maxRecordsPerSnapshotChunk": 1000000000,
     "syncSessionTimeoutMs": null,
+    snapshotTransactionTimeoutMs: null,
     "lookupTable": {
       "enabled": false,
-      "perModelUpdateTimeoutMs": null
+      "perModelUpdateTimeoutMs": null,
+      "avoidRepull": true
     }
   },
   "loadshedder": {
@@ -242,8 +244,8 @@
       "schedule": "* * * * *"
     },
     "syncLookupRefresher": {
-      "enabled": false,
-      "schedule": "*/1 * * * *"
+      "enabled": true,
+      "schedule": "*/20 * * * * *"
     }
   },
   "integrations": {
@@ -326,6 +328,11 @@
           "default": 20,
           "max": 20
         }
+      },
+      "extensions": {
+        "Patient": {
+          "newZealandEthnicity": false
+        }
       }
     },
     "omniLab": {
@@ -357,314 +364,10 @@
         "alpha-2": "",
         "alpha-3": ""
       },
-      "features": {
-        "enableVaccineConsent": true,
-        "filterDischargeDispositions": false,
-        "editPatientDetailsOnMobile": true,
-        "quickPatientGenerator": false,
-        "enableInvoicing": false,
-        "registerNewPatient": true,
-        "hideOtherSex": true,
-        "enablePatientDeaths": false,
-        "mergePopulatedPADRecords": true,
-        "enableNoteBackdating": true,
-        "enableCovidClearanceCertificate": false,
-        "editPatientDisplayId": false,
-        "enablePatientInsurer": false,
-        "patientPlannedMove": false,
-        "idleTimeout": {
-          "enabled": true,
-          // All values in seconds
-          "timeoutDuration": 600,
-          "warningPromptDuration": 30,
-          "refreshInterval": 150
-        },
-        "fhirNewZealandEthnicity": false,
-        "onlyAllowLabPanels": false,
-        "displayProcedureCodesInDischargeSummary": true,
-        "displayIcd10CodesInDischargeSummary": true,
-        "tableAutoRefresh": {
-          "enabled": false,
-          // In Seconds
-          "interval": 300
-        },
-        "mandatoryVitalEditReason": false,
-        "enableVitalEdit": false
-      },
-      "templates": {
-        "letterhead": {
-          "title": "TAMANU MINISTRY OF HEALTH & MEDICAL SERVICES",
-          "subTitle": "PO Box 12345, Melbourne, Australia"
-        },
-        "signerRenewalEmail": {
-          "subject": "Tamanu ICAO Certificate Signing Request",
-          "body": "Please sign the following certificate signing request (CSR) with the Country Signing Certificate Authority (CSCA), and return it to the Tamanu team or Tamanu deployment administration team."
-        },
-        "vaccineCertificateEmail": {
-          "subject": "Medical Certificate now available",
-          "body": "A medical certificate has been generated for you.\nYour certificate is available attached to this email."
-        },
-        "covidVaccineCertificateEmail": {
-          "subject": "Medical Certificate now available",
-          "body": "A medical certificate has been generated for you.\nYour certificate is available attached to this email."
-        },
-        "covidTestCertificateEmail": {
-          "subject": "Medical Certificate now available",
-          "body": "A medical certificate has been generated for you.\nYour certificate is attached to this email."
-        },
-        "covidClearanceCertificateEmail": {
-          "subject": "COVID-19 Clearance Certificate now available",
-          "body": "A COVID-19 clearance certificate has been generated for you.\nYour certificate is attached to this email."
-        },
-        "vaccineCertificate": {
-          "emailAddress": "tamanu@health.gov",
-          "contactNumber": "12345",
-          "healthFacility": "State level"
-        },
-        "covidTestCertificate": {
-          "laboratoryName": "Approved test provider",
-          "clearanceCertRemark": "This notice certifies that $firstName$ $lastName$ is no longer considered infectious following 13 days of self-isolation from the date of their first positive SARS-CoV-2 test and are medically cleared from COVID-19. This certificate is valid for 3 months from the date of issue."
-        },
-        "plannedMoveTimeoutHours": 24
-      },
       "imagingTypes": {
         // keys are taken from IMAGING_TYPES in shared/constants/imaging
         // e.g.
         // "xRay": { "label": "X-Ray" }
-      },
-      "imagingCancellationReasons": [
-        {
-          "value": "clinical",
-          "label": "Clinical reason",
-          "hidden": false
-        },
-        {
-          "value": "duplicate",
-          "label": "Duplicate",
-          "hidden": false
-        },
-        {
-          "value": "entered-in-error",
-          "label": "Entered in error",
-          "hidden": false
-        },
-        {
-          "value": "patient-discharged",
-          "label": "Patient discharged",
-          "hidden": false
-        },
-        {
-          "value": "patient-refused",
-          "label": "Patient refused",
-          "hidden": false
-        },
-        {
-          "value": "cancelled-externally",
-          "label": "Cancelled externally via API",
-          "hidden": true
-        },
-        {
-          "value": "other",
-          "label": "Other",
-          "hidden": false
-        }
-      ],
-      "labsCancellationReasons": [
-        {
-          "value": "clinical",
-          "label": "Clinical reason"
-        },
-        {
-          "value": "duplicate",
-          "label": "Duplicate"
-        },
-        {
-          "value": "entered-in-error",
-          "label": "Entered in error"
-        },
-        {
-          "value": "patient-discharged",
-          "label": "Patient discharged"
-        },
-        {
-          "value": "patient-refused",
-          "label": "Patient refused"
-        },
-        {
-          "value": "other",
-          "label": "Other"
-        }
-      ],
-      "layouts": {
-        "patientDetails": "generic",
-        "mobilePatientModules": {
-          "programRegistries": {
-            "hidden": false
-          },
-          "diagnosisAndTreatment": {
-            "sortPriority": 0,
-            "hidden": false
-          },
-          "vitals": {
-            "sortPriority": 0,
-            "hidden": false
-          },
-          "programs": {
-            "sortPriority": 0,
-            "hidden": false
-          },
-          "referral": {
-            "sortPriority": 0,
-            "hidden": false
-          },
-          "vaccine": {
-            "sortPriority": 0,
-            "hidden": false
-          },
-          "tests": {
-            "sortPriority": 0,
-            "hidden": false
-          }
-        },
-        "patientTabs": {
-          "history": {
-            "sortPriority": -100,
-            "hidden": false
-          },
-          "details": {
-            "sortPriority": -50,
-            "hidden": false
-          },
-          "results": {
-            "sortPriority": 0,
-            "hidden": false
-          },
-          "referrals": {
-            "sortPriority": 0,
-            "hidden": false
-          },
-          "programs": {
-            "sortPriority": 0,
-            "hidden": false
-          },
-          "documents": {
-            "sortPriority": 0,
-            "hidden": false
-          },
-          "vaccines": {
-            "sortPriority": 0,
-            "hidden": false
-          },
-          "medication": {
-            "sortPriority": 0,
-            "hidden": false
-          },
-          "invoices": {
-            "sortPriority": 0,
-            "hidden": false
-          }
-        },
-        "sidebar": {
-          "patients": {
-            "patientsInpatients": {
-              hidden: false,
-              sortPriority: 0,
-            },
-            patientsEmergency: {
-              hidden: false,
-              sortPriority: 0,
-            },
-            patientsOutpatients: {
-              hidden: false,
-              sortPriority: 0,
-            },
-          },
-          scheduling: {
-            hidden: false,
-            sortPriority: 0,
-            schedulingCalendar: {
-              hidden: false,
-              sortPriority: 0,
-            }
-          },
-          medication: {
-            hidden: false,
-            sortPriority: 0,
-            medicationAll: {
-              hidden: false,
-              sortPriority: 0,
-            },
-          },
-          imaging: {
-            hidden: false,
-            sortPriority: 0,
-            imagingActive: {
-              hidden: false,
-              sortPriority: 0,
-            },
-            imagingCompleted: {
-              hidden: false,
-              sortPriority: 0,
-            },
-          },
-          labs: {
-            hidden: false,
-            sortPriority: 0,
-            labsAll: {
-              hidden: false,
-              sortPriority: 0,
-            },
-            labsPublished: {
-              hidden: false,
-              sortPriority: 0,
-            },
-          },
-          immunisations: {
-            hidden: false,
-            sortPriority: 0,
-            immunisationsAll: {
-              hidden: false,
-              sortPriority: 0,
-            },
-          },
-          programRegistry: {
-            hidden: false,
-            sortPriority: 0,
-          },
-          facilityAdmin: {
-            hidden: false,
-            sortPriority: 0,
-            reports: {
-              hidden: false,
-              sortPriority: 0,
-            },
-            bedManagement: {
-              hidden: false,
-              sortPriority: 0,
-            }
-          }
-        },
-      },
-      "printMeasures": {
-        "labRequestPrintLabel": {
-          "width": 50.8
-        },
-        "stickerLabelPage": {
-          "pageWidth": "210mm",
-          "pageHeight": "297mm",
-          "pageMarginTop": "15.09mm",
-          "pageMarginLeft": "6.4mm",
-          "columnTotal": 3,
-          "columnWidth": "64mm",
-          "columnGap": "3.01mm",
-          "rowTotal": 10,
-          "rowHeight": "26.7mm",
-          "rowGap": "0"
-        },
-        "idCardPage": {
-          "cardMarginTop": "1mm",
-          "cardMarginLeft": "5mm"
-        }
       },
       // The time zone setting is currently only used for Vaccine Certificates
       // Todo: remove this timeZone once all date fields have been migrated to date_time_strings
@@ -676,68 +379,8 @@
       // `tamanu` implies that the signing integrations are not enabled.
       "previewUvciFormat": "tamanu",
       "disabledReports": [],
-      "vitalEditReasons": [
-        {
-          "value": "incorrect-patient",
-          "label": "Incorrect patient"
-        },
-        {
-          "value": "incorrect-value",
-          "label": "Incorrect value recorded"
-        },
-        {
-          "value": "recorded-in-error",
-          "label": "Recorded in error"
-        },
-        {
-          "value": "other",
-          "label": "Other"
-        }
-      ],
-      "ageDisplayFormat": [
-        {
-          "as": "days",
-          "range": {
-            "min": { "duration": { "days": 0 },  "exclusive": false  },
-            "max": { "duration": { "days": 8 }, "exclusive": true }
-          }
-        },
-        {
-          "as": "weeks",
-          "range": {
-            "min": { "duration": { "days": 8 } },
-            "max": { "duration": { "months": 1 }, "exclusive": true }
-          }
-        },
-        {
-          "as": "months",
-          "range": {
-            "min": { "duration": { "months": 1 } },
-            "max": { "duration": { "years": 2 }, "exclusive": true }
-          }
-        },
-        {
-          "as": "years",
-          "range": {
-            "min": { "duration": { "years": 2 } }
-          }
-        }
-      ],
       "supportDeskUrl": "https://bes-support.zendesk.com/hc/en-us"
     }
-  },
-  "reportProcess": {
-    // Report process timeout in 2 hours.
-    "timeOutDurationSeconds": 7200,
-    "runInChildProcess": true,
-    // provide an array [] if you want to override the options, eg: ['--max-old-space-size=4096']
-    "processOptions": null,
-    // Provide an object {} for the env of child process
-    "childProcessEnv": null,
-    "sleepAfterReport": {
-      "duration": "5m",
-      "ifRunAtLeast": "5m",
-    },
   },
   "hl7": {
     "nullLastNameValue": "NoLastName",
@@ -754,6 +397,7 @@
       "encounterClass": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
       "serviceRequestImagingDisplayId": "http://data-dictionary.tamanu-fiji.org/tamanu-mrid-imagingrequest.html",
       "serviceRequestImagingId": "http://data-dictionary.tamanu-fiji.org/tamanu-id-imagingrequest.html",
+      "serviceRequestImagingTypeCodeSystem": "http://tamanu.io/data-dictionary/imaging-type-code.html",
       "serviceRequestLabDisplayId": "http://data-dictionary.tamanu-fiji.org/tamanu-mrid-labrequest.html",
       "serviceRequestLabId": "http://data-dictionary.tamanu-fiji.org/tamanu-id-labrequest.html",
       "serviceRequestLabPanelCodeSystem": "https://www.senaite.com/profileCodes.html",
@@ -793,11 +437,6 @@
     "encounter-summary-line-list": {
       "includedPatientFieldIds": []
     }
-  },
-  "questionCodeIds": {
-    "passport": null,
-    "nationalityId": null,
-    "email": null
   },
   "notifications": {
     "certificates": {

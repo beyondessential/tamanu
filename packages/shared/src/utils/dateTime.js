@@ -1,14 +1,16 @@
 import {
   differenceInMilliseconds as dateFnsDifferenceInMilliseconds,
-  format as dateFnsFormat,
   differenceInMonths,
   differenceInWeeks,
   differenceInYears,
+  format as dateFnsFormat,
   formatISO9075,
   isMatch,
+  isSameDay,
   isValid,
   parseISO,
   startOfDay,
+  startOfWeek,
   sub,
 } from 'date-fns';
 import { TIME_UNIT_OPTIONS } from '@tamanu/constants';
@@ -248,3 +250,8 @@ export const formatLong = date =>
     },
     'Date information not available',
   ); // "Thursday, 14 July 2022, 03:44 pm"
+
+export const isStartOfThisWeek = date => {
+  const startOfThisWeek = startOfWeek(new Date(), { weekStartsOn: 1 });
+  return isSameDay(date, startOfThisWeek);
+};

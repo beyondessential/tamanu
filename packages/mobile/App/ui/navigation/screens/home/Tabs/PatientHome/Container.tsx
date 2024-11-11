@@ -18,11 +18,16 @@ import { ErrorScreen } from '~/ui/components/ErrorScreen';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 import { useAuth } from '~/ui/contexts/AuthContext';
 import { PatientFromRoute } from '~/ui/helpers/constants';
-import { useLocalisation } from '~/ui/contexts/LocalisationContext';
+import { useSettings } from '~/ui/contexts/SettingsContext';
 
 interface IPopup {
   title: string;
   textBody: string;
+}
+
+// TODO: declare this
+type PatientModule = {
+
 }
 
 const showPopupChain = (popups: IPopup[]): void => {
@@ -65,8 +70,8 @@ const showPatientWarningPopups = (issues: IPatientIssue[]): void =>
   );
 
 const usePatientModules = navigation => {
-  const { getLocalisation } = useLocalisation();
-  const config = getLocalisation('layouts.mobilePatientModules');
+  const { getSetting } = useSettings();
+  const config = getSetting<PatientModule>('layouts.mobilePatientModules');
 
   return useMemo(() => {
     return [
@@ -117,11 +122,11 @@ const usePatientModules = navigation => {
 
 const usePatientMenuButtons = navigation => {
   const { ability } = useAuth();
-  const { getLocalisation } = useLocalisation();
+  const { getSetting } = useSettings()
   const canListRegistrations = ability.can('list', 'PatientProgramRegistration');
   const canCreateRegistration = ability.can('create', 'PatientProgramRegistration');
   const canViewProgramRegistries = canListRegistrations || canCreateRegistration;
-  const config = getLocalisation('layouts.mobilePatientModules');
+  const config = getSetting('layouts.mobilePatientModules');
 
   return useMemo(
     () =>

@@ -9,7 +9,7 @@ import { StyledTextField } from './TextField';
 import { Colors } from '../../constants';
 import { Icon, StyledExpandMore } from './FieldCommonComponents';
 import { TranslatedEnumField } from '../Translation/TranslatedEnumIInput';
-import { SelectDropdownIndicator, SelectMultiValueRemove, Select } from '../Select';
+import { Select, SelectDropdownIndicator, SelectMultiValueRemove } from '../Select';
 
 const StyledFormControl = styled(FormControl)`
   display: flex;
@@ -93,9 +93,10 @@ const getValues = value => {
   return Array.isArray(value) ? value : JSON.parse(value);
 };
 
-// Match only by label unless that label is not readable
-const searchByLabel = option => {
+const getSearchBy = option => {
+  if (option.data.searchString) return option.data.searchString;
   if (typeof option.label === 'string') return option.label;
+
   return option.value;
 };
 
@@ -147,11 +148,9 @@ export const MultiselectInput = ({
           readOnly={isReadonly}
           InputProps={{
             endAdornment: (
-              <>
-                <Icon position="end">
-                  <StyledExpandMore />
-                </Icon>
-              </>
+              <Icon position="end">
+                <StyledExpandMore />
+              </Icon>
             ),
           }}
           {...props}
@@ -179,7 +178,7 @@ export const MultiselectInput = ({
           hideSelectedOptions={false}
           filterOption={createFilter({
             matchFrom: 'any',
-            stringify: searchByLabel,
+            stringify: getSearchBy,
           })}
           components={{
             DropdownIndicator: SelectDropdownIndicator,

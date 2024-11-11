@@ -130,9 +130,6 @@ export class AutocompleteInput extends Component {
   updateValue = async (allowFreeTextForExistingValue = false) => {
     const { value, suggester } = this.props;
 
-    if (!suggester) {
-      return;
-    }
     if (value === '') {
       this.setState({ selectedOption: { value: '', tag: null } });
       this.attemptAutoFill();
@@ -437,7 +434,6 @@ AutocompleteInput.propTypes = {
   className: PropTypes.string,
   onChange: PropTypes.func.isRequired,
   value: PropTypes.string,
-
   suggester: PropTypes.shape({
     fetchCurrentOption: PropTypes.func.isRequired,
     fetchSuggestions: PropTypes.func.isRequired,

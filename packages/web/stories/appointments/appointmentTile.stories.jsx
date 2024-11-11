@@ -39,8 +39,9 @@ const partialAppointment = {
   endTime: '2024-09-05 14:57:00',
   patient: createDummyPatient(null, { id: patientId }),
   clinician: fakePractitioner(),
-  location: { name: 'Bed 1' },
-  locationGroup: { name: 'Ward 1' },
+  location: { name: 'Bed 1', id: 'bed1' },
+  locationGroup: { name: 'Ward 1', id: 'ward1' },
+  appointmentType: { name: 'Standard', id: 'standard' },
 };
 
 const partialConfirmedAppt = {
@@ -64,7 +65,7 @@ const partialNoShowAppt = {
   status: APPOINTMENT_STATUSES.NO_SHOW,
 };
 
-export const Template = args => {
+const Template = args => {
   const [selected, setSelected] = useState(args.selected);
   const onClose = () => setSelected(false);
   return (

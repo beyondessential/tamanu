@@ -2,12 +2,12 @@ import React, { useState } from 'react';
 import { customAlphabet } from 'nanoid';
 
 import { useApi } from '../api';
-import { Suggester } from '../utils/suggester';
 
 import { FormModal } from './FormModal';
 import { ImagingRequestForm } from '../forms/ImagingRequestForm';
 import { ALPHABET_FOR_ID } from '../constants';
 import { TranslatedText } from './Translation/TranslatedText';
+import { Suggester } from '../utils/suggester';
 
 // Todo: move the generating of display id to the model default to match LabRequests
 // generates 8 character id (while excluding 0, O, I, 1 and L)

@@ -14,18 +14,51 @@ function getConfigObject(componentId, config) {
   }
 }
 
+const isBuiltInFunction = name => {
+  try {
+    // see https://mathjs.org/docs/reference/functions/help.html
+    math.help(name);
+    return true;
+  } catch (e) {
+    return false;
+  }
+};
+
+const extractVariables = calculation => {
+  const parsed = math.parse(calculation);
+  return parsed
+    .filter(node => node.isSymbolNode && !isBuiltInFunction(node))
+    .map(({ name }) => name);
+};
+
 export function runCalculations(components, values) {
   const inputValues = {};
   // calculation expression use "code"
   for (const c of components) {
-    inputValues[c.dataElement.code] = values[c.dataElement.id] || '';
+    inputValues[c.dataElement.code] = values[c.dataElement.id] ?? '';
   }
-
   const calculatedValues = {};
+
   for (const c of components) {
     if (c.calculation) {
       try {
+        const variables = extractVariables(c.calculation);
+
+        const variableInputs = {};
+        for (const variable of variables) {
+          variableInputs[variable] = inputValues[variable] ?? '';
+        }
+
+        const isInputsEmpty = Object.values(variableInputs).every(value => value === '');
+
+        if (variables.length && isInputsEmpty) {
+          // Skip calculation if every input is empty
+          calculatedValues[c.dataElement.id] = null;
+          continue;
+        }
+        
         let value = math.evaluate(c.calculation, inputValues);
+
         if (Number.isNaN(value)) {
           throw new Error('Value is NaN');
         }
