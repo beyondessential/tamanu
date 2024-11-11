@@ -281,7 +281,7 @@ const AppointmentDetailsDisplay = ({ appointment, isOvernight }) => {
           value={
             <TranslatedReferenceData
               value={appointmentType.id}
-              appointmentType={appointmentType.name}
+              fallback={appointmentType.name}
               category="appointmentType"
             />
           }
