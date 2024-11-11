@@ -229,8 +229,8 @@ const NoteContent = ({
         {noteOnBehalfOfName && (
           <NoteFooterTextElement>
             <TranslatedText
-              stringId="note.table.footer.onBehalfOf"
-              fallback="on behalf of :noteOnBehalfOfName"
+              stringId="note.table.onBehalfOfText"
+              fallback="on behalf of :changeOnBehalfOfName"
               replacements={{ noteOnBehalfOfName }}
             />
           </NoteFooterTextElement>
