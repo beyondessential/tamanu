@@ -9,7 +9,7 @@ import { TranslatedText } from '../../../Translation';
 import { DateTimePicker } from './DateTimePicker';
 import { DateTimeRangePicker } from './DateTimeRangePicker';
 
-export const DateTimeRangeField = ({ editMode, separate = false, ...props }) => {
+export const DateTimeRangeField = ({ isEdit, separate = false, ...props }) => {
   const {
     values: { startDate, endDate, locationId, patientId },
   } = useFormikContext();
@@ -26,7 +26,7 @@ export const DateTimeRangeField = ({ editMode, separate = false, ...props }) => 
 
   const getStartDateFieldHelperText = () => {
     const showSameDayBookingWarning =
-      !editMode &&
+      !isEdit &&
       isFetched &&
       patientId &&
       existingLocationBookings.data.some(booking => booking.patientId === patientId);
