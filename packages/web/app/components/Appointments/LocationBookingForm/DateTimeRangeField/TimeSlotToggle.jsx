@@ -71,7 +71,16 @@ const Toggle = styled(ToggleButton)`
             background-color: ${Colors.alert}1a;
           }
         }
-      `}`;
+      `}
+
+    .MuiTouchRipple-child {
+      background-color: oklch(from ${Colors.primary} l c h / 50%);
+      @supports not (color: oklch(from black l c h)) {
+        background-color: ${Colors.primary}80;
+      }
+    }
+  }
+`;
 
 const AvailableCell = styled(Toggle)`
   ${({ $hover }) =>
