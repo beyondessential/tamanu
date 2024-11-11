@@ -173,6 +173,5 @@ const StyledSkeleton = styled(Skeleton).attrs({ variant: 'rounded' })`
 `;
 
 export const SkeletonTimeSlotToggles = ({ count = 16 }) => {
-  // eslint-disable-next-line react/jsx-key
-  return Array.from({ length: count }).map(() => <StyledSkeleton />);
+  return Array.from({ length: count }).map((_, i) => <StyledSkeleton key={i} />);
 };
