@@ -34,7 +34,7 @@ const formatDateRange = (start, end, isOvernight) => {
   const formattedEnd = getDateDisplay(end, { showDate: isOvernight, showTime: true });
   return (
     <>
-      {date}&nbsp;&ndash; {formattedEnd}
+      {formattedStart}&nbsp;&ndash; {formattedEnd}
     </>
   );
 };
