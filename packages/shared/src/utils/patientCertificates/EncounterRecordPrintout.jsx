@@ -407,7 +407,7 @@ const EncounterRecordPrintoutComponent = ({
       },
       {
         key: 'requestedByName',
-        title: getTranslation('lab.requestedBy.label', 'Requested by'),
+        title: getTranslation('general.requestedBy.label', 'Requested by'),
         style: { width: '20%' },
       },
       {
