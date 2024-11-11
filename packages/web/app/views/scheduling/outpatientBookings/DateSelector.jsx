@@ -16,12 +16,13 @@ import {
   isToday,
   isWeekend,
   startOfMonth,
+  startOfToday,
   subDays,
   subMonths,
 } from 'date-fns';
 
-import { BodyText, MonthYearInput, TextButton } from '../../components';
-import { Colors } from '../../constants';
+import { BodyText, MonthYearInput, TextButton } from '../../../components';
+import { Colors } from '../../../constants';
 
 const Wrapper = styled(Box)`
   display: flex;
@@ -53,6 +54,9 @@ const DayWrapper = styled('button')`
   border-radius: 3px;
   flex-grow: 1;
   user-select: none;
+  &:hover {
+    background-color: ${({ $selected }) => ($selected ? Colors.primary : Colors.veryLightBlue)};
+  }
 `;
 
 const DateText = styled(BodyText)`
@@ -142,9 +146,9 @@ export const DateSelector = ({ value, onChange }) => {
     setViewedDays(getMonthInterval(day));
   };
 
-  const handleChangeToday = () => handleChange(new Date());
-  const handleMonthYearChange = e => {
-    const newDate = e.target.value;
+  const handleChangeToday = () => handleChange(startOfToday());
+
+  const handleMonthYearChange = newDate => {
     if (isThisMonth(newDate)) {
       handleChangeToday();
       return;
@@ -160,7 +164,7 @@ export const DateSelector = ({ value, onChange }) => {
     }
 
     if (e.key === 'ArrowRight') {
-      if (isSameDay(value, viewedDays[viewedDays.length - 1])) return;
+      if (isSameDay(value, viewedDays.at(-1))) return;
       handleChange(addDays(value, 1));
       e.target.nextElementSibling.focus();
     }

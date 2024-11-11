@@ -10,7 +10,7 @@ const Wrapper = styled(Box)`
   cursor: pointer;
   display: flex;
   align-items: center;
-  height: 2.2rem;
+  height: 2.4rem;
   position: relative;
   justify-content: space-between;
   padding: 0.125rem;
@@ -30,6 +30,8 @@ const ToggleButton = styled('button')`
   background: none;
   width: 6.65rem;
   text-align: center;
+  font-weight: 500;
+  font-family: inherit;
   transition: color 0.3s cubic-bezier(0.4, 0, 0.28, 1.13);
   &[aria-checked='true'] {
     color: ${Colors.white};
@@ -41,7 +43,7 @@ const AnimatedBackground = styled('div')`
   position: absolute;
   width: 6.6rem;
   left: 0.2rem;
-  height: 1.8rem;
+  height: 2rem;
   border-radius: 50px;
   background-color: ${Colors.primary};
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.28, 1.13);
