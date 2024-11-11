@@ -10,7 +10,7 @@ export const DateTimeRangePicker = ({
   dateFieldHelperText,
   datePickerLabel = <TranslatedText stringId="general.date.label" fallback="Date" />,
   datePickerName,
-  disabled,
+  disabled = false,
   required,
   timePickerLabel = <TranslatedText stringId="general.time.label" fallback="Time" />,
   ...props
