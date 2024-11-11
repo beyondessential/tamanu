@@ -9,6 +9,7 @@ import { LocationBookingsCalendar } from './LocationBookingsCalendar';
 import { BookLocationDrawer } from '../../../components/Appointments/LocationBookingForm/BookLocationDrawer';
 import { AddRounded } from '@material-ui/icons';
 import { useAuth } from '../../../contexts/Auth';
+import { CancelBookingModal } from '../../../components/Appointments/CancelBookingModal';
 
 const PlusIcon = styled(AddRounded)`
   && {
@@ -73,14 +74,20 @@ const EmptyStateLabel = styled(Typography).attrs({
 
 export const LocationBookingsView = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [initialDrawerValues, setInitialDrawerValues] = useState({});
+  const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
+  const [selectedAppointment, setSelectedAppointment] = useState({});
   const { facilityId } = useAuth();
   const closeBookingForm = () => {
     setIsDrawerOpen(false);
   };
   const openBookingForm = initialValues => {
-    setInitialDrawerValues(initialValues);
+    setSelectedAppointment(initialValues);
     setIsDrawerOpen(true);
+  };
+
+  const openCancelModal = appointment => {
+    setSelectedAppointment(appointment);
+    setIsCancelModalOpen(true);
   };
 
   const locationsQuery = useLocationsQuery({
@@ -118,12 +125,18 @@ export const LocationBookingsView = () => {
         <LocationBookingsCalendar
           locationsQuery={locationsQuery}
           openBookingForm={openBookingForm}
+          openCancelModal={openCancelModal}
         />
       )}
       <BookLocationDrawer
-        initialValues={initialDrawerValues}
+        initialValues={selectedAppointment}
         open={isDrawerOpen}
         onClose={closeBookingForm}
+      />
+      <CancelBookingModal
+        appointment={selectedAppointment}
+        open={isCancelModalOpen}
+        onClose={() => setIsCancelModalOpen(false)}
       />
     </Wrapper>
   );
