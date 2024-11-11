@@ -413,13 +413,13 @@ const EncounterRecordPrintoutComponent = ({
     imagingRequests: [
       {
         key: 'imagingType',
-        title: 'Request type',
+        title: getTranslation('general.requestType.label', 'Request type'),
         accessor: ({ imagingName }) => imagingName?.label,
         style: { width: '17%' },
       },
       {
         key: 'areaToBeImaged',
-        title: 'Area to be imaged',
+        title: getTranslation('imaging.areas.label', 'Areas to be imaged'),
         accessor: imagingRequest =>
           imagingRequest?.areas?.length
             ? imagingRequest?.areas.map(area => area.name).join(', ')
@@ -428,13 +428,13 @@ const EncounterRecordPrintoutComponent = ({
       },
       {
         key: 'requestedBy',
-        title: 'Requested by',
+        title: getTranslation('general.requestedBy.label', 'Requested by'),
         accessor: ({ requestedBy }) => requestedBy?.displayName,
         style: { width: '18%' },
       },
       {
         key: 'requestDate',
-        title: 'Request date',
+        title: getTranslation('general.requestDate.label', 'Request date'),
         accessor: ({ requestedDate }) =>
           requestedDate ? formatShort(requestedDate) : '--/--/----',
         style: { width: '20%' },

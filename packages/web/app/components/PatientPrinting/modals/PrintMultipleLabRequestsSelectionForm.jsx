@@ -40,7 +40,7 @@ const COLUMNS = [
   },
   {
     key: COLUMN_KEYS.REQUESTED_BY,
-    title: <TranslatedText stringId="lab.requestedBy.label" fallback="Requested by" />,
+    title: <TranslatedText stringId="general.requestedBy.label" fallback="Requested by" />,
     sortable: false,
     accessor: ({ requestedBy }) => requestedBy?.displayName || '',
   },

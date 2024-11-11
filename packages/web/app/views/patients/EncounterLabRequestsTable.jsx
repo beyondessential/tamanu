@@ -36,7 +36,7 @@ const columns = [
   },
   {
     key: 'displayName',
-    title: <TranslatedText stringId="lab.requestedBy.label" fallback="Requested by" />,
+    title: <TranslatedText stringId="general.requestedBy.label" fallback="Requested by" />,
     accessor: getRequestedBy,
     sortable: false,
   },
