@@ -15,7 +15,7 @@ import { toast } from 'react-toastify';
 import { PatientNameDisplay } from '../PatientNameDisplay';
 import { TranslatedReferenceData, TranslatedSex, TranslatedText } from '../Translation';
 import { Colors } from '../../constants';
-import { DateDisplay, getDateDisplay } from '../DateDisplay';
+import { DateDisplay } from '../DateDisplay';
 import { reloadPatient } from '../../store';
 import { useApi } from '../../api';
 import { usePatientAdditionalDataQuery, usePatientCurrentEncounter } from '../../api/queries';
@@ -25,19 +25,10 @@ import { TextButton } from '../Button';
 import { EncounterModal } from '../EncounterModal';
 import { ConditionalTooltip } from '../Tooltip';
 import { MenuButton } from '../MenuButton';
+import { formatDateRange } from '../../utils/dateTime';
 
 export const APPOINTMENT_DRAWER_CLASS = 'appointment-drawer';
 const DEBOUNCE_DELAY = 200; // ms
-
-const formatDateRange = (start, end, isOvernight) => {
-  const date = getDateDisplay(start, { showDate: true, showTime: true });
-  if (!end) return date;
-  return (
-    <>
-      {date}&nbsp;&ndash; {getDateDisplay(end, { showDate: isOvernight, showTime: true })}
-    </>
-  );
-};
 
 const FlexRow = styled(Box)`
   display: flex;
@@ -126,16 +117,15 @@ const StyledIconButton = styled(IconButton)`
   }
 `;
 
-const ControlsRow = ({ onClose, onEdit }) => {
+const ControlsRow = ({ onClose, onCancel, onEdit }) => {
   const actions = [
     {
       label: <TranslatedText stringId="general.action.modify" fallback="Modify" />,
       action: onEdit,
     },
-    // TODO: cancel workflow
     {
       label: <TranslatedText stringId="general.action.cancel" fallback="Cancel" />,
-      action: () => {},
+      action: onCancel,
     },
   ];
 
@@ -185,34 +175,31 @@ const BookingTypeDisplay = ({ bookingType, isOvernight }) => (
 
 const PatientDetailsDisplay = ({ patient, onClick, additionalData }) => {
   const { displayId, sex, dateOfBirth } = patient;
-
   return (
     <PatientDetailsContainer onClick={onClick}>
       <Title>
         <PatientNameDisplay patient={patient} />
       </Title>
       <span>
-        <Label>
-          <TranslatedText stringId="general.localisedField.sex.label" fallback="Sex" />:
-        </Label>{' '}
-        <TranslatedSex sex={sex} />
-        {' | '}
-        <Label>
-          <TranslatedText
-            stringId="general.localisedField.dateOfBirth.label.short"
-            fallback="DOB"
-          />
-          :
-        </Label>{' '}
-        <DateDisplay noTooltip date={dateOfBirth} />
+        <InlineDetailsDisplay
+          label={<TranslatedText stringId="general.localisedField.sex.label" fallback="Sex" />}
+          value={<TranslatedSex sex={sex} />}
+        />
+        <Label>{' | '}</Label>
+        <InlineDetailsDisplay
+          label={
+            <TranslatedText
+              stringId="general.localisedField.dateOfBirth.label.short"
+              fallback="DOB"
+            />
+          }
+          value={<DateDisplay date={dateOfBirth} noTooltip />}
+        />
       </span>
       {additionalData?.primaryContactNumber && (
         <InlineDetailsDisplay
           label={
-            <TranslatedText
-              stringId="patient.details.reminderContacts.field.contact"
-              fallback="Contact"
-            />
+            <TranslatedText stringId="patient.details.reminderContacts.label" fallback="Contact" />
           }
           value={additionalData.primaryContactNumber}
         />
@@ -363,9 +350,10 @@ export const AppointmentDetailPopper = ({
   onClose,
   onStatusChange,
   onEdit,
+  onCancel,
   anchorEl,
   appointment,
-  isOvernight,
+  isOvernight = false,
 }) => {
   const dispatch = useDispatch();
   const api = useApi();
@@ -468,7 +456,7 @@ export const AppointmentDetailPopper = ({
         touchEvent="onTouchStart"
       >
         <Box>
-          <ControlsRow onClose={onClose} onEdit={onEdit} />
+          <ControlsRow onClose={onClose} onEdit={onEdit} onCancel={onCancel} />
           <StyledPaper elevation={0}>
             <PatientDetailsDisplay
               patient={appointment.patient}

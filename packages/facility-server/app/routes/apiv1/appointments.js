@@ -5,6 +5,7 @@ import { Op, Sequelize } from 'sequelize';
 import { simplePost, simplePut } from '@tamanu/shared/utils/crudHelpers';
 import { escapePatternWildcard } from '../../utils/query';
 import { NotFoundError, ResourceConflictError } from '@tamanu/shared/errors';
+import { APPOINTMENT_STATUSES } from '@tamanu/constants';
 
 export const appointments = express.Router();
 
@@ -126,6 +127,7 @@ appointments.get(
       offset: all ? undefined : page * rowsPerPage,
       order: [[sortKeys[orderBy] || orderBy, order]],
       where: {
+        status: { [Op.not]: APPOINTMENT_STATUSES.CANCELLED },
         startTime: startTimeQuery,
         ...filters,
       },
