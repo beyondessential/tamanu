@@ -72,7 +72,7 @@ const Toggle = styled(ToggleButton)`
   }
 `;
 
-const AvailableCell = styled(Toggle)`
+const AvailableToggle = styled(Toggle)`
   ${({ $hover }) =>
     $hover &&
     css`
@@ -91,7 +91,7 @@ const AvailableCell = styled(Toggle)`
     `}
 `;
 
-const BookedCell = styled(Toggle).attrs({
+const BookedToggle = styled(Toggle).attrs({
   'aria-disabled': true, // Not true `disabled` attribute as it prevents tooltip from listening for events
 })`
   // (0,6,0) to override styling of disabled Toggle
@@ -121,7 +121,7 @@ const BookedTooltip = styled(ThemedTooltip).attrs({
   ${tooltipStyles}
 `;
 
-const StyledConditionalTooltip = styled(ConditionalTooltip).attrs({
+const ConflictTooltip = styled(ConditionalTooltip).attrs({
   title: (
     <TranslatedText
       stringId="locationBooking.tooltip.unavailableTimeInRangeWarning"
@@ -156,25 +156,26 @@ export const TimeSlotToggle = ({
   if (booked) {
     return (
       <BookedTooltip>
-        <BookedCell {...props}>
+        <BookedToggle {...props}>
           <TimeRangeDisplay range={timeSlot} />
-        </BookedCell>
+        </BookedToggle>
       </BookedTooltip>
     );
   }
 
   return (
-    <StyledConditionalTooltip visible={!selectable}>
-      <AvailableCell
+    <ConflictTooltip visible={!selectable}>
+      <AvailableToggle
         $hover={selectable && inHoverRange}
         $selectable={selectable}
+        disabled={!selectable}
         onMouseEnter={selectable ? onMouseEnter : null}
         onMouseLeave={selectable ? onMouseLeave : null}
         {...props}
       >
         <TimeRangeDisplay range={timeSlot} />
-      </AvailableCell>
-    </StyledConditionalTooltip>
+      </AvailableToggle>
+    </ConflictTooltip>
   );
 };
 
