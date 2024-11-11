@@ -8,6 +8,7 @@ import { APPOINTMENT_STATUSES } from '@tamanu/constants';
 
 import { Colors } from '../../constants';
 import { formatTime } from '../DateDisplay';
+import { getPatientNameAsString } from '../PatientNameDisplay';
 import { AppointmentDetailPopper } from './AppointmentDetailPopper';
 import {
   APPOINTMENT_STATUS_COLORS,
@@ -72,11 +73,8 @@ const IconGroup = styled.div`
   justify-content: end;
 `;
 
-const getPatientFullName = ({ firstName, middleName, lastName }) =>
-  [firstName, middleName, lastName].filter(Boolean).join(' ');
-
 export const AppointmentTile = ({ appointment, onEdit, ...props }) => {
-  const { patient, startTime: startTimeStr, endTime: endTimeStr, status } = appointment;
+  const { patient, startTime: startTimeStr, endTime: endTimeStr, appointmentStatus } = appointment;
   const ref = useRef(null);
   const [open, setOpen] = useState();
   const [localStatus, setLocalStatus] = useState(status);
@@ -96,8 +94,8 @@ export const AppointmentTile = ({ appointment, onEdit, ...props }) => {
       onClick={() => setOpen(true)}
       {...props}
     >
-      <Label $strikethrough={localStatus === APPOINTMENT_STATUSES.NO_SHOW}>
-        <Timestamp date={startTime} /> {getPatientFullName(patient)}
+      <Label $strikethrough={appointmentStatus === APPOINTMENT_STATUSES.NO_SHOW}>
+        <Timestamp date={startTime} /> {getPatientNameAsString(patient)}
       </Label>
       <IconGroup>
         {isHighPriority && (

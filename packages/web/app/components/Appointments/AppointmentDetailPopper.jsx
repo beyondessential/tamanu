@@ -154,12 +154,16 @@ const DetailsDisplay = ({ label, value }) => (
   </FlexCol>
 );
 
-const BookingTypeDisplay = ({ type, isOvernight }) => (
+const BookingTypeDisplay = ({ bookingType, isOvernight }) => (
   <DetailsDisplay
     label={<TranslatedText stringId="scheduling.bookingType.label" fallback="Booking type" />}
     value={
       <FlexRow sx={{ alignItems: 'center', justifyContent: 'space-between' }}>
-        <TranslatedReferenceData value={type.id} fallback={type.name} category="bookingType" />
+        <TranslatedReferenceData
+          value={bookingType.id}
+          fallback={bookingType.name}
+          category="appointmentType"
+        />
         {isOvernight && (
           <FlexRow sx={{ gap: '2px' }}>
             <Overnight htmlColor={Colors.primary} sx={{ fontSize: 15 }} />
@@ -294,7 +298,7 @@ export const AppointmentStatusSelector = ({
 }) => {
   return (
     <AppointmentStatusContainer role="radiogroup">
-      {APPOINTMENT_STATUS_VALUES.filter(status => status != APPOINTMENT_STATUSES.CANCELLED).map(
+      {APPOINTMENT_STATUS_VALUES.filter(status => status !== APPOINTMENT_STATUSES.CANCELLED).map(
         status => {
           const isSelected = status === selectedStatus;
           return (
@@ -367,6 +371,26 @@ export const AppointmentDetailPopper = ({
     onClose();
   };
 
+  const modifiers = [
+    {
+      name: 'offset',
+      options: {
+        offset: [0, 2],
+      },
+    },
+    {
+      name: 'preventOverflow',
+      enabled: true,
+      options: {
+        altAxis: true,
+        altBoundary: true,
+        tether: false,
+        rootBoundary: 'document',
+        padding: { top: 64, left: 184 }, // px conversions of height / width from CarouselComponents
+      },
+    },
+  ];
+
   return (
     <Popper
       open={open}
@@ -376,14 +400,7 @@ export const AppointmentDetailPopper = ({
       sx={{
         zIndex: 10,
       }}
-      modifiers={[
-        {
-          name: 'offset',
-          options: {
-            offset: [0, 2],
-          },
-        },
-      ]}
+      modifiers={modifiers}
     >
       <ClickAwayListener
         onClickAway={handleClickAway}
