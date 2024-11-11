@@ -285,9 +285,10 @@ export const TimeSlotPicker = ({
           <SkeletonTimeSlotToggles />
         ) : (
           timeSlots.map(timeSlot => {
-            const isBooked = bookedIntervals?.some(bookedInterval =>
-              areIntervalsOverlapping(timeSlot, bookedInterval),
-            );
+            const isBooked =
+              bookedIntervals.some(bookedInterval =>
+                areIntervalsOverlapping(timeSlot, bookedInterval),
+              ) ?? false;
 
             const onMouseEnter = () => {
               if (selectedToggles.length > 1) return;
