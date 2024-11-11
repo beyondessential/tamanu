@@ -521,7 +521,7 @@ const EncounterRecordPrintoutComponent = ({
         <SectionSpacing />
         {encounterTypeHistory.length > 0 && (
           <TableSection
-            title="Encounter types"
+            title={getTranslation('general.localisedField.encounterType.label', 'Encounter type')}
             data={encounterTypeHistory}
             columns={COLUMNS.encounterTypes}
           />
@@ -580,9 +580,7 @@ const EncounterRecordPrintoutComponent = ({
             return recordedDates.length > start ? (
               <Page size="A4" orientation="landscape" style={pageStyles.body}>
                 <TableSection
-                  title={
-                    getTranslation('pdf.encounterRecord.section.vitals', 'Vitals') +
-                  }
+                  title={getTranslation('pdf.encounterRecord.section.vitals', 'Vitals')}
                   data={vitalsData}
                   columns={getVitalsColumn(start)}
                   type="vitals"
