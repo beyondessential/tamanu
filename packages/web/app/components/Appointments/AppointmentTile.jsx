@@ -12,7 +12,7 @@ import {
   APPOINTMENT_STATUS_COLORS,
   AppointmentStatusIndicator as StatusIndicator,
 } from './appointmentStatusIndicators';
-import { ConditionalTooltip } from '../Tooltip';
+import { ThemedTooltip } from '../Tooltip';
 
 const Wrapper = styled.div`
   ${({ $color = Colors.blue, $selected }) =>
@@ -103,7 +103,7 @@ export const AppointmentTile = ({ appointment, openBookingForm, onUpdated, ...pr
   );
 
   return (
-    <ConditionalTooltip visible title={tileText}>
+    <ThemedTooltip title={tileText}>
       <Wrapper
         $color={APPOINTMENT_STATUS_COLORS[appointmentStatus]}
         $selected={open}
@@ -144,6 +144,6 @@ export const AppointmentTile = ({ appointment, openBookingForm, onUpdated, ...pr
           openBookingForm={openBookingForm}
         />
       </Wrapper>
-    </ConditionalTooltip>
+    </ThemedT>
   );
 };
