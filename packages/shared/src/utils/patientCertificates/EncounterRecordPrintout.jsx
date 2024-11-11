@@ -466,7 +466,10 @@ const EncounterRecordPrintoutComponent = ({
       {
         key: 'route',
         title: getTranslation('medication.route.label', 'Route'),
-        accessor: ({ route }) => DRUG_ROUTE_LABELS[route] || '',
+        accessor: ({ route }) =>
+          route
+            ? getTranslation(`medication.property.route.${route}`, DRUG_ROUTE_LABELS[route])
+            : '',
         style: { width: '12.5%' },
       },
       {
@@ -489,7 +492,10 @@ const EncounterRecordPrintoutComponent = ({
       <Page size="A4" style={pageStyles.body} wrap>
         {watermark && <Watermark src={watermark} />}
         <MultiPageHeader
-          documentName="Patient encounter record"
+          documentName={getTranslation(
+            'pdf.encounterRecord.documentName',
+            'Patient encounter record',
+          )}
           patientId={patientData.displayId}
           patientName={getName(patientData)}
         />
