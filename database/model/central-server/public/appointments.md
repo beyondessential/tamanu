@@ -45,7 +45,13 @@ One of:
 {% enddocs %}
 
 {% docs appointments__type_legacy %}
-TODO
+The legacy type of appointment.
+
+One of:
+- `Standard`
+- `Emergency`
+- `Specialist`
+- `Other`
 {% enddocs %}
 
 {% docs appointments__start_time_legacy %}
@@ -61,9 +67,11 @@ The [location group](#!/source/source.tamanu.tamanu.location_groups) where the a
 {% enddocs %}
 
 {% docs appointments__booking_type_id %}
-TODO
+Reference to a [Reference Data](#!/source/source.tamanu.tamanu.reference_data)
+(`type=bookingType`).
 {% enddocs %}
 
 {% docs appointments__appointment_type_id %}
-TODO
+Reference to a [Reference Data](#!/source/source.tamanu.tamanu.reference_data)
+(`type=appointmentType`).
 {% enddocs %}
