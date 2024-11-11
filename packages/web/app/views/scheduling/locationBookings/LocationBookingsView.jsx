@@ -86,10 +86,6 @@ export const LocationBookingsView = () => {
             stringId="locationBooking.calendar.bookLocation"
             fallback="Book location"
           />
-          <TranslatedText
-            stringId="locationBooking.calendar.bookLocation"
-            fallback="Book location"
-          />
         </NewBookingButton>
       </LocationBookingsTopBar>
       {hasNoLocations ? (

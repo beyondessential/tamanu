@@ -66,6 +66,23 @@ const StyledInputButton = styled(Button)`
   }
 `;
 
+const SearchContainer = styled(Box)`
+  display: flex;
+  flex-direction: column;
+  padding: 0 0.625rem;
+`;
+
+const StyledTextButton = styled(TextButton)`
+  margin-block: 0.25rem;
+  text-decoration: underline;
+  align-self: end;
+`;
+
+const StyledMenuItem = styled(MenuItem)`
+  padding-inline: 0.625rem;
+  gap: 0.5625rem;
+`;
+
 export const SearchMultiSelectInput = ({
   value = [],
   onChange,
@@ -100,7 +117,7 @@ export const SearchMultiSelectInput = ({
       </StyledInputButton>
 
       <StyledMenu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleClose}>
-        <Box p={1} sx={{ display: 'flex', flexDirection: 'column', padding: '0 0.625rem' }}>
+        <SearchContainer>
           <StyledTextInput
             InputProps={{
               startAdornment: (
@@ -115,13 +132,10 @@ export const SearchMultiSelectInput = ({
             onChange={e => setSearchValue(e.target.value)}
             size="small"
           />
-          <TextButton
-            onClick={handleClear}
-            style={{ textDecoration: 'underline', alignSelf: 'end', marginBlock: '0.25rem' }}
-          >
+          <StyledTextButton onClick={handleClear}>
             <TranslatedText stringId="general.action.clear" fallback="Clear" />
-          </TextButton>
-        </Box>
+          </StyledTextButton>
+        </SearchContainer>
 
         <OptionsContainer>
           {options.length > 0 ? (
@@ -129,10 +143,9 @@ export const SearchMultiSelectInput = ({
               .filter(option => option.label.toLowerCase().includes(searchValue.toLowerCase()))
               .sort((a, b) => a.label.localeCompare(b.label))
               .map(option => (
-                <MenuItem
+                <StyledMenuItem
                   key={`${name}-${option.value}`}
                   onClick={() => handleSelectOption(option.value)}
-                  sx={{ paddingInline: '0.625rem', gap: '0.5625rem' }}
                 >
                   <Checkbox
                     checked={value.includes(option.value)}
@@ -141,7 +154,7 @@ export const SearchMultiSelectInput = ({
                     sx={{ padding: 0 }}
                   />
                   <ListItemText primary={option.label} />
-                </MenuItem>
+                </StyledMenuItem>
               ))
           ) : (
             <MenuItem disabled>
