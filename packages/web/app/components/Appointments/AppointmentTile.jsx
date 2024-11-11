@@ -144,6 +144,6 @@ export const AppointmentTile = ({ appointment, openBookingForm, onUpdated, ...pr
           openBookingForm={openBookingForm}
         />
       </Wrapper>
-    </ThemedT>
+    </ThemedTooltip>
   );
 };

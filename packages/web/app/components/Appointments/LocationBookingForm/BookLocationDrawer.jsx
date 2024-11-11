@@ -47,8 +47,10 @@ const OvernightIcon = styled(Brightness2Icon)`
   left: 145px;
 `;
 
+
 const StyledDrawer = styled(Drawer)`
   .MuiPaper-root {
+    // Add 1 pixel to allow border to show
     block-size: calc(100% - ${TOP_BAR_HEIGHT + 1}px);
     inset-block-start: ${TOP_BAR_HEIGHT + 1}px;
   }
