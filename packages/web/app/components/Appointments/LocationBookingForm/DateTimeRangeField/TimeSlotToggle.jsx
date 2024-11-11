@@ -155,10 +155,9 @@ export const TimeSlotToggle = ({
   if (booked) {
     return (
       <BookedTooltip>
-        <Toggle {...props} $booked aria-disabled>
-          {/* Not true `disabled` attribute as it prevents tooltip from listening for events */}
+        <BookedCell {...props}>
           <TimeRangeDisplay range={timeSlot} />
-        </Toggle>
+        </BookedCell>
       </BookedTooltip>
     );
   }
