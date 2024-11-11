@@ -12,14 +12,8 @@ const Heading = styled(Heading4)`
   z-index: 1;
   background-color: ${Colors.background};
   border-bottom: 1px ${Colors.outline} solid;
-  padding-bottom: 5px;
-  margin-top: 0;
-  margin-left: -1rem;
-  margin-right: -1rem;
-  margin-bottom: 9px;
-  padding-left: 1rem;
-  padding-right: 1rem;
-  padding-top: 1rem;
+  padding: 1rem 1rem 0.313rem 1rem;
+  margin: 0 -1rem 9px;
   top: 0;
 `;
 
