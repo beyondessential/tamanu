@@ -68,7 +68,7 @@ const Label = styled.span`
 `;
 
 const Timestamp = ({ date }) => (
-  <time dateTime={date.toISOString()}>{format(date, 'h:mma').toLowerCase()}</time>
+  <time dateTime={date.toISOString()}>{format(date, 'h:mmaaa')}</time>
 );
 
 const IconGroup = styled.div`
