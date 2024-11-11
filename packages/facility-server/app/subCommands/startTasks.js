@@ -14,7 +14,7 @@ import { startScheduledTasks } from '../tasks';
 import { version } from '../serverInfo';
 import { ApplicationContext } from '../ApplicationContext';
 
-export async function startTasks({ skipMigrationCheck, taskClasses }) {
+export async function startTasks({ skipMigrationCheck, taskClasses, syncManager }) {
   log.info(`Starting facility task runner version ${version}`, {
     serverFacilityIds: selectFacilityIds(config),
   });
@@ -36,7 +36,7 @@ export async function startTasks({ skipMigrationCheck, taskClasses }) {
   await performDatabaseIntegrityChecks(context);
 
   context.centralServer = new CentralServerConnection(context);
-  context.syncManager = new FacilitySyncManager(context);
+  context.syncManager = syncManager ?? new FacilitySyncManager(context);
 
   await performTimeZoneChecks({
     remote: context.centralServer,
