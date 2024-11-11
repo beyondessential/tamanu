@@ -31,11 +31,19 @@ export const EncounterDetailsExtended = ({ encounter, discharge, clinicianText }
         )}
       </Col>
       <Col>
-        <DataItem label="Department" value={department.name} key="department" />
+        <DataItem
+          label={getTranslation('general.department.label', 'Department')}
+          value={department.name}
+          key="department"
+        />
         <DataItem label="Date of admission" value={formatShort(startDate)} key="dateOfAdmission" />
         <DataItem label="Date of discharge" value={formatShort(endDate)} key="dateOfDischarge" />
       </Col>
-      <DataItem label="Reason for encounter" value={reasonForEncounter} key="reasonForEncounter" />
+      <DataItem
+        label={getTranslation('encounter.reasonForEncounter.label', 'Reason for encounter')}
+        value={reasonForEncounter}
+        key="reasonForEncounter"
+      />
     </DataSection>
   );
 };
