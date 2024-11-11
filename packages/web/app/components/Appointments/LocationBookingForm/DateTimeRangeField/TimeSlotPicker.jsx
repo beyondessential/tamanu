@@ -130,129 +130,120 @@ export const TimeSlotPicker = ({
   const handleChange = (event, newTogglesUnsorted) => {
     const newToggles = newTogglesUnsorted.toSorted();
 
-    const handleRangeChange = () => {
-      // Deselecting the only selected time slot
-      if (newToggles.length === 0) {
+    switch (variant) {
+      case 'range': {
+        // Deselecting the only selected time slot
+        if (newToggles.length === 0) {
+          updateSelection([], { start: null, end: null });
+          return;
+        }
+
+        // Fresh selection
+        if (newToggles.length === 1) {
+          const newStart = new Date(newToggles[0]);
+          const newEnd = endOfSlotStartingAt(newStart);
+          updateSelection(newToggles, {
+            start: newStart,
+            end: newEnd,
+          });
+          return;
+        }
+
+        // One time slot already selected. A second one makes a contiguous series.
+        // (Selecting tail before head is allowed.)
+        if (selectedToggles.length === 1) {
+          const newStart = new Date(newToggles[0]);
+          const startOfLatestSlot = new Date(newToggles.at(-1));
+          const newEnd = addMs(startOfLatestSlot, slotDurationMs);
+          const newTimeRange = { start: newStart, end: newEnd };
+          const newSelection = timeSlots
+            .filter(s => areIntervalsOverlapping(s, newTimeRange))
+            .map(({ start }) => start.valueOf());
+          updateSelection(newSelection, newTimeRange);
+          return;
+        }
+
+        // Many time slots already selected. User may shorten the selection by deselecting only the
+        // first or last slot.
+        if (isSameArrayMinusHeadOrTail(newToggles, selectedToggles)) {
+          const newStart = new Date(newToggles[0]);
+          const newEnd = endOfSlotStartingAt(new Date(newToggles.at(-1)));
+          updateSelection(newToggles, { start: newStart, end: newEnd });
+          return;
+        }
+
+        // Many time slots selected. Toggling anything other than the head or tail would create a
+        // discontinuous selection, so clear the selection instead.
         updateSelection([], { start: null, end: null });
+        setHoverRange(null);
         return;
       }
+      case 'start': {
+        // Deselecting the only selected time slot (necessarily the latest time slot of the day)
+        if (newToggles.length === 0) {
+          updateSelection([], { start: null });
+          return;
+        }
 
-      // Fresh selection
-      if (newToggles.length === 1) {
-        const newStart = new Date(newToggles[0]);
-        const newEnd = endOfSlotStartingAt(newStart);
-        updateSelection(newToggles, {
-          start: newStart,
-          end: newEnd,
-        });
-        return;
-      }
+        // Fresh selection. Select this and all succeeding time slots
+        if (newToggles.length === 1) {
+          const [selectedToggle] = newToggles;
+          const newSelection = timeSlots
+            .map(({ start }) => start.valueOf())
+            .filter(s => s >= selectedToggle);
 
-      // One time slot already selected. A second one makes a contiguous series.
-      // (Selecting tail before head is allowed.)
-      if (selectedToggles.length === 1) {
-        const newStart = new Date(newToggles[0]);
-        const startOfLatestSlot = new Date(newToggles.at(-1));
-        const newEnd = addMs(startOfLatestSlot, slotDurationMs);
-        const newTimeRange = { start: newStart, end: newEnd };
-        const newSelection = timeSlots
-          .filter(s => areIntervalsOverlapping(s, newTimeRange))
-          .map(({ start }) => start.valueOf());
-        updateSelection(newSelection, newTimeRange);
-        return;
-      }
+          const newStart = new Date(selectedToggle);
+          updateSelection(newSelection, { start: newStart });
+          return;
+        }
 
-      // Many time slots already selected. User may shorten the selection by deselecting only the
-      // first or last slot.
-      if (isSameArrayMinusHeadOrTail(newToggles, selectedToggles)) {
-        const newStart = new Date(newToggles[0]);
-        const newEnd = endOfSlotStartingAt(new Date(newToggles.at(-1)));
-        updateSelection(newToggles, { start: newStart, end: newEnd });
-        return;
-      }
+        // Many time slots already selected. User may shorten the selection by deselecting only the
+        // earliest slot.
+        if (isSameArrayMinusHead(newToggles, selectedToggles)) {
+          const newStart = new Date(newToggles[0]);
+          updateSelection(newToggles, { start: newStart });
+          return;
+        }
 
-      // Many time slots selected. Toggling anything other than the head or tail would create a
-      // discontinuous selection, so clear the selection instead.
-      updateSelection([], { start: null, end: null });
-      setHoverRange(null);
-    };
-
-    const handleStartChange = () => {
-      // Deselecting the only selected time slot (necessarily the latest time slot of the day)
-      if (newToggles.length === 0) {
+        // Many time slots selected. Toggling anything other than the head would create a
+        // discontinuous selection, so clear the selection instead.
         updateSelection([], { start: null });
         return;
       }
+      case 'end': {
+        // Deselecting the only selected time slot (necessarily the earliest time slot of the day)
+        if (newToggles.length === 0) {
+          updateSelection([], { end: null });
+          return;
+        }
 
-      // Fresh selection. Select this and all succeeding time slots
-      if (newToggles.length === 1) {
-        const [selectedToggle] = newToggles;
-        const newSelection = timeSlots
-          .map(({ start }) => start.valueOf())
-          .filter(s => s >= selectedToggle);
+        // Fresh selection. Select this and all preceding time slots
+        if (newToggles.length === 1) {
+          const [selectedToggle] = newToggles;
+          const newSelection = timeSlots
+            .map(({ start }) => start.valueOf())
+            .filter(s => s <= selectedToggle);
 
-        const newStart = new Date(selectedToggle);
-        updateSelection(newSelection, { start: newStart });
-        return;
-      }
+          const startOfTimeSlot = new Date(selectedToggle);
+          const newEnd = endOfSlotStartingAt(startOfTimeSlot);
+          updateSelection(newSelection, { end: newEnd });
+          return;
+        }
 
-      // Many time slots already selected. User may shorten the selection by deselecting only the
-      // earliest slot.
-      if (isSameArrayMinusHead(newToggles, selectedToggles)) {
-        const newStart = new Date(newToggles[0]);
-        updateSelection(newToggles, { start: newStart });
-        return;
-      }
+        // Many time slots already selected. User may shorten the selection by deselecting only the
+        // latest slot.
+        if (isSameArrayMinusTail(newToggles, selectedToggles)) {
+          const startOfLastSlot = new Date(newToggles.at(-1));
+          const newEnd = endOfSlotStartingAt(startOfLastSlot);
+          updateSelection(newToggles, { end: newEnd });
+          return;
+        }
 
-      // Many time slots selected. Toggling anything other than the head would create a
-      // discontinuous selection, so clear the selection instead.
-      updateSelection([], { start: null });
-    };
-
-    const handleEndChange = () => {
-      // Deselecting the only selected time slot (necessarily the earliest time slot of the day)
-      if (newToggles.length === 0) {
+        // Many time slots selected. Toggling anything other than the tail would create a
+        // discontinuous selection, so clear the selection instead.
         updateSelection([], { end: null });
         return;
       }
-
-      // Fresh selection. Select this and all preceding time slots
-      if (newToggles.length === 1) {
-        const [selectedToggle] = newToggles;
-        const newSelection = timeSlots
-          .map(({ start }) => start.valueOf())
-          .filter(s => s <= selectedToggle);
-
-        const startOfTimeSlot = new Date(selectedToggle);
-        const newEnd = endOfSlotStartingAt(startOfTimeSlot);
-        updateSelection(newSelection, { end: newEnd });
-        return;
-      }
-
-      // Many time slots already selected. User may shorten the selection by deselecting only the
-      // latest slot.
-      if (isSameArrayMinusTail(newToggles, selectedToggles)) {
-        const startOfLastSlot = new Date(newToggles.at(-1));
-        const newEnd = endOfSlotStartingAt(startOfLastSlot);
-        updateSelection(newToggles, { end: newEnd });
-        return;
-      }
-
-      // Many time slots selected. Toggling anything other than the tail would create a
-      // discontinuous selection, so clear the selection instead.
-      updateSelection([], { end: null });
-    };
-
-    switch (variant) {
-      case 'range':
-        handleRangeChange();
-        return;
-      case 'start':
-        handleStartChange();
-        return;
-      case 'end':
-        handleEndChange();
-        return;
     }
   };
 
