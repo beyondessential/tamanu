@@ -254,7 +254,7 @@ const NotesMultipageCellPadding = () => {
 };
 
 const NotesSection = ({ notes }) => {
-  const { getTranslation } = useLanguageContext();
+  const { getTranslation, getEnumTranslation } = useLanguageContext();
   return (
     <>
       <View minPresenceAhead={80} />
@@ -278,10 +278,7 @@ const NotesSection = ({ notes }) => {
                 <NotesCell>
                   <NotesMultipageCellPadding />
                   <MultipageTableHeading
-                    title={getTranslation(
-                      `note.property.type.${note.noteType}`,
-                      NOTE_TYPE_LABELS[note.noteType],
-                    )}
+                    title={getEnumTranslation(NOTE_TYPE_LABELS, note.noteType)}
                     style={textStyles.tableColumnHeader}
                   />
                   <Text style={textStyles.tableCellContent}>{`${note.content}\n`}</Text>
