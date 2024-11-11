@@ -206,7 +206,7 @@ const PatientDetailsDisplay = ({ patient, onClick }) => {
 };
 
 const AppointDetailsDisplay = ({ appointment, isOvernight }) => {
-  const { startTime, endTime, clinician, locationGroup, location, type } = appointment;
+  const { startTime, endTime, clinician, locationGroup, location, bookingType } = appointment;
   return (
     <AppointmentDetailsContainer>
       <DetailsDisplay
@@ -246,7 +246,7 @@ const AppointDetailsDisplay = ({ appointment, isOvernight }) => {
           />
         }
       />
-      <BookingTypeDisplay type={type} isOvernight={isOvernight} />
+      <BookingTypeDisplay type={bookingType} isOvernight={isOvernight} />
     </AppointmentDetailsContainer>
   );
 };
