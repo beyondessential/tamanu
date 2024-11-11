@@ -25,7 +25,6 @@ import { BookingTimeField } from './BookingTimeField';
 import { useTranslation } from '../../../contexts/Translation';
 import { Drawer } from '../../Drawer';
 import { APPOINTMENT_DRAWER_CLASS } from '../AppointmentDetailPopper';
-import { BookLocationHeader } from './BookLocationHeader';
 
 const OvernightStayField = styled.div`
   display: flex;
