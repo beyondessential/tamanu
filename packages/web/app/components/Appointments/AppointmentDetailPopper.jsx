@@ -209,7 +209,7 @@ const PatientDetailsDisplay = ({ patient, onClick }) => {
   );
 };
 
-const AppointDetailsDisplay = ({ appointment, isOvernight }) => {
+const AppointmentDetailsDisplay = ({ appointment, isOvernight }) => {
   const { startTime, endTime, clinician, locationGroup, location, bookingType } = appointment;
   return (
     <AppointmentDetailsContainer>
@@ -360,7 +360,7 @@ export const AppointmentDetailPopper = ({
               patient={appointment.patient}
               onClick={handlePatientDetailsClick}
             />
-            <AppointDetailsDisplay appointment={appointment} isOvernight={isOvernight} />
+            <AppointmentDetailsDisplay appointment={appointment} isOvernight={isOvernight} />
             <AppointmentStatusSelector
               selectedStatus={localStatus}
               updateAppointmentStatus={updateAppointmentStatus}
