@@ -5,24 +5,28 @@ import { ageInYears, formatShort } from './dateTime';
 export const getName = ({ firstName, lastName }) => `${firstName} ${lastName}`;
 export const getSex = ({ sex }) => `${capitalize(sex)}`;
 
-export const getDOB = ({ dateOfBirth }, getLocalisation) =>
-  dateOfBirth ? getDisplayDate(dateOfBirth, 'dd/MM/yyyy', getLocalisation) : 'Unknown';
+export const getDOB = ({ dateOfBirth }, getLocalisation, getTranslation) =>
+  dateOfBirth
+    ? getDisplayDate(dateOfBirth, 'dd/MM/yyyy', getLocalisation)
+    : getTranslation('general.fallback.unknown', 'Unknown');
 
-export const getDOBWithAge = ({ dateOfBirth }) => {
-  if (!dateOfBirth) return 'Unknown';
+export const getDOBWithAge = ({ dateOfBirth }, getTranslation) => {
+  if (!dateOfBirth) return getTranslation('general.fallback.unknown', 'Unknown');
 
   const dob = formatShort(dateOfBirth);
   const age = ageInYears(dateOfBirth);
+
+  // TODO
   return `${dob} (${age} years)`;
 };
 
-export const getDateOfDeath = ({ dateOfDeath }, getLocalisation) => {
-  if (!dateOfDeath) return 'Unknown';
+export const getDateOfDeath = ({ dateOfDeath }, getLocalisation, getTranslation) => {
+  if (!dateOfDeath) return getTranslation('general.fallback.unknown', 'Unknown');
   return getDisplayDate(dateOfDeath, 'd MMM yyyy', getLocalisation);
 };
 
-export const getTimeOfDeath = ({ dateOfDeath }, getLocalisation) => {
-  if (!dateOfDeath) return 'Unknown';
+export const getTimeOfDeath = ({ dateOfDeath }, getLocalisation, getTranslation) => {
+  if (!dateOfDeath) return getTranslation('general.fallback.unknown', 'Unknown');
   return getDisplayDate(dateOfDeath, 'hh:mma', getLocalisation).toLowerCase();
 };
 
@@ -33,8 +37,8 @@ export const getNationality = ({ additionalData }) =>
 
 export const getPassportNumber = ({ additionalData }) => (additionalData || {}).passport;
 
-export const getAddress = ({ additionalData }) => {
-  let address = 'N/A';
+export const getAddress = ({ additionalData }, getTranslation) => {
+  let address = getTranslation('general.fallback.notApplicable', 'N/A');
 
   const { streetVillage, cityTown, country } = additionalData || {};
 
