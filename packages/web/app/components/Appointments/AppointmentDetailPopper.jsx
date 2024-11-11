@@ -18,12 +18,11 @@ import { Colors } from '../../constants';
 import { DateDisplay, getDateDisplay } from '../DateDisplay';
 import { reloadPatient } from '../../store';
 import { useApi } from '../../api';
-import { usePatientAdditionalDataQuery } from '../../api/queries';
+import { usePatientAdditionalDataQuery, usePatientCurrentEncounter } from '../../api/queries';
 import { APPOINTMENT_STATUS_VALUES, APPOINTMENT_STATUSES } from '@tamanu/constants';
 import { AppointmentStatusChip } from './AppointmentStatusChip';
 import { TextButton } from '../Button';
 import { EncounterModal } from '../EncounterModal';
-import { usePatientCurrentEncounter } from '../../api/queries';
 import { ConditionalTooltip } from '../Tooltip';
 import { MenuButton } from '../MenuButton';
 
@@ -184,9 +183,8 @@ const BookingTypeDisplay = ({ bookingType, isOvernight }) => (
   />
 );
 
-const PatientDetailsDisplay = ({ patient, onClick }) => {
-  const { id, displayId, sex, dateOfBirth } = patient;
-  const { data: additionalData } = usePatientAdditionalDataQuery(id);
+const PatientDetailsDisplay = ({ patient, onClick, additionalData }) => {
+  const { displayId, sex, dateOfBirth } = patient;
 
   return (
     <PatientDetailsContainer onClick={onClick}>
@@ -278,7 +276,7 @@ const AppointmentDetailsDisplay = ({ appointment, isOvernight }) => {
           }
         />
       )}
-      {bookingType && <BookingTypeDisplay type={bookingType} isOvernight={isOvernight} />}
+      {bookingType && <BookingTypeDisplay bookingType={bookingType} isOvernight={isOvernight} />}
       {appointmentType && (
         <DetailsDisplay
           label={
@@ -323,21 +321,39 @@ const AppointmentStatusSelector = ({
 }) => {
   return (
     <AppointmentStatusContainer>
-      {APPOINTMENT_STATUS_VALUES.filter(status => status !== APPOINTMENT_STATUSES.CANCELLED).map(
-        status => {
-          const isSelected = status === selectedStatus;
-          return (
-            <AppointmentStatusChip
-              key={status}
-              appointmentStatus={status}
-              onClick={() => updateAppointmentStatus(status)}
-              disabled={disabled || isSelected}
-              role="radio"
-              selected={isSelected}
-            />
-          );
-        },
-      )}
+      <AppointmentStatusGrid>
+        {APPOINTMENT_STATUS_VALUES.filter(status => status !== APPOINTMENT_STATUSES.CANCELLED).map(
+          status => {
+            const isSelected = status === selectedStatus;
+            return (
+              <AppointmentStatusChip
+                key={status}
+                appointmentStatus={status}
+                onClick={() => updateAppointmentStatus(status)}
+                disabled={disabled || isSelected}
+                role="radio"
+                selected={isSelected}
+              />
+            );
+          },
+        )}
+      </AppointmentStatusGrid>
+      <StyledConditionalTooltip
+        title={
+          <TranslatedText
+            stringId="scheduling.tooltip.alreadyAdmitted"
+            fallback="Patient already admitted"
+          />
+        }
+        visible={!!createdEncounter}
+      >
+        <CheckInButton onClick={() => onOpenEncounterModal()} disabled={!!createdEncounter}>
+          <TranslatedText
+            stringId="scheduling.action.admitOrCheckIn"
+            fallback="Admit or check-in"
+          />
+        </CheckInButton>
+      </StyledConditionalTooltip>
     </AppointmentStatusContainer>
   );
 };
@@ -356,6 +372,7 @@ export const AppointmentDetailPopper = ({
   const patientId = appointment.patient.id;
 
   const { data: initialEncounter } = usePatientCurrentEncounter(patientId);
+  const { data: additionalData } = usePatientAdditionalDataQuery(patientId);
 
   const [localStatus, setLocalStatus] = useState(appointment.status);
   const [encounterModal, setEncounterModal] = useState(false);
@@ -456,6 +473,7 @@ export const AppointmentDetailPopper = ({
             <PatientDetailsDisplay
               patient={appointment.patient}
               onClick={handlePatientDetailsClick}
+              additionalData={additionalData}
             />
             <AppointmentDetailsDisplay appointment={appointment} isOvernight={isOvernight} />
             <AppointmentStatusSelector
