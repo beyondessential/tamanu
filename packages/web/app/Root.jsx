@@ -7,7 +7,7 @@ import PropTypes from 'prop-types';
 import { CssBaseline } from '@material-ui/core';
 import { ThemeProvider } from 'styled-components';
 import { MuiThemeProvider, StylesProvider } from '@material-ui/core/styles';
-import { ThemeProvider as NewThemeProvider } from '@mui/material';
+import { ThemeProvider as MuiLatestThemeProvider } from '@mui/material';
 import { LocalizationProvider as MuiLocalisationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { Slide } from 'react-toastify';
@@ -68,7 +68,7 @@ function Root({ api, store, history }) {
         <ApiContext.Provider value={api}>
           <ConnectedRouter history={history}>
             <StylesProvider injectFirst>
-              <NewThemeProvider theme={theme}>
+              <MuiLatestThemeProvider theme={theme}>
                 <MuiThemeProvider theme={theme}>
                   <ThemeProvider theme={theme}>
                     <MuiLocalisationProvider dateAdapter={AdapterDateFns}>
@@ -92,7 +92,7 @@ function Root({ api, store, history }) {
                     </MuiLocalisationProvider>
                   </ThemeProvider>
                 </MuiThemeProvider>
-              </NewThemeProvider>
+              </MuiLatestThemeProvider>
             </StylesProvider>
           </ConnectedRouter>
         </ApiContext.Provider>
