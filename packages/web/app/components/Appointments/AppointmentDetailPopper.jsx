@@ -13,12 +13,7 @@ import { debounce } from 'lodash';
 import { toast } from 'react-toastify';
 
 import { PatientNameDisplay } from '../PatientNameDisplay';
-import {
-  TranslatedEnum,
-  TranslatedReferenceData,
-  TranslatedSex,
-  TranslatedText,
-} from '../Translation';
+import { TranslatedReferenceData, TranslatedSex, TranslatedText } from '../Translation';
 import { Colors } from '../../constants';
 import { DateDisplay } from '../DateDisplay';
 import { reloadPatient } from '../../store';
@@ -26,11 +21,7 @@ import { usePatientAdditionalDataQuery } from '../../api/queries';
 import { CancelBookingModal } from './CancelBookingModal';
 import { formatDateRange } from './utils';
 import { useApi } from '../../api';
-import {
-  APPOINTMENT_STATUS_VALUES,
-  APPOINTMENT_STATUSES,
-  APPOINTMENT_TYPE_LABELS,
-} from '@tamanu/constants';
+import { APPOINTMENT_STATUS_VALUES, APPOINTMENT_STATUSES } from '@tamanu/constants';
 import { AppointmentStatusChip } from './AppointmentStatusChip';
 import { MenuButton } from '../MenuButton';
 import { useQueryClient } from '@tanstack/react-query';
@@ -150,6 +141,12 @@ const ControlsRow = ({ onClose, appointment, openBookingForm, handleAppointmentU
   );
 };
 
+const InlineDetailsDisplay = ({ label, value }) => (
+  <span>
+    <Label>{label}: </Label> {value ?? '—'}
+  </span>
+);
+
 const DetailsDisplay = ({ label, value }) => (
   <FlexCol>
     <Label>{label}</Label>
@@ -165,12 +162,16 @@ const InlineDetailsDisplay = ({ label, value }) => (
   </FlexRow>
 );
 
-const BookingTypeDisplay = ({ type, isOvernight }) => (
+const BookingTypeDisplay = ({ bookingType, isOvernight }) => (
   <DetailsDisplay
     label={<TranslatedText stringId="scheduling.bookingType.label" fallback="Booking type" />}
     value={
       <FlexRow sx={{ alignItems: 'center', justifyContent: 'space-between' }}>
-        <TranslatedEnum value={type} enumValues={APPOINTMENT_TYPE_LABELS} enumFallback={type} />
+        <TranslatedReferenceData
+          value={bookingType.id}
+          fallback={bookingType.name}
+          category="appointmentType"
+        />
         {isOvernight && (
           <FlexRow sx={{ gap: '2px' }}>
             <Overnight htmlColor={Colors.primary} sx={{ fontSize: 15 }} />
@@ -207,7 +208,7 @@ const PatientDetailsDisplay = ({ patient, onClick }) => {
         />
       </span>
       {!isLoading && additionalData?.primaryContactNumber && (
-        <InlineDetailsDisplay
+        <InlineInlineDetailsDisplay
           label={
             <TranslatedText
               stringId="patient.details.reminderContacts.field.contact"
@@ -223,7 +224,7 @@ const PatientDetailsDisplay = ({ patient, onClick }) => {
 };
 
 const AppointmentDetailsDisplay = ({ appointment, isOvernight }) => {
-  const { startTime, endTime, clinician, locationGroup, location, type } = appointment;
+  const { startTime, endTime, clinician, locationGroup, location, bookingType } = appointment;
   return (
     <AppointmentDetailsContainer>
       <DetailsDisplay
@@ -263,7 +264,7 @@ const AppointmentDetailsDisplay = ({ appointment, isOvernight }) => {
           />
         }
       />
-      <BookingTypeDisplay type={type} isOvernight={isOvernight} />
+      <BookingTypeDisplay bookingType={bookingType} isOvernight={isOvernight} />
     </AppointmentDetailsContainer>
   );
 };
@@ -275,7 +276,7 @@ export const AppointmentStatusSelector = ({
 }) => {
   return (
     <AppointmentStatusContainer role="radiogroup">
-      {APPOINTMENT_STATUS_VALUES.filter(status => status != APPOINTMENT_STATUSES.CANCELLED).map(
+      {APPOINTMENT_STATUS_VALUES.filter(status => status !== APPOINTMENT_STATUSES.CANCELLED).map(
         status => {
           const isSelected = status === selectedStatus;
           return (
@@ -350,20 +351,33 @@ export const AppointmentDetailPopper = ({
     [debouncedUpdateAppointmentStatus],
   );
 
+  const modifiers = [
+    {
+      name: 'offset',
+      options: {
+        offset: [0, 2],
+      },
+    },
+    {
+      name: 'preventOverflow',
+      enabled: true,
+      options: {
+        altAxis: true,
+        altBoundary: true,
+        tether: false,
+        rootBoundary: 'document',
+        padding: { top: 64, left: 184 }, // px conversions of height / width from CarouselComponents
+      },
+    },
+  ];
+
   return (
     <Popper
       open={open}
       anchorEl={anchorEl}
       placement="bottom-start"
       onClick={e => e.stopPropagation()} // Prevent the popper from closing when clicked
-      modifiers={[
-        {
-          name: 'offset',
-          options: {
-            offset: [0, 2],
-          },
-        },
-      ]}
+      modifiers={modifiers}
     >
       <ClickAwayListener onClickAway={onClose}>
         <Box>
