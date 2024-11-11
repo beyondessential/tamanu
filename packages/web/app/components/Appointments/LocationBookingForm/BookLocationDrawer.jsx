@@ -192,7 +192,7 @@ export const BookLocationDrawer = ({
             name="locationId"
             component={LocalisedLocationField}
             required
-            onChange={e => {
+            onChange={() => {
               if (values.overnight) {
                 setFieldValue('overnight', null);
               }

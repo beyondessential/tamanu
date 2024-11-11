@@ -19,7 +19,6 @@ import { isEqual } from 'lodash';
 import { CircularProgress } from '@material-ui/core';
 import { TranslatedText } from '../../Translation/TranslatedText';
 import { useAppointmentsQuery } from '../../../api/queries';
-import { FormHelperText } from '@mui/material';
 
 const CellContainer = styled.div`
   border: 1px solid ${({ $error }) => ($error ? Colors.alert : Colors.outline)};
