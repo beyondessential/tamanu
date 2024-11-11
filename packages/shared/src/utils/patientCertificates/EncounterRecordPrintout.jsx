@@ -527,26 +527,49 @@ const EncounterRecordPrintoutComponent = ({
           />
         )}
         {locationHistory.length > 0 && (
-          <TableSection title="Location" data={locationHistory} columns={COLUMNS.locations} />
+          <TableSection
+            title={getTranslation('general.localisedField.locationId.label', 'Location')}
+            data={locationHistory}
+            columns={COLUMNS.locations}
+          />
         )}
         {diagnoses.length > 0 && (
-          <TableSection title="Diagnoses" data={diagnoses} columns={COLUMNS.diagnoses} />
+          <TableSection
+            title={getTranslation('general.diagnosis.label', 'Diagnosis')}
+            data={diagnoses}
+            columns={COLUMNS.diagnoses}
+          />
         )}
         {procedures.length > 0 && (
-          <TableSection title="Procedures" data={procedures} columns={COLUMNS.procedures} />
+          <TableSection
+            title={getTranslation('discharge.procedures.label', 'Procedures')}
+            data={procedures}
+            columns={COLUMNS.procedures}
+          />
         )}
         {labRequests.length > 0 && (
-          <TableSection title="Lab requests" data={labRequests} columns={COLUMNS.labRequests} />
+          <TableSection
+            title={getTranslation('pdf.encounterRecord.section.labRequests', 'Lab requests')}
+            data={labRequests}
+            columns={COLUMNS.labRequests}
+          />
         )}
         {imagingRequests.length > 0 && (
           <TableSection
-            title="Imaging requests"
+            title={getTranslation(
+              'pdf.encounterRecord.section.imagingRequests',
+              'Imaging requests',
+            )}
             data={imagingRequests}
             columns={COLUMNS.imagingRequests}
           />
         )}
         {medications.length > 0 && (
-          <TableSection title="Medications" data={medications} columns={COLUMNS.medications} />
+          <TableSection
+            title={getTranslation('pdf.encounterRecord.section.medications', 'Medications')}
+            data={medications}
+            columns={COLUMNS.medications}
+          />
         )}
         {notes.length > 0 && <NotesSection notes={notes} />}
         <Footer />
@@ -557,7 +580,9 @@ const EncounterRecordPrintoutComponent = ({
             return recordedDates.length > start ? (
               <Page size="A4" orientation="landscape" style={pageStyles.body}>
                 <TableSection
-                  title="Vitals"
+                  title={
+                    getTranslation('pdf.encounterRecord.section.vitals', 'Vitals') +
+                  }
                   data={vitalsData}
                   columns={getVitalsColumn(start)}
                   type="vitals"
