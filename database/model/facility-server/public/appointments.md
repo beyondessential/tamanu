@@ -39,7 +39,13 @@ TODO
 {% enddocs %}
 
 {% docs appointments__type_legacy %}
-TODO
+The legacy type of appointment.
+
+One of:
+- `Standard`
+- `Emergency`
+- `Specialist`
+- `Other`
 {% enddocs %}
 
 {% docs appointments__status %}
@@ -59,9 +65,11 @@ TODO
 {% enddocs %}
 
 {% docs appointments__booking_type_id %}
-TODO
+Reference to a [Reference Data](#!/source/source.tamanu.tamanu.reference_data)
+(`type=bookingType`).
 {% enddocs %}
 
 {% docs appointments__appointment_type_id %}
-TODO
+Reference to a [Reference Data](#!/source/source.tamanu.tamanu.reference_data)
+(`type=appointmentType`).
 {% enddocs %}
