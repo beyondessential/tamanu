@@ -4,6 +4,8 @@ import { FhirBaseType } from './baseType';
 import { FhirIdentifier } from './identifier';
 import { lowerCase, snakeCase } from 'lodash';
 
+const UPSTREAM_REF_TYPE_PREFIX = 'upstream://';
+
 export class FhirReference extends FhirBaseType {
   static SCHEMA() {
     return yup
@@ -57,7 +59,7 @@ export class FhirReference extends FhirBaseType {
 
   static unresolved(resourceType, upstreamId, fields) {
     return new this({
-      type: `upstream://${snakeCase(lowerCase(resourceType.fhirName))}`,
+      type: `${UPSTREAM_REF_TYPE_PREFIX}${snakeCase(lowerCase(resourceType.fhirName))}`,
       reference: upstreamId,
       ...fields,
     });
@@ -85,5 +87,9 @@ export class FhirReference extends FhirBaseType {
     }
 
     return null;
+  }
+
+  isResolved() {
+    return !!this.reference && !this.type.startsWith(UPSTREAM_REF_TYPE_PREFIX);
   }
 }

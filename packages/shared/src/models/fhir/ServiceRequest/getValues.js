@@ -18,10 +18,6 @@ import {
   FhirReference,
 } from '../../../services/fhirTypes';
 import { Exception, formatFhirDate } from '../../../utils/fhir';
-import { FhirPatient } from '../Patient/FhirPatient';
-import { FhirEncounter } from '../Encounter/FhirEncounter';
-import { FhirPractitioner } from '../Practitioner/FhirPractitioner';
-import { FhirSpecimen } from '../Specimen/FhirSpecimen';
 
 export async function getValues(upstream, models) {
   const { ImagingRequest, LabRequest } = models;
@@ -46,6 +42,12 @@ async function getValuesFromImagingRequest(upstream, models) {
       { code: ext.code, description: ext.description, updatedAt: ext.updatedAt },
     ]),
   );
+
+  const subject = await FhirReference.to(models.FhirPatient, upstream.encounter.patient.id, {
+    display: `${upstream.encounter.patient.firstName} ${upstream.encounter.patient.lastName}`,
+  });
+  const encounter = await FhirReference.to(models.FhirEncounter, upstream.encounter.id);
+  const requester = await FhirReference.to(models.FhirPractitioner, upstream.requestedBy.id);
 
   return {
     lastUpdated: new Date(),
@@ -88,18 +90,24 @@ async function getValuesFromImagingRequest(upstream, models) {
           ]
         : [],
     ),
-    subject: await FhirReference.to(models.FhirPatient, upstream.encounter.patient.id, {
-      display: `${upstream.encounter.patient.firstName} ${upstream.encounter.patient.lastName}`,
-    }),
-    encounter: await FhirReference.to(models.FhirEncounter, upstream.encounter.id),
+    subject,
+    encounter,
     occurrenceDateTime: formatFhirDate(upstream.requestedDate),
-    requester: await FhirReference.to(models.FhirPractitioner, upstream.requestedBy.id),
+    requester,
     locationCode: locationCode(upstream),
     note: imagingAnnotations(upstream),
+    resolved: subject.isResolved() && encounter.isResolved() && requester.isResolved(),
   };
 }
 
 async function getValuesFromLabRequest(upstream, models) {
+  const subject = await FhirReference.to(models.FhirPatient, upstream.encounter.patient.id, {
+    display: `${upstream.encounter.patient.firstName} ${upstream.encounter.patient.lastName}`,
+  });
+  const encounter = await FhirReference.to(models.FhirEncounter, upstream.encounter.id);
+  const requester = await FhirReference.to(models.FhirPractitioner, upstream.requestedBy.id);
+  const specimen = await resolveSpecimen(upstream, models);
+
   return {
     lastUpdated: new Date(),
     identifier: [
@@ -127,14 +135,17 @@ async function getValuesFromLabRequest(upstream, models) {
     priority: validatePriority(upstream.priority?.name),
     code: labCode(upstream),
     orderDetail: await labOrderDetails(upstream),
-    subject: await FhirReference.to(models.FhirPatient, upstream.encounter.patient.id, {
-      display: `${upstream.encounter.patient.firstName} ${upstream.encounter.patient.lastName}`,
-    }),
-    encounter: await FhirReference.to(models.FhirEncounter, upstream.encounter.id),
+    subject,
+    encounter,
     occurrenceDateTime: formatFhirDate(upstream.requestedDate),
-    requester: await FhirReference.to(models.FhirPractitioner, upstream.requestedBy.id),
+    requester,
     note: labAnnotations(upstream),
-    specimen: await resolveSpecimen(upstream, models),
+    specimen,
+    resolved:
+      subject.isResolved() &&
+      encounter.isResolved() &&
+      requester.isResolved() &&
+      (specimen ? specimen.isResolved() : true),
   };
 }
 

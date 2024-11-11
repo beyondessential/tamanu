@@ -27,14 +27,18 @@ export async function getValues(upstream, models) {
 }
 
 async function getValuesFromEncounter(upstream, models) {
+  const subject = await subjectRef(upstream, models);
+  const serviceProvider = await serviceProviderRef(upstream, models);
+
   return {
     lastUpdated: new Date(),
     status: status(upstream),
     class: classification(upstream),
     actualPeriod: period(upstream),
-    subject: await subjectRef(upstream, models),
+    subject,
     location: locationRef(upstream),
-    serviceProvider: await serviceProviderRef(upstream, models),
+    serviceProvider,
+    resolved: subject.isResolved() && serviceProvider.isResolved(),
   };
 }
 

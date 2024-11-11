@@ -2,8 +2,6 @@ import config from 'config';
 
 import { FhirReference, FhirCoding, FhirCodeableConcept } from '../../../services/fhirTypes';
 import { formatFhirDate } from '../../../utils/fhir';
-import { FhirServiceRequest } from '../ServiceRequest/FhirServiceRequest';
-import { FhirPractitioner } from '../Practitioner/FhirPractitioner';
 
 export async function getValues(upstream, models) {
   const { LabRequest } = models;
@@ -13,15 +11,18 @@ export async function getValues(upstream, models) {
 }
 
 async function getValuesFromLabRequest(upstream, models) {
+  const collector = await collectorRef(upstream, models);
+  const request = await requestRef(upstream, models);
   return {
     lastUpdated: new Date(),
     collection: createCollection(
       formatFhirDate(upstream.sampleTime),
-      await collectorRef(upstream, models),
+      collector,
       await resolveBodySite(upstream, models),
     ),
     type: await resolveSpecimenType(upstream, models),
-    request: [await requestRef(upstream, models)],
+    request: [request],
+    resolved: request.isResolved() && (collector ? collector.isResolved() : true),
   };
 }
 

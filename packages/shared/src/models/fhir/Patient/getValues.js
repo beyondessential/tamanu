@@ -26,6 +26,8 @@ async function getValuesFromPatient(upstream, models) {
   // eslint-disable-next-line no-param-reassign
   upstream.additionalData = first;
 
+  const links = await mergeLinks(upstream, models);
+
   return {
     extension: extension(upstream),
     identifier: identifiers(upstream),
@@ -36,8 +38,9 @@ async function getValuesFromPatient(upstream, models) {
     birthDate: formatFhirDate(upstream.dateOfBirth, FHIR_DATETIME_PRECISION.DAYS),
     deceasedDateTime: formatFhirDate(upstream.dateOfDeath, FHIR_DATETIME_PRECISION.DAYS),
     address: addresses(upstream),
-    link: await mergeLinks(upstream, models),
+    link: links,
     lastUpdated: new Date(),
+    resolved: links.every(({ other }) => other.isResolved()),
   };
 }
 
