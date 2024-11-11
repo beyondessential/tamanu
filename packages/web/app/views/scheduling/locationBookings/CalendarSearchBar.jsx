@@ -58,7 +58,6 @@ export const CalendarSearchBar = ({ onFilterChange }) => {
             />
             <TextButton
               onClick={() => {
-                console.log(clearForm);
                 clearForm();
               }}
               style={{ textDecoration: 'underline', fontSize: '0.6875rem' }}

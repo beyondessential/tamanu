@@ -1,8 +1,8 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
 
-const LocationBookingFiltersContext = createContext();
+const LocationBookingContext = createContext();
 
-export const LocationBookingFiltersProvider = ({ children }) => {
+export const LocationBookingProvider = ({ children }) => {
   const [filters, setFilters] = useState({
     patientNameOrId: '',
     locationGroupIds: [],
@@ -15,10 +15,10 @@ export const LocationBookingFiltersProvider = ({ children }) => {
   }, []);
 
   return (
-    <LocationBookingFiltersContext.Provider value={{ filters, handleFilterChange }}>
+    <LocationBookingContext.Provider value={{ filters, handleFilterChange }}>
       {children}
-    </LocationBookingFiltersContext.Provider>
+    </LocationBookingContext.Provider>
   );
 };
 
-export const useLocationBookingFilters = () => useContext(LocationBookingFiltersContext);
+export const useLocationBooking = () => useContext(LocationBookingContext);

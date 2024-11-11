@@ -8,7 +8,7 @@ import { Colors } from '../../../constants';
 import { CarouselComponents as CarouselGrid } from './CarouselComponents';
 import { SkeletonRows } from './Skeletons';
 import { partitionAppointmentsByDate, partitionAppointmentsByLocation } from './util';
-import { useLocationBookingFilters } from '../../../contexts/LocationBookingFilters';
+import { useLocationBooking } from '../../../contexts/LocationBooking';
 
 export const BookingsCell = ({ appointments, date, location, openBookingForm }) => (
   <CarouselGrid.Cell
@@ -71,7 +71,7 @@ export const LocationBookingsCalendarBody = ({
   locationsQuery,
   openBookingForm,
 }) => {
-  const { filters } = useLocationBookingFilters();
+  const { filters } = useLocationBooking();
 
   const { data: locations, isLoading: locationsAreLoading } = locationsQuery;
 

@@ -10,7 +10,7 @@ import { CalendarSearchBar } from './CalendarSearchBar';
 import { BookLocationDrawer } from '../../../components/Appointments/LocationBookingForm/BookLocationDrawer';
 import { AddRounded } from '@material-ui/icons';
 import { useAuth } from '../../../contexts/Auth';
-import { useLocationBookingFilters } from '../../../contexts/LocationBookingFilters';
+import { useLocationBooking } from '../../../contexts/LocationBooking';
 
 const PlusIcon = styled(AddRounded)`
   && {
@@ -56,7 +56,7 @@ export const LocationBookingsView = () => {
   const [initialDrawerValues, setInitialDrawerValues] = useState({});
   const { facilityId } = useAuth();
 
-  const { filters, handleFilterChange } = useLocationBookingFilters();
+  const { filters, handleFilterChange } = useLocationBooking();
 
   const closeBookingForm = () => {
     setIsDrawerOpen(false);
