@@ -57,7 +57,7 @@ export const Footer = ({ printDate, printFacility, printedBy, style }) => {
   return (
     <View style={[styles.footer, style]} fixed>
       <View style={styles.footerLeftContent}>
-        <LabelText>Print date: </LabelText>
+        <LabelText>{getTranslation('pdf.footer.printDate.label', 'Print date')}: </LabelText>
         <ValueText>{formatShort(printDate || getCurrentDateString())} </ValueText>
         {printFacility && (
           <>
