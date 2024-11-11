@@ -46,7 +46,7 @@ const Toggle = styled(ToggleButton)`
     // Manually manage hover effect with $hover transient prop
     // Using :where() to avoid :not() increasing specificity
     &:where(:not(.${toggleButtonGroupClasses.selected})):hover {
-     background-color: unset;
+      background-color: unset;
     }
 
     &:disabled,
