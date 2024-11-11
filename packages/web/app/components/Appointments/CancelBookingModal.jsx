@@ -10,6 +10,7 @@ import { APPOINTMENT_STATUSES, OTHER_REFERENCE_TYPES } from '@tamanu/constants';
 import { PatientNameDisplay } from '../PatientNameDisplay';
 import { formatDateRange } from '../../utils/dateTime';
 import { useAppointmentMutation } from '../../api/mutations';
+import { useQueryClient } from '@tanstack/react-query';
 
 const FlexCol = styled(Box)`
   display: flex;
@@ -152,7 +153,9 @@ const BottomModalContent = ({ cancelBooking, onClose }) => (
   </BottomModalContainer>
 );
 
-export const CancelBookingModal = ({ appointment, open, onClose, onModifyAppointment }) => {
+export const CancelBookingModal = ({ appointment, open, onClose }) => {
+  const queryClient = useQueryClient();
+
   const { mutateAsync: cancelBooking } = useAppointmentMutation(
     { isEdit: true },
     {
@@ -163,7 +166,7 @@ export const CancelBookingModal = ({ appointment, open, onClose, onModifyAppoint
             fallback="Booking cancelled successfully"
           />,
         );
-        onModifyAppointment();
+        queryClient.invalidateQueries('appointments');
         onClose();
       },
       onError: error => {

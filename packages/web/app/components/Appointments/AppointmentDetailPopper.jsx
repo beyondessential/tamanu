@@ -19,7 +19,6 @@ import { Colors } from '../../constants';
 import { DateDisplay } from '../DateDisplay';
 import { reloadPatient } from '../../store';
 import { usePatientAdditionalDataQuery } from '../../api/queries';
-import { CancelBookingModal } from './CancelBookingModal';
 import { useApi } from '../../api';
 import { APPOINTMENT_STATUS_VALUES, APPOINTMENT_STATUSES } from '@tamanu/constants';
 import { AppointmentStatusChip } from './AppointmentStatusChip';
@@ -111,13 +110,7 @@ const StyledIconButton = styled(IconButton)`
   }
 `;
 
-const ControlsRow = ({ onClose, appointment, onModifyAppointment, onEdit }) => {
-  const [isCancelModalOpen, setCancelModalOpen] = useState(false);
-
-  const handleCancelModalClose = () => {
-    setCancelModalOpen(false);
-  };
-
+const ControlsRow = ({ onClose, onCancel, onEdit }) => {
   const actions = [
     {
       label: <TranslatedText stringId="general.action.modify" fallback="Modify" />,
@@ -125,7 +118,7 @@ const ControlsRow = ({ onClose, appointment, onModifyAppointment, onEdit }) => {
     },
     {
       label: <TranslatedText stringId="general.action.cancel" fallback="Cancel" />,
-      action: () => setCancelModalOpen(true),
+      action: onCancel,
     },
   ];
 
@@ -135,12 +128,6 @@ const ControlsRow = ({ onClose, appointment, onModifyAppointment, onEdit }) => {
       <StyledIconButton onClick={onClose}>
         <Close />
       </StyledIconButton>
-      <CancelBookingModal
-        appointment={appointment}
-        open={isCancelModalOpen}
-        onClose={handleCancelModalClose}
-        onModifyAppointment={onModifyAppointment}
-      />
     </ControlsContainer>
   );
 };
@@ -328,6 +315,7 @@ export const AppointmentDetailPopper = ({
   onStatusChange,
   onUpdated,
   onEdit,
+  onCancel,
   anchorEl,
   appointment,
   isOvernight = false,
@@ -421,13 +409,7 @@ export const AppointmentDetailPopper = ({
         touchEvent="onTouchStart"
       >
         <Box>
-          <ControlsRow
-            appointment={appointment}
-            onClose={onClose}
-            onModifyAppointment={handleAppointmentUpdate}
-            onEdit={onEdit}
-          />
-
+          <ControlsRow onClose={onClose} onEdit={onEdit} onCancel={onCancel} />
           <StyledPaper elevation={0}>
             <PatientDetailsDisplay
               patient={appointment.patient}
