@@ -492,17 +492,17 @@ const EncounterRecordPrintoutComponent = ({
       <Page size="A4" style={pageStyles.body} wrap>
         {watermark && <Watermark src={watermark} />}
         <MultiPageHeader
-          documentName={getTranslation(
-            'pdf.encounterRecord.documentName',
-            'Patient encounter record',
-          )}
+          documentName={getTranslation('pdf.encounterRecord.title', 'Patient encounter record')}
           patientId={patientData.displayId}
           patientName={getName(patientData)}
         />
         <CertificateHeader>
           <LetterheadSection
             logoSrc={logo}
-            certificateTitle="Patient encounter record"
+            certificateTitle={getTranslation(
+              'pdf.encounterRecord.title',
+              'Patient encounter record',
+            )}
             letterheadConfig={certificateData}
           />
         </CertificateHeader>
