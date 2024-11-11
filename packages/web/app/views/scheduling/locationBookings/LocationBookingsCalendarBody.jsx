@@ -10,7 +10,13 @@ import { SkeletonRows } from './Skeletons';
 import { partitionAppointmentsByDate, partitionAppointmentsByLocation } from './util';
 import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
 
-export const BookingsCell = ({ appointments, date, location, openBookingForm }) => (
+export const BookingsCell = ({
+  appointments,
+  date,
+  location,
+  openBookingForm,
+  openCancelModal,
+}) => (
   <CarouselGrid.Cell
     onClick={e => {
       if (e.target.closest('.appointment-tile')) return;
@@ -22,6 +28,7 @@ export const BookingsCell = ({ appointments, date, location, openBookingForm }) 
       <AppointmentTile
         className="appointment-tile"
         onEdit={() => openBookingForm({ ...a, date: a.startTime })}
+        onCancel={() => openCancelModal(a)}
         appointment={a}
         key={a.id}
       />
@@ -29,7 +36,13 @@ export const BookingsCell = ({ appointments, date, location, openBookingForm }) 
   </CarouselGrid.Cell>
 );
 
-export const BookingsRow = ({ appointments, dates, location, openBookingForm }) => {
+export const BookingsRow = ({
+  appointments,
+  dates,
+  location,
+  openBookingForm,
+  openCancelModal,
+}) => {
   const {
     name: locationName,
     locationGroup: { name: locationGroupName },
@@ -48,6 +61,7 @@ export const BookingsRow = ({ appointments, dates, location, openBookingForm }) 
           key={d.valueOf()}
           location={location}
           openBookingForm={openBookingForm}
+          openCancelModal={openCancelModal}
         />
       ))}
     </CarouselGrid.Row>
@@ -70,6 +84,7 @@ export const LocationBookingsCalendarBody = ({
   displayedDates,
   locationsQuery,
   openBookingForm,
+  openCancelModal,
 }) => {
   const { data: locations, isLoading: locationsAreLoading } = locationsQuery;
   const appointments =
@@ -92,6 +107,7 @@ export const LocationBookingsCalendarBody = ({
       key={location.code}
       location={location}
       openBookingForm={openBookingForm}
+      openCancelModal={openCancelModal}
     />
   ));
 };
