@@ -126,7 +126,7 @@ export const AppointmentTile = ({ appointment, openBookingForm, onUpdated, ...pr
           )}
           {isOvernight && (
             <OvernightIcon
-              aria-label="Overnight"
+              aria-label="Overnight booking"
               aria-hidden={undefined}
               htmlColor="#326699"
               style={{ fontSize: 15 }}
