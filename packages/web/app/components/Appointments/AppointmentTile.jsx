@@ -72,8 +72,8 @@ const IconGroup = styled.div`
   justify-content: end;
 `;
 
-const getPatientFullName = ({ firstName, middleName, lastName }) =>
-  [firstName, middleName, lastName].filter(Boolean).join(' ');
+const getPatientFullName = ({ firstName, lastName }) =>
+  [firstName, lastName].filter(Boolean).join(' ');
 
 export const AppointmentTile = ({ appointment, openBookingForm, onUpdated, ...props }) => {
   const ref = useRef(null);
