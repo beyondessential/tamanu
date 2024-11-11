@@ -11,7 +11,6 @@ import Overnight from '@mui/icons-material/Brightness2';
 import Close from '@mui/icons-material/Close';
 import { debounce } from 'lodash';
 import { toast } from 'react-toastify';
-import { useQueryClient } from '@tanstack/react-query';
 
 import { PatientNameDisplay } from '../PatientNameDisplay';
 import { TranslatedReferenceData, TranslatedSex, TranslatedText } from '../Translation';
@@ -310,7 +309,6 @@ export const AppointmentDetailPopper = ({
   open,
   onClose,
   onStatusChange,
-  onUpdated,
   onEdit,
   onCancel,
   anchorEl,
@@ -321,13 +319,6 @@ export const AppointmentDetailPopper = ({
   const api = useApi();
   const [localStatus, setLocalStatus] = useState(appointment.status);
   const patientId = appointment.patient.id;
-
-  const queryClient = useQueryClient();
-
-  const handleAppointmentUpdate = useCallback(() => {
-    queryClient.invalidateQueries('appointments');
-    if (onUpdated) onUpdated();
-  }, [queryClient, onUpdated]);
 
   const handlePatientDetailsClick = useCallback(async () => {
     await dispatch(reloadPatient(patientId));
@@ -342,7 +333,6 @@ export const AppointmentDetailPopper = ({
             status: newValue,
           });
           onStatusChange?.(newValue);
-          handleAppointmentUpdate();
         } catch (error) {
           toast.error(
             <TranslatedText
@@ -353,7 +343,7 @@ export const AppointmentDetailPopper = ({
           setLocalStatus(appointment.status);
         }
       }, DEBOUNCE_DELAY),
-    [api, appointment.id, appointment.status, onStatusChange, handleAppointmentUpdate],
+    [api, appointment.id, appointment.status, onStatusChange],
   );
 
   const updateAppointmentStatus = useCallback(
