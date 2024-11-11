@@ -222,7 +222,7 @@ const NoteContent = ({
       <NoteFooterContainer>
         {showNoteMetaPrefix && (
           <NoteFooterTextElement>
-            <TranslatedText stringId="note.table.footer.lastUpdated" fallback="Last updated" />:
+            <TranslatedText stringId="general.lastUpdated.label" fallback="Last updated" />:
           </NoteFooterTextElement>
         )}
         {noteAuthorName ? <NoteFooterTextElement>{noteAuthorName}</NoteFooterTextElement> : null}

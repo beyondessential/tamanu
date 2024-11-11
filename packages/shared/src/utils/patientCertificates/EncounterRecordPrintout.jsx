@@ -139,6 +139,7 @@ const NotesCell = ({ children, style = {} }) => (
 const SectionSpacing = () => <View style={{ paddingBottom: '10px' }} />;
 
 const MultipageTableHeading = ({ title, style = textStyles.sectionTitle }) => {
+  const { getTranslation } = useLanguageContext();
   let firstPageOccurence = Number.MAX_SAFE_INTEGER;
   return (
     <Text
@@ -148,7 +149,9 @@ const MultipageTableHeading = ({ title, style = textStyles.sectionTitle }) => {
         if (pageNumber < firstPageOccurence && subPageNumber) {
           firstPageOccurence = pageNumber;
         }
-        return pageNumber === firstPageOccurence ? title : `${title} cont...`;
+        return pageNumber === firstPageOccurence
+          ? title
+          : `${title} ${getTranslation('pdf.heading.contentContinued', 'cont...')}`;
       }}
     />
   );
@@ -214,14 +217,14 @@ const TableSection = ({ title, data, columns, type }) => {
   );
 };
 
-const NoteFooter = ({ note }) => (
+const NoteFooter = ({ note }) => {
+  const { getTranslation } = useLanguageContext();
   <Text style={textStyles.tableCellFooter}>
     {`${note.noteType === NOTE_TYPES.TREATMENT_PLAN ? 'Last updated: ' : ''}${note.author
       ?.displayName || ''}${note.onBehalfOf ? ` on behalf of ${note.onBehalfOf.displayName}` : ''}`}
     {` ${formatShort(note.date)} ${getDisplayDate(note.date, 'h:mma')}`}
-  </Text>
-);
-
+  </Text>;
+};
 const NotesMultipageCellPadding = () => {
   let firstPageOccurence = Number.MAX_SAFE_INTEGER;
   return (
