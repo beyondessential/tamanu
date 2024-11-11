@@ -537,7 +537,7 @@ const EncounterRecordPrintoutComponent = ({
         )}
         {diagnoses.length > 0 && (
           <TableSection
-            title={getTranslation('general.diagnosis.label', 'Diagnosis')}
+            title={getTranslation('general.localisedField.diagnosis.label', 'Diagnosis')}
             data={diagnoses}
             columns={COLUMNS.diagnoses}
           />
