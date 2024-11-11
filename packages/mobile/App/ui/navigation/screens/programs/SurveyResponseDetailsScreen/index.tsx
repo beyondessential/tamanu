@@ -65,6 +65,8 @@ function getAnswerText(question, answer): string | number {
       return JSON.parse(answer).join(', ');
     case FieldTypes.GEOLOCATE:
       return answer || 'N/A';
+    case FieldTypes.SURVEY_ANSWER:
+      return answer || 'N/A';
     default:
       console.warn(`Unknown field type: ${question.dataElement.type}`);
       return `?? ${question.dataElement.type}`;
