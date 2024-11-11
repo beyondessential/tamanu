@@ -184,7 +184,8 @@ export const BookLocationDrawer = ({
     };
 
     return (
-      <div ref={topRef}>
+      <>
+        <div ref={topRef} aria-hidden></div>
         <BookLocationHeader onClose={warnAndResetForm} />
         <StyledFormGrid nested columns={1}>
           <Field
@@ -251,7 +252,7 @@ export const BookLocationDrawer = ({
         />
         <FormSubmitCancelRow onCancel={warnAndResetForm} confirmDisabled={!values.startTime} />
       </StyledFormGrid>
-    </div>);
+    </>);
   };
 
   return (
