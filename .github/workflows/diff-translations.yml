@@ -1,6 +1,9 @@
 name: Diff Translations
 
 on:
+  pull_request:
+    types:
+      - synchronize
   push:
     tags:
       - 'v*'
