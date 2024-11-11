@@ -148,12 +148,16 @@ const DetailsDisplay = ({ label, value }) => (
   </FlexCol>
 );
 
-const BookingTypeDisplay = ({ type, isOvernight }) => (
+const BookingTypeDisplay = ({ bookingType, isOvernight }) => (
   <DetailsDisplay
     label={<TranslatedText stringId="scheduling.bookingType.label" fallback="Booking type" />}
     value={
       <FlexRow sx={{ alignItems: 'center', justifyContent: 'space-between' }}>
-        <TranslatedReferenceData value={type.id} fallback={type.name} category="appointmentType" />
+        <TranslatedReferenceData
+          value={bookingType.id}
+          fallback={bookingType.name}
+          category="appointmentType"
+        />
         {isOvernight && (
           <FlexRow sx={{ gap: '2px' }}>
             <Overnight htmlColor={Colors.primary} sx={{ fontSize: 15 }} />
@@ -205,8 +209,8 @@ const PatientDetailsDisplay = ({ patient, onClick }) => {
   );
 };
 
-const AppointDetailsDisplay = ({ appointment, isOvernight }) => {
-  const { startTime, endTime, clinician, locationGroup, location, type } = appointment;
+const AppointmentDetailsDisplay = ({ appointment, isOvernight }) => {
+  const { startTime, endTime, clinician, locationGroup, location, bookingType } = appointment;
   return (
     <AppointmentDetailsContainer>
       <DetailsDisplay
@@ -246,7 +250,7 @@ const AppointDetailsDisplay = ({ appointment, isOvernight }) => {
           />
         }
       />
-      <BookingTypeDisplay type={type} isOvernight={isOvernight} />
+      <BookingTypeDisplay bookingType={bookingType} isOvernight={isOvernight} />
     </AppointmentDetailsContainer>
   );
 };
@@ -370,7 +374,7 @@ export const AppointmentDetailPopper = ({
               patient={appointment.patient}
               onClick={handlePatientDetailsClick}
             />
-            <AppointDetailsDisplay appointment={appointment} isOvernight={isOvernight} />
+            <AppointmentDetailsDisplay appointment={appointment} isOvernight={isOvernight} />
             <AppointmentStatusSelector
               selectedStatus={localStatus}
               updateAppointmentStatus={updateAppointmentStatus}
