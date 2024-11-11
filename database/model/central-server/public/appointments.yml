@@ -89,7 +89,7 @@ sources:
             data_type: character varying(255)
             description: "{{ doc('appointments__booking_type_id') }}"
             data_tests:
-              - dbt_utils.relationships_where: # note the different test name
+              - dbt_utils.relationships_where:
                   to: source('tamanu', 'reference_data')
                   field: id
                   to_condition: type = 'bookingType'
@@ -97,7 +97,7 @@ sources:
             data_type: character varying(255)
             description: "{{ doc('appointments__appointment_type_id') }}"
             data_tests:
-              - dbt_utils.relationships_where: # note the different test name
+              - dbt_utils.relationships_where:
                   to: source('tamanu', 'reference_data')
                   field: id
                   to_condition: type = 'appointmentType'
