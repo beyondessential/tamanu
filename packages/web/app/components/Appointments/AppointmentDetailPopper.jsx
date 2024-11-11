@@ -349,8 +349,6 @@ export const AppointmentDetailPopper = ({
     },
   ];
 
-  const header = document.querySelector('.LocationBookingsCalendarHeader');
-  console.log(header);
 
   return (
     <Popper
