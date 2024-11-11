@@ -47,7 +47,9 @@ async function getValuesFromImagingRequest(upstream, models) {
     display: `${upstream.encounter.patient.firstName} ${upstream.encounter.patient.lastName}`,
   });
   const encounter = await FhirReference.to(models.FhirEncounter, upstream.encounter.id);
-  const requester = await FhirReference.to(models.FhirPractitioner, upstream.requestedBy.id);
+  const requester = await FhirReference.to(models.FhirPractitioner, upstream.requestedBy.id, {
+    display: upstream.requestedBy.displayName,
+  });
 
   return {
     lastUpdated: new Date(),
@@ -105,7 +107,9 @@ async function getValuesFromLabRequest(upstream, models) {
     display: `${upstream.encounter.patient.firstName} ${upstream.encounter.patient.lastName}`,
   });
   const encounter = await FhirReference.to(models.FhirEncounter, upstream.encounter.id);
-  const requester = await FhirReference.to(models.FhirPractitioner, upstream.requestedBy.id);
+  const requester = await FhirReference.to(models.FhirPractitioner, upstream.requestedBy.id, {
+    display: upstream.requestedBy.displayName,
+  });
   const specimen = await resolveSpecimen(upstream, models);
 
   return {

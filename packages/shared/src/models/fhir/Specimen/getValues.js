@@ -42,7 +42,10 @@ async function requestRef(labRequest, models) {
 
 async function collectorRef(labRequest, models) {
   if (!labRequest.collectedById) return null;
-  return FhirReference.to(models.FhirPractitioner, labRequest.collectedById);
+  const collectedByUser = await models.User.findOne({ where: { id: labRequest.collectedById } });
+  return FhirReference.to(models.FhirPractitioner, labRequest.collectedById, {
+    display: collectedByUser.displayName,
+  });
 }
 
 async function resolveBodySite(upstream, models) {
