@@ -33,7 +33,6 @@ const Carousel = styled.div`
   }
 `;
 
-
 export const LocationBookingsCalendar = ({ locationsQuery, openBookingForm }) => {
   const selectedMonthState = useState(startOfToday());
   const [monthOf] = selectedMonthState;
@@ -45,7 +44,7 @@ export const LocationBookingsCalendar = ({ locationsQuery, openBookingForm }) =>
         <LocationBookingsCalendarHeader
           selectedMonthState={selectedMonthState}
           displayedDates={displayedDates}
-        /> 
+        />
         <LocationBookingsCalendarBody
           locationsQuery={locationsQuery}
           displayedDates={displayedDates}
