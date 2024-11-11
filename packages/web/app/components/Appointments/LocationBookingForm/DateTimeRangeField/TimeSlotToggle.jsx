@@ -76,8 +76,8 @@ const AvailableToggle = styled(Toggle)`
   ${({ $hover }) =>
     $hover &&
     css`
-      &:not(${toggleButtonClasses.selected}),
-      &&&&:not(${toggleButtonClasses.selected}):hover {
+      &&,
+      &&&&&:hover {
         background-color: ${Colors.veryLightBlue};
       }
     `};
