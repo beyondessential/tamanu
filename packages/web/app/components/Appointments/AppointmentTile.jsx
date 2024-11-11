@@ -78,21 +78,17 @@ const IconGroup = styled.div`
   justify-content: end;
 `;
 
-export const AppointmentTile = ({ appointment, openBookingForm, onUpdated, ...props }) => {
+export const AppointmentTile = ({ appointment, onEdit, ...props }) => {
+  const { patient, startTime: startTimeStr, endTime: endTimeStr, appointmentStatus } = appointment;
   const ref = useRef(null);
   const [open, setOpen] = useState();
+  const [localStatus, setLocalStatus] = useState(status);
 
-  const {
-    patient,
-    startTime: startTimeStr,
-    endTime: endTimeStr,
-    status: appointmentStatus,
-  } = appointment;
   const startTime = parseISO(startTimeStr);
   const endTime = parseISO(endTimeStr);
 
   const isHighPriority = false; // TODO
-  const isOvernight = !isSameDay(startTime, endTime);
+  const isOvernight = appointment.location && !isSameDay(startTime, endTime);
 
   const tileText = (
     <>
@@ -130,7 +126,7 @@ export const AppointmentTile = ({ appointment, openBookingForm, onUpdated, ...pr
               style={{ fontSize: 15 }}
             />
           )}
-          <StatusIndicator appointmentStatus={appointmentStatus} width={15} height={15} />
+          <StatusIndicator appointmentStatus={localStatus} width={15} height={15} />
         </IconGroup>
         <AppointmentDetailPopper
           open={open}
@@ -138,8 +134,8 @@ export const AppointmentTile = ({ appointment, openBookingForm, onUpdated, ...pr
           anchorEl={ref.current}
           appointment={appointment}
           isOvernight={isOvernight}
-          onUpdated={onUpdated}
-          openBookingForm={openBookingForm}
+          onEdit={onEdit}
+          onStatusChange={setLocalStatus}
         />
       </Wrapper>
     </ThemedTooltip>

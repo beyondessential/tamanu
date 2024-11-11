@@ -8,19 +8,20 @@ import { Colors } from '../../../constants';
 import { CarouselComponents as CarouselGrid } from './CarouselComponents';
 import { SkeletonRows } from './Skeletons';
 import { partitionAppointmentsByDate, partitionAppointmentsByLocation } from './util';
+import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
 
 export const BookingsCell = ({ appointments, date, location, openBookingForm }) => (
   <CarouselGrid.Cell
     onClick={e => {
       if (e.target.closest('.appointment-tile')) return;
       // Open form for creating new booking
-      openBookingForm({ date, locationId: location.id });
+      openBookingForm({ date: toDateTimeString(date), locationId: location.id });
     }}
   >
     {appointments?.map(a => (
       <AppointmentTile
         className="appointment-tile"
-        openBookingForm={openBookingForm}
+        onEdit={() => openBookingForm({ ...a, date: a.startTime })}
         appointment={a}
         key={a.id}
       />

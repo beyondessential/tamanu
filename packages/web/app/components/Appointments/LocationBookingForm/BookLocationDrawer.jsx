@@ -1,14 +1,11 @@
-import { Drawer } from '@material-ui/core';
 import Brightness2Icon from '@material-ui/icons/Brightness2';
 import { useQueryClient } from '@tanstack/react-query';
 import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import * as yup from 'yup';
 
-
 import { usePatientSuggester, useSuggester } from '../../../api';
 import { useLocationBookingMutation } from '../../../api/mutations';
-import { Colors } from '../../../constants';
 import { notifyError, notifySuccess } from '../../../utils';
 import { FormSubmitCancelRow } from '../../ButtonRow';
 import { ConfirmModal } from '../../ConfirmModal';
@@ -24,18 +21,10 @@ import {
 import { FormGrid } from '../../FormGrid';
 import { TOP_BAR_HEIGHT } from '../../TopBar';
 import { TranslatedText } from '../../Translation/TranslatedText';
-import { BookLocationHeader } from './BookLocationHeader';
 import { BookingTimeField } from './BookingTimeField';
 import { useTranslation } from '../../../contexts/Translation';
-
-const Container = styled.div`
-  width: 330px;
-  padding-block: 0 1rem;
-  padding-inline: 1rem;
-  background-color: ${Colors.background};
-  overflow-y: auto;
-  position: relative;
-`;
+import { Drawer } from '../../Drawer';
+import { APPOINTMENT_DRAWER_CLASS } from '../AppointmentDetailPopper';
 
 const OvernightStayField = styled.div`
   display: flex;
@@ -103,8 +92,8 @@ export const WarningModal = ({ open, setShowWarningModal, resolveFn }) => {
   );
 };
 
-const SuccessMessage = ({ editMode }) =>
-  editMode ? (
+const SuccessMessage = ({ isEdit = false }) =>
+  isEdit ? (
     <TranslatedText
       stringId="locationBooking.notification.bookingSuccessfullyEdited"
       fallback="Booking successfully edited"
@@ -125,13 +114,9 @@ const validationSchema = yup.object({
   bookingTypeId: yup.string().required('*Required'),
 });
 
-export const BookLocationDrawer = ({
-  open,
-  closeDrawer,
-  initialBookingValues,
-}) => {
+export const BookLocationDrawer = ({ open, onClose, initialValues }) => {
   const { getTranslation } = useTranslation();
-  const editMode = !!initialBookingValues.id;
+  const isEdit = !!initialValues.id;
 
   const patientSuggester = usePatientSuggester();
   const clinicianSuggester = useSuggester('practitioner');
@@ -152,11 +137,11 @@ export const BookLocationDrawer = ({
 
   const queryClient = useQueryClient();
   const { mutateAsync: handleSubmit } = useLocationBookingMutation(
-    { editMode },
+    { isEdit },
     {
       onSuccess: () => {
         notifySuccess(<SuccessMessage />);
-        closeDrawer();
+        onClose();
         queryClient.invalidateQueries('appointments');
       },
       onError: error => {
@@ -181,7 +166,7 @@ export const BookLocationDrawer = ({
     const warnAndResetForm = async () => {
       const confirmed = !dirty || (await handleShowWarningModal());
       if (!confirmed) return;
-      closeDrawer();
+      onClose();
       resetForm();
     };
 
@@ -258,26 +243,36 @@ export const BookLocationDrawer = ({
   };
 
   return (
-    <StyledDrawer variant="persistent" anchor="right" open={open} onClose={closeDrawer}>
-      <Container>
-        <Form
-          onSubmit={async (values, { resetForm }) => {
-            await handleSubmit(values);
-            resetForm();
-          }}
-          suppressErrorDialog
-          validationSchema={validationSchema}
-          validateOnChange
-          initialValues={initialBookingValues}
-          enableReinitialize
-          render={renderForm}
+    <StyledDrawer variant="persistent" anchor="right"
+      PaperProps={{
+        // Used to exclude the drawer from click away listener on appointment detail popper
+        className: APPOINTMENT_DRAWER_CLASS,
+      }}
+      open={open}
+      onClose={onClose}
+      title={
+        <TranslatedText stringId="locationBooking.form.new.heading" fallback="Book location" />
+      }
+      description={
+        <TranslatedText
+          stringId="locationBooking.form.new.description"
+          fallback="Create a new booking by completing the below details and selecting ‘Confirm’"
         />
-        <WarningModal
-          open={warningModalOpen}
-          setShowWarningModal={setShowWarningModal}
-          resolveFn={resolveFn}
-        />
-      </Container>
+      }
+    >
+      <Form
+        onSubmit={async values => {handleSubmit(values); resetForm();}}
+        suppressErrorDialog
+        validationSchema={validationSchema}
+        initialValues={initialValues}
+        enableReinitialize
+        render={renderForm}
+      />
+      <WarningModal
+        open={warningModalOpen}
+        setShowWarningModal={setShowWarningModal}
+        resolveFn={resolveFn}
+      />
     </StyledDrawer>
   );
 };
