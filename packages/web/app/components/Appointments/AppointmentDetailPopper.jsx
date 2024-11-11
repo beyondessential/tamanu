@@ -168,10 +168,7 @@ const BookingTypeDisplay = ({ bookingType, isOvernight }) => (
 
 const PatientDetailsDisplay = ({ patient, onClick }) => {
   const { id, displayId, sex, dateOfBirth } = patient;
-  const {
-    data: additionalData,
-    isLoading: isAdditionalDataLoading,
-  } = usePatientAdditionalDataQuery(id);
+  const { data: additionalData } = usePatientAdditionalDataQuery(id);
   return (
     <PatientDetailsContainer onClick={onClick}>
       <Title>
@@ -193,7 +190,7 @@ const PatientDetailsDisplay = ({ patient, onClick }) => {
           value={<DateDisplay date={dateOfBirth} noTooltip />}
         />
       </span>
-      {!isAdditionalDataLoading && additionalData?.primaryContactNumber && (
+      {!additionalData?.primaryContactNumber && (
         <InlineDetailsDisplay
           label={
             <TranslatedText stringId="patient.details.reminderContacts.label" fallback="Contact" />
