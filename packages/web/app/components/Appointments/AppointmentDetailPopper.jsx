@@ -154,14 +154,6 @@ const DetailsDisplay = ({ label, value }) => (
   </FlexCol>
 );
 
-const InlineDetailsDisplay = ({ label, value }) => (
-  <FlexRow sx={{ display: 'inline-flex' }}>
-    <span>
-      <Label>{label}: </Label> {value ?? '—'}
-    </span>
-  </FlexRow>
-);
-
 const BookingTypeDisplay = ({ bookingType, isOvernight }) => (
   <DetailsDisplay
     label={<TranslatedText stringId="scheduling.bookingType.label" fallback="Booking type" />}
@@ -185,7 +177,10 @@ const BookingTypeDisplay = ({ bookingType, isOvernight }) => (
 
 const PatientDetailsDisplay = ({ patient, onClick }) => {
   const { id, displayId, sex, dateOfBirth } = patient;
-  const { data: additionalData, isLoading } = usePatientAdditionalDataQuery(id);
+  const {
+    data: additionalData,
+    isLoading: isAdditionalDataLoading,
+  } = usePatientAdditionalDataQuery(id);
   return (
     <PatientDetailsContainer onClick={onClick}>
       <Title>
@@ -207,8 +202,8 @@ const PatientDetailsDisplay = ({ patient, onClick }) => {
           value={<DateDisplay date={dateOfBirth} noTooltip />}
         />
       </span>
-      {!isLoading && additionalData?.primaryContactNumber && (
-        <InlineInlineDetailsDisplay
+      {!isAdditionalDataLoading && additionalData?.primaryContactNumber && (
+        <InlineDetailsDisplay
           label={
             <TranslatedText
               stringId="patient.details.reminderContacts.field.contact"
