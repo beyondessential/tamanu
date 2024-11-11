@@ -47,7 +47,6 @@ const BaseCell = styled.div`
   scroll-margin-block-start: calc(var(--header-row-height) + 1.25rem);
   scroll-margin-inline-start: calc(var(--header-col-width) + 2rem);
   scroll-snap-align: start;
-  transition: background-color 100ms ease;
   vertical-align: top;
 
   &:not(:last-child) {
