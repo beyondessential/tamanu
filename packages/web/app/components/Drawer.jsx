@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { Drawer as MuiDrawer } from '@mui/material';
 
@@ -56,6 +56,10 @@ export const Drawer = ({
   description,
   children,
 }) => {
+  const topRef = useRef(null);
+
+  useEffect(() => topRef.current.scrollIntoView(), [open]);
+
   return (
     <StyledDrawer
       PaperProps={PaperProps}
@@ -70,6 +74,7 @@ export const Drawer = ({
           {title}
           <CloseDrawerIcon onClick={onClose} />
         </Title>
+        <div ref={topRef} aria-hidden></div>
         <Description>{description}</Description>
         {children}
       </Container>

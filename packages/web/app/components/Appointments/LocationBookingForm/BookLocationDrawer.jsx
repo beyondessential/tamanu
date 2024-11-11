@@ -124,10 +124,6 @@ export const BookLocationDrawer = ({ open, onClose, initialValues }) => {
   const [warningModalOpen, setShowWarningModal] = useState(false);
   const [resolveFn, setResolveFn] = useState(null);
 
-  const topRef = useRef(null);
-
-  useEffect(() => topRef.current.scrollIntoView(), [open]);
-
   const handleShowWarningModal = async () =>
     new Promise(resolve => {
       setResolveFn(() => resolve); // Save resolve to use in onConfirm/onCancel
@@ -171,7 +167,6 @@ export const BookLocationDrawer = ({ open, onClose, initialValues }) => {
 
     return (
       <>
-        <div ref={topRef} aria-hidden></div>
         <StyledFormGrid nested columns={1}>
           <Field
             enableLocationStatus={false}
