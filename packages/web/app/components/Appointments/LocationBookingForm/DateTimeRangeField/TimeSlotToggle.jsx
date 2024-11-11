@@ -9,14 +9,20 @@ import { TimeRangeDisplay } from '../../../DateDisplay';
 import { ConditionalTooltip, ThemedTooltip } from '../../../Tooltip';
 import { TranslatedText } from '../../../Translation/TranslatedText';
 
+/**
+ * @privateRemarks Specificity (0,5,0) to override styles (for all states, including :disabled and
+ * :hover) that are baked into the MUI component. A more precise selector with equivalent behaviour
+ * would be:
+ * ```
+ * .${toggleButtonGroupClasses.root} &.${toggleButtonClasses.root}.${toggleButtonGroupClasses.grouped}:is(
+ *   .${toggleButtonGroupClasses.firstButton},
+ *   .${toggleButtonGroupClasses.middleButton},
+ *   .${toggleButtonGroupClasses.lastButton}
+ * )
+ * ```
+ */
 const Toggle = styled(ToggleButton)`
-  .${toggleButtonGroupClasses.root} &.${toggleButtonClasses.root}.${
-  toggleButtonGroupClasses.grouped
-}:is(
-    .${toggleButtonGroupClasses.firstButton},
-    .${toggleButtonGroupClasses.middleButton},
-    .${toggleButtonGroupClasses.lastButton}
-  ) {
+  &&&&& {
     block-size: 1.875rem;
     border-radius: calc(infinity * 1px);
     border: max(0.0625rem, 1px) solid ${Colors.outline};
@@ -38,9 +44,8 @@ const Toggle = styled(ToggleButton)`
         background-color: ${Colors.primary}1a;
       }
 
-      &,
-      & + & // Override stubborn MUI style
-      {
+      :is(&, & + &) {
+        //   ^~~~~ Override another stubborn MUI style
         border: max(0.0625rem, 1px) solid ${Colors.primary};
       }
     }
@@ -57,23 +62,6 @@ const Toggle = styled(ToggleButton)`
       background-color: ${Colors.background};
       cursor: not-allowed;
     }
-
-    ${({ $booked = false }) =>
-      $booked &&
-      css`
-        &,
-        &:hover,
-        &:disabled,
-        &[aria-disabled='true'],
-        &.${toggleButtonGroupClasses.disabled} {
-          color: ${Colors.midText};
-
-          background-color: oklch(from ${Colors.alert} l c h / 10%);
-          @supports not (color: oklch(from black l c h)) {
-            background-color: ${Colors.alert}1a;
-          }
-        }
-      `}
 
     .MuiTouchRipple-child {
       background-color: oklch(from ${Colors.primary} l c h / 50%);
@@ -101,6 +89,20 @@ const AvailableCell = styled(Toggle)`
         cursor: pointer;
       }
     `}
+`;
+
+const BookedCell = styled(Toggle).attrs({
+  'aria-disabled': true, // Not true `disabled` attribute as it prevents tooltip from listening for events
+})`
+  // (0,6,0) to override styling of disabled Toggle
+  &&&&&& {
+    color: ${Colors.midText};
+
+    background-color: oklch(from ${Colors.alert} l c h / 10%);
+    @supports not (color: oklch(from black l c h)) {
+      background-color: ${Colors.alert}1a;
+    }
+  }
 `;
 
 const tooltipStyles = css`
