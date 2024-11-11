@@ -328,14 +328,14 @@ export const TimeSlotPicker = ({
 
             return (
               <TimeSlotToggle
-                key={timeSlot.start.valueOf()}
-                timeSlot={timeSlot}
-                selectable={checkIfSelectableTimeSlot(timeSlot)}
                 booked={isBooked}
                 disabled={disabled}
+                inHoverRange={isTimeSlotWithinRange(timeSlot, hoverRange)}
+                key={timeSlot.start.valueOf()}
                 onMouseEnter={onMouseEnter}
                 onMouseLeave={() => setHoverRange(null)}
-                inHoverRange={isTimeSlotWithinRange(timeSlot, hoverRange)}
+                selectable={checkIfSelectableTimeSlot(timeSlot)}
+                timeSlot={timeSlot}
                 value={timeSlot.start.valueOf()}
               />
             );
