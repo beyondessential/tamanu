@@ -322,7 +322,7 @@ const EncounterRecordPrintoutComponent = ({
   recordedDates,
   getVitalsColumn,
 }) => {
-  const { getTranslation } = useLanguageContext();
+  const { getTranslation, getEnumTranslation } = useLanguageContext();
   const { watermark, logo } = certificateData;
 
   const COLUMNS = {
@@ -331,10 +331,7 @@ const EncounterRecordPrintoutComponent = ({
         key: 'encounterType',
         title: getTranslation('encounter.type.label', 'Type'),
         accessor: ({ newEncounterType }) =>
-          getTranslation(
-            `encounter.property.type.${newEncounterType}`,
-            ENCOUNTER_TYPE_LABELS[newEncounterType],
-          ),
+          getEnumTranslation(ENCOUNTER_TYPE_LABELS, newEncounterType),
         style: { width: '65%' },
       },
       {
@@ -483,10 +480,7 @@ const EncounterRecordPrintoutComponent = ({
       {
         key: 'route',
         title: getTranslation('medication.route.label', 'Route'),
-        accessor: ({ route }) =>
-          route
-            ? getTranslation(`medication.property.route.${route}`, DRUG_ROUTE_LABELS[route])
-            : '',
+        accessor: ({ route }) => (route ? getEnumTranslation(DRUG_ROUTE_LABELS, route) : ''),
         style: { width: '12.5%' },
       },
       {
