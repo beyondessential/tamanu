@@ -175,8 +175,8 @@ export const TimeSlotPicker = ({
       // discontinuous selection, so clear the selection instead.
       updateSelection([], { start: null, end: null });
       setHoverRange(null);
-      return;
     };
+
     const handleStartChange = () => {
       // Deselecting the only selected time slot (necessarily the latest time slot of the day)
       if (newToggles.length === 0) {
@@ -207,8 +207,8 @@ export const TimeSlotPicker = ({
       // Many time slots selected. Toggling anything other than the head would create a
       // discontinuous selection, so clear the selection instead.
       updateSelection([], { start: null });
-      return;
     };
+
     const handleEndChange = () => {
       // Deselecting the only selected time slot (necessarily the earliest time slot of the day)
       if (newToggles.length === 0) {
@@ -241,7 +241,6 @@ export const TimeSlotPicker = ({
       // Many time slots selected. Toggling anything other than the tail would create a
       // discontinuous selection, so clear the selection instead.
       updateSelection([], { end: null });
-      return;
     };
 
     switch (variant) {
