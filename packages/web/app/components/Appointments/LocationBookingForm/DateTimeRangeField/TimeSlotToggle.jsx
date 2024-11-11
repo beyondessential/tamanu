@@ -92,7 +92,7 @@ const AvailableToggle = styled(Toggle)`
 `;
 
 const BookedToggle = styled(Toggle).attrs({
-  'aria-disabled': true, // Not true `disabled` attribute as it prevents tooltip from listening for events
+  disabled: true,
 })`
   // (0,6,0) to override styling of disabled Toggle
   &&&&&& {
@@ -113,13 +113,30 @@ const tooltipStyles = css`
   }
 `;
 
-const BookedTooltip = styled(ThemedTooltip).attrs({
+const StyledTooltip = styled(ThemedTooltip).attrs({
   title: (
     <TranslatedText stringId="locationBooking.tooltip.notAvailable" fallback="Not available" />
   ),
 })`
   ${tooltipStyles}
 `;
+
+const TooltipHelper = styled.div.attrs({ tabIndex: 0 })`
+  display: contents;
+  :focus-visible {
+    outline: none;
+  }
+`;
+
+/**
+ * Wrapping in TooltipHelper ensures tooltip can listen for mouse and focus events even if children
+ * would otherwise be disabled.
+ */
+const BookedTooltip = ({ children, ...props }) => (
+  <StyledTooltip {...props}>
+    <TooltipHelper>{children}</TooltipHelper>
+  </StyledTooltip>
+);
 
 const ConflictTooltip = styled(ConditionalTooltip).attrs({
   title: (
