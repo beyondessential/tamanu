@@ -5,10 +5,12 @@ import { Drawer as MuiDrawer } from '@mui/material';
 import { BodyText, Heading4 } from './Typography';
 import { Colors } from '../constants';
 import { TOP_BAR_HEIGHT } from './TopBar';
+import { ClearIcon } from './Icons';
 
 const Container = styled.div`
   width: 20.625rem;
   padding: 1rem;
+  padding-top: 0;
   background-color: ${Colors.background};
   overflow-y: auto;
   position: relative;
@@ -16,19 +18,33 @@ const Container = styled.div`
 
 const Title = styled(Heading4)`
   font-size: 1rem;
-  margin-block-end: 0.563rem;
+  position: sticky;
+  z-index: 1;
+  background-color: ${Colors.background};
+  border-bottom: 1px ${Colors.outline} solid;
+  padding: 1rem 1rem 0.313rem 1rem;
+  margin: 0 -1rem 9px;
+  top: 0;
 `;
 
 const Description = styled(BodyText)`
   font-size: 0.688rem;
   color: ${Colors.midText};
+  margin-bottom: 1rem;
 `;
 
 const StyledDrawer = styled(MuiDrawer)`
   .MuiPaper-root {
-    block-size: calc(100% - ${TOP_BAR_HEIGHT}px);
-    inset-block-start: ${TOP_BAR_HEIGHT}px;
+    block-size: calc(100% - ${TOP_BAR_HEIGHT + 1}px);
+    inset-block-start: ${TOP_BAR_HEIGHT + 1}px;
   }
+`;
+
+const CloseDrawerIcon = styled(ClearIcon)`
+  cursor: pointer;
+  position: absolute;
+  inset-block-start: 1rem;
+  inset-inline-end: 1rem;
 `;
 
 export const Drawer = ({
@@ -50,7 +66,10 @@ export const Drawer = ({
       onClose={onClose}
     >
       <Container columns={1}>
-        <Title>{title}</Title>
+        <Title>
+          {title}
+          <CloseDrawerIcon onClick={onClose} />
+        </Title>
         <Description>{description}</Description>
         {children}
       </Container>

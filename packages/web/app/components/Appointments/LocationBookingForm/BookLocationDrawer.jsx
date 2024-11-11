@@ -25,6 +25,7 @@ import { BookingTimeField } from './BookingTimeField';
 import { useTranslation } from '../../../contexts/Translation';
 import { Drawer } from '../../Drawer';
 import { APPOINTMENT_DRAWER_CLASS } from '../AppointmentDetailPopper';
+import { BookLocationHeader } from './BookLocationHeader';
 
 const OvernightStayField = styled.div`
   display: flex;
@@ -35,7 +36,6 @@ const OvernightIcon = styled(Brightness2Icon)`
   position: absolute;
   left: 145px;
 `;
-
 
 const StyledDrawer = styled(Drawer)`
   .MuiPaper-root {
@@ -173,7 +173,6 @@ export const BookLocationDrawer = ({ open, onClose, initialValues }) => {
     return (
       <>
         <div ref={topRef} aria-hidden></div>
-        <BookLocationHeader onClose={warnAndResetForm} />
         <StyledFormGrid nested columns={1}>
           <Field
             enableLocationStatus={false}
@@ -190,7 +189,7 @@ export const BookLocationDrawer = ({ open, onClose, initialValues }) => {
               }
             }}
           />
-        <OvernightStayField>
+          <OvernightStayField>
             <Field
               name="overnight"
               label={
@@ -204,46 +203,49 @@ export const BookLocationDrawer = ({ open, onClose, initialValues }) => {
             />
             <OvernightIcon fontSize="small" />
           </OvernightStayField>
-        <Field
-          name="date"
-          label={<TranslatedText stringId="general.date.label" fallback="Date" />}
-          component={DateField}
-          required
-        />
-        <BookingTimeField key={values.date} disabled={!values.date} />
-        <Field
-          name="patientId"
-          label={<TranslatedText stringId="general.form.patient.label" fallback="Patient" />}
-          component={AutocompleteField}
-          suggester={patientSuggester}
-          required
-          placeholder={getTranslation(
-            'general.patient.search.placeholder',
-            'Search patient name or ID',
-          )}
-        />
-        <Field
-          name="bookingTypeId"
-          label={
-            <TranslatedText stringId="location.form.bookingType.label" fallback="Booking type" />
-          }
-          component={DynamicSelectField}
-          suggester={bookingTypeSuggester}
-          required
-        />
-        <Field
-          name="clinicianId"
-          label={<TranslatedText stringId="general.form.clinician.label" fallback="Clinician" />}
-          component={AutocompleteField}
-          suggester={clinicianSuggester}
-        />
-        <FormSubmitCancelRow onCancel={warnAndResetForm} confirmDisabled={!values.startTime} />
-      </StyledFormGrid>
-    </>);
+          <Field
+            name="date"
+            label={<TranslatedText stringId="general.date.label" fallback="Date" />}
+            component={DateField}
+            required
+          />
+          <BookingTimeField key={values.date} disabled={!values.date} />
+          <Field
+            name="patientId"
+            label={<TranslatedText stringId="general.form.patient.label" fallback="Patient" />}
+            component={AutocompleteField}
+            suggester={patientSuggester}
+            required
+            placeholder={getTranslation(
+              'general.patient.search.placeholder',
+              'Search patient name or ID',
+            )}
+          />
+          <Field
+            name="bookingTypeId"
+            label={
+              <TranslatedText stringId="location.form.bookingType.label" fallback="Booking type" />
+            }
+            component={DynamicSelectField}
+            suggester={bookingTypeSuggester}
+            required
+          />
+          <Field
+            name="clinicianId"
+            label={<TranslatedText stringId="general.form.clinician.label" fallback="Clinician" />}
+            component={AutocompleteField}
+            suggester={clinicianSuggester}
+          />
+          <FormSubmitCancelRow onCancel={warnAndResetForm} confirmDisabled={!values.startTime} />
+        </StyledFormGrid>
+      </>
+    );
   };
 
   return (
-    <StyledDrawer variant="persistent" anchor="right"
+    <StyledDrawer
+      variant="persistent"
+      anchor="right"
       PaperProps={{
         // Used to exclude the drawer from click away listener on appointment detail popper
         className: APPOINTMENT_DRAWER_CLASS,
@@ -261,7 +263,10 @@ export const BookLocationDrawer = ({ open, onClose, initialValues }) => {
       }
     >
       <Form
-        onSubmit={async values => {handleSubmit(values); resetForm();}}
+        onSubmit={async (values, { resetForm }) => {
+          handleSubmit(values);
+          resetForm();
+        }}
         suppressErrorDialog
         validationSchema={validationSchema}
         initialValues={initialValues}
