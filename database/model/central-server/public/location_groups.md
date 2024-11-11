@@ -15,5 +15,5 @@ Reference to the [facility](#!/source/source.tamanu.tamanu.facilities) this loca
 {% enddocs %}
 
 {% docs location_groups__is_bookable %}
-TODO
+Whether or not this will show up in the Book Location workflow
 {% enddocs %}
