@@ -238,11 +238,12 @@ const NotesMultipageCellPadding = () => {
 };
 
 const NotesSection = ({ notes }) => {
+  const { getTranslation } = useLanguageContext();
   return (
     <>
       <View minPresenceAhead={80} />
       <View>
-        <MultipageTableHeading title="Notes" />
+        <MultipageTableHeading title={getTranslation('general.notes.label', 'Notes')} />
         <Table>
           {notes.map(note => (
             <>
@@ -261,7 +262,10 @@ const NotesSection = ({ notes }) => {
                 <NotesCell>
                   <NotesMultipageCellPadding />
                   <MultipageTableHeading
-                    title={NOTE_TYPE_LABELS[note.noteType]}
+                    title={getTranslation(
+                      `note.property.type.${note.noteType}`,
+                      NOTE_TYPE_LABELS[note.noteType],
+                    )}
                     style={textStyles.tableColumnHeader}
                   />
                   <Text style={textStyles.tableCellContent}>{`${note.content}\n`}</Text>
