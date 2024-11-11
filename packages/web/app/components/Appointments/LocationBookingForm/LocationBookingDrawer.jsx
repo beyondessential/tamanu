@@ -98,7 +98,7 @@ const validationSchema = yup.object({
   clinicianId: yup.string(),
 });
 
-export const BookLocationDrawer = ({ open, onClose, initialValues }) => {
+export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
   const isEdit = !!initialValues.id;
 
   const resettableFieldsReversed = ['endTime', 'startTime', 'overnight', 'locationId'];
