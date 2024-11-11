@@ -15,15 +15,15 @@ const Description = styled(BodyText)`
   color: ${Colors.midText};
 `;
 
-const HeadingText = ({ editMode }) =>
-  editMode ? (
+const HeadingText = ({ isEdit }) =>
+  isEdit ? (
     <TranslatedText stringId="locationBooking.form.edit.heading" fallback="Modify booking" />
   ) : (
     <TranslatedText stringId="locationBooking.form.new.heading" fallback="Book location" />
   );
 
-const DescriptionText = ({ editMode }) =>
-  editMode ? (
+const DescriptionText = ({ isEdit }) =>
+  isEdit ? (
     <TranslatedText
       stringId="locationBooking.form.edit.description"
       fallback="Modify the selected booking below."
@@ -35,13 +35,13 @@ const DescriptionText = ({ editMode }) =>
     />
   );
 
-export const LocationBookingDrawerHeader = ({ editMode }) => (
+export const LocationBookingDrawerHeader = ({ isEdit }) => (
   <header>
     <Heading>
-      <HeadingText editMode={editMode} />
+      <HeadingText isEdit={isEdit} />
     </Heading>
     <Description>
-      <DescriptionText editMode={editMode} />
+      <DescriptionText isEdit={isEdit} />
     </Description>
   </header>
 );

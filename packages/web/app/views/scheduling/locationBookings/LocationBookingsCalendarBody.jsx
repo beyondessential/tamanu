@@ -25,7 +25,7 @@ export const BookingsCell = ({
     {appointments?.map(a => (
       <AppointmentTile
         className="appointment-tile"
-        openBookingForm={openBookingForm}
+        onEdit={() => openBookingForm({ ...a, date: a.startTime })}
         appointment={a}
         key={a.id}
       />
