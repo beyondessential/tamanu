@@ -523,7 +523,7 @@ const EncounterRecordPrintoutComponent = ({
         <SectionSpacing />
         {encounterTypeHistory.length > 0 && (
           <TableSection
-            title={getTranslation('general.localisedField.encounterType.label', 'Encounter type')}
+            title={getTranslation('pdf.encounterRecord.section.encounterTypes', 'Encounter types')}
             data={encounterTypeHistory}
             columns={COLUMNS.encounterTypes}
           />
