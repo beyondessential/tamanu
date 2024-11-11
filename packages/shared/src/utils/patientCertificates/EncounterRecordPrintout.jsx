@@ -383,12 +383,12 @@ const EncounterRecordPrintoutComponent = ({
     labRequests: [
       {
         key: 'testType',
-        title: 'Test type',
+        title: getTranslation('lab.testType.label', 'Test type'),
         style: { width: '20%' },
       },
       {
         key: 'testCategory',
-        title: 'Test category',
+        title: getTranslation('lab.testCategory.label', 'Test category'),
         style: { width: '25%' },
       },
       {

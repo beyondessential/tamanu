@@ -59,28 +59,31 @@ const COLUMNS = [
     ),
     sortable: false,
     maxWidth: 70,
-    accessor: ({ priority }) => priority
-      ? <TranslatedReferenceData
-        fallback={priority.name}
-        value={priority.id}
-        category={priority.type}
-      /> : '',
+    accessor: ({ priority }) =>
+      priority ? (
+        <TranslatedReferenceData
+          fallback={priority.name}
+          value={priority.id}
+          category={priority.type}
+        />
+      ) : (
+        ''
+      ),
   },
   {
     key: COLUMN_KEYS.CATEGORY,
-    title: (
-      <TranslatedText
-        stringId="lab.modal.printMultiple.table.column.testCategory"
-        fallback="Test category"
-      />
-    ),
+    title: <TranslatedText stringId="lab.testCategory.label" fallback="Test category" />,
     sortable: false,
-    accessor: ({ category }) => category
-      ? <TranslatedReferenceData
-        fallback={category.name}
-        value={category.id}
-        category={category.type}
-      /> : '',
+    accessor: ({ category }) =>
+      category ? (
+        <TranslatedReferenceData
+          fallback={category.name}
+          value={category.id}
+          category={category.type}
+        />
+      ) : (
+        ''
+      ),
   },
   {
     key: COLUMN_KEYS.STATUS,
