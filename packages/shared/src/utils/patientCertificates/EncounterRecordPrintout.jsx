@@ -441,7 +441,7 @@ const EncounterRecordPrintoutComponent = ({
       },
       {
         key: 'completedDate',
-        title: 'Completed date',
+        title: getTranslation('pdf.encounterRecord.completedDate', 'Completed date'),
         accessor: imagingRequest =>
           imagingRequest?.results[0]?.completedAt
             ? formatShort(imagingRequest?.results[0]?.completedAt)
@@ -452,31 +452,31 @@ const EncounterRecordPrintoutComponent = ({
     medications: [
       {
         key: 'medication',
-        title: 'Medication',
+        title: getTranslation('medication.medication.label', 'Medication'),
         accessor: ({ medication }) => medication?.name,
         style: { width: '20%' },
       },
       {
         key: 'instructions',
-        title: 'Instructions',
+        title: getTranslation('medication.medication.instructions', 'Instructions'),
         accessor: ({ prescription }) => prescription || '',
         style: { width: '30%' },
       },
       {
         key: 'route',
-        title: 'Route',
+        title: getTranslation('medication.route.label', 'Route'),
         accessor: ({ route }) => DRUG_ROUTE_LABELS[route] || '',
         style: { width: '12.5%' },
       },
       {
         key: 'prescriber',
-        title: 'Prescriber',
+        title: getTranslation('medication.prescriber.label', 'Prescriber'),
         accessor: ({ prescriber }) => prescriber?.displayName,
         style: { width: '25%' },
       },
       {
         key: 'prescriptionDate',
-        title: 'Prescription date',
+        title: getTranslation('medication.date.label', 'Prescription date'),
         accessor: ({ date }) => (date ? formatShort(date) : '--/--/----'),
         style: { width: '22.5%' },
       },
