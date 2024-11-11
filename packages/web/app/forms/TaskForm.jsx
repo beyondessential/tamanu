@@ -73,8 +73,9 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
   const practitionerSuggester = useSuggester('practitioner');
   const { mutate: createTasks, isLoading: isCreatingTasks } = useCreateTasks();
   const { encounter } = useEncounter();
-  const { currentUser } = useAuth();
+  const { ability, currentUser } = useAuth();
   const { getTranslation } = useTranslation();
+  const canCreateReferenceData = ability.can('create', 'ReferenceData');
 
   const combinedTaskSuggester = useSuggester('multiReferenceData', {
     baseQueryParameters: {
@@ -173,7 +174,7 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
                   component={AutocompleteField}
                   suggester={combinedTaskSuggester}
                   multiSection
-                  allowCreatingCustomValue
+                  allowCreatingCustomValue={canCreateReferenceData}
                   groupByKey="type"
                   getSectionTitle={section => REFERENCE_DATA_TYPE_TO_LABEL[section.type]}
                   orderByValues={[REFERENCE_TYPES.TASK_SET, REFERENCE_TYPES.TASK_TEMPLATE]}

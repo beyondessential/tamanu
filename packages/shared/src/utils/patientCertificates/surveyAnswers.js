@@ -1,4 +1,4 @@
-import { PROGRAM_DATA_ELEMENT_TYPES, RESULT_COLORS } from "@tamanu/constants";
+import { PROGRAM_DATA_ELEMENT_TYPES, RESULT_COLORS } from '@tamanu/constants';
 
 const shouldShow = component => {
   switch (component.dataElement.type) {
@@ -8,6 +8,19 @@ const shouldShow = component => {
       return false;
     default:
       return true;
+  }
+};
+
+export const convertBinaryToYesNo = value => {
+  switch (value) {
+    case 'true':
+    case '1':
+      return 'Yes';
+    case 'false':
+    case '0':
+      return 'No';
+    default:
+      return value;
   }
 };
 
@@ -46,7 +59,7 @@ export const separateColorText = resultText => {
   };
 };
 
-export const getResultName = (components) => {
+export const getResultName = components => {
   const resultComponent = components.find(component => component.dataElement.type === 'Result');
   return resultComponent?.dataElement.defaultText;
 };

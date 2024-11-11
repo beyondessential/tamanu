@@ -1,0 +1,47 @@
+version: 2
+sources:
+  - name: tamanu
+    schema: public
+    description: "{{ doc('generic__schema') }}"
+    tables:
+      - name: one_time_logins
+        description: '{{ doc("table__one_time_logins") }}'
+        tags:
+          - system
+        columns:
+          - name: id
+            data_type: character varying(255)
+            description: "{{ doc('generic__id') }} in one_time_logins."
+            data_tests:
+              - unique
+              - not_null
+          - name: user_id
+            data_type: character varying(255)
+            description: "{{ doc('one_time_logins__user_id') }}"
+            data_tests:
+              - not_null
+              - relationships:
+                  to: source('tamanu', 'users')
+                  field: id
+          - name: token
+            data_type: character varying(255)
+            description: "{{ doc('one_time_logins__token') }}"
+            data_tests:
+              - not_null
+          - name: created_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__created_at') }} in one_time_logins."
+          - name: updated_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__updated_at') }} in one_time_logins."
+          - name: deleted_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__deleted_at') }} in one_time_logins."
+          - name: expires_at
+            data_type: timestamp with time zone
+            description: "{{ doc('one_time_logins__expires_at') }}"
+            data_tests:
+              - not_null
+          - name: used_at
+            data_type: timestamp with time zone
+            description: "{{ doc('one_time_logins__used_at') }}"
