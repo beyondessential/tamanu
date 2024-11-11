@@ -110,8 +110,6 @@ appointments.get(
                 'concat',
                 Sequelize.col('patient.first_name'),
                 ' ',
-                Sequelize.col('patient.middle_name'),
-                ' ',
                 Sequelize.col('patient.last_name'),
               ),
               {
