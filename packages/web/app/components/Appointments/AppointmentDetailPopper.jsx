@@ -19,12 +19,12 @@ import { DateDisplay } from '../DateDisplay';
 import { reloadPatient } from '../../store';
 import { usePatientAdditionalDataQuery } from '../../api/queries';
 import { CancelBookingModal } from './CancelBookingModal';
-import { formatDateRange } from './utils';
 import { useApi } from '../../api';
 import { APPOINTMENT_STATUS_VALUES, APPOINTMENT_STATUSES } from '@tamanu/constants';
 import { AppointmentStatusChip } from './AppointmentStatusChip';
 import { MenuButton } from '../MenuButton';
 import { useQueryClient } from '@tanstack/react-query';
+import { formatDateRange } from '../../utils/dateTime';
 
 const DEBOUNCE_DELAY = 200; // ms
 

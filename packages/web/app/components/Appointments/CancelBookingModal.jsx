@@ -3,17 +3,13 @@ import { Box, styled } from '@mui/material';
 import { toast } from 'react-toastify';
 
 import { BaseModal } from '../BaseModal';
-import { TranslatedEnum, TranslatedReferenceData, TranslatedText } from '../Translation';
+import { TranslatedReferenceData, TranslatedText } from '../Translation';
 import { Colors } from '../../constants';
 import { ConfirmCancelRow } from '../ButtonRow';
 import { useApi } from '../../api';
-import {
-  APPOINTMENT_STATUSES,
-  APPOINTMENT_TYPE_LABELS,
-  OTHER_REFERENCE_TYPES,
-} from '@tamanu/constants';
-import { formatDateRange } from './utils';
+import { APPOINTMENT_STATUSES, OTHER_REFERENCE_TYPES } from '@tamanu/constants';
 import { PatientNameDisplay } from '../PatientNameDisplay';
+import { formatDateRange } from '../../utils/dateTime';
 
 const FlexCol = styled(Box)`
   display: flex;
