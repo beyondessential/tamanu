@@ -263,19 +263,39 @@ export const TimeSlotPicker = ({
   const checkIfSelectableTimeSlot = useCallback(
     timeSlot => {
       // If beginning a fresh selection, discontinuity is impossible
-      if (!values.startTime || !values.endTime) return true;
+      if (!values.startTime) return true;
 
-      // The would-be time range if this time slot were to be selected
-      const targetSelection = {
-        start: min([values.startTime, timeSlot.start]),
-        end: max([values.endTime, timeSlot.end]),
-      };
+      let targetSelection;
+      switch (variant) {
+        case 'range':
+          if (!values.endTime) return true;
+
+          // The would-be time range if this time slot were to be selected
+          targetSelection = {
+            start: min([values.startTime, timeSlot.start]),
+            end: max([values.endTime, timeSlot.end]),
+          };
+          break;
+        case 'start':
+          targetSelection = {
+            end: endOfDay(date),
+            start: timeSlot.start,
+          };
+          break;
+        case 'end':
+          targetSelection = {
+            start: values.startTime,
+            end: timeSlot.end,
+          };
+          break;
+      }
+
 
       return !bookedIntervals.some(bookedInterval =>
         areIntervalsOverlapping(targetSelection, bookedInterval),
       );
     },
-    [bookedIntervals, values.startTime, values.endTime],
+    [bookedIntervals, date, values.startTime, values.endTime, variant],
   );
 
   return (
