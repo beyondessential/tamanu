@@ -74,10 +74,15 @@ const IconGroup = styled.div`
 `;
 
 export const AppointmentTile = ({ appointment, onEdit, ...props }) => {
-  const { patient, startTime: startTimeStr, endTime: endTimeStr, appointmentStatus } = appointment;
+  const {
+    patient,
+    startTime: startTimeStr,
+    endTime: endTimeStr,
+    status: appointmentStatus,
+  } = appointment;
   const ref = useRef(null);
   const [open, setOpen] = useState();
-  const [localStatus, setLocalStatus] = useState(status);
+  const [localStatus, setLocalStatus] = useState(appointmentStatus);
 
   const startTime = parseISO(startTimeStr);
   const endTime = parseISO(endTimeStr);

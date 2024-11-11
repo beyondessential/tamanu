@@ -111,7 +111,7 @@ const StyledIconButton = styled(IconButton)`
   }
 `;
 
-const ControlsRow = ({ onClose, appointment, openBookingForm, onModifyAppointment, onEdit }) => {
+const ControlsRow = ({ onClose, appointment, onModifyAppointment, onEdit }) => {
   const [isCancelModalOpen, setCancelModalOpen] = useState(false);
 
   const handleCancelModalClose = () => {
@@ -273,7 +273,7 @@ const AppointmentDetailsDisplay = ({ appointment, isOvernight }) => {
           }
         />
       )}
-      {bookingType && <BookingTypeDisplay type={bookingType} isOvernight={isOvernight} />}
+      {bookingType && <BookingTypeDisplay bookingType={bookingType} isOvernight={isOvernight} />}
       {appointmentType && (
         <DetailsDisplay
           label={
@@ -326,16 +326,18 @@ export const AppointmentDetailPopper = ({
   open,
   onClose,
   onStatusChange,
+  onUpdated,
   onEdit,
   anchorEl,
   appointment,
   isOvernight = false,
-  openBookingForm,
 }) => {
   const dispatch = useDispatch();
   const api = useApi();
   const [localStatus, setLocalStatus] = useState(appointment.status);
   const patientId = appointment.patient.id;
+
+  const queryClient = useQueryClient();
 
   const handleAppointmentUpdate = useCallback(() => {
     queryClient.invalidateQueries('appointments');
@@ -354,8 +356,8 @@ export const AppointmentDetailPopper = ({
           await api.put(`appointments/${appointment.id}`, {
             status: newValue,
           });
-          handleAppointmentUpdate();
           onStatusChange?.(newValue);
+          handleAppointmentUpdate();
         } catch (error) {
           toast.error(
             <TranslatedText
@@ -421,7 +423,6 @@ export const AppointmentDetailPopper = ({
         <Box>
           <ControlsRow
             appointment={appointment}
-            openBookingForm={openBookingForm}
             onClose={onClose}
             onModifyAppointment={handleAppointmentUpdate}
             onEdit={onEdit}

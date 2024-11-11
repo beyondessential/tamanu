@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React from 'react';
 import { Box, styled } from '@mui/material';
 import { toast } from 'react-toastify';
 
@@ -6,10 +6,10 @@ import { BaseModal } from '../BaseModal';
 import { TranslatedReferenceData, TranslatedText } from '../Translation';
 import { Colors } from '../../constants';
 import { ConfirmCancelRow } from '../ButtonRow';
-import { useApi } from '../../api';
 import { APPOINTMENT_STATUSES, OTHER_REFERENCE_TYPES } from '@tamanu/constants';
 import { PatientNameDisplay } from '../PatientNameDisplay';
 import { formatDateRange } from '../../utils/dateTime';
+import { useAppointmentMutation } from '../../api/mutations';
 
 const FlexCol = styled(Box)`
   display: flex;
@@ -153,24 +153,30 @@ const BottomModalContent = ({ cancelBooking, onClose }) => (
 );
 
 export const CancelBookingModal = ({ appointment, open, onClose, onModifyAppointment }) => {
-  const api = useApi();
-
-  const cancelBooking = useCallback(async () => {
-    try {
-      await api.put(`appointments/${appointment.id}`, {
-        status: APPOINTMENT_STATUSES.CANCELLED,
-      });
-      onModifyAppointment();
-      onClose();
-    } catch (error) {
-      toast.error(
-        <TranslatedText
-          stringId="scheduling.error.cancelBooking"
-          fallback="Error cancelling booking"
-        />,
-      );
-    }
-  }, [api, appointment.id, onModifyAppointment, onClose]);
+  const { mutateAsync: cancelBooking } = useAppointmentMutation(
+    { isEdit: true },
+    {
+      onSuccess: () => {
+        toast.success(
+          <TranslatedText
+            stringId="scheduling.success.cancelBooking"
+            fallback="Booking cancelled successfully"
+          />,
+        );
+        onModifyAppointment();
+        onClose();
+      },
+      onError: error => {
+        console.log(error);
+        toast.error(
+          <TranslatedText
+            stringId="scheduling.error.cancelBooking"
+            fallback="Error cancelling booking"
+          />,
+        );
+      },
+    },
+  );
 
   return (
     <BaseModal
@@ -181,7 +187,14 @@ export const CancelBookingModal = ({ appointment, open, onClose, onModifyAppoint
         />
       }
       fixedBottomRow // Ensures that bottom modal content can place a border across entire modal
-      bottomRowContent={<BottomModalContent cancelBooking={cancelBooking} onClose={onClose} />}
+      bottomRowContent={
+        <BottomModalContent
+          cancelBooking={() =>
+            cancelBooking({ ...appointment, status: APPOINTMENT_STATUSES.CANCELLED })
+          }
+          onClose={onClose}
+        />
+      }
       open={open}
       onClose={onClose}
     >
