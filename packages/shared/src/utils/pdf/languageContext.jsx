@@ -82,7 +82,7 @@ export const withLanguageContext = Component => props => {
         const { value } = translationFunc(stringId, fallback, replacements, uppercase, lowercase);
         return value;
       },
-      getEnumTranslation(enumValues, currentValue) {
+      getEnumTranslation: (enumValues, currentValue) => {
         const translationFunc = translationFactory(translations);
         const fallback = enumValues[currentValue];
         const stringId = `${getEnumPrefix(enumValues)}.${currentValue}`;
