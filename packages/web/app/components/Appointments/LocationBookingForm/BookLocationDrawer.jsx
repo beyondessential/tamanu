@@ -30,8 +30,8 @@ import { useTranslation } from '../../../contexts/Translation';
 
 const Container = styled.div`
   width: 330px;
-  padding: 1rem;
-  padding-top: 0;
+  padding-block: 0 1rem;
+  padding-inline: 1rem;
   background-color: ${Colors.background};
   overflow-y: auto;
   position: relative;
