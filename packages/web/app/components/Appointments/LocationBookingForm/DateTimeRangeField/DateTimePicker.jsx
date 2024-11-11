@@ -13,15 +13,12 @@ const DateTimePicker = ({
   disabled = false,
   minDate,
   required = false,
+  timePickerVariant,
 
   datePickerLabel = <TranslatedText stringId="general.date.label" fallback="Date" />,
   datePickerName,
-  onDateChange,
-
   timePickerLabel = <TranslatedText stringId="general.time.label" fallback="Time" />,
   timePickerName,
-  timePickerVariant,
-  onTimeChange,
 }) => {
   const { values, setFieldValue } = useFormikContext();
   const dateFieldValue = values[datePickerName];
@@ -30,7 +27,6 @@ const DateTimePicker = ({
 
   const handleDateChange = async e => {
     await setFieldValue(datePickerName, new Date(e.target.value)); // TODO: Doesn’t work
-    onDateChange?.();
   };
 
   return (
@@ -49,7 +45,6 @@ const DateTimePicker = ({
         disabled={disabled || !isValidDate}
         label={timePickerLabel}
         name={timePickerName}
-        onChange={onTimeChange}
         required={required}
         variant={timePickerVariant}
       />
