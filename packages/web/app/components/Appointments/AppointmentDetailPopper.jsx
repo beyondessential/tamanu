@@ -102,11 +102,11 @@ const AppointmentStatusContainer = styled(Box)`
 const StyledMenuButton = styled(MenuButton)`
   .MuiPaper-root {
     box-shadow: 0 0.5rem 2rem 0 oklch(0 0 0 / 15%);
-    width: 58px;
+    width: 3.625rem;
   }
 
   .MuiPopper-root {
-    width: 58px;
+    width: 3.625rem;
   }
 
   svg {
