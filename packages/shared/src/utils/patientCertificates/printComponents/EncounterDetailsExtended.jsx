@@ -17,7 +17,10 @@ export const EncounterDetailsExtended = ({ encounter, discharge }) => {
     true,
   );
   return (
-    <DataSection title="Encounter details" hideBottomRule={true}>
+    <DataSection
+      title={getTranslation('pdf.encounterDetails.title', 'Encounter details')}
+      hideBottomRule={true}
+    >
       <Col>
         <DataItem
           label={getTranslation('general.localisedField.facility.label', 'Facility')}
