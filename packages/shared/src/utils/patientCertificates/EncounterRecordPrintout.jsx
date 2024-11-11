@@ -219,20 +219,22 @@ const TableSection = ({ title, data, columns, type }) => {
 
 const NoteFooter = ({ note }) => {
   const { getTranslation } = useLanguageContext();
-  <Text style={textStyles.tableCellFooter}>
-    {`${
-      note.noteType === NOTE_TYPES.TREATMENT_PLAN
-        ? `${getTranslation('general.lastUpdated.label', 'Last updated')}: `
-        : ''
-    }${note.author?.displayName || ''}${
-      note.onBehalfOf
-        ? ` ${getTranslation('note.table.onBehalfOf', 'on behalf of :changeOnBehalfOfName', {
-            changeOnBehalfOfName: note.onBehalfOf.displayName,
-          })}`
-        : ''
-    }`}
-    {` ${formatShort(note.date)} ${getDisplayDate(note.date, 'h:mma')}`}
-  </Text>;
+  return (
+    <Text style={textStyles.tableCellFooter}>
+      {`${
+        note.noteType === NOTE_TYPES.TREATMENT_PLAN
+          ? `${getTranslation('general.lastUpdated.label', 'Last updated')}: `
+          : ''
+      }${note.author?.displayName || ''}${
+        note.onBehalfOf
+          ? ` ${getTranslation('note.table.onBehalfOf', 'on behalf of :changeOnBehalfOfName', {
+              changeOnBehalfOfName: note.onBehalfOf.displayName,
+            })}`
+          : ''
+      }`}
+      {` ${formatShort(note.date)} ${getDisplayDate(note.date, 'h:mma')}`}
+    </Text>
+  );
 };
 const NotesMultipageCellPadding = () => {
   let firstPageOccurence = Number.MAX_SAFE_INTEGER;
