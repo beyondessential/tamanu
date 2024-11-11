@@ -164,7 +164,7 @@ const Option = props => {
   );
 };
 
-export const MultiAutocompleteInput = ({
+const MultiAutocompleteInput = ({
   value,
   label,
   disabled,

@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
+import { pick } from 'lodash';
 import { startOfDay } from 'date-fns';
 import styled from 'styled-components';
 import Box from '@mui/material/Box';
 import AddIcon from '@mui/icons-material/Add';
 
 import { Button, PageContainer, TopBar, TranslatedText } from '../../../components';
-import { DateSelector } from '../DateSelector';
+import { DateSelector } from './DateSelector';
 import { Colors } from '../../../constants';
 import { OutpatientBookingCalendar } from './OutpatientBookingCalendar';
 import { GroupByAppointmentToggle } from './GroupAppointmentToggle';
+import { OutpatientAppointmentDrawer } from '../../../components/Appointments/OutpatientsBookingForm/OutpatientAppointmentDrawer';
 
 const Placeholder = styled.div`
   background-color: oklch(0% 0 0 / 3%);
@@ -48,16 +50,22 @@ const CalendarInnerWrapper = styled(Box)`
   border-block-start: 1px solid ${Colors.outline};
 `;
 
-const LocationBookingsTopBar = styled(TopBar).attrs({
+const AppointmentTopBar = styled(TopBar).attrs({
   title: <TranslatedText stringId="scheduling.appointments.title" fallback="Appointments" />,
 })`
   flex-grow: 0;
+  & .MuiToolbar-root {
+    justify-content: flex-start;
+  }
   & .MuiTypography-root {
+    min-width: 7.188rem;
+    margin-inline-end: 1rem;
     flex: 0;
   }
 `;
 
 const Filters = styled('search')`
+  margin-left: auto;
   display: flex;
   gap: 1rem;
 `;
@@ -72,6 +80,8 @@ export const APPOINTMENT_GROUP_BY = {
 };
 
 export const OutpatientAppointmentsView = () => {
+  const [selectedAppointment, setSelectedAppointment] = useState({});
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(startOfDay(new Date()));
   const [groupBy, setGroupBy] = useState(APPOINTMENT_GROUP_BY.LOCATION_GROUP);
 
@@ -79,23 +89,49 @@ export const OutpatientAppointmentsView = () => {
     setSelectedDate(event.target.value);
   };
 
+  const handleCloseDrawer = () => setDrawerOpen(false);
+
+  const handleOpenDrawer = appointment => {
+    setSelectedAppointment(
+      pick(appointment, [
+        'id',
+        'locationGroupId',
+        'appointmentTypeId',
+        'startTime',
+        'endTime',
+        'patientId',
+        'clinicianId',
+      ]),
+    );
+    setDrawerOpen(true);
+  };
+
   return (
     <Container>
-      <LocationBookingsTopBar>
+      <OutpatientAppointmentDrawer
+        initialValues={selectedAppointment}
+        onClose={handleCloseDrawer}
+        open={drawerOpen}
+      />
+      <AppointmentTopBar>
         <GroupByAppointmentToggle value={groupBy} onChange={setGroupBy} />
         <Filters>
           <Placeholder>Search</Placeholder>
           <Placeholder>Clinician</Placeholder>
           <Placeholder>Type</Placeholder>
         </Filters>
-        <NewBookingButton onClick={null}>
+        <NewBookingButton onClick={() => handleOpenDrawer({})}>
           <AddIcon /> Book appointment
         </NewBookingButton>
-      </LocationBookingsTopBar>
+      </AppointmentTopBar>
       <CalendarWrapper>
         <DateSelector value={selectedDate} onChange={handleChangeDate} />
         <CalendarInnerWrapper>
-          <OutpatientBookingCalendar groupBy={groupBy} selectedDate={selectedDate} />
+          <OutpatientBookingCalendar
+            onOpenDrawer={handleOpenDrawer}
+            groupBy={groupBy}
+            selectedDate={selectedDate}
+          />
         </CalendarInnerWrapper>
       </CalendarWrapper>
     </Container>

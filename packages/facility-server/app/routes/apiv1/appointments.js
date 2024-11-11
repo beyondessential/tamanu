@@ -44,6 +44,7 @@ const timeOverlapWhereCondition = (startTime, endTime) => {
 };
 
 appointments.post('/$', simplePost('Appointment'));
+appointments.put('/:id', simplePut('Appointment'));
 
 const searchableFields = [
   'startTime',
