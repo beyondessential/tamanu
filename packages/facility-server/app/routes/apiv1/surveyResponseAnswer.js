@@ -10,6 +10,76 @@ import {
 
 export const surveyResponseAnswer = express.Router();
 
+function getNameColumnForModel(modelName) {
+  switch (modelName) {
+    case 'User':
+      return 'displayName';
+    default:
+      return 'name';
+  }
+}
+
+surveyResponseAnswer.get(
+  '/latest-answer/:dataElementCode',
+  asyncHandler(async (req, res) => {
+    const { models, query, params } = req;
+    const { patientId } = query;
+    const { dataElementCode } = params;
+
+    req.checkPermission('read', 'SurveyResponse');
+
+    const answer = await models.SurveyResponseAnswer.findOne({
+      include: [
+        {
+          model: models.SurveyResponse,
+          as: 'surveyResponse',
+          include: [
+            {
+              model: models.Encounter,
+              as: 'encounter',
+              where: { patientId },
+            },
+          ],
+        },
+        {
+          model: models.ProgramDataElement,
+          where: { code: dataElementCode },
+        },
+      ],
+      order: [['surveyResponse', 'startTime', 'DESC']],
+    });
+
+    if (!answer) {
+      throw new NotFoundError('No answer found');
+    }
+
+    try {
+      const dataElement = await models.ProgramDataElement.findByPk(answer.dataElementId);
+      if (dataElement?.type === PROGRAM_DATA_ELEMENT_TYPES.AUTOCOMPLETE) {
+        const autocompleteComponent = await models.SurveyScreenComponent.findOne({
+          where: {
+            dataElementId: dataElement.id,
+          },
+          paranoid: false,
+        });
+
+        const autocompleteConfig = JSON.parse(autocompleteComponent.config);
+        const modelName = autocompleteConfig.source;
+        const fullLinkedAnswer = await models[modelName].findOne({
+          where: { id: answer.body },
+        });
+
+        const displayAnswer = fullLinkedAnswer[getNameColumnForModel(modelName)];
+        answer.dataValues.displayAnswer = displayAnswer;
+      }
+    } catch {
+      // ignore
+    }
+
+    res.send(answer);
+  }),
+);
+
 surveyResponseAnswer.put(
   '/vital/:id',
   asyncHandler(async (req, res) => {
