@@ -7,7 +7,4 @@ export const passportSchema = yup.string().nullable();
 
 export const nationalityIdSchema = yup.string().nullable();
 
-export const emailSchema = yup
-  .string()
-  .email()
-  .nullable();
+export const emailSchema = yup.string().nullable();
