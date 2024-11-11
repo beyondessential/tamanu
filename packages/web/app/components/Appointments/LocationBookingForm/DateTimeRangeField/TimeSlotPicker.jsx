@@ -249,12 +249,14 @@ export const TimeSlotPicker = ({
 
   const bookedIntervals = useMemo(() => {
     if (!isFetched) return [];
-    return existingLocationBookings?.data
-      .map(booking => ({
-        start: new Date(booking.startTime),
-        end: new Date(booking.endTime),
-      }))
-      .filter(interval => !isEqual(interval, initialTimeRange)); // Ignore the booking currently being modified
+    return (
+      existingLocationBookings?.data
+        .map(booking => ({
+          start: new Date(booking.startTime),
+          end: new Date(booking.endTime),
+        }))
+        .filter(interval => !isEqual(interval, initialTimeRange)) ?? []
+    ); // Ignore the booking currently being modified
   }, [existingLocationBookings?.data, initialTimeRange, isFetched]);
 
   /** A time slot is selectable if it does not create a selection of time slots that collides with another booking */
