@@ -162,7 +162,7 @@ const BookingTypeDisplay = ({ bookingType, isOvernight }) => (
         <TranslatedReferenceData
           value={bookingType.id}
           fallback={bookingType.name}
-          category="appointmentType"
+          category="bookingType"
         />
         {isOvernight && (
           <FlexRow sx={{ gap: '2px' }}>
@@ -269,7 +269,7 @@ const AppointmentDetailsDisplay = ({ appointment, isOvernight }) => {
           }
         />
       )}
-      {bookingType && <BookingTypeDisplay type={bookingType} isOvernight={isOvernight} />}
+      {bookingType && <BookingTypeDisplay bookingType={bookingType} isOvernight={isOvernight} />}
       {appointmentType && (
         <DetailsDisplay
           label={
@@ -281,7 +281,7 @@ const AppointmentDetailsDisplay = ({ appointment, isOvernight }) => {
           value={
             <TranslatedReferenceData
               value={appointmentType.id}
-              appointmentType={appointmentType.name}
+              fallback={appointmentType.name}
               category="appointmentType"
             />
           }
