@@ -5,7 +5,7 @@ import { LetterheadSection } from './LetterheadSection';
 import { PatientDetailsWithAddress } from './printComponents/PatientDetailsWithAddress';
 import { startCase } from 'lodash';
 import {
-  ENCOUNTER_LABELS,
+  ENCOUNTER_TYPE_LABELS,
   NOTE_TYPE_LABELS,
   DRUG_ROUTE_LABELS,
   NOTE_TYPES,
@@ -137,176 +137,6 @@ const NotesCell = ({ children, style = {} }) => (
 );
 
 const SectionSpacing = () => <View style={{ paddingBottom: '10px' }} />;
-
-const COLUMNS = {
-  encounterTypes: [
-    {
-      key: 'encounterType',
-      title: 'Type',
-      accessor: ({ newEncounterType }) => ENCOUNTER_LABELS[newEncounterType],
-      style: { width: '65%' },
-    },
-    {
-      key: 'dateMoved',
-      title: 'Date & time moved',
-      accessor: ({ date }) => (date ? formatShort(date) : '--/--/----'),
-      style: { width: '35%' },
-    },
-  ],
-  locations: [
-    {
-      key: 'to',
-      title: 'Area',
-      accessor: ({ newLocationGroup }) => startCase(newLocationGroup) || '----',
-      style: { width: '30%' },
-    },
-    {
-      key: 'location',
-      title: 'Location',
-      accessor: ({ newLocation }) => startCase(newLocation),
-      style: { width: '35%' },
-    },
-    {
-      key: 'dateMoved',
-      title: 'Date & time moved',
-      accessor: ({ date }) => (date ? formatShort(date) : '--/--/----'),
-      style: { width: '35%' },
-    },
-  ],
-  diagnoses: [
-    {
-      key: 'diagnosis',
-      title: 'Diagnosis',
-      accessor: ({ diagnosis }) => `${diagnosis?.name} (${diagnosis?.code})`,
-      style: { width: '55%' },
-    },
-    {
-      key: 'type',
-      title: 'Type',
-      accessor: ({ isPrimary }) => (isPrimary ? 'Primary' : 'Secondary'),
-      style: { width: '20%' },
-    },
-    {
-      key: 'date',
-      title: 'Date',
-      accessor: ({ date }) => (date ? formatShort(date) : '--/--/----'),
-      style: { width: '25%' },
-    },
-  ],
-  procedures: [
-    {
-      key: 'procedure',
-      title: 'Procedure',
-      accessor: ({ procedureType }) => `${procedureType?.name} (${procedureType?.code})`,
-      style: { width: '75%' },
-    },
-    {
-      key: 'procedureDate',
-      title: 'Procedure date',
-      accessor: ({ date }) => (date ? formatShort(date) : '--/--/----'),
-      style: { width: '25%' },
-    },
-  ],
-  labRequests: [
-    {
-      key: 'testType',
-      title: 'Test type',
-      style: { width: '20%' },
-    },
-    {
-      key: 'testCategory',
-      title: 'Test category',
-      style: { width: '25%' },
-    },
-    {
-      key: 'requestedByName',
-      title: 'Requested by',
-      style: { width: '20%' },
-    },
-    {
-      key: 'requestDate',
-      title: 'Request date',
-      accessor: ({ requestDate }) => (requestDate ? formatShort(requestDate) : '--/--/----'),
-      style: { width: '17.5%' },
-    },
-    {
-      key: 'publishedDate',
-      title: 'Published date',
-      accessor: ({ publishedDate }) => (publishedDate ? formatShort(publishedDate) : '--/--/----'),
-      style: { width: '17.5%' },
-    },
-  ],
-  imagingRequests: [
-    {
-      key: 'imagingType',
-      title: 'Request type',
-      accessor: ({ imagingName }) => imagingName?.label,
-      style: { width: '17%' },
-    },
-    {
-      key: 'areaToBeImaged',
-      title: 'Area to be imaged',
-      accessor: imagingRequest =>
-        imagingRequest?.areas?.length
-          ? imagingRequest?.areas.map(area => area.name).join(', ')
-          : imagingRequest?.areaNote,
-      style: { width: '25%' },
-    },
-    {
-      key: 'requestedBy',
-      title: 'Requested by',
-      accessor: ({ requestedBy }) => requestedBy?.displayName,
-      style: { width: '18%' },
-    },
-    {
-      key: 'requestDate',
-      title: 'Request date',
-      accessor: ({ requestedDate }) => (requestedDate ? formatShort(requestedDate) : '--/--/----'),
-      style: { width: '20%' },
-    },
-    {
-      key: 'completedDate',
-      title: 'Completed date',
-      accessor: imagingRequest =>
-        imagingRequest?.results[0]?.completedAt
-          ? formatShort(imagingRequest?.results[0]?.completedAt)
-          : '--/--/----',
-      style: { width: '20%' },
-    },
-  ],
-  medications: [
-    {
-      key: 'medication',
-      title: 'Medication',
-      accessor: ({ medication }) => medication?.name,
-      style: { width: '20%' },
-    },
-    {
-      key: 'instructions',
-      title: 'Instructions',
-      accessor: ({ prescription }) => prescription || '',
-      style: { width: '30%' },
-    },
-    {
-      key: 'route',
-      title: 'Route',
-      accessor: ({ route }) => DRUG_ROUTE_LABELS[route] || '',
-      style: { width: '12.5%' },
-    },
-    {
-      key: 'prescriber',
-      title: 'Prescriber',
-      accessor: ({ prescriber }) => prescriber?.displayName,
-      style: { width: '25%' },
-    },
-    {
-      key: 'prescriptionDate',
-      title: 'Prescription date',
-      accessor: ({ date }) => (date ? formatShort(date) : '--/--/----'),
-      style: { width: '22.5%' },
-    },
-  ],
-};
 
 const MultipageTableHeading = ({ title, style = textStyles.sectionTitle }) => {
   let firstPageOccurence = Number.MAX_SAFE_INTEGER;
@@ -469,13 +299,189 @@ const EncounterRecordPrintoutComponent = ({
   notes,
   discharge,
   medications,
-  getLocalisation,
+  getTranslation,
   clinicianText,
   vitalsData,
   recordedDates,
   getVitalsColumn,
 }) => {
   const { watermark, logo } = certificateData;
+
+  const COLUMNS = {
+    encounterTypes: [
+      {
+        key: 'encounterType',
+        title: getTranslation('encounter.type.label', 'Type'),
+        accessor: ({ newEncounterType }) =>
+          getTranslation(
+            `encounter.property.type.${newEncounterType}`,
+            ENCOUNTER_TYPE_LABELS[newEncounterType],
+          ),
+        style: { width: '65%' },
+      },
+      {
+        key: 'dateMoved',
+        title: getTranslation('pdf.encounterRecord.dateAndTimeMoved', 'Date & time moved'),
+        accessor: ({ date }) => (date ? formatShort(date) : '--/--/----'),
+        style: { width: '35%' },
+      },
+    ],
+    locations: [
+      {
+        key: 'to',
+        title: getTranslation('general.localisedField.locationGroupId.label', 'Area'),
+        accessor: ({ newLocationGroup }) => startCase(newLocationGroup) || '----',
+        style: { width: '30%' },
+      },
+      {
+        key: 'location',
+        title: getTranslation('general.localisedField.locationId', 'Location'),
+        accessor: ({ newLocation }) => startCase(newLocation),
+        style: { width: '35%' },
+      },
+      {
+        key: 'dateMoved',
+        title: getTranslation('pdf.encounterRecord.dateAndTimeMoved', 'Date & time moved'),
+        accessor: ({ date }) => (date ? formatShort(date) : '--/--/----'),
+        style: { width: '35%' },
+      },
+    ],
+    diagnoses: [
+      {
+        key: 'diagnosis',
+        title: getTranslation('general.localisedField.diagnosis.label', 'Diagnosis'),
+        accessor: ({ diagnosis }) => `${diagnosis?.name} (${diagnosis?.code})`,
+        style: { width: '55%' },
+      },
+      {
+        key: 'type',
+        title: getTranslation('encounter.type.label', 'Type'),
+        accessor: ({ isPrimary }) => (isPrimary ? 'Primary' : 'Secondary'),
+        style: { width: '20%' },
+      },
+      {
+        key: 'date',
+        title: getTranslation('general.date.label', 'Date'),
+        accessor: ({ date }) => (date ? formatShort(date) : '--/--/----'),
+        style: { width: '25%' },
+      },
+    ],
+    procedures: [
+      {
+        key: 'procedure',
+        title: getTranslation('procedure.procedureType.label', 'Procedure'),
+        accessor: ({ procedureType }) => `${procedureType?.name} (${procedureType?.code})`,
+        style: { width: '75%' },
+      },
+      {
+        key: 'procedureDate',
+        title: getTranslation('procedure.date.label', 'Procedure date'),
+        accessor: ({ date }) => (date ? formatShort(date) : '--/--/----'),
+        style: { width: '25%' },
+      },
+    ],
+    labRequests: [
+      {
+        key: 'testType',
+        title: 'Test type',
+        style: { width: '20%' },
+      },
+      {
+        key: 'testCategory',
+        title: 'Test category',
+        style: { width: '25%' },
+      },
+      {
+        key: 'requestedByName',
+        title: 'Requested by',
+        style: { width: '20%' },
+      },
+      {
+        key: 'requestDate',
+        title: 'Request date',
+        accessor: ({ requestDate }) => (requestDate ? formatShort(requestDate) : '--/--/----'),
+        style: { width: '17.5%' },
+      },
+      {
+        key: 'publishedDate',
+        title: 'Published date',
+        accessor: ({ publishedDate }) =>
+          publishedDate ? formatShort(publishedDate) : '--/--/----',
+        style: { width: '17.5%' },
+      },
+    ],
+    imagingRequests: [
+      {
+        key: 'imagingType',
+        title: 'Request type',
+        accessor: ({ imagingName }) => imagingName?.label,
+        style: { width: '17%' },
+      },
+      {
+        key: 'areaToBeImaged',
+        title: 'Area to be imaged',
+        accessor: imagingRequest =>
+          imagingRequest?.areas?.length
+            ? imagingRequest?.areas.map(area => area.name).join(', ')
+            : imagingRequest?.areaNote,
+        style: { width: '25%' },
+      },
+      {
+        key: 'requestedBy',
+        title: 'Requested by',
+        accessor: ({ requestedBy }) => requestedBy?.displayName,
+        style: { width: '18%' },
+      },
+      {
+        key: 'requestDate',
+        title: 'Request date',
+        accessor: ({ requestedDate }) =>
+          requestedDate ? formatShort(requestedDate) : '--/--/----',
+        style: { width: '20%' },
+      },
+      {
+        key: 'completedDate',
+        title: 'Completed date',
+        accessor: imagingRequest =>
+          imagingRequest?.results[0]?.completedAt
+            ? formatShort(imagingRequest?.results[0]?.completedAt)
+            : '--/--/----',
+        style: { width: '20%' },
+      },
+    ],
+    medications: [
+      {
+        key: 'medication',
+        title: 'Medication',
+        accessor: ({ medication }) => medication?.name,
+        style: { width: '20%' },
+      },
+      {
+        key: 'instructions',
+        title: 'Instructions',
+        accessor: ({ prescription }) => prescription || '',
+        style: { width: '30%' },
+      },
+      {
+        key: 'route',
+        title: 'Route',
+        accessor: ({ route }) => DRUG_ROUTE_LABELS[route] || '',
+        style: { width: '12.5%' },
+      },
+      {
+        key: 'prescriber',
+        title: 'Prescriber',
+        accessor: ({ prescriber }) => prescriber?.displayName,
+        style: { width: '25%' },
+      },
+      {
+        key: 'prescriptionDate',
+        title: 'Prescription date',
+        accessor: ({ date }) => (date ? formatShort(date) : '--/--/----'),
+        style: { width: '22.5%' },
+      },
+    ],
+  };
 
   return (
     <Document>
