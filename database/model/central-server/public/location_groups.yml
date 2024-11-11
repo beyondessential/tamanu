@@ -39,6 +39,8 @@ sources:
           - name: name
             data_type: character varying(255)
             description: "{{ doc('location_groups__name') }}"
+            data_tests:
+              - not_null
           - name: code
             data_type: character varying(255)
             description: "{{ doc('location_groups__code') }}"
