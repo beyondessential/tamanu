@@ -398,13 +398,13 @@ const EncounterRecordPrintoutComponent = ({
       },
       {
         key: 'requestDate',
-        title: 'Request date',
+        title: getTranslation('general.requestDate.label', 'Request date'),
         accessor: ({ requestDate }) => (requestDate ? formatShort(requestDate) : '--/--/----'),
         style: { width: '17.5%' },
       },
       {
         key: 'publishedDate',
-        title: 'Published date',
+        title: getTranslation('pdf.encounterRecord.publishedDate', 'Published date'),
         accessor: ({ publishedDate }) =>
           publishedDate ? formatShort(publishedDate) : '--/--/----',
         style: { width: '17.5%' },
