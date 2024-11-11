@@ -318,7 +318,6 @@ const EncounterRecordPrintoutComponent = ({
   discharge,
   medications,
   getLocalisation,
-  clinicianText,
   vitalsData,
   recordedDates,
   getVitalsColumn,
@@ -527,11 +526,7 @@ const EncounterRecordPrintoutComponent = ({
         <SectionSpacing />
         <PatientDetailsWithAddress getLocalisation={getLocalisation} patient={patientData} />
         <SectionSpacing />
-        <EncounterDetailsExtended
-          encounter={encounter}
-          discharge={discharge}
-          clinicianText={clinicianText}
-        />
+        <EncounterDetailsExtended encounter={encounter} discharge={discharge} />
         <SectionSpacing />
         {encounterTypeHistory.length > 0 && (
           <TableSection

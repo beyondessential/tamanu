@@ -25,7 +25,6 @@ import { PDFLoader, printPDF } from '../PDFLoader';
 import { TranslatedText } from '../../Translation/TranslatedText';
 import { useVitals } from '../../../api/queries/useVitals';
 import { DateDisplay, formatShortest, formatTime } from '../../DateDisplay';
-import { useTranslation } from '../../../contexts/Translation';
 
 // These below functions are used to extract the history of changes made to the encounter that are stored in notes.
 // obviously a better solution needs to be to properly implemented for storing and accessing this data, but this is an ok workaround for now.
@@ -107,11 +106,6 @@ const getDateTitleArray = date => {
 };
 
 export const EncounterRecordModal = ({ encounter, open, onClose }) => {
-  const { getTranslation } = useTranslation();
-  const clinicianText = getTranslation(
-    'general.localisedField.clinician.label.short',
-    'Clinician',
-  ).toLowerCase();
   const { data: vitalsData, recordedDates } = useVitals(encounter.id);
 
   const { getLocalisation } = useLocalisation();
@@ -327,7 +321,6 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
           village={village}
           medications={medications}
           getLocalisation={getLocalisation}
-          clinicianText={clinicianText}
         />
       </PDFLoader>
     </Modal>
