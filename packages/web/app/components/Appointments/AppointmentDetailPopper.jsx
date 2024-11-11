@@ -107,8 +107,8 @@ const StyledIconButton = styled(IconButton)`
   }
 `;
 
-const ControlsRow = ({ onClose, appointment, openBookingForm, handleAppointmentUpdate }) => {
-  const [cancelModalOpen, setCancelModalOpen] = useState(false);
+const ControlsRow = ({ onClose, appointment, openBookingForm, onModifyAppointment }) => {
+  const [isCancelModalOpen, setCancelModalOpen] = useState(false);
 
   const handleCancelModalClose = () => {
     setCancelModalOpen(false);
@@ -133,9 +133,9 @@ const ControlsRow = ({ onClose, appointment, openBookingForm, handleAppointmentU
       </StyledIconButton>
       <CancelBookingModal
         appointment={appointment}
-        open={cancelModalOpen}
+        open={isCancelModalOpen}
         onClose={handleCancelModalClose}
-        handleAppointmentUpdate={handleAppointmentUpdate}
+        onModifyAppointment={onModifyAppointment}
       />
     </ControlsContainer>
   );
@@ -205,10 +205,7 @@ const PatientDetailsDisplay = ({ patient, onClick }) => {
       {!isAdditionalDataLoading && additionalData?.primaryContactNumber && (
         <InlineDetailsDisplay
           label={
-            <TranslatedText
-              stringId="patient.details.reminderContacts.field.contact"
-              fallback="Contact"
-            />
+            <TranslatedText stringId="patient.details.reminderContacts.label" fallback="Contact" />
           }
           value={additionalData.primaryContactNumber}
         />
@@ -380,7 +377,7 @@ export const AppointmentDetailPopper = ({
             appointment={appointment}
             openBookingForm={openBookingForm}
             onClose={onClose}
-            handleAppointmentUpdate={handleAppointmentUpdate}
+            onModifyAppointment={handleAppointmentUpdate}
           />
           <StyledPaper elevation={0}>
             <PatientDetailsDisplay

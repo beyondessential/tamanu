@@ -61,8 +61,20 @@ const BottomModalContainer = styled(Box)`
   background-color: ${Colors.background};
 `;
 
+const StyledConfirmCancelRow = styled(ConfirmCancelRow)`
+  margin-top: 0;
+`;
+
 const AppointmentDetailsDisplay = ({ appointment }) => {
-  const { locationGroup, location, patient, type, clinician, startTime, endTime } = appointment;
+  const {
+    locationGroup,
+    location,
+    patient,
+    bookingType,
+    clinician,
+    startTime,
+    endTime,
+  } = appointment;
 
   return (
     <AppointmentDetailsContainer>
@@ -110,7 +122,11 @@ const AppointmentDetailsDisplay = ({ appointment }) => {
         <DetailDisplay
           label={<TranslatedText stringId="scheduling.bookingType.label" fallback="Booking type" />}
           value={
-            <TranslatedEnum value={type} enumValues={APPOINTMENT_TYPE_LABELS} enumFallback={type} />
+            <TranslatedReferenceData
+              value={bookingType.id}
+              fallback={bookingType.name}
+              category="appointmentType"
+            />
           }
         />
         <DetailDisplay
@@ -129,8 +145,7 @@ const AppointmentDetailsDisplay = ({ appointment }) => {
 
 const BottomModalContent = ({ cancelBooking, onClose }) => (
   <BottomModalContainer>
-    <ConfirmCancelRow
-      style={{ marginTop: '0px' }}
+    <StyledConfirmCancelRow
       onConfirm={cancelBooking}
       onCancel={onClose}
       cancelText={<TranslatedText stringId="general.action.goBack" fallback="Go back" />}
@@ -141,7 +156,7 @@ const BottomModalContent = ({ cancelBooking, onClose }) => (
   </BottomModalContainer>
 );
 
-export const CancelBookingModal = ({ appointment, open, onClose, handleAppointmentUpdate }) => {
+export const CancelBookingModal = ({ appointment, open, onClose, onModifyAppointment }) => {
   const api = useApi();
 
   const cancelBooking = useCallback(async () => {
@@ -149,7 +164,7 @@ export const CancelBookingModal = ({ appointment, open, onClose, handleAppointme
       await api.put(`appointments/${appointment.id}`, {
         status: APPOINTMENT_STATUSES.CANCELLED,
       });
-      handleAppointmentUpdate();
+      onModifyAppointment();
       onClose();
     } catch (error) {
       toast.error(
@@ -159,13 +174,13 @@ export const CancelBookingModal = ({ appointment, open, onClose, handleAppointme
         />,
       );
     }
-  }, [api, appointment.id, handleAppointmentUpdate, onClose]);
+  }, [api, appointment.id, onModifyAppointment, onClose]);
 
   return (
     <BaseModal
       title={
         <TranslatedText
-          stringId="scheduling.action.cancelLocationBooking"
+          stringId="locationBooking.action.cancel"
           fallback="Cancel location booking"
         />
       }
@@ -176,7 +191,7 @@ export const CancelBookingModal = ({ appointment, open, onClose, handleAppointme
     >
       <FlexCol sx={{ gap: '1.75rem' }}>
         <TranslatedText
-          stringId="scheduling.modal.cancelLocationBooking.text"
+          stringId="locationBooking.modal.cancel.text"
           fallback="Are you sure you would like to cancel the below location booking?"
         />
         <AppointmentDetailsDisplay appointment={appointment} />
