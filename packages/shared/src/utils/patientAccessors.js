@@ -5,7 +5,7 @@ import { ageInYears, formatShort } from './dateTime';
 export const getName = ({ firstName, lastName }) => `${firstName} ${lastName}`;
 export const getSex = ({ sex }) => `${capitalize(sex)}`;
 
-export const getDOB = ({ dateOfBirth }, getLocalisation, getTranslation) =>
+export const getDOB = ({ dateOfBirth }, { getLocalisation, getTranslation }) =>
   dateOfBirth
     ? getDisplayDate(dateOfBirth, 'dd/MM/yyyy', getLocalisation)
     : getTranslation('general.fallback.unknown', 'Unknown');
@@ -54,7 +54,7 @@ export const getLocationName = ({ location }) =>
 
 export const getVillageName = ({ village }) => village?.name;
 
-export const getPatientWeight = ({ patientWeight }, {getTranslation}) =>
+export const getPatientWeight = ({ patientWeight }, { getTranslation }) =>
   patientWeight
     ? `${patientWeight}${getTranslation('general.localisedField.weightUnit.label', 'kg')}`
     : '';

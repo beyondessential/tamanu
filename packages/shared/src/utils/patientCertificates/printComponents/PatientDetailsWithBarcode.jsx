@@ -24,7 +24,7 @@ export const PatientDetailsWithBarcode = ({ patient, getLocalisation }) => {
             {
               key: 'patientWeight',
               label: 'Patient weight',
-              accessor: data => getPatientWeight(data, { getTranslation }),
+              accessor: getPatientWeight,
             },
           ]
         : []),
