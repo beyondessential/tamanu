@@ -196,11 +196,11 @@ const causeOfDeathAccessor = ({ causes }) => {
 const getDOB = ({ dateOfBirth }, getLocalisation) =>
   dateOfBirth ? getDisplayDate(dateOfBirth, 'd MMM yyyy', getLocalisation) : 'Unknown';
 
-const getDateAndTimeOfDeath = (patientData, getLocalisation) => {
-  return `${getDateOfDeath(patientData, getLocalisation)} ${getTimeOfDeath(
-    patientData,
+const getDateAndTimeOfDeath = (patientData, getLocalisation, getTranslation) => {
+  return `${getDateOfDeath(patientData, {
     getLocalisation,
-  )}`;
+    getTranslation,
+  })} ${getTimeOfDeath(patientData, { getLocalisation, getTranslation })}`;
 };
 
 const PATIENT_DETAIL_FIELDS = {

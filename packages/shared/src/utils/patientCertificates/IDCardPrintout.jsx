@@ -134,7 +134,7 @@ const IDCardPrintoutComponent = ({
                 label={getTranslation('general.localisedField.firstName.label', 'First name')}
               />
               <DetailsRow
-                value={getDOB(patient)}
+                value={getDOB(patient, { getTranslation })}
                 label={getTranslation('general.localisedField.dateOfBirth.label.short', 'DOB')}
               />
               <DetailsRow

@@ -10,7 +10,7 @@ export const getDOB = ({ dateOfBirth }, getLocalisation, getTranslation) =>
     ? getDisplayDate(dateOfBirth, 'dd/MM/yyyy', getLocalisation)
     : getTranslation('general.fallback.unknown', 'Unknown');
 
-export const getDOBWithAge = ({ dateOfBirth }, getTranslation) => {
+export const getDOBWithAge = ({ dateOfBirth }, { getTranslation }) => {
   if (!dateOfBirth) return getTranslation('general.fallback.unknown', 'Unknown');
 
   const dob = formatShort(dateOfBirth);
@@ -20,12 +20,12 @@ export const getDOBWithAge = ({ dateOfBirth }, getTranslation) => {
   return `${dob} (${age} years)`;
 };
 
-export const getDateOfDeath = ({ dateOfDeath }, getLocalisation, getTranslation) => {
+export const getDateOfDeath = ({ dateOfDeath }, { getLocalisation, getTranslation }) => {
   if (!dateOfDeath) return getTranslation('general.fallback.unknown', 'Unknown');
   return getDisplayDate(dateOfDeath, 'd MMM yyyy', getLocalisation);
 };
 
-export const getTimeOfDeath = ({ dateOfDeath }, getLocalisation, getTranslation) => {
+export const getTimeOfDeath = ({ dateOfDeath }, { getLocalisation, getTranslation }) => {
   if (!dateOfDeath) return getTranslation('general.fallback.unknown', 'Unknown');
   return getDisplayDate(dateOfDeath, 'hh:mma', getLocalisation).toLowerCase();
 };
@@ -37,7 +37,7 @@ export const getNationality = ({ additionalData }) =>
 
 export const getPassportNumber = ({ additionalData }) => (additionalData || {}).passport;
 
-export const getAddress = ({ additionalData }, getTranslation) => {
+export const getAddress = ({ additionalData }, { getTranslation }) => {
   let address = getTranslation('general.fallback.notApplicable', 'N/A');
 
   const { streetVillage, cityTown, country } = additionalData || {};
@@ -54,7 +54,7 @@ export const getLocationName = ({ location }) =>
 
 export const getVillageName = ({ village }) => village?.name;
 
-export const getPatientWeight = ({ patientWeight }, getTranslation) =>
+export const getPatientWeight = ({ patientWeight }, {getTranslation}) =>
   patientWeight
     ? `${patientWeight}${getTranslation('general.localisedField.weightUnit.label', 'kg')}`
     : '';

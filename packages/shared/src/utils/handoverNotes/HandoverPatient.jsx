@@ -49,7 +49,10 @@ export const HandoverPatient = ({
           <Row>
             {detailsToDisplay.map(
               ({ key, label: defaultLabel, accessor, percentageWidth = 33 }) => {
-                const value = (accessor ? accessor(patient, getLocalisation) : patient[key]) || '';
+                const value =
+                  (accessor
+                    ? accessor(patient, { getLocalisation, getTranslation })
+                    : patient[key]) || '';
                 const label =
                   defaultLabel ||
                   getTranslation(`general.localisedFields.${key}.label.short`) ||

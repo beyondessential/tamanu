@@ -55,7 +55,10 @@ export const PatientDetailsSection = ({
         <Col style={{ marginBottom: 5 }}>
           <Row>
             {detailsToDisplay.map(({ key, label: defaultLabel, accessor }) => {
-              const value = (accessor ? accessor(patient, getLocalisation) : patient[key]) || '';
+              const value =
+                (accessor
+                  ? accessor(patient, { getLocalisation, getTranslation })
+                  : patient[key]) || '';
               const label =
                 getTranslation(`general.localisedField.${key}.label.short`) ||
                 getTranslation(`general.localisedField.${key}.label`) ||
