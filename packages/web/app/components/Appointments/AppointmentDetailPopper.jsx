@@ -11,6 +11,7 @@ import Overnight from '@mui/icons-material/Brightness2';
 import Close from '@mui/icons-material/Close';
 import { debounce } from 'lodash';
 import { toast } from 'react-toastify';
+import { useQueryClient } from '@tanstack/react-query';
 
 import { PatientNameDisplay } from '../PatientNameDisplay';
 import { TranslatedReferenceData, TranslatedSex, TranslatedText } from '../Translation';
@@ -23,7 +24,6 @@ import { useApi } from '../../api';
 import { APPOINTMENT_STATUS_VALUES, APPOINTMENT_STATUSES } from '@tamanu/constants';
 import { AppointmentStatusChip } from './AppointmentStatusChip';
 import { MenuButton } from '../MenuButton';
-import { useQueryClient } from '@tanstack/react-query';
 import { formatDateRange } from '../../utils/dateTime';
 
 export const APPOINTMENT_DRAWER_CLASS = 'appointment-drawer';
