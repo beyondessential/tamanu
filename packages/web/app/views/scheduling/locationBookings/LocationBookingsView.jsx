@@ -156,9 +156,9 @@ export const LocationBookingsView = () => {
         />
       )}
       <LocationBookingDrawer
-        initialBookingValues={initialDrawerValues}
+        initialValues={initialDrawerValues}
+        onClose={closeBookingForm}
         open={isDrawerOpen}
-        closeDrawer={closeBookingForm}
       />
     </Wrapper>
   );

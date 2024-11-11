@@ -6,14 +6,14 @@ import IconButton from '@mui/material/IconButton';
 import Paper from '@mui/material/Paper';
 import Popper from '@mui/material/Popper';
 import { styled } from '@mui/material/styles';
-import { useQueryClient } from '@tanstack/react-query';
 import { push } from 'connected-react-router';
 import { debounce } from 'lodash';
 import React, { useCallback, useMemo, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { toast } from 'react-toastify';
 
-import { APPOINTMENT_STATUS_VALUES, APPOINTMENT_STATUSES } from '@tamanu/constants';
+import { APPOINTMENT_STATUSES, APPOINTMENT_STATUS_VALUES } from '@tamanu/constants';
+
 import { useApi } from '../../api';
 import { usePatientAdditionalDataQuery } from '../../api/queries';
 import { Colors } from '../../constants';
@@ -24,15 +24,17 @@ import { getPatientNameAsString } from '../PatientNameDisplay';
 import { TranslatedReferenceData, TranslatedSex, TranslatedText } from '../Translation';
 import { AppointmentStatusChip } from './AppointmentStatusChip';
 
+export const APPOINTMENT_DRAWER_CLASS = 'appointment-drawer';
 const DEBOUNCE_DELAY = 200; // ms
 
 const formatDateRange = (start, end, isOvernight) => {
   const formattedStart = getDateDisplay(start, { showDate: true, showTime: true });
-  const formattedEnd = getDateDisplay(end, { showDate: isOvernight, showTime: true });
+  if (!end) return formattedStart;
 
+  const formattedEnd = getDateDisplay(end, { showDate: isOvernight, showTime: true });
   return (
     <>
-      {formattedStart}&nbsp;&ndash; {formattedEnd}
+      {date}&nbsp;&ndash; {formattedEnd}
     </>
   );
 };
@@ -121,6 +123,9 @@ const StyledMenuButton = styled(MenuButton)`
   svg {
     font-size: 0.875rem;
   }
+  #menu-list-grow {
+    box-shadow: 0px 0.25rem 1rem 0px hsla(0, 0%, 0%, 0.1);
+  }
 `;
 
 const StyledIconButton = styled(IconButton)`
@@ -130,11 +135,11 @@ const StyledIconButton = styled(IconButton)`
   }
 `;
 
-const ControlsRow = ({ onClose, appointment, openBookingForm }) => {
+const ControlsRow = ({ onClose, onEdit }) => {
   const actions = [
     {
       label: <TranslatedText stringId="general.action.modify" fallback="Modify" />,
-      action: () => openBookingForm(appointment),
+      action: onEdit,
     },
     // TODO: cancel workflow
     {
@@ -229,7 +234,15 @@ const PatientDetailsDisplay = ({ patient, onClick }) => {
 };
 
 const AppointmentDetailsDisplay = ({ appointment, isOvernight }) => {
-  const { startTime, endTime, clinician, locationGroup, location, bookingType } = appointment;
+  const {
+    startTime,
+    endTime,
+    clinician,
+    locationGroup,
+    location,
+    bookingType,
+    appointmentType,
+  } = appointment;
   return (
     <AppointmentDetailsContainer>
       <DetailsDisplay
@@ -257,19 +270,41 @@ const AppointmentDetailsDisplay = ({ appointment, isOvernight }) => {
           />
         }
       />
-      <DetailsDisplay
-        label={
-          <TranslatedText stringId="general.localisedField.locationId.label" fallback="Location" />
-        }
-        value={
-          <TranslatedReferenceData
-            fallback={location?.name}
-            value={location?.id}
-            category="location"
-          />
-        }
-      />
-      <BookingTypeDisplay bookingType={bookingType} isOvernight={isOvernight} />
+      {location && (
+        <DetailsDisplay
+          label={
+            <TranslatedText
+              stringId="general.localisedField.locationId.label"
+              fallback="Location"
+            />
+          }
+          value={
+            <TranslatedReferenceData
+              fallback={location?.name}
+              value={location?.id}
+              category="location"
+            />
+          }
+        />
+      )}
+      {bookingType && <BookingTypeDisplay type={bookingType} isOvernight={isOvernight} />}
+      {appointmentType && (
+        <DetailsDisplay
+          label={
+            <TranslatedText
+              stringId="scheduling.appointmentType.label"
+              fallback="Appointment type"
+            />
+          }
+          value={
+            <TranslatedReferenceData
+              value={appointmentType.id}
+              appointmentType={appointmentType.name}
+              category="appointmentType"
+            />
+          }
+        />
+      )}
     </AppointmentDetailsContainer>
   );
 };
@@ -304,14 +339,13 @@ export const AppointmentStatusSelector = ({
 export const AppointmentDetailPopper = ({
   open,
   onClose,
-  onUpdated,
+  onStatusChange,
+  onEdit,
   anchorEl,
   appointment,
   isOvernight,
-  openBookingForm,
 }) => {
   const dispatch = useDispatch();
-  const queryClient = useQueryClient();
   const api = useApi();
   const [localStatus, setLocalStatus] = useState(appointment.status);
   const patientId = appointment.patient.id;
@@ -328,10 +362,8 @@ export const AppointmentDetailPopper = ({
           await api.put(`appointments/${appointment.id}`, {
             status: newValue,
           });
-          if (onUpdated) onUpdated();
-          queryClient.invalidateQueries('appointments');
+          onStatusChange?.(newValue);
         } catch (error) {
-          console.log(error);
           toast.error(
             <TranslatedText
               stringId="schedule.error.updateStatus"
@@ -341,7 +373,7 @@ export const AppointmentDetailPopper = ({
           setLocalStatus(appointment.status);
         }
       }, DEBOUNCE_DELAY),
-    [api, appointment.id, onUpdated, appointment.status, queryClient],
+    [api, appointment.id, appointment.status, onStatusChange],
   );
 
   const updateAppointmentStatus = useCallback(
@@ -351,6 +383,11 @@ export const AppointmentDetailPopper = ({
     },
     [debouncedUpdateAppointmentStatus],
   );
+
+  const handleClickAway = e => {
+    if (e.target.closest(`.${APPOINTMENT_DRAWER_CLASS}`)) return;
+    onClose();
+  };
 
   const modifiers = [
     {
@@ -372,22 +409,24 @@ export const AppointmentDetailPopper = ({
     },
   ];
 
-
   return (
     <Popper
       open={open}
       anchorEl={anchorEl}
       placement="bottom-start"
       onClick={e => e.stopPropagation()} // Prevent the popper from closing when clicked
+      sx={{
+        zIndex: 10,
+      }}
       modifiers={modifiers}
     >
-      <ClickAwayListener onClickAway={onClose}>
+      <ClickAwayListener
+        onClickAway={handleClickAway}
+        mouseEvent="onMouseDown"
+        touchEvent="onTouchStart"
+      >
         <Box>
-          <ControlsRow
-            appointment={appointment}
-            openBookingForm={openBookingForm}
-            onClose={onClose}
-          />
+          <ControlsRow onClose={onClose} onEdit={onEdit} />
           <StyledPaper elevation={0}>
             <PatientDetailsDisplay
               patient={appointment.patient}

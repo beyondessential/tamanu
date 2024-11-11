@@ -23,26 +23,9 @@ import {
 } from '../../Field';
 import { FormGrid } from '../../FormGrid';
 import { ClearIcon } from '../../Icons/ClearIcon';
-import { TOP_BAR_HEIGHT } from '../../TopBar';
 import { TranslatedText } from '../../Translation/TranslatedText';
+import { APPOINTMENT_DRAWER_CLASS } from '../AppointmentDetailPopper';
 import { DateTimeRangeField } from './DateTimeRangeField/DateTimeRangeField';
-import { LocationBookingDrawerHeader } from './LocationBookingDrawerHeader';
-
-const StyledDrawer = styled(Drawer).attrs({ anchor: 'right', variant: 'persistent' })`
-  .MuiPaper-root {
-    block-size: calc(100% - ${TOP_BAR_HEIGHT}px);
-    inset-block-start: ${TOP_BAR_HEIGHT}px;
-  }
-`;
-
-const Container = styled.div`
-  background-color: ${Colors.background};
-  inline-size: 330px;
-  min-block-size: 100%;
-  overflow-y: auto;
-  padding: 1rem;
-  position: relative;
-`;
 
 const CloseDrawerIcon = styled(ClearIcon)`
   cursor: pointer;
@@ -92,8 +75,8 @@ export const WarningModal = ({ open, setShowWarningModal, resolveFn }) => {
   );
 };
 
-const SuccessMessage = ({ editMode }) =>
-  editMode ? (
+const SuccessMessage = ({ isEdit = false }) =>
+  isEdit ? (
     <TranslatedText
       stringId="locationBooking.notification.bookingSuccessfullyEdited"
       fallback="Booking successfully edited"
@@ -115,8 +98,8 @@ const validationSchema = yup.object({
   clinicianId: yup.string(),
 });
 
-export const LocationBookingDrawer = ({ open, closeDrawer, initialBookingValues }) => {
-  const editMode = !!initialBookingValues.id;
+export const BookLocationDrawer = ({ open, onClose, initialValues }) => {
+  const isEdit = !!initialValues.id;
 
   const resettableFieldsReversed = ['endTime', 'startTime', 'overnight', 'locationId'];
 
@@ -134,12 +117,12 @@ export const LocationBookingDrawer = ({ open, closeDrawer, initialBookingValues 
     });
 
   const queryClient = useQueryClient();
-  const { mutateAsync: handleSubmit } = useLocationBookingMutation(
-    { editMode },
+  const { mutateAsync: putOrPostBooking } = useLocationBookingMutation(
+    { isEdit },
     {
       onSuccess: () => {
         notifySuccess(<SuccessMessage />);
-        closeDrawer();
+        onClose();
         queryClient.invalidateQueries('appointments');
       },
       onError: error => {
@@ -164,7 +147,7 @@ export const LocationBookingDrawer = ({ open, closeDrawer, initialBookingValues 
     const warnAndResetForm = async () => {
       const confirmed = !dirty || (await handleShowWarningModal());
       if (!confirmed) return;
-      closeDrawer();
+      onClose();
       resetForm();
     };
 
@@ -225,40 +208,54 @@ export const LocationBookingDrawer = ({ open, closeDrawer, initialBookingValues 
     );
   };
 
+  const handleSubmit = async ({
+    locationId,
+    startTime,
+    endTime,
+    patientId,
+    bookingTypeId,
+    clinicianId,
+  }) =>
+    putOrPostBooking({
+      locationId,
+      startTime: toDateTimeString(startTime),
+      endTime: toDateTimeString(endTime),
+      patientId,
+      bookingTypeId,
+      clinicianId,
+    });
+
   return (
-    <StyledDrawer open={open} onClose={closeDrawer}>
-      <Container>
-        <LocationBookingDrawerHeader />
-        <Form
-          onSubmit={async ({
-            locationId,
-            startTime,
-            endTime,
-            patientId,
-            bookingTypeId,
-            clinicianId,
-          }) =>
-            handleSubmit({
-              locationId,
-              startTime: toDateTimeString(startTime),
-              endTime: toDateTimeString(endTime),
-              patientId,
-              bookingTypeId,
-              clinicianId,
-            })
-          }
-          suppressErrorDialog
-          validationSchema={validationSchema}
-          initialValues={initialBookingValues}
-          enableReinitialize
-          render={renderForm}
+    <Drawer
+      PaperProps={{
+        // Used to exclude the drawer from click away listener on appointment detail popper
+        className: APPOINTMENT_DRAWER_CLASS,
+      }}
+      open={open}
+      onClose={onClose}
+      title={
+        <TranslatedText stringId="locationBooking.form.new.heading" fallback="Book location" />
+      }
+      description={
+        <TranslatedText
+          stringId="locationBooking.form.new.description"
+          fallback="Create a new booking by completing the below details and selecting ‘Confirm’"
         />
-        <WarningModal
-          open={warningModalOpen}
-          setShowWarningModal={setShowWarningModal}
-          resolveFn={resolveFn}
-        />
-      </Container>
-    </StyledDrawer>
+      }
+    >
+      <Form
+        enableReinitialize
+        initialValues={initialValues}
+        onSubmit={putOrPostBooking}
+        render={renderForm}
+        suppressErrorDialog
+        validationSchema={validationSchema}
+      />
+      <WarningModal
+        open={warningModalOpen}
+        setShowWarningModal={setShowWarningModal}
+        resolveFn={resolveFn}
+      />
+    </Drawer>
   );
 };
