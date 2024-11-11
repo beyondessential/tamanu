@@ -18,7 +18,7 @@ export const SurveyAnswerField = ({ config, label, patient, field, form }) => {
   useEffect(() => {
     if (!answer) return;
 
-    if (field.name) {
+    if (field.name && answer?.body) {
       form?.setFieldValue(field.name, answer?.body);
     }
 
