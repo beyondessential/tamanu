@@ -157,12 +157,16 @@ const DetailsDisplay = ({ label, value }) => (
   </FlexCol>
 );
 
-const BookingTypeDisplay = ({ type, isOvernight }) => (
+const BookingTypeDisplay = ({ bookingType, isOvernight }) => (
   <DetailsDisplay
     label={<TranslatedText stringId="scheduling.bookingType.label" fallback="Booking type" />}
     value={
       <FlexRow sx={{ alignItems: 'center', justifyContent: 'space-between' }}>
-        <TranslatedReferenceData value={type.id} fallback={type.name} category="appointmentType" />
+        <TranslatedReferenceData
+          value={bookingType.id}
+          fallback={bookingType.name}
+          category="appointmentType"
+        />
         {isOvernight && (
           <FlexRow sx={{ gap: '2px' }}>
             <Overnight htmlColor={Colors.primary} sx={{ fontSize: 15 }} />
@@ -214,8 +218,8 @@ const PatientDetailsDisplay = ({ patient, onClick }) => {
   );
 };
 
-const AppointDetailsDisplay = ({ appointment, isOvernight }) => {
-  const { startTime, endTime, clinician, locationGroup, location, type } = appointment;
+const AppointmentDetailsDisplay = ({ appointment, isOvernight }) => {
+  const { startTime, endTime, clinician, locationGroup, location, bookingType } = appointment;
   return (
     <AppointmentDetailsContainer>
       <DetailsDisplay
@@ -255,7 +259,7 @@ const AppointDetailsDisplay = ({ appointment, isOvernight }) => {
           />
         }
       />
-      <BookingTypeDisplay type={type} isOvernight={isOvernight} />
+      <BookingTypeDisplay bookingType={bookingType} isOvernight={isOvernight} />
     </AppointmentDetailsContainer>
   );
 };
@@ -267,7 +271,7 @@ export const AppointmentStatusSelector = ({
 }) => {
   return (
     <AppointmentStatusContainer role="radiogroup">
-      {APPOINTMENT_STATUS_VALUES.filter(status => status != APPOINTMENT_STATUSES.CANCELLED).map(
+      {APPOINTMENT_STATUS_VALUES.filter(status => status !== APPOINTMENT_STATUSES.CANCELLED).map(
         status => {
           const isSelected = status === selectedStatus;
           return (
@@ -338,20 +342,34 @@ export const AppointmentDetailPopper = ({
     [debouncedUpdateAppointmentStatus],
   );
 
+  const modifiers = [
+    {
+      name: 'offset',
+      options: {
+        offset: [0, 2],
+      },
+    },
+    {
+      name: 'preventOverflow',
+      enabled: true,
+      options: {
+        altAxis: true,
+        altBoundary: true,
+        tether: false,
+        rootBoundary: 'document',
+        padding: { top: 64, left: 184 }, // px conversions of height / width from CarouselComponents
+      },
+    },
+  ];
+
+
   return (
     <Popper
       open={open}
       anchorEl={anchorEl}
       placement="bottom-start"
       onClick={e => e.stopPropagation()} // Prevent the popper from closing when clicked
-      modifiers={[
-        {
-          name: 'offset',
-          options: {
-            offset: [0, 2],
-          },
-        },
-      ]}
+      modifiers={modifiers}
     >
       <ClickAwayListener onClickAway={onClose}>
         <Box>
@@ -365,7 +383,7 @@ export const AppointmentDetailPopper = ({
               patient={appointment.patient}
               onClick={handlePatientDetailsClick}
             />
-            <AppointDetailsDisplay appointment={appointment} isOvernight={isOvernight} />
+            <AppointmentDetailsDisplay appointment={appointment} isOvernight={isOvernight} />
             <AppointmentStatusSelector
               selectedStatus={localStatus}
               updateAppointmentStatus={updateAppointmentStatus}
