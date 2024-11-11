@@ -130,6 +130,7 @@ const StyledConditionalTooltip = styled(ConditionalTooltip).attrs({
   ),
 })`
   ${tooltipStyles};
+  cursor: not-allowed;
   max-inline-size: 13em;
   text-wrap: balance;
 `;
