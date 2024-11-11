@@ -10,7 +10,9 @@ import { ConditionalTooltip, ThemedTooltip } from '../../../Tooltip';
 import { TranslatedText } from '../../../Translation/TranslatedText';
 
 const Toggle = styled(ToggleButton)`
-  &.${toggleButtonClasses.root}.${toggleButtonGroupClasses.grouped}:is(
+  .${toggleButtonGroupClasses.root} &.${toggleButtonClasses.root}.${
+  toggleButtonGroupClasses.grouped
+}:is(
     .${toggleButtonGroupClasses.firstButton},
     .${toggleButtonGroupClasses.middleButton},
     .${toggleButtonGroupClasses.lastButton}
