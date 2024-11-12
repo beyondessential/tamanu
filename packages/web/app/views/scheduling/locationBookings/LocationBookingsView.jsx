@@ -10,7 +10,7 @@ import { CalendarSearchBar } from './CalendarSearchBar';
 import { BookLocationDrawer } from '../../../components/Appointments/LocationBookingForm/BookLocationDrawer';
 import { AddRounded } from '@material-ui/icons';
 import { useAuth } from '../../../contexts/Auth';
-import { useLocationBooking } from '../../../contexts/LocationBooking';
+import { useLocationBookingsContext } from '../../../contexts/LocationBookings';
 import { CancelBookingModal } from '../../../components/Appointments/CancelBookingModal';
 
 const PlusIcon = styled(AddRounded)`
@@ -58,7 +58,7 @@ export const LocationBookingsView = () => {
   const [selectedAppointment, setSelectedAppointment] = useState({});
   const { facilityId } = useAuth();
 
-  const { filters, handleFilterChange } = useLocationBooking();
+  const { filters, setFilters } = useLocationBookingsContext();
 
   const closeBookingForm = () => {
     setIsDrawerOpen(false);
@@ -86,7 +86,7 @@ export const LocationBookingsView = () => {
   return (
     <Wrapper>
       <LocationBookingsTopBar>
-        <CalendarSearchBar onFilterChange={handleFilterChange} />
+        <CalendarSearchBar onFilterChange={setFilters} />
         <NewBookingButton onClick={() => openBookingForm({})}>
           <PlusIcon />
           <TranslatedText
