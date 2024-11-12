@@ -19,11 +19,12 @@ const FormListener = ({ onFilterChange }) => {
   }, [values, onFilterChange]);
 };
 
-export const CalendarSearchBar = ({ onFilterChange }) => {
+export const CalendarSearchBar = ({ initialFilters, onFilterChange }) => {
   const { getTranslation } = useTranslation();
 
   return (
     <Form
+      initialValues={initialFilters}
       onSubmit={async () => {}}
       render={({ clearForm }) => (
         <>
