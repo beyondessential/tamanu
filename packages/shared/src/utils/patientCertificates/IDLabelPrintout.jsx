@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, View, Document } from '@react-pdf/renderer';
-import { getDOB, getName, getSex } from '../patientAccessors';
+import { getDob, getName, getSex } from '../patientAccessors';
 import { PrintableBarcode } from './printComponents/PrintableBarcode';
 import { P } from './Typography';
 import { useLanguageContext, withLanguageContext } from '../pdf/languageContext';
@@ -70,7 +70,7 @@ const IDLabel = ({ patient, getTranslation }) => {
             {getSex(patient)}
           </P>
           <P mb={0} fontSize={fontSize} style={styles.text}>
-            {getDOB(patient, { getTranslation })}
+            {getDob(patient, { getTranslation })}
           </P>
         </Col>
       </Row>

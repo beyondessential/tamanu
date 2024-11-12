@@ -1,7 +1,7 @@
 import React from 'react';
 import { Col, Row, VDSImage } from './Layout';
 import { P } from './Typography';
-import { getDOB, getNationality, getPassportNumber } from '../patientAccessors';
+import { getDob, getNationality, getPassportNumber } from '../patientAccessors';
 import { useLanguageContext } from '../pdf/languageContext';
 
 const PATIENT_FIELDS = [
@@ -10,7 +10,7 @@ const PATIENT_FIELDS = [
   {
     key: 'dateOfBirth',
     label: 'Date of birth',
-    accessor: getDOB,
+    accessor: getDob,
   },
   { key: 'sex', label: 'Sex' },
   { key: 'displayId', label: 'NHN' },

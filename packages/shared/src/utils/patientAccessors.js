@@ -5,12 +5,12 @@ import { ageInYears, formatShort } from './dateTime';
 export const getName = ({ firstName, lastName }) => `${firstName} ${lastName}`;
 export const getSex = ({ sex }) => `${capitalize(sex)}`;
 
-export const getDOB = ({ dateOfBirth }, { getLocalisation, getTranslation }) =>
+export const getDob = ({ dateOfBirth }, { getLocalisation, getTranslation }) =>
   dateOfBirth
     ? getDisplayDate(dateOfBirth, 'dd/MM/yyyy', getLocalisation)
     : getTranslation('general.fallback.unknown', 'Unknown');
 
-export const getDOBWithAge = ({ dateOfBirth }, { getTranslation }) => {
+export const getDobWithAge = ({ dateOfBirth }, { getTranslation }) => {
   if (!dateOfBirth) return getTranslation('general.fallback.unknown', 'Unknown');
 
   const dob = formatShort(dateOfBirth);
@@ -38,15 +38,12 @@ export const getNationality = ({ additionalData }) =>
 export const getPassportNumber = ({ additionalData }) => (additionalData || {}).passport;
 
 export const getAddress = ({ additionalData }, { getTranslation }) => {
-  let address = getTranslation('general.fallback.notApplicable', 'N/A');
-
-  const { streetVillage, cityTown, country } = additionalData || {};
-
+  const { streetVillage, cityTown, country } = additionalData ?? {};
   if (streetVillage && cityTown && country) {
-    address = `${streetVillage}, ${cityTown}, ${country.name}`;
+    return `${streetVillage}, ${cityTown}, ${country.name}`;
   }
 
-  return address;
+  return getTranslation('general.fallback.notApplicable', 'N/A');
 };
 
 export const getLocationName = ({ location }) =>
