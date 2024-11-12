@@ -14,6 +14,7 @@ export const BookingsCell = ({
   date,
   location: { id: locationId },
   openBookingForm,
+  openCancelModal,
 }) => (
   <CarouselGrid.Cell
     onClick={e => {
@@ -24,16 +25,23 @@ export const BookingsCell = ({
   >
     {appointments?.map(a => (
       <AppointmentTile
-        className="appointment-tile"
-        onEdit={() => openBookingForm({ ...a, date: a.startTime })}
         appointment={a}
+        className="appointment-tile"
         key={a.id}
+        onCancel={() => openCancelModal(a)}
+        onEdit={() => openBookingForm({ ...a, date: a.startTime })}
       />
     ))}
   </CarouselGrid.Cell>
 );
 
-export const BookingsRow = ({ appointments, dates, location, openBookingForm }) => {
+export const BookingsRow = ({
+  appointments,
+  dates,
+  location,
+  openBookingForm,
+  openCancelModal,
+}) => {
   const {
     name: locationName,
     locationGroup: { name: locationGroupName },
@@ -52,6 +60,7 @@ export const BookingsRow = ({ appointments, dates, location, openBookingForm }) 
           key={d.valueOf()}
           location={location}
           openBookingForm={openBookingForm}
+          openCancelModal={openCancelModal}
         />
       ))}
     </CarouselGrid.Row>
@@ -74,6 +83,7 @@ export const LocationBookingsCalendarBody = ({
   displayedDates,
   locationsQuery,
   openBookingForm,
+  openCancelModal,
 }) => {
   const { data: locations, isLoading: locationsAreLoading } = locationsQuery;
   const appointments =
@@ -96,6 +106,7 @@ export const LocationBookingsCalendarBody = ({
       key={location.code}
       location={location}
       openBookingForm={openBookingForm}
+      openCancelModal={openCancelModal}
     />
   ));
 };

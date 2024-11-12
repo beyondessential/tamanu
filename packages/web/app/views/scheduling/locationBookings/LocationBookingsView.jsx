@@ -10,6 +10,7 @@ import { LocationBookingDrawer } from '../../../components/Appointments/Location
 import { Colors } from '../../../constants';
 import { useAuth } from '../../../contexts/Auth';
 import { LocationBookingsCalendar } from './LocationBookingsCalendar';
+import { CancelBookingModal } from '../../../components/Appointments/CancelBookingModal';
 
 const PlusIcon = styled(AddRounded)`
   && {
@@ -108,14 +109,21 @@ const appointmentToFormFields = appointment => {
 
 export const LocationBookingsView = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [initialDrawerValues, setInitialDrawerValues] = useState({});
+  const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
+  const [selectedAppointment, setSelectedAppointment] = useState({});
   const { facilityId } = useAuth();
   const closeBookingForm = () => {
     setIsDrawerOpen(false);
   };
+
   const openBookingForm = appointment => {
-    setInitialDrawerValues(appointmentToFormFields(appointment));
+    setSelectedAppointment(appointmentToFormFields(appointment));
     setIsDrawerOpen(true);
+  };
+
+  const openCancelModal = appointment => {
+    setSelectedAppointment(appointmentToFormFields(appointment));
+    setIsCancelModalOpen(true);
   };
 
   const locationsQuery = useLocationsQuery({
@@ -153,12 +161,18 @@ export const LocationBookingsView = () => {
         <LocationBookingsCalendar
           locationsQuery={locationsQuery}
           openBookingForm={openBookingForm}
+          openCancelModal={openCancelModal}
         />
       )}
       <LocationBookingDrawer
-        initialValues={initialDrawerValues}
-        onClose={closeBookingForm}
+        initialValues={selectedAppointment}
         open={isDrawerOpen}
+        onClose={closeBookingForm}
+      />
+      <CancelBookingModal
+        appointment={selectedAppointment}
+        open={isCancelModalOpen}
+        onClose={() => setIsCancelModalOpen(false)}
       />
     </Wrapper>
   );
