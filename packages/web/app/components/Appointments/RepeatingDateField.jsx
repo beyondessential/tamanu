@@ -7,7 +7,7 @@ import { TranslatedEnum, TranslatedText } from '../Translation';
 import { upperFirst } from 'lodash';
 import { SmallBodyText } from '../Typography';
 import { REPEAT_INTERVAL_UNITS, REPEAT_INTERVAL_LABELS } from '@tamanu/constants';
-import { addWeeks, format } from 'date-fns';
+import { addWeeks, format, add } from 'date-fns';
 import { FormControlLabel, Radio, RadioGroup } from '@mui/material';
 import { FormControl, FormLabel } from '@material-ui/core';
 
@@ -30,9 +30,6 @@ const StyledNumberInput = styled(NumberInput)`
     font-size: 12px;
     padding-block: 10px;
     padding-inline: 13px 10px;
-    &.Mui-disabled {
-      background-color: ${Colors.background};
-    }
   }
 `;
 
@@ -113,6 +110,7 @@ export const RepeatingDateField = ({ value, onChange }) => {
   const [repeatDate, setRepeatDate] = useState(addWeeks(value, 6));
   const [repeatAfter, setRepeatAfter] = useState(2);
 
+  console.log(add(value, { [`${repeatUnit}s`]: repeatN }));
   return (
     <Container>
       <Box display="flex" gap="0.5rem" height="100%">
@@ -155,6 +153,7 @@ export const RepeatingDateField = ({ value, onChange }) => {
               value={repeatType === 'on' && repeatDate}
               onChange={e => setRepeatDate(e.target.value)}
               disabled={repeatType !== 'on'}
+              min={format(add(value, { [`${repeatUnit}s`]: repeatN }), 'yyyy-MM-dd')}
             />
           </Box>
           <Box display="flex" alignItems="center" gap="10px">
